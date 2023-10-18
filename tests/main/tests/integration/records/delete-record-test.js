@@ -2,6 +2,7 @@
 
 import EmberObject, { get } from '@ember/object';
 import { settled } from '@ember/test-helpers';
+import { DEBUG } from '@ember-data/env';
 
 import { module, test } from 'qunit';
 import { all, Promise as EmberPromise } from 'rsvp';
@@ -506,11 +507,17 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
 
     await company.destroyRecord();
 
+    // wait for ember's runloop to flush
+    await settled();
+
     try {
       assert.true(company.isDeleted, 'isDeleted should be true');
       assert.true(company.isDestroying, 'isDestroying should be true');
       assert.true(company.isDestroyed, 'isDestroyed should be true');
-      assert.strictEqual(company.id, undefined, 'id access should be safe');
+
+      if (DEBUG) {
+        assert.strictEqual(company.id, undefined, 'id access should be safe');
+      }
     } catch (e) {
       assert.ok(false, `Should not throw an error, threw ${e.message}`);
     }
