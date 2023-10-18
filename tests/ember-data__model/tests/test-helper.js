@@ -1,19 +1,52 @@
-import { setApplication } from '@ember/test-helpers';
+import { setupGlobalHooks } from '@warp-drive/diagnostic';
+import { start } from '@warp-drive/diagnostic/runners/dom';
 
-import * as QUnit from 'qunit';
-import { setup } from 'qunit-dom';
+import AbstractTestLoader from 'ember-cli-test-loader/test-support/index';
 
-import { start } from 'ember-qunit';
+let moduleLoadFailures = [];
+setupGlobalHooks((hooks) => {
+  hooks.onSuiteFinish(() => {
+    let length = moduleLoadFailures.length;
 
-import configureAsserts from '@ember-data/unpublished-test-infra/test-support/asserts';
+    try {
+      if (length === 0) {
+        // do nothing
+      } else if (length === 1) {
+        throw moduleLoadFailures[0];
+      } else {
+        throw new Error('\n' + moduleLoadFailures.join('\n'));
+      }
+    } finally {
+      // ensure we release previously captured errors.
+      moduleLoadFailures = [];
+    }
+  });
+});
 
-import Application from '../app';
-import config from '../config/environment';
+export class TestLoader extends AbstractTestLoader {
+  moduleLoadFailure(moduleName, error) {
+    moduleLoadFailures.push(error);
+  }
+}
 
-setup(QUnit.assert);
-configureAsserts(QUnit.hooks);
+/**
+   Load tests following the default patterns:
 
-setApplication(Application.create(config.APP));
+   * The module name ends with `-test`
+   * The module name ends with `.jshint`
 
-QUnit.config.testTimeout = 2000;
-start({ setupTestIsolationValidation: true });
+   @method loadTests
+ */
+export function loadTests() {
+  new TestLoader().loadModules();
+}
+
+loadTests();
+
+start({
+  tryCatch: false,
+  groupLogs: false,
+  instrument: true,
+  hideReport: true,
+  useDiagnostic: true,
+});

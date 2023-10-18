@@ -15,11 +15,9 @@
     "test": "tests"
   },
   "scripts": {
-    "build": "ember build",
-    "lint:hbs": "ember-template-lint .",
-    "lint:js": "eslint --config ../../.eslintrc.js --ignore-path ../../.eslintignore .",
-    "start": "ember serve",
-    "test": "ember test --test-port=0"
+    "build": "ember build --output-path=dist-test --suppress-sizes",
+    "test": "pnpm build && bun ./diagnostic.js",
+    "test:production": "pnpm build -e production; bun ./diagnostic.js"
   },
   "dependenciesMeta": {
     "@ember-data/adapter": {
@@ -37,7 +35,7 @@
     "@ember-data/tracking": {
       "injected": true
     },
-    "@ember-data/unpublished-test-infra": {
+    "@warp-drive/diagnostic": {
       "injected": true
     }
   },
@@ -49,7 +47,7 @@
     "@ember-data/serializer": "workspace:5.5.0-alpha.11",
     "@ember-data/store": "workspace:5.5.0-alpha.11",
     "@ember-data/tracking": "workspace:5.5.0-alpha.11",
-    "@ember-data/unpublished-test-infra": "workspace:5.5.0-alpha.11",
+    "@warp-drive/diagnostic": "workspace:5.5.0-alpha.11",
     "@ember/optional-features": "^2.0.0",
     "@ember/string": "3.1.1",
     "@ember/test-helpers": "^3.2.0",
@@ -62,15 +60,13 @@
     "ember-cli-dependency-checker": "^3.3.2",
     "ember-cli-htmlbars": "^6.3.0",
     "ember-cli-inject-live-reload": "^2.1.0",
+    "ember-cli-test-loader": "^3.1.0",
     "ember-inflector": "^4.0.2",
     "ember-load-initializers": "^2.1.2",
     "ember-maybe-import-regenerator": "^1.0.0",
-    "ember-qunit": "^8.0.1",
     "ember-resolver": "^11.0.1",
     "ember-source": "~5.3.0",
     "loader.js": "^4.7.0",
-    "qunit": "^2.20.0",
-    "qunit-dom": "^3.0.0",
     "webpack": "^5.89.0"
   },
   "engines": {

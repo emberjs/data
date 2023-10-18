@@ -1,34 +1,30 @@
-import { module, test } from 'qunit';
-
-import { setupTest } from 'ember-qunit';
+import { module, test } from '@warp-drive/diagnostic';
 
 import Store from '@ember-data/store';
 
-module('modelFor without @ember-data/model', function (hooks) {
-  setupTest(hooks);
-
+module('modelFor without @ember-data/model', function () {
   test('We can call modelFor', function (assert) {
-    this.owner.register(
-      'service:store',
-      class TestStore extends Store {
-        instantiateRecord() {
-          return {
-            id: '1',
-            type: 'user',
-            name: 'Chris Thoburn',
-          };
-        }
-        teardownRecord() {
-          return;
-        }
+    class TestStore extends Store {
+      instantiateRecord() {
+        return {
+          id: '1',
+          type: 'user',
+          name: 'Chris Thoburn',
+        };
       }
-    );
-    const store = this.owner.lookup('service:store');
-    store.registerSchemaDefinitionService({
+      teardownRecord() {
+        return;
+      }
+    }
+    const store = new TestStore();
+
+    store.registerSchema({
       attributesDefinitionFor(identifier) {
         return {
           name: {
             name: 'name',
+            kind: 'attribute',
+            type: null,
           },
         };
       },
@@ -44,15 +40,15 @@ module('modelFor without @ember-data/model', function (hooks) {
       store.modelFor('user');
       assert.ok(true, 'We should not throw an eror when schema is available');
     } catch (e) {
-      assert.ok(false, `We threw an unexpected error when schema is available: ${e.message}`);
+      assert.ok(false, `We threw an unexpected error when schema is available: ${(e as Error).message}`);
     }
 
     try {
       store.modelFor('person');
       assert.ok(false, 'We should throw an eror when no schema is available');
     } catch (e) {
-      assert.strictEqual(
-        e.message,
+      assert.equal(
+        (e as Error).message,
         "Assertion Failed: No model was found for 'person' and no schema handles the type",
         'We throw an error when no schema is available'
       );
@@ -60,27 +56,26 @@ module('modelFor without @ember-data/model', function (hooks) {
   });
 
   test('modelFor returns a stable reference', function (assert) {
-    this.owner.register(
-      'service:store',
-      class TestStore extends Store {
-        instantiateRecord() {
-          return {
-            id: '1',
-            type: 'user',
-            name: 'Chris Thoburn',
-          };
-        }
-        teardownRecord() {
-          return;
-        }
+    class TestStore extends Store {
+      instantiateRecord() {
+        return {
+          id: '1',
+          type: 'user',
+          name: 'Chris Thoburn',
+        };
       }
-    );
-    const store = this.owner.lookup('service:store');
-    store.registerSchemaDefinitionService({
+      teardownRecord() {
+        return;
+      }
+    }
+    const store = new TestStore();
+    store.registerSchema({
       attributesDefinitionFor(identifier) {
         return {
           name: {
             name: 'name',
+            kind: 'attribute',
+            type: null,
           },
         };
       },
@@ -94,6 +89,6 @@ module('modelFor without @ember-data/model', function (hooks) {
 
     const ShimUser1 = store.modelFor('user');
     const ShimUser2 = store.modelFor('user');
-    assert.strictEqual(ShimUser1, ShimUser2, 'Repeat modelFor calls return the same shim');
+    assert.equal(ShimUser1, ShimUser2, 'Repeat modelFor calls return the same shim');
   });
 });
