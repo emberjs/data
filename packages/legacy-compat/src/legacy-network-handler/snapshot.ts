@@ -32,7 +32,7 @@ type RecordId = string | null;
   @class Snapshot
   @public
 */
-export default class Snapshot implements Snapshot {
+export default class Snapshot {
   declare __attributes: Dict<unknown> | null;
   declare _belongsToRelationships: Dict<Snapshot>;
   declare _belongsToIds: Dict<RecordId>;
