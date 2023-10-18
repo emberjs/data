@@ -4,13 +4,9 @@ import { setTestId } from '@warp-drive/holodeck';
 
 import AbstractTestLoader from 'ember-cli-test-loader/test-support/index';
 
-import configureAsserts from '@ember-data/unpublished-test-infra/test-support/asserts';
-
 let moduleLoadFailures = [];
 
 setupGlobalHooks((hooks) => {
-  configureAsserts(hooks);
-
   hooks.beforeEach(function (assert) {
     setTestId(this, assert.test.testId);
   });

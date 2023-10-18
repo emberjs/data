@@ -8,7 +8,7 @@ import Resolver from 'ember-resolver';
 import RequestManager from '@ember-data/request';
 import type { Context as HandlerRequestContext } from '@ember-data/request/-private/context';
 import type { NextFn } from '@ember-data/request/-private/types';
-import { setupTest } from '@ember-data/unpublished-test-infra/test-support/test-helpers';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 module('RequestManager | Stateful Handlers', function (hooks) {
   setupTest(hooks, { resolver: new Resolver() });

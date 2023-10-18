@@ -6,7 +6,7 @@ import { module, test } from '@warp-drive/diagnostic';
 import Resolver from 'ember-resolver';
 
 import RequestManager from '@ember-data/request';
-import { setupTest } from '@ember-data/unpublished-test-infra/test-support/test-helpers';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 module('RequestManager | Ember Service Setup', function (hooks) {
   setupTest(hooks, { resolver: new Resolver() });

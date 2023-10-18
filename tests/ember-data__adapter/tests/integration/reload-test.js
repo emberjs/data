@@ -5,7 +5,7 @@ import { module, test } from '@warp-drive/diagnostic';
 import Store from 'ember-data__adapter/services/store';
 
 import Model, { attr } from '@ember-data/model';
-import { setupTest } from '@ember-data/unpublished-test-infra/test-support/test-helpers';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 class MinimalSerializer extends EmberObject {
   normalizeResponse(_, __, data) {

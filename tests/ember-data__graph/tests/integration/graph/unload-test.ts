@@ -6,7 +6,7 @@ import type { Graph } from '@ember-data/graph/-private/graph';
 import Model, { attr, belongsTo } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import { setupTest } from '@ember-data/unpublished-test-infra/test-support/test-helpers';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 module('Integration | Graph | Unload', function (hooks) {
   setupTest(hooks);

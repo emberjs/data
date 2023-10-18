@@ -3,7 +3,7 @@ import { module, test } from '@warp-drive/diagnostic';
 import { graphFor } from '@ember-data/graph/-private';
 import Model, { attr, belongsTo } from '@ember-data/model';
 import Store, { recordIdentifierFor } from '@ember-data/store';
-import { setupTest } from '@ember-data/unpublished-test-infra/test-support/test-helpers';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 module('Integration | Graph | Implicit Keys', function (hooks) {
   setupTest(hooks);

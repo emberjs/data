@@ -1,10 +1,10 @@
 import { module } from '@warp-drive/diagnostic';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 import { DEPRECATE_NON_UNIQUE_PAYLOADS } from '@ember-data/deprecations';
 import { graphFor } from '@ember-data/graph/-private';
 import Model, { attr, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
-import { setupTest } from '@ember-data/unpublished-test-infra/test-support/test-helpers';
 import { test } from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 import { deprecatedTest } from '../../setup-test';

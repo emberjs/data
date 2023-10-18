@@ -62,7 +62,14 @@
     "prepack": "pnpm build",
     "prepare": "pnpm build"
   },
-  "peerDependencies": {},
+  "peerDependencies": {
+    "@ember/test-helpers": ">= 3.2.0"
+  },
+  "peerDependenciesMeta": {
+    "@ember/test-helpers": {
+      "optional": true
+    }
+  },
   "dependencies": {
     "chalk": "^5.3.0",
     "debug": "^4.3.4",

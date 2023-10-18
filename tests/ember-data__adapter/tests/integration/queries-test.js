@@ -1,12 +1,12 @@
 import EmberObject from '@ember/object';
 
 import { module, test } from '@warp-drive/diagnostic';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 import Store from 'ember-data__adapter/services/store';
 
 import Model, { attr } from '@ember-data/model';
 import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
-import { setupTest } from '@ember-data/unpublished-test-infra/test-support/test-helpers';
 
 class MinimalSerializer extends EmberObject {
   normalizeResponse(_, __, data) {

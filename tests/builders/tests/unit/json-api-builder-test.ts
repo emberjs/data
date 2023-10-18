@@ -1,9 +1,9 @@
 import { module, test } from '@warp-drive/diagnostic';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 import { createRecord, deleteRecord, findRecord, postQuery, query, updateRecord } from '@ember-data/json-api/request';
 import { setBuildURLConfig } from '@ember-data/request-utils';
 import Store, { recordIdentifierFor } from '@ember-data/store';
-import { setupTest } from '@ember-data/unpublished-test-infra/test-support/test-helpers';
 
 import UserSetting from '../../app/models/user-setting';
 import { headersToObject } from '../helpers/utils';
