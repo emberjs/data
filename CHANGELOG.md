@@ -1,5 +1,14 @@
 # Ember Data Changelog
 
+## v4.4.3 (2023-10-18)
+
+#### :bug: Bug Fix
+* `store`
+  * [#9003](https://github.com/emberjs/data/pull/9003) decycle property lookups on promise proxies for ember-concurrency ([@fivetanley](https://github.com/fivetanley))
+
+#### Committers: 1
+- Stanley Stuart ([@fivetanley](https://github.com/fivetanley))
+
 ## v4.4.2 (2023-08-01)
 
 #### :bug: Bug Fix
