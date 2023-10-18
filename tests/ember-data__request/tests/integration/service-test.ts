@@ -2,11 +2,11 @@ import { getOwner } from '@ember/application';
 import Service, { inject as service } from '@ember/service';
 
 import { module, test } from '@warp-drive/diagnostic';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 import Resolver from 'ember-resolver';
 
 import RequestManager from '@ember-data/request';
-import { setupTest } from '@warp-drive/diagnostic/ember';
 
 module('RequestManager | Ember Service Setup', function (hooks) {
   setupTest(hooks, { resolver: new Resolver() });

@@ -1,12 +1,12 @@
 import { getChain } from "../-utils";
-import { ModuleInfo, HooksCallback, TestInfo, } from "../-types";
+import { ModuleInfo, HooksCallback, TestInfo, TestContext, } from "../-types";
 import { TestReport, ModuleReport } from "../-types/report";
 import { Diagnostic } from "./diagnostic";
 import { Config, groupLogs, instrument } from "./config";
 import { DelegatingReporter } from "./delegating-reporter";
 
-export async function runTest(moduleReport: ModuleReport, beforeChain: HooksCallback[], test: TestInfo, afterChain: HooksCallback[]) {
-  const testContext = {};
+export async function runTest<TC extends TestContext>(moduleReport: ModuleReport, beforeChain: HooksCallback<TC>[], test: TestInfo<TC>, afterChain: HooksCallback<TC>[]) {
+  const testContext = {} as TC;
   const testReport: TestReport = {
     id: test.id,
     name: test.name,
@@ -68,7 +68,7 @@ export async function runTest(moduleReport: ModuleReport, beforeChain: HooksCall
   DelegatingReporter.onTestFinish(testReport);
 }
 
-export async function runModule(module: ModuleInfo, parents: ModuleInfo[] | null, promises: Promise<void>[]) {
+export async function runModule<TC extends TestContext>(module: ModuleInfo<TC>, parents: ModuleInfo<TC>[] | null, promises: Promise<void>[]) {
   groupLogs() && console.groupCollapsed(module.name);
   const moduleReport: ModuleReport = {
     name: module.moduleName,
@@ -90,8 +90,8 @@ export async function runModule(module: ModuleInfo, parents: ModuleInfo[] | null
   }
 
   // run tests
-  const beforeChain = getChain(Config.globalHooks, module, parents, 'beforeEach');
-  const afterChain = getChain(Config.globalHooks, module, parents, 'afterEach');
+  const beforeChain = getChain<TC>(Config.globalHooks, module, parents, 'beforeEach');
+  const afterChain = getChain<TC>(Config.globalHooks, module, parents, 'afterEach');
 
   if (Config.params.concurrency.value && Config.concurrency > 1) {
     const tests = module.tests.byOrder;

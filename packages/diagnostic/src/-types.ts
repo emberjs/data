@@ -27,20 +27,22 @@ export type ParamConfig = {
   value: boolean;
 }
 
+export type GlobalHooksStorage<TC extends TestContext> = {
+  onSuiteStart: GlobalCallback[];
+  onSuiteFinish: GlobalCallback[];
+  beforeModule: GlobalCallback[];
+  afterModule: GlobalCallback[];
+  beforeEach: HooksCallback<TC>[];
+  afterEach: HooksCallback<TC>[];
+}
+
 export type GlobalConfig<TC extends TestContext = TestContext> =  {
   params: { [key in 'concurrency' | 'tryCatch' | 'instrument' | 'hideReport' | 'memory' | 'groupLogs' | 'debug' | 'container']: ParamConfig };
   _current: SuiteReport | null;
   useTestem: boolean;
   useDiagnostic: boolean;
   concurrency: number;
-  globalHooks: {
-    beforeEach: HooksCallback<TC>[];
-    afterEach: HooksCallback<TC>[];
-    beforeModule: GlobalCallback[];
-    afterModule: GlobalCallback[];
-    onSuiteStart: GlobalCallback[];
-    onSuiteFinish: GlobalCallback[];
-  }
+  globalHooks: GlobalHooksStorage<TC>;
   totals: {
     tests: number;
     primaryModules: number;
@@ -79,7 +81,7 @@ export interface Hooks<TC extends TestContext = TestContext> {
   beforeModule: (cb: GlobalCallback) => void;
   afterModule: (cb: GlobalCallback) => void;
 }
-export interface GlobalHooks extends Hooks {
+export interface GlobalHooks<TC extends TestContext> extends Hooks<TC> {
   onSuiteStart: (cb: GlobalCallback) => void;
   onSuiteFinish: (cb: GlobalCallback) => void;
 }
@@ -88,7 +90,7 @@ export type HooksCallback<TC extends TestContext> = (this: TC, assert: Diagnosti
 export type ModuleCallback<TC extends TestContext> = ((hooks: Hooks<TC>) => void | Promise<void>) | (() => void | Promise<void>);
 export type TestCallback<TC extends TestContext> = (this: TC, assert: Diagnostic) => void | Promise<void>;
 
-export interface TestInfo<TC extends TestContext = TestContext> {
+export interface TestInfo<TC extends TestContext> {
   id: string;
   name: string;
   cb: TestCallback<TC>;
@@ -102,7 +104,7 @@ export interface OrderedMap<T> {
   byOrder: T[];
 }
 
-export interface ModuleInfo<TC extends TestContext = TestContext> {
+export interface ModuleInfo<TC extends TestContext> {
   moduleName: string;
   name: string;
   cb: ModuleCallback<TC>;
@@ -112,6 +114,6 @@ export interface ModuleInfo<TC extends TestContext = TestContext> {
     beforeModule: GlobalCallback[];
     afterModule: GlobalCallback[];
   },
-  tests: OrderedMap<TestInfo>;
-  modules: OrderedMap<ModuleInfo>;
+  tests: OrderedMap<TestInfo<TC>>;
+  modules: OrderedMap<ModuleInfo<TC>>;
 }

@@ -1,5 +1,5 @@
 import { assert, generateHash } from "./-utils";
-import { ModuleInfo, TestInfo, ModuleCallback, TestCallback, OrderedMap } from "./-types";
+import { ModuleInfo, TestInfo, ModuleCallback, TestCallback, OrderedMap, TestContext } from "./-types";
 import { SuiteReport } from "./-types/report";
 
 import { Config, HooksDelegate, getCurrentModule, instrument, setCurrentModule } from "./internals/config";
@@ -9,15 +9,15 @@ import { runModule } from "./internals/run";
 export { registerReporter } from "./internals/delegating-reporter";
 export { setupGlobalHooks, configure } from "./internals/config";
 
-const Modules: OrderedMap<ModuleInfo> = {
+const Modules: OrderedMap<ModuleInfo<TestContext>> = {
   byName: new Map(),
   byOrder: []
 }
 
 export type { Diagnostic, Hooks as NestedHooks, GlobalHooks, TestContext } from './-types';
 
-export function module(name: string, cb: ModuleCallback): void {
-  const parentModule = getCurrentModule() ?? null;
+export function module<TC extends TestContext = TestContext>(name: string, cb: ModuleCallback<TC>): void {
+  const parentModule = getCurrentModule<TC>() ?? null;
   let moduleName = name;
   if (parentModule) {
     moduleName = `${parentModule.name} > ${name}`;
@@ -27,14 +27,14 @@ export function module(name: string, cb: ModuleCallback): void {
   Config.totals.modules++;
 
   assert(`Cannot add the same module name twice: ${moduleName}`, !Modules.byName.has(moduleName));
-  const moduleConfig = {
+  const moduleConfig: ModuleInfo<TC>['config'] = {
     beforeEach: [],
     afterEach: [],
     beforeModule: [],
     afterModule: []
   };
-  const tests: OrderedMap<TestInfo> = { byName: new Map(), byOrder: [] };
-  const modules: OrderedMap<ModuleInfo> = { byName: new Map(), byOrder: [] };
+  const tests: OrderedMap<TestInfo<TC>> = { byName: new Map(), byOrder: [] };
+  const modules: OrderedMap<ModuleInfo<TC>> = { byName: new Map(), byOrder: [] };
   const moduleInfo = {
     moduleName,
     name,
@@ -51,16 +51,18 @@ export function module(name: string, cb: ModuleCallback): void {
     parentModule.modules.byName.set(name, moduleInfo);
     parentModule.modules.byOrder.push(moduleInfo);
   } else {
+    // @ts-expect-error TS poorly handles subtype constraints
     Modules.byName.set(name, moduleInfo);
+    // @ts-expect-error TS poorly handles subtype constraints
     Modules.byOrder.push(moduleInfo);
   }
 
   cb(HooksDelegate);
-  setCurrentModule(parentModule as unknown as ModuleInfo);
+  setCurrentModule(parentModule as unknown as ModuleInfo<TC>);
 }
 
-export function test(name: string, cb: TestCallback): void {
-  const currentModule = getCurrentModule();
+export function test<TC extends TestContext = TestContext>(name: string, cb: TestCallback<TC>): void {
+  const currentModule = getCurrentModule<TC>();
   assert(`Cannot add a test outside of a module`, !!currentModule);
   assert(`Cannot add the same test name twice: ${name}`, !currentModule.tests.byName.has(name));
   Config.totals.tests++;
@@ -78,8 +80,8 @@ export function test(name: string, cb: TestCallback): void {
   currentModule.tests.byOrder.push(testInfo);
 }
 
-export function todo(name: string, cb: TestCallback): void {
-  const currentModule = getCurrentModule();
+export function todo<TC extends TestContext = TestContext>(name: string, cb: TestCallback<TC>): void {
+  const currentModule = getCurrentModule<TC>();
   assert(`Cannot add a test outside of a module`, !!currentModule);
   assert(`Cannot add the same test name twice: ${name}`, !currentModule.tests.byName.has(name));
   Config.totals.todo++;
@@ -97,8 +99,8 @@ export function todo(name: string, cb: TestCallback): void {
   currentModule.tests.byOrder.push(testInfo);
 }
 
-export function skip(name: string, cb: TestCallback): void {
-  const currentModule = getCurrentModule();
+export function skip<TC extends TestContext = TestContext>(name: string, cb: TestCallback<TC>): void {
+  const currentModule = getCurrentModule<TC>();
   assert(`Cannot add a test outside of a module`, !!currentModule);
   assert(`Cannot add the same test name twice: ${name}`, !currentModule.tests.byName.has(name));
   Config.totals.skipped++;

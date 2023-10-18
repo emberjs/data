@@ -1,9 +1,9 @@
 import { module, test } from '@warp-drive/diagnostic';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 import { graphFor } from '@ember-data/graph/-private';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import Store from '@ember-data/store';
-import { setupTest } from '@warp-drive/diagnostic/ember';
 
 class App extends Model {
   @attr declare name: string;
@@ -40,7 +40,7 @@ module('Graph | Order Preservation', function (hooks) {
   });
 
   module('during local mutation', function (innerHooks) {
-    innerHooks.beforeEach(function (assert: Assert) {
+    innerHooks.beforeEach(function (assert) {
       const { owner } = this;
 
       const store = owner.lookup('service:store') as Store;

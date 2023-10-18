@@ -2,13 +2,13 @@ import { setOwner } from '@ember/owner';
 import { service } from '@ember/service';
 
 import { module, test } from '@warp-drive/diagnostic';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 import Resolver from 'ember-resolver';
 
 import RequestManager from '@ember-data/request';
 import type { Context as HandlerRequestContext } from '@ember-data/request/-private/context';
 import type { NextFn } from '@ember-data/request/-private/types';
-import { setupTest } from '@warp-drive/diagnostic/ember';
 
 module('RequestManager | Stateful Handlers', function (hooks) {
   setupTest(hooks, { resolver: new Resolver() });

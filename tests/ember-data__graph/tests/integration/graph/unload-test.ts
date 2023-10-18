@@ -1,4 +1,5 @@
 import { module, test } from '@warp-drive/diagnostic';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 import { graphFor } from '@ember-data/graph/-private';
 import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
@@ -6,7 +7,6 @@ import type { Graph } from '@ember-data/graph/-private/graph';
 import Model, { attr, belongsTo } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import { setupTest } from '@warp-drive/diagnostic/ember';
 
 module('Integration | Graph | Unload', function (hooks) {
   setupTest(hooks);

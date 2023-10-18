@@ -483,6 +483,9 @@ importers:
       '@babel/runtime':
         specifier: ^7.23.2
         version: 7.23.2
+      '@ember/test-helpers':
+        specifier: ^3.2.0
+        version: 3.2.0(@babel/core@7.23.2)(ember-source@5.3.0)(webpack@5.89.0)
       '@embroider/addon-dev':
         specifier: ^4.1.1
         version: 4.1.1(rollup@4.1.4)
@@ -495,6 +498,9 @@ importers:
       bun-types:
         specifier: ^1.0.6
         version: 1.0.6
+      ember-cli-test-loader:
+        specifier: ^3.1.0
+        version: 3.1.0(@babel/core@7.23.2)
       rollup:
         specifier: ^4.1.1
         version: 4.1.4
@@ -1738,7 +1744,7 @@ importers:
         version: 4.0.6
       '@warp-drive/diagnostic':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/diagnostic
+        version: file:packages/diagnostic(@ember/test-helpers@3.2.0)(ember-cli-test-loader@3.1.0)
       ember-auto-import:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.89.0)
@@ -1881,7 +1887,7 @@ importers:
         version: 4.0.6
       '@warp-drive/diagnostic':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/diagnostic
+        version: file:packages/diagnostic(@ember/test-helpers@3.2.0)(ember-cli-test-loader@3.1.0)
       ember-auto-import:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.89.0)
@@ -2014,7 +2020,7 @@ importers:
         version: 4.0.6
       '@warp-drive/diagnostic':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/diagnostic
+        version: file:packages/diagnostic(@ember/test-helpers@3.2.0)(ember-cli-test-loader@3.1.0)
       ember-auto-import:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.89.0)
@@ -2151,7 +2157,7 @@ importers:
         version: 4.0.6
       '@warp-drive/diagnostic':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/diagnostic
+        version: file:packages/diagnostic(@ember/test-helpers@3.2.0)(ember-cli-test-loader@3.1.0)
       ember-auto-import:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.89.0)
@@ -2270,7 +2276,7 @@ importers:
         version: 4.0.6
       '@warp-drive/diagnostic':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/diagnostic
+        version: file:packages/diagnostic(@ember/test-helpers@3.2.0)(ember-cli-test-loader@3.1.0)
       ember-auto-import:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.89.0)
@@ -2341,9 +2347,6 @@ importers:
       '@ember-data/request':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/request(@babel/core@7.23.2)
-      '@ember-data/unpublished-test-infra':
-        specifier: workspace:5.5.0-alpha.11
-        version: file:packages/unpublished-test-infra(@babel/core@7.23.2)(qunit@2.19.4)
       '@ember/edition-utils':
         specifier: ^1.2.0
         version: 1.2.0
@@ -2367,7 +2370,7 @@ importers:
         version: 4.0.6
       '@warp-drive/diagnostic':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/diagnostic
+        version: file:packages/diagnostic(@ember/test-helpers@3.2.0)(ember-cli-test-loader@3.1.0)
       '@warp-drive/holodeck':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/holodeck
@@ -2441,8 +2444,6 @@ importers:
       '@ember-data/private-build-infra':
         injected: true
       '@ember-data/request':
-        injected: true
-      '@ember-data/unpublished-test-infra':
         injected: true
       '@warp-drive/diagnostic':
         injected: true
@@ -17592,13 +17593,24 @@ packages:
       - uglify-js
       - webpack-cli
 
-  file:packages/diagnostic:
+  file:packages/diagnostic(@ember/test-helpers@3.2.0)(ember-cli-test-loader@3.1.0):
     resolution: {directory: packages/diagnostic, type: directory}
+    id: file:packages/diagnostic
     name: '@warp-drive/diagnostic'
     engines: {node: '>= 18.18.0'}
+    peerDependencies:
+      '@ember/test-helpers': '>= 3.2.0'
+      ember-cli-test-loader: '>= 3.1.0'
+    peerDependenciesMeta:
+      '@ember/test-helpers':
+        optional: true
+      ember-cli-test-loader:
+        optional: true
     dependencies:
+      '@ember/test-helpers': 3.2.0(@babel/core@7.23.2)(ember-source@5.3.0)(webpack@5.89.0)
       chalk: 5.3.0
       debug: 4.3.4(supports-color@8.1.1)
+      ember-cli-test-loader: 3.1.0(@babel/core@7.23.2)
       tmp: 0.2.1
     transitivePeerDependencies:
       - supports-color

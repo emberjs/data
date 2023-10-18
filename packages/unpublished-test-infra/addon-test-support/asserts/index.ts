@@ -60,8 +60,8 @@ declare module '@warp-drive/diagnostic' {
     onSuiteFinish: (cb: () => void | Promise<void>) => void;
     beforeModule: (cb: () => void | Promise<void>) => void;
     afterModule: (cb: () => void | Promise<void>) => void;
-    beforeEach: (cb: (this: TC, assert: Assert) => void | Promise<void>) => void;
-    afterEach: (cb: (this: TC, assert: Assert) => void | Promise<void>) => void;
+    beforeEach: (cb: (this: TC, assert: EmberDiagnostic) => void | Promise<void>) => void;
+    afterEach: (cb: (this: TC, assert: EmberDiagnostic) => void | Promise<void>) => void;
   }
 
   export function module<TC extends TestContext>(

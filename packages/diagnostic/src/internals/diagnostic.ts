@@ -1,11 +1,11 @@
-import { GlobalConfig, TestInfo } from "../-types";
+import { GlobalConfig, TestContext, TestInfo } from "../-types";
 import { DiagnosticReport, Reporter, TestReport } from "../-types/report";
 import equiv from "../legacy/equiv";
 
-class InternalCompat {
-  declare _diagnostic: Diagnostic;
+class InternalCompat<TC extends TestContext> {
+  declare _diagnostic: Diagnostic<TC>;
 
-  constructor(diagnostic: Diagnostic) {
+  constructor(diagnostic: Diagnostic<TC>) {
     this._diagnostic = diagnostic;
   }
 
@@ -22,8 +22,8 @@ class InternalCompat {
 
 }
 
-export class Diagnostic {
-  declare __currentTest: TestInfo;
+export class Diagnostic<TC extends TestContext> {
+  declare __currentTest: TestInfo<TC>;
   declare __report: TestReport;
   declare __config: GlobalConfig;
   declare __reporter: Reporter;
@@ -31,9 +31,9 @@ export class Diagnostic {
   declare _steps: string[];
 
   // QUnit private API compat
-  declare test: InternalCompat;
+  declare test: InternalCompat<TC>;
 
-  constructor(reporter: Reporter, config: GlobalConfig, test: TestInfo, report: TestReport) {
+  constructor(reporter: Reporter, config: GlobalConfig, test: TestInfo<TC>, report: TestReport) {
     this.__currentTest = test;
     this.__report = report;
     this.__config = config;
