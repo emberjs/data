@@ -1,11 +1,11 @@
 import EmberObject from '@ember/object';
 
-import { module, test } from 'qunit';
+import { module, test } from '@warp-drive/diagnostic';
 
 import Store from 'ember-data__adapter/services/store';
-import { setupTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
+import { setupTest } from '@ember-data/unpublished-test-infra/test-support/test-helpers';
 
 class MinimalSerializer extends EmberObject {
   normalizeResponse(_, __, data) {
@@ -62,12 +62,12 @@ module('integration/generate-id - GenerateIdForRecord Tests', function (hooks) {
 
     let record = store.createRecord('person', expectedProps);
 
-    assert.strictEqual(record.id, 'manually generated id 1', 'manually generated id used');
+    assert.equal(record.id, 'manually generated id 1', 'manually generated id used');
 
     let recordFromPeekRecord = store.peekRecord('person', record.id);
 
-    assert.strictEqual(record, recordFromPeekRecord, 'peekRecord returns the same record');
-    assert.strictEqual(generateIdForRecordCalled, 1, 'generateIdForRecord is called once');
+    assert.equal(record, recordFromPeekRecord, 'peekRecord returns the same record');
+    assert.equal(generateIdForRecordCalled, 1, 'generateIdForRecord is called once');
     assert.deepEqual(record.serialize(), {
       data: {
         id: 'manually generated id 1',
