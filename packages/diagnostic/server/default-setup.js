@@ -74,7 +74,7 @@ export default async function launchDefault(overrides = {}) {
     launchers: overrides.launchers ?? {
       [BROWSER_TAG]: {
         command: browser,
-        args: recommendedArgs(BROWSER_TAG),
+        args: recommendedArgs(BROWSER_TAG, overrides),
       },
     }
   });

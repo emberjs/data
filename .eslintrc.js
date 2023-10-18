@@ -108,6 +108,8 @@ module.exports = {
         'tests/ember-data__json-api/**',
         'tests/ember-data__graph/**',
         'tests/ember-data__request/**',
+        'tests/ember-data__adapter/**',
+        'tests/ember-data__model/**',
         'tests/builders/**',
       ],
       rules: {

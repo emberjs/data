@@ -1879,6 +1879,9 @@ importers:
       '@types/ember__owner':
         specifier: ^4.0.6
         version: 4.0.6
+      '@warp-drive/diagnostic':
+        specifier: workspace:5.5.0-alpha.11
+        version: file:packages/diagnostic
       ember-auto-import:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.89.0)
@@ -1897,6 +1900,9 @@ importers:
       ember-cli-inject-live-reload:
         specifier: ^2.1.0
         version: 2.1.0
+      ember-cli-test-loader:
+        specifier: ^3.1.0
+        version: 3.1.0(@babel/core@7.23.2)
       ember-inflector:
         specifier: ^4.0.2
         version: 4.0.2(@babel/core@7.23.2)
@@ -1906,9 +1912,6 @@ importers:
       ember-maybe-import-regenerator:
         specifier: ^1.0.0
         version: 1.0.0(@babel/core@7.23.2)
-      ember-qunit:
-        specifier: ^8.0.1
-        version: 8.0.1(@babel/core@7.23.2)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.23.2)(ember-source@5.3.0)
@@ -1918,12 +1921,6 @@ importers:
       loader.js:
         specifier: ^4.7.0
         version: 4.7.0
-      qunit:
-        specifier: 2.19.4
-        version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
-      qunit-dom:
-        specifier: ^3.0.0
-        version: 3.0.0
       webpack:
         specifier: ^5.89.0
         version: 5.89.0
@@ -1949,6 +1946,8 @@ importers:
       '@ember-data/tracking':
         injected: true
       '@ember-data/unpublished-test-infra':
+        injected: true
+      '@warp-drive/diagnostic':
         injected: true
 
   tests/ember-data__graph:
@@ -2251,9 +2250,6 @@ importers:
       '@ember-data/tracking':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/tracking(@babel/core@7.23.2)(ember-source@5.3.0)
-      '@ember-data/unpublished-test-infra':
-        specifier: workspace:5.5.0-alpha.11
-        version: file:packages/unpublished-test-infra(@babel/core@7.23.2)(qunit@2.19.4)
       '@ember/optional-features':
         specifier: ^2.0.0
         version: 2.0.0
@@ -2272,6 +2268,9 @@ importers:
       '@types/ember__owner':
         specifier: ^4.0.6
         version: 4.0.6
+      '@warp-drive/diagnostic':
+        specifier: workspace:5.5.0-alpha.11
+        version: file:packages/diagnostic
       ember-auto-import:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.89.0)
@@ -2290,6 +2289,9 @@ importers:
       ember-cli-inject-live-reload:
         specifier: ^2.1.0
         version: 2.1.0
+      ember-cli-test-loader:
+        specifier: ^3.1.0
+        version: 3.1.0(@babel/core@7.23.2)
       ember-inflector:
         specifier: ^4.0.2
         version: 4.0.2(@babel/core@7.23.2)
@@ -2299,9 +2301,6 @@ importers:
       ember-maybe-import-regenerator:
         specifier: ^1.0.0
         version: 1.0.0(@babel/core@7.23.2)
-      ember-qunit:
-        specifier: ^8.0.1
-        version: 8.0.1(@babel/core@7.23.2)(@ember/test-helpers@3.2.0)(ember-source@5.3.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.23.2)(ember-source@5.3.0)
@@ -2311,12 +2310,6 @@ importers:
       loader.js:
         specifier: ^4.7.0
         version: 4.7.0
-      qunit:
-        specifier: 2.19.4
-        version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
-      qunit-dom:
-        specifier: ^3.0.0
-        version: 3.0.0
       webpack:
         specifier: ^5.89.0
         version: 5.89.0
@@ -2331,7 +2324,7 @@ importers:
         injected: true
       '@ember-data/tracking':
         injected: true
-      '@ember-data/unpublished-test-infra':
+      '@warp-drive/diagnostic':
         injected: true
 
   tests/ember-data__request:
@@ -5134,6 +5127,7 @@ packages:
       semver: 7.5.4
     transitivePeerDependencies:
       - supports-color
+    dev: true
 
   /@embroider/babel-loader-9@3.1.0(@embroider/core@3.3.0)(supports-color@8.1.1)(webpack@5.89.0):
     resolution: {integrity: sha512-TEOaOAsci15Zc3qh8kFAt/XpAsKjw/DzS/1+dv7yNGOeEgqImux+RoZ7DkZkVZNeuA0eAonpY79B+B0J17Us5g==}
@@ -10380,6 +10374,7 @@ packages:
       - '@babel/core'
       - '@glint/template'
       - supports-color
+    dev: true
 
   /ember-raf-scheduler@0.3.0(@babel/core@7.23.2):
     resolution: {integrity: sha512-i8JWQidNCX7n5TOTIKRDR0bnsQN9aJh/GtOJKINz2Wr+I7L7sYVhli6MFqMYNGKC9j9e6iWsznfAIxddheyEow==}
@@ -15024,6 +15019,7 @@ packages:
 
   /qunit-dom@3.0.0:
     resolution: {integrity: sha512-rqGZ9ZgOvtOY+Ph2ElCJ4pRIHouMZmI3DWK35Xr3x3c17/gIwOHHyKAQk6XetqhqepS6p+oXvK6Bx1uZu5jJuw==}
+    dev: true
 
   /qunit@2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy):
     resolution: {integrity: sha512-aqUzzUeCqlleWYKlpgfdHHw9C6KxkB9H3wNfiBg5yHqQMzy0xw/pbCRHYFkjl8MsP/t8qkTQE+JTYL71azgiew==}
@@ -17606,7 +17602,6 @@ packages:
       tmp: 0.2.1
     transitivePeerDependencies:
       - supports-color
-    dev: true
 
   file:packages/graph(@babel/core@7.23.2)(@ember-data/store@5.5.0-alpha.11):
     resolution: {directory: packages/graph, type: directory}

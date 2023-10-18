@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>EncapsulationTestApp Tests</title>
+    <title>@ember-data/model Tests</title>
     <meta name="description" content="" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
@@ -12,7 +12,6 @@
 
     <link rel="stylesheet" href="{{ rootURL }}assets/vendor.css" />
     <link rel="stylesheet" href="{{ rootURL }}assets/ember-data__model.css" />
-    <link rel="stylesheet" href="{{ rootURL }}assets/test-support.css" />
 
     {{content-for "head-footer"}}
     {{content-for "test-head-footer"}}
@@ -21,14 +20,12 @@
     {{content-for "body"}}
     {{content-for "test-body"}}
 
-    <div id="qunit"></div>
-    <div id="qunit-fixture">
-      <div id="ember-testing-container">
-        <div id="ember-testing"></div>
-      </div>
+
+    <div id="warp-drive__diagnostic"></div>
+    <div id="warp-drive__diagnostic-fixture">
+      <div id="ember-testing"></div>
     </div>
 
-    <script src="/testem.js" integrity=""></script>
     <script src="{{ rootURL }}assets/vendor.js"></script>
     <script src="{{ rootURL }}assets/test-support.js"></script>
     <script src="{{ rootURL }}assets/ember-data__model.js"></script>
