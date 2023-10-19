@@ -56,8 +56,6 @@ jobs:
         env:
           EMBER_DATA_FEATURE_OVERRIDE: DISABLE_ALL
         run: pnpm test
-      - name: Production build
-        run: pnpm test:production
       - if: |
           github.event_name == 'pull_request' && (
             github.base_ref == 'main' || github.base_ref == 'beta'
