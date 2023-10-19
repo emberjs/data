@@ -495,6 +495,9 @@ importers:
       bun-types:
         specifier: ^1.0.6
         version: 1.0.6
+      ember-cli-test-loader:
+        specifier: ^3.1.0
+        version: 3.1.0(@babel/core@7.23.2)
       rollup:
         specifier: ^4.1.1
         version: 4.1.4
@@ -1727,6 +1730,9 @@ importers:
       '@ember/test-helpers':
         specifier: ^3.2.0
         version: 3.2.0(@babel/core@7.23.2)(ember-source@5.3.0)(webpack@5.89.0)
+      '@embroider/addon-shim':
+        specifier: ^1.8.6
+        version: 1.8.6
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.23.2)
@@ -1738,7 +1744,7 @@ importers:
         version: 4.0.6
       '@warp-drive/diagnostic':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/diagnostic
+        version: file:packages/diagnostic(@ember/test-helpers@3.2.0)(@embroider/addon-shim@1.8.6)(ember-cli-test-loader@3.1.0)
       ember-auto-import:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.89.0)
@@ -1870,6 +1876,9 @@ importers:
       '@ember/test-helpers':
         specifier: ^3.2.0
         version: 3.2.0(@babel/core@7.23.2)(ember-source@5.3.0)(webpack@5.89.0)
+      '@embroider/addon-shim':
+        specifier: ^1.8.6
+        version: 1.8.6
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.23.2)
@@ -1881,7 +1890,7 @@ importers:
         version: 4.0.6
       '@warp-drive/diagnostic':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/diagnostic
+        version: file:packages/diagnostic(@ember/test-helpers@3.2.0)(@embroider/addon-shim@1.8.6)(ember-cli-test-loader@3.1.0)
       ember-auto-import:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.89.0)
@@ -2000,6 +2009,9 @@ importers:
       '@ember/test-helpers':
         specifier: ^3.2.0
         version: 3.2.0(@babel/core@7.23.2)(ember-source@5.3.0)(webpack@5.89.0)
+      '@embroider/addon-shim':
+        specifier: ^1.8.6
+        version: 1.8.6
       '@embroider/macros':
         specifier: ^1.12.2
         version: 1.13.1(@babel/core@7.23.2)
@@ -2014,7 +2026,7 @@ importers:
         version: 4.0.6
       '@warp-drive/diagnostic':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/diagnostic
+        version: file:packages/diagnostic(@ember/test-helpers@3.2.0)(@embroider/addon-shim@1.8.6)(ember-cli-test-loader@3.1.0)
       ember-auto-import:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.89.0)
@@ -2137,6 +2149,9 @@ importers:
       '@ember/test-helpers':
         specifier: ^3.2.0
         version: 3.2.0(@babel/core@7.23.2)(ember-source@5.3.0)(webpack@5.89.0)
+      '@embroider/addon-shim':
+        specifier: ^1.8.6
+        version: 1.8.6
       '@embroider/macros':
         specifier: ^1.12.2
         version: 1.13.1(@babel/core@7.23.2)
@@ -2151,7 +2166,7 @@ importers:
         version: 4.0.6
       '@warp-drive/diagnostic':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/diagnostic
+        version: file:packages/diagnostic(@ember/test-helpers@3.2.0)(@embroider/addon-shim@1.8.6)(ember-cli-test-loader@3.1.0)
       ember-auto-import:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.89.0)
@@ -2259,6 +2274,9 @@ importers:
       '@ember/test-helpers':
         specifier: ^3.2.0
         version: 3.2.0(@babel/core@7.23.2)(ember-source@5.3.0)(webpack@5.89.0)
+      '@embroider/addon-shim':
+        specifier: ^1.8.6
+        version: 1.8.6
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.23.2)
@@ -2270,7 +2288,7 @@ importers:
         version: 4.0.6
       '@warp-drive/diagnostic':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/diagnostic
+        version: file:packages/diagnostic(@ember/test-helpers@3.2.0)(@embroider/addon-shim@1.8.6)(ember-cli-test-loader@3.1.0)
       ember-auto-import:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.89.0)
@@ -2341,9 +2359,6 @@ importers:
       '@ember-data/request':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/request(@babel/core@7.23.2)
-      '@ember-data/unpublished-test-infra':
-        specifier: workspace:5.5.0-alpha.11
-        version: file:packages/unpublished-test-infra(@babel/core@7.23.2)(qunit@2.19.4)
       '@ember/edition-utils':
         specifier: ^1.2.0
         version: 1.2.0
@@ -2356,6 +2371,9 @@ importers:
       '@ember/test-helpers':
         specifier: ^3.2.0
         version: 3.2.0(@babel/core@7.23.2)(ember-source@5.3.0)(webpack@5.89.0)
+      '@embroider/addon-shim':
+        specifier: ^1.8.6
+        version: 1.8.6
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.23.2)
@@ -2367,7 +2385,7 @@ importers:
         version: 4.0.6
       '@warp-drive/diagnostic':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/diagnostic
+        version: file:packages/diagnostic(@ember/test-helpers@3.2.0)(@embroider/addon-shim@1.8.6)(ember-cli-test-loader@3.1.0)
       '@warp-drive/holodeck':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/holodeck
@@ -2441,8 +2459,6 @@ importers:
       '@ember-data/private-build-infra':
         injected: true
       '@ember-data/request':
-        injected: true
-      '@ember-data/unpublished-test-infra':
         injected: true
       '@warp-drive/diagnostic':
         injected: true
@@ -5122,12 +5138,11 @@ packages:
     resolution: {integrity: sha512-siC9kP78uucEbpDcVyxjkwa76pcs5rVzDVpWO4PDc9EAXRX+pzmUuSTLAK3GztUwx7/PWhz1BenAivqdSvSgfg==}
     engines: {node: 12.* || 14.* || >= 16}
     dependencies:
-      '@embroider/shared-internals': 2.4.0
+      '@embroider/shared-internals': 2.5.0(supports-color@8.1.1)
       broccoli-funnel: 3.0.8
       semver: 7.5.4
     transitivePeerDependencies:
       - supports-color
-    dev: true
 
   /@embroider/babel-loader-9@3.1.0(@embroider/core@3.3.0)(supports-color@8.1.1)(webpack@5.89.0):
     resolution: {integrity: sha512-TEOaOAsci15Zc3qh8kFAt/XpAsKjw/DzS/1+dv7yNGOeEgqImux+RoZ7DkZkVZNeuA0eAonpY79B+B0J17Us5g==}
@@ -5302,7 +5317,6 @@ packages:
       typescript-memoize: 1.1.1
     transitivePeerDependencies:
       - supports-color
-    dev: true
 
   /@embroider/webpack@3.2.0(@embroider/core@3.3.0)(webpack@5.89.0):
     resolution: {integrity: sha512-+H2NjbExiZBY1m3bj2WRmd+1WxndcMiITwa7CuUnq84iOSzQ7T7DWuSB3FLkFfkKeO/4x40pHV0QilzD9ldlZQ==}
@@ -17592,13 +17606,28 @@ packages:
       - uglify-js
       - webpack-cli
 
-  file:packages/diagnostic:
+  file:packages/diagnostic(@ember/test-helpers@3.2.0)(@embroider/addon-shim@1.8.6)(ember-cli-test-loader@3.1.0):
     resolution: {directory: packages/diagnostic, type: directory}
+    id: file:packages/diagnostic
     name: '@warp-drive/diagnostic'
     engines: {node: '>= 18.18.0'}
+    peerDependencies:
+      '@ember/test-helpers': '>= 3.2.0'
+      '@embroider/addon-shim': '>= 1.8.6'
+      ember-cli-test-loader: '>= 3.1.0'
+    peerDependenciesMeta:
+      '@ember/test-helpers':
+        optional: true
+      '@embroider/addon-shim':
+        optional: true
+      ember-cli-test-loader:
+        optional: true
     dependencies:
+      '@ember/test-helpers': 3.2.0(@babel/core@7.23.2)(ember-source@5.3.0)(webpack@5.89.0)
+      '@embroider/addon-shim': 1.8.6
       chalk: 5.3.0
       debug: 4.3.4(supports-color@8.1.1)
+      ember-cli-test-loader: 3.1.0(@babel/core@7.23.2)
       tmp: 0.2.1
     transitivePeerDependencies:
       - supports-color

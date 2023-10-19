@@ -14,7 +14,8 @@
     "vitest",
     "jest",
     "mocha",
-    "chai"
+    "chai",
+    "ember-addon"
   ],
   "repository": {
     "type": "git",
@@ -24,6 +25,7 @@
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "files": [
+    "addon-main.cjs",
     "dist/",
     "server/",
     "README.md",
@@ -48,6 +50,10 @@
       "bun": "./server/*.js",
       "deno": "./server/*.js"
     },
+    "./ember": {
+      "types": "./dist/ember.d.ts",
+      "default": "./dist/ember.js"
+    },
     "./*": {
       "types": "./dist/*.d.ts",
       "default": "./dist/*.js"
@@ -62,7 +68,22 @@
     "prepack": "pnpm build",
     "prepare": "pnpm build"
   },
-  "peerDependencies": {},
+  "peerDependencies": {
+    "@ember/test-helpers": ">= 3.2.0",
+    "ember-cli-test-loader": ">= 3.1.0",
+    "@embroider/addon-shim": ">= 1.8.6"
+  },
+  "peerDependenciesMeta": {
+    "@ember/test-helpers": {
+      "optional": true
+    },
+    "ember-cli-test-loader": {
+      "optional": true
+    },
+    "@embroider/addon-shim": {
+      "optional": true
+    }
+  },
   "dependencies": {
     "chalk": "^5.3.0",
     "debug": "^4.3.4",
@@ -78,6 +99,7 @@
     "@embroider/addon-dev": "^4.1.1",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
+    "ember-cli-test-loader": "^3.1.0",
     "rollup": "^4.1.1",
     "tslib": "^2.6.2",
     "typescript": "^5.2.2",
@@ -90,5 +112,13 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.9.0"
+  "packageManager": "pnpm@8.9.0",
+  "ember-addon": {
+    "main": "addon-main.cjs",
+    "type": "addon",
+    "version": 2
+  },
+  "ember": {
+    "edition": "octane"
+  }
 }

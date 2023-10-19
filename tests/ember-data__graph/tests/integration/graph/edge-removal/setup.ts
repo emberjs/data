@@ -1,6 +1,7 @@
 import { TestContext } from '@ember/test-helpers';
 
 import type { EmberHooks } from '@warp-drive/diagnostic';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 import { graphFor } from '@ember-data/graph/-private';
 import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection';
@@ -18,7 +19,6 @@ import type {
 } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
-import { setupTest } from '@ember-data/unpublished-test-infra/test-support/test-helpers';
 
 class AbstractMap {
   constructor(

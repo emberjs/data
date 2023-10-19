@@ -1,4 +1,5 @@
 import { module, test } from '@warp-drive/diagnostic';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 import JSONAPICache from '@ember-data/json-api';
 import { updateRecord } from '@ember-data/json-api/request';
@@ -15,7 +16,6 @@ import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-w
 import { SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import { JsonApiError } from '@ember-data/types/q/record-data-json-api';
-import { setupTest } from '@ember-data/unpublished-test-infra/test-support/test-helpers';
 
 class TestStore extends DataStore {
   constructor(args: unknown) {

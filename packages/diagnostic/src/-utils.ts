@@ -1,6 +1,5 @@
 /* global window, globalThis, global, self */
-import type { Config } from "./internals/config";
-import { HooksCallback, ModuleInfo } from "./-types";
+import { HooksCallback,TestContext, ModuleInfo, GlobalHooksStorage } from "./-types";
 
 export function assert(message: string, test: unknown): asserts test {
   if (!test) {
@@ -15,8 +14,8 @@ export function getGlobal(): Window {
   return g as unknown as Window;
 }
 
-export function getChain(globalHooks: typeof Config.globalHooks, module: ModuleInfo, parents: ModuleInfo[] | null, prop: 'beforeEach' | 'afterEach'): HooksCallback[] {
-  const chain: HooksCallback[] = [];
+export function getChain<TC extends TestContext>(globalHooks: GlobalHooksStorage<TC>, module: ModuleInfo<TC>, parents: ModuleInfo<TC>[] | null, prop: 'beforeEach' | 'afterEach'): HooksCallback<TC>[] {
+  const chain: HooksCallback<TC>[] = [];
 
   if (globalHooks[prop].length) {
     chain.push(...globalHooks[prop]);

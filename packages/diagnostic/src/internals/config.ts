@@ -1,6 +1,6 @@
 /* global emit, Testem */
 import { assert } from "../-utils";
-import { GlobalHooks, GlobalCallback, HooksCallback, GlobalConfig, ModuleInfo, ParamConfig } from "../-types";
+import { GlobalHooks, GlobalCallback, TestContext, HooksCallback, GlobalConfig, ModuleInfo, ParamConfig } from "../-types";
 
 export const Config: GlobalConfig = {
   globalHooks: {
@@ -68,20 +68,24 @@ export const Config: GlobalConfig = {
   _current: null,
 }
 
-let currentModule: ModuleInfo;
+let currentModule: ModuleInfo<TestContext>;
 let isResolvingGlobalHooks = false;
 export const HooksDelegate = {
-  beforeEach(cb: HooksCallback): void {
+  beforeEach<TC extends TestContext>(cb: HooksCallback<TC>): void {
     if (isResolvingGlobalHooks) {
+      // @ts-expect-error TS poorly handles subtype constraints
       Config.globalHooks.beforeEach.push(cb);
     } else {
+      // @ts-expect-error TS poorly handles subtype constraints
       currentModule.config.beforeEach.push(cb);
     }
   },
-  afterEach(cb: HooksCallback): void {
+  afterEach<TC extends TestContext>(cb: HooksCallback<TC>): void {
     if (isResolvingGlobalHooks) {
+      // @ts-expect-error TS poorly handles subtype constraints
       Config.globalHooks.afterEach.push(cb);
     } else {
+      // @ts-expect-error TS poorly handles subtype constraints
       currentModule.config.afterEach.push(cb);
     }
   },
@@ -109,15 +113,16 @@ export const HooksDelegate = {
   },
 }
 
-export function getCurrentModule() {
+export function getCurrentModule<TC extends TestContext>(): ModuleInfo<TC> {
   return currentModule;
 }
 
-export function setCurrentModule(module: ModuleInfo) {
+export function setCurrentModule<TC extends TestContext>(module: ModuleInfo<TC>) {
+  // @ts-expect-error TS poorly handles subtype constraints
   currentModule = module;
 }
 
-export function setupGlobalHooks(cb: (hooks: GlobalHooks) => void): void {
+export function setupGlobalHooks<TC extends TestContext>(cb: (hooks: GlobalHooks<TC>) => void): void {
   isResolvingGlobalHooks = true;
   cb(HooksDelegate);
   isResolvingGlobalHooks = false;

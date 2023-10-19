@@ -12,12 +12,12 @@ export default {
   // You can augment this if you need to.
   output: addon.output(),
 
-  external: [],
+  external: ["@ember/test-helpers", "ember-cli-test-loader/test-support/index"],
 
   plugins: [
     // These are the modules that users should be able to import from your
     // addon. Anything not listed here may get optimized away.
-    addon.publicEntrypoints(['index.js', 'reporters/dom.js', 'reporters/tap.js', 'runners/dom.js']),
+    addon.publicEntrypoints(['index.js', 'reporters/dom.js', 'reporters/tap.js', 'runners/dom.js', 'ember.js']),
 
     nodeResolve({ extensions: ['.ts'] }),
     babel({
