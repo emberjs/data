@@ -329,7 +329,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @method findAll
     @param {Store} store
     @param {Model} type
-    @param {undefined} neverSet a value is never provided to this argument
+    @param {null} neverSet a value is never provided to this argument
     @param {SnapshotRecordArray} snapshotRecordArray
     @return {Promise} promise
     @public
@@ -337,7 +337,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
   findAll(
     store: Store,
     type: ModelSchema,
-    neverSet,
+    neverSet: null,
     snapshotRecordArray: SnapshotRecordArray
     // @ts-expect-error
   ): Promise<AdapterPayload> {
@@ -871,7 +871,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @return {Boolean}
     @public
   */
-  shouldBackgroundReloadRecord(store: Store, Snapshot): boolean {
+  shouldBackgroundReloadRecord(store: Store, snapshot: Snapshot): boolean {
     return true;
   }
 

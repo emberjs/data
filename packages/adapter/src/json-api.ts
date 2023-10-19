@@ -177,9 +177,9 @@ class JSONAPIAdapter extends RESTAdapter {
     type: HTTPMethod,
     options: JQueryAjaxSettings | RequestInit = {}
   ): JQueryRequestInit | FetchRequestInit {
-    let hash = super.ajaxOptions(url, type, options);
-
-    hash.headers['Accept'] = hash.headers['Accept'] || 'application/vnd.api+json';
+    const hash = super.ajaxOptions(url, type, options) as FetchRequestInit;
+    const headers = (hash.headers = hash.headers || {});
+    headers['Accept'] = headers['Accept'] || 'application/vnd.api+json';
 
     return hash;
   }
@@ -257,7 +257,7 @@ class JSONAPIAdapter extends RESTAdapter {
     return this.ajax(url, 'GET', { data: { filter: { id: ids.join(',') } } });
   }
 
-  pathForType(modelName): string {
+  pathForType(modelName: string): string {
     let dasherized = dasherize(modelName);
     return pluralize(dasherized);
   }
