@@ -1,9 +1,13 @@
-import { getTestMetadata, setupContext, SetupContextOptions, teardownContext, TestContext } from '@ember/test-helpers/index.js';
-import AbstractTestLoader from 'ember-cli-test-loader/test-support/index.js';
+import { getTestMetadata, setupContext, SetupContextOptions, teardownContext, TestContext } from '@ember/test-helpers';
+import AbstractTestLoader from 'ember-cli-test-loader/test-support/index';
 
 import type { Hooks } from './-types';
 
 import { setupGlobalHooks } from './internals/config';
+
+// fix bug with embroider/webpack/auto-import and test-loader
+// @ts-expect-error
+const CLITestLoader: typeof AbstractTestLoader = AbstractTestLoader.default ? AbstractTestLoader.default : AbstractTestLoader;
 
 export function setupTest(hooks: Hooks<TestContext>, opts?: SetupContextOptions) {
   const options = { waitForSettled: false, ...opts };
@@ -22,7 +26,7 @@ export function setupTest(hooks: Hooks<TestContext>, opts?: SetupContextOptions)
 
 let moduleLoadFailures: Error[] = [];
 
-class TestLoader extends AbstractTestLoader {
+class TestLoader extends CLITestLoader {
   moduleLoadFailure(moduleName: string, error: Error) {
     moduleLoadFailures.push(error);
   }

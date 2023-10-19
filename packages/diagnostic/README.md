@@ -52,6 +52,7 @@ or you can add your own.
 - [🔜 Randomization](#randomization)
 - [Why Is It Fast?](#why-is-it-fast)
 - [Migration From QUnit](#migration-from-qunit)
+- [Using with Ember](#using-with-ember)
 
 ---
 
@@ -429,6 +430,37 @@ module('My Module', function(hooks) {
 +   hooks.onSuiteFinish(function() {});
 +   hooks.beforeEach(function() {});
 + });
+```
+
+---
+
+### Using With Ember
+
+1. Add the following peer-deps to your app:
+
+```diff
++    "@ember/test-helpers": ">= 3.2.0",
++    "ember-cli-test-loader": ">= 3.1.0",
++    "@embroider/addon-shim": ">= 1.8.6"
+```
+
+2. Configure for ember in `test-helper.js`
+
+```ts
+import { configure } from '@warp-drive/diagnostic/ember';
+
+configure();
+```
+
+3. Use setup helpers
+
+```ts
+import { module, test } from '@warp-drive/diagnostic';
+import { setupTest } from '@warp-drive/diagnostic/ember';
+
+module('My Module', function (hooks) {
+  setupTest(hooks);
+});
 ```
 
 ---

@@ -14,7 +14,8 @@
     "vitest",
     "jest",
     "mocha",
-    "chai"
+    "chai",
+    "ember-addon"
   ],
   "repository": {
     "type": "git",
@@ -24,6 +25,7 @@
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "files": [
+    "addon-main.cjs",
     "dist/",
     "server/",
     "README.md",
@@ -68,13 +70,17 @@
   },
   "peerDependencies": {
     "@ember/test-helpers": ">= 3.2.0",
-    "ember-cli-test-loader": ">= 3.1.0"
+    "ember-cli-test-loader": ">= 3.1.0",
+    "@embroider/addon-shim": ">= 1.8.6"
   },
   "peerDependenciesMeta": {
     "@ember/test-helpers": {
       "optional": true
     },
     "ember-cli-test-loader": {
+      "optional": true
+    },
+    "@embroider/addon-shim": {
       "optional": true
     }
   },
@@ -107,5 +113,13 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.9.0"
+  "packageManager": "pnpm@8.9.0",
+  "ember-addon": {
+    "main": "addon-main.cjs",
+    "type": "addon",
+    "version": 2
+  },
+  "ember": {
+    "edition": "octane"
+  }
 }
