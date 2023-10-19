@@ -19,7 +19,7 @@ import {
 import { DEBUG, TESTING } from '@ember-data/env';
 import type CacheClass from '@ember-data/json-api';
 import type FetchManager from '@ember-data/legacy-compat/legacy-network-handler/fetch-manager';
-import type DSModelClass from '@ember-data/model';
+import type Model from '@ember-data/model';
 import { HAS_COMPAT_PACKAGE, HAS_GRAPH_PACKAGE, HAS_JSON_API_PACKAGE, HAS_MODEL_PACKAGE } from '@ember-data/packages';
 import type RequestManager from '@ember-data/request';
 import type { Future } from '@ember-data/request/-private/types';
@@ -77,6 +77,8 @@ import constructResource from './utils/construct-resource';
 import normalizeModelName from './utils/normalize-model-name';
 
 export { storeFor };
+
+type StaticModel = typeof Model;
 
 // hello world
 type CacheConstruct = typeof CacheClass;
@@ -471,7 +473,10 @@ class Store extends EmberObject {
 
       // ensure that `getOwner(this)` works inside a model instance
       setOwner(createOptions, getOwner(this)!);
-      return getModelFactory(this, this._modelFactoryCache, modelName).class.create(createOptions);
+      const factory = getModelFactory(this, this._modelFactoryCache, modelName);
+
+      assert(`No model was found for '${modelName}'`, factory);
+      return factory.class.create(createOptions);
     }
     assert(`You must implement the store's instantiateRecord hook for your custom model class.`);
   }
@@ -656,7 +661,7 @@ class Store extends EmberObject {
     */
   // TODO @deprecate in favor of schema APIs, requires adapter/serializer overhaul or replacement
 
-  modelFor(modelName: string): ShimModelClass | DSModelClass {
+  modelFor(modelName: string): ShimModelClass | StaticModel {
     if (DEBUG) {
       assertDestroyedStoreOnly(this, 'modelFor');
     }
@@ -670,7 +675,8 @@ class Store extends EmberObject {
       let maybeFactory = getModelFactory(this, this._modelFactoryCache, normalizedModelName);
 
       // for factorFor factory/class split
-      let klass = maybeFactory && maybeFactory.class ? maybeFactory.class : maybeFactory;
+      const klass = maybeFactory && maybeFactory.class ? maybeFactory.class : null;
+
       if (!klass || !klass.isModel || this._forceShim) {
         assert(
           `No model was found for '${modelName}' and no schema handles the type`,

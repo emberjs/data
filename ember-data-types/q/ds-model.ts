@@ -33,7 +33,7 @@ export interface ModelSchema {
   relationshipsByName: Map<string, RelationshipSchema>;
   eachAttribute<T>(callback: (this: T, key: string, attribute: AttributeSchema) => void, binding?: T): void;
   eachRelationship<T>(callback: (this: T, key: string, relationship: RelationshipSchema) => void, binding?: T): void;
-  eachTransformedAttribute<T>(callback: (this: T, key: string, type?: string) => void, binding?: T): void;
+  eachTransformedAttribute<T>(callback: (this: T, key: string, type: string | null) => void, binding?: T): void;
   toString(): string;
 }
 
