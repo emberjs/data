@@ -11,6 +11,7 @@ import { coerceId } from '@ember-data/store/-private';
 import { StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
 import type { InstanceCache } from '@ember-data/store/-private/caches/instance-cache';
 import type RequestStateService from '@ember-data/store/-private/network/request-cache';
+import type { Request } from '@ember-data/store/-private/network/request-cache';
 import type { ModelSchema } from '@ember-data/types/q/ds-model';
 import type { CollectionResourceDocument, SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -40,25 +41,6 @@ export interface FindRecordQuery extends Operation {
 
 export interface SaveRecordMutation extends Operation {
   op: 'saveRecord';
-}
-
-export interface Request {
-  data: Operation[];
-  options?: Record<string, unknown>;
-}
-
-export type RequestStates = 'pending' | 'fulfilled' | 'rejected';
-
-export interface RequestState {
-  state: RequestStates;
-  type: 'query' | 'mutation';
-  request: Request;
-  response?: Response;
-}
-
-export interface Response {
-  // rawData: unknown;
-  data: unknown;
 }
 
 export const SaveOp: unique symbol = Symbol('SaveOp');

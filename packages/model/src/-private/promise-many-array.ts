@@ -69,7 +69,7 @@ export default class PromiseManyArray {
    * @returns
    * @private
    */
-  forEach(cb) {
+  forEach(cb: Parameters<typeof Array.prototype.forEach>[0]) {
     if (this.content && this.length) {
       this.content.forEach(cb);
     }
@@ -84,7 +84,7 @@ export default class PromiseManyArray {
    */
   reload(options: FindOptions) {
     assert('You are trying to reload an async manyArray before it has been created', this.content);
-    this.content.reload(options);
+    void this.content.reload(options);
     return this;
   }
 
@@ -128,7 +128,7 @@ export default class PromiseManyArray {
    * @param fail
    * @returns Promise
    */
-  then(s, f) {
+  then(s: Parameters<typeof Promise.prototype.then>[0], f: Parameters<typeof Promise.prototype.then>[1]) {
     return this.promise!.then(s, f);
   }
 
@@ -139,7 +139,7 @@ export default class PromiseManyArray {
    * @param callback
    * @returns Promise
    */
-  catch(cb) {
+  catch(cb: Parameters<typeof Promise.prototype.catch>[0]) {
     return this.promise!.catch(cb);
   }
 
@@ -151,7 +151,7 @@ export default class PromiseManyArray {
    * @param callback
    * @returns Promise
    */
-  finally(cb) {
+  finally(cb: Parameters<typeof Promise.prototype.finally>[0]) {
     return this.promise!.finally(cb);
   }
 
@@ -223,6 +223,7 @@ if (DEPRECATE_COMPUTED_CHAINS) {
   // requires that the tag `'[]'` be notified
   // on the ArrayProxy in order for `{{#each}}`
   // to recompute. We entangle the '[]' tag from content
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
   Object.defineProperty(PromiseManyArray.prototype, '[]', desc);
 }
 

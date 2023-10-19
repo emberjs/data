@@ -7,8 +7,6 @@ import { DEBUG } from '@ember-data/env';
 import type {
   FindRecordQuery,
   Operation,
-  Request,
-  RequestState,
   SaveRecordMutation,
 } from '@ember-data/legacy-compat/legacy-network-handler/fetch-manager';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -18,6 +16,25 @@ import Store from '../store-service';
 const Touching: unique symbol = Symbol('touching');
 export const RequestPromise: unique symbol = Symbol('promise');
 const EMPTY_ARR: RequestState[] = DEBUG ? (Object.freeze([]) as unknown as RequestState[]) : [];
+
+export interface Request {
+  data: Operation[];
+  options?: Record<string, unknown>;
+}
+
+export type RequestStates = 'pending' | 'fulfilled' | 'rejected';
+
+export interface RequestState {
+  state: RequestStates;
+  type: 'query' | 'mutation';
+  request: Request;
+  response?: Response;
+}
+
+export interface Response {
+  // rawData: unknown;
+  data: unknown;
+}
 
 interface InternalRequest extends RequestState {
   [Touching]: StableRecordIdentifier[];

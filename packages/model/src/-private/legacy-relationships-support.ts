@@ -46,7 +46,7 @@ export class LegacySupport {
   declare identifier: StableRecordIdentifier;
   declare _manyArrayCache: Record<string, RelatedCollection>;
   declare _relationshipPromisesCache: Record<string, Promise<RelatedCollection | RecordInstance>>;
-  declare _relationshipProxyCache: Record<string, PromiseManyArray | PromiseBelongsTo>;
+  declare _relationshipProxyCache: Record<string, PromiseManyArray | PromiseBelongsTo | undefined>;
   declare _pending: Record<string, Promise<StableRecordIdentifier | null> | undefined>;
 
   declare isDestroying: boolean;
@@ -586,14 +586,14 @@ export class LegacySupport {
   destroy() {
     this.isDestroying = true;
 
-    let cache: Record<string, { destroy(): void }> = this._manyArrayCache;
-    this._manyArrayCache = Object.create(null);
+    let cache: Record<string, { destroy(): void } | undefined> = this._manyArrayCache;
+    this._manyArrayCache = Object.create(null) as Record<string, RelatedCollection>;
     Object.keys(cache).forEach((key) => {
       cache[key]!.destroy();
     });
 
     cache = this._relationshipProxyCache;
-    this._relationshipProxyCache = Object.create(null);
+    this._relationshipProxyCache = Object.create(null) as Record<string, PromiseManyArray | PromiseBelongsTo>;
     Object.keys(cache).forEach((key) => {
       const proxy = cache[key]!;
       if (proxy.destroy) {
@@ -602,7 +602,7 @@ export class LegacySupport {
     });
 
     cache = this.references;
-    this.references = Object.create(null);
+    this.references = Object.create(null) as Record<string, BelongsToReference | HasManyReference>;
     Object.keys(cache).forEach((key) => {
       cache[key]!.destroy();
     });

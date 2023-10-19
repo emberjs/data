@@ -21,7 +21,7 @@ import Model, { type ModelFactory } from './model';
     in this case
   */
 export default function modelForMixin(store: Store, normalizedModelName: string): ModelFactory | undefined {
-  let owner: any = getOwner(store);
+  let owner = getOwner(store)!;
   let MaybeMixin = owner.factoryFor(`mixin:${normalizedModelName}`);
   let mixin = MaybeMixin && MaybeMixin.class;
   if (mixin) {
@@ -29,7 +29,7 @@ export default function modelForMixin(store: Store, normalizedModelName: string)
     ModelForMixin.__isMixin = true;
     ModelForMixin.__mixin = mixin;
     //Cache the class as a model
-    owner.register('model:' + normalizedModelName, ModelForMixin);
+    owner.register(`model:${normalizedModelName}`, ModelForMixin);
   }
-  return owner.factoryFor(`model:${normalizedModelName}`);
+  return owner.factoryFor(`model:${normalizedModelName}`) as ModelFactory | undefined;
 }
