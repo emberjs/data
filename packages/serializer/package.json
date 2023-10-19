@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/serializer",
-  "version": "4.12.3",
+  "version": "4.12.4",
   "description": "Provides Legacy JSON, JSON:API and REST Implementations of the Serializer Interface for use with @ember-data/store",
   "keywords": [
     "ember-addon"
@@ -34,7 +34,7 @@
     "ember-data-logo-light.svg"
   ],
   "peerDependencies": {
-    "@ember-data/store": "workspace:4.12.3",
+    "@ember-data/store": "workspace:4.12.4",
     "@ember/string": "^3.0.1",
     "ember-inflector": "^4.0.2"
   },
@@ -44,7 +44,7 @@
     }
   },
   "dependencies": {
-    "@ember-data/private-build-infra": "workspace:4.12.3",
+    "@ember-data/private-build-infra": "workspace:4.12.4",
     "@embroider/macros": "^1.10.0",
     "ember-cli-babel": "^7.26.11",
     "ember-cli-test-info": "^1.0.0"
