@@ -1,5 +1,19 @@
 # Ember Data Changelog
 
+## v4.12.4 (2023-10-19)
+
+#### :bug: Bug Fix
+
+  * [#9012](https://github.com/emberjs/data/pull/9012) fix: make willCommit slightly safer when race conditions occur ([@runspired](https://github.com/runspired))
+  * [#8933](https://github.com/emberjs/data/pull/8933) fix: JSONAPISerializer should not reify empty records ([@runspired](https://github.com/runspired))
+  * [#8926](https://github.com/emberjs/data/pull/8926) fix: unloadAll should cleanup live-array membership ([@runspired](https://github.com/runspired))
+
+#### :goal_net: Test
+* [#8865](https://github.com/emberjs/data/pull/8865) test: confirm records unload properly for #8863 ([@runspired](https://github.com/runspired))
+
+#### Committers: 1
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+
 ## v4.12.3 (2023-07-13)
 
 #### :bug: Bug Fix
