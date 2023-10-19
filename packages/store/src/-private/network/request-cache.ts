@@ -10,7 +10,7 @@ import type {
   Request,
   RequestState,
   SaveRecordMutation,
-} from '@ember-data/types/q/fetch-manager';
+} from '@ember-data/legacy-compat/legacy-network-handler/fetch-manager';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import Store from '../store-service';

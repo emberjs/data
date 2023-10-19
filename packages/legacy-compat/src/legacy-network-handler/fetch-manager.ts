@@ -13,7 +13,6 @@ import type { InstanceCache } from '@ember-data/store/-private/caches/instance-c
 import type RequestStateService from '@ember-data/store/-private/network/request-cache';
 import type { ModelSchema } from '@ember-data/types/q/ds-model';
 import type { CollectionResourceDocument, SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';
-import type { FindRecordQuery, Request, SaveRecordMutation } from '@ember-data/types/q/fetch-manager';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import { AdapterPayload, MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapter-interface';
 import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-serializer-interface';
@@ -28,6 +27,39 @@ type AdapterErrors = Error & { errors?: string[]; isAdapterError?: true };
 type SerializerWithParseErrors = MinimumSerializerInterface & {
   extractErrors?(store: Store, modelClass: ModelSchema, error: AdapterErrors, recordId: string | null): unknown;
 };
+
+export interface Operation {
+  op: string;
+  options: FindOptions | undefined;
+  recordIdentifier: StableRecordIdentifier;
+}
+
+export interface FindRecordQuery extends Operation {
+  op: 'findRecord';
+}
+
+export interface SaveRecordMutation extends Operation {
+  op: 'saveRecord';
+}
+
+export interface Request {
+  data: Operation[];
+  options?: Record<string, unknown>;
+}
+
+export type RequestStates = 'pending' | 'fulfilled' | 'rejected';
+
+export interface RequestState {
+  state: RequestStates;
+  type: 'query' | 'mutation';
+  request: Request;
+  response?: Response;
+}
+
+export interface Response {
+  // rawData: unknown;
+  data: unknown;
+}
 
 export const SaveOp: unique symbol = Symbol('SaveOp');
 
