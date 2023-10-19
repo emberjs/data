@@ -40,7 +40,10 @@ function buildParams<T extends PlainObject>(
         buildParams(prefix + '[' + key + ']', obj[key], s);
       }
     } else {
-      assert(`query params cannot be a { name, value } pair if prefix is present`, typeof obj !== 'object');
+      assert(
+        `query params cannot be a { name, value } pair if prefix is present`,
+        obj === null || typeof obj !== 'object'
+      );
       add(s, prefix, obj);
     }
   } else if (isParamsArray(obj)) {
