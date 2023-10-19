@@ -115,17 +115,15 @@
   "packageManager": "pnpm@8.1.0",
   "changelog": {
     "labels": {
-      "labels": {
-        ":label: breaking": ":boom: Breaking Change",
-        ":label: feat": ":rocket: Enhancement",
-        ":label: bug": ":bug: Bug Fix",
-        ":label: perf:": ":zap: Performance",
-        ":label: cleanup": ":shower: Deprecation Removal",
-        ":label: deprecation": ":evergreen_tree: New Deprecation",
-        ":label: doc": ":memo: Documentation",
-        ":label: test": ":goal_net: Test",
-        ":label: chore": ":house: Internal"
-      }
+      ":label: breaking": ":boom: Breaking Change",
+      ":label: feat": ":rocket: Enhancement",
+      ":label: bug": ":bug: Bug Fix",
+      ":label: perf:": ":zap: Performance",
+      ":label: cleanup": ":shower: Deprecation Removal",
+      ":label: deprecation": ":evergreen_tree: New Deprecation",
+      ":label: doc": ":memo: Documentation",
+      ":label: test": ":goal_net: Test",
+      ":label: chore": ":house: Internal"
     }
   },
   "pnpm": {
