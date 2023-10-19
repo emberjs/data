@@ -8,9 +8,9 @@ import { DEBUG, TESTING } from '@ember-data/env';
 import type { Handler, NextFn } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';
 import type { StoreRequestContext, StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
-import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
 import type { Collection } from '@ember-data/store/-private/record-arrays/identifier-array';
 import { SingleResourceDataDocument } from '@ember-data/types/cache/document';
+import type { ModelSchema } from '@ember-data/types/q/ds-model';
 import type {
   CollectionResourceDocument,
   JsonApiDocument,
@@ -35,7 +35,7 @@ import SnapshotRecordArray from './snapshot-record-array';
 
 type AdapterErrors = Error & { errors?: unknown[]; isAdapterError?: true; code?: string };
 type SerializerWithParseErrors = MinimumSerializerInterface & {
-  extractErrors?(store: Store, modelClass: ShimModelClass, error: AdapterErrors, recordId: string | null): unknown;
+  extractErrors?(store: Store, modelClass: ModelSchema, error: AdapterErrors, recordId: string | null): unknown;
 };
 
 const PotentialLegacyOperations = new Set([

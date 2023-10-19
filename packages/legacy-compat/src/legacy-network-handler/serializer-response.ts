@@ -2,7 +2,7 @@ import { assert } from '@ember/debug';
 
 import { DEBUG } from '@ember-data/env';
 import type Store from '@ember-data/store';
-import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
+import type { ModelSchema } from '@ember-data/types/q/ds-model';
 import type { JsonApiDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { AdapterPayload } from '@ember-data/types/q/minimum-adapter-interface';
 import type { MinimumSerializerInterface, RequestType } from '@ember-data/types/q/minimum-serializer-interface';
@@ -70,7 +70,7 @@ function validateDocumentStructure(doc?: AdapterPayload | JsonApiDocument): asse
 export function normalizeResponseHelper(
   serializer: MinimumSerializerInterface | null,
   store: Store,
-  modelClass: ShimModelClass,
+  modelClass: ModelSchema,
   payload: AdapterPayload,
   id: string | null,
   requestType: RequestType

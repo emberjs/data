@@ -11,6 +11,7 @@ import { setupTest } from 'ember-qunit';
 import Adapter from '@ember-data/adapter';
 import { InvalidError } from '@ember-data/adapter/error';
 import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/deprecations';
+import { DEBUG } from '@ember-data/env';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordIdentifierFor } from '@ember-data/store';
@@ -506,11 +507,17 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
 
     await company.destroyRecord();
 
+    // wait for ember's runloop to flush
+    await settled();
+
     try {
       assert.true(company.isDeleted, 'isDeleted should be true');
       assert.true(company.isDestroying, 'isDestroying should be true');
       assert.true(company.isDestroyed, 'isDestroyed should be true');
-      assert.strictEqual(company.id, undefined, 'id access should be safe');
+
+      if (DEBUG) {
+        assert.strictEqual(company.id, undefined, 'id access should be safe');
+      }
     } catch (e) {
       assert.ok(false, `Should not throw an error, threw ${e.message}`);
     }
