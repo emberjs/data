@@ -59,7 +59,7 @@ module('Integration | Record | concurrent saves', function (hooks) {
           lastName: 'Huff-menne',
         },
       },
-    }) as unknown as User;
+    }) as User;
 
     user.firstName = 'Krystan';
     resultPromises.push(user.save());
@@ -159,7 +159,7 @@ module('Integration | Record | concurrent saves', function (hooks) {
           lastName: 'Huff-menne',
         },
       },
-    }) as unknown as User;
+    }) as User;
 
     user.firstName = 'Krystan';
     resultPromises.push(user.save());
@@ -270,7 +270,7 @@ module('Integration | Record | concurrent saves', function (hooks) {
           lastName: 'Huff-menne',
         },
       },
-    }) as unknown as User;
+    }) as User;
 
     user.firstName = 'Krystan';
     resultPromises.push(user.save());
