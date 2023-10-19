@@ -24,10 +24,10 @@
   @public
  */
 export default class StringTransform {
-  deserialize(serialized) {
+  deserialize(serialized: unknown, _options?: Record<string, unknown>): string | null {
     return !serialized && serialized !== '' ? null : String(serialized);
   }
-  serialize(deserialized) {
+  serialize(deserialized: unknown, _options?: Record<string, unknown>): string | null {
     return !deserialized && deserialized !== '' ? null : String(deserialized);
   }
 

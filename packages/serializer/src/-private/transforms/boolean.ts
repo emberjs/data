@@ -38,25 +38,24 @@
   @public
  */
 export default class BooleanTransform {
-  deserialize(serialized, options) {
-    if ((serialized === null || serialized === undefined) && options.allowNull === true) {
+  deserialize(serialized: boolean | null | number | string, options?: { allowNull?: boolean }): boolean | null {
+    if ((serialized === null || serialized === undefined) && options?.allowNull === true) {
       return null;
     }
 
-    let type = typeof serialized;
-    if (type === 'boolean') {
+    if (typeof serialized === 'boolean') {
       return serialized;
-    } else if (type === 'string') {
+    } else if (typeof serialized === 'string') {
       return /^(true|t|1)$/i.test(serialized);
-    } else if (type === 'number') {
+    } else if (typeof serialized === 'number') {
       return serialized === 1;
     } else {
       return false;
     }
   }
 
-  serialize(deserialized, options) {
-    if ((deserialized === null || deserialized === undefined) && options.allowNull === true) {
+  serialize(deserialized: boolean | null, options?: { allowNull?: boolean }): boolean | null {
+    if ((deserialized === null || deserialized === undefined) && options?.allowNull === true) {
       return null;
     }
 
