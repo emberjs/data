@@ -10,7 +10,7 @@ import type { ModelSchema } from './ds-model';
 import type { JsonApiDocument, SingleResourceDocument } from './ember-data-json-api';
 import type { AdapterPayload } from './minimum-adapter-interface';
 
-export type OptionsHash = Record<string, unknown>;
+export type SerializerOptions = { includeId?: boolean };
 export type RequestType =
   | 'findRecord'
   | 'queryRecord'
@@ -107,7 +107,7 @@ export interface MinimumSerializerInterface {
    * @param {Snapshot} snapshot A Snapshot for the record to serialize
    * @param {object} [options]
    */
-  serialize(snapshot: Snapshot, options?: OptionsHash): JSONObject;
+  serialize(snapshot: Snapshot, options?: SerializerOptions): JSONObject;
 
   /**
    * This method is intended to normalize data into a [JSON:API Document](https://jsonapi.org/format/#document-structure)
@@ -205,7 +205,7 @@ export interface MinimumSerializerInterface {
    * @param [options]
    * @returns {void}
    */
-  serializeIntoHash?(hash: object, schema: ModelSchema, snapshot: Snapshot, options?: OptionsHash): void;
+  serializeIntoHash?(hash: object, schema: ModelSchema, snapshot: Snapshot, options?: SerializerOptions): void;
 
   /**
    * This method allows for normalization of data when `store.pushPayload` is called

@@ -1,4 +1,5 @@
 export { graphFor, peekGraph } from './-private/index';
+export { isBelongsTo } from './-private/-utils';
 
 /**
  * <p align="center">

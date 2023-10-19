@@ -11,6 +11,7 @@ import type { Cache } from '@ember-data/types/cache/cache';
 import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
 import type { ModelSchema } from '@ember-data/types/q/ds-model';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { SerializerOptions } from '@ember-data/types/q/minimum-serializer-interface';
 
 export default class Store extends BaseStore {
   constructor(args: Record<string, unknown>) {
@@ -34,7 +35,7 @@ export default class Store extends BaseStore {
   }
 
   teardownRecord(record: Model): void {
-    teardownRecord.call(this, record as Model);
+    teardownRecord.call(this, record);
   }
 
   modelFor(type: string): ModelSchema {
@@ -42,7 +43,7 @@ export default class Store extends BaseStore {
   }
 
   // TODO @runspired @deprecate records should implement their own serialization if desired
-  serializeRecord(record: unknown, options?: Record<string, unknown>): unknown {
+  serializeRecord(record: unknown, options?: SerializerOptions): unknown {
     // TODO we used to check if the record was destroyed here
     if (!this._fetchManager) {
       this._fetchManager = new FetchManager(this);
