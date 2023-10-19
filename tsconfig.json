@@ -5,6 +5,6 @@
       "noImplicitAny": false
     },
     "files": [
-      "tests/fastboot/types/global.d.ts",
+      "packages/adapter/src/rest.ts",
     ]
   }

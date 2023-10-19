@@ -299,7 +299,7 @@ function buildURL(
     @return {String} url
   */
 function _buildURL(this: MixtBuildURLMixin, modelName: string | null | undefined, id?: string | null): string {
-  let path;
+  let path: string;
   let url: string[] = [];
   let { host } = this;
   let prefix = this.urlPrefix();
