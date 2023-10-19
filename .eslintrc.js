@@ -229,7 +229,6 @@ module.exports = {
         'tests/fastboot/app/config/environment.d.ts',
         'tests/fastboot/app/app.ts',
         'tests/fastboot/app/adapters/application.ts',
-        'packages/adapter/types/require/index.d.ts',
         'packages/adapter/src/rest.ts',
         'packages/adapter/src/json-api.ts',
         'packages/adapter/src/-private/utils/serialize-query-params.ts',
