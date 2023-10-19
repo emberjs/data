@@ -51,12 +51,16 @@ export default function getFetchFunction(): FetchFunction {
       }
 
       // eslint-disable-next-line no-inner-declarations
-      function patchedFetch(input, options) {
-        if (input && input.href) {
-          input.url = buildAbsoluteUrl(input.href);
+      function patchedFetch(input: string | { href: string } | RequestInfo, options?: RequestInit) {
+        if (input && typeof input === 'object' && 'href' in input) {
+          const url = buildAbsoluteUrl(input.href);
+          const info = Object.assign({}, input, { url }) as unknown as RequestInfo;
+          return nodeFetch(info, options);
         } else if (typeof input === 'string') {
-          input = buildAbsoluteUrl(input);
+          const url = buildAbsoluteUrl(input);
+          return nodeFetch(url, options);
         }
+
         return nodeFetch(input, options);
       }
 
