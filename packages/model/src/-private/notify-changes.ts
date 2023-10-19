@@ -1,8 +1,10 @@
+import { assert } from '@ember/debug';
 import { cacheFor } from '@ember/object/internals';
 
 import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 
 import type Model from './model';
 import { LEGACY_SUPPORT } from './model';
@@ -24,7 +26,8 @@ export default function notifyChanges(
     }
   } else if (value === 'relationships') {
     if (key) {
-      let meta = record.constructor.relationshipsByName.get(key);
+      const meta = record.constructor.relationshipsByName.get(key);
+      assert(`Expected to find a relationship for ${key} on ${identifier.type}`, meta);
       notifyRelationship(identifier, key, record, meta);
     } else {
       record.eachRelationship((name, meta) => {
@@ -36,7 +39,7 @@ export default function notifyChanges(
   }
 }
 
-function notifyRelationship(identifier: StableRecordIdentifier, key: string, record: Model, meta) {
+function notifyRelationship(identifier: StableRecordIdentifier, key: string, record: Model, meta: RelationshipSchema) {
   if (meta.kind === 'belongsTo') {
     record.notifyPropertyChange(key);
   } else if (meta.kind === 'hasMany') {
@@ -56,7 +59,9 @@ function notifyRelationship(identifier: StableRecordIdentifier, key: string, rec
       //We need to notifyPropertyChange in the adding case because we need to make sure
       //we fetch the newly added record in case it is unloaded
       //TODO(Igor): Consider whether we could do this only if the record state is unloaded
-      if (!meta.options || meta.options.async || meta.options.async === undefined) {
+      assert(`Expected options to exist on relationship meta`, meta.options);
+      assert(`Expected async to exist on relationship meta options`, 'async' in meta.options);
+      if (meta.options.async) {
         record.notifyPropertyChange(key);
       }
     }
