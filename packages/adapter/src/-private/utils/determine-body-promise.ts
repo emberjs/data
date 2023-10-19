@@ -44,7 +44,7 @@ function _determineContent(response: Response, requestData: JQueryAjaxSettings, 
   }
 
   try {
-    ret = JSON.parse(payload as string);
+    ret = JSON.parse(payload as string) as Payload;
   } catch (e) {
     if (!(e instanceof SyntaxError)) {
       return e as Error;

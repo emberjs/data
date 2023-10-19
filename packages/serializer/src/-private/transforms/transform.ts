@@ -1,6 +1,9 @@
 /**
   @module @ember-data/serializer
 */
+import EmberObject from '@ember/object';
+
+import { AttributeSchema } from '@ember-data/types/q/record-data-schemas';
 
 /**
   The `Transform` class is used to serialize and deserialize model
@@ -115,4 +118,10 @@
   @param options hash of options passed to `attr`
   @return The deserialized value
 */
-export { default } from '@ember/object';
+interface Transform {
+  serialize(value: unknown, options: AttributeSchema['options']): unknown;
+  deserialize(value: unknown, options: AttributeSchema['options']): unknown;
+}
+const Transform = EmberObject;
+
+export default Transform;

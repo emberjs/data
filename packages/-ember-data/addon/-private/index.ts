@@ -16,7 +16,7 @@ deprecate('Importing from `ember-data/-private` is deprecated without replacemen
 
 export { default as Store } from '../store';
 
-export { default as DS } from './core';
+export { DS } from './core';
 export { Errors } from '@ember-data/model/-private';
 export { Snapshot } from '@ember-data/legacy-compat/-private';
 

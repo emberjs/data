@@ -3,7 +3,13 @@ import Ember from 'ember';
 
 import VERSION from 'ember-data/version';
 
-const DS = Namespace.create({
+export interface DS extends Namespace {
+  VERSION: string;
+  name: string;
+}
+
+export const DS = Namespace.create({
+  // @ts-expect-error ember-source types are wrong
   VERSION: VERSION,
   name: 'DS',
 });

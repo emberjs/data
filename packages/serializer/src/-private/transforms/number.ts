@@ -28,25 +28,21 @@ function isNumber(value) {
   @public
  */
 export default class NumberTransform {
-  deserialize(serialized) {
-    let transformed;
-
+  deserialize(serialized: string | number | null | undefined, _options?: Record<string, unknown>): number | null {
     if (serialized === '' || serialized === null || serialized === undefined) {
       return null;
     } else {
-      transformed = Number(serialized);
+      const transformed = Number(serialized);
 
       return isNumber(transformed) ? transformed : null;
     }
   }
 
-  serialize(deserialized) {
-    let transformed;
-
+  serialize(deserialized: string | number | null | undefined, _options?: Record<string, unknown>): number | null {
     if (deserialized === '' || deserialized === null || deserialized === undefined) {
       return null;
     } else {
-      transformed = Number(deserialized);
+      const transformed = Number(deserialized);
 
       return isNumber(transformed) ? transformed : null;
     }

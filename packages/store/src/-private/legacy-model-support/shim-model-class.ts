@@ -3,15 +3,17 @@ import type { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/re
 
 import type Store from '../store-service';
 
+type GenericRecord = Record<string, unknown>;
+
 // if modelFor turns out to be a bottleneck we should replace with a Map
 // and clear it during store teardown.
-const AvailableShims = new WeakMap<Store, Record<string, ShimModelClass>>();
+const AvailableShims = new WeakMap<Store, Record<string, ShimModelClass<GenericRecord>>>();
 
-export function getShimClass(store: Store, modelName: string): ShimModelClass {
+export function getShimClass(store: Store, modelName: string): ShimModelClass<GenericRecord> {
   let shims = AvailableShims.get(store);
 
   if (!shims) {
-    shims = Object.create(null) as Record<string, ShimModelClass>;
+    shims = Object.create(null) as Record<string, ShimModelClass<GenericRecord>>;
     AvailableShims.set(store, shims);
   }
 
@@ -23,8 +25,8 @@ export function getShimClass(store: Store, modelName: string): ShimModelClass {
   return shim;
 }
 
-function mapFromHash<T>(hash: Record<string, T>): Map<string, T> {
-  const map: Map<string, T> = new Map();
+function mapFromHash<K extends string, T>(hash: Record<K, T>): Map<K, T> {
+  const map: Map<K, T> = new Map();
   for (let i in hash) {
     if (Object.prototype.hasOwnProperty.call(hash, i)) {
       map.set(i, hash[i]);
@@ -34,7 +36,7 @@ function mapFromHash<T>(hash: Record<string, T>): Map<string, T> {
 }
 
 // Mimics the static apis of @ember-data/model
-export default class ShimModelClass implements ModelSchema {
+export default class ShimModelClass<T extends object> implements ModelSchema<T> {
   declare __store: Store;
   declare modelName: string;
   constructor(store: Store, modelName: string) {
@@ -42,49 +44,49 @@ export default class ShimModelClass implements ModelSchema {
     this.modelName = modelName;
   }
 
-  get fields(): Map<string, 'attribute' | 'belongsTo' | 'hasMany'> {
+  get fields(): Map<keyof T & string, 'attribute' | 'belongsTo' | 'hasMany'> {
     let attrs = this.__store.getSchemaDefinitionService().attributesDefinitionFor({ type: this.modelName });
     let relationships = this.__store.getSchemaDefinitionService().relationshipsDefinitionFor({ type: this.modelName });
-    let fields = new Map<string, 'attribute' | 'belongsTo' | 'hasMany'>();
-    Object.keys(attrs).forEach((key) => fields.set(key, 'attribute'));
-    Object.keys(relationships).forEach((key) => fields.set(key, relationships[key]!.kind));
+    let fields = new Map<keyof T & string, 'attribute' | 'belongsTo' | 'hasMany'>();
+    Object.keys(attrs).forEach((key) => fields.set(key as keyof T & string, 'attribute'));
+    Object.keys(relationships).forEach((key) => fields.set(key as keyof T & string, relationships[key]!.kind));
     return fields;
   }
 
-  get attributes(): Map<string, AttributeSchema> {
+  get attributes(): Map<keyof T & string, AttributeSchema> {
     let attrs = this.__store.getSchemaDefinitionService().attributesDefinitionFor({ type: this.modelName });
-    return mapFromHash(attrs);
+    return mapFromHash(attrs as Record<keyof T & string, AttributeSchema>);
   }
 
-  get relationshipsByName(): Map<string, RelationshipSchema> {
+  get relationshipsByName(): Map<keyof T & string, RelationshipSchema> {
     let relationships = this.__store.getSchemaDefinitionService().relationshipsDefinitionFor({ type: this.modelName });
-    return mapFromHash(relationships);
+    return mapFromHash(relationships as Record<keyof T & string, RelationshipSchema>);
   }
 
-  eachAttribute<T>(callback: (this: T | undefined, key: string, attribute: AttributeSchema) => void, binding?: T) {
+  eachAttribute<K extends keyof T & string>(callback: (key: K, attribute: AttributeSchema) => void, binding?: T) {
     let attrDefs = this.__store.getSchemaDefinitionService().attributesDefinitionFor({ type: this.modelName });
     Object.keys(attrDefs).forEach((key) => {
-      callback.call(binding, key, attrDefs[key]);
+      callback.call(binding, key as K, attrDefs[key]);
     });
   }
 
-  eachRelationship<T>(
-    callback: (this: T | undefined, key: string, relationship: RelationshipSchema) => void,
+  eachRelationship<K extends keyof T & string>(
+    callback: (key: K, relationship: RelationshipSchema) => void,
     binding?: T
   ) {
     let relationshipDefs = this.__store
       .getSchemaDefinitionService()
       .relationshipsDefinitionFor({ type: this.modelName });
     Object.keys(relationshipDefs).forEach((key) => {
-      callback.call(binding, key, relationshipDefs[key]);
+      callback.call(binding, key as K, relationshipDefs[key]);
     });
   }
 
-  eachTransformedAttribute<T>(callback: (this: T | undefined, key: string, type: string | null) => void, binding?: T) {
+  eachTransformedAttribute<K extends keyof T & string>(callback: (key: K, type: string | null) => void, binding?: T) {
     const attrDefs = this.__store.getSchemaDefinitionService().attributesDefinitionFor({ type: this.modelName });
     Object.keys(attrDefs).forEach((key) => {
       if (attrDefs[key]!.type) {
-        callback.call(binding, key, attrDefs[key].type);
+        callback.call(binding, key as K, attrDefs[key].type);
       }
     });
   }
