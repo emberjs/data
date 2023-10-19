@@ -187,6 +187,7 @@ By default when using with Ember you only need to implement this hook if you wan
   @main @ember-data/adapter
 */
 
+import { assert } from '@ember/debug';
 import EmberObject from '@ember/object';
 import { inject as service } from '@ember/service';
 
@@ -195,6 +196,7 @@ import type { Snapshot, SnapshotRecordArray } from '@ember-data/legacy-compat/-p
 import type Store from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/types/q/ds-model';
 import type { AdapterPayload, MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapter-interface';
+import { SerializerOptions } from '@ember-data/types/q/minimum-serializer-interface';
 
 /**
   An adapter is an object that receives requests from a store and
@@ -486,8 +488,13 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @return {Object} serialized snapshot
     @public
   */
-  serialize(snapshot, options): Record<string, unknown> {
-    return snapshot.serialize(options);
+  serialize(snapshot: Snapshot, options: SerializerOptions): Record<string, unknown> {
+    const serialized = snapshot.serialize(options);
+    assert(
+      `Your adapter's serialize method must return an object, but it returned ${typeof serialized}`,
+      serialized && typeof serialized === 'object'
+    );
+    return serialized as Record<string, unknown>;
   }
 
   /**

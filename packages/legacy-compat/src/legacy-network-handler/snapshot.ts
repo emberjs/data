@@ -13,7 +13,7 @@ import type Store from '@ember-data/store';
 import { CollectionRelationship } from '@ember-data/types/cache/relationship';
 import type { ChangedAttributesHash } from '@ember-data/types/q/cache';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { OptionsHash } from '@ember-data/types/q/minimum-serializer-interface';
+import type { SerializerOptions } from '@ember-data/types/q/minimum-serializer-interface';
 import type { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { FindOptions } from '@ember-data/types/q/store';
@@ -548,7 +548,7 @@ export default class Snapshot implements Snapshot {
     @return {Object} an object whose values are primitive JSON values only
     @public
    */
-  serialize(options?: OptionsHash): unknown {
+  serialize(options?: SerializerOptions): unknown {
     const serializer = this._store.serializerFor(this.modelName);
     assert(`Cannot serialize record, no serializer found`, serializer);
     return serializer.serialize(this, options);
