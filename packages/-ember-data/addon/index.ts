@@ -215,61 +215,90 @@ deprecate(
   }
 );
 
+interface DSLibrary extends DS {
+  Store: typeof Store;
+  PromiseArray: typeof PromiseArray;
+  PromiseObject: typeof PromiseObject;
+  PromiseManyArray: typeof PromiseManyArray;
+  Model: typeof Model;
+  attr: attr;
+  Errors: typeof Errors;
+  Snapshot: typeof Snapshot;
+  Adapter: typeof Adapter;
+  AdapterError: typeof AdapterError;
+  InvalidError: typeof InvalidError;
+  TimeoutError: typeof TimeoutError;
+  AbortError: typeof AbortError;
+  UnauthorizedError: typeof UnauthorizedError;
+  ForbiddenError: typeof ForbiddenError;
+  NotFoundError: typeof NotFoundError;
+  ConflictError: typeof ConflictError;
+  ServerError: typeof ServerError;
+  Serializer: typeof Serializer;
+  DebugAdapter?: typeof import('@ember-data/debug').default;
+  ManyArray: typeof ManyArray;
+  RecordArrayManager: typeof RecordArrayManager;
+  RESTAdapter: typeof RESTAdapter;
+  BuildURLMixin: typeof BuildURLMixin;
+  RESTSerializer: typeof RESTSerializer;
+  JSONSerializer: typeof JSONSerializer;
+  JSONAPIAdapter: typeof JSONAPIAdapter;
+  JSONAPISerializer: typeof JSONAPISerializer;
+  Transform: typeof Transform;
+  DateTransform: typeof DateTransform;
+  StringTransform: typeof StringTransform;
+  NumberTransform: typeof NumberTransform;
+  BooleanTransform: typeof BooleanTransform;
+  EmbeddedRecordsMixin: typeof EmbeddedRecordsMixin;
+  belongsTo: typeof belongsTo;
+  hasMany: typeof hasMany;
+  _setupContainer: typeof setupContainer;
+}
+
+function upgradeDS(obj: unknown): asserts obj is DSLibrary {}
+
+upgradeDS(DS);
+
 DS.Store = Store;
 DS.PromiseArray = PromiseArray;
 DS.PromiseObject = PromiseObject;
-
 DS.PromiseManyArray = PromiseManyArray;
-
 DS.Model = Model;
 DS.attr = attr;
 DS.Errors = Errors;
-
 DS.Snapshot = Snapshot;
-
 DS.Adapter = Adapter;
-
 DS.AdapterError = AdapterError;
 DS.InvalidError = InvalidError;
 DS.TimeoutError = TimeoutError;
 DS.AbortError = AbortError;
-
 DS.UnauthorizedError = UnauthorizedError;
 DS.ForbiddenError = ForbiddenError;
 DS.NotFoundError = NotFoundError;
 DS.ConflictError = ConflictError;
 DS.ServerError = ServerError;
-
 DS.Serializer = Serializer;
 
 if (macroCondition(dependencySatisfies('@ember-data/debug', '*'))) {
-  DS.DebugAdapter = importSync('@ember-data/debug').default;
+  DS.DebugAdapter = (importSync('@ember-data/debug') as typeof import('@ember-data/debug')).default;
 }
 
 DS.ManyArray = ManyArray;
-
 DS.RecordArrayManager = RecordArrayManager;
-
 DS.RESTAdapter = RESTAdapter;
 DS.BuildURLMixin = BuildURLMixin;
-
 DS.RESTSerializer = RESTSerializer;
 DS.JSONSerializer = JSONSerializer;
-
 DS.JSONAPIAdapter = JSONAPIAdapter;
 DS.JSONAPISerializer = JSONAPISerializer;
-
 DS.Transform = Transform;
 DS.DateTransform = DateTransform;
 DS.StringTransform = StringTransform;
 DS.NumberTransform = NumberTransform;
 DS.BooleanTransform = BooleanTransform;
-
 DS.EmbeddedRecordsMixin = EmbeddedRecordsMixin;
-
 DS.belongsTo = belongsTo;
 DS.hasMany = hasMany;
-
 DS._setupContainer = setupContainer;
 
 export default DS;
