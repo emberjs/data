@@ -1,0 +1,15 @@
+{
+  "name": "warp-drive__schema",
+  "version": "5.5.0-alpha.11",
+  "private": true,
+  "description": "Tests for the @warp-drive/schema package",
+  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "tests/warp-drive__schema"
+  },
+  "license": "MIT",
+  "author": ""
+
+}

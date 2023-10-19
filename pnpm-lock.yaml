@@ -3335,6 +3335,8 @@ importers:
       '@ember-data/unpublished-test-infra':
         injected: true
 
+  tests/warp-drive__schema: {}
+
   tests/warp-drive__schema-record:
     devDependencies:
       '@babel/core':
