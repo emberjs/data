@@ -752,38 +752,7 @@ export default class JSONAPICache implements Cache {
    */
   willCommit(identifier: StableRecordIdentifier): void {
     const cached = this.__peek(identifier, false);
-
-    /*
-      if we have multiple saves in flight at once then
-      we have information loss no matter what. This
-      attempts to lose the least information.
-
-      If we were to clear inflightAttrs, previous requests
-      would not be able to use it during their didCommit.
-
-      If we upsert inflightattrs, previous requests incorrectly
-      see more recent inflight changes as part of their own and
-      will incorrectly mark the new state as the correct remote state.
-
-      We choose this latter behavior to avoid accidentally removing
-      earlier changes.
-
-      If apps do not want this behavior they can either
-      - chain save requests serially vs allowing concurrent saves
-      - move to using a request handler that caches the inflight state
-        on a per-request basis
-      - change their save requests to only send a "PATCH" instead of a "PUT"
-        so that only latest changes are involved in each request, and then also
-        ensure that the API or their handler reflects only those changes back
-        for upsert into the cache.
-    */
-    if (cached.inflightAttrs) {
-      if (cached.localAttrs) {
-        Object.assign(cached.inflightAttrs, cached.localAttrs);
-      }
-    } else {
-      cached.inflightAttrs = cached.localAttrs;
-    }
+    cached.inflightAttrs = cached.localAttrs;
     cached.localAttrs = null;
 
     if (DEBUG) {
