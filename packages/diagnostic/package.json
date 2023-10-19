@@ -100,7 +100,6 @@
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "ember-cli-test-loader": "^3.1.0",
-    "@ember/test-helpers": "^3.2.0",
     "rollup": "^4.1.1",
     "tslib": "^2.6.2",
     "typescript": "^5.2.2",
