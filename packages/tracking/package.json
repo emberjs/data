@@ -42,7 +42,6 @@
     "ember-data-logo-dark.svg",
     "ember-data-logo-light.svg"
   ],
-  "type": "module",
   "exports": {
     ".": {
       "types": "./unstable-preview-types/index.d.ts",
