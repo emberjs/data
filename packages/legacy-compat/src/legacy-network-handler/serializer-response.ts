@@ -1,11 +1,14 @@
 import { assert } from '@ember/debug';
 
 import { DEBUG } from '@ember-data/env';
+import type { AdapterPayload } from '@ember-data/legacy-compat/legacy-network-handler/minimum-adapter-interface';
+import type {
+  MinimumSerializerInterface,
+  RequestType,
+} from '@ember-data/legacy-compat/legacy-network-handler/minimum-serializer-interface';
 import type Store from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
 import type { JsonApiDocument } from '@ember-data/store/-types/q/ember-data-json-api';
-import type { AdapterPayload } from '@ember-data/store/-types/q/minimum-adapter-interface';
-import type { MinimumSerializerInterface, RequestType } from '@ember-data/store/-types/q/minimum-serializer-interface';
 
 /**
   This is a helper method that validates a JSON API top-level document

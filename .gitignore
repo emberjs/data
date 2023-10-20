@@ -7,6 +7,7 @@ concat-stats-for
 dist
 dist-*
 tmp
+unstable-preview-types
 packages/tracking/addon
 packages/request/addon
 packages/store/addon

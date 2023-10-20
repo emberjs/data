@@ -3,13 +3,14 @@ import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 
+import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import Store, {
+import {
   recordIdentifierFor,
   setIdentifierForgetMethod,
   setIdentifierGenerationMethod,
@@ -30,7 +31,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
   hooks.beforeEach(function () {
     const { owner } = this;
 
-    owner.register('adapter:application', JSONAPIAdapter.extend());
+    owner.register('adapter:application', class extends JSONAPIAdapter {});
     owner.register('serializer:application', class extends JSONAPISerializer {});
     class User extends Model {
       @attr()

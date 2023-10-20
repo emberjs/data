@@ -12,7 +12,7 @@
 **/tmp/
 **/unstable-preview-types/
 /packages/-ember-data/docs/
-/packages/tracking/addon/
+/packages/tracking/
 /packages/request/
 /packages/store/addon/
 /packages/adapter/addon/

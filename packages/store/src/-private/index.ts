@@ -38,3 +38,4 @@ export { default as peekCache, removeRecordDataFor } from './caches/cache-utils'
 // @ember-data/model needs these temporarily
 export { setRecordIdentifier, StoreMap } from './caches/instance-cache';
 export { setCacheFor } from './caches/cache-utils';
+export { default as _deprecatingNormalize } from './utils/normalize-model-name';

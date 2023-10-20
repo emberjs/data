@@ -3,6 +3,7 @@ import { assert, warn } from '@ember/debug';
 import { importSync } from '@embroider/macros';
 
 import { DEBUG, TESTING } from '@ember-data/env';
+import type { MinimumSerializerInterface } from '@ember-data/legacy-compat/legacy-network-handler/minimum-serializer-interface';
 import { HAS_GRAPH_PACKAGE } from '@ember-data/packages';
 import { createDeferred } from '@ember-data/request';
 import type { Deferred } from '@ember-data/request/-private/types';
@@ -11,19 +12,19 @@ import { coerceId } from '@ember-data/store/-private';
 import { StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
 import type { InstanceCache } from '@ember-data/store/-private/caches/instance-cache';
 import type RequestStateService from '@ember-data/store/-private/network/request-cache';
-import type { Request } from '@ember-data/store/-private/network/request-cache';
+import type { FindRecordQuery, Request, SaveRecordMutation } from '@ember-data/store/-private/network/request-cache';
 import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
 import type {
   CollectionResourceDocument,
   SingleResourceDocument,
 } from '@ember-data/store/-types/q/ember-data-json-api';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
-import { AdapterPayload, MinimumAdapterInterface } from '@ember-data/store/-types/q/minimum-adapter-interface';
-import type { MinimumSerializerInterface } from '@ember-data/store/-types/q/minimum-serializer-interface';
 import type { FindOptions } from '@ember-data/store/-types/q/store';
 
+import { upgradeStore } from '../-private';
 import { assertIdentifierHasId } from './identifier-has-id';
 import { payloadIsNotBlank } from './legacy-data-utils';
+import { AdapterPayload, MinimumAdapterInterface } from './minimum-adapter-interface';
 import { normalizeResponseHelper } from './serializer-response';
 import Snapshot from './snapshot';
 
@@ -31,20 +32,6 @@ type AdapterErrors = Error & { errors?: string[]; isAdapterError?: true };
 type SerializerWithParseErrors = MinimumSerializerInterface & {
   extractErrors?(store: Store, modelClass: ModelSchema, error: AdapterErrors, recordId: string | null): unknown;
 };
-
-export interface Operation {
-  op: string;
-  options: FindOptions | undefined;
-  recordIdentifier: StableRecordIdentifier;
-}
-
-export interface FindRecordQuery extends Operation {
-  op: 'findRecord';
-}
-
-export interface SaveRecordMutation extends Operation {
-  op: 'saveRecord';
-}
 
 export const SaveOp: unique symbol = Symbol('SaveOp');
 
@@ -380,6 +367,7 @@ function _findMany(
     assert('adapter.findMany returned undefined, this was very likely a mistake', ret !== undefined);
     return ret;
   });
+  upgradeStore(store);
 
   return promise.then((adapterPayload) => {
     assert(
@@ -486,6 +474,7 @@ function handleFoundRecords(
 }
 
 function _fetchRecord(store: Store, adapter: MinimumAdapterInterface, fetchItem: PendingFetchItem) {
+  upgradeStore(store);
   let identifier = fetchItem.identifier;
   let modelName = identifier.type;
 
@@ -561,6 +550,7 @@ function _flushPendingFetchForType(
   pendingFetchMap: Map<StableExistingRecordIdentifier, PendingFetchItem[]>,
   modelName: string
 ) {
+  upgradeStore(store);
   let adapter = store.adapterFor(modelName);
   let shouldCoalesce = !!adapter.findMany && adapter.coalesceFindRequests;
 
@@ -611,6 +601,7 @@ function _flushPendingFetchForType(
 
 function _flushPendingSave(store: Store, pending: PendingSaveItem) {
   const { snapshot, resolver, identifier, options } = pending;
+  upgradeStore(store);
   const adapter = store.adapterFor(identifier.type);
   const operation = options[SaveOp];
 

@@ -2,20 +2,17 @@
   @module @ember-data/store
  */
 // this import location is deprecated but breaks in 4.8 and older
-import { getOwner } from '@ember/application';
 import { assert } from '@ember/debug';
 import EmberObject from '@ember/object';
 
 import { LOG_PAYLOADS, LOG_REQUESTS } from '@ember-data/debugging';
 import { DEBUG, TESTING } from '@ember-data/env';
 import type { Graph } from '@ember-data/graph/-private/graph';
-import type { FetchManager } from '@ember-data/legacy-compat/-private';
 import type RequestManager from '@ember-data/request';
 import type { Future } from '@ember-data/request/-private/types';
 
 import { ResourceDocument } from '../-types/cache/document';
 import { StableDocumentIdentifier } from '../-types/cache/identifier';
-import { ObjectValue } from '../-types/json/raw';
 import type { Cache, CacheV1 } from '../-types/q/cache';
 import type { CacheCapabilitiesManager } from '../-types/q/cache-store-wrapper';
 import { ModelSchema } from '../-types/q/ds-model';
@@ -27,8 +24,6 @@ import type {
   SingleResourceDocument,
 } from '../-types/q/ember-data-json-api';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '../-types/q/identifier';
-import type { MinimumAdapterInterface } from '../-types/q/minimum-adapter-interface';
-import type { MinimumSerializerInterface } from '../-types/q/minimum-serializer-interface';
 import type { RecordInstance } from '../-types/q/record-instance';
 import type { SchemaService } from '../-types/q/schema-service';
 import type { FindOptions } from '../-types/q/store';
@@ -61,6 +56,14 @@ import constructResource from './utils/construct-resource';
 import normalizeModelName from './utils/normalize-model-name';
 
 export { storeFor };
+
+type CompatStore = Store & {
+  adapterFor?: (
+    type: string,
+    _allowMissing?: boolean
+  ) => undefined | { generateIdForRecord?(store: Store, type: string, properties: object): string };
+};
+function upgradeStore(store: Store): asserts store is CompatStore {}
 
 export interface CreateRecordProperties {
   id?: string | null;
@@ -201,9 +204,6 @@ class Store extends EmberObject {
 
   // Private
   declare _graph?: Graph;
-  declare _fetchManager: FetchManager;
-  declare _adapterCache: Record<string, MinimumAdapterInterface & { store: Store }>;
-  declare _serializerCache: Record<string, MinimumSerializerInterface & { store: Store }>;
   declare _requestCache: RequestStateService;
   declare _instanceCache: InstanceCache;
   declare _documentCache: Map<StableDocumentIdentifier, Document<RecordInstance | RecordInstance[] | null | undefined>>;
@@ -250,8 +250,6 @@ class Store extends EmberObject {
     // private
     this._requestCache = new RequestStateService(this);
     this._instanceCache = new InstanceCache(this);
-    this._adapterCache = Object.create(null) as Record<string, MinimumAdapterInterface & { store: Store }>;
-    this._serializerCache = Object.create(null) as Record<string, MinimumSerializerInterface & { store: Store }>;
     this._documentCache = new Map();
 
     this.isDestroying = false;
@@ -672,7 +670,8 @@ class Store extends EmberObject {
       // to avoid conflicts.
 
       if (properties.id === null || properties.id === undefined) {
-        let adapter = this.adapterFor(modelName, true);
+        upgradeStore(this);
+        let adapter = this.adapterFor?.(modelName, true);
 
         if (adapter && adapter.generateIdForRecord) {
           properties.id = adapter.generateIdForRecord(this, modelName, properties);
@@ -2040,79 +2039,6 @@ class Store extends EmberObject {
   }
 
   /**
-    Push some raw data into the store.
-
-    This method can be used both to push in brand new
-    records, as well as to update existing records. You
-    can push in more than one type of object at once.
-    All objects should be in the format expected by the
-    serializer.
-
-    ```app/serializers/application.js
-    import RESTSerializer from '@ember-data/serializer/rest';
-
-    export default class ApplicationSerializer extends RESTSerializer;
-    ```
-
-    ```js
-    let pushData = {
-      posts: [
-        { id: 1, postTitle: "Great post", commentIds: [2] }
-      ],
-      comments: [
-        { id: 2, commentBody: "Insightful comment" }
-      ]
-    }
-
-    store.pushPayload(pushData);
-    ```
-
-    By default, the data will be deserialized using a default
-    serializer (the application serializer if it exists).
-
-    Alternatively, `pushPayload` will accept a model type which
-    will determine which serializer will process the payload.
-
-    ```app/serializers/application.js
-    import RESTSerializer from '@ember-data/serializer/rest';
-
-     export default class ApplicationSerializer extends RESTSerializer;
-    ```
-
-    ```app/serializers/post.js
-    import JSONSerializer from '@ember-data/serializer/json';
-
-    export default JSONSerializer;
-    ```
-
-    ```js
-    store.pushPayload(pushData); // Will use the application serializer
-    store.pushPayload('post', pushData); // Will use the post serializer
-    ```
-
-    @method pushPayload
-    @public
-    @param {String} modelName Optionally, a model type used to determine which serializer will be used
-    @param {Object} inputPayload
-  */
-  // TODO @runspired @deprecate pushPayload in favor of looking up the serializer
-  pushPayload(modelName: string, inputPayload: ObjectValue): void {
-    if (DEBUG) {
-      assertDestroyingStore(this, 'pushPayload');
-    }
-
-    const payload = inputPayload || (modelName as unknown as object);
-    const normalizedModelName = inputPayload ? normalizeModelName(modelName) : 'application';
-    const serializer = this.serializerFor(normalizedModelName);
-
-    assert(
-      `You cannot use 'store.pushPayload(<type>, <payload>)' unless the serializer for '${normalizedModelName}' defines 'pushPayload'`,
-      serializer && typeof serializer.pushPayload === 'function'
-    );
-    serializer.pushPayload(this, payload);
-  }
-
-  /**
    * Trigger a save for a Record.
    *
    * @method saveRecord
@@ -2200,159 +2126,6 @@ class Store extends EmberObject {
     return cache;
   }
 
-  /**
-    `normalize` converts a json payload into the normalized form that
-    [push](../methods/push?anchor=push) expects.
-
-    Example
-
-    ```js
-    socket.on('message', function(message) {
-      let modelName = message.model;
-      let data = message.data;
-      store.push(store.normalize(modelName, data));
-    });
-    ```
-
-    @method normalize
-    @public
-    @param {String} modelName The name of the model type for this payload
-    @param {Object} payload
-    @return {Object} The normalized payload
-  */
-  // TODO @runspired @deprecate users should call normalize on the associated serializer directly
-  normalize(modelName: string, payload: ObjectValue) {
-    if (DEBUG) {
-      assertDestroyingStore(this, 'normalize');
-    }
-    assert(`You need to pass a model name to the store's normalize method`, modelName);
-    assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${typeof modelName}`,
-      typeof modelName === 'string'
-    );
-    const normalizedModelName = normalizeModelName(modelName);
-    const serializer = this.serializerFor(normalizedModelName);
-    const schema = this.modelFor(normalizedModelName);
-    assert(
-      `You must define a normalize method in your serializer in order to call store.normalize`,
-      typeof serializer?.normalize === 'function'
-    );
-    return serializer.normalize(schema, payload);
-  }
-
-  /**
-    Returns an instance of the adapter for a given type. For
-    example, `adapterFor('person')` will return an instance of
-    the adapter located at `app/adapters/person.js`
-
-    If no `person` adapter is found, this method will look
-    for an `application` adapter (the default adapter for
-    your entire application).
-
-    @method adapterFor
-    @public
-    @param {String} modelName
-    @return Adapter
-  */
-  adapterFor(modelName: string): MinimumAdapterInterface;
-  adapterFor(modelName: string, _allowMissing: true): MinimumAdapterInterface | undefined;
-  adapterFor(modelName: string, _allowMissing?: true): MinimumAdapterInterface | undefined {
-    if (DEBUG) {
-      assertDestroyingStore(this, 'adapterFor');
-    }
-    assert(`You need to pass a model name to the store's adapterFor method`, modelName);
-    assert(
-      `Passing classes to store.adapterFor has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
-    );
-    let normalizedModelName = normalizeModelName(modelName);
-
-    let { _adapterCache } = this;
-    let adapter: (MinimumAdapterInterface & { store: Store }) | undefined = _adapterCache[normalizedModelName];
-    if (adapter) {
-      return adapter;
-    }
-
-    const owner = getOwner(this)!;
-
-    // name specific adapter
-    adapter = owner.lookup(`adapter:${normalizedModelName}`) as
-      | (MinimumAdapterInterface & { store: Store })
-      | undefined;
-    if (adapter !== undefined) {
-      _adapterCache[normalizedModelName] = adapter;
-      return adapter;
-    }
-
-    // no adapter found for the specific name, fallback and check for application adapter
-    adapter = _adapterCache.application || owner.lookup('adapter:application');
-    if (adapter !== undefined) {
-      _adapterCache[normalizedModelName] = adapter;
-      _adapterCache.application = adapter;
-      return adapter;
-    }
-
-    assert(
-      `No adapter was found for '${modelName}' and no 'application' adapter was found as a fallback.`,
-      _allowMissing
-    );
-  }
-
-  /**
-    Returns an instance of the serializer for a given type. For
-    example, `serializerFor('person')` will return an instance of
-    `App.PersonSerializer`.
-
-    If no `App.PersonSerializer` is found, this method will look
-    for an `App.ApplicationSerializer` (the default serializer for
-    your entire application).
-
-    If a serializer cannot be found on the adapter, it will fall back
-    to an instance of `JSONSerializer`.
-
-    @method serializerFor
-    @public
-    @param {String} modelName the record to serialize
-    @return {Serializer}
-  */
-  serializerFor(modelName: string): MinimumSerializerInterface | null {
-    if (DEBUG) {
-      assertDestroyingStore(this, 'serializerFor');
-    }
-    assert(`You need to pass a model name to the store's serializerFor method`, modelName);
-    assert(
-      `Passing classes to store.serializerFor has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
-    );
-    let normalizedModelName = normalizeModelName(modelName);
-
-    let { _serializerCache } = this;
-    let serializer: (MinimumSerializerInterface & { store: Store }) | undefined = _serializerCache[normalizedModelName];
-    if (serializer) {
-      return serializer;
-    }
-
-    // by name
-    const owner = getOwner(this)!;
-    serializer = owner.lookup(`serializer:${normalizedModelName}`) as
-      | (MinimumSerializerInterface & { store: Store })
-      | undefined;
-    if (serializer !== undefined) {
-      _serializerCache[normalizedModelName] = serializer;
-      return serializer;
-    }
-
-    // no serializer found for the specific model, fallback and check for application serializer
-    serializer = _serializerCache.application || owner.lookup('serializer:application');
-    if (serializer !== undefined) {
-      _serializerCache[normalizedModelName] = serializer;
-      _serializerCache.application = serializer;
-      return serializer;
-    }
-
-    return null;
-  }
-
   // @ts-expect-error
   destroy(): void {
     if (this.isDestroyed) {
@@ -2360,20 +2133,6 @@ class Store extends EmberObject {
       return;
     }
     this.isDestroying = true;
-    // enqueue destruction of any adapters/serializers we have created
-    for (let adapterName in this._adapterCache) {
-      let adapter = this._adapterCache[adapterName]!;
-      if (typeof adapter.destroy === 'function') {
-        adapter.destroy();
-      }
-    }
-
-    for (let serializerName in this._serializerCache) {
-      let serializer = this._serializerCache[serializerName]!;
-      if (typeof serializer.destroy === 'function') {
-        serializer.destroy();
-      }
-    }
 
     this._graph?.destroy();
     this._graph = undefined;

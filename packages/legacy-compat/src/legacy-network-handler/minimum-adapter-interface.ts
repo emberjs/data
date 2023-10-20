@@ -4,9 +4,8 @@
 import type { Snapshot, SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
 import type Store from '@ember-data/store';
 import type { Collection } from '@ember-data/store/-private/record-arrays/identifier-array';
-
-import type { ModelSchema } from './ds-model';
-import type { RelationshipSchema } from './record-data-schemas';
+import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
+import type { RelationshipSchema } from '@ember-data/store/-types/q/record-data-schemas';
 
 type Group = Snapshot[];
 // TODO this should probably just alias unknown

@@ -2,11 +2,11 @@ import EmberObject, { set } from '@ember/object';
 
 import { module, test } from 'qunit';
 
+import type Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import Model, { attr } from '@ember-data/model';
-import type Store from '@ember-data/store';
 import {
   recordIdentifierFor,
   setIdentifierForgetMethod,
