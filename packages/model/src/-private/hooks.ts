@@ -52,7 +52,7 @@ export function teardownRecord(record: Model): void {
 
 export function modelFor(this: Store, modelName: string): typeof Model | void {
   assert(
-    `Attempted to call store.modelFor(), but the store instance has already been destroyed`,
+    `Attempted to call store.modelFor(), but the store instance has already been destroyed.`,
     !this.isDestroyed && !this.isDestroying
   );
   assert(`You need to pass a model name to the store's modelFor method`, modelName);
