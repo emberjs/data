@@ -425,6 +425,10 @@ importers:
         injected: true
 
   packages/core:
+    dependencies:
+      '@ember-data/private-build-infra':
+        specifier: workspace:5.5.0-alpha.11
+        version: file:packages/private-build-infra
     devDependencies:
       '@babel/cli':
         specifier: ^7.23.0
@@ -489,6 +493,9 @@ importers:
       webpack:
         specifier: ^5.89.0
         version: 5.89.0
+    dependenciesMeta:
+      '@ember-data/private-build-infra':
+        injected: true
 
   packages/debug:
     dependencies:
@@ -17692,6 +17699,11 @@ packages:
     resolution: {directory: packages/core, type: directory}
     name: '@warp-drive/core'
     engines: {node: '>= 18.18.2'}
+    dependencies:
+      '@ember-data/private-build-infra': file:packages/private-build-infra
+    transitivePeerDependencies:
+      - '@glint/template'
+      - supports-color
 
   file:packages/debug(@ember-data/store@5.5.0-alpha.11)(@ember/string@3.1.1):
     resolution: {directory: packages/debug, type: directory}
