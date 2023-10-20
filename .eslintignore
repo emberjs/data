@@ -10,6 +10,7 @@
 **/dist-tests/
 **/dist-test/
 **/tmp/
+**/unstable-preview-types/
 /packages/-ember-data/docs/
 /packages/tracking/addon/
 /packages/request/

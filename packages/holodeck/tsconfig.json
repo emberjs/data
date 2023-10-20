@@ -44,7 +44,7 @@
     "baseUrl": "client",
 
     "paths": {
-      "@ember-data/request": ["../../request/addon"],
+      "@ember-data/request": ["../../request/unstable-preview-types"],
     }
   }
 }
