@@ -10,13 +10,13 @@ import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection
 import { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
 import { HAS_JSON_API_PACKAGE } from '@ember-data/packages';
 import type Store from '@ember-data/store';
-import { CollectionRelationship } from '@ember-data/types/cache/relationship';
-import type { ChangedAttributesHash } from '@ember-data/types/q/cache';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { SerializerOptions } from '@ember-data/types/q/minimum-serializer-interface';
-import type { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
-import type { RecordInstance } from '@ember-data/types/q/record-instance';
-import type { FindOptions } from '@ember-data/types/q/store';
+import { CollectionRelationship } from '@ember-data/store/-types/cache/relationship';
+import type { ChangedAttributesHash } from '@ember-data/store/-types/q/cache';
+import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
+import type { SerializerOptions } from '@ember-data/store/-types/q/minimum-serializer-interface';
+import type { AttributeSchema, RelationshipSchema } from '@ember-data/store/-types/q/record-data-schemas';
+import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
+import type { FindOptions } from '@ember-data/store/-types/q/store';
 
 type RecordId = string | null;
 

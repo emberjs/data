@@ -23,13 +23,13 @@ import type {
   CollectionResourceDataDocument,
   ResourceDataDocument,
   SingleResourceDataDocument,
-} from '@ember-data/types/cache/document';
-import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
-import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
-import type { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { JsonApiResource } from '@ember-data/types/q/record-data-json-api';
-import type { RecordInstance } from '@ember-data/types/q/record-instance';
+} from '@ember-data/store/-types/cache/document';
+import { StableDocumentIdentifier } from '@ember-data/store/-types/cache/identifier';
+import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
+import type { ResourceIdentifierObject } from '@ember-data/store/-types/q/ember-data-json-api';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
+import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
+import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
 

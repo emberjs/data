@@ -2,11 +2,11 @@ import { assert } from '@ember/debug';
 
 import { LOG_GRAPH } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
-import type { RelationshipDiff } from '@ember-data/types/cache/cache';
-import type { CollectionRelationship, ResourceRelationship } from '@ember-data/types/cache/relationship';
-import { MergeOperation } from '@ember-data/types/q/cache';
-import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { RelationshipDiff } from '@ember-data/store/-types/cache/cache';
+import type { CollectionRelationship, ResourceRelationship } from '@ember-data/store/-types/cache/relationship';
+import { MergeOperation } from '@ember-data/store/-types/q/cache';
+import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
+import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
 
 import { rollbackRelationship } from './-diff';
 import type { EdgeCache, UpgradedMeta } from './-edge-definition';

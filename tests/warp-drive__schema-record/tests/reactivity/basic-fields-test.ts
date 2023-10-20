@@ -8,7 +8,7 @@ import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 
 import type Store from '@ember-data/store';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
 
 import { reactiveContext } from '../-utils/reactive-context';
 

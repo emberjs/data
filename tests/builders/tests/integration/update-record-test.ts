@@ -10,12 +10,12 @@ import RequestManager from '@ember-data/request';
 import type { Future, Handler, RequestContext } from '@ember-data/request/-private/types';
 import { setBuildURLConfig } from '@ember-data/request-utils';
 import DataStore, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
-import type { Cache } from '@ember-data/types/cache/cache';
-import { SingleResourceDataDocument } from '@ember-data/types/cache/document';
-import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
-import { SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import { JsonApiError } from '@ember-data/types/q/record-data-json-api';
+import type { Cache } from '@ember-data/store/-types/cache/cache';
+import { SingleResourceDataDocument } from '@ember-data/store/-types/cache/document';
+import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
+import { SingleResourceDocument } from '@ember-data/store/-types/q/ember-data-json-api';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
+import { JsonApiError } from '@ember-data/store/-types/q/record-data-json-api';
 
 class TestStore extends DataStore {
   constructor(args: unknown) {

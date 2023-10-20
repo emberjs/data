@@ -7,9 +7,9 @@ import { _backburner } from '@ember/runloop';
 
 import { LOG_NOTIFICATIONS } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
-import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
+import { StableDocumentIdentifier } from '../../-types/cache/identifier';
+import type { StableRecordIdentifier } from '../../-types/q/identifier';
 import { isDocumentIdentifier, isStableIdentifier } from '../caches/identifier-cache';
 import type Store from '../store-service';
 

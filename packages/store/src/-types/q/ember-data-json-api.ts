@@ -1,11 +1,11 @@
-import type { Value as JSONValue } from 'json-typescript';
-
 /**
   @module @ember-data/store
 */
 
-export type Meta = Record<string, JSONValue>;
-export type LinkObject = { href: string; meta?: Record<string, JSONValue> };
+import { ArrayValue, ObjectValue } from '../json/raw';
+
+export type Meta = ObjectValue;
+export type LinkObject = { href: string; meta?: Meta };
 export type Link = string | LinkObject;
 export interface Links {
   related?: Link | null;
@@ -99,13 +99,13 @@ export type ResourceIdentifierObject =
 // TODO disallow NewResource, make narrowable
 export interface SingleResourceRelationship {
   data?: ExistingResourceIdentifierObject | NewResourceIdentifierObject | null;
-  meta?: Record<string, JSONValue>;
+  meta?: Meta;
   links?: Links;
 }
 
 export interface CollectionResourceRelationship {
   data?: Array<ExistingResourceIdentifierObject | NewResourceIdentifierObject>;
-  meta?: Record<string, JSONValue>;
+  meta?: Meta;
   links?: PaginationLinks;
 }
 
@@ -114,19 +114,19 @@ export interface CollectionResourceRelationship {
  * @internal
  */
 export interface ExistingResourceObject extends ExistingResourceIdentifierObject {
-  meta?: Record<string, JSONValue>;
-  attributes?: Record<string, JSONValue>;
+  meta?: Meta;
+  attributes?: ObjectValue;
   relationships?: Record<string, SingleResourceRelationship | CollectionResourceRelationship>;
   links?: Links;
 }
 
 interface Document {
   lid?: string;
-  meta?: Record<string, JSONValue>;
+  meta?: Meta;
   included?: ExistingResourceObject[];
-  jsonapi?: Record<string, JSONValue>;
+  jsonapi?: ObjectValue;
   links?: Links | PaginationLinks;
-  errors?: JSONValue[];
+  errors?: ArrayValue;
 }
 
 export interface EmptyResourceDocument extends Document {

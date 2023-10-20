@@ -4,8 +4,8 @@ import { IdentifierCache } from '@ember-data/store/-private/caches/identifier-ca
 import type {
   ExistingResourceIdentifierObject,
   NewResourceIdentifierObject,
-} from '@ember-data/types/q/ember-data-json-api';
-import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+} from '@ember-data/store/-types/q/ember-data-json-api';
+import { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
 
 import type { UpdateRelationshipOperation } from '../-operations';
 import { isBelongsTo, isHasMany, notifyChange } from '../-utils';

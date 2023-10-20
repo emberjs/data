@@ -1,10 +1,9 @@
 import { assert } from '@ember/debug';
 
-import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
-import type { CacheCapabilitiesManager as StoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import { SchemaService } from '@ember-data/types/q/schema-service';
-
+import { StableDocumentIdentifier } from '../../-types/cache/identifier';
+import type { CacheCapabilitiesManager as StoreWrapper } from '../../-types/q/cache-store-wrapper';
+import type { StableRecordIdentifier } from '../../-types/q/identifier';
+import { SchemaService } from '../../-types/q/schema-service';
 import { IdentifierCache, isDocumentIdentifier, isStableIdentifier } from '../caches/identifier-cache';
 import type Store from '../store-service';
 import { NotificationType } from './notification-manager';

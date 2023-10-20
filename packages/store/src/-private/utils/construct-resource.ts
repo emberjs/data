@@ -1,10 +1,6 @@
 import { assert } from '@ember/debug';
 
-import type {
-  ExistingResourceIdentifierObject,
-  ResourceIdentifierObject,
-} from '@ember-data/types/q/ember-data-json-api';
-
+import type { ExistingResourceIdentifierObject, ResourceIdentifierObject } from '../../-types/q/ember-data-json-api';
 import { isStableIdentifier } from '../caches/identifier-cache';
 import coerceId from './coerce-id';
 import isNonEmptyString from './is-non-empty-string';

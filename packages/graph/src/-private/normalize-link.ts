@@ -1,4 +1,4 @@
-import type { Link, LinkObject } from '@ember-data/types/q/ember-data-json-api';
+import type { Link, LinkObject } from '@ember-data/store/-types/q/ember-data-json-api';
 
 /*
   This method normalizes a link to an "links object". If the passed link is

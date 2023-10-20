@@ -13,10 +13,10 @@ import {
   Signal,
   subscribe,
 } from '@ember-data/tracking/-private';
-import { Links, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { RecordInstance } from '@ember-data/types/q/record-instance';
 
+import { Links, PaginationLinks } from '../../-types/q/ember-data-json-api';
+import type { StableRecordIdentifier } from '../../-types/q/identifier';
+import type { RecordInstance } from '../../-types/q/record-instance';
 import { recordIdentifierFor } from '../caches/instance-cache';
 import type RecordArrayManager from '../managers/record-array-manager';
 import type Store from '../store-service';

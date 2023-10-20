@@ -22,7 +22,7 @@ import type {
   ResourceData,
   StableIdentifier,
   StableRecordIdentifier,
-} from '@ember-data/types/q/identifier';
+} from '@ember-data/store/-types/q/identifier';
 
 module('Integration | Identifiers - configuration', function (hooks) {
   setupTest(hooks);

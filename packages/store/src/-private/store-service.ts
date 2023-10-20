@@ -6,33 +6,32 @@ import { getOwner } from '@ember/application';
 import { assert } from '@ember/debug';
 import EmberObject from '@ember/object';
 
-import type { Object as JSONObject } from 'json-typescript';
-
 import { LOG_PAYLOADS, LOG_REQUESTS } from '@ember-data/debugging';
 import { DEBUG, TESTING } from '@ember-data/env';
 import type { Graph } from '@ember-data/graph/-private/graph';
 import type { FetchManager } from '@ember-data/legacy-compat/-private';
 import type RequestManager from '@ember-data/request';
 import type { Future } from '@ember-data/request/-private/types';
-import { ResourceDocument } from '@ember-data/types/cache/document';
-import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
-import type { Cache, CacheV1 } from '@ember-data/types/q/cache';
-import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
-import { ModelSchema } from '@ember-data/types/q/ds-model';
+
+import { ResourceDocument } from '../-types/cache/document';
+import { StableDocumentIdentifier } from '../-types/cache/identifier';
+import { ObjectValue } from '../-types/json/raw';
+import type { Cache, CacheV1 } from '../-types/q/cache';
+import type { CacheCapabilitiesManager } from '../-types/q/cache-store-wrapper';
+import { ModelSchema } from '../-types/q/ds-model';
 import type {
   CollectionResourceDocument,
   EmptyResourceDocument,
   JsonApiDocument,
   ResourceIdentifierObject,
   SingleResourceDocument,
-} from '@ember-data/types/q/ember-data-json-api';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapter-interface';
-import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-serializer-interface';
-import type { RecordInstance } from '@ember-data/types/q/record-instance';
-import type { SchemaService } from '@ember-data/types/q/schema-service';
-import type { FindOptions } from '@ember-data/types/q/store';
-
+} from '../-types/q/ember-data-json-api';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '../-types/q/identifier';
+import type { MinimumAdapterInterface } from '../-types/q/minimum-adapter-interface';
+import type { MinimumSerializerInterface } from '../-types/q/minimum-serializer-interface';
+import type { RecordInstance } from '../-types/q/record-instance';
+import type { SchemaService } from '../-types/q/schema-service';
+import type { FindOptions } from '../-types/q/store';
 import {
   EnableHydration,
   type LifetimesService,
@@ -2097,7 +2096,7 @@ class Store extends EmberObject {
     @param {Object} inputPayload
   */
   // TODO @runspired @deprecate pushPayload in favor of looking up the serializer
-  pushPayload(modelName: string, inputPayload: JSONObject): void {
+  pushPayload(modelName: string, inputPayload: ObjectValue): void {
     if (DEBUG) {
       assertDestroyingStore(this, 'pushPayload');
     }
@@ -2222,7 +2221,7 @@ class Store extends EmberObject {
     @return {Object} The normalized payload
   */
   // TODO @runspired @deprecate users should call normalize on the associated serializer directly
-  normalize(modelName: string, payload: JSONObject) {
+  normalize(modelName: string, payload: ObjectValue) {
     if (DEBUG) {
       assertDestroyingStore(this, 'normalize');
     }

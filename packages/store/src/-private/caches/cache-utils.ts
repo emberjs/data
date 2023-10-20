@@ -1,8 +1,8 @@
 import { assert } from '@ember/debug';
 
-import type { Cache } from '@ember-data/types/q/cache';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { RecordInstance } from '@ember-data/types/q/record-instance';
+import type { Cache } from '../../-types/q/cache';
+import type { StableRecordIdentifier } from '../../-types/q/identifier';
+import type { RecordInstance } from '../../-types/q/record-instance';
 
 /*
  * Returns the Cache instance associated with a given

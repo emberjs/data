@@ -5,13 +5,13 @@ import type Model from '@ember-data/model';
 import type { StructuredDocument } from '@ember-data/request';
 import Store from '@ember-data/store';
 import type { CacheOperation, NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type { SingleResourceDataDocument } from '@ember-data/types/cache/document';
-import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
-import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
-import type { SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { JsonApiResource } from '@ember-data/types/q/record-data-json-api';
-import type { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
+import type { SingleResourceDataDocument } from '@ember-data/store/-types/cache/document';
+import type { StableDocumentIdentifier } from '@ember-data/store/-types/cache/identifier';
+import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
+import type { SingleResourceDocument } from '@ember-data/store/-types/q/ember-data-json-api';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
+import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
+import type { AttributesSchema, RelationshipsSchema } from '@ember-data/store/-types/q/record-data-schemas';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
 class TestStore extends Store {

@@ -1,5 +1,5 @@
-import type { StableRecordIdentifier } from "@ember-data/types/q/identifier";
-import type { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
+import type { StableRecordIdentifier } from "@ember-data/store/-types/q/identifier";
+import type { AttributeSchema, RelationshipSchema } from '@ember-data/store/-types/q/record-data-schemas';
 import type { SchemaRecord } from "./record";
 
 export const Destroy = Symbol('Destroy');

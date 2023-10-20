@@ -10,32 +10,32 @@ import type { LocalRelationshipOperation } from '@ember-data/graph/-private/-ope
 import Model, { attr } from '@ember-data/model';
 import type { StructuredDataDocument, StructuredDocument } from '@ember-data/request';
 import { recordIdentifierFor } from '@ember-data/store';
-import type { ResourceBlob } from '@ember-data/types/cache/aliases';
-import type { RelationshipDiff } from '@ember-data/types/cache/cache';
-import type { Change } from '@ember-data/types/cache/change';
+import type { ResourceBlob } from '@ember-data/store/-types/cache/aliases';
+import type { RelationshipDiff } from '@ember-data/store/-types/cache/cache';
+import type { Change } from '@ember-data/store/-types/cache/change';
 import type {
   CollectionResourceDataDocument,
   ResourceDocument,
   ResourceErrorDocument,
   ResourceMetaDocument,
   SingleResourceDataDocument,
-} from '@ember-data/types/cache/document';
-import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
-import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
-import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
+} from '@ember-data/store/-types/cache/document';
+import type { StableDocumentIdentifier } from '@ember-data/store/-types/cache/identifier';
+import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/store/-types/q/cache';
+import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
 import type {
   CollectionResourceDocument,
   CollectionResourceRelationship,
   JsonApiDocument,
   SingleResourceDocument,
   SingleResourceRelationship,
-} from '@ember-data/types/q/ember-data-json-api';
+} from '@ember-data/store/-types/q/ember-data-json-api';
 import type {
   RecordIdentifier,
   StableExistingRecordIdentifier,
   StableRecordIdentifier,
-} from '@ember-data/types/q/identifier';
-import type { JsonApiError, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
+} from '@ember-data/store/-types/q/identifier';
+import type { JsonApiError, JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 
 class Person extends Model {
   @attr declare firstName: string;

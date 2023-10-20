@@ -1,4 +1,4 @@
-import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import { StableRecordIdentifier } from '../q/identifier';
 
 export interface AddToRelatedRecordsMutation {
   op: 'addToRelatedRecords';

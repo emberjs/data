@@ -1,13 +1,13 @@
 import { assert } from '@ember/debug';
 
 import { defineSignal } from '@ember-data/tracking/-private';
+
 /**
   @module @ember-data/store
 */
-import type { SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { RecordInstance } from '@ember-data/types/q/record-instance';
-
+import type { SingleResourceDocument } from '../../-types/q/ember-data-json-api';
+import type { StableRecordIdentifier } from '../../-types/q/identifier';
+import type { RecordInstance } from '../../-types/q/record-instance';
 import type { NotificationType } from '../managers/notification-manager';
 import type Store from '../store-service';
 

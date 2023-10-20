@@ -5,12 +5,12 @@ import type Model from '@ember-data/model';
 import type { StructuredDataDocument } from '@ember-data/request';
 import Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type { CollectionResourceDataDocument } from '@ember-data/types/cache/document';
-import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
-import type { CollectionResourceDocument } from '@ember-data/types/q/ember-data-json-api';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import { JsonApiResource } from '@ember-data/types/q/record-data-json-api';
-import { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
+import type { CollectionResourceDataDocument } from '@ember-data/store/-types/cache/document';
+import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
+import type { CollectionResourceDocument } from '@ember-data/store/-types/q/ember-data-json-api';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
+import { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
+import { AttributesSchema, RelationshipsSchema } from '@ember-data/store/-types/q/record-data-schemas';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
 class TestStore extends Store {

@@ -9,19 +9,19 @@ import type {
   StructuredDataDocument,
   StructuredErrorDocument,
 } from '@ember-data/request/-private/types';
-import type Store from '@ember-data/store';
+
 import type {
   CollectionResourceDataDocument,
   ResourceDataDocument,
   ResourceErrorDocument,
-} from '@ember-data/types/cache/document';
-import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
-import type { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
-import type { JsonApiError } from '@ember-data/types/q/record-data-json-api';
-import type { RecordInstance } from '@ember-data/types/q/record-instance';
-import type { CreateRequestOptions, DeleteRequestOptions, UpdateRequestOptions } from '@ember-data/types/request';
-
+} from '../-types/cache/document';
+import type { StableDocumentIdentifier } from '../-types/cache/identifier';
+import type { ResourceIdentifierObject } from '../-types/q/ember-data-json-api';
+import type { JsonApiError } from '../-types/q/record-data-json-api';
+import type { RecordInstance } from '../-types/q/record-instance';
+import type { CreateRequestOptions, DeleteRequestOptions, UpdateRequestOptions } from '../-types/request';
 import { Document } from './document';
+import type Store from './store-service';
 
 export interface LifetimesService {
   isHardExpired(identifier: StableDocumentIdentifier): boolean;

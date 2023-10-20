@@ -1,5 +1,5 @@
 import type Store from '@ember-data/store';
-import type { StableRecordIdentifier } from "@ember-data/types/q/identifier";
+import type { StableRecordIdentifier } from "@ember-data/store/-types/q/identifier";
 import { Destroy, SchemaRecord } from './record';
 
 export function instantiateRecord(store: Store, identifier: StableRecordIdentifier, createArgs?: Record<string, unknown>): SchemaRecord {

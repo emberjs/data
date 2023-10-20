@@ -1,8 +1,8 @@
 import { getOwner } from '@ember/application';
 
 import type Store from '@ember-data/store';
-import type { RecordIdentifier } from '@ember-data/types/q/identifier';
-import type { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
+import type { RecordIdentifier } from '@ember-data/store/-types/q/identifier';
+import type { AttributesSchema, RelationshipsSchema } from '@ember-data/store/-types/q/record-data-schemas';
 
 import type { FactoryCache, ModelFactory, ModelStore } from './model';
 import Model from './model';

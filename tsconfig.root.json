@@ -41,8 +41,6 @@
     "paths": {
       "ember-data": ["packages/-ember-data/addon"],
       "ember-data/*": ["packages/-ember-data/addon/*"],
-      "@ember-data/types": ["ember-data-types"],
-      "@ember-data/types/*": ["ember-data-types/*"],
       "@ember-data/store": ["packages/store/src"],
       "@ember-data/store/*": ["packages/store/src/*"],
       "@ember-data/data-worker": ["packages/data-worker/src"],
@@ -105,7 +103,6 @@
   },
   "include": [
     "@types/**/*",
-    "ember-data-types/**/*",
     "packages/**/app/**/*",
     "packages/**/tests/**/*",
     "packages/tracking/src/**/*",
@@ -118,6 +115,8 @@
     "packages/active-record/src/**/*",
     "packages/schema-record/src/**/*",
     "packages/rest/src/**/*",
+    "packages/-ember-data/addon/**/*",
+    "packages/serializer/addon/**/*",
     "packages/model/src/**/*",
     "packages/legacy-compat/src/**/*",
     "packages/json-api/src/**/*",

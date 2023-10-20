@@ -1,6 +1,5 @@
-import type { ModelSchema } from '@ember-data/types/q/ds-model';
-import type { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
-
+import type { ModelSchema } from '../../-types/q/ds-model';
+import type { AttributeSchema, RelationshipSchema } from '../../-types/q/record-data-schemas';
 import type Store from '../store-service';
 
 type GenericRecord = Record<string, unknown>;

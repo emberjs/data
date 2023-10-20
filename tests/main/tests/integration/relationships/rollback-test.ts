@@ -4,7 +4,7 @@ import { setupTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
-import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
 
 class App extends Model {
   @attr declare name: string;

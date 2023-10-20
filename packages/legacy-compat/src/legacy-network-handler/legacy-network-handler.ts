@@ -8,20 +8,20 @@ import type { Future, Handler, NextFn, StructuredDataDocument } from '@ember-dat
 import type Store from '@ember-data/store';
 import type { StoreRequestContext, StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
 import type { Collection } from '@ember-data/store/-private/record-arrays/identifier-array';
-import { SingleResourceDataDocument } from '@ember-data/types/cache/document';
-import type { ModelSchema } from '@ember-data/types/q/ds-model';
+import { SingleResourceDataDocument } from '@ember-data/store/-types/cache/document';
+import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
 import type {
   CollectionResourceDocument,
   JsonApiDocument,
   Links,
   PaginationLinks,
   SingleResourceDocument,
-} from '@ember-data/types/q/ember-data-json-api';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapter-interface';
-import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-serializer-interface';
-import type { JsonApiError } from '@ember-data/types/q/record-data-json-api';
-import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
+} from '@ember-data/store/-types/q/ember-data-json-api';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
+import type { MinimumAdapterInterface } from '@ember-data/store/-types/q/minimum-adapter-interface';
+import type { MinimumSerializerInterface } from '@ember-data/store/-types/q/minimum-serializer-interface';
+import type { JsonApiError } from '@ember-data/store/-types/q/record-data-json-api';
+import type { RelationshipSchema } from '@ember-data/store/-types/q/record-data-schemas';
 
 import FetchManager, { SaveOp } from './fetch-manager';
 import { assertIdentifierHasId } from './identifier-has-id';

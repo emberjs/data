@@ -194,9 +194,9 @@ import { inject as service } from '@ember/service';
 import { DEBUG } from '@ember-data/env';
 import type { Snapshot, SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
 import type Store from '@ember-data/store';
-import type { ModelSchema } from '@ember-data/types/q/ds-model';
-import type { AdapterPayload, MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapter-interface';
-import { SerializerOptions } from '@ember-data/types/q/minimum-serializer-interface';
+import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
+import type { AdapterPayload, MinimumAdapterInterface } from '@ember-data/store/-types/q/minimum-adapter-interface';
+import { SerializerOptions } from '@ember-data/store/-types/q/minimum-serializer-interface';
 
 /**
   An adapter is an object that receives requests from a store and

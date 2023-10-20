@@ -2,7 +2,7 @@ import { assert, deprecate } from '@ember/debug';
 
 import { DEPRECATE_NON_UNIQUE_PAYLOADS } from '@ember-data/deprecations';
 import { DEBUG } from '@ember-data/env';
-import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
 
 import { isBelongsTo } from './-utils';
 import { assertPolymorphicType } from './debug/assert-polymorphic-type';

@@ -1,6 +1,6 @@
 import { DEBUG } from '@ember-data/env';
 import type Store from '@ember-data/store';
-import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
+import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
 
 import { getStore } from './-utils';
 import { Graph, Graphs } from './graph';

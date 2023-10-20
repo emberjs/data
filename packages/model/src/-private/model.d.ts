@@ -3,13 +3,13 @@ import type EmberObject from '@ember/object';
 import type { Errors } from '@ember-data/model/-private';
 import type Store from '@ember-data/store';
 
-import type { AttributeSchema, RelationshipSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
-import type { JsonApiError } from '@ember-data/types/q/record-data-json-api';
+import type { AttributeSchema, RelationshipSchema, RelationshipsSchema } from '@ember-data/store/-types/q/record-data-schemas';
+import type { JsonApiError } from '@ember-data/store/-types/q/record-data-json-api';
 import type HasManyReference from './references/has-many';
 import type BelongsToReference from './references/belongs-to';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
 import type { LegacySupport } from './legacy-relationships-support';
-import type { Cache } from '@ember-data/types/q/cache';
+import type { Cache } from '@ember-data/store/-types/q/cache';
 import type RecordState from './record-state';
 
 export type ModelCreateArgs = {

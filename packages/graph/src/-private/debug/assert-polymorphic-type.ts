@@ -1,8 +1,8 @@
 import { assert } from '@ember/debug';
 import { DEBUG } from '@ember-data/env';
 import type { UpgradedMeta } from '../-edge-definition';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
+import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
+import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
 
 /*
   Assert that `addedRecord` has a valid type so it can be added to the

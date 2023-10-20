@@ -1,7 +1,7 @@
 import { assert } from '@ember/debug';
 
 import type Store from '@ember-data/store';
-import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
+import { StableDocumentIdentifier } from '@ember-data/store/-types/cache/identifier';
 
 /**
  * Simple utility function to assist in url building,

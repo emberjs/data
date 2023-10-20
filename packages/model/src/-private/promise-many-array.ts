@@ -1,9 +1,9 @@
 import { assert } from '@ember/debug';
 
 import { DEPRECATE_COMPUTED_CHAINS } from '@ember-data/deprecations';
+import { FindOptions } from '@ember-data/store/-types/q/store';
 import { compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';
-import { FindOptions } from '@ember-data/types/q/store';
 
 import type ManyArray from './many-array';
 

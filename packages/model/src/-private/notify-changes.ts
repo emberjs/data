@@ -3,8 +3,8 @@ import { cacheFor } from '@ember/object/internals';
 
 import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
+import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
+import { RelationshipSchema } from '@ember-data/store/-types/q/record-data-schemas';
 
 import type Model from './model';
 import { LEGACY_SUPPORT } from './model';

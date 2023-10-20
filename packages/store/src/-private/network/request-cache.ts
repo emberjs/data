@@ -9,8 +9,8 @@ import type {
   Operation,
   SaveRecordMutation,
 } from '@ember-data/legacy-compat/legacy-network-handler/fetch-manager';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
+import type { StableRecordIdentifier } from '../../-types/q/identifier';
 import Store from '../store-service';
 
 const Touching: unique symbol = Symbol('touching');
