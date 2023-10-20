@@ -61,7 +61,7 @@
     "prepare": "pnpm build"
   },
   "ember-addon": {
-    "main": "addon-main.js",
+    "main": "addon-main.cjs",
     "type": "addon",
     "version": 1
   },
