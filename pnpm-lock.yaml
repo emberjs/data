@@ -429,6 +429,9 @@ importers:
       '@ember-data/private-build-infra':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/private-build-infra
+      ember-cli-babel:
+        specifier: ^8.1.0
+        version: 8.1.0(@babel/core@7.23.2)
     devDependencies:
       '@babel/cli':
         specifier: ^7.23.0
@@ -1726,7 +1729,7 @@ importers:
         version: 1.1.2
       '@warp-drive/core':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/core
+        version: file:packages/core(@babel/core@7.23.2)
       ember-cli:
         specifier: ~5.3.0
         version: 5.3.0(debug@4.3.4)
@@ -1833,7 +1836,7 @@ importers:
         version: 4.0.6
       '@warp-drive/core':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/core
+        version: file:packages/core(@babel/core@7.23.2)
       '@warp-drive/diagnostic':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/diagnostic(@ember/test-helpers@3.2.0)(@embroider/addon-shim@1.8.6)(ember-cli-test-loader@3.1.0)
@@ -1984,7 +1987,7 @@ importers:
         version: 4.0.6
       '@warp-drive/core':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/core
+        version: file:packages/core(@babel/core@7.23.2)
       '@warp-drive/diagnostic':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/diagnostic(@ember/test-helpers@3.2.0)(@embroider/addon-shim@1.8.6)(ember-cli-test-loader@3.1.0)
@@ -2125,7 +2128,7 @@ importers:
         version: 4.0.6
       '@warp-drive/core':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/core
+        version: file:packages/core(@babel/core@7.23.2)
       '@warp-drive/diagnostic':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/diagnostic(@ember/test-helpers@3.2.0)(@embroider/addon-shim@1.8.6)(ember-cli-test-loader@3.1.0)
@@ -2270,7 +2273,7 @@ importers:
         version: 4.0.6
       '@warp-drive/core':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/core
+        version: file:packages/core(@babel/core@7.23.2)
       '@warp-drive/diagnostic':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/diagnostic(@ember/test-helpers@3.2.0)(@embroider/addon-shim@1.8.6)(ember-cli-test-loader@3.1.0)
@@ -2397,7 +2400,7 @@ importers:
         version: 4.0.6
       '@warp-drive/core':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/core
+        version: file:packages/core(@babel/core@7.23.2)
       '@warp-drive/diagnostic':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/diagnostic(@ember/test-helpers@3.2.0)(@embroider/addon-shim@1.8.6)(ember-cli-test-loader@3.1.0)
@@ -2637,7 +2640,7 @@ importers:
         version: 4.0.6
       '@warp-drive/core':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/core
+        version: file:packages/core(@babel/core@7.23.2)
       ember-auto-import:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.89.0)
@@ -3347,7 +3350,7 @@ importers:
         version: 1.9.6
       '@warp-drive/core':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/core
+        version: file:packages/core(@babel/core@7.23.2)
       ember-auto-import:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.89.0)
@@ -3516,7 +3519,7 @@ importers:
         version: 4.0.6
       '@warp-drive/core':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/core
+        version: file:packages/core(@babel/core@7.23.2)
       '@warp-drive/schema-record':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/schema-record(@babel/core@7.23.2)
@@ -17665,7 +17668,7 @@ packages:
     dependencies:
       '@ember-data/store': file:packages/store(@babel/core@7.23.2)(@ember-data/tracking@packages+tracking)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)
       '@ember/string': 3.1.1(@babel/core@7.23.2)
-      '@warp-drive/core': file:packages/core
+      '@warp-drive/core': file:packages/core(@babel/core@7.23.2)
       ember-cli-babel: 8.1.0(@babel/core@7.23.2)
       ember-inflector: 4.0.2(@babel/core@7.23.2)
     transitivePeerDependencies:
@@ -17695,13 +17698,16 @@ packages:
       - '@glint/template'
       - supports-color
 
-  file:packages/core:
+  file:packages/core(@babel/core@7.23.2):
     resolution: {directory: packages/core, type: directory}
+    id: file:packages/core
     name: '@warp-drive/core'
     engines: {node: '>= 18.18.2'}
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
+      ember-cli-babel: 8.1.0(@babel/core@7.23.2)
     transitivePeerDependencies:
+      - '@babel/core'
       - '@glint/template'
       - supports-color
 
@@ -17770,7 +17776,7 @@ packages:
       '@ember-data/store': file:packages/store(@babel/core@7.23.2)(@ember-data/tracking@5.5.0-alpha.11)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.13.1(@babel/core@7.23.2)
-      '@warp-drive/core': file:packages/core
+      '@warp-drive/core': file:packages/core(@babel/core@7.23.2)
       ember-cli-babel: 8.1.0(@babel/core@7.23.2)
     transitivePeerDependencies:
       - '@babel/core'
@@ -17831,7 +17837,7 @@ packages:
       '@ember-data/store': file:packages/store(@babel/core@7.23.2)(@ember-data/tracking@5.5.0-alpha.11)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.13.1(@babel/core@7.23.2)
-      '@warp-drive/core': file:packages/core
+      '@warp-drive/core': file:packages/core(@babel/core@7.23.2)
       ember-cli-babel: 8.1.0(@babel/core@7.23.2)
       ember-inflector: 4.0.2(@babel/core@7.23.2)
     transitivePeerDependencies:
@@ -17883,7 +17889,7 @@ packages:
       '@ember-data/store': file:packages/store(@babel/core@7.23.2)(@ember-data/tracking@packages+tracking)(@ember/string@3.1.1)(@glimmer/tracking@1.1.2)
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.13.1(@babel/core@7.23.2)
-      '@warp-drive/core': file:packages/core
+      '@warp-drive/core': file:packages/core(@babel/core@7.23.2)
       ember-cli-babel: 8.1.0(@babel/core@7.23.2)
       ember-inflector: 4.0.2(@babel/core@7.23.2)
     transitivePeerDependencies:
@@ -17913,7 +17919,7 @@ packages:
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember-data/request': file:packages/request(@babel/core@7.23.2)
       '@embroider/macros': 1.13.1(@babel/core@7.23.2)
-      '@warp-drive/core': file:packages/core
+      '@warp-drive/core': file:packages/core(@babel/core@7.23.2)
       ember-cli-babel: 8.1.0(@babel/core@7.23.2)
     transitivePeerDependencies:
       - '@babel/core'
@@ -17969,7 +17975,7 @@ packages:
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember-data/request': file:packages/request(@babel/core@7.23.2)
       '@embroider/macros': 1.13.1(@babel/core@7.23.2)
-      '@warp-drive/core': file:packages/core
+      '@warp-drive/core': file:packages/core(@babel/core@7.23.2)
       ember-cli-babel: 8.1.0(@babel/core@7.23.2)
     transitivePeerDependencies:
       - '@babel/core'
@@ -18010,7 +18016,7 @@ packages:
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.1.1(@babel/core@7.23.2)
       '@embroider/macros': 1.13.1(@babel/core@7.23.2)
-      '@warp-drive/core': file:packages/core
+      '@warp-drive/core': file:packages/core(@babel/core@7.23.2)
       ember-cli-babel: 8.1.0(@babel/core@7.23.2)
       ember-cli-string-utils: 1.1.0
       ember-cli-test-info: 1.0.0
@@ -18097,7 +18103,7 @@ packages:
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.1.1(@babel/core@7.23.2)
       '@embroider/macros': 1.13.1(@babel/core@7.23.2)
-      '@warp-drive/core': file:packages/core
+      '@warp-drive/core': file:packages/core(@babel/core@7.23.2)
       ember-cli-babel: 8.1.0(@babel/core@7.23.2)
       ember-cli-string-utils: 1.1.0
       ember-cli-test-info: 1.0.0
@@ -18139,7 +18145,7 @@ packages:
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.1.1(@babel/core@7.23.2)
       '@embroider/macros': 1.13.1(@babel/core@7.23.2)
-      '@warp-drive/core': file:packages/core
+      '@warp-drive/core': file:packages/core(@babel/core@7.23.2)
       ember-cli-babel: 8.1.0(@babel/core@7.23.2)
       ember-cli-string-utils: 1.1.0
       ember-cli-test-info: 1.0.0

@@ -40,7 +40,8 @@
   },
   "peerDependencies": {},
   "dependencies": {
-    "@ember-data/private-build-infra": "workspace:5.5.0-alpha.11"
+    "@ember-data/private-build-infra": "workspace:5.5.0-alpha.11",
+    "ember-cli-babel": "^8.2.0"
   },
   "dependenciesMeta": {
     "@ember-data/private-build-infra": {
