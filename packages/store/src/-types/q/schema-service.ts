@@ -2,7 +2,8 @@
   @module @ember-data/store
 */
 
-import type { RecordIdentifier } from './identifier';
+import type { RecordIdentifier } from '@warp-drive/core/identifier';
+
 import type { AttributesSchema, RelationshipsSchema } from './record-data-schemas';
 
 /**

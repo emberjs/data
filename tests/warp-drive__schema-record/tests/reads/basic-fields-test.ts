@@ -1,3 +1,4 @@
+import type { StableRecordIdentifier } from '@warp-drive/core';
 import type { SchemaRecord } from '@warp-drive/schema-record/record';
 import type { Transform } from '@warp-drive/schema-record/schema';
 import { SchemaService } from '@warp-drive/schema-record/schema';
@@ -7,7 +8,6 @@ import { setupTest } from 'ember-qunit';
 
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
-import type { StableRecordIdentifier } from '@warp-drive/core';
 import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 
 interface User {

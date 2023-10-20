@@ -1,5 +1,6 @@
 import { rerender } from '@ember/test-helpers';
 
+import type { StableRecordIdentifier } from '@warp-drive/core';
 import type { SchemaRecord } from '@warp-drive/schema-record/record';
 import type { FieldSchema, Transform } from '@warp-drive/schema-record/schema';
 import { SchemaService } from '@warp-drive/schema-record/schema';
@@ -8,7 +9,6 @@ import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 
 import type Store from '@ember-data/store';
-import type { StableRecordIdentifier } from '@warp-drive/core';
 
 import { reactiveContext } from '../-utils/reactive-context';
 

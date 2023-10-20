@@ -1,3 +1,5 @@
+import type { StableRecordIdentifier } from '@warp-drive/core';
+
 import JSONAPICache from '@ember-data/json-api';
 import {
   adapterFor,
@@ -14,7 +16,6 @@ import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 import BaseStore, { CacheHandler } from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import type { StableRecordIdentifier } from '@warp-drive/core';
 
 export default class Store extends BaseStore {
   constructor(args) {

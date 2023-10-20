@@ -16,6 +16,29 @@ export interface Identifier {
   clientId?: string;
 }
 
+export interface ExistingRecordIdentifier extends Identifier {
+  id: string;
+  type: string;
+}
+
+export interface NewRecordIdentifier extends Identifier {
+  id: string | null;
+  type: string;
+}
+
+/**
+ * An Identifier specific to a record which may or may not
+ * be present in the cache.
+ *
+ * The absence of an `id` DOES NOT indicate that this
+ * Identifier is for a new client-created record as it
+ * may also indicate that it was generated for a secondary
+ * index and the primary `id` index is not yet known.
+ *
+ * @internal
+ */
+export type RecordIdentifier = ExistingRecordIdentifier | NewRecordIdentifier;
+
 /**
  * Used when an Identifier is known to be the stable version
  *

@@ -3,8 +3,9 @@
  */
 import { assert } from '@ember/debug';
 
-import type { Cache } from '@ember-data/store/-types/cache/cache';
 import type { StableRecordIdentifier } from '@warp-drive/core';
+
+import type { Cache } from '@ember-data/store/-types/cache/cache';
 import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 
 /**

@@ -11,6 +11,12 @@ import type {
   StableIdentifier,
   StableRecordIdentifier,
 } from '@warp-drive/core/identifier';
+import {
+  CACHE_OWNER,
+  DEBUG_CLIENT_ORIGINATED,
+  DEBUG_IDENTIFIER_BUCKET,
+  DEBUG_STALE_CACHE_OWNER,
+} from '@warp-drive/core/identifier';
 
 import { LOG_IDENTIFIERS } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
@@ -26,12 +32,6 @@ import type {
   UpdateMethod,
 } from '../../-types/q/identifier';
 import coerceId from '../utils/coerce-id';
-import {
-  CACHE_OWNER,
-  DEBUG_CLIENT_ORIGINATED,
-  DEBUG_IDENTIFIER_BUCKET,
-  DEBUG_STALE_CACHE_OWNER,
-} from '../utils/identifier-debug-consts';
 import normalizeModelName from '../utils/normalize-model-name';
 import installPolyfill from '../utils/uuid-polyfill';
 import { hasId, hasLid, hasType } from './resource-utils';
