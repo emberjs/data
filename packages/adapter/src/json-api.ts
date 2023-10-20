@@ -9,8 +9,8 @@ import { pluralize } from 'ember-inflector';
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import type { HTTPMethod } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';
-import type { ModelSchema } from '@ember-data/types/q/ds-model';
-import type { AdapterPayload } from '@ember-data/types/q/minimum-adapter-interface';
+import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
+import type { AdapterPayload } from '@ember-data/store/-types/q/minimum-adapter-interface';
 
 import { serializeIntoHash } from './-private';
 import type { FetchRequestInit, JQueryRequestInit } from './rest';

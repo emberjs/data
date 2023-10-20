@@ -3,9 +3,9 @@
 */
 import { ImmutableRequestInfo } from '@ember-data/request/-private/types';
 import { addTransactionCB } from '@ember-data/tracking/-private';
-import type { CollectionResourceDocument } from '@ember-data/types/q/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
+import type { CollectionResourceDocument } from '../../-types/q/ember-data-json-api';
+import type { StableRecordIdentifier } from '../../-types/q/identifier';
 import IdentifierArray, {
   ARRAY_SIGNAL,
   Collection,

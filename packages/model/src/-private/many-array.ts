@@ -14,12 +14,12 @@ import {
 } from '@ember-data/store/-private';
 import { IdentifierArrayCreateOptions } from '@ember-data/store/-private/record-arrays/identifier-array';
 import type { CreateRecordProperties } from '@ember-data/store/-private/store-service';
-import type { Cache } from '@ember-data/types/q/cache';
-import type { ModelSchema } from '@ember-data/types/q/ds-model';
-import type { Links, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { RecordInstance } from '@ember-data/types/q/record-instance';
-import type { FindOptions } from '@ember-data/types/q/store';
+import type { Cache } from '@ember-data/store/-types/q/cache';
+import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
+import type { Links, PaginationLinks } from '@ember-data/store/-types/q/ember-data-json-api';
+import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
+import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
+import type { FindOptions } from '@ember-data/store/-types/q/store';
 
 import { LegacySupport } from './legacy-relationships-support';
 

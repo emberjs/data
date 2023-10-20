@@ -4,10 +4,10 @@ import Cache from '@ember-data/json-api';
 import { serializePatch, serializeResources } from '@ember-data/json-api/request';
 import Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { JsonApiResource } from '@ember-data/types/q/record-data-json-api';
-import type { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
+import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
+import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
+import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
+import type { AttributesSchema, RelationshipsSchema } from '@ember-data/store/-types/q/record-data-schemas';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
 class TestStore extends Store {

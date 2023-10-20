@@ -5,9 +5,9 @@ import { buildSchema, modelFor } from '@ember-data/model/hooks';
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 import DataStore, { CacheHandler } from '@ember-data/store';
-import type { Cache } from '@ember-data/types/cache/cache';
-import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { Cache } from '@ember-data/store/-types/cache/cache';
+import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
+import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
 
 export default class Store extends DataStore {
   constructor(args: unknown) {

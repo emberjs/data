@@ -2,8 +2,8 @@ import { assert } from '@ember/debug';
 
 import { DEBUG } from '@ember-data/env';
 import type Store from '@ember-data/store';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
+import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
+import type { RelationshipSchema } from '@ember-data/store/-types/q/record-data-schemas';
 
 import { expandingGet, expandingSet, getStore } from './-utils';
 import { assertInheritedSchema } from './debug/assert-polymorphic-type';

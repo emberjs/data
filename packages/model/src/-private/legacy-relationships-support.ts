@@ -18,13 +18,16 @@ import {
   SOURCE,
   storeFor,
 } from '@ember-data/store/-private';
-import { CollectionRelationship } from '@ember-data/types/cache/relationship';
-import type { Cache } from '@ember-data/types/q/cache';
-import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { JsonApiRelationship } from '@ember-data/types/q/record-data-json-api';
-import type { RecordInstance } from '@ember-data/types/q/record-instance';
-import type { FindOptions } from '@ember-data/types/q/store';
+import { CollectionRelationship } from '@ember-data/store/-types/cache/relationship';
+import type { Cache } from '@ember-data/store/-types/q/cache';
+import {
+  CollectionResourceRelationship,
+  SingleResourceRelationship,
+} from '@ember-data/store/-types/q/ember-data-json-api';
+import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
+import type { JsonApiRelationship } from '@ember-data/store/-types/q/record-data-json-api';
+import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
+import type { FindOptions } from '@ember-data/store/-types/q/store';
 
 import RelatedCollection from './many-array';
 import type Model from './model';

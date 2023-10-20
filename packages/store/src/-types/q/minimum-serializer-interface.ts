@@ -1,11 +1,10 @@
 /**
   @module @ember-data/experimental-preview-types
  */
-import type { Object as JSONObject } from 'json-typescript';
-
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import type Store from '@ember-data/store';
 
+import { ObjectValue } from '../json/raw';
 import type { ModelSchema } from './ds-model';
 import type { JsonApiDocument, SingleResourceDocument } from './ember-data-json-api';
 import type { AdapterPayload } from './minimum-adapter-interface';
@@ -107,7 +106,7 @@ export interface MinimumSerializerInterface {
    * @param {Snapshot} snapshot A Snapshot for the record to serialize
    * @param {object} [options]
    */
-  serialize(snapshot: Snapshot, options?: SerializerOptions): JSONObject;
+  serialize(snapshot: Snapshot, options?: SerializerOptions): ObjectValue;
 
   /**
    * This method is intended to normalize data into a [JSON:API Document](https://jsonapi.org/format/#document-structure)
@@ -163,7 +162,7 @@ export interface MinimumSerializerInterface {
    *  containing a single JSON:API Resource
    *  as its primary data.
    */
-  normalize?(schema: ModelSchema, rawPayload: JSONObject, prop?: string): SingleResourceDocument;
+  normalize?(schema: ModelSchema, rawPayload: ObjectValue, prop?: string): SingleResourceDocument;
 
   /**
    * When using `JSONAPIAdapter` or `RESTAdapter` this method is called
@@ -245,11 +244,11 @@ export interface MinimumSerializerInterface {
    * @public
    * @optional
    * @param {Store} store The store service that initiated the request being normalized
-   * @param {JSONObject} rawPayload The raw JSON response data returned from an API request.
+   * @param {object} rawPayload The raw JSON response data returned from an API request.
    *  This JSON should be in the API format expected by the serializer.
    * @returns {void}
    */
-  pushPayload?(store: Store, rawPayload: JSONObject): void;
+  pushPayload?(store: Store, rawPayload: ObjectValue): void;
 
   /**
    * In some situations the serializer may need to perform cleanup when destroyed,

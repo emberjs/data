@@ -6,10 +6,10 @@ import { recordIdentifierFor } from '@ember-data/store/-private';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
 import type RequestStateService from '@ember-data/store/-private/network/request-cache';
 import type { RequestState } from '@ember-data/store/-private/network/request-cache';
+import type { Cache } from '@ember-data/store/-types/q/cache';
+import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
 import { cached, compat } from '@ember-data/tracking';
 import { addToTransaction, defineSignal, getSignal, peekSignal, subscribe } from '@ember-data/tracking/-private';
-import type { Cache } from '@ember-data/types/q/cache';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import Errors from './errors';
 import type Model from './model';

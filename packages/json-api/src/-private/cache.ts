@@ -17,29 +17,29 @@ import Store from '@ember-data/store';
 import { StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
 import type { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
 import type { CacheCapabilitiesManager as InternalCapabilitiesManager } from '@ember-data/store/-private/managers/cache-capabilities-manager';
-import type { ResourceBlob } from '@ember-data/types/cache/aliases';
-import type { RelationshipDiff } from '@ember-data/types/cache/cache';
-import type { Change } from '@ember-data/types/cache/change';
+import type { ResourceBlob } from '@ember-data/store/-types/cache/aliases';
+import type { RelationshipDiff } from '@ember-data/store/-types/cache/cache';
+import type { Change } from '@ember-data/store/-types/cache/change';
 import type {
   CollectionResourceDataDocument,
   ResourceDocument,
   ResourceErrorDocument,
   ResourceMetaDocument,
   SingleResourceDataDocument,
-} from '@ember-data/types/cache/document';
-import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
-import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
-import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
+} from '@ember-data/store/-types/cache/document';
+import type { StableDocumentIdentifier } from '@ember-data/store/-types/cache/identifier';
+import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/store/-types/q/cache';
+import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
 import type {
   CollectionResourceDocument,
   CollectionResourceRelationship,
   ExistingResourceObject,
   SingleResourceDocument,
   SingleResourceRelationship,
-} from '@ember-data/types/q/ember-data-json-api';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { AttributesHash, JsonApiError, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
-import type { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
+} from '@ember-data/store/-types/q/ember-data-json-api';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
+import type { AttributesHash, JsonApiError, JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
+import type { AttributeSchema, RelationshipSchema } from '@ember-data/store/-types/q/record-data-schemas';
 
 function isImplicit(relationship: GraphEdge): relationship is ImplicitEdge {
   return relationship.definition.isImplicit;

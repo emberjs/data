@@ -7,8 +7,8 @@ import { setupTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
-import { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
-import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
+import { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
 import publicProps from '@ember-data/unpublished-test-infra/test-support/public-props';
 
 class Person extends Model {

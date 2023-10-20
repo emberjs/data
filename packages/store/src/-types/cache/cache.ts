@@ -3,9 +3,9 @@
  */
 import type { StructuredDataDocument, StructuredDocument } from '@ember-data/request';
 import { StoreRequestContext } from '@ember-data/store/-private/cache-handler';
-import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import { CollectionResourceRelationship, SingleResourceRelationship } from '../q/ember-data-json-api';
+import { StableRecordIdentifier } from '../q/identifier';
 import { JsonApiError } from '../q/record-data-json-api';
 import { ResourceBlob } from './aliases';
 import { Change } from './change';

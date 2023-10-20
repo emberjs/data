@@ -3,9 +3,9 @@ import { assert, inspect, warn } from '@ember/debug';
 import { LOG_GRAPH } from '@ember-data/debugging';
 import type { Store } from '@ember-data/store/-private';
 import { peekCache } from '@ember-data/store/-private';
-import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
-import { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
+import { ResourceIdentifierObject } from '@ember-data/store/-types/q/ember-data-json-api';
+import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
 
 import { UpgradedMeta } from './-edge-definition';
 import type { UpdateRelationshipOperation } from './-operations';

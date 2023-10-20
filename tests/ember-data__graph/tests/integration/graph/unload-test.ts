@@ -6,7 +6,7 @@ import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
 import type { Graph } from '@ember-data/graph/-private/graph';
 import Model, { attr, belongsTo } from '@ember-data/model';
 import type Store from '@ember-data/store';
-import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
 
 module('Integration | Graph | Unload', function (hooks) {
   setupTest(hooks);

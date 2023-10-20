@@ -1,6 +1,5 @@
-import { Links, Meta, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
-import { StableExistingRecordIdentifier } from '@ember-data/types/q/identifier';
-
+import { Links, Meta, PaginationLinks } from '../q/ember-data-json-api';
+import { StableExistingRecordIdentifier } from '../q/identifier';
 import { JsonApiError } from '../q/record-data-json-api';
 
 export interface ResourceMetaDocument {

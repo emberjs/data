@@ -148,13 +148,13 @@ jobs:
           restore-broccoli-cache: true
           install: true
       - name: Basic tests with ${{ matrix.scenario }}
-        timeout-minutes: 10
+        timeout-minutes: 12
         env:
           CI: true
         run: pnpm test:try-one ${{ matrix.scenario }} -- ember test --test-port=0
 
   releases:
-    timeout-minutes: 10
+    timeout-minutes: 12
     needs: [browser-tests]
     if: |
       github.event_name == 'pull_request' && (

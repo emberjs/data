@@ -20,7 +20,7 @@ import type {
   ResourceData,
   StableIdentifier,
   StableRecordIdentifier,
-} from '@ember-data/types/q/identifier';
+} from '@ember-data/store/-types/q/identifier';
 
 function isNonEmptyString(str: any): str is string {
   return typeof str === 'string' && str.length > 0;

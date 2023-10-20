@@ -1,5 +1,5 @@
 import { type UrlOptions } from '@ember-data/request-utils';
-import type { CacheOptions, ConstrainedRequestOptions } from '@ember-data/types/request';
+import type { CacheOptions, ConstrainedRequestOptions } from '@ember-data/store/-types/request';
 
 export function copyForwardUrlOptions(urlOptions: UrlOptions, options: ConstrainedRequestOptions): void {
   if ('host' in options) {

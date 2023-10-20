@@ -1,17 +1,14 @@
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/-operations';
 import type { StructuredDataDocument, StructuredDocument } from '@ember-data/request';
-import type { RelationshipDiff } from '@ember-data/types/cache/cache';
-import type { Change } from '@ember-data/types/cache/change';
-import type { ResourceDocument, SingleResourceDataDocument } from '@ember-data/types/cache/document';
-import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
-import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
-import type {
-  CollectionResourceRelationship,
-  SingleResourceRelationship,
-} from '@ember-data/types/q/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { JsonApiError, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
 
+import type { RelationshipDiff } from '../../-types/cache/cache';
+import type { Change } from '../../-types/cache/change';
+import type { ResourceDocument, SingleResourceDataDocument } from '../../-types/cache/document';
+import type { StableDocumentIdentifier } from '../../-types/cache/identifier';
+import type { Cache, ChangedAttributesHash, MergeOperation } from '../../-types/q/cache';
+import type { CollectionResourceRelationship, SingleResourceRelationship } from '../../-types/q/ember-data-json-api';
+import type { StableRecordIdentifier } from '../../-types/q/identifier';
+import type { JsonApiError, JsonApiResource } from '../../-types/q/record-data-json-api';
 import type { StoreRequestContext } from '../cache-handler';
 
 /**

@@ -6,11 +6,11 @@ import { buildSchema, instantiateRecord, modelFor, teardownRecord } from '@ember
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 import BaseStore, { CacheHandler } from '@ember-data/store';
-import type { Cache } from '@ember-data/types/cache/cache';
-import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
-import type { ModelSchema } from '@ember-data/types/q/ds-model';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { RecordInstance } from '@ember-data/types/q/record-instance';
+import type { Cache } from '@ember-data/store/-types/cache/cache';
+import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
+import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
+import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
+import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
 
 export default class Store extends BaseStore {
   constructor(args: Record<string, unknown>) {

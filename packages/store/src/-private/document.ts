@@ -2,9 +2,9 @@ import { assert } from '@ember/debug';
 
 import { RequestInfo } from '@ember-data/request/-private/types';
 import { defineSignal } from '@ember-data/tracking/-private';
-import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
-import { Link, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
 
+import { StableDocumentIdentifier } from '../-types/cache/identifier';
+import { Link, PaginationLinks } from '../-types/q/ember-data-json-api';
 import type Store from './store-service';
 
 function urlFromLink(link: Link): string {

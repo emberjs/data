@@ -3,9 +3,9 @@
  */
 import { assert } from '@ember/debug';
 
-import type { Cache } from '@ember-data/types/cache/cache';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { JsonApiResource } from '@ember-data/types/q/record-data-json-api';
+import type { Cache } from '@ember-data/store/-types/cache/cache';
+import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
+import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 
 /**
  * Serializes the current state of a resource or array of resources for use with POST or PUT requests.

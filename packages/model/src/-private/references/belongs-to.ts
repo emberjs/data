@@ -1,21 +1,20 @@
-import type { Object as JSONObject, Value as JSONValue } from 'json-typescript';
-
 import { DEBUG } from '@ember-data/env';
 import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
 import type { Graph } from '@ember-data/graph/-private/graph';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store/-private';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import { cached, compat } from '@ember-data/tracking';
-import { defineSignal } from '@ember-data/tracking/-private';
 import type {
   LinkObject,
   Links,
+  Meta,
   SingleResourceDocument,
   SingleResourceRelationship,
-} from '@ember-data/types/q/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { RecordInstance } from '@ember-data/types/q/record-instance';
+} from '@ember-data/store/-types/q/ember-data-json-api';
+import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
+import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
+import { cached, compat } from '@ember-data/tracking';
+import { defineSignal } from '@ember-data/tracking/-private';
 
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
 import { areAllInverseRecordsLoaded, LegacySupport } from '../legacy-relationships-support';
@@ -29,7 +28,7 @@ interface ResourceIdentifier {
   links?: {
     related?: string | LinkObject;
   };
-  meta?: JSONObject;
+  meta?: Meta;
 }
 
 function isResourceIdentiferWithRelatedLinks(
@@ -279,7 +278,7 @@ export default class BelongsToReference {
    @return {Object} The meta information for the belongs-to relationship.
    */
   meta() {
-    let meta: Record<string, JSONValue> | null = null;
+    let meta: Meta | null = null;
     let resource = this._resource();
     if (resource && resource.meta && typeof resource.meta === 'object') {
       meta = resource.meta;

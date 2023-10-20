@@ -1,6 +1,7 @@
 import { QueryParamsSerializationOptions } from '@ember-data/request-utils';
-import type { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
-import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+
+import type { ResourceIdentifierObject } from './q/ember-data-json-api';
+import { StableRecordIdentifier } from './q/identifier';
 
 export type CacheOptions = {
   key?: string;

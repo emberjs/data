@@ -9,8 +9,8 @@ import { DEBUG } from '@ember-data/env';
 import type { Snapshot, SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
 import type { HTTPMethod } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';
-import type { ModelSchema } from '@ember-data/types/q/ds-model';
-import type { AdapterPayload } from '@ember-data/types/q/minimum-adapter-interface';
+import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
+import type { AdapterPayload } from '@ember-data/store/-types/q/minimum-adapter-interface';
 
 import { determineBodyPromise, fetch, parseResponseHeaders, serializeIntoHash, serializeQueryParams } from './-private';
 import { MixtBuildURLMixin } from './-private/build-url-mixin';

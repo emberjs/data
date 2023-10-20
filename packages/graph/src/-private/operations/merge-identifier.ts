@@ -1,4 +1,4 @@
-import type { MergeOperation } from '@ember-data/types/q/cache';
+import type { MergeOperation } from '@ember-data/store/-types/q/cache';
 
 import { forAllRelatedIdentifiers, isBelongsTo, isHasMany, notifyChange } from '../-utils';
 import type { CollectionEdge } from '../edges/collection';

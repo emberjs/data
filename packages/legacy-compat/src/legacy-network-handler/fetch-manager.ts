@@ -12,12 +12,15 @@ import { StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
 import type { InstanceCache } from '@ember-data/store/-private/caches/instance-cache';
 import type RequestStateService from '@ember-data/store/-private/network/request-cache';
 import type { Request } from '@ember-data/store/-private/network/request-cache';
-import type { ModelSchema } from '@ember-data/types/q/ds-model';
-import type { CollectionResourceDocument, SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import { AdapterPayload, MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapter-interface';
-import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-serializer-interface';
-import type { FindOptions } from '@ember-data/types/q/store';
+import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
+import type {
+  CollectionResourceDocument,
+  SingleResourceDocument,
+} from '@ember-data/store/-types/q/ember-data-json-api';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
+import { AdapterPayload, MinimumAdapterInterface } from '@ember-data/store/-types/q/minimum-adapter-interface';
+import type { MinimumSerializerInterface } from '@ember-data/store/-types/q/minimum-serializer-interface';
+import type { FindOptions } from '@ember-data/store/-types/q/store';
 
 import { assertIdentifierHasId } from './identifier-has-id';
 import { payloadIsNotBlank } from './legacy-data-utils';

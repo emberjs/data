@@ -1,12 +1,10 @@
-import type { Value as JSONValue } from 'json-typescript';
-
-import { Links, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
-import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import { Links, Meta, PaginationLinks } from '../q/ember-data-json-api';
+import { StableRecordIdentifier } from '../q/identifier';
 
 // we request that it be in the stable form already.
 export interface ResourceRelationship {
   data?: StableRecordIdentifier | null;
-  meta?: Record<string, JSONValue>;
+  meta?: Meta;
   links?: Links;
 }
 
@@ -14,7 +12,7 @@ export interface ResourceRelationship {
 // we request that it be in the stable form already.
 export interface CollectionRelationship {
   data?: StableRecordIdentifier[];
-  meta?: Record<string, JSONValue>;
+  meta?: Meta;
   links?: PaginationLinks;
 }
 

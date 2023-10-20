@@ -4,11 +4,11 @@ import Cache from '@ember-data/json-api';
 import type { StructuredDocument } from '@ember-data/request';
 import Store from '@ember-data/store';
 import { CacheOperation } from '@ember-data/store/-private/managers/notification-manager';
-import type { CollectionResourceDataDocument, ResourceMetaDocument } from '@ember-data/types/cache/document';
-import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
-import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
-import { StableExistingRecordIdentifier } from '@ember-data/types/q/identifier';
-import { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
+import type { CollectionResourceDataDocument, ResourceMetaDocument } from '@ember-data/store/-types/cache/document';
+import { StableDocumentIdentifier } from '@ember-data/store/-types/cache/identifier';
+import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
+import { StableExistingRecordIdentifier } from '@ember-data/store/-types/q/identifier';
+import { AttributesSchema, RelationshipsSchema } from '@ember-data/store/-types/q/record-data-schemas';
 
 class TestStore extends Store {
   createCache(wrapper: CacheCapabilitiesManager) {

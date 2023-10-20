@@ -1,5 +1,3 @@
-import type { Object as JSONObject, Value as JSONValue } from 'json-typescript';
-
 import { ManyArray } from 'ember-data/-private';
 
 import { DEBUG } from '@ember-data/env';
@@ -8,20 +6,21 @@ import type { Graph } from '@ember-data/graph/-private/graph';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import { cached, compat } from '@ember-data/tracking';
-import { defineSignal } from '@ember-data/tracking/-private';
-import { CollectionRelationship } from '@ember-data/types/cache/relationship';
+import { CollectionRelationship } from '@ember-data/store/-types/cache/relationship';
 import type {
   CollectionResourceDocument,
   CollectionResourceRelationship,
   ExistingResourceObject,
   LinkObject,
+  Meta,
   PaginationLinks,
   SingleResourceDocument,
-} from '@ember-data/types/q/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { RecordInstance } from '@ember-data/types/q/record-instance';
-import type { FindOptions } from '@ember-data/types/q/store';
+} from '@ember-data/store/-types/q/ember-data-json-api';
+import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
+import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
+import type { FindOptions } from '@ember-data/store/-types/q/store';
+import { cached, compat } from '@ember-data/tracking';
+import { defineSignal } from '@ember-data/tracking/-private';
 
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
 import { areAllInverseRecordsLoaded, LegacySupport } from '../legacy-relationships-support';
@@ -34,7 +33,7 @@ interface ResourceIdentifier {
   links?: {
     related?: string | LinkObject;
   };
-  meta?: JSONObject;
+  meta?: Meta;
 }
 
 function isResourceIdentiferWithRelatedLinks(
@@ -344,7 +343,7 @@ export default class HasManyReference {
   @return {Object} The meta information for the belongs-to relationship.
   */
   meta() {
-    let meta: Record<string, JSONValue> | null = null;
+    let meta: Meta | null = null;
     let resource = this._resource();
     if (resource && resource.meta && typeof resource.meta === 'object') {
       meta = resource.meta;

@@ -10,7 +10,7 @@ import type {
   ConstrainedRequestOptions,
   FindRecordRequestOptions,
   RemotelyAccessibleIdentifier,
-} from '@ember-data/types/request';
+} from '@ember-data/store/-types/request';
 
 import { copyForwardUrlOptions, extractCacheOptions } from './-utils';
 
