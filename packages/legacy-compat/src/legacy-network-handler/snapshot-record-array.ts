@@ -8,6 +8,7 @@ import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
 import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
 import type { FindOptions } from '@ember-data/store/-types/q/store';
 
+import { upgradeStore } from './fetch-manager';
 import type Snapshot from './snapshot';
 /**
   SnapshotRecordArray is not directly instantiable.
@@ -170,6 +171,7 @@ export default class SnapshotRecordArray {
     if (this._snapshots !== null) {
       return this._snapshots;
     }
+    upgradeStore(this.__store);
 
     const { _fetchManager } = this.__store;
     this._snapshots = this._recordArray[SOURCE].map((identifier: StableRecordIdentifier) =>

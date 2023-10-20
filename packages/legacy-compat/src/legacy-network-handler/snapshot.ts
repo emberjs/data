@@ -18,6 +18,8 @@ import type { AttributeSchema, RelationshipSchema } from '@ember-data/store/-typ
 import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
 import type { FindOptions } from '@ember-data/store/-types/q/store';
 
+import { upgradeStore } from './fetch-manager';
+
 type RecordId = string | null;
 
 /**
@@ -339,6 +341,7 @@ export default class Snapshot implements Snapshot {
 
     let value = graphFor(this._store).getData(identifier, keyName);
     let data = value && value.data;
+    upgradeStore(store);
 
     let inverseIdentifier = data ? store.identifierCache.getOrCreateRecordIdentifier(data) : null;
 
@@ -409,7 +412,8 @@ export default class Snapshot implements Snapshot {
       return cachedSnapshots;
     }
 
-    let store = this._store;
+    const store = this._store;
+    upgradeStore(store);
     let relationshipMeta = store.getSchemaDefinitionService().relationshipsDefinitionFor({ type: this.modelName })[
       keyName
     ];

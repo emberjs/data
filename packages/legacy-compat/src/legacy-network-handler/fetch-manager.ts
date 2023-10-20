@@ -485,7 +485,12 @@ function handleFoundRecords(
   rejectFetchedItems(fetchMap, rejected);
 }
 
+export type CompatStore = Store & { _fetchManager: FetchManager };
+
+export function upgradeStore(store: Store): asserts store is CompatStore {}
+
 function _fetchRecord(store: Store, adapter: MinimumAdapterInterface, fetchItem: PendingFetchItem) {
+  upgradeStore(store);
   let identifier = fetchItem.identifier;
   let modelName = identifier.type;
 
@@ -561,6 +566,7 @@ function _flushPendingFetchForType(
   pendingFetchMap: Map<StableExistingRecordIdentifier, PendingFetchItem[]>,
   modelName: string
 ) {
+  upgradeStore(store);
   let adapter = store.adapterFor(modelName);
   let shouldCoalesce = !!adapter.findMany && adapter.coalesceFindRequests;
 

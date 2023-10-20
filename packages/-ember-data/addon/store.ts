@@ -14,6 +14,8 @@ import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifi
 import type { SerializerOptions } from '@ember-data/store/-types/q/minimum-serializer-interface';
 
 export default class Store extends BaseStore {
+  declare _fetchManager: FetchManager;
+
   constructor(args: Record<string, unknown>) {
     super(args);
     this.requestManager = new RequestManager();

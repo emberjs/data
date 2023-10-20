@@ -9,7 +9,6 @@ import EmberObject from '@ember/object';
 import { LOG_PAYLOADS, LOG_REQUESTS } from '@ember-data/debugging';
 import { DEBUG, TESTING } from '@ember-data/env';
 import type { Graph } from '@ember-data/graph/-private/graph';
-import type { FetchManager } from '@ember-data/legacy-compat/-private';
 import type RequestManager from '@ember-data/request';
 import type { Future } from '@ember-data/request/-private/types';
 
@@ -201,7 +200,6 @@ class Store extends EmberObject {
 
   // Private
   declare _graph?: Graph;
-  declare _fetchManager: FetchManager;
   declare _adapterCache: Record<string, MinimumAdapterInterface & { store: Store }>;
   declare _serializerCache: Record<string, MinimumSerializerInterface & { store: Store }>;
   declare _requestCache: RequestStateService;

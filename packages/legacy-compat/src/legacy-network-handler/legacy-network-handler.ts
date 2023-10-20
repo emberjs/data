@@ -23,7 +23,7 @@ import type { MinimumSerializerInterface } from '@ember-data/store/-types/q/mini
 import type { JsonApiError } from '@ember-data/store/-types/q/record-data-json-api';
 import type { RelationshipSchema } from '@ember-data/store/-types/q/record-data-schemas';
 
-import FetchManager, { SaveOp } from './fetch-manager';
+import FetchManager, { SaveOp, upgradeStore } from './fetch-manager';
 import { assertIdentifierHasId } from './identifier-has-id';
 import { _findBelongsTo, _findHasMany } from './legacy-data-fetch';
 import { payloadIsNotBlank } from './legacy-data-utils';
@@ -56,6 +56,7 @@ export const LegacyNetworkHandler: Handler = {
     }
 
     const { store } = context.request;
+    upgradeStore(store);
     if (!store._fetchManager) {
       store._fetchManager = new FetchManager(store);
     }
@@ -95,6 +96,7 @@ function findBelongsTo<T>(context: StoreRequestContext): Promise<T> {
     field: RelationshipSchema;
   };
   const identifier = identifiers?.[0];
+  upgradeStore(store);
 
   // short circuit if we are already loading
   let pendingRequest =
@@ -126,6 +128,7 @@ function findHasMany<T>(context: StoreRequestContext): Promise<T> {
     useLink: boolean;
     field: RelationshipSchema;
   };
+  upgradeStore(store);
 
   // link case
   if (useLink) {
@@ -170,6 +173,8 @@ function findHasMany<T>(context: StoreRequestContext): Promise<T> {
 function saveRecord<T>(context: StoreRequestContext): Promise<T> {
   const { store, data, op: operation } = context.request;
   const { options, record: identifier } = data as { record: StableRecordIdentifier; options: Record<string, unknown> };
+
+  upgradeStore(store);
 
   const saveOptions = Object.assign(
     { [SaveOp]: operation as 'updateRecord' | 'deleteRecord' | 'createRecord' },
@@ -284,6 +289,7 @@ function findRecord<T>(context: StoreRequestContext): Promise<T> {
     record: StableExistingRecordIdentifier;
     options: { reload?: boolean; backgroundReload?: boolean };
   };
+  upgradeStore(store);
   let promise: Promise<StableRecordIdentifier>;
 
   // if not loaded start loading
