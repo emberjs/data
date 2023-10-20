@@ -2,17 +2,17 @@ import { settled } from '@ember/test-helpers';
 
 import { module } from 'qunit';
 
+import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
 import Model from '@ember-data/model';
-import Store from '@ember-data/store';
 import test from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('unit/store/asserts - Store methods produce useful assertion messages', function (hooks) {
   setupTest(hooks);
   hooks.beforeEach(function () {
     let { owner } = this;
-    owner.register('model:foo', Model.extend());
+    owner.register('model:foo', class extends Model {});
   });
 
   const MODEL_NAME_METHODS = [
@@ -32,7 +32,7 @@ module('unit/store/asserts - Store methods produce useful assertion messages', f
   test('Calling Store methods with no modelName asserts', function (assert) {
     assert.expect(MODEL_NAME_METHODS.length);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     MODEL_NAME_METHODS.forEach((methodName) => {
       let assertion = `You need to pass a model name to the store's ${methodName} method`;
