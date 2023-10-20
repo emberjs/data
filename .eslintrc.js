@@ -292,7 +292,6 @@ module.exports = {
         'packages/*/addon-test-support/**',
         'packages/*/app/**',
         'packages/*/tests/dummy/app/**',
-        'packages/tracking/babel.config.js',
       ],
       parserOptions: {
         sourceType: 'script',

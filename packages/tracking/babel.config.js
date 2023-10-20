@@ -1,6 +1,6 @@
-import macros from '@ember-data/private-build-infra/src/v2-babel-build-pack.js';
+const macros = require('@ember-data/private-build-infra/src/v2-babel-build-pack');
 
-export default {
+module.exports = {
   plugins: [
     ...macros,
     // '@embroider/macros/src/babel/macros-babel-plugin.js',
