@@ -1,7 +1,7 @@
 import { assert } from '@ember/debug';
 import { DEBUG } from '@ember-data/env';
 import type { UpgradedMeta } from '../-edge-definition';
-import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
+import type { StableRecordIdentifier } from '@warp-drive/core';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
 
 /*

@@ -4,7 +4,7 @@ import type { GraphEdge } from '@ember-data/graph/-private/graph';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
+import type { StableRecordIdentifier } from '@warp-drive/core';
 
 export function getRelationshipStateForRecord(record: { store: Store }, propertyName: string): GraphEdge {
   const identifier = recordIdentifierFor(record);

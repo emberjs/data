@@ -5,6 +5,8 @@
 import { assert } from '@ember/debug';
 import EmberObject from '@ember/object';
 
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/identifier';
+
 import { LOG_PAYLOADS, LOG_REQUESTS } from '@ember-data/debugging';
 import { DEBUG, TESTING } from '@ember-data/env';
 import type { Graph } from '@ember-data/graph/-private/graph';
@@ -23,7 +25,6 @@ import type {
   ResourceIdentifierObject,
   SingleResourceDocument,
 } from '../-types/q/ember-data-json-api';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '../-types/q/identifier';
 import type { RecordInstance } from '../-types/q/record-instance';
 import type { SchemaService } from '../-types/q/schema-service';
 import type { FindOptions } from '../-types/q/store';

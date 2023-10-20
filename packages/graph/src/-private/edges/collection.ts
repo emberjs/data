@@ -1,6 +1,6 @@
 import type { CollectionRelationship } from '@ember-data/store/-types/cache/relationship';
 import type { Links, Meta, PaginationLinks } from '@ember-data/store/-types/q/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
+import type { StableRecordIdentifier } from '@warp-drive/core';
 
 import { computeLocalState } from '../-diff';
 import type { UpgradedMeta } from '../-edge-definition';

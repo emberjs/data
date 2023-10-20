@@ -7,7 +7,7 @@ import { setupTest } from 'ember-qunit';
 
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
-import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
+import type { StableRecordIdentifier } from '@warp-drive/core';
 import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 
 interface User {

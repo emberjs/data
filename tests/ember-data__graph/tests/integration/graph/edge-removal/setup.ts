@@ -17,7 +17,7 @@ import type {
   JsonApiDocument,
   SingleResourceDocument,
 } from '@ember-data/store/-types/q/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
+import type { StableRecordIdentifier } from '@warp-drive/core';
 import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
 
 class AbstractMap {

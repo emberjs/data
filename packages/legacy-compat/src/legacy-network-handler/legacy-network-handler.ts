@@ -1,6 +1,7 @@
 import { assert } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/identifier';
 
 import { LOG_PAYLOADS } from '@ember-data/debugging';
 import { DEBUG, TESTING } from '@ember-data/env';
@@ -19,7 +20,6 @@ import type {
   PaginationLinks,
   SingleResourceDocument,
 } from '@ember-data/store/-types/q/ember-data-json-api';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
 import type { JsonApiError } from '@ember-data/store/-types/q/record-data-json-api';
 import type { RelationshipSchema } from '@ember-data/store/-types/q/record-data-schemas';
 

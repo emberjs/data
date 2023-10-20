@@ -61,7 +61,8 @@
   "peerDependencies": {
     "@ember-data/graph": "workspace:5.5.0-alpha.11",
     "@ember-data/json-api": "workspace:5.5.0-alpha.11",
-    "@ember-data/request": "workspace:5.5.0-alpha.11"
+    "@ember-data/request": "workspace:5.5.0-alpha.11",
+    "@warp-drive/core": "workspace:5.5.0-alpha.11"
   },
   "peerDependenciesMeta": {
     "@ember-data/graph": {

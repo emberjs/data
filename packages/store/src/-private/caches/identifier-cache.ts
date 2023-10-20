@@ -4,6 +4,13 @@
 import { assert, warn } from '@ember/debug';
 
 import { getOwnConfig, macroCondition } from '@embroider/macros';
+import type {
+  Identifier,
+  IdentifierBucket,
+  RecordIdentifier,
+  StableIdentifier,
+  StableRecordIdentifier,
+} from '@warp-drive/core/identifier';
 
 import { LOG_IDENTIFIERS } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
@@ -14,13 +21,8 @@ import type { ExistingResourceObject, ResourceIdentifierObject } from '../../-ty
 import type {
   ForgetMethod,
   GenerationMethod,
-  Identifier,
-  IdentifierBucket,
-  RecordIdentifier,
   ResetMethod,
   ResourceData,
-  StableIdentifier,
-  StableRecordIdentifier,
   UpdateMethod,
 } from '../../-types/q/identifier';
 import coerceId from '../utils/coerce-id';

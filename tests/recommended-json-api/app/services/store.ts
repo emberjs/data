@@ -8,7 +8,7 @@ import { LifetimesService } from '@ember-data/request-utils';
 import DataStore, { CacheHandler } from '@ember-data/store';
 import type { Cache } from '@ember-data/store/-types/cache/cache';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
+import type { StableRecordIdentifier } from '@warp-drive/core';
 
 import CONFIG from '../config/environment';
 

@@ -1,3 +1,5 @@
+import type { StableRecordIdentifier } from '@warp-drive/core';
+
 import { DEBUG } from '@ember-data/env';
 import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
 import type { Graph } from '@ember-data/graph/-private/graph';
@@ -11,7 +13,6 @@ import type {
   SingleResourceDocument,
   SingleResourceRelationship,
 } from '@ember-data/store/-types/q/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
 import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
 import { cached, compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';

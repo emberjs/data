@@ -1,6 +1,11 @@
 import EmberObject from '@ember/object';
 import { settled } from '@ember/test-helpers';
 
+import type {
+  RecordIdentifier,
+  StableExistingRecordIdentifier,
+  StableRecordIdentifier,
+} from '@warp-drive/core/identifier';
 import { module, test } from 'qunit';
 
 import Store from 'ember-data/store';
@@ -31,11 +36,6 @@ import type {
   SingleResourceDocument,
   SingleResourceRelationship,
 } from '@ember-data/store/-types/q/ember-data-json-api';
-import type {
-  RecordIdentifier,
-  StableExistingRecordIdentifier,
-  StableRecordIdentifier,
-} from '@ember-data/store/-types/q/identifier';
 import type { JsonApiError, JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 
 class Person extends Model {

@@ -5,7 +5,7 @@ import { serializePatch, serializeResources } from '@ember-data/json-api/request
 import Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
+import type { StableRecordIdentifier } from '@warp-drive/core';
 import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 import type { AttributesSchema, RelationshipsSchema } from '@ember-data/store/-types/q/record-data-schemas';
 

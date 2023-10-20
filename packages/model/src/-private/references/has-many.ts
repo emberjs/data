@@ -1,3 +1,5 @@
+import type { StableRecordIdentifier } from '@warp-drive/core';
+
 import { ManyArray } from 'ember-data/-private';
 
 import { DEBUG } from '@ember-data/env';
@@ -16,7 +18,6 @@ import type {
   PaginationLinks,
   SingleResourceDocument,
 } from '@ember-data/store/-types/q/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
 import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
 import type { FindOptions } from '@ember-data/store/-types/q/store';
 import { cached, compat } from '@ember-data/tracking';

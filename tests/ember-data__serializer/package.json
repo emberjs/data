@@ -51,6 +51,9 @@
     },
     "@ember-data/unpublished-test-infra": {
       "injected": true
+    },
+    "@warp-drive/core": {
+      "injected": true
     }
   },
   "devDependencies": {
@@ -66,6 +69,7 @@
     "@ember-data/store": "workspace:5.5.0-alpha.11",
     "@ember-data/tracking": "workspace:5.5.0-alpha.11",
     "@ember-data/unpublished-test-infra": "workspace:5.5.0-alpha.11",
+    "@warp-drive/core": "workspace:5.5.0-alpha.11",
     "@ember/optional-features": "^2.0.0",
     "@ember/string": "3.1.1",
     "@ember/test-helpers": "^3.2.0",

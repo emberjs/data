@@ -1,5 +1,7 @@
 import { assert } from '@ember/debug';
 
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/identifier';
+
 import { pluralize } from 'ember-inflector';
 
 import {
@@ -9,7 +11,6 @@ import {
   type UpdateRecordUrlOptions,
 } from '@ember-data/request-utils';
 import { recordIdentifierFor } from '@ember-data/store';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
 import {
   ConstrainedRequestOptions,
   CreateRequestOptions,

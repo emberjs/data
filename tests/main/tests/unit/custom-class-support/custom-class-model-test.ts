@@ -1,3 +1,4 @@
+import type { RecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/identifier';
 import { module, test } from 'qunit';
 
 import Store from 'ember-data/store';
@@ -7,7 +8,6 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { Cache } from '@ember-data/store/-types/q/cache';
-import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
 import type { AttributesSchema, RelationshipsSchema } from '@ember-data/store/-types/q/record-data-schemas';
 import type { SchemaService } from '@ember-data/store/-types/q/schema-service';
 

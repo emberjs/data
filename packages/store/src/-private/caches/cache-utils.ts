@@ -1,7 +1,8 @@
 import { assert } from '@ember/debug';
 
+import type { StableRecordIdentifier } from '@warp-drive/core/identifier';
+
 import type { Cache } from '../../-types/q/cache';
-import type { StableRecordIdentifier } from '../../-types/q/identifier';
 import type { RecordInstance } from '../../-types/q/record-instance';
 
 /*
