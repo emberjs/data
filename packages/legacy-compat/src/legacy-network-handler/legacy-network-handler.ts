@@ -4,6 +4,8 @@ import { importSync } from '@embroider/macros';
 
 import { LOG_PAYLOADS } from '@ember-data/debugging';
 import { DEBUG, TESTING } from '@ember-data/env';
+import type { MinimumAdapterInterface } from '@ember-data/legacy-compat/legacy-network-handler/minimum-adapter-interface';
+import type { MinimumSerializerInterface } from '@ember-data/legacy-compat/legacy-network-handler/minimum-serializer-interface';
 import type { Future, Handler, NextFn, StructuredDataDocument } from '@ember-data/request';
 import type Store from '@ember-data/store';
 import type { StoreRequestContext, StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
@@ -18,12 +20,11 @@ import type {
   SingleResourceDocument,
 } from '@ember-data/store/-types/q/ember-data-json-api';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
-import type { MinimumAdapterInterface } from '@ember-data/store/-types/q/minimum-adapter-interface';
-import type { MinimumSerializerInterface } from '@ember-data/store/-types/q/minimum-serializer-interface';
 import type { JsonApiError } from '@ember-data/store/-types/q/record-data-json-api';
 import type { RelationshipSchema } from '@ember-data/store/-types/q/record-data-schemas';
 
-import FetchManager, { SaveOp, upgradeStore } from './fetch-manager';
+import { upgradeStore } from '../-private';
+import FetchManager, { SaveOp } from './fetch-manager';
 import { assertIdentifierHasId } from './identifier-has-id';
 import { _findBelongsTo, _findHasMany } from './legacy-data-fetch';
 import { payloadIsNotBlank } from './legacy-data-utils';
@@ -218,6 +219,7 @@ function adapterDidInvalidate(
   identifier: StableRecordIdentifier,
   error: Error & { errors?: JsonApiError[]; isAdapterError?: true; code?: string }
 ) {
+  upgradeStore(store);
   if (error && error.isAdapterError === true && error.code === 'InvalidError') {
     let serializer = store.serializerFor(identifier.type) as SerializerWithParseErrors;
 
@@ -361,6 +363,7 @@ function findAll<T>(context: StoreRequestContext): Promise<T> {
     type: string;
     options: { reload?: boolean; backgroundReload?: boolean };
   };
+  upgradeStore(store);
   const adapter = store.adapterFor(type);
 
   assert(`You tried to load all records but you have no adapter (for ${type})`, adapter);
@@ -417,6 +420,7 @@ function _findAll<T>(
       `You made a 'findAll' request for '${type}' records, but the adapter's response did not have any data`,
       payloadIsNotBlank(adapterPayload)
     );
+    upgradeStore(store);
     const serializer = store.serializerFor(type);
     const payload = normalizeResponseHelper(serializer, store, schema, adapterPayload, null, 'findAll');
 
@@ -444,6 +448,7 @@ function _findAll<T>(
 
 function query<T>(context: StoreRequestContext): Promise<T> {
   const { store, data } = context.request;
+  upgradeStore(store);
   let { options } = data as {
     options: { _recordArray?: Collection; adapterOptions?: Record<string, unknown> };
   };
@@ -508,6 +513,7 @@ function queryRecord<T>(context: StoreRequestContext): Promise<T> {
   const { store, data } = context.request;
   // eslint-disable-next-line @typescript-eslint/no-shadow
   const { type, query, options } = data as { type: string; query: Record<string, unknown>; options: object };
+  upgradeStore(store);
   const adapter = store.adapterFor(type);
 
   assert(`You tried to make a query but you have no adapter (for ${type})`, adapter);

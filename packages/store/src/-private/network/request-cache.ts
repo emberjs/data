@@ -4,18 +4,28 @@
 import { assert } from '@ember/debug';
 
 import { DEBUG } from '@ember-data/env';
-import type {
-  FindRecordQuery,
-  Operation,
-  SaveRecordMutation,
-} from '@ember-data/legacy-compat/legacy-network-handler/fetch-manager';
 
 import type { StableRecordIdentifier } from '../../-types/q/identifier';
+import { FindOptions } from '../../-types/q/store';
 import Store from '../store-service';
 
 const Touching: unique symbol = Symbol('touching');
 export const RequestPromise: unique symbol = Symbol('promise');
 const EMPTY_ARR: RequestState[] = DEBUG ? (Object.freeze([]) as unknown as RequestState[]) : [];
+
+export interface Operation {
+  op: string;
+  options: FindOptions | undefined;
+  recordIdentifier: StableRecordIdentifier;
+}
+
+export interface FindRecordQuery extends Operation {
+  op: 'findRecord';
+}
+
+export interface SaveRecordMutation extends Operation {
+  op: 'saveRecord';
+}
 
 export interface Request {
   data: Operation[];

@@ -8,6 +8,7 @@ import type { LocalRelationshipOperation } from '@ember-data/graph/-private/-ope
 import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection';
 import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
 import type { Graph, GraphEdge } from '@ember-data/graph/-private/graph';
+import { upgradeStore } from '@ember-data/legacy-compat/-private';
 import { HAS_JSON_API_PACKAGE } from '@ember-data/packages';
 import type Store from '@ember-data/store';
 import {
@@ -422,6 +423,7 @@ export class LegacySupport {
         return;
       }
       const { definition, state } = relationship;
+      upgradeStore(this.store);
       const adapter = this.store.adapterFor(definition.type);
       const { isStale, hasDematerializedInverse, hasReceivedData, isEmpty, shouldForceReload } = state;
       const allInverseRecordsAreLoaded = areAllInverseRecordsLoaded(this.store, resource);

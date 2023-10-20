@@ -8,17 +8,17 @@ import { importSync } from '@embroider/macros';
 import { DEBUG } from '@ember-data/env';
 import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection';
 import { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
+import type { SerializerOptions } from '@ember-data/legacy-compat/legacy-network-handler/minimum-serializer-interface';
 import { HAS_JSON_API_PACKAGE } from '@ember-data/packages';
 import type Store from '@ember-data/store';
 import { CollectionRelationship } from '@ember-data/store/-types/cache/relationship';
 import type { ChangedAttributesHash } from '@ember-data/store/-types/q/cache';
 import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
-import type { SerializerOptions } from '@ember-data/store/-types/q/minimum-serializer-interface';
 import type { AttributeSchema, RelationshipSchema } from '@ember-data/store/-types/q/record-data-schemas';
 import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
 import type { FindOptions } from '@ember-data/store/-types/q/store';
 
-import { upgradeStore } from './fetch-manager';
+import { upgradeStore } from '../-private';
 
 type RecordId = string | null;
 
@@ -553,6 +553,7 @@ export default class Snapshot implements Snapshot {
     @public
    */
   serialize(options?: SerializerOptions): unknown {
+    upgradeStore(this._store);
     const serializer = this._store.serializerFor(this.modelName);
     assert(`Cannot serialize record, no serializer found`, serializer);
     return serializer.serialize(this, options);

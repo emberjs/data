@@ -8,7 +8,7 @@ import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
 import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
 import type { FindOptions } from '@ember-data/store/-types/q/store';
 
-import { upgradeStore } from './fetch-manager';
+import { upgradeStore } from '../-private';
 import type Snapshot from './snapshot';
 /**
   SnapshotRecordArray is not directly instantiable.
