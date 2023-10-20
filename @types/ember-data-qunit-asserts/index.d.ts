@@ -1,6 +1,6 @@
 import type { CacheOperation, NotificationType } from "@ember-data/store/-private/managers/notification-manager";
 import type { StableDocumentIdentifier } from "@ember-data/store/-types/cache/identifier";
-import type { StableRecordIdentifier } from "@ember-data/store/-types/q/identifier";
+import type { StableRecordIdentifier } from "@warp-drive/core";
 
 declare global {
   interface DeprecationConfig {

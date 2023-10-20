@@ -7,7 +7,7 @@ import type { AttributeSchema, RelationshipSchema, RelationshipsSchema } from '@
 import type { JsonApiError } from '@ember-data/store/-types/q/record-data-json-api';
 import type HasManyReference from './references/has-many';
 import type BelongsToReference from './references/belongs-to';
-import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
+import type { StableRecordIdentifier } from '@warp-drive/core';
 import type { LegacySupport } from './legacy-relationships-support';
 import type { Cache } from '@ember-data/store/-types/q/cache';
 import type RecordState from './record-state';

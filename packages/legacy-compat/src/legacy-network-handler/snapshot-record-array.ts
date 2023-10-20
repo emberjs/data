@@ -1,11 +1,12 @@
 /**
   @module @ember-data/legacy-compat
 */
+import type { StableRecordIdentifier } from '@warp-drive/core';
+
 import type Store from '@ember-data/store';
 import { SOURCE } from '@ember-data/store/-private';
 import type IdentifierArray from '@ember-data/store/-private/record-arrays/identifier-array';
 import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
-import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
 import type { FindOptions } from '@ember-data/store/-types/q/store';
 
 import { upgradeStore } from '../-private';

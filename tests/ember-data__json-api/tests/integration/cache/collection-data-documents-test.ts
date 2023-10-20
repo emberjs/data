@@ -1,3 +1,4 @@
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/identifier';
 import { module, test } from '@warp-drive/diagnostic';
 
 import Cache from '@ember-data/json-api';
@@ -8,7 +9,6 @@ import type { NotificationType } from '@ember-data/store/-private/managers/notif
 import type { CollectionResourceDataDocument } from '@ember-data/store/-types/cache/document';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
 import type { CollectionResourceDocument } from '@ember-data/store/-types/q/ember-data-json-api';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
 import { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 import { AttributesSchema, RelationshipsSchema } from '@ember-data/store/-types/q/record-data-schemas';
 

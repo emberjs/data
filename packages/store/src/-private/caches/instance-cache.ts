@@ -1,12 +1,13 @@
 import { assert, warn } from '@ember/debug';
 
+import type { RecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/identifier';
+
 import { LOG_INSTANCE_CACHE } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
 import type Model from '@ember-data/model';
 
 import type { Cache } from '../../-types/q/cache';
 import type { ExistingResourceIdentifierObject, NewResourceIdentifierObject } from '../../-types/q/ember-data-json-api';
-import type { RecordIdentifier, StableRecordIdentifier } from '../../-types/q/identifier';
 import type { JsonApiRelationship, JsonApiResource } from '../../-types/q/record-data-json-api';
 import type { RelationshipSchema } from '../../-types/q/record-data-schemas';
 import type { RecordInstance } from '../../-types/q/record-instance';

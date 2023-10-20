@@ -1,5 +1,6 @@
 import { inject as service } from '@ember/service';
 
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/identifier';
 import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
@@ -27,7 +28,6 @@ import type {
 import { StableDocumentIdentifier } from '@ember-data/store/-types/cache/identifier';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
 import type { ResourceIdentifierObject } from '@ember-data/store/-types/q/ember-data-json-api';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
 import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
 

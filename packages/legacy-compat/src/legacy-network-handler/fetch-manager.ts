@@ -1,6 +1,7 @@
 import { assert, warn } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/identifier';
 
 import { DEBUG, TESTING } from '@ember-data/env';
 import type { MinimumSerializerInterface } from '@ember-data/legacy-compat/legacy-network-handler/minimum-serializer-interface';
@@ -18,7 +19,6 @@ import type {
   CollectionResourceDocument,
   SingleResourceDocument,
 } from '@ember-data/store/-types/q/ember-data-json-api';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
 import type { FindOptions } from '@ember-data/store/-types/q/store';
 
 import { upgradeStore } from '../-private';

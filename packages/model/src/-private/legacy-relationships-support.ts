@@ -1,6 +1,7 @@
 import { assert } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
+import type { StableRecordIdentifier } from '@warp-drive/core';
 
 import { DEBUG } from '@ember-data/env';
 import type { UpgradedMeta } from '@ember-data/graph/-private/-edge-definition';
@@ -25,7 +26,6 @@ import {
   CollectionResourceRelationship,
   SingleResourceRelationship,
 } from '@ember-data/store/-types/q/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
 import type { JsonApiRelationship } from '@ember-data/store/-types/q/record-data-json-api';
 import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
 import type { FindOptions } from '@ember-data/store/-types/q/store';

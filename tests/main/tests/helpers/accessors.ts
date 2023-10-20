@@ -1,10 +1,11 @@
+import type { StableRecordIdentifier } from '@warp-drive/core';
+
 import { graphFor } from '@ember-data/graph/-private';
 import type { ImplicitEdge } from '@ember-data/graph/-private/edges/implicit';
 import type { GraphEdge } from '@ember-data/graph/-private/graph';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
 
 export function getRelationshipStateForRecord(record: { store: Store }, propertyName: string): GraphEdge {
   const identifier = recordIdentifierFor(record);

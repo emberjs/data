@@ -1,4 +1,5 @@
-import { StableRecordIdentifier } from '../q/identifier';
+import { StableRecordIdentifier } from '@warp-drive/core';
+
 import { StableDocumentIdentifier } from './identifier';
 
 export interface Change {

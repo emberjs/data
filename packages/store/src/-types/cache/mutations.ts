@@ -1,4 +1,4 @@
-import { StableRecordIdentifier } from '../q/identifier';
+import { StableRecordIdentifier } from '@warp-drive/core';
 
 export interface AddToRelatedRecordsMutation {
   op: 'addToRelatedRecords';

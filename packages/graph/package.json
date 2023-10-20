@@ -32,7 +32,8 @@
     "ember-data-logo-light.svg"
   ],
   "peerDependencies": {
-    "@ember-data/store": "workspace:5.5.0-alpha.11"
+    "@ember-data/store": "workspace:5.5.0-alpha.11",
+    "@warp-drive/core": "workspace:5.5.0-alpha.11"
   },
   "dependenciesMeta": {
     "@ember-data/private-build-infra": {

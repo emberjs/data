@@ -1,5 +1,6 @@
 import EmberObject, { set } from '@ember/object';
 
+import type { IdentifierBucket, StableIdentifier, StableRecordIdentifier } from '@warp-drive/core/identifier';
 import { module, test } from 'qunit';
 
 import type Store from 'ember-data/store';
@@ -14,13 +15,7 @@ import {
   setIdentifierResetMethod,
   setIdentifierUpdateMethod,
 } from '@ember-data/store';
-import type {
-  GenerationMethod,
-  IdentifierBucket,
-  ResourceData,
-  StableIdentifier,
-  StableRecordIdentifier,
-} from '@ember-data/store/-types/q/identifier';
+import type { GenerationMethod, ResourceData } from '@ember-data/store/-types/q/identifier';
 
 function isNonEmptyString(str: any): str is string {
   return typeof str === 'string' && str.length > 0;

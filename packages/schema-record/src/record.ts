@@ -1,5 +1,5 @@
 import type Store from '@ember-data/store';
-import type { StableRecordIdentifier } from "@ember-data/store/-types/q/identifier";
+import type { StableRecordIdentifier } from "@warp-drive/core";
 import type { FieldSchema, SchemaService } from './schema';
 import { Cache } from '@ember-data/store/-types/q/cache';
 import { Link, Links, SingleResourceRelationship } from '@ember-data/store/-types/q/ember-data-json-api';

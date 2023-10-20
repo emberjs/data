@@ -3,6 +3,8 @@
  */
 import { assert } from '@ember/debug';
 
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/identifier';
+
 import { LOG_MUTATIONS, LOG_OPERATIONS, LOG_REQUESTS } from '@ember-data/debugging';
 import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@ember-data/deprecations';
 import { DEBUG } from '@ember-data/env';
@@ -37,7 +39,6 @@ import type {
   SingleResourceDocument,
   SingleResourceRelationship,
 } from '@ember-data/store/-types/q/ember-data-json-api';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
 import type { AttributesHash, JsonApiError, JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 import type { AttributeSchema, RelationshipSchema } from '@ember-data/store/-types/q/record-data-schemas';
 

@@ -3,9 +3,10 @@
  */
 import { assert } from '@ember/debug';
 
+import type { StableRecordIdentifier } from '@warp-drive/core/identifier';
+
 import { DEBUG } from '@ember-data/env';
 
-import type { StableRecordIdentifier } from '../../-types/q/identifier';
 import { FindOptions } from '../../-types/q/store';
 import Store from '../store-service';
 

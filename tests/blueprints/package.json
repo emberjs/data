@@ -28,6 +28,15 @@
     },
     "@ember-data/serializer": {
       "injected": true
+    },
+    "@ember-data/store": {
+      "injected": true
+    },
+    "@ember-data/tracking": {
+      "injected": true
+    },
+    "@warp-drive/core": {
+      "injected": true
     }
   },
   "devDependencies": {
@@ -40,8 +49,10 @@
     "@ember-data/store": "workspace:5.5.0-alpha.11",
     "@ember-data/tracking": "workspace:5.5.0-alpha.11",
     "@ember-data/unpublished-test-infra": "workspace:5.5.0-alpha.11",
+    "@warp-drive/core": "workspace:5.5.0-alpha.11",
     "@ember/string": "3.1.1",
     "@glimmer/component": "^1.1.2",
+    "@glimmer/tracking": "^1.1.2",
     "ember-cli": "~5.3.0",
     "ember-cli-blueprint-test-helpers": "^0.19.2",
     "ember-inflector": "^4.0.2",

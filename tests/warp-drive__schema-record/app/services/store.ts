@@ -1,3 +1,4 @@
+import type { StableRecordIdentifier } from '@warp-drive/core';
 import { instantiateRecord, teardownRecord } from '@warp-drive/schema-record/hooks';
 import type { SchemaRecord } from '@warp-drive/schema-record/record';
 
@@ -7,7 +8,6 @@ import Fetch from '@ember-data/request/fetch';
 import DataStore, { CacheHandler } from '@ember-data/store';
 import type { Cache } from '@ember-data/store/-types/cache/cache';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
 
 export default class Store extends DataStore {
   constructor(args: unknown) {

@@ -1,8 +1,9 @@
 import { assert } from '@ember/debug';
 
+import type { StableRecordIdentifier } from '@warp-drive/core';
+
 import { DEBUG } from '@ember-data/env';
 import type Store from '@ember-data/store';
-import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
 import type { RelationshipSchema } from '@ember-data/store/-types/q/record-data-schemas';
 
 import { expandingGet, expandingSet, getStore } from './-utils';

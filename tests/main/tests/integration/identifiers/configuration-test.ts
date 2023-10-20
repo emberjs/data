@@ -1,6 +1,7 @@
 import EmberObject, { set } from '@ember/object';
 import { settled } from '@ember/test-helpers';
 
+import type { IdentifierBucket, StableIdentifier, StableRecordIdentifier } from '@warp-drive/core/identifier';
 import { module, test } from 'qunit';
 
 import Store from 'ember-data/store';
@@ -17,13 +18,7 @@ import {
   setIdentifierResetMethod,
   setIdentifierUpdateMethod,
 } from '@ember-data/store';
-import type {
-  GenerationMethod,
-  IdentifierBucket,
-  ResourceData,
-  StableIdentifier,
-  StableRecordIdentifier,
-} from '@ember-data/store/-types/q/identifier';
+import type { GenerationMethod, ResourceData } from '@ember-data/store/-types/q/identifier';
 
 module('Integration | Identifiers - configuration', function (hooks) {
   setupTest(hooks);

@@ -1,4 +1,4 @@
-import type { StableRecordIdentifier } from '@ember-data/store/-types/q/identifier';
+import type { StableRecordIdentifier } from '@warp-drive/core';
 
 import type { UpgradedMeta } from '../-edge-definition';
 
