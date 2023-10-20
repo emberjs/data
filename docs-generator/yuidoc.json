@@ -11,7 +11,6 @@
       "feature"
     ],
     "paths": [
-      "../ember-data-types",
       "../packages/-ember-data/addon",
       "../packages/debug/addon",
       "../packages/private-build-infra/virtual-packages",
