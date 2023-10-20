@@ -280,7 +280,6 @@ module.exports = {
         'packages/*/.eslintrc.js',
         'packages/*/.template-lintrc.js',
         'packages/*/ember-cli-build.js',
-        'packages/tracking/lib/*.js',
         'packages/*/addon-main.js',
         'packages/*/index.js',
         'packages/*/testem.js',
@@ -293,6 +292,7 @@ module.exports = {
         'packages/*/addon-test-support/**',
         'packages/*/app/**',
         'packages/*/tests/dummy/app/**',
+        'packages/tracking/babel.config.js',
       ],
       parserOptions: {
         sourceType: 'script',
