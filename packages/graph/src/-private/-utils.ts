@@ -1,12 +1,12 @@
 import { assert, inspect, warn } from '@ember/debug';
 
-import type { StableRecordIdentifier } from '@warp-drive/core';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import { ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
 
 import { LOG_GRAPH } from '@ember-data/debugging';
 import type { Store } from '@ember-data/store/-private';
 import { peekCache } from '@ember-data/store/-private';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import { ResourceIdentifierObject } from '@ember-data/store/-types/q/ember-data-json-api';
 
 import { UpgradedMeta } from './-edge-definition';
 import type { UpdateRelationshipOperation } from './-operations';

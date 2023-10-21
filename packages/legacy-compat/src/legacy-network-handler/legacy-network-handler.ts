@@ -1,7 +1,15 @@
 import { assert } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/identifier';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { RelationshipSchema } from '@warp-drive/core-types/schema';
+import type {
+  CollectionResourceDocument,
+  JsonApiDocument,
+  Links,
+  PaginationLinks,
+  SingleResourceDocument,
+} from '@warp-drive/core-types/spec/raw';
 
 import { LOG_PAYLOADS } from '@ember-data/debugging';
 import { DEBUG, TESTING } from '@ember-data/env';
@@ -13,15 +21,7 @@ import type { StoreRequestContext, StoreRequestInfo } from '@ember-data/store/-p
 import type { Collection } from '@ember-data/store/-private/record-arrays/identifier-array';
 import { SingleResourceDataDocument } from '@ember-data/store/-types/cache/document';
 import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
-import type {
-  CollectionResourceDocument,
-  JsonApiDocument,
-  Links,
-  PaginationLinks,
-  SingleResourceDocument,
-} from '@ember-data/store/-types/q/ember-data-json-api';
 import type { JsonApiError } from '@ember-data/store/-types/q/record-data-json-api';
-import type { RelationshipSchema } from '@ember-data/store/-types/q/record-data-schemas';
 
 import { upgradeStore } from '../-private';
 import FetchManager, { SaveOp } from './fetch-manager';
@@ -107,7 +107,7 @@ function findBelongsTo<T>(context: StoreRequestContext): Promise<T> {
   }
 
   if (useLink) {
-    return _findBelongsTo(store, record, links!.related, field, options) as Promise<T>;
+    return _findBelongsTo(store, record, links.related, field, options) as Promise<T>;
   }
 
   assert(`Expected an identifier`, Array.isArray(identifiers) && identifiers.length === 1);
@@ -151,7 +151,7 @@ function findHasMany<T>(context: StoreRequestContext): Promise<T> {
       typeof adapter.findHasMany === 'function'
     );
 
-    return _findHasMany(adapter, store, record, links!.related, field, options) as Promise<T>;
+    return _findHasMany(adapter, store, record, links.related, field, options) as Promise<T>;
   }
 
   // identifiers case

@@ -4,7 +4,8 @@
 import { assert } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { AttributeSchema, RelationshipSchema } from '@warp-drive/core-types/schema';
 
 import { DEBUG } from '@ember-data/env';
 import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection';
@@ -14,7 +15,6 @@ import { HAS_JSON_API_PACKAGE } from '@ember-data/packages';
 import type Store from '@ember-data/store';
 import { CollectionRelationship } from '@ember-data/store/-types/cache/relationship';
 import type { ChangedAttributesHash } from '@ember-data/store/-types/q/cache';
-import type { AttributeSchema, RelationshipSchema } from '@ember-data/store/-types/q/record-data-schemas';
 import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
 import type { FindOptions } from '@ember-data/store/-types/q/store';
 

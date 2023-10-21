@@ -1,4 +1,11 @@
-import type { StableRecordIdentifier } from '@warp-drive/core';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type {
+  LinkObject,
+  Links,
+  Meta,
+  SingleResourceDocument,
+  SingleResourceRelationship,
+} from '@warp-drive/core-types/spec/raw';
 
 import { DEBUG } from '@ember-data/env';
 import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
@@ -6,13 +13,6 @@ import type { Graph } from '@ember-data/graph/-private/graph';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store/-private';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type {
-  LinkObject,
-  Links,
-  Meta,
-  SingleResourceDocument,
-  SingleResourceRelationship,
-} from '@ember-data/store/-types/q/ember-data-json-api';
 import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
 import { cached, compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';

@@ -18,7 +18,6 @@
     "build:types": "tsc --build --force",
     "build:client": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
     "build": "pnpm build:client && pnpm build:types",
-    "start": "rollup --config --watch",
     "prepack": "pnpm build",
     "prepare": "pnpm build"
   },
@@ -52,6 +51,14 @@
       "injected": true
     }
   },
+  "devDependenciesMeta": {
+    "@warp-drive/core-types": {
+      "injected": true
+    },
+    "@ember-data/store": {
+      "injected": true
+    }
+  },
   "devDependencies": {
     "@babel/cli": "^7.23.0",
     "@babel/core": "^7.23.2",
@@ -66,6 +73,8 @@
     "@embroider/addon-dev": "^4.1.1",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
+    "@ember-data/store": "workspace:5.5.0-alpha.11",
+    "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
     "rollup": "^4.1.4",
     "tslib": "^2.6.2",
     "typescript": "^5.2.2",

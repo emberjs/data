@@ -4,7 +4,7 @@ import type {
   Links,
   Meta,
   SingleResourceRelationship,
-} from './ember-data-json-api';
+} from '@warp-drive/core-types/spec/raw';
 
 /**
   @module @ember-data/store

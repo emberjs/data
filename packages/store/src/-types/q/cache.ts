@@ -1,7 +1,7 @@
-import type { RecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/identifier';
+import type { RecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { CollectionResourceRelationship, SingleResourceRelationship } from '@warp-drive/core-types/spec/raw';
 
 import { Cache } from '../cache/cache';
-import type { CollectionResourceRelationship, SingleResourceRelationship } from './ember-data-json-api';
 import type { JsonApiError, JsonApiResource } from './record-data-json-api';
 /**
   @module @ember-data/store

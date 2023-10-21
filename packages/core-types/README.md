@@ -13,8 +13,8 @@
     title="WarpDrive" />
 </p>
 
-<h3 align="center">🛸 @warp-drive/core</h3>
-<p align="center">Provides core logic, utils and types for WarpDrive and EmberData</p>
+<h3 align="center">🛸 @warp-drive/core-types</h3>
+<p align="center">Provides core types, type utils and constants for WarpDrive and EmberData</p>
 
 ### ♥️ Credits
 

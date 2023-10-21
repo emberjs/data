@@ -2,9 +2,8 @@
   @module @ember-data/store
 */
 
-import type { RecordIdentifier } from '@warp-drive/core/identifier';
-
-import type { AttributesSchema, RelationshipsSchema } from './record-data-schemas';
+import type { RecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
 
 /**
  * A SchemaDefinitionService implementation provides the ability

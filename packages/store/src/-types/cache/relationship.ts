@@ -1,6 +1,5 @@
-import { StableRecordIdentifier } from '@warp-drive/core';
-
-import { Links, Meta, PaginationLinks } from '../q/ember-data-json-api';
+import { StableRecordIdentifier } from '@warp-drive/core-types';
+import { Links, Meta, PaginationLinks } from '@warp-drive/core-types/spec/raw';
 
 // we request that it be in the stable form already.
 export interface ResourceRelationship {

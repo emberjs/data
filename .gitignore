@@ -22,7 +22,7 @@ packages/rest/addon
 packages/active-record/addon
 packages/data-worker/addon
 packages/schema-record/addon/
-packages/core/addon/
+packages/core-types/addon
 
 # dependencies
 bower_components

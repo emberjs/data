@@ -1,4 +1,4 @@
-import type { StableRecordIdentifier } from '@warp-drive/core';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import { module, test } from '@warp-drive/diagnostic';
 import { setupTest } from '@warp-drive/diagnostic/ember';
 

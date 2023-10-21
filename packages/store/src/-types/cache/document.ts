@@ -1,6 +1,6 @@
-import type { StableExistingRecordIdentifier } from '@warp-drive/core/identifier';
+import type { StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
+import { Links, Meta, PaginationLinks } from '@warp-drive/core-types/spec/raw';
 
-import { Links, Meta, PaginationLinks } from '../q/ember-data-json-api';
 import { JsonApiError } from '../q/record-data-json-api';
 
 export interface ResourceMetaDocument {

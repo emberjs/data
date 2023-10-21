@@ -1,13 +1,13 @@
 import { assert } from '@ember/debug';
 
-import type { StableRecordIdentifier } from '@warp-drive/core/identifier';
-
-import { defineSignal } from '@ember-data/tracking/-private';
-
+import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 /**
   @module @ember-data/store
 */
-import type { SingleResourceDocument } from '../../-types/q/ember-data-json-api';
+import type { SingleResourceDocument } from '@warp-drive/core-types/spec/raw';
+
+import { defineSignal } from '@ember-data/tracking/-private';
+
 import type { RecordInstance } from '../../-types/q/record-instance';
 import type { NotificationType } from '../managers/notification-manager';
 import type Store from '../store-service';

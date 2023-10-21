@@ -1,5 +1,6 @@
+import type { AttributeSchema, RelationshipSchema } from '@warp-drive/core-types/schema';
+
 import type { ModelSchema } from '../../-types/q/ds-model';
-import type { AttributeSchema, RelationshipSchema } from '../../-types/q/record-data-schemas';
 import type Store from '../store-service';
 
 type GenericRecord = Record<string, unknown>;

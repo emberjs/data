@@ -1,6 +1,6 @@
 import { assert } from '@ember/debug';
 
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/identifier';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 
 import { pluralize } from 'ember-inflector';
 

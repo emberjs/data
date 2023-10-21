@@ -1,15 +1,14 @@
 import { assert, warn } from '@ember/debug';
 
-import type { RecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/identifier';
+import type { RecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { RelationshipSchema } from '@warp-drive/core-types/schema';
+import type { ExistingResourceIdentifierObject, NewResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
 
 import { LOG_INSTANCE_CACHE } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
-import type Model from '@ember-data/model';
 
 import type { Cache } from '../../-types/q/cache';
-import type { ExistingResourceIdentifierObject, NewResourceIdentifierObject } from '../../-types/q/ember-data-json-api';
 import type { JsonApiRelationship, JsonApiResource } from '../../-types/q/record-data-json-api';
-import type { RelationshipSchema } from '../../-types/q/record-data-schemas';
 import type { RecordInstance } from '../../-types/q/record-instance';
 import RecordReference from '../legacy-model-support/record-reference';
 import { CacheCapabilitiesManager } from '../managers/cache-capabilities-manager';
@@ -18,6 +17,16 @@ import type { CreateRecordProperties } from '../store-service';
 import type Store from '../store-service';
 import { ensureStringId } from '../utils/coerce-id';
 import { CacheForIdentifierCache, removeRecordDataFor, setCacheFor } from './cache-utils';
+
+type Destroyable = {
+  isDestroyed: boolean;
+  isDestroying: boolean;
+  destroy(): void;
+};
+
+function isDestroyable(record: RecordInstance): record is Destroyable {
+  return Boolean(record && typeof record === 'object' && typeof (record as Destroyable).destroy === 'function');
+}
 
 /**
   @module @ember-data/store
@@ -234,7 +243,7 @@ export class InstanceCache {
     const record = this.__instances.record.get(identifier);
     assert(
       'Cannot destroy record while it is still materialized',
-      !record || (record as Model).isDestroyed || (record as Model).isDestroying
+      !isDestroyable(record) || record.isDestroyed || record.isDestroying
     );
 
     this.store._graph?.remove(identifier);

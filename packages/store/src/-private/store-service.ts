@@ -5,7 +5,14 @@
 import { assert } from '@ember/debug';
 import EmberObject from '@ember/object';
 
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/identifier';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type {
+  CollectionResourceDocument,
+  EmptyResourceDocument,
+  JsonApiDocument,
+  ResourceIdentifierObject,
+  SingleResourceDocument,
+} from '@warp-drive/core-types/spec/raw';
 
 import { LOG_PAYLOADS, LOG_REQUESTS } from '@ember-data/debugging';
 import { DEBUG, TESTING } from '@ember-data/env';
@@ -18,13 +25,6 @@ import { StableDocumentIdentifier } from '../-types/cache/identifier';
 import type { Cache, CacheV1 } from '../-types/q/cache';
 import type { CacheCapabilitiesManager } from '../-types/q/cache-store-wrapper';
 import { ModelSchema } from '../-types/q/ds-model';
-import type {
-  CollectionResourceDocument,
-  EmptyResourceDocument,
-  JsonApiDocument,
-  ResourceIdentifierObject,
-  SingleResourceDocument,
-} from '../-types/q/ember-data-json-api';
 import type { RecordInstance } from '../-types/q/record-instance';
 import type { SchemaService } from '../-types/q/schema-service';
 import type { FindOptions } from '../-types/q/store';

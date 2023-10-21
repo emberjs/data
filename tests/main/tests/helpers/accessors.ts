@@ -1,4 +1,4 @@
-import type { StableRecordIdentifier } from '@warp-drive/core';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
 import { graphFor } from '@ember-data/graph/-private';
 import type { ImplicitEdge } from '@ember-data/graph/-private/edges/implicit';

@@ -1,4 +1,4 @@
-import { AttributeSchema, RelationshipSchema } from './record-data-schemas';
+import { AttributeSchema, RelationshipSchema } from '@warp-drive/core-types/schema';
 
 type GenericRecord = Record<string, unknown>;
 export interface ModelSchema<T extends object = GenericRecord> {

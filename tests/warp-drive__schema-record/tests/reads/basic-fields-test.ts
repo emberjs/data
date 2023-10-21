@@ -1,4 +1,4 @@
-import type { StableRecordIdentifier } from '@warp-drive/core';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { SchemaRecord } from '@warp-drive/schema-record/record';
 import type { Transform } from '@warp-drive/schema-record/schema';
 import { SchemaService } from '@warp-drive/schema-record/schema';

@@ -1,5 +1,7 @@
 import { assert } from '@ember/debug';
 
+import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
+
 import type {
   Future,
   Handler,
@@ -16,7 +18,6 @@ import type {
   ResourceErrorDocument,
 } from '../-types/cache/document';
 import type { StableDocumentIdentifier } from '../-types/cache/identifier';
-import type { ResourceIdentifierObject } from '../-types/q/ember-data-json-api';
 import type { JsonApiError } from '../-types/q/record-data-json-api';
 import type { RecordInstance } from '../-types/q/record-instance';
 import type { CreateRequestOptions, DeleteRequestOptions, UpdateRequestOptions } from '../-types/request';

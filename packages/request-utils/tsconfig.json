@@ -1,11 +1,11 @@
 {
-  "include": ["client/**/*"],
+  "include": ["src/**/*"],
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "bundler",
     "skipLibCheck": true,
-    "declarationDir": "dist",
+    "declarationDir": "unstable-preview-types",
     "emitDeclarationOnly": true,
     "noEmit": false,
     "allowJs": false,
@@ -33,17 +33,16 @@
     // but causes us to not rebuild properly
     "incremental": false,
 
-    // Support generation of source maps. Note: you must *also* enable source
-    // maps in your `ember-cli-babel` config and/or `babel.config.js`.
     "declaration": true,
     "declarationMap": true,
     "inlineSourceMap": true,
     "inlineSources": true,
 
-    "baseUrl": "client",
+    "baseUrl": "src",
 
     "paths": {
-      "@ember-data/request": ["../../request/unstable-preview-types"],
+      "@warp-drive/core-types": ["../core-types/src"],
+      "@warp-drive/core/*": ["../core-types/src/*"],
     }
   }
 }

@@ -1,7 +1,8 @@
 import { assert } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import { CollectionResourceRelationship, SingleResourceRelationship } from '@warp-drive/core-types/spec/raw';
 
 import { DEBUG } from '@ember-data/env';
 import type { UpgradedMeta } from '@ember-data/graph/-private/-edge-definition';
@@ -22,10 +23,6 @@ import {
 } from '@ember-data/store/-private';
 import { CollectionRelationship } from '@ember-data/store/-types/cache/relationship';
 import type { Cache } from '@ember-data/store/-types/q/cache';
-import {
-  CollectionResourceRelationship,
-  SingleResourceRelationship,
-} from '@ember-data/store/-types/q/ember-data-json-api';
 import type { JsonApiRelationship } from '@ember-data/store/-types/q/record-data-json-api';
 import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
 import type { FindOptions } from '@ember-data/store/-types/q/store';
@@ -168,7 +165,7 @@ export class LegacySupport {
 
       return this._updatePromiseProxyFor('belongsTo', key, {
         promise,
-        content: isLoaded ? store._instanceCache.getRecord(relatedIdentifier!) : null,
+        content: isLoaded ? store._instanceCache.getRecord(relatedIdentifier) : null,
         _belongsToState,
       });
     } else {

@@ -25,7 +25,7 @@
 /packages/rest/addon/
 /packages/active-record/addon/
 /packages/data-worker/addon/
-/packages/core/
+/packages/core-types/
 /packages/holodeck/
 /packages/schema-record/
 /packages/schema/

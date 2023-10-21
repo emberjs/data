@@ -1,5 +1,5 @@
 {
-  "name": "@warp-drive/core",
+  "name": "@warp-drive/core-types",
   "version": "5.5.0-alpha.11",
   "description": "Provides core logic, utils and types for WarpDrive and EmberData",
   "keywords": [
@@ -8,7 +8,7 @@
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com:emberjs/data.git",
-    "directory": "packages/core"
+    "directory": "packages/core-types"
   },
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",

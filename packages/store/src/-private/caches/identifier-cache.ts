@@ -10,20 +10,20 @@ import type {
   RecordIdentifier,
   StableIdentifier,
   StableRecordIdentifier,
-} from '@warp-drive/core/identifier';
+} from '@warp-drive/core-types/identifier';
 import {
   CACHE_OWNER,
   DEBUG_CLIENT_ORIGINATED,
   DEBUG_IDENTIFIER_BUCKET,
   DEBUG_STALE_CACHE_OWNER,
-} from '@warp-drive/core/identifier';
+} from '@warp-drive/core-types/identifier';
+import type { ExistingResourceObject, ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
 
 import { LOG_IDENTIFIERS } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
 import { ImmutableRequestInfo } from '@ember-data/request/-private/types';
 
 import { StableDocumentIdentifier } from '../../-types/cache/identifier';
-import type { ExistingResourceObject, ResourceIdentifierObject } from '../../-types/q/ember-data-json-api';
 import type {
   ForgetMethod,
   GenerationMethod,

@@ -1,6 +1,6 @@
 import { assert } from '@ember/debug';
 
-import type { StableRecordIdentifier } from '@warp-drive/core';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
 import { _removeLocal } from '../-diff';
 import type { RemoveFromRelatedRecordsOperation } from '../-operations';

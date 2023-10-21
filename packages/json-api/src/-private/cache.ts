@@ -3,7 +3,7 @@
  */
 import { assert } from '@ember/debug';
 
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/identifier';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 
 import { LOG_MUTATIONS, LOG_OPERATIONS, LOG_REQUESTS } from '@ember-data/debugging';
 import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@ember-data/deprecations';
@@ -38,9 +38,9 @@ import type {
   ExistingResourceObject,
   SingleResourceDocument,
   SingleResourceRelationship,
-} from '@ember-data/store/-types/q/ember-data-json-api';
+} from '@warp-drive/core-types/spec/raw';
 import type { AttributesHash, JsonApiError, JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
-import type { AttributeSchema, RelationshipSchema } from '@ember-data/store/-types/q/record-data-schemas';
+import type { AttributeSchema, RelationshipSchema } from '@warp-drive/core-types/schema';
 
 function isImplicit(relationship: GraphEdge): relationship is ImplicitEdge {
   return relationship.definition.isImplicit;

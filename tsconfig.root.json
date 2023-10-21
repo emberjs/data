@@ -51,7 +51,7 @@
       "@warp-drive/holodeck/*": ["packages/holodeck/dist/*"],
       "@warp-drive/diagnostic": ["packages/diagnostic/dist"],
       "@warp-drive/diagnostic/*": ["packages/diagnostic/dist/*"],
-      "@warp-drive/core": ["packages/core/unstable-preview-types"],
+      "@warp-drive/core-types": ["packages/core/unstable-preview-types"],
       "@warp-drive/core/*": ["packages/core/unstable-preview-types/*"],
       "@ember-data/request": ["packages/request/unstable-preview-types"],
       "@ember-data/request/*": ["packages/request/unstable-preview-types/*"],

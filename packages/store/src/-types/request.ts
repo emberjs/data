@@ -1,8 +1,6 @@
-import { StableRecordIdentifier } from '@warp-drive/core';
-
-import { QueryParamsSerializationOptions } from '@ember-data/request-utils';
-
-import type { ResourceIdentifierObject } from './q/ember-data-json-api';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { QueryParamsSerializationOptions } from '@warp-drive/core-types/params';
+import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
 
 export type CacheOptions = {
   key?: string;

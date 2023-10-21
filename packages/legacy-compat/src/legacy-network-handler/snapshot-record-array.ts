@@ -1,7 +1,7 @@
 /**
   @module @ember-data/legacy-compat
 */
-import type { StableRecordIdentifier } from '@warp-drive/core';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
 import type Store from '@ember-data/store';
 import { SOURCE } from '@ember-data/store/-private';

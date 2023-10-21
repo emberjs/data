@@ -3,16 +3,8 @@
  * @module @ember-data/request
  */
 
-// TODO use the real type once it is shipped
-interface StableRecordIdentifier {
-  type: string;
-  id: string | null;
-  lid: string;
-}
-
-
-// TODO use the real type once it is shipped
-type Store = unknown;
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type Store from '@ember-data/store';
 
 export const IS_FUTURE = Symbol('IS_FUTURE');
 export const STRUCTURED = Symbol('DOC');

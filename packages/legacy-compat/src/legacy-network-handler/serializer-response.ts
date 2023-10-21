@@ -1,5 +1,7 @@
 import { assert } from '@ember/debug';
 
+import type { JsonApiDocument } from '@warp-drive/core-types/spec/raw';
+
 import { DEBUG } from '@ember-data/env';
 import type { AdapterPayload } from '@ember-data/legacy-compat/legacy-network-handler/minimum-adapter-interface';
 import type {
@@ -8,7 +10,6 @@ import type {
 } from '@ember-data/legacy-compat/legacy-network-handler/minimum-serializer-interface';
 import type Store from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
-import type { JsonApiDocument } from '@ember-data/store/-types/q/ember-data-json-api';
 
 /**
   This is a helper method that validates a JSON API top-level document

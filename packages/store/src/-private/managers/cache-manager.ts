@@ -1,4 +1,5 @@
-import type { StableRecordIdentifier } from '@warp-drive/core/identifier';
+import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { CollectionResourceRelationship, SingleResourceRelationship } from '@warp-drive/core-types/spec/raw';
 
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/-operations';
 import type { StructuredDataDocument, StructuredDocument } from '@ember-data/request';
@@ -8,7 +9,6 @@ import type { Change } from '../../-types/cache/change';
 import type { ResourceDocument, SingleResourceDataDocument } from '../../-types/cache/document';
 import type { StableDocumentIdentifier } from '../../-types/cache/identifier';
 import type { Cache, ChangedAttributesHash, MergeOperation } from '../../-types/q/cache';
-import type { CollectionResourceRelationship, SingleResourceRelationship } from '../../-types/q/ember-data-json-api';
 import type { JsonApiError, JsonApiResource } from '../../-types/q/record-data-json-api';
 import type { StoreRequestContext } from '../cache-handler';
 

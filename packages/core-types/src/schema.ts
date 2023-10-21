@@ -1,7 +1,6 @@
 /**
-  @module @ember-data/store
+  @module @warp-drive/core-types
 */
-
 export interface RelationshipSchema {
   kind: 'belongsTo' | 'hasMany';
   type: string; // related type

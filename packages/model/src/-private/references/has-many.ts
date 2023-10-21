@@ -1,4 +1,13 @@
-import type { StableRecordIdentifier } from '@warp-drive/core';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type {
+  CollectionResourceDocument,
+  CollectionResourceRelationship,
+  ExistingResourceObject,
+  LinkObject,
+  Meta,
+  PaginationLinks,
+  SingleResourceDocument,
+} from '@warp-drive/core-types/spec/raw';
 
 import { ManyArray } from 'ember-data/-private';
 
@@ -9,15 +18,6 @@ import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
 import { CollectionRelationship } from '@ember-data/store/-types/cache/relationship';
-import type {
-  CollectionResourceDocument,
-  CollectionResourceRelationship,
-  ExistingResourceObject,
-  LinkObject,
-  Meta,
-  PaginationLinks,
-  SingleResourceDocument,
-} from '@ember-data/store/-types/q/ember-data-json-api';
 import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
 import type { FindOptions } from '@ember-data/store/-types/q/store';
 import { cached, compat } from '@ember-data/tracking';

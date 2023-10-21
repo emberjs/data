@@ -1,9 +1,5 @@
-import type { StableRecordIdentifier } from '@warp-drive/core';
-
-import type {
-  CollectionResourceRelationship,
-  SingleResourceRelationship,
-} from '@ember-data/store/-types/q/ember-data-json-api';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { CollectionResourceRelationship, SingleResourceRelationship } from '@warp-drive/core-types/spec/raw';
 
 export interface Operation {
   op: string;

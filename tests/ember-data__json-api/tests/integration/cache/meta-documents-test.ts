@@ -1,4 +1,4 @@
-import type { StableExistingRecordIdentifier } from '@warp-drive/core/identifier';
+import type { StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
 import { module, test } from '@warp-drive/diagnostic';
 
 import Cache from '@ember-data/json-api';
@@ -8,7 +8,7 @@ import { CacheOperation } from '@ember-data/store/-private/managers/notification
 import type { CollectionResourceDataDocument, ResourceMetaDocument } from '@ember-data/store/-types/cache/document';
 import { StableDocumentIdentifier } from '@ember-data/store/-types/cache/identifier';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import { AttributesSchema, RelationshipsSchema } from '@ember-data/store/-types/q/record-data-schemas';
+import { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
 
 class TestStore extends Store {
   createCache(wrapper: CacheCapabilitiesManager) {

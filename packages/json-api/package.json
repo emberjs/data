@@ -35,7 +35,7 @@
     "@ember-data/graph": "workspace:5.5.0-alpha.11",
     "@ember-data/request-utils": "workspace:5.5.0-alpha.11",
     "@ember-data/store": "workspace:5.5.0-alpha.11",
-    "@warp-drive/core": "workspace:5.5.0-alpha.11",
+    "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
     "ember-inflector": "^4.0.2"
   },
   "dependenciesMeta": {
@@ -48,7 +48,7 @@
     "@ember-data/store": {
       "injected": true
     },
-    "@warp-drive/core": {
+    "@warp-drive/core-types": {
       "injected": true
     },
     "@ember-data/request-utils": {

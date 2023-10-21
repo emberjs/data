@@ -1,6 +1,6 @@
 import { TestContext } from '@ember/test-helpers';
 
-import type { StableRecordIdentifier } from '@warp-drive/core';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { EmberHooks } from '@warp-drive/diagnostic';
 import { setupTest } from '@warp-drive/diagnostic/ember';
 
@@ -17,7 +17,7 @@ import type {
   EmptyResourceDocument,
   JsonApiDocument,
   SingleResourceDocument,
-} from '@ember-data/store/-types/q/ember-data-json-api';
+} from '@warp-drive/core-types/spec/raw';
 import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
 
 class AbstractMap {

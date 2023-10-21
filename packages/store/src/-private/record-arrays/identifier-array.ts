@@ -3,7 +3,8 @@
 */
 import { assert } from '@ember/debug';
 
-import type { StableRecordIdentifier } from '@warp-drive/core/identifier';
+import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import { Links, PaginationLinks } from '@warp-drive/core-types/spec/raw';
 
 import { ImmutableRequestInfo } from '@ember-data/request/-private/types';
 import { compat } from '@ember-data/tracking';
@@ -16,7 +17,6 @@ import {
   subscribe,
 } from '@ember-data/tracking/-private';
 
-import { Links, PaginationLinks } from '../../-types/q/ember-data-json-api';
 import type { RecordInstance } from '../../-types/q/record-instance';
 import { recordIdentifierFor } from '../caches/instance-cache';
 import type RecordArrayManager from '../managers/record-array-manager';

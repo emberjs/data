@@ -1,12 +1,12 @@
 /**
   @module @ember-data/store
 */
-import type { StableRecordIdentifier } from '@warp-drive/core/identifier';
+import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { CollectionResourceDocument } from '@warp-drive/core-types/spec/raw';
 
 import { ImmutableRequestInfo } from '@ember-data/request/-private/types';
 import { addTransactionCB } from '@ember-data/tracking/-private';
 
-import type { CollectionResourceDocument } from '../../-types/q/ember-data-json-api';
 import IdentifierArray, {
   ARRAY_SIGNAL,
   Collection,

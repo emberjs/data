@@ -1,12 +1,9 @@
 import { assert, warn } from '@ember/debug';
 
-import type { StableRecordIdentifier } from '@warp-drive/core';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ExistingResourceIdentifierObject, NewResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
 
 import { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
-import type {
-  ExistingResourceIdentifierObject,
-  NewResourceIdentifierObject,
-} from '@ember-data/store/-types/q/ember-data-json-api';
 
 import type { UpdateRelationshipOperation } from '../-operations';
 import { isBelongsTo, isHasMany, notifyChange } from '../-utils';

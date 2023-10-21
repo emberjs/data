@@ -1,6 +1,6 @@
 import { assert, deprecate } from '@ember/debug';
 
-import type { StableRecordIdentifier } from '@warp-drive/core';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
 import { DEPRECATE_NON_UNIQUE_PAYLOADS } from '@ember-data/deprecations';
 import { DEBUG } from '@ember-data/env';

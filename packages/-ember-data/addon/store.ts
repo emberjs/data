@@ -1,4 +1,4 @@
-import type { StableRecordIdentifier } from '@warp-drive/core';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
 import JSONAPICache from '@ember-data/json-api';
 import {

@@ -1,6 +1,6 @@
 import { assert } from '@ember/debug';
 
-import type { StableRecordIdentifier } from '@warp-drive/core';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
 import type Store from '@ember-data/store';
 import { storeFor } from '@ember-data/store';

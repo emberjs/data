@@ -3,7 +3,7 @@
  */
 import { assert } from '@ember/debug';
 
-import type { StableRecordIdentifier } from '@warp-drive/core/identifier';
+import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 
 import { DEBUG } from '@ember-data/env';
 

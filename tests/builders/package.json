@@ -52,7 +52,7 @@
     "@warp-drive/diagnostic": {
       "injected": true
     },
-    "@warp-drive/core": {
+    "@warp-drive/core-types": {
       "injected": true
     }
   },
@@ -80,7 +80,7 @@
     "@glimmer/tracking": "^1.1.2",
     "@types/ember__owner": "^4.0.6",
     "@warp-drive/diagnostic": "workspace:5.5.0-alpha.11",
-    "@warp-drive/core": "workspace:5.5.0-alpha.11",
+    "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
     "ember-auto-import": "^2.6.3",
     "ember-cli": "~5.3.0",
     "ember-cli-babel": "^8.2.0",

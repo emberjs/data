@@ -1,7 +1,7 @@
 import EmberObject, { set } from '@ember/object';
 import { settled } from '@ember/test-helpers';
 
-import type { IdentifierBucket, StableIdentifier, StableRecordIdentifier } from '@warp-drive/core/identifier';
+import type { IdentifierBucket, StableIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import { module, test } from 'qunit';
 
 import Store from 'ember-data/store';

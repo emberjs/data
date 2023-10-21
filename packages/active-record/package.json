@@ -26,7 +26,7 @@
   },
   "peerDependencies": {
     "@ember-data/store": "^4.12.0 || ^5.0.0",
-    "@warp-drive/core": "workspace:5.5.0-alpha.11",
+    "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
     "@ember/string": "^3.1.1",
     "ember-inflector": "^4.0.2"
   },
@@ -37,7 +37,7 @@
     "@ember-data/store": {
       "injected": true
     },
-    "@warp-drive/core": {
+    "@warp-drive/core-types": {
       "injected": true
     },
     "@ember/string": {

@@ -1,8 +1,9 @@
 import { assert } from '@ember/debug';
 
-import type Store from '@ember-data/store';
-import { StableDocumentIdentifier } from '@ember-data/store/-types/cache/identifier';
+import type { QueryParamsSerializationOptions, QueryParamsSource, Serializable } from '@warp-drive/core-types/params';
 
+import type Store from '@ember-data/store';
+import type { StableDocumentIdentifier } from '@ember-data/store/-types/cache/identifier';
 /**
  * Simple utility function to assist in url building,
  * query params, and other common request operations.
@@ -316,13 +317,6 @@ export function buildBaseURL(urlOptions: UrlOptions): string {
   return host ? url : `/${url}`;
 }
 
-type SerializablePrimitive = string | number | boolean | null;
-type Serializable = SerializablePrimitive | SerializablePrimitive[];
-export type QueryParamsSerializationOptions = {
-  arrayFormat?: 'bracket' | 'indices' | 'repeat' | 'comma';
-};
-export type QueryParamsSource = Record<string, Serializable> | URLSearchParams;
-
 const DEFAULT_QUERY_PARAMS_SERIALIZATION_OPTIONS: QueryParamsSerializationOptions = {
   arrayFormat: 'comma',
 };
@@ -383,7 +377,7 @@ export function filterEmpty(source: Record<string, Serializable>): Record<string
  * @returns {URLSearchParams} A URLSearchParams with keys inserted in sorted order
  */
 export function sortQueryParams(params: QueryParamsSource, options?: QueryParamsSerializationOptions): URLSearchParams {
-  options = Object.assign({}, DEFAULT_QUERY_PARAMS_SERIALIZATION_OPTIONS, options);
+  const opts = Object.assign({}, DEFAULT_QUERY_PARAMS_SERIALIZATION_OPTIONS, options);
   const paramsIsObject = !(params instanceof URLSearchParams);
   const urlParams = new URLSearchParams();
   const dictionaryParams: Record<string, Serializable> = paramsIsObject ? params : {};
@@ -413,7 +407,7 @@ export function sortQueryParams(params: QueryParamsSource, options?: QueryParams
     const value = dictionaryParams[key];
     if (Array.isArray(value)) {
       value.sort();
-      switch (options!.arrayFormat) {
+      switch (opts.arrayFormat) {
         case 'indices':
           value.forEach((v, i) => {
             urlParams.append(`${key}[${i}]`, String(v));

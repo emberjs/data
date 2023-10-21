@@ -1,7 +1,6 @@
 {
   "include": ["src/**/*"],
   "compilerOptions": {
-    // "composite": true,
     "lib": ["DOM", "ESNext"],
     "module": "esnext",
     "target": "esnext",

@@ -1,5 +1,5 @@
 /**
-  @module @ember-data/store
+  @module @warp-drive/core-types
 */
 
 import { ArrayValue, ObjectValue } from '../json/raw';
@@ -141,4 +141,12 @@ export interface CollectionResourceDocument extends Document {
   data: ExistingResourceObject[];
 }
 
+/**
+ * A (RAW) JSON:API Formatted Document.
+ *
+ * These documents should follow the JSON:API spec but do not
+ * have the same level of guarantees as their `spec` counterparts.
+ *
+ * @internal
+ */
 export type JsonApiDocument = EmptyResourceDocument | SingleResourceDocument | CollectionResourceDocument;

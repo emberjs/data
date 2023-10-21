@@ -1,11 +1,12 @@
 /**
  * @module @ember-data/experimental-preview-types
  */
+import type { RelationshipSchema } from '@warp-drive/core-types/schema';
+
 import type { Snapshot, SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
 import type Store from '@ember-data/store';
 import type { Collection } from '@ember-data/store/-private/record-arrays/identifier-array';
 import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
-import type { RelationshipSchema } from '@ember-data/store/-types/q/record-data-schemas';
 
 type Group = Snapshot[];
 // TODO this should probably just alias unknown

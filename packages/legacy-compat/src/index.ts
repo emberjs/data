@@ -1,10 +1,11 @@
 import { getOwner } from '@ember/application';
 import { assert } from '@ember/debug';
 
+import type { ObjectValue } from '@warp-drive/core-types/json/raw';
+
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import { _deprecatingNormalize } from '@ember-data/store/-private';
-import type { ObjectValue } from '@ember-data/store/-types/json/raw';
 
 import { FetchManager, upgradeStore } from './-private';
 import type { MinimumAdapterInterface } from './legacy-network-handler/minimum-adapter-interface';
@@ -262,7 +263,7 @@ export function pushPayload(this: Store, modelName: string, inputPayload: Object
     !(this.isDestroying || this.isDestroyed)
   );
 
-  const payload = inputPayload || (modelName as unknown as object);
+  const payload: ObjectValue = inputPayload || (modelName as unknown as ObjectValue);
   const normalizedModelName = inputPayload ? _deprecatingNormalize(modelName) : 'application';
   const serializer = this.serializerFor(normalizedModelName);
 

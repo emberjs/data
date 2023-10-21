@@ -1,8 +1,7 @@
-import { StableRecordIdentifier } from '@warp-drive/core';
+import { StableRecordIdentifier } from '@warp-drive/core-types';
 
-import { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
-import { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-
+import { IdentifierCache } from '../../-private/caches/identifier-cache';
+import { NotificationType } from '../../-private/managers/notification-manager';
 import { StableDocumentIdentifier } from '../cache/identifier';
 import { SchemaService } from './schema-service';
 

@@ -1,12 +1,12 @@
 /**
  * @module @ember-data/experimental-preview-types
  */
-import { StableRecordIdentifier } from '@warp-drive/core';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { CollectionResourceRelationship, SingleResourceRelationship } from '@warp-drive/core-types/spec/raw';
 
 import type { StructuredDataDocument, StructuredDocument } from '@ember-data/request';
-import { StoreRequestContext } from '@ember-data/store/-private/cache-handler';
 
-import { CollectionResourceRelationship, SingleResourceRelationship } from '../q/ember-data-json-api';
+import { StoreRequestContext } from '../../-private/cache-handler';
 import { JsonApiError } from '../q/record-data-json-api';
 import { ResourceBlob } from './aliases';
 import { Change } from './change';

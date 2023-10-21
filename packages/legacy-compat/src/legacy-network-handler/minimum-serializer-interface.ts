@@ -1,11 +1,12 @@
 /**
   @module @ember-data/experimental-preview-types
  */
+import type { ObjectValue } from '@warp-drive/core-types/json/raw';
+import type { JsonApiDocument, SingleResourceDocument } from '@warp-drive/core-types/spec/raw';
+
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import type Store from '@ember-data/store';
-import type { ObjectValue } from '@ember-data/store/-types/json/raw';
 import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
-import type { JsonApiDocument, SingleResourceDocument } from '@ember-data/store/-types/q/ember-data-json-api';
 
 import type { AdapterPayload } from './minimum-adapter-interface';
 

@@ -1,9 +1,9 @@
 import { getOwner } from '@ember/application';
 
-import type { RecordIdentifier } from '@warp-drive/core/identifier';
+import type { RecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
 
 import type Store from '@ember-data/store';
-import type { AttributesSchema, RelationshipsSchema } from '@ember-data/store/-types/q/record-data-schemas';
 
 import type { FactoryCache, ModelFactory, ModelStore } from './model';
 import Model from './model';

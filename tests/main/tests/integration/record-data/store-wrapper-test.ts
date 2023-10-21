@@ -1,6 +1,6 @@
 import { settled } from '@ember/test-helpers';
 
-import type { StableRecordIdentifier } from '@warp-drive/core';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import { module, test } from 'qunit';
 
 import Store from 'ember-data/store';
