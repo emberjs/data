@@ -1,5 +1,4 @@
 import { tagForProperty } from '@ember/-internals/metal';
-// eslint-disable-next-line no-restricted-imports
 import { consumeTag, dirtyTag } from '@glimmer/validator';
 
 import { DEPRECATE_COMPUTED_CHAINS } from '@ember-data/deprecations';
@@ -44,7 +43,6 @@ function createTransaction() {
 
 function maybeConsume(tag: ReturnType<typeof tagForProperty> | null): void {
   if (tag) {
-    // @ts-expect-error - we are using Ember's Tag not Glimmer's
     consumeTag(tag);
   }
 }
@@ -64,7 +62,6 @@ export function subscribe(obj: Tag | Signal): void {
       maybeConsume(obj['[]']);
       maybeConsume(obj['@length']);
     }
-    // @ts-expect-error - we are using Ember's Tag not Glimmer's
     consumeTag(obj.tag);
   } else {
     obj.ref;
@@ -156,7 +153,6 @@ function flushTransaction() {
         maybeConsume(obj['[]']);
         maybeConsume(obj['@length']);
       }
-      // @ts-expect-error - we are using Ember's Tag not Glimmer's
       consumeTag(obj.tag);
     } else {
       obj.ref;

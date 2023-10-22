@@ -30,8 +30,7 @@
     "@ember-data/private-build-infra": "workspace:5.5.0-alpha.11",
     "@embroider/macros": "^1.13.2",
     "ember-cli-babel": "^8.2.0",
-    "ember-cached-decorator-polyfill": "^1.0.2",
-    "@glimmer/validator": "^0.84.3"
+    "ember-cached-decorator-polyfill": "^1.0.2"
   },
   "files": [
     "unstable-preview-types",
@@ -87,6 +86,7 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "ember-source": "~5.3.0",
     "@glimmer/component": "^1.1.2",
+    "@glimmer/validator": "^0.84.3",
     "rollup": "^4.1.4",
     "tslib": "^2.6.2",
     "typescript": "^5.2.2",

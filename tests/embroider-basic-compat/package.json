@@ -34,6 +34,12 @@
     },
     "@ember-data/unpublished-test-infra": {
       "injected": true
+    },
+    "@ember/string": {
+      "injected": true
+    },
+    "ember-inflector": {
+      "injected": true
     }
   },
   "devDependencies": {
@@ -80,5 +86,10 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.9.2"
+  "packageManager": "pnpm@8.9.2",
+  "devDependenciesMeta": {
+    "@ember-data/unpublished-test-infra": {
+      "injected": true
+    }
+  }
 }

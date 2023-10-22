@@ -68,7 +68,8 @@
     "loader.js": "^4.7.0",
     "bun-types": "^1.0.6",
     "silent-error": "^1.1.1",
-    "webpack": "^5.89.0"
+    "webpack": "^5.89.0",
+    "@warp-drive/core-types": "workspace:5.5.0-alpha.11"
   },
   "ember": {
     "edition": "octane"
@@ -79,5 +80,28 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.9.2"
+  "packageManager": "pnpm@8.9.2",
+  "devDependenciesMeta": {
+    "@ember-data/private-build-infra": {
+      "injected": true
+    },
+    "@ember-data/request": {
+      "injected": true
+    },
+    "@warp-drive/holodeck": {
+      "injected": true
+    },
+    "@ember/string": {
+      "injected": true
+    },
+    "@warp-drive/diagnostic": {
+      "injected": true
+    },
+    "ember-inflector": {
+      "injected": true
+    },
+    "@warp-drive/core-types": {
+      "injected": true
+    }
+  }
 }

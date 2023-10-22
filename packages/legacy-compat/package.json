@@ -104,6 +104,18 @@
     },
     "@warp-drive/core-types": {
       "injected": true
+    },
+    "ember-inflector": {
+      "injected": true
+    },
+    "@ember-data/tracking": {
+      "injected": true
+    },
+    "@ember/string": {
+      "injected": true
+    },
+    "@ember-data/request-utils": {
+      "injected": true
     }
   },
   "devDependencies": {
@@ -126,10 +138,14 @@
     "@embroider/addon-dev": "^4.1.1",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
+    "ember-inflector": "^4.0.2",
     "rollup": "^4.1.4",
     "tslib": "^2.6.2",
     "typescript": "^5.2.2",
-    "walk-sync": "^3.0.0"
+    "walk-sync": "^3.0.0",
+    "@ember-data/tracking": "workspace:5.5.0-alpha.11",
+    "@ember/string": "^3.1.1",
+    "@ember-data/request-utils": "workspace:5.5.0-alpha.11"
   },
   "ember": {
     "edition": "octane"

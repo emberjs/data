@@ -35,6 +35,12 @@
     },
     "@ember-data/unpublished-test-infra": {
       "injected": true
+    },
+    "@ember/string": {
+      "injected": true
+    },
+    "ember-inflector": {
+      "injected": true
     }
   },
   "devDependencies": {

@@ -78,6 +78,27 @@
     },
     "@ember-data/store": {
       "injected": true
+    },
+    "@ember/string": {
+      "injected": true
+    },
+    "ember-inflector": {
+      "injected": true
+    },
+    "@ember-data/request": {
+      "injected": true
+    },
+    "@ember-data/tracking": {
+      "injected": true
+    },
+    "@ember-data/graph": {
+      "injected": true
+    },
+    "@ember-data/json-api": {
+      "injected": true
+    },
+    "@ember-data/request-utils": {
+      "injected": true
     }
   },
   "devDependencies": {
@@ -107,7 +128,12 @@
     "tslib": "^2.6.2",
     "typescript": "^5.2.2",
     "walk-sync": "^3.0.0",
-    "webpack": "^5.89.0"
+    "webpack": "^5.89.0",
+    "@ember-data/request": "workspace:5.5.0-alpha.11",
+    "@ember-data/tracking": "workspace:5.5.0-alpha.11",
+    "@ember-data/graph": "workspace:5.5.0-alpha.11",
+    "@ember-data/json-api": "workspace:5.5.0-alpha.11",
+    "@ember-data/request-utils": "workspace:5.5.0-alpha.11"
   },
   "engines": {
     "node": ">= 18.18.2"

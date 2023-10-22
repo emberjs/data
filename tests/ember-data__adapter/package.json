@@ -58,6 +58,12 @@
     },
     "@warp-drive/core-types": {
       "injected": true
+    },
+    "@ember/string": {
+      "injected": true
+    },
+    "ember-inflector": {
+      "injected": true
     }
   },
   "dependencies": {

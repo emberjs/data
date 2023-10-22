@@ -15,7 +15,12 @@ module.exports = {
     base.rules(),
     imports.rules(),
     isolation.rules({
-      allowedImports: ['@glimmer/tracking/primitives/cache', '@ember/debug', '@ember/-internals/metal'],
+      allowedImports: [
+        '@glimmer/tracking/primitives/cache',
+        '@ember/debug',
+        '@ember/-internals/metal',
+        '@glimmer/validator',
+      ],
     }),
     {}
   ),

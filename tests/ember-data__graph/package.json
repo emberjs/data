@@ -99,7 +99,8 @@
     "ember-try": "^3.0.0",
     "loader.js": "^4.7.0",
     "silent-error": "^1.1.1",
-    "webpack": "^5.89.0"
+    "webpack": "^5.89.0",
+    "@ember-data/debug": "workspace:5.5.0-alpha.11"
   },
   "ember": {
     "edition": "octane"
@@ -110,5 +111,52 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.9.2"
+  "packageManager": "pnpm@8.9.2",
+  "devDependenciesMeta": {
+    "@ember-data/graph": {
+      "injected": true
+    },
+    "@ember-data/json-api": {
+      "injected": true
+    },
+    "@ember-data/legacy-compat": {
+      "injected": true
+    },
+    "@ember-data/model": {
+      "injected": true
+    },
+    "@ember-data/private-build-infra": {
+      "injected": true
+    },
+    "@ember-data/request-utils": {
+      "injected": true
+    },
+    "@ember-data/request": {
+      "injected": true
+    },
+    "@ember-data/store": {
+      "injected": true
+    },
+    "@ember-data/tracking": {
+      "injected": true
+    },
+    "@ember-data/unpublished-test-infra": {
+      "injected": true
+    },
+    "@warp-drive/core-types": {
+      "injected": true
+    },
+    "@ember/string": {
+      "injected": true
+    },
+    "@warp-drive/diagnostic": {
+      "injected": true
+    },
+    "ember-inflector": {
+      "injected": true
+    },
+    "@ember-data/debug": {
+      "injected": true
+    }
+  }
 }

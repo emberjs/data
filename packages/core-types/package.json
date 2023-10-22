@@ -52,6 +52,21 @@
   "devDependenciesMeta": {
     "@warp-drive/internal-config": {
       "injected": true
+    },
+    "@ember-data/store": {
+      "injected": true
+    },
+    "@ember-data/request": {
+      "injected": true
+    },
+    "@warp-drive/core-types": {
+      "injected": true
+    },
+    "@ember-data/tracking": {
+      "injected": true
+    },
+    "@ember/string": {
+      "injected": true
     }
   },
   "devDependencies": {
@@ -76,7 +91,11 @@
     "tslib": "^2.6.2",
     "typescript": "^5.2.2",
     "walk-sync": "^3.0.0",
-    "webpack": "^5.89.0"
+    "webpack": "^5.89.0",
+    "@ember-data/request": "workspace:5.5.0-alpha.11",
+    "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
+    "@ember-data/tracking": "workspace:5.5.0-alpha.11",
+    "@ember/string": "^3.1.1"
   },
   "engines": {
     "node": ">= 18.18.2"

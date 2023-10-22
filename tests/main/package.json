@@ -64,16 +64,21 @@
     },
     "@warp-drive/holodeck": {
       "injected": true
+    },
+    "@warp-drive/core-types": {
+      "injected": true
+    },
+    "@ember-data/request": {
+      "injected": true
     }
   },
   "devDependencies": {
-    "pm2": "5.3.0",
     "@babel/core": "^7.23.2",
     "@babel/plugin-transform-typescript": "^7.22.15",
     "@babel/runtime": "^7.23.2",
     "@ember-data/private-build-infra": "workspace:5.5.0-alpha.11",
     "@ember-data/unpublished-test-infra": "workspace:5.5.0-alpha.11",
-    "@warp-drive/holodeck": "workspace:5.5.0-alpha.11",
+    "@ember-data/request": "workspace:5.5.0-alpha.11",
     "@ember/edition-utils": "^1.2.0",
     "@ember/optional-features": "^2.0.0",
     "@ember/string": "3.1.1",
@@ -81,12 +86,14 @@
     "@embroider/macros": "^1.13.2",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
-    "@types/ember": "^4.0.6",
     "@types/ember__debug": "^4.0.5",
     "@types/ember__object": "^4.0.8",
     "@types/ember__owner": "^4.0.6",
     "@types/ember__utils": "^4.0.4",
+    "@types/ember": "^4.0.6",
     "@types/qunit": "^2.19.6",
+    "@warp-drive/holodeck": "workspace:5.5.0-alpha.11",
+    "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
     "broccoli-concat": "^4.2.5",
     "broccoli-merge-trees": "^4.2.0",
     "broccoli-stew": "^3.0.0",
@@ -94,31 +101,32 @@
     "broccoli-test-helper": "^2.0.0",
     "broccoli-uglify-sourcemap": "^4.0.0",
     "ember-auto-import": "^2.6.3",
-    "ember-exam": "^8.0.0",
     "ember-cached-decorator-polyfill": "^1.0.2",
-    "ember-cli": "~5.3.0",
     "ember-cli-babel": "^8.2.0",
     "ember-cli-dependency-checker": "^3.3.2",
     "ember-cli-htmlbars": "^6.3.0",
     "ember-cli-inject-live-reload": "^2.1.0",
     "ember-cli-terser": "~4.0.2",
     "ember-cli-test-loader": "^3.1.0",
+    "ember-cli": "~5.3.0",
     "ember-data": "workspace:5.5.0-alpha.11",
     "ember-decorators-polyfill": "^1.1.5",
     "ember-disable-prototype-extensions": "^1.1.3",
+    "ember-exam": "^8.0.0",
     "ember-inflector": "^4.0.2",
     "ember-load-initializers": "^2.1.2",
     "ember-maybe-import-regenerator": "^1.0.0",
     "ember-qunit": "^8.0.1",
     "ember-resolver": "^11.0.1",
-    "ember-source": "~5.3.0",
     "ember-source-channel-url": "^3.0.0",
+    "ember-source": "~5.3.0",
     "ember-strict-resolver": "^1.3.0",
     "ember-try": "^3.0.0",
     "loader.js": "^4.7.0",
+    "pm2": "5.3.0",
     "pretender": "^3.4.7",
-    "qunit": "^2.20.0",
     "qunit-dom": "^3.0.0",
+    "qunit": "^2.20.0",
     "typescript": "~5.2.2",
     "webpack": "^5.89.0"
   },
@@ -131,5 +139,31 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.9.2"
+  "packageManager": "pnpm@8.9.2",
+  "devDependenciesMeta": {
+    "@ember-data/private-build-infra": {
+      "injected": true
+    },
+    "@ember-data/unpublished-test-infra": {
+      "injected": true
+    },
+    "@ember-data/request": {
+      "injected": true
+    },
+    "@ember/string": {
+      "injected": true
+    },
+    "@warp-drive/holodeck": {
+      "injected": true
+    },
+    "@warp-drive/core-types": {
+      "injected": true
+    },
+    "ember-data": {
+      "injected": true
+    },
+    "ember-inflector": {
+      "injected": true
+    }
+  }
 }
