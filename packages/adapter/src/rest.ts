@@ -1377,7 +1377,7 @@ function ajaxError(
 function handleAbort(requestData: RequestData, responseData: ResponseData): AbortError {
   const { method, url, errorThrown } = requestData;
   const { status } = responseData;
-  const msg = `Request failed: ${method} ${url} ${String(errorThrown) || ''}`;
+  const msg = `Request failed: ${method} ${url} ${String(errorThrown ?? '')}`;
   const errors = [{ title: 'Adapter Error', detail: msg.trim(), status }];
   return new AbortError(errors);
 }
