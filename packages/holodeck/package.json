@@ -52,7 +52,13 @@
       "injected": true
     }
   },
+  "devDependenciesMeta": {
+    "@warp-drive/internal-config": {
+      "injected": true
+    }
+  },
   "devDependencies": {
+    "@warp-drive/internal-config": "workspace:5.5.0-alpha.11",
     "@babel/cli": "^7.23.0",
     "@babel/core": "^7.23.2",
     "@babel/plugin-transform-typescript": "^7.22.15",

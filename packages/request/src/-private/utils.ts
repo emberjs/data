@@ -4,15 +4,12 @@ import { Context, ContextOwner } from './context';
 import { assertValidRequest } from './debug';
 import { createFuture, isFuture } from './future';
 import {
-  STRUCTURED,
   type DeferredFuture,
   type Future,
   type GodContext,
-  type Handler,
-  type RequestInfo,
-  type StructuredDataDocument,
-  type StructuredErrorDocument,
+  type Handler
 } from './types';
+import { STRUCTURED, type StructuredErrorDocument, type StructuredDataDocument, type RequestInfo } from '@warp-drive/core-types/request';
 
 export function curryFuture<T>(owner: ContextOwner, inbound: Future<T>, outbound: DeferredFuture<T>): Future<T> {
   owner.setStream(inbound.getStream());

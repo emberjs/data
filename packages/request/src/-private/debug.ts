@@ -1,7 +1,7 @@
 import { DEBUG } from '@ember-data/env';
 
 import { Context } from './context';
-import type { ImmutableHeaders, RequestInfo } from './types';
+import type { ImmutableHeaders, RequestInfo } from '@warp-drive/core-types/request';
 
 const BODY_TYPES = {
   type: 'string',

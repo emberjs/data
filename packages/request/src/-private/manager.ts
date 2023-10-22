@@ -408,7 +408,8 @@ import { DEBUG, TESTING } from '@ember-data/env';
 
 import { assertValidRequest } from './debug';
 import { upgradePromise } from './future';
-import { Future, GenericCreateArgs, Handler, RequestInfo } from './types';
+import type { Future, GenericCreateArgs, Handler } from './types';
+import type { RequestInfo } from '@warp-drive/core-types/request';
 import { executeNextHandler } from './utils';
 
 let REQ_ID = 0;

@@ -1,8 +1,6 @@
 import { assert } from '@ember/debug';
 import { camelize } from '@ember/string';
 
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
-
 import { pluralize } from 'ember-inflector';
 
 import {
@@ -18,6 +16,7 @@ import {
   DeleteRequestOptions,
   UpdateRequestOptions,
 } from '@ember-data/store/-types/request';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 
 import { copyForwardUrlOptions } from './-utils';
 

@@ -3,13 +3,21 @@
  */
 import { assert } from '@ember/debug';
 
+import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { AttributeSchema, RelationshipSchema } from '@warp-drive/core-types/schema';
+import type {
+  CollectionResourceDocument,
+  CollectionResourceRelationship,
+  ExistingResourceObject,
+  SingleResourceDocument,
+  SingleResourceRelationship,
+} from '@warp-drive/core-types/spec/raw';
 
 import { LOG_MUTATIONS, LOG_OPERATIONS, LOG_REQUESTS } from '@ember-data/debugging';
 import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@ember-data/deprecations';
 import { DEBUG } from '@ember-data/env';
 import { graphFor, isBelongsTo, peekGraph } from '@ember-data/graph/-private';
-import type { LocalRelationshipOperation } from '@ember-data/graph/-private/-operations';
 import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection';
 import type { ImplicitEdge } from '@ember-data/graph/-private/edges/implicit';
 import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
@@ -32,15 +40,7 @@ import type {
 import type { StableDocumentIdentifier } from '@ember-data/store/-types/cache/identifier';
 import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/store/-types/q/cache';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import type {
-  CollectionResourceDocument,
-  CollectionResourceRelationship,
-  ExistingResourceObject,
-  SingleResourceDocument,
-  SingleResourceRelationship,
-} from '@warp-drive/core-types/spec/raw';
 import type { AttributesHash, JsonApiError, JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
-import type { AttributeSchema, RelationshipSchema } from '@warp-drive/core-types/schema';
 
 function isImplicit(relationship: GraphEdge): relationship is ImplicitEdge {
   return relationship.definition.isImplicit;

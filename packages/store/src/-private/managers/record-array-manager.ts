@@ -4,7 +4,7 @@
 import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { CollectionResourceDocument } from '@warp-drive/core-types/spec/raw';
 
-import { ImmutableRequestInfo } from '@ember-data/request/-private/types';
+import { ImmutableRequestInfo } from '@warp-drive/core-types/request';
 import { addTransactionCB } from '@ember-data/tracking/-private';
 
 import IdentifierArray, {

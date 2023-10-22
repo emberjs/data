@@ -1,7 +1,6 @@
-import type { StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
-import { Links, Meta, PaginationLinks } from '@warp-drive/core-types/spec/raw';
-
-import { JsonApiError } from '../q/record-data-json-api';
+import type { StableExistingRecordIdentifier } from '../identifier';
+import type { ApiError } from './error';
+import type { Links, Meta, PaginationLinks } from './raw';
 
 export interface ResourceMetaDocument {
   // the url or cache-key associated with the structured document
@@ -37,7 +36,7 @@ export interface ResourceErrorDocument {
   lid?: string;
   links?: Links | PaginationLinks;
   meta?: Meta;
-  errors: JsonApiError[];
+  errors: ApiError[];
 }
 
 export type ResourceDocument<T = StableExistingRecordIdentifier> =

@@ -1,23 +1,22 @@
 import { assert } from '@ember/debug';
 
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-
 import { LOG_GRAPH } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
-import type { RelationshipDiff } from '@ember-data/store/-types/cache/cache';
-import type { CollectionRelationship, ResourceRelationship } from '@ember-data/store/-types/cache/relationship';
 import { MergeOperation } from '@ember-data/store/-types/q/cache';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-
-import { rollbackRelationship } from './-diff';
-import type { EdgeCache, UpgradedMeta } from './-edge-definition';
-import { isLHS, upgradeDefinition } from './-edge-definition';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { RelationshipDiff } from '@warp-drive/core-types/cache';
+import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 import type {
   DeleteRecordOperation,
   LocalRelationshipOperation,
   RemoteRelationshipOperation,
   UnknownOperation,
-} from './-operations';
+} from '@warp-drive/core-types/graph';
+
+import { rollbackRelationship } from './-diff';
+import type { EdgeCache, UpgradedMeta } from './-edge-definition';
+import { isLHS, upgradeDefinition } from './-edge-definition';
 import {
   assertValidRelationshipPayload,
   forAllRelatedIdentifiers,
@@ -105,7 +104,7 @@ export class Graph {
   }
 
   has(identifier: StableRecordIdentifier, propertyName: string): boolean {
-    let relationships = this.identifiers.get(identifier);
+    const relationships = this.identifiers.get(identifier);
     if (!relationships) {
       return false;
     }
@@ -269,7 +268,7 @@ export class Graph {
       // cleans up the graph but retains some nodes
       // to allow for rematerialization
       Object.keys(relationships).forEach((key) => {
-        let rel = relationships[key]!;
+        const rel = relationships[key]!;
         if (!rel) {
           return;
         }
@@ -556,7 +555,7 @@ export class Graph {
     }
 
     this._willSyncLocal = false;
-    let updated = this._updatedRelationships;
+    const updated = this._updatedRelationships;
     this._updatedRelationships = new Set();
     updated.forEach((rel) => notifyChange(this, rel.identifier, rel.definition.key));
   }
@@ -656,7 +655,7 @@ function notifyInverseOfDematerialization(
     return;
   }
 
-  let relationship = graph.get(inverseIdentifier, inverseKey);
+  const relationship = graph.get(inverseIdentifier, inverseKey);
   assert(`expected no implicit`, !isImplicit(relationship));
 
   // For remote members, it is possible that inverseRecordData has already been associated to
@@ -765,7 +764,7 @@ function addPending(
   definition: UpgradedMeta,
   op: RemoteRelationshipOperation & { field: string }
 ): void {
-  let lc = (cache[definition.kind as 'hasMany' | 'belongsTo'] =
+  const lc = (cache[definition.kind as 'hasMany' | 'belongsTo'] =
     cache[definition.kind as 'hasMany' | 'belongsTo'] || new Map<string, Map<string, RemoteRelationshipOperation[]>>());
   let lc2 = lc.get(definition.inverseType);
   if (!lc2) {

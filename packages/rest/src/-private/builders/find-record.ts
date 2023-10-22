@@ -87,7 +87,7 @@ export function findRecord(
   arg3?: FindRecordOptions
 ): FindRecordRequestOptions {
   const identifier: RemotelyAccessibleIdentifier = typeof arg1 === 'string' ? { type: arg1, id: arg2 as string } : arg1;
-  const options = ((typeof arg1 === 'string' ? arg3 : arg2) || {}) as FindRecordOptions;
+  const options = (typeof arg1 === 'string' ? arg3 : arg2) || {};
   const cacheOptions = extractCacheOptions(options);
   const urlOptions: FindRecordUrlOptions = {
     identifier,

@@ -53,6 +53,7 @@
     }
   },
   "scripts": {
+    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs",
     "build:runtime": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
     "build:types": "tsc --build --force",
     "build": "pnpm build:runtime && pnpm build:types",
@@ -64,7 +65,13 @@
     "type": "addon",
     "version": 1
   },
+  "devDependenciesMeta": {
+    "@warp-drive/internal-config": {
+      "injected": true
+    }
+  },
   "devDependencies": {
+    "@warp-drive/internal-config": "workspace:5.5.0-alpha.11",
     "@babel/cli": "^7.23.0",
     "@babel/core": "^7.23.2",
     "@babel/plugin-proposal-decorators": "^7.23.2",

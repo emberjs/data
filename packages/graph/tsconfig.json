@@ -1,6 +1,7 @@
 {
   "include": [
     "src/**/*",
+    "unpublished-types/**/*",
   ],
   "baseUrl": ".",
   "compilerOptions": {
@@ -9,7 +10,6 @@
     "target": "esnext",
     "moduleResolution": "bundler",
     "moduleDetection": "force",
-    "rootDirs": ["src", "../core-types", "../store"],
     "strict": true,
     "downlevelIteration": true,
     "skipLibCheck": true,
@@ -32,10 +32,6 @@
     "inlineSources": true,
 
     "paths": {
-      "@ember-data/store": ["../store/src"],
-      "@ember-data/store/*": ["../store/src/*"],
-      "@warp-drive/core-types": ["../core-types/src"],
-      "@warp-drive/core-types/*": ["../core-types/src/*"],
       "@ember-data/deprecations": ["../private-build-infra/virtual-packages/deprecations.d.ts"],
       "@ember-data/packages": ["../private-build-infra/virtual-packages/packages.d.ts"],
       "@ember-data/canary-features": ["../private-build-infra/virtual-packages/canary-features.d.ts"],

@@ -1,5 +1,6 @@
+import { IS_FUTURE, type StructuredDocument } from '@warp-drive/core-types/request';
 import type { ContextOwner } from './context';
-import { IS_FUTURE, type Deferred, type DeferredFuture, type Future, type StructuredDocument } from './types';
+import { type Deferred, type DeferredFuture, type Future } from './types';
 import { enhanceReason } from './utils';
 
 export function isFuture<T>(maybe: unknown): maybe is Future<T> {

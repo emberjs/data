@@ -1,12 +1,11 @@
 import { assert, deprecate } from '@ember/debug';
 
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-
 import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@ember-data/deprecations';
 import { DEBUG } from '@ember-data/env';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ReplaceRelatedRecordsOperation } from '@warp-drive/core-types/graph';
 
 import { _addLocal, _removeLocal, _removeRemote, diffCollection } from '../-diff';
-import type { ReplaceRelatedRecordsOperation } from '../-operations';
 import { isBelongsTo, isHasMany, isNew, notifyChange } from '../-utils';
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
 import type { CollectionEdge } from '../edges/collection';

@@ -1,8 +1,9 @@
 import type { RecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { CollectionResourceRelationship, SingleResourceRelationship } from '@warp-drive/core-types/spec/raw';
 
-import { Cache } from '../cache/cache';
-import type { JsonApiError, JsonApiResource } from './record-data-json-api';
+import { Cache } from '@warp-drive/core-types/cache';
+import { ApiError } from '@warp-drive/core-types/spec/error';
+import type { JsonApiResource } from './record-data-json-api';
 /**
   @module @ember-data/store
 */
@@ -36,7 +37,7 @@ export interface CacheV1 {
 
   willCommit(): void;
   didCommit(data: JsonApiResource | null): void;
-  commitWasRejected(recordIdentifier?: RecordIdentifier, errors?: JsonApiError[]): void;
+  commitWasRejected(recordIdentifier?: RecordIdentifier, errors?: ApiError[]): void;
 
   unloadRecord(): void;
 
@@ -61,7 +62,7 @@ export interface CacheV1 {
   // State
   // =============
   setIsDeleted(isDeleted: boolean): void;
-  getErrors(identifier: StableRecordIdentifier): JsonApiError[];
+  getErrors(identifier: StableRecordIdentifier): ApiError[];
   isEmpty?(identifier: StableRecordIdentifier): boolean; // needs rfc
   isNew(identifier: StableRecordIdentifier): boolean;
   isDeleted(identifier: StableRecordIdentifier): boolean;

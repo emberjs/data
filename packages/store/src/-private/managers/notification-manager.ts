@@ -5,12 +5,11 @@ import { assert } from '@ember/debug';
 // eslint-disable-next-line no-restricted-imports
 import { _backburner } from '@ember/runloop';
 
-import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { StableRecordIdentifier, StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 
 import { LOG_NOTIFICATIONS } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
 
-import { StableDocumentIdentifier } from '../../-types/cache/identifier';
 import { isDocumentIdentifier, isStableIdentifier } from '../caches/identifier-cache';
 import type Store from '../store-service';
 

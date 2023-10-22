@@ -4,26 +4,25 @@
 import { assert, warn } from '@ember/debug';
 
 import { getOwnConfig, macroCondition } from '@embroider/macros';
-import type {
-  Identifier,
-  IdentifierBucket,
-  RecordIdentifier,
-  StableIdentifier,
-  StableRecordIdentifier,
-} from '@warp-drive/core-types/identifier';
+
 import {
   CACHE_OWNER,
   DEBUG_CLIENT_ORIGINATED,
   DEBUG_IDENTIFIER_BUCKET,
   DEBUG_STALE_CACHE_OWNER,
+  type Identifier,
+  type IdentifierBucket,
+  type RecordIdentifier,
+  type StableIdentifier,
+  type StableRecordIdentifier,
+  type StableDocumentIdentifier
 } from '@warp-drive/core-types/identifier';
 import type { ExistingResourceObject, ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
+import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
 
 import { LOG_IDENTIFIERS } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
-import { ImmutableRequestInfo } from '@ember-data/request/-private/types';
 
-import { StableDocumentIdentifier } from '../../-types/cache/identifier';
 import type {
   ForgetMethod,
   GenerationMethod,
@@ -654,7 +653,7 @@ function makeStableRecordIdentifier(
         return (recordIdentifier as StableRecordIdentifier)[DEBUG_STALE_CACHE_OWNER];
       },
       set [DEBUG_STALE_CACHE_OWNER](value: number | undefined) {
-        recordIdentifier[DEBUG_STALE_CACHE_OWNER] = value;
+        (recordIdentifier as StableRecordIdentifier)[DEBUG_STALE_CACHE_OWNER] = value;
       },
     };
     Object.defineProperty(wrapper, 'toString', {

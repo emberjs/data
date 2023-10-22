@@ -1,7 +1,6 @@
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { Links, Meta, PaginationLinks } from '@warp-drive/core-types/spec/raw';
-
-import { ResourceRelationship } from '@ember-data/store/-types/cache/relationship';
 
 import type { UpgradedMeta } from '../-edge-definition';
 import type { RelationshipState } from '../-state';
@@ -41,7 +40,7 @@ export function createResourceEdge(definition: UpgradedMeta, identifier: StableR
 
 export function legacyGetResourceRelationshipData(source: ResourceEdge): ResourceRelationship {
   let data: StableRecordIdentifier | null | undefined;
-  let payload: ResourceRelationship = {};
+  const payload: ResourceRelationship = {};
   if (source.localState) {
     data = source.localState;
   }

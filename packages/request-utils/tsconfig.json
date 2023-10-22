@@ -1,5 +1,5 @@
 {
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "unpublished-types/**/*"],
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
@@ -39,10 +39,5 @@
     "inlineSources": true,
 
     "baseUrl": "src",
-
-    "paths": {
-      "@warp-drive/core-types": ["../core-types/src"],
-      "@warp-drive/core/*": ["../core-types/src/*"],
-    }
   }
 }

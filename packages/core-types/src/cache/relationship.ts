@@ -1,5 +1,5 @@
-import { StableRecordIdentifier } from '@warp-drive/core-types';
-import { Links, Meta, PaginationLinks } from '@warp-drive/core-types/spec/raw';
+import type { StableRecordIdentifier } from '../identifier';
+import type { Links, Meta, PaginationLinks } from '../spec/raw';
 
 // we request that it be in the stable form already.
 export interface ResourceRelationship {

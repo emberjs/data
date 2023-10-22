@@ -26,10 +26,10 @@ jobs:
         with:
           restore-lint-caches: true
           install: true
-      - name: Lint js
-        run: pnpm lint:js
-      - name: Check for TypeScript problems
-        run: pnpm problems
+      - name: Lint
+        run: pnpm lint
+      - name: Check Uncompiled Packages for TypeScript Compilation Errors
+        run: pnpm check:types
 
   special-build-tests:
     timeout-minutes: 20

@@ -17,7 +17,7 @@
   "scripts": {
     "build": "ember build",
     "lint:hbs": "ember-template-lint .",
-    "lint:js": "eslint --config ../../.eslintrc.js --ignore-path ../../.eslintignore .",
+    "lint": "eslint --config ../../.eslintrc.js --ignore-path ../../.eslintignore .",
     "start": "ember serve",
     "test": "ember test --test-port=0"
   },

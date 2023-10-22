@@ -27,17 +27,12 @@
   "peerDependencies": {
     "@ember-data/store": "^4.12.0 || ^5.0.0",
     "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
+    "@ember-data/request-utils": "workspace:5.5.0-alpha.11",
     "@ember/string": "^3.1.1",
     "ember-inflector": "^4.0.2"
   },
   "dependenciesMeta": {
     "ember-inflector": {
-      "injected": true
-    },
-    "@ember-data/store": {
-      "injected": true
-    },
-    "@warp-drive/core-types": {
       "injected": true
     },
     "@ember/string": {
@@ -53,6 +48,8 @@
     "ember-data-logo-light.svg"
   ],
   "scripts": {
+    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs",
+    "check:types": "tsc -p tsconfig.json --noEmit --pretty false",
     "build": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
     "start": "rollup --config --watch",
     "prepack": "pnpm build",
@@ -63,9 +60,29 @@
     "type": "addon",
     "version": 1
   },
+  "devDependenciesMeta": {
+    "@warp-drive/internal-config": {
+      "injected": true
+    },
+    "@warp-drive/core-types": {
+      "injected": true
+    },
+    "@ember-data/store": {
+      "injected": true
+    },
+    "@ember-data/request-utils": {
+      "injected": true
+    }
+  },
   "devDependencies": {
+    "@ember-data/store": "workspace:5.5.0-alpha.11",
+    "@ember-data/request-utils": "workspace:5.5.0-alpha.11",
+    "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
+    "@warp-drive/internal-config": "workspace:5.5.0-alpha.11",
     "@babel/cli": "^7.23.0",
     "@babel/core": "^7.23.2",
+    "@ember/string": "^3.1.1",
+    "ember-inflector": "^4.0.2",
     "@babel/plugin-proposal-decorators": "^7.23.2",
     "@babel/plugin-transform-class-properties": "^7.22.5",
     "@babel/plugin-transform-runtime": "^7.23.2",

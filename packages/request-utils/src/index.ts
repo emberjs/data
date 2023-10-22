@@ -1,9 +1,13 @@
 import { assert } from '@ember/debug';
 
 import type { QueryParamsSerializationOptions, QueryParamsSource, Serializable } from '@warp-drive/core-types/params';
+import type { Cache } from '@warp-drive/core-types/cache';
+import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 
-import type Store from '@ember-data/store';
-import type { StableDocumentIdentifier } from '@ember-data/store/-types/cache/identifier';
+type Store = {
+  cache: Cache
+}
+
 /**
  * Simple utility function to assist in url building,
  * query params, and other common request operations.
@@ -477,6 +481,8 @@ export interface CacheControlValue {
   'stale-while-revalidate'?: number;
 }
 
+type CacheControlKey = keyof CacheControlValue;
+
 const NUMERIC_KEYS = new Set(['max-age', 's-maxage', 'stale-if-error', 'stale-while-revalidate']);
 
 /**
@@ -508,10 +514,10 @@ const NUMERIC_KEYS = new Set(['max-age', 's-maxage', 'stale-if-error', 'stale-wh
  * @returns {CacheControlValue}
  */
 export function parseCacheControl(header: string): CacheControlValue {
-  let key = '';
+  let key: CacheControlKey = '' as CacheControlKey;
   let value = '';
   let isParsingKey = true;
-  let cacheControlValue: CacheControlValue = {};
+  const cacheControlValue: CacheControlValue = {};
 
   function parseCacheControlValue(stringToParse: string): number {
     const parsedValue = Number.parseInt(stringToParse);
@@ -528,8 +534,9 @@ export function parseCacheControl(header: string): CacheControlValue {
         i === 0 || header.charAt(i - 1) !== '='
       );
       isParsingKey = true;
+      // @ts-expect-error TS incorrectly thinks that optional keys must have a type that includes undefined
       cacheControlValue[key] = NUMERIC_KEYS.has(key) ? parseCacheControlValue(value) : true;
-      key = '';
+      key = '' as CacheControlKey;
       value = '';
       continue;
     } else if (char === '=') {
@@ -544,6 +551,7 @@ export function parseCacheControl(header: string): CacheControlValue {
     }
 
     if (i === header.length - 1) {
+      // @ts-expect-error TS incorrectly thinks that optional keys must have a type that includes undefined
       cacheControlValue[key] = NUMERIC_KEYS.has(key) ? parseCacheControlValue(value) : true;
     }
   }

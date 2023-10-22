@@ -398,7 +398,7 @@ async function main() {
   assertGitIsClean(options);
 
   if (!options.skipSmokeTest) {
-    execWithLog(`pnpm run lint:js && pnpm run test`, debug.enabled);
+    execWithLog(`pnpm run lint && pnpm run test`, debug.enabled);
     console.log(`✅ ` + chalk.cyan(`Project passes Smoke Test`));
   } else {
     console.log(`⚠️ ` + chalk.grey(`Skipping Smoke Test`));

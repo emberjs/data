@@ -1,4 +1,4 @@
-import { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { StableRecordIdentifier } from '../identifier';
 
 export interface Op {
   op: string;

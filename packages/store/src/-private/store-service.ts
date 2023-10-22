@@ -5,6 +5,7 @@
 import { assert } from '@ember/debug';
 import EmberObject from '@ember/object';
 
+import type { Graph } from '@warp-drive/core-types/graph';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type {
   CollectionResourceDocument,
@@ -16,12 +17,11 @@ import type {
 
 import { LOG_PAYLOADS, LOG_REQUESTS } from '@ember-data/debugging';
 import { DEBUG, TESTING } from '@ember-data/env';
-import type { Graph } from '@ember-data/graph/-private/graph';
 import type RequestManager from '@ember-data/request';
 import type { Future } from '@ember-data/request/-private/types';
 
-import { ResourceDocument } from '../-types/cache/document';
-import { StableDocumentIdentifier } from '../-types/cache/identifier';
+import type { ResourceDocument } from '@warp-drive/core-types/spec/document';
+import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type { Cache, CacheV1 } from '../-types/q/cache';
 import type { CacheCapabilitiesManager } from '../-types/q/cache-store-wrapper';
 import { ModelSchema } from '../-types/q/ds-model';
@@ -29,9 +29,7 @@ import type { RecordInstance } from '../-types/q/record-instance';
 import type { SchemaService } from '../-types/q/schema-service';
 import type { FindOptions } from '../-types/q/store';
 import {
-  EnableHydration,
   type LifetimesService,
-  SkipCache,
   StoreRequestContext,
   type StoreRequestInput,
 } from './cache-handler';
@@ -55,6 +53,7 @@ import IdentifierArray, { Collection } from './record-arrays/identifier-array';
 import coerceId, { ensureStringId } from './utils/coerce-id';
 import constructResource from './utils/construct-resource';
 import normalizeModelName from './utils/normalize-model-name';
+import { EnableHydration, SkipCache } from '@warp-drive/core-types/request';
 
 export { storeFor };
 
@@ -1512,7 +1511,7 @@ class Store extends EmberObject {
     @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.queryRecord
     @return {Promise} promise which resolves with the found record or `null`
   */
-  queryRecord(modelName: string, query: Record<string, unknown>, options?): Promise<RecordInstance | null> {
+  queryRecord(modelName: string, query: Record<string, unknown>, options?: { adapterOptions: Record<string | number | symbol, unknown> }): Promise<RecordInstance | null> {
     if (DEBUG) {
       assertDestroyingStore(this, 'queryRecord');
     }

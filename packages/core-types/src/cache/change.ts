@@ -1,6 +1,4 @@
-import { StableRecordIdentifier } from '@warp-drive/core-types';
-
-import { StableDocumentIdentifier } from './identifier';
+import type { StableDocumentIdentifier, StableRecordIdentifier } from '../identifier';
 
 export interface Change {
   identifier: StableRecordIdentifier | StableDocumentIdentifier;

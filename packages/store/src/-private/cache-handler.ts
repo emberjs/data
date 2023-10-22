@@ -5,24 +5,28 @@ import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
 import type {
   Future,
   Handler,
+  NextFn
+} from '@ember-data/request/-private/types';
+
+import {
   ImmutableRequestInfo,
-  NextFn,
   RequestContext,
   StructuredDataDocument,
   StructuredErrorDocument,
-} from '@ember-data/request/-private/types';
+} from '@warp-drive/core-types/request';
 
 import type {
   CollectionResourceDataDocument,
   ResourceDataDocument,
   ResourceErrorDocument,
-} from '../-types/cache/document';
-import type { StableDocumentIdentifier } from '../-types/cache/identifier';
-import type { JsonApiError } from '../-types/q/record-data-json-api';
+} from '@warp-drive/core-types/spec/document';
+import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type { ApiError } from '@warp-drive/core-types/spec/error';
 import type { RecordInstance } from '../-types/q/record-instance';
-import type { CreateRequestOptions, DeleteRequestOptions, UpdateRequestOptions } from '../-types/request';
+import type { CreateRequestOptions, DeleteRequestOptions, UpdateRequestOptions } from '@warp-drive/core-types/request';
 import { Document } from './document';
 import type Store from './store-service';
+import { EnableHydration, SkipCache } from '@warp-drive/core-types/request';
 
 export interface LifetimesService {
   isHardExpired(identifier: StableDocumentIdentifier): boolean;
@@ -38,8 +42,10 @@ export type LooseStoreRequestInfo = Omit<StoreRequestInfo, 'records' | 'headers'
 export type StoreRequestInput = StoreRequestInfo | LooseStoreRequestInfo;
 
 export interface StoreRequestContext extends RequestContext {
-  request: StoreRequestInfo & { store: Store };
+  request: StoreRequestInfo & { store: Store, [EnableHydration]?: boolean };
 }
+
+const MUTATION_OPS = new Set(['createRecord', 'updateRecord', 'deleteRecord']);
 
 function isErrorDocument(document: ResourceDataDocument | ResourceErrorDocument): document is ResourceErrorDocument {
   return 'errors' in document;
@@ -157,8 +163,6 @@ function maybeUpdateUiObjects<T>(
   }
 }
 
-const MUTATION_OPS = new Set(['createRecord', 'updateRecord', 'deleteRecord']);
-
 function calcShouldFetch(
   store: Store,
   request: StoreRequestInfo,
@@ -203,7 +207,7 @@ function fetchContentAndHydrate<T>(
 ): Promise<T> {
   const { store } = context.request;
   const shouldHydrate: boolean =
-    (context.request[Symbol.for('ember-data:enable-hydration')] as boolean | undefined) || false;
+    (context.request[EnableHydration] as boolean | undefined) || false;
 
   let isMut = false;
   if (isMutation(context.request)) {
@@ -258,7 +262,7 @@ function fetchContentAndHydrate<T>(
             typeof error.content === 'object' &&
             'errors' in error.content &&
             Array.isArray(error.content.errors)
-              ? (error.content.errors as JsonApiError[])
+              ? (error.content.errors as ApiError[])
               : undefined;
           store.cache.commitWasRejected(context.request.data.record, errors);
           // re-throw the original error to preserve `errors` property.
@@ -306,9 +310,6 @@ function cloneError(error: Error & { error: string | object }) {
   cloned.error = error.error;
   return cloned;
 }
-
-export const SkipCache = Symbol.for('ember-data:skip-cache');
-export const EnableHydration = Symbol.for('ember-data:enable-hydration');
 
 export const CacheHandler: Handler = {
   request<T>(context: StoreRequestContext, next: NextFn<T>): Promise<T | StructuredDataDocument<T>> | Future<T> {

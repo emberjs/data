@@ -33,7 +33,7 @@ scripts/asset-size-tracking/current-data.json
 .env*
 .pnp*
 .sass-cache
-/.eslintcache
+.eslintcache
 /onnect.lock
 coverage/*
 libpeerconnection.log

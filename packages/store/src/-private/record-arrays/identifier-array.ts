@@ -4,9 +4,9 @@
 import { assert } from '@ember/debug';
 
 import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
-import { Links, PaginationLinks } from '@warp-drive/core-types/spec/raw';
+import type { Links, PaginationLinks } from '@warp-drive/core-types/spec/raw';
+import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
 
-import { ImmutableRequestInfo } from '@ember-data/request/-private/types';
 import { compat } from '@ember-data/tracking';
 import {
   addToTransaction,
@@ -49,11 +49,14 @@ const ARRAY_GETTER_METHODS = new Set<KeyType>([
 ]);
 const ARRAY_SETTER_METHODS = new Set<KeyType>(['push', 'pop', 'unshift', 'shift', 'splice', 'sort']);
 const SYNC_PROPS = new Set<KeyType>(['[]', 'length', 'links', 'meta']);
-function isArrayGetter(prop: KeyType): boolean {
+function isArrayGetter<T>(prop: KeyType): prop is keyof Array<T> {
   return ARRAY_GETTER_METHODS.has(prop);
 }
-function isArraySetter(prop: KeyType): boolean {
+function isArraySetter<T>(prop: KeyType): prop is keyof Array<T> {
   return ARRAY_SETTER_METHODS.has(prop);
+}
+function isSelfProp<T extends object>(self: T, prop: KeyType): prop is keyof T {
+  return prop in self;
 }
 
 export const ARRAY_SIGNAL = Symbol('#signal');
@@ -201,7 +204,7 @@ class IdentifierArray {
 
   constructor(options: IdentifierArrayCreateOptions) {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
-    let self = this;
+    const self = this;
     this.modelName = options.type;
     this.store = options.store;
     this._manager = options.manager;
@@ -221,10 +224,10 @@ class IdentifierArray {
     // and forward them as one
 
     const proxy = new Proxy<StableRecordIdentifier[], RecordInstance[]>(this[SOURCE], {
-      get(target: StableRecordIdentifier[], prop: KeyType, receiver: IdentifierArray): unknown {
+      get<R extends IdentifierArray>(target: StableRecordIdentifier[], prop: keyof R, receiver: R): unknown {
         let index = convertToInt(prop);
         if (_SIGNAL.shouldReset && (index !== null || SYNC_PROPS.has(prop) || isArrayGetter(prop))) {
-          options.manager._syncArray(receiver as unknown as IdentifierArray);
+          options.manager._syncArray(receiver);
           _SIGNAL.t = false;
           _SIGNAL.shouldReset = false;
         }
@@ -299,7 +302,7 @@ class IdentifierArray {
           return fn;
         }
 
-        if (prop in self) {
+        if (isSelfProp(self, prop)) {
           if (prop === NOTIFY || prop === ARRAY_SIGNAL || prop === SOURCE) {
             return self[prop];
           }
@@ -324,7 +327,7 @@ class IdentifierArray {
           return subscribe(_SIGNAL), outcome;
         }
 
-        return target[prop];
+        return target[prop as keyof StableRecordIdentifier[]];
       },
 
       set(target: StableRecordIdentifier[], prop: KeyType, value: unknown /*, receiver */): boolean {
@@ -353,7 +356,7 @@ class IdentifierArray {
         let index = convertToInt(prop);
 
         if (index === null || index > target.length) {
-          if (prop in self) {
+          if (isSelfProp(self, prop)) {
             self[prop] = value;
             return true;
           }

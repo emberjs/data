@@ -27,6 +27,10 @@ export interface NewRecordIdentifier extends Identifier {
   type: string;
 }
 
+export type StableDocumentIdentifier = {
+  lid: string;
+};
+
 /**
  * An Identifier specific to a record which may or may not
  * be present in the cache.

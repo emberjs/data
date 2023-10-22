@@ -15,6 +15,7 @@
     "ember-addon"
   ],
   "scripts": {
+    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs",
     "build:types": "tsc --build --force",
     "build:client": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
     "build": "pnpm build:client && pnpm build:types",
@@ -40,6 +41,9 @@
       "default": "./addon/*.js"
     }
   },
+  "peerDependencies": {
+    "@warp-drive/core-types": "workspace:5.5.0-alpha.11"
+  },
   "dependencies": {
     "@ember-data/private-build-infra": "workspace:5.5.0-alpha.11",
     "@ember/test-waiters": "^3.0.2",
@@ -52,10 +56,13 @@
     }
   },
   "devDependenciesMeta": {
+    "@ember-data/store": {
+      "injected": true
+    },
     "@warp-drive/core-types": {
       "injected": true
     },
-    "@ember-data/store": {
+    "@warp-drive/internal-config": {
       "injected": true
     }
   },
@@ -75,6 +82,7 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@ember-data/store": "workspace:5.5.0-alpha.11",
     "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
+    "@warp-drive/internal-config": "workspace:5.5.0-alpha.11",
     "rollup": "^4.1.4",
     "tslib": "^2.6.2",
     "typescript": "^5.2.2",

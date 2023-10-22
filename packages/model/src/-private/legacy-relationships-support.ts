@@ -2,11 +2,11 @@ import { assert } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
 import { CollectionResourceRelationship, SingleResourceRelationship } from '@warp-drive/core-types/spec/raw';
 
 import { DEBUG } from '@ember-data/env';
 import type { UpgradedMeta } from '@ember-data/graph/-private/-edge-definition';
-import type { LocalRelationshipOperation } from '@ember-data/graph/-private/-operations';
 import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection';
 import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
 import type { Graph, GraphEdge } from '@ember-data/graph/-private/graph';
@@ -703,7 +703,7 @@ function extractIdentifierFromRecord(record: PromiseProxyRecord | RecordInstance
 }
 
 function anyUnloaded(store: Store, relationship: CollectionEdge) {
-  const graph = store._graph!;
+  const graph = store._graph;
   const relationshipData = graph.getData(
     relationship.identifier,
     relationship.definition.key

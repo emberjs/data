@@ -12,6 +12,8 @@
     "test": "tests"
   },
   "scripts": {
+    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs",
+    "check:types": "tsc -p tsconfig.json --noEmit --pretty false",
     "prepack": "cd ../../ && pnpm build:docs"
   },
   "author": "",
@@ -80,6 +82,9 @@
     },
     "@ember/string": {
       "injected": true
+    },
+    "@warp-drive/core-types": {
+      "injected": true
     }
   },
   "devDependencies": {
@@ -87,7 +92,9 @@
     "@ember/string": "3.1.1",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
-    "ember-source": "~5.3.0"
+    "ember-source": "~5.3.0",
+    "eslint": "^8.51.0",
+    "@warp-drive/internal-config": "workspace:5.5.0-alpha.11"
   },
   "engines": {
     "node": ">= 18.18.2"

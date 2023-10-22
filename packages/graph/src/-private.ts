@@ -1,5 +1,3 @@
-import 'ember-source/types';
-
 export { graphFor, peekGraph } from './-private/index';
 export { isBelongsTo } from './-private/-utils';
 

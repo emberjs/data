@@ -1,17 +1,24 @@
 import EmberObject from '@ember/object';
 
+import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
 import type {
   RecordIdentifier,
   StableExistingRecordIdentifier,
   StableRecordIdentifier,
 } from '@warp-drive/core-types/identifier';
+import type {
+  CollectionResourceDocument,
+  CollectionResourceRelationship,
+  JsonApiDocument,
+  SingleResourceDocument,
+  SingleResourceRelationship,
+} from '@warp-drive/core-types/spec/raw';
 import { module, test } from 'qunit';
 
 import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
 import { InvalidError } from '@ember-data/adapter/error';
-import type { LocalRelationshipOperation } from '@ember-data/graph/-private/-operations';
 import Model, { attr } from '@ember-data/model';
 import type { StructuredDataDocument, StructuredDocument } from '@ember-data/request';
 import { recordIdentifierFor } from '@ember-data/store';
@@ -28,13 +35,6 @@ import type {
 import type { StableDocumentIdentifier } from '@ember-data/store/-types/cache/identifier';
 import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/store/-types/q/cache';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import type {
-  CollectionResourceDocument,
-  CollectionResourceRelationship,
-  JsonApiDocument,
-  SingleResourceDocument,
-  SingleResourceRelationship,
-} from '@warp-drive/core-types/spec/raw';
 import type { JsonApiError, JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 
 class Person extends Model {

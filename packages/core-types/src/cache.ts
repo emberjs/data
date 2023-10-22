@@ -1,19 +1,16 @@
 /**
  * @module @ember-data/experimental-preview-types
  */
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { CollectionResourceRelationship, SingleResourceRelationship } from '@warp-drive/core-types/spec/raw';
-
-import type { StructuredDataDocument, StructuredDocument } from '@ember-data/request';
-
-import { StoreRequestContext } from '../../-private/cache-handler';
-import { JsonApiError } from '../q/record-data-json-api';
-import { ResourceBlob } from './aliases';
-import { Change } from './change';
-import { ResourceDocument, SingleResourceDataDocument } from './document';
+import { ResourceBlob } from './cache/aliases';
+import { Change } from './cache/change';
+import { Mutation } from './cache/mutations';
+import { Operation } from './cache/operations';
+import type { StableRecordIdentifier } from './identifier';
 import { StableDocumentIdentifier } from './identifier';
-import { Mutation } from './mutations';
-import { Operation } from './operations';
+import type { RequestContext, StructuredDataDocument, StructuredDocument } from './request';
+import { ResourceDocument, SingleResourceDataDocument } from './spec/document';
+import { ApiError } from './spec/error';
+import type { CollectionResourceRelationship, SingleResourceRelationship } from './spec/raw';
 
 export type RelationshipDiff =
   | {
@@ -280,7 +277,7 @@ export interface Cache {
    * @public
    * @param identifier
    */
-  willCommit(identifier: StableRecordIdentifier, context: StoreRequestContext): void;
+  willCommit(identifier: StableRecordIdentifier, context: RequestContext): void;
 
   /**
    * [LIFECYCLE] Signals to the cache that a resource
@@ -303,7 +300,7 @@ export interface Cache {
    * @param identifier
    * @param errors
    */
-  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[]): void;
+  commitWasRejected(identifier: StableRecordIdentifier, errors?: ApiError[]): void;
 
   /**
    * [LIFECYCLE] Signals to the cache that all data for a resource
@@ -474,7 +471,7 @@ export interface Cache {
    * @param identifier
    * @returns {JsonApiError[]}
    */
-  getErrors(identifier: StableRecordIdentifier): JsonApiError[];
+  getErrors(identifier: StableRecordIdentifier): ApiError[];
 
   /**
    * Query the cache for whether a given resource has any available data

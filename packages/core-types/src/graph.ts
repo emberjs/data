@@ -1,5 +1,13 @@
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { CollectionResourceRelationship, SingleResourceRelationship } from '@warp-drive/core-types/spec/raw';
+import type { StableRecordIdentifier } from './identifier';
+import type { CollectionResourceRelationship, SingleResourceRelationship } from './spec/raw';
+
+export interface Graph {
+  identifiers: Map<StableRecordIdentifier, unknown>;
+
+  remove(identifier: StableRecordIdentifier): void;
+  registerPolymorphicType(abstract: string, concrete: string): void;
+  destroy(): void;
+}
 
 export interface Operation {
   op: string;

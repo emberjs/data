@@ -10,7 +10,6 @@
     "noEmit": false,
     "allowJs": false,
     "checkJs": false,
-
     "alwaysStrict": true,
     "strict": true,
     "allowSyntheticDefaultImports": true,
@@ -41,8 +40,6 @@
     "baseUrl": "src",
 
     "paths": {
-      "@ember-data/store": ["../../store/src"],
-      "@ember-data/store/*": ["../../store/src/*"],
       "@ember-data/env": ["../../private-build-infra/virtual-packages/env.d.ts"],
     }
   }

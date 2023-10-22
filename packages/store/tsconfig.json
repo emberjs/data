@@ -1,6 +1,7 @@
 {
   "include": [
     "src/**/*",
+    "../../@types/**/*",
   ],
   "baseUrl": ".",
   "compilerOptions": {
@@ -9,8 +10,6 @@
     "target": "esnext",
     "moduleResolution": "bundler",
     "moduleDetection": "force",
-    "rootDirs": ["src", "../core-types", "../graph", "../tracking", "../private-build-infra"],
-    "declarationDir": "unstable-preview-types",
     "strict": true,
     "downlevelIteration": true,
     "skipLibCheck": true,
@@ -18,7 +17,7 @@
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
     "noEmit": false,
-    "emitDeclarationOnly": true,
+    "experimentalDecorators": true,
 
     // Enable faster builds
     // but causes us to not rebuild properly
@@ -26,17 +25,12 @@
 
     "declaration": true,
     "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "declarationDir": "unstable-preview-types",
     "inlineSourceMap": true,
     "inlineSources": true,
-    "types": [],
 
     "paths": {
-      "@ember-data/tracking": ["../tracking/src"],
-      "@ember-data/tracking/*": ["../tracking/src/*"],
-      "@ember-data/graph": ["../graph/src"],
-      "@ember-data/graph/*": ["../graph/src/*"],
-      "@warp-drive/core-types": ["../core-types/src"],
-      "@warp-drive/core/*": ["../core-types/src/*"],
       "@ember-data/deprecations": ["../private-build-infra/virtual-packages/deprecations.d.ts"],
       "@ember-data/packages": ["../private-build-infra/virtual-packages/packages.d.ts"],
       "@ember-data/canary-features": ["../private-build-infra/virtual-packages/canary-features.d.ts"],

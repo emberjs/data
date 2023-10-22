@@ -13,6 +13,7 @@
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "scripts": {
+    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs",
     "build:types": "tsc --build --force",
     "build:client": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
     "build": "pnpm build:client && pnpm build:types",
@@ -48,7 +49,13 @@
       "injected": true
     }
   },
+  "devDependenciesMeta": {
+    "@warp-drive/internal-config": {
+      "injected": true
+    }
+  },
   "devDependencies": {
+    "@warp-drive/internal-config": "workspace:5.5.0-alpha.11",
     "@babel/cli": "^7.23.0",
     "@babel/core": "^7.23.2",
     "@babel/plugin-proposal-decorators": "^7.23.2",
