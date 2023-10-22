@@ -13,6 +13,14 @@ import type { RequestContext, StructuredDataDocument, StructuredDocument } from 
 import { ResourceDocument, SingleResourceDataDocument } from './spec/document';
 import { ApiError } from './spec/error';
 
+/**
+ * A hash of changed attributes with the key being the attribute name and the value being an
+ * array of `[oldValue, newValue]`.
+ *
+ * @internal
+ */
+export type ChangedAttributesHash = Record<string, [Value | undefined, Value]>;
+
 export type RelationshipDiff =
   | {
       kind: 'collection';
@@ -356,7 +364,7 @@ export interface Cache {
    * @param identifier
    * @returns {Record<string, [unknown, unknown]>} { <field>: [<old>, <new>] }
    */
-  changedAttrs(identifier: StableRecordIdentifier): Record<string, [Value, Value]>;
+  changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash;
 
   /**
    * Query the cache for whether any mutated attributes exist

@@ -10,11 +10,12 @@ import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection
 import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
 import { HAS_JSON_API_PACKAGE } from '@ember-data/packages';
 import type Store from '@ember-data/store';
-import type { ChangedAttributesHash } from '@ember-data/store/-types/q/cache';
 import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
 import type { FindOptions } from '@ember-data/store/-types/q/store';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ChangedAttributesHash } from '@warp-drive/core-types/cache';
 import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
+import type { Value } from '@warp-drive/core-types/json/raw';
 import type { AttributeSchema, RelationshipSchema } from '@warp-drive/core-types/schema';
 
 import { upgradeStore } from '../-private';
@@ -248,7 +249,7 @@ export default class Snapshot implements Snapshot {
 
     for (let i = 0, length = changedAttributeKeys.length; i < length; i++) {
       const key = changedAttributeKeys[i];
-      changedAttributes[key] = this._changedAttributes[key].slice() as [unknown, unknown];
+      changedAttributes[key] = this._changedAttributes[key].slice() as [Value | undefined, Value];
     }
 
     return changedAttributes;

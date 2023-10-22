@@ -15,10 +15,10 @@ import type Store from '@ember-data/store';
 import type { StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
 import type { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
 import type { CacheCapabilitiesManager as InternalCapabilitiesManager } from '@ember-data/store/-private/managers/cache-capabilities-manager';
-import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/store/-types/q/cache';
+import type { MergeOperation } from '@ember-data/store/-types/q/cache';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
 import type { AttributesHash, JsonApiError, JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
-import type { RelationshipDiff } from '@warp-drive/core-types/cache';
+import type { Cache, ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core-types/cache';
 import type { ResourceBlob } from '@warp-drive/core-types/cache/aliases';
 import type { Change } from '@warp-drive/core-types/cache/change';
 import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
@@ -28,6 +28,7 @@ import type {
   StableExistingRecordIdentifier,
   StableRecordIdentifier,
 } from '@warp-drive/core-types/identifier';
+import { Value } from '@warp-drive/core-types/json/raw';
 import type {
   StructuredDataDocument,
   StructuredDocument,
@@ -67,10 +68,10 @@ const EMPTY_ITERATOR = {
 
 interface CachedResource {
   id: string | null;
-  remoteAttrs: Record<string, unknown> | null;
-  localAttrs: Record<string, unknown> | null;
-  inflightAttrs: Record<string, unknown> | null;
-  changes: Record<string, [unknown, unknown]> | null;
+  remoteAttrs: Record<string, Value | undefined> | null;
+  localAttrs: Record<string, Value | undefined> | null;
+  inflightAttrs: Record<string, Value | undefined> | null;
+  changes: Record<string, [Value | undefined, Value]> | null;
   errors: JsonApiError[] | null;
   isNew: boolean;
   isDeleted: boolean;
@@ -688,7 +689,7 @@ export default class JSONAPICache implements Cache {
    */
   clientDidCreate(
     identifier: StableRecordIdentifier,
-    options?: Record<string, unknown> | undefined
+    options?: Record<string, Value> | undefined
   ): Record<string, unknown> {
     if (LOG_MUTATIONS) {
       try {
@@ -745,7 +746,7 @@ export default class JSONAPICache implements Cache {
               op: 'replaceRelatedRecords',
               field: name,
               record: identifier,
-              value: propertyValue as StableRecordIdentifier[],
+              value: propertyValue as unknown as StableRecordIdentifier[],
             });
             relationship = graph.get(identifier, name) as CollectionEdge;
             relationship.state.hasReceivedData = true;
@@ -977,7 +978,8 @@ export default class JSONAPICache implements Cache {
     if (cached.inflightAttrs) {
       const keys = Object.keys(cached.inflightAttrs);
       if (keys.length > 0) {
-        const attrs = (cached.localAttrs = cached.localAttrs || (Object.create(null) as Record<string, unknown>));
+        const attrs = (cached.localAttrs =
+          cached.localAttrs || (Object.create(null) as Record<string, Value | undefined>));
         for (let i = 0; i < keys.length; i++) {
           if (attrs[keys[i]] === undefined) {
             attrs[keys[i]] = cached.inflightAttrs[keys[i]];
@@ -1111,7 +1113,7 @@ export default class JSONAPICache implements Cache {
    * @param field
    * @param value
    */
-  setAttr(identifier: StableRecordIdentifier, attr: string, value: unknown): void {
+  setAttr(identifier: StableRecordIdentifier, attr: string, value: Value): void {
     const cached = this.__peek(identifier, false);
     const existing =
       cached.inflightAttrs && attr in cached.inflightAttrs
@@ -1120,9 +1122,9 @@ export default class JSONAPICache implements Cache {
         ? cached.remoteAttrs[attr]
         : undefined;
     if (existing !== value) {
-      cached.localAttrs = cached.localAttrs || (Object.create(null) as Record<string, unknown>);
+      cached.localAttrs = cached.localAttrs || (Object.create(null) as Record<string, Value>);
       cached.localAttrs[attr] = value;
-      cached.changes = cached.changes || (Object.create(null) as Record<string, [unknown, unknown]>);
+      cached.changes = cached.changes || (Object.create(null) as Record<string, [Value, Value]>);
       cached.changes[attr] = [existing, value];
     } else if (cached.localAttrs) {
       delete cached.localAttrs[attr];
@@ -1452,7 +1454,7 @@ function getDefaultValue(
   schema: AttributeSchema | undefined,
   identifier: StableRecordIdentifier,
   store: Store
-): unknown {
+): Value | undefined {
   const options = schema?.options;
 
   if (!schema || (!options && !schema.type)) {
@@ -1464,7 +1466,7 @@ function getDefaultValue(
     // If anyone opens an issue for args not working right, we'll restore + deprecate it via a Proxy
     // that lazily instantiates the record. We don't want to provide any args here
     // because in a non @ember-data/model world they don't make sense.
-    return options.defaultValue();
+    return options.defaultValue() as Value;
     // legacy support for defaultValues that are primitives
   } else if (options && 'defaultValue' in options) {
     const defaultValue = options.defaultValue;
@@ -1472,7 +1474,7 @@ function getDefaultValue(
       `Non primitive defaultValues are not supported because they are shared between all instances. If you would like to use a complex object as a default value please provide a function that returns the complex object.`,
       typeof defaultValue !== 'object' || defaultValue === null
     );
-    return defaultValue;
+    return defaultValue as Value;
 
     // new style transforms
   } else if (schema.type) {
@@ -1480,7 +1482,7 @@ function getDefaultValue(
       store.schema as unknown as {
         transforms?: Map<
           string,
-          { defaultValue(options: Record<string, unknown> | null, identifier: StableRecordIdentifier): unknown }
+          { defaultValue(options: Record<string, unknown> | null, identifier: StableRecordIdentifier): Value }
         >;
       }
     ).transforms?.get(schema.type);

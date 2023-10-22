@@ -1,13 +1,14 @@
-import type { RelationshipDiff } from '@warp-drive/core-types/cache';
+import type { Cache, ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core-types/cache';
 import type { Change } from '@warp-drive/core-types/cache/change';
-import { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
+import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
 import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { Value } from '@warp-drive/core-types/json/raw';
 import type { StructuredDataDocument, StructuredDocument } from '@warp-drive/core-types/request';
 import type { ResourceDocument, SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
 import type { ApiError } from '@warp-drive/core-types/spec/error';
 
-import type { Cache, ChangedAttributesHash, MergeOperation } from '../../-types/q/cache';
+import type { MergeOperation } from '../../-types/q/cache';
 import type { JsonApiResource } from '../../-types/q/record-data-json-api';
 import type { StoreRequestContext } from '../cache-handler';
 
@@ -364,7 +365,7 @@ export class CacheManager implements Cache {
    * @param propertyName
    * @param value
    */
-  setAttr(identifier: StableRecordIdentifier, propertyName: string, value: unknown): void {
+  setAttr(identifier: StableRecordIdentifier, propertyName: string, value: Value): void {
     this.#cache.setAttr(identifier, propertyName, value);
   }
 

@@ -1,20 +1,12 @@
-import { Cache } from '@warp-drive/core-types/cache';
+import type { Cache, ChangedAttributesHash } from '@warp-drive/core-types/cache';
 import type { RecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
-import { ApiError } from '@warp-drive/core-types/spec/error';
+import type { ApiError } from '@warp-drive/core-types/spec/error';
 import type { CollectionResourceRelationship, SingleResourceRelationship } from '@warp-drive/core-types/spec/raw';
 
 import type { JsonApiResource } from './record-data-json-api';
 /**
   @module @ember-data/store
 */
-
-/**
- * A hash of changed attributes with the key being the attribute name and the value being an
- * array of `[oldValue, newValue]`.
- *
- * @internal
- */
-export type ChangedAttributesHash = Record<string, [unknown, unknown]>;
 
 export interface MergeOperation {
   op: 'mergeIdentifiers';
