@@ -1750,6 +1750,9 @@ importers:
       '@rollup/plugin-node-resolve':
         specifier: ^15.2.3
         version: 15.2.3(rollup@4.1.4)
+      '@warp-drive/internal-config':
+        specifier: workspace:5.5.0-alpha.11
+        version: link:../../config
       ember-source:
         specifier: ~5.3.0
         version: 5.3.0(@babel/core@7.23.2)(@glimmer/component@1.1.2)(webpack@5.89.0)

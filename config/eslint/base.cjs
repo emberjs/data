@@ -1,5 +1,7 @@
 const path = require('path');
-const prettierConfig = require(path.join(__dirname, '../../.prettierrc.js'));
+const prettierPath = path.join(process.cwd(), '../../.prettierrc.js');
+console.log('prettierPath', prettierPath);
+const prettierConfig = require(prettierPath);
 
 function rules() {
   return {
