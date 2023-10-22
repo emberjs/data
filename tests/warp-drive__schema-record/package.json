@@ -52,6 +52,15 @@
     },
     "@warp-drive/core-types": {
       "injected": true
+    },
+    "@ember-data/unpublished-test-infra": {
+      "injected": true
+    },
+    "@ember/string": {
+      "injected": true
+    },
+    "ember-inflector": {
+      "injected": true
     }
   },
   "devDependencies": {
@@ -105,43 +114,5 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.9.2",
-  "devDependenciesMeta": {
-    "@ember-data/store": {
-      "injected": true
-    },
-    "@ember-data/request": {
-      "injected": true
-    },
-    "@ember-data/tracking": {
-      "injected": true
-    },
-    "@ember-data/json-api": {
-      "injected": true
-    },
-    "@ember-data/request-utils": {
-      "injected": true
-    },
-    "@ember-data/graph": {
-      "injected": true
-    },
-    "@warp-drive/schema-record": {
-      "injected": true
-    },
-    "@ember-data/private-build-infra": {
-      "injected": true
-    },
-    "@ember-data/unpublished-test-infra": {
-      "injected": true
-    },
-    "@warp-drive/core-types": {
-      "injected": true
-    },
-    "@ember/string": {
-      "injected": true
-    },
-    "ember-inflector": {
-      "injected": true
-    }
-  }
+  "packageManager": "pnpm@8.9.2"
 }

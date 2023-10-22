@@ -54,15 +54,7 @@
   "dependenciesMeta": {
     "@ember-data/private-build-infra": {
       "injected": true
-    }
-  },
-  "dependencies": {
-    "@ember-data/private-build-infra": "workspace:5.5.0-alpha.11",
-    "@embroider/macros": "^1.13.2",
-    "ember-cli-babel": "^8.2.0",
-    "ember-cli-test-info": "^1.0.0"
-  },
-  "devDependenciesMeta": {
+    },
     "@warp-drive/internal-config": {
       "injected": true
     },
@@ -84,6 +76,12 @@
     "@ember-data/tracking": {
       "injected": true
     }
+  },
+  "dependencies": {
+    "@ember-data/private-build-infra": "workspace:5.5.0-alpha.11",
+    "@embroider/macros": "^1.13.2",
+    "ember-cli-babel": "^8.2.0",
+    "ember-cli-test-info": "^1.0.0"
   },
   "devDependencies": {
     "@warp-drive/internal-config": "workspace:5.5.0-alpha.11",

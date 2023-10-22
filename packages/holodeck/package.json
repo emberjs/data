@@ -51,17 +51,6 @@
     "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
     "@ember-data/request": "workspace:5.5.0-alpha.11"
   },
-  "devDependenciesMeta": {
-    "@ember-data/request": {
-      "injected": true
-    },
-    "@warp-drive/internal-config": {
-      "injected": true
-    },
-    "@warp-drive/core-types": {
-      "injected": true
-    }
-  },
   "devDependencies": {
     "@warp-drive/internal-config": "workspace:5.5.0-alpha.11",
     "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
@@ -95,6 +84,17 @@
     "./mock": {
       "types": "./dist/mock.d.ts",
       "default": "./dist/mock.js"
+    }
+  },
+  "dependenciesMeta": {
+    "@ember-data/request": {
+      "injected": true
+    },
+    "@warp-drive/internal-config": {
+      "injected": true
+    },
+    "@warp-drive/core-types": {
+      "injected": true
     }
   }
 }

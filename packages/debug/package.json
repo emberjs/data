@@ -29,25 +29,8 @@
     },
     "@ember-data/store": {
       "injected": true
-    }
-  },
-  "dependencies": {
-    "@babel/core": "^7.23.2",
-    "@ember-data/private-build-infra": "workspace:5.5.0-alpha.11",
-    "@ember/edition-utils": "^1.2.0",
-    "@embroider/macros": "^1.13.2",
-    "ember-auto-import": "^2.6.3",
-    "ember-cli-babel": "^8.2.0",
-    "webpack": "^5.89.0"
-  },
-  "devDependenciesMeta": {
+    },
     "@warp-drive/internal-config": {
-      "injected": true
-    },
-    "@ember-data/store": {
-      "injected": true
-    },
-    "@ember/string": {
       "injected": true
     },
     "@ember-data/request": {
@@ -60,10 +43,21 @@
       "injected": true
     }
   },
+  "dependencies": {
+    "@babel/core": "^7.23.2",
+    "@ember-data/private-build-infra": "workspace:5.5.0-alpha.11",
+    "@ember/edition-utils": "^1.2.0",
+    "@embroider/macros": "^1.13.2",
+    "ember-auto-import": "^2.6.3",
+    "ember-cli-babel": "^8.2.0",
+    "webpack": "^5.89.0"
+  },
   "devDependencies": {
     "@warp-drive/internal-config": "workspace:5.5.0-alpha.11",
     "@ember-data/store": "workspace:5.5.0-alpha.11",
     "@ember/string": "^3.1.1",
+    "ember-source": "~5.3.0",
+    "@glimmer/component": "^1.1.2",
     "@ember-data/request": "workspace:5.5.0-alpha.11",
     "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
     "@ember-data/tracking": "workspace:5.5.0-alpha.11"

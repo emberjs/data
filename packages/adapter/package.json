@@ -58,15 +58,7 @@
     },
     "@ember/string": {
       "injected": true
-    }
-  },
-  "dependencies": {
-    "@ember-data/private-build-infra": "workspace:5.5.0-alpha.11",
-    "@embroider/macros": "^1.13.2",
-    "ember-cli-babel": "^8.2.0",
-    "ember-cli-test-info": "^1.0.0"
-  },
-  "devDependenciesMeta": {
+    },
     "@warp-drive/internal-config": {
       "injected": true
     },
@@ -77,9 +69,6 @@
       "injected": true
     },
     "@ember-data/store": {
-      "injected": true
-    },
-    "@ember/string": {
       "injected": true
     },
     "ember-inflector": {
@@ -100,6 +89,12 @@
     "@ember-data/request-utils": {
       "injected": true
     }
+  },
+  "dependencies": {
+    "@ember-data/private-build-infra": "workspace:5.5.0-alpha.11",
+    "@embroider/macros": "^1.13.2",
+    "ember-cli-babel": "^8.2.0",
+    "ember-cli-test-info": "^1.0.0"
   },
   "devDependencies": {
     "@types/jquery": "^3.5.24",

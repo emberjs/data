@@ -90,11 +90,6 @@
     "debug": "^4.3.4",
     "tmp": "^0.2.1"
   },
-  "devDependenciesMeta": {
-    "@warp-drive/internal-config": {
-      "injected": true
-    }
-  },
   "devDependencies": {
     "@warp-drive/internal-config": "workspace:5.5.0-alpha.11",
     "@babel/cli": "^7.23.0",
@@ -127,5 +122,10 @@
   },
   "ember": {
     "edition": "octane"
+  },
+  "dependenciesMeta": {
+    "@warp-drive/internal-config": {
+      "injected": true
+    }
   }
 }

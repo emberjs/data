@@ -47,9 +47,7 @@
   "dependenciesMeta": {
     "@ember-data/private-build-infra": {
       "injected": true
-    }
-  },
-  "devDependenciesMeta": {
+    },
     "@warp-drive/internal-config": {
       "injected": true
     },

@@ -55,14 +55,6 @@
     "type": "addon",
     "version": 1
   },
-  "devDependenciesMeta": {
-    "@warp-drive/core-types": {
-      "injected": true
-    },
-    "@warp-drive/internal-config": {
-      "injected": true
-    }
-  },
   "devDependencies": {
     "@babel/cli": "^7.23.0",
     "@babel/core": "^7.23.2",
@@ -87,5 +79,13 @@
   },
   "ember": {
     "edition": "octane"
+  },
+  "dependenciesMeta": {
+    "@warp-drive/core-types": {
+      "injected": true
+    },
+    "@warp-drive/internal-config": {
+      "injected": true
+    }
   }
 }

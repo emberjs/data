@@ -59,7 +59,38 @@
     "type": "addon",
     "version": 1
   },
-  "devDependenciesMeta": {
+  "devDependencies": {
+    "ember-inflector": "^4.0.2",
+    "@warp-drive/internal-config": "workspace:5.5.0-alpha.11",
+    "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
+    "@ember-data/request-utils": "workspace:5.5.0-alpha.11",
+    "@ember-data/store": "workspace:5.5.0-alpha.11",
+    "@ember/string": "^3.1.1",
+    "@babel/cli": "^7.23.0",
+    "@babel/core": "^7.23.2",
+    "@babel/plugin-proposal-decorators": "^7.23.2",
+    "@babel/plugin-transform-class-properties": "^7.22.5",
+    "@babel/plugin-transform-runtime": "^7.23.2",
+    "@babel/plugin-transform-typescript": "^7.22.15",
+    "@babel/preset-env": "^7.23.2",
+    "@babel/preset-typescript": "^7.23.2",
+    "@babel/runtime": "^7.23.2",
+    "@embroider/addon-dev": "^4.1.1",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "ember-source": "~5.3.0",
+    "@glimmer/component": "^1.1.2",
+    "rollup": "^4.1.4",
+    "tslib": "^2.6.2",
+    "typescript": "^5.2.2",
+    "walk-sync": "^3.0.0",
+    "@ember-data/request": "workspace:5.5.0-alpha.11",
+    "@ember-data/tracking": "workspace:5.5.0-alpha.11"
+  },
+  "ember": {
+    "edition": "octane"
+  },
+  "dependenciesMeta": {
     "@warp-drive/internal-config": {
       "injected": true
     },
@@ -84,34 +115,5 @@
     "@ember-data/tracking": {
       "injected": true
     }
-  },
-  "devDependencies": {
-    "ember-inflector": "^4.0.2",
-    "@warp-drive/internal-config": "workspace:5.5.0-alpha.11",
-    "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
-    "@ember-data/request-utils": "workspace:5.5.0-alpha.11",
-    "@ember-data/store": "workspace:5.5.0-alpha.11",
-    "@ember/string": "^3.1.1",
-    "@babel/cli": "^7.23.0",
-    "@babel/core": "^7.23.2",
-    "@babel/plugin-proposal-decorators": "^7.23.2",
-    "@babel/plugin-transform-class-properties": "^7.22.5",
-    "@babel/plugin-transform-runtime": "^7.23.2",
-    "@babel/plugin-transform-typescript": "^7.22.15",
-    "@babel/preset-env": "^7.23.2",
-    "@babel/preset-typescript": "^7.23.2",
-    "@babel/runtime": "^7.23.2",
-    "@embroider/addon-dev": "^4.1.1",
-    "@rollup/plugin-babel": "^6.0.4",
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "rollup": "^4.1.4",
-    "tslib": "^2.6.2",
-    "typescript": "^5.2.2",
-    "walk-sync": "^3.0.0",
-    "@ember-data/request": "workspace:5.5.0-alpha.11",
-    "@ember-data/tracking": "workspace:5.5.0-alpha.11"
-  },
-  "ember": {
-    "edition": "octane"
   }
 }

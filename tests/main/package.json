@@ -70,6 +70,12 @@
     },
     "@ember-data/request": {
       "injected": true
+    },
+    "@ember/string": {
+      "injected": true
+    },
+    "ember-inflector": {
+      "injected": true
     }
   },
   "devDependencies": {
@@ -139,31 +145,5 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.9.2",
-  "devDependenciesMeta": {
-    "@ember-data/private-build-infra": {
-      "injected": true
-    },
-    "@ember-data/unpublished-test-infra": {
-      "injected": true
-    },
-    "@ember-data/request": {
-      "injected": true
-    },
-    "@ember/string": {
-      "injected": true
-    },
-    "@warp-drive/holodeck": {
-      "injected": true
-    },
-    "@warp-drive/core-types": {
-      "injected": true
-    },
-    "ember-data": {
-      "injected": true
-    },
-    "ember-inflector": {
-      "injected": true
-    }
-  }
+  "packageManager": "pnpm@8.9.2"
 }

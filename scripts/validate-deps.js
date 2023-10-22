@@ -202,6 +202,14 @@ pkgs.forEach((pkg) => {
 
   }
 
+  if (pkg.devDependenciesMeta) {
+    console.log(`Merging devDependenciesMeta into dependenciesMeta for ${pkg.name}`);
+    edited = true;
+    pkg.dependenciesMeta = pkg.dependenciesMeta ?? {};
+    Object.assign(pkg.dependenciesMeta, pkg.devDependenciesMeta);
+    delete pkg.devDependenciesMeta;
+  }
+
   if (edited) {
     fs.writeFileSync(files.get(pkg.name).path, JSON.stringify(pkg, null, 2) + '\n');
   }

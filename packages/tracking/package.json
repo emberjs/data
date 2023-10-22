@@ -24,6 +24,9 @@
   "dependenciesMeta": {
     "@ember-data/private-build-infra": {
       "injected": true
+    },
+    "@warp-drive/internal-config": {
+      "injected": true
     }
   },
   "dependencies": {
@@ -63,11 +66,6 @@
     "main": "addon-main.cjs",
     "type": "addon",
     "version": 1
-  },
-  "devDependenciesMeta": {
-    "@warp-drive/internal-config": {
-      "injected": true
-    }
   },
   "devDependencies": {
     "@warp-drive/internal-config": "workspace:5.5.0-alpha.11",

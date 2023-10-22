@@ -46,15 +46,7 @@
   "dependenciesMeta": {
     "@ember-data/private-build-infra": {
       "injected": true
-    }
-  },
-  "dependencies": {
-    "@ember-data/private-build-infra": "workspace:5.5.0-alpha.11",
-    "@ember/edition-utils": "^1.2.0",
-    "@embroider/macros": "^1.13.2",
-    "ember-cli-babel": "^8.2.0"
-  },
-  "devDependenciesMeta": {
+    },
     "@ember-data/store": {
       "injected": true
     },
@@ -73,6 +65,12 @@
     "@ember/string": {
       "injected": true
     }
+  },
+  "dependencies": {
+    "@ember-data/private-build-infra": "workspace:5.5.0-alpha.11",
+    "@ember/edition-utils": "^1.2.0",
+    "@embroider/macros": "^1.13.2",
+    "ember-cli-babel": "^8.2.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.23.0",

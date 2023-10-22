@@ -86,10 +86,5 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.9.2",
-  "devDependenciesMeta": {
-    "@ember-data/unpublished-test-infra": {
-      "injected": true
-    }
-  }
+  "packageManager": "pnpm@8.9.2"
 }
