@@ -26,6 +26,7 @@
     "README.md",
     "index.js",
     "addon",
+    "addon-test-support",
     "app",
     "blueprints",
     "unstable-preview-types"

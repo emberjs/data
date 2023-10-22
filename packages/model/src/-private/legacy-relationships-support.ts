@@ -453,7 +453,7 @@ export class LegacySupport {
           op: 'findHasMany',
           records: identifiers || [],
           data: request,
-          cacheOptions: { [Symbol.for('ember-data:skip-cache')]: true },
+          cacheOptions: { [Symbol.for('wd:skip-cache')]: true },
         }) as unknown as Promise<void>;
       }
 
@@ -476,7 +476,7 @@ export class LegacySupport {
           op: 'findHasMany',
           records: identifiers,
           data: request,
-          cacheOptions: { [Symbol.for('ember-data:skip-cache')]: true },
+          cacheOptions: { [Symbol.for('wd:skip-cache')]: true },
         }) as unknown as Promise<void>;
       }
 
@@ -534,7 +534,7 @@ export class LegacySupport {
         op: 'findBelongsTo',
         records: identifier ? [identifier] : [],
         data: request,
-        cacheOptions: { [Symbol.for('ember-data:skip-cache')]: true },
+        cacheOptions: { [Symbol.for('wd:skip-cache')]: true },
       });
       this._pending[key] = future
         .then((doc) => doc.content)
@@ -571,7 +571,7 @@ export class LegacySupport {
           op: 'findBelongsTo',
           records: [identifier],
           data: request,
-          cacheOptions: { [Symbol.for('ember-data:skip-cache')]: true },
+          cacheOptions: { [Symbol.for('wd:skip-cache')]: true },
         })
         .then((doc) => doc.content)
         .finally(() => {

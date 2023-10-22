@@ -12,7 +12,7 @@ export default {
   // You can augment this if you need to.
   output: addon.output(),
 
-  external: ['@ember/debug', '@embroider/macros', '@ember-data/store/-private', '@ember-data/request'],
+  external: ['@ember/debug', '@ember-data/store', '@embroider/macros', '@ember-data/store/-private', '@ember-data/request'],
 
   plugins: [
     // These are the modules that users should be able to import from your

@@ -16,9 +16,9 @@
   "scripts": {
     "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs",
     "move-dts": "rsync -Rr src/**/*.d.ts unstable-preview-types && cp -R unstable-preview-types/src/* unstable-preview-types && rm -rf unstable-preview-types/src",
-    "build:types": "tsc --build --force",
+    "build:types": "tsc --build --force && pnpm move-dts",
     "build:client": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
-    "build": "pnpm build:client && pnpm build:types && pnpm move-dts",
+    "build": "pnpm build:client && pnpm build:types",
     "prepack": "pnpm build",
     "prepare": "pnpm build"
   },

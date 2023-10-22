@@ -27,8 +27,8 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     let { owner } = this;
     class SuperUser extends Model {}
 
-    owner.register('adapter:application', RESTAdapter.extend());
-    owner.register('serializer:application', RESTSerializer.extend());
+    owner.register('adapter:application', class extends RESTAdapter {});
+    owner.register('serializer:application', class extends RESTSerializer {});
     owner.register('model:super-user', SuperUser);
 
     store = owner.lookup('service:store');

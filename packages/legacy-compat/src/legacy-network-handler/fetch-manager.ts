@@ -8,7 +8,7 @@ import { createDeferred } from '@ember-data/request';
 import type { Deferred } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';
 import { coerceId } from '@ember-data/store/-private';
-import { StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
+import type { StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
 import type { InstanceCache } from '@ember-data/store/-private/caches/instance-cache';
 import type RequestStateService from '@ember-data/store/-private/network/request-cache';
 import type { FindRecordQuery, Request, SaveRecordMutation } from '@ember-data/store/-private/network/request-cache';
