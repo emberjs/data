@@ -3,10 +3,23 @@
  */
 import { assert } from '@ember/debug';
 
+import type { AttributesHash, JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { Cache } from '@warp-drive/core-types/cache';
+import type { Relationship } from '@warp-drive/core-types/cache/relationship';
+import type { Value } from '@warp-drive/core-types/json/raw';
 
-import type { Cache } from '@ember-data/store/-types/cache/cache';
-import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
+type ChangedRelationshipData = {
+  data: Relationship['data'];
+};
+
+export type JsonApiResourcePatch = {
+  type: string;
+  id: string | null;
+  lid: string;
+  attributes?: Record<string, Value>;
+  relationships?: Record<string, ChangedRelationshipData>;
+};
 
 /**
  * Serializes the current state of a resource or array of resources for use with POST or PUT requests.
@@ -73,7 +86,7 @@ export function serializePatch(
   cache: Cache,
   identifier: StableRecordIdentifier
   // options: { include?: string[] } = {}
-): { data: JsonApiResource } {
+): { data: JsonApiResourcePatch } {
   const { id, lid, type } = identifier;
   const record = cache.peek(identifier) as JsonApiResource;
   assert(
@@ -81,7 +94,7 @@ export function serializePatch(
     record
   );
 
-  const data: JsonApiResource = {
+  const data: JsonApiResourcePatch = {
     type,
     lid,
     id,
@@ -89,10 +102,11 @@ export function serializePatch(
 
   if (cache.hasChangedAttrs(identifier)) {
     const attrsChanges = cache.changedAttrs(identifier);
-    const attributes = {};
+    const attributes: AttributesHash = {};
 
     Object.keys(attrsChanges).forEach((key) => {
-      const newVal = attrsChanges[key][1];
+      const change = attrsChanges[key];
+      const newVal = change[1] as Value | undefined;
       attributes[key] = newVal === undefined ? null : newVal;
     });
 
@@ -101,8 +115,7 @@ export function serializePatch(
 
   const changedRelationships = cache.changedRelationships(identifier);
   if (changedRelationships.size) {
-    const relationships = {};
-
+    const relationships: Record<string, ChangedRelationshipData> = {};
     changedRelationships.forEach((diff, key) => {
       relationships[key] = { data: diff.localState };
     });

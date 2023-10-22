@@ -15,7 +15,7 @@ module.exports = {
     base.rules(),
     imports.rules(),
     isolation.rules({
-      allowedImports: ['@ember/debug'],
+      allowedImports: ['@glimmer/tracking/primitives/cache', '@ember/debug', '@ember/-internals/metal'],
     }),
     {}
   ),

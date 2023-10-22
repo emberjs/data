@@ -15,7 +15,7 @@ export default function installPolyfill() {
     // we might be able to optimize this by requesting more bytes than we need at a time
     const rng = function (): Uint8Array {
       // WHATWG crypto RNG - http://wiki.whatwg.org/wiki/Crypto
-      let rnds8 = new Uint8Array(16);
+      const rnds8 = new Uint8Array(16);
 
       if (!CRYPTO.getRandomValues && !isFastBoot) {
         throw new Error(`Unable to generate bytes for UUID`);
@@ -36,7 +36,7 @@ export default function installPolyfill() {
     }
 
     const bytesToUuid = function (buf: Uint8Array): UUIDv4 {
-      let bth = byteToHex;
+      const bth = byteToHex;
       // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
       return [
         bth[buf[0]],
@@ -63,7 +63,7 @@ export default function installPolyfill() {
     };
 
     CRYPTO.randomUUID = function uuidv4(): UUIDv4 {
-      let rnds = rng();
+      const rnds = rng();
 
       // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
       rnds[6] = (rnds[6] & 0x0f) | 0x40;

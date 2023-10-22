@@ -221,7 +221,7 @@ interface DSLibrary extends DS {
   PromiseObject: typeof PromiseObject;
   PromiseManyArray: typeof PromiseManyArray;
   Model: typeof Model;
-  attr: attr;
+  attr: typeof attr;
   Errors: typeof Errors;
   Snapshot: typeof Snapshot;
   Adapter: typeof Adapter;
@@ -235,6 +235,7 @@ interface DSLibrary extends DS {
   ConflictError: typeof ConflictError;
   ServerError: typeof ServerError;
   Serializer: typeof Serializer;
+  // @ts-expect-error untyped
   DebugAdapter?: typeof import('@ember-data/debug').default;
   ManyArray: typeof ManyArray;
   RecordArrayManager: typeof RecordArrayManager;
@@ -280,6 +281,7 @@ DS.ServerError = ServerError;
 DS.Serializer = Serializer;
 
 if (macroCondition(dependencySatisfies('@ember-data/debug', '*'))) {
+  // @ts-expect-error untyped
   DS.DebugAdapter = (importSync('@ember-data/debug') as typeof import('@ember-data/debug')).default;
 }
 

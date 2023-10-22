@@ -1,4 +1,5 @@
 import { IS_FUTURE, type StructuredDocument } from '@warp-drive/core-types/request';
+
 import type { ContextOwner } from './context';
 import { type Deferred, type DeferredFuture, type Future } from './types';
 import { enhanceReason } from './utils';
@@ -10,7 +11,7 @@ export function isFuture<T>(maybe: unknown): maybe is Future<T> {
 export function createDeferred<T>(): Deferred<T> {
   let resolve!: (v: T) => void;
   let reject!: (v: unknown) => void;
-  let promise = new Promise<T>((res, rej) => {
+  const promise = new Promise<T>((res, rej) => {
     resolve = res;
     reject = rej;
   });

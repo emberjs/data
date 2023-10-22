@@ -109,7 +109,7 @@ function attr(type, options) {
     options = options || {};
   }
 
-  let meta = {
+  const meta = {
     type: type,
     kind: 'attribute',
     isAttribute: true,
@@ -146,7 +146,7 @@ function attr(type, options) {
       const identifier = recordIdentifierFor(this);
       const cache = peekCache(this);
 
-      let currentValue = cache.getAttr(identifier, key);
+      const currentValue = cache.getAttr(identifier, key);
       if (currentValue !== value) {
         cache.setAttr(identifier, key, value);
 

@@ -6,8 +6,9 @@ const node = require('@warp-drive/internal-config/eslint/node.cjs');
 const base = require('@warp-drive/internal-config/eslint/base.cjs');
 const typescript = require('@warp-drive/internal-config/eslint/typescript.cjs');
 
-module.exports = {
+const config = {
   ...parser.defaults(),
+  ...base.settings(),
 
   plugins: [...base.plugins(), ...imports.plugins()],
   extends: [...base.extend()],
@@ -15,7 +16,7 @@ module.exports = {
     base.rules(),
     imports.rules(),
     isolation.rules({
-      allowedImports: ['@ember/debug'],
+      allowedImports: ['@ember/debug', '@ember/application'],
     }),
     {}
   ),
@@ -24,3 +25,5 @@ module.exports = {
 
   overrides: [node.defaults(), typescript.defaults()],
 };
+
+module.exports = config;

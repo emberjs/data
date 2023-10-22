@@ -1,6 +1,7 @@
-import { info, debug } from "../utils/debug.js";
 import chalk from 'chalk';
-import { sinceStart } from "../utils/time.js";
+
+import { debug, info } from '../utils/debug.js';
+import { sinceStart } from '../utils/time.js';
 
 export function buildHandler(config, state) {
   return {
@@ -30,7 +31,11 @@ export function buildHandler(config, state) {
           ws.send(JSON.stringify({ name: 'close' }));
           ws.close();
           state.completed++;
-          debug(`${chalk.green('✅ [Complete]')} ${chalk.cyan(msg.browserId)}/${chalk.cyan(msg.windowId)} ${chalk.yellow('@' + sinceStart())}`);
+          debug(
+            `${chalk.green('✅ [Complete]')} ${chalk.cyan(msg.browserId)}/${chalk.cyan(msg.windowId)} ${chalk.yellow(
+              '@' + sinceStart()
+            )}`
+          );
           if (state.completed === state.expected) {
             const exitCode = config.reporter.onRunFinish(msg);
             debug(`${chalk.green('✅ [All Complete]')} ${chalk.yellow('@' + sinceStart())}`);
@@ -54,5 +59,5 @@ export function buildHandler(config, state) {
     open(ws) {}, // a socket is opened
     close(ws, code, message) {}, // a socket is closed
     drain(ws) {}, // the socket is ready to receive more data
-  }
-};
+  };
+}

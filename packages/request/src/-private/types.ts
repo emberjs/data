@@ -1,6 +1,12 @@
 /* eslint-disable no-irregular-whitespace */
 
-import type { IS_FUTURE, RequestContext, RequestInfo, ResponseInfo, StructuredDataDocument } from "@warp-drive/core-types/request";
+import type {
+  IS_FUTURE,
+  RequestContext,
+  RequestInfo,
+  ResponseInfo,
+  StructuredDataDocument,
+} from '@warp-drive/core-types/request';
 
 /**
  * @module @ember-data/request

@@ -101,7 +101,7 @@ const ArrayProxyWithCustomOverrides = ArrayProxy as unknown as new <T>() => Arra
   @public
   @extends Ember.ArrayProxy
  */
-export default class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
+class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
   declare __record: { currentState: RecordState };
   /**
     @property errorsByAttributeName
@@ -133,7 +133,7 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
     @return {Array}
   */
   errorsFor(attribute: string): NativeArray<ValidationError> {
-    let map = this.errorsByAttributeName;
+    const map = this.errorsByAttributeName;
 
     let errors = map.get(attribute);
 
@@ -176,7 +176,7 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
     @private
   */
   @computed()
-  get content(): NativeArray<ValidationError> {
+  override get content(): NativeArray<ValidationError> {
     return A();
   }
 
@@ -185,7 +185,7 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
     @private
   */
   unknownProperty(attribute: string) {
-    let errors = this.errorsFor(attribute);
+    const errors = this.errorsFor(attribute);
     if (errors.length === 0) {
       return undefined;
     }
@@ -264,13 +264,13 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
     @private
   */
   _findOrCreateMessages(attribute: string, messages: string | string[]): ValidationError[] {
-    let errors = this.errorsFor(attribute);
-    let messagesArray = Array.isArray(messages) ? messages : [messages];
-    let _messages: ValidationError[] = new Array(messagesArray.length) as ValidationError[];
+    const errors = this.errorsFor(attribute);
+    const messagesArray = Array.isArray(messages) ? messages : [messages];
+    const _messages: ValidationError[] = new Array(messagesArray.length) as ValidationError[];
 
     for (let i = 0; i < messagesArray.length; i++) {
-      let message = messagesArray[i];
-      let err = errors.findBy('message', message);
+      const message = messagesArray[i];
+      const err = errors.findBy('message', message);
       if (err) {
         _messages[i] = err;
       } else {
@@ -316,12 +316,12 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
       return;
     }
 
-    let content = this.rejectBy('attribute', attribute);
+    const content = this.rejectBy('attribute', attribute);
     this.content.setObjects(content);
 
     // Although errorsByAttributeName.delete is technically enough to sync errors state, we also
     // must mutate the array as well for autotracking
-    let errors = this.errorsFor(attribute);
+    const errors = this.errorsFor(attribute);
     for (let i = 0; i < errors.length; i++) {
       if (errors[i].attribute === attribute) {
         // .replace from Ember.NativeArray is necessary. JS splice will not work.
@@ -374,13 +374,13 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
    @method clear
    @public
    */
-  clear(): void {
+  override clear(): void {
     if (this.isEmpty) {
       return;
     }
 
-    let errorsByAttributeName = this.errorsByAttributeName;
-    let attributes: string[] = [];
+    const errorsByAttributeName = this.errorsByAttributeName;
+    const attributes: string[] = [];
 
     errorsByAttributeName.forEach(function (_, attribute) {
       attributes.push(attribute);
@@ -422,3 +422,5 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
     return this.errorsFor(attribute).length > 0;
   }
 }
+
+export default Errors;

@@ -1,11 +1,10 @@
 import { assert } from '@ember/debug';
 import { cacheFor } from '@ember/object/internals';
 
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import { RelationshipSchema } from '@warp-drive/core-types/schema';
-
 import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import { RelationshipSchema } from '@warp-drive/core-types/schema';
 
 import type Model from './model';
 import { LEGACY_SUPPORT } from './model';
@@ -44,9 +43,9 @@ function notifyRelationship(identifier: StableRecordIdentifier, key: string, rec
   if (meta.kind === 'belongsTo') {
     record.notifyPropertyChange(key);
   } else if (meta.kind === 'hasMany') {
-    let support = LEGACY_SUPPORT.get(identifier);
-    let manyArray = support && support._manyArrayCache[key];
-    let hasPromise = support && support._relationshipPromisesCache[key];
+    const support = LEGACY_SUPPORT.get(identifier);
+    const manyArray = support && support._manyArrayCache[key];
+    const hasPromise = support && support._relationshipPromisesCache[key];
 
     if (manyArray && hasPromise) {
       // do nothing, we will notify the ManyArray directly
@@ -70,7 +69,7 @@ function notifyRelationship(identifier: StableRecordIdentifier, key: string, rec
 }
 
 function notifyAttribute(store: Store, identifier: StableRecordIdentifier, key: string, record: Model) {
-  let currentValue = cacheFor(record, key);
+  const currentValue = cacheFor(record, key);
   const cache = store.cache;
   if (currentValue !== cache.getAttr(identifier, key)) {
     record.notifyPropertyChange(key);

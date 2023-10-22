@@ -1,9 +1,8 @@
 import { getOwner } from '@ember/application';
 
+import type Store from '@ember-data/store';
 import type { RecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
-
-import type Store from '@ember-data/store';
 
 import type { FactoryCache, ModelFactory, ModelStore } from './model';
 import Model from './model';
@@ -29,8 +28,8 @@ export class ModelSchemaProvider {
     attributes = this._attributesDefCache[type];
 
     if (attributes === undefined) {
-      let modelClass = this.store.modelFor(type);
-      let attributeMap = modelClass.attributes;
+      const modelClass = this.store.modelFor(type);
+      const attributeMap = modelClass.attributes;
 
       attributes = Object.create(null) as AttributesSchema;
       attributeMap.forEach((meta, name) => (attributes[name] = meta));
@@ -48,7 +47,7 @@ export class ModelSchemaProvider {
     relationships = this._relationshipsDefCache[type];
 
     if (relationships === undefined) {
-      let modelClass = this.store.modelFor(type) as typeof Model;
+      const modelClass = this.store.modelFor(type) as typeof Model;
       relationships = modelClass.relationshipsObject || null;
       this._relationshipsDefCache[type] = relationships;
     }
@@ -89,10 +88,10 @@ export function getModelFactory(store: ModelStore, type: string): ModelFactory |
       return null;
     }
 
-    let klass = factory.class;
+    const klass = factory.class;
 
     if (klass.isModel) {
-      let hasOwnModelNameSet = klass.modelName && Object.prototype.hasOwnProperty.call(klass, 'modelName');
+      const hasOwnModelNameSet = klass.modelName && Object.prototype.hasOwnProperty.call(klass, 'modelName');
       if (!hasOwnModelNameSet) {
         Object.defineProperty(klass, 'modelName', { value: type });
       }

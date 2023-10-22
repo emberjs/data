@@ -26,7 +26,7 @@ export interface TestReport {
     diagnostics: DiagnosticReport[];
     passed: boolean;
     failed: boolean;
-  }
+  };
   module: ModuleReport;
 }
 export interface ModuleReport {

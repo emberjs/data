@@ -21,7 +21,7 @@ function constructResource(
   lid?: string | null
 ): ResourceIdentifierObject | ExistingResourceIdentifierObject {
   if (typeof type === 'object' && type !== null) {
-    let resource = type;
+    const resource = type;
     if (isStableIdentifier(resource)) {
       return resource;
     }

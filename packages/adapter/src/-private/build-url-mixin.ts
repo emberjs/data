@@ -300,9 +300,9 @@ function buildURL(
   */
 function _buildURL(this: MixtBuildURLMixin, modelName: string | null | undefined, id?: string | null): string {
   let path: string;
-  let url: string[] = [];
-  let { host } = this;
-  let prefix = this.urlPrefix();
+  const url: string[] = [];
+  const { host } = this;
+  const prefix = this.urlPrefix();
 
   if (modelName) {
     path = this.pathForType(modelName);
@@ -608,7 +608,8 @@ function urlForDeleteRecord(this: MixtBuildURLMixin, id: string, modelName: stri
     @return {String} urlPrefix
   */
 function urlPrefix(this: MixtBuildURLMixin, path?: string | null, parentURL?: string): string {
-  let { host, namespace } = this;
+  const { namespace } = this;
+  let { host } = this;
 
   if (!host || host === '/') {
     host = '';
@@ -630,7 +631,7 @@ function urlPrefix(this: MixtBuildURLMixin, path?: string | null, parentURL?: st
   }
 
   // No path provided
-  let url: string[] = [];
+  const url: string[] = [];
   if (host) {
     url.push(host);
   }
@@ -669,7 +670,7 @@ function urlPrefix(this: MixtBuildURLMixin, path?: string | null, parentURL?: st
     @return {String} path
   **/
 function pathForType(this: MixtBuildURLMixin, modelName: string): string {
-  let camelized = camelize(modelName);
+  const camelized = camelize(modelName);
   return pluralize(camelized);
 }
 

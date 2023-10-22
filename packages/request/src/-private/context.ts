@@ -1,10 +1,10 @@
 import { DEBUG } from '@ember-data/env';
+import type { ImmutableHeaders, ImmutableRequestInfo, RequestInfo, ResponseInfo } from '@warp-drive/core-types/request';
+import { SkipCache } from '@warp-drive/core-types/request';
 
 import { deepFreeze } from './debug';
 import { createDeferred } from './future';
 import type { Deferred, GodContext } from './types';
-import type { ImmutableHeaders, ImmutableRequestInfo, RequestInfo, ResponseInfo } from '@warp-drive/core-types/request';
-import { SkipCache } from '@warp-drive/core-types/request';
 
 export function cloneResponseProperties(response: Response): ResponseInfo {
   const { headers, ok, redirected, status, statusText, type, url } = response;

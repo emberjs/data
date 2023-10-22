@@ -15,7 +15,15 @@ module.exports = {
     base.rules(),
     imports.rules(),
     isolation.rules({
-      allowedImports: ['@ember/debug'],
+      allowedImports: [
+        '@ember/object',
+        '@ember/application',
+        '@ember/service',
+        '@ember/debug',
+        'ember-inflector',
+        '@ember/object/mixin',
+        '@ember/string',
+      ],
     }),
     {}
   ),

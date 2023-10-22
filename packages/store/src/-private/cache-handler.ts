@@ -1,32 +1,27 @@
 import { assert } from '@ember/debug';
 
-import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
-
-import type {
-  Future,
-  Handler,
-  NextFn
-} from '@ember-data/request/-private/types';
-
+import type { Future, Handler, NextFn } from '@ember-data/request/-private/types';
+import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type { CreateRequestOptions, DeleteRequestOptions, UpdateRequestOptions } from '@warp-drive/core-types/request';
 import {
+  EnableHydration,
   ImmutableRequestInfo,
   RequestContext,
+  SkipCache,
   StructuredDataDocument,
   StructuredErrorDocument,
 } from '@warp-drive/core-types/request';
-
 import type {
   CollectionResourceDataDocument,
   ResourceDataDocument,
   ResourceErrorDocument,
 } from '@warp-drive/core-types/spec/document';
-import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type { ApiError } from '@warp-drive/core-types/spec/error';
+import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
+
 import type { RecordInstance } from '../-types/q/record-instance';
-import type { CreateRequestOptions, DeleteRequestOptions, UpdateRequestOptions } from '@warp-drive/core-types/request';
 import { Document } from './document';
 import type Store from './store-service';
-import { EnableHydration, SkipCache } from '@warp-drive/core-types/request';
 
 export interface LifetimesService {
   isHardExpired(identifier: StableDocumentIdentifier): boolean;
@@ -42,7 +37,7 @@ export type LooseStoreRequestInfo = Omit<StoreRequestInfo, 'records' | 'headers'
 export type StoreRequestInput = StoreRequestInfo | LooseStoreRequestInfo;
 
 export interface StoreRequestContext extends RequestContext {
-  request: StoreRequestInfo & { store: Store, [EnableHydration]?: boolean };
+  request: StoreRequestInfo & { store: Store; [EnableHydration]?: boolean };
 }
 
 const MUTATION_OPS = new Set(['createRecord', 'updateRecord', 'deleteRecord']);
@@ -206,8 +201,7 @@ function fetchContentAndHydrate<T>(
   shouldBackgroundFetch: boolean
 ): Promise<T> {
   const { store } = context.request;
-  const shouldHydrate: boolean =
-    (context.request[EnableHydration] as boolean | undefined) || false;
+  const shouldHydrate: boolean = (context.request[EnableHydration] as boolean | undefined) || false;
 
   let isMut = false;
   if (isMutation(context.request)) {
@@ -330,7 +324,7 @@ export const CacheHandler: Handler = {
 
     // if we have not skipped cache, determine if we should update behind the scenes
     if (calcShouldBackgroundFetch(store, context.request, false, identifier)) {
-      let promise = fetchContentAndHydrate(next, context, identifier, false, true);
+      const promise = fetchContentAndHydrate(next, context, identifier, false, true);
       store.requestManager._pending.set(context.id, promise);
     }
 

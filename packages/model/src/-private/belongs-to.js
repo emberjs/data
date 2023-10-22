@@ -101,8 +101,8 @@ import { computedMacroWithOptionalParams, normalizeModelName } from './util';
   @return {Ember.computed} relationship
 */
 function belongsTo(modelName, options) {
-  let opts = options;
-  let userEnteredModelName = modelName;
+  const opts = options;
+  const userEnteredModelName = modelName;
 
   assert(
     `Expected options.async from @belongsTo('${userEnteredModelName}', options) to be a boolean`,
@@ -113,7 +113,7 @@ function belongsTo(modelName, options) {
     opts.inverse === null || (typeof opts.inverse === 'string' && opts.inverse.length > 0)
   );
 
-  let meta = {
+  const meta = {
     type: normalizeModelName(userEnteredModelName),
     isRelationship: true,
     options: opts,

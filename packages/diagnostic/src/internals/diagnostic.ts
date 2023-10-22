@@ -1,6 +1,6 @@
-import { GlobalConfig, TestContext, TestInfo } from "../-types";
-import { DiagnosticReport, Reporter, TestReport } from "../-types/report";
-import equiv from "../legacy/equiv";
+import { GlobalConfig, TestContext, TestInfo } from '../-types';
+import { DiagnosticReport, Reporter, TestReport } from '../-types/report';
+import equiv from '../legacy/equiv';
 
 class InternalCompat<TC extends TestContext> {
   declare _diagnostic: Diagnostic<TC>;
@@ -19,7 +19,6 @@ class InternalCompat<TC extends TestContext> {
   set expected(value) {
     this._diagnostic.expected = value;
   }
-
 }
 
 export class Diagnostic<TC extends TestContext> {
@@ -43,8 +42,12 @@ export class Diagnostic<TC extends TestContext> {
     this.test = new InternalCompat(this);
   }
 
-  pushResult(result: Pick<DiagnosticReport, 'actual' | 'expected' | 'message' | 'passed' | 'stack'> & { result?: boolean }): void {
-    const diagnostic = Object.assign({ passed: result.passed ?? result.result }, result, { testId: this.__currentTest.id });
+  pushResult(
+    result: Pick<DiagnosticReport, 'actual' | 'expected' | 'message' | 'passed' | 'stack'> & { result?: boolean }
+  ): void {
+    const diagnostic = Object.assign({ passed: result.passed ?? result.result }, result, {
+      testId: this.__currentTest.id,
+    });
     this.__report.result.diagnostics.push(diagnostic);
 
     if (!diagnostic.passed) {
@@ -59,14 +62,14 @@ export class Diagnostic<TC extends TestContext> {
     if (actual !== expected) {
       if (this.__config.params.tryCatch.value) {
         try {
-          throw new Error(message || `Expected ${actual} to equal ${expected}`);
+          throw new Error(message || `Expected ${String(actual)} to equal ${String(expected)}`);
         } catch (err) {
           this.pushResult({
             message: message || 'equal',
             stack: (err as Error).stack!,
             passed: false,
             actual,
-            expected
+            expected,
           });
         }
       } else {
@@ -75,7 +78,7 @@ export class Diagnostic<TC extends TestContext> {
           stack: '',
           passed: false,
           actual,
-          expected
+          expected,
         });
       }
     } else {
@@ -84,14 +87,14 @@ export class Diagnostic<TC extends TestContext> {
         stack: '',
         passed: true,
         actual: true,
-        expected: true
+        expected: true,
       });
     }
   }
 
   notEqual<T>(actual: T, expected: T, message?: string): void {
     if (actual === expected) {
-      throw new Error(message || `Expected ${actual} to not equal ${expected}`);
+      throw new Error(message || `Expected ${String(actual)} to not equal ${String(expected)}`);
     }
   }
 
@@ -107,7 +110,7 @@ export class Diagnostic<TC extends TestContext> {
             stack: (err as Error).stack!,
             passed: false,
             actual,
-            expected
+            expected,
           });
         }
       } else {
@@ -116,7 +119,7 @@ export class Diagnostic<TC extends TestContext> {
           stack: '',
           passed: false,
           actual,
-          expected
+          expected,
         });
       }
     } else {
@@ -125,7 +128,7 @@ export class Diagnostic<TC extends TestContext> {
         stack: '',
         passed: true,
         actual: true,
-        expected: true
+        expected: true,
       });
     }
   }
@@ -142,7 +145,7 @@ export class Diagnostic<TC extends TestContext> {
             stack: (err as Error).stack!,
             passed: false,
             actual,
-            expected
+            expected,
           });
         }
       } else {
@@ -151,7 +154,7 @@ export class Diagnostic<TC extends TestContext> {
           stack: '',
           passed: false,
           actual,
-          expected
+          expected,
         });
       }
     } else {
@@ -160,7 +163,7 @@ export class Diagnostic<TC extends TestContext> {
         stack: '',
         passed: true,
         actual: true,
-        expected: true
+        expected: true,
       });
     }
   }
@@ -201,7 +204,7 @@ export class Diagnostic<TC extends TestContext> {
         stack: '',
         passed: false,
         actual: false,
-        expected: true
+        expected: true,
       });
     }
     if (this.__report.result.diagnostics.length === 0) {
@@ -210,7 +213,7 @@ export class Diagnostic<TC extends TestContext> {
         stack: '',
         passed: false,
         actual: false,
-        expected: true
+        expected: true,
       });
     }
     if (this._steps.length) {
@@ -219,7 +222,7 @@ export class Diagnostic<TC extends TestContext> {
         stack: '',
         passed: false,
         actual: false,
-        expected: true
+        expected: true,
       });
     }
   }
@@ -236,23 +239,26 @@ export class Diagnostic<TC extends TestContext> {
         throw new Error(`Expected function to throw ${expected}`);
       }
 
-      return resolved.then(() => {
-        throw new Error(`Expected function to throw ${expected}`);
-      }, (err) => {
-        if (expected) {
-          if (typeof expected === 'string') {
-            this.equal(err.message, expected, message);
-          } else {
-            this.equal(expected.test(err.message), true, message);
+      return resolved.then(
+        () => {
+          throw new Error(`Expected function to throw ${expected}`);
+        },
+        (err: Error | string) => {
+          if (expected) {
+            if (typeof expected === 'string') {
+              this.equal(typeof err === 'string' ? err : err.message, expected, message);
+            } else {
+              this.equal(typeof err === 'string' ? err : expected.test(err.message), true, message);
+            }
           }
         }
-      });
+      );
     } catch (err) {
       if (expected) {
         if (typeof expected === 'string') {
           this.equal(err instanceof Error ? err.message : err, expected, message);
         } else {
-          this.equal(expected.test(err instanceof Error ? err.message : err as string), true, message);
+          this.equal(expected.test(err instanceof Error ? err.message : (err as string)), true, message);
         }
       }
     }
@@ -270,23 +276,26 @@ export class Diagnostic<TC extends TestContext> {
         return;
       }
 
-      return resolved.then(() => {
-        return;
-      }, (err) => {
-        if (expected) {
-          if (typeof expected === 'string') {
-            this.equal(err.message, expected, message);
-          } else {
-            this.equal(expected.test(err.message), true, message);
+      return resolved.then(
+        () => {
+          return;
+        },
+        (err: Error | string) => {
+          if (expected) {
+            if (typeof expected === 'string') {
+              this.equal(typeof err === 'string' ? err : err.message, expected, message);
+            } else {
+              this.equal(expected.test(typeof err === 'string' ? err : err.message), true, message);
+            }
           }
         }
-      });
+      );
     } catch (err) {
       if (expected) {
         if (typeof expected === 'string') {
           this.equal(err instanceof Error ? err.message : err, expected, message);
         } else {
-          this.equal(expected.test(err instanceof Error ? err.message : err as string), true, message);
+          this.equal(expected.test(err instanceof Error ? err.message : (err as string)), true, message);
         }
       }
     }

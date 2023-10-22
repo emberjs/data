@@ -1,6 +1,6 @@
 import { assert } from '@ember/debug';
 
-import type { StableRecordIdentifier, StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 
 import type { CacheCapabilitiesManager as StoreWrapper } from '../../-types/q/cache-store-wrapper';
 import { SchemaService } from '../../-types/q/schema-service';
@@ -55,7 +55,7 @@ export class CacheCapabilitiesManager implements StoreWrapper {
       return;
     }
 
-    let pending = this._pendingNotifies;
+    const pending = this._pendingNotifies;
     this._pendingNotifies = new Map();
     this._willNotify = false;
 

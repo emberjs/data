@@ -1,10 +1,9 @@
-import { SuiteReport } from "./-types/report";
-
+import { SuiteReport } from './-types/report';
 
 export type CompatTestReport = {
   id: number;
   name: string;
-  items: { passed: boolean; message: string; }[];
+  items: { passed: boolean; message: string }[];
   failed: number;
   passed: number;
   total: number;
@@ -12,7 +11,7 @@ export type CompatTestReport = {
   skipped: boolean;
   todo: boolean;
   testId: string;
-}
+};
 
 export interface Emitter {
   emit(name: 'suite-start', data: SuiteReport): void;
@@ -25,7 +24,7 @@ export type ParamConfig = {
   id: string;
   label: string;
   value: boolean;
-}
+};
 
 export type GlobalHooksStorage<TC extends TestContext> = {
   onSuiteStart: GlobalCallback[];
@@ -34,10 +33,20 @@ export type GlobalHooksStorage<TC extends TestContext> = {
   afterModule: GlobalCallback[];
   beforeEach: HooksCallback<TC>[];
   afterEach: HooksCallback<TC>[];
-}
+};
 
-export type GlobalConfig<TC extends TestContext = TestContext> =  {
-  params: { [key in 'concurrency' | 'tryCatch' | 'instrument' | 'hideReport' | 'memory' | 'groupLogs' | 'debug' | 'container']: ParamConfig };
+export type GlobalConfig<TC extends TestContext = TestContext> = {
+  params: {
+    [key in
+      | 'concurrency'
+      | 'tryCatch'
+      | 'instrument'
+      | 'hideReport'
+      | 'memory'
+      | 'groupLogs'
+      | 'debug'
+      | 'container']: ParamConfig;
+  };
   _current: SuiteReport | null;
   useTestem: boolean;
   useDiagnostic: boolean;
@@ -49,7 +58,7 @@ export type GlobalConfig<TC extends TestContext = TestContext> =  {
     modules: number;
     skipped: number;
     todo: number;
-  }
+  };
 };
 
 export interface Diagnostic {
@@ -70,7 +79,6 @@ export interface Diagnostic {
   verifySteps(steps: string[], message?: string): void;
 }
 
-
 export interface TestContext {}
 
 export type GlobalCallback = () => void | Promise<void>;
@@ -87,7 +95,7 @@ export interface GlobalHooks<TC extends TestContext> extends Hooks<TC> {
 }
 
 export type HooksCallback<TC extends TestContext> = (this: TC, assert: Diagnostic) => void | Promise<void>;
-export type ModuleCallback<TC extends TestContext> = ((hooks: Hooks<TC>) => void | Promise<void>) | (() => void | Promise<void>);
+export type ModuleCallback<TC extends TestContext> = ((hooks: Hooks<TC>) => void) | (() => void);
 export type TestCallback<TC extends TestContext> = (this: TC, assert: Diagnostic) => void | Promise<void>;
 
 export interface TestInfo<TC extends TestContext> {
@@ -113,7 +121,7 @@ export interface ModuleInfo<TC extends TestContext> {
     afterEach: HooksCallback<TC>[];
     beforeModule: GlobalCallback[];
     afterModule: GlobalCallback[];
-  },
+  };
   tests: OrderedMap<TestInfo<TC>>;
   modules: OrderedMap<ModuleInfo<TC>>;
 }

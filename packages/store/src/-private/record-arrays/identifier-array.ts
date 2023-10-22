@@ -3,10 +3,6 @@
 */
 import { assert } from '@ember/debug';
 
-import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
-import type { Links, PaginationLinks } from '@warp-drive/core-types/spec/raw';
-import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
-
 import { compat } from '@ember-data/tracking';
 import {
   addToTransaction,
@@ -16,6 +12,9 @@ import {
   Signal,
   subscribe,
 } from '@ember-data/tracking/-private';
+import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
+import type { Links, PaginationLinks } from '@warp-drive/core-types/spec/raw';
 
 import type { RecordInstance } from '../../-types/q/record-instance';
 import { recordIdentifierFor } from '../caches/instance-cache';
@@ -225,7 +224,7 @@ class IdentifierArray {
 
     const proxy = new Proxy<StableRecordIdentifier[], RecordInstance[]>(this[SOURCE], {
       get<R extends IdentifierArray>(target: StableRecordIdentifier[], prop: keyof R, receiver: R): unknown {
-        let index = convertToInt(prop);
+        const index = convertToInt(prop);
         if (_SIGNAL.shouldReset && (index !== null || SYNC_PROPS.has(prop) || isArrayGetter(prop))) {
           options.manager._syncArray(receiver);
           _SIGNAL.t = false;
@@ -252,7 +251,7 @@ class IdentifierArray {
               fn = function () {
                 subscribe(_SIGNAL);
                 transaction = true;
-                let result = safeForEach(receiver, target, store, arguments[0] as ForEachCB, arguments[1]);
+                const result = safeForEach(receiver, target, store, arguments[0] as ForEachCB, arguments[1]);
                 transaction = false;
                 return result;
               };
@@ -262,7 +261,7 @@ class IdentifierArray {
                 // array functions must run through Reflect to work properly
                 // binding via other means will not work.
                 transaction = true;
-                let result = Reflect.apply(target[prop] as ProxiedMethod, receiver, arguments) as unknown;
+                const result = Reflect.apply(target[prop] as ProxiedMethod, receiver, arguments) as unknown;
                 transaction = false;
                 return result;
               };
@@ -288,7 +287,7 @@ class IdentifierArray {
               const args: unknown[] = Array.prototype.slice.call(arguments);
               assert(`Cannot start a new array transaction while a previous transaction is underway`, !transaction);
               transaction = true;
-              let result: unknown = Reflect.apply(target[prop] as ProxiedMethod, receiver, args);
+              const result: unknown = Reflect.apply(target[prop] as ProxiedMethod, receiver, args);
               self[MUTATE]!(prop as string, args, result);
               addToTransaction(_SIGNAL);
               // TODO handle cache updates
@@ -310,7 +309,7 @@ class IdentifierArray {
           let fn = boundFns.get(prop);
           if (fn) return fn;
 
-          let outcome: unknown = self[prop];
+          const outcome: unknown = self[prop];
 
           if (typeof outcome === 'function') {
             fn = function () {
@@ -353,7 +352,7 @@ class IdentifierArray {
           PrivateState.meta = (value || null) as Record<string, unknown> | null;
           return true;
         }
-        let index = convertToInt(prop);
+        const index = convertToInt(prop);
 
         if (index === null || index > target.length) {
           if (isSelfProp(self, prop)) {
@@ -368,8 +367,8 @@ class IdentifierArray {
           return false;
         }
 
-        let original: StableRecordIdentifier | undefined = target[index];
-        let newIdentifier = extractIdentifierFromRecord(value);
+        const original: StableRecordIdentifier | undefined = target[index];
+        const newIdentifier = extractIdentifierFromRecord(value);
         (target as unknown as Record<KeyType, unknown>)[index] = newIdentifier;
         if (!transaction) {
           self[MUTATE]!('replace cell', [index, original, newIdentifier]);
@@ -426,7 +425,7 @@ class IdentifierArray {
 
     this.isUpdating = true;
 
-    let updatingPromise = this._update();
+    const updatingPromise = this._update();
     void updatingPromise.finally(() => {
       this._updatingPromise = null;
       if (this.isDestroying || this.isDestroyed) {
@@ -468,7 +467,7 @@ class IdentifierArray {
     @return {Promise<IdentifierArray>} promise
   */
   save(): Promise<IdentifierArray> {
-    let promise = Promise.all(this.map((record) => this.store.saveRecord(record))).then(() => this);
+    const promise = Promise.all(this.map((record) => this.store.saveRecord(record))).then(() => this);
 
     return promise;
   }

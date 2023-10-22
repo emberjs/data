@@ -24,13 +24,13 @@ function _determineContent(response: Response, requestData: JQueryAjaxSettings, 
     return payload;
   }
 
-  let status = response.status;
-  let payloadIsEmpty = payload === '' || payload === null;
-  let statusIndicatesEmptyResponse = status === 204 || status === 205 || requestData.method === 'HEAD';
+  const status = response.status;
+  const payloadIsEmpty = payload === '' || payload === null;
+  const statusIndicatesEmptyResponse = status === 204 || status === 205 || requestData.method === 'HEAD';
 
   if (DEBUG) {
     if (payloadIsEmpty && !statusIndicatesEmptyResponse) {
-      let message = `The server returned an empty string for ${requestData.method} ${requestData.url}, which cannot be parsed into a valid JSON. Return either null or {}.`;
+      const message = `The server returned an empty string for ${requestData.method} ${requestData.url}, which cannot be parsed into a valid JSON. Return either null or {}.`;
       if (payload === '') {
         warn(message, {
           id: 'ds.adapter.returned-empty-string-as-JSON',

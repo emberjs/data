@@ -8,8 +8,8 @@ import { normalizeResponseHelper } from './serializer-response';
 export function _findHasMany(adapter, store, identifier, link, relationship, options) {
   let promise = Promise.resolve().then(() => {
     const snapshot = store._fetchManager.createSnapshot(identifier, options);
-    let useLink = !link || typeof link === 'string';
-    let relatedLink = useLink ? link : link.href;
+    const useLink = !link || typeof link === 'string';
+    const relatedLink = useLink ? link : link.href;
     return adapter.findHasMany(store, snapshot, relatedLink, relationship);
   });
 
@@ -21,7 +21,7 @@ export function _findHasMany(adapter, store, identifier, link, relationship, opt
       );
       const modelClass = store.modelFor(relationship.type);
 
-      let serializer = store.serializerFor(relationship.type);
+      const serializer = store.serializerFor(relationship.type);
       let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findHasMany');
 
       assert(
@@ -41,22 +41,22 @@ export function _findHasMany(adapter, store, identifier, link, relationship, opt
 
 export function _findBelongsTo(store, identifier, link, relationship, options) {
   let promise = Promise.resolve().then(() => {
-    let adapter = store.adapterFor(identifier.type);
+    const adapter = store.adapterFor(identifier.type);
     assert(`You tried to load a belongsTo relationship but you have no adapter (for ${identifier.type})`, adapter);
     assert(
       `You tried to load a belongsTo relationship from a specified 'link' in the original payload but your adapter does not implement 'findBelongsTo'`,
       typeof adapter.findBelongsTo === 'function'
     );
-    let snapshot = store._fetchManager.createSnapshot(identifier, options);
-    let useLink = !link || typeof link === 'string';
-    let relatedLink = useLink ? link : link.href;
+    const snapshot = store._fetchManager.createSnapshot(identifier, options);
+    const useLink = !link || typeof link === 'string';
+    const relatedLink = useLink ? link : link.href;
     return adapter.findBelongsTo(store, snapshot, relatedLink, relationship);
   });
 
   promise = promise.then(
     (adapterPayload) => {
-      let modelClass = store.modelFor(relationship.type);
-      let serializer = store.serializerFor(relationship.type);
+      const modelClass = store.modelFor(relationship.type);
+      const serializer = store.serializerFor(relationship.type);
       let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findBelongsTo');
 
       assert(
@@ -89,7 +89,7 @@ export function _findBelongsTo(store, identifier, link, relationship, options) {
 function syncRelationshipDataFromLink(store, payload, parentIdentifier, relationship) {
   // ensure the right hand side (incoming payload) points to the parent record that
   // requested this relationship
-  let relationshipData = payload.data
+  const relationshipData = payload.data
     ? iterateData(payload.data, (data, index) => {
         const { id, type } = data;
         ensureRelationshipIsSetToParent(data, parentIdentifier, store, relationship, index);
@@ -128,41 +128,41 @@ function syncRelationshipDataFromLink(store, payload, parentIdentifier, relation
 }
 
 function ensureRelationshipIsSetToParent(payload, parentIdentifier, store, parentRelationship, index) {
-  let { id, type } = payload;
+  const { id, type } = payload;
 
   if (!payload.relationships) {
     payload.relationships = {};
   }
-  let { relationships } = payload;
+  const { relationships } = payload;
 
-  let inverse = getInverse(store, parentIdentifier, parentRelationship, type);
+  const inverse = getInverse(store, parentIdentifier, parentRelationship, type);
   if (inverse) {
-    let { inverseKey, kind } = inverse;
+    const { inverseKey, kind } = inverse;
 
-    let relationshipData = relationships[inverseKey] && relationships[inverseKey].data;
+    const relationshipData = relationships[inverseKey] && relationships[inverseKey].data;
 
     if (DEBUG) {
       if (
         typeof relationshipData !== 'undefined' &&
         !relationshipDataPointsToParent(relationshipData, parentIdentifier)
       ) {
-        let inspect = function inspect(thing) {
+        const inspect = function inspect(thing) {
           return `'${JSON.stringify(thing)}'`;
         };
-        let quotedType = inspect(type);
-        let quotedInverse = inspect(inverseKey);
-        let expected = inspect({
+        const quotedType = inspect(type);
+        const quotedInverse = inspect(inverseKey);
+        const expected = inspect({
           id: parentIdentifier.id,
           type: parentIdentifier.type,
         });
-        let expectedModel = `${parentIdentifier.type}:${parentIdentifier.id}`;
-        let got = inspect(relationshipData);
-        let prefix = typeof index === 'number' ? `data[${index}]` : `data`;
-        let path = `${prefix}.relationships.${inverseKey}.data`;
-        let other = relationshipData ? `<${relationshipData.type}:${relationshipData.id}>` : null;
-        let relationshipFetched = `${expectedModel}.${parentRelationship.kind}("${parentRelationship.name}")`;
-        let includedRecord = `<${type}:${id}>`;
-        let message = [
+        const expectedModel = `${parentIdentifier.type}:${parentIdentifier.id}`;
+        const got = inspect(relationshipData);
+        const prefix = typeof index === 'number' ? `data[${index}]` : `data`;
+        const path = `${prefix}.relationships.${inverseKey}.data`;
+        const other = relationshipData ? `<${relationshipData.type}:${relationshipData.id}>` : null;
+        const relationshipFetched = `${expectedModel}.${parentRelationship.kind}("${parentRelationship.name}")`;
+        const includedRecord = `<${type}:${id}>`;
+        const message = [
           `Encountered mismatched relationship: Ember Data expected ${path} in the payload from ${relationshipFetched} to include ${expected} but got ${got} instead.\n`,
           `The ${includedRecord} record loaded at ${prefix} in the payload specified ${other} as its ${quotedInverse}, but should have specified ${expectedModel} (the record the relationship is being loaded from) as its ${quotedInverse} instead.`,
           `This could mean that the response for ${relationshipFetched} may have accidentally returned ${quotedType} records that aren't related to ${expectedModel} and could be related to a different ${parentIdentifier.type} record instead.`,
@@ -196,13 +196,13 @@ function inverseForRelationship(store, identifier, key) {
 }
 
 function getInverse(store, parentIdentifier, parentRelationship, type) {
-  let { name: lhs_relationshipName } = parentRelationship;
-  let { type: parentType } = parentIdentifier;
-  let inverseKey = inverseForRelationship(store, { type: parentType }, lhs_relationshipName);
+  const { name: lhs_relationshipName } = parentRelationship;
+  const { type: parentType } = parentIdentifier;
+  const inverseKey = inverseForRelationship(store, { type: parentType }, lhs_relationshipName);
 
   if (inverseKey) {
     const definition = store.getSchemaDefinitionService().relationshipsDefinitionFor({ type });
-    let { kind } = definition[inverseKey];
+    const { kind } = definition[inverseKey];
     return {
       inverseKey,
       kind,
@@ -220,7 +220,7 @@ function relationshipDataPointsToParent(relationshipData, identifier) {
       return false;
     }
     for (let i = 0; i < relationshipData.length; i++) {
-      let entry = relationshipData[i];
+      const entry = relationshipData[i];
       if (validateRelationshipEntry(entry, identifier)) {
         return true;
       }
@@ -233,7 +233,7 @@ function relationshipDataPointsToParent(relationshipData, identifier) {
 }
 
 function fixRelationshipData(relationshipData, relationshipKind, { id, type }) {
-  let parentRelationshipData = {
+  const parentRelationshipData = {
     id,
     type,
   };
@@ -246,7 +246,7 @@ function fixRelationshipData(relationshipData, relationshipKind, { id, type }) {
       // these arrays could be massive so this is better than filter
       // Note: this is potentially problematic if type/id are not in the
       // same state of normalization.
-      let found = relationshipData.find((v) => {
+      const found = relationshipData.find((v) => {
         return v.type === parentRelationshipData.type && v.id === parentRelationshipData.id;
       });
       if (!found) {

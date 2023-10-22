@@ -30,7 +30,7 @@ type Transaction = {
 let TRANSACTION: Transaction | null = null;
 
 function createTransaction() {
-  let transaction: Transaction = {
+  const transaction: Transaction = {
     cbs: new Set(),
     props: new Set(),
     sub: new Set(),
@@ -140,7 +140,7 @@ function updateRef(obj: Tag | Signal): void {
 }
 
 function flushTransaction() {
-  let transaction = TRANSACTION!;
+  const transaction = TRANSACTION!;
   TRANSACTION = transaction.parent;
   transaction.cbs.forEach((cb) => {
     cb();
@@ -164,7 +164,7 @@ function flushTransaction() {
   });
 }
 async function untrack() {
-  let transaction = TRANSACTION!;
+  const transaction = TRANSACTION!;
   TRANSACTION = transaction.parent;
 
   // defer writes

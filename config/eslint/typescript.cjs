@@ -1,5 +1,5 @@
-function rules() {
-  return {
+function rules(config) {
+  return Object.assign({
     '@typescript-eslint/no-explicit-any': 'error',
     '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
     '@typescript-eslint/prefer-includes': 'error',
@@ -18,7 +18,7 @@ function rules() {
     'no-throw-literal': 'off',
     '@typescript-eslint/no-throw-literal': 'error',
     // '@typescript-eslint/prefer-readonly-parameter-types': 'error',
-  };
+  }, config?.rules ?? {});
 }
 
 function plugins() {
@@ -43,14 +43,14 @@ function settings() {
   }
 }
 
-function defaults() {
+function defaults(config) {
   return {
-    files: ['**/*.ts'],
+    files: config?.files || ['**/*.ts'],
     ...settings(),
-    rules: rules(),
+    rules: rules(config),
     plugins: plugins(),
     extends: extend(),
-  }
+  };
 }
 
 module.exports = {

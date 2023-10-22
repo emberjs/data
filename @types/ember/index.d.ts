@@ -1,1 +1,0 @@
-import 'ember-source/types';

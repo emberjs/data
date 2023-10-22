@@ -1,6 +1,14 @@
-/* global emit, Testem */
-import { assert } from "../-utils";
-import { GlobalHooks, GlobalCallback, TestContext, HooksCallback, GlobalConfig, ModuleInfo, ParamConfig } from "../-types";
+/* global Testem */
+import {
+  GlobalCallback,
+  GlobalConfig,
+  GlobalHooks,
+  HooksCallback,
+  ModuleInfo,
+  ParamConfig,
+  TestContext,
+} from '../-types';
+import { assert } from '../-utils';
 
 export const Config: GlobalConfig = {
   globalHooks: {
@@ -9,7 +17,7 @@ export const Config: GlobalConfig = {
     beforeModule: [],
     afterModule: [],
     onSuiteStart: [],
-    onSuiteFinish: []
+    onSuiteFinish: [],
   },
   // @ts-expect-error
   useTestem: typeof Testem !== 'undefined',
@@ -20,42 +28,42 @@ export const Config: GlobalConfig = {
     hideReport: {
       id: 'hideReport',
       label: 'Hide Report',
-      value: true
+      value: true,
     },
     concurrency: {
       id: 'concurrency',
       label: 'Enable Concurrency',
-      value: false
+      value: false,
     },
     memory: {
       id: 'memory',
       label: 'Instrument Memory',
-      value: false
+      value: false,
     },
     instrument: {
       id: 'performance',
       label: 'Instrument Performance',
-      value: true
+      value: true,
     },
     groupLogs: {
       id: 'groupLogs',
       label: 'Group Logs',
-      value: true
+      value: true,
     },
     debug: {
       id: 'debug',
       label: 'Debug Mode',
-      value: false
+      value: false,
     },
     container: {
       id: 'container',
       label: 'Hide Container',
-      value: true
+      value: true,
     },
     tryCatch: {
       id: 'tryCatch',
       label: 'No Try/Catch',
-      value: true
+      value: true,
     },
   },
   totals: {
@@ -66,7 +74,7 @@ export const Config: GlobalConfig = {
     todo: 0,
   },
   _current: null,
-}
+};
 
 let currentModule: ModuleInfo<TestContext>;
 let isResolvingGlobalHooks = false;
@@ -111,7 +119,7 @@ export const HooksDelegate = {
     assert(`Cannot add a global onSuiteFinish hook inside of a module`, isResolvingGlobalHooks);
     Config.globalHooks.onSuiteFinish.push(cb);
   },
-}
+};
 
 export function getCurrentModule<TC extends TestContext>(): ModuleInfo<TC> {
   return currentModule;
@@ -141,10 +149,21 @@ export type ConfigOptions = {
   useTestem: boolean;
   useDiagnostic: boolean;
 };
-const configOptions = ['concurrency', 'tryCatch', 'instrument', 'hideReport', 'memory', 'groupLogs', 'debug', 'container'] as const;
+const configOptions = [
+  'concurrency',
+  'tryCatch',
+  'instrument',
+  'hideReport',
+  'memory',
+  'groupLogs',
+  'debug',
+  'container',
+] as const;
 export function configure(options: ConfigOptions): void {
   if (options.useTestem && options.useDiagnostic) {
-    throw new Error(`Cannot use both Testem and Diagnostic at the same time. Please remove one of these options or set it to false.`);
+    throw new Error(
+      `Cannot use both Testem and Diagnostic at the same time. Please remove one of these options or set it to false.`
+    );
   }
   if ('useTestem' in options && typeof options.useTestem === 'boolean') {
     Config.useTestem = options.useTestem;
@@ -160,7 +179,7 @@ export function configure(options: ConfigOptions): void {
     // @ts-expect-error
     options.concurrency = options.concurrency > 1;
   }
-  configOptions.forEach(key => {
+  configOptions.forEach((key) => {
     if (key in options && typeof options[key] === 'boolean') {
       Config.params[key].value = options[key] as boolean;
     }
@@ -180,7 +199,7 @@ export function getSettings() {
     useDiagnostic: Config.useDiagnostic,
     concurrency: Config.concurrency,
     params: Config.params,
-  }
+  };
 }
 
 export function instrument() {

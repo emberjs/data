@@ -1,8 +1,11 @@
+import type { CollectionRelationship, ResourceRelationship } from './cache/relationship';
 import type { StableRecordIdentifier } from './identifier';
 import type { CollectionResourceRelationship, SingleResourceRelationship } from './spec/raw';
 
 export interface Graph {
   identifiers: Map<StableRecordIdentifier, unknown>;
+
+  getData(identifier: StableRecordIdentifier, field: string): ResourceRelationship | CollectionRelationship;
 
   remove(identifier: StableRecordIdentifier): void;
   registerPolymorphicType(abstract: string, concrete: string): void;

@@ -1,11 +1,10 @@
 import { assert } from '@ember/debug';
 
+import { defineSignal } from '@ember-data/tracking/-private';
+import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type { RequestInfo } from '@warp-drive/core-types/request';
 import type { Link, PaginationLinks } from '@warp-drive/core-types/spec/raw';
 
-import type { RequestInfo } from '@warp-drive/core-types/request';
-import { defineSignal } from '@ember-data/tracking/-private';
-
-import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type Store from './store-service';
 
 function urlFromLink(link: Link): string {

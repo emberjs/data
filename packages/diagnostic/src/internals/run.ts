@@ -1,11 +1,16 @@
-import { getChain } from "../-utils";
-import { ModuleInfo, HooksCallback, TestInfo, TestContext, } from "../-types";
-import { TestReport, ModuleReport } from "../-types/report";
-import { Diagnostic } from "./diagnostic";
-import { Config, groupLogs, instrument } from "./config";
-import { DelegatingReporter } from "./delegating-reporter";
+import { HooksCallback, ModuleInfo, TestContext, TestInfo } from '../-types';
+import { ModuleReport, TestReport } from '../-types/report';
+import { getChain } from '../-utils';
+import { Config, groupLogs, instrument } from './config';
+import { DelegatingReporter } from './delegating-reporter';
+import { Diagnostic } from './diagnostic';
 
-export async function runTest<TC extends TestContext>(moduleReport: ModuleReport, beforeChain: HooksCallback<TC>[], test: TestInfo<TC>, afterChain: HooksCallback<TC>[]) {
+export async function runTest<TC extends TestContext>(
+  moduleReport: ModuleReport,
+  beforeChain: HooksCallback<TC>[],
+  test: TestInfo<TC>,
+  afterChain: HooksCallback<TC>[]
+) {
   const testContext = {} as TC;
   const testReport: TestReport = {
     id: test.id,
@@ -21,7 +26,7 @@ export async function runTest<TC extends TestContext>(moduleReport: ModuleReport
       failed: false,
     },
     module: moduleReport,
-  }
+  };
   testReport.start = instrument() && performance.mark(`test:${test.module.moduleName} > ${test.name}:start`);
   const Assert = new Diagnostic(DelegatingReporter, Config, test, testReport);
 
@@ -31,7 +36,9 @@ export async function runTest<TC extends TestContext>(moduleReport: ModuleReport
   if (test.skip) {
     groupLogs() && console.groupEnd();
     testReport.end = instrument() && performance.mark(`test:${test.module.moduleName} > ${test.name}:end`);
-    testReport.measure = instrument() && performance.measure(`test:${test.module.moduleName} > ${test.name}`, testReport.start.name, testReport.end.name);
+    testReport.measure =
+      instrument() &&
+      performance.measure(`test:${test.module.moduleName} > ${test.name}`, testReport.start.name, testReport.end.name);
 
     DelegatingReporter.onTestFinish(testReport);
     return;
@@ -63,12 +70,18 @@ export async function runTest<TC extends TestContext>(moduleReport: ModuleReport
 
   groupLogs() && console.groupEnd();
   testReport.end = instrument() && performance.mark(`test:${test.module.moduleName} > ${test.name}:end`);
-  testReport.measure = instrument() && performance.measure(`test:${test.module.moduleName} > ${test.name}`, testReport.start.name, testReport.end.name);
+  testReport.measure =
+    instrument() &&
+    performance.measure(`test:${test.module.moduleName} > ${test.name}`, testReport.start.name, testReport.end.name);
 
   DelegatingReporter.onTestFinish(testReport);
 }
 
-export async function runModule<TC extends TestContext>(module: ModuleInfo<TC>, parents: ModuleInfo<TC>[] | null, promises: Promise<void>[]) {
+export async function runModule<TC extends TestContext>(
+  module: ModuleInfo<TC>,
+  parents: ModuleInfo<TC>[] | null,
+  promises: Promise<void>[]
+) {
   groupLogs() && console.groupCollapsed(module.name);
   const moduleReport: ModuleReport = {
     name: module.moduleName,
@@ -77,7 +90,7 @@ export async function runModule<TC extends TestContext>(module: ModuleInfo<TC>, 
     measure: null,
     passed: true,
     failed: false,
-  }
+  };
   moduleReport.start = instrument() && performance.mark(`module:${module.moduleName}:start`);
 
   DelegatingReporter.onModuleStart(moduleReport);
@@ -106,11 +119,10 @@ export async function runModule<TC extends TestContext>(module: ModuleInfo<TC>, 
       for (let i = 0; i < available; i++) {
         const test = tests[currentTest++]!;
         remainingTests--;
-        const promise = runTest(moduleReport, beforeChain, test, afterChain)
-          .finally(() => {
-            const index = promises.indexOf(promise);
-            promises.splice(index, 1);
-          });
+        const promise = runTest(moduleReport, beforeChain, test, afterChain).finally(() => {
+          const index = promises.indexOf(promise);
+          promises.splice(index, 1);
+        });
         promises.push(promise);
       }
 
@@ -123,8 +135,6 @@ export async function runModule<TC extends TestContext>(module: ModuleInfo<TC>, 
       await runTest(moduleReport, beforeChain, test, afterChain);
     }
   }
-
-
 
   // run modules
   for (const childModule of module.modules.byOrder) {
@@ -140,6 +150,7 @@ export async function runModule<TC extends TestContext>(module: ModuleInfo<TC>, 
   }
   groupLogs() && console.groupEnd();
   moduleReport.end = instrument() && performance.mark(`module:${module.moduleName}:end`);
-  moduleReport.measure = instrument() && performance.measure(`module:${module.moduleName}`, moduleReport.start.name, moduleReport.end.name);
+  moduleReport.measure =
+    instrument() && performance.measure(`module:${module.moduleName}`, moduleReport.start.name, moduleReport.end.name);
   DelegatingReporter.onModuleFinish(moduleReport);
 }

@@ -1,16 +1,14 @@
-import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
-import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
-import type { CollectionResourceRelationship, SingleResourceRelationship } from '@warp-drive/core-types/spec/raw';
-
-import type { StructuredDataDocument, StructuredDocument } from '@warp-drive/core-types/request';
-
 import type { RelationshipDiff } from '@warp-drive/core-types/cache';
 import type { Change } from '@warp-drive/core-types/cache/change';
+import { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
+import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
+import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { StructuredDataDocument, StructuredDocument } from '@warp-drive/core-types/request';
 import type { ResourceDocument, SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
-import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type { ApiError } from '@warp-drive/core-types/spec/error';
+
 import type { Cache, ChangedAttributesHash, MergeOperation } from '../../-types/q/cache';
 import type { JsonApiResource } from '../../-types/q/record-data-json-api';
-import type { ApiError } from '@warp-drive/core-types/spec/error';
 import type { StoreRequestContext } from '../cache-handler';
 
 /**
@@ -480,7 +478,7 @@ export class CacheManager implements Cache {
   getRelationship(
     identifier: StableRecordIdentifier,
     propertyName: string
-  ): SingleResourceRelationship | CollectionResourceRelationship {
+  ): ResourceRelationship | CollectionRelationship {
     return this.#cache.getRelationship(identifier, propertyName);
   }
 

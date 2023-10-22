@@ -1,7 +1,6 @@
-/* global Testem */
-import { CompatTestReport, Emitter } from "../-types";
-import { DiagnosticReport, ModuleReport, Reporter, SuiteReport, TestReport } from "../-types/report";
-import { getSettings, updateConfigValue, updateSuiteState } from "../internals/config";
+import { CompatTestReport, Emitter } from '../-types';
+import { DiagnosticReport, ModuleReport, Reporter, SuiteReport, TestReport } from '../-types/report';
+import { getSettings, updateConfigValue, updateSuiteState } from '../internals/config';
 
 type SuiteLayout = {
   report: HTMLElement;
@@ -23,7 +22,7 @@ export class DOMReporter implements Reporter {
     diagnosticsPassed: number;
     modules: number;
     modulesPassed: number;
-  }
+  };
   declare _pendingUpdate: number | null;
   declare _socket: Emitter | null;
 
@@ -79,7 +78,7 @@ export class DOMReporter implements Reporter {
 
   onTestFinish(test: TestReport): void {
     this.stats.diagnostics += test.result.diagnostics.length;
-    this.stats.diagnosticsPassed += test.result.diagnostics.filter(d => d.passed).length;
+    this.stats.diagnosticsPassed += test.result.diagnostics.filter((d) => d.passed).length;
 
     if (this._socket) {
       const compatTestReport = this.currentTests.get(test.id)!;
@@ -91,7 +90,7 @@ export class DOMReporter implements Reporter {
       compatTestReport.todo = test.todo;
       compatTestReport.total = test.result.diagnostics.length;
       compatTestReport.runDuration = test.end!.startTime - test.start!.startTime;
-      compatTestReport.items = test.result.diagnostics.map(d => {
+      compatTestReport.items = test.result.diagnostics.map((d) => {
         // more expensive to serialize the whole diagnostic
         if (this.settings.params.debug.value) {
           return d;
@@ -278,8 +277,8 @@ function renderSuite(element: DocumentFragment, suiteReport: SuiteReport): Suite
     input.checked = value.value;
 
     function update() {
-        value.value = input.checked;
-        updateConfigValue(key, value.value);
+      value.value = input.checked;
+      updateConfigValue(key, value.value);
     }
 
     input.addEventListener('change', update);

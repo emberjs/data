@@ -1,4 +1,4 @@
-import { Reporter, SuiteReport } from "../-types/report";
+import { Reporter, SuiteReport } from '../-types/report';
 
 const Reporters = new Set<Reporter>();
 export function registerReporter(reporter: Reporter) {
@@ -42,7 +42,7 @@ export const DelegatingReporter: Reporter = {
     }
   },
   onModuleStart(report) {
-   for (const reporter of Reporters) {
+    for (const reporter of Reporters) {
       reporter.onModuleStart(report);
     }
   },
@@ -56,4 +56,4 @@ export const DelegatingReporter: Reporter = {
       reporter.onDiagnostic(report);
     }
   },
-}
+};

@@ -1,15 +1,12 @@
 import { assert } from '@ember/debug';
 
-import type { JsonApiDocument } from '@warp-drive/core-types/spec/raw';
-
 import { DEBUG } from '@ember-data/env';
-import type { AdapterPayload } from '@ember-data/legacy-compat/legacy-network-handler/minimum-adapter-interface';
-import type {
-  MinimumSerializerInterface,
-  RequestType,
-} from '@ember-data/legacy-compat/legacy-network-handler/minimum-serializer-interface';
 import type Store from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
+import type { JsonApiDocument } from '@warp-drive/core-types/spec/raw';
+
+import type { AdapterPayload } from './minimum-adapter-interface';
+import type { MinimumSerializerInterface, RequestType } from './minimum-serializer-interface';
 
 /**
   This is a helper method that validates a JSON API top-level document
@@ -21,7 +18,7 @@ import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
 */
 function validateDocumentStructure(doc?: AdapterPayload | JsonApiDocument): asserts doc is JsonApiDocument {
   if (DEBUG) {
-    let errors: string[] = [];
+    const errors: string[] = [];
     if (!doc || typeof doc !== 'object') {
       errors.push('Top level of a JSON API document must be an object');
     } else {
@@ -79,7 +76,7 @@ export function normalizeResponseHelper(
   id: string | null,
   requestType: RequestType
 ): JsonApiDocument {
-  let normalizedResponse = serializer
+  const normalizedResponse = serializer
     ? serializer.normalizeResponse(store, modelClass, payload, id, requestType)
     : payload;
 

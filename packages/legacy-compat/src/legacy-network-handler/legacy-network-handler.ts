@@ -1,8 +1,18 @@
 import { assert } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
+
+import { LOG_PAYLOADS } from '@ember-data/debugging';
+import { DEBUG, TESTING } from '@ember-data/env';
+import type { Future, Handler, NextFn, StructuredDataDocument } from '@ember-data/request';
+import type Store from '@ember-data/store';
+import type { StoreRequestContext, StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
+import type { Collection } from '@ember-data/store/-private/record-arrays/identifier-array';
+import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
+import type { JsonApiError } from '@ember-data/store/-types/q/record-data-json-api';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { RelationshipSchema } from '@warp-drive/core-types/schema';
+import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
 import type {
   CollectionResourceDocument,
   JsonApiDocument,
@@ -11,23 +21,13 @@ import type {
   SingleResourceDocument,
 } from '@warp-drive/core-types/spec/raw';
 
-import { LOG_PAYLOADS } from '@ember-data/debugging';
-import { DEBUG, TESTING } from '@ember-data/env';
-import type { MinimumAdapterInterface } from '@ember-data/legacy-compat/legacy-network-handler/minimum-adapter-interface';
-import type { MinimumSerializerInterface } from '@ember-data/legacy-compat/legacy-network-handler/minimum-serializer-interface';
-import type { Future, Handler, NextFn, StructuredDataDocument } from '@ember-data/request';
-import type Store from '@ember-data/store';
-import type { StoreRequestContext, StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
-import type { Collection } from '@ember-data/store/-private/record-arrays/identifier-array';
-import { SingleResourceDataDocument } from '@ember-data/store/-types/cache/document';
-import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
-import type { JsonApiError } from '@ember-data/store/-types/q/record-data-json-api';
-
 import { upgradeStore } from '../-private';
 import FetchManager, { SaveOp } from './fetch-manager';
 import { assertIdentifierHasId } from './identifier-has-id';
 import { _findBelongsTo, _findHasMany } from './legacy-data-fetch';
 import { payloadIsNotBlank } from './legacy-data-utils';
+import type { MinimumAdapterInterface } from './minimum-adapter-interface';
+import type { MinimumSerializerInterface } from './minimum-serializer-interface';
 import { normalizeResponseHelper } from './serializer-response';
 import type Snapshot from './snapshot';
 import SnapshotRecordArray from './snapshot-record-array';
@@ -100,13 +100,14 @@ function findBelongsTo<T>(context: StoreRequestContext): Promise<T> {
   upgradeStore(store);
 
   // short circuit if we are already loading
-  let pendingRequest =
+  const pendingRequest =
     identifier && store._fetchManager.getPendingFetch(identifier as StableExistingRecordIdentifier, options);
   if (pendingRequest) {
     return pendingRequest as Promise<T>;
   }
 
   if (useLink) {
+    assert(`Expected a related link when calling store.findBelongsTo, found ${String(links)}`, links && links.related);
     return _findBelongsTo(store, record, links.related, field, options) as Promise<T>;
   }
 
@@ -150,6 +151,7 @@ function findHasMany<T>(context: StoreRequestContext): Promise<T> {
       `You tried to load a hasMany relationship from a specified 'link' in the original payload but your adapter does not implement 'findHasMany'`,
       typeof adapter.findHasMany === 'function'
     );
+    assert(`Expected a related link when calling store.findhasMany, found ${String(links)}`, links && links.related);
 
     return _findHasMany(adapter, store, record, links.related, field, options) as Promise<T>;
   }
@@ -160,7 +162,7 @@ function findHasMany<T>(context: StoreRequestContext): Promise<T> {
   const manager = store._fetchManager;
 
   for (let i = 0; i < identifiers.length; i++) {
-    let identifier = identifiers[i];
+    const identifier = identifiers[i];
     // TODO we probably can be lenient here and return from cache for the isNew case
     assertIdentifierHasId(identifier);
     fetches[i] = options.reload
@@ -187,7 +189,7 @@ function saveRecord<T>(context: StoreRequestContext): Promise<T> {
     .then((payload) => {
       if (LOG_PAYLOADS) {
         try {
-          let payloadCopy: unknown = payload ? JSON.parse(JSON.stringify(payload)) : payload;
+          const payloadCopy: unknown = payload ? JSON.parse(JSON.stringify(payload)) : payload;
           // eslint-disable-next-line no-console
           console.log(`EmberData | Payload - ${operation}`, payloadCopy);
         } catch (e) {
@@ -221,15 +223,17 @@ function adapterDidInvalidate(
 ) {
   upgradeStore(store);
   if (error && error.isAdapterError === true && error.code === 'InvalidError') {
-    let serializer = store.serializerFor(identifier.type) as SerializerWithParseErrors;
+    const serializer = store.serializerFor(identifier.type) as SerializerWithParseErrors;
 
     // TODO @deprecate extractErrors being called
     // TODO remove extractErrors from the default serializers.
     if (serializer && typeof serializer.extractErrors === 'function') {
-      let errorsHash = serializer.extractErrors(store, store.modelFor(identifier.type), error, identifier.id) as Record<
-        string,
-        string | string[]
-      >;
+      const errorsHash = serializer.extractErrors(
+        store,
+        store.modelFor(identifier.type),
+        error,
+        identifier.id
+      ) as Record<string, string | string[]>;
       error.errors = errorsHashToArray(errorsHash);
     }
   }
@@ -263,7 +267,7 @@ function errorsHashToArray(errors: Record<string, string | string[]>): JsonApiEr
 
   if (errors) {
     Object.keys(errors).forEach((key) => {
-      let messages = makeArray(errors[key]);
+      const messages = makeArray(errors[key]);
       for (let i = 0; i < messages.length; i++) {
         let title = 'Invalid Attribute';
         let pointer = `/data/attributes/${key}`;
@@ -305,7 +309,7 @@ function findRecord<T>(context: StoreRequestContext): Promise<T> {
     promise = store._fetchManager.scheduleFetch(identifier, options, context.request);
   } else {
     let snapshot: Snapshot | null = null;
-    let adapter = store.adapterFor(identifier.type);
+    const adapter = store.adapterFor(identifier.type);
 
     // Refetch the record if the adapter thinks the record is stale
     if (
@@ -477,7 +481,7 @@ function query<T>(context: StoreRequestContext): Promise<T> {
     delete options._recordArray;
   }
   const schema = store.modelFor(type);
-  let promise = Promise.resolve().then(() => adapter.query(store, schema, query, recordArray, options));
+  const promise = Promise.resolve().then(() => adapter.query(store, schema, query, recordArray, options));
 
   return promise.then((adapterPayload) => {
     const serializer = store.serializerFor(type);
@@ -523,7 +527,7 @@ function queryRecord<T>(context: StoreRequestContext): Promise<T> {
   );
 
   const schema = store.modelFor(type);
-  let promise = Promise.resolve().then(() => adapter.queryRecord(store, schema, query, options)) as Promise<T>;
+  const promise = Promise.resolve().then(() => adapter.queryRecord(store, schema, query, options)) as Promise<T>;
 
   return promise.then((adapterPayload: T) => {
     const serializer = store.serializerFor(type);

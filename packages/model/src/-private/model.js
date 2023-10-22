@@ -36,17 +36,17 @@ export function lookupLegacySupport(record) {
 }
 
 function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
-  let possibleRelationships = relationshipsSoFar || [];
+  const possibleRelationships = relationshipsSoFar || [];
 
-  let relationshipMap = inverseType.relationships;
+  const relationshipMap = inverseType.relationships;
   if (!relationshipMap) {
     return possibleRelationships;
   }
 
-  let relationshipsForType = relationshipMap.get(type.modelName);
-  let relationships = Array.isArray(relationshipsForType)
+  const relationshipsForType = relationshipMap.get(type.modelName);
+  const relationships = Array.isArray(relationshipsForType)
     ? relationshipsForType.filter((relationship) => {
-        let optionsForRelationship = relationship.options;
+        const optionsForRelationship = relationship.options;
 
         if (!optionsForRelationship.inverse && optionsForRelationship.inverse !== null) {
           return true;
@@ -75,7 +75,7 @@ function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
  */
 function computeOnce(target, propertyName, desc) {
   const cache = new WeakMap();
-  let getter = desc.get;
+  const getter = desc.get;
   desc.get = function () {
     let meta = cache.get(this);
 
@@ -125,17 +125,17 @@ class Model extends EmberObject {
     options._createProps = null;
     options._secretInit = null;
 
-    let store = (this.store = _secretInit.store);
+    const store = (this.store = _secretInit.store);
     super.init(options);
 
-    let identity = _secretInit.identifier;
+    const identity = _secretInit.identifier;
     _secretInit.cb(this, _secretInit.cache, identity, _secretInit.store);
 
     this.___recordState = DEBUG ? new RecordState(this) : null;
 
     this.setProperties(createProps);
 
-    let notifications = store.notifications;
+    const notifications = store.notifications;
     this.___private_notifications = notifications.subscribe(identity, (identifier, type, field) => {
       notifyChanges(identifier, type, field, this, store);
     });
@@ -481,7 +481,7 @@ class Model extends EmberObject {
   set id(id) {
     const normalizedId = coerceId(id);
     const identifier = recordIdentifierFor(this);
-    let didChange = normalizedId !== identifier.id;
+    const didChange = normalizedId !== identifier.id;
     assert(
       `Cannot set ${identifier.type} record's id to ${id}, because id is already ${identifier.id}`,
       !didChange || identifier.id === null
@@ -582,7 +582,7 @@ class Model extends EmberObject {
   */
   @computeOnce
   get errors() {
-    let errors = Errors.create({ __record: this });
+    const errors = Errors.create({ __record: this });
     this.currentState.updateInvalidErrors(errors);
     return errors;
   }
@@ -1241,7 +1241,7 @@ class Model extends EmberObject {
       this.modelName
     );
 
-    let relationship = this.relationshipsByName.get(name);
+    const relationship = this.relationshipsByName.get(name);
     return relationship && store.modelFor(relationship.type);
   }
 
@@ -1292,11 +1292,11 @@ class Model extends EmberObject {
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
     );
-    let inverseMap = this.inverseMap;
+    const inverseMap = this.inverseMap;
     if (inverseMap[name]) {
       return inverseMap[name];
     } else {
-      let inverse = this._findInverseFor(name, store);
+      const inverse = this._findInverseFor(name, store);
       inverseMap[name] = inverse;
       return inverse;
     }
@@ -1327,7 +1327,7 @@ class Model extends EmberObject {
     }
 
     let fieldOnInverse, inverseKind, inverseRelationship, inverseOptions;
-    let inverseSchema = this.typeForRelationship(name, store);
+    const inverseSchema = this.typeForRelationship(name, store);
 
     // if the type does not exist and we are not polymorphic
     //If inverse is specified manually, return the inverse
@@ -1362,8 +1362,8 @@ class Model extends EmberObject {
       }
 
       if (DEBUG) {
-        let filteredRelationships = possibleRelationships.filter((possibleRelationship) => {
-          let optionsForRelationship = possibleRelationship.options;
+        const filteredRelationships = possibleRelationships.filter((possibleRelationship) => {
+          const optionsForRelationship = possibleRelationship.options;
           return name === optionsForRelationship.inverse;
         });
 
@@ -1379,7 +1379,7 @@ class Model extends EmberObject {
         );
       }
 
-      let explicitRelationship = possibleRelationships.find((relationship) => relationship.options.inverse === name);
+      const explicitRelationship = possibleRelationships.find((relationship) => relationship.options.inverse === name);
       if (explicitRelationship) {
         possibleRelationships = [explicitRelationship];
       }
@@ -1491,12 +1491,12 @@ class Model extends EmberObject {
       this.modelName
     );
 
-    let map = new Map();
-    let relationshipsByName = this.relationshipsByName;
+    const map = new Map();
+    const relationshipsByName = this.relationshipsByName;
 
     // Loop through each computed property on the class
     relationshipsByName.forEach((desc) => {
-      let { type } = desc;
+      const { type } = desc;
 
       if (!map.has(type)) {
         map.set(type, []);
@@ -1548,7 +1548,7 @@ class Model extends EmberObject {
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
     );
-    let names = {
+    const names = {
       hasMany: [],
       belongsTo: [],
     };
@@ -1602,17 +1602,17 @@ class Model extends EmberObject {
       this.modelName
     );
 
-    let types = [];
+    const types = [];
 
-    let rels = this.relationshipsObject;
-    let relationships = Object.keys(rels);
+    const rels = this.relationshipsObject;
+    const relationships = Object.keys(rels);
 
     // create an array of the unique types involved
     // in relationships
     for (let i = 0; i < relationships.length; i++) {
-      let name = relationships[i];
-      let meta = rels[name];
-      let modelName = meta.type;
+      const name = relationships[i];
+      const meta = rels[name];
+      const modelName = meta.type;
 
       if (types.indexOf(modelName) === -1) {
         types.push(modelName);
@@ -1664,13 +1664,13 @@ class Model extends EmberObject {
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
     );
-    let map = new Map();
-    let rels = this.relationshipsObject;
-    let relationships = Object.keys(rels);
+    const map = new Map();
+    const rels = this.relationshipsObject;
+    const relationships = Object.keys(rels);
 
     for (let i = 0; i < relationships.length; i++) {
-      let name = relationships[i];
-      let value = rels[name];
+      const name = relationships[i];
+      const value = rels[name];
 
       map.set(value.name, value);
     }
@@ -1685,8 +1685,8 @@ class Model extends EmberObject {
       this.modelName
     );
 
-    let relationships = Object.create(null);
-    let modelName = this.modelName;
+    const relationships = Object.create(null);
+    const modelName = this.modelName;
     this.eachComputedProperty((name, meta) => {
       if (meta.kind === 'hasMany' || meta.kind === 'belongsTo') {
         // TODO deprecate key being here
@@ -1751,7 +1751,7 @@ class Model extends EmberObject {
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
     );
-    let map = new Map();
+    const map = new Map();
 
     this.eachComputedProperty((name, meta) => {
       if (meta.kind === 'hasMany' || meta.kind === 'belongsTo') {
@@ -1804,10 +1804,10 @@ class Model extends EmberObject {
       this.modelName
     );
 
-    let relationshipTypes = this.relatedTypes;
+    const relationshipTypes = this.relatedTypes;
 
     for (let i = 0; i < relationshipTypes.length; i++) {
-      let type = relationshipTypes[i];
+      const type = relationshipTypes[i];
       callback.call(binding, type);
     }
   }
@@ -1818,18 +1818,17 @@ class Model extends EmberObject {
       this.modelName
     );
 
-    let knownKey = knownSide.name;
-    let knownKind = knownSide.kind;
-    let inverse = this.inverseFor(knownKey, store);
+    const knownKey = knownSide.name;
+    const knownKind = knownSide.kind;
+    const inverse = this.inverseFor(knownKey, store);
     // let key;
-    let otherKind;
 
     if (!inverse) {
       return knownKind === 'belongsTo' ? 'oneToNone' : 'manyToNone';
     }
 
     // key = inverse.name;
-    otherKind = inverse.kind;
+    const otherKind = inverse.kind;
 
     if (otherKind === 'belongsTo') {
       return knownKind === 'belongsTo' ? 'oneToOne' : 'manyToOne';
@@ -1883,7 +1882,7 @@ class Model extends EmberObject {
       this.modelName
     );
 
-    let map = new Map();
+    const map = new Map();
 
     this.eachComputedProperty((name, meta) => {
       if (meta.kind === 'attribute') {
@@ -1948,7 +1947,7 @@ class Model extends EmberObject {
       this.modelName
     );
 
-    let map = new Map();
+    const map = new Map();
 
     this.eachAttribute((name, meta) => {
       if (meta.type) {
@@ -2112,8 +2111,8 @@ if (HAS_DEBUG_PACKAGE) {
    @private
    */
   Model.prototype._debugInfo = function () {
-    let relationships = {};
-    let expensiveProperties = [];
+    const relationships = {};
+    const expensiveProperties = [];
 
     const identifier = recordIdentifierFor(this);
     const schema = this.store.getSchemaDefinitionService();
@@ -2123,7 +2122,7 @@ if (HAS_DEBUG_PACKAGE) {
     const attributes = Object.keys(attrDefs);
     attributes.unshift('id');
 
-    let groups = [
+    const groups = [
       {
         name: 'Attributes',
         properties: attributes,
@@ -2166,10 +2165,10 @@ if (HAS_DEBUG_PACKAGE) {
 }
 
 if (DEBUG) {
-  let lookupDescriptor = function lookupDescriptor(obj, keyName) {
+  const lookupDescriptor = function lookupDescriptor(obj, keyName) {
     let current = obj;
     do {
-      let descriptor = Object.getOwnPropertyDescriptor(current, keyName);
+      const descriptor = Object.getOwnPropertyDescriptor(current, keyName);
       if (descriptor !== undefined) {
         return descriptor;
       }
@@ -2182,9 +2181,9 @@ if (DEBUG) {
     init() {
       this._super(...arguments);
 
-      let ourDescriptor = lookupDescriptor(Model.prototype, 'currentState');
-      let theirDescriptor = lookupDescriptor(this, 'currentState');
-      let realState = this.___recordState;
+      const ourDescriptor = lookupDescriptor(Model.prototype, 'currentState');
+      const theirDescriptor = lookupDescriptor(this, 'currentState');
+      const realState = this.___recordState;
       if (ourDescriptor.get !== theirDescriptor.get || realState !== this.currentState) {
         throw new Error(
           `'currentState' is a reserved property name on instances of classes extending Model. Please choose a different property name for ${this.constructor.toString()}`
@@ -2192,7 +2191,7 @@ if (DEBUG) {
       }
 
       const ID_DESCRIPTOR = lookupDescriptor(Model.prototype, 'id');
-      let idDesc = lookupDescriptor(this, 'id');
+      const idDesc = lookupDescriptor(this, 'id');
 
       if (idDesc.get !== ID_DESCRIPTOR.get) {
         throw new Error(

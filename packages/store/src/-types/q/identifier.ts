@@ -2,10 +2,9 @@
   @module @ember-data/store
 */
 
+import { ImmutableRequestInfo } from '@ember-data/request';
 import { IdentifierBucket, StableIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { ExistingResourceObject, ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
-
-import { ImmutableRequestInfo } from '@ember-data/request';
 
 export type ResourceData = ResourceIdentifierObject | ExistingResourceObject;
 

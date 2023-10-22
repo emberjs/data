@@ -16,18 +16,17 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
-    "noEmit": true,
+    "noEmit": false,
     "noImplicitOverride": true,
-    "stripInternal": true,
 
     // Enable faster builds
     // but causes us to not rebuild properly
     "incremental": false,
 
-    // "declaration": true,
-    // "declarationMap": true,
-    // "declarationDir": "unstable-preview-types",
-    // "emitDeclarationOnly": true,
+    "declaration": true,
+    "declarationMap": true,
+    "declarationDir": "unstable-preview-types",
+    "emitDeclarationOnly": true,
     "inlineSourceMap": true,
     "inlineSources": true,
 

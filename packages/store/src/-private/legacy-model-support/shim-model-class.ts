@@ -27,7 +27,7 @@ export function getShimClass(store: Store, modelName: string): ShimModelClass<Ge
 
 function mapFromHash<K extends string, T>(hash: Record<K, T>): Map<K, T> {
   const map: Map<K, T> = new Map();
-  for (let i in hash) {
+  for (const i in hash) {
     if (Object.prototype.hasOwnProperty.call(hash, i)) {
       map.set(i, hash[i]);
     }
@@ -45,26 +45,30 @@ export default class ShimModelClass<T extends object> implements ModelSchema<T> 
   }
 
   get fields(): Map<keyof T & string, 'attribute' | 'belongsTo' | 'hasMany'> {
-    let attrs = this.__store.getSchemaDefinitionService().attributesDefinitionFor({ type: this.modelName });
-    let relationships = this.__store.getSchemaDefinitionService().relationshipsDefinitionFor({ type: this.modelName });
-    let fields = new Map<keyof T & string, 'attribute' | 'belongsTo' | 'hasMany'>();
+    const attrs = this.__store.getSchemaDefinitionService().attributesDefinitionFor({ type: this.modelName });
+    const relationships = this.__store
+      .getSchemaDefinitionService()
+      .relationshipsDefinitionFor({ type: this.modelName });
+    const fields = new Map<keyof T & string, 'attribute' | 'belongsTo' | 'hasMany'>();
     Object.keys(attrs).forEach((key) => fields.set(key as keyof T & string, 'attribute'));
     Object.keys(relationships).forEach((key) => fields.set(key as keyof T & string, relationships[key]!.kind));
     return fields;
   }
 
   get attributes(): Map<keyof T & string, AttributeSchema> {
-    let attrs = this.__store.getSchemaDefinitionService().attributesDefinitionFor({ type: this.modelName });
+    const attrs = this.__store.getSchemaDefinitionService().attributesDefinitionFor({ type: this.modelName });
     return mapFromHash(attrs as Record<keyof T & string, AttributeSchema>);
   }
 
   get relationshipsByName(): Map<keyof T & string, RelationshipSchema> {
-    let relationships = this.__store.getSchemaDefinitionService().relationshipsDefinitionFor({ type: this.modelName });
+    const relationships = this.__store
+      .getSchemaDefinitionService()
+      .relationshipsDefinitionFor({ type: this.modelName });
     return mapFromHash(relationships as Record<keyof T & string, RelationshipSchema>);
   }
 
   eachAttribute<K extends keyof T & string>(callback: (key: K, attribute: AttributeSchema) => void, binding?: T) {
-    let attrDefs = this.__store.getSchemaDefinitionService().attributesDefinitionFor({ type: this.modelName });
+    const attrDefs = this.__store.getSchemaDefinitionService().attributesDefinitionFor({ type: this.modelName });
     Object.keys(attrDefs).forEach((key) => {
       callback.call(binding, key as K, attrDefs[key]);
     });
@@ -74,7 +78,7 @@ export default class ShimModelClass<T extends object> implements ModelSchema<T> 
     callback: (key: K, relationship: RelationshipSchema) => void,
     binding?: T
   ) {
-    let relationshipDefs = this.__store
+    const relationshipDefs = this.__store
       .getSchemaDefinitionService()
       .relationshipsDefinitionFor({ type: this.modelName });
     Object.keys(relationshipDefs).forEach((key) => {

@@ -1,12 +1,12 @@
 import { assert } from '@ember/debug';
 
-import type { QueryParamsSerializationOptions, QueryParamsSource, Serializable } from '@warp-drive/core-types/params';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type { QueryParamsSerializationOptions, QueryParamsSource, Serializable } from '@warp-drive/core-types/params';
 
 type Store = {
-  cache: Cache
-}
+  cache: Cache;
+};
 
 /**
  * Simple utility function to assist in url building,
@@ -526,7 +526,7 @@ export function parseCacheControl(header: string): CacheControlValue {
   }
 
   for (let i = 0; i < header.length; i++) {
-    let char = header.charAt(i);
+    const char = header.charAt(i);
     if (char === ',') {
       assert(`Invalid Cache-Control value, expected a value`, !isParsingKey || !NUMERIC_KEYS.has(key));
       assert(

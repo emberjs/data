@@ -1,6 +1,6 @@
 import type EmberObject from '@ember/object';
 
-import type { Errors } from '@ember-data/model/-private';
+import type { Errors } from './errors';
 import type Store from '@ember-data/store';
 
 import type { AttributeSchema, RelationshipSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
@@ -9,7 +9,7 @@ import type HasManyReference from './references/has-many';
 import type BelongsToReference from './references/belongs-to';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { LegacySupport } from './legacy-relationships-support';
-import type { Cache } from '@ember-data/store/-types/q/cache';
+import type { Cache } from '@warp-drive/core-types/cache';
 import type RecordState from './record-state';
 
 export type ModelCreateArgs = {

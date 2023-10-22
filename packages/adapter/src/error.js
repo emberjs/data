@@ -73,7 +73,7 @@ import { assert } from '@ember/debug';
 */
 function AdapterError(errors, message = 'Adapter operation failed') {
   this.isAdapterError = true;
-  let error = Error.call(this, message);
+  const error = Error.call(this, message);
 
   if (error) {
     this.stack = error.stack;
@@ -102,7 +102,7 @@ function extendFn(ErrorClass) {
 }
 
 function extend(ParentErrorClass, defaultMessage) {
-  let ErrorClass = function (errors, message) {
+  const ErrorClass = function (errors, message) {
     assert('`AdapterError` expects json-api formatted errors array.', Array.isArray(errors || []));
     ParentErrorClass.call(this, errors, message || defaultMessage);
   };

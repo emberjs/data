@@ -1,18 +1,17 @@
-import { assert, generateHash } from "./-utils";
-import { ModuleInfo, TestInfo, ModuleCallback, TestCallback, OrderedMap, TestContext } from "./-types";
-import { SuiteReport } from "./-types/report";
+import { ModuleCallback, ModuleInfo, OrderedMap, TestCallback, TestContext, TestInfo } from './-types';
+import { SuiteReport } from './-types/report';
+import { assert, generateHash } from './-utils';
+import { Config, getCurrentModule, HooksDelegate, instrument, setCurrentModule } from './internals/config';
+import { DelegatingReporter } from './internals/delegating-reporter';
+import { runModule } from './internals/run';
 
-import { Config, HooksDelegate, getCurrentModule, instrument, setCurrentModule } from "./internals/config";
-import { DelegatingReporter } from "./internals/delegating-reporter";
-import { runModule } from "./internals/run";
-
-export { registerReporter } from "./internals/delegating-reporter";
-export { setupGlobalHooks, configure } from "./internals/config";
+export { registerReporter } from './internals/delegating-reporter';
+export { setupGlobalHooks, configure } from './internals/config';
 
 const Modules: OrderedMap<ModuleInfo<TestContext>> = {
   byName: new Map(),
-  byOrder: []
-}
+  byOrder: [],
+};
 
 export type { Diagnostic, Hooks as NestedHooks, GlobalHooks, TestContext } from './-types';
 
@@ -31,7 +30,7 @@ export function module<TC extends TestContext = TestContext>(name: string, cb: M
     beforeEach: [],
     afterEach: [],
     beforeModule: [],
-    afterModule: []
+    afterModule: [],
   };
   const tests: OrderedMap<TestInfo<TC>> = { byName: new Map(), byOrder: [] };
   const modules: OrderedMap<ModuleInfo<TC>> = { byName: new Map(), byOrder: [] };
@@ -138,8 +137,8 @@ export async function start() {
   }
 
   const promises: Promise<void>[] = [];
-  for (const module of Modules.byOrder) {
-    await runModule(module, null, promises);
+  for (const _module of Modules.byOrder) {
+    await runModule(_module, null, promises);
   }
   if (promises.length) {
     await Promise.all(promises);
@@ -149,6 +148,7 @@ export async function start() {
     await hook();
   }
   report.end = instrument() && performance.mark('@warp-drive/diagnostic:end');
-  report.measure = instrument() && performance.measure('@warp-drive/diagnostic:run', report.start.name, report.end.name);
+  report.measure =
+    instrument() && performance.measure('@warp-drive/diagnostic:run', report.start.name, report.end.name);
   DelegatingReporter.onSuiteFinish(report);
 }

@@ -17,7 +17,7 @@ import { buildSchema, instantiateRecord, modelFor, teardownRecord } from '@ember
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 import BaseStore, { CacheHandler } from '@ember-data/store';
-import type { Cache } from '@ember-data/store/-types/cache/cache';
+import type { Cache } from '@warp-drive/core-types/cache';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
 import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
 
@@ -32,11 +32,11 @@ export default class Store extends BaseStore {
     this.registerSchema(buildSchema(this));
   }
 
-  createCache(storeWrapper: CacheCapabilitiesManager): Cache {
+  override createCache(storeWrapper: CacheCapabilitiesManager): Cache {
     return new JSONAPICache(storeWrapper);
   }
 
-  instantiateRecord(
+  override instantiateRecord(
     this: ModelStore,
     identifier: StableRecordIdentifier,
     createRecordArgs: Record<string, unknown>
@@ -44,11 +44,11 @@ export default class Store extends BaseStore {
     return instantiateRecord.call(this, identifier, createRecordArgs);
   }
 
-  teardownRecord(record: Model): void {
+  override teardownRecord(record: Model): void {
     teardownRecord.call(this, record);
   }
 
-  modelFor(type: string): ModelSchema {
+  override modelFor(type: string): ModelSchema {
     return modelFor.call(this, type) || super.modelFor(type);
   }
 
@@ -58,7 +58,7 @@ export default class Store extends BaseStore {
   normalize = normalize;
   serializeRecord = serializeRecord;
 
-  destroy() {
+  override destroy() {
     cleanup.call(this);
     super.destroy();
   }

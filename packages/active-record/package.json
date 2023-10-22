@@ -47,11 +47,17 @@
     "ember-data-logo-dark.svg",
     "ember-data-logo-light.svg"
   ],
+  "exports": {
+    "./*": {
+      "types": "./unstable-preview-types/*.d.ts",
+      "default": "./addon/*.js"
+    }
+  },
   "scripts": {
     "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs",
-    "check:types": "tsc -p tsconfig.json --noEmit --pretty false",
-    "build": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
-    "start": "rollup --config --watch",
+    "build:types": "tsc --build --force",
+    "build:client": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
+    "build": "pnpm build:client && pnpm build:types",
     "prepack": "pnpm build",
     "prepare": "pnpm build"
   },

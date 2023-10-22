@@ -1,8 +1,9 @@
-import { debug } from "../utils/debug";
 import os from 'os';
 import path from 'path';
 import tmp from 'tmp';
-import { isWin, platformName } from "../utils/platform";
+
+import { debug } from '../utils/debug';
+import { isWin, platformName } from '../utils/platform';
 
 export function getHomeDir() {
   return process.env.HOME || process.env.USERPROFILE;
@@ -14,7 +15,7 @@ function chromeWinPaths(name) {
     homeDir + '\\Local Settings\\Application Data\\Google\\' + name + '\\Application\\chrome.exe',
     homeDir + '\\AppData\\Local\\Google\\' + name + '\\Application\\chrome.exe',
     'C:\\Program Files\\Google\\' + name + '\\Application\\Chrome.exe',
-    'C:\\Program Files (x86)\\Google\\' + name + '\\Application\\Chrome.exe'
+    'C:\\Program Files (x86)\\Google\\' + name + '\\Application\\Chrome.exe',
   ];
 }
 
@@ -22,50 +23,42 @@ function chromeDarwinPaths(name) {
   const homeDir = getHomeDir();
   return [
     homeDir + '/Applications/' + name + '.app/Contents/MacOS/' + name,
-    '/Applications/' + name + '.app/Contents/MacOS/' + name
+    '/Applications/' + name + '.app/Contents/MacOS/' + name,
   ];
 }
 
 const ChromePaths = {
   win: chromeWinPaths,
   darwin: chromeDarwinPaths,
-}
+};
 
 const ChromeTags = {
   win: {
     stable: 'Chrome',
     beta: 'Chrome Beta',
-    canary: 'Chrome SxS'
+    canary: 'Chrome SxS',
   },
   darwin: {
     stable: 'Google Chrome',
     beta: 'Google Chrome Beta',
-    canary: 'Google Chrome Canary'
-  }
-}
+    canary: 'Google Chrome Canary',
+  },
+};
 
 const ChromeExeNames = {
-  stable: [
-    'google-chrome-stable',
-    'google-chrome',
-    'chrome'
-  ],
-  beta: [
-    'google-chrome-beta',
-  ],
-  canary: [
-    'google-chrome-unstable'
-  ]
-}
+  stable: ['google-chrome-stable', 'google-chrome', 'chrome'],
+  beta: ['google-chrome-beta'],
+  canary: ['google-chrome-unstable'],
+};
 
 async function executableExists(exe) {
   const cmd = isWin() ? 'where' : 'which';
   const result = Bun.spawnSync([cmd, exe], {
-    stdout: 'inherit'
+    stdout: 'inherit',
   });
 
   return result.success;
-};
+}
 
 async function isInstalled(browser) {
   const result = await checkBrowser(browser.possiblePath, fileExists);
@@ -73,7 +66,7 @@ async function isInstalled(browser) {
     return result;
   }
 
-  return checkBrowser(browser.possibleExe, function(exe) {
+  return checkBrowser(browser.possibleExe, function (exe) {
     return executableExists(exe);
   });
 }
@@ -111,15 +104,21 @@ async function getChrome(browser, tag) {
   const lookupInfo = {
     name: browser.toLowerCase(),
     possiblePath: paths,
-    possibleExe: ChromeExeNames[tag]
+    possibleExe: ChromeExeNames[tag],
   };
 
   const result = await isInstalled(lookupInfo);
   if (!result) {
-    throw new Error(`Could not find ${lookupInfo.name} on your system (${platform}).\n\n\tChecked Paths:\n\t\t${lookupInfo.possiblePath.join('\n\t\t')}\n\tChecked Executable Names:\n\t\t${lookupInfo.possibleExe.join('\n\t\t')}`);
+    throw new Error(
+      `Could not find ${
+        lookupInfo.name
+      } on your system (${platform}).\n\n\tChecked Paths:\n\t\t${lookupInfo.possiblePath.join(
+        '\n\t\t'
+      )}\n\tChecked Executable Names:\n\t\t${lookupInfo.possibleExe.join('\n\t\t')}`
+    );
   }
 
-  debug(`Found ${lookupInfo.name} executable ${result}`)
+  debug(`Found ${lookupInfo.name} executable ${result}`);
 
   return result;
 }
@@ -151,7 +150,7 @@ export function getTmpDir(browser) {
 
   const tmpDir = tmp.dirSync({
     template: `${tmpPath}-XXXXXX`,
-    unsafeCleanup: true
+    unsafeCleanup: true,
   });
 
   TMP_DIRS.set(browser, tmpDir);

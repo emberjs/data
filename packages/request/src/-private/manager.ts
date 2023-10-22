@@ -405,11 +405,11 @@ For usage of the store's `requestManager` via `store.request(<req>)` see the [St
 import { importSync } from '@embroider/macros';
 
 import { DEBUG, TESTING } from '@ember-data/env';
+import type { RequestInfo } from '@warp-drive/core-types/request';
 
 import { assertValidRequest } from './debug';
 import { upgradePromise } from './future';
 import type { Future, GenericCreateArgs, Handler } from './types';
-import type { RequestInfo } from '@warp-drive/core-types/request';
 import { executeNextHandler } from './utils';
 
 let REQ_ID = 0;
@@ -583,7 +583,7 @@ export class RequestManager {
     if (request.controller) {
       delete request.controller;
     }
-    let promise = executeNextHandler<T>(handlers, request, 0, {
+    const promise = executeNextHandler<T>(handlers, request, 0, {
       controller,
       response: null,
       stream: null,

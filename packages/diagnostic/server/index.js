@@ -1,12 +1,12 @@
 import chalk from 'chalk';
-import { getPort } from './utils/port.js';
-import { debug, error, print } from './utils/debug.js';
+
 import { handleBunFetch } from './bun/fetch.js';
 import { launchBrowsers } from './bun/launch-browser.js';
 import { buildHandler } from './bun/socket-handler.js';
+import { debug, error, print } from './utils/debug.js';
+import { getPort } from './utils/port.js';
 
 /** @type {import('bun-types')} */
-/* global Bun, globalThis */
 const isBun = typeof Bun !== 'undefined';
 
 export default async function launch(config) {
@@ -28,7 +28,7 @@ export default async function launch(config) {
     };
 
     const state = {
-      browserId:  42,
+      browserId: 42,
       lastBowserId: null,
       windowId: 0,
       lastWindowId: null,
@@ -37,7 +37,7 @@ export default async function launch(config) {
       protocol,
       browsers: new Map(),
       completed: 0,
-      expected: config.parallel ?? 1
+      expected: config.parallel ?? 1,
     };
 
     if (protocol === 'https') {
@@ -47,7 +47,7 @@ export default async function launch(config) {
       serveOptions.tls = {
         key: Bun.file(config.key),
         cert: Bun.file(config.cert),
-      }
+      };
     }
 
     try {
@@ -65,7 +65,7 @@ export default async function launch(config) {
         port,
         hostname,
         protocol,
-        url: `${protocol}://${hostname}:${port}`
+        url: `${protocol}://${hostname}:${port}`,
       };
       await launchBrowsers(config, state);
     } catch (e) {

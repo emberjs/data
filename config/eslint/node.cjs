@@ -1,8 +1,8 @@
-function defaults() {
-  return {
-    files: ['./babel.config.js', './.eslintrc.cjs', './index.js', './addon-main.cjs', './addon-main.js'],
+function defaults(config) {
+  const result = {
+    files: !config?.useModules ? ['./babel.config.js', './.eslintrc.cjs', './index.js', './addon-main.cjs', './addon-main.js'] : [],
     parserOptions: {
-      sourceType: 'script',
+      sourceType: config?.useModules ? 'module' : 'script',
       ecmaVersion: 2022,
     },
     env: {
@@ -10,7 +10,14 @@ function defaults() {
       node: true,
       es6: true,
     },
+    globals: config?.globals || {},
   };
+
+  if (config?.files) {
+    result.files.push(...config.files);
+  }
+
+  return result;
 }
 
 module.exports = {

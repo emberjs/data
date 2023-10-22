@@ -26,18 +26,13 @@
   },
   "peerDependencies": {
     "@ember-data/store": "^4.12.0 || ^5.0.0",
+    "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
+    "@ember-data/request-utils": "workspace:5.5.0-alpha.11",
     "@ember/string": "^3.1.1",
     "ember-inflector": "^4.0.2"
   },
-  "dependenciesMeta": {
-    "@ember/string": {
-      "injected": true
-    },
-    "@ember-data/store": {
-      "injected": true
-    }
-  },
   "files": [
+    "unstable-preview-types",
     "addon-main.js",
     "addon",
     "README.md",
@@ -45,11 +40,17 @@
     "ember-data-logo-dark.svg",
     "ember-data-logo-light.svg"
   ],
+  "exports": {
+    "./*": {
+      "types": "./unstable-preview-types/*.d.ts",
+      "default": "./addon/*.js"
+    }
+  },
   "scripts": {
     "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs",
-    "check:types": "tsc -p tsconfig.json --noEmit --pretty false",
-    "build": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
-    "start": "rollup --config --watch",
+    "build:types": "tsc --build --force",
+    "build:client": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
+    "build": "pnpm build:client && pnpm build:types",
     "prepack": "pnpm build",
     "prepare": "pnpm build"
   },
@@ -61,10 +62,27 @@
   "devDependenciesMeta": {
     "@warp-drive/internal-config": {
       "injected": true
+    },
+    "@warp-drive/core-types": {
+      "injected": true
+    },
+    "@ember/string": {
+      "injected": true
+    },
+    "@ember-data/store": {
+      "injected": true
+    },
+    "@ember-data/request-utils": {
+      "injected": true
     }
   },
   "devDependencies": {
+    "ember-inflector": "^4.0.2",
     "@warp-drive/internal-config": "workspace:5.5.0-alpha.11",
+    "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
+    "@ember-data/request-utils": "workspace:5.5.0-alpha.11",
+    "@ember-data/store": "workspace:5.5.0-alpha.11",
+    "@ember/string": "^3.1.1",
     "@babel/cli": "^7.23.0",
     "@babel/core": "^7.23.2",
     "@babel/plugin-proposal-decorators": "^7.23.2",

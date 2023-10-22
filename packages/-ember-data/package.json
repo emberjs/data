@@ -13,8 +13,32 @@
   },
   "scripts": {
     "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs",
-    "check:types": "tsc -p tsconfig.json --noEmit --pretty false",
-    "prepack": "cd ../../ && pnpm build:docs"
+    "move-dts": "rsync -Rr src/**/*.d.ts unstable-preview-types && cp -R unstable-preview-types/src/* unstable-preview-types && rm -rf unstable-preview-types/src",
+    "build:types": "tsc --build --force",
+    "build": "pnpm build:types && pnpm move-dts",
+    "prepack": "pnpm build && cd ../../ && pnpm build:docs"
+  },
+  "files": [
+    "dist/docs",
+    "ember-data-logo-dark.svg",
+    "ember-data-logo-light.svg",
+    "LICENSE.md",
+    "README.md",
+    "index.js",
+    "addon",
+    "app",
+    "blueprints",
+    "unstable-preview-types"
+  ],
+  "exports": {
+    ".": {
+      "types": "./unstable-preview-types/index.d.ts",
+      "default": "./addon/index.js"
+    },
+    "./*": {
+      "types": "./unstable-preview-types/*.d.ts",
+      "default": "./addon/*.js"
+    }
   },
   "author": "",
   "license": "MIT",

@@ -1,4 +1,4 @@
-import { StableRecordIdentifier, StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 
 import { IdentifierCache } from '../../-private/caches/identifier-cache';
 import { NotificationType } from '../../-private/managers/notification-manager';

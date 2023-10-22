@@ -1,3 +1,4 @@
+import type { Value } from '@warp-drive/core-types/json/raw';
 import type {
   CollectionResourceRelationship,
   Link,
@@ -10,7 +11,7 @@ import type {
   @module @ember-data/store
 */
 
-export type AttributesHash = Record<string, unknown>;
+export type AttributesHash = Record<string, Value>;
 
 export interface JsonApiResource {
   id?: string | null;

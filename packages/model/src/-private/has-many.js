@@ -185,7 +185,7 @@ function hasMany(type, options) {
   // the relationship. This is used for introspection and
   // serialization. Note that `key` is populated lazily
   // the first time the CP is called.
-  let meta = {
+  const meta = {
     type: normalizeType(type),
     options,
     isRelationship: true,

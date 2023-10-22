@@ -1,8 +1,8 @@
-import { assert, getGlobal } from '../-utils';
-import { start as _start, registerReporter } from '../';
-import { DOMReporter } from '../reporters/dom';
-import { ConfigOptions, configure, getSettings } from '../internals/config';
+import { registerReporter, start as _start } from '../';
 import type { Emitter } from '../-types';
+import { assert, getGlobal } from '../-utils';
+import { ConfigOptions, configure, getSettings } from '../internals/config';
+import { DOMReporter } from '../reporters/dom';
 
 export async function start(config?: ConfigOptions) {
   if (config) {
@@ -15,7 +15,10 @@ export async function start(config?: ConfigOptions) {
   assert(`Expected to be in a browser environment`, typeof body !== 'undefined');
 
   const container = context.document.getElementById('warp-drive__diagnostic');
-  assert(`Expected to find a diagnostic container element. Make sure your html file has added <div id="warp-drive__diagnostic"></div>`, container !== null);
+  assert(
+    `Expected to find a diagnostic container element. Make sure your html file has added <div id="warp-drive__diagnostic"></div>`,
+    container !== null
+  );
   const settings = getSettings();
 
   let emitter: Emitter | null = null;

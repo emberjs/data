@@ -1,9 +1,10 @@
 /* eslint-disable no-console */
+import chalk from 'chalk';
 import fs from 'fs';
 import path from 'path';
+
+import { getBrowser, recommendedArgs } from './browsers/index.js';
 import launch from './index.js';
-import chalk from 'chalk';
-import { recommendedArgs, getBrowser } from './browsers/index.js';
 import DefaultReporter from './reporters/default.js';
 
 const CI_BROWSER = process.env.CI_BROWSER || 'Chrome';
@@ -20,15 +21,26 @@ try {
 }
 const FAILURES = TEST_FAILURES ? TEST_FAILURES.trim().split(',') : false;
 const RETRY_TESTS = (process.env.CI ?? process.env.RETRY_TESTS) && FAILURES.length;
-const _parallel = process.env.DIAGNOSTIC_PARALLEL && !isNaN(Number(process.env.DIAGNOSTIC_PARALLEL)) ? Number(process.env.DIAGNOSTIC_PARALLEL) :  1;
+const _parallel =
+  process.env.DIAGNOSTIC_PARALLEL && !isNaN(Number(process.env.DIAGNOSTIC_PARALLEL))
+    ? Number(process.env.DIAGNOSTIC_PARALLEL)
+    : 1;
 const parallel = _parallel > 1 && RETRY_TESTS && FAILURES.length < _parallel * 4 ? 1 : _parallel;
 
 if (RETRY_TESTS) {
-  console.log(chalk.grey(`⚠️ Retrying ${chalk.bold(chalk.yellow(FAILURES.length))} failed tests: ${chalk.bold(chalk.white(FAILURES.join(',')))}`));
+  console.log(
+    chalk.grey(
+      `⚠️ Retrying ${chalk.bold(chalk.yellow(FAILURES.length))} failed tests: ${chalk.bold(
+        chalk.white(FAILURES.join(','))
+      )}`
+    )
+  );
 } else if (FAILURES.length) {
-	console.log(
-		`⚠️ Found ${chalk.bold(chalk.yellow(FAILURES.length))} previously failed tests: ${chalk.bold(chalk.white(FAILURES.join(',')))}. Use RETRY_TESTS=1 to retry them.`,
-	);
+  console.log(
+    `⚠️ Found ${chalk.bold(chalk.yellow(FAILURES.length))} previously failed tests: ${chalk.bold(
+      chalk.white(FAILURES.join(','))
+    )}. Use RETRY_TESTS=1 to retry them.`
+  );
 }
 
 const TEST_PAGE_FLAGS = [
@@ -59,9 +71,11 @@ export default async function launchDefault(overrides = {}) {
     parallel: overrides.parallel ?? parallel,
     parallelMode: overrides.parallelMode ?? 'window', // 'tab' | 'browser' | 'window'
 
-    reporter: overrides.reporter ?? new DefaultReporter({
-      mode: process.env.DIAGNOSTIC_REPORTER_MODE || 'dot', // 'dot' | 'compact' | 'verbose'
-    }),
+    reporter:
+      overrides.reporter ??
+      new DefaultReporter({
+        mode: process.env.DIAGNOSTIC_REPORTER_MODE || 'dot', // 'dot' | 'compact' | 'verbose'
+      }),
 
     suiteTimeout: overrides.suiteTimeout ?? SUITE_TIMEOUT,
     browserDisconnectTimeout: overrides.browserDisconnectTimeout ?? 15,
@@ -76,7 +90,6 @@ export default async function launchDefault(overrides = {}) {
         command: browser,
         args: recommendedArgs(BROWSER_TAG, overrides),
       },
-    }
+    },
   });
-
 }

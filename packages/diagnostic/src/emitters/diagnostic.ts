@@ -1,11 +1,11 @@
-import { CompatTestReport, Emitter } from "../-types";
-import { SuiteReport } from "../-types/report";
-import { assert } from "../-utils";
+import { CompatTestReport, Emitter } from '../-types';
+import { SuiteReport } from '../-types/report';
+import { assert } from '../-utils';
 
 type EmitEvent = {
   name: 'suite-start' | 'suite-finish' | 'test-start' | 'test-finish';
-  data: SuiteReport | CompatTestReport
-}
+  data: SuiteReport | CompatTestReport;
+};
 
 class DiagnosticEmitter implements Emitter {
   socket: WebSocket;
@@ -30,7 +30,9 @@ class DiagnosticEmitter implements Emitter {
     this.buffer = [];
 
     if (!browserId || !windowId) {
-      console.warn(`[Diagnostic] Expected to find a browserId and windowId in the url. Likely this page was not served by the diagnostic server. Remote reporting will not be available.`);
+      console.warn(
+        `[Diagnostic] Expected to find a browserId and windowId in the url. Likely this page was not served by the diagnostic server. Remote reporting will not be available.`
+      );
       this.socket = null as unknown as WebSocket;
       return;
     }
@@ -50,7 +52,9 @@ class DiagnosticEmitter implements Emitter {
       socket.onclose = (event) => {
         this.connected = false;
         if (event.wasClean) {
-          console.log(`[Diagnostic] Remote Reporter Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+          console.log(
+            `[Diagnostic] Remote Reporter Connection closed cleanly, code=${event.code} reason=${event.reason}`
+          );
         } else {
           console.error(`[Diagnostic] Remote Reporter Connection Died`, event);
         }
@@ -60,8 +64,8 @@ class DiagnosticEmitter implements Emitter {
         console.error(e);
         throw new Error(`[Diagnostic] Remote Reporter Connection Failed`);
       };
-      socket.onmessage = (message) => {
-        const msg = JSON.parse(message.data);
+      socket.onmessage = (message: MessageEvent<string>) => {
+        const msg = JSON.parse(message.data) as { name: 'close' };
         if (msg.name === 'close') {
           window.close();
         } else {
@@ -89,7 +93,10 @@ class DiagnosticEmitter implements Emitter {
       return;
     }
 
-    assert(`Expected event.name to be one of 'suite-start', 'suite-finish', 'test-start' or 'test-finish'`, (['suite-start', 'suite-finish', 'test-start', 'test-finish']).includes(name));
+    assert(
+      `Expected event.name to be one of 'suite-start', 'suite-finish', 'test-start' or 'test-finish'`,
+      ['suite-start', 'suite-finish', 'test-start', 'test-finish'].includes(name)
+    );
     assert(`Expected event.data to be defined`, typeof data !== 'undefined');
     const event = { browserId: this.browserId, windowId: this.windowId, name, data, timestamp: Date.now() };
 

@@ -5,8 +5,18 @@
 import { assert } from '@ember/debug';
 import EmberObject from '@ember/object';
 
+import { LOG_PAYLOADS, LOG_REQUESTS } from '@ember-data/debugging';
+import { DEBUG, TESTING } from '@ember-data/env';
+import type RequestManager from '@ember-data/request';
+import type { Future } from '@ember-data/request/-private/types';
 import type { Graph } from '@warp-drive/core-types/graph';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type {
+  StableDocumentIdentifier,
+  StableExistingRecordIdentifier,
+  StableRecordIdentifier,
+} from '@warp-drive/core-types/identifier';
+import { EnableHydration, SkipCache } from '@warp-drive/core-types/request';
+import type { ResourceDocument } from '@warp-drive/core-types/spec/document';
 import type {
   CollectionResourceDocument,
   EmptyResourceDocument,
@@ -15,24 +25,13 @@ import type {
   SingleResourceDocument,
 } from '@warp-drive/core-types/spec/raw';
 
-import { LOG_PAYLOADS, LOG_REQUESTS } from '@ember-data/debugging';
-import { DEBUG, TESTING } from '@ember-data/env';
-import type RequestManager from '@ember-data/request';
-import type { Future } from '@ember-data/request/-private/types';
-
-import type { ResourceDocument } from '@warp-drive/core-types/spec/document';
-import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type { Cache, CacheV1 } from '../-types/q/cache';
 import type { CacheCapabilitiesManager } from '../-types/q/cache-store-wrapper';
 import { ModelSchema } from '../-types/q/ds-model';
 import type { RecordInstance } from '../-types/q/record-instance';
 import type { SchemaService } from '../-types/q/schema-service';
 import type { FindOptions } from '../-types/q/store';
-import {
-  type LifetimesService,
-  StoreRequestContext,
-  type StoreRequestInput,
-} from './cache-handler';
+import { type LifetimesService, StoreRequestContext, type StoreRequestInput } from './cache-handler';
 import { IdentifierCache } from './caches/identifier-cache';
 import {
   InstanceCache,
@@ -53,7 +52,6 @@ import IdentifierArray, { Collection } from './record-arrays/identifier-array';
 import coerceId, { ensureStringId } from './utils/coerce-id';
 import constructResource from './utils/construct-resource';
 import normalizeModelName from './utils/normalize-model-name';
-import { EnableHydration, SkipCache } from '@warp-drive/core-types/request';
 
 export { storeFor };
 
@@ -363,7 +361,7 @@ class Store extends EmberObject {
     // we lazily set the cache handler when we issue the first request
     // because constructor doesn't allow for this to run after
     // the user has had the chance to set the prop.
-    let opts: {
+    const opts: {
       store: Store;
       disableTestWaiter?: boolean;
       [EnableHydration]: true;
@@ -661,8 +659,8 @@ class Store extends EmberObject {
     //   to remove this, we would need to move to a new `async` API.
     let record!: RecordInstance;
     this._join(() => {
-      let normalizedModelName = normalizeModelName(modelName);
-      let properties = { ...inputProperties };
+      const normalizedModelName = normalizeModelName(modelName);
+      const properties = { ...inputProperties };
 
       // If the passed properties do not include a primary key,
       // give the adapter an opportunity to generate one. Typically,
@@ -671,7 +669,7 @@ class Store extends EmberObject {
 
       if (properties.id === null || properties.id === undefined) {
         upgradeStore(this);
-        let adapter = this.adapterFor?.(modelName, true);
+        const adapter = this.adapterFor?.(modelName, true);
 
         if (adapter && adapter.generateIdForRecord) {
           properties.id = adapter.generateIdForRecord(this, modelName, properties);
@@ -1249,7 +1247,7 @@ class Store extends EmberObject {
       isMaybeIdentifier(resourceIdentifier)
     );
 
-    let identifier: StableRecordIdentifier = this.identifierCache.getOrCreateRecordIdentifier(resourceIdentifier);
+    const identifier: StableRecordIdentifier = this.identifierCache.getOrCreateRecordIdentifier(resourceIdentifier);
 
     return this._instanceCache.getReference(identifier);
   }
@@ -1511,7 +1509,11 @@ class Store extends EmberObject {
     @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.queryRecord
     @return {Promise} promise which resolves with the found record or `null`
   */
-  queryRecord(modelName: string, query: Record<string, unknown>, options?: { adapterOptions: Record<string | number | symbol, unknown> }): Promise<RecordInstance | null> {
+  queryRecord(
+    modelName: string,
+    query: Record<string, unknown>,
+    options?: { adapterOptions: Record<string | number | symbol, unknown> }
+  ): Promise<RecordInstance | null> {
     if (DEBUG) {
       assertDestroyingStore(this, 'queryRecord');
     }
@@ -1780,7 +1782,7 @@ class Store extends EmberObject {
       typeof modelName === 'string'
     );
 
-    let type = normalizeModelName(modelName);
+    const type = normalizeModelName(modelName);
     return this.recordArrayManager.liveArrayFor(type);
   }
 
@@ -1820,7 +1822,7 @@ class Store extends EmberObject {
         this.recordArrayManager.clear();
         this._instanceCache.clear();
       } else {
-        let normalizedModelName = normalizeModelName(modelName);
+        const normalizedModelName = normalizeModelName(modelName);
         this._instanceCache.clear(normalizedModelName);
       }
     });
@@ -1984,10 +1986,10 @@ class Store extends EmberObject {
     if (DEBUG) {
       assertDestroyingStore(this, 'push');
     }
-    let pushed = this._push(data, false);
+    const pushed = this._push(data, false);
 
     if (Array.isArray(pushed)) {
-      let records = pushed.map((identifier) => this._instanceCache.getRecord(identifier));
+      const records = pushed.map((identifier) => this._instanceCache.getRecord(identifier));
       return records;
     }
 
@@ -2016,7 +2018,7 @@ class Store extends EmberObject {
     }
     if (LOG_PAYLOADS) {
       try {
-        let data: unknown = JSON.parse(JSON.stringify(jsonApiDoc)) as unknown;
+        const data: unknown = JSON.parse(JSON.stringify(jsonApiDoc)) as unknown;
         // eslint-disable-next-line no-console
         console.log('EmberData | Payload - push', data);
       } catch (e) {
@@ -2052,7 +2054,7 @@ class Store extends EmberObject {
       assertDestroyingStore(this, 'saveRecord');
     }
     assert(`Unable to initate save for a record in a disconnected state`, storeFor(record));
-    let identifier = recordIdentifierFor(record);
+    const identifier = recordIdentifierFor(record);
     const cache = this.cache;
 
     if (!identifier) {
@@ -2201,15 +2203,15 @@ function normalizeProperties(
     const { type } = identifier;
 
     // convert relationship Records to RecordDatas before passing to RecordData
-    let defs = store.getSchemaDefinitionService().relationshipsDefinitionFor({ type });
+    const defs = store.getSchemaDefinitionService().relationshipsDefinitionFor({ type });
 
     if (defs !== null) {
-      let keys = Object.keys(properties);
+      const keys = Object.keys(properties);
       let relationshipValue;
 
       for (let i = 0; i < keys.length; i++) {
-        let prop = keys[i];
-        let def = defs[prop];
+        const prop = keys[i];
+        const def = defs[prop];
 
         if (def !== undefined) {
           if (def.kind === 'hasMany') {

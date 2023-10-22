@@ -12,14 +12,13 @@
  * @main @ember-data/request/fetch
  */
 import type { HttpErrorProps } from '-private/utils';
+
 import { cloneResponseProperties, type Context } from './-private/context';
 
 const _fetch: typeof fetch =
   typeof fetch !== 'undefined'
     ? fetch
-    // @ts-expect-error FastBoot is untyped
     : typeof FastBoot !== 'undefined'
-    // @ts-expect-error FastBoot is untyped
     ? (FastBoot.require('node-fetch') as typeof fetch)
     : ((() => {
         throw new Error('No Fetch Implementation Found');
@@ -105,9 +104,9 @@ const Fetch = {
         (e as unknown as HttpErrorProps).status = 20;
         (e as unknown as HttpErrorProps).isRequestError = true;
       } else {
-        (e as unknown as HttpErrorProps).statusText = 'Unknown Network Error';
-        (e as unknown as HttpErrorProps).status = 0;
-        (e as unknown as HttpErrorProps).isRequestError = true;
+        (e as HttpErrorProps).statusText = 'Unknown Network Error';
+        (e as HttpErrorProps).status = 0;
+        (e as HttpErrorProps).isRequestError = true;
       }
       throw e;
     }
@@ -134,14 +133,17 @@ const Fetch = {
         // void;
       }
       // attempt errors discovery
-      const errors =
-        Array.isArray(errorPayload) ? errorPayload
-        : isDict(errorPayload) && Array.isArray(errorPayload.errors) ? errorPayload.errors
+      const errors = Array.isArray(errorPayload)
+        ? errorPayload
+        : isDict(errorPayload) && Array.isArray(errorPayload.errors)
+        ? errorPayload.errors
         : null;
 
       const msg = `[${response.status}] ${response.statusText ? response.statusText + ' ' : ''}- ${response.url}`;
 
-      const error = (errors ? new AggregateError(errors, msg) : new Error(msg)) as Error & { content: object | undefined } & HttpErrorProps;
+      const error = (errors ? new AggregateError(errors, msg) : new Error(msg)) as Error & {
+        content: object | undefined;
+      } & HttpErrorProps;
       error.status = response.status;
       error.statusText = response.statusText || ERROR_STATUS_CODE_FOR.get(response.status) || 'Unknown Request Error';
       error.isRequestError = true;

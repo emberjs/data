@@ -1,8 +1,6 @@
 import { assert } from '@ember/debug';
 
-import type { Snapshot } from 'ember-data/-private';
-
-import { upgradeStore } from '@ember-data/legacy-compat/-private';
+import { type Snapshot, upgradeStore } from '@ember-data/legacy-compat/-private';
 import type {
   MinimumSerializerInterface,
   SerializerOptions,

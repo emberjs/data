@@ -8,6 +8,7 @@ const typescript = require('@warp-drive/internal-config/eslint/typescript.cjs');
 
 module.exports = {
   ...parser.defaults(),
+  ...base.settings(),
 
   plugins: [...base.plugins(), ...imports.plugins()],
   extends: [...base.extend()],
@@ -15,7 +16,19 @@ module.exports = {
     base.rules(),
     imports.rules(),
     isolation.rules({
-      allowedImports: ['@ember/debug'],
+      allowedImports: [
+        'ember-inflector',
+        '@ember/array',
+        '@ember/array/proxy',
+        '@ember/debug',
+        '@ember/string',
+        '@ember/object/internals',
+        '@ember/object/proxy',
+        '@ember/object/computed',
+        '@ember/object',
+        '@ember/application',
+        '@ember/object/promise-proxy-mixin',
+      ],
     }),
     {}
   ),

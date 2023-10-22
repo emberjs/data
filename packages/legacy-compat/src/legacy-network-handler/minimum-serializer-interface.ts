@@ -1,14 +1,13 @@
 /**
   @module @ember-data/experimental-preview-types
  */
+import type Store from '@ember-data/store';
+import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
 import type { ObjectValue } from '@warp-drive/core-types/json/raw';
 import type { JsonApiDocument, SingleResourceDocument } from '@warp-drive/core-types/spec/raw';
 
-import type { Snapshot } from '@ember-data/legacy-compat/-private';
-import type Store from '@ember-data/store';
-import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
-
 import type { AdapterPayload } from './minimum-adapter-interface';
+import type Snapshot from './snapshot';
 
 export type SerializerOptions = { includeId?: boolean };
 export type RequestType =

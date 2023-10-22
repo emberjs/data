@@ -1,4 +1,4 @@
-import type { AdapterPayload } from '@ember-data/legacy-compat/legacy-network-handler/minimum-adapter-interface';
+import type { AdapterPayload } from './minimum-adapter-interface';
 
 export function iterateData<T>(data: T[] | T, fn: (o: T, index?: number) => T) {
   if (Array.isArray(data)) {

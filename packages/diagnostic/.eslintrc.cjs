@@ -15,12 +15,20 @@ module.exports = {
     base.rules(),
     imports.rules(),
     isolation.rules({
-      allowedImports: ['@ember/debug'],
+      allowedImports: ['@ember/debug', '@ember/test-helpers'],
     }),
     {}
   ),
 
   ignorePatterns: ignore.ignoreRules(),
 
-  overrides: [node.defaults(), typescript.defaults()],
+  overrides: [
+    node.defaults(),
+    node.defaults({ useModules: true, globals: { Bun: true }, files: ['./server/**'] }),
+    typescript.defaults({
+      rules: {
+        'no-console': 'off',
+      },
+    }),
+  ],
 };

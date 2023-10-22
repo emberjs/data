@@ -1,7 +1,6 @@
 {
   "include": [
     "src/**/*",
-    "unpublished-types/**/*",
   ],
   "baseUrl": ".",
   "compilerOptions": {
@@ -10,6 +9,7 @@
     "target": "esnext",
     "moduleResolution": "bundler",
     "moduleDetection": "force",
+    "rootDir": "src",
     "strict": true,
     "downlevelIteration": true,
     "skipLibCheck": true,
@@ -18,7 +18,6 @@
     "allowJs": true,
     "noEmit": false,
     "noImplicitOverride": true,
-    "stripInternal": true,
 
     // Enable faster builds
     // but causes us to not rebuild properly
@@ -30,6 +29,9 @@
     "emitDeclarationOnly": true,
     "inlineSourceMap": true,
     "inlineSources": true,
+    "types": [
+      "ember-source/types"
+    ],
 
     "paths": {
       "@ember-data/deprecations": ["../private-build-infra/virtual-packages/deprecations.d.ts"],

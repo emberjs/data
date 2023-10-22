@@ -1,7 +1,7 @@
 {
   "include": [
     "src/**/*",
-    "unpublished-types/**/*",
+    "../../@types/**/*",
   ],
   "baseUrl": ".",
   "compilerOptions": {
@@ -15,21 +15,26 @@
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
+    "experimentalDecorators": true,
+    "noImplicitAny": false,
     "allowJs": true,
-    "noEmit": true,
+    "noEmit": false,
     "noImplicitOverride": true,
-    "stripInternal": true,
 
     // Enable faster builds
     // but causes us to not rebuild properly
     "incremental": false,
 
-    // "declaration": true,
-    // "declarationMap": true,
-    // "declarationDir": "unstable-preview-types",
-    // "emitDeclarationOnly": true,
+    "declaration": true,
+    "declarationMap": true,
+    "declarationDir": "unstable-preview-types",
+    "emitDeclarationOnly": true,
     "inlineSourceMap": true,
     "inlineSources": true,
+    "types": [
+      "ember-source/types",
+      "@types/jquery",
+    ],
 
     "paths": {
       "@ember-data/deprecations": ["../private-build-infra/virtual-packages/deprecations.d.ts"],

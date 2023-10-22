@@ -19,6 +19,7 @@
     "strictFunctionTypes": true,
     "strictPropertyInitialization": true,
     "allowUnreachableCode": false,
+    "exactOptionalPropertyTypes": true,
     "allowUnusedLabels": false,
     "noEmitOnError": false,
     "strictNullChecks": true,

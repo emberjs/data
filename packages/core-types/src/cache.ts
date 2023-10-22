@@ -5,12 +5,13 @@ import { ResourceBlob } from './cache/aliases';
 import { Change } from './cache/change';
 import { Mutation } from './cache/mutations';
 import { Operation } from './cache/operations';
+import type { CollectionRelationship, ResourceRelationship } from './cache/relationship';
 import type { StableRecordIdentifier } from './identifier';
 import { StableDocumentIdentifier } from './identifier';
+import type { Value } from './json/raw';
 import type { RequestContext, StructuredDataDocument, StructuredDocument } from './request';
 import { ResourceDocument, SingleResourceDataDocument } from './spec/document';
 import { ApiError } from './spec/error';
-import type { CollectionResourceRelationship, SingleResourceRelationship } from './spec/raw';
 
 export type RelationshipDiff =
   | {
@@ -339,7 +340,7 @@ export interface Cache {
    * @param field
    * @param value
    */
-  setAttr(identifier: StableRecordIdentifier, field: string, value: unknown): void;
+  setAttr(identifier: StableRecordIdentifier, field: string, value: Value): void;
 
   /**
    * Query the cache for the changed attributes of a resource.
@@ -355,7 +356,7 @@ export interface Cache {
    * @param identifier
    * @returns {Record<string, [unknown, unknown]>} { <field>: [<old>, <new>] }
    */
-  changedAttrs(identifier: StableRecordIdentifier): Record<string, [unknown, unknown]>;
+  changedAttrs(identifier: StableRecordIdentifier): Record<string, [Value, Value]>;
 
   /**
    * Query the cache for whether any mutated attributes exist
@@ -445,7 +446,7 @@ export interface Cache {
     identifier: StableRecordIdentifier,
     field: string,
     isCollection?: boolean
-  ): SingleResourceRelationship | CollectionResourceRelationship;
+  ): ResourceRelationship | CollectionRelationship;
 
   // Resource State
   // ===============
