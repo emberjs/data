@@ -167,6 +167,9 @@ importers:
       prettier:
         specifier: ^3.0.3
         version: 3.0.3
+      typescript:
+        specifier: ~5.2.2
+        version: 5.2.2
 
   packages/-ember-data:
     dependencies:
@@ -349,7 +352,7 @@ importers:
         version: file:packages/core-types(@babel/core@7.23.2)
       '@warp-drive/internal-config':
         specifier: workspace:5.5.0-alpha.11
-        version: file:config(typescript@5.2.2)
+        version: file:config
       ember-inflector:
         specifier: ^4.0.2
         version: 4.0.2(@babel/core@7.23.2)
@@ -475,7 +478,7 @@ importers:
         version: file:packages/core-types(@babel/core@7.23.2)
       '@warp-drive/internal-config':
         specifier: workspace:5.5.0-alpha.11
-        version: file:config(typescript@5.2.2)
+        version: file:config
       ember-inflector:
         specifier: ^4.0.2
         version: 4.0.2(@babel/core@7.23.2)
@@ -591,7 +594,7 @@ importers:
         version: file:packages/core-types(@babel/core@7.23.2)
       '@warp-drive/internal-config':
         specifier: workspace:5.5.0-alpha.11
-        version: file:config(typescript@5.2.2)
+        version: file:config
       ember-source:
         specifier: ~5.3.0
         version: 5.3.0(@babel/core@7.23.2)(@glimmer/component@1.1.2)(webpack@5.89.0)
@@ -670,7 +673,7 @@ importers:
         version: file:packages/core-types(@babel/core@7.23.2)
       '@warp-drive/internal-config':
         specifier: workspace:5.5.0-alpha.11
-        version: file:config(typescript@5.2.2)
+        version: file:config
       ember-source:
         specifier: ~5.3.0
         version: 5.3.0(@babel/core@7.23.2)(@glimmer/component@1.1.2)(webpack@5.89.0)
@@ -731,7 +734,7 @@ importers:
         version: 15.2.3(rollup@4.1.4)
       '@warp-drive/internal-config':
         specifier: workspace:5.5.0-alpha.11
-        version: file:config(typescript@5.2.2)
+        version: file:config
       bun-types:
         specifier: ^1.0.6
         version: 1.0.6
@@ -830,7 +833,7 @@ importers:
         version: file:packages/core-types(@babel/core@7.23.2)
       '@warp-drive/internal-config':
         specifier: workspace:5.5.0-alpha.11
-        version: file:config(typescript@5.2.2)
+        version: file:config
       ember-source:
         specifier: ~5.3.0
         version: 5.3.0(@babel/core@7.23.2)(@glimmer/component@1.1.2)(webpack@5.89.0)
@@ -915,7 +918,7 @@ importers:
         version: file:packages/core-types(@babel/core@7.23.2)
       '@warp-drive/internal-config':
         specifier: workspace:5.5.0-alpha.11
-        version: file:config(typescript@5.2.2)
+        version: file:config
       rollup:
         specifier: ^4.1.4
         version: 4.1.4
@@ -1016,7 +1019,7 @@ importers:
         version: file:packages/core-types(@babel/core@7.23.2)
       '@warp-drive/internal-config':
         specifier: workspace:5.5.0-alpha.11
-        version: file:config(typescript@5.2.2)
+        version: file:config
       ember-inflector:
         specifier: ^4.0.2
         version: 4.0.2(@babel/core@7.23.2)
@@ -1140,7 +1143,7 @@ importers:
         version: file:packages/core-types(@babel/core@7.23.2)
       '@warp-drive/internal-config':
         specifier: workspace:5.5.0-alpha.11
-        version: file:config(typescript@5.2.2)
+        version: file:config
       ember-inflector:
         specifier: ^4.0.2
         version: 4.0.2(@babel/core@7.23.2)
@@ -1281,7 +1284,7 @@ importers:
         version: file:packages/core-types(@babel/core@7.23.2)
       '@warp-drive/internal-config':
         specifier: workspace:5.5.0-alpha.11
-        version: file:config(typescript@5.2.2)
+        version: file:config
       ember-inflector:
         specifier: ^4.0.2
         version: 4.0.2(@babel/core@7.23.2)
@@ -1474,7 +1477,7 @@ importers:
         version: file:packages/core-types(@babel/core@7.23.2)
       '@warp-drive/internal-config':
         specifier: workspace:5.5.0-alpha.11
-        version: file:config(typescript@5.2.2)
+        version: file:config
       ember-source:
         specifier: ~5.3.0
         version: 5.3.0(@babel/core@7.23.2)(@glimmer/component@1.1.2)(webpack@5.89.0)
@@ -1556,7 +1559,7 @@ importers:
         version: file:packages/core-types(@babel/core@7.23.2)
       '@warp-drive/internal-config':
         specifier: workspace:5.5.0-alpha.11
-        version: file:config(typescript@5.2.2)
+        version: file:config
       ember-source:
         specifier: ~5.3.0
         version: 5.3.0(@babel/core@7.23.2)(@glimmer/component@1.1.2)(webpack@5.89.0)
@@ -1643,7 +1646,7 @@ importers:
         version: file:packages/core-types(@babel/core@7.23.2)
       '@warp-drive/internal-config':
         specifier: workspace:5.5.0-alpha.11
-        version: file:config(typescript@5.2.2)
+        version: file:config
       ember-inflector:
         specifier: ^4.0.2
         version: 4.0.2(@babel/core@7.23.2)
@@ -1843,7 +1846,7 @@ importers:
         version: file:packages/core-types(@babel/core@7.23.2)
       '@warp-drive/internal-config':
         specifier: workspace:5.5.0-alpha.11
-        version: file:config(typescript@5.2.2)
+        version: file:config
       ember-inflector:
         specifier: ^4.0.2
         version: 4.0.2(@babel/core@7.23.2)
@@ -1951,7 +1954,7 @@ importers:
         version: file:packages/core-types(@babel/core@7.23.2)
       '@warp-drive/internal-config':
         specifier: workspace:5.5.0-alpha.11
-        version: file:config(typescript@5.2.2)
+        version: file:config
       ember-source:
         specifier: ~5.3.0
         version: 5.3.0(@babel/core@7.23.2)(@glimmer/component@1.1.2)(webpack@5.89.0)
@@ -2046,7 +2049,7 @@ importers:
         version: 15.2.3(rollup@4.1.4)
       '@warp-drive/internal-config':
         specifier: workspace:5.5.0-alpha.11
-        version: file:config(typescript@5.2.2)
+        version: file:config
       ember-source:
         specifier: ~5.3.0
         version: 5.3.0(@babel/core@7.23.2)(@glimmer/component@1.1.2)(webpack@5.89.0)
@@ -17549,9 +17552,8 @@ packages:
     engines: {node: '>=0.2.0'}
     dev: true
 
-  file:config(typescript@5.2.2):
+  file:config:
     resolution: {directory: config, type: directory}
-    id: file:config
     name: '@warp-drive/internal-config'
     engines: {node: '>= 18.18.2'}
     dependencies:
@@ -17566,12 +17568,12 @@ packages:
       eslint-plugin-prettier: 5.0.1(eslint-config-prettier@9.0.0)(eslint@8.52.0)(prettier@3.0.3)
       eslint-plugin-simple-import-sort: 10.0.0(eslint@8.52.0)
       prettier: 3.0.3
+      typescript: 5.2.2
     transitivePeerDependencies:
       - '@types/eslint'
       - eslint-import-resolver-typescript
       - eslint-import-resolver-webpack
       - supports-color
-      - typescript
     dev: true
 
   file:packages/-ember-data(@babel/core@7.23.2)(@ember/string@3.1.1)(ember-source@5.3.0):
