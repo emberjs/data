@@ -13,7 +13,7 @@
   },
   "scripts": {
     "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs",
-    "move-dts": "rsync -Rr src/**/*.d.ts unstable-preview-types && cp -R unstable-preview-types/src/* unstable-preview-types && rm -rf unstable-preview-types/src",
+    "move-dts": "bun ../../scripts/copy-declarations.mjs addon",
     "build:types": "tsc --build --force",
     "build": "pnpm build:types && pnpm move-dts",
     "prepack": "pnpm build && cd ../../ && pnpm build:docs",
@@ -67,6 +67,7 @@
     "ember-auto-import": "^2.6.3",
     "ember-cli-babel": "^8.2.0",
     "ember-inflector": "^4.0.2",
+    "typescript": "^5.2.2",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "webpack": "^5.89.0"
   },

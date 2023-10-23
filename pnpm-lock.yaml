@@ -39,6 +39,9 @@ importers:
         specifier: ^1.10.15
         version: 1.10.16
     devDependencies:
+      bun-types:
+        specifier: ^1.0.7
+        version: 1.0.7
       chalk:
         specifier: ^4.1.2
         version: 4.1.2
@@ -66,6 +69,9 @@ importers:
       git-repo-version:
         specifier: ^1.0.2
         version: 1.0.2
+      globby:
+        specifier: ^13.2.2
+        version: 13.2.2
       lerna-changelog:
         specifier: ^2.2.0
         version: 2.2.0
@@ -195,6 +201,9 @@ importers:
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.10
         version: 0.0.10
+      typescript:
+        specifier: ^5.2.2
+        version: 5.2.2
       webpack:
         specifier: ^5.89.0
         version: 5.89.0
@@ -330,9 +339,6 @@ importers:
       rollup:
         specifier: ^4.1.4
         version: 4.1.4
-      tslib:
-        specifier: ^2.6.2
-        version: 2.6.2
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -459,9 +465,6 @@ importers:
       rollup:
         specifier: ^4.1.4
         version: 4.1.4
-      tslib:
-        specifier: ^2.6.2
-        version: 2.6.2
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -560,9 +563,6 @@ importers:
       rollup:
         specifier: ^4.1.4
         version: 4.1.4
-      tslib:
-        specifier: ^2.6.2
-        version: 2.6.2
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -708,9 +708,6 @@ importers:
       rollup:
         specifier: ^4.1.4
         version: 4.1.4
-      tslib:
-        specifier: ^2.6.2
-        version: 2.6.2
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -811,9 +808,6 @@ importers:
       rollup:
         specifier: ^4.1.4
         version: 4.1.4
-      tslib:
-        specifier: ^2.6.2
-        version: 2.6.2
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -896,9 +890,6 @@ importers:
       rollup:
         specifier: ^4.1.4
         version: 4.1.4
-      tslib:
-        specifier: ^2.6.2
-        version: 2.6.2
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -1006,9 +997,6 @@ importers:
       rollup:
         specifier: ^4.1.4
         version: 4.1.4
-      tslib:
-        specifier: ^2.6.2
-        version: 2.6.2
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -1133,9 +1121,6 @@ importers:
       rollup:
         specifier: ^4.1.4
         version: 4.1.4
-      tslib:
-        specifier: ^2.6.2
-        version: 2.6.2
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -1277,9 +1262,6 @@ importers:
       rollup:
         specifier: ^4.1.4
         version: 4.1.4
-      tslib:
-        specifier: ^2.6.2
-        version: 2.6.2
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -1461,9 +1443,6 @@ importers:
       rollup:
         specifier: ^4.1.4
         version: 4.1.4
-      tslib:
-        specifier: ^2.6.2
-        version: 2.6.2
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -1538,9 +1517,6 @@ importers:
       rollup:
         specifier: ^4.1.4
         version: 4.1.4
-      tslib:
-        specifier: ^2.6.2
-        version: 2.6.2
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -1631,9 +1607,6 @@ importers:
       rollup:
         specifier: ^4.1.4
         version: 4.1.4
-      tslib:
-        specifier: ^2.6.2
-        version: 2.6.2
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -1740,9 +1713,6 @@ importers:
       rollup:
         specifier: ^4.1.4
         version: 4.1.4
-      tslib:
-        specifier: ^2.6.2
-        version: 2.6.2
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -1843,9 +1813,6 @@ importers:
       rollup:
         specifier: ^4.1.4
         version: 4.1.4
-      tslib:
-        specifier: ^2.6.2
-        version: 2.6.2
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -1951,9 +1918,6 @@ importers:
       rollup:
         specifier: ^4.1.4
         version: 4.1.4
-      tslib:
-        specifier: ^2.6.2
-        version: 2.6.2
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -2049,9 +2013,6 @@ importers:
       rollup:
         specifier: ^4.1.4
         version: 4.1.4
-      tslib:
-        specifier: ^2.6.2
-        version: 2.6.2
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -9368,6 +9329,10 @@ packages:
     resolution: {integrity: sha512-5QwynfXiRCRxPW3ZnC0Dv+sHHmctP4SHIuzsRKOWYO0HF/qUpsxQVexoviaxpmwDsF1hoVDDFdc4xUuafOzx1g==}
     dev: true
 
+  /bun-types@1.0.7:
+    resolution: {integrity: sha512-zlIp+SCutbbugs6xDy+3WC3KO3zKySpF/bRfiTk/VJUdKt+WHAzlCtLplS7XglRYDFzhRhlzXMW/R5BHkw+u2Q==}
+    dev: true
+
   /bundle-name@3.0.0:
     resolution: {integrity: sha512-PKA4BeSvBpQKQ8iPOGCSiell+N8P+Tf1DlwqmYhpe2gAhKPHn8EYOxVT+ShuGmhg8lN8XiSlS80yiExKXrURlw==}
     engines: {node: '>=12'}
@@ -12866,6 +12831,17 @@ packages:
       ignore: 5.2.4
       merge2: 1.4.1
       slash: 3.0.0
+
+  /globby@13.2.2:
+    resolution: {integrity: sha512-Y1zNGV+pzQdh7H39l9zgB4PJqjRNqydvdYCDG4HFXM4XuvSaQQlEc91IU1yALL8gUTDomgBAfz3XJdmUS+oo0w==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+    dependencies:
+      dir-glob: 3.0.1
+      fast-glob: 3.3.1
+      ignore: 5.2.4
+      merge2: 1.4.1
+      slash: 4.0.0
+    dev: true
 
   /globrex@0.1.2:
     resolution: {integrity: sha512-uHJgbwAMwNFf5mLst7IWLNg14x1CkeqglJb/K3doi4dw6q2IvAAmM/Y81kevy83wP+Sst+nutFTYOGg3d1lsxg==}
@@ -16627,6 +16603,11 @@ packages:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}
     engines: {node: '>=8'}
 
+  /slash@4.0.0:
+    resolution: {integrity: sha512-3dOsAHXXUkQTpOYcoAxLIorMTp4gIQr5IW3iVb7A7lFIp0VHhnynm9izx6TssdrIcVIESAlVjtnO2K8bg+Coew==}
+    engines: {node: '>=12'}
+    dev: true
+
   /smart-buffer@4.2.0:
     resolution: {integrity: sha512-94hK0Hh8rPqQl2xXc3HsaBoOXKV20MToPkcXvwbISWLEs+64sBq5kFgn2kJDHb1Pry9yrP0dxrCI9RRci7RXKg==}
     engines: {node: '>= 6.0.0', npm: '>= 3.0.0'}
@@ -18471,6 +18452,7 @@ packages:
       ember-cli-babel: 8.2.0(@babel/core@7.23.2)
       ember-inflector: 4.0.2(@babel/core@7.23.2)
       pnpm-sync-dependencies-meta-injected: 0.0.10
+      typescript: 5.2.2
       webpack: 5.89.0
     transitivePeerDependencies:
       - '@babel/core'

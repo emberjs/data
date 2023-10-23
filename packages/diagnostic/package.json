@@ -108,7 +108,6 @@
     "@glimmer/component": "^1.1.2",
     "ember-cli-test-loader": "^3.1.0",
     "rollup": "^4.1.4",
-    "tslib": "^2.6.2",
     "typescript": "^5.2.2",
     "walk-sync": "^3.0.0"
   },
