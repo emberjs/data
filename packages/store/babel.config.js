@@ -4,7 +4,7 @@ module.exports = {
   plugins: [
     ...macros,
     // '@embroider/macros/src/babel/macros-babel-plugin.js',
-    ['@babel/plugin-transform-runtime', { loose: true }],
+    // ['@babel/plugin-transform-runtime', { loose: true }],
     ['@babel/plugin-transform-typescript', { allowDeclareFields: true }],
     ['@babel/plugin-proposal-decorators', { legacy: true, loose: true }],
     ['@babel/plugin-transform-private-methods', { loose: true }],

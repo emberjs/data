@@ -41,10 +41,10 @@ export default {
     // addon. Anything not listed here may get optimized away.
     addon.publicEntrypoints(['index.js', '-private.js']),
 
-    nodeResolve({ extensions: ['.ts', '.js'] }),
+    nodeResolve({ extensions: ['.ts'] }),
     babel({
-      extensions: ['.ts', '.js'],
-      babelHelpers: 'runtime', // we should consider "external",
+      extensions: ['.ts'],
+      babelHelpers: 'bundled', // we should consider "external",
     }),
 
     // Remove leftover build artifacts when starting a new build.

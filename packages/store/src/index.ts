@@ -1,3 +1,5 @@
+import 'ember-source/types';
+
 /**
  * <p align="center">
  *   <img
@@ -177,6 +179,9 @@
  * @module @ember-data/store
  * @main @ember-data/store
  */
+
+export type { StableRecordIdentifier } from './-types/q/identifier';
+export type { Cache } from './-types/cache/cache';
 
 export {
   Store as default,

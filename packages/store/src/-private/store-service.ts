@@ -30,7 +30,7 @@ import type { CacheCapabilitiesManager } from '../-types/q/cache-store-wrapper';
 import { ModelSchema } from '../-types/q/ds-model';
 import type { RecordInstance } from '../-types/q/record-instance';
 import type { SchemaService } from '../-types/q/schema-service';
-import type { FindOptions } from '../-types/q/store';
+import type { FindOptions, QueryOptions } from '../-types/q/store';
 import { type LifetimesService, StoreRequestContext, type StoreRequestInput } from './cache-handler';
 import { IdentifierCache } from './caches/identifier-cache';
 import {
@@ -1509,11 +1509,7 @@ class Store extends EmberObject {
     @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.queryRecord
     @return {Promise} promise which resolves with the found record or `null`
   */
-  queryRecord(
-    modelName: string,
-    query: Record<string, unknown>,
-    options?: { adapterOptions: Record<string | number | symbol, unknown> }
-  ): Promise<RecordInstance | null> {
+  queryRecord(modelName: string, query: Record<string, unknown>, options?: QueryOptions): Promise<RecordInstance | null> {
     if (DEBUG) {
       assertDestroyingStore(this, 'queryRecord');
     }
