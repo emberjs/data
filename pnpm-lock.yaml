@@ -1453,18 +1453,6 @@ importers:
       '@babel/runtime':
         specifier: ^7.23.2
         version: 7.23.2
-      '@ember-data/request':
-        specifier: workspace:5.5.0-alpha.11
-        version: file:packages/request(@babel/core@7.23.2)(@warp-drive/core-types@5.5.0-alpha.11)
-      '@ember-data/store':
-        specifier: workspace:5.5.0-alpha.11
-        version: file:packages/store(@babel/core@7.23.2)(@ember-data/request@5.5.0-alpha.11)(@ember-data/tracking@5.5.0-alpha.11)(@ember/string@3.1.1)(@warp-drive/core-types@5.5.0-alpha.11)
-      '@ember-data/tracking':
-        specifier: workspace:5.5.0-alpha.11
-        version: file:packages/tracking(@babel/core@7.23.2)(ember-source@5.3.0)
-      '@ember/string':
-        specifier: 3.1.1
-        version: 3.1.1(@babel/core@7.23.2)
       '@embroider/addon-dev':
         specifier: ^4.1.1
         version: 4.1.1(rollup@4.1.4)
@@ -1500,14 +1488,6 @@ importers:
         version: 3.0.0
     dependenciesMeta:
       '@ember-data/private-build-infra':
-        injected: true
-      '@ember-data/request':
-        injected: true
-      '@ember-data/store':
-        injected: true
-      '@ember-data/tracking':
-        injected: true
-      '@ember/string':
         injected: true
       '@warp-drive/core-types':
         injected: true
@@ -2216,7 +2196,7 @@ importers:
         version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
     dependenciesMeta:
       '@ember-data/private-build-infra':
-        injected: 'true'
+        injected: true
       '@ember/string':
         injected: true
 
@@ -18468,6 +18448,7 @@ packages:
       eslint-plugin-import: 2.28.1(@typescript-eslint/parser@6.8.0)(eslint@8.52.0)
       eslint-plugin-prettier: 5.0.1(eslint-config-prettier@9.0.0)(eslint@8.52.0)(prettier@3.0.3)
       eslint-plugin-simple-import-sort: 10.0.0(eslint@8.52.0)
+      pnpm-sync-dependencies-meta-injected: 0.0.10
       prettier: 3.0.3
       typescript: 5.2.2
     transitivePeerDependencies:
@@ -18505,6 +18486,7 @@ packages:
       ember-auto-import: 2.6.3(webpack@5.89.0)
       ember-cli-babel: 8.2.0(@babel/core@7.23.2)
       ember-inflector: 4.0.2(@babel/core@7.23.2)
+      pnpm-sync-dependencies-meta-injected: 0.0.10
       webpack: 5.89.0
     transitivePeerDependencies:
       - '@babel/core'
@@ -18534,6 +18516,7 @@ packages:
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.23.2)
       ember-cli-babel: 8.2.0(@babel/core@7.23.2)
       ember-inflector: 4.0.2(@babel/core@7.23.2)
+      pnpm-sync-dependencies-meta-injected: 0.0.10
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -18558,6 +18541,7 @@ packages:
       ember-cli-babel: 8.2.0(@babel/core@7.23.2)
       ember-cli-test-info: 1.0.0
       ember-inflector: 4.0.2(@babel/core@7.23.2)
+      pnpm-sync-dependencies-meta-injected: 0.0.10
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -18571,6 +18555,7 @@ packages:
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
       ember-cli-babel: 8.2.0(@babel/core@7.23.2)
+      pnpm-sync-dependencies-meta-injected: 0.0.10
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -18593,6 +18578,7 @@ packages:
       '@embroider/macros': 1.13.2(@babel/core@7.23.2)
       ember-auto-import: 2.6.3(webpack@5.89.0)
       ember-cli-babel: 8.2.0(@babel/core@7.23.2)
+      pnpm-sync-dependencies-meta-injected: 0.0.10
       webpack: 5.89.0
     transitivePeerDependencies:
       - '@glint/template'
@@ -18624,6 +18610,7 @@ packages:
       chalk: 5.3.0
       debug: 4.3.4(supports-color@8.1.1)
       ember-cli-test-loader: 3.1.0(@babel/core@7.23.2)
+      pnpm-sync-dependencies-meta-injected: 0.0.10
       tmp: 0.2.1
     transitivePeerDependencies:
       - supports-color
@@ -18643,6 +18630,7 @@ packages:
       '@embroider/macros': 1.13.2(@babel/core@7.23.2)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.23.2)
       ember-cli-babel: 8.2.0(@babel/core@7.23.2)
+      pnpm-sync-dependencies-meta-injected: 0.0.10
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -18664,6 +18652,7 @@ packages:
       chalk: 4.1.2
       hono: 3.8.2
       pm2: 5.3.0
+      pnpm-sync-dependencies-meta-injected: 0.0.10
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -18694,6 +18683,7 @@ packages:
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.23.2)
       ember-cli-babel: 8.2.0(@babel/core@7.23.2)
       ember-inflector: 4.0.2(@babel/core@7.23.2)
+      pnpm-sync-dependencies-meta-injected: 0.0.10
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -18724,6 +18714,7 @@ packages:
       '@embroider/macros': 1.13.2(@babel/core@7.23.2)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.23.2)
       ember-cli-babel: 8.2.0(@babel/core@7.23.2)
+      pnpm-sync-dependencies-meta-injected: 0.0.10
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -18768,6 +18759,7 @@ packages:
       ember-cli-test-info: 1.0.0
       ember-inflector: 4.0.2(@babel/core@7.23.2)
       inflection: 3.0.0
+      pnpm-sync-dependencies-meta-injected: 0.0.10
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -18798,6 +18790,7 @@ packages:
       ember-cli-version-checker: 5.1.2
       git-repo-info: 2.1.1
       npm-git-info: 1.0.3
+      pnpm-sync-dependencies-meta-injected: 0.0.10
       semver: 7.5.4
       silent-error: 1.1.1
     transitivePeerDependencies:
@@ -18817,6 +18810,7 @@ packages:
       '@embroider/macros': 1.13.2(@babel/core@7.23.2)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.23.2)
       ember-cli-babel: 8.2.0(@babel/core@7.23.2)
+      pnpm-sync-dependencies-meta-injected: 0.0.10
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -18832,6 +18826,7 @@ packages:
     dependencies:
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.23.2)
       ember-cli-babel: 8.2.0(@babel/core@7.23.2)
+      pnpm-sync-dependencies-meta-injected: 0.0.10
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -18854,6 +18849,7 @@ packages:
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.23.2)
       ember-cli-babel: 8.2.0(@babel/core@7.23.2)
       ember-inflector: 4.0.2(@babel/core@7.23.2)
+      pnpm-sync-dependencies-meta-injected: 0.0.10
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -18869,6 +18865,7 @@ packages:
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.13.2(@babel/core@7.23.2)
       ember-cli-babel: 8.2.0(@babel/core@7.23.2)
+      pnpm-sync-dependencies-meta-injected: 0.0.10
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -18892,6 +18889,7 @@ packages:
       ember-cli-babel: 8.2.0(@babel/core@7.23.2)
       ember-cli-test-info: 1.0.0
       ember-inflector: 4.0.2(@babel/core@7.23.2)
+      pnpm-sync-dependencies-meta-injected: 0.0.10
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -18915,6 +18913,7 @@ packages:
       '@embroider/macros': 1.13.2(@babel/core@7.23.2)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.23.2)
       ember-cli-babel: 8.2.0(@babel/core@7.23.2)
+      pnpm-sync-dependencies-meta-injected: 0.0.10
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -18930,6 +18929,7 @@ packages:
       '@embroider/macros': 1.13.2(@babel/core@7.23.2)
       ember-cached-decorator-polyfill: 1.0.2(@babel/core@7.23.2)(ember-source@5.3.0)
       ember-cli-babel: 8.2.0(@babel/core@7.23.2)
+      pnpm-sync-dependencies-meta-injected: 0.0.10
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -18956,6 +18956,7 @@ packages:
       ember-cli-babel: 8.2.0(@babel/core@7.23.2)
       ember-cli-blueprint-test-helpers: 0.19.2
       ember-get-config: 2.1.1(@babel/core@7.23.2)
+      pnpm-sync-dependencies-meta-injected: 0.0.10
       qunit: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       semver: 7.5.4
       testem: 3.10.1(patch_hash=ne26ybtmre3r2x3hatfhkop2dm)
