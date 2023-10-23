@@ -238,6 +238,20 @@ module.exports = {
       ],
     },
 
+    // modern node files
+    {
+      files: ['tests/*/diagnostic.js'],
+      parserOptions: {
+        sourceType: 'module',
+        ecmaVersion: 2022,
+      },
+      env: {
+        browser: false,
+        node: true,
+        es6: true,
+      },
+    },
+
     // node files
     {
       files: [
@@ -281,7 +295,7 @@ module.exports = {
       ],
       parserOptions: {
         sourceType: 'script',
-        ecmaVersion: 2022,
+        ecmaVersion: 2018,
       },
       env: {
         browser: false,
@@ -292,20 +306,6 @@ module.exports = {
       extends: 'plugin:node/recommended',
       rules: {
         'import/order': ['error', { 'newlines-between': 'always' }],
-      },
-    },
-
-    // modern node files
-    {
-      files: ['tests/*/diagnostic.js', 'packages/store/babel.config.js'],
-      parserOptions: {
-        sourceType: 'module',
-        ecmaVersion: 2022,
-      },
-      env: {
-        browser: false,
-        node: true,
-        es6: true,
       },
     },
 
@@ -344,7 +344,7 @@ module.exports = {
       },
       parserOptions: {
         sourceType: 'script',
-        ecmaVersion: 2022,
+        ecmaVersion: 2018,
       },
       rules: {
         'node/no-unpublished-require': 'off',
