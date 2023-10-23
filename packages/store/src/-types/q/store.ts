@@ -7,3 +7,7 @@ export interface FindOptions {
   adapterOptions?: Record<string, unknown>;
   preload?: Record<string, Value>;
 }
+
+export interface QueryOptions {
+  adapterOptions?: Record<string | number | symbol, unknown>;
+}
