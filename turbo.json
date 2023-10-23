@@ -35,6 +35,7 @@
         // + V2-Addon convention
         "src/**",
         "addon-main.*",
+        "tsconfig.json",
         "babel.*",
         "rollup-config.*"
       ],
@@ -44,7 +45,8 @@
         "addon-test-support/**",
         // V2-Addon convention
         "dist/**",
-        "declarations/**"
+        "declarations/**",
+        "unstable-preview-types/**"
       ],
       "dependsOn": ["_syncPnpm"]
     },
