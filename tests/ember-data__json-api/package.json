@@ -16,7 +16,7 @@
   },
   "scripts": {
     "build": "ember build --output-path=dist-test --suppress-sizes",
-    "test": "pnpm build && bun ./diagnostic.js",
+    "test": "bun ./diagnostic.js",
     "test:production": "pnpm build -e production; bun ./diagnostic.js",
     "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },

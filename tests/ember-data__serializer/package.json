@@ -15,11 +15,11 @@
     "test": "tests"
   },
   "scripts": {
-    "build": "ember build",
+    "build": "ember build --output-path=dist-test --suppress-sizes",
     "lint:hbs": "ember-template-lint .",
     "lint:old": "eslint --config ../../.eslintrc.js --ignore-path ../../.eslintignore .",
     "start": "ember serve",
-    "test": "ember test --test-port=0",
+    "test": "ember test --test-port=0 --path=dist-test",
     "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "dependenciesMeta": {

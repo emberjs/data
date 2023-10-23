@@ -15,9 +15,9 @@
     "test": "tests"
   },
   "scripts": {
-    "build": "ember build",
+    "build": "ember build --output-path=dist-test --suppress-sizes",
     "start": "ember test --port=0 --serve --no-launch",
-    "test": "ember test --test-port=0",
+    "test": "ember test --test-port=0 --path=dist-test",
     "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "dependenciesMeta": {
@@ -37,12 +37,6 @@
       "injected": true
     },
     "@ember-data/graph": {
-      "injected": true
-    },
-    "@ember-data/model": {
-      "injected": true
-    },
-    "@ember-data/legacy-compat": {
       "injected": true
     },
     "@ember-data/private-build-infra": {
