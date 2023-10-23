@@ -38,7 +38,7 @@
   },
   "files": [
     "unstable-preview-types",
-    "addon-main.js",
+    "addon-main.cjs",
     "addon",
     "README.md",
     "LICENSE.md",
