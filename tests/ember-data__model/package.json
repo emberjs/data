@@ -15,9 +15,10 @@
     "test": "tests"
   },
   "scripts": {
-    "build": "ember build --output-path=dist-test --suppress-sizes",
+    "build:tests": "ember build --output-path=dist-test --suppress-sizes",
+    "build:production": "pnpm build -e production",
     "test": "bun ./diagnostic.js",
-    "test:production": "pnpm build -e production; bun ./diagnostic.js",
+    "test:production": "bun ./diagnostic.js",
     "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "dependenciesMeta": {

@@ -15,7 +15,7 @@
     "test": "tests"
   },
   "scripts": {
-    "build": "ember build --output-path=dist-test --suppress-sizes",
+    "build:tests": "ember build --output-path=dist-test --suppress-sizes",
     "lint:hbs": "ember-template-lint .",
     "lint:old": "eslint --config ../../.eslintrc.js --ignore-path ../../.eslintignore .",
     "start": "ember serve",

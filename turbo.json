@@ -34,6 +34,7 @@
       "inputs": [
         // + V2-Addon convention
         "src/**",
+        "tests/**",
         "addon-main.*",
         "tsconfig.json",
         "babel.*",
@@ -45,15 +46,40 @@
         "addon-test-support/**",
         // V2-Addon convention
         "dist/**",
+        "dist-test/**",
         "declarations/**",
         "unstable-preview-types/**"
       ],
       "dependsOn": ["_syncPnpm"]
     },
+    "build:tests": {
+      "inputs": [
+        // + V2-Addon convention
+        "src/**",
+        "tests/**",
+        "addon-main.*",
+        "tsconfig.json",
+        "babel.*",
+        "rollup-config.*"
+      ],
+      "outputs": [
+        // V1-Addon convention
+        "addon/**",
+        "addon-test-support/**",
+        // V2-Addon convention
+        "dist/**",
+        "dist-test/**",
+        "declarations/**",
+        "unstable-preview-types/**"
+      ],
+      "dependsOn": ["_syncPnpm", "^build"]
+    },
     "build:production": {
       "inputs": [
         // + V2-Addon convention
         "src/**",
+        "tests/**",
+        "ember-cli-build.js",
         "addon-main.*",
         "babel.*",
         "rollup-config.*"
@@ -64,9 +90,10 @@
         "addon-test-support/**",
         // V2-Addon convention
         "dist/**",
+        "dist-test/**",
         "declarations/**"
       ],
-      "dependsOn": ["_syncPnpm"]
+      "dependsOn": ["_syncPnpm", "^build"]
     },
     // See: https://github.com/pnpm/pnpm/issues/4965
     "_syncPnpm": {
@@ -75,11 +102,11 @@
     },
     "test": {
       "outputs": [],
-      "dependsOn": ["_syncPnpm", "^build"]
+      "dependsOn": ["build:tests"]
     },
     "test:production": {
       "outputs": [],
-      "dependsOn": ["_syncPnpm", "^build"]
+      "dependsOn": ["build:production"]
     }
   }
 }
