@@ -106,7 +106,7 @@ importers:
         specifier: ^7.22.15
         version: 7.22.15(@babel/core@7.23.2)(eslint@8.52.0)
       '@babel/plugin-proposal-decorators':
-        specifier: ^7.12.13
+        specifier: ^7.23.2
         version: 7.23.2(@babel/core@7.23.2)
       '@typescript-eslint/eslint-plugin':
         specifier: ^6.8.0
