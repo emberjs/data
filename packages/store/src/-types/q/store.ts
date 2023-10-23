@@ -9,5 +9,5 @@ export interface FindOptions {
 }
 
 export interface QueryOptions {
-  adapterOptions?: Record<string, unknown>;
+  adapterOptions?: Record<string | number | symbol, unknown>;
 }
