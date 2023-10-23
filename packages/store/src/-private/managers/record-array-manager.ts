@@ -1,12 +1,11 @@
 /**
   @module @ember-data/store
 */
-import type { StableRecordIdentifier } from '@warp-drive/core/identifier';
-
-import { ImmutableRequestInfo } from '@ember-data/request/-private/types';
 import { addTransactionCB } from '@ember-data/tracking/-private';
+import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import { ImmutableRequestInfo } from '@warp-drive/core-types/request';
+import type { CollectionResourceDocument } from '@warp-drive/core-types/spec/raw';
 
-import type { CollectionResourceDocument } from '../../-types/q/ember-data-json-api';
 import IdentifierArray, {
   ARRAY_SIGNAL,
   Collection,
@@ -60,7 +59,7 @@ const SLICE_BATCH_SIZE = 1200;
  */
 export function fastPush<T>(target: T[], source: T[]) {
   let startLength = 0;
-  let newLength = source.length;
+  const newLength = source.length;
   while (newLength - startLength > SLICE_BATCH_SIZE) {
     // eslint-disable-next-line prefer-spread
     target.push.apply(target, source.slice(startLength, startLength + SLICE_BATCH_SIZE));
@@ -141,8 +140,8 @@ class RecordArrayManager {
   */
   liveArrayFor(type: string): IdentifierArray {
     let array = this._live.get(type);
-    let identifiers: StableRecordIdentifier[] = [];
-    let staged = this._staged.get(type);
+    const identifiers: StableRecordIdentifier[] = [];
+    const staged = this._staged.get(type);
     if (staged) {
       staged.forEach((value, key) => {
         if (value === 'add') {
@@ -173,7 +172,7 @@ class RecordArrayManager {
     identifiers?: StableRecordIdentifier[];
     doc?: CollectionResourceDocument;
   }): Collection {
-    let options: CollectionCreateOptions = {
+    const options: CollectionCreateOptions = {
       type: config.type,
       links: config.doc?.links || null,
       meta: config.doc?.meta || null,
@@ -184,7 +183,7 @@ class RecordArrayManager {
       store: this.store,
       manager: this,
     };
-    let array = new Collection(options);
+    const array = new Collection(options);
     this._managed.add(array);
     this._set.set(array, new Set(options.identifiers || []));
     if (config.identifiers) {
@@ -198,7 +197,7 @@ class RecordArrayManager {
     if (array === FAKE_ARR) {
       return;
     }
-    let tag = array[ARRAY_SIGNAL];
+    const tag = array[ARRAY_SIGNAL];
     if (!tag.shouldReset) {
       tag.shouldReset = true;
       addTransactionCB(array[NOTIFY]);
@@ -216,12 +215,12 @@ class RecordArrayManager {
       return;
     }
 
-    let liveArray = this._live.get(identifier.type);
+    const liveArray = this._live.get(identifier.type);
     const allPending = this._pending;
-    let pending: Map<IdentifierArray, ChangeSet> = new Map();
+    const pending: Map<IdentifierArray, ChangeSet> = new Map();
 
     if (includeManaged) {
-      let managed = this._identifiers.get(identifier);
+      const managed = this._identifiers.get(identifier);
       if (managed) {
         managed.forEach((arr) => {
           let changes = allPending.get(arr);
@@ -282,10 +281,10 @@ class RecordArrayManager {
   }
 
   identifierAdded(identifier: StableRecordIdentifier): void {
-    let changeSets = this._getPendingFor(identifier, false);
+    const changeSets = this._getPendingFor(identifier, false);
     if (changeSets) {
       changeSets.forEach((changes, array) => {
-        let existing = changes.get(identifier);
+        const existing = changes.get(identifier);
         if (existing === 'del') {
           changes.delete(identifier);
         } else {
@@ -298,10 +297,10 @@ class RecordArrayManager {
   }
 
   identifierRemoved(identifier: StableRecordIdentifier): void {
-    let changeSets = this._getPendingFor(identifier, true, true);
+    const changeSets = this._getPendingFor(identifier, true, true);
     if (changeSets) {
       changeSets.forEach((changes, array) => {
-        let existing = changes.get(identifier);
+        const existing = changes.get(identifier);
         if (existing === 'add') {
           changes.delete(identifier);
         } else {
@@ -314,7 +313,7 @@ class RecordArrayManager {
   }
 
   identifierChanged(identifier: StableRecordIdentifier): void {
-    let newState = this.store._instanceCache.recordIsLoaded(identifier, true);
+    const newState = this.store._instanceCache.recordIsLoaded(identifier, true);
 
     // if the change matches the most recent direct added/removed
     // state, then we can ignore it
@@ -355,7 +354,7 @@ function associate(
   identifiers: StableRecordIdentifier[]
 ) {
   for (let i = 0; i < identifiers.length; i++) {
-    let identifier = identifiers[i];
+    const identifier = identifiers[i];
     let cache = ArraysCache.get(identifier);
     if (!cache) {
       cache = new Set();
@@ -380,7 +379,7 @@ export function disassociateIdentifier(
   array: Collection,
   identifier: StableRecordIdentifier
 ) {
-  let cache = ArraysCache.get(identifier);
+  const cache = ArraysCache.get(identifier);
   if (cache) {
     cache.delete(array);
   }
@@ -391,7 +390,7 @@ function sync(
   changes: Map<StableRecordIdentifier, 'add' | 'del'>,
   arraySet: Set<StableRecordIdentifier>
 ) {
-  let state = array[SOURCE];
+  const state = array[SOURCE];
   const adds: StableRecordIdentifier[] = [];
   const removes: StableRecordIdentifier[] = [];
   changes.forEach((value, key) => {

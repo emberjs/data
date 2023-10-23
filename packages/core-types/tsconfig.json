@@ -1,0 +1,46 @@
+{
+  "include": ["src/**/*"],
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "skipLibCheck": true,
+    "noEmit": false,
+    "allowJs": false,
+    "checkJs": false,
+
+    "alwaysStrict": true,
+    "strict": true,
+    "allowSyntheticDefaultImports": true,
+
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+    "allowUnreachableCode": false,
+    "exactOptionalPropertyTypes": true,
+    "allowUnusedLabels": false,
+    "noEmitOnError": false,
+    "strictNullChecks": true,
+    "noErrorTruncation": true,
+    "preserveConstEnums": false,
+    "experimentalDecorators": true,
+    "pretty": true,
+
+    // Enable faster builds
+    // but causes us to not rebuild properly
+    "incremental": false,
+
+    // Support generation of source maps. Note: you must *also* enable source
+    // maps in your `ember-cli-babel` config and/or `babel.config.js`.
+    "declaration": true,
+    "declarationMap": true,
+    "declarationDir": "unstable-preview-types",
+    "emitDeclarationOnly": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+
+    "baseUrl": "src"
+  }
+}

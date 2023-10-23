@@ -7,17 +7,20 @@
     "url": "git+ssh://git@github.com:emberjs/data.git"
   },
   "scripts": {
+    "prepare": "pnpm build",
+    "build": "pnpm turbo build --filter=./packages/*",
     "build:docs": "mkdir -p packages/-ember-data/dist && cd ./docs-generator && node ./compile-docs.js",
-    "lint:js": "eslint --quiet --cache --cache-strategy=content --ext=js,ts .",
+    "lint": "pnpm run -r --workspace-concurrency=-1 --if-present lint",
     "preinstall": "npx only-allow pnpm",
-    "problems": "tsc -p tsconfig.json --noEmit --pretty false",
-    "test": "pnpm --filter \"ember-data__*\" --filter \"warp-drive__*\" --filter main-test-app --filter builders-test-app run test",
-    "test:production": "pnpm --filter main-test-app --filter ember-data__graph --filter ember-data__json-api run test:production",
+    "check:types": "pnpm run -r --workspace-concurrency=-1 --if-present check:types",
+    "test": "pnpm turbo test --concurrency=1",
+    "test:production": "pnpm turbo test:production --concurrency=1",
     "test:try-one": "pnpm --filter main-test-app run test:try-one",
-    "test:docs": "pnpm build:docs && pnpm --filter docs-tests test",
-    "test:fastboot": "pnpm --filter fastboot-test-app test",
-    "test:embroider": "pnpm --filter embroider-basic-compat test",
-    "test:infra": "pnpm --filter @ember-data/unpublished-test-infra test",
+    "test:docs": "pnpm build:docs && pnpm run -r --workspace-concurrency=-1 --if-present test:blueprints",
+    "test:blueprints": "pnpm run -r --workspace-concurrency=-1 --if-present test:blueprints",
+    "test:fastboot": "pnpm run -r --workspace-concurrency=-1 --if-present test:fastboot",
+    "test:embroider": "pnpm run -r ---workspace-concurrency=-1 --if-present test:embroider",
+    "test:infra": "pnpm run -r --workspace-concurrency=-1 --if-present test:infra",
     "test-external:ember-m3": "node ./scripts/test-external-partner-project.js ember-m3 https://github.com/hjdivad/ember-m3.git",
     "test-external:ember-data-change-tracker": "node ./scripts/test-external-partner-project.js ember-data-change-tracker https://github.com/danielspaniel/ember-data-change-tracker.git",
     "test-external:model-fragments": "node ./scripts/test-external-partner-project.js model-fragments https://github.com/lytics/ember-data-model-fragments.git",
@@ -30,52 +33,28 @@
     "test-external:ember-data-relationship-tracker": "node ./scripts/test-external-partner-project.js ember-data-relationship-tracker https://github.com/ef4/ember-data-relationship-tracker.git"
   },
   "devDependencies": {
-    "@babel/core": "^7.23.2",
-    "@babel/eslint-parser": "^7.22.15",
-    "@babel/plugin-proposal-decorators": "^7.23.2",
-    "@babel/plugin-transform-typescript": "^7.22.15",
-    "@babel/runtime": "^7.23.2",
-    "@ember/edition-utils": "^1.2.0",
-    "@ember/optional-features": "^2.0.0",
-    "@ember/string": "3.1.1",
-    "@ember/test-helpers": "^3.2.0",
-    "@glimmer/component": "^1.1.2",
-    "@types/jquery": "^3.5.22",
-    "@types/qunit": "^2.19.6",
-    "@typescript-eslint/eslint-plugin": "^6.8.0",
-    "@typescript-eslint/parser": "^6.8.0",
     "chalk": "^4.1.2",
     "co": "^4.6.0",
     "command-line-args": "^5.2.1",
     "common-tags": "^1.8.2",
     "debug": "^4.3.4",
-    "ember-cli": "~5.3.0",
-    "ember-source": "~5.3.0",
-    "eslint": "^8.51.0",
-    "eslint-config-prettier": "^9.0.0",
-    "eslint-plugin-ember": "^11.11.1",
-    "eslint-plugin-ember-data-internal": "link:packages/unpublished-eslint-rules",
-    "eslint-plugin-import": "^2.28.1",
-    "eslint-plugin-mocha": "^10.2.0",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-prettier": "5.0.1",
-    "eslint-plugin-qunit": "^8.0.1",
-    "eslint-plugin-simple-import-sort": "^10.0.0",
     "execa": "^5.1.1",
     "fromentries": "^1.3.2",
     "git-repo-info": "^2.1.1",
     "git-repo-version": "^1.0.2",
     "lerna-changelog": "^2.2.0",
-    "loader.js": "^4.7.0",
-    "prettier": "^3.0.3",
+    "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "rimraf": "^5.0.5",
     "semver": "^7.5.4",
+    "globby": "^13.2.2",
     "silent-error": "^1.1.1",
-    "typescript": "~5.2.2",
+    "bun-types": "^1.0.7",
     "url": "^0.11.3",
-    "webpack": "^5.89.0",
     "yuidocjs": "^0.10.2",
     "zlib": "1.0.5"
+  },
+  "dependencies": {
+    "turbo": "^1.10.15"
   },
   "engines": {
     "node": ">= 18.18.2",
@@ -107,6 +86,25 @@
         "dependencies": {
           "@glimmer/env": "^0.1.7"
         }
+      },
+      "ember-cli-blueprint-test-helpers": {
+        "peerDependencies": {
+          "ember-cli": "*"
+        }
+      },
+      "ember-cli-fastboot": {
+        "peerDependencies": {
+          "ember-cli": "*",
+          "ember-source": "*"
+        }
+      },
+      "ember-cli-fastboot-testing": {
+        "peerDependencies": {
+          "ember-cli": "*",
+          "ember-cli-fastboot": "*",
+          "ember-source": "*",
+          "@ember/test-helpers": "*"
+        }
       }
     },
     "overrides": {
@@ -114,6 +112,7 @@
       "@embroider/macros": "^1.12.2",
       "broccoli-funnel": "^3.0.8",
       "broccoli-merge-trees": "^4.2.0",
+      "@glimmer/validator": "^0.84.3",
       "ember-cli-babel": "^8.1.0",
       "ember-cli-htmlbars": "^6.3.0",
       "ember-cli-typescript": "^5.2.1",

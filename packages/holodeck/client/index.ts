@@ -2,13 +2,11 @@ import type { Handler, NextFn, RequestContext, RequestInfo, StructuredDataDocume
 
 import type { ScaffoldGenerator } from './mock';
 
-const TEST_IDS = new WeakMap<object, { id: string; request: number; mock: number; }>();
+const TEST_IDS = new WeakMap<object, { id: string; request: number; mock: number }>();
 
 export function setTestId(context: object, str: string | null) {
   if (str && TEST_IDS.has(context)) {
-    throw new Error(
-      `MockServerHandler is already configured with a testId.`
-    );
+    throw new Error(`MockServerHandler is already configured with a testId.`);
   }
   if (str) {
     TEST_IDS.set(context, { id: str, request: 0, mock: 0 });
@@ -41,7 +39,9 @@ export class MockServerHandler implements Handler {
     const request: RequestInfo = Object.assign({}, context.request);
     const isRecording = request.url!.endsWith('/__record');
     const firstChar = request.url!.includes('?') ? '&' : '?';
-    const queryForTest = `${firstChar}__xTestId=${test.id}&__xTestRequestNumber=${isRecording ? test.mock++ : test.request++}`;
+    const queryForTest = `${firstChar}__xTestId=${test.id}&__xTestRequestNumber=${
+      isRecording ? test.mock++ : test.request++
+    }`;
     request.url = request.url + queryForTest;
 
     request.mode = 'cors';
@@ -50,7 +50,6 @@ export class MockServerHandler implements Handler {
 
     try {
       return await next(request);
-
     } catch (e) {
       if (e instanceof Error && !(e instanceof DOMException)) {
         e.message = e.message.replace(queryForTest, '');
@@ -58,7 +57,7 @@ export class MockServerHandler implements Handler {
       throw e;
     }
   }
-};
+}
 
 export async function mock(owner: object, generate: ScaffoldGenerator, isRecording?: boolean) {
   const test = TEST_IDS.get(owner);

@@ -1,10 +1,9 @@
 import { getOwner, setOwner } from '@ember/application';
 import { assert } from '@ember/debug';
 
-import type { StableRecordIdentifier } from '@warp-drive/core';
-
 import { setCacheFor, setRecordIdentifier, type Store, StoreMap } from '@ember-data/store/-private';
-import type { Cache } from '@ember-data/store/-types/cache/cache';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { Cache } from '@warp-drive/core-types/cache';
 
 import type { ModelStore } from './model';
 import Model from './model';

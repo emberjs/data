@@ -6,7 +6,7 @@ import { DEPRECATE_NON_STRICT_TYPES } from '@ember-data/deprecations';
 export type DecoratorPropertyDescriptor = (PropertyDescriptor & { initializer?: () => unknown }) | undefined;
 
 export function isElementDescriptor(args: unknown[]): args is [object, string, DecoratorPropertyDescriptor] {
-  let [maybeTarget, maybeKey, maybeDesc] = args;
+  const [maybeTarget, maybeKey, maybeDesc] = args;
 
   return (
     // Ensure we have the right number of args

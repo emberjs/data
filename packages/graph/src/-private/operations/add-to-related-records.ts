@@ -1,9 +1,9 @@
 import { assert } from '@ember/debug';
 
-import type { StableRecordIdentifier } from '@warp-drive/core';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { AddToRelatedRecordsOperation } from '@warp-drive/core-types/graph';
 
 import { _addLocal } from '../-diff';
-import type { AddToRelatedRecordsOperation } from '../-operations';
 import { isHasMany, notifyChange } from '../-utils';
 import type { CollectionEdge } from '../edges/collection';
 import type { Graph } from '../graph';

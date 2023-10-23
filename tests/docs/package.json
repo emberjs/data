@@ -11,7 +11,8 @@
   "license": "MIT",
   "author": "",
   "scripts": {
-    "test": "qunit ./index.js"
+    "test:docs": "qunit ./index.js",
+    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "devDependencies": {
     "qunit": "^2.20.0"
@@ -22,5 +23,8 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.9.2"
+  "packageManager": "pnpm@8.9.2",
+  "dependencies": {
+    "pnpm-sync-dependencies-meta-injected": "0.0.10"
+  }
 }

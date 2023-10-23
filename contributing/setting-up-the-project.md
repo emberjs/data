@@ -34,6 +34,6 @@ Currently the install command is also what builds all of the individual packages
 
 Generally test and lint commands can be found in the `"scripts"` section of the root `package.json` manifest. Individual packages or test packages have additional commands in the `"scripts"` section of their own `package.json` manifest as well.
 
-Any command in script can be run using `pnpm` from the directory of that manifest. For instance, to run linting from the root: `pnpm lint:js`
+Any command in script can be run using `pnpm` from the directory of that manifest. For instance, to run linting from the root: `pnpm lint`
 
 Github Actions workflows will generally use these same commands.

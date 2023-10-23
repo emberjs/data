@@ -15,9 +15,9 @@
     "test": "tests"
   },
   "scripts": {
-    "build": "ember build --output-path=dist-test --suppress-sizes",
-    "test": "pnpm build && bun ./diagnostic.js",
-    "test:production": "pnpm build -e production; bun ./diagnostic.js"
+    "build:tests": "IS_TESTING=true EMBER_CLI_TEST_COMMAND=true ember build --output-path=dist-test --suppress-sizes",
+    "test": "bun ./diagnostic.js",
+    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "dependenciesMeta": {
     "@ember-data/adapter": {
@@ -38,7 +38,28 @@
     "@warp-drive/diagnostic": {
       "injected": true
     },
-    "@warp-drive/core": {
+    "@warp-drive/core-types": {
+      "injected": true
+    },
+    "@ember/string": {
+      "injected": true
+    },
+    "ember-inflector": {
+      "injected": true
+    },
+    "@ember-data/legacy-compat": {
+      "injected": true
+    },
+    "@ember-data/request": {
+      "injected": true
+    },
+    "@ember-data/graph": {
+      "injected": true
+    },
+    "@ember-data/json-api": {
+      "injected": true
+    },
+    "@ember-data/request-utils": {
       "injected": true
     }
   },
@@ -46,12 +67,15 @@
     "@babel/core": "^7.23.2",
     "@babel/runtime": "^7.23.2",
     "@ember-data/adapter": "workspace:5.5.0-alpha.11",
+    "@ember-data/graph": "workspace:5.5.0-alpha.11",
+    "@ember-data/json-api": "workspace:5.5.0-alpha.11",
+    "@ember-data/legacy-compat": "workspace:5.5.0-alpha.11",
     "@ember-data/private-build-infra": "workspace:5.5.0-alpha.11",
+    "@ember-data/request": "workspace:5.5.0-alpha.11",
+    "@ember-data/request-utils": "workspace:5.5.0-alpha.11",
     "@ember-data/serializer": "workspace:5.5.0-alpha.11",
     "@ember-data/store": "workspace:5.5.0-alpha.11",
     "@ember-data/tracking": "workspace:5.5.0-alpha.11",
-    "@warp-drive/diagnostic": "workspace:5.5.0-alpha.11",
-    "@warp-drive/core": "workspace:5.5.0-alpha.11",
     "@ember/optional-features": "^2.0.0",
     "@ember/string": "3.1.1",
     "@ember/test-helpers": "^3.2.0",
@@ -59,6 +83,8 @@
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "@types/ember__owner": "^4.0.6",
+    "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
+    "@warp-drive/diagnostic": "workspace:5.5.0-alpha.11",
     "ember-auto-import": "^2.6.3",
     "ember-cli": "~5.3.0",
     "ember-cli-babel": "^8.2.0",
@@ -83,5 +109,8 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.9.2"
+  "packageManager": "pnpm@8.9.2",
+  "dependencies": {
+    "pnpm-sync-dependencies-meta-injected": "0.0.10"
+  }
 }

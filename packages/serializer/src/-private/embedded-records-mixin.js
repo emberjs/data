@@ -1,4 +1,3 @@
-import { A } from '@ember/array';
 import { warn } from '@ember/debug';
 import Mixin from '@ember/object/mixin';
 import { camelize } from '@ember/string';
@@ -131,7 +130,7 @@ export default Mixin.create({
    @return {Object} the normalized hash
   **/
   normalize(typeClass, hash, prop) {
-    let normalizedHash = this._super(typeClass, hash, prop);
+    const normalizedHash = this._super(typeClass, hash, prop);
     return this._extractEmbeddedRecords(this, this.store, typeClass, normalizedHash);
   },
 
@@ -201,16 +200,16 @@ export default Mixin.create({
     @param {Object} relationship
   */
   serializeBelongsTo(snapshot, json, relationship) {
-    let attr = relationship.name;
+    const attr = relationship.name;
     if (this.noSerializeOptionSpecified(attr)) {
       this._super(snapshot, json, relationship);
       return;
     }
-    let includeIds = this.hasSerializeIdsOption(attr);
-    let includeRecords = this.hasSerializeRecordsOption(attr);
-    let embeddedSnapshot = snapshot.belongsTo(attr);
+    const includeIds = this.hasSerializeIdsOption(attr);
+    const includeRecords = this.hasSerializeRecordsOption(attr);
+    const embeddedSnapshot = snapshot.belongsTo(attr);
     if (includeIds) {
-      let schema = this.store.modelFor(snapshot.modelName);
+      const schema = this.store.modelFor(snapshot.modelName);
       let serializedKey = this._getMappedKey(relationship.name, schema);
       if (serializedKey === relationship.name && this.keyForRelationship) {
         serializedKey = this.keyForRelationship(relationship.name, relationship.kind, 'serialize');
@@ -231,8 +230,8 @@ export default Mixin.create({
   },
 
   _serializeEmbeddedBelongsTo(snapshot, json, relationship) {
-    let embeddedSnapshot = snapshot.belongsTo(relationship.name);
-    let schema = this.store.modelFor(snapshot.modelName);
+    const embeddedSnapshot = snapshot.belongsTo(relationship.name);
+    const schema = this.store.modelFor(snapshot.modelName);
     let serializedKey = this._getMappedKey(relationship.name, schema);
     if (serializedKey === relationship.name && this.keyForRelationship) {
       serializedKey = this.keyForRelationship(relationship.name, relationship.kind, 'serialize');
@@ -389,14 +388,14 @@ export default Mixin.create({
     @param {Object} relationship
   */
   serializeHasMany(snapshot, json, relationship) {
-    let attr = relationship.name;
+    const attr = relationship.name;
     if (this.noSerializeOptionSpecified(attr)) {
       this._super(snapshot, json, relationship);
       return;
     }
 
     if (this.hasSerializeIdsOption(attr)) {
-      let schema = this.store.modelFor(snapshot.modelName);
+      const schema = this.store.modelFor(snapshot.modelName);
       let serializedKey = this._getMappedKey(relationship.name, schema);
       if (serializedKey === relationship.name && this.keyForRelationship) {
         serializedKey = this.keyForRelationship(relationship.name, relationship.kind, 'serialize');
@@ -421,10 +420,10 @@ export default Mixin.create({
     TODO: Make the default in Ember-data 3.0??
   */
   _serializeHasManyAsIdsAndTypes(snapshot, json, relationship) {
-    let serializedKey = this.keyForAttribute(relationship.name, 'serialize');
-    let hasMany = snapshot.hasMany(relationship.name);
+    const serializedKey = this.keyForAttribute(relationship.name, 'serialize');
+    const hasMany = snapshot.hasMany(relationship.name) || [];
 
-    json[serializedKey] = A(hasMany).map(function (recordSnapshot) {
+    json[serializedKey] = hasMany.map(function (recordSnapshot) {
       //
       // I'm sure I'm being utterly naive here. Probably id is a configurable property and
       // type too, and the modelName has to be normalized somehow.
@@ -434,7 +433,7 @@ export default Mixin.create({
   },
 
   _serializeEmbeddedHasMany(snapshot, json, relationship) {
-    let schema = this.store.modelFor(snapshot.modelName);
+    const schema = this.store.modelFor(snapshot.modelName);
     let serializedKey = this._getMappedKey(relationship.name, schema);
     if (serializedKey === relationship.name && this.keyForRelationship) {
       serializedKey = this.keyForRelationship(relationship.name, relationship.kind, 'serialize');
@@ -453,13 +452,12 @@ export default Mixin.create({
     Returns an array of embedded records serialized to JSON
   */
   _generateSerializedHasMany(snapshot, relationship) {
-    let hasMany = snapshot.hasMany(relationship.name);
-    let manyArray = A(hasMany);
-    let ret = new Array(manyArray.length);
+    const hasMany = snapshot.hasMany(relationship.name) || [];
+    const ret = new Array(hasMany.length);
 
-    for (let i = 0; i < manyArray.length; i++) {
-      let embeddedSnapshot = manyArray[i];
-      let embeddedJson = embeddedSnapshot.serialize({ includeId: true });
+    for (let i = 0; i < hasMany.length; i++) {
+      const embeddedSnapshot = hasMany[i];
+      const embeddedJson = embeddedSnapshot.serialize({ includeId: true });
       this.removeEmbeddedForeignKey(snapshot, embeddedSnapshot, relationship, embeddedJson);
       ret[i] = embeddedJson;
     }
@@ -486,12 +484,12 @@ export default Mixin.create({
   */
   removeEmbeddedForeignKey(snapshot, embeddedSnapshot, relationship, json) {
     if (relationship.kind === 'belongsTo') {
-      let schema = this.store.modelFor(snapshot.modelName);
-      let parentRecord = schema.inverseFor(relationship.name, this.store);
+      const schema = this.store.modelFor(snapshot.modelName);
+      const parentRecord = schema.inverseFor(relationship.name, this.store);
       if (parentRecord) {
-        let name = parentRecord.name;
-        let embeddedSerializer = this.store.serializerFor(embeddedSnapshot.modelName);
-        let parentKey = embeddedSerializer.keyForRelationship(name, parentRecord.kind, 'deserialize');
+        const name = parentRecord.name;
+        const embeddedSerializer = this.store.serializerFor(embeddedSnapshot.modelName);
+        const parentKey = embeddedSerializer.keyForRelationship(name, parentRecord.kind, 'deserialize');
         if (parentKey) {
           delete json[parentKey];
         }
@@ -503,32 +501,32 @@ export default Mixin.create({
 
   // checks config for attrs option to embedded (always) - serialize and deserialize
   hasEmbeddedAlwaysOption(attr) {
-    let option = this.attrsOption(attr);
+    const option = this.attrsOption(attr);
     return option && option.embedded === 'always';
   },
 
   // checks config for attrs option to serialize ids
   hasSerializeRecordsOption(attr) {
-    let alwaysEmbed = this.hasEmbeddedAlwaysOption(attr);
-    let option = this.attrsOption(attr);
+    const alwaysEmbed = this.hasEmbeddedAlwaysOption(attr);
+    const option = this.attrsOption(attr);
     return alwaysEmbed || (option && option.serialize === 'records');
   },
 
   // checks config for attrs option to serialize records
   hasSerializeIdsOption(attr) {
-    let option = this.attrsOption(attr);
+    const option = this.attrsOption(attr);
     return option && (option.serialize === 'ids' || option.serialize === 'id');
   },
 
   // checks config for attrs option to serialize records as objects containing id and types
   hasSerializeIdsAndTypesOption(attr) {
-    let option = this.attrsOption(attr);
+    const option = this.attrsOption(attr);
     return option && (option.serialize === 'ids-and-types' || option.serialize === 'id-and-type');
   },
 
   // checks config for attrs option to serialize records
   noSerializeOptionSpecified(attr) {
-    let option = this.attrsOption(attr);
+    const option = this.attrsOption(attr);
     return !(option && (option.serialize || option.embedded));
   },
 
@@ -536,13 +534,13 @@ export default Mixin.create({
   // a defined option object for a resource is treated the same as
   // `deserialize: 'records'`
   hasDeserializeRecordsOption(attr) {
-    let alwaysEmbed = this.hasEmbeddedAlwaysOption(attr);
-    let option = this.attrsOption(attr);
+    const alwaysEmbed = this.hasEmbeddedAlwaysOption(attr);
+    const option = this.attrsOption(attr);
     return alwaysEmbed || (option && option.deserialize === 'records');
   },
 
   attrsOption(attr) {
-    let attrs = this.attrs;
+    const attrs = this.attrs;
     return attrs && (attrs[camelize(attr)] || attrs[attr]);
   },
 
@@ -569,17 +567,17 @@ export default Mixin.create({
    @private
   */
   _extractEmbeddedHasMany(store, key, hash, relationshipMeta) {
-    let relationshipHash = hash.data?.relationships?.[key]?.data;
+    const relationshipHash = hash.data?.relationships?.[key]?.data;
 
     if (!relationshipHash) {
       return;
     }
 
-    let hasMany = new Array(relationshipHash.length);
+    const hasMany = new Array(relationshipHash.length);
 
     for (let i = 0; i < relationshipHash.length; i++) {
-      let item = relationshipHash[i];
-      let { data, included } = this._normalizeEmbeddedRelationship(store, relationshipMeta, item);
+      const item = relationshipHash[i];
+      const { data, included } = this._normalizeEmbeddedRelationship(store, relationshipMeta, item);
       hash.included = hash.included || [];
       hash.included.push(data);
       if (included) {
@@ -589,7 +587,7 @@ export default Mixin.create({
       hasMany[i] = { id: data.id, type: data.type };
     }
 
-    let relationship = { data: hasMany };
+    const relationship = { data: hasMany };
     hash.data.relationships[key] = relationship;
   },
 
@@ -598,20 +596,20 @@ export default Mixin.create({
    @private
   */
   _extractEmbeddedBelongsTo(store, key, hash, relationshipMeta) {
-    let relationshipHash = hash.data?.relationships?.[key]?.data;
+    const relationshipHash = hash.data?.relationships?.[key]?.data;
     if (!relationshipHash) {
       return;
     }
 
-    let { data, included } = this._normalizeEmbeddedRelationship(store, relationshipMeta, relationshipHash);
+    const { data, included } = this._normalizeEmbeddedRelationship(store, relationshipMeta, relationshipHash);
     hash.included = hash.included || [];
     hash.included.push(data);
     if (included) {
       hash.included = hash.included.concat(included);
     }
 
-    let belongsTo = { id: data.id, type: data.type };
-    let relationship = { data: belongsTo };
+    const belongsTo = { id: data.id, type: data.type };
+    const relationship = { data: belongsTo };
 
     hash.data.relationships[key] = relationship;
   },
@@ -625,8 +623,8 @@ export default Mixin.create({
     if (relationshipMeta.options.polymorphic) {
       modelName = relationshipHash.type;
     }
-    let modelClass = store.modelFor(modelName);
-    let serializer = store.serializerFor(modelName);
+    const modelClass = store.modelFor(modelName);
+    const serializer = store.serializerFor(modelName);
 
     return serializer.normalize(modelClass, relationshipHash, null);
   },

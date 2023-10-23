@@ -14,10 +14,12 @@
   "author": "",
   "directories": {},
   "scripts": {
-    "build": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
-    "start": "rollup --config --watch",
+    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs",
+    "build:types": "tsc --build --force",
+    "build:client": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
+    "build": "pnpm build:client && pnpm build:types",
     "prepack": "pnpm build",
-    "prepare": "pnpm build"
+    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "ember-addon": {
     "main": "addon-main.js",
@@ -25,6 +27,7 @@
     "version": 1
   },
   "files": [
+    "unstable-preview-types",
     "blueprints",
     "addon-main.js",
     "addon",
@@ -33,7 +36,18 @@
     "ember-data-logo-dark.svg",
     "ember-data-logo-light.svg"
   ],
+  "exports": {
+    ".": {
+      "types": "./unstable-preview-types/index.d.ts",
+      "default": "./addon/index.js"
+    },
+    "./*": {
+      "types": "./unstable-preview-types/*.d.ts",
+      "default": "./addon/*.js"
+    }
+  },
   "peerDependencies": {
+    "@ember-data/legacy-compat": "workspace:5.5.0-alpha.11",
     "@ember-data/store": "workspace:5.5.0-alpha.11",
     "@ember/string": "^3.1.1",
     "ember-inflector": "^4.0.2"
@@ -44,13 +58,44 @@
     },
     "@ember/string": {
       "injected": true
+    },
+    "@warp-drive/internal-config": {
+      "injected": true
+    },
+    "@warp-drive/core-types": {
+      "injected": true
+    },
+    "@ember-data/legacy-compat": {
+      "injected": true
+    },
+    "@ember-data/store": {
+      "injected": true
+    },
+    "ember-inflector": {
+      "injected": true
+    },
+    "@ember-data/request": {
+      "injected": true
+    },
+    "@ember-data/tracking": {
+      "injected": true
+    },
+    "@ember-data/graph": {
+      "injected": true
+    },
+    "@ember-data/json-api": {
+      "injected": true
+    },
+    "@ember-data/request-utils": {
+      "injected": true
     }
   },
   "dependencies": {
     "@ember-data/private-build-infra": "workspace:5.5.0-alpha.11",
     "@embroider/macros": "^1.13.2",
     "ember-cli-babel": "^8.2.0",
-    "ember-cli-test-info": "^1.0.0"
+    "ember-cli-test-info": "^1.0.0",
+    "pnpm-sync-dependencies-meta-injected": "0.0.10"
   },
   "devDependencies": {
     "@babel/cli": "^7.23.0",
@@ -63,13 +108,24 @@
     "@babel/preset-env": "^7.23.2",
     "@babel/preset-typescript": "^7.23.2",
     "@babel/runtime": "^7.23.2",
+    "@ember-data/graph": "workspace:5.5.0-alpha.11",
+    "@ember-data/json-api": "workspace:5.5.0-alpha.11",
+    "@ember-data/legacy-compat": "workspace:5.5.0-alpha.11",
+    "@ember-data/request": "workspace:5.5.0-alpha.11",
+    "@ember-data/request-utils": "workspace:5.5.0-alpha.11",
+    "@ember-data/store": "workspace:5.5.0-alpha.11",
+    "@ember-data/tracking": "workspace:5.5.0-alpha.11",
+    "@ember/string": "^3.1.1",
     "@embroider/addon-dev": "^4.1.1",
     "@glimmer/component": "^1.1.2",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
+    "@types/jquery": "^3.5.24",
+    "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
+    "@warp-drive/internal-config": "workspace:5.5.0-alpha.11",
+    "ember-inflector": "^4.0.2",
     "ember-source": "~5.3.0",
     "rollup": "^4.1.4",
-    "tslib": "^2.6.2",
     "typescript": "^5.2.2",
     "walk-sync": "^3.0.0",
     "webpack": "^5.89.0"

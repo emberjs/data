@@ -1,9 +1,8 @@
 import { assert, deprecate } from '@ember/debug';
 
-import type { StableRecordIdentifier } from '@warp-drive/core';
-
 import { DEPRECATE_NON_UNIQUE_PAYLOADS } from '@ember-data/deprecations';
 import { DEBUG } from '@ember-data/env';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
 import { isBelongsTo } from './-utils';
 import { assertPolymorphicType } from './debug/assert-polymorphic-type';
@@ -208,10 +207,10 @@ export function computeLocalState(storage: CollectionEdge): StableRecordIdentifi
     return storage.localState;
   }
 
-  let state = storage.remoteState.slice();
+  const state = storage.remoteState.slice();
 
   storage.removals?.forEach((v) => {
-    let index = state.indexOf(v);
+    const index = state.indexOf(v);
     state.splice(index, 1);
   });
 

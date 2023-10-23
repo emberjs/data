@@ -12,7 +12,7 @@ export function isWin(platform) {
   }
 
   return currentPlatform;
-};
+}
 
 export function isMac(platform) {
   if (platform) {
@@ -21,7 +21,6 @@ export function isMac(platform) {
 
   return /^darwin/.test(os.platform());
 }
-
 
 export function isLinux(platform) {
   if (platform) {

@@ -1,5 +1,5 @@
-import { debug } from './debug.js';
 import { DEFAULT_PORT, MAX_PORT_TRIES } from './const.js';
+import { debug } from './debug.js';
 
 async function discoverPort(defaultPort, checkPort) {
   debug(`Discovering available port starting from default port of ${defaultPort}`);

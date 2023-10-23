@@ -10,7 +10,9 @@
   "license": "MIT",
   "author": "",
   "directories": {},
-  "scripts": {},
+  "scripts": {
+    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
+  },
   "dependencies": {
     "@babel/core": "^7.23.2",
     "@babel/plugin-transform-block-scoping": "^7.23.0",
@@ -32,6 +34,7 @@
     "ember-cli-version-checker": "^5.1.2",
     "git-repo-info": "^2.1.1",
     "npm-git-info": "^1.0.3",
+    "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "semver": "^7.5.4",
     "silent-error": "^1.1.1"
   },

@@ -1,18 +1,13 @@
 {
   "include": ["client/**/*"],
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ES2020",
-    "moduleResolution": "node",
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "skipLibCheck": true,
     "declarationDir": "dist",
     "emitDeclarationOnly": true,
     "noEmit": false,
-
-    // Enable faster builds
-    // but causes us to not rebuild properly
-    "incremental": false,
-
     "allowJs": false,
     "checkJs": false,
 
@@ -34,6 +29,10 @@
     "experimentalDecorators": true,
     "pretty": true,
 
+    // Enable faster builds
+    // but causes us to not rebuild properly
+    "incremental": false,
+
     // Support generation of source maps. Note: you must *also* enable source
     // maps in your `ember-cli-babel` config and/or `babel.config.js`.
     "declaration": true,
@@ -41,10 +40,6 @@
     "inlineSourceMap": true,
     "inlineSources": true,
 
-    "baseUrl": "client",
-
-    "paths": {
-      "@ember-data/request": ["../../request/unstable-preview-types"],
-    }
+    "baseUrl": "client"
   }
 }

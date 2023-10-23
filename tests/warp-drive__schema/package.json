@@ -10,5 +10,11 @@
     "directory": "tests/warp-drive__schema"
   },
   "license": "MIT",
-  "author": ""
+  "author": "",
+  "dependencies": {
+    "pnpm-sync-dependencies-meta-injected": "0.0.10"
+  },
+  "scripts": {
+    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
+  }
 }

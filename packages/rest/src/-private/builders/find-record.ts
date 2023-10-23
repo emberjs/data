@@ -10,7 +10,7 @@ import type {
   ConstrainedRequestOptions,
   FindRecordRequestOptions,
   RemotelyAccessibleIdentifier,
-} from '@ember-data/store/-types/request';
+} from '@warp-drive/core-types/request';
 
 import { copyForwardUrlOptions, extractCacheOptions } from './-utils';
 
@@ -87,7 +87,7 @@ export function findRecord(
   arg3?: FindRecordOptions
 ): FindRecordRequestOptions {
   const identifier: RemotelyAccessibleIdentifier = typeof arg1 === 'string' ? { type: arg1, id: arg2 as string } : arg1;
-  const options = ((typeof arg1 === 'string' ? arg3 : arg2) || {}) as FindRecordOptions;
+  const options: FindRecordOptions = (typeof arg1 === 'string' ? arg3 : (arg2 as FindRecordOptions)) || {};
   const cacheOptions = extractCacheOptions(options);
   const urlOptions: FindRecordUrlOptions = {
     identifier,

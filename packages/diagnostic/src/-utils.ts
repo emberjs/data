@@ -1,5 +1,5 @@
 /* global window, globalThis, global, self */
-import { HooksCallback,TestContext, ModuleInfo, GlobalHooksStorage } from "./-types";
+import { GlobalHooksStorage, HooksCallback, ModuleInfo, TestContext } from './-types';
 
 export function assert(message: string, test: unknown): asserts test {
   if (!test) {
@@ -7,14 +7,27 @@ export function assert(message: string, test: unknown): asserts test {
   }
 }
 
-export function getGlobal(): Window {
-  // @ts-expect-error global is node only
-  const g = typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : null);
+export function getGlobal(): typeof globalThis {
+  // prettier-ignore
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const g: typeof globalThis | null =
+    typeof globalThis !== 'undefined' ? globalThis
+      : typeof window !== 'undefined' ? window
+      // @ts-expect-error global is node only
+      : typeof global !== 'undefined' ? global
+      : typeof self !== 'undefined' ? self
+      : null;
+
   assert(`Expected to find a global object`, g !== null);
-  return g as unknown as Window;
+  return g as unknown as typeof globalThis;
 }
 
-export function getChain<TC extends TestContext>(globalHooks: GlobalHooksStorage<TC>, module: ModuleInfo<TC>, parents: ModuleInfo<TC>[] | null, prop: 'beforeEach' | 'afterEach'): HooksCallback<TC>[] {
+export function getChain<TC extends TestContext>(
+  globalHooks: GlobalHooksStorage<TC>,
+  module: ModuleInfo<TC>,
+  parents: ModuleInfo<TC>[] | null,
+  prop: 'beforeEach' | 'afterEach'
+): HooksCallback<TC>[] {
   const chain: HooksCallback<TC>[] = [];
 
   if (globalHooks[prop].length) {
@@ -39,11 +52,11 @@ export function getChain<TC extends TestContext>(globalHooks: GlobalHooksStorage
   return chain;
 }
 
-export function generateHash (str: string) {
+export function generateHash(str: string) {
   let hash = 0;
 
   for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash = (hash << 5) - hash + str.charCodeAt(i);
     hash |= 0;
   }
 

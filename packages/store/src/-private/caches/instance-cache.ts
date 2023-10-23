@@ -1,15 +1,14 @@
 import { assert, warn } from '@ember/debug';
 
-import type { RecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/identifier';
-
 import { LOG_INSTANCE_CACHE } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
-import type Model from '@ember-data/model';
+import type { RecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import { Value } from '@warp-drive/core-types/json/raw';
+import type { RelationshipSchema } from '@warp-drive/core-types/schema';
+import type { ExistingResourceIdentifierObject, NewResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
 
 import type { Cache } from '../../-types/q/cache';
-import type { ExistingResourceIdentifierObject, NewResourceIdentifierObject } from '../../-types/q/ember-data-json-api';
 import type { JsonApiRelationship, JsonApiResource } from '../../-types/q/record-data-json-api';
-import type { RelationshipSchema } from '../../-types/q/record-data-schemas';
 import type { RecordInstance } from '../../-types/q/record-instance';
 import RecordReference from '../legacy-model-support/record-reference';
 import { CacheCapabilitiesManager } from '../managers/cache-capabilities-manager';
@@ -18,6 +17,16 @@ import type { CreateRecordProperties } from '../store-service';
 import type Store from '../store-service';
 import { ensureStringId } from '../utils/coerce-id';
 import { CacheForIdentifierCache, removeRecordDataFor, setCacheFor } from './cache-utils';
+
+type Destroyable = {
+  isDestroyed: boolean;
+  isDestroying: boolean;
+  destroy(): void;
+};
+
+function isDestroyable(record: RecordInstance): record is Destroyable {
+  return Boolean(record && typeof record === 'object' && typeof (record as Destroyable).destroy === 'function');
+}
 
 /**
   @module @ember-data/store
@@ -115,11 +124,11 @@ export class InstanceCache {
           keptIdentifier = // @ts-expect-error TODO this needs to be fixed
             'type' in resourceData && identifier.type === resourceData.type ? identifier : matchedIdentifier;
         }
-        let staleIdentifier = identifier === keptIdentifier ? matchedIdentifier : identifier;
+        const staleIdentifier = identifier === keptIdentifier ? matchedIdentifier : identifier;
 
         // check for duplicate entities
-        let keptHasRecord = this.__instances.record.has(keptIdentifier);
-        let staleHasRecord = this.__instances.record.has(staleIdentifier);
+        const keptHasRecord = this.__instances.record.has(keptIdentifier);
+        const staleHasRecord = this.__instances.record.has(staleIdentifier);
 
         // we cannot merge entities when both have records
         // (this may not be strictly true, we could probably swap the cache data the record points at)
@@ -198,7 +207,7 @@ export class InstanceCache {
   }
 
   getReference(identifier: StableRecordIdentifier) {
-    let cache = this.__instances.reference;
+    const cache = this.__instances.reference;
     let reference = cache.get(identifier);
 
     if (!reference) {
@@ -234,7 +243,7 @@ export class InstanceCache {
     const record = this.__instances.record.get(identifier);
     assert(
       'Cannot destroy record while it is still materialized',
-      !record || (record as Model).isDestroyed || (record as Model).isDestroying
+      !isDestroyable(record) || record.isDestroyed || record.isDestroying
     );
 
     this.store._graph?.remove(identifier);
@@ -313,7 +322,7 @@ export class InstanceCache {
       });
     } else {
       const typeCache = cache.resourcesByType;
-      let identifiers = typeCache[type]?.lid;
+      const identifiers = typeCache[type]?.lid;
       if (identifiers) {
         identifiers.forEach((identifier) => {
           // if (rds.has(identifier)) {
@@ -328,7 +337,7 @@ export class InstanceCache {
   // TODO this should move into something coordinating operations
   setRecordId(identifier: StableRecordIdentifier, id: string) {
     const { type, lid } = identifier;
-    let oldId = identifier.id;
+    const oldId = identifier.id;
 
     // ID absolutely can't be missing if the oldID is empty (missing Id in response for a new record)
     assert(
@@ -358,7 +367,7 @@ export class InstanceCache {
       console.log(`InstanceCache: updating id to '${id}' for record ${String(identifier)}`);
     }
 
-    let existingIdentifier = this.store.identifierCache.peekRecordIdentifier({ type, id });
+    const existingIdentifier = this.store.identifierCache.peekRecordIdentifier({ type, id });
     assert(
       `'${type}' was saved to the server, but the response returned the new id '${id}', which has already been used with another record.'`,
       !existingIdentifier || existingIdentifier === identifier
@@ -396,15 +405,15 @@ export function resourceIsFullyDeleted(instanceCache: InstanceCache, identifier:
     models.
   */
 type PreloadRelationshipValue = RecordInstance | string;
-export function preloadData(store: Store, identifier: StableRecordIdentifier, preload: Record<string, unknown>) {
-  let jsonPayload: JsonApiResource = {};
+export function preloadData(store: Store, identifier: StableRecordIdentifier, preload: Record<string, Value>) {
+  const jsonPayload: JsonApiResource = {};
   //TODO(Igor) consider the polymorphic case
   const schemas = store.getSchemaDefinitionService();
   const relationships = schemas.relationshipsDefinitionFor(identifier);
   Object.keys(preload).forEach((key) => {
-    let preloadValue = preload[key];
+    const preloadValue = preload[key];
 
-    let relationshipMeta = relationships[key];
+    const relationshipMeta = relationships[key];
     if (relationshipMeta) {
       if (!jsonPayload.relationships) {
         jsonPayload.relationships = {};

@@ -9,6 +9,11 @@ on:
       - synchronize
       - ready_for_review
 
+env:
+  TURBO_API: http://127.0.0.1:9080
+  TURBO_TOKEN: this-is-not-a-secret
+  TURBO_TEAM: myself
+
 concurrency:
   group: infra-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
@@ -24,6 +29,7 @@ jobs:
         with:
           restore-broccoli-cache: true
           install: true
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: pnpm test infra compatWith 3.0
         env:
           COMPAT_WITH: '3.0'

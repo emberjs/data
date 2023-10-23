@@ -3,13 +3,14 @@
  */
 import { pluralize } from 'ember-inflector';
 
-import { buildBaseURL, buildQueryParams, QueryParamsSource, type QueryUrlOptions } from '@ember-data/request-utils';
+import { buildBaseURL, buildQueryParams, type QueryUrlOptions } from '@ember-data/request-utils';
+import type { QueryParamsSource } from '@warp-drive/core-types/params';
 import type {
   CacheOptions,
   ConstrainedRequestOptions,
   PostQueryRequestOptions,
   QueryRequestOptions,
-} from '@ember-data/store/-types/request';
+} from '@warp-drive/core-types/request';
 
 import { copyForwardUrlOptions, extractCacheOptions } from './-utils';
 

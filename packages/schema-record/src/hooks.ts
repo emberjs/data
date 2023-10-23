@@ -1,5 +1,5 @@
 import type Store from '@ember-data/store';
-import type { StableRecordIdentifier } from "@warp-drive/core";
+import type { StableRecordIdentifier } from "@warp-drive/core-types";
 import { Destroy, SchemaRecord } from './record';
 
 export function instantiateRecord(store: Store, identifier: StableRecordIdentifier, createArgs?: Record<string, unknown>): SchemaRecord {

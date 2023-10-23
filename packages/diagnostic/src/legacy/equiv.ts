@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-call,@typescript-eslint/ban-types,@typescript-eslint/no-unsafe-member-access */
 /*
  * The utils below are from QUnit to support deepEqual.
  */
-export function objectType (obj: unknown) {
+export function objectType(obj: unknown) {
   if (typeof obj === 'undefined') {
     return 'undefined';
   }
@@ -42,24 +43,24 @@ const BOXABLE_TYPES = new Set(['boolean', 'number', 'string']);
 // Used for recursion detection, and to avoid repeated comparison.
 //
 // Elements are { a: val, b: val }.
-let memory: { a: unknown, b:  unknown }[] = [];
+let memory: { a: unknown; b: unknown }[] = [];
 
-function useStrictEquality (a: unknown, b: unknown) {
+function useStrictEquality(a: unknown, b: unknown) {
   return a === b;
 }
 
-function useObjectValueEquality (a: object, b: object) {
+function useObjectValueEquality(a: object, b: object) {
   return a === b || a.valueOf() === b.valueOf();
 }
 
 type HasConstructor = { constructor?: unknown };
 
-function compareConstructors (a: HasConstructor, b: HasConstructor) {
+function compareConstructors(a: HasConstructor, b: HasConstructor) {
   // Comparing constructors is more strict than using `instanceof`
   return getConstructor(a) === getConstructor(b);
 }
 
-function getConstructor (obj: HasConstructor) {
+function getConstructor(obj: HasConstructor) {
   const proto = Object.getPrototypeOf(obj);
 
   // If the obj prototype descends from a null constructor, treat it
@@ -71,7 +72,7 @@ function getConstructor (obj: HasConstructor) {
   return !proto || proto.constructor === null ? Object : obj.constructor;
 }
 
-function getRegExpFlags (regexp: RegExp) {
+function getRegExpFlags(regexp: RegExp) {
   // @ts-expect-error never narrowing is only true for modern browsers
   return 'flags' in regexp ? regexp.flags : regexp.toString().match(/[gimuy]*$/)[0];
 }
@@ -82,32 +83,31 @@ const objTypeCallbacks = {
   null: useStrictEquality,
   // Handle boxed boolean
   boolean: useObjectValueEquality,
-  number (a: number, b: number) {
+  number(a: number, b: number) {
     // Handle NaN and boxed number
-    return a === b ||
-      a.valueOf() === b.valueOf() ||
-      (isNaN(a.valueOf()) && isNaN(b.valueOf()));
+    return a === b || a.valueOf() === b.valueOf() || (isNaN(a.valueOf()) && isNaN(b.valueOf()));
   },
   // Handle boxed string
   string: useObjectValueEquality,
   symbol: useStrictEquality,
   date: useObjectValueEquality,
 
-  nan () {
+  nan() {
     return true;
   },
 
-  regexp (a: RegExp, b: RegExp) {
-    return a.source === b.source &&
-
+  regexp(a: RegExp, b: RegExp) {
+    return (
+      a.source === b.source &&
       // Include flags in the comparison
-      getRegExpFlags(a) === getRegExpFlags(b);
+      getRegExpFlags(a) === getRegExpFlags(b)
+    );
   },
 
   // identical reference only
   function: useStrictEquality,
 
-  array (a: unknown[], b: unknown[]) {
+  array(a: unknown[], b: unknown[]) {
     if (a.length !== b.length) {
       // Safe and faster
       return false;
@@ -126,7 +126,7 @@ const objTypeCallbacks = {
   // repetitions are not counted, so these are equivalent:
   // a = new Set( [ X={}, Y=[], Y ] );
   // b = new Set( [ Y, X, X ] );
-  set (a: Set<unknown>, b: Set<unknown>) {
+  set(a: Set<unknown>, b: Set<unknown>) {
     if (a.size !== b.size) {
       // This optimization has certain quirks because of the lack of
       // repetition counting. For instance, adding the same
@@ -222,7 +222,7 @@ const objTypeCallbacks = {
     });
 
     return outerEq;
-  }
+  },
 };
 
 // Entry points from typeEquiv, based on `typeof`
@@ -230,7 +230,7 @@ const entryTypeCallbacks = {
   undefined: useStrictEquality,
   null: useStrictEquality,
   boolean: useStrictEquality,
-  number (a: number, b: number) {
+  number(a: number, b: number) {
     // Handle NaN
     return a === b || (isNaN(a) && isNaN(b));
   },
@@ -238,7 +238,7 @@ const entryTypeCallbacks = {
   symbol: useStrictEquality,
 
   function: useStrictEquality,
-  object (a: BetterObj, b: BetterObj) {
+  object(a: BetterObj, b: BetterObj) {
     // Handle memory (skip recursion)
     if (memory.some((pair) => pair.a === a && pair.b === b)) {
       return true;
@@ -288,10 +288,10 @@ const entryTypeCallbacks = {
     }
 
     return objTypeCallbacks.array(aProperties.sort(), bProperties.sort());
-  }
+  },
 };
 
-function typeEquiv (a: unknown, b: unknown) {
+function typeEquiv(a: unknown, b: unknown): boolean {
   // Optimization: Only perform type-specific comparison when pairs are not strictly equal.
   if (a === b) {
     return true;
@@ -302,15 +302,17 @@ function typeEquiv (a: unknown, b: unknown) {
   if (aType !== bType) {
     // Support comparing primitive to boxed primitives
     // Try again after possibly unwrapping one
-    return (aType === 'object' && BOXABLE_TYPES.has(objectType(a)) ? (a as String | Number).valueOf() : a) ===
-      (bType === 'object' && BOXABLE_TYPES.has(objectType(b)) ? (b as String | Number).valueOf() : b);
+    return (
+      (aType === 'object' && BOXABLE_TYPES.has(objectType(a)) ? (a as string | number).valueOf() : a) ===
+      (bType === 'object' && BOXABLE_TYPES.has(objectType(b)) ? (b as string | number).valueOf() : b)
+    );
   }
 
   // @ts-expect-error
   return entryTypeCallbacks[aType](a, b);
 }
 
-function innerEquiv (a: unknown, b: unknown) {
+function innerEquiv(a: unknown, b: unknown): boolean {
   const res = typeEquiv(a, b);
   // Release any retained objects and reset recursion detection for next call
   memory = [];
@@ -323,9 +325,9 @@ function innerEquiv (a: unknown, b: unknown) {
  * @author Philippe Rathé <prathe@gmail.com>
  * @author David Chan <david@troi.org>
  */
-export default function equiv (a: unknown, b: unknown) {
+export default function equiv(a: unknown, b: unknown): boolean {
   if (arguments.length === 2) {
-    return (a === b) || innerEquiv(a, b);
+    return a === b || innerEquiv(a, b);
   }
 
   // Given 0 or 1 arguments, just return true (nothing to compare).

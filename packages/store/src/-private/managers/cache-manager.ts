@@ -1,15 +1,15 @@
-import type { StableRecordIdentifier } from '@warp-drive/core/identifier';
+import type { Cache, ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core-types/cache';
+import type { Change } from '@warp-drive/core-types/cache/change';
+import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
+import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
+import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { Value } from '@warp-drive/core-types/json/raw';
+import type { StructuredDataDocument, StructuredDocument } from '@warp-drive/core-types/request';
+import type { ResourceDocument, SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
+import type { ApiError } from '@warp-drive/core-types/spec/error';
 
-import type { LocalRelationshipOperation } from '@ember-data/graph/-private/-operations';
-import type { StructuredDataDocument, StructuredDocument } from '@ember-data/request';
-
-import type { RelationshipDiff } from '../../-types/cache/cache';
-import type { Change } from '../../-types/cache/change';
-import type { ResourceDocument, SingleResourceDataDocument } from '../../-types/cache/document';
-import type { StableDocumentIdentifier } from '../../-types/cache/identifier';
-import type { Cache, ChangedAttributesHash, MergeOperation } from '../../-types/q/cache';
-import type { CollectionResourceRelationship, SingleResourceRelationship } from '../../-types/q/ember-data-json-api';
-import type { JsonApiError, JsonApiResource } from '../../-types/q/record-data-json-api';
+import type { MergeOperation } from '../../-types/q/cache';
+import type { JsonApiResource } from '../../-types/q/record-data-json-api';
 import type { StoreRequestContext } from '../cache-handler';
 
 /**
@@ -324,7 +324,7 @@ export class CacheManager implements Cache {
    * @param identifier
    * @param errors
    */
-  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[]): void {
+  commitWasRejected(identifier: StableRecordIdentifier, errors?: ApiError[]): void {
     this.#cache.commitWasRejected(identifier, errors);
   }
 
@@ -365,7 +365,7 @@ export class CacheManager implements Cache {
    * @param propertyName
    * @param value
    */
-  setAttr(identifier: StableRecordIdentifier, propertyName: string, value: unknown): void {
+  setAttr(identifier: StableRecordIdentifier, propertyName: string, value: Value): void {
     this.#cache.setAttr(identifier, propertyName, value);
   }
 
@@ -479,7 +479,7 @@ export class CacheManager implements Cache {
   getRelationship(
     identifier: StableRecordIdentifier,
     propertyName: string
-  ): SingleResourceRelationship | CollectionResourceRelationship {
+  ): ResourceRelationship | CollectionRelationship {
     return this.#cache.getRelationship(identifier, propertyName);
   }
 
@@ -507,7 +507,7 @@ export class CacheManager implements Cache {
    * @param identifier
    * @returns
    */
-  getErrors(identifier: StableRecordIdentifier): JsonApiError[] {
+  getErrors(identifier: StableRecordIdentifier): ApiError[] {
     return this.#cache.getErrors(identifier);
   }
 
@@ -558,7 +558,6 @@ export class CacheManager implements Cache {
    * @param identifier
    * @returns {boolean}
    */
-  isDel;
   isDeletionCommitted(identifier: StableRecordIdentifier): boolean {
     return this.#cache.isDeletionCommitted(identifier);
   }

@@ -1,21 +1,20 @@
-import type { StableRecordIdentifier } from '@warp-drive/core';
-
 import { DEBUG } from '@ember-data/env';
 import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
 import type { Graph } from '@ember-data/graph/-private/graph';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store/-private';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
+import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
+import { cached, compat } from '@ember-data/tracking';
+import { defineSignal } from '@ember-data/tracking/-private';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type {
   LinkObject,
   Links,
   Meta,
   SingleResourceDocument,
   SingleResourceRelationship,
-} from '@ember-data/store/-types/q/ember-data-json-api';
-import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
-import { cached, compat } from '@ember-data/tracking';
-import { defineSignal } from '@ember-data/tracking/-private';
+} from '@warp-drive/core-types/spec/raw';
 
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
 import { areAllInverseRecordsLoaded, LegacySupport } from '../legacy-relationships-support';
@@ -113,7 +112,7 @@ export default class BelongsToReference {
       this.___relatedToken = null;
     }
 
-    let resource = this._resource();
+    const resource = this._resource();
     if (resource && resource.data) {
       const identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resource.data);
       this.___relatedToken = this.store.notifications.subscribe(
@@ -214,11 +213,11 @@ export default class BelongsToReference {
    @return {String} The link Ember Data will use to fetch or reload this belongs-to relationship.
    */
   link(): string | null {
-    let resource = this._resource();
+    const resource = this._resource();
 
     if (isResourceIdentiferWithRelatedLinks(resource)) {
       if (resource.links) {
-        let related = resource.links.related;
+        const related = resource.links.related;
         return !related || typeof related === 'string' ? related : related.href;
       }
     }
@@ -233,7 +232,7 @@ export default class BelongsToReference {
    * @returns
    */
   links(): Links | null {
-    let resource = this._resource();
+    const resource = this._resource();
 
     return resource && resource.links ? resource.links : null;
   }
@@ -280,7 +279,7 @@ export default class BelongsToReference {
    */
   meta() {
     let meta: Meta | null = null;
-    let resource = this._resource();
+    const resource = this._resource();
     if (resource && resource.meta && typeof resource.meta === 'object') {
       meta = resource.meta;
     }
@@ -336,7 +335,7 @@ export default class BelongsToReference {
    @return {String} The name of the remote type. This should either be `link` or `id`
    */
   remoteType(): 'link' | 'id' {
-    let value = this._resource();
+    const value = this._resource();
     if (isResourceIdentiferWithRelatedLinks(value)) {
       return 'link';
     }
@@ -390,8 +389,8 @@ export default class BelongsToReference {
    @return {Promise<record>} A promise that resolves with the new value in this belongs-to relationship.
    */
   push(data: SingleResourceDocument | Promise<SingleResourceDocument>): Promise<RecordInstance> {
-    let jsonApiDoc: SingleResourceDocument = data as SingleResourceDocument;
-    let record = this.store.push(jsonApiDoc);
+    const jsonApiDoc: SingleResourceDocument = data as SingleResourceDocument;
+    const record = this.store.push(jsonApiDoc);
 
     if (DEBUG) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
@@ -467,7 +466,7 @@ export default class BelongsToReference {
    @return {Model} the record in this relationship
    */
   value(): RecordInstance | null {
-    let resource = this._resource();
+    const resource = this._resource();
     return resource && resource.data ? this.store.peekRecord(resource.data) : null;
   }
 

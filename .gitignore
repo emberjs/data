@@ -22,7 +22,7 @@ packages/rest/addon
 packages/active-record/addon
 packages/data-worker/addon
 packages/schema-record/addon/
-packages/core/addon/
+packages/core-types/addon
 
 # dependencies
 bower_components
@@ -30,10 +30,11 @@ node_modules
 scripts/asset-size-tracking/current-data.json
 
 # misc
+.turbo/
 .env*
 .pnp*
 .sass-cache
-/.eslintcache
+.eslintcache
 /onnect.lock
 coverage/*
 libpeerconnection.log
@@ -65,6 +66,6 @@ benchmarks/results/*.json
 /packages/*/DEBUG
 /tests/*/DEBUG
 
-.vscode/
+!.vscode/
 .idea/
 *.iml

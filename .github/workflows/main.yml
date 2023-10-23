@@ -12,6 +12,11 @@ on:
     tags:
       - '*'
 
+env:
+  TURBO_API: http://127.0.0.1:9080
+  TURBO_TOKEN: this-is-not-a-secret
+  TURBO_TEAM: myself
+
 concurrency:
   group: ci-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
@@ -26,10 +31,11 @@ jobs:
         with:
           restore-lint-caches: true
           install: true
-      - name: Lint js
-        run: pnpm lint:js
-      - name: Check for TypeScript problems
-        run: pnpm problems
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Lint
+        run: pnpm lint
+      - name: Check Uncompiled Packages for TypeScript Compilation Errors
+        run: pnpm check:types
 
   special-build-tests:
     timeout-minutes: 20
@@ -40,6 +46,7 @@ jobs:
         with:
           restore-broccoli-cache: true
           install: true
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - if: |
           github.event_name == 'pull_request' && (
             github.base_ref == 'main' || github.base_ref == 'beta'
@@ -82,6 +89,7 @@ jobs:
           jobs: 2
           parallel-build: true
           install: true
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check for Test Failure Retry
         id: retry-test-failures
@@ -147,6 +155,7 @@ jobs:
         with:
           restore-broccoli-cache: true
           install: true
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Basic tests with ${{ matrix.scenario }}
         timeout-minutes: 12
         env:
@@ -173,6 +182,7 @@ jobs:
         with:
           restore-broccoli-cache: true
           install: true
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Basic tests with ${{ matrix.release }}
         env:
           CI: true

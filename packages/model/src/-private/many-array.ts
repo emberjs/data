@@ -3,8 +3,6 @@
 */
 import { assert } from '@ember/debug';
 
-import type { StableRecordIdentifier } from '@warp-drive/core';
-
 import type Store from '@ember-data/store';
 import {
   ARRAY_SIGNAL,
@@ -18,9 +16,10 @@ import { IdentifierArrayCreateOptions } from '@ember-data/store/-private/record-
 import type { CreateRecordProperties } from '@ember-data/store/-private/store-service';
 import type { Cache } from '@ember-data/store/-types/q/cache';
 import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
-import type { Links, PaginationLinks } from '@ember-data/store/-types/q/ember-data-json-api';
 import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
 import type { FindOptions } from '@ember-data/store/-types/q/store';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { Links, PaginationLinks } from '@warp-drive/core-types/spec/raw';
 
 import { LegacySupport } from './legacy-relationships-support';
 
@@ -345,7 +344,7 @@ export default class RelatedCollection extends RecordArray {
     return record;
   }
 
-  destroy() {
+  override destroy() {
     super.destroy(false);
   }
 }

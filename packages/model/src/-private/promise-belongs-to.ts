@@ -75,7 +75,7 @@ class PromiseBelongsTo extends Extended<RecordInstance> {
 
   async reload(options: Record<string, unknown>): Promise<this> {
     assert('You are trying to reload an async belongsTo before it has been created', this.content !== undefined);
-    let { key, legacySupport } = this._belongsToState;
+    const { key, legacySupport } = this._belongsToState;
     await legacySupport.reloadBelongsTo(key, options);
     return this;
   }

@@ -4,21 +4,22 @@
 import { assert } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core';
 
 import { DEBUG } from '@ember-data/env';
 import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection';
-import { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
-import type { SerializerOptions } from '@ember-data/legacy-compat/legacy-network-handler/minimum-serializer-interface';
+import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
 import { HAS_JSON_API_PACKAGE } from '@ember-data/packages';
 import type Store from '@ember-data/store';
-import { CollectionRelationship } from '@ember-data/store/-types/cache/relationship';
-import type { ChangedAttributesHash } from '@ember-data/store/-types/q/cache';
-import type { AttributeSchema, RelationshipSchema } from '@ember-data/store/-types/q/record-data-schemas';
 import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
 import type { FindOptions } from '@ember-data/store/-types/q/store';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ChangedAttributesHash } from '@warp-drive/core-types/cache';
+import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
+import type { Value } from '@warp-drive/core-types/json/raw';
+import type { AttributeSchema, RelationshipSchema } from '@warp-drive/core-types/schema';
 
 import { upgradeStore } from '../-private';
+import type { SerializerOptions } from './minimum-serializer-interface';
 
 type RecordId = string | null;
 
@@ -239,16 +240,16 @@ export default class Snapshot implements Snapshot {
    @public
    */
   changedAttributes(): ChangedAttributesHash {
-    let changedAttributes = Object.create(null) as ChangedAttributesHash;
+    const changedAttributes = Object.create(null) as ChangedAttributesHash;
     if (!this._changedAttributes) {
       return changedAttributes;
     }
 
-    let changedAttributeKeys = Object.keys(this._changedAttributes);
+    const changedAttributeKeys = Object.keys(this._changedAttributes);
 
     for (let i = 0, length = changedAttributeKeys.length; i < length; i++) {
-      let key = changedAttributeKeys[i];
-      changedAttributes[key] = this._changedAttributes[key].slice() as [unknown, unknown];
+      const key = changedAttributeKeys[i];
+      changedAttributes[key] = this._changedAttributes[key].slice() as [Value | undefined, Value];
     }
 
     return changedAttributes;
@@ -291,9 +292,9 @@ export default class Snapshot implements Snapshot {
    will be returned if the contents of the relationship is unknown.
    */
   belongsTo(keyName: string, options?: { id?: boolean }): Snapshot | RecordId | undefined {
-    let returnModeIsId = !!(options && options.id);
+    const returnModeIsId = !!(options && options.id);
     let result: Snapshot | RecordId | undefined;
-    let store = this._store;
+    const store = this._store;
 
     if (returnModeIsId === true && keyName in this._belongsToIds) {
       return this._belongsToIds[keyName];
@@ -303,7 +304,7 @@ export default class Snapshot implements Snapshot {
       return this._belongsToRelationships[keyName];
     }
 
-    let relationshipMeta = store.getSchemaDefinitionService().relationshipsDefinitionFor({ type: this.modelName })[
+    const relationshipMeta = store.getSchemaDefinitionService().relationshipsDefinitionFor({ type: this.modelName })[
       keyName
     ];
     assert(
@@ -339,11 +340,11 @@ export default class Snapshot implements Snapshot {
       );
     }
 
-    let value = graphFor(this._store).getData(identifier, keyName);
-    let data = value && value.data;
+    const value = graphFor(this._store).getData(identifier, keyName);
+    const data = value && value.data;
     upgradeStore(store);
 
-    let inverseIdentifier = data ? store.identifierCache.getOrCreateRecordIdentifier(data) : null;
+    const inverseIdentifier = data ? store.identifierCache.getOrCreateRecordIdentifier(data) : null;
 
     if (value && value.data !== undefined) {
       const cache = store.cache;
@@ -399,10 +400,10 @@ export default class Snapshot implements Snapshot {
    undefined will be returned if the contents of the relationship is unknown.
    */
   hasMany(keyName: string, options?: { ids?: boolean }): RecordId[] | Snapshot[] | undefined {
-    let returnModeIsIds = !!(options && options.ids);
+    const returnModeIsIds = !!(options && options.ids);
     let results: RecordId[] | Snapshot[] | undefined;
-    let cachedIds: RecordId[] | undefined = this._hasManyIds[keyName];
-    let cachedSnapshots: Snapshot[] | undefined = this._hasManyRelationships[keyName];
+    const cachedIds: RecordId[] | undefined = this._hasManyIds[keyName];
+    const cachedSnapshots: Snapshot[] | undefined = this._hasManyRelationships[keyName];
 
     if (returnModeIsIds === true && keyName in this._hasManyIds) {
       return cachedIds;
@@ -414,7 +415,7 @@ export default class Snapshot implements Snapshot {
 
     const store = this._store;
     upgradeStore(store);
-    let relationshipMeta = store.getSchemaDefinitionService().relationshipsDefinitionFor({ type: this.modelName })[
+    const relationshipMeta = store.getSchemaDefinitionService().relationshipsDefinitionFor({ type: this.modelName })[
       keyName
     ];
     assert(
@@ -449,12 +450,12 @@ export default class Snapshot implements Snapshot {
       );
     }
 
-    let value = graphFor(this._store).getData(identifier, keyName) as CollectionRelationship;
+    const value = graphFor(this._store).getData(identifier, keyName) as CollectionRelationship;
 
     if (value.data) {
       results = [];
       value.data.forEach((member) => {
-        let inverseIdentifier = store.identifierCache.getOrCreateRecordIdentifier(member);
+        const inverseIdentifier = store.identifierCache.getOrCreateRecordIdentifier(member);
         const cache = store.cache;
 
         if (!cache.isDeleted(inverseIdentifier)) {
@@ -496,7 +497,7 @@ export default class Snapshot implements Snapshot {
     @public
   */
   eachAttribute(callback: (key: string, meta: AttributeSchema) => void, binding?: unknown): void {
-    let attrDefs = this._store.getSchemaDefinitionService().attributesDefinitionFor(this.identifier);
+    const attrDefs = this._store.getSchemaDefinitionService().attributesDefinitionFor(this.identifier);
     Object.keys(attrDefs).forEach((key) => {
       callback.call(binding, key, attrDefs[key]);
     });
@@ -520,7 +521,7 @@ export default class Snapshot implements Snapshot {
     @public
   */
   eachRelationship(callback: (key: string, meta: RelationshipSchema) => void, binding?: unknown): void {
-    let relationshipDefs = this._store.getSchemaDefinitionService().relationshipsDefinitionFor(this.identifier);
+    const relationshipDefs = this._store.getSchemaDefinitionService().relationshipsDefinitionFor(this.identifier);
     Object.keys(relationshipDefs).forEach((key) => {
       callback.call(binding, key, relationshipDefs[key]);
     });

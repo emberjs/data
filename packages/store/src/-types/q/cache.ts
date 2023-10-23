@@ -1,19 +1,12 @@
-import type { RecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/identifier';
+import type { Cache, ChangedAttributesHash } from '@warp-drive/core-types/cache';
+import type { RecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { ApiError } from '@warp-drive/core-types/spec/error';
+import type { CollectionResourceRelationship, SingleResourceRelationship } from '@warp-drive/core-types/spec/raw';
 
-import { Cache } from '../cache/cache';
-import type { CollectionResourceRelationship, SingleResourceRelationship } from './ember-data-json-api';
-import type { JsonApiError, JsonApiResource } from './record-data-json-api';
+import type { JsonApiResource } from './record-data-json-api';
 /**
   @module @ember-data/store
 */
-
-/**
- * A hash of changed attributes with the key being the attribute name and the value being an
- * array of `[oldValue, newValue]`.
- *
- * @internal
- */
-export type ChangedAttributesHash = Record<string, [unknown, unknown]>;
 
 export interface MergeOperation {
   op: 'mergeIdentifiers';
@@ -36,7 +29,7 @@ export interface CacheV1 {
 
   willCommit(): void;
   didCommit(data: JsonApiResource | null): void;
-  commitWasRejected(recordIdentifier?: RecordIdentifier, errors?: JsonApiError[]): void;
+  commitWasRejected(recordIdentifier?: RecordIdentifier, errors?: ApiError[]): void;
 
   unloadRecord(): void;
 
@@ -61,7 +54,7 @@ export interface CacheV1 {
   // State
   // =============
   setIsDeleted(isDeleted: boolean): void;
-  getErrors(identifier: StableRecordIdentifier): JsonApiError[];
+  getErrors(identifier: StableRecordIdentifier): ApiError[];
   isEmpty?(identifier: StableRecordIdentifier): boolean; // needs rfc
   isNew(identifier: StableRecordIdentifier): boolean;
   isDeleted(identifier: StableRecordIdentifier): boolean;

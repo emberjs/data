@@ -1,14 +1,15 @@
-import type { StableRecordIdentifier } from '@warp-drive/core';
-
-import { ManyArray } from 'ember-data/-private';
-
 import { DEBUG } from '@ember-data/env';
 import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection';
 import type { Graph } from '@ember-data/graph/-private/graph';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import { CollectionRelationship } from '@ember-data/store/-types/cache/relationship';
+import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
+import type { FindOptions } from '@ember-data/store/-types/q/store';
+import { cached, compat } from '@ember-data/tracking';
+import { defineSignal } from '@ember-data/tracking/-private';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
 import type {
   CollectionResourceDocument,
   CollectionResourceRelationship,
@@ -17,14 +18,11 @@ import type {
   Meta,
   PaginationLinks,
   SingleResourceDocument,
-} from '@ember-data/store/-types/q/ember-data-json-api';
-import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
-import type { FindOptions } from '@ember-data/store/-types/q/store';
-import { cached, compat } from '@ember-data/tracking';
-import { defineSignal } from '@ember-data/tracking/-private';
+} from '@warp-drive/core-types/spec/raw';
 
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
 import { areAllInverseRecordsLoaded, LegacySupport } from '../legacy-relationships-support';
+import type ManyArray from '../many-array';
 import { LEGACY_SUPPORT } from '../model';
 
 /**
@@ -109,9 +107,9 @@ export default class HasManyReference {
   get identifiers(): StableRecordIdentifier[] {
     this._ref; // consume the tracked prop
 
-    let resource = this._resource();
+    const resource = this._resource();
 
-    let map = this.___relatedTokenMap;
+    const map = this.___relatedTokenMap;
     this.___relatedTokenMap = new Map();
 
     if (resource && resource.data) {
@@ -193,7 +191,7 @@ export default class HasManyReference {
    @return {String} The name of the remote type. This should either be `link` or `ids`
    */
   remoteType(): 'link' | 'ids' {
-    let value = this._resource();
+    const value = this._resource();
     if (value && value.links && value.links.related) {
       return 'link';
     }
@@ -279,11 +277,11 @@ export default class HasManyReference {
    @return {String} The link Ember Data will use to fetch or reload this belongs-to relationship.
    */
   link(): string | null {
-    let resource = this._resource();
+    const resource = this._resource();
 
     if (isResourceIdentiferWithRelatedLinks(resource)) {
       if (resource.links) {
-        let related = resource.links.related;
+        const related = resource.links.related;
         return !related || typeof related === 'string' ? related : related.href;
       }
     }
@@ -298,7 +296,7 @@ export default class HasManyReference {
    * @returns
    */
   links(): PaginationLinks | null {
-    let resource = this._resource();
+    const resource = this._resource();
 
     return resource && resource.links ? resource.links : null;
   }
@@ -345,7 +343,7 @@ export default class HasManyReference {
   */
   meta() {
     let meta: Meta | null = null;
-    let resource = this._resource();
+    const resource = this._resource();
     if (resource && resource.meta && typeof resource.meta === 'object') {
       meta = resource.meta;
     }
@@ -400,7 +398,7 @@ export default class HasManyReference {
   async push(
     objectOrPromise: ExistingResourceObject[] | CollectionResourceDocument | { data: SingleResourceDocument[] }
   ): Promise<ManyArray> {
-    let payload = objectOrPromise;
+    const payload = objectOrPromise;
     let array: Array<ExistingResourceObject | SingleResourceDocument>;
 
     if (!Array.isArray(payload) && typeof payload === 'object' && Array.isArray(payload.data)) {
@@ -411,7 +409,7 @@ export default class HasManyReference {
 
     const { store } = this;
 
-    let identifiers = array.map((obj) => {
+    const identifiers = array.map((obj) => {
       let record: RecordInstance;
       if ('data' in obj) {
         // TODO deprecate pushing non-valid JSON:API here
@@ -421,8 +419,8 @@ export default class HasManyReference {
       }
 
       if (DEBUG) {
-        let relationshipMeta = this.hasManyRelationship.definition;
-        let identifier = this.hasManyRelationship.identifier;
+        const relationshipMeta = this.hasManyRelationship.definition;
+        const identifier = this.hasManyRelationship.identifier;
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         assertPolymorphicType(identifier, relationshipMeta, recordIdentifierFor(record), store);
@@ -444,7 +442,7 @@ export default class HasManyReference {
   }
 
   _isLoaded() {
-    let hasRelationshipDataProperty = this.hasManyRelationship.state.hasReceivedData;
+    const hasRelationshipDataProperty = this.hasManyRelationship.state.hasReceivedData;
     if (!hasRelationshipDataProperty) {
       return false;
     }

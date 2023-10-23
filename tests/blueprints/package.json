@@ -11,7 +11,8 @@
   "license": "MIT",
   "author": "",
   "scripts": {
-    "test": "mocha tests"
+    "test:blueprints": "mocha tests",
+    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "dependenciesMeta": {
     "@ember-data/unpublished-test-infra": {
@@ -35,24 +36,59 @@
     "@ember-data/tracking": {
       "injected": true
     },
-    "@warp-drive/core": {
+    "@warp-drive/core-types": {
+      "injected": true
+    },
+    "@ember-data/legacy-compat": {
+      "injected": true
+    },
+    "@ember/string": {
+      "injected": true
+    },
+    "ember-inflector": {
+      "injected": true
+    },
+    "@ember-data/request": {
+      "injected": true
+    },
+    "@ember-data/graph": {
+      "injected": true
+    },
+    "@ember-data/json-api": {
+      "injected": true
+    },
+    "@ember-data/request-utils": {
+      "injected": true
+    },
+    "@ember-data/debug": {
+      "injected": true
+    },
+    "ember-cli-blueprint-test-helpers": {
+      "injected": true
+    },
+    "ember-cli": {
       "injected": true
     }
   },
   "devDependencies": {
     "@babel/core": "^7.23.2",
     "@ember-data/adapter": "workspace:5.5.0-alpha.11",
+    "@ember-data/debug": "workspace:5.5.0-alpha.11",
+    "@ember-data/graph": "workspace:5.5.0-alpha.11",
+    "@ember-data/json-api": "workspace:5.5.0-alpha.11",
     "@ember-data/legacy-compat": "workspace:5.5.0-alpha.11",
     "@ember-data/model": "workspace:5.5.0-alpha.11",
     "@ember-data/private-build-infra": "workspace:5.5.0-alpha.11",
+    "@ember-data/request": "workspace:5.5.0-alpha.11",
+    "@ember-data/request-utils": "workspace:5.5.0-alpha.11",
     "@ember-data/serializer": "workspace:5.5.0-alpha.11",
     "@ember-data/store": "workspace:5.5.0-alpha.11",
     "@ember-data/tracking": "workspace:5.5.0-alpha.11",
     "@ember-data/unpublished-test-infra": "workspace:5.5.0-alpha.11",
-    "@warp-drive/core": "workspace:5.5.0-alpha.11",
     "@ember/string": "3.1.1",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
+    "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
     "ember-cli": "~5.3.0",
     "ember-cli-blueprint-test-helpers": "^0.19.2",
     "ember-inflector": "^4.0.2",
@@ -60,25 +96,14 @@
     "mocha": "^10.2.0",
     "silent-error": "^1.1.1"
   },
-  "pnpm": {
-    "peerDependencyRules": {
-      "ignoreMissing": [
-        "@babel/core",
-        "@glimmer/*",
-        "ember-source",
-        "@ember/string",
-        "ember-inflector",
-        "@ember-data/store",
-        "@ember-data/tracking",
-        "webpack"
-      ]
-    }
-  },
   "engines": {
     "node": ">= 18.18.2"
   },
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.9.2"
+  "packageManager": "pnpm@8.9.2",
+  "dependencies": {
+    "pnpm-sync-dependencies-meta-injected": "0.0.10"
+  }
 }

@@ -1,4 +1,4 @@
-import type { RecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/identifier';
+import type { RecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import { module, test } from 'qunit';
 
 import Store from 'ember-data/store';
@@ -8,7 +8,7 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { Cache } from '@ember-data/store/-types/q/cache';
-import type { AttributesSchema, RelationshipsSchema } from '@ember-data/store/-types/q/record-data-schemas';
+import type { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
 import type { SchemaService } from '@ember-data/store/-types/q/schema-service';
 
 module('unit/model - Custom Class Model', function (hooks: NestedHooks) {

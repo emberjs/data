@@ -17,7 +17,8 @@
   "scripts": {
     "build": "ember build",
     "start": "ember test --port=0 --serve --no-launch",
-    "test": "ember test --test-port=0"
+    "test:examples": "ember test --test-port=0",
+    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "dependenciesMeta": {
     "@ember-data/json-api": {
@@ -50,13 +51,23 @@
     "@ember-data/unpublished-test-infra": {
       "injected": true
     },
-    "@warp-drive/core": {
+    "@warp-drive/core-types": {
+      "injected": true
+    },
+    "@ember/string": {
+      "injected": true
+    },
+    "ember-inflector": {
+      "injected": true
+    },
+    "@ember-data/debug": {
       "injected": true
     }
   },
   "devDependencies": {
     "@babel/core": "^7.23.2",
     "@babel/runtime": "^7.23.2",
+    "@ember-data/debug": "workspace:5.5.0-alpha.11",
     "@ember-data/graph": "workspace:5.5.0-alpha.11",
     "@ember-data/json-api": "workspace:5.5.0-alpha.11",
     "@ember-data/legacy-compat": "workspace:5.5.0-alpha.11",
@@ -67,7 +78,6 @@
     "@ember-data/store": "workspace:5.5.0-alpha.11",
     "@ember-data/tracking": "workspace:5.5.0-alpha.11",
     "@ember-data/unpublished-test-infra": "workspace:5.5.0-alpha.11",
-    "@warp-drive/core": "workspace:5.5.0-alpha.11",
     "@ember/edition-utils": "^1.2.0",
     "@ember/optional-features": "^2.0.0",
     "@ember/string": "3.1.1",
@@ -80,10 +90,10 @@
     "@html-next/vertical-collection": "^4.0.2",
     "@types/ember__owner": "^4.0.6",
     "@types/morgan": "^1.9.6",
+    "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
     "ember-auto-import": "^2.6.3",
     "ember-cli": "~5.3.0",
     "ember-cli-babel": "^8.2.0",
-    "ember-cli-blueprint-test-helpers": "^0.19.2",
     "ember-cli-dependency-checker": "^3.3.2",
     "ember-cli-htmlbars": "^6.3.0",
     "ember-cli-inject-live-reload": "^2.1.0",
@@ -119,5 +129,8 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.9.2"
+  "packageManager": "pnpm@8.9.2",
+  "dependencies": {
+    "pnpm-sync-dependencies-meta-injected": "0.0.10"
+  }
 }

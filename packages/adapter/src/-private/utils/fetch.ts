@@ -41,10 +41,10 @@ export default function getFetchFunction(): FetchFunction {
       // eslint-disable-next-line no-inner-declarations
       function buildAbsoluteUrl(url: string) {
         if (protocolRelativeRegex.test(url)) {
-          let [host] = parseRequest(REQUEST);
+          const [host] = parseRequest(REQUEST);
           url = host + url;
         } else if (!httpRegex.test(url)) {
-          let [host, protocol] = parseRequest(REQUEST);
+          const [host, protocol] = parseRequest(REQUEST);
           url = protocol + '//' + host + url;
         }
         return url;

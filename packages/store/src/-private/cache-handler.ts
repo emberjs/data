@@ -1,25 +1,25 @@
 import { assert } from '@ember/debug';
 
-import type {
-  Future,
-  Handler,
+import type { Future, Handler, NextFn } from '@ember-data/request/-private/types';
+import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type { CreateRequestOptions, DeleteRequestOptions, UpdateRequestOptions } from '@warp-drive/core-types/request';
+import {
+  EnableHydration,
   ImmutableRequestInfo,
-  NextFn,
   RequestContext,
+  SkipCache,
   StructuredDataDocument,
   StructuredErrorDocument,
-} from '@ember-data/request/-private/types';
-
+} from '@warp-drive/core-types/request';
 import type {
   CollectionResourceDataDocument,
   ResourceDataDocument,
   ResourceErrorDocument,
-} from '../-types/cache/document';
-import type { StableDocumentIdentifier } from '../-types/cache/identifier';
-import type { ResourceIdentifierObject } from '../-types/q/ember-data-json-api';
-import type { JsonApiError } from '../-types/q/record-data-json-api';
+} from '@warp-drive/core-types/spec/document';
+import type { ApiError } from '@warp-drive/core-types/spec/error';
+import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
+
 import type { RecordInstance } from '../-types/q/record-instance';
-import type { CreateRequestOptions, DeleteRequestOptions, UpdateRequestOptions } from '../-types/request';
 import { Document } from './document';
 import type Store from './store-service';
 
@@ -37,8 +37,10 @@ export type LooseStoreRequestInfo = Omit<StoreRequestInfo, 'records' | 'headers'
 export type StoreRequestInput = StoreRequestInfo | LooseStoreRequestInfo;
 
 export interface StoreRequestContext extends RequestContext {
-  request: StoreRequestInfo & { store: Store };
+  request: StoreRequestInfo & { store: Store; [EnableHydration]?: boolean };
 }
+
+const MUTATION_OPS = new Set(['createRecord', 'updateRecord', 'deleteRecord']);
 
 function isErrorDocument(document: ResourceDataDocument | ResourceErrorDocument): document is ResourceErrorDocument {
   return 'errors' in document;
@@ -156,8 +158,6 @@ function maybeUpdateUiObjects<T>(
   }
 }
 
-const MUTATION_OPS = new Set(['createRecord', 'updateRecord', 'deleteRecord']);
-
 function calcShouldFetch(
   store: Store,
   request: StoreRequestInfo,
@@ -201,8 +201,7 @@ function fetchContentAndHydrate<T>(
   shouldBackgroundFetch: boolean
 ): Promise<T> {
   const { store } = context.request;
-  const shouldHydrate: boolean =
-    (context.request[Symbol.for('ember-data:enable-hydration')] as boolean | undefined) || false;
+  const shouldHydrate: boolean = (context.request[EnableHydration] as boolean | undefined) || false;
 
   let isMut = false;
   if (isMutation(context.request)) {
@@ -257,7 +256,7 @@ function fetchContentAndHydrate<T>(
             typeof error.content === 'object' &&
             'errors' in error.content &&
             Array.isArray(error.content.errors)
-              ? (error.content.errors as JsonApiError[])
+              ? (error.content.errors as ApiError[])
               : undefined;
           store.cache.commitWasRejected(context.request.data.record, errors);
           // re-throw the original error to preserve `errors` property.
@@ -306,9 +305,6 @@ function cloneError(error: Error & { error: string | object }) {
   return cloned;
 }
 
-export const SkipCache = Symbol.for('ember-data:skip-cache');
-export const EnableHydration = Symbol.for('ember-data:enable-hydration');
-
 export const CacheHandler: Handler = {
   request<T>(context: StoreRequestContext, next: NextFn<T>): Promise<T | StructuredDataDocument<T>> | Future<T> {
     // if we have no cache or no cache-key skip cache handling
@@ -328,7 +324,7 @@ export const CacheHandler: Handler = {
 
     // if we have not skipped cache, determine if we should update behind the scenes
     if (calcShouldBackgroundFetch(store, context.request, false, identifier)) {
-      let promise = fetchContentAndHydrate(next, context, identifier, false, true);
+      const promise = fetchContentAndHydrate(next, context, identifier, false, true);
       store.requestManager._pending.set(context.id, promise);
     }
 

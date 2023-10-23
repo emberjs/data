@@ -1,10 +1,9 @@
 import { assert } from '@ember/debug';
 
-import type { StableRecordIdentifier } from '@warp-drive/core';
-
 import { DEBUG } from '@ember-data/env';
 import type Store from '@ember-data/store';
-import type { RelationshipSchema } from '@ember-data/store/-types/q/record-data-schemas';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { RelationshipSchema } from '@warp-drive/core-types/schema';
 
 import { expandingGet, expandingSet, getStore } from './-utils';
 import { assertInheritedSchema } from './debug/assert-polymorphic-type';
@@ -172,8 +171,8 @@ function syncMeta(definition: UpgradedMeta, inverseDefinition: UpgradedMeta) {
 }
 
 function upgradeMeta(meta: RelationshipSchema): UpgradedMeta {
-  let niceMeta: UpgradedMeta = {} as UpgradedMeta;
-  let options = meta.options;
+  const niceMeta: UpgradedMeta = {} as UpgradedMeta;
+  const options = meta.options;
   niceMeta.kind = meta.kind;
   niceMeta.key = meta.name;
   niceMeta.type = meta.type;
@@ -196,18 +195,18 @@ function upgradeMeta(meta: RelationshipSchema): UpgradedMeta {
 
 function assertConfiguration(info: EdgeDefinition, type: string, key: string) {
   if (DEBUG) {
-    let isSelfReferential = info.isSelfReferential;
+    const isSelfReferential = info.isSelfReferential;
 
     if (isSelfReferential) {
       return true;
     }
 
-    let _isRHS =
+    const _isRHS =
       key === info.rhs_relationshipName &&
       (type === info.rhs_baseModelName || // base or non-polymorphic
         // if the other side is polymorphic then we need to scan our modelNames
         (info.lhs_isPolymorphic && info.rhs_modelNames.includes(type))); // polymorphic
-    let _isLHS =
+    const _isLHS =
       key === info.lhs_relationshipName &&
       (type === info.lhs_baseModelName || // base or non-polymorphic
         // if the other side is polymorphic then we need to scan our modelNames
@@ -291,8 +290,8 @@ function assertConfiguration(info: EdgeDefinition, type: string, key: string) {
 }
 
 export function isLHS(info: EdgeDefinition, type: string, key: string): boolean {
-  let isSelfReferential = info.isSelfReferential;
-  let isRelationship = key === info.lhs_relationshipName;
+  const isSelfReferential = info.isSelfReferential;
+  const isRelationship = key === info.lhs_relationshipName;
 
   if (DEBUG) {
     assertConfiguration(info, type, key);
@@ -311,8 +310,8 @@ export function isLHS(info: EdgeDefinition, type: string, key: string): boolean 
 }
 
 export function isRHS(info: EdgeDefinition, type: string, key: string): boolean {
-  let isSelfReferential = info.isSelfReferential;
-  let isRelationship = key === info.rhs_relationshipName;
+  const isSelfReferential = info.isSelfReferential;
+  const isRelationship = key === info.rhs_relationshipName;
 
   if (DEBUG) {
     assertConfiguration(info, type, key);
@@ -353,9 +352,9 @@ export function upgradeDefinition(
     !isImplicit
   );
 
-  let relationships = storeWrapper.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
+  const relationships = storeWrapper.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
   assert(`Expected to have a relationship definition for ${type} but none was found.`, relationships);
-  let meta = relationships[propertyName];
+  const meta = relationships[propertyName];
 
   if (!meta) {
     // TODO potentially we should just be permissive here since this is an implicit relationship
@@ -413,11 +412,11 @@ export function upgradeDefinition(
       inverseDefinition = null;
     } else {
       // CASE: We have an explicit inverse or were able to resolve one
-      let inverseDefinitions = storeWrapper
+      const inverseDefinitions = storeWrapper
         .getSchemaDefinitionService()
         .relationshipsDefinitionFor({ type: inverseType });
       assert(`Expected to have a relationship definition for ${inverseType} but none was found.`, inverseDefinitions);
-      let metaFromInverse = inverseDefinitions[inverseKey];
+      const metaFromInverse = inverseDefinitions[inverseKey];
       assert(
         `Expected a relationship schema for '${inverseType}.${inverseKey}' to match the inverse of '${type}.${propertyName}', but no relationship schema was found.`,
         metaFromInverse
@@ -495,8 +494,8 @@ export function upgradeDefinition(
       cached.hasInverse !== false
     );
 
-    let _isLHS = cached.lhs_baseModelName === baseType;
-    let modelNames = _isLHS ? cached.lhs_modelNames : cached.rhs_modelNames;
+    const _isLHS = cached.lhs_baseModelName === baseType;
+    const modelNames = _isLHS ? cached.lhs_modelNames : cached.rhs_modelNames;
     // make this lookup easier in the future by caching the key
     modelNames.push(type);
     expandingSet<EdgeDefinition | null>(cache, type, propertyName, cached);

@@ -24,7 +24,8 @@
     "build:parse": "bun build src/parse.ts --compile --outfile parse",
     "build:scaffold": "bun build src/scaffold.ts --compile --outfile scaffold",
     "build": "pnpm run build:parse && pnpm run build:scaffold",
-    "prepack": "pnpm build"
+    "prepack": "pnpm build",
+    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "files": [
     "README.md",
@@ -41,7 +42,8 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "chalk": "^5.3.0"
+    "chalk": "^5.3.0",
+    "pnpm-sync-dependencies-meta-injected": "0.0.10"
   },
   "devDependencies": {
     "bun-types": "1.0.6"

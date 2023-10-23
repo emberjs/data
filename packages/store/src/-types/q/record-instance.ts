@@ -1,4 +1,3 @@
-import type Model from '@ember-data/model';
 /**
   @module @ember-data/store
 */
@@ -14,4 +13,4 @@ import type Model from '@ember-data/model';
   The type belows allows for anything extending object.
 */
 
-export type RecordInstance = Model | unknown;
+export type RecordInstance = unknown;

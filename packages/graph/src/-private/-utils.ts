@@ -1,15 +1,14 @@
 import { assert, inspect, warn } from '@ember/debug';
 
-import type { StableRecordIdentifier } from '@warp-drive/core';
-
 import { LOG_GRAPH } from '@ember-data/debugging';
 import type { Store } from '@ember-data/store/-private';
 import { peekCache } from '@ember-data/store/-private';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import { ResourceIdentifierObject } from '@ember-data/store/-types/q/ember-data-json-api';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { UpdateRelationshipOperation } from '@warp-drive/core-types/graph';
+import { ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
 
 import { UpgradedMeta } from './-edge-definition';
-import type { UpdateRelationshipOperation } from './-operations';
 import { coerceId } from './coerce-id';
 import type { CollectionEdge } from './edges/collection';
 import type { ImplicitEdge } from './edges/implicit';
@@ -22,12 +21,12 @@ export function getStore(wrapper: CacheCapabilitiesManager | { _store: Store }):
 }
 
 export function expandingGet<T>(cache: Record<string, Record<string, T>>, key1: string, key2: string): T | undefined {
-  let mainCache = (cache[key1] = cache[key1] || Object.create(null));
+  const mainCache = (cache[key1] = cache[key1] || Object.create(null));
   return mainCache[key2];
 }
 
 export function expandingSet<T>(cache: Record<string, Record<string, T>>, key1: string, key2: string, value: T): void {
-  let mainCache = (cache[key1] = cache[key1] || Object.create(null));
+  const mainCache = (cache[key1] = cache[key1] || Object.create(null));
   mainCache[key2] = value;
 }
 
@@ -149,7 +148,7 @@ export function removeIdentifierCompletelyFromRelationship(
   } else if (isHasMany(relationship)) {
     relationship.remoteMembers.delete(value);
     relationship.additions?.delete(value);
-    let wasInRemovals = relationship.removals?.delete(value);
+    const wasInRemovals = relationship.removals?.delete(value);
 
     const canonicalIndex = relationship.remoteState.indexOf(value);
     if (canonicalIndex !== -1) {

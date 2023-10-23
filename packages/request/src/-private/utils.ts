@@ -1,18 +1,15 @@
 import { DEBUG } from '@ember-data/env';
+import {
+  type RequestInfo,
+  STRUCTURED,
+  type StructuredDataDocument,
+  type StructuredErrorDocument,
+} from '@warp-drive/core-types/request';
 
 import { Context, ContextOwner } from './context';
 import { assertValidRequest } from './debug';
 import { createFuture, isFuture } from './future';
-import {
-  STRUCTURED,
-  type DeferredFuture,
-  type Future,
-  type GodContext,
-  type Handler,
-  type RequestInfo,
-  type StructuredDataDocument,
-  type StructuredErrorDocument,
-} from './types';
+import { type DeferredFuture, type Future, type GodContext, type Handler } from './types';
 
 export function curryFuture<T>(owner: ContextOwner, inbound: Future<T>, outbound: DeferredFuture<T>): Future<T> {
   owner.setStream(inbound.getStream());
@@ -71,14 +68,16 @@ export function enhanceReason(reason?: string) {
   return new DOMException(reason || 'The user aborted a request.', 'AbortError');
 }
 
-export function handleOutcome<T>(owner: ContextOwner, inbound: Promise<T | StructuredDataDocument<T>>, outbound: DeferredFuture<T>): Future<T> {
+export function handleOutcome<T>(
+  owner: ContextOwner,
+  inbound: Promise<T | StructuredDataDocument<T>>,
+  outbound: DeferredFuture<T>
+): Future<T> {
   inbound.then(
     (content: T | StructuredDataDocument<T>) => {
       if (owner.controller.signal.aborted) {
         // the next function did not respect the signal, we handle it here
-        outbound.reject(
-          enhanceReason(owner.controller.signal.reason as string)
-        );
+        outbound.reject(enhanceReason(owner.controller.signal.reason as string));
         return;
       }
       if (isDoc(content)) {

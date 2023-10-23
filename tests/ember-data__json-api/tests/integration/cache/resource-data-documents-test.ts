@@ -1,4 +1,4 @@
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/identifier';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import { module, test } from '@warp-drive/diagnostic';
 
 import Cache from '@ember-data/json-api';
@@ -9,9 +9,9 @@ import type { CacheOperation, NotificationType } from '@ember-data/store/-privat
 import type { SingleResourceDataDocument } from '@ember-data/store/-types/cache/document';
 import type { StableDocumentIdentifier } from '@ember-data/store/-types/cache/identifier';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import type { SingleResourceDocument } from '@ember-data/store/-types/q/ember-data-json-api';
+import type { SingleResourceDocument } from '@warp-drive/core-types/spec/raw';
 import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
-import type { AttributesSchema, RelationshipsSchema } from '@ember-data/store/-types/q/record-data-schemas';
+import type { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
 class TestStore extends Store {

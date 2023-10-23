@@ -4,26 +4,24 @@
 import { assert, warn } from '@ember/debug';
 
 import { getOwnConfig, macroCondition } from '@embroider/macros';
-import type {
-  Identifier,
-  IdentifierBucket,
-  RecordIdentifier,
-  StableIdentifier,
-  StableRecordIdentifier,
-} from '@warp-drive/core/identifier';
+
+import { LOG_IDENTIFIERS } from '@ember-data/debugging';
+import { DEBUG } from '@ember-data/env';
 import {
   CACHE_OWNER,
   DEBUG_CLIENT_ORIGINATED,
   DEBUG_IDENTIFIER_BUCKET,
   DEBUG_STALE_CACHE_OWNER,
-} from '@warp-drive/core/identifier';
+  type Identifier,
+  type IdentifierBucket,
+  type RecordIdentifier,
+  type StableDocumentIdentifier,
+  type StableIdentifier,
+  type StableRecordIdentifier,
+} from '@warp-drive/core-types/identifier';
+import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
+import type { ExistingResourceObject, ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
 
-import { LOG_IDENTIFIERS } from '@ember-data/debugging';
-import { DEBUG } from '@ember-data/env';
-import { ImmutableRequestInfo } from '@ember-data/request/-private/types';
-
-import { StableDocumentIdentifier } from '../../-types/cache/identifier';
-import type { ExistingResourceObject, ResourceIdentifierObject } from '../../-types/q/ember-data-json-api';
 import type {
   ForgetMethod,
   GenerationMethod,
@@ -433,8 +431,8 @@ export class IdentifierCache {
    @public
   */
   createIdentifierForNewRecord(data: { type: string; id?: string | null }): StableRecordIdentifier {
-    let newLid = this._generate(data, 'record');
-    let identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(
+    const newLid = this._generate(data, 'record');
+    const identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(
       { id: data.id || null, type: data.type, lid: newLid, [CACHE_OWNER]: this._id },
       'record',
       true
@@ -499,7 +497,7 @@ export class IdentifierCache {
     }
 
     if (existingIdentifier) {
-      let generatedIdentifier = identifier;
+      const generatedIdentifier = identifier;
       identifier = this._mergeRecordIdentifiers(keyInfo, generatedIdentifier, existingIdentifier, data);
 
       // make sure that the `lid` on the data we are processing matches the lid we kept
@@ -516,7 +514,7 @@ export class IdentifierCache {
       }
     }
 
-    let id = identifier.id;
+    const id = identifier.id;
     /*#__NOINLINE__*/ performRecordIdentifierUpdate(identifier, keyInfo, data, this._update);
     const newId = identifier.id;
 
@@ -654,7 +652,7 @@ function makeStableRecordIdentifier(
         return (recordIdentifier as StableRecordIdentifier)[DEBUG_STALE_CACHE_OWNER];
       },
       set [DEBUG_STALE_CACHE_OWNER](value: number | undefined) {
-        recordIdentifier[DEBUG_STALE_CACHE_OWNER] = value;
+        (recordIdentifier as StableRecordIdentifier)[DEBUG_STALE_CACHE_OWNER] = value;
       },
     };
     Object.defineProperty(wrapper, 'toString', {
@@ -692,7 +690,7 @@ function performRecordIdentifierUpdate(
     const { id, type } = keyInfo;
 
     // get the mutable instance behind our proxy wrapper
-    let wrapper = identifier;
+    const wrapper = identifier;
     identifier = DEBUG_MAP.get(wrapper)!;
 
     if (hasLid(data)) {

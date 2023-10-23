@@ -665,7 +665,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @type {boolean}
   */
   get coalesceFindRequests() {
-    let coalesceFindRequests = this._coalesceFindRequests;
+    const coalesceFindRequests = this._coalesceFindRequests;
     if (typeof coalesceFindRequests === 'boolean') {
       return coalesceFindRequests;
     }

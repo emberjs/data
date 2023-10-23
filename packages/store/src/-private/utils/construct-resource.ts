@@ -1,6 +1,7 @@
 import { assert } from '@ember/debug';
 
-import type { ExistingResourceIdentifierObject, ResourceIdentifierObject } from '../../-types/q/ember-data-json-api';
+import type { ExistingResourceIdentifierObject, ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
+
 import { isStableIdentifier } from '../caches/identifier-cache';
 import coerceId from './coerce-id';
 import isNonEmptyString from './is-non-empty-string';
@@ -20,7 +21,7 @@ function constructResource(
   lid?: string | null
 ): ResourceIdentifierObject | ExistingResourceIdentifierObject {
   if (typeof type === 'object' && type !== null) {
-    let resource = type;
+    const resource = type;
     if (isStableIdentifier(resource)) {
       return resource;
     }

@@ -1,5 +1,3 @@
-import 'ember-source/types';
-
 import { assert } from '@ember/debug';
 import { createCache, getValue } from '@glimmer/tracking/primitives/cache';
 

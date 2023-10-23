@@ -13,7 +13,7 @@ export async function checkPort(port) {
         data() {
           debug(`Port ${port} received data 🙈`);
         },
-      }
+      },
     });
     debug(`Port ${port} is available, releasing it for server`);
     server.stop(true);

@@ -1,0 +1,44 @@
+{
+  "include": [
+    "src/**/*"
+  ],
+  "baseUrl": ".",
+  "compilerOptions": {
+    "lib": ["DOM", "ESNext"],
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "strict": true,
+    "downlevelIteration": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "exactOptionalPropertyTypes": true,
+    "allowJs": true,
+    "noEmit": false,
+    "noImplicitOverride": true,
+
+    // Enable faster builds
+    // but causes us to not rebuild properly
+    "incremental": false,
+
+    "declaration": true,
+    "declarationMap": true,
+    "declarationDir": "unstable-preview-types",
+    "emitDeclarationOnly": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "types": [
+      "ember-source/types",
+    ],
+
+    "paths": {
+      "@ember-data/deprecations": ["../private-build-infra/virtual-packages/deprecations.d.ts"],
+      "@ember-data/packages": ["../private-build-infra/virtual-packages/packages.d.ts"],
+      "@ember-data/canary-features": ["../private-build-infra/virtual-packages/canary-features.d.ts"],
+      "@ember-data/debugging": ["../private-build-infra/virtual-packages/debugging.d.ts"],
+      "@ember-data/env": ["../private-build-infra/virtual-packages/env.d.ts"],
+    }
+  },
+}

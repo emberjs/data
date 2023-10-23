@@ -200,15 +200,15 @@ const JSONSerializer = Serializer.extend({
    @return {Object} data The transformed data object
   */
   applyTransforms(typeClass, data) {
-    let attributes = typeClass.attributes;
+    const attributes = typeClass.attributes;
 
     typeClass.eachTransformedAttribute((key, typeClass) => {
       if (data[key] === undefined) {
         return;
       }
 
-      let transform = this.transformFor(typeClass);
-      let transformMeta = attributes.get(key);
+      const transform = this.transformFor(typeClass);
+      const transformMeta = attributes.get(key);
       data[key] = transform.deserialize(data[key], transformMeta.options);
     });
 
@@ -522,12 +522,12 @@ const JSONSerializer = Serializer.extend({
     @private
   */
   _normalizeResponse(store, primaryModelClass, payload, id, requestType, isSingle) {
-    let documentHash = {
+    const documentHash = {
       data: null,
       included: [],
     };
 
-    let meta = this.extractMeta(store, primaryModelClass, payload);
+    const meta = this.extractMeta(store, primaryModelClass, payload);
     if (meta) {
       assert(
         'The `meta` returned from `extractMeta` has to be an object, not "' + typeof meta + '".',
@@ -537,16 +537,16 @@ const JSONSerializer = Serializer.extend({
     }
 
     if (isSingle) {
-      let { data, included } = this.normalize(primaryModelClass, payload);
+      const { data, included } = this.normalize(primaryModelClass, payload);
       documentHash.data = data;
       if (included) {
         documentHash.included = included;
       }
     } else {
-      let ret = new Array(payload.length);
+      const ret = new Array(payload.length);
       for (let i = 0, l = payload.length; i < l; i++) {
-        let item = payload[i];
-        let { data, included } = this.normalize(primaryModelClass, item);
+        const item = payload[i];
+        const { data, included } = this.normalize(primaryModelClass, item);
         if (included) {
           documentHash.included = documentHash.included.concat(included);
         }
@@ -633,8 +633,8 @@ const JSONSerializer = Serializer.extend({
     @return {String}
   */
   extractId(modelClass, resourceHash) {
-    let primaryKey = this.primaryKey;
-    let id = resourceHash[primaryKey];
+    const primaryKey = this.primaryKey;
+    const id = resourceHash[primaryKey];
     return coerceId(id);
   },
 
@@ -651,7 +651,7 @@ const JSONSerializer = Serializer.extend({
   */
   extractAttributes(modelClass, resourceHash) {
     let attributeKey;
-    let attributes = {};
+    const attributes = {};
 
     modelClass.eachAttribute((key) => {
       attributeKey = this.keyForAttribute(key, 'deserialize');
@@ -688,7 +688,7 @@ const JSONSerializer = Serializer.extend({
         relationshipHash.id = coerceId(relationshipHash.id);
       }
 
-      let modelClass = this.store.modelFor(relationshipModelName);
+      const modelClass = this.store.modelFor(relationshipModelName);
       if (relationshipHash.type && !modelClass.fields.has('type')) {
         relationshipHash.type = this.modelNameFromPayloadKey(relationshipHash.type);
       }
@@ -734,14 +734,14 @@ const JSONSerializer = Serializer.extend({
     @return {Object}
   */
   extractRelationships(modelClass, resourceHash) {
-    let relationships = {};
+    const relationships = {};
 
     modelClass.eachRelationship((key, relationshipMeta) => {
       let relationship = null;
-      let relationshipKey = this.keyForRelationship(key, relationshipMeta.kind, 'deserialize');
+      const relationshipKey = this.keyForRelationship(key, relationshipMeta.kind, 'deserialize');
       if (resourceHash[relationshipKey] !== undefined) {
         let data = null;
-        let relationshipHash = resourceHash[relationshipKey];
+        const relationshipHash = resourceHash[relationshipKey];
         if (relationshipMeta.kind === 'belongsTo') {
           if (relationshipMeta.options.polymorphic) {
             // extracting a polymorphic belongsTo may need more information
@@ -761,7 +761,7 @@ const JSONSerializer = Serializer.extend({
             data = new Array(relationshipHash.length);
             if (relationshipMeta.options.polymorphic) {
               for (let i = 0, l = relationshipHash.length; i < l; i++) {
-                let item = relationshipHash[i];
+                const item = relationshipHash[i];
                 data[i] = this.extractPolymorphicRelationship(relationshipMeta.type, item, {
                   key,
                   resourceHash,
@@ -770,7 +770,7 @@ const JSONSerializer = Serializer.extend({
               }
             } else {
               for (let i = 0, l = relationshipHash.length; i < l; i++) {
-                let item = relationshipHash[i];
+                const item = relationshipHash[i];
                 data[i] = this.extractRelationship(relationshipMeta.type, item);
               }
             }
@@ -779,9 +779,9 @@ const JSONSerializer = Serializer.extend({
         relationship = { data };
       }
 
-      let linkKey = this.keyForLink(key, relationshipMeta.kind);
+      const linkKey = this.keyForLink(key, relationshipMeta.kind);
       if (resourceHash.links && resourceHash.links[linkKey] !== undefined) {
-        let related = resourceHash.links[linkKey];
+        const related = resourceHash.links[linkKey];
         relationship = relationship || {};
         relationship.links = { related };
       }
@@ -834,12 +834,12 @@ const JSONSerializer = Serializer.extend({
     @private
   */
   normalizeUsingDeclaredMapping(modelClass, hash) {
-    let attrs = this.attrs;
+    const attrs = this.attrs;
     let normalizedKey;
     let payloadKey;
 
     if (attrs) {
-      for (let key in attrs) {
+      for (const key in attrs) {
         normalizedKey = payloadKey = this._getMappedKey(key, modelClass);
 
         if (hash[payloadKey] === undefined) {
@@ -884,7 +884,7 @@ const JSONSerializer = Serializer.extend({
       }
     );
 
-    let attrs = this.attrs;
+    const attrs = this.attrs;
     let mappedKey;
     if (attrs && attrs[key]) {
       mappedKey = attrs[key];
@@ -911,7 +911,7 @@ const JSONSerializer = Serializer.extend({
     @return {boolean} true if the key can be serialized
   */
   _canSerialize(key) {
-    let attrs = this.attrs;
+    const attrs = this.attrs;
 
     return !attrs || !attrs[key] || attrs[key].serialize !== false;
   },
@@ -927,7 +927,7 @@ const JSONSerializer = Serializer.extend({
     @return {boolean} true if the key must be serialized
   */
   _mustSerialize(key) {
-    let attrs = this.attrs;
+    const attrs = this.attrs;
 
     return attrs && attrs[key] && attrs[key].serialize === true;
   },
@@ -947,7 +947,7 @@ const JSONSerializer = Serializer.extend({
   */
   shouldSerializeHasMany(snapshot, key, relationship) {
     const schema = this.store.modelFor(snapshot.modelName);
-    let relationshipType = schema.determineRelationshipType(relationship, this.store);
+    const relationshipType = schema.determineRelationshipType(relationship, this.store);
     if (this._mustSerialize(key)) {
       return true;
     }
@@ -1109,7 +1109,7 @@ const JSONSerializer = Serializer.extend({
     @return {Object} json
   */
   serialize(snapshot, options) {
-    let json = {};
+    const json = {};
 
     if (options && options.includeId) {
       const id = snapshot.id;
@@ -1194,16 +1194,16 @@ const JSONSerializer = Serializer.extend({
   */
   serializeAttribute(snapshot, json, key, attribute) {
     if (this._canSerialize(key)) {
-      let type = attribute.type;
+      const type = attribute.type;
       let value = snapshot.attr(key);
       if (type) {
-        let transform = this.transformFor(type);
+        const transform = this.transformFor(type);
         value = transform.serialize(value, attribute.options);
       }
 
       // if provided, use the mapping provided by `attrs` in
       // the serializer
-      let schema = this.store.modelFor(snapshot.modelName);
+      const schema = this.store.modelFor(snapshot.modelName);
       let payloadKey = this._getMappedKey(key, schema);
 
       if (payloadKey === key && this.keyForAttribute) {
@@ -1242,14 +1242,14 @@ const JSONSerializer = Serializer.extend({
     @param {Object} relationship
   */
   serializeBelongsTo(snapshot, json, relationship) {
-    let name = relationship.name;
+    const name = relationship.name;
 
     if (this._canSerialize(name)) {
-      let belongsToId = snapshot.belongsTo(name, { id: true });
+      const belongsToId = snapshot.belongsTo(name, { id: true });
 
       // if provided, use the mapping provided by `attrs` in
       // the serializer
-      let schema = this.store.modelFor(snapshot.modelName);
+      const schema = this.store.modelFor(snapshot.modelName);
       let payloadKey = this._getMappedKey(name, schema);
       if (payloadKey === name && this.keyForRelationship) {
         payloadKey = this.keyForRelationship(name, 'belongsTo', 'serialize');
@@ -1296,14 +1296,14 @@ const JSONSerializer = Serializer.extend({
    @param {Object} relationship
   */
   serializeHasMany(snapshot, json, relationship) {
-    let name = relationship.name;
+    const name = relationship.name;
 
     if (this.shouldSerializeHasMany(snapshot, name, relationship)) {
-      let hasMany = snapshot.hasMany(name, { ids: true });
+      const hasMany = snapshot.hasMany(name, { ids: true });
       if (hasMany !== undefined) {
         // if provided, use the mapping provided by `attrs` in
         // the serializer
-        let schema = this.store.modelFor(snapshot.modelName);
+        const schema = this.store.modelFor(snapshot.modelName);
         let payloadKey = this._getMappedKey(name, schema);
         if (payloadKey === name && this.keyForRelationship) {
           payloadKey = this.keyForRelationship(name, 'hasMany', 'serialize');
@@ -1379,7 +1379,7 @@ const JSONSerializer = Serializer.extend({
   */
   extractMeta(store, modelClass, payload) {
     if (payload && payload['meta'] !== undefined) {
-      let meta = payload.meta;
+      const meta = payload.meta;
       delete payload.meta;
       return meta;
     }
@@ -1499,7 +1499,7 @@ const JSONSerializer = Serializer.extend({
       // for each attr and relationship, make sure that we use
       // the normalized key
       typeClass.eachAttribute((name) => {
-        let key = this.keyForAttribute(name, 'deserialize');
+        const key = this.keyForAttribute(name, 'deserialize');
         if (key !== name && extracted[key] !== undefined) {
           extracted[name] = extracted[key];
           delete extracted[key];
@@ -1507,7 +1507,7 @@ const JSONSerializer = Serializer.extend({
       });
 
       typeClass.eachRelationship((name) => {
-        let key = this.keyForRelationship(name, 'deserialize');
+        const key = this.keyForRelationship(name, 'deserialize');
         if (key !== name && extracted[key] !== undefined) {
           extracted[name] = extracted[key];
           delete extracted[key];
@@ -1600,7 +1600,7 @@ const JSONSerializer = Serializer.extend({
    @return {Transform} transform
   */
   transformFor(attributeType, skipAssertion) {
-    let transform = getOwner(this).lookup('transform:' + attributeType);
+    const transform = getOwner(this).lookup('transform:' + attributeType);
 
     assert(`Unable to find the transform for \`attr('${attributeType}')\``, skipAssertion || !!transform);
 

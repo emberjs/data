@@ -1,7 +1,6 @@
-import type { StableRecordIdentifier } from '@warp-drive/core';
-
-import type { CollectionRelationship } from '@ember-data/store/-types/cache/relationship';
-import type { Links, Meta, PaginationLinks } from '@ember-data/store/-types/q/ember-data-json-api';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
+import type { Links, Meta, PaginationLinks } from '@warp-drive/core-types/spec/raw';
 
 import { computeLocalState } from '../-diff';
 import type { UpgradedMeta } from '../-edge-definition';
@@ -53,7 +52,7 @@ export function createCollectionEdge(definition: UpgradedMeta, identifier: Stabl
 }
 
 export function legacyGetCollectionRelationshipData(source: CollectionEdge): CollectionRelationship {
-  let payload: CollectionRelationship = {};
+  const payload: CollectionRelationship = {};
 
   if (source.state.hasReceivedData) {
     payload.data = computeLocalState(source);

@@ -1,0 +1,112 @@
+{
+  "baseBranch": "origin/main",
+  // Additive to package.json and turbo.json
+  //
+  // https://turbo.build/repo/docs/core-concepts/caching/file-inputs#specifying-additional-inputs
+  "globalDependencies": [
+    "pnpm-lock.yaml",
+    "patches/*",
+    ".github/*"
+  ],
+  "pipeline": {
+    /////////////////////////////////////////////////
+    /////////////////////////////////////////////////
+    //
+    //         Local Dev
+    //
+    /////////////////////////////////////////////////
+    /////////////////////////////////////////////////
+    "start": {
+      "dependsOn": ["_syncPnpm", "^build"],
+      "outputs": [],
+      "cache": false,
+      "persistent": true
+    },
+
+    /////////////////////////////////////////////////
+    /////////////////////////////////////////////////
+    //
+    //         C.I. / C.D.
+    //
+    /////////////////////////////////////////////////
+    /////////////////////////////////////////////////
+    "build": {
+      "inputs": [
+        // + V2-Addon convention
+        "src/**",
+        "tests/**",
+        "addon-main.*",
+        "tsconfig.json",
+        "babel.*",
+        "rollup-config.*"
+      ],
+      "outputs": [
+        // V1-Addon convention
+        "addon/**",
+        "addon-test-support/**",
+        // V2-Addon convention
+        "dist/**",
+        "dist-test/**",
+        "declarations/**",
+        "unstable-preview-types/**"
+      ],
+      "dependsOn": ["_syncPnpm"]
+    },
+    "build:tests": {
+      "inputs": [
+        // + V2-Addon convention
+        "src/**",
+        "tests/**",
+        "addon-main.*",
+        "tsconfig.json",
+        "babel.*",
+        "rollup-config.*"
+      ],
+      "outputs": [
+        // V1-Addon convention
+        "addon/**",
+        "addon-test-support/**",
+        // V2-Addon convention
+        "dist/**",
+        "dist-test/**",
+        "declarations/**",
+        "unstable-preview-types/**"
+      ],
+      "dependsOn": ["_syncPnpm", "^build"]
+    },
+    "build:production": {
+      "inputs": [
+        // + V2-Addon convention
+        "src/**",
+        "tests/**",
+        "ember-cli-build.js",
+        "addon-main.*",
+        "babel.*",
+        "rollup-config.*"
+      ],
+      "outputs": [
+        // V1-Addon convention
+        "addon/**",
+        "addon-test-support/**",
+        // V2-Addon convention
+        "dist/**",
+        "dist-test/**",
+        "declarations/**"
+      ],
+      "dependsOn": ["_syncPnpm", "^build"]
+    },
+    // See: https://github.com/pnpm/pnpm/issues/4965
+    "_syncPnpm": {
+      "dependsOn": ["^build"],
+      "cache": false
+    },
+    "test": {
+      "outputs": [],
+      "dependsOn": ["build:tests"]
+    },
+    "test:production": {
+      "outputs": [],
+      "dependsOn": ["build:production"]
+    }
+  }
+}

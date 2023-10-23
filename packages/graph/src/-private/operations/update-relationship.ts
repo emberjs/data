@@ -1,14 +1,10 @@
 import { assert, warn } from '@ember/debug';
 
-import type { StableRecordIdentifier } from '@warp-drive/core';
-
 import { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
-import type {
-  ExistingResourceIdentifierObject,
-  NewResourceIdentifierObject,
-} from '@ember-data/store/-types/q/ember-data-json-api';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { UpdateRelationshipOperation } from '@warp-drive/core-types/graph';
+import type { ExistingResourceIdentifierObject, NewResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
 
-import type { UpdateRelationshipOperation } from '../-operations';
 import { isBelongsTo, isHasMany, notifyChange } from '../-utils';
 import type { Graph } from '../graph';
 import _normalizeLink from '../normalize-link';
@@ -91,12 +87,12 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
   }
 
   if (payload.links) {
-    let originalLinks = relationship.links;
+    const originalLinks = relationship.links;
     relationship.links = payload.links;
     if (payload.links.related) {
-      let relatedLink = _normalizeLink(payload.links.related);
-      let currentLink = originalLinks && originalLinks.related ? _normalizeLink(originalLinks.related) : null;
-      let currentLinkHref = currentLink ? currentLink.href : null;
+      const relatedLink = _normalizeLink(payload.links.related);
+      const currentLink = originalLinks && originalLinks.related ? _normalizeLink(originalLinks.related) : null;
+      const currentLinkHref = currentLink ? currentLink.href : null;
 
       if (relatedLink && relatedLink.href && relatedLink.href !== currentLinkHref) {
         warn(
@@ -132,7 +128,7 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
        */
   relationship.state.hasFailedLoadAttempt = false;
   if (hasRelationshipDataProperty) {
-    let relationshipIsEmpty = payload.data === null || (Array.isArray(payload.data) && payload.data.length === 0);
+    const relationshipIsEmpty = payload.data === null || (Array.isArray(payload.data) && payload.data.length === 0);
 
     // we don't need to notify here as the update op we pushed in above will notify once
     // membership is in the correct state.

@@ -13,15 +13,17 @@
     "test": "tests"
   },
   "scripts": {
-    "build": "ember build",
-    "examine": "export EXAM_PARALLEL_COUNT=$(./bin/calculate-test-jobs); ember exam --test-port=0 --parallel=$EXAM_PARALLEL_COUNT --load-balance --wef  --testem_debug=testem.log",
+    "build:tests": "IS_TESTING=true EMBER_CLI_TEST_COMMAND=true ember build --output-path=dist-test --suppress-sizes",
+    "build:production": "pnpm build:tests -e production",
+    "examine": "export EXAM_PARALLEL_COUNT=$(./bin/calculate-test-jobs); ember exam --test-port=0 --path=dist-test --parallel=$EXAM_PARALLEL_COUNT --load-balance",
     "test:try-one": "ember try:one",
     "holodeck:start-program": "holodeck start",
     "holodeck:end-program": "holodeck end",
     "launch:tests": "ember test --port=0 --serve --no-launch",
     "start": "holodeck run launch:tests",
     "test": "holodeck run examine",
-    "test:production": "holodeck run examine -e production"
+    "test:production": "holodeck run examine",
+    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "author": "",
   "license": "MIT",
@@ -64,16 +66,37 @@
     },
     "@warp-drive/holodeck": {
       "injected": true
+    },
+    "@warp-drive/core-types": {
+      "injected": true
+    },
+    "@ember-data/request": {
+      "injected": true
+    },
+    "@ember/string": {
+      "injected": true
+    },
+    "ember-inflector": {
+      "injected": true
     }
   },
   "devDependencies": {
-    "pm2": "5.3.0",
     "@babel/core": "^7.23.2",
     "@babel/plugin-transform-typescript": "^7.22.15",
     "@babel/runtime": "^7.23.2",
     "@ember-data/private-build-infra": "workspace:5.5.0-alpha.11",
+    "@ember-data/request": "workspace:5.5.0-alpha.11",
+    "@ember-data/adapter": "workspace:5.5.0-alpha.11",
+    "@ember-data/debug": "workspace:5.5.0-alpha.11",
+    "@ember-data/graph": "workspace:5.5.0-alpha.11",
+    "@ember-data/json-api": "workspace:5.5.0-alpha.11",
+    "@ember-data/legacy-compat": "workspace:5.5.0-alpha.11",
+    "@ember-data/model": "workspace:5.5.0-alpha.11",
+    "@ember-data/serializer": "workspace:5.5.0-alpha.11",
+    "@ember-data/store": "workspace:5.5.0-alpha.11",
+    "@ember-data/tracking": "workspace:5.5.0-alpha.11",
+    "@ember-data/request-utils": "workspace:5.5.0-alpha.11",
     "@ember-data/unpublished-test-infra": "workspace:5.5.0-alpha.11",
-    "@warp-drive/holodeck": "workspace:5.5.0-alpha.11",
     "@ember/edition-utils": "^1.2.0",
     "@ember/optional-features": "^2.0.0",
     "@ember/string": "3.1.1",
@@ -87,6 +110,8 @@
     "@types/ember__owner": "^4.0.6",
     "@types/ember__utils": "^4.0.4",
     "@types/qunit": "^2.19.6",
+    "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
+    "@warp-drive/holodeck": "workspace:5.5.0-alpha.11",
     "broccoli-concat": "^4.2.5",
     "broccoli-merge-trees": "^4.2.0",
     "broccoli-stew": "^3.0.0",
@@ -94,7 +119,6 @@
     "broccoli-test-helper": "^2.0.0",
     "broccoli-uglify-sourcemap": "^4.0.0",
     "ember-auto-import": "^2.6.3",
-    "ember-exam": "^8.0.0",
     "ember-cached-decorator-polyfill": "^1.0.2",
     "ember-cli": "~5.3.0",
     "ember-cli-babel": "^8.2.0",
@@ -106,6 +130,7 @@
     "ember-data": "workspace:5.5.0-alpha.11",
     "ember-decorators-polyfill": "^1.1.5",
     "ember-disable-prototype-extensions": "^1.1.3",
+    "ember-exam": "^8.0.0",
     "ember-inflector": "^4.0.2",
     "ember-load-initializers": "^2.1.2",
     "ember-maybe-import-regenerator": "^1.0.0",
@@ -116,6 +141,7 @@
     "ember-strict-resolver": "^1.3.0",
     "ember-try": "^3.0.0",
     "loader.js": "^4.7.0",
+    "pm2": "5.3.0",
     "pretender": "^3.4.7",
     "qunit": "^2.20.0",
     "qunit-dom": "^3.0.0",
@@ -131,5 +157,8 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.9.2"
+  "packageManager": "pnpm@8.9.2",
+  "dependencies": {
+    "pnpm-sync-dependencies-meta-injected": "0.0.10"
+  }
 }

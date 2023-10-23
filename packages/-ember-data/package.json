@@ -12,7 +12,35 @@
     "test": "tests"
   },
   "scripts": {
-    "prepack": "cd ../../ && pnpm build:docs"
+    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs",
+    "move-dts": "bun ../../scripts/copy-declarations.mjs addon",
+    "build:types": "tsc --build --force",
+    "build": "pnpm build:types && pnpm move-dts",
+    "prepack": "pnpm build && cd ../../ && pnpm build:docs",
+    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
+  },
+  "files": [
+    "dist/docs",
+    "ember-data-logo-dark.svg",
+    "ember-data-logo-light.svg",
+    "LICENSE.md",
+    "README.md",
+    "index.js",
+    "addon",
+    "addon-test-support",
+    "app",
+    "blueprints",
+    "unstable-preview-types"
+  ],
+  "exports": {
+    ".": {
+      "types": "./unstable-preview-types/index.d.ts",
+      "default": "./addon/index.js"
+    },
+    "./*": {
+      "types": "./unstable-preview-types/*.d.ts",
+      "default": "./addon/*.js"
+    }
   },
   "author": "",
   "license": "MIT",
@@ -32,13 +60,15 @@
     "@ember-data/serializer": "workspace:5.5.0-alpha.11",
     "@ember-data/store": "workspace:5.5.0-alpha.11",
     "@ember-data/tracking": "workspace:5.5.0-alpha.11",
-    "@warp-drive/core": "workspace:5.5.0-alpha.11",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.13.2",
+    "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
     "broccoli-merge-trees": "^4.2.0",
     "ember-auto-import": "^2.6.3",
     "ember-cli-babel": "^8.2.0",
     "ember-inflector": "^4.0.2",
+    "typescript": "^5.2.2",
+    "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "webpack": "^5.89.0"
   },
   "dependenciesMeta": {
@@ -80,6 +110,12 @@
     },
     "@ember/string": {
       "injected": true
+    },
+    "@warp-drive/core-types": {
+      "injected": true
+    },
+    "ember-inflector": {
+      "injected": true
     }
   },
   "devDependencies": {
@@ -87,7 +123,9 @@
     "@ember/string": "3.1.1",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
-    "ember-source": "~5.3.0"
+    "@warp-drive/internal-config": "workspace:5.5.0-alpha.11",
+    "ember-source": "~5.3.0",
+    "eslint": "^8.51.0"
   },
   "engines": {
     "node": ">= 18.18.2"

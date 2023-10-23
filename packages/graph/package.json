@@ -11,29 +11,37 @@
     "directory": "packages/graph"
   },
   "license": "MIT",
-  "author": "",
+  "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "scripts": {
-    "build": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
-    "start": "rollup --config --watch",
+    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs",
+    "build:types": "tsc --build --force",
+    "build:client": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
+    "build": "pnpm build:client && pnpm build:types",
     "prepack": "pnpm build",
-    "prepare": "pnpm build"
-  },
-  "ember-addon": {
-    "main": "addon-main.js",
-    "type": "addon",
-    "version": 1
+    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "files": [
-    "addon-main.js",
+    "unstable-preview-types",
+    "addon-main.cjs",
     "addon",
     "README.md",
     "LICENSE.md",
     "ember-data-logo-dark.svg",
     "ember-data-logo-light.svg"
   ],
+  "exports": {
+    ".": {
+      "types": "./unstable-preview-types/index.d.ts",
+      "default": "./addon/index.js"
+    },
+    "./*": {
+      "types": "./unstable-preview-types/*.d.ts",
+      "default": "./addon/*.js"
+    }
+  },
   "peerDependencies": {
     "@ember-data/store": "workspace:5.5.0-alpha.11",
-    "@warp-drive/core": "workspace:5.5.0-alpha.11"
+    "@warp-drive/core-types": "workspace:5.5.0-alpha.11"
   },
   "dependenciesMeta": {
     "@ember-data/private-build-infra": {
@@ -41,13 +49,29 @@
     },
     "@ember-data/store": {
       "injected": true
+    },
+    "@warp-drive/core-types": {
+      "injected": true
+    },
+    "@warp-drive/internal-config": {
+      "injected": true
+    },
+    "@ember-data/request": {
+      "injected": true
+    },
+    "@ember-data/tracking": {
+      "injected": true
+    },
+    "@ember/string": {
+      "injected": true
     }
   },
   "dependencies": {
     "@ember-data/private-build-infra": "workspace:5.5.0-alpha.11",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.13.2",
-    "ember-cli-babel": "^8.2.0"
+    "ember-cli-babel": "^8.2.0",
+    "pnpm-sync-dependencies-meta-injected": "0.0.10"
   },
   "devDependencies": {
     "@babel/cli": "^7.23.0",
@@ -60,19 +84,21 @@
     "@babel/preset-env": "^7.23.2",
     "@babel/preset-typescript": "^7.23.2",
     "@babel/runtime": "^7.23.2",
+    "@ember-data/request": "workspace:5.5.0-alpha.11",
+    "@ember-data/store": "workspace:5.5.0-alpha.11",
+    "@ember-data/tracking": "workspace:5.5.0-alpha.11",
+    "@ember/string": "^3.1.1",
     "@embroider/addon-dev": "^4.1.1",
     "@glimmer/component": "^1.1.2",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
+    "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
+    "@warp-drive/internal-config": "workspace:5.5.0-alpha.11",
     "ember-source": "~5.3.0",
     "rollup": "^4.1.4",
-    "tslib": "^2.6.2",
     "typescript": "^5.2.2",
     "walk-sync": "^3.0.0",
     "webpack": "^5.89.0"
-  },
-  "ember": {
-    "edition": "octane"
   },
   "engines": {
     "node": ">= 18.18.2"
@@ -80,5 +106,13 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.9.2"
+  "packageManager": "pnpm@8.9.0",
+  "ember-addon": {
+    "main": "addon-main.cjs",
+    "type": "addon",
+    "version": 1
+  },
+  "ember": {
+    "edition": "octane"
+  }
 }

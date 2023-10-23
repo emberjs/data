@@ -95,7 +95,7 @@ const RESTSerializer = JSONSerializer.extend({
    @return {String} normalized key
   */
   keyForPolymorphicType(key, typeClass, method) {
-    let relationshipKey = this.keyForRelationship(key);
+    const relationshipKey = this.keyForRelationship(key);
 
     return `${relationshipKey}Type`;
   },
@@ -181,16 +181,16 @@ const RESTSerializer = JSONSerializer.extend({
     @private
   */
   _normalizeArray(store, modelName, arrayHash, prop) {
-    let documentHash = {
+    const documentHash = {
       data: [],
       included: [],
     };
 
-    let modelClass = store.modelFor(modelName);
-    let serializer = store.serializerFor(modelName);
+    const modelClass = store.modelFor(modelName);
+    const serializer = store.serializerFor(modelName);
 
     makeArray(arrayHash).forEach((hash) => {
-      let { data, included } = this._normalizePolymorphicRecord(store, hash, prop, modelClass, serializer);
+      const { data, included } = this._normalizePolymorphicRecord(store, hash, prop, modelClass, serializer);
       documentHash.data.push(data);
       if (included) {
         documentHash.included = documentHash.included.concat(included);
@@ -204,11 +204,11 @@ const RESTSerializer = JSONSerializer.extend({
     let serializer = primarySerializer;
     let modelClass = primaryModelClass;
 
-    let primaryHasTypeAttribute = primaryModelClass.fields.has('type');
+    const primaryHasTypeAttribute = primaryModelClass.fields.has('type');
 
     if (!primaryHasTypeAttribute && hash.type) {
       // Support polymorphic records in async relationships
-      let modelName = this.modelNameFromPayloadKey(hash.type);
+      const modelName = this.modelNameFromPayloadKey(hash.type);
 
       if (store.getSchemaDefinitionService().doesTypeExist(modelName)) {
         serializer = store.serializerFor(modelName);
@@ -231,12 +231,12 @@ const RESTSerializer = JSONSerializer.extend({
     @private
   */
   _normalizeResponse(store, primaryModelClass, payload, id, requestType, isSingle) {
-    let documentHash = {
+    const documentHash = {
       data: null,
       included: [],
     };
 
-    let meta = this.extractMeta(store, primaryModelClass, payload);
+    const meta = this.extractMeta(store, primaryModelClass, payload);
     if (meta) {
       assert(
         'The `meta` returned from `extractMeta` has to be an object, not "' + typeof meta + '".',
@@ -245,7 +245,7 @@ const RESTSerializer = JSONSerializer.extend({
       documentHash.meta = meta;
     }
 
-    let keys = Object.keys(payload);
+    const keys = Object.keys(payload);
 
     for (var i = 0, length = keys.length; i < length; i++) {
       var prop = keys[i];
@@ -309,7 +309,7 @@ const RESTSerializer = JSONSerializer.extend({
         ```
        */
       if (isPrimary && !Array.isArray(value)) {
-        let { data, included } = this._normalizePolymorphicRecord(store, value, prop, primaryModelClass, this);
+        const { data, included } = this._normalizePolymorphicRecord(store, value, prop, primaryModelClass, this);
         documentHash.data = data;
         if (included) {
           documentHash.included = documentHash.included.concat(included);
@@ -317,7 +317,7 @@ const RESTSerializer = JSONSerializer.extend({
         continue;
       }
 
-      let { data, included } = this._normalizeArray(store, typeName, value, prop);
+      const { data, included } = this._normalizeArray(store, typeName, value, prop);
 
       if (included) {
         documentHash.included = documentHash.included.concat(included);
@@ -334,8 +334,8 @@ const RESTSerializer = JSONSerializer.extend({
             2. If it's a newly created record without an ID, the first record
                in the array
            */
-          let isUpdatedRecord = isPrimary && coerceId(resource.id) === id;
-          let isFirstCreatedRecord = isPrimary && !id && !documentHash.data;
+          const isUpdatedRecord = isPrimary && coerceId(resource.id) === id;
+          const isFirstCreatedRecord = isPrimary && !id && !documentHash.data;
 
           if (isFirstCreatedRecord || isUpdatedRecord) {
             documentHash.data = resource;
@@ -394,7 +394,7 @@ const RESTSerializer = JSONSerializer.extend({
     @param {Object} payload
   */
   pushPayload(store, payload) {
-    let documentHash = {
+    const documentHash = {
       data: [],
       included: [],
     };
@@ -411,7 +411,7 @@ const RESTSerializer = JSONSerializer.extend({
       var typeSerializer = store.serializerFor(type.modelName);
 
       makeArray(payload[prop]).forEach((hash) => {
-        let { data, included } = typeSerializer.normalize(type, hash, prop);
+        const { data, included } = typeSerializer.normalize(type, hash, prop);
         documentHash.data.push(data);
         if (included) {
           documentHash.included = documentHash.included.concat(included);
@@ -671,7 +671,7 @@ const RESTSerializer = JSONSerializer.extend({
     @param {Object} options
   */
   serializeIntoHash(hash, typeClass, snapshot, options) {
-    let normalizedRootKey = this.payloadKeyFromModelName(typeClass.modelName);
+    const normalizedRootKey = this.payloadKeyFromModelName(typeClass.modelName);
     hash[normalizedRootKey] = this.serialize(snapshot, options);
   },
 
@@ -738,9 +738,9 @@ const RESTSerializer = JSONSerializer.extend({
     @param {Object} relationship
   */
   serializePolymorphicType(snapshot, json, relationship) {
-    let name = relationship.name;
-    let typeKey = this.keyForPolymorphicType(name, relationship.type, 'serialize');
-    let belongsTo = snapshot.belongsTo(name);
+    const name = relationship.name;
+    const typeKey = this.keyForPolymorphicType(name, relationship.type, 'serialize');
+    const belongsTo = snapshot.belongsTo(name);
 
     if (!belongsTo) {
       json[typeKey] = null;
@@ -761,7 +761,7 @@ const RESTSerializer = JSONSerializer.extend({
     @return {Object}
    */
   extractPolymorphicRelationship(relationshipType, relationshipHash, relationshipOptions) {
-    let { key, resourceHash, relationshipMeta } = relationshipOptions;
+    const { key, resourceHash, relationshipMeta } = relationshipOptions;
 
     // A polymorphic belongsTo relationship can be present in the payload
     // either in the form where the `id` and the `type` are given:
@@ -780,11 +780,11 @@ const RESTSerializer = JSONSerializer.extend({
     // The next code checks if the latter case is present and returns the
     // corresponding JSON-API representation. The former case is handled within
     // the base class JSONSerializer.
-    let isPolymorphic = relationshipMeta.options.polymorphic;
-    let typeProperty = this.keyForPolymorphicType(key, relationshipType, 'deserialize');
+    const isPolymorphic = relationshipMeta.options.polymorphic;
+    const typeProperty = this.keyForPolymorphicType(key, relationshipType, 'deserialize');
 
     if (isPolymorphic && resourceHash[typeProperty] !== undefined && typeof relationshipHash !== 'object') {
-      let type = this.modelNameFromPayloadKey(resourceHash[typeProperty]);
+      const type = this.modelNameFromPayloadKey(resourceHash[typeProperty]);
       return {
         id: coerceId(relationshipHash),
         type: type,

@@ -1,7 +1,12 @@
 import { assert } from '@ember/debug';
 
-import type Store from '@ember-data/store';
-import { StableDocumentIdentifier } from '@ember-data/store/-types/cache/identifier';
+import type { Cache } from '@warp-drive/core-types/cache';
+import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type { QueryParamsSerializationOptions, QueryParamsSource, Serializable } from '@warp-drive/core-types/params';
+
+type Store = {
+  cache: Cache;
+};
 
 /**
  * Simple utility function to assist in url building,
@@ -316,13 +321,6 @@ export function buildBaseURL(urlOptions: UrlOptions): string {
   return host ? url : `/${url}`;
 }
 
-type SerializablePrimitive = string | number | boolean | null;
-type Serializable = SerializablePrimitive | SerializablePrimitive[];
-export type QueryParamsSerializationOptions = {
-  arrayFormat?: 'bracket' | 'indices' | 'repeat' | 'comma';
-};
-export type QueryParamsSource = Record<string, Serializable> | URLSearchParams;
-
 const DEFAULT_QUERY_PARAMS_SERIALIZATION_OPTIONS: QueryParamsSerializationOptions = {
   arrayFormat: 'comma',
 };
@@ -383,7 +381,7 @@ export function filterEmpty(source: Record<string, Serializable>): Record<string
  * @returns {URLSearchParams} A URLSearchParams with keys inserted in sorted order
  */
 export function sortQueryParams(params: QueryParamsSource, options?: QueryParamsSerializationOptions): URLSearchParams {
-  options = Object.assign({}, DEFAULT_QUERY_PARAMS_SERIALIZATION_OPTIONS, options);
+  const opts = Object.assign({}, DEFAULT_QUERY_PARAMS_SERIALIZATION_OPTIONS, options);
   const paramsIsObject = !(params instanceof URLSearchParams);
   const urlParams = new URLSearchParams();
   const dictionaryParams: Record<string, Serializable> = paramsIsObject ? params : {};
@@ -413,7 +411,7 @@ export function sortQueryParams(params: QueryParamsSource, options?: QueryParams
     const value = dictionaryParams[key];
     if (Array.isArray(value)) {
       value.sort();
-      switch (options!.arrayFormat) {
+      switch (opts.arrayFormat) {
         case 'indices':
           value.forEach((v, i) => {
             urlParams.append(`${key}[${i}]`, String(v));
@@ -483,6 +481,8 @@ export interface CacheControlValue {
   'stale-while-revalidate'?: number;
 }
 
+type CacheControlKey = keyof CacheControlValue;
+
 const NUMERIC_KEYS = new Set(['max-age', 's-maxage', 'stale-if-error', 'stale-while-revalidate']);
 
 /**
@@ -514,10 +514,10 @@ const NUMERIC_KEYS = new Set(['max-age', 's-maxage', 'stale-if-error', 'stale-wh
  * @returns {CacheControlValue}
  */
 export function parseCacheControl(header: string): CacheControlValue {
-  let key = '';
+  let key: CacheControlKey = '' as CacheControlKey;
   let value = '';
   let isParsingKey = true;
-  let cacheControlValue: CacheControlValue = {};
+  const cacheControlValue: CacheControlValue = {};
 
   function parseCacheControlValue(stringToParse: string): number {
     const parsedValue = Number.parseInt(stringToParse);
@@ -526,7 +526,7 @@ export function parseCacheControl(header: string): CacheControlValue {
   }
 
   for (let i = 0; i < header.length; i++) {
-    let char = header.charAt(i);
+    const char = header.charAt(i);
     if (char === ',') {
       assert(`Invalid Cache-Control value, expected a value`, !isParsingKey || !NUMERIC_KEYS.has(key));
       assert(
@@ -534,8 +534,9 @@ export function parseCacheControl(header: string): CacheControlValue {
         i === 0 || header.charAt(i - 1) !== '='
       );
       isParsingKey = true;
+      // @ts-expect-error TS incorrectly thinks that optional keys must have a type that includes undefined
       cacheControlValue[key] = NUMERIC_KEYS.has(key) ? parseCacheControlValue(value) : true;
-      key = '';
+      key = '' as CacheControlKey;
       value = '';
       continue;
     } else if (char === '=') {
@@ -550,6 +551,7 @@ export function parseCacheControl(header: string): CacheControlValue {
     }
 
     if (i === header.length - 1) {
+      // @ts-expect-error TS incorrectly thinks that optional keys must have a type that includes undefined
       cacheControlValue[key] = NUMERIC_KEYS.has(key) ? parseCacheControlValue(value) : true;
     }
   }

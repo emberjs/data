@@ -2,6 +2,8 @@ import { Addon } from '@embroider/addon-dev/rollup';
 import babel from '@rollup/plugin-babel';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 
+import { external } from '@warp-drive/internal-config/rollup/external.js';
+
 const addon = new Addon({
   srcDir: 'src',
   destDir: 'addon',
@@ -12,15 +14,13 @@ export default {
   // You can augment this if you need to.
   output: addon.output(),
 
-  external: [
+  external: external([
     '@embroider/macros',
 
     '@ember-data/tracking/-private',
-    '@ember-data/private-build-infra/current-deprecations',
 
     // to eliminate
     '@ember/runloop',
-    '@ember/string',
 
     // investigate why these are present
     '@ember/application',
@@ -34,7 +34,7 @@ export default {
     // test/debug only
     '@ember/test',
     '@ember/debug',
-  ],
+  ]),
 
   plugins: [
     // These are the modules that users should be able to import from your

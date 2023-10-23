@@ -60,18 +60,19 @@
     }
   },
   "scripts": {
+    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs",
     "build:tests": "rm -rf dist-test && cp -R test dist-test && mkdir -p dist-test/@warp-drive && cp -R dist dist-test/@warp-drive/diagnostic",
     "build:types": "tsc --build --force",
     "build:runtime": "rollup --config",
-    "build": "pnpm build:runtime && pnpm build:types && pnpm build:tests",
+    "build": "pnpm build:runtime && pnpm build:types",
     "start": "rollup --config --watch",
     "prepack": "pnpm build",
-    "prepare": "pnpm build"
+    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "peerDependencies": {
     "@ember/test-helpers": ">= 3.2.0",
-    "ember-cli-test-loader": ">= 3.1.0",
-    "@embroider/addon-shim": ">= 1.8.6"
+    "@embroider/addon-shim": ">= 1.8.6",
+    "ember-cli-test-loader": ">= 3.1.0"
   },
   "peerDependenciesMeta": {
     "@ember/test-helpers": {
@@ -87,6 +88,7 @@
   "dependencies": {
     "chalk": "^5.3.0",
     "debug": "^4.3.4",
+    "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "tmp": "^0.2.1"
   },
   "devDependencies": {
@@ -99,12 +101,15 @@
     "@embroider/addon-dev": "^4.1.1",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
+    "@warp-drive/internal-config": "workspace:5.5.0-alpha.11",
+    "bun-types": "^1.0.6",
+    "@ember/test-helpers": "^3.2.0",
+    "ember-source": "~5.3.0",
+    "@glimmer/component": "^1.1.2",
     "ember-cli-test-loader": "^3.1.0",
     "rollup": "^4.1.4",
-    "tslib": "^2.6.2",
     "typescript": "^5.2.2",
-    "walk-sync": "^3.0.0",
-    "bun-types": "^1.0.6"
+    "walk-sync": "^3.0.0"
   },
   "engines": {
     "node": ">= 18.18.2"
@@ -120,5 +125,10 @@
   },
   "ember": {
     "edition": "octane"
+  },
+  "dependenciesMeta": {
+    "@warp-drive/internal-config": {
+      "injected": true
+    }
   }
 }

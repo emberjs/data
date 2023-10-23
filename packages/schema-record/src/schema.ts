@@ -1,5 +1,5 @@
-import type { StableRecordIdentifier } from "@warp-drive/core";
-import type { AttributeSchema, RelationshipSchema } from '@ember-data/store/-types/q/record-data-schemas';
+import type { StableRecordIdentifier } from "@warp-drive/core-types";
+import type { AttributeSchema, RelationshipSchema } from '@warp-drive/core-types/schema';
 import type { SchemaRecord } from "./record";
 
 export const Destroy = Symbol('Destroy');

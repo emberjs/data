@@ -4,7 +4,7 @@ import { assert } from '@ember/debug';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import { _deprecatingNormalize } from '@ember-data/store/-private';
-import type { ObjectValue } from '@ember-data/store/-types/json/raw';
+import type { ObjectValue } from '@warp-drive/core-types/json/raw';
 
 import { FetchManager, upgradeStore } from './-private';
 import type { MinimumAdapterInterface } from './legacy-network-handler/minimum-adapter-interface';
@@ -66,9 +66,9 @@ export function adapterFor(this: Store, modelName: string, _allowMissing?: true)
   this._adapterCache =
     this._adapterCache || (Object.create(null) as Record<string, MinimumAdapterInterface & { store: Store }>);
 
-  let normalizedModelName = _deprecatingNormalize(modelName);
+  const normalizedModelName = _deprecatingNormalize(modelName);
 
-  let { _adapterCache } = this;
+  const { _adapterCache } = this;
   let adapter: (MinimumAdapterInterface & { store: Store }) | undefined = _adapterCache[normalizedModelName];
   if (adapter) {
     return adapter;
@@ -127,9 +127,9 @@ export function serializerFor(this: Store, modelName: string): MinimumSerializer
   upgradeStore(this);
   this._serializerCache =
     this._serializerCache || (Object.create(null) as Record<string, MinimumSerializerInterface & { store: Store }>);
-  let normalizedModelName = _deprecatingNormalize(modelName);
+  const normalizedModelName = _deprecatingNormalize(modelName);
 
-  let { _serializerCache } = this;
+  const { _serializerCache } = this;
   let serializer: (MinimumSerializerInterface & { store: Store }) | undefined = _serializerCache[normalizedModelName];
   if (serializer) {
     return serializer;
@@ -262,7 +262,7 @@ export function pushPayload(this: Store, modelName: string, inputPayload: Object
     !(this.isDestroying || this.isDestroyed)
   );
 
-  const payload = inputPayload || (modelName as unknown as object);
+  const payload: ObjectValue = inputPayload || (modelName as unknown as ObjectValue);
   const normalizedModelName = inputPayload ? _deprecatingNormalize(modelName) : 'application';
   const serializer = this.serializerFor(normalizedModelName);
 
@@ -287,15 +287,15 @@ export function serializeRecord(this: Store, record: unknown, options?: Serializ
 export function cleanup(this: Store) {
   upgradeStore(this);
   // enqueue destruction of any adapters/serializers we have created
-  for (let adapterName in this._adapterCache) {
-    let adapter = this._adapterCache[adapterName]!;
+  for (const adapterName in this._adapterCache) {
+    const adapter = this._adapterCache[adapterName]!;
     if (typeof adapter.destroy === 'function') {
       adapter.destroy();
     }
   }
 
-  for (let serializerName in this._serializerCache) {
-    let serializer = this._serializerCache[serializerName]!;
+  for (const serializerName in this._serializerCache) {
+    const serializer = this._serializerCache[serializerName]!;
     if (typeof serializer.destroy === 'function') {
       serializer.destroy();
     }

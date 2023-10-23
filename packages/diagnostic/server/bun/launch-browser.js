@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+
 import { info, print } from '../utils/debug.js';
 
 /** @type {import('bun-types')} */
@@ -25,7 +26,9 @@ export async function launchBrowsers(config, state) {
         pages.push(`?b=${bId}&w=${state.windowId++}`);
       }
 
-      const launcherUrl = `${state.protocol}://${state.hostname}:${state.port}/parallel-launcher?p[]=${pages.join('&p[]=')}`;
+      const launcherUrl = `${state.protocol}://${state.hostname}:${state.port}/parallel-launcher?p[]=${pages.join(
+        '&p[]='
+      )}`;
       args.push(launcherUrl);
     } else {
       args.push(`${state.protocol}://${state.hostname}:${state.port}?b=${bId}&w=${state.windowId++}`);

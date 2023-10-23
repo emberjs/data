@@ -15,9 +15,11 @@
     "test": "tests"
   },
   "scripts": {
-    "build": "ember build --output-path=dist-test --suppress-sizes",
-    "test": "pnpm build && bun ./diagnostic.js",
-    "test:production": "pnpm build -e production; bun ./diagnostic.js"
+    "build:tests": "IS_TESTING=true EMBER_CLI_TEST_COMMAND=true ember build --output-path=dist-test --suppress-sizes",
+    "build:production": "pnpm build:tests -e production",
+    "test": "bun ./diagnostic.js",
+    "test:production": "bun ./diagnostic.js",
+    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "dependenciesMeta": {
     "@warp-drive/diagnostic": {
@@ -53,49 +55,58 @@
     "@ember-data/unpublished-test-infra": {
       "injected": true
     },
-    "@warp-drive/core": {
+    "@warp-drive/core-types": {
+      "injected": true
+    },
+    "@ember/string": {
+      "injected": true
+    },
+    "ember-inflector": {
+      "injected": true
+    },
+    "@ember-data/debug": {
       "injected": true
     }
   },
   "devDependencies": {
     "@babel/core": "^7.23.2",
     "@babel/runtime": "^7.23.2",
+    "@ember-data/debug": "workspace:5.5.0-alpha.11",
     "@ember-data/graph": "workspace:5.5.0-alpha.11",
     "@ember-data/json-api": "workspace:5.5.0-alpha.11",
     "@ember-data/legacy-compat": "workspace:5.5.0-alpha.11",
     "@ember-data/model": "workspace:5.5.0-alpha.11",
     "@ember-data/private-build-infra": "workspace:5.5.0-alpha.11",
-    "@ember-data/request-utils": "workspace:5.5.0-alpha.11",
     "@ember-data/request": "workspace:5.5.0-alpha.11",
+    "@ember-data/request-utils": "workspace:5.5.0-alpha.11",
     "@ember-data/store": "workspace:5.5.0-alpha.11",
     "@ember-data/tracking": "workspace:5.5.0-alpha.11",
     "@ember-data/unpublished-test-infra": "workspace:5.5.0-alpha.11",
-    "@warp-drive/core": "workspace:5.5.0-alpha.11",
     "@ember/edition-utils": "^1.2.0",
     "@ember/optional-features": "^2.0.0",
     "@ember/string": "3.1.1",
     "@ember/test-helpers": "^3.2.0",
-    "@embroider/macros": "^1.13.2",
     "@embroider/addon-shim": "^1.8.6",
+    "@embroider/macros": "^1.13.2",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "@types/ember__owner": "^4.0.6",
+    "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
     "@warp-drive/diagnostic": "workspace:5.5.0-alpha.11",
     "ember-auto-import": "^2.6.3",
+    "ember-cli": "~5.3.0",
     "ember-cli-babel": "^8.2.0",
-    "ember-cli-blueprint-test-helpers": "^0.19.2",
     "ember-cli-dependency-checker": "^3.3.2",
     "ember-cli-htmlbars": "^6.3.0",
     "ember-cli-inject-live-reload": "^2.1.0",
     "ember-cli-test-loader": "^3.1.0",
-    "ember-cli": "~5.3.0",
     "ember-disable-prototype-extensions": "^1.1.3",
     "ember-inflector": "^4.0.2",
     "ember-load-initializers": "^2.1.2",
     "ember-maybe-import-regenerator": "^1.0.0",
     "ember-resolver": "^11.0.1",
-    "ember-source-channel-url": "^3.0.0",
     "ember-source": "~5.3.0",
+    "ember-source-channel-url": "^3.0.0",
     "ember-try": "^3.0.0",
     "loader.js": "^4.7.0",
     "silent-error": "^1.1.1",
@@ -110,5 +121,8 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.9.2"
+  "packageManager": "pnpm@8.9.2",
+  "dependencies": {
+    "pnpm-sync-dependencies-meta-injected": "0.0.10"
+  }
 }

@@ -1,19 +1,23 @@
 import { getTestMetadata, setupContext, SetupContextOptions, teardownContext, TestContext } from '@ember/test-helpers';
+
 import AbstractTestLoader from 'ember-cli-test-loader/test-support/index';
 
 import type { Hooks } from './-types';
-
 import { setupGlobalHooks } from './internals/config';
 
 // fix bug with embroider/webpack/auto-import and test-loader
+// prettier-ignore
 // @ts-expect-error
-const CLITestLoader: typeof AbstractTestLoader = AbstractTestLoader.default ? AbstractTestLoader.default : AbstractTestLoader;
+const CLITestLoader: typeof AbstractTestLoader = AbstractTestLoader.default
+  // @ts-expect-error
+  ? AbstractTestLoader.default as typeof AbstractTestLoader
+  : AbstractTestLoader;
 
 export function setupTest(hooks: Hooks<TestContext>, opts?: SetupContextOptions) {
   const options = { waitForSettled: false, ...opts };
 
   hooks.beforeEach(async function () {
-    let testMetadata = getTestMetadata(this);
+    const testMetadata = getTestMetadata(this);
     testMetadata.framework = 'qunit';
 
     await setupContext(this, options);
@@ -47,7 +51,7 @@ function loadTests() {
 export function configure() {
   setupGlobalHooks((hooks) => {
     hooks.onSuiteFinish(() => {
-      let length = moduleLoadFailures.length;
+      const length = moduleLoadFailures.length;
 
       try {
         if (length === 0) {

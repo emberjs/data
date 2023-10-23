@@ -1,8 +1,8 @@
 import type Store from '@ember-data/store';
-import type { StableRecordIdentifier } from "@warp-drive/core";
+import type { StableRecordIdentifier } from "@warp-drive/core-types";
 import type { FieldSchema, SchemaService } from './schema';
 import { Cache } from '@ember-data/store/-types/q/cache';
-import { Link, Links, SingleResourceRelationship } from '@ember-data/store/-types/q/ember-data-json-api';
+import { Link, Links, SingleResourceRelationship } from '@warp-drive/core-types/spec/raw';
 import { StoreRequestInput } from '@ember-data/store/-private/cache-handler';
 import { Future } from '@ember-data/request';
 import { DEBUG } from '@ember-data/env';

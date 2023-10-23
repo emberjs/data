@@ -1,14 +1,16 @@
-/* global Testem */
-
-import { Emitter, CompatTestReport } from "../-types";
-import { SuiteReport } from "../-types/report";
-import { assert } from "../-utils";
+import { CompatTestReport, Emitter } from '../-types';
+import { SuiteReport } from '../-types/report';
+import { assert } from '../-utils';
 
 type TestemSocket = {
   emit(name: 'tests-start'): void; // suite-start
   emit(name: 'all-test-results'): void; // suite-finish
   emit(name: 'tests-start', data: CompatTestReport): void; // test-start
   emit(name: 'test-result', data: CompatTestReport): void; // test-finish
+};
+
+interface TestemGlobal {
+  useCustomAdapter(callback: (socket: TestemSocket) => void): void;
 }
 
 class TestemEmitter implements Emitter {
@@ -23,7 +25,10 @@ class TestemEmitter implements Emitter {
   emit(name: 'test-start', data: CompatTestReport): void;
   emit(name: 'test-finish', data: CompatTestReport): void;
   emit(name: 'suite-start' | 'suite-finish' | 'test-start' | 'test-finish', data: SuiteReport | CompatTestReport) {
-    assert(`Expected event.name to be one of 'suite-start', 'suite-finish', 'test-start' or 'test-finish'`, (['suite-start', 'suite-finish', 'test-start', 'test-finish']).includes(name));
+    assert(
+      `Expected event.name to be one of 'suite-start', 'suite-finish', 'test-start' or 'test-finish'`,
+      ['suite-start', 'suite-finish', 'test-start', 'test-finish'].includes(name)
+    );
     assert(`Expected event.data to be defined`, typeof data !== 'undefined');
 
     if (name === 'suite-start') {
@@ -41,7 +46,7 @@ class TestemEmitter implements Emitter {
 export function createTestemEmitter(): Promise<Emitter> {
   return new Promise((resolve, reject) => {
     // @ts-expect-error
-    const _Testem = window.Testem;
+    const _Testem: TestemGlobal = window.Testem as TestemGlobal;
     const hasTestem = typeof _Testem !== 'undefined';
 
     if (!hasTestem) {

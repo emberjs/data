@@ -1,21 +1,15 @@
 {
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "../../@types/fastboot"],
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ES2020",
-    "moduleResolution": "node",
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "skipLibCheck": true,
     "declarationDir": "unstable-preview-types",
     "emitDeclarationOnly": true,
     "noEmit": false,
-
-    // Enable faster builds
-    // but causes us to not rebuild properly
-    "incremental": false,
-
     "allowJs": false,
     "checkJs": false,
-
     "alwaysStrict": true,
     "strict": true,
     "allowSyntheticDefaultImports": true,
@@ -34,8 +28,10 @@
     "experimentalDecorators": true,
     "pretty": true,
 
-    // Support generation of source maps. Note: you must *also* enable source
-    // maps in your `ember-cli-babel` config and/or `babel.config.js`.
+    // Enable faster builds
+    // but causes us to not rebuild properly
+    "incremental": false,
+
     "declaration": true,
     "declarationMap": true,
     "inlineSourceMap": true,

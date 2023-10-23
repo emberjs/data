@@ -1,4 +1,4 @@
-import type { StableRecordIdentifier } from '@warp-drive/core';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';

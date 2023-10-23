@@ -3,7 +3,7 @@
 */
 import EmberObject from '@ember/object';
 
-import { AttributeSchema } from '@ember-data/store/-types/q/record-data-schemas';
+import { AttributeSchema } from '@warp-drive/core-types/schema';
 
 /**
   The `Transform` class is used to serialize and deserialize model

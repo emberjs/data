@@ -1,7 +1,5 @@
 import { assert } from '@ember/debug';
 
-import type { StableRecordIdentifier } from '@warp-drive/core';
-
 import type Store from '@ember-data/store';
 import { storeFor } from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store/-private';
@@ -11,8 +9,9 @@ import type { RequestState } from '@ember-data/store/-private/network/request-ca
 import type { Cache } from '@ember-data/store/-types/q/cache';
 import { cached, compat } from '@ember-data/tracking';
 import { addToTransaction, defineSignal, getSignal, peekSignal, subscribe } from '@ember-data/tracking/-private';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
-import Errors from './errors';
+import type Errors from './errors';
 import type Model from './model';
 
 const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
@@ -216,6 +215,7 @@ export default class RecordState {
             this.notify('isDirty');
             break;
           case 'errors':
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this.updateInvalidErrors(this.record.errors);
             this.notify('isValid');
             break;
@@ -237,15 +237,15 @@ export default class RecordState {
       `Expected the Cache instance for ${this.identifier.lid}  to implement getErrors(identifier)`,
       typeof this.cache.getErrors === 'function'
     );
-    let jsonApiErrors = this.cache.getErrors(this.identifier);
+    const jsonApiErrors = this.cache.getErrors(this.identifier);
 
     errors.clear();
 
     for (let i = 0; i < jsonApiErrors.length; i++) {
-      let error = jsonApiErrors[i];
+      const error = jsonApiErrors[i];
 
       if (error.source && error.source.pointer) {
-        let keyMatch = error.source.pointer.match(SOURCE_POINTER_REGEXP);
+        const keyMatch = error.source.pointer.match(SOURCE_POINTER_REGEXP);
         let key: string | undefined;
 
         if (keyMatch) {
@@ -255,7 +255,7 @@ export default class RecordState {
         }
 
         if (key) {
-          let errMsg = error.detail || error.title;
+          const errMsg = error.detail || error.title;
           assert(`Expected field error to have a detail or title to use as the message`, errMsg);
           errors.add(key, errMsg);
         }
@@ -288,7 +288,7 @@ export default class RecordState {
 
   @tagged
   get isSaved() {
-    let rd = this.cache;
+    const rd = this.cache;
     if (this.isDeleted) {
       assert(`Expected Cache to implement isDeletionCommitted()`, typeof rd.isDeletionCommitted === 'function');
       return rd.isDeletionCommitted(this.identifier);
@@ -301,7 +301,7 @@ export default class RecordState {
 
   @tagged
   get isEmpty() {
-    let rd = this.cache;
+    const rd = this.cache;
     // TODO this is not actually an RFC'd concept. Determine the
     // correct heuristic to replace this with.
     assert(`Expected Cache to implement isEmpty()`, typeof rd.isEmpty === 'function');
@@ -310,26 +310,27 @@ export default class RecordState {
 
   @tagged
   get isNew() {
-    let rd = this.cache;
+    const rd = this.cache;
     assert(`Expected Cache to implement isNew()`, typeof rd.isNew === 'function');
     return rd.isNew(this.identifier);
   }
 
   @tagged
   get isDeleted() {
-    let rd = this.cache;
+    const rd = this.cache;
     assert(`Expected Cache to implement isDeleted()`, typeof rd.isDeleted === 'function');
     return rd.isDeleted(this.identifier);
   }
 
   @tagged
   get isValid() {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return this.record.errors.length === 0;
   }
 
   @tagged
   get isDirty() {
-    let rd = this.cache;
+    const rd = this.cache;
     if (this.isEmpty || rd.isDeletionCommitted(this.identifier) || (this.isDeleted && this.isNew)) {
       return false;
     }
@@ -338,7 +339,7 @@ export default class RecordState {
 
   @tagged
   get isError() {
-    let errorReq = this._errorRequests[this._errorRequests.length - 1];
+    const errorReq = this._errorRequests[this._errorRequests.length - 1];
     if (!errorReq) {
       return false;
     } else {
@@ -348,7 +349,7 @@ export default class RecordState {
 
   @tagged
   get adapterError() {
-    let request = this._lastError;
+    const request = this._lastError;
     if (!request) {
       return null;
     }

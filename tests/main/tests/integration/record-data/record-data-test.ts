@@ -1,18 +1,25 @@
 import EmberObject from '@ember/object';
 import { settled } from '@ember/test-helpers';
 
+import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
 import type {
   RecordIdentifier,
   StableExistingRecordIdentifier,
   StableRecordIdentifier,
-} from '@warp-drive/core/identifier';
+} from '@warp-drive/core-types/identifier';
+import type {
+  CollectionResourceDocument,
+  CollectionResourceRelationship,
+  JsonApiDocument,
+  SingleResourceDocument,
+  SingleResourceRelationship,
+} from '@warp-drive/core-types/spec/raw';
 import { module, test } from 'qunit';
 
 import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import type { LocalRelationshipOperation } from '@ember-data/graph/-private/-operations';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import type { StructuredDataDocument, StructuredDocument } from '@ember-data/request';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
@@ -29,13 +36,6 @@ import {
 import { StableDocumentIdentifier } from '@ember-data/store/-types/cache/identifier';
 import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/store/-types/q/cache';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import type {
-  CollectionResourceDocument,
-  CollectionResourceRelationship,
-  JsonApiDocument,
-  SingleResourceDocument,
-  SingleResourceRelationship,
-} from '@ember-data/store/-types/q/ember-data-json-api';
 import type { JsonApiError, JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 
 class Person extends Model {

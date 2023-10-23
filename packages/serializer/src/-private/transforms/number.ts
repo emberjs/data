@@ -2,7 +2,7 @@
   @module @ember-data/serializer
 */
 
-function isNumber(value) {
+function isNumber(value: number) {
   return value === value && value !== Infinity && value !== -Infinity;
 }
 

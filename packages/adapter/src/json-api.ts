@@ -8,9 +8,9 @@ import { pluralize } from 'ember-inflector';
 
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import type { AdapterPayload } from '@ember-data/legacy-compat/legacy-network-handler/minimum-adapter-interface';
-import type { HTTPMethod } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
+import type { HTTPMethod } from '@warp-drive/core-types/request';
 
 import { serializeIntoHash } from './-private';
 import type { FetchRequestInit, JQueryRequestInit } from './rest';
@@ -162,7 +162,7 @@ import RESTAdapter from './rest';
   @extends RESTAdapter
 */
 class JSONAPIAdapter extends RESTAdapter {
-  _defaultContentType = 'application/vnd.api+json';
+  override _defaultContentType = 'application/vnd.api+json';
 
   /**
     @method ajaxOptions
@@ -172,14 +172,14 @@ class JSONAPIAdapter extends RESTAdapter {
     @param {Object} options
     @return {Object}
   */
-  ajaxOptions(
+  override ajaxOptions(
     url: string,
     type: HTTPMethod,
     options: JQueryAjaxSettings | RequestInit = {}
   ): JQueryRequestInit | FetchRequestInit {
     const hash = super.ajaxOptions(url, type, options) as FetchRequestInit;
-    const headers = (hash.headers = hash.headers || {});
-    headers['Accept'] = headers['Accept'] || 'application/vnd.api+json';
+    const headers: HeadersInit = (hash.headers = hash.headers || {});
+    headers['Accept'] = (headers['Accept'] as string) || 'application/vnd.api+json';
 
     return hash;
   }
@@ -240,35 +240,35 @@ class JSONAPIAdapter extends RESTAdapter {
     @public
     @type {boolean}
   */
-  get coalesceFindRequests() {
-    let coalesceFindRequests = this._coalesceFindRequests;
+  override get coalesceFindRequests() {
+    const coalesceFindRequests = this._coalesceFindRequests;
     if (typeof coalesceFindRequests === 'boolean') {
       return coalesceFindRequests;
     }
     return (this._coalesceFindRequests = false);
   }
 
-  set coalesceFindRequests(value: boolean) {
+  override set coalesceFindRequests(value: boolean) {
     this._coalesceFindRequests = value;
   }
 
-  findMany(store: Store, type: ModelSchema, ids: string[], snapshots: Snapshot[]): Promise<AdapterPayload> {
-    let url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
+  override findMany(store: Store, type: ModelSchema, ids: string[], snapshots: Snapshot[]): Promise<AdapterPayload> {
+    const url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
     return this.ajax(url, 'GET', { data: { filter: { id: ids.join(',') } } });
   }
 
-  pathForType(modelName: string): string {
-    let dasherized = dasherize(modelName);
+  override pathForType(modelName: string): string {
+    const dasherized = dasherize(modelName);
     return pluralize(dasherized);
   }
 
-  updateRecord(store: Store, schema: ModelSchema, snapshot: Snapshot): Promise<AdapterPayload> {
+  override updateRecord(store: Store, schema: ModelSchema, snapshot: Snapshot): Promise<AdapterPayload> {
     const data = serializeIntoHash(store, schema, snapshot);
     const type = snapshot.modelName;
     const id = snapshot.id;
     assert(`Attempted to update the ${type} record, but the record has no id`, typeof id === 'string' && id.length > 0);
 
-    let url = this.buildURL(type, id, snapshot, 'updateRecord');
+    const url = this.buildURL(type, id, snapshot, 'updateRecord');
 
     return this.ajax(url, 'PATCH', { data: data });
   }
