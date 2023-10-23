@@ -14,7 +14,7 @@
     "test": "tests"
   },
   "scripts": {
-    "build:tests": "ember build --output-path=dist-test --suppress-sizes",
+    "build:tests": "IS_TESTING=true EMBER_CLI_TEST_COMMAND=true ember build --output-path=dist-test --suppress-sizes",
     "build:production": "pnpm build:tests -e production",
     "test": "bun ./diagnostic.js",
     "test:production": "bun ./diagnostic.js",
