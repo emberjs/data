@@ -36,7 +36,7 @@ importers:
   .:
     dependencies:
       turbo:
-        specifier: ^1.10.15
+        specifier: ^1.10.16
         version: 1.10.16
     devDependencies:
       bun-types:
