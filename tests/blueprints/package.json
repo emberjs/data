@@ -90,20 +90,6 @@
     "mocha": "^10.2.0",
     "silent-error": "^1.1.1"
   },
-  "pnpm": {
-    "peerDependencyRules": {
-      "ignoreMissing": [
-        "@babel/core",
-        "@glimmer/*",
-        "ember-source",
-        "@ember/string",
-        "ember-inflector",
-        "@ember-data/store",
-        "@ember-data/tracking",
-        "webpack"
-      ]
-    }
-  },
   "engines": {
     "node": ">= 18.18.2"
   },
