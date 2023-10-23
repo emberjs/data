@@ -2667,9 +2667,6 @@ importers:
       ember-cli-babel:
         specifier: ^8.1.0
         version: 8.2.0(@babel/core@7.23.2)
-      ember-cli-blueprint-test-helpers:
-        specifier: ^0.19.2
-        version: 0.19.2
       ember-cli-dependency-checker:
         specifier: ^3.3.2
         version: 3.3.2(ember-cli@5.3.0)
@@ -2825,9 +2822,6 @@ importers:
       ember-cli-babel:
         specifier: ^8.1.0
         version: 8.2.0(@babel/core@7.23.2)
-      ember-cli-blueprint-test-helpers:
-        specifier: ^0.19.2
-        version: 0.19.2
       ember-cli-dependency-checker:
         specifier: ^3.3.2
         version: 3.3.2(ember-cli@5.3.0)
@@ -3103,9 +3097,6 @@ importers:
       ember-cli-babel:
         specifier: ^8.1.0
         version: 8.2.0(@babel/core@7.23.2)
-      ember-cli-blueprint-test-helpers:
-        specifier: ^0.19.2
-        version: 0.19.2
       ember-cli-dependency-checker:
         specifier: ^3.3.2
         version: 3.3.2(ember-cli@5.3.0)
@@ -4014,9 +4005,6 @@ importers:
       ember-cli-babel:
         specifier: ^8.1.0
         version: 8.2.0(@babel/core@7.23.2)
-      ember-cli-blueprint-test-helpers:
-        specifier: ^0.19.2
-        version: 0.19.2
       ember-cli-dependency-checker:
         specifier: ^3.3.2
         version: 3.3.2(ember-cli@5.3.0)
