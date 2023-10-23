@@ -678,9 +678,15 @@ importers:
       '@babel/runtime':
         specifier: ^7.23.2
         version: 7.23.2
+      '@ember/test-helpers':
+        specifier: ^3.2.0
+        version: 3.2.0(@babel/core@7.23.2)(ember-source@5.3.0)(webpack@5.89.0)
       '@embroider/addon-dev':
         specifier: ^4.1.1
         version: 4.1.1(rollup@4.1.4)
+      '@glimmer/component':
+        specifier: ^1.1.2
+        version: 1.1.2(@babel/core@7.23.2)
       '@rollup/plugin-babel':
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.23.2)(rollup@4.1.4)
@@ -696,6 +702,9 @@ importers:
       ember-cli-test-loader:
         specifier: ^3.1.0
         version: 3.1.0(@babel/core@7.23.2)
+      ember-source:
+        specifier: ~5.3.0
+        version: 5.3.0(@babel/core@7.23.2)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
         specifier: ^4.1.4
         version: 4.1.4
