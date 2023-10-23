@@ -5,7 +5,6 @@
   // https://turbo.build/repo/docs/core-concepts/caching/file-inputs#specifying-additional-inputs
   "globalDependencies": [
     "pnpm-lock.yaml",
-    "tsconfig.*",
     "patches/*",
     ".github/*"
   ],
