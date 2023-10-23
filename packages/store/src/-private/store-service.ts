@@ -1509,7 +1509,11 @@ class Store extends EmberObject {
     @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.queryRecord
     @return {Promise} promise which resolves with the found record or `null`
   */
-  queryRecord(modelName: string, query: Record<string, unknown>, options?: QueryOptions): Promise<RecordInstance | null> {
+  queryRecord(
+    modelName: string,
+    query: Record<string, unknown>,
+    options?: QueryOptions
+  ): Promise<RecordInstance | null> {
     if (DEBUG) {
       assertDestroyingStore(this, 'queryRecord');
     }
