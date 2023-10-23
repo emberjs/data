@@ -11,7 +11,7 @@
   "license": "MIT",
   "author": "",
   "scripts": {
-    "test": "mocha tests",
+    "test:blueprints": "mocha tests",
     "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "dependenciesMeta": {
@@ -61,6 +61,12 @@
       "injected": true
     },
     "@ember-data/debug": {
+      "injected": true
+    },
+    "ember-cli-blueprint-test-helpers": {
+      "injected": true
+    },
+    "ember-cli": {
       "injected": true
     }
   },

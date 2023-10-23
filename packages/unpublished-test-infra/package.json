@@ -18,7 +18,7 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "ember test",
+    "test:infra": "ember test",
     "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "peerDependencies": {

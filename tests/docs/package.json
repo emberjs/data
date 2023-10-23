@@ -11,7 +11,7 @@
   "license": "MIT",
   "author": "",
   "scripts": {
-    "test": "qunit ./index.js",
+    "test:docs": "qunit ./index.js",
     "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "devDependencies": {

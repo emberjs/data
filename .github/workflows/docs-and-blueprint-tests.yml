@@ -27,4 +27,4 @@ jobs:
       - name: Test Docs
         run: pnpm test:docs
       - name: Test Blueprints
-        run: pnpm --filter blueprint-tests run test
+        run: pnpm test:blueprints

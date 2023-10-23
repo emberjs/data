@@ -19,7 +19,7 @@
     "lint:hbs": "ember-template-lint .",
     "lint:old": "eslint --config ../../.eslintrc.js --ignore-path ../../.eslintignore .",
     "start": "ember serve",
-    "test": "ember test --test-port=0",
+    "test:embroider": "ember test --test-port=0",
     "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "dependencies": {

@@ -17,7 +17,7 @@
   "scripts": {
     "build": "ember build",
     "start": "ember test --port=0 --serve --no-launch",
-    "test": "ember test --test-port=0",
+    "test:examples": "ember test --test-port=0",
     "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "dependenciesMeta": {
