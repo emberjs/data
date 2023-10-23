@@ -67,6 +67,22 @@ pkgs.forEach((pkg) => {
     throw new Error(`Version mismatch for ${pkg.name} - expected ${currentVersion} but found ${pkg.version}`);
   }
 
+  if (!pkg.scripts) {
+    console.log(`Missing scripts for ${pkg.name}`);
+    edited = true;
+    pkg.scripts = {};
+  }
+  if (!pkg.scripts['_syncPnpm']) {
+    console.log(`Missing _syncPnpm script for ${pkg.name}`);
+    edited = true;
+    pkg.scripts['_syncPnpm'] = "pnpm sync-dependencies-meta-injected";
+  }
+  if (pkg.scripts['prepare']) {
+    console.log(`Removing prepare script for ${pkg.name}`);
+    edited = true;
+    delete pkg.scripts['prepare'];
+  }
+
   Object.entries(pkg.dependencies ?? {}).forEach(([dep, version]) => {
     if (pkgs.has(dep)) {
       const depVersion = pkgs.get(dep).version;
@@ -134,20 +150,20 @@ pkgs.forEach((pkg) => {
         edited = true;
         pkg.devDependencies[dep] = otherPkgs.has(dep) ? version : `workspace:${pkgs.get(dep).version}`;
       }
-      if (!pkg.devDependenciesMeta) {
-        console.log(`Missing devDependenciesMeta for ${pkg.name}`);
+      if (!pkg.dependenciesMeta) {
+        console.log(`Missing (dev) dependenciesMeta for ${pkg.name}`);
         edited = true;
-        pkg.devDependenciesMeta = {};
+        pkg.dependenciesMeta = {};
       }
-      if (!pkg.devDependenciesMeta[dep]) {
-        console.log(`Missing devDependenciesMeta for ${pkg.name} -> ${dep}`);
+      if (!pkg.dependenciesMeta[dep]) {
+        console.log(`Missing (dev) dependenciesMeta for ${pkg.name} -> ${dep}`);
         edited = true;
-        pkg.devDependenciesMeta[dep] = {};
+        pkg.dependenciesMeta[dep] = {};
       }
-      if (!pkg.devDependenciesMeta[dep].injected) {
-        console.log(`Missing injected: true in devDependenciesMeta for ${pkg.name} -> ${dep}`);
+      if (!pkg.dependenciesMeta[dep].injected) {
+        console.log(`Missing injected: true in (dev) dependenciesMeta for ${pkg.name} -> ${dep}`);
         edited = true;
-        pkg.devDependenciesMeta[dep].injected = true;
+        pkg.dependenciesMeta[dep].injected = true;
       }
     }
   });
@@ -183,20 +199,20 @@ pkgs.forEach((pkg) => {
     }
 
     if (pkgs.has(dep) || otherPkgs.has(dep)) {
-      if (!pkg.devDependenciesMeta) {
-        console.log(`Missing devDependenciesMeta for ${pkg.name}`);
+      if (!pkg.dependenciesMeta) {
+        console.log(`Missing (dev) dependenciesMeta for ${pkg.name}`);
         edited = true;
-        pkg.devDependenciesMeta = {};
+        pkg.dependenciesMeta = {};
       }
-      if (!pkg.devDependenciesMeta[dep]) {
-        console.log(`Missing devDependenciesMeta for ${pkg.name} -> ${dep}`);
+      if (!pkg.dependenciesMeta[dep]) {
+        console.log(`Missing (dev) dependenciesMeta for ${pkg.name} -> ${dep}`);
         edited = true;
-        pkg.devDependenciesMeta[dep] = {};
+        pkg.dependenciesMeta[dep] = {};
       }
-      if (!pkg.devDependenciesMeta[dep].injected) {
-        console.log(`Missing injected: true in devDependenciesMeta for ${pkg.name} -> ${dep}`);
+      if (!pkg.dependenciesMeta[dep].injected) {
+        console.log(`Missing injected: true in (dev) dependenciesMeta for ${pkg.name} -> ${dep}`);
         edited = true;
-        pkg.devDependenciesMeta[dep].injected = true;
+        pkg.dependenciesMeta[dep].injected = true;
       }
     }
 

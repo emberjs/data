@@ -1,7 +1,6 @@
 {
   "include": [
-    "src/**/*",
-    "unpublished-types/**/*",
+    "src/**/*"
   ],
   "baseUrl": ".",
   "compilerOptions": {

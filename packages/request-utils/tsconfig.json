@@ -1,5 +1,5 @@
 {
-  "include": ["src/**/*", "unpublished-types/**/*"],
+  "include": ["src/**/*"],
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
@@ -39,5 +39,8 @@
     "inlineSources": true,
 
     "baseUrl": "src",
+    "types": [
+      "ember-source/types"
+    ]
   }
 }

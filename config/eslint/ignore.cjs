@@ -16,7 +16,6 @@ const RULES = [
   '.git',
   '.broccoli-cache',
   'unstable-preview-types',
-  'unpublished-types',
 
   // # Special Cases
   'docs',

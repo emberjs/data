@@ -32,8 +32,9 @@
   "dependencies": {
     "@ember-data/private-build-infra": "workspace:5.5.0-alpha.11",
     "@embroider/macros": "^1.13.2",
+    "ember-cached-decorator-polyfill": "^1.0.2",
     "ember-cli-babel": "^8.2.0",
-    "ember-cached-decorator-polyfill": "^1.0.2"
+    "pnpm-sync-dependencies-meta-injected": "0.0.10"
   },
   "files": [
     "unstable-preview-types",
@@ -60,7 +61,7 @@
     "build:types": "tsc --build --force",
     "build": "pnpm build:runtime && pnpm build:types",
     "prepack": "pnpm build",
-    "prepare": "pnpm build"
+    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "ember-addon": {
     "main": "addon-main.cjs",
@@ -68,7 +69,6 @@
     "version": 1
   },
   "devDependencies": {
-    "@warp-drive/internal-config": "workspace:5.5.0-alpha.11",
     "@babel/cli": "^7.23.0",
     "@babel/core": "^7.23.2",
     "@babel/plugin-proposal-decorators": "^7.23.2",
@@ -80,11 +80,12 @@
     "@babel/preset-typescript": "^7.23.2",
     "@babel/runtime": "^7.23.2",
     "@embroider/addon-dev": "^4.1.1",
-    "@rollup/plugin-babel": "^6.0.4",
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "ember-source": "~5.3.0",
     "@glimmer/component": "^1.1.2",
     "@glimmer/validator": "^0.84.3",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@warp-drive/internal-config": "workspace:5.5.0-alpha.11",
+    "ember-source": "~5.3.0",
     "rollup": "^4.1.4",
     "tslib": "^2.6.2",
     "typescript": "^5.2.2",

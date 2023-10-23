@@ -18,7 +18,7 @@
     "build": "pnpm build:client",
     "start": "rollup --config --watch",
     "prepack": "pnpm build",
-    "prepare": "pnpm build"
+    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "ember-addon": {
     "main": "addon-main.js",
@@ -33,7 +33,6 @@
     "NCC-1701-a.svg",
     "NCC-1701-a-blue.svg"
   ],
-  "peerDependencies": {},
   "dependenciesMeta": {
     "@ember-data/private-build-infra": {
       "injected": true
@@ -43,7 +42,8 @@
     "@ember-data/private-build-infra": "workspace:5.5.0-alpha.11",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.13.2",
-    "ember-cli-babel": "^8.2.0"
+    "ember-cli-babel": "^8.2.0",
+    "pnpm-sync-dependencies-meta-injected": "0.0.10"
   },
   "devDependencies": {
     "@babel/cli": "^7.23.0",

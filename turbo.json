@@ -1,0 +1,84 @@
+{
+  "baseBranch": "origin/main",
+  // Additive to package.json and turbo.json
+  //
+  // https://turbo.build/repo/docs/core-concepts/caching/file-inputs#specifying-additional-inputs
+  "globalDependencies": [
+    "pnpm-lock.yaml",
+    "tsconfig.*",
+    "patches/*",
+    ".github/*"
+  ],
+  "pipeline": {
+    /////////////////////////////////////////////////
+    /////////////////////////////////////////////////
+    //
+    //         Local Dev
+    //
+    /////////////////////////////////////////////////
+    /////////////////////////////////////////////////
+    "start": {
+      "dependsOn": ["_syncPnpm", "^build"],
+      "outputs": [],
+      "cache": false,
+      "persistent": true
+    },
+
+    /////////////////////////////////////////////////
+    /////////////////////////////////////////////////
+    //
+    //         C.I. / C.D.
+    //
+    /////////////////////////////////////////////////
+    /////////////////////////////////////////////////
+    "build": {
+      "inputs": [
+        // + V2-Addon convention
+        "src/**",
+        "addon-main.*",
+        "babel.*",
+        "rollup-config.*"
+      ],
+      "outputs": [
+        // V1-Addon convention
+        "addon/**",
+        "addon-test-support/**",
+        // V2-Addon convention
+        "dist/**",
+        "declarations/**"
+      ],
+      "dependsOn": ["_syncPnpm"]
+    },
+    "build:production": {
+      "inputs": [
+        // + V2-Addon convention
+        "src/**",
+        "addon-main.*",
+        "babel.*",
+        "rollup-config.*"
+      ],
+      "outputs": [
+        // V1-Addon convention
+        "addon/**",
+        "addon-test-support/**",
+        // V2-Addon convention
+        "dist/**",
+        "declarations/**"
+      ],
+      "dependsOn": ["_syncPnpm"]
+    },
+    // See: https://github.com/pnpm/pnpm/issues/4965
+    "_syncPnpm": {
+      "dependsOn": ["^build"],
+      "cache": false
+    },
+    "test": {
+      "outputs": [],
+      "dependsOn": ["_syncPnpm", "^build"]
+    },
+    "test:production": {
+      "outputs": [],
+      "dependsOn": ["_syncPnpm", "^build"]
+    }
+  }
+}

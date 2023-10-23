@@ -9,6 +9,11 @@ on:
       - synchronize
       - ready_for_review
 
+env:
+  TURBO_API: http://127.0.0.1:9080
+  TURBO_TOKEN: this-is-not-a-secret
+  TURBO_TEAM: myself
+
 concurrency:
   group: asset-size-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true

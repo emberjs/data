@@ -30,6 +30,7 @@ node_modules
 scripts/asset-size-tracking/current-data.json
 
 # misc
+.turbo/
 .env*
 .pnp*
 .sass-cache
@@ -65,6 +66,6 @@ benchmarks/results/*.json
 /packages/*/DEBUG
 /tests/*/DEBUG
 
-.vscode/
+!.vscode/
 .idea/
 *.iml

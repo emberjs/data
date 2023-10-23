@@ -37,12 +37,13 @@
     "build:types": "tsc --build --force",
     "build": "pnpm build:runtime && pnpm build:types",
     "prepack": "pnpm build",
-    "prepare": "pnpm build"
+    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   },
   "dependencies": {
     "@ember-data/private-build-infra": "workspace:5.5.0-alpha.11",
     "@embroider/macros": "^1.13.2",
-    "ember-cli-babel": "^8.2.0"
+    "ember-cli-babel": "^8.2.0",
+    "pnpm-sync-dependencies-meta-injected": "0.0.10"
   },
   "dependenciesMeta": {
     "@ember-data/private-build-infra": {
@@ -67,12 +68,10 @@
   "peerDependencies": {
     "@ember-data/request": "workspace:5.5.0-alpha.11",
     "@ember-data/tracking": "workspace:5.5.0-alpha.11",
-    "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
-    "@ember/string": "^3.1.1"
+    "@ember/string": "^3.1.1",
+    "@warp-drive/core-types": "workspace:5.5.0-alpha.11"
   },
   "devDependencies": {
-    "@ember-data/tracking": "workspace:5.5.0-alpha.11",
-    "@ember-data/request": "workspace:5.5.0-alpha.11",
     "@babel/cli": "^7.23.0",
     "@babel/core": "^7.23.2",
     "@babel/plugin-proposal-decorators": "^7.23.2",
@@ -83,6 +82,9 @@
     "@babel/preset-env": "^7.23.2",
     "@babel/preset-typescript": "^7.23.2",
     "@babel/runtime": "^7.23.2",
+    "@ember-data/request": "workspace:5.5.0-alpha.11",
+    "@ember-data/tracking": "workspace:5.5.0-alpha.11",
+    "@ember/string": "^3.1.1",
     "@embroider/addon-dev": "^4.1.1",
     "@glimmer/component": "^1.1.2",
     "@rollup/plugin-babel": "^6.0.4",
@@ -94,8 +96,7 @@
     "tslib": "^2.6.2",
     "typescript": "^5.2.2",
     "walk-sync": "^3.0.0",
-    "webpack": "^5.89.0",
-    "@ember/string": "^3.1.1"
+    "webpack": "^5.89.0"
   },
   "engines": {
     "node": ">= 18.18.2"

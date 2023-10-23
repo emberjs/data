@@ -5,6 +5,11 @@ on:
     branches:
       - main
 
+env:
+  TURBO_API: http://127.0.0.1:9080
+  TURBO_TOKEN: this-is-not-a-secret
+  TURBO_TEAM: myself
+
 concurrency:
   group: compat-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
@@ -19,6 +24,7 @@ jobs:
         with:
           restore-broccoli-cache: true
           install: true
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Run Tests
         run: pnpm test:fastboot
   embroider:
@@ -30,6 +36,7 @@ jobs:
         with:
           restore-broccoli-cache: true
           install: true
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Run Tests
         run: pnpm test:embroider
         env:
@@ -40,6 +47,8 @@ jobs:
     steps:
       - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4
       - uses: ./.github/actions/setup
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install dependencies w/o lockfile
         run: pnpm install --no-lockfile
       - name: Basic Tests
@@ -58,5 +67,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
           restore-broccoli-cache: true
           install: true
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Basic Tests
         run: pnpm test

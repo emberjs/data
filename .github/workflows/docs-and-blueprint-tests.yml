@@ -5,6 +5,11 @@ on:
     branches:
       - main
 
+env:
+  TURBO_API: http://127.0.0.1:9080
+  TURBO_TOKEN: this-is-not-a-secret
+  TURBO_TEAM: myself
+
 concurrency:
   group: docs-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
@@ -18,6 +23,7 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           install: true
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Test Docs
         run: pnpm test:docs
       - name: Test Blueprints

@@ -11,5 +11,11 @@
   },
   "volta": {
     "extends": "../../package.json"
+  },
+  "dependencies": {
+    "pnpm-sync-dependencies-meta-injected": "0.0.10"
+  },
+  "scripts": {
+    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
   }
 }
