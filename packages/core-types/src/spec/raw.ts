@@ -1,7 +1,6 @@
-/**
+/*
   @module @warp-drive/core-types
 */
-
 import { ArrayValue, ObjectValue } from '../json/raw';
 
 export type Meta = ObjectValue;

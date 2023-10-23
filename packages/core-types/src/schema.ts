@@ -1,5 +1,6 @@
-/**
+/*
   @module @warp-drive/core-types
+  @internal
 */
 export interface RelationshipSchema {
   kind: 'belongsTo' | 'hasMany';

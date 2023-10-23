@@ -163,7 +163,18 @@ export function recommendedArgs(browser, options = {}) {
   }
   const DEBUG = options.debug || debug.enabled;
   const DEBUG_MEMORY = options.memory || process.env.DEBUG_MEMORY;
-  const HEADLESS = 'headless' in options ? options.headless : true;
+  const SERVE = 'serve' in options ? options.serve : false;
+  const HEADLESS = 'headless' in options ? options.headless : !SERVE;
+  const useExisting = 'useExisting' in options ? options.useExisting : false;
+  const noLaunch = 'noLaunch' in options ? options.noLaunch : false;
+
+  if (noLaunch) {
+    return [];
+  }
+
+  if (useExisting) {
+    return ['--incognito'];
+  }
 
   // See https://github.com/GoogleChrome/chrome-launcher/blob/main/docs/chrome-flags-for-tools.md
   // For more details on these flags

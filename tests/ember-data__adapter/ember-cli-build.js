@@ -7,7 +7,10 @@ const EmberApp = require('ember-cli/lib/broccoli/ember-app');
 module.exports = function (defaults) {
   let app = new EmberApp(defaults, {
     tests: true,
-    // Add options here
+    'ember-cli-babel': {
+      throwUnlessParallelizable: true,
+      enableTypeScriptTransform: true,
+    },
   });
 
   // Use `app.import` to add additional libraries to the generated

@@ -28,8 +28,10 @@ export function buildHandler(config, state) {
         case 'suite-finish':
           config.reporter.onSuiteFinish(msg);
 
-          ws.send(JSON.stringify({ name: 'close' }));
-          ws.close();
+          if (!config.serve) {
+            ws.send(JSON.stringify({ name: 'close' }));
+            ws.close();
+          }
           state.completed++;
           debug(
             `${chalk.green('✅ [Complete]')} ${chalk.cyan(msg.browserId)}/${chalk.cyan(msg.windowId)} ${chalk.yellow(
@@ -39,17 +41,20 @@ export function buildHandler(config, state) {
           if (state.completed === state.expected) {
             const exitCode = config.reporter.onRunFinish(msg);
             debug(`${chalk.green('✅ [All Complete]')} ${chalk.yellow('@' + sinceStart())}`);
-            state.browsers.forEach((browser) => {
-              browser.proc.kill();
-              browser.proc.unref();
-            });
-            state.server.stop();
-            if (config.cleanup) {
-              debug(`Running configured cleanup hook`);
-              await config.cleanup();
-              debug(`Configured cleanup hook completed`);
+
+            if (!config.serve) {
+              state.browsers.forEach((browser) => {
+                browser.proc.kill();
+                browser.proc.unref();
+              });
+              state.server.stop();
+              if (config.cleanup) {
+                debug(`Running configured cleanup hook`);
+                await config.cleanup();
+                debug(`Configured cleanup hook completed`);
+              }
+              process.exit(exitCode);
             }
-            process.exit(exitCode);
           }
 
           break;
