@@ -23,6 +23,9 @@
   @module @ember-data/debug
   @main @ember-data/debug
 */
+import type Store from '@ember-data/store';
+import type Model from '@ember-data/model';
+import { ModelSchema } from '@ember-data/types/q/ds-model';
 import { A } from '@ember/array';
 import { assert } from '@ember/debug';
 import DataAdapter from '@ember/debug/data-adapter';
@@ -51,8 +54,8 @@ function typesMapFor(store) {
   @extends DataAdapter
   @private
 */
-export default class extends DataAdapter {
-  @service('store') store;
+export default class EmberDataDataAdapter<RT extends Model> extends DataAdapter<RT> {
+  @service('store') declare store: Store;
 
   /**
     Specifies how records can be filtered based on the state of the record
@@ -64,7 +67,7 @@ export default class extends DataAdapter {
     @return {Array} List of objects defining filters
      The object should have a `name` and `desc` property
   */
-  getFilters() {
+  getFilters(): { name: string; desc: string }[] {
     return [
       { name: 'isNew', desc: 'New' },
       { name: 'isModified', desc: 'Modified' },
@@ -72,7 +75,7 @@ export default class extends DataAdapter {
     ];
   }
 
-  _nameToClass(type) {
+  _nameToClass(type: string) {
     return this.store.modelFor(type);
   }
 
@@ -88,7 +91,7 @@ export default class extends DataAdapter {
     Takes an array of objects containing wrapped types.
     @return {Function} Method to call to remove all observers
   */
-  watchModelTypes(typesAdded, typesUpdated) {
+  watchModelTypes(typesAdded, typesUpdated): () => void {
     const { store } = this;
 
     const unsub = store.notifications.subscribe('resource', (identifier, notificationType) => {
@@ -140,7 +143,7 @@ export default class extends DataAdapter {
    * @param {Array} releaseMethods
    * @private
    */
-  watchTypeIfUnseen(store, discoveredTypes, type, typesAdded, typesUpdated, releaseMethods) {
+  watchTypeIfUnseen(store: Store, discoveredTypes: Map<string, boolean>, type: string, typesAdded, typesUpdated, releaseMethods) {
     if (discoveredTypes.get(type) !== true) {
       let klass = store.modelFor(type);
       let wrapped = this.wrapModelType(klass, type);
@@ -158,7 +161,7 @@ export default class extends DataAdapter {
     @param {String} name The attribute name
     @return {String} Human readable string based on the attribute name
   */
-  columnNameToDesc(name) {
+  columnNameToDesc(name: string) {
     return capitalize(underscore(name).replace(/_/g, ' ').trim());
   }
 
@@ -172,7 +175,7 @@ export default class extends DataAdapter {
      name: {String} The name of the column
      desc: {String} Humanized description (what would show in a table column name)
   */
-  columnsForType(typeClass) {
+  columnsForType(typeClass: ModelSchema) {
     let columns = [
       {
         name: 'id',
@@ -202,17 +205,7 @@ export default class extends DataAdapter {
      This array will be observed for changes,
      so it should update when new records are added/removed
   */
-  getRecords(modelClass, modelName) {
-    if (arguments.length < 2) {
-      // Legacy Ember.js < 1.13 support
-      let containerKey = modelClass._debugContainerKey;
-      if (containerKey) {
-        let match = containerKey.match(/model:(.*)/);
-        if (match !== null) {
-          modelName = match[1];
-        }
-      }
-    }
+  getRecords(modelClass: ModelSchema, modelName: string) {
     assert('Cannot find model name. Please upgrade to Ember.js >= 1.13 for Ember Inspector support', !!modelName);
     return this.store.peekAll(modelName);
   }
@@ -247,11 +240,12 @@ export default class extends DataAdapter {
     @param {Model} record
     @return {Array} Relevant keywords for search based on the record's attribute values
   */
-  getRecordKeywords(record) {
-    let keywords = [];
-    let keys = A(['id']);
-    record.eachAttribute((key) => keys.push(key));
-    keys.forEach((key) => keywords.push(record[key]));
+  getRecordKeywords(record: RT): string[] {
+    let keywords: string[] = [record.id];
+    record.eachAttribute((key) => {
+      const v = record[key];
+      keywords.push(String(v));
+    });
     return keywords;
   }
 
@@ -264,7 +258,11 @@ export default class extends DataAdapter {
     @param {Model} record
     @return {Object} The record state filter values
   */
-  getRecordFilterValues(record) {
+  getRecordFilterValues(record: RT): {
+    isNew: boolean;
+    isModified: boolean;
+    isClean: boolean;
+  } {
     return {
       isNew: record.isNew,
       isModified: record.hasDirtyAttributes && !record.isNew,
@@ -281,14 +279,13 @@ export default class extends DataAdapter {
     @param {Model} record
     @return {String} The record color
   */
-  getRecordColor(record) {
-    let color = 'black';
+  getRecordColor(record: RT): 'black' | 'green' | 'blue' {
     if (record.isNew) {
-      color = 'green';
+      return 'green';
     } else if (record.hasDirtyAttributes) {
-      color = 'blue';
+      return 'blue';
     }
-    return color;
+    return 'black';
   }
 
   /**
@@ -301,7 +298,7 @@ export default class extends DataAdapter {
     @param {Function} recordUpdated Callback used to notify changes
     @return {Function} The function to call to remove all observers
   */
-  observeRecord(record, recordUpdated) {
+  observeRecord(record: RT, recordUpdated) {
     let releaseMethods = A();
     let keysToObserve = A(['id', 'isNew', 'hasDirtyAttributes']);
 

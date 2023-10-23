@@ -7,9 +7,11 @@ import { dasherize } from '@ember/string';
 import { pluralize, singularize } from 'ember-inflector';
 
 import { DEBUG } from '@ember-data/env';
+import type { Snapshot } from '@ember-data/legacy-compat/-private';
+import type { ExistingResourceObject, JsonApiDocument } from '@ember-data/types/q/ember-data-json-api';
 
+import { isCollectionDocument, isResourceDocument } from './-private/type-utils';
 import JSONSerializer from './json';
-
 /**
  * <blockquote style="margin: 1em; padding: .1em 1em .1em 1em; border-left: solid 1em #E34C32; background: #e0e0e0;">
   <p>
@@ -135,29 +137,35 @@ import JSONSerializer from './json';
   @public
   @extends JSONSerializer
 */
-const JSONAPISerializer = JSONSerializer.extend({
+class JSONAPISerializer extends JSONSerializer {
   /**
     @method _normalizeDocumentHelper
     @param {Object} documentHash
     @return {Object}
     @private
   */
-  _normalizeDocumentHelper(documentHash) {
-    if (Array.isArray(documentHash.data)) {
-      const ret = new Array(documentHash.data.length);
+  _normalizeDocumentHelper(documentHash: JsonApiDocument): JsonApiDocument {
+    if (isCollectionDocument(documentHash)) {
+      let ret: ExistingResourceObject[] = [];
 
       for (let i = 0; i < documentHash.data.length; i++) {
         const data = documentHash.data[i];
-        ret[i] = this._normalizeResourceHelper(data);
+        const normalized = this._normalizeResourceHelper(data);
+        if (normalized) {
+          ret.push(normalized);
+        }
       }
 
       documentHash.data = ret;
-    } else if (documentHash.data && typeof documentHash.data === 'object') {
-      documentHash.data = this._normalizeResourceHelper(documentHash.data);
+    } else if (isResourceDocument(documentHash)) {
+      const normalized = this._normalizeResourceHelper(documentHash.data);
+      if (normalized) {
+        documentHash.data = normalized;
+      }
     }
 
     if (Array.isArray(documentHash.included)) {
-      const ret = new Array();
+      const ret = [];
       for (let i = 0; i < documentHash.included.length; i++) {
         const included = documentHash.included[i];
         const normalized = this._normalizeResourceHelper(included);
@@ -171,7 +179,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     }
 
     return documentHash;
-  },
+  }
 
   /**
     @method _normalizeRelationshipDataHelper
@@ -183,7 +191,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     relationshipDataHash.type = this.modelNameFromPayloadKey(relationshipDataHash.type);
 
     return relationshipDataHash;
-  },
+  }
 
   /**
     @method _normalizeResourceHelper
@@ -191,15 +199,28 @@ const JSONAPISerializer = JSONSerializer.extend({
     @return {Object}
     @private
   */
-  _normalizeResourceHelper(resourceHash) {
-    assert(this.warnMessageForUndefinedType(), resourceHash.type);
+  _normalizeResourceHelper(resourceHash: ExistingResourceObject): ExistingResourceObject | null {
+    assert(
+      'Encountered a resource object with an undefined type (resolved resource using ' +
+        this.constructor.toString() +
+        ')',
+      resourceHash.type
+    );
 
     const modelName = this.modelNameFromPayloadKey(resourceHash.type);
 
     if (!this.store.getSchemaDefinitionService().doesTypeExist(modelName)) {
-      warn(this.warnMessageNoModelForType(modelName, resourceHash.type, 'modelNameFromPayloadKey'), false, {
-        id: 'ds.serializer.model-for-type-missing',
-      });
+      warn(
+        `Encountered a resource object with type "${
+          resourceHash.type
+        }", but no model was found for model name "${modelName}" (resolved model name using '${this.constructor.toString()}.${usedLookup}("${
+          resourceHash.type
+        }")').`,
+        false,
+        {
+          id: 'ds.serializer.model-for-type-missing',
+        }
+      );
       return null;
     }
 
@@ -207,7 +228,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     const serializer = this.store.serializerFor(modelName);
     const { data } = serializer.normalize(modelClass, resourceHash);
     return data;
-  },
+  }
 
   /**
     Normalize some data and push it into the store.
@@ -220,7 +241,7 @@ const JSONAPISerializer = JSONSerializer.extend({
   pushPayload(store, payload) {
     const normalizedPayload = this._normalizeDocumentHelper(payload);
     store.push(normalizedPayload);
-  },
+  }
 
   /**
     @method _normalizeResponse
@@ -236,10 +257,10 @@ const JSONAPISerializer = JSONSerializer.extend({
   _normalizeResponse(store, primaryModelClass, payload, id, requestType, isSingle) {
     const normalizedPayload = this._normalizeDocumentHelper(payload);
     return normalizedPayload;
-  },
+  }
 
   normalizeQueryRecordResponse() {
-    const normalized = this._super(...arguments);
+    const normalized = super.normalizeQueryRecordResponse(...arguments);
 
     assert(
       'Expected the primary data returned by the serializer for a `queryRecord` response to be a single object but instead it was an array.',
@@ -247,7 +268,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     );
 
     return normalized;
-  },
+  }
 
   extractAttributes(modelClass, resourceHash) {
     const attributes = {};
@@ -270,7 +291,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     }
 
     return attributes;
-  },
+  }
 
   /**
      Returns a relationship formatted as a JSON-API "relationship object".
@@ -297,7 +318,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     }
 
     return relationshipHash;
-  },
+  }
 
   /**
      Returns the resource's relationships formatted as a JSON-API "relationships object".
@@ -335,7 +356,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     }
 
     return relationships;
-  },
+  }
 
   /**
     @method _extractType
@@ -346,7 +367,7 @@ const JSONAPISerializer = JSONSerializer.extend({
   */
   _extractType(modelClass, resourceHash) {
     return this.modelNameFromPayloadKey(resourceHash.type);
-  },
+  }
 
   /**
     Dasherizes and singularizes the model name in the payload to match
@@ -360,9 +381,9 @@ const JSONAPISerializer = JSONSerializer.extend({
     @param {String} key
     @return {String} the model's modelName
   */
-  modelNameFromPayloadKey(key) {
+  modelNameFromPayloadKey(key: string): string {
     return dasherize(singularize(key));
-  },
+  }
 
   /**
     Converts the model name to a pluralized version of the model name.
@@ -375,9 +396,9 @@ const JSONAPISerializer = JSONSerializer.extend({
     @param {String} modelName
     @return {String}
   */
-  payloadKeyFromModelName(modelName) {
+  payloadKeyFromModelName(modelName: string): string {
     return pluralize(modelName);
-  },
+  }
 
   normalize(modelClass, resourceHash) {
     if (resourceHash.attributes) {
@@ -398,7 +419,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     this.applyTransforms(modelClass, data.attributes);
 
     return { data };
-  },
+  }
 
   /**
     `keyForAttribute` can be used to define rules for how to convert an
@@ -428,9 +449,9 @@ const JSONAPISerializer = JSONSerializer.extend({
     @param {String} method
     @return {String} normalized key
   */
-  keyForAttribute(key, method) {
+  keyForAttribute(key: string, method): string {
     return dasherize(key);
-  },
+  }
 
   /**
    `keyForRelationship` can be used to define a custom key when
@@ -460,9 +481,9 @@ const JSONAPISerializer = JSONSerializer.extend({
    @param {String} method
    @return {String} normalized key
   */
-  keyForRelationship(key, typeClass, method) {
+  keyForRelationship(key: string, typeClass, method): string {
     return dasherize(key);
-  },
+  }
 
   /**
     Called when a record is saved in order to convert the
@@ -633,14 +654,14 @@ const JSONAPISerializer = JSONSerializer.extend({
     @param {Object} options
     @return {Object} json
   */
-  serialize(snapshot, options) {
-    const data = this._super(...arguments);
+  serialize(snapshot: Snapshot, options) {
+    const data = super.serialize(snapshot, options);
     data.type = this.payloadKeyFromModelName(snapshot.modelName);
 
     return { data };
-  },
+  }
 
-  serializeAttribute(snapshot, json, key, attribute) {
+  serializeAttribute(snapshot: Snapshot, json, key, attribute) {
     const type = attribute.type;
 
     if (this._canSerialize(key)) {
@@ -661,9 +682,9 @@ const JSONAPISerializer = JSONSerializer.extend({
 
       json.attributes[payloadKey] = value;
     }
-  },
+  }
 
-  serializeBelongsTo(snapshot, json, relationship) {
+  serializeBelongsTo(snapshot: Snapshot, json, relationship) {
     const name = relationship.name;
 
     if (this._canSerialize(name)) {
@@ -692,9 +713,9 @@ const JSONAPISerializer = JSONSerializer.extend({
         json.relationships[payloadKey] = { data };
       }
     }
-  },
+  }
 
-  serializeHasMany(snapshot, json, relationship) {
+  serializeHasMany(snapshot: Snapshot, json, relationship) {
     const name = relationship.name;
 
     if (this.shouldSerializeHasMany(snapshot, name, relationship)) {
@@ -725,8 +746,8 @@ const JSONAPISerializer = JSONSerializer.extend({
         json.relationships[payloadKey] = { data };
       }
     }
-  },
-});
+  }
+}
 
 if (DEBUG) {
   JSONAPISerializer.reopen({
@@ -746,16 +767,6 @@ if (DEBUG) {
           id: 'ds.serializer.json-api.extractMeta',
         }
       );
-    },
-    warnMessageForUndefinedType() {
-      return (
-        'Encountered a resource object with an undefined type (resolved resource using ' +
-        this.constructor.toString() +
-        ')'
-      );
-    },
-    warnMessageNoModelForType(modelName, originalType, usedLookup) {
-      return `Encountered a resource object with type "${originalType}", but no model was found for model name "${modelName}" (resolved model name using '${this.constructor.toString()}.${usedLookup}("${originalType}")').`;
     },
   });
 }

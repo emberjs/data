@@ -409,13 +409,13 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @return {Object}
     @public
   */
-  sortQueryParams(obj: Record<string, unknown>): Record<string, unknown> {
+  sortQueryParams(obj: Record<string, string>): Record<string, string> {
     const keys = Object.keys(obj);
     const len = keys.length;
     if (len < 2) {
       return obj;
     }
-    const newQueryParams: Record<string, unknown> = {};
+    const newQueryParams: Record<string, string> = {};
     const sortedKeys = keys.sort();
 
     for (let i = 0; i < len; i++) {
@@ -657,7 +657,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   override queryRecord(
     store: Store,
     type: ModelSchema,
-    query: Record<string, unknown>,
+    query: Record<string, string>,
     adapterOptions: Record<string, unknown>
   ): Promise<AdapterPayload> {
     const url = this.buildURL(type.modelName, null, null, 'queryRecord', query);

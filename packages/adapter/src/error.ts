@@ -71,26 +71,29 @@ import { assert } from '@ember/debug';
   @class AdapterError
   @public
 */
-function AdapterError(errors, message = 'Adapter operation failed') {
-  this.isAdapterError = true;
-  const error = Error.call(this, message);
+interface AdapterError extends Error {}
+class AdapterError {
+  declare errors: Error[];
+  declare isAdapterError: boolean;
+  declare code: 'AdapterError';
 
-  if (error) {
-    this.stack = error.stack;
-    this.description = error.description;
-    this.fileName = error.fileName;
-    this.lineNumber = error.lineNumber;
-    this.message = error.message;
-    this.name = error.name;
-    this.number = error.number;
+  constructor(errors: Error[], message = 'Adapter operation failed') {
+    this.isAdapterError = true;
+    let error = Error.call(this, message);
+
+    if (error) {
+      this.stack = error.stack;
+      this.message = error.message;
+      this.name = error.name;
+    }
+
+    this.errors = errors || [
+      {
+        title: 'Adapter Error',
+        detail: message,
+      },
+    ];
   }
-
-  this.errors = errors || [
-    {
-      title: 'Adapter Error',
-      detail: message,
-    },
-  ];
 }
 
 export default AdapterError;
