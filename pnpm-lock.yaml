@@ -842,7 +842,7 @@ importers:
         specifier: ^4.1.2
         version: 4.1.2
       hono:
-        specifier: ^3.8.0
+        specifier: ^3.8.1
         version: 3.8.2
       pm2:
         specifier: ^5.3.0
