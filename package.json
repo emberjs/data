@@ -14,7 +14,7 @@
     "preinstall": "npx only-allow pnpm",
     "check:types": "pnpm run -r --workspace-concurrency=-1 --if-present check:types",
     "test": "pnpm turbo test --concurrency=1",
-    "test:production": "pnpm run -r --workspace-concurrency=-1 --if-present test:production",
+    "test:production": "pnpm turbo test:production --concurrency=1",
     "test:try-one": "pnpm --filter main-test-app run test:try-one",
     "test:docs": "pnpm build:docs && pnpm run -r --workspace-concurrency=-1 --if-present test:blueprints",
     "test:blueprints": "pnpm run -r --workspace-concurrency=-1 --if-present test:blueprints",
