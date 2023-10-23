@@ -91,6 +91,20 @@
         "peerDependencies": {
           "ember-cli": "*"
         }
+      },
+      "ember-cli-fastboot": {
+        "peerDependencies": {
+          "ember-cli": "*",
+          "ember-source": "*"
+        }
+      },
+      "ember-cli-fastboot-testing": {
+        "peerDependencies": {
+          "ember-cli": "*",
+          "ember-cli-fastboot": "*",
+          "ember-source": "*",
+          "@ember/test-helpers": "*"
+        }
       }
     },
     "overrides": {
