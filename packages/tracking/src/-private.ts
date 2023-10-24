@@ -330,11 +330,7 @@ export function createSignal<T extends object>(obj: T, key: string): Signal {
   return _signal;
 }
 
-export function entangleSignal<T extends object>(
-  signals: Map<string, Signal>,
-  obj: T,
-  key: string
-): Signal {
+export function entangleSignal<T extends object>(signals: Map<string, Signal>, obj: T, key: string): Signal {
   let _signal = signals.get(key);
   if (!_signal) {
     _signal = createSignal(obj, key);
