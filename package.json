@@ -57,13 +57,13 @@
     "turbo": "^1.10.16"
   },
   "engines": {
-    "node": ">= 18.18.2",
+    "node": ">= 20.8.1",
     "yarn": "use pnpm",
     "npm": "use pnpm",
     "pnpm": "8.9.2"
   },
   "volta": {
-    "node": "18.18.2",
+    "node": "20.8.1",
     "pnpm": "8.9.2"
   },
   "packageManager": "pnpm@8.9.2",

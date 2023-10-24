@@ -65,7 +65,7 @@
     "ember-source": "~5.3.0"
   },
   "engines": {
-    "node": ">= 18.18.2"
+    "node": ">= 20.8.1"
   },
   "ember-addon": {},
   "volta": {
