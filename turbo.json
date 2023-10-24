@@ -47,7 +47,8 @@
         "dist/**",
         "declarations/**",
         "unstable-preview-types/**"
-      ]
+      ],
+      "dependsOn": ["_syncPnpm"]
     },
     "build": {
       "inputs": [
