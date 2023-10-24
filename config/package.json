@@ -18,7 +18,7 @@
     "typescript": "~5.2.2"
   },
   "engines": {
-    "node": ">= 18.18.2"
+    "node": ">= 20.8.1"
   },
   "volta": {
     "extends": "../../package.json"
