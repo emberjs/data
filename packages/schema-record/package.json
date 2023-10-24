@@ -15,7 +15,7 @@
   "author": "",
   "scripts": {
     "build:client": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
-    "build": "pnpm build:client",
+    "_build": "pnpm build:client",
     "start": "rollup --config --watch",
     "prepack": "pnpm build",
     "_syncPnpm": "pnpm sync-dependencies-meta-injected"

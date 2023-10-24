@@ -64,7 +64,7 @@
     "build:tests": "rm -rf dist-test && cp -R test dist-test && mkdir -p dist-test/@warp-drive && cp -R dist dist-test/@warp-drive/diagnostic",
     "build:types": "tsc --build --force",
     "build:runtime": "rollup --config",
-    "build": "pnpm build:runtime && pnpm build:types",
+    "_build": "pnpm build:runtime && pnpm build:types",
     "start": "rollup --config --watch",
     "prepack": "pnpm build",
     "_syncPnpm": "pnpm sync-dependencies-meta-injected"

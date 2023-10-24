@@ -7,8 +7,9 @@
     "url": "git+ssh://git@github.com:emberjs/data.git"
   },
   "scripts": {
+    "takeoff": "FORCE_COLOR=2 pnpm install --reporter=append-only",
     "prepare": "pnpm build",
-    "build": "pnpm turbo build --filter=./packages/*",
+    "build": "turbo _build --log-order=stream --filter=./packages/*",
     "build:docs": "mkdir -p packages/-ember-data/dist && cd ./docs-generator && node ./compile-docs.js",
     "lint": "pnpm run -r --workspace-concurrency=-1 --if-present lint",
     "preinstall": "npx only-allow pnpm",

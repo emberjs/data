@@ -17,7 +17,7 @@
     /////////////////////////////////////////////////
     /////////////////////////////////////////////////
     "start": {
-      "dependsOn": ["_syncPnpm", "^build"],
+      "dependsOn": ["_syncPnpm", "^_build"],
       "outputs": [],
       "cache": false,
       "persistent": true
@@ -30,6 +30,26 @@
     //
     /////////////////////////////////////////////////
     /////////////////////////////////////////////////
+    "_build": {
+      "inputs": [
+        // + V2-Addon convention
+        "src/**",
+        "addon-main.*",
+        "tsconfig.json",
+        "babel.*",
+        "rollup-config.*"
+      ],
+      "outputs": [
+        // V1-Addon convention
+        "addon/**",
+        "addon-test-support/**",
+        // V2-Addon convention
+        "dist/**",
+        "declarations/**",
+        "unstable-preview-types/**"
+      ],
+      "dependsOn": ["_syncPnpm"]
+    },
     "build": {
       "inputs": [
         // + V2-Addon convention
@@ -72,7 +92,7 @@
         "declarations/**",
         "unstable-preview-types/**"
       ],
-      "dependsOn": ["_syncPnpm", "^build"]
+      "dependsOn": ["_syncPnpm", "^_build"]
     },
     "build:production": {
       "inputs": [
@@ -93,11 +113,11 @@
         "dist-test/**",
         "declarations/**"
       ],
-      "dependsOn": ["_syncPnpm", "^build"]
+      "dependsOn": ["_syncPnpm", "^_build"]
     },
     // See: https://github.com/pnpm/pnpm/issues/4965
     "_syncPnpm": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^_build"],
       "cache": false
     },
     "test": {
