@@ -43,7 +43,7 @@
   "scripts": {
     "build:types": "tsc --build --force",
     "build:client": "rollup --config",
-    "build": "pnpm build:client && pnpm build:types",
+    "_build": "pnpm build:client && pnpm build:types",
     "start": "rollup --config --watch",
     "prepack": "pnpm build",
     "_syncPnpm": "pnpm sync-dependencies-meta-injected"
