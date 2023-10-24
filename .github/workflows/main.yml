@@ -26,7 +26,7 @@ jobs:
     timeout-minutes: 5
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
       - uses: ./.github/actions/setup
         with:
           restore-lint-caches: true
@@ -41,7 +41,7 @@ jobs:
     timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
       - uses: ./.github/actions/setup
         with:
           restore-broccoli-cache: true
@@ -81,7 +81,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Test ${{matrix.launcher}}
     steps:
-      - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
       - uses: ./.github/actions/setup
         with:
           github-token: ${{ secrets.GH_PACKAGES_ACCESS_TOKEN }}
@@ -150,7 +150,7 @@ jobs:
         scenario: [ember-lts-4.12, ember-lts-4.8, ember-lts-4.4, ember-lts-3.28]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
       - uses: ./.github/actions/setup
         with:
           restore-broccoli-cache: true
@@ -177,7 +177,7 @@ jobs:
         release: [ember-canary, ember-beta]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
       - uses: ./.github/actions/setup
         with:
           restore-broccoli-cache: true
