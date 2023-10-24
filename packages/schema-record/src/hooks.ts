@@ -1,8 +1,13 @@
 import type Store from '@ember-data/store';
-import type { StableRecordIdentifier } from "@warp-drive/core-types";
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+
 import { Destroy, SchemaRecord } from './record';
 
-export function instantiateRecord(store: Store, identifier: StableRecordIdentifier, createArgs?: Record<string, unknown>): SchemaRecord {
+export function instantiateRecord(
+  store: Store,
+  identifier: StableRecordIdentifier,
+  createArgs?: Record<string, unknown>
+): SchemaRecord {
   if (createArgs) {
     const editable = new SchemaRecord(store, identifier, true);
     Object.assign(editable, createArgs);

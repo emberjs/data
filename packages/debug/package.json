@@ -15,7 +15,7 @@
   "directories": {},
   "scripts": {
     "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs",
-    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
+    "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "peerDependencies": {
     "@ember-data/store": "workspace:5.5.0-alpha.11",

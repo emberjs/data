@@ -43,5 +43,9 @@
     "inlineSources": true,
 
     "baseUrl": "client"
-  }
+  },
+  "references": [
+    { "path": "../request" },
+    { "path": "../core-types" },
+  ]
 }

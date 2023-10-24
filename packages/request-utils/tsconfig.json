@@ -44,5 +44,8 @@
     "types": [
       "ember-source/types"
     ]
-  }
+  },
+  "references": [
+    { "path": "../core-types" },
+  ]
 }

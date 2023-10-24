@@ -1,13 +1,16 @@
-import type Store from '@ember-data/store';
-import type { StableRecordIdentifier } from "@warp-drive/core-types";
-import type { FieldSchema, SchemaService } from './schema';
-import { Cache } from '@ember-data/store/-types/q/cache';
-import { Link, Links, SingleResourceRelationship } from '@warp-drive/core-types/spec/raw';
-import { StoreRequestInput } from '@ember-data/store/-private/cache-handler';
-import { Future } from '@ember-data/request';
 import { DEBUG } from '@ember-data/env';
-import { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import { addToTransaction, entangleSignal, defineSignal } from '@ember-data/tracking/-private';
+import type { Future } from '@ember-data/request';
+import type Store from '@ember-data/store';
+import type { StoreRequestInput } from '@ember-data/store/-private/cache-handler';
+import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
+import { addToTransaction, defineSignal, entangleSignal, type Signal } from '@ember-data/tracking/-private';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { Cache } from '@warp-drive/core-types/cache';
+import type { ResourceRelationship as SingleResourceRelationship } from '@warp-drive/core-types/cache/relationship';
+import { Value } from '@warp-drive/core-types/json/raw';
+import type { Link, Links } from '@warp-drive/core-types/spec/raw';
+
+import type { FieldSchema, SchemaService } from './schema';
 
 export const Destroy = Symbol('Destroy');
 export const RecordStore = Symbol('Store');
@@ -16,7 +19,14 @@ export const Editable = Symbol('Editable');
 export const Parent = Symbol('Parent');
 export const Checkout = Symbol('Checkout');
 
-function computeAttribute(schema: SchemaService, cache: Cache, record: SchemaRecord, identifier: StableRecordIdentifier, field: FieldSchema, prop: string): unknown {
+function computeAttribute(
+  schema: SchemaService,
+  cache: Cache,
+  record: SchemaRecord,
+  identifier: StableRecordIdentifier,
+  field: FieldSchema,
+  prop: string
+): unknown {
   const rawValue = cache.getAttr(identifier, prop);
   if (field.type === null) {
     return rawValue;
@@ -28,7 +38,13 @@ function computeAttribute(schema: SchemaService, cache: Cache, record: SchemaRec
   return transform.hydrate(rawValue, field.options ?? null, record);
 }
 
-function computeDerivation(schema: SchemaService, record: SchemaRecord, identifier: StableRecordIdentifier, field: FieldSchema, prop: string): unknown {
+function computeDerivation(
+  schema: SchemaService,
+  record: SchemaRecord,
+  identifier: StableRecordIdentifier,
+  field: FieldSchema,
+  prop: string
+): unknown {
   if (field.type === null) {
     throw new Error(`The schema for ${identifier.type}.${String(prop)} is missing the type of the derivation`);
   }
@@ -52,11 +68,19 @@ class ResourceRelationship<T extends SchemaRecord = SchemaRecord> {
   declare links: Links;
   declare meta: Record<string, unknown>;
 
-  constructor(store: Store, cache: Cache, parent: SchemaRecord, identifier: StableRecordIdentifier, field: FieldSchema, name: string) {
+  constructor(
+    store: Store,
+    cache: Cache,
+    parent: SchemaRecord,
+    identifier: StableRecordIdentifier,
+    field: FieldSchema,
+    name: string
+  ) {
     const rawValue = cache.getRelationship(identifier, name) as SingleResourceRelationship;
 
     // TODO setup true lids for relationship documents
-    // @ts-expect-error we need to put lid on the relationship
+    // @ts-expect-error we need to give relationship documents a lid
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.lid = rawValue.lid ?? rawValue.links?.self ?? `relationship:${identifier.lid}.${name}`;
     this.data = rawValue.data ? store.peekRecord<T>(rawValue.data) : null;
     this.name = name;
@@ -77,12 +101,19 @@ class ResourceRelationship<T extends SchemaRecord = SchemaRecord> {
     const url = options?.url ?? getHref(this.links.related) ?? getHref(this.links.self) ?? null;
 
     if (!url) {
-      throw new Error(`Cannot ${options?.method ?? 'fetch'} ${this[Parent][Identifier].type}.${String(this.name)} because it has no related link`);
+      throw new Error(
+        `Cannot ${options?.method ?? 'fetch'} ${this[Parent][Identifier].type}.${String(
+          this.name
+        )} because it has no related link`
+      );
     }
-    const request = Object.assign({
-      url,
-      method: 'GET',
-    }, options);
+    const request = Object.assign(
+      {
+        url,
+        method: 'GET',
+      },
+      options
+    );
 
     return this[RecordStore].request<T>(request);
   }
@@ -102,7 +133,14 @@ function getHref(link?: Link | null): string | null {
   return link.href;
 }
 
-function computeResource<T extends SchemaRecord>(store: Store, cache: Cache, parent: SchemaRecord, identifier: StableRecordIdentifier, field: FieldSchema, prop: string): ResourceRelationship<T> {
+function computeResource<T extends SchemaRecord>(
+  store: Store,
+  cache: Cache,
+  parent: SchemaRecord,
+  identifier: StableRecordIdentifier,
+  field: FieldSchema,
+  prop: string
+): ResourceRelationship<T> {
   if (field.kind !== 'resource') {
     throw new Error(`The schema for ${identifier.type}.${String(prop)} is not a resource relationship`);
   }
@@ -125,22 +163,25 @@ export class SchemaRecord {
     const cache = store.cache;
     const fields = schema.fields(identifier);
 
-    const signals = new Map();
-    this.___notifications = store.notifications.subscribe(identifier, (_: StableRecordIdentifier, type: NotificationType, key?: string) => {
-      switch (type) {
-        case 'attributes':
-          if (key) {
-            const signal = signals.get(key);
-            if (signal) {
-              addToTransaction(signal);
+    const signals: Map<string, Signal> = new Map();
+    this.___notifications = store.notifications.subscribe(
+      identifier,
+      (_: StableRecordIdentifier, type: NotificationType, key?: string) => {
+        switch (type) {
+          case 'attributes':
+            if (key) {
+              const signal = signals.get(key);
+              if (signal) {
+                addToTransaction(signal);
+              }
             }
-          }
-          break;
+            break;
+        }
       }
-    });
+    );
 
     return new Proxy(this, {
-      get(target, prop, receiver) {
+      get(target: SchemaRecord, prop: string | number | symbol, receiver: typeof Proxy<SchemaRecord>) {
         if (prop === Destroy) {
           return target[Destroy];
         }
@@ -166,13 +207,12 @@ export class SchemaRecord {
             return computeResource(store, cache, target, identifier, field, prop as string);
 
           case 'derived':
-            return computeDerivation(schema, receiver, identifier, field, prop as string);
+            return computeDerivation(schema, receiver as unknown as SchemaRecord, identifier, field, prop as string);
           default:
             throw new Error(`Field '${String(prop)}' on '${identifier.type}' has the unknown kind '${field.kind}'`);
         }
-
       },
-      set(target, prop, value) {
+      set(target: SchemaRecord, prop: string | number | symbol, value: unknown) {
         if (!target[Editable]) {
           throw new Error(`Cannot set ${String(prop)} on ${identifier.type} because the record is not editable`);
         }
@@ -184,7 +224,7 @@ export class SchemaRecord {
 
         if (field.kind === 'attribute') {
           if (field.type === null) {
-            cache.setAttr(identifier, prop as string, value);
+            cache.setAttr(identifier, prop as string, value as Value);
             return true;
           }
           const transform = schema.transforms.get(field.type);

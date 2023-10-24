@@ -19,7 +19,7 @@
   },
   "scripts": {
     "test:infra": "ember test",
-    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
+    "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "peerDependencies": {
     "qunit": "^2.20.0"

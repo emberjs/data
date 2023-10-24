@@ -12,7 +12,7 @@
   "author": "",
   "scripts": {
     "test:docs": "qunit ./index.js",
-    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
+    "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "devDependencies": {
     "qunit": "^2.20.0"

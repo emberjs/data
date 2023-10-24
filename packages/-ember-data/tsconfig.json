@@ -43,4 +43,17 @@
       "@ember-data/env": ["../private-build-infra/virtual-packages/env.d.ts"],
     }
   },
+  "references": [
+    { "path": "../adapter" },
+    { "path": "../graph" },
+    { "path": "../json-api" },
+    { "path": "../legacy-compat" },
+    { "path": "../model" },
+    { "path": "../request" },
+    { "path": "../request-utils" },
+    { "path": "../serializer" },
+    { "path": "../store" },
+    { "path": "../tracking" },
+    { "path": "../core-types" },
+  ]
 }

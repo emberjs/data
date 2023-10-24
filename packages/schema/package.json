@@ -23,9 +23,9 @@
   "scripts": {
     "build:parse": "bun build src/parse.ts --compile --outfile parse",
     "build:scaffold": "bun build src/scaffold.ts --compile --outfile scaffold",
-    "build": "pnpm run build:parse && pnpm run build:scaffold",
+    "build": "bun run build:parse && bun run build:scaffold",
     "prepack": "pnpm build",
-    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
+    "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "files": [
     "README.md",

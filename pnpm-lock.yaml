@@ -1692,6 +1692,18 @@ importers:
       '@babel/runtime':
         specifier: ^7.23.2
         version: 7.23.2
+      '@ember-data/request':
+        specifier: workspace:5.5.0-alpha.11
+        version: file:packages/request(@babel/core@7.23.2)(@warp-drive/core-types@5.5.0-alpha.11)
+      '@ember-data/store':
+        specifier: workspace:5.5.0-alpha.11
+        version: file:packages/store(@babel/core@7.23.2)(@ember-data/request@5.5.0-alpha.11)(@ember-data/tracking@5.5.0-alpha.11)(@ember/string@3.1.1)(@warp-drive/core-types@5.5.0-alpha.11)
+      '@ember-data/tracking':
+        specifier: workspace:5.5.0-alpha.11
+        version: file:packages/tracking(@babel/core@7.23.2)(ember-source@5.3.0)
+      '@ember/string':
+        specifier: 3.1.1
+        version: 3.1.1(@babel/core@7.23.2)
       '@embroider/addon-dev':
         specifier: ^4.1.1
         version: 4.1.1(rollup@4.1.4)
@@ -1704,6 +1716,9 @@ importers:
       '@rollup/plugin-node-resolve':
         specifier: ^15.2.3
         version: 15.2.3(rollup@4.1.4)
+      '@warp-drive/core-types':
+        specifier: workspace:5.5.0-alpha.11
+        version: file:packages/core-types(@babel/core@7.23.2)
       '@warp-drive/internal-config':
         specifier: workspace:5.5.0-alpha.11
         version: link:../../config
@@ -1724,6 +1739,16 @@ importers:
         version: 5.89.0
     dependenciesMeta:
       '@ember-data/private-build-infra':
+        injected: true
+      '@ember-data/request':
+        injected: true
+      '@ember-data/store':
+        injected: true
+      '@ember-data/tracking':
+        injected: true
+      '@ember/string':
+        injected: true
+      '@warp-drive/core-types':
         injected: true
 
   packages/serializer:
@@ -3645,7 +3670,7 @@ importers:
         version: file:packages/graph(@babel/core@7.23.2)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/json-api':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/json-api(@babel/core@7.23.2)(@ember-data/graph@5.5.0-alpha.11)(@ember-data/request-utils@packages+request-utils)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)(ember-inflector@4.0.2)
+        version: file:packages/json-api(@babel/core@7.23.2)(@ember-data/graph@5.5.0-alpha.11)(@ember-data/request-utils@5.5.0-alpha.11)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)(ember-inflector@4.0.2)
       '@ember-data/legacy-compat':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/legacy-compat(@babel/core@7.23.2)(@ember-data/graph@5.5.0-alpha.11)(@ember-data/json-api@5.5.0-alpha.11)(@ember-data/request@5.5.0-alpha.11)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)
@@ -3660,7 +3685,7 @@ importers:
         version: file:packages/request(@babel/core@7.23.2)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/request-utils':
         specifier: workspace:5.5.0-alpha.11
-        version: link:../../packages/request-utils
+        version: file:packages/request-utils(@babel/core@7.23.2)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/serializer':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/serializer(@babel/core@7.23.2)(@ember/string@3.1.1)(@warp-drive/core-types@5.5.0-alpha.11)(ember-inflector@4.0.2)
@@ -3839,6 +3864,8 @@ importers:
       '@ember-data/private-build-infra':
         injected: true
       '@ember-data/request':
+        injected: true
+      '@ember-data/request-utils':
         injected: true
       '@ember-data/serializer':
         injected: true
@@ -18429,7 +18456,7 @@ packages:
   file:config:
     resolution: {directory: config, type: directory}
     name: '@warp-drive/internal-config'
-    engines: {node: '>= 18.18.2'}
+    engines: {node: '>= 20.8.1'}
     dependencies:
       '@babel/core': 7.23.2(supports-color@8.1.1)
       '@babel/eslint-parser': 7.22.15(@babel/core@7.23.2)(eslint@8.52.0)
@@ -18455,7 +18482,7 @@ packages:
     resolution: {directory: packages/-ember-data, type: directory}
     id: file:packages/-ember-data
     name: ember-data
-    engines: {node: '>= 18.18.2'}
+    engines: {node: '>= 20.8.1'}
     peerDependencies:
       '@ember/string': 3.1.1
     dependencies:
@@ -18496,7 +18523,7 @@ packages:
     resolution: {directory: packages/active-record, type: directory}
     id: file:packages/active-record
     name: '@ember-data/active-record'
-    engines: {node: '>= 18.18.2'}
+    engines: {node: '>= 20.8.1'}
     peerDependencies:
       '@ember-data/request-utils': workspace:5.5.0-alpha.11
       '@ember-data/store': ^4.12.0 || ^5.0.0
@@ -18520,7 +18547,7 @@ packages:
     resolution: {directory: packages/adapter, type: directory}
     id: file:packages/adapter
     name: '@ember-data/adapter'
-    engines: {node: '>= 18.18.2'}
+    engines: {node: '>= 20.8.1'}
     peerDependencies:
       '@ember-data/legacy-compat': workspace:5.5.0-alpha.11
       '@ember-data/store': workspace:5.5.0-alpha.11
@@ -18545,7 +18572,7 @@ packages:
     resolution: {directory: packages/core-types, type: directory}
     id: file:packages/core-types
     name: '@warp-drive/core-types'
-    engines: {node: '>= 18.18.2'}
+    engines: {node: '>= 20.8.1'}
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
       ember-cli-babel: 8.2.0(@babel/core@7.23.2)
@@ -18559,7 +18586,7 @@ packages:
     resolution: {directory: packages/debug, type: directory}
     id: file:packages/debug
     name: '@ember-data/debug'
-    engines: {node: '>= 18.18.2'}
+    engines: {node: '>= 20.8.1'}
     peerDependencies:
       '@ember-data/store': workspace:5.5.0-alpha.11
       '@ember/string': 3.1.1
@@ -18586,7 +18613,7 @@ packages:
     resolution: {directory: packages/diagnostic, type: directory}
     id: file:packages/diagnostic
     name: '@warp-drive/diagnostic'
-    engines: {node: '>= 18.18.2'}
+    engines: {node: '>= 20.8.1'}
     peerDependencies:
       '@ember/test-helpers': '>= 3.2.0'
       '@embroider/addon-shim': '>= 1.8.6'
@@ -18613,7 +18640,7 @@ packages:
     resolution: {directory: packages/graph, type: directory}
     id: file:packages/graph
     name: '@ember-data/graph'
-    engines: {node: '>= 18.18.2'}
+    engines: {node: '>= 20.8.1'}
     peerDependencies:
       '@ember-data/store': workspace:5.5.0-alpha.11
       '@warp-drive/core-types': workspace:5.5.0-alpha.11
@@ -18634,7 +18661,7 @@ packages:
     resolution: {directory: packages/holodeck, type: directory}
     id: file:packages/holodeck
     name: '@warp-drive/holodeck'
-    engines: {node: '>= 18.18.2'}
+    engines: {node: '>= 20.8.1'}
     hasBin: true
     peerDependencies:
       '@ember-data/request': workspace:5.5.0-alpha.11
@@ -18657,7 +18684,7 @@ packages:
     resolution: {directory: packages/json-api, type: directory}
     id: file:packages/json-api
     name: '@ember-data/json-api'
-    engines: {node: '>= 18.18.2'}
+    engines: {node: '>= 20.8.1'}
     peerDependencies:
       '@ember-data/graph': workspace:5.5.0-alpha.11
       '@ember-data/request-utils': workspace:5.5.0-alpha.11
@@ -18683,42 +18710,11 @@ packages:
       - '@glint/template'
       - supports-color
 
-  file:packages/json-api(@babel/core@7.23.2)(@ember-data/graph@5.5.0-alpha.11)(@ember-data/request-utils@packages+request-utils)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)(ember-inflector@4.0.2):
-    resolution: {directory: packages/json-api, type: directory}
-    id: file:packages/json-api
-    name: '@ember-data/json-api'
-    engines: {node: '>= 18.18.2'}
-    peerDependencies:
-      '@ember-data/graph': workspace:5.5.0-alpha.11
-      '@ember-data/request-utils': workspace:5.5.0-alpha.11
-      '@ember-data/store': workspace:5.5.0-alpha.11
-      '@warp-drive/core-types': workspace:5.5.0-alpha.11
-      ember-inflector: ^4.0.2
-    peerDependenciesMeta:
-      '@ember-data/request-utils':
-        optional: true
-    dependencies:
-      '@ember-data/graph': file:packages/graph(@babel/core@7.23.2)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)
-      '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/request-utils': link:packages/request-utils
-      '@ember-data/store': file:packages/store(@babel/core@7.23.2)(@ember-data/request@5.5.0-alpha.11)(@ember-data/tracking@5.5.0-alpha.11)(@ember/string@3.1.1)(@warp-drive/core-types@5.5.0-alpha.11)
-      '@ember/edition-utils': 1.2.0
-      '@embroider/macros': 1.13.2(@babel/core@7.23.2)
-      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.23.2)
-      ember-cli-babel: 8.2.0(@babel/core@7.23.2)
-      ember-inflector: 4.0.2(@babel/core@7.23.2)
-      pnpm-sync-dependencies-meta-injected: 0.0.10
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-    dev: true
-
   file:packages/legacy-compat(@babel/core@7.23.2)(@ember-data/graph@5.5.0-alpha.11)(@ember-data/json-api@5.5.0-alpha.11)(@ember-data/request@5.5.0-alpha.11)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11):
     resolution: {directory: packages/legacy-compat, type: directory}
     id: file:packages/legacy-compat
     name: '@ember-data/legacy-compat'
-    engines: {node: '>= 18.18.2'}
+    engines: {node: '>= 20.8.1'}
     peerDependencies:
       '@ember-data/graph': workspace:5.5.0-alpha.11
       '@ember-data/json-api': workspace:5.5.0-alpha.11
@@ -18749,7 +18745,7 @@ packages:
     resolution: {directory: packages/model, type: directory}
     id: file:packages/model
     name: '@ember-data/model'
-    engines: {node: '>= 18.18.2'}
+    engines: {node: '>= 20.8.1'}
     peerDependencies:
       '@ember-data/debug': workspace:5.5.0-alpha.11
       '@ember-data/graph': workspace:5.5.0-alpha.11
@@ -18793,7 +18789,7 @@ packages:
   file:packages/private-build-infra:
     resolution: {directory: packages/private-build-infra, type: directory}
     name: '@ember-data/private-build-infra'
-    engines: {node: '>= 18.18.2'}
+    engines: {node: '>= 20.8.1'}
     dependencies:
       '@babel/core': 7.23.2(supports-color@8.1.1)
       '@babel/plugin-transform-block-scoping': 7.23.0(@babel/core@7.23.2)
@@ -18826,7 +18822,7 @@ packages:
     resolution: {directory: packages/request, type: directory}
     id: file:packages/request
     name: '@ember-data/request'
-    engines: {node: '>= 18.18.2'}
+    engines: {node: '>= 20.8.1'}
     peerDependencies:
       '@warp-drive/core-types': workspace:5.5.0-alpha.11
     dependencies:
@@ -18845,7 +18841,7 @@ packages:
     resolution: {directory: packages/request-utils, type: directory}
     id: file:packages/request-utils
     name: '@ember-data/request-utils'
-    engines: {node: '>= 18.18.2'}
+    engines: {node: '>= 20.8.1'}
     peerDependencies:
       '@warp-drive/core-types': workspace:5.5.0-alpha.11
     dependencies:
@@ -18860,7 +18856,7 @@ packages:
     resolution: {directory: packages/rest, type: directory}
     id: file:packages/rest
     name: '@ember-data/rest'
-    engines: {node: '>= 18.18.2'}
+    engines: {node: '>= 20.8.1'}
     peerDependencies:
       '@ember-data/request-utils': workspace:5.5.0-alpha.11
       '@ember-data/store': ^4.12.0 || ^5.0.0
@@ -18884,7 +18880,7 @@ packages:
     resolution: {directory: packages/schema-record, type: directory}
     id: file:packages/schema-record
     name: '@warp-drive/schema-record'
-    engines: {node: '>= 18.18.2'}
+    engines: {node: '>= 20.8.1'}
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember/edition-utils': 1.2.0
@@ -18901,7 +18897,7 @@ packages:
     resolution: {directory: packages/serializer, type: directory}
     id: file:packages/serializer
     name: '@ember-data/serializer'
-    engines: {node: '>= 18.18.2'}
+    engines: {node: '>= 20.8.1'}
     peerDependencies:
       '@ember/string': 3.1.1
       '@warp-drive/core-types': workspace:5.5.0-alpha.11
@@ -18924,7 +18920,7 @@ packages:
     resolution: {directory: packages/store, type: directory}
     id: file:packages/store
     name: '@ember-data/store'
-    engines: {node: '>= 18.18.2'}
+    engines: {node: '>= 20.8.1'}
     peerDependencies:
       '@ember-data/request': workspace:5.5.0-alpha.11
       '@ember-data/tracking': workspace:5.5.0-alpha.11
@@ -18948,7 +18944,7 @@ packages:
     resolution: {directory: packages/tracking, type: directory}
     id: file:packages/tracking
     name: '@ember-data/tracking'
-    engines: {node: '>= 18.18.2'}
+    engines: {node: '>= 20.8.1'}
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@embroider/macros': 1.13.2(@babel/core@7.23.2)
@@ -18965,7 +18961,7 @@ packages:
     resolution: {directory: packages/unpublished-test-infra, type: directory}
     id: file:packages/unpublished-test-infra
     name: '@ember-data/unpublished-test-infra'
-    engines: {node: '>= 18.18.2'}
+    engines: {node: '>= 20.8.1'}
     peerDependencies:
       qunit: 2.19.4
     peerDependenciesMeta:

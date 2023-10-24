@@ -352,7 +352,7 @@ export class CacheManager implements Cache {
    * @param propertyName
    * @returns {unknown}
    */
-  getAttr(identifier: StableRecordIdentifier, propertyName: string): unknown {
+  getAttr(identifier: StableRecordIdentifier, propertyName: string): Value | undefined {
     return this.#cache.getAttr(identifier, propertyName);
   }
 

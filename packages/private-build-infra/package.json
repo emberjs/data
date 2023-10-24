@@ -11,7 +11,7 @@
   "author": "",
   "directories": {},
   "scripts": {
-    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
+    "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "dependencies": {
     "@babel/core": "^7.23.2",
