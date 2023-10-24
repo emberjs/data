@@ -30,7 +30,9 @@
 
     // Enable faster builds
     // but causes us to not rebuild properly
+    "composite": true,
     "incremental": true,
+    "rootDir": "src",
 
     "declaration": true,
     "declarationMap": true,
