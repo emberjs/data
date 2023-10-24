@@ -14,7 +14,7 @@
   "author": "",
   "scripts": {
     "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs",
-    "build:types": "tsc --build --force",
+    "build:types": "tsc --build",
     "build:client": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
     "_build": "pnpm build:client && pnpm build:types",
     "prepack": "pnpm build",

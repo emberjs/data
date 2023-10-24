@@ -16,7 +16,7 @@
   "scripts": {
     "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs",
     "move-dts": "bun ../../scripts/copy-declarations.mjs src",
-    "build:types": "tsc --build --force && pnpm move-dts",
+    "build:types": "tsc --build && pnpm move-dts",
     "build:client": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
     "_build": "pnpm build:client && pnpm build:types",
     "prepack": "pnpm build",

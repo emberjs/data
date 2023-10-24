@@ -62,7 +62,7 @@
   "scripts": {
     "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs",
     "build:tests": "rm -rf dist-test && cp -R test dist-test && mkdir -p dist-test/@warp-drive && cp -R dist dist-test/@warp-drive/diagnostic",
-    "build:types": "tsc --build --force",
+    "build:types": "tsc --build",
     "build:runtime": "rollup --config",
     "_build": "pnpm build:runtime && pnpm build:types",
     "start": "rollup --config --watch",

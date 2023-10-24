@@ -41,7 +41,7 @@
     "holodeck": "./bin/holodeck.js"
   },
   "scripts": {
-    "build:types": "tsc --build --force",
+    "build:types": "tsc --build",
     "build:client": "rollup --config",
     "_build": "pnpm build:client && pnpm build:types",
     "start": "rollup --config --watch",
