@@ -1,8 +1,8 @@
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import { Value } from '@warp-drive/core-types/json/raw';
 import type { AttributeSchema, RelationshipSchema } from '@warp-drive/core-types/schema';
 
 import type { SchemaRecord } from './record';
-import { Value } from '@warp-drive/core-types/json/raw';
 
 export const Destroy = Symbol('Destroy');
 export const RecordStore = Symbol('Store');

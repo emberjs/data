@@ -3,10 +3,12 @@ import type { Future } from '@ember-data/request';
 import type Store from '@ember-data/store';
 import type { StoreRequestInput } from '@ember-data/store/-private/cache-handler';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type { Cache } from '@warp-drive/core-types/cache';
-import { addToTransaction, defineSignal, entangleSignal } from '@ember-data/tracking/-private';
+import { addToTransaction, defineSignal, entangleSignal, type Signal } from '@ember-data/tracking/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { Link, Links, SingleResourceRelationship } from '@warp-drive/core-types/spec/raw';
+import type { Cache } from '@warp-drive/core-types/cache';
+import type { ResourceRelationship as SingleResourceRelationship } from '@warp-drive/core-types/cache/relationship';
+import { Value } from '@warp-drive/core-types/json/raw';
+import type { Link, Links } from '@warp-drive/core-types/spec/raw';
 
 import type { FieldSchema, SchemaService } from './schema';
 
@@ -77,7 +79,8 @@ class ResourceRelationship<T extends SchemaRecord = SchemaRecord> {
     const rawValue = cache.getRelationship(identifier, name) as SingleResourceRelationship;
 
     // TODO setup true lids for relationship documents
-    // @ts-expect-error we need to put lid on the relationship
+    // @ts-expect-error we need to give relationship documents a lid
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.lid = rawValue.lid ?? rawValue.links?.self ?? `relationship:${identifier.lid}.${name}`;
     this.data = rawValue.data ? store.peekRecord<T>(rawValue.data) : null;
     this.name = name;
@@ -160,7 +163,7 @@ export class SchemaRecord {
     const cache = store.cache;
     const fields = schema.fields(identifier);
 
-    const signals = new Map();
+    const signals: Map<string, Signal> = new Map();
     this.___notifications = store.notifications.subscribe(
       identifier,
       (_: StableRecordIdentifier, type: NotificationType, key?: string) => {
@@ -178,7 +181,7 @@ export class SchemaRecord {
     );
 
     return new Proxy(this, {
-      get(target, prop, receiver) {
+      get(target: SchemaRecord, prop: string | number | symbol, receiver: typeof Proxy<SchemaRecord>) {
         if (prop === Destroy) {
           return target[Destroy];
         }
@@ -204,12 +207,12 @@ export class SchemaRecord {
             return computeResource(store, cache, target, identifier, field, prop as string);
 
           case 'derived':
-            return computeDerivation(schema, receiver, identifier, field, prop as string);
+            return computeDerivation(schema, receiver as unknown as SchemaRecord, identifier, field, prop as string);
           default:
             throw new Error(`Field '${String(prop)}' on '${identifier.type}' has the unknown kind '${field.kind}'`);
         }
       },
-      set(target, prop, value) {
+      set(target: SchemaRecord, prop: string | number | symbol, value: unknown) {
         if (!target[Editable]) {
           throw new Error(`Cannot set ${String(prop)} on ${identifier.type} because the record is not editable`);
         }
@@ -221,7 +224,7 @@ export class SchemaRecord {
 
         if (field.kind === 'attribute') {
           if (field.type === null) {
-            cache.setAttr(identifier, prop as string, value);
+            cache.setAttr(identifier, prop as string, value as Value);
             return true;
           }
           const transform = schema.transforms.get(field.type);

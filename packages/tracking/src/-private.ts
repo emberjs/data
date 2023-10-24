@@ -259,11 +259,11 @@ export function memoTransact<T extends OpaqueFn>(method: T): (...args: unknown[]
 
 export const Signals = Symbol('Signals');
 
-export function defineSignal<T extends object, K extends keyof T & string>(obj: T, key: K, v?: unknown) {
+export function defineSignal<T extends object>(obj: T, key: string, v?: unknown) {
   Object.defineProperty(obj, key, {
     enumerable: true,
     configurable: false,
-    get(this: T & { [Signals]: Map<K, Signal> }) {
+    get(this: T & { [Signals]: Map<string, Signal> }) {
       const signals = (this[Signals] = this[Signals] || new Map());
       const existing = signals.has(key);
       const _signal = entangleSignal(signals, this, key);
@@ -272,7 +272,7 @@ export function defineSignal<T extends object, K extends keyof T & string>(obj: 
       }
       return _signal.lastValue;
     },
-    set(this: T & { [Signals]: Map<K, Signal> }, value: unknown) {
+    set(this: T & { [Signals]: Map<string, Signal> }, value: unknown) {
       const signals = (this[Signals] = this[Signals] || new Map());
       let _signal = signals.get(key);
       if (!_signal) {
@@ -306,7 +306,7 @@ export function createArrayTags<T extends object>(obj: T, signal: Signal) {
   }
 }
 
-export function createSignal<T extends object, K extends keyof T & string>(obj: T, key: K): Signal {
+export function createSignal<T extends object>(obj: T, key: string): Signal {
   const _signal: Signal = {
     key,
     tag: tagForProperty(obj, key),
@@ -330,10 +330,10 @@ export function createSignal<T extends object, K extends keyof T & string>(obj: 
   return _signal;
 }
 
-export function entangleSignal<T extends object, K extends keyof T & string>(
-  signals: Map<K, Signal>,
+export function entangleSignal<T extends object>(
+  signals: Map<string, Signal>,
   obj: T,
-  key: K
+  key: string
 ): Signal {
   let _signal = signals.get(key);
   if (!_signal) {
@@ -348,7 +348,7 @@ interface Signaler {
   [Signals]: Map<string, Signal>;
 }
 
-export function getSignal<T extends object, K extends keyof T & string>(obj: T, key: K, initialState: boolean): Signal {
+export function getSignal<T extends object>(obj: T, key: string, initialState: boolean): Signal {
   const signals = ((obj as Signaler)[Signals] = (obj as Signaler)[Signals] || new Map());
   let _signal = signals.get(key);
   if (!_signal) {
@@ -359,7 +359,7 @@ export function getSignal<T extends object, K extends keyof T & string>(obj: T, 
   return _signal;
 }
 
-export function peekSignal<T extends object, K extends keyof T & string>(obj: T, key: K): Signal | undefined {
+export function peekSignal<T extends object>(obj: T, key: string): Signal | undefined {
   const signals = (obj as Signaler)[Signals];
   if (signals) {
     return signals.get(key);
