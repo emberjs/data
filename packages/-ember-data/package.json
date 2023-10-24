@@ -14,7 +14,7 @@
   "scripts": {
     "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs",
     "move-dts": "bun ../../scripts/copy-declarations.mjs addon",
-    "build:types": "tsc --build --force",
+    "build:types": "tsc --build",
     "_build": "pnpm build:types && pnpm move-dts",
     "prepack": "pnpm build && cd ../../ && pnpm build:docs",
     "_syncPnpm": "pnpm sync-dependencies-meta-injected"

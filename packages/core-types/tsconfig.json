@@ -30,7 +30,7 @@
 
     // Enable faster builds
     // but causes us to not rebuild properly
-    "incremental": false,
+    "incremental": true,
 
     // Support generation of source maps. Note: you must *also* enable source
     // maps in your `ember-cli-babel` config and/or `babel.config.js`.

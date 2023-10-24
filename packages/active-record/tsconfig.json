@@ -20,7 +20,7 @@
 
     // Enable faster builds
     // but causes us to not rebuild properly
-    "incremental": false,
+    "incremental": true,
 
     "declaration": true,
     "declarationMap": true,
