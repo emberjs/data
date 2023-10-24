@@ -40,5 +40,5 @@
       "@ember-data/debugging": ["./node_modules/@ember-data/private-build-infra/virtual-packages/debugging.d.ts"],
       "@ember-data/env": ["./node_modules/@ember-data/private-build-infra/virtual-packages/env.d.ts"],
     }
-  }
+  },
 }

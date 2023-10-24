@@ -16,7 +16,7 @@
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
     "noEmit": false,
-    "noImplicitOverride": true,
+    "experimentalDecorators": true,
 
     // Enable faster builds
     // but causes us to not rebuild properly
@@ -26,13 +26,11 @@
 
     "declaration": true,
     "declarationMap": true,
-    "declarationDir": "unstable-preview-types",
     "emitDeclarationOnly": true,
+    "declarationDir": "unstable-preview-types",
     "inlineSourceMap": true,
     "inlineSources": true,
-    "types": [
-      "ember-source/types"
-    ],
+    "types": [],
 
     "paths": {
       "@ember-data/deprecations": ["../private-build-infra/virtual-packages/deprecations.d.ts"],
@@ -43,10 +41,7 @@
     }
   },
   "references": [
-    { "path": "../graph" },
-    { "path": "../json-api" },
     { "path": "../request" },
-    { "path": "../request-utils" },
     { "path": "../store" },
     { "path": "../tracking" },
     { "path": "../core-types" },

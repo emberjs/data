@@ -23,7 +23,7 @@
     "start": "holodeck run launch:tests",
     "test": "holodeck run examine",
     "test:production": "holodeck run examine",
-    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
+    "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "author": "",
   "license": "MIT",
@@ -77,6 +77,9 @@
       "injected": true
     },
     "ember-inflector": {
+      "injected": true
+    },
+    "@ember-data/request-utils": {
       "injected": true
     }
   },

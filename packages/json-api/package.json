@@ -16,9 +16,9 @@
     "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs",
     "build:types": "tsc --build",
     "build:client": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
-    "_build": "pnpm build:client && pnpm build:types",
+    "_build": "bun run build:client && bun run build:types",
     "prepack": "pnpm build",
-    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
+    "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "ember-addon": {
     "main": "addon-main.js",

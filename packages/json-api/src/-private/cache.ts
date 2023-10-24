@@ -1086,7 +1086,7 @@ export default class JSONAPICache implements Cache {
    * @param field
    * @returns {unknown}
    */
-  getAttr(identifier: StableRecordIdentifier, attr: string): unknown {
+  getAttr(identifier: StableRecordIdentifier, attr: string): Value | undefined {
     const cached = this.__peek(identifier, true);
     if (cached.localAttrs && attr in cached.localAttrs) {
       return cached.localAttrs[attr];

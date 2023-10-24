@@ -15,9 +15,9 @@
     "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs",
     "move-dts": "bun ../../scripts/copy-declarations.mjs addon",
     "build:types": "tsc --build",
-    "_build": "pnpm build:types && pnpm move-dts",
-    "prepack": "pnpm build && cd ../../ && pnpm build:docs",
-    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
+    "_build": "bun run build:types && bun run move-dts",
+    "prepack": "pnpm build && cd ../../ && bun run build:docs",
+    "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "files": [
     "dist/docs",

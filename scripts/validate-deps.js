@@ -75,7 +75,7 @@ pkgs.forEach((pkg) => {
   if (!pkg.scripts['_syncPnpm']) {
     console.log(`Missing _syncPnpm script for ${pkg.name}`);
     edited = true;
-    pkg.scripts['_syncPnpm'] = "pnpm sync-dependencies-meta-injected";
+    pkg.scripts['_syncPnpm'] = "bun run sync-dependencies-meta-injected";
   }
   if (pkg.scripts['prepare']) {
     console.log(`Removing prepare script for ${pkg.name}`);

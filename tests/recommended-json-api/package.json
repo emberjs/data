@@ -18,7 +18,7 @@
     "build": "ember build",
     "start": "ember test --port=0 --serve --no-launch",
     "test:examples": "ember test --test-port=0",
-    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
+    "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "dependenciesMeta": {
     "@ember-data/json-api": {

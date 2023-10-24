@@ -43,10 +43,10 @@
   "scripts": {
     "build:types": "tsc --build",
     "build:client": "rollup --config",
-    "_build": "pnpm build:client && pnpm build:types",
+    "_build": "bun run build:client && bun run build:types",
     "start": "rollup --config --watch",
     "prepack": "pnpm build",
-    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
+    "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "peerDependencies": {
     "@ember-data/request": "workspace:5.5.0-alpha.11",

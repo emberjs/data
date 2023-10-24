@@ -335,7 +335,7 @@ export interface Cache {
    * @param field
    * @returns {unknown}
    */
-  getAttr(identifier: StableRecordIdentifier, field: string): unknown;
+  getAttr(identifier: StableRecordIdentifier, field: string): Value | undefined;
 
   /**
    * Mutate the data for an attribute in the cache

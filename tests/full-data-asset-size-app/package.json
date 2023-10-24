@@ -17,7 +17,7 @@
   "scripts": {
     "build": "ember build",
     "start": "ember serve",
-    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
+    "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "dependenciesMeta": {
     "ember-data": {

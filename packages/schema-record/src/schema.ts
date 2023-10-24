@@ -1,6 +1,8 @@
-import type { StableRecordIdentifier } from "@warp-drive/core-types";
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { AttributeSchema, RelationshipSchema } from '@warp-drive/core-types/schema';
-import type { SchemaRecord } from "./record";
+
+import type { SchemaRecord } from './record';
+import { Value } from '@warp-drive/core-types/json/raw';
 
 export const Destroy = Symbol('Destroy');
 export const RecordStore = Symbol('Store');
@@ -20,11 +22,11 @@ type FieldSpec = {
   relationships: Record<string, RelationshipSchema>;
   // new support
   fields: Map<string, FieldSchema>;
-}
+};
 
-export type Transform<T = unknown, PT = unknown> = {
+export type Transform<T extends Value = string, PT = unknown> = {
   serialize(value: PT, options: Record<string, unknown> | null, record: SchemaRecord): T;
-  hydrate(value: T, options: Record<string, unknown> | null, record: SchemaRecord): PT;
+  hydrate(value: T | undefined, options: Record<string, unknown> | null, record: SchemaRecord): PT;
   defaultValue?(options: Record<string, unknown> | null, identifier: StableRecordIdentifier): T;
 };
 
@@ -32,7 +34,7 @@ export type Derivation<R, T> = (record: R, options: Record<string, unknown> | nu
 
 export class SchemaService {
   declare schemas: Map<string, FieldSpec>;
-  declare transforms: Map<string, Transform>;
+  declare transforms: Map<string, Transform<Value>>;
   declare derivations: Map<string, Derivation<unknown, unknown>>;
 
   constructor() {
@@ -41,7 +43,7 @@ export class SchemaService {
     this.derivations = new Map();
   }
 
-  registerTransform<T = unknown, PT = unknown>(type: string, transform: Transform<T, PT>): void {
+  registerTransform<T extends Value = string, PT = unknown>(type: string, transform: Transform<T, PT>): void {
     this.transforms.set(type, transform);
   }
 

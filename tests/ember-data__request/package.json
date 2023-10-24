@@ -18,7 +18,7 @@
     "_build:production": "pnpm build:tests -e production",
     "test": "bun ./diagnostic.js",
     "_test:production": "bun ./diagnostic.js",
-    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
+    "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "dependenciesMeta": {
     "@warp-drive/diagnostic": {

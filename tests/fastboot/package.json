@@ -20,7 +20,7 @@
     "lint:old": "eslint --config ../../.eslintrc.js --ignore-path ../../.eslintignore .",
     "start": "ember serve",
     "test:fastboot": "ember test --test-port=0",
-    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
+    "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "dependencies": {
     "@ember-data/unpublished-test-infra": "workspace:5.5.0-alpha.11",

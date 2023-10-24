@@ -16,6 +16,6 @@
     "pnpm-sync-dependencies-meta-injected": "0.0.10"
   },
   "scripts": {
-    "_syncPnpm": "pnpm sync-dependencies-meta-injected"
+    "_syncPnpm": "bun run sync-dependencies-meta-injected"
   }
 }
