@@ -9,7 +9,6 @@
     "target": "esnext",
     "moduleResolution": "bundler",
     "moduleDetection": "force",
-    "rootDir": "src",
     "declarationDir": "unstable-preview-types",
     "strict": true,
     "downlevelIteration": true,
@@ -22,7 +21,9 @@
 
     // Enable faster builds
     // but causes us to not rebuild properly
+    "composite": true,
     "incremental": true,
+    "rootDir": "src",
 
     "declaration": true,
     "declarationMap": true,
