@@ -75,7 +75,7 @@ module.exports = function detectModule(require, moduleName, baseDir, pkg) {
         bustCache(require);
         // ember-data brings all packages so if present we are present
         //
-        // eslint-disable-next-line node/no-missing-require
+        // eslint-disable-next-line n/no-missing-require
         require.resolve('ember-data', { paths: [baseDir, path.join(baseDir, '../'), process.cwd()] });
         log('\t✅ FOUND ember-data');
         return true;

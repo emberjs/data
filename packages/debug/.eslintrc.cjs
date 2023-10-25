@@ -21,5 +21,5 @@ module.exports = {
 
   ignorePatterns: ignore.ignoreRules(),
 
-  overrides: [node.defaults()],
+  overrides: [node.config(), node.defaults()],
 };

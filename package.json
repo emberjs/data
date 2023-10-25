@@ -11,7 +11,7 @@
     "prepare": "pnpm build",
     "build": "turbo _build --log-order=stream --filter=./packages/*",
     "build:docs": "mkdir -p packages/-ember-data/dist && cd ./docs-generator && node ./compile-docs.js",
-    "lint": "pnpm run -r --workspace-concurrency=-1 --if-present lint",
+    "lint": "FORCE_COLOR=2 pnpm run -r --workspace-concurrency=-1 --if-present --reporter=append-only --no-bail lint",
     "preinstall": "npx only-allow pnpm",
     "check:types": "pnpm run -r --workspace-concurrency=-1 --if-present check:types",
     "test": "pnpm turbo test --concurrency=1",

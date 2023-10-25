@@ -343,7 +343,6 @@ class RecordArrayManager {
     this.clear(false);
     this._live.clear();
     this.isDestroyed = true;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     this.store.notifications.unsubscribe(this._subscription);
   }
 }

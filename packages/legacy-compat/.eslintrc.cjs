@@ -23,7 +23,7 @@ const config = {
 
   ignorePatterns: ignore.ignoreRules(),
 
-  overrides: [node.defaults(), typescript.defaults()],
+  overrides: [node.config(), node.defaults(), typescript.defaults()],
 };
 
 module.exports = config;

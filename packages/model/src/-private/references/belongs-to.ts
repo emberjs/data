@@ -393,7 +393,6 @@ export default class BelongsToReference {
     const record = this.store.push(jsonApiDoc);
 
     if (DEBUG) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       assertPolymorphicType(
         this.belongsToRelationship.identifier,
         this.belongsToRelationship.definition,

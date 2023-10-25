@@ -6,7 +6,7 @@ function defaults() {
       ecmaVersion: 2022,
       sourceType: 'module',
       babelOptions: {
-        // eslint-disable-next-line node/no-unpublished-require
+        // eslint-disable-next-line n/no-unpublished-require
         plugins: [[require.resolve('@babel/plugin-proposal-decorators'), { legacy: true }]],
       },
       requireConfigFile: false,
@@ -15,5 +15,5 @@ function defaults() {
 }
 
 module.exports = {
-  defaults
+  defaults,
 };

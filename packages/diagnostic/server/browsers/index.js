@@ -2,8 +2,8 @@ import os from 'os';
 import path from 'path';
 import tmp from 'tmp';
 
-import { debug } from '../utils/debug';
-import { isWin, platformName } from '../utils/platform';
+import { debug } from '../utils/debug.js';
+import { isWin, platformName } from '../utils/platform.js';
 
 export function getHomeDir() {
   return process.env.HOME || process.env.USERPROFILE;

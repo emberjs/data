@@ -667,7 +667,6 @@ function handleCompletedRelationshipRequest(
     // has never been accessed
     if (proxy && !isHasMany) {
       // @ts-expect-error unsure why this is not resolving the boolean but async belongsTo is weird
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (proxy.content && proxy.content.isDestroying) {
         (proxy as PromiseBelongsTo).set('content', null);
       }

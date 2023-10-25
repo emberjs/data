@@ -422,7 +422,6 @@ export default class HasManyReference {
         const relationshipMeta = this.hasManyRelationship.definition;
         const identifier = this.hasManyRelationship.identifier;
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         assertPolymorphicType(identifier, relationshipMeta, recordIdentifierFor(record), store);
       }
       return recordIdentifierFor(record);

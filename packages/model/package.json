@@ -14,7 +14,7 @@
   "author": "",
   "directories": {},
   "scripts": {
-    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs",
+    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
     "move-dts": "bun ../../scripts/copy-declarations.mjs src",
     "build:types": "tsc --build && bun run move-dts",
     "build:client": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
