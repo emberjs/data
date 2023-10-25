@@ -3,20 +3,18 @@ const path = require('path');
 const root = process.cwd();
 
 const pkgs = new Map();
-const otherPkgs = new Set([
-  'ember-inflector',
-  '@ember/string'
-]);
+const otherPkgs = new Set(['ember-inflector', '@ember/string']);
 const files = new Map();
 const currentVersion = require(path.join(root, 'package.json')).version;
 const peer_exceptions = {
   '@ember-data/active-record': {
-    '@ember-data/store': true
+    '@ember-data/store': true,
   },
   '@ember-data/rest': {
-    '@ember-data/store': true
+    '@ember-data/store': true,
   },
-}
+};
+const ignore_hardlinks = new Set(['@warp-drive/internal-config']);
 
 function isPeerException(pkg, dep) {
   return Boolean(peer_exceptions[pkg] && peer_exceptions[pkg][dep]);
@@ -48,7 +46,7 @@ fs.readdirSync(path.join(root, 'packages')).forEach((dirName) => {
   pkgs.set(pkg.name, pkg);
   files.set(pkg.name, {
     path: path.join(root, 'packages', dirName, 'package.json'),
-    pkg
+    pkg,
   });
 });
 
@@ -57,8 +55,15 @@ fs.readdirSync(path.join(root, 'tests')).forEach((dirName) => {
   pkgs.set(pkg.name, pkg);
   files.set(pkg.name, {
     path: path.join(root, 'tests', dirName, 'package.json'),
-    pkg
+    pkg,
   });
+});
+
+const configPkg = require(path.join(root, './config/package.json'));
+pkgs.set(configPkg.name, configPkg);
+files.set(configPkg.name, {
+  path: path.join(root, './config/package.json'),
+  configPkg,
 });
 
 pkgs.forEach((pkg) => {
@@ -75,7 +80,7 @@ pkgs.forEach((pkg) => {
   if (!pkg.scripts['_syncPnpm']) {
     console.log(`Missing _syncPnpm script for ${pkg.name}`);
     edited = true;
-    pkg.scripts['_syncPnpm'] = "bun run sync-dependencies-meta-injected";
+    pkg.scripts['_syncPnpm'] = 'bun run sync-dependencies-meta-injected';
   }
   if (pkg.scripts['prepare']) {
     console.log(`Removing prepare script for ${pkg.name}`);
@@ -96,6 +101,18 @@ pkgs.forEach((pkg) => {
     }
 
     if (pkgs.has(dep) || otherPkgs.has(dep)) {
+      if (ignore_hardlinks.has(dep)) {
+        if (pkg.dependenciesMeta?.[dep]?.injected) {
+          console.log(`Removing hardlink for ${pkg.name}`);
+          edited = true;
+          if (Object.keys(pkg.dependenciesMeta[dep]).length === 1) {
+            delete pkg.dependenciesMeta[dep];
+          } else {
+            delete pkg.dependenciesMeta[dep].injected;
+          }
+        }
+        return;
+      }
       if (!pkg.dependenciesMeta) {
         console.log(`Missing dependenciesMeta for ${pkg.name}`);
         edited = true;
@@ -140,6 +157,19 @@ pkgs.forEach((pkg) => {
     }
 
     if (pkgs.has(dep) || otherPkgs.has(dep)) {
+      if (ignore_hardlinks.has(dep)) {
+        if (pkg.dependenciesMeta?.[dep]?.injected) {
+          console.log(`Removing hardlink for ${pkg.name}`);
+          edited = true;
+          if (Object.keys(pkg.dependenciesMeta[dep]).length === 1) {
+            delete pkg.dependenciesMeta[dep];
+          } else {
+            delete pkg.dependenciesMeta[dep].injected;
+          }
+        }
+        return;
+      }
+
       if (!pkg.devDependencies) {
         console.log(`Missing devDependencies for ${pkg.name}`);
         edited = true;
@@ -199,6 +229,19 @@ pkgs.forEach((pkg) => {
     }
 
     if (pkgs.has(dep) || otherPkgs.has(dep)) {
+      if (ignore_hardlinks.has(dep)) {
+        if (pkg.dependenciesMeta?.[dep]?.injected) {
+          console.log(`Removing hardlink for ${pkg.name}`);
+          edited = true;
+          if (Object.keys(pkg.dependenciesMeta[dep]).length === 1) {
+            delete pkg.dependenciesMeta[dep];
+          } else {
+            delete pkg.dependenciesMeta[dep].injected;
+          }
+        }
+        continue;
+      }
+
       if (!pkg.dependenciesMeta) {
         console.log(`Missing (dev) dependenciesMeta for ${pkg.name}`);
         edited = true;
@@ -215,7 +258,6 @@ pkgs.forEach((pkg) => {
         pkg.dependenciesMeta[dep].injected = true;
       }
     }
-
   }
 
   if (pkg.devDependenciesMeta) {

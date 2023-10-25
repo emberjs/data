@@ -1,5 +1,17 @@
 const path = require('path');
-const prettierPath = path.join(process.cwd(), '../../.prettierrc.js');
+
+let isRoot = false;
+try {
+  const dir = process.cwd();
+  const pkg = require(path.join(dir, './package.json'));
+  if (pkg.name === 'root') {
+    isRoot = true;
+  }
+} catch (e) {
+  console.log(e);
+}
+
+const prettierPath = path.join(process.cwd(), isRoot ? './.prettierrc.js' : '../../.prettierrc.js');
 const prettierConfig = require(prettierPath);
 
 function rules() {
@@ -20,13 +32,13 @@ function rules() {
     'prefer-rest-params': 'off',
     'prefer-const': 'error',
 
-    "prettier/prettier": [
-      "error",
+    'prettier/prettier': [
+      'error',
       prettierConfig,
       {
-        "usePrettierrc": false
-      }
-    ]
+        usePrettierrc: false,
+      },
+    ],
   };
 }
 
@@ -46,7 +58,7 @@ function settings() {
       node: false,
       es2022: true,
     },
-  }
+  };
 }
 
 module.exports = {

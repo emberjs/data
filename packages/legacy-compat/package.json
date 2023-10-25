@@ -71,9 +71,6 @@
     "@ember-data/json-api": {
       "injected": true
     },
-    "@warp-drive/internal-config": {
-      "injected": true
-    },
     "@ember-data/store": {
       "injected": true
     },

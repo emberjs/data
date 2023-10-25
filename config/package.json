@@ -13,7 +13,6 @@
     "eslint-plugin-import": "^2.29.0",
     "eslint-plugin-prettier": "^5.0.1",
     "eslint-plugin-simple-import-sort": "^10.0.0",
-    "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "prettier": "^3.0.3",
     "typescript": "~5.2.2"
   },
