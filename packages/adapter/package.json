@@ -59,9 +59,6 @@
     "@ember/string": {
       "injected": true
     },
-    "@warp-drive/internal-config": {
-      "injected": true
-    },
     "@warp-drive/core-types": {
       "injected": true
     },

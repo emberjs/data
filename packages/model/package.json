@@ -73,9 +73,6 @@
     "@ember-data/private-build-infra": {
       "injected": true
     },
-    "@warp-drive/internal-config": {
-      "injected": true
-    },
     "@ember-data/store": {
       "injected": true
     },
