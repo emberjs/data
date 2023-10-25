@@ -1,0 +1,20 @@
+# In addition to gitignore...
+
+# generated files
+pnpm-lock.yaml
+
+# we disagree with prettier and we are even more opinionated than they are
+*.hbs
+*.html
+*.md
+
+# these files would be YUGE if we prettified them
+MOCK_DATA.json
+.mock-cache/
+
+# unconventional
+blueprints/
+vendor/
+
+# prettier is reporting syntax errors in these
+*.yml

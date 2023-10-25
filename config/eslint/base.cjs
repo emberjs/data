@@ -1,19 +1,5 @@
 const path = require('path');
 
-let isRoot = false;
-try {
-  const dir = process.cwd();
-  const pkg = require(path.join(dir, './package.json'));
-  if (pkg.name === 'root') {
-    isRoot = true;
-  }
-} catch (e) {
-  console.log(e);
-}
-
-const prettierPath = path.join(process.cwd(), isRoot ? './.prettierrc.js' : '../../.prettierrc.js');
-const prettierConfig = require(prettierPath);
-
 function rules() {
   return {
     eqeqeq: 'error',
@@ -31,23 +17,18 @@ function rules() {
 
     'prefer-rest-params': 'off',
     'prefer-const': 'error',
-
-    'prettier/prettier': [
-      'error',
-      prettierConfig,
-      {
-        usePrettierrc: false,
-      },
-    ],
   };
 }
 
 function plugins() {
-  return ['prettier'];
+  return [];
 }
 
 function extend() {
-  return ['eslint:recommended', 'plugin:prettier/recommended'];
+  return [
+    'eslint:recommended',
+    'prettier', // NOTE: must be last
+  ];
 }
 
 function settings() {
