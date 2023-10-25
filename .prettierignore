@@ -18,3 +18,7 @@ vendor/
 
 # prettier is reporting syntax errors in these
 *.yml
+
+# we don't really care about these
+main/public/
+tests/fastboot/public/
