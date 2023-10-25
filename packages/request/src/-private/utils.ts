@@ -138,7 +138,6 @@ export function executeNextHandler<T>(
   try {
     outcome = wares[i].request<T>(context, next);
     if (DEBUG) {
-      // eslint-disable-next-line @typescript-eslint/no-misused-promises
       if (!outcome || (!(outcome instanceof Promise) && !(typeof outcome === 'object' && 'then' in outcome))) {
         // eslint-disable-next-line no-console
         console.log({ request, handler: wares[i], outcome });

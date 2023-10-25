@@ -1,4 +1,4 @@
-/* eslint-disable node/no-unpublished-require */
+/* eslint-disable n/no-unpublished-require */
 const customDotReporter = require('@ember-data/unpublished-test-infra/src/testem/custom-dot-reporter');
 
 // eslint-disable-next-line no-console

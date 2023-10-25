@@ -320,9 +320,9 @@ export function createSignal<T extends object>(obj: T, key: string): Signal {
 
   if (DEBUG) {
     // @ts-expect-error
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-base-to-string
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const modelName = obj.modelName ?? obj.constructor?.modelName ?? '';
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-base-to-string
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string
     const className = obj.constructor?.name ?? obj.toString?.() ?? 'unknown';
     _signal._debug_base = `${className}${modelName ? `:${modelName}` : ''}`;
   }

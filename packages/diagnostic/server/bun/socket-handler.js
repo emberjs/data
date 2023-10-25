@@ -53,6 +53,11 @@ export function buildHandler(config, state) {
                 await config.cleanup();
                 debug(`Configured cleanup hook completed`);
               }
+              // 1. We expect all cleanup to have happened after
+              //    config.cleanup(), so exiting here should be safe.
+              // 2. We also want to forcibly exit with a success code in this
+              //    case.
+              // eslint-disable-next-line n/no-process-exit
               process.exit(exitCode);
             }
           }

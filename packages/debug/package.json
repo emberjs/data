@@ -14,7 +14,7 @@
   "author": "",
   "directories": {},
   "scripts": {
-    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs",
+    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
     "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "peerDependencies": {

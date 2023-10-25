@@ -1,4 +1,4 @@
-/* eslint node/no-unpublished-require: 'off' */
+/* eslint n/no-unpublished-require: 'off' */
 
 'use strict';
 

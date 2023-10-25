@@ -12,7 +12,7 @@
     "test": "tests"
   },
   "scripts": {
-    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs",
+    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
     "move-dts": "bun ../../scripts/copy-declarations.mjs addon",
     "build:types": "tsc --build",
     "_build": "bun run build:types && bun run move-dts",

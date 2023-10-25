@@ -23,8 +23,13 @@ module.exports = {
   ignorePatterns: ignore.ignoreRules(),
 
   overrides: [
+    node.config(),
     node.defaults(),
-    node.defaults({ useModules: true, globals: { Bun: true }, files: ['./server/**'] }),
+    node.defaults({
+      files: ['./server/**'],
+      useModules: true,
+      globals: { Bun: true },
+    }),
     typescript.defaults({
       rules: {
         'no-console': 'off',
