@@ -2,5 +2,6 @@
   "files.associations": {
     "turbo.json": "jsonc"
   },
-  "eslint.workingDirectories": [{ "mode": "auto" }, "packages/*", "tests/*"]
+  "eslint.workingDirectories": [{ "mode": "auto" }, "packages/*", "tests/*"],
+  "editor.formatOnSave": true
 }
