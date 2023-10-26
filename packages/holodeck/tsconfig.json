@@ -44,8 +44,5 @@
 
     "baseUrl": "client"
   },
-  "references": [
-    { "path": "../request" },
-    { "path": "../core-types" },
-  ]
+  "references": [{ "path": "../request" }, { "path": "../core-types" }]
 }

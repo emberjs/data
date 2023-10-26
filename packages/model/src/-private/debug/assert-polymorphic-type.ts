@@ -16,10 +16,20 @@ import type { UpgradedMeta } from '@ember-data/graph/-private/-edge-definition';
   information about the relationship, retrieved via
   `record.relationshipFor(key)`.
 */
-let assertPolymorphicType: (parentIdentifier: StableRecordIdentifier, parentDefinition: UpgradedMeta, addedIdentifier: StableRecordIdentifier, store: Store) => void;
+let assertPolymorphicType: (
+  parentIdentifier: StableRecordIdentifier,
+  parentDefinition: UpgradedMeta,
+  addedIdentifier: StableRecordIdentifier,
+  store: Store
+) => void;
 
 if (DEBUG) {
-  assertPolymorphicType = function assertPolymorphicType(parentIdentifier: StableRecordIdentifier, parentDefinition: UpgradedMeta, addedIdentifier: StableRecordIdentifier, store: Store) {
+  assertPolymorphicType = function assertPolymorphicType(
+    parentIdentifier: StableRecordIdentifier,
+    parentDefinition: UpgradedMeta,
+    addedIdentifier: StableRecordIdentifier,
+    store: Store
+  ) {
     if (parentDefinition.inverseIsImplicit) {
       return;
     }

@@ -40,18 +40,18 @@ const RESTRICTED_IMPORTS = [
   'ember-source/types',
   'ember',
   'qunit',
-  'testem'
+  'testem',
 ];
 function rules(options) {
   return {
     'no-restricted-imports': [
       'error',
       {
-        paths: options?.allowedImports ? RESTRICTED_IMPORTS.filter(
-          (path) => {
-            return !options.allowedImports.includes(path)
-          }
-        ) : RESTRICTED_IMPORTS,
+        paths: options?.allowedImports
+          ? RESTRICTED_IMPORTS.filter((path) => {
+              return !options.allowedImports.includes(path);
+            })
+          : RESTRICTED_IMPORTS,
       },
     ],
     'no-restricted-globals': [
@@ -61,9 +61,9 @@ function rules(options) {
         message: 'Please use the `qunit` import instead of referencing `QUnit` directly.',
       },
     ],
-  }
+  };
 }
 
 module.exports = {
-  rules
+  rules,
 };

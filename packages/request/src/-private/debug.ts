@@ -249,7 +249,7 @@ function validateKey(key: string, value: unknown, errors: string[]) {
         return;
       }
       const keys = Object.keys(value);
-      keys.forEach(k => {
+      keys.forEach((k) => {
         let v: unknown = (value as Record<string, unknown>)[k];
         if (typeof k !== 'string') {
           errors.push(`\tThe key ${String(k)} on ${key} should be a string key`);
@@ -334,7 +334,7 @@ export function assertValidRequest(
     }
 
     // handle schema
-    const keys= Object.keys(request) as Array<keyof RequestInfo> ;
+    const keys = Object.keys(request) as Array<keyof RequestInfo>;
     const validationErrors: string[] = [];
     const isLegacyRequest: boolean = Boolean('op' in request && !request.url);
     keys.forEach((key) => {

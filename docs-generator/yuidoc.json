@@ -6,10 +6,7 @@
     "enabledEnvironments": [],
     "extension": ".js,.ts",
     "preprocessor": "./yui-docs-preprocessor.js",
-    "excludeTags": [
-      "internal",
-      "feature"
-    ],
+    "excludeTags": ["internal", "feature"],
     "paths": [
       "../packages/-ember-data/addon",
       "../packages/core-types/src",

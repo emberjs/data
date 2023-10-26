@@ -2,18 +2,8 @@ import chalk from 'chalk';
 
 /** @type {import('bun-types')} */
 
-const MarkerLines = new Set([
-  'devDependencies:',
-  'dependencies:',
-  'peerDependencies:',
-]);
-const GraphMarkers = new Set([
-  '├',
-  '│',
-  '└',
-  '─',
-  '┬',
-]);
+const MarkerLines = new Set(['devDependencies:', 'dependencies:', 'peerDependencies:']);
+const GraphMarkers = new Set(['├', '│', '└', '─', '┬']);
 
 async function main() {
   const args = Bun.argv.slice(2);
@@ -24,7 +14,7 @@ async function main() {
   const output = Bun.spawnSync(['pnpm', 'why', pkgName], {
     cwd: process.cwd(),
     env: process.env,
-    shell: true
+    shell: true,
   });
 
   const versions = {};

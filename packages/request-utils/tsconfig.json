@@ -41,11 +41,7 @@
     "inlineSources": true,
 
     "baseUrl": "src",
-    "types": [
-      "ember-source/types"
-    ]
+    "types": ["ember-source/types"]
   },
-  "references": [
-    { "path": "../core-types" },
-  ]
+  "references": [{ "path": "../core-types" }]
 }

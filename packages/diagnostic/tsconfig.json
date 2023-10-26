@@ -25,6 +25,6 @@
     "declaration": true,
     "declarationMap": true,
     "inlineSourceMap": true,
-    "inlineSources": true,
+    "inlineSources": true
   }
 }

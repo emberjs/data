@@ -98,9 +98,11 @@ export default class extends DataAdapter {
     });
 
     const __getResourceCache = store._instanceCache.getResourceCache;
-    const _releaseMethods = [() => {
-      store.notifications.unsubscribe(unsub);
-    }];
+    const _releaseMethods = [
+      () => {
+        store.notifications.unsubscribe(unsub);
+      },
+    ];
     const discoveredTypes = typesMapFor(store);
 
     Object.keys(store.identifierCache._cache.resourcesByType).forEach((type) => {

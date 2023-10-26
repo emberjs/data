@@ -42,10 +42,8 @@
     "baseUrl": "src",
 
     "paths": {
-      "@ember-data/env": ["../../private-build-infra/virtual-packages/env.d.ts"],
+      "@ember-data/env": ["../../private-build-infra/virtual-packages/env.d.ts"]
     }
   },
-  "references": [
-    { "path": "../core-types" },
-  ]
+  "references": [{ "path": "../core-types" }]
 }

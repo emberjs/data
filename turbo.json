@@ -3,11 +3,7 @@
   // Additive to package.json and turbo.json
   //
   // https://turbo.build/repo/docs/core-concepts/caching/file-inputs#specifying-additional-inputs
-  "globalDependencies": [
-    "pnpm-lock.yaml",
-    "patches/*",
-    ".github/*"
-  ],
+  "globalDependencies": ["pnpm-lock.yaml", "patches/*", ".github/*"],
   "pipeline": {
     /////////////////////////////////////////////////
     /////////////////////////////////////////////////

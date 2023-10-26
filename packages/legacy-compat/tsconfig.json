@@ -1,7 +1,5 @@
 {
-  "include": [
-    "src/**/*"
-  ],
+  "include": ["src/**/*"],
   "baseUrl": ".",
   "compilerOptions": {
     "lib": ["DOM", "ESNext"],
@@ -30,16 +28,14 @@
     "emitDeclarationOnly": true,
     "inlineSourceMap": true,
     "inlineSources": true,
-    "types": [
-      "ember-source/types"
-    ],
+    "types": ["ember-source/types"],
 
     "paths": {
       "@ember-data/deprecations": ["../private-build-infra/virtual-packages/deprecations.d.ts"],
       "@ember-data/packages": ["../private-build-infra/virtual-packages/packages.d.ts"],
       "@ember-data/canary-features": ["../private-build-infra/virtual-packages/canary-features.d.ts"],
       "@ember-data/debugging": ["../private-build-infra/virtual-packages/debugging.d.ts"],
-      "@ember-data/env": ["../private-build-infra/virtual-packages/env.d.ts"],
+      "@ember-data/env": ["../private-build-infra/virtual-packages/env.d.ts"]
     }
   },
   "references": [
@@ -49,6 +45,6 @@
     { "path": "../request-utils" },
     { "path": "../store" },
     { "path": "../tracking" },
-    { "path": "../core-types" },
+    { "path": "../core-types" }
   ]
 }
