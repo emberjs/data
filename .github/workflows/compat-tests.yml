@@ -42,7 +42,7 @@ jobs:
         env:
           UV_USE_IO_URING: 0
   floating-dependencies:
-    timeout-minutes: 7
+    timeout-minutes: 8
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
