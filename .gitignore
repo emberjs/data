@@ -35,6 +35,7 @@ scripts/asset-size-tracking/current-data.json
 .turbo/
 .env*
 .pnp*
+.prettier-cache
 .sass-cache
 .eslintcache
 /onnect.lock
