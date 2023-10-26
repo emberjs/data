@@ -5,6 +5,7 @@ const ignore = require('@warp-drive/internal-config/eslint/ignore.cjs');
 const node = require('@warp-drive/internal-config/eslint/node.cjs');
 const base = require('@warp-drive/internal-config/eslint/base.cjs');
 const typescript = require('@warp-drive/internal-config/eslint/typescript.cjs');
+const qunit = require('@warp-drive/internal-config/eslint/qunit.cjs');
 
 module.exports = {
   ...parser.defaults(),
@@ -15,12 +16,19 @@ module.exports = {
     base.rules(),
     imports.rules(),
     isolation.rules({
-      allowedImports: ['@ember/debug', '@ember/test-helpers', 'qunit'],
+      allowedImports: ['@ember/debug'],
     }),
     {}
   ),
 
   ignorePatterns: ignore.ignoreRules(),
 
-  overrides: [node.config(), node.defaults(), typescript.defaults()],
+  overrides: [
+    node.config(),
+    node.defaults(),
+    typescript.defaults(),
+    qunit.defaults({
+      files: ['addon-test-support/**/*.{js,ts}'],
+    }),
+  ],
 };
