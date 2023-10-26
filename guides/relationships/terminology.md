@@ -1,6 +1,6 @@
 # Relationship Terminology
 
-- ⮐ [Relationships Guide](../../relationships.md)
+- ⮐ [Relationships Guide](../relationships.md)
 
 ---
 
