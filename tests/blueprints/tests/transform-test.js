@@ -26,7 +26,7 @@ describe('Acceptance: generate and destroy transform blueprints', function () {
       });
 
       it('transform', function () {
-        let args = ['transform', 'foo'];
+        const args = ['transform', 'foo'];
 
         return emberGenerateDestroy(args, (_file) => {
           expect(_file('app/transforms/foo.js'))
@@ -39,7 +39,7 @@ describe('Acceptance: generate and destroy transform blueprints', function () {
       });
 
       it('transform-test', function () {
-        let args = ['transform-test', 'foo'];
+        const args = ['transform-test', 'foo'];
 
         return emberGenerateDestroy(args, (_file) => {
           expect(_file('tests/unit/transforms/foo-test.js')).to.equal(fixture(__dirname, 'transform-test/rfc232.js'));
@@ -77,7 +77,7 @@ describe('Acceptance: generate and destroy transform blueprints', function () {
       });
 
       it('transform', function () {
-        let args = ['transform', 'foo'];
+        const args = ['transform', 'foo'];
 
         return emberGenerateDestroy(args, (_file) => {
           expect(_file('app/transforms/foo.js'))
@@ -90,7 +90,7 @@ describe('Acceptance: generate and destroy transform blueprints', function () {
       });
 
       it('transform-test', function () {
-        let args = ['transform-test', 'foo'];
+        const args = ['transform-test', 'foo'];
 
         return emberGenerateDestroy(args, (_file) => {
           expect(_file('tests/unit/transforms/foo-test.js')).to.equal(fixture(__dirname, 'transform-test/rfc232.js'));
