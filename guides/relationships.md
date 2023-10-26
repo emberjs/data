@@ -32,3 +32,7 @@
 - [Compound Foreign Keys]()
 - [Joins]()
 -->
+
+# Misc
+
+- [Terminology](./relationships/terminology.md)

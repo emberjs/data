@@ -45,7 +45,22 @@ With distinct relationships, we may edit one side without affecting the state of
 
 Note, modeling this setup as two "one-to-none" relationships has the advantage of creating an implicit "many" relationship in both directions. Imagine that many runners could have the same instagram account and that at the same time many instagram accounts could belong to the same runner.
 
-You might be tempted to think of this as a `many-to-many`, but more often this is effectively modeled as two `one-to-none` relationships.
+You might be tempted to think of this as a `many-to-many` or two [many-to-none](./4-many-to-one.md)s, but sometimes this is effectively modeled as two `one-to-none` relationships.
+
+```mermaid
+graph LR;
+    A(TrailRunner1) -. account .-> D(InstagramAccount1)
+    B(TrailRunner2) -. account .-> D(InstagramAccount1)
+    C(TrailRunner3) -. account .-> D(InstagramAccount1)
+```
+
+```mermaid
+graph LR;
+    A(InstagramAccount1) -. runner .-> D(TrailRunner1)
+    B(InstagramAccount2) -. runner .-> D(TrailRunner1)
+    C(InstagramAccount3) -. runner .-> D(TrailRunner1)
+```
+
 
 Head over to [one-to-none](./0-one-to-none.md) if this is the setup that is best for you. Else, here's how we can define such a relationship via various mechanisms.
 

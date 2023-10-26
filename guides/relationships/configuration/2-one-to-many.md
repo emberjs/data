@@ -205,7 +205,7 @@ import { collection } from '@warp-drive/schema';
 import { ActivityData } from './activity-data';
 
 export class TrailRunner {
-  @resource(ActivityData, { inverse: "runner" })
+  @collection(ActivityData, { inverse: "runner" })
   activities;
 }
 ```
