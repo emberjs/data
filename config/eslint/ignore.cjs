@@ -1,6 +1,7 @@
 const RULES = [
   // # unconventional js
   'blueprints/',
+  '!tests/blueprints/',
   'vendor',
 
   // # Declaration files

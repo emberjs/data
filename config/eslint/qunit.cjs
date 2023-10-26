@@ -8,6 +8,7 @@ function defaults(config = {}) {
       isolation.rules({
         allowedImports: ['@ember/debug', '@ember/test-helpers', 'qunit'],
       }),
+      config?.rules,
       {}
     ),
   };
