@@ -55,7 +55,7 @@ Pretend we're building a social network for trail runners 🏃🏃🏾‍♀️,
 
 ```mermaid
 graph LR;
-  A(🌲 TrailRunner.favoriteTrail) --> B(⛰️ Trail);
+  A(TrailRunner.favoriteTrail) --> B(Trail);
 ```
 
 #### Using `@ember-data/model`
