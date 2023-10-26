@@ -26,7 +26,7 @@ describe('Acceptance: generate and destroy model blueprints', function () {
     });
 
     it('model', function () {
-      let args = ['model', 'foo'];
+      const args = ['model', 'foo'];
 
       return emberGenerateDestroy(args, (_file) => {
         expect(_file('app/models/foo.js'))
@@ -38,7 +38,7 @@ describe('Acceptance: generate and destroy model blueprints', function () {
     });
 
     it('model with attrs', function () {
-      let args = [
+      const args = [
         'model',
         'foo',
         'misc',
@@ -69,7 +69,7 @@ describe('Acceptance: generate and destroy model blueprints', function () {
     });
 
     it('model with belongsTo', function () {
-      let args = ['model', 'comment', 'post:belongs-to', 'author:belongs-to:user'];
+      const args = ['model', 'comment', 'post:belongs-to', 'author:belongs-to:user'];
 
       return emberGenerateDestroy(args, (_file) => {
         expect(_file('app/models/comment.js'))
@@ -85,7 +85,7 @@ describe('Acceptance: generate and destroy model blueprints', function () {
     });
 
     it('model with hasMany', function () {
-      let args = ['model', 'post', 'comments:has-many', 'otherComments:has-many:comment'];
+      const args = ['model', 'post', 'comments:has-many', 'otherComments:has-many:comment'];
 
       return emberGenerateDestroy(args, (_file) => {
         expect(_file('app/models/post.js'))
@@ -99,7 +99,7 @@ describe('Acceptance: generate and destroy model blueprints', function () {
     });
 
     it('model-test', function () {
-      let args = ['model-test', 'foo'];
+      const args = ['model-test', 'foo'];
 
       return emberGenerateDestroy(args, (_file) => {
         expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/rfc232.js'));
@@ -132,7 +132,7 @@ describe('Acceptance: generate and destroy model blueprints', function () {
     });
 
     it('model', function () {
-      let args = ['model', 'foo'];
+      const args = ['model', 'foo'];
 
       return emberGenerateDestroy(args, (_file) => {
         expect(_file('app/models/foo.js'))
@@ -144,7 +144,7 @@ describe('Acceptance: generate and destroy model blueprints', function () {
     });
 
     it('model with attrs', function () {
-      let args = [
+      const args = [
         'model',
         'foo',
         'misc',
@@ -175,7 +175,7 @@ describe('Acceptance: generate and destroy model blueprints', function () {
     });
 
     it('model with belongsTo', function () {
-      let args = ['model', 'comment', 'post:belongs-to', 'author:belongs-to:user'];
+      const args = ['model', 'comment', 'post:belongs-to', 'author:belongs-to:user'];
 
       return emberGenerateDestroy(args, (_file) => {
         expect(_file('app/models/comment.js'))
@@ -191,7 +191,7 @@ describe('Acceptance: generate and destroy model blueprints', function () {
     });
 
     it('model with hasMany', function () {
-      let args = ['model', 'post', 'comments:has-many', 'otherComments:has-many:comment'];
+      const args = ['model', 'post', 'comments:has-many', 'otherComments:has-many:comment'];
 
       return emberGenerateDestroy(args, (_file) => {
         expect(_file('app/models/post.js'))
@@ -205,7 +205,7 @@ describe('Acceptance: generate and destroy model blueprints', function () {
     });
 
     it('model-test', function () {
-      let args = ['model-test', 'foo'];
+      const args = ['model-test', 'foo'];
 
       return emberGenerateDestroy(args, (_file) => {
         expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/rfc232.js'));

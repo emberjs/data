@@ -126,6 +126,9 @@ importers:
       eslint-plugin-import:
         specifier: ^2.29.0
         version: 2.29.0(@typescript-eslint/parser@6.8.0)(eslint@8.52.0)
+      eslint-plugin-mocha:
+        specifier: ^10.2.0
+        version: 10.2.0(eslint@8.52.0)
       eslint-plugin-n:
         specifier: ^16.2.0
         version: 16.2.0(eslint@8.52.0)
@@ -2200,6 +2203,9 @@ importers:
       '@warp-drive/core-types':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/core-types(@babel/core@7.23.2)
+      '@warp-drive/internal-config':
+        specifier: workspace:5.5.0-alpha.11
+        version: link:../../config
       ember-cli:
         specifier: ~5.3.0
         version: 5.3.0
@@ -11659,6 +11665,17 @@ packages:
       - supports-color
     dev: false
 
+  /eslint-plugin-mocha@10.2.0(eslint@8.52.0):
+    resolution: {integrity: sha512-ZhdxzSZnd1P9LqDPF0DBcFLpRIGdh1zkF2JHnQklKQOvrQtT73kdP5K9V2mzvbLR+cCAO9OI48NXK/Ax9/ciCQ==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      eslint: '>=7.0.0'
+    dependencies:
+      eslint: 8.52.0
+      eslint-utils: 3.0.0(eslint@8.52.0)
+      rambda: 7.5.0
+    dev: false
+
   /eslint-plugin-n@16.2.0(eslint@8.52.0):
     resolution: {integrity: sha512-AQER2jEyQOt1LG6JkGJCCIFotzmlcCZFur2wdKrp1JX2cNotC7Ae0BcD/4lLv3lUAArM9uNS8z/fsvXTd0L71g==}
     engines: {node: '>=16.0.0'}
@@ -15791,6 +15808,10 @@ packages:
       node-watch: 0.7.3
       tiny-glob: 0.2.9
     patched: true
+
+  /rambda@7.5.0:
+    resolution: {integrity: sha512-y/M9weqWAH4iopRd7EHDEQQvpFPHj1AA3oHozE9tfITHUtTR7Z9PSlIRRG2l1GuW7sefC1cXFfIcF+cgnShdBA==}
+    dev: false
 
   /randombytes@2.1.0:
     resolution: {integrity: sha512-vYl3iOX+4CKUWuxGi9Ukhie6fsqXqS9FE2Zaic4tNFD2N2QQaXOMFbuKK4QmDHC0JO6B1Zp41J0LpT0oR68amQ==}

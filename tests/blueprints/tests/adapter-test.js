@@ -28,7 +28,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function () {
     });
 
     it('adapter', async function () {
-      let args = ['adapter', 'foo'];
+      const args = ['adapter', 'foo'];
 
       await emberGenerateDestroy(args, (_file) => {
         expect(_file('app/adapters/foo.js'))
@@ -40,7 +40,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function () {
     });
 
     it('adapter extends application adapter if it exists', async function () {
-      let args = ['adapter', 'foo'];
+      const args = ['adapter', 'foo'];
 
       await emberGenerate(['adapter', 'application']);
       await emberGenerateDestroy(args, (_file) => {
@@ -53,7 +53,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function () {
     });
 
     it('adapter with --base-class', async function () {
-      let args = ['adapter', 'foo', '--base-class=bar'];
+      const args = ['adapter', 'foo', '--base-class=bar'];
 
       await emberGenerateDestroy(args, (_file) => {
         expect(_file('app/adapters/foo.js'))
@@ -65,13 +65,13 @@ describe('Acceptance: generate and destroy adapter blueprints', function () {
     });
 
     xit('adapter throws when --base-class is same as name', function () {
-      let args = ['adapter', 'foo', '--base-class=foo'];
+      const args = ['adapter', 'foo', '--base-class=foo'];
 
       return expect(emberGenerate(args)).to.be.rejectedWith(SilentError, /Adapters cannot extend from themself/);
     });
 
     it('adapter when is named "application"', function () {
-      let args = ['adapter', 'application'];
+      const args = ['adapter', 'application'];
 
       return emberGenerateDestroy(args, (_file) => {
         expect(_file('app/adapters/application.js'))
@@ -85,7 +85,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function () {
     });
 
     it('adapter-test', function () {
-      let args = ['adapter-test', 'foo'];
+      const args = ['adapter-test', 'foo'];
 
       return emberGenerateDestroy(args, (_file) => {
         expect(_file('tests/unit/adapters/foo-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));
@@ -118,7 +118,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function () {
     });
 
     it('adapter', function () {
-      let args = ['adapter', 'foo'];
+      const args = ['adapter', 'foo'];
 
       return emberGenerateDestroy(args, (_file) => {
         expect(_file('app/adapters/foo.js'))
@@ -130,7 +130,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function () {
     });
 
     it('adapter extends application adapter if it exists', function () {
-      let args = ['adapter', 'foo'];
+      const args = ['adapter', 'foo'];
 
       return emberGenerate(['adapter', 'application']).then(() =>
         emberGenerateDestroy(args, (_file) => {
@@ -144,7 +144,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function () {
     });
 
     it('adapter with --base-class', function () {
-      let args = ['adapter', 'foo', '--base-class=bar'];
+      const args = ['adapter', 'foo', '--base-class=bar'];
 
       return emberGenerateDestroy(args, (_file) => {
         expect(_file('app/adapters/foo.js'))
@@ -156,7 +156,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function () {
     });
 
     it('adapter when is named "application"', function () {
-      let args = ['adapter', 'application'];
+      const args = ['adapter', 'application'];
 
       return emberGenerateDestroy(args, (_file) => {
         expect(_file('app/adapters/application.js'))
@@ -170,7 +170,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function () {
     });
 
     it('adapter-test', function () {
-      let args = ['adapter-test', 'foo'];
+      const args = ['adapter-test', 'foo'];
 
       return emberGenerateDestroy(args, (_file) => {
         expect(_file('tests/unit/adapters/foo-test.js')).to.equal(fixture(__dirname, 'adapter-test/rfc232.js'));

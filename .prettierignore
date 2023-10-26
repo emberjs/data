@@ -15,6 +15,7 @@ MOCK_DATA.json
 # unconventional
 blueprints/
 vendor/
+!tests/blueprints/
 
 # prettier is reporting syntax errors in these
 *.yml

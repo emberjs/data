@@ -27,7 +27,7 @@ describe('Acceptance: generate and destroy serializer blueprints', function () {
     });
 
     it('serializer', function () {
-      let args = ['serializer', 'foo'];
+      const args = ['serializer', 'foo'];
 
       return emberGenerateDestroy(args, (_file) => {
         expect(_file('app/serializers/foo.js'))
@@ -39,7 +39,7 @@ describe('Acceptance: generate and destroy serializer blueprints', function () {
     });
 
     it('serializer extends application serializer if it exists', function () {
-      let args = ['serializer', 'foo'];
+      const args = ['serializer', 'foo'];
 
       return emberGenerate(['serializer', 'application']).then(() =>
         emberGenerateDestroy(args, (_file) => {
@@ -53,7 +53,7 @@ describe('Acceptance: generate and destroy serializer blueprints', function () {
     });
 
     it('serializer with --base-class', function () {
-      let args = ['serializer', 'foo', '--base-class=bar'];
+      const args = ['serializer', 'foo', '--base-class=bar'];
 
       return emberGenerateDestroy(args, (_file) => {
         expect(_file('app/serializers/foo.js'))
@@ -65,13 +65,13 @@ describe('Acceptance: generate and destroy serializer blueprints', function () {
     });
 
     xit('serializer throws when --base-class is same as name', function () {
-      let args = ['serializer', 'foo', '--base-class=foo'];
+      const args = ['serializer', 'foo', '--base-class=foo'];
 
       return expect(emberGenerate(args)).to.be.rejectedWith(SilentError, /Serializers cannot extend from themself/);
     });
 
     it('serializer when is named "application"', function () {
-      let args = ['serializer', 'application'];
+      const args = ['serializer', 'application'];
 
       return emberGenerateDestroy(args, (_file) => {
         expect(_file('app/serializers/application.js'))
@@ -85,7 +85,7 @@ describe('Acceptance: generate and destroy serializer blueprints', function () {
     });
 
     it('serializer-test', function () {
-      let args = ['serializer-test', 'foo'];
+      const args = ['serializer-test', 'foo'];
 
       return emberGenerateDestroy(args, (_file) => {
         expect(_file('tests/unit/serializers/foo-test.js')).to.equal(fixture(__dirname, 'serializer-test/rfc232.js'));
@@ -121,7 +121,7 @@ describe('Acceptance: generate and destroy serializer blueprints', function () {
     });
 
     it('serializer', function () {
-      let args = ['serializer', 'foo'];
+      const args = ['serializer', 'foo'];
 
       return emberGenerateDestroy(args, (_file) => {
         expect(_file('app/serializers/foo.js'))
@@ -133,7 +133,7 @@ describe('Acceptance: generate and destroy serializer blueprints', function () {
     });
 
     it('serializer extends application serializer if it exists', function () {
-      let args = ['serializer', 'foo'];
+      const args = ['serializer', 'foo'];
 
       return emberGenerate(['serializer', 'application']).then(() =>
         emberGenerateDestroy(args, (_file) => {
@@ -147,7 +147,7 @@ describe('Acceptance: generate and destroy serializer blueprints', function () {
     });
 
     it('serializer with --base-class', function () {
-      let args = ['serializer', 'foo', '--base-class=bar'];
+      const args = ['serializer', 'foo', '--base-class=bar'];
 
       return emberGenerateDestroy(args, (_file) => {
         expect(_file('app/serializers/foo.js'))
@@ -159,13 +159,13 @@ describe('Acceptance: generate and destroy serializer blueprints', function () {
     });
 
     xit('serializer throws when --base-class is same as name', function () {
-      let args = ['serializer', 'foo', '--base-class=foo'];
+      const args = ['serializer', 'foo', '--base-class=foo'];
 
       return expect(emberGenerate(args)).to.be.rejectedWith(SilentError, /Serializers cannot extend from themself/);
     });
 
     it('serializer when is named "application"', function () {
-      let args = ['serializer', 'application'];
+      const args = ['serializer', 'application'];
 
       return emberGenerateDestroy(args, (_file) => {
         expect(_file('app/serializers/application.js'))
@@ -179,7 +179,7 @@ describe('Acceptance: generate and destroy serializer blueprints', function () {
     });
 
     it('serializer-test', function () {
-      let args = ['serializer-test', 'foo'];
+      const args = ['serializer-test', 'foo'];
 
       return emberGenerateDestroy(args, (_file) => {
         expect(_file('tests/unit/serializers/foo-test.js')).to.equal(fixture(__dirname, 'serializer-test/rfc232.js'));
