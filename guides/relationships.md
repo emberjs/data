@@ -54,7 +54,7 @@
 Pretend we're building a social network for trail runners 🏃🏃🏾‍♀️, and a TrailRunner (maybe [@runspired](https://github.com/runspired)) can have a favorite Trail to run on . While the TrailRunner has a favorite trail, the trail has no concept of a TrailRunner.
 
 ```mermaid
-flowchart LR
+graph LR
   A(🌲 TrailRunner.favoriteTrail) ==> B(⛰️ Trail)
 ```
 
