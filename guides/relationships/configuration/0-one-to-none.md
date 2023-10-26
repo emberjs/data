@@ -1,11 +1,18 @@
 # One To None Relationships
 
+- Next → [One To One Relationships](./1-one-to-one.md)
+- ⮐ Go Back [Relationships Guide](../../relationships.md)
+
+---
+
 Pretend we're building a social network for trail runners 🏃🏃🏾‍♀️, and a TrailRunner (maybe [@runspired](https://github.com/runspired)) can have a favorite Trail to run on . While the TrailRunner has a favorite trail, the trail has no concept of a TrailRunner.
 
 ```mermaid
 graph LR;
     A(TrailRunner) -. favoriteTrail ..-> B(Trail)
 ```
+
+> **Note** In our charts we use dotted lines for singular relationships and thick solid lines for collection relationships.
 
 Such a relationship is singular and unidirectional (it only points to one resource, and only points in one direction).
 When a relationship only points in one direction, we say it has no [inverse](../features/inverses.md).
@@ -158,3 +165,8 @@ export default class TrailRunner {
   @belongsTo(Trail) favoriteTrail;
 }
 ```
+
+---
+
+- Next → [One To One Relationships](./1-one-to-one.md)
+- ⮐ [Relationships Guide](../../relationships.md)
