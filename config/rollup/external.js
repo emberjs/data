@@ -13,4 +13,4 @@ function external(manual = []) {
 
 module.exports = {
   external,
-}
+};

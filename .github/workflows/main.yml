@@ -32,6 +32,8 @@ jobs:
           restore-lint-caches: true
           install: true
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Prettier
+        run: pnpm lint:prettier
       - name: Lint
         run: pnpm lint
       - name: Check Uncompiled Packages for TypeScript Compilation Errors

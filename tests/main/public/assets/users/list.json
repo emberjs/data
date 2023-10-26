@@ -6,11 +6,13 @@
     "expiration": 120000,
     "total": 1
   },
-  "data": [{
-    "type": "user",
-    "id": "1",
-    "attributes": {
-      "name": "Chris Thoburn"
+  "data": [
+    {
+      "type": "user",
+      "id": "1",
+      "attributes": {
+        "name": "Chris Thoburn"
+      }
     }
-  }]
+  ]
 }

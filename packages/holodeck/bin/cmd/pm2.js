@@ -22,20 +22,17 @@ export default async function pm2Delegate(cmd, _args) {
         args: cmd === 'start' ? '-f' : '',
       };
 
-      pm2[cmd](
-        cmd === 'start' ? options : options.name,
-        (err, apps) => {
-          pm2.disconnect(); // Disconnects from PM2
-          if (err) {
-            console.log(`not able to ${cmd} pm2 for ${options.name}`);
-            console.error(err);
-            reject(err);
-          } else {
-            console.log(`pm2 ${cmd} successful for ${options.name}`);
-            resolve();
-          }
+      pm2[cmd](cmd === 'start' ? options : options.name, (err, apps) => {
+        pm2.disconnect(); // Disconnects from PM2
+        if (err) {
+          console.log(`not able to ${cmd} pm2 for ${options.name}`);
+          console.error(err);
+          reject(err);
+        } else {
+          console.log(`pm2 ${cmd} successful for ${options.name}`);
+          resolve();
         }
-      );
+      });
     });
   });
 }

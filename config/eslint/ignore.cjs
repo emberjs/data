@@ -32,5 +32,5 @@ function ignoreRules(allowAddon) {
 }
 
 module.exports = {
-  ignoreRules
+  ignoreRules,
 };

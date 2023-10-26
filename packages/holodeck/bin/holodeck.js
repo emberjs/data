@@ -46,7 +46,7 @@ if (command === 'run') {
     const programPath = __dirname + '/cmd/_start.js';
     await spawn(['node', programPath, ...args]);
   }
- } else if (command === 'end') {
+} else if (command === 'end') {
   console.log(chalk.grey(`\n\tEnding Subroutines (mode:${chalk.cyan(isBun ? 'bun' : 'node')})`));
 
   if (!isBun || (BUN_SUPPORTS_HTTP2 && BUN_SUPPORTS_PM2)) {

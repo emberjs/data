@@ -12,7 +12,7 @@ export async function spawn(args, options) {
     });
     await proc.exited;
     if (proc.exitCode !== 0) {
-     throw proc.exitCode;
+      throw proc.exitCode;
     }
     return;
   }

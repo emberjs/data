@@ -25,7 +25,8 @@ html {
   font-size: 125%;
 }
 
-html, body {
+html,
+body {
   width: 100%;
   height: 100%;
   margin: 0;
@@ -34,22 +35,32 @@ html, body {
 }
 
 body {
-  font-size: .75rem;
+  font-size: 0.75rem;
 }
 
 #warp-drive__diagnostic {
   box-sizing: border-box;
   color: var(--font-color);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    "Open Sans",
+    "Helvetica Neue",
+    sans-serif;
   width: 100%;
   position: relative;
   min-height: 100%;
   line-height: 1.5em;
   background-color: var(--bg-color);
   background-size: 1.5em 1.5em;
-  background-image:
-  linear-gradient(to right, var(--bg-color-2) .1em, transparent 1px),
-  linear-gradient(to bottom, var(--bg-color-2) .1em, transparent 1px);
+  background-image: linear-gradient(to right, var(--bg-color-2) 0.1em, transparent 1px),
+    linear-gradient(to bottom, var(--bg-color-2) 0.1em, transparent 1px);
 }
 
 #warp-drive__diagnostic * {
@@ -63,7 +74,7 @@ body {
   margin: 0;
   padding: 0;
   line-height: 1.25rem;
-  margin: .25rem 0 1rem;
+  margin: 0.25rem 0 1rem;
 }
 
 #warp-drive__diagnostic h1 {
@@ -92,17 +103,17 @@ body {
 }
 
 #warp-drive__diagnostic-header ul li {
-  font-size: .85em;
+  font-size: 0.85em;
   float: right;
-  margin: .25em .5em;
+  margin: 0.25em 0.5em;
 }
 
 #warp-drive__diagnostic-header {
   height: 4.5rem;
-  padding: .5rem;
+  padding: 0.5rem;
   background: var(--bg-color-3);
-  box-shadow: 0 0 1rem rgba(0, 0, 0, .5);
-  border-bottom: .1rem solid hsl(var(--brand-blue), 50%);
+  box-shadow: 0 0 1rem rgba(0, 0, 0, 0.5);
+  border-bottom: 0.1rem solid hsl(var(--brand-blue), 50%);
 }
 
 #warp-drive__diagnostic h1 span.logo-main {
@@ -119,22 +130,21 @@ body {
   color: var(--primary-color);
 }
 
-
 #warp-drive__diagnostic table {
   border-collapse: separate;
-  border-spacing: 0 .1rem;
+  border-spacing: 0 0.1rem;
   width: 100%;
   padding: 1rem;
 }
 
 #warp-drive__diagnostic table tr {
   color: lightgrey;
-  font-size: .85em;
+  font-size: 0.85em;
   line-height: 1rem;
   text-align: left;
   vertical-align: middle;
   height: 1.2rem;
-  padding: .1rem;
+  padding: 0.1rem;
 }
 
 #warp-drive__diagnostic table tr td strong {
@@ -146,18 +156,18 @@ body {
 }
 
 #warp-drive__diagnostic table tr td:first-of-type {
-  border-radius: .1rem 0 0 .1rem;
-  padding-left: .5rem;
+  border-radius: 0.1rem 0 0 0.1rem;
+  padding-left: 0.5rem;
 }
 #warp-drive__diagnostic table tr td:last-of-type {
-  padding-right: .5rem;
-  border-radius: 0 .1rem .1rem 0;
+  padding-right: 0.5rem;
+  border-radius: 0 0.1rem 0.1rem 0;
 }
 #warp-drive__diagnostic table tr:nth-last-of-type(even) {
-  background: rgba(0,0,0, .8);
+  background: rgba(0, 0, 0, 0.8);
 }
 #warp-drive__diagnostic table tr:nth-last-of-type(odd) {
-  background: rgba(0,0,0, .8);
+  background: rgba(0, 0, 0, 0.8);
 }
 #warp-drive__diagnostic table tr.passed td:nth-child(2) {
   color: green;
@@ -173,6 +183,6 @@ body {
 }
 #warp-drive__diagnostic table td:nth-child(3) {
   color: yellow;
-  font-size: .75em;
-  line-height: .75rem;
+  font-size: 0.75em;
+  line-height: 0.75rem;
 }

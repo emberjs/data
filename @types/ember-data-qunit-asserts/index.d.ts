@@ -1,6 +1,6 @@
-import type { CacheOperation, NotificationType } from "@ember-data/store/-private/managers/notification-manager";
-import type { StableDocumentIdentifier } from "@ember-data/store/-types/cache/identifier";
-import type { StableRecordIdentifier } from "@warp-drive/core-types";
+import type { CacheOperation, NotificationType } from '@ember-data/store/-private/managers/notification-manager';
+import type { StableDocumentIdentifier } from '@ember-data/store/-types/cache/identifier';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
 declare global {
   interface DeprecationConfig {
@@ -20,7 +20,11 @@ declare global {
 
   interface Assert {
     expectDeprecation(options: DeprecationConfig, label?: string): void;
-    expectDeprecation(callback: () => void | Promise<void>, options: DeprecationConfig | string | RegExp, label?: string): Promise<void>;
+    expectDeprecation(
+      callback: () => void | Promise<void>,
+      options: DeprecationConfig | string | RegExp,
+      label?: string
+    ): Promise<void>;
     expectNoDeprecation(
       callback: () => void | Promise<void>,
       label?: string,
@@ -56,7 +60,10 @@ declare global {
   namespace QUnit {
     export interface Assert {
       expectDeprecation(options: { id: string; count: number; until?: string }): void;
-      expectDeprecation(callback: () => void | Promise<void>, options: DeprecationConfig | string | RegExp): Promise<void>;
+      expectDeprecation(
+        callback: () => void | Promise<void>,
+        options: DeprecationConfig | string | RegExp
+      ): Promise<void>;
       expectNoDeprecation(
         callback: () => void | Promise<void>,
         label?: string,

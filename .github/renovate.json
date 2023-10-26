@@ -1,19 +1,18 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:base"
-  ],
+  "extends": ["config:base"],
   "labels": [":dependabot:", ":label: dependencies"],
   "packageRules": [
     {
       "matchPackagePatterns": [
         "@types",
-        "typescript",
+        "eslint-config-prettier",
         "eslint",
         "glint",
         "lint",
         "prettier",
-        "stylelint"
+        "stylelint",
+        "typescript"
       ],
       "groupName": "code-quality"
     },
@@ -36,10 +35,7 @@
         "ember-cli-sri",
         "ember-css-modules"
       ],
-      "matchPackagePatterns": [
-        "@embroider",
-        "postcss"
-      ],
+      "matchPackagePatterns": ["@embroider", "postcss"],
       "groupName": "build-tools"
     },
     {
@@ -53,23 +49,12 @@
         "ember-page-title",
         "tracked-built-ins"
       ],
-      "matchPackagePatterns": [
-        "glimmer",
-        "polyfill"
-      ],
+      "matchPackagePatterns": ["glimmer", "polyfill"],
       "groupName": "ember-core"
     },
     {
-      "matchPackageNames": [
-        "ember-cli-babel",
-        "ember-cli-htmlbars",
-        "@embroider/macros",
-        "ember-cli-terser"
-      ],
-      "matchPackagePatterns": [
-        "babel",
-        "postcss"
-      ],
+      "matchPackageNames": ["ember-cli-babel", "ember-cli-htmlbars", "@embroider/macros", "ember-cli-terser"],
+      "matchPackagePatterns": ["babel", "postcss"],
       "groupName": "asset-compilation"
     },
     {
@@ -88,24 +73,15 @@
         "@ember/test-helpers",
         "@ember/test-waiters"
       ],
-      "matchPackagePatterns": [
-        "percy",
-        "quality",
-        "test"
-      ],
+      "matchPackagePatterns": ["percy", "quality", "test"],
       "groupName": "testing"
     },
     {
-      "matchPackageNames": [
-        "ember-inflector",
-        "ember-promise-helpers"
-      ],
+      "matchPackageNames": ["ember-inflector", "ember-promise-helpers"],
       "groupName": "data-utils"
     },
     {
-      "matchManagers": [
-        "github-actions"
-      ],
+      "matchManagers": ["github-actions"],
       "groupName": "github-actions"
     }
   ],
@@ -115,13 +91,9 @@
   "rangeStrategy": "bump",
   "prHourlyLimit": 10,
   "vulnerabilityAlerts": {
-    "labels": [
-      ":label: security"
-    ],
+    "labels": [":label: security"],
     "automerge": false,
-    "assignees": [
-      "@runspired"
-    ],
+    "assignees": ["@runspired"],
     "enabled": true
   },
   "ignorePaths": ["node_modules/**", "**/node_modules/**"]

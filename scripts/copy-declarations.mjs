@@ -40,7 +40,15 @@ async function main() {
   const relativeInputPath = path.relative(process.cwd(), inputPath);
   const relativeOutputPath = path.relative(process.cwd(), outputPath);
 
-  console.log(chalk.grey(chalk.bold(`\nCopying ${chalk.cyan('**/*.d.ts')} files\n\tfrom: ${chalk.yellow(relativeInputPath)}\n\tto: ${chalk.yellow(relativeOutputPath)}`)));
+  console.log(
+    chalk.grey(
+      chalk.bold(
+        `\nCopying ${chalk.cyan('**/*.d.ts')} files\n\tfrom: ${chalk.yellow(relativeInputPath)}\n\tto: ${chalk.yellow(
+          relativeOutputPath
+        )}`
+      )
+    )
+  );
 
   const files = await globby([`${inputPath}/**/*.d.ts`]);
 

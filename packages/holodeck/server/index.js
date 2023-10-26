@@ -8,7 +8,7 @@ import http2 from 'node:http2';
 import { dirname } from 'node:path';
 import zlib from 'node:zlib';
 import { fileURLToPath } from 'url';
-import { HTTPException } from 'hono/http-exception'
+import { HTTPException } from 'hono/http-exception';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 

@@ -23,7 +23,6 @@ export type ModelCreateArgs = {
   };
 };
 
-
 class Model extends EmberObject {
   store: Store;
   errors: Errors;
@@ -32,9 +31,15 @@ class Model extends EmberObject {
   toString(): string;
   save(): Promise<this>;
   hasMany(key: keyof this & string): HasManyReference;
-  belongsTo(key: keyof this & string): BelongsToReference
-  eachRelationship<T extends Model, K extends keyof T & string>(callback: (this: T, key: K, meta: RelationshipSchema) => void, binding?: T): void;
-  eachAttribute<T extends Model, K extends keyof T & string>(callback: (this: T, key: K, meta: AttributeSchema) => void, binding?: T): void;
+  belongsTo(key: keyof this & string): BelongsToReference;
+  eachRelationship<T extends Model, K extends keyof T & string>(
+    callback: (this: T, key: K, meta: RelationshipSchema) => void,
+    binding?: T
+  ): void;
+  eachAttribute<T extends Model, K extends keyof T & string>(
+    callback: (this: T, key: K, meta: AttributeSchema) => void,
+    binding?: T
+  ): void;
   invalidErrorsChanged(errors: JsonApiError[]): void;
   rollbackAttributes(): void;
   changedAttributes(): Record<string, [unknown, unknown]>;
@@ -52,9 +57,18 @@ class Model extends EmberObject {
   static fields: Map<keyof this & string, 'attribute' | 'belongsTo' | 'hasMany'>;
   static attributes: Map<keyof this & string, AttributeSchema>;
   static relationshipsByName: Map<keyof this & string, RelationshipSchema>;
-  static eachAttribute<K extends keyof this & string>(callback: (this: ModelSchema<this>, key: K, attribute: AttributeSchema) => void, binding?: T): void;
-  static eachRelationship<K extends keyof this & string>(callback: (this: ModelSchema<this>, key: K, relationship: RelationshipSchema) => void, binding?: T): void;
-  static eachTransformedAttribute<K extends keyof this & string>(callback: (this: ModelSchema<this>, key: K, type: string | null) => void, binding?: T): void;
+  static eachAttribute<K extends keyof this & string>(
+    callback: (this: ModelSchema<this>, key: K, attribute: AttributeSchema) => void,
+    binding?: T
+  ): void;
+  static eachRelationship<K extends keyof this & string>(
+    callback: (this: ModelSchema<this>, key: K, relationship: RelationshipSchema) => void,
+    binding?: T
+  ): void;
+  static eachTransformedAttribute<K extends keyof this & string>(
+    callback: (this: ModelSchema<this>, key: K, type: string | null) => void,
+    binding?: T
+  ): void;
 
   static toString(): string;
   static isModel: true;
