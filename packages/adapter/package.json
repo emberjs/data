@@ -117,7 +117,7 @@
     "@glimmer/component": "^1.1.2",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "@types/jquery": "^3.5.24",
+    "@types/jquery": "^3.5.25",
     "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
     "@warp-drive/internal-config": "workspace:5.5.0-alpha.11",
     "ember-inflector": "^4.0.2",
