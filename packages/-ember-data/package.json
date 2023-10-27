@@ -128,7 +128,7 @@
     "eslint": "^8.52.0"
   },
   "engines": {
-    "node": ">= 20.8.1"
+    "node": ">= 20.9.0"
   },
   "keywords": [
     "ember-addon"
