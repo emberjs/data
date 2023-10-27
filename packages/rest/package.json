@@ -13,7 +13,7 @@
   "homepage": "https://github.com/emberjs/data",
   "bugs": "https://github.com/emberjs/data/issues",
   "engines": {
-    "node": ">= 20.8.1"
+    "node": ">= 20.9.0"
   },
   "keywords": [
     "ember-addon"

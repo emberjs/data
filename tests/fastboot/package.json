@@ -74,7 +74,7 @@
     "typescript": "~5.2.2"
   },
   "engines": {
-    "node": ">= 20.8.1"
+    "node": ">= 20.9.0"
   },
   "ember": {
     "edition": "octane"
