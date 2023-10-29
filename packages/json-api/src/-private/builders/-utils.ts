@@ -63,7 +63,7 @@ export let ACCEPT_HEADER_VALUE = 'application/vnd.api+json';
  * @returns void
  */
 export function setBuildURLConfig(config: JSONAPIConfig): void {
- CONFIG = Object.assign({}, DEFAULT_CONFIG, config);
+  CONFIG = Object.assign({}, DEFAULT_CONFIG, config);
 
   if (config.profiles || config.extensions) {
     let accept = JsonApiAccept;
