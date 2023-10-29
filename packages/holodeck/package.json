@@ -24,7 +24,7 @@
   "dependencies": {
     "@hono/node-server": "^1.2.0",
     "chalk": "^4.1.2",
-    "hono": "^3.8.1",
+    "hono": "^3.8.4",
     "pm2": "^5.3.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10"
   },
