@@ -31,7 +31,9 @@ export default class Store extends BaseStore {
   constructor(args?: Record<string, unknown>) {
     super(args);
 
+    debugger;
     if (!hasRequestManager(this)) {
+      debugger;
       this.requestManager = new RequestManager();
       this.requestManager.use([LegacyNetworkHandler, Fetch]);
     }
