@@ -10,7 +10,7 @@ import type {
   RemotelyAccessibleIdentifier,
 } from '@warp-drive/core-types/request';
 
-import { copyForwardUrlOptions, extractCacheOptions } from './-utils';
+import { ACCEPT_HEADER_VALUE, copyForwardUrlOptions, extractCacheOptions } from './-utils';
 
 /**
  * Builds request options to fetch a single resource by a known id or identifier
@@ -93,7 +93,7 @@ export function findRecord(
 
   const url = buildBaseURL(urlOptions);
   const headers = new Headers();
-  headers.append('Accept', 'application/vnd.api+json');
+  headers.append('Accept', ACCEPT_HEADER_VALUE);
 
   return {
     url: options.include?.length

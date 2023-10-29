@@ -26,8 +26,11 @@ export default class Store extends BaseStore {
 
   constructor(args?: Record<string, unknown>) {
     super(args);
-    this.requestManager = new RequestManager();
-    this.requestManager.use([LegacyNetworkHandler, Fetch]);
+
+    if (!('requestManager' in this)) {
+      this.requestManager = new RequestManager();
+      this.requestManager.use([LegacyNetworkHandler, Fetch]);
+    }
     this.requestManager.useCache(CacheHandler);
     this.registerSchema(buildSchema(this));
   }

@@ -19,7 +19,7 @@
     "test": "pnpm turbo test --concurrency=1",
     "test:production": "pnpm turbo test:production --concurrency=1",
     "test:try-one": "pnpm --filter main-test-app run test:try-one",
-    "test:docs": "pnpm build:docs && pnpm run -r --workspace-concurrency=-1 --if-present test:blueprints",
+    "test:docs": "pnpm build:docs && pnpm run -r --workspace-concurrency=-1 --if-present test:docs",
     "test:blueprints": "pnpm run -r --workspace-concurrency=-1 --if-present test:blueprints",
     "test:fastboot": "pnpm run -r --workspace-concurrency=-1 --if-present test:fastboot",
     "test:embroider": "pnpm run -r ---workspace-concurrency=-1 --if-present test:embroider",
