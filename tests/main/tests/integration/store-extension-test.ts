@@ -13,7 +13,10 @@ module('Integration | Store Extension', function (hooks) {
     owner.register('service:store', CustomStore);
     const store = owner.lookup('service:store');
 
-    assert.true(store.requestManager instanceof RequestManager, 'We create a request manager for the store automatically');
+    assert.true(
+      store.requestManager instanceof RequestManager,
+      'We create a request manager for the store automatically'
+    );
   });
 
   test('We can create a store with a custom request manager injected as a service', function (assert) {

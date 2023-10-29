@@ -9,11 +9,11 @@ export interface JSONAPIConfig extends BuildURLConfig {
   profiles?: {
     pagination?: string;
     [key: string]: string | undefined;
-  },
+  };
   extensions?: {
     atomic?: string;
     [key: string]: string | undefined;
-  }
+  };
 }
 
 const JsonApiAccept = 'application/vnd.api+json';
