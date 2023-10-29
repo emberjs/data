@@ -17,7 +17,8 @@ export interface JSONAPIConfig extends BuildURLConfig {
 }
 
 const JsonApiAccept = 'application/vnd.api+json';
-export let CONFIG: JSONAPIConfig = { host: '', namespace: '' };
+const DEFAULT_CONFIG: JSONAPIConfig = { host: '', namespace: '' };
+export let CONFIG: JSONAPIConfig = DEFAULT_CONFIG;
 export let ACCEPT_HEADER_VALUE = 'application/vnd.api+json';
 
 /**
@@ -62,7 +63,7 @@ export let ACCEPT_HEADER_VALUE = 'application/vnd.api+json';
  * @returns void
  */
 export function setBuildURLConfig(config: JSONAPIConfig): void {
-  Object.assign(CONFIG, config);
+ CONFIG = Object.assign({}, DEFAULT_CONFIG, config);
 
   if (config.profiles || config.extensions) {
     let accept = JsonApiAccept;
@@ -78,6 +79,7 @@ export function setBuildURLConfig(config: JSONAPIConfig): void {
         accept += ';ext=' + extensions.join(' ');
       }
     }
+    ACCEPT_HEADER_VALUE = accept;
   }
 
   setConfig(config);
