@@ -33,7 +33,8 @@ If this package is how you are first learning about EmberData, we recommend star
 
 ## 🚀 Setup
 
-> **Note** When using [ember-data](https://github.com/emberjs/data/blob/main/packages/-ember-data) the below
+> **Note**
+> When using [ember-data](https://github.com/emberjs/data/blob/main/packages/-ember-data) the below
 > configuration is handled for you automatically.
 
 ```ts

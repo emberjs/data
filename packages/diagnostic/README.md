@@ -143,9 +143,11 @@ module('My Module', function(hooks) {
 
 ### Running Tests
 
-> **Note** This section is about how to setup your tests to run once launched. To learn about launching tests, read [Using The Launcher](#using-the-launcher)
+> **Note**
+> This section is about how to setup your tests to run once launched. To learn about launching tests, read [Using The Launcher](#using-the-launcher)
 
-> **Note** This section is nuanced, read carefully!
+> **Warning**
+> This section is nuanced, read carefully!
 
 
 To run your tests, import and run `start`.
@@ -350,7 +352,8 @@ callback.
 `@warp-drive/diagnostic` runs tests as microtasks. Yielding out of the microtask queue only occurs if
 the test itself needs to do so.
 
-> **Note** soon we will elect to periodically yield just to allow the DOMReporter to show results, currently its so fast though that the tests are done before you'd care.
+> **Note**
+> soon we will elect to periodically yield just to allow the DOMReporter to show results, currently its so fast though that the tests are done before you'd care.
 
 Next, diagnostic, uses several singleton patterns internally to keep allocations to a minimum while
 running tests.
