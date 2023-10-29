@@ -15,6 +15,23 @@
 
 This package provides [*Ember*‍**Data**](https://github.com/emberjs/data/)'s `RequestManager`, a framework agnostic library that can be integrated with any Javascript application to make [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) happen.
 
+- [Installation](#installation)
+- [Basic Usage](#🚀-basic-usage)
+- [Architecture](#🪜-architecture)
+- [Usage](#usage)
+  - [Making Requests](#making-requests)
+    - [Using The Response](#using-the-response)
+  - [Request Handlers](#handling-requests)
+    - [Handling Errors](#handling-errors)
+    - [Handling Abort](#handling-abort)
+    - [Stream Currying](#stream-currying)
+    - [Automatic Currying](#automatic-currying-of-stream-and-response)
+  - [Using as a Service](#using-as-a-service)
+    - [Using with `@ember-data/store`](#using-with-ember-datastore)
+    - [Using with `ember-data`](#using-with-ember-data)
+
+---
+
 ## Installation
 
 Install using your javascript package manager of choice. For instance with [pnpm](https://pnpm.io/)
@@ -22,6 +39,8 @@ Install using your javascript package manager of choice. For instance with [pnpm
 ```no-highlight
 pnpm add @ember-data/request
 ```
+
+---
 
 ## 🚀 Basic Usage
 
@@ -44,6 +63,7 @@ const response = await manager.request({
 });
 ```
 
+---
 
 ## 🪜 Architecture
 
@@ -57,6 +77,8 @@ When the same instance is used by both this allows for simple coordination throu
 and return hydrated responses, requests issued directly to the RequestManager
 will skip the in-memory cache and return raw responses.
 
+---
+
 ## Usage
 
 ```ts
@@ -67,8 +89,9 @@ const userList = await manager.request({
 const users = userList.content;
 ```
 
-<details>
-  <summary><strong>Making Requests</strong></summary>
+---
+
+### Making Requests
 
 `RequestManager` has a single asyncronous method as it's API: `request`
 
@@ -99,11 +122,12 @@ interface RequestInfo extends FetchOptions {
 }
 ```
 
-> **note:** providing a `signal` is unnecessary as an `AbortController` is automatically provided if none is present.
+> **note**
+> providing a `signal` is unnecessary as an `AbortController` is automatically provided if none is present.
 
-</details>
-<details>
-  <summary><strong>Using the Response</strong></summary><br>
+---
+
+#### Using the Response
 
 `manager.request` returns a `Future`, which allows access to limited information about the request while it is still pending and fulfills with the final state when the request completes and the response has been read.
 
@@ -156,11 +180,9 @@ interface ResponseInfo {
 }
 ```
 
-</details>
+---
 
-<h3>Handling Requests</h3>
-<details>
-  <summary><code>{ request<T>(context, next): Promise<T> | Future<T>; }</code></summary><br>
+### Request Handlers
 
 Requests are fulfilled by handlers. A handler receives the request context
 as well as a `next` function with which to pass along a request to the next
@@ -219,72 +241,68 @@ manager.use([Handler1, Handler2])
 
 Handlers will be invoked in the order they are registered ("fifo", first-in first-out), and may only be registered up until the first request is made. It is recommended but not required to register all handlers at one time in order to ensure explicitly visible handler ordering.
 
-</details>
+---
 
+#### Handling Errors
 
-<details>
-  <summary><strong>Error Handling</strong></summary><br>
+Each handler in the chain can catch errors from upstream and choose to
+either handle the error, re-throw the error, or throw a new error.
 
-  Each handler in the chain can catch errors from upstream and choose to
-  either handle the error, re-throw the error, or throw a new error.
+```ts
+const MAX_RETRIES = 5;
 
-  ```ts
-  const MAX_RETRIES = 5;
+const Handler = {
+  async request(context, next) {
+    let attempts = 0;
 
-  const Handler = {
-    async request(context, next) {
-      let attempts = 0;
-
-      while (attempts < MAX_RETRIES) {
-        attempts++;
-        try {
-          const response = await next(context.request);
-          return response;
-        } catch (e) {
-          if (isTimeoutError(e) && attempts < MAX_RETRIES) {
-            // retry request
-            continue;
-          }
-          // rethrow if it is not a timeout error
-          throw e;
+    while (attempts < MAX_RETRIES) {
+      attempts++;
+      try {
+        const response = await next(context.request);
+        return response;
+      } catch (e) {
+        if (isTimeoutError(e) && attempts < MAX_RETRIES) {
+          // retry request
+          continue;
         }
+        // rethrow if it is not a timeout error
+        throw e;
       }
     }
   }
-  ```
-</details>
+}
+```
 
-<details>
-  <summary><strong>Handling Abort</strong></summary><br>
+---
 
-  Aborting a request will reject the current handler in the chain. However,
-  every handler can potentially catch this error. If your handler needs to
-  separate AbortError from other Error types, it is recommended to check
-  `context.request.signal.aborted` (or if a custom controller was supplied `controller.signal.aborted`).
+#### Handling Abort
 
-  In this manner it is possible for a request to recover from an abort and
-  still proceed; however, as a best practice this should be used for necessary
-  cleanup only and the original AbortError rethrown if the abort signal comes
-  from the root controller.
+Aborting a request will reject the current handler in the chain. However,
+every handler can potentially catch this error. If your handler needs to
+separate AbortError from other Error types, it is recommended to check
+`context.request.signal.aborted` (or if a custom controller was supplied `controller.signal.aborted`).
 
-  **AbortControllers are Always Present and Always Entangled**
+In this manner it is possible for a request to recover from an abort and
+still proceed; however, as a best practice this should be used for necessary
+cleanup only and the original AbortError rethrown if the abort signal comes
+from the root controller.
 
-  If the initial request does not supply an [AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController), one will be generated.
+**AbortControllers are Always Present and Always Entangled**
 
-  The [signal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) for this controller is automatically added to the request passed into the first handler.
+If the initial request does not supply an [AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController), one will be generated.
 
-  Each handler has the option to supply a new controller to the request when calling `next`. If a new controller is provided it will be automatically
-  entangled with the root controller. If the root controller aborts, so will
-  any entangled controllers.
+The [signal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) for this controller is automatically added to the request passed into the first handler.
 
-  If an entangled controller aborts, the root controller will not abort. This
-  allows for advanced request-flow scenarios to abort subsections of the request tree without aborting the entire request.
+Each handler has the option to supply a new controller to the request when calling `next`. If a new controller is provided it will be automatically
+entangled with the root controller. If the root controller aborts, so will
+any entangled controllers.
 
-</details>
+If an entangled controller aborts, the root controller will not abort. This
+allows for advanced request-flow scenarios to abort subsections of the request tree without aborting the entire request.
 
+---
 
-<details>
-  <summary><strong>Stream Currying</strong></summary><br>
+#### Stream Currying
 
 `RequestManager.request` and `next` differ from `fetch` in one **crucial detail** in that the outer Promise resolves only once the response stream has been processed.
 
@@ -321,10 +339,9 @@ Handlers that either call `next` multiple times or otherwise have reason to crea
 
 Of course, any handler may choose to read and handle the stream, and return either no stream or a different stream in the process.
 
-</details>
+---
 
-<details>
-  <summary><strong>Automatic Currying of Stream and Response</strong></summary><br>
+#### Automatic Currying of Stream and Response
 
 In order to simplify the common case for handlers which decorate a request, if `next` is called only a single time and `setResponse` was never called by the handler, the response set by the next handler in the chain will be applied to that handler's outcome. For instance, this makes the following pattern possible `return (await next(<req>)).content;`.
 
@@ -334,7 +351,7 @@ Finally, if the return value of a handler is a `Future`, we curry `content` and 
 
 In the case of the `Future` being returned, `Stream` proxying is automatic and immediate and does not wait for the `Future` to resolve.
 
-</details>
+---
 
 ### Using as a Service
 
@@ -354,7 +371,9 @@ export default class extends RequestManager {
 }
 ```
 
-### Using with `@ember-data/store`
+---
+
+#### Using with `@ember-data/store`
 
 To have a request service unique to a Store:
 
@@ -374,13 +393,21 @@ class extends Store {
 }
 ```
 
-### Using with `ember-data`
+---
 
-If using the package [ember-data](https://github.com/emberjs/data/tree/main/packages/-ember-data), the following configuration will automatically be done in order to preserve the legacy [Adapter](https://github.com/emberjs/data/tree/main/packages/adapter) and [Serializer](https://github.com/emberjs/data/tree/main/packages/serializer) behavior. Additional handlers or a service injection like the above would need to be done by the consuming application in order to make broader use of `RequestManager`.
+#### Using with `ember-data`
+
+If using the package [ember-data](https://github.com/emberjs/data/tree/main/packages/-ember-data),
+the following configuration will automatically be done in order to preserve the
+legacy [Adapter](https://github.com/emberjs/data/tree/main/packages/adapter) and
+[Serializer](https://github.com/emberjs/data/tree/main/packages/serializer) behavior.
+Additional handlers or a service injection like the above would need to be done by the
+consuming application in order to make broader use of `RequestManager`.
 
 ```ts
-import Store, { CacheHandler } from '@ember-data/store';
+import Store, { CacheHandler } from 'ember-data/store';
 import RequestManager from '@ember-data/request';
+import Fetch from '@ember-data/request/fetch';
 import { LegacyNetworkHandler } from '@ember-data/legacy-compat';
 
 export default class extends Store {
@@ -388,15 +415,18 @@ export default class extends Store {
 
   constructor(args) {
     super(args);
-    this.requestManager.use([LegacyNetworkHandler]);
+    this.requestManager.use([LegacyNetworkHandler, Fetch]);
     this.requestManager.useCache(CacheHandler);
   }
 }
 ```
 
-Because the application's store service (if present) will override the store supplied by `ember-data`, all that is required to define your own ordering and handlers is to supply a store service extending from `@ember-data/store` and configure as shown above.
+To provide a different configuration, import and extend `ember-data/store`. The
+default configuration will be ignored if the `requestManager` property is set,
+though the store will still register the CacheHandler.
 
-For usage of the store's `requestManager` via `store.request(<req>)` see the [Store](https://api.emberjs.com/ember-data/release/modules/@ember-data%2Fstore) documentation.
+For usage of the store's `requestManager` via `store.request(<req>)` see the
+[Store](https://api.emberjs.com/ember-data/release/modules/@ember-data%2Fstore) documentation.
 
  *
  * @module @ember-data/request
