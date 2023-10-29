@@ -3,7 +3,8 @@
 Provides ember-inspector support for Ember apps built with EmberData
 ## Installation
 
-> **Note** If using `ember-data`, this library comes pre-installed.
+> **Note**
+> If using `ember-data`, this library comes pre-installed.
 
 ```
 pnpm install @ember-data/debug

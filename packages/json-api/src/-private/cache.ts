@@ -172,7 +172,8 @@ export default class JSONAPICache implements Cache {
    * })
    * ```
    *
-   * > **Note:** The nested `content` and `data` members are not a mistake. This is because
+   * > **Note**
+   * > The nested `content` and `data` members are not a mistake. This is because
    * > there are two separate concepts involved here, the `StructuredDocument` which contains
    * > the context of a given Request that has been issued with the returned contents as its
    * > `content` property, and a `JSON:API Document` which is the json contents returned by

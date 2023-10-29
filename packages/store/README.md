@@ -60,7 +60,8 @@ After installing you will want to configure your first `Store`. Read more below 
 
 To use a `Store` we will need to do few things: add a [Cache](https://api.emberjs.com/ember-data/release/classes/%3CInterface%3E%20Cache) to store data **in-memory**, add a [Handler](https://github.com/emberjs/data/tree/main/packages/request#handling-requests) to fetch data from a source, and implement `instantiateRecord` to tell the store how to display the data for individual resources. 
 
-> **Note** If you are using the package `ember-data` then a `JSON:API` cache and `instantiateRecord` are configured for you by default.
+> **Note**
+> If you are using the package `ember-data` then a `JSON:API` cache and `instantiateRecord` are configured for you by default.
 
 ### Configuring A Cache
 
@@ -81,7 +82,8 @@ class extends Store {
 
 Now that we have a `cache` let's setup something to handle fetching and saving data via our API.
 
-> **Note** The `ember-data` package automatically includes and configures the `@ember-data/json-api` cache for you.
+> **Note**
+> The `ember-data` package automatically includes and configures the `@ember-data/json-api` cache for you.
 
 ### Handling Requests
 
@@ -89,7 +91,8 @@ When *Ember***Data** needs to fetch or save data it will pass that request to yo
 
 To start, let's install the `RequestManager` from `@ember-data/request` and the basic `Fetch` handler from ``@ember-data/request/fetch`.
 
-> **Note** If your app uses `GraphQL`, `REST` or different conventions for `JSON:API` than your cache expects, other handlers may better fit your data. You can author your own handler by creating one that conforms to the [handler interface](https://github.com/emberjs/data/tree/main/packages/request#handling-requests).
+> **Note**
+> If your app uses `GraphQL`, `REST` or different conventions for `JSON:API` than your cache expects, other handlers may better fit your data. You can author your own handler by creating one that conforms to the [handler interface](https://github.com/emberjs/data/tree/main/packages/request#handling-requests).
 
 ```ts
 import Store, { CacheHandler } from '@ember-data/store';
@@ -185,5 +188,6 @@ Typically you will choose an existing record implementation such as `@ember-data
 
 Because of the boundaries around instantiation and the cache, record implementations should be capable of interop both with each other and with any `Cache`. Due to this, if needed an application can utilize multiple record implementations and multiple cache implementations either to support enhanced features for only a subset of records or to be able to incrementally migrate from one record/cache to another record or cache.
 
-> **Note:** The `ember-data` package automatically includes the `@ember-data/model`
+> **Note**
+> The `ember-data` package automatically includes the `@ember-data/model`
 > package and configures it for you.

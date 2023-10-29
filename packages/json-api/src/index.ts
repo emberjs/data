@@ -23,7 +23,8 @@ pnpm add @ember-data/json-api
 
 ## 🚀 Setup
 
-> **Note** When using [ember-data](https://github.com/emberjs/data/blob/main/packages/-ember-data) the below
+> **Note**
+> When using [ember-data](https://github.com/emberjs/data/blob/main/packages/-ember-data) the below
 > configuration is handled for you automatically.
 
 ```ts

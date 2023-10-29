@@ -36,7 +36,8 @@
  * to store data **in-memory**, add a [Handler](https://api.emberjs.com/ember-data/release/classes/%3CInterface%3E%20Cache) to fetch data from a source,
  * and implement `instantiateRecord` to tell the store how to display the data for individual resources.
  *
- * > **Note** If you are using the package `ember-data` then a JSON:API cache, RequestManager, LegacyNetworkHandler,
+ * > **Note**
+ * > If you are using the package `ember-data` then a JSON:API cache, RequestManager, LegacyNetworkHandler,
  * > and `instantiateRecord` are configured for you by default.
  *
  * ### Configuring A Cache
@@ -62,7 +63,8 @@
  * Now that we have a `cache` let's setup something to handle fetching
  * and saving data via our API.
  *
- * > **Note** The `ember-data` package automatically includes and configures
+ * > **Note**
+ * > The `ember-data` package automatically includes and configures
  * > the `@ember-data/json-api` cache for you.
  *
  * ### Handling Requests
@@ -71,7 +73,8 @@
  *
  * To start, let's install the `RequestManager` from `@ember-data/request` and the basic `Fetch` handler from ``@ember-data/request/fetch`.
  *
- * > **Note** If your app uses `GraphQL`, `REST` or different conventions for `JSON:API` than your cache expects, other handlers may better fit your data. You can author your own handler by creating one that conforms to the [handler interface](https://github.com/emberjs/data/tree/main/packages/request#handling-requests).
+ * > **Note**
+ * > If your app uses `GraphQL`, `REST` or different conventions for `JSON:API` than your cache expects, other handlers may better fit your data. You can author your own handler by creating one that conforms to the [handler interface](https://github.com/emberjs/data/tree/main/packages/request#handling-requests).
  *
  * ```ts
  * import Store from '@ember-data/store';
@@ -171,7 +174,8 @@
  * implementations either to support enhanced features for only a subset of records or to
  * be able to incrementally migrate from one record/cache to another record or cache.
  *
- * > **Note:** The `ember-data` package automatically includes the `@ember-data/model`
+ * > **Note**
+ * > The `ember-data` package automatically includes the `@ember-data/model`
  * > package and configures it for you.
  *
  * @module @ember-data/store
