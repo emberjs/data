@@ -4,7 +4,11 @@
 
 This is the specification of [a profile](https://jsonapi.org/format/1.2/#profile-rules) for the JSON:API specification.
 
+### URI
+
 The URI for this profile is [https://github.com/emberjs/data/tree/main/packages/json-api-graph-spec/src/profile/complex-relationships.md](https://github.com/emberjs/data/tree/main/packages/json-api-graph-spec/src/profile/complex-relationships.md)
+
+### About
 
 This profile adds support for [linkage](https://jsonapi.org/format/#document-resource-identifier-objects) via `*` members as well as for
 deeply nested relationships via `rel:` members.
