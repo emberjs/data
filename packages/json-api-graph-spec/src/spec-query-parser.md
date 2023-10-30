@@ -1,4 +1,4 @@
-# :electron: JSON:API Graphs
+# JSON:API Graphs
 
 ## QUERY Parse Spec
 
