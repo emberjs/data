@@ -120,7 +120,7 @@ Generally an API will supply only linkages matching the `ExistingResourceIdentif
 might supply one matching `NewResourceIdentifierObject` when creating a new entity
 
 However, we intentionally allow for APIs to also supply the `NewResourceIdentifierObject` interface with the
-**exlicit semantics** that it means the resource is not persisted and eventual persistance is not guaranteed.
+**explicit semantics** that it means the resource is not persisted and eventual persistance is not guaranteed.
 
 This is useful for a number of situations in which APIs cache temporary client state for resumability, restoration or
 real-time scenarios.
