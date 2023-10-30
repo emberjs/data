@@ -1,7 +1,7 @@
 # Many To Many Relationships
 
 - Previous ← [Many To One Relationships](./4-one-to-many.md)
-- ⮐ [Relationships Guide](../../relationships.md)
+- ⮐ [Relationships Guide](../index.md)
 
 ---
 
@@ -221,4 +221,4 @@ export class TrailRunner {
 ---
 
 - Previous ← [Many To One Relationships](./4-one-to-many.md)
-- ⮐ [Relationships Guide](../../relationships.md)
+- ⮐ [Relationships Guide](../index.md)

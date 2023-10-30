@@ -1,6 +1,6 @@
 # Relationship Inverses
 
-- ⮐ [Relationships Guide](../../relationships.md)
+- ⮐ [Relationships Guide](../index.md)
 
 ---
 

@@ -2,7 +2,7 @@
 
 - Previous ← [Many To None Relationships](./3-many-to-none.md)
 - Next → [Many To Many Relationships](./5-many-to-many.md)
-- ⮐ [Relationships Guide](../../relationships.md)
+- ⮐ [Relationships Guide](../index.md)
 
 ---
 
