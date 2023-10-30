@@ -1,5 +1,8 @@
 # :electron: JSON:API Graphs
 
+> **Note**
+> Users of this specification must also utilize the [Atomic Operations Extension](https://jsonapi.org/ext/atomic/) and [Cursor Pagination Profile](https://jsonapi.org/profiles/ethanresnick/cursor-pagination/)
+
 The `JSON:API Graphs` Specification provides three things
 
 - A [profile](https://jsonapi.org/format/1.2/#profile-rules) which adds support for linkage via `*` members
