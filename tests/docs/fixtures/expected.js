@@ -261,6 +261,7 @@ module.exports = {
     '(public) @ember-data/json-api/request @ember-data/json-api/request#updateRecord',
     '(public) @ember-data/json-api/request @ember-data/json-api/request#serializePatch',
     '(public) @ember-data/json-api/request @ember-data/json-api/request#serializeResources',
+    '(public) @ember-data/json-api/request @ember-data/json-api/request#setBuildURLConfig',
     '(public) @ember-data/legacy-compat SnapshotRecordArray#adapterOptions',
     '(public) @ember-data/legacy-compat SnapshotRecordArray#include',
     '(public) @ember-data/legacy-compat SnapshotRecordArray#length',
