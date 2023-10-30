@@ -131,7 +131,7 @@ members are present alongside linkage members, an error MUST be raised to avoid 
 
 Any serializable value, including primitive values, are valid as non-linkage values.
 
-If all values are non-linkage values, the member should not be prefixed with a `*`.
+If all values are non-linkage values, the member MUST not be prefixed with a `*`.
 
 ### `rel:member` Values
 
@@ -150,16 +150,16 @@ When a server returns a request for data which contains resources linked by `*me
 ### Member Names
 
 - **Uniqueness**:
-  - Clients and APIs should consider the non-star and 
+  - Clients and APIs MUST consider the non-star and 
 `*` variants of members as being identical, and thus no payload
 should ever contain both.
-  - Clients and APIs should consider the `rel:` and non-`rel:` variants of members as being identical, and thus no payload should ever contain both within the same object.
+  - Clients and APIs MUST consider the `rel:` and non-`rel:` variants of members as being identical, and thus no payload should ever contain both within the same object.
 
-E.g. `*bestFriend` and `bestFriend` refer to the same member and should not both appear in members.
+E.g. `*bestFriend` and `bestFriend` refer to the same member and MUST not both appear in members.
 
 - **Semantics**:
-  - When the `*` is not present, the value should not be considered a reference even when it otherwise has occurred as such.
-  - When `rel:` is not present, the value should not be considerd a relationship even when it otherwise has occurred as such.
+  - When the `*` is not present, the value MUST not be considered a reference even when it otherwise has occurred as such.
+  - When `rel:` is not present, the value MUST not be considerd a relationship even when it otherwise has occurred as such.
 
 In other words, even if a client knows additional schema information beyond what is heuristically derivable from the payload, it must interpret that value in the payload respectively as a non-reference
 and non-relationship.
@@ -167,5 +167,5 @@ and non-relationship.
 This **explicitly** allows the same field to sometimes be a reference or relationship and to sometimes be an embedded value.
 
 - **Valid Locations**: 
-  - `*members` may only occur within `attributes`.
+  - `*members` may only occur within `attributes` and may appear at any depth.
   - `rel:members` may only occur within values within `attributes` but never as a member of `attributes`
