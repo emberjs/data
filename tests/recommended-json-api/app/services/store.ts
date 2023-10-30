@@ -5,11 +5,11 @@ import type Model from '@ember-data/model';
 import { instantiateRecord, teardownRecord } from '@ember-data/model';
 import { buildSchema, modelFor } from '@ember-data/model/hooks';
 import RequestManager from '@ember-data/request';
-import Fetch from '@ember-data/request/fetch';
 import { LifetimesService } from '@ember-data/request-utils';
+import Fetch from '@ember-data/request/fetch';
 import DataStore, { CacheHandler } from '@ember-data/store';
-import type { Cache } from '@ember-data/store/-types/cache/cache';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
+import type { Cache } from '@warp-drive/core-types/cache';
 
 import CONFIG from '../config/environment';
 

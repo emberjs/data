@@ -8,14 +8,14 @@ import Model, { attr, instantiateRecord, teardownRecord } from '@ember-data/mode
 import { buildSchema, modelFor } from '@ember-data/model/hooks';
 import type { StructuredDataDocument } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
-import type { Future, Handler, RequestContext } from '@ember-data/request/-private/types';
 import { setBuildURLConfig } from '@ember-data/request-utils';
+import type { Future, Handler, RequestContext } from '@ember-data/request/-private/types';
 import DataStore, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
-import type { Cache } from '@ember-data/store/-types/cache/cache';
 import { SingleResourceDataDocument } from '@ember-data/store/-types/cache/document';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import { SingleResourceDocument } from '@warp-drive/core-types/spec/raw';
 import { JsonApiError } from '@ember-data/store/-types/q/record-data-json-api';
+import type { Cache } from '@warp-drive/core-types/cache';
+import { SingleResourceDocument } from '@warp-drive/core-types/spec/raw';
 
 class TestStore extends DataStore {
   constructor(args: unknown) {

@@ -1,9 +1,10 @@
-import { module, test } from '@warp-drive/diagnostic';
-import { setupTest } from '@warp-drive/diagnostic/ember';
+import { TestContext } from '@ember/test-helpers';
 
 import { setBuildURLConfig } from '@ember-data/request-utils';
 import { createRecord, deleteRecord, findRecord, query, updateRecord } from '@ember-data/rest/request';
 import Store, { recordIdentifierFor } from '@ember-data/store';
+import { module, test } from '@warp-drive/diagnostic';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 import UserSetting from '../../app/models/user-setting';
 import { headersToObject } from '../helpers/utils';
@@ -115,7 +116,7 @@ module('REST | Request Builders', function (hooks) {
     assert.deepEqual(headersToObject(result.headers), REST_HEADERS);
   });
 
-  test('createRecord passing store record', function (assert) {
+  test('createRecord passing store record', function (this: TestContext, assert) {
     const store = this.owner.lookup('service:store') as Store;
     const userSetting = store.createRecord('user-setting', {
       name: 'test',

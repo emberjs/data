@@ -1,0 +1,29 @@
+{
+  "include": ["app/**/*", "config/**/*", "tests/**/*"],
+  "baseUrl": ".",
+  "compilerOptions": {
+    "lib": ["DOM", "ESNext"],
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "strict": true,
+    "downlevelIteration": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "noEmit": true,
+    "noImplicitOverride": true,
+    "experimentalDecorators": true,
+
+    "incremental": true,
+    "rootDir": ".",
+
+    "declaration": false,
+
+    "types": ["ember-source/types"]
+  },
+
+  "references": [{ "path": "../../packages/diagnostic" }]
+}
