@@ -135,7 +135,7 @@ import { query } from '@ember-data/json-api/request';
 import fetch from './fetch';
 
 // ... execute a request
-const result = await fetch.request(query('company', {
+const { content: collection } = await fetch.request(query('company', {
   include: 'ceo',
   fields: {
     company: 'name',
@@ -147,7 +147,7 @@ const result = await fetch.request(query('company', {
 }));
 ```
 
-Now, we can make use of the returned data. `result` has the following structure:
+Now, we can make use of the returned data. The has the following structure:
 
 ```ts
 type StructuredResponse<T> = {
@@ -157,15 +157,43 @@ type StructuredResponse<T> = {
 }
 ```
 
-The `json:api` document we got back is available as `content`. All other information about
-the request and response is available as the `request` and `response` properties.
+The `json:api` document we got back is available as `content`, so the companies
+list is its `data`.
 
 ```ts
-const companies = result.content.data;
+const companies = collection.data;
 ```
 
 At first this may feel a little verbose, but this structure ensures we have access to everything,
 so for instance if your API stores valuable information as `headers` then `result.response.headers` will give access to that information.
+
+### Requesting via the Store
+
+Requests issued against the store differ in three ways from raw requests.
+
+1. The store's `CacheHandler` will resolve from cache if the request is not stale
+2. The store's `CacheHandler` will update the cache if a new request is made
+3. The result's `content` will be a `StructuredDocument` whose data property is a list of records instead of raw data.
+
+```ts
+import { query } from '@ember-data/json-api/request';
+
+// ... execute a request
+const { content: collection } = await store.request(query('company', {
+  include: 'ceo',
+  fields: {
+    company: 'name',
+    employee: ['name', 'profileImage']
+  },
+  page: {
+    size: 10
+  }
+}));
+
+// accessing the data is the same, execept now
+// this will be a list of records instead of raw objects
+const companies = collection.data;
+```
 
 ### Pagination
 
@@ -205,25 +233,6 @@ const { content: nextPage } = await fetch.request({ url: result.content.links.ne
 If we were using the cache handler and store, this is built in!
 
 ```ts
-import { query } from '@ember-data/json-api/request';
-
-// ... execute a request
-const { content: collection } = await store.request(query('company', {
-  include: 'ceo',
-  fields: {
-    company: 'name',
-    employee: ['name', 'profileImage']
-  },
-  page: {
-    size: 10
-  }
-}));
-
-// accessing the data is the same, execept now
-// this will be a list of records instead of raw objects
-const companies = collection.data;
-
-// get the next page
 const nextPage = await collection.next();
 ```
 
