@@ -130,7 +130,7 @@ real-time scenarios.
 When a `*member` has an array value, the array may contain non-linkage values so long as
 at least one value is a linkage.
 
-Any value that is an object that with linkage members will be treated as such. If additional
+Any value that is an object with linkage members will be treated as such. If additional
 members are present alongside linkage members, an error MUST be raised to avoid ambiguity.
 
 Any serializable value, including primitive values, are valid as non-linkage values.
