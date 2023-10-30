@@ -1,7 +1,11 @@
 /**
  * @module @ember-data/json-api/request
  */
-import { BuildURLConfig, setBuildURLConfig as setConfig, buildQueryParams as buildParams } from '@ember-data/request-utils';
+import {
+  buildQueryParams as buildParams,
+  BuildURLConfig,
+  setBuildURLConfig as setConfig,
+} from '@ember-data/request-utils';
 import { type UrlOptions } from '@ember-data/request-utils';
 import { QueryParamsSource } from '@warp-drive/core-types/params';
 import type { CacheOptions, ConstrainedRequestOptions } from '@warp-drive/core-types/request';
@@ -147,19 +151,18 @@ function collapseIncludePaths(basePath: string, include: RelatedObject, paths: s
         paths.push(`${basePath}.${key}.${field}`);
       });
 
-    // include: { 'company': ['field1', 'field2'] }
+      // include: { 'company': ['field1', 'field2'] }
     } else if (Array.isArray(value)) {
       value.forEach((field) => {
         paths.push(`${basePath}.${key}.${field}`);
       });
 
-    // include: { 'company': { 'nested': 'field1,field2' } }
+      // include: { 'company': { 'nested': 'field1,field2' } }
     } else {
       collapseIncludePaths(`${basePath}.${key}`, value, paths);
     }
   }
 }
-
 
 /**
  * Sorts query params by both key and value, returning a query params string
@@ -216,7 +219,7 @@ export function buildQueryParams(query: JsonApiQuery | QueryParamsSource): strin
 
   const { include, fields, page, ...rest } = query;
   const finalQuery: QueryParamsSource = {
-    ...rest
+    ...rest,
   };
 
   if ('include' in query) {
@@ -225,12 +228,12 @@ export function buildQueryParams(query: JsonApiQuery | QueryParamsSource): strin
     // include: { 'company': { 'nested': 'field1,field2' } }
     // include: { 'company': { 'nested': ['field1', 'field2'] } }
     if (include && !Array.isArray(include) && typeof include === 'object') {
-      const fields: string[] = [];
-      collapseIncludePaths('', include, fields);
-      finalQuery.include = fields.sort();
+      const includePaths: string[] = [];
+      collapseIncludePaths('', include, includePaths);
+      finalQuery.include = includePaths.sort();
 
-    // include: 'field1,field2'
-    // include: ['field1', 'field2']
+      // include: 'field1,field2'
+      // include: ['field1', 'field2']
     } else {
       finalQuery.include = include as string;
     }
@@ -246,8 +249,8 @@ export function buildQueryParams(query: JsonApiQuery | QueryParamsSource): strin
       if (Array.isArray(value)) {
         finalQuery[`fields[${resourceType}]`] = value.sort().join(',');
 
-      // fields: { 'company': 'field1' }
-      // fields: { 'company': 'field1,field2' }
+        // fields: { 'company': 'field1' }
+        // fields: { 'company': 'field1,field2' }
       } else {
         finalQuery[`fields[${resourceType}]`] = value.split(',').sort().join(',');
       }
