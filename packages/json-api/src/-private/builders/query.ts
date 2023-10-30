@@ -12,7 +12,7 @@ import type {
   QueryRequestOptions,
 } from '@warp-drive/core-types/request';
 
-import { copyForwardUrlOptions, extractCacheOptions } from './-utils';
+import { ACCEPT_HEADER_VALUE, copyForwardUrlOptions, extractCacheOptions } from './-utils';
 
 /**
  * Builds request options to query for resources, usually by a primary
@@ -85,7 +85,7 @@ export function query(
 
   const url = buildBaseURL(urlOptions);
   const headers = new Headers();
-  headers.append('Accept', 'application/vnd.api+json');
+  headers.append('Accept', ACCEPT_HEADER_VALUE);
 
   return {
     url: `${url}?${buildQueryParams(query, options.urlParamsSettings)}`,
@@ -160,7 +160,7 @@ export function postQuery(
 
   const url = buildBaseURL(urlOptions);
   const headers = new Headers();
-  headers.append('Accept', 'application/vnd.api+json');
+  headers.append('Accept', ACCEPT_HEADER_VALUE);
 
   const queryData = structuredClone(query);
   cacheOptions.key = cacheOptions.key ?? `${url}?${buildQueryParams(queryData, options.urlParamsSettings)}`;

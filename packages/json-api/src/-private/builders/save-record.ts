@@ -17,7 +17,7 @@ import {
   UpdateRequestOptions,
 } from '@warp-drive/core-types/request';
 
-import { copyForwardUrlOptions } from './-utils';
+import { ACCEPT_HEADER_VALUE, copyForwardUrlOptions } from './-utils';
 
 function isExisting(identifier: StableRecordIdentifier): identifier is StableExistingRecordIdentifier {
   return 'id' in identifier && identifier.id !== null && 'type' in identifier && identifier.type !== null;
@@ -90,7 +90,7 @@ export function deleteRecord(record: unknown, options: ConstrainedRequestOptions
 
   const url = buildBaseURL(urlOptions);
   const headers = new Headers();
-  headers.append('Accept', 'application/vnd.api+json');
+  headers.append('Accept', ACCEPT_HEADER_VALUE);
 
   return {
     url,
@@ -159,7 +159,7 @@ export function createRecord(record: unknown, options: ConstrainedRequestOptions
 
   const url = buildBaseURL(urlOptions);
   const headers = new Headers();
-  headers.append('Accept', 'application/vnd.api+json');
+  headers.append('Accept', ACCEPT_HEADER_VALUE);
 
   return {
     url,
@@ -235,7 +235,7 @@ export function updateRecord(
 
   const url = buildBaseURL(urlOptions);
   const headers = new Headers();
-  headers.append('Accept', 'application/vnd.api+json');
+  headers.append('Accept', ACCEPT_HEADER_VALUE);
 
   return {
     url,

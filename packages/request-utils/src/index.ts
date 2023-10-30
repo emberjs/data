@@ -52,7 +52,7 @@ type Store = {
 // host and namespace which are provided by the final consuming
 // class to the prototype which can result in overwrite errors
 
-interface BuildURLConfig {
+export interface BuildURLConfig {
   host: string | null;
   namespace: string | null;
 }
