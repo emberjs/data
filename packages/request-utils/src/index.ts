@@ -453,7 +453,7 @@ export function sortQueryParams(params: QueryParamsSource, options?: QueryParams
  * 'repeat': appends the key for every value e.g. `ids=1&ids=2`
  * 'comma' (default): appends the key once with a comma separated list of values e.g. `ids=1,2`
  *
- * @method sortQueryParams
+ * @method buildQueryParams
  * @static
  * @public
  * @for @ember-data/request-utils
