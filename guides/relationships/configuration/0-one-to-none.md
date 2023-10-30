@@ -1,7 +1,7 @@
 # One To None Relationships
 
 - Next → [One To One Relationships](./1-one-to-one.md)
-- ⮐ Go Back [Relationships Guide](../../relationships.md)
+- ⮐ Go Back [Relationships Guide](../index.md)
 
 ---
 
@@ -169,4 +169,4 @@ export default class TrailRunner {
 ---
 
 - Next → [One To One Relationships](./1-one-to-one.md)
-- ⮐ [Relationships Guide](../../relationships.md)
+- ⮐ [Relationships Guide](../index.md)

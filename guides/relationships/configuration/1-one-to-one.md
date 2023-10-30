@@ -2,7 +2,7 @@
 
 - Previous ← [One To None Relationships](./0-one-to-none.md)
 - Next → [One To Many Relationships](./2-one-to-many.md)
-- ⮐ [Relationships Guide](../../relationships.md)
+- ⮐ [Relationships Guide](../index.md)
 
 ---
 
@@ -240,4 +240,4 @@ export class TrailRunner {
 
 - Previous ← [One To None Relationships](./0-one-to-none.md)
 - Next → [One To Many Relationships](./2-one-to-many.md)
-- ⮐ [Relationships Guide](../../relationships.md)
+- ⮐ [Relationships Guide](../index.md)
