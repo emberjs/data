@@ -1017,6 +1017,8 @@ importers:
       ember-inflector:
         injected: true
 
+  packages/json-api-graph-spec: {}
+
   packages/legacy-compat:
     dependencies:
       '@ember-data/private-build-infra':
