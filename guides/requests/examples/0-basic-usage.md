@@ -182,14 +182,14 @@ The API response above likely contained a bit more information in the payload th
   "links": {
     "first": "/api/company?fields[company]=name&fields[employee]=name,profileImage&included=ceo&page[size]=10",
     "prev": null,
-    "next": "/api/company?fields[company]=name&fields[employee]=name,profileImage&included=ceo&page[size]=10&page[after]=10"
-    "last": "/api/company?fields[company]=name&fields[employee]=name,profileImage&included=ceo&page[size]=10&page[after]=5990"
+    "next": "/api/company?fields[company]=name&fields[employee]=name,profileImage&included=ceo&page[size]=10&page[after]=10",
+    "last": "/api/company?fields[company]=name&fields[employee]=name,profileImage&included=ceo&page[size]=10&page[after]=5990",
     "self": "/api/company?fields[company]=name&fields[employee]=name,profileImage&included=ceo&page[size]=10"
   },
   "meta": {
     "page": {
       "total": 6000,
-      "maxSize": 100,
+      "maxSize": 100
     }
   }
 }
