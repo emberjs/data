@@ -41,7 +41,7 @@ export type Future<T> = Promise<StructuredDataDocument<T>> & {
    * @method abort
    * @param {string} [reason] optional reason for aborting the request
    * @public
-   * @returns {void}
+   * @return {void}
    */
   abort(reason?: string): void;
   /**
@@ -49,7 +49,7 @@ export type Future<T> = Promise<StructuredDataDocument<T>> & {
    *
    * @method getStream
    * @public
-   * @returns {Promise<ReadableStream | null>}
+   * @return {Promise<ReadableStream | null>}
    */
   getStream(): Promise<ReadableStream | null>;
 
@@ -60,7 +60,7 @@ export type Future<T> = Promise<StructuredDataDocument<T>> & {
    * @method onFinalize
    * @param cb the callback to run
    * @public
-   * @returns void
+   * @return void
    */
   onFinalize(cb: () => void): void;
 };

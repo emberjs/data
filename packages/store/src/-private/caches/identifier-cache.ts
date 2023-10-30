@@ -357,7 +357,7 @@ export class IdentifierCache {
    *
    * @method peekRecordIdentifier
    * @param resource
-   * @returns {StableRecordIdentifier | undefined}
+   * @return {StableRecordIdentifier | undefined}
    * @private
    */
   peekRecordIdentifier(resource: ResourceIdentifierObject | Identifier): StableRecordIdentifier | undefined {
@@ -370,7 +370,7 @@ export class IdentifierCache {
 
     @method getOrCreateDocumentIdentifier
     @param request
-    @returns {StableDocumentIdentifier | null}
+    @return {StableDocumentIdentifier | null}
     @public
   */
   getOrCreateDocumentIdentifier(request: ImmutableRequestInfo): StableDocumentIdentifier | null {
@@ -410,7 +410,7 @@ export class IdentifierCache {
 
     @method getOrCreateRecordIdentifier
     @param resource
-    @returns {StableRecordIdentifier}
+    @return {StableRecordIdentifier}
     @public
   */
   getOrCreateRecordIdentifier(resource: unknown): StableRecordIdentifier {
@@ -427,7 +427,7 @@ export class IdentifierCache {
 
    @method createIdentifierForNewRecord
    @param data
-   @returns {StableRecordIdentifier}
+   @return {StableRecordIdentifier}
    @public
   */
   createIdentifierForNewRecord(data: { type: string; id?: string | null }): StableRecordIdentifier {
@@ -474,7 +474,7 @@ export class IdentifierCache {
     @method updateRecordIdentifier
     @param identifierObject
     @param data
-    @returns {StableRecordIdentifier}
+    @return {StableRecordIdentifier}
     @public
   */
   updateRecordIdentifier(identifierObject: RecordIdentifier, data: unknown): StableRecordIdentifier {

@@ -83,7 +83,7 @@ let CONFIG: BuildURLConfig = {
  * @public
  * @for @ember-data/request-utils
  * @param {BuildURLConfig} config
- * @returns void
+ * @return void
  */
 export function setBuildURLConfig(config: BuildURLConfig) {
   CONFIG = config;
@@ -226,7 +226,7 @@ function resourcePathForType(options: UrlOptions): string {
  * @public
  * @for @ember-data/request-utils
  * @param urlOptions
- * @returns string
+ * @return string
  */
 export function buildBaseURL(urlOptions: UrlOptions): string {
   const options = Object.assign(
@@ -342,7 +342,7 @@ function handleInclude(include: string | string[]): string[] {
  * @public
  * @for @ember-data/request-utils
  * @param {Record<string, Serializable>} source object to filter keys with empty values from
- * @returns {Record<string, Serializable>} A new object with the keys that contained empty values removed
+ * @return {Record<string, Serializable>} A new object with the keys that contained empty values removed
  */
 export function filterEmpty(source: Record<string, Serializable>): Record<string, Serializable> {
   const result: Record<string, Serializable> = {};
@@ -378,7 +378,7 @@ export function filterEmpty(source: Record<string, Serializable>): Record<string
  * @for @ember-data/request-utils
  * @param {URLSearchParams | object} params
  * @param {object} options
- * @returns {URLSearchParams} A URLSearchParams with keys inserted in sorted order
+ * @return {URLSearchParams} A URLSearchParams with keys inserted in sorted order
  */
 export function sortQueryParams(params: QueryParamsSource, options?: QueryParamsSerializationOptions): URLSearchParams {
   const opts = Object.assign({}, DEFAULT_QUERY_PARAMS_SERIALIZATION_OPTIONS, options);
@@ -459,7 +459,7 @@ export function sortQueryParams(params: QueryParamsSource, options?: QueryParams
  * @for @ember-data/request-utils
  * @param {URLSearchParams | object} params
  * @param {object} [options]
- * @returns {string} A sorted query params string without the leading `?`
+ * @return {string} A sorted query params string without the leading `?`
  */
 export function buildQueryParams(params: QueryParamsSource, options?: QueryParamsSerializationOptions): string {
   return sortQueryParams(params, options).toString();
@@ -511,7 +511,7 @@ const NUMERIC_KEYS = new Set(['max-age', 's-maxage', 'stale-if-error', 'stale-wh
  * @public
  * @for @ember-data/request-utils
  * @param {string} header
- * @returns {CacheControlValue}
+ * @return {CacheControlValue}
  */
 export function parseCacheControl(header: string): CacheControlValue {
   let key: CacheControlKey = '' as CacheControlKey;

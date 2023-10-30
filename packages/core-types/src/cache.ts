@@ -77,7 +77,7 @@ export interface Cache {
    *
    * @method put
    * @param {StructuredDocument} doc
-   * @returns {ResourceDocument}
+   * @return {ResourceDocument}
    * @public
    */
   put<T>(doc: StructuredDocument<T> | { content: T }): ResourceDocument;
@@ -92,7 +92,7 @@ export interface Cache {
    * @method patch
    * @public
    * @param {Operation} op the operation to perform
-   * @returns {void}
+   * @return {void}
    */
   patch(op: Operation): void;
 
@@ -101,7 +101,7 @@ export interface Cache {
    *
    * @method mutate
    * @param {Mutation} mutation
-   * @returns {void}
+   * @return {void}
    * @public
    */
   mutate(mutation: Mutation): void;
@@ -136,7 +136,7 @@ export interface Cache {
    * @method peek
    * @public
    * @param {StableRecordIdentifier | StableDocumentIdentifier} identifier
-   * @returns {ResourceDocument | ResourceBlob | null} the known resource data
+   * @return {ResourceDocument | ResourceBlob | null} the known resource data
    */
   peek(identifier: StableRecordIdentifier): ResourceBlob | null;
   peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
@@ -147,7 +147,7 @@ export interface Cache {
    *
    * @method peekRequest
    * @param {StableDocumentIdentifier}
-   * @returns {StableDocumentIdentifier | null}
+   * @return {StableDocumentIdentifier | null}
    * @public
    */
   peekRequest(identifier: StableDocumentIdentifier): StructuredDocument<ResourceDocument> | null;
@@ -160,7 +160,7 @@ export interface Cache {
    * @param identifier
    * @param data
    * @param hasRecord
-   * @returns {void | string[]} if `hasRecord` is true then calculated key changes should be returned
+   * @return {void | string[]} if `hasRecord` is true then calculated key changes should be returned
    */
   upsert(identifier: StableRecordIdentifier, data: ResourceBlob, hasRecord: boolean): void | string[];
 
@@ -176,7 +176,7 @@ export interface Cache {
    *
    * @method fork
    * @public
-   * @returns Promise<Cache>
+   * @return Promise<Cache>
    */
   fork(): Promise<Cache>;
 
@@ -190,7 +190,7 @@ export interface Cache {
    * @method merge
    * @param {Cache} cache
    * @public
-   * @returns Promise<void>
+   * @return Promise<void>
    */
   merge(cache: Cache): Promise<void>;
 
@@ -238,7 +238,7 @@ export interface Cache {
    * via `cache.hydrate`.
    *
    * @method dump
-   * @returns {Promise<ReadableStream>}
+   * @return {Promise<ReadableStream>}
    * @public
    */
   dump(): Promise<ReadableStream<unknown>>;
@@ -257,7 +257,7 @@ export interface Cache {
    *
    * @method hydrate
    * @param {ReadableStream} stream
-   * @returns {Promise<void>}
+   * @return {Promise<void>}
    * @public
    */
   hydrate(stream: ReadableStream<unknown>): Promise<void>;
@@ -333,7 +333,7 @@ export interface Cache {
    * @public
    * @param identifier
    * @param field
-   * @returns {unknown}
+   * @return {unknown}
    */
   getAttr(identifier: StableRecordIdentifier, field: string): Value | undefined;
 
@@ -362,7 +362,7 @@ export interface Cache {
    * @method changedAttrs
    * @public
    * @param identifier
-   * @returns {Record<string, [unknown, unknown]>} { <field>: [<old>, <new>] }
+   * @return {Record<string, [unknown, unknown]>} { <field>: [<old>, <new>] }
    */
   changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash;
 
@@ -372,7 +372,7 @@ export interface Cache {
    * @method hasChangedAttrs
    * @public
    * @param identifier
-   * @returns {boolean}
+   * @return {boolean}
    */
   hasChangedAttrs(identifier: StableRecordIdentifier): boolean;
 
@@ -384,7 +384,7 @@ export interface Cache {
    * @method rollbackAttrs
    * @public
    * @param identifier
-   * @returns {string[]} the names of fields that were restored
+   * @return {string[]} the names of fields that were restored
    */
   rollbackAttrs(identifier: StableRecordIdentifier): string[];
 
@@ -413,7 +413,7 @@ export interface Cache {
    * @method changedRelationships
    * @public
    * @param {StableRecordIdentifier} identifier
-   * @returns {Map<string, RelationshipDiff>}
+   * @return {Map<string, RelationshipDiff>}
    */
   changedRelationships(identifier: StableRecordIdentifier): Map<string, RelationshipDiff>;
 
@@ -423,7 +423,7 @@ export interface Cache {
    * @method hasChangedRelationships
    * @public
    * @param {StableRecordIdentifier} identifier
-   * @returns {boolean}
+   * @return {boolean}
    */
   hasChangedRelationships(identifier: StableRecordIdentifier): boolean;
 
@@ -437,7 +437,7 @@ export interface Cache {
    * @method rollbackRelationships
    * @public
    * @param {StableRecordIdentifier} identifier
-   * @returns {string[]} the names of relationships that were restored
+   * @return {string[]} the names of relationships that were restored
    */
   rollbackRelationships(identifier: StableRecordIdentifier): string[];
 
@@ -448,7 +448,7 @@ export interface Cache {
    * @public
    * @param {StableRecordIdentifier} identifier
    * @param {string} field
-   * @returns resource relationship object
+   * @return resource relationship object
    */
   getRelationship(
     identifier: StableRecordIdentifier,
@@ -478,7 +478,7 @@ export interface Cache {
    * @method getErrors
    * @public
    * @param identifier
-   * @returns {JsonApiError[]}
+   * @return {JsonApiError[]}
    */
   getErrors(identifier: StableRecordIdentifier): ApiError[];
 
@@ -488,7 +488,7 @@ export interface Cache {
    * @method isEmpty
    * @public
    * @param identifier
-   * @returns {boolean}
+   * @return {boolean}
    */
   isEmpty(identifier: StableRecordIdentifier): boolean;
 
@@ -499,7 +499,7 @@ export interface Cache {
    * @method isNew
    * @public
    * @param identifier
-   * @returns {boolean}
+   * @return {boolean}
    */
   isNew(identifier: StableRecordIdentifier): boolean;
 
@@ -510,7 +510,7 @@ export interface Cache {
    * @method isDeleted
    * @public
    * @param identifier
-   * @returns {boolean}
+   * @return {boolean}
    */
   isDeleted(identifier: StableRecordIdentifier): boolean;
 
@@ -521,7 +521,7 @@ export interface Cache {
    * @method isDeletionCommitted
    * @public
    * @param identifier
-   * @returns {boolean}
+   * @return {boolean}
    */
   isDeletionCommitted(identifier: StableRecordIdentifier): boolean;
 }

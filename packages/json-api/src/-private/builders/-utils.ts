@@ -61,7 +61,7 @@ export let ACCEPT_HEADER_VALUE = 'application/vnd.api+json';
  * @public
  * @for @ember-data/json-api/request
  * @param {BuildURLConfig} config
- * @returns void
+ * @return void
  */
 export function setBuildURLConfig(config: JSONAPIConfig): void {
   CONFIG = Object.assign({}, DEFAULT_CONFIG, config);
@@ -203,7 +203,7 @@ function collapseIncludePaths(basePath: string, include: RelatedObject, paths: s
  * @for @ember-data/json-api/request
  * @param {URLSearchParams | object} params
  * @param {object} [options]
- * @returns {string} A sorted query params string without the leading `?`
+ * @return {string} A sorted query params string without the leading `?`
  */
 export function buildQueryParams(query: JsonApiQuery | QueryParamsSource): string {
   if (query instanceof URLSearchParams) {

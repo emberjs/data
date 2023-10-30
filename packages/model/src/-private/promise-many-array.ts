@@ -126,7 +126,7 @@ export default class PromiseManyArray {
    * @public
    * @param success
    * @param fail
-   * @returns Promise
+   * @return Promise
    */
   then(s: Parameters<typeof Promise.prototype.then>[0], f: Parameters<typeof Promise.prototype.then>[1]) {
     return this.promise!.then(s, f);
@@ -137,7 +137,7 @@ export default class PromiseManyArray {
    * @method catch
    * @public
    * @param callback
-   * @returns Promise
+   * @return Promise
    */
   catch(cb: Parameters<typeof Promise.prototype.catch>[0]) {
     return this.promise!.catch(cb);
@@ -149,7 +149,7 @@ export default class PromiseManyArray {
    * @method finally
    * @public
    * @param callback
-   * @returns Promise
+   * @return Promise
    */
   finally(cb: Parameters<typeof Promise.prototype.finally>[0]) {
     return this.promise!.finally(cb);

@@ -75,7 +75,7 @@ export interface CacheCapabilitiesManager {
    *
    * @method hasRecord
    * @param identifier
-   * @returns {boolean}
+   * @return {boolean}
    * @public
    */
   hasRecord(identifier: StableRecordIdentifier): boolean;

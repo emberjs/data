@@ -186,7 +186,7 @@ export default class JSONAPICache implements Cache {
    *
    * @method put
    * @param {StructuredDocument} doc
-   * @returns {ResourceDocument}
+   * @return {ResourceDocument}
    * @public
    */
   put<T extends SingleResourceDocument>(doc: StructuredDocument<T>): SingleResourceDataDocument;
@@ -345,7 +345,7 @@ export default class JSONAPICache implements Cache {
    * @method patch
    * @public
    * @param {Operation} op the operation to perform
-   * @returns {void}
+   * @return {void}
    */
   patch(op: MergeOperation): void {
     if (LOG_OPERATIONS) {
@@ -373,7 +373,7 @@ export default class JSONAPICache implements Cache {
    *
    * @method mutate
    * @param {Mutation} mutation
-   * @returns {void}
+   * @return {void}
    * @public
    */
   mutate(mutation: LocalRelationshipOperation): void {
@@ -420,7 +420,7 @@ export default class JSONAPICache implements Cache {
    * @method peek
    * @public
    * @param {StableRecordIdentifier | StableDocumentIdentifier} identifier
-   * @returns {ResourceDocument | ResourceBlob | null} the known resource data
+   * @return {ResourceDocument | ResourceBlob | null} the known resource data
    */
   peek(identifier: StableRecordIdentifier): ResourceBlob | null;
   peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
@@ -486,7 +486,7 @@ export default class JSONAPICache implements Cache {
    *
    * @method peekRequest
    * @param {StableDocumentIdentifier}
-   * @returns {StableDocumentIdentifier | null}
+   * @return {StableDocumentIdentifier | null}
    * @public
    */
   peekRequest(identifier: StableDocumentIdentifier): StructuredDocument<ResourceDocument> | null {
@@ -501,7 +501,7 @@ export default class JSONAPICache implements Cache {
    * @param identifier
    * @param data
    * @param hasRecord
-   * @returns {void | string[]} if `hasRecord` is true then calculated key changes should be returned
+   * @return {void | string[]} if `hasRecord` is true then calculated key changes should be returned
    */
   upsert(
     identifier: StableRecordIdentifier,
@@ -578,7 +578,7 @@ export default class JSONAPICache implements Cache {
    *
    * @method fork
    * @internal
-   * @returns Promise<Cache>
+   * @return Promise<Cache>
    */
   fork(): Promise<Cache> {
     throw new Error(`Not Implemented`);
@@ -594,7 +594,7 @@ export default class JSONAPICache implements Cache {
    * @method merge
    * @param {Cache} cache
    * @public
-   * @returns Promise<void>
+   * @return Promise<void>
    */
   merge(cache: Cache): Promise<void> {
     throw new Error(`Not Implemented`);
@@ -646,7 +646,7 @@ export default class JSONAPICache implements Cache {
    * via `cache.hydrate`.
    *
    * @method dump
-   * @returns {Promise<ReadableStream>}
+   * @return {Promise<ReadableStream>}
    * @public
    */
   dump(): Promise<ReadableStream<unknown>> {
@@ -667,7 +667,7 @@ export default class JSONAPICache implements Cache {
    *
    * @method hydrate
    * @param {ReadableStream} stream
-   * @returns {Promise<void>}
+   * @return {Promise<void>}
    * @public
    */
   hydrate(stream: ReadableStream<unknown>): Promise<void> {
@@ -1085,7 +1085,7 @@ export default class JSONAPICache implements Cache {
    * @public
    * @param identifier
    * @param field
-   * @returns {unknown}
+   * @return {unknown}
    */
   getAttr(identifier: StableRecordIdentifier, attr: string): Value | undefined {
     const cached = this.__peek(identifier, true);
@@ -1141,7 +1141,7 @@ export default class JSONAPICache implements Cache {
    * @method changedAttrs
    * @public
    * @param identifier
-   * @returns {ChangedAttributesHash} { <field>: [<old>, <new>] }
+   * @return {ChangedAttributesHash} { <field>: [<old>, <new>] }
    */
   changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash {
     // TODO freeze in dev
@@ -1154,7 +1154,7 @@ export default class JSONAPICache implements Cache {
    * @method hasChangedAttrs
    * @public
    * @param identifier
-   * @returns {boolean}
+   * @return {boolean}
    */
   hasChangedAttrs(identifier: StableRecordIdentifier): boolean {
     const cached = this.__peek(identifier, true);
@@ -1173,7 +1173,7 @@ export default class JSONAPICache implements Cache {
    * @method rollbackAttrs
    * @public
    * @param identifier
-   * @returns {string[]} the names of fields that were restored
+   * @return {string[]} the names of fields that were restored
    */
   rollbackAttrs(identifier: StableRecordIdentifier): string[] {
     const cached = this.__peek(identifier, false);
@@ -1234,7 +1234,7 @@ export default class JSONAPICache implements Cache {
      * @method changedRelationships
      * @public
      * @param {StableRecordIdentifier} identifier
-     * @returns {Map<string, RelationshipDiff>}
+     * @return {Map<string, RelationshipDiff>}
      */
   changedRelationships(identifier: StableRecordIdentifier): Map<string, RelationshipDiff> {
     return this.__graph.getChanged(identifier);
@@ -1246,7 +1246,7 @@ export default class JSONAPICache implements Cache {
    * @method hasChangedRelationships
    * @public
    * @param {StableRecordIdentifier} identifier
-   * @returns {boolean}
+   * @return {boolean}
    */
   hasChangedRelationships(identifier: StableRecordIdentifier): boolean {
     return this.__graph.hasChanged(identifier);
@@ -1262,7 +1262,7 @@ export default class JSONAPICache implements Cache {
    * @method rollbackRelationships
    * @public
    * @param {StableRecordIdentifier} identifier
-   * @returns {string[]} the names of relationships that were restored
+   * @return {string[]} the names of relationships that were restored
    */
   rollbackRelationships(identifier: StableRecordIdentifier): string[] {
     upgradeCapabilities(this._capabilities);
@@ -1280,7 +1280,7 @@ export default class JSONAPICache implements Cache {
    * @public
    * @param identifier
    * @param field
-   * @returns resource relationship object
+   * @return resource relationship object
    */
   getRelationship(identifier: StableRecordIdentifier, field: string): ResourceRelationship | CollectionRelationship {
     return this.__graph.getData(identifier, field);
@@ -1313,7 +1313,7 @@ export default class JSONAPICache implements Cache {
    * @method getErrors
    * @public
    * @param identifier
-   * @returns {JsonApiError[]}
+   * @return {JsonApiError[]}
    */
   getErrors(identifier: StableRecordIdentifier): JsonApiError[] {
     return this.__peek(identifier, true).errors || [];
@@ -1325,7 +1325,7 @@ export default class JSONAPICache implements Cache {
    * @method isEmpty
    * @public
    * @param identifier
-   * @returns {boolean}
+   * @return {boolean}
    */
   isEmpty(identifier: StableRecordIdentifier): boolean {
     const cached = this.__safePeek(identifier, true);
@@ -1339,7 +1339,7 @@ export default class JSONAPICache implements Cache {
    * @method isNew
    * @public
    * @param identifier
-   * @returns {boolean}
+   * @return {boolean}
    */
   isNew(identifier: StableRecordIdentifier): boolean {
     // TODO can we assert here?
@@ -1353,7 +1353,7 @@ export default class JSONAPICache implements Cache {
    * @method isDeleted
    * @public
    * @param identifier
-   * @returns {boolean}
+   * @return {boolean}
    */
   isDeleted(identifier: StableRecordIdentifier): boolean {
     // TODO can we assert here?
@@ -1367,7 +1367,7 @@ export default class JSONAPICache implements Cache {
    * @method isDeletionCommitted
    * @public
    * @param identifier
-   * @returns {boolean}
+   * @return {boolean}
    */
   isDeletionCommitted(identifier: StableRecordIdentifier): boolean {
     // TODO can we assert here?
@@ -1380,7 +1380,7 @@ export default class JSONAPICache implements Cache {
    * @method _createCache
    * @internal
    * @param {StableRecordIdentifier} identifier
-   * @returns {CachedResource}
+   * @return {CachedResource}
    */
   _createCache(identifier: StableRecordIdentifier): CachedResource {
     assert(`Expected no resource data to yet exist in the cache`, !this.__cache.has(identifier));
@@ -1397,7 +1397,7 @@ export default class JSONAPICache implements Cache {
    * @param {StableRecordIdentifier} identifier
    * @param {Boolean} allowDestroyed
    * @internal
-   * @returns {CachedResource | undefined}
+   * @return {CachedResource | undefined}
    */
   __safePeek(identifier: StableRecordIdentifier, allowDestroyed: boolean): CachedResource | undefined {
     let resource = this.__cache.get(identifier);
@@ -1415,7 +1415,7 @@ export default class JSONAPICache implements Cache {
    * @param {StableRecordIdentifier} identifier
    * @param {Boolean} allowDestroyed
    * @internal
-   * @returns {CachedResource}
+   * @return {CachedResource}
    */
   __peek(identifier: StableRecordIdentifier, allowDestroyed: boolean): CachedResource {
     const resource = this.__safePeek(identifier, allowDestroyed);
