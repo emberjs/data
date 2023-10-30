@@ -309,7 +309,7 @@ class Store extends EmberObject {
    * that have been initiated for a given identifier.
    *
    * @method getRequestStateService
-   * @returns {RequestStateService}
+   * @return {RequestStateService}
    * @public
    */
   getRequestStateService(): RequestStateService {
@@ -354,7 +354,7 @@ class Store extends EmberObject {
    *
    * @method request
    * @param {StoreRequestInput} requestConfig
-   * @returns {Future}
+   * @return {Future}
    * @public
    */
   request<T>(requestConfig: StoreRequestInput): Future<T> {
@@ -434,7 +434,7 @@ class Store extends EmberObject {
    * @param createRecordArgs
    * @param recordDataFor deprecated use this.cache
    * @param notificationManager deprecated use this.notifications
-   * @returns A record instance
+   * @return A record instance
    * @public
    */
 
@@ -2047,7 +2047,7 @@ class Store extends EmberObject {
    * @public
    * @param {RecordInstance} record
    * @param options
-   * @returns {Promise<RecordInstance>}
+   * @return {Promise<RecordInstance>}
    */
   saveRecord(record: RecordInstance, options: Record<string, unknown> = {}): Promise<RecordInstance> {
     if (DEBUG) {
@@ -2107,7 +2107,7 @@ class Store extends EmberObject {
    * @method createCache (hook)
    * @public
    * @param storeWrapper
-   * @returns {Cache}
+   * @return {Cache}
    */
 
   /**

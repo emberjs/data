@@ -235,7 +235,7 @@ export default class RequestStateService {
    * @method getPendingRequestsForRecord
    * @public
    * @param {StableRecordIdentifier} identifier
-   * @returns {RequestState[]} an array of request states for any pending requests for the given identifier
+   * @return {RequestState[]} an array of request states for any pending requests for the given identifier
    */
   getPendingRequestsForRecord(identifier: StableRecordIdentifier): RequestState[] {
     return this._pending.get(identifier) || EMPTY_ARR;
@@ -247,7 +247,7 @@ export default class RequestStateService {
    * @method getLastRequestForRecord
    * @public
    * @param {StableRecordIdentifier} identifier
-   * @returns {RequestState | null} the state of the most recent request for the given identifier
+   * @return {RequestState | null} the state of the most recent request for the given identifier
    */
   getLastRequestForRecord(identifier: StableRecordIdentifier): RequestState | null {
     const requests = this._done.get(identifier);

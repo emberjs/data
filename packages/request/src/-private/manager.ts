@@ -539,7 +539,7 @@ export class RequestManager {
    * @method useCache
    * @public
    * @param {Handler[]} cacheHandler
-   * @returns {void}
+   * @return {void}
    */
   useCache(cacheHandler: Handler): void {
     if (DEBUG) {
@@ -566,7 +566,7 @@ export class RequestManager {
    * @method use
    * @public
    * @param {Handler[]} newHandlers
-   * @returns {void}
+   * @return {void}
    */
   use(newHandlers: Handler[]): void {
     const handlers = this.#handlers;
@@ -598,7 +598,7 @@ export class RequestManager {
    * @method request
    * @public
    * @param {RequestInfo} request
-   * @returns {Future}
+   * @return {Future}
    */
   request<T = unknown>(request: RequestInfo): Future<T> {
     const handlers = this.#handlers;

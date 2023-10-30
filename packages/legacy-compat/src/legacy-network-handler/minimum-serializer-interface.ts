@@ -69,7 +69,7 @@ export interface MinimumSerializerInterface {
    * @param {'findRecord' | 'queryRecord' | 'findAll' | 'findBelongsTo' | 'findHasMany' | 'findMany' | 'query' | 'createRecord' | 'deleteRecord' | 'updateRecord'} requestType The
    *  type of request the Adapter had been asked to perform.
    *
-   * @returns {JsonApiDocument} a document following the structure of a JSON:API Document.
+   * @return {JsonApiDocument} a document following the structure of a JSON:API Document.
    */
   normalizeResponse(
     store: Store,
@@ -158,7 +158,7 @@ export interface MinimumSerializerInterface {
    * @param {JSONObject} rawPayload Some raw JSON data to be normalized into a JSON:API Resource.
    * @param {string} [prop] When called by the EmbeddedRecordsMixin this param will be the
    *  property at which the object provided as rawPayload was found.
-   * @returns {SingleResourceDocument} A JSON:API Document
+   * @return {SingleResourceDocument} A JSON:API Document
    *  containing a single JSON:API Resource
    *  as its primary data.
    */
@@ -202,7 +202,7 @@ export interface MinimumSerializerInterface {
    *  the type, attributes and relationships of the primary type associated with the request.
    * @param {Snapshot} snapshot A Snapshot for the record to serialize
    * @param [options]
-   * @returns {void}
+   * @return {void}
    */
   serializeIntoHash?(hash: object, schema: ModelSchema, snapshot: Snapshot, options?: SerializerOptions): void;
 
@@ -246,7 +246,7 @@ export interface MinimumSerializerInterface {
    * @param {Store} store The store service that initiated the request being normalized
    * @param {object} rawPayload The raw JSON response data returned from an API request.
    *  This JSON should be in the API format expected by the serializer.
-   * @returns {void}
+   * @return {void}
    */
   pushPayload?(store: Store, rawPayload: ObjectValue): void;
 

@@ -55,7 +55,7 @@ export function peekRecordIdentifier(record: RecordInstance): StableRecordIdenti
   @static
   @for @ember-data/store
   @param {Object} record a record instance previously obstained from the store.
-  @returns {StableRecordIdentifier}
+  @return {StableRecordIdentifier}
  */
 export function recordIdentifierFor(record: RecordInstance): StableRecordIdentifier {
   assert(`${String(record)} is not a record instantiated by @ember-data/store`, RecordCache.has(record));

@@ -204,7 +204,7 @@ export function addTransactionCB(method: OpaqueFn): void {
  * @static
  * @for @ember-data/tracking
  * @param method
- * @returns result of invoking method
+ * @return result of invoking method
  */
 export function untracked<T extends OpaqueFn>(method: T): ReturnType<T> {
   createTransaction();
@@ -227,7 +227,7 @@ export function untracked<T extends OpaqueFn>(method: T): ReturnType<T> {
  * @static
  * @for @ember-data/tracking
  * @param method
- * @returns result of invoking method
+ * @return result of invoking method
  */
 export function transact<T extends OpaqueFn>(method: T): ReturnType<T> {
   createTransaction();
@@ -246,7 +246,7 @@ export function transact<T extends OpaqueFn>(method: T): ReturnType<T> {
  * @static
  * @for @ember-data/tracking
  * @param method
- * @returns a function that will invoke method in a transaction with any provided args and return its result
+ * @return a function that will invoke method in a transaction with any provided args and return its result
  */
 export function memoTransact<T extends OpaqueFn>(method: T): (...args: unknown[]) => ReturnType<T> {
   return function (...args: unknown[]) {

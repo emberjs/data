@@ -62,7 +62,7 @@ export interface SchemaService {
    * @method doesTypeExist
    * @public
    * @param {string} type
-   * @returns {boolean}
+   * @return {boolean}
    */
   doesTypeExist(type: string): boolean;
 
@@ -105,7 +105,7 @@ export interface SchemaService {
    * @method attributesDefinitionFor
    * @public
    * @param {RecordIdentifier|{ type: string }} identifier
-   * @returns {AttributesSchema}
+   * @return {AttributesSchema}
    */
   attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema;
 
@@ -185,7 +185,7 @@ export interface SchemaService {
    * @method relationshipsDefinitionFor
    * @public
    * @param {RecordIdentifier|{ type: string }} identifier
-   * @returns {RelationshipsSchema}
+   * @return {RelationshipsSchema}
    */
   relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema;
 }

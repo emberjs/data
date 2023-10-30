@@ -62,7 +62,7 @@ export class CacheManager implements Cache {
    *
    * @method put
    * @param {StructuredDocument} doc
-   * @returns {ResourceDocument}
+   * @return {ResourceDocument}
    * @public
    */
   put<T>(doc: StructuredDocument<T> | { content: T }): ResourceDocument {
@@ -78,7 +78,7 @@ export class CacheManager implements Cache {
    * @method patch
    * @public
    * @param op the operation to perform
-   * @returns {void}
+   * @return {void}
    */
   patch(op: MergeOperation): void {
     this.#cache.patch(op);
@@ -126,7 +126,7 @@ export class CacheManager implements Cache {
    * @method peek
    * @public
    * @param {StableRecordIdentifier | StableDocumentIdentifier} identifier
-   * @returns {ResourceDocument | ResourceBlob | null} the known resource data
+   * @return {ResourceDocument | ResourceBlob | null} the known resource data
    */
   peek(identifier: StableRecordIdentifier): unknown;
   peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
@@ -140,7 +140,7 @@ export class CacheManager implements Cache {
    *
    * @method peekRequest
    * @param {StableDocumentIdentifier}
-   * @returns {StableDocumentIdentifier | null}
+   * @return {StableDocumentIdentifier | null}
    * @public
    */
   peekRequest(identifier: StableDocumentIdentifier): StructuredDocument<ResourceDocument> | null {
@@ -155,7 +155,7 @@ export class CacheManager implements Cache {
    * @param identifier
    * @param data
    * @param hasRecord
-   * @returns {void | string[]} if `hasRecord` is true then calculated key changes should be returned
+   * @return {void | string[]} if `hasRecord` is true then calculated key changes should be returned
    */
   upsert(identifier: StableRecordIdentifier, data: JsonApiResource, hasRecord: boolean): void | string[] {
     return this.#cache.upsert(identifier, data, hasRecord);
@@ -173,7 +173,7 @@ export class CacheManager implements Cache {
    *
    * @method fork
    * @public
-   * @returns Promise<Cache>
+   * @return Promise<Cache>
    */
   fork(): Promise<Cache> {
     return this.#cache.fork();
@@ -189,7 +189,7 @@ export class CacheManager implements Cache {
    * @method merge
    * @param {Cache} cache
    * @public
-   * @returns Promise<void>
+   * @return Promise<void>
    */
   merge(cache: Cache): Promise<void> {
     return this.#cache.merge(cache);
@@ -241,7 +241,7 @@ export class CacheManager implements Cache {
    * via `cache.hydrate`.
    *
    * @method dump
-   * @returns {Promise<ReadableStream>}
+   * @return {Promise<ReadableStream>}
    * @public
    */
   dump(): Promise<ReadableStream<unknown>> {
@@ -262,7 +262,7 @@ export class CacheManager implements Cache {
    *
    * @method hydrate
    * @param {ReadableStream} stream
-   * @returns {Promise<void>}
+   * @return {Promise<void>}
    * @public
    */
   hydrate(stream: ReadableStream<unknown>): Promise<void> {
@@ -350,7 +350,7 @@ export class CacheManager implements Cache {
    * @public
    * @param identifier
    * @param propertyName
-   * @returns {unknown}
+   * @return {unknown}
    */
   getAttr(identifier: StableRecordIdentifier, propertyName: string): Value | undefined {
     return this.#cache.getAttr(identifier, propertyName);
@@ -387,7 +387,7 @@ export class CacheManager implements Cache {
    * @method hasChangedAttrs
    * @public
    * @param identifier
-   * @returns {boolean}
+   * @return {boolean}
    */
   hasChangedAttrs(identifier: StableRecordIdentifier): boolean {
     return this.#cache.hasChangedAttrs(identifier);
@@ -399,7 +399,7 @@ export class CacheManager implements Cache {
    * @method rollbackAttrs
    * @public
    * @param identifier
-   * @returns the names of attributes that were restored
+   * @return the names of attributes that were restored
    */
   rollbackAttrs(identifier: StableRecordIdentifier): string[] {
     return this.#cache.rollbackAttrs(identifier);
@@ -433,7 +433,7 @@ export class CacheManager implements Cache {
    * @method changedRelationships
    * @public
    * @param {StableRecordIdentifier} identifier
-   * @returns {Map<string, RelationshipDiff>}
+   * @return {Map<string, RelationshipDiff>}
    */
   changedRelationships(identifier: StableRecordIdentifier): Map<string, RelationshipDiff> {
     return this.#cache.changedRelationships(identifier);
@@ -445,7 +445,7 @@ export class CacheManager implements Cache {
    * @method hasChangedRelationships
    * @public
    * @param {StableRecordIdentifier} identifier
-   * @returns {boolean}
+   * @return {boolean}
    */
   hasChangedRelationships(identifier: StableRecordIdentifier): boolean {
     return this.#cache.hasChangedRelationships(identifier);
@@ -461,7 +461,7 @@ export class CacheManager implements Cache {
    * @method rollbackRelationships
    * @public
    * @param {StableRecordIdentifier} identifier
-   * @returns {string[]} the names of relationships that were restored
+   * @return {string[]} the names of relationships that were restored
    */
   rollbackRelationships(identifier: StableRecordIdentifier): string[] {
     return this.#cache.rollbackRelationships(identifier);
@@ -474,7 +474,7 @@ export class CacheManager implements Cache {
    * @public
    * @param identifier
    * @param propertyName
-   * @returns resource relationship object
+   * @return resource relationship object
    */
   getRelationship(
     identifier: StableRecordIdentifier,
@@ -517,7 +517,7 @@ export class CacheManager implements Cache {
    * @method isEmpty
    * @public
    * @param identifier
-   * @returns {boolean}
+   * @return {boolean}
    */
   isEmpty(identifier: StableRecordIdentifier): boolean {
     return this.#cache.isEmpty(identifier);
@@ -530,7 +530,7 @@ export class CacheManager implements Cache {
    * @method isNew
    * @public
    * @param identifier
-   * @returns {boolean}
+   * @return {boolean}
    */
   isNew(identifier: StableRecordIdentifier): boolean {
     return this.#cache.isNew(identifier);
@@ -543,7 +543,7 @@ export class CacheManager implements Cache {
    * @method isDeleted
    * @public
    * @param identifier
-   * @returns {boolean}
+   * @return {boolean}
    */
   isDeleted(identifier: StableRecordIdentifier): boolean {
     return this.#cache.isDeleted(identifier);
@@ -556,7 +556,7 @@ export class CacheManager implements Cache {
    * @method isDeletionCommitted
    * @public
    * @param identifier
-   * @returns {boolean}
+   * @return {boolean}
    */
   isDeletionCommitted(identifier: StableRecordIdentifier): boolean {
     return this.#cache.isDeletionCommitted(identifier);

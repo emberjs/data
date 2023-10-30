@@ -1488,7 +1488,7 @@ function headersToObject(headers: Headers): Record<string, string> {
  * @param {Object} _options
  * @param {Adapter} adapter
  * @private
- * @returns {Object}
+ * @return {Object}
  */
 export function fetchOptions(
   options: JQueryRequestInit & Partial<FetchRequestInit>,

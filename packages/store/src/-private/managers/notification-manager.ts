@@ -123,7 +123,7 @@ export default class NotificationManager {
    * @public
    * @param {StableDocumentIdentifier | StableRecordIdentifier | 'resource' | 'document'} identifier
    * @param {NotificationCallback | ResourceOperationCallback | DocumentOperationCallback} callback
-   * @returns {UnsubscribeToken} an opaque token to be used with unsubscribe
+   * @return {UnsubscribeToken} an opaque token to be used with unsubscribe
    */
   subscribe(identifier: StableRecordIdentifier, callback: NotificationCallback): UnsubscribeToken;
   subscribe(identifier: 'resource', callback: ResourceOperationCallback): UnsubscribeToken;

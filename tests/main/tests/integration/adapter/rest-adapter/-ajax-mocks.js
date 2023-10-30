@@ -5,7 +5,7 @@ import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy'
  * Test is behaviour.
  * @param { adapter } RESTAdapter instance
  * @param { response } Response to return from the adapter
- * @returns { ajaxCallback } Function that returns information about the last
+ * @return { ajaxCallback } Function that returns information about the last
  * call to the ajax method of the adapter.
  */
 function ajaxResponse(adapter, value) {
