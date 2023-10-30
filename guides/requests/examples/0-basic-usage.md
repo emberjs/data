@@ -54,7 +54,7 @@ and profile image of its ceo, we want to ask for just that information to be ret
 To get this payload we issue the following http request:
 
 ```https
-GET /api/companies?included=ceo&fields[company]=name&fields[employee]=name,profileImage&page[size]=10 HTTP/2
+GET /api/companies?fields[company]=name&fields[employee]=name,profileImage&included=ceo&page[size]=10 HTTP/2
 Accept: application/vnd.api+json; profile="https://jsonapi.org/profiles/ethanresnick/cursor-pagination"
 ```
 
@@ -122,11 +122,12 @@ setBuildURLConfig({
 As a reminder, this is the request we want to construct:
 
 ```https
-GET /api/companies?included=ceo&fields[company]=name&fields[employee]=name,profileImage&page[size]=10 HTTP/2
+GET /api/companies?fields[company]=name&fields[employee]=name,profileImage&included=ceo&page[size]=10 HTTP/2
 Accept: application/vnd.api+json; profile="https://jsonapi.org/profiles/ethanresnick/cursor-pagination"
 ```
 
-In our example
+The `query` builder from `@ember-data/json-api/request` will do most of the heavy lifting for us,
+constructing the url, and making sure headers are attached appropriately.
 
 *app/page.ts*
 ```ts
@@ -134,7 +135,7 @@ import { query } from '@ember-data/json-api/request';
 import fetch from './fetch';
 
 // ... execute a request
-const response = await fetch.request(query('company', {
+const result = await fetch.request(query('company', {
   include: 'ceo',
   fields: {
     company: 'name',
@@ -146,17 +147,44 @@ const response = await fetch.request(query('company', {
 }));
 ```
 
----
+Now, we can make use of the returned data. `result` has the following structure:
 
-
-
+```ts
+type StructuredResponse<T> = {
+  request: Request;
+  response: Response;
+  content: T;
+}
 ```
+
+The `json:api` document we got back is available as `content`. All other information about
+the request and response is available as the `request` and `response` properties.
+
+```ts
+const companies = result.content.data;
+```
+
+At first this may feel a little verbose, but this structure ensures we have access to everything,
+so for instance if your API stores valuable information as `headers` then `result.response.headers` will give access to that information.
+
+### Pagination
+
+The API response above likely contained a bit more information in the payload than just `data` and `included`. Since we were using the `cursor pagination` profile, the full response likely looked like this:
+
+```jsonc
+{
+  "data": [
+    // ...
+  ],
+  "included": [
+    //...
+  ],
   "links": {
-    "first": "/api/company?fields[company]=name&page[size]=10",
+    "first": "/api/company?fields[company]=name&fields[employee]=name,profileImage&included=ceo&page[size]=10",
     "prev": null,
-    "next": "/api/company?fields[company]=name&page[size]=10&page[after]=10"
-    "last": "/api/company?fields[company]=name&page[size]=10&page[after]=5990"
-    "self": "/api/company?fields[company]=name&page[size]=10"
+    "next": "/api/company?fields[company]=name&fields[employee]=name,profileImage&included=ceo&page[size]=10&page[after]=10"
+    "last": "/api/company?fields[company]=name&fields[employee]=name,profileImage&included=ceo&page[size]=10&page[after]=5990"
+    "self": "/api/company?fields[company]=name&fields[employee]=name,profileImage&included=ceo&page[size]=10"
   },
   "meta": {
     "page": {
@@ -164,4 +192,78 @@ const response = await fetch.request(query('company', {
       "maxSize": 100,
     }
   }
-  ```
+}
+```
+
+This information is also available on the result, and can be used to quickly fetch additional pages in the same
+collection without needing to remember all the original parameters.
+
+```ts
+const { content: nextPage } = await fetch.request({ url: result.content.links.next });
+```
+
+If we were using the cache handler and store, this is built in!
+
+```ts
+import { query } from '@ember-data/json-api/request';
+
+// ... execute a request
+const { content: collection } = await store.request(query('company', {
+  include: 'ceo',
+  fields: {
+    company: 'name',
+    employee: ['name', 'profileImage']
+  },
+  page: {
+    size: 10
+  }
+}));
+
+// accessing the data is the same, execept now
+// this will be a list of records instead of raw objects
+const companies = collection.data;
+
+// get the next page
+const nextPage = await collection.next();
+```
+
+## Step 4: Handling Errors
+
+Errors are handled via try/catch
+
+```ts
+import { query } from '@ember-data/json-api/request';
+import fetch from './fetch';
+
+// ... execute a request
+try {
+  const result = await fetch.request(query('company', {
+    include: 'ceo',
+    fields: {
+      company: 'name',
+      employee: ['name', 'profileImage']
+    },
+    page: {
+      size: 10
+    }
+  }));
+} catch (error) {
+  // errors will be normal Errors with some exra information
+  error instanceof Error; // true
+
+  // request and response are also available on errors
+  const { request, response } = error;
+}
+```
+
+Errors thrown by the `Fetch` handler have some additional useful properties.
+
+- If the API returned an error with a JSON payload, it is parsed and available as `content`.
+- If the API returnered an array of errors or an object with an `errors` property as an array, an `AggregateError` is thrown with those errors.
+- `status`, `statusText`, `name`, `code` are all available and normalized
+- `isRequestError` will be set to `true`
+
+---
+
+- Next → [Auth Handler](./1-auth.md)
+- ⮐ [Requests Guide](../index.md)
