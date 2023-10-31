@@ -89,7 +89,7 @@
     "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
     "@warp-drive/internal-config": "workspace:5.5.0-alpha.11",
     "ember-source": "~5.3.0",
-    "rollup": "^4.1.4",
+    "rollup": "^4.1.5",
     "typescript": "^5.2.2",
     "walk-sync": "^3.0.0",
     "webpack": "^5.89.0"
