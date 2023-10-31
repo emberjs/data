@@ -42,6 +42,7 @@ Wrangle your application's data management with scalable patterns for developer 
   - [randomUUID polyfill](#randomuuid-polyfill)
   - [Removing inspector support in production](#removing-inspector-support-in-production)
   - [Debugging](#debugging)
+- [Ember Compatibility](#compatibility)
 - [Contributing](#contributing)
 
 # Overview
@@ -172,6 +173,30 @@ let app = new EmberApp(defaults, {
   },
 });
 ```
+
+## Compatibility
+
+The following table lists EmberData versions alongside information about
+ember compatibility.
+
+- **Lockstep**: the latest version of ember-source at the time of release
+- **Tested**: the versions of ember-source the project tested this release against
+- **Supported**: the versions of ember-source the release officially supports
+- **Range**: the peer-dep range the release states for ember-source
+
+the version of 
+ember-source they were release with (lockstep), as well as the range of versions of ember-source that the
+project tested against at the point of release.
+
+| Status | EmberData | Lockstep | Tested | Supported | Range |
+| ------ | --------- | -------- | ------ | --------- | ----- |
+| Latest | 5.3.0     | 5.3.0    | 3.28, 4.4, 4.8, 4.12, 5.2, 5.3 | 4.8, 4.12, 5.x | 3.28.12 \|\| >= 4.* \|\| >= 5.* |
+| LTS    | 4.12.4    | 4.12.3   | 3.28, 4.4, 4.8, 4.12, 5.0 | 4.8, 4.12, 5.x | 3.28.12 \|\| >= 4.* \|\| >= 5.* |
+| unsupported<br>(prior LTS) | 4.8.8    | 4.8.6   | 3.28, 4.4, 4.8 | 4.4, 4.8, 4.12 | 3.28.12 \|\| >= 4.* |
+| unsupported[^1] | 4.6.4    | 4.8.6   | 3.28, 4.4, 4.8 | 4.4, 4.8, 4.12 | 3.28.12 \|\| >= 4.* |
+| unsupported[^1]<br>(prior LTS) | 4.4.2    | 4.8.6   | 3.28, 4.4, 4.8 | 4.4, 4.8, 4.12 | 3.28.12 \|\| >= 4.* |
+
+[^1]: This version may receive special long-term patches to assist model-fragments users in creating a migration path onto 5.x and off of ModelFragments
 
 ## Contributing
 
