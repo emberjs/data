@@ -180,8 +180,8 @@ The following table lists EmberData versions alongside information about
 ember compatibility.
 
 - **Lockstep**: the latest version of ember-source at the time of release
-- **Tested**: the versions of ember-source the project tested this release against
 - **Supported**: the versions of ember-source the release officially supports
+- **Tested**: the versions of ember-source the project tested this release against
 - **Range**: the peer-dep range the release states for ember-source
 
 the version of 
