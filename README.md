@@ -190,11 +190,11 @@ project tested against at the point of release.
 
 | Status | EmberData | Lockstep | Supported | Tested | Range |
 | ------ | --------- | -------- | --------- | ------ | ----- |
-| Latest | 5.3.0     | 5.3.0    | 4.8, 4.12, 5.* | 3.28, 4.4, 4.8, 4.12, 5.2, 5.3 | 3.28.12<br> >= 4.* <br> >= 5.* |
-| LTS    | 4.12.4    | 4.12.3   | 4.\*, 5.\* | 3.28, 4.4, 4.8, 4.12, 5.0 | 3.28.12<br> >= 4.* <br> >= 5.* |
-| unsupported<br>(prior LTS) | 4.8.8    | 4.8.6   | 4.* | 3.28, 4.4, 4.8 | 3.28.12<br> >= 4.* |
-| unsupported[^1] | 4.6.4    | 4.6.0   | 3.28, 4.* | 3.28, 4.4, 4.5, 4.6 | 3.28.12<br> >= 4.* |
-| unsupported[^1]<br>(prior LTS) | 4.4.2    | 4.4.6   | 3.28, 4.* | 3.28, 4.4 | 3.28.12<br> >= 4.* |
+| Latest | `5.3.0`     | `5.3.0`    | `4.8` `4.12` `5.*` | `3.28` `4.4` `4.8` `4.12` `5.2` `5.3` | `3.28.12`<br> `>= 4.*` <br> `>= 5.*` |
+| LTS    | 4.12.4    | 4.12.3   | 4.\* 5.\* | 3.28 4.4 4.8 4.12 5.0 | 3.28.12<br> >= 4.* <br> >= 5.* |
+| unsupported<br>(prior LTS) | 4.8.8    | 4.8.6   | 4.* | 3.28 4.4 4.8 | 3.28.12<br> >= 4.* |
+| unsupported[^1] | 4.6.4    | 4.6.0   | 3.28 4.* | 3.28 4.4 4.5 4.6 | 3.28.12<br> >= 4.* |
+| unsupported[^1]<br>(prior LTS) | 4.4.2    | 4.4.6   | 3.28 4.* | 3.28 4.4 | 3.28.12<br> >= 4.* |
 
 [^1]: This version may receive special long-term patches to assist model-fragments users in creating a migration path onto 5.x and off of ModelFragments
 
