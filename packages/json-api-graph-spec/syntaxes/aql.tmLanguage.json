@@ -1,0 +1,35 @@
+{
+  "scopeName": "source.aql",
+  "fileTypes": ["aql"],
+  "patterns": [
+    { "include": "#query" },
+    { "include": "#comment" }
+  ],
+  "repository": {
+    "comment": {
+      "patterns": [
+        {
+					"begin": "(^[ \\t]+)?(?=#)",
+					"beginCaptures": {
+						"1": {
+							"name": "punctuation.whitespace.comment.leading.aql"
+						}
+					},
+					"end": "(?=$)",
+					"patterns": [
+						{
+							"name": "comment.line.shebang.js",
+							"begin": "#",
+							"beginCaptures": {
+								"0": {
+									"name": "punctuation.definition.comment.aql"
+								}
+							},
+							"end": "(?=$)"
+						}
+					]
+				}
+      ]
+    }
+  }
+}

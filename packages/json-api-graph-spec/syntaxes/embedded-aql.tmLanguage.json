@@ -1,0 +1,35 @@
+{
+  "scopeName": "inline.tagged-template-aql",
+  "injectionSelector": "L:source -comment -string",
+  "patterns": [   {
+      "__COMMENT__": "Literals tagged with aql, e.g. aql`QUERY {}`",
+      "name": "string.template.ts",
+      "begin": "\\b((?i)aql|aqlFragment(?-i))\\s*(?=`)",
+      "beginCaptures": {
+        "1": { "name": "entity.name.function.tagged-template.ts" }
+      },
+      "end": "(?<=`)",
+      "patterns": [{ "include": "#embedded-sql" }]
+    }
+  ],
+  "repository": {
+    "embedded-aql": {
+      "name": "string.template.ts",
+      "contentName": "meta.embedded.block.aql",
+      "begin": "`",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.string.template.begin.js" }
+      },
+      "end": "`",
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.string.template.end.js" }
+      },
+      "patterns": [
+        { "include": "source.ts#template-substitution-element" },
+        { "include": "source.ts#string-character-escape" },
+        { "include": "source.aql" },
+        { "match": "." }
+      ]
+    }
+  }
+}

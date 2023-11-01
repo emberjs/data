@@ -1,0 +1,54 @@
+{
+  "iconDefinitions": {
+    "_schema_dark": {
+      "iconPath": "../NCC-1701-a.svg"
+    },
+    "_schema_light": {
+      "iconPath": "../NCC-1701-a-blue.svg"
+    },
+    "_query_dark": {
+      "iconPath": "../NCC-1701-a.svg"
+    },
+    "_query_light": {
+      "iconPath": "../NCC-1701-a-blue.svg"
+    },
+    "_folder_dark": {
+      "iconPath": "../NCC-1701-a.svg"
+    },
+    "_folder_light": {
+      "iconPath": "../NCC-1701-a-blue.svg"
+    },
+    "_folder_open_dark": {
+      "iconPath": "../NCC-1701-a.svg"
+    },
+    "_folder_open_light": {
+      "iconPath": "../NCC-1701-a-blue.svg"
+    }
+  },
+  "folderNames": {
+    "queries": "folder_dark",
+    "schemas": "folder_dark"
+  },
+  "folderNamesExpanded": {
+    "queries": "_folder_open_dark",
+    "schemas": "_folder_open_dark"
+  },
+  "fileExtensions": {
+    "aql": "_query_dark",
+    "schema": "_schema_light",
+  },
+  "light": {
+    "folderNames": {
+      "queries": "folder_light",
+      "schemas": "folder_light"
+    },
+    "folderNamesExpanded": {
+      "queries": "_folder_open_light",
+      "schemas": "_folder_open_light"
+    },
+    "fileExtensions": {
+      "aql": "_query_light",
+      "schema": "_schema_light"
+    }
+  }
+}
