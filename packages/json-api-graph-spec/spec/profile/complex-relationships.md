@@ -6,7 +6,7 @@ This is the specification of [a profile](https://jsonapi.org/format/1.2/#profile
 
 ### URI
 
-The URI for this profile is [https://github.com/emberjs/data/tree/main/packages/json-api-graph-spec/src/profile/complex-relationships.md](https://github.com/emberjs/data/tree/main/packages/json-api-graph-spec/src/profile/complex-relationships.md)
+The URI for this profile is [https://github.com/emberjs/data/tree/main/packages/json-api-graph-spec/spec/profile/complex-relationships.md](https://github.com/emberjs/data/tree/main/packages/json-api-graph-spec/spec/profile/complex-relationships.md)
 
 ### About
 

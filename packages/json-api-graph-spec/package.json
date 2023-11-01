@@ -1,5 +1,47 @@
 {
   "name": "json-api-graph-spec",
   "version": "5.5.0-alpha.11",
-  "private": true
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "packages/graph"
+  },
+  "license": "MIT",
+  "author": "Chris Thoburn <runspired@users.noreply.github.com>",
+  "scripts": {
+    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
+    "build:types": "tsc --build",
+    "build:client": "rollup --config",
+    "_build": "bun run build:client && bun run build:types",
+    "prepack": "pnpm build"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/parse.d.ts",
+      "default": "./dist/parse.js"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.js"
+    }
+  },
+  "engines": {
+    "node": ">= 20.9.0"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.23.0",
+    "@babel/core": "^7.23.2",
+    "@babel/plugin-transform-typescript": "^7.22.15",
+    "@babel/preset-env": "^7.23.2",
+    "@babel/preset-typescript": "^7.23.2",
+    "@embroider/addon-dev": "^4.1.1",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "typescript": "^5.2.2",
+    "rollup": "^4.1.4"
+  }
 }

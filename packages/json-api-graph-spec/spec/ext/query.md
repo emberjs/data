@@ -6,7 +6,7 @@ This is the specification of [an extension](https://jsonapi.org/format/1.2/#exte
 
 ### URI
 
-The URI for this profile is [https://github.com/emberjs/data/tree/main/packages/json-api-graph-spec/src/ext/query.md](https://github.com/emberjs/data/tree/main/packages/json-api-graph-spec/src/ext/query.md)
+The URI for this profile is [https://github.com/emberjs/data/tree/main/packages/json-api-graph-spec/spec/ext/query.md](https://github.com/emberjs/data/tree/main/packages/json-api-graph-spec/spec/ext/query.md)
 
 ### Namespace
 
@@ -235,7 +235,7 @@ Accept: application/vnd.api+json
 }
 ```
 
-For non `JSON` syntax see the [parser spec](../spec-query-parser.md).
+For non `JSON` syntax see the [parser spec](../aql.md).
 
 ## Filter Queries
 

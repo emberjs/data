@@ -7,6 +7,6 @@ A grouping of [profile](https://jsonapi.org/format/1.2/#profile-rules), [extensi
 
 The `JSON:API Graphs` Specification provides three things
 
-1. A [profile](./src/profile/complex-relationships.md) which adds support for both deeply nested relationships and linkage via `*` members
-2. An [extension](./src/ext/query.md) which adds support for `QUERY` via `POST` and the `X-HTTP-Method-Override` header
-3. A [spec](./src/spec-query-parser.md) for a query syntax and parser 
+1. A [profile](./spec/profile/complex-relationships.md) which adds support for both deeply nested relationships and linkage via `*` members
+2. An [extension](./spec/ext/query.md) which adds support for `QUERY` via `POST` and the `X-HTTP-Method-Override` header
+3. A [Query Language](./spec/aql.md) for authoring complex queries tersely

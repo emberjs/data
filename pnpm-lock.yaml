@@ -1017,7 +1017,38 @@ importers:
       ember-inflector:
         injected: true
 
-  packages/json-api-graph-spec: {}
+  packages/json-api-graph-spec:
+    devDependencies:
+      '@babel/cli':
+        specifier: ^7.23.0
+        version: 7.23.0(@babel/core@7.23.2)
+      '@babel/core':
+        specifier: ^7.23.2
+        version: 7.23.2(supports-color@8.1.1)
+      '@babel/plugin-transform-typescript':
+        specifier: ^7.22.15
+        version: 7.22.15(@babel/core@7.23.2)
+      '@babel/preset-env':
+        specifier: ^7.23.2
+        version: 7.23.2(@babel/core@7.23.2)
+      '@babel/preset-typescript':
+        specifier: ^7.23.2
+        version: 7.23.2(@babel/core@7.23.2)
+      '@embroider/addon-dev':
+        specifier: ^4.1.1
+        version: 4.1.1(rollup@4.1.4)
+      '@rollup/plugin-babel':
+        specifier: ^6.0.4
+        version: 6.0.4(@babel/core@7.23.2)(rollup@4.1.4)
+      '@rollup/plugin-node-resolve':
+        specifier: ^15.2.3
+        version: 15.2.3(rollup@4.1.4)
+      rollup:
+        specifier: ^4.1.4
+        version: 4.1.4
+      typescript:
+        specifier: ^5.2.2
+        version: 5.2.2
 
   packages/legacy-compat:
     dependencies:
