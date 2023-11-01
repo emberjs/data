@@ -10,18 +10,20 @@ Say we wanted to make the following query against the `/api/companies` endpoint
 
 ```json
 {
-  "include": "ceo",
-  "fields": {
-    "company": ["name", "ceo"],
-    "employee": ["name", "profileImage"]
-  },
-  "filter": {
-    "company": {
-      "size": "large",
+  "q:search": {
+    "include": "ceo",
+    "fields": {
+      "company": ["name", "ceo"],
+      "employee": ["name", "profileImage"]
+    },
+    "filter": {
+      "company": {
+        "size": "large",
+      }
+    },
+    "page": {
+      "size": 10
     }
-  },
-  "page": {
-    "size": 10
   }
 }
 ```

@@ -124,13 +124,15 @@ is allowed to parse to.
 
 ```json
 {
-  "include": "ceo",
-  "fields": {
-    "company": "name",
-    "employee": ["name", "profileImage"]
-  },
-  "page": {
-    "$size": "number,null"
+  "q:search": {
+    "include": "ceo",
+    "fields": {
+      "company": "name",
+      "employee": ["name", "profileImage"]
+    },
+    "page": {
+      "$size": "number,null"
+    }
   }
 }
 ```
@@ -139,13 +141,15 @@ Note, the `$` is not considered part of the key once variables are applied. So g
 
 ```json
 {
-  "include": "ceo",
-  "fields": {
-    "company": "name",
-    "employee": ["name", "profileImage"]
-  },
-  "page": {
-    "size": 10
+  "q:search": {
+    "include": "ceo",
+    "fields": {
+      "company": "name",
+      "employee": ["name", "profileImage"]
+    },
+    "page": {
+      "size": 10
+    }
   }
 }
 ```
@@ -154,9 +158,11 @@ If `$` is otherwise in use, and not a variable, it should be escaped.
 
 ```json
 {
-  "fields": {
-    "\$company": "name",
-  },
+  "q:search": {
+    "fields": {
+      "\$company": "name",
+    },
+  }
 }
 ```
 
@@ -175,18 +181,20 @@ For instance, imagine a query that lets us specify both page size and filter by 
 
 ```json
 {
-  "include": "ceo",
-  "fields": {
-    "company": "name",
-    "employee": ["name", "profileImage"]
-  },
-  "filter": {
-    "company": {
-      "$size": "number,null",
+  "q:search": {
+    "include": "ceo",
+    "fields": {
+      "company": "name",
+      "employee": ["name", "profileImage"]
+    },
+    "filter": {
+      "company": {
+        "$size": "number,null",
+      }
+    },
+    "page": {
+      "$size": "number,null"
     }
-  },
-  "page": {
-    "$size": "number,null"
   }
 }
 ```

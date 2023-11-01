@@ -100,7 +100,10 @@ export default async function parseAQL(aql: string, schemas: Schemas) {
     }
   }
 
-  function addStatementToContext(lastStatement: string) {
+  function addStatementToContext(lastStatement: string | string[]) {
+    if (Array.isArray(lastStatement)) {
+      console.log('currentStatementParts', lastStatement);
+    }
     if (!lastStatement || !currentContext) {
       throw new Error('Unexpected Statement End');
     }
@@ -168,7 +171,6 @@ export default async function parseAQL(aql: string, schemas: Schemas) {
   }
 
   function handleStatementEnd(stmt: string, controlChar: '\n' | ';' | ' ' | '}' | '{' | '#') {
-    const isStatementTerminus = controlChar !== ' ';
     if (!isParsingQuery) {
       if (stmt === 'QUERY') {
         isParsingQuery = true;
@@ -200,8 +202,14 @@ export default async function parseAQL(aql: string, schemas: Schemas) {
       return;
     }
 
+    const isStatementTerminus = controlChar !== ' ';
+    if (!isStatementTerminus) {
+      currentStatementParts.push(stmt);
+    }
+
     if (isParsingData && isStatementTerminus) {
-      addStatementToContext(stmt);
+      addStatementToContext(currentStatementParts.length > 1 ? currentStatementParts : stmt);
+      currentStatementParts = [];
     }
 
     statements.push(stmt);
@@ -216,9 +224,6 @@ export default async function parseAQL(aql: string, schemas: Schemas) {
       handleOpenContext();
     } else if (controlChar === '}') {
       handleCloseContext();
-    } else if (currentStatement && controlChar === ' ') {
-      currentStatementParts.push(currentStatement);
-      currentStatement = null;
     }
 
     handleExpectedControlChar(controlChar);
