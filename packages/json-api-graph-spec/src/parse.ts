@@ -100,13 +100,15 @@ export default async function parseAQL(aql: string, schemas: Schemas) {
     }
   }
 
-  function addStatementToContext(lastStatement: string | string[]) {
+  function addStatementToDataContext(lastStatement: string | string[]) {
     if (Array.isArray(lastStatement)) {
       console.log('currentStatementParts', lastStatement);
+      throw new Error('Not implemented');
     }
     if (!lastStatement || !currentContext) {
       throw new Error('Unexpected Statement End');
     }
+
     // the key should be a field in the schema
     if (!currentSchema) {
       throw new Error('No schema defined');
@@ -125,6 +127,8 @@ export default async function parseAQL(aql: string, schemas: Schemas) {
     return field;
   }
 
+  function addStatementToContext(lastStatement: string | string[]) {}
+
   function handleOpenContext() {
     if (!isParsingQueryBody && expectedControlToken === '{') {
       isParsingQueryBody = true;
@@ -136,7 +140,8 @@ export default async function parseAQL(aql: string, schemas: Schemas) {
         throw new Error('Unexpected token {');
       }
       if (isParsingData && currentContext !== query) {
-        const field = addStatementToContext(lastStatement);
+        const field = addStatementToDataContext(lastStatement);
+        currentStatementParts = [];
 
         if (field.kind === 'resource' || field.kind === 'collection') {
           const schema = schemas.get(field.type!);
@@ -148,6 +153,10 @@ export default async function parseAQL(aql: string, schemas: Schemas) {
           currentSchema = schema;
           includes.push(currentPath.join('.'));
         }
+      } else if (!isParsingData) {
+        console.log('non-data', { currentStatementParts, lastStatement });
+        addStatementToContext(lastStatement);
+        currentStatementParts = [];
       }
       const newContext = {};
       currentContext[lastStatement] = newContext;
@@ -207,8 +216,14 @@ export default async function parseAQL(aql: string, schemas: Schemas) {
       currentStatementParts.push(stmt);
     }
 
-    if (isParsingData && isStatementTerminus) {
-      addStatementToContext(currentStatementParts.length > 1 ? currentStatementParts : stmt);
+    if (isStatementTerminus) {
+      currentStatementParts.push(stmt);
+      if (isParsingData) {
+        addStatementToDataContext(currentStatementParts.length > 1 ? currentStatementParts : stmt);
+      } else {
+        console.log({ currentStatementParts, stmt });
+        addStatementToContext(currentStatementParts.length > 1 ? currentStatementParts : stmt);
+      }
       currentStatementParts = [];
     }
 
