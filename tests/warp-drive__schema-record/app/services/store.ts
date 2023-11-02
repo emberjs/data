@@ -6,8 +6,8 @@ import JSONAPICache from '@ember-data/json-api';
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 import DataStore, { CacheHandler } from '@ember-data/store';
-import type { Cache } from '@ember-data/store/-types/cache/cache';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
+import type { Cache } from '@warp-drive/core-types/cache';
 
 export default class Store extends DataStore {
   constructor(args: unknown) {
@@ -18,15 +18,15 @@ export default class Store extends DataStore {
     manager.useCache(CacheHandler);
   }
 
-  createCache(capabilities: CacheCapabilitiesManager): Cache {
+  override createCache(capabilities: CacheCapabilitiesManager): Cache {
     return new JSONAPICache(capabilities);
   }
 
-  instantiateRecord(identifier: StableRecordIdentifier, createArgs?: Record<string, unknown>): SchemaRecord {
+  override instantiateRecord(identifier: StableRecordIdentifier, createArgs?: Record<string, unknown>): SchemaRecord {
     return instantiateRecord(this, identifier, createArgs);
   }
 
-  teardownRecord(record: SchemaRecord): void {
+  override teardownRecord(record: SchemaRecord): void {
     return teardownRecord(record);
   }
 }

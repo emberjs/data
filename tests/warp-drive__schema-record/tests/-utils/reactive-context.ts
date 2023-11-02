@@ -5,7 +5,7 @@ import type { FieldSchema } from '@warp-drive/schema-record/schema';
 
 import { hbs } from 'ember-cli-htmlbars';
 
-import type { ResourceRelationship } from '@ember-data/store/-types/cache/relationship';
+import type { ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 
 export async function reactiveContext<T extends object>(this: TestContext, record: T, fields: FieldSchema[]) {
   const _fields: string[] = ['idCount', 'id', '$typeCount', '$type'];
