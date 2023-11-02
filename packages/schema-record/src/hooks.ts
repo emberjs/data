@@ -1,7 +1,7 @@
 import type Store from '@ember-data/store';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
-import { Destroy, SchemaRecord } from './record';
+import { SchemaRecord } from './record';
 
 export function instantiateRecord(
   store: Store,
@@ -18,5 +18,5 @@ export function instantiateRecord(
 }
 
 export function teardownRecord(record: SchemaRecord): void {
-  record[Destroy]();
+  record[Symbol.dispose]();
 }
