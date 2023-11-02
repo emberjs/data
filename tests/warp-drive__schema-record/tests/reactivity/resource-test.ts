@@ -1,11 +1,11 @@
-import { SchemaRecord } from '@warp-drive/schema-record/record';
-import { SchemaService } from '@warp-drive/schema-record/schema';
 import { module, skip as test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
 import type Store from '@ember-data/store';
 import { Document } from '@ember-data/store/-private/document';
+import { SchemaRecord } from '@warp-drive/schema-record/record';
+import { SchemaService } from '@warp-drive/schema-record/schema';
 
 interface User {
   id: string | null;
