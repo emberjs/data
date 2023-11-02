@@ -15,7 +15,7 @@
     "lint:prettier": "prettier --check --cache --cache-location=.prettier-cache --log-level=warn .",
     "lint:prettier:fix": "prettier --write --cache --cache-location=.prettier-cache --log-level=warn .",
     "preinstall": "npx only-allow pnpm",
-    "check:types": "pnpm run -r --workspace-concurrency=-1 --if-present check:types",
+    "check:types": "bun run turbo --log-order=stream check:types",
     "test": "pnpm turbo test --concurrency=1",
     "test:production": "pnpm turbo test:production --concurrency=1",
     "test:try-one": "pnpm --filter main-test-app run test:try-one",
