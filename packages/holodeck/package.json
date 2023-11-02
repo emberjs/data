@@ -79,6 +79,10 @@
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
       },
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
       "default": "./server/index.js"
     },
     "./mock": {
