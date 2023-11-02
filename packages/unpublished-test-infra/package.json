@@ -32,8 +32,8 @@
   "dependencies": {
     "@ember-data/private-build-infra": "workspace:5.5.0-alpha.11",
     "@ember/edition-utils": "^1.2.0",
-    "@embroider/macros": "^1.13.2",
     "@ember/test-helpers": "^3.2.0",
+    "@embroider/macros": "^1.13.2",
     "broccoli-merge-trees": "^4.2.0",
     "chalk": "^4.1.2",
     "ember-auto-import": "^2.6.3",
@@ -60,7 +60,6 @@
     "@ember/string": "3.1.1",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
-    "@types/ember__owner": "^4.0.7",
     "@types/semver": "^7.5.4",
     "ember-cli": "~5.3.0",
     "ember-cli-dependency-checker": "^3.3.2",
