@@ -17,6 +17,7 @@ export const Identifier = Symbol('Identifier');
 export const Editable = Symbol('Editable');
 export const Parent = Symbol('Parent');
 export const Checkout = Symbol('Checkout');
+export const Legacy = Symbol('Legacy');
 
 function computeAttribute(
   schema: SchemaService,
@@ -151,12 +152,14 @@ export class SchemaRecord {
   declare [RecordStore]: Store;
   declare [Identifier]: StableRecordIdentifier;
   declare [Editable]: boolean;
+  declare [Legacy]: boolean;
   declare ___notifications: unknown;
 
   constructor(store: Store, identifier: StableRecordIdentifier, editable: boolean) {
     this[RecordStore] = store;
     this[Identifier] = identifier;
     this[Editable] = editable;
+    this[Legacy] = false;
 
     const schema = store.schema as unknown as SchemaService;
     const cache = store.cache;
