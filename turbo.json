@@ -68,6 +68,10 @@
       ],
       "dependsOn": ["_syncPnpm"]
     },
+    "check:types": {
+      "cache": false,
+      "dependsOn": ["_syncPnpm", "^_build"]
+    },
     "build:tests": {
       "inputs": [
         // + V2-Addon convention

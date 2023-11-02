@@ -32,8 +32,15 @@
     "README.md",
     "LICENSE.md",
     "NCC-1701-a.svg",
-    "NCC-1701-a-blue.svg"
+    "NCC-1701-a-blue.svg",
+    "unstable-preview-types"
   ],
+  "exports": {
+    "./*": {
+      "types": "./unstable-preview-types/*.d.ts",
+      "default": "./addon/*.js"
+    }
+  },
   "dependenciesMeta": {
     "@ember-data/private-build-infra": {
       "injected": true

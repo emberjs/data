@@ -1,13 +1,14 @@
 import { render, TestContext } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 
+import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
 import type { FieldSchema } from '@warp-drive/schema-record/schema';
 
 import { hbs } from 'ember-cli-htmlbars';
 
-import type { ResourceRelationship } from '@ember-data/store/-types/cache/relationship';
+import type { ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 
-export async function reactiveContext<T extends object>(this: TestContext, record: T, fields: FieldSchema[]) {
+export async function reactiveContext<T extends RecordInstance>(this: TestContext, record: T, fields: FieldSchema[]) {
   const _fields: string[] = ['idCount', 'id', '$typeCount', '$type'];
   fields.forEach((field) => {
     _fields.push(field.name + 'Count');
@@ -38,12 +39,14 @@ export async function reactiveContext<T extends object>(this: TestContext, recor
   Object.defineProperty(ReactiveComponent.prototype, 'id', {
     get() {
       counters['id']++;
+      // @ts-expect-error RecordInstance isn't typed yet
       return record['id'] as unknown;
     },
   });
   Object.defineProperty(ReactiveComponent.prototype, '$type', {
     get() {
       counters['$type']++;
+      // @ts-expect-error RecordInstance isn't typed yet
       return record['$type'] as unknown;
     },
   });
@@ -60,9 +63,9 @@ export async function reactiveContext<T extends object>(this: TestContext, recor
         counters[field.name]++;
 
         if (field.kind === 'attribute' || field.kind === 'derived') {
-          return record[field.name] as unknown;
+          return record[field.name as keyof T] as unknown;
         } else if (field.kind === 'resource') {
-          return (record[field.name] as ResourceRelationship).data?.id;
+          return (record[field.name as keyof T] as ResourceRelationship).data?.id;
         }
       },
     });
