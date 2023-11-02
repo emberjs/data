@@ -1,3 +1,4 @@
+import { TestContext } from '@ember/test-helpers';
 import { SchemaRecord } from '@warp-drive/schema-record/record';
 import { SchemaService } from '@warp-drive/schema-record/schema';
 import { module, test } from 'qunit';
@@ -17,7 +18,7 @@ interface User {
 module('Reads | resource', function (hooks) {
   setupTest(hooks);
 
-  test('we can use simple fields with no `type`', function (assert) {
+  test('we can use simple fields with no `type`', function (this: TestContext, assert) {
     const store = this.owner.lookup('service:store') as Store;
     const schema = new SchemaService();
     store.registerSchema(schema);
