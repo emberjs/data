@@ -2089,9 +2089,6 @@ importers:
       '@glimmer/tracking':
         specifier: ^1.1.2
         version: 1.1.2
-      '@types/ember__owner':
-        specifier: ^4.0.7
-        version: 4.0.7
       '@types/semver':
         specifier: ^7.5.4
         version: 7.5.4
@@ -2331,9 +2328,6 @@ importers:
       '@glimmer/tracking':
         specifier: ^1.1.2
         version: 1.1.2
-      '@types/ember__owner':
-        specifier: ^4.0.7
-        version: 4.0.7
       '@warp-drive/core-types':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/core-types(@babel/core@7.23.2)
@@ -2496,9 +2490,6 @@ importers:
       '@glimmer/tracking':
         specifier: ^1.1.2
         version: 1.1.2
-      '@types/ember__owner':
-        specifier: ^4.0.7
-        version: 4.0.7
       '@warp-drive/core-types':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/core-types(@babel/core@7.23.2)
@@ -2651,9 +2642,6 @@ importers:
       '@glimmer/tracking':
         specifier: ^1.1.2
         version: 1.1.2
-      '@types/ember__owner':
-        specifier: ^4.0.7
-        version: 4.0.7
       '@warp-drive/core-types':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/core-types(@babel/core@7.23.2)
@@ -2806,9 +2794,6 @@ importers:
       '@glimmer/tracking':
         specifier: ^1.1.2
         version: 1.1.2
-      '@types/ember__owner':
-        specifier: ^4.0.7
-        version: 4.0.7
       '@warp-drive/core-types':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/core-types(@babel/core@7.23.2)
@@ -2955,9 +2940,6 @@ importers:
       '@glimmer/tracking':
         specifier: ^1.1.2
         version: 1.1.2
-      '@types/ember__owner':
-        specifier: ^4.0.7
-        version: 4.0.7
       '@warp-drive/core-types':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/core-types(@babel/core@7.23.2)
@@ -3075,9 +3057,6 @@ importers:
       '@glimmer/tracking':
         specifier: ^1.1.2
         version: 1.1.2
-      '@types/ember__owner':
-        specifier: ^4.0.7
-        version: 4.0.7
       '@warp-drive/core-types':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/core-types(@babel/core@7.23.2)
@@ -3226,9 +3205,6 @@ importers:
       '@glimmer/tracking':
         specifier: ^1.1.2
         version: 1.1.2
-      '@types/ember__owner':
-        specifier: ^4.0.7
-        version: 4.0.7
       '@warp-drive/core-types':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/core-types(@babel/core@7.23.2)
@@ -3364,9 +3340,6 @@ importers:
       '@types/ember':
         specifier: ^4.0.8
         version: 4.0.8(@babel/core@7.23.2)
-      '@types/ember__owner':
-        specifier: ^4.0.7
-        version: 4.0.7
       ember-cli:
         specifier: ~5.3.0
         version: 5.3.0
@@ -3473,9 +3446,6 @@ importers:
       '@types/ember':
         specifier: ^4.0.8
         version: 4.0.8(@babel/core@7.23.2)
-      '@types/ember__owner':
-        specifier: ^4.0.7
-        version: 4.0.7
       ember-cli:
         specifier: ~5.3.0
         version: 5.3.0
@@ -3701,9 +3671,6 @@ importers:
       '@types/ember__object':
         specifier: ^4.0.9
         version: 4.0.9(@babel/core@7.23.2)
-      '@types/ember__owner':
-        specifier: ^4.0.7
-        version: 4.0.7
       '@types/ember__utils':
         specifier: ^4.0.5
         version: 4.0.5(@babel/core@7.23.2)
@@ -3904,9 +3871,6 @@ importers:
       '@glimmer/tracking':
         specifier: ^1.1.2
         version: 1.1.2
-      '@types/ember__owner':
-        specifier: ^4.0.7
-        version: 4.0.7
       ember-cli:
         specifier: ~5.3.0
         version: 5.3.0
@@ -4021,9 +3985,6 @@ importers:
       '@html-next/vertical-collection':
         specifier: ^4.0.2
         version: 4.0.2(@babel/core@7.23.2)
-      '@types/ember__owner':
-        specifier: ^4.0.7
-        version: 4.0.7
       '@types/morgan':
         specifier: ^1.9.7
         version: 1.9.7
@@ -4204,9 +4165,6 @@ importers:
       '@glimmer/tracking':
         specifier: ^1.1.2
         version: 1.1.2
-      '@types/ember__owner':
-        specifier: ^4.0.7
-        version: 4.0.7
       '@warp-drive/core-types':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/core-types(@babel/core@7.23.2)
@@ -7035,6 +6993,7 @@ packages:
 
   /@types/ember__owner@4.0.7:
     resolution: {integrity: sha512-mYG0OL1let/StvnfXCyPdfaigsSOVyOIzrXsk7iRzlRjEjsBawEGrkckLiej50cI25k9yp/kLl3ZIT1FqMLBpg==}
+    dev: true
 
   /@types/ember__polyfills@4.0.4:
     resolution: {integrity: sha512-icOWTR6f++nHTBLrrWp/X3sjGFs3PpenEwoWoQM6LL3wUFLSeAwsvXNp1zdDV3Sq0H61sAWymBmUeBLNO18Ogg==}

@@ -75,7 +75,6 @@
     "@ember/test-helpers": "^3.2.0",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
-    "@types/ember__owner": "^4.0.7",
     "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
     "@warp-drive/schema-record": "workspace:5.5.0-alpha.11",
     "ember-auto-import": "^2.6.3",
