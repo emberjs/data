@@ -6,8 +6,8 @@ import type { StructuredDocument } from '@ember-data/request';
 import Store from '@ember-data/store';
 import { CacheOperation } from '@ember-data/store/-private/managers/notification-manager';
 import type { CollectionResourceDataDocument, ResourceMetaDocument } from '@ember-data/store/-types/cache/document';
-import { StableDocumentIdentifier } from '@ember-data/store/-types/cache/identifier';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
+import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
 
 class TestStore extends Store {

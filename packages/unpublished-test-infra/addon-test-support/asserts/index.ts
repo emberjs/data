@@ -6,7 +6,7 @@ import type { Diagnostic } from '@warp-drive/diagnostic/-types';
 import type Assert from 'ember-data-qunit-asserts';
 
 import { CacheOperation, NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import { StableDocumentIdentifier } from '@ember-data/store/-types/cache/identifier';
+import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 
 import { configureAssertAllDeprecations } from './assert-all-deprecations';
 import { configureAssertionHandler } from './assert-assertion';
