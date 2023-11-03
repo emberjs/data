@@ -48,6 +48,7 @@
     "ember-cli-blueprint-test-helpers": "^0.19.2",
     "ember-get-config": "^2.1.1",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
+    "qunit": "^2.20.0",
     "semver": "^7.5.4",
     "testem": "^3.10.1",
     "typescript": "~5.2.2",
@@ -96,7 +97,6 @@
     "ember-resolver": "^11.0.1",
     "ember-source": "~5.3.0",
     "loader.js": "^4.7.0",
-    "qunit": "^2.20.0",
     "webpack": "^5.89.0"
   },
   "engines": {
