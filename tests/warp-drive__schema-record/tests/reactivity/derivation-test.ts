@@ -1,12 +1,12 @@
 import { rerender } from '@ember/test-helpers';
 
-import { SchemaRecord } from '@warp-drive/schema-record/record';
-import { FieldSchema, SchemaService } from '@warp-drive/schema-record/schema';
 import { module, test } from 'qunit';
 
 import { setupRenderingTest } from 'ember-qunit';
 
 import type Store from '@ember-data/store';
+import { SchemaRecord } from '@warp-drive/schema-record/record';
+import { FieldSchema, SchemaService } from '@warp-drive/schema-record/schema';
 
 import { reactiveContext } from '../-utils/reactive-context';
 

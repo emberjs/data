@@ -4153,6 +4153,9 @@ importers:
       '@warp-drive/core-types':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/core-types(@babel/core@7.23.2)
+      '@warp-drive/internal-config':
+        specifier: workspace:5.5.0-alpha.11
+        version: link:../../config
       '@warp-drive/schema-record':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/schema-record(@babel/core@7.23.2)
