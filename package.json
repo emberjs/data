@@ -11,7 +11,7 @@
     "prepare": "pnpm build",
     "build": "turbo _build --log-order=stream --filter=./packages/*",
     "build:docs": "mkdir -p packages/-ember-data/dist && cd ./docs-generator && node ./compile-docs.js",
-    "lint": "FORCE_COLOR=2 pnpm run -r --workspace-concurrency=-1 --if-present --reporter=append-only --no-bail lint",
+    "lint": "bun run turbo --log-order=stream lint",
     "lint:prettier": "prettier --check --cache --cache-location=.prettier-cache --log-level=warn .",
     "lint:prettier:fix": "prettier --write --cache --cache-location=.prettier-cache --log-level=warn .",
     "preinstall": "npx only-allow pnpm",
