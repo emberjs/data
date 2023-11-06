@@ -69,24 +69,79 @@ export interface CreateRecordProperties {
 }
 
 /**
- * A Store coordinates interaction between your application, a [Cache](https://api.emberjs.com/ember-data/release/classes/%3CInterface%3E%20Cache),
- * and sources of data (such as your API or a local persistence layer)
- * accessed via a [RequestManager](https://github.com/emberjs/data/tree/main/packages/request).
- *
- * ```app/services/store.js
- * import Store from '@ember-data/store';
- *
- * export default class extends Store {}
- * ```
- *
- * Most Ember applications will only have a single `Store` configured as a Service
- * in this manner. However, setting up multiple stores is possible, including using
- * each as a unique service.
- *
+  The store contains all of the data for records loaded from the server.
+  It is also responsible for creating instances of `Model` that wrap
+  the individual data for a record, so that they can be bound to in your
+  Handlebars templates.
 
+  Define your application's store like this:
+
+  ```app/services/store.js
+  import Store from '@ember-data/store';
+
+  export default class MyStore extends Store {}
+  ```
+
+  Most Ember.js applications will only have a single `Store` that is
+  automatically created by their `Ember.Application`.
+
+  You can retrieve models from the store in several ways. To retrieve a record
+  for a specific id, use `Store`'s `findRecord()` method:
+
+  ```javascript
+  store.findRecord('person', 123).then(function (person) {
+  });
+  ```
+
+  By default, the store will talk to your backend using a standard
+  REST mechanism. You can customize how the store talks to your
+  backend by specifying a custom adapter:
+
+  ```app/adapters/application.js
+  import Adapter from '@ember-data/adapter';
+
+  export default class ApplicationAdapter extends Adapter {
+  }
+  ```
+
+  You can learn more about writing a custom adapter by reading the [Adapter](https://api.emberjs.com/ember-data/release/modules/@ember-data%2Fadapter)
+  documentation.
+
+  ### Store createRecord() vs. push() vs. pushPayload()
+
+  The store provides multiple ways to create new record objects. They have
+  some subtle differences in their use which are detailed below:
+
+  [createRecord](../methods/createRecord?anchor=createRecord) is used for creating new
+  records on the client side. This will return a new record in the
+  `created.uncommitted` state. In order to persist this record to the
+  backend, you will need to call `record.save()`.
+
+  [push](../methods/push?anchor=push) is used to notify Ember Data's store of new or
+  updated records that exist in the backend. This will return a record
+  in the `loaded.saved` state. The primary use-case for `store#push` is
+  to notify Ember Data about record updates (full or partial) that happen
+  outside of the normal adapter methods (for example
+  [SSE](http://dev.w3.org/html5/eventsource/) or [Web
+  Sockets](http://www.w3.org/TR/2009/WD-websockets-20091222/)).
+
+  [pushPayload](../methods/pushPayload?anchor=pushPayload) is a convenience wrapper for
+  `store#push` that will deserialize payloads if the
+  Serializer implements a `pushPayload` method.
+
+  Note: When creating a new record using any of the above methods
+  Ember Data will update `RecordArray`s such as those returned by
+  `store#peekAll()` or `store#findAll()`. This means any
+  data bindings or computed properties that depend on the RecordArray
+  will automatically be synced to include the new or updated record
+  values.
+
+  @main @ember-data/store
   @class Store
   @public
+  @extends Ember.Service
 */
+
 
 // @ts-expect-error
 interface Store {
