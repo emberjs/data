@@ -25,11 +25,11 @@ import type {
   ResourceDataDocument,
   SingleResourceDataDocument,
 } from '@ember-data/store/-types/cache/document';
-import { StableDocumentIdentifier } from '@ember-data/store/-types/cache/identifier';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
 import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
+import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
 

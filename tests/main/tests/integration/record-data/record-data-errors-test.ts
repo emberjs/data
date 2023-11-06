@@ -32,10 +32,10 @@ import type {
   ResourceMetaDocument,
   SingleResourceDataDocument,
 } from '@ember-data/store/-types/cache/document';
-import type { StableDocumentIdentifier } from '@ember-data/store/-types/cache/identifier';
 import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/store/-types/q/cache';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
 import type { JsonApiError, JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
+import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 
 class Person extends Model {
   @attr declare firstName: string;

@@ -7,11 +7,11 @@ import type { StructuredDocument } from '@ember-data/request';
 import Store from '@ember-data/store';
 import type { CacheOperation, NotificationType } from '@ember-data/store/-private/managers/notification-manager';
 import type { SingleResourceDataDocument } from '@ember-data/store/-types/cache/document';
-import type { StableDocumentIdentifier } from '@ember-data/store/-types/cache/identifier';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import type { SingleResourceDocument } from '@warp-drive/core-types/spec/raw';
 import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
+import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
+import type { SingleResourceDocument } from '@warp-drive/core-types/spec/raw';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
 class TestStore extends Store {

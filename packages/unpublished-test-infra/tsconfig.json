@@ -1,0 +1,42 @@
+{
+  "include": ["addon-test-support/**/*", "src/**/*", "tests/**/*", "../../@types/ember-data-qunit-asserts"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "lib": ["DOM", "ESNext"],
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "strict": true,
+    "downlevelIteration": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "noEmit": true,
+    "noImplicitOverride": true,
+
+    // Enable faster builds
+    // but causes us to not rebuild properly
+    "composite": true,
+    "incremental": true,
+
+    "declaration": true,
+    "declarationMap": true,
+    "declarationDir": "dist",
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "types": ["ember-source/types"],
+
+    "paths": {
+      "dummy/tests/*": ["tests/*"],
+      "dummy/*": ["tests/dummy/app/*", "app/*"],
+      "@ember-data/unpublished-test-infra": ["addon"],
+      "@ember-data/unpublished-test-infra/*": ["addon/*"],
+      "@ember-data/unpublished-test-infra/test-support": ["addon-test-support"],
+      "@ember-data/unpublished-test-infra/test-support/*": ["addon-test-support/*"],
+      "@ember-data/env": ["../private-build-infra/virtual-packages/env.d.ts"],
+      "ember-data-qunit-asserts": ["../../@types/ember-data-qunit-asserts"]
+    }
+  }
+}
