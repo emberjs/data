@@ -1,12 +1,11 @@
 import { render, TestContext } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 
-import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
-import type { FieldSchema } from '@warp-drive/schema-record/schema';
-
 import { hbs } from 'ember-cli-htmlbars';
 
+import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
 import type { ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
+import type { FieldSchema } from '@warp-drive/schema-record/schema';
 
 export async function reactiveContext<T extends RecordInstance>(this: TestContext, record: T, fields: FieldSchema[]) {
   const _fields: string[] = ['idCount', 'id', '$typeCount', '$type'];

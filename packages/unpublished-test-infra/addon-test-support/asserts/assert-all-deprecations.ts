@@ -7,7 +7,7 @@ import { FoundDeprecation } from './assert-deprecation';
 
 const { ASSERT_ALL_DEPRECATIONS } = config as { ASSERT_ALL_DEPRECATIONS?: boolean };
 
-const ALL_ASSERTED_DEPRECATIONS = {};
+const ALL_ASSERTED_DEPRECATIONS: Record<string, number> = {};
 
 function pushDeprecation(deprecation: string) {
   if (deprecation in ALL_ASSERTED_DEPRECATIONS) {

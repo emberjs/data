@@ -6,7 +6,13 @@ function defaults(config = {}) {
     extends: ['plugin:qunit/recommended'],
     rules: Object.assign(
       isolation.rules({
-        allowedImports: ['@ember/debug', '@ember/test-helpers', 'qunit'],
+        allowedImports: [
+          '@ember/debug',
+          '@ember/test-helpers',
+          'ember-qunit',
+          'qunit',
+          ...(config.allowedImports ?? []),
+        ],
       }),
       config?.rules,
       {}

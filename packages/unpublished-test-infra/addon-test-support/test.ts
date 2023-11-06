@@ -2,6 +2,7 @@ import { type TestContext } from '@ember/test-helpers';
 
 import { DEBUG } from '@ember-data/env';
 import VERSION, { COMPAT_VERSION } from '@ember-data/unpublished-test-infra/test-support/version';
+import { DeprecationConfig } from './asserts/assert-deprecation';
 
 // small comparison function for major and minor semver values
 function gte(EDVersion: string, DeprecationVersion: string): boolean {

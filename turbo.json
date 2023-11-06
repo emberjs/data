@@ -68,6 +68,10 @@
       ],
       "dependsOn": ["_syncPnpm"]
     },
+    "lint": {
+      "cache": false,
+      "dependsOn": ["_syncPnpm", "^_build"]
+    },
     "check:types": {
       "cache": false,
       "dependsOn": ["_syncPnpm", "^_build"]

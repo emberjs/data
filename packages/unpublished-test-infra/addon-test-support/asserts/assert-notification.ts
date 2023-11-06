@@ -6,7 +6,7 @@ import type Assert from 'ember-data-qunit-asserts';
 
 import type Store from '@ember-data/store';
 import type { CacheOperation, NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type { StableDocumentIdentifier } from '@ember-data/store/-types/cache/identifier';
+import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 
 type Counter = { count: number };
 type NotificationStorage = Map<
