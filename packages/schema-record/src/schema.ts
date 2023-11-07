@@ -1,5 +1,5 @@
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import { Value } from '@warp-drive/core-types/json/raw';
+import type { Value } from '@warp-drive/core-types/json/raw';
 import type { AttributeSchema, RelationshipSchema } from '@warp-drive/core-types/schema';
 
 import type { SchemaRecord } from './record';

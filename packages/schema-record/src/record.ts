@@ -9,7 +9,7 @@ import { addToTransaction, defineSignal, entangleSignal, type Signal } from '@em
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { ResourceRelationship as SingleResourceRelationship } from '@warp-drive/core-types/cache/relationship';
-import { Value } from '@warp-drive/core-types/json/raw';
+import type { Value } from '@warp-drive/core-types/json/raw';
 import type { Link, Links } from '@warp-drive/core-types/spec/raw';
 
 import type { FieldSchema, SchemaService } from './schema';
