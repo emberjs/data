@@ -3,7 +3,7 @@ import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 
 import type Store from '@ember-data/store';
-import { Editable, Legacy  } from '@warp-drive/schema-record/record';
+import { Editable, Legacy } from '@warp-drive/schema-record/record';
 import { SchemaService } from '@warp-drive/schema-record/schema';
 
 interface User {
@@ -54,7 +54,11 @@ module('Legacy Mode', function (hooks) {
       record.$type;
       assert.ok(false, 'record.$type should throw');
     } catch (e) {
-      assert.strictEqual((e as Error).message, 'Assertion Failed: SchemaRecord.$type is not available in legacy mode', 'record.$type throws');
+      assert.strictEqual(
+        (e as Error).message,
+        'Assertion Failed: SchemaRecord.$type is not available in legacy mode',
+        'record.$type throws'
+      );
     }
   });
 
@@ -89,7 +93,11 @@ module('Legacy Mode', function (hooks) {
       (record.constructor as { modelName?: string }).modelName;
       assert.ok(false, 'record.constructor.modelName should throw');
     } catch (e) {
-      assert.strictEqual((e as Error).message, 'Assertion Failed: SchemaRecord.constructor.modelName is not available ouside of legacy mode', 'record.constructor.modelName throws');
+      assert.strictEqual(
+        (e as Error).message,
+        'Assertion Failed: SchemaRecord.constructor.modelName is not available ouside of legacy mode',
+        'record.constructor.modelName throws'
+      );
     }
   });
 
@@ -118,6 +126,10 @@ module('Legacy Mode', function (hooks) {
     }) as User;
 
     assert.true(record[Legacy], 'record is in legacy mode');
-    assert.strictEqual((record.constructor as { modelName?: string }).modelName, 'user', 'record constructor modelName is correct')
+    assert.strictEqual(
+      (record.constructor as { modelName?: string }).modelName,
+      'user',
+      'record constructor modelName is correct'
+    );
   });
 });
