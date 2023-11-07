@@ -562,6 +562,69 @@ module('integration/references/belongs-to', function (hooks) {
     });
   });
 
+  test('reload() - loads the record when not yet loaded (sync)', async function (assert) {
+    class Familia extends Model {
+      @attr name;
+    }
+
+    class Persona extends Model {
+      @belongsTo('familia', { async: false, inverse: null }) family;
+      @attr name;
+    }
+
+    this.owner.register('model:familia', Familia);
+    this.owner.register('model:persona', Persona);
+    this.owner.register('adapter:application', class extends JSONAPIAdapter {});
+    this.owner.register('serializer:application', class extends JSONAPISerializer {
+      normalizeResponse(_store, _schema, payload) {
+        return payload;
+      }
+    });
+
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+    const adapterOptions = { thing: 'one' };
+
+    adapter.findRecord = function (store, type, id, snapshot) {
+      debugger;
+      assert.step('findRecord');
+      assert.strictEqual(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
+
+      return Promise.resolve({
+        data: {
+          id: '1',
+          type: 'familia',
+          attributes: { name: 'Coreleone' },
+        },
+      });
+    };
+
+    let person = store.push({
+      data: {
+        type: 'persona',
+        id: '1',
+        attributes: {
+          name: 'Vito',
+        },
+        relationships: {
+          family: {
+            data: { type: 'familia', id: '1' },
+          },
+        },
+      },
+    });
+
+    let familyReference = person.belongsTo('family');
+
+    await familyReference.reload({ adapterOptions }).then(function (record) {
+      assert.strictEqual(get(record, 'name'), 'Coreleone');
+    });
+    await familyReference.reload({ adapterOptions }).then(function (record) {
+      assert.strictEqual(get(record, 'name'), 'Coreleone');
+    });
+    assert.verifySteps(['findRecord', 'findRecord']);
+  });
+
   test('reload() - reloads the record when already loaded', async function (assert) {
     let store = this.owner.lookup('service:store');
     let adapter = store.adapterFor('application');
