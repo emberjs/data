@@ -4,6 +4,7 @@ import { setupTest } from '@warp-drive/diagnostic/ember';
 import { createRecord, deleteRecord, findRecord, postQuery, query, updateRecord } from '@ember-data/json-api/request';
 import { setBuildURLConfig } from '@ember-data/request-utils';
 import Store, { recordIdentifierFor } from '@ember-data/store';
+import { TestContext } from '@ember/test-helpers';
 
 import UserSetting from '../../app/models/user-setting';
 import { headersToObject } from '../helpers/utils';
@@ -21,7 +22,7 @@ module('JSON:API | Request Builders', function (hooks) {
     setBuildURLConfig({ host: '', namespace: '' });
   });
 
-  test('findRecord by identifier', function (assert) {
+  test('findRecord by identifier', function (this: TestContext, assert) {
     const result = findRecord({ type: 'user-setting', id: '1' });
     assert.deepEqual(
       result,
@@ -38,7 +39,7 @@ module('JSON:API | Request Builders', function (hooks) {
     assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS);
   });
 
-  test('findRecord by type+id', function (assert) {
+  test('findRecord by type+id', function (this: TestContext, assert) {
     const result = findRecord('user-setting', '1');
     assert.deepEqual(
       result,
@@ -55,7 +56,7 @@ module('JSON:API | Request Builders', function (hooks) {
     assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS);
   });
 
-  test('findRecord by identifier with options', function (assert) {
+  test('findRecord by identifier with options', function (this: TestContext, assert) {
     const result = findRecord(
       { type: 'user-setting', id: '1' },
       { reload: true, backgroundReload: false, include: 'user,friends' }
@@ -78,7 +79,7 @@ module('JSON:API | Request Builders', function (hooks) {
     assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS);
   });
 
-  test('findRecord by type+id with options', function (assert) {
+  test('findRecord by type+id with options', function (this: TestContext, assert) {
     const result = findRecord('user-setting', '1', { reload: true, backgroundReload: false, include: 'user,friends' });
     assert.deepEqual(
       result,
@@ -95,7 +96,7 @@ module('JSON:API | Request Builders', function (hooks) {
     assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS);
   });
 
-  test('query', function (assert) {
+  test('query', function (this: TestContext, assert) {
     const result = query(
       'user-setting',
       { include: 'user,friends', sort: 'name:asc', search: ['zeta', 'beta'] },
@@ -115,7 +116,7 @@ module('JSON:API | Request Builders', function (hooks) {
     assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS);
   });
 
-  test('postQuery', function (assert) {
+  test('postQuery', function (this: TestContext, assert) {
     const result = postQuery(
       'user-setting',
       { include: 'user,friends', sort: 'name:asc', search: ['zeta', 'beta'] },
@@ -140,7 +141,7 @@ module('JSON:API | Request Builders', function (hooks) {
     assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS);
   });
 
-  test('createRecord passing store record', function (assert) {
+  test('createRecord passing store record', function (this: TestContext, assert) {
     const store = this.owner.lookup('service:store') as Store;
     const userSetting = store.createRecord('user-setting', {
       name: 'test',
@@ -164,7 +165,7 @@ module('JSON:API | Request Builders', function (hooks) {
     assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS, "headers are set to JSON API's");
   });
 
-  test('createRecord passing store record and options', function (assert) {
+  test('createRecord passing store record and options', function (this: TestContext, assert) {
     const store = this.owner.lookup('service:store') as Store;
     const userSetting = store.createRecord('user-setting', {
       name: 'test',
@@ -188,7 +189,7 @@ module('JSON:API | Request Builders', function (hooks) {
     assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS, "headers are set to JSON API's");
   });
 
-  test('updateRecord passing store record', function (assert) {
+  test('updateRecord passing store record', function (this: TestContext, assert) {
     const store = this.owner.lookup('service:store') as Store;
 
     const expectedData = {
@@ -225,7 +226,7 @@ module('JSON:API | Request Builders', function (hooks) {
     assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS, "headers are set to JSON API's");
   });
 
-  test('updateRecord with PATCH method', function (assert) {
+  test('updateRecord with PATCH method', function (this: TestContext, assert) {
     const store = this.owner.lookup('service:store') as Store;
 
     const expectedData = {
@@ -262,7 +263,7 @@ module('JSON:API | Request Builders', function (hooks) {
     assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS, "headers are set to JSON API's");
   });
 
-  test('deleteRecord with identifier', function (assert) {
+  test('deleteRecord with identifier', function (this: TestContext, assert) {
     const store = this.owner.lookup('service:store') as Store;
 
     const expectedData = {

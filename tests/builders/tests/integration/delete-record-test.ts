@@ -6,16 +6,18 @@ import JSONAPICache from '@ember-data/json-api';
 import { deleteRecord } from '@ember-data/json-api/request';
 import Model, { attr, instantiateRecord, teardownRecord } from '@ember-data/model';
 import { buildSchema, modelFor } from '@ember-data/model/hooks';
-import type { StructuredDataDocument } from '@ember-data/request';
+import type { RequestContext, StructuredDataDocument } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
-import type { Future, Handler, RequestContext } from '@ember-data/request/-private/types';
 import { setBuildURLConfig } from '@ember-data/request-utils';
+import type { Future, Handler } from '@ember-data/request/-private/types';
 import DataStore, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
-import type { Cache } from '@ember-data/store/-types/cache/cache';
-import { SingleResourceDataDocument } from '@ember-data/store/-types/cache/document';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import { SingleResourceDocument } from '@warp-drive/core-types/spec/raw';
+import { ModelSchema } from '@ember-data/store/-types/q/ds-model';
 import { JsonApiError } from '@ember-data/store/-types/q/record-data-json-api';
+import { TestContext } from '@ember/test-helpers';
+import type { Cache } from '@warp-drive/core-types/cache';
+import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
+import type { SingleResourceDocument } from '@warp-drive/core-types/spec/raw';
 
 class TestStore extends DataStore {
   constructor(args: unknown) {
@@ -27,20 +29,23 @@ class TestStore extends DataStore {
     this.registerSchema(buildSchema(this));
   }
 
-  createCache(capabilities: CacheCapabilitiesManager): Cache {
+  override createCache(capabilities: CacheCapabilitiesManager): Cache {
     return new JSONAPICache(capabilities);
   }
 
-  instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs: { [key: string]: unknown }): unknown {
+  override instantiateRecord(
+    identifier: StableRecordIdentifier,
+    createRecordArgs: { [key: string]: unknown }
+  ): unknown {
     return instantiateRecord.call(this, identifier, createRecordArgs);
   }
 
-  teardownRecord(record: Model): void {
+  override teardownRecord(record: Model): void {
     return teardownRecord.call(this, record);
   }
 
-  modelFor(type: string) {
-    return modelFor.call(this, type);
+  override modelFor(type: string): ModelSchema {
+    return modelFor.call(this, type)!;
   }
 }
 
@@ -59,23 +64,23 @@ module('Integration - deleteRecord', function (hooks) {
     setBuildURLConfig({ host: '', namespace: '' });
   });
 
-  test('Persisting deletion for a record with a deleteRecord op works as expected', async function (assert) {
+  test('Persisting deletion for a record with a deleteRecord op works as expected', async function (this: TestContext, assert) {
     const { owner } = this;
 
     // intercept cache APIs to ensure they are called as expected
     class TestCache extends JSONAPICache {
-      willCommit(identifier: StableRecordIdentifier): void {
+      override willCommit(identifier: StableRecordIdentifier): void {
         assert.step(`willCommit ${identifier.lid}`);
         return super.willCommit(identifier);
       }
-      didCommit(
+      override didCommit(
         committedIdentifier: StableRecordIdentifier,
         result: StructuredDataDocument<SingleResourceDocument>
       ): SingleResourceDataDocument<StableExistingRecordIdentifier> {
         assert.step(`didCommit ${committedIdentifier.lid}`);
         return super.didCommit(committedIdentifier, result);
       }
-      commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[]): void {
+      override commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[]): void {
         assert.step(`commitWasRejected ${identifier.lid}`);
         return super.commitWasRejected(identifier, errors);
       }
@@ -101,7 +106,7 @@ module('Integration - deleteRecord', function (hooks) {
         const manager = this.requestManager;
         manager.use([TestHandler]);
       }
-      createCache(capabilities: CacheCapabilitiesManager): Cache {
+      override createCache(capabilities: CacheCapabilitiesManager): Cache {
         return new TestCache(capabilities);
       }
     }
@@ -155,23 +160,23 @@ module('Integration - deleteRecord', function (hooks) {
     assert.equal(user2?.name, 'John', 'The user has the expected name');
   });
 
-  test('Rejecting while persisting a deletion with a deleteRecord op works as expected', async function (assert) {
+  test('Rejecting while persisting a deletion with a deleteRecord op works as expected', async function (this: TestContext, assert) {
     const { owner } = this;
 
     // intercept cache APIs to ensure they are called as expected
     class TestCache extends JSONAPICache {
-      willCommit(identifier: StableRecordIdentifier): void {
+      override willCommit(identifier: StableRecordIdentifier): void {
         assert.step(`willCommit ${identifier.lid}`);
         return super.willCommit(identifier);
       }
-      didCommit(
+      override didCommit(
         committedIdentifier: StableRecordIdentifier,
         result: StructuredDataDocument<SingleResourceDocument>
       ): SingleResourceDataDocument<StableExistingRecordIdentifier> {
         assert.step(`didCommit ${committedIdentifier.lid}`);
         return super.didCommit(committedIdentifier, result);
       }
-      commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[]): void {
+      override commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[]): void {
         assert.step(`commitWasRejected ${identifier.lid}`);
         return super.commitWasRejected(identifier, errors);
       }
@@ -197,7 +202,7 @@ module('Integration - deleteRecord', function (hooks) {
         const manager = this.requestManager;
         manager.use([TestHandler]);
       }
-      createCache(capabilities: CacheCapabilitiesManager): Cache {
+      override createCache(capabilities: CacheCapabilitiesManager): Cache {
         return new TestCache(capabilities);
       }
     }

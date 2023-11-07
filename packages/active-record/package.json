@@ -61,7 +61,8 @@
     "README.md",
     "LICENSE.md",
     "ember-data-logo-dark.svg",
-    "ember-data-logo-light.svg"
+    "ember-data-logo-light.svg",
+    "unstable-preview-types"
   ],
   "exports": {
     "./*": {
