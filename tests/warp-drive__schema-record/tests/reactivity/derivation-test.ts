@@ -38,24 +38,26 @@ module('Reactivity | derivation', function (hooks) {
 
     schema.registerDerivation('concat', concat);
 
-    schema.defineSchema('user', [
-      {
-        name: 'firstName',
-        type: null,
-        kind: 'attribute',
-      },
-      {
-        name: 'lastName',
-        type: null,
-        kind: 'attribute',
-      },
-      {
-        name: 'fullName',
-        type: 'concat',
-        options: { fields: ['firstName', 'lastName'], separator: ' ' },
-        kind: 'derived',
-      },
-    ]);
+    schema.defineSchema('user', {
+      fields: [
+        {
+          name: 'firstName',
+          type: null,
+          kind: 'attribute',
+        },
+        {
+          name: 'lastName',
+          type: null,
+          kind: 'attribute',
+        },
+        {
+          name: 'fullName',
+          type: 'concat',
+          options: { fields: ['firstName', 'lastName'], separator: ' ' },
+          kind: 'derived',
+        },
+      ],
+    });
 
     const fieldsMap = schema.schemas.get('user')!.fields;
     const fields: FieldSchema[] = [...fieldsMap.values()];

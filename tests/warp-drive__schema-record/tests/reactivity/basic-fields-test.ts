@@ -30,13 +30,15 @@ module('Reactivity | basic fields can receive remote updates', function (hooks) 
     const schema = new SchemaService();
     store.registerSchema(schema);
 
-    schema.defineSchema('user', [
-      {
-        name: 'name',
-        type: null,
-        kind: 'attribute',
-      },
-    ]);
+    schema.defineSchema('user', {
+      fields: [
+        {
+          name: 'name',
+          type: null,
+          kind: 'attribute',
+        },
+      ],
+    });
     const fieldsMap = schema.schemas.get('user')!.fields;
     const fields: FieldSchema[] = [...fieldsMap.values()];
 
@@ -108,36 +110,38 @@ module('Reactivity | basic fields can receive remote updates', function (hooks) 
 
     schema.registerTransform('float', FloatTransform);
 
-    schema.defineSchema('user', [
-      {
-        name: 'name',
-        type: null,
-        kind: 'attribute',
-      },
-      {
-        name: 'rank',
-        type: 'float',
-        kind: 'attribute',
-        options: { precision: 0 },
-      },
-      {
-        name: 'age',
-        type: 'float',
-        options: { precision: 0 },
-        kind: 'attribute',
-      },
-      {
-        name: 'netWorth',
-        type: 'float',
-        options: { precision: 2 },
-        kind: 'attribute',
-      },
-      {
-        name: 'coolometer',
-        type: 'float',
-        kind: 'attribute',
-      },
-    ]);
+    schema.defineSchema('user', {
+      fields: [
+        {
+          name: 'name',
+          type: null,
+          kind: 'attribute',
+        },
+        {
+          name: 'rank',
+          type: 'float',
+          kind: 'attribute',
+          options: { precision: 0 },
+        },
+        {
+          name: 'age',
+          type: 'float',
+          options: { precision: 0 },
+          kind: 'attribute',
+        },
+        {
+          name: 'netWorth',
+          type: 'float',
+          options: { precision: 2 },
+          kind: 'attribute',
+        },
+        {
+          name: 'coolometer',
+          type: 'float',
+          kind: 'attribute',
+        },
+      ],
+    });
 
     const fieldsMap = schema.schemas.get('user')!.fields;
     const fields: FieldSchema[] = [...fieldsMap.values()];

@@ -34,19 +34,21 @@ module('Reactivity | resource', function (hooks) {
 
     schema.registerDerivation('concat', concat);
 
-    schema.defineSchema('user', [
-      {
-        name: 'name',
-        type: null,
-        kind: 'attribute',
-      },
-      {
-        name: 'bestFriend',
-        type: 'user',
-        kind: 'resource',
-        options: { inverse: 'bestFriend', async: true },
-      },
-    ]);
+    schema.defineSchema('user', {
+      fields: [
+        {
+          name: 'name',
+          type: null,
+          kind: 'attribute',
+        },
+        {
+          name: 'bestFriend',
+          type: 'user',
+          kind: 'resource',
+          options: { inverse: 'bestFriend', async: true },
+        },
+      ],
+    });
 
     const record = store.push({
       data: {
