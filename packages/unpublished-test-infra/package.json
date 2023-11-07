@@ -13,6 +13,21 @@
   },
   "license": "MIT",
   "author": "",
+  "typesVersions": {
+    "*": {
+      "test-support": [
+        "dist/addon-test-support/index.d.ts"
+      ],
+      "test-support/*": [
+        "dist/addon-test-support/*",
+        "dist/addon-test-support/*/index.d.ts"
+      ],
+      "*": [
+        "dist/addon/*",
+        "dist/addon/*/index.d.ts"
+      ]
+    }
+  },
   "directories": {
     "doc": "doc",
     "test": "tests"
@@ -20,6 +35,8 @@
   "scripts": {
     "check:types": "tsc --noEmit",
     "test:infra": "ember test",
+    "build:types": "tsc --build --emitDeclarationOnly",
+    "_build": "bun run build:types",
     "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "peerDependencies": {

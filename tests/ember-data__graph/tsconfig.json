@@ -14,6 +14,11 @@
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
 
+    // TODO: Re-enable
+    "noImplicitAny": false,
+
+    "experimentalDecorators": true,
+
     "noImplicitOverride": true,
 
     "incremental": true,

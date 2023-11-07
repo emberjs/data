@@ -11,14 +11,14 @@ import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
 import type { Graph, GraphEdge } from '@ember-data/graph/-private/graph';
 import type Model from '@ember-data/model';
 import type Store from '@ember-data/store';
-import type { CollectionRelationship } from '@ember-data/store/-types/cache/relationship';
+import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
+import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
 import type {
   CollectionResourceDocument,
   EmptyResourceDocument,
   JsonApiDocument,
   SingleResourceDocument,
 } from '@warp-drive/core-types/spec/raw';
-import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
 
 class AbstractMap {
   constructor(

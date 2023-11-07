@@ -12,11 +12,11 @@ import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
 class TestStore extends Store {
-  createCache(wrapper: CacheCapabilitiesManager) {
+  override createCache(wrapper: CacheCapabilitiesManager) {
     return new Cache(wrapper);
   }
 
-  instantiateRecord(identifier: StableRecordIdentifier) {
+  override instantiateRecord(identifier: StableRecordIdentifier) {
     const { id, lid, type } = identifier;
     const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
     Object.assign(record, (this.cache.peek(identifier) as JsonApiResource).attributes);
@@ -37,7 +37,7 @@ class TestStore extends Store {
     return record;
   }
 
-  teardownRecord(record: FakeRecord) {
+  override teardownRecord(record: FakeRecord) {
     record.destroy();
   }
 }
@@ -265,9 +265,9 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
             relationships: {
               friends: {
                 data: [
-                  { type: 'user', id: '2', lid: '@lid:user-2' },
-                  { type: 'user', id: '3', lid: '@lid:user-3' },
-                  { type: 'user', id: '4', lid: '@lid:user-4' },
+                  { type: 'user', id: '2', lid: '@lid:user-2' } as StableRecordIdentifier,
+                  { type: 'user', id: '3', lid: '@lid:user-3' } as StableRecordIdentifier,
+                  { type: 'user', id: '4', lid: '@lid:user-4' } as StableRecordIdentifier,
                 ],
               },
             },
@@ -297,8 +297,8 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
             relationships: {
               friends: {
                 data: [
-                  { type: 'user', id: '3', lid: '@lid:user-3' },
-                  { type: 'user', id: '4', lid: '@lid:user-4' },
+                  { type: 'user', id: '3', lid: '@lid:user-3' } as StableRecordIdentifier,
+                  { type: 'user', id: '4', lid: '@lid:user-4' } as StableRecordIdentifier,
                 ],
               },
             },
@@ -331,8 +331,8 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
             relationships: {
               friends: {
                 data: [
-                  { type: 'user', id: '3', lid: '@lid:user-3' },
-                  { type: 'user', id: '2', lid: '@lid:user-2' },
+                  { type: 'user', id: '3', lid: '@lid:user-3' } as StableRecordIdentifier,
+                  { type: 'user', id: '2', lid: '@lid:user-2' } as StableRecordIdentifier,
                 ],
               },
             },

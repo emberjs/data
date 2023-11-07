@@ -26,19 +26,19 @@ export default class Store extends BaseStore {
     this.registerSchema(buildSchema(this));
   }
 
-  createCache(capabilities: CacheCapabilitiesManager) {
+  override createCache(capabilities: CacheCapabilitiesManager) {
     return new JSONAPICache(capabilities);
   }
 
-  instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs: Record<string, unknown>) {
+  override instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs: Record<string, unknown>) {
     return instantiateRecord.call(this, identifier, createRecordArgs);
   }
 
-  teardownRecord(record: Model) {
+  override teardownRecord(record: Model) {
     teardownRecord.call(this, record);
   }
 
-  modelFor(type: string) {
+  override modelFor(type: string) {
     return modelFor.call(this, type) || super.modelFor(type);
   }
 
@@ -48,7 +48,7 @@ export default class Store extends BaseStore {
   serializerFor = serializerFor;
   normalize = normalize;
 
-  destroy() {
+  override destroy() {
     cleanup.call(this);
     super.destroy();
   }
