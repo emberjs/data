@@ -12,12 +12,12 @@ import type { Link, Links } from '@warp-drive/core-types/spec/raw';
 
 import type { FieldSchema, SchemaService } from './schema';
 
-export const Destroy = Symbol('Destroy');
 export const RecordStore = Symbol('Store');
 export const Identifier = Symbol('Identifier');
 export const Editable = Symbol('Editable');
 export const Parent = Symbol('Parent');
 export const Checkout = Symbol('Checkout');
+export const Legacy = Symbol('Legacy');
 
 function computeAttribute(
   schema: SchemaService,
@@ -152,12 +152,14 @@ export class SchemaRecord {
   declare [RecordStore]: Store;
   declare [Identifier]: StableRecordIdentifier;
   declare [Editable]: boolean;
+  declare [Legacy]: boolean;
   declare ___notifications: unknown;
 
   constructor(store: Store, identifier: StableRecordIdentifier, editable: boolean) {
     this[RecordStore] = store;
     this[Identifier] = identifier;
     this[Editable] = editable;
+    this[Legacy] = false;
 
     const schema = store.schema as unknown as SchemaService;
     const cache = store.cache;
@@ -182,8 +184,8 @@ export class SchemaRecord {
 
     return new Proxy(this, {
       get(target: SchemaRecord, prop: string | number | symbol, receiver: typeof Proxy<SchemaRecord>) {
-        if (prop === Destroy) {
-          return target[Destroy];
+        if (prop === Symbol.dispose) {
+          return target[Symbol.dispose];
         }
 
         // _, $, *
@@ -245,7 +247,7 @@ export class SchemaRecord {
     });
   }
 
-  [Destroy](): void {}
+  [Symbol.dispose](): void {}
   [Checkout](): Promise<SchemaRecord> {
     return Promise.resolve(this);
   }
