@@ -8,9 +8,9 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { Cache } from '@ember-data/store/-types/q/cache';
-import type { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
 import type { SchemaService } from '@ember-data/store/-types/q/schema-service';
 import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
+import type { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
 
 module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
   class Person {
@@ -69,10 +69,10 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
         },
       });
     }
-    instantiateRecord(identifier, createOptions) {
+    override instantiateRecord(identifier, createOptions) {
       return new Person(this);
     }
-    teardownRecord(record) {}
+    override teardownRecord(record) {}
   }
   setupTest(hooks);
 
@@ -97,7 +97,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     let notificationCount = 0;
     let identifier: StableRecordIdentifier;
     class CreationStore extends CustomStore {
-      instantiateRecord(id: StableRecordIdentifier, createRecordArgs): object {
+      override instantiateRecord(id: StableRecordIdentifier, createRecordArgs): object {
         identifier = id;
         this.notifications.subscribe(identifier, (passedId, key) => {
           notificationCount++;
@@ -132,13 +132,13 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     assert.expect(5);
     let returnValue: unknown;
     class CreationStore extends CustomStore {
-      instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs) {
+      override instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs) {
         assert.strictEqual(identifier.type, 'person', 'Identifier type passed in correctly');
         assert.deepEqual(createRecordArgs, { name: 'chris', otherProp: 'unk' }, 'createRecordArg passed in');
         returnValue = {};
         return returnValue;
       }
-      teardownRecord(record) {
+      override teardownRecord(record) {
         assert.strictEqual(record, person, 'Passed in person to teardown');
       }
     }
@@ -165,7 +165,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
               assert.deepEqual(
                 attrDef,
                 { kind: 'attribute', type: 'string', options: {}, name: 'name' },
-                'attribute def matches schem'
+                'attribute def matches schema'
               );
             } else if (count === 1) {
               assert.step('Adapter:createRecord:attr:age');
@@ -173,7 +173,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
               assert.deepEqual(
                 attrDef,
                 { kind: 'attribute', type: 'number', options: {}, name: 'age' },
-                'attribute def matches schem'
+                'attribute def matches schema'
               );
             }
             count++;
@@ -194,7 +194,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
                   },
                   name: 'boats',
                 },
-                'relationships def matches schem'
+                'relationships def matches schema'
               );
             } else if (count === 1) {
               assert.step('Adapter:createRecord:rel:house');
@@ -207,7 +207,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
                   options: { inverse: null, async: false },
                   name: 'house',
                 },
-                'relationship def matches schem'
+                'relationship def matches schema'
               );
             }
             count++;
@@ -227,10 +227,10 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     );
     // eslint-disable-next-line @typescript-eslint/no-shadow
     class CustomStore extends Store {
-      instantiateRecord(identifier, createOptions) {
+      override instantiateRecord(identifier, createOptions) {
         return new Person(this);
       }
-      teardownRecord(record) {}
+      override teardownRecord(record) {}
     }
     this.owner.register('service:store', CustomStore);
     const store = this.owner.lookup('service:store') as Store;
@@ -365,7 +365,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     );
     const subscribedValues: string[] = [];
     class CreationStore extends CustomStore {
-      instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs) {
+      override instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs) {
         ident = identifier;
         assert.false(this.cache.isDeleted(identifier), 'we are not deleted when we start');
         this.notifications.subscribe(identifier, (passedId, key: string) => {
@@ -374,7 +374,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
         });
         return {};
       }
-      teardownRecord(record) {
+      override teardownRecord(record) {
         assert.strictEqual(record, person, 'Passed in person to teardown');
       }
     }
@@ -385,7 +385,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     store.deleteRecord(person);
     assert.true(rd.isDeleted(ident!), 'record has been marked as deleted');
     await store.saveRecord(person);
-    assert.true(rd.isDeletionCommitted(ident!), 'deletion has been commited');
+    assert.true(rd.isDeletionCommitted(ident!), 'deletion has been committed');
     assert.strictEqual(subscribedValues.length, 3, 'we received the proper notifications');
     // TODO this indicates our implementation could likely be more efficient
     assert.deepEqual(subscribedValues, ['state', 'removed', 'state'], 'state change to deleted has been notified');
@@ -404,10 +404,10 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     );
     // eslint-disable-next-line @typescript-eslint/no-shadow
     class CustomStore extends Store {
-      instantiateRecord(identifier, createOptions) {
+      override instantiateRecord(identifier, createOptions) {
         return new Person(this);
       }
-      teardownRecord(record) {}
+      override teardownRecord(record) {}
     }
     this.owner.register('service:store', CustomStore);
     const store = this.owner.lookup('service:store') as Store;

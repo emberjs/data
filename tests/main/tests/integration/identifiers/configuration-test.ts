@@ -135,7 +135,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
       }
     }
     class TestAdapter extends Adapter {
-      createRecord() {
+      override createRecord() {
         return Promise.resolve({
           data: {
             id: '1',
@@ -199,7 +199,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
       }
     }
     class TestAdapter extends Adapter {
-      createRecord() {
+      override createRecord() {
         return Promise.resolve({
           data: {
             id: '1',
@@ -268,7 +268,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
       }
     }
     class TestAdapter extends Adapter {
-      updateRecord() {
+      override updateRecord() {
         return Promise.resolve({
           data: {
             id: '1',
@@ -357,7 +357,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
       }
     }
     class TestAdapter extends Adapter {
-      findRecord() {
+      override findRecord() {
         return Promise.resolve({
           data: {
             id: '1',

@@ -41,10 +41,10 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       }
     }
     class TestAdapter extends Adapter {
-      shouldBackgroundReloadRecord() {
+      override shouldBackgroundReloadRecord() {
         return false;
       }
-      findRecord() {
+      override findRecord() {
         if (isQuery !== true) {
           calls.findRecord++;
         }
@@ -61,7 +61,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
           },
         });
       }
-      queryRecord() {
+      override queryRecord() {
         calls.queryRecord++;
         isQuery = true;
         return this.findRecord();
@@ -251,10 +251,10 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       }
     }
     class TestAdapter extends Adapter {
-      shouldBackgroundReloadRecord() {
+      override shouldBackgroundReloadRecord() {
         return false;
       }
-      findRecord() {
+      override findRecord() {
         if (isQuery !== true) {
           calls.findRecord++;
         }
@@ -271,7 +271,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
           },
         });
       }
-      queryRecord() {
+      override queryRecord() {
         calls.queryRecord++;
         isQuery = true;
         return this.findRecord();

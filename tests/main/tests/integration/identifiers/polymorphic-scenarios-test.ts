@@ -67,10 +67,10 @@ module('Integration | Identifiers - single-table-inheritance polymorphic scenari
     test(`Identity of polymorphic relations can change type on first load`, async function (assert) {
       const { owner } = this;
       class TestAdapter extends Adapter {
-        shouldBackgroundReloadRecord() {
+        override shouldBackgroundReloadRecord() {
           return false;
         }
-        findRecord(_, __, id) {
+        override findRecord(_, __, id) {
           return Promise.resolve({
             data: {
               id,
@@ -104,10 +104,10 @@ module('Integration | Identifiers - single-table-inheritance polymorphic scenari
         { id: '2', type: 'car' },
       ];
       class TestAdapter extends Adapter {
-        shouldBackgroundReloadRecord() {
+        override shouldBackgroundReloadRecord() {
           return false;
         }
-        findRecord(_, { modelName: type }, id) {
+        override findRecord(_, { modelName: type }, id) {
           if (type === 'dealership') {
             return Promise.resolve({
               data: {

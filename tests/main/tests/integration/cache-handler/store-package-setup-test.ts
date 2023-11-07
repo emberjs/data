@@ -7,28 +7,23 @@ import { setupTest } from 'ember-qunit';
 
 import Cache from '@ember-data/json-api';
 import { LegacyNetworkHandler } from '@ember-data/legacy-compat';
-import RequestManager from '@ember-data/request';
+import RequestManager, { StructuredDataDocument, StructuredErrorDocument } from '@ember-data/request';
 import type { Context } from '@ember-data/request/-private/context';
-import type {
-  Future,
-  NextFn,
-  StructuredDataDocument,
-  StructuredErrorDocument,
-} from '@ember-data/request/-private/types';
+import type { Future, NextFn } from '@ember-data/request/-private/types';
 import Fetch from '@ember-data/request/fetch';
 import Store, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
 import type { Document } from '@ember-data/store/-private/document';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
 import { Collection } from '@ember-data/store/-private/record-arrays/identifier-array';
-import type {
-  CollectionResourceDataDocument,
-  ResourceDataDocument,
-  SingleResourceDataDocument,
-} from '@ember-data/store/-types/cache/document';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
 import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import {
+  CollectionResourceDataDocument,
+  ResourceDataDocument,
+  SingleResourceDataDocument,
+} from '@warp-drive/core-types/spec/document';
 import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
 import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 
@@ -63,11 +58,11 @@ class TestStore extends Store {
     });
   }
 
-  createCache(wrapper: CacheCapabilitiesManager) {
+  override createCache(wrapper: CacheCapabilitiesManager) {
     return new Cache(wrapper);
   }
 
-  instantiateRecord(identifier: StableRecordIdentifier) {
+  override instantiateRecord(identifier: StableRecordIdentifier) {
     const { id, lid, type } = identifier;
     const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
     Object.assign(record, (this.cache.peek(identifier) as JsonApiResource).attributes);
@@ -88,7 +83,7 @@ class TestStore extends Store {
     return record;
   }
 
-  teardownRecord(record: FakeRecord) {
+  override teardownRecord(record: FakeRecord) {
     record.destroy();
   }
 }
@@ -292,11 +287,11 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
           });
         }
 
-        createCache(wrapper: CacheCapabilitiesManager) {
+        override createCache(wrapper: CacheCapabilitiesManager) {
           return new Cache(wrapper);
         }
 
-        instantiateRecord(identifier: StableRecordIdentifier) {
+        override instantiateRecord(identifier: StableRecordIdentifier) {
           const { id, lid, type } = identifier;
           const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
           Object.assign(record, (this.cache.peek(identifier) as JsonApiResource).attributes);
@@ -317,7 +312,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
           return record;
         }
 
-        teardownRecord(record: FakeRecord) {
+        override teardownRecord(record: FakeRecord) {
           record.destroy();
         }
       }
@@ -390,11 +385,11 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
           });
         }
 
-        createCache(wrapper: CacheCapabilitiesManager) {
+        override createCache(wrapper: CacheCapabilitiesManager) {
           return new Cache(wrapper);
         }
 
-        instantiateRecord(identifier: StableRecordIdentifier) {
+        override instantiateRecord(identifier: StableRecordIdentifier) {
           const { id, lid, type } = identifier;
           const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
           Object.assign(record, (this.cache.peek(identifier) as JsonApiResource).attributes);
@@ -415,7 +410,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
           return record;
         }
 
-        teardownRecord(record: FakeRecord) {
+        override teardownRecord(record: FakeRecord) {
           record.destroy();
         }
       }
@@ -489,11 +484,11 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
           });
         }
 
-        createCache(wrapper: CacheCapabilitiesManager) {
+        override createCache(wrapper: CacheCapabilitiesManager) {
           return new Cache(wrapper);
         }
 
-        instantiateRecord(identifier: StableRecordIdentifier) {
+        override instantiateRecord(identifier: StableRecordIdentifier) {
           const { id, lid, type } = identifier;
           const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
           Object.assign(record, (this.cache.peek(identifier) as JsonApiResource).attributes);
@@ -514,7 +509,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
           return record;
         }
 
-        teardownRecord(record: FakeRecord) {
+        override teardownRecord(record: FakeRecord) {
           record.destroy();
         }
       }
@@ -780,7 +775,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         '<Initial> we get access to the document meta'
       );
 
-      // Backgrond Re-Fetch without Hydration
+      // Background Re-Fetch without Hydration
       const userDocument2 = await store.requestManager.request<SingleResourceDataDocument>({
         store,
         url: '/assets/users/1.json',
@@ -1324,7 +1319,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         'we get access to the document meta'
       );
 
-      // Backgrond Re-Fetch without Hydration
+      // Background Re-Fetch without Hydration
       const userDocument2 = await store.requestManager.request<CollectionResourceDataDocument>({
         store,
         url: '/assets/users/list.json',

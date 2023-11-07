@@ -99,7 +99,7 @@
   * fix: de-dupe coalescing when includes or adapterOptions is present but still use findRecord #8704
   * fix: make implicit relationship teardown following delete of related record safe #8705
   * fix: catch errors during didCommit in DEBUG #8708
-  
+
 ## 5.1.1 (2023-07-07)
 
 #### :bug: Bug Fix
@@ -3053,7 +3053,7 @@ The full API reference of `DS.Snapshot` can be found [here](https://api.emberjs.
 - fetch() -> fetchById() in docs
 - Run findHasMany inside an ED runloop
 - Cleanup debug adapter test: Watching Records
-- Fixed didDelete event/callback not fired in uncommited state
+- Fixed didDelete event/callback not fired in uncommitted state
 - Add main entry point for package.json.
 - register the store as a service
 - Warn when expected coalesced records are not found in the response

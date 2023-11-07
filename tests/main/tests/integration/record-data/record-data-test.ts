@@ -9,10 +9,8 @@ import type {
 } from '@warp-drive/core-types/identifier';
 import type {
   CollectionResourceDocument,
-  CollectionResourceRelationship,
   JsonApiDocument,
   SingleResourceDocument,
-  SingleResourceRelationship,
 } from '@warp-drive/core-types/spec/raw';
 import { module, test } from 'qunit';
 
@@ -23,20 +21,21 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import type { StructuredDataDocument, StructuredDocument } from '@ember-data/request';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import { ResourceBlob } from '@ember-data/store/-types/cache/aliases';
-import type { RelationshipDiff } from '@ember-data/store/-types/cache/cache';
-import { Change } from '@ember-data/store/-types/cache/change';
-import {
+import type { Cache, MergeOperation } from '@ember-data/store/-types/q/cache';
+import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
+import type { JsonApiError, JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
+import type { ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core-types/cache';
+import type { ResourceBlob } from '@warp-drive/core-types/cache/aliases';
+import type { Change } from '@warp-drive/core-types/cache/change';
+import { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
+import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type {
   CollectionResourceDataDocument,
   ResourceDocument,
   ResourceErrorDocument,
   ResourceMetaDocument,
   SingleResourceDataDocument,
-} from '@ember-data/store/-types/cache/document';
-import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/store/-types/q/cache';
-import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import type { JsonApiError, JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
-import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+} from '@warp-drive/core-types/spec/document';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
@@ -162,7 +161,7 @@ class TestRecordData implements Cache {
     this._errors = errors;
   }
   unloadRecord(identifier: StableRecordIdentifier): void {}
-  getAttr(identifier: StableRecordIdentifier, propertyName: string): unknown {
+  getAttr(identifier: StableRecordIdentifier, propertyName: string): string {
     return '';
   }
   setAttr(identifier: StableRecordIdentifier, propertyName: string, value: unknown): void {
@@ -180,7 +179,7 @@ class TestRecordData implements Cache {
   getRelationship(
     identifier: StableRecordIdentifier,
     propertyName: string
-  ): SingleResourceRelationship | CollectionResourceRelationship {
+  ): ResourceRelationship | CollectionRelationship {
     throw new Error('Method not implemented.');
   }
   mutate(operation: LocalRelationshipOperation): void {
@@ -286,11 +285,11 @@ module('integration/record-data - Custom RecordData Implementations', function (
     let isNew = false;
 
     class LifecycleRecordData extends TestRecordData {
-      upsert() {
+      override upsert() {
         calledUpsert++;
       }
 
-      clientDidCreate(
+      override clientDidCreate(
         identifier: StableRecordIdentifier,
         options?: Record<string, unknown> | undefined
       ): Record<string, unknown> {
@@ -299,20 +298,20 @@ module('integration/record-data - Custom RecordData Implementations', function (
         return {};
       }
 
-      willCommit() {
+      override willCommit() {
         calledWillCommit++;
       }
 
-      commitWasRejected(identifier, errors) {
+      override commitWasRejected(identifier, errors) {
         super.commitWasRejected(identifier, errors);
         calledWasRejected++;
       }
 
-      unloadRecord() {
+      override unloadRecord() {
         calledUnloadRecord++;
       }
 
-      rollbackAttrs() {
+      override rollbackAttrs() {
         calledRollbackAttributes++;
         return [];
       }
@@ -320,19 +319,19 @@ module('integration/record-data - Custom RecordData Implementations', function (
         calledRollbackAttributes++;
       }
 
-      didCommit(identifier, result) {
+      override didCommit(identifier, result) {
         calledDidCommit++;
         isNew = false;
         return { data: identifier };
       }
 
-      isNew() {
+      override isNew() {
         return isNew;
       }
     }
 
     class TestStore extends Store {
-      createCache(storeWrapper: CacheCapabilitiesManager) {
+      override createCache(storeWrapper: CacheCapabilitiesManager) {
         // @ts-expect-error
         return new LifecycleRecordData(storeWrapper) as Cache;
       }
@@ -441,15 +440,15 @@ module('integration/record-data - Custom RecordData Implementations', function (
         return false;
       }
 
-      changedAttrs(): any {
+      override changedAttrs(): any {
         return { name: ['old', 'new'] };
       }
 
-      hasChangedAttrs(): boolean {
+      override hasChangedAttrs(): boolean {
         return false;
       }
 
-      setAttr(identifier: StableRecordIdentifier, key: string, value: any) {
+      override setAttr(identifier: StableRecordIdentifier, key: string, value: any) {
         assert.strictEqual(key, 'name', 'key passed to setDirtyAttribute');
         assert.strictEqual(value, 'new value', 'value passed to setDirtyAttribute');
       }
@@ -459,7 +458,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
         assert.strictEqual(value, 'new value', 'value passed to setDirtyAttribute');
       }
 
-      getAttr(identifier: StableRecordIdentifier, key: string): string {
+      override getAttr(identifier: StableRecordIdentifier, key: string): string {
         calledGet++;
         assert.strictEqual(key, 'name', 'key passed to getAttr');
 
@@ -468,7 +467,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     }
 
     class TestStore extends Store {
-      createCache(storeWrapper: CacheCapabilitiesManager) {
+      override createCache(storeWrapper: CacheCapabilitiesManager) {
         // @ts-expect-error
         return new AttributeRecordData(storeWrapper) as Cache;
       }
