@@ -1,3 +1,5 @@
+import { assert } from '@ember/debug';
+
 import { DEBUG } from '@ember-data/env';
 import type { Future } from '@ember-data/request';
 import type Store from '@ember-data/store';
@@ -7,7 +9,7 @@ import { addToTransaction, defineSignal, entangleSignal, type Signal } from '@em
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { ResourceRelationship as SingleResourceRelationship } from '@warp-drive/core-types/cache/relationship';
-import { Value } from '@warp-drive/core-types/json/raw';
+import type { Value } from '@warp-drive/core-types/json/raw';
 import type { Link, Links } from '@warp-drive/core-types/spec/raw';
 
 import type { FieldSchema, SchemaService } from './schema';
@@ -18,6 +20,9 @@ export const Identifier = Symbol('Identifier');
 export const Editable = Symbol('Editable');
 export const Parent = Symbol('Parent');
 export const Checkout = Symbol('Checkout');
+export const Legacy = Symbol('Legacy');
+
+const RecordSymbols = new Set([Destroy, RecordStore, Identifier, Editable, Parent, Checkout, Legacy]);
 
 function computeAttribute(
   schema: SchemaService,
@@ -152,12 +157,14 @@ export class SchemaRecord {
   declare [RecordStore]: Store;
   declare [Identifier]: StableRecordIdentifier;
   declare [Editable]: boolean;
+  declare [Legacy]: boolean;
   declare ___notifications: unknown;
 
-  constructor(store: Store, identifier: StableRecordIdentifier, editable: boolean) {
+  constructor(store: Store, identifier: StableRecordIdentifier, Mode: { [Editable]: boolean; [Legacy]: boolean }) {
     this[RecordStore] = store;
     this[Identifier] = identifier;
-    this[Editable] = editable;
+    this[Editable] = Mode[Editable] ?? false;
+    this[Legacy] = Mode[Legacy] ?? false;
 
     const schema = store.schema as unknown as SchemaService;
     const cache = store.cache;
@@ -182,17 +189,25 @@ export class SchemaRecord {
 
     return new Proxy(this, {
       get(target: SchemaRecord, prop: string | number | symbol, receiver: typeof Proxy<SchemaRecord>) {
-        if (prop === Destroy) {
-          return target[Destroy];
+        if (RecordSymbols.has(prop as symbol)) {
+          return target[prop as keyof SchemaRecord];
         }
 
-        // _, $, *
+        // SchemaRecord reserves use of keys that begin with these characters
+        // for its own usage.
+        // _, @, $, *
         if (prop === 'id') {
           return identifier.id;
         }
         if (prop === '$type') {
+          assert(`SchemaRecord.$type is not available in legacy mode`, !target[Legacy]);
           return identifier.type;
         }
+        if (prop === 'constructor') {
+          assert(`SchemaRecord.constructor.modelName is not available ouside of legacy mode`, target[Legacy]);
+          return { modelName: identifier.type };
+        }
+
         const field = fields.get(prop as string);
         if (!field) {
           throw new Error(`No field named ${String(prop)} on ${identifier.type}`);

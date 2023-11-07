@@ -15,7 +15,7 @@ module.exports = {
     base.rules(),
     imports.rules(),
     isolation.rules({
-      allowedImports: [],
+      allowedImports: ['@ember/debug'],
     }),
     {}
   ),

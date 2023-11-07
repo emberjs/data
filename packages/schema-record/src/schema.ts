@@ -1,13 +1,8 @@
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import { Value } from '@warp-drive/core-types/json/raw';
+import type { Value } from '@warp-drive/core-types/json/raw';
 import type { AttributeSchema, RelationshipSchema } from '@warp-drive/core-types/schema';
 
 import type { SchemaRecord } from './record';
-
-export const Destroy = Symbol('Destroy');
-export const RecordStore = Symbol('Store');
-export const Identifier = Symbol('Identifier');
-export const Editable = Symbol('Editable');
 
 export interface FieldSchema {
   type: string | null;
@@ -16,12 +11,35 @@ export interface FieldSchema {
   options?: Record<string, unknown>;
 }
 
+/**
+ * The full schema for a resource
+ *
+ * @class FieldSpec
+ * @internal
+ */
 type FieldSpec = {
-  // legacy support
+  /**
+   * legacy schema service separated attribute
+   * from relationship lookup
+   * @internal
+   */
   attributes: Record<string, AttributeSchema>;
+  /**
+   * legacy schema service separated attribute
+   * from relationship lookup
+   * @internal
+   */
   relationships: Record<string, RelationshipSchema>;
-  // new support
+  /**
+   * new schema service is fields based
+   * @internal
+   */
   fields: Map<string, FieldSchema>;
+  /**
+   * legacy model mode support
+   * @internal
+   */
+  legacy?: boolean;
 };
 
 export type Transform<T extends Value = string, PT = unknown> = {
@@ -51,11 +69,13 @@ export class SchemaService {
     this.derivations.set(type, derivation as Derivation<unknown, unknown>);
   }
 
-  defineSchema(name: string, fields: FieldSchema[]): void {
+  defineSchema(name: string, schema: { legacy?: boolean; fields: FieldSchema[] }): void {
+    const { legacy, fields } = schema;
     const fieldSpec: FieldSpec = {
       attributes: {},
       relationships: {},
       fields: new Map(),
+      legacy: legacy ?? false,
     };
 
     fields.forEach((field) => {

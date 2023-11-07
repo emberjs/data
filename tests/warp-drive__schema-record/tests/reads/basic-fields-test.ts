@@ -28,13 +28,15 @@ module('Reads | basic fields', function (hooks) {
     const schema = new SchemaService();
     store.registerSchema(schema);
 
-    schema.defineSchema('user', [
-      {
-        name: 'name',
-        type: null,
-        kind: 'attribute',
-      },
-    ]);
+    schema.defineSchema('user', {
+      fields: [
+        {
+          name: 'name',
+          type: null,
+          kind: 'attribute',
+        },
+      ],
+    });
 
     const record = store.createRecord('user', { name: 'Rey Skybarker' }) as User;
 
@@ -81,41 +83,43 @@ module('Reads | basic fields', function (hooks) {
 
     schema.registerTransform('float', FloatTransform);
 
-    schema.defineSchema('user', [
-      {
-        name: 'name',
-        type: null,
-        kind: 'attribute',
-      },
-      {
-        name: 'lastName',
-        type: 'string',
-        kind: 'attribute',
-      },
-      {
-        name: 'rank',
-        type: 'float',
-        kind: 'attribute',
-        options: { precision: 0 },
-      },
-      {
-        name: 'age',
-        type: 'float',
-        options: { precision: 0 },
-        kind: 'attribute',
-      },
-      {
-        name: 'netWorth',
-        type: 'float',
-        options: { precision: 2 },
-        kind: 'attribute',
-      },
-      {
-        name: 'coolometer',
-        type: 'float',
-        kind: 'attribute',
-      },
-    ]);
+    schema.defineSchema('user', {
+      fields: [
+        {
+          name: 'name',
+          type: null,
+          kind: 'attribute',
+        },
+        {
+          name: 'lastName',
+          type: 'string',
+          kind: 'attribute',
+        },
+        {
+          name: 'rank',
+          type: 'float',
+          kind: 'attribute',
+          options: { precision: 0 },
+        },
+        {
+          name: 'age',
+          type: 'float',
+          options: { precision: 0 },
+          kind: 'attribute',
+        },
+        {
+          name: 'netWorth',
+          type: 'float',
+          options: { precision: 2 },
+          kind: 'attribute',
+        },
+        {
+          name: 'coolometer',
+          type: 'float',
+          kind: 'attribute',
+        },
+      ],
+    });
 
     const record = store.createRecord('user', {
       name: 'Rey Skybarker',
