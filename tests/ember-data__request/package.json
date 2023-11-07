@@ -16,6 +16,7 @@
   "scripts": {
     "build:tests": "IS_TESTING=true EMBER_CLI_TEST_COMMAND=true ember build --output-path=dist-test --suppress-sizes",
     "_build:production": "pnpm build:tests -e production",
+    "check:types": "tsc --noEmit",
     "test": "bun ./diagnostic.js",
     "_test:production": "bun ./diagnostic.js",
     "_syncPnpm": "bun run sync-dependencies-meta-injected"
@@ -78,6 +79,7 @@
     "ember-try": "^3.0.0",
     "loader.js": "^4.7.0",
     "silent-error": "^1.1.1",
+    "typescript": "^5.2.2",
     "webpack": "^5.89.0"
   },
   "ember": {

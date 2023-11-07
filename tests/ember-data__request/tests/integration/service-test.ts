@@ -8,16 +8,18 @@ import Resolver from 'ember-resolver';
 
 import RequestManager from '@ember-data/request';
 
+import { TestContext } from '@ember/test-helpers';
+
 module('RequestManager | Ember Service Setup', function (hooks) {
   setupTest(hooks, { resolver: new Resolver() });
 
-  test('We can register RequestManager as a service', function (assert) {
+  test('We can register RequestManager as a service', function (this: TestContext, assert) {
     this.owner.register('service:request', RequestManager);
     const manager = this.owner.lookup('service:request');
     assert.ok(manager instanceof RequestManager, 'We instantiated');
   });
 
-  test('We can use injections when registering the RequestManager as a service', function (assert) {
+  test('We can use injections when registering the RequestManager as a service', function (this: TestContext, assert) {
     class CustomManager extends RequestManager {
       @service cache;
     }
