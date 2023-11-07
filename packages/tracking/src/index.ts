@@ -40,3 +40,5 @@ export function cached<T extends object, K extends keyof T & string>(
     return getValue<unknown>(caches.get(this) as Parameters<typeof getValue>[0]);
   };
 }
+
+export { createCache, getValue };

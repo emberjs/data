@@ -1,9 +1,10 @@
 import { assert } from '@ember/debug';
 
+import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
 import { Identifier, type SchemaRecord } from './record';
-import type { Derivation, FieldSchema, SchemaService } from './schema';
+import type { Derivation, SchemaService } from './schema';
 
 export const SchemaRecordFields: FieldSchema[] = [
   {

@@ -42,7 +42,7 @@ module('Reads | resource', function (hooks) {
         {
           name: 'name',
           type: null,
-          kind: 'attribute',
+          kind: 'field',
         },
         {
           name: 'bestFriend',

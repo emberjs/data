@@ -17,7 +17,7 @@ module.exports = {
     base.rules(),
     imports.rules(),
     isolation.rules({
-      allowedImports: ['@ember/application'],
+      allowedImports: ['@ember/application', '@ember/object', '@ember/owner'],
     }),
     {}
   ),
@@ -34,7 +34,7 @@ module.exports = {
     typescript.defaults(),
     qunit.defaults({
       files: ['tests/**/*.{js,ts}'],
-      allowedImports: ['@glimmer/component'],
+      allowedImports: ['@glimmer/component', '@ember/object', '@ember/owner'],
     }),
   ],
 };

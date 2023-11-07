@@ -40,12 +40,12 @@ module('Reads | derivation', function (hooks) {
         {
           name: 'firstName',
           type: null,
-          kind: 'attribute',
+          kind: 'field',
         },
         {
           name: 'lastName',
           type: null,
-          kind: 'attribute',
+          kind: 'field',
         },
         {
           name: 'fullName',
