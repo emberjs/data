@@ -148,6 +148,18 @@ export function withFields(fields: FieldSchema[]) {
     type: 'boolean',
     options: { defaultValue: false },
   });
+  fields.push({
+    name: 'isDestroying',
+    kind: '@local',
+    type: 'boolean',
+    options: { defaultValue: false },
+  });
+  fields.push({
+    name: 'isDestroyed',
+    kind: '@local',
+    type: 'boolean',
+    options: { defaultValue: false },
+  });
   return fields;
 }
 
