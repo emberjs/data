@@ -211,6 +211,10 @@ export class SchemaRecord {
           return target[prop as keyof SchemaRecord];
         }
 
+        if (prop === '___notifications') {
+          return target.___notifications;
+        }
+
         // SchemaRecord reserves use of keys that begin with these characters
         // for its own usage.
         // _, @, $, *
