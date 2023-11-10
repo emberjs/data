@@ -2,6 +2,7 @@ import { module, test } from 'qunit';
 
 import { setupRenderingTest } from 'ember-qunit';
 
+import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import type Errors from '@ember-data/model/-private/errors';
 import type RecordState from '@ember-data/model/-private/record-state';
 import { registerDerivations, withFields } from '@ember-data/model/migration-support';
@@ -12,6 +13,8 @@ import { SchemaService } from '@warp-drive/schema-record/schema';
 interface User {
   [Legacy]: boolean;
   [Editable]: boolean;
+  isDeleted: boolean;
+  deleteRecord(): void;
   id: string | null;
   $type: 'user';
   name: string;
@@ -24,6 +27,7 @@ interface User {
   isDestroyed: boolean;
   errors: Errors;
   unloadRecord(): void;
+  _createSnapshot(): Snapshot;
 }
 
 module('Legacy Mode', function (hooks) {
@@ -241,8 +245,72 @@ module('Legacy Mode', function (hooks) {
     try {
       record.unloadRecord();
       assert.ok(true, 'record.unloadRecord should be available');
+      const recordAgain = store.peekRecord('user', '1');
+      assert.strictEqual(recordAgain, null, 'record is unloaded');
     } catch (e) {
       assert.ok(false, `record.unloadRecord should be available: ${(e as Error).message}`);
     }
+  });
+
+  test('we can use deleteRecord', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const schema = new SchemaService();
+    store.registerSchema(schema);
+    registerDerivations(schema);
+
+    schema.defineSchema('user', {
+      legacy: true,
+      fields: withFields([
+        {
+          name: 'name',
+          type: null,
+          kind: 'attribute',
+        },
+      ]),
+    });
+
+    const record = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: { name: 'Rey Pupatine' },
+      },
+    }) as User;
+
+    record.deleteRecord();
+    assert.true(record.isDeleted, 'state flag is updated');
+    assert.strictEqual(record.currentState.stateName, 'root.deleted.uncommitted', 'state is updated');
+  });
+
+  test('we can use _createSnapshot', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const schema = new SchemaService();
+    store.registerSchema(schema);
+    registerDerivations(schema);
+
+    schema.defineSchema('user', {
+      legacy: true,
+      fields: withFields([
+        {
+          name: 'name',
+          type: null,
+          kind: 'attribute',
+        },
+      ]),
+    });
+
+    const record = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: { name: 'Rey Pupatine' },
+      },
+    }) as User;
+
+    const snapshot = record._createSnapshot();
+    assert.ok(snapshot, 'snapshot is created');
+    assert.strictEqual(snapshot.id, '1', 'snapshot id is correct');
+    assert.strictEqual(snapshot.modelName, 'user', 'snapshot modelName is correct');
+    assert.strictEqual(snapshot.attributes().name, 'Rey Pupatine', 'snapshot attribute is correct');
   });
 });

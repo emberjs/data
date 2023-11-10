@@ -28,11 +28,11 @@ import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
 import type { CollectionResourceRelationship, SingleResourceRelationship } from '@warp-drive/core-types/spec/raw';
 
 import RelatedCollection from './many-array';
+import type { MinimalLegacyRecord } from './model-methods';
 import type { BelongsToProxyCreateArgs, BelongsToProxyMeta } from './promise-belongs-to';
 import PromiseBelongsTo from './promise-belongs-to';
 import type { HasManyProxyCreateArgs } from './promise-many-array';
 import PromiseManyArray from './promise-many-array';
-import type { MinimalLegacyRecord } from './record-state';
 import BelongsToReference from './references/belongs-to';
 import HasManyReference from './references/has-many';
 
