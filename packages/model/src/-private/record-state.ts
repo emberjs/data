@@ -10,9 +10,9 @@ import type { Cache } from '@ember-data/store/-types/q/cache';
 import { cached, compat } from '@ember-data/tracking';
 import { addToTransaction, defineSignal, getSignal, peekSignal, subscribe } from '@ember-data/tracking/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { RecordStore } from '@warp-drive/core-types/symbols';
 
 import type Errors from './errors';
+import type { MinimalLegacyRecord } from './model-methods';
 
 const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
 const SOURCE_POINTER_PRIMARY_REGEXP = /^\/?data/;
@@ -68,15 +68,6 @@ export function notifySignal<T extends object, K extends keyof T & string>(obj: 
     signal.shouldReset = true;
     addToTransaction(signal);
   }
-}
-
-export interface MinimalLegacyRecord {
-  errors: Errors;
-  ___recordState: RecordState;
-  currentState: RecordState;
-  isDestroyed: boolean;
-  isDestroying: boolean;
-  [RecordStore]: Store;
 }
 
 /**

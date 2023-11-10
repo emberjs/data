@@ -1,13 +1,23 @@
 import { assert } from '@ember/debug';
 
-import { importSync } from '@embroider/macros';
-
-import { upgradeStore } from '@ember-data/legacy-compat/-private';
 import { recordIdentifierFor } from '@ember-data/store';
-import { RecordStore } from '@warp-drive/core-types/symbols';
 
-import { Errors , lookupLegacySupport } from './-private';
-import RecordState, { MinimalLegacyRecord } from './-private/record-state';
+import { Errors } from './-private';
+import {
+  belongsTo,
+  changedAttributes,
+  createSnapshot,
+  deleteRecord,
+  destroyRecord,
+  hasMany,
+  MinimalLegacyRecord,
+  reload,
+  rollbackAttributes,
+  save,
+  serialize,
+  unloadRecord,
+} from './-private/model-methods';
+import RecordState from './-private/record-state';
 
 interface FieldSchema {
   type: string | null;
@@ -49,38 +59,6 @@ const LegacyFields = [
   'unloadRecord',
 ];
 
-function unloadRecord(this: MinimalLegacyRecord) {
-  if (this.currentState.isNew && (this.isDestroyed || this.isDestroying)) {
-    return;
-  }
-  this[RecordStore].unloadRecord(this);
-}
-
-function belongsTo(this: MinimalLegacyRecord, prop: string) {
-  return lookupLegacySupport(this).referenceFor('belongsTo', prop);
-}
-
-function hasMany(this: MinimalLegacyRecord, prop: string) {
-  return lookupLegacySupport(this).referenceFor('hasMany', prop);
-}
-
-function serialize(this: MinimalLegacyRecord, options?: Record<string, unknown>) {
-  upgradeStore(this[RecordStore]);
-  return this[RecordStore].serializeRecord(this, options);
-}
-
-function createSnapshot(this: MinimalLegacyRecord) {
-  const store = this[RecordStore];
-
-  upgradeStore(store);
-  if (!store._fetchManager) {
-    const FetchManager = (importSync('@ember-data/legacy-compat/-private') as typeof import('@ember-data/legacy-compat/-private')).FetchManager;
-    store._fetchManager = new FetchManager(store);
-  }
-
-  return store._fetchManager.createSnapshot(recordIdentifierFor(this));
-}
-
 const LegacySupport = new WeakMap<MinimalLegacyRecord, Record<string, unknown>>();
 
 function legacySupport(record: MinimalLegacyRecord, options: Record<string, unknown> | null, prop: string): unknown {
@@ -98,7 +76,7 @@ function legacySupport(record: MinimalLegacyRecord, options: Record<string, unkn
     case 'belongsTo':
       return belongsTo;
     case 'changedAttributes':
-      throw new Error('not implemented');
+      return changedAttributes;
     case 'constructor':
       return (state._constructor = state._constructor || {
         isModel: true,
@@ -107,9 +85,9 @@ function legacySupport(record: MinimalLegacyRecord, options: Record<string, unkn
     case 'currentState':
       return (state.recordState = state.recordState || new RecordState(record));
     case 'deleteRecord':
-      throw new Error('not implemented');
+      return deleteRecord;
     case 'destroyRecord':
-      throw new Error('not implemented');
+      return destroyRecord;
     case 'dirtyType':
       return record.currentState.dirtyType;
     case 'errors':
@@ -137,11 +115,11 @@ function legacySupport(record: MinimalLegacyRecord, options: Record<string, unkn
     case 'isValid':
       return record.currentState.isValid;
     case 'reload':
-      throw new Error('not implemented');
+      return reload;
     case 'rollbackAttributes':
-      throw new Error('not implemented');
+      return rollbackAttributes;
     case 'save':
-      throw new Error('not implemented');
+      return save;
     case 'serialize':
       return serialize;
     case 'unloadRecord':
