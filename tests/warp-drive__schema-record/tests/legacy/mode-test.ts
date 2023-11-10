@@ -13,7 +13,17 @@ import { SchemaService } from '@warp-drive/schema-record/schema';
 interface User {
   [Legacy]: boolean;
   [Editable]: boolean;
+  hasDirtyAttributes: boolean;
   isDeleted: boolean;
+  isEmpty: boolean;
+  isError: boolean;
+  isLoaded: boolean;
+  isLoading: boolean;
+  isNew: boolean;
+  isSaving: boolean;
+  isValid: boolean;
+  dirtyType: string;
+  adapterError: unknown;
   deleteRecord(): void;
   id: string | null;
   $type: 'user';
@@ -312,5 +322,72 @@ module('Legacy Mode', function (hooks) {
     assert.strictEqual(snapshot.id, '1', 'snapshot id is correct');
     assert.strictEqual(snapshot.modelName, 'user', 'snapshot modelName is correct');
     assert.strictEqual(snapshot.attributes().name, 'Rey Pupatine', 'snapshot attribute is correct');
+  });
+
+  test('we can access state flags', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const schema = new SchemaService();
+    store.registerSchema(schema);
+    registerDerivations(schema);
+
+    schema.defineSchema('user', {
+      legacy: true,
+      fields: withFields([
+        {
+          name: 'name',
+          type: null,
+          kind: 'attribute',
+        },
+      ]),
+    });
+
+    const record = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: { name: 'Rey Pupatine' },
+      },
+    }) as User;
+
+    assert.strictEqual(record.dirtyType, '', 'dirtyType is correct');
+    assert.strictEqual(record.adapterError, null, 'adapterError is correct');
+    assert.false(record.hasDirtyAttributes, 'hasDirtyAttributes is correct');
+    assert.false(record.isDeleted, 'isDeleted is correct');
+    assert.false(record.isEmpty, 'isEmpty is correct');
+    assert.false(record.isError, 'isError is correct');
+    assert.true(record.isLoaded, 'isLoaded is correct');
+    assert.false(record.isLoading, 'isReloading is correct');
+    assert.false(record.isNew, 'isNew is correct');
+    assert.false(record.isSaving, 'isSaving is correct');
+    assert.true(record.isValid, 'isValid is correct');
+  });
+
+  test('we can access object lifecycle flags', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const schema = new SchemaService();
+    store.registerSchema(schema);
+    registerDerivations(schema);
+
+    schema.defineSchema('user', {
+      legacy: true,
+      fields: withFields([
+        {
+          name: 'name',
+          type: null,
+          kind: 'attribute',
+        },
+      ]),
+    });
+
+    const record = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: { name: 'Rey Pupatine' },
+      },
+    }) as User;
+
+    assert.false(record.isDestroying, 'isDestroying is correct');
+    assert.false(record.isDestroyed, 'isDestroyed is correct');
   });
 });
