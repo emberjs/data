@@ -8,7 +8,7 @@ import EmberObject from '@ember/object';
 import { DEBUG } from '@ember-data/env';
 import { HAS_DEBUG_PACKAGE } from '@ember-data/packages';
 import { recordIdentifierFor, storeFor } from '@ember-data/store';
-import { coerceId, peekCache } from '@ember-data/store/-private';
+import { coerceId } from '@ember-data/store/-private';
 import { compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';
 import { RecordStore } from '@warp-drive/core-types/symbols';
