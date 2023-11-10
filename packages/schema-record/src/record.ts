@@ -157,12 +157,16 @@ export class SchemaRecord {
   declare [Editable]: boolean;
   declare [Legacy]: boolean;
   declare ___notifications: unknown;
+  declare isDestroying: boolean;
+  declare isDestroyed: boolean;
 
   constructor(store: Store, identifier: StableRecordIdentifier, Mode: { [Editable]: boolean; [Legacy]: boolean }) {
     this[RecordStore] = store;
     this[Identifier] = identifier;
     const IS_EDITABLE = (this[Editable] = Mode[Editable] ?? false);
     this[Legacy] = Mode[Legacy] ?? false;
+    this.isDestroying = false;
+    this.isDestroyed = false;
 
     const schema = store.schema as unknown as SchemaService;
     const cache = store.cache;
@@ -187,6 +191,13 @@ export class SchemaRecord {
 
     return new Proxy(this, {
       get(target: SchemaRecord, prop: string | number | symbol, receiver: typeof Proxy<SchemaRecord>) {
+        if (prop === 'isDestroying') {
+          return target.isDestroying;
+        }
+        if (prop === 'isDestroyed') {
+          return target.isDestroyed;
+        }
+
         if (RecordSymbols.has(prop as symbol)) {
           return target[prop as keyof SchemaRecord];
         }
@@ -221,6 +232,14 @@ export class SchemaRecord {
         if (!IS_EDITABLE) {
           throw new Error(`Cannot set ${String(prop)} on ${identifier.type} because the record is not editable`);
         }
+        if (prop === 'isDestroying') {
+          target.isDestroying = value as boolean;
+          return true;
+        }
+        if (prop === 'isDestroyed') {
+          target.isDestroyed = value as boolean;
+          return true;
+        }
 
         const field = fields.get(prop as string);
         if (!field) {
@@ -250,7 +269,10 @@ export class SchemaRecord {
     });
   }
 
-  [Destroy](): void {}
+  [Destroy](): void {
+    this.isDestroying = true;
+    this.isDestroyed = true;
+  }
   [Checkout](): Promise<SchemaRecord> {
     return Promise.resolve(this);
   }
