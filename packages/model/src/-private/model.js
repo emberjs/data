@@ -15,25 +15,9 @@ import { compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';
 
 import Errors from './errors';
-import { LegacySupport } from './legacy-relationships-support';
+import { LEGACY_SUPPORT, lookupLegacySupport } from './legacy-relationships-support';
 import notifyChanges from './notify-changes';
 import RecordState, { notifySignal, tagged } from './record-state';
-
-export const LEGACY_SUPPORT = new Map();
-
-export function lookupLegacySupport(record) {
-  const identifier = recordIdentifierFor(record);
-  let support = LEGACY_SUPPORT.get(identifier);
-
-  if (!support) {
-    assert(`Memory Leak Detected`, !record.isDestroyed && !record.isDestroying);
-    support = new LegacySupport(record);
-    LEGACY_SUPPORT.set(identifier, support);
-    LEGACY_SUPPORT.set(record, support);
-  }
-
-  return support;
-}
 
 function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
   const possibleRelationships = relationshipsSoFar || [];

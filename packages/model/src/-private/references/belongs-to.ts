@@ -17,8 +17,7 @@ import type {
 } from '@warp-drive/core-types/spec/raw';
 
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
-import { areAllInverseRecordsLoaded, LegacySupport } from '../legacy-relationships-support';
-import { LEGACY_SUPPORT } from '../model';
+import { areAllInverseRecordsLoaded, LEGACY_SUPPORT, LegacySupport } from '../legacy-relationships-support';
 
 /**
   @module @ember-data/model

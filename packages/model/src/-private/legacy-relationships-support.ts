@@ -28,18 +28,35 @@ import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
 import type { CollectionResourceRelationship, SingleResourceRelationship } from '@warp-drive/core-types/spec/raw';
 
 import RelatedCollection from './many-array';
-import type Model from './model';
 import type { BelongsToProxyCreateArgs, BelongsToProxyMeta } from './promise-belongs-to';
 import PromiseBelongsTo from './promise-belongs-to';
 import type { HasManyProxyCreateArgs } from './promise-many-array';
 import PromiseManyArray from './promise-many-array';
+import type { MinimalLegacyRecord } from './record-state';
 import BelongsToReference from './references/belongs-to';
 import HasManyReference from './references/has-many';
 
 type PromiseBelongsToFactory = { create(args: BelongsToProxyCreateArgs): PromiseBelongsTo };
 
+export const LEGACY_SUPPORT: Map<StableRecordIdentifier | MinimalLegacyRecord, LegacySupport> = new Map();
+
+export function lookupLegacySupport(record: MinimalLegacyRecord): LegacySupport {
+  const identifier = recordIdentifierFor(record);
+  assert(`Expected a record`, identifier);
+  let support = LEGACY_SUPPORT.get(identifier);
+
+  if (!support) {
+    assert(`Memory Leak Detected`, !record.isDestroyed && !record.isDestroying);
+    support = new LegacySupport(record);
+    LEGACY_SUPPORT.set(identifier, support);
+    LEGACY_SUPPORT.set(record, support);
+  }
+
+  return support;
+}
+
 export class LegacySupport {
-  declare record: Model;
+  declare record: MinimalLegacyRecord;
   declare store: Store;
   declare graph: Graph;
   declare cache: Cache;
@@ -53,7 +70,7 @@ export class LegacySupport {
   declare isDestroying: boolean;
   declare isDestroyed: boolean;
 
-  constructor(record: Model) {
+  constructor(record: MinimalLegacyRecord) {
     this.record = record;
     this.store = storeFor(record)!;
     this.identifier = recordIdentifierFor(record);

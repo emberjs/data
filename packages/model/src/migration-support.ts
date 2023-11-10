@@ -6,7 +6,7 @@ import { upgradeStore } from '@ember-data/legacy-compat/-private';
 import { recordIdentifierFor } from '@ember-data/store';
 import { RecordStore } from '@warp-drive/core-types/symbols';
 
-import { Errors } from './-private';
+import { Errors , lookupLegacySupport } from './-private';
 import RecordState, { MinimalLegacyRecord } from './-private/record-state';
 
 interface FieldSchema {
@@ -56,6 +56,14 @@ function unloadRecord(this: MinimalLegacyRecord) {
   this[RecordStore].unloadRecord(this);
 }
 
+function belongsTo(this: MinimalLegacyRecord, prop: string) {
+  return lookupLegacySupport(this).referenceFor('belongsTo', prop);
+}
+
+function hasMany(this: MinimalLegacyRecord, prop: string) {
+  return lookupLegacySupport(this).referenceFor('hasMany', prop);
+}
+
 function serialize(this: MinimalLegacyRecord, options?: Record<string, unknown>) {
   upgradeStore(this[RecordStore]);
   return this[RecordStore].serializeRecord(this, options);
@@ -88,7 +96,7 @@ function legacySupport(record: MinimalLegacyRecord, options: Record<string, unkn
     case 'adapterError':
       return record.currentState.adapterError;
     case 'belongsTo':
-      throw new Error('not implemented');
+      return belongsTo;
     case 'changedAttributes':
       throw new Error('not implemented');
     case 'constructor':
@@ -111,7 +119,7 @@ function legacySupport(record: MinimalLegacyRecord, options: Record<string, unkn
     case 'hasDirtyAttributes':
       return record.currentState.isDirty;
     case 'hasMany':
-      throw new Error('not implemented');
+      return hasMany;
     case 'isDeleted':
       return record.currentState.isDeleted;
     case 'isEmpty':
