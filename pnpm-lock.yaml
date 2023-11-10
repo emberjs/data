@@ -4142,6 +4142,12 @@ importers:
       '@ember-data/json-api':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/json-api(@babel/core@7.23.2)(@ember-data/graph@5.5.0-alpha.11)(@ember-data/request-utils@5.5.0-alpha.11)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)(ember-inflector@4.0.2)
+      '@ember-data/legacy-compat':
+        specifier: workspace:5.5.0-alpha.11
+        version: file:packages/legacy-compat(@babel/core@7.23.2)(@ember-data/graph@5.5.0-alpha.11)(@ember-data/json-api@5.5.0-alpha.11)(@ember-data/request@5.5.0-alpha.11)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)
+      '@ember-data/model':
+        specifier: workspace:5.5.0-alpha.11
+        version: file:packages/model(@babel/core@7.23.2)(@ember-data/debug@5.5.0-alpha.11)(@ember-data/graph@5.5.0-alpha.11)(@ember-data/json-api@5.5.0-alpha.11)(@ember-data/legacy-compat@5.5.0-alpha.11)(@ember-data/store@5.5.0-alpha.11)(@ember-data/tracking@5.5.0-alpha.11)(@ember/string@3.1.1)(@warp-drive/core-types@5.5.0-alpha.11)(ember-inflector@4.0.2)
       '@ember-data/private-build-infra':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/private-build-infra
@@ -4260,6 +4266,10 @@ importers:
       '@ember-data/graph':
         injected: true
       '@ember-data/json-api':
+        injected: true
+      '@ember-data/legacy-compat':
+        injected: true
+      '@ember-data/model':
         injected: true
       '@ember-data/private-build-infra':
         injected: true

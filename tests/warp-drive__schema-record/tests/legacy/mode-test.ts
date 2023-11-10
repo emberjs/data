@@ -2,6 +2,7 @@ import { module, test } from 'qunit';
 
 import { setupRenderingTest } from 'ember-qunit';
 
+import { registerDerivations, withFields } from '@ember-data/model/migration-support';
 import type Store from '@ember-data/store';
 import { Editable, Legacy } from '@warp-drive/schema-record/record';
 import { SchemaService } from '@warp-drive/schema-record/schema';
@@ -25,16 +26,17 @@ module('Legacy Mode', function (hooks) {
     const store = this.owner.lookup('service:store') as Store;
     const schema = new SchemaService();
     store.registerSchema(schema);
+    registerDerivations(schema);
 
     schema.defineSchema('user', {
       legacy: true,
-      fields: [
+      fields: withFields([
         {
           name: 'name',
           type: null,
           kind: 'attribute',
         },
-      ],
+      ]),
     });
 
     const record = store.push({
@@ -54,11 +56,7 @@ module('Legacy Mode', function (hooks) {
       record.$type;
       assert.ok(false, 'record.$type should throw');
     } catch (e) {
-      assert.strictEqual(
-        (e as Error).message,
-        'Assertion Failed: SchemaRecord.$type is not available in legacy mode',
-        'record.$type throws'
-      );
+      assert.strictEqual((e as Error).message, 'No field named $type on user', 'record.$type throws');
     }
   });
 
@@ -66,6 +64,7 @@ module('Legacy Mode', function (hooks) {
     const store = this.owner.lookup('service:store') as Store;
     const schema = new SchemaService();
     store.registerSchema(schema);
+    registerDerivations(schema);
 
     schema.defineSchema('user', {
       legacy: false,
@@ -87,7 +86,6 @@ module('Legacy Mode', function (hooks) {
     }) as User;
 
     assert.false(record[Legacy], 'record is in legacy mode');
-    assert.strictEqual(record.$type, 'user', '$type is accessible');
 
     try {
       (record.constructor as { modelName?: string }).modelName;
@@ -95,7 +93,7 @@ module('Legacy Mode', function (hooks) {
     } catch (e) {
       assert.strictEqual(
         (e as Error).message,
-        'Assertion Failed: SchemaRecord.constructor.modelName is not available ouside of legacy mode',
+        'No field named constructor on user',
         'record.constructor.modelName throws'
       );
     }
@@ -105,16 +103,17 @@ module('Legacy Mode', function (hooks) {
     const store = this.owner.lookup('service:store') as Store;
     const schema = new SchemaService();
     store.registerSchema(schema);
+    registerDerivations(schema);
 
     schema.defineSchema('user', {
       legacy: true,
-      fields: [
+      fields: withFields([
         {
           name: 'name',
           type: null,
           kind: 'attribute',
         },
-      ],
+      ]),
     });
 
     const record = store.push({

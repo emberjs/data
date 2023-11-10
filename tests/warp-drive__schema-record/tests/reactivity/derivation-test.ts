@@ -6,7 +6,7 @@ import { setupRenderingTest } from 'ember-qunit';
 
 import type Store from '@ember-data/store';
 import { SchemaRecord } from '@warp-drive/schema-record/record';
-import { FieldSchema, SchemaService } from '@warp-drive/schema-record/schema';
+import { FieldSchema, registerDerivations, SchemaService, withFields } from '@warp-drive/schema-record/schema';
 
 import { reactiveContext } from '../-utils/reactive-context';
 
@@ -37,9 +37,10 @@ module('Reactivity | derivation', function (hooks) {
     }
 
     schema.registerDerivation('concat', concat);
+    registerDerivations(schema);
 
     schema.defineSchema('user', {
-      fields: [
+      fields: withFields([
         {
           name: 'firstName',
           type: null,
@@ -56,7 +57,7 @@ module('Reactivity | derivation', function (hooks) {
           options: { fields: ['firstName', 'lastName'], separator: ' ' },
           kind: 'derived',
         },
-      ],
+      ]),
     });
 
     const fieldsMap = schema.schemas.get('user')!.fields;

@@ -8,7 +8,7 @@ import type Store from '@ember-data/store';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { SchemaRecord } from '@warp-drive/schema-record/record';
 import type { FieldSchema, Transform } from '@warp-drive/schema-record/schema';
-import { SchemaService } from '@warp-drive/schema-record/schema';
+import { registerDerivations, SchemaService, withFields } from '@warp-drive/schema-record/schema';
 
 import { reactiveContext } from '../-utils/reactive-context';
 
@@ -29,15 +29,16 @@ module('Reactivity | basic fields can receive remote updates', function (hooks) 
     const store = this.owner.lookup('service:store') as Store;
     const schema = new SchemaService();
     store.registerSchema(schema);
+    registerDerivations(schema);
 
     schema.defineSchema('user', {
-      fields: [
+      fields: withFields([
         {
           name: 'name',
           type: null,
           kind: 'attribute',
         },
-      ],
+      ]),
     });
     const fieldsMap = schema.schemas.get('user')!.fields;
     const fields: FieldSchema[] = [...fieldsMap.values()];
@@ -89,6 +90,7 @@ module('Reactivity | basic fields can receive remote updates', function (hooks) 
     const store = this.owner.lookup('service:store') as Store;
     const schema = new SchemaService();
     store.registerSchema(schema);
+    registerDerivations(schema);
 
     const FloatTransform: Transform<string | number, number> = {
       serialize(value: string | number, options: { precision?: number } | null, _record: SchemaRecord): string {
@@ -111,7 +113,7 @@ module('Reactivity | basic fields can receive remote updates', function (hooks) 
     schema.registerTransform('float', FloatTransform);
 
     schema.defineSchema('user', {
-      fields: [
+      fields: withFields([
         {
           name: 'name',
           type: null,
@@ -140,7 +142,7 @@ module('Reactivity | basic fields can receive remote updates', function (hooks) 
           type: 'float',
           kind: 'attribute',
         },
-      ],
+      ]),
     });
 
     const fieldsMap = schema.schemas.get('user')!.fields;

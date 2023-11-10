@@ -35,7 +35,7 @@ export default {
   plugins: [
     // These are the modules that users should be able to import from your
     // addon. Anything not listed here may get optimized away.
-    addon.publicEntrypoints(['index.js', '-private.js', 'hooks.js']),
+    addon.publicEntrypoints(['index.js', '-private.js', 'hooks.js', 'migration-support.js']),
 
     nodeResolve({ extensions: ['.ts', '.js'] }),
     babel({

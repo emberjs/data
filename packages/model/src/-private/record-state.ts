@@ -10,9 +10,9 @@ import type { Cache } from '@ember-data/store/-types/q/cache';
 import { cached, compat } from '@ember-data/tracking';
 import { addToTransaction, defineSignal, getSignal, peekSignal, subscribe } from '@ember-data/tracking/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { RecordStore } from '@warp-drive/core-types/symbols';
 
 import type Errors from './errors';
-import type Model from './model';
 
 const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
 const SOURCE_POINTER_PRIMARY_REGEXP = /^\/?data/;
@@ -70,6 +70,15 @@ export function notifySignal<T extends object, K extends keyof T & string>(obj: 
   }
 }
 
+export interface MinimalLegacyRecord {
+  errors: Errors;
+  ___recordState: RecordState;
+  currentState: RecordState;
+  isDestroyed: boolean;
+  isDestroying: boolean;
+  [RecordStore]: Store;
+}
+
 /**
 Historically EmberData managed a state machine
 for each record, the localState for which
@@ -112,7 +121,7 @@ root
 export default class RecordState {
   declare store: Store;
   declare identifier: StableRecordIdentifier;
-  declare record: Model;
+  declare record: MinimalLegacyRecord;
   declare rs: RequestStateService;
 
   declare pendingCount: number;
@@ -123,7 +132,7 @@ export default class RecordState {
   declare _lastError: RequestState | null;
   declare handler: object;
 
-  constructor(record: Model) {
+  constructor(record: MinimalLegacyRecord) {
     const store = storeFor(record)!;
     const identity = recordIdentifierFor(record);
 
