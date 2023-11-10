@@ -832,8 +832,8 @@ importers:
         specifier: ^4.1.2
         version: 4.1.2
       hono:
-        specifier: ^3.8.4
-        version: 3.9.0
+        specifier: ^3.9.2
+        version: 3.9.2
       pm2:
         specifier: ^5.3.0
         version: 5.3.0
@@ -12885,8 +12885,8 @@ packages:
     dependencies:
       parse-passwd: 1.0.0
 
-  /hono@3.9.0:
-    resolution: {integrity: sha512-MSGmerYD69jwDkBa631lY7y3xtEwbKFg2huFZ0TruzCdfJlmPd/rFzyvmMheePKsiA7CZp/KqL3mflBOzEmjLA==}
+  /hono@3.9.2:
+    resolution: {integrity: sha512-180NOiMadqU3lGmN6ajPDZvZPWus3a9mtVaAUR9uG0SImngBwRLA8vbnV0oUfUAgFT4nX55sGV9dVA06OuikHA==}
     engines: {node: '>=16.0.0'}
 
   /hosted-git-info@4.1.0:
@@ -18365,7 +18365,7 @@ packages:
       '@hono/node-server': 1.2.0
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.23.2)
       chalk: 4.1.2
-      hono: 3.9.0
+      hono: 3.9.2
       pm2: 5.3.0
       pnpm-sync-dependencies-meta-injected: 0.0.10
     transitivePeerDependencies:
