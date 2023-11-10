@@ -22,7 +22,7 @@ import RecordState from './-private/record-state';
 interface FieldSchema {
   type: string | null;
   name: string;
-  kind: 'attribute' | 'resource' | 'collection' | 'derived' | 'object' | 'array' | '@id';
+  kind: 'attribute' | 'resource' | 'collection' | 'derived' | 'object' | 'array' | '@id' | '@local';
   options?: Record<string, unknown>;
 }
 
@@ -141,6 +141,12 @@ export function withFields(fields: FieldSchema[]) {
     name: 'id',
     kind: '@id',
     type: null,
+  });
+  fields.push({
+    name: 'isReloading',
+    kind: '@local',
+    type: 'boolean',
+    options: { defaultValue: false },
   });
   return fields;
 }

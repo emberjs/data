@@ -11,7 +11,7 @@ export { withFields, registerDerivations } from './-base-fields';
 export interface FieldSchema {
   type: string | null;
   name: string;
-  kind: 'attribute' | 'resource' | 'collection' | 'derived' | 'object' | 'array' | '@id';
+  kind: 'attribute' | 'resource' | 'collection' | 'derived' | 'object' | 'array' | '@id' | '@local';
   options?: Record<string, unknown>;
 }
 
@@ -103,7 +103,7 @@ export class SchemaService {
           kind: field.kind === 'resource' ? 'belongsTo' : 'hasMany',
         }) as unknown as RelationshipSchema;
         fieldSpec.relationships[field.name] = relSchema;
-      } else if (field.kind !== 'derived') {
+      } else if (field.kind !== 'derived' && field.kind !== '@local') {
         throw new Error(`Unknown field kind ${field.kind}`);
       }
     });
