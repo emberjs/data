@@ -2,6 +2,8 @@ import { module, test } from 'qunit';
 
 import { setupRenderingTest } from 'ember-qunit';
 
+import type Errors from '@ember-data/model/-private/errors';
+import type RecordState from '@ember-data/model/-private/record-state';
 import { registerDerivations, withFields } from '@ember-data/model/migration-support';
 import type Store from '@ember-data/store';
 import { Editable, Legacy } from '@warp-drive/schema-record/record';
@@ -17,6 +19,11 @@ interface User {
   netWorth: number;
   coolometer: number;
   rank: number;
+  currentState: RecordState;
+  isDestroying: boolean;
+  isDestroyed: boolean;
+  errors: Errors;
+  unloadRecord(): void;
 }
 
 module('Legacy Mode', function (hooks) {
@@ -130,5 +137,112 @@ module('Legacy Mode', function (hooks) {
       'user',
       'record constructor modelName is correct'
     );
+  });
+
+  test('we can access errors', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const schema = new SchemaService();
+    store.registerSchema(schema);
+    registerDerivations(schema);
+
+    schema.defineSchema('user', {
+      legacy: true,
+      fields: withFields([
+        {
+          name: 'name',
+          type: null,
+          kind: 'attribute',
+        },
+      ]),
+    });
+
+    const record = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: { name: 'Rey Pupatine' },
+      },
+    }) as User;
+
+    try {
+      const errors = record.errors;
+      assert.ok(true, 'record.errors should be available');
+
+      const errors2 = record.errors;
+      assert.true(errors === errors2, 'record.errors should be stable');
+    } catch (e) {
+      assert.ok(false, `record.errors should be available: ${(e as Error).message}`);
+    }
+  });
+
+  test('we can access currentState', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const schema = new SchemaService();
+    store.registerSchema(schema);
+    registerDerivations(schema);
+
+    schema.defineSchema('user', {
+      legacy: true,
+      fields: withFields([
+        {
+          name: 'name',
+          type: null,
+          kind: 'attribute',
+        },
+      ]),
+    });
+
+    const record = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: { name: 'Rey Pupatine' },
+      },
+    }) as User;
+
+    try {
+      const currentState = record.currentState;
+      assert.ok(true, 'record.currentState should be available');
+
+      const currentState2 = record.currentState;
+      assert.true(currentState === currentState2, 'record.currentState should be stable');
+
+      assert.strictEqual(currentState.stateName, 'root.loaded.saved', 'currentState.stateName is correct');
+    } catch (e) {
+      assert.ok(false, `record.currentState should be available: ${(e as Error).message}`);
+    }
+  });
+
+  test('we can use unloadRecord', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const schema = new SchemaService();
+    store.registerSchema(schema);
+    registerDerivations(schema);
+
+    schema.defineSchema('user', {
+      legacy: true,
+      fields: withFields([
+        {
+          name: 'name',
+          type: null,
+          kind: 'attribute',
+        },
+      ]),
+    });
+
+    const record = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: { name: 'Rey Pupatine' },
+      },
+    }) as User;
+
+    try {
+      record.unloadRecord();
+      assert.ok(true, 'record.unloadRecord should be available');
+    } catch (e) {
+      assert.ok(false, `record.unloadRecord should be available: ${(e as Error).message}`);
+    }
   });
 });

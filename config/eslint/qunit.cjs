@@ -15,7 +15,9 @@ function defaults(config = {}) {
         ],
       }),
       config?.rules,
-      {}
+      {
+        'qunit/no-ok-equality': 'off',
+      }
     ),
   };
 }

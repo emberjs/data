@@ -14,7 +14,7 @@ export default {
   // You can augment this if you need to.
   output: addon.output(),
 
-  external: external(['@embroider/macros']),
+  external: external(['@embroider/macros', '@ember/debug']),
 
   plugins: [
     // These are the modules that users should be able to import from your

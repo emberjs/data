@@ -224,7 +224,6 @@ export default class RecordState {
             this.notify('isDirty');
             break;
           case 'errors':
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this.updateInvalidErrors(this.record.errors);
             this.notify('isValid');
             break;
@@ -333,7 +332,6 @@ export default class RecordState {
 
   @tagged
   get isValid() {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return this.record.errors.length === 0;
   }
 

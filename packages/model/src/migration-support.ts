@@ -3,6 +3,7 @@ import { assert } from '@ember/debug';
 import { recordIdentifierFor } from '@ember-data/store';
 import { RecordStore } from '@warp-drive/core-types/symbols';
 
+import { Errors } from './-private';
 import RecordState, { MinimalLegacyRecord } from './-private/record-state';
 
 interface FieldSchema {
@@ -17,7 +18,7 @@ type SchemaService = {
   registerDerivation(name: string, derivation: Derivation<unknown, unknown>): void;
 };
 
-const LegacyFields = ['constructor', 'currentState', 'unloadRecord'];
+const LegacyFields = ['constructor', 'currentState', 'unloadRecord', 'errors'];
 
 function unloadRecord(this: MinimalLegacyRecord) {
   if (this.currentState.isNew && (this.isDestroyed || this.isDestroying)) {
@@ -26,16 +27,28 @@ function unloadRecord(this: MinimalLegacyRecord) {
   this[RecordStore].unloadRecord(this);
 }
 
+const LegacySupport = new WeakMap<MinimalLegacyRecord, Record<string, unknown>>();
+
 function legacySupport(record: MinimalLegacyRecord, options: Record<string, unknown> | null, prop: string): unknown {
+  let state = LegacySupport.get(record);
+  if (!state) {
+    state = {};
+    LegacySupport.set(record, state);
+  }
+
   switch (prop) {
     case 'constructor':
-      return {
+      return (state._constructor = state._constructor || {
         modelName: recordIdentifierFor(record).type,
-      };
+      });
     case 'currentState':
-      return (record.___recordState = record.___recordState || new RecordState(record));
+      return (state.recordState = state.recordState || new RecordState(record));
     case 'unloadRecord':
       return unloadRecord;
+    case 'errors':
+      // @ts-expect-error
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      return (state.errors = state.errors || Errors.create({ __record: record }));
     default:
       assert(`${prop} is not a supported legacy field`, false);
   }
