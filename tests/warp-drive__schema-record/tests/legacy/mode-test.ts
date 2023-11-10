@@ -2,6 +2,7 @@ import { module, test } from 'qunit';
 
 import { setupRenderingTest } from 'ember-qunit';
 
+import { serializeRecord, serializerFor } from '@ember-data/legacy-compat';
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import type Errors from '@ember-data/model/-private/errors';
 import type RecordState from '@ember-data/model/-private/record-state';
@@ -38,6 +39,7 @@ interface User {
   errors: Errors;
   unloadRecord(): void;
   _createSnapshot(): Snapshot;
+  serialize(): Record<string, unknown>;
 }
 
 module('Legacy Mode', function (hooks) {
@@ -389,5 +391,71 @@ module('Legacy Mode', function (hooks) {
 
     assert.false(record.isDestroying, 'isDestroying is correct');
     assert.false(record.isDestroyed, 'isDestroyed is correct');
+  });
+
+  test('we can serialize', function (assert) {
+    this.owner.register(
+      'serializer:user',
+      class UserSerializer {
+        serialize(snapshot: Snapshot) {
+          assert.step('serialize');
+          return {
+            type: snapshot.modelName,
+            id: snapshot.id,
+            attributes: snapshot.attributes(),
+          };
+        }
+        static create() {
+          return new this();
+        }
+      }
+    );
+    const store = this.owner.lookup('service:store') as Store;
+
+    // @ts-expect-error
+    store.serializerFor = serializerFor;
+    // @ts-expect-error
+    store.serializeRecord = function () {
+      assert.step('serializeRecord');
+      // @ts-expect-error
+      return serializeRecord.apply(this, arguments);
+    };
+    const schema = new SchemaService();
+    store.registerSchema(schema);
+    registerDerivations(schema);
+
+    schema.defineSchema('user', {
+      legacy: true,
+      fields: withFields([
+        {
+          name: 'name',
+          type: null,
+          kind: 'attribute',
+        },
+      ]),
+    });
+
+    const record = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: { name: 'Rey Pupatine' },
+      },
+    }) as User;
+
+    const serialized = record.serialize();
+
+    assert.verifySteps(['serializeRecord', 'serialize']);
+    assert.deepEqual(
+      serialized,
+      {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Rey Pupatine',
+        },
+      },
+      'We serialized'
+    );
   });
 });
