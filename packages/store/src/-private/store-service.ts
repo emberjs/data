@@ -2060,7 +2060,7 @@ class Store extends EmberObject {
     if (!identifier) {
       // this commonly means we're disconnected
       // but just in case we reject here to prevent bad things.
-      return Promise.reject(`Record Is Disconnected`);
+      return Promise.reject(new Error(`Record Is Disconnected`));
     }
     // TODO we used to check if the record was destroyed here
     assert(

@@ -6,8 +6,8 @@ import type { NotificationType } from '@ember-data/store/-private/managers/notif
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import { RelationshipSchema } from '@warp-drive/core-types/schema';
 
+import { LEGACY_SUPPORT } from './legacy-relationships-support';
 import type Model from './model';
-import { LEGACY_SUPPORT } from './model';
 
 export default function notifyChanges(
   identifier: StableRecordIdentifier,

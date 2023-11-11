@@ -7,7 +7,7 @@ import { setupTest } from 'ember-qunit';
 import type Store from '@ember-data/store';
 import { Document } from '@ember-data/store/-private/document';
 import { SchemaRecord } from '@warp-drive/schema-record/record';
-import { SchemaService } from '@warp-drive/schema-record/schema';
+import { registerDerivations, SchemaService, withFields } from '@warp-drive/schema-record/schema';
 
 interface User {
   id: string | null;
@@ -35,9 +35,10 @@ module('Reads | resource', function (hooks) {
     }
 
     schema.registerDerivation('concat', concat);
+    registerDerivations(schema);
 
     schema.defineSchema('user', {
-      fields: [
+      fields: withFields([
         {
           name: 'name',
           type: null,
@@ -49,7 +50,7 @@ module('Reads | resource', function (hooks) {
           kind: 'resource',
           options: { inverse: 'bestFriend', async: true },
         },
-      ],
+      ]),
     });
 
     const record = store.push({

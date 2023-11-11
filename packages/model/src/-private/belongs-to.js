@@ -3,7 +3,7 @@ import { computed } from '@ember/object';
 
 import { DEBUG } from '@ember-data/env';
 
-import { lookupLegacySupport } from './model';
+import { lookupLegacySupport } from './legacy-relationships-support';
 import { computedMacroWithOptionalParams, normalizeModelName } from './util';
 
 /**

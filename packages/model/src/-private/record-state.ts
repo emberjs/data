@@ -12,7 +12,7 @@ import { addToTransaction, defineSignal, getSignal, peekSignal, subscribe } from
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
 import type Errors from './errors';
-import type Model from './model';
+import type { MinimalLegacyRecord } from './model-methods';
 
 const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
 const SOURCE_POINTER_PRIMARY_REGEXP = /^\/?data/;
@@ -112,7 +112,7 @@ root
 export default class RecordState {
   declare store: Store;
   declare identifier: StableRecordIdentifier;
-  declare record: Model;
+  declare record: MinimalLegacyRecord;
   declare rs: RequestStateService;
 
   declare pendingCount: number;
@@ -123,7 +123,7 @@ export default class RecordState {
   declare _lastError: RequestState | null;
   declare handler: object;
 
-  constructor(record: Model) {
+  constructor(record: MinimalLegacyRecord) {
     const store = storeFor(record)!;
     const identity = recordIdentifierFor(record);
 
@@ -215,7 +215,6 @@ export default class RecordState {
             this.notify('isDirty');
             break;
           case 'errors':
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this.updateInvalidErrors(this.record.errors);
             this.notify('isValid');
             break;
@@ -324,7 +323,6 @@ export default class RecordState {
 
   @tagged
   get isValid() {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return this.record.errors.length === 0;
   }
 

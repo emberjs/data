@@ -1,28 +1,46 @@
-import { assert } from '@ember/debug';
-
 import { DEBUG } from '@ember-data/env';
 import type { Future } from '@ember-data/request';
 import type Store from '@ember-data/store';
 import type { StoreRequestInput } from '@ember-data/store/-private/cache-handler';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import { addToTransaction, defineSignal, entangleSignal, type Signal } from '@ember-data/tracking/-private';
+import {
+  addToTransaction,
+  defineSignal,
+  entangleSignal,
+  getSignal,
+  peekSignal,
+  type Signal,
+} from '@ember-data/tracking/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { ResourceRelationship as SingleResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { Value } from '@warp-drive/core-types/json/raw';
+import { STRUCTURED } from '@warp-drive/core-types/request';
 import type { Link, Links } from '@warp-drive/core-types/spec/raw';
+import { RecordStore } from '@warp-drive/core-types/symbols';
 
 import type { FieldSchema, SchemaService } from './schema';
 
 export const Destroy = Symbol('Destroy');
-export const RecordStore = Symbol('Store');
 export const Identifier = Symbol('Identifier');
 export const Editable = Symbol('Editable');
 export const Parent = Symbol('Parent');
 export const Checkout = Symbol('Checkout');
 export const Legacy = Symbol('Legacy');
 
+const IgnoredGlobalFields = new Set(['then', STRUCTURED]);
 const RecordSymbols = new Set([Destroy, RecordStore, Identifier, Editable, Parent, Checkout, Legacy]);
+
+function computeLocal(record: SchemaRecord, field: FieldSchema, prop: string): unknown {
+  let signal = peekSignal(record, prop);
+
+  if (!signal) {
+    signal = getSignal(record, prop, false);
+    signal.lastValue = field.options?.defaultValue ?? null;
+  }
+
+  return signal.lastValue;
+}
 
 function computeAttribute(
   schema: SchemaService,
@@ -158,12 +176,12 @@ export class SchemaRecord {
   declare [Identifier]: StableRecordIdentifier;
   declare [Editable]: boolean;
   declare [Legacy]: boolean;
-  declare ___notifications: unknown;
+  declare ___notifications: object;
 
   constructor(store: Store, identifier: StableRecordIdentifier, Mode: { [Editable]: boolean; [Legacy]: boolean }) {
     this[RecordStore] = store;
     this[Identifier] = identifier;
-    this[Editable] = Mode[Editable] ?? false;
+    const IS_EDITABLE = (this[Editable] = Mode[Editable] ?? false);
     this[Legacy] = Mode[Legacy] ?? false;
 
     const schema = store.schema as unknown as SchemaService;
@@ -193,27 +211,29 @@ export class SchemaRecord {
           return target[prop as keyof SchemaRecord];
         }
 
+        if (prop === '___notifications') {
+          return target.___notifications;
+        }
+
         // SchemaRecord reserves use of keys that begin with these characters
         // for its own usage.
         // _, @, $, *
-        if (prop === 'id') {
-          return identifier.id;
-        }
-        if (prop === '$type') {
-          assert(`SchemaRecord.$type is not available in legacy mode`, !target[Legacy]);
-          return identifier.type;
-        }
-        if (prop === 'constructor') {
-          assert(`SchemaRecord.constructor.modelName is not available ouside of legacy mode`, target[Legacy]);
-          return { modelName: identifier.type };
-        }
 
         const field = fields.get(prop as string);
         if (!field) {
+          if (IgnoredGlobalFields.has(prop as string | symbol)) {
+            return undefined;
+          }
           throw new Error(`No field named ${String(prop)} on ${identifier.type}`);
         }
 
         switch (field.kind) {
+          case '@id':
+            entangleSignal(signals, this, '@identity');
+            return identifier.id;
+          case '@local':
+            entangleSignal(signals, this, field.name);
+            return computeLocal(target, field, prop as string);
           case 'attribute':
             entangleSignal(signals, this, field.name);
             return computeAttribute(schema, cache, target, identifier, field, prop as string);
@@ -228,7 +248,7 @@ export class SchemaRecord {
         }
       },
       set(target: SchemaRecord, prop: string | number | symbol, value: unknown) {
-        if (!target[Editable]) {
+        if (!IS_EDITABLE) {
           throw new Error(`Cannot set ${String(prop)} on ${identifier.type} because the record is not editable`);
         }
 
@@ -237,30 +257,51 @@ export class SchemaRecord {
           throw new Error(`There is no field named ${String(prop)} on ${identifier.type}`);
         }
 
-        if (field.kind === 'attribute') {
-          if (field.type === null) {
-            cache.setAttr(identifier, prop as string, value as Value);
+        switch (field.kind) {
+          case '@local': {
+            const signal = getSignal(target, prop as string, true);
+            if (signal.lastValue !== value) {
+              signal.lastValue = value;
+              addToTransaction(signal);
+            }
+
             return true;
           }
-          const transform = schema.transforms.get(field.type);
+          case 'attribute': {
+            if (field.type === null) {
+              cache.setAttr(identifier, prop as string, value as Value);
+              return true;
+            }
+            const transform = schema.transforms.get(field.type);
 
-          if (!transform) {
-            throw new Error(`No '${field.type}' transform defined for use by ${identifier.type}.${String(prop)}`);
+            if (!transform) {
+              throw new Error(`No '${field.type}' transform defined for use by ${identifier.type}.${String(prop)}`);
+            }
+
+            const rawValue = transform.serialize(value, field.options ?? null, target);
+            cache.setAttr(identifier, prop as string, rawValue);
+            return true;
+          }
+          case 'derived': {
+            throw new Error(`Cannot set ${String(prop)} on ${identifier.type} because it is derived`);
           }
 
-          const rawValue = transform.serialize(value, field.options ?? null, target);
-          cache.setAttr(identifier, prop as string, rawValue);
-          return true;
-        } else if (field.kind === 'derived') {
-          throw new Error(`Cannot set ${String(prop)} on ${identifier.type} because it is derived`);
+          default:
+            throw new Error(`Unknown field kind ${field.kind}`);
         }
-
-        throw new Error(`Unknown field kind ${field.kind}`);
       },
     });
   }
 
-  [Destroy](): void {}
+  [Destroy](): void {
+    if (this[Legacy]) {
+      // @ts-expect-error
+      this.isDestroying = true;
+      // @ts-expect-error
+      this.isDestroyed = true;
+    }
+    this[RecordStore].notifications.unsubscribe(this.___notifications);
+  }
   [Checkout](): Promise<SchemaRecord> {
     return Promise.resolve(this);
   }

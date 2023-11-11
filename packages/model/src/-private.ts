@@ -8,5 +8,5 @@ export { default as ManyArray } from './-private/many-array';
 export { default as PromiseBelongsTo } from './-private/promise-belongs-to';
 export { default as PromiseManyArray } from './-private/promise-many-array';
 
-// // Used by tests
-export { LEGACY_SUPPORT } from './-private/model';
+// // Used by tests, migration support
+export { lookupLegacySupport, LEGACY_SUPPORT } from './-private/legacy-relationships-support';

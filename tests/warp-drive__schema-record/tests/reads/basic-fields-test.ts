@@ -8,7 +8,7 @@ import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-jso
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { SchemaRecord } from '@warp-drive/schema-record/record';
 import type { Transform } from '@warp-drive/schema-record/schema';
-import { SchemaService } from '@warp-drive/schema-record/schema';
+import { registerDerivations, SchemaService, withFields } from '@warp-drive/schema-record/schema';
 
 interface User {
   id: string | null;
@@ -27,15 +27,16 @@ module('Reads | basic fields', function (hooks) {
     const store = this.owner.lookup('service:store') as Store;
     const schema = new SchemaService();
     store.registerSchema(schema);
+    registerDerivations(schema);
 
     schema.defineSchema('user', {
-      fields: [
+      fields: withFields([
         {
           name: 'name',
           type: null,
           kind: 'attribute',
         },
-      ],
+      ]),
     });
 
     const record = store.createRecord('user', { name: 'Rey Skybarker' }) as User;
@@ -82,9 +83,10 @@ module('Reads | basic fields', function (hooks) {
     };
 
     schema.registerTransform('float', FloatTransform);
+    registerDerivations(schema);
 
     schema.defineSchema('user', {
-      fields: [
+      fields: withFields([
         {
           name: 'name',
           type: null,
@@ -118,7 +120,7 @@ module('Reads | basic fields', function (hooks) {
           type: 'float',
           kind: 'attribute',
         },
-      ],
+      ]),
     });
 
     const record = store.createRecord('user', {

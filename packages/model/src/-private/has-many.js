@@ -10,7 +10,7 @@ import { singularize } from 'ember-inflector';
 import { DEPRECATE_NON_STRICT_TYPES } from '@ember-data/deprecations';
 import { DEBUG } from '@ember-data/env';
 
-import { lookupLegacySupport } from './model';
+import { lookupLegacySupport } from './legacy-relationships-support';
 import { computedMacroWithOptionalParams } from './util';
 
 function normalizeType(type) {

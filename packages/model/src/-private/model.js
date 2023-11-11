@@ -5,35 +5,31 @@
 import { assert, warn } from '@ember/debug';
 import EmberObject from '@ember/object';
 
-import { importSync } from '@embroider/macros';
-
 import { DEBUG } from '@ember-data/env';
 import { HAS_DEBUG_PACKAGE } from '@ember-data/packages';
 import { recordIdentifierFor, storeFor } from '@ember-data/store';
-import { coerceId, peekCache } from '@ember-data/store/-private';
+import { coerceId } from '@ember-data/store/-private';
 import { compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';
+import { RecordStore } from '@warp-drive/core-types/symbols';
 
 import Errors from './errors';
-import { LegacySupport } from './legacy-relationships-support';
+import { LEGACY_SUPPORT } from './legacy-relationships-support';
+import {
+  belongsTo,
+  changedAttributes,
+  createSnapshot,
+  deleteRecord,
+  destroyRecord,
+  hasMany,
+  reload,
+  rollbackAttributes,
+  save,
+  serialize,
+  unloadRecord,
+} from './model-methods';
 import notifyChanges from './notify-changes';
 import RecordState, { notifySignal, tagged } from './record-state';
-
-export const LEGACY_SUPPORT = new Map();
-
-export function lookupLegacySupport(record) {
-  const identifier = recordIdentifierFor(record);
-  let support = LEGACY_SUPPORT.get(identifier);
-
-  if (!support) {
-    assert(`Memory Leak Detected`, !record.isDestroyed && !record.isDestroying);
-    support = new LegacySupport(record);
-    LEGACY_SUPPORT.set(identifier, support);
-    LEGACY_SUPPORT.set(record, support);
-  }
-
-  return support;
-}
 
 function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
   const possibleRelationships = relationshipsSoFar || [];
@@ -127,6 +123,8 @@ class Model extends EmberObject {
 
     const store = (this.store = _secretInit.store);
     super.init(options);
+
+    this[RecordStore] = store;
 
     const identity = _secretInit.identifier;
     _secretInit.cb(this, _secretInit.cache, identity, _secretInit.store);
@@ -618,9 +616,6 @@ class Model extends EmberObject {
     @param {Object} options
     @return {Object} an object whose values are primitive JSON values only
   */
-  serialize(options) {
-    return storeFor(this).serializeRecord(this, options);
-  }
 
   /*
     We hook the default implementation to ensure
@@ -664,12 +659,6 @@ class Model extends EmberObject {
     @method deleteRecord
     @public
   */
-  deleteRecord() {
-    // ensure we've populated currentState prior to deleting a new record
-    if (this.currentState) {
-      storeFor(this).deleteRecord(this);
-    }
-  }
 
   /**
     Same as `deleteRecord`, but saves the record immediately.
@@ -714,17 +703,6 @@ class Model extends EmberObject {
     @return {Promise} a promise that will be resolved when the adapter returns
     successfully or rejected if the adapter returns with an error.
   */
-  destroyRecord(options) {
-    const { isNew } = this.currentState;
-    this.deleteRecord();
-    if (isNew) {
-      return Promise.resolve(this);
-    }
-    return this.save(options).then((_) => {
-      this.unloadRecord();
-      return this;
-    });
-  }
 
   /**
     Unloads the record from the store. This will not send a delete request
@@ -733,12 +711,6 @@ class Model extends EmberObject {
     @method unloadRecord
     @public
   */
-  unloadRecord() {
-    if (this.currentState.isNew && (this.isDestroyed || this.isDestroying)) {
-      return;
-    }
-    storeFor(this).unloadRecord(this);
-  }
 
   /**
     Returns an object, whose keys are changed properties, and value is
@@ -786,9 +758,6 @@ class Model extends EmberObject {
     @return {Object} an object, whose keys are changed properties,
       and value is an [oldProp, newProp] array.
   */
-  changedAttributes() {
-    return peekCache(this).changedAttrs(recordIdentifierFor(this));
-  }
 
   /**
     If the model `hasDirtyAttributes` this function will discard any unsaved
@@ -808,35 +777,12 @@ class Model extends EmberObject {
     @method rollbackAttributes
     @public
   */
-  rollbackAttributes() {
-    const { currentState } = this;
-    const { isNew } = currentState;
-
-    storeFor(this)._join(() => {
-      peekCache(this).rollbackAttrs(recordIdentifierFor(this));
-      this.errors.clear();
-      currentState.cleanErrorRequests();
-      if (isNew) {
-        this.unloadRecord();
-      }
-    });
-  }
 
   /**
     @method _createSnapshot
     @private
   */
   // TODO @deprecate in favor of a public API or examples of how to test successfully
-  _createSnapshot() {
-    const store = storeFor(this);
-
-    if (!store._fetchManager) {
-      const FetchManager = importSync('@ember-data/legacy-compat/-private').FetchManager;
-      store._fetchManager = new FetchManager(store);
-    }
-
-    return store._fetchManager.createSnapshot(recordIdentifierFor(this));
-  }
 
   /**
     Save the record and persist any changes to the record to an
@@ -879,18 +825,6 @@ class Model extends EmberObject {
     @return {Promise} a promise that will be resolved when the adapter returns
     successfully or rejected if the adapter returns with an error.
   */
-  save(options) {
-    let promise;
-
-    if (this.currentState.isNew && this.currentState.isDeleted) {
-      promise = Promise.resolve(this);
-    } else {
-      this.errors.clear();
-      promise = storeFor(this).saveRecord(this, options);
-    }
-
-    return promise;
-  }
 
   /**
     Reload the record from the adapter.
@@ -918,30 +852,6 @@ class Model extends EmberObject {
     adapter returns successfully or rejected if the adapter returns
     with an error.
   */
-  reload(options = {}) {
-    options.isReloading = true;
-    options.reload = true;
-
-    const identifier = recordIdentifierFor(this);
-    assert(`You cannot reload a record without an ID`, identifier.id);
-
-    this.isReloading = true;
-    const promise = storeFor(this)
-      .request({
-        op: 'findRecord',
-        data: {
-          options,
-          record: identifier,
-        },
-        cacheOptions: { [Symbol.for('wd:skip-cache')]: true },
-      })
-      .then(() => this)
-      .finally(() => {
-        this.isReloading = false;
-      });
-
-    return promise;
-  }
 
   attr() {
     assert(
@@ -1014,9 +924,6 @@ class Model extends EmberObject {
     @since 2.5.0
     @return {BelongsToReference} reference for this relationship
   */
-  belongsTo(name) {
-    return lookupLegacySupport(this).referenceFor('belongsTo', name);
-  }
 
   /**
     Get the reference for the specified hasMany relationship.
@@ -1077,9 +984,6 @@ class Model extends EmberObject {
     @since 2.5.0
     @return {HasManyReference} reference for this relationship
   */
-  hasMany(name) {
-    return lookupLegacySupport(this).referenceFor('hasMany', name);
-  }
 
   /**
    Given a callback, iterates over each of the relationships in the model,
@@ -2085,6 +1989,18 @@ class Model extends EmberObject {
     return `model:${this.modelName}`;
   }
 }
+
+Model.prototype.save = save;
+Model.prototype.destroyRecord = destroyRecord;
+Model.prototype.unloadRecord = unloadRecord;
+Model.prototype.hasMany = hasMany;
+Model.prototype.belongsTo = belongsTo;
+Model.prototype.serialize = serialize;
+Model.prototype._createSnapshot = createSnapshot;
+Model.prototype.deleteRecord = deleteRecord;
+Model.prototype.changedAttributes = changedAttributes;
+Model.prototype.rollbackAttributes = rollbackAttributes;
+Model.prototype.reload = reload;
 
 defineSignal(Model.prototype, 'isReloading', false);
 

@@ -1,13 +1,17 @@
+import { assert } from '@ember/debug';
+
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Value } from '@warp-drive/core-types/json/raw';
 import type { AttributeSchema, RelationshipSchema } from '@warp-drive/core-types/schema';
 
 import type { SchemaRecord } from './record';
 
+export { withFields, registerDerivations } from './-base-fields';
+
 export interface FieldSchema {
   type: string | null;
   name: string;
-  kind: 'attribute' | 'resource' | 'collection' | 'derived' | 'object' | 'array';
+  kind: 'attribute' | 'resource' | 'collection' | 'derived' | 'object' | 'array' | '@id' | '@local';
   options?: Record<string, unknown>;
 }
 
@@ -18,6 +22,7 @@ export interface FieldSchema {
  * @internal
  */
 type FieldSpec = {
+  '@id': FieldSchema | null;
   /**
    * legacy schema service separated attribute
    * from relationship lookup
@@ -72,23 +77,33 @@ export class SchemaService {
   defineSchema(name: string, schema: { legacy?: boolean; fields: FieldSchema[] }): void {
     const { legacy, fields } = schema;
     const fieldSpec: FieldSpec = {
+      '@id': null,
       attributes: {},
       relationships: {},
       fields: new Map(),
       legacy: legacy ?? false,
     };
 
+    assert(
+      `Only one field can be defined as @id, ${name} has more than one: ${fields
+        .filter((f) => f.kind === '@id')
+        .map((f) => f.name)
+        .join(' ')}`,
+      fields.filter((f) => f.kind === '@id').length <= 1
+    );
     fields.forEach((field) => {
       fieldSpec.fields.set(field.name, field);
 
-      if (field.kind === 'attribute') {
+      if (field.kind === '@id') {
+        fieldSpec['@id'] = field;
+      } else if (field.kind === 'attribute') {
         fieldSpec.attributes[field.name] = field as AttributeSchema;
       } else if (field.kind === 'resource' || field.kind === 'collection') {
         const relSchema = Object.assign({}, field, {
           kind: field.kind === 'resource' ? 'belongsTo' : 'hasMany',
         }) as unknown as RelationshipSchema;
         fieldSpec.relationships[field.name] = relSchema;
-      } else if (field.kind !== 'derived') {
+      } else if (field.kind !== 'derived' && field.kind !== '@local') {
         throw new Error(`Unknown field kind ${field.kind}`);
       }
     });
