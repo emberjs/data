@@ -59,7 +59,7 @@ async function expectAssertion(
     }
     outcome = verifyAssertion('', matcher, label);
   } catch (e) {
-    outcome = verifyAssertion(e instanceof Error ? e.message : e as string, matcher, label);
+    outcome = verifyAssertion(e instanceof Error ? e.message : (e as string), matcher, label);
   }
 
   if (!DEBUG) {
