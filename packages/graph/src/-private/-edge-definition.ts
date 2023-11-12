@@ -48,6 +48,7 @@ export type EdgeCache = Record<string, Record<string, EdgeDefinition | null>>;
  *   inverseIsCollection: false,
  *   inverseIsPolymorphic: false,
  * }
+ * ```
  *
  * The UpgradeMeta for the LHS would be:
  *
