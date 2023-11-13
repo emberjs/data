@@ -4,6 +4,10 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
+import {
+  registerDerivations as registerLegacyDerivations,
+  withFields as withLegacyFields,
+} from '@ember-data/model/migration-support';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
@@ -29,16 +33,17 @@ module('Legacy | Reads | basic fields', function (hooks) {
     const store = this.owner.lookup('service:store') as Store;
     const schema = new SchemaService();
     store.registerSchema(schema);
+    registerLegacyDerivations(schema);
 
     schema.defineSchema('user', {
       legacy: true,
-      fields: [
+      fields: withLegacyFields([
         {
           name: 'name',
           type: null,
           kind: 'attribute',
         },
-      ],
+      ]),
     });
 
     const record = store.createRecord('user', { name: 'Rey Skybarker' }) as User;
@@ -69,6 +74,7 @@ module('Legacy | Reads | basic fields', function (hooks) {
     const store = this.owner.lookup('service:store') as Store;
     const schema = new SchemaService();
     store.registerSchema(schema);
+    registerLegacyDerivations(schema);
 
     this.owner.register(
       'transform:float',
@@ -101,7 +107,7 @@ module('Legacy | Reads | basic fields', function (hooks) {
 
     schema.defineSchema('user', {
       legacy: true,
-      fields: [
+      fields: withLegacyFields([
         {
           name: 'name',
           type: null,
@@ -136,7 +142,7 @@ module('Legacy | Reads | basic fields', function (hooks) {
           options: { defaultValue: 0 },
           kind: 'attribute',
         },
-      ],
+      ]),
     });
 
     const record = store.createRecord('user', {

@@ -5,6 +5,10 @@ import { module, test } from 'qunit';
 
 import { setupRenderingTest } from 'ember-qunit';
 
+import {
+  registerDerivations as registerLegacyDerivations,
+  withFields as withLegacyFields,
+} from '@ember-data/model/migration-support';
 import type Store from '@ember-data/store';
 import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -17,7 +21,6 @@ import { reactiveContext } from '../../-utils/reactive-context';
 
 interface User {
   id: string | null;
-  $type: 'user';
   name: string;
   age: number;
   netWorth: number;
@@ -32,16 +35,17 @@ module('Legacy | Reactivity | basic fields can receive remote updates', function
     const store = this.owner.lookup('service:store') as Store;
     const schema = new SchemaService();
     store.registerSchema(schema);
+    registerLegacyDerivations(schema);
 
     schema.defineSchema('user', {
       legacy: true,
-      fields: [
+      fields: withLegacyFields([
         {
           name: 'name',
           type: null,
           kind: 'attribute',
         },
-      ],
+      ]),
     });
     const fieldsMap = schema.schemas.get('user')!.fields;
     const fields: FieldSchema[] = [...fieldsMap.values()];
@@ -61,7 +65,6 @@ module('Legacy | Reactivity | basic fields can receive remote updates', function
     const nameIndex = fieldOrder.indexOf('name');
 
     assert.strictEqual(counters.id, 1, 'idCount is 1');
-    assert.strictEqual(counters.$type, 0, '$typeCount is 0');
     assert.strictEqual(counters.name, 1, 'nameCount is 1');
 
     assert.dom(`li:nth-child(${nameIndex + 1})`).hasText('name: Rey Pupatine', 'name is rendered');
@@ -81,7 +84,6 @@ module('Legacy | Reactivity | basic fields can receive remote updates', function
     await rerender();
 
     assert.strictEqual(counters.id, 1, 'idCount is 1');
-    assert.strictEqual(counters.$type, 0, '$typeCount is 0');
     assert.strictEqual(counters.name, 2, 'nameCount is 1');
 
     assert.dom(`li:nth-child(${nameIndex + 1})`).hasText('name: Rey Skybarker', 'name is rendered');
@@ -91,6 +93,7 @@ module('Legacy | Reactivity | basic fields can receive remote updates', function
     const store = this.owner.lookup('service:store') as Store;
     const schema = new SchemaService();
     store.registerSchema(schema);
+    registerLegacyDerivations(schema);
 
     this.owner.register(
       'transform:float',
@@ -124,7 +127,7 @@ module('Legacy | Reactivity | basic fields can receive remote updates', function
 
     schema.defineSchema('user', {
       legacy: true,
-      fields: [
+      fields: withLegacyFields([
         {
           name: 'name',
           type: null,
@@ -154,7 +157,7 @@ module('Legacy | Reactivity | basic fields can receive remote updates', function
           options: { defaultValue: 0 },
           kind: 'attribute',
         },
-      ],
+      ]),
     });
 
     const fieldsMap = schema.schemas.get('user')!.fields;
@@ -251,6 +254,7 @@ module('Legacy | Reactivity | basic fields can receive remote updates', function
     const store = this.owner.lookup('service:store') as Store;
     const schema = new SchemaService();
     store.registerSchema(schema);
+    registerLegacyDerivations(schema);
 
     this.owner.register(
       'transform:float',
@@ -284,7 +288,7 @@ module('Legacy | Reactivity | basic fields can receive remote updates', function
 
     schema.defineSchema('user', {
       legacy: true,
-      fields: [
+      fields: withLegacyFields([
         {
           name: 'name',
           type: null,
@@ -295,7 +299,7 @@ module('Legacy | Reactivity | basic fields can receive remote updates', function
           type: 'float',
           kind: 'attribute',
         },
-      ],
+      ]),
     });
 
     const fieldsMap = schema.schemas.get('user')!.fields;

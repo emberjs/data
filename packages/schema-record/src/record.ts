@@ -263,10 +263,11 @@ export class SchemaRecord {
             return computeResource(store, cache, target, identifier, field, prop as string);
 
           case 'derived':
-            assert(
-              `SchemaRecord.${field.name} is not available in legacy mode because it has type '${field.kind}'`,
-              !target[Legacy]
-            );
+            // FIXME:
+            // assert(
+            //   `SchemaRecord.${field.name} is not available in legacy mode because it has type '${field.kind}'`,
+            //   !target[Legacy]
+            // );
             return computeDerivation(schema, receiver as unknown as SchemaRecord, identifier, field, prop as string);
           default:
             throw new Error(`Field '${String(prop)}' on '${identifier.type}' has the unknown kind '${field.kind}'`);

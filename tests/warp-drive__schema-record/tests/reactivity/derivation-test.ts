@@ -126,6 +126,7 @@ module('Reactivity | derivation', function (hooks) {
     const store = this.owner.lookup('service:store') as Store;
     const schema = new SchemaService();
     store.registerSchema(schema);
+    registerDerivations(schema);
 
     function concat(
       record: SchemaRecord & { [key: string]: unknown },
@@ -142,7 +143,7 @@ module('Reactivity | derivation', function (hooks) {
     schema.registerDerivation('concat', concat);
 
     schema.defineSchema('user', {
-      fields: [
+      fields: withFields([
         {
           name: 'age',
           type: null,
@@ -164,7 +165,7 @@ module('Reactivity | derivation', function (hooks) {
           options: { fields: ['firstName', 'lastName'], separator: ' ' },
           kind: 'derived',
         },
-      ],
+      ]),
     });
 
     const record = store.push({
