@@ -46,7 +46,7 @@
     "fromentries": "^1.3.2",
     "git-repo-info": "^2.1.1",
     "git-repo-version": "^1.0.2",
-    "globby": "^13.2.2",
+    "globby": "^14.0.0",
     "lerna-changelog": "^2.2.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "prettier": "^3.0.3",
