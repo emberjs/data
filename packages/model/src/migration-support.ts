@@ -30,6 +30,7 @@ const LegacyFields = [
   'adapterError',
   'belongsTo',
   'changedAttributes',
+  'constructor',
   'currentState',
   'deleteRecord',
   'destroyRecord',
@@ -70,6 +71,12 @@ function legacySupport(record: MinimalLegacyRecord, options: Record<string, unkn
       return belongsTo;
     case 'changedAttributes':
       return changedAttributes;
+    case 'constructor':
+      return (state._constructor = state._constructor || {
+        isModel: true,
+        name: `Record<${recordIdentifierFor(record).type}>`,
+        modelName: recordIdentifierFor(record).type,
+      });
     case 'currentState':
       return (state.recordState = state.recordState || new RecordState(record));
     case 'deleteRecord':
@@ -117,24 +124,6 @@ function legacySupport(record: MinimalLegacyRecord, options: Record<string, unkn
   }
 }
 
-function legacyConstructor(
-  record: MinimalLegacyRecord,
-  options: Record<string, unknown> | null,
-  prop: string
-): unknown {
-  let state = LegacySupport.get(record);
-  if (!state) {
-    state = {};
-    LegacySupport.set(record, state);
-  }
-
-  return (state._constructor = state._constructor || {
-    isModel: true,
-    name: `Record<${recordIdentifierFor(record).type}>`,
-    modelName: recordIdentifierFor(record).type,
-  });
-}
-
 export function withFields(fields: FieldSchema[]) {
   LegacyFields.forEach((field) => {
     fields.push({
@@ -142,11 +131,6 @@ export function withFields(fields: FieldSchema[]) {
       name: field,
       kind: 'derived',
     });
-  });
-  fields.push({
-    type: '@legacyConstructor',
-    name: 'constructor',
-    kind: 'derived',
   });
   fields.push({
     name: 'id',
@@ -176,5 +160,4 @@ export function withFields(fields: FieldSchema[]) {
 
 export function registerDerivations(schema: SchemaService) {
   schema.registerDerivation('@legacy', legacySupport as Derivation<unknown, unknown>);
-  schema.registerDerivation('@legacyConstructor', legacyConstructor as Derivation<unknown, unknown>);
 }
