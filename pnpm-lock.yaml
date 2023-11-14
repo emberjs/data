@@ -3043,6 +3043,9 @@ importers:
       loader.js:
         specifier: ^4.7.0
         version: 4.7.0
+      typescript:
+        specifier: ^5.2.2
+        version: 5.2.2
       webpack:
         specifier: ^5.89.0
         version: 5.89.0
