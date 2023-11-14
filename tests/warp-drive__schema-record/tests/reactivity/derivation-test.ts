@@ -122,7 +122,7 @@ module('Reactivity | derivation', function (hooks) {
     assert.dom(`li:nth-child(${nameIndex + 5})`).hasText('fullName: Rey Skybarker', 'fullName is rendered');
   });
 
-  test('derivations do not re-run unless the tracked state they consume is dirtied', async function (assert) {
+  test('derivations do not re-run unless the tracked state they consume is dirtied', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
     const schema = new SchemaService();
     store.registerSchema(schema);
