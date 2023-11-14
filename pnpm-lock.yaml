@@ -2572,6 +2572,9 @@ importers:
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.10
         version: 0.0.10
+      typescript:
+        specifier: ^5.2.2
+        version: 5.2.2
       webpack:
         specifier: ^5.89.0
         version: 5.89.0
