@@ -6,11 +6,14 @@ import { adapterFor, LegacyNetworkHandler, serializeRecord, serializerFor } from
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import type Errors from '@ember-data/model/-private/errors';
 import type RecordState from '@ember-data/model/-private/record-state';
-import { registerDerivations, withFields } from '@ember-data/model/migration-support';
+import {
+  registerDerivations as registerLegacyDerivations,
+  withFields as withLegacyFields,
+} from '@ember-data/model/migration-support';
 import RequestManager from '@ember-data/request';
 import Store, { CacheHandler } from '@ember-data/store';
 import { Editable, Legacy } from '@warp-drive/schema-record/record';
-import { SchemaService } from '@warp-drive/schema-record/schema';
+import { registerDerivations, SchemaService, withFields } from '@warp-drive/schema-record/schema';
 
 interface User {
   [Legacy]: boolean;
@@ -34,6 +37,8 @@ interface User {
   netWorth: number;
   coolometer: number;
   rank: number;
+  fullName: string;
+  bestFriend: unknown;
   currentState: RecordState;
   isDestroying: boolean;
   isDestroyed: boolean;
@@ -55,11 +60,11 @@ module('Legacy Mode', function (hooks) {
     const store = this.owner.lookup('service:store') as Store;
     const schema = new SchemaService();
     store.registerSchema(schema);
-    registerDerivations(schema);
+    registerLegacyDerivations(schema);
 
     schema.defineSchema('user', {
       legacy: true,
-      fields: withFields([
+      fields: withLegacyFields([
         {
           name: 'name',
           type: null,
@@ -97,13 +102,13 @@ module('Legacy Mode', function (hooks) {
 
     schema.defineSchema('user', {
       legacy: false,
-      fields: [
+      fields: withFields([
         {
           name: 'name',
           type: null,
-          kind: 'attribute',
+          kind: 'field',
         },
-      ],
+      ]),
     });
 
     const record = store.push({
@@ -122,21 +127,22 @@ module('Legacy Mode', function (hooks) {
     } catch (e) {
       assert.strictEqual(
         (e as Error).message,
-        'No field named constructor on user',
+        'Cannot access record.constructor.modelName on non-Legacy Schema Records.',
         'record.constructor.modelName throws'
       );
     }
+    assert.strictEqual(record.constructor.name, 'SchemaRecord<user>', 'it has a useful constructor name');
   });
 
   test('records in legacy mode set their constructor modelName value to the correct type', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
     const schema = new SchemaService();
     store.registerSchema(schema);
-    registerDerivations(schema);
+    registerLegacyDerivations(schema);
 
     schema.defineSchema('user', {
       legacy: true,
-      fields: withFields([
+      fields: withLegacyFields([
         {
           name: 'name',
           type: null,
@@ -159,17 +165,155 @@ module('Legacy Mode', function (hooks) {
       'user',
       'record constructor modelName is correct'
     );
+
+    assert.strictEqual(record.constructor.name, 'Record<user>', 'it has a useful constructor name');
   });
 
-  test('we can access errors', function (assert) {
+  test('records not in legacy mode can access values with type "field"', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
     const schema = new SchemaService();
     store.registerSchema(schema);
     registerDerivations(schema);
 
     schema.defineSchema('user', {
-      legacy: true,
+      legacy: false,
       fields: withFields([
+        {
+          name: 'name',
+          type: null,
+          kind: 'field',
+        },
+      ]),
+    });
+
+    const record = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: { name: 'Rey Pupatine' },
+      },
+    }) as User;
+
+    assert.false(record[Legacy], 'record is NOT in legacy mode');
+    assert.strictEqual(record.$type, 'user', '$type is accessible');
+
+    assert.strictEqual(record.name, 'Rey Pupatine', 'can access name field');
+  });
+
+  test('records in legacy mode cannot access values with type "field"', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const schema = new SchemaService();
+    store.registerSchema(schema);
+    registerLegacyDerivations(schema);
+
+    schema.defineSchema('user', {
+      legacy: true,
+      fields: withLegacyFields([
+        {
+          name: 'name',
+          type: null,
+          kind: 'field',
+        },
+      ]),
+    });
+
+    const record = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: { name: 'Rey Pupatine' },
+      },
+    }) as User;
+
+    assert.true(record[Legacy], 'record is in legacy mode');
+
+    try {
+      record.name;
+      assert.ok(false, 'record.name should throw');
+    } catch (e) {
+      assert.strictEqual(
+        (e as Error).message,
+        "Assertion Failed: SchemaRecord.name is not available in legacy mode because it has type 'field'",
+        'record.name throws'
+      );
+    }
+  });
+
+  test('records in legacy mode cannot access resources', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const schema = new SchemaService();
+    store.registerSchema(schema);
+    registerLegacyDerivations(schema);
+
+    schema.defineSchema('user', {
+      legacy: true,
+      fields: withLegacyFields([
+        {
+          name: 'name',
+          type: null,
+          kind: 'attribute',
+        },
+        {
+          name: 'bestFriend',
+          type: 'user',
+          kind: 'resource',
+          options: { inverse: 'bestFriend', async: true },
+        },
+      ]),
+    });
+
+    const record = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Chris',
+        },
+        relationships: {
+          bestFriend: {
+            data: { type: 'user', id: '2' },
+          },
+        },
+      },
+      included: [
+        {
+          type: 'user',
+          id: '2',
+          attributes: {
+            name: 'Rey',
+          },
+          relationships: {
+            bestFriend: {
+              data: { type: 'user', id: '1' },
+            },
+          },
+        },
+      ],
+    }) as User;
+
+    assert.true(record[Legacy], 'record is in legacy mode');
+
+    try {
+      record.bestFriend;
+      assert.ok(false, 'record.bestFriend should throw');
+    } catch (e) {
+      assert.strictEqual(
+        (e as Error).message,
+        "Assertion Failed: SchemaRecord.bestFriend is not available in legacy mode because it has type 'resource'",
+        'record.bestFriend throws'
+      );
+    }
+  });
+
+  test('we can access errors', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const schema = new SchemaService();
+    store.registerSchema(schema);
+    registerLegacyDerivations(schema);
+
+    schema.defineSchema('user', {
+      legacy: true,
+      fields: withLegacyFields([
         {
           name: 'name',
           type: null,
@@ -191,7 +335,7 @@ module('Legacy Mode', function (hooks) {
       assert.ok(true, 'record.errors should be available');
 
       const errors2 = record.errors;
-      assert.true(errors === errors2, 'record.errors should be stable');
+      assert.strictEqual(errors, errors2, 'record.errors should be stable');
     } catch (e) {
       assert.ok(false, `record.errors should be available: ${(e as Error).message}`);
     }
@@ -201,11 +345,11 @@ module('Legacy Mode', function (hooks) {
     const store = this.owner.lookup('service:store') as Store;
     const schema = new SchemaService();
     store.registerSchema(schema);
-    registerDerivations(schema);
+    registerLegacyDerivations(schema);
 
     schema.defineSchema('user', {
       legacy: true,
-      fields: withFields([
+      fields: withLegacyFields([
         {
           name: 'name',
           type: null,
@@ -227,7 +371,7 @@ module('Legacy Mode', function (hooks) {
       assert.ok(true, 'record.currentState should be available');
 
       const currentState2 = record.currentState;
-      assert.true(currentState === currentState2, 'record.currentState should be stable');
+      assert.strictEqual(currentState, currentState2, 'record.currentState should be stable');
 
       assert.strictEqual(currentState.stateName, 'root.loaded.saved', 'currentState.stateName is correct');
     } catch (e) {
@@ -239,11 +383,11 @@ module('Legacy Mode', function (hooks) {
     const store = this.owner.lookup('service:store') as Store;
     const schema = new SchemaService();
     store.registerSchema(schema);
-    registerDerivations(schema);
+    registerLegacyDerivations(schema);
 
     schema.defineSchema('user', {
       legacy: true,
-      fields: withFields([
+      fields: withLegacyFields([
         {
           name: 'name',
           type: null,
@@ -274,11 +418,11 @@ module('Legacy Mode', function (hooks) {
     const store = this.owner.lookup('service:store') as Store;
     const schema = new SchemaService();
     store.registerSchema(schema);
-    registerDerivations(schema);
+    registerLegacyDerivations(schema);
 
     schema.defineSchema('user', {
       legacy: true,
-      fields: withFields([
+      fields: withLegacyFields([
         {
           name: 'name',
           type: null,
@@ -304,11 +448,11 @@ module('Legacy Mode', function (hooks) {
     const store = this.owner.lookup('service:store') as Store;
     const schema = new SchemaService();
     store.registerSchema(schema);
-    registerDerivations(schema);
+    registerLegacyDerivations(schema);
 
     schema.defineSchema('user', {
       legacy: true,
-      fields: withFields([
+      fields: withLegacyFields([
         {
           name: 'name',
           type: null,
@@ -336,11 +480,11 @@ module('Legacy Mode', function (hooks) {
     const store = this.owner.lookup('service:store') as Store;
     const schema = new SchemaService();
     store.registerSchema(schema);
-    registerDerivations(schema);
+    registerLegacyDerivations(schema);
 
     schema.defineSchema('user', {
       legacy: true,
-      fields: withFields([
+      fields: withLegacyFields([
         {
           name: 'name',
           type: null,
@@ -374,11 +518,11 @@ module('Legacy Mode', function (hooks) {
     const store = this.owner.lookup('service:store') as Store;
     const schema = new SchemaService();
     store.registerSchema(schema);
-    registerDerivations(schema);
+    registerLegacyDerivations(schema);
 
     schema.defineSchema('user', {
       legacy: true,
-      fields: withFields([
+      fields: withLegacyFields([
         {
           name: 'name',
           type: null,
@@ -428,11 +572,11 @@ module('Legacy Mode', function (hooks) {
     };
     const schema = new SchemaService();
     store.registerSchema(schema);
-    registerDerivations(schema);
+    registerLegacyDerivations(schema);
 
     schema.defineSchema('user', {
       legacy: true,
-      fields: withFields([
+      fields: withLegacyFields([
         {
           name: 'name',
           type: null,
@@ -495,11 +639,11 @@ module('Legacy Mode', function (hooks) {
     store.requestManager.use([LegacyNetworkHandler]);
     const schema = new SchemaService();
     store.registerSchema(schema);
-    registerDerivations(schema);
+    registerLegacyDerivations(schema);
 
     schema.defineSchema('user', {
       legacy: true,
-      fields: withFields([
+      fields: withLegacyFields([
         {
           name: 'name',
           type: null,
@@ -528,11 +672,11 @@ module('Legacy Mode', function (hooks) {
     const store = this.owner.lookup('service:store') as Store;
     const schema = new SchemaService();
     store.registerSchema(schema);
-    registerDerivations(schema);
+    registerLegacyDerivations(schema);
 
     schema.defineSchema('user', {
       legacy: true,
-      fields: withFields([
+      fields: withLegacyFields([
         {
           name: 'name',
           type: null,
@@ -597,11 +741,11 @@ module('Legacy Mode', function (hooks) {
     store.requestManager.use([LegacyNetworkHandler]);
     const schema = new SchemaService();
     store.registerSchema(schema);
-    registerDerivations(schema);
+    registerLegacyDerivations(schema);
 
     schema.defineSchema('user', {
       legacy: true,
-      fields: withFields([
+      fields: withLegacyFields([
         {
           name: 'name',
           type: null,
@@ -662,11 +806,11 @@ module('Legacy Mode', function (hooks) {
     store.requestManager.use([LegacyNetworkHandler]);
     const schema = new SchemaService();
     store.registerSchema(schema);
-    registerDerivations(schema);
+    registerLegacyDerivations(schema);
 
     schema.defineSchema('user', {
       legacy: true,
-      fields: withFields([
+      fields: withLegacyFields([
         {
           name: 'name',
           type: null,

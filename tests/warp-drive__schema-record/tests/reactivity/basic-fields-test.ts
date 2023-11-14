@@ -5,9 +5,10 @@ import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 
 import type Store from '@ember-data/store';
+import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { SchemaRecord } from '@warp-drive/schema-record/record';
-import type { FieldSchema, Transform } from '@warp-drive/schema-record/schema';
+import type { Transform } from '@warp-drive/schema-record/schema';
 import { registerDerivations, SchemaService, withFields } from '@warp-drive/schema-record/schema';
 
 import { reactiveContext } from '../-utils/reactive-context';
@@ -36,7 +37,7 @@ module('Reactivity | basic fields can receive remote updates', function (hooks) 
         {
           name: 'name',
           type: null,
-          kind: 'attribute',
+          kind: 'field',
         },
       ]),
     });
@@ -117,30 +118,30 @@ module('Reactivity | basic fields can receive remote updates', function (hooks) 
         {
           name: 'name',
           type: null,
-          kind: 'attribute',
+          kind: 'field',
         },
         {
           name: 'rank',
           type: 'float',
-          kind: 'attribute',
+          kind: 'field',
           options: { precision: 0 },
         },
         {
           name: 'age',
           type: 'float',
           options: { precision: 0 },
-          kind: 'attribute',
+          kind: 'field',
         },
         {
           name: 'netWorth',
           type: 'float',
           options: { precision: 2 },
-          kind: 'attribute',
+          kind: 'field',
         },
         {
           name: 'coolometer',
           type: 'float',
-          kind: 'attribute',
+          kind: 'field',
         },
       ]),
     });

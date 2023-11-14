@@ -1,6 +1,7 @@
 import { assert } from '@ember/debug';
 
 import { recordIdentifierFor } from '@ember-data/store';
+import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 
 import { Errors } from './-private';
 import {
@@ -18,13 +19,6 @@ import {
   unloadRecord,
 } from './-private/model-methods';
 import RecordState from './-private/record-state';
-
-interface FieldSchema {
-  type: string | null;
-  name: string;
-  kind: 'attribute' | 'resource' | 'collection' | 'derived' | 'object' | 'array' | '@id' | '@local';
-  options?: Record<string, unknown>;
-}
 
 type Derivation<R, T> = (record: R, options: Record<string, unknown> | null, prop: string) => T;
 type SchemaService = {
@@ -80,6 +74,7 @@ function legacySupport(record: MinimalLegacyRecord, options: Record<string, unkn
     case 'constructor':
       return (state._constructor = state._constructor || {
         isModel: true,
+        name: `Record<${recordIdentifierFor(record).type}>`,
         modelName: recordIdentifierFor(record).type,
       });
     case 'currentState':

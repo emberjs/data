@@ -5,6 +5,24 @@
 import type { RecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
 
+export interface FieldSchema {
+  type: string | null;
+  name: string;
+  kind:
+    | 'attribute'
+    | 'hasMany'
+    | 'belongsTo'
+    | 'field'
+    | 'resource'
+    | 'collection'
+    | 'derived'
+    | 'object'
+    | 'array'
+    | '@id'
+    | '@local';
+  options?: Record<string, unknown>;
+}
+
 /**
  * A SchemaDefinitionService implementation provides the ability
  * to query for various information about a resource in an abstract manner.
@@ -65,6 +83,8 @@ export interface SchemaService {
    * @return {boolean}
    */
   doesTypeExist(type: string): boolean;
+
+  fields({ type }: { type: string }): Map<string, FieldSchema>;
 
   /**
    * Returns definitions for all properties of the specified resource

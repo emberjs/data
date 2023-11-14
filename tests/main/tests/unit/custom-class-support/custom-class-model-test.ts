@@ -10,6 +10,7 @@ import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { Cache } from '@ember-data/store/-types/q/cache';
 import type { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
 import type { SchemaService } from '@ember-data/store/-types/q/schema-service';
+import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 
 module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
   class Person {
@@ -36,6 +37,29 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
             name: 'name',
           };
           return schema;
+        },
+        _fieldsDefCache: {} as Record<string, Map<string, FieldSchema>>,
+        fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
+          const { type } = identifier;
+          let fieldDefs: Map<string, FieldSchema> | undefined = this._fieldsDefCache[type];
+
+          if (fieldDefs === undefined) {
+            fieldDefs = new Map();
+            this._fieldsDefCache[type] = fieldDefs;
+
+            const attributes = this.attributesDefinitionFor(identifier);
+            const relationships = this.relationshipsDefinitionFor(identifier);
+
+            for (const attr of Object.values(attributes)) {
+              fieldDefs.set(attr.name, attr);
+            }
+
+            for (const rel of Object.values(relationships)) {
+              fieldDefs.set(rel.name, rel);
+            }
+          }
+
+          return fieldDefs;
         },
         relationshipsDefinitionFor() {
           return {};
@@ -126,15 +150,17 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
   });
 
   test('attribute and relationship with custom schema definition', async function (assert) {
-    assert.expect(18);
     this.owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
         shouldBackgroundReloadRecord: () => false,
         createRecord: (store, type, snapshot: Snapshot) => {
           let count = 0;
+          assert.verifySteps(['Schema:attributesDefinitionFor', 'Schema:fields']);
+          assert.step('Adapter:createRecord');
           snapshot.eachAttribute((attr, attrDef) => {
             if (count === 0) {
+              assert.step('Adapter:createRecord:attr:name');
               assert.strictEqual(attr, 'name', 'attribute key is correct');
               assert.deepEqual(
                 attrDef,
@@ -142,6 +168,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
                 'attribute def matches schem'
               );
             } else if (count === 1) {
+              assert.step('Adapter:createRecord:attr:age');
               assert.strictEqual(attr, 'age', 'attribute key is correct');
               assert.deepEqual(
                 attrDef,
@@ -154,6 +181,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
           count = 0;
           snapshot.eachRelationship((rel, relDef) => {
             if (count === 0) {
+              assert.step('Adapter:createRecord:rel:boats');
               assert.strictEqual(rel, 'boats', 'relationship key is correct');
               assert.deepEqual(
                 relDef,
@@ -169,6 +197,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
                 'relationships def matches schem'
               );
             } else if (count === 1) {
+              assert.step('Adapter:createRecord:rel:house');
               assert.strictEqual(rel, 'house', 'relationship key is correct');
               assert.deepEqual(
                 relDef,
@@ -183,6 +212,15 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
             }
             count++;
           });
+          assert.verifySteps([
+            'Adapter:createRecord',
+            'Schema:attributesDefinitionFor',
+            'Adapter:createRecord:attr:name',
+            'Adapter:createRecord:attr:age',
+            'Schema:relationshipsDefinitionFor',
+            'Adapter:createRecord:rel:boats',
+            'Adapter:createRecord:rel:house',
+          ]);
           return Promise.resolve({ data: { type: 'person', id: '1' } });
         },
       })
@@ -198,6 +236,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     const store = this.owner.lookup('service:store') as Store;
     let schema: SchemaService = {
       attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
+        assert.step('Schema:attributesDefinitionFor');
         if (typeof identifier === 'string') {
           assert.strictEqual(identifier, 'person', 'type passed in to the schema hooks');
         } else {
@@ -218,7 +257,33 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
           },
         };
       },
+      _fieldsDefCache: {} as Record<string, Map<string, FieldSchema>>,
+      fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
+        assert.step('Schema:fields');
+        const { type } = identifier;
+        let fieldDefs: Map<string, FieldSchema> | undefined = this._fieldsDefCache[type];
+
+        if (fieldDefs === undefined) {
+          assert.step('Schema:fields(calc)');
+          fieldDefs = new Map();
+          this._fieldsDefCache[type] = fieldDefs;
+
+          const attributes = this.attributesDefinitionFor(identifier);
+          const relationships = this.relationshipsDefinitionFor(identifier);
+
+          for (const attr of Object.values(attributes)) {
+            fieldDefs.set(attr.name, attr);
+          }
+
+          for (const rel of Object.values(relationships)) {
+            fieldDefs.set(rel.name, rel);
+          }
+        }
+
+        return fieldDefs;
+      },
       relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
+        assert.step('Schema:relationshipsDefinitionFor');
         if (typeof identifier === 'string') {
           assert.strictEqual(identifier, 'person', 'type passed in to the schema hooks');
         } else {
@@ -250,8 +315,21 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
       },
     };
     store.registerSchemaDefinitionService(schema);
+    assert.verifySteps([]);
     let person = store.createRecord('person', { name: 'chris' }) as Person;
+    assert.verifySteps([
+      'Schema:relationshipsDefinitionFor',
+      'Schema:fields',
+      'Schema:fields(calc)',
+      'Schema:attributesDefinitionFor',
+      'Schema:relationshipsDefinitionFor',
+    ]);
     await person.save();
+    assert.verifySteps([
+      'Schema:attributesDefinitionFor',
+      'Schema:attributesDefinitionFor',
+      'Schema:relationshipsDefinitionFor',
+    ]);
   });
 
   test('store.saveRecord', async function (assert) {
@@ -357,6 +435,29 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
         } else {
           return {};
         }
+      },
+      _fieldsDefCache: {} as Record<string, Map<string, FieldSchema>>,
+      fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
+        const { type } = identifier;
+        let fieldDefs: Map<string, FieldSchema> | undefined = this._fieldsDefCache[type];
+
+        if (fieldDefs === undefined) {
+          fieldDefs = new Map();
+          this._fieldsDefCache[type] = fieldDefs;
+
+          const attributes = this.attributesDefinitionFor(identifier);
+          const relationships = this.relationshipsDefinitionFor(identifier);
+
+          for (const attr of Object.values(attributes)) {
+            fieldDefs.set(attr.name, attr);
+          }
+
+          for (const rel of Object.values(relationships)) {
+            fieldDefs.set(rel.name, rel);
+          }
+        }
+
+        return fieldDefs;
       },
       relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
         let modelName = (identifier as RecordIdentifier).type || identifier;

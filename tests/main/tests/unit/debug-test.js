@@ -86,6 +86,10 @@ if (HAS_DEBUG_PACKAGE) {
           return this._schema.attributesDefinitionFor(identifier);
         }
 
+        fields(identifier) {
+          return this._schema.fields(identifier);
+        }
+
         relationshipsDefinitionFor(identifier) {
           const sup = this._schema.relationshipsDefinitionFor(identifier);
           if (identifier.type === 'user') {

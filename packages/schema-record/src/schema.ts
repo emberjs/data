@@ -1,5 +1,8 @@
 import { assert } from '@ember/debug';
 
+import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
+import { createCache, getValue } from '@ember-data/tracking';
+import { type Signal, Signals } from '@ember-data/tracking/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Value } from '@warp-drive/core-types/json/raw';
 import type { AttributeSchema, RelationshipSchema } from '@warp-drive/core-types/schema';
@@ -7,13 +10,6 @@ import type { AttributeSchema, RelationshipSchema } from '@warp-drive/core-types
 import type { SchemaRecord } from './record';
 
 export { withFields, registerDerivations } from './-base-fields';
-
-export interface FieldSchema {
-  type: string | null;
-  name: string;
-  kind: 'attribute' | 'resource' | 'collection' | 'derived' | 'object' | 'array' | '@id' | '@local';
-  options?: Record<string, unknown>;
-}
 
 /**
  * The full schema for a resource
@@ -55,6 +51,29 @@ export type Transform<T extends Value = string, PT = unknown> = {
 
 export type Derivation<R, T> = (record: R, options: Record<string, unknown> | null, prop: string) => T;
 
+/**
+ * Wraps a derivation in a new function with Derivation signature but that looks
+ * up the value in the cache before recomputing.
+ *
+ * @param record
+ * @param options
+ * @param prop
+ */
+function makeCachedDerivation<R, T>(derivation: Derivation<R, T>): Derivation<R, T> {
+  return (record: R, options: Record<string, unknown> | null, prop: string): T => {
+    const signals = (record as { [Signals]: Map<string, Signal> })[Signals];
+    let signal = signals.get(prop);
+    if (!signal) {
+      signal = createCache(() => {
+        return derivation(record, options, prop);
+      }) as unknown as Signal; // a total lie, for convenience of reusing the storage
+      signals.set(prop, signal);
+    }
+
+    return getValue(signal as unknown as ReturnType<typeof createCache>) as T;
+  };
+}
+
 export class SchemaService {
   declare schemas: Map<string, FieldSpec>;
   declare transforms: Map<string, Transform<Value>>;
@@ -71,7 +90,7 @@ export class SchemaService {
   }
 
   registerDerivation<R, T>(type: string, derivation: Derivation<R, T>): void {
-    this.derivations.set(type, derivation as Derivation<unknown, unknown>);
+    this.derivations.set(type, makeCachedDerivation(derivation) as Derivation<unknown, unknown>);
   }
 
   defineSchema(name: string, schema: { legacy?: boolean; fields: FieldSchema[] }): void {
@@ -96,6 +115,19 @@ export class SchemaService {
 
       if (field.kind === '@id') {
         fieldSpec['@id'] = field;
+      } else if (field.kind === 'field') {
+        // We don't add 'field' fields to attributes in order to allow simpler
+        // migration between transformation behaviors
+        // serializers and things which call attributesDefinitionFor will
+        // only run on the things that are legacy attribute mode, while all fields
+        // will have their serialize/hydrate logic managed by the cache and record
+        //
+        // This means that if you want to normalize fields pre-cache insertion
+        // Or pre-api call you wil need to use the newer `schema.fields()` API
+        // To opt-in to that ability (which note, is now an anti-pattern)
+        //
+        // const attr = Object.assign({}, field, { kind: 'attribute' }) as AttributeSchema;
+        // fieldSpec.attributes[attr.name] = attr;
       } else if (field.kind === 'attribute') {
         fieldSpec.attributes[field.name] = field as AttributeSchema;
       } else if (field.kind === 'resource' || field.kind === 'collection') {

@@ -8,6 +8,7 @@ import type { NotificationType } from '@ember-data/store/-private/managers/notif
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
 import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 import type { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
+import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
 class TestStore extends Store {
@@ -50,6 +51,31 @@ class TestSchema<T extends string> {
 
   attributesDefinitionFor(identifier: { type: T }): AttributesSchema {
     return this.schemas[identifier.type]?.attributes || {};
+  }
+
+  _fieldsDefCache: Record<string, Map<string, FieldSchema>> = {};
+
+  fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
+    const { type } = identifier;
+    let fieldDefs: Map<string, FieldSchema> | undefined = this._fieldsDefCache[type];
+
+    if (fieldDefs === undefined) {
+      fieldDefs = new Map();
+      this._fieldsDefCache[type] = fieldDefs;
+
+      const attributes = this.attributesDefinitionFor(identifier);
+      const relationships = this.relationshipsDefinitionFor(identifier);
+
+      for (const attr of Object.values(attributes)) {
+        fieldDefs.set(attr.name, attr);
+      }
+
+      for (const rel of Object.values(relationships)) {
+        fieldDefs.set(rel.name, rel);
+      }
+    }
+
+    return fieldDefs;
   }
 
   relationshipsDefinitionFor(identifier: { type: T }): RelationshipsSchema {

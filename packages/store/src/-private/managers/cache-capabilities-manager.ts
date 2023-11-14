@@ -90,6 +90,10 @@ export class CacheCapabilitiesManager implements StoreWrapper {
     return this._store.getSchemaDefinitionService();
   }
 
+  get schema() {
+    return this._store.schema;
+  }
+
   setRecordId(identifier: StableRecordIdentifier, id: string) {
     assert(`Expected a stable identifier`, isStableIdentifier(identifier));
     this._store._instanceCache.setRecordId(identifier, id);

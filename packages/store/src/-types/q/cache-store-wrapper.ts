@@ -35,16 +35,28 @@ export interface CacheCapabilitiesManager {
   identifierCache: IdentifierCache;
 
   /**
-   * Provides access to the SchemaDefinitionService instance
+   * Provides access to the SchemaService instance
    * for this Store instance.
    *
-   * The SchemaDefinitionService can be used to query for
+   * The SchemaService can be used to query for
    * information about the schema of a resource.
    *
    * @method getSchemaDefinitionService
    * @public
    */
   getSchemaDefinitionService(): SchemaService;
+
+  /**
+   * Provides access to the SchemaService instance
+   * for this Store instance.
+   *
+   * The SchemaService can be used to query for
+   * information about the schema of a resource.
+   *
+   * @property schema
+   * @public
+   */
+  schema: SchemaService;
 
   /**
    * Update the `id` for the record corresponding to the identifier

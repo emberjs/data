@@ -468,6 +468,7 @@ module.exports = {
     '(public) @ember-data/store CacheManager#rollbackRelationships',
     '(public) @ember-data/store CacheCapabilitiesManager#disconnectRecord',
     '(public) @ember-data/store CacheCapabilitiesManager#getSchemaDefinitionService',
+    '(public) @ember-data/store CacheCapabilitiesManager#schema',
     '(public) @ember-data/store CacheCapabilitiesManager#hasRecord',
     '(public) @ember-data/store CacheCapabilitiesManager#identifierCache',
     '(public) @ember-data/store CacheCapabilitiesManager#notifyChange',

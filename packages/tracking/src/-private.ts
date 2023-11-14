@@ -54,6 +54,16 @@ function maybeDirty(tag: ReturnType<typeof tagForProperty> | null): void {
   }
 }
 
+/**
+ * If there is a current transaction, ensures that the relevant tag (and any
+ * array computed chains symbols, if applicable) will be consumed during the
+ * transaction.
+ *
+ * If there is no current transaction, will consume the tag(s) immediately.
+ *
+ * @internal
+ * @param obj
+ */
 export function subscribe(obj: Tag | Signal): void {
   if (TRANSACTION) {
     TRANSACTION.sub.add(obj);
@@ -259,6 +269,33 @@ export function memoTransact<T extends OpaqueFn>(method: T): (...args: unknown[]
 
 export const Signals = Symbol('Signals');
 
+/**
+ *  use to add a signal property to the prototype of something.
+ *
+ *  First arg is the thing to define on
+ *  Second arg is the property name
+ *  Third agg is the initial value of the property if any.
+ *
+ *  for instance
+ *
+ *  ```ts
+ *  class Model {}
+ *  defineSignal(Model.prototype, 'isLoading', false);
+ *  ```
+ *
+ *  This is sort of like using a stage-3 decorator but works today
+ *  while we are still on legacy decorators.
+ *
+ *  e.g. it is equivalent to
+ *
+ *  ```ts
+ *  class Model {
+ *    @signal accessor isLoading = false;
+ *  }
+ *  ```
+ *
+ *  @internal
+ */
 export function defineSignal<T extends object>(obj: T, key: string, v?: unknown) {
   Object.defineProperty(obj, key, {
     enumerable: true,
@@ -288,14 +325,57 @@ export function defineSignal<T extends object>(obj: T, key: string, v?: unknown)
 }
 
 export interface Signal {
+  /**
+   * Key on the associated object
+   * @internal
+   */
   key: string;
   _debug_base?: string;
 
+  /**
+   * Whether this signal is part of an active transaction.
+   * @internal
+   */
   t: boolean;
+
+  /**
+   * Whether to "bust" the lastValue cache
+   * @internal
+   */
   shouldReset: boolean;
+
+  /**
+   * The framework specific "signal" e.g. glimmer "tracked"
+   * or starbeam "cell" to consume/invalidate when appropriate.
+   *
+   * @internal
+   */
   tag: ReturnType<typeof tagForProperty>;
+
+  /**
+   * In classic ember, arrays must entangle a `[]` symbol
+   * in addition to any other tag in order for array chains to work.
+   *
+   * Note, this symbol MUST be the one that ember itself generates
+   *
+   * @internal
+   */
   '[]': ReturnType<typeof tagForProperty> | null;
+  /**
+   * In classic ember, arrays must entangle a `@length` symbol
+   * in addition to any other tag in order for array chains to work.
+   *
+   * Note, this symbol MUST be the one that ember itself generates
+   *
+   * @internal
+   */
   '@length': ReturnType<typeof tagForProperty> | null;
+
+  /**
+   * The lastValue computed for this signal when
+   * a signal is also used for storage.
+   * @internal
+   */
   lastValue: unknown;
 }
 
@@ -306,6 +386,14 @@ export function createArrayTags<T extends object>(obj: T, signal: Signal) {
   }
 }
 
+/**
+ * Create a signal for the key/object pairing.
+ *
+ * @internal
+ * @param obj Object we're creating the signal on
+ * @param key Key to create the signal for
+ * @returns the signal
+ */
 export function createSignal<T extends object>(obj: T, key: string): Signal {
   const _signal: Signal = {
     key,
@@ -319,17 +407,35 @@ export function createSignal<T extends object>(obj: T, key: string): Signal {
   };
 
   if (DEBUG) {
-    // @ts-expect-error
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const modelName = obj.modelName ?? obj.constructor?.modelName ?? '';
+    // eslint-disable-next-line no-inner-declarations
+    function tryGet<T1 = string>(prop: string): T1 | undefined {
+      try {
+        return obj[prop as keyof typeof obj] as unknown as T1;
+      } catch {
+        return;
+      }
+    }
+    const modelName =
+      tryGet('$type') ?? tryGet('modelName') ?? tryGet<{ modelName?: string }>('constructor')?.modelName ?? '';
     // eslint-disable-next-line @typescript-eslint/no-base-to-string
     const className = obj.constructor?.name ?? obj.toString?.() ?? 'unknown';
-    _signal._debug_base = `${className}${modelName ? `:${modelName}` : ''}`;
+    _signal._debug_base = `${className}${modelName && !className.startsWith('SchemaRecord') ? `:${modelName}` : ''}`;
   }
 
   return _signal;
 }
 
+/**
+ * Create a signal for the key/object pairing and subscribes to the signal.
+ *
+ * Use when you need to ensure a signal exists and is subscribed to.
+ *
+ * @internal
+ * @param signals Map of signals
+ * @param obj Object we're creating the signal on
+ * @param key Key to create the signal for
+ * @returns the signal
+ */
 export function entangleSignal<T extends object>(signals: Map<string, Signal>, obj: T, key: string): Signal {
   let _signal = signals.get(key);
   if (!_signal) {
@@ -345,7 +451,13 @@ interface Signaler {
 }
 
 export function getSignal<T extends object>(obj: T, key: string, initialState: boolean): Signal {
-  const signals = ((obj as Signaler)[Signals] = (obj as Signaler)[Signals] || new Map());
+  let signals = (obj as Signaler)[Signals];
+
+  if (!signals) {
+    signals = new Map();
+    (obj as Signaler)[Signals] = signals;
+  }
+
   let _signal = signals.get(key);
   if (!_signal) {
     _signal = createSignal(obj, key);

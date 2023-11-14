@@ -18,6 +18,7 @@ import type { CacheCapabilitiesManager as InternalCapabilitiesManager } from '@e
 import type { MergeOperation } from '@ember-data/store/-types/q/cache';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
 import type { AttributesHash, JsonApiError, JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
+import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 import type { Cache, ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core-types/cache';
 import type { ResourceBlob } from '@warp-drive/core-types/cache/aliases';
 import type { Change } from '@warp-drive/core-types/cache/change';
@@ -34,7 +35,6 @@ import type {
   StructuredDocument,
   StructuredErrorDocument,
 } from '@warp-drive/core-types/request';
-import type { AttributeSchema, RelationshipSchema } from '@warp-drive/core-types/schema';
 import type {
   CollectionResourceDataDocument,
   ResourceDataDocument,
@@ -450,12 +450,11 @@ export default class JSONAPICache implements Cache {
 
       upgradeCapabilities(this._capabilities);
       const store = this._capabilities._store;
-      const attrs = this._capabilities.getSchemaDefinitionService().attributesDefinitionFor(identifier);
-      Object.keys(attrs).forEach((key) => {
+      const attrs = this._capabilities.schema.fields(identifier);
+      attrs.forEach((attr, key) => {
         if (key in attributes && attributes[key] !== undefined) {
           return;
         }
-        const attr = attrs[key]!;
         const defaultValue = getDefaultValue(attr, identifier, store);
 
         if (defaultValue !== undefined) {
@@ -708,8 +707,7 @@ export default class JSONAPICache implements Cache {
 
     if (options !== undefined) {
       const storeWrapper = this._capabilities;
-      const attributeDefs = storeWrapper.getSchemaDefinitionService().attributesDefinitionFor(identifier);
-      const relationshipDefs = storeWrapper.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
+      const fields = storeWrapper.schema.fields(identifier);
       const graph = this.__graph;
       const propertyNames = Object.keys(options);
 
@@ -721,8 +719,7 @@ export default class JSONAPICache implements Cache {
           continue;
         }
 
-        const fieldType: AttributeSchema | RelationshipSchema | undefined =
-          relationshipDefs[name] || attributeDefs[name];
+        const fieldType: FieldSchema | undefined = fields.get(name);
         const kind = fieldType !== undefined ? ('kind' in fieldType ? fieldType.kind : 'attribute') : null;
         let relationship: ResourceEdge | CollectionEdge;
 
@@ -1096,7 +1093,7 @@ export default class JSONAPICache implements Cache {
     } else if (cached.remoteAttrs && attr in cached.remoteAttrs) {
       return cached.remoteAttrs[attr];
     } else {
-      const attrSchema = this._capabilities.getSchemaDefinitionService().attributesDefinitionFor(identifier)[attr];
+      const attrSchema = this._capabilities.schema.fields(identifier).get(attr);
 
       upgradeCapabilities(this._capabilities);
       return getDefaultValue(attrSchema, identifier, this._capabilities._store);
@@ -1452,13 +1449,17 @@ function getRemoteState(rel: CollectionEdge | ResourceEdge) {
 }
 
 function getDefaultValue(
-  schema: AttributeSchema | undefined,
+  schema: FieldSchema | undefined,
   identifier: StableRecordIdentifier,
   store: Store
 ): Value | undefined {
   const options = schema?.options;
 
   if (!schema || (!options && !schema.type)) {
+    return;
+  }
+
+  if (schema.kind !== 'attribute' && schema.kind !== 'field') {
     return;
   }
 
@@ -1478,7 +1479,7 @@ function getDefaultValue(
     return defaultValue as Value;
 
     // new style transforms
-  } else if (schema.type) {
+  } else if (schema.kind !== 'attribute' && schema.type) {
     const transform = (
       store.schema as unknown as {
         transforms?: Map<

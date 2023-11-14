@@ -1,8 +1,11 @@
+import { assert } from '@ember/debug';
+
 import { DEBUG } from '@ember-data/env';
 import type { Future } from '@ember-data/request';
 import type Store from '@ember-data/store';
 import type { StoreRequestInput } from '@ember-data/store/-private/cache-handler';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
+import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 import {
   addToTransaction,
   defineSignal,
@@ -10,6 +13,7 @@ import {
   getSignal,
   peekSignal,
   type Signal,
+  Signals,
 } from '@ember-data/tracking/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
@@ -19,7 +23,7 @@ import { STRUCTURED } from '@warp-drive/core-types/request';
 import type { Link, Links } from '@warp-drive/core-types/spec/raw';
 import { RecordStore } from '@warp-drive/core-types/symbols';
 
-import type { FieldSchema, SchemaService } from './schema';
+import type { SchemaService } from './schema';
 
 export const Destroy = Symbol('Destroy');
 export const Identifier = Symbol('Identifier');
@@ -29,9 +33,9 @@ export const Checkout = Symbol('Checkout');
 export const Legacy = Symbol('Legacy');
 
 const IgnoredGlobalFields = new Set(['then', STRUCTURED]);
-const RecordSymbols = new Set([Destroy, RecordStore, Identifier, Editable, Parent, Checkout, Legacy]);
+const RecordSymbols = new Set([Destroy, RecordStore, Identifier, Editable, Parent, Checkout, Legacy, Signals]);
 
-function computeLocal(record: SchemaRecord, field: FieldSchema, prop: string): unknown {
+function computeLocal(record: typeof Proxy<SchemaRecord>, field: FieldSchema, prop: string): unknown {
   let signal = peekSignal(record, prop);
 
   if (!signal) {
@@ -42,7 +46,7 @@ function computeLocal(record: SchemaRecord, field: FieldSchema, prop: string): u
   return signal.lastValue;
 }
 
-function computeAttribute(
+function computeField(
   schema: SchemaService,
   cache: Cache,
   record: SchemaRecord,
@@ -59,6 +63,10 @@ function computeAttribute(
     throw new Error(`No '${field.type}' transform defined for use by ${identifier.type}.${String(prop)}`);
   }
   return transform.hydrate(rawValue, field.options ?? null, record);
+}
+
+function computeAttribute(cache: Cache, identifier: StableRecordIdentifier, prop: string): unknown {
+  return cache.getAttr(identifier, prop);
 }
 
 function computeDerivation(
@@ -176,6 +184,7 @@ export class SchemaRecord {
   declare [Identifier]: StableRecordIdentifier;
   declare [Editable]: boolean;
   declare [Legacy]: boolean;
+  declare [Signals]: Map<string, Signal>;
   declare ___notifications: object;
 
   constructor(store: Store, identifier: StableRecordIdentifier, Mode: { [Editable]: boolean; [Legacy]: boolean }) {
@@ -189,6 +198,7 @@ export class SchemaRecord {
     const fields = schema.fields(identifier);
 
     const signals: Map<string, Signal> = new Map();
+    this[Signals] = signals;
     this.___notifications = store.notifications.subscribe(
       identifier,
       (_: StableRecordIdentifier, type: NotificationType, key?: string) => {
@@ -229,25 +239,37 @@ export class SchemaRecord {
 
         switch (field.kind) {
           case '@id':
-            entangleSignal(signals, this, '@identity');
+            entangleSignal(signals, receiver, '@identity');
             return identifier.id;
-          case '@local':
-            entangleSignal(signals, this, field.name);
-            return computeLocal(target, field, prop as string);
+          case '@local': {
+            const lastValue = computeLocal(receiver, field, prop as string);
+            entangleSignal(signals, receiver, prop as string);
+            return lastValue;
+          }
+          case 'field':
+            assert(
+              `SchemaRecord.${field.name} is not available in legacy mode because it has type '${field.kind}'`,
+              !target[Legacy]
+            );
+            entangleSignal(signals, receiver, field.name);
+            return computeField(schema, cache, target, identifier, field, prop as string);
           case 'attribute':
-            entangleSignal(signals, this, field.name);
-            return computeAttribute(schema, cache, target, identifier, field, prop as string);
+            entangleSignal(signals, receiver, field.name);
+            return computeAttribute(cache, identifier, prop as string);
           case 'resource':
-            entangleSignal(signals, this, field.name);
+            assert(
+              `SchemaRecord.${field.name} is not available in legacy mode because it has type '${field.kind}'`,
+              !target[Legacy]
+            );
+            entangleSignal(signals, receiver, field.name);
             return computeResource(store, cache, target, identifier, field, prop as string);
-
           case 'derived':
             return computeDerivation(schema, receiver as unknown as SchemaRecord, identifier, field, prop as string);
           default:
             throw new Error(`Field '${String(prop)}' on '${identifier.type}' has the unknown kind '${field.kind}'`);
         }
       },
-      set(target: SchemaRecord, prop: string | number | symbol, value: unknown) {
+      set(target: SchemaRecord, prop: string | number | symbol, value: unknown, receiver: typeof Proxy<SchemaRecord>) {
         if (!IS_EDITABLE) {
           throw new Error(`Cannot set ${String(prop)} on ${identifier.type} because the record is not editable`);
         }
@@ -259,15 +281,14 @@ export class SchemaRecord {
 
         switch (field.kind) {
           case '@local': {
-            const signal = getSignal(target, prop as string, true);
+            const signal = getSignal(receiver, prop as string, true);
             if (signal.lastValue !== value) {
               signal.lastValue = value;
               addToTransaction(signal);
             }
-
             return true;
           }
-          case 'attribute': {
+          case 'field': {
             if (field.type === null) {
               cache.setAttr(identifier, prop as string, value as Value);
               return true;
@@ -282,10 +303,13 @@ export class SchemaRecord {
             cache.setAttr(identifier, prop as string, rawValue);
             return true;
           }
+          case 'attribute': {
+            cache.setAttr(identifier, prop as string, value as Value);
+            return true;
+          }
           case 'derived': {
             throw new Error(`Cannot set ${String(prop)} on ${identifier.type} because it is derived`);
           }
-
           default:
             throw new Error(`Unknown field kind ${field.kind}`);
         }

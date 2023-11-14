@@ -1,6 +1,7 @@
 import { getOwner } from '@ember/application';
 
 import type Store from '@ember-data/store';
+import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 import type { RecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
 
@@ -13,11 +14,36 @@ export class ModelSchemaProvider {
   declare store: ModelStore;
   declare _relationshipsDefCache: Record<string, RelationshipsSchema>;
   declare _attributesDefCache: Record<string, AttributesSchema>;
+  declare _fieldsDefCache: Record<string, Map<string, FieldSchema>>;
 
   constructor(store: ModelStore) {
     this.store = store;
     this._relationshipsDefCache = Object.create(null) as Record<string, RelationshipsSchema>;
     this._attributesDefCache = Object.create(null) as Record<string, AttributesSchema>;
+    this._fieldsDefCache = Object.create(null) as Record<string, Map<string, FieldSchema>>;
+  }
+
+  fields(identifier: RecordIdentifier | { type: string }): Map<string, FieldSchema> {
+    const { type } = identifier;
+    let fieldDefs: Map<string, FieldSchema> | undefined = this._fieldsDefCache[type];
+
+    if (fieldDefs === undefined) {
+      fieldDefs = new Map();
+      this._fieldsDefCache[type] = fieldDefs;
+
+      const attributes = this.attributesDefinitionFor(identifier);
+      const relationships = this.relationshipsDefinitionFor(identifier);
+
+      for (const attr of Object.values(attributes)) {
+        fieldDefs.set(attr.name, attr);
+      }
+
+      for (const rel of Object.values(relationships)) {
+        fieldDefs.set(rel.name, rel);
+      }
+    }
+
+    return fieldDefs;
   }
 
   // Following the existing RD implementation

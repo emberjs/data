@@ -40,12 +40,12 @@ module('Reads | derivation', function (hooks) {
         {
           name: 'firstName',
           type: null,
-          kind: 'attribute',
+          kind: 'field',
         },
         {
           name: 'lastName',
           type: null,
-          kind: 'attribute',
+          kind: 'field',
         },
         {
           name: 'fullName',
@@ -64,5 +64,55 @@ module('Reads | derivation', function (hooks) {
     assert.strictEqual(record.firstName, 'Rey', 'firstName is accessible');
     assert.strictEqual(record.lastName, 'Skybarker', 'lastName is accessible');
     assert.strictEqual(record.fullName, 'Rey Skybarker', 'fullName is accessible');
+  });
+
+  test('throws an error if derivation is not found', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const schema = new SchemaService();
+    store.registerSchema(schema);
+    registerDerivations(schema);
+
+    schema.defineSchema('user', {
+      fields: withFields([
+        {
+          name: 'firstName',
+          type: null,
+          kind: 'attribute',
+        },
+        {
+          name: 'lastName',
+          type: null,
+          kind: 'attribute',
+        },
+        {
+          name: 'fullName',
+          type: 'concat',
+          options: { fields: ['firstName', 'lastName'], separator: ' ' },
+          kind: 'derived',
+        },
+      ]),
+    });
+
+    const record = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          firstName: 'Rey',
+          lastName: 'Pupatine',
+        },
+      },
+    }) as User;
+
+    try {
+      record.fullName;
+      assert.ok(false, 'record.fullName should throw');
+    } catch (e) {
+      assert.strictEqual(
+        (e as Error).message,
+        "No 'concat' derivation defined for use by user.fullName",
+        'record.fullName throws'
+      );
+    }
   });
 });

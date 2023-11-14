@@ -1,11 +1,21 @@
 import { assert } from '@ember/debug';
 
+import { recordIdentifierFor } from '@ember-data/store';
+import { RecordInstance } from '@ember-data/store/-types/q/record-instance';
+import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
 import { Identifier, type SchemaRecord } from './record';
-import type { Derivation, FieldSchema, SchemaService } from './schema';
+import type { Derivation, SchemaService } from './schema';
+
+const Support = new WeakMap<WeakKey, Record<string, unknown>>();
 
 export const SchemaRecordFields: FieldSchema[] = [
+  {
+    type: '@constructor',
+    name: 'constructor',
+    kind: 'derived',
+  },
   {
     name: 'id',
     kind: '@id',
@@ -18,6 +28,21 @@ export const SchemaRecordFields: FieldSchema[] = [
     options: { key: 'type' },
   },
 ];
+
+const _constructor: Derivation<RecordInstance, unknown> = function (record) {
+  let state = Support.get(record as WeakKey);
+  if (!state) {
+    state = {};
+    Support.set(record as WeakKey, state);
+  }
+
+  return (state._constructor = state._constructor || {
+    name: `SchemaRecord<${recordIdentifierFor(record).type}>`,
+    get modelName() {
+      throw new Error('Cannot access record.constructor.modelName on non-Legacy Schema Records.');
+    },
+  });
+};
 
 export function withFields(fields: FieldSchema[]) {
   fields.push(...SchemaRecordFields);
@@ -49,4 +74,5 @@ export function registerDerivations(schema: SchemaService) {
     '@identity',
     fromIdentity as Derivation<SchemaRecord, StableRecordIdentifier | string | null>
   );
+  schema.registerDerivation('@constructor', _constructor);
 }

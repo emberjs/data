@@ -4,8 +4,8 @@ import Component from '@glimmer/component';
 import { hbs } from 'ember-cli-htmlbars';
 
 import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
+import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 import type { ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
-import type { FieldSchema } from '@warp-drive/schema-record/schema';
 
 export async function reactiveContext<T extends RecordInstance>(this: TestContext, record: T, fields: FieldSchema[]) {
   const _fields: string[] = [];
@@ -32,7 +32,7 @@ export async function reactiveContext<T extends RecordInstance>(this: TestContex
       get() {
         counters[field.name]++;
 
-        if (field.kind === 'attribute' || field.kind === 'derived') {
+        if (field.kind === 'attribute' || field.kind === 'field' || field.kind === 'derived') {
           return record[field.name as keyof T] as unknown;
         } else if (field.kind === 'resource') {
           return (record[field.name as keyof T] as ResourceRelationship).data?.id;
