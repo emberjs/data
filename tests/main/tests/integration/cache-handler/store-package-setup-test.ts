@@ -30,6 +30,7 @@ import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-jso
 import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
+import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
 
@@ -49,6 +50,9 @@ class TestStore extends Store {
     this.registerSchemaDefinitionService({
       attributesDefinitionFor() {
         return {};
+      },
+      fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
+        return new Map();
       },
       relationshipsDefinitionFor() {
         return {};
@@ -276,6 +280,9 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
             attributesDefinitionFor() {
               return {};
             },
+            fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
+              return new Map();
+            },
             relationshipsDefinitionFor() {
               return {};
             },
@@ -370,6 +377,9 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
           this.registerSchemaDefinitionService({
             attributesDefinitionFor() {
               return {};
+            },
+            fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
+              return new Map();
             },
             relationshipsDefinitionFor() {
               return {};
@@ -466,6 +476,9 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
           this.registerSchemaDefinitionService({
             attributesDefinitionFor() {
               return {};
+            },
+            fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
+              return new Map();
             },
             relationshipsDefinitionFor() {
               return {};

@@ -407,6 +407,10 @@ module('Integration | Relationships | Explicit Polymorphic HasMany', function (h
         return this._schema.attributesDefinitionFor(identifier);
       }
 
+      fields(identifier) {
+        return this._schema.fields(identifier);
+      }
+
       relationshipsDefinitionFor(identifier) {
         const schema = AbstractSchemas.get(identifier.type);
         return schema || this._schema.relationshipsDefinitionFor(identifier);
