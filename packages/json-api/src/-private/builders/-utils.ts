@@ -43,6 +43,7 @@ export let ACCEPT_HEADER_VALUE = 'application/vnd.api+json';
  *     pagination: 'https://jsonapi.org/profiles/ethanresnick/cursor-pagination'
  *   }
  * });
+ * ```
  *
  * This also sets the global configuration for `buildBaseURL`
  * for host and namespace values for the application
