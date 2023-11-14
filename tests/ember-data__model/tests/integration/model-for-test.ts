@@ -1,4 +1,5 @@
 import { module, test } from '@warp-drive/diagnostic';
+import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 
 import Store from '@ember-data/store';
 
@@ -27,6 +28,29 @@ module('modelFor without @ember-data/model', function () {
             type: null,
           },
         };
+      },
+      _fieldsDefCache: {} as Record<string, Map<string, FieldSchema>>,
+      fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
+        const { type } = identifier;
+        let fieldDefs: Map<string, FieldSchema> | undefined = this._fieldsDefCache[type];
+
+        if (fieldDefs === undefined) {
+          fieldDefs = new Map();
+          this._fieldsDefCache[type] = fieldDefs;
+
+          const attributes = this.attributesDefinitionFor(identifier);
+          const relationships = this.relationshipsDefinitionFor(identifier);
+
+          for (const attr of Object.values(attributes)) {
+            fieldDefs.set(attr.name, attr);
+          }
+
+          for (const rel of Object.values(relationships)) {
+            fieldDefs.set(rel.name, rel);
+          }
+        }
+
+        return fieldDefs;
       },
       relationshipsDefinitionFor(identifier) {
         return {};
@@ -78,6 +102,29 @@ module('modelFor without @ember-data/model', function () {
             type: null,
           },
         };
+      },
+      _fieldsDefCache: {} as Record<string, Map<string, FieldSchema>>,
+      fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
+        const { type } = identifier;
+        let fieldDefs: Map<string, FieldSchema> | undefined = this._fieldsDefCache[type];
+
+        if (fieldDefs === undefined) {
+          fieldDefs = new Map();
+          this._fieldsDefCache[type] = fieldDefs;
+
+          const attributes = this.attributesDefinitionFor(identifier);
+          const relationships = this.relationshipsDefinitionFor(identifier);
+
+          for (const attr of Object.values(attributes)) {
+            fieldDefs.set(attr.name, attr);
+          }
+
+          for (const rel of Object.values(relationships)) {
+            fieldDefs.set(rel.name, rel);
+          }
+        }
+
+        return fieldDefs;
       },
       relationshipsDefinitionFor(identifier) {
         return {};

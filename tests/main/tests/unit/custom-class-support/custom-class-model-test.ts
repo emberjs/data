@@ -10,6 +10,7 @@ import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { Cache } from '@ember-data/store/-types/q/cache';
 import type { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
 import type { SchemaService } from '@ember-data/store/-types/q/schema-service';
+import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 
 module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
   class Person {
@@ -36,6 +37,29 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
             name: 'name',
           };
           return schema;
+        },
+        _fieldsDefCache: {} as Record<string, Map<string, FieldSchema>>,
+        fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
+          const { type } = identifier;
+          let fieldDefs: Map<string, FieldSchema> | undefined = this._fieldsDefCache[type];
+
+          if (fieldDefs === undefined) {
+            fieldDefs = new Map();
+            this._fieldsDefCache[type] = fieldDefs;
+
+            const attributes = this.attributesDefinitionFor(identifier);
+            const relationships = this.relationshipsDefinitionFor(identifier);
+
+            for (const attr of Object.values(attributes)) {
+              fieldDefs.set(attr.name, attr);
+            }
+
+            for (const rel of Object.values(relationships)) {
+              fieldDefs.set(rel.name, rel);
+            }
+          }
+
+          return fieldDefs;
         },
         relationshipsDefinitionFor() {
           return {};
