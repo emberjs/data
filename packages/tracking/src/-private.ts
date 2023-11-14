@@ -451,7 +451,13 @@ interface Signaler {
 }
 
 export function getSignal<T extends object>(obj: T, key: string, initialState: boolean): Signal {
-  const signals = ((obj as Signaler)[Signals] = (obj as Signaler)[Signals] || new Map());
+  let signals = (obj as Signaler)[Signals];
+
+  if (!signals) {
+    signals = new Map();
+    (obj as Signaler)[Signals] = signals;
+  }
+
   let _signal = signals.get(key);
   if (!_signal) {
     _signal = createSignal(obj, key);

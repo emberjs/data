@@ -239,6 +239,7 @@ module('Legacy Mode', function (hooks) {
     }
   });
 
+  // FIXME: We should allow this now but move this test elsewhere to test the derivation-not-found error
   test('records in legacy mode cannot access derivations', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
     const schema = new SchemaService();
@@ -592,7 +593,6 @@ module('Legacy Mode', function (hooks) {
       },
     }) as User;
 
-    // FIXME: Is this assertion correct?
     assert.false(record.isDestroying, 'isDestroying is correct');
     assert.false(record.isDestroyed, 'isDestroyed is correct');
   });

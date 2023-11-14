@@ -35,7 +35,7 @@ export const Legacy = Symbol('Legacy');
 const IgnoredGlobalFields = new Set(['then', STRUCTURED]);
 const RecordSymbols = new Set([Destroy, RecordStore, Identifier, Editable, Parent, Checkout, Legacy, Signals]);
 
-function computeLocal(record: SchemaRecord, field: FieldSchema, prop: string): unknown {
+function computeLocal(record: typeof Proxy<SchemaRecord>, field: FieldSchema, prop: string): unknown {
   let signal = peekSignal(record, prop);
 
   if (!signal) {
@@ -239,11 +239,13 @@ export class SchemaRecord {
 
         switch (field.kind) {
           case '@id':
-            entangleSignal(signals, this, '@identity');
+            entangleSignal(signals, receiver, '@identity');
             return identifier.id;
-          case '@local':
-            entangleSignal(signals, this, field.name);
-            return computeLocal(target, field, prop as string);
+          case '@local': {
+            const lastValue = computeLocal(receiver, field, prop as string);
+            entangleSignal(signals, receiver, prop as string);
+            return lastValue;
+          }
           case 'field':
             assert(
               `SchemaRecord.${field.name} is not available in legacy mode because it has type '${field.kind}'`,
@@ -261,19 +263,13 @@ export class SchemaRecord {
             );
             entangleSignal(signals, receiver, field.name);
             return computeResource(store, cache, target, identifier, field, prop as string);
-
           case 'derived':
-            // FIXME:
-            // assert(
-            //   `SchemaRecord.${field.name} is not available in legacy mode because it has type '${field.kind}'`,
-            //   !target[Legacy]
-            // );
             return computeDerivation(schema, receiver as unknown as SchemaRecord, identifier, field, prop as string);
           default:
             throw new Error(`Field '${String(prop)}' on '${identifier.type}' has the unknown kind '${field.kind}'`);
         }
       },
-      set(target: SchemaRecord, prop: string | number | symbol, value: unknown) {
+      set(target: SchemaRecord, prop: string | number | symbol, value: unknown, receiver: typeof Proxy<SchemaRecord>) {
         if (!IS_EDITABLE) {
           throw new Error(`Cannot set ${String(prop)} on ${identifier.type} because the record is not editable`);
         }
@@ -285,7 +281,7 @@ export class SchemaRecord {
 
         switch (field.kind) {
           case '@local': {
-            const signal = getSignal(target, prop as string, true);
+            const signal = getSignal(receiver, prop as string, true);
             if (signal.lastValue !== value) {
               signal.lastValue = value;
               addToTransaction(signal);
