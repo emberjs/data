@@ -239,60 +239,6 @@ module('Legacy Mode', function (hooks) {
     }
   });
 
-  // FIXME: We should allow this now but move this test elsewhere to test the derivation-not-found error
-  test('records in legacy mode cannot access derivations', function (assert) {
-    const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
-
-    schema.defineSchema('user', {
-      legacy: true,
-      fields: withLegacyFields([
-        {
-          name: 'firstName',
-          type: null,
-          kind: 'attribute',
-        },
-        {
-          name: 'lastName',
-          type: null,
-          kind: 'attribute',
-        },
-        {
-          name: 'fullName',
-          type: 'concat',
-          options: { fields: ['firstName', 'lastName'], separator: ' ' },
-          kind: 'derived',
-        },
-      ]),
-    });
-
-    const record = store.push({
-      data: {
-        type: 'user',
-        id: '1',
-        attributes: {
-          firstName: 'Rey',
-          lastName: 'Pupatine',
-        },
-      },
-    }) as User;
-
-    assert.true(record[Legacy], 'record is in legacy mode');
-
-    try {
-      record.fullName;
-      assert.ok(false, 'record.fullName should throw');
-    } catch (e) {
-      // FIXME:
-      assert.strictEqual(
-        (e as Error).message,
-        "Assertion Failed: SchemaRecord.fullName is not available in legacy mode because it has type 'derived'",
-        'record.fullName throws'
-      );
-    }
-  });
-
   test('records in legacy mode cannot access resources', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
     const schema = new SchemaService();
