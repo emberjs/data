@@ -24,50 +24,56 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     }
   }
 
+  class TestSchema<T extends string> {
+    attributesDefinitionFor(identifier: { type: T }): AttributesSchema {
+      let schema: AttributesSchema = {};
+      schema.name = {
+        kind: 'attribute',
+        options: {},
+        type: 'string',
+        name: 'name',
+      };
+      return schema;
+    }
+
+    _fieldsDefCache: Record<string, Map<string, FieldSchema>> = {};
+
+    fields(identifier: { type: T }): Map<string, FieldSchema> {
+      const { type } = identifier;
+      let fieldDefs: Map<string, FieldSchema> | undefined = this._fieldsDefCache[type];
+
+      if (fieldDefs === undefined) {
+        fieldDefs = new Map();
+        this._fieldsDefCache[type] = fieldDefs;
+
+        const attributes = this.attributesDefinitionFor(identifier);
+        const relationships = this.relationshipsDefinitionFor(identifier);
+
+        for (const attr of Object.values(attributes)) {
+          fieldDefs.set(attr.name, attr);
+        }
+
+        for (const rel of Object.values(relationships)) {
+          fieldDefs.set(rel.name, rel);
+        }
+      }
+
+      return fieldDefs;
+    }
+
+    relationshipsDefinitionFor(identifier: { type: T }): RelationshipsSchema {
+      return {};
+    }
+
+    doesTypeExist(type: string) {
+      return true;
+    }
+  }
+
   class CustomStore extends Store {
     constructor(args: Record<string, unknown>) {
       super(args);
-      this.registerSchema({
-        attributesDefinitionFor() {
-          let schema: AttributesSchema = {};
-          schema.name = {
-            kind: 'attribute',
-            options: {},
-            type: 'string',
-            name: 'name',
-          };
-          return schema;
-        },
-        _fieldsDefCache: {} as Record<string, Map<string, FieldSchema>>,
-        fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
-          const { type } = identifier;
-          let fieldDefs: Map<string, FieldSchema> | undefined = this._fieldsDefCache[type];
-
-          if (fieldDefs === undefined) {
-            fieldDefs = new Map();
-            this._fieldsDefCache[type] = fieldDefs;
-
-            const attributes = this.attributesDefinitionFor(identifier);
-            const relationships = this.relationshipsDefinitionFor(identifier);
-
-            for (const attr of Object.values(attributes)) {
-              fieldDefs.set(attr.name, attr);
-            }
-
-            for (const rel of Object.values(relationships)) {
-              fieldDefs.set(rel.name, rel);
-            }
-          }
-
-          return fieldDefs;
-        },
-        relationshipsDefinitionFor() {
-          return {};
-        },
-        doesTypeExist() {
-          return true;
-        },
-      });
+      this.registerSchema(new TestSchema());
     }
     override instantiateRecord(identifier, createOptions) {
       return new Person(this);
@@ -234,7 +240,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     }
     this.owner.register('service:store', CustomStore);
     const store = this.owner.lookup('service:store') as Store;
-    let schema: SchemaService = {
+    class TestSchema {
       attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
         assert.step('Schema:attributesDefinitionFor');
         if (typeof identifier === 'string') {
@@ -256,8 +262,10 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
             name: 'age',
           },
         };
-      },
-      _fieldsDefCache: {} as Record<string, Map<string, FieldSchema>>,
+      }
+
+      _fieldsDefCache: Record<string, Map<string, FieldSchema>> = {};
+
       fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
         assert.step('Schema:fields');
         const { type } = identifier;
@@ -281,7 +289,8 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
         }
 
         return fieldDefs;
-      },
+      }
+
       relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
         assert.step('Schema:relationshipsDefinitionFor');
         if (typeof identifier === 'string') {
@@ -309,11 +318,14 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
             name: 'house',
           },
         };
-      },
+      }
+
       doesTypeExist() {
         return true;
-      },
-    };
+      }
+    }
+
+    let schema: SchemaService = new TestSchema();
     store.registerSchemaDefinitionService(schema);
     assert.verifySteps([]);
     let person = store.createRecord('person', { name: 'chris' }) as Person;
@@ -411,7 +423,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     }
     this.owner.register('service:store', CustomStore);
     const store = this.owner.lookup('service:store') as Store;
-    let schema: SchemaService = {
+    class TestSchema {
       attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
         let modelName = (identifier as RecordIdentifier).type || identifier;
         if (modelName === 'person') {
@@ -435,8 +447,10 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
         } else {
           return {};
         }
-      },
-      _fieldsDefCache: {} as Record<string, Map<string, FieldSchema>>,
+      }
+
+      _fieldsDefCache: Record<string, Map<string, FieldSchema>> = {};
+
       fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
         const { type } = identifier;
         let fieldDefs: Map<string, FieldSchema> | undefined = this._fieldsDefCache[type];
@@ -458,7 +472,8 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
         }
 
         return fieldDefs;
-      },
+      }
+
       relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
         let modelName = (identifier as RecordIdentifier).type || identifier;
         if (modelName === 'person') {
@@ -476,11 +491,13 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
         } else {
           return {};
         }
-      },
+      }
+
       doesTypeExist() {
         return true;
-      },
-    };
+      }
+    }
+    const schema = new TestSchema();
     store.registerSchemaDefinitionService(schema);
     let person = store.push({
       data: {

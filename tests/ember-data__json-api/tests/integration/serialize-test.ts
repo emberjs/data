@@ -55,7 +55,7 @@ class TestSchema<T extends string> {
 
   _fieldsDefCache: Record<string, Map<string, FieldSchema>> = {};
 
-  fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
+  fields(identifier: { type: T }): Map<string, FieldSchema> {
     const { type } = identifier;
     let fieldDefs: Map<string, FieldSchema> | undefined = this._fieldsDefCache[type];
 

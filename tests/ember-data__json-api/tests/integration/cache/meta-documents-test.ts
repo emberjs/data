@@ -1,4 +1,4 @@
-import type { StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import { module, test } from '@warp-drive/diagnostic';
 
 import Cache from '@ember-data/json-api';
@@ -30,7 +30,7 @@ class TestSchema<T extends string> {
 
   _fieldsDefCache: Record<string, Map<string, FieldSchema>> = {};
 
-  fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
+  fields(identifier: { type: T }): Map<string, FieldSchema> {
     const { type } = identifier;
     let fieldDefs: Map<string, FieldSchema> | undefined = this._fieldsDefCache[type];
 
