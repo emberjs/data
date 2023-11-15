@@ -31,7 +31,7 @@ function _deprecatedCompare<T>(
   const finalState: T[] = [];
 
   for (let i = 0, j = 0; i < iterationLength; i++) {
-    let adv: boolean = false;
+    let adv = false;
     let member: T | undefined;
 
     // accumulate anything added

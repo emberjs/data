@@ -158,9 +158,9 @@ class IdentifierArray {
     @type Boolean
   */
   declare isUpdating: boolean;
-  isLoaded: boolean = true;
-  isDestroying: boolean = false;
-  isDestroyed: boolean = false;
+  isLoaded = true;
+  isDestroying = false;
+  isDestroyed = false;
   _updatingPromise: Promise<IdentifierArray> | null = null;
 
   [IS_COLLECTION] = true;
@@ -216,7 +216,7 @@ class IdentifierArray {
       links: options.links || null,
       meta: options.meta || null,
     };
-    let transaction: boolean = false;
+    let transaction = false;
 
     // when a mutation occurs
     // we track all mutations within the call

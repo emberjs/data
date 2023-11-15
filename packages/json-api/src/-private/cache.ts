@@ -1561,7 +1561,7 @@ function _isEmpty(peeked: CachedResource | undefined): boolean {
   return (!isNew || isDeleted) && isEmpty;
 }
 
-function recordIsLoaded(cached: CachedResource | undefined, filterDeleted: boolean = false): boolean {
+function recordIsLoaded(cached: CachedResource | undefined, filterDeleted = false): boolean {
   if (!cached) {
     return false;
   }

@@ -217,7 +217,7 @@ export class InstanceCache {
     return reference;
   }
 
-  recordIsLoaded(identifier: StableRecordIdentifier, filterDeleted: boolean = false) {
+  recordIsLoaded(identifier: StableRecordIdentifier, filterDeleted = false) {
     const cache = this.cache;
     if (!cache) {
       return false;

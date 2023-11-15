@@ -216,7 +216,7 @@ export default class NotificationManager {
       }
       buffer.push([value, key]);
 
-      void this._scheduleNotify();
+      this._scheduleNotify();
     }
 
     return hasSubscribers;

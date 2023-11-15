@@ -334,7 +334,7 @@ export function upgradeDefinition(
   graph: Graph,
   identifier: StableRecordIdentifier,
   propertyName: string,
-  isImplicit: boolean = false
+  isImplicit = false
 ): EdgeDefinition | null {
   const cache = graph._definitionCache;
   const storeWrapper = graph.store;

@@ -21,8 +21,8 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
 
   const payload = op.value;
 
-  let hasRelationshipDataProperty: boolean = false;
-  let hasUpdatedLink: boolean = false;
+  let hasRelationshipDataProperty = false;
+  let hasUpdatedLink = false;
 
   if (payload.meta) {
     relationship.meta = payload.meta;

@@ -421,7 +421,7 @@ export class Graph {
   update(op: LocalRelationshipOperation, isRemote?: false): void;
   update(
     op: MergeOperation | LocalRelationshipOperation | RemoteRelationshipOperation | UnknownOperation,
-    isRemote: boolean = false
+    isRemote = false
   ): void {
     assert(
       `Cannot update an implicit relationship`,

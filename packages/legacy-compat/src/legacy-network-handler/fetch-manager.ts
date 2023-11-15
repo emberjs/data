@@ -585,13 +585,13 @@ function _flushPendingFetchForType(
         _processCoalescedGroup(store, fetchMap, groups[i], adapter, modelName);
       }
     } else if (totalItems === 1) {
-      void _fetchRecord(store, adapter, pendingFetchItems[0]);
+      _fetchRecord(store, adapter, pendingFetchItems[0]);
     }
   }
 
   pendingFetchMap.forEach((pendingFetchItems) => {
     pendingFetchItems.forEach((pendingFetchItem) => {
-      void _fetchRecord(store, adapter, pendingFetchItem);
+      _fetchRecord(store, adapter, pendingFetchItem);
     });
   });
 }
