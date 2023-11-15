@@ -11,15 +11,15 @@ module('Integration | Graph | Implicit Keys', function (hooks) {
   test('Non-polymorphic records do not trigger polymorphic assertions when they share the same key with another record', async function (assert) {
     const { owner } = this;
     class User extends Model {
-      @attr name;
-      @belongsTo('organization', { async: false, inverse: null }) organization;
+      @attr declare name: string;
+      @belongsTo('organization', { async: false, inverse: null }) declare organization: Organization;
     }
     class Product extends Model {
-      @attr name;
-      @belongsTo('organization', { async: false, inverse: null }) organization;
+      @attr declare name: string;
+      @belongsTo('organization', { async: false, inverse: null }) declare organization: Organization;
     }
     class Organization extends Model {
-      @attr name;
+      @attr declare name: string;
     }
     owner.register('model:user', User);
     owner.register('model:product', Product);

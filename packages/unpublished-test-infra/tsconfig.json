@@ -13,7 +13,7 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
-    "noEmit": true,
+    "noEmit": false,
     "noImplicitOverride": true,
 
     // Enable faster builds

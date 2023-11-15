@@ -1,0 +1,33 @@
+{
+  "include": ["app/**/*", "config/**/*", "tests/**/*"],
+  "baseUrl": ".",
+  "compilerOptions": {
+    "lib": ["DOM", "ESNext"],
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "strict": true,
+    "downlevelIteration": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+
+    "experimentalDecorators": true,
+
+    // TODO: Reenable this
+    "noImplicitAny": false,
+
+    "noImplicitOverride": true,
+
+    "incremental": true,
+
+    "noEmit": true,
+    "declaration": false,
+
+    "types": ["ember-source/types"],
+    "paths": {}
+  },
+  "references": []
+}

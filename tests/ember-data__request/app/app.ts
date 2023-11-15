@@ -8,7 +8,7 @@ import Resolver from './resolver';
 class App extends Application {
   modulePrefix = config.modulePrefix;
   podModulePrefix = config.podModulePrefix;
-  Resolver = Resolver;
+  override Resolver = Resolver;
 }
 
 loadInitializers(App, config.modulePrefix);

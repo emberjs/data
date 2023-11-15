@@ -5,10 +5,8 @@ import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type {
   CollectionResourceDocument,
-  CollectionResourceRelationship,
   JsonApiDocument,
   SingleResourceDocument,
-  SingleResourceRelationship,
 } from '@warp-drive/core-types/spec/raw';
 import { module, test } from 'qunit';
 
@@ -19,20 +17,21 @@ import Model, { attr } from '@ember-data/model';
 import type { StructuredDataDocument, StructuredDocument } from '@ember-data/request';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordIdentifierFor } from '@ember-data/store';
-import type { ResourceBlob } from '@ember-data/store/-types/cache/aliases';
-import type { RelationshipDiff } from '@ember-data/store/-types/cache/cache';
-import type { Change } from '@ember-data/store/-types/cache/change';
+import type { Cache, MergeOperation } from '@ember-data/store/-types/q/cache';
+import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
+import type { JsonApiError, JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
+import type { ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core-types/cache';
+import type { ResourceBlob } from '@warp-drive/core-types/cache/aliases';
+import type { Change } from '@warp-drive/core-types/cache/change';
+import { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
+import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type {
   CollectionResourceDataDocument,
   ResourceDocument,
   ResourceErrorDocument,
   ResourceMetaDocument,
   SingleResourceDataDocument,
-} from '@ember-data/store/-types/cache/document';
-import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/store/-types/q/cache';
-import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import type { JsonApiError, JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
-import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+} from '@warp-drive/core-types/spec/document';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
@@ -155,7 +154,7 @@ class TestRecordData implements Cache {
     this._errors = errors;
   }
   unloadRecord(identifier: StableRecordIdentifier): void {}
-  getAttr(identifier: StableRecordIdentifier, propertyName: string): unknown {
+  getAttr(identifier: StableRecordIdentifier, propertyName: string): string {
     return '';
   }
   setAttr(identifier: StableRecordIdentifier, propertyName: string, value: unknown): void {
@@ -173,7 +172,7 @@ class TestRecordData implements Cache {
   getRelationship(
     identifier: StableRecordIdentifier,
     propertyName: string
-  ): SingleResourceRelationship | CollectionResourceRelationship {
+  ): ResourceRelationship | CollectionRelationship {
     throw new Error('Method not implemented.');
   }
   addToHasMany(
@@ -240,25 +239,25 @@ module('integration/record-data - Record Data State', function (hooks) {
     let { owner } = this;
 
     class LifecycleRecordData extends TestRecordData {
-      isNew(): boolean {
+      override isNew(): boolean {
         return isNew;
       }
 
-      isDeleted(): boolean {
+      override isDeleted(): boolean {
         return isDeleted;
       }
 
-      isDeletionCommitted(): boolean {
+      override isDeletionCommitted(): boolean {
         return isDeletionCommitted;
       }
 
-      setIsDeleted(): void {
+      override setIsDeleted(): void {
         isDeleted = true;
       }
     }
 
     class TestStore extends Store {
-      createCache(wrapper: CacheCapabilitiesManager) {
+      override createCache(wrapper: CacheCapabilitiesManager) {
         // @ts-expect-error
         return new LifecycleRecordData(wrapper) as Cache;
       }
@@ -304,7 +303,7 @@ module('integration/record-data - Record Data State', function (hooks) {
     isDeleted = false;
 
     await person.save();
-    assert.true(calledUpdate, 'called update if record isnt deleted or new');
+    assert.true(calledUpdate, "called update if record isn't deleted or new");
   });
 
   test('Record Data state record flags', async function (assert) {
@@ -328,30 +327,30 @@ module('integration/record-data - Record Data State', function (hooks) {
         storeWrapper = sw;
       }
 
-      isEmpty(): boolean {
+      override isEmpty(): boolean {
         return !isNew && isDeletionCommitted;
       }
 
-      isNew(): boolean {
+      override isNew(): boolean {
         return isNew;
       }
 
-      isDeleted(): boolean {
+      override isDeleted(): boolean {
         return isDeleted;
       }
 
-      isDeletionCommitted(): boolean {
+      override isDeletionCommitted(): boolean {
         return isDeletionCommitted;
       }
 
-      setIsDeleted(identifier: StableRecordIdentifier, value: boolean): void {
+      override setIsDeleted(identifier: StableRecordIdentifier, value: boolean): void {
         isDeleted = true;
         calledSetIsDeleted = true;
       }
     }
 
     class TestStore extends Store {
-      createCache(wrapper: CacheCapabilitiesManager) {
+      override createCache(wrapper: CacheCapabilitiesManager) {
         // @ts-expect-error
         return new LifecycleRecordData(wrapper) as Cache;
       }
@@ -400,6 +399,6 @@ module('integration/record-data - Record Data State', function (hooks) {
     isDeletionCommitted = true;
     storeWrapper.notifyChange(personIdentifier, 'state');
     await settled();
-    assert.strictEqual(people.length, 0, 'commiting a deletion updates the live array');
+    assert.strictEqual(people.length, 0, 'committing a deletion updates the live array');
   });
 });

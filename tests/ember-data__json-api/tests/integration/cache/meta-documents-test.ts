@@ -1,18 +1,18 @@
-import type { StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import { module, test } from '@warp-drive/diagnostic';
 
 import Cache from '@ember-data/json-api';
 import type { StructuredDocument } from '@ember-data/request';
 import Store from '@ember-data/store';
 import { CacheOperation } from '@ember-data/store/-private/managers/notification-manager';
-import type { CollectionResourceDataDocument, ResourceMetaDocument } from '@ember-data/store/-types/cache/document';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
 import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
+import type { CollectionResourceDataDocument, ResourceMetaDocument } from '@warp-drive/core-types/spec/document';
 
 class TestStore extends Store {
-  createCache(wrapper: CacheCapabilitiesManager) {
+  override createCache(wrapper: CacheCapabilitiesManager) {
     return new Cache(wrapper);
   }
 }
@@ -30,7 +30,7 @@ class TestSchema<T extends string> {
 
   _fieldsDefCache: Record<string, Map<string, FieldSchema>> = {};
 
-  fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
+  fields(identifier: { type: T }): Map<string, FieldSchema> {
     const { type } = identifier;
     let fieldDefs: Map<string, FieldSchema> | undefined = this._fieldsDefCache[type];
 

@@ -34,7 +34,7 @@ module('Integration | Graph | Edges', function (hooks) {
       const { identifierCache } = store;
       class User extends Model {
         @attr declare name: string;
-        @belongsTo('user', { async: false, inverse: 'bestFriend' }) bestFriend;
+        @belongsTo('user', { async: false, inverse: 'bestFriend' }) declare bestFriend: User;
       }
       owner.register('model:user', User);
 
@@ -97,7 +97,7 @@ module('Integration | Graph | Edges', function (hooks) {
       const { identifierCache } = store;
       class User extends Model {
         @attr declare name: string;
-        @belongsTo('user', { async: false, inverse: 'bestFriend' }) bestFriend;
+        @belongsTo('user', { async: false, inverse: 'bestFriend' }) declare bestFriend: User;
       }
       owner.register('model:user', User);
 
@@ -178,8 +178,8 @@ module('Integration | Graph | Edges', function (hooks) {
       const { owner } = this;
       const { identifierCache } = store;
       class User extends Model {
-        @attr name;
-        @belongsTo('user', { async: true, inverse: 'bestFriend' }) bestFriend;
+        @attr declare name: string;
+        @belongsTo('user', { async: true, inverse: 'bestFriend' }) declare bestFriend: Promise<User>;
       }
       owner.register('model:user', User);
 
@@ -260,8 +260,8 @@ module('Integration | Graph | Edges', function (hooks) {
       const { owner } = this;
       const { identifierCache } = store;
       class User extends Model {
-        @attr name;
-        @hasMany('user', { async: false, inverse: 'bestFriends' }) bestFriends;
+        @attr declare name: string;
+        @hasMany('user', { async: false, inverse: 'bestFriends' }) declare bestFriends: User[];
       }
       owner.register('model:user', User);
 
@@ -355,8 +355,8 @@ module('Integration | Graph | Edges', function (hooks) {
       const { owner } = this;
       const { identifierCache } = store;
       class User extends Model {
-        @attr name;
-        @hasMany('user', { async: true, inverse: 'bestFriends' }) bestFriends;
+        @attr declare name: string;
+        @hasMany('user', { async: true, inverse: 'bestFriends' }) declare bestFriends: Promise<User[]>;
       }
       owner.register('model:user', User);
 

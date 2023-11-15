@@ -8,10 +8,8 @@ import type {
 } from '@warp-drive/core-types/identifier';
 import type {
   CollectionResourceDocument,
-  CollectionResourceRelationship,
   JsonApiDocument,
   SingleResourceDocument,
-  SingleResourceRelationship,
 } from '@warp-drive/core-types/spec/raw';
 import { module, test } from 'qunit';
 
@@ -22,20 +20,21 @@ import { InvalidError } from '@ember-data/adapter/error';
 import Model, { attr } from '@ember-data/model';
 import type { StructuredDataDocument, StructuredDocument } from '@ember-data/request';
 import { recordIdentifierFor } from '@ember-data/store';
-import type { ResourceBlob } from '@ember-data/store/-types/cache/aliases';
-import type { RelationshipDiff } from '@ember-data/store/-types/cache/cache';
-import type { Change } from '@ember-data/store/-types/cache/change';
-import type {
+import type { Cache, MergeOperation } from '@ember-data/store/-types/q/cache';
+import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
+import type { JsonApiError, JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
+import { ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core-types/cache';
+import type { ResourceBlob } from '@warp-drive/core-types/cache/aliases';
+import { Change } from '@warp-drive/core-types/cache/change';
+import { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
+import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import {
   CollectionResourceDataDocument,
   ResourceDocument,
   ResourceErrorDocument,
   ResourceMetaDocument,
   SingleResourceDataDocument,
-} from '@ember-data/store/-types/cache/document';
-import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/store/-types/q/cache';
-import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import type { JsonApiError, JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
-import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+} from '@warp-drive/core-types/spec/document';
 
 class Person extends Model {
   @attr declare firstName: string;
@@ -138,7 +137,7 @@ class TestRecordData implements Cache {
     this._errors = errors;
   }
   unloadRecord(identifier: StableRecordIdentifier): void {}
-  getAttr(identifier: StableRecordIdentifier, propertyName: string): unknown {
+  getAttr(identifier: StableRecordIdentifier, propertyName: string): string {
     return '';
   }
   setAttr(identifier: StableRecordIdentifier, propertyName: string, value: unknown): void {
@@ -156,7 +155,7 @@ class TestRecordData implements Cache {
   getRelationship(
     identifier: StableRecordIdentifier,
     propertyName: string
-  ): SingleResourceRelationship | CollectionResourceRelationship {
+  ): ResourceRelationship | CollectionRelationship {
     throw new Error('Method not implemented.');
   }
   addToHasMany(
@@ -200,20 +199,21 @@ module('integration/record-data Custom RecordData (v2) Errors', function (hooks)
     const { owner } = this;
 
     class LifecycleRecordData extends TestRecordData {
-      commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[]) {
+      override commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[]) {
         super.commitWasRejected(identifier, errors);
         assert.strictEqual(errors?.[0]?.detail, 'is a generally unsavoury character', 'received the error');
         assert.strictEqual(errors?.[0]?.source?.pointer, '/data/attributes/name', 'pointer is correct');
       }
     }
     class TestStore extends Store {
-      createCache(wrapper: CacheCapabilitiesManager) {
+      override createCache(wrapper: CacheCapabilitiesManager) {
         return new LifecycleRecordData(wrapper) as Cache;
       }
     }
     class TestAdapter extends EmberObject {
       updateRecord() {
         return Promise.reject(
+          // @ts-expect-error Constructor of class 'InvalidError' is private
           new InvalidError([
             {
               title: 'Invalid Attribute',
@@ -261,13 +261,13 @@ module('integration/record-data Custom RecordData (v2) Errors', function (hooks)
     const { owner } = this;
 
     class LifecycleRecordData extends TestRecordData {
-      commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[]) {
+      override commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[]) {
         super.commitWasRejected(identifier, errors);
         assert.strictEqual(errors, undefined, 'Did not pass adapter errors');
       }
     }
     class TestStore extends Store {
-      createCache(wrapper: CacheCapabilitiesManager) {
+      override createCache(wrapper: CacheCapabilitiesManager) {
         return new LifecycleRecordData(wrapper) as Cache;
       }
     }
@@ -311,13 +311,13 @@ module('integration/record-data Custom RecordData (v2) Errors', function (hooks)
     let storeWrapper!: CacheCapabilitiesManager;
 
     class LifecycleRecordData extends TestRecordData {
-      getErrors(): JsonApiError[] {
+      override getErrors(): JsonApiError[] {
         return errorsToReturn || [];
       }
     }
 
     class TestStore extends Store {
-      createCache(wrapper: CacheCapabilitiesManager) {
+      override createCache(wrapper: CacheCapabilitiesManager) {
         storeWrapper = wrapper;
         return new LifecycleRecordData(wrapper) as Cache;
       }

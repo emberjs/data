@@ -101,8 +101,8 @@ export async function setInitialState(context: Context, config: TestConfig, asse
   };
 
   class User extends Model {
-    @attr name;
-    @relFn('user', relConfig) bestFriends;
+    @attr declare name: string;
+    @relFn('user', relConfig) declare bestFriends: unknown;
   }
   owner.register('model:user', User);
 
@@ -166,7 +166,9 @@ export async function setInitialState(context: Context, config: TestConfig, asse
   assert.false(chris.isDeleted, 'PreCond: Chris is not deleted');
   assert.false(john.isDeleted, 'PreCond: John is not deleted');
 
+  // @ts-expect-error TODO: Graph type is not assignable to private Graph type
   const chrisState = stateOf(store._graph!, chrisBestFriend);
+  // @ts-expect-error TODO: Graph type is not assignable to private Graph type
   const johnState = stateOf(store._graph!, johnBestFriend);
 
   assert.deepEqual(
@@ -203,6 +205,7 @@ export async function setInitialState(context: Context, config: TestConfig, asse
 
     assert.ok(chrisImplicitFriend, 'PreCond: Chris has an implicit best friend');
 
+    // @ts-expect-error TODO: Graph type is not assignable to private Graph type
     const chrisImplicitState = stateOf(store._graph!, chrisImplicitFriend);
 
     assert.deepEqual(
@@ -226,6 +229,7 @@ export async function setInitialState(context: Context, config: TestConfig, asse
     } else {
       assert.equal(Object.keys(johnImplicits).length, 1, 'PreCond: John has one implicit relationship');
       assert.ok(johnImplicitFriend, 'PreCond: John has no implicit best friend');
+      // @ts-expect-error TODO: Graph type is not assignable to private Graph type
       const johnImplicitState = stateOf(store._graph!, johnImplicitFriend);
       assert.deepEqual(
         johnImplicitState.remote,
@@ -268,11 +272,12 @@ export function testFinalState(
   const { chrisIdentifier, johnIdentifier } = testState;
 
   const chrisBestFriend = graph.get(chrisIdentifier, 'bestFriends');
+  // @ts-expect-error TODO: Graph type is not assignable to private Graph type
   const chrisState = stateOf(store._graph!, chrisBestFriend);
 
   // this specific case gets it's own WAT
   // this is something ideally a refactor should do away with.
-  const isUnloadOfImplictAsyncHasManyWithLocalChange =
+  const isUnloadOfImplicitAsyncHasManyWithLocalChange =
     !!config.isUnloadAsDelete &&
     !!config.dirtyLocal &&
     !!config.async &&
@@ -285,7 +290,7 @@ export function testFinalState(
 
   // in the dirtyLocal and useCreate case there is no remote data
   const chrisRemoteRemoved = config.dirtyLocal || config.useCreate || statuses.removed;
-  const chrisLocalRemoved = statuses.removed && !isUnloadOfImplictAsyncHasManyWithLocalChange;
+  const chrisLocalRemoved = statuses.removed && !isUnloadOfImplicitAsyncHasManyWithLocalChange;
 
   // for the isUnloadAsDelete case we don't remove unless dirtyLocal or useCreate
   // this may be a bug but likely is related to retaining info for rematerialization.
@@ -335,6 +340,7 @@ export function testFinalState(
     assert.false(graph.identifiers.has(johnIdentifier), 'Result: Relationships for John were cleared from the cache');
   } else {
     const johnBestFriend = graph.get(johnIdentifier, 'bestFriends');
+    // @ts-expect-error TODO: Graph type is not assignable to private Graph type
     const johnState = stateOf(store._graph!, johnBestFriend);
 
     assert.deepEqual(
@@ -361,6 +367,7 @@ export function testFinalState(
     const chrisImplicitFriend = chrisImplicits[testState.chrisInverseKey];
 
     assert.ok(chrisImplicitFriend, 'Result: Chris has an implicit relationship for best friend');
+    // @ts-expect-error TODO: Graph type is not assignable to private Graph type
     const chrisImplicitState = stateOf(store._graph!, chrisImplicitFriend);
 
     assert.deepEqual(
@@ -385,6 +392,7 @@ export function testFinalState(
       const johnImplicitFriend = johnImplicits[testState.johnInverseKey];
       assert.equal(Object.keys(johnImplicits).length, 1, 'Result: John has one implicit relationship in the cache');
       assert.ok(johnImplicitFriend, 'Result: John has an implicit key for best friend');
+      // @ts-expect-error TODO: Graph type is not assignable to private Graph type
       const johnImplicitState = stateOf(store._graph!, johnImplicitFriend);
 
       assert.deepEqual(

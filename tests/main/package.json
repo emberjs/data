@@ -15,6 +15,7 @@
   "scripts": {
     "build:tests": "IS_TESTING=true EMBER_CLI_TEST_COMMAND=true ember build --output-path=dist-test --suppress-sizes",
     "build:production": "pnpm build:tests -e production",
+    "check:types": "tsc --noEmit",
     "examine": "export EXAM_PARALLEL_COUNT=$(./bin/calculate-test-jobs); ember exam --test-port=0 --path=dist-test --parallel=$EXAM_PARALLEL_COUNT --load-balance",
     "test:try-one": "ember try:one",
     "holodeck:start-program": "holodeck start",
@@ -23,6 +24,7 @@
     "start": "holodeck run launch:tests",
     "test": "holodeck run examine",
     "test:production": "holodeck run examine",
+    "typescript": "^5.2.2",
     "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "author": "",

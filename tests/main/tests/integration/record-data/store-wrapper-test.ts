@@ -141,7 +141,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     let storeWrapper!: CacheCapabilitiesManager;
 
     class TestStore extends Store {
-      createCache(wrapper: CacheCapabilitiesManager) {
+      override createCache(wrapper: CacheCapabilitiesManager) {
         storeWrapper = wrapper;
         return super.createCache(wrapper);
       }
@@ -221,7 +221,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     let storeWrapper!: CacheCapabilitiesManager;
 
     class TestStore extends Store {
-      createCache(wrapper: CacheCapabilitiesManager) {
+      override createCache(wrapper: CacheCapabilitiesManager) {
         storeWrapper = wrapper;
         return super.createCache(wrapper);
       }
@@ -245,7 +245,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
 
     let storeWrapper!: CacheCapabilitiesManager;
     class TestStore extends Store {
-      createCache(wrapper: CacheCapabilitiesManager) {
+      override createCache(wrapper: CacheCapabilitiesManager) {
         storeWrapper = wrapper;
         return super.createCache(wrapper);
       }
@@ -275,7 +275,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
 
     let storeWrapper!: CacheCapabilitiesManager;
     class TestStore extends Store {
-      createCache(wrapper: CacheCapabilitiesManager) {
+      override createCache(wrapper: CacheCapabilitiesManager) {
         storeWrapper = wrapper;
         return super.createCache(wrapper);
       }

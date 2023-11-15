@@ -1,6 +1,7 @@
 import { module, test } from '@warp-drive/diagnostic';
 import { setupTest } from '@warp-drive/diagnostic/ember';
 
+// @ts-expect-error TODO: This is supplied via private-build-infra/virtual-packages
 import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@ember-data/deprecations';
 import { graphFor } from '@ember-data/graph/-private';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';

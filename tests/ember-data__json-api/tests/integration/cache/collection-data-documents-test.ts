@@ -6,20 +6,20 @@ import type Model from '@ember-data/model';
 import type { StructuredDataDocument } from '@ember-data/request';
 import Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type { CollectionResourceDataDocument } from '@ember-data/store/-types/cache/document';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import type { CollectionResourceDocument } from '@warp-drive/core-types/spec/raw';
 import { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 import { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
 import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
+import type { CollectionResourceDataDocument } from '@warp-drive/core-types/spec/document';
+import type { CollectionResourceDocument } from '@warp-drive/core-types/spec/raw';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
 class TestStore extends Store {
-  createCache(wrapper: CacheCapabilitiesManager) {
+  override createCache(wrapper: CacheCapabilitiesManager) {
     return new Cache(wrapper);
   }
 
-  instantiateRecord(identifier: StableRecordIdentifier) {
+  override instantiateRecord(identifier: StableRecordIdentifier) {
     const { id, lid, type } = identifier;
     const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
     Object.assign(record, (this.cache.peek(identifier) as JsonApiResource).attributes);
@@ -40,7 +40,7 @@ class TestStore extends Store {
     return record;
   }
 
-  teardownRecord(record: FakeRecord) {
+  override teardownRecord(record: FakeRecord) {
     record.destroy();
   }
 }
@@ -58,7 +58,7 @@ class TestSchema<T extends string> {
 
   _fieldsDefCache: Record<string, Map<string, FieldSchema>> = {};
 
-  fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
+  fields(identifier: { type: T }): Map<string, FieldSchema> {
     const { type } = identifier;
     let fieldDefs: Map<string, FieldSchema> | undefined = this._fieldsDefCache[type];
 

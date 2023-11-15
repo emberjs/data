@@ -6,7 +6,7 @@ import type Store from '@ember-data/store';
 export default class ApplicationRoute extends Route {
   @inject declare store: Store;
 
-  model() {
+  override model() {
     // adding a model to the store to enable manually testing the debug-adapter
     return this.store.push({
       data: {

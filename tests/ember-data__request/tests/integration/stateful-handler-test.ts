@@ -1,6 +1,8 @@
 import { setOwner } from '@ember/owner';
 import { service } from '@ember/service';
 
+import { TestContext } from '@ember/test-helpers';
+
 import { module, test } from '@warp-drive/diagnostic';
 import { setupTest } from '@warp-drive/diagnostic/ember';
 
@@ -13,7 +15,7 @@ import type { NextFn } from '@ember-data/request/-private/types';
 module('RequestManager | Stateful Handlers', function (hooks) {
   setupTest(hooks, { resolver: new Resolver() });
 
-  test('We can register a handler with `.use(<Handler[]>)`', async function (assert) {
+  test('We can register a handler with `.use(<Handler[]>)`', async function (this: TestContext, assert) {
     const manager = new RequestManager();
     let calls = 0;
 

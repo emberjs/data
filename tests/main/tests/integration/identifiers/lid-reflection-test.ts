@@ -87,7 +87,7 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
       }
     }
     class TestAdapter extends Adapter {
-      createRecord(store, ModelClass, snapshot: Snapshot) {
+      override createRecord(store, ModelClass, snapshot: Snapshot) {
         beganSavePromise.resolve(void 0);
         return adapterPromise.promise.then(() => {
           return {
@@ -165,7 +165,7 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
     }
 
     class TestAdapter extends Adapter {
-      createRecord(store, ModelClass, snapshot: Snapshot) {
+      override createRecord(store, ModelClass, snapshot: Snapshot) {
         const record = snapshot.record as Cake;
         const cakeLid = recordIdentifierFor(record).lid;
         const ingredientLid = recordIdentifierFor(record.ingredients.at(0)).lid;
@@ -251,7 +251,7 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
     }
 
     class TestAdapter extends Adapter {
-      createRecord(store, ModelClass, snapshot: Snapshot) {
+      override createRecord(store, ModelClass, snapshot: Snapshot) {
         const record = snapshot.record as Cake;
         const lid = recordIdentifierFor(record.topping).lid;
         return Promise.resolve({

@@ -114,7 +114,7 @@ module('integration/records/save - Save Record', function (hooks) {
     assert.strictEqual(post.id, '123', 'The post ID made it through');
   });
 
-  test('Repeated failed saves keeps the record in uncommited state', async function (assert) {
+  test('Repeated failed saves keeps the record in uncommitted state', async function (assert) {
     assert.expect(4);
 
     let store = this.owner.lookup('service:store');
