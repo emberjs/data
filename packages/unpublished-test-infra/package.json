@@ -13,6 +13,13 @@
   },
   "license": "MIT",
   "author": "",
+  "files": [
+    "addon-test-support",
+    "src",
+    "index.js",
+    "dist",
+    "tsconfig.json"
+  ],
   "typesVersions": {
     "*": {
       "test-support": [
@@ -33,7 +40,6 @@
     "test": "tests"
   },
   "scripts": {
-    "check:types": "tsc --noEmit",
     "test:infra": "ember test",
     "build:types": "tsc --build --emitDeclarationOnly",
     "_build": "bun run build:types",
