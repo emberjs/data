@@ -9,7 +9,7 @@
   "scripts": {
     "takeoff": "FORCE_COLOR=2 pnpm install --reporter=append-only",
     "prepare": "pnpm build",
-    "build": "turbo _build --log-order=stream --filter=./packages/*",
+    "build": "turbo _build --log-order=stream --filter=./packages/* --concurrency=1",
     "build:docs": "mkdir -p packages/-ember-data/dist && cd ./docs-generator && node ./compile-docs.js",
     "lint": "bun run turbo --log-order=stream lint --concurrency=1",
     "lint:prettier": "prettier --check --cache --cache-location=.prettier-cache --log-level=warn .",
