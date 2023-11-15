@@ -314,16 +314,16 @@ importers:
         version: 3.1.1(@babel/core@7.23.2)
       '@embroider/addon-dev':
         specifier: ^4.1.1
-        version: 4.1.1(rollup@4.2.0)
+        version: 4.1.1(rollup@4.4.1)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.23.2)
       '@rollup/plugin-babel':
         specifier: ^6.0.4
-        version: 6.0.4(@babel/core@7.23.2)(rollup@4.2.0)
+        version: 6.0.4(@babel/core@7.23.2)(rollup@4.4.1)
       '@rollup/plugin-node-resolve':
         specifier: ^15.2.3
-        version: 15.2.3(rollup@4.2.0)
+        version: 15.2.3(rollup@4.4.1)
       '@warp-drive/core-types':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/core-types(@babel/core@7.23.2)
@@ -337,8 +337,8 @@ importers:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.2)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
-        specifier: ^4.1.5
-        version: 4.2.0
+        specifier: ^4.4.0
+        version: 4.4.1
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -435,16 +435,16 @@ importers:
         version: 3.1.1(@babel/core@7.23.2)
       '@embroider/addon-dev':
         specifier: ^4.1.1
-        version: 4.1.1(rollup@4.2.0)
+        version: 4.1.1(rollup@4.4.1)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.23.2)
       '@rollup/plugin-babel':
         specifier: ^6.0.4
-        version: 6.0.4(@babel/core@7.23.2)(rollup@4.2.0)
+        version: 6.0.4(@babel/core@7.23.2)(rollup@4.4.1)
       '@rollup/plugin-node-resolve':
         specifier: ^15.2.3
-        version: 15.2.3(rollup@4.2.0)
+        version: 15.2.3(rollup@4.4.1)
       '@types/jquery':
         specifier: ^3.5.27
         version: 3.5.27
@@ -461,8 +461,8 @@ importers:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.2)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
-        specifier: ^4.1.5
-        version: 4.2.0
+        specifier: ^4.4.0
+        version: 4.4.1
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -540,16 +540,16 @@ importers:
         version: 7.23.2
       '@embroider/addon-dev':
         specifier: ^4.1.1
-        version: 4.1.1(rollup@4.2.0)
+        version: 4.1.1(rollup@4.4.1)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.23.2)
       '@rollup/plugin-babel':
         specifier: ^6.0.4
-        version: 6.0.4(@babel/core@7.23.2)(rollup@4.2.0)
+        version: 6.0.4(@babel/core@7.23.2)(rollup@4.4.1)
       '@rollup/plugin-node-resolve':
         specifier: ^15.2.3
-        version: 15.2.3(rollup@4.2.0)
+        version: 15.2.3(rollup@4.4.1)
       '@warp-drive/internal-config':
         specifier: workspace:5.5.0-alpha.11
         version: link:../../config
@@ -557,8 +557,8 @@ importers:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.2)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
-        specifier: ^4.1.5
-        version: 4.2.0
+        specifier: ^4.4.0
+        version: 4.4.1
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -675,7 +675,7 @@ importers:
         version: 3.2.0(@babel/core@7.23.2)(ember-source@5.4.0)(webpack@5.89.0)
       '@embroider/addon-dev':
         specifier: ^4.1.1
-        version: 4.1.1(rollup@4.2.0)
+        version: 4.1.1(rollup@4.4.1)
       '@embroider/addon-shim':
         specifier: ^1.8.6
         version: 1.8.6
@@ -684,10 +684,10 @@ importers:
         version: 1.1.2(@babel/core@7.23.2)
       '@rollup/plugin-babel':
         specifier: ^6.0.4
-        version: 6.0.4(@babel/core@7.23.2)(rollup@4.2.0)
+        version: 6.0.4(@babel/core@7.23.2)(rollup@4.4.1)
       '@rollup/plugin-node-resolve':
         specifier: ^15.2.3
-        version: 15.2.3(rollup@4.2.0)
+        version: 15.2.3(rollup@4.4.1)
       '@warp-drive/internal-config':
         specifier: workspace:5.5.0-alpha.11
         version: link:../../config
@@ -701,8 +701,8 @@ importers:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.2)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
-        specifier: ^4.1.5
-        version: 4.2.0
+        specifier: ^4.4.0
+        version: 4.4.1
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -778,16 +778,16 @@ importers:
         version: 3.1.1(@babel/core@7.23.2)
       '@embroider/addon-dev':
         specifier: ^4.1.1
-        version: 4.1.1(rollup@4.2.0)
+        version: 4.1.1(rollup@4.4.1)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.23.2)
       '@rollup/plugin-babel':
         specifier: ^6.0.4
-        version: 6.0.4(@babel/core@7.23.2)(rollup@4.2.0)
+        version: 6.0.4(@babel/core@7.23.2)(rollup@4.4.1)
       '@rollup/plugin-node-resolve':
         specifier: ^15.2.3
-        version: 15.2.3(rollup@4.2.0)
+        version: 15.2.3(rollup@4.4.1)
       '@warp-drive/core-types':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/core-types(@babel/core@7.23.2)
@@ -798,8 +798,8 @@ importers:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.2)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
-        specifier: ^4.1.5
-        version: 4.2.0
+        specifier: ^4.4.0
+        version: 4.4.1
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -864,13 +864,13 @@ importers:
         version: file:packages/request(@babel/core@7.23.2)(@warp-drive/core-types@5.5.0-alpha.11)
       '@embroider/addon-dev':
         specifier: ^4.1.1
-        version: 4.1.1(rollup@4.2.0)
+        version: 4.1.1(rollup@4.4.1)
       '@rollup/plugin-babel':
         specifier: ^6.0.4
-        version: 6.0.4(@babel/core@7.23.2)(rollup@4.2.0)
+        version: 6.0.4(@babel/core@7.23.2)(rollup@4.4.1)
       '@rollup/plugin-node-resolve':
         specifier: ^15.2.3
-        version: 15.2.3(rollup@4.2.0)
+        version: 15.2.3(rollup@4.4.1)
       '@warp-drive/core-types':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/core-types(@babel/core@7.23.2)
@@ -878,8 +878,8 @@ importers:
         specifier: workspace:5.5.0-alpha.11
         version: link:../../config
       rollup:
-        specifier: ^4.1.5
-        version: 4.2.0
+        specifier: ^4.4.0
+        version: 4.4.1
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -960,16 +960,16 @@ importers:
         version: 3.1.1(@babel/core@7.23.2)
       '@embroider/addon-dev':
         specifier: ^4.1.1
-        version: 4.1.1(rollup@4.2.0)
+        version: 4.1.1(rollup@4.4.1)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.23.2)
       '@rollup/plugin-babel':
         specifier: ^6.0.4
-        version: 6.0.4(@babel/core@7.23.2)(rollup@4.2.0)
+        version: 6.0.4(@babel/core@7.23.2)(rollup@4.4.1)
       '@rollup/plugin-node-resolve':
         specifier: ^15.2.3
-        version: 15.2.3(rollup@4.2.0)
+        version: 15.2.3(rollup@4.4.1)
       '@warp-drive/core-types':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/core-types(@babel/core@7.23.2)
@@ -983,8 +983,8 @@ importers:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.2)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
-        specifier: ^4.1.5
-        version: 4.2.0
+        specifier: ^4.4.0
+        version: 4.4.1
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -1082,16 +1082,16 @@ importers:
         version: 3.1.1(@babel/core@7.23.2)
       '@embroider/addon-dev':
         specifier: ^4.1.1
-        version: 4.1.1(rollup@4.2.0)
+        version: 4.1.1(rollup@4.4.1)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.23.2)
       '@rollup/plugin-babel':
         specifier: ^6.0.4
-        version: 6.0.4(@babel/core@7.23.2)(rollup@4.2.0)
+        version: 6.0.4(@babel/core@7.23.2)(rollup@4.4.1)
       '@rollup/plugin-node-resolve':
         specifier: ^15.2.3
-        version: 15.2.3(rollup@4.2.0)
+        version: 15.2.3(rollup@4.4.1)
       '@warp-drive/core-types':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/core-types(@babel/core@7.23.2)
@@ -1105,8 +1105,8 @@ importers:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.2)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
-        specifier: ^4.1.5
-        version: 4.2.0
+        specifier: ^4.4.0
+        version: 4.4.1
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -1221,16 +1221,16 @@ importers:
         version: 3.1.1(@babel/core@7.23.2)
       '@embroider/addon-dev':
         specifier: ^4.1.1
-        version: 4.1.1(rollup@4.2.0)
+        version: 4.1.1(rollup@4.4.1)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.23.2)
       '@rollup/plugin-babel':
         specifier: ^6.0.4
-        version: 6.0.4(@babel/core@7.23.2)(rollup@4.2.0)
+        version: 6.0.4(@babel/core@7.23.2)(rollup@4.4.1)
       '@rollup/plugin-node-resolve':
         specifier: ^15.2.3
-        version: 15.2.3(rollup@4.2.0)
+        version: 15.2.3(rollup@4.4.1)
       '@warp-drive/core-types':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/core-types(@babel/core@7.23.2)
@@ -1244,8 +1244,8 @@ importers:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.2)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
-        specifier: ^4.1.5
-        version: 4.2.0
+        specifier: ^4.4.0
+        version: 4.4.1
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -1403,16 +1403,16 @@ importers:
         version: 7.23.2
       '@embroider/addon-dev':
         specifier: ^4.1.1
-        version: 4.1.1(rollup@4.2.0)
+        version: 4.1.1(rollup@4.4.1)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.23.2)
       '@rollup/plugin-babel':
         specifier: ^6.0.4
-        version: 6.0.4(@babel/core@7.23.2)(rollup@4.2.0)
+        version: 6.0.4(@babel/core@7.23.2)(rollup@4.4.1)
       '@rollup/plugin-node-resolve':
         specifier: ^15.2.3
-        version: 15.2.3(rollup@4.2.0)
+        version: 15.2.3(rollup@4.4.1)
       '@warp-drive/core-types':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/core-types(@babel/core@7.23.2)
@@ -1423,8 +1423,8 @@ importers:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.2)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
-        specifier: ^4.1.5
-        version: 4.2.0
+        specifier: ^4.4.0
+        version: 4.4.1
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -1475,16 +1475,16 @@ importers:
         version: 7.23.2
       '@embroider/addon-dev':
         specifier: ^4.1.1
-        version: 4.1.1(rollup@4.2.0)
+        version: 4.1.1(rollup@4.4.1)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.23.2)
       '@rollup/plugin-babel':
         specifier: ^6.0.4
-        version: 6.0.4(@babel/core@7.23.2)(rollup@4.2.0)
+        version: 6.0.4(@babel/core@7.23.2)(rollup@4.4.1)
       '@rollup/plugin-node-resolve':
         specifier: ^15.2.3
-        version: 15.2.3(rollup@4.2.0)
+        version: 15.2.3(rollup@4.4.1)
       '@warp-drive/core-types':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/core-types(@babel/core@7.23.2)
@@ -1495,8 +1495,8 @@ importers:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.2)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
-        specifier: ^4.1.5
-        version: 4.2.0
+        specifier: ^4.4.0
+        version: 4.4.1
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -1560,16 +1560,16 @@ importers:
         version: 3.1.1(@babel/core@7.23.2)
       '@embroider/addon-dev':
         specifier: ^4.1.1
-        version: 4.1.1(rollup@4.2.0)
+        version: 4.1.1(rollup@4.4.1)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.23.2)
       '@rollup/plugin-babel':
         specifier: ^6.0.4
-        version: 6.0.4(@babel/core@7.23.2)(rollup@4.2.0)
+        version: 6.0.4(@babel/core@7.23.2)(rollup@4.4.1)
       '@rollup/plugin-node-resolve':
         specifier: ^15.2.3
-        version: 15.2.3(rollup@4.2.0)
+        version: 15.2.3(rollup@4.4.1)
       '@warp-drive/core-types':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/core-types(@babel/core@7.23.2)
@@ -1583,8 +1583,8 @@ importers:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.2)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
-        specifier: ^4.1.5
-        version: 4.2.0
+        specifier: ^4.4.0
+        version: 4.4.1
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -1682,16 +1682,16 @@ importers:
         version: 3.1.1(@babel/core@7.23.2)
       '@embroider/addon-dev':
         specifier: ^4.1.1
-        version: 4.1.1(rollup@4.2.0)
+        version: 4.1.1(rollup@4.4.1)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.23.2)
       '@rollup/plugin-babel':
         specifier: ^6.0.4
-        version: 6.0.4(@babel/core@7.23.2)(rollup@4.2.0)
+        version: 6.0.4(@babel/core@7.23.2)(rollup@4.4.1)
       '@rollup/plugin-node-resolve':
         specifier: ^15.2.3
-        version: 15.2.3(rollup@4.2.0)
+        version: 15.2.3(rollup@4.4.1)
       '@warp-drive/core-types':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/core-types(@babel/core@7.23.2)
@@ -1702,8 +1702,8 @@ importers:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.2)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
-        specifier: ^4.1.5
-        version: 4.2.0
+        specifier: ^4.4.0
+        version: 4.4.1
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -1789,16 +1789,16 @@ importers:
         version: 3.1.1(@babel/core@7.23.2)
       '@embroider/addon-dev':
         specifier: ^4.1.1
-        version: 4.1.1(rollup@4.2.0)
+        version: 4.1.1(rollup@4.4.1)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.23.2)
       '@rollup/plugin-babel':
         specifier: ^6.0.4
-        version: 6.0.4(@babel/core@7.23.2)(rollup@4.2.0)
+        version: 6.0.4(@babel/core@7.23.2)(rollup@4.4.1)
       '@rollup/plugin-node-resolve':
         specifier: ^15.2.3
-        version: 15.2.3(rollup@4.2.0)
+        version: 15.2.3(rollup@4.4.1)
       '@warp-drive/core-types':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/core-types(@babel/core@7.23.2)
@@ -1812,8 +1812,8 @@ importers:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.2)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
-        specifier: ^4.1.5
-        version: 4.2.0
+        specifier: ^4.4.0
+        version: 4.4.1
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -1895,16 +1895,16 @@ importers:
         version: 3.1.1(@babel/core@7.23.2)
       '@embroider/addon-dev':
         specifier: ^4.1.1
-        version: 4.1.1(rollup@4.2.0)
+        version: 4.1.1(rollup@4.4.1)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.23.2)
       '@rollup/plugin-babel':
         specifier: ^6.0.4
-        version: 6.0.4(@babel/core@7.23.2)(rollup@4.2.0)
+        version: 6.0.4(@babel/core@7.23.2)(rollup@4.4.1)
       '@rollup/plugin-node-resolve':
         specifier: ^15.2.3
-        version: 15.2.3(rollup@4.2.0)
+        version: 15.2.3(rollup@4.4.1)
       '@warp-drive/core-types':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/core-types(@babel/core@7.23.2)
@@ -1915,8 +1915,8 @@ importers:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.2)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
-        specifier: ^4.1.5
-        version: 4.2.0
+        specifier: ^4.4.0
+        version: 4.4.1
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -1988,7 +1988,7 @@ importers:
         version: 7.23.2
       '@embroider/addon-dev':
         specifier: ^4.1.1
-        version: 4.1.1(rollup@4.2.0)
+        version: 4.1.1(rollup@4.4.1)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.23.2)
@@ -1997,10 +1997,10 @@ importers:
         version: 0.84.3
       '@rollup/plugin-babel':
         specifier: ^6.0.4
-        version: 6.0.4(@babel/core@7.23.2)(rollup@4.2.0)
+        version: 6.0.4(@babel/core@7.23.2)(rollup@4.4.1)
       '@rollup/plugin-node-resolve':
         specifier: ^15.2.3
-        version: 15.2.3(rollup@4.2.0)
+        version: 15.2.3(rollup@4.4.1)
       '@warp-drive/internal-config':
         specifier: workspace:5.5.0-alpha.11
         version: link:../../config
@@ -2008,8 +2008,8 @@ importers:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.2)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
-        specifier: ^4.1.5
-        version: 4.2.0
+        specifier: ^4.4.0
+        version: 4.4.1
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -5598,7 +5598,7 @@ packages:
       - '@babel/core'
       - supports-color
 
-  /@embroider/addon-dev@4.1.1(rollup@4.2.0):
+  /@embroider/addon-dev@4.1.1(rollup@4.4.1):
     resolution: {integrity: sha512-6AIU+GobgsozQJZtG6ys/8TumtnJkrW8LKggjajCwX8QP++eAN9vUL00AZdgh5wZAyLAiv+jNi5knGrPdMFPMA==}
     engines: {node: 12.* || 14.* || >= 16}
     hasBin: true
@@ -5608,7 +5608,7 @@ packages:
       content-tag: 1.1.2
       fs-extra: 10.1.0
       minimatch: 3.1.2
-      rollup-plugin-copy-assets: 2.0.3(rollup@4.2.0)
+      rollup-plugin-copy-assets: 2.0.3(rollup@4.4.1)
       rollup-plugin-delete: 2.0.0
       walk-sync: 3.0.0
       yargs: 17.7.2
@@ -6659,7 +6659,7 @@ packages:
       write-file-atomic: 5.0.1
       write-yaml-file: 5.0.0
 
-  /@rollup/plugin-babel@6.0.4(@babel/core@7.23.2)(rollup@4.2.0):
+  /@rollup/plugin-babel@6.0.4(@babel/core@7.23.2)(rollup@4.4.1):
     resolution: {integrity: sha512-YF7Y52kFdFT/xVSuVdjkV5ZdX/3YtmX0QulG+x0taQOtJdHYzVU61aSSkAgVJ7NOv6qPkIYiJSgSWWN/DM5sGw==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
@@ -6674,11 +6674,11 @@ packages:
     dependencies:
       '@babel/core': 7.23.2(supports-color@8.1.1)
       '@babel/helper-module-imports': 7.22.15
-      '@rollup/pluginutils': 5.0.5(rollup@4.2.0)
-      rollup: 4.2.0
+      '@rollup/pluginutils': 5.0.5(rollup@4.4.1)
+      rollup: 4.4.1
     dev: true
 
-  /@rollup/plugin-node-resolve@15.2.3(rollup@4.2.0):
+  /@rollup/plugin-node-resolve@15.2.3(rollup@4.4.1):
     resolution: {integrity: sha512-j/lym8nf5E21LwBT4Df1VD6hRO2L2iwUeUmP7litikRsVp1H6NWx20NEp0Y7su+7XGc476GnXXc4kFeZNGmaSQ==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
@@ -6687,13 +6687,13 @@ packages:
       rollup:
         optional: true
     dependencies:
-      '@rollup/pluginutils': 5.0.5(rollup@4.2.0)
+      '@rollup/pluginutils': 5.0.5(rollup@4.4.1)
       '@types/resolve': 1.20.2
       deepmerge: 4.3.1
       is-builtin-module: 3.2.1
       is-module: 1.0.0
       resolve: 1.22.8
-      rollup: 4.2.0
+      rollup: 4.4.1
     dev: true
 
   /@rollup/pluginutils@4.2.1:
@@ -6704,7 +6704,7 @@ packages:
       picomatch: 2.3.1
     dev: true
 
-  /@rollup/pluginutils@5.0.5(rollup@4.2.0):
+  /@rollup/pluginutils@5.0.5(rollup@4.4.1):
     resolution: {integrity: sha512-6aEYR910NyP73oHiJglti74iRyOwgFU4x3meH/H8OJx6Ry0j6cOVZ5X/wTvub7G7Ao6qaHBEaNsV3GLJkSsF+Q==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
@@ -6716,99 +6716,99 @@ packages:
       '@types/estree': 1.0.3
       estree-walker: 2.0.2
       picomatch: 2.3.1
-      rollup: 4.2.0
+      rollup: 4.4.1
     dev: true
 
-  /@rollup/rollup-android-arm-eabi@4.2.0:
-    resolution: {integrity: sha512-8PlggAxGxavr+pkCNeV1TM2wTb2o+cUWDg9M1cm9nR27Dsn287uZtSLYXoQqQcmq+sYfF7lHfd3sWJJinH9GmA==}
+  /@rollup/rollup-android-arm-eabi@4.4.1:
+    resolution: {integrity: sha512-Ss4suS/sd+6xLRu+MLCkED2mUrAyqHmmvZB+zpzZ9Znn9S8wCkTQCJaQ8P8aHofnvG5L16u9MVnJjCqioPErwQ==}
     cpu: [arm]
     os: [android]
     requiresBuild: true
     dev: true
     optional: true
 
-  /@rollup/rollup-android-arm64@4.2.0:
-    resolution: {integrity: sha512-+71T85hbMFrJI+zKQULNmSYBeIhru55PYoF/u75MyeN2FcxE4HSPw20319b+FcZ4lWx2Nx/Ql9tN+hoaD3GH/A==}
+  /@rollup/rollup-android-arm64@4.4.1:
+    resolution: {integrity: sha512-sRSkGTvGsARwWd7TzC8LKRf8FiPn7257vd/edzmvG4RIr9x68KBN0/Ek48CkuUJ5Pj/Dp9vKWv6PEupjKWjTYA==}
     cpu: [arm64]
     os: [android]
     requiresBuild: true
     dev: true
     optional: true
 
-  /@rollup/rollup-darwin-arm64@4.2.0:
-    resolution: {integrity: sha512-IIIQLuG43QIElT1JZqUP/zqIdiJl4t9U/boa0GZnQTw9m1X0k3mlBuysbgYXeloLT1RozdL7bgw4lpSaI8GOXw==}
+  /@rollup/rollup-darwin-arm64@4.4.1:
+    resolution: {integrity: sha512-nz0AiGrrXyaWpsmBXUGOBiRDU0wyfSXbFuF98pPvIO8O6auQsPG6riWsfQqmCCC5FNd8zKQ4JhgugRNAkBJ8mQ==}
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
     dev: true
     optional: true
 
-  /@rollup/rollup-darwin-x64@4.2.0:
-    resolution: {integrity: sha512-BXcXvnLaea1Xz900omrGJhxHFJfH9jZ0CpJuVsbjjhpniJ6qiLXz3xA8Lekaa4MuhFcJd4f0r+Ky1G4VFbYhWw==}
+  /@rollup/rollup-darwin-x64@4.4.1:
+    resolution: {integrity: sha512-Ogqvf4/Ve/faMaiPRvzsJEqajbqs00LO+8vtrPBVvLgdw4wBg6ZDXdkDAZO+4MLnrc8mhGV6VJAzYScZdPLtJg==}
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
     dev: true
     optional: true
 
-  /@rollup/rollup-linux-arm-gnueabihf@4.2.0:
-    resolution: {integrity: sha512-f4K3MKw9Y4AKi4ANGnmPIglr+S+8tO858YrGVuqAHXxJdVghBmz9CPU9kDpOnGvT4g4vg5uNyIFpOOFvffXyMA==}
+  /@rollup/rollup-linux-arm-gnueabihf@4.4.1:
+    resolution: {integrity: sha512-9zc2tqlr6HfO+hx9+wktUlWTRdje7Ub15iJqKcqg5uJZ+iKqmd2CMxlgPpXi7+bU7bjfDIuvCvnGk7wewFEhCg==}
     cpu: [arm]
     os: [linux]
     requiresBuild: true
     dev: true
     optional: true
 
-  /@rollup/rollup-linux-arm64-gnu@4.2.0:
-    resolution: {integrity: sha512-bNsTYQBgp4H7w6cT7FZhesxpcUPahsSIy4NgdZjH1ZwEoZHxi4XKglj+CsSEkhsKi+x6toVvMylhjRKhEMYfnA==}
+  /@rollup/rollup-linux-arm64-gnu@4.4.1:
+    resolution: {integrity: sha512-phLb1fN3rq2o1j1v+nKxXUTSJnAhzhU0hLrl7Qzb0fLpwkGMHDem+o6d+ZI8+/BlTXfMU4kVWGvy6g9k/B8L6Q==}
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
     dev: true
     optional: true
 
-  /@rollup/rollup-linux-arm64-musl@4.2.0:
-    resolution: {integrity: sha512-Jp1NxBJpGLuxRU2ihrQk4IZ+ia5nffobG6sOFUPW5PMYkF0kQtxEbeDuCa69Xif211vUOcxlOnf5IOEIpTEySA==}
+  /@rollup/rollup-linux-arm64-musl@4.4.1:
+    resolution: {integrity: sha512-M2sDtw4tf57VPSjbTAN/lz1doWUqO2CbQuX3L9K6GWIR5uw9j+ROKCvvUNBY8WUbMxwaoc8mH9HmmBKsLht7+w==}
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
     dev: true
     optional: true
 
-  /@rollup/rollup-linux-x64-gnu@4.2.0:
-    resolution: {integrity: sha512-3p3iRtQmv2aXw+vtKNyZMLOQ+LSRsqArXjKAh2Oj9cqwfIRe7OXvdkOzWfZOIp1F/x5KJzVAxGxnniF4cMbnsQ==}
+  /@rollup/rollup-linux-x64-gnu@4.4.1:
+    resolution: {integrity: sha512-mHIlRLX+hx+30cD6c4BaBOsSqdnCE4ok7/KDvjHYAHoSuveoMMxIisZFvcLhUnyZcPBXDGZTuBoalcuh43UfQQ==}
     cpu: [x64]
     os: [linux]
     requiresBuild: true
     dev: true
     optional: true
 
-  /@rollup/rollup-linux-x64-musl@4.2.0:
-    resolution: {integrity: sha512-atih7IF/reUZe4LBLC5Izd44hth2tfDIG8LaPp4/cQXdHh9jabcZEvIeRPrpDq0i/Uu487Qu5gl5KwyAnWajnw==}
+  /@rollup/rollup-linux-x64-musl@4.4.1:
+    resolution: {integrity: sha512-tB+RZuDi3zxFx7vDrjTNGVLu2KNyzYv+UY8jz7e4TMEoAj7iEt8Qk6xVu6mo3pgjnsHj6jnq3uuRsHp97DLwOA==}
     cpu: [x64]
     os: [linux]
     requiresBuild: true
     dev: true
     optional: true
 
-  /@rollup/rollup-win32-arm64-msvc@4.2.0:
-    resolution: {integrity: sha512-vYxF3tKJeUE4ceYzpNe2p84RXk/fGK30I8frpRfv/MyPStej/mRlojztkN7Jtd1014HHVeq/tYaMBz/3IxkxZw==}
+  /@rollup/rollup-win32-arm64-msvc@4.4.1:
+    resolution: {integrity: sha512-Hdn39PzOQowK/HZzYpCuZdJC91PE6EaGbTe2VCA9oq2u18evkisQfws0Smh9QQGNNRa/T7MOuGNQoLeXhhE3PQ==}
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
     dev: true
     optional: true
 
-  /@rollup/rollup-win32-ia32-msvc@4.2.0:
-    resolution: {integrity: sha512-1LZJ6zpl93SaPQvas618bMFarVwufWTaczH4ESAbFcwiC4OtznA6Ym+hFPyIGaJaGEB8uMWWac0uXGPXOg5FGA==}
+  /@rollup/rollup-win32-ia32-msvc@4.4.1:
+    resolution: {integrity: sha512-tLpKb1Elm9fM8c5w3nl4N1eLTP4bCqTYw9tqUBxX8/hsxqHO3dxc2qPbZ9PNkdK4tg4iLEYn0pOUnVByRd2CbA==}
     cpu: [ia32]
     os: [win32]
     requiresBuild: true
     dev: true
     optional: true
 
-  /@rollup/rollup-win32-x64-msvc@4.2.0:
-    resolution: {integrity: sha512-dgQfFdHCNg08nM5zBmqxqc9vrm0DVzhWotpavbPa0j4//MAOKZEB75yGAfzQE9fUJ+4pvM1239Y4IhL8f6sSog==}
+  /@rollup/rollup-win32-x64-msvc@4.4.1:
+    resolution: {integrity: sha512-eAhItDX9yQtZVM3yvXS/VR3qPqcnXvnLyx1pLXl4JzyNMBNO3KC986t/iAg2zcMzpAp9JSvxB5VZGnBiNoA98w==}
     cpu: [x64]
     os: [win32]
     requiresBuild: true
@@ -15996,13 +15996,13 @@ packages:
       glob: 10.3.10
     dev: true
 
-  /rollup-plugin-copy-assets@2.0.3(rollup@4.2.0):
+  /rollup-plugin-copy-assets@2.0.3(rollup@4.4.1):
     resolution: {integrity: sha512-ETShhQGb9SoiwcNrvb3BhUNSGR89Jao0+XxxfzzLW1YsUzx8+rMO4z9oqWWmo6OHUmfNQRvqRj0cAyPkS9lN9w==}
     peerDependencies:
       rollup: '>=1.1.2'
     dependencies:
       fs-extra: 7.0.1
-      rollup: 4.2.0
+      rollup: 4.4.1
     dev: true
 
   /rollup-plugin-delete@2.0.0:
@@ -16026,23 +16026,23 @@ packages:
       fsevents: 2.3.3
     dev: true
 
-  /rollup@4.2.0:
-    resolution: {integrity: sha512-deaMa9Z+jPVeBD2dKXv+h7EbdKte9++V2potc/ADqvVgEr6DEJ3ia9u0joarjC2lX/ubaCRYz3QVx0TzuVqAJA==}
+  /rollup@4.4.1:
+    resolution: {integrity: sha512-idZzrUpWSblPJX66i+GzrpjKE3vbYrlWirUHteoAbjKReZwa0cohAErOYA5efoMmNCdvG9yrJS+w9Kl6csaH4w==}
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
     optionalDependencies:
-      '@rollup/rollup-android-arm-eabi': 4.2.0
-      '@rollup/rollup-android-arm64': 4.2.0
-      '@rollup/rollup-darwin-arm64': 4.2.0
-      '@rollup/rollup-darwin-x64': 4.2.0
-      '@rollup/rollup-linux-arm-gnueabihf': 4.2.0
-      '@rollup/rollup-linux-arm64-gnu': 4.2.0
-      '@rollup/rollup-linux-arm64-musl': 4.2.0
-      '@rollup/rollup-linux-x64-gnu': 4.2.0
-      '@rollup/rollup-linux-x64-musl': 4.2.0
-      '@rollup/rollup-win32-arm64-msvc': 4.2.0
-      '@rollup/rollup-win32-ia32-msvc': 4.2.0
-      '@rollup/rollup-win32-x64-msvc': 4.2.0
+      '@rollup/rollup-android-arm-eabi': 4.4.1
+      '@rollup/rollup-android-arm64': 4.4.1
+      '@rollup/rollup-darwin-arm64': 4.4.1
+      '@rollup/rollup-darwin-x64': 4.4.1
+      '@rollup/rollup-linux-arm-gnueabihf': 4.4.1
+      '@rollup/rollup-linux-arm64-gnu': 4.4.1
+      '@rollup/rollup-linux-arm64-musl': 4.4.1
+      '@rollup/rollup-linux-x64-gnu': 4.4.1
+      '@rollup/rollup-linux-x64-musl': 4.4.1
+      '@rollup/rollup-win32-arm64-msvc': 4.4.1
+      '@rollup/rollup-win32-ia32-msvc': 4.4.1
+      '@rollup/rollup-win32-x64-msvc': 4.4.1
       fsevents: 2.3.3
     dev: true
 

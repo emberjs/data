@@ -105,7 +105,7 @@
     "@warp-drive/internal-config": "workspace:5.5.0-alpha.11",
     "ember-inflector": "^4.0.2",
     "ember-source": "~5.4.0",
-    "rollup": "^4.1.5",
+    "rollup": "^4.4.0",
     "typescript": "^5.2.2",
     "walk-sync": "^3.0.0"
   },
