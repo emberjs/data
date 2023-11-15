@@ -29,7 +29,7 @@ function plugins() {
 }
 
 function extend() {
-  return ['plugin:@typescript-eslint/recommended', 'plugin:@typescript-eslint/recommended-requiring-type-checking'];
+  return ['plugin:@typescript-eslint/recommended', 'plugin:@typescript-eslint/recommended-type-checked'];
 }
 
 function settings() {
