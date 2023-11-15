@@ -19,6 +19,7 @@ import type {
   JsonApiDocument,
   SingleResourceDocument,
 } from '@warp-drive/core-types/spec/raw';
+import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
 
 class AbstractMap {
   constructor(
@@ -129,7 +130,7 @@ class Serializer {
   static create() {
     return new this();
   }
-  normalizeResponse(_, __, data: unknown) {
+  normalizeResponse(_: Store, __: ModelSchema, data: unknown) {
     return data;
   }
 }

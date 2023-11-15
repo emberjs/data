@@ -101,8 +101,8 @@ export async function setInitialState(context: Context, config: TestConfig, asse
   };
 
   class User extends Model {
-    @attr name;
-    @relFn('user', relConfig) bestFriends;
+    @attr declare name: string;
+    @relFn('user', relConfig) declare bestFriends: unknown;
   }
   owner.register('model:user', User);
 

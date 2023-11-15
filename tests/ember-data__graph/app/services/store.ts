@@ -16,9 +16,10 @@ import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 import BaseStore, { CacheHandler } from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
+import { ModelSchema } from '@ember-data/store/-types/q/ds-model';
 
 export default class Store extends BaseStore {
-  constructor(args) {
+  constructor(args: unknown) {
     super(args);
     this.requestManager = new RequestManager();
     this.requestManager.use([LegacyNetworkHandler, Fetch]);
@@ -30,7 +31,7 @@ export default class Store extends BaseStore {
     return new JSONAPICache(capabilities);
   }
 
-  override instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs: Record<string, unknown>) {
+  override instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs: Record<string, unknown>): Model {
     return instantiateRecord.call(this, identifier, createRecordArgs);
   }
 
@@ -38,7 +39,7 @@ export default class Store extends BaseStore {
     teardownRecord.call(this, record);
   }
 
-  override modelFor(type: string) {
+  override modelFor(type: string): ModelSchema<Record<string, unknown>> {
     return modelFor.call(this, type) || super.modelFor(type);
   }
 
