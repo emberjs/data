@@ -54,7 +54,7 @@ module('RequestManager | Immutability', function () {
       request<T>(context: Context, next: NextFn<T>) {
         const headers = new Headers(context.request.headers);
         headers.append('house', 'home');
-        // @ts-expect-error FIXME: Property 'entries' does not exist on type 'Headers'.
+        // @ts-expect-error Types are wrong: Property 'entries' does not exist on type 'Headers'.
         return Promise.resolve<T>([...headers.entries()] as T);
       },
     };
