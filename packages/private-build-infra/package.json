@@ -14,8 +14,8 @@
     "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "dependencies": {
-    "@babel/core": "^7.23.2",
-    "@babel/plugin-transform-block-scoping": "^7.23.0",
+    "@babel/core": "^7.23.3",
+    "@babel/plugin-transform-block-scoping": "^7.23.3",
     "@babel/runtime": "^7.23.2",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.13.2",
