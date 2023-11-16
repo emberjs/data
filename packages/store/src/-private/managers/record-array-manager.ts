@@ -6,8 +6,7 @@ import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
 import type { CollectionResourceDocument } from '@warp-drive/core-types/spec/raw';
 
-import type {
-  CollectionCreateOptions} from '../record-arrays/identifier-array';
+import type { CollectionCreateOptions } from '../record-arrays/identifier-array';
 import IdentifierArray, {
   ARRAY_SIGNAL,
   Collection,

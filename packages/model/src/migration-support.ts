@@ -4,8 +4,7 @@ import { recordIdentifierFor } from '@ember-data/store';
 import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 
 import { Errors } from './-private';
-import type {
-  MinimalLegacyRecord} from './-private/model-methods';
+import type { MinimalLegacyRecord } from './-private/model-methods';
 import {
   belongsTo,
   changedAttributes,

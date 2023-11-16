@@ -4,8 +4,7 @@
 import { assert } from '@ember/debug';
 
 import { compat } from '@ember-data/tracking';
-import type {
-  Signal} from '@ember-data/tracking/-private';
+import type { Signal } from '@ember-data/tracking/-private';
 import {
   addToTransaction,
   createArrayTags,
