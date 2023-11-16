@@ -3,13 +3,14 @@ import { assert } from '@ember/debug';
 import { importSync } from '@embroider/macros';
 
 import { upgradeStore } from '@ember-data/legacy-compat/-private';
-import Store, { recordIdentifierFor } from '@ember-data/store';
+import type Store from '@ember-data/store';
+import { recordIdentifierFor } from '@ember-data/store';
 import { peekCache } from '@ember-data/store/-private';
 import { RecordStore } from '@warp-drive/core-types/symbols';
 
-import Errors from './errors';
+import type Errors from './errors';
 import { lookupLegacySupport } from './legacy-relationships-support';
-import RecordState from './record-state';
+import type RecordState from './record-state';
 
 export interface MinimalLegacyRecord {
   errors: Errors;

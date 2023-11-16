@@ -1,5 +1,5 @@
-import { ModuleCallback, ModuleInfo, OrderedMap, TestCallback, TestContext, TestInfo } from './-types';
-import { SuiteReport } from './-types/report';
+import type { ModuleCallback, ModuleInfo, OrderedMap, TestCallback, TestContext, TestInfo } from './-types';
+import type { SuiteReport } from './-types/report';
 import { assert, generateHash } from './-utils';
 import { Config, getCurrentModule, HooksDelegate, instrument, setCurrentModule } from './internals/config';
 import { DelegatingReporter } from './internals/delegating-reporter';

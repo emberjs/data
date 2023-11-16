@@ -111,7 +111,7 @@ import EmberObject from '@ember/object';
 import { inject as service } from '@ember/service';
 
 import type Store from '@ember-data/store';
-import { ModelSchema } from '@ember-data/store/-types/q/ds-model';
+import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
 
 /**
   > ⚠️ CAUTION you likely want the docs for [<Interface> Serializer](/ember-data/release/classes/%3CInterface%3E%20Serializer)

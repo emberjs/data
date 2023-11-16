@@ -29,7 +29,7 @@ import type {
   StableExistingRecordIdentifier,
   StableRecordIdentifier,
 } from '@warp-drive/core-types/identifier';
-import { Value } from '@warp-drive/core-types/json/raw';
+import type { Value } from '@warp-drive/core-types/json/raw';
 import type {
   StructuredDataDocument,
   StructuredDocument,

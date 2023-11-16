@@ -7,8 +7,8 @@ import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import { isBelongsTo } from './-utils';
 import { assertPolymorphicType } from './debug/assert-polymorphic-type';
 import type { CollectionEdge } from './edges/collection';
-import { ResourceEdge } from './edges/resource';
-import { Graph } from './graph';
+import type { ResourceEdge } from './edges/resource';
+import type { Graph } from './graph';
 import replaceRelatedRecord from './operations/replace-related-record';
 import replaceRelatedRecords from './operations/replace-related-records';
 

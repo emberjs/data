@@ -1,6 +1,6 @@
 import { assert, warn } from '@ember/debug';
 
-import { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
+import type { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { UpdateRelationshipOperation } from '@warp-drive/core-types/graph';
 import type { ExistingResourceIdentifierObject, NewResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';

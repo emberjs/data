@@ -1,5 +1,5 @@
-import { CompatTestReport, Emitter } from '../-types';
-import { DiagnosticReport, ModuleReport, Reporter, SuiteReport, TestReport } from '../-types/report';
+import type { CompatTestReport, Emitter } from '../-types';
+import type { DiagnosticReport, ModuleReport, Reporter, SuiteReport, TestReport } from '../-types/report';
 import { getSettings, updateConfigValue, updateSuiteState } from '../internals/config';
 
 type SuiteLayout = {

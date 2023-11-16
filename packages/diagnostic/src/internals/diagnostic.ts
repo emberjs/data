@@ -1,5 +1,5 @@
-import { GlobalConfig, TestContext, TestInfo } from '../-types';
-import { DiagnosticReport, Reporter, TestReport } from '../-types/report';
+import type { GlobalConfig, TestContext, TestInfo } from '../-types';
+import type { DiagnosticReport, Reporter, TestReport } from '../-types/report';
 import equiv from '../legacy/equiv';
 
 class InternalCompat<TC extends TestContext> {

@@ -4,7 +4,7 @@ import { cacheFor } from '@ember/object/internals';
 import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import { RelationshipSchema } from '@warp-drive/core-types/schema';
+import type { RelationshipSchema } from '@warp-drive/core-types/schema';
 
 import { LEGACY_SUPPORT } from './legacy-relationships-support';
 import type Model from './model';

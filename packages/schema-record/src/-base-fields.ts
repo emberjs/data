@@ -1,7 +1,7 @@
 import { assert } from '@ember/debug';
 
 import { recordIdentifierFor } from '@ember-data/store';
-import { RecordInstance } from '@ember-data/store/-types/q/record-instance';
+import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
 import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 

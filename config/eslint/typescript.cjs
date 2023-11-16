@@ -3,6 +3,13 @@ function rules(config) {
     {
       '@typescript-eslint/adjacent-overload-signatures': 'error',
       '@typescript-eslint/ban-ts-comment': 'off',
+      '@typescript-eslint/consistent-type-exports': 'error',
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        {
+          disallowTypeAnnotations: false,
+        },
+      ],
       'no-loop-func': 'off',
       '@typescript-eslint/no-loop-func': 'error',
       '@typescript-eslint/no-misused-promises': 'off',
@@ -10,6 +17,7 @@ function rules(config) {
       'no-shadow': 'off',
       '@typescript-eslint/no-shadow': 'error',
       'no-throw-literal': 'off',
+      '@typescript-eslint/no-import-type-side-effects': 'error',
       '@typescript-eslint/no-inferrable-types': 'error',
       '@typescript-eslint/no-meaningless-void-operator': 'error',
       '@typescript-eslint/no-throw-literal': 'error',

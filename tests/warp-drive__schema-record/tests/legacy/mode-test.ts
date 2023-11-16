@@ -11,7 +11,8 @@ import {
   withFields as withLegacyFields,
 } from '@ember-data/model/migration-support';
 import RequestManager from '@ember-data/request';
-import Store, { CacheHandler } from '@ember-data/store';
+import type Store from '@ember-data/store';
+import { CacheHandler } from '@ember-data/store';
 import { Editable, Legacy } from '@warp-drive/schema-record/record';
 import { registerDerivations, SchemaService, withFields } from '@warp-drive/schema-record/schema';
 

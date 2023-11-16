@@ -3,10 +3,11 @@ import { assert } from '@ember/debug';
 import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 
 import type { CacheCapabilitiesManager as StoreWrapper } from '../../-types/q/cache-store-wrapper';
-import { SchemaService } from '../../-types/q/schema-service';
-import { IdentifierCache, isDocumentIdentifier, isStableIdentifier } from '../caches/identifier-cache';
+import type { SchemaService } from '../../-types/q/schema-service';
+import type { IdentifierCache} from '../caches/identifier-cache';
+import { isDocumentIdentifier, isStableIdentifier } from '../caches/identifier-cache';
 import type Store from '../store-service';
-import { NotificationType } from './notification-manager';
+import type { NotificationType } from './notification-manager';
 
 /**
   @module @ember-data/store

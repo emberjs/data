@@ -6,8 +6,8 @@ import { assert } from '@ember/debug';
 import { DEBUG } from '@ember-data/env';
 import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 
-import { FindOptions } from '../../-types/q/store';
-import Store from '../store-service';
+import type { FindOptions } from '../../-types/q/store';
+import type Store from '../store-service';
 
 const Touching: unique symbol = Symbol('touching');
 export const RequestPromise: unique symbol = Symbol('promise');

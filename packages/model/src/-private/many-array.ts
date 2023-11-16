@@ -12,7 +12,7 @@ import {
   recordIdentifierFor,
   SOURCE,
 } from '@ember-data/store/-private';
-import { IdentifierArrayCreateOptions } from '@ember-data/store/-private/record-arrays/identifier-array';
+import type { IdentifierArrayCreateOptions } from '@ember-data/store/-private/record-arrays/identifier-array';
 import type { CreateRecordProperties } from '@ember-data/store/-private/store-service';
 import type { Cache } from '@ember-data/store/-types/q/cache';
 import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
@@ -21,7 +21,7 @@ import type { FindOptions } from '@ember-data/store/-types/q/store';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Links, PaginationLinks } from '@warp-drive/core-types/spec/raw';
 
-import { LegacySupport } from './legacy-relationships-support';
+import type { LegacySupport } from './legacy-relationships-support';
 
 export interface ManyArrayCreateArgs {
   identifiers: StableRecordIdentifier[];

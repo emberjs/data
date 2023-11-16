@@ -1,7 +1,8 @@
 import { registerReporter, start as _start } from '../';
 import type { Emitter } from '../-types';
 import { assert, getGlobal } from '../-utils';
-import { ConfigOptions, configure, getSettings } from '../internals/config';
+import type { ConfigOptions} from '../internals/config';
+import { configure, getSettings } from '../internals/config';
 import { DOMReporter } from '../reporters/dom';
 
 export async function start(config?: ConfigOptions) {

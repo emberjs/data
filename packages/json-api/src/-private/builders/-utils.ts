@@ -1,13 +1,9 @@
 /**
  * @module @ember-data/json-api/request
  */
-import {
-  buildQueryParams as buildParams,
-  BuildURLConfig,
-  setBuildURLConfig as setConfig,
-} from '@ember-data/request-utils';
-import { type UrlOptions } from '@ember-data/request-utils';
-import { QueryParamsSource } from '@warp-drive/core-types/params';
+import type { BuildURLConfig, UrlOptions } from '@ember-data/request-utils';
+import { buildQueryParams as buildParams, setBuildURLConfig as setConfig } from '@ember-data/request-utils';
+import type { QueryParamsSource } from '@warp-drive/core-types/params';
 import type { CacheOptions, ConstrainedRequestOptions } from '@warp-drive/core-types/request';
 
 export interface JSONAPIConfig extends BuildURLConfig {

@@ -4,12 +4,13 @@
 import { assert } from '@ember/debug';
 
 import { compat } from '@ember-data/tracking';
+import type {
+  Signal} from '@ember-data/tracking/-private';
 import {
   addToTransaction,
   createArrayTags,
   createSignal,
   defineSignal,
-  Signal,
   subscribe,
 } from '@ember-data/tracking/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';

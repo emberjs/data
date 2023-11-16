@@ -3,7 +3,7 @@ import { assert, warn } from '@ember/debug';
 import { LOG_INSTANCE_CACHE } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
 import type { RecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
-import { Value } from '@warp-drive/core-types/json/raw';
+import type { Value } from '@warp-drive/core-types/json/raw';
 import type { RelationshipSchema } from '@warp-drive/core-types/schema';
 import type { ExistingResourceIdentifierObject, NewResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
 
@@ -12,7 +12,7 @@ import type { JsonApiRelationship, JsonApiResource } from '../../-types/q/record
 import type { RecordInstance } from '../../-types/q/record-instance';
 import RecordReference from '../legacy-model-support/record-reference';
 import { CacheCapabilitiesManager } from '../managers/cache-capabilities-manager';
-import { CacheManager } from '../managers/cache-manager';
+import type { CacheManager } from '../managers/cache-manager';
 import type { CreateRecordProperties } from '../store-service';
 import type Store from '../store-service';
 import { ensureStringId } from '../utils/coerce-id';

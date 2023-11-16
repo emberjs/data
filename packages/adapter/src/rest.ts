@@ -16,7 +16,7 @@ import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
 import type { HTTPMethod } from '@warp-drive/core-types/request';
 
 import { determineBodyPromise, fetch, parseResponseHeaders, serializeIntoHash, serializeQueryParams } from './-private';
-import { MixtBuildURLMixin } from './-private/build-url-mixin';
+import type { MixtBuildURLMixin } from './-private/build-url-mixin';
 import type { FastBoot } from './-private/fastboot-interface';
 import AdapterError, {
   AbortError,

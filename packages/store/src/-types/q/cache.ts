@@ -61,4 +61,4 @@ export interface CacheV1 {
   isDeletionCommitted(identifier: StableRecordIdentifier): boolean;
 }
 
-export { Cache };
+export type { Cache };

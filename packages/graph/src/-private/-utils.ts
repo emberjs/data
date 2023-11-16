@@ -6,9 +6,9 @@ import { peekCache } from '@ember-data/store/-private';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { UpdateRelationshipOperation } from '@warp-drive/core-types/graph';
-import { ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
+import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
 
-import { UpgradedMeta } from './-edge-definition';
+import type { UpgradedMeta } from './-edge-definition';
 import { coerceId } from './coerce-id';
 import type { CollectionEdge } from './edges/collection';
 import type { ImplicitEdge } from './edges/implicit';

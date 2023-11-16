@@ -1,4 +1,4 @@
-import { SuiteReport } from './-types/report';
+import type { SuiteReport } from './-types/report';
 
 export type CompatTestReport = {
   id: number;
