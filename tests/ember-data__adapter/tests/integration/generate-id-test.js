@@ -1,11 +1,10 @@
 import EmberObject from '@ember/object';
 
-import { module, test } from '@warp-drive/diagnostic';
-import { setupTest } from '@warp-drive/diagnostic/ember';
-
 import Store from 'ember-data__adapter/services/store';
 
 import Model, { attr } from '@ember-data/model';
+import { module, test } from '@warp-drive/diagnostic';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 class MinimalSerializer extends EmberObject {
   normalizeResponse(_, __, data) {
@@ -44,8 +43,8 @@ module('integration/generate-id - GenerateIdForRecord Tests', function (hooks) {
     let generateIdForRecordCalled = 0;
     let seq = 0;
 
-    let store = this.owner.lookup('service:store');
-    let expectedProps = {
+    const store = this.owner.lookup('service:store');
+    const expectedProps = {
       firstName: 'Gaurav',
       lastName: 'Munjal',
     };
@@ -60,11 +59,11 @@ module('integration/generate-id - GenerateIdForRecord Tests', function (hooks) {
 
     this.owner.register('adapter:application', TestGenerateIdForRecordAdapter);
 
-    let record = store.createRecord('person', expectedProps);
+    const record = store.createRecord('person', expectedProps);
 
     assert.equal(record.id, 'manually generated id 1', 'manually generated id used');
 
-    let recordFromPeekRecord = store.peekRecord('person', record.id);
+    const recordFromPeekRecord = store.peekRecord('person', record.id);
 
     assert.equal(record, recordFromPeekRecord, 'peekRecord returns the same record');
     assert.equal(generateIdForRecordCalled, 1, 'generateIdForRecord is called once');
@@ -78,8 +77,8 @@ module('integration/generate-id - GenerateIdForRecord Tests', function (hooks) {
   });
 
   test('store.createRecord does not error if adapter.generateIdForRecord is undefined.', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let expectedData = {
+    const store = this.owner.lookup('service:store');
+    const expectedData = {
       data: {
         type: 'person',
         attributes: {
@@ -93,15 +92,15 @@ module('integration/generate-id - GenerateIdForRecord Tests', function (hooks) {
 
     this.owner.register('adapter:application', TestGenerateIdForRecordAdapter);
 
-    let props = expectedData.data.attributes;
-    let record = store.createRecord('person', props);
+    const props = expectedData.data.attributes;
+    const record = store.createRecord('person', props);
 
     assert.deepEqual(record.serialize().data.attributes, props, 'record created without error');
   });
 
   test('store.createRecord does not error if adapter is undefined.', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let expectedData = {
+    const store = this.owner.lookup('service:store');
+    const expectedData = {
       data: {
         type: 'person',
         attributes: {
@@ -111,8 +110,8 @@ module('integration/generate-id - GenerateIdForRecord Tests', function (hooks) {
       },
     };
 
-    let props = expectedData.data.attributes;
-    let record = store.createRecord('person', props);
+    const props = expectedData.data.attributes;
+    const record = store.createRecord('person', props);
 
     assert.deepEqual(record.serialize().data.attributes, props, 'record created without error');
   });

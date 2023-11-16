@@ -13,6 +13,7 @@ function defaults(config = {}) {
       config?.rules,
       {
         'qunit/no-assert-equal': 'off',
+        'qunit/no-conditional-assertions': 'off',
         'qunit/no-ok-equality': 'off',
       }
     ),

@@ -4,11 +4,11 @@ const imports = require('@warp-drive/internal-config/eslint/imports.cjs');
 const isolation = require('@warp-drive/internal-config/eslint/isolation.cjs');
 const node = require('@warp-drive/internal-config/eslint/node.cjs');
 const parser = require('@warp-drive/internal-config/eslint/parser.cjs');
-const qunit = require('@warp-drive/internal-config/eslint/qunit.cjs');
+const diagnostic = require('@warp-drive/internal-config/eslint/diagnostic.cjs');
+const typescript = require('@warp-drive/internal-config/eslint/typescript.cjs');
 
 module.exports = {
   ...parser.defaults(),
-
   ...base.settings(),
 
   plugins: [...base.plugins(), ...imports.plugins()],
@@ -17,7 +17,7 @@ module.exports = {
     base.rules(),
     imports.rules(),
     isolation.rules({
-      allowedImports: [],
+      allowedImports: ['@ember/application'],
     }),
     {}
   ),
@@ -25,15 +25,16 @@ module.exports = {
   ignorePatterns: ignore.ignoreRules(),
 
   overrides: [
-    node.config(),
-    node.defaults({
-      files: ['**/*.{js,ts}'],
+    node.config({
+      files: ['ember-cli-build.js', 'testem.js'],
     }),
-    qunit.defaults({
-      files: ['index.{js,ts}'],
-      rules: {
-        'qunit/no-assert-logical-expression': 'off',
-      },
+    node.defaults({
+      files: ['./config/environment.js', './config/targets.js'],
+    }),
+    typescript.defaults(),
+    diagnostic.defaults({
+      files: ['tests/**/*.{js,ts}'],
+      allowedImports: ['@ember/object'],
     }),
   ],
 };

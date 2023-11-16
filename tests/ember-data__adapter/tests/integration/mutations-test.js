@@ -1,11 +1,10 @@
 import EmberObject from '@ember/object';
 
-import { module, test } from '@warp-drive/diagnostic';
-import { setupTest } from '@warp-drive/diagnostic/ember';
-
 import Store from 'ember-data__adapter/services/store';
 
 import Model, { attr } from '@ember-data/model';
+import { module, test } from '@warp-drive/diagnostic';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 class MinimalSerializer extends EmberObject {
   normalizeResponse(_, __, data) {
@@ -42,8 +41,8 @@ module('integration/mutations - Mutations Tests', function (hooks) {
 
   test('store.deleteRecord calls adapter.deleteRecord if a record is deleted and then saved', async function (assert) {
     let deleteRecordCalled = 0;
-    let store = this.owner.lookup('service:store');
-    let expectedData = {
+    const store = this.owner.lookup('service:store');
+    const expectedData = {
       data: {
         id: '12',
         type: 'person',
@@ -58,8 +57,8 @@ module('integration/mutations - Mutations Tests', function (hooks) {
       deleteRecord(passedStore, type, snapshot) {
         deleteRecordCalled++;
 
-        let data = snapshot.serialize();
-        let id = snapshot.id;
+        const data = snapshot.serialize();
+        const id = snapshot.id;
 
         assert.equal(passedStore, store, 'instance of store is passed to deleteRecord');
         assert.equal(type, Person, 'model is passed to deleteRecord');
@@ -72,7 +71,7 @@ module('integration/mutations - Mutations Tests', function (hooks) {
 
     this.owner.register('adapter:application', TestDeleteRecordAdapter);
 
-    let record = store.push(expectedData);
+    const record = store.push(expectedData);
 
     record.deleteRecord();
     await record.save();
@@ -83,8 +82,8 @@ module('integration/mutations - Mutations Tests', function (hooks) {
   test('store.deleteRecord calls adapter.deleteRecord if a newly created record is persisted, then deleted and then saved', async function (assert) {
     let createRecordCalled = 0;
     let deleteRecordCalled = 0;
-    let store = this.owner.lookup('service:store');
-    let expectedData = {
+    const store = this.owner.lookup('service:store');
+    const expectedData = {
       data: {
         id: '12',
         type: 'person',
@@ -99,8 +98,8 @@ module('integration/mutations - Mutations Tests', function (hooks) {
       createRecord(passedStore, type, snapshot) {
         createRecordCalled++;
 
-        let data = snapshot.serialize();
-        let id = snapshot.id;
+        const data = snapshot.serialize();
+        const id = snapshot.id;
 
         assert.equal(passedStore, store, 'instance of store is passed to deleteRecord');
         assert.equal(type, Person, 'model is passed to deleteRecord');
@@ -115,8 +114,8 @@ module('integration/mutations - Mutations Tests', function (hooks) {
       deleteRecord(passedStore, type, snapshot) {
         deleteRecordCalled++;
 
-        let data = snapshot.serialize();
-        let id = snapshot.id;
+        const data = snapshot.serialize();
+        const id = snapshot.id;
 
         assert.equal(passedStore, store, 'instance of store is passed to deleteRecord');
         assert.equal(type, Person, 'model is passed to deleteRecord');
@@ -129,8 +128,8 @@ module('integration/mutations - Mutations Tests', function (hooks) {
 
     this.owner.register('adapter:application', TestDeleteRecordAdapter);
 
-    let props = { id: expectedData.data.id, ...expectedData.data.attributes };
-    let record = store.createRecord('person', props);
+    const props = { id: expectedData.data.id, ...expectedData.data.attributes };
+    const record = store.createRecord('person', props);
     await record.save();
 
     assert.equal(createRecordCalled, 1, 'createRecord is called once');
@@ -144,8 +143,8 @@ module('integration/mutations - Mutations Tests', function (hooks) {
   test('store.deleteRecord does not call adapter.deleteRecord if a newly created, unpersisted record is deleted and then saved', async function (assert) {
     let createRecordCalled = 0;
     let deleteRecordCalled = 0;
-    let store = this.owner.lookup('service:store');
-    let expectedData = {
+    const store = this.owner.lookup('service:store');
+    const expectedData = {
       data: {
         id: '12',
         type: 'person',
@@ -168,8 +167,8 @@ module('integration/mutations - Mutations Tests', function (hooks) {
 
     this.owner.register('adapter:application', TestDeleteRecordAdapter);
 
-    let props = { id: expectedData.data.id, ...expectedData.data.attributes };
-    let record = store.createRecord('person', props);
+    const props = { id: expectedData.data.id, ...expectedData.data.attributes };
+    const record = store.createRecord('person', props);
 
     record.deleteRecord();
     await record.save();
@@ -180,8 +179,8 @@ module('integration/mutations - Mutations Tests', function (hooks) {
 
   test('record.save() calls adapter.createRecord if a newly created record unpersisted record is saved', async function (assert) {
     let createRecordCalled = 0;
-    let store = this.owner.lookup('service:store');
-    let expectedData = {
+    const store = this.owner.lookup('service:store');
+    const expectedData = {
       data: {
         id: '12',
         type: 'person',
@@ -196,8 +195,8 @@ module('integration/mutations - Mutations Tests', function (hooks) {
       createRecord(passedStore, type, snapshot) {
         createRecordCalled++;
 
-        let data = snapshot.serialize();
-        let id = snapshot.id;
+        const data = snapshot.serialize();
+        const id = snapshot.id;
 
         assert.equal(passedStore, store, 'instance of store is passed to deleteRecord');
         assert.equal(type, Person, 'model is passed to deleteRecord');
@@ -212,8 +211,8 @@ module('integration/mutations - Mutations Tests', function (hooks) {
 
     this.owner.register('adapter:application', TestCreateRecordAdapter);
 
-    let props = { id: expectedData.data.id, ...expectedData.data.attributes };
-    let record = store.createRecord('person', props);
+    const props = { id: expectedData.data.id, ...expectedData.data.attributes };
+    const record = store.createRecord('person', props);
     await record.save();
 
     assert.equal(createRecordCalled, 1, 'createRecord is called once');
@@ -222,8 +221,8 @@ module('integration/mutations - Mutations Tests', function (hooks) {
   test('record.save() calls adapter.createRecord then adapter.updateRecord if a newly created record record is saved, then saved again', async function (assert) {
     let createRecordCalled = 0;
     let updateRecord = 0;
-    let store = this.owner.lookup('service:store');
-    let expectedData = {
+    const store = this.owner.lookup('service:store');
+    const expectedData = {
       data: {
         id: '12',
         type: 'person',
@@ -238,8 +237,8 @@ module('integration/mutations - Mutations Tests', function (hooks) {
       createRecord(passedStore, type, snapshot) {
         createRecordCalled++;
 
-        let data = snapshot.serialize();
-        let id = snapshot.id;
+        const data = snapshot.serialize();
+        const id = snapshot.id;
 
         assert.equal(passedStore, store, 'instance of store is passed to deleteRecord');
         assert.equal(type, Person, 'model is passed to deleteRecord');
@@ -254,8 +253,8 @@ module('integration/mutations - Mutations Tests', function (hooks) {
       updateRecord(passedStore, type, snapshot) {
         updateRecord++;
 
-        let data = snapshot.serialize();
-        let id = snapshot.id;
+        const data = snapshot.serialize();
+        const id = snapshot.id;
 
         assert.equal(passedStore, store, 'instance of store is passed to deleteRecord');
         assert.equal(type, Person, 'model is passed to deleteRecord');
@@ -270,8 +269,8 @@ module('integration/mutations - Mutations Tests', function (hooks) {
 
     this.owner.register('adapter:application', TestUpdateRecordAdapter);
 
-    let props = { id: expectedData.data.id, ...expectedData.data.attributes };
-    let record = store.createRecord('person', props);
+    const props = { id: expectedData.data.id, ...expectedData.data.attributes };
+    const record = store.createRecord('person', props);
     await record.save();
 
     assert.equal(createRecordCalled, 1, 'createRecord is called once');
@@ -287,8 +286,8 @@ module('integration/mutations - Mutations Tests', function (hooks) {
   test('record.save() calls adapter.updateRecord if an existing persisted record is saved', async function (assert) {
     let createRecordCalled = 0;
     let updateRecord = 0;
-    let store = this.owner.lookup('service:store');
-    let expectedData = {
+    const store = this.owner.lookup('service:store');
+    const expectedData = {
       data: {
         id: '12',
         type: 'person',
@@ -307,8 +306,8 @@ module('integration/mutations - Mutations Tests', function (hooks) {
       updateRecord(passedStore, type, snapshot) {
         updateRecord++;
 
-        let data = snapshot.serialize();
-        let id = snapshot.id;
+        const data = snapshot.serialize();
+        const id = snapshot.id;
 
         assert.equal(passedStore, store, 'instance of store is passed to deleteRecord');
         assert.equal(type, Person, 'model is passed to deleteRecord');
@@ -323,7 +322,7 @@ module('integration/mutations - Mutations Tests', function (hooks) {
 
     this.owner.register('adapter:application', TestUpdateRecordAdapter);
 
-    let record = store.push(expectedData);
+    const record = store.push(expectedData);
 
     record.firstName = 'Kevin';
     expectedData.data.attributes.firstName = 'Kevin';

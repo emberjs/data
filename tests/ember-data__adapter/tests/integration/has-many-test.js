@@ -1,13 +1,12 @@
 import EmberObject from '@ember/object';
 
-import { module, test } from '@warp-drive/diagnostic';
-import { setupTest } from '@warp-drive/diagnostic/ember';
-
 import Store from 'ember-data__adapter/services/store';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+import { module, test } from '@warp-drive/diagnostic';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 class MinimalSerializer extends EmberObject {
   normalizeResponse(_, __, data) {
@@ -15,7 +14,7 @@ class MinimalSerializer extends EmberObject {
   }
 
   serialize(snapshot) {
-    let json = {
+    const json = {
       data: {
         id: snapshot.id,
         type: snapshot.modelName,
@@ -41,11 +40,11 @@ class MinimalSerializer extends EmberObject {
 
   // minimal implementation, not json-api compliant
   serializeBelongsTo(snapshot, json, relationship) {
-    let key = relationship.key;
-    let belongsTo = snapshot.belongsTo(key);
+    const key = relationship.key;
+    const belongsTo = snapshot.belongsTo(key);
 
     if (belongsTo) {
-      let value = {
+      const value = {
         data: {
           id: belongsTo.id,
           type: belongsTo.modelName,
@@ -57,11 +56,11 @@ class MinimalSerializer extends EmberObject {
 
   // minimal implementation, not json-api compliant
   serializeHasMany(snapshot, json, relationship) {
-    let key = relationship.key;
-    let hasMany = snapshot.hasMany(key);
+    const key = relationship.key;
+    const hasMany = snapshot.hasMany(key);
 
     if (hasMany && hasMany.length) {
-      let value = {
+      const value = {
         data: hasMany.map((snap) => ({
           id: snap.id,
           type: snap.modelName,
@@ -88,7 +87,7 @@ class Comment extends Model {
   post;
 }
 
-let expectedResult = {
+const expectedResult = {
   data: [
     {
       id: '3',
@@ -138,7 +137,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     let findManyCalled = 0;
     let findHasManyCalled = 0;
 
-    let initialRecord = {
+    const initialRecord = {
       data: {
         id: '2',
         type: 'post',
@@ -155,13 +154,13 @@ module('integration/has-many - Has Many Tests', function (hooks) {
       },
     };
 
-    let { owner } = this;
-    let store = owner.lookup('service:store');
+    const { owner } = this;
+    const store = owner.lookup('service:store');
 
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    let expectedResultCopy = deepCopy(expectedResult);
+    const expectedResultCopy = deepCopy(expectedResult);
 
     class TestFindHasManyAdapter extends EmberObject {
       findRecord() {
@@ -177,7 +176,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
 
         assert.equal(passedStore, store, 'instance of store is passed to findHasMany');
 
-        let expectedURL = initialRecord.data.relationships.comments.links.related;
+        const expectedURL = initialRecord.data.relationships.comments.links.related;
         assert.equal(url, expectedURL, 'url is passed to findHasMany');
         assert.equal(relationship.name, 'comments', 'relationship is passed to findHasMany');
 
@@ -190,10 +189,10 @@ module('integration/has-many - Has Many Tests', function (hooks) {
 
     owner.register('adapter:application', TestFindHasManyAdapter);
 
-    let post = store.push(initialRecord);
+    const post = store.push(initialRecord);
 
-    let comments = await post.comments;
-    let serializedComments = {
+    const comments = await post.comments;
+    const serializedComments = {
       data: comments.slice().map((comment) => comment.serialize().data),
     };
 
@@ -204,7 +203,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
   });
 
   testInDebug('if a hasMany relationship has a link but no data (findHasMany is undefined)', async function (assert) {
-    let initialRecord = {
+    const initialRecord = {
       data: {
         id: '2',
         type: 'post',
@@ -221,14 +220,14 @@ module('integration/has-many - Has Many Tests', function (hooks) {
       },
     };
 
-    let { owner } = this;
-    let store = owner.lookup('service:store');
+    const { owner } = this;
+    const store = owner.lookup('service:store');
 
     class TestFindHasManyAdapter extends EmberObject {}
 
     owner.register('adapter:application', TestFindHasManyAdapter);
 
-    let post = store.push(initialRecord);
+    const post = store.push(initialRecord);
 
     await assert.expectAssertion(async function () {
       await post.comments;
@@ -240,7 +239,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     let findManyCalled = 0;
     let findHasManyCalled = 0;
 
-    let initialRecord = {
+    const initialRecord = {
       data: {
         id: '2',
         type: 'post',
@@ -264,20 +263,20 @@ module('integration/has-many - Has Many Tests', function (hooks) {
       },
     };
 
-    let { owner } = this;
-    let store = owner.lookup('service:store');
+    const { owner } = this;
+    const store = owner.lookup('service:store');
 
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    let expectedResultCopy = deepCopy(expectedResult);
+    const expectedResultCopy = deepCopy(expectedResult);
 
     class TestFindRecordAdapter extends EmberObject {
       coalesceFindRequests = false;
 
       findRecord(passedStore, type, id, snapshot) {
-        let index = findRecordCalled++;
-        let expectedId = initialRecord.data.relationships.comments.data[index].id;
+        const index = findRecordCalled++;
+        const expectedId = initialRecord.data.relationships.comments.data[index].id;
 
         assert.equal(passedStore, store, 'instance of store is passed to findRecord');
         assert.equal(type, Comment, 'model is passed to findRecord');
@@ -300,9 +299,9 @@ module('integration/has-many - Has Many Tests', function (hooks) {
 
     owner.register('adapter:application', TestFindRecordAdapter);
 
-    let post = store.push(initialRecord);
-    let comments = await post.comments;
-    let serializedComments = {
+    const post = store.push(initialRecord);
+    const comments = await post.comments;
+    const serializedComments = {
       data: comments.slice().map((comment) => comment.serialize().data),
     };
 
@@ -316,7 +315,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     let findRecordCalled = 0;
     let findManyCalled = 0;
 
-    let initialRecord = {
+    const initialRecord = {
       data: {
         id: '2',
         type: 'post',
@@ -340,20 +339,20 @@ module('integration/has-many - Has Many Tests', function (hooks) {
       },
     };
 
-    let { owner } = this;
-    let store = owner.lookup('service:store');
+    const { owner } = this;
+    const store = owner.lookup('service:store');
 
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    let expectedResultCopy = deepCopy(expectedResult);
+    const expectedResultCopy = deepCopy(expectedResult);
 
     class TestFindRecordAdapter extends EmberObject {
       coalesceFindRequests = false;
 
       findRecord(passedStore, type, id, snapshot) {
-        let index = findRecordCalled++;
-        let expectedId = initialRecord.data.relationships.comments.data[index].id;
+        const index = findRecordCalled++;
+        const expectedId = initialRecord.data.relationships.comments.data[index].id;
 
         assert.equal(passedStore, store, 'instance of store is passed to findRecord');
         assert.equal(type, Comment, 'model is passed to findRecord');
@@ -372,9 +371,9 @@ module('integration/has-many - Has Many Tests', function (hooks) {
 
     owner.register('adapter:application', TestFindRecordAdapter);
 
-    let post = store.push(initialRecord);
-    let comments = await post.comments;
-    let serializedComments = {
+    const post = store.push(initialRecord);
+    const comments = await post.comments;
+    const serializedComments = {
       data: comments.slice().map((comment) => comment.serialize().data),
     };
 
@@ -388,7 +387,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     let findManyCalled = 0;
     let findHasManyCalled = 0;
 
-    let initialRecord = {
+    const initialRecord = {
       data: {
         id: '2',
         type: 'post',
@@ -412,13 +411,13 @@ module('integration/has-many - Has Many Tests', function (hooks) {
       },
     };
 
-    let { owner } = this;
-    let store = owner.lookup('service:store');
+    const { owner } = this;
+    const store = owner.lookup('service:store');
 
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    let expectedResultCopy = deepCopy(expectedResult);
+    const expectedResultCopy = deepCopy(expectedResult);
 
     class TestFindManyAdapter extends EmberObject {
       coalesceFindRequests = true;
@@ -441,7 +440,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
         assert.equal(passedStore, store, 'instance of store is passed to findMany');
         assert.equal(type, Comment, 'model is passed to findMany');
 
-        let expectedIds = expectedResultCopy.data.map((record) => record.id);
+        const expectedIds = expectedResultCopy.data.map((record) => record.id);
         assert.deepEqual(ids, expectedIds, 'ids are passed to findMany');
 
         snapshots.forEach((snapshot, index) => {
@@ -455,9 +454,9 @@ module('integration/has-many - Has Many Tests', function (hooks) {
 
     owner.register('adapter:application', TestFindManyAdapter);
 
-    let post = store.push(initialRecord);
-    let comments = await post.comments;
-    let serializedComments = {
+    const post = store.push(initialRecord);
+    const comments = await post.comments;
+    const serializedComments = {
       data: comments.slice().map((comment) => comment.serialize().data),
     };
 
@@ -471,7 +470,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     let findRecordCalled = 0;
     let findManyCalled = 0;
 
-    let initialRecord = {
+    const initialRecord = {
       data: {
         id: '2',
         type: 'post',
@@ -495,13 +494,13 @@ module('integration/has-many - Has Many Tests', function (hooks) {
       },
     };
 
-    let { owner } = this;
-    let store = owner.lookup('service:store');
+    const { owner } = this;
+    const store = owner.lookup('service:store');
 
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    let expectedResultCopy = deepCopy(expectedResult);
+    const expectedResultCopy = deepCopy(expectedResult);
 
     class TestFindManyAdapter extends EmberObject {
       coalesceFindRequests = true;
@@ -520,7 +519,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
         assert.equal(passedStore, store, 'instance of store is passed to findMany');
         assert.equal(type, Comment, 'model is passed to findMany');
 
-        let expectedIds = expectedResultCopy.data.map((record) => record.id);
+        const expectedIds = expectedResultCopy.data.map((record) => record.id);
         assert.deepEqual(ids, expectedIds, 'ids are passed to findMany');
 
         snapshots.forEach((snapshot, index) => {
@@ -534,9 +533,9 @@ module('integration/has-many - Has Many Tests', function (hooks) {
 
     owner.register('adapter:application', TestFindManyAdapter);
 
-    let post = store.push(initialRecord);
-    let comments = await post.comments;
-    let serializedComments = {
+    const post = store.push(initialRecord);
+    const comments = await post.comments;
+    const serializedComments = {
       data: comments.slice().map((comment) => comment.serialize().data),
     };
 
@@ -550,7 +549,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     let findManyCalled = 0;
     let findHasManyCalled = 0;
 
-    let initialRecord = {
+    const initialRecord = {
       data: {
         id: '2',
         type: 'post',
@@ -577,13 +576,13 @@ module('integration/has-many - Has Many Tests', function (hooks) {
       },
     };
 
-    let { owner } = this;
-    let store = owner.lookup('service:store');
+    const { owner } = this;
+    const store = owner.lookup('service:store');
 
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    let expectedResultCopy = deepCopy(expectedResult);
+    const expectedResultCopy = deepCopy(expectedResult);
 
     class TestFindHasManyAdapter extends EmberObject {
       findRecord() {
@@ -599,7 +598,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
 
         assert.equal(passedStore, store, 'instance of store is passed to findHasMany');
 
-        let expectedURL = initialRecord.data.relationships.comments.links.related;
+        const expectedURL = initialRecord.data.relationships.comments.links.related;
         assert.equal(url, expectedURL, 'url is passed to findHasMany');
         assert.equal(relationship.name, 'comments', 'relationship is passed to findHasMany');
 
@@ -612,10 +611,10 @@ module('integration/has-many - Has Many Tests', function (hooks) {
 
     owner.register('adapter:application', TestFindHasManyAdapter);
 
-    let post = store.push(initialRecord);
+    const post = store.push(initialRecord);
 
-    let comments = await post.comments;
-    let serializedComments = {
+    const comments = await post.comments;
+    const serializedComments = {
       data: comments.slice().map((comment) => comment.serialize().data),
     };
 
@@ -629,7 +628,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     let findRecordCalled = 0;
     let findManyCalled = 0;
 
-    let initialRecord = {
+    const initialRecord = {
       data: {
         id: '2',
         type: 'post',
@@ -656,13 +655,13 @@ module('integration/has-many - Has Many Tests', function (hooks) {
       },
     };
 
-    let { owner } = this;
-    let store = owner.lookup('service:store');
+    const { owner } = this;
+    const store = owner.lookup('service:store');
 
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    let expectedResultCopy = deepCopy(expectedResult);
+    const expectedResultCopy = deepCopy(expectedResult);
 
     class TestFindManyAdapter extends EmberObject {
       coalesceFindRequests = true;
@@ -681,7 +680,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
         assert.equal(passedStore, store, 'instance of store is passed to findMany');
         assert.equal(type, Comment, 'model is passed to findMany');
 
-        let expectedIds = expectedResultCopy.data.map((record) => record.id);
+        const expectedIds = expectedResultCopy.data.map((record) => record.id);
         assert.deepEqual(ids, expectedIds, 'ids are passed to findMany');
 
         snapshots.forEach((snapshot, index) => {
@@ -695,9 +694,9 @@ module('integration/has-many - Has Many Tests', function (hooks) {
 
     owner.register('adapter:application', TestFindManyAdapter);
 
-    let post = store.push(initialRecord);
-    let comments = await post.comments;
-    let serializedComments = {
+    const post = store.push(initialRecord);
+    const comments = await post.comments;
+    const serializedComments = {
       data: comments.slice().map((comment) => comment.serialize().data),
     };
 
@@ -710,7 +709,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     let findRecordCalled = 0;
     let findManyCalled = 0;
 
-    let initialRecord = {
+    const initialRecord = {
       data: {
         id: '2',
         type: 'post',
@@ -734,20 +733,20 @@ module('integration/has-many - Has Many Tests', function (hooks) {
       },
     };
 
-    let { owner } = this;
-    let store = owner.lookup('service:store');
+    const { owner } = this;
+    const store = owner.lookup('service:store');
 
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    let expectedResultCopy = deepCopy(expectedResult);
+    const expectedResultCopy = deepCopy(expectedResult);
 
     class TestFindRecordAdapter extends EmberObject {
       coalesceFindRequests = false;
 
       findRecord(passedStore, type, id, snapshot) {
-        let index = findRecordCalled++;
-        let expectedId = initialRecord.data.relationships.comments.data[index].id;
+        const index = findRecordCalled++;
+        const expectedId = initialRecord.data.relationships.comments.data[index].id;
 
         assert.equal(passedStore, store, 'instance of store is passed to findRecord');
         assert.equal(type, Comment, 'model is passed to findRecord');
@@ -766,9 +765,9 @@ module('integration/has-many - Has Many Tests', function (hooks) {
 
     owner.register('adapter:application', TestFindRecordAdapter);
 
-    let post = store.push(initialRecord);
-    let comments = await post.comments;
-    let serializedComments = {
+    const post = store.push(initialRecord);
+    const comments = await post.comments;
+    const serializedComments = {
       data: comments.slice().map((comment) => comment.serialize().data),
     };
 
