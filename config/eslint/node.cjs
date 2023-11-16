@@ -4,6 +4,7 @@ function defaults(config) {
     parserOptions: {
       sourceType: config?.useModules ? 'module' : 'script',
       ecmaVersion: 2022,
+      ...(config?.parserOptions ?? {}),
     },
     env: {
       browser: false,

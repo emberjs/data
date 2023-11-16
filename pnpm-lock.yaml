@@ -2464,6 +2464,9 @@ importers:
         specifier: 0.0.10
         version: 0.0.10
     devDependencies:
+      '@warp-drive/internal-config':
+        specifier: workspace:5.5.0-alpha.11
+        version: link:../../config
       qunit:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
