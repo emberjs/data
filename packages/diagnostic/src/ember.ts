@@ -1,4 +1,5 @@
-import { getTestMetadata, setupContext, SetupContextOptions, teardownContext, TestContext } from '@ember/test-helpers';
+import type { SetupContextOptions, TestContext } from '@ember/test-helpers';
+import { getTestMetadata, setupContext, teardownContext } from '@ember/test-helpers';
 
 import AbstractTestLoader from 'ember-cli-test-loader/test-support/index';
 

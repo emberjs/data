@@ -9,7 +9,7 @@ import {
 import { Context, ContextOwner } from './context';
 import { assertValidRequest } from './debug';
 import { createFuture, isFuture } from './future';
-import { type DeferredFuture, type Future, type GodContext, type Handler } from './types';
+import type { DeferredFuture, Future, GodContext, Handler } from './types';
 
 export function curryFuture<T>(owner: ContextOwner, inbound: Future<T>, outbound: DeferredFuture<T>): Future<T> {
   owner.setStream(inbound.getStream());

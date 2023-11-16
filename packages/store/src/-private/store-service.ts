@@ -27,11 +27,11 @@ import type {
 
 import type { Cache, CacheV1 } from '../-types/q/cache';
 import type { CacheCapabilitiesManager } from '../-types/q/cache-store-wrapper';
-import { ModelSchema } from '../-types/q/ds-model';
+import type { ModelSchema } from '../-types/q/ds-model';
 import type { RecordInstance } from '../-types/q/record-instance';
 import type { SchemaService } from '../-types/q/schema-service';
 import type { FindOptions, QueryOptions } from '../-types/q/store';
-import { type LifetimesService, StoreRequestContext, type StoreRequestInput } from './cache-handler';
+import type { LifetimesService, StoreRequestContext, StoreRequestInput } from './cache-handler';
 import { IdentifierCache } from './caches/identifier-cache';
 import {
   InstanceCache,
@@ -41,14 +41,15 @@ import {
   resourceIsFullyDeleted,
   storeFor,
 } from './caches/instance-cache';
-import { Document } from './document';
+import type { Document } from './document';
 import type RecordReference from './legacy-model-support/record-reference';
 import { getShimClass } from './legacy-model-support/shim-model-class';
 import { CacheManager } from './managers/cache-manager';
 import NotificationManager from './managers/notification-manager';
 import RecordArrayManager from './managers/record-array-manager';
 import RequestStateService, { RequestPromise } from './network/request-cache';
-import IdentifierArray, { Collection } from './record-arrays/identifier-array';
+import type { Collection } from './record-arrays/identifier-array';
+import type IdentifierArray from './record-arrays/identifier-array';
 import coerceId, { ensureStringId } from './utils/coerce-id';
 import constructResource from './utils/construct-resource';
 import normalizeModelName from './utils/normalize-model-name';

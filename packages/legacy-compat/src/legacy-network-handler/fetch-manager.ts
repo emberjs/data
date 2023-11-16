@@ -20,7 +20,7 @@ import type { CollectionResourceDocument, SingleResourceDocument } from '@warp-d
 import { upgradeStore } from '../-private';
 import { assertIdentifierHasId } from './identifier-has-id';
 import { payloadIsNotBlank } from './legacy-data-utils';
-import { AdapterPayload, MinimumAdapterInterface } from './minimum-adapter-interface';
+import type { AdapterPayload, MinimumAdapterInterface } from './minimum-adapter-interface';
 import type { MinimumSerializerInterface } from './minimum-serializer-interface';
 import { normalizeResponseHelper } from './serializer-response';
 import Snapshot from './snapshot';
@@ -585,13 +585,13 @@ function _flushPendingFetchForType(
         _processCoalescedGroup(store, fetchMap, groups[i], adapter, modelName);
       }
     } else if (totalItems === 1) {
-      void _fetchRecord(store, adapter, pendingFetchItems[0]);
+      _fetchRecord(store, adapter, pendingFetchItems[0]);
     }
   }
 
   pendingFetchMap.forEach((pendingFetchItems) => {
     pendingFetchItems.forEach((pendingFetchItem) => {
-      void _fetchRecord(store, adapter, pendingFetchItem);
+      _fetchRecord(store, adapter, pendingFetchItem);
     });
   });
 }

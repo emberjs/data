@@ -7,7 +7,7 @@ import type Store from '@ember-data/store';
 import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
 import { cached } from '@ember-data/tracking';
 
-import { LegacySupport } from './legacy-relationships-support';
+import type { LegacySupport } from './legacy-relationships-support';
 import { PromiseObject } from './promise-proxy-base';
 import type BelongsToReference from './references/belongs-to';
 

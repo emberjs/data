@@ -1,5 +1,5 @@
 /* global Testem */
-import {
+import type {
   GlobalCallback,
   GlobalConfig,
   GlobalHooks,

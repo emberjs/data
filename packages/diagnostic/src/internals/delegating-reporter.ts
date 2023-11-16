@@ -1,4 +1,4 @@
-import { Reporter, SuiteReport } from '../-types/report';
+import type { Reporter, SuiteReport } from '../-types/report';
 
 const Reporters = new Set<Reporter>();
 export function registerReporter(reporter: Reporter) {

@@ -2,7 +2,7 @@ import { assert } from '@ember/debug';
 
 import { LOG_GRAPH } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
-import { MergeOperation } from '@ember-data/store/-types/q/cache';
+import type { MergeOperation } from '@ember-data/store/-types/q/cache';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { RelationshipDiff } from '@warp-drive/core-types/cache';
@@ -29,7 +29,8 @@ import {
   removeIdentifierCompletelyFromRelationship,
 } from './-utils';
 import { type CollectionEdge, createCollectionEdge, legacyGetCollectionRelationshipData } from './edges/collection';
-import { createImplicitEdge, ImplicitEdge, ImplicitMeta } from './edges/implicit';
+import type { ImplicitEdge, ImplicitMeta } from './edges/implicit';
+import { createImplicitEdge } from './edges/implicit';
 import { createResourceEdge, legacyGetResourceRelationshipData, type ResourceEdge } from './edges/resource';
 import addToRelatedRecords from './operations/add-to-related-records';
 import { mergeIdentifier } from './operations/merge-identifier';
@@ -421,7 +422,7 @@ export class Graph {
   update(op: LocalRelationshipOperation, isRemote?: false): void;
   update(
     op: MergeOperation | LocalRelationshipOperation | RemoteRelationshipOperation | UnknownOperation,
-    isRemote: boolean = false
+    isRemote = false
   ): void {
     assert(
       `Cannot update an implicit relationship`,

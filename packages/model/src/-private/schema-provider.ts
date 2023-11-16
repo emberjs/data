@@ -6,7 +6,7 @@ import type { RecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
 
 import type { FactoryCache, ModelFactory, ModelStore } from './model';
-import Model from './model';
+import type Model from './model';
 import _modelForMixin from './model-for-mixin';
 import { normalizeModelName } from './util';
 

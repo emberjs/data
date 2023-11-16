@@ -1,6 +1,6 @@
 import { assert, warn } from '@ember/debug';
 
-import { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
+import type { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { UpdateRelationshipOperation } from '@warp-drive/core-types/graph';
 import type { ExistingResourceIdentifierObject, NewResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
@@ -21,8 +21,8 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
 
   const payload = op.value;
 
-  let hasRelationshipDataProperty: boolean = false;
-  let hasUpdatedLink: boolean = false;
+  let hasRelationshipDataProperty = false;
+  let hasUpdatedLink = false;
 
   if (payload.meta) {
     relationship.meta = payload.meta;

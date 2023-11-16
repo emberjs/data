@@ -1,5 +1,5 @@
-import { HooksCallback, ModuleInfo, TestContext, TestInfo } from '../-types';
-import { ModuleReport, TestReport } from '../-types/report';
+import type { HooksCallback, ModuleInfo, TestContext, TestInfo } from '../-types';
+import type { ModuleReport, TestReport } from '../-types/report';
 import { getChain } from '../-utils';
 import { Config, groupLogs, instrument } from './config';
 import { DelegatingReporter } from './delegating-reporter';

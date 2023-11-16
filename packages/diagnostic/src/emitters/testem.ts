@@ -1,5 +1,5 @@
-import { CompatTestReport, Emitter } from '../-types';
-import { SuiteReport } from '../-types/report';
+import type { CompatTestReport, Emitter } from '../-types';
+import type { SuiteReport } from '../-types/report';
 import { assert } from '../-utils';
 
 type TestemSocket = {

@@ -33,7 +33,7 @@ export class ContextOwner {
   response: ResponseInfo | null = null;
   declare request: ImmutableRequestInfo;
   declare enhancedRequest: ImmutableRequestInfo;
-  nextCalled: number = 0;
+  nextCalled = 0;
   declare god: GodContext;
   declare controller: AbortController;
   declare requestId: number;

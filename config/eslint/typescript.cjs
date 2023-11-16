@@ -1,24 +1,44 @@
 function rules(config) {
   return Object.assign(
     {
-      '@typescript-eslint/no-explicit-any': 'error',
-      '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
-      '@typescript-eslint/prefer-includes': 'error',
-      '@typescript-eslint/prefer-ts-expect-error': 'error',
+      '@typescript-eslint/adjacent-overload-signatures': 'error',
       '@typescript-eslint/ban-ts-comment': 'off',
-      '@typescript-eslint/no-redundant-type-constituents': 'off',
-      '@typescript-eslint/no-unsafe-declaration-merging': 'off',
-      '@typescript-eslint/no-misused-promises': 'off',
-      'no-unused-vars': 'off',
-      'prefer-const': 'error',
-      'prefer-rest-params': 'off',
-      'no-shadow': 'off',
-      '@typescript-eslint/no-shadow': 'error',
+      '@typescript-eslint/consistent-type-exports': 'error',
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        {
+          disallowTypeAnnotations: false,
+        },
+      ],
       'no-loop-func': 'off',
       '@typescript-eslint/no-loop-func': 'error',
+      '@typescript-eslint/no-misused-promises': 'off',
+      '@typescript-eslint/no-redundant-type-constituents': 'off',
+      'no-shadow': 'off',
+      '@typescript-eslint/no-shadow': 'error',
       'no-throw-literal': 'off',
+      '@typescript-eslint/no-import-type-side-effects': 'error',
+      '@typescript-eslint/no-inferrable-types': 'error',
+      '@typescript-eslint/no-meaningless-void-operator': 'error',
       '@typescript-eslint/no-throw-literal': 'error',
-      // '@typescript-eslint/prefer-readonly-parameter-types': 'error',
+      // Many failures for these; they seem intentional so I don't want to just auto-fix:
+      // '@typescript-eslint/no-unnecessary-boolean-literal-compare': 'error',
+      // '@typescript-eslint/no-unnecessary-condition': 'error',
+      '@typescript-eslint/no-unnecessary-type-arguments': 'error',
+      '@typescript-eslint/no-unnecessary-type-assertion': 'error',
+      '@typescript-eslint/no-unnecessary-type-constraint': 'error',
+      '@typescript-eslint/no-unsafe-declaration-merging': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
+      'no-useless-constructor': 'off',
+      '@typescript-eslint/no-useless-constructor': 'error',
+      '@typescript-eslint/prefer-includes': 'error',
+      // Auto-fix changes the types in some of these cases, which didn't seem safe:
+      // '@typescript-eslint/prefer-optional-chain': 'error',
+      '@typescript-eslint/prefer-reduce-type-parameter': 'error',
+      '@typescript-eslint/prefer-return-this-type': 'error',
+      '@typescript-eslint/prefer-ts-expect-error': 'error',
+      'prefer-const': 'error',
+      'prefer-rest-params': 'off',
     },
     config?.rules ?? {}
   );
@@ -29,7 +49,7 @@ function plugins() {
 }
 
 function extend() {
-  return ['plugin:@typescript-eslint/recommended', 'plugin:@typescript-eslint/recommended-requiring-type-checking'];
+  return ['plugin:@typescript-eslint/recommended', 'plugin:@typescript-eslint/recommended-type-checked'];
 }
 
 function settings() {

@@ -2,15 +2,16 @@ import { assert } from '@ember/debug';
 
 import type { Future, Handler, NextFn } from '@ember-data/request/-private/types';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
-import type { CreateRequestOptions, DeleteRequestOptions, UpdateRequestOptions } from '@warp-drive/core-types/request';
-import {
-  EnableHydration,
+import type {
+  CreateRequestOptions,
+  DeleteRequestOptions,
   ImmutableRequestInfo,
   RequestContext,
-  SkipCache,
   StructuredDataDocument,
   StructuredErrorDocument,
+  UpdateRequestOptions,
 } from '@warp-drive/core-types/request';
+import { EnableHydration, SkipCache } from '@warp-drive/core-types/request';
 import type {
   CollectionResourceDataDocument,
   ResourceDataDocument,

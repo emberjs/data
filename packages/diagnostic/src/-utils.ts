@@ -1,5 +1,5 @@
 /* global window, globalThis, global, self */
-import { GlobalHooksStorage, HooksCallback, ModuleInfo, TestContext } from './-types';
+import type { GlobalHooksStorage, HooksCallback, ModuleInfo, TestContext } from './-types';
 
 export function assert(message: string, test: unknown): asserts test {
   if (!test) {

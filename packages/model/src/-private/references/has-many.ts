@@ -21,7 +21,8 @@ import type {
 } from '@warp-drive/core-types/spec/raw';
 
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
-import { areAllInverseRecordsLoaded, LEGACY_SUPPORT, LegacySupport } from '../legacy-relationships-support';
+import type { LegacySupport } from '../legacy-relationships-support';
+import { areAllInverseRecordsLoaded, LEGACY_SUPPORT } from '../legacy-relationships-support';
 import type ManyArray from '../many-array';
 
 /**

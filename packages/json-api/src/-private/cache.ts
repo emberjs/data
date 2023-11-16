@@ -29,7 +29,7 @@ import type {
   StableExistingRecordIdentifier,
   StableRecordIdentifier,
 } from '@warp-drive/core-types/identifier';
-import { Value } from '@warp-drive/core-types/json/raw';
+import type { Value } from '@warp-drive/core-types/json/raw';
 import type {
   StructuredDataDocument,
   StructuredDocument,
@@ -1561,7 +1561,7 @@ function _isEmpty(peeked: CachedResource | undefined): boolean {
   return (!isNew || isDeleted) && isEmpty;
 }
 
-function recordIsLoaded(cached: CachedResource | undefined, filterDeleted: boolean = false): boolean {
+function recordIsLoaded(cached: CachedResource | undefined, filterDeleted = false): boolean {
   if (!cached) {
     return false;
   }

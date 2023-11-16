@@ -1,17 +1,16 @@
 /**
  * @module @ember-data/experimental-preview-types
  */
-import { ResourceBlob } from './cache/aliases';
-import { Change } from './cache/change';
-import { Mutation } from './cache/mutations';
-import { Operation } from './cache/operations';
+import type { ResourceBlob } from './cache/aliases';
+import type { Change } from './cache/change';
+import type { Mutation } from './cache/mutations';
+import type { Operation } from './cache/operations';
 import type { CollectionRelationship, ResourceRelationship } from './cache/relationship';
-import type { StableRecordIdentifier } from './identifier';
-import { StableDocumentIdentifier } from './identifier';
+import type { StableDocumentIdentifier, StableRecordIdentifier } from './identifier';
 import type { Value } from './json/raw';
 import type { RequestContext, StructuredDataDocument, StructuredDocument } from './request';
-import { ResourceDocument, SingleResourceDataDocument } from './spec/document';
-import { ApiError } from './spec/error';
+import type { ResourceDocument, SingleResourceDataDocument } from './spec/document';
+import type { ApiError } from './spec/error';
 
 /**
  * A hash of changed attributes with the key being the attribute name and the value being an

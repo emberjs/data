@@ -11,7 +11,7 @@ import {
 } from '@ember-data/request-utils';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
-import {
+import type {
   ConstrainedRequestOptions,
   CreateRequestOptions,
   DeleteRequestOptions,
