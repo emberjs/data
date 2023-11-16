@@ -1,6 +1,5 @@
-import { module, test } from '@warp-drive/diagnostic';
-
 import { filterEmpty } from '@ember-data/request-utils';
+import { module, test } from '@warp-drive/diagnostic';
 
 module('filterEmpty', function () {
   test('it returns an empty object when given an empty object', function (assert) {

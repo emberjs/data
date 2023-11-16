@@ -1,6 +1,5 @@
-import { module, test } from '@warp-drive/diagnostic';
-
 import { buildQueryParams } from '@ember-data/request-utils';
+import { module, test } from '@warp-drive/diagnostic';
 
 module('buildQueryParams', function (hooks) {
   test('It serializes objects with stable key order', function (assert) {

@@ -1,6 +1,4 @@
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
-import { module, test } from '@warp-drive/diagnostic';
-import { setupTest } from '@warp-drive/diagnostic/ember';
+import type { TestContext } from '@ember/test-helpers';
 
 import JSONAPICache from '@ember-data/json-api';
 import { updateRecord } from '@ember-data/json-api/request';
@@ -8,16 +6,18 @@ import Model, { attr, instantiateRecord, teardownRecord } from '@ember-data/mode
 import { buildSchema, modelFor } from '@ember-data/model/hooks';
 import type { RequestContext, StructuredDataDocument } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
-import { setBuildURLConfig } from '@ember-data/request-utils';
 import type { Future, Handler } from '@ember-data/request/-private/types';
+import { setBuildURLConfig } from '@ember-data/request-utils';
 import DataStore, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import { ModelSchema } from '@ember-data/store/-types/q/ds-model';
-import { JsonApiError } from '@ember-data/store/-types/q/record-data-json-api';
-import { TestContext } from '@ember/test-helpers';
+import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
+import type { JsonApiError } from '@ember-data/store/-types/q/record-data-json-api';
 import type { Cache } from '@warp-drive/core-types/cache';
-import { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
-import { SingleResourceDocument } from '@warp-drive/core-types/spec/raw';
+import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
+import type { SingleResourceDocument } from '@warp-drive/core-types/spec/raw';
+import { module, test } from '@warp-drive/diagnostic';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 class TestStore extends DataStore {
   constructor(args: unknown) {
@@ -76,7 +76,7 @@ module('Integration - updateRecord', function (hooks) {
       override didCommit(
         committedIdentifier: StableRecordIdentifier,
         result: StructuredDataDocument<SingleResourceDocument>
-      ): SingleResourceDataDocument<StableExistingRecordIdentifier> {
+      ): SingleResourceDataDocument {
         assert.step(`didCommit ${committedIdentifier.lid}`);
         return super.didCommit(committedIdentifier, result);
       }
@@ -87,6 +87,7 @@ module('Integration - updateRecord', function (hooks) {
     }
 
     // intercept Handler APIs to ensure they are called as expected
+    // eslint-disable-next-line prefer-const
     let response: unknown;
     const TestHandler: Handler = {
       request<T>(context: RequestContext): Promise<T | StructuredDataDocument<T>> | Future<T> {
@@ -157,7 +158,7 @@ module('Integration - updateRecord', function (hooks) {
       override didCommit(
         committedIdentifier: StableRecordIdentifier,
         result: StructuredDataDocument<SingleResourceDocument>
-      ): SingleResourceDataDocument<StableExistingRecordIdentifier> {
+      ): SingleResourceDataDocument {
         assert.step(`didCommit ${committedIdentifier.lid}`);
         return super.didCommit(committedIdentifier, result);
       }
@@ -168,6 +169,7 @@ module('Integration - updateRecord', function (hooks) {
     }
 
     // intercept Handler APIs to ensure they are called as expected
+    // eslint-disable-next-line prefer-const
     let response: unknown;
     const TestHandler: Handler = {
       request<T>(context: RequestContext): Promise<T | StructuredDataDocument<T>> | Future<T> {
@@ -245,6 +247,8 @@ module('Integration - updateRecord', function (hooks) {
     assert.false(user.isDestroyed, 'The user is not destroyed');
     assert.false(user.isSaving, 'The user is no longer saving');
 
+    // TODO: Errors type is missing `get`
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     const nameErrors = user.errors.get('name') as Array<{
       attribute: string;
       message: string;
