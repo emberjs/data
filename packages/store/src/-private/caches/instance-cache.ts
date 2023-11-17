@@ -264,7 +264,13 @@ export class InstanceCache {
             }
           );
         }
-        assert(`Cannot create a record for ${identifier.type + identifier.id} (${identifier.lid}) as no resource data exists`, cache.peek(identifier));
+        assert(
+          `Cannot create a record for ${identifier.type + ':' + String(identifier.id)} (${
+            identifier.lid
+          }) as no resource data exists`,
+          // @ts-expect-error managedVersion is private and debug only
+          Boolean(cache.managedVersion === '1' || cache.peek(identifier))
+        );
         record = this.store.instantiateRecord(
           identifier,
           properties || {},
@@ -273,7 +279,12 @@ export class InstanceCache {
           this.store.notifications
         );
       } else {
-        assert(`Cannot create a record for ${identifier.type + identifier.id} (${identifier.lid}) as no resource data exists`, cache.peek(identifier));
+        assert(
+          `Cannot create a record for ${identifier.type + ':' + String(identifier.id)} (${
+            identifier.lid
+          }) as no resource data exists`,
+          cache.peek(identifier)
+        );
         record = this.store.instantiateRecord(identifier, properties || {});
       }
 

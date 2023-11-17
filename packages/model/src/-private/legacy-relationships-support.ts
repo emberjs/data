@@ -166,14 +166,13 @@ export class LegacySupport {
       if (relatedIdentifier === null) {
         return null;
       } else {
-        let toReturn = store._instanceCache.getRecord(relatedIdentifier);
         assert(
           `You looked up the '${key}' relationship on a '${identifier.type}' with id ${
             identifier.id || 'null'
           } but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (\`belongsTo(<type>, { async: true, inverse: <inverse> })\`)`,
-          toReturn === null || store._instanceCache.recordIsLoaded(relatedIdentifier, true)
+          store._instanceCache.recordIsLoaded(relatedIdentifier, true)
         );
-        return toReturn;
+        return store._instanceCache.getRecord(relatedIdentifier);
       }
     }
   }

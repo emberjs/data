@@ -575,18 +575,20 @@ module('integration/references/belongs-to', function (hooks) {
     this.owner.register('model:familia', Familia);
     this.owner.register('model:persona', Persona);
     this.owner.register('adapter:application', class extends JSONAPIAdapter {});
-    this.owner.register('serializer:application', class extends JSONAPISerializer {
-      normalizeResponse(_store, _schema, payload) {
-        return payload;
+    this.owner.register(
+      'serializer:application',
+      class extends JSONAPISerializer {
+        normalizeResponse(_store, _schema, payload) {
+          return payload;
+        }
       }
-    });
+    );
 
     const store = this.owner.lookup('service:store');
     const adapter = store.adapterFor('application');
     const adapterOptions = { thing: 'one' };
 
     adapter.findRecord = function (store, type, id, snapshot) {
-      debugger;
       assert.step('findRecord');
       assert.strictEqual(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
 
