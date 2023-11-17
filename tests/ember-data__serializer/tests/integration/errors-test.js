@@ -49,7 +49,7 @@ module(
       }
       this.owner.register('adapter:application', TestAdapter);
 
-      let store = this.owner.lookup('service:Store');
+      const store = this.owner.lookup('service:Store');
       let errors;
       try {
         await store.findRecord('person', 1);
@@ -84,8 +84,8 @@ module(
       }
       this.owner.register('adapter:application', TestAdapter);
 
-      let store = this.owner.lookup('service:Store');
-      let person = store.createRecord('person', {});
+      const store = this.owner.lookup('service:Store');
+      const person = store.createRecord('person', {});
       let errors;
       try {
         await person.save();

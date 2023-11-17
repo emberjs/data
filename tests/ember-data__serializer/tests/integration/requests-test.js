@@ -53,7 +53,7 @@ module('Serializer Contract | running requests with minimum serializer', functio
 
     const store = this.owner.lookup('service:store');
 
-    let response = await store.findAll('person');
+    const response = await store.findAll('person');
 
     assert.strictEqual(normalizeResponseCalled, 1, 'normalizeResponse is called once');
     assert.deepEqual(
@@ -109,7 +109,7 @@ module('Serializer Contract | running requests with minimum serializer', functio
 
     const store = this.owner.lookup('service:store');
 
-    let response = await store.findRecord('person', 'urn:person:1');
+    const response = await store.findRecord('person', 'urn:person:1');
 
     assert.strictEqual(normalizeResponseCalled, 1, 'normalizeResponse is called once');
     assert.deepEqual(response.name, 'John', 'response is expected response');
@@ -147,7 +147,7 @@ module('Serializer Contract | running requests with minimum serializer', functio
 
     const store = this.owner.lookup('service:store');
 
-    let response = await store.query('person', { name: 'Chris' });
+    const response = await store.query('person', { name: 'Chris' });
 
     assert.strictEqual(normalizeResponseCalled, 1, 'normalizeResponse is called once');
     assert.deepEqual(
@@ -203,7 +203,7 @@ module('Serializer Contract | running requests with minimum serializer', functio
 
     const store = this.owner.lookup('service:store');
 
-    let response = await store.queryRecord('person', { name: 'Chris' });
+    const response = await store.queryRecord('person', { name: 'Chris' });
 
     assert.strictEqual(normalizeResponseCalled, 1, 'normalizeResponse is called once');
     assert.deepEqual(response.name, 'John', 'response is expected response');

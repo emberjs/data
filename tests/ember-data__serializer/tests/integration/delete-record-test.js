@@ -39,7 +39,7 @@ module('Serializer Contract | running deleteRecord with minimum serializer', fun
 
   test('save after deleting record does not call normalizeResponse and serialize', async function (assert) {
     let normalizeResponseCalled = 0;
-    let _payloads = [
+    const _payloads = [
       {
         id: '1',
         type: 'person',
@@ -87,7 +87,7 @@ module('Serializer Contract | running deleteRecord with minimum serializer', fun
 
     const store = this.owner.lookup('service:store');
 
-    let person = await store.findRecord('person', 1);
+    const person = await store.findRecord('person', 1);
 
     assert.deepEqual(person.toJSON(), {
       id: '1',
@@ -108,7 +108,7 @@ module('Serializer Contract | running deleteRecord with minimum serializer', fun
     let serializeCalled = 0;
     let serializeIntoHashCalled = 0;
     let normalizeResponseCalled = 0;
-    let _payloads = [
+    const _payloads = [
       {
         id: '1',
         type: 'person',
@@ -164,7 +164,7 @@ module('Serializer Contract | running deleteRecord with minimum serializer', fun
 
     const store = this.owner.lookup('service:store');
 
-    let person = await store.findRecord('person', 1);
+    const person = await store.findRecord('person', 1);
 
     assert.deepEqual(person.toJSON(), {
       id: '1',
@@ -185,7 +185,7 @@ module('Serializer Contract | running deleteRecord with minimum serializer', fun
 
   test('save after deleting record does call normalizeResponse if response provided', async function (assert) {
     let normalizeResponseCalled = 0;
-    let _payloads = [
+    const _payloads = [
       {
         id: '1',
         type: 'person',
@@ -228,7 +228,7 @@ module('Serializer Contract | running deleteRecord with minimum serializer', fun
 
     const store = this.owner.lookup('service:store');
 
-    let person = await store.findRecord('person', 1);
+    const person = await store.findRecord('person', 1);
 
     assert.deepEqual(person.toJSON(), {
       id: '1',

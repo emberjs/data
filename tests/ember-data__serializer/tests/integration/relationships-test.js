@@ -90,7 +90,7 @@ module('Serializer Contract | running requests for async relationships with mini
 
     const store = this.owner.lookup('service:store');
 
-    let post = store.push({
+    const post = store.push({
       data: {
         id: '1',
         type: 'post',
@@ -113,7 +113,7 @@ module('Serializer Contract | running requests for async relationships with mini
         },
       },
     });
-    let comments = await post.comments;
+    const comments = await post.comments;
 
     assert.strictEqual(normalizeResponseCalled, 1, 'normalizeResponse is called once');
     assert.deepEqual(
@@ -164,7 +164,7 @@ module('Serializer Contract | running requests for async relationships with mini
 
     const store = this.owner.lookup('service:store');
 
-    let post = store.push({
+    const post = store.push({
       data: {
         id: '1',
         type: 'post',
@@ -180,7 +180,7 @@ module('Serializer Contract | running requests for async relationships with mini
         },
       },
     });
-    let comments = await post.comments;
+    const comments = await post.comments;
 
     assert.strictEqual(normalizeResponseCalled, 1, 'normalizeResponse is called once');
     assert.deepEqual(
@@ -238,7 +238,7 @@ module('Serializer Contract | running requests for async relationships with mini
 
     const store = this.owner.lookup('service:store');
 
-    let comment = store.push({
+    const comment = store.push({
       data: {
         id: '1',
         type: 'comment',
@@ -254,7 +254,7 @@ module('Serializer Contract | running requests for async relationships with mini
         },
       },
     });
-    let post = await comment.post;
+    const post = await comment.post;
 
     assert.strictEqual(normalizeResponseCalled, 1, 'normalizeResponse is called once');
     assert.deepEqual(post.title, 'Chris', 'response is expected response');
