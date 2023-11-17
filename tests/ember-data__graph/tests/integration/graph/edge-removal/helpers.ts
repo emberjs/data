@@ -1,9 +1,10 @@
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import { type Diagnostic } from '@warp-drive/diagnostic';
-
+// Remove this disable once @belongsTo is typed
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call */
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
-import { CollectionResourceDocument, SingleResourceDocument } from '@warp-drive/core-types/spec/raw';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { CollectionResourceDocument, SingleResourceDocument } from '@warp-drive/core-types/spec/raw';
+import type { Diagnostic } from '@warp-drive/diagnostic';
 
 import type { Context, UserRecord } from './setup';
 import { stateOf } from './setup';
@@ -83,7 +84,7 @@ type BestFriendRel<T> = {
 function makeRel(id: string | null, isMany: false): BestFriendRel<UserRef | null>;
 function makeRel(id: string | null, isMany: true): BestFriendRel<UserRef[]>;
 function makeRel(id: string | null, isMany: boolean): BestFriendRel<UserRef | UserRef[] | null> {
-  let ref = { type: 'user', id: id as string } as const;
+  const ref = { type: 'user', id: id as string } as const;
   const data = isMany ? (id === null ? [] : [ref]) : id === null ? null : ref;
 
   return { bestFriends: { data } };

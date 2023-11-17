@@ -1,8 +1,7 @@
-import { module, test } from '@warp-drive/diagnostic';
-import { setupTest } from '@warp-drive/diagnostic/ember';
-
 import { graphFor } from '@ember-data/graph/-private';
 import Store from '@ember-data/store';
+import { module, test } from '@warp-drive/diagnostic';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 module('Integration | Graph | Configuration', function (hooks) {
   setupTest(hooks);

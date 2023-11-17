@@ -152,9 +152,9 @@ module('Integration | Graph | Edge Removal', function (hooks) {
          */
 
         // we remove if the record was new or if the relationship was sync (client side delete semantics)
-        let removed = config.useCreate || !config.async;
+        const removed = config.useCreate || !config.async;
         // we clear new records, or sync non-implicit relationships (client side delete semantics)
-        let cleared = config.useCreate || (!config.async && !config.inverseNull);
+        const cleared = config.useCreate || (!config.async && !config.inverseNull);
 
         testFinalState(this, testState, config, { removed, cleared, implicitCleared: true }, assert);
       });

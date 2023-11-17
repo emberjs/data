@@ -1,12 +1,13 @@
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import { module, test } from '@warp-drive/diagnostic';
-import { setupTest } from '@warp-drive/diagnostic/ember';
-
+// Remove this disable once @belongsTo is typed
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { graphFor } from '@ember-data/graph/-private';
 import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
 import type { Graph } from '@ember-data/graph/-private/graph';
 import Model, { attr, belongsTo } from '@ember-data/model';
 import type Store from '@ember-data/store';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import { module, test } from '@warp-drive/diagnostic';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 module('Integration | Graph | Unload', function (hooks) {
   setupTest(hooks);

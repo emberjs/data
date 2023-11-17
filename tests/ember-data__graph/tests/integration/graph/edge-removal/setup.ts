@@ -1,8 +1,4 @@
-import { TestContext } from '@ember/test-helpers';
-
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { EmberHooks } from '@warp-drive/diagnostic';
-import { setupTest } from '@warp-drive/diagnostic/ember';
+import type { TestContext } from '@ember/test-helpers';
 
 import { graphFor } from '@ember-data/graph/-private';
 import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection';
@@ -11,7 +7,9 @@ import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
 import type { Graph, GraphEdge } from '@ember-data/graph/-private/graph';
 import type Model from '@ember-data/model';
 import type Store from '@ember-data/store';
+import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
 import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
 import type {
   CollectionResourceDocument,
@@ -19,7 +17,8 @@ import type {
   JsonApiDocument,
   SingleResourceDocument,
 } from '@warp-drive/core-types/spec/raw';
-import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
+import type { EmberHooks } from '@warp-drive/diagnostic';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 class AbstractMap {
   constructor(
@@ -29,7 +28,7 @@ class AbstractMap {
   ) {}
 
   has(identifier: StableRecordIdentifier) {
-    let graph = graphFor(this.store);
+    const graph = graphFor(this.store);
     return graph.identifiers.has(identifier);
   }
 }
@@ -53,10 +52,10 @@ class AbstractGraph {
 
   getImplicit(identifier: StableRecordIdentifier): Record<string, ImplicitEdge> {
     const rels = graphFor(this.store).identifiers.get(identifier);
-    let implicits = Object.create(null) as Record<string, ImplicitEdge>;
+    const implicits = Object.create(null) as Record<string, ImplicitEdge>;
     if (rels) {
       Object.keys(rels).forEach((key) => {
-        let rel = rels[key]!;
+        const rel = rels[key]!;
         if (rel && isImplicit(rel)) {
           implicits[key] = rel;
         }

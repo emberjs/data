@@ -1,12 +1,13 @@
-import { module, test } from '@warp-drive/diagnostic';
-import { setupTest } from '@warp-drive/diagnostic/ember';
-
+// Remove this disable once @belongsTo is typed
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { graphFor } from '@ember-data/graph/-private';
 import type { Graph } from '@ember-data/graph/-private/graph';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import { peekCache } from '@ember-data/store/-private';
+import { module, test } from '@warp-drive/diagnostic';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 import { stateOf } from './edge-removal/setup';
 
@@ -71,7 +72,7 @@ module('Integration | Graph | Edges', function (hooks) {
         'We still have no record data instance after push of only an identifier within a relationship'
       );
 
-      let state = stateOf(graph, bestFriend);
+      const state = stateOf(graph, bestFriend);
       assert.deepEqual(state.remote, [identifier2], 'Our initial canonical state is correct');
       assert.deepEqual(state.local, [identifier2], 'Our initial current state is correct');
 
