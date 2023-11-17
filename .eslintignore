@@ -5,6 +5,7 @@
 
 # compiled output
 **/dist/
+**/dist-*/
 **/dist-control/
 **/dist-experiment/
 **/tmp/
