@@ -358,8 +358,8 @@ export default class JSONAPICache implements Cache {
       const rels = graph.identifiers.get(identifier);
       if (rels) {
         Object.keys(rels).forEach((key) => {
-          const rel = rels[key]!;
-          if (rel.definition.isImplicit) {
+          const rel = rels[key];
+          if (!rel || rel.definition.isImplicit) {
             return;
           }
           relationships[key] = (rel as ManyRelationship | BelongsToRelationship).getData();

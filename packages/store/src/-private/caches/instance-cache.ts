@@ -268,7 +268,8 @@ export class InstanceCache {
           `Cannot create a record for ${identifier.type + ':' + String(identifier.id)} (${
             identifier.lid
           }) as no resource data exists`,
-          cache.peek(identifier)
+          // @ts-expect-error managedVersion is private and debug only
+          Boolean(cache.managedVersion === '1' || cache.peek(identifier))
         );
         record = this.store.instantiateRecord(
           identifier,
