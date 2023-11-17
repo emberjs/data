@@ -1,17 +1,16 @@
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
-import { module, test } from '@warp-drive/diagnostic';
-
 import Cache from '@ember-data/json-api';
 import type Model from '@ember-data/model';
 import type { StructuredDataDocument } from '@ember-data/request';
 import Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
-import { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
+import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
 import type { CollectionResourceDataDocument } from '@warp-drive/core-types/spec/document';
 import type { CollectionResourceDocument } from '@warp-drive/core-types/spec/raw';
+import { module, test } from '@warp-drive/diagnostic';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
 class TestStore extends Store {
@@ -24,7 +23,7 @@ class TestStore extends Store {
     const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
     Object.assign(record, (this.cache.peek(identifier) as JsonApiResource).attributes);
 
-    let token = this.notifications.subscribe(
+    const token = this.notifications.subscribe(
       identifier,
       (_: StableRecordIdentifier, kind: NotificationType, key?: string) => {
         if (kind === 'attributes' && key) {
@@ -161,7 +160,6 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
   test('resources are accessible via `peek`', function (assert) {
     const store = new TestStore();
     store.registerSchema(new TestSchema());
-    debugger;
 
     const responseDocument = store.cache.put({
       content: {
@@ -337,9 +335,9 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
 
     assert.deepEqual(responseDocument!.data, [identifier1], 'We were given the correct data back');
 
-    let resourceData1 = store.cache.peek(identifier1);
-    let resourceData2 = store.cache.peek(identifier2);
-    let resourceData3 = store.cache.peek(identifier3);
+    const resourceData1 = store.cache.peek(identifier1);
+    const resourceData2 = store.cache.peek(identifier2);
+    const resourceData3 = store.cache.peek(identifier3);
 
     assert.deepEqual(
       resourceData1,

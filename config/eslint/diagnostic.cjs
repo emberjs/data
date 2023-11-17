@@ -12,6 +12,7 @@ function defaults(config = {}) {
       }),
       config?.rules,
       {
+        'qunit/require-expect': 'off',
         'qunit/no-assert-equal': 'off',
         'qunit/no-conditional-assertions': 'off',
         'qunit/no-ok-equality': 'off',

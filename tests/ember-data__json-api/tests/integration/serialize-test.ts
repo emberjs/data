@@ -1,14 +1,13 @@
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import { module, test } from '@warp-drive/diagnostic';
-
 import Cache from '@ember-data/json-api';
 import { serializePatch, serializeResources } from '@ember-data/json-api/request';
 import Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
 import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
-import type { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
 import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
+import { module, test } from '@warp-drive/diagnostic';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
 class TestStore extends Store {
@@ -21,7 +20,7 @@ class TestStore extends Store {
     const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
     Object.assign(record, (this.cache.peek(identifier) as JsonApiResource).attributes);
 
-    let token = this.notifications.subscribe(
+    const token = this.notifications.subscribe(
       identifier,
       (_: StableRecordIdentifier, kind: NotificationType, key?: string) => {
         if (kind === 'attributes' && key) {
