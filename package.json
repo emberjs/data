@@ -138,11 +138,11 @@
   "dependencies": {},
   "engines": {
     "node": "^14.8.0 || 16.* || >= 18.*",
-    "yarn": "1.22.19"
+    "yarn": "1.22.21"
   },
   "volta": {
     "node": "16.16.0",
-    "yarn": "1.22.19"
+    "yarn": "1.22.21"
   },
   "changelog": {
     "labels": {
