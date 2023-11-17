@@ -32,7 +32,7 @@ module('acceptance/tracking-transactions', function (hooks) {
           const records = arr.filter((r) => r.isNew);
           if (records.length === 0) {
             // invalidate length
-            let record = this.store.createRecord('widget', { name: 'Chris' });
+            const record = this.store.createRecord('widget', { name: 'Chris' });
             records.push(record);
           }
           return records;
@@ -40,7 +40,7 @@ module('acceptance/tracking-transactions', function (hooks) {
       }
     }
 
-    let layout = hbs`
+    const layout = hbs`
       <ul>
         {{#each this.widgets as |widget|}}
           <li>{{widget.name}} {{if widget.isValid 'Is Valid' 'Is Invalid'}}</li>
@@ -84,7 +84,7 @@ module('acceptance/tracking-transactions', function (hooks) {
         const records = arr.filter((r) => r.isNew);
         if (records.length === 0) {
           // invalidate length
-          let record = this.store.createRecord('widget', { name });
+          const record = this.store.createRecord('widget', { name });
           records.push(record);
         }
         return records;
@@ -96,7 +96,7 @@ module('acceptance/tracking-transactions', function (hooks) {
       }
     }
 
-    let layout = hbs`
+    const layout = hbs`
       <ul>
         {{#each this.widgets as |widget|}}
           <li>{{widget.name}} {{if widget.isValid 'Is Valid' 'Is Invalid'}}</li>
@@ -175,7 +175,7 @@ module('acceptance/tracking-transactions', function (hooks) {
       }
     }
 
-    let layout = hbs`
+    const layout = hbs`
       <ul>
         {{#each this.widgets.data as |widget|}}
           <li>{{widget.name}} {{if widget.isValid 'Is Valid' 'Is Invalid'}}</li>

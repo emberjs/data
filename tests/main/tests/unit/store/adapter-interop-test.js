@@ -16,7 +16,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
   test('Calling Store#find invokes its adapter#find', async function (assert) {
     assert.expect(5);
 
-    let currentStore = this.owner.lookup('service:store');
+    const currentStore = this.owner.lookup('service:store');
 
     const ApplicationAdapter = Adapter.extend({
       findRecord(store, type, id, snapshot) {
@@ -70,7 +70,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
     this.owner.register('model:test', Model.extend());
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     await Promise.all([store.findRecord('test', '1'), store.findRecord('test', '2')]);
   });
@@ -130,7 +130,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
     this.owner.register('model:test', Model.extend());
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     await Promise.all(
       Object.keys(includedResourcesForIds).map((id) =>
@@ -152,7 +152,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
     this.owner.register('model:test', Model.extend({ name: attr() }));
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     await store.findRecord('test', '1').then((object) => {
       assert.strictEqual(object.name, 'Scumbag Dale', 'the data was pushed');
@@ -173,7 +173,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
     this.owner.register('model:test', Model.extend({ name: attr() }));
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     await store
       .findRecord('test', 1)
@@ -218,7 +218,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     store.push({
       data: {
@@ -250,7 +250,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
   test('loadMany takes an optional Object and passes it on to the Adapter', async function (assert) {
     assert.expect(2);
 
-    let passedQuery = { page: 1 };
+    const passedQuery = { page: 1 };
 
     const Person = Model.extend({
       name: attr('string'),
@@ -268,13 +268,13 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     await store.query('person', passedQuery);
   });
 
   test('Find with query calls the correct normalizeResponse', async function (assert) {
-    let passedQuery = { page: 1 };
+    const passedQuery = { page: 1 };
     let callCount = 0;
 
     const Person = Model.extend({
@@ -298,7 +298,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', ApplicationSerializer);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     await store.query('person', passedQuery);
 
@@ -313,7 +313,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('model:person', Person);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     store.push({
       data: {
@@ -325,7 +325,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       },
     });
 
-    let results = store.peekAll('person');
+    const results = store.peekAll('person');
 
     assert.strictEqual(results.length, 1, 'record array should have the original object');
     assert.strictEqual(results.at(0).name, 'Tom Dale', 'record has the correct information');
@@ -353,7 +353,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     this.owner.register('model:person', Person);
 
-    let person = this.owner.lookup('service:store').createRecord('person');
+    const person = this.owner.lookup('service:store').createRecord('person');
 
     assert.true(person.isLoaded, 'A newly created record is loaded');
     assert.true(person.isNew, 'A newly created record is new');
@@ -373,7 +373,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
       this.owner.register('model:person', Person);
 
-      let store = this.owner.lookup('service:store');
+      const store = this.owner.lookup('service:store');
 
       store.createRecord('person', { id: '5' });
 
@@ -390,8 +390,8 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let person = store.createRecord('person', { name: 'Brohuda Katz' });
+    const store = this.owner.lookup('service:store');
+    const person = store.createRecord('person', { name: 'Brohuda Katz' });
 
     assert.true(person.isLoaded, 'A newly created record is loaded');
     assert.true(person.isNew, 'A newly created record is new');
@@ -414,9 +414,9 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('model:person', Person);
     this.owner.register('adapter:application', ApplicationAdapter);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let person = store.createRecord('person', { id: '1', name: 'Brohuda Katz' });
+    const person = store.createRecord('person', { id: '1', name: 'Brohuda Katz' });
 
     await store.findRecord('person', '1').then((again) => {
       assert.strictEqual(person, again, 'the store returns the loaded object');
@@ -441,7 +441,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     await store.findRecord('test', '1', { preload: { name: 'Test' } });
   });
@@ -465,7 +465,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     store.push({
       data: {
@@ -477,7 +477,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       },
     });
 
-    let tom = store.peekRecord('person', 2);
+    const tom = store.peekRecord('person', 2);
     await store.findRecord('person', 1, { preload: { friend: tom } });
   });
 
@@ -499,7 +499,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     await store.findRecord('person', '1', { preload: { friend: '2' } }).then(() => {
       return store.peekRecord('person', '1').friend.then((friend) => {
@@ -527,7 +527,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     store.push({
       data: {
@@ -539,7 +539,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       },
     });
 
-    let tom = store.peekRecord('person', '2');
+    const tom = store.peekRecord('person', '2');
     await store.findRecord('person', '1', { preload: { friends: [tom] } });
   });
 
@@ -562,7 +562,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     await store.findRecord('person', '1', { preload: { friends: ['2'] } });
   });
@@ -586,12 +586,12 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     await store.findRecord('person', '1', { preload: { friends: [] } });
   });
 
-  test('initial values of hasMany can be passed in as the third argument to find as ids', async function (assert) {
+  test('initial values of hasMany can be passed in as the third argument to find as ids, v2', async function (assert) {
     assert.expect(1);
 
     const Person = Model.extend({
@@ -610,7 +610,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     await store.findRecord('person', '1', { preload: { friends: [] } });
   });
@@ -641,11 +641,11 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let people = store.peekAll('person');
-    let tom = store.createRecord('person', { name: 'Tom Dale' });
-    let yehuda = store.createRecord('person', { name: 'Yehuda Katz' });
+    const people = store.peekAll('person');
+    const tom = store.createRecord('person', { name: 'Tom Dale' });
+    const yehuda = store.createRecord('person', { name: 'Yehuda Katz' });
 
     await Promise.all([tom.save(), yehuda.save()]).then(() => {
       people.forEach((person, index) => {
@@ -668,7 +668,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       },
 
       findMany(store, type, ids, snapshots) {
-        let records = ids.map((id) => ({ id, type: 'test' }));
+        const records = ids.map((id) => ({ id, type: 'test' }));
 
         assert.deepEqual(ids, ['20', '21'], 'The second group is passed to findMany');
 
@@ -680,9 +680,9 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let identifiers = [
+    const identifiers = [
       store.identifierCache.getOrCreateRecordIdentifier({ type: 'test', id: '10' }),
       store.identifierCache.getOrCreateRecordIdentifier({ type: 'test', id: '20' }),
       store.identifierCache.getOrCreateRecordIdentifier({ type: 'test', id: '21' }),
@@ -690,7 +690,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
     const result = await Promise.all(identifiers.map((id) => store.findRecord(id)));
 
-    let ids = result.map((x) => x.id);
+    const ids = result.map((x) => x.id);
     assert.deepEqual(ids, ['10', '20', '21'], 'The promise fulfills with the identifiers');
   });
 
@@ -705,7 +705,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       },
 
       findRecord(store, type, id, snapshot) {
-        let record = { id, type: 'test' };
+        const record = { id, type: 'test' };
 
         return new Promise(function (resolve, reject) {
           if (id === 'igor') {
@@ -724,11 +724,11 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
     this.owner.register('adapter:application', ApplicationAdapter);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let david = store.findRecord('test', 'david');
-    let igor = store.findRecord('test', 'igor');
-    let wait = [];
+    const david = store.findRecord('test', 'david');
+    const igor = store.findRecord('test', 'igor');
+    const wait = [];
 
     wait.push(
       igor.then(() => {
@@ -756,7 +756,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       },
 
       findRecord(store, type, id, snapshot) {
-        let record = { id, type: 'test' };
+        const record = { id, type: 'test' };
 
         return new Promise((resolve, reject) => {
           if (id === 'igor') {
@@ -775,11 +775,11 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
     this.owner.register('adapter:application', ApplicationAdapter);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let david = store.findRecord('test', 'david');
-    let igor = store.findRecord('test', 'igor');
-    let wait = [];
+    const david = store.findRecord('test', 'david');
+    const igor = store.findRecord('test', 'igor');
+    const wait = [];
 
     wait.push(
       igor.catch(() => {
@@ -803,7 +803,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
 
       const ApplicationAdapter = Adapter.extend({
         findMany(store, type, ids, snapshots) {
-          let records = ids.map((id) => ({ id, type: 'test' }));
+          const records = ids.map((id) => ({ id, type: 'test' }));
           return { data: [records[0]] };
         },
       });
@@ -812,11 +812,11 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
       this.owner.register('adapter:application', ApplicationAdapter);
       this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-      let store = this.owner.lookup('service:store');
+      const store = this.owner.lookup('service:store');
 
       await assert.expectWarning(async () => {
-        let david = store.findRecord('test', 'david');
-        let igor = store.findRecord('test', 'igor');
+        const david = store.findRecord('test', 'david');
+        const igor = store.findRecord('test', 'igor');
 
         try {
           await Promise.all([david, igor]);
@@ -835,7 +835,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     assert.expect(3);
     const ApplicationAdapter = Adapter.extend({
       findMany(store, type, ids, snapshots) {
-        let records = ids.map((id) => ({ id, type: 'test' })).filter(({ id }) => id === 'david');
+        const records = ids.map((id) => ({ id, type: 'test' })).filter(({ id }) => id === 'david');
 
         return { data: [records[0]] };
       },
@@ -845,13 +845,13 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     let igorDidReject = true;
 
     await assert.expectWarning(
       async () => {
-        let wait = [];
+        const wait = [];
         wait.push(store.findRecord('test', 'david'));
         wait.push(
           store.findRecord('test', 'igor').catch((e) => {
@@ -892,7 +892,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     await store.findRecord('person', '1');
   });
@@ -917,7 +917,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     store.push({
       data: {
@@ -947,7 +947,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     store.push({
       data: {
@@ -985,7 +985,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     store.push({
       data: {
@@ -1017,7 +1017,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     store.push({
       data: {
@@ -1055,7 +1055,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     const record = store.push({
       data: {
@@ -1090,7 +1090,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     await store.findAll('person');
   });
@@ -1117,7 +1117,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     await store.findAll('person').then((records) => {
       assert.strictEqual(records.at(0).name, 'Tom');
@@ -1148,7 +1148,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     await store.findAll('person').then((records) => {
       assert.strictEqual(records[0].name, 'Tom');
@@ -1177,7 +1177,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     await store.findAll('person').then((records) => {
       assert.strictEqual(records.at(0), undefined);
@@ -1214,7 +1214,7 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     store.push({ data: [{ id: '1', type: 'person', attributes: { name: 'John' } }] });
 

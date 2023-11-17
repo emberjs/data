@@ -11,14 +11,14 @@ module('Unit - snapshot-record-array', function (hooks) {
   setupTest(hooks);
 
   test('constructor', function (assert) {
-    let array = A([1, 2]);
+    const array = A([1, 2]);
     array.content = [1, 2];
-    let options = {
+    const options = {
       adapterOptions: 'some options',
       include: 'include me',
     };
 
-    let snapshot = new SnapshotRecordArray(
+    const snapshot = new SnapshotRecordArray(
       {
         peekAll() {
           return array;
@@ -52,21 +52,21 @@ module('Unit - snapshot-record-array', function (hooks) {
       },
     });
 
-    let options = {
+    const options = {
       adapterOptions: 'some options',
       include: 'include me',
     };
     let didTakeSnapshot = 0;
-    let snapshotsTaken = [];
+    const snapshotsTaken = [];
 
     const create = store._fetchManager.createSnapshot;
     store._fetchManager.createSnapshot = function () {
       didTakeSnapshot++;
-      let snapshot = create.apply(this, arguments);
+      const snapshot = create.apply(this, arguments);
       snapshotsTaken.push(snapshot);
       return snapshot;
     };
-    let snapshot = new SnapshotRecordArray(store, 'dog', options);
+    const snapshot = new SnapshotRecordArray(store, 'dog', options);
 
     assert.strictEqual(didTakeSnapshot, 0, 'no shapshot should yet be taken');
     assert.strictEqual(snapshot.snapshots()[0], snapshotsTaken[0], 'should be correct snapshot');

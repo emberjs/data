@@ -479,7 +479,7 @@ module('integration/adapter/rest_adapter - REST Adapter - createRecord', functio
     const commentCount = post.comments.length;
     assert.strictEqual(commentCount, 1, 'the post starts life with a comment');
 
-    let comment = store.createRecord('comment', { name: 'Another Comment', post: post });
+    const comment = store.createRecord('comment', { name: 'Another Comment', post: post });
     await comment.save();
     assert.strictEqual(comment.post, post, 'the comment is related to the post');
 

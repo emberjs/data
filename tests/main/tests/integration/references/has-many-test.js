@@ -36,7 +36,7 @@ module('integration/references/has-many', function (hooks) {
   });
 
   testInDebug("record#hasMany asserts when specified relationship doesn't exist", function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     const family = store.push({
       data: {
@@ -53,7 +53,7 @@ module('integration/references/has-many', function (hooks) {
   testInDebug(
     "record#hasMany asserts when the type of the specified relationship isn't the requested one",
     function (assert) {
-      let store = this.owner.lookup('service:store');
+      const store = this.owner.lookup('service:store');
 
       const person = store.push({
         data: {
@@ -69,7 +69,7 @@ module('integration/references/has-many', function (hooks) {
   );
 
   test('record#hasMany', function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     const family = store.push({
       data: {
@@ -94,7 +94,7 @@ module('integration/references/has-many', function (hooks) {
   });
 
   test('record#hasMany for linked references', function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     const family = store.push({
       data: {
@@ -116,7 +116,7 @@ module('integration/references/has-many', function (hooks) {
   });
 
   test('HasManyReference#meta() returns the most recent meta for the relationship', function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     const family = store.push({
       data: {
@@ -138,17 +138,17 @@ module('integration/references/has-many', function (hooks) {
   });
 
   test('HasManyReference#value() does not create accidental autotracking errors', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let family = store.push({
+    const store = this.owner.lookup('service:store');
+    const family = store.push({
       data: {
         type: 'family',
         id: '1',
       },
     });
 
-    let personsReference = family.hasMany('persons');
+    const personsReference = family.hasMany('persons');
     let renderedValue;
-    let context = await createTrackingContext(this.owner, {
+    const context = await createTrackingContext(this.owner, {
       get value() {
         renderedValue = personsReference.value();
         return renderedValue;
@@ -175,7 +175,7 @@ module('integration/references/has-many', function (hooks) {
 
     assert.strictEqual(renderedValue, null, 'We have no value yet, we are still not loaded');
 
-    let person1 = store.push({
+    const person1 = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -226,7 +226,7 @@ module('integration/references/has-many', function (hooks) {
 
     await context.render();
 
-    let person2 = store.peekRecord('person', '2');
+    const person2 = store.peekRecord('person', '2');
     assert.notStrictEqual(person2, null, 'we have a person');
     assert.strictEqual(renderedValue.length, 2, 'We have two values');
     assert.strictEqual(renderedValue.at(0), person1, 'We have the right value[0]');
@@ -275,7 +275,7 @@ module('integration/references/has-many', function (hooks) {
       @belongsTo('family', { async: true, inverse: 'persons', as: 'person' }) family;
     }
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     this.owner.register('model:family', Family);
     this.owner.register('model:person', Person);
@@ -323,7 +323,7 @@ module('integration/references/has-many', function (hooks) {
   });
 
   testInDebug('push(object) supports legacy, non-JSON-API-conform payload', async function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     var family = store.push({
       data: {
@@ -389,7 +389,7 @@ module('integration/references/has-many', function (hooks) {
   });
 
   test('value() returns null when reference is not yet loaded', function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     var family = store.push({
       data: {
@@ -411,7 +411,7 @@ module('integration/references/has-many', function (hooks) {
   });
 
   test('value() returns the referenced records when all records are loaded', function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     var family = store.push({
       data: {
@@ -437,7 +437,7 @@ module('integration/references/has-many', function (hooks) {
   });
 
   test('value() returns an empty array when the reference is loaded and empty', function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     var family = store.push({
       data: {
@@ -457,7 +457,7 @@ module('integration/references/has-many', function (hooks) {
   });
 
   test('_isLoaded() returns an true array when the reference is loaded and empty', function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     var family = store.push({
       data: {
@@ -477,8 +477,8 @@ module('integration/references/has-many', function (hooks) {
   });
 
   test('load() fetches the referenced records', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     const adapterOptions = { thing: 'one' };
 
@@ -516,8 +516,8 @@ module('integration/references/has-many', function (hooks) {
   });
 
   test('load() fetches link when remoteType is link', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     const adapterOptions = { thing: 'one' };
 
@@ -555,8 +555,8 @@ module('integration/references/has-many', function (hooks) {
   });
 
   test('load() fetches link when remoteType is link but an empty set of records is returned', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     const adapterOptions = { thing: 'one' };
 
@@ -567,7 +567,7 @@ module('integration/references/has-many', function (hooks) {
       return Promise.resolve({ data: [] });
     };
 
-    let family = store.push({
+    const family = store.push({
       data: {
         type: 'family',
         id: '1',
@@ -579,7 +579,7 @@ module('integration/references/has-many', function (hooks) {
       },
     });
 
-    let personsReference = family.hasMany('persons');
+    const personsReference = family.hasMany('persons');
     assert.strictEqual(personsReference.remoteType(), 'link');
 
     await personsReference.load({ adapterOptions }).then((records) => {
@@ -589,10 +589,10 @@ module('integration/references/has-many', function (hooks) {
   });
 
   test('load() - only a single find is triggered', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
     let resolveRequest;
-    let defered = new Promise((resolve) => {
+    const defered = new Promise((resolve) => {
       resolveRequest = resolve;
     });
     let count = 0;
@@ -640,8 +640,8 @@ module('integration/references/has-many', function (hooks) {
   });
 
   test('reload()', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     const adapterOptions = { thing: 'one' };
 
@@ -681,8 +681,8 @@ module('integration/references/has-many', function (hooks) {
   });
 
   test('reload() fetches link when remoteType is link', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     const adapterOptions = { thing: 'one' };
 
@@ -738,9 +738,9 @@ module('integration/references/has-many', function (hooks) {
 
   test('push record with nested includes (async has-many), chained HasManyReference#value()', async function (assert) {
     assert.expect(3);
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let family = store.push({
+    const family = store.push({
       data: {
         type: 'family',
         id: '1',
@@ -821,10 +821,10 @@ module('integration/references/has-many', function (hooks) {
       ],
     });
 
-    let persons = family.hasMany('persons').value();
+    const persons = family.hasMany('persons').value();
     assert.strictEqual(persons.length, 2);
     persons.forEach((person) => {
-      let pets = person.hasMany('pets').value();
+      const pets = person.hasMany('pets').value();
       assert.strictEqual(pets.length, 2);
     });
   });
@@ -832,8 +832,8 @@ module('integration/references/has-many', function (hooks) {
   test('fetch record with nested includes (async has-many), chained HasManyReference#value', async function (assert) {
     assert.expect(3);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, id, snapshots) {
       return Promise.resolve({
@@ -918,11 +918,11 @@ module('integration/references/has-many', function (hooks) {
       });
     };
 
-    let family = await store.findRecord('family', '1');
-    let persons = family.hasMany('persons').value();
+    const family = await store.findRecord('family', '1');
+    const persons = family.hasMany('persons').value();
     assert.strictEqual(persons.length, 2);
     persons.forEach((person) => {
-      let pets = person.hasMany('pets').value();
+      const pets = person.hasMany('pets').value();
       assert.strictEqual(pets.length, 2);
     });
   });

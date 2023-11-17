@@ -18,16 +18,16 @@ module('integration/adapter/serialize - DS.Adapter integration test', function (
     this.owner.register('adapter:application', Adapter.extend());
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
-    let serializer = store.serializerFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+    const serializer = store.serializerFor('application');
 
     serializer.serialize = function (snapshot, options) {
       assert.deepEqual(options, { foo: 'bar' });
       return {};
     };
 
-    let person = store.createRecord('person');
+    const person = store.createRecord('person');
 
     adapter.serialize(person._createSnapshot(), { foo: 'bar' });
   });

@@ -3,5 +3,6 @@
     "turbo.json": "jsonc"
   },
   "eslint.workingDirectories": [{ "mode": "auto" }, "packages/*", "tests/*"],
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "cSpell.words": ["Moomin"]
 }

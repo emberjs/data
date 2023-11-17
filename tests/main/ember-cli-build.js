@@ -1,4 +1,4 @@
-/* eslint-disable n/no-unpublished-require */
+ 
 'use strict';
 
 const EmberApp = require('ember-cli/lib/broccoli/ember-app');
@@ -38,7 +38,7 @@ module.exports = function (defaults) {
     terserSettings.enabled = false;
   }
 
-  let config = {
+  const config = {
     compatWith,
     includeDataAdapterInProduction: true,
     includeDataAdapter: true,
@@ -57,7 +57,7 @@ module.exports = function (defaults) {
     features: require('@ember-data/private-build-infra/src/features')(isProd),
     env: require('@ember-data/private-build-infra/src/utilities/get-env')(),
   };
-  let app = new EmberApp(defaults, {
+  const app = new EmberApp(defaults, {
     emberData: Object.assign({}, config),
     babel: {
       // this ensures that the same build-time code stripping that is done

@@ -9,7 +9,7 @@ module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', function (h
   let store;
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
     class Book extends Model {
       @attr()
       title;
@@ -38,7 +38,7 @@ module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', function (h
   });
 
   test('using store.push with a null value for a payload in relationships sets the Models relationship to null - sync relationship', function (assert) {
-    let payload = {
+    const payload = {
       data: {
         type: 'book',
         id: '1',
@@ -62,10 +62,10 @@ module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', function (h
     };
 
     store.push(payload);
-    let book = store.peekRecord('book', 1);
+    const book = store.peekRecord('book', 1);
     assert.strictEqual(book.author.id, '1');
 
-    let payloadThatResetsBelongToRelationship = {
+    const payloadThatResetsBelongToRelationship = {
       data: {
         type: 'book',
         id: '1',
@@ -83,7 +83,7 @@ module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', function (h
   });
 
   test('using store.push with a null value for a payload in relationships sets the Models relationship to null - async relationship', function (assert) {
-    let payload = {
+    const payload = {
       data: {
         type: 'async-book',
         id: '1',
@@ -107,9 +107,9 @@ module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', function (h
     };
 
     store.push(payload);
-    let book = store.peekRecord('async-book', 1);
+    const book = store.peekRecord('async-book', 1);
 
-    let payloadThatResetsBelongToRelationship = {
+    const payloadThatResetsBelongToRelationship = {
       data: {
         type: 'async-book',
         id: '1',

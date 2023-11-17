@@ -36,10 +36,10 @@ module('Integration | Records | New Record Unload', function (hooks) {
         },
       },
     });
-    let Pat = store.createRecord('person', { name: 'Patrick Wachter' });
+    const Pat = store.createRecord('person', { name: 'Patrick Wachter' });
     const friends = Matt.hasMany('friends').value();
     friends.push(Pat);
-    let people = store.peekAll('person');
+    const people = store.peekAll('person');
 
     assert.strictEqual(friends.length, 1, 'Matt has friends');
     assert.strictEqual(people.length, 2, 'precond - two people records in the store');
@@ -148,10 +148,10 @@ module('Integration | Records | New Record Unload', function (hooks) {
         },
       },
     });
-    let Pat = store.createRecord('person', { name: 'Patrick Wachter' });
+    const Pat = store.createRecord('person', { name: 'Patrick Wachter' });
     const friends = Matt.hasMany('friends').value();
     friends.push(Pat);
-    let people = store.peekAll('person');
+    const people = store.peekAll('person');
 
     assert.strictEqual(friends.length, 1, 'Matt has friends');
     assert.strictEqual(people.length, 2, 'precond - two people records in the store');
@@ -191,10 +191,10 @@ module('Integration | Records | New Record Unload', function (hooks) {
         },
       },
     });
-    let Pat = store.createRecord('person', { name: 'Patrick Wachter' });
+    const Pat = store.createRecord('person', { name: 'Patrick Wachter' });
     const friends = Matt.hasMany('friends').value();
     friends.push(Pat);
-    let people = store.peekAll('person');
+    const people = store.peekAll('person');
 
     assert.strictEqual(friends.length, 1, 'Matt has friends');
     assert.strictEqual(people.length, 2, 'precond - two people records in the store');
@@ -241,10 +241,10 @@ module('Integration | Records | New Record Unload', function (hooks) {
         },
       },
     });
-    let Pat = store.createRecord('person', { name: 'Patrick Wachter' });
+    const Pat = store.createRecord('person', { name: 'Patrick Wachter' });
     const friends = Matt.hasMany('friends').value();
     friends.push(Pat);
-    let people = store.peekAll('person');
+    const people = store.peekAll('person');
 
     assert.strictEqual(friends.length, 1, 'Matt has friends');
     assert.strictEqual(people.length, 2, 'precond - two people records in the store');
@@ -291,10 +291,10 @@ module('Integration | Records | New Record Unload', function (hooks) {
         },
       },
     });
-    let Pat = store.createRecord('person', { name: 'Patrick Wachter' });
+    const Pat = store.createRecord('person', { name: 'Patrick Wachter' });
     const friends = Matt.hasMany('friends').value();
     friends.push(Pat);
-    let people = store.peekAll('person');
+    const people = store.peekAll('person');
 
     assert.strictEqual(friends.length, 1, 'Matt has friends');
     assert.strictEqual(people.length, 2, 'precond - two people records in the store');
@@ -341,10 +341,10 @@ module('Integration | Records | New Record Unload', function (hooks) {
         },
       },
     });
-    let Pat = store.createRecord('person', { name: 'Patrick Wachter' });
+    const Pat = store.createRecord('person', { name: 'Patrick Wachter' });
     const friends = Matt.hasMany('friends').value();
     friends.push(Pat);
-    let people = store.peekAll('person');
+    const people = store.peekAll('person');
 
     assert.strictEqual(friends.length, 1, 'Matt has friends');
     assert.strictEqual(people.length, 2, 'precond - two people records in the store');
@@ -396,10 +396,10 @@ module('Integration | Records | New Record Unload', function (hooks) {
         },
       },
     });
-    let Pat = store.createRecord('person', { name: 'Patrick Wachter' });
+    const Pat = store.createRecord('person', { name: 'Patrick Wachter' });
     const friends = Matt.hasMany('friends').value();
     friends.push(Pat);
-    let people = store.peekAll('person');
+    const people = store.peekAll('person');
 
     assert.strictEqual(friends.length, 1, 'Matt has friends');
     assert.strictEqual(people.length, 2, 'precond - two people records in the store');

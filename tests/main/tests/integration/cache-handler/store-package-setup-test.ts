@@ -1,31 +1,31 @@
 import { inject as service } from '@ember/service';
 
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
 import Cache from '@ember-data/json-api';
 import { LegacyNetworkHandler } from '@ember-data/legacy-compat';
-import RequestManager, { StructuredDataDocument, StructuredErrorDocument } from '@ember-data/request';
+import type { StructuredDataDocument, StructuredErrorDocument } from '@ember-data/request';
+import RequestManager from '@ember-data/request';
 import type { Context } from '@ember-data/request/-private/context';
 import type { Future, NextFn } from '@ember-data/request/-private/types';
 import Fetch from '@ember-data/request/fetch';
 import Store, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
 import type { Document } from '@ember-data/store/-private/document';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import { Collection } from '@ember-data/store/-private/record-arrays/identifier-array';
+import type { Collection } from '@ember-data/store/-private/record-arrays/identifier-array';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
 import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
-import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
-import {
+import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
+import type { StableDocumentIdentifier,StableExistingRecordIdentifier, StableRecordIdentifier  } from '@warp-drive/core-types/identifier';
+import type {
   CollectionResourceDataDocument,
   ResourceDataDocument,
   SingleResourceDataDocument,
 } from '@warp-drive/core-types/spec/document';
 import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
-import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
 
@@ -67,7 +67,7 @@ class TestStore extends Store {
     const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
     Object.assign(record, (this.cache.peek(identifier) as JsonApiResource).attributes);
 
-    let token = this.notifications.subscribe(
+    const token = this.notifications.subscribe(
       identifier,
       (_: StableRecordIdentifier, kind: NotificationType, key?: string) => {
         if (kind === 'attributes' && key) {
@@ -296,7 +296,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
           const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
           Object.assign(record, (this.cache.peek(identifier) as JsonApiResource).attributes);
 
-          let token = this.notifications.subscribe(
+          const token = this.notifications.subscribe(
             identifier,
             (_: StableRecordIdentifier, kind: NotificationType, key?: string) => {
               if (kind === 'attributes' && key) {
@@ -394,7 +394,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
           const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
           Object.assign(record, (this.cache.peek(identifier) as JsonApiResource).attributes);
 
-          let token = this.notifications.subscribe(
+          const token = this.notifications.subscribe(
             identifier,
             (_: StableRecordIdentifier, kind: NotificationType, key?: string) => {
               if (kind === 'attributes' && key) {
@@ -493,7 +493,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
           const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
           Object.assign(record, (this.cache.peek(identifier) as JsonApiResource).attributes);
 
-          let token = this.notifications.subscribe(
+          const token = this.notifications.subscribe(
             identifier,
             (_: StableRecordIdentifier, kind: NotificationType, key?: string) => {
               if (kind === 'attributes' && key) {

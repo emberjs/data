@@ -1,7 +1,9 @@
+ 
 import 'qunit-dom'; // tell TS consider *.dom extension for assert
 
 import { setComponentTemplate } from '@ember/component';
 import { get } from '@ember/object';
+import type Owner from '@ember/owner';
 import { render, settled } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 
@@ -11,6 +13,7 @@ import { hbs } from 'ember-cli-htmlbars';
 import { setupRenderingTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
+import type Store from '@ember-data/store';
 
 class Tag extends Model {
   @attr('string', {})
@@ -34,14 +37,14 @@ const template = hbs`
 
 interface CurrentTestContext {
   tag: Tag;
-  owner: any;
+  owner: Owner;
 }
 
 module('integration/model.errors', function (hooks) {
   setupRenderingTest(hooks);
 
   hooks.beforeEach(function (this: CurrentTestContext) {
-    let { owner } = this;
+    const { owner } = this;
 
     owner.register('model:tag', Tag);
     // @ts-expect-error
@@ -49,7 +52,8 @@ module('integration/model.errors', function (hooks) {
   });
 
   test('Model errors are autotracked', async function (this: CurrentTestContext, assert) {
-    this.tag = this.owner.lookup('service:store').createRecord('tag');
+    this.tag = (this.owner.lookup('service:store') as Store).createRecord('tag', {}) as Tag;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const errors: any = get(this.tag, 'errors');
 
     await render(hbs`<ErrorList @model={{this.tag}} @field="name"/>`);

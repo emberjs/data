@@ -36,7 +36,7 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
     // disable background reloading so we do not re-create the relationship.
     adapter.shouldBackgroundReloadRecord = () => false;
 
-    let adam = store.push({
+    const adam = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -98,7 +98,7 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
       },
     });
 
-    let rematerializedPerson = lotus.person;
+    const rematerializedPerson = lotus.person;
     assert.strictEqual(rematerializedPerson.id, '1');
     assert.strictEqual(rematerializedPerson.name, 'Adam Sunderland');
     assert.strictEqual(rematerializedPerson, newAdam);
@@ -124,8 +124,8 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
     this.owner.register('model:person', Person);
     this.owner.register('model:boat', Boat);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     // disable background reloading so we do not re-create the relationship.
     adapter.shouldBackgroundReloadRecord = () => false;
@@ -174,7 +174,7 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
       };
     };
 
-    let adam = store.push({
+    const adam = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -192,7 +192,7 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
       },
     });
 
-    let [boaty] = store.push({
+    const [boaty] = store.push({
       data: [deepCopy(BOAT_ONE), deepCopy(BOAT_TWO)],
     });
 
@@ -220,7 +220,7 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
 
     // cause a rematerialization, this should also cause us to fetch boat '1' again
     boats = await adam.boats;
-    let rematerializedBoaty = boats.at(1);
+    const rematerializedBoaty = boats.at(1);
 
     assert.ok(!!rematerializedBoaty, 'We have a boat!');
     assert.strictEqual(adam.boats.length, 2, 'boats.length correct after rematerialization');

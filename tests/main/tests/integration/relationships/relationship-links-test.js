@@ -227,7 +227,7 @@ module('JSON:API links access on relationships', function (hooks) {
     assert.true(!!links, 'We have a links value on the relationship HasManyReference');
     assert.deepEqual(links.related, { href: '/the/related/link' }, 'The related link is correctly available');
 
-    let link = toolsRef.link();
+    const link = toolsRef.link();
     assert.strictEqual(link, '/the/related/link', 'The related link is unwrapped when accessed directly');
 
     // Test we have access via the ManyArray

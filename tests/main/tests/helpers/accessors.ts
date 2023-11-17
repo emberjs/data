@@ -1,11 +1,10 @@
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-
 import { graphFor } from '@ember-data/graph/-private';
 import type { ImplicitEdge } from '@ember-data/graph/-private/edges/implicit';
 import type { GraphEdge } from '@ember-data/graph/-private/graph';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
 export function getRelationshipStateForRecord(record: { store: Store }, propertyName: string): GraphEdge {
   const identifier = recordIdentifierFor(record);
@@ -31,9 +30,9 @@ export function implicitRelationshipsFor(
   if (!rels) {
     throw new Error(`Expected at least one relationship to be populated`);
   }
-  let implicits = Object.create(null);
+  const implicits = Object.create(null);
   Object.keys(rels).forEach((key) => {
-    let rel = rels[key]!;
+    const rel = rels[key]!;
     if (rel.definition.isImplicit) {
       implicits[key] = rel;
     }

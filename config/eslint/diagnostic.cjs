@@ -12,11 +12,12 @@ function defaults(config = {}) {
       }),
       config?.rules,
       {
-        'qunit/require-expect': 'off',
         'qunit/no-assert-equal': 'off',
         'qunit/no-assert-logical-expression': 'off',
         'qunit/no-conditional-assertions': 'off',
+        'qunit/no-early-return': 'off',
         'qunit/no-ok-equality': 'off',
+        'qunit/require-expect': 'off',
       }
     ),
   };

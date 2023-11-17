@@ -27,7 +27,14 @@ function defaults(config) {
 
 function config(config) {
   const result = {
-    files: ['./.eslintrc.cjs', './babel.config.js', './ember-cli-build.js', './rollup.config.mjs', './testem.js'],
+    files: [
+      './.eslintrc.cjs',
+      './babel.config.js',
+      './ember-cli-build.js',
+      './rollup.config.mjs',
+      './testem.js',
+      './config/ember-try.js',
+    ],
     parserOptions: {
       sourceType: config?.useModules ? 'module' : 'script',
       ecmaVersion: 2022,

@@ -68,7 +68,7 @@ module('integration/store/json-validation', function (hooks) {
       })
     );
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     await assert.expectAssertion(async function () {
       await store.findRecord('person', '1');
@@ -94,7 +94,7 @@ module('integration/store/json-validation', function (hooks) {
       })
     );
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     await assert.expectAssertion(async function () {
       await store.findRecord('person', '1');
@@ -120,7 +120,7 @@ module('integration/store/json-validation', function (hooks) {
       })
     );
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     await assert.expectAssertion(async function () {
       await store.findRecord('person', '1');
@@ -151,7 +151,7 @@ module('integration/store/json-validation', function (hooks) {
         })
       );
 
-      let store = this.owner.lookup('service:store');
+      const store = this.owner.lookup('service:store');
 
       await assert.expectAssertion(async function () {
         await store.findRecord('person', '1');

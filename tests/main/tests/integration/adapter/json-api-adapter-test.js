@@ -114,7 +114,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
       },
     ]);
 
-    let post = await store.findRecord('post', '1');
+    const post = await store.findRecord('post', '1');
 
     assert.strictEqual(passedUrl[0], '/posts/1', 'Builds URL correctly');
     assert.strictEqual(post.id, '1', 'Stores record with correct id');
@@ -185,7 +185,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
       },
     ]);
 
-    let posts = await store.findAll('post');
+    const posts = await store.findAll('post');
 
     assert.strictEqual(passedUrl[0], '/posts');
 
@@ -233,7 +233,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
       },
     ]);
 
-    let posts = await store.query('post', { filter: { id: '1' } });
+    const posts = await store.query('post', { filter: { id: '1' } });
 
     assert.strictEqual(passedUrl[0], '/posts', 'Builds correct URL');
     assert.deepEqual(passedHash[0], { data: { filter: { id: '1' } } }, 'Sends correct params to adapter');
@@ -255,7 +255,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
       },
     ]);
 
-    let post = await store.queryRecord('post', {});
+    const post = await store.queryRecord('post', {});
 
     assert.strictEqual(passedUrl[0], '/posts', 'Builds correc URL');
     assert.strictEqual(post.title, 'Ember.js rocks', 'Sets correct title to record');
@@ -268,7 +268,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
       },
     ]);
 
-    let post = await store.queryRecord('post', {});
+    const post = await store.queryRecord('post', {});
 
     assert.strictEqual(passedUrl[0], '/posts', 'Builds correct URL');
     assert.strictEqual(post, null, 'Returns null when adapter response is null');
@@ -323,14 +323,14 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
       },
     ]);
 
-    let post = await store.findRecord('post', '1');
+    const post = await store.findRecord('post', '1');
 
     assert.strictEqual(passedUrl[0], '/posts/1', 'The primary record post:1 was fetched by the correct url');
 
     assert.strictEqual(post.id, '1', 'Stores record using the correct id');
     assert.strictEqual(post.title, 'Ember.js rocks', 'Sets correct title to record');
 
-    let author = await post.author;
+    const author = await post.author;
 
     assert.strictEqual(
       passedUrl[1],
@@ -373,14 +373,14 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
       },
     ]);
 
-    let post = await store.findRecord('post', '1');
+    const post = await store.findRecord('post', '1');
 
     assert.strictEqual(passedUrl[0], '/posts/1', 'The primary record post:1 was fetched by the correct url');
 
     assert.strictEqual(post.id, '1', 'Stores record using the correct id');
     assert.strictEqual(post.title, 'Ember.js rocks', 'Sets correct title to record');
 
-    let author = await post.author;
+    const author = await post.author;
 
     assert.strictEqual(passedUrl[1], '/users/2', 'The relationship user:2 was fetched by the correct url');
     assert.strictEqual(author.id, '2', 'Record has correct id');
@@ -419,7 +419,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
       },
     ]);
 
-    let user = await store.findRecord('user', '1');
+    const user = await store.findRecord('user', '1');
 
     assert.strictEqual(passedUrl[0], '/users/1', 'The primary record user:1 was fetched by the correct url');
 
@@ -427,7 +427,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
     assert.strictEqual(user.firstName, 'Yehuda', 'Sets correct firstName to record');
     assert.strictEqual(user.lastName, 'Katz', 'Sets correct lastName to record');
 
-    let company = await user.company;
+    const company = await user.company;
 
     assert.strictEqual(
       passedUrl[1],
@@ -470,14 +470,14 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
       },
     ]);
 
-    let post = await store.findRecord('post', '1');
+    const post = await store.findRecord('post', '1');
 
     assert.strictEqual(passedUrl[0], '/posts/1', 'The primary record post:1 was fetched by the correct url');
 
     assert.strictEqual(post.id, '1', 'Record has correct id');
     assert.strictEqual(post.title, 'Ember.js rocks', 'Title is set correctly');
 
-    let author = await post.author;
+    const author = await post.author;
 
     assert.strictEqual(passedUrl.length, 1);
 
@@ -526,13 +526,13 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
       },
     ]);
 
-    let post = await store.findRecord('post', '1');
+    const post = await store.findRecord('post', '1');
 
     assert.strictEqual(passedUrl[0], '/posts/1');
     assert.strictEqual(post.id, '1');
     assert.strictEqual(post.title, 'Ember.js rocks');
 
-    let comments = await post.comments;
+    const comments = await post.comments;
 
     assert.strictEqual(
       passedUrl[1],
@@ -585,13 +585,13 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
       },
     ]);
 
-    let post = await store.findRecord('post', '1');
+    const post = await store.findRecord('post', '1');
 
     assert.strictEqual(passedUrl[0], '/posts/1', 'The primary record post:1 was fetched by the correct url');
     assert.strictEqual(post.id, '1', 'Record id is correct');
     assert.strictEqual(post.title, 'Ember.js rocks', 'Record title is correct');
 
-    let comments = await post.comments;
+    const comments = await post.comments;
 
     assert.strictEqual(passedUrl[1], '/comments/2', 'Builds correct URL to fetch related record');
     assert.strictEqual(passedUrl[2], '/comments/3', 'Builds correct URL to fetch related record');
@@ -642,7 +642,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
       },
     ]);
 
-    let user = await store.findRecord('user', '1');
+    const user = await store.findRecord('user', '1');
 
     assert.strictEqual(passedUrl[0], '/users/1', 'The primary record users:1 was fetched by the correct url');
 
@@ -650,7 +650,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
     assert.strictEqual(user.firstName, 'Yehuda', 'Record firstName is loaded');
     assert.strictEqual(user.lastName, 'Katz', 'Record lastName is loaded');
 
-    let handles = await user.handles;
+    const handles = await user.handles;
 
     assert.strictEqual(passedUrl[1], '/github-handles/2', 'Builds correct URL to fetch related record');
     assert.strictEqual(passedUrl[2], '/twitter-handles/3', 'Builds correct URL to fetch related record');
@@ -699,13 +699,13 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
       },
     ]);
 
-    let post = await store.findRecord('post', '1');
+    const post = await store.findRecord('post', '1');
 
     assert.strictEqual(passedUrl[0], '/posts/1', 'The primary record post:1 was fetched by the correct url');
     assert.strictEqual(post.id, '1', 'Record id is loaded');
     assert.strictEqual(post.title, 'Ember.js rocks', 'Record title is loaded');
 
-    let comments = await post.comments;
+    const comments = await post.comments;
 
     assert.strictEqual(passedUrl.length, 1, 'Do not call extra end points because related records are included');
 
@@ -754,7 +754,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
       },
     ]);
 
-    let user = await store.findRecord('user', '1');
+    const user = await store.findRecord('user', '1');
 
     assert.strictEqual(passedUrl[0], '/users/1');
 
@@ -762,7 +762,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
     assert.strictEqual(user.firstName, 'Yehuda');
     assert.strictEqual(user.lastName, 'Katz');
 
-    let handles = await user.handles;
+    const handles = await user.handles;
 
     assert.strictEqual(passedUrl.length, 1, 'Do not call extra end points because related records are included');
 
@@ -791,7 +791,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
       },
     ]);
 
-    let company = store.push({
+    const company = store.push({
       data: {
         type: 'company',
         id: '1',
@@ -801,7 +801,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
       },
     });
 
-    let githubHandle = store.push({
+    const githubHandle = store.push({
       data: {
         type: 'github-handle',
         id: '2',
@@ -810,7 +810,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
         },
       },
     });
-    let twitterHandle = store.push({
+    const twitterHandle = store.push({
       data: {
         type: 'twitter-handle',
         id: '2',
@@ -820,13 +820,13 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
       },
     });
 
-    let user = store.createRecord('user', {
+    const user = store.createRecord('user', {
       firstName: 'Yehuda',
       lastName: 'Katz',
       company: company,
     });
 
-    let handles = await user.handles;
+    const handles = await user.handles;
 
     handles.push(githubHandle);
     handles.push(twitterHandle);
@@ -882,7 +882,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
       },
     ]);
 
-    let user = store.push({
+    const user = store.push({
       data: {
         type: 'user',
         id: '1',
@@ -893,7 +893,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
       },
     });
 
-    let company = store.push({
+    const company = store.push({
       data: {
         type: 'company',
         id: '2',
@@ -903,7 +903,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
       },
     });
 
-    let githubHandle = store.push({
+    const githubHandle = store.push({
       data: {
         type: 'github-handle',
         id: '3',
@@ -916,7 +916,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
     user.set('firstName', 'Yehuda!');
     user.set('company', company);
 
-    let handles = await user.handles;
+    const handles = await user.handles;
 
     handles.push(githubHandle);
 
@@ -968,7 +968,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
       }
     );
 
-    let user = store.push({
+    const user = store.push({
       data: {
         type: 'user',
         id: '1',
@@ -979,7 +979,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
       },
     });
 
-    let githubHandle = store.push({
+    const githubHandle = store.push({
       data: {
         type: 'github-handle',
         id: '2',
@@ -989,7 +989,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
       },
     });
 
-    let twitterHandle = store.push({
+    const twitterHandle = store.push({
       data: {
         type: 'twitter-handle',
         id: '3',
@@ -1001,7 +1001,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
 
     user.set('firstName', 'Yehuda!');
 
-    let handles = await user.handles;
+    const handles = await user.handles;
 
     handles.push(githubHandle);
     handles.push(twitterHandle);
@@ -1058,11 +1058,11 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', function (hooks)
       },
     ]);
 
-    let post = await store.findRecord('post', '1');
+    const post = await store.findRecord('post', '1');
 
     assert.strictEqual(passedUrl[0], '/posts/1');
 
-    let author = await post.author;
+    const author = await post.author;
 
     assert.strictEqual(passedUrl[1], 'http://example.com/post/1/author');
     assert.strictEqual(author, null);

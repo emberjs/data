@@ -1,16 +1,5 @@
 import EmberObject from '@ember/object';
 
-import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
-import type {
-  RecordIdentifier,
-  StableExistingRecordIdentifier,
-  StableRecordIdentifier,
-} from '@warp-drive/core-types/identifier';
-import type {
-  CollectionResourceDocument,
-  JsonApiDocument,
-  SingleResourceDocument,
-} from '@warp-drive/core-types/spec/raw';
 import { module, test } from 'qunit';
 
 import Store from 'ember-data/store';
@@ -23,18 +12,29 @@ import { recordIdentifierFor } from '@ember-data/store';
 import type { Cache, MergeOperation } from '@ember-data/store/-types/q/cache';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
 import type { JsonApiError, JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
-import { ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core-types/cache';
+import type { ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core-types/cache';
 import type { ResourceBlob } from '@warp-drive/core-types/cache/aliases';
-import { Change } from '@warp-drive/core-types/cache/change';
-import { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
-import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
-import {
+import type { Change } from '@warp-drive/core-types/cache/change';
+import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
+import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
+import type {
+  RecordIdentifier,
+  StableDocumentIdentifier,
+  StableExistingRecordIdentifier,
+  StableRecordIdentifier,
+} from '@warp-drive/core-types/identifier';
+import type {
   CollectionResourceDataDocument,
   ResourceDocument,
   ResourceErrorDocument,
   ResourceMetaDocument,
   SingleResourceDataDocument,
 } from '@warp-drive/core-types/spec/document';
+import type {
+  CollectionResourceDocument,
+  JsonApiDocument,
+  SingleResourceDocument,
+} from '@warp-drive/core-types/spec/raw';
 
 class Person extends Model {
   @attr declare firstName: string;
@@ -105,7 +105,7 @@ class TestRecordData implements Cache {
   version = '2' as const;
 
   _errors?: JsonApiError[];
-  _isNew: boolean = false;
+  _isNew = false;
 
   upsert(
     identifier: StableRecordIdentifier,
@@ -340,6 +340,7 @@ module('integration/record-data Custom RecordData (v2) Errors', function (hooks)
     }) as Model;
 
     const identifier = recordIdentifierFor(person);
+     
     let nameError = person.errors.errorsFor('firstName').objectAt(0);
     assert.strictEqual(nameError, undefined, 'no error shows up on firstName initially');
     assert.true(person.isValid, 'person is initially valid');
@@ -355,13 +356,16 @@ module('integration/record-data Custom RecordData (v2) Errors', function (hooks)
     ];
     storeWrapper.notifyChange(identifier, 'errors');
 
+     
     nameError = person.errors.errorsFor('firstName').objectAt(0);
+     
     assert.strictEqual(nameError?.attribute, 'firstName', 'error shows up on name');
     assert.false(person.isValid, 'person is not valid');
 
     errorsToReturn = [];
     storeWrapper.notifyChange(identifier, 'errors');
 
+     
     assert.strictEqual(person.errors.errorsFor('firstName').length, 0, 'no errors on name');
     assert.true(person.isValid, 'person is valid');
 
@@ -377,8 +381,11 @@ module('integration/record-data Custom RecordData (v2) Errors', function (hooks)
     storeWrapper.notifyChange(identifier, 'errors');
 
     assert.false(person.isValid, 'person is not valid');
+     
     assert.strictEqual(person.errors.errorsFor('firstName').length, 0, 'no errors on firstName');
-    let lastNameError = person.errors.errorsFor('lastName').objectAt(0);
+     
+    const lastNameError = person.errors.errorsFor('lastName').objectAt(0);
+     
     assert.strictEqual(lastNameError?.attribute, 'lastName', 'error shows up on lastName');
   });
 });

@@ -1,6 +1,6 @@
+ 
 import EmberObject, { set } from '@ember/object';
 
-import type { IdentifierBucket, StableIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import { module, test } from 'qunit';
 
 import type Store from 'ember-data/store';
@@ -16,8 +16,14 @@ import {
   setIdentifierUpdateMethod,
 } from '@ember-data/store';
 import type { GenerationMethod, ResourceData } from '@ember-data/store/-types/q/identifier';
+import type {
+  Identifier,
+  IdentifierBucket,
+  StableIdentifier,
+  StableRecordIdentifier,
+} from '@warp-drive/core-types/identifier';
 
-function isNonEmptyString(str: any): str is string {
+function isNonEmptyString(str: unknown): str is string {
   return typeof str === 'string' && str.length > 0;
 }
 
@@ -29,14 +35,17 @@ module('Integration | Identifiers - scenarios', function (hooks) {
   setupTest(hooks);
 
   module('Secondary Cache based on an attribute', function (innerHooks) {
-    let calls;
+    const calls = {
+      findRecord: 0,
+      queryRecord: 0,
+    };
     let isQuery = false;
     let secondaryCache: {
       id: { [key: string]: string };
       username: { [key: string]: string };
     };
     class TestSerializer extends EmberObject {
-      normalizeResponse(_, __, payload) {
+      normalizeResponse(_, __, payload: unknown) {
         return payload;
       }
     }
@@ -84,15 +93,10 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       owner.register('serializer:application', TestSerializer);
       owner.register('model:user', User);
 
-      calls = {
-        findRecord: 0,
-        queryRecord: 0,
-      };
-
       let localIdInc = 9000;
       secondaryCache = {
-        id: Object.create(null),
-        username: Object.create(null),
+        id: Object.create(null) as Record<string, string>,
+        username: Object.create(null) as Record<string, string>,
       };
       const generationMethod: GenerationMethod = (resource: unknown, bucket: IdentifierBucket) => {
         if (bucket !== 'record') {
@@ -111,7 +115,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
           }
 
           let lid = resource.lid;
-          let username = 'attributes' in resource && resource.attributes && resource.attributes.username;
+          const username = 'attributes' in resource && resource.attributes && resource.attributes.username;
 
           // try the username cache
           if (!lid && isNonEmptyString(username)) {
@@ -172,7 +176,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       const recordById = await store.findRecord('user', '1');
       const identifierById = recordIdentifierFor(recordById);
       const recordByUsername = await store.queryRecord('user', { username: '@runspired' });
-      const identifierByUsername = recordIdentifierFor(recordByUsername!);
+      const identifierByUsername = recordIdentifierFor(recordByUsername);
 
       assert.strictEqual(identifierById, identifierByUsername, 'The identifiers should be identical');
       assert.strictEqual(recordById, recordByUsername, 'The records should be identical');
@@ -191,7 +195,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
     test(`queryRecord with username then findRecord with id`, async function (assert) {
       const store = this.owner.lookup('service:store') as unknown as Store;
       const recordByUsername = await store.queryRecord('user', { username: '@runspired' });
-      const identifierByUsername = recordIdentifierFor(recordByUsername!);
+      const identifierByUsername = recordIdentifierFor(recordByUsername);
       const recordById = await store.findRecord('user', '1');
       const identifierById = recordIdentifierFor(recordById);
 
@@ -220,8 +224,8 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       const recordByUsername2 = await recordByUsernamePromise2;
 
       const identifierById = recordIdentifierFor(recordById);
-      const identifierByUsername1 = recordIdentifierFor(recordByUsername1!);
-      const identifierByUsername2 = recordIdentifierFor(recordByUsername2!);
+      const identifierByUsername1 = recordIdentifierFor(recordByUsername1);
+      const identifierByUsername2 = recordIdentifierFor(recordByUsername2);
 
       assert.strictEqual(identifierById, identifierByUsername1, 'The identifiers should be identical');
       assert.strictEqual(identifierById, identifierByUsername2, 'The identifiers should be identical');
@@ -242,11 +246,14 @@ module('Integration | Identifiers - scenarios', function (hooks) {
   });
 
   module('Secondary Cache using an attribute as an alternate id', function (innerHooks) {
-    let calls;
+    const calls = {
+      findRecord: 0,
+      queryRecord: 0,
+    };
     let isQuery = false;
     let secondaryCache: { [key: string]: string };
     class TestSerializer extends EmberObject {
-      normalizeResponse(_, __, payload) {
+      normalizeResponse(_, __, payload: unknown) {
         return payload;
       }
     }
@@ -294,13 +301,8 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       owner.register('serializer:application', TestSerializer);
       owner.register('model:user', User);
 
-      calls = {
-        findRecord: 0,
-        queryRecord: 0,
-      };
-
       let localIdInc = 9000;
-      secondaryCache = Object.create(null);
+      secondaryCache = Object.create(null) as Record<string, string>;
 
       function lidForUser(resource: ResourceData | { type: string }): string {
         if ('type' in resource && resource.type === 'user') {
@@ -308,7 +310,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
             return `local:user:${localIdInc++}`;
           }
           let lid = resource.lid;
-          let username = 'attributes' in resource && resource.attributes && resource.attributes.username;
+          const username = 'attributes' in resource && resource.attributes && resource.attributes.username;
 
           // try the username cache
           if (!lid && isNonEmptyString(username)) {
@@ -385,6 +387,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
           (resource as ResourceData).lid = identifier.lid;
           lidForUser(resource as ResourceData);
         } else {
+          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
           throw new Error(`Unhandled update for ${bucket}`);
         }
       };
@@ -658,7 +661,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
         });
       };
 
-      function updateUsernameCache(identifier, oldUsername, newUsername) {
+      function updateUsernameCache(identifier: Identifier, oldUsername: string, newUsername: string) {
         if (secondaryCache[oldUsername] !== identifier.lid) {
           throw new Error(`Incorrect username update`);
         }
@@ -667,7 +670,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
         }
         secondaryCache[newUsername] = identifier.lid;
       }
-      function commitUsernameUpdate(identifier, oldUsername, newUsername) {
+      function commitUsernameUpdate(identifier: Identifier, oldUsername: string, newUsername: string) {
         if (secondaryCache[oldUsername] === identifier.lid) {
           delete secondaryCache[oldUsername];
         }

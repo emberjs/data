@@ -228,12 +228,12 @@ module('Relationships | unloading new records', function (hooks) {
       ['5'],
       'Precond: entryNode has the correct asyncEdges'
     );
-    let originalRelatedNode = await newNode.relatedGraph;
+    const originalRelatedNode = await newNode.relatedGraph;
     assert.strictEqual(originalRelatedNode, null, 'PreCond: newNode has no relatedGraph yet');
 
     set(newNode, 'relatedGraph', entryNode);
 
-    let value = await newNode.relatedGraph;
+    const value = await newNode.relatedGraph;
     asyncEdges = await entryNode.asyncEdges;
 
     assert.strictEqual(value, entryNode, 'PreCond: We properly set the async belongsTo to the new value');

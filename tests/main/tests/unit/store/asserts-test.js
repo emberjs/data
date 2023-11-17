@@ -11,7 +11,7 @@ import test from '@ember-data/unpublished-test-infra/test-support/test-in-debug'
 module('unit/store/asserts - Store methods produce useful assertion messages', function (hooks) {
   setupTest(hooks);
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
     owner.register('model:foo', class extends Model {});
   });
 

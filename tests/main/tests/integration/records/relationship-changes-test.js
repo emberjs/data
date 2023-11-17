@@ -213,7 +213,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
   test('Calling push with relationship does not trigger observers if the relationship was not changed', async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
     let observerCount = 0;
 
     const person = store.push({

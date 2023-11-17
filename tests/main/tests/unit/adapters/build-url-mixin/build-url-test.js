@@ -28,8 +28,8 @@ module('unit/adapters/build-url-mixin/build-url - BuildURLMixin#buildURL', funct
 
   test('buildURL - find requestType delegates to urlForFindRecord', function (assert) {
     assert.expect(4);
-    let snapshotStub = { snapshot: true };
-    let originalMethod = adapter.urlForFindRecord;
+    const snapshotStub = { snapshot: true };
+    const originalMethod = adapter.urlForFindRecord;
     adapter.urlForFindRecord = function (id, type, snapshot) {
       assert.strictEqual(id, 1);
       assert.strictEqual(type, 'super-user');
@@ -41,8 +41,8 @@ module('unit/adapters/build-url-mixin/build-url - BuildURLMixin#buildURL', funct
 
   test('buildURL - findAll requestType delegates to urlForFindAll', function (assert) {
     assert.expect(3);
-    let originalMethod = adapter.urlForFindAll;
-    let snapshotStub = { snapshot: true };
+    const originalMethod = adapter.urlForFindAll;
+    const snapshotStub = { snapshot: true };
     adapter.urlForFindAll = function (type, snapshot) {
       assert.strictEqual(type, 'super-user');
       assert.strictEqual(snapshot, snapshotStub);
@@ -53,8 +53,8 @@ module('unit/adapters/build-url-mixin/build-url - BuildURLMixin#buildURL', funct
 
   test('buildURL - query requestType delegates to urlForQuery', function (assert) {
     assert.expect(3);
-    let originalMethod = adapter.urlForQuery;
-    let queryStub = { limit: 10 };
+    const originalMethod = adapter.urlForQuery;
+    const queryStub = { limit: 10 };
     adapter.urlForQuery = function (query, type) {
       assert.strictEqual(query, queryStub);
       assert.strictEqual(type, 'super-user');
@@ -65,8 +65,8 @@ module('unit/adapters/build-url-mixin/build-url - BuildURLMixin#buildURL', funct
 
   test('buildURL - queryRecord requestType delegates to urlForQueryRecord', function (assert) {
     assert.expect(3);
-    let originalMethod = adapter.urlForQueryRecord;
-    let queryStub = { companyId: 10 };
+    const originalMethod = adapter.urlForQueryRecord;
+    const queryStub = { companyId: 10 };
     adapter.urlForQueryRecord = function (query, type) {
       assert.strictEqual(query, queryStub);
       assert.strictEqual(type, 'super-user');
@@ -77,8 +77,8 @@ module('unit/adapters/build-url-mixin/build-url - BuildURLMixin#buildURL', funct
 
   test('buildURL - findMany requestType delegates to urlForFindMany', function (assert) {
     assert.expect(3);
-    let originalMethod = adapter.urlForFindMany;
-    let idsStub = [1, 2, 3];
+    const originalMethod = adapter.urlForFindMany;
+    const idsStub = [1, 2, 3];
     adapter.urlForFindMany = function (ids, type) {
       assert.strictEqual(ids, idsStub);
       assert.strictEqual(type, 'super-user');
@@ -89,8 +89,8 @@ module('unit/adapters/build-url-mixin/build-url - BuildURLMixin#buildURL', funct
 
   test('buildURL - findHasMany requestType delegates to urlForFindHasMany', function (assert) {
     assert.expect(4);
-    let originalMethod = adapter.urlForFindHasMany;
-    let snapshotStub = { snapshot: true };
+    const originalMethod = adapter.urlForFindHasMany;
+    const snapshotStub = { snapshot: true };
     adapter.urlForFindHasMany = function (id, type, snapshot) {
       assert.strictEqual(id, 1);
       assert.strictEqual(type, 'super-user');
@@ -102,8 +102,8 @@ module('unit/adapters/build-url-mixin/build-url - BuildURLMixin#buildURL', funct
 
   test('buildURL - findBelongsTo requestType delegates to urlForFindBelongsTo', function (assert) {
     assert.expect(4);
-    let originalMethod = adapter.urlForFindBelongsTo;
-    let snapshotStub = { snapshot: true };
+    const originalMethod = adapter.urlForFindBelongsTo;
+    const snapshotStub = { snapshot: true };
     adapter.urlForFindBelongsTo = function (id, type, snapshot) {
       assert.strictEqual(id, 1);
       assert.strictEqual(type, 'super-user');
@@ -115,8 +115,8 @@ module('unit/adapters/build-url-mixin/build-url - BuildURLMixin#buildURL', funct
 
   test('buildURL - createRecord requestType delegates to urlForCreateRecord', function (assert) {
     assert.expect(3);
-    let snapshotStub = { snapshot: true };
-    let originalMethod = adapter.urlForCreateRecord;
+    const snapshotStub = { snapshot: true };
+    const originalMethod = adapter.urlForCreateRecord;
     adapter.urlForCreateRecord = function (type, snapshot) {
       assert.strictEqual(type, 'super-user');
       assert.strictEqual(snapshot, snapshotStub);
@@ -127,8 +127,8 @@ module('unit/adapters/build-url-mixin/build-url - BuildURLMixin#buildURL', funct
 
   test('buildURL - updateRecord requestType delegates to urlForUpdateRecord', function (assert) {
     assert.expect(4);
-    let snapshotStub = { snapshot: true };
-    let originalMethod = adapter.urlForUpdateRecord;
+    const snapshotStub = { snapshot: true };
+    const originalMethod = adapter.urlForUpdateRecord;
     adapter.urlForUpdateRecord = function (id, type, snapshot) {
       assert.strictEqual(id, 1);
       assert.strictEqual(type, 'super-user');
@@ -140,8 +140,8 @@ module('unit/adapters/build-url-mixin/build-url - BuildURLMixin#buildURL', funct
 
   test('buildURL - deleteRecord requestType delegates to urlForDeleteRecord', function (assert) {
     assert.expect(4);
-    let snapshotStub = { snapshot: true };
-    let originalMethod = adapter.urlForDeleteRecord;
+    const snapshotStub = { snapshot: true };
+    const originalMethod = adapter.urlForDeleteRecord;
     adapter.urlForDeleteRecord = function (id, type, snapshot) {
       assert.strictEqual(id, 1);
       assert.strictEqual(type, 'super-user');

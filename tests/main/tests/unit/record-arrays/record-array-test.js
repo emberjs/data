@@ -18,7 +18,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
   setupTest(hooks);
 
   test('default initial state', async function (assert) {
-    let recordArray = new RecordArray({ type: 'recordType', identifiers: [], store: null });
+    const recordArray = new RecordArray({ type: 'recordType', identifiers: [], store: null });
 
     assert.false(recordArray.isUpdating, 'record is not updating');
     assert.strictEqual(recordArray.modelName, 'recordType', 'has modelName');
@@ -27,8 +27,8 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
   });
 
   test('custom initial state', async function (assert) {
-    let store = {};
-    let recordArray = new RecordArray({
+    const store = {};
+    const recordArray = new RecordArray({
       type: 'apple',
       identifiers: [],
       store,
@@ -40,7 +40,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
   });
 
   testInDebug('Mutation throws error', async function (assert) {
-    let recordArray = new RecordArray({ identifiers: [], type: 'recordType' });
+    const recordArray = new RecordArray({ identifiers: [], type: 'recordType' });
 
     assert.throws(
       () => {
@@ -53,9 +53,9 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
 
   test('#access by index', async function (assert) {
     this.owner.register('model:tag', Tag);
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let records = store.push({
+    const records = store.push({
       data: [
         {
           type: 'tag',
@@ -72,7 +72,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
       ],
     });
 
-    let recordArray = new RecordArray({
+    const recordArray = new RecordArray({
       type: 'recordType',
       identifiers: records.map(recordIdentifierFor),
       store,
@@ -87,7 +87,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
 
   test('#update', async function (assert) {
     let findAllCalled = 0;
-    let deferred = createDeferred();
+    const deferred = createDeferred();
 
     const store = {
       findAll(modelName, options) {
@@ -98,7 +98,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
       },
     };
 
-    let recordArray = new RecordArray({
+    const recordArray = new RecordArray({
       type: 'recordType',
       identifiers: [],
       store,
@@ -108,7 +108,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
 
     assert.strictEqual(findAllCalled, 0);
 
-    let updateResult = recordArray.update();
+    const updateResult = recordArray.update();
 
     assert.strictEqual(findAllCalled, 1);
 
@@ -124,7 +124,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
 
   test('#update while updating', async function (assert) {
     let findAllCalled = 0;
-    let deferred = createDeferred();
+    const deferred = createDeferred();
     const store = {
       findAll(modelName, options) {
         findAllCalled++;
@@ -132,7 +132,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
       },
     };
 
-    let recordArray = new RecordArray({
+    const recordArray = new RecordArray({
       type: 'recordType',
       identifiers: [],
       store,
@@ -141,11 +141,11 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
     assert.false(recordArray.isUpdating, 'should not be updating');
     assert.strictEqual(findAllCalled, 0);
 
-    let updateResult1 = recordArray.update();
+    const updateResult1 = recordArray.update();
 
     assert.strictEqual(findAllCalled, 1);
 
-    let updateResult2 = recordArray.update();
+    const updateResult2 = recordArray.update();
 
     assert.strictEqual(findAllCalled, 1);
 
@@ -163,22 +163,22 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
 
   test('#save', async function (assert) {
     this.owner.register('model:tag', Tag);
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let model1 = {
+    const model1 = {
       id: '1',
       type: 'tag',
     };
-    let model2 = {
+    const model2 = {
       id: '2',
       type: 'tag',
     };
 
-    let [record1, record2] = store.push({
+    const [record1, record2] = store.push({
       data: [model1, model2],
     });
-    let identifiers = [recordIdentifierFor(record1), recordIdentifierFor(record2)];
-    let recordArray = new RecordArray({
+    const identifiers = [recordIdentifierFor(record1), recordIdentifierFor(record2)];
+    const recordArray = new RecordArray({
       identifiers,
       store,
     });
@@ -193,7 +193,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
     assert.strictEqual(model1Saved, 0, 'save not yet called');
     assert.strictEqual(model2Saved, 0, 'save not yet called');
 
-    let result = recordArray.save();
+    const result = recordArray.save();
 
     assert.strictEqual(model1Saved, 1, 'save was called for model1');
     assert.strictEqual(model2Saved, 1, 'save was called for mode2');
@@ -207,12 +207,12 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
     const store = this.owner.lookup('service:store');
     store._fetchManager = new FetchManager(store);
 
-    let model1 = {
+    const model1 = {
       id: '1',
       type: 'tag',
     };
 
-    let model2 = {
+    const model2 = {
       id: '2',
       type: 'tag',
     };
@@ -220,8 +220,8 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
       data: [model1, model2],
     });
 
-    let snapshot = new SnapshotRecordArray(store, 'tag', {});
-    let [snapshot1, snapshot2] = snapshot.snapshots();
+    const snapshot = new SnapshotRecordArray(store, 'tag', {});
+    const [snapshot1, snapshot2] = snapshot.snapshots();
 
     assert.strictEqual(
       snapshot1.id,

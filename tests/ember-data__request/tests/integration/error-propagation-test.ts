@@ -17,7 +17,6 @@ module('RequestManager | Error Propagation', function () {
         assert.ok(true, 'catching handler triggered');
         try {
           // await to catch, else error is curried
-          // eslint-disable-next-line qunit/no-early-return
           return await next(context.request);
         } catch (e) {
           assert.equal((e as Error).message, 'Oops!', 'We caught the error');

@@ -16,8 +16,8 @@ module('unit/store/model_for - DS.Store#modelFor', function (hooks) {
   });
 
   test('when fetching factory from string, sets a normalized key as modelName', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let { __registry__: registry } = this.owner;
+    const store = this.owner.lookup('service:store');
+    const { __registry__: registry } = this.owner;
 
     registry.normalize = (key) => dasherize(camelize(key));
 
@@ -26,8 +26,8 @@ module('unit/store/model_for - DS.Store#modelFor', function (hooks) {
   });
 
   test('when fetching factory from string and dashing normalizer, sets a normalized key as modelName', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let { __registry__: registry } = this.owner;
+    const store = this.owner.lookup('service:store');
+    const { __registry__: registry } = this.owner;
 
     registry.normalize = (key) => dasherize(camelize(key));
 
@@ -36,7 +36,7 @@ module('unit/store/model_for - DS.Store#modelFor', function (hooks) {
   });
 
   testInDebug(`when fetching something that doesn't exist, throws error`, function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     assert.throws(() => {
       store.modelFor('wild-stuff');

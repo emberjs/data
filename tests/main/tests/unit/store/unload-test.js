@@ -16,7 +16,7 @@ module('unit/store/unload - Store unloading records', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    let Record = Model.extend({
+    const Record = Model.extend({
       title: attr('string'),
       wasFetched: attr('boolean'),
     });
@@ -42,7 +42,7 @@ module('unit/store/unload - Store unloading records', function (hooks) {
   testInDebug('unload an in-flight record asserts', async function (assert) {
     assert.expect(2);
 
-    let record = store.push({
+    const record = store.push({
       data: {
         type: 'record',
         id: '1',
@@ -63,7 +63,7 @@ module('unit/store/unload - Store unloading records', function (hooks) {
 
     record.set('title', 'toto2');
     assert.strictEqual(get(record, 'hasDirtyAttributes'), true, 'record is dirty');
-    let promise = record.save();
+    const promise = record.save();
 
     assert.expectAssertion(
       function () {
@@ -103,12 +103,12 @@ module('unit/store/unload - Store unloading records', function (hooks) {
   });
 
   test('unload followed by create of the same type + id', async function (assert) {
-    let record = store.createRecord('record', { id: '1' });
+    const record = store.createRecord('record', { id: '1' });
 
     assert.strictEqual(store.peekRecord('record', 1), record, 'record should exactly equal');
 
     record.unloadRecord();
-    let createdRecord = store.createRecord('record', { id: '1' });
+    const createdRecord = store.createRecord('record', { id: '1' });
     assert.notStrictEqual(record, createdRecord, 'newly created record is fresh (and was created)');
   });
 });
@@ -169,7 +169,7 @@ module('Store - unload record with relationships', function (hooks) {
       })
     );
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     store.push({
       data: [
@@ -196,7 +196,7 @@ module('Store - unload record with relationships', function (hooks) {
     });
 
     let product = store.peekRecord('product', 1);
-    let like = store.createRecord('like', { id: '1', product: product });
+    const like = store.createRecord('like', { id: '1', product: product });
 
     await like.save();
 
