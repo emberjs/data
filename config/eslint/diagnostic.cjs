@@ -40,6 +40,9 @@ function config() {
     rules: {
       // It's ok to use unpublished files here since we don't ship these
       'n/no-unpublished-require': 'off',
+      // TODO: '@warp-drive/diagnostic/server/default-setup.js' keeps setting these off
+      'n/no-missing-import': 'off',
+      'n/no-unpublished-import': 'off',
     },
   };
 }
