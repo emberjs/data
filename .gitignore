@@ -4,6 +4,7 @@
 /docs/
 /packages/-ember-data/docs/
 dist
+dist-*
 tmp
 
 # dependencies
