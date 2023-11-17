@@ -1,10 +1,13 @@
+import { DEBUG } from '@glimmer/env';
+
 import { module, test } from 'qunit';
+
 import { setupTest } from 'ember-qunit';
+
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
-import { DEBUG } from '@glimmer/env';
-import type { ModelSchema } from '@ember-data/types/q/ds-model';
 import type { Snapshot } from '@ember-data/store/-private';
+import type { ModelSchema } from '@ember-data/types/q/ds-model';
 
 class User extends Model {
   @attr declare name: string;
@@ -13,10 +16,10 @@ class User extends Model {
   @hasMany('user', { async: false, inverse: 'frenemies' }) declare frenemies: User[];
 }
 
-module('Emergent Behavior - Recovery', function(hooks) {
+module('Emergent Behavior - Recovery', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function(assert) {
+  hooks.beforeEach(function (assert) {
     this.owner.register('model:user', User);
 
     const store = this.owner.lookup('service:store') as Store;
@@ -25,23 +28,26 @@ module('Emergent Behavior - Recovery', function(hooks) {
         type: 'user',
         id: '1',
         attributes: {
-          name: 'Chris Wagenet'
+          name: 'Chris Wagenet',
         },
         relationships: {
           friends: {
-            data: [{ type: 'user', id: '2' }, { type: 'user', id: '3' }, { type: 'user', id: '4' }]
+            data: [
+              { type: 'user', id: '2' },
+              { type: 'user', id: '3' },
+              { type: 'user', id: '4' },
+            ],
           },
           bestFriend: {
-            data: { type: 'user', id: '2' }
-          }
-        }
-      }
+            data: { type: 'user', id: '2' },
+          },
+        },
+      },
     });
-
   });
 
-  module('belongsTo', function() {
-    test('When a sync relationship is accessed before load', async function(assert) {
+  module('belongsTo', function () {
+    test('When a sync relationship is accessed before load', async function (assert) {
       const store = this.owner.lookup('service:store') as Store;
       const user = store.peekRecord('user', '1') as unknown as User;
 
@@ -52,7 +58,7 @@ module('Emergent Behavior - Recovery', function(hooks) {
         const bestFriend = user.bestFriend;
 
         // in DEBUG we error and should not reach here
-        assert.ok(!DEBUG, 'accessing the relationship should not throw');
+        assert.notOk(DEBUG, 'accessing the relationship should not throw');
         // @ts-expect-error Model is not typed in 4.6
         assert.true(bestFriend.isEmpty, 'the relationship is empty');
         // @ts-expect-error Model is not typed in 4.6
@@ -67,7 +73,7 @@ module('Emergent Behavior - Recovery', function(hooks) {
       }
     });
 
-    test('When a sync relationship is accessed before load and later updated remotely', async function(assert) {
+    test('When a sync relationship is accessed before load and later updated remotely', async function (assert) {
       const store = this.owner.lookup('service:store') as Store;
       const user = store.peekRecord('user', '1') as unknown as User;
 
@@ -75,10 +81,10 @@ module('Emergent Behavior - Recovery', function(hooks) {
 
       // access the relationship before load
       try {
-        const bestFriend = user.bestFriend;
+        user.bestFriend;
 
         // in DEBUG we error and should not reach here
-        assert.ok(!DEBUG, 'accessing the relationship should not throw');
+        assert.notOk(DEBUG, 'accessing the relationship should not throw');
       } catch (e) {
         // In DEBUG we should reach here, in production we should not
         assert.ok(DEBUG, `accessing the relationship should not throw, received ${(e as Error).message}`);
@@ -89,18 +95,18 @@ module('Emergent Behavior - Recovery', function(hooks) {
           type: 'user',
           id: '1',
           relationships: {
-            bestFriend: { data: { type: 'user', id: '3' } }
-          }
+            bestFriend: { data: { type: 'user', id: '3' } },
+          },
         },
         included: [
           {
             type: 'user',
             id: '3',
             attributes: {
-              name: 'Peter'
-            }
-          }
-        ]
+              name: 'Peter',
+            },
+          },
+        ],
       });
 
       // access the relationship again
@@ -109,7 +115,7 @@ module('Emergent Behavior - Recovery', function(hooks) {
       assert.strictEqual(bestFriend.name, 'Peter', 'the relationship is loaded');
     });
 
-    test('When a sync relationship is accessed before load and later mutated', async function(assert) {
+    test('When a sync relationship is accessed before load and later mutated', async function (assert) {
       const store = this.owner.lookup('service:store') as Store;
       const user = store.peekRecord('user', '1') as unknown as User;
 
@@ -117,10 +123,10 @@ module('Emergent Behavior - Recovery', function(hooks) {
 
       // access the relationship before load
       try {
-        const bestFriend = user.bestFriend;
+        user.bestFriend;
 
         // in DEBUG we error and should not reach here
-        assert.ok(!DEBUG, 'accessing the relationship should not throw');
+        assert.notOk(DEBUG, 'accessing the relationship should not throw');
       } catch (e) {
         // In DEBUG we should reach here, in production we should not
         assert.ok(DEBUG, `accessing the relationship should not throw, received ${(e as Error).message}`);
@@ -135,7 +141,7 @@ module('Emergent Behavior - Recovery', function(hooks) {
       assert.strictEqual(bestFriend.name, 'Peter', 'the relationship is loaded');
     });
 
-    test('When a sync relationship is accessed before load and then later sideloaded', async function(assert) {
+    test('When a sync relationship is accessed before load and then later sideloaded', async function (assert) {
       const store = this.owner.lookup('service:store') as Store;
       const user = store.peekRecord('user', '1') as unknown as User;
 
@@ -144,7 +150,7 @@ module('Emergent Behavior - Recovery', function(hooks) {
         const bestFriend = user.bestFriend;
 
         // in DEBUG we error and should not reach here
-        assert.ok(!DEBUG, 'accessing the relationship should not throw');
+        assert.notOk(DEBUG, 'accessing the relationship should not throw');
         assert.strictEqual(bestFriend.name, undefined, 'the relationship name is not present');
       } catch (e) {
         // In DEBUG we should reach here, in production we should not
@@ -157,9 +163,9 @@ module('Emergent Behavior - Recovery', function(hooks) {
           type: 'user',
           id: '2',
           attributes: {
-            name: 'Krystan'
-          }
-        }
+            name: 'Krystan',
+          },
+        },
       });
 
       // access the relationship after sideload
@@ -173,34 +179,37 @@ module('Emergent Behavior - Recovery', function(hooks) {
       }
     });
 
-    test('When a sync relationship is accessed before load and then later attempted to be found via findRecord', async function(assert) {
+    test('When a sync relationship is accessed before load and then later attempted to be found via findRecord', async function (assert) {
       const store = this.owner.lookup('service:store') as Store;
       const user = store.peekRecord('user', '1') as unknown as User;
-      this.owner.register('adapter:application', class {
-        findRecord(store: Store, schema: ModelSchema, id: string, snapshot: Snapshot) {
-          assert.step('findRecord');
-          assert.deepEqual(snapshot._attributes, { name: undefined }, 'the snapshot has the correct attributes');
-          return Promise.resolve({
-            data: {
-              type: 'user',
-              id: '2',
-              attributes: {
-                name: 'Krystan'
-              }
-            }
-          });
+      this.owner.register(
+        'adapter:application',
+        class {
+          findRecord(store: Store, schema: ModelSchema, id: string, snapshot: Snapshot) {
+            assert.step('findRecord');
+            assert.deepEqual(snapshot._attributes, { name: undefined }, 'the snapshot has the correct attributes');
+            return Promise.resolve({
+              data: {
+                type: 'user',
+                id: '2',
+                attributes: {
+                  name: 'Krystan',
+                },
+              },
+            });
+          }
+          static create() {
+            return new this();
+          }
         }
-        static create() {
-          return new this();
-        }
-      });
+      );
 
       // access the relationship before load
       try {
         const bestFriend = user.bestFriend;
 
         // in DEBUG we error and should not reach here
-        assert.ok(!DEBUG, 'accessing the relationship should not throw');
+        assert.notOk(DEBUG, 'accessing the relationship should not throw');
         assert.strictEqual(bestFriend.name, undefined, 'the relationship name is not present');
       } catch (e) {
         // In DEBUG we should reach here, in production we should not
@@ -222,27 +231,30 @@ module('Emergent Behavior - Recovery', function(hooks) {
       }
     });
 
-    test('When a sync relationship is accessed before load and a later attempt to load via findRecord errors', async function(assert) {
+    test('When a sync relationship is accessed before load and a later attempt to load via findRecord errors', async function (assert) {
       const store = this.owner.lookup('service:store') as Store;
       const user = store.peekRecord('user', '1') as unknown as User;
-      this.owner.register('adapter:application', class {
-        findRecord(store: Store, schema: ModelSchema, id: string, snapshot: Snapshot) {
-          assert.step('findRecord');
-          assert.deepEqual(snapshot._attributes, { name: undefined }, 'the snapshot has the correct attributes');
+      this.owner.register(
+        'adapter:application',
+        class {
+          findRecord(store: Store, schema: ModelSchema, id: string, snapshot: Snapshot) {
+            assert.step('findRecord');
+            assert.deepEqual(snapshot._attributes, { name: undefined }, 'the snapshot has the correct attributes');
 
-          return Promise.reject(new Error('404 - Not Found'));
+            return Promise.reject(new Error('404 - Not Found'));
+          }
+          static create() {
+            return new this();
+          }
         }
-        static create() {
-          return new this();
-        }
-      });
+      );
 
       // access the relationship before load
       try {
         const bestFriend = user.bestFriend;
 
         // in DEBUG we error and should not reach here
-        assert.ok(!DEBUG, 'accessing the relationship should not throw');
+        assert.notOk(DEBUG, 'accessing the relationship should not throw');
         assert.strictEqual(bestFriend.name, undefined, 'the relationship name is not present');
       } catch (e) {
         // In DEBUG we should reach here, in production we should not
@@ -275,14 +287,18 @@ module('Emergent Behavior - Recovery', function(hooks) {
         // In DEBUG we should error
         assert.ok(DEBUG, `accessing the relationship should not throw, received ${(e as Error).message}`);
         if (DEBUG) {
-          assert.strictEqual((e as Error).message, `Cannot read properties of null (reading 'name')`, 'we get the expected error');
+          assert.strictEqual(
+            (e as Error).message,
+            `Cannot read properties of null (reading 'name')`,
+            'we get the expected error'
+          );
         }
       }
     });
   });
 
-  module('hasMany', function() {
-    test('When a sync relationship is accessed before load', async function(assert) {
+  module('hasMany', function () {
+    test('When a sync relationship is accessed before load', async function (assert) {
       const store = this.owner.lookup('service:store') as Store;
       const user = store.peekRecord('user', '1') as unknown as User;
 
@@ -293,10 +309,14 @@ module('Emergent Behavior - Recovery', function(hooks) {
         const friends = user.friends;
 
         // in DEBUG we error and should not reach here
-        assert.ok(!DEBUG, 'accessing the relationship should not throw');
+        assert.notOk(DEBUG, 'accessing the relationship should not throw');
         assert.strictEqual(friends.length, 0, 'the relationship is INCORRECTLY empty');
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
         assert.strictEqual(store.peekRecord('user', '2'), null, 'the related record is not in the store');
         assert.strictEqual(store.peekAll('user').length, 1, 'the store has only one record');
       } catch (e) {
@@ -304,12 +324,16 @@ module('Emergent Behavior - Recovery', function(hooks) {
         assert.ok(DEBUG, `accessing the relationship should not throw, received ${(e as Error).message}`);
         assert.strictEqual(store.peekRecord('user', '2'), null, 'the related record is not in the store');
         assert.strictEqual(store.peekAll('user').length, 1, 'the store has only one record');
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       }
     });
 
-    test('When a sync relationship is accessed before load and later updated remotely', async function(assert) {
+    test('When a sync relationship is accessed before load and later updated remotely', async function (assert) {
       const store = this.owner.lookup('service:store') as Store;
       const user = store.peekRecord('user', '1') as unknown as User;
 
@@ -320,15 +344,23 @@ module('Emergent Behavior - Recovery', function(hooks) {
         const friends = user.friends;
 
         // in DEBUG we error and should not reach here
-        assert.ok(!DEBUG, 'accessing the relationship should not throw');
+        assert.notOk(DEBUG, 'accessing the relationship should not throw');
         assert.strictEqual(friends.length, 0, 'the relationship is INCORRECTLY empty');
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       } catch (e) {
         // In DEBUG we should reach here, in production we should not
         assert.ok(DEBUG, `accessing the relationship should not throw, received ${(e as Error).message}`);
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       }
       assert.strictEqual(store.peekAll('user').length, 1, 'the store has only one record');
 
@@ -337,18 +369,18 @@ module('Emergent Behavior - Recovery', function(hooks) {
           type: 'user',
           id: '1',
           relationships: {
-            friends: { data: [{ type: 'user', id: '3' }] }
-          }
+            friends: { data: [{ type: 'user', id: '3' }] },
+          },
         },
         included: [
           {
             type: 'user',
             id: '3',
             attributes: {
-              name: 'Peter'
-            }
-          }
-        ]
+              name: 'Peter',
+            },
+          },
+        ],
       });
 
       // access the relationship again
@@ -357,17 +389,25 @@ module('Emergent Behavior - Recovery', function(hooks) {
 
         assert.ok(true, 'accessing the relationship should not throw');
         assert.strictEqual(friends.length, 1, 'the relationship is NOT empty');
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 1, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          1,
+          'the relationship reference contains the expected ids'
+        );
       } catch (e) {
         assert.ok(false, `accessing the relationship should not throw, received ${(e as Error).message}`);
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 1, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          1,
+          'the relationship reference contains the expected ids'
+        );
       }
       assert.strictEqual(store.peekAll('user').length, 2, 'the store has two records');
     });
 
-    test('When a sync relationship is accessed before load, records are later loaded, and then it is updated by related record deletion', async function(assert) {
+    test('When a sync relationship is accessed before load, records are later loaded, and then it is updated by related record deletion', async function (assert) {
       const store = this.owner.lookup('service:store') as Store;
       const user = store.peekRecord('user', '1') as unknown as User;
 
@@ -378,15 +418,23 @@ module('Emergent Behavior - Recovery', function(hooks) {
         const friends = user.friends;
 
         // in DEBUG we error and should not reach here
-        assert.ok(!DEBUG, 'accessing the relationship should not throw');
+        assert.notOk(DEBUG, 'accessing the relationship should not throw');
         assert.strictEqual(friends.length, 0, 'the relationship is INCORRECTLY empty');
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       } catch (e) {
         // In DEBUG we should reach here, in production we should not
         assert.ok(DEBUG, `accessing the relationship should not throw, received ${(e as Error).message}`);
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       }
       assert.strictEqual(store.peekAll('user').length, 1, 'the store has only one record');
 
@@ -395,25 +443,25 @@ module('Emergent Behavior - Recovery', function(hooks) {
           type: 'user',
           id: '3',
           attributes: {
-            name: 'Peter'
-          }
+            name: 'Peter',
+          },
         },
         included: [
           {
             type: 'user',
             id: '2',
             attributes: {
-              name: 'Krystan'
-            }
+              name: 'Krystan',
+            },
           },
           {
             type: 'user',
             id: '4',
             attributes: {
-              name: 'Rey'
-            }
-          }
-        ]
+              name: 'Rey',
+            },
+          },
+        ],
       });
 
       // access the relationship again
@@ -422,25 +470,36 @@ module('Emergent Behavior - Recovery', function(hooks) {
 
         assert.ok(true, 'accessing the relationship should not throw');
         assert.strictEqual(friends.length, 0, 'the relationship is still INCORRECTLY empty');
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       } catch (e) {
         assert.ok(false, `accessing the relationship should not throw, received ${(e as Error).message}`);
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       }
       assert.strictEqual(store.peekAll('user').length, 4, 'the store has four records');
 
-      this.owner.register('adapter:application', class {
-        deleteRecord(store: Store, schema: ModelSchema, id: string, snapshot: Snapshot) {
-          return Promise.resolve({
-            data: null
-          });
+      this.owner.register(
+        'adapter:application',
+        class {
+          deleteRecord(store: Store, schema: ModelSchema, id: string, snapshot: Snapshot) {
+            return Promise.resolve({
+              data: null,
+            });
+          }
+          static create() {
+            return new this();
+          }
         }
-        static create() {
-          return new this();
-        }
-      });
+      );
 
       store.deleteRecord(peter);
       await store.saveRecord(peter);
@@ -452,17 +511,25 @@ module('Emergent Behavior - Recovery', function(hooks) {
 
         assert.ok(true, 'accessing the relationship should not throw');
         assert.strictEqual(friends.length, 2, 'the relationship state is now correct');
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 2, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          2,
+          'the relationship reference contains the expected ids'
+        );
       } catch (e) {
         assert.ok(false, `accessing the relationship should not throw, received ${(e as Error).message}`);
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 2, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          2,
+          'the relationship reference contains the expected ids'
+        );
       }
       assert.strictEqual(store.peekAll('user').length, 3, 'the store has three records');
     });
 
-    test('When a sync relationship is accessed before load and later updated by remote inverse removal', async function(assert) {
+    test('When a sync relationship is accessed before load and later updated by remote inverse removal', async function (assert) {
       class LocalUser extends Model {
         @attr declare name: string;
         @hasMany('local-user', { async: false, inverse: 'friends' }) declare friends: LocalUser[];
@@ -474,48 +541,60 @@ module('Emergent Behavior - Recovery', function(hooks) {
           type: 'local-user',
           id: '1',
           attributes: {
-            name: 'Chris Wagenet'
+            name: 'Chris Wagenet',
           },
           relationships: {
             friends: {
-              data: [{ type: 'local-user', id: '2' }, { type: 'local-user', id: '3' }, { type: 'local-user', id: '4' }]
-            }
-          }
+              data: [
+                { type: 'local-user', id: '2' },
+                { type: 'local-user', id: '3' },
+                { type: 'local-user', id: '4' },
+              ],
+            },
+          },
         },
         included: [
           {
             type: 'local-user',
             id: '4',
             attributes: {
-              name: 'Krystan'
+              name: 'Krystan',
             },
             relationships: {
               friends: {
-                data: [{ type: 'local-user', id: '1' }]
-              }
-            }
+                data: [{ type: 'local-user', id: '1' }],
+              },
+            },
           },
-        ]
+        ],
       }) as unknown as LocalUser;
       const user2 = store.peekRecord('local-user', '4') as unknown as LocalUser;
 
       assert.strictEqual(user1.name, 'Chris Wagenet', 'precond - user1 is loaded');
       assert.strictEqual(user2.name, 'Krystan', 'precond2 - user is loaded');
 
-       // access the relationship before load
-       try {
+      // access the relationship before load
+      try {
         const friends = user1.friends;
 
         // in DEBUG we error and should not reach here
-        assert.ok(!DEBUG, 'accessing the relationship should not throw');
+        assert.notOk(DEBUG, 'accessing the relationship should not throw');
         assert.strictEqual(friends.length, 1, 'the relationship is INCORRECTLY 1');
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user1.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user1.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       } catch (e) {
         // In DEBUG we should reach here, in production we should not
         assert.ok(DEBUG, `accessing the relationship should not throw, received ${(e as Error).message}`);
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user1.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user1.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       }
 
       assert.strictEqual(store.peekAll('local-user').length, 2, 'the store has two records');
@@ -526,47 +605,63 @@ module('Emergent Behavior - Recovery', function(hooks) {
           type: 'local-user',
           id: '4',
           relationships: {
-            friends: { data: [] }
-          }
-        }
+            friends: { data: [] },
+          },
+        },
       });
 
       // access the relationship again
       try {
         const friends = user1.friends;
 
-        assert.ok(!DEBUG, 'accessing the relationship should not throw');
+        assert.notOk(DEBUG, 'accessing the relationship should not throw');
         assert.strictEqual(friends.length, 0, 'the relationship is INCORRECTLY empty and shows length 0 instead of 2');
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user1.hasMany('friends').ids().length, 2, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user1.hasMany('friends').ids().length,
+          2,
+          'the relationship reference contains the expected ids'
+        );
       } catch (e) {
         assert.ok(DEBUG, `accessing the relationship should not throw, received ${(e as Error).message}`);
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user1.hasMany('friends').ids().length, 2, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user1.hasMany('friends').ids().length,
+          2,
+          'the relationship reference contains the expected ids'
+        );
       }
       assert.strictEqual(store.peekAll('local-user').length, 2, 'the store has two records');
     });
 
-    test('When a sync relationship is accessed before load and later mutated directly', async function(assert) {
+    test('When a sync relationship is accessed before load and later mutated directly', async function (assert) {
       const store = this.owner.lookup('service:store') as Store;
       const user = store.peekRecord('user', '1') as unknown as User;
 
       assert.strictEqual(user.name, 'Chris Wagenet', 'precond - user is loaded');
 
-       // access the relationship before load
-       try {
+      // access the relationship before load
+      try {
         const friends = user.friends;
 
         // in DEBUG we error and should not reach here
-        assert.ok(!DEBUG, 'accessing the relationship should not throw');
+        assert.notOk(DEBUG, 'accessing the relationship should not throw');
         assert.strictEqual(friends.length, 0, 'the relationship is INCORRECTLY empty');
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       } catch (e) {
         // In DEBUG we should reach here, in production we should not
         assert.ok(DEBUG, `accessing the relationship should not throw, received ${(e as Error).message}`);
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       }
 
       assert.strictEqual(store.peekAll('user').length, 1, 'the store has only one record');
@@ -574,7 +669,7 @@ module('Emergent Behavior - Recovery', function(hooks) {
 
       try {
         user.friends.pushObject(peter);
-        assert.ok(!DEBUG, 'mutating the relationship should not throw');
+        assert.notOk(DEBUG, 'mutating the relationship should not throw');
       } catch (e) {
         assert.ok(DEBUG, `mutating the relationship should not throw, received ${(e as Error).message}`);
       }
@@ -583,19 +678,31 @@ module('Emergent Behavior - Recovery', function(hooks) {
       try {
         const friends = user.friends;
 
-        assert.ok(!DEBUG, 'accessing the relationship should not throw');
-        assert.strictEqual(friends.length, 1, 'the relationship is NOT empty but INCORRECTLY shows length 1 instead of 4');
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 4, 'the relationship reference contains the expected ids');
+        assert.notOk(DEBUG, 'accessing the relationship should not throw');
+        assert.strictEqual(
+          friends.length,
+          1,
+          'the relationship is NOT empty but INCORRECTLY shows length 1 instead of 4'
+        );
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          4,
+          'the relationship reference contains the expected ids'
+        );
       } catch (e) {
         assert.ok(DEBUG, `accessing the relationship should not throw, received ${(e as Error).message}`);
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       }
       assert.strictEqual(store.peekAll('user').length, 2, 'the store has two records');
     });
 
-    test('When a sync relationship is accessed before load and later mutated via add by inverse', async function(assert) {
+    test('When a sync relationship is accessed before load and later mutated via add by inverse', async function (assert) {
       class LocalUser extends Model {
         @attr declare name: string;
         @hasMany('local-user', { async: false, inverse: 'friends' }) declare friends: LocalUser[];
@@ -607,48 +714,60 @@ module('Emergent Behavior - Recovery', function(hooks) {
           type: 'local-user',
           id: '1',
           attributes: {
-            name: 'Chris Wagenet'
+            name: 'Chris Wagenet',
           },
           relationships: {
             friends: {
-              data: [{ type: 'local-user', id: '2' }, { type: 'local-user', id: '3' }, { type: 'local-user', id: '4' }]
-            }
-          }
+              data: [
+                { type: 'local-user', id: '2' },
+                { type: 'local-user', id: '3' },
+                { type: 'local-user', id: '4' },
+              ],
+            },
+          },
         },
         included: [
           {
             type: 'local-user',
             id: '5',
             attributes: {
-              name: 'Krystan'
+              name: 'Krystan',
             },
             relationships: {
               friends: {
-                data: []
-              }
-            }
+                data: [],
+              },
+            },
           },
-        ]
+        ],
       }) as unknown as LocalUser;
       const user2 = store.peekRecord('local-user', '5') as unknown as LocalUser;
 
       assert.strictEqual(user1.name, 'Chris Wagenet', 'precond - user1 is loaded');
       assert.strictEqual(user2.name, 'Krystan', 'precond2 - user is loaded');
 
-       // access the relationship before load
-       try {
+      // access the relationship before load
+      try {
         const friends = user1.friends;
 
         // in DEBUG we error and should not reach here
-        assert.ok(!DEBUG, 'accessing the relationship should not throw');
+        assert.notOk(DEBUG, 'accessing the relationship should not throw');
         assert.strictEqual(friends.length, 0, 'the relationship is INCORRECTLY empty');
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user1.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user1.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       } catch (e) {
         // In DEBUG we should reach here, in production we should not
         assert.ok(DEBUG, `accessing the relationship should not throw, received ${(e as Error).message}`);
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user1.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user1.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       }
 
       assert.strictEqual(store.peekAll('local-user').length, 2, 'the store has two records');
@@ -665,19 +784,31 @@ module('Emergent Behavior - Recovery', function(hooks) {
       try {
         const friends = user1.friends;
 
-        assert.ok(!DEBUG, 'accessing the relationship should not throw');
-        assert.strictEqual(friends.length, 1, 'the relationship is NOT empty but INCORRECTLY shows length 1 instead of 4');
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user1.hasMany('friends').ids().length, 4, 'the relationship reference contains the expected ids');
+        assert.notOk(DEBUG, 'accessing the relationship should not throw');
+        assert.strictEqual(
+          friends.length,
+          1,
+          'the relationship is NOT empty but INCORRECTLY shows length 1 instead of 4'
+        );
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user1.hasMany('friends').ids().length,
+          4,
+          'the relationship reference contains the expected ids'
+        );
       } catch (e) {
         assert.ok(DEBUG, `accessing the relationship should not throw, received ${(e as Error).message}`);
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user1.hasMany('friends').ids().length, 4, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user1.hasMany('friends').ids().length,
+          4,
+          'the relationship reference contains the expected ids'
+        );
       }
       assert.strictEqual(store.peekAll('local-user').length, 2, 'the store has two records');
     });
 
-    test('When a sync relationship is accessed before load and later mutated via remove by inverse', async function(assert) {
+    test('When a sync relationship is accessed before load and later mutated via remove by inverse', async function (assert) {
       class LocalUser extends Model {
         @attr declare name: string;
         @hasMany('local-user', { async: false, inverse: 'friends' }) declare friends: LocalUser[];
@@ -689,50 +820,62 @@ module('Emergent Behavior - Recovery', function(hooks) {
           type: 'local-user',
           id: '1',
           attributes: {
-            name: 'Chris Wagenet'
+            name: 'Chris Wagenet',
           },
           relationships: {
             friends: {
-              data: [{ type: 'local-user', id: '2' }, { type: 'local-user', id: '3' }, { type: 'local-user', id: '4' }]
-            }
-          }
+              data: [
+                { type: 'local-user', id: '2' },
+                { type: 'local-user', id: '3' },
+                { type: 'local-user', id: '4' },
+              ],
+            },
+          },
         },
         included: [
           {
             type: 'local-user',
             id: '4',
             attributes: {
-              name: 'Krystan'
+              name: 'Krystan',
             },
             relationships: {
               friends: {
-                data: [{ type: 'local-user', id: '1' }]
-              }
-            }
+                data: [{ type: 'local-user', id: '1' }],
+              },
+            },
           },
-        ]
+        ],
       }) as unknown as LocalUser;
       const user2 = store.peekRecord('local-user', '4') as unknown as LocalUser;
 
       assert.strictEqual(user1.name, 'Chris Wagenet', 'precond - user1 is loaded');
       assert.strictEqual(user2.name, 'Krystan', 'precond2 - user is loaded');
 
-       // access the relationship before load
-       try {
+      // access the relationship before load
+      try {
         const friends = user1.friends;
 
         // in DEBUG we error and should not reach here
-        assert.ok(!DEBUG, 'accessing the relationship should not throw');
+        assert.notOk(DEBUG, 'accessing the relationship should not throw');
         assert.strictEqual(friends.length, 1, 'the relationship is INCORRECTLY 1');
 
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user1.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user1.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       } catch (e) {
         // In DEBUG we should reach here, in production we should not
         assert.ok(DEBUG, `accessing the relationship should not throw, received ${(e as Error).message}`);
 
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user1.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user1.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       }
 
       assert.strictEqual(store.peekAll('local-user').length, 2, 'the store has two records');
@@ -749,21 +892,29 @@ module('Emergent Behavior - Recovery', function(hooks) {
       try {
         const friends = user1.friends;
 
-        assert.ok(!DEBUG, 'accessing the relationship should not throw');
+        assert.notOk(DEBUG, 'accessing the relationship should not throw');
         assert.strictEqual(friends.length, 0, 'the relationship is INCORRECTLY empty and shows length 0 instead of 2');
 
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user1.hasMany('friends').ids().length, 2, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user1.hasMany('friends').ids().length,
+          2,
+          'the relationship reference contains the expected ids'
+        );
       } catch (e) {
         assert.ok(DEBUG, `accessing the relationship should not throw, received ${(e as Error).message}`);
 
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user1.hasMany('friends').ids().length, 2, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user1.hasMany('friends').ids().length,
+          2,
+          'the relationship reference contains the expected ids'
+        );
       }
       assert.strictEqual(store.peekAll('local-user').length, 2, 'the store has two records');
     });
 
-    test('When a sync relationship is accessed before load and then later sideloaded', async function(assert) {
+    test('When a sync relationship is accessed before load and then later sideloaded', async function (assert) {
       const store = this.owner.lookup('service:store') as Store;
       const user = store.peekRecord('user', '1') as unknown as User;
 
@@ -772,15 +923,23 @@ module('Emergent Behavior - Recovery', function(hooks) {
         const friends = user.friends;
 
         // in DEBUG we error and should not reach here
-        assert.ok(!DEBUG, 'accessing the relationship should not throw');
+        assert.notOk(DEBUG, 'accessing the relationship should not throw');
         assert.strictEqual(friends.length, 0, 'the relationship is empty');
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       } catch (e) {
         // In DEBUG we should reach here, in production we should not
         assert.ok(DEBUG, `accessing the relationship should not throw, received ${(e as Error).message}`);
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       }
       assert.strictEqual(store.peekAll('user').length, 1, 'the store has only one record');
 
@@ -790,41 +949,49 @@ module('Emergent Behavior - Recovery', function(hooks) {
           type: 'user',
           id: '2',
           attributes: {
-            name: 'Krystan'
-          }
-        }
+            name: 'Krystan',
+          },
+        },
       });
       store.push({
         data: {
           type: 'user',
           id: '3',
           attributes: {
-            name: 'Peter'
-          }
-        }
+            name: 'Peter',
+          },
+        },
       });
       store.push({
         data: {
           type: 'user',
           id: '4',
           attributes: {
-            name: 'Rey'
-          }
-        }
+            name: 'Rey',
+          },
+        },
       });
 
-       // access the relationship again
-       try {
+      // access the relationship again
+      try {
         const friends = user.friends;
 
         assert.ok(true, 'accessing the relationship should not throw');
         assert.strictEqual(friends.length, 0, 'the relationship is INCORRECTLY empty');
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       } catch (e) {
         assert.ok(false, `accessing the relationship should not throw, received ${(e as Error).message}`);
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       }
       assert.strictEqual(store.peekAll('user').length, 4, 'the store has four records');
 
@@ -834,9 +1001,15 @@ module('Emergent Behavior - Recovery', function(hooks) {
           type: 'user',
           id: '1',
           relationships: {
-            friends: { data: [{ type: 'user', id: '2' }, { type: 'user', id: '3' }, { type: 'user', id: '4' }] }
-          }
-        }
+            friends: {
+              data: [
+                { type: 'user', id: '2' },
+                { type: 'user', id: '3' },
+                { type: 'user', id: '4' },
+              ],
+            },
+          },
+        },
       });
 
       // access the relationship
@@ -845,51 +1018,70 @@ module('Emergent Behavior - Recovery', function(hooks) {
 
         assert.ok(true, 'accessing the relationship should not throw');
         assert.strictEqual(friends.length, 0, 'the relationship is INCORRECTLY empty');
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       } catch (e) {
         assert.ok(false, `accessing the relationship should not throw, received ${(e as Error).message}`);
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       }
     });
 
-    test('When a sync relationship is accessed before load and then later one of the missing records is attempted to be found via findRecord (inverse: null)', async function(assert) {
+    test('When a sync relationship is accessed before load and then later one of the missing records is attempted to be found via findRecord (inverse: null)', async function (assert) {
       const store = this.owner.lookup('service:store') as Store;
       const user = store.peekRecord('user', '1') as unknown as User;
-      this.owner.register('adapter:application', class {
-        findRecord(store: Store, schema: ModelSchema, id: string, snapshot: Snapshot) {
-          assert.step('findRecord');
-          assert.deepEqual(snapshot._attributes, { name: undefined }, 'the snapshot has the correct attributes');
-          return Promise.resolve({
-            data: {
-              type: 'user',
-              id: '4',
-              attributes: {
-                name: 'Rey'
-              }
-            }
-          });
+      this.owner.register(
+        'adapter:application',
+        class {
+          findRecord(store: Store, schema: ModelSchema, id: string, snapshot: Snapshot) {
+            assert.step('findRecord');
+            assert.deepEqual(snapshot._attributes, { name: undefined }, 'the snapshot has the correct attributes');
+            return Promise.resolve({
+              data: {
+                type: 'user',
+                id: '4',
+                attributes: {
+                  name: 'Rey',
+                },
+              },
+            });
+          }
+          static create() {
+            return new this();
+          }
         }
-        static create() {
-          return new this();
-        }
-      });
+      );
 
       // access the relationship before load
       try {
         const friends = user.friends;
 
         // in DEBUG we error and should not reach here
-        assert.ok(!DEBUG, 'accessing the relationship should not throw');
+        assert.notOk(DEBUG, 'accessing the relationship should not throw');
         assert.strictEqual(friends.length, 0, 'the relationship is empty');
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       } catch (e) {
         // In DEBUG we should reach here, in production we should not
         assert.ok(DEBUG, `accessing the relationship should not throw, received ${(e as Error).message}`);
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       }
       assert.strictEqual(store.peekAll('user').length, 1, 'the store has only one record');
 
@@ -899,32 +1091,40 @@ module('Emergent Behavior - Recovery', function(hooks) {
           type: 'user',
           id: '2',
           attributes: {
-            name: 'Krystan'
-          }
-        }
+            name: 'Krystan',
+          },
+        },
       });
       store.push({
         data: {
           type: 'user',
           id: '3',
           attributes: {
-            name: 'Peter'
-          }
-        }
+            name: 'Peter',
+          },
+        },
       });
 
-       // access the relationship again
-       try {
+      // access the relationship again
+      try {
         const friends = user.friends;
 
-        assert.ok(!DEBUG, 'accessing the relationship should not throw');
+        assert.notOk(DEBUG, 'accessing the relationship should not throw');
         assert.strictEqual(friends.length, 0, 'the relationship is INCORRECTLY empty');
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       } catch (e) {
         assert.ok(DEBUG, `accessing the relationship should not throw, received ${(e as Error).message}`);
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       }
       assert.strictEqual(store.peekAll('user').length, 3, 'the store has four records');
 
@@ -934,23 +1134,37 @@ module('Emergent Behavior - Recovery', function(hooks) {
           type: 'user',
           id: '1',
           relationships: {
-            friends: { data: [{ type: 'user', id: '2' }, { type: 'user', id: '3' }, { type: 'user', id: '4' }] }
-          }
-        }
+            friends: {
+              data: [
+                { type: 'user', id: '2' },
+                { type: 'user', id: '3' },
+                { type: 'user', id: '4' },
+              ],
+            },
+          },
+        },
       });
 
       // access the relationship
       try {
         const friends = user.friends;
 
-        assert.ok(!DEBUG, 'accessing the relationship should not throw');
+        assert.notOk(DEBUG, 'accessing the relationship should not throw');
         assert.strictEqual(friends.length, 0, 'the relationship is INCORRECTLY empty');
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       } catch (e) {
         assert.ok(DEBUG, `accessing the relationship should not throw, received ${(e as Error).message}`);
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       }
 
       // attempt to find the missing record
@@ -968,16 +1182,24 @@ module('Emergent Behavior - Recovery', function(hooks) {
 
         assert.ok(true, 'accessing the relationship should not throw');
         assert.strictEqual(friends.length, 0, 'the relationship is INCORRECTLY empty');
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       } catch (e) {
         assert.ok(false, `accessing the relationship should not throw, received ${(e as Error).message}`);
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       }
     });
 
-    test('When a sync relationship is accessed before load and then later one of the missing records is attempted to be found via findRecord (inverse: specified)', async function(assert) {
+    test('When a sync relationship is accessed before load and then later one of the missing records is attempted to be found via findRecord (inverse: specified)', async function (assert) {
       const store = this.owner.lookup('service:store') as Store;
       const user = store.peekRecord('user', '1') as unknown as User;
       store.push({
@@ -985,67 +1207,82 @@ module('Emergent Behavior - Recovery', function(hooks) {
           type: 'user',
           id: '1',
           attributes: {
-            name: 'Chris Wagenet'
+            name: 'Chris Wagenet',
           },
           relationships: {
             frenemies: {
-              data: [{ type: 'user', id: '2' }, { type: 'user', id: '3' }, { type: 'user', id: '4' }]
-            }
-          }
-        }
+              data: [
+                { type: 'user', id: '2' },
+                { type: 'user', id: '3' },
+                { type: 'user', id: '4' },
+              ],
+            },
+          },
+        },
       });
-      this.owner.register('adapter:application', class {
-        findRecord(store: Store, schema: ModelSchema, id: string, snapshot: Snapshot) {
-          assert.step('findRecord');
-          if (snapshot.include === 'frenemies') {
-            assert.deepEqual(snapshot._attributes, { name: 'Rey' }, 'the snapshot has the correct attributes');
+      this.owner.register(
+        'adapter:application',
+        class {
+          findRecord(store: Store, schema: ModelSchema, id: string, snapshot: Snapshot) {
+            assert.step('findRecord');
+            if (snapshot.include === 'frenemies') {
+              assert.deepEqual(snapshot._attributes, { name: 'Rey' }, 'the snapshot has the correct attributes');
+
+              return Promise.resolve({
+                data: {
+                  type: 'user',
+                  id: '4',
+                  attributes: {
+                    name: 'Rey',
+                  },
+                  relationships: {
+                    frenemies: {
+                      data: [{ type: 'user', id: '1' }],
+                    },
+                  },
+                },
+              });
+            }
+            assert.deepEqual(snapshot._attributes, { name: undefined }, 'the snapshot has the correct attributes');
 
             return Promise.resolve({
               data: {
                 type: 'user',
                 id: '4',
                 attributes: {
-                  name: 'Rey'
+                  name: 'Rey',
                 },
-                relationships: {
-                  frenemies: {
-                    data: [{ type: 'user', id: '1' }]
-                  }
-                }
-              }
+              },
             });
           }
-          assert.deepEqual(snapshot._attributes, { name: undefined }, 'the snapshot has the correct attributes');
-
-          return Promise.resolve({
-            data: {
-              type: 'user',
-              id: '4',
-              attributes: {
-                name: 'Rey'
-              }
-            }
-          });
+          static create() {
+            return new this();
+          }
         }
-        static create() {
-          return new this();
-        }
-      });
+      );
 
       // access the relationship before load
       try {
         const friends = user.frenemies;
 
         // in DEBUG we error and should not reach here
-        assert.ok(!DEBUG, 'accessing the relationship should not throw');
+        assert.notOk(DEBUG, 'accessing the relationship should not throw');
         assert.strictEqual(friends.length, 0, 'the relationship is empty');
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       } catch (e) {
         // In DEBUG we should reach here, in production we should not
         assert.ok(DEBUG, `accessing the relationship should not throw, received ${(e as Error).message}`);
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       }
       assert.strictEqual(store.peekAll('user').length, 1, 'the store has only one record');
 
@@ -1055,32 +1292,40 @@ module('Emergent Behavior - Recovery', function(hooks) {
           type: 'user',
           id: '2',
           attributes: {
-            name: 'Krystan'
-          }
-        }
+            name: 'Krystan',
+          },
+        },
       });
       store.push({
         data: {
           type: 'user',
           id: '3',
           attributes: {
-            name: 'Peter'
-          }
-        }
+            name: 'Peter',
+          },
+        },
       });
 
-       // access the relationship again
-       try {
+      // access the relationship again
+      try {
         const friends = user.frenemies;
 
-        assert.ok(!DEBUG, 'accessing the relationship should not throw');
+        assert.notOk(DEBUG, 'accessing the relationship should not throw');
         assert.strictEqual(friends.length, 0, 'the relationship is INCORRECTLY empty');
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       } catch (e) {
         assert.ok(DEBUG, `accessing the relationship should not throw, received ${(e as Error).message}`);
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       }
       assert.strictEqual(store.peekAll('user').length, 3, 'the store has three records');
 
@@ -1090,23 +1335,37 @@ module('Emergent Behavior - Recovery', function(hooks) {
           type: 'user',
           id: '1',
           relationships: {
-            frenemies: { data: [{ type: 'user', id: '2' }, { type: 'user', id: '3' }, { type: 'user', id: '4' }] }
-          }
-        }
+            frenemies: {
+              data: [
+                { type: 'user', id: '2' },
+                { type: 'user', id: '3' },
+                { type: 'user', id: '4' },
+              ],
+            },
+          },
+        },
       });
 
       // access the relationship
       try {
         const friends = user.frenemies;
 
-        assert.ok(!DEBUG, 'accessing the relationship should not throw');
+        assert.notOk(DEBUG, 'accessing the relationship should not throw');
         assert.strictEqual(friends.length, 0, 'the relationship is INCORRECTLY length 0 instead of 3');
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       } catch (e) {
         assert.ok(DEBUG, `accessing the relationship should not throw, received ${(e as Error).message}`);
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       }
 
       // attempt to find the missing record
@@ -1124,17 +1383,25 @@ module('Emergent Behavior - Recovery', function(hooks) {
 
         assert.ok(true, 'accessing the relationship should not throw');
         assert.strictEqual(friends.length, 0, 'the relationship is INCORRECTLY length 0 instead of 3');
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       } catch (e) {
         assert.ok(false, `accessing the relationship should not throw, received ${(e as Error).message}`);
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       }
       assert.strictEqual(store.peekAll('user').length, 3, 'the store INCORRECTLY shows 3 instead of 4 records');
 
-       // attempt to find the missing record with sideload
-       try {
+      // attempt to find the missing record with sideload
+      try {
         await store.findRecord('user', '4', { reload: true, include: 'frenemies' });
         assert.ok(true, 'finding the missing record should not throw');
       } catch (e) {
@@ -1154,35 +1421,46 @@ module('Emergent Behavior - Recovery', function(hooks) {
       assert.strictEqual(store.peekAll('user').length, 3, 'the store INCORRECTLY shows 3 instead of 4 records');
     });
 
-    test('When a sync relationship is accessed before load and then later when one of the missing records is later attempt to load via findRecord would error (inverse: null)', async function(assert) {
+    test('When a sync relationship is accessed before load and then later when one of the missing records is later attempt to load via findRecord would error (inverse: null)', async function (assert) {
       const store = this.owner.lookup('service:store') as Store;
       const user = store.peekRecord('user', '1') as unknown as User;
-      this.owner.register('adapter:application', class {
-        findRecord(store: Store, schema: ModelSchema, id: string, snapshot: Snapshot) {
-          assert.step('findRecord');
-          assert.deepEqual(snapshot._attributes, { name: undefined }, 'the snapshot has the correct attributes');
+      this.owner.register(
+        'adapter:application',
+        class {
+          findRecord(store: Store, schema: ModelSchema, id: string, snapshot: Snapshot) {
+            assert.step('findRecord');
+            assert.deepEqual(snapshot._attributes, { name: undefined }, 'the snapshot has the correct attributes');
 
-          return Promise.reject(new Error('404 - Not Found'));
+            return Promise.reject(new Error('404 - Not Found'));
+          }
+          static create() {
+            return new this();
+          }
         }
-        static create() {
-          return new this();
-        }
-      });
+      );
 
       // access the relationship before load
       try {
         const friends = user.friends;
 
         // in DEBUG we error and should not reach here
-        assert.ok(!DEBUG, 'accessing the relationship should not throw');
+        assert.notOk(DEBUG, 'accessing the relationship should not throw');
         assert.strictEqual(friends.length, 0, 'the relationship is empty');
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       } catch (e) {
         // In DEBUG we should reach here, in production we should not
         assert.ok(DEBUG, `accessing the relationship should not throw, received ${(e as Error).message}`);
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       }
       assert.strictEqual(store.peekAll('user').length, 1, 'the store has only one record');
 
@@ -1192,32 +1470,40 @@ module('Emergent Behavior - Recovery', function(hooks) {
           type: 'user',
           id: '2',
           attributes: {
-            name: 'Krystan'
-          }
-        }
+            name: 'Krystan',
+          },
+        },
       });
       store.push({
         data: {
           type: 'user',
           id: '3',
           attributes: {
-            name: 'Peter'
-          }
-        }
+            name: 'Peter',
+          },
+        },
       });
 
-       // access the relationship again
-       try {
+      // access the relationship again
+      try {
         const friends = user.friends;
 
-        assert.ok(!DEBUG, 'accessing the relationship should not throw');
+        assert.notOk(DEBUG, 'accessing the relationship should not throw');
         assert.strictEqual(friends.length, 0, 'the relationship is INCORRECTLY empty');
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       } catch (e) {
         assert.ok(DEBUG, `accessing the relationship should not throw, received ${(e as Error).message}`);
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       }
       assert.strictEqual(store.peekAll('user').length, 3, 'the store has four records');
 
@@ -1227,23 +1513,37 @@ module('Emergent Behavior - Recovery', function(hooks) {
           type: 'user',
           id: '1',
           relationships: {
-            friends: { data: [{ type: 'user', id: '2' }, { type: 'user', id: '3' }, { type: 'user', id: '4' }] }
-          }
-        }
+            friends: {
+              data: [
+                { type: 'user', id: '2' },
+                { type: 'user', id: '3' },
+                { type: 'user', id: '4' },
+              ],
+            },
+          },
+        },
       });
 
       // access the relationship
       try {
         const friends = user.friends;
 
-        assert.ok(!DEBUG, 'accessing the relationship should not throw');
+        assert.notOk(DEBUG, 'accessing the relationship should not throw');
         assert.strictEqual(friends.length, 0, 'the relationship is INCORRECTLY empty');
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       } catch (e) {
         assert.ok(DEBUG, `accessing the relationship should not throw, received ${(e as Error).message}`);
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 3, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          3,
+          'the relationship reference contains the expected ids'
+        );
       }
 
       // attempt to find the missing record
@@ -1261,12 +1561,20 @@ module('Emergent Behavior - Recovery', function(hooks) {
 
         assert.ok(true, 'accessing the relationship should not throw');
         assert.strictEqual(friends.length, 2, 'the relationship is correct');
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 2, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          2,
+          'the relationship reference contains the expected ids'
+        );
       } catch (e) {
         assert.ok(false, `accessing the relationship should not throw, received ${(e as Error).message}`);
-        // @ts-expect-error Model is not typed in 4.6
-        assert.strictEqual(user.hasMany('friends').ids().length, 2, 'the relationship reference contains the expected ids');
+        assert.strictEqual(
+          // @ts-expect-error Model is not typed in 4.6
+          user.hasMany('friends').ids().length,
+          2,
+          'the relationship reference contains the expected ids'
+        );
       }
     });
   });
