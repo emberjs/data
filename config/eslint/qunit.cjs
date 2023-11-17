@@ -16,6 +16,7 @@ function defaults(config = {}) {
       }),
       config?.rules,
       {
+        'qunit/no-assert-logical-expression': 'off',
         'qunit/no-conditional-assertions': 'off',
         'qunit/no-ok-equality': 'off',
       }

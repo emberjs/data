@@ -14,6 +14,7 @@ function defaults(config = {}) {
       {
         'qunit/require-expect': 'off',
         'qunit/no-assert-equal': 'off',
+        'qunit/no-assert-logical-expression': 'off',
         'qunit/no-conditional-assertions': 'off',
         'qunit/no-ok-equality': 'off',
       }
@@ -21,6 +22,28 @@ function defaults(config = {}) {
   };
 }
 
+function config() {
+  return {
+    files: ['./diagnostic.js'],
+    parserOptions: {
+      sourceType: 'module',
+      ecmaVersion: 2022,
+    },
+    env: {
+      browser: false,
+      node: true,
+      es6: true,
+    },
+    plugins: ['n'],
+    extends: 'plugin:n/recommended',
+    rules: {
+      // It's ok to use unpublished files here since we don't ship these
+      'n/no-unpublished-require': 'off',
+    },
+  };
+}
+
 module.exports = {
+  config,
   defaults,
 };

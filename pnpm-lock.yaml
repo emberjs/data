@@ -3145,6 +3145,9 @@ importers:
       '@warp-drive/holodeck':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/holodeck(@ember-data/request@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)
+      '@warp-drive/internal-config':
+        specifier: workspace:5.5.0-alpha.11
+        version: link:../../config
       bun-types:
         specifier: ^1.0.11
         version: 1.0.11

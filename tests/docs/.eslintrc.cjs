@@ -31,9 +31,6 @@ module.exports = {
     }),
     qunit.defaults({
       files: ['index.{js,ts}'],
-      rules: {
-        'qunit/no-assert-logical-expression': 'off',
-      },
     }),
   ],
 };

@@ -1,8 +1,7 @@
-import { module, test } from '@warp-drive/diagnostic';
-
 import RequestManager from '@ember-data/request';
 import type { Context } from '@ember-data/request/-private/context';
 import type { Future, Handler, NextFn } from '@ember-data/request/-private/types';
+import { module, test } from '@warp-drive/diagnostic';
 
 module('RequestManager | Streams', function () {
   test('We can read the stream returned from a handler', async function (assert) {

@@ -1,6 +1,8 @@
 function defaults(config) {
   const result = {
-    files: !config?.useModules ? ['./index.js', './addon-main.cjs', './addon-main.js'] : [],
+    files: !config?.useModules
+      ? ['./index.js', './addon-main.cjs', './addon-main.js', './config/environment.js', './config/targets.js']
+      : [],
     parserOptions: {
       sourceType: config?.useModules ? 'module' : 'script',
       ecmaVersion: 2022,
@@ -25,7 +27,7 @@ function defaults(config) {
 
 function config(config) {
   const result = {
-    files: ['./babel.config.js', './.eslintrc.cjs', './rollup.config.mjs'],
+    files: ['./.eslintrc.cjs', './babel.config.js', './ember-cli-build.js', './rollup.config.mjs', './testem.js'],
     parserOptions: {
       sourceType: config?.useModules ? 'module' : 'script',
       ecmaVersion: 2022,

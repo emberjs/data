@@ -25,13 +25,10 @@ module.exports = {
   ignorePatterns: ignore.ignoreRules(),
 
   overrides: [
-    node.config({
-      files: ['ember-cli-build.js', 'testem.js'],
-    }),
-    node.defaults({
-      files: ['./config/environment.js', './config/targets.js'],
-    }),
+    node.config(),
+    node.defaults(),
     typescript.defaults(),
+    diagnostic.config(),
     diagnostic.defaults({
       files: ['tests/**/*.{js,ts}'],
     }),

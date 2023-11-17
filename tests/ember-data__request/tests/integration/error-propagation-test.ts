@@ -1,9 +1,8 @@
-import { module, test } from '@warp-drive/diagnostic';
-
 import type { StructuredErrorDocument } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
 import type { Context } from '@ember-data/request/-private/context';
 import type { Future, Handler, NextFn } from '@ember-data/request/-private/types';
+import { module, test } from '@warp-drive/diagnostic';
 
 function isErrorDoc(e: Error | unknown | StructuredErrorDocument): e is StructuredErrorDocument {
   return Boolean(e && e instanceof Error && 'request' in e);
@@ -18,6 +17,7 @@ module('RequestManager | Error Propagation', function () {
         assert.ok(true, 'catching handler triggered');
         try {
           // await to catch, else error is curried
+          // eslint-disable-next-line qunit/no-early-return
           return await next(context.request);
         } catch (e) {
           assert.equal((e as Error).message, 'Oops!', 'We caught the error');

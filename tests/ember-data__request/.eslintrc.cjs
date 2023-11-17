@@ -31,7 +31,7 @@ module.exports = {
     diagnostic.config(),
     diagnostic.defaults({
       files: ['tests/**/*.{js,ts}'],
-      allowedImports: ['@ember/object'],
+      allowedImports: ['@ember/application', '@ember/owner', '@ember/service'],
     }),
   ],
 };
