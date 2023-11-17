@@ -3428,6 +3428,9 @@ importers:
       '@glimmer/tracking':
         specifier: ^1.1.2
         version: 1.1.2
+      '@warp-drive/internal-config':
+        specifier: workspace:5.5.0-alpha.11
+        version: link:../../config
       ember-cli:
         specifier: ~5.4.0
         version: 5.4.0
@@ -3477,7 +3480,7 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       typescript:
-        specifier: ~5.2.2
+        specifier: ^5.2.2
         version: 5.2.2
     dependenciesMeta:
       '@ember-data/unpublished-test-infra':
