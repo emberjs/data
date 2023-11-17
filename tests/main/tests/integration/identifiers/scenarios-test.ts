@@ -1,4 +1,3 @@
- 
 import EmberObject, { set } from '@ember/object';
 
 import { module, test } from 'qunit';
@@ -16,12 +15,7 @@ import {
   setIdentifierUpdateMethod,
 } from '@ember-data/store';
 import type { GenerationMethod, ResourceData } from '@ember-data/store/-types/q/identifier';
-import type {
-  Identifier,
-  IdentifierBucket,
-  StableIdentifier,
-  StableRecordIdentifier,
-} from '@warp-drive/core-types/identifier';
+import type { IdentifierBucket, StableIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 
 function isNonEmptyString(str: unknown): str is string {
   return typeof str === 'string' && str.length > 0;
@@ -35,17 +29,14 @@ module('Integration | Identifiers - scenarios', function (hooks) {
   setupTest(hooks);
 
   module('Secondary Cache based on an attribute', function (innerHooks) {
-    const calls = {
-      findRecord: 0,
-      queryRecord: 0,
-    };
+    let calls;
     let isQuery = false;
     let secondaryCache: {
       id: { [key: string]: string };
       username: { [key: string]: string };
     };
     class TestSerializer extends EmberObject {
-      normalizeResponse(_, __, payload: unknown) {
+      normalizeResponse(_, __, payload) {
         return payload;
       }
     }
@@ -93,10 +84,15 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       owner.register('serializer:application', TestSerializer);
       owner.register('model:user', User);
 
+      calls = {
+        findRecord: 0,
+        queryRecord: 0,
+      };
+
       let localIdInc = 9000;
       secondaryCache = {
-        id: Object.create(null) as Record<string, string>,
-        username: Object.create(null) as Record<string, string>,
+        id: Object.create(null),
+        username: Object.create(null),
       };
       const generationMethod: GenerationMethod = (resource: unknown, bucket: IdentifierBucket) => {
         if (bucket !== 'record') {
@@ -246,14 +242,11 @@ module('Integration | Identifiers - scenarios', function (hooks) {
   });
 
   module('Secondary Cache using an attribute as an alternate id', function (innerHooks) {
-    const calls = {
-      findRecord: 0,
-      queryRecord: 0,
-    };
+    let calls;
     let isQuery = false;
     let secondaryCache: { [key: string]: string };
     class TestSerializer extends EmberObject {
-      normalizeResponse(_, __, payload: unknown) {
+      normalizeResponse(_, __, payload) {
         return payload;
       }
     }
@@ -301,8 +294,13 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       owner.register('serializer:application', TestSerializer);
       owner.register('model:user', User);
 
+      calls = {
+        findRecord: 0,
+        queryRecord: 0,
+      };
+
       let localIdInc = 9000;
-      secondaryCache = Object.create(null) as Record<string, string>;
+      secondaryCache = Object.create(null);
 
       function lidForUser(resource: ResourceData | { type: string }): string {
         if ('type' in resource && resource.type === 'user') {
@@ -661,7 +659,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
         });
       };
 
-      function updateUsernameCache(identifier: Identifier, oldUsername: string, newUsername: string) {
+      function updateUsernameCache(identifier, oldUsername, newUsername) {
         if (secondaryCache[oldUsername] !== identifier.lid) {
           throw new Error(`Incorrect username update`);
         }
@@ -670,7 +668,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
         }
         secondaryCache[newUsername] = identifier.lid;
       }
-      function commitUsernameUpdate(identifier: Identifier, oldUsername: string, newUsername: string) {
+      function commitUsernameUpdate(identifier, oldUsername, newUsername) {
         if (secondaryCache[oldUsername] === identifier.lid) {
           delete secondaryCache[oldUsername];
         }
