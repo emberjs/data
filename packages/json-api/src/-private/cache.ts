@@ -927,6 +927,13 @@ export default class JSONAPICache implements Cache {
    */
   getAttr(identifier: StableRecordIdentifier, attr: string): unknown {
     const cached = this.__peek(identifier, true);
+    assert(`Cannot retrieve attributes for identifier ${identifier} as it is not present in the cache`, cached);
+
+    // in Prod we try to recover when accessing something that
+    // doesn't exist
+    if (!cached) {
+      return undefined;
+    }
     if (cached.localAttrs && attr in cached.localAttrs) {
       return cached.localAttrs[attr];
     } else if (cached.inflightAttrs && attr in cached.inflightAttrs) {
@@ -981,8 +988,17 @@ export default class JSONAPICache implements Cache {
    * @returns { <field>: [<old>, <new>] }
    */
   changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash {
+    const cached = this.__peek(identifier, false);
+    assert(`Cannot retrieve changed attributes for identifier ${identifier} as it is not present in the cache`, cached);
+
+    // in Prod we try to recover when accessing something that
+    // doesn't exist
+    if (!cached) {
+      return Object.create(null);
+    }
+
     // TODO freeze in dev
-    return this.__peek(identifier, false).changes || Object.create(null);
+    return cached.changes || Object.create(null);
   }
 
   /**
@@ -995,6 +1011,13 @@ export default class JSONAPICache implements Cache {
    */
   hasChangedAttrs(identifier: StableRecordIdentifier): boolean {
     const cached = this.__peek(identifier, true);
+    assert(`Cannot retrieve changed attributes for identifier ${identifier} as it is not present in the cache`, cached);
+
+    // in Prod we try to recover when accessing something that
+    // doesn't exist
+    if (!cached) {
+      return false;
+    }
 
     return (
       (cached.inflightAttrs !== null && Object.keys(cached.inflightAttrs).length > 0) ||

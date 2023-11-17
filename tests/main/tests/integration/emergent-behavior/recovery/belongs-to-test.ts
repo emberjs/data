@@ -209,7 +209,13 @@ module('Emergent Behavior > Recovery | belongsTo', function (hooks) {
     }
 
     // sideload the relationship
-    await store.findRecord('user', '2');
+    try {
+      await store.findRecord('user', '2');
+      assert.notOk(IS_DEBUG, `In production, finding the record should succeed`);
+    } catch (e) {
+      // In IS_DEBUG we should reach here, in production we should not
+      assert.ok(IS_DEBUG, `finding the record should not throw, received ${(e as Error).message}`);
+    }
     assert.verifySteps(['findRecord'], 'we called findRecord');
 
     // access the relationship after sideload
@@ -219,7 +225,7 @@ module('Emergent Behavior > Recovery | belongsTo', function (hooks) {
       assert.strictEqual(bestFriend.name, 'Krystan', 'the relationship is loaded');
     } catch (e) {
       // In IS_DEBUG we should reach here, in production we should not
-      assert.ok(false, `accessing the relationship should not throw, received ${(e as Error).message}`);
+      assert.ok(IS_DEBUG, `accessing the relationship should not throw, received ${(e as Error).message}`);
     }
   });
 
@@ -266,25 +272,27 @@ module('Emergent Behavior > Recovery | belongsTo', function (hooks) {
 
     // access the relationship after sideload
     try {
-      const bestFriend = user.bestFriend;
+      user.bestFriend;
 
       // in production we do not error
       assert.ok(true, 'accessing the relationship should not throw');
+    } catch (e) {
+      // In IS_DEBUG we should error
+      assert.ok(false, `accessing the relationship should not throw, received ${(e as Error).message}`);
+    }
 
+    try {
+      const bestFriend = user.bestFriend;
       // in IS_DEBUG we should error for this assert
       // this is a surprise, because usually failed load attempts result in records being fully removed
       // from the store, and so we would expect the relationship to be null
       assert.strictEqual(bestFriend.name, undefined, 'the relationship is not loaded');
     } catch (e) {
-      // In IS_DEBUG we should error
-      assert.ok(IS_DEBUG, `accessing the relationship should not throw, received ${(e as Error).message}`);
-      if (IS_DEBUG) {
-        assert.strictEqual(
-          (e as Error).message,
-          `Cannot read properties of null (reading 'name')`,
-          'we get the expected error'
-        );
-      }
+      assert.strictEqual(
+        (e as Error).message,
+        `Cannot read properties of null (reading 'name')`,
+        'we get the expected error'
+      );
     }
   });
 });

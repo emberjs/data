@@ -398,7 +398,7 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
     const peter = store.createRecord('user', { name: 'Peter' }) as unknown as User;
 
     try {
-      user.friends.pushObject(peter);
+      user.friends.push(peter);
       assert.notOk(IS_DEBUG, 'mutating the relationship should not throw');
     } catch (e) {
       assert.ok(IS_DEBUG, `mutating the relationship should not throw, received ${(e as Error).message}`);
@@ -500,7 +500,7 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
 
     // add user2 to user1's friends via inverse
     try {
-      user2.friends.pushObject(user1);
+      user2.friends.push(user1);
       assert.ok(true, 'mutating the relationship should not throw');
     } catch (e) {
       assert.ok(false, `mutating the relationship should not throw, received ${(e as Error).message}`);
@@ -604,7 +604,8 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
 
     // remove user2 from user1's friends via inverse
     try {
-      user2.friends.removeObject(user1);
+      const index = user2.friends.indexOf(user1);
+      user2.friends.splice(index, 1);
       assert.ok(true, 'mutating the relationship should not throw');
     } catch (e) {
       assert.ok(false, `mutating the relationship should not throw, received ${(e as Error).message}`);
@@ -878,9 +879,9 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
     // attempt to find the missing record
     try {
       await store.findRecord('user', '4');
-      assert.ok(true, 'finding the missing record should not throw');
+      assert.notOk(IS_DEBUG, 'finding the missing record should not throw');
     } catch (e) {
-      assert.ok(false, `finding the missing record should not throw, received ${(e as Error).message}`);
+      assert.ok(IS_DEBUG, `finding the missing record should not throw, received ${(e as Error).message}`);
     }
     assert.verifySteps(['findRecord'], 'we called findRecord');
 
@@ -889,11 +890,24 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
       const friends = user.friends;
 
       assert.ok(true, 'accessing the relationship should not throw');
-      assert.strictEqual(friends.length, 0, 'the relationship is INCORRECTLY empty');
+
+      // in debug since we error and the error is caught (in the tests)
+      // we remove the record from the cache and enter an accessible state
+      // in which length is 2
+      assert.strictEqual(
+        friends.length,
+        IS_DEBUG ? 2 : 0,
+        'the relationship is INCORRECTLY emptied, INCORRECTLY 2 if in debug'
+      );
       assert.strictEqual(
         user.hasMany('friends').ids().length,
-        3,
-        'the relationship reference contains the expected ids'
+        IS_DEBUG ? 2 : 3,
+        'the relationship reference contains the expected ids (3), INCORRECTLY 2 if in debug'
+      );
+      assert.strictEqual(
+        store.peekAll('user').length,
+        IS_DEBUG ? 3 : 4,
+        'the store correctly shows 4 records (3 if debug since we error)'
       );
     } catch (e) {
       assert.ok(false, `accessing the relationship should not throw, received ${(e as Error).message}`);
@@ -902,6 +916,7 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
         3,
         'the relationship reference contains the expected ids'
       );
+      assert.strictEqual(store.peekAll('user').length, 4, 'the store correctly shows 4 records');
     }
   });
 
@@ -1071,9 +1086,9 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
     // attempt to find the missing record
     try {
       await store.findRecord('user', '4');
-      assert.ok(true, 'finding the missing record should not throw');
+      assert.notOk(IS_DEBUG, 'finding the missing record should not throw');
     } catch (e) {
-      assert.ok(false, `finding the missing record should not throw, received ${(e as Error).message}`);
+      assert.ok(IS_DEBUG, `finding the missing record should not throw, received ${(e as Error).message}`);
     }
     assert.verifySteps(['findRecord'], 'we called findRecord');
 
@@ -1082,11 +1097,23 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
       const friends = user.frenemies;
 
       assert.ok(true, 'accessing the relationship should not throw');
-      assert.strictEqual(friends.length, 0, 'the relationship is INCORRECTLY length 0 instead of 3');
+      // in debug since we error and the error is caught (in the tests)
+      // we remove the record from the cache and enter an accessible state
+      // in which length is 2
+      assert.strictEqual(
+        friends.length,
+        IS_DEBUG ? 2 : 0,
+        'the relationship is INCORRECTLY emptied, INCORRECTLY 2 if in debug'
+      );
       assert.strictEqual(
         user.hasMany('friends').ids().length,
-        3,
-        'the relationship reference contains the expected ids'
+        IS_DEBUG ? 2 : 3,
+        'the relationship reference contains the expected ids (3), INCORRECTLY 2 if in debug'
+      );
+      assert.strictEqual(
+        store.peekAll('user').length,
+        IS_DEBUG ? 3 : 4,
+        'the store correctly shows 4 records (3 if we are a debug build since we error)'
       );
     } catch (e) {
       assert.ok(false, `accessing the relationship should not throw, received ${(e as Error).message}`);
@@ -1095,15 +1122,15 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
         3,
         'the relationship reference contains the expected ids'
       );
+      assert.strictEqual(store.peekAll('user').length, 3, 'the store INCORRECTLY shows 3 instead of 4 records');
     }
-    assert.strictEqual(store.peekAll('user').length, 3, 'the store INCORRECTLY shows 3 instead of 4 records');
 
     // attempt to find the missing record with sideload
     try {
       await store.findRecord('user', '4', { reload: true, include: 'frenemies' });
-      assert.ok(true, 'finding the missing record should not throw');
+      assert.notOk(IS_DEBUG, 'finding the missing record should not throw');
     } catch (e) {
-      assert.ok(false, `finding the missing record should not throw, received ${(e as Error).message}`);
+      assert.ok(IS_DEBUG, `finding the missing record should not throw, received ${(e as Error).message}`);
     }
     assert.verifySteps(['findRecord'], 'we called findRecord');
 
@@ -1112,11 +1139,29 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
       const friends = user.frenemies;
 
       assert.ok(true, 'accessing the relationship should not throw');
-      assert.strictEqual(friends.length, 0, 'the relationship is INCORRECTLY length 0 instead of 3');
+
+      // in debug since we error and the error is caught (in the tests)
+      // we remove the record from the cache and enter an accessible state
+      // in which length is 2
+      assert.strictEqual(
+        friends.length,
+        IS_DEBUG ? 2 : 0,
+        'the relationship is INCORRECTLY emptied, INCORRECTLY 2 if in debug'
+      );
+      assert.strictEqual(
+        user.hasMany('friends').ids().length,
+        IS_DEBUG ? 2 : 3,
+        'the relationship reference contains the expected ids (3), INCORRECTLY 2 if in debug'
+      );
+      assert.strictEqual(
+        store.peekAll('user').length,
+        IS_DEBUG ? 3 : 4,
+        'the store correctly shows 4 records (3 if we are a debug build since we error)'
+      );
     } catch (e) {
       assert.ok(false, `accessing the relationship should not throw, received ${(e as Error).message}`);
+      assert.strictEqual(store.peekAll('user').length, 3, 'the store INCORRECTLY shows 3 instead of 4 records');
     }
-    assert.strictEqual(store.peekAll('user').length, 3, 'the store INCORRECTLY shows 3 instead of 4 records');
   });
 
   test('When a sync relationship is accessed before load and then later when one of the missing records is later attempt to load via findRecord would error (inverse: null)', async function (assert) {
