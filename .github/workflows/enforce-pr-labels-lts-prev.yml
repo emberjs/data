@@ -1,13 +1,14 @@
-name: Enforce Pervious LTS Release PR labeling
+name: PR
 
 on:
   pull_request:
-    types: [labeled, unlabeled, opened, reopened, edited, synchronize]
+    types: [labeled, unlabeled, opened, reopened]
     branches:
-      - lts-3-24
+      - lts-4-4
+      - lts-3-28
 
 concurrency:
-  group: pr-labels-lts-prev-${{ github.head_ref }}
+  group: pr-labels-lts-prev-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
@@ -16,15 +17,15 @@ jobs:
     steps:
       - uses: yogevbd/enforce-label-action@2.2.2
         with:
-          REQUIRED_LABELS_ANY: 'changelog:breaking,changelog:feat,changelog:bugfix,changelog:perf,changelog:cleanup,changelog:deprecation,changelog:doc,changelog:test,changelog:chore,skip-changelog'
-          REQUIRED_LABELS_ANY_DESCRIPTION: "Select at least one label for changelog generation. Use the label `skip-changelog` and none of the others in the list to avoid this being included. ['changelog:breaking', 'changelog:feat', 'changelog:bugfix', 'changelog:perf', 'changelog:cleanup', 'changelog:deprecation', 'changelog:doc', 'changelog:test', 'changelog:chore', 'skip-changelog']"
+          REQUIRED_LABELS_ANY: ':label: breaking,:label: feat,:label: bug,:label: perf,:label: cleanup,:label: deprecation,:label: doc,:label: test,:label: chore'
+          REQUIRED_LABELS_ANY_DESCRIPTION: "Select at least one label for changelog generation. [':label: breaking', ':label: feat', ':label: bug', ':label: perf', ':label: cleanup', ':label: deprecation', ':label: doc', ':label: test', ':label: chore']"
   ban-target-labels:
     runs-on: ubuntu-latest
     steps:
       - uses: yogevbd/enforce-label-action@2.2.2
         with:
-          BANNED_LABELS: 'target:canary,target:beta,target:release,target:lts,target:lts-prev'
-          BANNED_LABELS_DESCRIPTION: "These labels should only be used for PRs targeting the master branch, remove them. ['target:canary', 'target:beta', 'target:release', 'target:lts', 'target:lts-prev']"
+          BANNED_LABELS: ':dart: canary,:dart: beta,:dart: release,:dart: lts,:dart: lts-prev,:label: dependencies'
+          BANNED_LABELS_DESCRIPTION: "These labels should only be used for PRs targeting the main branch, remove them. [':dart: canary', ':dart: beta', ':dart: release', ':dart: lts', ':dart: lts-prev',':label: dependencies']"
   ban-other-release-branch-labels:
     runs-on: ubuntu-latest
     steps:
