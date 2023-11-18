@@ -165,7 +165,12 @@ export default class RelatedCollection extends RecordArray {
     this.key = options.key;
   }
 
-  [MUTATE](prop: string, args: unknown[], result?: unknown) {
+  [MUTATE](
+    target: StableRecordIdentifier[],
+    receiver: typeof Proxy<StableRecordIdentifier[]>,
+    prop: string,
+    args: unknown[]
+  ): unknown {
     switch (prop) {
       case 'length 0': {
         this._manager.mutate({
@@ -174,7 +179,7 @@ export default class RelatedCollection extends RecordArray {
           field: this.key,
           value: [],
         });
-        break;
+        return true;
       }
       case 'replace cell': {
         const [index, prior, value] = args as [number, StableRecordIdentifier, StableRecordIdentifier];
@@ -186,17 +191,23 @@ export default class RelatedCollection extends RecordArray {
           prior,
           index,
         });
-        break;
+        return true;
       }
-      case 'push':
+      case 'push': {
+        // FIXME: don't push until we are sure it is unique
+        const result: unknown = Reflect.apply(target[prop], receiver, args);
+
         this._manager.mutate({
           op: 'addToRelatedRecords',
           record: this.identifier,
           field: this.key,
           value: extractIdentifiersFromRecords(args as RecordInstance[]),
         });
-        break;
-      case 'pop':
+
+        return result;
+      }
+      case 'pop': {
+        const result: unknown = Reflect.apply(target[prop], receiver, args);
         if (result) {
           this._manager.mutate({
             op: 'removeFromRelatedRecords',
@@ -205,9 +216,13 @@ export default class RelatedCollection extends RecordArray {
             value: recordIdentifierFor(result as RecordInstance),
           });
         }
-        break;
+        return result;
+      }
 
-      case 'unshift':
+      case 'unshift': {
+        // FIXME: don't unshift until we are sure it is unique
+        const result: unknown = Reflect.apply(target[prop], receiver, args);
+
         this._manager.mutate({
           op: 'addToRelatedRecords',
           record: this.identifier,
@@ -215,9 +230,12 @@ export default class RelatedCollection extends RecordArray {
           value: extractIdentifiersFromRecords(args as RecordInstance[]),
           index: 0,
         });
-        break;
+        return result;
+      }
 
-      case 'shift':
+      case 'shift': {
+        const result: unknown = Reflect.apply(target[prop], receiver, args);
+
         if (result) {
           this._manager.mutate({
             op: 'removeFromRelatedRecords',
@@ -227,18 +245,24 @@ export default class RelatedCollection extends RecordArray {
             index: 0,
           });
         }
-        break;
+        return result;
+      }
 
-      case 'sort':
+      case 'sort': {
+        const result: unknown = Reflect.apply(target[prop], receiver, args);
+
         this._manager.mutate({
           op: 'sortRelatedRecords',
           record: this.identifier,
           field: this.key,
           value: (result as RecordInstance[]).map(recordIdentifierFor),
         });
-        break;
+        return result;
+      }
 
       case 'splice': {
+        // FIXME: don't splice with additions until we are sure it is unique
+        const result: unknown = Reflect.apply(target[prop], receiver, args);
         const [start, removeCount, ...adds] = args as [number, number, RecordInstance];
         // detect a full replace
         if (removeCount > 0 && adds.length === this[SOURCE].length) {
@@ -248,7 +272,7 @@ export default class RelatedCollection extends RecordArray {
             field: this.key,
             value: extractIdentifiersFromRecords(adds),
           });
-          return;
+          return result;
         }
         if (removeCount > 0) {
           this._manager.mutate({
@@ -269,7 +293,7 @@ export default class RelatedCollection extends RecordArray {
           });
         }
 
-        break;
+        return result;
       }
       default:
         assert(`unable to convert ${prop} into a transaction that updates the cache state for this record array`);

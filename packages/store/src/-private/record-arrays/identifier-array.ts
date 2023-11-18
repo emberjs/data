@@ -150,9 +150,9 @@ interface PrivateState {
   links: Links | PaginationLinks | null;
   meta: Dict<unknown> | null;
 }
-type ForEachCB = (record: RecordInstance, index: number, context: IdentifierArray) => void;
+type ForEachCB = (record: RecordInstance, index: number, context: typeof Proxy<StableRecordIdentifier[]>) => void;
 function safeForEach(
-  instance: IdentifierArray,
+  instance: typeof Proxy<StableRecordIdentifier[]>,
   arr: StableRecordIdentifier[],
   store: Store,
   callback: ForEachCB,
@@ -191,7 +191,12 @@ function safeForEach(
   @public
 */
 interface IdentifierArray extends Omit<Array<RecordInstance>, '[]'> {
-  [MUTATE]?(prop: string, args: unknown[], result?: unknown): void;
+  [MUTATE]?(
+    target: StableRecordIdentifier[],
+    receiver: typeof Proxy<StableRecordIdentifier[]>,
+    prop: string,
+    args: unknown[]
+  ): unknown;
 }
 class IdentifierArray {
   declare DEPRECATED_CLASS_NAME: string;
@@ -271,7 +276,7 @@ class IdentifierArray {
 
   constructor(options: IdentifierArrayCreateOptions) {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
-    let self = this;
+    const self = this;
     this.modelName = options.type;
     this.store = options.store;
     this._manager = options.manager;
@@ -292,7 +297,7 @@ class IdentifierArray {
     // and forward them as one
 
     const proxy = new Proxy<StableRecordIdentifier[], RecordInstance[]>(this[SOURCE], {
-      get(target: StableRecordIdentifier[], prop: KeyType, receiver: IdentifierArray): unknown {
+      get(target: StableRecordIdentifier[], prop: KeyType, receiver: typeof Proxy<StableRecordIdentifier[]>): unknown {
         let index = convertToInt(prop);
         if (_TAG.shouldReset && (index !== null || SYNC_PROPS.has(prop) || isArrayGetter(prop))) {
           options.manager._syncArray(receiver as unknown as IdentifierArray);
@@ -320,7 +325,7 @@ class IdentifierArray {
               fn = function () {
                 subscribe(_TAG);
                 transaction = true;
-                let result = safeForEach(receiver, target, store, arguments[0] as ForEachCB, arguments[1]);
+                const result = safeForEach(receiver, target, store, arguments[0] as ForEachCB, arguments[1]);
                 transaction = false;
                 return result;
               };
@@ -330,7 +335,7 @@ class IdentifierArray {
                 // array functions must run through Reflect to work properly
                 // binding via other means will not work.
                 transaction = true;
-                let result = Reflect.apply(target[prop] as ProxiedMethod, receiver, arguments) as unknown;
+                const result = Reflect.apply(target[prop] as ProxiedMethod, receiver, arguments) as unknown;
                 transaction = false;
                 return result;
               };
@@ -356,8 +361,7 @@ class IdentifierArray {
               const args: unknown[] = Array.prototype.slice.call(arguments);
               assert(`Cannot start a new array transaction while a previous transaction is underway`, !transaction);
               transaction = true;
-              let result: unknown = Reflect.apply(target[prop] as ProxiedMethod, receiver, args);
-              self[MUTATE]!(prop as string, args, result);
+              const result = self[MUTATE]!(target, receiver, prop as string, args);
               addToTransaction(_TAG);
               // TODO handle cache updates
               transaction = false;
@@ -408,13 +412,18 @@ class IdentifierArray {
         return target[prop];
       },
 
-      set(target: StableRecordIdentifier[], prop: KeyType, value: unknown /*, receiver */): boolean {
+      set(
+        target: StableRecordIdentifier[],
+        prop: KeyType,
+        value: unknown,
+        receiver: typeof Proxy<StableRecordIdentifier[]>
+      ): boolean {
         if (prop === 'length') {
           if (!transaction && value === 0) {
             transaction = true;
             addToTransaction(_TAG);
             Reflect.set(target, prop, value);
-            self[MUTATE]!('length 0', []);
+            self[MUTATE]!(target, receiver, 'length 0', []);
             transaction = false;
             return true;
           } else if (transaction) {
@@ -450,7 +459,7 @@ class IdentifierArray {
         let newIdentifier = extractIdentifierFromRecord(value as RecordInstance);
         (target as unknown as Record<KeyType, unknown>)[index] = newIdentifier;
         if (!transaction) {
-          self[MUTATE]!('replace cell', [index, original, newIdentifier]);
+          self[MUTATE]!(target, receiver, 'replace cell', [index, original, newIdentifier]);
           addToTransaction(_TAG);
         }
 
