@@ -1,5 +1,4 @@
 import { assert } from '@ember/debug';
-// eslint-disable-next-line no-restricted-imports
 import { tracked } from '@glimmer/tracking';
 
 type ApiMeta = {
@@ -33,7 +32,7 @@ export class PaginationLinks {
       const cached = _pages;
       _pages = this._pages = new Array(pagesTotal).fill('.') as string[];
       for (let i = 0; i < pagesTotal; i++) {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+         
         _pages[i] = cached[i]!;
       }
     }
@@ -64,7 +63,7 @@ export class PaginationLinks {
         filtered.push({ index: i + 1, link: pages[i] });
       } else if (
         filtered.length > 0 &&
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+         
         filtered[filtered.length - 1]!.link !== '...'
       ) {
         filtered.push({ index: i + 1, link: '...' });

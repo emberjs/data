@@ -1,4 +1,4 @@
-/* eslint-disable n/no-unpublished-require */
+ 
 'use strict';
 const RAW_BOOKS = require('./MOCK_DATA.json');
 
@@ -42,14 +42,14 @@ const CATEGORIES = RAW_BOOKS.reduce((acc, book) => {
 });
 
 function getPage(books, page = 1, limit = DEFAULT_LIMIT) {
-  let start = (page - 1) * limit;
-  let end = page * limit;
+  const start = (page - 1) * limit;
+  const end = page * limit;
   return books.slice(start, end);
 }
 
 function buildLink(page = 1, limit = DEFAULT_LIMIT, filter, sort, author, genre) {
-  let url = '/api/books';
-  let params = [];
+  const url = '/api/books';
+  const params = [];
   if (author) {
     params.push(`author=${author}`);
   }
@@ -94,7 +94,7 @@ function getLinks(books, page, limit, filter, sort, author, genre) {
 
 module.exports = function (app) {
   const express = require('express');
-  let bookRouter = express.Router();
+  const bookRouter = express.Router();
   app.set('json spaces', 0);
   app.set('env', 'production');
 
@@ -130,7 +130,7 @@ module.exports = function (app) {
       const fields = sort.split(',').map((field) => field.split(':'));
 
       books.sort((a, b) => {
-        for (let [field, order] of fields) {
+        for (const [field, order] of fields) {
           const valA = field === 'publicationDate' ? new Date(a.attributes[field]).getTime() : a.attributes[field];
           const valB = field === 'publicationDate' ? new Date(b.attributes[field]).getTime() : b.attributes[field];
           if (valA === valB) {

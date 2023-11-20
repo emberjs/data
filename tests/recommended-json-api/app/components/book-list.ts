@@ -1,6 +1,5 @@
 import { service } from '@ember/service';
 import Component from '@glimmer/component';
-// eslint-disable-next-line no-restricted-imports
 import { cached, tracked } from '@glimmer/tracking';
 
 import { query } from '@ember-data/json-api/request';
@@ -9,7 +8,8 @@ import type Store from '@ember-data/store';
 import type { Document } from '@ember-data/store/-private/document';
 
 import type Book from '../models/book';
-import { ApiPage, PaginationLinks } from '../utils/pagination-links';
+import type { ApiPage} from '../utils/pagination-links';
+import { PaginationLinks } from '../utils/pagination-links';
 
 export interface BookListSignature {
   Element: HTMLDivElement;

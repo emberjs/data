@@ -4076,6 +4076,9 @@ importers:
       '@warp-drive/core-types':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/core-types(@babel/core@7.23.3)
+      '@warp-drive/internal-config':
+        specifier: workspace:5.5.0-alpha.11
+        version: link:../../config
       ember-auto-import:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.89.0)
@@ -4157,6 +4160,9 @@ importers:
       silent-error:
         specifier: ^1.1.1
         version: 1.1.1
+      typescript:
+        specifier: ^5.2.2
+        version: 5.2.2
       webpack:
         specifier: ^5.89.0
         version: 5.89.0
