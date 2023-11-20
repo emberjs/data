@@ -4,6 +4,7 @@
 import { assert, deprecate } from '@ember/debug';
 
 import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/deprecations';
+import { DEBUG } from '@ember-data/env';
 import type Store from '@ember-data/store';
 import {
   IDENTIFIER_ARRAY_TAG,
@@ -261,25 +262,53 @@ export default class RelatedCollection extends RecordArray {
       }
 
       case 'splice': {
-        // FIXME: don't splice with additions until we are sure it is unique
-        const result: unknown = Reflect.apply(target[prop], receiver, args);
+        debugger;
         const [start, removeCount, ...adds] = args as [number, number, RecordInstance];
+
+        // @runspired TODO add a few tests around the assumptions this check makes
         // detect a full replace
-        if (removeCount > 0 && adds.length === this[SOURCE].length) {
+        if (start === 0 && removeCount === this[SOURCE].length) {
+          const current = new Set(adds);
+          if (DEBUG) {
+            const seen = new Set();
+            const duplicates = adds.filter((item) => {
+              if (seen.has(item)) {
+                return true;
+              }
+              seen.add(item);
+              return false;
+            });
+            assert(
+              `Cannot replace a hasMany's state with a new state that contains duplicates. Found duplicates for the following records within the new state provided to \`<${
+                this.identifier.type
+              }:${this.identifier.id || this.identifier.lid}>.${this.key}\`\n\t- ${duplicates
+                .map((r) => recordIdentifierFor(r).lid)
+                .join('\n\t- ')}`,
+              current.size === adds.length
+            );
+          }
+          const unique = Array.from(current);
+          const newArgs = ([start, removeCount] as unknown[]).concat(unique);
+          const result = Reflect.apply(target[prop], receiver, newArgs) as RecordInstance[];
+
           this._manager.mutate({
             op: 'replaceRelatedRecords',
             record: this.identifier,
             field: this.key,
-            value: extractIdentifiersFromRecords(adds),
+            value: extractIdentifiersFromRecords(unique),
           });
           return result;
         }
+
+        // FIXME: don't splice with additions until we are sure it is unique
+        const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
+
         if (removeCount > 0) {
           this._manager.mutate({
             op: 'removeFromRelatedRecords',
             record: this.identifier,
             field: this.key,
-            value: (result as RecordInstance[]).map(recordIdentifierFor),
+            value: result.map(recordIdentifierFor),
             index: start,
           });
         }
