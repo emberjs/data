@@ -1,5 +1,5 @@
 {
-  "include": ["app/**/*", "config/**/*", "tests/**/*"],
+  "include": ["app/**/*", "config/**/*", "tests/**/*", "../../@types/ember-data-qunit-asserts"],
   "baseUrl": ".",
   "compilerOptions": {
     "lib": ["DOM", "ESNext"],

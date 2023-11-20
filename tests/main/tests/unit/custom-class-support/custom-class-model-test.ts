@@ -1,4 +1,3 @@
-import type { RecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import { module, test } from 'qunit';
 
 import Store from 'ember-data/store';
@@ -7,9 +6,9 @@ import { setupTest } from 'ember-qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import { Cache } from '@ember-data/store/-types/q/cache';
-import type { SchemaService } from '@ember-data/store/-types/q/schema-service';
-import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
+import type { Cache } from '@ember-data/store/-types/q/cache';
+import type { FieldSchema, SchemaService } from '@ember-data/store/-types/q/schema-service';
+import type { RecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
 
 module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
@@ -26,7 +25,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
 
   class TestSchema<T extends string> {
     attributesDefinitionFor(identifier: { type: T }): AttributesSchema {
-      let schema: AttributesSchema = {};
+      const schema: AttributesSchema = {};
       schema.name = {
         kind: 'attribute',
         options: {},
@@ -94,7 +93,6 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     );
     owner.register('serializer:application', JSONAPISerializer);
     // @ts-expect-error missing type
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     owner.unregister('service:store');
   });
 
@@ -150,7 +148,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     }
     this.owner.register('service:store', CreationStore);
     const store = this.owner.lookup('service:store') as Store;
-    let person = store.createRecord('person', { name: 'chris', otherProp: 'unk' }) as Record<string, unknown>;
+    const person = store.createRecord('person', { name: 'chris', otherProp: 'unk' }) as Record<string, unknown>;
     assert.strictEqual(returnValue, person, 'createRecord returns the instantiated record');
     assert.deepEqual(returnValue, person, 'record instantiating does not modify the returned value');
   });
@@ -240,7 +238,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     }
     this.owner.register('service:store', CustomStore);
     const store = this.owner.lookup('service:store') as Store;
-    class TestSchema {
+    class TestSchema2 {
       attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
         assert.step('Schema:attributesDefinitionFor');
         if (typeof identifier === 'string') {
@@ -325,10 +323,10 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
       }
     }
 
-    let schema: SchemaService = new TestSchema();
+    const schema: SchemaService = new TestSchema2();
     store.registerSchemaDefinitionService(schema);
     assert.verifySteps([]);
-    let person = store.createRecord('person', { name: 'chris' }) as Person;
+    const person = store.createRecord('person', { name: 'chris' }) as Person;
     assert.verifySteps([
       'Schema:relationshipsDefinitionFor',
       'Schema:fields',
@@ -357,8 +355,8 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     );
     this.owner.register('service:store', CustomStore);
     const store = this.owner.lookup('service:store') as Store;
-    let person = store.createRecord('person', { name: 'chris' });
-    let promisePerson = await store.saveRecord(person);
+    const person = store.createRecord('person', { name: 'chris' });
+    const promisePerson = await store.saveRecord(person);
     assert.strictEqual(person, promisePerson, 'save promise resolves with the same record');
   });
 
@@ -393,7 +391,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     this.owner.register('service:store', CreationStore);
     const store = this.owner.lookup('service:store') as unknown as Store;
     const rd: Cache = store.cache;
-    let person = store.push({ data: { type: 'person', id: '1', attributes: { name: 'chris' } } });
+    const person = store.push({ data: { type: 'person', id: '1', attributes: { name: 'chris' } } });
     store.deleteRecord(person);
     assert.true(rd.isDeleted(ident!), 'record has been marked as deleted');
     await store.saveRecord(person);
@@ -423,9 +421,9 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     }
     this.owner.register('service:store', CustomStore);
     const store = this.owner.lookup('service:store') as Store;
-    class TestSchema {
+    class TestSchema2 {
       attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
-        let modelName = (identifier as RecordIdentifier).type || identifier;
+        const modelName = (identifier as RecordIdentifier).type || identifier;
         if (modelName === 'person') {
           return {
             name: {
@@ -475,7 +473,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
       }
 
       relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
-        let modelName = (identifier as RecordIdentifier).type || identifier;
+        const modelName = (identifier as RecordIdentifier).type || identifier;
         if (modelName === 'person') {
           return {
             house: {
@@ -497,9 +495,9 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
         return true;
       }
     }
-    const schema = new TestSchema();
+    const schema = new TestSchema2();
     store.registerSchemaDefinitionService(schema);
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '7',
@@ -507,7 +505,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
         relationships: { house: { data: { type: 'house', id: '1' } } },
       },
     });
-    let serialized = store.serializeRecord(person, { includeId: true });
+    const serialized = store.serializeRecord(person, { includeId: true });
     assert.deepEqual(
       {
         data: {

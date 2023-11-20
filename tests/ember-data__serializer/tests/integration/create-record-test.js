@@ -94,7 +94,7 @@ module('Serializer Contract | running createRecord with minimum serializer', fun
 
     const store = this.owner.lookup('service:store');
 
-    let person = store.createRecord('person', {
+    const person = store.createRecord('person', {
       id: '1',
       firstName: 'John',
       lastName: 'Smith',
@@ -191,7 +191,7 @@ module('Serializer Contract | running createRecord with minimum serializer', fun
 
     const store = this.owner.lookup('service:store');
 
-    let person = store.createRecord('person', {
+    const person = store.createRecord('person', {
       id: '1',
       firstName: 'John',
       lastName: 'Smith',

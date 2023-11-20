@@ -12,9 +12,11 @@
   "author": "",
   "scripts": {
     "test:docs": "qunit ./index.js",
+    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
     "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "devDependencies": {
+    "@warp-drive/internal-config": "workspace:5.5.0-alpha.11",
     "qunit": "^2.20.0"
   },
   "engines": {

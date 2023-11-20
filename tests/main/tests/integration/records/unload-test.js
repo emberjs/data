@@ -120,7 +120,7 @@ module('integration/unload - Unloading Records', function (hooks) {
   let store, adapter;
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
 
     owner.register(`model:person`, Person);
     owner.register(`model:car`, Car);
@@ -238,7 +238,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     });
 
     car = store.peekRecord('car', 1);
-    let person = car.person;
+    const person = car.person;
 
     assert.ok(!!car, 'We have a car');
     assert.notOk(person, 'We dont have a person');
@@ -638,7 +638,7 @@ module('integration/unload - Unloading Records', function (hooks) {
         },
       ],
     });
-    let all = store.peekAll('person');
+    const all = store.peekAll('person');
 
     assert.strictEqual(all.length, 2);
 
@@ -687,14 +687,14 @@ module('integration/unload - Unloading Records', function (hooks) {
     });
     const all2 = store.peekAll('person');
     assert.strictEqual(all2.length, 1, 'after next push: record array has one item');
-    // eslint-disable-next-line qunit/no-ok-equality
+
     assert.true(all === all2, 'after next push: record array is the same');
   });
 
   test('unloadAll(type) does not leave stranded internalModels in relationships (rediscover via store.push)', async function (assert) {
     assert.expect(16);
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -710,16 +710,16 @@ module('integration/unload - Unloading Records', function (hooks) {
       included: [makeBoatOneForPersonOne()],
     });
 
-    let boat = store.peekRecord('boat', '1');
-    let relationshipState = person.hasMany('boats').hasManyRelationship;
+    const boat = store.peekRecord('boat', '1');
+    const relationshipState = person.hasMany('boats').hasManyRelationship;
 
     // ensure we loaded the people and boats
     assert.notStrictEqual(store.peekRecord('person', '1'), null);
     assert.notStrictEqual(store.peekRecord('boat', '1'), null);
 
     // ensure the relationship was established (we reach through the async proxy here)
-    let peopleBoats = await person.boats;
-    let boatPerson = await boat.person;
+    const peopleBoats = await person.boats;
+    const boatPerson = await boat.person;
 
     assert.strictEqual(relationshipState.remoteState.length, 1, 'remoteMembers size should be 1');
     assert.strictEqual(relationshipState.additions, null, 'additions should be empty');
@@ -760,7 +760,7 @@ module('integration/unload - Unloading Records', function (hooks) {
       });
     };
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -776,15 +776,15 @@ module('integration/unload - Unloading Records', function (hooks) {
       included: [makeBoatOneForPersonOne()],
     });
 
-    let boat = store.peekRecord('boat', '1');
-    let relationshipState = person.hasMany('boats').hasManyRelationship;
+    const boat = store.peekRecord('boat', '1');
+    const relationshipState = person.hasMany('boats').hasManyRelationship;
 
     // ensure we loaded the people and boats
     assert.notStrictEqual(store.peekRecord('person', '1'), null);
     assert.notStrictEqual(store.peekRecord('boat', '1'), null);
 
-    let peopleBoats = await person.boats;
-    let boatPerson = await boat.person;
+    const peopleBoats = await person.boats;
+    const boatPerson = await boat.person;
 
     assert.strictEqual(relationshipState.remoteState.length, 1, 'remoteMembers size should be 1');
     assert.strictEqual(relationshipState.additions, null, 'additions should be empty');
@@ -813,7 +813,7 @@ module('integration/unload - Unloading Records', function (hooks) {
   });
 
   test('(regression) unloadRecord followed by push in the same run-loop', async function (assert) {
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -830,15 +830,15 @@ module('integration/unload - Unloading Records', function (hooks) {
     });
 
     let boat = store.peekRecord('boat', '1');
-    let relationshipState = person.hasMany('boats').hasManyRelationship;
+    const relationshipState = person.hasMany('boats').hasManyRelationship;
 
     // ensure we loaded the people and boats
     assert.notStrictEqual(store.peekRecord('person', '1'), null);
     assert.notStrictEqual(store.peekRecord('boat', '1'), null);
 
     // ensure the relationship was established
-    let peopleBoats = await person.boats;
-    let boatPerson = await boat.person;
+    const peopleBoats = await person.boats;
+    const boatPerson = await boat.person;
 
     assert.deepEqual(idsFromArr(relationshipState.remoteState), ['1'], 'remoteMembers size should be 1');
     assert.deepEqual(idsFromArr(relationshipState.localState), ['1'], 'localMembers size should be 1');
@@ -857,7 +857,7 @@ module('integration/unload - Unloading Records', function (hooks) {
       data: makeBoatOneForPersonOne(),
     });
 
-    let reloadedBoat = store.peekRecord('boat', '1');
+    const reloadedBoat = store.peekRecord('boat', '1');
 
     assert.deepEqual(idsFromArr(relationshipState.remoteState), ['1'], 'remoteMembers size should be 1');
     assert.deepEqual(idsFromArr(relationshipState.localState), ['1'], 'localMembers size should be 1');
@@ -886,10 +886,9 @@ module('integration/unload - Unloading Records', function (hooks) {
     //   here, we will dematerialize the record, but push it back into the store
     //   all in the same run-loop!
     //   effectively this tests that our destroySync is not stupid
-    let newPerson;
     await settled();
     person.unloadRecord();
-    newPerson = store.push({
+    const newPerson = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -920,7 +919,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     };
 
     // populate initial record
-    let record = store.push({
+    const record = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -997,7 +996,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     };
 
     // populate initial record
-    let record = store.push({
+    const record = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -1027,7 +1026,7 @@ module('integration/unload - Unloading Records', function (hooks) {
       ],
     });
 
-    let identifier = recordIdentifierFor(record);
+    const identifier = recordIdentifierFor(record);
     const cache = store.cache;
 
     assert.strictEqual(record.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
@@ -1063,7 +1062,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     };
 
     // populate initial record
-    let record = store.push({
+    const record = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -1085,7 +1084,7 @@ module('integration/unload - Unloading Records', function (hooks) {
       ],
     });
 
-    let identifier = recordIdentifierFor(record);
+    const identifier = recordIdentifierFor(record);
     const cache = store.cache;
 
     const bike = store.peekRecord('bike', '1');
@@ -1138,7 +1137,7 @@ module('integration/unload - Unloading Records', function (hooks) {
       },
     });
 
-    let identifier = recordIdentifierFor(record);
+    const identifier = recordIdentifierFor(record);
     const cache = store.cache;
 
     assert.strictEqual(record.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
@@ -1213,7 +1212,7 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     store.push(personData);
 
-    let adam = store.peekRecord('person', 1);
+    const adam = store.peekRecord('person', 1);
     assert.strictEqual(adam.cars.length, 0, 'cars hasMany starts off empty');
 
     pushCar();
@@ -1248,7 +1247,7 @@ module('integration/unload - Unloading Records', function (hooks) {
       ],
     });
 
-    let person = store.peekRecord('person', 1);
+    const person = store.peekRecord('person', 1);
     let house = store.peekRecord('house', 2);
 
     assert.strictEqual(person.house.id, '2', 'initially relationship established lhs');
@@ -1322,9 +1321,9 @@ module('integration/unload - Unloading Records', function (hooks) {
     });
 
     let person = store.peekRecord('person', 1);
-    let car2 = store.peekRecord('car', 2);
-    let car3 = store.peekRecord('car', 3);
-    let cars = person.cars;
+    const car2 = store.peekRecord('car', 2);
+    const car3 = store.peekRecord('car', 3);
+    const cars = person.cars;
 
     assert.false(cars.isDestroyed, 'ManyArray not destroyed');
     assert.deepEqual(
@@ -1421,10 +1420,10 @@ module('integration/unload - Unloading Records', function (hooks) {
       ],
     });
 
-    let person = store.peekRecord('person', 1);
+    const person = store.peekRecord('person', 1);
     let car2 = store.peekRecord('car', 2);
-    let car3 = store.peekRecord('car', 3);
-    let cars = person.cars;
+    const car3 = store.peekRecord('car', 3);
+    const cars = person.cars;
 
     assert.false(cars.isDestroyed, 'ManyArray not destroyed');
     assert.deepEqual(
@@ -1542,12 +1541,12 @@ module('integration/unload - Unloading Records', function (hooks) {
       ],
     });
 
-    let person1 = store.peekRecord('person', 1);
+    const person1 = store.peekRecord('person', 1);
     let person2 = store.peekRecord('person', 2);
-    let group3 = store.peekRecord('group', 3);
-    let group4 = store.peekRecord('group', 4);
-    let p2groups = person2.groups;
-    let g3people = group3.people;
+    const group3 = store.peekRecord('group', 3);
+    const group4 = store.peekRecord('group', 4);
+    const p2groups = person2.groups;
+    const g3people = group3.people;
 
     assert.deepEqual(
       person1.groups.map((r) => r.id),
@@ -1674,7 +1673,7 @@ module('integration/unload - Unloading Records', function (hooks) {
       };
     };
 
-    let person = store.push({
+    const person = store.push({
       data: {
         id: '1',
         type: 'person',
@@ -1752,7 +1751,7 @@ module('integration/unload - Unloading Records', function (hooks) {
       };
     };
 
-    let person = store.push({
+    const person = store.push({
       data: {
         id: '1',
         type: 'person',
@@ -1772,11 +1771,10 @@ module('integration/unload - Unloading Records', function (hooks) {
         },
       },
     });
-    let boats, boat2, boat3;
 
     const asyncRecords = await person.boats;
-    boats = asyncRecords;
-    [boat2, boat3] = boats.slice();
+    const boats = asyncRecords;
+    const [boat2, boat3] = boats.slice();
     await Promise.all([boat2, boat3].map((b) => b.person));
 
     assert.deepEqual(person.hasMany('boats').ids(), ['2', '3'], 'initially relationship established lhs');
@@ -1827,7 +1825,7 @@ module('integration/unload - Unloading Records', function (hooks) {
       };
     };
 
-    let person = store.push({
+    const person = store.push({
       data: {
         id: '1',
         type: 'person',
@@ -1850,6 +1848,7 @@ module('integration/unload - Unloading Records', function (hooks) {
 
     const boats = await person.boats;
 
+    // eslint-disable-next-line prefer-const
     let [boat2, boat3] = boats.slice();
     await Promise.all([boat2.person, boat3.person]);
 
@@ -1929,7 +1928,7 @@ module('integration/unload - Unloading Records', function (hooks) {
       };
     };
 
-    let [person1, person2] = store.push({
+    const [person1, person2] = store.push({
       data: [
         {
           id: '1',
@@ -2020,7 +2019,7 @@ module('integration/unload - Unloading Records', function (hooks) {
   });
 
   test('1 sync : 1 async unload sync side', async function (assert) {
-    let person = store.push({
+    const person = store.push({
       data: {
         id: '1',
         type: 'person',
@@ -2122,8 +2121,8 @@ module('integration/unload - Unloading Records', function (hooks) {
       ],
     });
 
-    let person = store.peekRecord('person', 1);
-    let book = store.peekRecord('book', 2);
+    const person = store.peekRecord('person', 1);
+    const book = store.peekRecord('book', 2);
 
     await book.person
       .then(() => {
@@ -2177,10 +2176,10 @@ module('integration/unload - Unloading Records', function (hooks) {
       ],
     });
 
-    let person = store.peekRecord('person', 1);
+    const person = store.peekRecord('person', 1);
     let spoon2 = store.peekRecord('spoon', 2);
-    let spoon3 = store.peekRecord('spoon', 3);
-    let spoons = person.favoriteSpoons;
+    const spoon3 = store.peekRecord('spoon', 3);
+    const spoons = person.favoriteSpoons;
 
     assert.false(spoons.isDestroyed, 'ManyArray not destroyed');
     assert.deepEqual(
@@ -2273,7 +2272,7 @@ module('integration/unload - Unloading Records', function (hooks) {
       };
     };
 
-    let person = store.push({
+    const person = store.push({
       data: {
         id: '1',
         type: 'person',
@@ -2303,9 +2302,9 @@ module('integration/unload - Unloading Records', function (hooks) {
         },
       ],
     });
-    let spoon2 = store.peekRecord('spoon', '2');
-    let spoon3 = store.peekRecord('spoon', '3');
-    let spoons = person.favoriteSpoons;
+    const spoon2 = store.peekRecord('spoon', '2');
+    const spoon3 = store.peekRecord('spoon', '3');
+    const spoons = person.favoriteSpoons;
 
     assert.deepEqual(
       person.favoriteSpoons.map((r) => r.id),
@@ -2363,7 +2362,7 @@ module('integration/unload - Unloading Records', function (hooks) {
       };
     };
 
-    let person = store.push({
+    const person = store.push({
       data: {
         id: '1',
         type: 'person',
@@ -2470,11 +2469,10 @@ module('integration/unload - Unloading Records', function (hooks) {
         },
       },
     });
-    let shows, show2, show3;
 
     const asyncRecords = await person.favoriteShows;
-    shows = asyncRecords;
-    [show2, show3] = shows.slice();
+    const shows = asyncRecords;
+    const [show2, show3] = shows.slice();
 
     assert.deepEqual(person.hasMany('favoriteShows').ids(), ['2', '3'], 'initially relationship established lhs');
     assert.strictEqual(show2.person.id, '1', 'initially relationship established rhs');
@@ -2557,7 +2555,7 @@ module('integration/unload - Unloading Records', function (hooks) {
       assert.strictEqual(snapshot.modelName, 'person', 'findHasMany(_, snapshot) is correct');
       assert.strictEqual(link, 'boats', 'findHasMany(_, _, link) is correct');
 
-      let relationships = {
+      const relationships = {
         person: {
           data: {
             type: 'person',
@@ -2566,7 +2564,7 @@ module('integration/unload - Unloading Records', function (hooks) {
         },
       };
 
-      let data = [
+      const data = [
         {
           id: '3',
           type: 'boat',
@@ -2587,7 +2585,7 @@ module('integration/unload - Unloading Records', function (hooks) {
       };
     };
 
-    let person = store.push({
+    const person = store.push({
       data: {
         id: '1',
         type: 'person',

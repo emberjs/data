@@ -1,12 +1,12 @@
-import { module } from '@warp-drive/diagnostic';
-import { setupTest } from '@warp-drive/diagnostic/ember';
-
+/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
 // @ts-expect-error TODO: This is supplied via private-build-infra/virtual-packages
 import { DEPRECATE_NON_UNIQUE_PAYLOADS } from '@ember-data/deprecations';
 import { graphFor } from '@ember-data/graph/-private';
 import Model, { attr, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import { test } from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+import { module } from '@warp-drive/diagnostic';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 import { deprecatedTest } from '../../setup-test';
 
@@ -25,7 +25,6 @@ module('Integration | Graph | Duplicate Data', function (hooks) {
 
       class App extends Model {
         @attr declare name: string;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         @hasMany('config', { async: false, inverse: null }) declare configs: Config[];
       }
 
@@ -85,7 +84,6 @@ module('Integration | Graph | Duplicate Data', function (hooks) {
 
       class App extends Model {
         @attr declare name: string;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         @hasMany('config', { async: false, inverse: null }) declare configs: Config[];
       }
 
@@ -141,7 +139,6 @@ module('Integration | Graph | Duplicate Data', function (hooks) {
 
       class App extends Model {
         @attr declare name: string;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         @hasMany('config', { async: false, inverse: null }) declare configs: Config[];
       }
 
@@ -188,7 +185,6 @@ module('Integration | Graph | Duplicate Data', function (hooks) {
 
       class App extends Model {
         @attr declare name: string;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         @hasMany('config', { async: false, inverse: null }) declare configs: Config[];
       }
 

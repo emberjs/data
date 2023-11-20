@@ -1,6 +1,5 @@
 import { service } from '@ember/service';
 import Component from '@glimmer/component';
-// eslint-disable-next-line no-restricted-imports
 import { cached, tracked } from '@glimmer/tracking';
 
 import type Store from '@ember-data/store';

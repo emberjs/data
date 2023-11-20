@@ -13,15 +13,15 @@ module('PromiseManyArray', function () {
   test('.reload should NOT leak the internal promise, rather return another promiseArray', function (assert) {
     assert.expect(1);
 
-    let content = A();
+    const content = A();
 
     content.reload = () => Promise.resolve(content);
 
-    let array = PromiseManyArray.create({
+    const array = PromiseManyArray.create({
       content,
     });
 
-    let reloaded = array.reload();
+    const reloaded = array.reload();
 
     assert.strictEqual(reloaded, array);
   });
@@ -29,17 +29,16 @@ module('PromiseManyArray', function () {
   test('.reload should be stable', async function (assert) {
     assert.expect(19);
 
-    let content = A();
-    let array;
+    const content = A();
 
     content.reload = () => {
-      let p = Promise.resolve(content);
+      const p = Promise.resolve(content);
       array._update(p);
       return p;
     };
-    let promise = Promise.resolve(content);
+    const promise = Promise.resolve(content);
 
-    array = PromiseManyArray.create({
+    const array = PromiseManyArray.create({
       promise,
     });
 
@@ -54,7 +53,7 @@ module('PromiseManyArray', function () {
     assert.true(array.isSettled, 'should be settled');
     assert.true(array.isFulfilled, 'should be fulfilled');
 
-    let reloaded = array.reload();
+    const reloaded = array.reload();
 
     assert.false(array.isRejected, 'should NOT be rejected');
     assert.true(array.isPending, 'should be pending');
@@ -64,7 +63,7 @@ module('PromiseManyArray', function () {
     assert.ok(reloaded instanceof PromiseManyArray);
     assert.strictEqual(reloaded, array);
 
-    let value = await reloaded;
+    const value = await reloaded;
     assert.false(array.isRejected, 'should NOT be rejected');
     assert.false(array.isPending, 'should NOT be pending');
     assert.true(array.isSettled, 'should be settled');
@@ -76,11 +75,11 @@ module('PromiseManyArray', function () {
   test('.set to new promise should be like reload', async function (assert) {
     assert.expect(18);
 
-    let content = A([1, 2, 3]);
+    const content = A([1, 2, 3]);
 
-    let promise = Promise.resolve(content);
+    const promise = Promise.resolve(content);
 
-    let array = PromiseManyArray.create({
+    const array = PromiseManyArray.create({
       promise,
     });
 
@@ -104,7 +103,7 @@ module('PromiseManyArray', function () {
 
     assert.ok(array instanceof PromiseManyArray);
 
-    let value = await array;
+    const value = await array;
     assert.false(array.isRejected, 'should NOT be rejected');
     assert.false(array.isPending, 'should NOT be pending');
     assert.true(array.isSettled, 'should be settled');

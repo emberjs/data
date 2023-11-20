@@ -54,7 +54,7 @@ class TestAdapter extends JSONAPIAdapter {
     if (this.isPaused) {
       return this.pausePromise.then(() => this._nextPayload());
     }
-    let payload = this._payloads.shift();
+    const payload = this._payloads.shift();
 
     if (payload === undefined) {
       this.assert.ok(false, 'Too many adapter requests have been made!');
@@ -84,7 +84,7 @@ class TestAdapter extends JSONAPIAdapter {
 }
 
 function makePeopleWithRelationshipData() {
-  let people = [
+  const people = [
     {
       type: 'person',
       id: '1:no-children-or-parent',
@@ -166,7 +166,7 @@ function makePeopleWithRelationshipData() {
     },
   ];
 
-  let peopleHash = {};
+  const peopleHash = {};
   people.forEach((person) => {
     peopleHash[person.id] = person;
   });
@@ -178,12 +178,12 @@ function makePeopleWithRelationshipData() {
 }
 
 function makePeopleWithRelationshipLinks(removeData = true) {
-  let people = makePeopleWithRelationshipData();
-  let linkPayloads = (people.links = {});
+  const people = makePeopleWithRelationshipData();
+  const linkPayloads = (people.links = {});
 
   people.all.map((person) => {
     Object.keys(person.relationships).forEach((relName) => {
-      let rel = person.relationships[relName];
+      const rel = person.relationships[relName];
       let data = rel.data;
 
       if (removeData === true) {
@@ -224,8 +224,8 @@ module('async has-many rendering tests', function (hooks) {
     test('We can render an async hasMany', async function (assert) {
       const store = this.owner.lookup('service:store');
       const adapter = store.adapterFor('application');
-      let people = makePeopleWithRelationshipData();
-      let parent = store.push({
+      const people = makePeopleWithRelationshipData();
+      const parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
       });
 
@@ -245,7 +245,7 @@ module('async has-many rendering tests', function (hooks) {
         </ul>
       `);
 
-      let names = findAll('li').map((e) => e.textContent);
+      const names = findAll('li').map((e) => e.textContent);
 
       assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
     });
@@ -253,8 +253,8 @@ module('async has-many rendering tests', function (hooks) {
     test('Re-rendering an async hasMany does not cause a new fetch', async function (assert) {
       const store = this.owner.lookup('service:store');
       const adapter = store.adapterFor('application');
-      let people = makePeopleWithRelationshipData();
-      let parent = store.push({
+      const people = makePeopleWithRelationshipData();
+      const parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
       });
 
@@ -414,8 +414,8 @@ module('async has-many rendering tests', function (hooks) {
     test('We can render an async hasMany with a link', async function (assert) {
       const store = this.owner.lookup('service:store');
       const adapter = store.adapterFor('application');
-      let people = makePeopleWithRelationshipLinks(true);
-      let parent = store.push({
+      const people = makePeopleWithRelationshipLinks(true);
+      const parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
       });
 
@@ -432,7 +432,7 @@ module('async has-many rendering tests', function (hooks) {
       </ul>
     `);
 
-      let names = findAll('li').map((e) => e.textContent);
+      const names = findAll('li').map((e) => e.textContent);
 
       assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
     });
@@ -440,8 +440,8 @@ module('async has-many rendering tests', function (hooks) {
     test('Re-rendering an async hasMany with a link does not cause a new fetch', async function (assert) {
       const store = this.owner.lookup('service:store');
       const adapter = store.adapterFor('application');
-      let people = makePeopleWithRelationshipLinks(true);
-      let parent = store.push({
+      const people = makePeopleWithRelationshipLinks(true);
+      const parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
       });
 
@@ -479,8 +479,8 @@ module('async has-many rendering tests', function (hooks) {
       const store = this.owner.lookup('service:store');
       const adapter = store.adapterFor('application');
       assert.expect(11);
-      let people = makePeopleWithRelationshipLinks(true);
-      let parent = store.push({
+      const people = makePeopleWithRelationshipLinks(true);
+      const parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
       });
 
@@ -514,7 +514,7 @@ module('async has-many rendering tests', function (hooks) {
 
       // Here we assign our handler to the corresponding global, window property
       window.addEventListener('unhandledrejection', globalPromiseRejectionHandler, true);
-      let originalPushResult = assert.pushResult;
+      const originalPushResult = assert.pushResult;
       assert.pushResult = function (result) {
         if (
           result.result === false &&
@@ -534,13 +534,13 @@ module('async has-many rendering tests', function (hooks) {
       </ul>
     `);
 
-      let names = findAll('li').map((e) => e.textContent);
+      const names = findAll('li').map((e) => e.textContent);
 
       assert.deepEqual(names, [], 'We rendered no names');
 
-      let relationshipState = parent.hasMany('children').hasManyRelationship;
-      let RelationshipPromiseCache = LEGACY_SUPPORT.get(parent)._relationshipPromisesCache;
-      let RelationshipProxyCache = LEGACY_SUPPORT.get(parent)._relationshipProxyCache;
+      const relationshipState = parent.hasMany('children').hasManyRelationship;
+      const RelationshipPromiseCache = LEGACY_SUPPORT.get(parent)._relationshipPromisesCache;
+      const RelationshipProxyCache = LEGACY_SUPPORT.get(parent)._relationshipProxyCache;
 
       assert.true(relationshipState.definition.isAsync, 'The relationship is async');
       assert.true(
@@ -563,8 +563,8 @@ module('async has-many rendering tests', function (hooks) {
     test('We can render an async hasMany with a link and data', async function (assert) {
       const store = this.owner.lookup('service:store');
       const adapter = store.adapterFor('application');
-      let people = makePeopleWithRelationshipLinks(false);
-      let parent = store.push({
+      const people = makePeopleWithRelationshipLinks(false);
+      const parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
       });
 
@@ -581,7 +581,7 @@ module('async has-many rendering tests', function (hooks) {
       </ul>
     `);
 
-      let names = findAll('li').map((e) => e.textContent);
+      const names = findAll('li').map((e) => e.textContent);
 
       assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
     });
@@ -589,8 +589,8 @@ module('async has-many rendering tests', function (hooks) {
     test('Rendering an async hasMany with a link and data where data has been side-loaded does not fetch the link', async function (assert) {
       const store = this.owner.lookup('service:store');
       const adapter = store.adapterFor('application');
-      let people = makePeopleWithRelationshipLinks(false);
-      let parent = store.push({
+      const people = makePeopleWithRelationshipLinks(false);
+      const parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
         included: [people.dict['4:has-parent-no-children'], people.dict['5:has-parent-no-children']],
       });
@@ -609,7 +609,7 @@ module('async has-many rendering tests', function (hooks) {
       </ul>
     `);
 
-      let names = findAll('li').map((e) => e.textContent);
+      const names = findAll('li').map((e) => e.textContent);
 
       assert.deepEqual(names, ['Selena has a parent', 'Sedona has a parent'], 'We rendered the names');
     });
@@ -617,8 +617,8 @@ module('async has-many rendering tests', function (hooks) {
     test('Re-rendering an async hasMany with a link and data does not cause a new fetch', async function (assert) {
       const store = this.owner.lookup('service:store');
       const adapter = store.adapterFor('application');
-      let people = makePeopleWithRelationshipLinks(false);
-      let parent = store.push({
+      const people = makePeopleWithRelationshipLinks(false);
+      const parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
       });
 
@@ -803,7 +803,7 @@ module('autotracking has-many', function (hooks) {
   let store;
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
     owner.register('model:person', Person);
     owner.register('adapter:application', TestAdapter);
     owner.register('serializer:application', JSONAPISerializer);
@@ -830,7 +830,7 @@ module('autotracking has-many', function (hooks) {
       }
     }
 
-    let layout = hbs`
+    const layout = hbs`
       <button id="createChild" {{on "click" this.createChild}}>Add child</button>
 
       <h2>{{this.sortedChildren.length}}</h2>
@@ -844,8 +844,8 @@ module('autotracking has-many', function (hooks) {
     this.owner.register('template:components/children-list', layout);
 
     store.createRecord('person', { id: '1', name: 'Doodad' });
-    let person = store.peekRecord('person', '1');
-    let children = await person.children;
+    const person = store.peekRecord('person', '1');
+    const children = await person.children;
     this.model = { person, children };
 
     await render(hbs`<ChildrenList @model={{this.model}} />`);
@@ -877,7 +877,7 @@ module('autotracking has-many', function (hooks) {
       }
     }
 
-    let layout = hbs`
+    const layout = hbs`
       <button id="createChild" {{on "click" this.createChild}}>Add child</button>
 
       <h2>{{@person.children.length}}</h2>
@@ -925,7 +925,7 @@ module('autotracking has-many', function (hooks) {
       }
     }
 
-    let layout = hbs`
+    const layout = hbs`
       <button id="createChild" {{on "click" this.createChild}}>Add child</button>
 
       <h2>{{this.sortedChildren.length}}</h2>
@@ -975,7 +975,7 @@ module('autotracking has-many', function (hooks) {
       }
     }
 
-    let layout = hbs`
+    const layout = hbs`
       <button id="createChild" {{on "click" this.createChild}}>Add child</button>
 
       <h2>{{this.firstChild.name}}</h2>
@@ -1016,7 +1016,7 @@ module('autotracking has-many', function (hooks) {
       }
     }
 
-    let layout = hbs`
+    const layout = hbs`
       <button id="createChild" {{on "click" this.createChild}}>Add child</button>
 
       <h2>{{this.children.length}}</h2>
@@ -1066,7 +1066,7 @@ module('autotracking has-many', function (hooks) {
       }
     }
 
-    let layout = hbs`
+    const layout = hbs`
       <button id="createChild" {{on "click" this.createChild}}>Add child</button>
 
       <h2>{{this.children.length}}</h2>
@@ -1131,7 +1131,7 @@ module('autotracking has-many', function (hooks) {
       }
     }
 
-    let layout = hbs`
+    const layout = hbs`
       <button id="createChild" {{on "click" this.createChild}}>Add child</button>
 
       <h2>{{this.children.length}}</h2>
@@ -1216,7 +1216,7 @@ module('autotracking has-many', function (hooks) {
       }
     }
 
-    let layout = hbs`
+    const layout = hbs`
       <button id="createPerson" {{on "click" this.createPerson}}>Add person</button>
 
       <h2>{{this.allPeople.length}}</h2>

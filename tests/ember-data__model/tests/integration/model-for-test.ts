@@ -1,8 +1,7 @@
-import { module, test } from '@warp-drive/diagnostic';
+import Store from '@ember-data/store';
 import type { FieldSchema, SchemaService } from '@ember-data/store/-types/q/schema-service';
 import type { RelationshipsSchema } from '@warp-drive/core-types/schema';
-
-import Store from '@ember-data/store';
+import { module, test } from '@warp-drive/diagnostic';
 
 module('modelFor without @ember-data/model', function () {
   test('We can call modelFor', function (assert) {

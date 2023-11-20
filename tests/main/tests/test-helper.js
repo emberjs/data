@@ -3,13 +3,13 @@ import { _backburner } from '@ember/runloop';
 import { getSettledState, isSettled, registerHook, setApplication } from '@ember/test-helpers';
 import { getPendingWaiterState } from '@ember/test-waiters';
 
-import { setTestId } from '@warp-drive/holodeck';
 import * as QUnit from 'qunit';
 import { setup } from 'qunit-dom';
 
 import start from 'ember-exam/test-support/start';
 
 import configureAsserts from '@ember-data/unpublished-test-infra/test-support/asserts';
+import { setTestId } from '@warp-drive/holodeck';
 
 import Application from '../app';
 import config from '../config/environment';

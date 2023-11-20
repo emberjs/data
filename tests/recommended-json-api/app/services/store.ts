@@ -1,5 +1,3 @@
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-
 import JSONAPICache from '@ember-data/json-api';
 import type Model from '@ember-data/model';
 import { instantiateRecord, teardownRecord } from '@ember-data/model';
@@ -8,8 +6,9 @@ import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 import { LifetimesService } from '@ember-data/request-utils';
 import DataStore, { CacheHandler } from '@ember-data/store';
-import type { Cache } from '@ember-data/store/-types/cache/cache';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { Cache } from '@warp-drive/core-types/cache';
 
 import CONFIG from '../config/environment';
 
@@ -25,19 +24,23 @@ export default class Store extends DataStore {
     this.lifetimes = new LifetimesService(this, CONFIG);
   }
 
-  createCache(capabilities: CacheCapabilitiesManager): Cache {
+  override createCache(capabilities: CacheCapabilitiesManager): Cache {
     return new JSONAPICache(capabilities);
   }
 
-  instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs: { [key: string]: unknown }): unknown {
+  override instantiateRecord(
+    identifier: StableRecordIdentifier,
+    createRecordArgs: { [key: string]: unknown }
+  ): unknown {
     return instantiateRecord.call(this, identifier, createRecordArgs);
   }
 
-  teardownRecord(record: Model): void {
+  override teardownRecord(record: Model): void {
     return teardownRecord.call(this, record);
   }
 
-  modelFor(type: string) {
+  // @ts-expect-error Not sure what the fix is here
+  override modelFor(type: string) {
     return modelFor.call(this, type);
   }
 }

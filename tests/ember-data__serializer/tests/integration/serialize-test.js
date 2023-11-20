@@ -63,7 +63,7 @@ module('Serializer Contract | serialize methods forward to Serializer#serialize'
 
     const store = this.owner.lookup('service:store');
 
-    let person = store.createRecord('person', {
+    const person = store.createRecord('person', {
       id: '1',
       firstName: 'John',
       lastName: 'Smith',
@@ -78,7 +78,7 @@ module('Serializer Contract | serialize methods forward to Serializer#serialize'
       },
     });
 
-    let serializedPerson = person.serialize();
+    const serializedPerson = person.serialize();
 
     assert.strictEqual(serializeCalled, 1, 'serialize called once');
     assert.deepEqual(serializedPerson, {
@@ -118,7 +118,7 @@ module('Serializer Contract | serialize methods forward to Serializer#serialize'
 
     const store = this.owner.lookup('service:store');
 
-    let person = store.createRecord('person', {
+    const person = store.createRecord('person', {
       id: '1',
       firstName: 'John',
       lastName: 'Smith',
@@ -133,7 +133,7 @@ module('Serializer Contract | serialize methods forward to Serializer#serialize'
       },
     });
 
-    let serializedPerson = person._createSnapshot().serialize();
+    const serializedPerson = person._createSnapshot().serialize();
 
     assert.strictEqual(serializeCalled, 1, 'serialize called once');
     assert.deepEqual(serializedPerson, {
@@ -173,7 +173,7 @@ module('Serializer Contract | serialize methods forward to Serializer#serialize'
 
     const store = this.owner.lookup('service:store');
 
-    let person = store.createRecord('person', {
+    const person = store.createRecord('person', {
       id: '1',
       firstName: 'John',
       lastName: 'Smith',
@@ -188,7 +188,7 @@ module('Serializer Contract | serialize methods forward to Serializer#serialize'
       },
     });
 
-    let serializedPerson = store.serializeRecord(person);
+    const serializedPerson = store.serializeRecord(person);
 
     assert.strictEqual(serializeCalled, 1, 'serialize called once');
     assert.deepEqual(serializedPerson, {

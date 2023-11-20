@@ -47,8 +47,8 @@ module('integration/adapter - Finding Records', function (hooks) {
 
     const store = this.owner.lookup('service:store');
 
-    let promise1 = store.findRecord('person', '1');
-    let promise2 = store.findRecord('person', '1');
+    const promise1 = store.findRecord('person', '1');
+    const promise2 = store.findRecord('person', '1');
 
     await promise1;
     await promise2;
@@ -64,7 +64,7 @@ module('integration/adapter - Finding Records', function (hooks) {
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
     let resolveFindRecordPromise;
-    let findRecordPromise = new Promise((resolve) => (resolveFindRecordPromise = resolve));
+    const findRecordPromise = new Promise((resolve) => (resolveFindRecordPromise = resolve));
 
     this.owner.register(
       'adapter:person',
@@ -75,14 +75,14 @@ module('integration/adapter - Finding Records', function (hooks) {
       })
     );
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let firstPlayerRequest = store.findRecord('person', '1').then(function (firstPlayerRequest) {
+    const firstPlayerRequest = store.findRecord('person', '1').then(function (firstPlayerRequest) {
       assert.strictEqual(firstPlayerRequest.id, '1');
       assert.strictEqual(firstPlayerRequest.name, 'Totono Grisales');
     });
 
-    let secondPlayerRequest = store.findRecord('person', '1').then(function (secondPlayerRequest) {
+    const secondPlayerRequest = store.findRecord('person', '1').then(function (secondPlayerRequest) {
       assert.strictEqual(secondPlayerRequest.id, '1');
       assert.strictEqual(secondPlayerRequest.name, 'Totono Grisales');
     });

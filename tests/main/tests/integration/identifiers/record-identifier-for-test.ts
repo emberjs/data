@@ -6,25 +6,26 @@ import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import Model, { attr } from '@ember-data/model';
+import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
+
+class User extends Model {
+  @attr() name;
+}
 
 module('Integration | Identifiers - recordIdentifierFor', function (hooks) {
   setupTest(hooks);
-  let store;
+  let store: Store;
 
   hooks.beforeEach(function () {
     const { owner } = this;
 
-    class User extends Model {
-      @attr() name;
-    }
-
     owner.register('model:user', User);
-    store = owner.lookup('service:store');
+    store = owner.lookup('service:store') as Store;
   });
 
-  test(`It works for newly created records`, async function (assert) {
-    const record = store.createRecord('user', { name: 'Chris' });
+  test(`It works for newly created records`, function (assert) {
+    const record = store.createRecord('user', { name: 'Chris' }) as User;
     assert.strictEqual(record.name, 'Chris', 'We created a record');
     const identifier = recordIdentifierFor(record);
 
@@ -48,13 +49,13 @@ module('Integration | Identifiers - recordIdentifierFor', function (hooks) {
       }
     }
     class TestSerializer extends EmberObject {
-      normalizeResponse(_, __, payload) {
+      normalizeResponse(_, __, payload: unknown) {
         return payload;
       }
     }
     this.owner.register('adapter:application', TestAdapter);
     this.owner.register('serializer:application', TestSerializer);
-    const record = store.createRecord('user', { name: 'Chris' });
+    const record = store.createRecord('user', { name: 'Chris' }) as User;
     assert.strictEqual(record.name, 'Chris', 'We created a record');
     const identifier = recordIdentifierFor(record);
 
@@ -71,7 +72,7 @@ module('Integration | Identifiers - recordIdentifierFor', function (hooks) {
     assert.ok(typeof identifier.lid === 'string' && identifier.lid.length > 0, 'We have an identifier with an lid');
   });
 
-  test(`It works for existing records`, async function (assert) {
+  test(`It works for existing records`, function (assert) {
     const record = store.push({
       data: {
         type: 'user',
@@ -80,7 +81,7 @@ module('Integration | Identifiers - recordIdentifierFor', function (hooks) {
           name: 'Chris',
         },
       },
-    });
+    }) as User;
     assert.strictEqual(record.name, 'Chris', 'We created a record');
     const identifier = recordIdentifierFor(record);
 

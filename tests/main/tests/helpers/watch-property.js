@@ -39,7 +39,7 @@ function makeCounter() {
 }
 
 export function watchProperty(obj, propertyName) {
-  let { counter, increment } = makeCounter();
+  const { counter, increment } = makeCounter();
 
   function observe() {
     increment();
@@ -72,21 +72,21 @@ export async function startWatching() {
 }
 
 export function watchProperties(obj, propertyNames) {
-  let watched = {};
-  let counters = {};
+  const watched = {};
+  const counters = {};
 
   if (!Array.isArray(propertyNames)) {
     throw new Error(`Must call watchProperties with an array of propertyNames to watch, received ${propertyNames}`);
   }
 
   for (let i = 0; i < propertyNames.length; i++) {
-    let propertyName = propertyNames[i];
+    const propertyName = propertyNames[i];
 
     if (watched[propertyName] !== undefined) {
       throw new Error(`Cannot watch the same property ${propertyName} more than once`);
     }
 
-    let { counter, increment } = makeCounter();
+    const { counter, increment } = makeCounter();
     watched[propertyName] = increment;
     counters[propertyName] = counter;
   }
@@ -101,10 +101,10 @@ QUnit.assert.watchedPropertyCounts = function assertWatchedPropertyCount(watched
     throw new Error('Expected to receive the return value of watchProperties: an object containing counters');
   }
 
-  let counters = watchedObject.counters;
+  const counters = watchedObject.counters;
 
   Object.keys(expectedCounts).forEach((propertyName) => {
-    let counter = counters[propertyName];
+    const counter = counters[propertyName];
     let expectedCount = expectedCounts[propertyName];
     let assertionText = label;
 

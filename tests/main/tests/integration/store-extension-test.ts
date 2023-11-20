@@ -1,8 +1,11 @@
-import RequestManager from '@ember-data/request';
 import { inject as service } from '@ember/service';
+
+import { module, test } from 'qunit';
+
 import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
-import { module, test } from 'qunit';
+
+import RequestManager from '@ember-data/request';
 
 module('Integration | Store Extension', function (hooks) {
   setupTest(hooks);

@@ -1,12 +1,13 @@
-import { module, test } from '@warp-drive/diagnostic';
-import { setupTest } from '@warp-drive/diagnostic/ember';
+import type { TestContext } from '@ember/test-helpers';
 
 import { createRecord, deleteRecord, findRecord, postQuery, query, updateRecord } from '@ember-data/json-api/request';
 import { setBuildURLConfig } from '@ember-data/request-utils';
-import Store, { recordIdentifierFor } from '@ember-data/store';
-import { TestContext } from '@ember/test-helpers';
+import type Store from '@ember-data/store';
+import { recordIdentifierFor } from '@ember-data/store';
+import { module, test } from '@warp-drive/diagnostic';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
-import UserSetting from '../../app/models/user-setting';
+import type UserSetting from '../../app/models/user-setting';
 import { headersToObject } from '../helpers/utils';
 
 const JSON_API_HEADERS = { accept: 'application/vnd.api+json' };

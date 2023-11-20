@@ -16,9 +16,9 @@ module('unit/store/peekRecord - Store peekRecord', function (hooks) {
   });
 
   test('peekRecord should return the record if it is in the store', function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -32,9 +32,9 @@ module('unit/store/peekRecord - Store peekRecord', function (hooks) {
   });
 
   test('peekRecord should return the record with identifier as argument', function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -48,7 +48,7 @@ module('unit/store/peekRecord - Store peekRecord', function (hooks) {
   });
 
   test('peekRecord should return null if the record is not in the store ', function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     assert.strictEqual(
       store.peekRecord('person', 1),
@@ -58,7 +58,7 @@ module('unit/store/peekRecord - Store peekRecord', function (hooks) {
   });
 
   testInDebug('peekRecord should assert if not passed both model name and id', function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     assert.expectAssertion(() => {
       store.peekRecord('my-id');
@@ -66,10 +66,10 @@ module('unit/store/peekRecord - Store peekRecord', function (hooks) {
   });
 
   testInDebug('peekRecord should assert if passed a model class instead of model name', function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     assert.expectAssertion(() => {
-      let modelClass = EmberObject.extend();
+      const modelClass = EmberObject.extend();
       store.peekRecord(modelClass, 'id');
     }, /Passing classes to store methods has been removed/);
   });
@@ -90,7 +90,7 @@ module('unit/store/peekRecord - Store peekRecord', function (hooks) {
     { withType: true, withLid: true, extra: { id: null }, desc: 'type, null id, and lid' },
   ].forEach(({ withType, withId, withLid, extra, isCreate, desc }) => {
     test(`peekRecord (${desc})`, function (assert) {
-      let store = this.owner.lookup('service:store');
+      const store = this.owner.lookup('service:store');
 
       let person;
       if (isCreate) {

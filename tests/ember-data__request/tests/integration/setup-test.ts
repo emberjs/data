@@ -1,8 +1,7 @@
-import { module, test } from '@warp-drive/diagnostic';
-
 import RequestManager from '@ember-data/request';
 import type { Context as HandlerRequestContext } from '@ember-data/request/-private/context';
 import type { NextFn } from '@ember-data/request/-private/types';
+import { module, test } from '@warp-drive/diagnostic';
 
 module('RequestManager | Basic Setup', function () {
   test('We can call new RequestManager() with no args', function (assert) {

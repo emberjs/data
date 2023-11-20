@@ -22,7 +22,7 @@ module('integration/adapter/queries - Queries', function (hooks) {
 
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     assert.expectAssertion(() => {
       store.query();
@@ -34,7 +34,7 @@ module('integration/adapter/queries - Queries', function (hooks) {
 
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     assert.expectAssertion(() => {
       store.query('person');
@@ -48,8 +48,8 @@ module('integration/adapter/queries - Queries', function (hooks) {
 
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.query = function (store, type, query, recordArray) {
       assert.strictEqual(type, Person, 'the query method is called with the correct type');
@@ -74,7 +74,7 @@ module('integration/adapter/queries - Queries', function (hooks) {
       });
     };
 
-    let queryResults = await store.query('person', { page: '1' });
+    const queryResults = await store.query('person', { page: '1' });
 
     assert.strictEqual(queryResults.length, 2, 'the record array has a length of 2 after the results are loaded');
     assert.true(queryResults.isLoaded, "the record array's `isLoaded` property should be true");
@@ -90,14 +90,14 @@ module('integration/adapter/queries - Queries', function (hooks) {
 
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.query = function () {
       return Promise.resolve({ data: [{ id: 'first', type: 'person' }] });
     };
 
-    let personsQuery = await store.query('person', {});
+    const personsQuery = await store.query('person', {});
 
     assert.strictEqual(personsQuery.length, 1, 'There is one person');
     assert.strictEqual(personsQuery.at(0).id, 'first', 'the right person is present');
@@ -139,8 +139,8 @@ module('integration/adapter/queries - Queries', function (hooks) {
 
       this.owner.register('model:person', Person);
 
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
 
       adapter.query = function (store, type, query, recordArray) {
         assert.strictEqual(type, Person, 'the query method is called with the correct type');

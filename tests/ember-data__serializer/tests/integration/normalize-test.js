@@ -54,7 +54,7 @@ module('Serializer Contract | normalize method forwards to Serializer#normalize'
 
     const store = this.owner.lookup('service:store');
 
-    let payload = store.normalize('person', {
+    const payload = store.normalize('person', {
       id: '1',
       type: 'person',
       attributes: {

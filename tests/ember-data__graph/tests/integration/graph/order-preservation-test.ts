@@ -1,9 +1,10 @@
-import { module, test } from '@warp-drive/diagnostic';
-import { setupTest } from '@warp-drive/diagnostic/ember';
-
+// Remove this disable once @belongsTo and @hasMany are typed
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { graphFor } from '@ember-data/graph/-private';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import Store from '@ember-data/store';
+import type Store from '@ember-data/store';
+import { module, test } from '@warp-drive/diagnostic';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 class App extends Model {
   @attr declare name: string;

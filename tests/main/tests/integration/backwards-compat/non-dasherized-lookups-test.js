@@ -38,7 +38,7 @@ module(
       async function (assert) {
         assert.expect(1);
 
-        let store = this.owner.lookup('service:store');
+        const store = this.owner.lookup('service:store');
 
         store.pushPayload('post-note', {
           data: {
@@ -66,7 +66,7 @@ module(
       async function (assert) {
         assert.expect(1);
 
-        let store = this.owner.lookup('service:store');
+        const store = this.owner.lookup('service:store');
 
         store.pushPayload('post-note', {
           data: {
@@ -129,7 +129,7 @@ module(
       async function (assert) {
         assert.expect(1);
 
-        let store = this.owner.lookup('service:store');
+        const store = this.owner.lookup('service:store');
 
         store.pushPayload('post-note', {
           data: {
@@ -170,7 +170,7 @@ module(
       async function (assert) {
         assert.expect(1);
 
-        let store = this.owner.lookup('service:store');
+        const store = this.owner.lookup('service:store');
 
         store.pushPayload('long_model_name', {
           data: {

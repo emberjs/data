@@ -29,8 +29,8 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function (
   test('When an id is searched, the correct url should be generated', async function (assert) {
     assert.expect(2);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     let count = 0;
 
@@ -52,8 +52,8 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function (
   test(`id's should be sanatized`, async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.ajax = function (url, method) {
       assert.strictEqual(url, '/people/..%2Fplace%2F1', 'should create the correct url');
@@ -64,18 +64,18 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function (
   });
 
   test('ajaxOptions() headers are set', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.headers = {
       'Content-Type': 'application/json',
       'Other-key': 'Other Value',
     };
 
-    let url = 'example.com';
-    let type = 'GET';
-    let ajaxOptions = adapter.ajaxOptions(url, type, {});
-    let receivedHeaders = ajaxOptions.headers;
+    const url = 'example.com';
+    const type = 'GET';
+    const ajaxOptions = adapter.ajaxOptions(url, type, {});
+    const receivedHeaders = ajaxOptions.headers;
 
     assert.deepEqual(
       receivedHeaders,
@@ -88,12 +88,12 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function (
   });
 
   test('ajaxOptions() do not serializes data when GET', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
-    let url = 'example.com';
-    let type = 'GET';
-    let ajaxOptions = adapter.ajaxOptions(url, type, { data: { key: 'value' } });
+    const url = 'example.com';
+    const type = 'GET';
+    const ajaxOptions = adapter.ajaxOptions(url, type, { data: { key: 'value' } });
 
     assert.deepEqual(ajaxOptions, {
       credentials: 'same-origin',
@@ -108,12 +108,12 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function (
   });
 
   test('ajaxOptions() serializes data when not GET', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
-    let url = 'example.com';
-    let type = 'POST';
-    let ajaxOptions = adapter.ajaxOptions(url, type, { data: { key: 'value' } });
+    const url = 'example.com';
+    const type = 'POST';
+    const ajaxOptions = adapter.ajaxOptions(url, type, { data: { key: 'value' } });
 
     assert.deepEqual(ajaxOptions, {
       credentials: 'same-origin',
@@ -129,12 +129,12 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function (
   });
 
   test('ajaxOptions() can provide own headers["Content-Type"]', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
-    let url = 'example.com';
-    let type = 'POST';
-    let ajaxOptions = adapter.ajaxOptions(url, type, {
+    const url = 'example.com';
+    const type = 'POST';
+    const ajaxOptions = adapter.ajaxOptions(url, type, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
@@ -155,12 +155,12 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function (
   });
 
   test('ajaxOptions() can provide own contentType in options', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
-    let url = 'example.com';
-    let type = 'POST';
-    let ajaxOptions = adapter.ajaxOptions(url, type, {
+    const url = 'example.com';
+    const type = 'POST';
+    const ajaxOptions = adapter.ajaxOptions(url, type, {
       contentType: 'application/x-www-form-urlencoded',
       data: { key: 'value' },
     });
@@ -180,12 +180,12 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function (
   });
 
   test('ajaxOptions() empty data', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
-    let url = 'example.com';
-    let type = 'POST';
-    let ajaxOptions = adapter.ajaxOptions(url, type, {});
+    const url = 'example.com';
+    const type = 'POST';
+    const ajaxOptions = adapter.ajaxOptions(url, type, {});
 
     assert.deepEqual(ajaxOptions, {
       credentials: 'same-origin',
@@ -197,16 +197,16 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function (
   });
 
   test('ajaxOptions() headers take precedence over adapter headers', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.headers = {
       'Content-Type': 'application/x-www-form-urlencoded',
     };
 
-    let url = 'example.com';
-    let type = 'POST';
-    let ajaxOptions = adapter.ajaxOptions(url, type, {
+    const url = 'example.com';
+    const type = 'POST';
+    const ajaxOptions = adapter.ajaxOptions(url, type, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -224,12 +224,12 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function (
   });
 
   test('_fetchRequest() returns a promise', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
-    let noop = function () {};
+    const noop = function () {};
 
-    let fetchPlacePromise = adapter._fetchRequest({
+    const fetchPlacePromise = adapter._fetchRequest({
       url: '/places/1',
       success: noop,
       error: noop,
@@ -251,57 +251,57 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function (
     });
 
     test('ajaxOptions() Content-Type is not set with ajax GET', function (assert) {
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
 
-      let url = 'example.com';
-      let type = 'GET';
-      let ajaxOptions = adapter.ajaxOptions(url, type, {});
+      const url = 'example.com';
+      const type = 'GET';
+      const ajaxOptions = adapter.ajaxOptions(url, type, {});
 
       assert.notOk(ajaxOptions.contentType, 'contentType not set with GET');
     });
 
     test('ajaxOptions() Content-Type is not set with ajax POST no data', function (assert) {
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
 
-      let url = 'example.com';
-      let type = 'POST';
-      let ajaxOptions = adapter.ajaxOptions(url, type, {});
+      const url = 'example.com';
+      const type = 'POST';
+      const ajaxOptions = adapter.ajaxOptions(url, type, {});
 
       assert.notOk(ajaxOptions.contentType, 'contentType not set with POST no data');
     });
 
     test('ajaxOptions() Content-Type is set with ajax POST with data if not useFetch', function (assert) {
-      let store = this.owner.lookup('service:store');
+      const store = this.owner.lookup('service:store');
       this.owner.register(
         'adapter:application',
         class extends RESTAdapter {
           useFetch = false;
         }
       );
-      let adapter = store.adapterFor('application');
+      const adapter = store.adapterFor('application');
 
-      let url = 'example.com';
-      let type = 'POST';
-      let ajaxOptions = adapter.ajaxOptions(url, type, { data: { type: 'post' } });
+      const url = 'example.com';
+      const type = 'POST';
+      const ajaxOptions = adapter.ajaxOptions(url, type, { data: { type: 'post' } });
 
       assert.strictEqual(ajaxOptions.contentType, 'application/json; charset=utf-8', 'contentType is set with POST');
     });
 
     test('ajaxOptions() Content-Type is set with ajax POST with data if useFetch', function (assert) {
-      let store = this.owner.lookup('service:store');
+      const store = this.owner.lookup('service:store');
       this.owner.register(
         'adapter:application',
         class extends RESTAdapter {
           useFetch = true;
         }
       );
-      let adapter = store.adapterFor('application');
+      const adapter = store.adapterFor('application');
 
-      let url = 'example.com';
-      let type = 'POST';
-      let ajaxOptions = adapter.ajaxOptions(url, type, { data: { type: 'post' } });
+      const url = 'example.com';
+      const type = 'POST';
+      const ajaxOptions = adapter.ajaxOptions(url, type, { data: { type: 'post' } });
 
       assert.strictEqual(
         ajaxOptions.headers['content-type'],

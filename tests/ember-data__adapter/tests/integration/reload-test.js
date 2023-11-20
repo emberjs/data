@@ -1,11 +1,10 @@
 import EmberObject from '@ember/object';
 
-import { module, test } from '@warp-drive/diagnostic';
-import { setupTest } from '@warp-drive/diagnostic/ember';
-
 import Store from 'ember-data__adapter/services/store';
 
 import Model, { attr } from '@ember-data/model';
+import { module, test } from '@warp-drive/diagnostic';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 class MinimalSerializer extends EmberObject {
   normalizeResponse(_, __, data) {
@@ -247,7 +246,7 @@ module('integration/reload - Reloading Tests', function (hooks) {
 
   module('adapter.shouldReloadRecord', function () {
     test('adapter.shouldReloadRecord is not called when store.findRecord is called for an unloaded record (but we do make request)', async function (assert) {
-      let payload = {
+      const payload = {
         data: {
           id: '1',
           type: 'person',
@@ -263,7 +262,7 @@ module('integration/reload - Reloading Tests', function (hooks) {
         resolveFindRecordWith: payload,
       });
 
-      let record = this.store.push(payload);
+      const record = this.store.push(payload);
 
       this.store.unloadRecord(record);
 
@@ -274,7 +273,7 @@ module('integration/reload - Reloading Tests', function (hooks) {
     });
 
     test('adapter.shouldReloadRecord is not called when store.findRecord is called for a never loaded record (but we do make request)', async function (assert) {
-      let payload = {
+      const payload = {
         data: {
           id: '1',
           type: 'person',
@@ -297,7 +296,7 @@ module('integration/reload - Reloading Tests', function (hooks) {
     });
 
     test('adapter.shouldReloadRecord is not called when store.findRecord is called with a reload flag (but we do make request if reload is true)', async function (assert) {
-      let payload = {
+      const payload = {
         data: {
           id: '1',
           type: 'person',
@@ -322,7 +321,7 @@ module('integration/reload - Reloading Tests', function (hooks) {
     });
 
     test('adapter.shouldReloadRecord is not called when store.findRecord is called with a reload flag (and we do not make request if reload is false)', async function (assert) {
-      let payload = {
+      const payload = {
         data: {
           id: '1',
           type: 'person',
@@ -347,7 +346,7 @@ module('integration/reload - Reloading Tests', function (hooks) {
     });
 
     test('if adapter.shouldReloadRecord is undefined, we default to false and do not make a request', async function (assert) {
-      let payload = {
+      const payload = {
         data: {
           id: '1',
           type: 'person',
@@ -372,7 +371,7 @@ module('integration/reload - Reloading Tests', function (hooks) {
     });
 
     test('adapter.shouldReloadRecord is called when store.findRecord is called without a reload flag (shouldReloadRecord returns true)', async function (assert) {
-      let payload = {
+      const payload = {
         data: {
           id: '1',
           type: 'person',
@@ -398,7 +397,7 @@ module('integration/reload - Reloading Tests', function (hooks) {
     });
 
     test('adapter.shouldReloadRecord is called when store.findRecord is called without a reload flag (shouldReloadRecord returns false)', async function (assert) {
-      let payload = {
+      const payload = {
         data: {
           id: '1',
           type: 'person',
@@ -426,7 +425,7 @@ module('integration/reload - Reloading Tests', function (hooks) {
 
   module('adapter.shouldBackgroundReloadRecord', function () {
     test('adapter.shouldBackgroundReloadRecord is not called when store.findRecord is called for an unloaded record (but we do make request)', async function (assert) {
-      let payload = {
+      const payload = {
         data: {
           id: '1',
           type: 'person',
@@ -441,7 +440,7 @@ module('integration/reload - Reloading Tests', function (hooks) {
         resolveFindRecordWith: payload,
       });
 
-      let record = this.store.push(payload);
+      const record = this.store.push(payload);
 
       this.store.unloadRecord(record);
 
@@ -452,7 +451,7 @@ module('integration/reload - Reloading Tests', function (hooks) {
     });
 
     test('adapter.shouldBackgroundReloadRecord is not called when store.findRecord is called for a never loaded record (but we do make request)', async function (assert) {
-      let payload = {
+      const payload = {
         data: {
           id: '1',
           type: 'person',
@@ -474,7 +473,7 @@ module('integration/reload - Reloading Tests', function (hooks) {
     });
 
     test('adapter.shouldBackgroundReloadRecord is not called called when store.findRecord is called with reload: true flag (but we do make request)', async function (assert) {
-      let payload = {
+      const payload = {
         data: {
           id: '1',
           type: 'person',
@@ -498,7 +497,7 @@ module('integration/reload - Reloading Tests', function (hooks) {
     });
 
     test('adapter.shouldBackgroundReloadRecord is not called called when store.findRecord is called and shouldReloadRecord returns true (but we do make request)', async function (assert) {
-      let payload = {
+      const payload = {
         data: {
           id: '1',
           type: 'person',
@@ -523,7 +522,7 @@ module('integration/reload - Reloading Tests', function (hooks) {
     });
 
     test('adapter.shouldBackgroundReloadRecord is not called when store.findRecord is called with backroundReload as an option (backgroundReload is true)', async function (assert) {
-      let payload = {
+      const payload = {
         data: {
           id: '1',
           type: 'person',
@@ -548,7 +547,7 @@ module('integration/reload - Reloading Tests', function (hooks) {
     });
 
     test('adapter.shouldBackgroundReloadRecord is not called when store.findRecord is called with backroundReload as an option (backgroundReload is false)', async function (assert) {
-      let payload = {
+      const payload = {
         data: {
           id: '1',
           type: 'person',
@@ -572,7 +571,7 @@ module('integration/reload - Reloading Tests', function (hooks) {
     });
 
     test('store.findRecord does not error if adapter.shouldBackgroundReloadRecord is undefined and backgroundReload is not present.', async function (assert) {
-      let payload = {
+      const payload = {
         data: {
           id: '1',
           type: 'person',
@@ -596,7 +595,7 @@ module('integration/reload - Reloading Tests', function (hooks) {
     });
 
     test('adapter.shouldBackgroundReloadRecord is called when store.findRecord is called and there is no backgroundReload flag (adapter.shouldBackgroundReloadRecord() returns true)', async function (assert) {
-      let payload = {
+      const payload = {
         data: {
           id: '1',
           type: 'person',
@@ -622,7 +621,7 @@ module('integration/reload - Reloading Tests', function (hooks) {
     });
 
     test('adapter.shouldBackgroundReloadRecord is called when store.findRecord is called and there is no backgroundReload flag (adapter.shouldBackgroundReloadRecord() returns false)', async function (assert) {
-      let payload = {
+      const payload = {
         data: {
           id: '1',
           type: 'person',

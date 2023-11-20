@@ -9,7 +9,7 @@ module('unit/adapters/build-url-mixin/path-for-type - DS.BuildURLMixin#pathForTy
 
   hooks.beforeEach(function () {
     // test for overriden pathForType methods which return null path values
-    let customPathForType = {
+    const customPathForType = {
       pathForType(type) {
         if (type === 'rootModel') {
           return '';
@@ -22,17 +22,17 @@ module('unit/adapters/build-url-mixin/path-for-type - DS.BuildURLMixin#pathForTy
   });
 
   test('pathForType - works with camelized types', function (assert) {
-    let adapter = this.owner.lookup('adapter:application');
+    const adapter = this.owner.lookup('adapter:application');
     assert.strictEqual(adapter.pathForType('superUser'), 'superUsers');
   });
 
   test('pathForType - works with dasherized types', function (assert) {
-    let adapter = this.owner.lookup('adapter:application');
+    const adapter = this.owner.lookup('adapter:application');
     assert.strictEqual(adapter.pathForType('super-user'), 'superUsers');
   });
 
   test('pathForType - works with underscored types', function (assert) {
-    let adapter = this.owner.lookup('adapter:application');
+    const adapter = this.owner.lookup('adapter:application');
     assert.strictEqual(adapter.pathForType('super_user'), 'superUsers');
   });
 });

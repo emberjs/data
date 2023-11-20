@@ -84,7 +84,7 @@ QUnit.module('Docs coverage', function (hooks) {
             }
             // docs without a private flag are published as public by default
             // We error for these
-            let status = item.access || 'public';
+            const status = item.access || 'public';
             return `(${status}) ${item.module ? `${item.module} ` : ''}${item.class}#${item.name}`;
           })
           .filter(Boolean)
@@ -140,7 +140,7 @@ QUnit.module('Docs coverage', function (hooks) {
     });
 
     test('No missing classitems', function (assert) {
-      let missing = setDifference(expectedItems, docsItems);
+      const missing = setDifference(expectedItems, docsItems);
       assert.emptySet(
         missing,
         'If you intentionally removed a public API method, please udpate tests/docs/expected.js. Otherwise, documentation is missing, incorrectly formatted, or in a directory that is not watched by yuidoc. All files containing documentation must have a yuidoc class declaration.'
@@ -148,7 +148,7 @@ QUnit.module('Docs coverage', function (hooks) {
     });
 
     test('No extraneous classitems', function (assert) {
-      let extraneous = setDifference(docsItems, expectedItems);
+      const extraneous = setDifference(docsItems, expectedItems);
       assert.emptySet(
         extraneous,
         'If you have added new features, please update tests/docs/expected.js and confirm that any public properties are marked both @public and @static to be included in the Ember API Docs viewer.'
@@ -168,7 +168,7 @@ QUnit.module('Docs coverage', function (hooks) {
 });
 
 function setDifference(setA, setB) {
-  let difference = new Set(setA);
+  const difference = new Set(setA);
   for (var elem of setB) {
     difference.delete(elem);
   }

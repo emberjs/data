@@ -41,7 +41,7 @@
     "holodeck": "./bin/holodeck.js"
   },
   "scripts": {
-    "build:types": "tsc --build",
+    "build:types": "tsc --build --force",
     "build:client": "rollup --config",
     "_build": "bun run build:client && bun run build:types",
     "start": "rollup --config --watch",

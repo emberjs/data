@@ -31,7 +31,7 @@ module('integration/adapter/handle-response', function (hooks) {
   test('handleResponse is called with normal response', async function (assert) {
     let handleResponseCalled = 0;
 
-    let samplePayload = {
+    const samplePayload = {
       data: [
         {
           id: '1',
@@ -72,7 +72,7 @@ module('integration/adapter/handle-response', function (hooks) {
   test('handleResponse is called with empty array response', async function (assert) {
     let handleResponseCalled = 0;
 
-    let samplePayload = {
+    const samplePayload = {
       data: [],
     };
 
@@ -179,7 +179,7 @@ module('integration/adapter/handle-response', function (hooks) {
   test('handleResponse is called with correct parameters on string response with 422 status', async function (assert) {
     let handleResponseCalled = 0;
 
-    let errorObject = { errors: {} };
+    const errorObject = { errors: {} };
 
     this.server.get('/people', function () {
       return ['422', { 'Content-Type': 'application/json' }, JSON.stringify(errorObject)];

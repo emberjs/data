@@ -1,9 +1,8 @@
-import { module, test } from '@warp-drive/diagnostic';
-
 import type { StructuredErrorDocument } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
 import type { Context } from '@ember-data/request/-private/context';
 import type { Future, Handler, NextFn } from '@ember-data/request/-private/types';
+import { module, test } from '@warp-drive/diagnostic';
 
 function isErrorDoc(e: Error | unknown | StructuredErrorDocument): e is StructuredErrorDocument {
   return Boolean(e && e instanceof Error && 'request' in e);

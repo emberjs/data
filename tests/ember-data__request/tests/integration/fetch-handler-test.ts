@@ -1,9 +1,8 @@
+import RequestManager from '@ember-data/request';
+import Fetch from '@ember-data/request/fetch';
 import { module, test } from '@warp-drive/diagnostic';
 import { mock, MockServerHandler } from '@warp-drive/holodeck';
 import { GET } from '@warp-drive/holodeck/mock';
-
-import RequestManager from '@ember-data/request';
-import Fetch from '@ember-data/request/fetch';
 
 function isNetworkError(e: unknown): asserts e is Error & {
   status: number;

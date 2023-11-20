@@ -1,11 +1,12 @@
-import { module, test } from '@warp-drive/diagnostic';
-import { setupTest } from '@warp-drive/diagnostic/ember';
-
+// Remove once @hasMany is typed
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 // @ts-expect-error TODO: This is supplied via private-build-infra/virtual-packages
 import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@ember-data/deprecations';
 import { graphFor } from '@ember-data/graph/-private';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
+import { module, test } from '@warp-drive/diagnostic';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 import { deprecatedTest } from '../../setup-test';
 
@@ -24,7 +25,6 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
 
       class App extends Model {
         @attr declare name: string;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         @hasMany('config', { async: false, inverse: null }) declare configs: Config[];
       }
 
@@ -84,7 +84,6 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
 
       class App extends Model {
         @attr declare name: string;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         @hasMany('config', { async: false, inverse: null }) declare configs: Config[];
       }
 

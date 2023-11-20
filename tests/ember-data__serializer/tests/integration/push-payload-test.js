@@ -70,7 +70,7 @@ module('Serializer Contract | pushPayload method forwards to Serializer#pushPayl
         lastName: 'Smith',
       },
     });
-    let person = store.peekRecord('person', '1');
+    const person = store.peekRecord('person', '1');
 
     assert.strictEqual(pushPayloadCalled, 1, 'pushPayload called once');
     assert.deepEqual(

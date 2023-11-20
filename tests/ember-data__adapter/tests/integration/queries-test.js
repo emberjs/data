@@ -1,12 +1,11 @@
 import EmberObject from '@ember/object';
 
-import { module, test } from '@warp-drive/diagnostic';
-import { setupTest } from '@warp-drive/diagnostic/ember';
-
 import Store from 'ember-data__adapter/services/store';
 
 import Model, { attr } from '@ember-data/model';
 import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
+import { module, test } from '@warp-drive/diagnostic';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 class MinimalSerializer extends EmberObject {
   normalizeResponse(_, __, data) {
@@ -42,10 +41,10 @@ module('integration/queries - Queries Tests', function (hooks) {
   });
 
   test('options passed to adapters by LegacyHandler are mutable', async function (assert) {
-    let { owner } = this;
-    let store = owner.lookup('service:store');
+    const { owner } = this;
+    const store = owner.lookup('service:store');
 
-    let expectedResult = {
+    const expectedResult = {
       id: '19',
       type: 'person',
       attributes: {
@@ -87,15 +86,15 @@ module('integration/queries - Queries Tests', function (hooks) {
 
     owner.register('adapter:application', TestAdapter);
 
-    for (let method of ['query', 'queryRecord']) {
-      let result = await store[method]('person', { initialOption: 'foo' });
+    for (const method of ['query', 'queryRecord']) {
+      const result = await store[method]('person', { initialOption: 'foo' });
       assert.ok(result, `result is returned for ${method}`);
     }
   });
 
   test('store.findRecord calls adapter.findRecord w/correct args', async function (assert) {
     let findRecordCalled = 0;
-    let expectedResult = {
+    const expectedResult = {
       data: {
         id: '12',
         type: 'person',
@@ -105,13 +104,13 @@ module('integration/queries - Queries Tests', function (hooks) {
         },
       },
     };
-    let { owner } = this;
-    let store = owner.lookup('service:store');
+    const { owner } = this;
+    const store = owner.lookup('service:store');
 
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    let expectedResultCopy = deepCopy(expectedResult);
+    const expectedResultCopy = deepCopy(expectedResult);
 
     class TestFindRecordAdapter extends EmberObject {
       findRecord(passedStore, type, id, snapshot) {
@@ -130,7 +129,7 @@ module('integration/queries - Queries Tests', function (hooks) {
 
     owner.register('adapter:application', TestFindRecordAdapter);
 
-    let record = await store.findRecord('person', '12');
+    const record = await store.findRecord('person', '12');
 
     assert.equal(findRecordCalled, 1, 'findRecord is called once');
     assert.deepEqual(record.serialize(), expectedResult, 'findRecord returns expected result');
@@ -162,10 +161,10 @@ module('integration/queries - Queries Tests', function (hooks) {
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    let expectedResultCopy = deepCopy(expectedResult);
+    const expectedResultCopy = deepCopy(expectedResult);
 
-    let { owner } = this;
-    let store = owner.lookup('service:store');
+    const { owner } = this;
+    const store = owner.lookup('service:store');
 
     class TestFindAllAdapter extends EmberObject {
       findAll(passedStore, type, sinceToken, snapshot) {
@@ -183,9 +182,9 @@ module('integration/queries - Queries Tests', function (hooks) {
 
     owner.register('adapter:application', TestFindAllAdapter);
 
-    let manyArray = await store.findAll('person');
+    const manyArray = await store.findAll('person');
 
-    let result = manyArray.slice().map((person) => person.serialize());
+    const result = manyArray.slice().map((person) => person.serialize());
     expectedResult = expectedResult.data.map((person) => ({ data: person }));
 
     assert.equal(findAllCalled, 1, 'findAll is called once');
@@ -194,7 +193,7 @@ module('integration/queries - Queries Tests', function (hooks) {
 
   test('store.queryRecord calls adapter.queryRecord w/correct args', async function (assert) {
     let queryRecordCalled = 0;
-    let expectedResult = {
+    const expectedResult = {
       data: {
         id: '12',
         type: 'person',
@@ -204,8 +203,8 @@ module('integration/queries - Queries Tests', function (hooks) {
         },
       },
     };
-    let { owner } = this;
-    let store = owner.lookup('service:store');
+    const { owner } = this;
+    const store = owner.lookup('service:store');
 
     class TestQueryRecordAdapter extends EmberObject {
       queryRecord(passedStore, type, query, options) {
@@ -222,7 +221,7 @@ module('integration/queries - Queries Tests', function (hooks) {
 
     owner.register('adapter:application', TestQueryRecordAdapter);
 
-    let record = await store.queryRecord('person', { firstName: 'Gaurav' });
+    const record = await store.queryRecord('person', { firstName: 'Gaurav' });
 
     assert.equal(queryRecordCalled, 1, 'queryRecord is called once');
     assert.deepEqual(record.serialize(), expectedResult, 'queryRecord returns expected result');
@@ -250,8 +249,8 @@ module('integration/queries - Queries Tests', function (hooks) {
         },
       ],
     };
-    let { owner } = this;
-    let store = owner.lookup('service:store');
+    const { owner } = this;
+    const store = owner.lookup('service:store');
 
     class TestQueryAdapter extends EmberObject {
       query(passedStore, type, query, recordArray, options) {
@@ -269,9 +268,9 @@ module('integration/queries - Queries Tests', function (hooks) {
 
     owner.register('adapter:application', TestQueryAdapter);
 
-    let manyArray = await store.query('person', { firstName: 'Chris' });
+    const manyArray = await store.query('person', { firstName: 'Chris' });
 
-    let result = manyArray.slice().map((person) => person.serialize());
+    const result = manyArray.slice().map((person) => person.serialize());
     expectedResult = expectedResult.data.map((person) => ({ data: person }));
 
     assert.equal(queryCalled, 1, 'query is called once');

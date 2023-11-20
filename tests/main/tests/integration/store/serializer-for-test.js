@@ -36,13 +36,13 @@ module('integration/store - serializerFor', function (hooks) {
   let store;
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
 
     store = owner.lookup('service:store');
   });
 
   test('when no serializer is available we return null', async function (assert) {
-    let { owner } = this;
+    const { owner } = this;
     /*
       serializer:-default is the "last chance" fallback and is
       the json-api serializer which is re-exported as app/serializers/-default.
@@ -62,7 +62,7 @@ module('integration/store - serializerFor', function (hooks) {
   });
 
   test('we find and instantiate the application serializer', async function (assert) {
-    let { owner } = this;
+    const { owner } = this;
     let didInstantiate = false;
 
     class AppSerializer extends TestSerializer {
@@ -73,13 +73,13 @@ module('integration/store - serializerFor', function (hooks) {
 
     owner.register('serializer:application', AppSerializer);
 
-    let serializer = store.serializerFor('application');
+    const serializer = store.serializerFor('application');
 
     assert.ok(serializer instanceof AppSerializer, 'We found the correct serializer');
     assert.ok(didInstantiate, 'We instantiated the serializer');
     didInstantiate = false;
 
-    let serializerAgain = store.serializerFor('application');
+    const serializerAgain = store.serializerFor('application');
 
     assert.ok(serializerAgain instanceof AppSerializer, 'We found the correct serializer');
     assert.notOk(didInstantiate, 'We did not instantiate the serializer again');
@@ -87,7 +87,7 @@ module('integration/store - serializerFor', function (hooks) {
   });
 
   test('multiple stores do not share serializers', async function (assert) {
-    let { owner } = this;
+    const { owner } = this;
     let didInstantiate = false;
 
     class AppSerializer extends TestSerializer {
@@ -99,14 +99,14 @@ module('integration/store - serializerFor', function (hooks) {
     owner.register('serializer:application', AppSerializer);
     owner.register('service:other-store', Store);
 
-    let otherStore = owner.lookup('service:other-store');
-    let serializer = store.serializerFor('application');
+    const otherStore = owner.lookup('service:other-store');
+    const serializer = store.serializerFor('application');
 
     assert.ok(serializer instanceof AppSerializer, 'We found the correct serializer');
     assert.ok(didInstantiate, 'We instantiated the serializer');
     didInstantiate = false;
 
-    let otherSerializer = otherStore.serializerFor('application');
+    const otherSerializer = otherStore.serializerFor('application');
     assert.ok(otherSerializer instanceof AppSerializer, 'We found the correct serializer again');
     assert.ok(didInstantiate, 'We instantiated the other serializer');
     assert.notStrictEqual(otherSerializer, serializer, 'We have a different serializer instance');
@@ -115,7 +115,7 @@ module('integration/store - serializerFor', function (hooks) {
   });
 
   test('we can find and instantiate per-type serializers', async function (assert) {
-    let { owner } = this;
+    const { owner } = this;
     let didInstantiateAppSerializer = false;
     let didInstantiatePersonSerializer = false;
 
@@ -134,20 +134,20 @@ module('integration/store - serializerFor', function (hooks) {
     owner.register('serializer:application', AppSerializer);
     owner.register('serializer:person', PersonSerializer);
 
-    let serializer = store.serializerFor('person');
+    const serializer = store.serializerFor('person');
 
     assert.ok(serializer instanceof PersonSerializer, 'We found the correct serializer');
     assert.ok(didInstantiatePersonSerializer, 'We instantiated the person serializer');
     assert.notOk(didInstantiateAppSerializer, 'We did not instantiate the application serializer');
 
-    let appSerializer = store.serializerFor('application');
+    const appSerializer = store.serializerFor('application');
     assert.ok(appSerializer instanceof AppSerializer, 'We found the correct serializer');
     assert.ok(didInstantiateAppSerializer, 'We instantiated the application serializer');
     assert.notStrictEqual(appSerializer, serializer, 'We have separate serializers');
   });
 
   test('we fallback to the application serializer when a per-type serializer is not found', async function (assert) {
-    let { owner } = this;
+    const { owner } = this;
     let didInstantiateAppSerializer = false;
 
     class AppSerializer extends TestSerializer {
@@ -158,20 +158,20 @@ module('integration/store - serializerFor', function (hooks) {
 
     owner.register('serializer:application', AppSerializer);
 
-    let serializer = store.serializerFor('person');
+    const serializer = store.serializerFor('person');
 
     assert.ok(serializer instanceof AppSerializer, 'We found the serializer');
     assert.ok(didInstantiateAppSerializer, 'We instantiated the serializer');
     didInstantiateAppSerializer = false;
 
-    let appSerializer = store.serializerFor('application');
+    const appSerializer = store.serializerFor('application');
     assert.ok(appSerializer instanceof AppSerializer, 'We found the correct serializer');
     assert.notOk(didInstantiateAppSerializer, 'We did not instantiate the serializer again');
     assert.strictEqual(appSerializer, serializer, 'We fell back to the application serializer instance');
   });
 
   test('serializers are destroyed', async function (assert) {
-    let { owner } = this;
+    const { owner } = this;
     let didInstantiate = false;
     let didDestroy = false;
 
@@ -187,7 +187,7 @@ module('integration/store - serializerFor', function (hooks) {
 
     owner.register('serializer:application', AppSerializer);
 
-    let serializer = store.serializerFor('application');
+    const serializer = store.serializerFor('application');
 
     assert.ok(serializer instanceof AppSerializer, 'precond - We found the correct serializer');
     assert.ok(didInstantiate, 'precond - We instantiated the serializer');

@@ -25,19 +25,19 @@ module('integration/records/save - Save Record', function (hooks) {
   });
 
   test('Will resolve save on success', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
-    let post = store.createRecord('post', { title: 'toto' });
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+    const post = store.createRecord('post', { title: 'toto' });
 
     const deferred = createDeferred();
     adapter.createRecord = function (store, type, snapshot) {
       return deferred.promise;
     };
 
-    let saved = post.save();
+    const saved = post.save();
 
     deferred.resolve({ data: { id: '123', type: 'post' } });
-    let model = await saved;
+    const model = await saved;
     assert.ok(true, 'save operation was resolved');
     assert.strictEqual(saved.id, undefined, `<proxy>.id is undefined after save resolves`);
     assert.strictEqual(model.id, '123', `record.id is '123' after save resolves`);
@@ -45,12 +45,12 @@ module('integration/records/save - Save Record', function (hooks) {
   });
 
   test('Will reject save on error', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
-    let post = store.createRecord('post', { title: 'toto' });
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+    const post = store.createRecord('post', { title: 'toto' });
 
     adapter.createRecord = function (store, type, snapshot) {
-      let error = new InvalidError([{ title: 'not valid' }]);
+      const error = new InvalidError([{ title: 'not valid' }]);
       return Promise.reject(error);
     };
 
@@ -90,14 +90,14 @@ module('integration/records/save - Save Record', function (hooks) {
   });
 
   test('Retry is allowed in a failure handler', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
-    let post = store.createRecord('post', { title: 'toto' });
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+    const post = store.createRecord('post', { title: 'toto' });
 
     var count = 0;
 
     adapter.createRecord = function (store, type, snapshot) {
-      let error = new InvalidError([{ title: 'not valid' }]);
+      const error = new InvalidError([{ title: 'not valid' }]);
 
       if (count++ === 0) {
         return Promise.reject(error);
@@ -117,9 +117,9 @@ module('integration/records/save - Save Record', function (hooks) {
   test('Repeated failed saves keeps the record in uncommitted state', async function (assert) {
     assert.expect(4);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
-    let post = store.createRecord('post', { title: 'toto' });
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+    const post = store.createRecord('post', { title: 'toto' });
 
     adapter.createRecord = function (store, type, snapshot) {
       return Promise.reject();
@@ -145,12 +145,12 @@ module('integration/records/save - Save Record', function (hooks) {
   test('Repeated failed saves with invalid error marks the record as invalid', async function (assert) {
     assert.expect(2);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
-    let post = store.createRecord('post', { title: 'toto' });
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+    const post = store.createRecord('post', { title: 'toto' });
 
     adapter.createRecord = function (store, type, snapshot) {
-      let error = new InvalidError([
+      const error = new InvalidError([
         {
           detail: 'is invalid',
           source: { pointer: 'data/attributes/title' },
@@ -177,12 +177,12 @@ module('integration/records/save - Save Record', function (hooks) {
   test('Repeated failed saves with invalid error without payload marks the record as invalid', async function (assert) {
     assert.expect(2);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
-    let post = store.createRecord('post', { title: 'toto' });
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+    const post = store.createRecord('post', { title: 'toto' });
 
     adapter.createRecord = function (store, type, snapshot) {
-      let error = new InvalidError();
+      const error = new InvalidError();
       return Promise.reject(error);
     };
 
@@ -203,9 +203,9 @@ module('integration/records/save - Save Record', function (hooks) {
   test('Will reject save on invalid', async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
-    let post = store.createRecord('post', { title: 'toto' });
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+    const post = store.createRecord('post', { title: 'toto' });
 
     adapter.createRecord = function (store, type, snapshot) {
       var error = new InvalidError([{ title: 'not valid' }]);
@@ -247,9 +247,9 @@ module('integration/records/save - Save Record', function (hooks) {
   test('Will error when saving after unloading record via the store', async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
-    let post = store.createRecord('post', { title: 'toto' });
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+    const post = store.createRecord('post', { title: 'toto' });
 
     adapter.createRecord = function (store, type, snapshot) {
       return {
@@ -272,9 +272,9 @@ module('integration/records/save - Save Record', function (hooks) {
   test('Will error when saving after unloading record', async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
-    let post = store.createRecord('post', { title: 'toto' });
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+    const post = store.createRecord('post', { title: 'toto' });
 
     adapter.createRecord = function (store, type, snapshot) {
       return {

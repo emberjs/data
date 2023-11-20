@@ -1,8 +1,7 @@
-import { module, test } from '@warp-drive/diagnostic';
-
 import RequestManager from '@ember-data/request';
 import type { Context } from '@ember-data/request/-private/context';
 import type { Handler, NextFn } from '@ember-data/request/-private/types';
+import { module, test } from '@warp-drive/diagnostic';
 
 const IGNORED_HEADERS = new Set(['connection', 'keep-alive', 'content-length', 'date', 'etag', 'last-modified']);
 

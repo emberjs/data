@@ -1,13 +1,12 @@
 import EmberObject from '@ember/object';
 
-import { module, test } from '@warp-drive/diagnostic';
-import { setupTest } from '@warp-drive/diagnostic/ember';
-
 import Store from 'ember-data__adapter/services/store';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+import { module, test } from '@warp-drive/diagnostic';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 class MinimalSerializer extends EmberObject {
   normalizeResponse(_, __, data) {
@@ -15,7 +14,7 @@ class MinimalSerializer extends EmberObject {
   }
 
   serialize(snapshot) {
-    let json = {
+    const json = {
       data: {
         id: snapshot.id,
         type: snapshot.modelName,
@@ -41,11 +40,11 @@ class MinimalSerializer extends EmberObject {
 
   // minimal implementation, not json-api compliant
   serializeBelongsTo(snapshot, json, relationship) {
-    let key = relationship.name;
-    let belongsTo = snapshot.belongsTo(key);
+    const key = relationship.name;
+    const belongsTo = snapshot.belongsTo(key);
 
     if (belongsTo) {
-      let value = {
+      const value = {
         data: {
           id: belongsTo.id,
           type: belongsTo.modelName,
@@ -57,11 +56,11 @@ class MinimalSerializer extends EmberObject {
 
   // minimal implementation, not json-api compliant
   serializeHasMany(snapshot, json, relationship) {
-    let key = relationship.key;
-    let hasMany = snapshot.hasMany(key);
+    const key = relationship.key;
+    const hasMany = snapshot.hasMany(key);
 
     if (hasMany && hasMany.length) {
-      let value = {
+      const value = {
         data: hasMany.map((snap) => ({
           id: snap.id,
           type: snap.modelName,
@@ -102,7 +101,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
     let findRecordCalled = 0;
     let findBelongsToCalled = 0;
 
-    let initialRecord = {
+    const initialRecord = {
       data: {
         id: '3',
         type: 'comment',
@@ -119,7 +118,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
       },
     };
 
-    let expectedResult = {
+    const expectedResult = {
       data: {
         id: '2',
         type: 'post',
@@ -139,13 +138,13 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
       },
     };
 
-    let { owner } = this;
-    let store = owner.lookup('service:store');
+    const { owner } = this;
+    const store = owner.lookup('service:store');
 
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    let expectedResultCopy = deepCopy(expectedResult);
+    const expectedResultCopy = deepCopy(expectedResult);
 
     class TestFindBelongsToAdapter extends EmberObject {
       findRecord() {
@@ -157,7 +156,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
 
         assert.equal(passedStore, store, 'instance of store is passed to findBelongsTo');
 
-        let expectedURL = initialRecord.data.relationships.post.links.related;
+        const expectedURL = initialRecord.data.relationships.post.links.related;
         assert.equal(url, expectedURL, 'url is passed to findBelongsTo');
         assert.equal(relationship.key, 'post', 'relationship is passed to findBelongsTo');
 
@@ -170,9 +169,9 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
 
     owner.register('adapter:application', TestFindBelongsToAdapter);
 
-    let comment = store.push(initialRecord);
+    const comment = store.push(initialRecord);
 
-    let post = await comment.post;
+    const post = await comment.post;
 
     assert.equal(findRecordCalled, 0, 'findRecord is not called');
     assert.equal(findBelongsToCalled, 1, 'findBelongsTo is called once');
@@ -182,7 +181,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
   testInDebug(
     'if a belongsTo relationship has a link but no data (findBelongsTo is undefined)',
     async function (assert) {
-      let initialRecord = {
+      const initialRecord = {
         data: {
           id: '3',
           type: 'comment',
@@ -199,14 +198,14 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
         },
       };
 
-      let { owner } = this;
-      let store = owner.lookup('service:store');
+      const { owner } = this;
+      const store = owner.lookup('service:store');
 
       class TestFindBelongsToAdapter extends EmberObject {}
 
       owner.register('adapter:application', TestFindBelongsToAdapter);
 
-      let comment = store.push(initialRecord);
+      const comment = store.push(initialRecord);
 
       await assert.expectAssertion(async function () {
         await comment.post;
@@ -218,7 +217,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
     let findRecordCalled = 0;
     let findBelongsToCalled = 0;
 
-    let initialRecord = {
+    const initialRecord = {
       data: {
         id: '3',
         type: 'comment',
@@ -236,7 +235,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
       },
     };
 
-    let expectedResult = {
+    const expectedResult = {
       data: {
         id: '2',
         type: 'post',
@@ -256,13 +255,13 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
       },
     };
 
-    let { owner } = this;
-    let store = owner.lookup('service:store');
+    const { owner } = this;
+    const store = owner.lookup('service:store');
 
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    let expectedResultCopy = deepCopy(expectedResult);
+    const expectedResultCopy = deepCopy(expectedResult);
 
     class TestFindRecordAdapter extends EmberObject {
       findRecord(passedStore, type, id, snapshot) {
@@ -285,9 +284,9 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
 
     owner.register('adapter:application', TestFindRecordAdapter);
 
-    let comment = store.push(initialRecord);
+    const comment = store.push(initialRecord);
 
-    let post = await comment.post;
+    const post = await comment.post;
 
     assert.equal(findRecordCalled, 1, 'findRecord is called once');
     assert.equal(findBelongsToCalled, 0, 'findBelongsTo is not called');
@@ -297,7 +296,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
   test('if a belongsTo relationship has data but not a link (findBelongsTo is not defined)', async function (assert) {
     let findRecordCalled = 0;
 
-    let initialRecord = {
+    const initialRecord = {
       data: {
         id: '3',
         type: 'comment',
@@ -315,7 +314,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
       },
     };
 
-    let expectedResult = {
+    const expectedResult = {
       data: {
         id: '2',
         type: 'post',
@@ -335,13 +334,13 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
       },
     };
 
-    let { owner } = this;
-    let store = owner.lookup('service:store');
+    const { owner } = this;
+    const store = owner.lookup('service:store');
 
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    let expectedResultCopy = deepCopy(expectedResult);
+    const expectedResultCopy = deepCopy(expectedResult);
 
     class TestFindRecordAdapter extends EmberObject {
       findRecord(passedStore, type, id, snapshot) {
@@ -360,9 +359,9 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
 
     owner.register('adapter:application', TestFindRecordAdapter);
 
-    let comment = store.push(initialRecord);
+    const comment = store.push(initialRecord);
 
-    let post = await comment.post;
+    const post = await comment.post;
 
     assert.equal(findRecordCalled, 1, 'findRecord is called once');
     assert.deepEqual(post.serialize(), expectedResult, 'findRecord returns expected result');
@@ -372,7 +371,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
     let findRecordCalled = 0;
     let findBelongsToCalled = 0;
 
-    let initialRecord = {
+    const initialRecord = {
       data: {
         id: '3',
         type: 'comment',
@@ -393,7 +392,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
       },
     };
 
-    let expectedResult = {
+    const expectedResult = {
       data: {
         id: '2',
         type: 'post',
@@ -413,13 +412,13 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
       },
     };
 
-    let { owner } = this;
-    let store = owner.lookup('service:store');
+    const { owner } = this;
+    const store = owner.lookup('service:store');
 
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    let expectedResultCopy = deepCopy(expectedResult);
+    const expectedResultCopy = deepCopy(expectedResult);
 
     class TestFindBelongsToAdapter extends EmberObject {
       findRecord() {
@@ -431,7 +430,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
 
         assert.equal(passedStore, store, 'instance of store is passed to findBelongsTo');
 
-        let expectedURL = initialRecord.data.relationships.post.links.related;
+        const expectedURL = initialRecord.data.relationships.post.links.related;
         assert.equal(url, expectedURL, 'url is passed to findBelongsTo');
         assert.equal(relationship.name, 'post', 'relationship is passed to findBelongsTo');
 
@@ -444,9 +443,9 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
 
     owner.register('adapter:application', TestFindBelongsToAdapter);
 
-    let comment = store.push(initialRecord);
+    const comment = store.push(initialRecord);
 
-    let post = await comment.post;
+    const post = await comment.post;
 
     assert.equal(findRecordCalled, 0, 'findRecord is not called');
     assert.equal(findBelongsToCalled, 1, 'findBelongsTo is called once');
@@ -456,7 +455,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
   test('if a belongsTo relationship has link and data (findBelongsTo is not defined)', async function (assert) {
     let findRecordCalled = 0;
 
-    let initialRecord = {
+    const initialRecord = {
       data: {
         id: '3',
         type: 'comment',
@@ -474,7 +473,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
       },
     };
 
-    let expectedResult = {
+    const expectedResult = {
       data: {
         id: '2',
         type: 'post',
@@ -494,13 +493,13 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
       },
     };
 
-    let { owner } = this;
-    let store = owner.lookup('service:store');
+    const { owner } = this;
+    const store = owner.lookup('service:store');
 
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    let expectedResultCopy = deepCopy(expectedResult);
+    const expectedResultCopy = deepCopy(expectedResult);
 
     class TestFindRecordAdapter extends EmberObject {
       findRecord(passedStore, type, id, snapshot) {
@@ -519,9 +518,9 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
 
     owner.register('adapter:application', TestFindRecordAdapter);
 
-    let comment = store.push(initialRecord);
+    const comment = store.push(initialRecord);
 
-    let post = await comment.post;
+    const post = await comment.post;
 
     assert.equal(findRecordCalled, 1, 'findRecord is called once');
     assert.deepEqual(post.serialize(), expectedResult, 'findRecord returns expected result');

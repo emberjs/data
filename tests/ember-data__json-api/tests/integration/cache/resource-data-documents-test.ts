@@ -1,6 +1,3 @@
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
-import { module, test } from '@warp-drive/diagnostic';
-
 import Cache from '@ember-data/json-api';
 import type Model from '@ember-data/model';
 import type { StructuredDocument } from '@ember-data/request';
@@ -8,11 +5,16 @@ import Store from '@ember-data/store';
 import type { CacheOperation, NotificationType } from '@ember-data/store/-private/managers/notification-manager';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
 import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
-import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
+import type {
+  StableDocumentIdentifier,
+  StableExistingRecordIdentifier,
+  StableRecordIdentifier,
+} from '@warp-drive/core-types/identifier';
 import type { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
 import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
 import type { SingleResourceDocument } from '@warp-drive/core-types/spec/raw';
-import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
+import { module, test } from '@warp-drive/diagnostic';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
 class TestStore extends Store {
@@ -25,7 +27,7 @@ class TestStore extends Store {
     const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
     Object.assign(record, (this.cache.peek(identifier) as JsonApiResource).attributes);
 
-    let token = this.notifications.subscribe(
+    const token = this.notifications.subscribe(
       identifier,
       (_: StableRecordIdentifier, kind: NotificationType, key?: string) => {
         if (kind === 'attributes' && key) {
@@ -428,9 +430,9 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
 
     assert.equal(responseDocument!.data, identifier1, 'We were given the correct data back');
 
-    let resourceData1 = store.cache.peek(identifier1);
-    let resourceData2 = store.cache.peek(identifier2);
-    let resourceData3 = store.cache.peek(identifier3);
+    const resourceData1 = store.cache.peek(identifier1);
+    const resourceData2 = store.cache.peek(identifier2);
+    const resourceData3 = store.cache.peek(identifier3);
 
     assert.deepEqual(
       resourceData1,

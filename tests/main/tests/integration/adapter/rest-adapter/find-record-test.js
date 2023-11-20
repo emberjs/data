@@ -86,7 +86,7 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
       this.owner.register('adapter:application', RESTAdapter.extend());
       this.owner.register('serializer:application', RESTSerializer.extend());
 
-      let id = '1';
+      const id = '1';
       const store = this.owner.lookup('service:store');
       const adapter = store.adapterFor('application');
       const ajaxCallback = ajaxResponse(adapter, { posts: [{ id, name: 'Rails is omakase' }] });
@@ -120,10 +120,10 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
       assert.strictEqual(post.name, 'Rails is omakase');
 
       // stress tests
-      let peekPost = store.peekRecord(findRecordArgs);
+      const peekPost = store.peekRecord(findRecordArgs);
       assert.strictEqual(peekPost, post, 'peekRecord returns same post');
 
-      let recordReference = store.getReference(findRecordArgs);
+      const recordReference = store.getReference(findRecordArgs);
       assert.strictEqual(recordReference.remoteType(), 'identity');
       assert.strictEqual(recordReference.type, 'post');
       assert.strictEqual(recordReference.id(), '1');
@@ -147,10 +147,10 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
     assert.strictEqual(record, foundPost, 'We were able to findRecord');
 
     // stress tests
-    let peekPost = store.peekRecord(identifier);
+    const peekPost = store.peekRecord(identifier);
     assert.strictEqual(peekPost, foundPost, 'peekRecord returns same post');
 
-    let recordReference = store.getReference(identifier);
+    const recordReference = store.getReference(identifier);
     assert.strictEqual(recordReference.remoteType(), 'identity');
     assert.strictEqual(recordReference.type, 'post');
     assert.strictEqual(recordReference.id(), null);

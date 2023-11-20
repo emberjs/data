@@ -107,9 +107,9 @@ module('Integration | Identifiers - cache', function (hooks) {
       };
       const store = this.owner.lookup('service:store') as Store;
       const cache = store.identifierCache;
-      let identifier = cache.createIdentifierForNewRecord(runspiredHash);
+      const identifier = cache.createIdentifierForNewRecord(runspiredHash);
 
-      let mergedIdentifier = cache.updateRecordIdentifier(identifier, { type: 'person', id: '1' });
+      const mergedIdentifier = cache.updateRecordIdentifier(identifier, { type: 'person', id: '1' });
 
       assert.strictEqual(mergedIdentifier.id, identifier.id, 'merged identifier has same id');
       assert.strictEqual(mergedIdentifier.type, identifier.type, 'merged identifier has same type');
@@ -125,9 +125,9 @@ module('Integration | Identifiers - cache', function (hooks) {
       };
       const store = this.owner.lookup('service:store') as Store;
       const cache = store.identifierCache;
-      let identifier = cache.createIdentifierForNewRecord(runspiredHash);
+      const identifier = cache.createIdentifierForNewRecord(runspiredHash);
 
-      let mergedIdentifier = cache.updateRecordIdentifier(identifier, { type: 'person', id: '2' });
+      const mergedIdentifier = cache.updateRecordIdentifier(identifier, { type: 'person', id: '2' });
 
       assert.strictEqual(mergedIdentifier.id, '2', 'merged identifier has new id');
       assert.strictEqual(mergedIdentifier.type, 'person', 'merged identifier has same type');
@@ -159,9 +159,9 @@ module('Integration | Identifiers - cache', function (hooks) {
       };
       const store = this.owner.lookup('service:store') as Store;
       const cache = store.identifierCache;
-      let identifier = cache.createIdentifierForNewRecord(runspiredHash);
+      const identifier = cache.createIdentifierForNewRecord(runspiredHash);
 
-      let mergedIdentifier = cache.updateRecordIdentifier(identifier, { type: 'person', id: null });
+      const mergedIdentifier = cache.updateRecordIdentifier(identifier, { type: 'person', id: null });
 
       assert.strictEqual(mergedIdentifier.id, null, 'merged identifier has null id');
       assert.strictEqual(mergedIdentifier.type, identifier.type, 'merged identifier has same type');

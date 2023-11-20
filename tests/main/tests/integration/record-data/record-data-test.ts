@@ -1,17 +1,6 @@
 import EmberObject from '@ember/object';
 import { settled } from '@ember/test-helpers';
 
-import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
-import type {
-  RecordIdentifier,
-  StableExistingRecordIdentifier,
-  StableRecordIdentifier,
-} from '@warp-drive/core-types/identifier';
-import type {
-  CollectionResourceDocument,
-  JsonApiDocument,
-  SingleResourceDocument,
-} from '@warp-drive/core-types/spec/raw';
 import { module, test } from 'qunit';
 
 import Store from 'ember-data/store';
@@ -27,8 +16,14 @@ import type { JsonApiError, JsonApiResource } from '@ember-data/store/-types/q/r
 import type { ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core-types/cache';
 import type { ResourceBlob } from '@warp-drive/core-types/cache/aliases';
 import type { Change } from '@warp-drive/core-types/cache/change';
-import { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
-import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
+import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
+import type {
+  RecordIdentifier,
+  StableDocumentIdentifier,
+  StableExistingRecordIdentifier,
+  StableRecordIdentifier,
+} from '@warp-drive/core-types/identifier';
 import type {
   CollectionResourceDataDocument,
   ResourceDocument,
@@ -36,6 +31,11 @@ import type {
   ResourceMetaDocument,
   SingleResourceDataDocument,
 } from '@warp-drive/core-types/spec/document';
+import type {
+  CollectionResourceDocument,
+  JsonApiDocument,
+  SingleResourceDocument,
+} from '@warp-drive/core-types/spec/raw';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
@@ -59,7 +59,7 @@ class TestRecordData implements Cache {
   version = '2' as const;
 
   _errors?: JsonApiError[];
-  _isNew: boolean = false;
+  _isNew = false;
   _storeWrapper: CacheCapabilitiesManager;
   _identifier: StableRecordIdentifier;
 
@@ -210,7 +210,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
 
     owner.register('model:person', Person);
     owner.register('model:house', House);
@@ -244,7 +244,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
       ],
     });
 
-    let all = store.peekAll('person');
+    const all = store.peekAll('person');
     assert.strictEqual(all.length, 2, 'we have 2 records');
 
     store.push({
@@ -274,7 +274,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
         name: 'Scumbag Dale',
       },
     };
-    let { owner } = this;
+    const { owner } = this;
     let calledUpsert = 0;
     let calledClientDidCreate = 0;
     let calledWillCommit = 0;
@@ -302,7 +302,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
         calledWillCommit++;
       }
 
-      override commitWasRejected(identifier, errors) {
+      override commitWasRejected(identifier: StableRecordIdentifier, errors: JsonApiError[] | undefined) {
         super.commitWasRejected(identifier, errors);
         calledWasRejected++;
       }
@@ -319,7 +319,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
         calledRollbackAttributes++;
       }
 
-      override didCommit(identifier, result) {
+      override didCommit(identifier: StableExistingRecordIdentifier, result: StructuredDataDocument<unknown>) {
         calledDidCommit++;
         isNew = false;
         return { data: identifier };
@@ -337,7 +337,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
       }
     }
 
-    let TestAdapter = EmberObject.extend({
+    const TestAdapter = EmberObject.extend({
       updateRecord() {
         called++;
         if (called === 1) {
@@ -362,8 +362,8 @@ module('integration/record-data - Custom RecordData Implementations', function (
     });
     assert.strictEqual(calledUpsert, 1, 'Called upsert');
 
-    let person = store.peekRecord('person', '1') as Model;
-    person.save();
+    const person = store.peekRecord('person', '1') as Model;
+    void person.save();
     assert.strictEqual(calledWillCommit, 1, 'Called willCommit');
 
     await settled();
@@ -394,10 +394,10 @@ module('integration/record-data - Custom RecordData Implementations', function (
     calledRollbackAttributes = 0;
     calledDidCommit = 0;
 
-    let clientPerson = store.createRecord('person', { id: '2' }) as Model;
+    const clientPerson = store.createRecord('person', { id: '2' }) as Model;
     assert.strictEqual(calledClientDidCreate, 1, 'Called clientDidCreate');
 
-    clientPerson.save();
+    void clientPerson.save();
     assert.strictEqual(calledWillCommit, 1, 'Called willCommit');
 
     await settled();
@@ -417,8 +417,8 @@ module('integration/record-data - Custom RecordData Implementations', function (
     assert.strictEqual(calledUpsert, 0, 'Did not call pushData');
   });
 
-  test('Record Data attribute setting', async function (assert) {
-    let expectedCount = 13;
+  test('Record Data attribute setting', function (assert) {
+    const expectedCount = 13;
     assert.expect(expectedCount);
     const personHash = {
       type: 'person',
@@ -428,32 +428,32 @@ module('integration/record-data - Custom RecordData Implementations', function (
       },
     };
 
-    let { owner } = this;
+    const { owner } = this;
     let calledGet = 0;
 
     class AttributeRecordData extends TestRecordData {
-      changedAttributes(): any {
-        return { name: ['old', 'new'] };
+      changedAttributes() {
+        return { name: ['old', 'new'] as [string, string] };
       }
 
       hasChangedAttributes(): boolean {
         return false;
       }
 
-      override changedAttrs(): any {
-        return { name: ['old', 'new'] };
+      override changedAttrs() {
+        return { name: ['old', 'new'] as [string, string] };
       }
 
       override hasChangedAttrs(): boolean {
         return false;
       }
 
-      override setAttr(identifier: StableRecordIdentifier, key: string, value: any) {
+      override setAttr(identifier: StableRecordIdentifier, key: string, value: unknown) {
         assert.strictEqual(key, 'name', 'key passed to setDirtyAttribute');
         assert.strictEqual(value, 'new value', 'value passed to setDirtyAttribute');
       }
 
-      setDirtyAttribute(key: string, value: any) {
+      setDirtyAttribute(key: string, value: unknown) {
         assert.strictEqual(key, 'name', 'key passed to setDirtyAttribute');
         assert.strictEqual(value, 'new value', 'value passed to setDirtyAttribute');
       }
@@ -481,7 +481,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
       data: [personHash],
     });
 
-    let person = store.peekRecord('person', '1') as Model;
+    const person = store.peekRecord('person', '1') as Model;
     assert.strictEqual(person.name, 'new attribute');
     assert.strictEqual(calledGet, 1, 'called getAttr for initial get');
     person.set('name', 'new value');

@@ -33,8 +33,8 @@ module('unit/model/merge - Merging', function (hooks) {
 
     this.owner.register('adapter:application', ApplicationAdapter);
 
-    let person = this.store.createRecord('person', { name: 'Tom Dale' });
-    let save = person.save();
+    const person = this.store.createRecord('person', { name: 'Tom Dale' });
+    const save = person.save();
 
     assert.strictEqual(person.name, 'Tom Dale');
 
@@ -59,7 +59,7 @@ module('unit/model/merge - Merging', function (hooks) {
 
     this.owner.register('adapter:application', ApplicationAdapter);
 
-    let person = this.store.push({
+    const person = this.store.push({
       data: {
         type: 'person',
         id: '1',
@@ -70,7 +70,7 @@ module('unit/model/merge - Merging', function (hooks) {
     });
     person.set('name', 'Thomas Dale');
 
-    let promise = person.save();
+    const promise = person.save();
 
     assert.strictEqual(person.name, 'Thomas Dale');
 
@@ -106,7 +106,7 @@ module('unit/model/merge - Merging', function (hooks) {
 
     this.owner.register('adapter:application', ApplicationAdapter);
 
-    let person = this.store.push({
+    const person = this.store.push({
       data: {
         type: 'person',
         id: '1',
@@ -145,9 +145,7 @@ module('unit/model/merge - Merging', function (hooks) {
   });
 
   test('When a record is dirty, pushes are overridden by local changes', function (assert) {
-    let person;
-
-    person = this.store.push({
+    const person = this.store.push({
       data: {
         type: 'person',
         id: '1',
@@ -188,7 +186,7 @@ module('unit/model/merge - Merging', function (hooks) {
 
     this.owner.register('adapter:application', ApplicationAdapter);
 
-    let person = this.store.push({
+    const person = this.store.push({
       data: {
         type: 'person',
         id: '1',
@@ -240,7 +238,7 @@ module('unit/model/merge - Merging', function (hooks) {
 
     this.owner.register('adapter:application', ApplicationAdapter);
 
-    let person = this.store.push({
+    const person = this.store.push({
       data: {
         type: 'person',
         id: '1',
@@ -267,7 +265,7 @@ module('unit/model/merge - Merging', function (hooks) {
 
     this.owner.register('adapter:application', ApplicationAdapter);
 
-    let person = this.store.push({
+    const person = this.store.push({
       data: {
         type: 'person',
         id: '1',

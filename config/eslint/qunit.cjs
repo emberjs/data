@@ -9,6 +9,7 @@ function defaults(config = {}) {
         allowedImports: [
           '@ember/debug',
           '@ember/test-helpers',
+          '@ember/test-waiters',
           'ember-qunit',
           'qunit',
           ...(config.allowedImports ?? []),
@@ -16,7 +17,11 @@ function defaults(config = {}) {
       }),
       config?.rules,
       {
+        'qunit/no-assert-logical-expression': 'off',
+        'qunit/no-conditional-assertions': 'off',
+        'qunit/no-early-return': 'off',
         'qunit/no-ok-equality': 'off',
+        'qunit/require-expect': 'off',
       }
     ),
   };

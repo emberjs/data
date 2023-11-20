@@ -45,7 +45,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
   */
 
   test('Loading from one hasMany side reflects on the other hasMany side - async', async function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     store.push({
       data: {
@@ -71,7 +71,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
       },
     });
 
-    let topic = store.push({
+    const topic = store.push({
       data: {
         id: '2',
         type: 'topic',
@@ -87,9 +87,9 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
   });
 
   test('Relationship is available from one hasMany side even if only loaded from the other hasMany side - sync', function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let account = store.push({
+    const account = store.push({
       data: {
         id: '2',
         type: 'account',
@@ -121,9 +121,9 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
   });
 
   test('Fetching a hasMany where a record was removed reflects on the other hasMany side - async', async function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let user = store.push({
+    const user = store.push({
       data: {
         id: '1',
         type: 'user',
@@ -137,7 +137,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
         },
       },
     });
-    let topic = store.push({
+    const topic = store.push({
       data: {
         id: '2',
         type: 'topic',
@@ -161,7 +161,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
   });
 
   test('Fetching a hasMany where a record was removed reflects on the other hasMany side - sync', function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     let account = store.push({
       data: {
@@ -172,7 +172,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
         },
       },
     });
-    let user = store.push({
+    const user = store.push({
       data: {
         id: '1',
         type: 'user',
@@ -217,9 +217,9 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
   test('Pushing to a hasMany reflects on the other hasMany side - async', async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let user = store.push({
+    const user = store.push({
       data: {
         id: '1',
         type: 'user',
@@ -233,7 +233,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
         },
       },
     });
-    let topic = store.push({
+    const topic = store.push({
       data: {
         id: '2',
         type: 'topic',
@@ -250,9 +250,9 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
   });
 
   test('Pushing to a hasMany reflects on the other hasMany side - sync', function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let account = store.push({
+    const account = store.push({
       data: {
         id: '2',
         type: 'account',
@@ -261,7 +261,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
         },
       },
     });
-    let stanley = store.push({
+    const stanley = store.push({
       data: {
         id: '1',
         type: 'user',
@@ -276,7 +276,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
   });
 
   test('Removing a record from a hasMany reflects on the other hasMany side - async', async function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     const user = store.push({
       data: {
@@ -316,7 +316,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
   });
 
   test('Removing a record from a hasMany reflects on the other hasMany side - sync', function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     const account = store.push({
       data: {
@@ -358,9 +358,9 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
   */
 
   test('Rollbacking attributes for a deleted record that has a ManyToMany relationship works correctly - async', async function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let user = store.push({
+    const user = store.push({
       data: {
         id: '1',
         type: 'user',
@@ -379,7 +379,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
         },
       },
     });
-    let topic = store.push({
+    const topic = store.push({
       data: {
         id: '2',
         type: 'topic',
@@ -393,17 +393,17 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     topic.rollbackAttributes();
     await settled();
 
-    let users = await topic.users;
+    const users = await topic.users;
     assert.strictEqual(users.length, 1, 'Users are still there');
 
-    let topics = await user.topics;
+    const topics = await user.topics;
     assert.strictEqual(topics.length, 1, 'Topic got rollbacked into the user');
   });
 
   test('Deleting a record that has a hasMany relationship removes it from the otherMany array but does not remove the other record from itself - sync', function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let account = store.push({
+    const account = store.push({
       data: {
         id: '2',
         type: 'account',
@@ -412,7 +412,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
         },
       },
     });
-    let user = store.push({
+    const user = store.push({
       data: {
         id: '1',
         type: 'user',
@@ -438,9 +438,9 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
   });
 
   test('Rollbacking attributes for a created record that has a ManyToMany relationship works correctly - async', async function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let user = store.push({
+    const user = store.push({
       data: {
         id: '1',
         type: 'user',
@@ -449,13 +449,13 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
         },
       },
     });
-    let topic = store.createRecord('topic');
+    const topic = store.createRecord('topic');
 
     let fetchedTopics = await user.topics;
     fetchedTopics.push(topic);
     topic.rollbackAttributes();
 
-    let fetchedUsers = await topic.users;
+    const fetchedUsers = await topic.users;
     assert.strictEqual(fetchedUsers.length, 0, 'Users got removed');
     assert.strictEqual(fetchedUsers.at(0), undefined, "User can't be fetched");
 
@@ -465,9 +465,9 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
   });
 
   test('Deleting an unpersisted record via rollbackAttributes that has a hasMany relationship removes it from the otherMany array but does not remove the other record from itself - sync', function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let account = store.push({
+    const account = store.push({
       data: {
         id: '2',
         type: 'account',
@@ -477,7 +477,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
       },
     });
 
-    let user = store.createRecord('user');
+    const user = store.createRecord('user');
 
     account.users.push(user);
     user.rollbackAttributes();
@@ -491,7 +491,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     function (assert) {
       assert.expect(4);
 
-      let store = this.owner.lookup('service:store');
+      const store = this.owner.lookup('service:store');
 
       let account = store.push({
         data: {
@@ -502,7 +502,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
           },
         },
       });
-      let ada = store.push({
+      const ada = store.push({
         data: {
           id: '1',
           type: 'user',
@@ -521,7 +521,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
           },
         },
       });
-      let byron = store.push({
+      const byron = store.push({
         data: {
           id: '2',
           type: 'user',
@@ -565,8 +565,8 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
         },
       });
 
-      let state = account.hasMany('users').hasManyRelationship.remoteState;
-      let users = account.users;
+      const state = account.hasMany('users').hasManyRelationship.remoteState;
+      const users = account.users;
 
       assert.todo.strictEqual(users.length, 1, 'Accounts were updated correctly (ui state)');
       assert.todo.deepEqual(

@@ -1,13 +1,12 @@
 import EmberObject from '@ember/object';
 
-import { module, test } from '@warp-drive/diagnostic';
-import { setupTest } from '@warp-drive/diagnostic/ember';
-
 import Store from 'ember-data__adapter/services/store';
 
 import Model, { attr } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
 import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
+import { module, test } from '@warp-drive/diagnostic';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 class MinimalSerializer extends EmberObject {
   normalizeResponse(_, __, data) {
@@ -45,7 +44,7 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
   test('coalesceFindRequests is true and findMany is not defined', async function (assert) {
     let findRecordCalled = 0;
 
-    let expectedResults = [
+    const expectedResults = [
       {
         data: {
           id: '12',
@@ -68,13 +67,13 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
       },
     ];
 
-    let { owner } = this;
-    let store = owner.lookup('service:store');
+    const { owner } = this;
+    const store = owner.lookup('service:store');
 
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    let expectedResultsCopy = deepCopy(expectedResults);
+    const expectedResultsCopy = deepCopy(expectedResults);
 
     class TestFindRecordAdapter extends EmberObject {
       coalesceFindRequests = true;
@@ -83,7 +82,7 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
         assert.equal(passedStore, store, 'instance of store is passed to findRecord');
         assert.equal(type, Person, 'model is passed to findRecord');
 
-        let expectedId = expectedResultsCopy[findRecordCalled].data.id;
+        const expectedId = expectedResultsCopy[findRecordCalled].data.id;
         assert.equal(id, expectedId, 'id is passed to findRecord');
 
         assert.equal(snapshot.modelName, 'person', 'snapshot is passed to findRecord with correct modelName');
@@ -95,10 +94,10 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
 
     owner.register('adapter:application', TestFindRecordAdapter);
 
-    let promises = expectedResults.map((result) => result.data.id).map((id) => store.findRecord('person', id));
-    let records = await Promise.all(promises);
+    const promises = expectedResults.map((result) => result.data.id).map((id) => store.findRecord('person', id));
+    const records = await Promise.all(promises);
 
-    let serializedRecords = records.map((record) => record.serialize());
+    const serializedRecords = records.map((record) => record.serialize());
 
     assert.equal(findRecordCalled, 2, 'findRecord is called twice');
     assert.deepEqual(serializedRecords, expectedResults, 'each findRecord returns expected result');
@@ -130,13 +129,13 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
       ],
     };
 
-    let { owner } = this;
-    let store = owner.lookup('service:store');
+    const { owner } = this;
+    const store = owner.lookup('service:store');
 
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    let expectedResultsCopy = deepCopy(expectedResults);
+    const expectedResultsCopy = deepCopy(expectedResults);
 
     class TestFindRecordAdapter extends EmberObject {
       coalesceFindRequests = true;
@@ -151,7 +150,7 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
         assert.equal(passedStore, store, 'instance of store is passed to findMany');
         assert.equal(type, Person, 'model is passed to findMany');
 
-        let expectedIds = expectedResultsCopy.data.map((record) => record.id);
+        const expectedIds = expectedResultsCopy.data.map((record) => record.id);
         assert.deepEqual(ids, expectedIds, 'ids are passed to findMany');
 
         snapshots.forEach((snapshot, index) => {
@@ -170,10 +169,10 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
 
     owner.register('adapter:application', TestFindRecordAdapter);
 
-    let promises = expectedResults.data.map((result) => result.id).map((id) => store.findRecord('person', id));
-    let records = await Promise.all(promises);
+    const promises = expectedResults.data.map((result) => result.id).map((id) => store.findRecord('person', id));
+    const records = await Promise.all(promises);
 
-    let serializedRecords = records.slice().map((record) => record.serialize());
+    const serializedRecords = records.slice().map((record) => record.serialize());
     expectedResults = expectedResults.data.map((result) => ({ data: result }));
 
     assert.equal(findRecordCalled, 0, 'findRecord is not called');
@@ -185,8 +184,8 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
   test('Coalescing works with multiple includes options specified (bypass findMany)', async function (assert) {
     let findRecordCalled = 0;
 
-    let { owner } = this;
-    let store = owner.lookup('service:store');
+    const { owner } = this;
+    const store = owner.lookup('service:store');
 
     class TestFindRecordAdapter extends EmberObject {
       coalesceFindRequests = true;
@@ -227,9 +226,9 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
 
     owner.register('adapter:application', TestFindRecordAdapter);
 
-    let person1 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '1' });
-    let person2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '2' });
-    let promises = [
+    const person1 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '1' });
+    const person2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '2' });
+    const promises = [
       store.findRecord('person', '1'), // creates request (1)
       store.findRecord('person', '1', { include: '' }), // de-duped
       store.findRecord('person', '1', { include: 'users' }), // creates request (2)
@@ -246,9 +245,9 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
       store.findRecord('person', '2', { include: 'users' }), // de-duped
       store.findRecord('person', '2', { include: 'users.foo' }), // de-duped
     ];
-    let records = await Promise.all(promises);
-    let foundIdentifiers = records.map((record) => recordIdentifierFor(record));
-    let expectedIdentifiers = [
+    const records = await Promise.all(promises);
+    const foundIdentifiers = records.map((record) => recordIdentifierFor(record));
+    const expectedIdentifiers = [
       person1,
       person1,
       person1,
@@ -317,8 +316,8 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
       ],
     };
 
-    let { owner } = this;
-    let store = owner.lookup('service:store');
+    const { owner } = this;
+    const store = owner.lookup('service:store');
 
     class TestFindRecordAdapter extends EmberObject {
       coalesceFindRequests = true;
@@ -335,11 +334,11 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
         assert.equal(passedStore, store, 'instance of store is passed to findMany');
         assert.equal(type, Person, 'model is passed to findMany');
 
-        let expectedIds = ['1', '2', '3', '4'];
-        let expectedIncludes = [undefined, 'users', 'users.foo', ['comments']];
-        let expectedOptions = [undefined, undefined, { opt: '1' }, { opt: '2' }];
-        let includes = snapshots.map((snapshot) => snapshot.include);
-        let options = snapshots.map((snapshot) => snapshot.adapterOptions);
+        const expectedIds = ['1', '2', '3', '4'];
+        const expectedIncludes = [undefined, 'users', 'users.foo', ['comments']];
+        const expectedOptions = [undefined, undefined, { opt: '1' }, { opt: '2' }];
+        const includes = snapshots.map((snapshot) => snapshot.include);
+        const options = snapshots.map((snapshot) => snapshot.adapterOptions);
         assert.deepEqual(ids, expectedIds, 'ids are passed to findMany');
         assert.deepEqual(includes, expectedIncludes, 'includes are what was expected');
         assert.deepEqual(options, expectedOptions, 'options are what was expected');
@@ -360,19 +359,19 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
 
     owner.register('adapter:application', TestFindRecordAdapter);
 
-    let person1 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '1' });
-    let person2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '2' });
-    let person3 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '3' });
-    let person4 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '4' });
-    let promises = [
+    const person1 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '1' });
+    const person2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '2' });
+    const person3 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '3' });
+    const person4 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '4' });
+    const promises = [
       store.findRecord('person', '1'),
       store.findRecord('person', '2', { include: 'users' }),
       store.findRecord('person', '3', { include: 'users.foo', adapterOptions: { opt: '1' } }),
       store.findRecord('person', '4', { include: ['comments'], adapterOptions: { opt: '2' } }),
     ];
-    let records = await Promise.all(promises);
-    let foundIdentifiers = records.map((record) => recordIdentifierFor(record));
-    let expectedIdentifiers = [person1, person2, person3, person4];
+    const records = await Promise.all(promises);
+    const foundIdentifiers = records.map((record) => recordIdentifierFor(record));
+    const expectedIdentifiers = [person1, person2, person3, person4];
     expectedResults = expectedResults.data.map((result) => ({ data: result }));
 
     assert.equal(findRecordCalled, 0, 'findRecord is not called');
@@ -415,9 +414,9 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
       ],
     };
 
-    let { owner } = this;
-    let store = owner.lookup('service:store');
-    let expectedResultsCopy = deepCopy(expectedResults);
+    const { owner } = this;
+    const store = owner.lookup('service:store');
+    const expectedResultsCopy = deepCopy(expectedResults);
 
     class TestFindRecordAdapter extends EmberObject {
       coalesceFindRequests = true;
@@ -432,7 +431,7 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
         assert.equal(passedStore, store, 'instance of store is passed to findMany');
         assert.equal(type, Person, 'model is passed to findMany');
 
-        let expectedIds = expectedResultsCopy.data.map((record) => record.id);
+        const expectedIds = expectedResultsCopy.data.map((record) => record.id);
         assert.deepEqual(ids, expectedIds, 'ids are passed to findMany');
 
         snapshots.forEach((snapshot, index) => {
@@ -446,10 +445,10 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
 
     owner.register('adapter:application', TestFindRecordAdapter);
 
-    let promises = expectedResults.data.map((result) => result.id).map((id) => store.findRecord('person', id));
-    let records = await Promise.all(promises);
+    const promises = expectedResults.data.map((result) => result.id).map((id) => store.findRecord('person', id));
+    const records = await Promise.all(promises);
 
-    let serializedRecords = records.slice().map((record) => record.serialize());
+    const serializedRecords = records.slice().map((record) => record.serialize());
     expectedResults = expectedResults.data.map((result) => ({ data: result }));
 
     assert.equal(findRecordCalled, 0, 'findRecord is not called');
@@ -462,7 +461,7 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
     let findManyCalled = 0;
     let groupRecordsForFindManyCalled = 0;
 
-    let expectedResults = [
+    const expectedResults = [
       {
         data: {
           id: '12',
@@ -485,13 +484,13 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
       },
     ];
 
-    let { owner } = this;
-    let store = owner.lookup('service:store');
+    const { owner } = this;
+    const store = owner.lookup('service:store');
 
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    let expectedResultsCopy = deepCopy(expectedResults);
+    const expectedResultsCopy = deepCopy(expectedResults);
 
     class TestFindRecordAdapter extends EmberObject {
       coalesceFindRequests = false;
@@ -500,7 +499,7 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
         assert.equal(passedStore, store, 'instance of store is passed to findRecord');
         assert.equal(type, Person, 'model is passed to findRecord');
 
-        let expectedId = expectedResultsCopy[findRecordCalled].data.id;
+        const expectedId = expectedResultsCopy[findRecordCalled].data.id;
         assert.equal(id, expectedId, 'id is passed to findRecord');
 
         assert.equal(snapshot.modelName, 'person', 'snapshot is passed to findRecord with correct modelName');
@@ -521,10 +520,10 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
 
     owner.register('adapter:application', TestFindRecordAdapter);
 
-    let promises = expectedResults.map((result) => result.data.id).map((id) => store.findRecord('person', id));
-    let records = await Promise.all(promises);
+    const promises = expectedResults.map((result) => result.data.id).map((id) => store.findRecord('person', id));
+    const records = await Promise.all(promises);
 
-    let serializedRecords = records.map((record) => record.serialize());
+    const serializedRecords = records.map((record) => record.serialize());
 
     assert.equal(findRecordCalled, 2, 'findRecord is called twice');
     assert.equal(findManyCalled, 0, 'findMany is not called');
@@ -535,8 +534,8 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
   test('Coalescing accounts for multiple findRecord calls with different options by de-duping and using findRecord', async function (assert) {
     let findRecordCalled = 0;
 
-    let { owner } = this;
-    let store = owner.lookup('service:store');
+    const { owner } = this;
+    const store = owner.lookup('service:store');
     const options = [
       undefined, // not de-duped since is first request seen
       { reload: true }, // de-dupe
@@ -609,8 +608,8 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
   test('Coalescing accounts for multiple findRecord calls with different options by de-duping and using findRecord (order scenario 2)', async function (assert) {
     let findRecordCalled = 0;
 
-    let { owner } = this;
-    let store = owner.lookup('service:store');
+    const { owner } = this;
+    const store = owner.lookup('service:store');
     const options = [
       { include: 'comments' }, // not de-duped since first request
       { reload: true, include: 'comments,friends' }, // should produce a request
@@ -683,8 +682,8 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
   test('Coalescing accounts for multiple findRecord calls with different options by de-duping and using findRecord (order scenario 3)', async function (assert) {
     let findRecordCalled = 0;
 
-    let { owner } = this;
-    let store = owner.lookup('service:store');
+    const { owner } = this;
+    const store = owner.lookup('service:store');
     const options = [
       { reload: true, include: 'comments,friends' }, // not de-duped since first request
       undefined, // de-dupe

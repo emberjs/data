@@ -16,7 +16,7 @@ module('integration/application - Injecting a Custom Store', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
 
     owner.unregister('service:store');
     owner.register(
@@ -43,20 +43,20 @@ module('integration/application - Injecting a Custom Store', function (hooks) {
   });
 
   test('If a Store property exists on an Application, it should be instantiated.', async function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
     assert.true(store.isCustom, 'the custom store was instantiated');
   });
 
   test('If a store is instantiated, it should be made available to each controller.', async function (assert) {
     ['foo', 'baz', 'application'].forEach((type) => {
-      let controller = this.owner.lookup(`controller:${type}`);
+      const controller = this.owner.lookup(`controller:${type}`);
       assert.true(controller.store.isCustom, 'the custom store was injected');
     });
   });
 
   test('The JSONAPIAdapter is the default adapter when no custom adapter is provided', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     assert.ok(adapter instanceof JSONAPIAdapter, 'default adapter should be the JSONAPIAdapter');
   });
@@ -66,7 +66,7 @@ module('integration/application - Injecting the Default Store', function (hooks)
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
 
     owner.register('controller:foo', Controller.extend({ store: service() }));
     owner.register(
@@ -86,12 +86,12 @@ module('integration/application - Injecting the Default Store', function (hooks)
   });
 
   test('If a Store property exists on an Application, it should be instantiated.', async function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
     assert.ok(store instanceof Store, 'the store was instantiated');
   });
 
   test('If a store is instantiated, it should be made available to each controller.', async function (assert) {
-    let fooController = this.owner.lookup('controller:foo');
+    const fooController = this.owner.lookup('controller:foo');
     assert.ok(fooController.store instanceof Store, 'the store was injected');
   });
 });
@@ -100,7 +100,7 @@ module('integration/application - Using the store as a service', function (hooks
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
 
     owner.register('controller:foo', Controller.extend({ store: service() }));
     owner.register(
@@ -122,14 +122,14 @@ module('integration/application - Using the store as a service', function (hooks
   });
 
   test('The store can be injected as a service', async function (assert) {
-    let doodleService = this.owner.lookup('service:doodle');
+    const doodleService = this.owner.lookup('service:doodle');
     assert.ok(doodleService.store instanceof Store, 'the store can be used as a service');
   });
 
   test('There can be multiple store services', function (assert) {
-    let doodleService = this.owner.lookup('service:doodle');
-    let store = doodleService.store;
-    let secondService = this.owner.lookup('service:second-store');
+    const doodleService = this.owner.lookup('service:doodle');
+    const store = doodleService.store;
+    const secondService = this.owner.lookup('service:second-store');
 
     assert.ok(secondService instanceof Store, 'the store can be used as a service');
     assert.notStrictEqual(store, secondService, 'the store can be used as a service');
@@ -187,7 +187,7 @@ module('integration/application - Attaching initializer', function (hooks) {
     await this.application.boot();
     this.owner = this.application.buildInstance();
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
     assert.ok(
       store && store.isCustomStore,
       'ember-data initializer does not overwrite the previous registered service store'

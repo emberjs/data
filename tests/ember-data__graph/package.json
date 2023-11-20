@@ -17,6 +17,7 @@
   "scripts": {
     "build:tests": "IS_TESTING=true EMBER_CLI_TEST_COMMAND=true ember build --output-path=dist-test --suppress-sizes",
     "build:production": "pnpm build:tests -e production",
+    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
     "check:types": "tsc --noEmit",
     "test": "bun ./diagnostic.js",
     "test:production": "bun ./diagnostic.js",
@@ -92,6 +93,7 @@
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
+    "@warp-drive/internal-config": "workspace:5.5.0-alpha.11",
     "@warp-drive/diagnostic": "workspace:5.5.0-alpha.11",
     "ember-auto-import": "^2.6.3",
     "ember-cli": "~5.4.0",

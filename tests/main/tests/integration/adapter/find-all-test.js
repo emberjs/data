@@ -28,7 +28,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
   let store;
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
 
     owner.register('model:person', Person);
     owner.register('serializer:application', class extends JSONAPISerializer {});
@@ -38,7 +38,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
 
   test("When all records for a type are requested, the store should call the adapter's `findAll` method.", async function (assert) {
     assert.expect(5);
-    let adapter = store.adapterFor('person');
+    const adapter = store.adapterFor('person');
 
     adapter.findAll = () => {
       // this will get called twice
@@ -57,11 +57,11 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
       });
     };
 
-    let allRecords = await store.findAll('person');
+    const allRecords = await store.findAll('person');
     assert.strictEqual(allRecords.length, 1, "the record array's length is 1 after a record is loaded into it");
     assert.strictEqual(allRecords[0].name, 'Braaaahm Dale', 'the first item in the record array is Braaaahm Dale');
 
-    let all = await store.findAll('person');
+    const all = await store.findAll('person');
     // Only one record array per type should ever be created (identity map)
     assert.strictEqual(
       allRecords,
@@ -72,7 +72,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
 
   test('When all records for a type are requested, a rejection should reject the promise', async function (assert) {
     assert.expect(5);
-    let adapter = store.adapterFor('person');
+    const adapter = store.adapterFor('person');
 
     let count = 0;
     adapter.findAll = () => {
@@ -96,7 +96,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
       }
     };
 
-    let all = await store.findAll('person').catch(() => {
+    const all = await store.findAll('person').catch(() => {
       assert.ok(true, 'The rejection should get here');
       return store.findAll('person');
     });
@@ -121,7 +121,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
     // Create a new, unsaved record in the store
     store.createRecord('person', { name: 'Alex MacCaw' });
 
-    let allRecords = store.peekAll('person');
+    const allRecords = store.peekAll('person');
 
     assert.strictEqual(allRecords.length, 2, "the record array's length is 2");
     assert.strictEqual(allRecords[0].name, 'Jeremy Ashkenas', 'the first item in the record array is Jeremy Ashkenas');
@@ -131,7 +131,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
   test('When all records for a type are requested, records that are created on the client should be added to the record array.', async function (assert) {
     assert.expect(3);
 
-    let allRecords = store.peekAll('person');
+    const allRecords = store.peekAll('person');
 
     assert.strictEqual(
       allRecords.length,
@@ -147,7 +147,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
   });
 
   testInDebug('When all records are requested, assert the payload is not blank', async function (assert) {
-    let adapter = store.adapterFor('person');
+    const adapter = store.adapterFor('person');
     adapter.findAll = () => Promise.resolve({});
 
     assert.expectAssertion(
@@ -157,8 +157,8 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
   });
 
   test('isUpdating is true while records are fetched', async function (assert) {
-    let findAllDeferred = createDeferred();
-    let adapter = store.adapterFor('person');
+    const findAllDeferred = createDeferred();
+    const adapter = store.adapterFor('person');
     adapter.findAll = () => findAllDeferred.promise;
     adapter.shouldReloadAll = () => true;
 
@@ -171,10 +171,10 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
       ],
     });
 
-    let persons = store.peekAll('person');
+    const persons = store.peekAll('person');
     assert.strictEqual(persons.length, 1);
 
-    let promise = store.findAll('person');
+    const promise = store.findAll('person');
 
     assert.true(persons.isUpdating);
 
@@ -186,8 +186,8 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
   });
 
   test('isUpdating is true while records are fetched in the background', async function (assert) {
-    let findAllDeferred = createDeferred();
-    let adapter = store.adapterFor('person');
+    const findAllDeferred = createDeferred();
+    const adapter = store.adapterFor('person');
     adapter.findAll = () => {
       return findAllDeferred.promise;
     };
@@ -223,8 +223,8 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
   });
 
   test('isUpdating is false if records are not fetched in the background', async function (assert) {
-    let findAllDeferred = createDeferred();
-    let adapter = store.adapterFor('person');
+    const findAllDeferred = createDeferred();
+    const adapter = store.adapterFor('person');
     adapter.findAll = () => {
       return findAllDeferred.promise;
     };

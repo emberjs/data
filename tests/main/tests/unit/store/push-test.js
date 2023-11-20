@@ -31,7 +31,7 @@ module('unit/store/push - Store#push', function (hooks) {
 
   test('Changed attributes are reset when matching data is pushed', function (assert) {
     const store = this.owner.lookup('service:store');
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -79,11 +79,11 @@ module('unit/store/push - Store#push', function (hooks) {
     assert.expect(2);
     const store = this.owner.lookup('service:store');
 
-    let adapter = store.adapterFor('application');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: 'wat',
@@ -112,7 +112,7 @@ module('unit/store/push - Store#push', function (hooks) {
     assert.expect(2);
     const store = this.owner.lookup('service:store');
 
-    let adapter = store.adapterFor('application');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
@@ -127,7 +127,7 @@ module('unit/store/push - Store#push', function (hooks) {
       },
     });
 
-    let person = store.peekRecord('person', 'wat');
+    const person = store.peekRecord('person', 'wat');
 
     store.push({
       data: {
@@ -155,10 +155,9 @@ module('unit/store/push - Store#push', function (hooks) {
 
   test('Calling push on normalize allows partial updates with raw JSON', function (assert) {
     this.owner.register('serializer:person', RESTSerializer);
-    let person;
     const store = this.owner.lookup('service:store');
 
-    person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -192,7 +191,7 @@ module('unit/store/push - Store#push', function (hooks) {
     }
     this.owner.register('model:person', Person);
 
-    let adapter = store.adapterFor('application');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, id) {
       if (id === '1') {
@@ -226,7 +225,7 @@ module('unit/store/push - Store#push', function (hooks) {
       }
     };
 
-    let normalized = store.normalize('person', {
+    const normalized = store.normalize('person', {
       id: 'wat',
       type: 'person',
       attributes: {
@@ -242,10 +241,10 @@ module('unit/store/push - Store#push', function (hooks) {
         },
       },
     });
-    let person = store.push(normalized);
+    const person = store.push(normalized);
 
     await person.phoneNumbers.then((phoneNumbers) => {
-      let items = phoneNumbers.map((item) => {
+      const items = phoneNumbers.map((item) => {
         return item ? item.getProperties('id', 'number', 'person') : null;
       });
       assert.deepEqual(items, [
@@ -265,7 +264,7 @@ module('unit/store/push - Store#push', function (hooks) {
 
   testInDebug('calling push without data argument as an object raises an error', function (assert) {
     const store = this.owner.lookup('service:store');
-    let invalidValues = [null, 1, 'string', class {}, true];
+    const invalidValues = [null, 1, 'string', class {}, true];
 
     assert.expect(invalidValues.length + 1);
 
@@ -354,7 +353,7 @@ module('unit/store/push - Store#push', function (hooks) {
         ],
       });
 
-      let person = store.peekRecord('person', 1);
+      const person = store.peekRecord('person', 1);
 
       assert.strictEqual(person.phoneNumbers.length, 1);
       assert.strictEqual(person.phoneNumbers.at(0).number, '1-800-DATA');
@@ -418,7 +417,7 @@ module('unit/store/push - Store#push', function (hooks) {
       })
     );
 
-    let person = store.peekRecord('person', 1);
+    const person = store.peekRecord('person', 1);
 
     assert.strictEqual(person.firstName, 'Tan', 'you can use links containing an object');
   });
@@ -442,7 +441,7 @@ module('unit/store/push - Store#push', function (hooks) {
       })
     );
 
-    let person = store.peekRecord('person', 1);
+    const person = store.peekRecord('person', 1);
 
     assert.strictEqual(person.firstName, 'Tan', 'you can use links that contain null as a value');
   });
@@ -468,7 +467,7 @@ module('unit/store/push - Store#push', function (hooks) {
     this.owner.register('model:user', class extends Model {});
     const store = this.owner.lookup('service:store');
 
-    let invalidValues = [{ type: 'user' }, { id: null, type: 'user' }, { id: '', type: 'user' }];
+    const invalidValues = [{ type: 'user' }, { id: null, type: 'user' }, { id: '', type: 'user' }];
 
     assert.expect(invalidValues.length);
 
@@ -517,7 +516,7 @@ module('unit/store/push - Store#push', function (hooks) {
 
   test('_push returns an identifier if an object is pushed', function (assert) {
     const store = this.owner.lookup('service:store');
-    let pushResult = store._push({
+    const pushResult = store._push({
       data: {
         id: '1',
         type: 'person',
@@ -530,7 +529,7 @@ module('unit/store/push - Store#push', function (hooks) {
 
   test('_push does not require a modelName to resolve to a modelClass', function (assert) {
     const store = this.owner.lookup('service:store');
-    let originalCall = store.modelFor;
+    const originalCall = store.modelFor;
     store.modelFor = function () {
       assert.notOk('modelFor was triggered as a result of a call to store._push');
     };
@@ -548,7 +547,7 @@ module('unit/store/push - Store#push', function (hooks) {
 
   test('_push returns an array of identifiers if an array is pushed', function (assert) {
     const store = this.owner.lookup('service:store');
-    let pushResult = store._push({
+    const pushResult = store._push({
       data: [
         {
           id: '1',
@@ -564,7 +563,7 @@ module('unit/store/push - Store#push', function (hooks) {
 
   test('_push returns null if no data is pushed', function (assert) {
     const store = this.owner.lookup('service:store');
-    let pushResult = store._push({
+    const pushResult = store._push({
       data: null,
     });
 
@@ -593,7 +592,7 @@ module('unit/store/push - Store#pushPayload', function (hooks) {
       ],
     });
 
-    let post = store.peekRecord('post', 1);
+    const post = store.peekRecord('post', 1);
 
     assert.strictEqual(post.postTitle, 'Ember rocks', 'you can push raw JSON into the store');
 
@@ -619,7 +618,7 @@ module('unit/store/push - Store#pushPayload', function (hooks) {
       },
     });
 
-    let post = store.peekRecord('post', 1);
+    const post = store.peekRecord('post', 1);
 
     assert.strictEqual(post.postTitle, 'Ember rocks', 'you can push raw JSON into the store');
 
@@ -678,11 +677,11 @@ module('unit/store/push - Store#pushPayload', function (hooks) {
       ],
     });
 
-    let post = store.peekRecord('post', '1');
+    const post = store.peekRecord('post', '1');
 
     assert.strictEqual(post.postTitle, 'Ember rocks', 'you can push raw JSON into the store');
 
-    let person = store.peekRecord('person', '2');
+    const person = store.peekRecord('person', '2');
 
     assert.strictEqual(person.firstName, 'Yehuda', 'you can push raw JSON into the store');
   });
@@ -781,7 +780,7 @@ module('unit/store/push - Store#pushPayload', function (hooks) {
       ],
     });
 
-    let person = store.peekRecord('person', 1);
+    const person = store.peekRecord('person', 1);
 
     assert.strictEqual(person.firstName, 'Robert', 'you can push raw JSON into the store');
     assert.strictEqual(person.lastName, 'Jackson', 'you can push raw JSON into the store');
@@ -868,7 +867,7 @@ module('unit/store/push - Store#pushPayload', function (hooks) {
         ],
       });
 
-      let robert = store.peekRecord('person', '1');
+      const robert = store.peekRecord('person', '1');
 
       const friends = robert.friends;
       assert.strictEqual(friends.at(0).id, '2', 'first object is unchanged');
@@ -922,10 +921,10 @@ module('unit/store/push - Store#push with JSON-API', function (hooks) {
       ],
     });
 
-    let tom = store.peekRecord('person', 1);
+    const tom = store.peekRecord('person', 1);
     assert.strictEqual(tom.name, 'Tom Dale', 'Tom should be in the store');
 
-    let tomster = store.peekRecord('person', 2);
+    const tomster = store.peekRecord('person', 2);
     assert.strictEqual(tomster.name, 'Tomster', 'Tomster should be in the store');
   });
 
@@ -973,10 +972,10 @@ module('unit/store/push - Store#push with JSON-API', function (hooks) {
       ],
     });
 
-    let tomster = store.peekRecord('person', 1);
+    const tomster = store.peekRecord('person', 1);
     assert.strictEqual(tomster.name, 'Tomster', 'Tomster should be in the store');
 
-    let car = store.peekRecord('car', 1);
+    const car = store.peekRecord('car', 1);
     assert.strictEqual(car.model, 'Neon', "Tomster's car should be in the store");
   });
 });

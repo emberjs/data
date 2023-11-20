@@ -1,9 +1,8 @@
-import { module, test } from '@warp-drive/diagnostic';
-
 import type { RequestInfo } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
 import type { Context } from '@ember-data/request/-private/context';
 import type { Future, Handler, NextFn } from '@ember-data/request/-private/types';
+import { module, test } from '@warp-drive/diagnostic';
 
 module('RequestManager | Custom Abort', function () {
   test('We can abort requests', async function (assert) {

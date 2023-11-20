@@ -15,7 +15,7 @@ module('integration - Client Id Generation', function (hooks) {
   let adapter;
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
 
     class Comment extends Model {
       @attr()
@@ -56,7 +56,7 @@ module('integration - Client Id Generation', function (hooks) {
     };
 
     adapter.createRecord = function (store, modelClass, snapshot) {
-      let type = modelClass.modelName;
+      const type = modelClass.modelName;
 
       if (type === 'comment') {
         assert.strictEqual(snapshot.id, 'id-1', "Comment passed to `createRecord` has 'id-1' assigned");
@@ -77,8 +77,8 @@ module('integration - Client Id Generation', function (hooks) {
       }
     };
 
-    let comment = store.createRecord('comment');
-    let post = store.createRecord('post');
+    const comment = store.createRecord('comment');
+    const post = store.createRecord('post');
 
     assert.strictEqual(get(comment, 'id'), 'id-1', "comment is assigned id 'id-1'");
     assert.strictEqual(get(post, 'id'), 'id-2', "post is assigned id 'id-2'");
@@ -100,7 +100,7 @@ module('integration - Client Id Generation', function (hooks) {
       assert.expect(6);
       let idCount = 0;
       let id = 1;
-      let ids = [undefined, ''];
+      const ids = [undefined, ''];
 
       adapter.generateIdForRecord = function (passedStore, record) {
         assert.strictEqual(store, passedStore, 'store is the first parameter');
@@ -113,8 +113,8 @@ module('integration - Client Id Generation', function (hooks) {
         return Promise.resolve({ data: { id: id++, type: type.modelName } });
       };
 
-      let comment = store.createRecord('misc');
-      let post = store.createRecord('misc');
+      const comment = store.createRecord('misc');
+      const post = store.createRecord('misc');
 
       assert.strictEqual(get(comment, 'id'), null, "comment is assigned id 'null'");
       assert.strictEqual(get(post, 'id'), null, "post is assigned id 'null'");

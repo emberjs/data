@@ -1,7 +1,6 @@
-import { module, test } from '@warp-drive/diagnostic';
-
 import { buildBaseURL, setBuildURLConfig } from '@ember-data/request-utils';
 import { test as debug } from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+import { module, test } from '@warp-drive/diagnostic';
 
 module('buildBaseURL', function (hooks) {
   hooks.afterEach(function () {

@@ -23,7 +23,7 @@ module('integration/records/property-changes - Property changes', function (hook
   test('Calling push with partial records trigger observers for just those attributes that changed', function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     store.push({
       data: {
@@ -60,7 +60,7 @@ module('integration/records/property-changes - Property changes', function (hook
   test('Calling push does not trigger observers for locally changed attributes with the same value', async function (assert) {
     assert.expect(0);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     var person;
 
@@ -101,8 +101,8 @@ module('integration/records/property-changes - Property changes', function (hook
     assert.expect(1);
     var person;
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.updateRecord = function (store, type, snapshot) {
       return Promise.resolve({ data: { id: 'wat', type: 'person', attributes: { 'last-name': 'Katz' } } });
@@ -135,7 +135,7 @@ module('integration/records/property-changes - Property changes', function (hook
   test('store.push should not override a modified attribute', function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     const person = store.push({
       data: {

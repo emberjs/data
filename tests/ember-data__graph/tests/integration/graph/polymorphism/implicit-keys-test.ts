@@ -1,9 +1,11 @@
-import { module, test } from '@warp-drive/diagnostic';
-import { setupTest } from '@warp-drive/diagnostic/ember';
-
+// Remove this disable once @belongsTo is typed
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { graphFor } from '@ember-data/graph/-private';
 import Model, { attr, belongsTo } from '@ember-data/model';
-import Store, { recordIdentifierFor } from '@ember-data/store';
+import type Store from '@ember-data/store';
+import { recordIdentifierFor } from '@ember-data/store';
+import { module, test } from '@warp-drive/diagnostic';
+import { setupTest } from '@warp-drive/diagnostic/ember';
 
 module('Integration | Graph | Implicit Keys', function (hooks) {
   setupTest(hooks);

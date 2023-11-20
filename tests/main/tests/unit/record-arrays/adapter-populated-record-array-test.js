@@ -16,7 +16,7 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
   setupTest(hooks);
 
   test('default initial state', async function (assert) {
-    let recordArray = new AdapterPopulatedRecordArray({
+    const recordArray = new AdapterPopulatedRecordArray({
       type: 'recordType',
       isLoaded: false,
       identifiers: [],
@@ -32,8 +32,8 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
   });
 
   test('custom initial state', async function (assert) {
-    let store = {};
-    let recordArray = new AdapterPopulatedRecordArray({
+    const store = {};
+    const recordArray = new AdapterPopulatedRecordArray({
       type: 'apple',
       isLoaded: true,
       identifiers: ['1'],
@@ -51,7 +51,7 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
   });
 
   testInDebug('mutation throws error', function (assert) {
-    let recordArray = new AdapterPopulatedRecordArray({ type: 'recordType', identifiers: [] });
+    const recordArray = new AdapterPopulatedRecordArray({ type: 'recordType', identifiers: [] });
 
     assert.throws(
       () => {
@@ -64,7 +64,7 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
 
   test('#update uses _update enabling query specific behavior', async function (assert) {
     let queryCalled = 0;
-    let deferred = createDeferred();
+    const deferred = createDeferred();
 
     const store = {
       query(modelName, query, options) {
@@ -77,7 +77,7 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
       },
     };
 
-    let recordArray = new AdapterPopulatedRecordArray({
+    const recordArray = new AdapterPopulatedRecordArray({
       type: 'recordType',
       store,
       identifiers: [],
@@ -89,7 +89,7 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
 
     assert.strictEqual(queryCalled, 0);
 
-    let updateResult = recordArray.update();
+    const updateResult = recordArray.update();
 
     assert.strictEqual(queryCalled, 1);
     const expectedResult = [];
@@ -109,26 +109,26 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     let contentDidChange = 0;
 
     this.owner.register('model:tag', Tag);
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let manager = new RecordArrayManager({
+    const manager = new RecordArrayManager({
       store,
     });
-    let recordArray = new AdapterPopulatedRecordArray({
+    const recordArray = new AdapterPopulatedRecordArray({
       query: 'some-query',
       manager,
       identifiers: [],
       store,
     });
 
-    let model1 = {
+    const model1 = {
       type: 'tag',
       id: '1',
       attributes: {
         name: 'Scumbag Dale',
       },
     };
-    let model2 = {
+    const model2 = {
       type: 'tag',
       id: '2',
       attributes: {
@@ -173,14 +173,14 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     arrayDidChange = 0;
     contentDidChange = 0;
 
-    let model3 = {
+    const model3 = {
       type: 'tag',
       id: '3',
       attributes: {
         name: 'Scumbag Penner',
       },
     };
-    let model4 = {
+    const model4 = {
       type: 'tag',
       id: '4',
       attributes: {
@@ -224,7 +224,7 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     assert.strictEqual(arrayDidChange, 0, 'record array should not yet have omitted a change event');
     assert.strictEqual(contentDidChange, 0, 'recordArray.content should not have changed');
 
-    let model5 = {
+    const model5 = {
       type: 'tag',
       id: '5',
       attributes: {

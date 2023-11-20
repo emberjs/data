@@ -1,8 +1,7 @@
-import { module, test } from '@warp-drive/diagnostic';
-
 import RequestManager from '@ember-data/request';
 import type { Context } from '@ember-data/request/-private/context';
 import type { Handler, NextFn } from '@ember-data/request/-private/types';
+import { module, test } from '@warp-drive/diagnostic';
 
 module('RequestManager | Immutability', function () {
   test('RequestInfo passed to a handler is Immutable', async function (assert) {
@@ -55,6 +54,7 @@ module('RequestManager | Immutability', function () {
         const headers = new Headers(context.request.headers);
         headers.append('house', 'home');
         // @ts-expect-error Types are wrong: Property 'entries' does not exist on type 'Headers'.
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
         return Promise.resolve<T>([...headers.entries()] as T);
       },
     };
