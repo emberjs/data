@@ -6,7 +6,11 @@ import type { CacheOperation, NotificationType } from '@ember-data/store/-privat
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
 import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
-import type { StableDocumentIdentifier,StableExistingRecordIdentifier, StableRecordIdentifier  } from '@warp-drive/core-types/identifier';
+import type {
+  StableDocumentIdentifier,
+  StableExistingRecordIdentifier,
+  StableRecordIdentifier,
+} from '@warp-drive/core-types/identifier';
 import type { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
 import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
 import type { SingleResourceDocument } from '@warp-drive/core-types/spec/raw';

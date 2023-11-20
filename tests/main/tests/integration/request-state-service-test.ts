@@ -10,11 +10,10 @@ import type Store from '@ember-data/store';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
-   
+
   @attr('string', {})
   name;
 
-   
   @attr('string', {})
   lastName;
 }

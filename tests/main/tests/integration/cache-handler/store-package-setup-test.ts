@@ -19,7 +19,11 @@ import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-
 import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
 import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
-import type { StableDocumentIdentifier,StableExistingRecordIdentifier, StableRecordIdentifier  } from '@warp-drive/core-types/identifier';
+import type {
+  StableDocumentIdentifier,
+  StableExistingRecordIdentifier,
+  StableRecordIdentifier,
+} from '@warp-drive/core-types/identifier';
 import type {
   CollectionResourceDataDocument,
   ResourceDataDocument,

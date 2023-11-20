@@ -8,21 +8,21 @@ import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
 class App extends Model {
   @attr declare name: string;
-   
+
   @hasMany('config', { async: false, inverse: 'app' }) declare configs: Config[];
-   
+
   @belongsTo('cluster', { async: false, inverse: 'apps' }) declare cluster: Cluster;
 }
 
 class Cluster extends Model {
   @attr declare name: string;
-   
+
   @hasMany('app', { async: false, inverse: 'cluster' }) declare apps: App[];
 }
 
 class Config extends Model {
   @attr declare name: string;
-   
+
   @belongsTo('app', { async: false, inverse: 'configs' }) declare app: App | null;
 }
 

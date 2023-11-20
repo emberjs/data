@@ -340,7 +340,7 @@ module('integration/record-data Custom RecordData (v2) Errors', function (hooks)
     }) as Model;
 
     const identifier = recordIdentifierFor(person);
-     
+
     let nameError = person.errors.errorsFor('firstName').objectAt(0);
     assert.strictEqual(nameError, undefined, 'no error shows up on firstName initially');
     assert.true(person.isValid, 'person is initially valid');
@@ -356,16 +356,14 @@ module('integration/record-data Custom RecordData (v2) Errors', function (hooks)
     ];
     storeWrapper.notifyChange(identifier, 'errors');
 
-     
     nameError = person.errors.errorsFor('firstName').objectAt(0);
-     
+
     assert.strictEqual(nameError?.attribute, 'firstName', 'error shows up on name');
     assert.false(person.isValid, 'person is not valid');
 
     errorsToReturn = [];
     storeWrapper.notifyChange(identifier, 'errors');
 
-     
     assert.strictEqual(person.errors.errorsFor('firstName').length, 0, 'no errors on name');
     assert.true(person.isValid, 'person is valid');
 
@@ -381,11 +379,11 @@ module('integration/record-data Custom RecordData (v2) Errors', function (hooks)
     storeWrapper.notifyChange(identifier, 'errors');
 
     assert.false(person.isValid, 'person is not valid');
-     
+
     assert.strictEqual(person.errors.errorsFor('firstName').length, 0, 'no errors on firstName');
-     
+
     const lastNameError = person.errors.errorsFor('lastName').objectAt(0);
-     
+
     assert.strictEqual(lastNameError?.attribute, 'lastName', 'error shows up on lastName');
   });
 });

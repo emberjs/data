@@ -38,11 +38,10 @@ import type {
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
-   
+
   @attr('string', {})
   name;
 
-   
   @attr('string', {})
   lastName;
 }
@@ -220,7 +219,7 @@ module('integration/record-data - Record Data State', function (hooks) {
 
     owner.register('model:person', Person);
     // @ts-expect-error missing type
-     
+
     owner.unregister('service:store');
     owner.register('service:store', Store);
     owner.register('serializer:application', JSONAPISerializer);

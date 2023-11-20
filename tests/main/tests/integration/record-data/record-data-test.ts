@@ -1,4 +1,3 @@
- 
 import EmberObject from '@ember/object';
 import { settled } from '@ember/test-helpers';
 

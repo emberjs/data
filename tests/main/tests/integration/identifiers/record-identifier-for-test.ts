@@ -10,7 +10,6 @@ import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 
 class User extends Model {
-   
   @attr() name;
 }
 

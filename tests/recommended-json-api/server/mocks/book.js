@@ -1,4 +1,3 @@
- 
 'use strict';
 const RAW_BOOKS = require('./MOCK_DATA.json');
 

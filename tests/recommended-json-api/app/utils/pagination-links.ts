@@ -32,7 +32,6 @@ export class PaginationLinks {
       const cached = _pages;
       _pages = this._pages = new Array(pagesTotal).fill('.') as string[];
       for (let i = 0; i < pagesTotal; i++) {
-         
         _pages[i] = cached[i]!;
       }
     }
@@ -61,11 +60,7 @@ export class PaginationLinks {
     for (let i = 0; i < pages.length; i++) {
       if (pages[i] !== '.') {
         filtered.push({ index: i + 1, link: pages[i] });
-      } else if (
-        filtered.length > 0 &&
-         
-        filtered[filtered.length - 1]!.link !== '...'
-      ) {
+      } else if (filtered.length > 0 && filtered[filtered.length - 1]!.link !== '...') {
         filtered.push({ index: i + 1, link: '...' });
       }
     }

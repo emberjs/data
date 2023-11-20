@@ -1,4 +1,3 @@
- 
 import 'qunit-dom'; // tell TS consider *.dom extension for assert
 
 import { setComponentTemplate } from '@ember/component';

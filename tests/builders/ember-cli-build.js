@@ -1,4 +1,3 @@
- 
 'use strict';
 
 const EmberApp = require('ember-cli/lib/broccoli/ember-app');

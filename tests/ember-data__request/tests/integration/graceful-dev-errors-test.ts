@@ -1,7 +1,3 @@
- 
- 
- 
-
 import RequestManager from '@ember-data/request';
 import type { Context } from '@ember-data/request/-private/context';
 import type { Handler, NextFn } from '@ember-data/request/-private/types';

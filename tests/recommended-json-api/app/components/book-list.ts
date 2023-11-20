@@ -8,7 +8,7 @@ import type Store from '@ember-data/store';
 import type { Document } from '@ember-data/store/-private/document';
 
 import type Book from '../models/book';
-import type { ApiPage} from '../utils/pagination-links';
+import type { ApiPage } from '../utils/pagination-links';
 import { PaginationLinks } from '../utils/pagination-links';
 
 export interface BookListSignature {
