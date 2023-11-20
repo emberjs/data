@@ -53,7 +53,7 @@ and profile image of its ceo, we want to ask for just that information to be ret
 
 To get this payload we issue the following http request:
 
-```https
+```HTTP
 GET /api/companies?fields[company]=name&fields[employee]=name,profileImage&included=ceo&page[size]=10 HTTP/2
 Accept: application/vnd.api+json; profile="https://jsonapi.org/profiles/ethanresnick/cursor-pagination"
 ```
@@ -63,6 +63,7 @@ Lets see how we'd approach this request.
 ## Step 1: lets create a request manager for our app
 
 *app/fetch.ts*
+
 ```ts
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
@@ -81,11 +82,11 @@ few advantages to using a RequestManager here instead.
 First, the manager takes care of a few things for us right away
 even in this simple form.
 
- - [AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) is wired in
- - The double await goes away (ie no `response = await fetch(); data = await response.json()` )
- - Its simpler to mock for our tests and can even help us provide [advanced parallel and concurrent test mocking](https://github.com/emberjs/data/tree/main/packages/holodeck#readme)
- - It automatically adds test waiters we can use to guard against leaky tests!
- - It gives us a unified interface for managing requests everywhere in our app, not just for this request!
+- [AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) is wired in
+- The double await goes away (ie no `response = await fetch(); data = await response.json()` )
+- Its simpler to mock for our tests and can even help us provide [advanced parallel and concurrent test mocking](https://github.com/emberjs/data/tree/main/packages/holodeck#readme)
+- It automatically adds test waiters we can use to guard against leaky tests!
+- It gives us a unified interface for managing requests everywhere in our app, not just for this request!
 
 It also sets up nicely in case we later decide to refactor our API, add authentication, adjust needed headers, or add caching.
 
@@ -121,7 +122,7 @@ setBuildURLConfig({
 
 As a reminder, this is the request we want to construct:
 
-```https
+```HTTP
 GET /api/companies?fields[company]=name&fields[employee]=name,profileImage&included=ceo&page[size]=10 HTTP/2
 Accept: application/vnd.api+json; profile="https://jsonapi.org/profiles/ethanresnick/cursor-pagination"
 ```
@@ -130,6 +131,7 @@ The `query` builder from `@ember-data/json-api/request` will do most of the heav
 constructing the url, and making sure headers are attached appropriately.
 
 *app/page.ts*
+
 ```ts
 import { query } from '@ember-data/json-api/request';
 import fetch from './fetch';
@@ -190,7 +192,7 @@ const { content: collection } = await store.request(query('company', {
   }
 }));
 
-// accessing the data is the same, execept now
+// accessing the data is the same, except now
 // this will be a list of records instead of raw objects
 const companies = collection.data;
 ```
@@ -257,7 +259,7 @@ try {
     }
   }));
 } catch (error) {
-  // errors will be normal Errors with some exra information
+  // errors will be normal Errors with some extra information
   error instanceof Error; // true
 
   // request and response are also available on errors
@@ -268,7 +270,7 @@ try {
 Errors thrown by the `Fetch` handler have some additional useful properties.
 
 - If the API returned an error with a JSON payload, it is parsed and available as `content`.
-- If the API returnered an array of errors or an object with an `errors` property as an array, an `AggregateError` is thrown with those errors.
+- If the API returned an array of errors or an object with an `errors` property as an array, an `AggregateError` is thrown with those errors.
 - `status`, `statusText`, `name`, `code` are all available and normalized
 - `isRequestError` will be set to `true`
 
