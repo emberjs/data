@@ -12,7 +12,7 @@ module.exports = function createParentRecords(nrParents = 1, nrChildren, nrFrien
   };
 
   for (let i = 0; i < nrParents; i++) {
-    let payload = createParentPayload(`${parentFixtureId++}`, nrChildren, nrFriends);
+    const payload = createParentPayload(`${parentFixtureId++}`, nrChildren, nrFriends);
 
     if (nrParents === 1) {
       return payload;
@@ -55,7 +55,7 @@ function createParentPayload(parentId = '1', nrChildren = 0, nrFriends = 0) {
 
     const childIdentifier = extractIdentifiers(child);
     if (nrFriends > 0) {
-      let bestFriend = ALL_FRIENDS[friendIndex];
+      const bestFriend = ALL_FRIENDS[friendIndex];
       child.relationships.bestFriend = {
         data: extractIdentifiers(bestFriend),
       };
@@ -67,7 +67,7 @@ function createParentPayload(parentId = '1', nrChildren = 0, nrFriends = 0) {
         data: otherFriends,
       };
       for (let i = 0; i < nrFriends; i++) {
-        let friend = ALL_FRIENDS[friendIndex + i];
+        const friend = ALL_FRIENDS[friendIndex + i];
         friend.relationships.friends = {
           data: [childIdentifier],
         };
@@ -75,7 +75,7 @@ function createParentPayload(parentId = '1', nrChildren = 0, nrFriends = 0) {
       }
     }
     if (nrFriends > 1) {
-      let secondBestFriend = ALL_FRIENDS[friendIndex + 1];
+      const secondBestFriend = ALL_FRIENDS[friendIndex + 1];
       child.relationships.secondBestFriend = {
         data: extractIdentifiers(secondBestFriend),
       };
