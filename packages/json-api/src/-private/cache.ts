@@ -1117,8 +1117,8 @@ export default class JSONAPICache implements Cache {
       cached.inflightAttrs && attr in cached.inflightAttrs
         ? cached.inflightAttrs[attr]
         : cached.remoteAttrs && attr in cached.remoteAttrs
-        ? cached.remoteAttrs[attr]
-        : undefined;
+          ? cached.remoteAttrs[attr]
+          : undefined;
     if (existing !== value) {
       cached.localAttrs = cached.localAttrs || (Object.create(null) as Record<string, Value>);
       cached.localAttrs[attr] = value;
@@ -1645,8 +1645,8 @@ function patchLocalAttributes(cached: CachedResource): boolean {
       inflightAttrs && attr in inflightAttrs
         ? inflightAttrs[attr]
         : remoteAttrs && attr in remoteAttrs
-        ? remoteAttrs[attr]
-        : undefined;
+          ? remoteAttrs[attr]
+          : undefined;
 
     if (existing === localAttrs[attr]) {
       hasAppliedPatch = true;
