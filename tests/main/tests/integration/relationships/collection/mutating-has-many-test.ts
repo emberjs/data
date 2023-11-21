@@ -1,4 +1,4 @@
-import { module, skip, test } from 'qunit';
+import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
@@ -653,18 +653,6 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
 
       try {
         friends.push(...newState);
-        assert.strictEqual(friends.length, 2, 'the user has two friends');
-        assert.strictEqual(friends[0].name, 'Krystan', 'the user has the correct friends');
-        assert.strictEqual(friends[1].name, 'Sam', 'the user has the correct friends');
-      } catch (e) {
-        assert.ok(false, `expected no error to be thrown, got ${(e as Error).message}`);
-      }
-
-      const newState2 = [...friends, Sam];
-      assert.strictEqual(newState2.length, 3, 'precond - the new state contains duplicates');
-
-      try {
-        friends.push(...newState2);
         assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
         assert.strictEqual(friends.length, 2, 'the user has two friends');
         assert.strictEqual(friends[0].name, 'Krystan', 'the user has the correct friends');
@@ -673,9 +661,29 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
         assert.strictEqual(
           (e as Error).message,
-          "Assertion Failed: Cannot push duplicates to a hasMany's state. Found duplicates for the following records within the new state provided to `<user:1>.friends`\n\t- @lid:user-3",
+          "Assertion Failed: Cannot push duplicates to a hasMany's state. Found duplicates for the following records within the new state provided to `<user:1>.friends`\n\t- @lid:user-2",
           'error thrown has correct message'
         );
+      }
+
+      if (!IS_DEBUG) {
+        const newState2 = [...friends, Sam];
+        assert.strictEqual(newState2.length, 3, 'precond - the new state contains duplicates');
+
+        try {
+          friends.push(...newState2);
+          assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
+          assert.strictEqual(friends.length, 2, 'the user has two friends');
+          assert.strictEqual(friends[0].name, 'Krystan', 'the user has the correct friends');
+          assert.strictEqual(friends[1].name, 'Sam', 'the user has the correct friends');
+        } catch (e) {
+          assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
+          assert.strictEqual(
+            (e as Error).message,
+            "Assertion Failed: Cannot push duplicates to a hasMany's state. Found duplicates for the following records within the new state provided to `<user:1>.friends`\n\t- @lid:user-3",
+            'error thrown has correct message'
+          );
+        }
       }
     });
 
@@ -741,7 +749,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
       try {
         friends.push(...newState);
         assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
-        assert.strictEqual(friends.length, 1, 'the user has 1 friends');
+        assert.strictEqual(friends.length, 2, 'the user has 2 friends');
         assert.strictEqual(friends[0].name, 'Krystan', 'the user has the correct friends');
       } catch (e) {
         assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
@@ -964,29 +972,36 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
 
         try {
           friends.splice(1, 0, ...newState);
-          assert.strictEqual(friends.length, 2, 'the user has two friends');
-          assert.strictEqual(friends[0].name, 'Krystan', 'the user has the correct friends');
-          assert.strictEqual(friends[1].name, 'Sam', 'the user has the correct friends');
-        } catch (e) {
-          assert.ok(false, `expected no error to be thrown, got ${(e as Error).message}`);
-        }
-
-        const newState2 = [...friends, Sam];
-        assert.strictEqual(newState2.length, 3, 'precond - the new state contains duplicates');
-
-        try {
-          friends.splice(2, 0, ...newState2);
           assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
-          assert.strictEqual(friends.length, 2, 'the user has two friends');
           assert.strictEqual(friends[0].name, 'Krystan', 'the user has the correct friends');
           assert.strictEqual(friends[1].name, 'Sam', 'the user has the correct friends');
         } catch (e) {
           assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
           assert.strictEqual(
             (e as Error).message,
-            "Assertion Failed: Cannot splice a hasMany's state with a new state that contains duplicates. Found duplicates for the following records within the new state provided to `<user:1>.friends`\n\t- @lid:user-3",
+            "Assertion Failed: Cannot splice a hasMany's state with a new state that contains duplicates. Found duplicates for the following records within the new state provided to `<user:1>.friends`\n\t- @lid:user-2",
             'error thrown has correct message'
           );
+        }
+
+        if (!IS_DEBUG) {
+          const newState2 = [...friends, Sam];
+          assert.strictEqual(newState2.length, 3, 'precond - the new state contains duplicates');
+
+          try {
+            friends.splice(2, 0, ...newState2);
+            assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
+            assert.strictEqual(friends.length, 2, 'the user has two friends');
+            assert.strictEqual(friends[0].name, 'Krystan', 'the user has the correct friends');
+            assert.strictEqual(friends[1].name, 'Sam', 'the user has the correct friends');
+          } catch (e) {
+            assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
+            assert.strictEqual(
+              (e as Error).message,
+              "Assertion Failed: Cannot splice a hasMany's state with a new state that contains duplicates. Found duplicates for the following records within the new state provided to `<user:1>.friends`\n\t- @lid:user-3",
+              'error thrown has correct message'
+            );
+          }
         }
       });
 
@@ -1067,7 +1082,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
           assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
           assert.strictEqual(
             (e as Error).message,
-            "Assertion Failed: Cannot splice a hasMany's state with a new state that contains duplicates. Found duplicates for the following records within the new state provided to `<user:1>.friends`\n\t- @lid:user-3",
+            "Assertion Failed: Cannot splice a hasMany's state with a new state that contains duplicates. Found duplicates for the following records within the new state provided to `<user:1>.friends`\n\t- @lid:user-3\n\t- @lid:user-2",
             'error thrown has correct message'
           );
         }
@@ -1135,8 +1150,9 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         try {
           friends.splice(2, 0, ...newState);
           assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
-          assert.strictEqual(friends.length, 1, 'the user has 1 friends');
+          assert.strictEqual(friends.length, 2, 'the user has 2 friends');
           assert.strictEqual(friends[0].name, 'Krystan', 'the user has the correct friends');
+          assert.strictEqual(friends[1].name, 'Sam', 'the user has the correct friends');
         } catch (e) {
           assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
           assert.strictEqual(
@@ -1209,8 +1225,9 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         try {
           friends.splice(1, 0, ...newState);
           assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
-          assert.strictEqual(friends.length, 1, 'the user has 1 friends');
+          assert.strictEqual(friends.length, 2, 'the user has 2 friends');
           assert.strictEqual(friends[0].name, 'Krystan', 'the user has the correct friends');
+          assert.strictEqual(friends[1].name, 'Sam', 'the user has the correct friends');
         } catch (e) {
           assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
           assert.strictEqual(
@@ -1283,8 +1300,9 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         try {
           friends.splice(0, 0, ...newState);
           assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
-          assert.strictEqual(friends.length, 1, 'the user has 1 friends');
+          assert.strictEqual(friends.length, 2, 'the user has 2 friends');
           assert.strictEqual(friends[0].name, 'Krystan', 'the user has the correct friends');
+          assert.strictEqual(friends[1].name, 'Sam', 'the user has the correct friends');
         } catch (e) {
           assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
           assert.strictEqual(

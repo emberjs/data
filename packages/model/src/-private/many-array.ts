@@ -195,33 +195,35 @@ export default class RelatedCollection extends RecordArray {
         return true;
       }
       case 'push': {
-        if (DEBUG) {
-          const adds = args as RecordInstance[];
-          const seen: Set<unknown> = new Set(target);
-          const duplicates = adds.filter((item) => {
-            if (seen.has(item)) {
-              return true;
-            }
-            seen.add(item);
-            return false;
-          });
-          assert(
-            `Cannot push duplicates to a hasMany's state. Found duplicates for the following records within the new state provided to \`<${
-              this.identifier.type
-            }:${this.identifier.id || this.identifier.lid}>.${this.key}\`\n\t- ${duplicates
-              .map((r) => recordIdentifierFor(r).lid)
-              .join('\n\t- ')}`,
-            duplicates.length === 0
-          );
-        }
+        const seen = new Set(target.map((r) => r.lid));
+        const unique = new Set<RecordInstance>();
+        const duplicates = new Set<RecordInstance>();
+        (args as RecordInstance[]).forEach((item) => {
+          const lid = recordIdentifierFor(item).lid;
+          if (seen.has(lid)) {
+            duplicates.add(item);
+          } else {
+            seen.add(lid);
+            unique.add(item);
+          }
+        });
 
-        const result: unknown = Reflect.apply(target[prop], receiver, args);
+        assert(
+          `Cannot push duplicates to a hasMany's state. Found duplicates for the following records within the new state provided to \`<${
+            this.identifier.type
+          }:${this.identifier.id || this.identifier.lid}>.${this.key}\`\n\t- ${Array.from(duplicates)
+            .map((r) => recordIdentifierFor(r).lid)
+            .join('\n\t- ')}`,
+          duplicates.size === 0
+        );
+
+        const result = Reflect.apply(target[prop], receiver, Array.from(unique)) as RecordInstance[];
 
         this._manager.mutate({
           op: 'addToRelatedRecords',
           record: this.identifier,
           field: this.key,
-          value: extractIdentifiersFromRecords(args as RecordInstance[]),
+          value: extractIdentifiersFromRecords(Array.from(unique)),
         });
 
         return result;
@@ -288,7 +290,7 @@ export default class RelatedCollection extends RecordArray {
           const current = new Set(adds);
           if (DEBUG) {
             if (current.size !== adds.length) {
-              const seen = new Set();
+              const seen = new Set<RecordInstance>();
               const duplicates = adds.filter((item) => {
                 if (seen.has(item)) {
                   return true;
@@ -318,24 +320,26 @@ export default class RelatedCollection extends RecordArray {
           return result;
         }
 
-        const seen: Set<unknown> = new Set(target);
-        const unique: Set<RecordInstance> = new Set();
-        const duplicates: RecordInstance[] = [];
+        const seen = new Set(target.map((r) => r.lid));
+        const unique = new Set<RecordInstance>();
+        const duplicates = new Set<RecordInstance>();
         adds.forEach((item) => {
-          if (seen.has(item)) {
-            duplicates.push(item);
+          const lid = recordIdentifierFor(item).lid;
+          if (seen.has(lid)) {
+            duplicates.add(item);
+          } else {
+            seen.add(lid);
+            unique.add(item);
           }
-          seen.add(item);
-          unique.add(item);
         });
 
         assert(
           `Cannot splice a hasMany's state with a new state that contains duplicates. Found duplicates for the following records within the new state provided to \`<${
             this.identifier.type
-          }:${this.identifier.id || this.identifier.lid}>.${this.key}\`\n\t- ${duplicates
+          }:${this.identifier.id || this.identifier.lid}>.${this.key}\`\n\t- ${Array.from(duplicates)
             .map((r) => recordIdentifierFor(r).lid)
             .join('\n\t- ')}`,
-          duplicates.length === 0
+          duplicates.size === 0
         );
 
         const newArgs = ([start, removeCount] as unknown[]).concat(Array.from(unique));
