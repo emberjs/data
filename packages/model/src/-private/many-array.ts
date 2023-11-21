@@ -283,28 +283,27 @@ export default class RelatedCollection extends RecordArray {
       case 'splice': {
         const [start, removeCount, ...adds] = args as [number, number, RecordInstance];
 
-        // @runspired TODO add a few tests around the assumptions this check makes
         // detect a full replace
         if (start === 0 && removeCount === this[SOURCE].length) {
           const current = new Set(adds);
           if (DEBUG) {
-            const seen = new Set();
-            const duplicates = adds.filter((item) => {
-              if (seen.has(item)) {
-                return true;
-              }
-              seen.add(item);
-              return false;
-            });
-            assert(
-              `Cannot replace a hasMany's state with a new state that contains duplicates. Found duplicates for the following records within the new state provided to \`<${
-                this.identifier.type
-              }:${this.identifier.id || this.identifier.lid}>.${this.key}\`\n\t- ${duplicates
-                .map((r) => recordIdentifierFor(r).lid)
-                .join('\n\t- ')}`,
-              // FIXME: Is this correct? IDGI
-              current.size === adds.length
-            );
+            if (current.size !== adds.length) {
+              const seen = new Set();
+              const duplicates = adds.filter((item) => {
+                if (seen.has(item)) {
+                  return true;
+                }
+                seen.add(item);
+                return false;
+              });
+              assert(
+                `Cannot replace a hasMany's state with a new state that contains duplicates. Found duplicates for the following records within the new state provided to \`<${
+                  this.identifier.type
+                }:${this.identifier.id || this.identifier.lid}>.${this.key}\`\n\t- ${duplicates
+                  .map((r) => recordIdentifierFor(r).lid)
+                  .join('\n\t- ')}`
+              );
+            }
           }
           const unique = Array.from(current);
           const newArgs = ([start, removeCount] as unknown[]).concat(unique);
