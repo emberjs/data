@@ -12,16 +12,17 @@ if (DEBUG) {
   IS_DEBUG = true;
 }
 
+class User extends Model {
+  @attr declare name: string;
+  @hasMany('user', { async: false, inverse: 'friends' }) declare friends: User[];
+}
+
 module('Integration | Relationships | Collection | Mutation', function (hooks) {
   setupTest(hooks);
 
   module('Added duplicate not already in remote state', function () {
-    test('When replacing the state of a hasMany we error if the new state contains duplicates (starting length 0, multi-change)', async function (assert) {
+    test('When replacing the state of a hasMany we error if the new state contains duplicates (starting length 0, multi-change)', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
-      class User extends Model {
-        @attr declare name: string;
-        @hasMany('user', { async: true, inverse: 'friends' }) declare friends: Promise<User[]>;
-      }
 
       this.owner.register('model:user', User);
 
@@ -63,7 +64,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         ],
       }) as User;
 
-      const friends = await user.friends;
+      const friends = user.friends;
       assert.strictEqual(friends.length, 0, 'precond - the user has no friends');
       const Sam = store.peekRecord('user', '3') as User;
 
@@ -71,7 +72,6 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
       assert.strictEqual(newState.length, 1, 'precond - the new state contains only the one new record');
 
       try {
-        // @ts-expect-error assignment to async
         user.friends = newState;
         assert.strictEqual(friends.length, 1, 'the user has one friend');
         assert.strictEqual(friends[0].name, 'Sam', 'the user has the correct friends');
@@ -83,7 +83,6 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
       assert.strictEqual(newState2.length, 2, 'precond - the new state contains duplicates');
 
       try {
-        // @ts-expect-error assignment to async
         user.friends = newState2;
         assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
         assert.strictEqual(friends.length, 1, 'the user has one friend');
@@ -98,12 +97,8 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
       }
     });
 
-    test('When replacing the state of a hasMany we error if the new state contains duplicates (starting length 0, single-change)', async function (assert) {
+    test('When replacing the state of a hasMany we error if the new state contains duplicates (starting length 0, single-change)', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
-      class User extends Model {
-        @attr declare name: string;
-        @hasMany('user', { async: true, inverse: 'friends' }) declare friends: Promise<User[]>;
-      }
 
       this.owner.register('model:user', User);
 
@@ -145,7 +140,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         ],
       }) as User;
 
-      const friends = await user.friends;
+      const friends = user.friends;
       assert.strictEqual(friends.length, 0, 'precond - the user has no friends');
       const Sam = store.peekRecord('user', '3') as User;
 
@@ -153,7 +148,6 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
       assert.strictEqual(newState.length, 2, 'precond - the new state contains duplicates');
 
       try {
-        // @ts-expect-error assignment to async
         user.friends = newState;
         assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
         assert.strictEqual(friends.length, 1, 'the user has one friends');
@@ -168,12 +162,8 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
       }
     });
 
-    test('When replacing the state of a hasMany we error if the new state contains duplicates (starting length 1, multi-change)', async function (assert) {
+    test('When replacing the state of a hasMany we error if the new state contains duplicates (starting length 1, multi-change)', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
-      class User extends Model {
-        @attr declare name: string;
-        @hasMany('user', { async: true, inverse: 'friends' }) declare friends: Promise<User[]>;
-      }
 
       this.owner.register('model:user', User);
 
@@ -215,7 +205,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         ],
       }) as User;
 
-      const friends = await user.friends;
+      const friends = user.friends;
       assert.strictEqual(friends.length, 1, 'precond - the user has one friend');
       assert.strictEqual(friends[0].name, 'Krystan', 'precond - the user has the correct friends');
       const Sam = store.peekRecord('user', '3') as User;
@@ -224,7 +214,6 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
       assert.strictEqual(newState.length, 2, 'precond - the new state contains no duplicates');
 
       try {
-        // @ts-expect-error assignment to async
         user.friends = newState;
         assert.strictEqual(friends.length, 2, 'the user has two friends');
         assert.strictEqual(friends[0].name, 'Krystan', 'the user has the correct friends');
@@ -237,7 +226,6 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
       assert.strictEqual(newState2.length, 3, 'precond - the new state contains duplicates');
 
       try {
-        // @ts-expect-error assignment to async
         user.friends = newState2;
         assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
         assert.strictEqual(friends.length, 2, 'the user has two friends');
@@ -253,12 +241,8 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
       }
     });
 
-    test('When replacing the state of a hasMany we error if the new state contains duplicates (starting length 2)', async function (assert) {
+    test('When replacing the state of a hasMany we error if the new state contains duplicates (starting length 2)', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
-      class User extends Model {
-        @attr declare name: string;
-        @hasMany('user', { async: true, inverse: 'friends' }) declare friends: Promise<User[]>;
-      }
 
       this.owner.register('model:user', User);
 
@@ -303,7 +287,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         ],
       }) as User;
 
-      const friends = await user.friends;
+      const friends = user.friends;
       assert.strictEqual(friends.length, 2, 'precond - the user has two friends');
       assert.strictEqual(friends[0].name, 'Krystan', 'precond - the user has the correct friends');
       assert.strictEqual(friends[1].name, 'Sam', 'precond - the user has the correct friends');
@@ -314,7 +298,6 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
       assert.strictEqual(newState.length, 2, 'precond - the new state contains duplicates');
 
       try {
-        // @ts-expect-error assignment to async
         user.friends = newState;
         assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
         assert.strictEqual(friends.length, 1, 'the user has 1 friends');
@@ -333,7 +316,6 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         assert.strictEqual(newState2.length, 3, 'precond - the new state contains duplicates');
 
         try {
-          // @ts-expect-error assignment to async
           user.friends = newState2;
           assert.strictEqual(friends.length, 2, 'the user has two friends');
           assert.strictEqual(friends[0].name, 'Eric', 'the user has the correct friends');
@@ -346,12 +328,8 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
   });
 
   module('Added duplicate already present in remote state', function () {
-    test('When replacing the state of a hasMany we error if the new state contains duplicates (starting length 1, multi-change)', async function (assert) {
+    test('When replacing the state of a hasMany we error if the new state contains duplicates (starting length 1, multi-change)', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
-      class User extends Model {
-        @attr declare name: string;
-        @hasMany('user', { async: true, inverse: 'friends' }) declare friends: Promise<User[]>;
-      }
 
       this.owner.register('model:user', User);
 
@@ -395,7 +373,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
       const Sam = store.peekRecord('user', '3') as User;
       const Krystan = store.peekRecord('user', '2') as User;
 
-      const friends = await user.friends;
+      const friends = user.friends;
       assert.strictEqual(friends.length, 1, 'precond - the user has one friend');
       assert.strictEqual(friends[0].name, 'Krystan', 'precond - the user has the correct friends');
 
@@ -403,7 +381,6 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
       assert.strictEqual(newState.length, 3, 'precond - the new state contains duplicates');
 
       try {
-        // @ts-expect-error assignment to async
         user.friends = newState;
         assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
         assert.strictEqual(friends.length, 2, 'the user has two friends');
@@ -423,7 +400,6 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         assert.strictEqual(newState2.length, 4, 'precond - the new state contains duplicates');
 
         try {
-          // @ts-expect-error assignment to async
           user.friends = newState2;
           assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
           assert.strictEqual(friends.length, 2, 'the user has two friends');
@@ -447,12 +423,8 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
   });
 
   module('Pushing new records', function () {
-    test('When pushing to the state of a hasMany we error if the new state contains duplicates (starting length 0, multi-change)', async function (assert) {
+    test('When pushing to the state of a hasMany we error if the new state contains duplicates (starting length 0, multi-change)', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
-      class User extends Model {
-        @attr declare name: string;
-        @hasMany('user', { async: true, inverse: 'friends' }) declare friends: Promise<User[]>;
-      }
 
       this.owner.register('model:user', User);
 
@@ -494,7 +466,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         ],
       }) as User;
 
-      const friends = await user.friends;
+      const friends = user.friends;
       assert.strictEqual(friends.length, 0, 'precond - the user has no friends');
       const Sam = store.peekRecord('user', '3') as User;
 
@@ -527,12 +499,8 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
       }
     });
 
-    test('When pushing to the state of a hasMany we error if the new state contains duplicates (starting length 0, single-change)', async function (assert) {
+    test('When pushing to the state of a hasMany we error if the new state contains duplicates (starting length 0, single-change)', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
-      class User extends Model {
-        @attr declare name: string;
-        @hasMany('user', { async: true, inverse: 'friends' }) declare friends: Promise<User[]>;
-      }
 
       this.owner.register('model:user', User);
 
@@ -574,7 +542,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         ],
       }) as User;
 
-      const friends = await user.friends;
+      const friends = user.friends;
       assert.strictEqual(friends.length, 0, 'precond - the user has no friends');
       const Sam = store.peekRecord('user', '3') as User;
 
@@ -596,12 +564,8 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
       }
     });
 
-    test('When pushing to the state of a hasMany we error if the new state contains duplicates (starting length 1, multi-change)', async function (assert) {
+    test('When pushing to the state of a hasMany we error if the new state contains duplicates (starting length 1, multi-change)', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
-      class User extends Model {
-        @attr declare name: string;
-        @hasMany('user', { async: true, inverse: 'friends' }) declare friends: Promise<User[]>;
-      }
 
       this.owner.register('model:user', User);
 
@@ -643,7 +607,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         ],
       }) as User;
 
-      const friends = await user.friends;
+      const friends = user.friends;
       assert.strictEqual(friends.length, 1, 'precond - the user has one friend');
       assert.strictEqual(friends[0].name, 'Krystan', 'precond - the user has the correct friends');
       const Sam = store.peekRecord('user', '3') as User;
@@ -687,12 +651,8 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
       }
     });
 
-    test('When pushing to the state of a hasMany we error if the new state contains duplicates (starting length 2)', async function (assert) {
+    test('When pushing to the state of a hasMany we error if the new state contains duplicates (starting length 2)', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
-      class User extends Model {
-        @attr declare name: string;
-        @hasMany('user', { async: true, inverse: 'friends' }) declare friends: Promise<User[]>;
-      }
 
       this.owner.register('model:user', User);
 
@@ -737,7 +697,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         ],
       }) as User;
 
-      const friends = await user.friends;
+      const friends = user.friends;
       assert.strictEqual(friends.length, 2, 'precond - the user has two friends');
       assert.strictEqual(friends[0].name, 'Krystan', 'precond - the user has the correct friends');
       assert.strictEqual(friends[1].name, 'Sam', 'precond - the user has the correct friends');
@@ -766,12 +726,8 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
 
   module('Splicing in new records', function () {
     module('full replace', function () {
-      test('When replacing (via splice) the state of a hasMany we error if the new state contains duplicates (starting length 0, single-change)', async function (assert) {
+      test('When replacing (via splice) the state of a hasMany we error if the new state contains duplicates (starting length 0, single-change)', function (assert) {
         const store = this.owner.lookup('service:store') as Store;
-        class User extends Model {
-          @attr declare name: string;
-          @hasMany('user', { async: true, inverse: 'friends' }) declare friends: Promise<User[]>;
-        }
 
         this.owner.register('model:user', User);
 
@@ -813,7 +769,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
           ],
         }) as User;
 
-        const friends = await user.friends;
+        const friends = user.friends;
         assert.strictEqual(friends.length, 0, 'precond - the user has no friends');
         const Sam = store.peekRecord('user', '3') as User;
 
@@ -835,12 +791,8 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         }
       });
 
-      test('When replacing (via splice) the state of a hasMany we error if the new state contains duplicates (starting length 2)', async function (assert) {
+      test('When replacing (via splice) the state of a hasMany we error if the new state contains duplicates (starting length 2)', function (assert) {
         const store = this.owner.lookup('service:store') as Store;
-        class User extends Model {
-          @attr declare name: string;
-          @hasMany('user', { async: true, inverse: 'friends' }) declare friends: Promise<User[]>;
-        }
 
         this.owner.register('model:user', User);
 
@@ -885,7 +837,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
           ],
         }) as User;
 
-        const friends = await user.friends;
+        const friends = user.friends;
         assert.strictEqual(friends.length, 2, 'precond - the user has two friends');
         assert.strictEqual(friends[0].name, 'Krystan', 'precond - the user has the correct friends');
         assert.strictEqual(friends[1].name, 'Sam', 'precond - the user has the correct friends');
@@ -915,12 +867,8 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
     });
 
     module('partial splice', function () {
-      test('When splicing the state (to the end) of a hasMany we error if the new state contains duplicates (starting length 1, multi-change)', async function (assert) {
+      test('When splicing the state (to the end) of a hasMany we error if the new state contains duplicates (starting length 1, multi-change)', function (assert) {
         const store = this.owner.lookup('service:store') as Store;
-        class User extends Model {
-          @attr declare name: string;
-          @hasMany('user', { async: true, inverse: 'friends' }) declare friends: Promise<User[]>;
-        }
 
         this.owner.register('model:user', User);
 
@@ -962,7 +910,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
           ],
         }) as User;
 
-        const friends = await user.friends;
+        const friends = user.friends;
         assert.strictEqual(friends.length, 1, 'precond - the user has one friend');
         assert.strictEqual(friends[0].name, 'Krystan', 'precond - the user has the correct friends');
         const Sam = store.peekRecord('user', '3') as User;
@@ -1005,12 +953,8 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         }
       });
 
-      test('When splicing the state (to the beginning) of a hasMany we error if the new state contains duplicates (starting length 1, multi-change)', async function (assert) {
+      test('When splicing the state (to the beginning) of a hasMany we error if the new state contains duplicates (starting length 1, multi-change)', function (assert) {
         const store = this.owner.lookup('service:store') as Store;
-        class User extends Model {
-          @attr declare name: string;
-          @hasMany('user', { async: true, inverse: 'friends' }) declare friends: Promise<User[]>;
-        }
 
         this.owner.register('model:user', User);
 
@@ -1052,7 +996,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
           ],
         }) as User;
 
-        const friends = await user.friends;
+        const friends = user.friends;
         assert.strictEqual(friends.length, 1, 'precond - the user has one friend');
         assert.strictEqual(friends[0].name, 'Krystan', 'precond - the user has the correct friends');
         const Sam = store.peekRecord('user', '3') as User;
@@ -1088,12 +1032,8 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         }
       });
 
-      test('When splicing the state (to the end) of a hasMany we error if the new state contains duplicates (starting length 2)', async function (assert) {
+      test('When splicing the state (to the end) of a hasMany we error if the new state contains duplicates (starting length 2)', function (assert) {
         const store = this.owner.lookup('service:store') as Store;
-        class User extends Model {
-          @attr declare name: string;
-          @hasMany('user', { async: true, inverse: 'friends' }) declare friends: Promise<User[]>;
-        }
 
         this.owner.register('model:user', User);
 
@@ -1138,7 +1078,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
           ],
         }) as User;
 
-        const friends = await user.friends;
+        const friends = user.friends;
         assert.strictEqual(friends.length, 2, 'precond - the user has two friends');
         assert.strictEqual(friends[0].name, 'Krystan', 'precond - the user has the correct friends');
         assert.strictEqual(friends[1].name, 'Sam', 'precond - the user has the correct friends');
@@ -1163,12 +1103,8 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         }
       });
 
-      test('When splicing the state (to the middle) of a hasMany we error if the new state contains duplicates (starting length 2)', async function (assert) {
+      test('When splicing the state (to the middle) of a hasMany we error if the new state contains duplicates (starting length 2)', function (assert) {
         const store = this.owner.lookup('service:store') as Store;
-        class User extends Model {
-          @attr declare name: string;
-          @hasMany('user', { async: true, inverse: 'friends' }) declare friends: Promise<User[]>;
-        }
 
         this.owner.register('model:user', User);
 
@@ -1213,7 +1149,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
           ],
         }) as User;
 
-        const friends = await user.friends;
+        const friends = user.friends;
         assert.strictEqual(friends.length, 2, 'precond - the user has two friends');
         assert.strictEqual(friends[0].name, 'Krystan', 'precond - the user has the correct friends');
         assert.strictEqual(friends[1].name, 'Sam', 'precond - the user has the correct friends');
@@ -1238,12 +1174,8 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         }
       });
 
-      test('When splicing the state (to the beginning) of a hasMany we error if the new state contains duplicates (starting length 2)', async function (assert) {
+      test('When splicing the state (to the beginning) of a hasMany we error if the new state contains duplicates (starting length 2)', function (assert) {
         const store = this.owner.lookup('service:store') as Store;
-        class User extends Model {
-          @attr declare name: string;
-          @hasMany('user', { async: true, inverse: 'friends' }) declare friends: Promise<User[]>;
-        }
 
         this.owner.register('model:user', User);
 
@@ -1288,7 +1220,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
           ],
         }) as User;
 
-        const friends = await user.friends;
+        const friends = user.friends;
         assert.strictEqual(friends.length, 2, 'precond - the user has two friends');
         assert.strictEqual(friends[0].name, 'Krystan', 'precond - the user has the correct friends');
         assert.strictEqual(friends[1].name, 'Sam', 'precond - the user has the correct friends');

@@ -320,6 +320,8 @@ export default class RelatedCollection extends RecordArray {
           return result;
         }
 
+        // FIXME: This will have false positives if we are replacing a record with itself
+
         const seen = new Set(target.map((r) => r.lid));
         const unique = new Set<RecordInstance>();
         const duplicates = new Set<RecordInstance>();
