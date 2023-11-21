@@ -5,6 +5,7 @@ import { setupTest } from 'ember-qunit';
 import { DEBUG } from '@ember-data/env';
 import Model, { attr, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
+import { ExistingResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 
 let IS_DEBUG = false;
 
@@ -17,59 +18,103 @@ class User extends Model {
   @hasMany('user', { async: false, inverse: 'friends' }) declare friends: User[];
 }
 
+function krystanData() {
+  return {
+    id: '2',
+    type: 'user',
+    attributes: {
+      name: 'Krystan',
+    },
+  };
+}
+
+function krystanRef(): ExistingResourceIdentifierObject {
+  return { type: 'user', id: '2' };
+}
+
+function samData() {
+  return {
+    id: '3',
+    type: 'user',
+    attributes: {
+      name: 'Sam',
+    },
+  };
+}
+
+function samRef(): ExistingResourceIdentifierObject {
+  return { type: 'user', id: '3' };
+}
+
+function ericData() {
+  return {
+    id: '4',
+    type: 'user',
+    attributes: {
+      name: 'Eric',
+    },
+  };
+}
+
+function ericRef(): ExistingResourceIdentifierObject {
+  return { type: 'user', id: '4' };
+}
+
+function chrisData(friends: ExistingResourceIdentifierObject[]) {
+  return {
+    id: '1',
+    type: 'user',
+    attributes: {
+      name: 'Chris',
+    },
+    relationships: {
+      friends: {
+        data: friends,
+      },
+    },
+  };
+}
+
+function makeUser(store: Store, friends: ExistingResourceIdentifierObject[]): User {
+  return store.push({
+    data: chrisData(friends),
+    included: [krystanData(), samData(), ericData()],
+  }) as User;
+}
+
+function assertPreconditions(
+  assert: Assert,
+  state: User[],
+  { expectedLength, hasDuplicates }: { expectedLength: number; hasDuplicates: boolean }
+): void {
+  assert.strictEqual(state.length, expectedLength, 'precond - the new state has the correct length');
+  const deduped = [...new Set(state)];
+  assert.strictEqual(
+    hasDuplicates,
+    deduped.length !== state.length,
+    `precond - the new state contains ${hasDuplicates ? '' : 'no '}duplicates`
+  );
+}
+
 module('Integration | Relationships | Collection | Mutation', function (hooks) {
   setupTest(hooks);
+
+  hooks.beforeEach(function () {
+    this.owner.register('model:user', User);
+  });
 
   module('Added duplicate not already in remote state', function () {
     test('When replacing the state of a hasMany we error if the new state contains duplicates (starting length 0, multi-change)', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
 
-      this.owner.register('model:user', User);
-
-      const user = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Chris',
-          },
-          relationships: {
-            friends: {
-              data: [],
-            },
-          },
-        },
-        included: [
-          {
-            id: '2',
-            type: 'user',
-            attributes: {
-              name: 'Krystan',
-            },
-          },
-          {
-            id: '3',
-            type: 'user',
-            attributes: {
-              name: 'Sam',
-            },
-          },
-          {
-            id: '4',
-            type: 'user',
-            attributes: {
-              name: 'Eric',
-            },
-          },
-        ],
-      }) as User;
+      const user = makeUser(store, []);
 
       const friends = user.friends;
       assert.strictEqual(friends.length, 0, 'precond - the user has no friends');
       const Sam = store.peekRecord('user', '3') as User;
 
-      const newState = [...friends, Sam];
-      assert.strictEqual(newState.length, 1, 'precond - the new state contains only the one new record');
+      const newState = [Sam];
+      assertPreconditions(assert, newState, { expectedLength: 1, hasDuplicates: false });
 
       try {
         user.friends = newState;
@@ -79,8 +124,8 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         assert.ok(false, `expected no error to be thrown, got ${(e as Error).message}`);
       }
 
-      const newState2 = [...friends, Sam];
-      assert.strictEqual(newState2.length, 2, 'precond - the new state contains duplicates');
+      const newState2 = [Sam, Sam];
+      assertPreconditions(assert, newState2, { expectedLength: 2, hasDuplicates: true });
 
       try {
         user.friends = newState2;
@@ -100,52 +145,14 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
     test('When replacing the state of a hasMany we error if the new state contains duplicates (starting length 0, single-change)', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
 
-      this.owner.register('model:user', User);
-
-      const user = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Chris',
-          },
-          relationships: {
-            friends: {
-              data: [],
-            },
-          },
-        },
-        included: [
-          {
-            id: '2',
-            type: 'user',
-            attributes: {
-              name: 'Krystan',
-            },
-          },
-          {
-            id: '3',
-            type: 'user',
-            attributes: {
-              name: 'Sam',
-            },
-          },
-          {
-            id: '4',
-            type: 'user',
-            attributes: {
-              name: 'Eric',
-            },
-          },
-        ],
-      }) as User;
+      const user = makeUser(store, []);
 
       const friends = user.friends;
       assert.strictEqual(friends.length, 0, 'precond - the user has no friends');
       const Sam = store.peekRecord('user', '3') as User;
 
-      const newState = [...friends, Sam, Sam];
-      assert.strictEqual(newState.length, 2, 'precond - the new state contains duplicates');
+      const newState = [Sam, Sam];
+      assertPreconditions(assert, newState, { expectedLength: 2, hasDuplicates: true });
 
       try {
         user.friends = newState;
@@ -165,53 +172,16 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
     test('When replacing the state of a hasMany we error if the new state contains duplicates (starting length 1, multi-change)', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
 
-      this.owner.register('model:user', User);
-
-      const user = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Chris',
-          },
-          relationships: {
-            friends: {
-              data: [{ type: 'user', id: '2' }],
-            },
-          },
-        },
-        included: [
-          {
-            id: '2',
-            type: 'user',
-            attributes: {
-              name: 'Krystan',
-            },
-          },
-          {
-            id: '3',
-            type: 'user',
-            attributes: {
-              name: 'Sam',
-            },
-          },
-          {
-            id: '4',
-            type: 'user',
-            attributes: {
-              name: 'Eric',
-            },
-          },
-        ],
-      }) as User;
+      const user = makeUser(store, [krystanRef()]);
 
       const friends = user.friends;
       assert.strictEqual(friends.length, 1, 'precond - the user has one friend');
       assert.strictEqual(friends[0].name, 'Krystan', 'precond - the user has the correct friends');
+      const Krystan = store.peekRecord('user', '2') as User;
       const Sam = store.peekRecord('user', '3') as User;
 
-      const newState = [...friends, Sam];
-      assert.strictEqual(newState.length, 2, 'precond - the new state contains no duplicates');
+      const newState = [Krystan, Sam];
+      assertPreconditions(assert, newState, { expectedLength: 2, hasDuplicates: false });
 
       try {
         user.friends = newState;
@@ -222,8 +192,8 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         assert.ok(false, `expected no error to be thrown, got ${(e as Error).message}`);
       }
 
-      const newState2 = [...friends, Sam];
-      assert.strictEqual(newState2.length, 3, 'precond - the new state contains duplicates');
+      const newState2 = [Krystan, Sam, Sam];
+      assertPreconditions(assert, newState2, { expectedLength: 3, hasDuplicates: true });
 
       try {
         user.friends = newState2;
@@ -244,48 +214,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
     test('When replacing the state of a hasMany we error if the new state contains duplicates (starting length 2)', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
 
-      this.owner.register('model:user', User);
-
-      const user = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Chris',
-          },
-          relationships: {
-            friends: {
-              data: [
-                { type: 'user', id: '2' },
-                { type: 'user', id: '3' },
-              ],
-            },
-          },
-        },
-        included: [
-          {
-            id: '2',
-            type: 'user',
-            attributes: {
-              name: 'Krystan',
-            },
-          },
-          {
-            id: '3',
-            type: 'user',
-            attributes: {
-              name: 'Sam',
-            },
-          },
-          {
-            id: '4',
-            type: 'user',
-            attributes: {
-              name: 'Eric',
-            },
-          },
-        ],
-      }) as User;
+      const user = makeUser(store, [krystanRef(), samRef()]);
 
       const friends = user.friends;
       assert.strictEqual(friends.length, 2, 'precond - the user has two friends');
@@ -295,7 +224,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
       const Eric = store.peekRecord('user', '4') as User;
 
       const newState = [Krystan, Krystan];
-      assert.strictEqual(newState.length, 2, 'precond - the new state contains duplicates');
+      assertPreconditions(assert, newState, { expectedLength: 2, hasDuplicates: true });
 
       try {
         user.friends = newState;
@@ -313,7 +242,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
 
       if (!IS_DEBUG) {
         const newState2 = [Eric, Krystan, Krystan];
-        assert.strictEqual(newState2.length, 3, 'precond - the new state contains duplicates');
+        assertPreconditions(assert, newState2, { expectedLength: 3, hasDuplicates: true });
 
         try {
           user.friends = newState2;
@@ -331,45 +260,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
     test('When replacing the state of a hasMany we error if the new state contains duplicates (starting length 1, multi-change)', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
 
-      this.owner.register('model:user', User);
-
-      const user = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Chris',
-          },
-          relationships: {
-            friends: {
-              data: [{ type: 'user', id: '2' }],
-            },
-          },
-        },
-        included: [
-          {
-            id: '2',
-            type: 'user',
-            attributes: {
-              name: 'Krystan',
-            },
-          },
-          {
-            id: '3',
-            type: 'user',
-            attributes: {
-              name: 'Sam',
-            },
-          },
-          {
-            id: '4',
-            type: 'user',
-            attributes: {
-              name: 'Eric',
-            },
-          },
-        ],
-      }) as User;
+      const user = makeUser(store, [krystanRef()]);
       const Sam = store.peekRecord('user', '3') as User;
       const Krystan = store.peekRecord('user', '2') as User;
 
@@ -377,8 +268,9 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
       assert.strictEqual(friends.length, 1, 'precond - the user has one friend');
       assert.strictEqual(friends[0].name, 'Krystan', 'precond - the user has the correct friends');
 
-      const newState = [...friends, Krystan, Sam];
+      const newState = [Krystan, Krystan, Sam];
       assert.strictEqual(newState.length, 3, 'precond - the new state contains duplicates');
+      assertPreconditions(assert, newState, { expectedLength: 3, hasDuplicates: true });
 
       try {
         user.friends = newState;
@@ -397,7 +289,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
 
       if (!IS_DEBUG) {
         const newState2 = [Krystan, Sam, Krystan, Sam];
-        assert.strictEqual(newState2.length, 4, 'precond - the new state contains duplicates');
+        assertPreconditions(assert, newState2, { expectedLength: 4, hasDuplicates: true });
 
         try {
           user.friends = newState2;
@@ -426,52 +318,14 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
     test('When pushing to the state of a hasMany we error if the new state contains duplicates (starting length 0, multi-change)', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
 
-      this.owner.register('model:user', User);
-
-      const user = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Chris',
-          },
-          relationships: {
-            friends: {
-              data: [],
-            },
-          },
-        },
-        included: [
-          {
-            id: '2',
-            type: 'user',
-            attributes: {
-              name: 'Krystan',
-            },
-          },
-          {
-            id: '3',
-            type: 'user',
-            attributes: {
-              name: 'Sam',
-            },
-          },
-          {
-            id: '4',
-            type: 'user',
-            attributes: {
-              name: 'Eric',
-            },
-          },
-        ],
-      }) as User;
+      const user = makeUser(store, []);
 
       const friends = user.friends;
       assert.strictEqual(friends.length, 0, 'precond - the user has no friends');
       const Sam = store.peekRecord('user', '3') as User;
 
-      const newState = [...friends, Sam];
-      assert.strictEqual(newState.length, 1, 'precond - the new state contains only the one new record');
+      const newState = [Sam];
+      assertPreconditions(assert, newState, { expectedLength: 1, hasDuplicates: false });
 
       try {
         friends.push(...newState);
@@ -481,8 +335,8 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         assert.ok(false, `expected no error to be thrown, got ${(e as Error).message}`);
       }
 
-      const newState2 = [...friends, Sam];
-      assert.strictEqual(newState2.length, 2, 'precond - the new state contains duplicates');
+      const newState2 = [Sam, Sam];
+      assertPreconditions(assert, newState2, { expectedLength: 2, hasDuplicates: true });
 
       try {
         friends.push(...newState2);
@@ -502,52 +356,14 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
     test('When pushing to the state of a hasMany we error if the new state contains duplicates (starting length 0, single-change)', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
 
-      this.owner.register('model:user', User);
-
-      const user = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Chris',
-          },
-          relationships: {
-            friends: {
-              data: [],
-            },
-          },
-        },
-        included: [
-          {
-            id: '2',
-            type: 'user',
-            attributes: {
-              name: 'Krystan',
-            },
-          },
-          {
-            id: '3',
-            type: 'user',
-            attributes: {
-              name: 'Sam',
-            },
-          },
-          {
-            id: '4',
-            type: 'user',
-            attributes: {
-              name: 'Eric',
-            },
-          },
-        ],
-      }) as User;
+      const user = makeUser(store, []);
 
       const friends = user.friends;
       assert.strictEqual(friends.length, 0, 'precond - the user has no friends');
       const Sam = store.peekRecord('user', '3') as User;
 
-      const newState = [...friends, Sam, Sam];
-      assert.strictEqual(newState.length, 2, 'precond - the new state contains duplicates');
+      const newState = [Sam, Sam];
+      assertPreconditions(assert, newState, { expectedLength: 2, hasDuplicates: true });
 
       try {
         friends.push(...newState);
@@ -567,53 +383,16 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
     test('When pushing to the state of a hasMany we error if the new state contains duplicates (starting length 1, multi-change)', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
 
-      this.owner.register('model:user', User);
-
-      const user = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Chris',
-          },
-          relationships: {
-            friends: {
-              data: [{ type: 'user', id: '2' }],
-            },
-          },
-        },
-        included: [
-          {
-            id: '2',
-            type: 'user',
-            attributes: {
-              name: 'Krystan',
-            },
-          },
-          {
-            id: '3',
-            type: 'user',
-            attributes: {
-              name: 'Sam',
-            },
-          },
-          {
-            id: '4',
-            type: 'user',
-            attributes: {
-              name: 'Eric',
-            },
-          },
-        ],
-      }) as User;
+      const user = makeUser(store, [krystanRef()]);
 
       const friends = user.friends;
       assert.strictEqual(friends.length, 1, 'precond - the user has one friend');
       assert.strictEqual(friends[0].name, 'Krystan', 'precond - the user has the correct friends');
+      const Krystan = store.peekRecord('user', '2') as User;
       const Sam = store.peekRecord('user', '3') as User;
 
-      const newState = [...friends, Sam];
-      assert.strictEqual(newState.length, 2, 'precond - the new state contains no duplicates');
+      const newState = [Krystan, Sam];
+      assertPreconditions(assert, newState, { expectedLength: 2, hasDuplicates: false });
 
       try {
         friends.push(...newState);
@@ -631,8 +410,8 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
       }
 
       if (!IS_DEBUG) {
-        const newState2 = [...friends, Sam];
-        assert.strictEqual(newState2.length, 3, 'precond - the new state contains duplicates');
+        const newState2 = [Krystan, Sam, Sam];
+        assertPreconditions(assert, newState2, { expectedLength: 3, hasDuplicates: true });
 
         try {
           friends.push(...newState2);
@@ -654,48 +433,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
     test('When pushing to the state of a hasMany we error if the new state contains duplicates (starting length 2)', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
 
-      this.owner.register('model:user', User);
-
-      const user = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Chris',
-          },
-          relationships: {
-            friends: {
-              data: [
-                { type: 'user', id: '2' },
-                { type: 'user', id: '3' },
-              ],
-            },
-          },
-        },
-        included: [
-          {
-            id: '2',
-            type: 'user',
-            attributes: {
-              name: 'Krystan',
-            },
-          },
-          {
-            id: '3',
-            type: 'user',
-            attributes: {
-              name: 'Sam',
-            },
-          },
-          {
-            id: '4',
-            type: 'user',
-            attributes: {
-              name: 'Eric',
-            },
-          },
-        ],
-      }) as User;
+      const user = makeUser(store, [krystanRef(), samRef()]);
 
       const friends = user.friends;
       assert.strictEqual(friends.length, 2, 'precond - the user has two friends');
@@ -704,7 +442,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
       const Krystan = store.peekRecord('user', '2') as User;
 
       const newState = [Krystan, Krystan];
-      assert.strictEqual(newState.length, 2, 'precond - the new state contains duplicates');
+      assertPreconditions(assert, newState, { expectedLength: 2, hasDuplicates: true });
 
       try {
         friends.push(...newState);
@@ -729,52 +467,14 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
       test('When replacing (via splice) the state of a hasMany we error if the new state contains duplicates (starting length 0, single-change)', function (assert) {
         const store = this.owner.lookup('service:store') as Store;
 
-        this.owner.register('model:user', User);
-
-        const user = store.push({
-          data: {
-            id: '1',
-            type: 'user',
-            attributes: {
-              name: 'Chris',
-            },
-            relationships: {
-              friends: {
-                data: [],
-              },
-            },
-          },
-          included: [
-            {
-              id: '2',
-              type: 'user',
-              attributes: {
-                name: 'Krystan',
-              },
-            },
-            {
-              id: '3',
-              type: 'user',
-              attributes: {
-                name: 'Sam',
-              },
-            },
-            {
-              id: '4',
-              type: 'user',
-              attributes: {
-                name: 'Eric',
-              },
-            },
-          ],
-        }) as User;
+        const user = makeUser(store, []);
 
         const friends = user.friends;
         assert.strictEqual(friends.length, 0, 'precond - the user has no friends');
         const Sam = store.peekRecord('user', '3') as User;
 
-        const newState = [...friends, Sam, Sam];
-        assert.strictEqual(newState.length, 2, 'precond - the new state contains duplicates');
+        const newState = [Sam, Sam];
+        assertPreconditions(assert, newState, { expectedLength: 2, hasDuplicates: true });
 
         try {
           friends.splice(0, 0, ...newState);
@@ -794,48 +494,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
       test('When replacing (via splice) the state of a hasMany we error if the new state contains duplicates (starting length 2)', function (assert) {
         const store = this.owner.lookup('service:store') as Store;
 
-        this.owner.register('model:user', User);
-
-        const user = store.push({
-          data: {
-            id: '1',
-            type: 'user',
-            attributes: {
-              name: 'Chris',
-            },
-            relationships: {
-              friends: {
-                data: [
-                  { type: 'user', id: '2' },
-                  { type: 'user', id: '3' },
-                ],
-              },
-            },
-          },
-          included: [
-            {
-              id: '2',
-              type: 'user',
-              attributes: {
-                name: 'Krystan',
-              },
-            },
-            {
-              id: '3',
-              type: 'user',
-              attributes: {
-                name: 'Sam',
-              },
-            },
-            {
-              id: '4',
-              type: 'user',
-              attributes: {
-                name: 'Eric',
-              },
-            },
-          ],
-        }) as User;
+        const user = makeUser(store, [krystanRef(), samRef()]);
 
         const friends = user.friends;
         assert.strictEqual(friends.length, 2, 'precond - the user has two friends');
@@ -844,11 +503,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         const Krystan = store.peekRecord('user', '2') as User;
 
         const newState = [Krystan, Krystan];
-        assert.strictEqual(
-          newState.length,
-          friends.length,
-          'precond - the new state contains duplicates and has the same length as the original state'
-        );
+        assertPreconditions(assert, newState, { expectedLength: friends.length, hasDuplicates: true });
 
         try {
           friends.splice(0, friends.length, ...newState);
@@ -870,8 +525,6 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
       test('When splicing the state (to the end) of a hasMany we error if the new state contains duplicates (starting length 1, multi-change)', function (assert) {
         const store = this.owner.lookup('service:store') as Store;
 
-        this.owner.register('model:user', User);
-
         const user = store.push({
           data: {
             id: '1',
@@ -885,38 +538,17 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
               },
             },
           },
-          included: [
-            {
-              id: '2',
-              type: 'user',
-              attributes: {
-                name: 'Krystan',
-              },
-            },
-            {
-              id: '3',
-              type: 'user',
-              attributes: {
-                name: 'Sam',
-              },
-            },
-            {
-              id: '4',
-              type: 'user',
-              attributes: {
-                name: 'Eric',
-              },
-            },
-          ],
+          included: [krystanData(), samData(), ericData()],
         }) as User;
 
         const friends = user.friends;
         assert.strictEqual(friends.length, 1, 'precond - the user has one friend');
         assert.strictEqual(friends[0].name, 'Krystan', 'precond - the user has the correct friends');
+        const Krystan = store.peekRecord('user', '2') as User;
         const Sam = store.peekRecord('user', '3') as User;
 
-        const newState = [...friends, Sam];
-        assert.strictEqual(newState.length, 2, 'precond - the new state contains no duplicates');
+        const newState = [Krystan, Sam];
+        assertPreconditions(assert, newState, { expectedLength: 2, hasDuplicates: false });
 
         try {
           friends.splice(1, 0, ...newState);
@@ -933,8 +565,8 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         }
 
         if (!IS_DEBUG) {
-          const newState2 = [...friends, Sam];
-          assert.strictEqual(newState2.length, 3, 'precond - the new state contains duplicates');
+          const newState2 = [Krystan, Sam, Sam];
+          assertPreconditions(assert, newState2, { expectedLength: 3, hasDuplicates: true });
 
           try {
             friends.splice(2, 0, ...newState2);
@@ -956,8 +588,6 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
       test('When splicing the state (to the beginning) of a hasMany we error if the new state contains duplicates (starting length 1, multi-change)', function (assert) {
         const store = this.owner.lookup('service:store') as Store;
 
-        this.owner.register('model:user', User);
-
         const user = store.push({
           data: {
             id: '1',
@@ -971,38 +601,17 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
               },
             },
           },
-          included: [
-            {
-              id: '2',
-              type: 'user',
-              attributes: {
-                name: 'Krystan',
-              },
-            },
-            {
-              id: '3',
-              type: 'user',
-              attributes: {
-                name: 'Sam',
-              },
-            },
-            {
-              id: '4',
-              type: 'user',
-              attributes: {
-                name: 'Eric',
-              },
-            },
-          ],
+          included: [krystanData(), samData(), ericData()],
         }) as User;
 
         const friends = user.friends;
         assert.strictEqual(friends.length, 1, 'precond - the user has one friend');
         assert.strictEqual(friends[0].name, 'Krystan', 'precond - the user has the correct friends');
+        const Krystan = store.peekRecord('user', '2') as User;
         const Sam = store.peekRecord('user', '3') as User;
 
         const newState = [Sam];
-        assert.strictEqual(newState.length, 1, 'precond - the new state contains no duplicates');
+        assertPreconditions(assert, newState, { expectedLength: 1, hasDuplicates: false });
 
         try {
           friends.splice(0, 0, ...newState);
@@ -1013,8 +622,8 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
           assert.ok(false, `expected no error to be thrown, got ${(e as Error).message}`);
         }
 
-        const newState2 = [...friends, Sam];
-        assert.strictEqual(newState2.length, 3, 'precond - the new state contains duplicates');
+        const newState2 = [Sam, Krystan, Sam];
+        assertPreconditions(assert, newState2, { expectedLength: 3, hasDuplicates: true });
 
         try {
           friends.splice(0, 0, ...newState2);
@@ -1035,48 +644,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
       test('When splicing the state (to the end) of a hasMany we error if the new state contains duplicates (starting length 2)', function (assert) {
         const store = this.owner.lookup('service:store') as Store;
 
-        this.owner.register('model:user', User);
-
-        const user = store.push({
-          data: {
-            id: '1',
-            type: 'user',
-            attributes: {
-              name: 'Chris',
-            },
-            relationships: {
-              friends: {
-                data: [
-                  { type: 'user', id: '2' },
-                  { type: 'user', id: '3' },
-                ],
-              },
-            },
-          },
-          included: [
-            {
-              id: '2',
-              type: 'user',
-              attributes: {
-                name: 'Krystan',
-              },
-            },
-            {
-              id: '3',
-              type: 'user',
-              attributes: {
-                name: 'Sam',
-              },
-            },
-            {
-              id: '4',
-              type: 'user',
-              attributes: {
-                name: 'Eric',
-              },
-            },
-          ],
-        }) as User;
+        const user = makeUser(store, [krystanRef(), samRef()]);
 
         const friends = user.friends;
         assert.strictEqual(friends.length, 2, 'precond - the user has two friends');
@@ -1085,7 +653,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         const Krystan = store.peekRecord('user', '2') as User;
 
         const newState = [Krystan, Krystan];
-        assert.strictEqual(newState.length, 2, 'precond - the new state contains duplicates');
+        assertPreconditions(assert, newState, { expectedLength: 2, hasDuplicates: true });
 
         try {
           friends.splice(2, 0, ...newState);
@@ -1106,48 +674,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
       test('When splicing the state (to the middle) of a hasMany we error if the new state contains duplicates (starting length 2)', function (assert) {
         const store = this.owner.lookup('service:store') as Store;
 
-        this.owner.register('model:user', User);
-
-        const user = store.push({
-          data: {
-            id: '1',
-            type: 'user',
-            attributes: {
-              name: 'Chris',
-            },
-            relationships: {
-              friends: {
-                data: [
-                  { type: 'user', id: '2' },
-                  { type: 'user', id: '3' },
-                ],
-              },
-            },
-          },
-          included: [
-            {
-              id: '2',
-              type: 'user',
-              attributes: {
-                name: 'Krystan',
-              },
-            },
-            {
-              id: '3',
-              type: 'user',
-              attributes: {
-                name: 'Sam',
-              },
-            },
-            {
-              id: '4',
-              type: 'user',
-              attributes: {
-                name: 'Eric',
-              },
-            },
-          ],
-        }) as User;
+        const user = makeUser(store, [krystanRef(), samRef()]);
 
         const friends = user.friends;
         assert.strictEqual(friends.length, 2, 'precond - the user has two friends');
@@ -1156,7 +683,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         const Krystan = store.peekRecord('user', '2') as User;
 
         const newState = [Krystan, Krystan];
-        assert.strictEqual(newState.length, 2, 'precond - the new state contains duplicates');
+        assertPreconditions(assert, newState, { expectedLength: 2, hasDuplicates: true });
 
         try {
           friends.splice(1, 0, ...newState);
@@ -1177,48 +704,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
       test('When splicing the state (to the beginning) of a hasMany we error if the new state contains duplicates (starting length 2)', function (assert) {
         const store = this.owner.lookup('service:store') as Store;
 
-        this.owner.register('model:user', User);
-
-        const user = store.push({
-          data: {
-            id: '1',
-            type: 'user',
-            attributes: {
-              name: 'Chris',
-            },
-            relationships: {
-              friends: {
-                data: [
-                  { type: 'user', id: '2' },
-                  { type: 'user', id: '3' },
-                ],
-              },
-            },
-          },
-          included: [
-            {
-              id: '2',
-              type: 'user',
-              attributes: {
-                name: 'Krystan',
-              },
-            },
-            {
-              id: '3',
-              type: 'user',
-              attributes: {
-                name: 'Sam',
-              },
-            },
-            {
-              id: '4',
-              type: 'user',
-              attributes: {
-                name: 'Eric',
-              },
-            },
-          ],
-        }) as User;
+        const user = makeUser(store, [krystanRef(), samRef()]);
 
         const friends = user.friends;
         assert.strictEqual(friends.length, 2, 'precond - the user has two friends');
@@ -1227,7 +713,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         const Krystan = store.peekRecord('user', '2') as User;
 
         const newState = [Krystan, Krystan];
-        assert.strictEqual(newState.length, 2, 'precond - the new state contains duplicates');
+        assertPreconditions(assert, newState, { expectedLength: 2, hasDuplicates: true });
 
         try {
           friends.splice(0, 0, ...newState);
