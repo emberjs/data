@@ -3414,10 +3414,10 @@ importers:
         specifier: ^3.2.0
         version: 3.2.0(@babel/core@7.23.3)(ember-source@5.4.0)(webpack@5.89.0)
       '@embroider/compat':
-        specifier: ^3.3.0
+        specifier: ^3.3.1
         version: 3.3.1(@embroider/core@3.4.2)
       '@embroider/core':
-        specifier: ^3.4.0
+        specifier: ^3.4.2
         version: 3.4.2
       '@embroider/webpack':
         specifier: ^3.2.1
@@ -3939,10 +3939,10 @@ importers:
         specifier: ^3.2.0
         version: 3.2.0(@babel/core@7.23.3)(ember-source@5.4.0)(webpack@5.89.0)
       '@embroider/compat':
-        specifier: ^3.3.0
+        specifier: ^3.3.1
         version: 3.3.1(@embroider/core@3.4.2)
       '@embroider/core':
-        specifier: ^3.4.0
+        specifier: ^3.4.2
         version: 3.4.2
       '@embroider/webpack':
         specifier: ^3.2.1
@@ -4053,10 +4053,10 @@ importers:
         specifier: ^3.2.0
         version: 3.2.0(@babel/core@7.23.3)(ember-source@5.4.0)(webpack@5.89.0)
       '@embroider/compat':
-        specifier: ^3.3.0
+        specifier: ^3.3.1
         version: 3.3.1(@embroider/core@3.4.2)
       '@embroider/core':
-        specifier: ^3.4.0
+        specifier: ^3.4.2
         version: 3.4.2
       '@embroider/webpack':
         specifier: ^3.2.1
@@ -4455,15 +4455,6 @@ packages:
       semver: 6.3.1
     dev: false
 
-  /@babel/generator@7.23.0:
-    resolution: {integrity: sha512-lN85QRR+5IbYrMWM6Y4pE/noaQtg4pNiqeNGX60eqOfo6gtEj6uw/JagelB8vVztSd7R6M5n1+PQkDbHbBRU4g==}
-    engines: {node: '>=6.9.0'}
-    dependencies:
-      '@babel/types': 7.23.0
-      '@jridgewell/gen-mapping': 0.3.3
-      '@jridgewell/trace-mapping': 0.3.20
-      jsesc: 2.5.2
-
   /@babel/generator@7.23.3:
     resolution: {integrity: sha512-keeZWAV4LU3tW0qRi19HRpabC/ilM0HRBBzf9/k8FFiG4KVpiv0FIy4hHfLfFQZNhziCTPTmd59zoyv6DNISzg==}
     engines: {node: '>=6.9.0'}
@@ -4679,13 +4670,6 @@ packages:
       '@babel/helper-validator-identifier': 7.22.20
       chalk: 2.4.2
       js-tokens: 4.0.0
-
-  /@babel/parser@7.23.0:
-    resolution: {integrity: sha512-vvPKKdMemU85V9WE/l5wZEmImpCtLqbnTvqDS2U1fJ96KrxoW7KrXhNsNCblQlg8Ck4b85yxdTyelsMUgFUXiw==}
-    engines: {node: '>=6.0.0'}
-    hasBin: true
-    dependencies:
-      '@babel/types': 7.23.0
 
   /@babel/parser@7.23.3:
     resolution: {integrity: sha512-uVsWNvlVsIninV2prNz/3lHCb+5CJ+e+IUBfbjToAHODtfGYLfCFuY4AU7TskI+dAKk+njsPiBjq1gKTvZOBaw==}
@@ -6285,23 +6269,6 @@ packages:
       '@babel/code-frame': 7.22.13
       '@babel/parser': 7.23.3
       '@babel/types': 7.23.3
-
-  /@babel/traverse@7.23.2:
-    resolution: {integrity: sha512-azpe59SQ48qG6nu2CzcMLbxUudtN+dOM9kDbUqGq3HXUJRlo7i8fvPoxQUzYgLZ4cMVmuZgm8vvBpNeRhd6XSw==}
-    engines: {node: '>=6.9.0'}
-    dependencies:
-      '@babel/code-frame': 7.22.13
-      '@babel/generator': 7.23.0
-      '@babel/helper-environment-visitor': 7.22.20
-      '@babel/helper-function-name': 7.23.0
-      '@babel/helper-hoist-variables': 7.22.5
-      '@babel/helper-split-export-declaration': 7.22.6
-      '@babel/parser': 7.23.0
-      '@babel/types': 7.23.0
-      debug: 4.3.4(supports-color@8.1.1)
-      globals: 11.12.0
-    transitivePeerDependencies:
-      - supports-color
 
   /@babel/traverse@7.23.3(supports-color@8.1.1):
     resolution: {integrity: sha512-+K0yF1/9yR0oHdE0StHuEj3uTPzwwbrLGfNOndVJVV2TqA5+j3oljJUb4nmB954FLGjNem976+B+eDuLIjesiQ==}
@@ -11890,8 +11857,8 @@ packages:
     resolution: {integrity: sha512-89oVHVJwmLDvGvAUWgS87KpBoRhy3aZ6U0Ql6HOmU4TrPkyaa8pM0W81wj9cIwjYprcQtN9EwzZMHnq46+oUyw==}
     engines: {node: 8.* || 10.* || >= 12}
     dependencies:
-      '@babel/parser': 7.23.0
-      '@babel/traverse': 7.23.2
+      '@babel/parser': 7.23.3
+      '@babel/traverse': 7.23.3(supports-color@8.1.1)
       recast: 0.18.10
     transitivePeerDependencies:
       - supports-color
