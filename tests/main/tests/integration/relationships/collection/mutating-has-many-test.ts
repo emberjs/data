@@ -519,7 +519,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
         assert.strictEqual(
           (e as Error).message,
-          "Assertion Failed: Cannot replace a hasMany's state with a new state that contains duplicates. Found <user:2> multiple times within the new state provided to `<user:1>.friends`",
+          "Assertion Failed: Cannot push duplicates to a hasMany's state. Found duplicates for the following records within the new state provided to `<user:1>.friends`\n\t- @lid:user-3",
           'error thrown has correct message'
         );
       }
@@ -588,7 +588,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
         assert.strictEqual(
           (e as Error).message,
-          "Assertion Failed: Cannot replace a hasMany's state with a new state that contains duplicates. Found <user:2> multiple times within the new state provided to `<user:1>.friends`",
+          "Assertion Failed: Cannot push duplicates to a hasMany's state. Found duplicates for the following records within the new state provided to `<user:1>.friends`\n\t- @lid:user-3",
           'error thrown has correct message'
         );
       }
@@ -672,7 +672,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
         assert.strictEqual(
           (e as Error).message,
-          "Assertion Failed: Cannot replace a hasMany's state with a new state that contains duplicates. Found <user:2> multiple times within the new state provided to `<user:1>.friends`",
+          "Assertion Failed: Cannot push duplicates to a hasMany's state. Found duplicates for the following records within the new state provided to `<user:1>.friends`\n\t- @lid:user-3",
           'error thrown has correct message'
         );
       }
@@ -760,7 +760,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
         assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
         assert.strictEqual(
           (e as Error).message,
-          "Assertion Failed: Cannot replace a hasMany's state with a new state that contains duplicates. Found <user:2> multiple times within the new state provided to `<user:1>.friends`",
+          "Assertion Failed: Cannot push duplicates to a hasMany's state. Found duplicates for the following records within the new state provided to `<user:1>.friends`\n\t- @lid:user-3",
           'error thrown has correct message'
         );
       }

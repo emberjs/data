@@ -195,7 +195,26 @@ export default class RelatedCollection extends RecordArray {
         return true;
       }
       case 'push': {
-        // FIXME: don't push until we are sure it is unique
+        if (DEBUG) {
+          const adds = args as RecordInstance[];
+          const seen: Set<unknown> = new Set(target);
+          const duplicates = adds.filter((item) => {
+            if (seen.has(item)) {
+              return true;
+            }
+            seen.add(item);
+            return false;
+          });
+          assert(
+            `Cannot push duplicates to a hasMany's state. Found duplicates for the following records within the new state provided to \`<${
+              this.identifier.type
+            }:${this.identifier.id || this.identifier.lid}>.${this.key}\`\n\t- ${duplicates
+              .map((r) => recordIdentifierFor(r).lid)
+              .join('\n\t- ')}`,
+            duplicates.length === 0
+          );
+        }
+
         const result: unknown = Reflect.apply(target[prop], receiver, args);
 
         this._manager.mutate({
@@ -284,6 +303,7 @@ export default class RelatedCollection extends RecordArray {
               }:${this.identifier.id || this.identifier.lid}>.${this.key}\`\n\t- ${duplicates
                 .map((r) => recordIdentifierFor(r).lid)
                 .join('\n\t- ')}`,
+              // FIXME: Is this correct? IDGI
               current.size === adds.length
             );
           }
