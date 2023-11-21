@@ -281,7 +281,6 @@ export default class RelatedCollection extends RecordArray {
       }
 
       case 'splice': {
-        debugger;
         const [start, removeCount, ...adds] = args as [number, number, RecordInstance];
 
         // @runspired TODO add a few tests around the assumptions this check makes
