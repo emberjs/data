@@ -19,10 +19,10 @@ const _fetch: typeof fetch =
   typeof fetch !== 'undefined'
     ? fetch
     : typeof FastBoot !== 'undefined'
-    ? (FastBoot.require('node-fetch') as typeof fetch)
-    : ((() => {
-        throw new Error('No Fetch Implementation Found');
-      }) as typeof fetch);
+      ? (FastBoot.require('node-fetch') as typeof fetch)
+      : ((() => {
+          throw new Error('No Fetch Implementation Found');
+        }) as typeof fetch);
 
 // clones a response in a way that should still
 // allow it to stream
@@ -136,8 +136,8 @@ const Fetch = {
       const errors = Array.isArray(errorPayload)
         ? errorPayload
         : isDict(errorPayload) && Array.isArray(errorPayload.errors)
-        ? errorPayload.errors
-        : null;
+          ? errorPayload.errors
+          : null;
 
       const msg = `[${response.status}] ${response.statusText ? response.statusText + ' ' : ''}- ${response.url}`;
 
