@@ -77,10 +77,11 @@ function ericRef(): ExistingResourceIdentifierObject {
 }
 
 type Mutation = {
+  name: string;
   method: 'push' | 'unshift' | 'splice' | 'replace';
   values: ExistingResourceIdentifierObject[];
-  start?: number;
-  deleteCount?: number;
+  start?: (record: User) => number;
+  deleteCount?: (record: User) => number;
 };
 
 function generateAppliedMutation(store: Store, record: User, mutation: Mutation) {
@@ -100,8 +101,8 @@ function generateAppliedMutation(store: Store, record: User, mutation: Mutation)
       error = "Cannot splice a hasMany's state with a new state that contains duplicates.";
       outcomeValues = friends.slice();
       outcomeValues.splice(
-        mutation.start ?? 0,
-        mutation.deleteCount ?? 0,
+        mutation.start?.(record) ?? 0,
+        mutation.deleteCount?.(record) ?? 0,
         ...mutation.values.map((ref) => store.peekRecord(ref) as User)
       );
       break;
@@ -154,8 +155,8 @@ function applyMutation(assert: Assert, store: Store, record: User, mutation: Mut
         break;
       case 'splice':
         record.friends.splice(
-          mutation.start ?? 0,
-          mutation.deleteCount ?? 0,
+          mutation.start?.(record) ?? 0,
+          mutation.deleteCount?.(record) ?? 0,
           ...mutation.values.map((ref) => store.peekRecord(ref) as User)
         );
         break;
@@ -214,11 +215,71 @@ function applyMutation(assert: Assert, store: Store, record: User, mutation: Mut
   );
 }
 
+function getStartingState() {
+  return [
+    { name: 'empty friends', cb: (store: Store) => makeUser(store, []) },
+    { name: '1 friend', cb: (store: Store) => makeUser(store, [krystanRef()]) },
+    { name: '2 friends', cb: (store: Store) => makeUser(store, [krystanRef(), samRef()]) },
+  ];
+}
+
 function getMutations() {
   return [
     {
-      method: 'push',
+      name: 'replace with NO duplicates',
+      method: 'replace' as const,
+      values: [samRef()],
+    },
+    {
+      name: 'replace with duplicates NOT present in remote state',
+      method: 'replace' as const,
+      values: [samRef(), samRef()],
+    },
+    {
+      name: 'replace with duplicates present in remote state',
+      method: 'replace' as const,
+      values: [samRef(), krystanRef()],
+    },
+    {
+      name: 'push with NO duplicates',
+      method: 'push' as const,
+      values: [samRef()],
+    },
+    {
+      name: 'push with duplicates NOT present in remote state',
+      method: 'push' as const,
+      values: [samRef(), samRef()],
+    },
+    {
+      name: 'push with duplicates present in remote state (1)',
+      method: 'push' as const,
       values: [krystanRef()],
+    },
+    {
+      name: 'push with duplicates present in remote state',
+      method: 'push' as const,
+      values: [samRef(), krystanRef()],
+    },
+    {
+      name: 'splice (to beginning) with NO duplicates',
+      method: 'splice' as const,
+      values: [samRef()],
+      start: () => 0,
+      deleteCount: () => 0,
+    },
+    {
+      name: 'splice (to end) with NO duplicates',
+      method: 'splice' as const,
+      values: [samRef()],
+      start: (user: User) => user.friends.length,
+      deleteCount: () => 0,
+    },
+    {
+      name: 'splice (to middle) with NO duplicates',
+      method: 'splice' as const,
+      values: [samRef()],
+      start: (user: User) => Math.floor(user.friends.length / 2),
+      deleteCount: () => 0,
     },
   ];
 }
@@ -252,223 +313,22 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
     this.owner.register('model:user', User);
   });
 
-  module('Replacing state', function () {
-    module('Added duplicate not already in remote state', function () {
-      test('When replacing the state of a hasMany we error if the new state contains duplicates (starting length 0, multi-change)', function (assert) {
-        const store = this.owner.lookup('service:store') as Store;
-
-        const user = makeUser(store, []);
-
-        applyMutation(assert, store, user, {
-          method: 'replace',
-          values: [samRef()],
+  getStartingState().forEach((startingState) => {
+    module(`Starting state: ${startingState.name}`, function () {
+      getMutations().forEach((mutation) => {
+        module(`Mutation: ${mutation.name}`, function () {
+          getMutations().forEach((mutation2) => {
+            test(`followed by Mutation: ${mutation2.name}`, function (assert) {
+              const store = this.owner.lookup('service:store') as Store;
+              const user = startingState.cb(store);
+              applyMutation(assert, store, user, mutation);
+              applyMutation(assert, store, user, mutation2);
+            });
+          });
         });
-
-        applyMutation(assert, store, user, {
-          method: 'replace',
-          values: [samRef(), samRef()],
-        });
-      });
-
-      test('When replacing the state of a hasMany we error if the new state contains duplicates (starting length 0, single-change)', function (assert) {
-        const store = this.owner.lookup('service:store') as Store;
-
-        const user = makeUser(store, []);
-
-        applyMutation(assert, store, user, {
-          method: 'replace',
-          values: [samRef(), samRef()],
-        });
-      });
-
-      test('When replacing the state of a hasMany we error if the new state contains duplicates (starting length 1, multi-change)', function (assert) {
-        const store = this.owner.lookup('service:store') as Store;
-
-        const user = makeUser(store, [krystanRef()]);
-
-        applyMutation(assert, store, user, {
-          method: 'replace',
-          values: [krystanRef(), samRef()],
-        });
-
-        applyMutation(assert, store, user, {
-          method: 'replace',
-          values: [krystanRef(), samRef(), samRef()],
-        });
-      });
-
-      test('When replacing the state of a hasMany we error if the new state contains duplicates (starting length 2)', function (assert) {
-        const store = this.owner.lookup('service:store') as Store;
-
-        const user = makeUser(store, [krystanRef(), samRef()]);
-
-        applyMutation(assert, store, user, {
-          method: 'replace',
-          values: [krystanRef(), krystanRef()],
-        });
-
-        applyMutation(assert, store, user, {
-          method: 'replace',
-          values: [ericRef(), krystanRef(), samRef()],
-        });
-      });
-    });
-
-    module('Added duplicate already present in remote state', function () {
-      test('When replacing the state of a hasMany we error if the new state contains duplicates (starting length 1, multi-change)', function (assert) {
-        const store = this.owner.lookup('service:store') as Store;
-
-        const user = makeUser(store, [krystanRef()]);
-
-        applyMutation(assert, store, user, {
-          method: 'replace',
-          values: [krystanRef(), krystanRef(), samRef()],
-        });
-
-        applyMutation(assert, store, user, {
-          method: 'replace',
-          values: [krystanRef(), samRef(), krystanRef(), samRef()],
-        });
-      });
-    });
-  });
-
-  module('Pushing new records', function () {
-    test('When pushing to the state of a hasMany we error if the new state contains duplicates (starting length 0, multi-change)', function (assert) {
-      const store = this.owner.lookup('service:store') as Store;
-
-      const user = makeUser(store, []);
-
-      applyMutation(assert, store, user, {
-        method: 'push',
-        values: [samRef()],
-      });
-
-      applyMutation(assert, store, user, {
-        method: 'push',
-        values: [samRef(), samRef()],
-      });
-    });
-
-    test('When pushing to the state of a hasMany we error if the new state contains duplicates (starting length 0, single-change)', function (assert) {
-      const store = this.owner.lookup('service:store') as Store;
-
-      const user = makeUser(store, []);
-
-      applyMutation(assert, store, user, {
-        method: 'push',
-        values: [samRef(), samRef()],
-      });
-    });
-
-    test('When pushing to the state of a hasMany we error if the new state contains duplicates (starting length 1, multi-change)', function (assert) {
-      const store = this.owner.lookup('service:store') as Store;
-
-      const user = makeUser(store, [krystanRef()]);
-
-      applyMutation(assert, store, user, {
-        method: 'push',
-        values: [krystanRef(), samRef()],
-      });
-
-      applyMutation(assert, store, user, {
-        method: 'push',
-        values: [krystanRef(), samRef(), samRef()],
-      });
-    });
-
-    test('When pushing to the state of a hasMany we error if the new state contains duplicates (starting length 2)', function (assert) {
-      const store = this.owner.lookup('service:store') as Store;
-
-      const user = makeUser(store, [krystanRef(), samRef()]);
-
-      applyMutation(assert, store, user, {
-        method: 'push',
-        values: [krystanRef(), krystanRef()],
       });
     });
   });
 
   module('Unshifting new records', function () {});
-
-  module('Splicing in new records', function () {
-    test('When splicing the state (to the end) of a hasMany we error if the new state contains duplicates (starting length 1, multi-change)', function (assert) {
-      const store = this.owner.lookup('service:store') as Store;
-
-      const user = makeUser(store, [krystanRef()]);
-
-      applyMutation(assert, store, user, {
-        method: 'splice',
-        values: [krystanRef(), samRef()],
-        start: 1,
-        deleteCount: 0,
-      });
-
-      applyMutation(assert, store, user, {
-        method: 'splice',
-        values: [krystanRef(), samRef(), samRef()],
-        start: 2,
-        deleteCount: 0,
-      });
-    });
-
-    test('When splicing the state (to the beginning) of a hasMany we error if the new state contains duplicates (starting length 1, multi-change)', function (assert) {
-      const store = this.owner.lookup('service:store') as Store;
-
-      const user = makeUser(store, [krystanRef()]);
-
-      applyMutation(assert, store, user, {
-        method: 'splice',
-        values: [samRef()],
-        start: 0,
-        deleteCount: 0,
-      });
-
-      applyMutation(assert, store, user, {
-        method: 'splice',
-        values: [samRef(), krystanRef(), samRef()],
-        start: 0,
-        deleteCount: 0,
-      });
-    });
-
-    test('When splicing the state (to the end) of a hasMany we error if the new state contains duplicates (starting length 2)', function (assert) {
-      const store = this.owner.lookup('service:store') as Store;
-
-      const user = makeUser(store, [krystanRef(), samRef()]);
-
-      applyMutation(assert, store, user, {
-        method: 'splice',
-        values: [krystanRef(), krystanRef()],
-        start: 2,
-        deleteCount: 0,
-      });
-    });
-
-    test('When splicing the state (to the middle) of a hasMany we error if the new state contains duplicates (starting length 2)', function (assert) {
-      const store = this.owner.lookup('service:store') as Store;
-
-      const user = makeUser(store, [krystanRef(), samRef()]);
-
-      applyMutation(assert, store, user, {
-        method: 'splice',
-        values: [krystanRef(), krystanRef()],
-        start: 1,
-        deleteCount: 0,
-      });
-    });
-
-    test('When splicing the state (to the beginning) of a hasMany we error if the new state contains duplicates (starting length 2)', function (assert) {
-      const store = this.owner.lookup('service:store') as Store;
-
-      const user = makeUser(store, [krystanRef(), samRef()]);
-
-      applyMutation(assert, store, user, {
-        method: 'splice',
-        values: [krystanRef(), krystanRef()],
-        start: 0,
-        deleteCount: 0,
-      });
-    });
-  });
 });
