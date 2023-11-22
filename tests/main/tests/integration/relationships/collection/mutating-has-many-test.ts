@@ -5,7 +5,23 @@ import { setupTest } from 'ember-qunit';
 import { DEBUG } from '@ember-data/env';
 import Model, { attr, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
+import { recordIdentifierFor } from '@ember-data/store';
 import { ExistingResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
+
+/*
+
+For each case we should check (if applicable):
+
+starting length 0, new state contains NO duplicates
+starting length 0, new state contains duplicates
+starting length 1, new state contains NO duplicates
+starting length 1, new state contains duplicates
+starting length 1, new state contains duplicates already present in remote state
+starting length 2, new state contains NO duplicates
+starting length 2, new state contains duplicates
+starting length 2, new state contains duplicates already present in remote state
+
+*/
 
 let IS_DEBUG = false;
 
@@ -60,6 +76,153 @@ function ericRef(): ExistingResourceIdentifierObject {
   return { type: 'user', id: '4' };
 }
 
+type Mutation = {
+  method: 'push' | 'unshift' | 'splice' | 'replace';
+  values: ExistingResourceIdentifierObject[];
+  start?: number;
+  deleteCount?: number;
+};
+
+function generateAppliedMutation(store: Store, record: User, mutation: Mutation) {
+  const friends = record.friends;
+  let outcomeValues: User[];
+  let error: string;
+  switch (mutation.method) {
+    case 'push':
+      error = "Cannot push duplicates to a hasMany's state.";
+      outcomeValues = [...friends, ...mutation.values.map((ref) => store.peekRecord(ref) as User)];
+      break;
+    case 'unshift':
+      error = 'FIXME';
+      outcomeValues = [...mutation.values.map((ref) => store.peekRecord(ref) as User), ...friends];
+      break;
+    case 'splice':
+      error = "Cannot splice a hasMany's state with a new state that contains duplicates.";
+      outcomeValues = friends.slice();
+      outcomeValues.splice(
+        mutation.start ?? 0,
+        mutation.deleteCount ?? 0,
+        ...mutation.values.map((ref) => store.peekRecord(ref) as User)
+      );
+      break;
+    case 'replace':
+      error = `Cannot replace a hasMany's state with a new state that contains duplicates.`;
+      outcomeValues = mutation.values.map((ref) => store.peekRecord(ref) as User);
+      break;
+  }
+
+  const seen = new Set<User>();
+  const duplicates = new Set<User>();
+  outcomeValues.forEach((item) => {
+    if (seen.has(item)) {
+      duplicates.add(item);
+    } else {
+      seen.add(item);
+    }
+  });
+
+  const outcome = Array.from(new Set(outcomeValues));
+  const hasDuplicates = outcomeValues.length !== outcome.length;
+  return {
+    hasDuplicates,
+    duplicates: Array.from(duplicates),
+    prod: {
+      length: outcome.length,
+      membership: outcome,
+      ids: outcome.map((v) => v.id),
+    },
+    debug: {
+      length: hasDuplicates ? friends.length : outcome.length,
+      membership: hasDuplicates ? friends.slice() : outcome,
+      ids: hasDuplicates ? friends.map((v) => v.id) : outcome.map((v) => v.id),
+      error,
+    },
+  };
+}
+
+function applyMutation(assert: Assert, store: Store, record: User, mutation: Mutation) {
+  const result = generateAppliedMutation(store, record, mutation);
+  const outcome = IS_DEBUG ? result.debug : result.prod;
+
+  try {
+    switch (mutation.method) {
+      case 'push':
+        record.friends.push(...mutation.values.map((ref) => store.peekRecord(ref) as User));
+        break;
+      case 'unshift':
+        record.friends.unshift(...mutation.values.map((ref) => store.peekRecord(ref) as User));
+        break;
+      case 'splice':
+        record.friends.splice(
+          mutation.start ?? 0,
+          mutation.deleteCount ?? 0,
+          ...mutation.values.map((ref) => store.peekRecord(ref) as User)
+        );
+        break;
+      case 'replace':
+        record.friends = mutation.values.map((ref) => store.peekRecord(ref) as User);
+        break;
+    }
+    assert.ok(
+      !result.hasDuplicates || !IS_DEBUG,
+      `expected error ${result.hasDuplicates ? '' : 'NOT '}to be thrown only in debug mode`
+    );
+  } catch (e) {
+    assert.ok(
+      result.hasDuplicates && IS_DEBUG,
+      `expected error ${result.hasDuplicates ? '' : 'NOT '}to be thrown only in debug mode`
+    );
+    const expectedMessage =
+      'error' in outcome
+        ? `Assertion Failed: ${
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            outcome.error
+          } Found duplicates for the following records within the new state provided to \`<user:${
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            record.id
+          }>.friends\`\n\t- ${Array.from(result.duplicates)
+            .map((r) => recordIdentifierFor(r).lid)
+            .join('\n\t- ')}`
+        : '';
+    assert.strictEqual((e as Error).message, expectedMessage, `error thrown has correct message: ${expectedMessage}`);
+  }
+
+  assert.strictEqual(
+    record.friends.length,
+    outcome.length,
+    `the new state has the correct length of ${outcome.length} after ${mutation.method}`
+  );
+  assert.deepEqual(
+    record.friends.slice(),
+    outcome.membership,
+    `the new state has the correct records ${outcome.ids.join(',')} after ${mutation.method}`
+  );
+  assert.deepEqual(
+    record.hasMany('friends').ids(),
+    outcome.ids,
+    `the new state has the correct ids on the reference ${outcome.ids.join(',')} after ${mutation.method}`
+  );
+  assert.strictEqual(
+    record.hasMany('friends').ids().length,
+    outcome.length,
+    `the new state has the correct length on the reference of ${outcome.length} after ${mutation.method}`
+  );
+  assert.strictEqual(
+    record.friends.length,
+    new Set(record.friends).size,
+    `the new state has no duplicates after ${mutation.method}`
+  );
+}
+
+function getMutations() {
+  return [
+    {
+      method: 'push',
+      values: [krystanRef()],
+    },
+  ];
+}
+
 function chrisData(friends: ExistingResourceIdentifierObject[]) {
   return {
     id: '1',
@@ -82,20 +245,6 @@ function makeUser(store: Store, friends: ExistingResourceIdentifierObject[]): Us
   }) as User;
 }
 
-function assertPreconditions(
-  assert: Assert,
-  state: User[],
-  { expectedLength, hasDuplicates }: { expectedLength: number; hasDuplicates: boolean }
-): void {
-  assert.strictEqual(state.length, expectedLength, 'precond - the new state has the correct length');
-  const deduped = [...new Set(state)];
-  assert.strictEqual(
-    hasDuplicates,
-    deduped.length !== state.length,
-    `precond - the new state contains ${hasDuplicates ? '' : 'no '}duplicates`
-  );
-}
-
 module('Integration | Relationships | Collection | Mutation', function (hooks) {
   setupTest(hooks);
 
@@ -103,214 +252,84 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
     this.owner.register('model:user', User);
   });
 
-  module('Added duplicate not already in remote state', function () {
-    test('When replacing the state of a hasMany we error if the new state contains duplicates (starting length 0, multi-change)', function (assert) {
-      const store = this.owner.lookup('service:store') as Store;
+  module('Replacing state', function () {
+    module('Added duplicate not already in remote state', function () {
+      test('When replacing the state of a hasMany we error if the new state contains duplicates (starting length 0, multi-change)', function (assert) {
+        const store = this.owner.lookup('service:store') as Store;
 
-      const user = makeUser(store, []);
+        const user = makeUser(store, []);
 
-      const friends = user.friends;
-      assert.strictEqual(friends.length, 0, 'precond - the user has no friends');
-      const Sam = store.peekRecord('user', '3') as User;
+        applyMutation(assert, store, user, {
+          method: 'replace',
+          values: [samRef()],
+        });
 
-      const newState = [Sam];
-      assertPreconditions(assert, newState, { expectedLength: 1, hasDuplicates: false });
+        applyMutation(assert, store, user, {
+          method: 'replace',
+          values: [samRef(), samRef()],
+        });
+      });
 
-      try {
-        user.friends = newState;
-        assert.strictEqual(friends.length, 1, 'the user has one friend');
-        assert.strictEqual(friends[0].name, 'Sam', 'the user has the correct friends');
-      } catch (e) {
-        assert.ok(false, `expected no error to be thrown, got ${(e as Error).message}`);
-      }
+      test('When replacing the state of a hasMany we error if the new state contains duplicates (starting length 0, single-change)', function (assert) {
+        const store = this.owner.lookup('service:store') as Store;
 
-      const newState2 = [Sam, Sam];
-      assertPreconditions(assert, newState2, { expectedLength: 2, hasDuplicates: true });
+        const user = makeUser(store, []);
 
-      try {
-        user.friends = newState2;
-        assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
-        assert.strictEqual(friends.length, 1, 'the user has one friend');
-        assert.strictEqual(friends[0].name, 'Sam', 'the user has the correct friends');
-      } catch (e) {
-        assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
-        assert.strictEqual(
-          (e as Error).message,
-          "Assertion Failed: Cannot replace a hasMany's state with a new state that contains duplicates. Found duplicates for the following records within the new state provided to `<user:1>.friends`\n\t- @lid:user-3",
-          'error thrown has correct message'
-        );
-      }
+        applyMutation(assert, store, user, {
+          method: 'replace',
+          values: [samRef(), samRef()],
+        });
+      });
+
+      test('When replacing the state of a hasMany we error if the new state contains duplicates (starting length 1, multi-change)', function (assert) {
+        const store = this.owner.lookup('service:store') as Store;
+
+        const user = makeUser(store, [krystanRef()]);
+
+        applyMutation(assert, store, user, {
+          method: 'replace',
+          values: [krystanRef(), samRef()],
+        });
+
+        applyMutation(assert, store, user, {
+          method: 'replace',
+          values: [krystanRef(), samRef(), samRef()],
+        });
+      });
+
+      test('When replacing the state of a hasMany we error if the new state contains duplicates (starting length 2)', function (assert) {
+        const store = this.owner.lookup('service:store') as Store;
+
+        const user = makeUser(store, [krystanRef(), samRef()]);
+
+        applyMutation(assert, store, user, {
+          method: 'replace',
+          values: [krystanRef(), krystanRef()],
+        });
+
+        applyMutation(assert, store, user, {
+          method: 'replace',
+          values: [ericRef(), krystanRef(), samRef()],
+        });
+      });
     });
 
-    test('When replacing the state of a hasMany we error if the new state contains duplicates (starting length 0, single-change)', function (assert) {
-      const store = this.owner.lookup('service:store') as Store;
+    module('Added duplicate already present in remote state', function () {
+      test('When replacing the state of a hasMany we error if the new state contains duplicates (starting length 1, multi-change)', function (assert) {
+        const store = this.owner.lookup('service:store') as Store;
 
-      const user = makeUser(store, []);
+        const user = makeUser(store, [krystanRef()]);
 
-      const friends = user.friends;
-      assert.strictEqual(friends.length, 0, 'precond - the user has no friends');
-      const Sam = store.peekRecord('user', '3') as User;
+        applyMutation(assert, store, user, {
+          method: 'replace',
+          values: [krystanRef(), krystanRef(), samRef()],
+        });
 
-      const newState = [Sam, Sam];
-      assertPreconditions(assert, newState, { expectedLength: 2, hasDuplicates: true });
-
-      try {
-        user.friends = newState;
-        assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
-        assert.strictEqual(friends.length, 1, 'the user has one friends');
-        assert.strictEqual(friends[0].name, 'Sam', 'the user has the correct friends');
-      } catch (e) {
-        assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
-        assert.strictEqual(
-          (e as Error).message,
-          "Assertion Failed: Cannot replace a hasMany's state with a new state that contains duplicates. Found duplicates for the following records within the new state provided to `<user:1>.friends`\n\t- @lid:user-3",
-          'error thrown has correct message'
-        );
-      }
-    });
-
-    test('When replacing the state of a hasMany we error if the new state contains duplicates (starting length 1, multi-change)', function (assert) {
-      const store = this.owner.lookup('service:store') as Store;
-
-      const user = makeUser(store, [krystanRef()]);
-
-      const friends = user.friends;
-      assert.strictEqual(friends.length, 1, 'precond - the user has one friend');
-      assert.strictEqual(friends[0].name, 'Krystan', 'precond - the user has the correct friends');
-      const Krystan = store.peekRecord('user', '2') as User;
-      const Sam = store.peekRecord('user', '3') as User;
-
-      const newState = [Krystan, Sam];
-      assertPreconditions(assert, newState, { expectedLength: 2, hasDuplicates: false });
-
-      try {
-        user.friends = newState;
-        assert.strictEqual(friends.length, 2, 'the user has two friends');
-        assert.strictEqual(friends[0].name, 'Krystan', 'the user has the correct friends');
-        assert.strictEqual(friends[1].name, 'Sam', 'the user has the correct friends');
-      } catch (e) {
-        assert.ok(false, `expected no error to be thrown, got ${(e as Error).message}`);
-      }
-
-      const newState2 = [Krystan, Sam, Sam];
-      assertPreconditions(assert, newState2, { expectedLength: 3, hasDuplicates: true });
-
-      try {
-        user.friends = newState2;
-        assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
-        assert.strictEqual(friends.length, 2, 'the user has two friends');
-        assert.strictEqual(friends[0].name, 'Krystan', 'the user has the correct friends');
-        assert.strictEqual(friends[1].name, 'Sam', 'the user has the correct friends');
-      } catch (e) {
-        assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
-        assert.strictEqual(
-          (e as Error).message,
-          "Assertion Failed: Cannot replace a hasMany's state with a new state that contains duplicates. Found duplicates for the following records within the new state provided to `<user:1>.friends`\n\t- @lid:user-3",
-          'error thrown has correct message'
-        );
-      }
-    });
-
-    test('When replacing the state of a hasMany we error if the new state contains duplicates (starting length 2)', function (assert) {
-      const store = this.owner.lookup('service:store') as Store;
-
-      const user = makeUser(store, [krystanRef(), samRef()]);
-
-      const friends = user.friends;
-      assert.strictEqual(friends.length, 2, 'precond - the user has two friends');
-      assert.strictEqual(friends[0].name, 'Krystan', 'precond - the user has the correct friends');
-      assert.strictEqual(friends[1].name, 'Sam', 'precond - the user has the correct friends');
-      const Krystan = store.peekRecord('user', '2') as User;
-      const Eric = store.peekRecord('user', '4') as User;
-
-      const newState = [Krystan, Krystan];
-      assertPreconditions(assert, newState, { expectedLength: 2, hasDuplicates: true });
-
-      try {
-        user.friends = newState;
-        assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
-        assert.strictEqual(friends.length, 1, 'the user has 1 friends');
-        assert.strictEqual(friends[0].name, 'Krystan', 'the user has the correct friends');
-      } catch (e) {
-        assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
-        assert.strictEqual(
-          (e as Error).message,
-          "Assertion Failed: Cannot replace a hasMany's state with a new state that contains duplicates. Found duplicates for the following records within the new state provided to `<user:1>.friends`\n\t- @lid:user-2",
-          'error thrown has correct message'
-        );
-      }
-
-      if (!IS_DEBUG) {
-        const newState2 = [Eric, Krystan, Krystan];
-        assertPreconditions(assert, newState2, { expectedLength: 3, hasDuplicates: true });
-
-        try {
-          user.friends = newState2;
-          assert.strictEqual(friends.length, 2, 'the user has two friends');
-          assert.strictEqual(friends[0].name, 'Eric', 'the user has the correct friends');
-          assert.strictEqual(friends[1].name, 'Krystan', 'the user has the correct friends');
-        } catch (e) {
-          assert.ok(false, `expected no error to be thrown, got ${(e as Error).message}`);
-        }
-      }
-    });
-  });
-
-  module('Added duplicate already present in remote state', function () {
-    test('When replacing the state of a hasMany we error if the new state contains duplicates (starting length 1, multi-change)', function (assert) {
-      const store = this.owner.lookup('service:store') as Store;
-
-      const user = makeUser(store, [krystanRef()]);
-      const Sam = store.peekRecord('user', '3') as User;
-      const Krystan = store.peekRecord('user', '2') as User;
-
-      const friends = user.friends;
-      assert.strictEqual(friends.length, 1, 'precond - the user has one friend');
-      assert.strictEqual(friends[0].name, 'Krystan', 'precond - the user has the correct friends');
-
-      const newState = [Krystan, Krystan, Sam];
-      assert.strictEqual(newState.length, 3, 'precond - the new state contains duplicates');
-      assertPreconditions(assert, newState, { expectedLength: 3, hasDuplicates: true });
-
-      try {
-        user.friends = newState;
-        assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
-        assert.strictEqual(friends.length, 2, 'the user has two friends');
-        assert.strictEqual(friends[0].name, 'Krystan', 'the user has the correct friends');
-        assert.strictEqual(friends[1].name, 'Sam', 'the user has the correct friends');
-      } catch (e) {
-        assert.ok(IS_DEBUG, `expected no error to be thrown, got ${(e as Error).message}`);
-        assert.strictEqual(
-          (e as Error).message,
-          `Assertion Failed: Cannot replace a hasMany's state with a new state that contains duplicates. Found duplicates for the following records within the new state provided to \`<user:1>.friends\`\n\t- @lid:user-2`,
-          'error thrown has correct message'
-        );
-      }
-
-      if (!IS_DEBUG) {
-        const newState2 = [Krystan, Sam, Krystan, Sam];
-        assertPreconditions(assert, newState2, { expectedLength: 4, hasDuplicates: true });
-
-        try {
-          user.friends = newState2;
-          assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
-          assert.strictEqual(friends.length, 2, 'the user has two friends');
-          assert.strictEqual(friends[0].name, 'Krystan', 'the user has the correct friends');
-          assert.strictEqual(friends[1].name, 'Sam', 'the user has the correct friends');
-          assert.deepEqual(
-            friends.map((v) => v.id),
-            ['2', '3'],
-            'expected ids'
-          );
-        } catch (e) {
-          assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
-          assert.strictEqual(
-            (e as Error).message,
-            `Assertion Failed: Cannot start a new array transaction while a previous transaction is underway`,
-            'error thrown has correct message'
-          );
-        }
-      }
+        applyMutation(assert, store, user, {
+          method: 'replace',
+          values: [krystanRef(), samRef(), krystanRef(), samRef()],
+        });
+      });
     });
   });
 
@@ -320,37 +339,15 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
 
       const user = makeUser(store, []);
 
-      const friends = user.friends;
-      assert.strictEqual(friends.length, 0, 'precond - the user has no friends');
-      const Sam = store.peekRecord('user', '3') as User;
+      applyMutation(assert, store, user, {
+        method: 'push',
+        values: [samRef()],
+      });
 
-      const newState = [Sam];
-      assertPreconditions(assert, newState, { expectedLength: 1, hasDuplicates: false });
-
-      try {
-        friends.push(...newState);
-        assert.strictEqual(friends.length, 1, 'the user has one friend');
-        assert.strictEqual(friends[0].name, 'Sam', 'the user has the correct friends');
-      } catch (e) {
-        assert.ok(false, `expected no error to be thrown, got ${(e as Error).message}`);
-      }
-
-      const newState2 = [Sam, Sam];
-      assertPreconditions(assert, newState2, { expectedLength: 2, hasDuplicates: true });
-
-      try {
-        friends.push(...newState2);
-        assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
-        assert.strictEqual(friends.length, 1, 'the user has one friend');
-        assert.strictEqual(friends[0].name, 'Sam', 'the user has the correct friends');
-      } catch (e) {
-        assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
-        assert.strictEqual(
-          (e as Error).message,
-          "Assertion Failed: Cannot push duplicates to a hasMany's state. Found duplicates for the following records within the new state provided to `<user:1>.friends`\n\t- @lid:user-3",
-          'error thrown has correct message'
-        );
-      }
+      applyMutation(assert, store, user, {
+        method: 'push',
+        values: [samRef(), samRef()],
+      });
     });
 
     test('When pushing to the state of a hasMany we error if the new state contains duplicates (starting length 0, single-change)', function (assert) {
@@ -358,26 +355,10 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
 
       const user = makeUser(store, []);
 
-      const friends = user.friends;
-      assert.strictEqual(friends.length, 0, 'precond - the user has no friends');
-      const Sam = store.peekRecord('user', '3') as User;
-
-      const newState = [Sam, Sam];
-      assertPreconditions(assert, newState, { expectedLength: 2, hasDuplicates: true });
-
-      try {
-        friends.push(...newState);
-        assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
-        assert.strictEqual(friends.length, 1, 'the user has one friends');
-        assert.strictEqual(friends[0].name, 'Sam', 'the user has the correct friends');
-      } catch (e) {
-        assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
-        assert.strictEqual(
-          (e as Error).message,
-          "Assertion Failed: Cannot push duplicates to a hasMany's state. Found duplicates for the following records within the new state provided to `<user:1>.friends`\n\t- @lid:user-3",
-          'error thrown has correct message'
-        );
-      }
+      applyMutation(assert, store, user, {
+        method: 'push',
+        values: [samRef(), samRef()],
+      });
     });
 
     test('When pushing to the state of a hasMany we error if the new state contains duplicates (starting length 1, multi-change)', function (assert) {
@@ -385,49 +366,15 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
 
       const user = makeUser(store, [krystanRef()]);
 
-      const friends = user.friends;
-      assert.strictEqual(friends.length, 1, 'precond - the user has one friend');
-      assert.strictEqual(friends[0].name, 'Krystan', 'precond - the user has the correct friends');
-      const Krystan = store.peekRecord('user', '2') as User;
-      const Sam = store.peekRecord('user', '3') as User;
+      applyMutation(assert, store, user, {
+        method: 'push',
+        values: [krystanRef(), samRef()],
+      });
 
-      const newState = [Krystan, Sam];
-      assertPreconditions(assert, newState, { expectedLength: 2, hasDuplicates: false });
-
-      try {
-        friends.push(...newState);
-        assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
-        assert.strictEqual(friends.length, 2, 'the user has two friends');
-        assert.strictEqual(friends[0].name, 'Krystan', 'the user has the correct friends');
-        assert.strictEqual(friends[1].name, 'Sam', 'the user has the correct friends');
-      } catch (e) {
-        assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
-        assert.strictEqual(
-          (e as Error).message,
-          "Assertion Failed: Cannot push duplicates to a hasMany's state. Found duplicates for the following records within the new state provided to `<user:1>.friends`\n\t- @lid:user-2",
-          'error thrown has correct message'
-        );
-      }
-
-      if (!IS_DEBUG) {
-        const newState2 = [Krystan, Sam, Sam];
-        assertPreconditions(assert, newState2, { expectedLength: 3, hasDuplicates: true });
-
-        try {
-          friends.push(...newState2);
-          assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
-          assert.strictEqual(friends.length, 2, 'the user has two friends');
-          assert.strictEqual(friends[0].name, 'Krystan', 'the user has the correct friends');
-          assert.strictEqual(friends[1].name, 'Sam', 'the user has the correct friends');
-        } catch (e) {
-          assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
-          assert.strictEqual(
-            (e as Error).message,
-            "Assertion Failed: Cannot push duplicates to a hasMany's state. Found duplicates for the following records within the new state provided to `<user:1>.friends`\n\t- @lid:user-3",
-            'error thrown has correct message'
-          );
-        }
-      }
+      applyMutation(assert, store, user, {
+        method: 'push',
+        values: [krystanRef(), samRef(), samRef()],
+      });
     });
 
     test('When pushing to the state of a hasMany we error if the new state contains duplicates (starting length 2)', function (assert) {
@@ -435,300 +382,92 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
 
       const user = makeUser(store, [krystanRef(), samRef()]);
 
-      const friends = user.friends;
-      assert.strictEqual(friends.length, 2, 'precond - the user has two friends');
-      assert.strictEqual(friends[0].name, 'Krystan', 'precond - the user has the correct friends');
-      assert.strictEqual(friends[1].name, 'Sam', 'precond - the user has the correct friends');
-      const Krystan = store.peekRecord('user', '2') as User;
-
-      const newState = [Krystan, Krystan];
-      assertPreconditions(assert, newState, { expectedLength: 2, hasDuplicates: true });
-
-      try {
-        friends.push(...newState);
-        assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
-        assert.strictEqual(friends.length, 2, 'the user has 2 friends');
-        assert.strictEqual(friends[0].name, 'Krystan', 'the user has the correct friends');
-      } catch (e) {
-        assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
-        assert.strictEqual(
-          (e as Error).message,
-          "Assertion Failed: Cannot push duplicates to a hasMany's state. Found duplicates for the following records within the new state provided to `<user:1>.friends`\n\t- @lid:user-2",
-          'error thrown has correct message'
-        );
-      }
+      applyMutation(assert, store, user, {
+        method: 'push',
+        values: [krystanRef(), krystanRef()],
+      });
     });
   });
 
   module('Unshifting new records', function () {});
 
   module('Splicing in new records', function () {
-    module('full replace', function () {
-      test('When replacing (via splice) the state of a hasMany we error if the new state contains duplicates (starting length 0, single-change)', function (assert) {
-        const store = this.owner.lookup('service:store') as Store;
+    test('When splicing the state (to the end) of a hasMany we error if the new state contains duplicates (starting length 1, multi-change)', function (assert) {
+      const store = this.owner.lookup('service:store') as Store;
 
-        const user = makeUser(store, []);
+      const user = makeUser(store, [krystanRef()]);
 
-        const friends = user.friends;
-        assert.strictEqual(friends.length, 0, 'precond - the user has no friends');
-        const Sam = store.peekRecord('user', '3') as User;
-
-        const newState = [Sam, Sam];
-        assertPreconditions(assert, newState, { expectedLength: 2, hasDuplicates: true });
-
-        try {
-          friends.splice(0, 0, ...newState);
-          assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
-          assert.strictEqual(friends.length, 1, 'the user has one friend');
-          assert.strictEqual(friends[0].name, 'Sam', 'the user has the correct friends');
-        } catch (e) {
-          assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
-          assert.strictEqual(
-            (e as Error).message,
-            "Assertion Failed: Cannot replace a hasMany's state with a new state that contains duplicates. Found duplicates for the following records within the new state provided to `<user:1>.friends`\n\t- @lid:user-3",
-            'error thrown has correct message'
-          );
-        }
+      applyMutation(assert, store, user, {
+        method: 'splice',
+        values: [krystanRef(), samRef()],
+        start: 1,
+        deleteCount: 0,
       });
 
-      test('When replacing (via splice) the state of a hasMany we error if the new state contains duplicates (starting length 2)', function (assert) {
-        const store = this.owner.lookup('service:store') as Store;
-
-        const user = makeUser(store, [krystanRef(), samRef()]);
-
-        const friends = user.friends;
-        assert.strictEqual(friends.length, 2, 'precond - the user has two friends');
-        assert.strictEqual(friends[0].name, 'Krystan', 'precond - the user has the correct friends');
-        assert.strictEqual(friends[1].name, 'Sam', 'precond - the user has the correct friends');
-        const Krystan = store.peekRecord('user', '2') as User;
-
-        const newState = [Krystan, Krystan];
-        assertPreconditions(assert, newState, { expectedLength: friends.length, hasDuplicates: true });
-
-        try {
-          friends.splice(0, friends.length, ...newState);
-          assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
-          assert.strictEqual(friends.length, 1, 'the user has 1 friends');
-          assert.strictEqual(friends[0].name, 'Krystan', 'the user has the correct friends');
-        } catch (e) {
-          assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
-          assert.strictEqual(
-            (e as Error).message,
-            "Assertion Failed: Cannot replace a hasMany's state with a new state that contains duplicates. Found duplicates for the following records within the new state provided to `<user:1>.friends`\n\t- @lid:user-2",
-            'error thrown has correct message'
-          );
-        }
+      applyMutation(assert, store, user, {
+        method: 'splice',
+        values: [krystanRef(), samRef(), samRef()],
+        start: 2,
+        deleteCount: 0,
       });
     });
 
-    module('partial splice', function () {
-      test('When splicing the state (to the end) of a hasMany we error if the new state contains duplicates (starting length 1, multi-change)', function (assert) {
-        const store = this.owner.lookup('service:store') as Store;
+    test('When splicing the state (to the beginning) of a hasMany we error if the new state contains duplicates (starting length 1, multi-change)', function (assert) {
+      const store = this.owner.lookup('service:store') as Store;
 
-        const user = store.push({
-          data: {
-            id: '1',
-            type: 'user',
-            attributes: {
-              name: 'Chris',
-            },
-            relationships: {
-              friends: {
-                data: [{ type: 'user', id: '2' }],
-              },
-            },
-          },
-          included: [krystanData(), samData(), ericData()],
-        }) as User;
+      const user = makeUser(store, [krystanRef()]);
 
-        const friends = user.friends;
-        assert.strictEqual(friends.length, 1, 'precond - the user has one friend');
-        assert.strictEqual(friends[0].name, 'Krystan', 'precond - the user has the correct friends');
-        const Krystan = store.peekRecord('user', '2') as User;
-        const Sam = store.peekRecord('user', '3') as User;
-
-        const newState = [Krystan, Sam];
-        assertPreconditions(assert, newState, { expectedLength: 2, hasDuplicates: false });
-
-        try {
-          friends.splice(1, 0, ...newState);
-          assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
-          assert.strictEqual(friends[0].name, 'Krystan', 'the user has the correct friends');
-          assert.strictEqual(friends[1].name, 'Sam', 'the user has the correct friends');
-        } catch (e) {
-          assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
-          assert.strictEqual(
-            (e as Error).message,
-            "Assertion Failed: Cannot splice a hasMany's state with a new state that contains duplicates. Found duplicates for the following records within the new state provided to `<user:1>.friends`\n\t- @lid:user-2",
-            'error thrown has correct message'
-          );
-        }
-
-        if (!IS_DEBUG) {
-          const newState2 = [Krystan, Sam, Sam];
-          assertPreconditions(assert, newState2, { expectedLength: 3, hasDuplicates: true });
-
-          try {
-            friends.splice(2, 0, ...newState2);
-            assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
-            assert.strictEqual(friends.length, 2, 'the user has two friends');
-            assert.strictEqual(friends[0].name, 'Krystan', 'the user has the correct friends');
-            assert.strictEqual(friends[1].name, 'Sam', 'the user has the correct friends');
-          } catch (e) {
-            assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
-            assert.strictEqual(
-              (e as Error).message,
-              "Assertion Failed: Cannot splice a hasMany's state with a new state that contains duplicates. Found duplicates for the following records within the new state provided to `<user:1>.friends`\n\t- @lid:user-3",
-              'error thrown has correct message'
-            );
-          }
-        }
+      applyMutation(assert, store, user, {
+        method: 'splice',
+        values: [samRef()],
+        start: 0,
+        deleteCount: 0,
       });
 
-      test('When splicing the state (to the beginning) of a hasMany we error if the new state contains duplicates (starting length 1, multi-change)', function (assert) {
-        const store = this.owner.lookup('service:store') as Store;
-
-        const user = store.push({
-          data: {
-            id: '1',
-            type: 'user',
-            attributes: {
-              name: 'Chris',
-            },
-            relationships: {
-              friends: {
-                data: [{ type: 'user', id: '2' }],
-              },
-            },
-          },
-          included: [krystanData(), samData(), ericData()],
-        }) as User;
-
-        const friends = user.friends;
-        assert.strictEqual(friends.length, 1, 'precond - the user has one friend');
-        assert.strictEqual(friends[0].name, 'Krystan', 'precond - the user has the correct friends');
-        const Krystan = store.peekRecord('user', '2') as User;
-        const Sam = store.peekRecord('user', '3') as User;
-
-        const newState = [Sam];
-        assertPreconditions(assert, newState, { expectedLength: 1, hasDuplicates: false });
-
-        try {
-          friends.splice(0, 0, ...newState);
-          assert.strictEqual(friends.length, 2, 'the user has two friends');
-          assert.strictEqual(friends[0].name, 'Sam', 'the user has the correct friends');
-          assert.strictEqual(friends[1].name, 'Krystan', 'the user has the correct friends');
-        } catch (e) {
-          assert.ok(false, `expected no error to be thrown, got ${(e as Error).message}`);
-        }
-
-        const newState2 = [Sam, Krystan, Sam];
-        assertPreconditions(assert, newState2, { expectedLength: 3, hasDuplicates: true });
-
-        try {
-          friends.splice(0, 0, ...newState2);
-          assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
-          assert.strictEqual(friends.length, 2, 'the user has two friends');
-          assert.strictEqual(friends[0].name, 'Sam', 'the user has the correct friends');
-          assert.strictEqual(friends[1].name, 'Krystan', 'the user has the correct friends');
-        } catch (e) {
-          assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
-          assert.strictEqual(
-            (e as Error).message,
-            "Assertion Failed: Cannot splice a hasMany's state with a new state that contains duplicates. Found duplicates for the following records within the new state provided to `<user:1>.friends`\n\t- @lid:user-3\n\t- @lid:user-2",
-            'error thrown has correct message'
-          );
-        }
+      applyMutation(assert, store, user, {
+        method: 'splice',
+        values: [samRef(), krystanRef(), samRef()],
+        start: 0,
+        deleteCount: 0,
       });
+    });
 
-      test('When splicing the state (to the end) of a hasMany we error if the new state contains duplicates (starting length 2)', function (assert) {
-        const store = this.owner.lookup('service:store') as Store;
+    test('When splicing the state (to the end) of a hasMany we error if the new state contains duplicates (starting length 2)', function (assert) {
+      const store = this.owner.lookup('service:store') as Store;
 
-        const user = makeUser(store, [krystanRef(), samRef()]);
+      const user = makeUser(store, [krystanRef(), samRef()]);
 
-        const friends = user.friends;
-        assert.strictEqual(friends.length, 2, 'precond - the user has two friends');
-        assert.strictEqual(friends[0].name, 'Krystan', 'precond - the user has the correct friends');
-        assert.strictEqual(friends[1].name, 'Sam', 'precond - the user has the correct friends');
-        const Krystan = store.peekRecord('user', '2') as User;
-
-        const newState = [Krystan, Krystan];
-        assertPreconditions(assert, newState, { expectedLength: 2, hasDuplicates: true });
-
-        try {
-          friends.splice(2, 0, ...newState);
-          assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
-          assert.strictEqual(friends.length, 2, 'the user has 2 friends');
-          assert.strictEqual(friends[0].name, 'Krystan', 'the user has the correct friends');
-          assert.strictEqual(friends[1].name, 'Sam', 'the user has the correct friends');
-        } catch (e) {
-          assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
-          assert.strictEqual(
-            (e as Error).message,
-            "Assertion Failed: Cannot splice a hasMany's state with a new state that contains duplicates. Found duplicates for the following records within the new state provided to `<user:1>.friends`\n\t- @lid:user-2",
-            'error thrown has correct message'
-          );
-        }
+      applyMutation(assert, store, user, {
+        method: 'splice',
+        values: [krystanRef(), krystanRef()],
+        start: 2,
+        deleteCount: 0,
       });
+    });
 
-      test('When splicing the state (to the middle) of a hasMany we error if the new state contains duplicates (starting length 2)', function (assert) {
-        const store = this.owner.lookup('service:store') as Store;
+    test('When splicing the state (to the middle) of a hasMany we error if the new state contains duplicates (starting length 2)', function (assert) {
+      const store = this.owner.lookup('service:store') as Store;
 
-        const user = makeUser(store, [krystanRef(), samRef()]);
+      const user = makeUser(store, [krystanRef(), samRef()]);
 
-        const friends = user.friends;
-        assert.strictEqual(friends.length, 2, 'precond - the user has two friends');
-        assert.strictEqual(friends[0].name, 'Krystan', 'precond - the user has the correct friends');
-        assert.strictEqual(friends[1].name, 'Sam', 'precond - the user has the correct friends');
-        const Krystan = store.peekRecord('user', '2') as User;
-
-        const newState = [Krystan, Krystan];
-        assertPreconditions(assert, newState, { expectedLength: 2, hasDuplicates: true });
-
-        try {
-          friends.splice(1, 0, ...newState);
-          assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
-          assert.strictEqual(friends.length, 2, 'the user has 2 friends');
-          assert.strictEqual(friends[0].name, 'Krystan', 'the user has the correct friends');
-          assert.strictEqual(friends[1].name, 'Sam', 'the user has the correct friends');
-        } catch (e) {
-          assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
-          assert.strictEqual(
-            (e as Error).message,
-            "Assertion Failed: Cannot splice a hasMany's state with a new state that contains duplicates. Found duplicates for the following records within the new state provided to `<user:1>.friends`\n\t- @lid:user-2",
-            'error thrown has correct message'
-          );
-        }
+      applyMutation(assert, store, user, {
+        method: 'splice',
+        values: [krystanRef(), krystanRef()],
+        start: 1,
+        deleteCount: 0,
       });
+    });
 
-      test('When splicing the state (to the beginning) of a hasMany we error if the new state contains duplicates (starting length 2)', function (assert) {
-        const store = this.owner.lookup('service:store') as Store;
+    test('When splicing the state (to the beginning) of a hasMany we error if the new state contains duplicates (starting length 2)', function (assert) {
+      const store = this.owner.lookup('service:store') as Store;
 
-        const user = makeUser(store, [krystanRef(), samRef()]);
+      const user = makeUser(store, [krystanRef(), samRef()]);
 
-        const friends = user.friends;
-        assert.strictEqual(friends.length, 2, 'precond - the user has two friends');
-        assert.strictEqual(friends[0].name, 'Krystan', 'precond - the user has the correct friends');
-        assert.strictEqual(friends[1].name, 'Sam', 'precond - the user has the correct friends');
-        const Krystan = store.peekRecord('user', '2') as User;
-
-        const newState = [Krystan, Krystan];
-        assertPreconditions(assert, newState, { expectedLength: 2, hasDuplicates: true });
-
-        try {
-          friends.splice(0, 0, ...newState);
-          assert.notOk(IS_DEBUG, 'expected error to be thrown in debug mode');
-          assert.strictEqual(friends.length, 2, 'the user has 2 friends');
-          assert.strictEqual(friends[0].name, 'Krystan', 'the user has the correct friends');
-          assert.strictEqual(friends[1].name, 'Sam', 'the user has the correct friends');
-        } catch (e) {
-          assert.ok(IS_DEBUG, 'expected error to be thrown in debug mode');
-          assert.strictEqual(
-            (e as Error).message,
-            "Assertion Failed: Cannot splice a hasMany's state with a new state that contains duplicates. Found duplicates for the following records within the new state provided to `<user:1>.friends`\n\t- @lid:user-2",
-            'error thrown has correct message'
-          );
-        }
+      applyMutation(assert, store, user, {
+        method: 'splice',
+        values: [krystanRef(), krystanRef()],
+        start: 0,
+        deleteCount: 0,
       });
     });
   });

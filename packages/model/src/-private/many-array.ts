@@ -291,17 +291,18 @@ export default class RelatedCollection extends RecordArray {
           if (DEBUG) {
             if (current.size !== adds.length) {
               const seen = new Set<RecordInstance>();
-              const duplicates = adds.filter((item) => {
+              const duplicates = new Set<RecordInstance>();
+              adds.forEach((item) => {
                 if (seen.has(item)) {
-                  return true;
+                  duplicates.add(item);
+                } else {
+                  seen.add(item);
                 }
-                seen.add(item);
-                return false;
               });
               assert(
                 `Cannot replace a hasMany's state with a new state that contains duplicates. Found duplicates for the following records within the new state provided to \`<${
                   this.identifier.type
-                }:${this.identifier.id || this.identifier.lid}>.${this.key}\`\n\t- ${duplicates
+                }:${this.identifier.id || this.identifier.lid}>.${this.key}\`\n\t- ${Array.from(duplicates)
                   .map((r) => recordIdentifierFor(r).lid)
                   .join('\n\t- ')}`
               );
