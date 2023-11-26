@@ -37,8 +37,8 @@ importers:
         version: 1.10.16
     devDependencies:
       bun-types:
-        specifier: ^1.0.13
-        version: 1.0.13
+        specifier: ^1.0.14
+        version: 1.0.14
       chalk:
         specifier: ^4.1.2
         version: 4.1.2
@@ -692,8 +692,8 @@ importers:
         specifier: workspace:5.5.0-alpha.11
         version: link:../../config
       bun-types:
-        specifier: ^1.0.13
-        version: 1.0.13
+        specifier: ^1.0.14
+        version: 1.0.14
       ember-cli-test-loader:
         specifier: ^3.1.0
         version: 3.1.0(@babel/core@7.23.3)
@@ -1617,8 +1617,8 @@ importers:
         version: 0.0.10
     devDependencies:
       bun-types:
-        specifier: 1.0.13
-        version: 1.0.13
+        specifier: 1.0.14
+        version: 1.0.14
 
   packages/schema-record:
     dependencies:
@@ -3149,8 +3149,8 @@ importers:
         specifier: workspace:5.5.0-alpha.11
         version: link:../../config
       bun-types:
-        specifier: ^1.0.13
-        version: 1.0.13
+        specifier: ^1.0.14
+        version: 1.0.14
       ember-auto-import:
         specifier: ^2.6.3
         version: 2.6.3(webpack@5.89.0)
@@ -9947,8 +9947,8 @@ packages:
     dependencies:
       semver: 7.5.4
 
-  /bun-types@1.0.13:
-    resolution: {integrity: sha512-QQH6NLAOU+2tWgQuDSAYBFy+kQwVhPJLB0Q38QLjCmFUZJEYCiiq7tzvU784LAIX2onzO6gr+gIGXt8yCt0cJw==}
+  /bun-types@1.0.14:
+    resolution: {integrity: sha512-hLVfM2fk8xSJeobfuPGilfvxM5gLtEy1bn7RJhrtw3u4OaC0kieXKYFFTVHU8jZ3hj8YyPLIFClIUodkFSrMBQ==}
     dev: true
 
   /bytes@1.0.0:
