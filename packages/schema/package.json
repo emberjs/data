@@ -39,7 +39,7 @@
   },
   "main": "src/index.ts",
   "peerDependencies": {
-    "typescript": "^5.2.2"
+    "typescript": "^5.3.2"
   },
   "dependencies": {
     "chalk": "^5.3.0",
