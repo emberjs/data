@@ -47,7 +47,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.23.3",
-    "@babel/runtime": "^7.23.2",
+    "@babel/runtime": "^7.23.4",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "^3.2.0",
     "@glimmer/component": "^1.1.2",
