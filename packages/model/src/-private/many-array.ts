@@ -340,28 +340,40 @@ export default class RelatedCollection extends RecordArray {
         const copy = target.slice();
         copy.splice(start, deleteCount);
 
+        if (DEBUG) {
+          const seen = new Set(copy.map((r) => r.lid));
+          const unique = new Set<RecordInstance>();
+          const duplicates = new Set<RecordInstance>();
+          adds.forEach((item) => {
+            const lid = recordIdentifierFor(item).lid;
+            if (seen.has(lid)) {
+              duplicates.add(item);
+            } else {
+              seen.add(lid);
+              unique.add(item);
+            }
+          });
+
+          assert(
+            `Cannot splice a hasMany's state with a new state that contains duplicates. Found duplicates for the following records within the new state provided to \`<${
+              this.identifier.type
+            }:${this.identifier.id || this.identifier.lid}>.${this.key}\`\n\t- ${Array.from(duplicates)
+              .map((r) => recordIdentifierFor(r).lid)
+              .sort((a, b) => a.localeCompare(b))
+              .join('\n\t- ')}`,
+            duplicates.size === 0
+          );
+        }
+
         const seen = new Set(copy.map((r) => r.lid));
         const unique = new Set<RecordInstance>();
-        const duplicates = new Set<RecordInstance>();
         adds.forEach((item) => {
           const lid = recordIdentifierFor(item).lid;
-          if (seen.has(lid)) {
-            duplicates.add(item);
-          } else {
+          if (!seen.has(lid)) {
             seen.add(lid);
             unique.add(item);
           }
         });
-
-        assert(
-          `Cannot splice a hasMany's state with a new state that contains duplicates. Found duplicates for the following records within the new state provided to \`<${
-            this.identifier.type
-          }:${this.identifier.id || this.identifier.lid}>.${this.key}\`\n\t- ${Array.from(duplicates)
-            .map((r) => recordIdentifierFor(r).lid)
-            .sort((a, b) => a.localeCompare(b))
-            .join('\n\t- ')}`,
-          duplicates.size === 0
-        );
 
         const newArgs = ([start, deleteCount] as unknown[]).concat(Array.from(unique));
         const result = Reflect.apply(target[prop], receiver, newArgs) as RecordInstance[];
