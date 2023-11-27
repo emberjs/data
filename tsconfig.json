@@ -101,7 +101,6 @@
     "tests/main/tests/integration/identifiers/lid-reflection-test.ts",
     "tests/main/tests/integration/identifiers/configuration-test.ts",
     "tests/main/tests/integration/identifiers/cache-test.ts",
-    "tests/main/tests/helpers/accessors.ts",
-    "./packages/model/src/-private/RelatedCollection.ts"
+    "tests/main/tests/helpers/accessors.ts"
   ]
 }
