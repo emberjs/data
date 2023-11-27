@@ -209,14 +209,8 @@ export default class RelatedCollection extends RecordArray {
             }
           });
 
-          // FIXME: Extract error message generator
           assert(
-            `Cannot push duplicates to a hasMany's state. Found duplicates for the following records within the new state provided to \`<${
-              this.identifier.type
-            }:${this.identifier.id || this.identifier.lid}>.${this.key}\`\n\t- ${Array.from(duplicates)
-              .map((r) => recordIdentifierFor(r).lid)
-              .sort((a, b) => a.localeCompare(b))
-              .join('\n\t- ')}`,
+            duplicationMsg(`Cannot push duplicates to a hasMany's state.`, this, duplicates),
             duplicates.size === 0
           );
         }
@@ -315,12 +309,11 @@ export default class RelatedCollection extends RecordArray {
                 }
               });
               assert(
-                `Cannot replace a hasMany's state with a new state that contains duplicates. Found duplicates for the following records within the new state provided to \`<${
-                  this.identifier.type
-                }:${this.identifier.id || this.identifier.lid}>.${this.key}\`\n\t- ${Array.from(duplicates)
-                  .map((r) => recordIdentifierFor(r).lid)
-                  .sort((a, b) => a.localeCompare(b))
-                  .join('\n\t- ')}`
+                duplicationMsg(
+                  `Cannot replace a hasMany's state with a new state that contains duplicates.`,
+                  this,
+                  duplicates
+                )
               );
             }
           }
@@ -355,12 +348,11 @@ export default class RelatedCollection extends RecordArray {
           });
 
           assert(
-            `Cannot splice a hasMany's state with a new state that contains duplicates. Found duplicates for the following records within the new state provided to \`<${
-              this.identifier.type
-            }:${this.identifier.id || this.identifier.lid}>.${this.key}\`\n\t- ${Array.from(duplicates)
-              .map((r) => recordIdentifierFor(r).lid)
-              .sort((a, b) => a.localeCompare(b))
-              .join('\n\t- ')}`,
+            duplicationMsg(
+              `Cannot splice a hasMany's state with a new state that contains duplicates.`,
+              this,
+              duplicates
+            ),
             duplicates.size === 0
           );
         }
@@ -538,4 +530,13 @@ function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord |
 
 function isPromiseRecord(record: PromiseProxyRecord | RecordInstance): record is PromiseProxyRecord {
   return !!record.then;
+}
+
+function duplicationMsg(reason: string, collection: RelatedCollection, duplicates: Set<RecordInstance>) {
+  return `${reason} Found duplicates for the following records within the new state provided to \`<${
+    collection.identifier.type
+  }:${collection.identifier.id || collection.identifier.lid}>.${collection.key}\`\n\t- ${Array.from(duplicates)
+    .map((r) => recordIdentifierFor(r).lid)
+    .sort((a, b) => a.localeCompare(b))
+    .join('\n\t- ')}`;
 }
