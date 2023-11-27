@@ -8,21 +8,6 @@ import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import { ExistingResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 
-/*
-
-For each case we should check (if applicable):
-
-starting length 0, new state contains NO duplicates
-starting length 0, new state contains duplicates
-starting length 1, new state contains NO duplicates
-starting length 1, new state contains duplicates
-starting length 1, new state contains duplicates already present in remote state
-starting length 2, new state contains NO duplicates
-starting length 2, new state contains duplicates
-starting length 2, new state contains duplicates already present in remote state
-
-*/
-
 let IS_DEBUG = false;
 
 if (DEBUG) {
@@ -76,12 +61,36 @@ function ericRef(): ExistingResourceIdentifierObject {
   return { type: 'user', id: '4' };
 }
 
+function chrisData(friends: ExistingResourceIdentifierObject[]) {
+  return {
+    id: '1',
+    type: 'user',
+    attributes: {
+      name: 'Chris',
+    },
+    relationships: {
+      friends: {
+        data: friends,
+      },
+    },
+  };
+}
+
+function makeUser(store: Store, friends: ExistingResourceIdentifierObject[]): User {
+  return store.push({
+    data: chrisData(friends),
+    included: [krystanData(), samData(), ericData()],
+  }) as User;
+}
+
 type Mutation = {
   name: string;
-  method: 'push' | 'unshift' | 'splice' | 'replace';
+  method: 'push' | 'unshift' | 'splice';
   values: ExistingResourceIdentifierObject[];
   start?: (record: User) => number;
   deleteCount?: (record: User) => number;
+  // Set to `true` to isolate this mutation, e.g. for debugging
+  debug?: boolean;
 };
 
 function generateAppliedMutation(store: Store, record: User, mutation: Mutation) {
@@ -97,19 +106,18 @@ function generateAppliedMutation(store: Store, record: User, mutation: Mutation)
       error = 'FIXME';
       outcomeValues = [...mutation.values.map((ref) => store.peekRecord(ref) as User), ...friends];
       break;
-    case 'splice':
-      error = "Cannot splice a hasMany's state with a new state that contains duplicates.";
+    case 'splice': {
+      const start = mutation.start?.(record) ?? 0;
+      const deleteCount = mutation.deleteCount?.(record) ?? 0;
       outcomeValues = friends.slice();
-      outcomeValues.splice(
-        mutation.start?.(record) ?? 0,
-        mutation.deleteCount?.(record) ?? 0,
-        ...mutation.values.map((ref) => store.peekRecord(ref) as User)
-      );
+      outcomeValues.splice(start, deleteCount, ...mutation.values.map((ref) => store.peekRecord(ref) as User));
+      if (start === 0 && deleteCount === friends.length) {
+        error = `Cannot replace a hasMany's state with a new state that contains duplicates.`;
+      } else {
+        error = "Cannot splice a hasMany's state with a new state that contains duplicates.";
+      }
       break;
-    case 'replace':
-      error = `Cannot replace a hasMany's state with a new state that contains duplicates.`;
-      outcomeValues = mutation.values.map((ref) => store.peekRecord(ref) as User);
-      break;
+    }
   }
 
   const seen = new Set<User>();
@@ -160,18 +168,15 @@ function applyMutation(assert: Assert, store: Store, record: User, mutation: Mut
           ...mutation.values.map((ref) => store.peekRecord(ref) as User)
         );
         break;
-      case 'replace':
-        record.friends = mutation.values.map((ref) => store.peekRecord(ref) as User);
-        break;
     }
     assert.ok(
       !result.hasDuplicates || !IS_DEBUG,
-      `expected error ${result.hasDuplicates ? '' : 'NOT '}to be thrown only in debug mode`
+      `expected error ${result.hasDuplicates && IS_DEBUG ? '' : 'NOT '}to be thrown`
     );
   } catch (e) {
     assert.ok(
       result.hasDuplicates && IS_DEBUG,
-      `expected error ${result.hasDuplicates ? '' : 'NOT '}to be thrown only in debug mode`
+      `expected error ${result.hasDuplicates && IS_DEBUG ? '' : 'NOT '}to be thrown`
     );
     const expectedMessage =
       'error' in outcome
@@ -183,6 +188,7 @@ function applyMutation(assert: Assert, store: Store, record: User, mutation: Mut
             record.id
           }>.friends\`\n\t- ${Array.from(result.duplicates)
             .map((r) => recordIdentifierFor(r).lid)
+            .sort((a, b) => a.localeCompare(b))
             .join('\n\t- ')}`
         : '';
     assert.strictEqual((e as Error).message, expectedMessage, `error thrown has correct message: ${expectedMessage}`);
@@ -196,12 +202,14 @@ function applyMutation(assert: Assert, store: Store, record: User, mutation: Mut
   assert.deepEqual(
     record.friends.slice(),
     outcome.membership,
-    `the new state has the correct records ${outcome.ids.join(',')} after ${mutation.method}`
+    `the new state has the correct records [${outcome.ids.join(',')}] after ${mutation.method} (had [${record.friends
+      .map((f) => f.id)
+      .join(',')}])`
   );
   assert.deepEqual(
     record.hasMany('friends').ids(),
     outcome.ids,
-    `the new state has the correct ids on the reference ${outcome.ids.join(',')} after ${mutation.method}`
+    `the new state has the correct ids on the reference [${outcome.ids.join(',')}] after ${mutation.method}`
   );
   assert.strictEqual(
     record.hasMany('friends').ids().length,
@@ -223,87 +231,71 @@ function getStartingState() {
   ];
 }
 
-function getMutations() {
+function getValues() {
   return [
     {
-      name: 'replace with NO duplicates',
-      method: 'replace' as const,
-      values: [samRef()],
+      name: 'with empty array',
+      values: [],
     },
     {
-      name: 'replace with duplicates NOT present in remote state',
-      method: 'replace' as const,
-      values: [samRef(), samRef()],
+      name: 'with NO duplicates',
+      values: [ericRef()],
     },
     {
-      name: 'replace with duplicates present in remote state',
-      method: 'replace' as const,
-      values: [samRef(), krystanRef()],
+      name: 'with duplicates NOT present in initial remote state',
+      values: [ericRef(), ericRef()],
     },
     {
-      name: 'push with NO duplicates',
-      method: 'push' as const,
-      values: [samRef()],
-    },
-    {
-      name: 'push with duplicates NOT present in remote state',
-      method: 'push' as const,
-      values: [samRef(), samRef()],
-    },
-    {
-      name: 'push with duplicates present in remote state (1)',
-      method: 'push' as const,
+      name: 'with duplicates present in initial remote state',
       values: [krystanRef()],
     },
     {
-      name: 'push with duplicates present in remote state',
-      method: 'push' as const,
-      values: [samRef(), krystanRef()],
-    },
-    {
-      name: 'splice (to beginning) with NO duplicates',
-      method: 'splice' as const,
-      values: [samRef()],
-      start: () => 0,
-      deleteCount: () => 0,
-    },
-    {
-      name: 'splice (to end) with NO duplicates',
-      method: 'splice' as const,
-      values: [samRef()],
-      start: (user: User) => user.friends.length,
-      deleteCount: () => 0,
-    },
-    {
-      name: 'splice (to middle) with NO duplicates',
-      method: 'splice' as const,
-      values: [samRef()],
-      start: (user: User) => Math.floor(user.friends.length / 2),
-      deleteCount: () => 0,
+      name: 'with all the duplicates',
+      values: [ericRef(), ericRef(), krystanRef()],
     },
   ];
 }
 
-function chrisData(friends: ExistingResourceIdentifierObject[]) {
-  return {
-    id: '1',
-    type: 'user',
-    attributes: {
-      name: 'Chris',
-    },
-    relationships: {
-      friends: {
-        data: friends,
-      },
-    },
-  };
+function generateMutations(baseMutation: Omit<Mutation, 'values'>): Mutation[] {
+  return getValues().map((v) => ({
+    ...baseMutation,
+    name: `${baseMutation.name} ${v.name}`,
+    values: v.values,
+  }));
 }
 
-function makeUser(store: Store, friends: ExistingResourceIdentifierObject[]): User {
-  return store.push({
-    data: chrisData(friends),
-    included: [krystanData(), samData(), ericData()],
-  }) as User;
+function getMutations(): Mutation[] {
+  return [
+    // FIXME: Add unshift cases
+    ...generateMutations({
+      name: 'push',
+      method: 'push',
+    }),
+    ...generateMutations({
+      name: 'replace',
+      method: 'splice',
+      start: () => 0,
+      deleteCount: (user) => user.friends.length,
+    }),
+    ...generateMutations({
+      name: 'splice (to beginning)',
+      method: 'splice',
+      start: () => 0,
+      deleteCount: () => 0,
+    }),
+    ...generateMutations({
+      name: 'splice (to middle)',
+      method: 'splice',
+      start: (user) => Math.floor(user.friends.length / 2),
+      deleteCount: () => 0,
+    }),
+    ...generateMutations({
+      name: 'splice (to end)',
+      method: 'splice',
+      start: (user) => user.friends.length,
+      deleteCount: () => 0,
+    }),
+  ];
 }
 
 module('Integration | Relationships | Collection | Mutation', function (hooks) {
@@ -313,11 +305,16 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
     this.owner.register('model:user', User);
   });
 
+  let mutations = getMutations().filter((m) => m.debug);
+  if (mutations.length === 0) {
+    mutations = getMutations();
+  }
+
   getStartingState().forEach((startingState) => {
     module(`Starting state: ${startingState.name}`, function () {
-      getMutations().forEach((mutation) => {
+      mutations.forEach((mutation) => {
         module(`Mutation: ${mutation.name}`, function () {
-          getMutations().forEach((mutation2) => {
+          mutations.forEach((mutation2) => {
             test(`followed by Mutation: ${mutation2.name}`, function (assert) {
               const store = this.owner.lookup('service:store') as Store;
               const user = startingState.cb(store);

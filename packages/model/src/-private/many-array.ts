@@ -195,27 +195,42 @@ export default class RelatedCollection extends RecordArray {
         return true;
       }
       case 'push': {
+        if (DEBUG) {
+          const seen = new Set(target.map((r) => r.lid));
+          const unique = new Set<RecordInstance>();
+          const duplicates = new Set<RecordInstance>();
+          (args as RecordInstance[]).forEach((item) => {
+            const lid = recordIdentifierFor(item).lid;
+            if (seen.has(lid)) {
+              duplicates.add(item);
+            } else {
+              seen.add(lid);
+              unique.add(item);
+            }
+          });
+
+          // FIXME: Extract error message generator
+          assert(
+            `Cannot push duplicates to a hasMany's state. Found duplicates for the following records within the new state provided to \`<${
+              this.identifier.type
+            }:${this.identifier.id || this.identifier.lid}>.${this.key}\`\n\t- ${Array.from(duplicates)
+              .map((r) => recordIdentifierFor(r).lid)
+              .sort((a, b) => a.localeCompare(b))
+              .join('\n\t- ')}`,
+            duplicates.size === 0
+          );
+        }
+
         const seen = new Set(target.map((r) => r.lid));
         const unique = new Set<RecordInstance>();
-        const duplicates = new Set<RecordInstance>();
+
         (args as RecordInstance[]).forEach((item) => {
           const lid = recordIdentifierFor(item).lid;
-          if (seen.has(lid)) {
-            duplicates.add(item);
-          } else {
+          if (!seen.has(lid)) {
             seen.add(lid);
             unique.add(item);
           }
         });
-
-        assert(
-          `Cannot push duplicates to a hasMany's state. Found duplicates for the following records within the new state provided to \`<${
-            this.identifier.type
-          }:${this.identifier.id || this.identifier.lid}>.${this.key}\`\n\t- ${Array.from(duplicates)
-            .map((r) => recordIdentifierFor(r).lid)
-            .join('\n\t- ')}`,
-          duplicates.size === 0
-        );
 
         const result = Reflect.apply(target[prop], receiver, Array.from(unique)) as RecordInstance[];
 
@@ -283,10 +298,10 @@ export default class RelatedCollection extends RecordArray {
       }
 
       case 'splice': {
-        const [start, removeCount, ...adds] = args as [number, number, RecordInstance];
+        const [start, deleteCount, ...adds] = args as [number, number, RecordInstance];
 
         // detect a full replace
-        if (start === 0 && removeCount === this[SOURCE].length) {
+        if (start === 0 && deleteCount === this[SOURCE].length) {
           const current = new Set(adds);
           if (DEBUG) {
             if (current.size !== adds.length) {
@@ -304,12 +319,13 @@ export default class RelatedCollection extends RecordArray {
                   this.identifier.type
                 }:${this.identifier.id || this.identifier.lid}>.${this.key}\`\n\t- ${Array.from(duplicates)
                   .map((r) => recordIdentifierFor(r).lid)
+                  .sort((a, b) => a.localeCompare(b))
                   .join('\n\t- ')}`
               );
             }
           }
           const unique = Array.from(current);
-          const newArgs = ([start, removeCount] as unknown[]).concat(unique);
+          const newArgs = ([start, deleteCount] as unknown[]).concat(unique);
           const result = Reflect.apply(target[prop], receiver, newArgs) as RecordInstance[];
 
           this._manager.mutate({
@@ -341,14 +357,15 @@ export default class RelatedCollection extends RecordArray {
             this.identifier.type
           }:${this.identifier.id || this.identifier.lid}>.${this.key}\`\n\t- ${Array.from(duplicates)
             .map((r) => recordIdentifierFor(r).lid)
+            .sort((a, b) => a.localeCompare(b))
             .join('\n\t- ')}`,
           duplicates.size === 0
         );
 
-        const newArgs = ([start, removeCount] as unknown[]).concat(Array.from(unique));
+        const newArgs = ([start, deleteCount] as unknown[]).concat(Array.from(unique));
         const result = Reflect.apply(target[prop], receiver, newArgs) as RecordInstance[];
 
-        if (removeCount > 0) {
+        if (deleteCount > 0) {
           this._manager.mutate({
             op: 'removeFromRelatedRecords',
             record: this.identifier,
