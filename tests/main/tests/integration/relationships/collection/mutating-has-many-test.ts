@@ -89,8 +89,6 @@ type Mutation = {
   values: ExistingResourceIdentifierObject[];
   start?: (record: User) => number;
   deleteCount?: (record: User) => number;
-  // Set to `true` to isolate this mutation, e.g. for debugging
-  debug?: boolean;
 };
 
 function generateAppliedMutation(store: Store, record: User, mutation: Mutation) {
@@ -314,16 +312,11 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
     this.owner.register('model:user', User);
   });
 
-  let mutations = getMutations().filter((m) => m.debug);
-  if (mutations.length === 0) {
-    mutations = getMutations();
-  }
-
   getStartingState().forEach((startingState) => {
     module(`Starting state: ${startingState.name}`, function () {
-      mutations.forEach((mutation) => {
+      getMutations().forEach((mutation) => {
         module(`Mutation: ${mutation.name}`, function () {
-          mutations.forEach((mutation2) => {
+          getMutations().forEach((mutation2) => {
             test(`followed by Mutation: ${mutation2.name}`, function (assert) {
               const store = this.owner.lookup('service:store') as Store;
               const user = startingState.cb(store);
