@@ -328,6 +328,4 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
       });
     });
   });
-
-  module('Unshifting new records', function () {});
 });
