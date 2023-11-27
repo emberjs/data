@@ -337,9 +337,10 @@ export default class RelatedCollection extends RecordArray {
           return result;
         }
 
-        // FIXME: This will have false positives if we are replacing a record with itself
+        const copy = target.slice();
+        copy.splice(start, deleteCount);
 
-        const seen = new Set(target.map((r) => r.lid));
+        const seen = new Set(copy.map((r) => r.lid));
         const unique = new Set<RecordInstance>();
         const duplicates = new Set<RecordInstance>();
         adds.forEach((item) => {

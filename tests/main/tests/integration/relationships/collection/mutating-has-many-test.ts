@@ -179,7 +179,7 @@ function applyMutation(assert: Assert, store: Store, record: User, mutation: Mut
       `expected error ${result.hasDuplicates && IS_DEBUG ? '' : 'NOT '}to be thrown`
     );
     const expectedMessage =
-      'error' in outcome
+      'error' in outcome && result.hasDuplicates
         ? `Assertion Failed: ${
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             outcome.error
@@ -276,6 +276,12 @@ function getMutations(): Mutation[] {
       method: 'splice',
       start: () => 0,
       deleteCount: (user) => user.friends.length,
+    }),
+    ...generateMutations({
+      name: 'partial replace (to beginning)',
+      method: 'splice',
+      start: () => 0,
+      deleteCount: (user) => (user.length === 0 ? 0 : 1),
     }),
     ...generateMutations({
       name: 'splice (to beginning)',
