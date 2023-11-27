@@ -103,7 +103,7 @@ function generateAppliedMutation(store: Store, record: User, mutation: Mutation)
       outcomeValues = [...friends, ...mutation.values.map((ref) => store.peekRecord(ref) as User)];
       break;
     case 'unshift':
-      error = 'FIXME';
+      error = "Cannot unshift duplicates to a hasMany's state.";
       outcomeValues = [...mutation.values.map((ref) => store.peekRecord(ref) as User), ...friends];
       break;
     case 'splice': {
@@ -266,10 +266,13 @@ function generateMutations(baseMutation: Omit<Mutation, 'values'>): Mutation[] {
 
 function getMutations(): Mutation[] {
   return [
-    // FIXME: Add unshift cases
     ...generateMutations({
       name: 'push',
       method: 'push',
+    }),
+    ...generateMutations({
+      name: 'unshift',
+      method: 'unshift',
     }),
     ...generateMutations({
       name: 'replace',

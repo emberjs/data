@@ -251,14 +251,44 @@ export default class RelatedCollection extends RecordArray {
       }
 
       case 'unshift': {
-        // FIXME: don't unshift until we are sure it is unique
-        const result: unknown = Reflect.apply(target[prop], receiver, args);
+        if (DEBUG) {
+          const seen = new Set(target.map((r) => r.lid));
+          const unique = new Set<RecordInstance>();
+          const duplicates = new Set<RecordInstance>();
+          (args as RecordInstance[]).forEach((item) => {
+            const lid = recordIdentifierFor(item).lid;
+            if (seen.has(lid)) {
+              duplicates.add(item);
+            } else {
+              seen.add(lid);
+              unique.add(item);
+            }
+          });
+
+          assert(
+            duplicationMsg(`Cannot unshift duplicates to a hasMany's state.`, this, duplicates),
+            duplicates.size === 0
+          );
+        }
+
+        const seen = new Set(target.map((r) => r.lid));
+        const unique = new Set<RecordInstance>();
+
+        (args as RecordInstance[]).forEach((item) => {
+          const lid = recordIdentifierFor(item).lid;
+          if (!seen.has(lid)) {
+            seen.add(lid);
+            unique.add(item);
+          }
+        });
+
+        const result: unknown = Reflect.apply(target[prop], receiver, Array.from(unique));
 
         this._manager.mutate({
           op: 'addToRelatedRecords',
           record: this.identifier,
           field: this.key,
-          value: extractIdentifiersFromRecords(args as RecordInstance[]),
+          value: extractIdentifiersFromRecords(Array.from(unique)),
           index: 0,
         });
         return result;
