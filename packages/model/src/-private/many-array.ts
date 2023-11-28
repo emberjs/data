@@ -17,6 +17,7 @@ import {
 import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
 import { IdentifierArrayCreateOptions } from '@ember-data/store/-private/record-arrays/identifier-array';
 import type { CreateRecordProperties } from '@ember-data/store/-private/store-service';
+import { addToTransaction, type Tag } from '@ember-data/tracking/-private';
 import type { Cache } from '@ember-data/types/q/cache';
 import type { Links, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
@@ -170,20 +171,24 @@ export default class RelatedCollection extends RecordArray {
     target: StableRecordIdentifier[],
     receiver: typeof Proxy<StableRecordIdentifier[]>,
     prop: string,
-    args: unknown[]
+    args: unknown[],
+    _TAG: Tag
   ): unknown {
     switch (prop) {
       case 'length 0': {
+        Reflect.set(target, 'length', 0);
         this._manager.mutate({
           op: 'replaceRelatedRecords',
           record: this.identifier,
           field: this.key,
           value: [],
         });
+        addToTransaction(_TAG);
         return true;
       }
       case 'replace cell': {
         const [index, prior, value] = args as [number, StableRecordIdentifier, StableRecordIdentifier];
+        target[index] = value;
         this._manager.mutate({
           op: 'replaceRelatedRecord',
           record: this.identifier,
@@ -192,6 +197,7 @@ export default class RelatedCollection extends RecordArray {
           prior,
           index,
         });
+        addToTransaction(_TAG);
         return true;
       }
       case 'push': {
@@ -226,15 +232,18 @@ export default class RelatedCollection extends RecordArray {
           }
         });
 
-        const result = Reflect.apply(target[prop], receiver, Array.from(unique)) as RecordInstance[];
+        const newArgs = Array.from(unique);
+        const result = Reflect.apply(target[prop], receiver, newArgs) as RecordInstance[];
 
-        this._manager.mutate({
-          op: 'addToRelatedRecords',
-          record: this.identifier,
-          field: this.key,
-          value: extractIdentifiersFromRecords(Array.from(unique)),
-        });
-
+        if (newArgs.length) {
+          this._manager.mutate({
+            op: 'addToRelatedRecords',
+            record: this.identifier,
+            field: this.key,
+            value: extractIdentifiersFromRecords(newArgs),
+          });
+          addToTransaction(_TAG);
+        }
         return result;
       }
       case 'pop': {
@@ -246,6 +255,7 @@ export default class RelatedCollection extends RecordArray {
             field: this.key,
             value: recordIdentifierFor(result as RecordInstance),
           });
+          addToTransaction(_TAG);
         }
         return result;
       }
@@ -282,15 +292,19 @@ export default class RelatedCollection extends RecordArray {
           }
         });
 
-        const result: unknown = Reflect.apply(target[prop], receiver, Array.from(unique));
+        const newArgs = Array.from(unique);
+        const result: unknown = Reflect.apply(target[prop], receiver, newArgs);
 
-        this._manager.mutate({
-          op: 'addToRelatedRecords',
-          record: this.identifier,
-          field: this.key,
-          value: extractIdentifiersFromRecords(Array.from(unique)),
-          index: 0,
-        });
+        if (newArgs.length) {
+          this._manager.mutate({
+            op: 'addToRelatedRecords',
+            record: this.identifier,
+            field: this.key,
+            value: extractIdentifiersFromRecords(Array.from(unique)),
+            index: 0,
+          });
+          addToTransaction(_TAG);
+        }
         return result;
       }
 
@@ -305,6 +319,7 @@ export default class RelatedCollection extends RecordArray {
             value: recordIdentifierFor(result as RecordInstance),
             index: 0,
           });
+          addToTransaction(_TAG);
         }
         return result;
       }
@@ -318,6 +333,7 @@ export default class RelatedCollection extends RecordArray {
           field: this.key,
           value: (result as RecordInstance[]).map(recordIdentifierFor),
         });
+        addToTransaction(_TAG);
         return result;
       }
 
@@ -357,6 +373,7 @@ export default class RelatedCollection extends RecordArray {
             field: this.key,
             value: extractIdentifiersFromRecords(unique),
           });
+          addToTransaction(_TAG);
           return result;
         }
 
@@ -397,7 +414,8 @@ export default class RelatedCollection extends RecordArray {
           }
         });
 
-        const newArgs = ([start, deleteCount] as unknown[]).concat(Array.from(unique));
+        const addedRecords = Array.from(unique);
+        const newArgs = ([start, deleteCount] as unknown[]).concat(addedRecords);
         const result = Reflect.apply(target[prop], receiver, newArgs) as RecordInstance[];
 
         if (deleteCount > 0) {
@@ -408,15 +426,18 @@ export default class RelatedCollection extends RecordArray {
             value: result.map(recordIdentifierFor),
             index: start,
           });
+          addToTransaction(_TAG);
         }
+
         if (unique.size) {
           this._manager.mutate({
             op: 'addToRelatedRecords',
             record: this.identifier,
             field: this.key,
-            value: extractIdentifiersFromRecords(Array.from(unique)),
+            value: extractIdentifiersFromRecords(addedRecords),
             index: start,
           });
+          addToTransaction(_TAG);
         }
 
         return result;

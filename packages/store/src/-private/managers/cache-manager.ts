@@ -79,7 +79,7 @@ export function legacyCachePut(
  * `recordDataFor` function supplied to the store
  * hook `instantiateRecord`, and the `recordDataFor`
  * method on the `CacheStoreWrapper`. It is not
- * directly instantiatable.
+ * directly instantiable.
  *
  * It handles translating between cache versions when
  * necessary, for instance when a Store is configured
@@ -155,7 +155,7 @@ export class NonSingletonCacheManager implements Cache {
    * semantics, `put` has `replace` semantics similar to
    * the `http` method `PUT`
    *
-   * the individually cacheabl
+   * the individually cacheable
    * e resource data it may contain
    * should upsert, but the document data surrounding it should
    * fully replace any existing information
@@ -273,7 +273,7 @@ export class NonSingletonCacheManager implements Cache {
    * An implementation might want to do this because
    * de-referencing records which read from their own
    * blob is generally safer because the record does
-   * not require retainining connections to the Store
+   * not require retaining connections to the Store
    * and Cache to present data on a per-field basis.
    *
    * This generally takes the place of `getAttr` as
@@ -503,7 +503,7 @@ export class NonSingletonCacheManager implements Cache {
   // ================
 
   /**
-   * [LIFECYLCE] Signal to the cache that a new record has been instantiated on the client
+   * [LIFECYCLE] Signal to the cache that a new record has been instantiated on the client
    *
    * It returns properties from options that should be set on the record during the create
    * process. This return value behavior is deprecated.

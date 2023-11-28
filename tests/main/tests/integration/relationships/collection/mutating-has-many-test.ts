@@ -1,12 +1,16 @@
+import { settled } from '@ember/test-helpers';
+
 import { module, test } from 'qunit';
 
-import { setupTest } from 'ember-qunit';
+import { setupRenderingTest } from 'ember-qunit';
 
 import { DEBUG } from '@ember-data/env';
 import Model, { attr, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import { ExistingResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
+
+import { ReactiveContext, reactiveContext } from '../../../helpers/reactive-context';
 
 let IS_DEBUG = false;
 
@@ -147,9 +151,21 @@ function generateAppliedMutation(store: Store, record: User, mutation: Mutation)
   };
 }
 
-function applyMutation(assert: Assert, store: Store, record: User, mutation: Mutation) {
+async function applyMutation(assert: Assert, store: Store, record: User, mutation: Mutation, rc: ReactiveContext) {
+  assert.ok(true, `LOG: applying "${mutation.name}" with ids [${mutation.values.map((v) => v.id).join(',')}]`);
+
+  const { counters, fieldOrder } = rc;
+  const friendsIndex = fieldOrder.indexOf('friends');
+  const initialFriendsCount = counters.friends;
+  if (initialFriendsCount === undefined) {
+    throw new Error('could not find counters.friends');
+  }
+
   const result = generateAppliedMutation(store, record, mutation);
-  const outcome = IS_DEBUG ? result.debug : result.prod;
+  const expected = IS_DEBUG ? result.debug : result.prod;
+  const initialIds = record.friends.map((f) => f.id).join(',');
+
+  const shouldError = result.hasDuplicates && IS_DEBUG;
 
   try {
     switch (mutation.method) {
@@ -167,20 +183,14 @@ function applyMutation(assert: Assert, store: Store, record: User, mutation: Mut
         );
         break;
     }
-    assert.ok(
-      !result.hasDuplicates || !IS_DEBUG,
-      `expected error ${result.hasDuplicates && IS_DEBUG ? '' : 'NOT '}to be thrown`
-    );
+    assert.ok(!shouldError, `expected error ${shouldError ? '' : 'NOT '}to be thrown`);
   } catch (e) {
-    assert.ok(
-      result.hasDuplicates && IS_DEBUG,
-      `expected error ${result.hasDuplicates && IS_DEBUG ? '' : 'NOT '}to be thrown`
-    );
+    assert.ok(shouldError, `expected error ${shouldError ? '' : 'NOT '}to be thrown`);
     const expectedMessage =
-      'error' in outcome && result.hasDuplicates
+      'error' in expected && result.hasDuplicates
         ? `Assertion Failed: ${
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            outcome.error
+            expected.error
           } Found duplicates for the following records within the new state provided to \`<user:${
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             record.id
@@ -192,33 +202,51 @@ function applyMutation(assert: Assert, store: Store, record: User, mutation: Mut
     assert.strictEqual((e as Error).message, expectedMessage, `error thrown has correct message: ${expectedMessage}`);
   }
 
+  const expectedIds = expected.ids.join(',');
+
   assert.strictEqual(
     record.friends.length,
-    outcome.length,
-    `the new state has the correct length of ${outcome.length} after ${mutation.method}`
+    expected.length,
+    `the new state has the correct length of ${expected.length} after ${mutation.method}`
   );
   assert.deepEqual(
     record.friends.slice(),
-    outcome.membership,
-    `the new state has the correct records [${outcome.ids.join(',')}] after ${mutation.method} (had [${record.friends
+    expected.membership,
+    `the new state has the correct records [${expectedIds}] after ${mutation.method} (had [${record.friends
       .map((f) => f.id)
       .join(',')}])`
   );
   assert.deepEqual(
     record.hasMany('friends').ids(),
-    outcome.ids,
-    `the new state has the correct ids on the reference [${outcome.ids.join(',')}] after ${mutation.method}`
+    expected.ids,
+    `the new state has the correct ids on the reference [${expectedIds}] after ${mutation.method}`
   );
   assert.strictEqual(
     record.hasMany('friends').ids().length,
-    outcome.length,
-    `the new state has the correct length on the reference of ${outcome.length} after ${mutation.method}`
+    expected.length,
+    `the new state has the correct length on the reference of ${expected.length} after ${mutation.method}`
   );
   assert.strictEqual(
     record.friends.length,
     new Set(record.friends).size,
     `the new state has no duplicates after ${mutation.method}`
   );
+
+  await settled();
+
+  const start = mutation.start?.(record) ?? 0;
+  const deleteCount = mutation.deleteCount?.(record) ?? 0;
+  const isReplace =
+    mutation.method === 'splice' && (deleteCount > 0 || (start === 0 && deleteCount === record.friends.length));
+
+  if (shouldError || (!isReplace && initialIds === expectedIds)) {
+    assert.strictEqual(counters.friends, initialFriendsCount, 'reactivity: friendsCount does not increment');
+  } else {
+    assert.strictEqual(counters.friends, initialFriendsCount + 1, 'reactivity: friendsCount increments');
+  }
+  assert
+    .dom(`li:nth-child(${friendsIndex + 1})`)
+    .hasText(`friends: [${expectedIds}]`, 'reactivity: friends are rendered');
 }
 
 function getStartingState() {
@@ -279,10 +307,10 @@ function getMutations(): Mutation[] {
       deleteCount: (user) => user.friends.length,
     }),
     ...generateMutations({
-      name: 'partial replace (to beginning)',
+      name: 'splice with delete (to beginning)',
       method: 'splice',
       start: () => 0,
-      deleteCount: (user) => (user.length === 0 ? 0 : 1),
+      deleteCount: (user) => (user.friends.length === 0 ? 0 : 1),
     }),
     ...generateMutations({
       name: 'splice (to beginning)',
@@ -306,7 +334,7 @@ function getMutations(): Mutation[] {
 }
 
 module('Integration | Relationships | Collection | Mutation', function (hooks) {
-  setupTest(hooks);
+  setupRenderingTest(hooks);
 
   hooks.beforeEach(function () {
     this.owner.register('model:user', User);
@@ -317,11 +345,14 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
       getMutations().forEach((mutation) => {
         module(`Mutation: ${mutation.name}`, function () {
           getMutations().forEach((mutation2) => {
-            test(`followed by Mutation: ${mutation2.name}`, function (assert) {
+            test(`followed by Mutation: ${mutation2.name}`, async function (assert) {
               const store = this.owner.lookup('service:store') as Store;
               const user = startingState.cb(store);
-              applyMutation(assert, store, user, mutation);
-              applyMutation(assert, store, user, mutation2);
+              const rc = await reactiveContext.call(this, user, [{ name: 'friends', type: 'hasMany' }]);
+              rc.reset();
+
+              await applyMutation(assert, store, user, mutation, rc);
+              await applyMutation(assert, store, user, mutation2, rc);
             });
           });
         });
