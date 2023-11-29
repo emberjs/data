@@ -441,8 +441,19 @@ class IdentifierArray {
         }
         let index = convertToInt(prop);
 
+        // we do not allow "holey" arrays and so if the index is
+        // greater than length then we will disallow setting it.
+        // however, there is a special case for "unshift" with more than
+        // one item being inserted since current items will be moved to the
+        // new indices first.
+        // we "loosely" detect this by just checking whether we are in
+        // a transaction.
         if (index === null || index > target.length) {
-          if (prop in self) {
+          if (index !== null && transaction) {
+            assert(`Cannot set index ${index} past the end of the array.`, isStableIdentifier(value));
+            target[index] = value;
+            return true;
+          } else if (prop in self) {
             self[prop] = value;
             return true;
           }

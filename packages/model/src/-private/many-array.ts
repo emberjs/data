@@ -202,15 +202,15 @@ export default class RelatedCollection extends RecordArray {
       }
       case 'push': {
         if (DEBUG) {
-          const seen = new Set(target.map((r) => r.lid));
+          const seen = new Set(target);
           const unique = new Set<RecordInstance>();
           const duplicates = new Set<RecordInstance>();
           (args as RecordInstance[]).forEach((item) => {
-            const lid = recordIdentifierFor(item).lid;
-            if (seen.has(lid)) {
+            const identifier = recordIdentifierFor(item);
+            if (seen.has(identifier)) {
               duplicates.add(item);
             } else {
-              seen.add(lid);
+              seen.add(identifier);
               unique.add(item);
             }
           });
@@ -221,13 +221,13 @@ export default class RelatedCollection extends RecordArray {
           );
         }
 
-        const seen = new Set(target.map((r) => r.lid));
+        const seen = new Set(target);
         const unique = new Set<RecordInstance>();
 
         (args as RecordInstance[]).forEach((item) => {
-          const lid = recordIdentifierFor(item).lid;
-          if (!seen.has(lid)) {
-            seen.add(lid);
+          const identifier = recordIdentifierFor(item);
+          if (!seen.has(identifier)) {
+            seen.add(identifier);
             unique.add(item);
           }
         });
@@ -262,15 +262,15 @@ export default class RelatedCollection extends RecordArray {
 
       case 'unshift': {
         if (DEBUG) {
-          const seen = new Set(target.map((r) => r.lid));
+          const seen = new Set(target);
           const unique = new Set<RecordInstance>();
           const duplicates = new Set<RecordInstance>();
           (args as RecordInstance[]).forEach((item) => {
-            const lid = recordIdentifierFor(item).lid;
-            if (seen.has(lid)) {
+            const identifier = recordIdentifierFor(item);
+            if (seen.has(identifier)) {
               duplicates.add(item);
             } else {
-              seen.add(lid);
+              seen.add(identifier);
               unique.add(item);
             }
           });
@@ -281,13 +281,13 @@ export default class RelatedCollection extends RecordArray {
           );
         }
 
-        const seen = new Set(target.map((r) => r.lid));
+        const seen = new Set(target);
         const unique = new Set<RecordInstance>();
 
         (args as RecordInstance[]).forEach((item) => {
-          const lid = recordIdentifierFor(item).lid;
-          if (!seen.has(lid)) {
-            seen.add(lid);
+          const identifier = recordIdentifierFor(item);
+          if (!seen.has(identifier)) {
+            seen.add(identifier);
             unique.add(item);
           }
         });
@@ -381,15 +381,15 @@ export default class RelatedCollection extends RecordArray {
         copy.splice(start, deleteCount);
 
         if (DEBUG) {
-          const seen = new Set(copy.map((r) => r.lid));
+          const seen = new Set(copy);
           const unique = new Set<RecordInstance>();
           const duplicates = new Set<RecordInstance>();
           adds.forEach((item) => {
-            const lid = recordIdentifierFor(item).lid;
-            if (seen.has(lid)) {
+            const identifier = recordIdentifierFor(item);
+            if (seen.has(identifier)) {
               duplicates.add(item);
             } else {
-              seen.add(lid);
+              seen.add(identifier);
               unique.add(item);
             }
           });
@@ -404,12 +404,12 @@ export default class RelatedCollection extends RecordArray {
           );
         }
 
-        const seen = new Set(copy.map((r) => r.lid));
+        const seen = new Set(copy);
         const unique = new Set<RecordInstance>();
         adds.forEach((item) => {
-          const lid = recordIdentifierFor(item).lid;
-          if (!seen.has(lid)) {
-            seen.add(lid);
+          const identifier = recordIdentifierFor(item);
+          if (!seen.has(identifier)) {
+            seen.add(identifier);
             unique.add(item);
           }
         });

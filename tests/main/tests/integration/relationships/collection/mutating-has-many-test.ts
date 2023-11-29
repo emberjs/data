@@ -99,41 +99,86 @@ function generateAppliedMutation(store: Store, record: User, mutation: Mutation)
   const friends = record.friends;
   let outcomeValues: User[];
   let error: string;
+
+  let seen = new Set<User>();
+  const duplicates = new Set<User>();
+  let outcome: User[];
+
   switch (mutation.method) {
     case 'push':
       error = "Cannot push duplicates to a hasMany's state.";
       outcomeValues = [...friends, ...mutation.values.map((ref) => store.peekRecord(ref) as User)];
+
+      outcomeValues.forEach((item) => {
+        if (seen.has(item)) {
+          duplicates.add(item);
+        } else {
+          seen.add(item);
+        }
+      });
+
+      outcome = Array.from(new Set(outcomeValues));
+
       break;
-    case 'unshift':
+    case 'unshift': {
       error = "Cannot unshift duplicates to a hasMany's state.";
-      outcomeValues = [...mutation.values.map((ref) => store.peekRecord(ref) as User), ...friends];
+      const added = mutation.values.map((ref) => store.peekRecord(ref) as User);
+      seen = new Set(friends);
+      outcome = [];
+      added.forEach((item) => {
+        if (seen.has(item)) {
+          duplicates.add(item);
+        } else {
+          seen.add(item);
+          outcome.push(item);
+        }
+      });
+      outcome.push(...friends);
       break;
+    }
     case 'splice': {
       const start = mutation.start?.(record) ?? 0;
       const deleteCount = mutation.deleteCount?.(record) ?? 0;
       outcomeValues = friends.slice();
-      outcomeValues.splice(start, deleteCount, ...mutation.values.map((ref) => store.peekRecord(ref) as User));
+      const added = mutation.values.map((ref) => store.peekRecord(ref) as User);
+      outcomeValues.splice(start, deleteCount, ...added);
+
       if (start === 0 && deleteCount === friends.length) {
         error = `Cannot replace a hasMany's state with a new state that contains duplicates.`;
+
+        outcomeValues.forEach((item) => {
+          if (seen.has(item)) {
+            duplicates.add(item);
+          } else {
+            seen.add(item);
+          }
+        });
+
+        outcome = Array.from(new Set(outcomeValues));
       } else {
         error = "Cannot splice a hasMany's state with a new state that contains duplicates.";
+
+        const reducedFriends = friends.slice();
+        reducedFriends.splice(start, deleteCount);
+        seen = new Set(reducedFriends);
+        const unique: User[] = [];
+
+        added.forEach((item) => {
+          if (seen.has(item)) {
+            duplicates.add(item);
+          } else {
+            seen.add(item);
+            unique.push(item);
+          }
+        });
+        reducedFriends.splice(start, 0, ...unique);
+        outcome = reducedFriends;
       }
       break;
     }
   }
 
-  const seen = new Set<User>();
-  const duplicates = new Set<User>();
-  outcomeValues.forEach((item) => {
-    if (seen.has(item)) {
-      duplicates.add(item);
-    } else {
-      seen.add(item);
-    }
-  });
-
-  const outcome = Array.from(new Set(outcomeValues));
-  const hasDuplicates = outcomeValues.length !== outcome.length;
+  const hasDuplicates = duplicates.size > 0;
   return {
     hasDuplicates,
     duplicates: Array.from(duplicates),
