@@ -82,7 +82,6 @@ if (DEPRECATE_DUPS) {
 import { assert, deprecate } from '@ember/debug';
 
 import { DEPRECATE_MANY_ARRAY_DUPLICATES_4_12, DEPRECATE_PROMISE_PROXIES } from '@ember-data/deprecations';
-import { DEBUG } from '@ember-data/env';
 import type Store from '@ember-data/store';
 import {
   IDENTIFIER_ARRAY_TAG,
@@ -539,18 +538,20 @@ export default class RelatedCollection extends RecordArray {
         }
 
         // else, dedupe, no error
-        const seen = new Set(target);
-        const unique = new Set<RecordInstance>();
+        const currentState = target.slice();
+        currentState.splice(start, deleteCount);
+
+        const seen = new Set(currentState);
+        const unique: RecordInstance[] = [];
         adds.forEach((item) => {
           const identifier = recordIdentifierFor(item);
           if (!seen.has(identifier)) {
             seen.add(identifier);
-            unique.add(item);
+            unique.push(item);
           }
         });
 
-        const addedRecords = Array.from(unique);
-        const newArgs = [start, deleteCount, ...addedRecords];
+        const newArgs = [start, deleteCount, ...unique];
         const result = Reflect.apply(target[prop], receiver, newArgs) as RecordInstance[];
 
         if (deleteCount > 0) {
@@ -564,12 +565,12 @@ export default class RelatedCollection extends RecordArray {
           addToTransaction(_TAG);
         }
 
-        if (unique.size) {
+        if (unique.length) {
           this._manager.mutate({
             op: 'addToRelatedRecords',
             record: this.identifier,
             field: this.key,
-            value: extractIdentifiersFromRecords(addedRecords),
+            value: extractIdentifiersFromRecords(unique),
             index: start,
           });
           addToTransaction(_TAG);
