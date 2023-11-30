@@ -254,7 +254,7 @@ export default class RelatedCollection extends RecordArray {
         // else, no dedupe, error on duplicates
         const newValues = extractIdentifiersFromRecords(args as RecordInstance[]);
         const currentState = target.slice();
-        Array.prototype.push.apply(currentState, newValues);
+        currentState.push(...newValues);
 
         if (currentState.length !== new Set(currentState).size) {
           const duplicates = currentState.filter(
@@ -326,7 +326,7 @@ export default class RelatedCollection extends RecordArray {
         // else, no dedupe, error on duplicates
         const newValues = extractIdentifiersFromRecords(args as RecordInstance[]);
         const currentState = target.slice();
-        Array.prototype.unshift.apply(currentState, newValues);
+        currentState.unshift(...newValues);
 
         if (currentState.length !== new Set(currentState).size) {
           const duplicates = currentState.filter(
@@ -408,7 +408,6 @@ export default class RelatedCollection extends RecordArray {
           const newValues = extractIdentifiersFromRecords(adds);
           const currentState = target.slice();
           currentState.splice(start, deleteCount, ...newValues);
-          // FIXME: Array.prototype.splice.apply(currentState, start, deleteCount, ...newValues);
 
           if (currentState.length !== new Set(currentState).size) {
             const duplicates = currentState.filter(
@@ -482,7 +481,6 @@ export default class RelatedCollection extends RecordArray {
         const newValues = extractIdentifiersFromRecords(adds);
         const currentState = target.slice();
         currentState.splice(start, deleteCount, ...newValues);
-        // FIXME: Array.prototype.splice.apply(currentState, start, deleteCount, ...newValues);
 
         if (currentState.length !== new Set(currentState).size) {
           const duplicates = currentState.filter(
