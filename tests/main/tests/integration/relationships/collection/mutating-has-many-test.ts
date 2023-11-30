@@ -304,7 +304,7 @@ function getValues() {
       values: [],
     },
     {
-      name: 'with NO duplicates',
+      name: 'with NO duplicates (compared to initial remote state)',
       values: [ericRef()],
     },
     {
