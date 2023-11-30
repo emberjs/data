@@ -1,13 +1,87 @@
+/*
+
+Cases:
+
+4.6 (current) behavior:
+dedupe with no error and no deprecation
+
+DEPRECATE = DEPRECATE_MANY_ARRAY_DUPLICATES_4_12
+
+// 4.12 approach
+
+DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 === true => 4.6 behavior
+DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 === false => ??? no-dedupe, error
+
+// 5.3 approach
+
+DEPRECATE_MANY_ARRAY_DUPLICATES === true => dedupe, deprecation
+DEPRECATE_MANY_ARRAY_DUPLICATES === false => no-dedupe, error
+
+// 6.0 approach
+
+// no-dedupe, error
+
+| DEPRECATE | DEBUG  | error?      | result      |
+|-----------|--------|-------------|-------------|
+| true      | true   | deprecation | deduped     |
+| true      | false  | none        | deduped     |
+| unset**   | true   | none        | deduped     |
+| unset**   | false  | none        | deduped     |
+| false     | true   | throw       | duplicates* |
+| false     | false  | throw       | duplicates* |
+
+* The duplicates are present because we don't check for duplicates until after
+  the operation is complete. Because we throw, the user will only see the
+  duplicates if they swallow the error. ~Alternatively, we could rollback.~
+** NOTE: DEPRECATE_MANY_ARRAY_DUPLICATES is not `true` by default until 5.3
+
+
+// original code
+someLegacyBehavior();
+
+// deprecated code refactor
+if (DEPRECATE_THING) {
+  deprecate('use new thing', false, { id: 'ember-data:deprecate-thing', until: '5.0' });
+  someLegacyBehavior();
+} else {
+  doNewBehavior();
+}
+
+// cleanup phase
+doNewBehavior();
+
+
+
+
+
+
+
+if (DEPRECATE_DUPS) {
+  if (DEBUG) {
+    const duplicates = findDups();
+    // deprecate if dups
+  } else {
+    // prod behavior
+  }
+} else {
+  const result = doThing();
+  if result.length !== new Set(result).size { throw }
+  return result;
+}
+
+*/
+
 /**
   @module @ember-data/store
 */
 import { assert, deprecate } from '@ember/debug';
 
-import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/deprecations';
+import { DEPRECATE_MANY_ARRAY_DUPLICATES_4_12, DEPRECATE_PROMISE_PROXIES } from '@ember-data/deprecations';
 import { DEBUG } from '@ember-data/env';
 import type Store from '@ember-data/store';
 import {
   IDENTIFIER_ARRAY_TAG,
+  isStableIdentifier,
   MUTATE,
   notifyArray,
   RecordArray,
@@ -26,6 +100,13 @@ import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
 import { LegacySupport } from './legacy-relationships-support';
+
+const MANY_ARRAY_DUPLICATES_DEPRECATION = {
+  id: 'ember-data:deprecate-many-array-duplicates',
+  until: '6.0',
+  for: 'ember-data',
+  since: { available: '4.12.5', enabled: '5.3.0' },
+};
 
 export interface ManyArrayCreateArgs {
   identifiers: StableRecordIdentifier[];
@@ -201,46 +282,48 @@ export default class RelatedCollection extends RecordArray {
         return true;
       }
       case 'push': {
-        if (DEBUG) {
+        if (DEPRECATE_MANY_ARRAY_DUPLICATES_4_12) {
           const seen = new Set(target);
           const unique = new Set<RecordInstance>();
-          const duplicates = new Set<RecordInstance>();
+
           (args as RecordInstance[]).forEach((item) => {
             const identifier = recordIdentifierFor(item);
-            if (seen.has(identifier)) {
-              duplicates.add(item);
-            } else {
+            if (!seen.has(identifier)) {
               seen.add(identifier);
               unique.add(item);
             }
           });
 
-          assert(
-            duplicationMsg(`Cannot push duplicates to a hasMany's state.`, this, duplicates),
-            duplicates.size === 0
-          );
+          const newArgs = Array.from(unique);
+          const result = Reflect.apply(target[prop], receiver, newArgs) as RecordInstance[];
+
+          if (newArgs.length) {
+            this._manager.mutate({
+              op: 'addToRelatedRecords',
+              record: this.identifier,
+              field: this.key,
+              value: extractIdentifiersFromRecords(newArgs),
+            });
+            addToTransaction(_TAG);
+          }
+          return result;
         }
 
-        const seen = new Set(target);
-        const unique = new Set<RecordInstance>();
+        const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
 
-        (args as RecordInstance[]).forEach((item) => {
-          const identifier = recordIdentifierFor(item);
-          if (!seen.has(identifier)) {
-            seen.add(identifier);
-            unique.add(item);
-          }
-        });
+        if (target.length !== new Set(target).size) {
+          const duplicates = target.filter(
+            (currentValue, currentIndex) => target.indexOf(currentValue) !== currentIndex
+          );
+          throw new Error(duplicationMsg(`Cannot push duplicates to a hasMany's state.`, this, duplicates));
+        }
 
-        const newArgs = Array.from(unique);
-        const result = Reflect.apply(target[prop], receiver, newArgs) as RecordInstance[];
-
-        if (newArgs.length) {
+        if (args.length) {
           this._manager.mutate({
             op: 'addToRelatedRecords',
             record: this.identifier,
             field: this.key,
-            value: extractIdentifiersFromRecords(newArgs),
+            value: extractIdentifiersFromRecords(args as RecordInstance[]),
           });
           addToTransaction(_TAG);
         }
@@ -583,11 +666,15 @@ function isPromiseRecord(record: PromiseProxyRecord | RecordInstance): record is
   return !!record.then;
 }
 
-function duplicationMsg(reason: string, collection: RelatedCollection, duplicates: Set<RecordInstance>) {
+function duplicationMsg(
+  reason: string,
+  collection: RelatedCollection,
+  duplicates: Iterable<RecordInstance | StableRecordIdentifier>
+) {
   return `${reason} Found duplicates for the following records within the new state provided to \`<${
     collection.identifier.type
   }:${collection.identifier.id || collection.identifier.lid}>.${collection.key}\`\n\t- ${Array.from(duplicates)
-    .map((r) => recordIdentifierFor(r).lid)
+    .map((r) => (isStableIdentifier(r) ? r.lid : recordIdentifierFor(r).lid))
     .sort((a, b) => a.localeCompare(b))
     .join('\n\t- ')}`;
 }

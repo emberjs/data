@@ -4,7 +4,7 @@ import { module, test } from 'qunit';
 
 import { setupRenderingTest } from 'ember-qunit';
 
-import { DEBUG } from '@ember-data/env';
+import { DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 } from '@ember-data/deprecations';
 import Model, { attr, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
@@ -12,10 +12,10 @@ import { ExistingResourceIdentifierObject } from '@ember-data/types/q/ember-data
 
 import { ReactiveContext, reactiveContext } from '../../../helpers/reactive-context';
 
-let IS_DEBUG = false;
+let IS_DEPRECATE_MANY_ARRAY_DUPLICATES = false;
 
-if (DEBUG) {
-  IS_DEBUG = true;
+if (DEPRECATE_MANY_ARRAY_DUPLICATES_4_12) {
+  IS_DEPRECATE_MANY_ARRAY_DUPLICATES = true;
 }
 
 class User extends Model {
@@ -182,17 +182,17 @@ function generateAppliedMutation(store: Store, record: User, mutation: Mutation)
   return {
     hasDuplicates,
     duplicates: Array.from(duplicates),
-    prod: {
+    deduped: {
       length: outcome.length,
       membership: outcome,
       ids: outcome.map((v) => v.id),
     },
-    debug: {
-      length: hasDuplicates ? friends.length : outcome.length,
-      membership: hasDuplicates ? friends.slice() : outcome,
-      ids: hasDuplicates ? friends.map((v) => v.id) : outcome.map((v) => v.id),
-      error,
+    unchanged: {
+      length: friends.length,
+      membership: friends.slice(),
+      ids: friends.map((v) => v.id),
     },
+    error,
   };
 }
 
@@ -207,10 +207,10 @@ async function applyMutation(assert: Assert, store: Store, record: User, mutatio
   }
 
   const result = generateAppliedMutation(store, record, mutation);
-  const expected = IS_DEBUG ? result.debug : result.prod;
   const initialIds = record.friends.map((f) => f.id).join(',');
 
-  const shouldError = result.hasDuplicates && IS_DEBUG;
+  const shouldError = result.hasDuplicates && !IS_DEPRECATE_MANY_ARRAY_DUPLICATES;
+  const expected = shouldError ? result.unchanged : result.deduped;
 
   try {
     switch (mutation.method) {
@@ -231,19 +231,14 @@ async function applyMutation(assert: Assert, store: Store, record: User, mutatio
     assert.ok(!shouldError, `expected error ${shouldError ? '' : 'NOT '}to be thrown`);
   } catch (e) {
     assert.ok(shouldError, `expected error ${shouldError ? '' : 'NOT '}to be thrown`);
-    const expectedMessage =
-      'error' in expected && result.hasDuplicates
-        ? `Assertion Failed: ${
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            expected.error
-          } Found duplicates for the following records within the new state provided to \`<user:${
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            record.id
-          }>.friends\`\n\t- ${Array.from(result.duplicates)
-            .map((r) => recordIdentifierFor(r).lid)
-            .sort((a, b) => a.localeCompare(b))
-            .join('\n\t- ')}`
-        : '';
+    const expectedMessage = shouldError
+      ? `${result.error} Found duplicates for the following records within the new state provided to \`<user:${
+          record.id as string
+        }>.friends\`\n\t- ${Array.from(result.duplicates)
+          .map((r) => recordIdentifierFor(r).lid)
+          .sort((a, b) => a.localeCompare(b))
+          .join('\n\t- ')}`
+      : '';
     assert.strictEqual((e as Error).message, expectedMessage, `error thrown has correct message: ${expectedMessage}`);
   }
 

@@ -738,3 +738,16 @@ export const DEPRECATE_NON_EXPLICIT_POLYMORPHISM = '4.7';
  * @public
  */
 export const DEPRECATE_INSTANTIATE_RECORD_ARGS = '4.12';
+
+/**
+ * **id: ember-data:deprecate-many-array-duplicates**
+ *
+ * FIXME: Document
+ *
+ * @property DEPRECATE_MANY_ARRAY_DUPLICATES
+ * @since 4.12
+ * @until 6.0
+ * @public
+ */
+export const DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 = '4.12';
+export const DEPRECATE_MANY_ARRAY_DUPLICATES = '5.3';
