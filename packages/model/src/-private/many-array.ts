@@ -9,8 +9,13 @@ DEPRECATE = DEPRECATE_MANY_ARRAY_DUPLICATES_4_12
 
 // 4.12 approach
 
-DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 === true => dedupe, no error
-DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 === false => no dedupe, error
+DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 === false => dedupe, no error
+DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 === true => no dedupe, error
+
+if (DEPRECATE_MANY_ARRAY_DUPLICATES_4_12) {
+  // no dedupe, error
+}
+// else, dedupe, no error
 
 // 5.3 approach
 
@@ -100,13 +105,6 @@ import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
 import { LegacySupport } from './legacy-relationships-support';
-
-const MANY_ARRAY_DUPLICATES_DEPRECATION = {
-  id: 'ember-data:deprecate-many-array-duplicates',
-  until: '6.0',
-  for: 'ember-data',
-  since: { available: '4.12.5', enabled: '5.3.0' },
-};
 
 export interface ManyArrayCreateArgs {
   identifiers: StableRecordIdentifier[];
@@ -432,23 +430,21 @@ export default class RelatedCollection extends RecordArray {
       }
 
       case 'splice': {
-        const [start, deleteCount, ...adds] = args as [number, number, RecordInstance];
+        const [start, deleteCount, ...adds] = args as [number, number, ...RecordInstance[]];
+        const newValues = extractIdentifiersFromRecords(adds);
 
         // detect a full replace
         if (start === 0 && deleteCount === this[SOURCE].length) {
-          const current = new Set(adds);
-          if (DEBUG) {
-            if (current.size !== adds.length) {
-              const seen = new Set<RecordInstance>();
-              const duplicates = new Set<RecordInstance>();
-              adds.forEach((item) => {
-                if (seen.has(item)) {
-                  duplicates.add(item);
-                } else {
-                  seen.add(item);
-                }
-              });
-              assert(
+          if (DEPRECATE_MANY_ARRAY_DUPLICATES_4_12) {
+            const currentState = target.slice();
+            currentState.splice(start, deleteCount, ...newValues);
+            // FIXME: Array.prototype.splice.apply(currentState, start, deleteCount, ...newValues);
+
+            if (currentState.length !== new Set(currentState).size) {
+              const duplicates = currentState.filter(
+                (currentValue, currentIndex) => currentState.indexOf(currentValue) !== currentIndex
+              );
+              throw new Error(
                 duplicationMsg(
                   `Cannot replace a hasMany's state with a new state that contains duplicates.`,
                   this,
@@ -456,9 +452,23 @@ export default class RelatedCollection extends RecordArray {
                 )
               );
             }
+
+            const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
+
+            this._manager.mutate({
+              op: 'replaceRelatedRecords',
+              record: this.identifier,
+              field: this.key,
+              value: extractIdentifiersFromRecords(adds),
+            });
+            addToTransaction(_TAG);
+            return result;
           }
+
+          const current = new Set(adds);
           const unique = Array.from(current);
           const newArgs = ([start, deleteCount] as unknown[]).concat(unique);
+
           const result = Reflect.apply(target[prop], receiver, newArgs) as RecordInstance[];
 
           this._manager.mutate({

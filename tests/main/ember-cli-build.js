@@ -54,9 +54,7 @@ module.exports = function (defaults) {
       LOG_INSTANCE_CACHE: process.env.DEBUG_DATA ? true : false,
     },
     deprecations: Object.assign(require('@ember-data/private-build-infra/src/deprecations')(compatWith || null), {
-      // DEPRECATE_MANY_ARRAY_DUPLICATES: true, // enable deprecation
-      // DEPRECATE_MANY_ARRAY_DUPLICATES: null, // mimic 4.12 default behavior
-      // DEPRECATE_MANY_ARRAY_DUPLICATES: false, // remove legacy behavior altogether
+      // DEPRECATE_MANY_ARRAY_DUPLICATES_4_12: false,
     }),
     features: require('@ember-data/private-build-infra/src/features')(isProd),
     env: require('@ember-data/private-build-infra/src/utilities/get-env')(),
