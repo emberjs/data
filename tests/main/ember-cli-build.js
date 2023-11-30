@@ -53,9 +53,7 @@ module.exports = function (defaults) {
       LOG_GRAPH: process.env.DEBUG_DATA ? true : false,
       LOG_INSTANCE_CACHE: process.env.DEBUG_DATA ? true : false,
     },
-    deprecations: Object.assign(require('@ember-data/private-build-infra/src/deprecations')(compatWith || null), {
-      DEPRECATE_MANY_ARRAY_DUPLICATES_4_12: false,
-    }),
+    deprecations: Object.assign(require('@ember-data/private-build-infra/src/deprecations')(compatWith || null), {}),
     features: require('@ember-data/private-build-infra/src/features')(isProd),
     env: require('@ember-data/private-build-infra/src/utilities/get-env')(),
   };
