@@ -1,81 +1,3 @@
-/*
-
-Cases:
-
-4.6 (current) behavior:
-dedupe with no error and no deprecation
-
-DEPRECATE = DEPRECATE_MANY_ARRAY_DUPLICATES_4_12
-
-// 4.12 approach
-
-DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 === false => dedupe, no error
-DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 === true => no dedupe, error
-
-if (DEPRECATE_MANY_ARRAY_DUPLICATES_4_12) {
-  // no dedupe, error
-}
-// else, dedupe, no error
-
-// 5.3 approach
-
-DEPRECATE_MANY_ARRAY_DUPLICATES === true => dedupe, deprecation
-DEPRECATE_MANY_ARRAY_DUPLICATES === false => no dedupe, error
-
-// 6.0 approach
-
-// no-dedupe, error
-
-| DEPRECATE | DEBUG  | error?      | result      |
-|-----------|--------|-------------|-------------|
-| true      | true   | deprecation | deduped     |
-| true      | false  | none        | deduped     |
-| unset**   | true   | none        | deduped     |
-| unset**   | false  | none        | deduped     |
-| false     | true   | throw       | duplicates* |
-| false     | false  | throw       | duplicates* |
-
-* The duplicates are present because we don't check for duplicates until after
-  the operation is complete. Because we throw, the user will only see the
-  duplicates if they swallow the error. ~Alternatively, we could rollback.~
-** NOTE: DEPRECATE_MANY_ARRAY_DUPLICATES is not `true` by default until 5.3
-
-
-// original code
-someLegacyBehavior();
-
-// deprecated code refactor
-if (DEPRECATE_THING) {
-  deprecate('use new thing', false, { id: 'ember-data:deprecate-thing', until: '5.0' });
-  someLegacyBehavior();
-} else {
-  doNewBehavior();
-}
-
-// cleanup phase
-doNewBehavior();
-
-
-
-
-
-
-
-if (DEPRECATE_DUPS) {
-  if (DEBUG) {
-    const duplicates = findDups();
-    // deprecate if dups
-  } else {
-    // prod behavior
-  }
-} else {
-  const result = doThing();
-  if result.length !== new Set(result).size { throw }
-  return result;
-}
-
-*/
-
 /**
   @module @ember-data/store
 */
@@ -104,6 +26,28 @@ import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
 import { LegacySupport } from './legacy-relationships-support';
+
+/*
+NOTES ON MANY ARRAY DUPLICATION DEPRECATION APPROACH:
+
+// 4.6 behavior
+
+dedupe, no error and no deprecation
+
+// 4.12 approach
+
+DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 === true => dedupe, no error
+DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 === false => no dedupe, error (same as 6.0)
+
+// 5.3 approach
+
+DEPRECATE_MANY_ARRAY_DUPLICATES === true => dedupe, deprecation
+DEPRECATE_MANY_ARRAY_DUPLICATES === false => no dedupe, error (same as 6.0)
+
+// 6.0 approach
+
+no-dedupe, error
+*/
 
 export interface ManyArrayCreateArgs {
   identifiers: StableRecordIdentifier[];
@@ -280,60 +224,61 @@ export default class RelatedCollection extends RecordArray {
       }
       case 'push': {
         if (DEPRECATE_MANY_ARRAY_DUPLICATES_4_12) {
-          // no dedupe, error
-          const newValues = extractIdentifiersFromRecords(args as RecordInstance[]);
-          const currentState = target.slice();
-          Array.prototype.push.apply(currentState, newValues);
+          // dedupe, no error
+          const seen = new Set(target);
+          const unique = new Set<RecordInstance>();
 
-          if (currentState.length !== new Set(currentState).size) {
-            const duplicates = currentState.filter(
-              (currentValue, currentIndex) => currentState.indexOf(currentValue) !== currentIndex
-            );
-            throw new Error(
-              duplicationMsg(`Cannot push duplicates to a hasMany's state.`, this, Array.from(new Set(duplicates)))
-            );
-          }
+          (args as RecordInstance[]).forEach((item) => {
+            const identifier = recordIdentifierFor(item);
+            if (!seen.has(identifier)) {
+              seen.add(identifier);
+              unique.add(item);
+            }
+          });
 
-          const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
+          const newArgs = Array.from(unique);
+          const result = Reflect.apply(target[prop], receiver, newArgs) as RecordInstance[];
 
-          if (args.length) {
+          if (newArgs.length) {
             this._manager.mutate({
               op: 'addToRelatedRecords',
               record: this.identifier,
               field: this.key,
-              value: newValues,
+              value: extractIdentifiersFromRecords(newArgs),
             });
             addToTransaction(_TAG);
           }
           return result;
         }
 
-        // else, dedupe, no error
-        const seen = new Set(target);
-        const unique = new Set<RecordInstance>();
+        // else, no dedupe, error on duplicates
+        const newValues = extractIdentifiersFromRecords(args as RecordInstance[]);
+        const currentState = target.slice();
+        Array.prototype.push.apply(currentState, newValues);
 
-        (args as RecordInstance[]).forEach((item) => {
-          const identifier = recordIdentifierFor(item);
-          if (!seen.has(identifier)) {
-            seen.add(identifier);
-            unique.add(item);
-          }
-        });
+        if (currentState.length !== new Set(currentState).size) {
+          const duplicates = currentState.filter(
+            (currentValue, currentIndex) => currentState.indexOf(currentValue) !== currentIndex
+          );
+          throw new Error(
+            duplicationMsg(`Cannot push duplicates to a hasMany's state.`, this, Array.from(new Set(duplicates)))
+          );
+        }
 
-        const newArgs = Array.from(unique);
-        const result = Reflect.apply(target[prop], receiver, newArgs) as RecordInstance[];
+        const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
 
-        if (newArgs.length) {
+        if (args.length) {
           this._manager.mutate({
             op: 'addToRelatedRecords',
             record: this.identifier,
             field: this.key,
-            value: extractIdentifiersFromRecords(newArgs),
+            value: newValues,
           });
           addToTransaction(_TAG);
         }
         return result;
       }
+
       case 'pop': {
         const result: unknown = Reflect.apply(target[prop], receiver, args);
         if (result) {
@@ -350,60 +295,60 @@ export default class RelatedCollection extends RecordArray {
 
       case 'unshift': {
         if (DEPRECATE_MANY_ARRAY_DUPLICATES_4_12) {
-          // no dedupe, error
-          const newValues = extractIdentifiersFromRecords(args as RecordInstance[]);
-          const currentState = target.slice();
-          Array.prototype.unshift.apply(currentState, newValues);
+          // dedupe, no error
+          const seen = new Set(target);
+          const unique = new Set<RecordInstance>();
 
-          if (currentState.length !== new Set(currentState).size) {
-            const duplicates = currentState.filter(
-              (currentValue, currentIndex) => currentState.indexOf(currentValue) !== currentIndex
-            );
-            throw new Error(
-              duplicationMsg(`Cannot unshift duplicates to a hasMany's state.`, this, Array.from(new Set(duplicates)))
-            );
-          }
+          (args as RecordInstance[]).forEach((item) => {
+            const identifier = recordIdentifierFor(item);
+            if (!seen.has(identifier)) {
+              seen.add(identifier);
+              unique.add(item);
+            }
+          });
 
-          const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
-          if (args.length) {
+          const newArgs = Array.from(unique);
+          const result: unknown = Reflect.apply(target[prop], receiver, newArgs);
+
+          if (newArgs.length) {
             this._manager.mutate({
               op: 'addToRelatedRecords',
               record: this.identifier,
               field: this.key,
-              value: newValues,
+              value: extractIdentifiersFromRecords(Array.from(unique)),
               index: 0,
             });
             addToTransaction(_TAG);
           }
-
           return result;
         }
 
-        // else, dedupe, no error
-        const seen = new Set(target);
-        const unique = new Set<RecordInstance>();
+        // else, no dedupe, error on duplicates
+        const newValues = extractIdentifiersFromRecords(args as RecordInstance[]);
+        const currentState = target.slice();
+        Array.prototype.unshift.apply(currentState, newValues);
 
-        (args as RecordInstance[]).forEach((item) => {
-          const identifier = recordIdentifierFor(item);
-          if (!seen.has(identifier)) {
-            seen.add(identifier);
-            unique.add(item);
-          }
-        });
+        if (currentState.length !== new Set(currentState).size) {
+          const duplicates = currentState.filter(
+            (currentValue, currentIndex) => currentState.indexOf(currentValue) !== currentIndex
+          );
+          throw new Error(
+            duplicationMsg(`Cannot unshift duplicates to a hasMany's state.`, this, Array.from(new Set(duplicates)))
+          );
+        }
 
-        const newArgs = Array.from(unique);
-        const result: unknown = Reflect.apply(target[prop], receiver, newArgs);
-
-        if (newArgs.length) {
+        const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
+        if (args.length) {
           this._manager.mutate({
             op: 'addToRelatedRecords',
             record: this.identifier,
             field: this.key,
-            value: extractIdentifiersFromRecords(Array.from(unique)),
+            value: newValues,
             index: 0,
           });
           addToTransaction(_TAG);
         }
+
         return result;
       }
 
@@ -442,56 +387,24 @@ export default class RelatedCollection extends RecordArray {
         // detect a full replace
         if (start === 0 && deleteCount === this[SOURCE].length) {
           if (DEPRECATE_MANY_ARRAY_DUPLICATES_4_12) {
-            // no dedupe, error
-            const newValues = extractIdentifiersFromRecords(adds);
-            const currentState = target.slice();
-            currentState.splice(start, deleteCount, ...newValues);
-            // FIXME: Array.prototype.splice.apply(currentState, start, deleteCount, ...newValues);
+            // dedupe, no error
+            const current = new Set(adds);
+            const unique = Array.from(current);
+            const newArgs = ([start, deleteCount] as unknown[]).concat(unique);
 
-            if (currentState.length !== new Set(currentState).size) {
-              const duplicates = currentState.filter(
-                (currentValue, currentIndex) => currentState.indexOf(currentValue) !== currentIndex
-              );
-              throw new Error(
-                duplicationMsg(
-                  `Cannot replace a hasMany's state with a new state that contains duplicates.`,
-                  this,
-                  Array.from(new Set(duplicates))
-                )
-              );
-            }
-
-            const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
+            const result = Reflect.apply(target[prop], receiver, newArgs) as RecordInstance[];
 
             this._manager.mutate({
               op: 'replaceRelatedRecords',
               record: this.identifier,
               field: this.key,
-              value: newValues,
+              value: extractIdentifiersFromRecords(unique),
             });
             addToTransaction(_TAG);
             return result;
           }
 
-          // else, dedupe, no error
-          const current = new Set(adds);
-          const unique = Array.from(current);
-          const newArgs = ([start, deleteCount] as unknown[]).concat(unique);
-
-          const result = Reflect.apply(target[prop], receiver, newArgs) as RecordInstance[];
-
-          this._manager.mutate({
-            op: 'replaceRelatedRecords',
-            record: this.identifier,
-            field: this.key,
-            value: extractIdentifiersFromRecords(unique),
-          });
-          addToTransaction(_TAG);
-          return result;
-        }
-
-        if (DEPRECATE_MANY_ARRAY_DUPLICATES_4_12) {
-          // no dedupe, error
+          // else, no dedupe, error on duplicates
           const newValues = extractIdentifiersFromRecords(adds);
           const currentState = target.slice();
           currentState.splice(start, deleteCount, ...newValues);
@@ -503,7 +416,7 @@ export default class RelatedCollection extends RecordArray {
             );
             throw new Error(
               duplicationMsg(
-                `Cannot splice a hasMany's state with a new state that contains duplicates.`,
+                `Cannot replace a hasMany's state with a new state that contains duplicates.`,
                 this,
                 Array.from(new Set(duplicates))
               )
@@ -512,7 +425,35 @@ export default class RelatedCollection extends RecordArray {
 
           const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
 
-          if (result.length > 0) {
+          this._manager.mutate({
+            op: 'replaceRelatedRecords',
+            record: this.identifier,
+            field: this.key,
+            value: newValues,
+          });
+          addToTransaction(_TAG);
+          return result;
+        }
+
+        if (DEPRECATE_MANY_ARRAY_DUPLICATES_4_12) {
+          // dedupe, no error
+          const currentState = target.slice();
+          currentState.splice(start, deleteCount);
+
+          const seen = new Set(currentState);
+          const unique: RecordInstance[] = [];
+          adds.forEach((item) => {
+            const identifier = recordIdentifierFor(item);
+            if (!seen.has(identifier)) {
+              seen.add(identifier);
+              unique.push(item);
+            }
+          });
+
+          const newArgs = [start, deleteCount, ...unique];
+          const result = Reflect.apply(target[prop], receiver, newArgs) as RecordInstance[];
+
+          if (deleteCount > 0) {
             this._manager.mutate({
               op: 'removeFromRelatedRecords',
               record: this.identifier,
@@ -523,12 +464,12 @@ export default class RelatedCollection extends RecordArray {
             addToTransaction(_TAG);
           }
 
-          if (newValues.length > 0) {
+          if (unique.length) {
             this._manager.mutate({
               op: 'addToRelatedRecords',
               record: this.identifier,
               field: this.key,
-              value: newValues,
+              value: extractIdentifiersFromRecords(unique),
               index: start,
             });
             addToTransaction(_TAG);
@@ -537,24 +478,28 @@ export default class RelatedCollection extends RecordArray {
           return result;
         }
 
-        // else, dedupe, no error
+        // else, no dedupe, error on duplicates
+        const newValues = extractIdentifiersFromRecords(adds);
         const currentState = target.slice();
-        currentState.splice(start, deleteCount);
+        currentState.splice(start, deleteCount, ...newValues);
+        // FIXME: Array.prototype.splice.apply(currentState, start, deleteCount, ...newValues);
 
-        const seen = new Set(currentState);
-        const unique: RecordInstance[] = [];
-        adds.forEach((item) => {
-          const identifier = recordIdentifierFor(item);
-          if (!seen.has(identifier)) {
-            seen.add(identifier);
-            unique.push(item);
-          }
-        });
+        if (currentState.length !== new Set(currentState).size) {
+          const duplicates = currentState.filter(
+            (currentValue, currentIndex) => currentState.indexOf(currentValue) !== currentIndex
+          );
+          throw new Error(
+            duplicationMsg(
+              `Cannot splice a hasMany's state with a new state that contains duplicates.`,
+              this,
+              Array.from(new Set(duplicates))
+            )
+          );
+        }
 
-        const newArgs = [start, deleteCount, ...unique];
-        const result = Reflect.apply(target[prop], receiver, newArgs) as RecordInstance[];
+        const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
 
-        if (deleteCount > 0) {
+        if (result.length > 0) {
           this._manager.mutate({
             op: 'removeFromRelatedRecords',
             record: this.identifier,
@@ -565,12 +510,12 @@ export default class RelatedCollection extends RecordArray {
           addToTransaction(_TAG);
         }
 
-        if (unique.length) {
+        if (newValues.length > 0) {
           this._manager.mutate({
             op: 'addToRelatedRecords',
             record: this.identifier,
             field: this.key,
-            value: extractIdentifiersFromRecords(unique),
+            value: newValues,
             index: start,
           });
           addToTransaction(_TAG);
