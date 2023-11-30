@@ -289,7 +289,9 @@ export default class RelatedCollection extends RecordArray {
             const duplicates = currentState.filter(
               (currentValue, currentIndex) => currentState.indexOf(currentValue) !== currentIndex
             );
-            throw new Error(duplicationMsg(`Cannot push duplicates to a hasMany's state.`, this, duplicates));
+            throw new Error(
+              duplicationMsg(`Cannot push duplicates to a hasMany's state.`, this, Array.from(new Set(duplicates)))
+            );
           }
 
           const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
@@ -355,7 +357,9 @@ export default class RelatedCollection extends RecordArray {
             const duplicates = currentState.filter(
               (currentValue, currentIndex) => currentState.indexOf(currentValue) !== currentIndex
             );
-            throw new Error(duplicationMsg(`Cannot unshift duplicates to a hasMany's state.`, this, duplicates));
+            throw new Error(
+              duplicationMsg(`Cannot unshift duplicates to a hasMany's state.`, this, Array.from(new Set(duplicates)))
+            );
           }
 
           const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
@@ -448,7 +452,7 @@ export default class RelatedCollection extends RecordArray {
                 duplicationMsg(
                   `Cannot replace a hasMany's state with a new state that contains duplicates.`,
                   this,
-                  duplicates
+                  Array.from(new Set(duplicates))
                 )
               );
             }
