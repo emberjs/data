@@ -9,13 +9,13 @@ DEPRECATE = DEPRECATE_MANY_ARRAY_DUPLICATES_4_12
 
 // 4.12 approach
 
-DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 === true => 4.6 behavior
-DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 === false => ??? no-dedupe, error
+DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 === true => dedupe, no error
+DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 === false => no dedupe, error
 
 // 5.3 approach
 
 DEPRECATE_MANY_ARRAY_DUPLICATES === true => dedupe, deprecation
-DEPRECATE_MANY_ARRAY_DUPLICATES === false => no-dedupe, error
+DEPRECATE_MANY_ARRAY_DUPLICATES === false => no dedupe, error
 
 // 6.0 approach
 
@@ -283,47 +283,51 @@ export default class RelatedCollection extends RecordArray {
       }
       case 'push': {
         if (DEPRECATE_MANY_ARRAY_DUPLICATES_4_12) {
-          const seen = new Set(target);
-          const unique = new Set<RecordInstance>();
+          const newValues = extractIdentifiersFromRecords(args as RecordInstance[]);
+          const currentState = target.slice();
+          Array.prototype.push.apply(currentState, newValues);
 
-          (args as RecordInstance[]).forEach((item) => {
-            const identifier = recordIdentifierFor(item);
-            if (!seen.has(identifier)) {
-              seen.add(identifier);
-              unique.add(item);
-            }
-          });
+          if (currentState.length !== new Set(currentState).size) {
+            const duplicates = currentState.filter(
+              (currentValue, currentIndex) => currentState.indexOf(currentValue) !== currentIndex
+            );
+            throw new Error(duplicationMsg(`Cannot push duplicates to a hasMany's state.`, this, duplicates));
+          }
 
-          const newArgs = Array.from(unique);
-          const result = Reflect.apply(target[prop], receiver, newArgs) as RecordInstance[];
+          const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
 
-          if (newArgs.length) {
+          if (args.length) {
             this._manager.mutate({
               op: 'addToRelatedRecords',
               record: this.identifier,
               field: this.key,
-              value: extractIdentifiersFromRecords(newArgs),
+              value: newValues,
             });
             addToTransaction(_TAG);
           }
           return result;
         }
 
-        const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
+        const seen = new Set(target);
+        const unique = new Set<RecordInstance>();
 
-        if (target.length !== new Set(target).size) {
-          const duplicates = target.filter(
-            (currentValue, currentIndex) => target.indexOf(currentValue) !== currentIndex
-          );
-          throw new Error(duplicationMsg(`Cannot push duplicates to a hasMany's state.`, this, duplicates));
-        }
+        (args as RecordInstance[]).forEach((item) => {
+          const identifier = recordIdentifierFor(item);
+          if (!seen.has(identifier)) {
+            seen.add(identifier);
+            unique.add(item);
+          }
+        });
 
-        if (args.length) {
+        const newArgs = Array.from(unique);
+        const result = Reflect.apply(target[prop], receiver, newArgs) as RecordInstance[];
+
+        if (newArgs.length) {
           this._manager.mutate({
             op: 'addToRelatedRecords',
             record: this.identifier,
             field: this.key,
-            value: extractIdentifiersFromRecords(args as RecordInstance[]),
+            value: extractIdentifiersFromRecords(newArgs),
           });
           addToTransaction(_TAG);
         }
@@ -344,24 +348,31 @@ export default class RelatedCollection extends RecordArray {
       }
 
       case 'unshift': {
-        if (DEBUG) {
-          const seen = new Set(target);
-          const unique = new Set<RecordInstance>();
-          const duplicates = new Set<RecordInstance>();
-          (args as RecordInstance[]).forEach((item) => {
-            const identifier = recordIdentifierFor(item);
-            if (seen.has(identifier)) {
-              duplicates.add(item);
-            } else {
-              seen.add(identifier);
-              unique.add(item);
-            }
-          });
+        if (DEPRECATE_MANY_ARRAY_DUPLICATES_4_12) {
+          const newValues = extractIdentifiersFromRecords(args as RecordInstance[]);
+          const currentState = target.slice();
+          Array.prototype.unshift.apply(currentState, newValues);
 
-          assert(
-            duplicationMsg(`Cannot unshift duplicates to a hasMany's state.`, this, duplicates),
-            duplicates.size === 0
-          );
+          if (currentState.length !== new Set(currentState).size) {
+            const duplicates = currentState.filter(
+              (currentValue, currentIndex) => currentState.indexOf(currentValue) !== currentIndex
+            );
+            throw new Error(duplicationMsg(`Cannot unshift duplicates to a hasMany's state.`, this, duplicates));
+          }
+
+          const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
+          if (args.length) {
+            this._manager.mutate({
+              op: 'addToRelatedRecords',
+              record: this.identifier,
+              field: this.key,
+              value: newValues,
+              index: 0,
+            });
+            addToTransaction(_TAG);
+          }
+
+          return result;
         }
 
         const seen = new Set(target);

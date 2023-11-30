@@ -209,7 +209,7 @@ async function applyMutation(assert: Assert, store: Store, record: User, mutatio
   const result = generateAppliedMutation(store, record, mutation);
   const initialIds = record.friends.map((f) => f.id).join(',');
 
-  const shouldError = result.hasDuplicates && !IS_DEPRECATE_MANY_ARRAY_DUPLICATES;
+  const shouldError = result.hasDuplicates && IS_DEPRECATE_MANY_ARRAY_DUPLICATES;
   const expected = shouldError ? result.unchanged : result.deduped;
 
   try {
