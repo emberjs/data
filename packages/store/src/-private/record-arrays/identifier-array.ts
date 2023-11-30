@@ -450,8 +450,9 @@ class IdentifierArray {
         // a transaction.
         if (index === null || index > target.length) {
           if (index !== null && transaction) {
-            assert(`Cannot set index ${index} past the end of the array.`, isStableIdentifier(value));
-            target[index] = value;
+            const identifier = recordIdentifierFor(value as RecordInstance);
+            assert(`Cannot set index ${index} past the end of the array.`, isStableIdentifier(identifier));
+            target[index] = identifier;
             return true;
           } else if (prop in self) {
             self[prop] = value;
