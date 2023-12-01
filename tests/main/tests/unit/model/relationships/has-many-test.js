@@ -2778,7 +2778,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
   deprecatedTest(
     'checks if passed array only contains instances of Model',
-    { id: 'ember-data:deprecate-promise-proxies', count: 4, until: '5.0' },
+    { id: 'ember-data:deprecate-promise-proxies', count: 5, until: '5.0' },
     async function (assert) {
       const Person = Model.extend();
       const Tag = Model.extend({
