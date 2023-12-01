@@ -8,9 +8,6 @@ module.exports = function (defaults) {
   let app = new EmberApp(defaults, {
     emberData: {
       compatWith,
-      deprecations: Object.assign(require('@ember-data/private-build-infra/src/deprecations')(compatWith || null), {
-        DEPRECATE_MANY_ARRAY_DUPLICATES_4_12: false,
-      }),
     },
     babel: {
       // this ensures that the same build-time code stripping that is done
