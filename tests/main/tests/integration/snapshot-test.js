@@ -1269,7 +1269,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
         type: 'posts',
       },
     };
-    assert.deepEqual(snapshot.serialize(), expected, 'shapshot serializes correctly');
+    assert.deepEqual(snapshot.serialize(), expected, 'snapshot serializes correctly');
     expected.data.id = '1';
     assert.deepEqual(snapshot.serialize({ includeId: true }), expected, 'serialize takes options');
   });
