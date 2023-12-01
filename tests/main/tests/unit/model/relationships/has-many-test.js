@@ -2794,7 +2794,6 @@ module('unit/model/relationships - hasMany', function (hooks) {
       const Tag = Model.extend({
         people: hasMany('person', { async: true, inverse: null }),
       });
-      q;
 
       this.owner.register('model:tag', Tag);
       this.owner.register('model:person', Person);
