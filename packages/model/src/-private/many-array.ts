@@ -199,13 +199,13 @@ export default class RelatedCollection extends RecordArray {
     switch (prop) {
       case 'length 0': {
         Reflect.set(target, 'length', 0);
-        this._mutateReplaceRelatedRecords([], _TAG);
+        mutateReplaceRelatedRecords(this, [], _TAG);
         return true;
       }
       case 'replace cell': {
         const [index, prior, value] = args as [number, StableRecordIdentifier, StableRecordIdentifier];
         target[index] = value;
-        this._mutateReplaceRelatedRecord({ value, prior, index }, _TAG);
+        mutateReplaceRelatedRecord(this, { value, prior, index }, _TAG);
         return true;
       }
       case 'push': {
@@ -226,7 +226,7 @@ export default class RelatedCollection extends RecordArray {
           const result = Reflect.apply(target[prop], receiver, newArgs) as RecordInstance[];
 
           if (newArgs.length) {
-            this._mutateAddToRelatedRecords(extractIdentifiersFromRecords(newArgs), _TAG);
+            mutateAddToRelatedRecords(this, { value: extractIdentifiersFromRecords(newArgs) }, _TAG);
           }
           return result;
         }
@@ -243,7 +243,7 @@ export default class RelatedCollection extends RecordArray {
 
         const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
         if (newValues.length) {
-          this._mutateAddToRelatedRecords(newValues, _TAG);
+          mutateAddToRelatedRecords(this, { value: newValues }, _TAG);
         }
         return result;
       }
@@ -251,7 +251,7 @@ export default class RelatedCollection extends RecordArray {
       case 'pop': {
         const result: unknown = Reflect.apply(target[prop], receiver, args);
         if (result) {
-          this._mutateRemoveFromRelatedRecords(recordIdentifierFor(result as RecordInstance), _TAG);
+          mutateRemoveFromRelatedRecords(this, { value: recordIdentifierFor(result as RecordInstance) }, _TAG);
         }
         return result;
       }
@@ -274,7 +274,7 @@ export default class RelatedCollection extends RecordArray {
           const result: unknown = Reflect.apply(target[prop], receiver, newArgs);
 
           if (newArgs.length) {
-            this._mutateAddToRelatedRecords(extractIdentifiersFromRecords(newArgs), _TAG);
+            mutateAddToRelatedRecords(this, { value: extractIdentifiersFromRecords(newArgs), index: 0 }, _TAG);
           }
           return result;
         }
@@ -291,7 +291,7 @@ export default class RelatedCollection extends RecordArray {
 
         const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
         if (newValues.length) {
-          this._mutateAddToRelatedRecords(newValues, _TAG);
+          mutateAddToRelatedRecords(this, { value: newValues, index: 0 }, _TAG);
         }
         return result;
       }
@@ -300,14 +300,18 @@ export default class RelatedCollection extends RecordArray {
         const result: unknown = Reflect.apply(target[prop], receiver, args);
 
         if (result) {
-          this._mutateRemoveFromRelatedRecords(recordIdentifierFor(result as RecordInstance), _TAG);
+          mutateRemoveFromRelatedRecords(
+            this,
+            { value: recordIdentifierFor(result as RecordInstance), index: 0 },
+            _TAG
+          );
         }
         return result;
       }
 
       case 'sort': {
         const result: unknown = Reflect.apply(target[prop], receiver, args);
-        this._mutateSortRelatedRecords((result as RecordInstance[]).map(recordIdentifierFor), _TAG);
+        mutateSortRelatedRecords(this, (result as RecordInstance[]).map(recordIdentifierFor), _TAG);
         return result;
       }
 
@@ -324,7 +328,7 @@ export default class RelatedCollection extends RecordArray {
 
             const result = Reflect.apply(target[prop], receiver, newArgs) as RecordInstance[];
 
-            this._mutateReplaceRelatedRecords(extractIdentifiersFromRecords(unique), _TAG);
+            mutateReplaceRelatedRecords(this, extractIdentifiersFromRecords(unique), _TAG);
             return result;
           }
 
@@ -339,7 +343,7 @@ export default class RelatedCollection extends RecordArray {
           );
 
           const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
-          this._mutateReplaceRelatedRecords(newValues, _TAG);
+          mutateReplaceRelatedRecords(this, newValues, _TAG);
           return result;
         }
 
@@ -361,12 +365,12 @@ export default class RelatedCollection extends RecordArray {
           const newArgs = [start, deleteCount, ...unique];
           const result = Reflect.apply(target[prop], receiver, newArgs) as RecordInstance[];
 
-          if (result.length > 0) {
-            this._mutateRemoveFromRelatedRecords(result.map(recordIdentifierFor), _TAG);
+          if (deleteCount > 0) {
+            mutateRemoveFromRelatedRecords(this, { value: result.map(recordIdentifierFor), index: start }, _TAG);
           }
 
           if (unique.length > 0) {
-            this._mutateAddToRelatedRecords(extractIdentifiersFromRecords(unique), _TAG);
+            mutateAddToRelatedRecords(this, { value: extractIdentifiersFromRecords(unique), index: start }, _TAG);
           }
 
           return result;
@@ -382,11 +386,11 @@ export default class RelatedCollection extends RecordArray {
         );
 
         const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
-        if (result.length > 0) {
-          this._mutateRemoveFromRelatedRecords(result.map(recordIdentifierFor), _TAG);
+        if (deleteCount > 0) {
+          mutateRemoveFromRelatedRecords(this, { value: result.map(recordIdentifierFor), index: start }, _TAG);
         }
         if (newValues.length > 0) {
-          this._mutateAddToRelatedRecords(newValues, _TAG);
+          mutateAddToRelatedRecords(this, { value: newValues, index: start }, _TAG);
         }
         return result;
       }
@@ -467,78 +471,6 @@ export default class RelatedCollection extends RecordArray {
 
   destroy() {
     super.destroy(false);
-  }
-
-  private _mutateAddToRelatedRecords(value: StableRecordIdentifier | StableRecordIdentifier[], _TAG: Tag) {
-    this._mutate(
-      {
-        op: 'addToRelatedRecords',
-        record: this.identifier,
-        field: this.key,
-        value,
-      },
-      _TAG
-    );
-  }
-
-  private _mutateRemoveFromRelatedRecords(value: StableRecordIdentifier | StableRecordIdentifier[], _TAG: Tag) {
-    this._mutate(
-      {
-        op: 'removeFromRelatedRecords',
-        record: this.identifier,
-        field: this.key,
-        value,
-      },
-      _TAG
-    );
-  }
-
-  private _mutateReplaceRelatedRecord(
-    operationInfo: {
-      value: StableRecordIdentifier;
-      prior: StableRecordIdentifier;
-      index: number;
-    },
-    _TAG: Tag
-  ) {
-    this._mutate(
-      {
-        op: 'replaceRelatedRecord',
-        record: this.identifier,
-        field: this.key,
-        ...operationInfo,
-      },
-      _TAG
-    );
-  }
-
-  private _mutateReplaceRelatedRecords(value: StableRecordIdentifier[], _TAG: Tag) {
-    this._mutate(
-      {
-        op: 'replaceRelatedRecords',
-        record: this.identifier,
-        field: this.key,
-        value,
-      },
-      _TAG
-    );
-  }
-
-  private _mutateSortRelatedRecords(value: StableRecordIdentifier[], _TAG: Tag) {
-    this._mutate(
-      {
-        op: 'sortRelatedRecords',
-        record: this.identifier,
-        field: this.key,
-        value,
-      },
-      _TAG
-    );
-  }
-
-  private _mutate(mutation: Parameters<LegacySupport['mutate']>[0], _TAG: Tag) {
-    this._manager.mutate(mutation);
-    addToTransaction(_TAG);
   }
 }
 RelatedCollection.prototype.isAsync = false;
@@ -626,4 +558,90 @@ function assertNoDuplicates(
         .join('\n\t- ')}`
     );
   }
+}
+
+function mutateAddToRelatedRecords(
+  collection: RelatedCollection,
+  operationInfo: { value: StableRecordIdentifier | StableRecordIdentifier[]; index?: number },
+  _TAG: Tag
+) {
+  mutate(
+    collection,
+    {
+      op: 'addToRelatedRecords',
+      record: collection.identifier,
+      field: collection.key,
+      ...operationInfo,
+    },
+    _TAG
+  );
+}
+
+function mutateRemoveFromRelatedRecords(
+  collection: RelatedCollection,
+  operationInfo: { value: StableRecordIdentifier | StableRecordIdentifier[]; index?: number },
+  _TAG: Tag
+) {
+  mutate(
+    collection,
+    {
+      op: 'removeFromRelatedRecords',
+      record: collection.identifier,
+      field: collection.key,
+      ...operationInfo,
+    },
+    _TAG
+  );
+}
+
+function mutateReplaceRelatedRecord(
+  collection: RelatedCollection,
+  operationInfo: {
+    value: StableRecordIdentifier;
+    prior: StableRecordIdentifier;
+    index: number;
+  },
+  _TAG: Tag
+) {
+  mutate(
+    collection,
+    {
+      op: 'replaceRelatedRecord',
+      record: collection.identifier,
+      field: collection.key,
+      ...operationInfo,
+    },
+    _TAG
+  );
+}
+
+function mutateReplaceRelatedRecords(collection: RelatedCollection, value: StableRecordIdentifier[], _TAG: Tag) {
+  mutate(
+    collection,
+    {
+      op: 'replaceRelatedRecords',
+      record: collection.identifier,
+      field: collection.key,
+      value,
+    },
+    _TAG
+  );
+}
+
+function mutateSortRelatedRecords(collection: RelatedCollection, value: StableRecordIdentifier[], _TAG: Tag) {
+  mutate(
+    collection,
+    {
+      op: 'sortRelatedRecords',
+      record: collection.identifier,
+      field: collection.key,
+      value,
+    },
+    _TAG
+  );
+}
+
+function mutate(collection: RelatedCollection, mutation: Parameters<LegacySupport['mutate']>[0], _TAG: Tag) {
+  collection._manager.mutate(mutation);
+  addToTransaction(_TAG);
 }
