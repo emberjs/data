@@ -233,21 +233,16 @@ export default class RelatedCollection extends RecordArray {
 
         // else, no dedupe, error on duplicates
         const newValues = extractIdentifiersFromRecords(args as RecordInstance[]);
-        const currentState = target.slice();
-        currentState.push(...newValues);
 
-        if (currentState.length !== new Set(currentState).size) {
-          const duplicates = currentState.filter(
-            (currentValue, currentIndex) => currentState.indexOf(currentValue) !== currentIndex
-          );
-          throw new Error(
-            duplicationMsg(`Cannot push duplicates to a hasMany's state.`, this, Array.from(new Set(duplicates)))
-          );
-        }
+        assertNoDuplicates(
+          this,
+          target,
+          (currentState) => currentState.push(...newValues),
+          `Cannot push duplicates to a hasMany's state.`
+        );
 
         const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
-
-        if (args.length) {
+        if (newValues.length) {
           this._mutateAddToRelatedRecords(newValues, _TAG);
         }
         return result;
@@ -286,23 +281,18 @@ export default class RelatedCollection extends RecordArray {
 
         // else, no dedupe, error on duplicates
         const newValues = extractIdentifiersFromRecords(args as RecordInstance[]);
-        const currentState = target.slice();
-        currentState.unshift(...newValues);
 
-        if (currentState.length !== new Set(currentState).size) {
-          const duplicates = currentState.filter(
-            (currentValue, currentIndex) => currentState.indexOf(currentValue) !== currentIndex
-          );
-          throw new Error(
-            duplicationMsg(`Cannot unshift duplicates to a hasMany's state.`, this, Array.from(new Set(duplicates)))
-          );
-        }
+        assertNoDuplicates(
+          this,
+          target,
+          (currentState) => currentState.unshift(...newValues),
+          `Cannot unshift duplicates to a hasMany's state.`
+        );
 
         const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
-        if (args.length) {
+        if (newValues.length) {
           this._mutateAddToRelatedRecords(newValues, _TAG);
         }
-
         return result;
       }
 
@@ -317,7 +307,6 @@ export default class RelatedCollection extends RecordArray {
 
       case 'sort': {
         const result: unknown = Reflect.apply(target[prop], receiver, args);
-
         this._mutateSortRelatedRecords((result as RecordInstance[]).map(recordIdentifierFor), _TAG);
         return result;
       }
@@ -341,24 +330,15 @@ export default class RelatedCollection extends RecordArray {
 
           // else, no dedupe, error on duplicates
           const newValues = extractIdentifiersFromRecords(adds);
-          const currentState = target.slice();
-          currentState.splice(start, deleteCount, ...newValues);
 
-          if (currentState.length !== new Set(currentState).size) {
-            const duplicates = currentState.filter(
-              (currentValue, currentIndex) => currentState.indexOf(currentValue) !== currentIndex
-            );
-            throw new Error(
-              duplicationMsg(
-                `Cannot replace a hasMany's state with a new state that contains duplicates.`,
-                this,
-                Array.from(new Set(duplicates))
-              )
-            );
-          }
+          assertNoDuplicates(
+            this,
+            target,
+            (currentState) => currentState.splice(start, deleteCount, ...newValues),
+            `Cannot replace a hasMany's state with a new state that contains duplicates.`
+          );
 
           const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
-
           this._mutateReplaceRelatedRecords(newValues, _TAG);
           return result;
         }
@@ -394,32 +374,20 @@ export default class RelatedCollection extends RecordArray {
 
         // else, no dedupe, error on duplicates
         const newValues = extractIdentifiersFromRecords(adds);
-        const currentState = target.slice();
-        currentState.splice(start, deleteCount, ...newValues);
-
-        if (currentState.length !== new Set(currentState).size) {
-          const duplicates = currentState.filter(
-            (currentValue, currentIndex) => currentState.indexOf(currentValue) !== currentIndex
-          );
-          throw new Error(
-            duplicationMsg(
-              `Cannot splice a hasMany's state with a new state that contains duplicates.`,
-              this,
-              Array.from(new Set(duplicates))
-            )
-          );
-        }
+        assertNoDuplicates(
+          this,
+          target,
+          (currentState) => currentState.splice(start, deleteCount, ...newValues),
+          `Cannot splice a hasMany's state with a new state that contains duplicates.`
+        );
 
         const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
-
         if (result.length > 0) {
           this._mutateRemoveFromRelatedRecords(result.map(recordIdentifierFor), _TAG);
         }
-
         if (newValues.length > 0) {
           this._mutateAddToRelatedRecords(newValues, _TAG);
         }
-
         return result;
       }
       default:
@@ -635,15 +603,27 @@ function isPromiseRecord(record: PromiseProxyRecord | RecordInstance): record is
   return !!record.then;
 }
 
-function duplicationMsg(
-  reason: string,
+function assertNoDuplicates(
   collection: RelatedCollection,
-  duplicates: Iterable<RecordInstance | StableRecordIdentifier>
+  target: StableRecordIdentifier[],
+  callback: (currentState: StableRecordIdentifier[]) => void,
+  reason: string
 ) {
-  return `${reason} Found duplicates for the following records within the new state provided to \`<${
-    collection.identifier.type
-  }:${collection.identifier.id || collection.identifier.lid}>.${collection.key}\`\n\t- ${Array.from(duplicates)
-    .map((r) => (isStableIdentifier(r) ? r.lid : recordIdentifierFor(r).lid))
-    .sort((a, b) => a.localeCompare(b))
-    .join('\n\t- ')}`;
+  const state = target.slice();
+  callback(state);
+
+  if (state.length !== new Set(state).size) {
+    const duplicates = state.filter((currentValue, currentIndex) => state.indexOf(currentValue) !== currentIndex);
+
+    throw new Error(
+      `${reason} Found duplicates for the following records within the new state provided to \`<${
+        collection.identifier.type
+      }:${collection.identifier.id || collection.identifier.lid}>.${collection.key}\`\n\t- ${Array.from(
+        new Set(duplicates)
+      )
+        .map((r) => (isStableIdentifier(r) ? r.lid : recordIdentifierFor(r).lid))
+        .sort((a, b) => a.localeCompare(b))
+        .join('\n\t- ')}`
+    );
+  }
 }
