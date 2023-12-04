@@ -70,6 +70,7 @@ const ValidKeys = new Map<string, string | string[] | typeof BODY_TYPES>([
 ]);
 
 const IS_FROZEN = Symbol('FROZEN');
+const IS_COLLECTION = Symbol.for('Collection');
 
 function freezeHeaders(headers: Headers | ImmutableHeaders): ImmutableHeaders {
   headers.delete =
@@ -85,7 +86,7 @@ function freezeHeaders(headers: Headers | ImmutableHeaders): ImmutableHeaders {
 }
 
 export function deepFreeze<T = unknown>(value: T): T {
-  if (value && value[IS_FROZEN]) {
+  if (value && (value as { [IS_FROZEN]?: true })[IS_FROZEN]) {
     return value;
   }
   const _type = typeof value;
@@ -103,24 +104,24 @@ export function deepFreeze<T = unknown>(value: T): T {
       const _niceType = niceTypeOf(value);
       switch (_niceType) {
         case 'array': {
-          if (value[Symbol.for('Collection')]) {
+          if ((value as unknown[] & { [IS_COLLECTION]?: true })[IS_COLLECTION]) {
             return value;
           }
           const arr = (value as unknown[]).map(deepFreeze);
-          arr[IS_FROZEN] = true;
+          (arr as unknown[] & { [IS_FROZEN]: true })[IS_FROZEN] = true;
           return Object.freeze(arr) as T;
         }
         case 'null':
           return value;
         case 'object':
-          Object.keys(value as {}).forEach((key) => {
+          Object.keys(value as Record<string, unknown>).forEach((key) => {
             try {
-              (value as {})[key] = deepFreeze((value as {})[key]) as {};
+              (value as Record<string, unknown>)[key] = deepFreeze((value as Record<string, unknown>)[key]) as object;
             } catch {
               // continue
             }
           });
-          value[IS_FROZEN] = true;
+          (value as Record<string | symbol, unknown>)[IS_FROZEN] = true;
           return Object.freeze(value);
         case 'headers':
           return freezeHeaders(value as Headers) as T;
@@ -249,7 +250,7 @@ function validateKey(key: string, value: unknown, errors: string[]) {
       }
       const keys = Object.keys(value);
       keys.forEach((k) => {
-        let v: unknown = value[k];
+        let v: unknown = (value as Record<string, unknown>)[k];
         if (typeof k !== 'string') {
           errors.push(`\tThe key ${String(k)} on ${key} should be a string key`);
         } else if (typeof v !== 'string') {
@@ -333,8 +334,8 @@ export function assertValidRequest(
     }
 
     // handle schema
-    const keys = Object.keys(request);
-    const validationErrors = [];
+    const keys = Object.keys(request) as Array<keyof RequestInfo>;
+    const validationErrors: string[] = [];
     const isLegacyRequest: boolean = Boolean('op' in request && !request.url);
     keys.forEach((key) => {
       if (isLegacyRequest && key === 'data') {
