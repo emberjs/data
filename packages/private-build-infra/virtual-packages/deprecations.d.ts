@@ -23,3 +23,4 @@ export const DEPRECATE_ARRAY_LIKE: boolean;
 export const DEPRECATE_COMPUTED_CHAINS: boolean;
 export const DEPRECATE_NON_EXPLICIT_POLYMORPHISM: boolean;
 export const DEPRECATE_INSTANTIATE_RECORD_ARGS: boolean;
+export const DEPRECATE_MANY_ARRAY_DUPLICATES_4_12: boolean;

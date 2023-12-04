@@ -738,3 +738,24 @@ export const DEPRECATE_NON_EXPLICIT_POLYMORPHISM = '4.7';
  * @public
  */
 export const DEPRECATE_INSTANTIATE_RECORD_ARGS = '4.12';
+
+/**
+ * **id: ember-data:deprecate-many-array-duplicates-4-12**
+ *
+ * HACK: This deprecation flag is being used as a feature flag to optionally
+ * disable adding duplicate records to a `ManyArray`.
+ *
+ * When the flag is `true` (default), duplicate records will be de-duped.
+ *
+ * When the flag is `false`, an error will be thrown when duplicates are added.
+ * NOTE: this is not a deprecation error!
+ *
+ * In 5.3, we expect to add a corollary deprecation
+ * `DEPRECATE_MANY_ARRAY_DUPLICATES` that will actually `deprecate` when `true`.
+ *
+ * @property DEPRECATE_MANY_ARRAY_DUPLICATES_4_12
+ * @since 4.12
+ * @until 6.0
+ * @public
+ */
+export const DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 = '4.12';

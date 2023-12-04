@@ -5,7 +5,7 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
-import { DEPRECATE_ARRAY_LIKE } from '@ember-data/deprecations';
+import { DEPRECATE_ARRAY_LIKE, DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 } from '@ember-data/deprecations';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { LEGACY_SUPPORT, PromiseManyArray } from '@ember-data/model/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
@@ -13,6 +13,12 @@ import { recordIdentifierFor } from '@ember-data/store';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import todo from '@ember-data/unpublished-test-infra/test-support/todo';
+
+let IS_DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 = false;
+
+if (DEPRECATE_MANY_ARRAY_DUPLICATES_4_12) {
+  IS_DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 = true;
+}
 
 module('unit/model/relationships - hasMany', function (hooks) {
   setupTest(hooks);
@@ -2778,7 +2784,11 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
   deprecatedTest(
     'checks if passed array only contains instances of Model',
-    { id: 'ember-data:deprecate-promise-proxies', count: 4, until: '5.0' },
+    {
+      id: 'ember-data:deprecate-promise-proxies',
+      count: IS_DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 ? 4 : 5,
+      until: '5.0',
+    },
     async function (assert) {
       const Person = Model.extend();
       const Tag = Model.extend({

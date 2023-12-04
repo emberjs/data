@@ -134,8 +134,10 @@ export async function setInitialState(context: Context, config: TestConfig, asse
     if (isMany) {
       let friends = await john.bestFriends;
       friends.push(chris);
-      friends = await chris.bestFriends;
-      friends.push(john);
+      if (config.inverseNull) {
+        friends = await chris.bestFriends;
+        friends.push(john);
+      }
     } else {
       john.bestFriends = chris;
       chris.bestFriends = john;

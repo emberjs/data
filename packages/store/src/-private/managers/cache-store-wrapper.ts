@@ -225,7 +225,7 @@ class LegacyWrapper implements LegacyCacheStoreWrapper {
       if (!isStableIdentifier(type)) {
         // we also deprecate create capability. This behavior was problematic because
         // there's no outside association between this RecordData and an Identifier.
-        // It's likely a mistake when we hit this codepath, but we said in an early
+        // It's likely a mistake when we hit this code-path, but we said in an early
         // RFC we'd allow this.
         // With V2 we are enforcing someone to use the record-data and identifier-cache APIs to
         // create a new identifier and then call clientDidCreate on the RecordData
@@ -366,6 +366,8 @@ class V2CacheStoreWrapper implements StoreWrapper {
     if (this._store._cbs) {
       this._store._schedule('notify', () => this._flushNotifications());
     } else {
+      // TODO @runspired determine if relationship mutations should schedule
+      // into join/run vs immediate flush
       this._flushNotifications();
     }
   }
