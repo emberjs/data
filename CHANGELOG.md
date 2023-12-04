@@ -1,5 +1,18 @@
 # Ember Data Changelog
 
+## v4.12.5 (2023-12-04)
+
+#### :rocket: Enhancement
+* [#9152](https://github.com/emberjs/data/pull/9152) feat: backport changes in request package from 5.x ([@runspired](https://github.com/runspired))
+
+#### :bug: Bug Fix
+* [#9126](https://github.com/emberjs/data/pull/9126) fix: mutating ManyArray should handle duplicates gracefully ([@runspired](https://github.com/runspired) & [@gitKrystan](https://github.com/gitKrystan))
+* [#9120](https://github.com/emberjs/data/pull/9120) fix: make emergent unsupported behaviors safer in prod ([@runspired](https://github.com/runspired))
+
+#### Committers: 1
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+- Krystan HuffMenne ([@gitKrystan](https://github.com/gitKrystan))
+
 ## v4.12.4 (2023-10-19)
 
 #### :bug: Bug Fix
