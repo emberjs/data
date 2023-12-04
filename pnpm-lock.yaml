@@ -826,8 +826,8 @@ importers:
   packages/holodeck:
     dependencies:
       '@hono/node-server':
-        specifier: ^1.2.3
-        version: 1.2.3
+        specifier: ^1.3.1
+        version: 1.3.1
       chalk:
         specifier: ^4.1.2
         version: 4.1.2
@@ -6856,8 +6856,8 @@ packages:
   /@handlebars/parser@2.0.0:
     resolution: {integrity: sha512-EP9uEDZv/L5Qh9IWuMUGJRfwhXJ4h1dqKTT4/3+tY0eu7sPis7xh23j61SYUnNF4vqCQvvUXpDo9Bh/+q1zASA==}
 
-  /@hono/node-server@1.2.3:
-    resolution: {integrity: sha512-IH2lpqgSSLt9sIhWBE6FivFj+0RglCNYVuBT39vkumfjqjHAwQnx7KJw9WDVNlyH+AJY0N5ImZgcIbfM5xgyBw==}
+  /@hono/node-server@1.3.1:
+    resolution: {integrity: sha512-eQBCDbH1Vv/TiYXNP8aGfJTuXi9xGhEd/EZg9u6dhr7zC5/WKKztcBmbrOTtixVBvvV6bfcay6KEginwiqHyXg==}
     engines: {node: '>=18.14.1'}
 
   /@html-next/vertical-collection@4.0.2(@babel/core@7.23.3):
@@ -19208,7 +19208,7 @@ packages:
       '@warp-drive/core-types': workspace:5.5.0-alpha.11
     dependencies:
       '@ember-data/request': file:packages/request(@babel/core@7.23.3)(@warp-drive/core-types@5.5.0-alpha.11)
-      '@hono/node-server': 1.2.3
+      '@hono/node-server': 1.3.1
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.23.3)
       chalk: 4.1.2
       hono: 3.10.3
