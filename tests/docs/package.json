@@ -20,7 +20,7 @@
     "qunit": "^2.20.0"
   },
   "engines": {
-    "node": ">= 20.9.0"
+    "node": ">= 20.10.0"
   },
   "volta": {
     "extends": "../../package.json"
