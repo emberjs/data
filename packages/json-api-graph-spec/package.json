@@ -1,0 +1,115 @@
+{
+  "name": "json-api-graph-spec",
+  "version": "5.5.0-alpha.11",
+  "displayName": "WarpDrive Schema & AQL Support",
+  "description": "JSON:API Profile, Extension and a Query Language to support advanced DX for JSON:API Graphs as well as syntax support for .schema and .aql files as well as schema`` and aql`` tagged template literals",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "packages/json-api-graph-spec"
+  },
+  "license": "MIT",
+  "author": "Chris Thoburn <runspired@users.noreply.github.com>",
+  "scripts": {
+    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
+    "build:ext": "vsce package --baseContentUrl 'none'  --skip-license -o aql.vsix",
+    "build:types": "tsc --build",
+    "build:client": "rollup --config",
+    "_build": "bun run build:client && bun run build:types",
+    "prepack": "pnpm build"
+  },
+  "keywords": [
+    "Programming Languages",
+    "JSON:API",
+    "extension",
+    "profile",
+    "Themes",
+    "schema"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/parse.d.ts",
+      "default": "./dist/parse.js"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.js"
+    }
+  },
+  "files": [
+    "spec",
+    "NCC-1701-a-blue.svg",
+    "NCC-1701-a.svg",
+    "LICENCE.md",
+    "README.md",
+    "dist",
+    "aql.vsix"
+  ],
+  "engines": {
+    "node": ">= 20.9.0",
+    "vscode": "^1.34.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Themes"
+  ],
+  "volta": {
+    "extends": "../../package.json"
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "warp-drive.aql",
+        "extensions": [".aql"],
+        "icon": {
+          "light": "./NCC-1701-a-blue.svg",
+          "dark": "./NCC-1701-a.svg"
+        }
+      },
+      {
+        "id": "warp-drive.schema",
+        "extensions": [".schema"],
+        "icon": {
+          "light": "./NCC-1701-a-blue.svg",
+          "dark": "./NCC-1701-a.svg"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "injectTo": [
+          "source.js",
+          "source.js.jsx",
+          "source.jsx",
+          "source.svelte",
+          "source.ts",
+          "source.tsx"
+        ],
+        "scopeName": "inline.tagged-template-hbs",
+        "path": "./syntaxes/embedded-aql.tmLanguage.json",
+        "embeddedLanguages": {
+          "meta.embedded.block.aql": "warp-drive.aql"
+        }
+      },
+      {
+        "language": "warp-drive.aql",
+        "scopeName": "source.aql",
+        "path": "./syntaxes/aql.tmLanguage.json"
+      }
+    ]
+  },
+  "devDependencies": {
+    "@vscode/vsce": "^2.22.0",
+    "@babel/cli": "^7.23.0",
+    "@babel/core": "^7.23.2",
+    "@babel/plugin-transform-typescript": "^7.22.15",
+    "@babel/preset-env": "^7.23.2",
+    "@babel/preset-typescript": "^7.23.2",
+    "@embroider/addon-dev": "^4.1.1",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "typescript": "^5.2.2",
+    "rollup": "^4.1.4"
+  }
+}
