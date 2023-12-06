@@ -21,9 +21,6 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "peerDependencies": {
-    "@warp-drive/core-types": "workspace:4.12.5"
-  },
   "dependencies": {
     "ember-cli-babel": "^8.2.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10"
@@ -70,7 +67,6 @@
     "@glimmer/component": "^1.1.2",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "@warp-drive/core-types": "workspace:4.12.5",
     "@warp-drive/internal-config": "workspace:4.12.5",
     "ember-source": "~5.4.0",
     "rollup": "^4.5.0",
@@ -79,10 +75,5 @@
   },
   "ember": {
     "edition": "octane"
-  },
-  "dependenciesMeta": {
-    "@warp-drive/core-types": {
-      "injected": true
-    }
   }
 }
