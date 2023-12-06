@@ -31,8 +31,6 @@ jobs:
         run: pnpm lint:js
       - name: Check for TypeScript problems
         run: pnpm problems
-      - name: Check for TypeScript problems for packages with per-package tsconfig
-        run: pnpm check:types
 
   special-build-tests:
     timeout-minutes: 20

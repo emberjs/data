@@ -84,32 +84,38 @@
       "request-test-app/tests/*": ["tests/request/tests/*"],
       "request-test-app/*": ["tests/request/app/*"],
       "*": ["@types/*", "packages/fastboot-test-app/types/*"],
-      "ember-inflector": ["tests/main/node_modules/ember-inflector","packages/-ember-data/node_modules/ember-inflector"]
+      "ember-inflector": [
+        "tests/main/node_modules/ember-inflector",
+        "packages/-ember-data/node_modules/ember-inflector"
+      ]
     }
   },
   "include": [
     "@types/**/*",
     "ember-data-types/**/*",
-    "packages/**/app/**/*",
+    "packages/**/addon-test-support/**/*",
     "packages/**/addon/**/*",
+    "packages/**/app/**/*",
+    "packages/**/test-support/**/*",
     "packages/**/tests/**/*",
-    "packages/tracking/src/**/*",
-    "packages/request/src/**/*",
-    "packages/store/src/**/*",
+    "packages/active-record/src/**/*",
     "packages/adapter/src/**/*",
-    "packages/graph/src/**/*",
-    "packages/model/src/**/*",
-    "packages/legacy-compat/src/**/*",
-    "packages/json-api/src/**/*",
-    "packages/serializer/src/**/*",
     "packages/experimental-preview-types/src/**/*",
     "packages/fastboot-test-app/types/**/*",
+    "packages/graph/src/**/*",
+    "packages/json-api/src/**/*",
+    "packages/legacy-compat/src/**/*",
+    "packages/model/src/**/*",
     "packages/private-build-infra/canary-features/**/*",
-    "packages/**/test-support/**/*",
-    "packages/**/addon-test-support/**/*",
+    "packages/request-utils/src/**/*",
+    "packages/request/src/**/*",
+    "packages/rest/src/**/*",
+    "packages/serializer/src/**/*",
+    "packages/store/src/**/*",
+    "packages/tracking/src/**/*",
     "tests/**/app/**/*",
     "tests/**/addon/**/*",
     "tests/**/tests/**/*"
   ],
-  "exclude": ["node_modules", "packages/**/node_modules",  "packages/**/dist",  "packages/**/DEBUG"]
+  "exclude": ["node_modules", "packages/**/node_modules", "packages/**/dist", "packages/**/DEBUG"]
 }
