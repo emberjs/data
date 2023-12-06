@@ -1,5 +1,6 @@
 import type { TestContext } from '@ember/test-helpers';
 
+// FIXME: Remove
 import { createRecord, deleteRecord, findRecord, postQuery, query, updateRecord } from '@ember-data/json-api/request';
 import { setBuildURLConfig } from '@ember-data/request-utils';
 import type Store from '@ember-data/store';

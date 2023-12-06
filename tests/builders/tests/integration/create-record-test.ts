@@ -1,6 +1,7 @@
 import type { TestContext } from '@ember/test-helpers';
 
 import JSONAPICache from '@ember-data/json-api';
+// FIXME: Remove
 import { createRecord } from '@ember-data/json-api/request';
 import Model, { attr, instantiateRecord, teardownRecord } from '@ember-data/model';
 import { buildSchema, modelFor } from '@ember-data/model/hooks';
