@@ -11,6 +11,7 @@
     "lint:js": "eslint --quiet --cache --cache-strategy=content --ext=js,ts .",
     "preinstall": "npx only-allow pnpm",
     "problems": "tsc -p tsconfig.json --noEmit --pretty false",
+    "check:types": "pnpm recursive run --if-present --workspace-concurrency=1 check:types",
     "test": "pnpm --filter main-test-app --filter graph-test-app --filter json-api-test-app --filter request-test-app run test",
     "test:production": "pnpm --filter main-test-app --filter graph-test-app --filter json-api-test-app run test -e production",
     "test:try-one": "pnpm --filter main-test-app run test:try-one",
