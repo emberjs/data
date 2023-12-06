@@ -1,0 +1,136 @@
+{
+  "name": "builders-test-app",
+  "version": "5.5.0-alpha.11",
+  "description": "Provides tests for URL and Request Building Capabilities",
+  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "tests/builders"
+  },
+  "license": "MIT",
+  "author": "",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "build:tests": "IS_TESTING=true EMBER_CLI_TEST_COMMAND=true ember build --output-path=dist-test --suppress-sizes",
+    "build:production": "pnpm build:tests -e production",
+    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
+    "check:types": "tsc --noEmit",
+    "test": "bun ./diagnostic.js",
+    "test:production": "bun ./diagnostic.js",
+    "_syncPnpm": "bun run sync-dependencies-meta-injected"
+  },
+  "dependenciesMeta": {
+    "@ember-data/json-api": {
+      "injected": true
+    },
+    "@ember-data/rest": {
+      "injected": true
+    },
+    "@ember-data/store": {
+      "injected": true
+    },
+    "@ember-data/model": {
+      "injected": true
+    },
+    "@ember-data/legacy-compat": {
+      "injected": true
+    },
+    "@ember-data/request": {
+      "injected": true
+    },
+    "@ember-data/request-utils": {
+      "injected": true
+    },
+    "@ember-data/active-record": {
+      "injected": true
+    },
+    "@ember-data/private-build-infra": {
+      "injected": true
+    },
+    "@ember-data/unpublished-test-infra": {
+      "injected": true
+    },
+    "@warp-drive/diagnostic": {
+      "injected": true
+    },
+    "@warp-drive/core-types": {
+      "injected": true
+    },
+    "@ember-data/graph": {
+      "injected": true
+    },
+    "@ember-data/tracking": {
+      "injected": true
+    },
+    "@ember/string": {
+      "injected": true
+    },
+    "ember-inflector": {
+      "injected": true
+    },
+    "@ember-data/debug": {
+      "injected": true
+    }
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.3",
+    "@babel/runtime": "^7.23.4",
+    "@ember-data/active-record": "workspace:5.5.0-alpha.11",
+    "@ember-data/debug": "workspace:5.5.0-alpha.11",
+    "@ember-data/graph": "workspace:5.5.0-alpha.11",
+    "@ember-data/json-api": "workspace:5.5.0-alpha.11",
+    "@ember-data/legacy-compat": "workspace:5.5.0-alpha.11",
+    "@ember-data/model": "workspace:5.5.0-alpha.11",
+    "@ember-data/private-build-infra": "workspace:5.5.0-alpha.11",
+    "@ember-data/request": "workspace:5.5.0-alpha.11",
+    "@ember-data/request-utils": "workspace:5.5.0-alpha.11",
+    "@ember-data/rest": "workspace:5.5.0-alpha.11",
+    "@ember-data/store": "workspace:5.5.0-alpha.11",
+    "@ember-data/tracking": "workspace:5.5.0-alpha.11",
+    "@ember-data/unpublished-test-infra": "workspace:5.5.0-alpha.11",
+    "@ember/edition-utils": "^1.2.0",
+    "@ember/optional-features": "^2.0.0",
+    "@ember/string": "3.1.1",
+    "@ember/test-helpers": "^3.2.0",
+    "@embroider/addon-shim": "^1.8.7",
+    "@glimmer/component": "^1.1.2",
+    "@glimmer/tracking": "^1.1.2",
+    "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
+    "@warp-drive/diagnostic": "workspace:5.5.0-alpha.11",
+    "@warp-drive/internal-config": "workspace:5.5.0-alpha.11",
+    "ember-auto-import": "^2.6.3",
+    "ember-cli": "~5.4.1",
+    "ember-cli-babel": "^8.2.0",
+    "ember-cli-dependency-checker": "^3.3.2",
+    "ember-cli-htmlbars": "^6.3.0",
+    "ember-cli-inject-live-reload": "^2.1.0",
+    "ember-cli-test-loader": "^3.1.0",
+    "ember-disable-prototype-extensions": "^1.1.3",
+    "ember-inflector": "^4.0.2",
+    "ember-load-initializers": "^2.1.2",
+    "ember-maybe-import-regenerator": "^1.0.0",
+    "ember-resolver": "^11.0.1",
+    "ember-source": "~5.4.0",
+    "ember-source-channel-url": "^3.0.0",
+    "loader.js": "^4.7.0",
+    "silent-error": "^1.1.1",
+    "typescript": "^5.3.2",
+    "webpack": "^5.89.0"
+  },
+  "ember": {
+    "edition": "octane"
+  },
+  "engines": {
+    "node": ">= 20.10.0"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  },
+  "packageManager": "pnpm@8.11.0",
+  "dependencies": {
+    "pnpm-sync-dependencies-meta-injected": "0.0.10"
+  }
+}
