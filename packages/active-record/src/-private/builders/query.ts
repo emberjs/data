@@ -6,8 +6,8 @@ import { underscore } from '@ember/string';
 import { pluralize } from 'ember-inflector';
 
 import { buildBaseURL, buildQueryParams, type QueryUrlOptions } from '@ember-data/request-utils';
-import type { QueryParamsSource } from '@warp-drive/core-types/params';
-import type { ConstrainedRequestOptions, QueryRequestOptions } from '@warp-drive/core-types/request';
+import type { QueryParamsSource } from '@ember-data/types/q/params';
+import type { ConstrainedRequestOptions, QueryRequestOptions } from '@ember-data/types/q/request';
 
 import { copyForwardUrlOptions, extractCacheOptions } from './-utils';
 

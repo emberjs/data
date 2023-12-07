@@ -1,11 +1,12 @@
 import type { TestContext } from '@ember/test-helpers';
 
+import { module, test } from '@warp-drive/diagnostic';
+import { setupTest } from '@warp-drive/diagnostic/ember';
+
 import { setBuildURLConfig } from '@ember-data/request-utils';
 import { createRecord, deleteRecord, findRecord, query, updateRecord } from '@ember-data/rest/request';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
-import { module, test } from '@warp-drive/diagnostic';
-import { setupTest } from '@warp-drive/diagnostic/ember';
 
 import type UserSetting from '../../app/models/user-setting';
 import { headersToObject } from '../helpers/utils';

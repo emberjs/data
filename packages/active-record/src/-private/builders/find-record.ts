@@ -10,7 +10,7 @@ import type {
   ConstrainedRequestOptions,
   FindRecordRequestOptions,
   RemotelyAccessibleIdentifier,
-} from '@warp-drive/core-types/request';
+} from '@ember-data/types/q/request';
 
 import { copyForwardUrlOptions, extractCacheOptions } from './-utils';
 

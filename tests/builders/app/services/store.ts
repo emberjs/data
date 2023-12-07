@@ -6,9 +6,9 @@ import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 import DataStore, { CacheHandler } from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { Cache } from '@warp-drive/core-types/cache';
+import type { Cache } from '@ember-data/types/q/cache';
+import type { ModelSchema } from '@ember-data/types/q/ds-model';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 export default class Store extends DataStore {
   constructor(args: unknown) {

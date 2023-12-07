@@ -6,11 +6,11 @@ import { camelize } from '@ember/string';
 import { pluralize } from 'ember-inflector';
 
 import { buildBaseURL, buildQueryParams, type FindRecordUrlOptions } from '@ember-data/request-utils';
-import type {
+import {
   ConstrainedRequestOptions,
-  FindRecordRequestOptions,
   RemotelyAccessibleIdentifier,
-} from '@warp-drive/core-types/request';
+  FindRecordRequestOptions,
+} from '@ember-data/types/q/request';
 
 import { copyForwardUrlOptions, extractCacheOptions } from './-utils';
 

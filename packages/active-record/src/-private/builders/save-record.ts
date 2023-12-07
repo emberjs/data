@@ -10,13 +10,13 @@ import {
   type UpdateRecordUrlOptions,
 } from '@ember-data/request-utils';
 import { recordIdentifierFor } from '@ember-data/store';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { StableRecordIdentifier, StableExistingRecordIdentifier } from '@ember-data/types/q/identifier';
 import type {
   ConstrainedRequestOptions,
   CreateRequestOptions,
   DeleteRequestOptions,
   UpdateRequestOptions,
-} from '@warp-drive/core-types/request';
+} from '@ember-data/types/q/request';
 
 import { copyForwardUrlOptions } from './-utils';
 

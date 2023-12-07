@@ -1,8 +1,8 @@
 import { assert } from '@ember/debug';
 
-import type { Cache } from '@warp-drive/core-types/cache';
-import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
-import type { QueryParamsSerializationOptions, QueryParamsSource, Serializable } from '@warp-drive/core-types/params';
+import type { Cache } from '@ember-data/types/q/cache';
+import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
+import type { QueryParamsSerializationOptions, Serializable, QueryParamsSource } from '@ember-data/types/q/params';
 
 type Store = {
   cache: Cache;
