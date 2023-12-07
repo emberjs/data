@@ -1,8 +1,8 @@
 import { assert } from '@ember/debug';
 
-import type { Cache } from '@ember-data/types/q/cache';
 import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
-import type { QueryParamsSerializationOptions, Serializable, QueryParamsSource } from '@ember-data/types/q/params';
+import type { Cache } from '@ember-data/types/q/cache';
+import type { QueryParamsSerializationOptions, QueryParamsSource, Serializable } from '@ember-data/types/q/params';
 
 type Store = {
   cache: Cache;
@@ -551,7 +551,6 @@ export function parseCacheControl(header: string): CacheControlValue {
     }
 
     if (i === header.length - 1) {
-      // @ts-expect-error TS incorrectly thinks that optional keys must have a type that includes undefined
       cacheControlValue[key] = NUMERIC_KEYS.has(key) ? parseCacheControlValue(value) : true;
     }
   }

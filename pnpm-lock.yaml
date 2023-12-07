@@ -4826,15 +4826,6 @@ packages:
       '@babel/core': 7.21.4
       '@babel/helper-plugin-utils': 7.20.2
 
-  /@babel/plugin-transform-block-scoping@7.21.0(@babel/core@7.23.5):
-    resolution: {integrity: sha512-Mdrbunoh9SxwFZapeHVrwFmri16+oYotcZysSzhNIVDwIAb1UV+kvnxULSYq9J3/q5MDG+4X6w8QVgD1zhBXNQ==}
-    engines: {node: '>=6.9.0'}
-    peerDependencies:
-      '@babel/core': ^7.0.0-0
-    dependencies:
-      '@babel/core': 7.23.5
-      '@babel/helper-plugin-utils': 7.20.2
-
   /@babel/plugin-transform-block-scoping@7.23.4(@babel/core@7.23.5):
     resolution: {integrity: sha512-0QqbP6B6HOh7/8iNR4CQU2Th/bbRtBp4KS9vcaZd1fZ0wSh5Fyssg0UCIHwxh+ka+pNDREbVLQnHCMHKZfPwfw==}
     engines: {node: '>=6.9.0'}
@@ -4843,7 +4834,6 @@ packages:
     dependencies:
       '@babel/core': 7.23.5
       '@babel/helper-plugin-utils': 7.22.5
-    dev: true
 
   /@babel/plugin-transform-class-properties@7.23.3(@babel/core@7.23.5):
     resolution: {integrity: sha512-uM+AN8yCIjDPccsKGlw271xjJtGii+xQIF/uMPS8H15L12jZTsLfF4o5vNO7d/oUguOyfdikHGc/yi9ge4SGIg==}
@@ -7666,7 +7656,7 @@ packages:
     resolution: {integrity: sha512-pO964cAPhAaFJoS28M8+b5MzAhQ/tVuNM4GDUIAexheQat36axG2WTG8LQ5ea07MSFPesrRFk2T3z88pfvdYKA==}
     dependencies:
       '@types/ember__object': 4.0.5(@babel/core@7.21.4)
-      '@types/ember__owner': 4.0.3
+      '@types/ember__owner': 4.0.8
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -7712,7 +7702,7 @@ packages:
       '@types/ember': 4.0.3(@babel/core@7.21.4)
       '@types/ember__engine': 4.0.4(@babel/core@7.21.4)
       '@types/ember__object': 4.0.5(@babel/core@7.21.4)
-      '@types/ember__owner': 4.0.3
+      '@types/ember__owner': 4.0.8
       '@types/ember__routing': 4.0.12(@babel/core@7.21.4)
     transitivePeerDependencies:
       - '@babel/core'
@@ -7758,7 +7748,7 @@ packages:
     resolution: {integrity: sha512-LvSLFgNlzpbsdb479ohS2szCFwkAsaqPnTjyPML7xFF3r3VGFMQjVNTXQpFYQCKTMAC1FYRX1N6hw/8lpXWHKA==}
     dependencies:
       '@types/ember__object': 4.0.5(@babel/core@7.21.4)
-      '@types/ember__owner': 4.0.3
+      '@types/ember__owner': 4.0.8
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -7768,7 +7758,7 @@ packages:
     resolution: {integrity: sha512-dxQf3ESRjTJtCHbd42/ReUpQUAUsn/VtI6+S07jrsgCbAQEr8Qkh/dJpd9Cta8N+DpbY1CUH58D4HxdOC4Ip3A==}
     dependencies:
       '@types/ember__object': 4.0.5(@babel/core@7.21.4)
-      '@types/ember__owner': 4.0.3
+      '@types/ember__owner': 4.0.8
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -7795,8 +7785,8 @@ packages:
       - supports-color
     dev: true
 
-  /@types/ember__owner@4.0.3:
-    resolution: {integrity: sha512-vwVKdLNYKXMOxJXwMnFQh7TkWfkp6berH6Kc/VK8is1bPgaBB7X/c50rjNmM2o7zI5LJSPm1khxcDidfyXnimg==}
+  /@types/ember__owner@4.0.8:
+    resolution: {integrity: sha512-rBFFXjJpumFrw/cTNudU5gKIXYs34HoaMpGCfYiZ15tjrlLikW5QVFJqRtU7bOTL/Lj3pMm3xUGmrH8iFI/gyQ==}
     dev: true
 
   /@types/ember__polyfills@4.0.1:
@@ -21371,7 +21361,7 @@ packages:
     engines: {node: 16.* || >= 18.*}
     dependencies:
       '@babel/core': 7.23.5
-      '@babel/plugin-transform-block-scoping': 7.21.0(@babel/core@7.23.5)
+      '@babel/plugin-transform-block-scoping': 7.23.4(@babel/core@7.23.5)
       '@babel/runtime': 7.23.5
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.10.0
@@ -21395,7 +21385,7 @@ packages:
       npm-git-info: 1.0.3
       rimraf: 4.4.1
       rsvp: 4.8.5
-      semver: 7.3.8
+      semver: 7.5.4
       silent-error: 1.1.1
     transitivePeerDependencies:
       - supports-color

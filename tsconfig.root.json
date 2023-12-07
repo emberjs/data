@@ -81,8 +81,6 @@
       "@ember-data/env": ["packages/private-build-infra/virtual-packages/env.d.ts"],
       "@ember-data/unpublished-test-infra/test-support": ["packages/unpublished-test-infra/addon-test-support"],
       "@ember-data/unpublished-test-infra/test-support/*": ["packages/unpublished-test-infra/addon-test-support/*"],
-      "@warp-drive/diagnostic": ["packages/diagnostic/src"],
-      "@warp-drive/diagnostic/*": ["packages/diagnostic/src/*"],
       "fastboot-test-app/tests/*": ["tests/*"],
       "fastboot-test-app/*": ["app/*"],
       "main-test-app/tests/*": ["tests/main/tests/*"],
@@ -125,5 +123,11 @@
     "tests/**/addon/**/*",
     "tests/**/tests/**/*"
   ],
-  "exclude": ["node_modules", "packages/**/node_modules", "packages/**/dist", "packages/**/DEBUG"]
+  "exclude": [
+    "node_modules",
+    "packages/**/node_modules",
+    "packages/**/dist",
+    "packages/**/DEBUG",
+    "packages/diagnostic"
+  ]
 }

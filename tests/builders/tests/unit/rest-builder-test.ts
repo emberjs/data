@@ -254,7 +254,7 @@ module('REST | Request Builders', function (hooks) {
     };
     store.push(expectedData);
 
-    const userSetting = store.peekRecord('user-setting', '12');
+    const userSetting = store.peekRecord('user-setting', '12')!;
     const identifier = recordIdentifierFor(userSetting);
 
     const result = deleteRecord(userSetting);
