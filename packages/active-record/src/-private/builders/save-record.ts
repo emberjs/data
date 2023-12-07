@@ -10,7 +10,8 @@ import {
   type UpdateRecordUrlOptions,
 } from '@ember-data/request-utils';
 import { recordIdentifierFor } from '@ember-data/store';
-import type { StableRecordIdentifier, StableExistingRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import { RecordInstance } from '@ember-data/types/q/record-instance';
 import type {
   ConstrainedRequestOptions,
   CreateRequestOptions,
@@ -76,7 +77,7 @@ function isExisting(identifier: StableRecordIdentifier): identifier is StableExi
  * @param record
  * @param options
  */
-export function deleteRecord(record: unknown, options: ConstrainedRequestOptions = {}): DeleteRequestOptions {
+export function deleteRecord(record: RecordInstance, options: ConstrainedRequestOptions = {}): DeleteRequestOptions {
   const identifier = recordIdentifierFor(record);
   assert(`Expected to be given a record instance`, identifier);
   assert(`Cannot delete a record that does not have an associated type and id.`, isExisting(identifier));
@@ -146,7 +147,7 @@ export function deleteRecord(record: unknown, options: ConstrainedRequestOptions
  * @param record
  * @param options
  */
-export function createRecord(record: unknown, options: ConstrainedRequestOptions = {}): CreateRequestOptions {
+export function createRecord(record: RecordInstance, options: ConstrainedRequestOptions = {}): CreateRequestOptions {
   const identifier = recordIdentifierFor(record);
   assert(`Expected to be given a record instance`, identifier);
 
@@ -219,7 +220,7 @@ export function createRecord(record: unknown, options: ConstrainedRequestOptions
  * @param options
  */
 export function updateRecord(
-  record: unknown,
+  record: RecordInstance,
   options: ConstrainedRequestOptions & { patch?: boolean } = {}
 ): UpdateRequestOptions {
   const identifier = recordIdentifierFor(record);
