@@ -252,8 +252,8 @@ module('integration/references/has-many', function (hooks) {
 
     const personsReference = family.hasMany('persons');
     const data = [
-      { data: { type: 'person', id: '1', attributes: { name: 'Vito' } } },
-      { data: { type: 'person', id: '2', attributes: { name: 'Michael' } } },
+      { type: 'person', id: '1', attributes: { name: 'Vito' } },
+      { type: 'person', id: '2', attributes: { name: 'Michael' } },
     ];
 
     const records = await personsReference.push(data);
@@ -290,7 +290,7 @@ module('integration/references/has-many', function (hooks) {
 
     const personsReference = family.hasMany('persons');
 
-    const data = [{ data: { type: 'mafia-boss', id: '1', attributes: { name: 'Vito' } } }];
+    const data = [{ type: 'mafia-boss', id: '1', attributes: { name: 'Vito' } }];
 
     const records = await personsReference.push(data);
     assert.strictEqual(records.length, 1);
@@ -318,41 +318,8 @@ module('integration/references/has-many', function (hooks) {
     const petsReference = person.hasMany('pets');
 
     await assert.expectAssertion(async () => {
-      await petsReference.push([{ data: { type: 'person', id: '1' } }]);
+      await petsReference.push([{ type: 'person', id: '1' }]);
     }, "The 'person' type does not implement 'animal' and thus cannot be assigned to the 'pets' relationship in 'person'. If this relationship should be polymorphic, mark person.pets as `polymorphic: true` and person.owner as implementing it via `as: 'animal'`.");
-  });
-
-  testInDebug('push(object) supports legacy, non-JSON-API-conform payload', async function (assert) {
-    const store = this.owner.lookup('service:store');
-
-    var family = store.push({
-      data: {
-        type: 'family',
-        id: '1',
-        relationships: {
-          persons: {
-            data: [
-              { type: 'person', id: '1' },
-              { type: 'person', id: '2' },
-            ],
-          },
-        },
-      },
-    });
-
-    var personsReference = family.hasMany('persons');
-
-    var payload = {
-      data: [
-        { data: { type: 'person', id: '1', attributes: { name: 'Vito' } } },
-        { data: { type: 'person', id: '2', attributes: { name: 'Michael' } } },
-      ],
-    };
-
-    const records = await personsReference.push(payload);
-    assert.strictEqual(records.length, 2);
-    assert.strictEqual(records.at(0).name, 'Vito');
-    assert.strictEqual(records.at(1).name, 'Michael');
   });
 
   test('push valid json:api', async function (assert) {
@@ -364,6 +331,12 @@ module('integration/references/has-many', function (hooks) {
         id: '1',
         relationships: {
           persons: {
+            links: {
+              related: '/families/1/persons',
+            },
+            meta: {
+              total: 2
+            },
             data: [
               { type: 'person', id: '1' },
               { type: 'person', id: '2' },
@@ -386,6 +359,135 @@ module('integration/references/has-many', function (hooks) {
     assert.strictEqual(records.length, 2);
     assert.strictEqual(records.at(0).name, 'Vito');
     assert.strictEqual(records.at(1).name, 'Michael');
+    assert.deepEqual(personsReference.meta(), { total: 2 }, 'meta is not updated');
+    assert.strictEqual(personsReference.link(), '/families/1/persons', 'link is not updated');
+  });
+
+  test('push(document) can update links', async function (assert) {
+    const store = this.owner.lookup('service:store');
+
+    const family = store.push({
+      data: {
+        type: 'family',
+        id: '1',
+        relationships: {
+          persons: {
+            links: { related: '/families/1/persons' },
+            data: [
+              { type: 'person', id: '1' },
+              { type: 'person', id: '2' },
+            ],
+          },
+        },
+      },
+    });
+    const personsReference = family.hasMany('persons');
+    assert.arrayStrictEquals(personsReference.ids(), ['1', '2'], 'ids are correct');
+    assert.strictEqual(personsReference.link(), '/families/1/persons', 'link is correct');
+
+    await personsReference.push({
+      links: { related: '/families/1/persons?page=1' },
+      data: [
+        { type: 'person', id: '3' },
+        { type: 'person', id: '4' },
+      ],
+    }, true);
+
+    assert.arrayStrictEquals(personsReference.ids(), ['3', '4'], 'ids are correct');
+    assert.strictEqual(personsReference.link(), '/families/1/persons?page=1', 'link is correct');
+  });
+  test('push(document) can update links even when no data is present', async function (assert) {
+    const store = this.owner.lookup('service:store');
+
+    const family = store.push({
+      data: {
+        type: 'family',
+        id: '1',
+        relationships: {
+          persons: {
+            links: { related: '/families/1/persons' },
+            data: [
+              { type: 'person', id: '1' },
+              { type: 'person', id: '2' },
+            ],
+          },
+        },
+      },
+    });
+    const personsReference = family.hasMany('persons');
+    assert.arrayStrictEquals(personsReference.ids(), ['1', '2'], 'ids are correct');
+    assert.strictEqual(personsReference.link(), '/families/1/persons', 'link is correct');
+
+    await personsReference.push({
+      links: { related: '/families/1/persons?page=1' }
+    }, true);
+
+    assert.arrayStrictEquals(personsReference.ids(), ['1', '2'], 'ids are correct');
+    assert.strictEqual(personsReference.link(), '/families/1/persons?page=1', 'link is correct');
+  });
+  test('push(document) can update meta', async function (assert) {
+    const store = this.owner.lookup('service:store');
+
+    const family = store.push({
+      data: {
+        type: 'family',
+        id: '1',
+        relationships: {
+          persons: {
+            meta: { total: 2 },
+            data: [
+              { type: 'person', id: '1' },
+              { type: 'person', id: '2' },
+            ],
+          },
+        },
+      },
+    });
+    const personsReference = family.hasMany('persons');
+    assert.arrayStrictEquals(personsReference.ids(), ['1', '2'], 'ids are correct');
+    assert.deepEqual(personsReference.meta(), { total: 2 }, 'meta is correct');
+
+    await personsReference.push({
+      meta: { total: 4 },
+      data: [
+        { type: 'person', id: '1' },
+        { type: 'person', id: '2' },
+        { type: 'person', id: '3' },
+        { type: 'person', id: '4' },
+      ],
+    }, true);
+
+    assert.arrayStrictEquals(personsReference.ids(), ['1', '2', '3', '4'], 'ids are correct');
+    assert.deepEqual(personsReference.meta(), { total: 4 }, 'meta is correct');
+  });
+  test('push(document) can update meta even when no data is present', async function (assert) {
+    const store = this.owner.lookup('service:store');
+
+    const family = store.push({
+      data: {
+        type: 'family',
+        id: '1',
+        relationships: {
+          persons: {
+            meta: { total: 2 },
+            data: [
+              { type: 'person', id: '1' },
+              { type: 'person', id: '2' },
+            ],
+          },
+        },
+      },
+    });
+    const personsReference = family.hasMany('persons');
+    assert.arrayStrictEquals(personsReference.ids(), ['1', '2'], 'ids are correct');
+    assert.deepEqual(personsReference.meta(), { total: 2 }, 'meta is correct');
+
+    await personsReference.push({
+      meta: { total: 4 },
+    }, true);
+
+    assert.arrayStrictEquals(personsReference.ids(), ['1', '2'], 'ids are correct');
+    assert.deepEqual(personsReference.meta(), { total: 4 }, 'meta is correct');
   });
 
   test('value() returns null when reference is not yet loaded', function (assert) {

@@ -9,31 +9,31 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
+class Family extends Model {
+  @hasMany('person', { async: true, inverse: 'family' }) persons;
+  @attr name;
+}
+
+class Team extends Model {
+  @hasMany('person', { async: true, inverse: 'team' }) persons;
+  @attr name;
+}
+
+class Person extends Model {
+  @belongsTo('family', { async: true, inverse: 'persons' }) family;
+  @belongsTo('team', { async: false, inverse: 'persons' }) team;
+}
+
 module('integration/references/belongs-to', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    const Family = Model.extend({
-      persons: hasMany('person', { async: true, inverse: 'family' }),
-      name: attr(),
-    });
-
-    const Team = Model.extend({
-      persons: hasMany('person', { async: true, inverse: 'team' }),
-      name: attr(),
-    });
-
-    const Person = Model.extend({
-      family: belongsTo('family', { async: true, inverse: 'persons' }),
-      team: belongsTo('team', { async: false, inverse: 'persons' }),
-    });
-
     this.owner.register('model:family', Family);
     this.owner.register('model:team', Team);
     this.owner.register('model:person', Person);
 
-    this.owner.register('adapter:application', JSONAPIAdapter.extend());
-    this.owner.register('serializer:application', class extends JSONAPISerializer {});
+    this.owner.register('adapter:application', JSONAPIAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer);
   });
 
   testInDebug("record#belongsTo asserts when specified relationship doesn't exist", function (assert) {
@@ -137,7 +137,7 @@ module('integration/references/belongs-to', function (hooks) {
     assert.deepEqual(familyReference.meta(), { foo: true });
   });
 
-  test('push(object)', async function (assert) {
+  test('push(object) works with resources', async function (assert) {
     const store = this.owner.lookup('service:store');
     const Family = store.modelFor('family');
 
@@ -166,8 +166,244 @@ module('integration/references/belongs-to', function (hooks) {
     };
 
     const record = await familyReference.push(data);
-    assert.ok(Family.detectInstance(record), 'push resolves with the referenced record');
-    assert.strictEqual(get(record, 'name'), 'Coreleone', 'name is set');
+    assert.true(record instanceof Family, 'push resolves with the referenced record');
+    assert.strictEqual(record.name, 'Coreleone', 'name is set');
+  });
+
+  test('push(object) works with resource identifiers (skipLoad: false)', async function (assert) {
+    const store = this.owner.lookup('service:store');
+
+    const person = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        relationships: {
+          family: {
+            data: { type: 'family', id: '1' },
+          },
+        },
+      },
+      included: [
+        {
+          type: 'family',
+          id: '2',
+          attributes: {
+            name: 'Don Coreleone',
+          },
+        }
+      ]
+    });
+
+    const familyReference = person.belongsTo('family');
+    assert.strictEqual(familyReference.id(), '1', 'id is correct');
+
+    const record = await familyReference.push({
+      data: {
+        type: 'family',
+        id: '2'
+      }
+    });
+    assert.strictEqual(familyReference.id(), '2', 'id is correct');
+    assert.strictEqual(record.name, 'Don Coreleone', 'name is correct');
+  });
+
+  test('push(object) works with resource identifiers (skipLoad: true)', async function (assert) {
+    const store = this.owner.lookup('service:store');
+
+    const person = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        relationships: {
+          family: {
+            data: { type: 'family', id: '1' },
+          },
+        },
+      },
+    });
+
+    const familyReference = person.belongsTo('family');
+    assert.strictEqual(familyReference.id(), '1', 'id is correct');
+
+    await familyReference.push({
+      data: {
+        type: 'family',
+        id: '2'
+      }
+    }, true);
+    assert.strictEqual(familyReference.id(), '2', 'id is correct');
+  });
+
+  test('push(object) works with null data', async function (assert) {
+    const store = this.owner.lookup('service:store');
+
+    const person = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        relationships: {
+          family: {
+            data: { type: 'family', id: '1' },
+          },
+        },
+      },
+    });
+
+    const familyReference = person.belongsTo('family');
+    assert.strictEqual(familyReference.id(), '1', 'id is correct');
+
+    await familyReference.push({
+      data: null
+    });
+    assert.strictEqual(familyReference.id(), null, 'id is correct');
+  });
+
+  test('push(object) works with links', async function (assert) {
+    const store = this.owner.lookup('service:store');
+    const Family = store.modelFor('family');
+
+    const person = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        relationships: {
+          family: {
+            links: { related: '/person/1/families' },
+            data: { type: 'family', id: '1' },
+          },
+        },
+      },
+    });
+
+    const familyReference = person.belongsTo('family');
+    assert.strictEqual(familyReference.remoteType(), 'link', 'remoteType is link');
+    assert.strictEqual(familyReference.link(), '/person/1/families', 'initial link is correct');
+
+    const data = {
+      links: {
+        related: '/person/1/families?page=1',
+      },
+      data: {
+        type: 'family',
+        id: '1',
+        attributes: {
+          name: 'Coreleone',
+        },
+      },
+    };
+
+    const record = await familyReference.push(data);
+    assert.true(record instanceof Family, 'push resolves with the referenced record');
+    assert.strictEqual(record.name, 'Coreleone', 'name is set');
+    assert.strictEqual(familyReference.link(), '/person/1/families?page=1', 'link is updated');
+  });
+
+  test('push(object) works with links even when data is not present', async function (assert) {
+    const store = this.owner.lookup('service:store');
+
+    const person = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        relationships: {
+          family: {
+            links: { related: '/person/1/families' },
+            data: { type: 'family', id: '1' },
+          },
+        },
+      },
+    });
+
+    const familyReference = person.belongsTo('family');
+    assert.strictEqual(familyReference.remoteType(), 'link', 'remoteType is link');
+    assert.strictEqual(familyReference.link(), '/person/1/families', 'initial link is correct');
+    assert.strictEqual(familyReference.id(), '1', 'id is correct');
+
+    const data = {
+      links: {
+        related: '/person/1/families?page=1',
+      }
+    };
+
+    await familyReference.push(data, true);
+    assert.strictEqual(familyReference.id(), '1', 'id is still correct');
+    assert.strictEqual(familyReference.link(), '/person/1/families?page=1', 'link is updated');
+  });
+
+  test('push(object) works with meta', async function (assert) {
+    const store = this.owner.lookup('service:store');
+    const Family = store.modelFor('family');
+    const timestamp1 = Date.now();
+    const person = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        relationships: {
+          family: {
+            meta: {
+              createdAt: timestamp1,
+            },
+            data: { type: 'family', id: '1' },
+          },
+        },
+      },
+    });
+
+    const familyReference = person.belongsTo('family');
+    assert.deepEqual(familyReference.meta(), { createdAt: timestamp1 }, 'initial meta is correct');
+
+    const timestamp2 = Date.now() + 1;
+    const data = {
+      meta: {
+        updatedAt: timestamp2,
+      },
+      data: {
+        type: 'family',
+        id: '1',
+        attributes: {
+          name: 'Coreleone',
+        },
+      },
+    };
+
+    const record = await familyReference.push(data);
+    assert.true(record instanceof Family, 'push resolves with the referenced record');
+    assert.strictEqual(record.name, 'Coreleone', 'name is set');
+    assert.deepEqual(familyReference.meta(), { updatedAt: timestamp2 }, 'meta is updated');
+  });
+
+  test('push(object) works with meta even when data is not present', async function (assert) {
+    const store = this.owner.lookup('service:store');
+    const timestamp1 = Date.now();
+    const person = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        relationships: {
+          family: {
+            meta: {
+              createdAt: timestamp1,
+            },
+            data: { type: 'family', id: '1' },
+          },
+        },
+      },
+    });
+
+    const familyReference = person.belongsTo('family');
+    assert.strictEqual(familyReference.id(), '1', 'id is correct');
+    assert.deepEqual(familyReference.meta(), { createdAt: timestamp1 }, 'initial meta is correct');
+
+    const timestamp2 = Date.now() + 1;
+    const data = {
+      meta: {
+        updatedAt: timestamp2,
+      },
+    };
+
+    await familyReference.push(data, true);
+    assert.strictEqual(familyReference.id(), '1', 'id is still correct');
+    assert.deepEqual(familyReference.meta(), { updatedAt: timestamp2 }, 'meta is updated');
   });
 
   testInDebug('push(object) asserts for invalid modelClass', async function (assert) {
@@ -232,12 +468,18 @@ module('integration/references/belongs-to', function (hooks) {
       data: {
         type: 'person',
         id: '1',
+        attributes: {
+          name: 'Vito',
+        }
       },
     });
     const mafiaFamily = {
       data: {
         type: 'mafia-family',
         id: '1',
+        attributes: {
+          name: 'Don',
+        }
       },
     };
 
@@ -245,7 +487,7 @@ module('integration/references/belongs-to', function (hooks) {
     const family = await familyReference.push(mafiaFamily);
     const record = store.peekRecord('mafia-family', '1');
 
-    assert.strictEqual(family, record);
+    assert.strictEqual(family, record, 'we get back the correct record');
   });
 
   test('value() is null when reference is not yet loaded', function (assert) {
