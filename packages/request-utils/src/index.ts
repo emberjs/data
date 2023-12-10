@@ -52,7 +52,7 @@ export interface BuildURLConfig {
   namespace: string | null;
 }
 
-let CONFIG: BuildURLConfig = {
+const CONFIG: BuildURLConfig = {
   host: '',
   namespace: '',
 };
@@ -64,13 +64,30 @@ let CONFIG: BuildURLConfig = {
  * These values may still be overridden by passing
  * them to buildBaseURL directly.
  *
- * This method may be called as many times as needed
+ * This method may be called as many times as needed.
+ * host values of `''` or `'/'` are equivalent.
+ *
+ * Except for the value of `/` as host, host should not
+ * end with `/`.
+ *
+ * namespace should not start or end with a `/`.
  *
  * ```ts
  * type BuildURLConfig = {
  *   host: string;
  *   namespace: string'
  * }
+ * ```
+ *
+ * Example:
+ *
+ * ```ts
+ * import { setBuildURLConfig } from '@ember-data/request-utils';
+ *
+ * setBuildURLConfig({
+ *   host: 'https://api.example.com',
+ *   namespace: 'api/v1'
+ * });
  * ```
  *
  * @method setBuildURLConfig
@@ -81,7 +98,27 @@ let CONFIG: BuildURLConfig = {
  * @returns void
  */
 export function setBuildURLConfig(config: BuildURLConfig) {
-  CONFIG = config;
+  assert(`setBuildURLConfig: You must pass a config object`, config);
+  assert(
+    `setBuildURLConfig: You must pass a config object with a 'host' or 'namespace' property`,
+    'host' in config || 'namespace' in config
+  );
+
+  CONFIG.host = config.host || '';
+  CONFIG.namespace = config.namespace || '';
+
+  assert(
+    `buildBaseURL: host must NOT end with '/', received '${CONFIG.host}'`,
+    CONFIG.host === '/' || !CONFIG.host.endsWith('/')
+  );
+  assert(
+    `buildBaseURL: namespace must NOT start with '/', received '${CONFIG.namespace}'`,
+    !CONFIG.namespace.startsWith('/')
+  );
+  assert(
+    `buildBaseURL: namespace must NOT end with '/', received '${CONFIG.namespace}'`,
+    !CONFIG.namespace.endsWith('/')
+  );
 }
 
 export interface FindRecordUrlOptions {
@@ -312,8 +349,9 @@ export function buildBaseURL(urlOptions: UrlOptions): string {
   assert(`buildBaseURL: idPath must NOT start with '/', received '${idPath}'`, !idPath.startsWith('/'));
   assert(`buildBaseURL: idPath must NOT end with '/', received '${idPath}'`, !idPath.endsWith('/'));
 
-  const url = [host === '/' ? '' : host, namespace, resourcePath, idPath, fieldPath].filter(Boolean).join('/');
-  return host ? url : `/${url}`;
+  const hasHost = host !== '' && host !== '/';
+  const url = [hasHost ? host : '', namespace, resourcePath, idPath, fieldPath].filter(Boolean).join('/');
+  return hasHost ? url : `/${url}`;
 }
 
 type SerializablePrimitive = string | number | boolean | null;
