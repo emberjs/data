@@ -4,10 +4,6 @@ import type { Cache } from '@warp-drive/core-types/cache';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type { QueryParamsSerializationOptions, QueryParamsSource, Serializable } from '@warp-drive/core-types/params';
 
-type Store = {
-  cache: Cache;
-};
-
 /**
  * Simple utility function to assist in url building,
  * query params, and other common request operations.
