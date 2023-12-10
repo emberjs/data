@@ -21,7 +21,6 @@ import type Store from '../store-service';
 
    @class RecordReference
    @public
-   @extends Reference
 */
 export default class RecordReference {
   declare store: Store;

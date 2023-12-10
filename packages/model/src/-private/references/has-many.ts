@@ -1,10 +1,10 @@
+import { assert } from '@ember/debug';
+
 import { DEBUG } from '@ember-data/env';
 import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection';
 import type { Graph } from '@ember-data/graph/-private/graph';
 import type Store from '@ember-data/store';
-import { recordIdentifierFor } from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
 import type { FindOptions } from '@ember-data/store/-types/q/store';
 import { cached, compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';
@@ -17,7 +17,6 @@ import type {
   LinkObject,
   Meta,
   PaginationLinks,
-  SingleResourceDocument,
 } from '@warp-drive/core-types/spec/raw';
 
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
@@ -41,19 +40,52 @@ function isResourceIdentiferWithRelatedLinks(
   return Boolean(value && value.links && value.links.related);
 }
 /**
- A `HasManyReference` is a low-level API that allows users and addon
- authors to perform meta-operations on a has-many relationship.
+ A `HasManyReference` is a low-level API that allows access
+ and manipulation of a hasMany relationship.
+
+ It is especially useful when you're dealing with `async` relationships
+ from `@ember-data/model` as it allows synchronous access to
+ the relationship data if loaded, as well as APIs for loading, reloading
+ the data or accessing available information without triggering a load.
+
+ It may also be useful when using `sync` relationships with `@ember-data/model`
+ that need to be loaded/reloaded with more precise timing than marking the
+ relationship as `async` and relying on autofetch would have allowed.
+
+ However,keep in mind that marking a relationship as `async: false` will introduce
+ bugs into your application if the data is not always guaranteed to be available
+ by the time the relationship is accessed. Ergo, it is recommended when using this
+ approach to utilize `links` for unloaded relationship state instead of identifiers.
+
+ Reference APIs are entangled with the relationship's underlying state,
+ thus any getters or cached properties that utilize these will properly
+ invalidate if the relationship state changes.
+
+ References are "stable", meaning that multiple calls to retrieve the reference
+  for a given relationship will always return the same HasManyReference.
 
  @class HasManyReference
  @public
- @extends Reference
  */
 export default class HasManyReference {
   declare graph: Graph;
-  declare key: string;
-  declare hasManyRelationship: CollectionEdge;
-  declare type: string;
   declare store: Store;
+  declare hasManyRelationship: CollectionEdge;
+  /**
+   * The field name on the parent record for this has-many relationship.
+   *
+   * @property {String} key
+   * @public
+   */
+  declare key: string;
+
+  /**
+   * The type of resource this relationship will contain.
+   *
+   * @property {String} type
+   * @public
+   */
+  declare type: string;
 
   // unsubscribe tokens given to us by the notification manager
   ___token!: object;
@@ -88,6 +120,11 @@ export default class HasManyReference {
     // TODO inverse
   }
 
+  /**
+   * This method should never be called by user code.
+   *
+   * @internal
+   */
   destroy() {
     this.store.notifications.unsubscribe(this.___token);
     this.___relatedTokenMap.forEach((token) => {
@@ -339,9 +376,9 @@ export default class HasManyReference {
 
   @method meta
   @public
-  @return {Object} The meta information for the belongs-to relationship.
+  @return {Object|null} The meta information for the belongs-to relationship.
   */
-  meta() {
+  meta(): Meta | null {
     let meta: Meta | null = null;
     const resource = this._resource();
     if (resource && resource.meta && typeof resource.meta === 'object') {
@@ -351,11 +388,12 @@ export default class HasManyReference {
   }
 
   /**
-   `push` can be used to update the data in the relationship and Ember
-   Data will treat the new data as the canonical value of this
-   relationship on the backend.
+   `push` can be used to update the data in the relationship and EmberData
+   will treat the new data as the canonical value of this relationship on
+   the backend. An empty array will signify the canonical value should be
+   empty.
 
-   Example
+   Example model
 
    ```app/models/post.js
    import Model, { hasMany } from '@ember-data/model';
@@ -365,79 +403,138 @@ export default class HasManyReference {
    }
    ```
 
-   ```
-   let post = store.push({
+   Setup some initial state, note we haven't loaded the comments yet:
+
+   ```js
+   const post = store.push({
      data: {
        type: 'post',
-       id: 1,
+       id: '1',
        relationships: {
          comments: {
-           data: [{ type: 'comment', id: 1 }]
+           data: [{ type: 'comment', id: '1' }]
          }
        }
      }
    });
 
-   let commentsRef = post.hasMany('comments');
-
+   const commentsRef = post.hasMany('comments');
    commentsRef.ids(); // ['1']
+   ```
 
-   commentsRef.push([
-   [{ type: 'comment', id: 2 }],
-   [{ type: 'comment', id: 3 }],
-   ])
+   Update the state using `push`, note we can do this even without
+   having loaded these comments yet by providing resource identifiers.
+
+   Both full resources and resource identifiers are supported.
+
+   ```js
+   await commentsRef.push({
+    data: [
+     { type: 'comment', id: '2' },
+     { type: 'comment', id: '3' },
+    ]
+   });
 
    commentsRef.ids(); // ['2', '3']
    ```
 
-   @method push
-    @public
-   @param {Array|Promise} objectOrPromise a promise that resolves to a JSONAPI document object describing the new value of this relationship.
-   @return {ManyArray}
-   */
-  async push(
-    objectOrPromise: ExistingResourceObject[] | CollectionResourceDocument | { data: SingleResourceDocument[] }
-  ): Promise<ManyArray> {
-    const payload = objectOrPromise;
-    let array: Array<ExistingResourceObject | SingleResourceDocument>;
+   For convenience, you can also pass in an array of resources or resource identifiers
+   without wrapping them in the `data` property:
 
-    if (!Array.isArray(payload) && typeof payload === 'object' && Array.isArray(payload.data)) {
-      array = payload.data;
-    } else {
-      array = payload as ExistingResourceObject[];
+   ```js
+   await commentsRef.push([
+     { type: 'comment', id: '4' },
+     { type: 'comment', id: '5' },
+   ]);
+
+   commentsRef.ids(); // ['4', '5']
+   ```
+
+   When using the `data` property, you may also include other resource data via included,
+   as well as provide new links and meta to the relationship.
+
+   ```js
+   await commentsRef.push({
+     links: {
+       related: '/posts/1/comments'
+     },
+     meta: {
+       total: 2
+     },
+     data: [
+       { type: 'comment', id: '4' },
+       { type: 'comment', id: '5' },
+     ],
+     included: [
+       { type: 'other-thing', id: '1', attributes: { foo: 'bar' },
+     ]
+   });
+   ```
+
+   By default, the store will attempt to fetch any unloaded records before resolving
+   the returned promise with the ManyArray.
+
+   Alternatively, pass `true` as the second argument to avoid fetching unloaded records
+   and instead the promise will resolve with void without attempting to fetch. This is
+   particularly useful if you want to update the state of the relationship without
+   forcing the load of all of the associated records.
+
+   @method push
+   @public
+   @param {Array|Object} doc a JSONAPI document object describing the new value of this relationship.
+   @param {Boolean} [skipFetch] if `true`, do not attempt to fetch unloaded records
+   @return {Promise<ManyArray | void>}
+  */
+  async push(
+    doc: ExistingResourceObject[] | CollectionResourceDocument,
+    skipFetch?: boolean
+  ): Promise<ManyArray | void> {
+    const { store } = this;
+    const dataDoc = Array.isArray(doc) ? { data: doc } : doc;
+    const isResourceData = Array.isArray(dataDoc.data) && dataDoc.data.length > 0 && isMaybeResource(dataDoc.data[0]);
+
+    // enforce that one of links, meta or data is present
+    assert(
+      `You must provide at least one of 'links', 'meta' or 'data' when calling hasManyReference.push`,
+      'links' in dataDoc || 'meta' in dataDoc || 'data' in dataDoc
+    );
+
+    const identifiers = !Array.isArray(dataDoc.data)
+      ? []
+      : isResourceData
+        ? (store._push(dataDoc, true) as StableRecordIdentifier[])
+        : dataDoc.data.map((i) => store.identifierCache.getOrCreateRecordIdentifier(i));
+    const { identifier } = this.hasManyRelationship;
+
+    if (DEBUG) {
+      const relationshipMeta = this.hasManyRelationship.definition;
+
+      identifiers.forEach((added) => {
+        assertPolymorphicType(identifier, relationshipMeta, added, store);
+      });
     }
 
-    const { store } = this;
-
-    const identifiers = array.map((obj) => {
-      let record: RecordInstance;
-      if ('data' in obj) {
-        // TODO deprecate pushing non-valid JSON:API here
-        record = store.push(obj);
-      } else {
-        record = store.push({ data: obj });
-      }
-
-      if (DEBUG) {
-        const relationshipMeta = this.hasManyRelationship.definition;
-        const identifier = this.hasManyRelationship.identifier;
-
-        assertPolymorphicType(identifier, relationshipMeta, recordIdentifierFor(record), store);
-      }
-      return recordIdentifierFor(record);
-    });
-
-    const { identifier } = this.hasManyRelationship;
+    const newData: CollectionResourceRelationship = {};
+    // only set data if it was passed in
+    if (Array.isArray(dataDoc.data)) {
+      newData.data = identifiers;
+    }
+    if ('links' in dataDoc) {
+      newData.links = dataDoc.links;
+    }
+    if ('meta' in dataDoc) {
+      newData.meta = dataDoc.meta;
+    }
     store._join(() => {
       this.graph.push({
-        op: 'replaceRelatedRecords',
+        op: 'updateRelationship',
         record: identifier,
         field: this.key,
-        value: identifiers,
+        value: newData,
       });
     });
 
-    return this.load();
+    if (!skipFetch) return this.load();
   }
 
   _isLoaded() {
@@ -494,7 +591,7 @@ export default class HasManyReference {
     @public
    @return {ManyArray}
    */
-  value() {
+  value(): ManyArray | null {
     const support: LegacySupport = (LEGACY_SUPPORT as Map<StableRecordIdentifier, LegacySupport>).get(
       this.___identifier
     )!;
@@ -570,7 +667,7 @@ export default class HasManyReference {
    ```
 
    @method load
-    @public
+   @public
    @param {Object} options the options to pass in.
    @return {Promise} a promise that resolves with the ManyArray in
    this has-many relationship.
@@ -583,7 +680,9 @@ export default class HasManyReference {
       !this.hasManyRelationship.definition.isAsync && !areAllInverseRecordsLoaded(this.store, this._resource());
     return fetchSyncRel
       ? (support.reloadHasMany(this.key, options) as Promise<ManyArray>)
-      : (support.getHasMany(this.key, options) as Promise<ManyArray> | ManyArray); // this cast is necessary because typescript does not work properly with custom thenables;
+      : // we cast to fix the return type since typescript and eslint don't understand async functions
+        // properly
+        (support.getHasMany(this.key, options) as Promise<ManyArray> | ManyArray);
   }
 
   /**
@@ -644,3 +743,8 @@ export default class HasManyReference {
   }
 }
 defineSignal(HasManyReference.prototype, '_ref', 0);
+
+export function isMaybeResource(object: ExistingResourceObject | ResourceIdentifier): object is ExistingResourceObject {
+  const keys = Object.keys(object).filter((k) => k !== 'id' && k !== 'type' && k !== 'lid');
+  return keys.length > 0;
+}

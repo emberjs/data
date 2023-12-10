@@ -2,12 +2,12 @@ import { DEBUG } from '@ember-data/env';
 import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
 import type { Graph } from '@ember-data/graph/-private/graph';
 import type Store from '@ember-data/store';
-import { recordIdentifierFor } from '@ember-data/store/-private';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
 import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
 import { cached, compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type {
   LinkObject,
   Links,
@@ -19,6 +19,7 @@ import type {
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
 import type { LegacySupport } from '../legacy-relationships-support';
 import { areAllInverseRecordsLoaded, LEGACY_SUPPORT } from '../legacy-relationships-support';
+import { isMaybeResource } from './has-many';
 
 /**
   @module @ember-data/model
@@ -38,23 +39,56 @@ function isResourceIdentiferWithRelatedLinks(
 }
 
 /**
- A `BelongsToReference` is a low-level API that allows users and
- addon authors to perform meta-operations on a belongs-to
- relationship.
+ A `BelongsToReference` is a low-level API that allows access
+ and manipulation of a belongsTo relationship.
+
+ It is especially useful when you're dealing with `async` relationships
+ from `@ember-data/model` as it allows synchronous access to
+ the relationship data if loaded, as well as APIs for loading, reloading
+ the data or accessing available information without triggering a load.
+
+ It may also be useful when using `sync` relationships with `@ember-data/model`
+ that need to be loaded/reloaded with more precise timing than marking the
+ relationship as `async` and relying on autofetch would have allowed.
+
+ However,keep in mind that marking a relationship as `async: false` will introduce
+ bugs into your application if the data is not always guaranteed to be available
+ by the time the relationship is accessed. Ergo, it is recommended when using this
+ approach to utilize `links` for unloaded relationship state instead of identifiers.
+
+ Reference APIs are entangled with the relationship's underlying state,
+ thus any getters or cached properties that utilize these will properly
+ invalidate if the relationship state changes.
+
+ References are "stable", meaning that multiple calls to retrieve the reference
+  for a given relationship will always return the same HasManyReference.
 
  @class BelongsToReference
  @public
  */
 export default class BelongsToReference {
-  declare key: string;
-  declare belongsToRelationship: ResourceEdge;
-  declare type: string;
-  declare ___identifier: StableRecordIdentifier;
-  declare store: Store;
   declare graph: Graph;
+  declare store: Store;
+  declare belongsToRelationship: ResourceEdge;
+  /**
+   * The field name on the parent record for this has-many relationship.
+   *
+   * @property {String} key
+   * @public
+   */
+  declare key: string;
+
+  /**
+   * The type of resource this relationship will contain.
+   *
+   * @property {String} type
+   * @public
+   */
+  declare type: string;
 
   // unsubscribe tokens given to us by the notification manager
   declare ___token: object;
+  declare ___identifier: StableRecordIdentifier;
   declare ___relatedToken: object | null;
 
   declare _ref: number;
@@ -277,7 +311,7 @@ export default class BelongsToReference {
     @public
    @return {Object} The meta information for the belongs-to relationship.
    */
-  meta() {
+  meta(): Meta | null {
     let meta: Meta | null = null;
     const resource = this._resource();
     if (resource && resource.meta && typeof resource.meta === 'object') {
@@ -343,11 +377,12 @@ export default class BelongsToReference {
   }
 
   /**
-   `push` can be used to update the data in the relationship and Ember
-   Data will treat the new data as the canonical value of this
-   relationship on the backend.
+   `push` can be used to update the data in the relationship and EmberData
+   will treat the new data as the canonical value of this relationship on
+   the backend. A value of `null` (e.g. `{ data: null }`) can be passed to
+   clear the relationship.
 
-   Example
+   Example model
 
    ```app/models/blog.js
    import Model, { belongsTo } from '@ember-data/model';
@@ -355,63 +390,123 @@ export default class BelongsToReference {
    export default class BlogModel extends Model {
       @belongsTo('user', { async: true, inverse: null }) user;
     }
+   ```
 
-   let blog = store.push({
+   Setup some initial state, note we haven't loaded the user yet:
+
+   ```js
+   const blog = store.push({
       data: {
         type: 'blog',
-        id: 1,
+        id: '1',
         relationships: {
           user: {
-            data: { type: 'user', id: 1 }
+            data: { type: 'user', id: '1' }
           }
         }
       }
-    });
-   let userRef = blog.belongsTo('user');
+   });
 
-   // provide data for reference
-   userRef.push({
-      data: {
-        type: 'user',
-        id: 1,
-        attributes: {
-          username: "@user"
-        }
-      }
-    }).then(function(user) {
-      userRef.value() === user;
-    });
+   const userRef = blog.belongsTo('user');
+   userRef.id(); // '1'
    ```
 
+   Update the state using `push`, note we can do this even without
+   having loaded the user yet by providing a resource-identifier.
+
+   Both full a resource and a resource-identifier are supported.
+
+   ```js
+   await userRef.push({
+      data: {
+        type: 'user',
+        id: '2',
+      }
+    });
+
+    userRef.id(); // '2'
+   ```
+
+   You may also pass in links and meta fore the relationship, and sideload
+   additional resources that might be required.
+
+   ```js
+    await userRef.push({
+        data: {
+          type: 'user',
+          id: '2',
+        },
+        links: {
+          related: '/articles/1/author'
+        },
+        meta: {
+          lastUpdated: Date.now()
+        },
+        included: [
+          {
+            type: 'user-preview',
+            id: '2',
+            attributes: {
+              username: '@runspired'
+            }
+          }
+        ]
+      });
+    ```
+
+   By default, the store will attempt to fetch the record if it is not loaded or its
+   resource data is not included in the call to `push` before resolving the returned
+   promise with the new state..
+
+   Alternatively, pass `true` as the second argument to avoid fetching unloaded records
+   and instead the promise will resolve with void without attempting to fetch. This is
+   particularly useful if you want to update the state of the relationship without
+   forcing the load of all of the associated record.
+
    @method push
-    @public
-   @param {Object} object a JSONAPI document object describing the new value of this relationship.
-   @return {Promise<record>} A promise that resolves with the new value in this belongs-to relationship.
-   */
-  push(data: SingleResourceDocument | Promise<SingleResourceDocument>): Promise<RecordInstance> {
-    const jsonApiDoc: SingleResourceDocument = data as SingleResourceDocument;
-    const record = this.store.push(jsonApiDoc);
+   @public
+   @param {Object} doc a JSONAPI document object describing the new value of this relationship.
+   @param {Boolean} [skipFetch] if `true`, do not attempt to fetch unloaded records
+   @return {Promise<RecordInstance | null | void>}
+  */
+  async push(doc: SingleResourceDocument, skipFetch?: boolean): Promise<RecordInstance | null | void> {
+    const { store } = this;
+    const isResourceData = doc.data && isMaybeResource(doc.data);
+    const added = isResourceData
+      ? (store._push(doc, true) as StableExistingRecordIdentifier)
+      : doc.data
+        ? (store.identifierCache.getOrCreateRecordIdentifier(doc.data) as StableExistingRecordIdentifier)
+        : null;
+    const { identifier } = this.belongsToRelationship;
 
     if (DEBUG) {
-      assertPolymorphicType(
-        this.belongsToRelationship.identifier,
-        this.belongsToRelationship.definition,
-        recordIdentifierFor(record),
-        this.store
-      );
+      if (added) {
+        assertPolymorphicType(identifier, this.belongsToRelationship.definition, added, store);
+      }
     }
 
-    const { identifier } = this.belongsToRelationship;
-    this.store._join(() => {
+    const newData: SingleResourceRelationship = {};
+
+    // only set data if it was passed in
+    if (doc.data || doc.data === null) {
+      newData.data = added;
+    }
+    if ('links' in doc) {
+      newData.links = doc.links;
+    }
+    if ('meta' in doc) {
+      newData.meta = doc.meta;
+    }
+    store._join(() => {
       this.graph.push({
-        op: 'replaceRelatedRecord',
+        op: 'updateRelationship',
         record: identifier,
         field: this.key,
-        value: recordIdentifierFor(record),
+        value: newData,
       });
     });
 
-    return Promise.resolve(record);
+    if (!skipFetch) return this.load();
   }
 
   /**
@@ -531,7 +626,7 @@ export default class BelongsToReference {
    @param {Object} options the options to pass in.
    @return {Promise} a promise that resolves with the record in this belongs-to relationship.
    */
-  load(options?: Record<string, unknown>) {
+  async load(options?: Record<string, unknown>): Promise<RecordInstance | null> {
     const support: LegacySupport = (LEGACY_SUPPORT as Map<StableRecordIdentifier, LegacySupport>).get(
       this.___identifier
     )!;
@@ -539,7 +634,9 @@ export default class BelongsToReference {
       !this.belongsToRelationship.definition.isAsync && !areAllInverseRecordsLoaded(this.store, this._resource());
     return fetchSyncRel
       ? support.reloadBelongsTo(this.key, options).then(() => this.value())
-      : support.getBelongsTo(this.key, options);
+      : // we cast to fix the return type since typescript and eslint don't understand async functions
+        // properly
+        (support.getBelongsTo(this.key, options) as Promise<RecordInstance | null>);
   }
 
   /**
