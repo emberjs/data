@@ -339,10 +339,11 @@ class Store extends EmberObject {
    * inserting the response into the cache and handing
    * back a Future which resolves to a ResponseDocument
    *
-   * Resource data is always updated in the cache.
+   * ## Cache Keys
    *
-   * Only GET requests have the request result and document
-   * cached by default when a cache key is present.
+   * Only GET requests with a url or requests with an explicit
+   * cache key (`cacheOptions.key`) will have the request result
+   * and document cached.
    *
    * The cache key used is `requestConfig.cacheOptions.key`
    * if present, falling back to `requestconfig.url`.
@@ -352,6 +353,34 @@ class Store extends EmberObject {
    * `requestConfig.cacheOptions.key`. For queries issued
    * via the `POST` method `requestConfig.cacheOptions.key`
    * MUST be supplied for the document to be cached.
+   *
+   * ## Requesting Without a Cache Key
+   *
+   * Resource data within the request is always updated in the cache,
+   * regardless of whether a cache key is present for the request.
+   *
+   * ## Fulfilling From Cache
+   *
+   * When a cache-key is determined, the request may fulfill
+   * from cache provided the cache is not stale.
+   *
+   * Cache staleness is determined by the configured LifetimesService
+   * with priority given to the `cacheOptions.reload` and
+   * `cacheOptions.backgroundReload` on the request if present.
+   *
+   * If the cache data has soft expired or the request asks for a background
+   * reload, the request will fulfill from cache if possible and
+   * make a non-blocking request in the background to update the cache.
+   *
+   * If the cache data has hard expired or the request asks for a reload,
+   * the request will not fulfill from cache and will make a blocking
+   * request to update the cache.
+   *
+   * ## The Response
+   *
+   * The primary difference between `requestManager.request` and `store.request`
+   * is that `store.request` will attempt to hydrate the response content into
+   * a response Document containing RecordInstances.
    *
    * @method request
    * @param {StoreRequestInput} requestConfig
