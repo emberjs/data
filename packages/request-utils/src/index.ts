@@ -104,14 +104,26 @@ const CONFIG: BuildURLConfig = {
  */
 export function setBuildURLConfig(config: BuildURLConfig) {
   assert(`setBuildURLConfig: You must pass a config object`, config);
-  assert(`setBuildURLConfig: You must pass a config object with a 'host' or 'namespace' property`, 'host' in config || 'namespace' in config);
+  assert(
+    `setBuildURLConfig: You must pass a config object with a 'host' or 'namespace' property`,
+    'host' in config || 'namespace' in config
+  );
 
   CONFIG.host = config.host || '';
   CONFIG.namespace = config.namespace || '';
 
-  assert(`buildBaseURL: host must NOT end with '/', received '${CONFIG.host}'`, CONFIG.host === '/' || !CONFIG.host.endsWith('/'));
-  assert(`buildBaseURL: namespace must NOT start with '/', received '${CONFIG.namespace}'`, !CONFIG.namespace.startsWith('/'));
-  assert(`buildBaseURL: namespace must NOT end with '/', received '${CONFIG.namespace}'`, !CONFIG.namespace.endsWith('/'));
+  assert(
+    `buildBaseURL: host must NOT end with '/', received '${CONFIG.host}'`,
+    CONFIG.host === '/' || !CONFIG.host.endsWith('/')
+  );
+  assert(
+    `buildBaseURL: namespace must NOT start with '/', received '${CONFIG.namespace}'`,
+    !CONFIG.namespace.startsWith('/')
+  );
+  assert(
+    `buildBaseURL: namespace must NOT end with '/', received '${CONFIG.namespace}'`,
+    !CONFIG.namespace.endsWith('/')
+  );
 }
 
 export interface FindRecordUrlOptions {
