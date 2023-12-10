@@ -25,7 +25,7 @@ function linkItem(item) {
 
 QUnit.module('Docs coverage', function (hooks) {
   // data.json is generated and not always present. So this disable needs to be preserved.
-  const docs = require('../../packages/-ember-data/dist/docs/data.json');
+  const docs = require('../../packages/-ember-data/dist/docs/data.json'); // eslint-disable-line n/no-missing-require
   const expected = require('./fixtures/expected');
 
   function classIsPublic(className) {
