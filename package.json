@@ -113,7 +113,7 @@
       }
     },
     "overrides": {
-      "ember-auto-import": "^2.6.3",
+      "ember-auto-import": "^2.7.0",
       "@embroider/macros": "^1.12.2",
       "broccoli-funnel": "^3.0.8",
       "broccoli-merge-trees": "^4.2.0",
