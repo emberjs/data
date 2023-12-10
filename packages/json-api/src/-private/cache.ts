@@ -481,11 +481,15 @@ export default class JSONAPICache implements Cache {
 
   /**
    * Peek the Cache for the existing request data associated with
-   * a cacheable request
+   * a cacheable request.
+   *
+   * This is effectively the reverse of `put` for a request in
+   * that it will return the the request, response, and content
+   * whereas `peek` will return just the `content`.
    *
    * @method peekRequest
    * @param {StableDocumentIdentifier}
-   * @return {StableDocumentIdentifier | null}
+   * @return {StructuredDocument<ResourceDocument> | null}
    * @public
    */
   peekRequest(identifier: StableDocumentIdentifier): StructuredDocument<ResourceDocument> | null {
