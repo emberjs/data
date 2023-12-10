@@ -50,15 +50,6 @@ URLs are stable. The same query will produce the same URL every time, even if th
 the query or values in an array changes.
 
 URLs follow the most common JSON:API format (dasherized pluralized resource types).
-
-### Available Builders
-
-- [createRecord](https://api.emberjs.com/ember-data/release/functions/@ember-data%2Fjson-api/createRecord)
-- [deleteRecord](https://api.emberjs.com/ember-data/release/functions/@ember-data%2Fjson-api/deleteRecord)
-- [findRecord](https://api.emberjs.com/ember-data/release/functions/@ember-data%2Fjson-api/findRecord)
-- [query](https://api.emberjs.com/ember-data/release/functions/@ember-data%2Fjson-api/query)
-- [updateRecord](https://api.emberjs.com/ember-data/release/functions/@ember-data%2Fjson-api/updateRecord)
-
  *
  * @module @ember-data/json-api/request
  * @main @ember-data/json-api/request
