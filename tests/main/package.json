@@ -87,9 +87,9 @@
     }
   },
   "devDependencies": {
-    "@babel/core": "^7.23.3",
-    "@babel/plugin-transform-typescript": "^7.23.4",
-    "@babel/runtime": "^7.23.4",
+    "@babel/core": "^7.23.5",
+    "@babel/plugin-transform-typescript": "^7.23.5",
+    "@babel/runtime": "^7.23.5",
     "@ember-data/adapter": "workspace:5.5.0-alpha.11",
     "@ember-data/debug": "workspace:5.5.0-alpha.11",
     "@ember-data/graph": "workspace:5.5.0-alpha.11",

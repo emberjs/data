@@ -3,9 +3,9 @@
   "private": true,
   "version": "5.5.0-alpha.11",
   "dependencies": {
-    "@babel/core": "^7.23.3",
+    "@babel/core": "^7.23.5",
     "@babel/eslint-parser": "^7.23.3",
-    "@babel/plugin-proposal-decorators": "^7.23.3",
+    "@babel/plugin-proposal-decorators": "^7.23.5",
     "@typescript-eslint/eslint-plugin": "^6.13.2",
     "@typescript-eslint/parser": "^6.13.2",
     "eslint": "^8.55.0",
