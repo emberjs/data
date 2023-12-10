@@ -69,7 +69,7 @@ export default class BookListComponent extends Component<BookListSignature> {
 
     void future.then((books) => {
       dataWrapper.content = books.content;
-      this.links.addPage(books.content as ApiPage);
+      this.links.addPage(books.content as unknown as ApiPage);
     });
 
     return dataWrapper;
