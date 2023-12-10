@@ -39,7 +39,7 @@
     "@babel/core": "^7.23.3",
     "@babel/runtime": "^7.23.4",
     "@ember/optional-features": "^2.0.0",
-    "@ember/test-helpers": "^3.2.0",
+    "@ember/test-helpers": "^3.2.1",
     "@embroider/compat": "^3.3.1",
     "@embroider/core": "^3.4.2",
     "@embroider/webpack": "^3.2.1",
