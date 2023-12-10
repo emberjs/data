@@ -335,7 +335,7 @@ module('integration/references/has-many', function (hooks) {
               related: '/families/1/persons',
             },
             meta: {
-              total: 2
+              total: 2,
             },
             data: [
               { type: 'person', id: '1' },
@@ -385,13 +385,16 @@ module('integration/references/has-many', function (hooks) {
     assert.arrayStrictEquals(personsReference.ids(), ['1', '2'], 'ids are correct');
     assert.strictEqual(personsReference.link(), '/families/1/persons', 'link is correct');
 
-    await personsReference.push({
-      links: { related: '/families/1/persons?page=1' },
-      data: [
-        { type: 'person', id: '3' },
-        { type: 'person', id: '4' },
-      ],
-    }, true);
+    await personsReference.push(
+      {
+        links: { related: '/families/1/persons?page=1' },
+        data: [
+          { type: 'person', id: '3' },
+          { type: 'person', id: '4' },
+        ],
+      },
+      true
+    );
 
     assert.arrayStrictEquals(personsReference.ids(), ['3', '4'], 'ids are correct');
     assert.strictEqual(personsReference.link(), '/families/1/persons?page=1', 'link is correct');
@@ -418,9 +421,12 @@ module('integration/references/has-many', function (hooks) {
     assert.arrayStrictEquals(personsReference.ids(), ['1', '2'], 'ids are correct');
     assert.strictEqual(personsReference.link(), '/families/1/persons', 'link is correct');
 
-    await personsReference.push({
-      links: { related: '/families/1/persons?page=1' }
-    }, true);
+    await personsReference.push(
+      {
+        links: { related: '/families/1/persons?page=1' },
+      },
+      true
+    );
 
     assert.arrayStrictEquals(personsReference.ids(), ['1', '2'], 'ids are correct');
     assert.strictEqual(personsReference.link(), '/families/1/persons?page=1', 'link is correct');
@@ -447,15 +453,18 @@ module('integration/references/has-many', function (hooks) {
     assert.arrayStrictEquals(personsReference.ids(), ['1', '2'], 'ids are correct');
     assert.deepEqual(personsReference.meta(), { total: 2 }, 'meta is correct');
 
-    await personsReference.push({
-      meta: { total: 4 },
-      data: [
-        { type: 'person', id: '1' },
-        { type: 'person', id: '2' },
-        { type: 'person', id: '3' },
-        { type: 'person', id: '4' },
-      ],
-    }, true);
+    await personsReference.push(
+      {
+        meta: { total: 4 },
+        data: [
+          { type: 'person', id: '1' },
+          { type: 'person', id: '2' },
+          { type: 'person', id: '3' },
+          { type: 'person', id: '4' },
+        ],
+      },
+      true
+    );
 
     assert.arrayStrictEquals(personsReference.ids(), ['1', '2', '3', '4'], 'ids are correct');
     assert.deepEqual(personsReference.meta(), { total: 4 }, 'meta is correct');
@@ -482,9 +491,12 @@ module('integration/references/has-many', function (hooks) {
     assert.arrayStrictEquals(personsReference.ids(), ['1', '2'], 'ids are correct');
     assert.deepEqual(personsReference.meta(), { total: 2 }, 'meta is correct');
 
-    await personsReference.push({
-      meta: { total: 4 },
-    }, true);
+    await personsReference.push(
+      {
+        meta: { total: 4 },
+      },
+      true
+    );
 
     assert.arrayStrictEquals(personsReference.ids(), ['1', '2'], 'ids are correct');
     assert.deepEqual(personsReference.meta(), { total: 4 }, 'meta is correct');

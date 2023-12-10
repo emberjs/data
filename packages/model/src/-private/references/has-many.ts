@@ -499,11 +499,11 @@ export default class HasManyReference {
       'links' in dataDoc || 'meta' in dataDoc || 'data' in dataDoc
     );
 
-    const identifiers = !Array.isArray(dataDoc.data) ? [] :
-      (isResourceData ?
-        store._push(dataDoc, true) as StableRecordIdentifier[] :
-        dataDoc.data.map((i) => store.identifierCache.getOrCreateRecordIdentifier(i))
-      );
+    const identifiers = !Array.isArray(dataDoc.data)
+      ? []
+      : isResourceData
+        ? (store._push(dataDoc, true) as StableRecordIdentifier[])
+        : dataDoc.data.map((i) => store.identifierCache.getOrCreateRecordIdentifier(i));
     const { identifier } = this.hasManyRelationship;
 
     if (DEBUG) {
@@ -680,9 +680,9 @@ export default class HasManyReference {
       !this.hasManyRelationship.definition.isAsync && !areAllInverseRecordsLoaded(this.store, this._resource());
     return fetchSyncRel
       ? (support.reloadHasMany(this.key, options) as Promise<ManyArray>)
-      // we cast to fix the return type since typescript and eslint don't understand async functions
-       // properly
-      : (support.getHasMany(this.key, options) as Promise<ManyArray> | ManyArray);
+      : // we cast to fix the return type since typescript and eslint don't understand async functions
+        // properly
+        (support.getHasMany(this.key, options) as Promise<ManyArray> | ManyArray);
   }
 
   /**

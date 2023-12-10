@@ -2,7 +2,6 @@ import { DEBUG } from '@ember-data/env';
 import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
 import type { Graph } from '@ember-data/graph/-private/graph';
 import type Store from '@ember-data/store';
-import { recordIdentifierFor } from '@ember-data/store/-private';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
 import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
 import { cached, compat } from '@ember-data/tracking';
@@ -312,7 +311,7 @@ export default class BelongsToReference {
     @public
    @return {Object} The meta information for the belongs-to relationship.
    */
-  meta() {
+  meta(): Meta | null {
     let meta: Meta | null = null;
     const resource = this._resource();
     if (resource && resource.meta && typeof resource.meta === 'object') {
@@ -473,17 +472,16 @@ export default class BelongsToReference {
   async push(doc: SingleResourceDocument, skipFetch?: boolean): Promise<RecordInstance | null | void> {
     const { store } = this;
     const isResourceData = doc.data && isMaybeResource(doc.data);
-    const added = isResourceData ? store._push(doc, true) as StableExistingRecordIdentifier : doc.data ? store.identifierCache.getOrCreateRecordIdentifier(doc.data) as StableExistingRecordIdentifier : null;
+    const added = isResourceData
+      ? (store._push(doc, true) as StableExistingRecordIdentifier)
+      : doc.data
+        ? (store.identifierCache.getOrCreateRecordIdentifier(doc.data) as StableExistingRecordIdentifier)
+        : null;
     const { identifier } = this.belongsToRelationship;
 
     if (DEBUG) {
       if (added) {
-        assertPolymorphicType(
-          identifier,
-          this.belongsToRelationship.definition,
-          added,
-          store
-        );
+        assertPolymorphicType(identifier, this.belongsToRelationship.definition, added, store);
       }
     }
 
@@ -636,9 +634,9 @@ export default class BelongsToReference {
       !this.belongsToRelationship.definition.isAsync && !areAllInverseRecordsLoaded(this.store, this._resource());
     return fetchSyncRel
       ? support.reloadBelongsTo(this.key, options).then(() => this.value())
-       // we cast to fix the return type since typescript and eslint don't understand async functions
-       // properly
-      : support.getBelongsTo(this.key, options) as Promise<RecordInstance | null>;
+      : // we cast to fix the return type since typescript and eslint don't understand async functions
+        // properly
+        (support.getBelongsTo(this.key, options) as Promise<RecordInstance | null>);
   }
 
   /**

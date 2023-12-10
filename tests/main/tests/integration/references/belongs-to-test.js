@@ -190,8 +190,8 @@ module('integration/references/belongs-to', function (hooks) {
           attributes: {
             name: 'Don Coreleone',
           },
-        }
-      ]
+        },
+      ],
     });
 
     const familyReference = person.belongsTo('family');
@@ -200,8 +200,8 @@ module('integration/references/belongs-to', function (hooks) {
     const record = await familyReference.push({
       data: {
         type: 'family',
-        id: '2'
-      }
+        id: '2',
+      },
     });
     assert.strictEqual(familyReference.id(), '2', 'id is correct');
     assert.strictEqual(record.name, 'Don Coreleone', 'name is correct');
@@ -225,12 +225,15 @@ module('integration/references/belongs-to', function (hooks) {
     const familyReference = person.belongsTo('family');
     assert.strictEqual(familyReference.id(), '1', 'id is correct');
 
-    await familyReference.push({
-      data: {
-        type: 'family',
-        id: '2'
-      }
-    }, true);
+    await familyReference.push(
+      {
+        data: {
+          type: 'family',
+          id: '2',
+        },
+      },
+      true
+    );
     assert.strictEqual(familyReference.id(), '2', 'id is correct');
   });
 
@@ -253,7 +256,7 @@ module('integration/references/belongs-to', function (hooks) {
     assert.strictEqual(familyReference.id(), '1', 'id is correct');
 
     await familyReference.push({
-      data: null
+      data: null,
     });
     assert.strictEqual(familyReference.id(), null, 'id is correct');
   });
@@ -322,7 +325,7 @@ module('integration/references/belongs-to', function (hooks) {
     const data = {
       links: {
         related: '/person/1/families?page=1',
-      }
+      },
     };
 
     await familyReference.push(data, true);
@@ -470,7 +473,7 @@ module('integration/references/belongs-to', function (hooks) {
         id: '1',
         attributes: {
           name: 'Vito',
-        }
+        },
       },
     });
     const mafiaFamily = {
@@ -479,7 +482,7 @@ module('integration/references/belongs-to', function (hooks) {
         id: '1',
         attributes: {
           name: 'Don',
-        }
+        },
       },
     };
 
