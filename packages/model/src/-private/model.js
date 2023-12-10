@@ -101,6 +101,10 @@ function computeOnce(target, propertyName, desc) {
   }
   ```
 
+  Models are used both to define the static schema for a
+  particular resource type as well as the class to instantiate
+  to present that data from cache.
+
   @class Model
   @public
   @extends Ember.EmberObject
@@ -863,60 +867,46 @@ class Model extends EmberObject {
   /**
     Get the reference for the specified belongsTo relationship.
 
-    Example
+    For instance, given the following model
 
-    ```app/models/blog.js
+    ```app/models/blog-post.js
     import Model, { belongsTo } from '@ember-data/model';
 
-    export default class BlogModel extends Model {
-      @belongsTo('user', { async: true, inverse: null }) user;
+    export default class BlogPost extends Model {
+      @belongsTo('user', { async: true, inverse: null }) author;
     }
     ```
 
-    ```javascript
-    let blog = store.push({
-      data: {
-        type: 'blog',
-        id: 1,
-        relationships: {
-          user: {
-            data: { type: 'user', id: 1 }
-          }
-        }
-      }
-    });
-    let userRef = blog.belongsTo('user');
+    Then the reference for the author relationship would be
+    retrieved from a record instance like so:
 
-    // check if the user relationship is loaded
-    let isLoaded = userRef.value() !== null;
-
-    // get the record of the reference (null if not yet available)
-    let user = userRef.value();
-
-    // get the identifier of the reference
-    if (userRef.remoteType() === "id") {
-      let id = userRef.id();
-    } else if (userRef.remoteType() === "link") {
-      let link = userRef.link();
-    }
-
-    // load user (via store.findRecord or store.findBelongsTo)
-    userRef.load().then(...)
-
-    // or trigger a reload
-    userRef.reload().then(...)
-
-    // provide data for reference
-    userRef.push({
-      type: 'user',
-      id: 1,
-      attributes: {
-        username: "@user"
-      }
-    }).then(function(user) {
-      userRef.value() === user;
-    });
+    ```js
+    blogPost.belongsTo('author');
     ```
+
+    A `BelongsToReference` is a low-level API that allows access
+    and manipulation of a belongsTo relationship.
+
+    It is especially useful when you're dealing with `async` relationships
+    as it allows synchronous access to the relationship data if loaded, as
+    well as APIs for loading, reloading the data or accessing available
+    information without triggering a load.
+
+    It may also be useful when using `sync` relationships that need to be
+    loaded/reloaded with more precise timing than marking the
+    relationship as `async` and relying on autofetch would have allowed.
+
+    However,keep in mind that marking a relationship as `async: false` will introduce
+    bugs into your application if the data is not always guaranteed to be available
+    by the time the relationship is accessed. Ergo, it is recommended when using this
+    approach to utilize `links` for unloaded relationship state instead of identifiers.
+
+    Reference APIs are entangled with the relationship's underlying state,
+    thus any getters or cached properties that utilize these will properly
+    invalidate if the relationship state changes.
+
+    References are "stable", meaning that multiple calls to retrieve the reference
+    for a given relationship will always return the same HasManyReference.
 
     @method belongsTo
     @public
@@ -928,55 +918,46 @@ class Model extends EmberObject {
   /**
     Get the reference for the specified hasMany relationship.
 
-    Example
+    For instance, given the following model
 
-    ```app/models/blog.js
+    ```app/models/blog-post.js
     import Model, { hasMany } from '@ember-data/model';
 
-    export default class BlogModel extends Model {
+    export default class BlogPost extends Model {
       @hasMany('comment', { async: true, inverse: null }) comments;
     }
-
-    let blog = store.push({
-      data: {
-        type: 'blog',
-        id: 1,
-        relationships: {
-          comments: {
-            data: [
-              { type: 'comment', id: 1 },
-              { type: 'comment', id: 2 }
-            ]
-          }
-        }
-      }
-    });
-    let commentsRef = blog.hasMany('comments');
-
-    // check if the comments are loaded already
-    let isLoaded = commentsRef.value() !== null;
-
-    // get the records of the reference (null if not yet available)
-    let comments = commentsRef.value();
-
-    // get the identifier of the reference
-    if (commentsRef.remoteType() === "ids") {
-      let ids = commentsRef.ids();
-    } else if (commentsRef.remoteType() === "link") {
-      let link = commentsRef.link();
-    }
-
-    // load comments (via store.findMany or store.findHasMany)
-    commentsRef.load().then(...)
-
-    // or trigger a reload
-    commentsRef.reload().then(...)
-
-    // provide data for reference
-    commentsRef.push([{ type: 'comment', id: 1 }, { type: 'comment', id: 2 }]).then(function(comments) {
-      commentsRef.value() === comments;
-    });
     ```
+
+    Then the reference for the comments relationship would be
+    retrieved from a record instance like so:
+
+    ```js
+    blogPost.hasMany('comments');
+    ```
+
+    A `HasManyReference` is a low-level API that allows access
+    and manipulation of a hasMany relationship.
+
+    It is especially useful when you are dealing with `async` relationships
+    as it allows synchronous access to the relationship data if loaded, as
+    well as APIs for loading, reloading the data or accessing available
+    information without triggering a load.
+
+    It may also be useful when using `sync` relationships with `@ember-data/model`
+    that need to be loaded/reloaded with more precise timing than marking the
+    relationship as `async` and relying on autofetch would have allowed.
+
+    However,keep in mind that marking a relationship as `async: false` will introduce
+    bugs into your application if the data is not always guaranteed to be available
+    by the time the relationship is accessed. Ergo, it is recommended when using this
+    approach to utilize `links` for unloaded relationship state instead of identifiers.
+
+    Reference APIs are entangled with the relationship's underlying state,
+    thus any getters or cached properties that utilize these will properly
+    invalidate if the relationship state changes.
+
+    References are "stable", meaning that multiple calls to retrieve the reference
+    for a given relationship will always return the same HasManyReference.
 
     @method hasMany
     @public
