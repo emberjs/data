@@ -107,7 +107,7 @@
     "ember-source": "~5.4.0",
     "loader.js": "^4.7.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
-    "typescript": "^5.3.2",
+    "typescript": "^5.3.3",
     "webpack": "^5.89.0"
   },
   "engines": {
