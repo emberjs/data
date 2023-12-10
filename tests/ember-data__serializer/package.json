@@ -82,7 +82,7 @@
     "@ember-data/unpublished-test-infra": "workspace:5.5.0-alpha.11",
     "@ember/optional-features": "^2.0.0",
     "@ember/string": "3.1.1",
-    "@ember/test-helpers": "^3.2.0",
+    "@ember/test-helpers": "^3.2.1",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
