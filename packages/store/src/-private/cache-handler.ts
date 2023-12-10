@@ -1,6 +1,10 @@
+/**
+ * @module @ember-data/store
+ */
 import { assert } from '@ember/debug';
 
 import type { Future, Handler, NextFn } from '@ember-data/request/-private/types';
+import type { Cache } from '@warp-drive/core-types/cache';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type {
   CreateRequestOptions,
@@ -24,9 +28,83 @@ import type { RecordInstance } from '../-types/q/record-instance';
 import { Document } from './document';
 import type Store from './store-service';
 
+/**
+ * A service which an application may provide to the store via
+ * the store's `lifetimes` property to configure the behavior
+ * of the CacheHandler.
+ *
+ * The default behavior for request lifetimes is to never expire
+ * unless manually refreshed via `cacheOptions.reload` or `cacheOptions.backgroundReload`.
+ *
+ * Implementing this service allows you to programatically define
+ * when a request should be considered expired.
+ *
+ * @class <Interface> LifetimesService
+ * @public
+ */
 export interface LifetimesService {
-  isHardExpired(identifier: StableDocumentIdentifier): boolean;
-  isSoftExpired(identifier: StableDocumentIdentifier): boolean;
+  /**
+   * Invoked to determine if the request may be fulfilled from cache
+   * if possible.
+   *
+   * Note, this is only invoked if the request has a cache-key.
+   *
+   * If no cache entry is found or the entry is hard expired,
+   * the request will be fulfilled from the configured request handlers
+   * and the cache will be updated before returning the response.
+   *
+   * @method isHardExpired
+   * @public
+   * @param {StableDocumentIdentifier} identifier
+   * @param {Cache} cache
+   * @returns {boolean} true if the request is considered hard expired
+   */
+  isHardExpired(identifier: StableDocumentIdentifier, cache: Cache): boolean;
+  /**
+   * Invoked if `isHardExpired` is false to determine if the request
+   * should be update behind the scenes if cache data is already available.
+   *
+   * Note, this is only invoked if the request has a cache-key.
+   *
+   * If true, the request will be fulfilled from cache while a backgrounded
+   * request is made to update the cache via the configured request handlers.
+   *
+   * @method isSoftExpired
+   * @public
+   * @param {StableDocumentIdentifier} identifier
+   * @param {Cache} cache
+   * @returns {boolean} true if the request is considered soft expired
+   */
+  isSoftExpired(identifier: StableDocumentIdentifier, cache: Cache): boolean;
+
+  /**
+   * Invoked when a request will be sent to the configured request handlers.
+   * This is invoked for both foreground and background requests.
+   *
+   * Note, this is only invoked if the request has a cache-key.
+   *
+   * @method willRequest [Optional]
+   * @public
+   * @param {StableDocumentIdentifier} identifier
+   * @param {Cache} cache
+   * @returns {void}
+   */
+  willRequest?(identifier: StableDocumentIdentifier, cache: Cache): void;
+
+  /**
+   * Invoked when a request has been fulfilled from the configured request handlers.
+   * This is invoked for both foreground and background requests once the cache has
+   * been updated.
+   *
+   * Note, this is only invoked if the request has a cache-key.
+   *
+   * @method didRequest [Optional]
+   * @public
+   * @param {StableDocumentIdentifier} identifier
+   * @param {Cache} cache
+   * @returns {void}
+   */
+  didRequest?(identifier: StableDocumentIdentifier, cache: Cache): void;
 }
 
 export type StoreRequestInfo = ImmutableRequestInfo;
@@ -170,7 +248,7 @@ function calcShouldFetch(
     (request.op && MUTATION_OPS.has(request.op)) ||
     cacheOptions?.reload ||
     !hasCachedValue ||
-    (store.lifetimes && identifier ? store.lifetimes.isHardExpired(identifier) : false)
+    (store.lifetimes && identifier ? store.lifetimes.isHardExpired(identifier, store.cache) : false)
   );
 }
 
@@ -184,7 +262,7 @@ function calcShouldBackgroundFetch(
   return (
     !willFetch &&
     (cacheOptions?.backgroundReload ||
-      (store.lifetimes && identifier ? store.lifetimes.isSoftExpired(identifier) : false))
+      (store.lifetimes && identifier ? store.lifetimes.isSoftExpired(identifier, store.cache) : false))
   );
 }
 
@@ -212,6 +290,10 @@ function fetchContentAndHydrate<T>(
     store.cache.willCommit(record, context);
   }
 
+  if (identifier && store.lifetimes?.willRequest) {
+    store.lifetimes.willRequest(identifier, store.cache);
+  }
+
   const promise = next(context.request).then(
     (document) => {
       store.requestManager._pending.delete(context.id);
@@ -232,6 +314,10 @@ function fetchContentAndHydrate<T>(
         );
       });
       store._enableAsyncFlush = null;
+
+      if (identifier && store.lifetimes?.didRequest) {
+        store.lifetimes.didRequest(identifier, store.cache);
+      }
 
       if (shouldFetch) {
         return response!;
@@ -274,6 +360,10 @@ function fetchContentAndHydrate<T>(
         }
       });
       store._enableAsyncFlush = null;
+
+      if (identifier && store.lifetimes?.didRequest) {
+        store.lifetimes.didRequest(identifier, store.cache);
+      }
 
       if (!shouldBackgroundFetch) {
         const newError = cloneError(error);
