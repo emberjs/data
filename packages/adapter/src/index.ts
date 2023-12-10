@@ -187,7 +187,7 @@ By default when using with Ember you only need to implement this hook if you wan
   @main @ember-data/adapter
 */
 
-import { assert } from '@ember/debug';
+import { assert } from '@ember-data/macros';
 import EmberObject from '@ember/object';
 import { inject as service } from '@ember/service';
 

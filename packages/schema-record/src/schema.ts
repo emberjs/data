@@ -1,4 +1,4 @@
-import { assert } from '@ember/debug';
+import { assert } from '@ember-data/macros';
 
 import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 import { createCache, getValue } from '@ember-data/tracking';

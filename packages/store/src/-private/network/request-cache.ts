@@ -1,9 +1,8 @@
 /**
  * @module @ember-data/store
  */
-import { assert } from '@ember/debug';
-
 import { DEBUG } from '@ember-data/env';
+import { assert } from '@ember-data/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 
 import type { FindOptions } from '../../-types/q/store';

@@ -1,7 +1,7 @@
 /**
  * @module @ember-data/json-api/request
  */
-import { assert } from '@ember/debug';
+import { assert } from '@ember-data/macros';
 
 import type { AttributesHash, JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';

@@ -1,8 +1,7 @@
 /**
  * @module @ember-data/store
  */
-import { assert } from '@ember/debug';
-
+import { assert } from '@ember-data/macros';
 import { defineSignal } from '@ember-data/tracking/-private';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type { RequestInfo } from '@warp-drive/core-types/request';

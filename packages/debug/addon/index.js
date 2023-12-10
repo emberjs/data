@@ -24,7 +24,7 @@
   @main @ember-data/debug
 */
 import { A } from '@ember/array';
-import { assert } from '@ember/debug';
+import { assert } from '@ember-data/macros';
 import DataAdapter from '@ember/debug/data-adapter';
 import { addObserver, removeObserver } from '@ember/object/observers';
 import { inject as service } from '@ember/service';

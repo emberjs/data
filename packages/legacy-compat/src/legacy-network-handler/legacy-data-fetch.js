@@ -1,6 +1,5 @@
-import { assert } from '@ember/debug';
-
 import { DEBUG } from '@ember-data/env';
+import { assert } from '@ember-data/macros';
 
 import { iterateData, payloadIsNotBlank } from './legacy-data-utils';
 import { normalizeResponseHelper } from './serializer-response';

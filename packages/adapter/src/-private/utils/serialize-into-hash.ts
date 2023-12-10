@@ -1,4 +1,4 @@
-import { assert } from '@ember/debug';
+import { assert } from '@ember-data/macros';
 
 import { type Snapshot, upgradeStore } from '@ember-data/legacy-compat/-private';
 import type {

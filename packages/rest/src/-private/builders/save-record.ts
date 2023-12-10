@@ -1,8 +1,8 @@
-import { assert } from '@ember/debug';
 import { camelize } from '@ember/string';
 
 import { pluralize } from 'ember-inflector';
 
+import { assert } from '@ember-data/macros';
 import {
   buildBaseURL,
   type CreateRecordUrlOptions,

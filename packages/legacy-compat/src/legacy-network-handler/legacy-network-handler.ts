@@ -1,9 +1,8 @@
-import { assert } from '@ember/debug';
-
 import { importSync } from '@embroider/macros';
 
 import { LOG_PAYLOADS } from '@ember-data/debugging';
 import { DEBUG, TESTING } from '@ember-data/env';
+import { assert } from '@ember-data/macros';
 import type { Future, Handler, NextFn, StructuredDataDocument } from '@ember-data/request';
 import type Store from '@ember-data/store';
 import type { StoreRequestContext, StoreRequestInfo } from '@ember-data/store/-private/cache-handler';

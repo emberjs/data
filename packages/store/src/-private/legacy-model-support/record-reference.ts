@@ -1,5 +1,4 @@
-import { assert } from '@ember/debug';
-
+import { assert } from '@ember-data/macros';
 import { defineSignal } from '@ember-data/tracking/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 /**

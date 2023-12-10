@@ -1,9 +1,9 @@
-import { assert } from '@ember/debug';
 import { render as renderTemplate, settled } from '@ember/test-helpers';
 
 import * as QUnit from 'qunit';
 
 import { PRODUCTION } from '@ember-data/env';
+import { assert } from '@ember-data/macros';
 
 /*
   Temporary replacement for the render test helper

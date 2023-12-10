@@ -1,5 +1,3 @@
-import { assert } from '@ember/debug';
-
 import { importSync } from '@embroider/macros';
 
 import { DEBUG } from '@ember-data/env';
@@ -8,6 +6,7 @@ import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection
 import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
 import type { Graph, GraphEdge } from '@ember-data/graph/-private/graph';
 import { upgradeStore } from '@ember-data/legacy-compat/-private';
+import { assert } from '@ember-data/macros';
 import { HAS_JSON_API_PACKAGE } from '@ember-data/packages';
 import type Store from '@ember-data/store';
 import {

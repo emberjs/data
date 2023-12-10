@@ -1,5 +1,6 @@
-import { assert, deprecate } from '@ember/debug';
+import { deprecate } from '@ember/debug';
 
+import { assert } from '@ember-data/macros';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type { QueryParamsSerializationOptions, QueryParamsSource, Serializable } from '@warp-drive/core-types/params';

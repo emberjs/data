@@ -1,13 +1,12 @@
 /**
   @module @ember-data/store
 */
-import { assert } from '@ember/debug';
-
 import { importSync } from '@embroider/macros';
 
 import { DEBUG } from '@ember-data/env';
 import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection';
 import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
+import { assert } from '@ember-data/macros';
 import { HAS_JSON_API_PACKAGE } from '@ember-data/packages';
 import type Store from '@ember-data/store';
 import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';

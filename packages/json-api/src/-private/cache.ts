@@ -1,7 +1,7 @@
 /**
  * @module @ember-data/json-api
  */
-import { assert } from '@ember/debug';
+import { assert } from '@ember-data/macros';
 
 import { LOG_MUTATIONS, LOG_OPERATIONS, LOG_REQUESTS } from '@ember-data/debugging';
 import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@ember-data/deprecations';

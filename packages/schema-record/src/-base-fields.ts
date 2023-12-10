@@ -1,4 +1,4 @@
-import { assert } from '@ember/debug';
+import { assert } from '@ember-data/macros';
 
 import { recordIdentifierFor } from '@ember-data/store';
 import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';

@@ -1,6 +1,6 @@
 import { getOwner } from '@ember/application';
-import { assert } from '@ember/debug';
 
+import { assert } from '@ember-data/macros';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import { _deprecatingNormalize } from '@ember-data/store/-private';

@@ -1,5 +1,4 @@
-import { assert } from '@ember/debug';
-
+import { assert } from '@ember-data/macros';
 import type { StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
 
 export function assertIdentifierHasId(identifier: unknown): asserts identifier is StableExistingRecordIdentifier {

@@ -1,4 +1,4 @@
-import { assert } from '@ember/debug';
+import { assert } from '@ember-data/macros';
 import { DEBUG } from '@ember-data/env';
 import type { UpgradedMeta } from '../-edge-definition';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';

@@ -2,11 +2,11 @@
   @module @ember-data/store
  */
 // this import location is deprecated but breaks in 4.8 and older
-import { assert } from '@ember/debug';
 import EmberObject from '@ember/object';
 
 import { LOG_PAYLOADS, LOG_REQUESTS } from '@ember-data/debugging';
 import { DEBUG, TESTING } from '@ember-data/env';
+import { assert } from '@ember-data/macros';
 import type RequestManager from '@ember-data/request';
 import type { Future } from '@ember-data/request/-private/types';
 import type { Graph } from '@warp-drive/core-types/graph';
