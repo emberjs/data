@@ -337,7 +337,7 @@ importers:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.5)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
-        specifier: ^4.6.1
+        specifier: ^4.7.0
         version: 4.7.0
       typescript:
         specifier: ^5.3.3
@@ -461,7 +461,7 @@ importers:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.5)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
-        specifier: ^4.6.1
+        specifier: ^4.7.0
         version: 4.7.0
       typescript:
         specifier: ^5.3.3
@@ -557,7 +557,7 @@ importers:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.5)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
-        specifier: ^4.6.1
+        specifier: ^4.7.0
         version: 4.7.0
       typescript:
         specifier: ^5.3.3
@@ -701,7 +701,7 @@ importers:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.5)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
-        specifier: ^4.6.1
+        specifier: ^4.7.0
         version: 4.7.0
       typescript:
         specifier: ^5.3.3
@@ -798,7 +798,7 @@ importers:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.5)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
-        specifier: ^4.6.1
+        specifier: ^4.7.0
         version: 4.7.0
       typescript:
         specifier: ^5.3.3
@@ -878,7 +878,7 @@ importers:
         specifier: workspace:5.5.0-alpha.11
         version: link:../../config
       rollup:
-        specifier: ^4.6.1
+        specifier: ^4.7.0
         version: 4.7.0
       typescript:
         specifier: ^5.3.3
@@ -983,7 +983,7 @@ importers:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.5)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
-        specifier: ^4.6.1
+        specifier: ^4.7.0
         version: 4.7.0
       typescript:
         specifier: ^5.3.3
@@ -1105,7 +1105,7 @@ importers:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.5)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
-        specifier: ^4.6.1
+        specifier: ^4.7.0
         version: 4.7.0
       typescript:
         specifier: ^5.3.3
@@ -1244,7 +1244,7 @@ importers:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.5)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
-        specifier: ^4.6.1
+        specifier: ^4.7.0
         version: 4.7.0
       typescript:
         specifier: ^5.3.3
@@ -1423,7 +1423,7 @@ importers:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.5)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
-        specifier: ^4.6.1
+        specifier: ^4.7.0
         version: 4.7.0
       typescript:
         specifier: ^5.3.3
@@ -1495,7 +1495,7 @@ importers:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.5)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
-        specifier: ^4.6.1
+        specifier: ^4.7.0
         version: 4.7.0
       typescript:
         specifier: ^5.3.3
@@ -1583,7 +1583,7 @@ importers:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.5)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
-        specifier: ^4.6.1
+        specifier: ^4.7.0
         version: 4.7.0
       typescript:
         specifier: ^5.3.3
@@ -1702,7 +1702,7 @@ importers:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.5)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
-        specifier: ^4.6.1
+        specifier: ^4.7.0
         version: 4.7.0
       typescript:
         specifier: ^5.3.3
@@ -1812,7 +1812,7 @@ importers:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.5)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
-        specifier: ^4.6.1
+        specifier: ^4.7.0
         version: 4.7.0
       typescript:
         specifier: ^5.3.3
@@ -1915,7 +1915,7 @@ importers:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.5)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
-        specifier: ^4.6.1
+        specifier: ^4.7.0
         version: 4.7.0
       typescript:
         specifier: ^5.3.3
@@ -2008,7 +2008,7 @@ importers:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.5)(@glimmer/component@1.1.2)(webpack@5.89.0)
       rollup:
-        specifier: ^4.6.1
+        specifier: ^4.7.0
         version: 4.7.0
       typescript:
         specifier: ^5.3.3
