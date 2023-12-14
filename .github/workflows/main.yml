@@ -123,7 +123,7 @@ jobs:
 
       - name: Upload testem logs
         if: ${{ always() && steps.run-tests-production.conclusion != 'skipped' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: client-testem-logs
           path: './tests/main/testem.log'
@@ -137,7 +137,7 @@ jobs:
           key: failed-test-log_${{ github.sha }}
 
       - name: Archive Tests Execution File
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: (success() || failure()) && steps.retry-test-failures.outputs.cache-hit != 'true'
         with:
           name: tests-execution-file-partition
