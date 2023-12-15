@@ -60,7 +60,7 @@
     "@ember-data/tracking": "workspace:5.5.0-alpha.11",
     "@ember/edition-utils": "^1.2.0",
     "@ember/test-helpers": "^3.2.1",
-    "@embroider/macros": "^1.13.3",
+    "@embroider/macros": "^1.13.4",
     "@types/qunit": "^2.19.9",
     "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
     "@warp-drive/diagnostic": "workspace:5.5.0-alpha.11",

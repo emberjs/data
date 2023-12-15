@@ -89,7 +89,7 @@
   },
   "dependencies": {
     "@ember-data/private-build-infra": "workspace:5.5.0-alpha.11",
-    "@embroider/macros": "^1.13.3",
+    "@embroider/macros": "^1.13.4",
     "ember-cli-babel": "^8.2.0",
     "ember-cli-test-info": "^1.0.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10"
