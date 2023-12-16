@@ -383,6 +383,10 @@ module('Integration | Identifiers - configuration', function (hooks) {
       if (bucket !== 'record') {
         throw new Error('Test cannot generate an lid for a non-record');
       }
+      if (typeof resource === 'object' && resource !== null && 'lid' in resource && typeof resource.lid === 'string') {
+        generateLidCalls++;
+        return resource.lid;
+      }
       if (typeof resource !== 'object' || resource === null || !('type' in resource)) {
         throw new Error('Test cannot generate an lid for a non-object');
       }
@@ -397,7 +401,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
 
     let testMethod = (identifier) => {
       forgetMethodCalls++;
-      assert.strictEqual(expectedIdentifier, identifier, `We forgot the expected identifier ${expectedIdentifier}`);
+      assert.strictEqual(identifier, expectedIdentifier, `We forgot the expected identifier ${expectedIdentifier}`);
     };
 
     setIdentifierForgetMethod((identifier) => {
@@ -433,7 +437,11 @@ module('Integration | Identifiers - configuration', function (hooks) {
     const finalUserByIdIdentifier = recordIdentifierFor(userById);
 
     assert.strictEqual(generateLidCalls, 2, 'We generated no new lids when we looked up the originals');
-    assert.strictEqual(store.identifierCache._cache.resources.size, 1, 'We now have only 1 identifier in the cache');
+    assert.strictEqual(
+      store.identifierCache._cache.resources.size,
+      2,
+      'We keep a back reference identifier in the cache'
+    );
     assert.strictEqual(forgetMethodCalls, 1, 'We abandoned an identifier');
 
     assert.notStrictEqual(
@@ -450,6 +458,36 @@ module('Integration | Identifiers - configuration', function (hooks) {
       finalUserByUsernameIdentifier,
       finalUserByIdIdentifier,
       'We are using the identifier by id for the result of findRecord with username'
+    );
+
+    const recordA = store.peekRecord({ lid: finalUserByUsernameIdentifier.lid });
+    const recordB = store.peekRecord({ lid: finalUserByIdIdentifier.lid });
+    const recordC = store.peekRecord({ lid: originalUserByUsernameIdentifier.lid });
+    const recordD = store.peekRecord('user', '@runspired');
+    const recordE = store.peekRecord('user', '1');
+
+    assert.strictEqual(recordA, recordB, 'We have a single record for both identifiers');
+    assert.strictEqual(recordA, recordC, 'We have a single record for both identifiers');
+    assert.strictEqual(recordA, recordD, 'We have a single record for both identifiers');
+    assert.strictEqual(recordA, recordE, 'We have a single record for both identifiers');
+
+    const regeneratedIdentifier = store.identifierCache.getOrCreateRecordIdentifier({
+      lid: finalUserByUsernameIdentifier.lid,
+    });
+    const regeneratedIdentifier2 = store.identifierCache.getOrCreateRecordIdentifier({
+      id: '@runspired',
+      type: 'user',
+    });
+    assert.strictEqual(regeneratedIdentifier, finalUserByUsernameIdentifier, 'We regenerate the same identifier');
+    assert.strictEqual(regeneratedIdentifier2, finalUserByUsernameIdentifier, 'We regenerate the same identifier');
+
+    expectedIdentifier = finalUserByIdIdentifier;
+    store.unloadRecord(recordA);
+    await settled();
+    assert.strictEqual(
+      store.identifierCache._cache.resources.size,
+      0,
+      'We have no identifiers or backreferences in the cache'
     );
 
     // end test before store teardown
