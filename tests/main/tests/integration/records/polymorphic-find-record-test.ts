@@ -2,10 +2,10 @@ import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 
+import type Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
-import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 
 class Person extends Model {
@@ -24,7 +24,7 @@ module('integration/records/polymorphic-find-record - Polymorphic findRecord', f
     const adapter = store.adapterFor('application');
 
     adapter.findRecord = () => {
-      return {
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'employee',
@@ -32,10 +32,10 @@ module('integration/records/polymorphic-find-record - Polymorphic findRecord', f
             name: 'Rey Skybarker',
           },
         },
-      };
+      });
     };
 
-    const person = await store.findRecord('person', '1') as Employee;
+    const person = (await store.findRecord('person', '1')) as Employee;
     assert.ok(person instanceof Employee, 'record is an instance of Employee');
     assert.strictEqual(person.name, 'Rey Skybarker', 'name is correct');
     assert.strictEqual(recordIdentifierFor(person).type, 'employee', 'identifier has the concrete type');
