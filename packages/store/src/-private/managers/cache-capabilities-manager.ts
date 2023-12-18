@@ -47,6 +47,8 @@ export class CacheCapabilitiesManager implements StoreWrapper {
     if (this._store._cbs) {
       this._store._schedule('notify', () => this._flushNotifications());
     } else {
+      // TODO @runspired determine if relationship mutations should schedule
+      // into join/run vs immediate flush
       this._flushNotifications();
     }
   }
