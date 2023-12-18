@@ -498,13 +498,32 @@ module('integration/snapshot - Snapshot', function (hooks) {
   });
 
   test('snapshot.belongsTo() returns a snapshot if relationship link has been fetched', async function (assert) {
-    assert.expect(4);
-
     store.adapterFor('application').findBelongsTo = function (store, snapshot, link, relationship) {
-      return Promise.resolve({ data: { id: '1', type: 'post', attributes: { title: 'Hello World' } } });
+      return Promise.resolve({
+        data: {
+          id: '1',
+          type: 'post',
+          attributes: { title: 'Hello World' },
+          relationships: { comments: { links: { related: './comments' } } },
+        },
+        included: [
+          {
+            type: 'comment',
+            id: '2',
+            relationships: {
+              post: {
+                data: {
+                  type: 'post',
+                  id: '1',
+                },
+              },
+            },
+          },
+        ],
+      });
     };
 
-    store.push({
+    const comment = store.push({
       data: {
         type: 'comment',
         id: '2',
@@ -520,30 +539,14 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       },
     });
-    const comment = store.peekRecord('comment', '2');
 
+    // test preconditions of
+    const initialCommentSnapshot = comment._createSnapshot();
+    const initialBelongsTo = initialCommentSnapshot.belongsTo('post');
+    assert.strictEqual(initialBelongsTo, undefined, 'relationship is empty');
+
+    // fetch the link
     const post = await comment.post;
-    store.push({
-      data: [
-        {
-          type: 'post',
-          id: '1',
-          attributes: {
-            title: 'Hello World',
-          },
-        },
-        {
-          type: 'comment',
-          id: '2',
-          attributes: {
-            body: 'This is comment',
-          },
-        },
-      ],
-    });
-
-    const comments = await post.comments;
-    comments.push(comment);
 
     const postSnapshot = post._createSnapshot();
     const commentSnapshot = comment._createSnapshot();
@@ -1294,7 +1297,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
         type: 'posts',
       },
     };
-    assert.deepEqual(snapshot.serialize(), expected, 'shapshot serializes correctly');
+    assert.deepEqual(snapshot.serialize(), expected, 'snapshot serializes correctly');
     expected.data.id = '1';
     assert.deepEqual(snapshot.serialize({ includeId: true }), expected, 'serialize takes options');
   });
