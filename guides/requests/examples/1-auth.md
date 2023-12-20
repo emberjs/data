@@ -130,7 +130,7 @@ const MUTATION_OPS = new Set(['createRecord', 'updateRecord', 'deleteRecord']);
 
 const AuthHandler = {
   request({ request }, next) {
-    if (MUTATION_OPS.has(context.request.op)) {
+    if (MUTATION_OPS.has(request.op)) {
       const headers = new Headers(request.headers);
       headers.append(
         'X-CSRF-Token',
