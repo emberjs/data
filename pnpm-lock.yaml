@@ -4214,6 +4214,9 @@ importers:
       '@babel/runtime':
         specifier: ^7.23.6
         version: 7.23.6
+      '@ember-data/debug':
+        specifier: workspace:5.5.0-alpha.11
+        version: file:packages/debug(@ember-data/store@5.5.0-alpha.11)(@ember/string@3.1.1)
       '@ember-data/graph':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/graph(@babel/core@7.23.6)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)
@@ -4341,6 +4344,8 @@ importers:
         specifier: ^5.89.0
         version: 5.89.0
     dependenciesMeta:
+      '@ember-data/debug':
+        injected: true
       '@ember-data/graph':
         injected: true
       '@ember-data/json-api':
