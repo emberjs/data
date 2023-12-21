@@ -19,7 +19,7 @@ declare global {
   }
 
   interface Assert {
-    expectDeprecation(options: Partial<DeprecationConfig> & { id: string; count: number }): void;
+    expectDeprecation(options: DeprecationConfig): void;
     expectDeprecation(
       callback: () => void | Promise<void>,
       options: DeprecationConfig | string | RegExp,
