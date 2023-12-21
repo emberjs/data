@@ -71,6 +71,7 @@ module.exports = {
     '(private) @ember-data/debug InspectorDataAdapter#watchTypeIfUnseen',
     '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_COMPUTED_CHAINS',
     '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_LEGACY_IMPORTS',
+    '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_MANY_ARRAY_DUPLICATES',
     '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_NON_STRICT_ID',
     '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_NON_STRICT_TYPES',
     '(public) @ember-data/deprecations CurrentDeprecations#DEPRECATE_NON_UNIQUE_PAYLOADS',
