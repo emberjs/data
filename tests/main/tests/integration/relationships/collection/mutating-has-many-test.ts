@@ -212,6 +212,7 @@ async function applyMutation(assert: Assert, store: Store, record: User, mutatio
   const initialIds = record.friends.map((f) => f.id).join(',');
 
   const shouldError = result.hasDuplicates && !IS_DEPRECATE_MANY_ARRAY_DUPLICATES;
+  const shouldDeprecate = result.hasDuplicates && IS_DEPRECATE_MANY_ARRAY_DUPLICATES;
   const expected = shouldError ? result.unchanged : result.deduped;
 
   try {
@@ -231,6 +232,22 @@ async function applyMutation(assert: Assert, store: Store, record: User, mutatio
         break;
     }
     assert.ok(!shouldError, `expected error ${shouldError ? '' : 'NOT '}to be thrown`);
+    if (shouldDeprecate) {
+      const expectedMessage = `${
+        result.error
+      } This behavior is deprecated. Found duplicates for the following records within the new state provided to \`<user:${
+        record.id
+      }>.friends\`\n\t- ${Array.from(result.duplicates)
+        .map((r) => recordIdentifierFor(r).lid)
+        .sort((a, b) => a.localeCompare(b))
+        .join('\n\t- ')}`;
+      assert.expectDeprecation({
+        id: 'ember-data:deprecate-many-array-duplicates',
+        until: '6.0',
+        count: 1,
+        message: expectedMessage,
+      });
+    }
   } catch (e) {
     assert.ok(shouldError, `expected error ${shouldError ? '' : 'NOT '}to be thrown`);
     const expectedMessage = shouldError

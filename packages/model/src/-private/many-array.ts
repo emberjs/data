@@ -1,7 +1,7 @@
 /**
   @module @ember-data/store
 */
-import { assert } from '@ember/debug';
+import { assert, deprecate } from '@ember/debug';
 
 import { DEPRECATE_MANY_ARRAY_DUPLICATES } from '@ember-data/deprecations';
 import type Store from '@ember-data/store';
@@ -187,8 +187,17 @@ export default class RelatedCollection extends RecordArray {
         return true;
       }
       case 'push': {
+        const newValues = extractIdentifiersFromRecords(args);
+
+        assertNoDuplicates(
+          this,
+          target,
+          (currentState) => currentState.push(...newValues),
+          `Cannot push duplicates to a hasMany's state.`
+        );
+
         if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
-          // dedupe, no error
+          // dedupe
           const seen = new Set(target);
           const unique = new Set<RecordInstance>();
 
@@ -210,15 +219,6 @@ export default class RelatedCollection extends RecordArray {
         }
 
         // else, no dedupe, error on duplicates
-        const newValues = extractIdentifiersFromRecords(args);
-
-        assertNoDuplicates(
-          this,
-          target,
-          (currentState) => currentState.push(...newValues),
-          `Cannot push duplicates to a hasMany's state.`
-        );
-
         const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
         if (newValues.length) {
           mutateAddToRelatedRecords(this, { value: newValues }, _SIGNAL);
@@ -235,8 +235,17 @@ export default class RelatedCollection extends RecordArray {
       }
 
       case 'unshift': {
+        const newValues = extractIdentifiersFromRecords(args);
+
+        assertNoDuplicates(
+          this,
+          target,
+          (currentState) => currentState.unshift(...newValues),
+          `Cannot unshift duplicates to a hasMany's state.`
+        );
+
         if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
-          // dedupe, no error
+          // dedupe
           const seen = new Set(target);
           const unique = new Set<RecordInstance>();
 
@@ -258,15 +267,6 @@ export default class RelatedCollection extends RecordArray {
         }
 
         // else, no dedupe, error on duplicates
-        const newValues = extractIdentifiersFromRecords(args);
-
-        assertNoDuplicates(
-          this,
-          target,
-          (currentState) => currentState.unshift(...newValues),
-          `Cannot unshift duplicates to a hasMany's state.`
-        );
-
         const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
         if (newValues.length) {
           mutateAddToRelatedRecords(this, { value: newValues, index: 0 }, _SIGNAL);
@@ -298,8 +298,17 @@ export default class RelatedCollection extends RecordArray {
 
         // detect a full replace
         if (start === 0 && deleteCount === this[SOURCE].length) {
+          const newValues = extractIdentifiersFromRecords(adds);
+
+          assertNoDuplicates(
+            this,
+            target,
+            (currentState) => currentState.splice(start, deleteCount, ...newValues),
+            `Cannot replace a hasMany's state with a new state that contains duplicates.`
+          );
+
           if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
-            // dedupe, no error
+            // dedupe
             const current = new Set(adds);
             const unique = Array.from(current);
             const newArgs = ([start, deleteCount] as unknown[]).concat(unique);
@@ -311,22 +320,21 @@ export default class RelatedCollection extends RecordArray {
           }
 
           // else, no dedupe, error on duplicates
-          const newValues = extractIdentifiersFromRecords(adds);
-
-          assertNoDuplicates(
-            this,
-            target,
-            (currentState) => currentState.splice(start, deleteCount, ...newValues),
-            `Cannot replace a hasMany's state with a new state that contains duplicates.`
-          );
-
           const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
           mutateReplaceRelatedRecords(this, newValues, _SIGNAL);
           return result;
         }
 
+        const newValues = extractIdentifiersFromRecords(adds);
+        assertNoDuplicates(
+          this,
+          target,
+          (currentState) => currentState.splice(start, deleteCount, ...newValues),
+          `Cannot splice a hasMany's state with a new state that contains duplicates.`
+        );
+
         if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
-          // dedupe, no error
+          // dedupe
           const currentState = target.slice();
           currentState.splice(start, deleteCount);
 
@@ -355,14 +363,6 @@ export default class RelatedCollection extends RecordArray {
         }
 
         // else, no dedupe, error on duplicates
-        const newValues = extractIdentifiersFromRecords(adds);
-        assertNoDuplicates(
-          this,
-          target,
-          (currentState) => currentState.splice(start, deleteCount, ...newValues),
-          `Cannot splice a hasMany's state with a new state that contains duplicates.`
-        );
-
         const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
         if (deleteCount > 0) {
           mutateRemoveFromRelatedRecords(this, { value: result.map(recordIdentifierFor), index: start }, _SIGNAL);
@@ -496,16 +496,39 @@ function assertNoDuplicates(
   if (state.length !== new Set(state).size) {
     const duplicates = state.filter((currentValue, currentIndex) => state.indexOf(currentValue) !== currentIndex);
 
-    throw new Error(
-      `${reason} Found duplicates for the following records within the new state provided to \`<${
-        collection.identifier.type
-      }:${collection.identifier.id || collection.identifier.lid}>.${collection.key}\`\n\t- ${Array.from(
-        new Set(duplicates)
-      )
-        .map((r) => (isStableIdentifier(r) ? r.lid : recordIdentifierFor(r).lid))
-        .sort((a, b) => a.localeCompare(b))
-        .join('\n\t- ')}`
-    );
+    if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
+      deprecate(
+        `${reason} This behavior is deprecated. Found duplicates for the following records within the new state provided to \`<${
+          collection.identifier.type
+        }:${collection.identifier.id || collection.identifier.lid}>.${collection.key}\`\n\t- ${Array.from(
+          new Set(duplicates)
+        )
+          .map((r) => (isStableIdentifier(r) ? r.lid : recordIdentifierFor(r).lid))
+          .sort((a, b) => a.localeCompare(b))
+          .join('\n\t- ')}`,
+        false,
+        {
+          id: 'ember-data:deprecate-many-array-duplicates',
+          for: 'ember-data',
+          until: '6.0',
+          since: {
+            enabled: '5.3',
+            available: '5.3',
+          },
+        }
+      );
+    } else {
+      throw new Error(
+        `${reason} Found duplicates for the following records within the new state provided to \`<${
+          collection.identifier.type
+        }:${collection.identifier.id || collection.identifier.lid}>.${collection.key}\`\n\t- ${Array.from(
+          new Set(duplicates)
+        )
+          .map((r) => (isStableIdentifier(r) ? r.lid : recordIdentifierFor(r).lid))
+          .sort((a, b) => a.localeCompare(b))
+          .join('\n\t- ')}`
+      );
+    }
   }
 }
 
