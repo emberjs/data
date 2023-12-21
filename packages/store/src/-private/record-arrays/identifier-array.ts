@@ -17,6 +17,7 @@ import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
 import type { Links, PaginationLinks } from '@warp-drive/core-types/spec/raw';
 
 import type { RecordInstance } from '../../-types/q/record-instance';
+import { isStableIdentifier } from '../caches/identifier-cache';
 import { recordIdentifierFor } from '../caches/instance-cache';
 import type RecordArrayManager from '../managers/record-array-manager';
 import type Store from '../store-service';
@@ -99,9 +100,9 @@ interface PrivateState {
   links: Links | PaginationLinks | null;
   meta: Record<string, unknown> | null;
 }
-type ForEachCB = (record: RecordInstance, index: number, context: IdentifierArray) => void;
+type ForEachCB = (record: RecordInstance, index: number, context: typeof Proxy<StableRecordIdentifier[]>) => void;
 function safeForEach(
-  instance: IdentifierArray,
+  instance: typeof Proxy<StableRecordIdentifier[]>,
   arr: StableRecordIdentifier[],
   store: Store,
   callback: ForEachCB,
@@ -140,7 +141,13 @@ function safeForEach(
   @public
 */
 interface IdentifierArray extends Omit<Array<RecordInstance>, '[]'> {
-  [MUTATE]?(prop: string, args: unknown[], result?: unknown): void;
+  [MUTATE]?(
+    target: StableRecordIdentifier[],
+    receiver: typeof Proxy<StableRecordIdentifier[]>,
+    prop: string,
+    args: unknown[],
+    _SIGNAL: Signal
+  ): unknown;
 }
 class IdentifierArray {
   declare DEPRECATED_CLASS_NAME: string;
@@ -223,10 +230,14 @@ class IdentifierArray {
     // and forward them as one
 
     const proxy = new Proxy<StableRecordIdentifier[], RecordInstance[]>(this[SOURCE], {
-      get<R extends IdentifierArray>(target: StableRecordIdentifier[], prop: keyof R, receiver: R): unknown {
+      get<R extends typeof Proxy<StableRecordIdentifier[]>>(
+        target: StableRecordIdentifier[],
+        prop: keyof R,
+        receiver: R
+      ): unknown {
         const index = convertToInt(prop);
         if (_SIGNAL.shouldReset && (index !== null || SYNC_PROPS.has(prop) || isArrayGetter(prop))) {
-          options.manager._syncArray(receiver);
+          options.manager._syncArray(receiver as unknown as IdentifierArray);
           _SIGNAL.t = false;
           _SIGNAL.shouldReset = false;
         }
@@ -287,10 +298,7 @@ class IdentifierArray {
               const args: unknown[] = Array.prototype.slice.call(arguments);
               assert(`Cannot start a new array transaction while a previous transaction is underway`, !transaction);
               transaction = true;
-              const result: unknown = Reflect.apply(target[prop] as ProxiedMethod, receiver, args);
-              self[MUTATE]!(prop as string, args, result);
-              addToTransaction(_SIGNAL);
-              // TODO handle cache updates
+              const result = self[MUTATE]!(target, receiver, prop as string, args, _SIGNAL);
               transaction = false;
               return result;
             };
@@ -329,13 +337,17 @@ class IdentifierArray {
         return target[prop as keyof StableRecordIdentifier[]];
       },
 
-      set(target: StableRecordIdentifier[], prop: KeyType, value: unknown /*, receiver */): boolean {
+      // FIXME: Should this get a generic like get above?
+      set(
+        target: StableRecordIdentifier[],
+        prop: KeyType,
+        value: unknown,
+        receiver: typeof Proxy<StableRecordIdentifier[]>
+      ): boolean {
         if (prop === 'length') {
           if (!transaction && value === 0) {
             transaction = true;
-            addToTransaction(_SIGNAL);
-            Reflect.set(target, prop, value);
-            self[MUTATE]!('length 0', []);
+            self[MUTATE]!(target, receiver, 'length 0', [], _SIGNAL);
             transaction = false;
             return true;
           } else if (transaction) {
@@ -354,8 +366,20 @@ class IdentifierArray {
         }
         const index = convertToInt(prop);
 
+        // we do not allow "holey" arrays and so if the index is
+        // greater than length then we will disallow setting it.
+        // however, there is a special case for "unshift" with more than
+        // one item being inserted since current items will be moved to the
+        // new indices first.
+        // we "loosely" detect this by just checking whether we are in
+        // a transaction.
         if (index === null || index > target.length) {
-          if (isSelfProp(self, prop)) {
+          if (index !== null && transaction) {
+            const identifier = recordIdentifierFor(value);
+            assert(`Cannot set index ${index} past the end of the array.`, isStableIdentifier(identifier));
+            target[index] = identifier;
+            return true;
+          } else if (isSelfProp(self, prop)) {
             self[prop] = value;
             return true;
           }
@@ -370,9 +394,27 @@ class IdentifierArray {
         const original: StableRecordIdentifier | undefined = target[index];
         const newIdentifier = extractIdentifierFromRecord(value);
         (target as unknown as Record<KeyType, unknown>)[index] = newIdentifier;
+        assert(`Expected a record`, isStableIdentifier(newIdentifier));
+        // We generate "transactions" whenever a setter method on the array
+        // is called and might bulk update multiple array cells. Fundamentally,
+        // all array operations decompose into individual cell replacements.
+        // e.g. a push is really a "replace cell at next index with new value"
+        // or a splice is "shift all values left/right by X and set out of new
+        // bounds cells to undefined"
+        //
+        // so, if we are in a transaction, then this is not a user generated change
+        // but one generated by a setter method. In this case we want to only apply
+        // the change to the target array and not call the MUTATE method.
+        // If there is no transaction though, then this means the user themselves has
+        // directly changed the value of a specific index and we need to thus generate
+        // a mutation for that change.
+        // e.g. "arr.push(newVal)" is handled by a "addToRelatedRecords" mutation within
+        // a transaction.
+        // while "arr[arr.length] = newVal;" is handled by this replace cell code path.
         if (!transaction) {
-          self[MUTATE]!('replace cell', [index, original, newIdentifier]);
-          addToTransaction(_SIGNAL);
+          self[MUTATE]!(target, receiver, 'replace cell', [index, original, newIdentifier], _SIGNAL);
+        } else {
+          target[index] = newIdentifier;
         }
 
         return true;
@@ -475,7 +517,7 @@ class IdentifierArray {
 
 // this will error if someone tries to call
 // A(identifierArray) since it is not configurable
-// which is preferrable to the `meta` override we used
+// which is preferable to the `meta` override we used
 // before which required importing all of Ember
 const desc = {
   enumerable: true,
