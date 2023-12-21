@@ -172,7 +172,6 @@ export default class RelatedCollection extends RecordArray {
     receiver: typeof Proxy<StableRecordIdentifier[]>,
     prop: string,
     args: unknown[],
-    // FIXME: Rename to _SIGNAL
     _SIGNAL: Signal
   ): unknown {
     switch (prop) {
