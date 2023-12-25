@@ -1,4 +1,4 @@
-import { assert } from '@ember/debug';
+import { assert } from '@ember-data/macros';
 import { cacheFor } from '@ember/object/internals';
 
 import type Store from '@ember-data/store';

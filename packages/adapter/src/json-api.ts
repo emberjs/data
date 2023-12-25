@@ -1,7 +1,7 @@
 /**
   @module @ember-data/adapter/json-api
  */
-import { assert } from '@ember/debug';
+import { assert } from '@ember-data/macros';
 import { dasherize } from '@ember/string';
 
 import { pluralize } from 'ember-inflector';

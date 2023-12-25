@@ -1,8 +1,7 @@
 /**
   @module @ember-data/store
 */
-import { assert } from '@ember/debug';
-
+import { assert } from '@ember-data/macros';
 import { compat } from '@ember-data/tracking';
 import type { Signal } from '@ember-data/tracking/-private';
 import {

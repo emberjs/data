@@ -1,7 +1,7 @@
 /**
   @module @ember-data/store
 */
-import { assert } from '@ember/debug';
+import { assert } from '@ember-data/macros';
 
 import type Store from '@ember-data/store';
 import {

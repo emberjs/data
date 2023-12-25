@@ -1,4 +1,4 @@
-import { assert } from '@ember/debug';
+import { assert } from '@ember-data/macros';
 
 import { LOG_GRAPH } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';

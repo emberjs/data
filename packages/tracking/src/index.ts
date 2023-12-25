@@ -1,5 +1,6 @@
-import { assert } from '@ember/debug';
 import { createCache, getValue } from '@glimmer/tracking/primitives/cache';
+
+import { assert } from '@ember-data/macros';
 
 export { transact, memoTransact, untracked } from './-private';
 

@@ -1,8 +1,7 @@
-import { assert } from '@ember/debug';
-
 import { importSync } from '@embroider/macros';
 
 import { upgradeStore } from '@ember-data/legacy-compat/-private';
+import { assert } from '@ember-data/macros';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import { peekCache } from '@ember-data/store/-private';

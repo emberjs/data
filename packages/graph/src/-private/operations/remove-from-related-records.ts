@@ -1,4 +1,4 @@
-import { assert } from '@ember/debug';
+import { assert } from '@ember-data/macros';
 
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { RemoveFromRelatedRecordsOperation } from '@warp-drive/core-types/graph';

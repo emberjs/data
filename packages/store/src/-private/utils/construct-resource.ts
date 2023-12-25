@@ -1,5 +1,4 @@
-import { assert } from '@ember/debug';
-
+import { assert } from '@ember-data/macros';
 import type { ExistingResourceIdentifierObject, ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
 
 import { isStableIdentifier } from '../caches/identifier-cache';

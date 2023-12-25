@@ -1,4 +1,4 @@
-import { assert } from '@ember/debug';
+import { assert } from '@ember-data/macros';
 
 import { DEBUG } from '@ember-data/env';
 import type { Future } from '@ember-data/request';

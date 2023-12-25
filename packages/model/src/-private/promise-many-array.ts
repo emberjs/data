@@ -1,4 +1,4 @@
-import { assert } from '@ember/debug';
+import { assert } from '@ember-data/macros';
 
 import { DEPRECATE_COMPUTED_CHAINS } from '@ember-data/deprecations';
 import type { FindOptions } from '@ember-data/store/-types/q/store';

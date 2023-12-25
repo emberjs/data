@@ -1,4 +1,4 @@
-import { assert } from '@ember/debug';
+import { assert } from '@ember-data/macros';
 import { tracked } from '@glimmer/tracking';
 
 type ApiMeta = {

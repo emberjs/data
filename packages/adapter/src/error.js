@@ -1,7 +1,7 @@
 /**
   @module @ember-data/adapter/error
  */
-import { assert } from '@ember/debug';
+import { assert } from '@ember-data/macros';
 
 /**
   ## Overview

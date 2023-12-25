@@ -1,8 +1,7 @@
 /**
  * @module @ember-data/store
  */
-import { assert } from '@ember/debug';
-
+import { assert } from '@ember-data/macros';
 import type { Future, Handler, NextFn } from '@ember-data/request/-private/types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
