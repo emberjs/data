@@ -107,7 +107,7 @@
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@warp-drive/internal-config": "workspace:5.5.0-alpha.11",
-    "bun-types": "^1.0.17",
+    "bun-types": "^1.0.18",
     "@ember/test-helpers": "^3.2.1",
     "ember-source": "~5.4.0",
     "@glimmer/component": "^1.1.2",
