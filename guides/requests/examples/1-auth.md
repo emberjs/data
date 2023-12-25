@@ -4,14 +4,23 @@
 - Next → [Not sure what next?](./something.md)
 - ⮐ [Requests Guide](../index.md)
 
-## JWT Token 
+## In This Guide
+
+EmberData is flexible enough to work with any request authentication strategy. This guide will show you how
+you might implement some common strategies.
+
+- [JWT Token](#jwt-token)
+- [CSRF Token](#csrf-token)
+- [Secure Cookie](#secure-cookie)
+
+### JWT Token 
 
 > **Note**
 > This example uses [Ember](https://emberjs.com/) for convenience.
 >
 > `@ember-data/request` works with raw javascript or any framework of your choosing.
 
-Many public APIs require authentication. Most common pattern nowadays is the use of an `Authorization` header with a bearer token.
+Many public APIs require authentication. A common pattern nowadays is the use of an `Authorization` header with a bearer token.
 
 ```HTTP
 GET /api/companies?fields[company]=name&fields[employee]=name,profileImage&included=ceo&page[size]=10 HTTP/2
@@ -19,7 +28,7 @@ Accept: application/vnd.api+json; profile="https://jsonapi.org/profiles/ethanres
 Authorization: Bearer <token>
 ```
 
-### Basic example
+#### Basic example
 
 In Ember Data we can create our own custom handler to add authentication header to all requests
 
@@ -53,7 +62,7 @@ export default class extends RequestManager {
 
 This way every request that was made using this request manager will have `Authorization` header added to it.
 
-### Class based Handler
+#### Class based Handler
 
 Handlers can also be defined as classes. This is useful when you need to inject some services into your handler.
 
@@ -108,7 +117,7 @@ export default class extends RequestManager {
 
 Apart of this little twist with dependency injection, everything else is the same as in previous example.
 
-## CSRF Token
+### CSRF Token
 
 ### Simple
 
@@ -172,6 +181,19 @@ export default class extends RequestManager {
 
 This way every request that was made using this request manager will have `X-CSRF-Token` header added to it when needed.
 
+### Secure Cookie
+
+Secure cookies are automatically managed by the browser, so we don't
+need to do anything special to send them with our requests when using
+native fetch (as for instance the provided `Fetch` handler does).
+We just need to make sure that we are requesting our API from the same
+domain that it is served from.
+
+There are a few scenarios where you may need to manage the cookie
+yourself, in these cases you could write a handler and take the same
+approach as the JWT Token example above. For instance, using a WebView
+to deploy a mobile or desktop app or if you are using a custom fetch
+library that doesn't automatically send cookies (potentially for something like SSR).
 
 ---
 
