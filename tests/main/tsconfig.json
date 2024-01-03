@@ -27,7 +27,9 @@
     "declaration": false,
 
     "types": ["ember-source/types"],
-    "paths": {}
+    "paths": {
+      "@ember-data/deprecations": ["../../packages/private-build-infra/virtual-packages/deprecations.d.ts"]
+    }
   },
   "references": []
 }

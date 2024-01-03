@@ -144,8 +144,10 @@ export async function setInitialState(context: Context, config: TestConfig, asse
     if (isMany) {
       let friends: UserRecord[] = await (john.bestFriends as unknown as Promise<UserRecord[]>);
       friends.push(chris);
-      friends = await (chris.bestFriends as unknown as Promise<UserRecord[]>);
-      friends.push(john);
+      if (config.inverseNull) {
+        friends = await (chris.bestFriends as unknown as Promise<UserRecord[]>);
+        friends.push(john);
+      }
     } else {
       // @ts-expect-error
       john.bestFriends = chris;
