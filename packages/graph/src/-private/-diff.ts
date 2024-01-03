@@ -176,7 +176,7 @@ export function diffCollection(
 
       if (DEBUG) {
         deprecate(
-          `Expected all entries in the relationship ${relationship.definition.type}:${relationship.definition.key} to be unique, see log for a list of duplicate entry indeces`,
+          `Expected all entries in the relationship ${relationship.definition.type}:${relationship.definition.key} to be unique, see log for a list of duplicate entry indices`,
           false,
           {
             id: 'ember-data:deprecate-non-unique-relationship-entries',
