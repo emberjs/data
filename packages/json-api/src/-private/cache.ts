@@ -388,7 +388,7 @@ export default class JSONAPICache implements Cache {
    * An implementation might want to do this because
    * de-referencing records which read from their own
    * blob is generally safer because the record does
-   * not require retainining connections to the Store
+   * not require retaining connections to the Store
    * and Cache to present data on a per-field basis.
    *
    * This generally takes the place of `getAttr` as

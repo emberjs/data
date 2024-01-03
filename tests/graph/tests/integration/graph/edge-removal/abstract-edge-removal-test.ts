@@ -116,7 +116,7 @@ module('Integration | Graph | Edge Removal', function (hooks) {
          * However: for a newly created record any form of rollback, unload or persisted delete
          * will result in it being destroyed and cleared
          */
-        await testFinalState(
+        testFinalState(
           this,
           testState,
           config,
@@ -178,7 +178,7 @@ module('Integration | Graph | Edge Removal', function (hooks) {
         // we clear new records, or sync non-implicit relationships (client side delete semantics)
         let cleared = config.useCreate || (!config.async && !config.inverseNull);
 
-        await testFinalState(this, testState, config, { removed, cleared, implicitCleared: true }, assert);
+        testFinalState(this, testState, config, { removed, cleared, implicitCleared: true }, assert);
       });
     }
 
@@ -224,7 +224,7 @@ module('Integration | Graph | Edge Removal', function (hooks) {
         if (config.relType === 'hasMany' && !config.async && config.dirtyLocal) {
           cleared = false;
         }
-        await testFinalState(this, testState, config, { removed: true, cleared, implicitCleared: true }, assert);
+        testFinalState(this, testState, config, { removed: true, cleared, implicitCleared: true }, assert);
       });
     }
 
@@ -254,7 +254,7 @@ module('Integration | Graph | Edge Removal', function (hooks) {
 
           await settled();
 
-          await testFinalState(this, testState, config, { removed: true, cleared: true }, assert);
+          testFinalState(this, testState, config, { removed: true, cleared: true }, assert);
         });
       }
 

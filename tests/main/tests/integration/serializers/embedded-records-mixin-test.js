@@ -49,7 +49,7 @@ module('integration/embedded-records-mixin', function (hooks) {
   }
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
 
     owner.register('model:super-villain', SuperVillain);
     owner.register('model:home-planet', HomePlanet);
@@ -384,7 +384,7 @@ module('integration/embedded-records-mixin', function (hooks) {
     });
 
     test('normalizeResponse with embedded objects of same type, but from separate attributes', async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
       class HomePlanetKlass extends Model {
         @attr('string') name;
         @hasMany('super-villain', { inverse: 'homePlanet', async: false }) villains;
@@ -497,7 +497,7 @@ module('integration/embedded-records-mixin', function (hooks) {
     });
 
     test('normalizeResponse with multiply-nested belongsTo', async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
       owner.register(
         'serializer:evil-minion',
         RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -588,7 +588,7 @@ module('integration/embedded-records-mixin', function (hooks) {
     });
 
     test('normalizeResponse with polymorphic hasMany and custom primary key', async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
       class SuperVillainClass extends Model {
         @attr('string') firstName;
         @attr('string') lastName;
@@ -684,7 +684,7 @@ module('integration/embedded-records-mixin', function (hooks) {
     });
 
     test('normalizeResponse with polymorphic belongsTo', async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
       class SuperVillainClass extends Model {
         @attr('string') firstName;
         @attr('string') lastName;
@@ -754,7 +754,7 @@ module('integration/embedded-records-mixin', function (hooks) {
     });
 
     test('normalizeResponse with polymorphic belongsTo and custom primary key', async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
       class SuperVillainClass extends Model {
         @attr('string') firstName;
         @attr('string') lastName;
@@ -833,7 +833,7 @@ module('integration/embedded-records-mixin', function (hooks) {
     });
 
     test('normalize with custom belongsTo primary key', async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
       owner.register(
         'serializer:evil-minion',
         RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -957,7 +957,7 @@ module('integration/embedded-records-mixin', function (hooks) {
     });
 
     test('normalizeResponse with embedded objects with custom primary key', async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
       owner.register(
         'serializer:super-villain',
         RESTSerializer.extend({
@@ -1187,7 +1187,7 @@ module('integration/embedded-records-mixin', function (hooks) {
     });
 
     test('normalizeResponse with embedded objects of same type, but from separate attributes', async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
       class HomePlanetClass extends Model {
         @attr('string') name;
         @hasMany('super-villain', { inverse: 'homePlanet', async: false }) villains;
@@ -1454,7 +1454,7 @@ module('integration/embedded-records-mixin', function (hooks) {
     });
 
     test('normalizeResponse with polymorphic hasMany', async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       class SuperVillainClass extends Model {
         @attr('string') firstName;
@@ -1578,39 +1578,35 @@ module('integration/embedded-records-mixin', function (hooks) {
         })
       );
 
-      let homePlanet = store.createRecord('home-planet', { name: 'Villain League', id: '123' });
-      let secretLab = store.createRecord('secret-lab', {
+      const homePlanet = store.createRecord('home-planet', { name: 'Villain League', id: '123' });
+      const secretLab = store.createRecord('secret-lab', {
         minionCapacity: 5000,
         vicinity: 'California, USA',
         id: '101',
       });
-      let superVillain = store.createRecord('super-villain', {
+      const superVillain = store.createRecord('super-villain', {
         id: '1',
         firstName: 'Super',
-        lastName: 'Villian',
+        lastName: 'Villain',
         homePlanet,
         secretLab,
       });
-      let secretWeapon = store.createRecord('secret-weapon', {
+      store.createRecord('secret-weapon', {
         id: '1',
         name: 'Secret Weapon',
         superVillain,
       });
-
-      superVillain.secretWeapons.push(secretWeapon);
-
-      let evilMinion = store.createRecord('evil-minion', {
+      store.createRecord('evil-minion', {
         id: '1',
         name: 'Evil Minion',
         superVillain,
       });
-      superVillain.evilMinions.push(evilMinion);
 
       const serializer = store.serializerFor('super-villain');
       const serializedRestJson = serializer.serialize(superVillain._createSnapshot());
       const expectedOutput = {
         firstName: 'Super',
-        lastName: 'Villian',
+        lastName: 'Villain',
         homePlanet: '123',
         evilMinions: [
           {
@@ -1628,7 +1624,7 @@ module('integration/embedded-records-mixin', function (hooks) {
     });
 
     test('serializing relationships with an embedded and without calls super when not attr not present', async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
       let calledSerializeBelongsTo = false;
       let calledSerializeHasMany = false;
 
@@ -1640,12 +1636,12 @@ module('integration/embedded-records-mixin', function (hooks) {
 
         serializeHasMany(snapshot, json, relationship) {
           calledSerializeHasMany = true;
-          let key = relationship.key;
-          let payloadKey = this.keyForRelationship ? this.keyForRelationship(key, 'hasMany') : key;
-          let schema = this.store.modelFor(snapshot.modelName);
-          let relationshipType = schema.determineRelationshipType(relationship, store);
+          const key = relationship.key;
+          const payloadKey = this.keyForRelationship ? this.keyForRelationship(key, 'hasMany') : key;
+          const schema = this.store.modelFor(snapshot.modelName);
+          const relationshipType = schema.determineRelationshipType(relationship, store);
           // "manyToOne" not supported in ActiveModelSerializer.prototype.serializeHasMany
-          let relationshipTypes = ['manyToNone', 'manyToMany', 'manyToOne'];
+          const relationshipTypes = ['manyToNone', 'manyToMany', 'manyToOne'];
           if (relationshipTypes.indexOf(relationshipType) > -1) {
             json[payloadKey] = snapshot.hasMany(key, { ids: true });
           }
@@ -1665,41 +1661,38 @@ module('integration/embedded-records-mixin', function (hooks) {
         })
       );
 
-      let homePlanet = store.createRecord('home-planet', {
+      const homePlanet = store.createRecord('home-planet', {
         name: 'Villain League',
         id: '123',
       });
-      let secretLab = store.createRecord('secret-lab', {
+      const secretLab = store.createRecord('secret-lab', {
         minionCapacity: 5000,
         vicinity: 'California, USA',
         id: '101',
       });
-      let superVillain = store.createRecord('super-villain', {
+      const superVillain = store.createRecord('super-villain', {
         id: '1',
         firstName: 'Super',
-        lastName: 'Villian',
+        lastName: 'Villain',
         homePlanet,
         secretLab,
       });
-      let secretWeapon = store.createRecord('secret-weapon', {
+      store.createRecord('secret-weapon', {
         id: '1',
         name: 'Secret Weapon',
         superVillain,
       });
-
-      superVillain.secretWeapons.push(secretWeapon);
-      let evilMinion = store.createRecord('evil-minion', {
+      store.createRecord('evil-minion', {
         id: '1',
         name: 'Evil Minion',
         superVillain,
       });
-      superVillain.evilMinions.push(evilMinion);
 
       const serializer = store.serializerFor('super-villain');
       const serializedRestJson = serializer.serialize(superVillain._createSnapshot());
       const expectedOutput = {
         firstName: 'Super',
-        lastName: 'Villian',
+        lastName: 'Villain',
         homePlanet: '123',
         evilMinions: [
           {
@@ -1729,7 +1722,7 @@ module('integration/embedded-records-mixin', function (hooks) {
           })
         );
 
-        let homePlanet = store.createRecord('home-planet', {
+        const homePlanet = store.createRecord('home-planet', {
           name: 'Villain League',
           id: '123',
         });
@@ -1773,7 +1766,7 @@ module('integration/embedded-records-mixin', function (hooks) {
             },
           })
         );
-        let homePlanet = store.createRecord('home-planet', {
+        const homePlanet = store.createRecord('home-planet', {
           name: 'Villain League',
           id: '123',
         });
@@ -1826,7 +1819,7 @@ module('integration/embedded-records-mixin', function (hooks) {
           },
         });
         const serializer = store.serializerFor('home-planet');
-        let league = store.peekRecord('home-planet', 123);
+        const league = store.peekRecord('home-planet', 123);
         let serializedRestJson;
         const expectedOutput = {
           name: 'Villain League',
@@ -1850,7 +1843,7 @@ module('integration/embedded-records-mixin', function (hooks) {
           })
         );
 
-        let homePlanet = store.createRecord('home-planet', {
+        const homePlanet = store.createRecord('home-planet', {
           name: 'Villain League',
           id: '123',
         });
@@ -1880,7 +1873,7 @@ module('integration/embedded-records-mixin', function (hooks) {
           })
         );
 
-        let homePlanet = store.createRecord('home-planet', {
+        const homePlanet = store.createRecord('home-planet', {
           name: 'Villain League',
           id: '123',
         });
@@ -1920,30 +1913,27 @@ module('integration/embedded-records-mixin', function (hooks) {
           })
         );
 
-        let superVillain = store.createRecord('super-villain', {
+        const superVillain = store.createRecord('super-villain', {
           id: '1',
           firstName: 'Super',
-          lastName: 'Villian',
+          lastName: 'Villain',
         });
-        let evilMinion = store.createRecord('evil-minion', {
+        store.createRecord('evil-minion', {
           id: '1',
           name: 'Evil Minion',
           superVillain,
         });
-        let secretWeapon = store.createRecord('secret-weapon', {
+        store.createRecord('secret-weapon', {
           id: '1',
           name: 'Secret Weapon',
           superVillain,
         });
 
-        superVillain.evilMinions.push(evilMinion);
-        superVillain.secretWeapons.push(secretWeapon);
-
         const serializer = store.serializerFor('super-villain');
         const serializedRestJson = serializer.serialize(superVillain._createSnapshot());
         const expectedOutput = {
           firstName: 'Super',
-          lastName: 'Villian',
+          lastName: 'Villain',
           homePlanet: null,
           evilMinions: [
             {
@@ -1959,7 +1949,7 @@ module('integration/embedded-records-mixin', function (hooks) {
       });
 
       test('serialize has many relationship using the `ids-and-types` strategy', async function (assert) {
-        let { owner } = this;
+        const { owner } = this;
         class NormalMinion extends Model {
           @attr('string') name;
         }
@@ -1983,15 +1973,15 @@ module('integration/embedded-records-mixin', function (hooks) {
           })
         );
 
-        let yellowMinion = store.createRecord('yellow-minion', {
+        const yellowMinion = store.createRecord('yellow-minion', {
           id: '1',
           name: 'Yellowy',
         });
-        let redMinion = store.createRecord('red-minion', {
+        const redMinion = store.createRecord('red-minion', {
           id: '1',
           name: 'Reddy',
         });
-        let commanderVillain = store.createRecord('commander-villain', {
+        const commanderVillain = store.createRecord('commander-villain', {
           id: '1',
           name: 'Jeff',
           minions: [yellowMinion, redMinion],
@@ -2017,7 +2007,7 @@ module('integration/embedded-records-mixin', function (hooks) {
       });
 
       test('serializing embedded hasMany respects remapped attrs key', async function (assert) {
-        let { owner } = this;
+        const { owner } = this;
         owner.register(
           'serializer:home-planet',
           RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -2036,7 +2026,7 @@ module('integration/embedded-records-mixin', function (hooks) {
           })
         );
 
-        let homePlanet = store.createRecord('home-planet', { name: 'Hoth' });
+        const homePlanet = store.createRecord('home-planet', { name: 'Hoth' });
         store.createRecord('super-villain', {
           firstName: 'Ice',
           lastName: 'Creature',
@@ -2062,7 +2052,7 @@ module('integration/embedded-records-mixin', function (hooks) {
       });
 
       test('serializing ids hasMany respects remapped attrs key', async function (assert) {
-        let { owner } = this;
+        const { owner } = this;
         owner.register(
           'serializer:home-planet',
           RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -2081,8 +2071,8 @@ module('integration/embedded-records-mixin', function (hooks) {
           })
         );
 
-        let homePlanet = store.createRecord('home-planet', { name: 'Hoth' });
-        let superVillain = store.createRecord('super-villain', {
+        const homePlanet = store.createRecord('home-planet', { name: 'Hoth' });
+        const superVillain = store.createRecord('super-villain', {
           firstName: 'Ice',
           lastName: 'Creature',
           homePlanet,
@@ -2110,12 +2100,12 @@ module('integration/embedded-records-mixin', function (hooks) {
         );
 
         // records with an id, persisted
-        let secretLab = store.createRecord('secret-lab', {
+        const secretLab = store.createRecord('secret-lab', {
           minionCapacity: 5000,
           vicinity: 'California, USA',
           id: '101',
         });
-        let tom = store.createRecord('super-villain', {
+        const tom = store.createRecord('super-villain', {
           firstName: 'Tom',
           lastName: 'Dale',
           id: '1',
@@ -2142,7 +2132,7 @@ module('integration/embedded-records-mixin', function (hooks) {
       });
 
       test('serialize with embedded object (polymorphic belongsTo relationship)', async function (assert) {
-        let { owner } = this;
+        const { owner } = this;
         owner.register(
           'serializer:super-villain',
           RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -2162,7 +2152,7 @@ module('integration/embedded-records-mixin', function (hooks) {
         owner.unregister('model:super-villain');
         owner.register('model:super-villain', SuperVillain);
 
-        let tom = store.createRecord('super-villain', {
+        const tom = store.createRecord('super-villain', {
           id: '1',
           firstName: 'Tom',
           lastName: 'Dale',
@@ -2201,7 +2191,7 @@ module('integration/embedded-records-mixin', function (hooks) {
       });
 
       test('serialize with embedded object (belongsTo relationship) works with different primaryKeys', async function (assert) {
-        let { owner } = this;
+        const { owner } = this;
         owner.register(
           'serializer:super-villain',
           RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -2221,7 +2211,7 @@ module('integration/embedded-records-mixin', function (hooks) {
         const superVillainSerializer = store.serializerFor('super-villain');
 
         // records with an id, persisted
-        let tom = store.createRecord('super-villain', {
+        const tom = store.createRecord('super-villain', {
           firstName: 'Tom',
           lastName: 'Dale',
           id: '1',
@@ -2267,7 +2257,7 @@ module('integration/embedded-records-mixin', function (hooks) {
         const serializer = store.serializerFor('super-villain');
 
         // records without ids, new
-        let tom = store.createRecord('super-villain', {
+        const tom = store.createRecord('super-villain', {
           firstName: 'Tom',
           lastName: 'Dale',
           secretLab: store.createRecord('secret-lab', {
@@ -2291,7 +2281,7 @@ module('integration/embedded-records-mixin', function (hooks) {
       });
 
       test('serialize with embedded object (polymorphic belongsTo relationship) supports serialize:ids', async function (assert) {
-        let { owner } = this;
+        const { owner } = this;
         class SuperVillain extends Model {
           @attr('string') firstName;
           @attr('string') lastName;
@@ -2311,7 +2301,7 @@ module('integration/embedded-records-mixin', function (hooks) {
         owner.unregister('model:super-villain');
         owner.register('model:super-villain', SuperVillain);
 
-        let tom = store.createRecord('super-villain', {
+        const tom = store.createRecord('super-villain', {
           firstName: 'Tom',
           lastName: 'Dale',
           id: '1',
@@ -2336,7 +2326,7 @@ module('integration/embedded-records-mixin', function (hooks) {
       });
 
       test('serialize with embedded object (belongsTo relationship) supports serialize:id', async function (assert) {
-        let { owner } = this;
+        const { owner } = this;
         class SuperVillain extends Model {
           @attr('string') firstName;
           @attr('string') lastName;
@@ -2357,7 +2347,7 @@ module('integration/embedded-records-mixin', function (hooks) {
         owner.unregister('model:super-villain');
         owner.register('model:super-villain', SuperVillain);
 
-        let tom = store.createRecord('super-villain', {
+        const tom = store.createRecord('super-villain', {
           firstName: 'Tom',
           lastName: 'Dale',
           id: '1',
@@ -2383,7 +2373,7 @@ module('integration/embedded-records-mixin', function (hooks) {
       });
 
       test('serialize with embedded object (belongsTo relationship) supports serialize:id in conjunction with deserialize:records', async function (assert) {
-        let { owner } = this;
+        const { owner } = this;
         class SuperVillain extends Model {
           @attr('string') firstName;
           @attr('string') lastName;
@@ -2404,7 +2394,7 @@ module('integration/embedded-records-mixin', function (hooks) {
         owner.unregister('model:super-villain');
         owner.register('model:super-villain', SuperVillain);
 
-        let tom = store.createRecord('super-villain', {
+        const tom = store.createRecord('super-villain', {
           firstName: 'Tom',
           lastName: 'Dale',
           id: '1',
@@ -2444,7 +2434,7 @@ module('integration/embedded-records-mixin', function (hooks) {
         );
 
         // records with an id, persisted
-        let tom = store.createRecord('super-villain', {
+        const tom = store.createRecord('super-villain', {
           firstName: 'Tom',
           lastName: 'Dale',
           id: '1',
@@ -2468,7 +2458,7 @@ module('integration/embedded-records-mixin', function (hooks) {
         assert.deepEqual(serializedRestJson, expectedOutput, 'We serialized the belongsTo relationships to IDs');
       });
 
-      test('serialize with embedded object (belongsTo relationship) supports serialize:id', async function (assert) {
+      test('serialize with embedded object (belongsTo relationship) supports serialize:id, v2', async function (assert) {
         this.owner.register(
           'serializer:super-villain',
           RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -2479,7 +2469,7 @@ module('integration/embedded-records-mixin', function (hooks) {
         );
 
         // records with an id, persisted
-        let tom = store.createRecord('super-villain', {
+        const tom = store.createRecord('super-villain', {
           firstName: 'Tom',
           lastName: 'Dale',
           id: '1',
@@ -2503,7 +2493,7 @@ module('integration/embedded-records-mixin', function (hooks) {
         assert.deepEqual(serializedRestJson, expectedOutput, 'We serialized the belongsTo relationships to IDs');
       });
 
-      test('serialize with embedded object (belongsTo relationship) supports serialize:id in conjunction with deserialize:records', async function (assert) {
+      test('serialize with embedded object (belongsTo relationship) supports serialize:id in conjunction with deserialize:records, v2', async function (assert) {
         this.owner.register(
           'serializer:super-villain',
           RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -2514,7 +2504,7 @@ module('integration/embedded-records-mixin', function (hooks) {
         );
 
         // records with an id, persisted
-        let tom = store.createRecord('super-villain', {
+        const tom = store.createRecord('super-villain', {
           firstName: 'Tom',
           lastName: 'Dale',
           id: '1',
@@ -2549,7 +2539,7 @@ module('integration/embedded-records-mixin', function (hooks) {
         );
 
         // records with an id, persisted
-        let tom = store.createRecord('super-villain', {
+        const tom = store.createRecord('super-villain', {
           firstName: 'Tom',
           lastName: 'Dale',
           id: '1',
@@ -2580,7 +2570,7 @@ module('integration/embedded-records-mixin', function (hooks) {
         this.owner.register('serializer:super-villain', RESTSerializer.extend(EmbeddedRecordsMixin));
 
         // records with an id, persisted
-        let tom = store.createRecord('super-villain', {
+        const tom = store.createRecord('super-villain', {
           firstName: 'Tom',
           lastName: 'Dale',
           id: '1',
@@ -2614,7 +2604,7 @@ module('integration/embedded-records-mixin', function (hooks) {
           })
         );
 
-        let tom = store.createRecord('super-villain', {
+        const tom = store.createRecord('super-villain', {
           firstName: 'Tom',
           lastName: 'Dale',
           id: '1',
@@ -2638,7 +2628,7 @@ module('integration/embedded-records-mixin', function (hooks) {
       });
 
       test('serializing belongsTo correctly removes embedded foreign key', async function (assert) {
-        let { owner } = this;
+        const { owner } = this;
         class SecretWeaponClass extends Model {
           @attr('string') name;
         }
@@ -2660,8 +2650,8 @@ module('integration/embedded-records-mixin', function (hooks) {
         owner.register('model:secret-weapon', SecretWeaponClass);
         owner.register('model:evil-minion', EvilMinionClass);
 
-        let secretWeapon = store.createRecord('secret-weapon', { name: 'Secret Weapon' });
-        let evilMinion = store.createRecord('evil-minion', {
+        const secretWeapon = store.createRecord('secret-weapon', { name: 'Secret Weapon' });
+        const evilMinion = store.createRecord('evil-minion', {
           name: 'Evil Minion',
           secretWeapon,
         });
@@ -2692,8 +2682,8 @@ module('integration/embedded-records-mixin', function (hooks) {
           })
         );
 
-        let homePlanet = store.createRecord('home-planet', { name: 'Hoth' });
-        let superVillain = store.createRecord('super-villain', {
+        const homePlanet = store.createRecord('home-planet', { name: 'Hoth' });
+        const superVillain = store.createRecord('super-villain', {
           firstName: 'Ice',
           lastName: 'Creature',
           homePlanet,
@@ -2723,8 +2713,8 @@ module('integration/embedded-records-mixin', function (hooks) {
           })
         );
 
-        let homePlanet = store.createRecord('home-planet', { name: 'Hoth' });
-        let superVillain = store.createRecord('super-villain', {
+        const homePlanet = store.createRecord('home-planet', { name: 'Hoth' });
+        const superVillain = store.createRecord('super-villain', {
           firstName: 'Ice',
           lastName: 'Creature',
           homePlanet,

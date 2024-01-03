@@ -1,8 +1,6 @@
-import { settled } from '@ember/test-helpers';
-
-import type { ImplicitEdge } from '@ember-data/graph/-private/edges/implicit';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
+import type { CollectionResourceDocument, SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import type { Context, UserRecord } from './setup';
@@ -73,7 +71,23 @@ interface TestState {
   johnInverseKey: string;
 }
 
-export async function setInitialState(context: Context, config: TestConfig, assert): Promise<TestState> {
+type UserRef = { type: 'user'; id: string };
+type BestFriendRel<T> = {
+  bestFriends: {
+    data: T;
+  };
+};
+
+function makeRel(id: string | null, isMany: false): BestFriendRel<UserRef | null>;
+function makeRel(id: string | null, isMany: true): BestFriendRel<UserRef[]>;
+function makeRel(id: string | null, isMany: boolean): BestFriendRel<UserRef | UserRef[] | null> {
+  const ref = { type: 'user', id: id as string } as const;
+  const data = isMany ? (id === null ? [] : [ref]) : id === null ? null : ref;
+
+  return { bestFriends: { data } };
+}
+
+export async function setInitialState(context: Context, config: TestConfig, assert: Assert): Promise<TestState> {
   const { owner, store, graph } = context;
   const { identifierCache } = store;
   const isMany = config.relType === 'hasMany';
@@ -85,33 +99,26 @@ export async function setInitialState(context: Context, config: TestConfig, asse
   };
 
   class User extends Model {
-    @attr name;
-    @relFn('user', relConfig) bestFriends;
+    @attr declare name: string;
+    @relFn('user', relConfig) declare bestFriends: unknown;
   }
   owner.register('model:user', User);
 
-  function makeRel(id: string | null): any {
-    let ref = { type: 'user', id };
-    const data = isMany ? (id === null ? [] : [ref]) : id === null ? null : ref;
-
-    return { bestFriends: { data } };
-  }
-
-  let chris, john, johnIdentifier;
+  let chris: UserRecord, john: UserRecord, johnIdentifier: StableRecordIdentifier;
   if (!config.useCreate) {
-    const data = {
+    const data: CollectionResourceDocument = {
       data: [
         {
           type: 'user',
           id: '1',
           attributes: { name: 'Chris' },
-          relationships: makeRel(config.dirtyLocal ? null : '2'),
+          relationships: makeRel(config.dirtyLocal ? null : '2', isMany as true),
         },
         {
           type: 'user',
           id: '2',
           attributes: { name: 'John' },
-          relationships: makeRel(config.dirtyLocal ? null : '1'),
+          relationships: makeRel(config.dirtyLocal ? null : '1', isMany as true),
         },
       ],
     };
@@ -125,24 +132,29 @@ export async function setInitialState(context: Context, config: TestConfig, asse
         id: '1',
         attributes: { name: 'Chris' },
       },
-    });
-    john = store.createRecord('user', { name: 'John', bestFriends: isMany ? [chris] : chris });
+    } as SingleResourceDocument);
+    john = store.createRecord('user', { name: 'John', bestFriends: isMany ? [chris] : chris }) as UserRecord;
     johnIdentifier = recordIdentifierFor(john);
   }
 
   if (config.dirtyLocal) {
     if (isMany) {
-      let friends = await john.bestFriends;
+      let friends: UserRecord[] = await (john.bestFriends as unknown as Promise<UserRecord[]>);
       friends.push(chris);
-      friends = await chris.bestFriends;
-      friends.push(john);
+      if (config.inverseNull) {
+        friends = await (chris.bestFriends as unknown as Promise<UserRecord[]>);
+        friends.push(john);
+      }
     } else {
+      // @ts-expect-error
       john.bestFriends = chris;
+      // @ts-expect-error
       chris.bestFriends = john;
     }
   }
 
-  await settled();
+  // give ourselves a tick in case there was async work
+  await Promise.resolve();
 
   const chrisIdentifier = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
   const chrisBestFriend = graph.get(chrisIdentifier, 'bestFriends');
@@ -186,8 +198,8 @@ export async function setInitialState(context: Context, config: TestConfig, asse
 
     assert.strictEqual(Object.keys(chrisImplicits).length, 1, 'PreCond: Chris has one implicit relationship');
 
-    const chrisImplicitFriend = chrisImplicits[chrisBestFriend.definition.inverseKey] as ImplicitEdge;
-    const johnImplicitFriend = johnImplicits[johnBestFriend.definition.inverseKey] as ImplicitEdge;
+    const chrisImplicitFriend = chrisImplicits[chrisBestFriend.definition.inverseKey];
+    const johnImplicitFriend = johnImplicits[johnBestFriend.definition.inverseKey];
 
     assert.ok(chrisImplicitFriend, 'PreCond: Chris has an implicit best friend');
 
@@ -245,12 +257,12 @@ export async function setInitialState(context: Context, config: TestConfig, asse
   };
 }
 
-export async function testFinalState(
+export function testFinalState(
   context: Context,
   testState: TestState,
   config: TestConfig,
   statuses: ExpectedTestOutcomes,
-  assert
+  assert: Assert
 ) {
   const { graph, store } = context;
   const { chrisIdentifier, johnIdentifier } = testState;
@@ -260,7 +272,7 @@ export async function testFinalState(
 
   // this specific case gets it's own WAT
   // this is something ideally a refactor should do away with.
-  const isUnloadOfImplictAsyncHasManyWithLocalChange =
+  const isUnloadOfImplicitAsyncHasManyWithLocalChange =
     !!config.isUnloadAsDelete &&
     !!config.dirtyLocal &&
     !!config.async &&
@@ -273,7 +285,7 @@ export async function testFinalState(
 
   // in the dirtyLocal and useCreate case there is no remote data
   const chrisRemoteRemoved = config.dirtyLocal || config.useCreate || statuses.removed;
-  const chrisLocalRemoved = statuses.removed && !isUnloadOfImplictAsyncHasManyWithLocalChange;
+  const chrisLocalRemoved = statuses.removed && !isUnloadOfImplicitAsyncHasManyWithLocalChange;
 
   // for the isUnloadAsDelete case we don't remove unless dirtyLocal or useCreate
   // this may be a bug but likely is related to retaining info for rematerialization.
@@ -346,7 +358,7 @@ export async function testFinalState(
 
     assert.strictEqual(Object.keys(chrisImplicits).length, 1, 'Result: Chris has one implicit relationship key');
 
-    const chrisImplicitFriend = chrisImplicits[testState.chrisInverseKey] as ImplicitEdge;
+    const chrisImplicitFriend = chrisImplicits[testState.chrisInverseKey];
 
     assert.ok(chrisImplicitFriend, 'Result: Chris has an implicit relationship for best friend');
     const chrisImplicitState = stateOf(store._graph!, chrisImplicitFriend);
@@ -370,7 +382,7 @@ export async function testFinalState(
       assert.false(graph.implicit.has(johnIdentifier), 'implicit cache for john has been removed');
     } else {
       const johnImplicits = graph.getImplicit(johnIdentifier);
-      const johnImplicitFriend = johnImplicits[testState.johnInverseKey] as ImplicitEdge;
+      const johnImplicitFriend = johnImplicits[testState.johnInverseKey];
       assert.strictEqual(
         Object.keys(johnImplicits).length,
         1,
