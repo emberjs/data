@@ -161,8 +161,8 @@ export async function setInitialState(context: Context, config: TestConfig, asse
   const johnBestFriend = graph.get(johnIdentifier, 'bestFriends');
 
   // pre-conds
-  assert.equal(chris.name, 'Chris', 'PreCond: We have chris');
-  assert.equal(john.name, 'John', 'PreCond: We have john');
+  assert.strictEqual(chris.name, 'Chris', 'PreCond: We have chris');
+  assert.strictEqual(john.name, 'John', 'PreCond: We have john');
   assert.false(chris.isDeleted, 'PreCond: Chris is not deleted');
   assert.false(john.isDeleted, 'PreCond: John is not deleted');
 
@@ -196,7 +196,7 @@ export async function setInitialState(context: Context, config: TestConfig, asse
     const chrisImplicits = graph.getImplicit(chrisIdentifier);
     const johnImplicits = graph.getImplicit(johnIdentifier);
 
-    assert.equal(Object.keys(chrisImplicits).length, 1, 'PreCond: Chris has one implicit relationship');
+    assert.strictEqual(Object.keys(chrisImplicits).length, 1, 'PreCond: Chris has one implicit relationship');
 
     const chrisImplicitFriend = chrisImplicits[chrisBestFriend.definition.inverseKey];
     const johnImplicitFriend = johnImplicits[johnBestFriend.definition.inverseKey];
@@ -221,10 +221,10 @@ export async function setInitialState(context: Context, config: TestConfig, asse
     // implicits on john are managed by chris, so with inverseNull
     // the implicit on john will be empty since chris should have no state.
     if (config.useCreate) {
-      assert.equal(Object.keys(johnImplicits).length, 0, 'PreCond: John has no implicit relationship');
+      assert.strictEqual(Object.keys(johnImplicits).length, 0, 'PreCond: John has no implicit relationship');
       assert.notOk(johnImplicitFriend, 'PreCond: John has no implicit best friend');
     } else {
-      assert.equal(Object.keys(johnImplicits).length, 1, 'PreCond: John has one implicit relationship');
+      assert.strictEqual(Object.keys(johnImplicits).length, 1, 'PreCond: John has one implicit relationship');
       assert.ok(johnImplicitFriend, 'PreCond: John has no implicit best friend');
       const johnImplicitState = stateOf(store._graph!, johnImplicitFriend);
       assert.deepEqual(
@@ -356,7 +356,7 @@ export function testFinalState(
   if (config.inverseNull) {
     const chrisImplicits = graph.getImplicit(chrisIdentifier);
 
-    assert.equal(Object.keys(chrisImplicits).length, 1, 'Result: Chris has one implicit relationship key');
+    assert.strictEqual(Object.keys(chrisImplicits).length, 1, 'Result: Chris has one implicit relationship key');
 
     const chrisImplicitFriend = chrisImplicits[testState.chrisInverseKey];
 
@@ -383,7 +383,11 @@ export function testFinalState(
     } else {
       const johnImplicits = graph.getImplicit(johnIdentifier);
       const johnImplicitFriend = johnImplicits[testState.johnInverseKey];
-      assert.equal(Object.keys(johnImplicits).length, 1, 'Result: John has one implicit relationship in the cache');
+      assert.strictEqual(
+        Object.keys(johnImplicits).length,
+        1,
+        'Result: John has one implicit relationship in the cache'
+      );
       assert.ok(johnImplicitFriend, 'Result: John has an implicit key for best friend');
       const johnImplicitState = stateOf(store._graph!, johnImplicitFriend);
 
