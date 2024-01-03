@@ -369,3 +369,20 @@ export const DEPRECATE_NON_UNIQUE_PAYLOADS = '5.3';
  * @public
  */
 export const DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE = '5.3';
+
+/**
+ * **id: ember-data:deprecate-many-array-duplicates**
+ *
+ * When the flag is `true` (default), adding duplicate records to a `ManyArray`
+ * is deprecated in non-production environments. In production environments,
+ * duplicate records added to a `ManyArray` will be deduped and no error will
+ * be thrown.
+ *
+ * When the flag is `false`, an error will be thrown when duplicates are added.
+ *
+ * @property DEPRECATE_MANY_ARRAY_DUPLICATES
+ * @since 5.3
+ * @until 6.0
+ * @public
+ */
+export const DEPRECATE_MANY_ARRAY_DUPLICATES = '5.3';

@@ -3,20 +3,23 @@
 */
 import { assert } from '@ember/debug';
 
+import { DEPRECATE_MANY_ARRAY_DUPLICATES } from '@ember-data/deprecations';
 import type Store from '@ember-data/store';
 import {
   IDENTIFIER_ARRAY_TAG,
+  isStableIdentifier,
   MUTATE,
   notifyArray,
   RecordArray,
   recordIdentifierFor,
   SOURCE,
 } from '@ember-data/store/-private';
-import { IdentifierArrayCreateOptions } from '@ember-data/store/-private/record-arrays/identifier-array';
+import { IdentifierArrayCreateOptions, Tag } from '@ember-data/store/-private/record-arrays/identifier-array';
 import type { CreateRecordProperties } from '@ember-data/store/-private/store-service';
 import type { Cache } from '@ember-data/types/q/cache';
 import type { ModelSchema } from '@ember-data/types/q/ds-model';
 import type { Links, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
+import { addToTransaction } from '@ember-data/tracking/-private';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { FindOptions } from '@ember-data/types/q/store';
@@ -163,111 +166,210 @@ export default class RelatedCollection extends RecordArray {
     this.key = options.key;
   }
 
-  [MUTATE](prop: string, args: unknown[], result?: unknown) {
+  [MUTATE](
+    target: StableRecordIdentifier[],
+    receiver: typeof Proxy<StableRecordIdentifier[]>,
+    prop: string,
+    args: unknown[],
+    _TAG: Tag
+  ): unknown {
     switch (prop) {
       case 'length 0': {
-        this._manager.mutate({
-          op: 'replaceRelatedRecords',
-          record: this.identifier,
-          field: this.key,
-          value: [],
-        });
-        break;
+        Reflect.set(target, 'length', 0);
+        mutateReplaceRelatedRecords(this, [], _TAG);
+        return true;
       }
       case 'replace cell': {
         const [index, prior, value] = args as [number, StableRecordIdentifier, StableRecordIdentifier];
-        this._manager.mutate({
-          op: 'replaceRelatedRecord',
-          record: this.identifier,
-          field: this.key,
-          value,
-          prior,
-          index,
-        });
-        break;
+        target[index] = value;
+        mutateReplaceRelatedRecord(this, { value, prior, index }, _TAG);
+        return true;
       }
-      case 'push':
-        this._manager.mutate({
-          op: 'addToRelatedRecords',
-          record: this.identifier,
-          field: this.key,
-          value: extractIdentifiersFromRecords(args),
-        });
-        break;
-      case 'pop':
-        if (result) {
-          this._manager.mutate({
-            op: 'removeFromRelatedRecords',
-            record: this.identifier,
-            field: this.key,
-            value: recordIdentifierFor(result as RecordInstance),
+      case 'push': {
+        const newValues = extractIdentifiersFromRecords(args);
+
+        assertNoDuplicates(
+          this,
+          target,
+          (currentState) => currentState.push(...newValues),
+          `Cannot push duplicates to a hasMany's state.`
+        );
+
+        if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
+          // dedupe
+          const seen = new Set(target);
+          const unique = new Set<RecordInstance>();
+
+          args.forEach((item) => {
+            const identifier = recordIdentifierFor(item);
+            if (!seen.has(identifier)) {
+              seen.add(identifier);
+              unique.add(item);
+            }
           });
+
+          const newArgs = Array.from(unique);
+          const result = Reflect.apply(target[prop], receiver, newArgs) as RecordInstance[];
+
+          if (newArgs.length) {
+            mutateAddToRelatedRecords(this, { value: extractIdentifiersFromRecords(newArgs) }, _TAG);
+          }
+          return result;
         }
-        break;
 
-      case 'unshift':
-        this._manager.mutate({
-          op: 'addToRelatedRecords',
-          record: this.identifier,
-          field: this.key,
-          value: extractIdentifiersFromRecords(args),
-          index: 0,
-        });
-        break;
+        // else, no dedupe, error on duplicates
+        const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
+        if (newValues.length) {
+          mutateAddToRelatedRecords(this, { value: newValues }, _TAG);
+        }
+        return result;
+      }
 
-      case 'shift':
+      case 'pop': {
+        const result: unknown = Reflect.apply(target[prop], receiver, args);
         if (result) {
-          this._manager.mutate({
-            op: 'removeFromRelatedRecords',
-            record: this.identifier,
-            field: this.key,
-            value: recordIdentifierFor(result as RecordInstance),
-            index: 0,
-          });
+          mutateRemoveFromRelatedRecords(this, { value: recordIdentifierFor(result as RecordInstance) }, _TAG);
         }
-        break;
+        return result;
+      }
 
-      case 'sort':
-        this._manager.mutate({
-          op: 'sortRelatedRecords',
-          record: this.identifier,
-          field: this.key,
-          value: (result as RecordInstance[]).map(recordIdentifierFor),
-        });
-        break;
+      case 'unshift': {
+        const newValues = extractIdentifiersFromRecords(args);
+
+        assertNoDuplicates(
+          this,
+          target,
+          (currentState) => currentState.unshift(...newValues),
+          `Cannot unshift duplicates to a hasMany's state.`
+        );
+
+        if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
+          // dedupe
+          const seen = new Set(target);
+          const unique = new Set<RecordInstance>();
+
+          args.forEach((item) => {
+            const identifier = recordIdentifierFor(item);
+            if (!seen.has(identifier)) {
+              seen.add(identifier);
+              unique.add(item);
+            }
+          });
+
+          const newArgs = Array.from(unique);
+          const result: unknown = Reflect.apply(target[prop], receiver, newArgs);
+
+          if (newArgs.length) {
+            mutateAddToRelatedRecords(this, { value: extractIdentifiersFromRecords(newArgs), index: 0 }, _TAG);
+          }
+          return result;
+        }
+
+        // else, no dedupe, error on duplicates
+        const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
+        if (newValues.length) {
+          mutateAddToRelatedRecords(this, { value: newValues, index: 0 }, _TAG);
+        }
+        return result;
+      }
+
+      case 'shift': {
+        const result: unknown = Reflect.apply(target[prop], receiver, args);
+
+        if (result) {
+          mutateRemoveFromRelatedRecords(
+            this,
+            { value: recordIdentifierFor(result as RecordInstance), index: 0 },
+            _TAG
+          );
+        }
+        return result;
+      }
+
+      case 'sort': {
+        const result: unknown = Reflect.apply(target[prop], receiver, args);
+        mutateSortRelatedRecords(this, (result as RecordInstance[]).map(recordIdentifierFor), _TAG);
+        return result;
+      }
 
       case 'splice': {
-        const [start, removeCount, ...adds] = args as [number, number, RecordInstance];
+        const [start, deleteCount, ...adds] = args as [number, number, ...RecordInstance[]];
+
         // detect a full replace
-        if (removeCount > 0 && adds.length === this[SOURCE].length) {
-          this._manager.mutate({
-            op: 'replaceRelatedRecords',
-            record: this.identifier,
-            field: this.key,
-            value: extractIdentifiersFromRecords(adds),
-          });
-          return;
-        }
-        if (removeCount > 0) {
-          this._manager.mutate({
-            op: 'removeFromRelatedRecords',
-            record: this.identifier,
-            field: this.key,
-            value: (result as RecordInstance[]).map(recordIdentifierFor),
-            index: start,
-          });
-        }
-        if (adds?.length) {
-          this._manager.mutate({
-            op: 'addToRelatedRecords',
-            record: this.identifier,
-            field: this.key,
-            value: extractIdentifiersFromRecords(adds),
-            index: start,
-          });
+        if (start === 0 && deleteCount === this[SOURCE].length) {
+          const newValues = extractIdentifiersFromRecords(adds);
+
+          assertNoDuplicates(
+            this,
+            target,
+            (currentState) => currentState.splice(start, deleteCount, ...newValues),
+            `Cannot replace a hasMany's state with a new state that contains duplicates.`
+          );
+
+          if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
+            // dedupe
+            const current = new Set(adds);
+            const unique = Array.from(current);
+            const newArgs = ([start, deleteCount] as unknown[]).concat(unique);
+
+            const result = Reflect.apply(target[prop], receiver, newArgs) as RecordInstance[];
+
+            mutateReplaceRelatedRecords(this, extractIdentifiersFromRecords(unique), _TAG);
+            return result;
+          }
+
+          // else, no dedupe, error on duplicates
+          const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
+          mutateReplaceRelatedRecords(this, newValues, _TAG);
+          return result;
         }
 
-        break;
+        const newValues = extractIdentifiersFromRecords(adds);
+        assertNoDuplicates(
+          this,
+          target,
+          (currentState) => currentState.splice(start, deleteCount, ...newValues),
+          `Cannot splice a hasMany's state with a new state that contains duplicates.`
+        );
+
+        if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
+          // dedupe
+          const currentState = target.slice();
+          currentState.splice(start, deleteCount);
+
+          const seen = new Set(currentState);
+          const unique: RecordInstance[] = [];
+          adds.forEach((item) => {
+            const identifier = recordIdentifierFor(item);
+            if (!seen.has(identifier)) {
+              seen.add(identifier);
+              unique.push(item);
+            }
+          });
+
+          const newArgs = [start, deleteCount, ...unique];
+          const result = Reflect.apply(target[prop], receiver, newArgs) as RecordInstance[];
+
+          if (deleteCount > 0) {
+            mutateRemoveFromRelatedRecords(this, { value: result.map(recordIdentifierFor), index: start }, _TAG);
+          }
+
+          if (unique.length > 0) {
+            mutateAddToRelatedRecords(this, { value: extractIdentifiersFromRecords(unique), index: start }, _TAG);
+          }
+
+          return result;
+        }
+
+        // else, no dedupe, error on duplicates
+        const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
+        if (deleteCount > 0) {
+          mutateRemoveFromRelatedRecords(this, { value: result.map(recordIdentifierFor), index: start }, _TAG);
+        }
+        if (newValues.length > 0) {
+          mutateAddToRelatedRecords(this, { value: newValues, index: start }, _TAG);
+        }
+        return result;
       }
       default:
         assert(`unable to convert ${prop} into a transaction that updates the cache state for this record array`);
@@ -379,4 +481,138 @@ function extractIdentifiersFromRecords(records: RecordInstance[]): StableRecordI
 function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord | RecordInstance) {
   assertRecordPassedToHasMany(recordOrPromiseRecord);
   return recordIdentifierFor(recordOrPromiseRecord);
+}
+
+function assertNoDuplicates(
+  collection: RelatedCollection,
+  target: StableRecordIdentifier[],
+  callback: (currentState: StableRecordIdentifier[]) => void,
+  reason: string
+) {
+  const state = target.slice();
+  callback(state);
+
+  if (state.length !== new Set(state).size) {
+    const duplicates = state.filter((currentValue, currentIndex) => state.indexOf(currentValue) !== currentIndex);
+
+    if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
+      deprecate(
+        `${reason} This behavior is deprecated. Found duplicates for the following records within the new state provided to \`<${
+          collection.identifier.type
+        }:${collection.identifier.id || collection.identifier.lid}>.${collection.key}\`\n\t- ${Array.from(
+          new Set(duplicates)
+        )
+          .map((r) => (isStableIdentifier(r) ? r.lid : recordIdentifierFor(r).lid))
+          .sort((a, b) => a.localeCompare(b))
+          .join('\n\t- ')}`,
+        false,
+        {
+          id: 'ember-data:deprecate-many-array-duplicates',
+          for: 'ember-data',
+          until: '6.0',
+          since: {
+            enabled: '5.3',
+            available: '5.3',
+          },
+        }
+      );
+    } else {
+      throw new Error(
+        `${reason} Found duplicates for the following records within the new state provided to \`<${
+          collection.identifier.type
+        }:${collection.identifier.id || collection.identifier.lid}>.${collection.key}\`\n\t- ${Array.from(
+          new Set(duplicates)
+        )
+          .map((r) => (isStableIdentifier(r) ? r.lid : recordIdentifierFor(r).lid))
+          .sort((a, b) => a.localeCompare(b))
+          .join('\n\t- ')}`
+      );
+    }
+  }
+}
+
+function mutateAddToRelatedRecords(
+  collection: RelatedCollection,
+  operationInfo: { value: StableRecordIdentifier | StableRecordIdentifier[]; index?: number },
+  _TAG: Tag
+) {
+  mutate(
+    collection,
+    {
+      op: 'addToRelatedRecords',
+      record: collection.identifier,
+      field: collection.key,
+      ...operationInfo,
+    },
+    _TAG
+  );
+}
+
+function mutateRemoveFromRelatedRecords(
+  collection: RelatedCollection,
+  operationInfo: { value: StableRecordIdentifier | StableRecordIdentifier[]; index?: number },
+  _TAG: Tag
+) {
+  mutate(
+    collection,
+    {
+      op: 'removeFromRelatedRecords',
+      record: collection.identifier,
+      field: collection.key,
+      ...operationInfo,
+    },
+    _TAG
+  );
+}
+
+function mutateReplaceRelatedRecord(
+  collection: RelatedCollection,
+  operationInfo: {
+    value: StableRecordIdentifier;
+    prior: StableRecordIdentifier;
+    index: number;
+  },
+  _TAG: Tag
+) {
+  mutate(
+    collection,
+    {
+      op: 'replaceRelatedRecord',
+      record: collection.identifier,
+      field: collection.key,
+      ...operationInfo,
+    },
+    _TAG
+  );
+}
+
+function mutateReplaceRelatedRecords(collection: RelatedCollection, value: StableRecordIdentifier[], _TAG: Tag) {
+  mutate(
+    collection,
+    {
+      op: 'replaceRelatedRecords',
+      record: collection.identifier,
+      field: collection.key,
+      value,
+    },
+    _TAG
+  );
+}
+
+function mutateSortRelatedRecords(collection: RelatedCollection, value: StableRecordIdentifier[], _TAG: Tag) {
+  mutate(
+    collection,
+    {
+      op: 'sortRelatedRecords',
+      record: collection.identifier,
+      field: collection.key,
+      value,
+    },
+    _TAG
+  );
+}
+
+function mutate(collection: RelatedCollection, mutation: Parameters<LegacySupport['mutate']>[0], _TAG: Tag) {
+  collection._manager.mutate(mutation);
+  addToTransaction(_TAG);
 }
