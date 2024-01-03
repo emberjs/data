@@ -1,7 +1,7 @@
 /**
   @module @ember-data/store
 */
-import { assert } from '@ember/debug';
+import { assert, deprecate } from '@ember/debug';
 
 import { DEPRECATE_MANY_ARRAY_DUPLICATES } from '@ember-data/deprecations';
 import type Store from '@ember-data/store';
@@ -16,10 +16,10 @@ import {
 } from '@ember-data/store/-private';
 import { IdentifierArrayCreateOptions, Tag } from '@ember-data/store/-private/record-arrays/identifier-array';
 import type { CreateRecordProperties } from '@ember-data/store/-private/store-service';
+import { addToTransaction } from '@ember-data/tracking/-private';
 import type { Cache } from '@ember-data/types/q/cache';
 import type { ModelSchema } from '@ember-data/types/q/ds-model';
 import type { Links, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
-import { addToTransaction } from '@ember-data/tracking/-private';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { FindOptions } from '@ember-data/types/q/store';

@@ -1,13 +1,10 @@
-import { settled } from '@ember/test-helpers';
-
-import type { ImplicitEdge } from '@ember-data/graph/-private/edges/implicit';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
+import type { CollectionResourceDocument, SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import type { Context, UserRecord } from './setup';
 import { stateOf } from './setup';
-import type { CollectionResourceDocument, SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';
 
 export interface TestConfig {
   /**

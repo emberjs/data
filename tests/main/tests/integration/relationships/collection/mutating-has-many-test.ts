@@ -8,10 +8,10 @@ import { DEPRECATE_MANY_ARRAY_DUPLICATES } from '@ember-data/deprecations';
 import Model, { attr, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
+import type { ExistingResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 
 import type { ReactiveContext } from '../../../helpers/reactive-context';
 import { reactiveContext } from '../../../helpers/reactive-context';
-import type { ExistingResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 
 let IS_DEPRECATE_MANY_ARRAY_DUPLICATES = false;
 
@@ -236,7 +236,7 @@ async function applyMutation(assert: Assert, store: Store, record: User, mutatio
       const expectedMessage = `${
         result.error
       } This behavior is deprecated. Found duplicates for the following records within the new state provided to \`<user:${
-        record.id
+        record.id as string
       }>.friends\`\n\t- ${Array.from(result.duplicates)
         .map((r) => recordIdentifierFor(r).lid)
         .sort((a, b) => a.localeCompare(b))
@@ -252,7 +252,7 @@ async function applyMutation(assert: Assert, store: Store, record: User, mutatio
     assert.ok(shouldError, `expected error ${shouldError ? '' : 'NOT '}to be thrown`);
     const expectedMessage = shouldError
       ? `${result.error} Found duplicates for the following records within the new state provided to \`<user:${
-          record.id
+          record.id as string
         }>.friends\`\n\t- ${Array.from(result.duplicates)
           .map((r) => recordIdentifierFor(r).lid)
           .sort((a, b) => a.localeCompare(b))

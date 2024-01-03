@@ -369,7 +369,12 @@ class IdentifierArray {
         return target[prop];
       },
 
-      set(target: StableRecordIdentifier[], prop: KeyType, value: unknown, receiver: typeof Proxy<StableRecordIdentifier[]>): boolean {
+      set(
+        target: StableRecordIdentifier[],
+        prop: KeyType,
+        value: unknown,
+        receiver: typeof Proxy<StableRecordIdentifier[]>
+      ): boolean {
         if (prop === 'length') {
           if (!transaction && value === 0) {
             transaction = true;
@@ -401,7 +406,7 @@ class IdentifierArray {
         // a transaction.
         if (index === null || index > target.length) {
           if (index !== null && transaction) {
-            const identifier = recordIdentifierFor(value as RecordInstance);
+            const identifier = recordIdentifierFor(value);
             assert(`Cannot set index ${index} past the end of the array.`, isStableIdentifier(identifier));
             target[index] = identifier;
             return true;
