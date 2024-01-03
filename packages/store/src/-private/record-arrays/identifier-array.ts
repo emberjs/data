@@ -83,7 +83,7 @@ function convertToInt(prop: KeyType): number | null {
   return num % 1 === 0 ? num : null;
 }
 
-export class Tag {
+class Tag {
   @tracked ref = null;
   declare shouldReset: boolean;
   /*

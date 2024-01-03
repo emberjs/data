@@ -14,8 +14,9 @@ import {
   recordIdentifierFor,
   SOURCE,
 } from '@ember-data/store/-private';
-import { IdentifierArrayCreateOptions, Tag } from '@ember-data/store/-private/record-arrays/identifier-array';
+import { IdentifierArrayCreateOptions } from '@ember-data/store/-private/record-arrays/identifier-array';
 import type { CreateRecordProperties } from '@ember-data/store/-private/store-service';
+import type { Tag } from '@ember-data/tracking/-private';
 import { addToTransaction } from '@ember-data/tracking/-private';
 import type { Cache } from '@ember-data/types/q/cache';
 import type { ModelSchema } from '@ember-data/types/q/ds-model';

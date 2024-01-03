@@ -15,7 +15,7 @@ import { DEBUG } from '@ember-data/env';
  * @main @ember-data/tracking
  */
 type OpaqueFn = (...args: unknown[]) => unknown;
-type Tag = { ref: null; t: boolean };
+export type Tag = { ref: null; t: boolean };
 type Transaction = {
   cbs: Set<OpaqueFn>;
   props: Set<Tag>;
