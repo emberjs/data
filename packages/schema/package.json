@@ -46,7 +46,7 @@
     "pnpm-sync-dependencies-meta-injected": "0.0.10"
   },
   "devDependencies": {
-    "bun-types": "1.0.18"
+    "bun-types": "1.0.21"
   },
   "engines": {
     "node": ">= 20.10.0"

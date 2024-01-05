@@ -37,8 +37,8 @@ importers:
         version: 1.11.2
     devDependencies:
       bun-types:
-        specifier: ^1.0.18
-        version: 1.0.18
+        specifier: ^1.0.21
+        version: 1.0.21
       chalk:
         specifier: ^4.1.2
         version: 4.1.2
@@ -692,8 +692,8 @@ importers:
         specifier: workspace:5.5.0-alpha.11
         version: link:../../config
       bun-types:
-        specifier: ^1.0.18
-        version: 1.0.18
+        specifier: ^1.0.21
+        version: 1.0.21
       ember-cli-test-loader:
         specifier: ^3.1.0
         version: 3.1.0(@babel/core@7.23.6)
@@ -1617,8 +1617,8 @@ importers:
         version: 0.0.10
     devDependencies:
       bun-types:
-        specifier: 1.0.18
-        version: 1.0.18
+        specifier: 1.0.21
+        version: 1.0.21
 
   packages/schema-record:
     dependencies:
@@ -3149,8 +3149,8 @@ importers:
         specifier: workspace:5.5.0-alpha.11
         version: link:../../config
       bun-types:
-        specifier: ^1.0.18
-        version: 1.0.18
+        specifier: ^1.0.21
+        version: 1.0.21
       ember-auto-import:
         specifier: ^2.7.0
         version: 2.7.0(webpack@5.89.0)
@@ -7355,6 +7355,12 @@ packages:
     resolution: {integrity: sha512-gVC1InwyVrO326wbBZw+AO3u2vRXz/iRWq9jYhpG4W8LXyIgDv3ZmcLQ5Q4Gs+gFMyqx+viFoFT+l3p61QFCmQ==}
     dev: true
 
+  /@types/ws@8.5.10:
+    resolution: {integrity: sha512-vmQSUcfalpIq0R9q7uTo2lXs6eGIpt9wtnLdMv9LVpIjCA/+ufZRozlVoVelIYixx1ugCBKDhn89vnsEGOCx9A==}
+    dependencies:
+      '@types/node': 20.8.7
+    dev: true
+
   /@types/yargs-parser@21.0.2:
     resolution: {integrity: sha512-5qcvofLPbfjmBfKaLfj/+f+Sbd6pN4zl7w7VSVI5uz7m9QZTuB2aZAa2uo1wHFBNN2x6g/SoTkXmd8mQnQF2Cw==}
     dev: true
@@ -9447,8 +9453,12 @@ packages:
     dependencies:
       semver: 7.5.4
 
-  /bun-types@1.0.18:
-    resolution: {integrity: sha512-1XZ7AxOF8oO8FZtw1xj006JAKxEjulK3dUhsktZVN95vXBlsf4NIjQxfistVdpt24v3H2I9BwHp+UU+gXSSpAw==}
+  /bun-types@1.0.21:
+    resolution: {integrity: sha512-Ugagjf+XZUXDvxDRa3EnhLeMzm2g8ZYFleBF55Ac3GZSzPqdMLAdK9kvZB6M1H4nAFvrEHdV2PHqkzIoNs+3wQ==}
+    dependencies:
+      '@types/node': 20.8.7
+      '@types/ws': 8.5.10
+      undici-types: 5.28.2
     dev: true
 
   /bytes@1.0.0:
@@ -17850,6 +17860,10 @@ packages:
 
   /undici-types@5.25.3:
     resolution: {integrity: sha512-Ga1jfYwRn7+cP9v8auvEXN1rX3sWqlayd4HP7OKk4mZWylEmu3KzXDUGrQUN6Ol7qo1gPvB2e5gX6udnyEPgdA==}
+
+  /undici-types@5.28.2:
+    resolution: {integrity: sha512-W71OLwDqzIO0d3k07qg1xc7d4cX8SsSwuCO4bQ4V7ITwduXXie/lcImofabP5VV+NvuvSe8ovKvHVJcizVc1JA==}
+    dev: true
 
   /unicode-canonical-property-names-ecmascript@2.0.0:
     resolution: {integrity: sha512-yY5PpDlfVIU5+y/BSCxAJRBIS1Zc2dDG3Ujq+sR0U+JjUevW2JhocOF+soROYDSaAezOzOKuyyixhD6mBknSmQ==}
