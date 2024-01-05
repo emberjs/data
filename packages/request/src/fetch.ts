@@ -14,11 +14,12 @@
 import { cloneResponseProperties, type Context } from './-private/context';
 import type { HttpErrorProps } from './-private/utils';
 
+// Lazily close over fetch to avoid breaking Mirage
 const _fetch: typeof fetch =
   typeof fetch !== 'undefined'
-    ? fetch
+    ? (...args) => fetch(...args)
     : typeof FastBoot !== 'undefined'
-    ? (FastBoot.require('node-fetch') as typeof fetch)
+    ? (...args) => (FastBoot.require('node-fetch') as typeof fetch)(...args)
     : ((() => {
         throw new Error('No Fetch Implementation Found');
       }) as typeof fetch);
