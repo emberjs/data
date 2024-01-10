@@ -11,14 +11,17 @@
  * @module @ember-data/request/fetch
  * @main @ember-data/request/fetch
  */
+import { getOwnConfig, macroCondition } from '@embroider/macros';
+
 import { cloneResponseProperties, type Context } from './-private/context';
 import type { HttpErrorProps } from './-private/utils';
 
+// Lazily close over fetch to avoid breaking Mirage
 const _fetch: typeof fetch =
   typeof fetch !== 'undefined'
-    ? fetch
+    ? (...args) => fetch(...args)
     : typeof FastBoot !== 'undefined'
-    ? (FastBoot.require('node-fetch') as typeof fetch)
+    ? (...args) => (FastBoot.require('node-fetch') as typeof fetch)(...args)
     : ((() => {
         throw new Error('No Fetch Implementation Found');
       }) as typeof fetch);
@@ -28,6 +31,12 @@ const _fetch: typeof fetch =
 function cloneResponse(response: Response, overrides: Partial<Response>) {
   const props = cloneResponseProperties(response);
   return new Response(response.body, Object.assign(props, overrides));
+}
+
+let IS_MAYBE_MIRAGE = () => false;
+if (macroCondition(getOwnConfig<{ env: { TESTING: boolean } }>().env.TESTING)) {
+  IS_MAYBE_MIRAGE = () =>
+    Boolean(typeof window !== 'undefined' && (window as { server?: { pretender: unknown } }).server?.pretender);
 }
 
 const MUTATION_OPS = new Set(['updateRecord', 'createRecord', 'deleteRecord']);
@@ -115,9 +124,15 @@ const Fetch = {
     const isMutationOp = Boolean(op && MUTATION_OPS.has(op));
 
     if (!isError && !isMutationOp && response.status !== 204 && !response.headers.has('date')) {
-      const headers = new Headers(response.headers);
-      headers.set('date', new Date().toUTCString());
-      response = cloneResponse(response, { headers });
+      if (IS_MAYBE_MIRAGE()) {
+        response.headers.set('date', new Date().toUTCString());
+      } else {
+        const headers = new Headers(response.headers);
+        headers.set('date', new Date().toUTCString());
+        response = cloneResponse(response, {
+          headers,
+        });
+      }
     }
 
     context.setResponse(response);
