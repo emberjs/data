@@ -110,6 +110,19 @@ Apart of this little twist with dependency injection, everything else is the sam
 
 ## CSRF Token
 
+### Simple
+
+The easy way of protecting against Cross Site Request Forgery (CSRF) is to set a static custom header in every HTTP Request (for example `X-CSRF-Protection: static`), check for it on the backend and make sure that CORS is only accepting data from trusted domains.
+
+If you do this, you don't have to generate dynamic CSRF tokens for every request.
+
+More information:
+
+https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests
+
+### Advanced
+
+
 > **Note**
 > This example uses [Ember](https://emberjs.com/) for convenience.
 >
