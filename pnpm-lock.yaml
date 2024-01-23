@@ -3465,8 +3465,8 @@ importers:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.23.7)(ember-source@5.4.0)
       ember-simple-tree:
-        specifier: ^0.8.3
-        version: 0.8.3(@babel/core@7.23.7)
+        specifier: ^0.8.4
+        version: 0.8.4(@babel/core@7.23.7)
       ember-source:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.7)(@glimmer/component@1.1.2)(webpack@5.89.0)
@@ -3574,8 +3574,8 @@ importers:
         specifier: ^11.0.1
         version: 11.0.1(@babel/core@7.23.7)(ember-source@5.4.0)
       ember-simple-tree:
-        specifier: ^0.8.3
-        version: 0.8.3(@babel/core@7.23.7)
+        specifier: ^0.8.4
+        version: 0.8.4(@babel/core@7.23.7)
       ember-source:
         specifier: ~5.4.0
         version: 5.4.0(@babel/core@7.23.7)(@glimmer/component@1.1.2)(webpack@5.89.0)
@@ -11501,8 +11501,8 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /ember-simple-tree@0.8.3(@babel/core@7.23.7):
-    resolution: {integrity: sha512-JEQ4ccXUzThaZiyVT+b3fG76JndG7d4BCRp/Zg5nEhc+u+/ZHHRhSIWVXxPXY8K6pyFcLVSmEscd27hUNDqbww==}
+  /ember-simple-tree@0.8.4(@babel/core@7.23.7):
+    resolution: {integrity: sha512-cE3hC5YE+fIkLby3QbMphjdkBikj5j2107Rh39ZDajxmIOGf/DW7t0L5CqArkRy8Wn4HDl4wJSwmrmV/GYapfg==}
     engines: {node: 12.* || 14.* || >= 16}
     dependencies:
       '@glimmer/component': 1.1.2(@babel/core@7.23.7)
