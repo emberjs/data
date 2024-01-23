@@ -835,8 +835,8 @@ importers:
         specifier: ^3.11.3
         version: 3.11.4
       pm2:
-        specifier: ^5.3.0
-        version: 5.3.0
+        specifier: ^5.3.1
+        version: 5.3.1
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.10
         version: 0.0.10
@@ -3853,8 +3853,8 @@ importers:
         specifier: ^4.7.0
         version: 4.7.0
       pm2:
-        specifier: 5.3.0
-        version: 5.3.0
+        specifier: 5.3.1
+        version: 5.3.1
       pretender:
         specifier: ^3.4.7
         version: 3.4.7
@@ -6546,14 +6546,14 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /@pm2/js-api@0.6.7:
-    resolution: {integrity: sha512-jiJUhbdsK+5C4zhPZNnyA3wRI01dEc6a2GhcQ9qI38DyIk+S+C8iC3fGjcjUbt/viLYKPjlAaE+hcT2/JMQPXw==}
+  /@pm2/js-api@0.8.0:
+    resolution: {integrity: sha512-nmWzrA/BQZik3VBz+npRcNIu01kdBhWL0mxKmP1ciF/gTcujPTQqt027N9fc1pK9ERM8RipFhymw7RcmCyOEYA==}
     engines: {node: '>=4.0'}
     dependencies:
       async: 2.6.4
-      axios: 0.21.4(debug@4.3.4)
       debug: 4.3.4(supports-color@8.1.1)
       eventemitter2: 6.4.9
+      extrareqp2: 1.0.0(debug@4.3.4)
       ws: 7.5.9
     transitivePeerDependencies:
       - bufferutil
@@ -8126,13 +8126,6 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
-
-  /axios@0.21.4(debug@4.3.4):
-    resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
-    dependencies:
-      follow-redirects: 1.15.3(debug@4.3.4)
-    transitivePeerDependencies:
-      - debug
 
   /babel-code-frame@6.26.0:
     resolution: {integrity: sha512-XqYMR2dfdGMW+hd0IUZ2PwK+fGeFkOxZJ0wY+JaQAHzt1Zx8LcvpiZD2NiGkEG8qx0CfkAOr5xt76d1e8vG90g==}
@@ -12194,6 +12187,13 @@ packages:
     resolution: {integrity: sha512-AEo4zm+TenK7zQorGK1f9mJ8L14hnTDi2ZQPR+Mub1NX8zimka1mXpV5LpH8x9HoUmFSHZCfLHqWvp0Y4FxxzQ==}
     engines: {node: '>=8'}
 
+  /extrareqp2@1.0.0(debug@4.3.4):
+    resolution: {integrity: sha512-Gum0g1QYb6wpPJCVypWP3bbIuaibcFiJcpuPM10YSXp/tzqi84x9PJageob+eN4xVRIOto4wjSGNLyMD54D2xA==}
+    dependencies:
+      follow-redirects: 1.15.3(debug@4.3.4)
+    transitivePeerDependencies:
+      - debug
+
   /fake-xml-http-request@2.1.2:
     resolution: {integrity: sha512-HaFMBi7r+oEC9iJNpc3bvcW7Z7iLmM26hPDmlb0mFwyANSsOQAtJxbdWsXITKOzZUyMYK0zYCv3h5yDj9TsiXg==}
     dev: true
@@ -15665,14 +15665,14 @@ packages:
       - supports-color
     optional: true
 
-  /pm2@5.3.0:
-    resolution: {integrity: sha512-xscmQiAAf6ArVmKhjKTeeN8+Td7ZKnuZFFPw1DGkdFPR/0Iyx+m+1+OpCdf9+HQopX3VPc9/wqPQHqVOfHum9w==}
+  /pm2@5.3.1:
+    resolution: {integrity: sha512-DLVQHpSR1EegaTaRH3KbRXxpPVaqYwAp3uHSCtCsS++LSErvk07WSxuUnntFblBRqNU/w2KQyqs12mSq5wurkg==}
     engines: {node: '>=10.0.0'}
     hasBin: true
     dependencies:
       '@pm2/agent': 2.0.3
       '@pm2/io': 5.0.2
-      '@pm2/js-api': 0.6.7
+      '@pm2/js-api': 0.8.0
       '@pm2/pm2-version-check': 1.0.4
       async: 3.2.4
       blessed: 0.1.81
@@ -18826,7 +18826,7 @@ packages:
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.23.6)
       chalk: 4.1.2
       hono: 3.11.4
-      pm2: 5.3.0
+      pm2: 5.3.1
       pnpm-sync-dependencies-meta-injected: 0.0.10
     transitivePeerDependencies:
       - bufferutil
