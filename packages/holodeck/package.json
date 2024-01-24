@@ -65,7 +65,7 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@warp-drive/core-types": "workspace:5.5.0-alpha.11",
     "@warp-drive/internal-config": "workspace:5.5.0-alpha.11",
-    "rollup": "^4.9.5",
+    "rollup": "^4.9.6",
     "typescript": "^5.3.3",
     "walk-sync": "^3.0.0"
   },
