@@ -37,7 +37,7 @@
     "test-external:ember-data-relationship-tracker": "node ./scripts/test-external-partner-project.js ember-data-relationship-tracker https://github.com/ef4/ember-data-relationship-tracker.git"
   },
   "devDependencies": {
-    "bun-types": "^1.0.21",
+    "bun-types": "^1.0.25",
     "chalk": "^4.1.2",
     "co": "^4.6.0",
     "command-line-args": "^5.2.1",
