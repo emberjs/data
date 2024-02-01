@@ -83,12 +83,14 @@ export function query(
 
   copyForwardUrlOptions(urlOptions, options);
 
-  const url = buildBaseURL(urlOptions);
+  const url = new URL(buildBaseURL(urlOptions));
+  url.search = buildQueryParams(query, options.urlParamsSettings);
+
   const headers = new Headers();
   headers.append('Accept', ACCEPT_HEADER_VALUE);
 
   return {
-    url: `${url}?${buildQueryParams(query, options.urlParamsSettings)}`,
+    url: url.toString(),
     method: 'GET',
     headers,
     cacheOptions,
