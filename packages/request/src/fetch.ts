@@ -153,7 +153,9 @@ const Fetch = {
           ? errorPayload.errors
           : null;
 
-      const msg = `[${response.status}] ${response.statusText ? response.statusText + ' ' : ''}- ${response.url}`;
+      const msg = `[${context.request.method ?? 'GET'} ${response.status}] (${response.type}) ${
+        response.statusText ? response.statusText + ' ' : ''
+      }- ${response.url}`;
 
       const error = (errors ? new AggregateError(errors, msg) : new Error(msg)) as Error & {
         content: object | undefined;
