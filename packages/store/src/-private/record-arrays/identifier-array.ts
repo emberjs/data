@@ -509,7 +509,7 @@ class IdentifierArray {
 
     if (DEPRECATE_A_USAGE) {
       const meta = Ember.meta(this);
-      meta.hasMixin = (mixin: Object) => {
+      meta.addMixin = (mixin: Object) => {
         deprecate(`Do not call A() on EmberData RecordArrays`, false, {
           id: 'ember-data:no-a-with-array-like',
           until: '5.0',
