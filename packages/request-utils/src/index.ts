@@ -685,21 +685,19 @@ export type LifetimesConfig = { apiCacheSoftExpires: number; apiCacheHardExpires
  */
 export class LifetimesService {
   declare config: LifetimesConfig;
-  declare invalidated: WeakMap<Store, Set<string>>;
-  declare _byType: Map<string, Set<string>>;
-  #stores: WeakMap<Store, { invalidated: Set<string>; types: Map<string, Set<string>> }>;
+  declare _stores: WeakMap<Store, { invalidated: Set<string>; types: Map<string, Set<string>> }>;
 
-  #getStore(store: Store): { invalidated: Set<string>; types: Map<string, Set<string>> } {
-    let set = this.#stores.get(store);
+  _getStore(store: Store): { invalidated: Set<string>; types: Map<string, Set<string>> } {
+    let set = this._stores.get(store);
     if (!set) {
       set = { invalidated: new Set(), types: new Map() };
-      this.#stores.set(store, set);
+      this._stores.set(store, set);
     }
     return set;
   }
 
   constructor(config: LifetimesConfig) {
-    this.#stores = new WeakMap();
+    this._stores = new WeakMap();
 
     const _config = arguments.length === 1 ? config : (arguments[1] as unknown as LifetimesConfig);
     deprecate(
@@ -744,7 +742,7 @@ export class LifetimesService {
    * @param {Store} store
    */
   invalidateRequest(identifier: StableDocumentIdentifier, store: Store): void {
-    this.#getStore(store).invalidated.add(identifier.lid);
+    this._getStore(store).invalidated.add(identifier.lid);
   }
 
   /**
@@ -768,7 +766,7 @@ export class LifetimesService {
    * @param {Store} store
    */
   invalidateRequestsForType(type: string, store: Store): void {
-    const storeCache = this.#getStore(store);
+    const storeCache = this._getStore(store);
     const set = storeCache.types.get(type);
     if (set) {
       set.forEach((id) => {
@@ -814,7 +812,7 @@ export class LifetimesService {
       // add this document's cacheKey to a map for all associated types
       // it is recommended to only use this for queries
     } else if (identifier && request.cacheOptions?.types?.length) {
-      const storeCache = this.#getStore(store);
+      const storeCache = this._getStore(store);
       request.cacheOptions?.types.forEach((type) => {
         const set = storeCache.types.get(type);
         if (set) {
@@ -846,7 +844,7 @@ export class LifetimesService {
    */
   isHardExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
     // if we are explicitly invalidated, we are hard expired
-    const storeCache = this.#getStore(store);
+    const storeCache = this._getStore(store);
     if (storeCache.invalidated.has(identifier.lid)) {
       return true;
     }
