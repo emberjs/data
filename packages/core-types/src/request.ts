@@ -295,7 +295,7 @@ export type RequestInfo = Request & {
  */
 export type ImmutableRequestInfo = Readonly<RequestInfo> & {
   readonly cacheOptions?: Readonly<CacheOptions>;
-  readonly headers: ImmutableHeaders;
+  readonly headers?: ImmutableHeaders;
   readonly data?: Readonly<Record<string, unknown>>;
   readonly options?: Readonly<Record<string, unknown>>;
 
