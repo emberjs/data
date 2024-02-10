@@ -739,6 +739,7 @@ export class LifetimesService {
    * ```
    *
    * @method invalidateRequest
+   * @public
    * @param {StableDocumentIdentifier} identifier
    * @param {Store} store
    */
@@ -762,6 +763,7 @@ export class LifetimesService {
    * ```
    *
    * @method invalidateRequestsForType
+   * @public
    * @param {string} type
    * @param {Store} store
    */

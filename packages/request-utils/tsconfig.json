@@ -43,5 +43,5 @@
     "baseUrl": "src",
     "types": ["ember-source/types"]
   },
-  "references": [{ "path": "../core-types" }, { "path": "../store" }]
+  "references": [{ "path": "../core-types" }]
 }

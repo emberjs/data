@@ -151,7 +151,10 @@ export type FindRecordOptions = ConstrainedRequestOptions & {
 
 export interface StructuredDataDocument<T> {
   [STRUCTURED]?: true;
-  /** @see {@link ImmutableRequestInfo} */
+  /**
+   * @see {@link ImmutableRequestInfo}
+   * @typedoc
+   */
   request: ImmutableRequestInfo;
   response: Response | ResponseInfo | null;
   content: T;
@@ -173,33 +176,61 @@ export type StructuredDocument<T> = StructuredDataDocument<T> | StructuredErrorD
  * @typedoc
  */
 type Request = {
-  /** Returns the cache mode associated with request, which is a string indicating how the request will interact with the browser's cache when fetching. @typedoc */
+  /** Returns the cache mode associated with request, which is a string indicating how the request will interact with the browser's cache when fetching.
+   * @typedoc
+   */
   cache?: RequestCache;
-  /** Returns the credentials mode associated with request, which is a string indicating whether credentials will be sent with the request always, never, or only when sent to a same-origin URL. @typedoc */
+  /** Returns the credentials mode associated with request, which is a string indicating whether credentials will be sent with the request always, never, or only when sent to a same-origin URL.
+   * @typedoc
+   */
   credentials?: RequestCredentials;
-  /** Returns the kind of resource requested by request, e.g., "document" or "script". @typedoc */
+  /** Returns the kind of resource requested by request, e.g., "document" or "script".
+   * @typedoc
+   */
   destination?: RequestDestination;
-  /** Returns a Headers object consisting of the headers associated with request. Note that headers added in the network layer by the user agent will not be accounted for in this object, e.g., the "Host" header. @typedoc */
+  /** Returns a Headers object consisting of the headers associated with request. Note that headers added in the network layer by the user agent will not be accounted for in this object, e.g., the "Host" header.
+   * @typedoc
+   */
   headers?: Headers;
-  /** Returns request's subresource integrity metadata, which is a cryptographic hash of the resource being fetched. Its value consists of multiple hashes separated by whitespace. [SRI] @typedoc */
+  /** Returns request's subresource integrity metadata, which is a cryptographic hash of the resource being fetched. Its value consists of multiple hashes separated by whitespace. [SRI]
+   * @typedoc
+   */
   integrity?: string;
-  /** Returns a boolean indicating whether or not request can outlive the global in which it was created. @typedoc */
+  /** Returns a boolean indicating whether or not request can outlive the global in which it was created.
+   * @typedoc
+   */
   keepalive?: boolean;
-  /** Returns request's HTTP method, which is "GET" by default. @typedoc */
+  /** Returns request's HTTP method, which is "GET" by default.
+   * @typedoc
+   */
   method?: HTTPMethod;
-  /** Returns the mode associated with request, which is a string indicating whether the request will use CORS, or will be restricted to same-origin URLs. @typedoc */
+  /** Returns the mode associated with request, which is a string indicating whether the request will use CORS, or will be restricted to same-origin URLs.
+   * @typedoc
+   */
   mode?: RequestMode;
-  /** Returns the redirect mode associated with request, which is a string indicating how redirects for the request will be handled during fetching. A request will follow redirects by default. @typedoc */
+  /** Returns the redirect mode associated with request, which is a string indicating how redirects for the request will be handled during fetching. A request will follow redirects by default.
+   * @typedoc
+   */
   redirect?: RequestRedirect;
-  /** Returns the referrer of request. Its value can be a same-origin URL if explicitly set in init, the empty string to indicate no referrer, and "about:client" when defaulting to the global's default. This is used during fetching to determine the value of the `Referer` header of the request being made. @typedoc */
+  /** Returns the referrer of request. Its value can be a same-origin URL if explicitly set in init, the empty string to indicate no referrer, and "about:client" when defaulting to the global's default. This is used during fetching to determine the value of the `Referer` header of the request being made.
+   * @typedoc
+   */
   referrer?: string;
-  /** Returns the referrer policy associated with request. This is used during fetching to compute the value of the request's referrer. @typedoc */
+  /** Returns the referrer policy associated with request. This is used during fetching to compute the value of the request's referrer.
+   * @typedoc
+   */
   referrerPolicy?: ReferrerPolicy;
-  /** Returns the signal associated with request, which is an AbortSignal object indicating whether or not request has been aborted, and its abort event handler. @typedoc */
+  /** Returns the signal associated with request, which is an AbortSignal object indicating whether or not request has been aborted, and its abort event handler.
+   * @typedoc
+   */
   signal?: AbortSignal;
-  /** Returns the URL of request as a string. @typedoc */
+  /** Returns the URL of request as a string.
+   * @typedoc
+   */
   url?: string;
-  /** Any body that you want to add to your request. Note that a GET or HEAD request may not have a body. @typedoc */
+  /** Any body that you want to add to your request. Note that a GET or HEAD request may not have a body.
+   * @typedoc
+   */
   body?: BodyInit | null;
 };
 
@@ -219,7 +250,10 @@ export type RequestInfo = Request & {
    */
   controller?: AbortController;
 
-  /** @see {@link CacheOptions} */
+  /**
+   * @see {@link CacheOptions}
+   * @typedoc
+   */
   cacheOptions?: CacheOptions;
   store?: Store;
 
@@ -265,7 +299,9 @@ export type ImmutableRequestInfo = Readonly<RequestInfo> & {
   readonly data?: Readonly<Record<string, unknown>>;
   readonly options?: Readonly<Record<string, unknown>>;
 
-  /** Whether the request body has been read. @typedoc */
+  /** Whether the request body has been read.
+   * @typedoc
+   */
   readonly bodyUsed?: boolean;
 };
 
@@ -280,7 +316,10 @@ export interface ResponseInfo {
 }
 
 export interface RequestContext {
-  /** @see {@link ImmutableRequestInfo} */
+  /**
+   * @see {@link ImmutableRequestInfo}
+   * @typedoc
+   */
   request: ImmutableRequestInfo;
   id: number;
 
