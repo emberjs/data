@@ -102,7 +102,11 @@ module('RequestManager | Fetch Handler', function (hooks) {
     } catch (e) {
       isNetworkError(e);
       assert.true(e instanceof AggregateError, 'The error is an AggregateError');
-      assert.equal(e.message, '[404] - https://localhost:1135/users/1', 'The error message is correct');
+      assert.equal(
+        e.message,
+        '[404 Not Found] GET (cors) - https://localhost:1135/users/1',
+        'The error message is correct'
+      );
       assert.equal(e.status, 404, 'The error status is correct');
       assert.equal(e.statusText, 'Not Found', 'The error statusText is correct');
       assert.equal(e.code, 404, 'The error code is correct');

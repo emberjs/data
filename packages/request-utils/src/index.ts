@@ -3,6 +3,11 @@ import { assert, deprecate } from '@ember/debug';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type { QueryParamsSerializationOptions, QueryParamsSource, Serializable } from '@warp-drive/core-types/params';
+import type { ImmutableRequestInfo, ResponseInfo } from '@warp-drive/core-types/request';
+
+type Store = {
+  cache: Cache;
+};
 
 /**
  * Simple utility function to assist in url building,
@@ -187,6 +192,12 @@ export interface DeleteRecordUrlOptions {
   namespace?: string;
 }
 
+export interface GenericUrlOptions {
+  resourcePath: string;
+  host?: string;
+  namespace?: string;
+}
+
 export type UrlOptions =
   | FindRecordUrlOptions
   | QueryUrlOptions
@@ -195,7 +206,8 @@ export type UrlOptions =
   | FindRelatedResourceUrlOptions
   | CreateRecordUrlOptions
   | UpdateRecordUrlOptions
-  | DeleteRecordUrlOptions;
+  | DeleteRecordUrlOptions
+  | GenericUrlOptions;
 
 const OPERATIONS_WITH_PRIMARY_RECORDS = new Set([
   'findRecord',
@@ -213,10 +225,18 @@ function isOperationWithPrimaryRecord(
   | FindRelatedResourceUrlOptions
   | UpdateRecordUrlOptions
   | DeleteRecordUrlOptions {
-  return OPERATIONS_WITH_PRIMARY_RECORDS.has(options.op);
+  return 'op' in options && OPERATIONS_WITH_PRIMARY_RECORDS.has(options.op);
+}
+
+function hasResourcePath(options: UrlOptions): options is GenericUrlOptions {
+  return 'resourcePath' in options && typeof options.resourcePath === 'string' && options.resourcePath.length > 0;
 }
 
 function resourcePathForType(options: UrlOptions): string {
+  assert(
+    `resourcePathForType: You must pass a valid op as part of options`,
+    'op' in options && typeof options.op === 'string'
+  );
   return options.op === 'findMany' ? options.identifiers[0].type : options.identifier.type;
 }
 
@@ -271,15 +291,18 @@ export function buildBaseURL(urlOptions: UrlOptions): string {
   );
   assert(
     `buildBaseURL: You must pass \`op\` as part of options`,
-    typeof options.op === 'string' && options.op.length > 0
+    hasResourcePath(options) || (typeof options.op === 'string' && options.op.length > 0)
   );
   assert(
     `buildBaseURL: You must pass \`identifier\` as part of options`,
-    options.op === 'findMany' || (options.identifier && typeof options.identifier === 'object')
+    hasResourcePath(options) ||
+      options.op === 'findMany' ||
+      (options.identifier && typeof options.identifier === 'object')
   );
   assert(
     `buildBaseURL: You must pass \`identifiers\` as part of options`,
-    options.op !== 'findMany' ||
+    hasResourcePath(options) ||
+      options.op !== 'findMany' ||
       (options.identifiers &&
         Array.isArray(options.identifiers) &&
         options.identifiers.length > 0 &&
@@ -287,20 +310,26 @@ export function buildBaseURL(urlOptions: UrlOptions): string {
   );
   assert(
     `buildBaseURL: You must pass valid \`identifier\` as part of options, expected 'id'`,
-    !isOperationWithPrimaryRecord(options) ||
+    hasResourcePath(options) ||
+      !isOperationWithPrimaryRecord(options) ||
       (typeof options.identifier.id === 'string' && options.identifier.id.length > 0)
   );
   assert(
     `buildBaseURL: You must pass \`identifiers\` as part of options`,
-    options.op !== 'findMany' || options.identifiers.every((i) => typeof i.id === 'string' && i.id.length > 0)
+    hasResourcePath(options) ||
+      options.op !== 'findMany' ||
+      options.identifiers.every((i) => typeof i.id === 'string' && i.id.length > 0)
   );
   assert(
     `buildBaseURL: You must pass valid \`identifier\` as part of options, expected 'type'`,
-    options.op === 'findMany' || (typeof options.identifier.type === 'string' && options.identifier.type.length > 0)
+    hasResourcePath(options) ||
+      options.op === 'findMany' ||
+      (typeof options.identifier.type === 'string' && options.identifier.type.length > 0)
   );
   assert(
     `buildBaseURL: You must pass valid \`identifiers\` as part of options, expected 'type'`,
-    options.op !== 'findMany' ||
+    hasResourcePath(options) ||
+      options.op !== 'findMany' ||
       (typeof options.identifiers[0].type === 'string' && options.identifiers[0].type.length > 0)
   );
 
@@ -313,9 +342,9 @@ export function buildBaseURL(urlOptions: UrlOptions): string {
   const fieldPath = 'fieldPath' in options ? options.fieldPath : '';
 
   assert(
-    `buildBaseURL: You tried to build a ${String(
-      (options as { op: string }).op
-    )} request to ${resourcePath} but op must be one of "${[
+    `buildBaseURL: You tried to build a url for a ${String(
+      'op' in options ? options.op + ' ' : ''
+    )}request to ${resourcePath} but resourcePath must be set or op must be one of "${[
       'findRecord',
       'findRelatedRecord',
       'findRelatedCollection',
@@ -325,16 +354,17 @@ export function buildBaseURL(urlOptions: UrlOptions): string {
       'query',
       'findMany',
     ].join('","')}".`,
-    [
-      'findRecord',
-      'query',
-      'findMany',
-      'findRelatedCollection',
-      'findRelatedRecord',
-      'createRecord',
-      'updateRecord',
-      'deleteRecord',
-    ].includes(options.op)
+    hasResourcePath(options) ||
+      [
+        'findRecord',
+        'query',
+        'findMany',
+        'findRelatedCollection',
+        'findRelatedRecord',
+        'createRecord',
+        'updateRecord',
+        'deleteRecord',
+      ].includes(options.op)
   );
 
   assert(`buildBaseURL: host must NOT end with '/', received '${host}'`, host === '/' || !host.endsWith('/'));
@@ -621,11 +651,17 @@ export type LifetimesConfig = { apiCacheSoftExpires: number; apiCacheHardExpires
  * Determines staleness based on time since the request was last received from the API
  * using the `date` header.
  *
+ * Invalidates any request for which `cacheOptions.types` was provided when a createRecord
+ * request for that type is successful.
+ *
  * This allows the Store's CacheHandler to determine if a request is expired and
  * should be refetched upon next request.
  *
  * The `Fetch` handler provided by `@ember-data/request/fetch` will automatically
  * add the `date` header to responses if it is not present.
+ *
+ * Note: Date headers do not have millisecond precision, so expiration times should
+ * generally be larger than 1000ms.
  *
  * Usage:
  *
@@ -649,8 +685,22 @@ export type LifetimesConfig = { apiCacheSoftExpires: number; apiCacheHardExpires
  */
 export class LifetimesService {
   declare config: LifetimesConfig;
+  declare invalidated: WeakMap<Store, Set<string>>;
+  declare _byType: Map<string, Set<string>>;
+  #stores: WeakMap<Store, { invalidated: Set<string>; types: Map<string, Set<string>> }>;
+
+  #getStore(store: Store): { invalidated: Set<string>; types: Map<string, Set<string>> } {
+    let set = this.#stores.get(store);
+    if (!set) {
+      set = { invalidated: new Set(), types: new Map() };
+      this.#stores.set(store, set);
+    }
+    return set;
+  }
 
   constructor(config: LifetimesConfig) {
+    this.#stores = new WeakMap();
+
     const _config = arguments.length === 1 ? config : (arguments[1] as unknown as LifetimesConfig);
     deprecate(
       `Passing a Store to the LifetimesService is deprecated, please pass only a config instead.`,
@@ -677,11 +727,150 @@ export class LifetimesService {
     this.config = _config;
   }
 
-  isHardExpired(identifier: StableDocumentIdentifier, cache: Cache): boolean {
+  /**
+   * Invalidate a request by its identifier for a given store instance.
+   *
+   * While the store argument may seem redundant, the lifetimes service
+   * is designed to be shared across multiple stores / forks
+   * of the store.
+   *
+   * ```ts
+   * store.lifetimes.invalidateRequest(store, identifier);
+   * ```
+   *
+   * @method invalidateRequest
+   * @param {StableDocumentIdentifier} identifier
+   * @param {Store} store
+   */
+  invalidateRequest(identifier: StableDocumentIdentifier, store: Store): void {
+    this.#getStore(store).invalidated.add(identifier.lid);
+  }
+
+  /**
+   * Invalidate all requests associated to a specific type
+   * for a given store instance.
+   *
+   * While the store argument may seem redundant, the lifetimes service
+   * is designed to be shared across multiple stores / forks
+   * of the store.
+   *
+   * This invalidation is done automatically when using this service
+   * for both the CacheHandler and the LegacyNetworkHandler.
+   *
+   * ```ts
+   * store.lifetimes.invalidateRequestsForType(store, 'person');
+   * ```
+   *
+   * @method invalidateRequestsForType
+   * @param {string} type
+   * @param {Store} store
+   */
+  invalidateRequestsForType(type: string, store: Store): void {
+    const storeCache = this.#getStore(store);
+    const set = storeCache.types.get(type);
+    if (set) {
+      set.forEach((id) => {
+        storeCache.invalidated.add(id);
+      });
+    }
+  }
+
+  /**
+   * Invoked when a request has been fulfilled from the configured request handlers.
+   * This is invoked by the CacheHandler for both foreground and background requests
+   * once the cache has been updated.
+   *
+   * Note, this is invoked by the CacheHandler regardless of whether
+   * the request has a cache-key.
+   *
+   * This method should not be invoked directly by consumers.
+   *
+   * @method didRequest
+   * @public
+   * @param {ImmutableRequestInfo} request
+   * @param {ImmutableResponse} response
+   * @param {Store} store
+   * @param {StableDocumentIdentifier | null} identifier
+   * @returns {void}
+   */
+  didRequest(
+    request: ImmutableRequestInfo,
+    response: Response | ResponseInfo | null,
+    identifier: StableDocumentIdentifier | null,
+    store: Store
+  ): void {
+    // if this is a successful createRecord request, invalidate the cacheKey for the type
+    if (request.op === 'createRecord') {
+      const statusNumber = response?.status ?? 0;
+      if (statusNumber >= 200 && statusNumber < 400) {
+        const types = new Set(request.records?.map((r) => r.type));
+        types.forEach((type) => {
+          this.invalidateRequestsForType(type, store);
+        });
+      }
+
+      // add this document's cacheKey to a map for all associated types
+      // it is recommended to only use this for queries
+    } else if (identifier && request.cacheOptions?.types?.length) {
+      const storeCache = this.#getStore(store);
+      request.cacheOptions?.types.forEach((type) => {
+        const set = storeCache.types.get(type);
+        if (set) {
+          set.add(identifier.lid);
+          storeCache.invalidated.delete(identifier.lid);
+        } else {
+          storeCache.types.set(type, new Set([identifier.lid]));
+        }
+      });
+    }
+  }
+
+  /**
+   * Invoked to determine if the request may be fulfilled from cache
+   * if possible.
+   *
+   * Note, this is only invoked by the CacheHandler if the request has
+   * a cache-key.
+   *
+   * If no cache entry is found or the entry is hard expired,
+   * the request will be fulfilled from the configured request handlers
+   * and the cache will be updated before returning the response.
+   *
+   * @method isHardExpired
+   * @public
+   * @param {StableDocumentIdentifier} identifier
+   * @param {Store} store
+   * @returns {boolean} true if the request is considered hard expired
+   */
+  isHardExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
+    // if we are explicitly invalidated, we are hard expired
+    const storeCache = this.#getStore(store);
+    if (storeCache.invalidated.has(identifier.lid)) {
+      return true;
+    }
+    const cache = store.cache;
     const cached = cache.peekRequest(identifier);
     return !cached || !cached.response || isStale(cached.response.headers, this.config.apiCacheHardExpires);
   }
-  isSoftExpired(identifier: StableDocumentIdentifier, cache: Cache): boolean {
+
+  /**
+   * Invoked if `isHardExpired` is false to determine if the request
+   * should be update behind the scenes if cache data is already available.
+   *
+   * Note, this is only invoked by the CacheHandler if the request has
+   * a cache-key.
+   *
+   * If true, the request will be fulfilled from cache while a backgrounded
+   * request is made to update the cache via the configured request handlers.
+   *
+   * @method isSoftExpired
+   * @public
+   * @param {StableDocumentIdentifier} identifier
+   * @param {Store} store
+   * @returns {boolean} true if the request is considered soft expired
+   */
+  isSoftExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
+    const cache = store.cache;
     const cached = cache.peekRequest(identifier);
     return !cached || !cached.response || isStale(cached.response.headers, this.config.apiCacheSoftExpires);
   }

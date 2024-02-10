@@ -1,4 +1,4 @@
-lockfileVersion: '6.0'
+lockfileVersion: '6.1'
 
 settings:
   autoInstallPeers: false
@@ -18,7 +18,7 @@ overrides:
   ember-compatibility-helpers: ^1.2.7
   testem: ~3.11.0
 
-packageExtensionsChecksum: ac8b19f4ca6ecfbe7962863e7b49cda1
+packageExtensionsChecksum: ee01a587d559ec643ad3224c8a08daa2
 
 patchedDependencies:
   qunit@2.19.4:
@@ -167,7 +167,7 @@ importers:
         version: file:packages/request(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/request-utils':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/request-utils(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
+        version: file:packages/request-utils(@babel/core@7.23.7)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/serializer':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/serializer(@babel/core@7.23.7)(@ember/string@3.1.1)(@warp-drive/core-types@5.5.0-alpha.11)(ember-inflector@4.0.2)
@@ -302,7 +302,7 @@ importers:
         version: file:packages/request(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/request-utils':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/request-utils(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
+        version: file:packages/request-utils(@babel/core@7.23.7)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/store':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/store(@babel/core@7.23.7)(@ember-data/request@5.5.0-alpha.11)(@ember-data/tracking@5.5.0-alpha.11)(@ember/string@3.1.1)(@warp-drive/core-types@5.5.0-alpha.11)
@@ -423,7 +423,7 @@ importers:
         version: file:packages/request(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/request-utils':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/request-utils(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
+        version: file:packages/request-utils(@babel/core@7.23.7)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/store':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/store(@babel/core@7.23.7)(@ember-data/request@5.5.0-alpha.11)(@ember-data/tracking@5.5.0-alpha.11)(@ember/string@3.1.1)(@warp-drive/core-types@5.5.0-alpha.11)
@@ -948,7 +948,7 @@ importers:
         version: file:packages/request(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/request-utils':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/request-utils(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
+        version: file:packages/request-utils(@babel/core@7.23.7)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/store':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/store(@babel/core@7.23.7)(@ember-data/request@5.5.0-alpha.11)(@ember-data/tracking@5.5.0-alpha.11)(@ember/string@3.1.1)(@warp-drive/core-types@5.5.0-alpha.11)
@@ -1070,7 +1070,7 @@ importers:
         version: file:packages/request(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/request-utils':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/request-utils(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
+        version: file:packages/request-utils(@babel/core@7.23.7)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/store':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/store(@babel/core@7.23.7)(@ember-data/request@5.5.0-alpha.11)(@ember-data/tracking@5.5.0-alpha.11)(@ember/string@3.1.1)(@warp-drive/core-types@5.5.0-alpha.11)
@@ -1209,7 +1209,7 @@ importers:
         version: file:packages/request(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/request-utils':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/request-utils(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
+        version: file:packages/request-utils(@babel/core@7.23.7)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/store':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/store(@babel/core@7.23.7)(@ember-data/request@5.5.0-alpha.11)(@ember-data/tracking@5.5.0-alpha.11)(@ember/string@3.1.1)(@warp-drive/core-types@5.5.0-alpha.11)
@@ -1548,7 +1548,7 @@ importers:
         version: file:packages/request(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/request-utils':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/request-utils(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
+        version: file:packages/request-utils(@babel/core@7.23.7)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/store':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/store(@babel/core@7.23.7)(@ember-data/request@5.5.0-alpha.11)(@ember-data/tracking@5.5.0-alpha.11)(@ember/string@3.1.1)(@warp-drive/core-types@5.5.0-alpha.11)
@@ -2203,7 +2203,7 @@ importers:
         version: file:packages/request(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/request-utils':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/request-utils(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
+        version: file:packages/request-utils(@babel/core@7.23.7)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/serializer':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/serializer(@babel/core@7.23.7)(@ember/string@3.1.1)(@warp-drive/core-types@5.5.0-alpha.11)(ember-inflector@4.0.2)
@@ -2325,7 +2325,7 @@ importers:
         version: file:packages/request(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/request-utils':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/request-utils(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
+        version: file:packages/request-utils(@babel/core@7.23.7)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/rest':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/rest(@babel/core@7.23.7)(@ember-data/request-utils@5.5.0-alpha.11)(@ember-data/store@5.5.0-alpha.11)(@ember/string@3.1.1)(@warp-drive/core-types@5.5.0-alpha.11)(ember-inflector@4.0.2)
@@ -2499,7 +2499,7 @@ importers:
         version: file:packages/request(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/request-utils':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/request-utils(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
+        version: file:packages/request-utils(@babel/core@7.23.7)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/serializer':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/serializer(@babel/core@7.23.7)(@ember/string@3.1.1)(@warp-drive/core-types@5.5.0-alpha.11)(ember-inflector@4.0.2)
@@ -2654,7 +2654,7 @@ importers:
         version: file:packages/request(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/request-utils':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/request-utils(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
+        version: file:packages/request-utils(@babel/core@7.23.7)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/store':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/store(@babel/core@7.23.7)(@ember-data/request@5.5.0-alpha.11)(@ember-data/tracking@5.5.0-alpha.11)(@ember/string@3.1.1)(@warp-drive/core-types@5.5.0-alpha.11)
@@ -2821,7 +2821,7 @@ importers:
         version: file:packages/request(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/request-utils':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/request-utils(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
+        version: file:packages/request-utils(@babel/core@7.23.7)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/store':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/store(@babel/core@7.23.7)(@ember-data/request@5.5.0-alpha.11)(@ember-data/tracking@5.5.0-alpha.11)(@ember/string@3.1.1)(@warp-drive/core-types@5.5.0-alpha.11)
@@ -2985,7 +2985,7 @@ importers:
         version: file:packages/request(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/request-utils':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/request-utils(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
+        version: file:packages/request-utils(@babel/core@7.23.7)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/serializer':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/serializer(@babel/core@7.23.7)(@ember/string@3.1.1)(@warp-drive/core-types@5.5.0-alpha.11)(ember-inflector@4.0.2)
@@ -3265,7 +3265,7 @@ importers:
         version: file:packages/request(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/request-utils':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/request-utils(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
+        version: file:packages/request-utils(@babel/core@7.23.7)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/store':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/store(@babel/core@7.23.7)(@ember-data/request@5.5.0-alpha.11)(@ember-data/tracking@5.5.0-alpha.11)(@ember/string@3.1.1)(@warp-drive/core-types@5.5.0-alpha.11)
@@ -3719,7 +3719,7 @@ importers:
         version: file:packages/request(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/request-utils':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/request-utils(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
+        version: file:packages/request-utils(@babel/core@7.23.7)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/serializer':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/serializer(@babel/core@7.23.7)(@ember/string@3.1.1)(@warp-drive/core-types@5.5.0-alpha.11)(ember-inflector@4.0.2)
@@ -4030,7 +4030,7 @@ importers:
         version: file:packages/request(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/request-utils':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/request-utils(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
+        version: file:packages/request-utils(@babel/core@7.23.7)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/store':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/store(@babel/core@7.23.7)(@ember-data/request@5.5.0-alpha.11)(@ember-data/tracking@5.5.0-alpha.11)(@ember/string@3.1.1)(@warp-drive/core-types@5.5.0-alpha.11)
@@ -4237,7 +4237,7 @@ importers:
         version: file:packages/request(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/request-utils':
         specifier: workspace:5.5.0-alpha.11
-        version: file:packages/request-utils(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
+        version: file:packages/request-utils(@babel/core@7.23.7)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/store':
         specifier: workspace:5.5.0-alpha.11
         version: file:packages/store(@babel/core@7.23.7)(@ember-data/request@5.5.0-alpha.11)(@ember-data/tracking@5.5.0-alpha.11)(@ember/string@3.1.1)(@warp-drive/core-types@5.5.0-alpha.11)
@@ -11365,7 +11365,7 @@ packages:
     peerDependencies:
       ember-qunit: '*'
       ember-source: '*'
-      qunit: 2.19.4
+      qunit: '*'
     dependencies:
       '@babel/core': 7.23.7(supports-color@8.1.1)
       chalk: 5.3.0
@@ -11448,7 +11448,7 @@ packages:
     peerDependencies:
       '@ember/test-helpers': '>=3.0.3'
       ember-source: '*'
-      qunit: 2.19.4
+      qunit: ^2.13.0
     dependencies:
       '@ember/test-helpers': 3.2.1(@babel/core@7.23.7)(ember-source@5.4.0)(webpack@5.89.0)
       '@embroider/addon-shim': 1.8.7
@@ -18747,9 +18747,10 @@ packages:
     resolution: {directory: packages/-ember-data, type: directory}
     id: file:packages/-ember-data
     name: ember-data
+    version: 5.5.0-alpha.11
     engines: {node: '>= 20.11.0'}
     peerDependencies:
-      '@ember/string': 3.1.1
+      '@ember/string': ^3.1.1
     dependencies:
       '@ember-data/adapter': file:packages/adapter(@babel/core@7.23.7)(@ember-data/legacy-compat@5.5.0-alpha.11)(@ember-data/store@5.5.0-alpha.11)(@ember/string@3.1.1)(ember-inflector@4.0.2)
       '@ember-data/debug': file:packages/debug(@ember-data/store@5.5.0-alpha.11)(@ember/string@3.1.1)
@@ -18759,7 +18760,7 @@ packages:
       '@ember-data/model': file:packages/model(@babel/core@7.23.7)(@ember-data/debug@5.5.0-alpha.11)(@ember-data/graph@5.5.0-alpha.11)(@ember-data/json-api@5.5.0-alpha.11)(@ember-data/legacy-compat@5.5.0-alpha.11)(@ember-data/store@5.5.0-alpha.11)(@ember-data/tracking@5.5.0-alpha.11)(@ember/string@3.1.1)(@warp-drive/core-types@5.5.0-alpha.11)(ember-inflector@4.0.2)
       '@ember-data/private-build-infra': file:packages/private-build-infra
       '@ember-data/request': file:packages/request(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
-      '@ember-data/request-utils': file:packages/request-utils(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
+      '@ember-data/request-utils': file:packages/request-utils(@babel/core@7.23.7)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/serializer': file:packages/serializer(@babel/core@7.23.7)(@ember/string@3.1.1)(@warp-drive/core-types@5.5.0-alpha.11)(ember-inflector@4.0.2)
       '@ember-data/store': file:packages/store(@babel/core@7.23.7)(@ember-data/request@5.5.0-alpha.11)(@ember-data/tracking@5.5.0-alpha.11)(@ember/string@3.1.1)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/tracking': file:packages/tracking(@babel/core@7.23.7)(ember-source@5.4.0)
@@ -18788,15 +18789,16 @@ packages:
     resolution: {directory: packages/active-record, type: directory}
     id: file:packages/active-record
     name: '@ember-data/active-record'
+    version: 5.5.0-alpha.11
     engines: {node: '>= 20.11.0'}
     peerDependencies:
       '@ember-data/request-utils': workspace:5.5.0-alpha.11
       '@ember-data/store': ^4.12.0 || ^5.0.0
-      '@ember/string': 3.1.1
+      '@ember/string': ^3.1.1
       '@warp-drive/core-types': workspace:5.5.0-alpha.11
       ember-inflector: ^4.0.2
     dependencies:
-      '@ember-data/request-utils': file:packages/request-utils(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
+      '@ember-data/request-utils': file:packages/request-utils(@babel/core@7.23.7)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/store': file:packages/store(@babel/core@7.23.7)(@ember-data/request@5.5.0-alpha.11)(@ember-data/tracking@5.5.0-alpha.11)(@ember/string@3.1.1)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember/string': 3.1.1(@babel/core@7.23.7)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.23.7)
@@ -18812,11 +18814,12 @@ packages:
     resolution: {directory: packages/adapter, type: directory}
     id: file:packages/adapter
     name: '@ember-data/adapter'
+    version: 5.5.0-alpha.11
     engines: {node: '>= 20.11.0'}
     peerDependencies:
       '@ember-data/legacy-compat': workspace:5.5.0-alpha.11
       '@ember-data/store': workspace:5.5.0-alpha.11
-      '@ember/string': 3.1.1
+      '@ember/string': ^3.1.1
       ember-inflector: ^4.0.2
     dependencies:
       '@ember-data/legacy-compat': file:packages/legacy-compat(@babel/core@7.23.7)(@ember-data/graph@5.5.0-alpha.11)(@ember-data/json-api@5.5.0-alpha.11)(@ember-data/request@5.5.0-alpha.11)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)
@@ -18837,6 +18840,7 @@ packages:
     resolution: {directory: packages/core-types, type: directory}
     id: file:packages/core-types
     name: '@warp-drive/core-types'
+    version: 5.5.0-alpha.11
     engines: {node: '>= 20.11.0'}
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
@@ -18851,10 +18855,11 @@ packages:
     resolution: {directory: packages/debug, type: directory}
     id: file:packages/debug
     name: '@ember-data/debug'
+    version: 5.5.0-alpha.11
     engines: {node: '>= 20.11.0'}
     peerDependencies:
       '@ember-data/store': workspace:5.5.0-alpha.11
-      '@ember/string': 3.1.1
+      '@ember/string': ^3.1.1
     dependencies:
       '@babel/core': 7.23.7(supports-color@8.1.1)
       '@ember-data/private-build-infra': file:packages/private-build-infra
@@ -18878,6 +18883,7 @@ packages:
     resolution: {directory: packages/diagnostic, type: directory}
     id: file:packages/diagnostic
     name: '@warp-drive/diagnostic'
+    version: 5.5.0-alpha.11
     engines: {node: '>= 20.11.0'}
     peerDependencies:
       '@ember/test-helpers': '>= 3.2.1'
@@ -18905,6 +18911,7 @@ packages:
     resolution: {directory: packages/graph, type: directory}
     id: file:packages/graph
     name: '@ember-data/graph'
+    version: 5.5.0-alpha.11
     engines: {node: '>= 20.11.0'}
     peerDependencies:
       '@ember-data/store': workspace:5.5.0-alpha.11
@@ -18926,6 +18933,7 @@ packages:
     resolution: {directory: packages/holodeck, type: directory}
     id: file:packages/holodeck
     name: '@warp-drive/holodeck'
+    version: 5.5.0-alpha.11
     engines: {node: '>= 20.11.0'}
     hasBin: true
     peerDependencies:
@@ -18949,6 +18957,7 @@ packages:
     resolution: {directory: packages/json-api, type: directory}
     id: file:packages/json-api
     name: '@ember-data/json-api'
+    version: 5.5.0-alpha.11
     engines: {node: '>= 20.11.0'}
     peerDependencies:
       '@ember-data/graph': workspace:5.5.0-alpha.11
@@ -18962,7 +18971,7 @@ packages:
     dependencies:
       '@ember-data/graph': file:packages/graph(@babel/core@7.23.7)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/private-build-infra': file:packages/private-build-infra
-      '@ember-data/request-utils': file:packages/request-utils(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
+      '@ember-data/request-utils': file:packages/request-utils(@babel/core@7.23.7)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/store': file:packages/store(@babel/core@7.23.7)(@ember-data/request@5.5.0-alpha.11)(@ember-data/tracking@5.5.0-alpha.11)(@ember/string@3.1.1)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.13.4(@babel/core@7.23.7)
@@ -18979,6 +18988,7 @@ packages:
     resolution: {directory: packages/legacy-compat, type: directory}
     id: file:packages/legacy-compat
     name: '@ember-data/legacy-compat'
+    version: 5.5.0-alpha.11
     engines: {node: '>= 20.11.0'}
     peerDependencies:
       '@ember-data/graph': workspace:5.5.0-alpha.11
@@ -19010,6 +19020,7 @@ packages:
     resolution: {directory: packages/model, type: directory}
     id: file:packages/model
     name: '@ember-data/model'
+    version: 5.5.0-alpha.11
     engines: {node: '>= 20.11.0'}
     peerDependencies:
       '@ember-data/debug': workspace:5.5.0-alpha.11
@@ -19018,7 +19029,7 @@ packages:
       '@ember-data/legacy-compat': workspace:5.5.0-alpha.11
       '@ember-data/store': workspace:5.5.0-alpha.11
       '@ember-data/tracking': workspace:5.5.0-alpha.11
-      '@ember/string': 3.1.1
+      '@ember/string': ^3.1.1
       '@warp-drive/core-types': workspace:5.5.0-alpha.11
       ember-inflector: ^4.0.2
     peerDependenciesMeta:
@@ -19054,6 +19065,7 @@ packages:
   file:packages/private-build-infra:
     resolution: {directory: packages/private-build-infra, type: directory}
     name: '@ember-data/private-build-infra'
+    version: 5.5.0-alpha.11
     engines: {node: '>= 20.11.0'}
     dependencies:
       '@babel/core': 7.23.7(supports-color@8.1.1)
@@ -19087,6 +19099,7 @@ packages:
     resolution: {directory: packages/request, type: directory}
     id: file:packages/request
     name: '@ember-data/request'
+    version: 5.5.0-alpha.11
     engines: {node: '>= 20.11.0'}
     peerDependencies:
       '@warp-drive/core-types': workspace:5.5.0-alpha.11
@@ -19102,14 +19115,17 @@ packages:
       - '@glint/template'
       - supports-color
 
-  file:packages/request-utils(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11):
+  file:packages/request-utils(@babel/core@7.23.7)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11):
     resolution: {directory: packages/request-utils, type: directory}
     id: file:packages/request-utils
     name: '@ember-data/request-utils'
+    version: 5.5.0-alpha.11
     engines: {node: '>= 20.11.0'}
     peerDependencies:
+      '@ember-data/store': workspace:5.5.0-alpha.11
       '@warp-drive/core-types': workspace:5.5.0-alpha.11
     dependencies:
+      '@ember-data/store': file:packages/store(@babel/core@7.23.7)(@ember-data/request@5.5.0-alpha.11)(@ember-data/tracking@5.5.0-alpha.11)(@ember/string@3.1.1)(@warp-drive/core-types@5.5.0-alpha.11)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.23.7)
       ember-cli-babel: 8.2.0(@babel/core@7.23.7)
       pnpm-sync-dependencies-meta-injected: 0.0.10
@@ -19121,15 +19137,16 @@ packages:
     resolution: {directory: packages/rest, type: directory}
     id: file:packages/rest
     name: '@ember-data/rest'
+    version: 5.5.0-alpha.11
     engines: {node: '>= 20.11.0'}
     peerDependencies:
       '@ember-data/request-utils': workspace:5.5.0-alpha.11
       '@ember-data/store': ^4.12.0 || ^5.0.0
-      '@ember/string': 3.1.1
+      '@ember/string': ^3.1.1
       '@warp-drive/core-types': workspace:5.5.0-alpha.11
       ember-inflector: ^4.0.2
     dependencies:
-      '@ember-data/request-utils': file:packages/request-utils(@babel/core@7.23.7)(@warp-drive/core-types@5.5.0-alpha.11)
+      '@ember-data/request-utils': file:packages/request-utils(@babel/core@7.23.7)(@ember-data/store@5.5.0-alpha.11)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember-data/store': file:packages/store(@babel/core@7.23.7)(@ember-data/request@5.5.0-alpha.11)(@ember-data/tracking@5.5.0-alpha.11)(@ember/string@3.1.1)(@warp-drive/core-types@5.5.0-alpha.11)
       '@ember/string': 3.1.1(@babel/core@7.23.7)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.23.7)
@@ -19145,6 +19162,7 @@ packages:
     resolution: {directory: packages/schema-record, type: directory}
     id: file:packages/schema-record
     name: '@warp-drive/schema-record'
+    version: 5.5.0-alpha.11
     engines: {node: '>= 20.11.0'}
     peerDependencies:
       '@ember-data/store': workspace:5.5.0-alpha.11
@@ -19169,9 +19187,10 @@ packages:
     resolution: {directory: packages/serializer, type: directory}
     id: file:packages/serializer
     name: '@ember-data/serializer'
+    version: 5.5.0-alpha.11
     engines: {node: '>= 20.11.0'}
     peerDependencies:
-      '@ember/string': 3.1.1
+      '@ember/string': ^3.1.1
       '@warp-drive/core-types': workspace:5.5.0-alpha.11
       ember-inflector: ^4.0.2
     dependencies:
@@ -19192,11 +19211,12 @@ packages:
     resolution: {directory: packages/store, type: directory}
     id: file:packages/store
     name: '@ember-data/store'
+    version: 5.5.0-alpha.11
     engines: {node: '>= 20.11.0'}
     peerDependencies:
       '@ember-data/request': workspace:5.5.0-alpha.11
       '@ember-data/tracking': workspace:5.5.0-alpha.11
-      '@ember/string': 3.1.1
+      '@ember/string': ^3.1.1
       '@warp-drive/core-types': workspace:5.5.0-alpha.11
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
@@ -19216,6 +19236,7 @@ packages:
     resolution: {directory: packages/tracking, type: directory}
     id: file:packages/tracking
     name: '@ember-data/tracking'
+    version: 5.5.0-alpha.11
     engines: {node: '>= 20.11.0'}
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra
@@ -19233,6 +19254,7 @@ packages:
     resolution: {directory: packages/unpublished-test-infra, type: directory}
     id: file:packages/unpublished-test-infra
     name: '@ember-data/unpublished-test-infra'
+    version: 5.5.0-alpha.11
     engines: {node: '>= 20.11.0'}
     peerDependenciesMeta:
       qunit:
