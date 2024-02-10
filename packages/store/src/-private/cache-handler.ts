@@ -86,11 +86,11 @@ export interface LifetimesService {
    * @method willRequest [Optional]
    * @public
    * @param {ImmutableRequestInfo} request
-   * @param {Store} store
    * @param {StableDocumentIdentifier | null} identifier
+   * @param {Store} store
    * @returns {void}
    */
-  willRequest?(request: ImmutableRequestInfo, store: Store, identifier: StableDocumentIdentifier | null): void;
+  willRequest?(request: ImmutableRequestInfo, identifier: StableDocumentIdentifier | null, store: Store): void;
 
   /**
    * Invoked when a request has been fulfilled from the configured request handlers.
@@ -103,15 +103,15 @@ export interface LifetimesService {
    * @public
    * @param {ImmutableRequestInfo} request
    * @param {ImmutableResponse} response
-   * @param {Store} store
    * @param {StableDocumentIdentifier | null} identifier
+   * @param {Store} store
    * @returns {void}
    */
   didRequest?(
     request: ImmutableRequestInfo,
     response: Response | ResponseInfo | null,
-    store: Store,
-    identifier: StableDocumentIdentifier | null
+    identifier: StableDocumentIdentifier | null,
+    store: Store
   ): void;
 }
 
@@ -300,7 +300,7 @@ function fetchContentAndHydrate<T>(
   }
 
   if (store.lifetimes?.willRequest) {
-    store.lifetimes.willRequest(context.request, store, identifier);
+    store.lifetimes.willRequest(context.request, identifier, store);
   }
 
   const promise = next(context.request).then(
@@ -326,7 +326,7 @@ function fetchContentAndHydrate<T>(
       store._enableAsyncFlush = null;
 
       if (store.lifetimes?.didRequest) {
-        store.lifetimes.didRequest(context.request, document.response, store, identifier);
+        store.lifetimes.didRequest(context.request, document.response, identifier, store);
       }
 
       if (shouldFetch) {
@@ -375,7 +375,7 @@ function fetchContentAndHydrate<T>(
       store._enableAsyncFlush = null;
 
       if (identifier && store.lifetimes?.didRequest) {
-        store.lifetimes.didRequest(context.request, error.response, store, identifier);
+        store.lifetimes.didRequest(context.request, error.response, identifier, store);
       }
 
       if (!shouldBackgroundFetch) {
