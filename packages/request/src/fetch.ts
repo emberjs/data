@@ -153,13 +153,16 @@ const Fetch = {
           ? errorPayload.errors
           : null;
 
-      const msg = `[${response.status}] ${response.statusText ? response.statusText + ' ' : ''}- ${response.url}`;
+      const statusText = response.statusText || ERROR_STATUS_CODE_FOR.get(response.status) || 'Unknown Request Error';
+      const msg = `[${response.status} ${statusText}] ${context.request.method ?? 'GET'} (${response.type}) - ${
+        response.url
+      }`;
 
       const error = (errors ? new AggregateError(errors, msg) : new Error(msg)) as Error & {
         content: object | undefined;
       } & HttpErrorProps;
       error.status = response.status;
-      error.statusText = response.statusText || ERROR_STATUS_CODE_FOR.get(response.status) || 'Unknown Request Error';
+      error.statusText = statusText;
       error.isRequestError = true;
       error.code = error.status;
       error.name = error.statusText.replaceAll(' ', '') + 'Error';

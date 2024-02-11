@@ -2019,8 +2019,7 @@ class Store extends EmberObject {
     const pushed = this._push(data, false);
 
     if (Array.isArray(pushed)) {
-      const records = pushed.map((identifier) => this._instanceCache.getRecord(identifier));
-      return records;
+      return pushed.map((identifier) => this._instanceCache.getRecord(identifier));
     }
 
     if (pushed === null) {
@@ -2118,6 +2117,7 @@ class Store extends EmberObject {
         options,
         record: identifier,
       },
+      records: [identifier],
       cacheOptions: { [SkipCache as symbol]: true },
     };
 

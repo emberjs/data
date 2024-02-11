@@ -4,16 +4,16 @@
 import { assert } from '@ember/debug';
 
 import type { Future, Handler, NextFn } from '@ember-data/request/-private/types';
-import type { Cache } from '@warp-drive/core-types/cache';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type {
-  CreateRequestOptions,
-  DeleteRequestOptions,
+  ImmutableCreateRequestOptions,
+  ImmutableDeleteRequestOptions,
   ImmutableRequestInfo,
+  ImmutableUpdateRequestOptions,
   RequestContext,
+  ResponseInfo,
   StructuredDataDocument,
   StructuredErrorDocument,
-  UpdateRequestOptions,
 } from '@warp-drive/core-types/request';
 import { EnableHydration, SkipCache } from '@warp-drive/core-types/request';
 import type {
@@ -56,10 +56,10 @@ export interface LifetimesService {
    * @method isHardExpired
    * @public
    * @param {StableDocumentIdentifier} identifier
-   * @param {Cache} cache
+   * @param {Store} store
    * @returns {boolean} true if the request is considered hard expired
    */
-  isHardExpired(identifier: StableDocumentIdentifier, cache: Cache): boolean;
+  isHardExpired(identifier: StableDocumentIdentifier, store: Store): boolean;
   /**
    * Invoked if `isHardExpired` is false to determine if the request
    * should be update behind the scenes if cache data is already available.
@@ -72,39 +72,47 @@ export interface LifetimesService {
    * @method isSoftExpired
    * @public
    * @param {StableDocumentIdentifier} identifier
-   * @param {Cache} cache
+   * @param {Store} store
    * @returns {boolean} true if the request is considered soft expired
    */
-  isSoftExpired(identifier: StableDocumentIdentifier, cache: Cache): boolean;
+  isSoftExpired(identifier: StableDocumentIdentifier, store: Store): boolean;
 
   /**
    * Invoked when a request will be sent to the configured request handlers.
    * This is invoked for both foreground and background requests.
    *
-   * Note, this is only invoked if the request has a cache-key.
+   * Note, this is invoked regardless of whether the request has a cache-key.
    *
    * @method willRequest [Optional]
    * @public
-   * @param {StableDocumentIdentifier} identifier
-   * @param {Cache} cache
+   * @param {ImmutableRequestInfo} request
+   * @param {StableDocumentIdentifier | null} identifier
+   * @param {Store} store
    * @returns {void}
    */
-  willRequest?(identifier: StableDocumentIdentifier, cache: Cache): void;
+  willRequest?(request: ImmutableRequestInfo, identifier: StableDocumentIdentifier | null, store: Store): void;
 
   /**
    * Invoked when a request has been fulfilled from the configured request handlers.
    * This is invoked for both foreground and background requests once the cache has
    * been updated.
    *
-   * Note, this is only invoked if the request has a cache-key.
+   * Note, this is invoked regardless of whether the request has a cache-key.
    *
    * @method didRequest [Optional]
    * @public
-   * @param {StableDocumentIdentifier} identifier
-   * @param {Cache} cache
+   * @param {ImmutableRequestInfo} request
+   * @param {ImmutableResponse} response
+   * @param {StableDocumentIdentifier | null} identifier
+   * @param {Store} store
    * @returns {void}
    */
-  didRequest?(identifier: StableDocumentIdentifier, cache: Cache): void;
+  didRequest?(
+    request: ImmutableRequestInfo,
+    response: Response | ResponseInfo | null,
+    identifier: StableDocumentIdentifier | null,
+    store: Store
+  ): void;
 }
 
 export type StoreRequestInfo = ImmutableRequestInfo;
@@ -248,7 +256,7 @@ function calcShouldFetch(
     (request.op && MUTATION_OPS.has(request.op)) ||
     cacheOptions?.reload ||
     !hasCachedValue ||
-    (store.lifetimes && identifier ? store.lifetimes.isHardExpired(identifier, store.cache) : false)
+    (store.lifetimes && identifier ? store.lifetimes.isHardExpired(identifier, store) : false)
   );
 }
 
@@ -262,13 +270,13 @@ function calcShouldBackgroundFetch(
   return (
     !willFetch &&
     (cacheOptions?.backgroundReload ||
-      (store.lifetimes && identifier ? store.lifetimes.isSoftExpired(identifier, store.cache) : false))
+      (store.lifetimes && identifier ? store.lifetimes.isSoftExpired(identifier, store) : false))
   );
 }
 
 function isMutation(
   request: Partial<StoreRequestInfo>
-): request is UpdateRequestOptions | CreateRequestOptions | DeleteRequestOptions {
+): request is ImmutableUpdateRequestOptions | ImmutableCreateRequestOptions | ImmutableDeleteRequestOptions {
   return Boolean(request.op && MUTATION_OPS.has(request.op));
 }
 
@@ -285,13 +293,14 @@ function fetchContentAndHydrate<T>(
   let isMut = false;
   if (isMutation(context.request)) {
     isMut = true;
-    const record = context.request.data?.record;
+    // TODO should we handle multiple records in request.records by iteratively calling willCommit for each
+    const record = context.request.data?.record || context.request.records?.[0];
     assert(`Expected to receive a list of records included in the ${context.request.op} request`, record);
     store.cache.willCommit(record, context);
   }
 
-  if (identifier && store.lifetimes?.willRequest) {
-    store.lifetimes.willRequest(identifier, store.cache);
+  if (store.lifetimes?.willRequest) {
+    store.lifetimes.willRequest(context.request, identifier, store);
   }
 
   const promise = next(context.request).then(
@@ -301,7 +310,8 @@ function fetchContentAndHydrate<T>(
       let response: ResourceDataDocument;
       store._join(() => {
         if (isMutation(context.request)) {
-          response = store.cache.didCommit(context.request.data.record, document) as ResourceDataDocument;
+          const record = context.request.data?.record || context.request.records?.[0];
+          response = store.cache.didCommit(record, document) as ResourceDataDocument;
         } else {
           response = store.cache.put(document) as ResourceDataDocument;
         }
@@ -315,8 +325,8 @@ function fetchContentAndHydrate<T>(
       });
       store._enableAsyncFlush = null;
 
-      if (identifier && store.lifetimes?.didRequest) {
-        store.lifetimes.didRequest(identifier, store.cache);
+      if (store.lifetimes?.didRequest) {
+        store.lifetimes.didRequest(context.request, document.response, identifier, store);
       }
 
       if (shouldFetch) {
@@ -345,7 +355,10 @@ function fetchContentAndHydrate<T>(
             Array.isArray(error.content.errors)
               ? (error.content.errors as ApiError[])
               : undefined;
-          store.cache.commitWasRejected(context.request.data.record, errors);
+
+          const record = context.request.data?.record || context.request.records?.[0];
+
+          store.cache.commitWasRejected(record, errors);
           // re-throw the original error to preserve `errors` property.
           throw error;
         } else {
@@ -362,7 +375,7 @@ function fetchContentAndHydrate<T>(
       store._enableAsyncFlush = null;
 
       if (identifier && store.lifetimes?.didRequest) {
-        store.lifetimes.didRequest(identifier, store.cache);
+        store.lifetimes.didRequest(context.request, error.response, identifier, store);
       }
 
       if (!shouldBackgroundFetch) {
@@ -381,8 +394,11 @@ function fetchContentAndHydrate<T>(
   assert(`Expected a mutation`, isMutation(context.request));
 
   // for mutations we need to enqueue the promise with the requestStateService
+  // TODO should we enque a request per record in records?
+  const record = context.request.data?.record || context.request.records?.[0];
+
   return store._requestCache._enqueue(promise, {
-    data: [{ op: 'saveRecord', recordIdentifier: context.request.data.record, options: undefined }],
+    data: [{ op: 'saveRecord', recordIdentifier: record, options: undefined }],
   });
 }
 

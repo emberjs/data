@@ -117,6 +117,22 @@ module('REST | Request Builders', function (hooks) {
     assert.deepEqual(headersToObject(result.headers), REST_HEADERS);
   });
 
+  test('query with empty params [used to be findAll]', function (this: TestContext, assert) {
+    const result = query('user-setting', {}, { reload: true, backgroundReload: false });
+    assert.deepEqual(
+      result,
+      {
+        url: 'https://api.example.com/api/v1/userSettings',
+        method: 'GET',
+        headers: new Headers(REST_HEADERS),
+        cacheOptions: { reload: true, backgroundReload: false },
+        op: 'query',
+      },
+      `query works with type and empty options, does not leave a trailing ?`
+    );
+    assert.deepEqual(headersToObject(result.headers), REST_HEADERS);
+  });
+
   test('createRecord passing store record', function (this: TestContext, assert) {
     const store = this.owner.lookup('service:store') as Store;
     const userSetting = store.createRecord('user-setting', {
@@ -135,6 +151,7 @@ module('REST | Request Builders', function (hooks) {
         data: {
           record: identifier,
         },
+        records: [identifier],
       },
       `createRecord works with record identifier passed`
     );
@@ -159,6 +176,7 @@ module('REST | Request Builders', function (hooks) {
         data: {
           record: identifier,
         },
+        records: [identifier],
       },
       `createRecord works with record identifier passed`
     );
@@ -196,6 +214,7 @@ module('REST | Request Builders', function (hooks) {
         data: {
           record: identifier,
         },
+        records: [identifier],
       },
       `updateRecord works with record identifier passed`
     );
@@ -233,6 +252,7 @@ module('REST | Request Builders', function (hooks) {
         data: {
           record: identifier,
         },
+        records: [identifier],
       },
       `updateRecord works with patch option`
     );
@@ -268,6 +288,7 @@ module('REST | Request Builders', function (hooks) {
         data: {
           record: identifier,
         },
+        records: [identifier],
       },
       `deleteRecord works with patch option`
     );
