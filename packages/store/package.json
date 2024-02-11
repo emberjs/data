@@ -19,11 +19,6 @@
     "prepack": "pnpm build",
     "prepare": "pnpm build"
   },
-  "ember-addon": {
-    "main": "addon-main.js",
-    "type": "addon",
-    "version": 1
-  },
   "files": [
     "addon-main.js",
     "addon",
@@ -81,5 +76,13 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.7.5"
+  "packageManager": "pnpm@8.6.0",
+  "ember-addon": {
+    "main": "addon-main.js",
+    "type": "addon",
+    "version": 1
+  },
+  "ember": {
+    "edition": "octane"
+  }
 }

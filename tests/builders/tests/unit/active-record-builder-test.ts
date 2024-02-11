@@ -116,7 +116,23 @@ module('ActiveRecord | Request Builders', function (hooks) {
     assert.deepEqual(headersToObject(result.headers), ACTIVE_RECORD_HEADERS);
   });
 
-  test('createRecord passing store record', function (assert) {
+  test('query with empty params [used to be findAll]', function (this: TestContext, assert) {
+    const result = query('user-setting', {}, { reload: true, backgroundReload: false });
+    assert.deepEqual(
+      result,
+      {
+        url: 'https://api.example.com/api/v1/user_settings',
+        method: 'GET',
+        headers: new Headers(ACTIVE_RECORD_HEADERS),
+        cacheOptions: { reload: true, backgroundReload: false },
+        op: 'query',
+      },
+      `query works with type and empty options, does not leave a trailing ?`
+    );
+    assert.deepEqual(headersToObject(result.headers), ACTIVE_RECORD_HEADERS);
+  });
+
+  test('createRecord passing store record', function (this: TestContext, assert) {
     const store = this.owner.lookup('service:store') as Store;
     const userSetting = store.createRecord('user-setting', {
       name: 'test',
@@ -134,6 +150,7 @@ module('ActiveRecord | Request Builders', function (hooks) {
         data: {
           record: identifier,
         },
+        records: [identifier],
       },
       `createRecord works with record identifier passed`
     );
@@ -158,6 +175,7 @@ module('ActiveRecord | Request Builders', function (hooks) {
         data: {
           record: identifier,
         },
+        records: [identifier],
       },
       `createRecord works with record identifier passed`
     );
@@ -195,6 +213,7 @@ module('ActiveRecord | Request Builders', function (hooks) {
         data: {
           record: identifier,
         },
+        records: [identifier],
       },
       `updateRecord works with record identifier passed`
     );
@@ -232,6 +251,7 @@ module('ActiveRecord | Request Builders', function (hooks) {
         data: {
           record: identifier,
         },
+        records: [identifier],
       },
       `updateRecord works with patch option`
     );
@@ -267,6 +287,7 @@ module('ActiveRecord | Request Builders', function (hooks) {
         data: {
           record: identifier,
         },
+        records: [identifier],
       },
       `deleteRecord works with patch option`
     );

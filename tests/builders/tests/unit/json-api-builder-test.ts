@@ -116,7 +116,23 @@ module('JSON:API | Request Builders', function (hooks) {
     assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS);
   });
 
-  test('postQuery', function (assert) {
+  test('query with empty params [used to be findAll]', function (this: TestContext, assert) {
+    const result = query('user-setting', {}, { reload: true, backgroundReload: false });
+    assert.deepEqual(
+      result,
+      {
+        url: 'https://api.example.com/api/v1/user-settings',
+        method: 'GET',
+        headers: new Headers(JSON_API_HEADERS),
+        cacheOptions: { reload: true, backgroundReload: false },
+        op: 'query',
+      },
+      `query works with type and empty options, does not leave a trailing ?`
+    );
+    assert.deepEqual(headersToObject(result.headers), JSON_API_HEADERS);
+  });
+
+  test('postQuery', function (this: TestContext, assert) {
     const result = postQuery(
       'user-setting',
       { include: 'user,friends', sort: 'name:asc', search: ['zeta', 'beta'] },
@@ -159,6 +175,7 @@ module('JSON:API | Request Builders', function (hooks) {
         data: {
           record: identifier,
         },
+        records: [identifier],
       },
       `createRecord works with record identifier passed`
     );
@@ -183,6 +200,7 @@ module('JSON:API | Request Builders', function (hooks) {
         data: {
           record: identifier,
         },
+        records: [identifier],
       },
       `createRecord works with record identifier passed`
     );
@@ -220,6 +238,7 @@ module('JSON:API | Request Builders', function (hooks) {
         data: {
           record: identifier,
         },
+        records: [identifier],
       },
       `updateRecord works with record identifier passed`
     );
@@ -257,6 +276,7 @@ module('JSON:API | Request Builders', function (hooks) {
         data: {
           record: identifier,
         },
+        records: [identifier],
       },
       `updateRecord works with patch option`
     );
@@ -292,6 +312,7 @@ module('JSON:API | Request Builders', function (hooks) {
         data: {
           record: identifier,
         },
+        records: [identifier],
       },
       `deleteRecord works with patch option`
     );

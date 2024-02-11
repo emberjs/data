@@ -18,11 +18,6 @@
     "prepack": "pnpm build",
     "prepare": "pnpm build"
   },
-  "ember-addon": {
-    "main": "addon-main.js",
-    "type": "addon",
-    "version": 1
-  },
   "files": [
     "addon-main.js",
     "addon",
@@ -70,14 +65,19 @@
     "walk-sync": "^3.0.0",
     "webpack": "^5.88.2"
   },
-  "ember": {
-    "edition": "octane"
-  },
   "engines": {
     "node": "16.* || >= 18.*"
   },
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.7.5"
+  "packageManager": "pnpm@8.6.0",
+  "ember-addon": {
+    "main": "addon-main.js",
+    "type": "addon",
+    "version": 1
+  },
+  "ember": {
+    "edition": "octane"
+  }
 }

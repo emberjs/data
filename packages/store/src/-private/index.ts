@@ -6,7 +6,7 @@ export { default as Store, storeFor } from './store-service';
 
 export { recordIdentifierFor } from './caches/instance-cache';
 
-export { CacheHandler } from './cache-handler';
+export { CacheHandler, type LifetimesService } from './cache-handler';
 
 export {
   setIdentifierGenerationMethod,

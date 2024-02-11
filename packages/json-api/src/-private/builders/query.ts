@@ -81,9 +81,10 @@ export function query(
   const url = buildBaseURL(urlOptions);
   const headers = new Headers();
   headers.append('Accept', ACCEPT_HEADER_VALUE);
+  const queryString = buildQueryParams(query, options.urlParamsSettings);
 
   return {
-    url: `${url}?${buildQueryParams(query, options.urlParamsSettings)}`,
+    url: queryString ? `${url}?${queryString}` : url,
     method: 'GET',
     headers,
     cacheOptions,

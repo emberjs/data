@@ -84,13 +84,13 @@
     "node": "16.* || >= 18.*",
     "yarn": "use pnpm",
     "npm": "use pnpm",
-    "pnpm": "8.7.5"
+    "pnpm": "8.6.0"
   },
   "volta": {
-    "node": "18.17.1",
-    "pnpm": "8.7.5"
+    "node": "20.11.0",
+    "pnpm": "8.6.0"
   },
-  "packageManager": "pnpm@8.7.5",
+  "packageManager": "pnpm@8.6.0",
   "changelog": {
     "labels": {
       ":label: breaking": ":boom: Breaking Change",

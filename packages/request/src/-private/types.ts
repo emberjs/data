@@ -325,7 +325,7 @@ export interface Handler {
    * @param context
    * @param next
    */
-  request<T = unknown>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T>;
+  request<T = unknown>(context: RequestContext, next: NextFn<T>): Promise<T | StructuredDataDocument<T>> | Future<T>;
 }
 
 export interface RequestResponse<T> {
