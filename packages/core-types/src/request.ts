@@ -293,7 +293,7 @@ export type RequestInfo = Request & {
  *
  * @typedoc
  */
-export type ImmutableRequestInfo = Readonly<RequestInfo> & {
+export type ImmutableRequestInfo = Readonly<Omit<RequestInfo, 'controller'>> & {
   readonly cacheOptions?: Readonly<CacheOptions>;
   readonly headers?: ImmutableHeaders;
   readonly data?: Readonly<Record<string, unknown>>;
