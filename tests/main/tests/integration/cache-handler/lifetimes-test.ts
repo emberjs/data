@@ -213,11 +213,11 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
       override didRequest(
         request: ImmutableRequestInfo,
         response: Response | ResponseInfo | null,
-        store: { cache: Cache },
-        identifier: StableDocumentIdentifier | null
+        identifier: StableDocumentIdentifier | null,
+        store: { cache: Cache }
       ): void {
         assert.step('didRequest');
-        super.didRequest(request, response, store, identifier);
+        super.didRequest(request, response, identifier, store);
       }
       override isHardExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
         const result = super.isHardExpired(identifier, store);
@@ -384,11 +384,11 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
       override didRequest(
         request: ImmutableRequestInfo,
         response: Response | ResponseInfo | null,
-        store: { cache: Cache },
-        identifier: StableDocumentIdentifier | null
+        identifier: StableDocumentIdentifier | null,
+        store: { cache: Cache }
       ): void {
         assert.step('didRequest');
-        super.didRequest(request, response, store, identifier);
+        super.didRequest(request, response, identifier, store);
       }
       override isHardExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
         const result = super.isHardExpired(identifier, store);
