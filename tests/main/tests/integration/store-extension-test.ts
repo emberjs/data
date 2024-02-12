@@ -1,8 +1,11 @@
-import { module, test } from 'qunit';
-import { setupTest } from 'ember-qunit';
-import Store from 'ember-data/store';
-import RequestManager from '@ember-data/request';
 import { inject as service } from '@ember/service';
+
+import { module, test } from 'qunit';
+
+import Store from 'ember-data/store';
+import { setupTest } from 'ember-qunit';
+
+import RequestManager from '@ember-data/request';
 
 module('Integration | Store Extension', function (hooks) {
   setupTest(hooks);
@@ -30,7 +33,7 @@ module('Integration | Store Extension', function (hooks) {
     const requestManager = owner.lookup('service:request-manager');
     const store = owner.lookup('service:store');
 
-    assert.true(store.requestManager === requestManager, 'We can inject a custom request manager into the store');
+    assert.strictEqual(store.requestManager, requestManager, 'We can inject a custom request manager into the store');
   });
 
   test('We can create a store with a custom request manager initialized as a field', function (assert) {
@@ -43,6 +46,6 @@ module('Integration | Store Extension', function (hooks) {
     owner.register('service:store', CustomStore);
     const store = owner.lookup('service:store');
 
-    assert.true(store.requestManager === requestManager, 'We can inject a custom request manager into the store');
+    assert.strictEqual(store.requestManager, requestManager, 'We can inject a custom request manager into the store');
   });
 });
