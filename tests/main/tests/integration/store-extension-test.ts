@@ -14,7 +14,7 @@ module('Integration | Store Extension', function (hooks) {
     const { owner } = this;
     class CustomStore extends Store {}
     owner.register('service:store', CustomStore);
-    const store = owner.lookup('service:store');
+    const store = owner.lookup('service:store') as Store;
 
     assert.true(
       store.requestManager instanceof RequestManager,
@@ -25,13 +25,13 @@ module('Integration | Store Extension', function (hooks) {
   test('We can create a store with a custom request manager injected as a service', function (assert) {
     const { owner } = this;
     class CustomStore extends Store {
-      @service requestManager!: RequestManager;
+      @service declare requestManager: RequestManager;
     }
 
     owner.register('service:store', CustomStore);
     owner.register('service:request-manager', RequestManager);
     const requestManager = owner.lookup('service:request-manager');
-    const store = owner.lookup('service:store');
+    const store = owner.lookup('service:store') as Store;
 
     assert.strictEqual(store.requestManager, requestManager, 'We can inject a custom request manager into the store');
   });
@@ -44,7 +44,7 @@ module('Integration | Store Extension', function (hooks) {
     }
 
     owner.register('service:store', CustomStore);
-    const store = owner.lookup('service:store');
+    const store = owner.lookup('service:store') as Store;
 
     assert.strictEqual(store.requestManager, requestManager, 'We can inject a custom request manager into the store');
   });
