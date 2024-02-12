@@ -398,7 +398,7 @@ export function rollbackRelationship(
         op: 'replaceRelatedRecords',
         record: identifier,
         field,
-        value: relationship.remoteState,
+        value: relationship.remoteState.slice(),
       },
       false
     );
