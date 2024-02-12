@@ -1,5 +1,3 @@
-import { settled } from '@ember/test-helpers';
-
 import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
@@ -402,7 +400,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
       assert.strictEqual(config.app, store.peekRecord('app', '1') as App, 'belongsTo has rolled back');
     });
 
-    test('relationship rollback can be repeated', async function (assert) {
+    test('relationship rollback can be repeated', function (assert) {
       class Message extends Model {
         @attr declare msg: string;
       }
