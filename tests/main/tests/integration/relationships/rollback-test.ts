@@ -4,6 +4,7 @@ import { setupTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
+import { recordIdentifierFor } from '@ember-data/store';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
 class App extends Model {
@@ -397,6 +398,58 @@ module('Integration | Relationships | Rollback', function (hooks) {
       const changed = store.cache.rollbackRelationships(configIdentifier);
       assert.arrayStrictEquals(changed, [], 'belongsTo has rolled back');
       assert.strictEqual(config.app, store.peekRecord('app', '1') as App, 'belongsTo has rolled back');
+    });
+
+    test('relationship rollback can be repeated', function (assert) {
+      class Message extends Model {
+        @attr declare msg: string;
+      }
+      class Job extends Model {
+        @attr declare name: string;
+        @hasMany('message', { async: false, inverse: null }) declare messages: Message[];
+      }
+
+      this.owner.register('model:job', Job);
+      this.owner.register('model:message', Message);
+      const store = this.owner.lookup('service:store') as Store;
+
+      const job = store.push({
+        data: {
+          id: '1',
+          type: 'job',
+          attributes: {
+            name: 'First Job',
+          },
+        },
+      }) as Job;
+
+      const msg1 = store.push({
+        data: {
+          id: '1',
+          type: 'message',
+          attributes: {
+            msg: 'First Message',
+          },
+        },
+      }) as Message;
+      assert.strictEqual(job.messages.length, 0, 'job has 0 messages');
+      const jobIdentifier = recordIdentifierFor(job);
+
+      // add message, assert state, rollback, assert state is clean
+      job.messages.push(msg1);
+      assert.strictEqual(job.messages.length, 1, 'job has 1 message');
+
+      const rollbackResult = store.cache.rollbackRelationships(jobIdentifier);
+      assert.strictEqual(rollbackResult.length, 1, '1 rollbackRelations');
+      assert.strictEqual(job.messages.length, 0, 'job has no message');
+
+      // repeat the scenario to add a message and rollback
+      job.messages.push(msg1);
+      assert.strictEqual(job.messages.length, 1, 'job has 1 message');
+
+      const rollbackResult2 = store.cache.rollbackRelationships(jobIdentifier);
+      assert.strictEqual(rollbackResult2.length, 1, '1 rollbackRelations');
+      assert.strictEqual(job.messages.length, 0, 'job has no message');
     });
   });
 
