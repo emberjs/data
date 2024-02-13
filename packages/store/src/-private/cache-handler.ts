@@ -18,13 +18,13 @@ import type {
   ResourceErrorDocument,
 } from '@ember-data/types/cache/document';
 import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
+import { Cache } from '@ember-data/types/q/cache';
 import type { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 import type { JsonApiError } from '@ember-data/types/q/record-data-json-api';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { CreateRequestOptions, DeleteRequestOptions, UpdateRequestOptions } from '@ember-data/types/request';
 
 import { Document } from './document';
-import { Cache } from '@ember-data/types/q/cache';
 
 /**
  * A service which an application may provide to the store via
