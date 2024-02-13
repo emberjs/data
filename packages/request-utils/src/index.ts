@@ -1,7 +1,7 @@
-import { assert } from '@ember/debug';
+import { assert, deprecate } from '@ember/debug';
 
-import type Store from '@ember-data/store';
-import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
+import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
+import { Cache } from '@ember-data/types/q/cache';
 
 /**
  * Simple utility function to assist in url building,
@@ -602,7 +602,7 @@ export type LifetimesConfig = { apiCacheSoftExpires: number; apiCacheHardExpires
  * export class Store extends DataStore {
  *   constructor(args) {
  *     super(args);
- *     this.lifetimes = new LifetimesService(this, { apiCacheSoftExpires: 30_000, apiCacheHardExpires: 60_000 });
+ *     this.lifetimes = new LifetimesService({ apiCacheSoftExpires: 30_000, apiCacheHardExpires: 60_000 });
  *   }
  * }
  * ```
@@ -611,22 +611,42 @@ export type LifetimesConfig = { apiCacheSoftExpires: number; apiCacheHardExpires
  * @public
  * @module @ember-data/request-utils
  */
-// TODO this doesn't get documented correctly on the website because it shares a class name
-// with the interface expected by the Store service
 export class LifetimesService {
-  declare store: Store;
   declare config: LifetimesConfig;
-  constructor(store: Store, config: LifetimesConfig) {
-    this.store = store;
-    this.config = config;
+
+  constructor(config: LifetimesConfig) {
+    const _config = arguments.length === 1 ? config : (arguments[1] as unknown as LifetimesConfig);
+    deprecate(
+      `Passing a Store to the LifetimesService is deprecated, please pass only a config instead.`,
+      arguments.length === 1,
+      {
+        id: 'ember-data:request-utils:lifetimes-service-store-arg',
+        since: {
+          enabled: '5.4',
+          available: '5.4',
+        },
+        for: '@ember-data/request-utils',
+        until: '6.0',
+      }
+    );
+    assert(`You must pass a config to the LifetimesService`, _config);
+    assert(
+      `You must pass a apiCacheSoftExpires to the LifetimesService`,
+      typeof _config.apiCacheSoftExpires === 'number'
+    );
+    assert(
+      `You must pass a apiCacheHardExpires to the LifetimesService`,
+      typeof _config.apiCacheHardExpires === 'number'
+    );
+    this.config = _config;
   }
 
-  isHardExpired(identifier: StableDocumentIdentifier): boolean {
-    const cached = this.store.cache.peekRequest(identifier);
+  isHardExpired(identifier: StableDocumentIdentifier, cache: Cache): boolean {
+    const cached = cache.peekRequest(identifier);
     return !cached || !cached.response || isStale(cached.response.headers, this.config.apiCacheHardExpires);
   }
-  isSoftExpired(identifier: StableDocumentIdentifier): boolean {
-    const cached = this.store.cache.peekRequest(identifier);
+  isSoftExpired(identifier: StableDocumentIdentifier, cache: Cache): boolean {
+    const cached = cache.peekRequest(identifier);
     return !cached || !cached.response || isStale(cached.response.headers, this.config.apiCacheSoftExpires);
   }
 }

@@ -21,7 +21,7 @@ export default class Store extends DataStore {
     manager.useCache(CacheHandler);
 
     this.registerSchema(buildSchema(this));
-    this.lifetimes = new LifetimesService(this, CONFIG);
+    this.lifetimes = new LifetimesService(CONFIG);
   }
 
   createCache(capabilities: CacheCapabilitiesManager): Cache {
