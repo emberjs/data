@@ -472,12 +472,14 @@ module('Integration | Identifiers - scenarios', function (hooks) {
 
       // ensure we truly are in a good state internally
       const lidCache = store.identifierCache._cache.resources;
-      const lids = [...lidCache.values()];
-      assert.strictEqual(
-        lidCache.size,
-        1,
-        `We only have the lid '${identifierByUsername.lid}' in ['${lids.join("', '")}']`
+      assert.strictEqual(lidCache.size, 2, `We should have both lids in the cache still since one is a backreference`);
+      assert.deepEqual(
+        [...lidCache.keys()],
+        ['remote:user:1:9001', 'remote:user:@runspired:9000'],
+        'We have the expected keys'
       );
+      const lids = [...lidCache.values()];
+      assert.arrayStrictEquals(lids, [identifierById, identifierById], 'We have the expected values');
 
       // ensure we still use secondary caching for @runspired post-merging of the identifiers
       const recordByUsernameAgain = (await store.findRecord('user', '@runspired')) as User;

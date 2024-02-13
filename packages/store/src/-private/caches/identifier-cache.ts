@@ -84,6 +84,7 @@ type StableCache = {
   resources: IdentifierMap;
   documents: Map<string, StableDocumentIdentifier>;
   resourcesByType: TypeMap;
+  polymorphicLidBackMap: Map<string, string[]>;
 };
 
 export type KeyInfoMethod = (resource: unknown, known: StableRecordIdentifier | null) => KeyInfo;
@@ -251,6 +252,7 @@ export class IdentifierCache {
       resources: new Map<string, StableRecordIdentifier>(),
       resourcesByType: Object.create(null) as TypeMap,
       documents: new Map<string, StableDocumentIdentifier>(),
+      polymorphicLidBackMap: new Map<string, string[]>(),
     };
   }
 
@@ -560,16 +562,33 @@ export class IdentifierCache {
     const kept = this._merge(identifier, existingIdentifier, data);
     const abandoned = kept === identifier ? existingIdentifier : identifier;
 
+    // get any backreferences before forgetting this identifier, as it will be removed from the cache
+    // and we will no longer be able to find them
+    const abandonedBackReferences = this._cache.polymorphicLidBackMap.get(abandoned.lid);
+    // delete the backreferences for the abandoned identifier so that forgetRecordIdentifier
+    // does not try to remove them.
+    if (abandonedBackReferences) this._cache.polymorphicLidBackMap.delete(abandoned.lid);
+
     // cleanup the identifier we no longer need
     this.forgetRecordIdentifier(abandoned);
 
-    // ensure a secondary cache entry for this id for the identifier we do keep
-    // keyOptions.id.set(newId, kept);
+    // ensure a secondary cache entry for the original lid for the abandoned identifier
+    this._cache.resources.set(abandoned.lid, kept);
 
-    // ensure a secondary cache entry for this id for the abandoned identifier's type we do keep
-    // let baseKeyOptions = getTypeIndex(this._cache.resourcesByType, existingIdentifier.type);
-    // baseKeyOptions.id.set(newId, kept);
+    // backReferences let us know which other identifiers are pointing at this identifier
+    // so we can delete them later if we forget this identifier
+    const keptBackReferences = this._cache.polymorphicLidBackMap.get(kept.lid) ?? [];
+    keptBackReferences.push(abandoned.lid);
 
+    // update the backreferences from the abandoned identifier to be for the kept identifier
+    if (abandonedBackReferences) {
+      abandonedBackReferences.forEach((lid) => {
+        keptBackReferences.push(lid);
+        this._cache.resources.set(lid, kept);
+      });
+    }
+
+    this._cache.polymorphicLidBackMap.set(kept.lid, keptBackReferences);
     return kept;
   }
 
@@ -595,6 +614,14 @@ export class IdentifierCache {
     }
     this._cache.resources.delete(identifier.lid);
     typeSet.lid.delete(identifier.lid);
+
+    const backReferences = this._cache.polymorphicLidBackMap.get(identifier.lid);
+    if (backReferences) {
+      backReferences.forEach((lid) => {
+        this._cache.resources.delete(lid);
+      });
+      this._cache.polymorphicLidBackMap.delete(identifier.lid);
+    }
 
     if (DEBUG) {
       identifier[DEBUG_STALE_CACHE_OWNER] = identifier[CACHE_OWNER];
