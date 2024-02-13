@@ -12,11 +12,18 @@ import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-w
 import type { ModelSchema } from '@ember-data/types/q/ds-model';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
+function hasRequestManager(store: BaseStore): boolean {
+  return 'requestManager' in store;
+}
+
 export default class Store extends BaseStore {
   constructor(args: Record<string, unknown>) {
     super(args);
-    this.requestManager = new RequestManager();
-    this.requestManager.use([LegacyNetworkHandler, Fetch]);
+
+    if (!hasRequestManager(this)) {
+      this.requestManager = new RequestManager();
+      this.requestManager.use([LegacyNetworkHandler, Fetch]);
+    }
     this.requestManager.useCache(CacheHandler);
     this.registerSchema(buildSchema(this));
   }

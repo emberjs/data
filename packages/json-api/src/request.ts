@@ -64,6 +64,7 @@ URLs follow the most common JSON:API format (dasherized pluralized resource type
  * @main @ember-data/json-api/request
  */
 export { findRecord } from './-private/builders/find-record';
-export { query } from './-private/builders/query';
+export { query, postQuery } from './-private/builders/query';
 export { deleteRecord, createRecord, updateRecord } from './-private/builders/save-record';
 export { serializeResources, serializePatch } from './-private/serialize';
+export { setBuildURLConfig } from './-private/builders/-utils';
