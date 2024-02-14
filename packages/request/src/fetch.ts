@@ -14,16 +14,17 @@
 import { getOwnConfig, macroCondition } from '@embroider/macros';
 
 import { cloneResponseProperties, type Context } from './-private/context';
+import type { HttpErrorProps } from './-private/utils';
 
 // Lazily close over fetch to avoid breaking Mirage
 const _fetch: typeof fetch =
   typeof fetch !== 'undefined'
     ? (...args) => fetch(...args)
     : typeof FastBoot !== 'undefined'
-    ? (...args) => (FastBoot.require('node-fetch') as typeof fetch)(...args)
-    : ((() => {
-        throw new Error('No Fetch Implementation Found');
-      }) as typeof fetch);
+      ? (...args) => (FastBoot.require('node-fetch') as typeof fetch)(...args)
+      : ((() => {
+          throw new Error('No Fetch Implementation Found');
+        }) as typeof fetch);
 
 // clones a response in a way that should still
 // allow it to stream
@@ -39,6 +40,52 @@ if (macroCondition(getOwnConfig<{ env: { TESTING: boolean } }>().env.TESTING)) {
 }
 
 const MUTATION_OPS = new Set(['updateRecord', 'createRecord', 'deleteRecord']);
+const ERROR_STATUS_CODE_FOR = new Map([
+  [400, 'Bad Request'],
+  [401, 'Unauthorized'],
+  [402, 'Payment Required'],
+  [403, 'Forbidden'],
+  [404, 'Not Found'],
+  [405, 'Method Not Allowed'],
+  [406, 'Not Acceptable'],
+  [407, 'Proxy Authentication Required'],
+  [408, 'Request Timeout'],
+  [409, 'Conflict'],
+  [410, 'Gone'],
+  [411, 'Length Required'],
+  [412, 'Precondition Failed'],
+  [413, 'Payload Too Large'],
+  [414, 'URI Too Long'],
+  [415, 'Unsupported Media Type'],
+  [416, 'Range Not Satisfiable'],
+  [417, 'Expectation Failed'],
+  [419, 'Page Expired'],
+  [420, 'Enhance Your Calm'],
+  [421, 'Misdirected Request'],
+  [422, 'Unprocessable Entity'],
+  [423, 'Locked'],
+  [424, 'Failed Dependency'],
+  [425, 'Too Early'],
+  [426, 'Upgrade Required'],
+  [428, 'Precondition Required'],
+  [429, 'Too Many Requests'],
+  [430, 'Request Header Fields Too Large'],
+  [431, 'Request Header Fields Too Large'],
+  [450, 'Blocked By Windows Parental Controls'],
+  [451, 'Unavailable For Legal Reasons'],
+  [500, 'Internal Server Error'],
+  [501, 'Not Implemented'],
+  [502, 'Bad Gateway'],
+  [503, 'Service Unavailable'],
+  [504, 'Gateway Timeout'],
+  [505, 'HTTP Version Not Supported'],
+  [506, 'Variant Also Negotiates'],
+  [507, 'Insufficient Storage'],
+  [508, 'Loop Detected'],
+  [509, 'Bandwidth Limit Exceeded'],
+  [510, 'Not Extended'],
+  [511, 'Network Authentication Required'],
+]);
 
 /**
  * A basic handler which converts a request into a
@@ -55,7 +102,22 @@ const MUTATION_OPS = new Set(['updateRecord', 'createRecord', 'deleteRecord']);
  */
 const Fetch = {
   async request(context: Context) {
-    let response = await _fetch(context.request.url!, context.request);
+    let response: Response;
+
+    try {
+      response = await _fetch(context.request.url!, context.request);
+    } catch (e) {
+      if (e instanceof DOMException && e.name === 'AbortError') {
+        (e as unknown as HttpErrorProps).statusText = 'Aborted';
+        (e as unknown as HttpErrorProps).status = 20;
+        (e as unknown as HttpErrorProps).isRequestError = true;
+      } else {
+        (e as HttpErrorProps).statusText = 'Unknown Network Error';
+        (e as HttpErrorProps).status = 0;
+        (e as HttpErrorProps).isRequestError = true;
+      }
+      throw e;
+    }
 
     const isError = !response.ok || response.status >= 400;
     const op = context.request.op;
@@ -84,9 +146,26 @@ const Fetch = {
       } catch {
         // void;
       }
-      const error: Error & { content: object | undefined } = new Error(
-        `[${response.status}] ${response.statusText} - ${response.url}`
-      ) as Error & { content: object | undefined };
+      // attempt errors discovery
+      const errors = Array.isArray(errorPayload)
+        ? errorPayload
+        : isDict(errorPayload) && Array.isArray(errorPayload.errors)
+          ? errorPayload.errors
+          : null;
+
+      const statusText = response.statusText || ERROR_STATUS_CODE_FOR.get(response.status) || 'Unknown Request Error';
+      const msg = `[${response.status} ${statusText}] ${context.request.method ?? 'GET'} (${response.type}) - ${
+        response.url
+      }`;
+
+      const error = (errors ? new AggregateError(errors, msg) : new Error(msg)) as Error & {
+        content: object | undefined;
+      } & HttpErrorProps;
+      error.status = response.status;
+      error.statusText = statusText;
+      error.isRequestError = true;
+      error.code = error.status;
+      error.name = error.statusText.replaceAll(' ', '') + 'Error';
       error.content = errorPayload;
       throw error;
     } else {
@@ -94,5 +173,9 @@ const Fetch = {
     }
   },
 };
+
+function isDict(v: unknown): v is Record<string, unknown> {
+  return v !== null && typeof v === 'object';
+}
 
 export default Fetch;

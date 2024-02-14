@@ -6,10 +6,7 @@
     "enabledEnvironments": [],
     "extension": ".js,.ts",
     "preprocessor": "./yui-docs-preprocessor.js",
-    "excludeTags": [
-      "internal",
-      "feature"
-    ],
+    "excludeTags": ["internal", "feature", "typedoc", "see", "link", "inheritdoc"],
     "paths": [
       "../ember-data-types",
       "../packages/-ember-data/addon",

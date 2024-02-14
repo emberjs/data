@@ -1,18 +1,19 @@
-import { StructuredDocument } from '@ember-data/types/cache/document';
+import type { StructuredDocument } from '@ember-data/types/cache/document';
 
 import type { ContextOwner } from './context';
 import type { Deferred, DeferredFuture, Future } from './types';
+import { enhanceReason } from './utils';
 
 const IS_FUTURE = Symbol('IS_FUTURE');
 
-export function isFuture<T>(maybe: T | Future<T> | Promise<T>): maybe is Future<T> {
-  return maybe[IS_FUTURE] === true;
+export function isFuture<T>(maybe: unknown): maybe is Future<T> {
+  return Boolean(maybe && maybe instanceof Promise && (maybe as Future<T>)[IS_FUTURE] === true);
 }
 
 export function createDeferred<T>(): Deferred<T> {
   let resolve!: (v: T) => void;
   let reject!: (v: unknown) => void;
-  let promise = new Promise<T>((res, rej) => {
+  const promise = new Promise<T>((res, rej) => {
     resolve = res;
     reject = rej;
   });
@@ -54,8 +55,4 @@ export function createFuture<T>(owner: ContextOwner): DeferredFuture<T> {
   };
   deferred.promise = promise;
   return deferred;
-}
-
-function enhanceReason(reason?: string) {
-  return new DOMException(reason || 'The user aborted a request.', 'AbortError');
 }

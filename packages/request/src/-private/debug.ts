@@ -1,6 +1,6 @@
 import { DEBUG } from '@ember-data/env';
 
-import { Context } from './context';
+import { Context, upgradeHeaders } from './context';
 import type { ImmutableHeaders, RequestInfo } from './types';
 
 const BODY_TYPES = {
@@ -78,9 +78,7 @@ function freezeHeaders(headers: Headers | ImmutableHeaders): ImmutableHeaders {
       () => {
         throw new Error(`Cannot Mutate Immutatable Headers, use headers.clone to get a copy`);
       };
-  (headers as ImmutableHeaders).clone = () => {
-    return new Headers([...headers.entries()]);
-  };
+  upgradeHeaders(headers);
   return headers as ImmutableHeaders;
 }
 

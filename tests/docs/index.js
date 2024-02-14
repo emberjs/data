@@ -24,8 +24,8 @@ function linkItem(item) {
 }
 
 QUnit.module('Docs coverage', function (hooks) {
-  // data.json is generated and not always present. So this disable needs to be preserved.
-  const docs = require('../../packages/-ember-data/dist/docs/data.json'); // eslint-disable-line node/no-missing-require
+  const docsStr = fs.readFileSync('../../packages/-ember-data/dist/docs/data.json', 'utf8');
+  const docs = JSON.parse(docsStr);
   const expected = require('./fixtures/expected');
 
   function classIsPublic(className) {
@@ -63,7 +63,7 @@ QUnit.module('Docs coverage', function (hooks) {
         assert.ok(docs.files[def.file], `${className} has a file`);
         assert.true(
           def.access === 'public' || def.access === 'private',
-          `${def.name} must declare either as either @internal @private or @public`
+          `${def.name} must declare either as either @typedoc @internal @private or @public`
         );
         if (def.access !== 'private') {
           assert.true(isNonEmptyString(def.description), `${className} must provide a description.`);
@@ -123,7 +123,7 @@ QUnit.module('Docs coverage', function (hooks) {
         } has a complete definition`, function (assert) {
           assert.true(
             item.access === 'public' || item.access === 'private',
-            `${item.name} must declare either as either @internal @private or @public in ${linkItem(item)}`
+            `${item.name} must declare either as either @typedoc @internal @private or @public in ${linkItem(item)}`
           );
           assert.true(
             item.access === 'private' || (item.class && classIsPublic(item.class)),

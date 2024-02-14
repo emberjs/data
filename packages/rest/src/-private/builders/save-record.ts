@@ -101,6 +101,7 @@ export function deleteRecord(record: unknown, options: ConstrainedRequestOptions
     data: {
       record: identifier,
     },
+    records: [identifier],
   };
 }
 
@@ -170,6 +171,7 @@ export function createRecord(record: unknown, options: ConstrainedRequestOptions
     data: {
       record: identifier,
     },
+    records: [identifier],
   };
 }
 
@@ -246,5 +248,6 @@ export function updateRecord(
     data: {
       record: identifier,
     },
+    records: [identifier],
   };
 }
