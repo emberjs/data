@@ -49,7 +49,7 @@ export async function bumpAllPackages(
 
   const cleanCommand = `git clean -fdx`;
 
-  await exec(['zsh', '-c', `'${cleanCommand} && ${commitCommand}'`], dryRun);
+  await exec(['zsh', '-c', `'~/.zshrc; ${cleanCommand} && ${commitCommand}'`], dryRun);
   console.log(`✅ ` + chalk.cyan(`Successfully Versioned ${nextVersion}`));
 }
 
