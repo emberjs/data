@@ -32,7 +32,8 @@ async function main() {
   const cmdString = (commands.get(normalizeFlag(args[0])) as keyof typeof COMMANDS) || 'default';
 
   const cmd = COMMANDS[cmdString];
-  return await cmd(args);
+  await cmd(args);
+  process.exit(0);
 }
 
 await main();
