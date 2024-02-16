@@ -49,6 +49,7 @@ jobs:
       - name: Publish with script
         run: bun run publish canary -i ${{ github.event.inputs.increment }}
         env:
+          FORCE_COLOR: 2
           CI: true
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
       - name: Push branch + tag
