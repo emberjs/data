@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/core-types",
-  "version": "5.5.0-alpha.11",
+  "version": "0.0.0-alpha.2",
   "description": "Provides core logic, utils and types for WarpDrive and EmberData",
   "keywords": [
     "ember-addon"
@@ -17,7 +17,7 @@
     "build:types": "tsc --build",
     "build:client": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
     "_build": "bun run build:client && bun run build:types",
-    "prepack": "pnpm build",
+    "prepack": "bun run _build",
     "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "files": [
@@ -40,7 +40,7 @@
     }
   },
   "dependencies": {
-    "@ember-data/private-build-infra": "workspace:5.5.0-alpha.11",
+    "@ember-data/private-build-infra": "workspace:5.4.0-alpha.16",
     "ember-cli-babel": "^8.2.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10"
   },
@@ -64,7 +64,7 @@
     "@glimmer/component": "^1.1.2",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "@warp-drive/internal-config": "workspace:5.5.0-alpha.11",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.16",
     "ember-source": "~5.4.0",
     "rollup": "^4.9.6",
     "typescript": "^5.3.3",

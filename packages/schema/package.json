@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/schema",
-  "version": "5.5.0-alpha.11",
+  "version": "0.0.0-alpha.2",
   "private": true,
   "description": "Parse Declarative Typescript into JSON Schemas",
   "keywords": [
@@ -24,7 +24,7 @@
     "build:parse": "bun build src/parse.ts --compile --outfile parse",
     "build:scaffold": "bun build src/scaffold.ts --compile --outfile scaffold",
     "build": "bun run build:parse && bun run build:scaffold",
-    "prepack": "pnpm build",
+    "prepack": "bun run _build",
     "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "files": [

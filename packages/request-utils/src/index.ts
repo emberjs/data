@@ -791,7 +791,7 @@ export class LifetimesService {
    * @param {ImmutableResponse} response
    * @param {Store} store
    * @param {StableDocumentIdentifier | null} identifier
-   * @returns {void}
+   * @return {void}
    */
   didRequest(
     request: ImmutableRequestInfo,
@@ -840,7 +840,7 @@ export class LifetimesService {
    * @public
    * @param {StableDocumentIdentifier} identifier
    * @param {Store} store
-   * @returns {boolean} true if the request is considered hard expired
+   * @return {boolean} true if the request is considered hard expired
    */
   isHardExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
     // if we are explicitly invalidated, we are hard expired
@@ -867,7 +867,7 @@ export class LifetimesService {
    * @public
    * @param {StableDocumentIdentifier} identifier
    * @param {Store} store
-   * @returns {boolean} true if the request is considered soft expired
+   * @return {boolean} true if the request is considered soft expired
    */
   isSoftExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
     const cache = store.cache;

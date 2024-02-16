@@ -330,7 +330,7 @@ export default class HasManyReference {
    *
    * @method links
    * @public
-   * @returns
+   * @return
    */
   links(): PaginationLinks | null {
     const resource = this._resource();

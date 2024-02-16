@@ -2,6 +2,16 @@ name: Alpha Releases
 
 on:
   workflow_dispatch:
+    inputs:
+      increment:
+        description: 'Type of Version Bump To Perform'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+        - patch
+        - minor
+        - major
   schedule:
     - cron: '0 20 * * 2' # weekly (Tuesday) 12 PM PST
     - cron: '0 20 * * 5' # weekly (Friday) 12 PM PST
@@ -37,12 +47,13 @@ jobs:
           git config --local user.email 'tomster@emberjs.com'
           git config --local user.name 'Ember.js Alpha Releaser'
       - name: Publish with script
-        run: node scripts/publish.js canary --skipSmokeTest
+        run: bun run publish canary -i ${{ github.event.inputs.increment }}
         env:
+          CI: true
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
       - name: Push branch + tag
         run: git push origin HEAD --follow-tags
       - uses: actions/upload-artifact@v4
         with:
           name: tarballs
-          path: ember-data-*.tgz
+          path: tmp/tarballs/**/*.tgz

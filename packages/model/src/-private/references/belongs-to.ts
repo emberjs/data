@@ -263,7 +263,7 @@ export default class BelongsToReference {
    *
    * @method links
    * @public
-   * @returns
+   * @return
    */
   links(): Links | null {
     const resource = this._resource();

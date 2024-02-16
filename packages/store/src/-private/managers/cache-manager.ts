@@ -375,7 +375,7 @@ export class CacheManager implements Cache {
    * @method changedAttrs
    * @public
    * @param identifier
-   * @returns
+   * @return
    */
   changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash {
     return this.#cache.changedAttrs(identifier);
@@ -505,7 +505,7 @@ export class CacheManager implements Cache {
    * @method getErrors
    * @public
    * @param identifier
-   * @returns
+   * @return
    */
   getErrors(identifier: StableRecordIdentifier): ApiError[] {
     return this.#cache.getErrors(identifier);

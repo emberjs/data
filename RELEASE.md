@@ -28,7 +28,7 @@ In order to release `ember-data` you must first ensure the following things:
 - You have configured your NPM account to use `2fa` (two factor authentication)
 - You have logged into your NPM account on your machine (typically sessions preserve nearly forever once you have)
 - You have configured `GITHUB_AUTH` token for `lerna-changelog` to be able to gather info for the release notes.
-- You have installed `pnpm` and `node` globally (or better, via `volta`)
+- You have installed `bun`, `pnpm` and `node` globally (or better, via `volta`)
 
 ## Release Order
 
@@ -104,7 +104,7 @@ git push origin lts-<majorVersion>-<minorVersion> // Note: alternatively, you ca
 3. Publish the LTS
 
    ```
-   node ./scripts/publish.js lts
+   bun run publish lts
    ```
 
 4. Update the Release Notes on Github
@@ -164,7 +164,7 @@ git push origin lts-<majorVersion>-<minorVersion> // Note: alternatively, you ca
 5. Publish the release
 
    ```
-   node ./scripts/publish.js release
+   bun run publish release
    ```
 
 6. Update the Release Notes on Github
@@ -205,8 +205,9 @@ git push origin lts-<majorVersion>-<minorVersion> // Note: alternatively, you ca
 2. Publish the weekly beta
 
    ```
-   node ./scripts/publish.js beta
+   bun run publish beta
    ```
+
 ### Canary Releases
 
 1. Checkout the `#main` branch and ensure it is in-sync with `origin/main`.
@@ -224,19 +225,19 @@ git push origin lts-<majorVersion>-<minorVersion> // Note: alternatively, you ca
    a. If this is the very first `canary` release for a new minor
 
    ```
-   node ./scripts/publish.js canary --bumpMinor
+   bun run publish canary -i minor
    ```
 
    b. If this is the very first `canary` release for a new major
 
    ```
-   node ./scripts/publish.js canary --bumpMajor
+   bun run publish canary -i major
    ```
 
    c. For all other "nightly" canary releases
 
    ```
-   node ./scripts/publish.js canary
+   bun run publish canary
    ```
 
 Congrats, you are finished!
@@ -248,5 +249,4 @@ New canary versions are published to npm every Tuesday and Friday at 12pm PST by
 It will always increment the pre-release version of what's currently in the root `package.json`. For example from `3.25.0-alpha.1` to `3.25.0-alpha.2`. **It requires a human to manually bump minor and major versions and publish**.
 
 To try out the script that will be executed in the GitHub action, use:
-`node scripts/publish.js canary --dryRun --force --skipSmokeTest`. The `--dryRun` param will skip auto committing the
-version change and publishing.
+`bun run publish canary --dry_run --dangerously_force`. The `--dry_run` param will skip auto committing the version change and publishing.
