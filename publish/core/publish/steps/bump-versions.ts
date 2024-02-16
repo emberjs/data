@@ -50,7 +50,7 @@ export async function bumpAllPackages(
   const cleanCommand = `git clean -fdx`;
   const finalCommand = process.env.CI
     ? ['sh', '-c', `'${cleanCommand} && ${commitCommand}'`]
-    : ['zsh', '-c', `'source ~/.zshrc; ${cleanCommand} && ${commitCommand}'`];
+    : ['zsh', '-c', `source ~/.zshrc; ${cleanCommand} && ${commitCommand}`];
 
   await exec(finalCommand, dryRun);
   console.log(`✅ ` + chalk.cyan(`Successfully Versioned ${nextVersion}`));
