@@ -66,7 +66,7 @@ export default class PromiseManyArray {
    *
    * @method forEach
    * @param cb
-   * @returns
+   * @return
    * @private
    */
   forEach(cb: Parameters<typeof Array.prototype.forEach>[0]) {
@@ -80,7 +80,7 @@ export default class PromiseManyArray {
    * @method reload
    * @public
    * @param options
-   * @returns
+   * @return
    */
   reload(options: FindOptions) {
     assert('You are trying to reload an async manyArray before it has been created', this.content);

@@ -28,7 +28,7 @@ export type ResponseGenerator = () => Record<string, unknown>;
  * @param url the url to mock, relative to the mock server host (e.g. `users/1`)
  * @param response a function which generates the response to return
  * @param options status, headers for the response, body to match against for the request, and whether to record the request
- * @returns
+ * @return
  */
 export function GET(
   owner: object,

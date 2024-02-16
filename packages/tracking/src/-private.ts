@@ -392,7 +392,7 @@ export function createArrayTags<T extends object>(obj: T, signal: Signal) {
  * @internal
  * @param obj Object we're creating the signal on
  * @param key Key to create the signal for
- * @returns the signal
+ * @return the signal
  */
 export function createSignal<T extends object>(obj: T, key: string): Signal {
   const _signal: Signal = {
@@ -434,7 +434,7 @@ export function createSignal<T extends object>(obj: T, key: string): Signal {
  * @param signals Map of signals
  * @param obj Object we're creating the signal on
  * @param key Key to create the signal for
- * @returns the signal
+ * @return the signal
  */
 export function entangleSignal<T extends object>(signals: Map<string, Signal>, obj: T, key: string): Signal {
   let _signal = signals.get(key);

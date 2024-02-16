@@ -112,7 +112,7 @@ export class Document<T> {
    * @method fetch
    * @public
    * @param {object} options
-   * @returns Promise<Document>
+   * @return Promise<Document>
    */
   fetch(options: Partial<RequestInfo> = {}): Promise<Document<T>> {
     assert(`No self or related link`, this.links?.related || this.links?.self);
@@ -129,7 +129,7 @@ export class Document<T> {
    * @method next
    * @public
    * @param {object} options
-   * @returns Promise<Document | null>
+   * @return Promise<Document | null>
    */
   next(options: Partial<RequestInfo> = {}): Promise<Document<T> | null> {
     return this.#request('next', options);
@@ -143,7 +143,7 @@ export class Document<T> {
    * @method prev
    * @public
    * @param {object} options
-   * @returns Promise<Document | null>
+   * @return Promise<Document | null>
    */
   prev(options: Partial<RequestInfo> = {}): Promise<Document<T> | null> {
     return this.#request('prev', options);
@@ -157,7 +157,7 @@ export class Document<T> {
    * @method first
    * @public
    * @param {object} options
-   * @returns Promise<Document | null>
+   * @return Promise<Document | null>
    */
   first(options: Partial<RequestInfo> = {}): Promise<Document<T> | null> {
     return this.#request('first', options);
@@ -171,7 +171,7 @@ export class Document<T> {
    * @method last
    * @public
    * @param {object} options
-   * @returns Promise<Document | null>
+   * @return Promise<Document | null>
    */
   last(options: Partial<RequestInfo> = {}): Promise<Document<T> | null> {
     return this.#request('last', options);
@@ -188,7 +188,7 @@ export class Document<T> {
    *
    * @method toJSON
    * @public
-   * @returns
+   * @return
    */
   toJSON(): object {
     const data: Partial<Document<T>> = {};

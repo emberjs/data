@@ -1,6 +1,6 @@
 {
   "name": "root",
-  "version": "5.5.0-alpha.11",
+  "version": "5.4.0-alpha.16",
   "private": true,
   "repository": {
     "type": "git",
@@ -9,6 +9,7 @@
   "scripts": {
     "takeoff": "FORCE_COLOR=2 pnpm install --reporter=append-only",
     "prepare": "pnpm build",
+    "publish": "./publish/index.ts",
     "build": "turbo _build --log-order=stream --filter=./packages/* --concurrency=1; pnpm run sync:tests",
     "sync:tests": "pnpm run --filter=./tests/* -r --workspace-concurrency=1 --if-present _syncPnpm",
     "build:docs": "mkdir -p packages/-ember-data/dist && cd ./docs-generator && node ./compile-docs.js",
@@ -38,6 +39,7 @@
   },
   "devDependencies": {
     "bun-types": "^1.0.25",
+    "@types/semver": "^7.5.6",
     "chalk": "^4.1.2",
     "co": "^4.6.0",
     "command-line-args": "^5.2.1",

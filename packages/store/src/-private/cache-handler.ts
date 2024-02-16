@@ -57,7 +57,7 @@ export interface LifetimesService {
    * @public
    * @param {StableDocumentIdentifier} identifier
    * @param {Store} store
-   * @returns {boolean} true if the request is considered hard expired
+   * @return {boolean} true if the request is considered hard expired
    */
   isHardExpired(identifier: StableDocumentIdentifier, store: Store): boolean;
   /**
@@ -73,7 +73,7 @@ export interface LifetimesService {
    * @public
    * @param {StableDocumentIdentifier} identifier
    * @param {Store} store
-   * @returns {boolean} true if the request is considered soft expired
+   * @return {boolean} true if the request is considered soft expired
    */
   isSoftExpired(identifier: StableDocumentIdentifier, store: Store): boolean;
 
@@ -88,7 +88,7 @@ export interface LifetimesService {
    * @param {ImmutableRequestInfo} request
    * @param {StableDocumentIdentifier | null} identifier
    * @param {Store} store
-   * @returns {void}
+   * @return {void}
    */
   willRequest?(request: ImmutableRequestInfo, identifier: StableDocumentIdentifier | null, store: Store): void;
 
@@ -105,7 +105,7 @@ export interface LifetimesService {
    * @param {ImmutableResponse} response
    * @param {StableDocumentIdentifier | null} identifier
    * @param {Store} store
-   * @returns {void}
+   * @return {void}
    */
   didRequest?(
     request: ImmutableRequestInfo,
