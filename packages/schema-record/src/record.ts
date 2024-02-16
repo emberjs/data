@@ -5,9 +5,11 @@ import type { Future } from '@ember-data/request';
 import type Store from '@ember-data/store';
 import type { StoreRequestInput } from '@ember-data/store/-private/cache-handler';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
+import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 import {
   addToTransaction,
+  createSignal,
   defineSignal,
   entangleSignal,
   getSignal,
@@ -18,11 +20,12 @@ import {
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { ResourceRelationship as SingleResourceRelationship } from '@warp-drive/core-types/cache/relationship';
-import type { Value } from '@warp-drive/core-types/json/raw';
+import type { ArrayValue, Value } from '@warp-drive/core-types/json/raw';
 import { STRUCTURED } from '@warp-drive/core-types/request';
 import type { Link, Links } from '@warp-drive/core-types/spec/raw';
 import { RecordStore } from '@warp-drive/core-types/symbols';
 
+import { ARRAY_SIGNAL, ManagedArray } from './managed-array';
 import type { SchemaService } from './schema';
 
 export const Destroy = Symbol('Destroy');
@@ -35,6 +38,8 @@ export const Legacy = Symbol('Legacy');
 const IgnoredGlobalFields = new Set(['then', STRUCTURED]);
 const RecordSymbols = new Set([Destroy, RecordStore, Identifier, Editable, Parent, Checkout, Legacy, Signals]);
 
+const ManagedArrayMap = new Map<SchemaRecord, Map<FieldSchema, ManagedArray>>();
+
 function computeLocal(record: typeof Proxy<SchemaRecord>, field: FieldSchema, prop: string): unknown {
   let signal = peekSignal(record, prop);
 
@@ -44,6 +49,13 @@ function computeLocal(record: typeof Proxy<SchemaRecord>, field: FieldSchema, pr
   }
 
   return signal.lastValue;
+}
+
+function peekManagedArray(record: SchemaRecord, field: FieldSchema): ManagedArray | undefined {
+  const managedArrayMapForRecord = ManagedArrayMap.get(record);
+  if (managedArrayMapForRecord) {
+    return managedArrayMapForRecord.get(field);
+  }
 }
 
 function computeField(
@@ -63,6 +75,40 @@ function computeField(
     throw new Error(`No '${field.type}' transform defined for use by ${identifier.type}.${String(prop)}`);
   }
   return transform.hydrate(rawValue, field.options ?? null, record);
+}
+
+function computeArray(
+  store: Store,
+  schema: SchemaService,
+  cache: Cache,
+  record: SchemaRecord,
+  identifier: StableRecordIdentifier,
+  field: FieldSchema,
+  prop: string
+) {
+  // the thing we hand out needs to know its owner and path in a private manner
+  // its "address" is the parent identifier (identifier) + field name (field.name)
+  //  in the nested object case field name here is the full dot path from root resource to this value
+  // its "key" is the field on the parent record
+  // its "owner" is the parent record
+
+  const managedArrayMapForRecord = ManagedArrayMap.get(record);
+  let managedArray;
+  if (managedArrayMapForRecord) {
+    managedArray = managedArrayMapForRecord.get(field);
+  }
+  if (managedArray) {
+    return managedArray;
+  } else {
+    const rawValue = cache.getAttr(identifier, prop) as unknown[];
+    managedArray = new ManagedArray(store, schema, cache, field, rawValue, identifier, prop, record);
+    if (!managedArrayMapForRecord) {
+      ManagedArrayMap.set(record, new Map([[field, managedArray]]));
+    } else {
+      managedArrayMapForRecord.set(field, managedArray);
+    }
+  }
+  return managedArray;
 }
 
 function computeAttribute(cache: Cache, identifier: StableRecordIdentifier, prop: string): unknown {
@@ -188,6 +234,7 @@ export class SchemaRecord {
   declare ___notifications: object;
 
   constructor(store: Store, identifier: StableRecordIdentifier, Mode: { [Editable]: boolean; [Legacy]: boolean }) {
+    const self = this;
     this[RecordStore] = store;
     this[Identifier] = identifier;
     const IS_EDITABLE = (this[Editable] = Mode[Editable] ?? false);
@@ -209,6 +256,15 @@ export class SchemaRecord {
               if (signal) {
                 addToTransaction(signal);
               }
+              // const field = fields.get(key);
+              // if (field?.kind === 'array') {
+              //   const peeked = peekManagedArray(self, field);
+              //   if (peeked) {
+              //     const arrSignal = peeked[ARRAY_SIGNAL];
+              //     arrSignal.shouldReset = true;
+              //     addToTransaction(arrSignal);
+              //   }
+              // }
             }
             break;
         }
@@ -265,11 +321,26 @@ export class SchemaRecord {
             return computeResource(store, cache, target, identifier, field, prop as string);
           case 'derived':
             return computeDerivation(schema, receiver as unknown as SchemaRecord, identifier, field, prop as string);
+          case 'array':
+            assert(
+              `SchemaRecord.${field.name} is not available in legacy mode because it has type '${field.kind}'`,
+              !target[Legacy]
+            );
+            // 1. user sets value to something new (null)
+            // - remove reference to stable array
+            // 2. user assigns array to value on different record, or to a new array
+            // - remove reference to previous stable array
+            // - add copy of reference to stable array at new owner
+            // 3. cache receives new value
+            // - remove reference to previous stable array on next "get"
+            entangleSignal(signals, receiver, field.name);
+            return computeArray(store, schema, cache, target, identifier, field, prop as string);
           default:
             throw new Error(`Field '${String(prop)}' on '${identifier.type}' has the unknown kind '${field.kind}'`);
         }
       },
       set(target: SchemaRecord, prop: string | number | symbol, value: unknown, receiver: typeof Proxy<SchemaRecord>) {
+        debugger;
         if (!IS_EDITABLE) {
           throw new Error(`Cannot set ${String(prop)} on ${identifier.type} because the record is not editable`);
         }
@@ -305,6 +376,35 @@ export class SchemaRecord {
           }
           case 'attribute': {
             cache.setAttr(identifier, prop as string, value as Value);
+            return true;
+          }
+          case 'array': {
+            if (field.type === null) {
+              cache.setAttr(identifier, prop as string, (value as ArrayValue).slice());
+              const peeked = peekManagedArray(self, field);
+              if (peeked) {
+                const arrSignal = peeked[ARRAY_SIGNAL];
+                arrSignal.shouldReset = true;
+              }
+              return true;
+            }
+            if (!Array.isArray(value)) {
+              ManagedArrayMap.delete(target);
+            }
+            const transform = schema.transforms.get(field.type);
+            if (!transform) {
+              throw new Error(`No '${field.type}' transform defined for use by ${identifier.type}.${String(prop)}`);
+            }
+
+            const rawValue = (value as ArrayValue).map((item) =>
+              transform.serialize(item, field.options ?? null, target)
+            );
+            cache.setAttr(identifier, prop as string, rawValue);
+            const peeked = peekManagedArray(self, field);
+            if (peeked) {
+              const arrSignal = peeked[ARRAY_SIGNAL];
+              arrSignal.shouldReset = true;
+            }
             return true;
           }
           case 'derived': {

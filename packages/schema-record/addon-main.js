@@ -26,7 +26,7 @@ module.exports = {
         LOG_PAYLOADS: false,
         LOG_OPERATIONS: false,
         LOG_MUTATIONS: false,
-        LOG_NOTIFICATIONS: false,
+        LOG_NOTIFICATIONS: true,
         LOG_REQUESTS: false,
         LOG_REQUEST_STATUS: false,
         LOG_IDENTIFIERS: false,
