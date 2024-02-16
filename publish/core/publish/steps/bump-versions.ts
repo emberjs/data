@@ -38,7 +38,7 @@ export async function bumpAllPackages(
   let commitCommand = `git commit -am "Release v${nextVersion}"`;
 
   if (!dryRun) {
-    commitCommand = `pnpm install --no-frozen-lockfile && ` + commitCommand;
+    commitCommand = `sh -c pnpm install --no-frozen-lockfile && ` + commitCommand;
     commitCommand += ` && git tag v${nextVersion}`;
   }
 
@@ -48,9 +48,11 @@ export async function bumpAllPackages(
   }
 
   const cleanCommand = `git clean -fdx`;
+  const finalCommand = process.env.CI
+    ? ['sh', '-c', `${cleanCommand} && ${commitCommand}`]
+    : ['zsh', '-c', `${cleanCommand} && ${commitCommand}`];
 
-  await exec(cleanCommand, dryRun);
-  await exec(commitCommand, dryRun);
+  await exec(finalCommand, dryRun);
   console.log(`✅ ` + chalk.cyan(`Successfully Versioned ${nextVersion}`));
 }
 
