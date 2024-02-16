@@ -155,7 +155,9 @@ export async function exec(cmd: string[] | string | CMD, dryRun: boolean = false
 
       await proc.exited;
       if (proc.exitCode !== 0) {
-        console.log({ result });
+        console.log(result);
+        const errText = await new Response(proc.stderr).text();
+        console.error(errText);
         throw proc.exitCode;
       }
       return result;
@@ -167,6 +169,10 @@ export async function exec(cmd: string[] | string | CMD, dryRun: boolean = false
 
       await proc.exited;
       if (proc.exitCode !== 0) {
+        const logText = await new Response(proc.stdout).text();
+        console.log(logText);
+        const errText = await new Response(proc.stderr).text();
+        console.error(errText);
         throw proc.exitCode;
       }
 
