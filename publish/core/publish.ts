@@ -55,8 +55,10 @@ export async function executePublish(args: string[]) {
   // Having applied the types publishing strategy "just in time"
   // ========================
   if (config.full.get('pack')) await generatePackageTarballs(config.full, packages, applied.public_pks);
+  else console.log(`Skipped Pack`);
 
   // Publish to NPM registry
   // ========================
   if (config.full.get('publish')) await publishPackages(config.full, packages, applied.public_pks);
+  else console.log(`Skipped Publish`);
 }
