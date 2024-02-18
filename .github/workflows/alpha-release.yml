@@ -41,7 +41,7 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           install: true
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          repo-token: ${{ secrets.GH_DEPLOY_TOKEN }}
       - name: Make sure git user is setup
         run: |
           git config --local user.email 'tomster@emberjs.com'
