@@ -118,6 +118,26 @@ export const flags_config: FlagConfig = {
       }
     },
   },
+  pack: {
+    name: 'Pack Packages',
+    flag: 'pack',
+    flag_aliases: ['p'],
+    flag_mispellings: ['skip-pack'],
+    description: 'whether to pack tarballs for the public packages',
+    type: Boolean,
+    examples: [],
+    default_value: true,
+  },
+  publish: {
+    name: 'Publish Packages to NPM',
+    flag: 'publish',
+    flag_aliases: ['r'],
+    flag_mispellings: ['skip-publish', 'skip-release', 'release'],
+    description: 'whether to publish the packed tarballs to the npm registry',
+    type: Boolean,
+    examples: [],
+    default_value: true,
+  },
 };
 
 export const command_config: CommandConfig = {

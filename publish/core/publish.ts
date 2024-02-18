@@ -49,16 +49,14 @@ export async function executePublish(args: string[]) {
   // ========================
   await bumpAllPackages(config.full, packages, applied.all);
 
-  if (dryRun) {
-    await restorePackagesForDryRun(packages, applied.all);
-  }
+  if (dryRun) await restorePackagesForDryRun(packages, applied.all);
 
   // Generate Tarballs in tmp/tarballs/<root-version>
   // Having applied the types publishing strategy "just in time"
   // ========================
-  await generatePackageTarballs(config.full, packages, applied.public_pks);
+  if (config.full.get('pack')) await generatePackageTarballs(config.full, packages, applied.public_pks);
 
   // Publish to NPM registry
   // ========================
-  await publishPackages(config.full, packages, applied.public_pks);
+  if (config.full.get('publish')) await publishPackages(config.full, packages, applied.public_pks);
 }
