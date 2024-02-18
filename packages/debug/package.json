@@ -59,7 +59,7 @@
     "@glimmer/component": "^1.1.2",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.4",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.18",
-    "ember-source": "~5.4.0"
+    "ember-source": "~5.6.0"
   },
   "engines": {
     "node": ">= 20.11.0"
