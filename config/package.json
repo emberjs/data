@@ -1,7 +1,7 @@
 {
   "name": "@warp-drive/internal-config",
   "private": true,
-  "version": "5.4.0-alpha.18",
+  "version": "5.4.0-alpha.19",
   "dependencies": {
     "@babel/core": "^7.23.7",
     "@babel/eslint-parser": "^7.23.3",
