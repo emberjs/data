@@ -33,12 +33,13 @@ export async function bumpAllPackages(
     await pkg.file.write();
   }
 
+  const willPublish: boolean = config.get('pack') && config.get('publish');
   const dryRun = config.get('dry_run') as boolean;
   const nextVersion = strategy.get('root')?.toVersion;
   let commitCommand = `git commit -am "Release v${nextVersion}"`;
 
   if (!dryRun) {
-    commitCommand = `pnpm install --no-frozen-lockfile && ` + commitCommand;
+    if (willPublish) commitCommand = `pnpm install --no-frozen-lockfile && ` + commitCommand;
     commitCommand += ` && git tag v${nextVersion}`;
   }
 
@@ -47,10 +48,10 @@ export async function bumpAllPackages(
     commitCommand += ` && git push && git push origin v${nextVersion}`;
   }
 
-  const cleanCommand = `git clean -fdx`;
+  const cleanCommand = willPublish ? `git clean -fdx &&` : '';
   const finalCommand = process.env.CI
-    ? ['sh', '-c', `${cleanCommand} && ${commitCommand}`]
-    : ['zsh', '-c', `${cleanCommand} && ${commitCommand}`];
+    ? ['sh', '-c', `${cleanCommand}${commitCommand}`]
+    : ['zsh', '-c', `${cleanCommand}${commitCommand}`];
 
   await exec(finalCommand, dryRun);
   console.log(`✅ ` + chalk.cyan(`Successfully Versioned ${nextVersion}`));
