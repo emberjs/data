@@ -65,7 +65,7 @@
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.18",
-    "ember-source": "~5.4.0",
+    "ember-source": "~5.6.0",
     "rollup": "^4.9.6",
     "typescript": "^5.3.3",
     "walk-sync": "^3.0.0",

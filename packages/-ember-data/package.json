@@ -124,7 +124,7 @@
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.18",
-    "ember-source": "~5.4.0",
+    "ember-source": "~5.6.0",
     "eslint": "^8.56.0"
   },
   "engines": {
