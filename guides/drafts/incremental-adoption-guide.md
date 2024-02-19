@@ -8,11 +8,11 @@ This guide is for existing projects that want to adopt the new APIs of the Ember
 
 ## Step 1: Upgrade to EmberData 4.12.x
 
-This version of EmberData is the first version that supports the new APIs. It also a LTS version, so you can stay on it for a while. You can refer the [EmberData Compatibility table](https://github.com/emberjs/data/blob/main/README.md#compatibility) to see which version of EmberData is compatible with your Ember version.
+This version of EmberData is the first version that supports the new APIs. It is also a LTS version, so you can stay on it for a while. You can refer the [EmberData Compatibility table](https://github.com/emberjs/data/blob/main/README.md#compatibility) to see which version of EmberData is compatible with your Ember version.
 
 ## Step 2: Add `Store` service to your application
 
-You would need to create you own store service. Before it was automatically injected by Ember Data. 
+You will need to create your own store service. Before, a store service was automatically injected by EmberData. 
 Here is how you do it:
 
 ```ts
@@ -27,7 +27,7 @@ export default class MyStore extends Store {
 
 ```
 
-Notice we still want to import the `Store` class from `ember-data/store` package. You might have a lint rule that says don't do it. You can disable it for this import. The reason we want to import it from `ember-data/store` is because we want to use Ember Data models, serializers, adapters, etc. and alongside we want to start utilizing new APIs.
+Notice we still want to import the `Store` class from `ember-data/store` package. You might have a lint rule that says don't do it. You can disable it for this import. The reason we want to import it from `ember-data/store` is because we want to use EmberData models, serializers, adapters, etc. while alongside we want to start utilizing new APIs.
 
 ## Step 3: Add `RequestManager` service to your application
 
@@ -67,15 +67,15 @@ Let's go over the code above:
 
 2. Next is `TestHandler`. It is a handler that is responsible for logging requests. It is a quick example of how you can add your own handlers to the request manager. We will take a look at more useful examples later.
 
-3. Lastly `Fetch`. It is a handler that is responsible for sending requests to the server using the new Ember Data APIs. It must be last handler you put in the chain. After finishing request it will enrich handlers context with `response` property. And pass it back to the handlers chain in reverse order. So `TestHandler` will receive `response` property first, and so on if we would have any.
+3. Lastly `Fetch`. It is a handler that sends requests to the server using the `fetch` API. It expects responses to be JSON and when in use it should be the last handler you put in the chain. After finishing each request it will convert the response into json and pass it back to the handlers chain in reverse order as the request context's response. So `TestHandler` will receive `response` property first, and so on if we would have any.
 
 You can read more about request manager in the [request manager guide](./request-manager-guide.md).
 
 ## Step 4: Install `@ember-data/json-api`, `@ember-data/request-utils` packages
 
-If you was using JSON:API adapter/serializer for your backend communication, you can use `@ember-data/json-api` package. It is a package that contains predefined builders for JSON:API requests. You can read more about it in the [`@ember-data/json-api` guide](TODO: add link).
+If you were using JSON:API adapter/serializer for your backend communication, you can use `@ember-data/json-api` package. It is a package that contains predefined builders for JSON:API requests. You can read more about it in the [`@ember-data/json-api` guide](TODO: add link).
 
-If you have different backend format - Ember Data provides you with builders for `REST`(@ember-data/rest) and `ActiveRecord`(@ember-data/active-record).
+If you have different backend format - EmberData provides you with builders for `REST`(@ember-data/rest) and `ActiveRecord`(@ember-data/active-record).
 
 ## Step 5: Off you go! Start using new APIs
 
