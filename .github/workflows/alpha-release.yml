@@ -32,6 +32,7 @@ jobs:
           fetch-depth: 1
           fetch-tags: true
           progress: false
+          token: ${{ secrets.GH_DEPLOY_TOKEN }}
       - name: Check should run if HEAD is untagged
         run: |
           echo "HEAD is $(git name-rev --tags --name-only $(git rev-parse HEAD))"
