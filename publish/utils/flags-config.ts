@@ -118,6 +118,16 @@ export const flags_config: FlagConfig = {
       }
     },
   },
+  upstream: {
+    name: 'Update Upstream Branch',
+    flag: 'upstream',
+    flag_aliases: ['u'],
+    flag_mispellings: ['upstraem', 'up'],
+    description: 'Whether to push the commits and tag upstream',
+    type: Boolean,
+    examples: [],
+    default_value: true,
+  },
   pack: {
     name: 'Pack Packages',
     flag: 'pack',

@@ -44,7 +44,7 @@ export async function bumpAllPackages(
   }
 
   // Let the github action determine whether to push the tag to remote
-  if (!process.env.CI) {
+  if (!dryRun && config.get('upstream')) {
     commitCommand += ` && git push && git push origin v${nextVersion}`;
   }
 
