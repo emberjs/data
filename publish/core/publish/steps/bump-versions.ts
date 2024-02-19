@@ -40,6 +40,7 @@ export async function bumpAllPackages(
 
   if (!dryRun) {
     if (willPublish) commitCommand = `pnpm install --no-frozen-lockfile && ` + commitCommand;
+    else commitCommand = `pnpm install && ` + commitCommand;
     commitCommand += ` && git tag v${nextVersion}`;
   }
 
