@@ -49,7 +49,7 @@ export async function bumpAllPackages(
     commitCommand += ` && git push && git push origin v${nextVersion}`;
   }
 
-  const cleanCommand = willPublish ? `git clean -fdx &&` : '';
+  const cleanCommand = willPublish ? `git clean -fdx && ` : '';
   const finalCommand = process.env.CI
     ? ['sh', '-c', `${cleanCommand}${commitCommand}`]
     : ['zsh', '-c', `${cleanCommand}${commitCommand}`];
