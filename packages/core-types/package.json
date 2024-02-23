@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/core-types",
-  "version": "0.0.0-beta.0",
+  "version": "0.0.0-beta.1",
   "description": "Provides core logic, utils and types for WarpDrive and EmberData",
   "keywords": [
     "ember-addon"
@@ -40,7 +40,7 @@
     }
   },
   "dependencies": {
-    "@ember-data/private-build-infra": "workspace:5.4.0-beta.0",
+    "@ember-data/private-build-infra": "workspace:5.4.0-beta.1",
     "ember-cli-babel": "^8.2.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10"
   },
@@ -64,7 +64,7 @@
     "@glimmer/component": "^1.1.2",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "@warp-drive/internal-config": "workspace:5.4.0-beta.0",
+    "@warp-drive/internal-config": "workspace:5.4.0-beta.1",
     "ember-source": "~5.6.0",
     "rollup": "^4.9.6",
     "typescript": "^5.3.3",
