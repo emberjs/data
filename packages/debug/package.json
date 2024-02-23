@@ -42,10 +42,10 @@
     }
   },
   "dependencies": {
-    "@babel/core": "^7.23.7",
+    "@babel/core": "^7.23.9",
     "@ember-data/private-build-infra": "workspace:5.4.0-alpha.23",
     "@ember/edition-utils": "^1.2.0",
-    "@embroider/macros": "^1.13.4",
+    "@embroider/macros": "^1.13.5",
     "ember-auto-import": "^2.7.0",
     "ember-cli-babel": "^8.2.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",

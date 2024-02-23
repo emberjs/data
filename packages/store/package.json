@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "@ember-data/private-build-infra": "workspace:5.4.0-alpha.23",
-    "@embroider/macros": "^1.13.4",
+    "@embroider/macros": "^1.13.5",
     "ember-cli-babel": "^8.2.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10"
   },
@@ -69,16 +69,16 @@
     "@warp-drive/core-types": "workspace:0.0.0-alpha.9"
   },
   "devDependencies": {
-    "@babel/cli": "^7.23.4",
-    "@babel/core": "^7.23.7",
-    "@babel/plugin-proposal-decorators": "^7.23.7",
+    "@babel/cli": "^7.23.9",
+    "@babel/core": "^7.23.9",
+    "@babel/plugin-proposal-decorators": "^7.23.9",
     "@babel/plugin-transform-class-properties": "^7.23.3",
     "@babel/plugin-transform-private-methods": "^7.23.3",
-    "@babel/plugin-transform-runtime": "^7.23.7",
+    "@babel/plugin-transform-runtime": "^7.23.9",
     "@babel/plugin-transform-typescript": "^7.23.6",
-    "@babel/preset-env": "^7.23.8",
+    "@babel/preset-env": "^7.23.9",
     "@babel/preset-typescript": "^7.23.3",
-    "@babel/runtime": "^7.23.8",
+    "@babel/runtime": "^7.23.9",
     "@ember-data/request": "workspace:5.4.0-alpha.23",
     "@ember-data/tracking": "workspace:5.4.0-alpha.23",
     "@ember/string": "^3.1.1",
