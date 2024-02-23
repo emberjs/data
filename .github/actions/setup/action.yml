@@ -42,6 +42,10 @@ inputs:
     description: Ref to Setup
     required: false
     default: ${{ github.sha }}
+  repo-token:
+    description: Token to use for TurboRepo
+    required: false
+    default: ''
 
 runs:
   using: composite

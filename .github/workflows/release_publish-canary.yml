@@ -38,7 +38,7 @@ jobs:
         with:
           fetch-depth: 1
           fetch-tags: true
-          progress: false
+          show-progress: false
           token: ${{ secrets.GH_DEPLOY_TOKEN }}
           ref: main
       - name: Check should run if HEAD is untagged

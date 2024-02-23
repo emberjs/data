@@ -33,6 +33,6 @@ runs:
         with:
           ref: ${{ inputs.ref }}
           fetch-depth: 1
-          progress: false
+          show-progress: false
       run: pnpm install
       run: ${{ inputs.build }} --output-path ./dist-${{ inputs.ref }}${{ inputs.ext }}
