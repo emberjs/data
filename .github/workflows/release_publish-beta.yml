@@ -54,8 +54,8 @@ jobs:
           fetch-depth: 3
           ref: beta
       - run: git fetch origin main --depth=1
-      - run: |
-          echo $(git tag -l)
+      - run: git fetch origin --tags --depth=1
+      - run: git tag -l
       - name: Make sure git user is setup
         run: |
           git config --local user.email ${{ secrets.GH_DEPLOY_EMAIL }}
