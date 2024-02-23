@@ -18,7 +18,7 @@ const COMMANDS = {
   default: executePublish,
   exec: async (args: string[]) => {
     args.shift();
-    const cmd = args[0];
+    const cmd = args.shift();
 
     if (!cmd) {
       throw new Error('No command provided to exec');
@@ -51,14 +51,15 @@ async function main() {
     ) + chalk.grey(`\n\tengine: ${chalk.cyan('bun@' + Bun.version)}\n`)
   );
 
-  if (args.length === 0) {
-    args.push('help');
+  const commandArg = args.length === 0 ? 'help' : normalizeFlag(args[0]);
+  const commands = getCommands();
+  const cmdString = (commands.get(commandArg) as keyof typeof COMMANDS) || 'default';
+  const cmd = COMMANDS[cmdString];
+
+  if (args.length && commands.has(commandArg)) {
+    args.shift();
   }
 
-  const commands = getCommands();
-  const cmdString = (commands.get(normalizeFlag(args[0])) as keyof typeof COMMANDS) || 'default';
-
-  const cmd = COMMANDS[cmdString];
   await cmd(args);
   process.exit(0);
 }

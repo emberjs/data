@@ -6,6 +6,39 @@ import { getGitState, getPublishedChannelInfo } from './git';
 import chalk from 'chalk';
 import semver from 'semver';
 
+/**
+ * Like Pick but returns an object type instead of a union type.
+ *
+ * @internal
+ */
+type Subset<T, K extends keyof T> = {
+  [P in K]: T[P];
+};
+
+/**
+ * Like Typescript Pick but For Runtime.
+ *
+ * @internal
+ */
+export function pick<T extends Record<string, unknown>, K extends keyof T>(obj: T, keys: K[]): Subset<T, K> {
+  const result = {} as Subset<T, K>;
+
+  for (const key of keys) {
+    result[key] = obj[key];
+  }
+
+  return result;
+}
+
+/**
+ * Like Object.assign (is Object.assign) but ensures each arg and the result conform to T
+ *
+ * @internal
+ */
+export function merge<T>(...args: T[]): T {
+  return Object.assign({}, ...args);
+}
+
 export const publish_flags_config: FlagConfig = {
   help: {
     name: 'Help',
@@ -129,6 +162,17 @@ export const publish_flags_config: FlagConfig = {
     examples: [],
     default_value: true,
   },
+  // branch: {
+  //   name: 'Update Local and Upstream Branch',
+  //   flag: 'update_branch',
+  //   flag_aliases: [],
+  //   flag_mispellings: ['branch'],
+  //   description:
+  //     'Whether to update the local and upstream branch according to the standard release channel flow. For release this will reset the branch to the current beta. For beta this will reset the branch to the current canary. For lts this will reset the branch to the current release. For lts-prev this is not a valid option.',
+  //   type: Boolean,
+  //   examples: [],
+  //   default_value: false,
+  // },
   from: {
     name: 'From Version',
     flag: 'from',
@@ -187,39 +231,6 @@ export const publish_flags_config: FlagConfig = {
     default_value: true,
   },
 };
-
-/**
- * Like Pick but returns an object type instead of a union type.
- *
- * @internal
- */
-type Subset<T, K extends keyof T> = {
-  [P in K]: T[P];
-};
-
-/**
- * Like Typescript Pick but For Runtime.
- *
- * @internal
- */
-export function pick<T extends Record<string, unknown>, K extends keyof T>(obj: T, keys: K[]): Subset<T, K> {
-  const result = {} as Subset<T, K>;
-
-  for (const key of keys) {
-    result[key] = obj[key];
-  }
-
-  return result;
-}
-
-/**
- * Like Object.assign (is Object.assign) but ensures each arg and the result conform to T
- *
- * @internal
- */
-export function merge<T>(...args: T[]): T {
-  return Object.assign({}, ...args);
-}
 
 export const release_notes_flags_config: FlagConfig = merge(
   pick(publish_flags_config, ['help', 'increment', 'dry_run', 'dangerously_force', 'tag', 'channel', 'upstream']),
@@ -390,7 +401,6 @@ export const command_config: CommandConfig = {
       '$ bun release promote 4.12.5 --tag=lts-4-12',
     ],
   },
-  // retag: {},
   default: {
     name: 'Publish',
     cmd: 'publish',
@@ -408,6 +418,7 @@ export function getCommands() {
   keys.forEach((key) => {
     const cmd = normalizeFlag(key);
     commands.set(cmd, cmd);
+    commands.set(command_config[key].cmd, cmd);
     if (command_config[cmd].alt) {
       command_config[cmd].alt!.forEach((alt: string) => {
         const alternate = normalizeFlag(alt);
