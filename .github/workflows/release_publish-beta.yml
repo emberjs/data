@@ -64,9 +64,6 @@ jobs:
         id: version
         with:
           cmd: 'jq .version package.json -r'
-      - name: Last Beta Version
-        if: github.event.inputs.kind == 'mirror'
-        run: echo "Last Beta Version: ${{ steps.version.outputs.value }}"
       - name: Reset the Beta Branch
         if: github.event.inputs.kind == 'mirror' || github.event.inputs.is-cycle-start == 'true'
         run: git reset --hard origin/main && git push origin beta -f
