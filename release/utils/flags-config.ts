@@ -194,10 +194,6 @@ export const publish_flags_config: FlagConfig = {
       if (semver.valid(value) === null) {
         throw new Error(`Version passed to promote is not a valid semver version`);
       }
-      const versionInfo = semver.parse(value);
-      if (versionInfo?.prerelease?.length) {
-        throw new Error(`Version passed to promote cannot be prerelease version`);
-      }
     },
   },
   upstream: {
