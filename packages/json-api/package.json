@@ -126,7 +126,7 @@
     "edition": "octane"
   },
   "engines": {
-    "node": ">= 20.11.0"
+    "node": ">= 18.19.1"
   },
   "volta": {
     "extends": "../../package.json"
