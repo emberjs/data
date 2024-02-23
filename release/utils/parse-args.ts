@@ -312,7 +312,7 @@ export async function parseRawFlags(
       throw new Error(config.required_error || `Missing required flag: ${flag}`);
     }
 
-    const val = await processMissingFlag(config, processed_flags);
+    const val = await processMissingFlag(config, full_flags);
     full_flags.set(flag, val);
   }
 

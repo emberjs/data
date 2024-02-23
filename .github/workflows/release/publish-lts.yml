@@ -1,0 +1,62 @@
+name: Publish LTS Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'The branch to publish from, e.g. `lts-4-12`'
+        required: true
+        type: string
+      channel:
+        description: 'The NPM Distribution Tag. `lts` for current lts. `lts-prev` for e.g. `lts-4-8`'
+        type: option
+        default: 'lts'
+        required: true
+        options:
+          - lts
+          - lts-prev
+
+env:
+  TURBO_API: http://127.0.0.1:9080
+  TURBO_TOKEN: this-is-not-a-secret
+  TURBO_TEAM: myself
+
+jobs:
+  release:
+    name: Run publish script
+    runs-on: ubuntu-latest
+    environment: deployment
+    steps:
+      - name: Enforce Branch
+        # Note: we always checkout the correct lts branch in actions/checkout, but this enforces
+        # good hygiene.
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "Releases may only be performed from the main branch."
+          exit 1
+      - name: Make sure git user is setup
+        run: |
+          git config --local user.email ${{ secrets.GH_DEPLOY_EMAIL }}
+          git config --local user.name ${{ secrets.GH_DEPLOY_NAME }}
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        with:
+          fetch-tags: true
+          progress: false
+          token: ${{ secrets.GH_DEPLOY_TOKEN }}
+          fetch-depth: 3
+          ref: ${{ github.event.inputs.source-branch }}
+      - uses: ./.github/actions/setup
+        with:
+          install: true
+          repo-token: ${{ secrets.GH_DEPLOY_TOKEN }}
+      - name: Publish New LTS Release
+        # We always increment from the branch state
+        run: bun release publish ${{ github.event.inputs.channel }}
+        env:
+          FORCE_COLOR: 2
+          CI: true
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tarballs
+          path: tmp/tarballs/**/*.tgz

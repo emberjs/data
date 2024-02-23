@@ -1,0 +1,56 @@
+{
+  "config": {
+    "packageRoots": ["packages/*", "tests/*", "config"],
+    "changelogRoots": ["packages/*"],
+    "changelog": {
+      "labelOrder": [
+        ":boom: Breaking Change",
+        ":evergreen_tree: New Deprecation",
+        ":memo: Documentation",
+        ":rocket: Enhancement",
+        ":bug: Bug Fix",
+        ":zap: Performance",
+        ":house: Internal"
+      ],
+      "collapseLabels": {
+        "labels": [":shower: Deprecation Removal", ":goal_net: Test", ":house: Internal"],
+        "title": ":house: Internal"
+      },
+      "mappings": {
+        "mock-server": "@warp-drive/diagnostic",
+        "core": "@warp-drive/core-types",
+        "Other": null
+      }
+    }
+  },
+  "defaults": {
+    "stage": "stable",
+    "types": "private"
+  },
+  "rules": {
+    "@warp-drive/holodeck": {
+      "stage": "alpha",
+      "types": "private"
+    },
+    "@warp-drive/diagnostic": {
+      "stage": "alpha",
+      "types": "private"
+    },
+    "eslint-plugin-ember-data": {
+      "stage": "alpha",
+      "types": "private"
+    },
+    "@warp-drive/core-types": {
+      "stage": "alpha",
+      "types": "private"
+    },
+    "@warp-drive/schema": {
+      "stage": "alpha",
+      "types": "private"
+    },
+    "@warp-drive/schema-record": {
+      "stage": "alpha",
+      "types": "private"
+    }
+  }
+}

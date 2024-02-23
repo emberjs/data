@@ -1,17 +1,18 @@
-import { flags_config } from '../utils/flags-config';
-import { parseRawFlags } from '../utils/parse-args';
-import { getGitState } from '../utils/git';
-import { printHelpDocs } from '../help/docs';
-import { bumpAllPackages, restorePackagesForDryRun } from './publish/steps/bump-versions';
-import { generatePackageTarballs } from './publish/steps/generate-tarballs';
-import { printStrategy } from './publish/steps/print-strategy';
-import { applyStrategy, gatherPackages, loadStrategy } from './publish/steps/generate-strategy';
-import { confirmStrategy } from './publish/steps/confirm-strategy';
-import { publishPackages } from './publish/steps/publish-packages';
+import { publish_flags_config } from '../../utils/flags-config';
+import { parseRawFlags } from '../../utils/parse-args';
+import { getGitState } from '../../utils/git';
+import { printHelpDocs } from '../../help/docs';
+import { bumpAllPackages, restorePackagesForDryRun } from './steps/bump-versions';
+import { generatePackageTarballs } from './steps/generate-tarballs';
+import { printStrategy } from './steps/print-strategy';
+import { applyStrategy } from './steps/generate-strategy';
+import { confirmStrategy } from './steps/confirm-strategy';
+import { publishPackages } from './steps/publish-packages';
+import { gatherPackages, loadStrategy } from '../../utils/package';
 
 export async function executePublish(args: string[]) {
   // get user supplied config
-  const config = await parseRawFlags(args, flags_config);
+  const config = await parseRawFlags(args, publish_flags_config);
 
   if (config.full.get('help')) {
     return printHelpDocs(args);
@@ -20,7 +21,7 @@ export async function executePublish(args: string[]) {
   const dryRun = config.full.get('dry_run') as boolean;
 
   // get git info
-  const gitInfo = await getGitState(config.full);
+  await getGitState(config.full);
 
   // get configured strategy
   const strategy = await loadStrategy();
@@ -29,7 +30,7 @@ export async function executePublish(args: string[]) {
   const packages = await gatherPackages(strategy.config);
 
   // get applied strategy
-  const applied = await applyStrategy(config.full, gitInfo, strategy, packages);
+  const applied = await applyStrategy(config.full, strategy, packages);
 
   // print strategy to be applied
   await printStrategy(config.full, applied);

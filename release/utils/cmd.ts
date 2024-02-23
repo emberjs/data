@@ -8,6 +8,7 @@ type CMD = {
   condense?: boolean;
   lines?: number;
   silent?: boolean;
+  env?: Record<string, string>;
 };
 
 // async function step() {
@@ -143,7 +144,7 @@ export async function exec(cmd: string[] | string | CMD, dryRun: boolean = false
   if (!dryRun) {
     if (isCmdWithConfig && cmd.condense) {
       const proc = Bun.spawn(args, {
-        env: process.env,
+        env: cmd.env || process.env,
         cwd,
         stderr: 'pipe',
         stdout: 'pipe',

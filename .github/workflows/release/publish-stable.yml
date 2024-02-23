@@ -1,0 +1,100 @@
+name: Publish Stable Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      source-branch:
+        description: 'If starting a new cycle, or reversioning, the source branch to update the release branch from'
+        required: false
+        default: 'beta'
+        type: choice
+        options:
+        - beta      # promotes beta to stable
+        - main      # promotes canary to stable
+        - release   # re-releases a stable version
+      # At cycle start we must always reset the release branch to beta.
+      is-cycle-start:
+        description: 'Whether this is the start of a new release cycle'
+        required: true
+        default: false
+        type: boolean
+      # downversion e.g. 5.4.0-alpha.1 => 5.3.1 happens when we use a canary, beta or later release to hotfix a stable
+      # upversion e.g. 5.3.1 => 5.4.0 happens when we re-release an existing stable as a new minor/major
+      # examples:
+      #   Upversion: 5.3.1 => 5.4.0
+      #     from-version: 5.3.1
+      #     increment: minor
+      #   Downversion: 5.4.0-alpha.1 => 5.3.1
+      #     from-version: 5.3.0
+      #     increment: patch
+      from-version:
+        description: 'When upversioning or downversioning, the version from which to increment to get the version number for the release'
+        type: string
+      increment:
+        description: 'Type of Version Bump To Perform (only used when upversioning or downversioning)'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+        - patch
+        - minor
+        - major
+
+env:
+  TURBO_API: http://127.0.0.1:9080
+  TURBO_TOKEN: this-is-not-a-secret
+  TURBO_TEAM: myself
+
+jobs:
+  release:
+    name: Perform Release
+    runs-on: ubuntu-latest
+    environment: deployment
+    steps:
+      - name: Enforce Branch
+        # Note: we always checkout release in actions/checkout, but this enforces
+        # good hygiene.
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "Releases may only be performed from the main branch."
+          exit 1
+      - name: Make sure git user is setup
+        run: |
+          git config --local user.email ${{ secrets.GH_DEPLOY_EMAIL }}
+          git config --local user.name ${{ secrets.GH_DEPLOY_NAME }}
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        with:
+          fetch-tags: true
+          progress: false
+          token: ${{ secrets.GH_DEPLOY_TOKEN }}
+          fetch-depth: 3
+          ref: release
+      ## Ensure we have a copy of the source branch
+      - run: git fetch origin ${{ github.event.inputs.source-branch }} --depth=1
+      - name: Reset the Release Branch
+        if: github.event.inputs.source-branch != 'release' && (github.event.inputs.is-cycle-start == 'true' || github.event.inputs.from-version != null)
+        run: git reset --hard origin/${{ github.event.inputs.source-branch }} && git push origin release -f
+      - uses: ./.github/actions/setup
+        with:
+          install: true
+          repo-token: ${{ secrets.GH_DEPLOY_TOKEN }}
+      - name: Publish New Release
+        # If we are not reversioning
+        # Then we do the default patch increment from the current branch state.
+        # This handles both start-of-cycle and bugfix releases.
+        if: github.event.inputs.from-version == null
+        run: bun release publish release
+        env:
+          FORCE_COLOR: 2
+          CI: true
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+      - name: Publish New Release (Reversion)
+        # If we are reversioning
+        # Then we increment from the branch with the supplied increment
+        # This handles both upversioning and downversioning
+        if: github.event.inputs.from-version != null
+        run: bun release publish release --from=${{ github.event.inputs.from-version }} --increment=${{ github.event.inputs.increment }}
+        env:
+          FORCE_COLOR: 2
+          CI: true
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}

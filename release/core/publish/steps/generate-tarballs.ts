@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import { exec } from '../../../utils/cmd';
-import { APPLIED_STRATEGY, Package } from '../../utils/package';
+import { APPLIED_STRATEGY, Package } from '../../../utils/package';
 import path from 'path';
 import fs from 'fs';
 import { Glob } from 'bun';

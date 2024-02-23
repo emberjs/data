@@ -1,7 +1,31 @@
 import chalk from 'chalk';
-import { branchForChannelAndVersion, CHANNEL, channelForBranch, SEMVER_VERSION, VALID_BRANCHES } from './channel';
+import {
+  branchForChannelAndVersion,
+  CHANNEL,
+  channelForBranch,
+  npmDistTagForChannelAndVersion,
+  SEMVER_VERSION,
+  VALID_BRANCHES,
+} from './channel';
 import { getFile } from './json-file';
 import { exec } from './cmd';
+import { gatherPackages, loadStrategy, Package } from './package';
+import path from 'path';
+
+export type LTS_TAG = `lts-${number}-${number}`;
+export type RELEASE_TAG = `release-${number}-${number}`;
+export type GIT_TAG =
+  | `v${number}.${number}.${number}`
+  | `v${number}.${number}.${number}-alpha.${number}`
+  | `v${number}.${number}.${number}-beta.${number}`;
+
+export type CHANNEL_VERSIONS = {
+  latest: SEMVER_VERSION;
+  beta: SEMVER_VERSION;
+  canary: SEMVER_VERSION;
+  lts: SEMVER_VERSION;
+  [key: LTS_TAG | RELEASE_TAG]: SEMVER_VERSION | undefined;
+};
 
 export type GIT_STATE = {
   rootVersion: SEMVER_VERSION;
@@ -12,6 +36,17 @@ export type GIT_STATE = {
   expectedBranch: VALID_BRANCHES;
   expectedChannel: CHANNEL;
 };
+
+let _NPM_INFO: Record<string, unknown> | null = null;
+export async function getPublishedChannelInfo(
+  options: Map<string, boolean | string | number | null>
+): Promise<CHANNEL_VERSIONS> {
+  if (!_NPM_INFO) {
+    const gitInfo = await exec(['npm', 'view', 'ember-data@latest', '--json']);
+    _NPM_INFO = JSON.parse(gitInfo) as Record<string, unknown>;
+  }
+  return _NPM_INFO['dist-tags'] as CHANNEL_VERSIONS;
+}
 
 let _GIT_STATE: GIT_STATE | null = null;
 export async function getGitState(options: Map<string, boolean | string | number | null>): Promise<GIT_STATE> {
@@ -123,4 +158,31 @@ export async function getGitState(options: Map<string, boolean | string | number
     expectedChannel: channel,
   };
   return _GIT_STATE;
+}
+
+export async function getAllPackagesForGitTag(tag: GIT_TAG): Promise<Map<string, Package>> {
+  const relativeTmpDir = `./tmp/${tag}`;
+  await exec(['mkdir', '-p', relativeTmpDir]);
+  await exec({ cmd: ['sh', '-c', `git archive ${tag} | tar -xC ${relativeTmpDir}`] });
+
+  const tmpDir = path.join(process.cwd(), relativeTmpDir);
+  try {
+    const strategy = await loadStrategy(tmpDir);
+    return gatherPackages(strategy.config, tmpDir);
+  } catch (e) {
+    // if strategy does not exist we may be pre-strategy days
+    // so we will just gather all packages from the packages directory
+
+    return gatherPackages({ packageRoots: ['packages/*'] }, tmpDir);
+  }
+}
+
+export async function pushLTSTagToRemoteBranch(tag: GIT_TAG, force?: boolean): Promise<void> {
+  const sha = await exec({ cmd: `git rev-list -n 1 ${tag}` });
+  const branch = npmDistTagForChannelAndVersion('lts-prev', tag.slice(1) as SEMVER_VERSION);
+  const oldSha = await exec({ cmd: `git rev-list -n 1 refs/heads/${branch}` });
+  let cmd = `git push origin refs/tags/${tag}:refs/heads/${branch}`;
+  if (force) cmd += ' -f';
+  await exec({ cmd });
+  console.log(chalk.green(`✅ Pushed ${tag} to ${branch} (${oldSha.slice(0, 10)} => ${sha.slice(0, 10)})`));
 }

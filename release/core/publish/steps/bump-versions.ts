@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import { exec } from '../../../utils/cmd';
-import { APPLIED_STRATEGY, Package } from '../../utils/package';
+import { APPLIED_STRATEGY, Package } from '../../../utils/package';
 
 /**
  * This function will consume the strategy, bump the versions of all packages,
@@ -33,7 +33,7 @@ export async function bumpAllPackages(
     await pkg.file.write();
   }
 
-  const willPublish: boolean = config.get('pack') && config.get('publish');
+  const willPublish: boolean = Boolean(config.get('pack') && config.get('publish'));
   const dryRun = config.get('dry_run') as boolean;
   const nextVersion = strategy.get('root')?.toVersion;
   let commitCommand = `git commit -am "Release v${nextVersion}"`;

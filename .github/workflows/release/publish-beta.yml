@@ -1,0 +1,93 @@
+name: Publish Beta Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      # This input is used to determine whether to start/continue a beta-cycle vs mirror from canary.
+      #
+      # A beta-cycle "forks" from canary. It starts by updating the beta branch to the current state
+      # of main (canary). Thereafter any updates to the beta branch are cherry-picked from main or PR'd
+      # to the beta branch.
+      #
+      # The (default) mirror approach instead directly copies the canary release to the beta branch
+      # each time. This is useful when the changes in canary are relatively minor or safe to release
+      # and
+      # and then publishing a beta release. A mirror is a direct copy of the canary release.
+      kind:
+        description: 'Whether to start/continue a beta-cycle vs mirror from canary'
+        required: true
+        default: 'mirror'
+        type: choice
+        options:
+        - beta-cycle  # start or continue a beta-cycle.
+        - mirror      # mirror code from canary. This is the default.
+      # At cycle start we must always reset the beta branch to main.
+      is-cycle-start:
+        description: 'Whether this is the start of a new release cycle (either kind)'
+        required: true
+        default: false
+        type: boolean
+
+env:
+  TURBO_API: http://127.0.0.1:9080
+  TURBO_TOKEN: this-is-not-a-secret
+  TURBO_TEAM: myself
+
+jobs:
+  release:
+    name: Run publish script
+    runs-on: ubuntu-latest
+    environment: deployment
+    steps:
+      - name: Enforce Branch
+        # Note: we always checkout beta in actions/checkout, but this enforces
+        # good hygiene.
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "Releases may only be performed from the main branch."
+          exit 1
+      - name: Make sure git user is setup
+        run: |
+          git config --local user.email ${{ secrets.GH_DEPLOY_EMAIL }}
+          git config --local user.name ${{ secrets.GH_DEPLOY_NAME }}
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        with:
+          fetch-tags: true
+          progress: false
+          token: ${{ secrets.GH_DEPLOY_TOKEN }}
+          fetch-depth: 3
+          ref: beta
+      - run: git fetch origin main --depth=1
+      - name: Get last beta version from package.json
+        if: github.event.inputs.kind == 'mirror'
+        uses: sergeysova/jq-action@v2
+        id: version
+        with:
+          cmd: 'jq .version package.json -r'
+      - name: Reset the Beta Branch
+        if: github.event.inputs.kind == 'mirror' || github.event.inputs.is-cycle-start == 'true'
+        run: git reset --hard origin/main && git push origin beta -f
+      - uses: ./.github/actions/setup
+        with:
+          install: true
+          repo-token: ${{ secrets.GH_DEPLOY_TOKEN }}
+      - name: Publish New Release
+        # For beta-cycle we always increment from the branch state
+        # For mirror we increment from the last beta version, unless it's start of a new cycle.
+        if: github.event.inputs.kind == 'beta-cycle' || github.event.inputs.is-cycle-start == 'true'
+        run: bun release exec publish beta
+        env:
+          FORCE_COLOR: 2
+          CI: true
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+      - name: Publish New Mirror Release
+        if: github.event.inputs.kind == 'mirror'
+        run: bun release exec publish beta --from=${{ steps.version.outputs.stdout }}
+        env:
+          FORCE_COLOR: 2
+          CI: true
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tarballs
+          path: tmp/tarballs/**/*.tgz
