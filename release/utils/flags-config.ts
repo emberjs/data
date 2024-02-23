@@ -119,6 +119,43 @@ export const publish_flags_config: FlagConfig = {
       }
     },
   },
+  commit_changelog: {
+    name: 'Commit',
+    flag: 'commit_changelog',
+    flag_aliases: ['c'],
+    flag_mispellings: ['cm', 'comit', 'changelog'],
+    description: 'Whether to commit the changes to the changelogs',
+    type: Boolean,
+    examples: [],
+    default_value: true,
+  },
+  from: {
+    name: 'From Version',
+    flag: 'from',
+    flag_aliases: ['v'],
+    flag_mispellings: ['ver'],
+    description: 'The version from which to increment and build a strategy',
+    type: String,
+    examples: [],
+    default_value: async (options: Map<string, string | number | boolean | null>) => {
+      return (await getPublishedChannelInfo(options)).latest;
+    },
+    validate: async (value: unknown) => {
+      if (typeof value !== 'string') {
+        throw new Error(`Expected a string but got ${value}`);
+      }
+      if (value.startsWith('v')) {
+        throw new Error(`Version passed to promote should not start with 'v'`);
+      }
+      if (semver.valid(value) === null) {
+        throw new Error(`Version passed to promote is not a valid semver version`);
+      }
+      const versionInfo = semver.parse(value);
+      if (versionInfo?.prerelease?.length) {
+        throw new Error(`Version passed to promote cannot be prerelease version`);
+      }
+    },
+  },
   upstream: {
     name: 'Update Upstream Branch',
     flag: 'upstream',
