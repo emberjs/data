@@ -1,4 +1,4 @@
-name: Release > Stable
+name: 0. Release > Stable
 
 on:
   workflow_dispatch:
@@ -58,10 +58,6 @@ jobs:
         run: |
           echo "Releases may only be performed from the main branch."
           exit 1
-      - name: Make sure git user is setup
-        run: |
-          git config --local user.email ${{ secrets.GH_DEPLOY_EMAIL }}
-          git config --local user.name ${{ secrets.GH_DEPLOY_NAME }}
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
         with:
           fetch-tags: true
@@ -71,6 +67,10 @@ jobs:
           ref: release
       ## Ensure we have a copy of the source branch
       - run: git fetch origin ${{ github.event.inputs.source-branch }} --depth=1
+      - name: Make sure git user is setup
+        run: |
+          git config --local user.email ${{ secrets.GH_DEPLOY_EMAIL }}
+          git config --local user.name ${{ secrets.GH_DEPLOY_NAME }}
       - name: Reset the Release Branch
         if: github.event.inputs.source-branch != 'release' && (github.event.inputs.is-cycle-start == 'true' || github.event.inputs.from-version != null)
         run: git reset --hard origin/${{ github.event.inputs.source-branch }} && git push origin release -f

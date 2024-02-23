@@ -1,4 +1,4 @@
-name: Release > Promote LTS
+name: 0. Release > Promote LTS
 
 on:
   workflow_dispatch:

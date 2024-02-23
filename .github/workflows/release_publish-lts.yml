@@ -1,4 +1,4 @@
-name: Release > LTS
+name: 0. Release > LTS
 
 on:
   workflow_dispatch:
@@ -34,10 +34,6 @@ jobs:
         run: |
           echo "Releases may only be performed from the main branch."
           exit 1
-      - name: Make sure git user is setup
-        run: |
-          git config --local user.email ${{ secrets.GH_DEPLOY_EMAIL }}
-          git config --local user.name ${{ secrets.GH_DEPLOY_NAME }}
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
         with:
           fetch-tags: true
@@ -45,6 +41,10 @@ jobs:
           token: ${{ secrets.GH_DEPLOY_TOKEN }}
           fetch-depth: 3
           ref: ${{ github.event.inputs.source-branch }}
+      - name: Make sure git user is setup
+        run: |
+          git config --local user.email ${{ secrets.GH_DEPLOY_EMAIL }}
+          git config --local user.name ${{ secrets.GH_DEPLOY_NAME }}
       - uses: ./.github/actions/setup
         with:
           install: true

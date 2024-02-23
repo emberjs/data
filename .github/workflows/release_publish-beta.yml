@@ -1,4 +1,4 @@
-name: Release > Beta
+name: 0. Release > Beta
 
 on:
   workflow_dispatch:
@@ -46,10 +46,6 @@ jobs:
         run: |
           echo "Releases may only be performed from the main branch."
           exit 1
-      - name: Make sure git user is setup
-        run: |
-          git config --local user.email ${{ secrets.GH_DEPLOY_EMAIL }}
-          git config --local user.name ${{ secrets.GH_DEPLOY_NAME }}
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
         with:
           fetch-tags: true
@@ -58,6 +54,10 @@ jobs:
           fetch-depth: 3
           ref: beta
       - run: git fetch origin main --depth=1
+      - name: Make sure git user is setup
+        run: |
+          git config --local user.email ${{ secrets.GH_DEPLOY_EMAIL }}
+          git config --local user.name ${{ secrets.GH_DEPLOY_NAME }}
       - name: Get last beta version from package.json
         if: github.event.inputs.kind == 'mirror'
         uses: sergeysova/jq-action@v2
