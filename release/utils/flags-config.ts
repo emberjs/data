@@ -152,11 +152,11 @@ export const publish_flags_config: FlagConfig = {
       }
     },
   },
-  commit_changelog: {
+  commit: {
     name: 'Commit',
-    flag: 'commit_changelog',
+    flag: 'commit',
     flag_aliases: ['c'],
-    flag_mispellings: ['cm', 'comit', 'changelog'],
+    flag_mispellings: ['cm', 'comit', 'changelog', 'commit_changelog'],
     description: 'Whether to commit the changes to the changelogs',
     type: Boolean,
     examples: [],

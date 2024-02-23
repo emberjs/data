@@ -1,14 +1,18 @@
 import { publish_flags_config } from '../../utils/flags-config';
 import { parseRawFlags } from '../../utils/parse-args';
-import { getGitState } from '../../utils/git';
+import { GIT_TAG, getAllPackagesForGitTag, getGitState } from '../../utils/git';
 import { printHelpDocs } from '../../help/docs';
 import { bumpAllPackages, restorePackagesForDryRun } from './steps/bump-versions';
 import { generatePackageTarballs } from './steps/generate-tarballs';
 import { printStrategy } from './steps/print-strategy';
-import { applyStrategy } from './steps/generate-strategy';
+import { AppliedStrategy, applyStrategy } from './steps/generate-strategy';
 import { confirmStrategy } from './steps/confirm-strategy';
 import { publishPackages } from './steps/publish-packages';
 import { gatherPackages, loadStrategy } from '../../utils/package';
+import { CHANNEL, SEMVER_VERSION } from '../../utils/channel';
+import { confirmCommitChangelogs } from '../release-notes/steps/confirm-changelogs';
+import { updateChangelogs } from '../release-notes/steps/update-changelogs';
+import { getChanges } from '../release-notes/steps/get-changes';
 
 export async function executePublish(args: string[]) {
   // get user supplied config
@@ -26,25 +30,34 @@ export async function executePublish(args: string[]) {
   // get configured strategy
   const strategy = await loadStrategy();
 
-  // get packages
+  // get packages present on our current branch
   const packages = await gatherPackages(strategy.config);
 
+  // get packages present in the git tag version
+  const fromVersion = config.full.get('from') as SEMVER_VERSION | undefined;
+  const fromTag = `v${fromVersion}` as GIT_TAG;
+  const baseVersionPackages = fromVersion ? await getAllPackagesForGitTag(fromTag) : packages;
+
   // get applied strategy
-  const applied = await applyStrategy(config.full, strategy, packages);
+  const applied = await applyStrategy(config.full, strategy, baseVersionPackages, packages);
 
   // print strategy to be applied
   await printStrategy(config.full, applied);
 
   await confirmStrategy();
 
-  // TODO: Generate Release Notes / PR flow?
-  // Ideally we do per-package changelogs + a root changelog thats rolls up
-  // those changes into one set of release notes.
-  // this step probably would create an artifact like .changelog.json
-  // and open a PR, and then early exit. Then if the script is run again
-  // it would check if the PR is merged and if so it would continue.
-  // await generateReleaseNotes(config, packages, applied.public_pks);
-  // await confirmReleaseNotesMerged();
+  const channel = config.full.get('channel') as CHANNEL;
+  if (channel !== 'canary' && channel !== 'beta') {
+    // generate the list of changes
+    const newChanges = await getChanges(strategy, packages, fromTag);
+
+    // update all changelogs, including the primary changelog
+    // and the changelogs for each package in changelogRoots
+    // this will not commit the changes
+    const changedFiles = await updateChangelogs(fromTag, newChanges, config.full, strategy, packages, applied);
+
+    await confirmCommitChangelogs(changedFiles, config.full, applied);
+  }
 
   // Bump package.json versions & commit/tag
   // ========================
