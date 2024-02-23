@@ -21,8 +21,9 @@ on:
         options:
         - beta-cycle  # start or continue a beta-cycle.
         - mirror      # mirror code from canary. This is the default.
-      is-beta-cycle-start:
-        description: 'When kind is beta-cycle, whether to start a new beta-cycle'
+      # At cycle start we must always reset the beta branch to main.
+      is-cycle-start:
+        description: 'Whether this is the start of a new release cycle (either kind)'
         required: true
         default: false
         type: boolean
@@ -64,14 +65,16 @@ jobs:
         with:
           cmd: 'jq .version package.json -r'
       - name: Reset the Beta Branch
-        if: github.event.inputs.kind == 'mirror' || github.event.inputs.is-beta-cycle-start == 'true'
+        if: github.event.inputs.kind == 'mirror' || github.event.inputs.is-cycle-start == 'true'
         run: git reset --hard origin/main && git push origin beta -f
       - uses: ./.github/actions/setup
         with:
           install: true
           repo-token: ${{ secrets.GH_DEPLOY_TOKEN }}
-      - name: Publish New BetaCycle Release
-        if: github.event.inputs.kind == 'beta-cycle'
+      - name: Publish New Release
+        # For beta-cycle we always increment from the branch state
+        # For mirror we increment from the last beta version, unless it's start of a new cycle.
+        if: github.event.inputs.kind == 'beta-cycle' || github.event.inputs.is-cycle-start == 'true'
         run: bun release exec publish beta
         env:
           FORCE_COLOR: 2
