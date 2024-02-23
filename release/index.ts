@@ -8,12 +8,14 @@ import { executePublish } from './core/publish';
 import { executeReleaseNoteGeneration } from './core/release-notes';
 import { write } from './utils/write';
 import { promoteToLTS } from './core/promote';
+import { latestFor } from './core/latest-for';
 
 const COMMANDS = {
   help: printHelpDocs,
   about: printAbout,
   release_notes: executeReleaseNoteGeneration,
   publish: executePublish,
+  latest_for: latestFor,
   promote: promoteToLTS,
   default: executePublish,
   exec: async (args: string[]) => {
@@ -43,18 +45,21 @@ const COMMANDS = {
 async function main() {
   const args = Bun.argv.slice(2);
 
-  write(
-    chalk.grey(
-      `\n\t${chalk.bold(
-        chalk.greenBright('Warp') + chalk.magentaBright('Drive')
-      )} | Automated Release\n\t==============================`
-    ) + chalk.grey(`\n\tengine: ${chalk.cyan('bun@' + Bun.version)}\n`)
-  );
-
   const commandArg = args.length === 0 ? 'help' : normalizeFlag(args[0]);
   const commands = getCommands();
   const cmdString = (commands.get(commandArg) as keyof typeof COMMANDS) || 'default';
   const cmd = COMMANDS[cmdString];
+
+  // we silence output for the latest_for command
+  if (cmdString !== 'latest_for') {
+    write(
+      chalk.grey(
+        `\n\t${chalk.bold(
+          chalk.greenBright('Warp') + chalk.magentaBright('Drive')
+        )} | Automated Release\n\t==============================`
+      ) + chalk.grey(`\n\tengine: ${chalk.cyan('bun@' + Bun.version)}\n`)
+    );
+  }
 
   if (args.length && commands.has(commandArg)) {
     args.shift();

@@ -182,7 +182,7 @@ export const publish_flags_config: FlagConfig = {
     type: String,
     examples: [],
     default_value: async (options: Map<string, string | number | boolean | null>) => {
-      return (await getPublishedChannelInfo(options)).latest;
+      return (await getPublishedChannelInfo()).latest;
     },
     validate: async (value: unknown) => {
       if (typeof value !== 'string') {
@@ -250,7 +250,7 @@ export const release_notes_flags_config: FlagConfig = merge(
       type: String,
       examples: [],
       default_value: async (options: Map<string, string | number | boolean | null>) => {
-        return (await getPublishedChannelInfo(options)).latest;
+        return (await getPublishedChannelInfo()).latest;
       },
       validate: async (value: unknown) => {
         if (typeof value !== 'string') {
@@ -283,7 +283,7 @@ export const promote_flags_config: FlagConfig = merge(
       type: String,
       examples: [],
       default_value: async (options: Map<string, string | number | boolean | null>) => {
-        return (await getPublishedChannelInfo(options)).latest;
+        return (await getPublishedChannelInfo()).latest;
       },
       validate: async (value: unknown) => {
         if (typeof value !== 'string') {
@@ -311,7 +311,7 @@ export const promote_flags_config: FlagConfig = merge(
       examples: [],
       default_value: async (options: Map<string, string | number | boolean | null>) => {
         const version = options.get('version') as SEMVER_VERSION;
-        const existing = await getPublishedChannelInfo(options);
+        const existing = await getPublishedChannelInfo();
 
         if (existing.latest === version) {
           return 'lts';
@@ -321,10 +321,10 @@ export const promote_flags_config: FlagConfig = merge(
       },
       validate: async (value: unknown, options: Map<string, string | number | boolean | null>) => {
         let version = options.get('version') as SEMVER_VERSION;
-        const existing = await getPublishedChannelInfo(options);
+        const existing = await getPublishedChannelInfo();
 
         if (!version) {
-          version = (await getPublishedChannelInfo(options)).latest;
+          version = (await getPublishedChannelInfo()).latest;
         }
 
         if (value !== 'lts') {
@@ -383,6 +383,13 @@ export const command_config: CommandConfig = {
     description: `Generate release notes for the next release.`,
     options: release_notes_flags_config,
     example: '$ bun release cl',
+  },
+  latest_for: {
+    name: 'Latest For',
+    cmd: 'latest-for',
+    description: 'Print the latest version for a given channel',
+    alt: ['latest'],
+    example: '$ bun release latest-for beta',
   },
   promote: {
     name: 'Promote to LTS',

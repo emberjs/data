@@ -38,11 +38,12 @@ export type GIT_STATE = {
 };
 
 let _NPM_INFO: Record<string, unknown> | null = null;
-export async function getPublishedChannelInfo(
-  options: Map<string, boolean | string | number | null>
-): Promise<CHANNEL_VERSIONS> {
+export async function getPublishedChannelInfo(options?: { silent: boolean }): Promise<CHANNEL_VERSIONS> {
   if (!_NPM_INFO) {
-    const gitInfo = await exec(['npm', 'view', 'ember-data@latest', '--json']);
+    const gitInfo = await exec({
+      cmd: ['npm', 'view', 'ember-data@latest', '--json'],
+      silent: options?.silent ?? false,
+    });
     _NPM_INFO = JSON.parse(gitInfo) as Record<string, unknown>;
   }
   return _NPM_INFO['dist-tags'] as CHANNEL_VERSIONS;

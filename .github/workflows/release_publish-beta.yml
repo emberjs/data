@@ -59,11 +59,9 @@ jobs:
           git config --local user.email ${{ secrets.GH_DEPLOY_EMAIL }}
           git config --local user.name ${{ secrets.GH_DEPLOY_NAME }}
       - name: Get last beta version from package.json
-        if: github.event.inputs.kind == 'mirror'
-        uses: sergeysova/jq-action@v2
         id: version
-        with:
-          cmd: 'jq .version package.json -r'
+        if: github.event.inputs.kind == 'mirror'
+        run: echo "::set-output name=value::$(bun --silent release latest beta)"
       - name: Reset the Beta Branch
         if: github.event.inputs.kind == 'mirror' || github.event.inputs.is-cycle-start == 'true'
         run: git reset --hard origin/main && git push origin beta -f
