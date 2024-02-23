@@ -58,10 +58,6 @@ jobs:
         run: |
           git config --local user.email ${{ secrets.GH_DEPLOY_EMAIL }}
           git config --local user.name ${{ secrets.GH_DEPLOY_NAME }}
-      - name: Get last beta version from package.json
-        id: version
-        if: github.event.inputs.kind == 'mirror'
-        run: echo "::set-output name=value::$(bun --silent release latest beta)"
       - name: Reset the Beta Branch
         if: github.event.inputs.kind == 'mirror' || github.event.inputs.is-cycle-start == 'true'
         run: git reset --hard origin/main && git push origin beta -f
@@ -69,6 +65,10 @@ jobs:
         with:
           install: true
           repo-token: ${{ secrets.GH_DEPLOY_TOKEN }}
+      - name: Get most recent beta version
+        id: version
+        if: github.event.inputs.kind == 'mirror'
+        run: echo "value=$(bun --silent release latest beta)" >> $GITHUB_OUTPUT
       - name: Publish New Release
         # For beta-cycle we always increment from the branch state
         # For mirror we increment from the last beta version, unless it's start of a new cycle.
