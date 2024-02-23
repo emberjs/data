@@ -1,4 +1,4 @@
-# Ember Data Changelog
+# EmberData Changelog
 
 ## v5.3.0 (2023-09-18)
 

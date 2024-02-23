@@ -104,7 +104,7 @@ git push origin lts-<majorVersion>-<minorVersion> // Note: alternatively, you ca
 3. Publish the LTS
 
    ```
-   bun run publish lts
+   bun release lts
    ```
 
 4. Update the Release Notes on Github
@@ -164,7 +164,7 @@ git push origin lts-<majorVersion>-<minorVersion> // Note: alternatively, you ca
 5. Publish the release
 
    ```
-   bun run publish release
+   bun release release
    ```
 
 6. Update the Release Notes on Github
@@ -205,7 +205,7 @@ git push origin lts-<majorVersion>-<minorVersion> // Note: alternatively, you ca
 2. Publish the weekly beta
 
    ```
-   bun run publish beta
+   bun release beta
    ```
 
 ### Canary Releases
@@ -225,19 +225,19 @@ git push origin lts-<majorVersion>-<minorVersion> // Note: alternatively, you ca
    a. If this is the very first `canary` release for a new minor
 
    ```
-   bun run publish canary -i minor
+   bun release canary -i minor
    ```
 
    b. If this is the very first `canary` release for a new major
 
    ```
-   bun run publish canary -i major
+   bun release canary -i major
    ```
 
    c. For all other "nightly" canary releases
 
    ```
-   bun run publish canary
+   bun release canary
    ```
 
 Congrats, you are finished!
@@ -249,4 +249,4 @@ New canary versions are published to npm every Tuesday and Friday at 12pm PST by
 It will always increment the pre-release version of what's currently in the root `package.json`. For example from `3.25.0-alpha.1` to `3.25.0-alpha.2`. **It requires a human to manually bump minor and major versions and publish**.
 
 To try out the script that will be executed in the GitHub action, use:
-`bun run publish canary --dry_run --dangerously_force`. The `--dry_run` param will skip auto committing the version change and publishing.
+`bun release canary --dry_run --dangerously_force`. The `--dry_run` param will skip auto committing the version change and publishing.

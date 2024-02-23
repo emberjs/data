@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { APPLIED_STRATEGY, Package } from '../../utils/package';
+import { APPLIED_STRATEGY, Package } from '../../../utils/package';
 import { question } from './confirm-strategy';
 import { exec } from '../../../utils/cmd';
 
@@ -46,7 +46,7 @@ export async function publishPackages(
   console.log(`✅ ` + chalk.cyan(`published ${chalk.greenBright(strategy.size)} 📦 packages to npm`));
 }
 
-async function getOTPToken(config: Map<string, string | number | boolean | null>, reprompt?: boolean) {
+export async function getOTPToken(config: Map<string, string | number | boolean | null>, reprompt?: boolean) {
   const prompt = reprompt
     ? `The provided OTP token has expired. Please enter a new OTP token: `
     : `\nℹ️ ${chalk.cyan(

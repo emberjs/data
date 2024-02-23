@@ -48,9 +48,12 @@ function printTable(title: string, rows: string[][]) {
 }
 
 export async function printStrategy(config: Map<string, string | number | boolean | null>, applied: AppliedStrategy) {
-  const tableRows = [['Name', 'From Version', 'To Version', 'Stage', 'Types', 'NPM Dist Tag', 'Status', 'Location']];
+  const tableRows = [
+    ['    ', 'Name', 'From Version', 'To Version', 'Stage', 'Types', 'NPM Dist Tag', 'Status', 'Location'],
+  ];
   applied.public_pks.forEach((applied, name) => {
     tableRows.push([
+      applied.new ? chalk.magentaBright('New!') : '',
       colorName(name),
       chalk.grey(applied.fromVersion),
       chalk[COLORS_BY_STRATEGY[applied.stage]](applied.toVersion),
@@ -69,6 +72,7 @@ export async function printStrategy(config: Map<string, string | number | boolea
       groups.set(applied.pkgDir, group);
     }
     group.push([
+      applied.new ? chalk.magentaBright('New!') : '',
       colorName(name),
       chalk.grey(applied.fromVersion),
       chalk[COLORS_BY_STRATEGY[applied.stage]](applied.toVersion),

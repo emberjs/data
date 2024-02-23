@@ -1,7 +1,27 @@
 import chalk from 'chalk';
-import { command_config, flags_config } from '../utils/flags-config';
+import { command_config } from '../utils/flags-config';
 import { Command, Flag } from '../utils/parse-args';
 import { color, getNumTabs, getPadding, indent } from './-utils';
+
+function getDefaultValueDescriptor(value: unknown) {
+  if (typeof value === 'string') {
+    return chalk.green(`"${value}"`);
+  } else if (typeof value === 'number') {
+    return chalk.green(`${value}`);
+  } else if (typeof value === 'boolean') {
+    return chalk.green(`${value}`);
+  } else if (value === null) {
+    return chalk.green('null');
+  } else if (typeof value === 'function') {
+    if (value.name) {
+      return chalk.cyan(`Function<${value.name}>`);
+    } else {
+      return chalk.cyan(`Function`);
+    }
+  } else {
+    return chalk.grey('N/A');
+  }
+}
 
 function buildOptionDoc(flag: Flag, index: number): string {
   const { flag_aliases, flag_mispellings, description, examples } = flag;
@@ -11,12 +31,13 @@ function buildOptionDoc(flag: Flag, index: number): string {
   const flag_aliases_str = chalk.grey(flag_aliases?.join(', ') || 'N/A');
   const flag_mispellings_str = chalk.grey(flag_mispellings?.join(', ') || 'N/A');
 
-  return `${chalk.greenBright(flag.name)} ${flag_shape}
-\t${chalk.yellow('aliases')}: ${flag_aliases_str}
-\t${chalk.yellow('alt')}: ${flag_mispellings_str}
-${indent(description, 1)}
-\t${chalk.grey('Examples')}:
-\t${examples
+  return `${flag_shape} ${chalk.greenBright(flag.name)}
+  ${indent(description, 1)}
+  ${chalk.yellow('default')}: ${getDefaultValueDescriptor(flag.default_value)}
+  ${chalk.yellow('aliases')}: ${flag_aliases_str}
+  ${chalk.yellow('alt')}: ${flag_mispellings_str}
+  ${chalk.grey('Examples')}:
+  ${examples
     .map((example) => {
       if (typeof example === 'string') {
         return example;
@@ -38,18 +59,25 @@ function buildCommandDoc(command: Command, index: number): string {
   }
 
   const lines = [
-    `cy<<${cmd}>>${getPadding(getNumTabs(cmd))}${description}`,
+    `cy<<${chalk.bold(cmd)}>>\n${indent(description, 1)}`,
     alt ? `\tye<<alt>>: gr<<${alt.join(', ')}>>` : '',
     overview ? `\t${overview}` : '',
     xmpl ? `\n\tgr<<${Array.isArray(example) ? 'Examples' : 'Example'}>>:` : '',
     xmpl ? `\t  ${xmpl}\n` : '',
   ].filter(Boolean);
 
+  const opts = options ? Object.values(options) : [];
+  if (opts.length > 0) {
+    lines.push(
+      `\t${chalk.bold(chalk.yellowBright('Options'))}`,
+      indent(`${Object.values(opts).map(buildOptionDoc).join('\n\n')}`, 1)
+    );
+  }
+
   return color(lines.join('\n'));
 }
 
 export async function printHelpDocs(_args: string[]) {
-  const config = Object.values(flags_config);
   const commands = Object.values(command_config);
 
   console.log(
@@ -62,8 +90,6 @@ $ ./publish/index.ts ${chalk.magentaBright('<channel>')} [options]
 ${chalk.bold('Commands')}
   ${commands.map(buildCommandDoc).join('\n  ')}
 
-${chalk.bold('Options')}
-  ${config.map(buildOptionDoc).join('\n  ')}
 `
     )
   );

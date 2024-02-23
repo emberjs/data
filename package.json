@@ -9,7 +9,7 @@
   "scripts": {
     "takeoff": "FORCE_COLOR=2 pnpm install --reporter=append-only",
     "prepare": "pnpm build",
-    "publish": "./publish/index.ts",
+    "release": "./release/index.ts",
     "build": "turbo _build --log-order=stream --filter=./packages/* --concurrency=1; pnpm run sync:tests",
     "sync:tests": "pnpm run --filter=./tests/* -r --workspace-concurrency=1 --if-present _syncPnpm",
     "build:docs": "mkdir -p packages/-ember-data/dist && cd ./docs-generator && node ./compile-docs.js",
@@ -46,8 +46,6 @@
     "common-tags": "^1.8.2",
     "debug": "^4.3.4",
     "execa": "^8.0.1",
-    "fromentries": "^1.3.2",
-    "git-repo-info": "^2.1.1",
     "git-repo-version": "^1.0.2",
     "globby": "^14.0.0",
     "lerna-changelog": "^2.2.0",
