@@ -1,7 +1,7 @@
 {
   "name": "@ember-data/legacy-compat",
   "description": "Compatibility Shims for Older EmberData",
-  "version": "5.4.0-alpha.22",
+  "version": "5.4.0-alpha.23",
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "repository": {
@@ -53,7 +53,7 @@
     "version": 1
   },
   "dependencies": {
-    "@ember-data/private-build-infra": "workspace:5.4.0-alpha.22",
+    "@ember-data/private-build-infra": "workspace:5.4.0-alpha.23",
     "@embroider/macros": "^1.13.4",
     "ember-cli-babel": "^8.2.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10"
@@ -91,11 +91,11 @@
     }
   },
   "peerDependencies": {
-    "@ember-data/graph": "workspace:5.4.0-alpha.22",
-    "@ember-data/json-api": "workspace:5.4.0-alpha.22",
-    "@ember-data/request": "workspace:5.4.0-alpha.22",
-    "@ember-data/store": "workspace:5.4.0-alpha.22",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.8"
+    "@ember-data/graph": "workspace:5.4.0-alpha.23",
+    "@ember-data/json-api": "workspace:5.4.0-alpha.23",
+    "@ember-data/request": "workspace:5.4.0-alpha.23",
+    "@ember-data/store": "workspace:5.4.0-alpha.23",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.9"
   },
   "peerDependenciesMeta": {
     "@ember-data/graph": {
@@ -116,19 +116,19 @@
     "@babel/preset-env": "^7.23.8",
     "@babel/preset-typescript": "^7.23.3",
     "@babel/runtime": "^7.23.8",
-    "@ember-data/graph": "workspace:5.4.0-alpha.22",
-    "@ember-data/json-api": "workspace:5.4.0-alpha.22",
-    "@ember-data/request": "workspace:5.4.0-alpha.22",
-    "@ember-data/request-utils": "workspace:5.4.0-alpha.22",
-    "@ember-data/store": "workspace:5.4.0-alpha.22",
-    "@ember-data/tracking": "workspace:5.4.0-alpha.22",
+    "@ember-data/graph": "workspace:5.4.0-alpha.23",
+    "@ember-data/json-api": "workspace:5.4.0-alpha.23",
+    "@ember-data/request": "workspace:5.4.0-alpha.23",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.23",
+    "@ember-data/store": "workspace:5.4.0-alpha.23",
+    "@ember-data/tracking": "workspace:5.4.0-alpha.23",
     "@ember/string": "^3.1.1",
     "@embroider/addon-dev": "^4.1.2",
     "@glimmer/component": "^1.1.2",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.8",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.22",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.9",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.23",
     "ember-inflector": "^4.0.2",
     "ember-source": "~5.6.0",
     "rollup": "^4.9.6",
