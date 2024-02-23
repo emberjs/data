@@ -42,9 +42,9 @@ jobs:
       - name: Enforce Branch
         # Note: we always checkout beta in actions/checkout, but this enforces
         # good hygiene.
-        if: github.ref != 'refs/heads/beta'
+        if: github.ref != 'refs/heads/main'
         run: |
-          echo "Beta may only be published from the beta branch."
+          echo "Releases may only be performed from the main branch."
           exit 1
       - name: Make sure git user is setup
         run: |

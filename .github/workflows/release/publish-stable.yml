@@ -18,18 +18,20 @@ on:
         required: true
         default: false
         type: boolean
-      # donwversion e.g. 5.4.0-alpha.1 => 5.3.1
-      # upversion e.g. 5.3.1 => 5.4.0
+      # downversion e.g. 5.4.0-alpha.1 => 5.3.1 happens when we use a canary, beta or later release to hotfix a stable
+      # upversion e.g. 5.3.1 => 5.4.0 happens when we re-release an existing stable as a new minor/major
+      # examples:
+      #   Upversion: 5.3.1 => 5.4.0
+      #     from-version: 5.3.1
+      #     increment: minor
+      #   Downversion: 5.4.0-alpha.1 => 5.3.1
+      #     from-version: 5.3.0
+      #     increment: patch
       from-version:
-        description: 'When downversioning or upversioning, the version from which to increment'
-        required: true
-        default: 'mirror'
+        description: 'When upversioning or downversioning, the version from which to increment to get the version number for the release'
         type: string
-        options:
-        - stable-cycle  # start or continue a stable-cycle.
-        - mirror        # mirror code from beta. This is the default.
       increment:
-        description: 'Type of Version Bump To Perform (only used when downversioning or upversioning)'
+        description: 'Type of Version Bump To Perform (only used when upversioning or downversioning)'
         required: true
         default: 'patch'
         type: choice
@@ -52,9 +54,9 @@ jobs:
       - name: Enforce Branch
         # Note: we always checkout release in actions/checkout, but this enforces
         # good hygiene.
-        if: github.ref != 'refs/heads/release'
+        if: github.ref != 'refs/heads/main'
         run: |
-          echo "Stable may only be published from the release branch."
+          echo "Releases may only be performed from the main branch."
           exit 1
       - name: Make sure git user is setup
         run: |
@@ -70,29 +72,29 @@ jobs:
       ## Ensure we have a copy of the source branch
       - run: git fetch origin ${{ github.event.inputs.source-branch }} --depth=1
       - name: Reset the Release Branch
-        if: github.event.inputs.source-branch != 'release' && github.event.inputs.is-cycle-start == 'true'
+        if: github.event.inputs.source-branch != 'release' && (github.event.inputs.is-cycle-start == 'true' || github.event.inputs.from-version != null)
         run: git reset --hard origin/${{ github.event.inputs.source-branch }} && git push origin release -f
       - uses: ./.github/actions/setup
         with:
           install: true
           repo-token: ${{ secrets.GH_DEPLOY_TOKEN }}
       - name: Publish New Release
-        # We always increment from the branch state
-        # For downversion or upversion
-        if: github.event.inputs.is-cycle-start == 'true'
-        run: bun release exec publish release
+        # If we are not reversioning
+        # Then we do the default patch increment from the current branch state.
+        # This handles both start-of-cycle and bugfix releases.
+        if: github.event.inputs.from-version == null
+        run: bun release publish release
         env:
           FORCE_COLOR: 2
           CI: true
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
-      - name: Publish New Mirror Release
-        if: github.event.inputs.kind == 'mirror'
-        run: bun release exec publish beta --from=${{ steps.version.outputs.stdout }}
+      - name: Publish New Release (Reversion)
+        # If we are reversioning
+        # Then we increment from the branch with the supplied increment
+        # This handles both upversioning and downversioning
+        if: github.event.inputs.from-version != null
+        run: bun release publish release --from=${{ github.event.inputs.from-version }} --increment=${{ github.event.inputs.increment }}
         env:
           FORCE_COLOR: 2
           CI: true
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
-      - uses: actions/upload-artifact@v4
-        with:
-          name: tarballs
-          path: tmp/tarballs/**/*.tgz
