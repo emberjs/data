@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/unpublished-test-infra",
-  "version": "5.4.0-alpha.23",
+  "version": "5.4.0-beta.0",
   "private": true,
   "description": "The default blueprint for ember-data private packages.",
   "keywords": [
@@ -54,16 +54,16 @@
     }
   },
   "dependencies": {
-    "@ember-data/private-build-infra": "workspace:5.4.0-alpha.23",
-    "@ember-data/request": "workspace:5.4.0-alpha.23",
-    "@ember-data/store": "workspace:5.4.0-alpha.23",
-    "@ember-data/tracking": "workspace:5.4.0-alpha.23",
+    "@ember-data/private-build-infra": "workspace:5.4.0-beta.0",
+    "@ember-data/request": "workspace:5.4.0-beta.0",
+    "@ember-data/store": "workspace:5.4.0-beta.0",
+    "@ember-data/tracking": "workspace:5.4.0-beta.0",
     "@ember/edition-utils": "^1.2.0",
     "@ember/test-helpers": "^3.2.1",
     "@embroider/macros": "^1.13.4",
     "@types/qunit": "^2.19.9",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.9",
-    "@warp-drive/diagnostic": "workspace:0.0.0-alpha.9",
+    "@warp-drive/core-types": "workspace:0.0.0-beta.0",
+    "@warp-drive/diagnostic": "workspace:0.0.0-beta.0",
     "broccoli-merge-trees": "^4.2.0",
     "chalk": "^4.1.2",
     "ember-auto-import": "^2.7.0",
