@@ -1,4 +1,4 @@
-name: Publish LTS Release
+name: Release > LTS
 
 on:
   workflow_dispatch:
