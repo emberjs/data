@@ -1,5 +1,10 @@
 # EmberData Changelog
 
+## v5.3.1 (2024-02-24)
+
+#### Committers: (0)
+
+
 ## v5.3.0 (2023-09-18)
 
 #### :rocket: Enhancement
