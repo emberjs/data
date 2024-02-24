@@ -95,7 +95,7 @@ jobs:
 
       - name: Check for Test Failure Retry
         id: retry-test-failures
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         with:
           path: failed-test-log.txt
           key: failed-test-log_${{ github.sha }}
@@ -131,7 +131,7 @@ jobs:
 
       - name: Maybe Cache Failures
         if: always()
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v4
         with:
           path: failed-test-log.txt
           key: failed-test-log_${{ github.sha }}

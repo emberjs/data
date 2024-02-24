@@ -50,7 +50,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # v2.4.0
+    - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
     - uses: actions/setup-node@v4
       with:
         registry-url: 'https://registry.npmjs.org'
@@ -63,7 +63,7 @@ runs:
 
     - name: 'Setup local TurboRepo server'
       if: ${{ inputs.repo-token }}
-      uses: felixmosh/turborepo-gh-artifacts@v2
+      uses: felixmosh/turborepo-gh-artifacts@v3
       with:
         repo-token: ${{ inputs.repo-token }}
 
@@ -97,7 +97,7 @@ runs:
 
     - name: Restore Broccoli Cache
       if: ${{ inputs.restore-broccoli-cache == 'true' }}
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ${{ github.workspace }}/.broccoli-cache
@@ -111,7 +111,7 @@ runs:
 
     - name: Restore Lint Caches
       if: ${{ inputs.restore-lint-caches == 'true' }}
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           .eslintcache
