@@ -219,7 +219,7 @@ export async function parseRawFlags(
       const arg = raw_arg.slice(2);
       const parts = arg.split('=');
       const spelling = normalizeFlag(parts[0]);
-      const flag = spellings.get(spelling);
+      const flag = spellings.get(spelling) || aliases.get(spelling);
       if (!flag) {
         throw new Error(`Unknown flag: ${spelling}`);
       }
