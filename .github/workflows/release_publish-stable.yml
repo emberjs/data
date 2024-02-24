@@ -89,6 +89,7 @@ jobs:
           FORCE_COLOR: 2
           CI: true
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+          GITHUB_AUTH: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish New Release (Reversion)
         # If we are reversioning
         # Then we increment from the branch with the supplied increment
@@ -99,3 +100,4 @@ jobs:
           FORCE_COLOR: 2
           CI: true
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+          GITHUB_AUTH: ${{ secrets.GITHUB_TOKEN }}
