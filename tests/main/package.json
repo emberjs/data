@@ -87,9 +87,9 @@
     }
   },
   "devDependencies": {
-    "@babel/core": "^7.23.7",
+    "@babel/core": "^7.23.9",
     "@babel/plugin-transform-typescript": "^7.23.6",
-    "@babel/runtime": "^7.23.8",
+    "@babel/runtime": "^7.23.9",
     "@ember-data/adapter": "workspace:5.4.0-alpha.23",
     "@ember-data/debug": "workspace:5.4.0-alpha.23",
     "@ember-data/graph": "workspace:5.4.0-alpha.23",
@@ -107,7 +107,7 @@
     "@ember/optional-features": "^2.0.0",
     "@ember/string": "3.1.1",
     "@ember/test-helpers": "^3.2.1",
-    "@embroider/macros": "^1.13.4",
+    "@embroider/macros": "^1.13.5",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "@types/qunit": "^2.19.9",

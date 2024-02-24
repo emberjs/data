@@ -60,7 +60,7 @@
     "@ember-data/tracking": "workspace:5.4.0-alpha.23",
     "@ember/edition-utils": "^1.2.0",
     "@ember/test-helpers": "^3.2.1",
-    "@embroider/macros": "^1.13.4",
+    "@embroider/macros": "^1.13.5",
     "@types/qunit": "^2.19.9",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.9",
     "@warp-drive/diagnostic": "workspace:0.0.0-alpha.9",
@@ -101,8 +101,8 @@
     }
   },
   "devDependencies": {
-    "@babel/core": "^7.23.7",
-    "@babel/runtime": "^7.23.8",
+    "@babel/core": "^7.23.9",
+    "@babel/runtime": "^7.23.9",
     "@ember/optional-features": "^2.0.0",
     "@ember/string": "3.1.1",
     "@glimmer/component": "^1.1.2",
