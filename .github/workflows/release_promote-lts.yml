@@ -38,6 +38,7 @@ jobs:
           fetch-tags: true
           show-progress: false
           token: ${{ secrets.GH_DEPLOY_TOKEN }}
+      - run: git fetch origin --tags --depth=1
       - uses: ./.github/actions/setup
         with:
           install: true
