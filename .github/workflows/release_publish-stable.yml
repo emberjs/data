@@ -65,8 +65,8 @@ jobs:
           token: ${{ secrets.GH_DEPLOY_TOKEN }}
           fetch-depth: 3
           ref: release
-      ## Ensure we have a copy of the source branch
-      - run: git fetch origin ${{ github.event.inputs.source-branch }} --depth=1
+      ## Ensure we have a full copy of the source branch
+      - run: git fetch origin ${{ github.event.inputs.source-branch }} --depth=0
       - run: git fetch origin --tags --depth=1
       - name: Make sure git user is setup
         run: |

@@ -39,7 +39,7 @@ jobs:
           fetch-tags: true
           show-progress: false
           token: ${{ secrets.GH_DEPLOY_TOKEN }}
-          fetch-depth: 3
+          fetch-depth: 25
           ref: ${{ github.event.inputs.source-branch }}
       - run: git fetch origin --tags --depth=1
       - name: Make sure git user is setup
