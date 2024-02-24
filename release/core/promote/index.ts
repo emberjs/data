@@ -11,7 +11,7 @@ import { question } from '../publish/steps/confirm-strategy';
 
 export async function promoteToLTS(args: string[]) {
   // get user supplied config
-  const config = await parseRawFlags(args.slice(1), promote_flags_config);
+  const config = await parseRawFlags(args, promote_flags_config);
   const gitTag: GIT_TAG = `v${config.full.get('version') as SEMVER_VERSION}`;
 
   if (config.full.get('help')) {

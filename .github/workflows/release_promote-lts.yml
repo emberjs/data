@@ -47,7 +47,7 @@ jobs:
           git config --local user.email ${{ secrets.GH_DEPLOY_EMAIL }}
           git config --local user.name ${{ secrets.GH_DEPLOY_NAME }}
       - name: Publish with script
-        run: bun release exec promote --v=${{ github.event.inputs.version }} --t=${{ github.event.inputs.channel }} -u ${{ github.event.inputs.update-branch }}
+        run: bun release exec promote --v=${{ github.event.inputs.version }} --t=${{ github.event.inputs.channel }} --u=${{ github.event.inputs.update-branch }}
         env:
           FORCE_COLOR: 2
           CI: true

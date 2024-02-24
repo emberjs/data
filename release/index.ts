@@ -19,7 +19,6 @@ const COMMANDS = {
   promote: promoteToLTS,
   default: executePublish,
   exec: async (args: string[]) => {
-    args.shift();
     const cmd = args.shift();
 
     if (!cmd) {
