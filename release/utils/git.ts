@@ -181,7 +181,12 @@ export async function getAllPackagesForGitTag(tag: GIT_TAG): Promise<Map<string,
 export async function pushLTSTagToRemoteBranch(tag: GIT_TAG, force?: boolean): Promise<void> {
   const sha = await exec({ cmd: `git rev-list -n 1 ${tag}` });
   const branch = npmDistTagForChannelAndVersion('lts-prev', tag.slice(1) as SEMVER_VERSION);
-  const oldSha = await exec({ cmd: `git rev-list -n 1 refs/heads/${branch}` });
+  let oldSha = '<none>';
+  try {
+    oldSha = await exec({ cmd: `git rev-list -n 1 refs/heads/${branch}` });
+  } catch {
+    // no-op, branch does not exist
+  }
   let cmd = `git push origin refs/tags/${tag}:refs/heads/${branch}`;
   if (force) cmd += ' -f';
   await exec({ cmd });

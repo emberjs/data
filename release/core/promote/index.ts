@@ -22,6 +22,7 @@ export async function promoteToLTS(args: string[]) {
   const versionsToPromote = getPublicPackageVersions(packages);
 
   await updateTags(config.full, versionsToPromote);
+
   if (config.full.get('upstream') && !config.full.get('dry_run')) {
     try {
       await pushLTSTagToRemoteBranch(gitTag, true);
