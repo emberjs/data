@@ -56,7 +56,7 @@ jobs:
           git config --local user.email ${{ secrets.GH_DEPLOY_EMAIL }}
           git config --local user.name ${{ secrets.GH_DEPLOY_NAME }}
       - name: Publish with script
-        run: bun release canary -i ${{ github.event.inputs.increment }}
+        run: bun release exec canary --increment=${{ github.event.inputs.increment }}
         env:
           FORCE_COLOR: 2
           CI: true
