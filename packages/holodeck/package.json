@@ -48,7 +48,7 @@
     "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "peerDependencies": {
-    "@ember-data/request": "workspace:5.4.0-alpha.23",
+    "@ember-data/request": "workspace:5.3.1",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.9"
   },
   "devDependencies": {
@@ -58,12 +58,12 @@
     "@babel/preset-env": "^7.23.8",
     "@babel/preset-typescript": "^7.23.3",
     "@babel/runtime": "^7.23.8",
-    "@ember-data/request": "workspace:5.4.0-alpha.23",
+    "@ember-data/request": "workspace:5.3.1",
     "@embroider/addon-dev": "^4.1.2",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.9",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.23",
+    "@warp-drive/internal-config": "workspace:5.3.1",
     "rollup": "^4.9.6",
     "typescript": "^5.3.3",
     "walk-sync": "^3.0.0"
@@ -96,5 +96,6 @@
     "@warp-drive/core-types": {
       "injected": true
     }
-  }
+  },
+  "private": true
 }
