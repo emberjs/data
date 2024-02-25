@@ -1,0 +1,22 @@
+<div>
+  {{#if this.books.data}}
+    <ul>
+      {{#each this.books.data as |book|}}
+        <li>
+          <strong>{{book.title}}</strong> ({{book.genre}}) - {{book.publicationDate}}
+          <br> by <em>{{book.author}}</em> ISBN: {{book.isbn}}
+        </li>
+      {{/each}}
+    </ul>
+    <div>
+      {{#each this.links.filteredPages as |page|}}
+        <PageLink class={{if (eq page.link this.books.links.self) 'active'}} @title="page {{page.index}}" @link={{page.link}} @text="{{page.index}}" @action={{this.updatePage}} />
+        {{#if (mod page.index 11)}}
+          <br>
+        {{/if}}
+      {{/each}}
+    </div>
+  {{else}}
+    <p>No books found</p>
+  {{/if}}
+</div>
