@@ -182,6 +182,7 @@ export const publish_flags_config: FlagConfig = {
     type: String,
     examples: [],
     default_value: async (options: Map<string, string | number | boolean | null>) => {
+      console.log(options);
       return (await getPublishedChannelInfo()).latest;
     },
     validate: async (value: unknown) => {
