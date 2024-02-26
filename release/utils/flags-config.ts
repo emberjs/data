@@ -182,7 +182,16 @@ export const publish_flags_config: FlagConfig = {
     type: String,
     examples: [],
     default_value: async (options: Map<string, string | number | boolean | null>) => {
-      return (await getPublishedChannelInfo()).latest;
+      const channel = options.get('channel') as CHANNEL;
+      if (channel === 'lts' || channel === 'release' || channel === 'beta' || channel === 'canary') {
+        const version = (await getPublishedChannelInfo())[channel === 'release' ? 'latest' : channel];
+        const currentVersion = (await getGitState(options)).rootVersion;
+        if (version !== currentVersion) {
+          return version;
+        }
+        return '';
+      }
+      return '';
     },
     validate: async (value: unknown) => {
       if (typeof value !== 'string') {
