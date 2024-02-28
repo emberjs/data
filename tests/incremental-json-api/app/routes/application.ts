@@ -22,12 +22,15 @@ export default class ApplicationRoute extends Route {
     const genres = this.store.request<Document<Genre[]>>({ url: '/api/books/genres' });
     const authors = this.store.request<Document<Author[]>>({ url: '/api/books/authors' });
     const books = this.store.request<Document<Book[]>>(query('book'));
+    const oldBooks = this.store.findAll('book');
 
-    const data = await Promise.all([genres, authors, books]);
+    const data = await Promise.all([genres, authors, books, oldBooks]);
+
     return {
       genres: data[0].content.data!,
       authors: data[1].content.data!,
       allBooks: data[2].content,
+      oldBooks: Array.from(data[3]),
     };
   }
 }

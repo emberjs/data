@@ -3,6 +3,14 @@
 <table>
   <tbody>
     <tr>
+      <td><h2>Old Books</h2>{{@model.oldBooks.length}}</td>
+      <td>
+        {{#each @model.oldBooks as |book|}}
+          <p>{{book.title}}</p>
+        {{/each}}
+      </td>
+    </tr>
+    <tr>
       <td>
         <h2>Browse</h2>
         <div class="scroll-container">
