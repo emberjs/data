@@ -28,13 +28,14 @@ export default class MyStore extends Store {
 
 Notice we still want to import the `Store` class from `ember-data/store` package. You might have a lint rule that says don't do it. You can disable it for this import. The reason we want to import it from `ember-data/store` is because we want to use EmberData models, serializers, adapters, etc. while alongside we want to start utilizing new APIs.
 
->> Note: You can also use `@ember-data/store` package, but you will need to configure a lot more to make things work to use old APIs. We recommend using `ember-data/store` package to avoid confusion.
->> Note: Because we are extending `ember-data/store`, it is still v1 addon, so things might not work for you if you are using typescript. We recommend to have `store.js` file for now.
+> Note: You can also use `@ember-data/store` package, but you will need to configure a lot more to make things work to use old APIs. We recommend using `ember-data/store` package to avoid confusion.
+
+> Note: Because we are extending `ember-data/store`, it is still v1 addon, so things might not work for you if you are using typescript. We recommend to have `store.js` file for now.
 
 ## Step 3: Add `RequestManager` service to your application
 
 Now let's create our very own `RequestManager` service. It is a service that is responsible for sending requests to the server. It is a composable class, which means you can add your own request handlers to it.
- 
+
 First you need to install [`@ember-data/request`](https://github.com/emberjs/data/tree/main/packages/request) and [`@ember-data/legacy-compat`](https://github.com/emberjs/data/tree/main/packages/legacy-compat) packages. First contains the `RequestManager` service and a few request handlers, second has `LegacyNetworkHandler` that gonna handle all old-style `this.store.*` calls.
 
 Here is how your own `RequestManager` service may look like:
@@ -72,7 +73,7 @@ Let's go over the code above:
 
 3. Lastly `Fetch`. It is a handler that sends requests to the server using the `fetch` API. It expects responses to be JSON and when in use it should be the last handler you put in the chain. After finishing each request it will convert the response into json and pass it back to the handlers chain in reverse order as the request context's response. So `TestHandler` will receive `response` property first, and so on if we would have any.
 
->> NOTE: Your `RequestManager` service should be exactly `app/services/request-manager.[js|ts]` file. It is a convention that Ember uses to find the service.
+> NOTE: Your `RequestManager` service should be exactly `app/services/request-manager.[js|ts]` file. It is a convention that Ember uses to find the service.
 
 You can read more about request manager in the [request manager guide](../requests/index.md).
 
