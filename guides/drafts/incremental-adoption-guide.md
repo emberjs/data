@@ -12,33 +12,37 @@ This version of EmberData is the first version that supports the new APIs. It is
 
 ## Step 2: Add `Store` service to your application
 
-You will need to create your own store service. Before, a store service was automatically injected by EmberData. 
+You will need to create your own store service. Before, a store service was automatically injected by EmberData.
 Here is how you do it:
 
-```ts
+```js
 // eslint-disable-next-line ember/use-ember-data-rfc-395-imports
 import Store from 'ember-data/store';
 import { service } from '@ember/service';
-import RequestManager from '@ember-data/request';
 
 export default class MyStore extends Store {
-  @service declare requestManager: RequestManager;
+  @service requestManager;
 }
 
 ```
 
 Notice we still want to import the `Store` class from `ember-data/store` package. You might have a lint rule that says don't do it. You can disable it for this import. The reason we want to import it from `ember-data/store` is because we want to use EmberData models, serializers, adapters, etc. while alongside we want to start utilizing new APIs.
 
+>> Note: You can also use `@ember-data/store` package, but you will need to configure a lot more to make things work to use old APIs. We recommend using `ember-data/store` package to avoid confusion.
+>> Note: Because we are extending `ember-data/store`, it is still v1 addon, so things might not work for you if you are using typescript. We recommend to have `store.js` file for now.
+
 ## Step 3: Add `RequestManager` service to your application
 
-Now let's create our very own `RequestManager` service. It is a service that is responsible for sending requests to the server. It is a composable class, which means you can add your own request handlers to it. In the example below we are adding `LegacyNetworkHandler`, `TestHandler` and `Fetch` handlers.
+Now let's create our very own `RequestManager` service. It is a service that is responsible for sending requests to the server. It is a composable class, which means you can add your own request handlers to it.
+ 
+First you need to install [`@ember-data/request`](https://github.com/emberjs/data/tree/main/packages/request) and [`@ember-data/legacy-compat`](https://github.com/emberjs/data/tree/main/packages/legacy-compat) packages. First contains the `RequestManager` service and a few request handlers, second has `LegacyNetworkHandler` that gonna handle all old-style `this.store.*` calls.
 
-```ts
+Here is how your own `RequestManager` service may look like:
+
+```js
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 import { LegacyNetworkHandler } from '@ember-data/legacy-compat';
-import { CacheHandler } from 'ember-data/store';
-import { setBuildURLConfig } from '@ember-data/request-utils';
 
 const TestHandler = {
   async request({ request }, next) {
@@ -56,7 +60,6 @@ export default class Requests extends RequestManager {
   constructor(args) {
     super(args);
     this.use([LegacyNetworkHandler, TestHandler, Fetch]);
-    this.useCache(CacheHandler);
   }
 }
 ```
@@ -69,13 +72,17 @@ Let's go over the code above:
 
 3. Lastly `Fetch`. It is a handler that sends requests to the server using the `fetch` API. It expects responses to be JSON and when in use it should be the last handler you put in the chain. After finishing each request it will convert the response into json and pass it back to the handlers chain in reverse order as the request context's response. So `TestHandler` will receive `response` property first, and so on if we would have any.
 
-You can read more about request manager in the [request manager guide](./request-manager-guide.md).
+>> NOTE: Your `RequestManager` service should be exactly `app/services/request-manager.[js|ts]` file. It is a convention that Ember uses to find the service.
+
+You can read more about request manager in the [request manager guide](../requests/index.md).
 
 ## Step 4: Install `@ember-data/json-api`, `@ember-data/request-utils` packages
 
-If you were using JSON:API adapter/serializer for your backend communication, you can use `@ember-data/json-api` package. It is a package that contains predefined builders for JSON:API requests. You can read more about it in the [`@ember-data/json-api` guide](TODO: add link).
+If you were using JSON:API adapter/serializer for your backend communication, you can use `@ember-data/json-api` package. It is a package that contains predefined builders for JSON:API requests. You can read more about it in the [`@ember-data/json-api`](https://github.com/emberjs/data/tree/main/packages/json-api).
 
-If you have different backend format - EmberData provides you with builders for `REST`(@ember-data/rest) and `ActiveRecord`(@ember-data/active-record).
+If you have different backend format - EmberData provides you with builders for `REST`([`@ember-data/rest`](https://github.com/emberjs/data/tree/main/packages/rest)) and `ActiveRecord`([`@ember-data/active-record`](https://github.com/emberjs/data/tree/main/packages/active-record)).
+
+`@ember-data/request-utils` package contains a lot of useful utilities for building requests. You can read more about it in its [Readme](https://github.com/emberjs/data/tree/main/packages/request-utils#readme). It has request builders for all type of requests.
 
 ## Step 5: Off you go! Start using new APIs
 
@@ -113,3 +120,27 @@ export default class AuthHandler {
 }
 ```
 
+You can read more about auth topic [here](../requests/auth.md).
+
+Another good thing to do is to configure default host and namespace for your requests. There is an utility for that out of the box of `@ember-data/request-utils` called [`setBuildURLConfig`](https://github.com/emberjs/data/blob/main/packages/request-utils/src/index.ts#L67). You can do it anywhere in your app theoretically, but we recommend doing it in the `app/app.js` file. Here is how you can do it:
+
+```diff app/app.js
+import Application from '@ember/application';
+import Resolver from 'ember-resolver';
+import loadInitializers from 'ember-load-initializers';
+import config from 'base-ember-typescript-app/config/environment';
++import { setBuildURLConfig } from '@ember-data/request-utils';
+
+export default class App extends Application {
+  modulePrefix = config.modulePrefix;
+  podModulePrefix = config.podModulePrefix;
+  Resolver = Resolver;
+}
+
+loadInitializers(App, config.modulePrefix);
+
++setBuildURLConfig({
++  host: 'https://api.example.com',
++  namespace: 'v1',
++});
+```
