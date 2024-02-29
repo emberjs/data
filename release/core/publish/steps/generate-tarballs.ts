@@ -34,6 +34,9 @@ export async function generatePackageTarballs(
     }
 
     try {
+      if (pkg.pkgData.scripts?.['prepack']) {
+        await exec({ cwd: path.join(PROJECT_ROOT, path.dirname(pkg.filePath)), cmd: `bun run prepack` });
+      }
       await amendFilesForTypesStrategy(pkg, pkgStrategy);
     } catch (e) {
       console.log(`🔴 ${chalk.redBright('failed to amend files to pack for')} ${chalk.yellow(pkg.pkgData.name)}`);
@@ -199,6 +202,9 @@ async function makeTypesStable(pkg: Package) {
 }
 
 async function amendFilesForTypesStrategy(pkg: Package, strategy: APPLIED_STRATEGY) {
+  if (pkg.pkgData.scripts?.['prepack']) {
+    delete pkg.pkgData.scripts['prepack'];
+  }
   switch (strategy.types) {
     case 'private':
       makeTypesPrivate(pkg);
