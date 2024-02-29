@@ -1,5 +1,10 @@
 # EmberData Changelog
 
+## v5.3.2 (2024-02-29)
+
+#### Committers: (0)
+
+
 ## v5.3.1 (2024-02-24)
 
 #### :evergreen_tree: New Deprecation
