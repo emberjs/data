@@ -11,7 +11,7 @@ interface User {
   id: string | null;
   $type: 'user';
   name: string;
-  favoriteNumbers: string[];
+  favoriteNumbers: string[] | null;
 }
 
 module('Writes | array fields', function (hooks) {
@@ -50,7 +50,7 @@ module('Writes | array fields', function (hooks) {
     assert.strictEqual(record.$type, 'user', '$type is accessible');
     assert.strictEqual(record.name, 'Rey Pupatine', 'name is accessible');
     assert.true(Array.isArray(record.favoriteNumbers), 'we can access favoriteNumber array');
-    assert.deepEqual(record.favoriteNumbers.slice(), ['1', '2'], 'We have the correct array members');
+    assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
     assert.strictEqual(record.favoriteNumbers, record.favoriteNumbers, 'We have a stable array reference');
     const favoriteNumbers = record.favoriteNumbers;
     record.favoriteNumbers = ['3', '4'];
@@ -66,6 +66,57 @@ module('Writes | array fields', function (hooks) {
       ['3', '4'],
       'the cache values are correctly updated'
     );
+  });
+
+  test('we can update to null', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const schema = new SchemaService();
+    store.registerSchema(schema);
+    registerDerivations(schema);
+
+    schema.defineSchema('user', {
+      fields: withFields([
+        {
+          name: 'name',
+          type: null,
+          kind: 'field',
+        },
+        {
+          name: 'favoriteNumbers',
+          type: null,
+          kind: 'array',
+        },
+      ]),
+    });
+
+    const record = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: { name: 'Rey Pupatine', favoriteNumbers: ['1', '2'] },
+      },
+    }) as User;
+
+    assert.strictEqual(record.id, '1', 'id is accessible');
+    assert.strictEqual(record.$type, 'user', '$type is accessible');
+    assert.strictEqual(record.name, 'Rey Pupatine', 'name is accessible');
+    assert.true(Array.isArray(record.favoriteNumbers), 'we can access favoriteNumber array');
+    assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
+    assert.strictEqual(record.favoriteNumbers, record.favoriteNumbers, 'We have a stable array reference');
+    record.favoriteNumbers = null;
+    assert.strictEqual(record.favoriteNumbers, null, 'The array is correctly set to null');
+
+    // test that the data entered the cache properly
+    const identifier = recordIdentifierFor(record);
+    const cachedResourceData = store.cache.peek(identifier);
+
+    assert.deepEqual(
+      cachedResourceData.attributes?.favoriteNumbers,
+      undefined,
+      'the cache values are correctly updated'
+    );
+    record.favoriteNumbers = ['3', '4'];
+    assert.deepEqual(record.favoriteNumbers.slice(), ['3', '4'], 'We have the correct array members');
   });
 
   test('we can update a single value in the array', function (assert) {
@@ -97,10 +148,10 @@ module('Writes | array fields', function (hooks) {
       },
     }) as User;
 
-    assert.deepEqual(record.favoriteNumbers.slice(), ['1', '2'], 'We have the correct array members');
+    assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
     const favoriteNumbers = record.favoriteNumbers;
     record.favoriteNumbers[0] = '3';
-    assert.deepEqual(record.favoriteNumbers.slice(), ['3', '2'], 'We have the correct array members');
+    assert.deepEqual(record.favoriteNumbers?.slice(), ['3', '2'], 'We have the correct array members');
     assert.strictEqual(favoriteNumbers, record.favoriteNumbers, 'Array reference does not change');
 
     // test that the data entered the cache properly
@@ -147,11 +198,11 @@ module('Writes | array fields', function (hooks) {
     assert.strictEqual(record.$type, 'user', '$type is accessible');
     assert.strictEqual(record.name, 'Rey Pupatine', 'name is accessible');
     assert.true(Array.isArray(record.favoriteNumbers), 'we can access favoriteNumber array');
-    assert.deepEqual(record.favoriteNumbers.slice(), ['1', '2'], 'We have the correct array members');
+    assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
     assert.strictEqual(record.favoriteNumbers, record.favoriteNumbers, 'We have a stable array reference');
     const favoriteNumbers = record.favoriteNumbers;
-    record.favoriteNumbers.push('3');
-    assert.deepEqual(record.favoriteNumbers.slice(), ['1', '2', '3'], 'We have the correct array members');
+    record.favoriteNumbers?.push('3');
+    assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2', '3'], 'We have the correct array members');
     assert.strictEqual(favoriteNumbers, record.favoriteNumbers, 'Array reference does not change');
 
     // test that the data entered the cache properly
@@ -198,12 +249,12 @@ module('Writes | array fields', function (hooks) {
     assert.strictEqual(record.$type, 'user', '$type is accessible');
     assert.strictEqual(record.name, 'Rey Pupatine', 'name is accessible');
     assert.true(Array.isArray(record.favoriteNumbers), 'we can access favoriteNumber array');
-    assert.deepEqual(record.favoriteNumbers.slice(), ['1', '2'], 'We have the correct array members');
+    assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
     assert.strictEqual(record.favoriteNumbers, record.favoriteNumbers, 'We have a stable array reference');
     const favoriteNumbers = record.favoriteNumbers;
-    const num = record.favoriteNumbers.pop();
+    const num = record.favoriteNumbers?.pop();
     assert.strictEqual(num, '2', 'the correct value was popped off the array');
-    assert.deepEqual(record.favoriteNumbers.slice(), ['1'], 'We have the correct array members');
+    assert.deepEqual(record.favoriteNumbers?.slice(), ['1'], 'We have the correct array members');
     assert.strictEqual(favoriteNumbers, record.favoriteNumbers, 'Array reference does not change');
 
     // test that the data entered the cache properly
@@ -211,6 +262,167 @@ module('Writes | array fields', function (hooks) {
     const cachedResourceData = store.cache.peek(identifier);
 
     assert.deepEqual(cachedResourceData.attributes?.favoriteNumbers, ['1'], 'the cache values are correctly updated');
+  });
+
+  test('we can unshift a value on to the array', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const schema = new SchemaService();
+    store.registerSchema(schema);
+    registerDerivations(schema);
+
+    schema.defineSchema('user', {
+      fields: withFields([
+        {
+          name: 'name',
+          type: null,
+          kind: 'field',
+        },
+        {
+          name: 'favoriteNumbers',
+          type: null,
+          kind: 'array',
+        },
+      ]),
+    });
+
+    const record = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: { name: 'Rey Pupatine', favoriteNumbers: ['1', '2'] },
+      },
+    }) as User;
+
+    assert.strictEqual(record.id, '1', 'id is accessible');
+    assert.strictEqual(record.$type, 'user', '$type is accessible');
+    assert.strictEqual(record.name, 'Rey Pupatine', 'name is accessible');
+    assert.true(Array.isArray(record.favoriteNumbers), 'we can access favoriteNumber array');
+    assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
+    assert.strictEqual(record.favoriteNumbers, record.favoriteNumbers, 'We have a stable array reference');
+    const favoriteNumbers = record.favoriteNumbers;
+    record.favoriteNumbers?.unshift('3');
+    assert.deepEqual(record.favoriteNumbers?.slice(), ['3', '1', '2'], 'We have the correct array members');
+    assert.strictEqual(favoriteNumbers, record.favoriteNumbers, 'Array reference does not change');
+
+    // test that the data entered the cache properly
+    const identifier = recordIdentifierFor(record);
+    const cachedResourceData = store.cache.peek(identifier);
+
+    assert.deepEqual(
+      cachedResourceData.attributes?.favoriteNumbers,
+      ['3', '1', '2'],
+      'the cache values are correctly updated'
+    );
+  });
+
+  test('we can shift a value off of the array', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const schema = new SchemaService();
+    store.registerSchema(schema);
+    registerDerivations(schema);
+
+    schema.defineSchema('user', {
+      fields: withFields([
+        {
+          name: 'name',
+          type: null,
+          kind: 'field',
+        },
+        {
+          name: 'favoriteNumbers',
+          type: null,
+          kind: 'array',
+        },
+      ]),
+    });
+
+    const record = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: { name: 'Rey Pupatine', favoriteNumbers: ['1', '2'] },
+      },
+    }) as User;
+
+    assert.strictEqual(record.id, '1', 'id is accessible');
+    assert.strictEqual(record.$type, 'user', '$type is accessible');
+    assert.strictEqual(record.name, 'Rey Pupatine', 'name is accessible');
+    assert.true(Array.isArray(record.favoriteNumbers), 'we can access favoriteNumber array');
+    assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
+    assert.strictEqual(record.favoriteNumbers, record.favoriteNumbers, 'We have a stable array reference');
+    const favoriteNumbers = record.favoriteNumbers;
+    const num = record.favoriteNumbers?.shift();
+    assert.strictEqual(num, '1', 'the correct value was popped off the array');
+    assert.deepEqual(record.favoriteNumbers?.slice(), ['2'], 'We have the correct array members');
+    assert.strictEqual(favoriteNumbers, record.favoriteNumbers, 'Array reference does not change');
+
+    // test that the data entered the cache properly
+    const identifier = recordIdentifierFor(record);
+    const cachedResourceData = store.cache.peek(identifier);
+
+    assert.deepEqual(cachedResourceData.attributes?.favoriteNumbers, ['2'], 'the cache values are correctly updated');
+  });
+
+  test('we can assign an array value to another record', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const schema = new SchemaService();
+    store.registerSchema(schema);
+    registerDerivations(schema);
+
+    schema.defineSchema('user', {
+      fields: withFields([
+        {
+          name: 'name',
+          type: null,
+          kind: 'field',
+        },
+        {
+          name: 'favoriteNumbers',
+          type: null,
+          kind: 'array',
+        },
+      ]),
+    });
+
+    const record = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: { name: 'Rey Pupatine', favoriteNumbers: ['1', '2'] },
+      },
+    }) as User;
+
+    const record2 = store.push({
+      data: {
+        type: 'user',
+        id: '2',
+        attributes: { name: 'Luke Skybarker' },
+      },
+    }) as User;
+
+    assert.strictEqual(record.id, '1', 'id is accessible');
+    assert.strictEqual(record.$type, 'user', '$type is accessible');
+    assert.strictEqual(record.name, 'Rey Pupatine', 'name is accessible');
+    assert.strictEqual(record2.id, '2', 'id is accessible');
+    assert.strictEqual(record2.$type, 'user', '$type is accessible');
+    assert.strictEqual(record2.name, 'Luke Skybarker', 'name is accessible');
+    assert.true(Array.isArray(record.favoriteNumbers), 'we can access favoriteNumber array');
+    assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
+    assert.strictEqual(record.favoriteNumbers, record.favoriteNumbers, 'We have a stable array reference');
+    const favoriteNumbers = record.favoriteNumbers;
+    record2.favoriteNumbers = record.favoriteNumbers;
+    assert.deepEqual(record2.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
+    assert.strictEqual(favoriteNumbers, record.favoriteNumbers, 'Array reference does not change');
+    assert.notStrictEqual(favoriteNumbers, record2.favoriteNumbers, 'This is weird');
+    // test that the data entered the cache properly
+    const identifier = recordIdentifierFor(record2);
+    const cachedResourceData = store.cache.peek(identifier);
+
+    assert.deepEqual(
+      cachedResourceData.attributes?.favoriteNumbers,
+      ['1', '2'],
+      'the cache values are correctly updated'
+    );
   });
 
   test('we can edit simple array fields with a `type`', function (assert) {
@@ -322,7 +534,7 @@ module('Writes | array fields', function (hooks) {
     assert.strictEqual(record.$type, 'user', '$type is accessible');
     assert.strictEqual(record.name, 'Rey Skybarker', 'name is accessible');
     assert.true(Array.isArray(record.favoriteNumbers), 'we can access favoriteNumber array');
-    assert.deepEqual(record.favoriteNumbers.slice(), ['1', '2'], 'We have the correct array members');
+    assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
 
     assert.strictEqual(record.favoriteNumbers, record.favoriteNumbers, 'We have a stable array reference');
     assert.notStrictEqual(record.favoriteNumbers, sourceArray);
@@ -330,7 +542,7 @@ module('Writes | array fields', function (hooks) {
     const favoriteNumbers = record.favoriteNumbers;
 
     record.favoriteNumbers[0] = '3';
-    assert.deepEqual(record.favoriteNumbers.slice(), ['3', '2'], 'We have the correct array members');
+    assert.deepEqual(record.favoriteNumbers?.slice(), ['3', '2'], 'We have the correct array members');
     assert.strictEqual(favoriteNumbers, record.favoriteNumbers, 'Array reference does not change');
 
     // test that the data entered the cache properly
@@ -388,15 +600,15 @@ module('Writes | array fields', function (hooks) {
     assert.strictEqual(record.$type, 'user', '$type is accessible');
     assert.strictEqual(record.name, 'Rey Skybarker', 'name is accessible');
     assert.true(Array.isArray(record.favoriteNumbers), 'we can access favoriteNumber array');
-    assert.deepEqual(record.favoriteNumbers.slice(), ['1', '2'], 'We have the correct array members');
+    assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
 
     assert.strictEqual(record.favoriteNumbers, record.favoriteNumbers, 'We have a stable array reference');
     assert.notStrictEqual(record.favoriteNumbers, sourceArray);
 
     const favoriteNumbers = record.favoriteNumbers;
 
-    record.favoriteNumbers.push('3');
-    assert.deepEqual(record.favoriteNumbers.slice(), ['1', '2', '3'], 'We have the correct array members');
+    record.favoriteNumbers?.push('3');
+    assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2', '3'], 'We have the correct array members');
     assert.strictEqual(favoriteNumbers, record.favoriteNumbers, 'Array reference does not change');
 
     // test that the data entered the cache properly
@@ -454,16 +666,16 @@ module('Writes | array fields', function (hooks) {
     assert.strictEqual(record.$type, 'user', '$type is accessible');
     assert.strictEqual(record.name, 'Rey Skybarker', 'name is accessible');
     assert.true(Array.isArray(record.favoriteNumbers), 'we can access favoriteNumber array');
-    assert.deepEqual(record.favoriteNumbers.slice(), ['1', '2'], 'We have the correct array members');
+    assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
 
     assert.strictEqual(record.favoriteNumbers, record.favoriteNumbers, 'We have a stable array reference');
     assert.notStrictEqual(record.favoriteNumbers, sourceArray);
 
     const favoriteNumbers = record.favoriteNumbers;
 
-    const val = record.favoriteNumbers.pop();
+    const val = record.favoriteNumbers?.pop();
     assert.strictEqual(val, '2', 'the correct value was popped off the array');
-    assert.deepEqual(record.favoriteNumbers.slice(), ['1'], 'We have the correct array members');
+    assert.deepEqual(record.favoriteNumbers?.slice(), ['1'], 'We have the correct array members');
     assert.strictEqual(favoriteNumbers, record.favoriteNumbers, 'Array reference does not change');
 
     // test that the data entered the cache properly

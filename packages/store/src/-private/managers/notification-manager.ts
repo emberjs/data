@@ -54,9 +54,11 @@ function _unsubscribe(
   >
 ) {
   const identifier = tokens.get(token);
-  if (!identifier) {
-    // eslint-disable-next-line no-console
-    console.log('Passed unknown unsubscribe token to unsubscribe', identifier);
+  if (LOG_NOTIFICATIONS) {
+    if (!identifier) {
+      // eslint-disable-next-line no-console
+      console.log('Passed unknown unsubscribe token to unsubscribe', identifier);
+    }
   }
   if (identifier) {
     tokens.delete(token);
@@ -187,18 +189,22 @@ export default class NotificationManager {
       !key || value === 'attributes' || value === 'relationships'
     );
     if (!isStableIdentifier(identifier) && !isDocumentIdentifier(identifier)) {
-      // eslint-disable-next-line no-console
-      console.log(
-        `Notifying: Expected to receive a stable Identifier to notify '${value}' '${key || ''}' with, but ${String(
+      if (LOG_NOTIFICATIONS) {
+        // eslint-disable-next-line no-console
+        console.log(
+          `Notifying: Expected to receive a stable Identifier to notify '${value}' '${key || ''}' with, but ${String(
+            identifier
+          )} is not in the cache`,
           identifier
-        )} is not in the cache`,
-        identifier
-      );
+        );
+      }
       return false;
     }
 
-    // eslint-disable-next-line no-console
-    console.log(`Buffering Notify: ${String(identifier.lid)}\t${value}\t${key || ''}`);
+    if (LOG_NOTIFICATIONS) {
+      // eslint-disable-next-line no-console
+      console.log(`Buffering Notify: ${String(identifier.lid)}\t${value}\t${key || ''}`);
+    }
 
     const hasSubscribers = Boolean(this._cache.get(identifier)?.size);
 
@@ -261,8 +267,10 @@ export default class NotificationManager {
     value: NotificationType | CacheOperation,
     key?: string
   ): boolean {
-    // eslint-disable-next-line no-console
-    console.log(`Notifying: ${String(identifier)}\t${value}\t${key || ''}`);
+    if (LOG_NOTIFICATIONS) {
+      // eslint-disable-next-line no-console
+      console.log(`Notifying: ${String(identifier)}\t${value}\t${key || ''}`);
+    }
 
     // TODO for documents this will need to switch based on Identifier kind
     if (isCacheOperationValue(value)) {

@@ -37,7 +37,12 @@ export async function reactiveContext<T extends OpaqueRecordInstance>(
       get() {
         counters[field.name]++;
 
-        if (field.kind === 'attribute' || field.kind === 'field' || field.kind === 'derived') {
+        if (
+          field.kind === 'attribute' ||
+          field.kind === 'field' ||
+          field.kind === 'derived' ||
+          field.kind === 'array'
+        ) {
           return record[field.name as keyof T] as unknown;
         } else if (field.kind === 'resource') {
           return (record[field.name as keyof T] as ResourceRelationship).data?.id;

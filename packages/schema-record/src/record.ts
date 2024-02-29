@@ -5,11 +5,9 @@ import type { Future } from '@ember-data/request';
 import type Store from '@ember-data/store';
 import type { StoreRequestInput } from '@ember-data/store/-private/cache-handler';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 import {
   addToTransaction,
-  createSignal,
   defineSignal,
   entangleSignal,
   getSignal,
@@ -101,6 +99,9 @@ function computeArray(
     return managedArray;
   } else {
     const rawValue = cache.getAttr(identifier, prop) as unknown[];
+    if (!rawValue) {
+      return null;
+    }
     managedArray = new ManagedArray(store, schema, cache, field, rawValue, identifier, prop, record);
     if (!managedArrayMapForRecord) {
       ManagedArrayMap.set(record, new Map([[field, managedArray]]));
@@ -234,6 +235,7 @@ export class SchemaRecord {
   declare ___notifications: object;
 
   constructor(store: Store, identifier: StableRecordIdentifier, Mode: { [Editable]: boolean; [Legacy]: boolean }) {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
     this[RecordStore] = store;
     this[Identifier] = identifier;
@@ -256,15 +258,15 @@ export class SchemaRecord {
               if (signal) {
                 addToTransaction(signal);
               }
-              // const field = fields.get(key);
-              // if (field?.kind === 'array') {
-              //   const peeked = peekManagedArray(self, field);
-              //   if (peeked) {
-              //     const arrSignal = peeked[ARRAY_SIGNAL];
-              //     arrSignal.shouldReset = true;
-              //     addToTransaction(arrSignal);
-              //   }
-              // }
+              const field = fields.get(key);
+              if (field?.kind === 'array') {
+                const peeked = peekManagedArray(self, field);
+                if (peeked) {
+                  const arrSignal = peeked[ARRAY_SIGNAL];
+                  arrSignal.shouldReset = true;
+                  addToTransaction(arrSignal);
+                }
+              }
             }
             break;
         }
@@ -326,13 +328,6 @@ export class SchemaRecord {
               `SchemaRecord.${field.name} is not available in legacy mode because it has type '${field.kind}'`,
               !target[Legacy]
             );
-            // 1. user sets value to something new (null)
-            // - remove reference to stable array
-            // 2. user assigns array to value on different record, or to a new array
-            // - remove reference to previous stable array
-            // - add copy of reference to stable array at new owner
-            // 3. cache receives new value
-            // - remove reference to previous stable array on next "get"
             entangleSignal(signals, receiver, field.name);
             return computeArray(store, schema, cache, target, identifier, field, prop as string);
           default:
@@ -340,7 +335,6 @@ export class SchemaRecord {
         }
       },
       set(target: SchemaRecord, prop: string | number | symbol, value: unknown, receiver: typeof Proxy<SchemaRecord>) {
-        debugger;
         if (!IS_EDITABLE) {
           throw new Error(`Cannot set ${String(prop)} on ${identifier.type} because the record is not editable`);
         }
@@ -380,17 +374,18 @@ export class SchemaRecord {
           }
           case 'array': {
             if (field.type === null) {
-              cache.setAttr(identifier, prop as string, (value as ArrayValue).slice());
+              cache.setAttr(identifier, prop as string, (value as ArrayValue)?.slice());
               const peeked = peekManagedArray(self, field);
               if (peeked) {
                 const arrSignal = peeked[ARRAY_SIGNAL];
                 arrSignal.shouldReset = true;
               }
+              if (!Array.isArray(value)) {
+                ManagedArrayMap.delete(target);
+              }
               return true;
             }
-            if (!Array.isArray(value)) {
-              ManagedArrayMap.delete(target);
-            }
+
             const transform = schema.transforms.get(field.type);
             if (!transform) {
               throw new Error(`No '${field.type}' transform defined for use by ${identifier.type}.${String(prop)}`);

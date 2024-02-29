@@ -1,24 +1,15 @@
 import { assert } from '@ember/debug';
 
 import type Store from '@ember-data/store';
-import { recordIdentifierFor } from '@ember-data/store';
 import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
 import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 import type { Signal } from '@ember-data/tracking/-private';
-import {
-  addToTransaction,
-  addTransactionCB,
-  createArrayTags,
-  createSignal,
-  defineSignal,
-  subscribe,
-} from '@ember-data/tracking/-private';
+import { addToTransaction, createSignal, subscribe } from '@ember-data/tracking/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { ArrayValue, Value } from '@warp-drive/core-types/json/raw';
 
 import type { SchemaRecord } from './record';
-import { Identifier } from './record';
 import type { SchemaService } from './schema';
 
 export const SOURCE = Symbol('#source');
@@ -55,17 +46,17 @@ const ARRAY_GETTER_METHODS = new Set<KeyType>([
   'some',
   'values',
 ]);
-const ARRAY_SETTER_METHODS = new Set<KeyType>(['push', 'pop', 'unshift', 'shift', 'splice', 'sort']);
+// const ARRAY_SETTER_METHODS = new Set<KeyType>(['push', 'pop', 'unshift', 'shift', 'splice', 'sort']);
 const SYNC_PROPS = new Set<KeyType>(['[]', 'length']);
 function isArrayGetter<T>(prop: KeyType): prop is keyof Array<T> {
   return ARRAY_GETTER_METHODS.has(prop);
 }
-function isArraySetter<T>(prop: KeyType): prop is keyof Array<T> {
-  return ARRAY_SETTER_METHODS.has(prop);
-}
-function isSelfProp<T extends object>(self: T, prop: KeyType): prop is keyof T {
-  return prop in self;
-}
+// function isArraySetter<T>(prop: KeyType): prop is keyof Array<T> {
+//   return ARRAY_SETTER_METHODS.has(prop);
+// }
+// function isSelfProp<T extends object>(self: T, prop: KeyType): prop is keyof T {
+//   return prop in self;
+// }
 
 function convertToInt(prop: KeyType): number | null {
   if (typeof prop === 'symbol') return null;
@@ -136,7 +127,7 @@ export class ManagedArray {
   ) {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
-    this[SOURCE] = data.slice();
+    this[SOURCE] = data?.slice();
     this[ARRAY_SIGNAL] = createSignal(this, 'length');
     const _SIGNAL = this[ARRAY_SIGNAL];
     const boundFns = new Map<KeyType, ProxiedMethod>();
@@ -213,40 +204,28 @@ export class ManagedArray {
           }
           return fn;
         }
-        // step 1: if we've been told we are dirty, and we are accessing something that
-        // asks for a value back, then update current data from the cache
-
-        // step 2: if the prop appears to be a number, then we are accessing an array index
-        // return the value at that index
-        // guarding subscription against whether we are in a transaction
-        // potentially error if the index is out of bounds.
-
-        // step 3: if the prop is an array getter, generate the bound function if needed
-        // then run the bound function with the appropriate args and return the result
-        // this sohuld be wrapped in a transaction
 
         return Reflect.get(target, prop, receiver);
       },
       set(target, prop: KeyType, value, receiver) {
         if (prop === 'address') {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           self.address = value;
           return true;
         }
         if (prop === 'key') {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           self.key = value;
           return true;
         }
         if (prop === 'owner') {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           self.owner = value;
           return true;
         }
         const reflect = Reflect.set(target, prop, value, receiver);
 
-        console.count('set');
-        // a[0] = 'bar';
-        // a.push('bar');
         if (reflect) {
-          debugger;
           if (field.type === null) {
             cache.setAttr(self.address, self.key, self[SOURCE] as Value);
             _SIGNAL.shouldReset = true;
