@@ -158,7 +158,7 @@ export async function exec(cmd: string[] | string | CMD, dryRun: boolean = false
       if (proc.exitCode !== 0) {
         console.log(result);
         const errText = await new Response(proc.stderr).text();
-        console.error(errText);
+        console.error('\t' + errText.split('\n').join('\n\t'));
         throw proc.exitCode;
       }
       return result;
@@ -166,15 +166,23 @@ export async function exec(cmd: string[] | string | CMD, dryRun: boolean = false
       const proc = Bun.spawn(args, {
         env: process.env,
         cwd,
+        stderr: 'pipe',
+        stdout: 'pipe',
       });
 
       await proc.exited;
       if (proc.exitCode !== 0) {
         const logText = await new Response(proc.stdout).text();
-        console.log(logText);
         const errText = await new Response(proc.stderr).text();
-        console.error(errText);
-        throw proc.exitCode;
+        console.error('\t' + errText.split('\n').join('\n\t'));
+
+        const error = new Error(`exit code: ${String(proc.exitCode)}`);
+        // @ts-expect-error - adding properties to custom Error
+        error.logText = logText;
+        // @ts-expect-error - adding properties to custom Error
+        error.errText = errText;
+
+        throw error;
       }
 
       return await new Response(proc.stdout).text();

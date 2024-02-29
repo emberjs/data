@@ -71,7 +71,34 @@ function packageForSubPath(strategy: STRATEGY, subPath: string, packages: Map<st
   throw new Error(`Could not find package for subpath: ${subPath}`);
 }
 
+function extractLoggedEntry(
+  currentEntry: Entry,
+  data: LernaOutput,
+  byPackage: Record<string, Record<string, Map<string, Entry>>>,
+  subPathMap: Map<string, Package>,
+  strategy: STRATEGY,
+  currentSection: string
+): void {
+  const PRMatches = currentEntry!.description.match(/^\[#(\d+)/);
+  const PRNumber = PRMatches![1];
+
+  // e.g. ([@runspired](https://github.com/runspired))
+  const committerMatches = currentEntry!.description.match(CommitterRegEx);
+  currentEntry!.committer = committerMatches![1];
+
+  (data[currentSection] as Map<string, Entry>).set(PRNumber, currentEntry as Entry);
+
+  currentEntry?.packages.forEach((subPath) => {
+    const pkg = packageForSubPath(strategy, subPath, subPathMap);
+    byPackage[pkg] = byPackage[pkg] || {};
+    byPackage[pkg][currentSection] = byPackage[pkg][currentSection] || new Map();
+    byPackage[pkg][currentSection].set(PRNumber, currentEntry as Entry);
+  });
+}
+
 function parseLernaOutput(markdown: string, strategy: STRATEGY, packages: Map<string, Package>): LernaChangeset {
+  // uncomment this to see lerna's markdown output if needed to debug
+  // console.log(markdown);
   const subPathMap = packagesBySubPath(strategy, packages);
   const data: LernaOutput = {
     [Committers]: new Map(),
@@ -91,7 +118,14 @@ function parseLernaOutput(markdown: string, strategy: STRATEGY, packages: Map<st
         isParsingSection = false;
         currentSection = '';
       } else {
-        if (line.startsWith('* ')) {
+        if (line.startsWith('* [#')) {
+          currentEntry = {
+            packages: ['Other'],
+            description: line.substring(2),
+            committer: '',
+          };
+          extractLoggedEntry(currentEntry, data, byPackage, subPathMap, strategy, currentSection);
+        } else if (line.startsWith('* ')) {
           const packages = line
             .substring(2)
             .split(',')
@@ -104,21 +138,7 @@ function parseLernaOutput(markdown: string, strategy: STRATEGY, packages: Map<st
         } else if (line.startsWith('  * ')) {
           currentEntry = structuredClone(currentEntry!);
           currentEntry!.description = line.substring(4);
-          const PRMatches = currentEntry!.description.match(/^\[#(\d+)/);
-          const PRNumber = PRMatches![1];
-
-          // e.g. ([@runspired](https://github.com/runspired))
-          const committerMatches = currentEntry!.description.match(CommitterRegEx);
-          currentEntry!.committer = committerMatches![1];
-
-          (data[currentSection] as Map<string, Entry>).set(PRNumber, currentEntry as Entry);
-
-          currentEntry?.packages.forEach((subPath) => {
-            const pkg = packageForSubPath(strategy, subPath, subPathMap);
-            byPackage[pkg] = byPackage[pkg] || {};
-            byPackage[pkg][currentSection] = byPackage[pkg][currentSection] || new Map();
-            byPackage[pkg][currentSection].set(PRNumber, currentEntry as Entry);
-          });
+          extractLoggedEntry(currentEntry, data, byPackage, subPathMap, strategy, currentSection);
         } else {
           isParsingSection = false;
           currentSection = '';

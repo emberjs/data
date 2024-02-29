@@ -161,11 +161,44 @@ export async function getGitState(options: Map<string, boolean | string | number
   return _GIT_STATE;
 }
 
-export async function getAllPackagesForGitTag(tag: GIT_TAG): Promise<Map<string, Package>> {
-  const relativeTmpDir = `./tmp/${tag}`;
-  await exec(['mkdir', '-p', relativeTmpDir]);
-  await exec({ cmd: ['sh', '-c', `git archive ${tag} | tar -xC ${relativeTmpDir}`] });
+// currently we support things like
+// "./tmp/v5.3.2/.editorconfig: Failed to restore metadata\ntar: Error exit delayed from previous errors.\n"
+// because extraction succeeds even when metadata is not restored
+// we may potentially want to check that the file that had the error did extract
+// to ensure this logic is sound
+async function isUnrecoverableExtractionError(e: Error): Promise<boolean> {
+  const { errText } = e as unknown as { errText: string };
+  const errors = errText.trim().split('\n');
+  const lastError = errors.pop();
 
+  if (lastError !== 'tar: Error exit delayed from previous errors.') {
+    return true;
+  }
+
+  for (const error of errors) {
+    if (!error.includes('Failed to restore metadata')) {
+      return true;
+    }
+  }
+
+  // if we have handled all errors during iteration
+  // and reach here then we are recoverable.
+  return false;
+}
+
+export async function getAllPackagesForGitTag(tag: GIT_TAG): Promise<Map<string, Package>> {
+  const relativeTmpDir = `./tmp/${tag}/`;
+  await exec(['mkdir', '-p', relativeTmpDir]);
+  try {
+    await exec({ cmd: ['sh', '-c', `git archive ${tag} --prefix ${relativeTmpDir} | tar -x`] });
+  } catch (e) {
+    if (await isUnrecoverableExtractionError(e as unknown as Error)) {
+      console.log(chalk.red(`🔴 Failed to extract git tag ${tag} to ${relativeTmpDir}`));
+      throw e;
+    } else {
+      console.log(chalk.yellow(`\t⚠️  Recovered from errors during extraction of ${tag} to ${relativeTmpDir}`));
+    }
+  }
   const tmpDir = path.join(process.cwd(), relativeTmpDir);
   try {
     const strategy = await loadStrategy(tmpDir);
