@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/store",
-  "version": "5.4.0-alpha.25",
+  "version": "5.4.0-alpha.26",
   "description": "The core of EmberData. Provides the Store service which coordinates the cache with the network and presentation layers.",
   "keywords": [
     "ember-addon"
@@ -40,7 +40,7 @@
     "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "dependencies": {
-    "@ember-data/private-build-infra": "workspace:5.4.0-alpha.25",
+    "@ember-data/private-build-infra": "workspace:5.4.0-alpha.26",
     "@embroider/macros": "^1.13.5",
     "ember-cli-babel": "^8.2.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10"
@@ -63,10 +63,10 @@
     }
   },
   "peerDependencies": {
-    "@ember-data/request": "workspace:5.4.0-alpha.25",
-    "@ember-data/tracking": "workspace:5.4.0-alpha.25",
+    "@ember-data/request": "workspace:5.4.0-alpha.26",
+    "@ember-data/tracking": "workspace:5.4.0-alpha.26",
     "@ember/string": "^3.1.1",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.11"
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.12"
   },
   "devDependencies": {
     "@babel/cli": "^7.23.9",
@@ -79,15 +79,15 @@
     "@babel/preset-env": "^7.23.9",
     "@babel/preset-typescript": "^7.23.3",
     "@babel/runtime": "^7.23.9",
-    "@ember-data/request": "workspace:5.4.0-alpha.25",
-    "@ember-data/tracking": "workspace:5.4.0-alpha.25",
+    "@ember-data/request": "workspace:5.4.0-alpha.26",
+    "@ember-data/tracking": "workspace:5.4.0-alpha.26",
     "@ember/string": "^3.1.1",
     "@embroider/addon-dev": "^4.1.2",
     "@glimmer/component": "^1.1.2",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.11",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.25",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.12",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.26",
     "ember-source": "~5.6.0",
     "rollup": "^4.9.6",
     "typescript": "^5.3.3",
