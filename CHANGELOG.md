@@ -1,5 +1,17 @@
 # EmberData Changelog
 
+## v5.3.2 (2024-02-29)
+
+#### :house: Internal
+
+* [#9241](https://github.com/emberjs/data/pull/9241) chore: manually run prepack ([@runspired](https://github.com/runspired))
+* [#9238](https://github.com/emberjs/data/pull/9238) chore: better "from" version default value population ([@runspired](https://github.com/runspired))
+* [#9237](https://github.com/emberjs/data/pull/9237) chore: fix publishing of core-types when strategy is private ([@runspired](https://github.com/runspired))
+
+#### Committers: (1)
+
+Chris Thoburn ([@runspired](https://github.com/runspired))
+
 ## v5.3.1 (2024-02-24)
 
 #### :evergreen_tree: New Deprecation
