@@ -27,6 +27,8 @@ export async function generatePackageTarballs(
   const tarballDir = path.join(TARBALL_DIR, packages.get('root')!.pkgData.version);
   fs.mkdirSync(tarballDir, { recursive: true });
 
+  // first loop executes build steps for each package so that entangled
+  // builds always have access to everything they need
   for (const [, pkgStrategy] of strategy) {
     const pkg = packages.get(pkgStrategy.name)!;
     if (pkg.pkgData.private) {
@@ -37,6 +39,17 @@ export async function generatePackageTarballs(
       if (pkg.pkgData.scripts?.['prepack']) {
         await exec({ cwd: path.join(PROJECT_ROOT, path.dirname(pkg.filePath)), cmd: `bun run prepack` });
       }
+    } catch (e) {
+      console.log(`🔴 ${chalk.redBright('failed to execute prepack script for')} ${chalk.yellow(pkg.pkgData.name)}`);
+      throw e;
+    }
+  }
+
+  // second loop cleans up and packs each package
+  for (const [, pkgStrategy] of strategy) {
+    const pkg = packages.get(pkgStrategy.name)!;
+
+    try {
       await amendFilesForTypesStrategy(pkg, pkgStrategy);
     } catch (e) {
       console.log(`🔴 ${chalk.redBright('failed to amend files to pack for')} ${chalk.yellow(pkg.pkgData.name)}`);
