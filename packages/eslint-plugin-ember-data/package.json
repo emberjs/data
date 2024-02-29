@@ -3,7 +3,7 @@
   "description": "ESLint rules for Applications using EmberData",
   "main": "./src/index.js",
   "version": "0.0.2-beta.3",
-  "private": false,
+  "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/emberjs/data.git",
