@@ -64,7 +64,11 @@
   "engines": {
     "node": ">= 18.19.1"
   },
-  "ember-addon": {},
+  "ember-addon": {
+    "main": "index.js",
+    "type": "addon",
+    "version": 1
+  },
   "volta": {
     "extends": "../../package.json"
   },

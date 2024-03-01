@@ -133,7 +133,11 @@
   "keywords": [
     "ember-addon"
   ],
-  "ember-addon": {},
+  "ember-addon": {
+    "main": "index.js",
+    "type": "addon",
+    "version": 1
+  },
   "ember": {
     "edition": "octane"
   },
