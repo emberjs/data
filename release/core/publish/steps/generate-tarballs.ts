@@ -108,7 +108,13 @@ function scrubTypesFromExports(pkg: Package) {
 
 async function makeTypesPrivate(pkg: Package) {
   // scrub the package.json of any types fields in exports
-  scrubTypesFromExports(pkg);
+  // when the types are private, we completely remove the exports field
+  // to avoid issues with embroider, auto-import and v1 addons
+  if (pkg.pkgData['ember-addon']?.version === 1) {
+    delete pkg.pkgData.exports;
+  } else {
+    scrubTypesFromExports(pkg);
+  }
 
   // remove @warp-drive/core-types from dependencies and peerDependencies
   delete pkg.pkgData.dependencies?.['@warp-drive/core-types'];

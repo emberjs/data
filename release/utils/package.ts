@@ -55,6 +55,11 @@ export type PACKAGEJSON = {
   scripts?: Record<string, string>;
   files?: string[];
   exports?: ExportConfig;
+  'ember-addon'?: {
+    main?: 'addon-main.js';
+    type?: 'addon';
+    version?: 1 | 2;
+  };
 };
 
 export type APPLIED_STRATEGY = {
