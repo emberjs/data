@@ -1,5 +1,15 @@
 # EmberData Changelog
 
+## v5.3.3 (2024-03-02)
+
+#### :bug: Bug Fix
+
+* [#9243](https://github.com/emberjs/data/pull/9243) fix: keep core-type peer-deps ([@runspired](https://github.com/runspired))
+
+#### Committers: (1)
+
+Chris Thoburn ([@runspired](https://github.com/runspired))
+
 ## v5.3.2 (2024-02-29)
 
 #### :house: Internal
