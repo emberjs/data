@@ -1,5 +1,10 @@
 # EmberData Changelog
 
+## v5.3.3 (2024-03-02)
+
+#### Committers: (0)
+
+
 ## v5.3.2 (2024-02-29)
 
 #### :house: Internal
