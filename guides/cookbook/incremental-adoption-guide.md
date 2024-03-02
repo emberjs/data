@@ -40,20 +40,19 @@ First you need to install [`@ember-data/request`](https://github.com/emberjs/dat
 
 Here is how your own `RequestManager` service may look like:
 
-```js
+```ts
+import { LegacyNetworkHandler } from '@ember-data/legacy-compat';
+import type { Handler, NextFn, RequestContext } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
-import { LegacyNetworkHandler } from '@ember-data/legacy-compat';
 
-const TestHandler = {
-  async request({ request }, next) {
-    console.log('TestHandler.request', request);
-
-    const newContext = await next(request);
-
+/* eslint-disable no-console */
+const TestHandler: Handler = {
+  async request<T>(context: RequestContext, next: NextFn) {
+    console.log('TestHandler.request', context.request);
+    const newContext = await next(Object.assign({}, context.request));
     console.log('TestHandler.response after fetch', newContext.response);
-
-    return next(newContext);
+    return newContext as T;
   },
 };
 
@@ -103,7 +102,7 @@ Now you can start refactoring old code to use new APIs. You can start with the `
 You most likely would need to add Auth Handler to your request manager to add `accessToken` to your requests.
 Let's say you have your `accessToken` in the `session` service. Here is how you can add it to the request manager:
 
-```js auth-handler.js
+```js
 import { inject as service } from '@ember/service';
 
 export default class AuthHandler {
