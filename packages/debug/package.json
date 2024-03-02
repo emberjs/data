@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/debug",
-  "version": "5.4.0-alpha.27",
+  "version": "5.4.0-alpha.28",
   "description": "Provides support for the ember-inspector for apps built with Ember and EmberData",
   "keywords": [
     "ember-addon"
@@ -18,9 +18,9 @@
     "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "peerDependencies": {
-    "@ember-data/store": "workspace:5.4.0-alpha.27",
+    "@ember-data/store": "workspace:5.4.0-alpha.28",
     "@ember/string": "^3.1.1",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.13"
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.14"
   },
   "dependenciesMeta": {
     "@ember-data/private-build-infra": {
@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "@babel/core": "^7.23.9",
-    "@ember-data/private-build-infra": "workspace:5.4.0-alpha.27",
+    "@ember-data/private-build-infra": "workspace:5.4.0-alpha.28",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.13.5",
     "ember-auto-import": "^2.7.0",
@@ -53,13 +53,13 @@
     "webpack": "^5.89.0"
   },
   "devDependencies": {
-    "@ember-data/request": "workspace:5.4.0-alpha.27",
-    "@ember-data/store": "workspace:5.4.0-alpha.27",
-    "@ember-data/tracking": "workspace:5.4.0-alpha.27",
+    "@ember-data/request": "workspace:5.4.0-alpha.28",
+    "@ember-data/store": "workspace:5.4.0-alpha.28",
+    "@ember-data/tracking": "workspace:5.4.0-alpha.28",
     "@ember/string": "^3.1.1",
     "@glimmer/component": "^1.1.2",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.13",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.27",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.14",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.28",
     "ember-source": "~5.6.0"
   },
   "engines": {
