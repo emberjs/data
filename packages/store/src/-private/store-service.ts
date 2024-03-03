@@ -15,6 +15,7 @@ import type {
   StableExistingRecordIdentifier,
   StableRecordIdentifier,
 } from '@warp-drive/core-types/identifier';
+import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
 import { EnableHydration, SkipCache } from '@warp-drive/core-types/request';
 import type { ResourceDocument } from '@warp-drive/core-types/spec/document';
 import type {
@@ -24,6 +25,7 @@ import type {
   ResourceIdentifierObject,
   SingleResourceDocument,
 } from '@warp-drive/core-types/spec/raw';
+import type { ResourceType } from '@warp-drive/core-types/symbols';
 
 import type { Cache, CacheV1 } from '../-types/q/cache';
 import type { CacheCapabilitiesManager } from '../-types/q/cache-store-wrapper';
@@ -64,10 +66,26 @@ type CompatStore = Store & {
 };
 function upgradeStore(store: Store): asserts store is CompatStore {}
 
-export interface CreateRecordProperties {
-  id?: string | null;
-  [key: string]: unknown;
-}
+type MaybeHasId = { id?: string };
+/**
+ * Currently only records that extend object can be created via
+ * store.createRecord. This is a limitation of the current API,
+ * but can be worked around by creating a new identifier, running
+ * the cache.clientDidCreate method, and then peeking the record
+ * for the identifier.
+ *
+ * To assign primary key to a record during creation, only `id` will
+ * work correctly for `store.createRecord`, other primary key may be
+ * handled by updating the record after creation or using the flow
+ * described above.
+ *
+ * TODO: These are limitations we want to (and can) address. If you
+ * have need of lifting these limitations, please open an issue.
+ *
+ * @typedoc
+ */
+export type CreateRecordProperties<T extends MaybeHasId = MaybeHasId & Record<string, unknown>> =
+  T extends TypedRecordInstance ? Partial<Omit<T, typeof ResourceType>> : MaybeHasId & Record<string, unknown>;
 
 /**
  * A Store coordinates interaction between your application, a [Cache](https://api.emberjs.com/ember-data/release/classes/%3CInterface%3E%20Cache),
@@ -672,7 +690,9 @@ class Store extends EmberObject {
       newly created record.
     @return {Model} record
   */
-  createRecord(modelName: string, inputProperties: CreateRecordProperties): RecordInstance {
+  createRecord<T extends MaybeHasId>(modelName: TypeFromInstance<T>, inputProperties: CreateRecordProperties<T>): T;
+  createRecord(modelName: string, inputProperties: CreateRecordProperties): unknown;
+  createRecord(modelName: string, inputProperties: CreateRecordProperties): unknown {
     if (DEBUG) {
       assertDestroyingStore(this, 'createRecord');
     }
@@ -696,21 +716,22 @@ class Store extends EmberObject {
       // give the adapter an opportunity to generate one. Typically,
       // client-side ID generators will use something like uuid.js
       // to avoid conflicts.
+      let id: string | null = null;
 
       if (properties.id === null || properties.id === undefined) {
         upgradeStore(this);
         const adapter = this.adapterFor?.(modelName, true);
 
         if (adapter && adapter.generateIdForRecord) {
-          properties.id = adapter.generateIdForRecord(this, modelName, properties);
+          id = properties.id = coerceId(adapter.generateIdForRecord(this, modelName, properties));
         } else {
-          properties.id = null;
+          id = properties.id = null;
         }
+      } else {
+        id = properties.id = coerceId(properties.id);
       }
 
-      // Coerce ID to a string
-      properties.id = coerceId(properties.id);
-      const resource = { type: normalizedModelName, id: properties.id };
+      const resource = { type: normalizedModelName, id };
 
       if (resource.id) {
         const identifier = this.identifierCache.peekRecordIdentifier(resource as ResourceIdentifierObject);
@@ -749,7 +770,7 @@ class Store extends EmberObject {
     @public
     @param {Model} record
   */
-  deleteRecord(record: RecordInstance): void {
+  deleteRecord<T>(record: T): void {
     if (DEBUG) {
       assertDestroyingStore(this, 'deleteRecord');
     }
@@ -782,7 +803,7 @@ class Store extends EmberObject {
     @public
     @param {Model} record
   */
-  unloadRecord(record: RecordInstance): void {
+  unloadRecord<T>(record: T): void {
     if (DEBUG) {
       assertDestroyingStore(this, 'unloadRecord');
     }
@@ -1163,13 +1184,15 @@ class Store extends EmberObject {
     @param {Object} [options] - if the first param is a string this will be the optional options for the request. See examples for available options.
     @return {Promise} promise
   */
-  findRecord(resource: string, id: string | number, options?: FindOptions): Promise<RecordInstance>;
-  findRecord(resource: ResourceIdentifierObject, id?: FindOptions): Promise<RecordInstance>;
+  findRecord<T>(resource: TypeFromInstance<T>, id: string | number, options?: FindOptions): Promise<T>;
+  findRecord(resource: string, id: string | number, options?: FindOptions): Promise<unknown>;
+  findRecord<T>(resource: ResourceIdentifierObject<TypeFromInstance<T>>, id?: FindOptions): Promise<T>;
+  findRecord(resource: ResourceIdentifierObject, id?: FindOptions): Promise<unknown>;
   findRecord(
     resource: string | ResourceIdentifierObject,
     id?: string | number | FindOptions,
     options?: FindOptions
-  ): Promise<RecordInstance> {
+  ): Promise<unknown> {
     if (DEBUG) {
       assertDestroyingStore(this, 'findRecord');
     }

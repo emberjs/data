@@ -27,9 +27,9 @@ export interface PaginationLinks extends Links {
  * [JSON:API Spec](https://jsonapi.org/format/#document-resource-identifier-objects)
  * @internal
  */
-export interface ExistingResourceIdentifierObject {
+export interface ExistingResourceIdentifierObject<T extends string = string> {
   id: string;
-  type: string;
+  type: T;
 
   /**
    * While not officially part of the `JSON:API` spec,
@@ -65,7 +65,7 @@ export interface ExistingResourceIdentifierObject {
  *
  * @internal
  */
-export interface NewResourceIdentifierObject {
+export interface NewResourceIdentifierObject<T extends string = string> {
   /**
    * Resources newly created on the client _may_
    * not have an `id` available to them prior
@@ -76,7 +76,7 @@ export interface NewResourceIdentifierObject {
    * @internal
    */
   id: string | null;
-  type: string;
+  type: T;
 
   /**
    * Resources newly created on the client _will always_
@@ -90,10 +90,10 @@ export interface ResourceIdentifier {
   lid: string;
 }
 
-export type ResourceIdentifierObject =
+export type ResourceIdentifierObject<T extends string = string> =
   | ResourceIdentifier
-  | ExistingResourceIdentifierObject
-  | NewResourceIdentifierObject;
+  | ExistingResourceIdentifierObject<T>
+  | NewResourceIdentifierObject<T>;
 
 // TODO disallow NewResource, make narrowable
 export interface SingleResourceRelationship {

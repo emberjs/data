@@ -14,7 +14,7 @@ import { DEPRECATE_NON_STRICT_ID } from '@ember-data/deprecations';
 // corresponding record, we will not know if it is a string or a number.
 type Coercable = string | number | boolean | null | undefined | symbol;
 
-function coerceId(id: Coercable): string | null {
+function coerceId(id: unknown): string | null {
   if (DEPRECATE_NON_STRICT_ID) {
     let normalized: string | null;
     if (id === null || id === undefined || id === '') {
