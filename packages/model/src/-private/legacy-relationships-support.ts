@@ -20,8 +20,8 @@ import {
 } from '@ember-data/store/-private';
 import type { Cache } from '@ember-data/store/-types/q/cache';
 import type { JsonApiRelationship } from '@ember-data/store/-types/q/record-data-json-api';
-import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
-import type { FindOptions } from '@ember-data/store/-types/q/store';
+import type { OpaqueRecordInstance } from '@ember-data/store/-types/q/record-instance';
+import type { BaseFinderOptions } from '@ember-data/store/-types/q/store';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
@@ -63,7 +63,7 @@ export class LegacySupport {
   declare references: Record<string, BelongsToReference | HasManyReference>;
   declare identifier: StableRecordIdentifier;
   declare _manyArrayCache: Record<string, RelatedCollection>;
-  declare _relationshipPromisesCache: Record<string, Promise<RelatedCollection | RecordInstance>>;
+  declare _relationshipPromisesCache: Record<string, Promise<RelatedCollection | OpaqueRecordInstance>>;
   declare _relationshipProxyCache: Record<string, PromiseManyArray | PromiseBelongsTo | undefined>;
   declare _pending: Record<string, Promise<StableRecordIdentifier | null> | undefined>;
 
@@ -86,7 +86,7 @@ export class LegacySupport {
     this._manyArrayCache = Object.create(null) as Record<string, RelatedCollection>;
     this._relationshipPromisesCache = Object.create(null) as Record<
       string,
-      Promise<RelatedCollection | RecordInstance>
+      Promise<RelatedCollection | OpaqueRecordInstance>
     >;
     this._relationshipProxyCache = Object.create(null) as Record<string, PromiseManyArray | PromiseBelongsTo>;
     this._pending = Object.create(null) as Record<string, Promise<StableRecordIdentifier | null>>;
@@ -123,8 +123,8 @@ export class LegacySupport {
     key: string,
     resource: SingleResourceRelationship,
     relationship: ResourceEdge,
-    options?: FindOptions
-  ): Promise<RecordInstance | null> {
+    options?: BaseFinderOptions
+  ): Promise<OpaqueRecordInstance | null> {
     // TODO @runspired follow up if parent isNew then we should not be attempting load here
     // TODO @runspired follow up on whether this should be in the relationship requests cache
     return this._findBelongsToByJsonApiResource(resource, this.identifier, relationship, options).then(
@@ -134,8 +134,8 @@ export class LegacySupport {
     );
   }
 
-  reloadBelongsTo(key: string, options?: FindOptions): Promise<RecordInstance | null> {
-    const loadingPromise = this._relationshipPromisesCache[key] as Promise<RecordInstance | null> | undefined;
+  reloadBelongsTo(key: string, options?: BaseFinderOptions): Promise<OpaqueRecordInstance | null> {
+    const loadingPromise = this._relationshipPromisesCache[key] as Promise<OpaqueRecordInstance | null> | undefined;
     if (loadingPromise) {
       return loadingPromise;
     }
@@ -154,7 +154,7 @@ export class LegacySupport {
     return promise;
   }
 
-  getBelongsTo(key: string, options?: FindOptions): PromiseBelongsTo | RecordInstance | null {
+  getBelongsTo(key: string, options?: BaseFinderOptions): PromiseBelongsTo | OpaqueRecordInstance | null {
     const { identifier, cache } = this;
     const resource = cache.getRelationship(this.identifier, key) as SingleResourceRelationship;
     const relatedIdentifier = resource && resource.data ? resource.data : null;
@@ -201,7 +201,7 @@ export class LegacySupport {
     }
   }
 
-  setDirtyBelongsTo(key: string, value: RecordInstance | null) {
+  setDirtyBelongsTo(key: string, value: OpaqueRecordInstance | null) {
     return this.cache.mutate(
       {
         op: 'replaceRelatedRecord',
@@ -272,7 +272,7 @@ export class LegacySupport {
     key: string,
     relationship: CollectionEdge,
     manyArray: RelatedCollection,
-    options?: FindOptions
+    options?: BaseFinderOptions
   ): Promise<RelatedCollection> {
     if (HAS_JSON_API_PACKAGE) {
       let loadingPromise = this._relationshipPromisesCache[key] as Promise<RelatedCollection> | undefined;
@@ -298,7 +298,7 @@ export class LegacySupport {
     assert('hasMany only works with the @ember-data/json-api package');
   }
 
-  reloadHasMany(key: string, options?: FindOptions) {
+  reloadHasMany(key: string, options?: BaseFinderOptions) {
     if (HAS_JSON_API_PACKAGE) {
       const loadingPromise = this._relationshipPromisesCache[key];
       if (loadingPromise) {
@@ -321,7 +321,7 @@ export class LegacySupport {
     assert(`hasMany only works with the @ember-data/json-api package`);
   }
 
-  getHasMany(key: string, options?: FindOptions): PromiseManyArray | RelatedCollection {
+  getHasMany(key: string, options?: BaseFinderOptions): PromiseManyArray | RelatedCollection {
     if (HAS_JSON_API_PACKAGE) {
       const relationship = this.graph.get(this.identifier, key) as CollectionEdge;
       const { definition, state } = relationship;
@@ -354,12 +354,12 @@ export class LegacySupport {
   _updatePromiseProxyFor(
     kind: 'belongsTo',
     key: string,
-    args: { promise: Promise<RecordInstance | null> }
+    args: { promise: Promise<OpaqueRecordInstance | null> }
   ): PromiseBelongsTo;
   _updatePromiseProxyFor(
     kind: 'hasMany' | 'belongsTo',
     key: string,
-    args: BelongsToProxyCreateArgs | HasManyProxyCreateArgs | { promise: Promise<RecordInstance | null> }
+    args: BelongsToProxyCreateArgs | HasManyProxyCreateArgs | { promise: Promise<OpaqueRecordInstance | null> }
   ): PromiseBelongsTo | PromiseManyArray {
     let promiseProxy = this._relationshipProxyCache[key];
     if (kind === 'hasMany') {
@@ -430,7 +430,7 @@ export class LegacySupport {
     resource: CollectionResourceRelationship,
     parentIdentifier: StableRecordIdentifier,
     relationship: CollectionEdge,
-    options: FindOptions = {}
+    options: BaseFinderOptions = {}
   ): Promise<void | unknown[]> | void {
     if (HAS_JSON_API_PACKAGE) {
       if (!resource) {
@@ -508,7 +508,7 @@ export class LegacySupport {
     resource: SingleResourceRelationship,
     parentIdentifier: StableRecordIdentifier,
     relationship: ResourceEdge,
-    options: FindOptions = {}
+    options: BaseFinderOptions = {}
   ): Promise<StableRecordIdentifier | null> {
     if (!resource) {
       return Promise.resolve(null);
@@ -634,7 +634,7 @@ function handleCompletedRelationshipRequest(
   key: string,
   relationship: ResourceEdge,
   value: StableRecordIdentifier | null
-): RecordInstance | null;
+): OpaqueRecordInstance | null;
 function handleCompletedRelationshipRequest(
   recordExt: LegacySupport,
   key: string,
@@ -661,7 +661,7 @@ function handleCompletedRelationshipRequest(
   relationship: ResourceEdge | CollectionEdge,
   value: RelatedCollection | StableRecordIdentifier | null,
   error?: Error
-): RelatedCollection | RecordInstance | null {
+): RelatedCollection | OpaqueRecordInstance | null {
   delete recordExt._relationshipPromisesCache[key];
   relationship.state.shouldForceReload = false;
   const isHasMany = relationship.definition.kind === 'hasMany';
@@ -708,9 +708,9 @@ function handleCompletedRelationshipRequest(
     : recordExt.store.peekRecord(value as StableRecordIdentifier);
 }
 
-type PromiseProxyRecord = { then(): void; content: RecordInstance | null | undefined };
+type PromiseProxyRecord = { then(): void; content: OpaqueRecordInstance | null | undefined };
 
-function extractIdentifierFromRecord(record: PromiseProxyRecord | RecordInstance | null) {
+function extractIdentifierFromRecord(record: PromiseProxyRecord | OpaqueRecordInstance | null) {
   if (!record) {
     return null;
   }

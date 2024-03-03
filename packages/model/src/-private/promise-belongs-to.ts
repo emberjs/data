@@ -4,7 +4,7 @@ import type PromiseProxyMixin from '@ember/object/promise-proxy-mixin';
 import type ObjectProxy from '@ember/object/proxy';
 
 import type Store from '@ember-data/store';
-import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
+import type { OpaqueRecordInstance } from '@ember-data/store/-types/q/record-instance';
 import { cached } from '@ember-data/tracking';
 
 import type { LegacySupport } from './legacy-relationships-support';
@@ -18,8 +18,8 @@ export interface BelongsToProxyMeta {
   modelName: string;
 }
 export interface BelongsToProxyCreateArgs {
-  promise: Promise<RecordInstance | null>;
-  content?: RecordInstance | null;
+  promise: Promise<OpaqueRecordInstance | null>;
+  content?: OpaqueRecordInstance | null;
   _belongsToState: BelongsToProxyMeta;
 }
 
@@ -30,7 +30,8 @@ interface PromiseObjectType<T> extends PromiseProxyMixin<T | null>, ObjectProxy<
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare class PromiseObjectType<T> {}
 
-const Extended: PromiseObjectType<RecordInstance> = PromiseObject as unknown as PromiseObjectType<RecordInstance>;
+const Extended: PromiseObjectType<OpaqueRecordInstance> =
+  PromiseObject as unknown as PromiseObjectType<OpaqueRecordInstance>;
 
 /**
  @module @ember-data/model
@@ -45,7 +46,7 @@ const Extended: PromiseObjectType<RecordInstance> = PromiseObject as unknown as 
   @extends PromiseObject
   @private
 */
-class PromiseBelongsTo extends Extended<RecordInstance> {
+class PromiseBelongsTo extends Extended<OpaqueRecordInstance> {
   declare _belongsToState: BelongsToProxyMeta;
 
   @cached

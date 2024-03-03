@@ -1,10 +1,12 @@
 import type { Value } from '@warp-drive/core-types/json/raw';
 
-export interface FindRecordOptions {
+export interface BaseFinderOptions {
   reload?: boolean;
   backgroundReload?: boolean;
   include?: string | string[];
   adapterOptions?: Record<string, unknown>;
+}
+export interface FindRecordOptions extends BaseFinderOptions {
   preload?: Record<string, Value>;
 }
 
@@ -12,9 +14,4 @@ export type QueryOptions = {
   [K in string | 'adapterOptions']?: K extends 'adapterOptions' ? Record<string, unknown> : unknown;
 };
 
-export type FindAllOptions = {
-  reload?: boolean;
-  backgroundReload?: boolean;
-  adapterOptions?: Record<string, unknown>;
-  include?: string | string[];
-};
+export type FindAllOptions = BaseFinderOptions;

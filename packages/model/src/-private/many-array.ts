@@ -18,8 +18,8 @@ import type { IdentifierArrayCreateOptions } from '@ember-data/store/-private/re
 import type { CreateRecordProperties } from '@ember-data/store/-private/store-service';
 import type { Cache } from '@ember-data/store/-types/q/cache';
 import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
-import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
-import type { FindOptions } from '@ember-data/store/-types/q/store';
+import type { OpaqueRecordInstance } from '@ember-data/store/-types/q/record-instance';
+import type { BaseFinderOptions } from '@ember-data/store/-types/q/store';
 import type { Signal } from '@ember-data/tracking/-private';
 import { addToTransaction } from '@ember-data/tracking/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -199,7 +199,7 @@ export default class RelatedCollection extends RecordArray {
         if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
           // dedupe
           const seen = new Set(target);
-          const unique = new Set<RecordInstance>();
+          const unique = new Set<OpaqueRecordInstance>();
 
           args.forEach((item) => {
             const identifier = recordIdentifierFor(item);
@@ -210,7 +210,7 @@ export default class RelatedCollection extends RecordArray {
           });
 
           const newArgs = Array.from(unique);
-          const result = Reflect.apply(target[prop], receiver, newArgs) as RecordInstance[];
+          const result = Reflect.apply(target[prop], receiver, newArgs) as OpaqueRecordInstance[];
 
           if (newArgs.length) {
             mutateAddToRelatedRecords(this, { value: extractIdentifiersFromRecords(newArgs) }, _SIGNAL);
@@ -219,7 +219,7 @@ export default class RelatedCollection extends RecordArray {
         }
 
         // else, no dedupe, error on duplicates
-        const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
+        const result = Reflect.apply(target[prop], receiver, args) as OpaqueRecordInstance[];
         if (newValues.length) {
           mutateAddToRelatedRecords(this, { value: newValues }, _SIGNAL);
         }
@@ -229,7 +229,7 @@ export default class RelatedCollection extends RecordArray {
       case 'pop': {
         const result: unknown = Reflect.apply(target[prop], receiver, args);
         if (result) {
-          mutateRemoveFromRelatedRecords(this, { value: recordIdentifierFor(result as RecordInstance) }, _SIGNAL);
+          mutateRemoveFromRelatedRecords(this, { value: recordIdentifierFor(result as OpaqueRecordInstance) }, _SIGNAL);
         }
         return result;
       }
@@ -247,7 +247,7 @@ export default class RelatedCollection extends RecordArray {
         if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
           // dedupe
           const seen = new Set(target);
-          const unique = new Set<RecordInstance>();
+          const unique = new Set<OpaqueRecordInstance>();
 
           args.forEach((item) => {
             const identifier = recordIdentifierFor(item);
@@ -267,7 +267,7 @@ export default class RelatedCollection extends RecordArray {
         }
 
         // else, no dedupe, error on duplicates
-        const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
+        const result = Reflect.apply(target[prop], receiver, args) as OpaqueRecordInstance[];
         if (newValues.length) {
           mutateAddToRelatedRecords(this, { value: newValues, index: 0 }, _SIGNAL);
         }
@@ -280,7 +280,7 @@ export default class RelatedCollection extends RecordArray {
         if (result) {
           mutateRemoveFromRelatedRecords(
             this,
-            { value: recordIdentifierFor(result as RecordInstance), index: 0 },
+            { value: recordIdentifierFor(result as OpaqueRecordInstance), index: 0 },
             _SIGNAL
           );
         }
@@ -289,12 +289,12 @@ export default class RelatedCollection extends RecordArray {
 
       case 'sort': {
         const result: unknown = Reflect.apply(target[prop], receiver, args);
-        mutateSortRelatedRecords(this, (result as RecordInstance[]).map(recordIdentifierFor), _SIGNAL);
+        mutateSortRelatedRecords(this, (result as OpaqueRecordInstance[]).map(recordIdentifierFor), _SIGNAL);
         return result;
       }
 
       case 'splice': {
-        const [start, deleteCount, ...adds] = args as [number, number, ...RecordInstance[]];
+        const [start, deleteCount, ...adds] = args as [number, number, ...OpaqueRecordInstance[]];
 
         // detect a full replace
         if (start === 0 && deleteCount === this[SOURCE].length) {
@@ -313,14 +313,14 @@ export default class RelatedCollection extends RecordArray {
             const unique = Array.from(current);
             const newArgs = ([start, deleteCount] as unknown[]).concat(unique);
 
-            const result = Reflect.apply(target[prop], receiver, newArgs) as RecordInstance[];
+            const result = Reflect.apply(target[prop], receiver, newArgs) as OpaqueRecordInstance[];
 
             mutateReplaceRelatedRecords(this, extractIdentifiersFromRecords(unique), _SIGNAL);
             return result;
           }
 
           // else, no dedupe, error on duplicates
-          const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
+          const result = Reflect.apply(target[prop], receiver, args) as OpaqueRecordInstance[];
           mutateReplaceRelatedRecords(this, newValues, _SIGNAL);
           return result;
         }
@@ -339,7 +339,7 @@ export default class RelatedCollection extends RecordArray {
           currentState.splice(start, deleteCount);
 
           const seen = new Set(currentState);
-          const unique: RecordInstance[] = [];
+          const unique: OpaqueRecordInstance[] = [];
           adds.forEach((item) => {
             const identifier = recordIdentifierFor(item);
             if (!seen.has(identifier)) {
@@ -349,7 +349,7 @@ export default class RelatedCollection extends RecordArray {
           });
 
           const newArgs = [start, deleteCount, ...unique];
-          const result = Reflect.apply(target[prop], receiver, newArgs) as RecordInstance[];
+          const result = Reflect.apply(target[prop], receiver, newArgs) as OpaqueRecordInstance[];
 
           if (deleteCount > 0) {
             mutateRemoveFromRelatedRecords(this, { value: result.map(recordIdentifierFor), index: start }, _SIGNAL);
@@ -363,7 +363,7 @@ export default class RelatedCollection extends RecordArray {
         }
 
         // else, no dedupe, error on duplicates
-        const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
+        const result = Reflect.apply(target[prop], receiver, args) as OpaqueRecordInstance[];
         if (deleteCount > 0) {
           mutateRemoveFromRelatedRecords(this, { value: result.map(recordIdentifierFor), index: start }, _SIGNAL);
         }
@@ -406,7 +406,7 @@ export default class RelatedCollection extends RecordArray {
     @method reload
     @public
   */
-  reload(options?: FindOptions) {
+  reload(options?: BaseFinderOptions) {
     // TODO this is odd, we don't ask the store for anything else like this?
     return this._manager.reloadHasMany(this.key, options);
   }
@@ -438,7 +438,7 @@ export default class RelatedCollection extends RecordArray {
     @param {Object} hash
     @return {Model} record
   */
-  createRecord(hash: CreateRecordProperties): RecordInstance {
+  createRecord(hash: CreateRecordProperties): OpaqueRecordInstance {
     const { store } = this;
     assert(`Expected modelName to be set`, this.modelName);
     const record = store.createRecord(this.modelName, hash);
@@ -459,9 +459,9 @@ RelatedCollection.prototype._inverseIsAsync = false;
 RelatedCollection.prototype.key = '';
 RelatedCollection.prototype.DEPRECATED_CLASS_NAME = 'ManyArray';
 
-type PromiseProxyRecord = { then(): void; content: RecordInstance | null | undefined };
+type PromiseProxyRecord = { then(): void; content: OpaqueRecordInstance | null | undefined };
 
-function assertRecordPassedToHasMany(record: RecordInstance | PromiseProxyRecord) {
+function assertRecordPassedToHasMany(record: OpaqueRecordInstance | PromiseProxyRecord) {
   assert(
     `All elements of a hasMany relationship must be instances of Model, you passed $${typeof record}`,
     (function () {
@@ -475,11 +475,11 @@ function assertRecordPassedToHasMany(record: RecordInstance | PromiseProxyRecord
   );
 }
 
-function extractIdentifiersFromRecords(records: RecordInstance[]): StableRecordIdentifier[] {
+function extractIdentifiersFromRecords(records: OpaqueRecordInstance[]): StableRecordIdentifier[] {
   return records.map(extractIdentifierFromRecord);
 }
 
-function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord | RecordInstance) {
+function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord | OpaqueRecordInstance) {
   assertRecordPassedToHasMany(recordOrPromiseRecord);
   return recordIdentifierFor(recordOrPromiseRecord);
 }
