@@ -9,7 +9,7 @@ import type { ExistingResourceIdentifierObject, NewResourceIdentifierObject } fr
 
 import type { Cache } from '../../-types/q/cache';
 import type { JsonApiRelationship, JsonApiResource } from '../../-types/q/record-data-json-api';
-import type { RecordInstance } from '../../-types/q/record-instance';
+import type { OpaqueRecordInstance } from '../../-types/q/record-instance';
 import RecordReference from '../legacy-model-support/record-reference';
 import { CacheCapabilitiesManager } from '../managers/cache-capabilities-manager';
 import type { CacheManager } from '../managers/cache-manager';
@@ -24,7 +24,7 @@ type Destroyable = {
   destroy(): void;
 };
 
-function isDestroyable(record: RecordInstance): record is Destroyable {
+function isDestroyable(record: OpaqueRecordInstance): record is Destroyable {
   return Boolean(record && typeof record === 'object' && typeof (record as Destroyable).destroy === 'function');
 }
 
@@ -32,9 +32,9 @@ function isDestroyable(record: RecordInstance): record is Destroyable {
   @module @ember-data/store
 */
 
-const RecordCache = new Map<RecordInstance, StableRecordIdentifier>();
+const RecordCache = new Map<OpaqueRecordInstance, StableRecordIdentifier>();
 
-export function peekRecordIdentifier(record: RecordInstance): StableRecordIdentifier | undefined {
+export function peekRecordIdentifier(record: OpaqueRecordInstance): StableRecordIdentifier | undefined {
   return RecordCache.get(record);
 }
 
@@ -57,12 +57,12 @@ export function peekRecordIdentifier(record: RecordInstance): StableRecordIdenti
   @param {Object} record a record instance previously obstained from the store.
   @return {StableRecordIdentifier}
  */
-export function recordIdentifierFor(record: RecordInstance): StableRecordIdentifier {
+export function recordIdentifierFor(record: OpaqueRecordInstance): StableRecordIdentifier {
   assert(`${String(record)} is not a record instantiated by @ember-data/store`, RecordCache.has(record));
   return RecordCache.get(record)!;
 }
 
-export function setRecordIdentifier(record: RecordInstance, identifier: StableRecordIdentifier): void {
+export function setRecordIdentifier(record: OpaqueRecordInstance, identifier: StableRecordIdentifier): void {
   if (DEBUG) {
     if (RecordCache.has(record) && RecordCache.get(record) !== identifier) {
       throw new Error(`${String(record)} was already assigned an identifier`);
@@ -80,9 +80,9 @@ export function setRecordIdentifier(record: RecordInstance, identifier: StableRe
   RecordCache.set(record, identifier);
 }
 
-export const StoreMap = new Map<RecordInstance, Store>();
+export const StoreMap = new Map<OpaqueRecordInstance, Store>();
 
-export function storeFor(record: RecordInstance): Store | undefined {
+export function storeFor(record: OpaqueRecordInstance): Store | undefined {
   const store = StoreMap.get(record);
 
   assert(
@@ -93,7 +93,7 @@ export function storeFor(record: RecordInstance): Store | undefined {
 }
 
 type Caches = {
-  record: Map<StableRecordIdentifier, RecordInstance>;
+  record: Map<StableRecordIdentifier, OpaqueRecordInstance>;
   reference: WeakMap<StableRecordIdentifier, RecordReference>;
 };
 
@@ -105,7 +105,7 @@ export class InstanceCache {
 
   declare __cacheManager: CacheManager;
   __instances: Caches = {
-    record: new Map<StableRecordIdentifier, RecordInstance>(),
+    record: new Map<StableRecordIdentifier, OpaqueRecordInstance>(),
     reference: new WeakMap<StableRecordIdentifier, RecordReference>(),
   };
 
@@ -175,11 +175,11 @@ export class InstanceCache {
       }
     );
   }
-  peek(identifier: StableRecordIdentifier): Cache | RecordInstance | undefined {
+  peek(identifier: StableRecordIdentifier): Cache | OpaqueRecordInstance | undefined {
     return this.__instances.record.get(identifier);
   }
 
-  getRecord(identifier: StableRecordIdentifier, properties?: CreateRecordProperties): RecordInstance {
+  getRecord(identifier: StableRecordIdentifier, properties?: CreateRecordProperties): OpaqueRecordInstance {
     let record = this.__instances.record.get(identifier);
 
     if (!record) {
@@ -404,7 +404,7 @@ export function resourceIsFullyDeleted(instanceCache: InstanceCache, identifier:
     Preloaded data can be attributes and relationships passed in either as IDs or as actual
     models.
   */
-type PreloadRelationshipValue = RecordInstance | string;
+type PreloadRelationshipValue = OpaqueRecordInstance | string;
 export function preloadData(store: Store, identifier: StableRecordIdentifier, preload: Record<string, Value>) {
   const jsonPayload: JsonApiResource = {};
   //TODO(Igor) consider the polymorphic case
@@ -451,7 +451,7 @@ function preloadRelationship(
   findRecord('user', '1', { preload: { friends: [record] }});
 */
 function _convertPreloadRelationshipToJSON(
-  value: RecordInstance | string,
+  value: OpaqueRecordInstance | string,
   type: string
 ): ExistingResourceIdentifierObject | NewResourceIdentifierObject {
   if (typeof value === 'string' || typeof value === 'number') {

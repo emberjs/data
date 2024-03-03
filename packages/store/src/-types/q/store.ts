@@ -1,13 +1,20 @@
 import type { Value } from '@warp-drive/core-types/json/raw';
 
-export interface FindOptions {
+export interface FindRecordOptions {
   reload?: boolean;
   backgroundReload?: boolean;
-  include?: string;
+  include?: string | string[];
   adapterOptions?: Record<string, unknown>;
   preload?: Record<string, Value>;
 }
 
-export interface QueryOptions {
-  adapterOptions?: Record<string | number | symbol, unknown>;
-}
+export type QueryOptions = {
+  [K in string | 'adapterOptions']?: K extends 'adapterOptions' ? Record<string, unknown> : unknown;
+};
+
+export type FindAllOptions = {
+  reload?: boolean;
+  backgroundReload?: boolean;
+  adapterOptions?: Record<string, unknown>;
+  incude?: string | string[];
+};

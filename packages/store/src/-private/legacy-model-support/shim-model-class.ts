@@ -1,25 +1,27 @@
+import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
 import type { AttributeSchema, RelationshipSchema } from '@warp-drive/core-types/schema';
 
 import type { ModelSchema } from '../../-types/q/ds-model';
 import type Store from '../store-service';
 
-type GenericRecord = Record<string, unknown>;
-
 // if modelFor turns out to be a bottleneck we should replace with a Map
 // and clear it during store teardown.
-const AvailableShims = new WeakMap<Store, Record<string, ShimModelClass<GenericRecord>>>();
+const AvailableShims = new WeakMap<Store, Record<string, ShimModelClass>>();
 
-export function getShimClass(store: Store, modelName: string): ShimModelClass<GenericRecord> {
+export function getShimClass<T>(
+  store: Store,
+  modelName: T extends TypedRecordInstance ? TypeFromInstance<T> : string
+): ShimModelClass<T> {
   let shims = AvailableShims.get(store);
 
   if (!shims) {
-    shims = Object.create(null) as Record<string, ShimModelClass<GenericRecord>>;
+    shims = Object.create(null) as Record<string, ShimModelClass>;
     AvailableShims.set(store, shims);
   }
 
   let shim = shims[modelName];
   if (shim === undefined) {
-    shim = shims[modelName] = new ShimModelClass(store, modelName);
+    shim = shims[modelName] = new ShimModelClass<unknown>(store, modelName);
   }
 
   return shim;
@@ -36,10 +38,10 @@ function mapFromHash<K extends string, T>(hash: Record<K, T>): Map<K, T> {
 }
 
 // Mimics the static apis of @ember-data/model
-export default class ShimModelClass<T extends object> implements ModelSchema<T> {
+export default class ShimModelClass<T = unknown> implements ModelSchema<T> {
   declare __store: Store;
-  declare modelName: string;
-  constructor(store: Store, modelName: string) {
+  declare modelName: T extends TypedRecordInstance ? TypeFromInstance<T> : string;
+  constructor(store: Store, modelName: T extends TypedRecordInstance ? TypeFromInstance<T> : string) {
     this.__store = store;
     this.modelName = modelName;
   }

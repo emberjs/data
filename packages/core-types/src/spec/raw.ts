@@ -112,7 +112,7 @@ export interface CollectionResourceRelationship {
  * Contains the data for an existing resource in JSON:API format
  * @internal
  */
-export interface ExistingResourceObject extends ExistingResourceIdentifierObject {
+export interface ExistingResourceObject<T extends string = string> extends ExistingResourceIdentifierObject<T> {
   meta?: Meta;
   attributes?: ObjectValue;
   relationships?: Record<string, SingleResourceRelationship | CollectionResourceRelationship>;
@@ -132,12 +132,12 @@ export interface EmptyResourceDocument extends Document {
   data: null;
 }
 
-export interface SingleResourceDocument extends Document {
-  data: ExistingResourceObject;
+export interface SingleResourceDocument<T extends string = string> extends Document {
+  data: ExistingResourceObject<T>;
 }
 
-export interface CollectionResourceDocument extends Document {
-  data: ExistingResourceObject[];
+export interface CollectionResourceDocument<T extends string = string> extends Document {
+  data: ExistingResourceObject<T>[];
 }
 
 /**
@@ -148,4 +148,7 @@ export interface CollectionResourceDocument extends Document {
  *
  * @internal
  */
-export type JsonApiDocument = EmptyResourceDocument | SingleResourceDocument | CollectionResourceDocument;
+export type JsonApiDocument<T extends string = string> =
+  | EmptyResourceDocument
+  | SingleResourceDocument<T>
+  | CollectionResourceDocument<T>;

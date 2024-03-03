@@ -13,10 +13,11 @@ import {
   subscribe,
 } from '@ember-data/tracking/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
 import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
 import type { Links, PaginationLinks } from '@warp-drive/core-types/spec/raw';
 
-import type { RecordInstance } from '../../-types/q/record-instance';
+import type { OpaqueRecordInstance } from '../../-types/q/record-instance';
 import { isStableIdentifier } from '../caches/identifier-cache';
 import { recordIdentifierFor } from '../caches/instance-cache';
 import type RecordArrayManager from '../managers/record-array-manager';
@@ -55,7 +56,7 @@ function isArrayGetter<T>(prop: KeyType): prop is keyof Array<T> {
 function isArraySetter<T>(prop: KeyType): prop is keyof Array<T> {
   return ARRAY_SETTER_METHODS.has(prop);
 }
-function isSelfProp<T extends object>(self: T, prop: KeyType): prop is keyof T {
+function isSelfProp<T extends object>(self: T, prop: KeyType): prop is Exclude<keyof T, number> {
   return prop in self;
 }
 
@@ -86,9 +87,9 @@ declare global {
   }
 }
 
-export type IdentifierArrayCreateOptions = {
+export type IdentifierArrayCreateOptions<T = unknown> = {
   identifiers: StableRecordIdentifier[];
-  type?: string;
+  type?: T extends TypedRecordInstance ? TypeFromInstance<T> : string;
   store: Store;
   allowMutation: boolean;
   manager: RecordArrayManager;
@@ -100,12 +101,12 @@ interface PrivateState {
   links: Links | PaginationLinks | null;
   meta: Record<string, unknown> | null;
 }
-type ForEachCB = (record: RecordInstance, index: number, context: typeof Proxy<StableRecordIdentifier[]>) => void;
-function safeForEach(
-  instance: typeof Proxy<StableRecordIdentifier[]>,
+type ForEachCB<T> = (record: T, index: number, context: typeof Proxy<StableRecordIdentifier[], T[]>) => void;
+function safeForEach<T>(
+  instance: typeof Proxy<StableRecordIdentifier[], T[]>,
   arr: StableRecordIdentifier[],
   store: Store,
-  callback: ForEachCB,
+  callback: ForEachCB<T>,
   target: unknown
 ) {
   if (target === undefined) {
@@ -122,7 +123,7 @@ function safeForEach(
   const length = arr.length; // we need to access length to ensure we are consumed
 
   for (let index = 0; index < length; index++) {
-    callback.call(target, store._instanceCache.getRecord(arr[index]), index, instance);
+    callback.call(target, store._instanceCache.getRecord(arr[index]) as T, index, instance);
   }
 
   return instance;
@@ -140,16 +141,16 @@ function safeForEach(
   @class RecordArray
   @public
 */
-interface IdentifierArray extends Omit<Array<RecordInstance>, '[]'> {
+interface IdentifierArray<T = unknown> extends Omit<Array<T>, '[]'> {
   [MUTATE]?(
     target: StableRecordIdentifier[],
-    receiver: typeof Proxy<StableRecordIdentifier[]>,
+    receiver: typeof Proxy<StableRecordIdentifier[], T[]>,
     prop: string,
     args: unknown[],
     _SIGNAL: Signal
   ): unknown;
 }
-class IdentifierArray {
+class IdentifierArray<T = unknown> {
   declare DEPRECATED_CLASS_NAME: string;
   /**
     The flag to signal a `RecordArray` is currently loading data.
@@ -168,7 +169,7 @@ class IdentifierArray {
   isLoaded = true;
   isDestroying = false;
   isDestroyed = false;
-  _updatingPromise: Promise<IdentifierArray> | null = null;
+  _updatingPromise: Promise<IdentifierArray<T>> | null = null;
 
   [IS_COLLECTION] = true;
   declare [ARRAY_SIGNAL]: Signal;
@@ -179,7 +180,7 @@ class IdentifierArray {
 
   declare links: Links | PaginationLinks | null;
   declare meta: Record<string, unknown> | null;
-  declare modelName?: string;
+  declare modelName?: T extends TypedRecordInstance ? TypeFromInstance<T> : string;
   /**
     The store that created this record array.
 
@@ -208,7 +209,7 @@ class IdentifierArray {
     this[SOURCE].length = value;
   }
 
-  constructor(options: IdentifierArrayCreateOptions) {
+  constructor(options: IdentifierArrayCreateOptions<T>) {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
     this.modelName = options.type;
@@ -229,8 +230,8 @@ class IdentifierArray {
     // we track all mutations within the call
     // and forward them as one
 
-    const proxy = new Proxy<StableRecordIdentifier[], RecordInstance[]>(this[SOURCE], {
-      get<R extends typeof Proxy<StableRecordIdentifier[]>>(
+    const proxy = new Proxy<StableRecordIdentifier[], T[]>(this[SOURCE], {
+      get<R extends typeof Proxy<StableRecordIdentifier[], T[]>>(
         target: StableRecordIdentifier[],
         prop: keyof R,
         receiver: R
@@ -262,7 +263,7 @@ class IdentifierArray {
               fn = function () {
                 subscribe(_SIGNAL);
                 transaction = true;
-                const result = safeForEach(receiver, target, store, arguments[0] as ForEachCB, arguments[1]);
+                const result = safeForEach(receiver, target, store, arguments[0] as ForEachCB<T>, arguments[1]);
                 transaction = false;
                 return result;
               };
@@ -342,7 +343,7 @@ class IdentifierArray {
         target: StableRecordIdentifier[],
         prop: KeyType,
         value: unknown,
-        receiver: typeof Proxy<StableRecordIdentifier[]>
+        receiver: typeof Proxy<StableRecordIdentifier[], T[]>
       ): boolean {
         if (prop === 'length') {
           if (!transaction && value === 0) {
@@ -380,6 +381,7 @@ class IdentifierArray {
             target[index] = identifier;
             return true;
           } else if (isSelfProp(self, prop)) {
+            // @ts-expect-error not all properties are indeces and we can't safely cast
             self[prop] = value;
             return true;
           }
@@ -431,7 +433,7 @@ class IdentifierArray {
       getPrototypeOf() {
         return IdentifierArray.prototype;
       },
-    }) as IdentifierArray;
+    }) as IdentifierArray<T>;
 
     createArrayTags(proxy, _SIGNAL);
 
@@ -460,7 +462,7 @@ class IdentifierArray {
     @method update
     @public
   */
-  update(): Promise<IdentifierArray> {
+  update(): Promise<IdentifierArray<T>> {
     if (this.isUpdating) {
       return this._updatingPromise!;
     }
@@ -485,9 +487,13 @@ class IdentifierArray {
     Update this RecordArray and return a promise which resolves once the update
     is finished.
    */
-  _update(): Promise<IdentifierArray> {
+  _update(): Promise<IdentifierArray<T>> {
     assert(`_update cannot be used with this array`, this.modelName);
-    return this.store.findAll(this.modelName, { reload: true });
+    // @ts-expect-error typescript is unable to handle the complexity of
+    //   T = unknown, modelName = string
+    //   T extends TypedRecordInstance, modelName = TypeFromInstance<T>
+    // both being valid options to pass through here.
+    return this.store.findAll<T>(this.modelName, { reload: true });
   }
 
   // TODO deprecate
@@ -538,7 +544,7 @@ export type CollectionCreateOptions = IdentifierArrayCreateOptions & {
   isLoaded: boolean;
 };
 
-export class Collection extends IdentifierArray {
+export class Collection<T = unknown> extends IdentifierArray<T> {
   query: ImmutableRequestInfo | Record<string, unknown> | null = null;
 
   constructor(options: CollectionCreateOptions) {
@@ -547,13 +553,17 @@ export class Collection extends IdentifierArray {
     this.isLoaded = options.isLoaded || false;
   }
 
-  _update(): Promise<Collection> {
+  _update(): Promise<Collection<T>> {
     const { store, query } = this;
 
     // TODO save options from initial request?
     assert(`update cannot be used with this array`, this.modelName);
     assert(`update cannot be used with no query`, query);
-    const promise = store.query(this.modelName, query as Record<string, unknown>, { _recordArray: this });
+    // @ts-expect-error typescript is unable to handle the complexity of
+    //   T = unknown, modelName = string
+    //   T extends TypedRecordInstance, modelName = TypeFromInstance<T>
+    // both being valid options to pass through here.
+    const promise = store.query<T>(this.modelName, query as Record<string, unknown>, { _recordArray: this });
 
     return promise;
   }
@@ -570,9 +580,9 @@ Collection.prototype.query = null;
 // Ensure instanceof works correctly
 // Object.setPrototypeOf(IdentifierArray.prototype, Array.prototype);
 
-type PromiseProxyRecord = { then(): void; content: RecordInstance | null | undefined };
+type PromiseProxyRecord = { then(): void; content: OpaqueRecordInstance | null | undefined };
 
-function assertRecordPassedToHasMany(record: RecordInstance | PromiseProxyRecord) {
+function assertRecordPassedToHasMany(record: OpaqueRecordInstance | PromiseProxyRecord) {
   assert(
     `All elements of a hasMany relationship must be instances of Model, you passed $${typeof record}`,
     (function () {
@@ -586,7 +596,7 @@ function assertRecordPassedToHasMany(record: RecordInstance | PromiseProxyRecord
   );
 }
 
-function extractIdentifierFromRecord(record: PromiseProxyRecord | RecordInstance | null) {
+function extractIdentifierFromRecord(record: PromiseProxyRecord | OpaqueRecordInstance | null) {
   if (!record) {
     return null;
   }

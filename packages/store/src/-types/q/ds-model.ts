@@ -1,8 +1,8 @@
+import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
 import type { AttributeSchema, RelationshipSchema } from '@warp-drive/core-types/schema';
 
-type GenericRecord = Record<string, unknown>;
-export interface ModelSchema<T extends object = GenericRecord> {
-  modelName: string;
+export interface ModelSchema<T = unknown> {
+  modelName: T extends TypedRecordInstance ? TypeFromInstance<T> : string;
   fields: Map<keyof T & string, 'attribute' | 'belongsTo' | 'hasMany'>;
   attributes: Map<keyof T & string, AttributeSchema>;
   relationshipsByName: Map<keyof T & string, RelationshipSchema>;

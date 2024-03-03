@@ -30,9 +30,9 @@ import type { ResourceType } from '@warp-drive/core-types/symbols';
 import type { Cache, CacheV1 } from '../-types/q/cache';
 import type { CacheCapabilitiesManager } from '../-types/q/cache-store-wrapper';
 import type { ModelSchema } from '../-types/q/ds-model';
-import type { RecordInstance } from '../-types/q/record-instance';
+import type { OpaqueRecordInstance } from '../-types/q/record-instance';
 import type { SchemaService } from '../-types/q/schema-service';
-import type { FindOptions, QueryOptions } from '../-types/q/store';
+import type { FindAllOptions, FindRecordOptions, QueryOptions } from '../-types/q/store';
 import type { LifetimesService, StoreRequestContext, StoreRequestInput } from './cache-handler';
 import { IdentifierCache } from './caches/identifier-cache';
 import {
@@ -113,9 +113,12 @@ interface Store {
 
   createCache(storeWrapper: CacheCapabilitiesManager): Cache;
 
-  instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs: { [key: string]: unknown }): RecordInstance;
+  instantiateRecord(
+    identifier: StableRecordIdentifier,
+    createRecordArgs: { [key: string]: unknown }
+  ): OpaqueRecordInstance;
 
-  teardownRecord(record: RecordInstance): void;
+  teardownRecord(record: OpaqueRecordInstance): void;
 }
 
 class Store extends EmberObject {
@@ -223,7 +226,10 @@ class Store extends EmberObject {
   declare _graph?: Graph;
   declare _requestCache: RequestStateService;
   declare _instanceCache: InstanceCache;
-  declare _documentCache: Map<StableDocumentIdentifier, Document<RecordInstance | RecordInstance[] | null | undefined>>;
+  declare _documentCache: Map<
+    StableDocumentIdentifier,
+    Document<OpaqueRecordInstance | OpaqueRecordInstance[] | null | undefined>
+  >;
 
   declare _cbs: { coalesce?: () => void; sync?: () => void; notify?: () => void } | null;
   declare _forceShim: boolean;
@@ -625,7 +631,7 @@ class Store extends EmberObject {
   }
 
   /**
-    Returns the schema for a particular `modelName`.
+    Returns the schema for a particular resource type (modelName).
 
     When used with Model from @ember-data/model the return is the model class,
     but this is not guaranteed.
@@ -643,12 +649,13 @@ class Store extends EmberObject {
 
     @method modelFor
     @public
-    @param {String} type
+    @param {string} type
     @return {ModelSchema}
     */
   // TODO @deprecate in favor of schema APIs, requires adapter/serializer overhaul or replacement
-
-  modelFor(type: string): ModelSchema {
+  modelFor<T>(type: TypeFromInstance<T>): ModelSchema<T>;
+  modelFor(type: string): ModelSchema;
+  modelFor<T>(type: T extends TypedRecordInstance ? TypeFromInstance<T> : string): ModelSchema<T> {
     if (DEBUG) {
       assertDestroyedStoreOnly(this, 'modelFor');
     }
@@ -658,7 +665,7 @@ class Store extends EmberObject {
       this.getSchemaDefinitionService().doesTypeExist(type)
     );
 
-    return getShimClass(this, type);
+    return getShimClass<T>(this, type);
   }
 
   /**
@@ -685,14 +692,14 @@ class Store extends EmberObject {
 
     @method createRecord
     @public
-    @param {String} modelName
+    @param {String} type the name of the resource
     @param {Object} inputProperties a hash of properties to set on the
       newly created record.
     @return {Model} record
   */
-  createRecord<T extends MaybeHasId>(modelName: TypeFromInstance<T>, inputProperties: CreateRecordProperties<T>): T;
-  createRecord(modelName: string, inputProperties: CreateRecordProperties): unknown;
-  createRecord(modelName: string, inputProperties: CreateRecordProperties): unknown {
+  createRecord<T extends MaybeHasId>(type: TypeFromInstance<T>, inputProperties: CreateRecordProperties<T>): T;
+  createRecord(modelName: string, inputProperties: CreateRecordProperties): OpaqueRecordInstance;
+  createRecord(modelName: string, inputProperties: CreateRecordProperties): OpaqueRecordInstance {
     if (DEBUG) {
       assertDestroyingStore(this, 'createRecord');
     }
@@ -707,7 +714,7 @@ class Store extends EmberObject {
     //   of record-arrays via ember's run loop, not our own.
     //
     //   to remove this, we would need to move to a new `async` API.
-    let record!: RecordInstance;
+    let record!: OpaqueRecordInstance;
     this._join(() => {
       const normalizedModelName = normalizeModelName(modelName);
       const properties = { ...inputProperties };
@@ -768,7 +775,7 @@ class Store extends EmberObject {
 
     @method deleteRecord
     @public
-    @param {Model} record
+    @param {unknown} record
   */
   deleteRecord<T>(record: T): void {
     if (DEBUG) {
@@ -1179,19 +1186,19 @@ class Store extends EmberObject {
     @since 1.13.0
     @method findRecord
     @public
-    @param {String|object} modelName - either a string representing the modelName or a ResourceIdentifier object containing both the type (a string) and the id (a string) for the record or an lid (a string) of an existing record
+    @param {String|object} type - either a string representing the name of the resource or a ResourceIdentifier object containing both the type (a string) and the id (a string) for the record or an lid (a string) of an existing record
     @param {(String|Integer|Object)} id - optional object with options for the request only if the first param is a ResourceIdentifier, else the string id of the record to be retrieved
     @param {Object} [options] - if the first param is a string this will be the optional options for the request. See examples for available options.
     @return {Promise} promise
   */
-  findRecord<T>(resource: TypeFromInstance<T>, id: string | number, options?: FindOptions): Promise<T>;
-  findRecord(resource: string, id: string | number, options?: FindOptions): Promise<unknown>;
-  findRecord<T>(resource: ResourceIdentifierObject<TypeFromInstance<T>>, id?: FindOptions): Promise<T>;
-  findRecord(resource: ResourceIdentifierObject, id?: FindOptions): Promise<unknown>;
+  findRecord<T>(resource: TypeFromInstance<T>, id: string | number, options?: FindRecordOptions): Promise<T>;
+  findRecord(resource: string, id: string | number, options?: FindRecordOptions): Promise<unknown>;
+  findRecord<T>(resource: ResourceIdentifierObject<TypeFromInstance<T>>, id?: FindRecordOptions): Promise<T>;
+  findRecord(resource: ResourceIdentifierObject, id?: FindRecordOptions): Promise<unknown>;
   findRecord(
     resource: string | ResourceIdentifierObject,
-    id?: string | number | FindOptions,
-    options?: FindOptions
+    id?: string | number | FindRecordOptions,
+    options?: FindRecordOptions
   ): Promise<unknown> {
     if (DEBUG) {
       assertDestroyingStore(this, 'findRecord');
@@ -1202,7 +1209,7 @@ class Store extends EmberObject {
       resource
     );
     if (isMaybeIdentifier(resource)) {
-      options = id as FindOptions | undefined;
+      options = id as FindRecordOptions | undefined;
     } else {
       assert(
         `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${resource}`,
@@ -1228,7 +1235,7 @@ class Store extends EmberObject {
       });
     }
 
-    const promise = this.request<RecordInstance>({
+    const promise = this.request<OpaqueRecordInstance>({
       op: 'findRecord',
       data: {
         record: identifier,
@@ -1353,9 +1360,9 @@ class Store extends EmberObject {
     @param {String|Integer} id - optional only if the first param is a ResourceIdentifier, else the string id of the record to be retrieved.
     @return {Model|null} record
   */
-  peekRecord<T = RecordInstance>(identifier: string, id: string | number): T | null;
-  peekRecord<T = RecordInstance>(identifier: ResourceIdentifierObject): T | null;
-  peekRecord<T = RecordInstance>(identifier: ResourceIdentifierObject | string, id?: string | number): T | null {
+  peekRecord<T = OpaqueRecordInstance>(identifier: string, id: string | number): T | null;
+  peekRecord<T = OpaqueRecordInstance>(identifier: ResourceIdentifierObject): T | null;
+  peekRecord<T = OpaqueRecordInstance>(identifier: ResourceIdentifierObject | string, id?: string | number): T | null {
     if (arguments.length === 1 && isMaybeIdentifier(identifier)) {
       const stableIdentifier = this.identifierCache.peekRecordIdentifier(identifier);
       const isLoaded = stableIdentifier && this._instanceCache.recordIsLoaded(stableIdentifier);
@@ -1431,32 +1438,30 @@ class Store extends EmberObject {
     @since 1.13.0
     @method query
     @public
-    @param {String} modelName
-    @param {any} query an opaque query to be used by the adapter
+    @param {String} type the name of the resource
+    @param {object} query a query to be used by the adapter
     @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.query
     @return {Promise} promise
   */
-  query(
-    modelName: string,
-    query: Record<string, unknown>,
-    options: { [key: string]: unknown; adapterOptions?: Record<string, unknown> }
-  ): Promise<Collection> {
+  query<T>(type: TypeFromInstance<T>, query: Record<string, unknown>, options?: QueryOptions): Promise<Collection<T>>;
+  query(type: string, query: Record<string, unknown>, options?: QueryOptions): Promise<Collection>;
+  query(type: string, query: Record<string, unknown>, options: QueryOptions = {}): Promise<Collection> {
     if (DEBUG) {
       assertDestroyingStore(this, 'query');
     }
-    assert(`You need to pass a model name to the store's query method`, modelName);
+    assert(`You need to pass a model name to the store's query method`, type);
     assert(`You need to pass a query hash to the store's query method`, query);
     assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
+      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${type}`,
+      typeof type === 'string'
     );
 
     const promise = this.request<Collection>({
       op: 'query',
       data: {
-        type: normalizeModelName(modelName),
+        type: normalizeModelName(type),
         query,
-        options: options || {},
+        options: options,
       },
       cacheOptions: { [SkipCache as symbol]: true },
     });
@@ -1566,7 +1571,7 @@ class Store extends EmberObject {
     modelName: string,
     query: Record<string, unknown>,
     options?: QueryOptions
-  ): Promise<RecordInstance | null> {
+  ): Promise<OpaqueRecordInstance | null> {
     if (DEBUG) {
       assertDestroyingStore(this, 'queryRecord');
     }
@@ -1577,7 +1582,7 @@ class Store extends EmberObject {
       typeof modelName === 'string'
     );
 
-    const promise = this.request<RecordInstance | null>({
+    const promise = this.request<OpaqueRecordInstance | null>({
       op: 'queryRecord',
       data: {
         type: normalizeModelName(modelName),
@@ -1774,24 +1779,26 @@ class Store extends EmberObject {
     @since 1.13.0
     @method findAll
     @public
-    @param {String} modelName
-    @param {Object} options
+    @param {string} type the name of the resource
+    @param {object} options
     @return {Promise} promise
   */
-  findAll(modelName: string, options: { reload?: boolean; backgroundReload?: boolean } = {}): Promise<IdentifierArray> {
+  findAll<T>(type: TypeFromInstance<T>, options?: FindAllOptions): Promise<IdentifierArray<T>>;
+  findAll(type: string, options?: FindAllOptions): Promise<IdentifierArray>;
+  findAll<T>(type: TypeFromInstance<T> | string, options: FindAllOptions = {}): Promise<IdentifierArray<T>> {
     if (DEBUG) {
       assertDestroyingStore(this, 'findAll');
     }
-    assert(`You need to pass a model name to the store's findAll method`, modelName);
+    assert(`You need to pass a model name to the store's findAll method`, type);
     assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
+      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${type}`,
+      typeof type === 'string'
     );
 
-    const promise = this.request<IdentifierArray>({
+    const promise = this.request<IdentifierArray<T>>({
       op: 'findAll',
       data: {
-        type: normalizeModelName(modelName),
+        type: normalizeModelName(type),
         options: options || {},
       },
       cacheOptions: { [SkipCache as symbol]: true },
@@ -1822,21 +1829,22 @@ class Store extends EmberObject {
     @since 1.13.0
     @method peekAll
     @public
-    @param {String} modelName
+    @param {string} type the name of the resource
     @return {RecordArray}
   */
-  peekAll(modelName: string): IdentifierArray {
+  peekAll<T>(type: TypeFromInstance<T>): IdentifierArray<T>;
+  peekAll(type: string): IdentifierArray;
+  peekAll(type: string): IdentifierArray {
     if (DEBUG) {
       assertDestroyingStore(this, 'peekAll');
     }
-    assert(`You need to pass a model name to the store's peekAll method`, modelName);
+    assert(`You need to pass a model name to the store's peekAll method`, type);
     assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
+      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${type}`,
+      typeof type === 'string'
     );
 
-    const type = normalizeModelName(modelName);
-    return this.recordArrayManager.liveArrayFor(type);
+    return this.recordArrayManager.liveArrayFor(normalizeModelName(type));
   }
 
   /**
@@ -1851,22 +1859,22 @@ class Store extends EmberObject {
     ```
 
     @method unloadAll
+    @param {string} type the name of the resource
     @public
-    @param {String} modelName
   */
-  unloadAll(modelName?: string) {
+  unloadAll<T>(type: TypeFromInstance<T>): void;
+  unloadAll(type?: string): void;
+  unloadAll(type?: string) {
     if (DEBUG) {
       assertDestroyedStoreOnly(this, 'unloadAll');
     }
     assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${String(
-        modelName
-      )}`,
-      !modelName || typeof modelName === 'string'
+      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${String(type)}`,
+      !type || typeof type === 'string'
     );
 
     this._join(() => {
-      if (modelName === undefined) {
+      if (type === undefined) {
         // destroy the graph before unloadAll
         // since then we avoid churning relationships
         // during unload
@@ -1875,8 +1883,7 @@ class Store extends EmberObject {
         this.recordArrayManager.clear();
         this._instanceCache.clear();
       } else {
-        const normalizedModelName = normalizeModelName(modelName);
-        this._instanceCache.clear(normalizedModelName);
+        this._instanceCache.clear(normalizeModelName(type));
       }
     });
   }
@@ -2033,9 +2040,11 @@ class Store extends EmberObject {
       updated.
   */
   push(data: EmptyResourceDocument): null;
-  push(data: SingleResourceDocument): RecordInstance;
-  push(data: CollectionResourceDocument): RecordInstance[];
-  push(data: JsonApiDocument): RecordInstance | RecordInstance[] | null {
+  push<T>(data: SingleResourceDocument<TypeFromInstance<T>>): T;
+  push(data: SingleResourceDocument): OpaqueRecordInstance;
+  push<T>(data: CollectionResourceDocument<TypeFromInstance<T>>): T[];
+  push(data: CollectionResourceDocument): OpaqueRecordInstance[];
+  push(data: JsonApiDocument): OpaqueRecordInstance | OpaqueRecordInstance[] | null {
     if (DEBUG) {
       assertDestroyingStore(this, 'push');
     }
@@ -2095,13 +2104,15 @@ class Store extends EmberObject {
   /**
    * Trigger a save for a Record.
    *
+   * Returns a promise resolving with the same record when the save is complete.
+   *
    * @method saveRecord
    * @public
-   * @param {RecordInstance} record
+   * @param {unknown} record
    * @param options
-   * @return {Promise<RecordInstance>}
+   * @return {Promise<record>}
    */
-  saveRecord(record: RecordInstance, options: Record<string, unknown> = {}): Promise<RecordInstance> {
+  saveRecord<T>(record: T, options: Record<string, unknown> = {}): Promise<T> {
     if (DEBUG) {
       assertDestroyingStore(this, 'saveRecord');
     }
@@ -2147,7 +2158,7 @@ class Store extends EmberObject {
     // we lie here on the type because legacy doesn't have enough context
     cache.willCommit(identifier, { request } as unknown as StoreRequestContext);
 
-    return this.request<RecordInstance>(request).then((document) => document.content);
+    return this.request<T>(request).then((document) => document.content);
   }
 
   /**
@@ -2269,9 +2280,9 @@ function normalizeProperties(
         if (def !== undefined) {
           if (def.kind === 'hasMany') {
             if (DEBUG) {
-              assertRecordsPassedToHasMany(properties[prop] as RecordInstance[]);
+              assertRecordsPassedToHasMany(properties[prop] as OpaqueRecordInstance[]);
             }
-            relationshipValue = extractIdentifiersFromRecords(properties[prop] as RecordInstance[]);
+            relationshipValue = extractIdentifiersFromRecords(properties[prop] as OpaqueRecordInstance[]);
           } else {
             relationshipValue = extractIdentifierFromRecord(properties[prop]);
           }
@@ -2284,7 +2295,7 @@ function normalizeProperties(
   return properties;
 }
 
-function assertRecordsPassedToHasMany(records: RecordInstance[]) {
+function assertRecordsPassedToHasMany(records: OpaqueRecordInstance[]) {
   assert(`You must pass an array of records to set a hasMany relationship`, Array.isArray(records));
   assert(
     `All elements of a hasMany relationship must be instances of Model, you passed ${records
@@ -2303,13 +2314,13 @@ function assertRecordsPassedToHasMany(records: RecordInstance[]) {
   );
 }
 
-function extractIdentifiersFromRecords(records: RecordInstance[]): StableRecordIdentifier[] {
+function extractIdentifiersFromRecords(records: OpaqueRecordInstance[]): StableRecordIdentifier[] {
   return records.map((record) => extractIdentifierFromRecord(record)) as StableRecordIdentifier[];
 }
 
-type PromiseProxyRecord = { then(): void; content: RecordInstance | null | undefined };
+type PromiseProxyRecord = { then(): void; content: OpaqueRecordInstance | null | undefined };
 
-function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord | RecordInstance | null) {
+function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord | OpaqueRecordInstance | null) {
   if (!recordOrPromiseRecord) {
     return null;
   }

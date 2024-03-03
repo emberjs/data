@@ -6,7 +6,7 @@ import { assert } from '@ember/debug';
 import { DEBUG } from '@ember-data/env';
 import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 
-import type { FindOptions } from '../../-types/q/store';
+import type { FindRecordOptions } from '../../-types/q/store';
 import type Store from '../store-service';
 
 const Touching: unique symbol = Symbol('touching');
@@ -15,7 +15,7 @@ const EMPTY_ARR: RequestState[] = DEBUG ? (Object.freeze([]) as unknown as Reque
 
 export interface Operation {
   op: string;
-  options: FindOptions | undefined;
+  options: FindRecordOptions | undefined;
   recordIdentifier: StableRecordIdentifier;
 }
 
