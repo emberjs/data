@@ -20,6 +20,7 @@ import BaseStore, { CacheHandler } from '@ember-data/store';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
 import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
+import { TypeFromInstance } from '@warp-drive/core-types/record';
 
 function hasRequestManager(store: BaseStore): boolean {
   return 'requestManager' in store;
@@ -55,6 +56,8 @@ export default class Store extends BaseStore {
     teardownRecord.call(this, record);
   }
 
+  override modelFor<T>(type: TypeFromInstance<T>): ModelSchema<T>;
+  override modelFor(type: string): ModelSchema;
   override modelFor(type: string): ModelSchema {
     return modelFor.call(this, type) || super.modelFor(type);
   }

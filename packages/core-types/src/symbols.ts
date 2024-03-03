@@ -1,4 +1,4 @@
-/**
+/*
  * @module @warp-drive/core-types
  */
 export const RecordStore = Symbol('Store');
@@ -15,5 +15,6 @@ export const RecordStore = Symbol('Store');
  * safety and intellisense.
  *
  * @type {Symbol}
+ * @typedoc
  */
 export const ResourceType = Symbol('$type');

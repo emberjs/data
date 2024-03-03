@@ -17,7 +17,7 @@ import type { NotificationType } from '@ember-data/store/-private/managers/notif
 import type { Collection } from '@ember-data/store/-private/record-arrays/identifier-array';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
 import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
-import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
+import type { OpaqueRecordInstance } from '@ember-data/store/-types/q/record-instance';
 import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 import type {
   StableDocumentIdentifier,
@@ -121,7 +121,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const { owner } = this;
 
       const store = owner.lookup('service:store') as unknown as TestStore;
-      const userDocument = await store.request<Document<RecordInstance>>({
+      const userDocument = await store.request<Document<OpaqueRecordInstance>>({
         url: '/assets/users/1.json',
       });
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
@@ -185,7 +185,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       ]);
       store.requestManager.useCache(CacheHandler);
 
-      const userDocument = await store.request<Document<RecordInstance>>({
+      const userDocument = await store.request<Document<OpaqueRecordInstance>>({
         url: '/assets/users/1.json',
       });
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
@@ -213,7 +213,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         'we get access to the document meta'
       );
 
-      const userDocument2 = await store.request<Document<RecordInstance>>({
+      const userDocument2 = await store.request<Document<OpaqueRecordInstance>>({
         url: '/assets/users/1.json',
       });
       const data2 = userDocument2.content.data;
@@ -325,7 +325,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       owner.register('service:request', RequestManagerService);
 
       const store = owner.lookup('service:store') as unknown as TestStore;
-      const userDocument = await store.request<Document<RecordInstance>>({
+      const userDocument = await store.request<Document<OpaqueRecordInstance>>({
         op: 'random-op',
         url: '/assets/users/1.json',
       });
@@ -609,7 +609,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       ]);
       store.requestManager.useCache(CacheHandler);
 
-      const userDocument = await store.request<Document<RecordInstance>>({
+      const userDocument = await store.request<Document<OpaqueRecordInstance>>({
         url: '/assets/users/1.json',
       });
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
@@ -638,7 +638,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         '<Initial> we get access to the document meta'
       );
 
-      const userDocument2 = await store.request<Document<RecordInstance>>({
+      const userDocument2 = await store.request<Document<OpaqueRecordInstance>>({
         url: '/assets/users/1.json',
         cacheOptions: { backgroundReload: true },
       });
@@ -750,7 +750,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       ]);
       store.requestManager.useCache(CacheHandler);
 
-      const userDocument = await store.request<Document<RecordInstance>>({
+      const userDocument = await store.request<Document<OpaqueRecordInstance>>({
         url: '/assets/users/1.json',
       });
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
@@ -1029,7 +1029,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       ]);
       store.requestManager.useCache(CacheHandler);
 
-      const userDocument = await store.request<Document<RecordInstance[]>>({
+      const userDocument = await store.request<Document<OpaqueRecordInstance[]>>({
         url: '/assets/users/list.json',
       });
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
@@ -1060,7 +1060,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         'we get access to the document meta'
       );
 
-      const userDocument2 = await store.request<Document<RecordInstance[]>>({
+      const userDocument2 = await store.request<Document<OpaqueRecordInstance[]>>({
         url: '/assets/users/list.json',
       });
       const data2 = userDocument2.content.data!;
@@ -1143,7 +1143,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       ]);
       store.requestManager.useCache(CacheHandler);
 
-      const userDocument = await store.request<Document<RecordInstance[]>>({
+      const userDocument = await store.request<Document<OpaqueRecordInstance[]>>({
         url: '/assets/users/list.json',
       });
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
@@ -1174,7 +1174,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         'we get access to the document meta'
       );
 
-      const userDocument2 = await store.request<Document<RecordInstance[]>>({
+      const userDocument2 = await store.request<Document<OpaqueRecordInstance[]>>({
         url: '/assets/users/list.json',
         cacheOptions: { backgroundReload: true },
       });
@@ -1292,7 +1292,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       store.requestManager.useCache(CacheHandler);
 
       // Initial Fetch with Hydration
-      const userDocument = await store.request<Document<RecordInstance[]>>({
+      const userDocument = await store.request<Document<OpaqueRecordInstance[]>>({
         url: '/assets/users/list.json',
       });
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
@@ -2001,7 +2001,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const { owner } = this;
 
       const store = owner.lookup('service:store') as unknown as TestStore;
-      const request = store.request<Document<RecordInstance>>({
+      const request = store.request<Document<OpaqueRecordInstance>>({
         url: '/assets/users/1.json',
       });
       const userDocument = await request;
@@ -2090,7 +2090,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       ]);
       store.requestManager.useCache(CacheHandler);
 
-      const userDocument = await store.request<Document<RecordInstance>>({
+      const userDocument = await store.request<Document<OpaqueRecordInstance>>({
         url: '/assets/users/1.json',
       });
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
@@ -2119,7 +2119,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         '<Initial> we get access to the document meta'
       );
 
-      const request2 = store.request<Document<RecordInstance>>({
+      const request2 = store.request<Document<OpaqueRecordInstance>>({
         url: '/assets/users/1.json',
         cacheOptions: { backgroundReload: true },
       });

@@ -134,5 +134,6 @@ export function createSnapshot<T extends MinimalLegacyRecord>(this: T): Snapshot
     store._fetchManager = new FetchManager(store);
   }
 
+  // @ts-expect-error Typescript isn't able to curry narrowed args that are divorced from each other.
   return store._fetchManager.createSnapshot<T>(recordIdentifierFor(this));
 }

@@ -16,6 +16,7 @@ import BaseStore, { CacheHandler } from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
 import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { TypeFromInstance } from '@warp-drive/core-types/record';
 
 export default class Store extends BaseStore {
   constructor(args: unknown) {
@@ -38,7 +39,9 @@ export default class Store extends BaseStore {
     teardownRecord.call(this, record);
   }
 
-  override modelFor(type: string): ModelSchema<Record<string, unknown>> {
+  override modelFor<T>(type: TypeFromInstance<T>): ModelSchema<T>;
+  override modelFor(type: string): ModelSchema;
+  override modelFor(type: string): ModelSchema {
     return modelFor.call(this, type) || super.modelFor(type);
   }
 

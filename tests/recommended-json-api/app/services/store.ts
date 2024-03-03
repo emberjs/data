@@ -7,8 +7,10 @@ import Fetch from '@ember-data/request/fetch';
 import { LifetimesService } from '@ember-data/request-utils';
 import DataStore, { CacheHandler } from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
+import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
+import type { TypeFromInstance } from '@warp-drive/core-types/record';
 
 import CONFIG from '../config/environment';
 
@@ -39,8 +41,9 @@ export default class Store extends DataStore {
     return teardownRecord.call(this, record);
   }
 
-  // @ts-expect-error Not sure what the fix is here
-  override modelFor(type: string) {
-    return modelFor.call(this, type);
+  override modelFor<T>(type: TypeFromInstance<T>): ModelSchema<T>;
+  override modelFor(type: string): ModelSchema;
+  override modelFor(type: string): ModelSchema {
+    return modelFor.call(this, type) as ModelSchema;
   }
 }

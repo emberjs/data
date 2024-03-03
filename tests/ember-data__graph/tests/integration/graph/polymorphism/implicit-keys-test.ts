@@ -4,6 +4,8 @@ import { graphFor } from '@ember-data/graph/-private';
 import Model, { attr, belongsTo } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
+import type { CollectionResourceDocument } from '@warp-drive/core-types/spec/raw';
+import { ResourceType } from '@warp-drive/core-types/symbols';
 import { module, test } from '@warp-drive/diagnostic';
 import { setupTest } from '@warp-drive/diagnostic/ember';
 
@@ -15,13 +17,16 @@ module('Integration | Graph | Implicit Keys', function (hooks) {
     class User extends Model {
       @attr declare name: string;
       @belongsTo('organization', { async: false, inverse: null }) declare organization: Organization;
+      [ResourceType] = 'user' as const;
     }
     class Product extends Model {
       @attr declare name: string;
       @belongsTo('organization', { async: false, inverse: null }) declare organization: Organization;
+      [ResourceType] = 'product' as const;
     }
     class Organization extends Model {
       @attr declare name: string;
+      [ResourceType] = 'organization' as const;
     }
     owner.register('model:user', User);
     owner.register('model:product', Product);
@@ -29,10 +34,10 @@ module('Integration | Graph | Implicit Keys', function (hooks) {
 
     const store = owner.lookup('service:store') as unknown as Store;
     const graph = graphFor(store);
-    let user, product, organization;
+    let user!: User, product!: Product, organization!: Organization;
 
     await assert.expectNoAssertion(() => {
-      [user, product, organization] = store.push({
+      const data: CollectionResourceDocument<'user' | 'product' | 'organization'> = {
         data: [
           {
             type: 'user',
@@ -56,7 +61,8 @@ module('Integration | Graph | Implicit Keys', function (hooks) {
             attributes: { name: 'Ember.js' },
           },
         ],
-      });
+      };
+      [user, product, organization] = store.push<User | Organization | Product>(data) as [User, Product, Organization];
     });
 
     const userIdentifier = recordIdentifierFor(user);

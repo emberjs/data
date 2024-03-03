@@ -1,4 +1,4 @@
-/**
+/*
  * @module @warp-drive/core-types
  */
 import type { ResourceType } from './symbols';
@@ -13,6 +13,7 @@ import type { ResourceType } from './symbols';
  * intellisense.
  *
  * @class TypedRecordInstance
+ * @typedoc
  */
 export interface TypedRecordInstance {
   /**
@@ -28,7 +29,7 @@ export interface TypedRecordInstance {
    *
    * @property {ResourceType} [ResourceType]
    * @type {string}
-   *
+   * @typedoc
    */
   [ResourceType]: string;
 }

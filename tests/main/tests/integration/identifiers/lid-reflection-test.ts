@@ -14,20 +14,20 @@ import { recordIdentifierFor } from '@ember-data/store';
 module('Integration | Identifiers - lid reflection', function (hooks: NestedHooks) {
   setupTest(hooks);
 
+  class User extends Model {
+    @attr declare name: string;
+    @attr declare age: number;
+  }
+
   hooks.beforeEach(function () {
     const { owner } = this;
-
-    class User extends Model {
-      @attr declare name: string;
-      @attr declare age: number;
-    }
 
     owner.register('model:user', User);
   });
 
   test(`We can access the lid when serializing a record`, function (assert: Assert) {
     class TestSerializer extends EmberObject {
-      serialize(snapshot: Snapshot) {
+      serialize(snapshot: Snapshot<User>) {
         // TODO should snapshots have direct access to the identifier?
         const identifier = recordIdentifierFor(snapshot.record);
         return {
