@@ -2,10 +2,12 @@ import { assert } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
 
+import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import { upgradeStore } from '@ember-data/legacy-compat/-private';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import { peekCache } from '@ember-data/store/-private';
+import type { ChangedAttributesHash } from '@warp-drive/core-types/cache';
 import { RecordStore } from '@warp-drive/core-types/symbols';
 
 import type Errors from './errors';
@@ -56,7 +58,7 @@ export function hasMany(this: MinimalLegacyRecord, prop: string) {
   return lookupLegacySupport(this).referenceFor('hasMany', prop);
 }
 
-export function reload(this: MinimalLegacyRecord, options: Record<string, unknown> = {}) {
+export function reload<T extends MinimalLegacyRecord>(this: T, options: Record<string, unknown> = {}): Promise<T> {
   options.isReloading = true;
   options.reload = true;
 
@@ -80,16 +82,16 @@ export function reload(this: MinimalLegacyRecord, options: Record<string, unknow
   return promise;
 }
 
-export function changedAttributes(this: MinimalLegacyRecord) {
+export function changedAttributes<T extends MinimalLegacyRecord>(this: T): ChangedAttributesHash {
   return peekCache(this).changedAttrs(recordIdentifierFor(this));
 }
 
-export function serialize(this: MinimalLegacyRecord, options?: Record<string, unknown>) {
+export function serialize<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): unknown {
   upgradeStore(this[RecordStore]);
   return this[RecordStore].serializeRecord(this, options);
 }
 
-export function deleteRecord(this: MinimalLegacyRecord) {
+export function deleteRecord<T extends MinimalLegacyRecord>(this: T): void {
   // ensure we've populated currentState prior to deleting a new record
   if (this.currentState) {
     this[RecordStore].deleteRecord(this);
@@ -103,13 +105,13 @@ export function save<T extends MinimalLegacyRecord>(this: T, options?: Record<st
     promise = Promise.resolve(this);
   } else {
     this.errors.clear();
-    promise = this[RecordStore].saveRecord(this, options) as Promise<T>;
+    promise = this[RecordStore].saveRecord(this, options);
   }
 
   return promise;
 }
 
-export function destroyRecord(this: MinimalLegacyRecord, options?: Record<string, unknown>) {
+export function destroyRecord<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): Promise<T> {
   const { isNew } = this.currentState;
   this.deleteRecord();
   if (isNew) {
@@ -121,7 +123,7 @@ export function destroyRecord(this: MinimalLegacyRecord, options?: Record<string
   });
 }
 
-export function createSnapshot(this: MinimalLegacyRecord) {
+export function createSnapshot<T extends MinimalLegacyRecord>(this: T): Snapshot<T> {
   const store = this[RecordStore];
 
   upgradeStore(store);
@@ -132,5 +134,6 @@ export function createSnapshot(this: MinimalLegacyRecord) {
     store._fetchManager = new FetchManager(store);
   }
 
-  return store._fetchManager.createSnapshot(recordIdentifierFor(this));
+  // @ts-expect-error Typescript isn't able to curry narrowed args that are divorced from each other.
+  return store._fetchManager.createSnapshot<T>(recordIdentifierFor(this));
 }

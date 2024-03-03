@@ -4,6 +4,7 @@ import { assert } from '@ember/debug';
 import { setCacheFor, setRecordIdentifier, type Store, StoreMap } from '@ember-data/store/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
+import type { TypeFromInstance, TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 
 import type { ModelStore } from './model';
 import type Model from './model';
@@ -50,7 +51,9 @@ export function teardownRecord(record: Model): void {
   record.destroy();
 }
 
-export function modelFor(this: Store, modelName: string): typeof Model | void {
+export function modelFor<T>(type: TypeFromInstance<T>): typeof Model | void;
+export function modelFor(type: string): typeof Model | void;
+export function modelFor<T>(this: Store, modelName: TypeFromInstanceOrString<T>): typeof Model | void {
   assert(
     `Attempted to call store.modelFor(), but the store instance has already been destroyed.`,
     !this.isDestroyed && !this.isDestroying

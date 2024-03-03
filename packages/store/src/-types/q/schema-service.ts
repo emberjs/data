@@ -24,18 +24,23 @@ export interface FieldSchema {
 }
 
 /**
- * A SchemaDefinitionService implementation provides the ability
- * to query for various information about a resource in an abstract manner.
+ * The SchemaService provides the ability to query for information about the structure
+ * of any resource type.
  *
- * How an implementation determines this information is left up to the implementation,
- * this means that schema information could be lazily populated, derived-on-demand,
- * or progressively enhanced during the course of an application's runtime.
+ * Applications can provide any implementation of the SchemaService they please so long
+ * as it conforms to this interface.
  *
- * The implementation provided to work with `@ember-data/model` makes use of the
- * static schema properties on those classes to respond to these queries; however,
- * that is not a necessary approach. For instance, Schema information could be sideloaded
- * or pre-flighted for API calls, resulting in no need to bundle and ship potentially
- * large and expensive JSON or JS schemas to pull information from.
+ * The design of the service means that schema information could be lazily populated,
+ * derived-on-demand, or progressively enhanced during the course of an application's runtime.
+ * The primary requirement is merely that any information the service needs to correctly
+ * respond to an inquest is available by the time it is asked.
+ *
+ * The `@ember-data/model` package provides an implementation of this service which
+ * makes use of your model classes as the source of information to respond to queries
+ * about resource schema. While this is useful, this may not be ideal for your application.
+ * For instance, Schema information could be sideloaded or pre-flighted for API calls,
+ * resulting in no need to bundle and ship potentially large and expensive JSON
+ * or large Javascript based Models to pull information from.
  *
  * To register a custom schema implementation, extend the store service or
  * lookup and register the schema service first thing on app-boot. Example below
@@ -48,13 +53,13 @@ export interface FieldSchema {
  * export default class extends Store {
  *   constructor(...args) {
  *     super(...args);
- *     this.registerSchemaDefinitionService(new CustomSchemas());
+ *     this.registerSchema(new CustomSchemas());
  *   }
  * }
  * ```
  *
- * At runtime, both the `Store` and the `StoreWrapper` provide
- * access to this service via the `getSchemaDefinitionService()` method.
+ * At runtime, both the `Store` and the `CacheCapabilitiesManager` provide
+ * access to this service via the `schema` property.
  *
  * ```ts
  * export default class extends Component {
@@ -62,15 +67,21 @@ export interface FieldSchema {
  *
  *  get attributes() {
  *    return this.store
- *      .getSchemaDefinitionService()
+ *      .schema
  *      .attributesDefinitionFor(this.args.dataType);
  *  }
  * }
  * ```
  *
- * This is not a class and cannot be instantiated.
+ * Note: there can only be one schema service registered at a time.
+ * If you register a new schema service, the old one will be replaced.
  *
- * @class SchemaService
+ * If you would like to inherit from another schema service, you can do so by
+ * using typical class inheritance patterns OR by accessing the existing
+ * schema service at runtime before replacing it with your own, and then
+ * having your own delegate to it when needed.
+ *
+ * @class <Interface> SchemaService
  * @public
  */
 export interface SchemaService {

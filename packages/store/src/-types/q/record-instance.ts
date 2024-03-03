@@ -2,15 +2,26 @@
   @module @ember-data/store
 */
 
-/*
-  A `Record` is the result of the store instantiating a class to present data for a resource to the UI.
+/**
+  In EmberData, a "record instance" is a class instance used to present the data
+  for a single resource, transforming the resource's cached raw data into a form
+  that is useful for the application.
 
-  Historically in `ember-data` this meant that it was the result of calling `ModelFactory.create()` to
-  gain instance to a class built upon `@ember-data/model`. However, as we go forward into a future in which
-  model instances (aka `Records`) are completely user supplied and opaque to the internals, we need a type
-  through which to communicate what is valid.
+  Since every application's needs are different, EmberData does not assume to know
+  what the shape of the record instance should be. Instead, it provides a way to
+  define the record instance's via the `instantiateRecord` hook on the store.
 
-  The type belows allows for anything extending object.
+  Thus for most purposes the `RecordInstance` type is "opaque" to EmberData, and
+  should be treated as "unknown" by the library.
+
+  Wherever possible, if typing an API that is consumer facing, instead of using
+  OpaqueRecordInstance, we should prefer to use a generic and check if the generic
+  extends `TypedRecordInstance`. This allows consumers to define their own record
+  instance types and not only have their types flow through EmberData APIs, but
+  also allows EmberData to provide typechecking and intellisense for the record
+  based on a special symbol prsent on record instances that implement the
+  `TypedRecordInstance` interface.
+
+  @typedoc
 */
-
-export type RecordInstance = unknown;
+export type OpaqueRecordInstance = unknown;

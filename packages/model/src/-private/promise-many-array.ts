@@ -1,7 +1,7 @@
 import { assert } from '@ember/debug';
 
 import { DEPRECATE_COMPUTED_CHAINS } from '@ember-data/deprecations';
-import type { FindOptions } from '@ember-data/store/-types/q/store';
+import type { BaseFinderOptions } from '@ember-data/store/-types/q/store';
 import { compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';
 
@@ -82,7 +82,7 @@ export default class PromiseManyArray {
    * @param options
    * @return
    */
-  reload(options: FindOptions) {
+  reload(options: Omit<BaseFinderOptions, ''>) {
     assert('You are trying to reload an async manyArray before it has been created', this.content);
     void this.content.reload(options);
     return this;

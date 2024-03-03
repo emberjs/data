@@ -13,6 +13,7 @@ import {
 import RequestManager from '@ember-data/request';
 import type Store from '@ember-data/store';
 import { CacheHandler } from '@ember-data/store';
+import type { ResourceType } from '@warp-drive/core-types/symbols';
 import { Editable, Legacy } from '@warp-drive/schema-record/record';
 import { registerDerivations, SchemaService, withFields } from '@warp-drive/schema-record/schema';
 
@@ -45,13 +46,14 @@ interface User {
   isDestroyed: boolean;
   errors: Errors;
   unloadRecord(): void;
-  _createSnapshot(): Snapshot;
+  _createSnapshot(): Snapshot<User>;
   serialize(): Record<string, unknown>;
   save(): Promise<User>;
   changedAttributes(): Record<string, [unknown, unknown]>;
   rollbackAttributes(): void;
   reload(): Promise<User>;
   destroyRecord(): Promise<User>;
+  [ResourceType]: 'user';
 }
 
 module('Legacy Mode', function (hooks) {
@@ -74,13 +76,13 @@ module('Legacy Mode', function (hooks) {
       ]),
     });
 
-    const record = store.push({
+    const record = store.push<User>({
       data: {
         type: 'user',
         id: '1',
         attributes: { name: 'Rey Pupatine' },
       },
-    }) as User;
+    });
 
     assert.strictEqual(record.id, '1', 'id is accessible');
     assert.strictEqual(record.name, 'Rey Pupatine', 'name is accessible');
@@ -112,13 +114,13 @@ module('Legacy Mode', function (hooks) {
       ]),
     });
 
-    const record = store.push({
+    const record = store.push<User>({
       data: {
         type: 'user',
         id: '1',
         attributes: { name: 'Rey Pupatine' },
       },
-    }) as User;
+    });
 
     assert.false(record[Legacy], 'record is in legacy mode');
 
@@ -152,13 +154,13 @@ module('Legacy Mode', function (hooks) {
       ]),
     });
 
-    const record = store.push({
+    const record = store.push<User>({
       data: {
         type: 'user',
         id: '1',
         attributes: { name: 'Rey Pupatine' },
       },
-    }) as User;
+    });
 
     assert.true(record[Legacy], 'record is in legacy mode');
     assert.strictEqual(
@@ -187,13 +189,13 @@ module('Legacy Mode', function (hooks) {
       ]),
     });
 
-    const record = store.push({
+    const record = store.push<User>({
       data: {
         type: 'user',
         id: '1',
         attributes: { name: 'Rey Pupatine' },
       },
-    }) as User;
+    });
 
     assert.false(record[Legacy], 'record is NOT in legacy mode');
     assert.strictEqual(record.$type, 'user', '$type is accessible');
@@ -218,13 +220,13 @@ module('Legacy Mode', function (hooks) {
       ]),
     });
 
-    const record = store.push({
+    const record = store.push<User>({
       data: {
         type: 'user',
         id: '1',
         attributes: { name: 'Rey Pupatine' },
       },
-    }) as User;
+    });
 
     assert.true(record[Legacy], 'record is in legacy mode');
 
@@ -263,7 +265,7 @@ module('Legacy Mode', function (hooks) {
       ]),
     });
 
-    const record = store.push({
+    const record = store.push<User>({
       data: {
         type: 'user',
         id: '1',
@@ -290,7 +292,7 @@ module('Legacy Mode', function (hooks) {
           },
         },
       ],
-    }) as User;
+    });
 
     assert.true(record[Legacy], 'record is in legacy mode');
 
@@ -323,13 +325,13 @@ module('Legacy Mode', function (hooks) {
       ]),
     });
 
-    const record = store.push({
+    const record = store.push<User>({
       data: {
         type: 'user',
         id: '1',
         attributes: { name: 'Rey Pupatine' },
       },
-    }) as User;
+    });
 
     try {
       const errors = record.errors;
@@ -359,13 +361,13 @@ module('Legacy Mode', function (hooks) {
       ]),
     });
 
-    const record = store.push({
+    const record = store.push<User>({
       data: {
         type: 'user',
         id: '1',
         attributes: { name: 'Rey Pupatine' },
       },
-    }) as User;
+    });
 
     try {
       const currentState = record.currentState;
@@ -397,13 +399,13 @@ module('Legacy Mode', function (hooks) {
       ]),
     });
 
-    const record = store.push({
+    const record = store.push<User>({
       data: {
         type: 'user',
         id: '1',
         attributes: { name: 'Rey Pupatine' },
       },
-    }) as User;
+    });
 
     try {
       record.unloadRecord();
@@ -432,13 +434,13 @@ module('Legacy Mode', function (hooks) {
       ]),
     });
 
-    const record = store.push({
+    const record = store.push<User>({
       data: {
         type: 'user',
         id: '1',
         attributes: { name: 'Rey Pupatine' },
       },
-    }) as User;
+    });
 
     record.deleteRecord();
     assert.true(record.isDeleted, 'state flag is updated');
@@ -462,13 +464,13 @@ module('Legacy Mode', function (hooks) {
       ]),
     });
 
-    const record = store.push({
+    const record = store.push<User>({
       data: {
         type: 'user',
         id: '1',
         attributes: { name: 'Rey Pupatine' },
       },
-    }) as User;
+    });
 
     const snapshot = record._createSnapshot();
     assert.ok(snapshot, 'snapshot is created');
@@ -494,13 +496,13 @@ module('Legacy Mode', function (hooks) {
       ]),
     });
 
-    const record = store.push({
+    const record = store.push<User>({
       data: {
         type: 'user',
         id: '1',
         attributes: { name: 'Rey Pupatine' },
       },
-    }) as User;
+    });
 
     assert.strictEqual(record.dirtyType, '', 'dirtyType is correct');
     assert.strictEqual(record.adapterError, null, 'adapterError is correct');
@@ -532,13 +534,13 @@ module('Legacy Mode', function (hooks) {
       ]),
     });
 
-    const record = store.push({
+    const record = store.push<User>({
       data: {
         type: 'user',
         id: '1',
         attributes: { name: 'Rey Pupatine' },
       },
-    }) as User;
+    });
 
     assert.false(record.isDestroying, 'isDestroying is correct');
     assert.false(record.isDestroyed, 'isDestroyed is correct');
@@ -586,13 +588,13 @@ module('Legacy Mode', function (hooks) {
       ]),
     });
 
-    const record = store.push({
+    const record = store.push<User>({
       data: {
         type: 'user',
         id: '1',
         attributes: { name: 'Rey Pupatine' },
       },
-    }) as User;
+    });
 
     const serialized = record.serialize();
 
@@ -653,13 +655,13 @@ module('Legacy Mode', function (hooks) {
       ]),
     });
 
-    const record = store.push({
+    const record = store.push<User>({
       data: {
         type: 'user',
         id: '1',
         attributes: { name: 'Rey Pupatine' },
       },
-    }) as User;
+    });
 
     assert.strictEqual(record.name, 'Rey Pupatine', 'name is initialized');
 
@@ -686,13 +688,13 @@ module('Legacy Mode', function (hooks) {
       ]),
     });
 
-    const record = store.push({
+    const record = store.push<User>({
       data: {
         type: 'user',
         id: '1',
         attributes: { name: 'Rey Pupatine' },
       },
-    }) as User;
+    });
 
     record.name = 'Rey Skybarker';
     assert.true(record.hasDirtyAttributes, 'hasDirtyAttributes is correct');
@@ -755,13 +757,13 @@ module('Legacy Mode', function (hooks) {
       ]),
     });
 
-    const record = store.push({
+    const record = store.push<User>({
       data: {
         type: 'user',
         id: '1',
         attributes: { name: 'Rey Pupatine' },
       },
-    }) as User;
+    });
 
     record.name = 'Rey Skybarker';
     assert.true(record.hasDirtyAttributes, 'hasDirtyAttributes is correct');
@@ -820,13 +822,13 @@ module('Legacy Mode', function (hooks) {
       ]),
     });
 
-    const record = store.push({
+    const record = store.push<User>({
       data: {
         type: 'user',
         id: '1',
         attributes: { name: 'Rey Pupatine' },
       },
-    }) as User;
+    });
 
     const promise = record.destroyRecord();
 

@@ -19,7 +19,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     // these types aren't correct but we don't have a registry to help
     // make them correct yet
     save(): Promise<this> {
-      return this.store.saveRecord(this) as Promise<this>;
+      return this.store.saveRecord(this);
     }
   }
 

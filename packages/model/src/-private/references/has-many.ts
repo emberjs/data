@@ -5,7 +5,7 @@ import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection
 import type { Graph } from '@ember-data/graph/-private/graph';
 import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type { FindOptions } from '@ember-data/store/-types/q/store';
+import type { BaseFinderOptions } from '@ember-data/store/-types/q/store';
 import { cached, compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -672,7 +672,7 @@ export default class HasManyReference {
    @return {Promise} a promise that resolves with the ManyArray in
    this has-many relationship.
    */
-  async load(options?: FindOptions): Promise<ManyArray> {
+  async load(options?: BaseFinderOptions): Promise<ManyArray> {
     const support: LegacySupport = (LEGACY_SUPPORT as Map<StableRecordIdentifier, LegacySupport>).get(
       this.___identifier
     )!;
@@ -735,7 +735,7 @@ export default class HasManyReference {
    @param {Object} options the options to pass in.
    @return {Promise} a promise that resolves with the ManyArray in this has-many relationship.
    */
-  reload(options?: FindOptions) {
+  reload(options?: BaseFinderOptions) {
     const support: LegacySupport = (LEGACY_SUPPORT as Map<StableRecordIdentifier, LegacySupport>).get(
       this.___identifier
     )!;

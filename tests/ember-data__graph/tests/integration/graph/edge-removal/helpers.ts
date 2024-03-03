@@ -3,7 +3,7 @@
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { CollectionResourceDocument, SingleResourceDocument } from '@warp-drive/core-types/spec/raw';
+import type { CollectionResourceDocument } from '@warp-drive/core-types/spec/raw';
 import type { Diagnostic } from '@warp-drive/diagnostic';
 
 import type { Context, UserRecord } from './setup';
@@ -109,7 +109,7 @@ export async function setInitialState(context: Context, config: TestConfig, asse
 
   let chris: UserRecord, john: UserRecord, johnIdentifier: StableRecordIdentifier;
   if (!config.useCreate) {
-    const data: CollectionResourceDocument = {
+    const data: CollectionResourceDocument<'user'> = {
       data: [
         {
           type: 'user',
@@ -126,17 +126,17 @@ export async function setInitialState(context: Context, config: TestConfig, asse
       ],
     };
 
-    [chris, john] = store.push(data);
+    [chris, john] = store.push<UserRecord>(data);
     johnIdentifier = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
   } else {
-    chris = store.push({
+    chris = store.push<UserRecord>({
       data: {
         type: 'user',
         id: '1',
         attributes: { name: 'Chris' },
       },
-    } as SingleResourceDocument);
-    john = store.createRecord('user', { name: 'John', bestFriends: isMany ? [chris] : chris }) as UserRecord;
+    });
+    john = store.createRecord<UserRecord>('user', { name: 'John', bestFriends: isMany ? [chris] : chris });
     johnIdentifier = recordIdentifierFor(john);
   }
 

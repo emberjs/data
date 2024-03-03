@@ -5,7 +5,7 @@ import type Store from '@ember-data/store';
 import { SOURCE } from '@ember-data/store/-private';
 import type IdentifierArray from '@ember-data/store/-private/record-arrays/identifier-array';
 import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
-import type { FindOptions } from '@ember-data/store/-types/q/store';
+import type { FindAllOptions } from '@ember-data/store/-types/q/store';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
 import { upgradeStore } from '../-private';
@@ -13,7 +13,7 @@ import type Snapshot from './snapshot';
 /**
   SnapshotRecordArray is not directly instantiable.
   Instances are provided to consuming application's
-  adapters for certain requests.
+  adapters for certain `findAll` requests.
 
   @class SnapshotRecordArray
   @public
@@ -25,7 +25,7 @@ export default class SnapshotRecordArray {
   declare __store: Store;
 
   declare adapterOptions?: Record<string, unknown>;
-  declare include?: string;
+  declare include?: string | string[];
 
   /**
     SnapshotRecordArray is not directly instantiable.
@@ -39,7 +39,7 @@ export default class SnapshotRecordArray {
     @param {string} type
     @param options
    */
-  constructor(store: Store, type: string, options: FindOptions = {}) {
+  constructor(store: Store, type: string, options: FindAllOptions = {}) {
     this.__store = store;
     /**
       An array of snapshots

@@ -1,7 +1,7 @@
 import { assert } from '@ember/debug';
 
 import { recordIdentifierFor } from '@ember-data/store';
-import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
+import type { OpaqueRecordInstance } from '@ember-data/store/-types/q/record-instance';
 import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
@@ -29,7 +29,7 @@ export const SchemaRecordFields: FieldSchema[] = [
   },
 ];
 
-const _constructor: Derivation<RecordInstance, unknown> = function (record) {
+const _constructor: Derivation<OpaqueRecordInstance, unknown> = function (record) {
   let state = Support.get(record as WeakKey);
   if (!state) {
     state = {};

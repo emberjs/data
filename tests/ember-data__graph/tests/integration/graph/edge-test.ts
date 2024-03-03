@@ -6,6 +6,7 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import { peekCache } from '@ember-data/store/-private';
+import { ResourceType } from '@warp-drive/core-types/symbols';
 import { module, test } from '@warp-drive/diagnostic';
 import { setupTest } from '@warp-drive/diagnostic/ember';
 
@@ -36,6 +37,7 @@ module('Integration | Graph | Edges', function (hooks) {
       class User extends Model {
         @attr declare name: string;
         @belongsTo('user', { async: false, inverse: 'bestFriend' }) declare bestFriend: User;
+        [ResourceType] = 'user' as const;
       }
       owner.register('model:user', User);
 
@@ -57,7 +59,7 @@ module('Integration | Graph | Edges', function (hooks) {
         'We still have no record data instance after accessing a named relationship'
       );
 
-      store.push({
+      store.push<User>({
         data: {
           type: 'user',
           id: '2',
@@ -76,13 +78,13 @@ module('Integration | Graph | Edges', function (hooks) {
       assert.deepEqual(state.remote, [identifier2], 'Our initial canonical state is correct');
       assert.deepEqual(state.local, [identifier2], 'Our initial current state is correct');
 
-      const record = store.push({
+      const record = store.push<User>({
         data: {
           type: 'user',
           id: '1',
           attributes: { name: 'Chris' },
         },
-      }) as User;
+      });
 
       assert.equal(
         peekCache(identifier)?.getAttr(identifier, 'name'),

@@ -3,7 +3,7 @@ import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
 import type { Graph } from '@ember-data/graph/-private/graph';
 import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
+import type { OpaqueRecordInstance } from '@ember-data/store/-types/q/record-instance';
 import { cached, compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -467,9 +467,9 @@ export default class BelongsToReference {
    @public
    @param {Object} doc a JSONAPI document object describing the new value of this relationship.
    @param {Boolean} [skipFetch] if `true`, do not attempt to fetch unloaded records
-   @return {Promise<RecordInstance | null | void>}
+   @return {Promise<OpaqueRecordInstance | null | void>}
   */
-  async push(doc: SingleResourceDocument, skipFetch?: boolean): Promise<RecordInstance | null | void> {
+  async push(doc: SingleResourceDocument, skipFetch?: boolean): Promise<OpaqueRecordInstance | null | void> {
     const { store } = this;
     const isResourceData = doc.data && isMaybeResource(doc.data);
     const added = isResourceData
@@ -559,7 +559,7 @@ export default class BelongsToReference {
     @public
    @return {Model} the record in this relationship
    */
-  value(): RecordInstance | null {
+  value(): OpaqueRecordInstance | null {
     const resource = this._resource();
     return resource && resource.data ? this.store.peekRecord(resource.data) : null;
   }
@@ -626,7 +626,7 @@ export default class BelongsToReference {
    @param {Object} options the options to pass in.
    @return {Promise} a promise that resolves with the record in this belongs-to relationship.
    */
-  async load(options?: Record<string, unknown>): Promise<RecordInstance | null> {
+  async load(options?: Record<string, unknown>): Promise<OpaqueRecordInstance | null> {
     const support: LegacySupport = (LEGACY_SUPPORT as Map<StableRecordIdentifier, LegacySupport>).get(
       this.___identifier
     )!;
@@ -636,7 +636,7 @@ export default class BelongsToReference {
       ? support.reloadBelongsTo(this.key, options).then(() => this.value())
       : // we cast to fix the return type since typescript and eslint don't understand async functions
         // properly
-        (support.getBelongsTo(this.key, options) as Promise<RecordInstance | null>);
+        (support.getBelongsTo(this.key, options) as Promise<OpaqueRecordInstance | null>);
   }
 
   /**

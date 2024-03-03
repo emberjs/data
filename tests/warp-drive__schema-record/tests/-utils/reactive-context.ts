@@ -4,11 +4,15 @@ import Component from '@glimmer/component';
 
 import { hbs } from 'ember-cli-htmlbars';
 
-import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
+import type { OpaqueRecordInstance } from '@ember-data/store/-types/q/record-instance';
 import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 import type { ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 
-export async function reactiveContext<T extends RecordInstance>(this: TestContext, record: T, fields: FieldSchema[]) {
+export async function reactiveContext<T extends OpaqueRecordInstance>(
+  this: TestContext,
+  record: T,
+  fields: FieldSchema[]
+) {
   const _fields: string[] = [];
   fields.forEach((field) => {
     _fields.push(field.name + 'Count');

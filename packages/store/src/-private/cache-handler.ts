@@ -24,7 +24,7 @@ import type {
 import type { ApiError } from '@warp-drive/core-types/spec/error';
 import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
 
-import type { RecordInstance } from '../-types/q/record-instance';
+import type { OpaqueRecordInstance } from '../-types/q/record-instance';
 import { Document } from './document';
 import type Store from './store-service';
 
@@ -200,7 +200,7 @@ function maybeUpdateUiObjects<T>(
         doc: document as CollectionResourceDataDocument,
       });
       recordArrayManager._keyedArrays.set(identifier.lid, managed);
-      const doc = new Document<RecordInstance[]>(store, identifier);
+      const doc = new Document<OpaqueRecordInstance[]>(store, identifier);
       doc.data = managed;
       doc.meta = document.meta;
       doc.links = document.links;
@@ -223,13 +223,13 @@ function maybeUpdateUiObjects<T>(
       return document as T;
     }
     const data = document.data ? store.peekRecord(document.data) : null;
-    let doc: Document<RecordInstance | null> | undefined;
+    let doc: Document<OpaqueRecordInstance | null> | undefined;
     if (identifier) {
       doc = store._documentCache.get(identifier);
     }
 
     if (!doc) {
-      doc = new Document<RecordInstance | null>(store, identifier);
+      doc = new Document<OpaqueRecordInstance | null>(store, identifier);
       doc.data = data;
       copyDocumentProperties(doc, document);
 

@@ -7,7 +7,7 @@ import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 */
 import type { SingleResourceDocument } from '@warp-drive/core-types/spec/raw';
 
-import type { RecordInstance } from '../../-types/q/record-instance';
+import type { OpaqueRecordInstance } from '../../-types/q/record-instance';
 import type { NotificationType } from '../managers/notification-manager';
 import type Store from '../store-service';
 
@@ -156,7 +156,7 @@ export default class RecordReference {
     @param objectOrPromise a JSON:API ResourceDocument or a promise resolving to one
     @return a promise for the value (record or relationship)
   */
-  push(objectOrPromise: SingleResourceDocument | Promise<SingleResourceDocument>): Promise<RecordInstance> {
+  push(objectOrPromise: SingleResourceDocument | Promise<SingleResourceDocument>): Promise<OpaqueRecordInstance> {
     // TODO @deprecate pushing unresolved payloads
     return Promise.resolve(objectOrPromise).then((data) => {
       return this.store.push(data);
@@ -180,7 +180,7 @@ export default class RecordReference {
     @public
      @return {Model} the record for this RecordReference
   */
-  value(): RecordInstance | null {
+  value(): OpaqueRecordInstance | null {
     return this.store.peekRecord(this.___identifier);
   }
 
