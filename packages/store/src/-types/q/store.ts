@@ -16,5 +16,5 @@ export type FindAllOptions = {
   reload?: boolean;
   backgroundReload?: boolean;
   adapterOptions?: Record<string, unknown>;
-  incude?: string | string[];
+  include?: string | string[];
 };

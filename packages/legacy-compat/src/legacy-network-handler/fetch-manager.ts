@@ -13,7 +13,7 @@ import type { InstanceCache } from '@ember-data/store/-private/caches/instance-c
 import type RequestStateService from '@ember-data/store/-private/network/request-cache';
 import type { FindRecordQuery, Request, SaveRecordMutation } from '@ember-data/store/-private/network/request-cache';
 import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
-import type { FindOptions } from '@ember-data/store/-types/q/store';
+import type { FindRecordOptions } from '@ember-data/store/-types/q/store';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { CollectionResourceDocument, SingleResourceDocument } from '@warp-drive/core-types/spec/raw';
 
@@ -32,14 +32,14 @@ type SerializerWithParseErrors = MinimumSerializerInterface & {
 
 export const SaveOp: unique symbol = Symbol('SaveOp');
 
-export type FetchMutationOptions = FindOptions & { [SaveOp]: 'createRecord' | 'deleteRecord' | 'updateRecord' };
+export type FetchMutationOptions = FindRecordOptions & { [SaveOp]: 'createRecord' | 'deleteRecord' | 'updateRecord' };
 
 interface PendingFetchItem {
   identifier: StableExistingRecordIdentifier;
   queryRequest: Request;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   resolver: Deferred<any>;
-  options: FindOptions;
+  options: FindRecordOptions;
   trace?: unknown;
   promise: Promise<StableExistingRecordIdentifier>;
 }
@@ -68,7 +68,7 @@ export default class FetchManager {
     this.isDestroyed = false;
   }
 
-  createSnapshot(identifier: StableRecordIdentifier, options: FindOptions = {}): Snapshot {
+  createSnapshot(identifier: StableRecordIdentifier, options: FindRecordOptions = {}): Snapshot {
     return new Snapshot(options, identifier, this._store);
   }
 
@@ -112,7 +112,7 @@ export default class FetchManager {
 
   scheduleFetch(
     identifier: StableExistingRecordIdentifier,
-    options: FindOptions,
+    options: FindRecordOptions,
     request: StoreRequestInfo
   ): Promise<StableExistingRecordIdentifier> {
     const query: FindRecordQuery = {
@@ -222,7 +222,7 @@ export default class FetchManager {
     return promise;
   }
 
-  getPendingFetch(identifier: StableExistingRecordIdentifier, options: FindOptions) {
+  getPendingFetch(identifier: StableExistingRecordIdentifier, options: FindRecordOptions) {
     const pendingFetches = this._pendingFetch.get(identifier.type)?.get(identifier);
 
     // We already have a pending fetch for this
@@ -246,7 +246,7 @@ export default class FetchManager {
 
   fetchDataIfNeededForIdentifier(
     identifier: StableExistingRecordIdentifier,
-    options: FindOptions = {},
+    options: FindRecordOptions = {},
     request: StoreRequestInfo
   ): Promise<StableExistingRecordIdentifier> {
     // pre-loading will change the isEmpty value
@@ -338,7 +338,7 @@ function optionsSatisfies(current: object | undefined, existing: object | undefi
 }
 
 // this function helps resolve whether we have a pending request that we should use instead
-function isSameRequest(options: FindOptions = {}, existingOptions: FindOptions = {}) {
+function isSameRequest(options: FindRecordOptions = {}, existingOptions: FindRecordOptions = {}) {
   return (
     optionsSatisfies(options.adapterOptions, existingOptions.adapterOptions) &&
     includesSatisfies(options.include, existingOptions.include)

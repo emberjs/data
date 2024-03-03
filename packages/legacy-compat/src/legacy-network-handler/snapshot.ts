@@ -10,8 +10,8 @@ import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection
 import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
 import { HAS_JSON_API_PACKAGE } from '@ember-data/packages';
 import type Store from '@ember-data/store';
-import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
-import type { FindOptions } from '@ember-data/store/-types/q/store';
+import type { OpaqueRecordInstance } from '@ember-data/store/-types/q/record-instance';
+import type { FindRecordOptions } from '@ember-data/store/-types/q/store';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { ChangedAttributesHash } from '@warp-drive/core-types/cache';
 import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
@@ -57,7 +57,7 @@ export default class Snapshot implements Snapshot {
    * @param identifier
    * @param _store
    */
-  constructor(options: FindOptions, identifier: StableRecordIdentifier, store: Store) {
+  constructor(options: FindRecordOptions, identifier: StableRecordIdentifier, store: Store) {
     this._store = store;
 
     this.__attributes = null;
@@ -151,7 +151,7 @@ export default class Snapshot implements Snapshot {
    @type {Model}
    @public
    */
-  get record(): RecordInstance | null {
+  get record(): OpaqueRecordInstance | null {
     const record = this._store.peekRecord(this.identifier);
     assert(
       `Record ${this.identifier.type} ${this.identifier.id} (${this.identifier.lid}) is not yet loaded and thus cannot be accessed from the Snapshot during serialization`,
