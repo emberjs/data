@@ -10,12 +10,12 @@ import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection
 import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
 import { HAS_JSON_API_PACKAGE } from '@ember-data/packages';
 import type Store from '@ember-data/store';
-import type { OpaqueRecordInstance } from '@ember-data/store/-types/q/record-instance';
 import type { FindRecordOptions } from '@ember-data/store/-types/q/store';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { ChangedAttributesHash } from '@warp-drive/core-types/cache';
 import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { Value } from '@warp-drive/core-types/json/raw';
+import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
 import type { AttributeSchema, RelationshipSchema } from '@warp-drive/core-types/schema';
 
 import { upgradeStore } from '../-private';
@@ -34,18 +34,18 @@ type RecordId = string | null;
   @class Snapshot
   @public
 */
-export default class Snapshot implements Snapshot {
-  declare __attributes: Record<string, unknown> | null;
+export default class Snapshot<R = unknown> {
+  declare __attributes: Record<keyof R & string, unknown> | null;
   declare _belongsToRelationships: Record<string, Snapshot>;
   declare _belongsToIds: Record<string, RecordId>;
   declare _hasManyRelationships: Record<string, Snapshot[]>;
   declare _hasManyIds: Record<string, RecordId[]>;
   declare _changedAttributes: ChangedAttributesHash;
 
-  declare identifier: StableRecordIdentifier;
-  declare modelName: string;
+  declare identifier: StableRecordIdentifier<R extends TypedRecordInstance ? TypeFromInstance<R> : string>;
+  declare modelName: R extends TypedRecordInstance ? TypeFromInstance<R> : string;
   declare id: string | null;
-  declare include?: unknown;
+  declare include?: string | string[];
   declare adapterOptions?: Record<string, unknown>;
   declare _store: Store;
 
@@ -57,7 +57,11 @@ export default class Snapshot implements Snapshot {
    * @param identifier
    * @param _store
    */
-  constructor(options: FindRecordOptions, identifier: StableRecordIdentifier, store: Store) {
+  constructor(
+    options: FindRecordOptions,
+    identifier: StableRecordIdentifier<R extends TypedRecordInstance ? TypeFromInstance<R> : string>,
+    store: Store
+  ) {
     this._store = store;
 
     this.__attributes = null;
@@ -151,8 +155,8 @@ export default class Snapshot implements Snapshot {
    @type {Model}
    @public
    */
-  get record(): OpaqueRecordInstance | null {
-    const record = this._store.peekRecord(this.identifier);
+  get record(): R | null {
+    const record = this._store.peekRecord<R>(this.identifier);
     assert(
       `Record ${this.identifier.type} ${this.identifier.id} (${this.identifier.lid}) is not yet loaded and thus cannot be accessed from the Snapshot during serialization`,
       record !== null
@@ -160,7 +164,7 @@ export default class Snapshot implements Snapshot {
     return record;
   }
 
-  get _attributes(): Record<string, unknown> {
+  get _attributes(): Record<keyof R & string, unknown> {
     if (this.__attributes !== null) {
       return this.__attributes;
     }
@@ -199,7 +203,7 @@ export default class Snapshot implements Snapshot {
    @return {Object} The attribute value or undefined
    @public
    */
-  attr(keyName: string): unknown {
+  attr(keyName: keyof R & string): unknown {
     if (keyName in this._attributes) {
       return this._attributes[keyName];
     }
@@ -220,7 +224,7 @@ export default class Snapshot implements Snapshot {
    @return {Object} All attributes of the current snapshot
    @public
    */
-  attributes(): Record<string, unknown> {
+  attributes(): Record<keyof R & string, unknown> {
     return { ...this._attributes };
   }
 

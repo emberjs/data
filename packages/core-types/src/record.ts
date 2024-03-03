@@ -1,7 +1,7 @@
 /**
  * @module @warp-drive/core-types
  */
-import type { ResourceType } from 'symbols';
+import type { ResourceType } from './symbols';
 
 /**
  * Records may be anything, They don't even
@@ -30,7 +30,21 @@ export interface TypedRecordInstance {
    * @type {string}
    *
    */
-  [ResourceType]?: string;
+  [ResourceType]: string;
 }
 
+/**
+ * A type utility that extracts the ResourceType if available,
+ * otherwise it returns never.
+ *
+ * @typedoc
+ */
 export type TypeFromInstance<T> = T extends TypedRecordInstance ? T[typeof ResourceType] : never;
+
+/**
+ * A type utility that extracts the ResourceType if available,
+ * otherwise it returns string
+ *
+ * @typedoc
+ */
+export type TypeFromInstanceOrString<T> = T extends TypedRecordInstance ? T[typeof ResourceType] : string;

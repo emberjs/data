@@ -15,6 +15,7 @@ import type { FindRecordQuery, Request, SaveRecordMutation } from '@ember-data/s
 import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
 import type { FindRecordOptions } from '@ember-data/store/-types/q/store';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { TypeFromInstance } from '@warp-drive/core-types/record';
 import type { CollectionResourceDocument, SingleResourceDocument } from '@warp-drive/core-types/spec/raw';
 
 import { upgradeStore } from '../-private';
@@ -68,6 +69,8 @@ export default class FetchManager {
     this.isDestroyed = false;
   }
 
+  createSnapshot<T>(identifier: StableRecordIdentifier<TypeFromInstance<T>>, options?: FindRecordOptions): Snapshot<T>;
+  createSnapshot(identifier: StableRecordIdentifier, options?: FindRecordOptions): Snapshot;
   createSnapshot(identifier: StableRecordIdentifier, options: FindRecordOptions = {}): Snapshot {
     return new Snapshot(options, identifier, this._store);
   }

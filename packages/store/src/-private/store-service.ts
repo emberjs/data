@@ -66,7 +66,7 @@ type CompatStore = Store & {
 };
 function upgradeStore(store: Store): asserts store is CompatStore {}
 
-type MaybeHasId = { id?: string };
+type MaybeHasId = { id?: string | null };
 /**
  * Currently only records that extend object can be created via
  * store.createRecord. This is a limitation of the current API,
@@ -84,7 +84,7 @@ type MaybeHasId = { id?: string };
  *
  * @typedoc
  */
-export type CreateRecordProperties<T extends MaybeHasId = MaybeHasId & Record<string, unknown>> =
+export type CreateRecordProperties<T extends Record<string, unknown> = MaybeHasId & Record<string, unknown>> =
   T extends TypedRecordInstance ? Partial<Omit<T, typeof ResourceType>> : MaybeHasId & Record<string, unknown>;
 
 /**
@@ -698,15 +698,15 @@ class Store extends EmberObject {
     @return {Model} record
   */
   createRecord<T extends MaybeHasId>(type: TypeFromInstance<T>, inputProperties: CreateRecordProperties<T>): T;
-  createRecord(modelName: string, inputProperties: CreateRecordProperties): OpaqueRecordInstance;
-  createRecord(modelName: string, inputProperties: CreateRecordProperties): OpaqueRecordInstance {
+  createRecord(type: string, inputProperties: CreateRecordProperties): OpaqueRecordInstance;
+  createRecord(type: string, inputProperties: CreateRecordProperties): OpaqueRecordInstance {
     if (DEBUG) {
       assertDestroyingStore(this, 'createRecord');
     }
-    assert(`You need to pass a model name to the store's createRecord method`, modelName);
+    assert(`You need to pass a model name to the store's createRecord method`, type);
     assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
+      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${type}`,
+      typeof type === 'string'
     );
 
     // This is wrapped in a `run.join` so that in test environments users do not need to manually wrap
@@ -716,7 +716,7 @@ class Store extends EmberObject {
     //   to remove this, we would need to move to a new `async` API.
     let record!: OpaqueRecordInstance;
     this._join(() => {
-      const normalizedModelName = normalizeModelName(modelName);
+      const normalizedModelName = normalizeModelName(type);
       const properties = { ...inputProperties };
 
       // If the passed properties do not include a primary key,
@@ -727,10 +727,10 @@ class Store extends EmberObject {
 
       if (properties.id === null || properties.id === undefined) {
         upgradeStore(this);
-        const adapter = this.adapterFor?.(modelName, true);
+        const adapter = this.adapterFor?.(normalizedModelName, true);
 
         if (adapter && adapter.generateIdForRecord) {
-          id = properties.id = coerceId(adapter.generateIdForRecord(this, modelName, properties));
+          id = properties.id = coerceId(adapter.generateIdForRecord(this, normalizedModelName, properties));
         } else {
           id = properties.id = null;
         }

@@ -17,14 +17,14 @@ export interface Identifier {
   clientId?: string;
 }
 
-export interface ExistingRecordIdentifier extends Identifier {
+export interface ExistingRecordIdentifier<T extends string = string> extends Identifier {
   id: string;
-  type: string;
+  type: T;
 }
 
-export interface NewRecordIdentifier extends Identifier {
+export interface NewRecordIdentifier<T extends string = string> extends Identifier {
   id: string | null;
-  type: string;
+  type: T;
 }
 
 export type StableDocumentIdentifier = {
@@ -42,7 +42,7 @@ export type StableDocumentIdentifier = {
  *
  * @internal
  */
-export type RecordIdentifier = ExistingRecordIdentifier | NewRecordIdentifier;
+export type RecordIdentifier<T extends string = string> = ExistingRecordIdentifier<T> | NewRecordIdentifier<T>;
 
 /**
  * Used when an Identifier is known to be the stable version
@@ -63,9 +63,9 @@ export interface StableIdentifier extends Identifier {
  *
  * @internal
  */
-export interface StableExistingRecordIdentifier extends StableIdentifier {
+export interface StableExistingRecordIdentifier<T extends string = string> extends StableIdentifier {
   id: string;
-  type: string;
+  type: T;
   [DEBUG_CLIENT_ORIGINATED]?: boolean;
   [CACHE_OWNER]: number | undefined;
   [DEBUG_STALE_CACHE_OWNER]?: number | undefined;
@@ -82,9 +82,9 @@ export interface StableExistingRecordIdentifier extends StableIdentifier {
  *
  * @internal
  */
-export interface StableNewRecordIdentifier extends StableIdentifier {
+export interface StableNewRecordIdentifier<T extends string = string> extends StableIdentifier {
   id: string | null;
-  type: string;
+  type: T;
   [DEBUG_CLIENT_ORIGINATED]?: boolean;
   [CACHE_OWNER]: number | undefined;
   [DEBUG_STALE_CACHE_OWNER]?: number | undefined;
@@ -120,4 +120,6 @@ export interface StableNewRecordIdentifier extends StableIdentifier {
  * @property {string | null} id
  * @public
  */
-export type StableRecordIdentifier = StableExistingRecordIdentifier | StableNewRecordIdentifier;
+export type StableRecordIdentifier<T extends string = string> =
+  | StableExistingRecordIdentifier<T>
+  | StableNewRecordIdentifier<T>;

@@ -4,6 +4,7 @@ import { LOG_INSTANCE_CACHE } from '@ember-data/debugging';
 import { DEBUG } from '@ember-data/env';
 import type { RecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { Value } from '@warp-drive/core-types/json/raw';
+import type { TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 import type { RelationshipSchema } from '@warp-drive/core-types/schema';
 import type { ExistingResourceIdentifierObject, NewResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
 
@@ -57,9 +58,9 @@ export function peekRecordIdentifier(record: OpaqueRecordInstance): StableRecord
   @param {Object} record a record instance previously obstained from the store.
   @return {StableRecordIdentifier}
  */
-export function recordIdentifierFor(record: OpaqueRecordInstance): StableRecordIdentifier {
+export function recordIdentifierFor<T>(record: T): StableRecordIdentifier<TypeFromInstanceOrString<T>> {
   assert(`${String(record)} is not a record instantiated by @ember-data/store`, RecordCache.has(record));
-  return RecordCache.get(record)!;
+  return RecordCache.get(record)! as StableRecordIdentifier<TypeFromInstanceOrString<T>>;
 }
 
 export function setRecordIdentifier(record: OpaqueRecordInstance, identifier: StableRecordIdentifier): void {

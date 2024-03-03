@@ -8,15 +8,9 @@ import type { Graph, GraphEdge } from '@ember-data/graph/-private/graph';
 import type Model from '@ember-data/model';
 import type Store from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
-import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
-import type {
-  CollectionResourceDocument,
-  EmptyResourceDocument,
-  JsonApiDocument,
-  SingleResourceDocument,
-} from '@warp-drive/core-types/spec/raw';
+import type { ResourceType } from '@warp-drive/core-types/symbols';
 import type { EmberHooks } from '@warp-drive/diagnostic';
 import { setupTest } from '@warp-drive/diagnostic/ember';
 
@@ -134,22 +128,16 @@ class Serializer {
   }
 }
 
-export interface UserRecord extends Model {
+export type UserRecord = Model & {
   name?: string;
   bestFriend?: UserRecord;
   bestFriends?: UserRecord[];
-}
+  [ResourceType]: 'user';
+};
 
 export interface Context extends TestContext {
-  store: TestStore<UserRecord>;
+  store: Store;
   graph: AbstractGraph;
-}
-
-interface TestStore<T extends RecordInstance> extends Store {
-  push(data: EmptyResourceDocument): null;
-  push(data: SingleResourceDocument): T;
-  push(data: CollectionResourceDocument): T[];
-  push(data: JsonApiDocument): T | T[] | null;
 }
 
 export function setupGraphTest(hooks: EmberHooks<Context>) {
@@ -157,7 +145,7 @@ export function setupGraphTest(hooks: EmberHooks<Context>) {
   hooks.beforeEach(function (this: Context) {
     this.owner.register('adapter:application', Adapter);
     this.owner.register('serializer:application', Serializer);
-    this.store = this.owner.lookup('service:store') as TestStore<UserRecord>;
+    this.store = this.owner.lookup('service:store') as Store;
     this.graph = graphForTest(this.store);
   });
 }
