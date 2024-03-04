@@ -25,8 +25,12 @@ export function isElementDescriptor(args: unknown[]): args is [object, string, D
   );
 }
 
-type DataDecorator = (target: object, key: string, desc?: DecoratorPropertyDescriptor) => DecoratorPropertyDescriptor;
-type DataDecoratorFactory = (...args: unknown[]) => DataDecorator;
+export type DataDecorator = (
+  target: object,
+  key: string,
+  desc?: DecoratorPropertyDescriptor
+) => DecoratorPropertyDescriptor;
+export type DataDecoratorFactory = (...args: unknown[]) => DataDecorator;
 
 export function computedMacroWithOptionalParams(fn: DataDecorator | DataDecoratorFactory) {
   return (...maybeDesc: unknown[]) =>

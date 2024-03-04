@@ -84,7 +84,7 @@ interface Model {
   constructor: typeof Model;
 }
 
-export default Model;
+export { Model };
 
 export type StaticModel = typeof Model;
 

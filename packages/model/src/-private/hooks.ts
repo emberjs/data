@@ -6,8 +6,7 @@ import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { TypeFromInstance, TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 
-import type { ModelStore } from './model';
-import type Model from './model';
+import type { Model, ModelStore } from './model';
 import { getModelFactory } from './schema-provider';
 import { normalizeModelName } from './util';
 

@@ -7,7 +7,7 @@ import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { RelationshipSchema } from '@warp-drive/core-types/schema';
 
 import { LEGACY_SUPPORT } from './legacy-relationships-support';
-import type Model from './model';
+import type { Model } from './model';
 
 export default function notifyChanges(
   identifier: StableRecordIdentifier,

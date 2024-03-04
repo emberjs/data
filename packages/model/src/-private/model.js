@@ -2109,4 +2109,4 @@ if (DEBUG) {
   };
 }
 
-export default Model;
+export { Model };
