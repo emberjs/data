@@ -1,6 +1,6 @@
 {
   "name": "fastboot-test-app",
-  "version": "5.4.0-alpha.28",
+  "version": "5.4.0-alpha.29",
   "private": true,
   "description": "Small description for fastboot-test-app goes here",
   "repository": {
@@ -23,10 +23,10 @@
     "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "dependencies": {
-    "@ember-data/unpublished-test-infra": "workspace:5.4.0-alpha.28",
+    "@ember-data/unpublished-test-infra": "workspace:5.4.0-alpha.29",
     "@ember/string": "3.1.1",
     "ember-auto-import": "^2.7.0",
-    "ember-data": "workspace:5.4.0-alpha.28",
+    "ember-data": "workspace:5.4.0-alpha.29",
     "ember-inflector": "^4.0.2",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "webpack": "^5.89.0"
@@ -52,7 +52,7 @@
     "@ember/test-helpers": "^3.2.1",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.28",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.29",
     "ember-cli": "~5.4.1",
     "ember-cli-babel": "^8.2.0",
     "ember-cli-dependency-checker": "^3.3.2",
