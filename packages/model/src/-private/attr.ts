@@ -216,12 +216,21 @@ function _attr(type?: string | AttrOptions, options?: AttrOptions & object) {
   }).meta(meta);
 }
 
+// NOTE: Usage of Explicit ANY
+// -------------------------------------------------------------------
+// any is required here because we are the maximal not the minimal
+// subset of options allowed. If we used unknown, object, or
+// Record<string, unknown> we would get type errors when we try to
+// assert against a more specific implementation with precise options.
+// -------------------------------------------------------------------
+
 type LooseTransformInstance<V, Raw, Name extends string> = {
   /**
    * value type must match the return type of the deserialize method
    *
    * @typedoc
    */
+  // see note on Explicit ANY above
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   serialize: (value: V, options: any) => Raw;
   /**
@@ -229,6 +238,7 @@ type LooseTransformInstance<V, Raw, Name extends string> = {
    *
    * @typedoc
    */
+  // see note on Explicit ANY above
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   deserialize: (value: Raw, options: any) => V;
 
@@ -244,16 +254,12 @@ type TypedTransformInstance<V, T extends string> =
   | LooseTransformInstance<V, ObjectValue, T>
   | LooseTransformInstance<V, ArrayValue, T>;
 
+// see note on Explicit ANY above
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type GetMaybeDeserializeValue<T> = T extends { deserialize: (...args: any[]) => unknown }
   ? ReturnType<T['deserialize']>
   : never;
 
-type ExampleDateTransform = {
-  serialize(value: Date, options: { dateOnly: boolean }): string;
-  deserialize(value: string, options: { stripTimeZone?: boolean }): Date;
-  [TransformName]: 'date';
-};
 type TypeFromInstance<T> = T extends TransformHasType ? T[typeof TransformName] : never;
 type OptionsFromInstance<T> = TypeFromInstance<T> extends never
   ? never
@@ -262,23 +268,6 @@ type OptionsFromInstance<T> = TypeFromInstance<T> extends never
     : T extends TypedTransformInstance<GetMaybeDeserializeValue<T>, TypeFromInstance<T>>
       ? Parameters<T['deserialize']>[1] & Parameters<T['serialize']>[1] & AttrOptions<ReturnType<T['deserialize']>>
       : never;
-
-expectTypeOf<
-  TypedTransformInstance<GetMaybeDeserializeValue<ExampleDateTransform>, TypeFromInstance<ExampleDateTransform>>
->().toMatchTypeOf<TypedTransformInstance<Date, 'date'>>();
-expectTypeOf<ExampleDateTransform>().toMatchTypeOf<TypedTransformInstance<Date, 'date'>>();
-expectTypeOf<TypeFromInstance<ExampleDateTransform>>().toEqualTypeOf<'date'>();
-expectTypeOf<GetMaybeDeserializeValue<ExampleDateTransform>>().toEqualTypeOf<Date>();
-expectTypeOf<OptionsFromInstance<ExampleDateTransform>>().toMatchTypeOf<{
-  dateOnly: boolean;
-  stripTimeZone?: boolean;
-  defaultValue?: () => Date;
-}>();
-expectTypeOf({ dateOnly: true }).toMatchTypeOf<OptionsFromInstance<ExampleDateTransform>>();
-expectTypeOf({ dateOnly: true, stripTimeZone: true }).toMatchTypeOf<OptionsFromInstance<ExampleDateTransform>>();
-expectTypeOf({ dateOnly: true, stripTimeZone: true, defaultValue: () => new Date() }).toMatchTypeOf<
-  OptionsFromInstance<ExampleDateTransform>
->();
 
 /**
  * The return type of `void` is a lie to appease TypeScript. The actual return type
@@ -306,7 +295,37 @@ export function attr(
   return isElementDescriptor(args) ? (_attr()(...args) as void) : _attr(type, options as object);
 }
 
-// positive tests
+// ------------------------------
+//              💚
+// ==============================
+//          Type Tests
+// ==============================
+//              🐹
+// ⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇
+
+type ExampleDateTransform = {
+  serialize(value: Date, options: { dateOnly: boolean }): string;
+  deserialize(value: string, options: { stripTimeZone?: boolean }): Date;
+  [TransformName]: 'date';
+};
+
+expectTypeOf<
+  TypedTransformInstance<GetMaybeDeserializeValue<ExampleDateTransform>, TypeFromInstance<ExampleDateTransform>>
+>().toMatchTypeOf<TypedTransformInstance<Date, 'date'>>();
+expectTypeOf<ExampleDateTransform>().toMatchTypeOf<TypedTransformInstance<Date, 'date'>>();
+expectTypeOf<TypeFromInstance<ExampleDateTransform>>().toEqualTypeOf<'date'>();
+expectTypeOf<GetMaybeDeserializeValue<ExampleDateTransform>>().toEqualTypeOf<Date>();
+expectTypeOf<OptionsFromInstance<ExampleDateTransform>>().toMatchTypeOf<{
+  dateOnly: boolean;
+  stripTimeZone?: boolean;
+  defaultValue?: () => Date;
+}>();
+expectTypeOf({ dateOnly: true }).toMatchTypeOf<OptionsFromInstance<ExampleDateTransform>>();
+expectTypeOf({ dateOnly: true, stripTimeZone: true }).toMatchTypeOf<OptionsFromInstance<ExampleDateTransform>>();
+expectTypeOf({ dateOnly: true, stripTimeZone: true, defaultValue: () => new Date() }).toMatchTypeOf<
+  OptionsFromInstance<ExampleDateTransform>
+>();
+
 expectTypeOf(attr({}, 'key', {})).toEqualTypeOf<void>();
 expectTypeOf(attr('string')).toEqualTypeOf<DataDecorator>();
 expectTypeOf(attr({})).toEqualTypeOf<DataDecorator>();
