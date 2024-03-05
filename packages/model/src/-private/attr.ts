@@ -1,9 +1,9 @@
-import { assert } from '@ember/debug';
-import { computed } from '@ember/object';
-
 /**
   @module @ember-data/model
 */
+import { assert } from '@ember/debug';
+import { computed } from '@ember/object';
+
 import { expectTypeOf } from 'expect-type';
 
 import { DEBUG } from '@ember-data/env';
@@ -37,6 +37,7 @@ import { isElementDescriptor } from './util';
  *  @attr address;
  * }
  *
+ * @class NOTATHING
  * @typedoc
  */
 type AttrOptions<DV = PrimitiveValue | object | unknown[]> = {
@@ -54,96 +55,6 @@ type AttrOptions<DV = PrimitiveValue | object | unknown[]> = {
   defaultValue?: DV extends PrimitiveValue ? DV : () => DV;
 };
 
-/**
-  `attr` defines an attribute on a [Model](/ember-data/release/classes/Model).
-  By default, attributes are passed through as-is, however you can specify an
-  optional type to have the value automatically transformed.
-  EmberData ships with four basic transform types: `string`, `number`,
-  `boolean` and `date`. You can define your own transforms by subclassing
-  [Transform](/ember-data/release/classes/Transform).
-
-  Note that you cannot use `attr` to define an attribute of `id`.
-
-  `attr` takes an optional hash as a second parameter, currently
-  supported options are:
-
-  - `defaultValue`: Pass a string or a function to be called to set the attribute
-  to a default value if and only if the key is absent from the payload response.
-
-  Example
-
-  ```app/models/user.js
-  import Model, { attr } from '@ember-data/model';
-
-  export default class UserModel extends Model {
-    @attr('string') username;
-    @attr('string') email;
-    @attr('boolean', { defaultValue: false }) verified;
-  }
-  ```
-
-  Default value can also be a function. This is useful it you want to return
-  a new object for each attribute.
-
-  ```app/models/user.js
-  import Model, { attr } from '@ember-data/model';
-
-  export default class UserModel extends Model {
-    @attr('string') username;
-    @attr('string') email;
-
-    @attr({
-      defaultValue() {
-        return {};
-      }
-    })
-    settings;
-  }
-  ```
-
-  The `options` hash is passed as second argument to a transforms'
-  `serialize` and `deserialize` method. This allows to configure a
-  transformation and adapt the corresponding value, based on the config:
-
-  ```app/models/post.js
-  import Model, { attr } from '@ember-data/model';
-
-  export default class PostModel extends Model {
-    @attr('text', {
-      uppercase: true
-    })
-    text;
-  }
-  ```
-
-  ```app/transforms/text.js
-  export default class TextTransform {
-    serialize(value, options) {
-      if (options.uppercase) {
-        return value.toUpperCase();
-      }
-
-      return value;
-    }
-
-    deserialize(value) {
-      return value;
-    }
-
-    static create() {
-      return new this();
-    }
-  }
-  ```
-
-  @method attr
-  @public
-  @static
-  @for @ember-data/model
-  @param {String|Object} type the attribute type
-  @param {Object} options a hash of options
-  @return {Attribute}
-*/
 function _attr(type?: string | AttrOptions, options?: AttrOptions & object) {
   if (typeof type === 'object') {
     options = type;
@@ -272,6 +183,96 @@ type OptionsFromInstance<T> = TypeFromInstance<T> extends never
  */
 type DataDecorator = (target: object, key: string, desc?: DecoratorPropertyDescriptor) => void;
 
+/**
+  `attr` defines an attribute on a [Model](/ember-data/release/classes/Model).
+  By default, attributes are passed through as-is, however you can specify an
+  optional type to have the value automatically transformed.
+  EmberData ships with four basic transform types: `string`, `number`,
+  `boolean` and `date`. You can define your own transforms by subclassing
+  [Transform](/ember-data/release/classes/Transform).
+
+  Note that you cannot use `attr` to define an attribute of `id`.
+
+  `attr` takes an optional hash as a second parameter, currently
+  supported options are:
+
+  - `defaultValue`: Pass a string or a function to be called to set the attribute
+  to a default value if and only if the key is absent from the payload response.
+
+  Example
+
+  ```app/models/user.js
+  import Model, { attr } from '@ember-data/model';
+
+  export default class UserModel extends Model {
+    @attr('string') username;
+    @attr('string') email;
+    @attr('boolean', { defaultValue: false }) verified;
+  }
+  ```
+
+  Default value can also be a function. This is useful it you want to return
+  a new object for each attribute.
+
+  ```app/models/user.js
+  import Model, { attr } from '@ember-data/model';
+
+  export default class UserModel extends Model {
+    @attr('string') username;
+    @attr('string') email;
+
+    @attr({
+      defaultValue() {
+        return {};
+      }
+    })
+    settings;
+  }
+  ```
+
+  The `options` hash is passed as second argument to a transforms'
+  `serialize` and `deserialize` method. This allows to configure a
+  transformation and adapt the corresponding value, based on the config:
+
+  ```app/models/post.js
+  import Model, { attr } from '@ember-data/model';
+
+  export default class PostModel extends Model {
+    @attr('text', {
+      uppercase: true
+    })
+    text;
+  }
+  ```
+
+  ```app/transforms/text.js
+  export default class TextTransform {
+    serialize(value, options) {
+      if (options.uppercase) {
+        return value.toUpperCase();
+      }
+
+      return value;
+    }
+
+    deserialize(value) {
+      return value;
+    }
+
+    static create() {
+      return new this();
+    }
+  }
+  ```
+
+  @method attr
+  @public
+  @static
+  @for @ember-data/model
+  @param {String|Object} type the attribute type
+  @param {Object} options a hash of options
+  @return {Attribute}
+*/
 export function attr(): DataDecorator;
 export function attr<T>(type: TypeFromInstance<T>): DataDecorator;
 export function attr(type: string): DataDecorator;

@@ -2,7 +2,29 @@
 function hasProp(obj, prop) {
   return Object.hasOwnProperty.call(obj, prop);
 }
+
+function fixTags(item) {
+  if (item.description) {
+    const lines = item.description.split('\n');
+    let lastIndex = lines.length;
+    while (lastIndex-- > 0) {
+      let value = lines[lastIndex].trim();
+      if (value.startsWith('@')) {
+        let [tag, v] = value.split(' ');
+        tag = tag.substring(1);
+        if (!item[tag]) {
+          item[tag] = v || '';
+        }
+      } else {
+        break;
+      }
+    }
+  }
+}
+
 function shouldKeepItem(item, excludedTags) {
+  fixTags(item);
+
   for (let i = 0; i < excludedTags.length; i++) {
     if (hasProp(item, excludedTags[i])) return false;
   }
@@ -11,14 +33,14 @@ function shouldKeepItem(item, excludedTags) {
 }
 
 module.exports = function (data, options) {
-  console.log('Running ember-data preprocessor...');
+  console.log(`Running ember-data preprocessor.`);
 
   if (!options.excludeTags) {
     console.log('no tags to exclude, exiting');
     return;
   }
   const excludedTags = [...options.excludeTags];
-  console.log('Skipping items with the tags: ' + excludedTags);
+  console.log('Filtering items with the tags: ' + excludedTags.join(`, `));
 
   let acceptedWarnings = [];
 
