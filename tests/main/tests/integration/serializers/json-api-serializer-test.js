@@ -289,6 +289,67 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
     assert.deepEqual(user.data.relationships.company.data, { id: '2', type: 'company' });
   });
 
+  test('Serializer should preserve lid in payloads', function (assert) {
+    const store = this.owner.lookup('service:store');
+
+    var jsonHash = {
+      data: {
+        type: 'users',
+        id: '1',
+        lid: 'user-1',
+        attributes: {
+          firstname_attribute_key: 'Yehuda',
+          title_attribute_key: 'director',
+        },
+        relationships: {
+          company: {
+            data: { type: 'companies', id: '2', lid: 'company-2' },
+          },
+          handles: {
+            data: [
+              { type: 'github-handles', id: '3' },
+              { type: 'twitter-handles', id: '4', lid: 'handle-4' },
+            ],
+          },
+        },
+        included: [
+          {
+            type: 'companies',
+            id: '2',
+            lid: 'company-2',
+            attributes: {
+              name: 'Tilde Inc.',
+            },
+          },
+          {
+            type: 'github-handles',
+            id: '3',
+            attributes: {
+              username: 'wycats',
+            },
+          },
+          {
+            type: 'twitter-handles',
+            id: '4',
+            lid: 'handle-4',
+            attributes: {
+              nickname: '@wycats',
+            },
+          },
+        ],
+      },
+    };
+
+    var user = store.serializerFor('user').normalizeResponse(store, User, jsonHash, '1', 'createRecord');
+
+    assert.strictEqual(user.data.lid, 'user-1');
+    assert.deepEqual(user.data.relationships.company.data, { type: 'company', id: '2', lid: 'company-2' });
+    assert.deepEqual(user.data.relationships.handles.data, [
+      { type: 'github-handle', id: '3' },
+      { type: 'twitter-handle', id: '4', lid: 'handle-4' },
+    ]);
+  });
+
   test('Serializer should respect the attrs hash when serializing attributes and relationships', function (assert) {
     this.owner.register(
       'serializer:user',

@@ -395,6 +395,10 @@ const JSONAPISerializer = JSONSerializer.extend({
       relationships: this.extractRelationships(modelClass, resourceHash),
     };
 
+    if (resourceHash.lid) {
+      data.lid = resourceHash.lid;
+    }
+
     this.applyTransforms(modelClass, data.attributes);
 
     return { data };
