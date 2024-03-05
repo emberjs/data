@@ -9,12 +9,13 @@ import { expectTypeOf } from 'expect-type';
 import { DEBUG } from '@ember-data/env';
 import { recordIdentifierFor } from '@ember-data/store';
 import { peekCache } from '@ember-data/store/-private';
-import type { ArrayValue, ObjectValue, Value } from '@warp-drive/core-types/json/raw';
+import type { ArrayValue, ObjectValue, PrimitiveValue, Value } from '@warp-drive/core-types/json/raw';
 import type { TransformName } from '@warp-drive/core-types/symbols';
 
 import type { Model } from './model';
 import type { DecoratorPropertyDescriptor } from './util';
 import { isElementDescriptor } from './util';
+
 /**
  * Options provided to the attr decorator are
  * supplied to the associated transform. Any
@@ -38,8 +39,7 @@ import { isElementDescriptor } from './util';
  *
  * @typedoc
  */
-type Primitive = string | number | boolean | null;
-type AttrOptions<DV = Primitive | object | unknown[]> = {
+type AttrOptions<DV = PrimitiveValue | object | unknown[]> = {
   /**
    * The default value for this attribute.
    *
@@ -51,14 +51,8 @@ type AttrOptions<DV = Primitive | object | unknown[]> = {
    *
    * @typedoc
    */
-  defaultValue?: DV extends Primitive ? DV : () => DV;
+  defaultValue?: DV extends PrimitiveValue ? DV : () => DV;
 };
-
-expectTypeOf<{ defaultValue: () => object }>().toMatchTypeOf<AttrOptions<object>>();
-expectTypeOf<{ defaultValue: () => object }>().toMatchTypeOf<AttrOptions>();
-expectTypeOf<{ defaultValue: () => object }>().not.toMatchTypeOf<AttrOptions<object[]>>();
-expectTypeOf<{ defaultValue: () => object }>().not.toMatchTypeOf<AttrOptions<string>>();
-expectTypeOf<{ defaultValue: () => string }>().not.toMatchTypeOf<AttrOptions<object>>();
 
 /**
   `attr` defines an attribute on a [Model](/ember-data/release/classes/Model).
@@ -302,6 +296,12 @@ export function attr(
 // ==============================
 //              🐹
 // ⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇
+
+expectTypeOf<{ defaultValue: () => object }>().toMatchTypeOf<AttrOptions<object>>();
+expectTypeOf<{ defaultValue: () => object }>().toMatchTypeOf<AttrOptions>();
+expectTypeOf<{ defaultValue: () => object }>().not.toMatchTypeOf<AttrOptions<object[]>>();
+expectTypeOf<{ defaultValue: () => object }>().not.toMatchTypeOf<AttrOptions<string>>();
+expectTypeOf<{ defaultValue: () => string }>().not.toMatchTypeOf<AttrOptions<object>>();
 
 type ExampleDateTransform = {
   serialize(value: Date, options: { dateOnly: boolean }): string;
