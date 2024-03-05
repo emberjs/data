@@ -18,3 +18,22 @@ export const RecordStore = Symbol('Store');
  * @typedoc
  */
 export const ResourceType = Symbol('$type');
+
+/**
+ * Symbol for the name of a transform.
+ *
+ * This is an optional feature that can be used by
+ * transform implementations to provide a typescript
+ * hint for the name of the transform.
+ *
+ * If not used, `attr<Transform>('name')` will
+ * allow any string name. `attr('name')` will always
+ * allow any string name.
+ *
+ * If used, `attr<Transform>('name')` will enforce
+ * that the name is the same as the transform name.
+ *
+ * @type {Symbol}
+ * @typedoc
+ */
+export const TransformName = Symbol('$TransformName');

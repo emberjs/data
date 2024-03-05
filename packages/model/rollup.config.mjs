@@ -30,6 +30,7 @@ export default {
     '@ember/object/mixin',
     '@ember/application',
     '@ember/polyfills',
+    'expect-type',
   ]),
 
   plugins: [
