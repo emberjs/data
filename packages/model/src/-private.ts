@@ -1,6 +1,6 @@
 export { attr } from './-private/attr';
-export { default as belongsTo } from './-private/belongs-to';
-export { default as hasMany } from './-private/has-many';
+export { belongsTo } from './-private/belongs-to';
+export { hasMany } from './-private/has-many';
 export { Model } from './-private/model';
 export { default as Errors } from './-private/errors';
 
