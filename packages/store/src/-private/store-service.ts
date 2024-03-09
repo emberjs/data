@@ -66,6 +66,8 @@ type CompatStore = Store & {
 };
 function upgradeStore(store: Store): asserts store is CompatStore {}
 
+type FilteredKeys<T> = Omit<T, typeof ResourceType | keyof EmberObject | 'constructor'>;
+
 type MaybeHasId = { id?: string | null };
 /**
  * Currently only records that extend object can be created via
@@ -85,9 +87,9 @@ type MaybeHasId = { id?: string | null };
  * @typedoc
  */
 export type CreateRecordProperties<T = MaybeHasId & Record<string, unknown>> = T extends TypedRecordInstance
-  ? Partial<Omit<T, typeof ResourceType>>
+  ? FilteredKeys<Partial<T>>
   : T extends MaybeHasId
-    ? MaybeHasId & Partial<T>
+    ? MaybeHasId & FilteredKeys<Partial<T>>
     : MaybeHasId & Record<string, unknown>;
 
 /**

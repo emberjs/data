@@ -10,6 +10,7 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { createDeferred } from '@ember-data/request';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
+import { ResourceType } from '@warp-drive/core-types/symbols';
 
 module('Integration | Identifiers - lid reflection', function (hooks: NestedHooks) {
   setupTest(hooks);
@@ -17,6 +18,8 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
   class User extends Model {
     @attr declare name: string;
     @attr declare age: number;
+
+    [ResourceType] = 'user' as const;
   }
 
   hooks.beforeEach(function () {
@@ -43,7 +46,7 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
     this.owner.register('serializer:application', TestSerializer);
 
     const store = this.owner.lookup('service:store') as Store;
-    const record = store.createRecord('user', { name: 'Chris' }) as Model;
+    const record = store.createRecord<User>('user', { name: 'Chris' });
     const identifier = recordIdentifierFor(record);
     const serialized = record.serialize();
 
@@ -53,7 +56,7 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
 
   test(`A newly created record can receive a payload by lid (no save ever called)`, function (assert: Assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const record = store.createRecord('user', { name: 'Chris' }) as Model;
+    const record = store.createRecord<User>('user', { name: 'Chris' });
     const identifier = recordIdentifierFor(record);
 
     assert.notStrictEqual(identifier.lid, null, 'We have an lid');
@@ -107,7 +110,7 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
     this.owner.register('adapter:application', TestAdapter);
 
     const store = this.owner.lookup('service:store') as Store;
-    const record = store.createRecord('user', { name: 'Chris' }) as Model;
+    const record = store.createRecord<User>('user', { name: 'Chris' });
     const identifier = recordIdentifierFor(record);
 
     assert.notStrictEqual(identifier.lid, null, 'We have an lid');

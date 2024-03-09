@@ -481,7 +481,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
       data: [personHash],
     });
 
-    const person = store.peekRecord('person', '1') as Model;
+    const person = store.peekRecord<Person>('person', '1')!;
     assert.strictEqual(person.name, 'new attribute');
     assert.strictEqual(calledGet, 1, 'called getAttr for initial get');
     person.set('name', 'new value');
