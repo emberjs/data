@@ -84,7 +84,20 @@ const PotentialTypesDirectories = new Set([
   'types', // stable
 ]);
 
+/**
+ * scrub the package.json of any types fields in exports
+ * to support private/alpha/beta types strategies
+ *
+ * @internal
+ */
 function scrubTypesFromExports(pkg: Package) {
+  // when addon is still V1, we completely remove the exports field
+  // to avoid issues with embroider, auto-import and v1 addons
+  if (pkg.pkgData['ember-addon']?.version === 1) {
+    delete pkg.pkgData.exports;
+    return;
+  }
+
   // scrub the package.json of any types fields in exports
   if (pkg.pkgData.exports) {
     // level 1
@@ -107,14 +120,7 @@ function scrubTypesFromExports(pkg: Package) {
 }
 
 async function makeTypesPrivate(pkg: Package) {
-  // scrub the package.json of any types fields in exports
-  // when the types are private, we completely remove the exports field
-  // to avoid issues with embroider, auto-import and v1 addons
-  if (pkg.pkgData['ember-addon']?.version === 1) {
-    delete pkg.pkgData.exports;
-  } else {
-    scrubTypesFromExports(pkg);
-  }
+  scrubTypesFromExports(pkg);
 
   // remove @warp-drive/core-types from dependencies and peerDependencies
   pkg.pkgData.dependencies?.['@warp-drive/core-types'];
@@ -132,9 +138,6 @@ async function makeTypesPrivate(pkg: Package) {
 }
 
 async function makeTypesAlpha(pkg: Package) {
-  // for alpha types users must explicitly opt-in to using the types
-  // by adding a source field to their tsconfig.json
-  // so we scrub the package.json of any types fields in exports
   scrubTypesFromExports(pkg);
 
   // enforce that the correct types directory is present
@@ -159,9 +162,6 @@ async function makeTypesAlpha(pkg: Package) {
 }
 
 async function makeTypesBeta(pkg: Package) {
-  // for beta types users must explicitly opt-in to using the types
-  // by adding a source field to their tsconfig.json
-  // so we scrub the package.json of any types fields in exports
   scrubTypesFromExports(pkg);
 
   // enforce that the correct types directory is present
