@@ -5,7 +5,7 @@ export { Model } from './-private/model';
 export { default as Errors } from './-private/errors';
 
 export { default as ManyArray } from './-private/many-array';
-export { default as PromiseBelongsTo } from './-private/promise-belongs-to';
+export { PromiseBelongsTo } from './-private/promise-belongs-to';
 export { default as PromiseManyArray } from './-private/promise-many-array';
 
 // // Used by tests, migration support
