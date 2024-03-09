@@ -23,6 +23,7 @@ import type { BaseFinderOptions } from '@ember-data/store/-types/q/store';
 import type { Signal } from '@ember-data/tracking/-private';
 import { addToTransaction } from '@ember-data/tracking/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
 import type { Links, PaginationLinks } from '@warp-drive/core-types/spec/raw';
 
 import type { LegacySupport } from './legacy-relationships-support';
@@ -87,7 +88,7 @@ export interface ManyArrayCreateArgs {
   @class ManyArray
   @public
 */
-export default class RelatedCollection extends RecordArray {
+export default class RelatedCollection<T = unknown> extends RecordArray<T> {
   declare isAsync: boolean;
   /**
     The loading state of this array
@@ -157,6 +158,7 @@ export default class RelatedCollection extends RecordArray {
   declare store: Store;
   declare key: string;
   declare type: ModelSchema;
+  declare modelName: T extends TypedRecordInstance ? TypeFromInstance<T> : string;
 
   constructor(options: ManyArrayCreateArgs) {
     super(options as unknown as IdentifierArrayCreateOptions);
@@ -169,7 +171,7 @@ export default class RelatedCollection extends RecordArray {
 
   [MUTATE](
     target: StableRecordIdentifier[],
-    receiver: typeof Proxy<StableRecordIdentifier[]>,
+    receiver: typeof Proxy<StableRecordIdentifier[], T[]>,
     prop: string,
     args: unknown[],
     _SIGNAL: Signal
@@ -438,10 +440,10 @@ export default class RelatedCollection extends RecordArray {
     @param {Object} hash
     @return {Model} record
   */
-  createRecord(hash: CreateRecordProperties): OpaqueRecordInstance {
+  createRecord(hash: CreateRecordProperties<T>): T {
     const { store } = this;
     assert(`Expected modelName to be set`, this.modelName);
-    const record = store.createRecord(this.modelName, hash);
+    const record = store.createRecord<T>(this.modelName as TypeFromInstance<T>, hash);
     this.push(record);
 
     return record;
@@ -484,8 +486,8 @@ function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord |
   return recordIdentifierFor(recordOrPromiseRecord);
 }
 
-function assertNoDuplicates(
-  collection: RelatedCollection,
+function assertNoDuplicates<T>(
+  collection: RelatedCollection<T>,
   target: StableRecordIdentifier[],
   callback: (currentState: StableRecordIdentifier[]) => void,
   reason: string
@@ -532,8 +534,8 @@ function assertNoDuplicates(
   }
 }
 
-function mutateAddToRelatedRecords(
-  collection: RelatedCollection,
+function mutateAddToRelatedRecords<T>(
+  collection: RelatedCollection<T>,
   operationInfo: { value: StableRecordIdentifier | StableRecordIdentifier[]; index?: number },
   _SIGNAL: Signal
 ) {
@@ -549,8 +551,8 @@ function mutateAddToRelatedRecords(
   );
 }
 
-function mutateRemoveFromRelatedRecords(
-  collection: RelatedCollection,
+function mutateRemoveFromRelatedRecords<T>(
+  collection: RelatedCollection<T>,
   operationInfo: { value: StableRecordIdentifier | StableRecordIdentifier[]; index?: number },
   _SIGNAL: Signal
 ) {
@@ -566,8 +568,8 @@ function mutateRemoveFromRelatedRecords(
   );
 }
 
-function mutateReplaceRelatedRecord(
-  collection: RelatedCollection,
+function mutateReplaceRelatedRecord<T>(
+  collection: RelatedCollection<T>,
   operationInfo: {
     value: StableRecordIdentifier;
     prior: StableRecordIdentifier;
@@ -587,7 +589,11 @@ function mutateReplaceRelatedRecord(
   );
 }
 
-function mutateReplaceRelatedRecords(collection: RelatedCollection, value: StableRecordIdentifier[], _SIGNAL: Signal) {
+function mutateReplaceRelatedRecords<T>(
+  collection: RelatedCollection<T>,
+  value: StableRecordIdentifier[],
+  _SIGNAL: Signal
+) {
   mutate(
     collection,
     {
@@ -600,7 +606,11 @@ function mutateReplaceRelatedRecords(collection: RelatedCollection, value: Stabl
   );
 }
 
-function mutateSortRelatedRecords(collection: RelatedCollection, value: StableRecordIdentifier[], _SIGNAL: Signal) {
+function mutateSortRelatedRecords<T>(
+  collection: RelatedCollection<T>,
+  value: StableRecordIdentifier[],
+  _SIGNAL: Signal
+) {
   mutate(
     collection,
     {
@@ -613,7 +623,11 @@ function mutateSortRelatedRecords(collection: RelatedCollection, value: StableRe
   );
 }
 
-function mutate(collection: RelatedCollection, mutation: Parameters<LegacySupport['mutate']>[0], _SIGNAL: Signal) {
+function mutate<T>(
+  collection: RelatedCollection<T>,
+  mutation: Parameters<LegacySupport['mutate']>[0],
+  _SIGNAL: Signal
+) {
   collection._manager.mutate(mutation);
   addToTransaction(_SIGNAL);
 }

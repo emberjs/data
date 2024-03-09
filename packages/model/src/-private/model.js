@@ -2099,14 +2099,14 @@ if (DEBUG) {
   });
 
   Model.reopen = function deprecatedReopen() {
-    assert(`Model.reopen is deprecated. Use Foo extends Model to extend your class instead.`);
+    assert(`Model.reopen is deprecated. Use \`class Foo extends Model {}\` to extend your class instead.`);
   };
 
   Model.reopenClass = function deprecatedReopenClass() {
     assert(
-      `Model.reopenClass is deprecated. Use Foo extends Model to add static methods and properties to your class instead.`
+      `Model.reopenClass is deprecated. Use \`class Foo extends Model {}\` to add static methods and properties to your class instead.`
     );
   };
 }
 
-export default Model;
+export { Model };

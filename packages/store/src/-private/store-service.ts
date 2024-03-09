@@ -66,6 +66,8 @@ type CompatStore = Store & {
 };
 function upgradeStore(store: Store): asserts store is CompatStore {}
 
+type FilteredKeys<T> = Omit<T, typeof ResourceType | keyof EmberObject | 'constructor'>;
+
 type MaybeHasId = { id?: string | null };
 /**
  * Currently only records that extend object can be created via
@@ -84,8 +86,11 @@ type MaybeHasId = { id?: string | null };
  *
  * @typedoc
  */
-export type CreateRecordProperties<T extends Record<string, unknown> = MaybeHasId & Record<string, unknown>> =
-  T extends TypedRecordInstance ? Partial<Omit<T, typeof ResourceType>> : MaybeHasId & Record<string, unknown>;
+export type CreateRecordProperties<T = MaybeHasId & Record<string, unknown>> = T extends TypedRecordInstance
+  ? FilteredKeys<Partial<T>>
+  : T extends MaybeHasId
+    ? MaybeHasId & FilteredKeys<Partial<T>>
+    : MaybeHasId & Record<string, unknown>;
 
 /**
  * A Store coordinates interaction between your application, a [Cache](https://api.emberjs.com/ember-data/release/classes/%3CInterface%3E%20Cache),
@@ -697,7 +702,7 @@ class Store extends EmberObject {
       newly created record.
     @return {Model} record
   */
-  createRecord<T extends MaybeHasId>(type: TypeFromInstance<T>, inputProperties: CreateRecordProperties<T>): T;
+  createRecord<T>(type: TypeFromInstance<T>, inputProperties: CreateRecordProperties<T>): T;
   createRecord(type: string, inputProperties: CreateRecordProperties): OpaqueRecordInstance;
   createRecord(type: string, inputProperties: CreateRecordProperties): OpaqueRecordInstance {
     if (DEBUG) {

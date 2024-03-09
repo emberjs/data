@@ -1,5 +1,4 @@
 // Remove this disable once @belongsTo is typed
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call */
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -136,6 +135,7 @@ export async function setInitialState(context: Context, config: TestConfig, asse
         attributes: { name: 'Chris' },
       },
     });
+    // @ts-expect-error
     john = store.createRecord<UserRecord>('user', { name: 'John', bestFriends: isMany ? [chris] : chris });
     johnIdentifier = recordIdentifierFor(john);
   }

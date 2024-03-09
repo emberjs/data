@@ -1,5 +1,4 @@
 import Cache from '@ember-data/json-api';
-import type Model from '@ember-data/model';
 import type { StructuredDataDocument } from '@ember-data/request';
 import Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
@@ -178,9 +177,9 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
       'We can fetch from the cache'
     );
 
-    const record = store.peekRecord(identifier) as Model;
+    const record = store.peekRecord<{ name: string | null }>(identifier);
 
-    assert.equal(record.name, 'Chris', 'record name is correct');
+    assert.equal(record?.name, 'Chris', 'record name is correct');
 
     store.cache.setAttr(identifier, 'name', 'James');
     resourceData = store.cache.peek(identifier);

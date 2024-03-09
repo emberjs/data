@@ -6,21 +6,22 @@ import type ObjectProxy from '@ember/object/proxy';
 import type Store from '@ember-data/store';
 import type { OpaqueRecordInstance } from '@ember-data/store/-types/q/record-instance';
 import { cached } from '@ember-data/tracking';
+import type { TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 
 import type { LegacySupport } from './legacy-relationships-support';
 import { PromiseObject } from './promise-proxy-base';
 import type BelongsToReference from './references/belongs-to';
 
-export interface BelongsToProxyMeta {
+export interface BelongsToProxyMeta<T = unknown> {
   key: string;
   store: Store;
   legacySupport: LegacySupport;
-  modelName: string;
+  modelName: TypeFromInstanceOrString<T>;
 }
-export interface BelongsToProxyCreateArgs {
-  promise: Promise<OpaqueRecordInstance | null>;
-  content?: OpaqueRecordInstance | null;
-  _belongsToState: BelongsToProxyMeta;
+export interface BelongsToProxyCreateArgs<T = unknown> {
+  promise: Promise<T | null>;
+  content?: T | null;
+  _belongsToState: BelongsToProxyMeta<T>;
 }
 
 interface PromiseObjectType<T> extends PromiseProxyMixin<T | null>, ObjectProxy<T> {
@@ -46,8 +47,8 @@ const Extended: PromiseObjectType<OpaqueRecordInstance> =
   @extends PromiseObject
   @private
 */
-class PromiseBelongsTo extends Extended<OpaqueRecordInstance> {
-  declare _belongsToState: BelongsToProxyMeta;
+class PromiseBelongsTo<T = unknown> extends Extended<T> {
+  declare _belongsToState: BelongsToProxyMeta<T>;
 
   @cached
   get id() {
@@ -82,4 +83,4 @@ class PromiseBelongsTo extends Extended<OpaqueRecordInstance> {
   }
 }
 
-export default PromiseBelongsTo;
+export { PromiseBelongsTo };

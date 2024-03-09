@@ -30,8 +30,8 @@ class Model extends EmberObject {
   adapterError?: Error;
   toString(): string;
   save(): Promise<this>;
-  hasMany(key: keyof this & string): HasManyReference;
-  belongsTo(key: keyof this & string): BelongsToReference;
+  hasMany<T extends keyof this & string>(key: T): HasManyReference<this, T>;
+  belongsTo<T extends keyof this & string>(key: T): BelongsToReference<this, T>;
   eachRelationship<T extends Model, K extends keyof T & string>(
     callback: (this: T, key: K, meta: RelationshipSchema) => void,
     binding?: T
@@ -44,11 +44,16 @@ class Model extends EmberObject {
   rollbackAttributes(): void;
   changedAttributes(): Record<string, [unknown, unknown]>;
   id: string;
-  [key: string]: unknown;
+  isValid: boolean;
   isSaving: boolean;
   isNew: boolean;
+  isEmpty: boolean;
   isDeleted: boolean;
   hasDirtyAttributes: boolean;
+  isLoaded: boolean;
+  isLoading: boolean;
+  isReloading: boolean;
+  dirtyType: string;
   deleteRecord(): void;
   unloadRecord(): void;
   serialize(): Record<string, unknown>;
@@ -74,7 +79,6 @@ class Model extends EmberObject {
   static isModel: true;
   static relationshipsObject: RelationshipsSchema;
   static extend(...mixins: unknown[]): typeof Model;
-  static reopenClass(...mixins: unknown[]): void;
   static create(createArgs: ModelCreateArgs): Model;
   static __isMixin?: true;
   static __mixin?: unknown;
@@ -84,7 +88,7 @@ interface Model {
   constructor: typeof Model;
 }
 
-export default Model;
+export { Model };
 
 export type StaticModel = typeof Model;
 

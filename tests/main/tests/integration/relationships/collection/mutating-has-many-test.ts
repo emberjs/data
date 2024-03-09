@@ -21,7 +21,6 @@ if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
 
 class User extends Model {
   @attr declare name: string;
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   @hasMany('user', { async: false, inverse: 'friends' }) declare friends: User[];
 }
 

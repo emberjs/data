@@ -150,6 +150,7 @@ interface IdentifierArray<T = unknown> extends Omit<Array<T>, '[]'> {
     _SIGNAL: Signal
   ): unknown;
 }
+
 class IdentifierArray<T = unknown> {
   declare DEPRECATED_CLASS_NAME: string;
   /**

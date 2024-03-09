@@ -1,5 +1,4 @@
 // Remove once @hasMany is typed
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 // @ts-expect-error TODO: This is supplied via private-build-infra/virtual-packages
 import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@ember-data/deprecations';
 import { graphFor } from '@ember-data/graph/-private';

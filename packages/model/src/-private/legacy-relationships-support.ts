@@ -30,13 +30,13 @@ import type { CollectionResourceRelationship, SingleResourceRelationship } from 
 import RelatedCollection from './many-array';
 import type { MinimalLegacyRecord } from './model-methods';
 import type { BelongsToProxyCreateArgs, BelongsToProxyMeta } from './promise-belongs-to';
-import PromiseBelongsTo from './promise-belongs-to';
+import { PromiseBelongsTo } from './promise-belongs-to';
 import type { HasManyProxyCreateArgs } from './promise-many-array';
 import PromiseManyArray from './promise-many-array';
 import BelongsToReference from './references/belongs-to';
 import HasManyReference from './references/has-many';
 
-type PromiseBelongsToFactory = { create(args: BelongsToProxyCreateArgs): PromiseBelongsTo };
+type PromiseBelongsToFactory<T = unknown> = { create(args: BelongsToProxyCreateArgs<T>): PromiseBelongsTo<T> };
 
 export const LEGACY_SUPPORT: Map<StableRecordIdentifier | MinimalLegacyRecord, LegacySupport> = new Map();
 
@@ -234,9 +234,9 @@ export class LegacySupport {
     return [identifiers, jsonApi];
   }
 
-  getManyArray(key: string, definition?: UpgradedMeta): RelatedCollection {
+  getManyArray<T>(key: string, definition?: UpgradedMeta): RelatedCollection<T> {
     if (HAS_JSON_API_PACKAGE) {
-      let manyArray: RelatedCollection | undefined = this._manyArrayCache[key];
+      let manyArray: RelatedCollection<T> | undefined = this._manyArrayCache[key] as RelatedCollection<T> | undefined;
       if (!definition) {
         definition = this.graph.get(this.identifier, key).definition;
       }
@@ -703,9 +703,7 @@ function handleCompletedRelationshipRequest(
   // only set to not stale if no error is thrown
   relationship.state.isStale = false;
 
-  return isHasMany || !value
-    ? (value as RelatedCollection | null)
-    : recordExt.store.peekRecord(value as StableRecordIdentifier);
+  return isHasMany || !value ? value : recordExt.store.peekRecord(value as StableRecordIdentifier);
 }
 
 type PromiseProxyRecord = { then(): void; content: OpaqueRecordInstance | null | undefined };
