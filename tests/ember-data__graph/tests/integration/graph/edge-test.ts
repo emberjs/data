@@ -1,5 +1,3 @@
-// Remove this disable once @belongsTo is typed
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { graphFor } from '@ember-data/graph/-private';
 import type { Graph } from '@ember-data/graph/-private/graph';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
