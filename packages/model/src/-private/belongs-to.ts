@@ -19,6 +19,7 @@ export type RelationshipOptions<T, Async extends boolean> = {
   inverse: null | (IsUnknown<T> extends true ? string : keyof NoNull<T> & string);
   polymorphic?: boolean;
   as?: string;
+  resetOnRemoteUpdate?: boolean;
 };
 
 export type NoNull<T> = Exclude<T, null>;
