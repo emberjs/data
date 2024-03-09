@@ -12,30 +12,29 @@ import { isElementDescriptor, normalizeModelName } from './util';
   @module @ember-data/model
 */
 
+export type IsUnknown<T> = unknown extends T ? true : false;
+
 export type RelationshipOptions<T, Async extends boolean> = {
   async: Async;
-  inverse: null | (keyof NoNull<T> & string);
+  inverse: null | (IsUnknown<T> extends true ? string : keyof NoNull<T> & string);
   polymorphic?: boolean;
   as?: string;
 };
 
-type NoNull<T> = Exclude<T, null>;
-type BelongsToDecoratorObject<getT> = {
-  get: () => getT;
-  // set: (value: Awaited<getT>) => void;
-  set: (value: getT) => void;
-  // init: () => getT;
-};
-export type BelongsToDecorator<getT> = <This>(
-  target: This,
-  key: string,
-  desc?: PropertyDescriptor
-) => BelongsToDecoratorObject<getT>;
+export type NoNull<T> = Exclude<T, null>;
+// type BelongsToDecoratorObject<getT> = {
+//   get: () => getT;
+//   // set: (value: Awaited<getT>) => void;
+//   set: (value: getT) => void;
+//   // init: () => getT;
+// };
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export type RelationshipDecorator<T> = <This>(target: This, key: string, desc?: PropertyDescriptor) => void; // BelongsToDecoratorObject<getT>;
 
 function _belongsTo<T, Async extends boolean>(
   type: string,
   options: RelationshipOptions<T, Async>
-): BelongsToDecorator<T> {
+): RelationshipDecorator<T> {
   assert(
     `Expected options.async from @belongsTo('${type}', options) to be a boolean`,
     options && typeof options.async === 'boolean'
@@ -108,89 +107,159 @@ function _belongsTo<T, Async extends boolean>(
 
       return support.getBelongsTo(key);
     },
-  }).meta(meta) as BelongsToDecorator<T>;
+  }).meta(meta) as RelationshipDecorator<T>;
 }
 
 /**
-  `belongsTo` is used to define One-To-One and One-To-Many
+  `belongsTo` is used to define One-To-One and One-To-Many, and One-To-None
   relationships on a [Model](/ember-data/release/classes/Model).
 
-
-  `belongsTo` takes an optional hash as a second parameter, currently
+  `belongsTo` takes a configuration hash as a second parameter, currently
   supported options are:
 
-  - `async`: A boolean value used to explicitly declare this to be an async relationship. The default is true.
-  - `inverse`: A string used to identify the inverse property on a
-    related model in a One-To-Many relationship. See [Explicit Inverses](#explicit-inverses)
-  - `polymorphic` A boolean value to mark the relationship as polymorphic
+  - `async`: (*required*) A boolean value used to declare whether this is a sync (false) or async (true) relationship.
+  - `inverse`: (*required*)  A string used to identify the inverse property on a related model, or `null`.
+  - `polymorphic`: (*optional*) A boolean value to mark the relationship as polymorphic
+  - `as`: (*optional*) A string used to declare the abstract type "this" record satisfies for polymorphism.
 
-  #### One-To-One
-  To declare a one-to-one relationship between two models, use
-  `belongsTo`:
+  ### Examples
 
-  ```app/models/user.js
+  To declare a **one-to-many** (or many-to-many) relationship, use
+  `belongsTo` in combination with `hasMany`:
+
+  ```js
+  // app/models/comment.js
   import Model, { belongsTo } from '@ember-data/model';
 
-  export default class UserModel extends Model {
-    @belongsTo('profile') profile;
+  export default class Comment extends Model {
+    @belongsTo('post', { async: false, inverse: 'comments' }) post;
   }
-  ```
 
-  ```app/models/profile.js
-  import Model, { belongsTo } from '@ember-data/model';
-
-  export default class ProfileModel extends Model {
-    @belongsTo('user') user;
-  }
-  ```
-
-  #### One-To-Many
-
-  To declare a one-to-many relationship between two models, use
-  `belongsTo` in combination with `hasMany`, like this:
-
-  ```app/models/post.js
+  // app/models/post.js
   import Model, { hasMany } from '@ember-data/model';
 
-  export default class PostModel extends Model {
+  export default class Post extends Model {
     @hasMany('comment', { async: false, inverse: 'post' }) comments;
   }
   ```
 
-  ```app/models/comment.js
+  To declare a **one-to-one** relationship with managed inverses, use `belongsTo` for both sides:
+
+  ```js
+  // app/models/author.js
   import Model, { belongsTo } from '@ember-data/model';
 
-  export default class CommentModel extends Model {
-    @belongsTo('post', { async: false, inverse: 'comments' }) post;
+  export default class Author extends Model {
+    @belongsTo('address', { async: true, inverse: 'owner' }) address;
+  }
+
+  // app/models/address.js
+  import Model, { belongsTo } from '@ember-data/model';
+
+  export default class Address extends Model {
+    @belongsTo('author', { async: true, inverse: 'address' }) owner;
   }
   ```
 
-  #### Sync relationships
+  To declare a **one-to-one** relationship without managed inverses, use `belongsTo` for both sides
+  with `null` as the inverse:
 
-  EmberData resolves sync relationships with the related resources
-  available in its local store, hence it is expected these resources
-  to be loaded before or along-side the primary resource.
-
-  ```app/models/comment.js
+  ```js
+  // app/models/author.js
   import Model, { belongsTo } from '@ember-data/model';
 
-  export default class CommentModel extends Model {
-    @belongsTo('post', {
-      async: false,
-      inverse: null
-    })
-    post;
+  export default class Author extends Model {
+    @belongsTo('address', { async: true, inverse: null }) address;
+  }
+
+  // app/models/address.js
+  import Model, { belongsTo } from '@ember-data/model';
+
+  export default class Address extends Model {
+    @belongsTo('author', { async: true, inverse: null }) owner;
   }
   ```
+
+  To declare a one-to-none relationship between two models, use
+  `belongsTo` with inverse set to `null` on just one side::
+
+  ```js
+  // app/models/person.js
+  import Model, { belongsTo } from '@ember-data/model';
+
+  export default class Person extends Model {
+    @belongsTo('person', { async: false, inverse: null }) bestFriend;
+  }
+  ```
+
+  #### Sync vs Async Relationships
+
+  EmberData fulfills relationships using resource data available in
+  the cache.
+
+  Sync relationships point directly to the known related resources.
+
+  When a relationship is declared as async, if any of the known related
+  resources have not been loaded, they will be fetched. The property
+  on the record when accessed provides a promise that resolves once
+  all resources are loaded.
+
+  Async relationships may take advantage of links. On access, if the related
+  link has not been loaded, or if any known resources are not available in
+  the cache, the fresh state will be fetched using the link.
 
   In contrast to async relationship, accessing a sync relationship
-  will always return the record (Model instance) for the existing
-  local resource, or null. But it will error on access when
-  a related resource is known to exist and it has not been loaded.
+  will error on access when any of the known related resources have
+  not been loaded.
 
+  If you are using `links` with sync relationships, you have to use
+  the BelongsTo reference API to fetch or refresh related resources
+  that aren't loaded. For instance, for a `bestFriend` relationship:
+
+  ```js
+  person.belongsTo('bestFriend').reload();
   ```
-  let post = comment.post;
+
+  #### Polymorphic Relationships
+
+  To declare a polymorphic relationship, use `hasMany` with the `polymorphic`
+  option set to `true`:
+
+  ```js
+  // app/models/comment.js
+  import Model, { belongsTo } from '@ember-data/model';
+
+  export default class Comment extends Model {
+    @belongsTo('commentable', { async: false, inverse: 'comments', polymorphic: true }) parent;
+  }
   ```
+
+  `'commentable'` here is referred to as the "abstract type" for the polymorphic
+  relationship.
+
+  Polymorphic relationships with `inverse: null` will accept any type of record as their content.
+  Polymorphic relationships with `inverse` set to a string will only accept records with a matching
+  inverse relationships declaring itself as satisfying the abstract type.
+
+  Below, 'as' is used to declare the that 'post' record satisfies the abstract type 'commentable'
+  for this relationship.
+
+  ```js
+  // app/models/post.js
+  import Model, { hasMany } from '@ember-data/model';
+
+  export default class Post extends Model {
+    @hasMany('comment', { async: false, inverse: 'parent', as: 'commentable' }) comments;
+  }
+  ```
+
+  Note: every Model that declares an inverse to a polymorphic relationship must
+  declare itself exactly the same. This is because polymorphism is based on structural
+  traits.
+
+  Polymorphic to polymorphic relationships are supported. Both sides of the relationship
+  must be declared as polymorphic, and the `as` option must be used to declare the abstract
+  type each record satisfies on both sides.
 
   @method belongsTo
   @public
@@ -206,16 +275,16 @@ export function belongsTo(type: string): never;
 export function belongsTo<T>(
   type: TypeFromInstance<NoNull<T>>,
   options: RelationshipOptions<T, false>
-): BelongsToDecorator<T>;
+): RelationshipDecorator<T>;
 export function belongsTo<K extends Promise<unknown>, T extends Awaited<K> = Awaited<K>>(
   type: TypeFromInstance<NoNull<T>>,
   options: RelationshipOptions<T, true>
-): BelongsToDecorator<K>;
-export function belongsTo(type: string, options: RelationshipOptions<unknown, boolean>): BelongsToDecorator<unknown>;
+): RelationshipDecorator<K>;
+export function belongsTo(type: string, options: RelationshipOptions<unknown, boolean>): RelationshipDecorator<unknown>;
 export function belongsTo<T>(
   type?: TypeFromInstance<NoNull<T>>,
   options?: RelationshipOptions<T, boolean>
-): BelongsToDecorator<T> | BelongsToDecoratorObject<T> {
+): RelationshipDecorator<T> {
   if (DEBUG) {
     assert(
       `belongsTo must be invoked with a type and options. Did you mean \`@belongsTo(${type}, { async: false, inverse: null })\`?`,
