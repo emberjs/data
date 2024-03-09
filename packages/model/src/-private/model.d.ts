@@ -44,10 +44,16 @@ class Model extends EmberObject {
   rollbackAttributes(): void;
   changedAttributes(): Record<string, [unknown, unknown]>;
   id: string;
+  isValid: boolean;
   isSaving: boolean;
   isNew: boolean;
+  isEmpty: boolean;
   isDeleted: boolean;
   hasDirtyAttributes: boolean;
+  isLoaded: boolean;
+  isLoading: boolean;
+  isReloading: boolean;
+  dirtyType: string;
   deleteRecord(): void;
   unloadRecord(): void;
   serialize(): Record<string, unknown>;
@@ -73,7 +79,6 @@ class Model extends EmberObject {
   static isModel: true;
   static relationshipsObject: RelationshipsSchema;
   static extend(...mixins: unknown[]): typeof Model;
-  static reopenClass(...mixins: unknown[]): void;
   static create(createArgs: ModelCreateArgs): Model;
   static __isMixin?: true;
   static __mixin?: unknown;

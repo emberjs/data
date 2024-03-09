@@ -21,6 +21,7 @@ export interface MinimalLegacyRecord {
   isDestroyed: boolean;
   isDestroying: boolean;
   isReloading: boolean;
+  isValid: boolean;
   [RecordStore]: Store;
 
   deleteRecord(): void;
