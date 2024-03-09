@@ -10,6 +10,7 @@ import { cached, compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
+import type { TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 import type {
   CollectionResourceDocument,
   CollectionResourceRelationship,
@@ -19,6 +20,7 @@ import type {
   PaginationLinks,
 } from '@warp-drive/core-types/spec/raw';
 
+import type { IsUnknown } from '../belongs-to';
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
 import type { LegacySupport } from '../legacy-relationships-support';
 import { areAllInverseRecordsLoaded, LEGACY_SUPPORT } from '../legacy-relationships-support';
@@ -33,6 +35,8 @@ interface ResourceIdentifier {
   };
   meta?: Meta;
 }
+
+type ArrayItemType<T> = T extends (infer U)[] ? U : never;
 
 function isResourceIdentiferWithRelatedLinks(
   value: CollectionResourceRelationship | ResourceIdentifier | null
@@ -67,7 +71,11 @@ function isResourceIdentiferWithRelatedLinks(
  @class HasManyReference
  @public
  */
-export default class HasManyReference {
+export default class HasManyReference<
+  T = unknown,
+  K extends string = IsUnknown<T> extends true ? string : keyof T & string,
+  Related = K extends keyof T ? ArrayItemType<Awaited<T[K]>> : unknown,
+> {
   declare graph: Graph;
   declare store: Store;
   declare hasManyRelationship: CollectionEdge;
@@ -77,7 +85,7 @@ export default class HasManyReference {
    * @property {String} key
    * @public
    */
-  declare key: string;
+  declare key: K;
 
   /**
    * The type of resource this relationship will contain.
@@ -85,11 +93,11 @@ export default class HasManyReference {
    * @property {String} type
    * @public
    */
-  declare type: string;
+  declare type: TypeFromInstanceOrString<Related>;
 
   // unsubscribe tokens given to us by the notification manager
   ___token!: object;
-  ___identifier: StableRecordIdentifier;
+  ___identifier: StableRecordIdentifier<TypeFromInstanceOrString<T>>;
   ___relatedTokenMap!: Map<StableRecordIdentifier, object>;
 
   declare _ref: number;
@@ -97,14 +105,14 @@ export default class HasManyReference {
   constructor(
     store: Store,
     graph: Graph,
-    parentIdentifier: StableRecordIdentifier,
+    parentIdentifier: StableRecordIdentifier<TypeFromInstanceOrString<T>>,
     hasManyRelationship: CollectionEdge,
-    key: string
+    key: K
   ) {
     this.graph = graph;
     this.key = key;
     this.hasManyRelationship = hasManyRelationship;
-    this.type = hasManyRelationship.definition.type;
+    this.type = hasManyRelationship.definition.type as TypeFromInstanceOrString<Related>;
 
     this.store = store;
     this.___identifier = parentIdentifier;
@@ -141,7 +149,7 @@ export default class HasManyReference {
    */
   @cached
   @compat
-  get identifiers(): StableRecordIdentifier[] {
+  get identifiers(): StableRecordIdentifier<TypeFromInstanceOrString<Related>>[] {
     this._ref; // consume the tracked prop
 
     const resource = this._resource();
@@ -168,7 +176,7 @@ export default class HasManyReference {
         }
         this.___relatedTokenMap.set(identifier, token);
 
-        return identifier;
+        return identifier as StableRecordIdentifier<TypeFromInstanceOrString<Related>>;
       });
     }
 
@@ -488,7 +496,7 @@ export default class HasManyReference {
   async push(
     doc: ExistingResourceObject[] | CollectionResourceDocument,
     skipFetch?: boolean
-  ): Promise<ManyArray | void> {
+  ): Promise<ManyArray<Related> | void> {
     const { store } = this;
     const dataDoc = Array.isArray(doc) ? { data: doc } : doc;
     const isResourceData = Array.isArray(dataDoc.data) && dataDoc.data.length > 0 && isMaybeResource(dataDoc.data[0]);
@@ -591,7 +599,7 @@ export default class HasManyReference {
     @public
    @return {ManyArray}
    */
-  value(): ManyArray | null {
+  value(): ManyArray<Related> | null {
     const support: LegacySupport = (LEGACY_SUPPORT as Map<StableRecordIdentifier, LegacySupport>).get(
       this.___identifier
     )!;
@@ -605,7 +613,7 @@ export default class HasManyReference {
       return null;
     }
 
-    return support.getManyArray(this.key);
+    return support.getManyArray<Related>(this.key);
   }
 
   /**
@@ -672,17 +680,17 @@ export default class HasManyReference {
    @return {Promise} a promise that resolves with the ManyArray in
    this has-many relationship.
    */
-  async load(options?: BaseFinderOptions): Promise<ManyArray> {
+  async load(options?: BaseFinderOptions): Promise<ManyArray<Related>> {
     const support: LegacySupport = (LEGACY_SUPPORT as Map<StableRecordIdentifier, LegacySupport>).get(
       this.___identifier
     )!;
     const fetchSyncRel =
       !this.hasManyRelationship.definition.isAsync && !areAllInverseRecordsLoaded(this.store, this._resource());
     return fetchSyncRel
-      ? (support.reloadHasMany(this.key, options) as Promise<ManyArray>)
+      ? (support.reloadHasMany(this.key, options) as Promise<ManyArray<Related>>)
       : // we cast to fix the return type since typescript and eslint don't understand async functions
         // properly
-        (support.getHasMany(this.key, options) as Promise<ManyArray> | ManyArray);
+        (support.getHasMany(this.key, options) as Promise<ManyArray<Related>> | ManyArray<Related>);
   }
 
   /**

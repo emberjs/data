@@ -3,11 +3,11 @@ import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
 import type { Graph } from '@ember-data/graph/-private/graph';
 import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type { OpaqueRecordInstance } from '@ember-data/store/-types/q/record-instance';
 import { cached, compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 import type {
   LinkObject,
   Links,
@@ -16,6 +16,7 @@ import type {
   SingleResourceRelationship,
 } from '@warp-drive/core-types/spec/raw';
 
+import type { IsUnknown } from '../belongs-to';
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
 import type { LegacySupport } from '../legacy-relationships-support';
 import { areAllInverseRecordsLoaded, LEGACY_SUPPORT } from '../legacy-relationships-support';
@@ -66,7 +67,11 @@ function isResourceIdentiferWithRelatedLinks(
  @class BelongsToReference
  @public
  */
-export default class BelongsToReference {
+export default class BelongsToReference<
+  T = unknown,
+  K extends string = IsUnknown<T> extends true ? string : keyof T & string,
+  Related = K extends keyof T ? Awaited<T[K]> : unknown,
+> {
   declare graph: Graph;
   declare store: Store;
   declare belongsToRelationship: ResourceEdge;
@@ -76,7 +81,7 @@ export default class BelongsToReference {
    * @property {String} key
    * @public
    */
-  declare key: string;
+  declare key: K;
 
   /**
    * The type of resource this relationship will contain.
@@ -84,11 +89,11 @@ export default class BelongsToReference {
    * @property {String} type
    * @public
    */
-  declare type: string;
+  declare type: TypeFromInstanceOrString<Related>;
 
   // unsubscribe tokens given to us by the notification manager
   declare ___token: object;
-  declare ___identifier: StableRecordIdentifier;
+  declare ___identifier: StableRecordIdentifier<TypeFromInstanceOrString<T>>;
   declare ___relatedToken: object | null;
 
   declare _ref: number;
@@ -96,14 +101,14 @@ export default class BelongsToReference {
   constructor(
     store: Store,
     graph: Graph,
-    parentIdentifier: StableRecordIdentifier,
+    parentIdentifier: StableRecordIdentifier<TypeFromInstanceOrString<T>>,
     belongsToRelationship: ResourceEdge,
-    key: string
+    key: K
   ) {
     this.graph = graph;
     this.key = key;
     this.belongsToRelationship = belongsToRelationship;
-    this.type = belongsToRelationship.definition.type;
+    this.type = belongsToRelationship.definition.type as TypeFromInstanceOrString<Related>;
     this.store = store;
     this.___identifier = parentIdentifier;
     this.___relatedToken = null;
@@ -140,7 +145,7 @@ export default class BelongsToReference {
    */
   @cached
   @compat
-  get identifier(): StableRecordIdentifier | null {
+  get identifier(): StableRecordIdentifier<TypeFromInstanceOrString<Related>> | null {
     if (this.___relatedToken) {
       this.store.notifications.unsubscribe(this.___relatedToken);
       this.___relatedToken = null;
@@ -158,7 +163,7 @@ export default class BelongsToReference {
         }
       );
 
-      return identifier;
+      return identifier as StableRecordIdentifier<TypeFromInstanceOrString<Related>>;
     }
 
     return null;
@@ -469,7 +474,7 @@ export default class BelongsToReference {
    @param {Boolean} [skipFetch] if `true`, do not attempt to fetch unloaded records
    @return {Promise<OpaqueRecordInstance | null | void>}
   */
-  async push(doc: SingleResourceDocument, skipFetch?: boolean): Promise<OpaqueRecordInstance | null | void> {
+  async push(doc: SingleResourceDocument, skipFetch?: boolean): Promise<Related | null | void> {
     const { store } = this;
     const isResourceData = doc.data && isMaybeResource(doc.data);
     const added = isResourceData
@@ -559,7 +564,7 @@ export default class BelongsToReference {
     @public
    @return {Model} the record in this relationship
    */
-  value(): OpaqueRecordInstance | null {
+  value(): Related | null {
     const resource = this._resource();
     return resource && resource.data ? this.store.peekRecord(resource.data) : null;
   }
@@ -626,7 +631,7 @@ export default class BelongsToReference {
    @param {Object} options the options to pass in.
    @return {Promise} a promise that resolves with the record in this belongs-to relationship.
    */
-  async load(options?: Record<string, unknown>): Promise<OpaqueRecordInstance | null> {
+  async load(options?: Record<string, unknown>): Promise<Related | null> {
     const support: LegacySupport = (LEGACY_SUPPORT as Map<StableRecordIdentifier, LegacySupport>).get(
       this.___identifier
     )!;
@@ -636,7 +641,7 @@ export default class BelongsToReference {
       ? support.reloadBelongsTo(this.key, options).then(() => this.value())
       : // we cast to fix the return type since typescript and eslint don't understand async functions
         // properly
-        (support.getBelongsTo(this.key, options) as Promise<OpaqueRecordInstance | null>);
+        (support.getBelongsTo(this.key, options) as Promise<Related | null>);
   }
 
   /**

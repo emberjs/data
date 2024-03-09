@@ -30,8 +30,8 @@ class Model extends EmberObject {
   adapterError?: Error;
   toString(): string;
   save(): Promise<this>;
-  hasMany(key: keyof this & string): HasManyReference;
-  belongsTo(key: keyof this & string): BelongsToReference;
+  hasMany<T extends keyof this & string>(key: T): HasManyReference<this, T>;
+  belongsTo<T extends keyof this & string>(key: T): BelongsToReference<this, T>;
   eachRelationship<T extends Model, K extends keyof T & string>(
     callback: (this: T, key: K, meta: RelationshipSchema) => void,
     binding?: T
@@ -44,7 +44,6 @@ class Model extends EmberObject {
   rollbackAttributes(): void;
   changedAttributes(): Record<string, [unknown, unknown]>;
   id: string;
-  [key: string]: unknown;
   isSaving: boolean;
   isNew: boolean;
   isDeleted: boolean;

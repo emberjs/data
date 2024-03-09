@@ -7,9 +7,9 @@ import { defineSignal } from '@ember-data/tracking/-private';
 
 import type ManyArray from './many-array';
 
-export interface HasManyProxyCreateArgs {
-  promise: Promise<ManyArray>;
-  content?: ManyArray;
+export interface HasManyProxyCreateArgs<T = unknown> {
+  promise: Promise<ManyArray<T>>;
+  content?: ManyArray<T>;
 }
 
 /**
@@ -31,18 +31,15 @@ export interface HasManyProxyCreateArgs {
   @class PromiseManyArray
   @public
 */
-export default class PromiseManyArray {
-  declare promise: Promise<ManyArray> | null;
+export default class PromiseManyArray<T = unknown> {
+  declare promise: Promise<ManyArray<T>> | null;
   declare isDestroyed: boolean;
+  declare content: ManyArray<T> | null;
 
-  constructor(promise: Promise<ManyArray>, content?: ManyArray) {
+  constructor(promise: Promise<ManyArray<T>>, content?: ManyArray<T>) {
     this._update(promise, content);
     this.isDestroyed = false;
   }
-
-  //---- Methods/Properties on ArrayProxy that we will keep as our API
-
-  declare content: ManyArray | null;
 
   /**
    * Retrieve the length of the content
@@ -69,7 +66,7 @@ export default class PromiseManyArray {
    * @return
    * @private
    */
-  forEach(cb: Parameters<typeof Array.prototype.forEach>[0]) {
+  forEach(cb: (item: T, index: number, array: T[]) => void) {
     if (this.content && this.length) {
       this.content.forEach(cb);
     }
@@ -128,7 +125,7 @@ export default class PromiseManyArray {
    * @param fail
    * @return Promise
    */
-  then(s: Parameters<typeof Promise.prototype.then>[0], f: Parameters<typeof Promise.prototype.then>[1]) {
+  then(s: Parameters<Promise<ManyArray<T>>['then']>[0], f?: Parameters<Promise<ManyArray<T>>['then']>[1]) {
     return this.promise!.then(s, f);
   }
 
@@ -139,7 +136,7 @@ export default class PromiseManyArray {
    * @param callback
    * @return Promise
    */
-  catch(cb: Parameters<typeof Promise.prototype.catch>[0]) {
+  catch(cb: Parameters<Promise<ManyArray<T>>['catch']>[0]) {
     return this.promise!.catch(cb);
   }
 
@@ -151,7 +148,7 @@ export default class PromiseManyArray {
    * @param callback
    * @return Promise
    */
-  finally(cb: Parameters<typeof Promise.prototype.finally>[0]) {
+  finally(cb: Parameters<Promise<ManyArray<T>>['finally']>[0]) {
     return this.promise!.finally(cb);
   }
 
@@ -187,7 +184,7 @@ export default class PromiseManyArray {
 
   //---- Our own stuff
 
-  _update(promise: Promise<ManyArray>, content?: ManyArray) {
+  _update(promise: Promise<ManyArray<T>>, content?: ManyArray<T>) {
     if (content !== undefined) {
       this.content = content;
     }
@@ -195,7 +192,7 @@ export default class PromiseManyArray {
     this.promise = tapPromise(this, promise);
   }
 
-  static create({ promise, content }: HasManyProxyCreateArgs): PromiseManyArray {
+  static create<T>({ promise, content }: HasManyProxyCreateArgs<T>): PromiseManyArray<T> {
     return new this(promise, content);
   }
 }
@@ -227,7 +224,7 @@ if (DEPRECATE_COMPUTED_CHAINS) {
   Object.defineProperty(PromiseManyArray.prototype, '[]', desc);
 }
 
-function tapPromise(proxy: PromiseManyArray, promise: Promise<ManyArray>) {
+function tapPromise<T>(proxy: PromiseManyArray<T>, promise: Promise<ManyArray<T>>) {
   proxy.isPending = true;
   proxy.isSettled = false;
   proxy.isFulfilled = false;
