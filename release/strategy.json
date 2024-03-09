@@ -25,7 +25,7 @@
   },
   "defaults": {
     "stage": "stable",
-    "types": "private"
+    "types": "alpha"
   },
   "rules": {
     "@warp-drive/holodeck": {
@@ -42,7 +42,7 @@
     },
     "@warp-drive/core-types": {
       "stage": "alpha",
-      "types": "private"
+      "types": "alpha"
     },
     "@warp-drive/schema": {
       "stage": "alpha",
