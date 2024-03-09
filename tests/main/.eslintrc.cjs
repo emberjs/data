@@ -31,15 +31,15 @@ module.exports = {
     // files converted to strict must pass these rules before they can be removed from
     // the files list here
     // see https://github.com/emberjs/data/issues/6233#issuecomment-849279594
-    typescript.defaults({
-      files: [],
-      rules: {
-        '@typescript-eslint/no-unsafe-assignment': 'off',
-        '@typescript-eslint/no-unsafe-call': 'off',
-        '@typescript-eslint/no-unsafe-member-access': 'off',
-        '@typescript-eslint/no-unsafe-return': 'off',
-      },
-    }),
+    // typescript.defaults({
+    //   files: [],
+    //   rules: {
+    //     '@typescript-eslint/no-unsafe-assignment': 'off',
+    //     '@typescript-eslint/no-unsafe-call': 'off',
+    //     '@typescript-eslint/no-unsafe-member-access': 'off',
+    //     '@typescript-eslint/no-unsafe-return': 'off',
+    //   },
+    // }),
     qunit.defaults({
       files: ['tests/**/*.{js,ts}'],
       allowedImports: [
