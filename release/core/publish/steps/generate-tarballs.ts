@@ -226,16 +226,16 @@ async function amendFilesForTypesStrategy(pkg: Package, strategy: APPLIED_STRATE
   }
   switch (strategy.types) {
     case 'private':
-      makeTypesPrivate(pkg);
+      await makeTypesPrivate(pkg);
       break;
     case 'alpha':
-      makeTypesAlpha(pkg);
+      await makeTypesAlpha(pkg);
       break;
     case 'beta':
-      makeTypesBeta(pkg);
+      await makeTypesBeta(pkg);
       break;
     case 'stable':
-      makeTypesStable(pkg);
+      await makeTypesStable(pkg);
       break;
   }
   await pkg.file.write(true);

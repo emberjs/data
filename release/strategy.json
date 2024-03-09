@@ -28,6 +28,14 @@
     "types": "alpha"
   },
   "rules": {
+    "@ember-data/debug": {
+      "stage": "stable",
+      "types": "private"
+    },
+    "@ember-data/private-build-infra": {
+      "stage": "stable",
+      "types": "private"
+    },
     "@warp-drive/holodeck": {
       "stage": "alpha",
       "types": "private"
