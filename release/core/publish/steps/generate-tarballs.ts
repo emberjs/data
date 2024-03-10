@@ -4,6 +4,7 @@ import { APPLIED_STRATEGY, Package } from '../../../utils/package';
 import path from 'path';
 import fs from 'fs';
 import { Glob } from 'bun';
+import { getFile } from '../../../utils/json-file';
 
 const PROJECT_ROOT = process.cwd();
 const TARBALL_DIR = path.join(PROJECT_ROOT, 'tmp/tarballs');
@@ -137,6 +138,133 @@ async function makeTypesPrivate(pkg: Package) {
   });
 }
 
+// convert each file to a module
+// and write it back to the file system
+// e.g.
+// ```
+// declare module '@ember-data/model' {
+//   export default class Model {}
+// }
+// ```
+//
+// instead of
+// ```
+// export default class Model {}
+// ```
+//
+// additionally, rewrite each relative import
+// to an absolute import
+// e.g. if the types for @ember-data/model contain a file with
+// the following import statement in the types directory
+//
+// ```
+// import attr from './attr';
+// ```
+//
+// then it becomes
+//
+// ```
+// import attr from '@ember-data/model/attr';
+// ```
+async function convertFileToModule(fileData: string, relativePath: string, pkgName: string): Promise<string> {
+  const lines = fileData.split('\n');
+  const maybeModuleName = pkgName + '/' + relativePath.replace(/\.d\.ts$/, '');
+  const moduleDir = pkgName + '/' + path.dirname(relativePath);
+  const moduleName =
+    maybeModuleName.endsWith('/index') && !maybeModuleName.endsWith('/-private/index')
+      ? maybeModuleName.slice(0, -6)
+      : maybeModuleName;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (line.startsWith('import ')) {
+      if (!line.includes(`'`)) {
+        throw new Error(`Unhandled import in ${relativePath}`);
+      }
+      if (line.includes(`'.`)) {
+        const importPath = line.match(/'([^']+)'/)![1];
+        const newImportPath = path.join(moduleDir, importPath);
+        lines[i] = line.replace(importPath, newImportPath);
+      }
+    }
+
+    // fix re-exports
+    else if (line.startsWith('export {')) {
+      if (!line.includes('}')) {
+        throw new Error(`Unhandled re-export in ${relativePath}`);
+      }
+      if (line.includes(`'.`)) {
+        const importPath = line.match(/'([^']+)'/)![1];
+        const newImportPath = path.join(moduleDir, importPath);
+        lines[i] = line.replace(importPath, newImportPath);
+      }
+    }
+
+    // fix * re-exports
+    else if (line.startsWith('export * from')) {
+      if (!line.includes(`'`)) {
+        throw new Error(`Unhandled re-export in ${relativePath}`);
+      }
+      if (line.includes(`'.`)) {
+        const importPath = line.match(/'([^']+)'/)![1];
+        const newImportPath = path.join(moduleDir, importPath);
+        lines[i] = line.replace(importPath, newImportPath);
+      }
+    }
+
+    // insert 2 spaces at the beginning of each line
+    // to account for module wrapper
+    lines[i] = '  ' + lines[i];
+  }
+
+  lines.unshift(`declare module '${moduleName}' {`);
+  const srcMapLine = lines.at(-1)!;
+  if (!srcMapLine.startsWith('//# sourceMappingURL=')) {
+    lines.push('}');
+  } else {
+    lines.splice(-1, 0, '}');
+  }
+
+  const updatedFileData = lines.join('\n');
+
+  return updatedFileData;
+}
+
+async function convertTypesToModules(pkg: Package, subdir: 'unstable-preview-types' | 'preview-types' | 'types') {
+  const typesDir = path.join(path.dirname(pkg.filePath), subdir);
+  const glob = new Glob('**/*.d.ts');
+
+  // we will insert a reference to each file in the index.d.ts
+  // so that all modules are available to consumers
+  // as soon as the tsconfig sources the types directory
+  const references = new Set<string>();
+
+  // convert each file to a module
+  for await (const filePath of glob.scan(typesDir)) {
+    const fullPath = path.join(typesDir, filePath);
+    const file = Bun.file(fullPath);
+    const fileData = await file.text();
+    const updatedFileData = await convertFileToModule(fileData, filePath, pkg.pkgData.name);
+
+    if (filePath !== 'index.d.ts') {
+      references.add(`/// <reference path="./${filePath}" />`);
+    }
+
+    await Bun.write(file, updatedFileData);
+  }
+
+  // write the references into the index.d.ts
+  const indexFile = Bun.file(path.join(typesDir, 'index.d.ts'));
+  const exists = await indexFile.exists();
+  if (!exists) {
+    await Bun.write(indexFile, Array.from(references).join('\n'));
+  } else {
+    const fileData = await indexFile.text();
+    const updatedFileData = Array.from(references).join('\n') + '\n' + fileData;
+    await Bun.write(indexFile, updatedFileData);
+  }
+}
+
 async function makeTypesAlpha(pkg: Package) {
   scrubTypesFromExports(pkg);
 
@@ -157,6 +285,8 @@ async function makeTypesAlpha(pkg: Package) {
       `Unexpected types directory in published files for ${pkg.pkgData.name}. This package is using an alpha types strategy, and should thus publish an unstable-preview-types directory.`
     );
   }
+
+  await convertTypesToModules(pkg, 'unstable-preview-types');
 
   // TODO we should probably scan our dist/addon directories for ts/.d.ts files and throw if found.
 }
