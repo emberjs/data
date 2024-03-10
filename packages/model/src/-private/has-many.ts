@@ -258,12 +258,12 @@ export function hasMany(): never;
 export function hasMany(type: string): never;
 export function hasMany<T>(
   type: TypeFromInstance<NoNull<T>>,
-  options: RelationshipOptions<T, false>
+  options: RelationshipOptions<T, boolean>
 ): RelationshipDecorator<T>;
-export function hasMany<K extends Promise<unknown>, T extends Awaited<K> = Awaited<K>>(
-  type: TypeFromInstance<NoNull<T>>,
-  options: RelationshipOptions<T, true>
-): RelationshipDecorator<K>;
+// export function hasMany<K extends Promise<unknown>, T extends Awaited<K> = Awaited<K>>(
+//   type: TypeFromInstance<NoNull<T>>,
+//   options: RelationshipOptions<T, true>
+// ): RelationshipDecorator<K>;
 export function hasMany(type: string, options: RelationshipOptions<unknown, boolean>): RelationshipDecorator<unknown>;
 export function hasMany<T>(
   type?: TypeFromInstance<NoNull<T>>,

@@ -60,6 +60,33 @@ expectTypeOf(branded.bestFriend).toEqualTypeOf<BrandedUser>();
 expectTypeOf<Awaited<typeof branded.friends>>().toEqualTypeOf<ManyArray<BrandedUser>>();
 expectTypeOf<Awaited<typeof branded.twin>>().toEqualTypeOf<BrandedUser | null>();
 
+class BrandedTypedUser extends Model {
+  @attr('string') declare name: string | null;
+  @hasMany<BrandedTypedUser>('user', { async: false, inverse: null }) declare enemies: ManyArray<BrandedTypedUser>;
+  @belongsTo<BrandedTypedUser>('user', { async: false, inverse: null }) declare bestFriend: BrandedTypedUser;
+  @hasMany<BrandedTypedUser>('user', { async: true, inverse: 'friends' })
+  declare friends: PromiseManyArray<BrandedTypedUser>;
+  @belongsTo<BrandedTypedUser>('user', { async: true, inverse: 'twin' })
+  declare twin: PromiseBelongsTo<BrandedTypedUser>;
+  @hasMany<BrandedTypedUser>('user', { async: false, inverse: 'leader' })
+  declare crew: PromiseManyArray<BrandedTypedUser>;
+  @belongsTo<BrandedTypedUser>('user', { async: false, inverse: 'crew' })
+  declare leader: PromiseBelongsTo<BrandedTypedUser>;
+
+  [ResourceType] = 'user' as const;
+}
+const brandedAndTyped = new BrandedTypedUser();
+
+expectTypeOf<Awaited<PromiseManyArray<BrandedTypedUser>>['modelName']>().toEqualTypeOf<'user'>();
+expectTypeOf<ManyArray<BrandedTypedUser>['modelName']>().toEqualTypeOf<'user'>();
+expectTypeOf<ManyArray<BrandedTypedUser>>().toMatchTypeOf<BrandedTypedUser[]>();
+
+expectTypeOf(brandedAndTyped.name).toEqualTypeOf<string | null>();
+expectTypeOf(brandedAndTyped.enemies).toEqualTypeOf<ManyArray<BrandedTypedUser>>();
+expectTypeOf(brandedAndTyped.bestFriend).toEqualTypeOf<BrandedTypedUser>();
+expectTypeOf<Awaited<typeof brandedAndTyped.friends>>().toEqualTypeOf<ManyArray<BrandedTypedUser>>();
+expectTypeOf<Awaited<typeof brandedAndTyped.twin>>().toEqualTypeOf<BrandedTypedUser | null>();
+
 // ------------------------------
 // References
 // ------------------------------

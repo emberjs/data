@@ -275,12 +275,12 @@ export function belongsTo(): never;
 export function belongsTo(type: string): never;
 export function belongsTo<T>(
   type: TypeFromInstance<NoNull<T>>,
-  options: RelationshipOptions<T, false>
+  options: RelationshipOptions<T, boolean>
 ): RelationshipDecorator<T>;
-export function belongsTo<K extends Promise<unknown>, T extends Awaited<K> = Awaited<K>>(
-  type: TypeFromInstance<NoNull<T>>,
-  options: RelationshipOptions<T, true>
-): RelationshipDecorator<K>;
+// export function belongsTo<K extends Promise<unknown>, T extends Awaited<K> = Awaited<K>>(
+//   type: TypeFromInstance<NoNull<T>>,
+//   options: RelationshipOptions<T, true>
+// ): RelationshipDecorator<K>;
 export function belongsTo(type: string, options: RelationshipOptions<unknown, boolean>): RelationshipDecorator<unknown>;
 export function belongsTo<T>(
   type?: TypeFromInstance<NoNull<T>>,
