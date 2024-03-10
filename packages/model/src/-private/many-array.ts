@@ -5,6 +5,7 @@ import { assert, deprecate } from '@ember/debug';
 
 import { DEPRECATE_MANY_ARRAY_DUPLICATES } from '@ember-data/deprecations';
 import type Store from '@ember-data/store';
+import type { NativeProxy } from '@ember-data/store/-private';
 import {
   ARRAY_SIGNAL,
   isStableIdentifier,
@@ -171,7 +172,7 @@ export default class RelatedCollection<T = unknown> extends RecordArray<T> {
 
   [MUTATE](
     target: StableRecordIdentifier[],
-    receiver: typeof Proxy<StableRecordIdentifier[], T[]>,
+    receiver: typeof NativeProxy<StableRecordIdentifier[], T[]>,
     prop: string,
     args: unknown[],
     _SIGNAL: Signal
