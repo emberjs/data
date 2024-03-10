@@ -176,7 +176,7 @@ async function convertFileToModule(fileData: string, relativePath: string, pkgNa
       : maybeModuleName;
 
   for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
+    const line = lines[i].replace(/^declare /, '').replaceAll(' declare ', '');
     if (line.startsWith('import ')) {
       if (!line.includes(`'`)) {
         throw new Error(`Unhandled import in ${relativePath}`);
@@ -214,7 +214,7 @@ async function convertFileToModule(fileData: string, relativePath: string, pkgNa
 
     // insert 2 spaces at the beginning of each line
     // to account for module wrapper
-    lines[i] = '  ' + lines[i];
+    if (!lines[i].startsWith('//# sourceMappingURL=')) lines[i] = '  ' + lines[i];
   }
 
   lines.unshift(`declare module '${moduleName}' {`);

@@ -22,6 +22,7 @@ import { isStableIdentifier } from '../caches/identifier-cache';
 import { recordIdentifierFor } from '../caches/instance-cache';
 import type RecordArrayManager from '../managers/record-array-manager';
 import type Store from '../store-service';
+import { NativeProxy } from './native-proxy-type-fix';
 
 type KeyType = string | symbol | number;
 const ARRAY_GETTER_METHODS = new Set<KeyType>([
@@ -81,11 +82,6 @@ function convertToInt(prop: KeyType): number | null {
 }
 
 type ProxiedMethod = (...args: unknown[]) => unknown;
-declare global {
-  interface ProxyConstructor {
-    new <TSource extends object, TTarget extends object>(target: TSource, handler: ProxyHandler<TSource>): TTarget;
-  }
-}
 
 export type IdentifierArrayCreateOptions<T = unknown> = {
   identifiers: StableRecordIdentifier[];
@@ -101,9 +97,9 @@ interface PrivateState {
   links: Links | PaginationLinks | null;
   meta: Record<string, unknown> | null;
 }
-type ForEachCB<T> = (record: T, index: number, context: typeof Proxy<StableRecordIdentifier[], T[]>) => void;
+type ForEachCB<T> = (record: T, index: number, context: typeof NativeProxy<StableRecordIdentifier[], T[]>) => void;
 function safeForEach<T>(
-  instance: typeof Proxy<StableRecordIdentifier[], T[]>,
+  instance: typeof NativeProxy<StableRecordIdentifier[], T[]>,
   arr: StableRecordIdentifier[],
   store: Store,
   callback: ForEachCB<T>,
@@ -144,7 +140,7 @@ function safeForEach<T>(
 interface IdentifierArray<T = unknown> extends Omit<Array<T>, '[]'> {
   [MUTATE]?(
     target: StableRecordIdentifier[],
-    receiver: typeof Proxy<StableRecordIdentifier[], T[]>,
+    receiver: typeof NativeProxy<StableRecordIdentifier[], T[]>,
     prop: string,
     args: unknown[],
     _SIGNAL: Signal
@@ -231,8 +227,8 @@ class IdentifierArray<T = unknown> {
     // we track all mutations within the call
     // and forward them as one
 
-    const proxy = new Proxy<StableRecordIdentifier[], T[]>(this[SOURCE], {
-      get<R extends typeof Proxy<StableRecordIdentifier[], T[]>>(
+    const proxy = new NativeProxy<StableRecordIdentifier[], T[]>(this[SOURCE], {
+      get<R extends typeof NativeProxy<StableRecordIdentifier[], T[]>>(
         target: StableRecordIdentifier[],
         prop: keyof R,
         receiver: R
@@ -344,7 +340,7 @@ class IdentifierArray<T = unknown> {
         target: StableRecordIdentifier[],
         prop: KeyType,
         value: unknown,
-        receiver: typeof Proxy<StableRecordIdentifier[], T[]>
+        receiver: typeof NativeProxy<StableRecordIdentifier[], T[]>
       ): boolean {
         if (prop === 'length') {
           if (!transaction && value === 0) {
