@@ -170,10 +170,7 @@ async function convertFileToModule(fileData: string, relativePath: string, pkgNa
   const lines = fileData.split('\n');
   const maybeModuleName = pkgName + '/' + relativePath.replace(/\.d\.ts$/, '');
   const moduleDir = pkgName + '/' + path.dirname(relativePath);
-  const moduleName =
-    maybeModuleName.endsWith('/index') && !maybeModuleName.endsWith('/-private/index')
-      ? maybeModuleName.slice(0, -6)
-      : maybeModuleName;
+  const moduleName = maybeModuleName.endsWith('/index') ? maybeModuleName.slice(0, -6) : maybeModuleName;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].replace(/^declare /, '').replaceAll(' declare ', '');
