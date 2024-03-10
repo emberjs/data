@@ -130,6 +130,11 @@ import Resolver from 'ember-resolver';
 import loadInitializers from 'ember-load-initializers';
 import config from 'base-ember-typescript-app/config/environment';
 +import { setBuildURLConfig } from '@ember-data/request-utils';
++
++setBuildURLConfig({
++  host: 'https://api.example.com',
++  namespace: 'v1',
++});
 
 export default class App extends Application {
   modulePrefix = config.modulePrefix;
@@ -138,9 +143,4 @@ export default class App extends Application {
 }
 
 loadInitializers(App, config.modulePrefix);
-
-+setBuildURLConfig({
-+  host: 'https://api.example.com',
-+  namespace: 'v1',
-+});
 ```

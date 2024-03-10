@@ -2,18 +2,12 @@ import Route from '@ember/routing/route';
 import { service } from '@ember/service';
 
 import { query } from '@ember-data/json-api/request';
-import { setBuildURLConfig } from '@ember-data/request-utils';
 import type Store from '@ember-data/store';
 import type { Document } from '@ember-data/store/-private/document';
 
 import type Author from '../models/author';
 import type Book from '../models/book';
 import type Genre from '../models/genre';
-
-setBuildURLConfig({
-  host: '/',
-  namespace: 'api',
-});
 
 export default class ApplicationRoute extends Route {
   @service declare store: Store;
