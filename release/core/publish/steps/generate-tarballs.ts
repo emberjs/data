@@ -4,7 +4,6 @@ import { APPLIED_STRATEGY, Package } from '../../../utils/package';
 import path from 'path';
 import fs from 'fs';
 import { Glob } from 'bun';
-import { getFile } from '../../../utils/json-file';
 
 const PROJECT_ROOT = process.cwd();
 const TARBALL_DIR = path.join(PROJECT_ROOT, 'tmp/tarballs');
@@ -176,9 +175,13 @@ async function convertFileToModule(fileData: string, relativePath: string, pkgNa
     lines[i] = lines[i].replace(/^declare /, '').replaceAll(' declare ', ' ');
     const line = lines[i];
 
+    if (line.includes(`import(".`) || line.includes(`import('.`)) {
+      throw new Error(`Unhandled Dynamic Relative Import in ${relativePath}`);
+    }
+
     if (line.startsWith('import ')) {
       if (!line.includes(`'`)) {
-        throw new Error(`Unhandled import in ${relativePath}`);
+        throw new Error(`Unhandled Import in ${relativePath}`);
       }
       if (line.includes(`'.`)) {
         const importPath = line.match(/'([^']+)'/)![1];
@@ -190,7 +193,7 @@ async function convertFileToModule(fileData: string, relativePath: string, pkgNa
     // fix re-exports
     else if (line.startsWith('export {')) {
       if (!line.includes('}')) {
-        throw new Error(`Unhandled re-export in ${relativePath}`);
+        throw new Error(`Unhandled Re-export in ${relativePath}`);
       }
       if (line.includes(`'.`)) {
         const importPath = line.match(/'([^']+)'/)![1];
@@ -202,7 +205,7 @@ async function convertFileToModule(fileData: string, relativePath: string, pkgNa
     // fix * re-exports
     else if (line.startsWith('export * from')) {
       if (!line.includes(`'`)) {
-        throw new Error(`Unhandled re-export in ${relativePath}`);
+        throw new Error(`Unhandled Re-export in ${relativePath}`);
       }
       if (line.includes(`'.`)) {
         const importPath = line.match(/'([^']+)'/)![1];
