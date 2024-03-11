@@ -300,7 +300,7 @@ export default class RelatedCollection<T = unknown> extends RecordArray<T> {
         const [start, deleteCount, ...adds] = args as [number, number, ...OpaqueRecordInstance[]];
 
         // detect a full replace
-        if (start === 0 && deleteCount === this[SOURCE].length) {
+        if (start === 0 && deleteCount === this[SOURCE].length && this[SOURCE].length > 0) {
           const newValues = extractIdentifiersFromRecords(adds);
 
           assertNoDuplicates(
