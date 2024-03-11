@@ -743,11 +743,11 @@ export default class HasManyReference<
    @param {Object} options the options to pass in.
    @return {Promise} a promise that resolves with the ManyArray in this has-many relationship.
    */
-  reload(options?: BaseFinderOptions) {
+  reload(options?: BaseFinderOptions): Promise<ManyArray<Related>> {
     const support: LegacySupport = (LEGACY_SUPPORT as Map<StableRecordIdentifier, LegacySupport>).get(
       this.___identifier
     )!;
-    return support.reloadHasMany(this.key, options);
+    return support.reloadHasMany(this.key, options) as Promise<ManyArray<Related>>;
   }
 }
 defineSignal(HasManyReference.prototype, '_ref', 0);

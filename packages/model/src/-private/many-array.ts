@@ -390,10 +390,10 @@ export default class RelatedCollection<T = unknown> extends RecordArray<T> {
   /**
     Reloads all of the records in the manyArray. If the manyArray
     holds a relationship that was originally fetched using a links url
-    Ember Data will revisit the original links url to repopulate the
+    EmberData will revisit the original links url to repopulate the
     relationship.
 
-    If the manyArray holds the result of a `store.query()` reload will
+    If the ManyArray holds the result of a `store.query()` reload will
     re-run the original query.
 
     Example
@@ -409,9 +409,9 @@ export default class RelatedCollection<T = unknown> extends RecordArray<T> {
     @method reload
     @public
   */
-  reload(options?: BaseFinderOptions) {
+  reload(options?: BaseFinderOptions): Promise<this> {
     // TODO this is odd, we don't ask the store for anything else like this?
-    return this._manager.reloadHasMany(this.key, options);
+    return this._manager.reloadHasMany<T>(this.key, options) as Promise<this>;
   }
 
   /**
