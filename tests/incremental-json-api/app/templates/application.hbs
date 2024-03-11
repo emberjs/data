@@ -2,14 +2,7 @@
 
 <table>
   <tbody>
-    <tr>
-      <td><h2>Old Books</h2>{{@model.oldBooks.length}}</td>
-      <td>
-        {{#each @model.oldBooks as |book|}}
-          <p>{{book.title}}</p>
-        {{/each}}
-      </td>
-    </tr>
+
     <tr>
       <td>
         <h2>Browse</h2>
@@ -24,3 +17,14 @@
 </table>
 
 {{outlet}}
+<section>
+  <h2>Old Books({{@model.oldBooks.length}})</h2>
+    <ul>
+      {{#each @model.oldBooks as |book|}}
+        <li>
+          <strong>{{book.title}}</strong> ({{book.genre}}) - {{book.publicationDate}}
+          <br> by <em>{{book.author}}</em> ISBN: {{book.isbn}}
+        </li>
+      {{/each}}
+    </ul>
+</section>
