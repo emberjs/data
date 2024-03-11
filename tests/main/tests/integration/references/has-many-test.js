@@ -9,30 +9,30 @@ import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in
 
 import createTrackingContext from '../../helpers/create-tracking-context';
 
+class Family extends Model {
+  @hasMany('person', { async: true, inverse: 'family' }) persons;
+}
+
+class Person extends Model {
+  @attr name;
+  @belongsTo('family', { async: true, inverse: 'persons' }) family;
+  @hasMany('pet', { async: true, inverse: null }) pets;
+}
+
+class Pet extends Model {
+  @attr name;
+}
+
 module('integration/references/has-many', function (hooks) {
   setupRenderingTest(hooks);
 
   hooks.beforeEach(function () {
-    const Family = Model.extend({
-      persons: hasMany('person', { async: true, inverse: 'family' }),
-    });
-
-    const Person = Model.extend({
-      name: attr(),
-      family: belongsTo('family', { async: true, inverse: 'persons' }),
-      pets: hasMany('pet', { async: true, inverse: null }),
-    });
-
-    const Pet = Model.extend({
-      name: attr(),
-    });
-
     this.owner.register('model:family', Family);
     this.owner.register('model:person', Person);
     this.owner.register('model:pet', Pet);
 
-    this.owner.register('adapter:application', Adapter.extend());
-    this.owner.register('serializer:application', class extends JSONAPISerializer {});
+    this.owner.register('adapter:application', Adapter);
+    this.owner.register('serializer:application', JSONAPISerializer);
   });
 
   testInDebug("record#hasMany asserts when specified relationship doesn't exist", function (assert) {
@@ -91,6 +91,18 @@ module('integration/references/has-many', function (hooks) {
     assert.strictEqual(personsReference.remoteType(), 'ids');
     assert.strictEqual(personsReference.type, 'person');
     assert.deepEqual(personsReference.ids(), ['1', '2']);
+  });
+
+  test('ref.ids() updates when using createRecord', async function (assert) {
+    const store = this.owner.lookup('service:store');
+
+    const family = store.createRecord('family');
+    const person1 = store.createRecord('person', {});
+    assert.strictEqual(family.hasMany('persons').ids().length, 0);
+
+    family.persons = [person1];
+
+    assert.strictEqual(family.hasMany('persons').ids().length, 1);
   });
 
   test('record#hasMany for linked references', function (assert) {

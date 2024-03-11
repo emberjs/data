@@ -78,6 +78,13 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   const identifiers = op.value;
   const relationship = graph.get(op.record, op.field);
   assert(`expected hasMany relationship`, isHasMany(relationship));
+
+  // relationships for newly created records begin in the dirty state, so if updated
+  // before flushed we would fail to notify. This check helps us avoid that.
+  const isMaybeFirstUpdate =
+    relationship.remoteState.length === 0 &&
+    relationship.localState === null &&
+    relationship.state.hasReceivedData === false;
   relationship.state.hasReceivedData = true;
   const { additions, removals } = relationship;
   const { inverseKey, type } = relationship.definition;
@@ -151,7 +158,10 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   relationship.localState = diff.finalState;
   relationship.isDirty = wasDirty;
 
-  if (!wasDirty /*&& becameDirty // TODO to guard like this we need to detect reorder when diffing local */) {
+  if (
+    isMaybeFirstUpdate ||
+    !wasDirty /*&& becameDirty // TODO to guard like this we need to detect reorder when diffing local */
+  ) {
     notifyChange(graph, op.record, op.field);
   }
 }
