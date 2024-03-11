@@ -173,7 +173,9 @@ async function convertFileToModule(fileData: string, relativePath: string, pkgNa
   const moduleName = maybeModuleName.endsWith('/index') ? maybeModuleName.slice(0, -6) : maybeModuleName;
 
   for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].replace(/^declare /, '').replaceAll(' declare ', '');
+    lines[i] = lines[i].replace(/^declare /, '').replaceAll(' declare ', ' ');
+    const line = lines[i];
+
     if (line.startsWith('import ')) {
       if (!line.includes(`'`)) {
         throw new Error(`Unhandled import in ${relativePath}`);
