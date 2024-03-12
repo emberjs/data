@@ -11,7 +11,8 @@
  * @module @ember-data/request/fetch
  * @main @ember-data/request/fetch
  */
-import { getOwnConfig, macroCondition } from '@embroider/macros';
+
+import { DEBUG } from '@ember-data/env';
 
 import { cloneResponseProperties, type Context } from './-private/context';
 import type { HttpErrorProps } from './-private/utils';
@@ -34,9 +35,13 @@ function cloneResponse(response: Response, overrides: Partial<Response>) {
 }
 
 let IS_MAYBE_MIRAGE = () => false;
-if (macroCondition(getOwnConfig<{ env: { TESTING: boolean } }>().env.TESTING)) {
+if (DEBUG) {
   IS_MAYBE_MIRAGE = () =>
-    Boolean(typeof window !== 'undefined' && (window as { server?: { pretender: unknown } }).server?.pretender);
+    Boolean(
+      typeof window !== 'undefined' &&
+        ((window as { server?: { pretender: unknown } }).server?.pretender ||
+          window.fetch.toString() !== 'function fetch() { [native code] }')
+    );
 }
 
 const MUTATION_OPS = new Set(['updateRecord', 'createRecord', 'deleteRecord']);
