@@ -60,7 +60,7 @@ export async function generatePackageTarballs(
       const pkgDir = path.join(PROJECT_ROOT, path.dirname(pkg.filePath));
       const tarballPath = path.join(tarballDir, `${toTarballName(pkg.pkgData.name)}-${pkg.pkgData.version}.tgz`);
       pkg.tarballPath = tarballPath;
-      await exec({ cwd: pkgDir, cmd: `pnpm pack --pack-destination=${tarballDir}`, condense: true });
+      await exec({ cwd: pkgDir, cmd: `npm pack --pack-destination=${tarballDir}`, condense: true });
     } catch (e) {
       console.log(`🔴 ${chalk.redBright('failed to generate tarball for')} ${chalk.yellow(pkg.pkgData.name)}`);
       throw e;
