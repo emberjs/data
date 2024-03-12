@@ -13,6 +13,8 @@ import { RecordStore } from '@warp-drive/core-types/symbols';
 import type Errors from './errors';
 import { lookupLegacySupport } from './legacy-relationships-support';
 import type RecordState from './record-state';
+import type BelongsToReference from './references/belongs-to';
+import type HasManyReference from './references/has-many';
 
 export interface MinimalLegacyRecord {
   errors: Errors;
@@ -51,11 +53,11 @@ export function unloadRecord(this: MinimalLegacyRecord) {
   this[RecordStore].unloadRecord(this);
 }
 
-export function belongsTo(this: MinimalLegacyRecord, prop: string) {
+export function belongsTo(this: MinimalLegacyRecord, prop: string): BelongsToReference {
   return lookupLegacySupport(this).referenceFor('belongsTo', prop);
 }
 
-export function hasMany(this: MinimalLegacyRecord, prop: string) {
+export function hasMany(this: MinimalLegacyRecord, prop: string): HasManyReference {
   return lookupLegacySupport(this).referenceFor('hasMany', prop);
 }
 

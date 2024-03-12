@@ -27,6 +27,7 @@ import type { CollectionRelationship } from '@warp-drive/core-types/cache/relati
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
 import type { CollectionResourceRelationship, SingleResourceRelationship } from '@warp-drive/core-types/spec/raw';
 
+import type { ManyArray } from '../-private';
 import RelatedCollection from './many-array';
 import type { MinimalLegacyRecord } from './model-methods';
 import type { BelongsToProxyCreateArgs, BelongsToProxyMeta } from './promise-belongs-to';
@@ -298,11 +299,11 @@ export class LegacySupport {
     assert('hasMany only works with the @ember-data/json-api package');
   }
 
-  reloadHasMany(key: string, options?: BaseFinderOptions) {
+  reloadHasMany<T>(key: string, options?: BaseFinderOptions): Promise<ManyArray<T>> | PromiseManyArray<T> {
     if (HAS_JSON_API_PACKAGE) {
       const loadingPromise = this._relationshipPromisesCache[key];
       if (loadingPromise) {
-        return loadingPromise;
+        return loadingPromise as Promise<ManyArray<T>>;
       }
       const relationship = this.graph.get(this.identifier, key) as CollectionEdge;
       const { definition, state } = relationship;
@@ -313,10 +314,10 @@ export class LegacySupport {
       const promise = this.fetchAsyncHasMany(key, relationship, manyArray, options);
 
       if (this._relationshipProxyCache[key]) {
-        return this._updatePromiseProxyFor('hasMany', key, { promise });
+        return this._updatePromiseProxyFor('hasMany', key, { promise }) as PromiseManyArray<T>;
       }
 
-      return promise;
+      return promise as Promise<ManyArray<T>>;
     }
     assert(`hasMany only works with the @ember-data/json-api package`);
   }
@@ -388,7 +389,9 @@ export class LegacySupport {
     return promiseProxy;
   }
 
-  referenceFor(kind: string | null, name: string) {
+  referenceFor(kind: 'belongsTo', name: string): BelongsToReference;
+  referenceFor(kind: 'hasMany', name: string): HasManyReference;
+  referenceFor(kind: 'belongsTo' | 'hasMany', name: string) {
     let reference = this.references[name];
 
     if (!reference) {

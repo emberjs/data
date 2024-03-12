@@ -10,7 +10,6 @@ import type { TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 
 import type { LegacySupport } from './legacy-relationships-support';
 import { PromiseObject } from './promise-proxy-base';
-import type BelongsToReference from './references/belongs-to';
 
 export interface BelongsToProxyMeta<T = unknown> {
   key: string;
@@ -51,9 +50,9 @@ class PromiseBelongsTo<T = unknown> extends Extended<T> {
   declare _belongsToState: BelongsToProxyMeta<T>;
 
   @cached
-  get id() {
+  get id(): string | null {
     const { key, legacySupport } = this._belongsToState;
-    const ref = legacySupport.referenceFor('belongsTo', key) as BelongsToReference;
+    const ref = legacySupport.referenceFor('belongsTo', key);
 
     return ref.id();
   }
