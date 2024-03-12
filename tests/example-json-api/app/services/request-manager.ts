@@ -1,7 +1,6 @@
 import { LegacyNetworkHandler } from '@ember-data/legacy-compat';
 import type { Handler, NextFn, RequestContext } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
-import type { GenericCreateArgs } from '@ember-data/request/-private/types';
 import Fetch from '@ember-data/request/fetch';
 
 /* eslint-disable no-console */
@@ -15,7 +14,7 @@ const TestHandler: Handler = {
 };
 
 export default class Requests extends RequestManager {
-  constructor(args: GenericCreateArgs) {
+  constructor(args?: Record<string | symbol, unknown>) {
     super(args);
     this.use([LegacyNetworkHandler, TestHandler, Fetch]);
   }
