@@ -16,13 +16,29 @@ export VOLTA_FEATURE_PNPM=1;
 
 > **Note** if you have previously installed pnpm globally via other means you should uninstall it from all other locations first. You may also need to uninstall nvm or other node version managers if they turn out to conflict.
 
-2. Clone the repository
+2. Install bun.sh
+
+If you don't already have [bun.sh](https://bun.sh/) 
+For MacOS and Linux 
+```sh
+curl -fsSL https://bun.sh/install | bash
+```
+can be done using homebrew, npm or Docker (User choice) checkout installation [doc](https://bun.sh/docs/installation#macos-and-linux)
+
+For Windows 
+```sh
+# WARNING: No stability is guaranteed on the experimental Windows builds
+powershell -c "irm bun.sh/install.ps1|iex"
+```
+Installation [doc](https://bun.sh/docs/installation#windows) 
+
+3. Clone the repository
 
 ```sh
 git clone git@github.com:emberjs/data.git
 ```
 
-3. Install the project dependencies
+4. Install the project dependencies
 
 ```sh
 cd data && pnpm install
@@ -30,7 +46,7 @@ cd data && pnpm install
 
 Currently the install command is also what builds all of the individual packages in the monorepo and hardlinks them together, so if making changes to one package that need to be used by another you will need to rerun `pnpm install` for the changes to be picked up.
 
-4. Run some commands
+5. Run some commands
 
 Generally test and lint commands can be found in the `"scripts"` section of the root `package.json` manifest. Individual packages or test packages have additional commands in the `"scripts"` section of their own `package.json` manifest as well.
 
