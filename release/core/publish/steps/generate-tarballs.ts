@@ -122,10 +122,6 @@ function scrubTypesFromExports(pkg: Package) {
 async function makeTypesPrivate(pkg: Package) {
   scrubTypesFromExports(pkg);
 
-  // remove @warp-drive/core-types from dependencies and peerDependencies
-  pkg.pkgData.dependencies?.['@warp-drive/core-types'];
-  pkg.pkgData.peerDependencies?.['@warp-drive/core-types'];
-
   // deactivate build types command
   if (pkg.pkgData.scripts?.['build:types']) {
     pkg.pkgData.scripts['build:types'] = 'echo "Types are private" && exit 0';
