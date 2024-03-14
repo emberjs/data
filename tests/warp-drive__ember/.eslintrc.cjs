@@ -30,7 +30,7 @@ module.exports = {
     typescript.defaults(),
     qunit.defaults({
       files: ['tests/**/*.{js,ts}'],
-      allowedImports: ['@glimmer/component', '@ember/object', '@ember/owner'],
+      allowedImports: ['@glimmer/tracking', '@glimmer/component', '@ember/object', '@ember/owner'],
     }),
   ],
 };

@@ -435,12 +435,16 @@ For usage of the store's `requestManager` via `store.request(<req>)` see the
 import { importSync } from '@embroider/macros';
 
 import { DEBUG, TESTING } from '@ember-data/env';
-import type { RequestInfo } from '@warp-drive/core-types/request';
+import type { RequestInfo, StructuredErrorDocument } from '@warp-drive/core-types/request';
 
 import { assertValidRequest } from './debug';
 import { upgradePromise } from './future';
 import type { Future, GenericCreateArgs, Handler } from './types';
 import { executeNextHandler } from './utils';
+
+// TODO: PromiseCache should be allowed to be used by any application code or library that wants
+// to make their promises work efficiently with something like `@warp-drive/ember`'s `getPromiseState`
+export const PromiseCache = new WeakMap<Promise<unknown>, { isError: boolean; result: unknown }>();
 
 let REQ_ID = 0;
 /**
@@ -619,16 +623,52 @@ export class RequestManager {
       stream: null,
       id: REQ_ID++,
     });
+
     if (TESTING) {
       if (!request.disableTestWaiter) {
         const { waitForPromise } = importSync('@ember/test-waiters') as {
           waitForPromise: <PT>(promise: Promise<PT>) => Promise<PT>;
         };
         const newPromise = waitForPromise(promise);
-        return upgradePromise(newPromise, promise);
+        const finalPromise = upgradePromise(
+          newPromise.then(
+            (result) => {
+              PromiseCache.set(finalPromise, { isError: false, result });
+              return result;
+            },
+            (error: StructuredErrorDocument) => {
+              PromiseCache.set(finalPromise, { isError: true, result: error });
+              throw error;
+            }
+          ),
+          promise
+        );
+
+        return finalPromise;
       }
     }
-    return promise;
+
+    // const promise1 = store.request(myRequest);
+    // const promise2 = store.request(myRequest);
+    // promise1 === promise2; // false
+    // either we need to make promise1 === promise2, or we need to make sure that
+    // we need to have a way to key from request to result
+    // such that we can lookup the result here and return it if it exists
+    const finalPromise = upgradePromise(
+      promise.then(
+        (result) => {
+          PromiseCache.set(finalPromise, { isError: false, result });
+          return result;
+        },
+        (error: StructuredErrorDocument) => {
+          PromiseCache.set(finalPromise, { isError: false, result: error });
+          throw error;
+        }
+      ),
+      promise
+    );
+
+    return finalPromise;
   }
 
   static create(options?: GenericCreateArgs) {

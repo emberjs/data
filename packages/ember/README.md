@@ -21,6 +21,61 @@ pnpm install @warp-drive/ember
 
 ## Coming Soon, a guide 🚧
 
+## Api Documentation
+
+```ts
+const result = await store.request(listRequest);
+
+return result.content.data;
+```
+
+- as a developer, I want to fetch data in a provider or route, but avoid prop drilling to access that data
+  in a component.
+- as a developer, if a request I make from a component has already been fulfilled, I want to continue to render
+  synchronously
+
+### functions (and helpers!)
+
+
+### AsyncData
+
+```ts
+import { getPromiseState } from '@warp-drive/ember';
+
+const state = getPromiseState(promise);
+```
+
+This will return an instance of AsyncData
+
+```ts
+interface AsyncData<T = unknown> {
+  isPending: boolean;
+  isFulfilled: boolean;
+  isError: boolean;
+  result: Error | <T>
+}
+```
+
+```hbs
+{{#let (get-promise-state this.request) as |state|}}
+  {{#if state.isPending}} <Spinner />
+  {{else if state.isError}} <ErrorForm @error={{state.result}} />
+  {{else}}
+    <h1>{{state.result.title}}</h1>
+  {{/if}}
+{{/let}}
+```
+
+### Pagination
+
+### Components
+
+#### Subscriptions
+
+#### Streaming
+
+
+
 ---
 
 ### ♥️ Credits
