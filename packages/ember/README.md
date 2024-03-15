@@ -66,9 +66,37 @@ interface AsyncData<T = unknown> {
 {{/let}}
 ```
 
+```js
+class Component {
+  @cached
+  get title() {
+    const state = getPromiseState(this.request);
+    if (state.isPending) {
+      return 'loading...';
+    }
+    if (state.isError) { return null; }
+    return state.result.title;
+  }
+}
+```
+
 ### Pagination
 
 ### Components
+
+```hbs
+<Request @query={{this.query}} @subscribe={{true}}>
+  <:content as |data|>
+    <h1>{{data.title}}</h1>
+  </:content>
+  <:loading as |percentage|>
+    <Spinner @percentDone={{percentage}} />
+  </:loading>
+  <:error as |error|>
+    <ErrorForm @error={{state.result}} />
+  </:error>
+</Request>
+```
 
 #### Subscriptions
 

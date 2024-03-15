@@ -437,14 +437,12 @@ import { importSync } from '@embroider/macros';
 import { DEBUG, TESTING } from '@ember-data/env';
 import type { RequestInfo, StructuredErrorDocument } from '@warp-drive/core-types/request';
 
+import { clearRequestResult, getRequestResult, setPromiseResult } from '-private/promise-cache';
+
 import { assertValidRequest } from './debug';
 import { upgradePromise } from './future';
 import type { Future, GenericCreateArgs, Handler } from './types';
-import { executeNextHandler } from './utils';
-
-// TODO: PromiseCache should be allowed to be used by any application code or library that wants
-// to make their promises work efficiently with something like `@warp-drive/ember`'s `getPromiseState`
-export const PromiseCache = new WeakMap<Promise<unknown>, { isError: boolean; result: unknown }>();
+import { executeNextHandler, IS_CACHE_HANDLER } from './utils';
 
 let REQ_ID = 0;
 /**
@@ -545,7 +543,7 @@ export class RequestManager {
    * @param {Handler[]} cacheHandler
    * @return {void}
    */
-  useCache(cacheHandler: Handler): void {
+  useCache(cacheHandler: Handler & { [IS_CACHE_HANDLER]?: true }): void {
     if (DEBUG) {
       if (this._hasCacheHandler) {
         throw new Error(`\`RequestManager.useCache(<handler>)\` May only be invoked once.`);
@@ -557,6 +555,7 @@ export class RequestManager {
       }
       this._hasCacheHandler = true;
     }
+    cacheHandler[IS_CACHE_HANDLER] = true;
     this.#handlers.unshift(cacheHandler);
   }
 
@@ -617,12 +616,18 @@ export class RequestManager {
     if (request.controller) {
       delete request.controller;
     }
+
+    const requestId = REQ_ID++;
     const promise = executeNextHandler<T>(handlers, request, 0, {
       controller,
       response: null,
       stream: null,
-      id: REQ_ID++,
+      id: requestId,
     });
+
+    // the cache handler will set the result of the request synchronously
+    // if it is able to fulfill the request from the cache
+    const cacheResult = getRequestResult(requestId);
 
     if (TESTING) {
       if (!request.disableTestWaiter) {
@@ -633,16 +638,22 @@ export class RequestManager {
         const finalPromise = upgradePromise(
           newPromise.then(
             (result) => {
-              PromiseCache.set(finalPromise, { isError: false, result });
+              setPromiseResult(finalPromise, { isError: false, result });
+              clearRequestResult(requestId);
               return result;
             },
             (error: StructuredErrorDocument) => {
-              PromiseCache.set(finalPromise, { isError: true, result: error });
+              setPromiseResult(finalPromise, { isError: true, result: error });
+              clearRequestResult(requestId);
               throw error;
             }
           ),
           promise
         );
+
+        if (cacheResult) {
+          setPromiseResult(finalPromise, cacheResult);
+        }
 
         return finalPromise;
       }
@@ -657,16 +668,22 @@ export class RequestManager {
     const finalPromise = upgradePromise(
       promise.then(
         (result) => {
-          PromiseCache.set(finalPromise, { isError: false, result });
+          setPromiseResult(finalPromise, { isError: false, result });
+          clearRequestResult(requestId);
           return result;
         },
         (error: StructuredErrorDocument) => {
-          PromiseCache.set(finalPromise, { isError: false, result: error });
+          setPromiseResult(finalPromise, { isError: true, result: error });
+          clearRequestResult(requestId);
           throw error;
         }
       ),
       promise
     );
+
+    if (cacheResult) {
+      setPromiseResult(finalPromise, cacheResult);
+    }
 
     return finalPromise;
   }

@@ -10,3 +10,4 @@ export type {
   StructuredErrorDocument,
   StructuredDataDocument,
 } from '@warp-drive/core-types/request';
+export { setPromiseResult, getPromiseResult } from './-private/promise-cache';

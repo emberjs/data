@@ -3,7 +3,7 @@
  */
 import { assert } from '@ember/debug';
 
-import type { Future, Handler, NextFn } from '@ember-data/request/-private/types';
+import type { CacheHandler as CacheHandlerType, Future, NextFn } from '@ember-data/request';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type {
   ImmutableCreateRequestOptions,
@@ -412,8 +412,8 @@ function cloneError(error: Error & { error: string | object }) {
   return cloned;
 }
 
-export const CacheHandler: Handler = {
-  request<T>(context: StoreRequestContext, next: NextFn<T>): Promise<T | StructuredDataDocument<T>> | Future<T> {
+export const CacheHandler: CacheHandlerType = {
+  request<T>(context: StoreRequestContext, next: NextFn<T>): Promise<T | StructuredDataDocument<T>> | Future<T> | T {
     // if we have no cache or no cache-key skip cache handling
     if (!context.request.store || context.request.cacheOptions?.[SkipCache]) {
       return next(context.request);
@@ -452,17 +452,17 @@ export const CacheHandler: Handler = {
       throw newError;
     }
 
-    return Promise.resolve(
-      shouldHydrate
-        ? maybeUpdateUiObjects<T>(
-            store,
-            context.request,
-            { shouldHydrate, identifier },
-            peeked!.content as ResourceDataDocument,
-            true
-          )
-        : (peeked!.content as T)
-    );
+    const result = shouldHydrate
+      ? maybeUpdateUiObjects<T>(
+          store,
+          context.request,
+          { shouldHydrate, identifier },
+          peeked!.content as ResourceDataDocument,
+          true
+        )
+      : (peeked!.content as T);
+
+    return result;
   },
 };
 
