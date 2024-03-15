@@ -13,7 +13,10 @@
     title="WarpDrive" />
 </p>
 
-<h3 align="center">🐹 Data utilities for using WarpDrive with Ember.js</h3>
+<h3 align="center">:electron: Data utilities for using <em style="color: lightgreen">Warp</em><strong style="color: magenta">Drive</strong> with 🐹 <em style="color: orange">Ember</em><em style="color: lightblue">.js</em></h3>
+<h4 align="center">And of course, <em style="color: orange">Ember</em><strong style="color: lightblue">Data</strong> too! </h4>
+
+---
 
 ```cli
 pnpm install @warp-drive/ember
