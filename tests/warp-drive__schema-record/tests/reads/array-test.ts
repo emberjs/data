@@ -4,6 +4,7 @@ import { setupTest } from 'ember-qunit';
 
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
+import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 import type { Transform } from '@warp-drive/schema-record/schema';
 import { registerDerivations, SchemaService, withFields } from '@warp-drive/schema-record/schema';
 
@@ -51,15 +52,15 @@ module('Reads | array fields', function (hooks) {
 
     // test that the data entered the cache properly
     const identifier = recordIdentifierFor(record);
-    const cachedResourceData = store.cache.peek(identifier);
+    const cachedResourceData = store.cache.peek<JsonApiResource>(identifier);
 
     assert.notStrictEqual(
-      cachedResourceData.attributes?.favoriteNumbers,
+      cachedResourceData?.attributes?.favoriteNumbers,
       sourceArray,
       'with no transform we will still divorce the array reference'
     );
     assert.deepEqual(
-      cachedResourceData.attributes?.favoriteNumbers,
+      cachedResourceData?.attributes?.favoriteNumbers,
       ['1', '2'],
       'the cache values are correct for the array field'
     );
@@ -115,15 +116,15 @@ module('Reads | array fields', function (hooks) {
 
     // test that the data entered the cache properly
     const identifier = recordIdentifierFor(record);
-    const cachedResourceData = store.cache.peek(identifier);
+    const cachedResourceData = store.cache.peek<JsonApiResource>(identifier);
 
     assert.notStrictEqual(
-      cachedResourceData.attributes?.favoriteNumbers,
+      cachedResourceData?.attributes?.favoriteNumbers,
       sourceArray,
       'with no transform we will still divorce the array reference'
     );
     assert.deepEqual(
-      cachedResourceData.attributes?.favoriteNumbers,
+      cachedResourceData?.attributes?.favoriteNumbers,
       [1, 2],
       'the cache values are correct for the array field'
     );

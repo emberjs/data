@@ -6,9 +6,6 @@ import { setupRenderingTest } from 'ember-qunit';
 
 import type Store from '@ember-data/store';
 import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { SchemaRecord } from '@warp-drive/schema-record/record';
-import type { Transform } from '@warp-drive/schema-record/schema';
 import { registerDerivations, SchemaService, withFields } from '@warp-drive/schema-record/schema';
 
 import { reactiveContext } from '../-utils/reactive-context';
