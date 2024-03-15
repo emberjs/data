@@ -19,7 +19,47 @@
 pnpm install @warp-drive/ember
 ```
 
-## Performance
+## About
+
+This library provides reactive utilities for working with promises and requests, building over these primitives to provide functions and components that enable you to build robust performant apps with elegant control flow
+
+- [Documentation](#documentation)
+  - [getPromiseState](#getpromisestate)
+  - [setPromiseState](#setpromisestate)
+  - [getRequestState](#getrequeststate)
+
+---
+
+## Why?
+
+### DX
+
+Crafting a performant application experience is a creative art.
+
+The data loading patterns that make for good DX are often at odds with the patterns that reduce fetch-waterfalls and loading times.
+
+Fetching data from components *feels* right to most of us as developers. Being able to see
+what we've queried right from the spot in which we will consume and use the response of the
+query keeps the mental model clear and helps us iterate quickly.
+
+But it also means that we have to render in order to know what to fetch, in order to know what to render, in order to know what to fetch and so on until the cycle eventually completes.
+
+Thus, while providing superied DX, component based data-fetching patterns sacrifice the 
+user's experience for the developer's by encouraging a difficult-to-impossible to optimize
+loading architecture.
+
+This library helps you to craft great experiences without sacrificing DX. We still believe
+you should load data based on user interactions and route navigations, not from components,
+but what if you didn't need to use prop-drilling or contexts to access the result of a
+route based query?
+
+EmberData's RequestManager already allows for fulfillment from cache and for request 
+de-duping, so what if we could just pick up where we left off and use the result of a
+request right away if it already was loaded in a more optimal manner elsewhere?
+
+That brings us to our second motivation: performance.
+
+### Performance
 
 Performance is always at the heart of WarpDrive libraries.
 
@@ -67,6 +107,8 @@ are intended for use with *any* framework.
 That's where `@warp-drive/ember` comes in. This library provides reactive utilities
 for working with promises, building over these primitives to provide helpers, functions
  and components that enable you to build robust performant app with elegant control flows.
+
+---
 
 ## Documentation
 
