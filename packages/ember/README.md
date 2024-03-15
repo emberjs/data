@@ -13,17 +13,8 @@
     title="WarpDrive" />
 </p>
 
-<style type="text/css">h3 > em{color:lightgreen;}</style>
-<style type="text/css">
-  h3 > em.orange{color:orange;}
-  h3 > em.lightblue{color:lightblue;}
-  h3 > strong{color:magenta;}
-  h4 > em{color:orange}
-  h4 > strong{color:lightblue;}
-</style>
-
-<h3 align="center">:electron: Data utilities for using <em>Warp</em><strong>Drive</strong> with 🐹 <em class="orange">Ember</em><em class="lightblue">.js</em></h3>
-<h4 align="center">And of course, <em>Ember</em><strong>Data</strong> too! </h4>
+<h3 align="center">:electron: Data utilities for using <em style="color: lightgreen">Warp</em><strong style="color: magenta">Drive</strong> with 🐹 <em style="color: orange">Ember</em><em style="color: lightblue">.js</em></h3>
+<h4 align="center">And of course, <em style="color: orange">Ember</em><strong style="color: lightblue">Data</strong> too! </h4>
 
 ---
 
