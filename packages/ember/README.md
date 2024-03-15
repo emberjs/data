@@ -19,9 +19,56 @@
 pnpm install @warp-drive/ember
 ```
 
-## Coming Soon, a guide 🚧
+## Performance
 
-## Api Documentation
+Performance is always at the heart of WarpDrive libraries.
+
+`@warp-drive/ember` isn't just a library of utilities for working with reactive
+asynchronous data in your Ember app. It's *also* a way to optimize your app for
+faster, more correct renders.
+
+It starts with `setPromiseResult` a simple core primitive provided by the library
+`@ember-data/request` that allows the result of any promise to be safely cached
+without leaking memory. Results stashed with `setPromiseResult` can then be retrieved
+via `getPromiseResult`. As long as the promise is in memory, the result will be too.
+
+Every request made with `@ember-data/request` stashes its result in this way, and
+the requests resolved from cache by the CacheHandler have their entry populated
+syncronously. Consider the following code:
+
+```ts
+const A = store.request({ url: '/users/1' });
+const result = await A;
+result.content.data.id; // '1'
+const B = store.request({ url: '/user/1' });
+```
+
+The above scenario is relatively common when a route, provider or previous location
+in an app has loaded request A, and later something else triggers request B.
+
+While it is true that `A !== B`, the magic of the RequestManager is that it is able
+to safely stash the result of B such that the following works:
+
+```ts
+const B = store.request({ url: '/user/1' });
+const state = getPromiseResult(B);
+state.result.content.data.id; // '1' 🤯
+```
+
+Note how we can access the result of B even before we've awaited it? This is useful
+for component rendering where we want to fetch data asynchronously, but when it is
+immediately available the best possible result is to continue to render with the available
+data without delay.
+
+These primitives (`getPromiseResult` and `setPromiseResult`) are useful, but not all
+that ergonomic on their own. They are also intentionally not reactive because they
+are intended for use with *any* framework.
+
+That's where `@warp-drive/ember` comes in. This library provides reactive utilities
+for working with promises, building over these primitives to provide helpers, functions
+ and components that enable you to build robust performant app with elegant control flows.
+
+## Documentation
 
 ```ts
 const result = await store.request(listRequest);
@@ -37,7 +84,11 @@ return result.content.data;
 ### functions (and helpers!)
 
 
-### AsyncData
+### getPromiseState
+
+PromiseStates provide a reactive wrapper for promises which allow you write declarative
+code around a promise's control flow. It is useful in both template and JavaScript contexts,
+allowing you to quickly derive behaviors and data from pending, error and success states.
 
 ```ts
 import { getPromiseState } from '@warp-drive/ember';
@@ -48,18 +99,19 @@ const state = getPromiseState(promise);
 This will return an instance of AsyncData
 
 ```ts
-interface AsyncData<T = unknown> {
+interface PromiseState<T = unknown, E = unknown> {
   isPending: boolean;
-  isFulfilled: boolean;
+  isSuccess: boolean;
   isError: boolean;
-  result: Error | <T>
+  result: T | null;
+  error: E | null;
 }
 ```
 
 ```hbs
 {{#let (get-promise-state this.request) as |state|}}
   {{#if state.isPending}} <Spinner />
-  {{else if state.isError}} <ErrorForm @error={{state.result}} />
+  {{else if state.isError}} <ErrorForm @error={{state.error}} />
   {{else}}
     <h1>{{state.result.title}}</h1>
   {{/if}}
@@ -80,9 +132,17 @@ class Component {
 }
 ```
 
-### Pagination
+### RequestState
+
+RequestState 
+
 
 ### Components
+
+#### Request
+
+The `<Request>` component helps manage request states like loading, reloading
+and error. It has no layout, of its own.
 
 ```hbs
 <Request @query={{this.query}} @subscribe={{true}}>
