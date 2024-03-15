@@ -5,14 +5,23 @@ import { setupTest } from 'ember-qunit';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
+import type { ResourceType } from '@warp-drive/core-types/symbols';
 import type { Transform } from '@warp-drive/schema-record/schema';
 import { registerDerivations, SchemaService, withFields } from '@warp-drive/schema-record/schema';
 
 interface User {
-  id: string | null;
+  id: string;
   $type: 'user';
   name: string;
   favoriteNumbers: string[] | null;
+  [ResourceType]: 'user';
+}
+interface CreateUserType {
+  id: string | null;
+  $type: 'user';
+  name: string | null;
+  favoriteNumbers: string[] | null;
+  [ResourceType]: 'user';
 }
 
 module('Writes | array fields', function (hooks) {
@@ -39,13 +48,13 @@ module('Writes | array fields', function (hooks) {
       ]),
     });
 
-    const record = store.push({
+    const record = store.push<User>({
       data: {
         type: 'user',
         id: '1',
         attributes: { name: 'Rey Pupatine', favoriteNumbers: ['1', '2'] },
       },
-    }) as User;
+    });
 
     assert.strictEqual(record.id, '1', 'id is accessible');
     assert.strictEqual(record.$type, 'user', '$type is accessible');
@@ -90,13 +99,13 @@ module('Writes | array fields', function (hooks) {
       ]),
     });
 
-    const record = store.push({
+    const record = store.push<User>({
       data: {
         type: 'user',
         id: '1',
         attributes: { name: 'Rey Pupatine', favoriteNumbers: ['1', '2'] },
       },
-    }) as User;
+    });
 
     assert.strictEqual(record.id, '1', 'id is accessible');
     assert.strictEqual(record.$type, 'user', '$type is accessible');
@@ -151,7 +160,7 @@ module('Writes | array fields', function (hooks) {
 
     assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
     const favoriteNumbers = record.favoriteNumbers;
-    record.favoriteNumbers[0] = '3';
+    record.favoriteNumbers![0] = '3';
     assert.deepEqual(record.favoriteNumbers?.slice(), ['3', '2'], 'We have the correct array members');
     assert.strictEqual(favoriteNumbers, record.favoriteNumbers, 'Array reference does not change');
 
@@ -187,13 +196,13 @@ module('Writes | array fields', function (hooks) {
       ]),
     });
 
-    const record = store.push({
+    const record = store.push<User>({
       data: {
         type: 'user',
         id: '1',
         attributes: { name: 'Rey Pupatine', favoriteNumbers: ['1', '2'] },
       },
-    }) as User;
+    });
 
     assert.strictEqual(record.id, '1', 'id is accessible');
     assert.strictEqual(record.$type, 'user', '$type is accessible');
@@ -238,13 +247,13 @@ module('Writes | array fields', function (hooks) {
       ]),
     });
 
-    const record = store.push({
+    const record = store.push<User>({
       data: {
         type: 'user',
         id: '1',
         attributes: { name: 'Rey Pupatine', favoriteNumbers: ['1', '2'] },
       },
-    }) as User;
+    });
 
     assert.strictEqual(record.id, '1', 'id is accessible');
     assert.strictEqual(record.$type, 'user', '$type is accessible');
@@ -286,13 +295,13 @@ module('Writes | array fields', function (hooks) {
       ]),
     });
 
-    const record = store.push({
+    const record = store.push<User>({
       data: {
         type: 'user',
         id: '1',
         attributes: { name: 'Rey Pupatine', favoriteNumbers: ['1', '2'] },
       },
-    }) as User;
+    });
 
     assert.strictEqual(record.id, '1', 'id is accessible');
     assert.strictEqual(record.$type, 'user', '$type is accessible');
@@ -337,13 +346,13 @@ module('Writes | array fields', function (hooks) {
       ]),
     });
 
-    const record = store.push({
+    const record = store.push<User>({
       data: {
         type: 'user',
         id: '1',
         attributes: { name: 'Rey Pupatine', favoriteNumbers: ['1', '2'] },
       },
-    }) as User;
+    });
 
     assert.strictEqual(record.id, '1', 'id is accessible');
     assert.strictEqual(record.$type, 'user', '$type is accessible');
@@ -385,21 +394,21 @@ module('Writes | array fields', function (hooks) {
       ]),
     });
 
-    const record = store.push({
+    const record = store.push<User>({
       data: {
         type: 'user',
         id: '1',
         attributes: { name: 'Rey Pupatine', favoriteNumbers: ['1', '2'] },
       },
-    }) as User;
+    });
 
-    const record2 = store.push({
+    const record2 = store.push<User>({
       data: {
         type: 'user',
         id: '2',
         attributes: { name: 'Luke Skybarker' },
       },
-    }) as User;
+    });
 
     assert.strictEqual(record.id, '1', 'id is accessible');
     assert.strictEqual(record.$type, 'user', '$type is accessible');
@@ -463,13 +472,13 @@ module('Writes | array fields', function (hooks) {
     schema.registerTransform('string-from-int', StringFromIntTransform);
 
     const sourceArray = ['1', '2'];
-    const record = store.createRecord('user', { name: 'Rey Skybarker', favoriteNumbers: sourceArray }) as User;
+    const record = store.createRecord<CreateUserType>('user', { name: 'Rey Skybarker', favoriteNumbers: sourceArray });
 
     assert.strictEqual(record.id, null, 'id is accessible');
     assert.strictEqual(record.$type, 'user', '$type is accessible');
     assert.strictEqual(record.name, 'Rey Skybarker', 'name is accessible');
     assert.true(Array.isArray(record.favoriteNumbers), 'we can access favoriteNumber array');
-    assert.deepEqual(record.favoriteNumbers.slice(), ['1', '2'], 'We have the correct array members');
+    assert.deepEqual(record.favoriteNumbers!.slice(), ['1', '2'], 'We have the correct array members');
 
     assert.strictEqual(record.favoriteNumbers, record.favoriteNumbers, 'We have a stable array reference');
     assert.notStrictEqual(record.favoriteNumbers, sourceArray);
@@ -529,7 +538,7 @@ module('Writes | array fields', function (hooks) {
     schema.registerTransform('string-from-int', StringFromIntTransform);
 
     const sourceArray = ['1', '2'];
-    const record = store.createRecord('user', { name: 'Rey Skybarker', favoriteNumbers: sourceArray }) as User;
+    const record = store.createRecord<CreateUserType>('user', { name: 'Rey Skybarker', favoriteNumbers: sourceArray });
 
     assert.strictEqual(record.id, null, 'id is accessible');
     assert.strictEqual(record.$type, 'user', '$type is accessible');
@@ -542,7 +551,7 @@ module('Writes | array fields', function (hooks) {
 
     const favoriteNumbers = record.favoriteNumbers;
 
-    record.favoriteNumbers[0] = '3';
+    record.favoriteNumbers![0] = '3';
     assert.deepEqual(record.favoriteNumbers?.slice(), ['3', '2'], 'We have the correct array members');
     assert.strictEqual(favoriteNumbers, record.favoriteNumbers, 'Array reference does not change');
 
@@ -595,7 +604,7 @@ module('Writes | array fields', function (hooks) {
     schema.registerTransform('string-from-int', StringFromIntTransform);
 
     const sourceArray = ['1', '2'];
-    const record = store.createRecord('user', { name: 'Rey Skybarker', favoriteNumbers: sourceArray }) as User;
+    const record = store.createRecord<CreateUserType>('user', { name: 'Rey Skybarker', favoriteNumbers: sourceArray });
 
     assert.strictEqual(record.id, null, 'id is accessible');
     assert.strictEqual(record.$type, 'user', '$type is accessible');
@@ -661,7 +670,7 @@ module('Writes | array fields', function (hooks) {
     schema.registerTransform('string-from-int', StringFromIntTransform);
 
     const sourceArray = ['1', '2'];
-    const record = store.createRecord('user', { name: 'Rey Skybarker', favoriteNumbers: sourceArray }) as User;
+    const record = store.createRecord<CreateUserType>('user', { name: 'Rey Skybarker', favoriteNumbers: sourceArray });
 
     assert.strictEqual(record.id, null, 'id is accessible');
     assert.strictEqual(record.$type, 'user', '$type is accessible');

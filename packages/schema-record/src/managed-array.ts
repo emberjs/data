@@ -1,7 +1,7 @@
 import { assert } from '@ember/debug';
 
 import type Store from '@ember-data/store';
-import type { RecordInstance } from '@ember-data/store/-types/q/record-instance';
+import type { OpaqueRecordInstance } from '@ember-data/store/-types/q/record-instance';
 import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 import type { Signal } from '@ember-data/tracking/-private';
 import { addToTransaction, createSignal, subscribe } from '@ember-data/tracking/-private';
@@ -70,7 +70,7 @@ function convertToInt(prop: KeyType): number | null {
 
 type ProxiedMethod = (...args: unknown[]) => unknown;
 
-type ForEachCB = (record: RecordInstance, index: number, context: typeof Proxy<unknown[]>) => void;
+type ForEachCB = (record: OpaqueRecordInstance, index: number, context: typeof Proxy<unknown[]>) => void;
 function safeForEach(
   instance: typeof Proxy<unknown[]>,
   arr: unknown[],
@@ -135,7 +135,7 @@ export class ManagedArray {
     this.key = key;
     this.owner = owner;
     let transaction = false;
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+
     const proxy = new Proxy(this[SOURCE], {
       get<R extends typeof Proxy<unknown[]>>(target: unknown[], prop: keyof R, receiver: R) {
         if (prop === ARRAY_SIGNAL) {

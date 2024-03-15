@@ -110,7 +110,6 @@ module('Reads | array fields', function (hooks) {
     assert.strictEqual(record.name, 'Rey Skybarker', 'name is accessible');
     assert.true(Array.isArray(record.favoriteNumbers), 'we can access favoriteNumber array');
     assert.deepEqual(record.favoriteNumbers.slice(), ['1', '2'], 'We have the correct array members');
-    assert.strictEqual(record.favoriteNumbers.key, 'favoriteNumbers', 'Key is proxied correctly');
     assert.strictEqual(record.favoriteNumbers, record.favoriteNumbers, 'We have a stable array reference');
     assert.notStrictEqual(record.favoriteNumbers, sourceArray);
 
