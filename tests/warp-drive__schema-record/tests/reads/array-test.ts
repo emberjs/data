@@ -5,14 +5,16 @@ import { setupTest } from 'ember-qunit';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
+import type { ResourceType } from '@warp-drive/core-types/symbols';
 import type { Transform } from '@warp-drive/schema-record/schema';
 import { registerDerivations, SchemaService, withFields } from '@warp-drive/schema-record/schema';
 
-interface User {
+interface CreateUserType {
   id: string | null;
   $type: 'user';
-  name: string;
-  favoriteNumbers: string[];
+  name: string | null;
+  favoriteNumbers: string[] | null;
+  [ResourceType]: 'user';
 }
 
 module('Reads | array fields', function (hooks) {
@@ -40,13 +42,13 @@ module('Reads | array fields', function (hooks) {
     });
 
     const sourceArray = ['1', '2'];
-    const record = store.createRecord('user', { name: 'Rey Skybarker', favoriteNumbers: sourceArray }) as User;
+    const record = store.createRecord<CreateUserType>('user', { name: 'Rey Skybarker', favoriteNumbers: sourceArray });
 
     assert.strictEqual(record.id, null, 'id is accessible');
     assert.strictEqual(record.$type, 'user', '$type is accessible');
     assert.strictEqual(record.name, 'Rey Skybarker', 'name is accessible');
     assert.true(Array.isArray(record.favoriteNumbers), 'we can access favoriteNumber array');
-    assert.deepEqual(record.favoriteNumbers.slice(), ['1', '2'], 'We have the correct array members');
+    assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
     assert.strictEqual(record.favoriteNumbers, record.favoriteNumbers, 'We have a stable array reference');
     assert.notStrictEqual(record.favoriteNumbers, sourceArray);
 
@@ -103,13 +105,13 @@ module('Reads | array fields', function (hooks) {
     schema.registerTransform('string-from-int', StringFromIntTransform);
 
     const sourceArray = ['1', '2'];
-    const record = store.createRecord('user', { name: 'Rey Skybarker', favoriteNumbers: sourceArray }) as User;
+    const record = store.createRecord<CreateUserType>('user', { name: 'Rey Skybarker', favoriteNumbers: sourceArray });
 
     assert.strictEqual(record.id, null, 'id is accessible');
     assert.strictEqual(record.$type, 'user', '$type is accessible');
     assert.strictEqual(record.name, 'Rey Skybarker', 'name is accessible');
     assert.true(Array.isArray(record.favoriteNumbers), 'we can access favoriteNumber array');
-    assert.deepEqual(record.favoriteNumbers.slice(), ['1', '2'], 'We have the correct array members');
+    assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
     assert.strictEqual(record.favoriteNumbers, record.favoriteNumbers, 'We have a stable array reference');
     assert.notStrictEqual(record.favoriteNumbers, sourceArray);
 
