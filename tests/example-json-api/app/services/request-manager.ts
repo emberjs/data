@@ -5,11 +5,11 @@ import Fetch from '@ember-data/request/fetch';
 
 /* eslint-disable no-console */
 const TestHandler: Handler = {
-  async request<T>(context: RequestContext, next: NextFn) {
+  async request<T>(context: RequestContext, next: NextFn<T>) {
     console.log('TestHandler.request', context.request);
-    const newContext = await next(Object.assign({}, context.request));
-    console.log('TestHandler.response after fetch', newContext.response);
-    return newContext as T;
+    const result = await next(Object.assign({}, context.request));
+    console.log('TestHandler.response after fetch', result.response);
+    return result;
   },
 };
 

@@ -1,10 +1,8 @@
 # Incremental adoption guide for existing projects
 
-Nav links
+- ⮐ [Cookbook](./index.md)
 
----
-
-This guide is for existing projects that want to adopt the new APIs of the EmberData incrementally. If you are starting a new project, you should use the [new project guide](./new-project-guide.md).
+This guide is for existing projects that want to adopt the new APIs of the EmberData incrementally.
 
 ## Step 1: Upgrade to EmberData 4.12.x
 
@@ -48,11 +46,11 @@ import Fetch from '@ember-data/request/fetch';
 
 /* eslint-disable no-console */
 const TestHandler: Handler = {
-  async request<T>(context: RequestContext, next: NextFn) {
+  async request<T>(context: RequestContext, next: NextFn<T>) {
     console.log('TestHandler.request', context.request);
-    const newContext = await next(Object.assign({}, context.request));
-    console.log('TestHandler.response after fetch', newContext.response);
-    return newContext as T;
+    const result = await next(Object.assign({}, context.request));
+    console.log('TestHandler.response after fetch', result.response);
+    return result;
   },
 };
 
@@ -144,3 +142,7 @@ export default class App extends Application {
 
 loadInitializers(App, config.modulePrefix);
 ```
+
+---
+
+- ⮐ [Cookbook](./index.md)
