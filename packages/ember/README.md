@@ -23,9 +23,11 @@ pnpm install @warp-drive/ember
 
 This library provides reactive utilities for working with promises and requests, building over these primitives to provide functions and components that enable you to build robust performant apps with elegant control flow
 
-- [Documentation](#documentation)
+Documentation
+
+- [PromiseState](#promisestate)
   - [getPromiseState](#getpromisestate)
-  - [setPromiseState](#setpromisestate)
+- [RequestState](#requeststate)
   - [getRequestState](#getrequeststate)
 
 ---
@@ -44,9 +46,14 @@ query keeps the mental model clear and helps us iterate quickly.
 
 But it also means that we have to render in order to know what to fetch, in order to know what to render, in order to know what to fetch and so on until the cycle eventually completes.
 
-Thus, while providing superied DX, component based data-fetching patterns sacrifice the 
-user's experience for the developer's by encouraging a difficult-to-impossible to optimize
-loading architecture.
+Thus, while on the surface providing superior DX, component based data-fetching patterns 
+sacrifice the  user's experience for the developer's by encouraging a difficult-to-impossible 
+to optimize loading architecture.
+
+It can also be tricky to pull off elegantly. Async/Await? Proxies? Resources? Generators? 
+Each has its own pitfalls when it comes to asynchronous data patterns in components and
+crafting an experience that works well for both JavaScript and Templates is tough. And what 
+about work lifetimes?
 
 This library helps you to craft great experiences without sacrificing DX. We still believe
 you should load data based on user interactions and route navigations, not from components,
@@ -55,7 +62,7 @@ route based query?
 
 EmberData's RequestManager already allows for fulfillment from cache and for request 
 de-duping, so what if we could just pick up where we left off and use the result of a
-request right away if it already was loaded in a more optimal manner elsewhere?
+request right away if it already was fetched elsewhere?
 
 That brings us to our second motivation: performance.
 
@@ -112,33 +119,11 @@ for working with promises, building over these primitives to provide helpers, fu
 
 ## Documentation
 
-```ts
-const result = await store.request(listRequest);
+### PromiseState
 
-return result.content.data;
-```
-
-- as a developer, I want to fetch data in a provider or route, but avoid prop drilling to access that data
-  in a component.
-- as a developer, if a request I make from a component has already been fulfilled, I want to continue to render
-  synchronously
-
-### functions (and helpers!)
-
-
-### getPromiseState
-
-PromiseStates provide a reactive wrapper for promises which allow you write declarative
-code around a promise's control flow. It is useful in both template and JavaScript contexts,
+PromiseState provides a reactive wrapper for a promise which allows you write declarative
+code around a promise's control flow. It is useful in both Template and JavaScript contexts,
 allowing you to quickly derive behaviors and data from pending, error and success states.
-
-```ts
-import { getPromiseState } from '@warp-drive/ember';
-
-const state = getPromiseState(promise);
-```
-
-This will return an instance of AsyncData
 
 ```ts
 interface PromiseState<T = unknown, E = unknown> {
@@ -150,21 +135,27 @@ interface PromiseState<T = unknown, E = unknown> {
 }
 ```
 
-```hbs
-{{#let (get-promise-state this.request) as |state|}}
-  {{#if state.isPending}} <Spinner />
-  {{else if state.isError}} <ErrorForm @error={{state.error}} />
-  {{else}}
-    <h1>{{state.result.title}}</h1>
-  {{/if}}
-{{/let}}
+To get the state of a promise, use `getPromiseState`.
+
+### getPromiseState
+
+`getPromiseState` can be used in both JavaScript and Template contexts.
+
+```ts
+import { getPromiseState } from '@warp-drive/ember';
+
+const state = getPromiseState(promise);
 ```
 
-```js
+For instance, we could write a getter on a component that updates whenever
+the promise state advances or the promise changes, by combining the function
+with the use of `@cached`
+
+```ts
 class Component {
   @cached
   get title() {
-    const state = getPromiseState(this.request);
+    const state = getPromiseState(this.args.request);
     if (state.isPending) {
       return 'loading...';
     }
@@ -174,36 +165,292 @@ class Component {
 }
 ```
 
-### RequestState
+Or in a template as a helper:
 
-RequestState 
+```gjs
+import { getPromiseState } from '@warp-drive/ember';
 
-
-### Components
-
-#### Request
-
-The `<Request>` component helps manage request states like loading, reloading
-and error. It has no layout, of its own.
-
-```hbs
-<Request @query={{this.query}} @subscribe={{true}}>
-  <:content as |data|>
-    <h1>{{data.title}}</h1>
-  </:content>
-  <:loading as |percentage|>
-    <Spinner @percentDone={{percentage}} />
-  </:loading>
-  <:error as |error|>
-    <ErrorForm @error={{state.result}} />
-  </:error>
-</Request>
+<template>
+  {{#let (getPromiseState @request) as |state|}}
+    {{#if state.isPending}} <Spinner />
+    {{else if state.isError}} <ErrorForm @error={{state.error}} />
+    {{else}}
+      <h1>{{state.result.title}}</h1>
+    {{/if}}
+  {{/let}}
+</template>
 ```
 
-#### Subscriptions
+Alternatively, use the `<Await>` component
 
-#### Streaming
+```gjs
+import { Await } from '@warp-drive/ember';
 
+<template>
+  <Await @promise={{@request}}>
+    <:pending>
+      <Spinner />
+    </:pending>
+
+    <:error as |error|>
+      <ErrorForm @error={{error}} />
+    </:error>
+
+    <:success as |result|>
+      <h1>{{result.title}}</h1>
+    </:success>
+  </Await>
+</template>
+```
+
+### RequestState
+
+RequestState extends PromiseState to provide a reactive wrapper for a request `Future` which
+allows you write declarative code around a Future's control flow. It is useful in both Template 
+and JavaScript contexts, allowing you to quickly derive behaviors and data from pending, error 
+and success states.
+
+The key difference between a Promise and a Future is that Futures provide access to a stream
+of their content, as well as the ability to attempt to abort the request.
+
+```ts
+interface Future<T> extends Promise<T>> {
+  getStream(): Promise<ReadableStream>;
+  abort(): void;
+}
+```
+
+These additional APIs allow us to craft even richer state experiences.
+
+
+```ts
+interface RequestState<T = unknown, E = unknown> extends PromiseState<T, E> {
+  isCancelled: boolean;
+  
+  // TODO detail out percentage props
+}
+```
+
+To get the state of a request, use `getRequestState`.
+
+### getRequestState
+
+`getRequestState` can be used in both JavaScript and Template contexts.
+
+```ts
+import { getRequestState } from '@warp-drive/ember';
+
+const state = getRequestState(future);
+```
+
+For instance, we could write a getter on a component that updates whenever
+the request state advances or the future changes, by combining the function
+with the use of `@cached`
+
+```ts
+class Component {
+  @cached
+  get title() {
+    const state = getRequestState(this.args.request);
+    if (state.isPending) {
+      return 'loading...';
+    }
+    if (state.isError) { return null; }
+    return state.result.title;
+  }
+}
+```
+
+Or in a template as a helper:
+
+```gjs
+import { getRequestState } from '@warp-drive/ember';
+
+<template>
+  {{#let (getRequestState @request) as |state|}}
+    {{#if state.isPending}} <Spinner />
+    {{else if state.isError}} <ErrorForm @error={{state.error}} />
+    {{else}}
+      <h1>{{state.result.title}}</h1>
+    {{/if}}
+  {{/let}}
+</template>
+```
+
+Alternatively, use the `<Request>` component. Note: the request component
+taps into additional capabilities *beyond* what `RequestState` offers.
+
+- Completion states and an abort function are available as part of loading state
+
+```gjs
+import { Request } from '@warp-drive/ember';
+
+<template>
+  <Request @request={{@request}}>
+    <:loading as |state|>
+      <Spinner @percentDone={{state.percentDone}} />
+      <button {{on "click" state.abort}}>Cancel</button>
+    </:loading>
+
+    <:error as |error|>
+      <ErrorForm @error={{error}} />
+    </:error>
+
+    <:content as |result|>
+      <h1>{{result.title}}</h1>
+    </:content>
+  </Request>
+</template>
+```
+
+- Streaming Data
+
+The loading state exposes the download `ReadableStream` instance for consumption
+
+```gjs
+import { Request } from '@warp-drive/ember';
+
+<template>
+  <Request @request={{@request}}>
+    <:loading as |state|>
+      <Video @stream={{state.stream}} />
+    </:loading>
+
+    <:error as |error|>
+      <ErrorForm @error={{error}} />
+    </:error>
+  </Request>
+</template>
+```
+
+- Cancelled is an additional state.
+
+```gjs
+import { Request } from '@warp-drive/ember';
+
+<template>
+  <Request @request={{@request}}>
+    <:cancelled>
+      <h2>The Request Cancelled</h2>
+    </:cancelled>
+
+    <:error as |error|>
+      <ErrorForm @error={{error}} />
+    </:error>
+
+    <:content as |result|>
+      <h1>{{result.title}}</h1>
+    </:content>
+  </Request>
+</template>
+```
+
+If a request is aborted but no cancelled block is present, the error will be given
+to the error block to handle.
+
+If no error block is present, the error will be rethrown.
+
+- Reloading states
+
+Reload will reset the request state, and so reuse the error, cancelled, and loading
+blocks as appropriate.
+
+Background reload (refresh) is a special substate of `content` that can be entered while
+existing content is still shown.
+
+Both reload and background reload are available as methods that can be invoked from
+within `content`. Background reload's can also be aborted.
+
+```gjs
+import { Request } from '@warp-drive/ember';
+
+<template>
+  <Request @request={{@request}}>
+    <:cancelled>
+      <h2>The Request Cancelled</h2>
+    </:cancelled>
+
+    <:error as |error|>
+      <ErrorForm @error={{error}} />
+    </:error>
+
+    <:content as |result state|>
+      {{#if state.isBackgroundReloading}}
+        <SmallSpinner />
+        <button {{on "click" state.abort}}>Cancel</button>
+      {{/if}}
+
+      <h1>{{result.title}}</h1>
+
+      <button {{on "click" state.refresh}}>Refresh</button>
+      <button {{on "click" state.reload}}>Reload</button>
+    </:content>
+  </Request>
+</template>
+```
+
+Usage of request can be nested for more advanced handling of background reload
+
+```gjs
+import { Request } from '@warp-drive/ember';
+
+<template>
+  <Request @request={{@request}}>
+    <:cancelled>
+      <h2>The Request Cancelled</h2>
+    </:cancelled>
+
+    <:error as |error|>
+      <ErrorForm @error={{error}} />
+    </:error>
+
+    <:content as |result state|>
+      <Request @request={{state.latestRequest}}>
+        <!-- Handle Background Request -->
+      </Request>
+      
+      <h1>{{result.title}}</h1>
+
+      <button {{on "click" state.refresh}}>Refresh</button>
+    </:content>
+  </Request>
+</template>
+```
+
+- AutoRefresh behavior
+
+Requests can be made to automatically refresh when a browser window or tab comes back to the
+foreground after being backgrounded.
+
+```gjs
+import { Request } from '@warp-drive/ember';
+
+<template>
+  <Request @request={{@request}} @autoRefresh={{true}}>
+    <!-- ... -->
+  </Request>
+</template>
+```
+
+Similarly, refresh could be set up on a timer or on a websocket subscription by using the yielded
+refresh function and passing it to another component.
+
+```gjs
+import { Request } from '@warp-drive/ember';
+
+<template>
+  <Request @request={{@request}} @autoRefresh={{true}}>
+    <:content as |result state|>
+      <h1>{{result.title}}</h1>
+
+      <Interval @period={{30_000}} @fn={{state.refresh}} />
+      <Subscribe @channel={{@someValue}} @fn={{state.refresh}} />
+    </:content>
+  </Request>
+</template>
+```
+
+If a matching request is refreshed or reloaded by any other component, the `Request` component will react accordingly.
 
 
 ---
