@@ -15,7 +15,7 @@ module.exports = {
     base.rules(),
     imports.rules(),
     isolation.rules({
-      allowedImports: ['@ember/debug', '@glimmer/tracking', '@glimmer/component'],
+      allowedImports: ['@ember/service', '@ember/debug', '@glimmer/tracking', '@glimmer/component'],
     }),
     {}
   ),

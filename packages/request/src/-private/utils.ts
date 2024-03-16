@@ -133,7 +133,7 @@ export function executeNextHandler<T>(
     }
     assertValidRequest(request, false);
   }
-  const owner = new ContextOwner(request, god);
+  const owner = new ContextOwner(request, god, i === 0);
 
   function next(r: RequestInfo): Future<T> {
     owner.nextCalled++;

@@ -15,6 +15,7 @@ export interface GodContext {
   controller: AbortController;
   response: ResponseInfo | null;
   stream: ReadableStream | Promise<ReadableStream | null> | null;
+  hasRequestedStream: boolean;
   id: number;
 }
 
@@ -22,6 +23,12 @@ export type Deferred<T> = {
   resolve(v: T): void;
   reject(v: unknown): void;
   promise: Promise<T>;
+};
+
+export type DeferredStream = {
+  resolve(v: ReadableStream | null): void;
+  reject(v: unknown): void;
+  promise: Promise<ReadableStream | null> & { sizeHint?: number };
 };
 
 /**

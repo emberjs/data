@@ -1,5 +1,8 @@
 {
-  "include": ["src/**/*", "../../@types/fastboot"],
+  "include": ["src/**/*", "../../@types/fastboot", "../../@types/@glimmer/tracking.d.ts"],
+  "glint": {
+    "environment": ["ember-loose", "ember-template-imports"]
+  },
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
@@ -43,7 +46,9 @@
 
     "paths": {
       "@ember-data/env": ["../../private-build-infra/virtual-packages/env.d.ts"]
-    }
+    },
+
+    "types": ["ember-source/types"]
   },
-  "references": [{ "path": "../core-types" }, { "path": "../request" }]
+  "references": [{ "path": "../store" }, { "path": "../core-types" }, { "path": "../request" }]
 }

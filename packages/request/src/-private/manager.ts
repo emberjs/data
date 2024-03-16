@@ -622,6 +622,7 @@ export class RequestManager {
       controller,
       response: null,
       stream: null,
+      hasRequestedStream: false,
       id: requestId,
     });
 

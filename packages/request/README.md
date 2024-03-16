@@ -386,6 +386,8 @@ Handlers that either call `next` multiple times or otherwise have reason to crea
 
 Of course, any handler may choose to read and handle the stream, and return either no stream or a different stream in the process.
 
+To conditionally stream, you can check if the user has requested the stream with `context.hasRequestedStream`.
+
 ---
 
 #### Automatic Currying of Stream and Response

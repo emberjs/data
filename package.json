@@ -51,6 +51,7 @@
     "lerna-changelog": "^2.2.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "prettier": "^3.1.1",
+    "prettier-plugin-ember-template-tag": "^2.0.0",
     "rimraf": "^5.0.5",
     "semver": "^7.5.4",
     "silent-error": "^1.1.1",
