@@ -31,6 +31,11 @@
       "default": "./addon/*.js"
     }
   },
+  "typesVersions": {
+    "*": {
+      "*": ["./unstable-preview-types/index.d.ts"]
+    }
+  },
   "scripts": {
     "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
     "build:runtime": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",

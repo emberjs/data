@@ -23,6 +23,8 @@ export class Throw extends Component {
   <template></template>
 }
 
+const and = (x: unknown, y: unknown) => x && y;
+
 export class Request extends Component {
   @provide('store') declare _store: Store;
 
@@ -55,13 +57,13 @@ export class Request extends Component {
 
   <template>
     {{#if this.reqState.isLoading}}
-      {{yield to="loading" this.loadingState}}
+      {{yield this.loadingState to="loading"}}
     {{else if (and this.reqState.isCancelled (has-block 'cancelled'))}}
-      {{yield to="cancelled" this.reqState.error}}
+      {{yield this.reqState.error to="cancelled" }}
     {{else if (and this.reqState.isError (has-block 'error'))}}
-      {{yield to="error" this.reqState.error}}
+      {{yield this.reqState.error to="error" }}
     {{else if this.reqState.isSuccess}}
-      {{yield to="content" this.reqState.result}}
+      {{yield this.reqState.result to="content"}}
     {{else}}
       <Throw @error={{this.reqState.error}} />
     {{/if}}
