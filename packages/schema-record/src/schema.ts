@@ -135,7 +135,7 @@ export class SchemaService {
           kind: field.kind === 'resource' ? 'belongsTo' : 'hasMany',
         }) as unknown as RelationshipSchema;
         fieldSpec.relationships[field.name] = relSchema;
-      } else if (field.kind !== 'derived' && field.kind !== '@local') {
+      } else if (field.kind !== 'derived' && field.kind !== '@local' && field.kind !== 'array') {
         throw new Error(`Unknown field kind ${field.kind}`);
       }
     });

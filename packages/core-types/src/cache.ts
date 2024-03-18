@@ -8,6 +8,7 @@ import type { Operation } from './cache/operations';
 import type { CollectionRelationship, ResourceRelationship } from './cache/relationship';
 import type { StableDocumentIdentifier, StableRecordIdentifier } from './identifier';
 import type { Value } from './json/raw';
+import type { TypeFromInstanceOrString } from './record';
 import type { RequestContext, StructuredDataDocument, StructuredDocument } from './request';
 import type { ResourceDocument, SingleResourceDataDocument } from './spec/document';
 import type { ApiError } from './spec/error';
@@ -137,7 +138,7 @@ export interface Cache {
    * @param {StableRecordIdentifier | StableDocumentIdentifier} identifier
    * @return {ResourceDocument | ResourceBlob | null} the known resource data
    */
-  peek(identifier: StableRecordIdentifier): ResourceBlob | null;
+  peek<T = unknown>(identifier: StableRecordIdentifier<TypeFromInstanceOrString<T>>): T | null;
   peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
 
   /**
