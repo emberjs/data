@@ -39,7 +39,7 @@ function mergeBelongsTo(graph: Graph, rel: ResourceEdge, op: MergeOperation): vo
     rel.remoteState = op.value;
   }
   if (rel.localState === op.record) {
-    rel.localState = op.record;
+    rel.localState = op.value;
     notifyChange(graph, rel.identifier, rel.definition.key);
   }
 }
