@@ -118,6 +118,7 @@ function addonBuildConfigForDataPackage(pkg) {
       let options = (app.options = app.options || {});
       options.emberData = options.emberData || {};
       options.emberData.debug = options.emberData.debug || {};
+      options.emberData.polyfillUUID = options.emberData.polyfillUUID ?? false;
       const hostOptions = options.emberData;
       const debugOptions = Object.assign(
         {
@@ -157,6 +158,7 @@ function addonBuildConfigForDataPackage(pkg) {
 
       // copy configs forward
       const ownConfig = this.options['@embroider/macros'].setOwnConfig;
+      ownConfig.polyfillUUID = options.emberData.polyfillUUID;
       ownConfig.compatWith = options.emberData.compatWith || null;
       ownConfig.debug = debugOptions;
       ownConfig.deprecations = Object.assign(

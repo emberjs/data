@@ -58,6 +58,7 @@ module.exports = {
 
     // copy configs forward
     const ownConfig = this.options['@embroider/macros'].setOwnConfig;
+    ownConfig.polyfillUUID = hostOptions.polyfillUUID ?? false;
     ownConfig.compatWith = hostOptions.compatWith || null;
     ownConfig.debug = debugOptions;
     ownConfig.deprecations = Object.assign(DEPRECATIONS, ownConfig.deprecations || {}, hostOptions.deprecations || {});
