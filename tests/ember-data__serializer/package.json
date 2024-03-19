@@ -82,7 +82,7 @@
     "@ember-data/unpublished-test-infra": "workspace:5.4.0-alpha.39",
     "@ember/optional-features": "^2.0.0",
     "@ember/string": "3.1.1",
-    "@ember/test-helpers": "^3.2.1",
+    "@ember/test-helpers": "^3.3.0",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.25",
@@ -102,7 +102,7 @@
     "loader.js": "^4.7.0",
     "qunit": "^2.20.0",
     "qunit-dom": "^3.0.0",
-    "typescript": "^5.3.3",
+    "typescript": "^5.4.2",
     "webpack": "^5.89.0"
   },
   "engines": {

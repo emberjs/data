@@ -73,9 +73,10 @@
     "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "peerDependencies": {
-    "@ember/test-helpers": ">= 3.2.1",
+    "@ember/test-helpers": ">= 3.3.0",
     "@embroider/addon-shim": ">= 1.8.7",
-    "ember-cli-test-loader": ">= 3.1.0"
+    "ember-cli-test-loader": ">= 3.1.0",
+    "ember-source": ">= 4.12.0"
   },
   "peerDependenciesMeta": {
     "@ember/test-helpers": {
@@ -86,12 +87,16 @@
     },
     "@embroider/addon-shim": {
       "optional": true
+    },
+    "ember-source": {
+      "optional": true
     }
   },
   "dependencies": {
     "chalk": "^5.3.0",
     "debug": "^4.3.4",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
+    "ember-cli-htmlbars": "^6.3.0",
     "tmp": "^0.2.1"
   },
   "devDependencies": {
@@ -107,12 +112,12 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.39",
     "bun-types": "^1.0.25",
-    "@ember/test-helpers": "^3.2.1",
+    "@ember/test-helpers": "^3.3.0",
     "ember-source": "~5.6.0",
     "@glimmer/component": "^1.1.2",
     "ember-cli-test-loader": "^3.1.0",
     "rollup": "^4.9.6",
-    "typescript": "^5.3.3",
+    "typescript": "^5.4.2",
     "walk-sync": "^3.0.0"
   },
   "engines": {

@@ -59,7 +59,7 @@
     "@ember-data/store": "workspace:5.4.0-alpha.39",
     "@ember-data/tracking": "workspace:5.4.0-alpha.39",
     "@ember/edition-utils": "^1.2.0",
-    "@ember/test-helpers": "^3.2.1",
+    "@ember/test-helpers": "^3.3.0",
     "@embroider/macros": "^1.13.5",
     "@types/qunit": "^2.19.9",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.25",
@@ -74,7 +74,7 @@
     "qunit": "^2.20.0",
     "semver": "^7.5.4",
     "testem": "^3.11.0",
-    "typescript": "~5.3.3",
+    "typescript": "^5.4.2",
     "webpack": "^5.89.0"
   },
   "dependenciesMeta": {

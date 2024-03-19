@@ -106,7 +106,7 @@
     "@ember/edition-utils": "^1.2.0",
     "@ember/optional-features": "^2.0.0",
     "@ember/string": "3.1.1",
-    "@ember/test-helpers": "^3.2.1",
+    "@ember/test-helpers": "^3.3.0",
     "@embroider/macros": "^1.13.5",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
@@ -147,7 +147,7 @@
     "pretender": "^3.4.7",
     "qunit": "^2.20.0",
     "qunit-dom": "^3.0.0",
-    "typescript": "~5.3.3",
+    "typescript": "^5.4.2",
     "webpack": "^5.89.0"
   },
   "engines": {

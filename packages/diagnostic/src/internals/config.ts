@@ -159,7 +159,7 @@ const configOptions = [
   'debug',
   'container',
 ] as const;
-export function configure(options: ConfigOptions): void {
+export function configure(options: Partial<ConfigOptions>): void {
   if (options.useTestem && options.useDiagnostic) {
     throw new Error(
       `Cannot use both Testem and Diagnostic at the same time. Please remove one of these options or set it to false.`

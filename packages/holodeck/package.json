@@ -65,7 +65,7 @@
     "@warp-drive/core-types": "workspace:0.0.0-alpha.25",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.39",
     "rollup": "^4.9.6",
-    "typescript": "^5.3.3",
+    "typescript": "^5.4.2",
     "walk-sync": "^3.0.0"
   },
   "type": "module",

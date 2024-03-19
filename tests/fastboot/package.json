@@ -49,7 +49,7 @@
     "@babel/core": "^7.23.9",
     "@babel/runtime": "^7.23.9",
     "@ember/optional-features": "^2.0.0",
-    "@ember/test-helpers": "^3.2.1",
+    "@ember/test-helpers": "^3.3.0",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.39",
@@ -70,7 +70,7 @@
     "loader.js": "^4.7.0",
     "qunit": "^2.20.0",
     "qunit-dom": "^3.0.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.4.2"
   },
   "engines": {
     "node": ">= 18.19.1"

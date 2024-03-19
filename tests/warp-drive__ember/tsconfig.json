@@ -1,0 +1,40 @@
+{
+  "include": ["app/**/*", "config/**/*", "tests/**/*", "../../@types/@glimmer"],
+  "baseUrl": ".",
+  "compilerOptions": {
+    "lib": ["DOM", "ESNext"],
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "strict": true,
+    "downlevelIteration": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "experimentalDecorators": true,
+
+    "noImplicitOverride": true,
+    "incremental": true,
+
+    "noEmit": true,
+    "declaration": false,
+
+    "types": ["ember-source/types"],
+    // "baseUrl": ".",
+    "paths": {
+      "warp-drive__ember/*": ["./app/*"],
+      "warp-drive__ember/tests/*": ["./tests/*"]
+    }
+  },
+  "references": [
+    { "path": "../../packages/diagnostic" },
+    { "path": "../../packages/ember" },
+    { "path": "../../packages/schema-record" },
+    { "path": "../../packages/core-types" },
+    { "path": "../../packages/store" },
+    { "path": "../../packages/legacy-compat" },
+    { "path": "../../packages/model" }
+  ]
+}

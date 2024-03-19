@@ -5,13 +5,20 @@ import { Config, groupLogs, instrument } from './config';
 import { DelegatingReporter } from './delegating-reporter';
 import { Diagnostic } from './diagnostic';
 
+export const PublicTestInfo = Symbol('TestInfo');
+
 export async function runTest<TC extends TestContext>(
   moduleReport: ModuleReport,
   beforeChain: HooksCallback<TC>[],
   test: TestInfo<TC>,
   afterChain: HooksCallback<TC>[]
 ) {
-  const testContext = {} as TC;
+  const testContext = {
+    [PublicTestInfo]: {
+      id: test.id,
+      name: test.name,
+    },
+  } as unknown as TC;
   const testReport: TestReport = {
     id: test.id,
     name: test.name,
