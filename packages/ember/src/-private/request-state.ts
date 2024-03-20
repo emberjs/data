@@ -1,6 +1,12 @@
 import { tracked } from '@glimmer/tracking';
 
-import type { Future, StructuredDocument, StructuredErrorDocument } from '@ember-data/request';
+import type {
+  Future,
+  ImmutableRequestInfo,
+  ResponseInfo,
+  StructuredDocument,
+  StructuredErrorDocument,
+} from '@ember-data/request';
 import { getPromiseResult, setPromiseResult } from '@ember-data/request';
 
 const RequestCache = new WeakMap<Future<unknown>, RequestState>();
@@ -21,6 +27,7 @@ async function pipeThrough(
     const result = await reader.read();
 
     if (result.done) {
+      await writer.ready;
       await writer.close();
       break;
     }
@@ -29,8 +36,14 @@ async function pipeThrough(
     state._bytesLoaded = bytesLoaded;
     state._lastPacketTime = performance.now();
 
+    await writer.ready;
     await writer.write(result.value);
   }
+
+  const endTime = performance.now();
+  state._endTime = endTime;
+  state._isComplete = true;
+  state._isStarted = false;
 }
 
 function watchStream(
@@ -40,11 +53,7 @@ function watchStream(
   const newStream = new TransformStream<Uint8Array, Uint8Array>();
   const reader = stream.getReader();
   const writer = newStream.writable.getWriter();
-
   const done = pipeThrough(reader, writer, state);
-
-  const endTime = performance.now();
-  state._endTime = endTime;
 
   return { stream: newStream.readable, done };
 }
@@ -62,7 +71,7 @@ export class RequestLoadingState {
     if (promise.sizeHint) {
       this._sizeHint = promise.sizeHint;
     }
-    void promise.then(
+    this.promise = promise.then(
       (stream) => {
         this._isPending = false;
         if (!stream) {
@@ -76,6 +85,7 @@ export class RequestLoadingState {
       },
       (error: Error) => {
         this._isPending = false;
+        this._isStarted = false;
         if (isAbortError(error)) {
           this._isCancelled = true;
           this._isComplete = true;
@@ -86,6 +96,7 @@ export class RequestLoadingState {
     );
   }
 
+  promise: Promise<void> | null = null;
   @tracked _stream: ReadableStream | null = null;
   @tracked _sizeHint = 0;
   @tracked _bytesLoaded = 0;
@@ -195,11 +206,13 @@ export class RequestState<T = unknown> {
   #request: Future<T>;
   #loadingState: RequestLoadingState | null = null;
 
-  @tracked result: StructuredDocument<T> | null = null;
+  @tracked result: T | null = null;
   @tracked error: StructuredErrorDocument | null = null;
   @tracked isLoading = true;
   @tracked isSuccess = false;
   @tracked isError = false;
+  @tracked request: ImmutableRequestInfo | null = null;
+  @tracked response: Response | ResponseInfo | null = null;
 
   get isCancelled(): boolean {
     return this.isError && isAbortError(this.error);
@@ -218,28 +231,34 @@ export class RequestState<T = unknown> {
     const state = getPromiseResult<StructuredDocument<T>, StructuredErrorDocument>(future);
 
     if (state) {
+      this.request = state.result.request;
+      this.response = state.result.response;
+      this.isLoading = false;
+
       if (state.isError) {
         this.error = state.result;
         this.isError = true;
-        this.isLoading = false;
       } else {
-        this.result = state.result;
+        this.result = state.result.content!;
         this.isSuccess = true;
-        this.isLoading = false;
       }
     } else {
       void future.then(
         (result) => {
           setPromiseResult(future, { isError: false, result });
-          this.result = result;
+          this.result = result.content;
           this.isSuccess = true;
           this.isLoading = false;
+          this.request = result.request;
+          this.response = result.response;
         },
         (error: StructuredErrorDocument) => {
           setPromiseResult(future, { isError: true, result: error });
           this.error = error;
           this.isError = true;
           this.isLoading = false;
+          this.request = error.request;
+          this.response = error.response;
         }
       );
     }

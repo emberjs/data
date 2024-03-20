@@ -323,6 +323,6 @@ export interface RequestContext {
   request: ImmutableRequestInfo;
   id: number;
 
-  setStream(stream: ReadableStream): void;
+  setStream(stream: ReadableStream | Promise<ReadableStream | null>): void;
   setResponse(response: Response | ResponseInfo): void;
 }

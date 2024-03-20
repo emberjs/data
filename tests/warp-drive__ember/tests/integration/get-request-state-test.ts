@@ -33,7 +33,10 @@ class SimpleCacheHandler implements CacheHandler {
       return this._cache.get(url) as T;
     }
 
-    return next(context.request).then(
+    const future = next(context.request);
+    context.setStream(future.getStream());
+
+    return future.then(
       (result) => {
         if (url && method === 'GET') {
           this._cache.set(url, result);
@@ -53,7 +56,7 @@ class SimpleCacheHandler implements CacheHandler {
 async function mockGETSuccess(context: LocalTestContext): Promise<string> {
   await GET(
     context,
-    'https://localhost:1135/users/1',
+    'users/1',
     () => ({
       data: {
         id: '1',
@@ -68,23 +71,27 @@ async function mockGETSuccess(context: LocalTestContext): Promise<string> {
   return 'https://localhost:1135/users/1';
 }
 async function mockGETFailure(context: LocalTestContext): Promise<string> {
-  await mock(context, () => ({
-    url: 'https://localhost:1135/users/2',
-    status: 404,
-    headers: {},
-    method: 'GET',
-    statusText: 'Not Found',
-    body: null,
-    response: {
-      errors: [
-        {
-          status: '404',
-          title: 'Not Found',
-          detail: 'The resource does not exist.',
-        },
-      ],
-    },
-  }));
+  await mock(
+    context,
+    () => ({
+      url: 'users/2',
+      status: 404,
+      headers: {},
+      method: 'GET',
+      statusText: 'Not Found',
+      body: null,
+      response: {
+        errors: [
+          {
+            status: '404',
+            title: 'Not Found',
+            detail: 'The resource does not exist.',
+          },
+        ],
+      },
+    }),
+    true
+  );
 
   return 'https://localhost:1135/users/2';
 }
@@ -100,7 +107,7 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
     this.manager = manager;
   });
 
-  test('It returns a request state', async function (assert) {
+  test('It returns a request state that updates on success', async function (assert) {
     const url = await mockGETSuccess(this);
     const request = this.manager.request({ url, method: 'GET' });
     const requestState = getRequestState(request);
@@ -108,9 +115,154 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
     assert.true(requestState.isLoading, 'The request state is loading');
     assert.false(requestState.isSuccess, 'The request state is not successful');
     assert.false(requestState.isError, 'The request state is not an error');
+    assert.equal(requestState.result, null, 'The result is null');
+    assert.equal(requestState.error, null, 'The error is null');
     await request;
     assert.true(requestState.isSuccess, 'The request state is successful');
     assert.false(requestState.isLoading, 'The request state is no longer loading');
     assert.false(requestState.isError, 'The request state is not an error');
+    assert.deepEqual(requestState.result, {
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Chris Thoburn',
+        },
+      },
+    });
+    assert.equal(requestState.error, null, 'The error is null');
+  });
+
+  test('It returns a request state that updates on failure', async function (assert) {
+    const url = await mockGETFailure(this);
+    const request = this.manager.request({ url, method: 'GET' });
+    const requestState = getRequestState(request);
+
+    assert.true(requestState.isLoading, 'The request state is loading');
+    assert.false(requestState.isSuccess, 'The request state is not successful');
+    assert.false(requestState.isError, 'The request state is not an error');
+    assert.equal(requestState.result, null, 'The result is null');
+    assert.equal(requestState.error, null, 'The error is null');
+    try {
+      await request;
+    } catch {
+      // ignore the error
+    }
+    assert.false(requestState.isSuccess, 'The request state is not successful');
+    assert.false(requestState.isLoading, 'The request state is no longer loading');
+    assert.true(requestState.isError, 'The request state is an error');
+    assert.equal(requestState.result, null);
+    assert.satisfies(
+      // @ts-expect-error
+      requestState.error,
+      {
+        code: 404,
+        status: 404,
+        name: 'NotFoundError',
+        isRequestError: true,
+        error: '[404 Not Found] GET (cors) - https://localhost:1135/users/2?__xTestId=b830e11d&__xTestRequestNumber=0',
+        statusText: 'Not Found',
+        message: '[404 Not Found] GET (cors) - https://localhost:1135/users/2',
+        errors: [{ status: '404', title: 'Not Found', detail: 'The resource does not exist.' }],
+        content: {
+          errors: [{ status: '404', title: 'Not Found', detail: 'The resource does not exist.' }],
+        },
+        response: {
+          ok: false,
+          status: 404,
+          redirected: false,
+        },
+      },
+      'The error is meaningful'
+    );
+  });
+
+  test('It returns a request state that updates on abort', async function (assert) {
+    const url = await mockGETSuccess(this);
+    const request = this.manager.request({ url, method: 'GET' });
+    const requestState = getRequestState(request);
+
+    assert.true(requestState.isLoading, 'The request state is loading');
+    assert.false(requestState.isSuccess, 'The request state is not successful');
+    assert.false(requestState.isError, 'The request state is not an error');
+    assert.equal(requestState.result, null, 'The result is null');
+    assert.equal(requestState.error, null, 'The error is null');
+
+    request.abort();
+
+    try {
+      await request;
+    } catch {
+      // ignore the error
+    }
+    assert.false(requestState.isSuccess, 'The request state is not successful');
+    assert.false(requestState.isLoading, 'The request state is no longer loading');
+    assert.true(requestState.isCancelled, 'The request state is cancelled');
+    assert.true(requestState.isError, 'The request state is an error');
+    assert.equal(requestState.result, null);
+    assert.satisfies(
+      // @ts-expect-error
+      requestState.error,
+      {
+        code: 20,
+        status: 20,
+        name: 'AbortError',
+        isRequestError: true,
+        error: 'The user aborted a request.',
+        statusText: 'Aborted',
+        message: 'The user aborted a request.',
+        response: null,
+      },
+      'The error is meaningful'
+    );
+  });
+
+  test('Loading State is Lazy', async function (assert) {
+    const url = await mockGETSuccess(this);
+    const request = this.manager.request({ url, method: 'GET' });
+    const requestState = getRequestState(request);
+
+    assert.true(requestState.isLoading, 'The request state is loading');
+    assert.false(requestState.isSuccess, 'The request state is not successful');
+    assert.false(requestState.isError, 'The request state is not an error');
+    assert.equal(requestState.result, null, 'The result is null');
+    assert.equal(requestState.error, null, 'The error is null');
+
+    debugger;
+    const loadingState = requestState.loadingState;
+    assert.false(loadingState._triggered, 'The loadingstate has not triggered (and thus is lazy)');
+    assert.true(loadingState.isPending, 'loading has not yet started');
+    assert.true(loadingState._triggered, 'The loadingstate was triggered by accessing isPending (and thus is lazy)');
+    assert.false(loadingState.isStarted, 'loading has not yet started');
+    assert.false(loadingState.isComplete, 'loading has not yet finished');
+    assert.false(loadingState.isCancelled, 'loading has not been aborted');
+    assert.false(loadingState.isErrored, 'loading has not errored');
+
+    const streamPromise = request.getStream();
+    // this should resolve prior to the request
+    await streamPromise;
+
+    assert.false(loadingState.isPending, 'loading is no longer pending');
+    assert.true(loadingState.isStarted, 'loading has now started');
+    assert.false(loadingState.isComplete, 'loading has not yet finished');
+    assert.false(loadingState.isCancelled, 'loading has not been aborted');
+    assert.false(loadingState.isErrored, 'loading has not errored');
+    assert.true(loadingState.stream instanceof ReadableStream, 'stream is available');
+
+    // try {
+    //   await request;
+    // } catch {
+    //   // ignore the error
+    // }
+    console.log('before loadingstate promise');
+    await loadingState.promise!;
+    console.log('after loadingstate promise');
+
+    assert.false(loadingState.isPending, 'loading is no longer pending');
+    assert.false(loadingState.isStarted, 'loading is no longer started');
+    assert.true(loadingState.isComplete, 'loading has now finished');
+    assert.false(loadingState.isCancelled, 'loading has not been aborted');
+    assert.false(loadingState.isErrored, 'loading has not errored');
+    assert.true(loadingState.stream instanceof ReadableStream, 'stream is available');
   });
 });

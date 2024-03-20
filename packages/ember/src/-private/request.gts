@@ -50,7 +50,7 @@ interface RequestSignature<T> {
     loading: [state: RequestLoadingState];
     cancelled: [error: StructuredErrorDocument];
     error: [error: StructuredErrorDocument];
-    content: [value: StructuredDocument<T>];
+    content: [value: T];
   };
 }
 

@@ -49,6 +49,7 @@ jobs:
           restore-broccoli-cache: true
           install: true
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+          with-cert: true
       - if: |
           github.event_name == 'pull_request' && (
             github.base_ref == 'main' || github.base_ref == 'beta'
@@ -90,6 +91,7 @@ jobs:
           restore-broccoli-cache: true
           jobs: 2
           parallel-build: true
+          with-cert: true
           install: true
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -156,6 +158,7 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           restore-broccoli-cache: true
+          with-cert: true
           install: true
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Basic tests with ${{ matrix.scenario }}
@@ -183,6 +186,7 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           restore-broccoli-cache: true
+          with-cert: true
           install: true
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Basic tests with ${{ matrix.release }}

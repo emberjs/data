@@ -77,6 +77,7 @@ export interface Diagnostic {
   expect(count: number): void;
   step(name: string): void;
   verifySteps(steps: string[], message?: string): void;
+  satisfies<T extends object, J extends T>(actual: J, expected: T, message?: string): void;
 }
 
 export interface TestContext {}
