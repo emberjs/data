@@ -233,6 +233,10 @@ export function recommendedArgs(browser, options = {}) {
     // This can cause a test to flake
     // '--hide-scrollbars',
     '--ignore-certificate-errors',
+    '--disable-proxy-certificate-handler',
+    // useful in some situations when you trust that
+    // your tests won't call out to the internet
+    // '--disable-content-security-policy',
     '--mute-audio',
     '--no-default-browser-check',
     '--no-first-run',
