@@ -28,6 +28,12 @@
     "@warp-drive/ember": {
       "injected": true
     },
+    "@warp-drive/holodeck": {
+      "injected": true
+    },
+    "@warp-drive/diagnostic": {
+      "injected": true
+    },
     "@warp-drive/schema-record": {
       "injected": true
     },
@@ -99,6 +105,7 @@
     "@warp-drive/schema-record": "workspace:0.0.0-alpha.25",
     "@warp-drive/ember": "workspace:0.0.0-alpha.1",
     "@warp-drive/diagnostic": "workspace:0.0.0-alpha.25",
+    "@warp-drive/holodeck": "workspace:0.0.0-alpha.25",
     "ember-auto-import": "^2.7.0",
     "ember-cli": "~5.4.1",
     "ember-cli-babel": "^8.2.0",

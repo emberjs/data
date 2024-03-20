@@ -28,6 +28,7 @@ module.exports = {
     node.config(),
     node.defaults(),
     typescript.defaults(),
+    diagnostic.config(),
     diagnostic.defaults({
       files: ['tests/**/*.{js,ts}'],
       allowedImports: ['@glimmer/tracking', '@glimmer/component', '@ember/object', '@ember/owner'],

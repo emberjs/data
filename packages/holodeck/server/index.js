@@ -1,6 +1,8 @@
 import { serve } from '@hono/node-server';
+import chalk from 'chalk';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { HTTPException } from 'hono/http-exception';
 import { logger } from 'hono/logger';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
@@ -8,7 +10,6 @@ import http2 from 'node:http2';
 import { dirname } from 'node:path';
 import zlib from 'node:zlib';
 import { fileURLToPath } from 'url';
-import { HTTPException } from 'hono/http-exception';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -225,4 +226,8 @@ export function createServer(options) {
     port: options.port ?? DEFAULT_PORT,
     hostname: 'localhost',
   });
+
+  console.log(
+    `\tMock server running at ${chalk.magenta('https://localhost:') + chalk.yellow(options.port ?? DEFAULT_PORT)}`
+  );
 }
