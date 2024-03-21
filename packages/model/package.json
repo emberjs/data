@@ -147,7 +147,7 @@
     "ember-source": "~5.6.0",
     "expect-type": "^0.18.0",
     "rollup": "^4.9.6",
-    "typescript": "^5.4.2",
+    "typescript": "^5.4.3",
     "walk-sync": "^3.0.0",
     "webpack": "^5.89.0"
   },

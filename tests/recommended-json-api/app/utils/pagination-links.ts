@@ -60,7 +60,7 @@ export class PaginationLinks {
     for (let i = 0; i < pages.length; i++) {
       if (pages[i] !== '.') {
         filtered.push({ index: i + 1, link: pages[i] });
-      } else if (filtered.length > 0 && filtered[filtered.length - 1]!.link !== '...') {
+      } else if (filtered.length > 0 && filtered[filtered.length - 1].link !== '...') {
         filtered.push({ index: i + 1, link: '...' });
       }
     }

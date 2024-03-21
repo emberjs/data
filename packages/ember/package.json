@@ -110,7 +110,7 @@
     "ember-template-imports": "^4.1.0",
     "ember-source": "~5.6.0",
     "rollup": "^4.9.6",
-    "typescript": "^5.4.2",
+    "typescript": "^5.4.3",
     "walk-sync": "^3.0.0"
   },
   "engines": {

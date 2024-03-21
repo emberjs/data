@@ -32,7 +32,7 @@ export function implicitRelationshipsFor(
   }
   const implicits = Object.create(null);
   Object.keys(rels).forEach((key) => {
-    const rel = rels[key]!;
+    const rel = rels[key];
     if (rel.definition.isImplicit) {
       implicits[key] = rel;
     }

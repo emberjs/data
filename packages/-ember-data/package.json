@@ -67,7 +67,7 @@
     "ember-auto-import": "^2.7.0",
     "ember-cli-babel": "^8.2.0",
     "ember-inflector": "^4.0.2",
-    "typescript": "^5.4.2",
+    "typescript": "^5.4.3",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "webpack": "^5.89.0"
   },

@@ -45,6 +45,7 @@ class TestStore extends DataStore {
   }
 
   override modelFor(type: string): ModelSchema {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     return modelFor.call(this, type)!;
   }
 }

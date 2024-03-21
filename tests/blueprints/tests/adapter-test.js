@@ -22,6 +22,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function () {
 
   describe('classic', function () {
     enableClassic();
+
     beforeEach(async function () {
       await emberNew();
       modifyPackages([{ name: '@ember-data/adapter', dev: true }]);
@@ -64,6 +65,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function () {
       });
     });
 
+    // eslint-disable-next-line mocha/no-skipped-tests
     xit('adapter throws when --base-class is same as name', function () {
       const args = ['adapter', 'foo', '--base-class=foo'];
 

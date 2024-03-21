@@ -19,6 +19,7 @@ describe('Acceptance: generate and destroy transform blueprints', function () {
 
   describe('classic', function () {
     enableClassic();
+
     describe('in app', function () {
       beforeEach(async function () {
         await emberNew();
