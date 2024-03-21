@@ -124,11 +124,11 @@ export async function runModule<TC extends TestContext>(
       const needed = Config.concurrency - promises.length;
       const available = Math.min(needed, remainingTests, Config.concurrency);
       for (let i = 0; i < available; i++) {
-        const test = tests[currentTest++]!;
+        const test = tests[currentTest++];
         remainingTests--;
         const promise = runTest(moduleReport, beforeChain, test, afterChain).finally(() => {
           const index = promises.indexOf(promise);
-          promises.splice(index, 1);
+          void promises.splice(index, 1);
         });
         promises.push(promise);
       }

@@ -13,7 +13,7 @@ export type ComponentLike = object;
  * @returns {boolean} True if it's a component, false if not
  */
 function isComponent(maybeComponent: object): maybeComponent is ComponentLike {
-  return !!getComponentManager(maybeComponent, true);
+  return !!(getComponentManager as (c: object, v: boolean) => object)(maybeComponent, true);
 }
 
 export default isComponent;

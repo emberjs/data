@@ -287,7 +287,7 @@ function fetchContentAndHydrate<T>(
   shouldBackgroundFetch: boolean
 ): Promise<T> {
   const { store } = context.request;
-  const shouldHydrate: boolean = (context.request[EnableHydration] as boolean | undefined) || false;
+  const shouldHydrate: boolean = context.request[EnableHydration] || false;
 
   let isMut = false;
   if (isMutation(context.request)) {
@@ -434,7 +434,7 @@ export const CacheHandler: CacheHandlerType = {
       store.requestManager._pending.set(context.id, promise);
     }
 
-    const shouldHydrate: boolean = (context.request[EnableHydration] as boolean | undefined) || false;
+    const shouldHydrate: boolean = context.request[EnableHydration] || false;
 
     if ('error' in peeked!) {
       const content = shouldHydrate
