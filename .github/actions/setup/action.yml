@@ -71,6 +71,11 @@ runs:
       with:
         repo-token: ${{ inputs.repo-token }}
 
+    - name: Set Up Homebrew
+      if: ${{ inputs.with-cert }}
+      id: set-up-homebrew
+      uses: Homebrew/actions/setup-homebrew@master
+
     - name: 'Setup SSL Cert'
       if: ${{ inputs.with-cert }}
       shell: bash
