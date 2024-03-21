@@ -219,16 +219,18 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
 
   test('Loading State is Lazy', async function (assert) {
     const url = await mockGETSuccess(this);
+    let requestComplete = false;
     const request = this.manager.request({ url, method: 'GET' });
     const requestState = getRequestState(request);
+    void request.finally(() => (requestComplete = true));
 
     assert.true(requestState.isLoading, 'The request state is loading');
     assert.false(requestState.isSuccess, 'The request state is not successful');
     assert.false(requestState.isError, 'The request state is not an error');
     assert.equal(requestState.result, null, 'The result is null');
     assert.equal(requestState.error, null, 'The error is null');
+    assert.false(requestComplete, 'The request is not yet complete');
 
-    debugger;
     const loadingState = requestState.loadingState;
     assert.false(loadingState._triggered, 'The loadingstate has not triggered (and thus is lazy)');
     assert.true(loadingState.isPending, 'loading has not yet started');
@@ -248,21 +250,20 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
     assert.false(loadingState.isCancelled, 'loading has not been aborted');
     assert.false(loadingState.isErrored, 'loading has not errored');
     assert.true(loadingState.stream instanceof ReadableStream, 'stream is available');
+    assert.false(requestComplete, 'The request is not yet complete');
 
-    // try {
-    //   await request;
-    // } catch {
-    //   // ignore the error
-    // }
-    console.log('before loadingstate promise');
     await loadingState.promise!;
-    console.log('after loadingstate promise');
 
     assert.false(loadingState.isPending, 'loading is no longer pending');
     assert.false(loadingState.isStarted, 'loading is no longer started');
     assert.true(loadingState.isComplete, 'loading has now finished');
     assert.false(loadingState.isCancelled, 'loading has not been aborted');
     assert.false(loadingState.isErrored, 'loading has not errored');
-    assert.true(loadingState.stream instanceof ReadableStream, 'stream is available');
+    assert.equal(loadingState.stream, null, 'stream is no longer available');
+    assert.false(requestComplete, 'The request is not yet complete');
+
+    await request;
+
+    assert.true(requestComplete, 'The request is now complete!');
   });
 });

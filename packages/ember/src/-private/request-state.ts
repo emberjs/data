@@ -7,7 +7,7 @@ import type {
   StructuredDocument,
   StructuredErrorDocument,
 } from '@ember-data/request';
-import { getPromiseResult, setPromiseResult } from '@ember-data/request';
+import { createDeferred, getPromiseResult, setPromiseResult } from '@ember-data/request';
 
 const RequestCache = new WeakMap<Future<unknown>, RequestState>();
 
@@ -15,29 +15,55 @@ function isAbortError(error: unknown): boolean {
   return error instanceof DOMException && error.name === 'AbortError';
 }
 
-async function pipeThrough(
-  reader: ReadableStreamDefaultReader<Uint8Array>,
-  writer: WritableStreamDefaultWriter<Uint8Array>,
-  state: RequestLoadingState
-): Promise<void> {
+async function watchStream(stream: ReadableStream<Uint8Array>, state: RequestLoadingState): Promise<void> {
+  const reader = stream.getReader();
   let bytesLoaded = 0;
+  let shouldForward = state._stream !== null && state._stream.readable.locked;
+  let isForwarding = shouldForward;
+  let writer = state._stream?.writable.getWriter();
+  const buffer = [];
+
+  state._isPending = false;
+  state._isStarted = true;
   state._startTime = performance.now();
+
   // eslint-disable-next-line no-constant-condition
   while (true) {
-    const result = await reader.read();
-
-    if (result.done) {
-      await writer.ready;
-      await writer.close();
+    const { value, done } = await reader.read();
+    if (done) {
       break;
     }
-
-    bytesLoaded += result.value.byteLength;
+    bytesLoaded += value.byteLength;
     state._bytesLoaded = bytesLoaded;
     state._lastPacketTime = performance.now();
 
-    await writer.ready;
-    await writer.write(result.value);
+    shouldForward = shouldForward || (state._stream !== null && state._stream.readable.locked);
+
+    if (shouldForward) {
+      if (!isForwarding) {
+        isForwarding = true;
+        writer = state._stream!.writable.getWriter();
+        for (const item of buffer) {
+          await writer.ready;
+          await writer.write(item);
+        }
+        buffer.length = 0;
+      }
+      await writer!.ready;
+      await writer!.write(value);
+    } else {
+      buffer.push(value);
+    }
+  }
+
+  // if we are still forwarding, we need to close the writer
+  if (isForwarding) {
+    await writer!.ready;
+    await writer!.close();
+  } else if (state._stream) {
+    // if we are not forwarding, we need to cancel the stream
+    await state._stream.readable.cancel('The Stream Has Already Ended');
+    state._stream = null;
   }
 
   const endTime = performance.now();
@@ -46,19 +72,8 @@ async function pipeThrough(
   state._isStarted = false;
 }
 
-function watchStream(
-  stream: ReadableStream<Uint8Array>,
-  state: RequestLoadingState
-): { stream: ReadableStream<Uint8Array>; done: Promise<void> } {
-  const newStream = new TransformStream<Uint8Array, Uint8Array>();
-  const reader = stream.getReader();
-  const writer = newStream.writable.getWriter();
-  const done = pipeThrough(reader, writer, state);
-
-  return { stream: newStream.readable, done };
-}
-
 export class RequestLoadingState {
+  _stream: TransformStream | null = null;
   _future: Future<unknown>;
   _triggered = false;
   _trigger() {
@@ -73,15 +88,12 @@ export class RequestLoadingState {
     }
     this.promise = promise.then(
       (stream) => {
-        this._isPending = false;
         if (!stream) {
+          this._isPending = false;
           this._isComplete = true;
           return;
         }
-        this._isStarted = true;
-        const watched = watchStream(stream, this);
-        this._stream = watched.stream;
-        return watched.done;
+        return watchStream(stream, this);
       },
       (error: Error) => {
         this._isPending = false;
@@ -97,7 +109,6 @@ export class RequestLoadingState {
   }
 
   promise: Promise<void> | null = null;
-  @tracked _stream: ReadableStream | null = null;
   @tracked _sizeHint = 0;
   @tracked _bytesLoaded = 0;
 
@@ -124,7 +135,13 @@ export class RequestLoadingState {
 
   get stream(): ReadableStream | null {
     this._trigger();
-    return this._stream;
+    if (!this._stream) {
+      if (this._isComplete || this._isCancelled || this._isErrored) {
+        return null;
+      }
+      this._stream = new TransformStream();
+    }
+    return this._stream.readable;
   }
 
   get isStarted(): boolean {

@@ -156,6 +156,9 @@ const Fetch = {
     if (isStreaming) {
       // Listen for the abort event on the AbortSignal
       context.request.signal?.addEventListener('abort', () => {
+        if (!isStreaming) {
+          return;
+        }
         void stream!.writable.abort('Request Aborted');
         void stream!.readable.cancel('Request Aborted');
       });
@@ -169,14 +172,19 @@ const Fetch = {
       // we need to be able to pass the stream along efficiently.
       const { done, value } = await reader.read();
       if (done) {
+        if (isStreaming) {
+          isStreaming = false;
+          await writer!.ready;
+          await writer!.close();
+        }
         break;
       }
       text += decoder.decode(value, { stream: true });
 
       // if we are streaming, we want to pass the stream along
       if (isStreaming) {
-        await writer?.write(value);
-        break;
+        await writer!.ready;
+        await writer!.write(value);
       } else if (context.hasRequestedStream) {
         const encode = new TextEncoder();
         isStreaming = true;
@@ -184,14 +192,25 @@ const Fetch = {
         // Listen for the abort event on the AbortSignal
         // eslint-disable-next-line @typescript-eslint/no-loop-func
         context.request.signal?.addEventListener('abort', () => {
+          if (!isStreaming) {
+            return;
+          }
           void stream!.writable.abort('Request Aborted');
           void stream!.readable.cancel('Request Aborted');
         });
         context.setStream(stream.readable);
         writer = stream.writable.getWriter();
+        await writer.ready;
         await writer.write(encode.encode(text));
+        await writer.ready;
         await writer.write(value);
       }
+    }
+
+    if (isStreaming) {
+      isStreaming = false;
+      await writer!.ready;
+      await writer!.close();
     }
 
     // if we are an error, we will want to throw

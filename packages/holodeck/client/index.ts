@@ -51,7 +51,7 @@ export class MockServerHandler implements Handler {
     try {
       const future = next(request);
       context.setStream(future.getStream());
-      return future;
+      return await future;
     } catch (e) {
       if (e instanceof Error && !(e instanceof DOMException)) {
         e.message = e.message.replace(queryForTest, '');
