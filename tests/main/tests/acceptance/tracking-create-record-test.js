@@ -2,7 +2,7 @@ import { inject as service } from '@ember/service';
 import { render, settled } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 // eslint-disable-next-line no-restricted-imports
-import { cached, tracked } from '@glimmer/tracking';
+import { tracked } from '@glimmer/tracking';
 
 import { module, test } from 'qunit';
 
@@ -10,7 +10,7 @@ import { hbs } from 'ember-cli-htmlbars';
 import { setupRenderingTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
-import { memoTransact, transact, untracked } from '@ember-data/tracking';
+import { cached, memoTransact, transact, untracked } from '@ember-data/tracking';
 
 module('acceptance/tracking-transactions', function (hooks) {
   setupRenderingTest(hooks);
