@@ -50,7 +50,7 @@
     "ember-auto-import": "^2.7.0",
     "ember-cli-babel": "^8.2.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
-    "webpack": "^5.89.0"
+    "webpack": "^5.91.0"
   },
   "devDependencies": {
     "@ember-data/request": "workspace:5.4.0-alpha.39",

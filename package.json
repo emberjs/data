@@ -121,6 +121,7 @@
       "broccoli-funnel": "^3.0.8",
       "broccoli-merge-trees": "^4.2.0",
       "@glimmer/validator": "^0.89.0",
+      "@glint/template": "^1.4.0",
       "ember-cli-babel": "^8.2.0",
       "ember-cli-htmlbars": "^6.3.0",
       "ember-cli-typescript": "^5.2.1",

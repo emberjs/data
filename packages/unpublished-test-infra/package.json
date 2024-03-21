@@ -75,7 +75,7 @@
     "semver": "^7.5.4",
     "testem": "^3.11.0",
     "typescript": "^5.4.3",
-    "webpack": "^5.89.0"
+    "webpack": "^5.91.0"
   },
   "dependenciesMeta": {
     "@ember-data/private-build-infra": {
@@ -120,7 +120,7 @@
     "ember-resolver": "^11.0.1",
     "ember-source": "~5.6.0",
     "loader.js": "^4.7.0",
-    "webpack": "^5.89.0"
+    "webpack": "^5.91.0"
   },
   "engines": {
     "node": ">= 18.19.1"

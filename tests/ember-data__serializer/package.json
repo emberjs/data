@@ -103,7 +103,7 @@
     "qunit": "^2.20.0",
     "qunit-dom": "^3.0.0",
     "typescript": "^5.4.3",
-    "webpack": "^5.89.0"
+    "webpack": "^5.91.0"
   },
   "engines": {
     "node": ">= 18.19.1"
