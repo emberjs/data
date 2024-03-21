@@ -164,13 +164,14 @@ export type GetMaybeDeserializeValue<T> = T extends { deserialize: (...args: any
   : never;
 
 export type TypeFromInstance<T> = T extends TransformHasType ? T[typeof TransformName] : never;
-export type OptionsFromInstance<T> = TypeFromInstance<T> extends never
-  ? never
-  : GetMaybeDeserializeValue<T> extends never
+export type OptionsFromInstance<T> =
+  TypeFromInstance<T> extends never
     ? never
-    : T extends TypedTransformInstance<GetMaybeDeserializeValue<T>, TypeFromInstance<T>>
-      ? Parameters<T['deserialize']>[1] & Parameters<T['serialize']>[1] & AttrOptions<ReturnType<T['deserialize']>>
-      : never;
+    : GetMaybeDeserializeValue<T> extends never
+      ? never
+      : T extends TypedTransformInstance<GetMaybeDeserializeValue<T>, TypeFromInstance<T>>
+        ? Parameters<T['deserialize']>[1] & Parameters<T['serialize']>[1] & AttrOptions<ReturnType<T['deserialize']>>
+        : never;
 
 /**
  * The return type of `void` is a lie to appease TypeScript. The actual return type
