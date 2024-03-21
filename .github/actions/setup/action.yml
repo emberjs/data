@@ -73,6 +73,7 @@ runs:
 
     - name: 'Setup SSL Cert'
       if: ${{ inputs.with-cert }}
+      shell: bash
       run: |
         sudo apt install libnss3-tools
         brew install mkcert
