@@ -7,7 +7,7 @@ import type {
   StructuredDocument,
   StructuredErrorDocument,
 } from '@ember-data/request';
-import { createDeferred, getPromiseResult, setPromiseResult } from '@ember-data/request';
+import { getPromiseResult, setPromiseResult } from '@ember-data/request';
 
 const RequestCache = new WeakMap<Future<unknown>, RequestState>();
 

@@ -1,7 +1,3 @@
-import { rerender, settled } from '@ember/test-helpers';
-
-import { hbs } from 'ember-cli-htmlbars';
-
 import type { CacheHandler, Future, NextFn, RequestContext, StructuredDataDocument } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
@@ -10,8 +6,6 @@ import { module, setupRenderingTest, test as _test } from '@warp-drive/diagnosti
 import { getRequestState } from '@warp-drive/ember';
 import { mock, MockServerHandler } from '@warp-drive/holodeck';
 import { GET } from '@warp-drive/holodeck/mock';
-
-type RequestState = ReturnType<typeof getRequestState>;
 
 // our tests use a rendering test context and add manager to it
 interface LocalTestContext extends RenderingTestContext {
