@@ -50,13 +50,13 @@
     "@ember-data/unpublished-test-infra": "workspace:5.4.0-alpha.39",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "^3.3.0",
-    "@embroider/compat": "^3.4.0",
-    "@embroider/core": "^3.4.2",
-    "@embroider/webpack": "^3.2.1",
+    "@embroider/compat": "^3.4.6",
+    "@embroider/core": "^3.4.6",
+    "@embroider/webpack": "^3.2.2",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.39",
-    "ember-cli": "~5.4.1",
+    "ember-cli": "~5.7.0",
     "ember-cli-babel": "^8.2.0",
     "ember-cli-dependency-checker": "^3.3.2",
     "ember-cli-fastboot": "^4.1.2",
@@ -70,9 +70,9 @@
     "ember-simple-tree": "^0.8.4",
     "ember-source": "~5.6.0",
     "loader.js": "^4.7.0",
-    "qunit": "^2.20.0",
+    "qunit": "^2.20.1",
     "qunit-dom": "^3.0.0",
-    "typescript": "^5.4.2"
+    "typescript": "^5.4.3"
   },
   "engines": {
     "node": ">= 18.19.1"
