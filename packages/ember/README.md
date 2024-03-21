@@ -30,8 +30,10 @@ Documentation
 
 - [PromiseState](#promisestate)
   - [getPromiseState](#getpromisestate)
+  - [\<Await />](#await)
 - [RequestState](#requeststate)
   - [getRequestState](#getrequeststate)
+  - [\<Request />](#request)
 
 ---
 
@@ -184,6 +186,8 @@ import { getPromiseState } from '@warp-drive/ember';
 </template>
 ```
 
+#### \<Await />
+
 Alternatively, use the `<Await>` component
 
 ```gjs
@@ -280,6 +284,8 @@ import { getRequestState } from '@warp-drive/ember';
 </template>
 ```
 
+#### \<Request />
+
 Alternatively, use the `<Request>` component. Note: the request component
 taps into additional capabilities *beyond* what `RequestState` offers.
 
@@ -291,7 +297,7 @@ import { Request } from '@warp-drive/ember';
 <template>
   <Request @request={{@request}}>
     <:loading as |state|>
-      <Spinner @percentDone={{state.percentDone}} />
+      <Spinner @percentDone={{state.completeRatio}} />
       <button {{on "click" state.abort}}>Cancel</button>
     </:loading>
 
