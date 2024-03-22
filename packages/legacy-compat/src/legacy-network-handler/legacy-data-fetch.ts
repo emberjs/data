@@ -1,46 +1,76 @@
 import { assert } from '@ember/debug';
 
 import { DEBUG } from '@ember-data/env';
+import type Store from '@ember-data/store';
+import type { BaseFinderOptions } from '@ember-data/store/-types/q/store';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { RelationshipSchema } from '@warp-drive/core-types/schema';
+import type { ExistingResourceObject, JsonApiDocument } from '@warp-drive/core-types/spec/raw';
 
+import { upgradeStore } from '../-private';
 import { iterateData, payloadIsNotBlank } from './legacy-data-utils';
+import type { MinimumAdapterInterface } from './minimum-adapter-interface';
 import { normalizeResponseHelper } from './serializer-response';
 
-export function _findHasMany(adapter, store, identifier, link, relationship, options) {
-  let promise = Promise.resolve().then(() => {
+export function _findHasMany(
+  adapter: MinimumAdapterInterface,
+  store: Store,
+  identifier: StableRecordIdentifier,
+  link: string | null | { href: string },
+  relationship: RelationshipSchema,
+  options: BaseFinderOptions
+) {
+  upgradeStore(store);
+  const promise = Promise.resolve().then(() => {
     const snapshot = store._fetchManager.createSnapshot(identifier, options);
     const useLink = !link || typeof link === 'string';
     const relatedLink = useLink ? link : link.href;
+    assert(
+      `Attempted to load a hasMany relationship from a specified 'link' in the original payload, but the specified link is empty. You must provide a valid 'link' in the original payload to use 'findHasMany'`,
+      relatedLink
+    );
+    assert(
+      `Expected the adapter to implement 'findHasMany' but it does not`,
+      typeof adapter.findHasMany === 'function'
+    );
     return adapter.findHasMany(store, snapshot, relatedLink, relationship);
   });
 
-  promise = promise.then(
-    (adapterPayload) => {
-      assert(
-        `You made a 'findHasMany' request for a ${identifier.type}'s '${relationship.name}' relationship, using link '${link}' , but the adapter's response did not have any data`,
-        payloadIsNotBlank(adapterPayload)
-      );
-      const modelClass = store.modelFor(relationship.type);
+  return promise.then((adapterPayload) => {
+    assert(
+      `You made a 'findHasMany' request for a ${identifier.type}'s '${
+        relationship.name
+      }' relationship, using link '${JSON.stringify(link)}' , but the adapter's response did not have any data`,
+      payloadIsNotBlank(adapterPayload)
+    );
+    const modelClass = store.modelFor(relationship.type);
 
-      const serializer = store.serializerFor(relationship.type);
-      let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findHasMany');
+    const serializer = store.serializerFor(relationship.type);
+    let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findHasMany');
 
-      assert(
-        `fetched the hasMany relationship '${relationship.name}' for ${identifier.type}:${identifier.id} with link '${link}', but no data member is present in the response. If no data exists, the response should set { data: [] }`,
-        'data' in payload && Array.isArray(payload.data)
-      );
+    assert(
+      `fetched the hasMany relationship '${relationship.name}' for ${identifier.type}:${
+        identifier.id
+      } with link '${JSON.stringify(
+        link
+      )}', but no data member is present in the response. If no data exists, the response should set { data: [] }`,
+      'data' in payload && Array.isArray(payload.data)
+    );
 
-      payload = syncRelationshipDataFromLink(store, payload, identifier, relationship);
-      return store._push(payload, true);
-    },
-    null,
-    `DS: Extract payload of '${identifier.type}' : hasMany '${relationship.type}'`
-  );
-
-  return promise;
+    payload = syncRelationshipDataFromLink(store, payload, identifier as ResourceIdentity, relationship);
+    return store._push(payload, true);
+  }, null);
 }
 
-export function _findBelongsTo(store, identifier, link, relationship, options) {
-  let promise = Promise.resolve().then(() => {
+export function _findBelongsTo(
+  store: Store,
+  identifier: StableRecordIdentifier,
+  link: string | null | { href: string },
+  relationship: RelationshipSchema,
+  options: BaseFinderOptions
+) {
+  upgradeStore(store);
+  const promise = Promise.resolve().then(() => {
     const adapter = store.adapterFor(identifier.type);
     assert(`You tried to load a belongsTo relationship but you have no adapter (for ${identifier.type})`, adapter);
     assert(
@@ -50,34 +80,35 @@ export function _findBelongsTo(store, identifier, link, relationship, options) {
     const snapshot = store._fetchManager.createSnapshot(identifier, options);
     const useLink = !link || typeof link === 'string';
     const relatedLink = useLink ? link : link.href;
+    assert(
+      `Attempted to load a belongsTo relationship from a specified 'link' in the original payload, but the specified link is empty. You must provide a valid 'link' in the original payload to use 'findBelongsTo'`,
+      relatedLink
+    );
     return adapter.findBelongsTo(store, snapshot, relatedLink, relationship);
   });
 
-  promise = promise.then(
-    (adapterPayload) => {
-      const modelClass = store.modelFor(relationship.type);
-      const serializer = store.serializerFor(relationship.type);
-      let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findBelongsTo');
+  return promise.then((adapterPayload) => {
+    const modelClass = store.modelFor(relationship.type);
+    const serializer = store.serializerFor(relationship.type);
+    let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findBelongsTo');
 
-      assert(
-        `fetched the belongsTo relationship '${relationship.name}' for ${identifier.type}:${identifier.id} with link '${link}', but no data member is present in the response. If no data exists, the response should set { data: null }`,
-        'data' in payload &&
-          (payload.data === null || (typeof payload.data === 'object' && !Array.isArray(payload.data)))
-      );
+    assert(
+      `fetched the belongsTo relationship '${relationship.name}' for ${identifier.type}:${
+        identifier.id
+      } with link '${JSON.stringify(
+        link
+      )}', but no data member is present in the response. If no data exists, the response should set { data: null }`,
+      'data' in payload && (payload.data === null || (typeof payload.data === 'object' && !Array.isArray(payload.data)))
+    );
 
-      if (!payload.data && !payload.links && !payload.meta) {
-        return null;
-      }
+    if (!payload.data && !payload.links && !payload.meta) {
+      return null;
+    }
 
-      payload = syncRelationshipDataFromLink(store, payload, identifier, relationship);
+    payload = syncRelationshipDataFromLink(store, payload, identifier as ResourceIdentity, relationship);
 
-      return store._push(payload, true);
-    },
-    null,
-    `DS: Extract payload of ${identifier.type} : ${relationship.type}`
-  );
-
-  return promise;
+    return store._push(payload, true);
+  }, null);
 }
 
 // sync
@@ -86,7 +117,12 @@ export function _findBelongsTo(store, identifier, link, relationship, options) {
 //   assert that record.relationships[inverse] is either undefined (so we can fix it)
 //     or provide a data: {id, type} that matches the record that requested it
 //   return the relationship data for the parent
-function syncRelationshipDataFromLink(store, payload, parentIdentifier, relationship) {
+function syncRelationshipDataFromLink(
+  store: Store,
+  payload: JsonApiDocument,
+  parentIdentifier: ResourceIdentity,
+  relationship: RelationshipSchema
+) {
   // ensure the right hand side (incoming payload) points to the parent record that
   // requested this relationship
   const relationshipData = payload.data
@@ -97,7 +133,7 @@ function syncRelationshipDataFromLink(store, payload, parentIdentifier, relation
       })
     : null;
 
-  const relatedDataHash = {};
+  const relatedDataHash = {} as JsonApiDocument;
 
   if ('meta' in payload) {
     relatedDataHash.meta = payload.meta;
@@ -127,7 +163,16 @@ function syncRelationshipDataFromLink(store, payload, parentIdentifier, relation
   return payload;
 }
 
-function ensureRelationshipIsSetToParent(payload, parentIdentifier, store, parentRelationship, index) {
+type ResourceIdentity = { id: string; type: string };
+type RelationshipData = ResourceIdentity | ResourceIdentity[] | null;
+
+function ensureRelationshipIsSetToParent(
+  payload: ExistingResourceObject,
+  parentIdentifier: ResourceIdentity,
+  store: Store,
+  parentRelationship: RelationshipSchema,
+  index: number
+) {
   const { id, type } = payload;
 
   if (!payload.relationships) {
@@ -139,14 +184,14 @@ function ensureRelationshipIsSetToParent(payload, parentIdentifier, store, paren
   if (inverse) {
     const { inverseKey, kind } = inverse;
 
-    const relationshipData = relationships[inverseKey] && relationships[inverseKey].data;
+    const relationshipData = relationships[inverseKey]?.data as RelationshipData | undefined;
 
     if (DEBUG) {
       if (
         typeof relationshipData !== 'undefined' &&
         !relationshipDataPointsToParent(relationshipData, parentIdentifier)
       ) {
-        const inspect = function inspect(thing) {
+        const inspect = function inspect(thing: unknown) {
           return `'${JSON.stringify(thing)}'`;
         };
         const quotedType = inspect(type);
@@ -159,7 +204,8 @@ function ensureRelationshipIsSetToParent(payload, parentIdentifier, store, paren
         const got = inspect(relationshipData);
         const prefix = typeof index === 'number' ? `data[${index}]` : `data`;
         const path = `${prefix}.relationships.${inverseKey}.data`;
-        const other = relationshipData ? `<${relationshipData.type}:${relationshipData.id}>` : null;
+        const data = Array.isArray(relationshipData) ? relationshipData[0] : relationshipData;
+        const other = data ? `<${data.type}:${data.id}>` : null;
         const relationshipFetched = `${expectedModel}.${parentRelationship.kind}("${parentRelationship.name}")`;
         const includedRecord = `<${type}:${id}>`;
         const message = [
@@ -176,12 +222,12 @@ function ensureRelationshipIsSetToParent(payload, parentIdentifier, store, paren
 
     if (kind !== 'hasMany' || typeof relationshipData !== 'undefined') {
       relationships[inverseKey] = relationships[inverseKey] || {};
-      relationships[inverseKey].data = fixRelationshipData(relationshipData, kind, parentIdentifier);
+      relationships[inverseKey].data = fixRelationshipData(relationshipData ?? null, kind, parentIdentifier);
     }
   }
 }
 
-function inverseForRelationship(store, identifier, key) {
+function inverseForRelationship(store: Store, identifier: { type: string; id?: string }, key: string) {
   const definition = store.getSchemaDefinitionService().relationshipsDefinitionFor(identifier)[key];
   if (!definition) {
     return null;
@@ -195,7 +241,12 @@ function inverseForRelationship(store, identifier, key) {
   return definition.options.inverse;
 }
 
-function getInverse(store, parentIdentifier, parentRelationship, type) {
+function getInverse(
+  store: Store,
+  parentIdentifier: ResourceIdentity,
+  parentRelationship: RelationshipSchema,
+  type: string
+) {
   const { name: lhs_relationshipName } = parentRelationship;
   const { type: parentType } = parentIdentifier;
   const inverseKey = inverseForRelationship(store, { type: parentType }, lhs_relationshipName);
@@ -210,7 +261,7 @@ function getInverse(store, parentIdentifier, parentRelationship, type) {
   }
 }
 
-function relationshipDataPointsToParent(relationshipData, identifier) {
+function relationshipDataPointsToParent(relationshipData: RelationshipData, identifier: ResourceIdentity): boolean {
   if (relationshipData === null) {
     return false;
   }
@@ -232,17 +283,22 @@ function relationshipDataPointsToParent(relationshipData, identifier) {
   return false;
 }
 
-function fixRelationshipData(relationshipData, relationshipKind, { id, type }) {
+function fixRelationshipData(
+  relationshipData: RelationshipData,
+  relationshipKind: 'hasMany' | 'belongsTo',
+  { id, type }: ResourceIdentity
+) {
   const parentRelationshipData = {
     id,
     type,
   };
 
-  let payload;
+  let payload: { type: string; id: string } | { type: string; id: string }[] | null = null;
 
   if (relationshipKind === 'hasMany') {
-    payload = relationshipData || [];
+    const relData = (relationshipData as { type: string; id: string }[]) || [];
     if (relationshipData) {
+      assert('expected the relationship data to be an array', Array.isArray(relationshipData));
       // these arrays could be massive so this is better than filter
       // Note: this is potentially problematic if type/id are not in the
       // same state of normalization.
@@ -250,19 +306,21 @@ function fixRelationshipData(relationshipData, relationshipKind, { id, type }) {
         return v.type === parentRelationshipData.type && v.id === parentRelationshipData.id;
       });
       if (!found) {
-        payload.push(parentRelationshipData);
+        relData.push(parentRelationshipData);
       }
     } else {
-      payload.push(parentRelationshipData);
+      relData.push(parentRelationshipData);
     }
+    payload = relData;
   } else {
-    payload = relationshipData || {};
-    Object.assign(payload, parentRelationshipData);
+    const relData = (relationshipData as { type: string; id: string }) || {};
+    Object.assign(relData, parentRelationshipData);
+    payload = relData;
   }
 
   return payload;
 }
 
-function validateRelationshipEntry({ id }, { id: parentModelID }) {
-  return id && id.toString() === parentModelID;
+function validateRelationshipEntry({ id }: ResourceIdentity, { id: parentModelID }: ResourceIdentity): boolean {
+  return !!id && id.toString() === parentModelID;
 }

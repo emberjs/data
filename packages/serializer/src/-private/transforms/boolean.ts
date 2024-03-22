@@ -2,6 +2,8 @@
   @module @ember-data/serializer
 */
 
+import { TransformName } from '@warp-drive/core-types/symbols';
+
 /**
   The `BooleanTransform` class is used to serialize and deserialize
   boolean attributes on Ember Data record objects. This transform is
@@ -61,6 +63,8 @@ export default class BooleanTransform {
 
     return Boolean(deserialized);
   }
+
+  [TransformName] = 'boolean' as const;
 
   static create() {
     return new this();

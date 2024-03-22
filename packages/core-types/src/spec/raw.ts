@@ -96,17 +96,22 @@ export type ResourceIdentifierObject<T extends string = string> =
   | NewResourceIdentifierObject<T>;
 
 // TODO disallow NewResource, make narrowable
-export interface SingleResourceRelationship {
-  data?: ExistingResourceIdentifierObject | NewResourceIdentifierObject | null;
+export interface SingleResourceRelationship<T = ExistingResourceIdentifierObject | NewResourceIdentifierObject> {
+  data?: T | null;
   meta?: Meta;
   links?: Links;
 }
 
-export interface CollectionResourceRelationship {
-  data?: Array<ExistingResourceIdentifierObject | NewResourceIdentifierObject>;
+export interface CollectionResourceRelationship<T = ExistingResourceIdentifierObject | NewResourceIdentifierObject> {
+  data?: T[];
   meta?: Meta;
   links?: PaginationLinks;
 }
+
+export type ResourceRelationshipsObject<T = ExistingResourceIdentifierObject | NewResourceIdentifierObject> = Record<
+  string,
+  SingleResourceRelationship<T> | CollectionResourceRelationship<T>
+>;
 
 /**
  * Contains the data for an existing resource in JSON:API format
@@ -115,7 +120,7 @@ export interface CollectionResourceRelationship {
 export interface ExistingResourceObject<T extends string = string> extends ExistingResourceIdentifierObject<T> {
   meta?: Meta;
   attributes?: ObjectValue;
-  relationships?: Record<string, SingleResourceRelationship | CollectionResourceRelationship>;
+  relationships?: ResourceRelationshipsObject<ExistingResourceIdentifierObject>;
   links?: Links;
 }
 

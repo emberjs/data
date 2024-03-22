@@ -2,6 +2,8 @@
   @module @ember-data/serializer
 */
 
+import { TransformName } from '@warp-drive/core-types/symbols';
+
 /**
   The `StringTransform` class is used to serialize and deserialize
   string attributes on Ember Data record objects. This transform is
@@ -30,6 +32,8 @@ export default class StringTransform {
   serialize(deserialized: unknown, _options?: Record<string, unknown>): string | null {
     return !deserialized && deserialized !== '' ? null : String(deserialized);
   }
+
+  [TransformName] = 'string' as const;
 
   static create() {
     return new this();

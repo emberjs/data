@@ -71,9 +71,13 @@ class Model extends EmberObject {
     binding?: T
   ): void;
   static eachTransformedAttribute<K extends keyof this & string>(
-    callback: (this: ModelSchema<this>, key: K, type: string | null) => void,
+    callback: (this: ModelSchema<this>, key: K, type: string) => void,
     binding?: T
   ): void;
+  static determineRelationshipType(
+    knownSide: RelationshipSchema,
+    store: Store
+  ): 'oneToOne' | 'manyToOne' | 'oneToMany' | 'manyToMany' | 'oneToNone' | 'manyToNone';
 
   static toString(): string;
   static isModel: true;
