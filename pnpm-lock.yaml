@@ -231,7 +231,7 @@ importers:
         version: 5.91.0
     devDependencies:
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@ember/string':
         specifier: 3.1.1
@@ -293,31 +293,31 @@ importers:
         version: 8.2.0(@babel/core@7.24.3)
     devDependencies:
       '@babel/cli':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-proposal-decorators':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-class-properties':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-typescript':
-        specifier: ^7.23.6
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-typescript':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@ember-data/request':
         specifier: workspace:5.4.0-alpha.40
@@ -402,34 +402,34 @@ importers:
         version: 1.0.0
     devDependencies:
       '@babel/cli':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-proposal-decorators':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-class-properties':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-private-methods':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-typescript':
-        specifier: ^7.23.6
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-typescript':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@ember-data/graph':
         specifier: workspace:5.4.0-alpha.40
@@ -531,34 +531,34 @@ importers:
         version: 8.2.0(@babel/core@7.24.3)
     devDependencies:
       '@babel/cli':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-proposal-decorators':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-class-properties':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-private-methods':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-typescript':
-        specifier: ^7.23.6
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-typescript':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@embroider/addon-dev':
         specifier: ^4.2.1
@@ -600,7 +600,7 @@ importers:
   packages/debug:
     dependencies:
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@ember-data/private-build-infra':
         specifier: workspace:5.4.0-alpha.40
@@ -678,22 +678,22 @@ importers:
         version: 0.2.3
     devDependencies:
       '@babel/cli':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-transform-typescript':
-        specifier: ^7.23.6
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-typescript':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@ember/test-helpers':
         specifier: ^3.3.0
@@ -751,34 +751,34 @@ importers:
         version: 1.15.0(@glint/template@1.4.0)
     devDependencies:
       '@babel/cli':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-proposal-decorators':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-class-properties':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-private-methods':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-typescript':
-        specifier: ^7.23.6
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-typescript':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@ember-data/request':
         specifier: workspace:5.4.0-alpha.40
@@ -884,34 +884,34 @@ importers:
         version: 8.2.0(@babel/core@7.24.3)
     devDependencies:
       '@babel/cli':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-proposal-decorators':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-class-properties':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-private-methods':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-typescript':
-        specifier: ^7.23.6
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-typescript':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@ember-data/request':
         specifier: workspace:5.4.0-alpha.40
@@ -991,22 +991,22 @@ importers:
         version: 5.3.1
     devDependencies:
       '@babel/cli':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-transform-typescript':
-        specifier: ^7.23.6
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-typescript':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@ember-data/request':
         specifier: workspace:5.4.0-alpha.40
@@ -1060,34 +1060,34 @@ importers:
         version: 8.2.0(@babel/core@7.24.3)
     devDependencies:
       '@babel/cli':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-proposal-decorators':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-class-properties':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-private-methods':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-typescript':
-        specifier: ^7.23.6
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-typescript':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@ember-data/graph':
         specifier: workspace:5.4.0-alpha.40
@@ -1179,34 +1179,34 @@ importers:
         version: 8.2.0(@babel/core@7.24.3)
     devDependencies:
       '@babel/cli':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-proposal-decorators':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-class-properties':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-private-methods':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-typescript':
-        specifier: ^7.23.6
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-typescript':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@ember-data/graph':
         specifier: workspace:5.4.0-alpha.40
@@ -1312,34 +1312,34 @@ importers:
         version: 3.0.0
     devDependencies:
       '@babel/cli':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-proposal-decorators':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-class-properties':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-private-methods':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-typescript':
-        specifier: ^7.23.6
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-typescript':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@ember-data/debug':
         specifier: workspace:5.4.0-alpha.40
@@ -1439,13 +1439,13 @@ importers:
   packages/private-build-infra:
     dependencies:
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-transform-block-scoping':
-        specifier: ^7.23.4
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@ember/edition-utils':
         specifier: ^1.2.0
@@ -1525,34 +1525,34 @@ importers:
         version: 8.2.0(@babel/core@7.24.3)
     devDependencies:
       '@babel/cli':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-proposal-decorators':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-class-properties':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-private-methods':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-typescript':
-        specifier: ^7.23.6
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-typescript':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@embroider/addon-dev':
         specifier: ^4.2.1
@@ -1600,31 +1600,31 @@ importers:
         version: 8.2.0(@babel/core@7.24.3)
     devDependencies:
       '@babel/cli':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-proposal-decorators':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-class-properties':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-typescript':
-        specifier: ^7.23.6
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-typescript':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@embroider/addon-dev':
         specifier: ^4.2.1
@@ -1670,31 +1670,31 @@ importers:
         version: 8.2.0(@babel/core@7.24.3)
     devDependencies:
       '@babel/cli':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-proposal-decorators':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-class-properties':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-typescript':
-        specifier: ^7.23.6
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-typescript':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@ember-data/request':
         specifier: workspace:5.4.0-alpha.40
@@ -1792,34 +1792,34 @@ importers:
         version: 8.2.0(@babel/core@7.24.3)
     devDependencies:
       '@babel/cli':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-proposal-decorators':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-class-properties':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-private-methods':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-typescript':
-        specifier: ^7.23.6
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-typescript':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@ember-data/request':
         specifier: workspace:5.4.0-alpha.40
@@ -1899,34 +1899,34 @@ importers:
         version: 1.0.0
     devDependencies:
       '@babel/cli':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-proposal-decorators':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-class-properties':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-private-methods':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-typescript':
-        specifier: ^7.23.6
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-typescript':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@ember-data/request':
         specifier: workspace:5.4.0-alpha.40
@@ -2008,34 +2008,34 @@ importers:
         version: 8.2.0(@babel/core@7.24.3)
     devDependencies:
       '@babel/cli':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-proposal-decorators':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-class-properties':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-private-methods':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-typescript':
-        specifier: ^7.23.6
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-typescript':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@ember-data/request':
         specifier: workspace:5.4.0-alpha.40
@@ -2107,34 +2107,34 @@ importers:
         version: 8.2.0(@babel/core@7.24.3)
     devDependencies:
       '@babel/cli':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-proposal-decorators':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-class-properties':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-private-methods':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-typescript':
-        specifier: ^7.23.6
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-typescript':
-        specifier: ^7.23.3
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@embroider/addon-dev':
         specifier: ^4.2.1
@@ -2246,10 +2246,10 @@ importers:
         version: 5.91.0
     devDependencies:
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@ember/optional-features':
         specifier: ^2.0.0
@@ -2324,7 +2324,7 @@ importers:
   tests/blueprints:
     devDependencies:
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@ember-data/adapter':
         specifier: workspace:5.4.0-alpha.40
@@ -2442,10 +2442,10 @@ importers:
   tests/builders:
     devDependencies:
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@ember-data/active-record':
         specifier: workspace:5.4.0-alpha.40
@@ -2624,10 +2624,10 @@ importers:
   tests/ember-data__adapter:
     dependencies:
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@ember-data/debug':
         specifier: workspace:5.4.0-alpha.40
@@ -2776,10 +2776,10 @@ importers:
         version: 0.0.10
     devDependencies:
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@ember-data/debug':
         specifier: workspace:5.4.0-alpha.40
@@ -2943,10 +2943,10 @@ importers:
         version: 0.0.10
     devDependencies:
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@ember-data/debug':
         specifier: workspace:5.4.0-alpha.40
@@ -3110,10 +3110,10 @@ importers:
         version: 0.0.10
     devDependencies:
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@ember-data/adapter':
         specifier: workspace:5.4.0-alpha.40
@@ -3254,10 +3254,10 @@ importers:
         version: 0.0.10
     devDependencies:
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@ember-data/private-build-infra':
         specifier: workspace:5.4.0-alpha.40
@@ -3387,10 +3387,10 @@ importers:
         version: 0.0.10
     devDependencies:
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@ember-data/adapter':
         specifier: workspace:5.4.0-alpha.40
@@ -3549,10 +3549,10 @@ importers:
         version: 5.91.0
     devDependencies:
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@ember-data/unpublished-test-infra':
         specifier: workspace:5.4.0-alpha.40
@@ -3667,10 +3667,10 @@ importers:
         version: 5.91.0
     devDependencies:
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@ember/optional-features':
         specifier: ^2.0.0
@@ -3758,10 +3758,10 @@ importers:
         version: 0.0.10
     devDependencies:
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@ember-data/private-build-infra':
         specifier: workspace:5.4.0-alpha.40
@@ -3835,13 +3835,13 @@ importers:
         version: 0.0.10
     devDependencies:
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-transform-typescript':
-        specifier: ^7.23.6
+        specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@ember-data/adapter':
         specifier: workspace:5.4.0-alpha.40
@@ -4077,10 +4077,10 @@ importers:
         version: 5.91.0
     devDependencies:
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@ember/optional-features':
         specifier: ^2.0.0
@@ -4152,10 +4152,10 @@ importers:
         version: 0.0.10
     devDependencies:
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@ember-data/debug':
         specifier: workspace:5.4.0-alpha.40
@@ -4544,10 +4544,10 @@ importers:
         version: 0.0.10
     devDependencies:
       '@babel/core':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.3(supports-color@8.1.1)
       '@babel/runtime':
-        specifier: ^7.23.9
+        specifier: ^7.24.1
         version: 7.24.1
       '@ember-data/debug':
         specifier: workspace:5.4.0-alpha.40

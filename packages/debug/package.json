@@ -43,10 +43,10 @@
     }
   },
   "dependencies": {
-    "@babel/core": "^7.23.9",
+    "@babel/core": "^7.24.1",
     "@ember-data/private-build-infra": "workspace:5.4.0-alpha.40",
     "@ember/edition-utils": "^1.2.0",
-    "@embroider/macros": "^1.13.5",
+    "@embroider/macros": "^1.15.0",
     "ember-auto-import": "^2.7.2",
     "ember-cli-babel": "^8.2.0",
     "webpack": "^5.91.0"
