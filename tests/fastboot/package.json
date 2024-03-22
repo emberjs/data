@@ -68,7 +68,7 @@
     "ember-simple-tree": "^0.8.4",
     "ember-source": "~5.6.0",
     "loader.js": "^4.7.0",
-    "qunit": "^2.20.0",
+    "qunit": "^2.20.1",
     "qunit-dom": "^3.0.0",
     "typescript": "^5.4.3"
   },
