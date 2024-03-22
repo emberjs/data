@@ -53,7 +53,7 @@
     "debug": "^4.3.4",
     "execa": "^8.0.1",
     "git-repo-version": "^1.0.2",
-    "globby": "^14.0.0",
+    "globby": "^14.0.1",
     "lerna-changelog": "^2.2.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "prettier": "^3.2.5",

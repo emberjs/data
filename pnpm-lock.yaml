@@ -86,7 +86,7 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2
       globby:
-        specifier: ^14.0.0
+        specifier: ^14.0.1
         version: 14.0.1
       lerna-changelog:
         specifier: ^2.2.0
