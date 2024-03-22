@@ -59,7 +59,7 @@ importers:
         specifier: ^1.4.0
         version: 1.4.0
       '@types/semver':
-        specifier: ^7.5.6
+        specifier: ^7.5.8
         version: 7.5.8
       bun-types:
         specifier: ^1.0.25
@@ -95,10 +95,10 @@ importers:
         specifier: 0.0.10
         version: 0.0.10
       prettier:
-        specifier: ^3.1.1
+        specifier: ^3.2.5
         version: 3.2.5
       prettier-plugin-ember-template-tag:
-        specifier: ^2.0.0
+        specifier: ^2.0.1
         version: 2.0.1(prettier@3.2.5)
       rimraf:
         specifier: ^5.0.5
@@ -249,7 +249,7 @@ importers:
         specifier: ~5.6.0
         version: 5.6.0(@babel/core@7.24.3)(@glimmer/component@1.1.2)(@glint/template@1.4.0)(webpack@5.91.0)
       eslint:
-        specifier: ^8.56.0
+        specifier: ^8.57.0
         version: 8.57.0
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.10
@@ -2203,7 +2203,7 @@ importers:
         specifier: ^1.13.4
         version: 1.15.0(@glint/template@1.4.0)
       '@types/qunit':
-        specifier: ^2.19.9
+        specifier: ^2.19.10
         version: 2.19.10
       '@warp-drive/core-types':
         specifier: workspace:0.0.0-alpha.25
@@ -2264,7 +2264,7 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
       '@types/semver':
-        specifier: ^7.5.6
+        specifier: ^7.5.8
         version: 7.5.8
       ember-cli:
         specifier: ~5.7.0
@@ -3904,7 +3904,7 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
       '@types/qunit':
-        specifier: ^2.19.9
+        specifier: ^2.19.10
         version: 2.19.10
       '@warp-drive/core-types':
         specifier: workspace:0.0.0-alpha.25
@@ -4601,7 +4601,7 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
       '@types/qunit':
-        specifier: ^2.19.9
+        specifier: ^2.19.10
         version: 2.19.10
       '@warp-drive/core-types':
         specifier: workspace:0.0.0-alpha.25
