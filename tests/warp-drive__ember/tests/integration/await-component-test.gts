@@ -1,17 +1,23 @@
 import { rerender, settled } from '@ember/test-helpers';
 
-import { setPromiseResult } from '@ember-data/request';
+import { setPromiseResult, type Awaitable } from '@ember-data/request';
 import type { RenderingTestContext } from '@warp-drive/diagnostic/ember';
 import { module, setupRenderingTest, test } from '@warp-drive/diagnostic/ember';
 import { Await, getPromiseState } from '@warp-drive/ember';
+import { assert } from '@ember/debug';
 
-type PromiseState = ReturnType<typeof getPromiseState>;
+function asError<T>(x: Exclude<T, Error>): never;
+function asError<T>(x: T): Error;
+function asError<T>(x: T | null) {
+  assert(`Expected an instance of an error, but got ${typeof x}`, x instanceof Error);
+  return x;
+}
 
 module('Integration | <Await />', function (hooks) {
   setupRenderingTest(hooks);
 
   test('it renders each stage of a promise', async function (this: RenderingTestContext, assert) {
-    const promise = Promise.resolve().then(() => 'Our Data');
+    const promise: Awaitable<string, Error> = Promise.resolve().then(() => 'Our Data');
     const state = getPromiseState(promise);
 
     let counter = 0;
@@ -39,7 +45,7 @@ module('Integration | <Await />', function (hooks) {
   });
 
   test('it renders only once when the promise already has a result cached', async function (this: RenderingTestContext, assert) {
-    const promise = Promise.resolve().then(() => 'Our Data');
+    const promise: Awaitable<string, Error> = Promise.resolve().then(() => 'Our Data');
 
     const result = await promise;
     setPromiseResult(promise, { result, isError: false });
@@ -66,7 +72,7 @@ module('Integration | <Await />', function (hooks) {
   });
 
   test('it transitions to error state correctly', async function (this: RenderingTestContext, assert) {
-    const promise = Promise.resolve().then(() => {
+    const promise: Awaitable<string, Error> = Promise.resolve().then(() => {
       throw new Error('Our Error');
     });
     const state = getPromiseState(promise);
@@ -99,7 +105,7 @@ module('Integration | <Await />', function (hooks) {
   });
 
   test('it renders only once when the promise error state is already cached', async function (this: RenderingTestContext, assert) {
-    const promise = Promise.resolve().then(() => {
+    const promise: Awaitable<string, Error> = Promise.resolve().then(() => {
       throw new Error('Our Error');
     });
     const state = getPromiseState(promise);

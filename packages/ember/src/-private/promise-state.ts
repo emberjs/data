@@ -1,8 +1,9 @@
 import { tracked } from '@glimmer/tracking';
 
 import { getPromiseResult, setPromiseResult } from '@ember-data/request';
+import type { Awaitable } from '@ember-data/request';
 
-const PromiseCache = new WeakMap<Promise<unknown>, PromiseState>();
+const PromiseCache = new WeakMap<Awaitable, PromiseState>();
 
 export class PromiseState<T = unknown, E = unknown> {
   @tracked result: T | null = null;
@@ -11,7 +12,7 @@ export class PromiseState<T = unknown, E = unknown> {
   @tracked isSuccess = false;
   @tracked isError = false;
 
-  constructor(promise: Promise<T>) {
+  constructor(promise: Promise<T> | Awaitable<T, E>) {
     const state = getPromiseResult<T, E>(promise);
 
     if (state) {
@@ -43,7 +44,7 @@ export class PromiseState<T = unknown, E = unknown> {
   }
 }
 
-export function getPromiseState<T, E>(promise: Promise<T>): PromiseState<T, E> {
+export function getPromiseState<T = unknown, E = unknown>(promise: Promise<T> | Awaitable<T, E>): PromiseState<T, E> {
   let state = PromiseCache.get(promise) as PromiseState<T, E> | undefined;
 
   if (!state) {

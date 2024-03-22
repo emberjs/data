@@ -1,7 +1,5 @@
 import { rerender, settled } from '@ember/test-helpers';
 
-import { hbs } from 'ember-cli-htmlbars';
-
 import type { CacheHandler, Future, NextFn, RequestContext, StructuredDataDocument } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
@@ -11,7 +9,16 @@ import { getRequestState } from '@warp-drive/ember';
 import { mock, MockServerHandler } from '@warp-drive/holodeck';
 import { GET } from '@warp-drive/holodeck/mock';
 
-type RequestState = ReturnType<typeof getRequestState>;
+type RequestState<T> = ReturnType<typeof getRequestState<T>>;
+type UserResource = {
+  data: {
+    id: string;
+    type: 'user';
+    attributes: {
+      name: string;
+    };
+  };
+};
 
 // our tests use a rendering test context and add manager to it
 interface LocalTestContext extends RenderingTestContext {
@@ -269,29 +276,32 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
     assert.true(requestComplete, 'The request is now complete!');
   });
 
-  test('it renders each stage of a request resolving in a new microtask queue', async function (this, assert) {
+  test('it renders each stage of a request resolving in a new microtask queue', async function (assert) {
     const url = await mockGETSuccess(this);
-    const request = this.manager.request({ url, method: 'GET' });
+    const request = this.manager.request<UserResource>({ url, method: 'GET' });
 
-    let state: RequestState;
-
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.set('request', request);
-    this.set('getRequestState', (p: Future<unknown>) => {
-      state = getRequestState(p);
-      return state;
-    });
+    let state: RequestState<UserResource>;
+    function _getRequestState<T>(p: Future<T>): RequestState<T> {
+      state = getRequestState(p) as RequestState<UserResource>;
+      return state as RequestState<T>;
+    }
     let counter = 0;
-    this.set('countFor', (_result: unknown) => {
+    function countFor(_result: unknown) {
       return ++counter;
-    });
+    }
 
     await this.render(
-      hbs`{{#let (this.getRequestState this.request) as |state|}}{{state.result.data.attributes.name}}<br>Count: {{this.countFor state.result}}{{/let}}`
+      <template>
+        {{#let (_getRequestState request) as |state|}}
+          {{state.result.data.attributes.name}}<br />Count:
+          {{countFor state.result}}
+        {{/let}}
+      </template>
     );
+
     assert.equal(state!.result, null);
     assert.equal(counter, 1);
-    assert.equal(this.element.textContent?.trim(), 'Count: 1');
+    assert.equal(this.element.textContent?.trim(), 'Count:\n          1');
     await request;
     await rerender();
     assert.equal(state!, getRequestState(request));
@@ -305,29 +315,31 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
       },
     });
     assert.equal(counter, 2);
-    assert.equal(this.element.textContent?.trim(), 'Chris ThoburnCount: 2');
+    assert.equal(this.element.textContent?.trim(), 'Chris ThoburnCount:\n          2');
   });
 
-  test('it renders only once when the promise already has a result cached', async function (this, assert) {
+  test('it renders only once when the promise already has a result cached', async function (assert) {
     const url = await mockGETSuccess(this);
-    const request = this.manager.request({ url, method: 'GET' });
+    const request = this.manager.request<UserResource>({ url, method: 'GET' });
 
-    let state: RequestState;
-
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.set('request', request);
-    this.set('getRequestState', (p: Future<unknown>) => {
-      state = getRequestState(p);
-      return state;
-    });
+    let state: RequestState<UserResource>;
+    function _getRequestState<T>(p: Future<T>): RequestState<T> {
+      state = getRequestState(p) as RequestState<UserResource>;
+      return state as RequestState<T>;
+    }
     let counter = 0;
-    this.set('countFor', (_result: unknown) => {
+    function countFor(_result: unknown) {
       return ++counter;
-    });
+    }
 
     await request;
     await this.render(
-      hbs`{{#let (this.getRequestState this.request) as |state|}}{{state.result.data.attributes.name}}<br>Count: {{this.countFor state.result}}{{/let}}`
+      <template>
+        {{#let (_getRequestState request) as |state|}}
+          {{state.result.data.attributes.name}}<br />Count:
+          {{countFor state.result}}
+        {{/let}}
+      </template>
     );
 
     assert.deepEqual(state!.result, {
@@ -340,7 +352,7 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
       },
     });
     assert.equal(counter, 1);
-    assert.equal(this.element.textContent?.trim(), 'Chris ThoburnCount: 1');
+    assert.equal(this.element.textContent?.trim(), 'Chris ThoburnCount:\n          1');
 
     await settled();
 
@@ -354,43 +366,44 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
       },
     });
     assert.equal(counter, 1);
-    assert.equal(this.element.textContent?.trim(), 'Chris ThoburnCount: 1');
+    assert.equal(this.element.textContent?.trim(), 'Chris ThoburnCount:\n          1');
   });
 
-  test('it transitions to error state correctly', async function (this, assert) {
+  test('it transitions to error state correctly', async function (assert) {
     const url = await mockGETFailure(this);
     const request = this.manager.request({ url, method: 'GET' });
 
-    let state: RequestState;
-
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.set('request', request);
-    this.set('getRequestState', (p: Future<unknown>) => {
-      state = getRequestState(p);
-      return state;
-    });
+    let state: RequestState<UserResource>;
+    function _getRequestState<T>(p: Future<T>): RequestState<T> {
+      state = getRequestState(p) as RequestState<UserResource>;
+      return state as RequestState<T>;
+    }
     let counter = 0;
-    this.set('countFor', (_result: unknown) => {
+    function countFor(_result: unknown, _error: unknown) {
       return ++counter;
-    });
+    }
 
     await this.render(
-      hbs`{{#let (this.getRequestState this.request) as |state|}}
-        {{#if state.isLoading}}
-          Pending
-        {{else if state.isError}}
-          {{state.error.message}}
-        {{else if state.isSuccess}}
-          Invalid Success Reached
-        {{/if}}
-        <br>Count: {{this.countFor state.result state.error}}{{/let}}`
+      <template>
+        {{#let (_getRequestState request) as |state|}}
+          {{#if state.isLoading}}
+            Pending
+          {{else if state.isError}}
+            {{state.error.message}}
+          {{else if state.isSuccess}}
+            Invalid Success Reached
+          {{/if}}
+          <br />Count:
+          {{countFor state.result state.error}}
+        {{/let}}
+      </template>
     );
 
     assert.equal(state!, getRequestState(request), 'state is a stable reference');
     assert.equal(state!.result, null, 'result is null');
     assert.equal(state!.error, null, 'error is null');
     assert.equal(counter, 1, 'counter is 1');
-    assert.equal(this.element.textContent?.trim(), 'Pending\n        Count: 1');
+    assert.equal(this.element.textContent?.trim(), 'Pending\n          Count:\n          1');
     try {
       await request;
     } catch {
@@ -407,11 +420,11 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
     assert.equal(counter, 2, 'counter is 2');
     assert.equal(
       this.element.textContent?.trim(),
-      '[404 Not Found] GET (cors) - https://localhost:1135/users/2\n        Count: 2'
+      '[404 Not Found] GET (cors) - https://localhost:1135/users/2\n          Count:\n          2'
     );
   });
 
-  test('it renders only once when the promise error state is already cached', async function (this, assert) {
+  test('it renders only once when the promise error state is already cached', async function (assert) {
     const url = await mockGETFailure(this);
     const request = this.manager.request({ url, method: 'GET' });
 
@@ -420,29 +433,30 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
     } catch (e) {
       // ignore the error
     }
-    let state: RequestState;
-
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.set('request', request);
-    this.set('getRequestState', (p: Future<unknown>) => {
-      state = getRequestState(p);
-      return state;
-    });
+    let state: RequestState<UserResource>;
+    function _getRequestState<T>(p: Future<T>): RequestState<T> {
+      state = getRequestState(p) as RequestState<UserResource>;
+      return state as RequestState<T>;
+    }
     let counter = 0;
-    this.set('countFor', (_result: unknown) => {
+    function countFor(_result: unknown, _error: unknown) {
       return ++counter;
-    });
+    }
 
     await this.render(
-      hbs`{{#let (this.getRequestState this.request) as |state|}}
-        {{#if state.isLoading}}
-          Pending
-        {{else if state.isError}}
-          {{state.error.message}}
-        {{else if state.isSuccess}}
-          Invalid Success Reached
-        {{/if}}
-        <br>Count: {{this.countFor state.result state.error}}{{/let}}`
+      <template>
+        {{#let (_getRequestState request) as |state|}}
+          {{#if state.isLoading}}
+            Pending
+          {{else if state.isError}}
+            {{state.error.message}}
+          {{else if state.isSuccess}}
+            Invalid Success Reached
+          {{/if}}
+          <br />Count:
+          {{countFor state.result state.error}}
+        {{/let}}
+      </template>
     );
 
     assert.equal(state!.result, null, 'after render result is null');
@@ -455,7 +469,7 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
     assert.equal(counter, 1, 'counter is 1');
     assert.equal(
       this.element.textContent?.trim(),
-      '[404 Not Found] GET (cors) - https://localhost:1135/users/2\n        Count: 1'
+      '[404 Not Found] GET (cors) - https://localhost:1135/users/2\n          Count:\n          1'
     );
     await rerender();
     assert.equal(state!.result, null, 'after rerender result is still null');
@@ -468,7 +482,7 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
     assert.equal(counter, 1, 'counter is 1');
     assert.equal(
       this.element.textContent?.trim(),
-      '[404 Not Found] GET (cors) - https://localhost:1135/users/2\n        Count: 1'
+      '[404 Not Found] GET (cors) - https://localhost:1135/users/2\n          Count:\n          1'
     );
   });
 });

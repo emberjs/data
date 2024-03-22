@@ -11,3 +11,4 @@ export type {
   StructuredDataDocument,
 } from '@warp-drive/core-types/request';
 export { setPromiseResult, getPromiseResult } from './-private/promise-cache';
+export type { Awaitable } from './-private/promise-cache';

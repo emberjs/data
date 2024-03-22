@@ -1,6 +1,7 @@
 import { assert } from '@ember/debug';
 import Component from '@glimmer/component';
 import { getPromiseState } from './promise-state.ts';
+import { Awaitable } from '@ember-data/request';
 
 export function notNull<T>(x: null): never;
 export function notNull<T>(x: T): Exclude<T, null>;
@@ -26,7 +27,7 @@ export class Throw<T> extends Component<ThrowSignature<T>> {
 
 interface AwaitSignature<T, E = Error | string | object> {
   Args: {
-    promise: Promise<T>;
+    promise: Promise<T> | Awaitable<T, E>;
   };
   Blocks: {
     pending: [];

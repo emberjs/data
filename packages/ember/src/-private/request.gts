@@ -34,6 +34,9 @@ interface RequestSignature<T> {
 }
 
 export class Request<T> extends Component<RequestSignature<T>> {
+  /**
+   * @internal
+   */
   @provide('store') declare _store: Store;
 
   @cached

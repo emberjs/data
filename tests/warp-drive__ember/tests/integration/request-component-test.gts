@@ -9,8 +9,6 @@ import { getRequestState, Request } from '@warp-drive/ember';
 import { mock, MockServerHandler } from '@warp-drive/holodeck';
 import { GET } from '@warp-drive/holodeck/mock';
 
-type RequestState = ReturnType<typeof getRequestState>;
-
 // our tests use a rendering test context and add manager to it
 interface LocalTestContext extends RenderingTestContext {
   manager: RequestManager;

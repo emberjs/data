@@ -40,9 +40,21 @@ importers:
         specifier: ^1.11.2
         version: 1.12.5
     devDependencies:
+      '@glimmer/component':
+        specifier: ^1.1.2
+        version: 1.1.2(@babel/core@7.24.3)
       '@glint/core':
         specifier: ^1.3.0
         version: 1.3.0(typescript@5.4.3)
+      '@glint/environment-ember-loose':
+        specifier: ^1.3.0
+        version: 1.3.0(@glimmer/component@1.1.2)(@glint/template@1.4.0)(ember-cli-htmlbars@6.3.0)
+      '@glint/environment-ember-template-imports':
+        specifier: ^1.3.0
+        version: 1.3.0(@glint/environment-ember-loose@1.3.0)(@glint/template@1.4.0)
+      '@glint/template':
+        specifier: ^1.4.0
+        version: 1.4.0
       '@types/semver':
         specifier: ^7.5.6
         version: 7.5.8

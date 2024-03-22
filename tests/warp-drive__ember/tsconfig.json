@@ -2,7 +2,7 @@
   "include": ["app/**/*", "config/**/*", "tests/**/*", "../../@types/@glimmer"],
   "baseUrl": ".",
   "glint": {
-    "environment": "ember-loose"
+    "environment": ["ember-loose", "ember-template-imports"]
   },
   "compilerOptions": {
     "lib": ["DOM", "ESNext"],
@@ -17,6 +17,7 @@
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
     "experimentalDecorators": true,
+    "verbatimModuleSyntax": true,
 
     "noImplicitOverride": true,
     "incremental": true,
