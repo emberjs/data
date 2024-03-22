@@ -59,14 +59,13 @@ function settings() {
       sourceType: 'module',
       ecmaVersion: 2022,
       project: 'tsconfig.json',
-      // extraFileExtensions: ['.gts'],
     },
   };
 }
 
 function defaults(config) {
   return {
-    files: config?.files || ['**/*.{ts}'],
+    files: config?.files || ['**/*.ts'],
     ...settings(),
     rules: rules(config),
     plugins: plugins(),

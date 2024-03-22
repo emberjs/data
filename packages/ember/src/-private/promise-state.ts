@@ -1,7 +1,7 @@
 import { tracked } from '@glimmer/tracking';
 
-import { getPromiseResult, setPromiseResult } from '@ember-data/request';
 import type { Awaitable } from '@ember-data/request';
+import { getPromiseResult, setPromiseResult } from '@ember-data/request';
 
 const PromiseCache = new WeakMap<Awaitable, PromiseState>();
 
