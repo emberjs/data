@@ -18,7 +18,7 @@
   "devDependencies": {
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.39",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
-    "qunit": "^2.20.0"
+    "qunit": "^2.20.1"
   },
   "engines": {
     "node": ">= 18.19.1"
