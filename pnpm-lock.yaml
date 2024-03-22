@@ -104,7 +104,7 @@ importers:
         specifier: ^5.0.5
         version: 5.0.5
       semver:
-        specifier: ^7.5.4
+        specifier: ^7.6.0
         version: 7.6.0
       silent-error:
         specifier: ^1.1.1
@@ -1499,7 +1499,7 @@ importers:
         specifier: ^1.0.3
         version: 1.0.3
       semver:
-        specifier: ^7.5.4
+        specifier: ^7.6.0
         version: 7.6.0
       silent-error:
         specifier: ^1.1.1
@@ -2233,7 +2233,7 @@ importers:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       semver:
-        specifier: ^7.5.4
+        specifier: ^7.6.0
         version: 7.6.0
       testem:
         specifier: ~3.11.0
