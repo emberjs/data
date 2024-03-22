@@ -34,9 +34,11 @@
     "ember-cli-version-checker": "^5.1.2",
     "git-repo-info": "^2.1.1",
     "npm-git-info": "^1.0.3",
-    "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "semver": "^7.5.4",
     "silent-error": "^1.1.1"
+  },
+  "devDependencies": {
+    "pnpm-sync-dependencies-meta-injected": "0.0.10"
   },
   "engines": {
     "node": ">= 18.19.1"

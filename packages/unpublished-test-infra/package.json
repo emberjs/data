@@ -70,7 +70,6 @@
     "ember-cli-babel": "^8.2.0",
     "ember-cli-blueprint-test-helpers": "^0.19.2",
     "ember-get-config": "^2.1.1",
-    "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "qunit": "^2.20.0",
     "semver": "^7.5.4",
     "testem": "^3.11.0",
@@ -108,7 +107,7 @@
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "@types/semver": "^7.5.6",
-    "ember-cli": "~5.4.1",
+    "ember-cli": "~5.7.0",
     "ember-cli-dependency-checker": "^3.3.2",
     "ember-cli-htmlbars": "^6.3.0",
     "ember-cli-inject-live-reload": "^2.1.0",
@@ -120,6 +119,7 @@
     "ember-resolver": "^11.0.1",
     "ember-source": "~5.6.0",
     "loader.js": "^4.7.0",
+    "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "webpack": "^5.91.0"
   },
   "engines": {

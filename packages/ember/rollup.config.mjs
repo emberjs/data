@@ -14,18 +14,30 @@ export default {
   // You can augment this if you need to.
   output: addon.output(),
 
-  external: external(['@embroider/macros', '@ember/test-waiters', '@glimmer/tracking']),
+  external: external([
+    '@ember/template-compilation',
+    '@ember/debug',
+    '@ember/component', // unsure where this comes from
+    '@ember/service',
+    '@embroider/macros',
+    '@glimmer/component',
+    '@ember/test-waiters',
+    '@glimmer/tracking',
+  ]),
 
   plugins: [
     // These are the modules that users should be able to import from your
     // addon. Anything not listed here may get optimized away.
     addon.publicEntrypoints(['index.js']),
 
-    nodeResolve({ extensions: ['.ts'] }),
+    nodeResolve({ extensions: ['.ts', '.gts'] }),
     babel({
-      extensions: ['.ts'],
+      extensions: ['.ts', '.gts'],
       babelHelpers: 'runtime', // we should consider "external",
     }),
+
+    // Ensure that .gjs files are properly integrated as Javascript
+    addon.gjs(),
 
     // Remove leftover build artifacts when starting a new build.
     addon.clean(),

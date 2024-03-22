@@ -1,12 +1,18 @@
-const macros = require('@ember-data/private-build-infra/src/v2-babel-build-pack');
-
 module.exports = {
   plugins: [
-    ...macros,
     ['@babel/plugin-transform-runtime', { loose: true }],
-    ['@babel/plugin-transform-typescript', { allowDeclareFields: true }],
-    ['@babel/plugin-proposal-decorators', { legacy: true, loose: true }],
-    ['@babel/plugin-transform-private-methods', { loose: true }],
-    ['@babel/plugin-transform-class-properties', { loose: true }],
+    [
+      '@babel/plugin-transform-typescript',
+      { allExtensions: true, onlyRemoveTypeImports: true, allowDeclareFields: true },
+    ],
+    '@embroider/addon-dev/template-colocation-plugin',
+    [
+      'babel-plugin-ember-template-compilation',
+      {
+        targetFormat: 'hbs',
+        transforms: [],
+      },
+    ],
+    ['module:decorator-transforms', { runtime: { import: 'decorator-transforms/runtime' } }],
   ],
 };

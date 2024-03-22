@@ -18,14 +18,14 @@
     "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
     "build:types": "glint --build",
     "check:types": "glint",
-    "build:client": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
+    "build:client": "rollup --config",
     "_build": "bun run build:client && bun run build:types",
     "prepack": "bun run _build",
     "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "files": [
     "unstable-preview-types",
-    "addon-main.js",
+    "addon-main.cjs",
     "addon",
     "README.md",
     "LICENSE.md",
@@ -51,20 +51,15 @@
     "@ember/string": "^3.1.1"
   },
   "dependencies": {
-    "@ember-data/private-build-infra": "workspace:5.4.0-alpha.39",
     "@ember/test-waiters": "^3.1.0",
     "@embroider/macros": "^1.13.5",
-    "ember-cli-babel": "^8.2.0",
-    "pnpm-sync-dependencies-meta-injected": "0.0.10"
+    "@embroider/addon-shim": "^1.8.7"
   },
   "dependenciesMeta": {
     "@ember-data/store": {
       "injected": true
     },
     "@ember-data/request": {
-      "injected": true
-    },
-    "@ember-data/private-build-infra": {
       "injected": true
     },
     "@warp-drive/core-types": {
@@ -100,6 +95,7 @@
     "@glint/template": "^1.4.0",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
+    "decorator-transforms": "1.1.0",
     "@ember-data/request": "workspace:5.4.0-alpha.39",
     "@ember-data/store": "workspace:5.4.0-alpha.39",
     "@ember-data/tracking": "workspace:5.4.0-alpha.39",
@@ -109,6 +105,7 @@
     "babel-plugin-ember-template-compilation": "^2.2.1",
     "ember-template-imports": "^4.1.0",
     "ember-source": "~5.6.0",
+    "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "rollup": "^4.9.6",
     "typescript": "^5.4.3",
     "walk-sync": "^3.0.0"
@@ -120,9 +117,9 @@
     "extends": "../../package.json"
   },
   "ember-addon": {
-    "main": "addon-main.js",
+    "main": "addon-main.cjs",
     "type": "addon",
-    "version": 1
+    "version": 2
   },
   "ember": {
     "edition": "octane"

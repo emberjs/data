@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.39",
+    "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "qunit": "^2.20.0"
   },
   "engines": {
@@ -26,7 +27,5 @@
     "extends": "../../package.json"
   },
   "packageManager": "pnpm@8.15.5",
-  "dependencies": {
-    "pnpm-sync-dependencies-meta-injected": "0.0.10"
-  }
+  "dependencies": {}
 }

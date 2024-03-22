@@ -25,6 +25,7 @@ setupGlobalHooks((hooks) => {
 });
 
 setApplication(Application.create(config.APP));
+
 void start({
   tryCatch: true,
   debug: true,

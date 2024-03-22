@@ -65,7 +65,7 @@ function settings() {
 
 function defaults(config) {
   return {
-    files: config?.files || ['**/*.ts'],
+    files: config?.files || ['**/*.{gts,ts}'],
     ...settings(),
     rules: rules(config),
     plugins: plugins(),

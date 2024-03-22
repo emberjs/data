@@ -1,6 +1,9 @@
 {
   "include": ["app/**/*", "config/**/*", "tests/**/*", "../../@types/@glimmer"],
   "baseUrl": ".",
+  "glint": {
+    "environment": "ember-loose"
+  },
   "compilerOptions": {
     "lib": ["DOM", "ESNext"],
     "module": "esnext",
@@ -26,7 +29,9 @@
     "paths": {
       "warp-drive__ember/*": ["./app/*"],
       "warp-drive__ember/tests/*": ["./tests/*"]
-    }
+    },
+
+    "allowImportingTsExtensions": true
   },
   "references": [
     { "path": "../../packages/diagnostic" },
@@ -34,6 +39,7 @@
     { "path": "../../packages/schema-record" },
     { "path": "../../packages/core-types" },
     { "path": "../../packages/store" },
+    { "path": "../../packages/request" },
     { "path": "../../packages/legacy-compat" },
     { "path": "../../packages/model" }
   ]

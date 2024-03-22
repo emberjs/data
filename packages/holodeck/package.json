@@ -24,8 +24,7 @@
     "@hono/node-server": "^1.8.2",
     "chalk": "^5.3.0",
     "hono": "^4.1.2",
-    "pm2": "^5.3.1",
-    "pnpm-sync-dependencies-meta-injected": "0.0.10"
+    "pm2": "^5.3.1"
   },
   "files": [
     "bin",
@@ -66,7 +65,8 @@
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.39",
     "rollup": "^4.9.6",
     "typescript": "^5.4.3",
-    "walk-sync": "^3.0.0"
+    "walk-sync": "^3.0.0",
+    "pnpm-sync-dependencies-meta-injected": "0.0.10"
   },
   "type": "module",
   "exports": {

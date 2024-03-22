@@ -103,7 +103,7 @@
     "@warp-drive/diagnostic": "workspace:0.0.0-alpha.25",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.39",
     "ember-auto-import": "^2.7.0",
-    "ember-cli": "~5.4.1",
+    "ember-cli": "~5.7.0",
     "ember-cli-babel": "^8.2.0",
     "ember-cli-dependency-checker": "^3.3.2",
     "ember-cli-htmlbars": "^6.3.0",
@@ -117,6 +117,7 @@
     "ember-source": "~5.6.0",
     "ember-source-channel-url": "^3.0.0",
     "loader.js": "^4.7.0",
+    "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "silent-error": "^1.1.1",
     "typescript": "^5.4.3",
     "webpack": "^5.91.0"
@@ -131,7 +132,5 @@
     "extends": "../../package.json"
   },
   "packageManager": "pnpm@8.15.5",
-  "dependencies": {
-    "pnpm-sync-dependencies-meta-injected": "0.0.10"
-  }
+  "dependencies": {}
 }

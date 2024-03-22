@@ -2,42 +2,21 @@ import { assert } from '@ember/debug';
 import { service } from '@ember/service';
 import Component from '@glimmer/component';
 import { cached } from '@glimmer/tracking';
-import type { Future, StructuredDocument, StructuredErrorDocument } from '@ember-data/request';
+import type { Future, StructuredErrorDocument } from '@ember-data/request';
 
 import { importSync, macroCondition, moduleExists } from '@embroider/macros';
 
 import type { StoreRequestInput } from '@ember-data/store';
 import type Store from '@ember-data/store';
 
-import { getRequestState } from './request-state';
-import type { RequestLoadingState } from './request-state';
+import { getRequestState } from './request-state.ts';
+import type { RequestLoadingState } from './request-state.ts';
+import { and, notNull, Throw } from './await.gts';
 
 let provide = service;
 if (macroCondition(moduleExists('ember-provide-consume-context'))) {
   const { consume } = importSync('ember-provide-consume-context') as { consume: typeof service };
   provide = consume;
-}
-
-function notNull<T>(x: null): never;
-function notNull<T>(x: T): Exclude<T, null>;
-function notNull<T>(x: T | null) {
-  assert('Expected a non-null value, but got null', x !== null);
-  return x;
-}
-const and = (x: unknown, y: unknown) => Boolean(x && y);
-
-interface ThrowSignature<T> {
-  Args: {
-    error: Error | string | object;
-  };
-}
-
-export class Throw<T> extends Component<ThrowSignature<T>> {
-  constructor(owner: unknown, args: ThrowSignature<T>['Args']) {
-    super(owner, args);
-    throw this.args.error;
-  }
-  <template></template>
 }
 
 interface RequestSignature<T> {
