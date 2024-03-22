@@ -17,7 +17,7 @@ module.exports = {
     isolation.rules({
       allowedImports: [
         'ember-inflector',
-        '@ember/application',
+        '@ember/owner',
         '@ember/service',
         '@ember/debug',
         '@ember/object',

@@ -7,11 +7,16 @@ import { camelize, dasherize } from '@ember/string';
 import { singularize } from 'ember-inflector';
 
 import { DEBUG } from '@ember-data/env';
+import type { Snapshot } from '@ember-data/legacy-compat/-private';
+import { upgradeStore } from '@ember-data/legacy-compat/-private';
+import type Store from '@ember-data/store';
+import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
+import type { RelationshipSchema } from '@warp-drive/core-types/schema';
 
 import { coerceId } from './-private';
 import JSONSerializer from './json';
 
-function makeArray(value) {
+function makeArray<T>(value: T | T[]): T[] {
   return Array.isArray(value) ? value : [value];
 }
 
@@ -67,7 +72,7 @@ function makeArray(value) {
   @public
   @extends JSONSerializer
 */
-const RESTSerializer = JSONSerializer.extend({
+class RESTSerializer extends JSONSerializer {
   /**
    `keyForPolymorphicType` can be used to define a custom key when
    serializing and deserializing a polymorphic type. By default, the
@@ -94,11 +99,11 @@ const RESTSerializer = JSONSerializer.extend({
    @param {String} method
    @return {String} normalized key
   */
-  keyForPolymorphicType(key, typeClass, method) {
-    const relationshipKey = this.keyForRelationship(key);
+  keyForPolymorphicType(key: string, typeClass: ModelSchema, method: 'serialize' | 'deserialize'): string {
+    const relationshipKey = this.keyForRelationship(key, typeClass, method);
 
     return `${relationshipKey}Type`;
-  },
+  }
 
   /**
     Normalizes a part of the JSON payload returned by
@@ -180,7 +185,8 @@ const RESTSerializer = JSONSerializer.extend({
     @return {Object}
     @private
   */
-  _normalizeArray(store, modelName, arrayHash, prop) {
+  _normalizeArray(store: Store, modelName: string, arrayHash: object | object[], prop: string) {
+    upgradeStore(store);
     const documentHash = {
       data: [],
       included: [],
@@ -198,9 +204,10 @@ const RESTSerializer = JSONSerializer.extend({
     });
 
     return documentHash;
-  },
+  }
 
-  _normalizePolymorphicRecord(store, hash, prop, primaryModelClass, primarySerializer) {
+  _normalizePolymorphicRecord(store: Store, hash, prop, primaryModelClass: ModelSchema, primarySerializer) {
+    upgradeStore(store);
     let serializer = primarySerializer;
     let modelClass = primaryModelClass;
 
@@ -217,7 +224,7 @@ const RESTSerializer = JSONSerializer.extend({
     }
 
     return serializer.normalize(modelClass, hash, prop);
-  },
+  }
 
   /**
     @method _normalizeResponse
@@ -230,7 +237,7 @@ const RESTSerializer = JSONSerializer.extend({
     @return {Object} JSON-API Document
     @private
   */
-  _normalizeResponse(store, primaryModelClass, payload, id, requestType, isSingle) {
+  _normalizeResponse(store: Store, primaryModelClass: ModelSchema, payload, id, requestType, isSingle) {
     const documentHash = {
       data: null,
       included: [],
@@ -247,10 +254,10 @@ const RESTSerializer = JSONSerializer.extend({
 
     const keys = Object.keys(payload);
 
-    for (var i = 0, length = keys.length; i < length; i++) {
-      var prop = keys[i];
-      var modelName = prop;
-      var forcedSecondary = false;
+    for (let i = 0, length = keys.length; i < length; i++) {
+      const prop = keys[i];
+      let modelName = prop;
+      let forcedSecondary = false;
 
       /*
         If you want to provide sideloaded records of the same type that the
@@ -277,7 +284,7 @@ const RESTSerializer = JSONSerializer.extend({
         modelName = prop.substr(1);
       }
 
-      var typeName = this.modelNameFromPayloadKey(modelName);
+      const typeName = this.modelNameFromPayloadKey(modelName);
       if (!store.getSchemaDefinitionService().doesTypeExist(typeName)) {
         warn(this.warnMessageNoModelForKey(modelName, typeName), false, {
           id: 'ds.serializer.model-for-key-missing',
@@ -285,8 +292,8 @@ const RESTSerializer = JSONSerializer.extend({
         continue;
       }
 
-      var isPrimary = !forcedSecondary && this.isPrimaryType(store, typeName, primaryModelClass);
-      var value = payload[prop];
+      const isPrimary = !forcedSecondary && this.isPrimaryType(store, typeName, primaryModelClass);
+      const value = payload[prop];
 
       if (value === null) {
         continue;
@@ -355,11 +362,11 @@ const RESTSerializer = JSONSerializer.extend({
     }
 
     return documentHash;
-  },
+  }
 
-  isPrimaryType(store, modelName, primaryModelClass) {
+  isPrimaryType(store: Store, modelName: string, primaryModelClass: ModelSchema) {
     return dasherize(modelName) === primaryModelClass.modelName;
-  },
+  }
 
   /**
     This method allows you to push a payload containing top-level
@@ -393,22 +400,22 @@ const RESTSerializer = JSONSerializer.extend({
     @param {Store} store
     @param {Object} payload
   */
-  pushPayload(store, payload) {
+  pushPayload(store: Store, payload: object) {
     const documentHash = {
       data: [],
       included: [],
     };
 
-    for (var prop in payload) {
-      var modelName = this.modelNameFromPayloadKey(prop);
+    for (const prop in payload) {
+      const modelName = this.modelNameFromPayloadKey(prop);
       if (!store.getSchemaDefinitionService().doesTypeExist(modelName)) {
         warn(this.warnMessageNoModelForKey(prop, modelName), false, {
           id: 'ds.serializer.model-for-key-missing',
         });
         continue;
       }
-      var type = store.modelFor(modelName);
-      var typeSerializer = store.serializerFor(type.modelName);
+      const type = store.modelFor(modelName);
+      const typeSerializer = store.serializerFor(type.modelName);
 
       makeArray(payload[prop]).forEach((hash) => {
         const { data, included } = typeSerializer.normalize(type, hash, prop);
@@ -420,7 +427,7 @@ const RESTSerializer = JSONSerializer.extend({
     }
 
     store.push(documentHash);
-  },
+  }
 
   /**
     This method is used to convert each JSON root key in the payload
@@ -480,9 +487,9 @@ const RESTSerializer = JSONSerializer.extend({
     @param {String} key
     @return {String} the model's modelName
   */
-  modelNameFromPayloadKey(key) {
+  override modelNameFromPayloadKey(key: string): string {
     return dasherize(singularize(key));
-  },
+  }
 
   // SERIALIZE
 
@@ -639,9 +646,6 @@ const RESTSerializer = JSONSerializer.extend({
     @param {Object} options
     @return {Object} json
   */
-  serialize(snapshot, options) {
-    return this._super(...arguments);
-  },
 
   /**
     You can use this method to customize the root keys serialized into the JSON.
@@ -670,10 +674,10 @@ const RESTSerializer = JSONSerializer.extend({
     @param {Snapshot} snapshot
     @param {Object} options
   */
-  serializeIntoHash(hash, typeClass, snapshot, options) {
+  override serializeIntoHash(hash, typeClass: ModelSchema, snapshot: Snapshot, options) {
     const normalizedRootKey = this.payloadKeyFromModelName(typeClass.modelName);
     hash[normalizedRootKey] = this.serialize(snapshot, options);
-  },
+  }
 
   /**
     You can use `payloadKeyFromModelName` to override the root key for an outgoing
@@ -722,9 +726,9 @@ const RESTSerializer = JSONSerializer.extend({
     @param {String} modelName
     @return {String}
   */
-  payloadKeyFromModelName(modelName) {
+  payloadKeyFromModelName(modelName: string): string {
     return camelize(modelName);
-  },
+  }
 
   /**
     You can use this method to customize how polymorphic objects are serialized.
@@ -737,9 +741,10 @@ const RESTSerializer = JSONSerializer.extend({
     @param {Object} json
     @param {Object} relationship
   */
-  serializePolymorphicType(snapshot, json, relationship) {
+  serializePolymorphicType(snapshot: Snapshot, json, relationship: RelationshipSchema) {
     const name = relationship.name;
-    const typeKey = this.keyForPolymorphicType(name, relationship.type, 'serialize');
+    const schema = this.store.modelFor(snapshot.modelName);
+    const typeKey = this.keyForPolymorphicType(name, schema, 'serialize');
     const belongsTo = snapshot.belongsTo(name);
 
     if (!belongsTo) {
@@ -747,7 +752,7 @@ const RESTSerializer = JSONSerializer.extend({
     } else {
       json[typeKey] = camelize(belongsTo.modelName);
     }
-  },
+  }
 
   /**
     You can use this method to customize how a polymorphic relationship should
@@ -791,26 +796,24 @@ const RESTSerializer = JSONSerializer.extend({
       };
     }
 
-    return this._super(...arguments);
-  },
-});
+    return super.extractPolymorphicRelationship(...arguments);
+  }
+}
 
 if (DEBUG) {
-  RESTSerializer.reopen({
-    warnMessageNoModelForKey(prop, typeKey) {
-      return (
-        'Encountered "' +
-        prop +
-        '" in payload, but no model was found for model name "' +
-        typeKey +
-        '" (resolved model name using ' +
-        this.constructor.toString() +
-        '.modelNameFromPayloadKey("' +
-        prop +
-        '"))'
-      );
-    },
-  });
+  RESTSerializer.prototype.warnMessageNoModelForKey = function (prop: string, typeKey: string) {
+    return (
+      'Encountered "' +
+      prop +
+      '" in payload, but no model was found for model name "' +
+      typeKey +
+      '" (resolved model name using ' +
+      this.constructor.toString() +
+      '.modelNameFromPayloadKey("' +
+      prop +
+      '"))'
+    );
+  };
 }
 
 export { EmbeddedRecordsMixin } from './-private';

@@ -7,6 +7,10 @@ import { dasherize } from '@ember/string';
 import { pluralize, singularize } from 'ember-inflector';
 
 import { DEBUG } from '@ember-data/env';
+import { type Snapshot, upgradeStore } from '@ember-data/legacy-compat/-private';
+import type Store from '@ember-data/store';
+import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
+import type { RelationshipSchema } from '@warp-drive/core-types/schema';
 
 import JSONSerializer from './json';
 
@@ -135,7 +139,7 @@ import JSONSerializer from './json';
   @public
   @extends JSONSerializer
 */
-const JSONAPISerializer = JSONSerializer.extend({
+class JSONAPISerializer extends JSONSerializer {
   /**
     @method _normalizeDocumentHelper
     @param {Object} documentHash
@@ -157,7 +161,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     }
 
     if (Array.isArray(documentHash.included)) {
-      const ret = new Array();
+      const ret = [];
       for (let i = 0; i < documentHash.included.length; i++) {
         const included = documentHash.included[i];
         const normalized = this._normalizeResourceHelper(included);
@@ -171,7 +175,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     }
 
     return documentHash;
-  },
+  }
 
   /**
     @method _normalizeRelationshipDataHelper
@@ -183,7 +187,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     relationshipDataHash.type = this.modelNameFromPayloadKey(relationshipDataHash.type);
 
     return relationshipDataHash;
-  },
+  }
 
   /**
     @method _normalizeResourceHelper
@@ -192,22 +196,24 @@ const JSONAPISerializer = JSONSerializer.extend({
     @private
   */
   _normalizeResourceHelper(resourceHash) {
+    const { store } = this;
+    upgradeStore(store);
     assert(this.warnMessageForUndefinedType(), resourceHash.type);
 
     const modelName = this.modelNameFromPayloadKey(resourceHash.type);
 
-    if (!this.store.getSchemaDefinitionService().doesTypeExist(modelName)) {
+    if (!store.getSchemaDefinitionService().doesTypeExist(modelName)) {
       warn(this.warnMessageNoModelForType(modelName, resourceHash.type, 'modelNameFromPayloadKey'), false, {
         id: 'ds.serializer.model-for-type-missing',
       });
       return null;
     }
 
-    const modelClass = this.store.modelFor(modelName);
-    const serializer = this.store.serializerFor(modelName);
+    const modelClass = store.modelFor(modelName);
+    const serializer = store.serializerFor(modelName);
     const { data } = serializer.normalize(modelClass, resourceHash);
     return data;
-  },
+  }
 
   /**
     Normalize some data and push it into the store.
@@ -217,10 +223,10 @@ const JSONAPISerializer = JSONSerializer.extend({
     @param {Store} store
     @param {Object} payload
   */
-  pushPayload(store, payload) {
+  pushPayload(store: Store, payload) {
     const normalizedPayload = this._normalizeDocumentHelper(payload);
     store.push(normalizedPayload);
-  },
+  }
 
   /**
     @method _normalizeResponse
@@ -233,10 +239,10 @@ const JSONAPISerializer = JSONSerializer.extend({
     @return {Object} JSON-API Document
     @private
   */
-  _normalizeResponse(store, primaryModelClass, payload, id, requestType, isSingle) {
+  _normalizeResponse(store: Store, primaryModelClass: ModelSchema, payload, id, requestType, isSingle) {
     const normalizedPayload = this._normalizeDocumentHelper(payload);
     return normalizedPayload;
-  },
+  }
 
   normalizeQueryRecordResponse() {
     const normalized = this._super(...arguments);
@@ -247,9 +253,9 @@ const JSONAPISerializer = JSONSerializer.extend({
     );
 
     return normalized;
-  },
+  }
 
-  extractAttributes(modelClass, resourceHash) {
+  extractAttributes(modelClass: ModelSchema, resourceHash) {
     const attributes = {};
 
     if (resourceHash.attributes) {
@@ -270,7 +276,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     }
 
     return attributes;
-  },
+  }
 
   /**
      Returns a relationship formatted as a JSON-API "relationship object".
@@ -297,7 +303,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     }
 
     return relationshipHash;
-  },
+  }
 
   /**
      Returns the resource's relationships formatted as a JSON-API "relationships object".
@@ -310,12 +316,12 @@ const JSONAPISerializer = JSONSerializer.extend({
      @param {Object} resourceHash
      @return {Object}
   */
-  extractRelationships(modelClass, resourceHash) {
+  extractRelationships(modelClass: ModelSchema, resourceHash) {
     const relationships = {};
 
     if (resourceHash.relationships) {
       modelClass.eachRelationship((key, relationshipMeta) => {
-        const relationshipKey = this.keyForRelationship(key, relationshipMeta.kind, 'deserialize');
+        const relationshipKey = this.keyForRelationship(key, modelClass, 'deserialize');
         if (resourceHash.relationships[relationshipKey] !== undefined) {
           const relationshipHash = resourceHash.relationships[relationshipKey];
           relationships[key] = this.extractRelationship(relationshipHash);
@@ -326,7 +332,7 @@ const JSONAPISerializer = JSONSerializer.extend({
             resourceHash.relationships[key] !== undefined
           ) {
             assert(
-              `Your payload for '${modelClass.modelName}' contains '${key}', but your serializer is setup to look for '${relationshipKey}'. This is most likely because Ember Data's JSON API serializer dasherizes relationship keys by default. You should subclass JSONAPISerializer and implement 'keyForRelationship(key) { return key; }' to prevent Ember Data from customizing your relationship keys.`,
+              `Your payload for '${modelClass.modelName}' contains '${key}', but your serializer is setup to look for '${relationshipKey}'. This is most likely because Ember Data's JSON API serializer dasherizes relationship keys by default. You should subclass JSONAPISerializer and implement 'keyForRelationship(key) { return key; }' to prevent EmberData from customizing your relationship keys.`,
               false
             );
           }
@@ -335,7 +341,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     }
 
     return relationships;
-  },
+  }
 
   /**
     @method _extractType
@@ -344,9 +350,9 @@ const JSONAPISerializer = JSONSerializer.extend({
     @return {String}
     @private
   */
-  _extractType(modelClass, resourceHash) {
+  _extractType(modelClass: ModelSchema, resourceHash) {
     return this.modelNameFromPayloadKey(resourceHash.type);
-  },
+  }
 
   /**
     Dasherizes and singularizes the model name in the payload to match
@@ -360,9 +366,9 @@ const JSONAPISerializer = JSONSerializer.extend({
     @param {String} key
     @return {String} the model's modelName
   */
-  modelNameFromPayloadKey(key) {
+  modelNameFromPayloadKey(key: string): string {
     return dasherize(singularize(key));
-  },
+  }
 
   /**
     Converts the model name to a pluralized version of the model name.
@@ -375,11 +381,11 @@ const JSONAPISerializer = JSONSerializer.extend({
     @param {String} modelName
     @return {String}
   */
-  payloadKeyFromModelName(modelName) {
+  payloadKeyFromModelName(modelName: string): string {
     return pluralize(modelName);
-  },
+  }
 
-  normalize(modelClass, resourceHash) {
+  normalize(modelClass: ModelSchema, resourceHash) {
     if (resourceHash.attributes) {
       this.normalizeUsingDeclaredMapping(modelClass, resourceHash.attributes);
     }
@@ -402,7 +408,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     this.applyTransforms(modelClass, data.attributes);
 
     return { data };
-  },
+  }
 
   /**
     `keyForAttribute` can be used to define rules for how to convert an
@@ -432,9 +438,9 @@ const JSONAPISerializer = JSONSerializer.extend({
     @param {String} method
     @return {String} normalized key
   */
-  keyForAttribute(key, method) {
+  keyForAttribute(key: string, method) {
     return dasherize(key);
-  },
+  }
 
   /**
    `keyForRelationship` can be used to define a custom key when
@@ -460,13 +466,13 @@ const JSONAPISerializer = JSONSerializer.extend({
    @method keyForRelationship
     @public
    @param {String} key
-   @param {String} typeClass
+   @param {ModelSchema} schema
    @param {String} method
    @return {String} normalized key
   */
-  keyForRelationship(key, typeClass, method) {
+  keyForRelationship(key: string, schema: ModelSchema, method: 'serialize' | 'deserialize'): string {
     return dasherize(key);
-  },
+  }
 
   /**
     Called when a record is saved in order to convert the
@@ -637,14 +643,14 @@ const JSONAPISerializer = JSONSerializer.extend({
     @param {Object} options
     @return {Object} json
   */
-  serialize(snapshot, options) {
+  serialize(snapshot: Snapshot, options) {
     const data = this._super(...arguments);
     data.type = this.payloadKeyFromModelName(snapshot.modelName);
 
     return { data };
-  },
+  }
 
-  serializeAttribute(snapshot, json, key, attribute) {
+  serializeAttribute(snapshot: Snapshot, json, key: string, attribute) {
     const type = attribute.type;
 
     if (this._canSerialize(key)) {
@@ -665,9 +671,9 @@ const JSONAPISerializer = JSONSerializer.extend({
 
       json.attributes[payloadKey] = value;
     }
-  },
+  }
 
-  serializeBelongsTo(snapshot, json, relationship) {
+  serializeBelongsTo(snapshot: Snapshot, json, relationship: RelationshipSchema) {
     const name = relationship.name;
 
     if (this._canSerialize(name)) {
@@ -680,7 +686,7 @@ const JSONAPISerializer = JSONSerializer.extend({
         const schema = this.store.modelFor(snapshot.modelName);
         let payloadKey = this._getMappedKey(name, schema);
         if (payloadKey === name) {
-          payloadKey = this.keyForRelationship(name, 'belongsTo', 'serialize');
+          payloadKey = this.keyForRelationship(name, schema, 'serialize');
         }
 
         let data = null;
@@ -696,9 +702,9 @@ const JSONAPISerializer = JSONSerializer.extend({
         json.relationships[payloadKey] = { data };
       }
     }
-  },
+  }
 
-  serializeHasMany(snapshot, json, relationship) {
+  serializeHasMany(snapshot: Snapshot, json, relationship: RelationshipSchema) {
     const name = relationship.name;
 
     if (this.shouldSerializeHasMany(snapshot, name, relationship)) {
@@ -709,7 +715,7 @@ const JSONAPISerializer = JSONSerializer.extend({
         const schema = this.store.modelFor(snapshot.modelName);
         let payloadKey = this._getMappedKey(name, schema);
         if (payloadKey === name && this.keyForRelationship) {
-          payloadKey = this.keyForRelationship(name, 'hasMany', 'serialize');
+          payloadKey = this.keyForRelationship(name, schema, 'serialize');
         }
 
         // only serialize has many relationships that are not new
@@ -729,8 +735,8 @@ const JSONAPISerializer = JSONSerializer.extend({
         json.relationships[payloadKey] = { data };
       }
     }
-  },
-});
+  }
+}
 
 if (DEBUG) {
   JSONAPISerializer.reopen({
