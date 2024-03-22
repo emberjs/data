@@ -362,7 +362,7 @@ importers:
         specifier: 0.0.10
         version: 0.0.10
       rollup:
-        specifier: ^4.9.6
+        specifier: ^4.13.0
         version: 4.13.0
       typescript:
         specifier: ^5.4.3
@@ -486,7 +486,7 @@ importers:
         specifier: 0.0.10
         version: 0.0.10
       rollup:
-        specifier: ^4.9.6
+        specifier: ^4.13.0
         version: 4.13.0
       typescript:
         specifier: ^5.4.3
@@ -582,7 +582,7 @@ importers:
         specifier: 0.0.10
         version: 0.0.10
       rollup:
-        specifier: ^4.9.6
+        specifier: ^4.13.0
         version: 4.13.0
       typescript:
         specifier: ^5.4.3
@@ -729,7 +729,7 @@ importers:
         specifier: 0.0.10
         version: 0.0.10
       rollup:
-        specifier: ^4.9.6
+        specifier: ^4.13.0
         version: 4.13.0
       typescript:
         specifier: ^5.4.3
@@ -844,7 +844,7 @@ importers:
         specifier: 0.0.10
         version: 0.0.10
       rollup:
-        specifier: ^4.9.6
+        specifier: ^4.13.0
         version: 4.13.0
       typescript:
         specifier: ^5.4.3
@@ -950,7 +950,7 @@ importers:
         specifier: 0.0.10
         version: 0.0.10
       rollup:
-        specifier: ^4.9.6
+        specifier: ^4.13.0
         version: 4.13.0
       typescript:
         specifier: ^5.4.3
@@ -1030,7 +1030,7 @@ importers:
         specifier: 0.0.10
         version: 0.0.10
       rollup:
-        specifier: ^4.9.6
+        specifier: ^4.13.0
         version: 4.13.0
       typescript:
         specifier: ^5.4.3
@@ -1135,7 +1135,7 @@ importers:
         specifier: 0.0.10
         version: 0.0.10
       rollup:
-        specifier: ^4.9.6
+        specifier: ^4.13.0
         version: 4.13.0
       typescript:
         specifier: ^5.4.3
@@ -1257,7 +1257,7 @@ importers:
         specifier: 0.0.10
         version: 0.0.10
       rollup:
-        specifier: ^4.9.6
+        specifier: ^4.13.0
         version: 4.13.0
       typescript:
         specifier: ^5.4.3
@@ -1399,7 +1399,7 @@ importers:
         specifier: 0.0.10
         version: 0.0.10
       rollup:
-        specifier: ^4.9.6
+        specifier: ^4.13.0
         version: 4.13.0
       typescript:
         specifier: ^5.4.3
@@ -1579,7 +1579,7 @@ importers:
         specifier: 0.0.10
         version: 0.0.10
       rollup:
-        specifier: ^4.9.6
+        specifier: ^4.13.0
         version: 4.13.0
       typescript:
         specifier: ^5.4.3
@@ -1651,7 +1651,7 @@ importers:
         specifier: 0.0.10
         version: 0.0.10
       rollup:
-        specifier: ^4.9.6
+        specifier: ^4.13.0
         version: 4.13.0
       typescript:
         specifier: ^5.4.3
@@ -1739,7 +1739,7 @@ importers:
         specifier: 0.0.10
         version: 0.0.10
       rollup:
-        specifier: ^4.9.6
+        specifier: ^4.13.0
         version: 4.13.0
       typescript:
         specifier: ^5.4.3
@@ -1858,7 +1858,7 @@ importers:
         specifier: 0.0.10
         version: 0.0.10
       rollup:
-        specifier: ^4.9.6
+        specifier: ^4.13.0
         version: 4.13.0
       typescript:
         specifier: ^5.4.3
@@ -1968,7 +1968,7 @@ importers:
         specifier: 0.0.10
         version: 0.0.10
       rollup:
-        specifier: ^4.9.6
+        specifier: ^4.13.0
         version: 4.13.0
       typescript:
         specifier: ^5.4.3
@@ -2071,7 +2071,7 @@ importers:
         specifier: 0.0.10
         version: 0.0.10
       rollup:
-        specifier: ^4.9.6
+        specifier: ^4.13.0
         version: 4.13.0
       typescript:
         specifier: ^5.4.3
@@ -2161,7 +2161,7 @@ importers:
         specifier: 0.0.10
         version: 0.0.10
       rollup:
-        specifier: ^4.9.6
+        specifier: ^4.13.0
         version: 4.13.0
       typescript:
         specifier: ^5.4.3
