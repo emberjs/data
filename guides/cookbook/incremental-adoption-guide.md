@@ -101,7 +101,7 @@ You most likely would need to add Auth Handler to your request manager to add `a
 Let's say you have your `accessToken` in the `session` service. Here is how you can add it to the request manager:
 
 ```js
-import { inject as service } from '@ember/service';
+import { service } from '@ember/service';
 
 export default class AuthHandler {
   @service session;
