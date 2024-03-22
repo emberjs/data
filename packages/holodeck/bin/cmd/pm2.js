@@ -1,8 +1,9 @@
 /* eslint-disable no-console */
 /* global Bun, globalThis */
-const { process } = globalThis;
-import pm2 from 'pm2';
 import fs from 'fs';
+import pm2 from 'pm2';
+
+const { process } = globalThis;
 
 export default async function pm2Delegate(cmd, _args) {
   const pkg = JSON.parse(fs.readFileSync('./package.json'), 'utf8');

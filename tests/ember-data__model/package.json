@@ -80,7 +80,7 @@
     "@ember-data/tracking": "workspace:5.4.0-alpha.39",
     "@ember/optional-features": "^2.0.0",
     "@ember/string": "3.1.1",
-    "@ember/test-helpers": "^3.2.1",
+    "@ember/test-helpers": "^3.3.0",
     "@embroider/addon-shim": "^1.8.7",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
@@ -88,7 +88,7 @@
     "@warp-drive/diagnostic": "workspace:0.0.0-alpha.25",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.39",
     "ember-auto-import": "^2.7.0",
-    "ember-cli": "~5.4.1",
+    "ember-cli": "~5.7.0",
     "ember-cli-babel": "^8.2.0",
     "ember-cli-dependency-checker": "^3.3.2",
     "ember-cli-htmlbars": "^6.3.0",
@@ -100,8 +100,8 @@
     "ember-resolver": "^11.0.1",
     "ember-source": "~5.6.0",
     "loader.js": "^4.7.0",
-    "typescript": "^5.3.3",
-    "webpack": "^5.89.0"
+    "typescript": "^5.4.3",
+    "webpack": "^5.91.0"
   },
   "engines": {
     "node": ">= 18.19.1"
@@ -112,7 +112,7 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.6.0",
+  "packageManager": "pnpm@8.15.5",
   "dependencies": {
     "pnpm-sync-dependencies-meta-injected": "0.0.10"
   }

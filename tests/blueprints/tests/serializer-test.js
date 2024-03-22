@@ -21,6 +21,7 @@ describe('Acceptance: generate and destroy serializer blueprints', function () {
 
   describe('classic', function () {
     enableClassic();
+
     beforeEach(async function () {
       await emberNew();
       await modifyPackages([{ name: '@ember-data/serializer', dev: true }]);
@@ -64,6 +65,7 @@ describe('Acceptance: generate and destroy serializer blueprints', function () {
       });
     });
 
+    // eslint-disable-next-line mocha/no-skipped-tests
     xit('serializer throws when --base-class is same as name', function () {
       const args = ['serializer', 'foo', '--base-class=foo'];
 
@@ -158,6 +160,7 @@ describe('Acceptance: generate and destroy serializer blueprints', function () {
       });
     });
 
+    // eslint-disable-next-line mocha/no-skipped-tests
     xit('serializer throws when --base-class is same as name', function () {
       const args = ['serializer', 'foo', '--base-class=foo'];
 

@@ -3,7 +3,7 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { CollectionResourceDocument } from '@warp-drive/core-types/spec/raw';
-import type { Diagnostic } from '@warp-drive/diagnostic';
+import type { Diagnostic } from '@warp-drive/diagnostic/-types';
 
 import type { Context, UserRecord } from './setup';
 import { stateOf } from './setup';

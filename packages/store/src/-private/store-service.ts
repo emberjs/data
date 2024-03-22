@@ -1236,7 +1236,7 @@ class Store extends EmberObject {
         options.reload = true;
       }
       this._join(() => {
-        preloadData(this, identifier, options!.preload!);
+        preloadData(this, identifier, options.preload!);
       });
     }
 

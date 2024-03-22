@@ -67,9 +67,8 @@
     "ember-auto-import": "^2.7.0",
     "ember-cli-babel": "^8.2.0",
     "ember-inflector": "^4.0.2",
-    "typescript": "^5.3.3",
-    "pnpm-sync-dependencies-meta-injected": "0.0.10",
-    "webpack": "^5.89.0"
+    "typescript": "^5.4.3",
+    "webpack": "^5.91.0"
   },
   "dependenciesMeta": {
     "@ember-data/adapter": {
@@ -125,7 +124,8 @@
     "@glimmer/tracking": "^1.1.2",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.39",
     "ember-source": "~5.6.0",
-    "eslint": "^8.56.0"
+    "eslint": "^8.56.0",
+    "pnpm-sync-dependencies-meta-injected": "0.0.10"
   },
   "engines": {
     "node": ">= 18.19.1"
@@ -144,5 +144,5 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.6.0"
+  "packageManager": "pnpm@8.15.5"
 }

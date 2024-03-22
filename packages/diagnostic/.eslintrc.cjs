@@ -15,7 +15,7 @@ module.exports = {
     base.rules(),
     imports.rules(),
     isolation.rules({
-      allowedImports: ['@ember/debug', '@ember/test-helpers'],
+      allowedImports: ['@ember/debug', '@ember/test-helpers', '@glimmer/manager', '@ember/runloop'],
     }),
     {}
   ),

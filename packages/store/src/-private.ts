@@ -39,3 +39,4 @@ export { default as peekCache, removeRecordDataFor } from './-private/caches/cac
 export { setRecordIdentifier, StoreMap } from './-private/caches/instance-cache';
 export { setCacheFor } from './-private/caches/cache-utils';
 export { default as _deprecatingNormalize } from './-private/utils/normalize-model-name';
+export type { StoreRequestInput } from './-private/cache-handler';

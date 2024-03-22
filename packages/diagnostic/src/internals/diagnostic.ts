@@ -99,7 +99,7 @@ export class Diagnostic<TC extends TestContext> {
   }
 
   deepEqual<T>(actual: T, expected: T, message?: string): void {
-    const isEqual = equiv(actual, expected);
+    const isEqual = equiv(actual, expected, true);
     if (!isEqual) {
       if (this.__config.params.tryCatch.value) {
         try {
@@ -133,8 +133,60 @@ export class Diagnostic<TC extends TestContext> {
     }
   }
 
+  /**
+   * Checks if the actual object satisfies the expected object.
+   *
+   * This is a deep comparison that will check if all the properties
+   * of the expected object are present in the actual object with the
+   * same values.
+   *
+   * This differs from deepEqual in that extra properties on the actual
+   * object are allowed.
+   *
+   * This is great for contract testing APIs that may accept a broader
+   * object from which a subset of properties are used, or for testing
+   * higher priority or more stable properties of an object in a dynamic
+   * environment.
+   *
+   * @typedoc
+   */
+  satisfies<T extends object, J extends T>(actual: J, expected: T, message?: string): void {
+    const isEqual = equiv(actual, expected, false);
+    if (!isEqual) {
+      if (this.__config.params.tryCatch.value) {
+        try {
+          throw new Error(message || `Expected items to be equivalent`);
+        } catch (err) {
+          this.pushResult({
+            message: message || 'satisfies',
+            stack: (err as Error).stack!,
+            passed: false,
+            actual,
+            expected,
+          });
+        }
+      } else {
+        this.pushResult({
+          message: message || 'satisfies',
+          stack: '',
+          passed: false,
+          actual,
+          expected,
+        });
+      }
+    } else {
+      this.pushResult({
+        message: message || 'satisfies',
+        stack: '',
+        passed: true,
+        actual: true,
+        expected: true,
+      });
+    }
+  }
+
   notDeepEqual<T>(actual: T, expected: T, message?: string): void {
-    const isEqual = equiv(actual, expected);
+    const isEqual = equiv(actual, expected, true);
     if (isEqual) {
       if (this.__config.params.tryCatch.value) {
         try {

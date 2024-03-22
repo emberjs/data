@@ -442,7 +442,7 @@ module('My Module', function(hooks) {
 1. Add the following peer-deps to your app:
 
 ```diff
-+    "@ember/test-helpers": ">= 3.2.0",
++    "@ember/test-helpers": ">= 3.3.0",
 +    "ember-cli-test-loader": ">= 3.1.0",
 +    "@embroider/addon-shim": ">= 1.8.6"
 ```

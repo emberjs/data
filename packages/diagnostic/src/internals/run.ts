@@ -5,13 +5,20 @@ import { Config, groupLogs, instrument } from './config';
 import { DelegatingReporter } from './delegating-reporter';
 import { Diagnostic } from './diagnostic';
 
+export const PublicTestInfo = Symbol('TestInfo');
+
 export async function runTest<TC extends TestContext>(
   moduleReport: ModuleReport,
   beforeChain: HooksCallback<TC>[],
   test: TestInfo<TC>,
   afterChain: HooksCallback<TC>[]
 ) {
-  const testContext = {} as TC;
+  const testContext = {
+    [PublicTestInfo]: {
+      id: test.id,
+      name: test.name,
+    },
+  } as unknown as TC;
   const testReport: TestReport = {
     id: test.id,
     name: test.name,
@@ -117,11 +124,11 @@ export async function runModule<TC extends TestContext>(
       const needed = Config.concurrency - promises.length;
       const available = Math.min(needed, remainingTests, Config.concurrency);
       for (let i = 0; i < available; i++) {
-        const test = tests[currentTest++]!;
+        const test = tests[currentTest++];
         remainingTests--;
         const promise = runTest(moduleReport, beforeChain, test, afterChain).finally(() => {
           const index = promises.indexOf(promise);
-          promises.splice(index, 1);
+          void promises.splice(index, 1);
         });
         promises.push(promise);
       }

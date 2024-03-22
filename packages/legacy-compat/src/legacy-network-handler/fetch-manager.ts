@@ -8,7 +8,6 @@ import { createDeferred } from '@ember-data/request';
 import type { Deferred } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';
 import { coerceId } from '@ember-data/store/-private';
-import type { StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
 import type { InstanceCache } from '@ember-data/store/-private/caches/instance-cache';
 import type RequestStateService from '@ember-data/store/-private/network/request-cache';
 import type { FindRecordQuery, Request, SaveRecordMutation } from '@ember-data/store/-private/network/request-cache';
@@ -16,6 +15,7 @@ import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
 import type { FindRecordOptions } from '@ember-data/store/-types/q/store';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { TypeFromInstance } from '@warp-drive/core-types/record';
+import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
 import type { CollectionResourceDocument, SingleResourceDocument } from '@warp-drive/core-types/spec/raw';
 
 import { upgradeStore } from '../-private';
@@ -116,7 +116,7 @@ export default class FetchManager {
   scheduleFetch(
     identifier: StableExistingRecordIdentifier,
     options: FindRecordOptions,
-    request: StoreRequestInfo
+    request: ImmutableRequestInfo
   ): Promise<StableExistingRecordIdentifier> {
     const query: FindRecordQuery = {
       op: 'findRecord',
@@ -250,7 +250,7 @@ export default class FetchManager {
   fetchDataIfNeededForIdentifier(
     identifier: StableExistingRecordIdentifier,
     options: FindRecordOptions = {},
-    request: StoreRequestInfo
+    request: ImmutableRequestInfo
   ): Promise<StableExistingRecordIdentifier> {
     // pre-loading will change the isEmpty value
     const isEmpty = _isEmpty(this._store._instanceCache, identifier);

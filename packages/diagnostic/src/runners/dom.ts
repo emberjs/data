@@ -5,7 +5,7 @@ import type { ConfigOptions } from '../internals/config';
 import { configure, getSettings } from '../internals/config';
 import { DOMReporter } from '../reporters/dom';
 
-export async function start(config?: ConfigOptions) {
+export async function start(config?: Partial<ConfigOptions>) {
   if (config) {
     configure(config);
   }

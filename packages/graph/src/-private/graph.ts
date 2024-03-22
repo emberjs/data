@@ -269,7 +269,7 @@ export class Graph {
       // cleans up the graph but retains some nodes
       // to allow for rematerialization
       Object.keys(relationships).forEach((key) => {
-        const rel = relationships[key]!;
+        const rel = relationships[key];
         if (!rel) {
           return;
         }

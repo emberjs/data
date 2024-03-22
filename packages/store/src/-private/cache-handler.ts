@@ -3,7 +3,7 @@
  */
 import { assert } from '@ember/debug';
 
-import type { Future, Handler, NextFn } from '@ember-data/request/-private/types';
+import type { CacheHandler as CacheHandlerType, Future, NextFn } from '@ember-data/request';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type {
   ImmutableCreateRequestOptions,
@@ -115,16 +115,15 @@ export interface LifetimesService {
   ): void;
 }
 
-export type StoreRequestInfo = ImmutableRequestInfo;
-export type LooseStoreRequestInfo = Omit<StoreRequestInfo, 'records' | 'headers'> & {
+export type LooseStoreRequestInfo = Omit<ImmutableRequestInfo, 'records' | 'headers'> & {
   records?: ResourceIdentifierObject[];
   headers?: Headers;
 };
 
-export type StoreRequestInput = StoreRequestInfo | LooseStoreRequestInfo;
+export type StoreRequestInput = ImmutableRequestInfo | LooseStoreRequestInfo;
 
 export interface StoreRequestContext extends RequestContext {
-  request: StoreRequestInfo & { store: Store; [EnableHydration]?: boolean };
+  request: ImmutableRequestInfo & { store: Store; [EnableHydration]?: boolean };
 }
 
 const MUTATION_OPS = new Set(['createRecord', 'updateRecord', 'deleteRecord']);
@@ -135,7 +134,7 @@ function isErrorDocument(document: ResourceDataDocument | ResourceErrorDocument)
 
 function maybeUpdateUiObjects<T>(
   store: Store,
-  request: StoreRequestInfo,
+  request: ImmutableRequestInfo,
   options: {
     shouldHydrate?: boolean;
     shouldFetch?: boolean;
@@ -247,7 +246,7 @@ function maybeUpdateUiObjects<T>(
 
 function calcShouldFetch(
   store: Store,
-  request: StoreRequestInfo,
+  request: ImmutableRequestInfo,
   hasCachedValue: boolean,
   identifier: StableDocumentIdentifier | null
 ): boolean {
@@ -262,7 +261,7 @@ function calcShouldFetch(
 
 function calcShouldBackgroundFetch(
   store: Store,
-  request: StoreRequestInfo,
+  request: ImmutableRequestInfo,
   willFetch: boolean,
   identifier: StableDocumentIdentifier | null
 ): boolean {
@@ -275,7 +274,7 @@ function calcShouldBackgroundFetch(
 }
 
 function isMutation(
-  request: Partial<StoreRequestInfo>
+  request: Partial<ImmutableRequestInfo>
 ): request is ImmutableUpdateRequestOptions | ImmutableCreateRequestOptions | ImmutableDeleteRequestOptions {
   return Boolean(request.op && MUTATION_OPS.has(request.op));
 }
@@ -288,7 +287,7 @@ function fetchContentAndHydrate<T>(
   shouldBackgroundFetch: boolean
 ): Promise<T> {
   const { store } = context.request;
-  const shouldHydrate: boolean = (context.request[EnableHydration] as boolean | undefined) || false;
+  const shouldHydrate: boolean = context.request[EnableHydration] || false;
 
   let isMut = false;
   if (isMutation(context.request)) {
@@ -412,8 +411,8 @@ function cloneError(error: Error & { error: string | object }) {
   return cloned;
 }
 
-export const CacheHandler: Handler = {
-  request<T>(context: StoreRequestContext, next: NextFn<T>): Promise<T | StructuredDataDocument<T>> | Future<T> {
+export const CacheHandler: CacheHandlerType = {
+  request<T>(context: StoreRequestContext, next: NextFn<T>): Promise<T | StructuredDataDocument<T>> | Future<T> | T {
     // if we have no cache or no cache-key skip cache handling
     if (!context.request.store || context.request.cacheOptions?.[SkipCache]) {
       return next(context.request);
@@ -435,7 +434,7 @@ export const CacheHandler: Handler = {
       store.requestManager._pending.set(context.id, promise);
     }
 
-    const shouldHydrate: boolean = (context.request[EnableHydration] as boolean | undefined) || false;
+    const shouldHydrate: boolean = context.request[EnableHydration] || false;
 
     if ('error' in peeked!) {
       const content = shouldHydrate
@@ -452,17 +451,17 @@ export const CacheHandler: Handler = {
       throw newError;
     }
 
-    return Promise.resolve(
-      shouldHydrate
-        ? maybeUpdateUiObjects<T>(
-            store,
-            context.request,
-            { shouldHydrate, identifier },
-            peeked!.content as ResourceDataDocument,
-            true
-          )
-        : (peeked!.content as T)
-    );
+    const result = shouldHydrate
+      ? maybeUpdateUiObjects<T>(
+          store,
+          context.request,
+          { shouldHydrate, identifier },
+          peeked!.content as ResourceDataDocument,
+          true
+        )
+      : (peeked!.content as T);
+
+    return result;
   },
 };
 

@@ -373,6 +373,7 @@ module.exports = {
     '(public) @ember-data/request RequestManager#request',
     '(public) @ember-data/request RequestManager#use',
     '(public) @ember-data/request RequestManager#useCache',
+    '(public) @ember-data/request <Interface> CacheHandler#request',
     '(public) @ember-data/request <Interface> Handler#request',
     '(public) @ember-data/request Future#abort',
     '(public) @ember-data/request Future#getStream',

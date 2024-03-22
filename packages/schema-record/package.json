@@ -70,8 +70,7 @@
     "@ember-data/private-build-infra": "workspace:5.4.0-alpha.39",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.13.5",
-    "ember-cli-babel": "^8.2.0",
-    "pnpm-sync-dependencies-meta-injected": "0.0.10"
+    "ember-cli-babel": "^8.2.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.23.9",
@@ -94,10 +93,11 @@
     "@warp-drive/core-types": "workspace:0.0.0-alpha.25",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.39",
     "ember-source": "~5.6.0",
+    "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "rollup": "^4.9.6",
-    "typescript": "^5.3.3",
+    "typescript": "^5.4.3",
     "walk-sync": "^3.0.0",
-    "webpack": "^5.89.0",
+    "webpack": "^5.91.0",
     "@ember/string": "^3.1.1"
   },
   "ember": {
@@ -109,5 +109,5 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.6.0"
+  "packageManager": "pnpm@8.15.5"
 }

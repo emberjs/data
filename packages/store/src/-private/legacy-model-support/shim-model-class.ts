@@ -53,7 +53,7 @@ export default class ShimModelClass<T = unknown> implements ModelSchema<T> {
       .relationshipsDefinitionFor({ type: this.modelName });
     const fields = new Map<KeyOrString<T>, 'attribute' | 'belongsTo' | 'hasMany'>();
     Object.keys(attrs).forEach((key) => fields.set(key as KeyOrString<T>, 'attribute'));
-    Object.keys(relationships).forEach((key) => fields.set(key as KeyOrString<T>, relationships[key]!.kind));
+    Object.keys(relationships).forEach((key) => fields.set(key as KeyOrString<T>, relationships[key].kind));
     return fields;
   }
 
@@ -91,7 +91,7 @@ export default class ShimModelClass<T = unknown> implements ModelSchema<T> {
   eachTransformedAttribute<K extends KeyOrString<T>>(callback: (key: K, type: string | null) => void, binding?: T) {
     const attrDefs = this.__store.getSchemaDefinitionService().attributesDefinitionFor({ type: this.modelName });
     Object.keys(attrDefs).forEach((key) => {
-      if (attrDefs[key]!.type) {
+      if (attrDefs[key].type) {
         callback.call(binding, key as K, attrDefs[key].type);
       }
     });

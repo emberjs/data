@@ -2,8 +2,18 @@ import chalk from 'chalk';
 
 import { debug, info } from '../utils/debug.js';
 import { sinceStart } from '../utils/time.js';
+import { watchAssets } from './watch.js';
 
 export function buildHandler(config, state) {
+  const Connections = new Set();
+  if (config.serve && !config.noWatch) {
+    watchAssets(config.assets, () => {
+      Connections.forEach((ws) => {
+        ws.send(JSON.stringify({ name: 'reload' }));
+      });
+    });
+  }
+
   return {
     perMessageDeflate: true,
     async message(ws, message) {
@@ -66,8 +76,14 @@ export function buildHandler(config, state) {
       }
       // console.log(JSON.parse(message));
     }, // a message is received
-    open(ws) {}, // a socket is opened
-    close(ws, code, message) {}, // a socket is closed
+    open(ws) {
+      Connections.add(ws);
+      debug(`WebSocket opened`);
+    }, // a socket is opened
+    close(ws, code, message) {
+      Connections.delete(ws);
+      debug(`WebSocket closed`);
+    }, // a socket is closed
     drain(ws) {}, // the socket is ready to receive more data
   };
 }

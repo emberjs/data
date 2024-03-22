@@ -1,16 +1,63 @@
 import { serve } from '@hono/node-server';
+import chalk from 'chalk';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { HTTPException } from 'hono/http-exception';
 import { logger } from 'hono/logger';
+import { execSync } from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import http2 from 'node:http2';
-import { dirname } from 'node:path';
 import zlib from 'node:zlib';
-import { fileURLToPath } from 'url';
-import { HTTPException } from 'hono/http-exception';
+import { homedir, userInfo } from 'os';
+import path from 'path';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+function getShellConfigFilePath() {
+  const shell = userInfo().shell;
+  switch (shell) {
+    case '/bin/zsh':
+      return path.join(homedir(), '.zshrc');
+    case '/bin/bash':
+      return path.join(homedir(), '.bashrc');
+    default:
+      throw Error(
+        `Unable to determine configuration file for shell: ${shell}. Manual SSL Cert Setup Required for Holodeck.`
+      );
+  }
+}
+
+function getCertInfo() {
+  let CERT_PATH = process.env.HOLODECK_SSL_CERT_PATH;
+  let KEY_PATH = process.env.HOLODECK_SSL_KEY_PATH;
+
+  if (!CERT_PATH) {
+    CERT_PATH = path.join(homedir(), 'holodeck-localhost.pem');
+    process.env.HOLODECK_SSL_CERT_PATH = CERT_PATH;
+    execSync(`echo '\nexport HOLODECK_SSL_CERT_PATH="${CERT_PATH}"' >> ${getShellConfigFilePath()}`);
+    console.log(`Added HOLODECK_SSL_CERT_PATH to ${getShellConfigFilePath()}`);
+  }
+
+  if (!KEY_PATH) {
+    KEY_PATH = path.join(homedir(), 'holodeck-localhost-key.pem');
+    process.env.HOLODECK_SSL_KEY_PATH = KEY_PATH;
+    execSync(`echo '\nexport HOLODECK_SSL_KEY_PATH="${KEY_PATH}"' >> ${getShellConfigFilePath()}`);
+    console.log(`Added HOLODECK_SSL_KEY_PATH to ${getShellConfigFilePath()}`);
+  }
+
+  if (!fs.existsSync(CERT_PATH) || !fs.existsSync(KEY_PATH)) {
+    console.log('SSL certificate or key not found, generating new ones...');
+
+    execSync(`mkcert -install`);
+    execSync(`mkcert -key-file ${KEY_PATH} -cert-file ${CERT_PATH} localhost`);
+  }
+
+  return {
+    CERT_PATH,
+    KEY_PATH,
+    CERT: fs.readFileSync(CERT_PATH),
+    KEY: fs.readFileSync(KEY_PATH),
+  };
+}
 
 const DEFAULT_PORT = 1135;
 const BROTLI_OPTIONS = {
@@ -211,13 +258,15 @@ export function createServer(options) {
   );
   app.all('*', createTestHandler(options.projectRoot));
 
+  const { CERT, KEY } = getCertInfo();
+
   serve({
     fetch: app.fetch,
     createServer: (_, requestListener) => {
       return http2.createSecureServer(
         {
-          key: fs.readFileSync(`${__dirname}/localhost-key.pem`),
-          cert: fs.readFileSync(`${__dirname}/localhost.pem`),
+          key: KEY,
+          cert: CERT,
         },
         requestListener
       );
@@ -225,4 +274,8 @@ export function createServer(options) {
     port: options.port ?? DEFAULT_PORT,
     hostname: 'localhost',
   });
+
+  console.log(
+    `\tMock server running at ${chalk.magenta('https://localhost:') + chalk.yellow(options.port ?? DEFAULT_PORT)}`
+  );
 }

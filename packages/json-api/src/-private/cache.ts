@@ -12,7 +12,6 @@ import type { ImplicitEdge } from '@ember-data/graph/-private/edges/implicit';
 import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
 import type { Graph, GraphEdge } from '@ember-data/graph/-private/graph';
 import type Store from '@ember-data/store';
-import type { StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
 import type { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
 import type { CacheCapabilitiesManager as InternalCapabilitiesManager } from '@ember-data/store/-private/managers/cache-capabilities-manager';
 import type { MergeOperation } from '@ember-data/store/-types/q/cache';
@@ -31,6 +30,7 @@ import type {
 } from '@warp-drive/core-types/identifier';
 import type { Value } from '@warp-drive/core-types/json/raw';
 import type {
+  ImmutableRequestInfo,
   StructuredDataDocument,
   StructuredDocument,
   StructuredErrorDocument,
@@ -318,7 +318,7 @@ export default class JSONAPICache implements Cache {
       (resourceDocument as ResourceDataDocument).included = included;
     }
 
-    const request = doc.request as StoreRequestInfo | undefined;
+    const request = doc.request as ImmutableRequestInfo | undefined;
     const identifier = request ? this._capabilities.identifierCache.getOrCreateDocumentIdentifier(request) : null;
 
     if (identifier) {
@@ -439,7 +439,7 @@ export default class JSONAPICache implements Cache {
       const rels = this.__graph.identifiers.get(identifier);
       if (rels) {
         Object.keys(rels).forEach((key) => {
-          const rel = rels[key]!;
+          const rel = rels[key];
           if (rel.definition.isImplicit) {
             return;
           } else {

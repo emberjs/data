@@ -186,6 +186,7 @@ export {
   Store as default,
   CacheHandler,
   type LifetimesService,
+  type StoreRequestInput,
   setIdentifierGenerationMethod,
   setIdentifierUpdateMethod,
   setIdentifierForgetMethod,

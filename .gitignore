@@ -25,6 +25,7 @@ packages/schema-record/addon/
 packages/serializer/addon
 packages/store/addon
 packages/tracking/addon
+packages/ember/addon
 
 # dependencies
 bower_components

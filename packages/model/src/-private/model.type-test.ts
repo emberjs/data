@@ -123,16 +123,16 @@ expectTypeOf(
 
 expectTypeOf(user.hasMany('enemies')).toEqualTypeOf<HasManyReference<UnbrandedUser, 'enemies'>>();
 expectTypeOf(user.hasMany('enemies').___identifier.type).toEqualTypeOf<string>();
-expectTypeOf(user.hasMany('enemies').identifiers[0]!.type).toEqualTypeOf<string>();
+expectTypeOf(user.hasMany('enemies').identifiers[0].type).toEqualTypeOf<string>();
 expectTypeOf(user.hasMany('enemies').key).toEqualTypeOf<'enemies'>();
 expectTypeOf(user.hasMany('enemies').type).toEqualTypeOf<string>();
 expectTypeOf(user.hasMany('enemies').value()).toMatchTypeOf<UnbrandedUser[] | null>();
 
 expectTypeOf(branded.hasMany('enemies')).toEqualTypeOf<HasManyReference<BrandedUser, 'enemies'>>();
 expectTypeOf(branded.hasMany('enemies').___identifier.type).toEqualTypeOf<'user'>();
-expectTypeOf(branded.hasMany('enemies').identifiers[0]!.type).toEqualTypeOf<'user'>();
+expectTypeOf(branded.hasMany('enemies').identifiers[0].type).toEqualTypeOf<'user'>();
 expectTypeOf(branded.hasMany('enemies').___identifier.type).not.toEqualTypeOf<string>();
-expectTypeOf(branded.hasMany('enemies').identifiers[0]!.type).not.toEqualTypeOf<string>();
+expectTypeOf(branded.hasMany('enemies').identifiers[0].type).not.toEqualTypeOf<string>();
 expectTypeOf(branded.hasMany('enemies').key).toEqualTypeOf<'enemies'>();
 expectTypeOf(branded.hasMany('enemies').type).toEqualTypeOf<'user'>();
 expectTypeOf(branded.hasMany('enemies').value()).toMatchTypeOf<BrandedUser[] | null>();

@@ -12,8 +12,7 @@ module('Browser | /person/new', function (hooks) {
     await visit('/person/new');
 
     // from application.hbs
-    assert.dom('h1').hasText('Ember Data');
-    assert.dom('a').hasAttribute('href', '/tests');
+    assert.dom('h1').hasText('EmberData Fastboot Tests');
 
     assert.dom('.person-name').exists();
   });
@@ -26,8 +25,7 @@ module('FastBoot | /person/new', function (hooks) {
     await SSR('/person/new');
 
     // from application.hbs
-    assert.dom('h1').hasText('Ember Data');
-    assert.dom('a').hasAttribute('href', '/tests');
+    assert.dom('h1').hasText('EmberData Fastboot Tests');
 
     assert.dom('.person-name').exists();
   });

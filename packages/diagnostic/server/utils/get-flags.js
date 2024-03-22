@@ -17,6 +17,7 @@ export function getFlags() {
   const filtered = {};
 
   // global flags
+  const noWatch = flags.has('--no-watch') || flags.has('-w');
   const debug = flags.has('--debug') || flags.has('-d');
   const serve = flags.has('--serve') || flags.has('-s');
   const noLaunch = flags.has('--no-launch') || flags.has('-n');
@@ -46,6 +47,9 @@ export function getFlags() {
   if (useExisting) {
     filtered['useExisting'] = true;
   }
+  if (noWatch) {
+    filtered['noWatch'] = true;
+  }
 
   return {
     parsed: {
@@ -54,6 +58,7 @@ export function getFlags() {
       noLaunch,
       filter,
       retry,
+      noWatch,
       headless,
       useExisting,
     },

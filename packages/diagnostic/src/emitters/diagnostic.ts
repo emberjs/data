@@ -65,9 +65,11 @@ class DiagnosticEmitter implements Emitter {
         throw new Error(`[Diagnostic] Remote Reporter Connection Failed`);
       };
       socket.onmessage = (message: MessageEvent<string>) => {
-        const msg = JSON.parse(message.data) as { name: 'close' };
+        const msg = JSON.parse(message.data) as { name: 'close' | 'reload' };
         if (msg.name === 'close') {
           window.close();
+        } else if (msg.name === 'reload') {
+          window.location.reload();
         } else {
           throw new Error(`[Diagnostic] Unexpected message from server`);
         }

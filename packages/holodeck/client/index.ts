@@ -49,7 +49,9 @@ export class MockServerHandler implements Handler {
     request.referrerPolicy = '';
 
     try {
-      return await next(request);
+      const future = next(request);
+      context.setStream(future.getStream());
+      return await future;
     } catch (e) {
       if (e instanceof Error && !(e instanceof DOMException)) {
         e.message = e.message.replace(queryForTest, '');

@@ -52,6 +52,10 @@
       "stage": "alpha",
       "types": "alpha"
     },
+    "@warp-drive/ember": {
+      "stage": "alpha",
+      "types": "alpha"
+    },
     "@warp-drive/schema": {
       "stage": "alpha",
       "types": "private"

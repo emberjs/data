@@ -48,8 +48,7 @@
     "@ember-data/private-build-infra": "workspace:5.4.0-alpha.39",
     "@ember/test-waiters": "^3.1.0",
     "@embroider/macros": "^1.13.5",
-    "ember-cli-babel": "^8.2.0",
-    "pnpm-sync-dependencies-meta-injected": "0.0.10"
+    "ember-cli-babel": "^8.2.0"
   },
   "dependenciesMeta": {
     "@ember-data/private-build-infra": {
@@ -77,8 +76,9 @@
     "@warp-drive/core-types": "workspace:0.0.0-alpha.25",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.39",
     "ember-source": "~5.6.0",
+    "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "rollup": "^4.9.6",
-    "typescript": "^5.3.3",
+    "typescript": "^5.4.3",
     "walk-sync": "^3.0.0"
   },
   "engines": {

@@ -46,6 +46,10 @@ inputs:
     description: Token to use for TurboRepo
     required: false
     default: ''
+  with-cert:
+    description: Whether to setup an SSL Cert
+    required: false
+    default: false
 
 runs:
   using: composite
@@ -66,6 +70,18 @@ runs:
       uses: felixmosh/turborepo-gh-artifacts@v2
       with:
         repo-token: ${{ inputs.repo-token }}
+
+    - name: Set Up Homebrew
+      if: ${{ inputs.with-cert }}
+      id: set-up-homebrew
+      uses: Homebrew/actions/setup-homebrew@master
+
+    - name: 'Setup SSL Cert'
+      if: ${{ inputs.with-cert }}
+      shell: bash
+      run: |
+        sudo apt install libnss3-tools
+        brew install mkcert
 
     - name: Configure Parallel Builds
       if: ${{ inputs.parallel-build == 'true' }}

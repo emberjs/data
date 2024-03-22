@@ -15,11 +15,11 @@ setupGlobalHooks((hooks) => {
 configure();
 
 start({
-  tryCatch: false,
-  debug: false,
+  tryCatch: true,
+  debug: true,
   concurrency: 10,
   groupLogs: false,
   instrument: true,
-  hideReport: true,
+  hideReport: false,
   useDiagnostic: true,
 });

@@ -8,6 +8,7 @@ exec printf '%s\n' "$test1" "$test2" 1>&2
 /* global Bun, globalThis */
 
 import chalk from 'chalk';
+
 import { spawn } from './cmd/spawn.js';
 
 const isBun = typeof Bun !== 'undefined';

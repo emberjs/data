@@ -45,7 +45,7 @@ const BOXABLE_TYPES = new Set(['boolean', 'number', 'string']);
 // Elements are { a: val, b: val }.
 let memory: { a: unknown; b: unknown }[] = [];
 
-function useStrictEquality(a: unknown, b: unknown) {
+function useStrictEquality(a: unknown, b: unknown, _strictKeys: boolean) {
   return a === b;
 }
 
@@ -107,14 +107,16 @@ const objTypeCallbacks = {
   // identical reference only
   function: useStrictEquality,
 
-  array(a: unknown[], b: unknown[]) {
+  array(a: unknown[], b: unknown[], strictKeys: boolean) {
     if (a.length !== b.length) {
       // Safe and faster
+      console.log('failed array length check', a, b);
       return false;
     }
 
     for (let i = 0; i < a.length; i++) {
-      if (!typeEquiv(a[i], b[i])) {
+      if (!typeEquiv(a[i], b[i], strictKeys)) {
+        console.log('failed array element check', a[i], b[i], a, b);
         return false;
       }
     }
@@ -126,7 +128,7 @@ const objTypeCallbacks = {
   // repetitions are not counted, so these are equivalent:
   // a = new Set( [ X={}, Y=[], Y ] );
   // b = new Set( [ Y, X, X ] );
-  set(a: Set<unknown>, b: Set<unknown>) {
+  set(a: Set<unknown>, b: Set<unknown>, strictKeys: boolean) {
     if (a.size !== b.size) {
       // This optimization has certain quirks because of the lack of
       // repetition counting. For instance, adding the same
@@ -157,7 +159,7 @@ const objTypeCallbacks = {
         // Swap out the global memory, as nested typeEquiv() would clobber it
         const originalMemory = memory;
         memory = [];
-        if (typeEquiv(bVal, aVal)) {
+        if (typeEquiv(bVal, aVal, strictKeys)) {
           innerEq = true;
         }
         // Restore
@@ -178,7 +180,7 @@ const objTypeCallbacks = {
   // counted, so these are equivalent:
   // a = new Map( [ [ {}, 1 ], [ {}, 1 ], [ [], 1 ] ] );
   // b = new Map( [ [ {}, 1 ], [ [], 1 ], [ [], 1 ] ] );
-  map<K, V>(a: Map<K, V>, b: Map<K, V>) {
+  map<K, V>(a: Map<K, V>, b: Map<K, V>, strictKeys: boolean) {
     if (a.size !== b.size) {
       // This optimization has certain quirks because of the lack of
       // repetition counting. For instance, adding the same
@@ -209,7 +211,7 @@ const objTypeCallbacks = {
         // Swap out the global memory, as nested typeEquiv() would clobber it
         const originalMemory = memory;
         memory = [];
-        if (objTypeCallbacks.array([bVal, bKey], [aVal, aKey])) {
+        if (objTypeCallbacks.array([bVal, bKey], [aVal, aKey], strictKeys)) {
           innerEq = true;
         }
         // Restore
@@ -230,32 +232,32 @@ const entryTypeCallbacks = {
   undefined: useStrictEquality,
   null: useStrictEquality,
   boolean: useStrictEquality,
-  number(a: number, b: number) {
+  number(actual: number, expected: number, _strictKeys: boolean) {
     // Handle NaN
-    return a === b || (isNaN(a) && isNaN(b));
+    return actual === expected || (isNaN(actual) && isNaN(expected));
   },
   string: useStrictEquality,
   symbol: useStrictEquality,
 
   function: useStrictEquality,
-  object(a: BetterObj, b: BetterObj) {
+  object(actual: BetterObj, expected: BetterObj, strictKeys: boolean) {
     // Handle memory (skip recursion)
-    if (memory.some((pair) => pair.a === a && pair.b === b)) {
+    if (memory.some((pair) => pair.a === actual && pair.b === expected)) {
       return true;
     }
-    memory.push({ a, b });
+    memory.push({ a: actual, b: expected });
 
-    const aObjType = objectType(a);
-    const bObjType = objectType(b);
+    const aObjType = objectType(actual);
+    const bObjType = objectType(expected);
     if (aObjType !== 'object' || bObjType !== 'object') {
       // Handle literal `null`
       // Handle: Array, Map/Set, Date, Regxp/Function, boxed primitives
       // @ts-expect-error
-      return aObjType === bObjType && objTypeCallbacks[aObjType](a, b);
+      return aObjType === bObjType && objTypeCallbacks[aObjType](actual, expected, strictKeys);
     }
 
     // NOTE: Literal null must not make it here as it would throw
-    if (compareConstructors(a, b) === false) {
+    if (strictKeys && compareConstructors(actual, expected) === false) {
       return false;
     }
 
@@ -263,57 +265,83 @@ const entryTypeCallbacks = {
     const bProperties = [];
 
     // Be strict and go deep, no filtering with hasOwnProperty.
-    for (const i in a) {
+    if (strictKeys) {
+      for (const i in actual) {
+        // Collect a's properties
+        aProperties.push(i);
+
+        // Skip OOP methods that look the same
+        if (
+          actual.constructor !== Object &&
+          typeof actual.constructor !== 'undefined' &&
+          typeof actual[i] === 'function' &&
+          typeof expected[i] === 'function' &&
+          (actual[i] as Function).toString() === (expected[i] as Function).toString()
+        ) {
+          continue;
+        }
+        if (!typeEquiv(actual[i], expected[i], strictKeys)) {
+          return false;
+        }
+      }
+
+      for (const i in expected) {
+        // Collect b's properties
+        bProperties.push(i);
+      }
+
+      return objTypeCallbacks.array(aProperties.sort(), bProperties.sort(), strictKeys);
+    }
+
+    for (const i in expected) {
       // Collect a's properties
       aProperties.push(i);
 
       // Skip OOP methods that look the same
       if (
-        a.constructor !== Object &&
-        typeof a.constructor !== 'undefined' &&
-        typeof a[i] === 'function' &&
-        typeof b[i] === 'function' &&
-        (a[i] as Function).toString() === (b[i] as Function).toString()
+        expected.constructor !== Object &&
+        typeof expected.constructor !== 'undefined' &&
+        typeof expected[i] === 'function' &&
+        typeof actual[i] === 'function' &&
+        (expected[i] as Function).toString() === (actual[i] as Function).toString()
       ) {
         continue;
       }
-      if (!typeEquiv(a[i], b[i])) {
+      if (!typeEquiv(actual[i], expected[i], strictKeys)) {
+        console.log('failed object property check', i, actual[i], expected[i], actual, expected);
         return false;
       }
     }
 
-    for (const i in b) {
-      // Collect b's properties
-      bProperties.push(i);
-    }
-
-    return objTypeCallbacks.array(aProperties.sort(), bProperties.sort());
+    return true;
   },
 };
 
-function typeEquiv(a: unknown, b: unknown): boolean {
+function typeEquiv(actual: unknown, expected: unknown, strictKeys: boolean): boolean {
   // Optimization: Only perform type-specific comparison when pairs are not strictly equal.
-  if (a === b) {
+  if (actual === expected) {
     return true;
   }
 
-  const aType = typeof a;
-  const bType = typeof b;
+  const aType = typeof actual;
+  const bType = typeof expected;
   if (aType !== bType) {
     // Support comparing primitive to boxed primitives
     // Try again after possibly unwrapping one
     return (
-      (aType === 'object' && BOXABLE_TYPES.has(objectType(a)) ? (a as string | number).valueOf() : a) ===
-      (bType === 'object' && BOXABLE_TYPES.has(objectType(b)) ? (b as string | number).valueOf() : b)
+      (aType === 'object' && BOXABLE_TYPES.has(objectType(actual)) ? (actual as string | number).valueOf() : actual) ===
+      (bType === 'object' && BOXABLE_TYPES.has(objectType(expected))
+        ? (expected as string | number).valueOf()
+        : expected)
     );
   }
 
   // @ts-expect-error
-  return entryTypeCallbacks[aType](a, b);
+  return entryTypeCallbacks[aType](actual, expected, strictKeys);
 }
 
-function innerEquiv(a: unknown, b: unknown): boolean {
-  const res = typeEquiv(a, b);
+function innerEquiv(actual: unknown, expected: unknown, strictKeys: boolean): boolean {
+  const res = typeEquiv(actual, expected, strictKeys);
   // Release any retained objects and reset recursion detection for next call
   memory = [];
   return res;
@@ -325,20 +353,6 @@ function innerEquiv(a: unknown, b: unknown): boolean {
  * @author Philippe Rathé <prathe@gmail.com>
  * @author David Chan <david@troi.org>
  */
-export default function equiv(a: unknown, b: unknown): boolean {
-  if (arguments.length === 2) {
-    return a === b || innerEquiv(a, b);
-  }
-
-  // Given 0 or 1 arguments, just return true (nothing to compare).
-  // Given (A,B,C,D) compare C,D then B,C then A,B.
-  let i = arguments.length - 1;
-  while (i > 0) {
-    if (!innerEquiv(arguments[i - 1], arguments[i])) {
-      return false;
-    }
-    i--;
-  }
-
-  return true;
+export default function equiv(actual: unknown, expected: unknown, strictKeys: boolean): boolean {
+  return actual === expected || innerEquiv(actual, expected, strictKeys);
 }

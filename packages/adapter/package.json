@@ -92,8 +92,7 @@
     "@ember-data/private-build-infra": "workspace:5.4.0-alpha.39",
     "@embroider/macros": "^1.13.5",
     "ember-cli-babel": "^8.2.0",
-    "ember-cli-test-info": "^1.0.0",
-    "pnpm-sync-dependencies-meta-injected": "0.0.10"
+    "ember-cli-test-info": "^1.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.23.9",
@@ -124,9 +123,10 @@
     "ember-inflector": "^4.0.2",
     "ember-source": "~5.6.0",
     "rollup": "^4.9.6",
-    "typescript": "^5.3.3",
+    "typescript": "^5.4.3",
     "walk-sync": "^3.0.0",
-    "webpack": "^5.89.0"
+    "webpack": "^5.91.0",
+    "pnpm-sync-dependencies-meta-injected": "0.0.10"
   },
   "engines": {
     "node": ">= 18.19.1"
@@ -134,5 +134,5 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.6.0"
+  "packageManager": "pnpm@8.15.5"
 }

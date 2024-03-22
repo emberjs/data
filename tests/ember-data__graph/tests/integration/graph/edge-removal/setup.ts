@@ -1,5 +1,3 @@
-import type { TestContext } from '@ember/test-helpers';
-
 import { graphFor } from '@ember-data/graph/-private';
 import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection';
 import type { ImplicitEdge } from '@ember-data/graph/-private/edges/implicit';
@@ -11,7 +9,8 @@ import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { ResourceType } from '@warp-drive/core-types/symbols';
-import type { EmberHooks } from '@warp-drive/diagnostic';
+import type { Hooks } from '@warp-drive/diagnostic/-types';
+import type { RenderingTestContext } from '@warp-drive/diagnostic/ember';
 import { setupTest } from '@warp-drive/diagnostic/ember';
 
 class AbstractMap {
@@ -49,7 +48,7 @@ class AbstractGraph {
     const implicits = Object.create(null) as Record<string, ImplicitEdge>;
     if (rels) {
       Object.keys(rels).forEach((key) => {
-        const rel = rels[key]!;
+        const rel = rels[key];
         if (rel && isImplicit(rel)) {
           implicits[key] = rel;
         }
@@ -135,12 +134,12 @@ export type UserRecord = Model & {
   [ResourceType]: 'user';
 };
 
-export interface Context extends TestContext {
+export interface Context extends RenderingTestContext {
   store: Store;
   graph: AbstractGraph;
 }
 
-export function setupGraphTest(hooks: EmberHooks<Context>) {
+export function setupGraphTest(hooks: Hooks<Context>) {
   setupTest(hooks);
   hooks.beforeEach(function (this: Context) {
     this.owner.register('adapter:application', Adapter);

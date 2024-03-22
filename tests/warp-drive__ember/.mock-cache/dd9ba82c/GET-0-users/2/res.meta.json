@@ -1,0 +1,12 @@
+{
+  "url": "users/2",
+  "status": 404,
+  "statusText": "Not Found",
+  "headers": {
+    "Content-Type": "application/vnd.api+json",
+    "Content-Encoding": "br",
+    "Cache-Control": "no-store"
+  },
+  "method": "GET",
+  "requestBody": null
+}

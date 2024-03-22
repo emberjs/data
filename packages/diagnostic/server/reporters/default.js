@@ -64,6 +64,25 @@ export default class CustomDotReporter {
     this.totalLines = 0;
   }
 
+  clearState() {
+    this.launchers = {};
+    this.tabs.clear();
+    this.idsToStartNumber.clear();
+    this.results = [];
+    this.failedTests = [];
+    this.globalFailures = [];
+    this.failedTestIds.clear();
+    this.total = 0;
+    this.pass = 0;
+    this.skip = 0;
+    this.todo = 0;
+    this.fail = 0;
+    this.shouldPrintHungTests = false;
+    this.lineFailures = [];
+    this.currentLineChars = 0;
+    this.totalLines = 0;
+  }
+
   write(str) {
     this.out.write(str);
   }
@@ -192,6 +211,8 @@ export default class CustomDotReporter {
         fullElapsed.toLocaleString('en-US')
       )} ms\n${HEADER_STR}\n\n`
     );
+
+    this.clearState();
 
     return this.failedTests.length ? 1 : 0;
   }

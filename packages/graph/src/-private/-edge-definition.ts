@@ -376,7 +376,7 @@ export function upgradeDefinition(
     // we should only hit this in prod
     assert(`Expected a relationship schema for '${type}.${propertyName}', but no relationship schema was found.`, meta);
 
-    cache[type]![propertyName] = null;
+    cache[type][propertyName] = null;
     return null;
   }
   const definition = /*#__NOINLINE__*/ upgradeMeta(meta);
