@@ -1,7 +1,7 @@
 {
-  "url": "https://localhost:1135/users/1",
-  "status": 200,
-  "statusText": "OK",
+  "url": "users/2",
+  "status": 404,
+  "statusText": "Not Found",
   "headers": {
     "Content-Type": "application/vnd.api+json",
     "Content-Encoding": "br",
