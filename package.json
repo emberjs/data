@@ -59,7 +59,7 @@
     "prettier": "^3.2.5",
     "prettier-plugin-ember-template-tag": "^2.0.1",
     "rimraf": "^5.0.5",
-    "semver": "^7.5.4",
+    "semver": "^7.6.0",
     "silent-error": "^1.1.1",
     "typescript": "^5.4.3",
     "url": "^0.11.3",
