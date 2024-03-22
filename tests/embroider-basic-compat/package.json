@@ -48,7 +48,7 @@
     "@babel/core": "^7.24.1",
     "@babel/runtime": "^7.24.1",
     "@ember-data/unpublished-test-infra": "workspace:5.4.0-alpha.40",
-    "@ember/optional-features": "^2.0.0",
+    "@ember/optional-features": "^2.1.0",
     "@ember/test-helpers": "^3.3.0",
     "@embroider/compat": "^3.4.6",
     "@embroider/core": "^3.4.6",
