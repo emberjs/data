@@ -2252,7 +2252,7 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1
       '@ember/optional-features':
-        specifier: ^2.0.0
+        specifier: ^2.1.0
         version: 2.1.0
       '@ember/string':
         specifier: 3.1.1
@@ -2490,7 +2490,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       '@ember/optional-features':
-        specifier: ^2.0.0
+        specifier: ^2.1.0
         version: 2.1.0
       '@ember/string':
         specifier: 3.1.1
@@ -2663,7 +2663,7 @@ importers:
         specifier: workspace:5.4.0-alpha.40
         version: file:packages/unpublished-test-infra(@babel/core@7.24.3)(@ember/string@3.1.1)(@embroider/addon-shim@1.8.7)(ember-cli-test-loader@3.1.0)(ember-cli@5.7.0)(ember-source@5.6.0)
       '@ember/optional-features':
-        specifier: ^2.0.0
+        specifier: ^2.1.0
         version: 2.1.0
       '@ember/string':
         specifier: 3.1.1
@@ -2818,7 +2818,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       '@ember/optional-features':
-        specifier: ^2.0.0
+        specifier: ^2.1.0
         version: 2.1.0
       '@ember/string':
         specifier: 3.1.1
@@ -2985,7 +2985,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       '@ember/optional-features':
-        specifier: ^2.0.0
+        specifier: ^2.1.0
         version: 2.1.0
       '@ember/string':
         specifier: 3.1.1
@@ -3146,7 +3146,7 @@ importers:
         specifier: workspace:5.4.0-alpha.40
         version: file:packages/tracking(@babel/core@7.24.3)(@glint/template@1.4.0)
       '@ember/optional-features':
-        specifier: ^2.0.0
+        specifier: ^2.1.0
         version: 2.1.0
       '@ember/string':
         specifier: 3.1.1
@@ -3269,7 +3269,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       '@ember/optional-features':
-        specifier: ^2.0.0
+        specifier: ^2.1.0
         version: 2.1.0
       '@ember/string':
         specifier: 3.1.1
@@ -3426,7 +3426,7 @@ importers:
         specifier: workspace:5.4.0-alpha.40
         version: file:packages/unpublished-test-infra(@babel/core@7.24.3)(@ember/string@3.1.1)(@embroider/addon-shim@1.8.7)(ember-cli-test-loader@3.1.0)(ember-cli@5.7.0)(ember-source@5.6.0)
       '@ember/optional-features':
-        specifier: ^2.0.0
+        specifier: ^2.1.0
         version: 2.1.0
       '@ember/string':
         specifier: 3.1.1
@@ -3558,7 +3558,7 @@ importers:
         specifier: workspace:5.4.0-alpha.40
         version: file:packages/unpublished-test-infra(@babel/core@7.24.3)(@ember/string@3.1.1)(@embroider/addon-shim@1.8.7)(ember-cli-test-loader@3.1.0)(ember-cli@5.7.0)(ember-source@5.6.0)
       '@ember/optional-features':
-        specifier: ^2.0.0
+        specifier: ^2.1.0
         version: 2.1.0
       '@ember/test-helpers':
         specifier: ^3.3.0
@@ -3673,7 +3673,7 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1
       '@ember/optional-features':
-        specifier: ^2.0.0
+        specifier: ^2.1.0
         version: 2.1.0
       '@ember/test-helpers':
         specifier: ^3.3.0
@@ -3767,7 +3767,7 @@ importers:
         specifier: workspace:5.4.0-alpha.40
         version: file:packages/private-build-infra(@glint/template@1.4.0)
       '@ember/optional-features':
-        specifier: ^2.0.0
+        specifier: ^2.1.0
         version: 2.1.0
       '@ember/string':
         specifier: 3.1.1
@@ -3886,7 +3886,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       '@ember/optional-features':
-        specifier: ^2.0.0
+        specifier: ^2.1.0
         version: 2.1.0
       '@ember/string':
         specifier: 3.1.1
@@ -4083,7 +4083,7 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1
       '@ember/optional-features':
-        specifier: ^2.0.0
+        specifier: ^2.1.0
         version: 2.1.0
       '@ember/test-helpers':
         specifier: ^3.3.0
@@ -4194,7 +4194,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       '@ember/optional-features':
-        specifier: ^2.0.0
+        specifier: ^2.1.0
         version: 2.1.0
       '@ember/string':
         specifier: 3.1.1
@@ -4586,7 +4586,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       '@ember/optional-features':
-        specifier: ^2.0.0
+        specifier: ^2.1.0
         version: 2.1.0
       '@ember/string':
         specifier: 3.1.1
