@@ -20,6 +20,16 @@ function test(name: string, callback: DiagnosticTest): void {
 
 const RECORD = false;
 
+type UserResource = {
+  data: {
+    id: string;
+    type: 'user';
+    attributes: {
+      name: string;
+    };
+  };
+};
+
 class SimpleCacheHandler implements CacheHandler {
   _cache: Map<string, unknown> = new Map();
   request<T = unknown>(
@@ -107,7 +117,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
 
   test('it renders each stage of a request that succeeds', async function (assert) {
     const url = await mockGETSuccess(this);
-    const request = this.manager.request({ url, method: 'GET' });
+    const request = this.manager.request<UserResource>({ url, method: 'GET' });
     const state = getRequestState(request);
 
     let counter = 0;
@@ -146,7 +156,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
 
   test('it renders only once when the promise already has a result cached', async function (assert) {
     const url = await mockGETSuccess(this);
-    const request = this.manager.request({ url, method: 'GET' });
+    const request = this.manager.request<UserResource>({ url, method: 'GET' });
     const state = getRequestState(request);
 
     let counter = 0;
@@ -159,6 +169,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       <template>
         <Request @request={{request}}>
           <:loading>Pending<br />Count: {{countFor request}}</:loading>
+          <:cancelled as |error|>Cancelled {{error.message}}<br />Count: {{countFor error}}</:cancelled>
           <:error as |error|>{{error.message}}<br />Count: {{countFor error}}</:error>
           <:content as |result|>{{result.data.attributes.name}}<br />Count: {{countFor result}}</:content>
         </Request>
@@ -194,7 +205,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
 
   test('it transitions to error state correctly', async function (assert) {
     const url = await mockGETFailure(this);
-    const request = this.manager.request({ url, method: 'GET' });
+    const request = this.manager.request<UserResource>({ url, method: 'GET' });
     const state = getRequestState(request);
 
     let counter = 0;
@@ -237,9 +248,55 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     );
   });
 
+  test('it transitions to cancelled state correctly', async function (assert) {
+    const url = await mockGETFailure(this);
+    const request = this.manager.request<UserResource>({ url, method: 'GET' });
+    const state = getRequestState(request);
+
+    let counter = 0;
+    function countFor(_result: unknown) {
+      return ++counter;
+    }
+
+    await this.render(
+      <template>
+        <Request @request={{request}}>
+          <:loading>Pending<br />Count: {{countFor request}}</:loading>
+          <:cancelled as |error|>Cancelled {{error.message}}<br />Count: {{countFor error}}</:cancelled>
+          <:error as |error|>{{error.message}}<br />Count: {{countFor error}}</:error>
+          <:content as |result|>{{result.data.attributes.name}}<br />Count: {{countFor result}}</:content>
+        </Request>
+      </template>
+    );
+
+    assert.equal(state!, getRequestState(request), 'state is a stable reference');
+    assert.equal(state!.result, null, 'result is null');
+    assert.equal(state!.error, null, 'error is null');
+    assert.equal(counter, 1, 'counter is 1');
+    assert.equal(this.element.textContent?.trim(), 'PendingCount: 1');
+
+    request.abort();
+
+    try {
+      await request;
+    } catch {
+      // ignore the error
+    }
+    await rerender();
+    assert.equal(state!.result, null, 'after rerender result is still null');
+    assert.true(state!.error instanceof Error, 'error is an instance of Error');
+    assert.equal(
+      (state!.error as Error | undefined)?.message,
+      'The user aborted a request.',
+      'error message is correct'
+    );
+    assert.equal(counter, 2, 'counter is 2');
+    assert.equal(this.element.textContent?.trim(), 'Cancelled The user aborted a request.Count: 2');
+  });
+
   test('it renders only once when the promise error state is already cached', async function (assert) {
     const url = await mockGETFailure(this);
-    const request = this.manager.request({ url, method: 'GET' });
+    const request = this.manager.request<UserResource>({ url, method: 'GET' });
 
     try {
       await request;

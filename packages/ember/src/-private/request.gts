@@ -39,6 +39,10 @@ export class Request<T> extends Component<RequestSignature<T>> {
    */
   @provide('store') declare _store: Store;
 
+  retry = () => {};
+  reload = () => {};
+  refresh = () => {};
+
   @cached
   get request() {
     const { request, query } = this.args;
