@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@ember/string": "3.1.1",
-    "ember-auto-import": "^2.7.0",
+    "ember-auto-import": "^2.7.2",
     "ember-data": "workspace:5.4.0-alpha.39",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "webpack": "^5.91.0"
@@ -40,9 +40,9 @@
     "@babel/runtime": "^7.23.9",
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "^3.3.0",
-    "@embroider/compat": "^3.4.0",
-    "@embroider/core": "^3.4.2",
-    "@embroider/webpack": "^3.2.1",
+    "@embroider/compat": "^3.4.6",
+    "@embroider/core": "^3.4.6",
+    "@embroider/webpack": "^3.2.2",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.39",

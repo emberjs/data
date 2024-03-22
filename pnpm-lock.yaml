@@ -335,7 +335,7 @@ importers:
         specifier: 3.1.1
         version: 3.1.1(@babel/core@7.24.3)
       '@embroider/addon-dev':
-        specifier: ^4.1.2
+        specifier: ^4.2.1
         version: 4.2.1(@glint/template@1.4.0)(rollup@4.13.0)
       '@glimmer/component':
         specifier: ^1.1.2
@@ -456,7 +456,7 @@ importers:
         specifier: 3.1.1
         version: 3.1.1(@babel/core@7.24.3)
       '@embroider/addon-dev':
-        specifier: ^4.1.2
+        specifier: ^4.2.1
         version: 4.2.1(@glint/template@1.4.0)(rollup@4.13.0)
       '@glimmer/component':
         specifier: ^1.1.2
@@ -561,7 +561,7 @@ importers:
         specifier: ^7.23.9
         version: 7.24.1
       '@embroider/addon-dev':
-        specifier: ^4.1.2
+        specifier: ^4.2.1
         version: 4.2.1(@glint/template@1.4.0)(rollup@4.13.0)
       '@glimmer/component':
         specifier: ^1.1.2
@@ -699,7 +699,7 @@ importers:
         specifier: ^3.3.0
         version: 3.3.0(patch_hash=gppmtiox6pymwamrfimkbxfrsm)(@babel/core@7.24.3)(ember-source@5.6.0)
       '@embroider/addon-dev':
-        specifier: ^4.1.2
+        specifier: ^4.2.1
         version: 4.2.1(@glint/template@1.4.0)(rollup@4.13.0)
       '@embroider/addon-shim':
         specifier: ^1.8.7
@@ -793,7 +793,7 @@ importers:
         specifier: 3.1.1
         version: 3.1.1(@babel/core@7.24.3)
       '@embroider/addon-dev':
-        specifier: ^4.1.2
+        specifier: ^4.2.1
         version: 4.2.1(@glint/template@1.4.0)(rollup@4.13.0)
       '@glimmer/component':
         specifier: ^1.1.2
@@ -926,7 +926,7 @@ importers:
         specifier: 3.1.1
         version: 3.1.1(@babel/core@7.24.3)
       '@embroider/addon-dev':
-        specifier: ^4.1.2
+        specifier: ^4.2.1
         version: 4.2.1(@glint/template@1.4.0)(rollup@4.13.0)
       '@glimmer/component':
         specifier: ^1.1.2
@@ -1012,7 +1012,7 @@ importers:
         specifier: workspace:5.4.0-alpha.39
         version: file:packages/request(@babel/core@7.24.3)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.25)
       '@embroider/addon-dev':
-        specifier: ^4.1.2
+        specifier: ^4.2.1
         version: 4.2.1(@glint/template@1.4.0)(rollup@4.13.0)
       '@rollup/plugin-babel':
         specifier: ^6.0.4
@@ -1108,7 +1108,7 @@ importers:
         specifier: 3.1.1
         version: 3.1.1(@babel/core@7.24.3)
       '@embroider/addon-dev':
-        specifier: ^4.1.2
+        specifier: ^4.2.1
         version: 4.2.1(@glint/template@1.4.0)(rollup@4.13.0)
       '@glimmer/component':
         specifier: ^1.1.2
@@ -1230,7 +1230,7 @@ importers:
         specifier: 3.1.1
         version: 3.1.1(@babel/core@7.24.3)
       '@embroider/addon-dev':
-        specifier: ^4.1.2
+        specifier: ^4.2.1
         version: 4.2.1(@glint/template@1.4.0)(rollup@4.13.0)
       '@glimmer/component':
         specifier: ^1.1.2
@@ -1369,7 +1369,7 @@ importers:
         specifier: 3.1.1
         version: 3.1.1(@babel/core@7.24.3)
       '@embroider/addon-dev':
-        specifier: ^4.1.2
+        specifier: ^4.2.1
         version: 4.2.1(@glint/template@1.4.0)(rollup@4.13.0)
       '@glimmer/component':
         specifier: ^1.1.2
@@ -1555,7 +1555,7 @@ importers:
         specifier: ^7.23.9
         version: 7.24.1
       '@embroider/addon-dev':
-        specifier: ^4.1.2
+        specifier: ^4.2.1
         version: 4.2.1(@glint/template@1.4.0)(rollup@4.13.0)
       '@glimmer/component':
         specifier: ^1.1.2
@@ -1627,7 +1627,7 @@ importers:
         specifier: ^7.23.9
         version: 7.24.1
       '@embroider/addon-dev':
-        specifier: ^4.1.2
+        specifier: ^4.2.1
         version: 4.2.1(@glint/template@1.4.0)(rollup@4.13.0)
       '@glimmer/component':
         specifier: ^1.1.2
@@ -1712,7 +1712,7 @@ importers:
         specifier: 3.1.1
         version: 3.1.1(@babel/core@7.24.3)
       '@embroider/addon-dev':
-        specifier: ^4.1.2
+        specifier: ^4.2.1
         version: 4.2.1(@glint/template@1.4.0)(rollup@4.13.0)
       '@glimmer/component':
         specifier: ^1.1.2
@@ -1834,7 +1834,7 @@ importers:
         specifier: 3.1.1
         version: 3.1.1(@babel/core@7.24.3)
       '@embroider/addon-dev':
-        specifier: ^4.1.2
+        specifier: ^4.2.1
         version: 4.2.1(@glint/template@1.4.0)(rollup@4.13.0)
       '@glimmer/component':
         specifier: ^1.1.2
@@ -1941,7 +1941,7 @@ importers:
         specifier: 3.1.1
         version: 3.1.1(@babel/core@7.24.3)
       '@embroider/addon-dev':
-        specifier: ^4.1.2
+        specifier: ^4.2.1
         version: 4.2.1(@glint/template@1.4.0)(rollup@4.13.0)
       '@glimmer/component':
         specifier: ^1.1.2
@@ -2047,7 +2047,7 @@ importers:
         specifier: 3.1.1
         version: 3.1.1(@babel/core@7.24.3)
       '@embroider/addon-dev':
-        specifier: ^4.1.2
+        specifier: ^4.2.1
         version: 4.2.1(@glint/template@1.4.0)(rollup@4.13.0)
       '@glimmer/component':
         specifier: ^1.1.2
@@ -2137,7 +2137,7 @@ importers:
         specifier: ^7.23.9
         version: 7.24.1
       '@embroider/addon-dev':
-        specifier: ^4.1.2
+        specifier: ^4.2.1
         version: 4.2.1(@glint/template@1.4.0)(rollup@4.13.0)
       '@glimmer/component':
         specifier: ^1.1.2
@@ -4089,13 +4089,13 @@ importers:
         specifier: ^3.3.0
         version: 3.3.0(patch_hash=gppmtiox6pymwamrfimkbxfrsm)(@babel/core@7.24.3)(@glint/template@1.4.0)(ember-source@5.6.0)(webpack@5.91.0)
       '@embroider/compat':
-        specifier: ^3.4.0
+        specifier: ^3.4.6
         version: 3.4.6(@embroider/core@3.4.6)
       '@embroider/core':
-        specifier: ^3.4.2
+        specifier: ^3.4.6
         version: 3.4.6(@glint/template@1.4.0)
       '@embroider/webpack':
-        specifier: ^3.2.1
+        specifier: ^3.2.2
         version: 3.2.2(@embroider/core@3.4.6)(webpack@5.91.0)
       '@glimmer/component':
         specifier: ^1.1.2
@@ -4203,13 +4203,13 @@ importers:
         specifier: ^3.3.0
         version: 3.3.0(patch_hash=gppmtiox6pymwamrfimkbxfrsm)(@babel/core@7.24.3)(@glint/template@1.4.0)(ember-source@5.6.0)(webpack@5.91.0)
       '@embroider/compat':
-        specifier: ^3.4.0
+        specifier: ^3.4.6
         version: 3.4.6(@embroider/core@3.4.6)
       '@embroider/core':
-        specifier: ^3.4.2
+        specifier: ^3.4.6
         version: 3.4.6(@glint/template@1.4.0)
       '@embroider/webpack':
-        specifier: ^3.2.1
+        specifier: ^3.2.2
         version: 3.2.2(@embroider/core@3.4.6)(webpack@5.91.0)
       '@glimmer/component':
         specifier: ^1.1.2
