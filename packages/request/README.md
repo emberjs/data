@@ -410,7 +410,7 @@ Most applications will desire to have a single `RequestManager` instance, which 
 ```ts
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
-import Auth from 'ember-simple-auth/ember-data-handler';
+import Auth from 'app/services/auth-handler';
 
 export default class extends RequestManager {
   constructor(createArgs) {
