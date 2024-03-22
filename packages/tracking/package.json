@@ -82,7 +82,7 @@
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.39",
     "ember-source": "~5.6.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
-    "rollup": "^4.9.6",
+    "rollup": "^4.13.0",
     "typescript": "^5.4.3",
     "walk-sync": "^3.0.0"
   },
