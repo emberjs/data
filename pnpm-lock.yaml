@@ -4134,7 +4134,7 @@ importers:
         specifier: ^4.7.0
         version: 4.7.0
       terser-webpack-plugin:
-        specifier: ^5.3.9
+        specifier: ^5.3.10
         version: 5.3.10(webpack@5.91.0)
       zlib:
         specifier: 1.0.5
