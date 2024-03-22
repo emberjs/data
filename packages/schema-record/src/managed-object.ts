@@ -133,7 +133,7 @@ export class ManagedObject {
             throw new Error(`No '${field.type}' transform defined for use by ${address.type}.${String(prop)}`);
           }
           const val = transform.serialize(self[SOURCE], field.options ?? null, self.owner);
-          cache.setAttr(self.address, self.key, val as Value);
+          cache.setAttr(self.address, self.key, val);
           _SIGNAL.shouldReset = true;
         }
         return reflect;
