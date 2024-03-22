@@ -66,7 +66,7 @@
     "@warp-drive/diagnostic": "workspace:0.0.0-alpha.25",
     "broccoli-merge-trees": "^4.2.0",
     "chalk": "^4.1.2",
-    "ember-auto-import": "^2.7.0",
+    "ember-auto-import": "^2.7.2",
     "ember-cli-babel": "^8.2.0",
     "ember-cli-blueprint-test-helpers": "^0.19.2",
     "ember-get-config": "^2.1.1",

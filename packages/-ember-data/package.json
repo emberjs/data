@@ -64,7 +64,7 @@
     "@embroider/macros": "^1.13.5",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.25",
     "broccoli-merge-trees": "^4.2.0",
-    "ember-auto-import": "^2.7.0",
+    "ember-auto-import": "^2.7.2",
     "ember-cli-babel": "^8.2.0",
     "ember-inflector": "^4.0.2",
     "typescript": "^5.4.3",
