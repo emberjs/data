@@ -62,8 +62,8 @@ importers:
         specifier: ^7.5.8
         version: 7.5.8
       bun-types:
-        specifier: ^1.0.25
-        version: 1.0.25
+        specifier: ^1.0.33
+        version: 1.0.33
       chalk:
         specifier: ^4.1.2
         version: 4.1.2
@@ -717,8 +717,8 @@ importers:
         specifier: workspace:5.4.0-alpha.40
         version: link:../../config
       bun-types:
-        specifier: ^1.0.25
-        version: 1.0.25
+        specifier: ^1.0.33
+        version: 1.0.33
       ember-cli-test-loader:
         specifier: ^3.1.0
         version: 3.1.0(@babel/core@7.24.3)
@@ -1770,8 +1770,8 @@ importers:
         version: 5.3.0
     devDependencies:
       bun-types:
-        specifier: 1.0.25
-        version: 1.0.25
+        specifier: 1.0.33
+        version: 1.0.33
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.10
         version: 0.0.10
@@ -3299,8 +3299,8 @@ importers:
         specifier: workspace:5.4.0-alpha.40
         version: link:../../config
       bun-types:
-        specifier: ^1.0.25
-        version: 1.0.25
+        specifier: ^1.0.33
+        version: 1.0.33
       ember-auto-import:
         specifier: ^2.7.0
         version: 2.7.2(@glint/template@1.4.0)(webpack@5.91.0)
@@ -9778,12 +9778,11 @@ packages:
     dependencies:
       semver: 7.6.0
 
-  /bun-types@1.0.25:
-    resolution: {integrity: sha512-9lxeUR/OJsvlZH4GOWteiAdx7ikrSxCUX7Rr0JJux+DrR3LejouVLxIZnTeQ3UPAZovvSgKivWeHPJ2wlo7/Kg==}
+  /bun-types@1.0.33:
+    resolution: {integrity: sha512-L5tBIf9g6rBBkvshqysi5NoLQ9NnhSPU1pfJ9FzqoSfofYdyac3WLUnOIuQ+M5za/sooVUOP2ko+E6Tco0OLIA==}
     dependencies:
       '@types/node': 20.11.30
       '@types/ws': 8.5.10
-      undici-types: 5.28.3
     dev: true
 
   /bytes@1.0.0:
@@ -18428,10 +18427,6 @@ packages:
 
   /undici-types@5.26.5:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
-
-  /undici-types@5.28.3:
-    resolution: {integrity: sha512-VJD0un4i6M1/lFOJPhacHdq6FadtlkdhKBed2W6yBqmrAr/W58oqENaOIX031stDVFwz9AemOLkIj/2AXAMLCg==}
-    dev: true
 
   /unicode-canonical-property-names-ecmascript@2.0.0:
     resolution: {integrity: sha512-yY5PpDlfVIU5+y/BSCxAJRBIS1Zc2dDG3Ujq+sR0U+JjUevW2JhocOF+soROYDSaAezOzOKuyyixhD6mBknSmQ==}
