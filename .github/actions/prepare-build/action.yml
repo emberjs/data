@@ -19,7 +19,7 @@ runs:
   using: composite
     - name: Restore ${{ inputs.name }}
       id: restore-ref-artifact
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ./${{ inputs.package }}/dist-${{ inputs.ref }}${{ inputs.ext }}
