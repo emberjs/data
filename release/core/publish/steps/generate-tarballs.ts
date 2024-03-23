@@ -171,11 +171,14 @@ async function convertFileToModule(fileData: string, relativePath: string, pkgNa
     lines[i] = lines[i].replace(/^declare /, '').replaceAll(' declare ', ' ');
     const line = lines[i];
 
-    if (line.includes(`import(".`) || line.includes(`import('.`)) {
-      throw new Error(`Unhandled Dynamic Relative Import in ${relativePath}`);
-    }
-
-    if (line.startsWith('import ')) {
+    const isDynamicDoubleQuote = line.includes(`import(".`);
+    const isDynamicSingleQuote = line.includes(`import('.`);
+    if (isDynamicDoubleQuote || isDynamicSingleQuote) {
+      const matcher = isDynamicDoubleQuote ? /import\("([^"]+)"\)/ : /import\('([^']+)'\)/;
+      const importPath = line.match(matcher)![1];
+      const newImportPath = path.join(moduleDir, importPath);
+      lines[i] = line.replace(importPath, newImportPath);
+    } else if (line.startsWith('import ')) {
       if (!line.includes(`'`)) {
         throw new Error(`Unhandled Import in ${relativePath}`);
       }
