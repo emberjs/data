@@ -2,6 +2,8 @@
   @module @ember-data/serializer
 */
 
+import { TransformName } from '@warp-drive/core-types/symbols';
+
 /**
  The `DateTransform` class is used to serialize and deserialize
  date attributes on Ember Data record objects. This transform is used
@@ -52,6 +54,8 @@ export default class DateTransform {
       return null;
     }
   }
+
+  [TransformName] = 'date' as const;
 
   static create() {
     return new this();

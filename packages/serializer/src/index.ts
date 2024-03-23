@@ -112,6 +112,7 @@ import { inject as service } from '@ember/service';
 
 import type Store from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
+import type { EmptyResourceDocument, SingleResourceDocument } from '@warp-drive/core-types/spec/raw';
 
 /**
   > ⚠️ CAUTION you likely want the docs for [<Interface> Serializer](/ember-data/release/classes/%3CInterface%3E%20Serializer)
@@ -265,7 +266,7 @@ export default class extends EmberObject {
     @param {Object} hash
     @return {Object}
   */
-  normalize(_typeClass: ModelSchema, hash: Record<string, unknown>): Record<string, unknown> {
-    return hash;
+  normalize(_typeClass: ModelSchema, hash: Record<string, unknown>): SingleResourceDocument | EmptyResourceDocument {
+    return hash as unknown as SingleResourceDocument;
   }
 }

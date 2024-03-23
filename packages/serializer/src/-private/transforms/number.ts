@@ -2,6 +2,8 @@
   @module @ember-data/serializer
 */
 
+import { TransformName } from '@warp-drive/core-types/symbols';
+
 function isNumber(value: number) {
   return value === value && value !== Infinity && value !== -Infinity;
 }
@@ -47,6 +49,8 @@ export default class NumberTransform {
       return isNumber(transformed) ? transformed : null;
     }
   }
+
+  [TransformName] = 'number' as const;
 
   static create() {
     return new this();
