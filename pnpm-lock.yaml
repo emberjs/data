@@ -3696,7 +3696,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       '@ember/optional-features':
-        specifier: ^2.0.0
+        specifier: ^2.1.0
         version: 2.1.0
       '@ember/string':
         specifier: 3.1.1
