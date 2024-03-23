@@ -139,7 +139,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       } catch (e) {
         assert.strictEqual(
           e.message,
-          `Assertion Failed: fetched the hasMany relationship 'employees' for company:1 with link 'company/1/employees', but no data member is present in the response. If no data exists, the response should set { data: [] }`,
+          `Assertion Failed: fetched the hasMany relationship 'employees' for company:1 with link '"company/1/employees"', but no data member is present in the response. If no data exists, the response should set { data: [] }`,
           'We error appropriately'
         );
       }
