@@ -3774,7 +3774,7 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0(@babel/core@7.24.3)
       ember-page-title:
-        specifier: ^8.2.2
+        specifier: ^8.2.3
         version: 8.2.3(ember-source@5.7.0)
       ember-qunit:
         specifier: ^8.0.2
