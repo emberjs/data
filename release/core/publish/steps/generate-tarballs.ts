@@ -80,26 +80,32 @@ export async function generatePackageTarballs(
 }
 
 async function fixVersionsInPackageJson(pkg: Package) {
-  Object.keys(pkg.pkgData.dependencies).forEach((dep) => {
-    const version = pkg.pkgData.dependencies[dep];
-    if (version.startsWith('workspace:')) {
-      pkg.pkgData.dependencies[dep] = version.replace('workspace:', '');
-    }
-  });
+  if (pkg.pkgData.dependencies) {
+    Object.keys(pkg.pkgData.dependencies).forEach((dep) => {
+      const version = pkg.pkgData.dependencies[dep];
+      if (version.startsWith('workspace:')) {
+        pkg.pkgData.dependencies[dep] = version.replace('workspace:', '');
+      }
+    });
+  }
 
-  Object.keys(pkg.pkgData.devDependencies).forEach((dep) => {
-    const version = pkg.pkgData.devDependencies[dep];
-    if (version.startsWith('workspace:')) {
-      pkg.pkgData.devDependencies[dep] = version.replace('workspace:', '');
-    }
-  });
+  if (pkg.pkgData.devDependencies) {
+    Object.keys(pkg.pkgData.devDependencies).forEach((dep) => {
+      const version = pkg.pkgData.devDependencies[dep];
+      if (version.startsWith('workspace:')) {
+        pkg.pkgData.devDependencies[dep] = version.replace('workspace:', '');
+      }
+    });
+  }
 
-  Object.keys(pkg.pkgData.peerDependencies).forEach((dep) => {
-    const version = pkg.pkgData.peerDependencies[dep];
-    if (version.startsWith('workspace:')) {
-      pkg.pkgData.peerDependencies[dep] = version.replace('workspace:', '');
-    }
-  });
+  if (pkg.pkgData.peerDependencies) {
+    Object.keys(pkg.pkgData.peerDependencies).forEach((dep) => {
+      const version = pkg.pkgData.peerDependencies[dep];
+      if (version.startsWith('workspace:')) {
+        pkg.pkgData.peerDependencies[dep] = version.replace('workspace:', '');
+      }
+    });
+  }
 
   await pkg.file.write(true);
 }
