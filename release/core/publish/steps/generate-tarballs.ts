@@ -50,6 +50,7 @@ export async function generatePackageTarballs(
     const pkg = packages.get(pkgStrategy.name)!;
 
     try {
+      await fixVersionsInPackageJson(pkg);
       await amendFilesForTypesStrategy(pkg, pkgStrategy);
     } catch (e) {
       console.log(`🔴 ${chalk.redBright('failed to amend files to pack for')} ${chalk.yellow(pkg.pkgData.name)}`);
@@ -76,6 +77,31 @@ export async function generatePackageTarballs(
         `created ${chalk.greenBright(strategy.size)} 📦 tarballs in ${path.relative(PROJECT_ROOT, tarballDir)}`
       )
   );
+}
+
+async function fixVersionsInPackageJson(pkg: Package) {
+  Object.keys(pkg.pkgData.dependencies).forEach((dep) => {
+    const version = pkg.pkgData.dependencies[dep];
+    if (version.startsWith('workspace:')) {
+      pkg.pkgData.dependencies[dep] = version.replace('workspace:', '');
+    }
+  }
+
+  Object.keys(pkg.pkgData.devDependencies).forEach((dep) => {
+    const version = pkg.pkgData.devDependencies[dep];
+    if (version.startsWith('workspace:')) {
+      pkg.pkgData.devDependencies[dep] = version.replace('workspace:', '');
+    }
+  });
+
+  Object.keys(pkg.pkgData.peerDependencies).forEach((dep) => {
+    const version = pkg.pkgData.peerDependencies[dep];
+    if (version.startsWith('workspace:')) {
+      pkg.pkgData.peerDependencies[dep] = version.replace('workspace:', '');
+    }
+  }
+
+  await pkg.file.write(true);
 }
 
 const PotentialTypesDirectories = new Set([
