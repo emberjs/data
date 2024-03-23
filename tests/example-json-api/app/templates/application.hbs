@@ -1,0 +1,43 @@
+{{page-title "Library"}}
+
+<table>
+  <tbody>
+
+    <tr>
+      <td>
+        <h2>Browse</h2>
+        <div class="scroll-container">
+          <InfiniteBooks @allBooks={{@model.allBooks}} />
+        </div>
+      </td>
+      <td><h2>Search</h2><BookSearch @authors={{@model.authors}} @genres={{@model.genres}}/></td>
+      <td><h2>All Books</h2><BookList /></td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <tbody>
+    <tr>
+      <td>
+        <h2>Old Books (All) ({{@model.oldBooks.length}})</h2>
+        <ul>
+          {{#each @model.oldBooks as |book|}}
+            <li>
+              <strong>{{book.title}}</strong> ({{book.genre}}) - {{book.publicationDate}}
+              <br> by <em>{{book.author}}</em> ISBN: {{book.isbn}}
+            </li>
+          {{/each}}
+        </ul>
+      </td>
+      <td>
+        <h2>Old Books (Paginated) ({{@model.oldBooksPaginated.length}})</h2>
+        <div class="scroll-container">
+          <LegacyInfiniteBooks @allBooks={{@model.oldBooksPaginated}} />
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+{{outlet}}

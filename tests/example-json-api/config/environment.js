@@ -2,7 +2,7 @@
 
 module.exports = function (environment) {
   const ENV = {
-    modulePrefix: 'recommended-json-api',
+    modulePrefix: 'example-json-api',
     environment,
     rootURL: '/',
     locationType: 'history',
