@@ -85,7 +85,7 @@ async function fixVersionsInPackageJson(pkg: Package) {
     if (version.startsWith('workspace:')) {
       pkg.pkgData.dependencies[dep] = version.replace('workspace:', '');
     }
-  }
+  });
 
   Object.keys(pkg.pkgData.devDependencies).forEach((dep) => {
     const version = pkg.pkgData.devDependencies[dep];
@@ -99,7 +99,7 @@ async function fixVersionsInPackageJson(pkg: Package) {
     if (version.startsWith('workspace:')) {
       pkg.pkgData.peerDependencies[dep] = version.replace('workspace:', '');
     }
-  }
+  });
 
   await pkg.file.write(true);
 }
