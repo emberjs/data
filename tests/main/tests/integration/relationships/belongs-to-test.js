@@ -91,7 +91,7 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
       } catch (e) {
         assert.strictEqual(
           e.message,
-          `Assertion Failed: fetched the belongsTo relationship 'parentCompany' for company:1 with link 'company/1/parent-company', but no data member is present in the response. If no data exists, the response should set { data: null }`,
+          `Assertion Failed: fetched the belongsTo relationship 'parentCompany' for company:1 with link '\\"company/1/parent-company\\"', but no data member is present in the response. If no data exists, the response should set { data: null }`,
           'We error appropriately'
         );
       }
