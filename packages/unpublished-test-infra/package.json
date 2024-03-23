@@ -100,7 +100,7 @@
     }
   },
   "devDependencies": {
-    "@babel/core": "^7.24.1",
+    "@babel/core": "^7.24.3",
     "@babel/runtime": "^7.24.1",
     "@ember/optional-features": "^2.1.0",
     "@ember/string": "3.1.1",
