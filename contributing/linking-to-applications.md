@@ -14,22 +14,4 @@ If using `pnpm`
 
 If you don't use pnpm in your application, using the appropriate `yarn link` and `npm link` commands within the respective directories for the project and your app may work.
 
-You can link to individual packages within this monorepo as well, doing so however is likely to be brittle. If you need to test individual packages against your application and linking does not work
-you may run `node ./scripts/packages-for-commit.js` to generate tarballs that can be utilized locally
-on your machine. Read pnpm/yarn/npm docs as appropriate for how to install from tarball.
-
-Once you have linked EmberData to your application, you can run `ember serve` as usual
-in your application. You should see something like the following printed to your terminal:
-
-```
-some-app $ ember serve
-
-Missing symlinked pnpm packages:
-Package: ember-data
-  * Specified: ~3.15.0
-  * Symlinked: 3.17.0-alpha.1
-
-
-Build successful (41237ms) – Serving on http://localhost:4200/
-...
-```
+Once you have linked EmberData to your application, you can run `ember serve` as usual in your application.
