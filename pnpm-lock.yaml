@@ -231,7 +231,7 @@ importers:
         version: 5.91.0
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@ember/string':
         specifier: 3.1.1
@@ -296,7 +296,7 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-proposal-decorators':
         specifier: ^7.24.1
@@ -305,13 +305,13 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/plugin-transform-typescript':
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/preset-typescript':
         specifier: ^7.24.1
@@ -405,7 +405,7 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-proposal-decorators':
         specifier: ^7.24.1
@@ -417,13 +417,13 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/plugin-transform-typescript':
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/preset-typescript':
         specifier: ^7.24.1
@@ -534,7 +534,7 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-proposal-decorators':
         specifier: ^7.24.1
@@ -546,13 +546,13 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/plugin-transform-typescript':
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/preset-typescript':
         specifier: ^7.24.1
@@ -600,7 +600,7 @@ importers:
   packages/debug:
     dependencies:
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@ember-data/private-build-infra':
         specifier: workspace:5.4.0-alpha.43
@@ -681,13 +681,13 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-transform-typescript':
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/preset-typescript':
         specifier: ^7.24.1
@@ -754,7 +754,7 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-proposal-decorators':
         specifier: ^7.24.1
@@ -766,13 +766,13 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/plugin-transform-typescript':
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/preset-typescript':
         specifier: ^7.24.1
@@ -887,7 +887,7 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-proposal-decorators':
         specifier: ^7.24.1
@@ -899,13 +899,13 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/plugin-transform-typescript':
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/preset-typescript':
         specifier: ^7.24.1
@@ -994,13 +994,13 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-transform-typescript':
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/preset-typescript':
         specifier: ^7.24.1
@@ -1063,7 +1063,7 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-proposal-decorators':
         specifier: ^7.24.1
@@ -1075,13 +1075,13 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/plugin-transform-typescript':
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/preset-typescript':
         specifier: ^7.24.1
@@ -1182,7 +1182,7 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-proposal-decorators':
         specifier: ^7.24.1
@@ -1194,13 +1194,13 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/plugin-transform-typescript':
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/preset-typescript':
         specifier: ^7.24.1
@@ -1315,7 +1315,7 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-proposal-decorators':
         specifier: ^7.24.1
@@ -1327,13 +1327,13 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/plugin-transform-typescript':
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/preset-typescript':
         specifier: ^7.24.1
@@ -1439,7 +1439,7 @@ importers:
   packages/private-build-infra:
     dependencies:
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-transform-block-scoping':
         specifier: ^7.24.1
@@ -1528,7 +1528,7 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-proposal-decorators':
         specifier: ^7.24.1
@@ -1540,13 +1540,13 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/plugin-transform-typescript':
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/preset-typescript':
         specifier: ^7.24.1
@@ -1603,7 +1603,7 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-proposal-decorators':
         specifier: ^7.24.1
@@ -1612,13 +1612,13 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/plugin-transform-typescript':
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/preset-typescript':
         specifier: ^7.24.1
@@ -1673,7 +1673,7 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-proposal-decorators':
         specifier: ^7.24.1
@@ -1682,13 +1682,13 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/plugin-transform-typescript':
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/preset-typescript':
         specifier: ^7.24.1
@@ -1795,7 +1795,7 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-proposal-decorators':
         specifier: ^7.24.1
@@ -1807,13 +1807,13 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/plugin-transform-typescript':
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/preset-typescript':
         specifier: ^7.24.1
@@ -1902,7 +1902,7 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-proposal-decorators':
         specifier: ^7.24.1
@@ -1914,13 +1914,13 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/plugin-transform-typescript':
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/preset-typescript':
         specifier: ^7.24.1
@@ -2016,7 +2016,7 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-proposal-decorators':
         specifier: ^7.24.1
@@ -2028,13 +2028,13 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/plugin-transform-typescript':
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/preset-typescript':
         specifier: ^7.24.1
@@ -2115,7 +2115,7 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-proposal-decorators':
         specifier: ^7.24.1
@@ -2127,13 +2127,13 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/plugin-transform-typescript':
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.3)
       '@babel/preset-env':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(@babel/core@7.24.3)
       '@babel/preset-typescript':
         specifier: ^7.24.1
@@ -2251,7 +2251,7 @@ importers:
         version: 5.91.0
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/runtime':
         specifier: ^7.24.1
@@ -2329,7 +2329,7 @@ importers:
   tests/blueprints:
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@ember-data/adapter':
         specifier: workspace:5.4.0-alpha.43
@@ -2447,7 +2447,7 @@ importers:
   tests/builders:
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/runtime':
         specifier: ^7.24.1
@@ -2629,7 +2629,7 @@ importers:
   tests/ember-data__adapter:
     dependencies:
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/runtime':
         specifier: ^7.24.1
@@ -2781,7 +2781,7 @@ importers:
         version: 0.0.10
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/runtime':
         specifier: ^7.24.1
@@ -2948,7 +2948,7 @@ importers:
         version: 0.0.10
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/runtime':
         specifier: ^7.24.1
@@ -3115,7 +3115,7 @@ importers:
         version: 0.0.10
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/runtime':
         specifier: ^7.24.1
@@ -3259,7 +3259,7 @@ importers:
         version: 0.0.10
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/runtime':
         specifier: ^7.24.1
@@ -3392,7 +3392,7 @@ importers:
         version: 0.0.10
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/runtime':
         specifier: ^7.24.1
@@ -3554,7 +3554,7 @@ importers:
         version: 5.91.0
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/runtime':
         specifier: ^7.24.1
@@ -3878,7 +3878,7 @@ importers:
         version: 5.91.0
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/runtime':
         specifier: ^7.24.1
@@ -3969,7 +3969,7 @@ importers:
         version: 0.0.10
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/runtime':
         specifier: ^7.24.1
@@ -4046,7 +4046,7 @@ importers:
         version: 0.0.10
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/plugin-transform-typescript':
         specifier: ^7.24.1
@@ -4288,7 +4288,7 @@ importers:
         version: 5.91.0
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/runtime':
         specifier: ^7.24.1
@@ -4554,7 +4554,7 @@ importers:
         version: 0.0.10
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.1
+        specifier: ^7.24.3
         version: 7.24.3(supports-color@8.1.1)
       '@babel/runtime':
         specifier: ^7.24.1
@@ -5935,7 +5935,7 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       '@babel/code-frame': 7.24.2
-      '@babel/generator': 7.23.6
+      '@babel/generator': 7.24.1
       '@babel/helper-environment-visitor': 7.22.20
       '@babel/helper-function-name': 7.23.0
       '@babel/helper-hoist-variables': 7.22.5
