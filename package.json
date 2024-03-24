@@ -25,17 +25,7 @@
     "test:blueprints": "pnpm run -r --workspace-concurrency=-1 --if-present test:blueprints",
     "test:fastboot": "pnpm run -r --workspace-concurrency=-1 --if-present test:fastboot",
     "test:embroider": "pnpm run -r ---workspace-concurrency=-1 --if-present test:embroider",
-    "test:infra": "pnpm run -r --workspace-concurrency=-1 --if-present test:infra",
-    "test-external:ember-m3": "node ./scripts/test-external-partner-project.js ember-m3 https://github.com/hjdivad/ember-m3.git",
-    "test-external:ember-data-change-tracker": "node ./scripts/test-external-partner-project.js ember-data-change-tracker https://github.com/danielspaniel/ember-data-change-tracker.git",
-    "test-external:model-fragments": "node ./scripts/test-external-partner-project.js model-fragments https://github.com/lytics/ember-data-model-fragments.git",
-    "test-external:ember-observer": "node ./scripts/test-external-partner-project.js ember-observer https://github.com/emberobserver/client.git --noLockFile",
-    "test-external:travis-web": "node ./scripts/test-external-partner-project.js travis-web https://github.com/travis-ci/travis-web.git",
-    "test-external:storefront": "node ./scripts/test-external-partner-project.js storefront https://github.com/embermap/ember-data-storefront.git",
-    "test-external:factory-guy": "node ./scripts/test-external-partner-project.js factory-guy https://github.com/adopted-ember-addons/ember-data-factory-guy.git",
-    "test-external:ilios-frontend": "node ./scripts/test-external-partner-project.js ilios-frontend https://github.com/ilios/frontend.git --skipSmokeTest",
-    "test-external:ember-resource-metadata": "node ./scripts/test-external-partner-project.js ember-resource-metadata https://github.com/ef4/ember-resource-metadata.git --noLockFile",
-    "test-external:ember-data-relationship-tracker": "node ./scripts/test-external-partner-project.js ember-data-relationship-tracker https://github.com/ef4/ember-data-relationship-tracker.git"
+    "test:infra": "pnpm run -r --workspace-concurrency=-1 --if-present test:infra"
   },
   "devDependencies": {
     "@babel/core": "^7.24.3",
