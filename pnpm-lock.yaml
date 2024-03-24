@@ -37,7 +37,7 @@ importers:
   .:
     dependencies:
       turbo:
-        specifier: ^1.12.5
+        specifier: ^1.13.0
         version: 1.13.0
     devDependencies:
       '@babel/core':
