@@ -371,7 +371,7 @@ module('Writes | object fields', function (hooks) {
       street: '123 Main St',
       city: 'Anytown',
       state: 'NY',
-      zip: 12345,
+      zip: '12345',
     };
     const record = store.createRecord<CreateUserType>('user', { name: 'Rey Skybarker', address: sourceAddress });
     assert.strictEqual(record.id, null, 'id is accessible');
@@ -394,7 +394,7 @@ module('Writes | object fields', function (hooks) {
       street: '456 Elm St',
       city: 'Sometown',
       state: 'NJ',
-      zip: 23456,
+      zip: '23456',
     };
     assert.deepEqual(
       record.address,
@@ -426,7 +426,7 @@ module('Writes | object fields', function (hooks) {
         street: '123 Main St',
         city: 'Anytown',
         state: 'NY',
-        zip: 12345,
+        zip: '12345',
       },
       'we did not mutate the source object'
     );
@@ -483,7 +483,7 @@ module('Writes | object fields', function (hooks) {
       street: '123 Main St',
       city: 'Anytown',
       state: 'NY',
-      zip: 12345,
+      zip: '12345',
     };
     const record = store.createRecord<CreateUserType>('user', { name: 'Rey Skybarker', address: sourceAddress });
     assert.strictEqual(record.id, null, 'id is accessible');
@@ -502,7 +502,7 @@ module('Writes | object fields', function (hooks) {
     assert.strictEqual(record.address, record.address, 'We have a stable object reference');
     assert.notStrictEqual(record.address, sourceAddress);
     const address = record.address;
-    record.address!.zip = 23456;
+    record.address!.zip = '23456';
 
     assert.deepEqual(
       record.address,
@@ -534,7 +534,7 @@ module('Writes | object fields', function (hooks) {
         street: '123 Main St',
         city: 'Anytown',
         state: 'NY',
-        zip: 12345,
+        zip: '12345',
       },
       'we did not mutate the source object'
     );

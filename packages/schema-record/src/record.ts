@@ -138,9 +138,18 @@ function computeObject(
   if (managedObject) {
     return managedObject;
   } else {
-    const rawValue = cache.getAttr(identifier, prop) as object;
+    let rawValue = cache.getAttr(identifier, prop) as object;
     if (!rawValue) {
       return null;
+    }
+    if (field.kind === 'object') {
+      if (field.type !== null) {
+        const transform = schema.transforms.get(field.type);
+        if (!transform) {
+          throw new Error(`No '${field.type}' transform defined for use by ${identifier.type}.${String(prop)}`);
+        }
+        rawValue = transform.hydrate(rawValue as ObjectValue, field.options ?? null, record) as object;
+      }
     }
     managedObject = new ManagedObject(store, schema, cache, field, rawValue, identifier, prop, record);
     if (!managedObjectMapForRecord) {
@@ -363,6 +372,8 @@ export class SchemaRecord {
             return computeResource(store, cache, target, identifier, field, prop as string);
           case 'derived':
             return computeDerivation(schema, receiver as unknown as SchemaRecord, identifier, field, prop as string);
+          case 'schema-array':
+            throw new Error(`Not Implemented`);
           case 'array':
             assert(
               `SchemaRecord.${field.name} is not available in legacy mode because it has type '${field.kind}'`,
@@ -370,12 +381,17 @@ export class SchemaRecord {
             );
             entangleSignal(signals, receiver, field.name);
             return computeArray(store, schema, cache, target, identifier, field, prop as string);
+          case 'schema-object':
+            // validate any access off of schema, no transform to run
+            // use raw cache value as the object to manage
+            throw new Error(`Not Implemented`);
           case 'object':
             assert(
               `SchemaRecord.${field.name} is not available in legacy mode because it has type '${field.kind}'`,
               !target[Legacy]
             );
             entangleSignal(signals, receiver, field.name);
+            // run transform, then use that value as the object to manage
             return computeObject(store, schema, cache, target, identifier, field, prop as string);
           default:
             throw new Error(`Field '${String(prop)}' on '${identifier.type}' has the unknown kind '${field.kind}'`);

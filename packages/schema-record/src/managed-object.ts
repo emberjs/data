@@ -76,29 +76,25 @@ export class ManagedObject {
         if (_SIGNAL.shouldReset) {
           _SIGNAL.t = false;
           _SIGNAL.shouldReset = false;
-          const newData = cache.getAttr(self.address, self.key);
+          let newData = cache.getAttr(self.address, self.key);
           if (newData && newData !== self[SOURCE]) {
+            if (field.type !== null) {
+              const transform = schema.transforms.get(field.type);
+              if (!transform) {
+                throw new Error(`No '${field.type}' transform defined for use by ${address.type}.${String(prop)}`);
+              }
+              newData = transform.hydrate(newData as ObjectValue, field.options ?? null, self.owner) as ObjectValue;
+            }
             self[SOURCE] = { ...(newData as ObjectValue) }; // Add type assertion for newData
           }
         }
 
-        if (Object.prototype.hasOwnProperty.call(self[SOURCE], prop)) {
-          let transformedSource = self[SOURCE];
+        if (prop in self[SOURCE]) {
           if (!transaction) {
             subscribe(_SIGNAL);
           }
-          if (field.type !== null) {
-            const transform = schema.transforms.get(field.type);
-            if (!transform) {
-              throw new Error(`No '${field.type}' transform defined for use by ${address.type}.${String(prop)}`);
-            }
-            transformedSource = transform.hydrate(
-              transformedSource as Value,
-              field.options ?? null,
-              self.owner
-            ) as object;
-          }
-          return (transformedSource as R)[prop];
+
+          return (self[SOURCE] as R)[prop];
         }
         return Reflect.get(target, prop, receiver) as R;
       },
