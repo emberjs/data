@@ -3,6 +3,7 @@
 ## Examples
 
 - [Basic Usage](./examples/0-basic-usage.md)
+- [Dealing with Auth](./examples/1-auth.md)
 
 ## Overview
 

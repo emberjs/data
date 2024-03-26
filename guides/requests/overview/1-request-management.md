@@ -58,6 +58,8 @@ flowchart LR
     style E color:#58a6ff;
 ```
 
+To see code examples of how to use `RequestManager` see the [basic usage guide](../examples/0-basic-usage.md).
+
 To see how to start migrating your application to use `RequestManager` see the [incremental adoption guide](../../cookbook/incremental-adoption-guide.md).
 
 ---
