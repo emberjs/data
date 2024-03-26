@@ -5,13 +5,9 @@
 - [Basic Usage](./examples/0-basic-usage.md)
 
 ## Overview
+
 - Intro: [What Is a Request?](./overview/0-intro.md)
 - [Request Management](./overview/1-request-management.md)
-
-
-
-
-
 
 ## Usage
 
@@ -27,7 +23,7 @@ const users = userList.content;
 
 ### Making Requests
 
-`RequestManager` has a single asyncronous method as it's API: `request`
+`RequestManager` has a single asynchronous method as it's API: `request`
 
 ```ts
 class RequestManager {
@@ -47,7 +43,7 @@ interface RequestInfo extends FetchOptions {
 
   url: string;
   /**
-   * data that a handler should convert into 
+   * data that a handler should convert into
    * the query (GET) or body (POST)
    */
   data?: Record<string, unknown>;
@@ -80,7 +76,7 @@ A `Future` is cancellable via `abort`.
 usersFuture.abort();
 ```
 
-Handlers may *optionally* expose a ReadableStream to the `Future` for streaming data; however, when doing so the handler should not resolve until it has fully read the response stream itself.
+Handlers may *optionally* expose a `ReadableStream` to the `Future` for streaming data; however, when doing so the handler should not resolve until it has fully read the response stream itself.
 
 ```ts
 interface Future<T> extends Promise<StructuredDocument<T>> {
@@ -108,7 +104,7 @@ The `ResponseInfo` is a serializable fulfilled subset of a [Response](https://de
 ```ts
 /**
  * All readonly properties available on a Response
- * 
+ *
  */
 interface ResponseInfo {
   headers?: Record<string, string>;
@@ -144,7 +140,7 @@ interface Handler {
 }
 ```
 
-`RequestContext` contains a readonly version of the RequestInfo as well as a few methods for building up the `StructuredDocument` and `Future` that will be part of the response.
+`RequestContext` contains a readonly version of the `RequestInfo` as well as a few methods for building up the `StructuredDocument` and `Future` that will be part of the response.
 
 ```ts
 interface RequestContext<T> {
@@ -159,14 +155,14 @@ A basic `fetch` handler with support for streaming content updates while
 the download is still underway might look like the following, where we use
 [`response.clone()`](https://developer.mozilla.org/en-US/docs/Web/API/Response/clone) to `tee` the `ReadableStream` into two streams.
 
-A more efficient handler might read from the response stream, building up the 
+A more efficient handler might read from the response stream, building up the
 response content before passing along the chunk downstream.
 
 ```ts
 const FetchHandler = {
   async request(context) {
     const response = await fetch(context.request);
-    context.setResponse(reponse);
+    context.setResponse(response);
     context.setStream(response.clone().body);
 
     return response.json();
@@ -180,7 +176,7 @@ Request handlers are registered by configuring the manager via `use`
 manager.use([Handler1, Handler2])
 ```
 
-Handlers will be invoked in the order they are registered ("fifo", first-in first-out), and may only be registered up until the first request is made. It is recommended but not required to register all handlers at one time in order to ensure explicitly visible handler ordering.
+Handlers will be invoked in the order they are registered ("fifo", first-in first-out), and may only be registered up until the first request is made. It is recommended, but not required to register all handlers at one time in order to ensure explicitly visible handler ordering.
 
 ---
 
@@ -217,7 +213,7 @@ const Handler = {
 ---
 
 #### Handling Abort
-  
+
 Aborting a request will reject the current handler in the chain. However,
 every handler can potentially catch this error. If your handler needs to
 separate AbortError from other Error types, it is recommended to check
@@ -225,7 +221,7 @@ separate AbortError from other Error types, it is recommended to check
 
 In this manner it is possible for a request to recover from an abort and
 still proceed; however, as a best practice this should be used for necessary
-cleanup only and the original AbortError rethrown if the abort signal comes
+cleanup only and the original AbortError re-thrown if the abort signal comes
 from the root controller.
 
 **AbortControllers are Always Present and Always Entangled**
@@ -234,12 +230,12 @@ If the initial request does not supply an [AbortController](https://developer.mo
 
 The [signal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) for this controller is automatically added to the request passed into the first handler.
 
-Each handler has the option to supply a new controller to the request when calling `next`. If a new controller is provided it will be automatically
-entangled with the root controller. If the root controller aborts, so will
-any entangled controllers.
+Each handler has the option to supply a new controller to the request when calling `next`.
+If a new controller is provided it will be automatically entangled with the root controller.
+If the root controller aborts, so will any entangled controllers.
 
-If an entangled controller aborts, the root controller will not abort. This
-allows for advanced request-flow scenarios to abort subsections of the request tree without aborting the entire request.
+If an entangled controller aborts, the root controller will not abort.
+This allows for advanced request-flow scenarios to abort subsections of the request tree without aborting the entire request.
 
 ---
 
@@ -257,7 +253,7 @@ is intended to allow.
    etc.) and the rest from another source (a different API, a WebWorker, etc.)
 - to coalesce multiple requests
 - to decorate a request with additional info
-    - e.g. an Auth handler that ensures the correct tokens or headers or cookies are attached.
+  - e.g. an Auth handler that ensures the correct tokens or headers or cookies are attached.
 
 `await fetch(<req>)` resolves at the moment headers are received. This allows for the body of the request to be processed as a stream by application
 code *while chunks are still being received by the browser*.
@@ -367,6 +363,3 @@ though the store will still register the CacheHandler.
 
 For usage of the store's `requestManager` via `store.request(<req>)` see the
 [Store](https://api.emberjs.com/ember-data/release/modules/@ember-data%2Fstore) documentation.
-
-
-For usage of the store's `requestManager` via `store.request(<req>)` see the [Store](https://api.emberjs.com/ember-data/release/modules/@ember-data%2Fstore) documentation.
