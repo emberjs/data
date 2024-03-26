@@ -52,7 +52,7 @@ resources:
 #### Resource Types
 
 Every resource has a string "type". All resources with the same
-type are assumed to have the same [schema](#scema).
+type are assumed to have the same [schema](#schema).
 
 Types can represent polymorphic traits.
 
@@ -137,4 +137,4 @@ For instance, if Ego is his own best friend, then `ego.bestFriend === ego`
 
 ### Polymorphic
 
-Polymorphic relationsips can be satisfied by multiple resource types. For instance, a user may have many vehicles, and each vehicle might be of type `car` or `boat` or `airplane` etc.
+Polymorphic relationships can be satisfied by multiple resource types. For instance, a user may have many vehicles, and each vehicle might be of type `car` or `boat` or `airplane` etc.
