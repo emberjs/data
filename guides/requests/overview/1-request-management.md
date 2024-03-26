@@ -58,8 +58,10 @@ flowchart LR
     style E color:#58a6ff;
 ```
 
+To see how to start migrating your application to use `RequestManager` see the [incremental adoption guide](../../cookbook/incremental-adoption-guide.md).
+
 ---
 
-- Previous ← [One To None Relationships](./0-one-to-none.md)
+- Previous ← Intro: [What Is a Request?](./0-intro.md)
 - Next → [?](./2-.md)
 - ⮐ [Requests Guide](../index.md)
