@@ -159,8 +159,10 @@ A more efficient handler might read from the response stream, building up the
 response content before passing along the chunk downstream.
 
 ```ts
-const FetchHandler = {
-  async request(context) {
+import type { Handler, RequestContext } from '@ember-data/request';
+
+const FetchHandler: Handler = {
+  async request<T>(context: RequestContext) {
     const response = await fetch(context.request);
     context.setResponse(response);
     context.setStream(response.clone().body);
@@ -186,10 +188,11 @@ Each handler in the chain can catch errors from upstream and choose to
 either handle the error, re-throw the error, or throw a new error.
 
 ```ts
-const MAX_RETRIES = 5;
+import type { Handler, NextFn, RequestContext } from '@ember-data/request';
 
-const Handler = {
-  async request(context, next) {
+const MAX_RETRIES = 5;
+const AuthHandler: Handler = {
+  async request<T>(context: RequestContext, next: NextFn<T>) {
     let attempts = 0;
 
     while (attempts < MAX_RETRIES) {
@@ -300,8 +303,8 @@ import Fetch from '@ember-data/request/fetch';
 import Auth from 'ember-simple-auth/ember-data-handler';
 
 export default class extends RequestManager {
-  constructor(createArgs) {
-    super(createArgs);
+  constructor(args?: Record<string | symbol, unknown>) {
+    super(args);
     this.use([Auth, Fetch]);
   }
 }
