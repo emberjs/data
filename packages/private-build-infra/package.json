@@ -27,7 +27,7 @@
     "broccoli-file-creator": "^2.1.1",
     "broccoli-merge-trees": "^4.2.0",
     "calculate-cache-key-for-tree": "^2.0.0",
-    "chalk": "^4.1.2",
+    "chalk": "^5.3.0",
     "ember-cli-babel": "^8.2.0",
     "ember-cli-path-utils": "^1.0.0",
     "ember-cli-string-utils": "^1.1.0",
