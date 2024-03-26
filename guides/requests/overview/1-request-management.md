@@ -43,9 +43,7 @@ flowchart LR
     style E color:#58a6ff;
 ```
 
-When the same instance is used by both this allows for simple coordination throughout the application. Requests issued by the Store will use the in-memory cache
-and return hydrated responses, requests issued directly to the RequestManager
-will skip the in-memory cache and return raw responses.
+When the same instance is used by both this allows for simple coordination throughout the application. Requests issued by the `Store` will use the in-memory cache and return hydrated responses, requests issued directly to the `RequestManager` will skip the in-memory cache and return raw responses.
 
 ```mermaid
 flowchart LR
