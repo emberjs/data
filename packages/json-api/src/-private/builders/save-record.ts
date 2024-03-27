@@ -32,7 +32,7 @@ function isExisting(identifier: StableRecordIdentifier): identifier is StableExi
  * ```ts
  * import { deleteRecord } from '@ember-data/json-api/request';
  *
- * const person = this.store.peekRecord('person', '1');
+ * const person = store.peekRecord('person', '1');
  *
  * // mark record as deleted
  * store.deleteRecord(person);
@@ -58,7 +58,7 @@ function isExisting(identifier: StableRecordIdentifier): identifier is StableExi
  * ```ts
  * import { deleteRecord } from '@ember-data/json-api/request';
  *
- * const person = this.store.peekRecord('person', '1');
+ * const person = store.peekRecord('person', '1');
  *
  * // mark record as deleted
  * store.deleteRecord(person);
@@ -113,7 +113,7 @@ export function deleteRecord(record: unknown, options: ConstrainedRequestOptions
  * ```ts
  * import { createRecord } from '@ember-data/json-api/request';
  *
- * const person = this.store.createRecord('person', { name: 'Ted' });
+ * const person = store.createRecord('person', { name: 'Ted' });
  * const data = await store.request(createRecord(person));
  * ```
  *
@@ -134,7 +134,7 @@ export function deleteRecord(record: unknown, options: ConstrainedRequestOptions
  * ```ts
  * import { createRecord } from '@ember-data/json-api/request';
  *
- * const person = this.store.createRecord('person', { name: 'Ted' });
+ * const person = store.createRecord('person', { name: 'Ted' });
  * const options = createRecord(person, { namespace: 'api/v1' });
  * const data = await store.request(options);
  * ```
@@ -183,7 +183,7 @@ export function createRecord(record: unknown, options: ConstrainedRequestOptions
  * ```ts
  * import { updateRecord } from '@ember-data/json-api/request';
  *
- * const person = this.store.peekRecord('person', '1');
+ * const person = store.peekRecord('person', '1');
  * person.name = 'Chris';
  * const data = await store.request(updateRecord(person));
  * ```
@@ -206,7 +206,7 @@ export function createRecord(record: unknown, options: ConstrainedRequestOptions
  * ```ts
  * import { updateRecord } from '@ember-data/json-api/request';
  *
- * const person = this.store.peekRecord('person', '1');
+ * const person = store.peekRecord('person', '1');
  * person.name = 'Chris';
  * const options = updateRecord(person, { patch: true });
  * const data = await store.request(options);
