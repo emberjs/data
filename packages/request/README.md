@@ -476,6 +476,3 @@ though the store will still register the CacheHandler.
 
 For usage of the store's `requestManager` via `store.request(<req>)` see the
 [Store](https://api.emberjs.com/ember-data/release/modules/@ember-data%2Fstore) documentation.
-
-
-For usage of the store's `requestManager` via `store.request(<req>)` see the [Store](https://api.emberjs.com/ember-data/release/modules/@ember-data%2Fstore) documentation.
