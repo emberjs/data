@@ -13,7 +13,7 @@ you might implement some common strategies.
 - [CSRF Token](#csrf-token)
 - [Secure Cookie](#secure-cookie)
 
-### JWT Token 
+### JWT Token
 
 > **Note**
 > This example uses [Ember](https://emberjs.com/) for convenience.
@@ -32,30 +32,35 @@ Authorization: Bearer <token>
 
 In Ember Data we can create our own custom handler to add authentication header to all requests
 
-```js
+```ts
+import type { Handler, NextFn, RequestContext } from '@ember-data/request';
+
 const ourSecureToken = '<token>'
-const AuthHandler = {
- request({ request }, next) {
-    const headers = new Headers(request.headers);
+const AuthHandler: Handler = {
+  async request<T>(context: RequestContext, next: NextFn<T>) {
+    const headers = new Headers(context.request.headers);
     headers.append(
       'Authorization',
       `Bearer ${ourSecureToken}`,
     );
 
-    return next(Object.assign({}, request, { headers }));
+    return next(Object.assign({}, context.request, { headers }));
   }
 }
 ```
 
 This handler would need to be added to request manager service configuration:
 
-```js
+```ts
+import RequestManager from '@ember-data/request';
+import Fetch from '@ember-data/request/fetch';
+import AuthHandler from './auth-handler.js';
+
 export default class extends RequestManager {
-  constructor(args) {
+  constructor(args?: Record<string | symbol, unknown>) {
     super(args);
 
     this.use([AuthHandler, Fetch]);
-    this.useCache(CacheHandler);
   }
 }
 ```
@@ -70,20 +75,21 @@ Lets imagine we are using [Ember Simple Auth](https://github.com/simplabs/ember-
 
 **app/services/auth-handler.js**
 
-```js
+```ts
 import { inject as service } from '@ember/service';
+import type { NextFn, RequestContext } from '@ember-data/request';
 
 export default class AuthHandler {
   @service session;
 
-  request({ request }, next) {
-    const headers = new Headers(request.headers);
+  request<T>(context: RequestContext, next: NextFn<T>) {
+    const headers = new Headers(context.request.headers);
     headers.append(
       'Authorization',
       `Bearer ${this.session.accessToken}`,
     );
 
-    return next(Object.assign({}, request, { headers }));
+    return next(Object.assign({}, context.request, { headers }));
   }
 }
 ```
@@ -95,22 +101,20 @@ To use this handler we need to register it in our request manager service, but a
 
 **app/services/request-manager.js**
 
-```js
+```ts
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
-import { CacheHandler } from '@ember-data/store';
 import { getOwner, setOwner } from '@ember/application';
 import AuthHandler from './auth-handler';
 
 export default class extends RequestManager {
-  constructor(args) {
+  constructor(args?: Record<string | symbol, unknown>) {
     super(args);
 
     const authHandler = new AuthHandler();
     setOwner(authHandler, getOwner(this));
 
     this.use([authHandler, Fetch]);
-    this.useCache(CacheHandler);
   }
 }
 ```
@@ -125,12 +129,9 @@ The easy way of protecting against Cross Site Request Forgery (CSRF) is to set a
 
 If you do this, you don't have to generate dynamic CSRF tokens for every request.
 
-More information:
-
-https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests
+More information at [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests).
 
 ### Advanced
-
 
 > **Note**
 > This example uses [Ember](https://emberjs.com/) for convenience.
@@ -147,34 +148,38 @@ X-CSRF-Token: <token>
 
 Usually this token is stored in a cookie, so we need to extract it from there. Also this token is usually sent only with `POST`, `PUT`, `PATCH` and `DELETE` requests. Let's create a handler that will do just that.
 
-```js
-const MUTATION_OPS = new Set(['createRecord', 'updateRecord', 'deleteRecord']);
+```ts
+import type { Handler, NextFn, RequestContext } from '@ember-data/request';
 
-const AuthHandler = {
-  request({ request }, next) {
-    if (MUTATION_OPS.has(request.op)) {
-      const headers = new Headers(request.headers);
+const MUTATION_OPS = new Set(['createRecord', 'updateRecord', 'deleteRecord']);
+const AuthHandler: Handler = {
+  async request<T>(context: RequestContext, next: NextFn<T>) {
+    if (MUTATION_OPS.has(context.request.op)) {
+      const headers = new Headers(context.request.headers);
       headers.append(
         'X-CSRF-Token',
         document.cookie.match(/csrfToken=([^;]+)/)[1],
       );
-      return next(Object.assign({}, request, { headers }));
+      return next(Object.assign({}, context.request, { headers }));
     }
 
-    return next(request);
+    return next(context.request);
   }
 }
 ```
 
 This handler would need to be added to request manager service configuration:
 
-```js
+```ts
+import RequestManager from '@ember-data/request';
+import Fetch from '@ember-data/request/fetch';
+import AuthHandler from './auth-handler';
+
 export default class extends RequestManager {
-  constructor(args) {
+  constructor(args?: Record<string | symbol, unknown>) {
     super(args);
 
     this.use([AuthHandler, Fetch]);
-    this.useCache(CacheHandler);
   }
 }
 ```
