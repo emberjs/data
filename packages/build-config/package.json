@@ -1,0 +1,54 @@
+{
+  "name": "@warp-drive/build-config",
+  "version": "0.0.0-alpha.1",
+  "description": "Provides Build Configuration for projects using WarpDrive or EmberData",
+  "keywords": [
+    "ember-addon"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "packages/build-config"
+  },
+  "license": "MIT",
+  "author": "Chris Thoburn <runspired@users.noreply.github.com>",
+  "scripts": {
+    "build:js": "bun build ./src/index.ts --outdir ./dist",
+    "build:types": "tsc --build",
+    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
+    "_build": "bun run build:js && bun run build:types"
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md",
+    "README.md",
+    "LICENSE.md",
+    "NCC-1701-a.svg",
+    "NCC-1701-a-blue.svg"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.js"
+    }
+  },
+  "dependencies": {
+    "@embroider/macros": "^1.15.0"
+  },
+  "devDependencies": {
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.43",
+    "typescript": "^5.4.3",
+    "bun-types": "^1.0.35"
+  },
+  "engines": {
+    "node": ">= 18.19.1"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  },
+  "packageManager": "pnpm@8.15.5"
+}

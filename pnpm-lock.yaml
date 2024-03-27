@@ -521,6 +521,22 @@ importers:
       ember-inflector:
         injected: true
 
+  packages/build-config:
+    dependencies:
+      '@embroider/macros':
+        specifier: ^1.13.4
+        version: 1.15.0(@glint/template@1.4.0)
+    devDependencies:
+      '@warp-drive/internal-config':
+        specifier: workspace:5.4.0-alpha.43
+        version: link:../../config
+      bun-types:
+        specifier: ^1.0.35
+        version: 1.0.35
+      typescript:
+        specifier: ^5.4.3
+        version: 5.4.3
+
   packages/core-types:
     dependencies:
       '@ember-data/private-build-infra':
@@ -9781,6 +9797,13 @@ packages:
     resolution: {integrity: sha512-qwVpFEHNfhYJIzNRBvd2C1kyo6jz3ZSMPyyuR47OPdiKWlbYnZNyDWuyR175qDnAJLiCo5fBBqPb3RiXgWlkOQ==}
     dependencies:
       semver: 7.6.0
+
+  /bun-types@1.0.35:
+    resolution: {integrity: sha512-JlFllUCVMZbDyGfbv9dBWXd2tRdZSzyP1EWDKcTTVRViYNYX8AEsfpMN/vu6Hk8CBhKrhbbBkKZcNjJev8QQHQ==}
+    dependencies:
+      '@types/node': 20.11.30
+      '@types/ws': 8.5.10
+    dev: true
 
   /bun-types@1.0.35:
     resolution: {integrity: sha512-JlFllUCVMZbDyGfbv9dBWXd2tRdZSzyP1EWDKcTTVRViYNYX8AEsfpMN/vu6Hk8CBhKrhbbBkKZcNjJev8QQHQ==}
