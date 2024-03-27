@@ -36,10 +36,10 @@ function isExisting(identifier: StableRecordIdentifier): identifier is StableExi
  * const person = this.store.peekRecord('person', '1');
  *
  * // mark record as deleted
- * store.deleteRecord(person);
+ * this.store.deleteRecord(person);
  *
  * // persist deletion
- * const data = await store.request(deleteRecord(person));
+ * const data = await this.store.request(deleteRecord(person));
  * ```
  *
  * **Supplying Options to Modify the Request Behavior**
@@ -62,11 +62,11 @@ function isExisting(identifier: StableRecordIdentifier): identifier is StableExi
  * const person = this.store.peekRecord('person', '1');
  *
  * // mark record as deleted
- * store.deleteRecord(person);
+ * this.store.deleteRecord(person);
  *
  * // persist deletion
  * const options = deleteRecord(person, { namespace: 'api/v1' });
- * const data = await store.request(options);
+ * const data = await this.store.request(options);
  * ```
  *
  * @method deleteRecord
@@ -115,7 +115,7 @@ export function deleteRecord(record: unknown, options: ConstrainedRequestOptions
  * import { createRecord } from '@ember-data/rest/request';
  *
  * const person = this.store.createRecord('person', { name: 'Ted' });
- * const data = await store.request(createRecord(person));
+ * const data = await this.store.request(createRecord(person));
  * ```
  *
  * **Supplying Options to Modify the Request Behavior**
@@ -137,7 +137,7 @@ export function deleteRecord(record: unknown, options: ConstrainedRequestOptions
  *
  * const person = this.store.createRecord('person', { name: 'Ted' });
  * const options = createRecord(person, { namespace: 'api/v1' });
- * const data = await store.request(options);
+ * const data = await this.store.request(options);
  * ```
  *
  * @method createRecord
@@ -186,7 +186,7 @@ export function createRecord(record: unknown, options: ConstrainedRequestOptions
  *
  * const person = this.store.peekRecord('person', '1');
  * person.name = 'Chris';
- * const data = await store.request(updateRecord(person));
+ * const data = await this.store.request(updateRecord(person));
  * ```
  *
  * **Supplying Options to Modify the Request Behavior**
@@ -210,7 +210,7 @@ export function createRecord(record: unknown, options: ConstrainedRequestOptions
  * const person = this.store.peekRecord('person', '1');
  * person.name = 'Chris';
  * const options = updateRecord(person, { patch: true });
- * const data = await store.request(options);
+ * const data = await this.store.request(options);
  * ```
  *
  * @method updateRecord
