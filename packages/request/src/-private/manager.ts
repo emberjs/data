@@ -435,12 +435,11 @@ For usage of the store's `requestManager` via `store.request(<req>)` see the
 import { importSync } from '@embroider/macros';
 
 import { DEBUG, TESTING } from '@ember-data/env';
-import type { RequestInfo, StructuredErrorDocument } from '@warp-drive/core-types/request';
 
 import { assertValidRequest } from './debug';
 import { upgradePromise } from './future';
 import { clearRequestResult, getRequestResult, setPromiseResult } from './promise-cache';
-import type { CacheHandler, Future, GenericCreateArgs, Handler } from './types';
+import type { CacheHandler, Future, GenericCreateArgs, Handler, RequestInfo, StructuredErrorDocument } from './types';
 import { executeNextHandler, IS_CACHE_HANDLER } from './utils';
 
 let REQ_ID = 0;

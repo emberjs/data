@@ -2,7 +2,15 @@ import { DEBUG } from '@ember-data/env';
 
 import { deepFreeze } from './debug';
 import { createDeferred } from './future';
-import type { SkipCache, DeferredStream, Deferred, GodContext, ImmutableHeaders, ImmutableRequestInfo, RequestInfo, ResponseInfo } from './types';
+import type {
+  DeferredStream,
+  GodContext,
+  ImmutableHeaders,
+  ImmutableRequestInfo,
+  RequestInfo,
+  ResponseInfo,
+} from './types';
+import { SkipCache } from './types';
 
 export function upgradeHeaders(headers: Headers | ImmutableHeaders): ImmutableHeaders {
   (headers as ImmutableHeaders).clone = () => {
@@ -173,4 +181,3 @@ export class Context {
   }
 }
 export type HandlerRequestContext = Context;
-

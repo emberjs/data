@@ -22,10 +22,10 @@ const _fetch: typeof fetch =
   typeof fetch !== 'undefined'
     ? (...args) => fetch(...args)
     : typeof FastBoot !== 'undefined'
-      ? (...args) => (FastBoot.require('node-fetch') as typeof fetch)(...args)
-      : ((() => {
-          throw new Error('No Fetch Implementation Found');
-        }) as typeof fetch);
+    ? (...args) => (FastBoot.require('node-fetch') as typeof fetch)(...args)
+    : ((() => {
+        throw new Error('No Fetch Implementation Found');
+      }) as typeof fetch);
 
 // clones a response in a way that should still
 // allow it to stream
@@ -225,8 +225,8 @@ const Fetch = {
       const errors = Array.isArray(errorPayload)
         ? errorPayload
         : isDict(errorPayload) && Array.isArray(errorPayload.errors)
-          ? errorPayload.errors
-          : null;
+        ? errorPayload.errors
+        : null;
 
       const statusText = response.statusText || ERROR_STATUS_CODE_FOR.get(response.status) || 'Unknown Request Error';
       const msg = `[${response.status} ${statusText}] ${context.request.method ?? 'GET'} (${response.type}) - ${

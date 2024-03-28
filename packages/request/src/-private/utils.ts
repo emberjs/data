@@ -144,15 +144,18 @@ export function executeNextHandler<T>(
   }
 
   const context = new Context(owner);
-  let outcome: Promise<T | StructuredDataDocument<T>> | Future<T>;
+  let outcome: Promise<T | StructuredDataDocument<T>> | Future<T> | undefined;
   try {
     outcome = wares[i].request<T>(context, next);
+
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     if (!!outcome && isCacheHandler(wares[i], i)) {
       if (!(outcome instanceof Promise)) {
         setRequestResult(owner.requestId, { isError: false, result: outcome });
         outcome = Promise.resolve(outcome);
       }
     } else if (DEBUG) {
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
       if (!outcome || (!(outcome instanceof Promise) && !(typeof outcome === 'object' && 'then' in outcome))) {
         // eslint-disable-next-line no-console
         console.log({ request, handler: wares[i], outcome });

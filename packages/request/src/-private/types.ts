@@ -133,7 +133,7 @@ export interface RequestInfo extends Request {
   options?: Record<string, unknown>;
 }
 
-const SkipCache = Symbol.for('ember-data:skip-cache');
+export const SkipCache = Symbol.for('ember-data:skip-cache');
 
 export interface ImmutableRequestInfo {
   readonly cacheOptions?: {
@@ -365,5 +365,3 @@ export interface RequestResponse<T> {
 }
 
 export type GenericCreateArgs = Record<string | symbol, unknown>;
-
-

@@ -36,7 +36,6 @@ module('RequestManager | Graceful Errors', function () {
         return Promise.resolve('hello' as T);
       },
     };
-    // @ts-expect-error
     manager.use([handler]);
     await manager.request({ url: '/wat' });
 
