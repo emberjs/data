@@ -138,7 +138,9 @@ export async function exec(cmd: string[] | string | CMD, dryRun: boolean = false
   if (dryRun) {
     console.log(`\t` + chalk.grey(`Would Run: ${Array.isArray(mainCommand) ? mainCommand.join(' ') : mainCommand}`));
   } else if (!isCmdWithConfig || (!cmd.condense && !cmd.silent)) {
-    console.log(`\t` + chalk.grey(`Running: ${args.join(' ')}\t...`));
+    console.log(
+      `\t` + chalk.grey(`Running: ${args.join(' ')} in ${chalk.green(path.relative(process.cwd(), cwd))}\t...`)
+    );
   }
 
   if (!dryRun) {

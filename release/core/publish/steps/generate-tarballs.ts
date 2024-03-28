@@ -412,7 +412,7 @@ async function restoreTypesStrategyChanges(pkg: Package, _strategy: APPLIED_STRA
   process.stdout.write(
     `\t\t♻️ ` +
       chalk.grey(
-        `Successfully Restored Assets Modified for Types Strategy During Publish in ${chalk.cyan(pkg.pkgData.name)}`
+        `Successfully Restored Assets Modified for Types Strategy During Publish in ${chalk.cyan(pkg.pkgData.name)}\n`
       )
   );
 }
