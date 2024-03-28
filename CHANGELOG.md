@@ -1,5 +1,18 @@
 # Ember Data Changelog
 
+## v4.12.6 (2024-03-28)
+
+#### :rocket: Enhancement
+* [#9304](https://github.com/emberjs/data/pull/9304) feat: upates to 4.12 request package to support @warp-drive/ember ([@runspired](https://github.com/runspired))
+
+#### :bug: Bug Fix
+* [#9264](https://github.com/emberjs/data/pull/9264) fix: set localState to latest identifier in belongsTo when merging identifiers (#9263) ([@runspired](https://github.com/runspired))
+* [#9199](https://github.com/emberjs/data/pull/9199) fix: Fetch handler hacks for Mirage ([@gitKrystan](https://github.com/gitKrystan))
+
+#### Committers: 2
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+- Krystan HuffMenne ([@gitKrystan](https://github.com/gitKrystan))
+
 ## v4.12.5 (2023-12-04)
 
 #### :rocket: Enhancement
