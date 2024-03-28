@@ -63,8 +63,12 @@ export async function generateMirrorTarballs(
           newContents = newContents.replace(new RegExp(from, 'g'), to);
         }
         for (const [from, to] of cautionReplace) {
-          newContents = newContents.replace(new RegExp(from, 'g'), to);
+          newContents = newContents.replace(new RegExp(`'${from}`, 'g'), `'${to}`);
+          newContents = newContents.replace(new RegExp(`"${from}`, 'g'), `"${to}`);
         }
+
+        newContents = newContents.replace(new RegExp(`'@ember-data/'`, 'g'), `'@ember-data-mirror/'`);
+        newContents = newContents.replace(new RegExp(`"@ember-data/"`, 'g'), `"@ember-data-mirror/"`);
 
         await Bun.write(fullPath, newContents);
       }
