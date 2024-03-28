@@ -1,5 +1,5 @@
 import type { ContextOwner } from './context';
-import type { Deferred, DeferredFuture, Future, type StructuredDataDocument } from './types';
+import type { Deferred, DeferredFuture, Future, StructuredDataDocument } from './types';
 import { enhanceReason } from './utils';
 
 export const IS_FUTURE = Symbol('IS_FUTURE');
