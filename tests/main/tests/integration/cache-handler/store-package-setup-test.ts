@@ -233,7 +233,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         assert.ok(false, 'we should error');
       } catch (errorDocument: unknown) {
         assertIsErrorDocument(assert, errorDocument);
-        assert.true(errorDocument.message.startsWith('[404] Not Found - '), 'We receive the correct error');
+        assert.true(errorDocument.message.startsWith('[404 Not Found] GET (basic) - '), 'We receive the correct error');
         assert.strictEqual(errorDocument.response?.statusText, 'Not Found', 'Correct error code');
         assert.strictEqual(errorDocument.response?.status, 404, 'correct code');
       }
@@ -1493,7 +1493,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         assert.ok(false, 'we should error');
       } catch (errorDocument: unknown) {
         assertIsErrorDocument(assert, errorDocument);
-        assert.true(errorDocument.message.startsWith('[404] Not Found - '), 'We receive the correct error');
+        assert.true(errorDocument.message.startsWith('[404 Not Found] GET (basic) - '), 'We receive the correct error');
       }
       assert.strictEqual(handlerCalls, 1, 'fetch handler should be called once');
 
@@ -1506,7 +1506,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         assert.ok(false, 'we should error');
       } catch (errorDocument: unknown) {
         assertIsErrorDocument(assert, errorDocument);
-        assert.true(errorDocument.message.startsWith('[404] Not Found - '), 'We receive the correct error');
+        assert.true(errorDocument.message.startsWith('[404 Not Found] GET (basic) - '), 'We receive the correct error');
       }
       assert.strictEqual(handlerCalls, 1, 'fetch handler should be called once');
 
@@ -1514,7 +1514,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
       assert.strictEqual(doc, doc2, 'we get back the same document');
       assert.true(
-        typeof doc.error === 'string' && doc.error.startsWith('[404] Not Found - '),
+        typeof doc.error === 'string' && doc.error.startsWith('[404 Not Found] GET (basic) - '),
         'We receive the correct error'
       );
     });
