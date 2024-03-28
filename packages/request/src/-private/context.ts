@@ -2,16 +2,29 @@ import { DEBUG } from '@ember-data/env';
 
 import { deepFreeze } from './debug';
 import { createDeferred } from './future';
-import type { Deferred, GodContext, ImmutableHeaders, ImmutableRequestInfo, RequestInfo, ResponseInfo } from './types';
+import type {
+  DeferredStream,
+  GodContext,
+  ImmutableHeaders,
+  ImmutableRequestInfo,
+  RequestInfo,
+  ResponseInfo,
+} from './types';
+import { SkipCache } from './types';
 
-export function cloneResponseProperties(response: Response): ResponseInfo {
-  const { headers, ok, redirected, status, statusText, type, url } = response;
+export function upgradeHeaders(headers: Headers | ImmutableHeaders): ImmutableHeaders {
   (headers as ImmutableHeaders).clone = () => {
     return new Headers(headers);
   };
   (headers as ImmutableHeaders).toJSON = () => {
     return Array.from(headers);
   };
+  return headers as ImmutableHeaders;
+}
+
+export function cloneResponseProperties(response: Response): ResponseInfo {
+  const { headers, ok, redirected, status, statusText, type, url } = response;
+  upgradeHeaders(headers);
   return {
     headers: headers as ImmutableHeaders,
     ok,
@@ -27,7 +40,7 @@ export class ContextOwner {
   hasSetStream = false;
   hasSetResponse = false;
   hasSubscribers = false;
-  stream: Deferred<ReadableStream | null> = createDeferred<ReadableStream | null>();
+  stream: DeferredStream = createDeferred<ReadableStream | null>();
   response: ResponseInfo | null = null;
   declare request: ImmutableRequestInfo;
   declare enhancedRequest: ImmutableRequestInfo;
@@ -35,10 +48,14 @@ export class ContextOwner {
   declare god: GodContext;
   declare controller: AbortController;
   declare requestId: number;
+  declare isRoot: boolean;
 
-  constructor(request: RequestInfo, god: GodContext) {
+  constructor(request: RequestInfo, god: GodContext, isRoot = false) {
+    this.isRoot = isRoot;
     this.requestId = god.id;
     this.controller = request.controller || god.controller;
+    this.stream.promise.sizeHint = 0;
+
     if (request.controller) {
       if (request.controller !== god.controller) {
         god.controller.signal.addEventListener('abort', () => {
@@ -52,18 +69,13 @@ export class ContextOwner {
       request
     ) as ImmutableRequestInfo;
     if (DEBUG) {
-      if (!request?.cacheOptions?.[Symbol.for('ember-data:skip-cache')]) {
+      if (!request?.cacheOptions?.[SkipCache]) {
         request = deepFreeze(request) as ImmutableRequestInfo;
         enhancedRequest = deepFreeze(enhancedRequest);
       }
     } else {
       if (request.headers) {
-        (request.headers as ImmutableHeaders).clone = () => {
-          return new Headers([...request.headers!.entries()]);
-        };
-        (request.headers as ImmutableHeaders).toJSON = () => {
-          return [...request.headers!.entries()];
-        };
+        upgradeHeaders(request.headers);
       }
     }
     this.enhancedRequest = enhancedRequest;
@@ -77,6 +89,10 @@ export class ContextOwner {
     });
   }
 
+  get hasRequestedStream(): boolean {
+    return this.god.hasRequestedStream;
+  }
+
   getResponse(): ResponseInfo | null {
     if (this.hasSetResponse) {
       return this.response;
@@ -87,6 +103,13 @@ export class ContextOwner {
     return null;
   }
   getStream(): Promise<ReadableStream | null> {
+    if (this.isRoot) {
+      this.god.hasRequestedStream = true;
+    }
+    if (!this.hasSetResponse) {
+      const hint = this.god.response?.headers?.get('content-length');
+      this.stream.promise.sizeHint = hint ? parseInt(hint, 10) : 0;
+    }
     this.hasSubscribers = true;
     return this.stream.promise;
   }
@@ -119,6 +142,7 @@ export class ContextOwner {
     }
     this.hasSetResponse = true;
     if (response instanceof Response) {
+      // TODO potentially avoid cloning in prod
       let responseData = cloneResponseProperties(response);
 
       if (DEBUG) {
@@ -126,6 +150,8 @@ export class ContextOwner {
       }
       this.response = responseData;
       this.god.response = responseData;
+      const sizeHint = response.headers?.get('content-length');
+      this.stream.promise.sizeHint = sizeHint ? parseInt(sizeHint, 10) : 0;
     } else {
       this.response = response;
       this.god.response = response;
@@ -148,6 +174,10 @@ export class Context {
   }
   setResponse(response: ResponseInfo | Response | null) {
     this.#owner.setResponse(response);
+  }
+
+  get hasRequestedStream() {
+    return this.#owner.hasRequestedStream;
   }
 }
 export type HandlerRequestContext = Context;

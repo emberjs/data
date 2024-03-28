@@ -1,10 +1,8 @@
-import type { StructuredDocument } from '@ember-data/types/cache/document';
-
 import type { ContextOwner } from './context';
-import type { Deferred, DeferredFuture, Future } from './types';
+import type { Deferred, DeferredFuture, Future, StructuredDataDocument } from './types';
 import { enhanceReason } from './utils';
 
-const IS_FUTURE = Symbol('IS_FUTURE');
+export const IS_FUTURE = Symbol('IS_FUTURE');
 
 export function isFuture<T>(maybe: unknown): maybe is Future<T> {
   return Boolean(maybe && maybe instanceof Promise && (maybe as Future<T>)[IS_FUTURE] === true);
@@ -20,7 +18,7 @@ export function createDeferred<T>(): Deferred<T> {
   return { resolve, reject, promise };
 }
 
-export function upgradePromise<T>(promise: Promise<StructuredDocument<T>>, future: Future<T>): Future<T> {
+export function upgradePromise<T>(promise: Promise<StructuredDataDocument<T>>, future: Future<T>): Future<T> {
   (promise as Future<T>)[IS_FUTURE] = true;
   // eslint-disable-next-line @typescript-eslint/unbound-method
   (promise as Future<T>).getStream = future.getStream;

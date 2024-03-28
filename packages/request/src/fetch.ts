@@ -11,7 +11,8 @@
  * @module @ember-data/request/fetch
  * @main @ember-data/request/fetch
  */
-import { getOwnConfig, macroCondition } from '@embroider/macros';
+
+import { DEBUG } from '@ember-data/env';
 
 import { cloneResponseProperties, type Context } from './-private/context';
 import type { HttpErrorProps } from './-private/utils';
@@ -34,9 +35,13 @@ function cloneResponse(response: Response, overrides: Partial<Response>) {
 }
 
 let IS_MAYBE_MIRAGE = () => false;
-if (macroCondition(getOwnConfig<{ env: { TESTING: boolean } }>().env.TESTING)) {
+if (DEBUG) {
   IS_MAYBE_MIRAGE = () =>
-    Boolean(typeof window !== 'undefined' && (window as { server?: { pretender: unknown } }).server?.pretender);
+    Boolean(
+      typeof window !== 'undefined' &&
+        ((window as { server?: { pretender: unknown } }).server?.pretender ||
+          window.fetch.toString() !== 'function fetch() { [native code] }')
+    );
 }
 
 const MUTATION_OPS = new Set(['updateRecord', 'createRecord', 'deleteRecord']);
@@ -101,7 +106,7 @@ const ERROR_STATUS_CODE_FOR = new Map([
  * @public
  */
 const Fetch = {
-  async request(context: Context) {
+  async request<T>(context: Context): Promise<T> {
     let response: Response;
 
     try {
@@ -137,9 +142,79 @@ const Fetch = {
 
     context.setResponse(response);
 
+    if (response.status === 204) {
+      return null as T;
+    }
+
+    const reader = response.body!.getReader();
+    const decoder = new TextDecoder();
+    let text = '';
+    let isStreaming = context.hasRequestedStream;
+    let stream: TransformStream | null = isStreaming ? new TransformStream() : null;
+    let writer = stream?.writable.getWriter();
+
+    if (isStreaming) {
+      // Listen for the abort event on the AbortSignal
+      context.request.signal?.addEventListener('abort', () => {
+        if (!isStreaming) {
+          return;
+        }
+        void stream!.writable.abort('Request Aborted');
+        void stream!.readable.cancel('Request Aborted');
+      });
+      context.setStream(stream!.readable);
+    }
+
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      // we manually read the stream instead of using `response.json()`
+      // or `response.text()` because if we need to stream the body
+      // we need to be able to pass the stream along efficiently.
+      const { done, value } = await reader.read();
+      if (done) {
+        if (isStreaming) {
+          isStreaming = false;
+          await writer!.ready;
+          await writer!.close();
+        }
+        break;
+      }
+      text += decoder.decode(value, { stream: true });
+
+      // if we are streaming, we want to pass the stream along
+      if (isStreaming) {
+        await writer!.ready;
+        await writer!.write(value);
+      } else if (context.hasRequestedStream) {
+        const encode = new TextEncoder();
+        isStreaming = true;
+        stream = new TransformStream();
+        // Listen for the abort event on the AbortSignal
+        // eslint-disable-next-line @typescript-eslint/no-loop-func
+        context.request.signal?.addEventListener('abort', () => {
+          if (!isStreaming) {
+            return;
+          }
+          void stream!.writable.abort('Request Aborted');
+          void stream!.readable.cancel('Request Aborted');
+        });
+        context.setStream(stream.readable);
+        writer = stream.writable.getWriter();
+        await writer.ready;
+        await writer.write(encode.encode(text));
+        await writer.ready;
+        await writer.write(value);
+      }
+    }
+
+    if (isStreaming) {
+      isStreaming = false;
+      await writer!.ready;
+      await writer!.close();
+    }
+
     // if we are an error, we will want to throw
     if (isError) {
-      const text = await response.text();
       let errorPayload: object | undefined;
       try {
         errorPayload = JSON.parse(text) as object;
@@ -153,20 +228,23 @@ const Fetch = {
         ? errorPayload.errors
         : null;
 
-      const msg = `[${response.status}] ${response.statusText ? response.statusText + ' ' : ''}- ${response.url}`;
+      const statusText = response.statusText || ERROR_STATUS_CODE_FOR.get(response.status) || 'Unknown Request Error';
+      const msg = `[${response.status} ${statusText}] ${context.request.method ?? 'GET'} (${response.type}) - ${
+        response.url
+      }`;
 
       const error = (errors ? new AggregateError(errors, msg) : new Error(msg)) as Error & {
         content: object | undefined;
       } & HttpErrorProps;
       error.status = response.status;
-      error.statusText = response.statusText || ERROR_STATUS_CODE_FOR.get(response.status) || 'Unknown Request Error';
+      error.statusText = statusText;
       error.isRequestError = true;
       error.code = error.status;
       error.name = error.statusText.replaceAll(' ', '') + 'Error';
       error.content = errorPayload;
       throw error;
     } else {
-      return response.status === 204 ? null : response.json();
+      return JSON.parse(text) as T;
     }
   },
 };
