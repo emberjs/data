@@ -26,6 +26,34 @@ function sortByName(map: Map<string, { name: string }>) {
   });
 }
 
+function getMirrorPackageName(name: string) {
+  if (name === 'root') {
+    return 'N/A';
+  }
+  if (name.startsWith('@ember-data/')) {
+    return name.replace('@ember-data/', '@ember-data-mirror/');
+  } else if (name.startsWith('@warp-drive/')) {
+    return name.replace('@warp-drive/', '@warp-drive-mirror/');
+  } else if (name.startsWith('ember-data')) {
+    return name.replace('ember-data', 'ember-data-mirror');
+  }
+  throw new Error(`Could not determine mirror package name for ${name}`);
+}
+
+function getTypesPackageName(name: string) {
+  if (name === 'root') {
+    return 'N/A';
+  }
+  if (name.startsWith('@ember-data/')) {
+    return name.replace('@ember-data/', '@ember-data-types/');
+  } else if (name.startsWith('@warp-drive/')) {
+    return name.replace('@warp-drive/', '@warp-drive-types/');
+  } else if (name.startsWith('ember-data')) {
+    return name.replace('ember-data', 'ember-data-types');
+  }
+  throw new Error(`Could not determine types package name for ${name}`);
+}
+
 function getPkgDir(pkgFilePath: string) {
   const relative = path.relative(PROJECT_ROOT, pkgFilePath);
   const parts = relative.split('/');
@@ -73,6 +101,12 @@ export async function applyStrategy(
     applied_strategy.pkgDir = getPkgDir(pkg.filePath);
     applied_strategy.fromVersion = fromPkg ? fromPkg.pkgData.version : pkg.pkgData.version;
     applied_strategy.new = !fromPkg;
+    applied_strategy.mirrorPublish =
+      !applied_strategy.private && (rule.mirrorPublish ?? strategy.defaults.mirrorPublish ?? false);
+    applied_strategy.typesPublish =
+      !applied_strategy.private && (rule.typesPublish ?? strategy.defaults.typesPublish ?? false);
+    applied_strategy.mirrorPublishTo = applied_strategy.mirrorPublish ? getMirrorPackageName(name) : 'N/A';
+    applied_strategy.typesPublishTo = applied_strategy.typesPublish ? getTypesPackageName(name) : 'N/A';
 
     if (isDownversion) {
       // during a downversion, we do not allow publishing a package whose current strategy is

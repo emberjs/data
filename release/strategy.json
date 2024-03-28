@@ -25,28 +25,38 @@
   },
   "defaults": {
     "stage": "stable",
-    "types": "alpha"
+    "types": "alpha",
+    "mirrorPublish": true,
+    "typesPublish": true
   },
   "rules": {
     "@ember-data/debug": {
       "stage": "stable",
-      "types": "private"
+      "types": "private",
+      "typesPublish": false
     },
     "@ember-data/private-build-infra": {
       "stage": "stable",
-      "types": "private"
+      "types": "private",
+      "typesPublish": false
     },
     "@warp-drive/holodeck": {
       "stage": "alpha",
-      "types": "private"
+      "types": "private",
+      "typesPublish": false,
+      "mirrorPublish": false
     },
     "@warp-drive/diagnostic": {
       "stage": "alpha",
-      "types": "private"
+      "types": "private",
+      "typesPublish": false,
+      "mirrorPublish": false
     },
     "eslint-plugin-ember-data": {
       "stage": "alpha",
-      "types": "private"
+      "types": "private",
+      "typesPublish": false,
+      "mirrorPublish": false
     },
     "@warp-drive/core-types": {
       "stage": "alpha",
@@ -54,15 +64,21 @@
     },
     "@warp-drive/ember": {
       "stage": "alpha",
-      "types": "alpha"
+      "types": "alpha",
+      "typesPublish": false,
+      "mirrorPublish": false
     },
     "@warp-drive/schema": {
       "stage": "alpha",
-      "types": "private"
+      "types": "private",
+      "typesPublish": false,
+      "mirrorPublish": false
     },
     "@warp-drive/schema-record": {
       "stage": "alpha",
-      "types": "private"
+      "types": "private",
+      "typesPublish": false,
+      "mirrorPublish": false
     }
   }
 }

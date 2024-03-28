@@ -5,10 +5,10 @@ import path from 'path';
 import fs from 'fs';
 import { Glob } from 'bun';
 
-const PROJECT_ROOT = process.cwd();
-const TARBALL_DIR = path.join(PROJECT_ROOT, 'tmp/tarballs');
+export const PROJECT_ROOT = process.cwd();
+export const TARBALL_DIR = path.join(PROJECT_ROOT, 'tmp/tarballs');
 
-function toTarballName(name: string) {
+export function toTarballName(name: string) {
   return name.replace('@', '').replace('/', '-');
 }
 
@@ -61,7 +61,8 @@ export async function generatePackageTarballs(
       const pkgDir = path.join(PROJECT_ROOT, path.dirname(pkg.filePath));
       const tarballPath = path.join(tarballDir, `${toTarballName(pkg.pkgData.name)}-${pkg.pkgData.version}.tgz`);
       pkg.tarballPath = tarballPath;
-      await exec({ cwd: pkgDir, cmd: `npm pack --pack-destination=${tarballDir}`, condense: true });
+      const result = await exec({ cwd: pkgDir, cmd: `npm pack --pack-destination=${tarballDir}`, condense: false });
+      console.log(result);
     } catch (e) {
       console.log(`🔴 ${chalk.redBright('failed to generate tarball for')} ${chalk.yellow(pkg.pkgData.name)}`);
       throw e;

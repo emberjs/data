@@ -67,6 +67,10 @@ export type APPLIED_STRATEGY = {
   private: boolean;
   stage: STRATEGY_TYPE;
   types: TYPE_STRATEGY;
+  mirrorPublish: boolean;
+  mirrorPublishTo: string;
+  typesPublish: boolean;
+  typesPublishTo: string;
   fromVersion: SEMVER_VERSION;
   toVersion: SEMVER_VERSION;
   distTag: NPM_DIST_TAG;
@@ -90,12 +94,16 @@ export interface STRATEGY {
   defaults: {
     stage: STRATEGY_TYPE;
     types: TYPE_STRATEGY;
+    mirrorPublish?: boolean;
+    typesPublish?: boolean;
   };
   rules: Record<
     string,
     {
       stage: STRATEGY_TYPE;
       types: TYPE_STRATEGY;
+      mirrorPublish?: boolean;
+      typesPublish?: boolean;
     }
   >;
 }
