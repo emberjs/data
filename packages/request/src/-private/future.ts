@@ -1,10 +1,8 @@
-import type { StructuredDocument } from '@ember-data/types/cache/document';
+import { IS_FUTURE, type StructuredDocument } from '@warp-drive/core-types/request';
 
 import type { ContextOwner } from './context';
 import type { Deferred, DeferredFuture, Future } from './types';
 import { enhanceReason } from './utils';
-
-const IS_FUTURE = Symbol('IS_FUTURE');
 
 export function isFuture<T>(maybe: unknown): maybe is Future<T> {
   return Boolean(maybe && maybe instanceof Promise && (maybe as Future<T>)[IS_FUTURE] === true);

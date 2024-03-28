@@ -3,6 +3,7 @@ import { DEBUG } from '@ember-data/env';
 import { Context, ContextOwner } from './context';
 import { assertValidRequest } from './debug';
 import { createFuture, isFuture } from './future';
+import { setRequestResult } from './promise-cache';
 import type {
   DeferredFuture,
   Future,
@@ -14,6 +15,7 @@ import type {
 } from './types';
 
 export const STRUCTURED = Symbol('DOC');
+export const IS_CACHE_HANDLER = Symbol('IS_CACHE_HANDLER');
 
 export function curryFuture<T>(owner: ContextOwner, inbound: Future<T>, outbound: DeferredFuture<T>): Future<T> {
   owner.setStream(inbound.getStream());
@@ -118,6 +120,10 @@ export function handleOutcome<T>(
   return outbound.promise;
 }
 
+function isCacheHandler(handler: Handler & { [IS_CACHE_HANDLER]?: boolean }, index: number): boolean {
+  return index === 0 && Boolean(handler[IS_CACHE_HANDLER]);
+}
+
 export function executeNextHandler<T>(
   wares: Readonly<Handler[]>,
   request: RequestInfo,
@@ -130,7 +136,7 @@ export function executeNextHandler<T>(
     }
     assertValidRequest(request, false);
   }
-  const owner = new ContextOwner(request, god);
+  const owner = new ContextOwner(request, god, i === 0);
 
   function next(r: RequestInfo): Future<T> {
     owner.nextCalled++;
@@ -141,8 +147,12 @@ export function executeNextHandler<T>(
   let outcome: Promise<T | StructuredDataDocument<T>> | Future<T>;
   try {
     outcome = wares[i].request<T>(context, next);
-    if (DEBUG) {
-      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    if (!!outcome && isCacheHandler(wares[i], i)) {
+      if (!(outcome instanceof Promise)) {
+        setRequestResult(owner.requestId, { isError: false, result: outcome });
+        outcome = Promise.resolve(outcome);
+      }
+    } else if (DEBUG) {
       if (!outcome || (!(outcome instanceof Promise) && !(typeof outcome === 'object' && 'then' in outcome))) {
         // eslint-disable-next-line no-console
         console.log({ request, handler: wares[i], outcome });
@@ -153,6 +163,9 @@ export function executeNextHandler<T>(
       }
     }
   } catch (e) {
+    if (isCacheHandler(wares[i], i)) {
+      setRequestResult(owner.requestId, { isError: true, result: e });
+    }
     outcome = Promise.reject<StructuredDataDocument<T>>(e);
   }
   const future = createFuture<T>(owner);

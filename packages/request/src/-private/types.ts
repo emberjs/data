@@ -39,6 +39,7 @@ export interface GodContext {
   controller: AbortController;
   response: ResponseInfo | null;
   stream: ReadableStream | Promise<ReadableStream | null> | null;
+  hasRequestedStream: boolean;
   id: number;
 }
 
@@ -58,6 +59,12 @@ export type Deferred<T> = {
   resolve(v: T): void;
   reject(v: unknown): void;
   promise: Promise<T>;
+};
+
+export type DeferredStream = {
+  resolve(v: ReadableStream | null): void;
+  reject(v: unknown): void;
+  promise: Promise<ReadableStream | null> & { sizeHint?: number };
 };
 
 /**
@@ -322,7 +329,35 @@ export interface Handler {
    * @param context
    * @param next
    */
-  request<T = unknown>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T>;
+  request<T = unknown>(context: RequestContext, next: NextFn<T>): Promise<T | StructuredDataDocument<T>> | Future<T>;
+}
+
+/**
+ * The CacheHandler is identical to other handlers ecxept that it
+ * is allowed to return a value synchronously. This is useful for
+ * features like reducing microtask queueing when de-duping.
+ *
+ * A RequestManager may only have one CacheHandler, registered via
+ * `manager.useCache(CacheHandler)`.
+ *
+ * @class <Interface> CacheHandler
+ * @public
+ */
+export interface CacheHandler {
+  /**
+   * Method to implement to handle requests. Receives the request
+   * context and a nextFn to call to pass-along the request to
+   * other handlers.
+   *
+   * @method request
+   * @public
+   * @param context
+   * @param next
+   */
+  request<T = unknown>(
+    context: RequestContext,
+    next: NextFn<T>
+  ): Promise<T | StructuredDataDocument<T>> | Future<T> | T;
 }
 
 export interface RequestResponse<T> {
@@ -330,3 +365,5 @@ export interface RequestResponse<T> {
 }
 
 export type GenericCreateArgs = Record<string | symbol, unknown>;
+
+
