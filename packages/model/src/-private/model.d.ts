@@ -59,21 +59,12 @@ class Model extends EmberObject {
   serialize(): Record<string, unknown>;
 
   static modelName: string;
-  static fields: Map<keyof this & string, 'attribute' | 'belongsTo' | 'hasMany'>;
-  static attributes: Map<keyof this & string, AttributeSchema>;
-  static relationshipsByName: Map<keyof this & string, RelationshipSchema>;
-  static eachAttribute<K extends keyof this & string>(
-    callback: (this: ModelSchema<this>, key: K, attribute: AttributeSchema) => void,
-    binding?: T
-  ): void;
-  static eachRelationship<K extends keyof this & string>(
-    callback: (this: ModelSchema<this>, key: K, relationship: RelationshipSchema) => void,
-    binding?: T
-  ): void;
-  static eachTransformedAttribute<K extends keyof this & string>(
-    callback: (this: ModelSchema<this>, key: K, type: string) => void,
-    binding?: T
-  ): void;
+  static fields: Map<string, 'attribute' | 'belongsTo' | 'hasMany'>;
+  static attributes: Map<string, AttributeSchema>;
+  static relationshipsByName: Map<string, RelationshipSchema>;
+  static eachAttribute(callback: (key: string, attribute: AttributeSchema) => void, binding?: unknown): void;
+  static eachRelationship(callback: (key: string, relationship: RelationshipSchema) => void, binding?: unknown): void;
+  static eachTransformedAttribute(callback: (key: string, type: string) => void, binding?: unknown): void;
   static determineRelationshipType(
     knownSide: RelationshipSchema,
     store: Store
