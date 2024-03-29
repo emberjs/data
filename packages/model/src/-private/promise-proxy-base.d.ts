@@ -1,7 +1,7 @@
 import ObjectProxy from '@ember/object/proxy';
 
 export interface PromiseObject<T> extends Promise<T> {}
-export class PromiseObject<T> extends ObjectProxy<T> {
+export class PromiseObject<T> extends ObjectProxy<T | null> {
   declare content?: T | null;
 
   /*
