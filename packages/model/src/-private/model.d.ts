@@ -1,6 +1,6 @@
 import type EmberObject from '@ember/object';
 
-import type { Errors } from './errors';
+import type Errors from './errors';
 import type Store from '@ember-data/store';
 
 import type { AttributeSchema, RelationshipSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
