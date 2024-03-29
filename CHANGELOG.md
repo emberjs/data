@@ -1,5 +1,14 @@
 # Ember Data Changelog
 
+## v4.12.7 (2024-03-28)
+
+#### :bug: Bug Fix
+* `request`
+  * [#9308](https://github.com/emberjs/data/pull/9308) fix: mirage does not support anything (#9307) ([@runspired](https://github.com/runspired))
+
+#### Committers: 1
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+
 ## v4.12.6 (2024-03-28)
 
 #### :rocket: Enhancement
