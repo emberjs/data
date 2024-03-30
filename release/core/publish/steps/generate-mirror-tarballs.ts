@@ -76,6 +76,14 @@ export async function generateMirrorTarballs(
         await Bun.write(fullPath, newContents);
       }
 
+      // fix the volta extends field in package.json
+      const packageJsonPath = path.join(realUnpackedDir, 'package.json');
+      const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+      if (packageJson.volta && packageJson.volta.extends) {
+        packageJson.volta.extends = '../../../../package.json';
+        fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
+      }
+
       // pack the new package and put it in the tarballs directory
       const result = await exec({
         cwd: realUnpackedDir,
