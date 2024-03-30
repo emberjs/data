@@ -5,6 +5,19 @@ import path from 'path';
 import fs from 'fs';
 import { APPLIED_STRATEGY, Package } from '../../../utils/package';
 
+const INVALID_FILES = new Set([
+  'src',
+  'dist',
+  'addon',
+  'blueprints',
+  'dist/docs',
+  'addon-test-support',
+  'app',
+  'index.js',
+  'addon-main.js',
+  'addon-main.cjs',
+]);
+
 export async function generateTypesTarballs(
   config: Map<string, string | number | boolean | null>,
   packages: Map<string, Package>,
@@ -37,10 +50,7 @@ export async function generateTypesTarballs(
       const newPkgData = {
         name: strat.typesPublishTo,
         version: pkgData.version,
-        files:
-          pkgData.files?.filter(
-            (f) => f !== 'src' && f !== 'dist' && f !== 'addon' && f !== 'blueprints' && !f.startsWith('addon-main')
-          ) ?? [],
+        files: pkgData.files?.filter((f) => !INVALID_FILES.has(f)) ?? [],
         private: false,
         description: `Type Declarations for ${pkgData.name}`,
         author: pkgData.author,
