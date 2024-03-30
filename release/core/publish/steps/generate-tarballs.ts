@@ -223,7 +223,7 @@ async function convertFileToModule(fileData: string, relativePath: string, pkgNa
     }
 
     // fix re-exports
-    else if (line.startsWith('export {')) {
+    else if (line.startsWith('export {') || line.startsWith('export type {')) {
       if (!line.includes('}')) {
         throw new Error(`Unhandled Re-export in ${relativePath}`);
       }
