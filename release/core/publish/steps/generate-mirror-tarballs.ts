@@ -47,6 +47,8 @@ export async function generateMirrorTarballs(
       // unpack the main tarball for the package
       const mainTarballPath = pkg.tarballPath;
       const unpackedDir = path.join(tmpDir, pkg.pkgData.name);
+      const realUnpackedDir = path.join(unpackedDir, 'package');
+
       fs.mkdirSync(unpackedDir, { recursive: true });
       await exec(`tar -xf ${mainTarballPath} -C ${unpackedDir}`);
 
@@ -54,8 +56,8 @@ export async function generateMirrorTarballs(
       // to do this we scan every file in the unpacked directory and do a string replace
       const glob = new Glob('**/*');
 
-      for await (const filePath of glob.scan(unpackedDir)) {
-        const fullPath = path.join(unpackedDir, filePath);
+      for await (const filePath of glob.scan(realUnpackedDir)) {
+        const fullPath = path.join(realUnpackedDir, filePath);
         const file = Bun.file(fullPath);
         const fileData = await file.text();
 
@@ -76,7 +78,7 @@ export async function generateMirrorTarballs(
 
       // pack the new package and put it in the tarballs directory
       const result = await exec({
-        cwd: unpackedDir,
+        cwd: realUnpackedDir,
         cmd: `npm pack --pack-destination=${tarballDir}`,
         condense: false,
       });
