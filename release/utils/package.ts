@@ -7,12 +7,16 @@ export class Package {
   declare file: JSONFile<PACKAGEJSON>;
   declare pkgData: PACKAGEJSON;
   declare tarballPath: string;
+  declare mirrorTarballPath: string;
+  declare typesTarballPath: string;
 
   constructor(filePath: string, file: JSONFile<PACKAGEJSON>, pkgData: PACKAGEJSON) {
     this.filePath = filePath;
     this.file = file;
     this.pkgData = pkgData;
     this.tarballPath = '';
+    this.mirrorTarballPath = '';
+    this.typesTarballPath = '';
   }
 
   async refresh() {
@@ -60,6 +64,13 @@ export type PACKAGEJSON = {
     type?: 'addon';
     version?: 1 | 2;
   };
+  author?: string;
+  license?: string;
+  repository?: {
+    type: string;
+    url: string;
+    directory?: string;
+  };
 };
 
 export type APPLIED_STRATEGY = {
@@ -67,6 +78,10 @@ export type APPLIED_STRATEGY = {
   private: boolean;
   stage: STRATEGY_TYPE;
   types: TYPE_STRATEGY;
+  mirrorPublish: boolean;
+  mirrorPublishTo: string;
+  typesPublish: boolean;
+  typesPublishTo: string;
   fromVersion: SEMVER_VERSION;
   toVersion: SEMVER_VERSION;
   distTag: NPM_DIST_TAG;
@@ -90,12 +105,16 @@ export interface STRATEGY {
   defaults: {
     stage: STRATEGY_TYPE;
     types: TYPE_STRATEGY;
+    mirrorPublish?: boolean;
+    typesPublish?: boolean;
   };
   rules: Record<
     string,
     {
       stage: STRATEGY_TYPE;
       types: TYPE_STRATEGY;
+      mirrorPublish?: boolean;
+      typesPublish?: boolean;
     }
   >;
 }

@@ -5,10 +5,10 @@ import path from 'path';
 import fs from 'fs';
 import { Glob } from 'bun';
 
-const PROJECT_ROOT = process.cwd();
-const TARBALL_DIR = path.join(PROJECT_ROOT, 'tmp/tarballs');
+export const PROJECT_ROOT = process.cwd();
+export const TARBALL_DIR = path.join(PROJECT_ROOT, 'tmp/tarballs');
 
-function toTarballName(name: string) {
+export function toTarballName(name: string) {
   return name.replace('@', '').replace('/', '-');
 }
 
@@ -61,7 +61,8 @@ export async function generatePackageTarballs(
       const pkgDir = path.join(PROJECT_ROOT, path.dirname(pkg.filePath));
       const tarballPath = path.join(tarballDir, `${toTarballName(pkg.pkgData.name)}-${pkg.pkgData.version}.tgz`);
       pkg.tarballPath = tarballPath;
-      await exec({ cwd: pkgDir, cmd: `npm pack --pack-destination=${tarballDir}`, condense: true });
+      const result = await exec({ cwd: pkgDir, cmd: `npm pack --pack-destination=${tarballDir}`, condense: false });
+      console.log(result);
     } catch (e) {
       console.log(`🔴 ${chalk.redBright('failed to generate tarball for')} ${chalk.yellow(pkg.pkgData.name)}`);
       throw e;
@@ -82,27 +83,27 @@ export async function generatePackageTarballs(
 async function fixVersionsInPackageJson(pkg: Package) {
   if (pkg.pkgData.dependencies) {
     Object.keys(pkg.pkgData.dependencies).forEach((dep) => {
-      const version = pkg.pkgData.dependencies[dep];
+      const version = pkg.pkgData.dependencies![dep];
       if (version.startsWith('workspace:')) {
-        pkg.pkgData.dependencies[dep] = version.replace('workspace:', '');
+        pkg.pkgData.dependencies![dep] = version.replace('workspace:', '');
       }
     });
   }
 
   if (pkg.pkgData.devDependencies) {
     Object.keys(pkg.pkgData.devDependencies).forEach((dep) => {
-      const version = pkg.pkgData.devDependencies[dep];
+      const version = pkg.pkgData.devDependencies![dep];
       if (version.startsWith('workspace:')) {
-        pkg.pkgData.devDependencies[dep] = version.replace('workspace:', '');
+        pkg.pkgData.devDependencies![dep] = version.replace('workspace:', '');
       }
     });
   }
 
   if (pkg.pkgData.peerDependencies) {
     Object.keys(pkg.pkgData.peerDependencies).forEach((dep) => {
-      const version = pkg.pkgData.peerDependencies[dep];
+      const version = pkg.pkgData.peerDependencies![dep];
       if (version.startsWith('workspace:')) {
-        pkg.pkgData.peerDependencies[dep] = version.replace('workspace:', '');
+        pkg.pkgData.peerDependencies![dep] = version.replace('workspace:', '');
       }
     });
   }
@@ -222,7 +223,7 @@ async function convertFileToModule(fileData: string, relativePath: string, pkgNa
     }
 
     // fix re-exports
-    else if (line.startsWith('export {')) {
+    else if (line.startsWith('export {') || line.startsWith('export type {')) {
       if (!line.includes('}')) {
         throw new Error(`Unhandled Re-export in ${relativePath}`);
       }
@@ -411,7 +412,7 @@ async function restoreTypesStrategyChanges(pkg: Package, _strategy: APPLIED_STRA
   process.stdout.write(
     `\t\t♻️ ` +
       chalk.grey(
-        `Successfully Restored Assets Modified for Types Strategy During Publish in ${chalk.cyan(pkg.pkgData.name)}`
+        `Successfully Restored Assets Modified for Types Strategy During Publish in ${chalk.cyan(pkg.pkgData.name)}\n`
       )
   );
 }

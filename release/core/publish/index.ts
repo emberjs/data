@@ -4,6 +4,7 @@ import { GIT_TAG, getAllPackagesForGitTag, getGitState } from '../../utils/git';
 import { printHelpDocs } from '../../help/docs';
 import { bumpAllPackages, restorePackagesForDryRun } from './steps/bump-versions';
 import { generatePackageTarballs } from './steps/generate-tarballs';
+import { generateMirrorTarballs } from './steps/generate-mirror-tarballs';
 import { printStrategy } from './steps/print-strategy';
 import { AppliedStrategy, applyStrategy } from './steps/generate-strategy';
 import { confirmStrategy } from './steps/confirm-strategy';
@@ -13,6 +14,7 @@ import { CHANNEL, SEMVER_VERSION } from '../../utils/channel';
 import { confirmCommitChangelogs } from '../release-notes/steps/confirm-changelogs';
 import { updateChangelogs } from '../release-notes/steps/update-changelogs';
 import { getChanges } from '../release-notes/steps/get-changes';
+import { generateTypesTarballs } from './steps/generate-types-tarballs';
 
 export async function executePublish(args: string[]) {
   // get user supplied config
@@ -68,8 +70,13 @@ export async function executePublish(args: string[]) {
   // Generate Tarballs in tmp/tarballs/<root-version>
   // Having applied the types publishing strategy "just in time"
   // ========================
-  if (config.full.get('pack')) await generatePackageTarballs(config.full, packages, applied.public_pks);
-  else console.log(`Skipped Pack`);
+  if (config.full.get('pack')) {
+    await generatePackageTarballs(config.full, packages, applied.public_pks);
+    await generateMirrorTarballs(config.full, packages, applied.public_pks);
+    await generateTypesTarballs(config.full, packages, applied.public_pks);
+  } else {
+    console.log(`Skipped Pack`);
+  }
 
   // Publish to NPM registry
   // ========================
