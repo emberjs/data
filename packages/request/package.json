@@ -1,7 +1,7 @@
 {
   "name": "@ember-data/request",
   "description": "⚡️ A simple, small and fast framework-agnostic library to make `fetch` happen",
-  "version": "5.4.0-alpha.47",
+  "version": "5.4.0-alpha.48",
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "repository": {
@@ -42,10 +42,10 @@
     }
   },
   "peerDependencies": {
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.33"
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.34"
   },
   "dependencies": {
-    "@ember-data/private-build-infra": "workspace:5.4.0-alpha.47",
+    "@ember-data/private-build-infra": "workspace:5.4.0-alpha.48",
     "@ember/test-waiters": "^3.1.0",
     "@embroider/macros": "^1.15.0",
     "ember-cli-babel": "^8.2.0"
@@ -73,8 +73,8 @@
     "@glimmer/component": "^1.1.2",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.33",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.47",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.34",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.48",
     "ember-source": "~5.7.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "rollup": "^4.13.0",
