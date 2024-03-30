@@ -8,8 +8,9 @@ export interface DS extends Namespace {
   name: string;
 }
 
-export const DS = Namespace.create({
-  // @ts-expect-error ember-source types are wrong
+type CreateArgs = { VERSION: string; name: string };
+
+export const DS = (Namespace as unknown as { create(args: CreateArgs): DS }).create({
   VERSION: VERSION,
   name: 'DS',
 });
