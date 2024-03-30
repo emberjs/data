@@ -7,12 +7,16 @@ export class Package {
   declare file: JSONFile<PACKAGEJSON>;
   declare pkgData: PACKAGEJSON;
   declare tarballPath: string;
+  declare mirrorTarballPath: string;
+  declare typesTarballPath: string;
 
   constructor(filePath: string, file: JSONFile<PACKAGEJSON>, pkgData: PACKAGEJSON) {
     this.filePath = filePath;
     this.file = file;
     this.pkgData = pkgData;
     this.tarballPath = '';
+    this.mirrorTarballPath = '';
+    this.typesTarballPath = '';
   }
 
   async refresh() {
@@ -59,6 +63,13 @@ export type PACKAGEJSON = {
     main?: 'addon-main.js';
     type?: 'addon';
     version?: 1 | 2;
+  };
+  author?: string;
+  license?: string;
+  repository?: {
+    type: string;
+    url: string;
+    directory?: string;
   };
 };
 

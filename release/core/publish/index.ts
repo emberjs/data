@@ -14,6 +14,7 @@ import { CHANNEL, SEMVER_VERSION } from '../../utils/channel';
 import { confirmCommitChangelogs } from '../release-notes/steps/confirm-changelogs';
 import { updateChangelogs } from '../release-notes/steps/update-changelogs';
 import { getChanges } from '../release-notes/steps/get-changes';
+import { generateTypesTarballs } from './steps/generate-types-tarballs';
 
 export async function executePublish(args: string[]) {
   // get user supplied config
@@ -72,6 +73,7 @@ export async function executePublish(args: string[]) {
   if (config.full.get('pack')) {
     await generatePackageTarballs(config.full, packages, applied.public_pks);
     await generateMirrorTarballs(config.full, packages, applied.public_pks);
+    await generateTypesTarballs(config.full, packages, applied.public_pks);
   } else {
     console.log(`Skipped Pack`);
   }

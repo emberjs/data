@@ -38,12 +38,34 @@ export async function publishPackages(
     }
   }
 
+  let publishCount = 0;
   for (const [, strat] of strategy) {
     const pkg = packages.get(strat.name)!;
     token = await publishPackage(config, strat.distTag, pkg.tarballPath, config.get('dry_run') as boolean, token);
+    publishCount++;
+    if (strat.mirrorPublish) {
+      token = await publishPackage(
+        config,
+        strat.distTag,
+        pkg.mirrorTarballPath,
+        config.get('dry_run') as boolean,
+        token
+      );
+      publishCount++;
+    }
+    if (strat.typesPublish) {
+      token = await publishPackage(
+        config,
+        strat.distTag,
+        pkg.typesTarballPath,
+        config.get('dry_run') as boolean,
+        token
+      );
+      publishCount++;
+    }
   }
 
-  console.log(`✅ ` + chalk.cyan(`published ${chalk.greenBright(strategy.size)} 📦 packages to npm`));
+  console.log(`✅ ` + chalk.cyan(`published ${chalk.greenBright(publishCount)} 📦 packages to npm`));
 }
 
 export async function getOTPToken(config: Map<string, string | number | boolean | null>, reprompt?: boolean) {

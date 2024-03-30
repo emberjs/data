@@ -4,6 +4,7 @@ import { Glob } from 'bun';
 import { exec } from '../../../utils/cmd';
 import path from 'path';
 import fs from 'fs';
+import { APPLIED_STRATEGY, Package } from '../../../utils/package';
 
 export async function generateMirrorTarballs(
   config: Map<string, string | number | boolean | null>,
@@ -73,10 +74,14 @@ export async function generateMirrorTarballs(
         await Bun.write(fullPath, newContents);
       }
 
-      // pack a new tarball into the tarballs directory
-      await exec(`tar -czf ${mirrorTarballPath} -C ${unpackedDir} .`);
+      // pack the new package and put it in the tarballs directory
+      const result = await exec({
+        cwd: unpackedDir,
+        cmd: `npm pack --pack-destination=${tarballDir}`,
+        condense: false,
+      });
+      console.log(result);
 
-      // add the tarball path to the package object
       pkg.mirrorTarballPath = mirrorTarballPath;
     }
   }
