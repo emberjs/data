@@ -80,7 +80,11 @@ export async function generateMirrorTarballs(
       const packageJsonPath = path.join(realUnpackedDir, 'package.json');
       const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
       if (packageJson.volta && packageJson.volta.extends) {
-        packageJson.volta.extends = '../../../../../package.json';
+        if (packageJson.name.includes('/')) {
+          packageJson.volta.extends = '../../../../../../package.json';
+        } else {
+          packageJson.volta.extends = '../../../../../package.json';
+        }
         fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
       }
 
