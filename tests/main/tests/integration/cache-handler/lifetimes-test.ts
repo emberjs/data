@@ -300,7 +300,7 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
 
     assert.verifySteps(['isHardExpired: false', 'isSoftExpired: false'], 'we resolve from cache still');
 
-    const record = store.createRecord('test', {}) as { identifier: StableRecordIdentifier };
+    const record = store.createRecord('test', {});
 
     await store.request({
       url: '/test',
@@ -477,7 +477,7 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
 
     assert.verifySteps(['isHardExpired: false', 'isSoftExpired: false'], 'we resolve from cache still');
 
-    const record = store.createRecord('test', {}) as { identifier: StableRecordIdentifier };
+    const record = store.createRecord('test', {});
     await store.saveRecord(record);
 
     assert.verifySteps(['adapter:createRecord', 'didRequest'], 'we issue the request since it is a different request');
@@ -538,4 +538,6 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
       'we are no longer hard expired due to the createRecord response'
     );
   });
+
+  test('An AdHoc createRecord request can invalidate the request cache', async function (assert) {});
 });

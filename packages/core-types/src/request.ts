@@ -45,7 +45,12 @@ export type CacheOptions = {
    * provided by `@ember-data/request-utils` for an example.
    *
    * It is recommended to only use this for query/queryRecord requests where
-   * new records created later would affect the results.
+   * new records created later would affect the results, though using it for
+   * findRecord requests is also supported if desired where it may be useful
+   * when a create may affect the result of a sideloaded relationship.
+   *
+   * Generally it is better to patch the cache directly for relationship updates
+   * than to invalidate findRecord requests for one.
    *
    * @typedoc
    */
