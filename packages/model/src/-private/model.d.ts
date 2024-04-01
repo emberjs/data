@@ -30,6 +30,7 @@ class Model extends EmberObject {
   adapterError?: Error;
   toString(): string;
   save(): Promise<this>;
+  reload(): Promise<this>;
   hasMany<T extends keyof this & string>(key: T): HasManyReference<this, T>;
   belongsTo<T extends keyof this & string>(key: T): BelongsToReference<this, T>;
   eachRelationship<T extends Model, K extends keyof T & string>(
