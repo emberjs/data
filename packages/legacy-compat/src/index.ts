@@ -257,7 +257,7 @@ export function normalize(this: Store, modelName: string, payload: ObjectValue) 
 // TODO @runspired @deprecate pushPayload in favor of looking up the serializer
 export function pushPayload(this: Store, inputPayload: ObjectValue): void;
 export function pushPayload(this: Store, modelName: string, inputPayload: ObjectValue): void;
-export function pushPayload(this: Store, modelNameOrPayload: string | ObjectValue, inputPayload?: ObjectValue): void {
+export function pushPayload(this: Store, modelName: string | ObjectValue, inputPayload?: ObjectValue): void {
   upgradeStore(this);
   assert(
     `Attempted to call store.pushPayload(), but the store instance has already been destroyed.`,
