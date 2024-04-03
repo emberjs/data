@@ -8,6 +8,7 @@ import { getPromiseState } from '@warp-drive/ember';
 type PromiseState<T, E> = ReturnType<typeof getPromiseState<T, E>>;
 const SecretSymbol = Symbol.for('LegacyPromiseProxy');
 
+interface PromiseProxy<T, E> extends Promise<T> {}
 class PromiseProxy<T, E> {
   [SecretSymbol]: true;
   promise: Awaitable<T, E>;
@@ -17,16 +18,19 @@ class PromiseProxy<T, E> {
     this.promise = promise;
   }
 
-  then(onFulfilled: (value: T) => T, onRejected: (error: E) => void): Promise<T> {
-    return this.promise.then(onFulfilled, onRejected) as Promise<T>;
+  then<T1, T2>(
+    onFulfilled?: ((value: T) => unknown) | undefined | null,
+    onRejected?: ((error: E) => T2 | Promise<T2>) | undefined | null
+  ): Promise<T1 | T2> {
+    return this.promise.then(onFulfilled!, onRejected!) as Promise<T1 | T2>;
   }
 
-  catch(onRejected: (error: E) => void): Promise<unknown> {
-    return this.promise.catch(onRejected) as Promise<unknown>;
+  catch<T2>(onRejected: ((error: E) => T2 | Promise<T2>) | undefined | null): Promise<T2> {
+    return this.promise.catch(onRejected!) as Promise<T2>;
   }
 
-  finally(onFinally: () => void): Promise<unknown> {
-    return this.promise.finally(onFinally) as Promise<unknown>;
+  finally(onFinally: () => void): Promise<T> {
+    return this.promise.finally(onFinally) as Promise<T>;
   }
 }
 
@@ -255,7 +259,7 @@ module('Integration | get-promise-state', function (hooks) {
     const _promise = Promise.resolve().then(() => {
       throw new Error('Our Error');
     });
-    const promise = new PromiseProxy(_promise);
+    const promise = new PromiseProxy<never, Error>(_promise);
 
     try {
       getPromiseState(promise);
@@ -300,12 +304,12 @@ module('Integration | get-promise-state', function (hooks) {
     assert.equal((state!.error as Error | undefined)?.message, 'Our Error');
     assert.equal(counter, 1);
     assert.equal(this.element.textContent?.trim(), 'Our Error\n          Count:\n          1');
-    assert.strictEqual(state, getPromiseState(_promise));
+    assert.equal(state, getPromiseState(_promise));
   });
 
   test('it unwraps promise-proxies that utilize the secret symbol for success states', async function (this: RenderingTestContext, assert) {
     const _promise = Promise.resolve().then(() => 'Our Data');
-    const promise = new PromiseProxy(_promise);
+    const promise = new PromiseProxy<string, Error>(_promise);
     getPromiseState(promise);
     await promise;
 
@@ -332,6 +336,6 @@ module('Integration | get-promise-state', function (hooks) {
     await settled();
 
     assert.equal(this.element.textContent?.trim(), 'Our DataCount:\n          1');
-    assert.strictEqual(state, getPromiseState(_promise));
+    assert.equal(state, getPromiseState(_promise));
   });
 });
