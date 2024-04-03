@@ -23,6 +23,8 @@ export interface BelongsToProxyCreateArgs<T = unknown> {
   _belongsToState: BelongsToProxyMeta<T>;
 }
 
+export const LegacyPromiseProxy = Symbol.for('LegacyPromiseProxy');
+
 interface PromiseObjectType<T> extends PromiseProxyMixin<T | null>, ObjectProxy<T> {
   // eslint-disable-next-line @typescript-eslint/no-misused-new
   new <PT>(...args: unknown[]): PromiseObjectType<PT>;
@@ -80,6 +82,8 @@ class PromiseBelongsTo<T = unknown> extends Extended<T> {
     await legacySupport.reloadBelongsTo(key, options);
     return this;
   }
+
+  [LegacyPromiseProxy] = true as const;
 }
 
 export { PromiseBelongsTo };

@@ -44,12 +44,24 @@ export class PromiseState<T = unknown, E = unknown> {
   }
 }
 
+const LegacyPromiseProxy = Symbol.for('LegacyPromiseProxy');
+type LegacyAwaitable<T, E> = { promise: Promise<T> | Awaitable<T, E>; [LegacyPromiseProxy]: true };
+
+function isLegacyAwaitable<T, E>(promise: object): promise is LegacyAwaitable<T, E> {
+  return LegacyPromiseProxy in promise && 'promise' in promise && promise[LegacyPromiseProxy] === true;
+}
+
+function getPromise<T, E>(promise: Promise<T> | Awaitable<T, E> | LegacyAwaitable<T, E>): Promise<T> | Awaitable<T, E> {
+  return isLegacyAwaitable(promise) ? promise.promise : promise;
+}
+
 export function getPromiseState<T = unknown, E = unknown>(promise: Promise<T> | Awaitable<T, E>): PromiseState<T, E> {
-  let state = PromiseCache.get(promise) as PromiseState<T, E> | undefined;
+  const _promise = getPromise(promise);
+  let state = PromiseCache.get(_promise) as PromiseState<T, E> | undefined;
 
   if (!state) {
-    state = new PromiseState(promise);
-    PromiseCache.set(promise, state);
+    state = new PromiseState(_promise);
+    PromiseCache.set(_promise, state);
   }
 
   return state;
