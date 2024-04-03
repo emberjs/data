@@ -217,6 +217,7 @@ export default class ManyArray extends MutableArrayWithObject<StableRecordIdenti
     } else {
       this._hasNotified = true;
       this.notifyPropertyChange('[]');
+      this.notifyPropertyChange('length');
       this.notifyPropertyChange('firstObject');
       this.notifyPropertyChange('lastObject');
     }
