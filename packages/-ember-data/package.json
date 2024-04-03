@@ -20,7 +20,7 @@
     "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "files": [
-    "dist/docs",
+    "dist/docs/data.json",
     "ember-data-logo-dark.svg",
     "ember-data-logo-light.svg",
     "LICENSE.md",
