@@ -273,7 +273,7 @@ module('Integration | get-promise-state', function (hooks) {
     assert.equal((state!.error as Error | undefined)?.message, 'Our Error');
     assert.equal(counter, 1);
     assert.equal(this.element.textContent?.trim(), 'Our Error\n          Count:\n          1');
-    assert.equal(state, getPromiseState(_promise));
+    assert.equal(state!, getPromiseState(_promise));
   });
 
   test('it unwraps promise-proxies that utilize the secret symbol for success states', async function (this: RenderingTestContext, assert) {
@@ -305,6 +305,6 @@ module('Integration | get-promise-state', function (hooks) {
     await settled();
 
     assert.equal(this.element.textContent?.trim(), 'Our DataCount:\n          1');
-    assert.equal(state, getPromiseState(_promise));
+    assert.equal(state!, getPromiseState(_promise));
   });
 });
