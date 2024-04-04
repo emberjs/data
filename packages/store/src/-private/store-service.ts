@@ -1198,8 +1198,8 @@ class Store extends EmberObject {
   */
   findRecord<T>(resource: TypeFromInstance<T>, id: string | number, options?: FindRecordOptions): Promise<T>;
   findRecord(resource: string, id: string | number, options?: FindRecordOptions): Promise<unknown>;
-  findRecord<T>(resource: ResourceIdentifierObject<TypeFromInstance<T>>, id?: FindRecordOptions): Promise<T>;
-  findRecord(resource: ResourceIdentifierObject, id?: FindRecordOptions): Promise<unknown>;
+  findRecord<T>(resource: ResourceIdentifierObject<TypeFromInstance<T>>, options?: FindRecordOptions): Promise<T>;
+  findRecord(resource: ResourceIdentifierObject, options?: FindRecordOptions): Promise<unknown>;
   findRecord(
     resource: string | ResourceIdentifierObject,
     id?: string | number | FindRecordOptions,

@@ -16,9 +16,11 @@ export {
   isStableIdentifier,
 } from './-private/caches/identifier-cache';
 
+export { default as constructResource } from './-private/utils/construct-resource';
+
 // TODO this should be a deprecated helper but we have so much usage of it
 // to also eliminate
-export { default as coerceId } from './-private/utils/coerce-id';
+export { default as coerceId, ensureStringId } from './-private/utils/coerce-id';
 export type { NativeProxy } from './-private/record-arrays/native-proxy-type-fix';
 export {
   default as RecordArray,
