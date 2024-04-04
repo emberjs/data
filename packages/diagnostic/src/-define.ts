@@ -64,9 +64,11 @@ export function test<TC extends TestContext = TestContext>(name: string, cb: Tes
   assert(`Cannot add the same test name twice: ${name}`, !currentModule.tests.byName.has(name));
   Config.totals.tests++;
 
+  const testName = currentModule.moduleName + ' > ' + name;
   const testInfo = {
-    id: generateHash(currentModule.moduleName + ' > ' + name),
+    id: generateHash(testName),
     name,
+    testName,
     cb,
     skip: false,
     todo: false,
@@ -83,9 +85,11 @@ export function todo<TC extends TestContext = TestContext>(name: string, cb: Tes
   assert(`Cannot add the same test name twice: ${name}`, !currentModule.tests.byName.has(name));
   Config.totals.todo++;
 
+  const testName = currentModule.moduleName + ' > ' + name;
   const testInfo = {
-    id: generateHash(currentModule.moduleName + ' > ' + name),
+    id: generateHash(testName),
     name,
+    testName,
     cb,
     skip: false,
     todo: true,
@@ -102,9 +106,11 @@ export function skip<TC extends TestContext = TestContext>(name: string, cb: Tes
   assert(`Cannot add the same test name twice: ${name}`, !currentModule.tests.byName.has(name));
   Config.totals.skipped++;
 
+  const testName = currentModule.moduleName + ' > ' + name;
   const testInfo = {
-    id: generateHash(currentModule.moduleName + ' > ' + name),
+    id: generateHash(testName),
     name,
+    testName,
     cb,
     skip: true,
     todo: false,

@@ -16,7 +16,7 @@ export async function runTest<TC extends TestContext>(
   const testContext = {
     [PublicTestInfo]: {
       id: test.id,
-      name: test.name,
+      name: test.testName,
     },
   } as unknown as TC;
   const testReport: TestReport = {

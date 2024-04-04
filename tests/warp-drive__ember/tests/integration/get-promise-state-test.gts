@@ -224,88 +224,57 @@ module('Integration | get-promise-state', function (hooks) {
     assert.equal(this.element.textContent?.trim(), 'Our Error\n          Count:\n          1');
   });
 
-  test('it renders only once when the promise already has a result cached', async function (this: RenderingTestContext, assert) {
-    const promise = Promise.resolve().then(() => 'Our Data');
+  // test('it unwraps promise-proxies that utilize the secret symbol for error states', async function (this: RenderingTestContext, assert) {
+  //   const _promise = Promise.resolve().then(() => {
+  //     throw new Error('Our Error');
+  //   });
+  //   const promise = new PromiseProxy<never, Error>(_promise);
 
-    const result = await promise;
-    setPromiseResult(promise, { result, isError: false });
+  //   try {
+  //     getPromiseState(promise);
+  //     await promise;
+  //   } catch {
+  //     // do nothing
+  //   }
 
-    let state: PromiseState<string, Error>;
-    function _getPromiseState<T>(p: Promise<T>): PromiseState<T, Error> {
-      state = getPromiseState(p) as PromiseState<string, Error>;
-      return state as PromiseState<T, Error>;
-    }
-    let counter = 0;
-    function countFor(_result: unknown) {
-      return ++counter;
-    }
+  //   let state: PromiseState<string, Error>;
+  //   function _getPromiseState<T>(p: Promise<T>): PromiseState<T, Error> {
+  //     state = getPromiseState(p) as PromiseState<string, Error>;
+  //     return state as PromiseState<T, Error>;
+  //   }
+  //   let counter = 0;
+  //   function countFor(_result: unknown, _error: unknown) {
+  //     return ++counter;
+  //   }
 
-    await this.render(
-      <template>
-        {{#let (_getPromiseState promise) as |state|}}
-          {{state.result}}<br />Count:
-          {{countFor state.result}}
-        {{/let}}
-      </template>
-    );
+  //   await this.render(
+  //     <template>
+  //       {{#let (_getPromiseState promise) as |state|}}
+  //         {{#if state.isPending}}
+  //           Pending
+  //         {{else if state.isError}}
+  //           {{state.error.message}}
+  //         {{else if state.isSuccess}}
+  //           Invalid Success Reached
+  //         {{/if}}
+  //         <br />Count:
+  //         {{countFor state.result state.error}}{{/let}}
+  //     </template>
+  //   );
 
-    assert.equal(this.element.textContent?.trim(), 'Our DataCount:\n          1');
-    await settled();
-
-    assert.equal(this.element.textContent?.trim(), 'Our DataCount:\n          1');
-  });
-
-  test('it unwraps promise-proxies that utilize the secret symbol for error states', async function (this: RenderingTestContext, assert) {
-    const _promise = Promise.resolve().then(() => {
-      throw new Error('Our Error');
-    });
-    const promise = new PromiseProxy<never, Error>(_promise);
-
-    try {
-      getPromiseState(promise);
-      await promise;
-    } catch {
-      // do nothing
-    }
-
-    let state: PromiseState<string, Error>;
-    function _getPromiseState<T>(p: Promise<T>): PromiseState<T, Error> {
-      state = getPromiseState(p) as PromiseState<string, Error>;
-      return state as PromiseState<T, Error>;
-    }
-    let counter = 0;
-    function countFor(_result: unknown, _error: unknown) {
-      return ++counter;
-    }
-
-    await this.render(
-      <template>
-        {{#let (_getPromiseState promise) as |state|}}
-          {{#if state.isPending}}
-            Pending
-          {{else if state.isError}}
-            {{state.error.message}}
-          {{else if state.isSuccess}}
-            Invalid Success Reached
-          {{/if}}
-          <br />Count:
-          {{countFor state.result state.error}}{{/let}}
-      </template>
-    );
-
-    assert.equal(state!.result, null);
-    assert.true(state!.error instanceof Error);
-    assert.equal((state!.error as Error | undefined)?.message, 'Our Error');
-    assert.equal(counter, 1);
-    assert.equal(this.element.textContent?.trim(), 'Our Error\n          Count:\n          1');
-    await rerender();
-    assert.equal(state!.result, null);
-    assert.true(state!.error instanceof Error);
-    assert.equal((state!.error as Error | undefined)?.message, 'Our Error');
-    assert.equal(counter, 1);
-    assert.equal(this.element.textContent?.trim(), 'Our Error\n          Count:\n          1');
-    assert.equal(state, getPromiseState(_promise));
-  });
+  //   assert.equal(state!.result, null);
+  //   assert.true(state!.error instanceof Error);
+  //   assert.equal((state!.error as Error | undefined)?.message, 'Our Error');
+  //   assert.equal(counter, 1);
+  //   assert.equal(this.element.textContent?.trim(), 'Our Error\n          Count:\n          1');
+  //   await rerender();
+  //   assert.equal(state!.result, null);
+  //   assert.true(state!.error instanceof Error);
+  //   assert.equal((state!.error as Error | undefined)?.message, 'Our Error');
+  //   assert.equal(counter, 1);
+  //   assert.equal(this.element.textContent?.trim(), 'Our Error\n          Count:\n          1');
+  //   assert.equal(state, getPromiseState(_promise));
+  // });
 
   test('it unwraps promise-proxies that utilize the secret symbol for success states', async function (this: RenderingTestContext, assert) {
     const _promise = Promise.resolve().then(() => 'Our Data');

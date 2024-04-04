@@ -100,8 +100,12 @@ export type ModuleCallback<TC extends TestContext> = ((hooks: Hooks<TC>) => void
 export type TestCallback<TC extends TestContext> = (this: TC, assert: Diagnostic) => void | Promise<void>;
 
 export interface TestInfo<TC extends TestContext> {
+  /* A unique id for the test based on the hash of the full testName */
   id: string;
+  /* The name of the test, not including moduleName */
   name: string;
+  /* The full name of the test including moduleName */
+  testName: string;
   cb: TestCallback<TC>;
   skip: boolean;
   todo: boolean;
