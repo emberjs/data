@@ -485,7 +485,7 @@ class Store extends EmberObject {
    * a resource.
    *
    * This hook can be used to select or instantiate any desired
-   * mechanism of presentating cache data to the ui for access
+   * mechanism of presenting cache data to the ui for access
    * mutation, and interaction.
    *
    * @method instantiateRecord (hook)

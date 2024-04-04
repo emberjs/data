@@ -64,21 +64,25 @@ export type FindRecordBuilderOptions = Omit<FindRecordOptions, 'preload'>;
   @param {Object} [options] - if the first param is a string this will be the optional options for the request. See examples for available options.
   @return {FindRecordRequestInput} request config
 */
-export function findRecord<T>(
+export function findRecordBuilder<T>(
   resource: TypeFromInstance<T>,
   id: string,
   options?: FindRecordBuilderOptions
 ): FindRecordRequestInput;
-export function findRecord(resource: string, id: string, options?: FindRecordBuilderOptions): FindRecordRequestInput;
-export function findRecord<T>(
+export function findRecordBuilder(
+  resource: string,
+  id: string,
+  options?: FindRecordBuilderOptions
+): FindRecordRequestInput;
+export function findRecordBuilder<T>(
   resource: ResourceIdentifierObject<TypeFromInstance<T>>,
   options?: FindRecordBuilderOptions
 ): FindRecordRequestInput;
-export function findRecord(
+export function findRecordBuilder(
   resource: ResourceIdentifierObject,
   options?: FindRecordBuilderOptions
 ): FindRecordRequestInput;
-export function findRecord(
+export function findRecordBuilder(
   resource: string | ResourceIdentifierObject,
   idOrOptions?: string | BaseFinderOptions,
   options?: FindRecordBuilderOptions
@@ -91,7 +95,7 @@ export function findRecord(
     options = idOrOptions as BaseFinderOptions | undefined;
   } else {
     assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${resource}`,
+      `You need to pass a modelName or resource identifier as the first argument to the findRecord builder (passed ${resource})`,
       typeof resource === 'string'
     );
     const type = normalizeModelName(resource);
