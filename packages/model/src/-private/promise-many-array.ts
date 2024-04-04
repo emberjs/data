@@ -6,6 +6,7 @@ import { compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';
 
 import type ManyArray from './many-array';
+import { LegacyPromiseProxy } from './promise-belongs-to';
 
 export interface HasManyProxyCreateArgs<T = unknown> {
   promise: Promise<ManyArray<T>>;
@@ -195,6 +196,8 @@ export default class PromiseManyArray<T = unknown> {
   static create<T>({ promise, content }: HasManyProxyCreateArgs<T>): PromiseManyArray<T> {
     return new this(promise, content);
   }
+
+  [LegacyPromiseProxy] = true as const;
 }
 defineSignal(PromiseManyArray.prototype, 'content', null);
 defineSignal(PromiseManyArray.prototype, 'isPending', false);
