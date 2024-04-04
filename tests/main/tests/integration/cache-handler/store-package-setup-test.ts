@@ -30,8 +30,16 @@ import type {
   SingleResourceDataDocument,
 } from '@warp-drive/core-types/spec/document';
 import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
+import type { ResourceType } from '@warp-drive/core-types/symbols';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
+type UserRecord = {
+  id: string;
+  name: string;
+  identifier: StableRecordIdentifier;
+  destroy: () => void;
+  [ResourceType]: 'user';
+};
 
 class RequestManagerService extends RequestManager {
   constructor() {
@@ -46,7 +54,7 @@ class TestStore extends Store {
 
   constructor() {
     super(...arguments);
-    this.registerSchemaDefinitionService({
+    this.registerSchema({
       attributesDefinitionFor() {
         return {};
       },
@@ -68,7 +76,7 @@ class TestStore extends Store {
 
   override instantiateRecord(identifier: StableRecordIdentifier) {
     const { id, lid, type } = identifier;
-    const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
+    const record: FakeRecord = { id, lid, type, identifier } as unknown as FakeRecord;
     Object.assign(record, (this.cache.peek(identifier) as JsonApiResource).attributes);
 
     const token = this.notifications.subscribe(
@@ -1544,6 +1552,183 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         'we get access to the document meta'
       );
       assert.strictEqual(handlerCalls, 2, 'fetch handler should only be called twice');
+    });
+  });
+
+  module('Mutation', function () {
+    test('when an updateRecord results in a 204 we do not error', async function (assert) {
+      const { owner } = this;
+
+      const store = owner.lookup('service:store') as unknown as TestStore;
+
+      store.requestManager = new RequestManager();
+      store.requestManager.use([
+        {
+          request<T>(context: Context) {
+            assert.step('request');
+
+            context.setResponse(
+              new Response(null, {
+                status: 204,
+                statusText: 'No Content',
+              })
+            );
+
+            return Promise.resolve(null) as Promise<T>;
+          },
+        },
+      ]);
+      store.requestManager.useCache(CacheHandler);
+
+      const record = store.push<UserRecord>({ data: { type: 'user', id: '1', attributes: { name: 'Chris Thoburn' } } });
+      assert.false(store.cache.hasChangedAttrs(record.identifier), 'record is clean');
+      store.cache.setAttr(record.identifier, 'name', 'Wesley Thoburn');
+      assert.true(store.cache.hasChangedAttrs(record.identifier), 'record is dirty');
+      await store.request({
+        op: 'updateRecord',
+        method: 'PATCH',
+        url: '/users',
+        records: [record.identifier],
+      });
+      assert.false(store.cache.hasChangedAttrs(record.identifier), 'record is clean');
+      assert.verifySteps(['request']);
+    });
+
+    test('when a createRecord results in a 201 we do not error so long as we already had an ID', async function (assert) {
+      const { owner } = this;
+
+      const store = owner.lookup('service:store') as unknown as TestStore;
+
+      store.requestManager = new RequestManager();
+      store.requestManager.use([
+        {
+          request<T>(context: Context) {
+            assert.step('request');
+
+            context.setResponse(
+              new Response('{}', {
+                status: 201,
+                statusText: 'Created',
+              })
+            );
+
+            return Promise.resolve({}) as Promise<T>;
+          },
+        },
+      ]);
+      store.requestManager.useCache(CacheHandler);
+
+      const record = store.createRecord<UserRecord>('user', { id: '1', name: 'Chris Thoburn' });
+      assert.true(store.cache.isNew(record.identifier), 'record is new');
+      await store.request({
+        op: 'createRecord',
+        method: 'POST',
+        url: '/users',
+        records: [record.identifier],
+      });
+      assert.false(store.cache.isNew(record.identifier), 'record is saved');
+      assert.verifySteps(['request']);
+    });
+
+    test('when a createRecord results in a 204 we do not error so long as we already had an ID', async function (assert) {
+      const { owner } = this;
+
+      const store = owner.lookup('service:store') as unknown as TestStore;
+
+      store.requestManager = new RequestManager();
+      store.requestManager.use([
+        {
+          request<T>(context: Context) {
+            assert.step('request');
+
+            context.setResponse(
+              new Response(null, {
+                status: 204,
+                statusText: 'No Content',
+              })
+            );
+
+            return Promise.resolve(null) as Promise<T>;
+          },
+        },
+      ]);
+      store.requestManager.useCache(CacheHandler);
+
+      const record = store.createRecord<UserRecord>('user', { id: '1', name: 'Chris Thoburn' });
+      assert.true(store.cache.isNew(record.identifier), 'record is new');
+      await store.request({
+        op: 'createRecord',
+        method: 'POST',
+        url: '/users',
+        records: [record.identifier],
+      });
+      assert.false(store.cache.isNew(record.identifier), 'record is saved');
+      assert.verifySteps(['request']);
+    });
+
+    test('when a createRecord results in a 201 and had no records, we do not error', async function (assert) {
+      const { owner } = this;
+
+      const store = owner.lookup('service:store') as unknown as TestStore;
+
+      store.requestManager = new RequestManager();
+      store.requestManager.use([
+        {
+          request<T>(context: Context) {
+            assert.step('request');
+
+            context.setResponse(
+              new Response(null, {
+                status: 204,
+                statusText: 'No Content',
+              })
+            );
+
+            return Promise.resolve(null) as Promise<T>;
+          },
+        },
+      ]);
+      store.requestManager.useCache(CacheHandler);
+
+      await store.requestManager.request({
+        store, // use the CacheHandler but don't hydrate
+        op: 'createRecord',
+        method: 'POST',
+        url: '/users',
+      });
+      assert.verifySteps(['request']);
+    });
+
+    test('when a createRecord results in a 204 and had no records, we do not error', async function (assert) {
+      const { owner } = this;
+
+      const store = owner.lookup('service:store') as unknown as TestStore;
+
+      store.requestManager = new RequestManager();
+      store.requestManager.use([
+        {
+          request<T>(context: Context) {
+            assert.step('request');
+
+            context.setResponse(
+              new Response(null, {
+                status: 204,
+                statusText: 'No Content',
+              })
+            );
+
+            return Promise.resolve(null) as Promise<T>;
+          },
+        },
+      ]);
+      store.requestManager.useCache(CacheHandler);
+      await store.requestManager.request({
+        store, // use the CacheHandler but don't hydrate
+        op: 'createRecord',
+        method: 'POST',
+        url: '/users',
+      });
+      assert.verifySteps(['request']);
     });
   });
 

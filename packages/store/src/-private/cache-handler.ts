@@ -141,10 +141,15 @@ function maybeUpdateUiObjects<T>(
     shouldBackgroundFetch?: boolean;
     identifier: StableDocumentIdentifier | null;
   },
-  document: ResourceDataDocument | ResourceErrorDocument,
+  document: ResourceDataDocument | ResourceErrorDocument | null,
   isFromCache: boolean
 ): T {
   const { identifier } = options;
+
+  if (!document) {
+    assert(`The CacheHandler expected response content but none was found`, !options.shouldHydrate);
+    return document as T;
+  }
 
   if (isErrorDocument(document)) {
     if (!identifier && !options.shouldHydrate) {
@@ -294,8 +299,13 @@ function fetchContentAndHydrate<T>(
     isMut = true;
     // TODO should we handle multiple records in request.records by iteratively calling willCommit for each
     const record = context.request.data?.record || context.request.records?.[0];
-    assert(`Expected to receive a list of records included in the ${context.request.op} request`, record);
-    store.cache.willCommit(record, context);
+    assert(
+      `Expected to receive a list of records included in the ${context.request.op} request`,
+      record || !shouldHydrate
+    );
+    if (record) {
+      store.cache.willCommit(record, context);
+    }
   }
 
   if (store.lifetimes?.willRequest) {
@@ -310,7 +320,15 @@ function fetchContentAndHydrate<T>(
       store._join(() => {
         if (isMutation(context.request)) {
           const record = context.request.data?.record || context.request.records?.[0];
-          response = store.cache.didCommit(record, document) as ResourceDataDocument;
+          if (record) {
+            response = store.cache.didCommit(record, document) as ResourceDataDocument;
+
+            // a mutation combined with a 204 has no cache impact when no known records were involved
+            // a createRecord with a 201 with an empty response and no known records should similarly
+            // have no cache impact
+          } else if (isCacheAffecting(document)) {
+            response = store.cache.put(document) as ResourceDataDocument;
+          }
         } else {
           response = store.cache.put(document) as ResourceDataDocument;
         }
@@ -516,4 +534,19 @@ function copyDocumentProperties(target: { links?: unknown; meta?: unknown; error
   if ('errors' in source) {
     target.errors = source.errors;
   }
+}
+
+function isCacheAffecting<T>(document: StructuredDataDocument<T>): boolean {
+  if (!isMutation(document.request)) {
+    return true;
+  }
+  // a mutation combined with a 204 has no cache impact when no known records were involved
+  // a createRecord with a 201 with an empty response and no known records should similarly
+  // have no cache impact
+
+  if (document.request.op === 'createRecord' && document.response?.status === 201) {
+    return document.content ? Object.keys(document.content).length > 0 : false;
+  }
+
+  return document.response?.status !== 204;
 }

@@ -15,6 +15,7 @@ import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-jso
 import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { ResourceType } from '@warp-drive/core-types/symbols';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
 
@@ -300,7 +301,7 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
 
     assert.verifySteps(['isHardExpired: false', 'isSoftExpired: false'], 'we resolve from cache still');
 
-    const record = store.createRecord('test', {});
+    const record = store.createRecord<{ identifier: StableRecordIdentifier; [ResourceType]: 'test' }>('test', {});
 
     await store.request({
       url: '/test',
@@ -539,5 +540,327 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
     );
   });
 
-  test('An AdHoc createRecord request can invalidate the request cache', async function (assert) {});
+  test('An AdHoc createRecord request can invalidate the request cache via records', async function (assert) {
+    class InterceptLifetimes extends LifetimesService {
+      override didRequest(
+        request: ImmutableRequestInfo,
+        response: Response | ResponseInfo | null,
+        identifier: StableDocumentIdentifier | null,
+        store: { cache: Cache }
+      ): void {
+        assert.step('didRequest');
+        super.didRequest(request, response, identifier, store);
+      }
+      override isHardExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
+        const result = super.isHardExpired(identifier, store);
+        assert.step(`isHardExpired: ${result}`);
+        return result;
+      }
+      override isSoftExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
+        const result = super.isSoftExpired(identifier, store);
+        assert.step(`isSoftExpired: ${result}`);
+        if (result) {
+          // debugger;
+          super.isSoftExpired(identifier, store);
+        }
+        return result;
+      }
+    }
+    const handleIntercept = {
+      request<T>(context: RequestContext, _next: NextFn<T>): Promise<T> {
+        assert.step('request issued');
+        const response = new Response();
+        response.headers.set('date', new Date().toUTCString());
+        context.setResponse(response);
+        return Promise.resolve({ data: { id: '1', type: 'test' } }) as Promise<T>;
+      },
+    };
+    class TestStore extends BaseTestStore {
+      constructor() {
+        super();
+        this.requestManager = new RequestManager();
+        this.requestManager.useCache(CacheHandler);
+        this.requestManager.use([handleIntercept]);
+        this.lifetimes = new InterceptLifetimes({
+          apiCacheHardExpires: 4_000,
+          apiCacheSoftExpires: 2_000,
+        });
+      }
+    }
+
+    const store = new TestStore();
+    await store.request({
+      url: '/test/1',
+      method: 'GET',
+      op: 'query',
+      cacheOptions: {
+        types: ['test'],
+      },
+    });
+    assert.verifySteps(['request issued', 'didRequest'], 'we issue the request');
+
+    await store.request({
+      url: '/test/1',
+      method: 'GET',
+      op: 'query',
+      cacheOptions: {
+        types: ['test'],
+      },
+    });
+
+    assert.verifySteps(['isHardExpired: false', 'isSoftExpired: false'], 'we resolve from cache');
+
+    await store.request({
+      url: '/test/2',
+      method: 'GET',
+      op: 'query',
+      cacheOptions: {
+        types: ['test'],
+      },
+    });
+
+    assert.verifySteps(['request issued', 'didRequest'], 'we issue the request since it is a different request');
+
+    await store.request({
+      url: '/test/1',
+      method: 'GET',
+      op: 'query',
+      cacheOptions: {
+        types: ['test'],
+      },
+    });
+
+    assert.verifySteps(['isHardExpired: false', 'isSoftExpired: false'], 'we resolve from cache still');
+
+    // issue an out of band createRecord request with a record identifier
+    const record = store.createRecord<{ identifier: StableRecordIdentifier; [ResourceType]: 'test' }>('test', {});
+    await store.requestManager.request({
+      store,
+      url: '/test',
+      method: 'POST',
+      op: 'createRecord',
+      records: [record.identifier],
+    });
+
+    assert.verifySteps(['request issued', 'didRequest'], 'we issue the request since it is a different request');
+
+    await store.request({
+      url: '/test/1',
+      method: 'GET',
+      op: 'query',
+      cacheOptions: {
+        types: ['test'],
+      },
+    });
+
+    assert.verifySteps(
+      ['isHardExpired: true', 'request issued', 'didRequest'],
+      'we are hard expired due to the createRecord response'
+    );
+
+    await store.request({
+      url: '/test/1',
+      method: 'GET',
+      op: 'query',
+      cacheOptions: {
+        types: ['test'],
+      },
+    });
+
+    assert.verifySteps(
+      ['isHardExpired: false', 'isSoftExpired: false'],
+      'we are no longer hard expired due to the createRecord response'
+    );
+
+    await store.request({
+      url: '/test/2',
+      method: 'GET',
+      op: 'query',
+      cacheOptions: {
+        types: ['test'],
+      },
+    });
+
+    assert.verifySteps(
+      ['isHardExpired: true', 'request issued', 'didRequest'],
+      'we are hard expired due to the createRecord response'
+    );
+
+    await store.request({
+      url: '/test/2',
+      method: 'GET',
+      op: 'query',
+      cacheOptions: {
+        types: ['test'],
+      },
+    });
+
+    assert.verifySteps(
+      ['isHardExpired: false', 'isSoftExpired: false'],
+      'we are no longer hard expired due to the createRecord response'
+    );
+  });
+
+  test('An AdHoc createRecord request can invalidate the request cache via cacheOptions', async function (assert) {
+    class InterceptLifetimes extends LifetimesService {
+      override didRequest(
+        request: ImmutableRequestInfo,
+        response: Response | ResponseInfo | null,
+        identifier: StableDocumentIdentifier | null,
+        store: { cache: Cache }
+      ): void {
+        assert.step('didRequest');
+        super.didRequest(request, response, identifier, store);
+      }
+      override isHardExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
+        const result = super.isHardExpired(identifier, store);
+        assert.step(`isHardExpired: ${result}`);
+        return result;
+      }
+      override isSoftExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
+        const result = super.isSoftExpired(identifier, store);
+        assert.step(`isSoftExpired: ${result}`);
+        if (result) {
+          // debugger;
+          super.isSoftExpired(identifier, store);
+        }
+        return result;
+      }
+    }
+    const handleIntercept = {
+      request<T>(context: RequestContext, _next: NextFn<T>): Promise<T> {
+        assert.step('request issued');
+        const response = new Response();
+        response.headers.set('date', new Date().toUTCString());
+        context.setResponse(response);
+        return Promise.resolve({ data: { id: '1', type: 'test' } }) as Promise<T>;
+      },
+    };
+    class TestStore extends BaseTestStore {
+      constructor() {
+        super();
+        this.requestManager = new RequestManager();
+        this.requestManager.useCache(CacheHandler);
+        this.requestManager.use([handleIntercept]);
+        this.lifetimes = new InterceptLifetimes({
+          apiCacheHardExpires: 4_000,
+          apiCacheSoftExpires: 2_000,
+        });
+      }
+    }
+
+    const store = new TestStore();
+    await store.request({
+      url: '/test/1',
+      method: 'GET',
+      op: 'query',
+      cacheOptions: {
+        types: ['test'],
+      },
+    });
+    assert.verifySteps(['request issued', 'didRequest'], 'we issue the request');
+
+    await store.request({
+      url: '/test/1',
+      method: 'GET',
+      op: 'query',
+      cacheOptions: {
+        types: ['test'],
+      },
+    });
+
+    assert.verifySteps(['isHardExpired: false', 'isSoftExpired: false'], 'we resolve from cache');
+
+    await store.request({
+      url: '/test/2',
+      method: 'GET',
+      op: 'query',
+      cacheOptions: {
+        types: ['test'],
+      },
+    });
+
+    assert.verifySteps(['request issued', 'didRequest'], 'we issue the request since it is a different request');
+
+    await store.request({
+      url: '/test/1',
+      method: 'GET',
+      op: 'query',
+      cacheOptions: {
+        types: ['test'],
+      },
+    });
+
+    assert.verifySteps(['isHardExpired: false', 'isSoftExpired: false'], 'we resolve from cache still');
+
+    // create an out of band createRecord request with no associated identifier
+    // but with cacheOptions
+    await store.requestManager.request({
+      store,
+      cacheOptions: {
+        types: ['test'],
+      },
+      url: '/test',
+      method: 'POST',
+      op: 'createRecord',
+    });
+
+    assert.verifySteps(['request issued', 'didRequest'], 'we issue the request since it is a different request');
+
+    await store.request({
+      url: '/test/1',
+      method: 'GET',
+      op: 'query',
+      cacheOptions: {
+        types: ['test'],
+      },
+    });
+
+    assert.verifySteps(
+      ['isHardExpired: true', 'request issued', 'didRequest'],
+      'we are hard expired due to the createRecord response'
+    );
+
+    await store.request({
+      url: '/test/1',
+      method: 'GET',
+      op: 'query',
+      cacheOptions: {
+        types: ['test'],
+      },
+    });
+
+    assert.verifySteps(
+      ['isHardExpired: false', 'isSoftExpired: false'],
+      'we are no longer hard expired due to the createRecord response'
+    );
+
+    await store.request({
+      url: '/test/2',
+      method: 'GET',
+      op: 'query',
+      cacheOptions: {
+        types: ['test'],
+      },
+    });
+
+    assert.verifySteps(
+      ['isHardExpired: true', 'request issued', 'didRequest'],
+      'we are hard expired due to the createRecord response'
+    );
+
+    await store.request({
+      url: '/test/2',
+      method: 'GET',
+      op: 'query',
+      cacheOptions: {
+        types: ['test'],
+      },
+    });
+
+    assert.verifySteps(
+      ['isHardExpired: false', 'isSoftExpired: false'],
+      'we are no longer hard expired due to the createRecord response'
+    );
+  });
 });
