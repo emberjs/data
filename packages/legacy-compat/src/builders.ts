@@ -1,3 +1,6 @@
+export { findAllBuilder as findAll } from './builders/find-all';
+export type { FindAllBuilderOptions, FindAllRequestInput } from './builders/find-all';
+
 export { findRecordBuilder as findRecord } from './builders/find-record';
 export type { FindRecordBuilderOptions, FindRecordRequestInput } from './builders/find-record';
 

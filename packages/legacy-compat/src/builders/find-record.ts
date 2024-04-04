@@ -61,7 +61,7 @@ export type FindRecordBuilderOptions = Omit<FindRecordOptions, 'preload'>;
   @public
   @param {String|object} type - either a string representing the name of the resource or a ResourceIdentifier object containing both the type (a string) and the id (a string) for the record or an lid (a string) of an existing record
   @param {(String|Integer|Object)} id - optional object with options for the request only if the first param is a ResourceIdentifier, else the string id of the record to be retrieved
-  @param {Object} [options] - if the first param is a string this will be the optional options for the request. See examples for available options.
+  @param {FindRecordBuilderOptions} [options] - if the first param is a string this will be the optional options for the request. See examples for available options.
   @return {FindRecordRequestInput} request config
 */
 export function findRecordBuilder<T>(
