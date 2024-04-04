@@ -654,14 +654,25 @@ export type LifetimesConfig = { apiCacheSoftExpires: number; apiCacheHardExpires
  * Invalidates any request for which `cacheOptions.types` was provided when a createRecord
  * request for that type is successful.
  *
+ * For this to work, the `createRecord` request must include the `cacheOptions.types` array
+ * with the types that should be invalidated, or its request should specify the identifiers
+ * of the records that are being created via `records`. Providing both is valid.
+ *
+ * > [!NOTE]
+ * > only requests that had specified `cacheOptions.types` and occurred prior to the
+ * > createRecord request will be invalidated. This means that a given request should always
+ * > specify the types that would invalidate it to opt into this behavior. Abstracting this
+ * > behavior via builders is recommended to ensure consistency.
+ *
  * This allows the Store's CacheHandler to determine if a request is expired and
  * should be refetched upon next request.
  *
  * The `Fetch` handler provided by `@ember-data/request/fetch` will automatically
  * add the `date` header to responses if it is not present.
  *
- * Note: Date headers do not have millisecond precision, so expiration times should
- * generally be larger than 1000ms.
+ * > [!NOTE]
+ * > Date headers do not have millisecond precision, so expiration times should
+ * > generally be larger than 1000ms.
  *
  * Usage:
  *
@@ -804,6 +815,11 @@ export class LifetimesService {
       const statusNumber = response?.status ?? 0;
       if (statusNumber >= 200 && statusNumber < 400) {
         const types = new Set(request.records?.map((r) => r.type));
+        const additionalTypes = request.cacheOptions?.types;
+        additionalTypes?.forEach((type) => {
+          types.add(type);
+        });
+
         types.forEach((type) => {
           this.invalidateRequestsForType(type, store);
         });

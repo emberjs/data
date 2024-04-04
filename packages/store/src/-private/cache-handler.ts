@@ -141,10 +141,15 @@ function maybeUpdateUiObjects<T>(
     shouldBackgroundFetch?: boolean;
     identifier: StableDocumentIdentifier | null;
   },
-  document: ResourceDataDocument | ResourceErrorDocument,
+  document: ResourceDataDocument | ResourceErrorDocument | null,
   isFromCache: boolean
 ): T {
   const { identifier } = options;
+
+  if (!document) {
+    assert(`The CacheHandler expected response content but none was found`, !options.shouldHydrate);
+    return document as T;
+  }
 
   if (isErrorDocument(document)) {
     if (!identifier && !options.shouldHydrate) {
@@ -294,8 +299,13 @@ function fetchContentAndHydrate<T>(
     isMut = true;
     // TODO should we handle multiple records in request.records by iteratively calling willCommit for each
     const record = context.request.data?.record || context.request.records?.[0];
-    assert(`Expected to receive a list of records included in the ${context.request.op} request`, record);
-    store.cache.willCommit(record, context);
+    assert(
+      `Expected to receive a list of records included in the ${context.request.op} request`,
+      record || !shouldHydrate
+    );
+    if (record) {
+      store.cache.willCommit(record, context);
+    }
   }
 
   if (store.lifetimes?.willRequest) {
@@ -310,7 +320,15 @@ function fetchContentAndHydrate<T>(
       store._join(() => {
         if (isMutation(context.request)) {
           const record = context.request.data?.record || context.request.records?.[0];
-          response = store.cache.didCommit(record, document) as ResourceDataDocument;
+          if (record) {
+            response = store.cache.didCommit(record, document) as ResourceDataDocument;
+
+            // a mutation combined with a 204 has no cache impact when no known records were involved
+            // a createRecord with a 201 with an empty response and no known records should similarly
+            // have no cache impact
+          } else if (isCacheAffecting(document)) {
+            response = store.cache.put(document) as ResourceDataDocument;
+          }
         } else {
           response = store.cache.put(document) as ResourceDataDocument;
         }
@@ -411,6 +429,47 @@ function cloneError(error: Error & { error: string | object }) {
   return cloned;
 }
 
+/**
+ * A CacheHandler that adds support for using an EmberData Cache with a RequestManager.
+ *
+ * This handler will only run when a request has supplied a `store` instance. Requests
+ * issued by the store via `store.request()` will automatically have the `store` instance
+ * attached to the request.
+ *
+ * ```ts
+ * requestManager.request({
+ *   store: store,
+ *   url: '/api/posts',
+ *   method: 'GET'
+ * });
+ * ```
+ *
+ * When this handler elects to handle a request, it will return the raw `StructuredDocument`
+ * unless the request has `[EnableHydration]` set to `true`. In this case, the handler will
+ * return a `Document` instance that will automatically update the UI when the cache is updated
+ * in the future and will hydrate any identifiers in the StructuredDocument into Record instances.
+ *
+ * When issuing a request via the store, [EnableHydration] is automatically set to `true`. This
+ * means that if desired you can issue requests that utilize the cache without needing to also
+ * utilize Record instances if desired.
+ *
+ * Said differently, you could elect to issue all requests via a RequestManager, without ever using
+ * the store directly, by setting [EnableHydration] to `true` and providing a store instance. Not
+ * necessarily the most useful thing, but the decoupled nature of the RequestManager and incremental-feature
+ * approach of EmberData allows for this flexibility.
+ *
+ * ```ts
+ * import { EnableHydration } from '@warp-drive/core-types/request';
+ *
+ * requestManager.request({
+ *   store: store,
+ *   url: '/api/posts',
+ *   method: 'GET',
+ *   [EnableHydration]: true
+ * });
+ *
+ * @typedoc
+ */
 export const CacheHandler: CacheHandlerType = {
   request<T>(context: StoreRequestContext, next: NextFn<T>): Promise<T | StructuredDataDocument<T>> | Future<T> | T {
     // if we have no cache or no cache-key skip cache handling
@@ -475,4 +534,19 @@ function copyDocumentProperties(target: { links?: unknown; meta?: unknown; error
   if ('errors' in source) {
     target.errors = source.errors;
   }
+}
+
+function isCacheAffecting<T>(document: StructuredDataDocument<T>): boolean {
+  if (!isMutation(document.request)) {
+    return true;
+  }
+  // a mutation combined with a 204 has no cache impact when no known records were involved
+  // a createRecord with a 201 with an empty response and no known records should similarly
+  // have no cache impact
+
+  if (document.request.op === 'createRecord' && document.response?.status === 201) {
+    return document.content ? Object.keys(document.content).length > 0 : false;
+  }
+
+  return document.response?.status !== 204;
 }
