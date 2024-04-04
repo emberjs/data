@@ -19,6 +19,51 @@ export type FindRecordRequestInput = StoreRequestInput & {
 
 export type FindRecordBuilderOptions = Omit<FindRecordOptions, 'preload'>;
 
+/**
+  This function builds a request config for a given identifier or type and id combination.
+  When passed to `store.request`, this config will result in the same behavior as a `store.findRecord` request.
+  Additionally, it takes the same options as `store.findRecord`, with the exception of `preload` (which is unsupported).
+
+  **Example 1**
+
+  ```app/routes/post.js
+  import Route from '@ember/routing/route';
+  import { findRecord } from '@ember-data/legacy-compat/builders';
+
+  export default class PostRoute extends Route {
+    model({ post_id }) {
+      return this.store.request(findRecord('post', post_id));
+    }
+  }
+  ```
+
+  **Example 2**
+
+  `findRecord` can be called with a single identifier argument instead of the combination
+  of `type` (modelName) and `id` as separate arguments. You may recognize this combo as
+  the typical pairing from [JSON:API](https://jsonapi.org/format/#document-resource-object-identification)
+
+  ```app/routes/post.js
+  import Route from '@ember/routing/route';
+  import { findRecord } from '@ember-data/legacy-compat/builders';
+
+  export default class PostRoute extends Route {
+    model({ post_id: id }) {
+      return this.store.request(findRecord({ type: 'post', id }).content;
+    }
+  }
+  ```
+
+
+
+  @since x.x.x
+  @method findRecord
+  @public
+  @param {String|object} type - either a string representing the name of the resource or a ResourceIdentifier object containing both the type (a string) and the id (a string) for the record or an lid (a string) of an existing record
+  @param {(String|Integer|Object)} id - optional object with options for the request only if the first param is a ResourceIdentifier, else the string id of the record to be retrieved
+  @param {Object} [options] - if the first param is a string this will be the optional options for the request. See examples for available options.
+  @return {FindRecordRequestInput} request config
+*/
 export function findRecord<T>(
   resource: TypeFromInstance<T>,
   id: string,
