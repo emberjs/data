@@ -120,7 +120,7 @@
  *
  * ### Presenting Data from the Cache
  *
- * Now that we have a source and a cach for our data, we need to configure how
+ * Now that we have a source and a cache for our data, we need to configure how
  * the Store delivers that data back to our application. We do this via the hook
  * [instantiateRecord](https://api.emberjs.com/ember-data/release/classes/Store/methods/instantiateRecord%20(hook)?anchor=instantiateRecord%20(hook)),
  * which allows us to transform the data for a resource before handing it to the application.

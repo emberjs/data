@@ -2121,7 +2121,7 @@ class Store extends EmberObject {
     if (DEBUG) {
       assertDestroyingStore(this, 'saveRecord');
     }
-    assert(`Unable to initate save for a record in a disconnected state`, storeFor(record));
+    assert(`Unable to initiate save for a record in a disconnected state`, storeFor(record));
     const identifier = recordIdentifierFor(record);
     const cache = this.cache;
 
@@ -2159,9 +2159,6 @@ class Store extends EmberObject {
       records: [identifier],
       cacheOptions: { [SkipCache as symbol]: true },
     };
-
-    // we lie here on the type because legacy doesn't have enough context
-    cache.willCommit(identifier, { request } as unknown as StoreRequestContext);
 
     return this.request<T>(request).then((document) => document.content);
   }
