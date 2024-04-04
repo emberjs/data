@@ -18,6 +18,21 @@ export type QueryRequestInput = StoreRequestInput & {
 
 export type QueryBuilderOptions = QueryOptions;
 
+/**
+  This function builds a request config for a given type and query object.
+  When passed to `store.request`, this config will result in the same behavior as a `store.query` request.
+  Additionally, it takes the same options as `store.query`.
+
+
+
+  @since x.x.x
+  @method query
+  @public
+  @param {String} type the name of the resource
+  @param {object} query a query to be used by the adapter
+  @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.query
+  @return {QueryRequestInput} request config
+*/
 export function queryBuilder<T>(
   type: TypeFromInstance<T>,
   query: Record<string, unknown>,
