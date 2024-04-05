@@ -117,7 +117,7 @@
     "ember-source-channel-url": "^3.0.0",
     "ember-try": "^3.0.0",
     "express": "^4.19.2",
-    "glob": "^10.3.10",
+    "glob": "^10.3.12",
     "loader.js": "^4.7.0",
     "morgan": "^1.10.0",
     "qunit": "^2.20.1",

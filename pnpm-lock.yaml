@@ -3795,8 +3795,8 @@ importers:
         specifier: ^4.19.2
         version: 4.19.2
       glob:
-        specifier: ^10.3.10
-        version: 10.3.10
+        specifier: ^10.3.12
+        version: 10.3.12
       loader.js:
         specifier: ^4.7.0
         version: 4.7.0
@@ -13493,8 +13493,8 @@ packages:
   /glob-to-regexp@0.4.1:
     resolution: {integrity: sha512-lkX1HJXwyMcprw/5YUZc2s7DrpAiHB21/V+E1rHUrVNokkvB6bqMzT0VfV6/86ZNabt1k14YOIaT7nDvOX3Iiw==}
 
-  /glob@10.3.10:
-    resolution: {integrity: sha512-fa46+tv1Ak0UPK1TOy/pZrIybNNt4HCv7SDzwyfiOZkvZLEbjsZkJBPtDHVshZjbecAoAGSC20MjLDG/qr679g==}
+  /glob@10.3.12:
+    resolution: {integrity: sha512-TCNv8vJ+xz4QiqTpfOJA7HvYv+tNIRHKfUWw/q+v2jdgN4ebz+KY9tGx5J4rHP0o84mNP+ApH66HRX8us3Khqg==}
     engines: {node: '>=16 || 14 >=14.17'}
     hasBin: true
     dependencies:
@@ -13502,7 +13502,7 @@ packages:
       jackspeak: 2.3.6
       minimatch: 9.0.3
       minipass: 7.0.4
-      path-scurry: 1.10.1
+      path-scurry: 1.10.2
     dev: true
 
   /glob@5.0.15:
@@ -16057,8 +16057,8 @@ packages:
     dependencies:
       path-root-regex: 0.1.2
 
-  /path-scurry@1.10.1:
-    resolution: {integrity: sha512-MkhCqzzBEpPvxxQ71Md0b1Kk51W01lrYvlMzSUaIzNsODdd7mqhiimSZlr+VegAz5Z6Vzt9Xg2ttE//XBhH3EQ==}
+  /path-scurry@1.10.2:
+    resolution: {integrity: sha512-7xTavNy5RQXnsjANvVvMkEjvloOinkAjv/Z6Ildz9v2RinZ4SBKTWFOVRbaF8p0vpHnyjV/UwNDdKuUv6M5qcA==}
     engines: {node: '>=16 || 14 >=14.17'}
     dependencies:
       lru-cache: 10.2.0
@@ -16963,7 +16963,7 @@ packages:
     engines: {node: '>=14'}
     hasBin: true
     dependencies:
-      glob: 10.3.10
+      glob: 10.3.12
     dev: true
 
   /rollup-plugin-copy-assets@2.0.3(rollup@4.14.0):
