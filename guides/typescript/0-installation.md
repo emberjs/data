@@ -4,6 +4,20 @@
 > EmberData's Native Types require the use of Ember's
 > Native Types.
 
+> [!CAUTION]
+> EmberData does not maintain the DefinitelyTyped types for 
+> EmberData (e.g. the `@types/ember-data__*`). If you were
+> previously using these, you should uninstall them first.
+
+> [!IMPORTANT]  
+> Type definitions need to be installed top-level, this means
+> you have to install every EmberData package `ember-data`
+> depends on.
+
+> [!TIP]
+> When installing packages, use the `@canary` dist tag to get the latest
+> version. E.g. `pnpm install ember-data@canary`
+
 There are currently two ways to gain access to EmberData's native types.
 
 1) [Use Canary](#using-canary)
@@ -11,18 +25,9 @@ There are currently two ways to gain access to EmberData's native types.
 2) [Use Official Types Packages](#using-types-packages)
 with releases `>= 4.12.*`
 
-
-> [!CAUTION]
-> EmberData does not maintain the DefinitelyTyped types for 
-> EmberData (e.g. the `@types/ember-data__*`). If you were
-> previously using these, you should uninstall them first.
+---
 
 ### Using Canary
-
-> [!IMPORTANT]  
-> Type definitions need to be installed top-level, this means
-> you have to install every EmberData package `ember-data`
-> depends on.
 
 Required Packages for Canary Types
 
@@ -93,11 +98,6 @@ Here's an example change to package.json which drops all use of types from `@typ
 ---
 
 ### Using Types Packages
-
-> [!IMPORTANT]  
-> Type definitions need to be installed top-level, this means
-> you have to install types for every EmberData package
-> `ember-data` depends on.
 
 Every package in the project that ships types also publishes its types under a second package name.
 This enables older releases to consume these types instead of relying on the DefinitelyTyped project.
