@@ -117,7 +117,7 @@
     "ember-inflector": "^4.0.2",
     "ember-source": "~5.7.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
-    "rollup": "^4.13.0",
+    "rollup": "^4.13.2",
     "typescript": "^5.4.3",
     "walk-sync": "^3.0.0",
     "webpack": "^5.91.0"
