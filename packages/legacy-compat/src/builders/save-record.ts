@@ -85,8 +85,6 @@ export function saveRecordBuilder<T>(record: T, options: Record<string, unknown>
 /*
 
 TODO:
-* [] test this
-* [] make sure nothing fails bc of willCommit change
 * [] cargo cult jsdoc setup from json-api/src/-private/builders/query.ts
 
 */
