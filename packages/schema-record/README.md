@@ -29,9 +29,18 @@ This package provides presentation capabilities for your resource data. It works
 
 ## Installation
 
-> ⚠️ Private
+```cli
+pnpm install @warp-drive/schema-record
+```
 
-This package may currently only be used within EmberData. A public version is coming soon 💜
+**Tagged Releases**
+
+- ![NPM Canary Version](https://img.shields.io/npm/v/%40warp-drive/schema-record/canary?label=%40canary&color=FFBF00)
+- ![NPM Beta Version](https://img.shields.io/npm/v/%40warp-drive/schema-record/beta?label=%40beta&color=ff00ff)
+- ![NPM Stable Version](https://img.shields.io/npm/v/%40warp-drive/schema-record/latest?label=%40latest&color=90EE90)
+- ![NPM LTS Version](https://img.shields.io/npm/v/%40warp-drive/schema-record/lts?label=%40lts&color=0096FF)
+- ![NPM LTS 4.12 Version](https://img.shields.io/npm/v/%40warp-drive/schema-record/lts-4-12?label=%40lts-4-12&color=bbbbbb)
+
 
 #### 🔜 Soon 
 Install using your javascript package manager of choice. For instance with [pnpm](https://pnpm.io/)

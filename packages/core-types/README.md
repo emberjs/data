@@ -16,6 +16,21 @@
 <h3 align="center">🛸 @warp-drive/core-types</h3>
 <p align="center">Provides core types, type utils and constants for WarpDrive and EmberData</p>
 
+## Installation
+
+```cli
+pnpm install @warp-drive/core-types
+```
+
+**Tagged Releases**
+
+- ![NPM Canary Version](https://img.shields.io/npm/v/%40warp-drive/core-types/canary?label=%40canary&color=FFBF00)
+- ![NPM Beta Version](https://img.shields.io/npm/v/%40warp-drive/core-types/beta?label=%40beta&color=ff00ff)
+- ![NPM Stable Version](https://img.shields.io/npm/v/%40warp-drive/core-types/latest?label=%40latest&color=90EE90)
+- ![NPM LTS Version](https://img.shields.io/npm/v/%40warp-drive/core-types/lts?label=%40lts&color=0096FF)
+- ![NPM LTS 4.12 Version](https://img.shields.io/npm/v/%40warp-drive/core-types/lts-4-12?label=%40lts-4-12&color=bbbbbb)
+
+
 ### ♥️ Credits
 
  <details>

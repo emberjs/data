@@ -34,6 +34,20 @@ Its like GraphQL, RPC, or Protobuf... but for anything!
 
 This package may currently only be used within EmberData. A public version is coming soon 💜
 
+## Installation
+
+```cli
+pnpm install @warp-drive/schema
+```
+
+**Tagged Releases**
+
+- ![NPM Canary Version](https://img.shields.io/npm/v/%40warp-drive/schema/canary?label=%40canary&color=FFBF00)
+- ![NPM Beta Version](https://img.shields.io/npm/v/%40warp-drive/schema/beta?label=%40beta&color=ff00ff)
+- ![NPM Stable Version](https://img.shields.io/npm/v/%40warp-drive/schema/latest?label=%40latest&color=90EE90)
+- ![NPM LTS Version](https://img.shields.io/npm/v/%40warp-drive/schema/lts?label=%40lts&color=0096FF)
+- ![NPM LTS 4.12 Version](https://img.shields.io/npm/v/%40warp-drive/schema/lts-4-12?label=%40lts-4-12&color=bbbbbb)
+
 #### 🔜 Soon 
 
 Scaffold the schema for a `User` resource

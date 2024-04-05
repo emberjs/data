@@ -28,6 +28,16 @@ Install using your javascript package manager of choice. For instance with [pnpm
 ```no-highlight
 pnpm add @ember-data/request-utils
 ```
+
+**Tagged Releases**
+
+- ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/request-utils/canary?label=%40canary&color=FFBF00)
+- ![NPM Beta Version](https://img.shields.io/npm/v/%40ember-data/request-utils/beta?label=%40beta&color=ff00ff)
+- ![NPM Stable Version](https://img.shields.io/npm/v/%40ember-data/request-utils/latest?label=%40latest&color=90EE90)
+- ![NPM LTS Version](https://img.shields.io/npm/v/%40ember-data/request-utils/lts?label=%40lts&color=0096FF)
+- ![NPM LTS 4.12 Version](https://img.shields.io/npm/v/%40ember-data/request-utils/lts-4-12?label=%40lts-4-12&color=bbbbbb)
+
+
 ## Utils
 
 - [buildBaseUrl]()

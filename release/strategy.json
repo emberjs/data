@@ -76,7 +76,7 @@
     },
     "@warp-drive/schema-record": {
       "stage": "alpha",
-      "types": "private",
+      "types": "alpha",
       "typesPublish": false,
       "mirrorPublish": false
     }
