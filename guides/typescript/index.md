@@ -1,15 +1,20 @@
 # 💚 TypeScript Guide
 
-We publish types in stages, a bit like canary vs beta vs stable channels for code.
+## Type Maturity
 
-- `private` we don't ship types (yet)
+We publish types in stages, just like `canary | beta | stable` channels for code.
+
+- `private` we don't ship types (yet), even if typed in the repo
 - `alpha` we expect high churn on type signatures and users must opt-in to use these types.
 - `beta` we expect moderate churn on type signatures and users must opt-in to use these types.
 - `stable` we feel the types story is robust enough to attempt to follow semver when changing these types.
 
 Each package in the project can choose its own stage for types.
 
-TypeScript support for all EmberData and WarpDrive packages is currently `alpha`. **This means that you must opt-in to be able use EmberData's types.**
+> [!TIP]
+> TypeScript support for all EmberData and WarpDrive packages is currently `alpha`.
+>
+> **This means that you must opt-in to be able use EmberData's types.**
 
 ---
 
