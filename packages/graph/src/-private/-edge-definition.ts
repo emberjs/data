@@ -69,6 +69,7 @@ export function temporaryConvertToLegacy(
  *   isAsync: false,
  *   isImplicit: false,
  *   isCollection: true,
+ *   isPaginated: false,
  *   isPolymorphic: false,
  *   inverseKind: 'belongsTo',
  *   inverseKey: 'owner',
@@ -76,6 +77,7 @@ export function temporaryConvertToLegacy(
  *   inverseIsAsync: false,
  *   inverseIsImplicit: false,
  *   inverseIsCollection: false,
+ *   inverseIsPaginated: false,
  *   inverseIsPolymorphic: false,
  * }
  * ```
@@ -90,6 +92,7 @@ export function temporaryConvertToLegacy(
  *   isAsync: false,
  *   isImplicit: false,
  *   isCollection: false,
+ *   isPaginated: false,
  *   isPolymorphic: false,
  *   inverseKind: 'hasMany',
  *   inverseKey: 'pets',
@@ -97,6 +100,7 @@ export function temporaryConvertToLegacy(
  *   inverseIsAsync: false,
  *   inverseIsImplicit: false,
  *   inverseIsCollection: true,
+ *   inverseIsPaginated: false,
  *   inverseIsPolymorphic: false,
  * }
  * ```
@@ -122,6 +126,7 @@ export interface UpgradedMeta {
   isAsync: boolean;
   isImplicit: boolean;
   isCollection: boolean;
+  isPaginated: boolean;
   isPolymorphic: boolean;
   resetOnRemoteUpdate: boolean;
 
@@ -139,6 +144,7 @@ export interface UpgradedMeta {
   inverseIsAsync: boolean;
   inverseIsImplicit: boolean;
   inverseIsCollection: boolean;
+  inverseIsPaginated: boolean;
   inverseIsPolymorphic: boolean;
 }
 
@@ -193,12 +199,17 @@ function syncMeta(definition: UpgradedMeta, inverseDefinition: UpgradedMeta) {
   definition.inverseType = inverseDefinition.type;
   definition.inverseIsAsync = inverseDefinition.isAsync;
   definition.inverseIsCollection = inverseDefinition.isCollection;
+  definition.inverseIsPaginated = inverseDefinition.isPaginated;
   definition.inverseIsPolymorphic = inverseDefinition.isPolymorphic;
   definition.inverseIsImplicit = inverseDefinition.isImplicit;
   const resetOnRemoteUpdate =
     definition.resetOnRemoteUpdate === false || inverseDefinition.resetOnRemoteUpdate === false ? false : true;
   definition.resetOnRemoteUpdate = resetOnRemoteUpdate;
   inverseDefinition.resetOnRemoteUpdate = resetOnRemoteUpdate;
+}
+
+function isCollectionKind(meta: RelationshipField): meta is CollectionField {
+  return meta.kind === 'collection';
 }
 
 function upgradeMeta(meta: RelationshipField): UpgradedMeta {
@@ -210,17 +221,22 @@ function upgradeMeta(meta: RelationshipField): UpgradedMeta {
   niceMeta.kind = meta.kind;
   niceMeta.key = meta.name;
   niceMeta.type = meta.type;
-  assert(`Expected relationship definition to specify async`, typeof options?.async === 'boolean');
-  niceMeta.isAsync = options.async;
+  assert(
+    `Expected relationship definition to specify async`,
+    isCollectionKind(meta) || typeof meta.options?.async === 'boolean'
+  );
+  niceMeta.isAsync = isCollectionKind(meta) ? true : meta.options.async;
   niceMeta.isImplicit = false;
-  niceMeta.isCollection = meta.kind === 'hasMany';
-  niceMeta.isPolymorphic = options && !!options.polymorphic;
+  niceMeta.isCollection = meta.kind === 'hasMany' || meta.kind === 'collection';
+  niceMeta.isPolymorphic = Boolean(options && options.polymorphic);
+  niceMeta.isPaginated = meta.kind === 'collection';
 
   niceMeta.inverseKey = (options && options.inverse) || STR_LATER;
   niceMeta.inverseType = STR_LATER;
   niceMeta.inverseIsAsync = BOOL_LATER;
   niceMeta.inverseIsImplicit = (options && options.inverse === null) || BOOL_LATER;
   niceMeta.inverseIsCollection = BOOL_LATER;
+  niceMeta.inverseIsPaginated = BOOL_LATER;
 
   niceMeta.resetOnRemoteUpdate = isLegacyField(meta)
     ? meta.options?.resetOnRemoteUpdate === false
@@ -444,6 +460,7 @@ export function upgradeDefinition(
         isAsync: false, // this must be updated when we find the first belongsTo or hasMany definition that matches
         isImplicit: false,
         isCollection: false, // this must be updated when we find the first belongsTo or hasMany definition that matches
+        isPaginated: false,
         isPolymorphic: false,
       } as UpgradedMeta; // the rest of the fields are populated by syncMeta
 
@@ -476,6 +493,7 @@ export function upgradeDefinition(
       isAsync: false,
       isImplicit: true,
       isCollection: true, // with implicits any number of records could point at us
+      isPaginated: false,
       isPolymorphic: false,
     } as UpgradedMeta; // the rest of the fields are populated by syncMeta
 
