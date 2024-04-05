@@ -1,3 +1,6 @@
+/**
+ * @module @ember-data/legacy-compat/builders
+ */
 import { assert } from '@ember/debug';
 
 import type { StoreRequestInput } from '@ember-data/store';
@@ -23,12 +26,13 @@ export type QueryBuilderOptions = QueryOptions;
   When passed to `store.request`, this config will result in the same behavior as a `store.query` request.
   Additionally, it takes the same options as `store.query`.
 
-  @since x.x.x
   @method query
   @public
-  @param {String} type the name of the resource
+  @static
+  @for @ember-data/legacy-compat/builders
+  @param {string} type the name of the resource
   @param {object} query a query to be used by the adapter
-  @param {QueryBuilderOptions} options optional, may include `adapterOptions` hash which will be passed to adapter.query
+  @param {QueryBuilderOptions} [options] optional, may include `adapterOptions` hash which will be passed to adapter.query
   @return {QueryRequestInput} request config
 */
 export function queryBuilder<T>(
@@ -78,12 +82,13 @@ export type QueryRecordRequestInput = StoreRequestInput & {
   When passed to `store.request`, this config will result in the same behavior as a `store.queryRecord` request.
   Additionally, it takes the same options as `store.queryRecord`.
 
-  @since x.x.x
-  @method query
+  @method queryRecord
   @public
-  @param {String} type the name of the resource
+  @static
+  @for @ember-data/legacy-compat/builders
+  @param {string} type the name of the resource
   @param {object} query a query to be used by the adapter
-  @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.query
+  @param {QueryBuilderOptions} [options] optional, may include `adapterOptions` hash which will be passed to adapter.query
   @return {QueryRecordRequestInput} request config
 */
 export function queryRecordBuilder(

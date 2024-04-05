@@ -1,3 +1,6 @@
+/**
+ * @module @ember-data/legacy-compat/builders
+ */
 import { assert } from '@ember/debug';
 
 import type { StoreRequestInput } from '@ember-data/store';
@@ -20,7 +23,7 @@ export type FindRecordRequestInput = StoreRequestInput & {
 export type FindRecordBuilderOptions = Omit<FindRecordOptions, 'preload'>;
 
 /**
-  This function builds a request config for a given identifier or type and id combination.
+  This function builds a request config to find the record for a given identifier or type and id combination.
   When passed to `store.request`, this config will result in the same behavior as a `store.findRecord` request.
   Additionally, it takes the same options as `store.findRecord`, with the exception of `preload` (which is unsupported).
 
@@ -54,13 +57,12 @@ export type FindRecordBuilderOptions = Omit<FindRecordOptions, 'preload'>;
   }
   ```
 
-
-
-  @since x.x.x
   @method findRecord
   @public
-  @param {String|object} type - either a string representing the name of the resource or a ResourceIdentifier object containing both the type (a string) and the id (a string) for the record or an lid (a string) of an existing record
-  @param {(String|Integer|Object)} id - optional object with options for the request only if the first param is a ResourceIdentifier, else the string id of the record to be retrieved
+  @static
+  @for @ember-data/legacy-compat/builders
+  @param {string|object} type - either a string representing the name of the resource or a ResourceIdentifier object containing both the type (a string) and the id (a string) for the record or an lid (a string) of an existing record
+  @param {string|number|object} id - optional object with options for the request only if the first param is a ResourceIdentifier, else the string id of the record to be retrieved
   @param {FindRecordBuilderOptions} [options] - if the first param is a string this will be the optional options for the request. See examples for available options.
   @return {FindRecordRequestInput} request config
 */

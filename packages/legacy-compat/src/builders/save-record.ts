@@ -1,3 +1,6 @@
+/**
+ * @module @ember-data/legacy-compat/builders
+ */
 import { assert } from '@ember/debug';
 
 import { recordIdentifierFor, storeFor, type StoreRequestInput } from '@ember-data/store';
@@ -27,17 +30,16 @@ function resourceIsFullyDeleted(instanceCache: InstanceCache, identifier: Stable
 }
 
 /**
- * FIXME: Docs
-  This function builds a request config for the given type.
-  When passed to `store.request`, this config will result in the same behavior as a `store.findAll` request.
-  Additionally, it takes the same options as `store.findAll`.
+  This function builds a request config for saving the given record (e.g. creating, updating, or deleting the record).
+  When passed to `store.request`, this config will result in the same behavior as a legacy `store.saveRecord` request.
+  Additionally, it takes the same options as `store.saveRecord`.
 
-  @since x.x.x
-  @method query
+  @method saveRecord
   @public
-  @param {String} type the name of the resource
-  @param {object} query a query to be used by the adapter
-  @param {SaveRecordBuilderOptions} options optional, may include `adapterOptions` hash which will be passed to adapter.query
+  @static
+  @for @ember-data/legacy-compat/builders
+  @param {object} record a record to save
+  @param {SaveRecordBuilderOptions} options optional, may include `adapterOptions` hash which will be passed to adapter.saveRecord
   @return {SaveRecordRequestInput} request config
 */
 export function saveRecordBuilder<T>(record: T, options: Record<string, unknown> = {}): SaveRecordRequestInput {
@@ -81,10 +83,3 @@ export function saveRecordBuilder<T>(record: T, options: Record<string, unknown>
     cacheOptions: { [SkipCache as symbol]: true },
   };
 }
-
-/*
-
-TODO:
-* [] cargo cult jsdoc setup from json-api/src/-private/builders/query.ts
-
-*/

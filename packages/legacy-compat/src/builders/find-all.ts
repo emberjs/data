@@ -1,3 +1,6 @@
+/**
+ * @module @ember-data/legacy-compat/builders
+ */
 import { assert } from '@ember/debug';
 
 import type { StoreRequestInput } from '@ember-data/store';
@@ -18,16 +21,17 @@ export type FindAllRequestInput = StoreRequestInput & {
 export type FindAllBuilderOptions = FindAllOptions;
 
 /**
-  This function builds a request config for the given type.
+  This function builds a request config to perform a `findAll` request for the given type.
   When passed to `store.request`, this config will result in the same behavior as a `store.findAll` request.
   Additionally, it takes the same options as `store.findAll`.
 
-  @since x.x.x
-  @method query
+  @method findAll
   @public
-  @param {String} type the name of the resource
+  @static
+  @for @ember-data/legacy-compat/builders
+  @param {string} type the name of the resource
   @param {object} query a query to be used by the adapter
-  @param {FindAllBuilderOptions} options optional, may include `adapterOptions` hash which will be passed to adapter.query
+  @param {FindAllBuilderOptions} [options] optional, may include `adapterOptions` hash which will be passed to adapter.findAll
   @return {FindAllRequestInput} request config
 */
 export function findAllBuilder<T>(type: TypeFromInstance<T>, options?: FindAllBuilderOptions): FindAllRequestInput;
