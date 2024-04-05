@@ -102,7 +102,7 @@ async function getOTPToken(distTag: string, reprompt?: boolean) {
   return token.trim();
 }
 
-async function updateDistTag(
+export async function updateDistTag(
   pkg: string,
   version: string,
   distTag: string,

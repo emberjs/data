@@ -2,6 +2,7 @@ import chalk from 'chalk';
 import { APPLIED_STRATEGY, Package } from '../../../utils/package';
 import { question } from './confirm-strategy';
 import { exec } from '../../../utils/cmd';
+import { updateDistTag } from '../../promote';
 
 export async function publishPackages(
   config: Map<string, string | number | boolean | null>,
@@ -43,6 +44,11 @@ export async function publishPackages(
     const pkg = packages.get(strat.name)!;
     token = await publishPackage(config, strat.distTag, pkg.tarballPath, config.get('dry_run') as boolean, token);
     publishCount++;
+
+    if (strat.stage === 'alpha' || strat.stage === 'beta') {
+      token = await updateDistTag(strat.name, pkg.pkgData.version, 'latest', config.get('dry_run') as boolean, token);
+    }
+
     if (strat.mirrorPublish) {
       token = await publishPackage(
         config,
@@ -52,6 +58,16 @@ export async function publishPackages(
         token
       );
       publishCount++;
+
+      if (strat.stage === 'alpha' || strat.stage === 'beta') {
+        token = await updateDistTag(
+          strat.mirrorPublishTo,
+          pkg.pkgData.version,
+          'latest',
+          config.get('dry_run') as boolean,
+          token
+        );
+      }
     }
     if (strat.typesPublish) {
       token = await publishPackage(
@@ -62,6 +78,16 @@ export async function publishPackages(
         token
       );
       publishCount++;
+
+      if (strat.stage === 'alpha' || strat.stage === 'beta') {
+        token = await updateDistTag(
+          strat.typesPublishTo,
+          pkg.pkgData.version,
+          'latest',
+          config.get('dry_run') as boolean,
+          token
+        );
+      }
     }
   }
 
