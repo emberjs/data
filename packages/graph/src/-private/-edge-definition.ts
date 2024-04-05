@@ -445,6 +445,8 @@ export function upgradeDefinition(
     // TODO probably dont need this assertion if polymorphic
     assert(`Expected the inverse model to exist`, getStore(storeWrapper).modelFor(inverseType));
     inverseDefinition = null;
+  } else if (definition.isCollection && !definition.inverseKey) {
+    inverseDefinition = null;
   } else {
     inverseKey = /*#__NOINLINE__*/ inverseForRelationship(getStore(storeWrapper), identifier, propertyName);
 
