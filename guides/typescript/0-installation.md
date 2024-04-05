@@ -1,13 +1,13 @@
 # Installation
 
-> [!TIP]
-> EmberData's Native Types require the use of Ember's
-> Native Types.
-
 > [!CAUTION]
 > EmberData does not maintain the DefinitelyTyped types for 
 > EmberData (e.g. the `@types/ember-data__*`). If you were
 > previously using these, you should uninstall them first.
+
+> [!IMPORTANT]
+> EmberData's Native Types require the use of Ember's
+> Native Types.
 
 > [!IMPORTANT]  
 > Type definitions need to be installed top-level, this means
