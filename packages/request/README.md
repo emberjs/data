@@ -42,6 +42,15 @@ Install using your javascript package manager of choice. For instance with [pnpm
 pnpm add @ember-data/request
 ```
 
+**Tagged Releases**
+
+- ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/request/canary?label=%40canary&color=FFBF00)
+- ![NPM Beta Version](https://img.shields.io/npm/v/%40ember-data/request/beta?label=%40beta&color=ff00ff)
+- ![NPM Stable Version](https://img.shields.io/npm/v/%40ember-data/request/latest?label=%40latest&color=90EE90)
+- ![NPM LTS Version](https://img.shields.io/npm/v/%40ember-data/request/lts?label=%40lts&color=0096FF)
+- ![NPM LTS 4.12 Version](https://img.shields.io/npm/v/%40ember-data/request/lts-4-12?label=%40lts-4-12&color=bbbbbb)
+
+
 ## 🚀 Basic Usage
 
 A `RequestManager` provides a request/response flow in which configured handlers are successively given the opportunity to handle, modify, or pass-along a request.

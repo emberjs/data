@@ -16,13 +16,23 @@
 <h3 align="center">⚡️ A Lightweight Modern Test Runner</h3>
 <p align="center">QUnit Compatible (mostly! 🙈)</p>
 
-> ⚠️ Private
-
-This package may currently only be used within EmberData. A public version is coming soon 💜
+## Installation
 
 ```cli
 pnpm install @warp-drive/diagnostic
 ```
+
+**Tagged Releases**
+
+- ![NPM Canary Version](https://img.shields.io/npm/v/%40warp-drive/diagnostic/canary?label=%40canary&color=FFBF00)
+- ![NPM Beta Version](https://img.shields.io/npm/v/%40warp-drive/diagnostic/beta?label=%40beta&color=ff00ff)
+- ![NPM Stable Version](https://img.shields.io/npm/v/%40warp-drive/diagnostic/latest?label=%40latest&color=90EE90)
+- ![NPM LTS Version](https://img.shields.io/npm/v/%40warp-drive/diagnostic/lts?label=%40lts&color=0096FF)
+- ![NPM LTS 4.12 Version](https://img.shields.io/npm/v/%40warp-drive/diagnostic/lts-4-12?label=%40lts-4-12&color=bbbbbb)
+
+---
+
+## About
 
 **@warp-drive/** *diagnostic* is a ground-up revisiting of the APIs [QUnit](https://qunitjs.com/) popularized and [Ember](https://github.com/emberjs/ember-qunit) polished.
 

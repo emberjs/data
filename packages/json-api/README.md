@@ -27,6 +27,15 @@ Install using your javascript package manager of choice. For instance with [pnpm
 pnpm add @ember-data/json-api
 ```
 
+**Tagged Releases**
+
+- ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/json-api/canary?label=%40canary&color=FFBF00)
+- ![NPM Beta Version](https://img.shields.io/npm/v/%40ember-data/json-api/beta?label=%40beta&color=ff00ff)
+- ![NPM Stable Version](https://img.shields.io/npm/v/%40ember-data/json-api/latest?label=%40latest&color=90EE90)
+- ![NPM LTS Version](https://img.shields.io/npm/v/%40ember-data/json-api/lts?label=%40lts&color=0096FF)
+- ![NPM LTS 4.12 Version](https://img.shields.io/npm/v/%40ember-data/json-api/lts-4-12?label=%40lts-4-12&color=bbbbbb)
+
+
 ## Getting Started
 
 If this package is how you are first learning about EmberData, we recommend starting with learning about the [Store](https://github.com/emberjs/data/blob/main/packages/store/README.md) and [Requests](https://github.com/emberjs/data/blob/main/packages/request/README.md)

@@ -1,8 +1,7 @@
 {
   "name": "@warp-drive/schema-record",
   "version": "0.0.0-alpha.37",
-  "private": true,
-  "description": "Never write a Model again",
+  "description": "Schema Driven Resource Presentation for WarpDrive and EmberData",
   "keywords": [
     "ember-addon"
   ],

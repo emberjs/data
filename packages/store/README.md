@@ -55,6 +55,14 @@ pnpm add @ember-data/store
 
 After installing you will want to configure your first `Store`. Read more below for how to create and configure stores for your application.
 
+**Tagged Releases**
+
+- ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/store/canary?label=%40canary&color=FFBF00)
+- ![NPM Beta Version](https://img.shields.io/npm/v/%40ember-data/store/beta?label=%40beta&color=ff00ff)
+- ![NPM Stable Version](https://img.shields.io/npm/v/%40ember-data/store/latest?label=%40latest&color=90EE90)
+- ![NPM LTS Version](https://img.shields.io/npm/v/%40ember-data/store/lts?label=%40lts&color=0096FF)
+- ![NPM LTS 4.12 Version](https://img.shields.io/npm/v/%40ember-data/store/lts-4-12?label=%40lts-4-12&color=bbbbbb)
+
 
 ## 🔨 Creating A Store
 
