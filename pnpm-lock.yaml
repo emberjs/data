@@ -37,8 +37,8 @@ importers:
   .:
     dependencies:
       turbo:
-        specifier: ^1.13.0
-        version: 1.13.0
+        specifier: ^1.13.1
+        version: 1.13.2
     devDependencies:
       '@babel/core':
         specifier: ^7.24.3
@@ -18282,64 +18282,64 @@ packages:
     dev: true
     optional: true
 
-  /turbo-darwin-64@1.13.0:
-    resolution: {integrity: sha512-ctHeJXtQgBcgxnCXwrJTGiq57HtwF7zWz5NTuSv//5yeU01BtQIt62ArKfjudOhRefWJbX3Z5srn88XTb9hfww==}
+  /turbo-darwin-64@1.13.2:
+    resolution: {integrity: sha512-CCSuD8CfmtncpohCuIgq7eAzUas0IwSbHfI8/Q3vKObTdXyN8vAo01gwqXjDGpzG9bTEVedD0GmLbD23dR0MLA==}
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
     dev: false
     optional: true
 
-  /turbo-darwin-arm64@1.13.0:
-    resolution: {integrity: sha512-/Q9/pNFkF9w83tNxwMpgapwLYdQ12p8mpty2YQRoUiS9ClWkcqe136jR0mtuMqzlNlpREOFZaoyIthjt6Sdo0g==}
+  /turbo-darwin-arm64@1.13.2:
+    resolution: {integrity: sha512-0HySm06/D2N91rJJ89FbiI/AodmY8B3WDSFTVEpu2+8spUw7hOJ8okWOT0e5iGlyayUP9gr31eOeL3VFZkpfCw==}
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
     dev: false
     optional: true
 
-  /turbo-linux-64@1.13.0:
-    resolution: {integrity: sha512-hgbT7o020BGV4L7Sd8hhFTd5zVKPKxbsr0dPfel/9NkdTmptz2aGZ0Vb2MAa18SY3XaCQpDxmdYuOzvvRpo5ZA==}
+  /turbo-linux-64@1.13.2:
+    resolution: {integrity: sha512-7HnibgbqZrjn4lcfIouzlPu8ZHSBtURG4c7Bedu7WJUDeZo+RE1crlrQm8wuwO54S0siYqUqo7GNHxu4IXbioQ==}
     cpu: [x64]
     os: [linux]
     requiresBuild: true
     dev: false
     optional: true
 
-  /turbo-linux-arm64@1.13.0:
-    resolution: {integrity: sha512-WK01i2wDZARrV+HEs495A3hNeGMwQR5suYk7G+ceqqW7b+dOTlQdvUjnI3sg7wAnZPgjafFs/hoBaZdJjVa/nw==}
+  /turbo-linux-arm64@1.13.2:
+    resolution: {integrity: sha512-sUq4dbpk6SNKg/Hkwn256Vj2AEYSQdG96repio894h5/LEfauIK2QYiC/xxAeW3WBMc6BngmvNyURIg7ltrePg==}
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
     dev: false
     optional: true
 
-  /turbo-windows-64@1.13.0:
-    resolution: {integrity: sha512-hJgSZJZwlWHNwLEthaqJqJWGm4NqF5X/I7vE0sPE4i/jeDl8f0n1hcOkgJkJiNXVxhj+qy/9+4dzbPLKT9imaQ==}
+  /turbo-windows-64@1.13.2:
+    resolution: {integrity: sha512-DqzhcrciWq3dpzllJR2VVIyOhSlXYCo4mNEWl98DJ3FZ08PEzcI3ceudlH6F0t/nIcfSItK1bDP39cs7YoZHEA==}
     cpu: [x64]
     os: [win32]
     requiresBuild: true
     dev: false
     optional: true
 
-  /turbo-windows-arm64@1.13.0:
-    resolution: {integrity: sha512-L/ErxYoXeq8tmjU/AIGicC9VyBN1zdYw8JlM4yPmMI0pJdY8E4GaYK1IiIazqq7M72lmQhU/WW7fV9FqEktwrw==}
+  /turbo-windows-arm64@1.13.2:
+    resolution: {integrity: sha512-WnPMrwfCXxK69CdDfS1/j2DlzcKxSmycgDAqV0XCYpK/812KB0KlvsVAt5PjEbZGXkY88pCJ1BLZHAjF5FcbqA==}
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
     dev: false
     optional: true
 
-  /turbo@1.13.0:
-    resolution: {integrity: sha512-r02GtNmkOPcQvUzVE6lg474QVLyU02r3yh3lUGqrFHf5h5ZEjgDGWILsAUqplVqjri1Y/oOkTssks4CObTAaiw==}
+  /turbo@1.13.2:
+    resolution: {integrity: sha512-rX/d9f4MgRT3yK6cERPAkfavIxbpBZowDQpgvkYwGMGDQ0Nvw1nc0NVjruE76GrzXQqoxR1UpnmEP54vBARFHQ==}
     hasBin: true
     optionalDependencies:
-      turbo-darwin-64: 1.13.0
-      turbo-darwin-arm64: 1.13.0
-      turbo-linux-64: 1.13.0
-      turbo-linux-arm64: 1.13.0
-      turbo-windows-64: 1.13.0
-      turbo-windows-arm64: 1.13.0
+      turbo-darwin-64: 1.13.2
+      turbo-darwin-arm64: 1.13.2
+      turbo-linux-64: 1.13.2
+      turbo-linux-arm64: 1.13.2
+      turbo-windows-64: 1.13.2
+      turbo-windows-arm64: 1.13.2
     dev: false
 
   /tv4@1.3.0:
@@ -19198,7 +19198,7 @@ packages:
     resolution: {directory: packages/-ember-data, type: directory}
     id: file:packages/-ember-data
     name: ember-data
-    engines: {node: '>= 18.19.1'}
+    engines: {node: '>= 18.20.1'}
     peerDependencies:
       '@ember/string': 3.1.1
     dependencies:
@@ -19237,7 +19237,7 @@ packages:
     resolution: {directory: packages/active-record, type: directory}
     id: file:packages/active-record
     name: '@ember-data/active-record'
-    engines: {node: '>= 18.19.1'}
+    engines: {node: '>= 18.20.1'}
     peerDependencies:
       '@ember-data/request-utils': workspace:5.4.0-alpha.50
       '@ember-data/store': ^4.12.0 || ^5.0.0
@@ -19260,7 +19260,7 @@ packages:
     resolution: {directory: packages/adapter, type: directory}
     id: file:packages/adapter
     name: '@ember-data/adapter'
-    engines: {node: '>= 18.19.1'}
+    engines: {node: '>= 18.20.1'}
     peerDependencies:
       '@ember-data/legacy-compat': workspace:5.4.0-alpha.50
       '@ember-data/store': workspace:5.4.0-alpha.50
@@ -19286,7 +19286,7 @@ packages:
     resolution: {directory: packages/core-types, type: directory}
     id: file:packages/core-types
     name: '@warp-drive/core-types'
-    engines: {node: '>= 18.19.1'}
+    engines: {node: '>= 18.20.1'}
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra(@glint/template@1.4.0)
       ember-cli-babel: 8.2.0(@babel/core@7.24.3)
@@ -19299,7 +19299,7 @@ packages:
     resolution: {directory: packages/debug, type: directory}
     id: file:packages/debug
     name: '@ember-data/debug'
-    engines: {node: '>= 18.19.1'}
+    engines: {node: '>= 18.20.1'}
     peerDependencies:
       '@ember-data/store': workspace:5.4.0-alpha.50
       '@ember/string': 3.1.1
@@ -19327,7 +19327,7 @@ packages:
     resolution: {directory: packages/diagnostic, type: directory}
     id: file:packages/diagnostic
     name: '@warp-drive/diagnostic'
-    engines: {node: '>= 18.19.1'}
+    engines: {node: '>= 18.20.1'}
     peerDependencies:
       '@ember/test-helpers': '>= 3.3.0'
       '@embroider/addon-shim': '>= 1.8.7'
@@ -19354,7 +19354,7 @@ packages:
     resolution: {directory: packages/ember, type: directory}
     id: file:packages/ember
     name: '@warp-drive/ember'
-    engines: {node: '>= 18.19.1'}
+    engines: {node: '>= 18.20.1'}
     peerDependencies:
       '@ember-data/request': ^4.12.7 || > 5.3.3
       '@ember-data/store': ^4.12.7 || > 5.3.3
@@ -19384,7 +19384,7 @@ packages:
     resolution: {directory: packages/graph, type: directory}
     id: file:packages/graph
     name: '@ember-data/graph'
-    engines: {node: '>= 18.19.1'}
+    engines: {node: '>= 18.20.1'}
     peerDependencies:
       '@ember-data/store': workspace:5.4.0-alpha.50
       '@warp-drive/core-types': workspace:0.0.0-alpha.36
@@ -19404,7 +19404,7 @@ packages:
     resolution: {directory: packages/holodeck, type: directory}
     id: file:packages/holodeck
     name: '@warp-drive/holodeck'
-    engines: {node: '>= 18.19.1'}
+    engines: {node: '>= 18.20.1'}
     hasBin: true
     peerDependencies:
       '@ember-data/request': workspace:5.4.0-alpha.50
@@ -19426,7 +19426,7 @@ packages:
     resolution: {directory: packages/json-api, type: directory}
     id: file:packages/json-api
     name: '@ember-data/json-api'
-    engines: {node: '>= 18.19.1'}
+    engines: {node: '>= 18.20.1'}
     peerDependencies:
       '@ember-data/graph': workspace:5.4.0-alpha.50
       '@ember-data/request-utils': workspace:5.4.0-alpha.50
@@ -19455,7 +19455,7 @@ packages:
     resolution: {directory: packages/legacy-compat, type: directory}
     id: file:packages/legacy-compat
     name: '@ember-data/legacy-compat'
-    engines: {node: '>= 18.19.1'}
+    engines: {node: '>= 18.20.1'}
     peerDependencies:
       '@ember-data/graph': workspace:5.4.0-alpha.50
       '@ember-data/json-api': workspace:5.4.0-alpha.50
@@ -19486,7 +19486,7 @@ packages:
     resolution: {directory: packages/legacy-compat, type: directory}
     id: file:packages/legacy-compat
     name: '@ember-data/legacy-compat'
-    engines: {node: '>= 18.19.1'}
+    engines: {node: '>= 18.20.1'}
     peerDependencies:
       '@ember-data/graph': workspace:5.4.0-alpha.50
       '@ember-data/json-api': workspace:5.4.0-alpha.50
@@ -19516,7 +19516,7 @@ packages:
     resolution: {directory: packages/model, type: directory}
     id: file:packages/model
     name: '@ember-data/model'
-    engines: {node: '>= 18.19.1'}
+    engines: {node: '>= 18.20.1'}
     peerDependencies:
       '@ember-data/debug': workspace:5.4.0-alpha.50
       '@ember-data/graph': workspace:5.4.0-alpha.50
@@ -19561,7 +19561,7 @@ packages:
     resolution: {directory: packages/model, type: directory}
     id: file:packages/model
     name: '@ember-data/model'
-    engines: {node: '>= 18.19.1'}
+    engines: {node: '>= 18.20.1'}
     peerDependencies:
       '@ember-data/debug': workspace:5.4.0-alpha.50
       '@ember-data/graph': workspace:5.4.0-alpha.50
@@ -19605,7 +19605,7 @@ packages:
     resolution: {directory: packages/private-build-infra, type: directory}
     id: file:packages/private-build-infra
     name: '@ember-data/private-build-infra'
-    engines: {node: '>= 18.19.1'}
+    engines: {node: '>= 18.20.1'}
     dependencies:
       '@babel/core': 7.24.3(supports-color@8.1.1)
       '@babel/plugin-transform-block-scoping': 7.24.1(@babel/core@7.24.3)
@@ -19637,7 +19637,7 @@ packages:
     resolution: {directory: packages/request, type: directory}
     id: file:packages/request
     name: '@ember-data/request'
-    engines: {node: '>= 18.19.1'}
+    engines: {node: '>= 18.20.1'}
     peerDependencies:
       '@warp-drive/core-types': workspace:0.0.0-alpha.36
     dependencies:
@@ -19655,7 +19655,7 @@ packages:
     resolution: {directory: packages/request-utils, type: directory}
     id: file:packages/request-utils
     name: '@ember-data/request-utils'
-    engines: {node: '>= 18.19.1'}
+    engines: {node: '>= 18.20.1'}
     peerDependencies:
       '@warp-drive/core-types': workspace:0.0.0-alpha.36
     dependencies:
@@ -19669,7 +19669,7 @@ packages:
     resolution: {directory: packages/rest, type: directory}
     id: file:packages/rest
     name: '@ember-data/rest'
-    engines: {node: '>= 18.19.1'}
+    engines: {node: '>= 18.20.1'}
     peerDependencies:
       '@ember-data/request-utils': workspace:5.4.0-alpha.50
       '@ember-data/store': ^4.12.0 || ^5.0.0
@@ -19692,7 +19692,7 @@ packages:
     resolution: {directory: packages/schema-record, type: directory}
     id: file:packages/schema-record
     name: '@warp-drive/schema-record'
-    engines: {node: '>= 18.19.1'}
+    engines: {node: '>= 18.20.1'}
     peerDependencies:
       '@ember-data/store': workspace:5.4.0-alpha.50
       '@ember-data/tracking': workspace:5.4.0-alpha.50
@@ -19715,7 +19715,7 @@ packages:
     resolution: {directory: packages/serializer, type: directory}
     id: file:packages/serializer
     name: '@ember-data/serializer'
-    engines: {node: '>= 18.19.1'}
+    engines: {node: '>= 18.20.1'}
     peerDependencies:
       '@ember-data/legacy-compat': workspace:5.4.0-alpha.50
       '@ember/string': 3.1.1
@@ -19739,7 +19739,7 @@ packages:
     resolution: {directory: packages/store, type: directory}
     id: file:packages/store
     name: '@ember-data/store'
-    engines: {node: '>= 18.19.1'}
+    engines: {node: '>= 18.20.1'}
     peerDependencies:
       '@ember-data/request': workspace:5.4.0-alpha.50
       '@ember-data/tracking': workspace:5.4.0-alpha.50
@@ -19762,7 +19762,7 @@ packages:
     resolution: {directory: packages/tracking, type: directory}
     id: file:packages/tracking
     name: '@ember-data/tracking'
-    engines: {node: '>= 18.19.1'}
+    engines: {node: '>= 18.20.1'}
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra(@glint/template@1.4.0)
       '@embroider/macros': 1.15.0(@glint/template@1.4.0)
@@ -19776,7 +19776,7 @@ packages:
     resolution: {directory: packages/unpublished-test-infra, type: directory}
     id: file:packages/unpublished-test-infra
     name: '@ember-data/unpublished-test-infra'
-    engines: {node: '>= 18.19.1'}
+    engines: {node: '>= 18.20.1'}
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra(@glint/template@1.4.0)
       '@ember-data/request': file:packages/request(@babel/core@7.24.3)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.36)
@@ -19872,7 +19872,7 @@ packages:
     resolution: {directory: packages/unpublished-test-infra, type: directory}
     id: file:packages/unpublished-test-infra
     name: '@ember-data/unpublished-test-infra'
-    engines: {node: '>= 18.19.1'}
+    engines: {node: '>= 18.20.1'}
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra(@glint/template@1.4.0)
       '@ember-data/request': file:packages/request(@babel/core@7.24.3)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.36)

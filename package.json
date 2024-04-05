@@ -57,7 +57,7 @@
     "zlib": "1.0.5"
   },
   "dependencies": {
-    "turbo": "^1.13.0"
+    "turbo": "^1.13.1"
   },
   "engines": {
     "node": ">= 18.20.1",
