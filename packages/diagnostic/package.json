@@ -106,7 +106,7 @@
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.51",
-    "bun-types": "^1.0.35",
+    "bun-types": "^1.1.0",
     "@ember/test-helpers": "^3.3.0",
     "ember-source": "~5.7.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
