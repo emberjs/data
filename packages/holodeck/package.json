@@ -1,7 +1,7 @@
 {
   "name": "@warp-drive/holodeck",
   "description": "⚡️ Simple, Fast HTTP Mocking for Tests",
-  "version": "0.0.0-alpha.36",
+  "version": "0.0.0-alpha.37",
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "repository": {
@@ -47,8 +47,8 @@
     "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "peerDependencies": {
-    "@ember-data/request": "workspace:5.4.0-alpha.50",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.36"
+    "@ember-data/request": "workspace:5.4.0-alpha.51",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.37"
   },
   "devDependencies": {
     "@babel/cli": "^7.24.1",
@@ -57,12 +57,12 @@
     "@babel/preset-env": "^7.24.3",
     "@babel/preset-typescript": "^7.24.1",
     "@babel/runtime": "^7.24.1",
-    "@ember-data/request": "workspace:5.4.0-alpha.50",
+    "@ember-data/request": "workspace:5.4.0-alpha.51",
     "@embroider/addon-dev": "^4.2.1",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.36",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.50",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.37",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.51",
     "rollup": "^4.13.2",
     "typescript": "^5.4.3",
     "walk-sync": "^3.0.0",
