@@ -46,6 +46,12 @@ Required Packages for Canary Types
 | [@ember-data/tracking](https://github.com/emberjs/data/blob/main/packages/tracking/README.md) | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/tracking/canary?label=&color=90EE90) |
 | [@warp-drive/core-types](https://github.com/emberjs/data/blob/main/packages/core-types/README.md) | ![NPM Canary Version](https://img.shields.io/npm/v/%40warp-drive/core-types/canary?label=&color=90EE90) |
 
+Here's a single install command for pnpm. Swap pnpm for yarn or npm as needed.
+
+```
+pnpm install ember-data@canary @ember-data/adapter@canary @ember-data/graph@canary @ember-data/json-api@canary @ember-data/legacy-compat@canary @ember-data/model@canary @ember-data/request@canary @ember-data/request-utils@canary @ember-data/serializer@canary @ember-data/store@canary @ember-data/tracking@canary @warp-drive/core-types@canary
+```
+
 Here's an example change to package.json which drops all use of types from `@types/` for both Ember and EmberData and adds the appropriate canary packages.
 
 ```diff
@@ -126,6 +132,12 @@ These types-only packages have the same version number as the version they were 
 > [!WARNING]
 > When consuming types in this way, you may sometimes
 > encounter a misalignment between the types and the actual API. These misalignments should be rare for 4.12.* => 5.4.*. Overall, even when these misalignments occur, we suspect there are fewer mistakes or issues with these types than in the DefinitelyTyped types.
+
+Here's a single install command for pnpm. Swap pnpm for yarn or npm as needed.
+
+```
+pnpm install ember-data-types@canary @ember-data-types/adapter@canary @ember-data-types/graph@canary @ember-data-types/json-api@canary @ember-data-types/legacy-compat@canary @ember-data-types/model@canary @ember-data-types/request@canary @ember-data-types/request-utils@canary @ember-data-types/serializer@canary @ember-data-types/store@canary @ember-data-types/tracking@canary @warp-drive-types/core-types@canary
+```
 
 Here's an example change to package.json which drops all use of types from `@types/` for both Ember and EmberData and adds the appropriate canary packages.
 
