@@ -6,13 +6,7 @@ function write($text: string) {
   console.log(chalk.gray($text));
 }
 
-const Scaffolds = [
-  'resource',
-  'trait',
-  'field',
-  'derivation',
-  'transform',
-];
+const Scaffolds = ['resource', 'trait', 'field', 'derivation', 'transform'];
 
 function getRelativePathToRoot($path: string) {
   return `~/${path.relative(os.homedir(), $path)}`;
@@ -30,11 +24,13 @@ async function loadOrCreateConfig(): Promise<Record<string, unknown> & { DID_GEN
   }
 
   const config: Record<string, unknown> = {
-    schemas: "./schemas",
-    "dest": "./dist"
-  }
+    schemas: './schemas',
+    dest: './dist',
+  };
 
-  write(`\n\t🔨 Generating new ${chalk.yellow('schema.json')} configuration file in ${chalk.cyan(getRelativePathToRoot(process.cwd()))}`);
+  write(
+    `\n\t🔨 Generating new ${chalk.yellow('schema.json')} configuration file in ${chalk.cyan(getRelativePathToRoot(process.cwd()))}`
+  );
 
   await Bun.write(filePointer, JSON.stringify(config, null, 2));
   config.DID_GENERATE = true;
@@ -42,12 +38,18 @@ async function loadOrCreateConfig(): Promise<Record<string, unknown> & { DID_GEN
 }
 
 function classify($name: string) {
-  let str = $name.split('-').map((word) => {
-    return word[0].toUpperCase() + word.slice(1);
-  }).join('');
-  str = str.split('_').map((word) => {
-    return word[0].toUpperCase() + word.slice(1);
-  }).join('');
+  let str = $name
+    .split('-')
+    .map((word) => {
+      return word[0].toUpperCase() + word.slice(1);
+    })
+    .join('');
+  str = str
+    .split('_')
+    .map((word) => {
+      return word[0].toUpperCase() + word.slice(1);
+    })
+    .join('');
   str = str[0].toUpperCase() + str.slice(1);
   return str;
 }
@@ -100,7 +102,6 @@ export { ${className} };
 `;
 }
 
-
 function generateResource($type: string) {
   const className = classify(singularize($type));
 
@@ -115,12 +116,13 @@ export { ${className} };
 `;
 }
 
-
 async function main() {
   const args = Bun.argv.slice(2);
   const [resource, name] = args;
 
-  write(`\n\t $ ${chalk.bold(chalk.greenBright('@warp-drive/') + chalk.magentaBright('schema'))} ${chalk.bold('scaffold')} ${resource ?? chalk.red('<mising type>')} ${name ?? chalk.red('<missing name>')}`);
+  write(
+    `\n\t $ ${chalk.bold(chalk.greenBright('@warp-drive/') + chalk.magentaBright('schema'))} ${chalk.bold('scaffold')} ${resource ?? chalk.red('<mising type>')} ${name ?? chalk.red('<missing name>')}`
+  );
 
   if (!Scaffolds.includes(resource)) {
     write(`\n\t${chalk.bold('💥 Error')} ${chalk.white(resource)} is not a valid scaffold.`);
@@ -134,7 +136,8 @@ async function main() {
   }
 
   const config = await loadOrCreateConfig();
-  const relativeWritePath = resource === 'resource' ? `${config.schemas}/${name}.ts` : `${config.schemas}/-${resource}s/${name}.ts`;
+  const relativeWritePath =
+    resource === 'resource' ? `${config.schemas}/${name}.ts` : `${config.schemas}/-${resource}s/${name}.ts`;
 
   const file = Bun.file(path.join(process.cwd(), relativeWritePath));
   const fileExists = await file.exists();
@@ -152,7 +155,9 @@ async function main() {
       break;
   }
 
-  write(`\n\t🔨 Scaffolding new ${chalk.bold(chalk.cyan(name))} ${chalk.bold(chalk.white(resource))} in ${relativeWritePath}...`);
+  write(
+    `\n\t🔨 Scaffolding new ${chalk.bold(chalk.cyan(name))} ${chalk.bold(chalk.white(resource))} in ${relativeWritePath}...`
+  );
   console.log(args);
 }
 

@@ -19,7 +19,7 @@ class UserSetting {
   // @createonly - A createonly field is one that may only be set during create.
   // We use declare to tell TypeScript that this field exists
   // We use the declared type to set the "cache" type for the field (what the API returns)
-  myField: string;
+  myField?: string | null;
   // We use the field decorator to provide a "Transform" function for the field.
   // The transform's return type will be used as the "UI" type for the field.
   // e.g. "Date" instead of "string"
