@@ -105,6 +105,11 @@ Here's an example change to package.json which drops all use of types from `@typ
 
 ### Using Types Packages
 
+> [!WARNING]
+> When consuming types in this way, you may sometimes
+> encounter a misalignment between the types and the actual API. These misalignments should be rare for 4.12.* => 5.4.*. Overall, even when these misalignments occur, we suspect there are fewer mistakes or issues with these types than in the DefinitelyTyped types.
+
+
 Every package in the project that ships types also publishes its types under a second package name.
 This enables older releases to consume these types instead of relying on the DefinitelyTyped project.
 
@@ -128,10 +133,6 @@ These types-only packages have the same version number as the version they were 
 | [@ember-data/store](https://github.com/emberjs/data/blob/main/packages/store/README.md) | @ember-data-types/store | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data-types/store/canary?label=&color=90EE90) |
 | [@ember-data/tracking](https://github.com/emberjs/data/blob/main/packages/tracking/README.md) | @ember-data-types/tracking | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data-types/tracking/canary?label=&color=90EE90) |
 | [@warp-drive/core-types](https://github.com/emberjs/data/blob/main/packages/core-types/README.md) | @warp-drive-types/core-types | ![NPM Canary Version](https://img.shields.io/npm/v/%40warp-drive-types/core-types/canary?label=&color=90EE90) |
-
-> [!WARNING]
-> When consuming types in this way, you may sometimes
-> encounter a misalignment between the types and the actual API. These misalignments should be rare for 4.12.* => 5.4.*. Overall, even when these misalignments occur, we suspect there are fewer mistakes or issues with these types than in the DefinitelyTyped types.
 
 Here's a single install command for pnpm. Swap pnpm for yarn or npm as needed.
 
