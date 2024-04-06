@@ -1,4 +1,4 @@
 {
   "schemas": "./schemas",
-  "dest": "./dist"
+  "dest": "../output"
 }
