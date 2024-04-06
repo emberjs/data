@@ -1,9 +1,27 @@
 import { type TraverseOptions } from '@babel/traverse';
 
+export type FieldSchema = {
+  kind: string;
+  name: string;
+  type: string | null;
+  options: {} | null;
+  typeOptions: {
+    nullable: boolean;
+    required: boolean;
+    optional: boolean;
+    createonly: boolean;
+    readonly: boolean;
+  };
+  typeInfo: {
+    uiType: string;
+    cacheType: string;
+  };
+};
+
 export type Schema = {
   name: string;
   traits: string[];
-  fields: unknown[];
+  fields: FieldSchema[];
 };
 
 export type Context = {
@@ -53,6 +71,29 @@ export function buildTraverse(context: Partial<Context>): TraverseOptions {
         currentClass.fields = path.node.body.body.map((field) => {
           if (field.type !== 'ClassProperty') {
             throw new Error('Schemas may only have fields.');
+          }
+
+          if (field.key.type !== 'Identifier') {
+            throw new Error('Fields must only be string keys.');
+          }
+
+          console.log(field);
+          const fieldSchema = {
+            kind: 'field',
+            name: field.key.name,
+            type: null,
+            options: null,
+            typeOptions: {
+              nullable: false,
+              required: false,
+              optional: false,
+              createonly: false,
+              readonly: false,
+            },
+            typeInfo: {},
+          } as FieldSchema;
+
+          if (field.decorators) {
           }
 
           return field;
