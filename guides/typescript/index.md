@@ -16,7 +16,8 @@ the following two sections
   - [Using Canary](./1-configuration.md#using-canary)
   - [Using Types Packages](./1-configuration.md#using-types-packages)
 - Usage
-  - Typing Models
+  - [Why Brands](./2-why-brands.md)
+  - [Typing Models](./3-typing-models.md)
   - Typing Transforms
   - Typing Requests
   - Typing Builders
