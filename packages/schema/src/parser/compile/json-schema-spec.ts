@@ -1,4 +1,4 @@
-import { ObjectValue, PrimitiveValue } from '../extract-json';
+import { ObjectValue, PrimitiveValue } from '../utils/extract-json';
 
 /**
  * A generic "field" that can be used to define
@@ -563,5 +563,6 @@ export type Schema = {
    * - for inline objects: The pattern `$${ResourceKlassName}.${fieldPath}:$field:anonymous` e.g. `$User.shippingAddress:$field:anonymous`
    */
   '@type': string;
+  traits: string[];
   fields: SchemaField[];
 };

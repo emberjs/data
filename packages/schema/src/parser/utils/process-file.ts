@@ -1,6 +1,46 @@
 import { type TraverseOptions } from '@babel/traverse';
 import { type ClassProperty, type Node } from '@babel/types';
-import { extractJSONObject } from './to-json';
+import { extractJSONObject } from './extract-json';
+import path from 'path';
+
+import babel from '@babel/parser';
+import _traverse from '@babel/traverse';
+
+// bun compile has a bug where traverse gets unwrapped improperly
+// so we have to manually grab the default export
+const traverse = (_traverse as unknown as { default: typeof _traverse }).default;
+
+function normalizeResourceType(fileName: string) {
+  const dirname = path.dirname(fileName);
+  const [resourceType] = path.basename(fileName).split('.');
+
+  const fullType = dirname === '.' ? resourceType : `${dirname}/${resourceType}`;
+  const matchType = resourceType;
+  const FullKlassType = fullType
+    .split('-')
+    .map((word) => {
+      return word[0].toUpperCase() + word.slice(1);
+    })
+    .join('')
+    .split('/')
+    .map((word) => {
+      return word[0].toUpperCase() + word.slice(1);
+    })
+    .join('');
+  const KlassType = matchType
+    .split('-')
+    .map((word) => {
+      return word[0].toUpperCase() + word.slice(1);
+    })
+    .join('');
+
+  return {
+    fullType,
+    matchType,
+    KlassType,
+    FullKlassType,
+  };
+}
 
 // TODO do this via import matching
 const TypeDecorators = new Set(['createonly', 'optional', 'readonly', 'nullable', 'readonly'] as const);
@@ -101,20 +141,16 @@ export type SchemaSource = {
   source: string;
 };
 export type SchemaModule = {
+  $potentialPrimaryResourceType: ReturnType<typeof normalizeResourceType>;
   externals: SchemaSource[];
   internal: Schema[];
+  inline: Schema[];
   exports: Schema[];
 };
 
-export type Context = {
-  klasses: Map<string, Schema>;
-};
+export function buildTraverse(schemModule: SchemaModule): TraverseOptions {
+  let currentClass: Schema | null = null;
 
-export function buildTraverse(context: Partial<Context>): TraverseOptions {
-  const klasses = new Map<string, Schema>();
-  context.klasses = klasses;
-
-  let currentClass = {} as Schema;
   return {
     FunctionDeclaration() {
       throw new Error('Functions are not allowed in schemas.');
@@ -125,7 +161,6 @@ export function buildTraverse(context: Partial<Context>): TraverseOptions {
 
     ClassDeclaration: {
       enter(path) {
-        console.log('entering');
         currentClass = {} as Schema;
 
         // gather name
@@ -207,9 +242,27 @@ export function buildTraverse(context: Partial<Context>): TraverseOptions {
         });
       },
       exit(path) {
-        console.log('exiting');
         console.dir(currentClass, { depth: 10 });
       },
     },
   };
+}
+
+export async function parseSchemaFile(fileName: string, $contents: string): Promise<SchemaModule> {
+  const $potentialPrimaryResourceType = normalizeResourceType(fileName);
+  const ast = babel.parse($contents, {
+    sourceType: 'module',
+    plugins: ['classProperties', 'classPrivateProperties', 'classStaticBlock', ['typescript', {}], ['decorators', {}]],
+  });
+
+  const context = {
+    $potentialPrimaryResourceType,
+    externals: [],
+    internal: [],
+    inline: [],
+    exports: [],
+  };
+  traverse(ast, buildTraverse(context));
+
+  return context;
 }
