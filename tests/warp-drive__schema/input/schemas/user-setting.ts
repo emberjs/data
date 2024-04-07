@@ -23,7 +23,14 @@ class UserSetting {
   // We use the field decorator to provide a "Transform" function for the field.
   // The transform's return type will be used as the "UI" type for the field.
   // e.g. "Date" instead of "string"
-  @field(Luxon, {}) someDateField;
+  @field(Luxon, {
+    inverse: 'post',
+    value: null,
+    aNumber: 1,
+    aThing: [],
+    anotherThing: {},
+  })
+  someDateField;
   // We use the collection decorator to create a linkage to a collection of other resources
   @collection(Comment, { inverse: 'post' }) comments;
   // We use the resource decorator to create a linkage to another resource

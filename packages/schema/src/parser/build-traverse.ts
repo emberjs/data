@@ -1,5 +1,6 @@
 import { type TraverseOptions } from '@babel/traverse';
 import { type ClassProperty, type Node } from '@babel/types';
+import { extractJSONObject } from './to-json';
 
 // TODO do this via import matching
 const TypeDecorators = new Set(['createonly', 'optional', 'readonly', 'nullable', 'readonly'] as const);
@@ -22,6 +23,11 @@ function numToIndexStr(num: number): string {
   }
 }
 
+/**
+ * Extracts the type signature from a ClassProperty
+ *
+ * @typedoc
+ */
 function extractType(field: ClassProperty) {
   if (field.typeAnnotation) {
     if (field.typeAnnotation.type !== 'TSTypeAnnotation') {
@@ -38,6 +44,9 @@ function extractType(field: ClassProperty) {
   return null;
 }
 
+/**
+ * Extracts the value of the first argument of a decorator
+ */
 function extractFieldType(node: Node) {
   if (!node) {
     return null;
@@ -52,25 +61,15 @@ function extractFieldType(node: Node) {
   throw new Error('Only Identifier is supported.');
 }
 
+/**
+ * Extracts the value of the second argument of a decorator,
+ * which is expected to be an object literal
+ */
 function extractOptions(node: Node) {
   if (!node) {
     return null;
   }
-  if (node.type === 'ObjectExpression') {
-    const properties: Record<string, unknown> = {};
-    node.properties.forEach((property) => {
-      if (property.type !== 'ObjectProperty') {
-        throw new Error('Only ObjectProperty is supported.');
-      }
-      if (property.key.type !== 'Identifier') {
-        throw new Error('Only Identifier is supported.');
-      }
-      properties[property.key.name] = property.value;
-    });
-    return properties;
-  }
-  console.log(node);
-  throw new Error('Only ObjectExpression is supported.');
+  return extractJSONObject(node);
 }
 
 export type FieldSchema = {
@@ -94,6 +93,17 @@ export type Schema = {
   name: string;
   traits: string[];
   fields: FieldSchema[];
+};
+export type SchemaSource = {
+  type: 'trait' | 'schema' | 'decorator';
+  imported: string;
+  local: string;
+  source: string;
+};
+export type SchemaModule = {
+  externals: SchemaSource[];
+  internal: Schema[];
+  exports: Schema[];
 };
 
 export type Context = {
