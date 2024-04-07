@@ -62,7 +62,7 @@
     "@warp-drive/diagnostic": "workspace:0.0.0-alpha.38",
     "@warp-drive/holodeck": "workspace:0.0.0-alpha.38",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.52",
-    "bun-types": "^1.1.0",
+    "bun-types": "^1.1.1",
     "ember-auto-import": "^2.7.2",
     "ember-cli": "~5.7.0",
     "ember-cli-babel": "^8.2.0",
