@@ -47,11 +47,11 @@
     "lerna-changelog": "^2.2.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "prettier": "^3.2.5",
-    "prettier-plugin-ember-template-tag": "^2.0.1",
+    "prettier-plugin-ember-template-tag": "^2.0.2",
     "rimraf": "^5.0.5",
     "semver": "^7.6.0",
     "silent-error": "^1.1.1",
-    "typescript": "^5.4.3",
+    "typescript": "^5.4.4",
     "url": "^0.11.3",
     "yuidocjs": "^0.10.2",
     "zlib": "1.0.5"
