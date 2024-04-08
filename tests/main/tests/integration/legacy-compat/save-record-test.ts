@@ -222,8 +222,8 @@ module('Integration - legacy-compat/builders/saveRecord', function (hooks) {
       const { content: savedPost } = await store.request<Post>(saveRecord(existingPost));
 
       assert.strictEqual(savedPost.id, '1', 'post has correct id');
-      assert.strictEqual(savedPost.name, 'Krystan rules, you drool', 'post has correct name');
-      assert.true(savedPost.isDeleted, 'post isDeleted');
+      assert.strictEqual(savedPost.name, 'Chris drools, Krystan rules', 'post has correct name');
+      assert.false(savedPost.isDeleted, 'post is not deleted');
       assert.verifySteps(['adapter-updateRecord'], 'adapter-updateRecord was called');
     });
 
