@@ -30,8 +30,8 @@ type QueryBuilderOptions = QueryOptions;
   This is useful for quickly upgrading an entire app to a unified syntax while a longer incremental migration is made to shift off of adapters and serializers.
   To that end, these builders are deprecated and will be removed in a future version of Ember Data.
 
-  @deprecated
   @method query
+  @deprecated
   @public
   @static
   @for @ember-data/legacy-compat/builders
@@ -91,8 +91,8 @@ type QueryRecordRequestInput = StoreRequestInput & {
   This is useful for quickly upgrading an entire app to a unified syntax while a longer incremental migration is made to shift off of adapters and serializers.
   To that end, these builders are deprecated and will be removed in a future version of Ember Data.
 
-  @deprecated
   @method queryRecord
+  @deprecated
   @public
   @static
   @for @ember-data/legacy-compat/builders
