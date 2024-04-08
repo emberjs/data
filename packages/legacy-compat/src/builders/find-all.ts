@@ -10,7 +10,7 @@ import { SkipCache } from '@warp-drive/core-types/request';
 
 import { normalizeModelName } from './utils';
 
-export type FindAllRequestInput = StoreRequestInput & {
+type FindAllRequestInput = StoreRequestInput & {
   op: 'findAll';
   data: {
     type: string;
@@ -18,7 +18,7 @@ export type FindAllRequestInput = StoreRequestInput & {
   };
 };
 
-export type FindAllBuilderOptions = FindAllOptions;
+type FindAllBuilderOptions = FindAllOptions;
 
 /**
   This function builds a request config to perform a `findAll` request for the given type.

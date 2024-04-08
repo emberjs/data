@@ -3,7 +3,6 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import type { CompatStore } from '@ember-data/legacy-compat';
-import type { SaveRecordBuilderOptions } from '@ember-data/legacy-compat/builders';
 import { saveRecord } from '@ember-data/legacy-compat/builders';
 import Model, { attr } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
@@ -11,6 +10,8 @@ import { recordIdentifierFor } from '@ember-data/store';
 class Post extends Model {
   @attr declare name: string;
 }
+
+type SaveRecordBuilderOptions = Exclude<Parameters<typeof saveRecord>[1], undefined>;
 
 module('Integration - legacy-compat/builders/saveRecord', function (hooks) {
   setupTest(hooks);

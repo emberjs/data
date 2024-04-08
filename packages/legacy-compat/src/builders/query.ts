@@ -10,7 +10,7 @@ import { SkipCache } from '@warp-drive/core-types/request';
 
 import { normalizeModelName } from './utils';
 
-export type QueryRequestInput = StoreRequestInput & {
+type QueryRequestInput = StoreRequestInput & {
   op: 'query';
   data: {
     type: string;
@@ -19,7 +19,7 @@ export type QueryRequestInput = StoreRequestInput & {
   };
 };
 
-export type QueryBuilderOptions = QueryOptions;
+type QueryBuilderOptions = QueryOptions;
 
 /**
   This function builds a request config for a given type and query object.
@@ -73,7 +73,7 @@ export function queryBuilder(
   };
 }
 
-export type QueryRecordRequestInput = StoreRequestInput & {
+type QueryRecordRequestInput = StoreRequestInput & {
   op: 'queryRecord';
   data: {
     type: string;

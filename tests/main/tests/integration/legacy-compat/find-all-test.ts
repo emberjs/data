@@ -3,9 +3,10 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import type { CompatStore } from '@ember-data/legacy-compat';
-import type { QueryBuilderOptions } from '@ember-data/legacy-compat/builders';
 import { findAll } from '@ember-data/legacy-compat/builders';
 import Model, { attr } from '@ember-data/model';
+
+type FindAllBuilderOptions = Exclude<Parameters<typeof findAll>[1], undefined>;
 
 module('Integration - legacy-compat/builders/findAll', function (hooks) {
   setupTest(hooks);
@@ -64,8 +65,10 @@ module('Integration - legacy-compat/builders/findAll', function (hooks) {
   });
 
   test('findAll with options', function (assert) {
-    const options: Required<QueryBuilderOptions> = {
-      whatever: true,
+    const options: Required<FindAllBuilderOptions> = {
+      reload: true,
+      backgroundReload: false,
+      include: 'author,comments',
       adapterOptions: {},
     };
     const result = findAll('post', options);

@@ -3,9 +3,11 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import type { CompatStore } from '@ember-data/legacy-compat';
-import type { QueryBuilderOptions } from '@ember-data/legacy-compat/builders';
 import { query, queryRecord } from '@ember-data/legacy-compat/builders';
 import Model, { attr } from '@ember-data/model';
+
+type QueryBuilderOptions = Exclude<Parameters<typeof query>[2], undefined>;
+type QueryRecordBuilderOptions = Exclude<Parameters<typeof queryRecord>[2], undefined>;
 
 module('Integration - legacy-compat/builders/query', function (hooks) {
   setupTest(hooks);
@@ -140,7 +142,7 @@ module('Integration - legacy-compat/builders/query', function (hooks) {
     });
 
     test('queryRecord with options', function (assert) {
-      const options: Required<QueryBuilderOptions> = {
+      const options: Required<QueryRecordBuilderOptions> = {
         whatever: true,
         adapterOptions: {},
       };

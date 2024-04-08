@@ -3,10 +3,11 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import type { CompatStore } from '@ember-data/legacy-compat';
-import type { FindRecordBuilderOptions } from '@ember-data/legacy-compat/builders';
 import { findRecord } from '@ember-data/legacy-compat/builders';
 import Model, { attr } from '@ember-data/model';
 import type { FindRecordOptions } from '@ember-data/store/-types/q/store';
+
+type FindRecordBuilderOptions = Exclude<Parameters<typeof findRecord>[1], undefined>;
 
 module('Integration - legacy-compat/builders/findRecord', function (hooks) {
   setupTest(hooks);

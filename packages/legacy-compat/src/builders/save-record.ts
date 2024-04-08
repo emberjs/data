@@ -9,7 +9,7 @@ import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import { SkipCache } from '@warp-drive/core-types/request';
 
-export type SaveRecordRequestInput = StoreRequestInput & {
+type SaveRecordRequestInput = StoreRequestInput & {
   op: 'createRecord' | 'deleteRecord' | 'updateRecord';
   data: {
     record: StableRecordIdentifier;
@@ -18,7 +18,7 @@ export type SaveRecordRequestInput = StoreRequestInput & {
   records: [StableRecordIdentifier];
 };
 
-export type SaveRecordBuilderOptions = Record<string, unknown>;
+type SaveRecordBuilderOptions = Record<string, unknown>;
 
 function _resourceIsFullDeleted(identifier: StableRecordIdentifier, cache: Cache): boolean {
   return cache.isDeletionCommitted(identifier) || (cache.isNew(identifier) && cache.isDeleted(identifier));

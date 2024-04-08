@@ -12,7 +12,7 @@ import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
 
 import { isMaybeIdentifier, normalizeModelName } from './utils';
 
-export type FindRecordRequestInput = StoreRequestInput & {
+type FindRecordRequestInput = StoreRequestInput & {
   op: 'findRecord';
   data: {
     record: ResourceIdentifierObject;
@@ -20,7 +20,7 @@ export type FindRecordRequestInput = StoreRequestInput & {
   };
 };
 
-export type FindRecordBuilderOptions = Omit<FindRecordOptions, 'preload'>;
+type FindRecordBuilderOptions = Omit<FindRecordOptions, 'preload'>;
 
 /**
   This function builds a request config to find the record for a given identifier or type and id combination.
