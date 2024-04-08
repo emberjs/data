@@ -33,7 +33,7 @@ import type { ModelSchema } from '../-types/q/ds-model';
 import type { OpaqueRecordInstance } from '../-types/q/record-instance';
 import type { SchemaService } from '../-types/q/schema-service';
 import type { FindAllOptions, FindRecordOptions, QueryOptions } from '../-types/q/store';
-import type { LifetimesService, StoreRequestContext, StoreRequestInput } from './cache-handler';
+import type { LifetimesService, StoreRequestInput } from './cache-handler';
 import { IdentifierCache } from './caches/identifier-cache';
 import {
   InstanceCache,
