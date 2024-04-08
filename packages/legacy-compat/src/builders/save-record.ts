@@ -34,6 +34,11 @@ function resourceIsFullyDeleted(instanceCache: InstanceCache, identifier: Stable
   When passed to `store.request`, this config will result in the same behavior as a legacy `store.saveRecord` request.
   Additionally, it takes the same options as `store.saveRecord`.
 
+  All `@ember-data/legacy-compat` builders exist to enable you to migrate your codebase to using the correct syntax for `store.request` while temporarily preserving legacy behaviors.
+  This is useful for quickly upgrading an entire app to a unified syntax while a longer incremental migration is made to shift off of adapters and serializers.
+  To that end, these builders are deprecated and will be removed in a future version of Ember Data.
+
+  @deprecated
   @method saveRecord
   @public
   @static
