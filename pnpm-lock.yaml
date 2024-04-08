@@ -48,7 +48,7 @@ importers:
         version: 1.1.2(@babel/core@7.24.3)
       '@glint/core':
         specifier: ^1.4.0
-        version: 1.4.0(typescript@5.4.3)
+        version: 1.4.0(typescript@5.4.4)
       '@glint/environment-ember-loose':
         specifier: ^1.4.0
         version: 1.4.0(@glimmer/component@1.1.2)(@glint/template@1.4.0)(ember-cli-htmlbars@6.3.0)
@@ -98,8 +98,8 @@ importers:
         specifier: ^3.2.5
         version: 3.2.5
       prettier-plugin-ember-template-tag:
-        specifier: ^2.0.1
-        version: 2.0.1(prettier@3.2.5)
+        specifier: ^2.0.2
+        version: 2.0.2(prettier@3.2.5)
       rimraf:
         specifier: ^5.0.5
         version: 5.0.5
@@ -110,8 +110,8 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       url:
         specifier: ^0.11.3
         version: 0.11.3
@@ -135,10 +135,10 @@ importers:
         version: 7.24.1(@babel/core@7.24.3)
       '@typescript-eslint/eslint-plugin':
         specifier: ^7.5.0
-        version: 7.5.0(@typescript-eslint/parser@7.5.0)(eslint@8.57.0)(typescript@5.4.3)
+        version: 7.5.0(@typescript-eslint/parser@7.5.0)(eslint@8.57.0)(typescript@5.4.4)
       '@typescript-eslint/parser':
         specifier: ^7.5.0
-        version: 7.5.0(eslint@8.57.0)(typescript@5.4.3)
+        version: 7.5.0(eslint@8.57.0)(typescript@5.4.4)
       eslint:
         specifier: ^8.57.0
         version: 8.57.0
@@ -161,8 +161,8 @@ importers:
         specifier: ^12.0.0
         version: 12.0.0(eslint@8.57.0)
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
 
   packages/-ember-data:
     dependencies:
@@ -224,8 +224,8 @@ importers:
         specifier: ^4.0.2
         version: 4.0.2(@babel/core@7.24.3)
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       webpack:
         specifier: ^5.91.0
         version: 5.91.0
@@ -365,8 +365,8 @@ importers:
         specifier: ^4.13.2
         version: 4.14.0
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       walk-sync:
         specifier: ^3.0.0
         version: 3.0.0
@@ -489,8 +489,8 @@ importers:
         specifier: ^4.13.2
         version: 4.14.0
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       walk-sync:
         specifier: ^3.0.0
         version: 3.0.0
@@ -585,8 +585,8 @@ importers:
         specifier: ^4.13.2
         version: 4.14.0
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       walk-sync:
         specifier: ^3.0.0
         version: 3.0.0
@@ -732,8 +732,8 @@ importers:
         specifier: ^4.13.2
         version: 4.14.0
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       walk-sync:
         specifier: ^3.0.0
         version: 3.0.0
@@ -806,7 +806,7 @@ importers:
         version: 0.89.0
       '@glint/core':
         specifier: ^1.4.0
-        version: 1.4.0(typescript@5.4.3)
+        version: 1.4.0(typescript@5.4.4)
       '@glint/environment-ember-loose':
         specifier: ^1.4.0
         version: 1.4.0(@glimmer/component@1.1.2)(@glint/template@1.4.0)(ember-cli-htmlbars@6.3.0)
@@ -847,8 +847,8 @@ importers:
         specifier: ^4.13.2
         version: 4.14.0
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       walk-sync:
         specifier: ^3.0.0
         version: 3.0.0
@@ -953,8 +953,8 @@ importers:
         specifier: ^4.13.2
         version: 4.14.0
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       walk-sync:
         specifier: ^3.0.0
         version: 3.0.0
@@ -1033,8 +1033,8 @@ importers:
         specifier: ^4.13.2
         version: 4.14.0
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       walk-sync:
         specifier: ^3.0.0
         version: 3.0.0
@@ -1138,8 +1138,8 @@ importers:
         specifier: ^4.13.2
         version: 4.14.0
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       walk-sync:
         specifier: ^3.0.0
         version: 3.0.0
@@ -1260,8 +1260,8 @@ importers:
         specifier: ^4.13.2
         version: 4.14.0
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       walk-sync:
         specifier: ^3.0.0
         version: 3.0.0
@@ -1402,8 +1402,8 @@ importers:
         specifier: ^4.13.2
         version: 4.14.0
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       walk-sync:
         specifier: ^3.0.0
         version: 3.0.0
@@ -1582,8 +1582,8 @@ importers:
         specifier: ^4.13.2
         version: 4.14.0
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       walk-sync:
         specifier: ^3.0.0
         version: 3.0.0
@@ -1654,8 +1654,8 @@ importers:
         specifier: ^4.13.2
         version: 4.14.0
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       walk-sync:
         specifier: ^3.0.0
         version: 3.0.0
@@ -1742,8 +1742,8 @@ importers:
         specifier: ^4.13.2
         version: 4.14.0
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       walk-sync:
         specifier: ^3.0.0
         version: 3.0.0
@@ -1861,8 +1861,8 @@ importers:
         specifier: ^4.13.2
         version: 4.14.0
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       walk-sync:
         specifier: ^3.0.0
         version: 3.0.0
@@ -1974,8 +1974,8 @@ importers:
         specifier: ^4.13.2
         version: 4.14.0
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       walk-sync:
         specifier: ^3.0.0
         version: 3.0.0
@@ -2079,8 +2079,8 @@ importers:
         specifier: ^4.13.2
         version: 4.14.0
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       walk-sync:
         specifier: ^3.0.0
         version: 3.0.0
@@ -2169,8 +2169,8 @@ importers:
         specifier: ^4.13.2
         version: 4.14.0
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       walk-sync:
         specifier: ^3.0.0
         version: 3.0.0
@@ -2244,8 +2244,8 @@ importers:
         specifier: ~3.11.0
         version: 3.11.0(patch_hash=yfkum5c5nfihh3ce3f64tnp5rq)
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       webpack:
         specifier: ^5.91.0
         version: 5.91.0
@@ -2573,8 +2573,8 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       webpack:
         specifier: ^5.91.0
         version: 5.91.0
@@ -2737,8 +2737,8 @@ importers:
         specifier: 0.0.10
         version: 0.0.10
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       webpack:
         specifier: ^5.91.0
         version: 5.91.0
@@ -2904,8 +2904,8 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       webpack:
         specifier: ^5.91.0
         version: 5.91.0
@@ -3071,8 +3071,8 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       webpack:
         specifier: ^5.91.0
         version: 5.91.0
@@ -3217,8 +3217,8 @@ importers:
         specifier: ^4.7.0
         version: 4.7.0
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       webpack:
         specifier: ^5.91.0
         version: 5.91.0
@@ -3364,8 +3364,8 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       webpack:
         specifier: ^5.91.0
         version: 5.91.0
@@ -3497,8 +3497,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       webpack:
         specifier: ^5.91.0
         version: 5.91.0
@@ -3635,8 +3635,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
     dependenciesMeta:
       '@ember-data/unpublished-test-infra':
         injected: true
@@ -3816,8 +3816,8 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       webpack:
         specifier: ^5.91.0
         version: 5.91.0
@@ -3950,8 +3950,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
     dependenciesMeta:
       '@ember-data/unpublished-test-infra':
         injected: true
@@ -4226,8 +4226,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       webpack:
         specifier: ^5.91.0
         version: 5.91.0
@@ -4498,8 +4498,8 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       webpack:
         specifier: ^5.91.0
         version: 5.91.0
@@ -4683,8 +4683,8 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1
       typescript:
-        specifier: ^5.4.3
-        version: 5.4.3
+        specifier: ^5.4.4
+        version: 5.4.4
       webpack:
         specifier: ^5.91.0
         version: 5.91.0
@@ -6610,7 +6610,7 @@ packages:
       '@glimmer/interfaces': 0.88.1
       '@glimmer/util': 0.88.1
 
-  /@glint/core@1.4.0(typescript@5.4.3):
+  /@glint/core@1.4.0(typescript@5.4.4):
     resolution: {integrity: sha512-nq27a/1R6kc3lsuciz8z9IZO1NQCbNkEBxf5KJI7AUrnps6RzQzmq3pmwO24zQYmFcH4sqpod8fleNIpg8YEqg==}
     hasBin: true
     peerDependencies:
@@ -6620,7 +6620,7 @@ packages:
       escape-string-regexp: 4.0.0
       semver: 7.6.0
       silent-error: 1.1.1
-      typescript: 5.4.3
+      typescript: 5.4.4
       uuid: 8.3.2
       vscode-languageserver: 8.1.0
       vscode-languageserver-textdocument: 1.0.11
@@ -7743,7 +7743,7 @@ packages:
       '@types/yargs-parser': 21.0.3
     dev: true
 
-  /@typescript-eslint/eslint-plugin@7.5.0(@typescript-eslint/parser@7.5.0)(eslint@8.57.0)(typescript@5.4.3):
+  /@typescript-eslint/eslint-plugin@7.5.0(@typescript-eslint/parser@7.5.0)(eslint@8.57.0)(typescript@5.4.4):
     resolution: {integrity: sha512-HpqNTH8Du34nLxbKgVMGljZMG0rJd2O9ecvr2QLYp+7512ty1j42KnsFwspPXg1Vh8an9YImf6CokUBltisZFQ==}
     engines: {node: ^18.18.0 || >=20.0.0}
     peerDependencies:
@@ -7755,10 +7755,10 @@ packages:
         optional: true
     dependencies:
       '@eslint-community/regexpp': 4.10.0
-      '@typescript-eslint/parser': 7.5.0(eslint@8.57.0)(typescript@5.4.3)
+      '@typescript-eslint/parser': 7.5.0(eslint@8.57.0)(typescript@5.4.4)
       '@typescript-eslint/scope-manager': 7.5.0
-      '@typescript-eslint/type-utils': 7.5.0(eslint@8.57.0)(typescript@5.4.3)
-      '@typescript-eslint/utils': 7.5.0(eslint@8.57.0)(typescript@5.4.3)
+      '@typescript-eslint/type-utils': 7.5.0(eslint@8.57.0)(typescript@5.4.4)
+      '@typescript-eslint/utils': 7.5.0(eslint@8.57.0)(typescript@5.4.4)
       '@typescript-eslint/visitor-keys': 7.5.0
       debug: 4.3.4(supports-color@8.1.1)
       eslint: 8.57.0
@@ -7766,13 +7766,13 @@ packages:
       ignore: 5.3.1
       natural-compare: 1.4.0
       semver: 7.6.0
-      ts-api-utils: 1.3.0(typescript@5.4.3)
-      typescript: 5.4.3
+      ts-api-utils: 1.3.0(typescript@5.4.4)
+      typescript: 5.4.4
     transitivePeerDependencies:
       - supports-color
     dev: false
 
-  /@typescript-eslint/parser@7.5.0(eslint@8.57.0)(typescript@5.4.3):
+  /@typescript-eslint/parser@7.5.0(eslint@8.57.0)(typescript@5.4.4):
     resolution: {integrity: sha512-cj+XGhNujfD2/wzR1tabNsidnYRaFfEkcULdcIyVBYcXjBvBKOes+mpMBP7hMpOyk+gBcfXsrg4NBGAStQyxjQ==}
     engines: {node: ^18.18.0 || >=20.0.0}
     peerDependencies:
@@ -7784,11 +7784,11 @@ packages:
     dependencies:
       '@typescript-eslint/scope-manager': 7.5.0
       '@typescript-eslint/types': 7.5.0
-      '@typescript-eslint/typescript-estree': 7.5.0(typescript@5.4.3)
+      '@typescript-eslint/typescript-estree': 7.5.0(typescript@5.4.4)
       '@typescript-eslint/visitor-keys': 7.5.0
       debug: 4.3.4(supports-color@8.1.1)
       eslint: 8.57.0
-      typescript: 5.4.3
+      typescript: 5.4.4
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -7801,7 +7801,7 @@ packages:
       '@typescript-eslint/visitor-keys': 7.5.0
     dev: false
 
-  /@typescript-eslint/type-utils@7.5.0(eslint@8.57.0)(typescript@5.4.3):
+  /@typescript-eslint/type-utils@7.5.0(eslint@8.57.0)(typescript@5.4.4):
     resolution: {integrity: sha512-A021Rj33+G8mx2Dqh0nMO9GyjjIBK3MqgVgZ2qlKf6CJy51wY/lkkFqq3TqqnH34XyAHUkq27IjlUkWlQRpLHw==}
     engines: {node: ^18.18.0 || >=20.0.0}
     peerDependencies:
@@ -7811,12 +7811,12 @@ packages:
       typescript:
         optional: true
     dependencies:
-      '@typescript-eslint/typescript-estree': 7.5.0(typescript@5.4.3)
-      '@typescript-eslint/utils': 7.5.0(eslint@8.57.0)(typescript@5.4.3)
+      '@typescript-eslint/typescript-estree': 7.5.0(typescript@5.4.4)
+      '@typescript-eslint/utils': 7.5.0(eslint@8.57.0)(typescript@5.4.4)
       debug: 4.3.4(supports-color@8.1.1)
       eslint: 8.57.0
-      ts-api-utils: 1.3.0(typescript@5.4.3)
-      typescript: 5.4.3
+      ts-api-utils: 1.3.0(typescript@5.4.4)
+      typescript: 5.4.4
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -7826,7 +7826,7 @@ packages:
     engines: {node: ^18.18.0 || >=20.0.0}
     dev: false
 
-  /@typescript-eslint/typescript-estree@7.5.0(typescript@5.4.3):
+  /@typescript-eslint/typescript-estree@7.5.0(typescript@5.4.4):
     resolution: {integrity: sha512-YklQQfe0Rv2PZEueLTUffiQGKQneiIEKKnfIqPIOxgM9lKSZFCjT5Ad4VqRKj/U4+kQE3fa8YQpskViL7WjdPQ==}
     engines: {node: ^18.18.0 || >=20.0.0}
     peerDependencies:
@@ -7842,13 +7842,13 @@ packages:
       is-glob: 4.0.3
       minimatch: 9.0.3
       semver: 7.6.0
-      ts-api-utils: 1.3.0(typescript@5.4.3)
-      typescript: 5.4.3
+      ts-api-utils: 1.3.0(typescript@5.4.4)
+      typescript: 5.4.4
     transitivePeerDependencies:
       - supports-color
     dev: false
 
-  /@typescript-eslint/utils@7.5.0(eslint@8.57.0)(typescript@5.4.3):
+  /@typescript-eslint/utils@7.5.0(eslint@8.57.0)(typescript@5.4.4):
     resolution: {integrity: sha512-3vZl9u0R+/FLQcpy2EHyRGNqAS/ofJ3Ji8aebilfJe+fobK8+LbIFmrHciLVDxjDoONmufDcnVSF38KwMEOjzw==}
     engines: {node: ^18.18.0 || >=20.0.0}
     peerDependencies:
@@ -7859,7 +7859,7 @@ packages:
       '@types/semver': 7.5.8
       '@typescript-eslint/scope-manager': 7.5.0
       '@typescript-eslint/types': 7.5.0
-      '@typescript-eslint/typescript-estree': 7.5.0(typescript@5.4.3)
+      '@typescript-eslint/typescript-estree': 7.5.0(typescript@5.4.4)
       eslint: 8.57.0
       semver: 7.6.0
     transitivePeerDependencies:
@@ -12287,7 +12287,7 @@ packages:
       eslint-import-resolver-webpack:
         optional: true
     dependencies:
-      '@typescript-eslint/parser': 7.5.0(eslint@8.57.0)(typescript@5.4.3)
+      '@typescript-eslint/parser': 7.5.0(eslint@8.57.0)(typescript@5.4.4)
       debug: 3.2.7
       eslint: 8.57.0
       eslint-import-resolver-node: 0.3.9
@@ -12317,7 +12317,7 @@ packages:
       '@typescript-eslint/parser':
         optional: true
     dependencies:
-      '@typescript-eslint/parser': 7.5.0(eslint@8.57.0)(typescript@5.4.3)
+      '@typescript-eslint/parser': 7.5.0(eslint@8.57.0)(typescript@5.4.4)
       array-includes: 3.1.8
       array.prototype.findlastindex: 1.2.5
       array.prototype.flat: 1.3.2
@@ -16335,8 +16335,8 @@ packages:
       route-recognizer: 0.3.4
     dev: true
 
-  /prettier-plugin-ember-template-tag@2.0.1(prettier@3.2.5):
-    resolution: {integrity: sha512-CLoCdQ0cWPMq9dOmqbcBhOURSFd8X2+wXK2TJ4UIMNfG7G3Bxu91MY3VHILQrvRyva+XNF28n6y5oMxfNqyiNw==}
+  /prettier-plugin-ember-template-tag@2.0.2(prettier@3.2.5):
+    resolution: {integrity: sha512-eSEnrxdD3NtMyIGwG2FxcTPOdpcbCK7VnBNhAufdaoeOIs+mNwmTsZdkWxr/LMhBdgtR1IUQB0l0YQhUQGz6kQ==}
     engines: {node: 18.* || >= 20}
     peerDependencies:
       prettier: '>= 3.0.0'
@@ -18249,13 +18249,13 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /ts-api-utils@1.3.0(typescript@5.4.3):
+  /ts-api-utils@1.3.0(typescript@5.4.4):
     resolution: {integrity: sha512-UQMIo7pb8WRomKR1/+MFVLTroIvDVtMX3K6OUir8ynLyzB8Jeriont2bTAtmNPa1ekAgN7YPDyf6V+ygrdU+eQ==}
     engines: {node: '>=16'}
     peerDependencies:
       typescript: '*'
     dependencies:
-      typescript: 5.4.3
+      typescript: 5.4.4
     dev: false
 
   /tsconfig-paths@3.15.0:
@@ -18440,8 +18440,8 @@ packages:
   /typescript-memoize@1.1.1:
     resolution: {integrity: sha512-GQ90TcKpIH4XxYTI2F98yEQYZgjNMOGPpOgdjIBhaLaWji5HPWlRnZ4AeA1hfBxtY7bCGDJsqDDHk/KaHOl5bA==}
 
-  /typescript@5.4.3:
-    resolution: {integrity: sha512-KrPd3PKaCLr78MalgiwJnA25Nm8HAmdwN3mYUYZgG/wizIo9EainNVQI9/yDavtVFRN2h3k8uf3GLHuhDMgEHg==}
+  /typescript@5.4.4:
+    resolution: {integrity: sha512-dGE2Vv8cpVvw28v8HCPqyb08EzbBURxDpuhJvTrusShUfGnhHBafDsLdS1EhhxyL6BJQE+2cT3dDPAv+MQ6oLw==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -19222,7 +19222,7 @@ packages:
       ember-auto-import: 2.7.2(@glint/template@1.4.0)(webpack@5.91.0)
       ember-cli-babel: 8.2.0(@babel/core@7.24.3)
       ember-inflector: 4.0.2(@babel/core@7.24.3)
-      typescript: 5.4.3
+      typescript: 5.4.4
       webpack: 5.91.0
     transitivePeerDependencies:
       - '@babel/core'
@@ -19797,7 +19797,7 @@ packages:
       qunit: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       semver: 7.6.0
       testem: 3.11.0(patch_hash=yfkum5c5nfihh3ce3f64tnp5rq)
-      typescript: 5.4.3
+      typescript: 5.4.4
       webpack: 5.91.0
     transitivePeerDependencies:
       - '@babel/core'
@@ -19893,7 +19893,7 @@ packages:
       qunit: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       semver: 7.6.0
       testem: 3.11.0(patch_hash=yfkum5c5nfihh3ce3f64tnp5rq)
-      typescript: 5.4.3
+      typescript: 5.4.4
       webpack: 5.91.0
     transitivePeerDependencies:
       - '@babel/core'

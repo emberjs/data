@@ -78,7 +78,7 @@
     "ember-source": "~5.7.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "rollup": "^4.13.2",
-    "typescript": "^5.4.3",
+    "typescript": "^5.4.4",
     "walk-sync": "^3.0.0"
   },
   "engines": {

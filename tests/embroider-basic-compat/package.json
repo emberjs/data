@@ -72,7 +72,7 @@
     "loader.js": "^4.7.0",
     "qunit": "^2.20.1",
     "qunit-dom": "^3.0.0",
-    "typescript": "^5.4.3"
+    "typescript": "^5.4.4"
   },
   "engines": {
     "node": ">= 18.20.1"
