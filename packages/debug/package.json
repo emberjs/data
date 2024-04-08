@@ -43,7 +43,7 @@
     }
   },
   "dependencies": {
-    "@babel/core": "^7.24.3",
+    "@babel/core": "^7.24.4",
     "@ember-data/private-build-infra": "workspace:5.4.0-alpha.52",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.15.0",
