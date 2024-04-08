@@ -2130,7 +2130,6 @@ class Store extends EmberObject {
       // but just in case we reject here to prevent bad things.
       return Promise.reject(new Error(`Record Is Disconnected`));
     }
-    // TODO we used to check if the record was destroyed here
     assert(
       `Cannot initiate a save request for an unloaded record: ${identifier.lid}`,
       this._instanceCache.recordIsLoaded(identifier)

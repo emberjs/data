@@ -52,7 +52,6 @@ export function saveRecordBuilder<T>(record: T, options: Record<string, unknown>
     // but just in case we throw here to prevent bad things.
     throw new Error(`Record Is Disconnected`);
   }
-  // TODO we used to check if the record was destroyed here
   assert(
     `Cannot initiate a save request for an unloaded record: ${identifier.lid}`,
     store._instanceCache.recordIsLoaded(identifier)
