@@ -6,6 +6,9 @@
     "type": "git",
     "url": "git+ssh://git@github.com:emberjs/data.git"
   },
+  "bin": {
+    "hello-world-root": "./packages/legacy-compat/bin/hello-world.js"
+  },
   "scripts": {
     "takeoff": "FORCE_COLOR=2 pnpm install --reporter=append-only",
     "prepare": "pnpm build",
