@@ -1,0 +1,30 @@
+{
+  "include": ["src"],
+  "baseUrl": ".",
+  "compilerOptions": {
+    "lib": ["ESNext"],
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "node16",
+    "moduleDetection": "force",
+    "strict": true,
+    "downlevelIteration": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "noEmit": false,
+    "noImplicitOverride": true,
+
+    // Enable faster builds
+    // but causes us to not rebuild properly
+    "composite": true,
+    "incremental": true,
+    "rootDir": "src",
+
+    "declaration": false,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "types": ["node"]
+  }
+}

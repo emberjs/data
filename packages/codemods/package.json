@@ -1,0 +1,52 @@
+{
+  "name": "@ember-data/codemods",
+  "private": true,
+  "version": "5.4.0-alpha.52",
+  "description": "Codemods for EmberData paradigms",
+  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "packages/codemods"
+  },
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
+    "build:runtime": "rollup --config",
+    "_build": "bun run build:runtime",
+    "prepack": "bun run _build",
+    "test": "bun ./diagnostic.js",
+    "_syncPnpm": "bun run sync-dependencies-meta-injected"
+  },
+  "files": [
+    "bin",
+    "dist"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "jscodeshift": "^0.15.2",
+    "typescript": "^5.4.4"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.4",
+    "@babel/preset-typescript": "^7.24.1",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@types/jscodeshift": "0.11.11",
+    "@types/node": "^20.11.27",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.52",
+    "eslint": "^8.57.0",
+    "pnpm-sync-dependencies-meta-injected": "0.0.10",
+    "rollup": "^4.14.0"
+  },
+  "engines": {
+    "node": ">= 18.20.1"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  },
+  "packageManager": "pnpm@8.15.6"
+}
