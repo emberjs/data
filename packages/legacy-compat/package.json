@@ -29,6 +29,9 @@
     "ember-data-logo-dark.svg",
     "ember-data-logo-light.svg"
   ],
+  "bin": {
+    "hello-world": "./bin/hello-world.js"
+  },
   "exports": {
     ".": {
       "types": "./unstable-preview-types/index.d.ts",
