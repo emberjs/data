@@ -30,7 +30,7 @@
     "ember-data-logo-light.svg"
   ],
   "bin": {
-    "hello-world": "./bin/hello-world.js"
+    "@ember-data/legacy-compat": "./bin/hello-world.js"
   },
   "exports": {
     ".": {
