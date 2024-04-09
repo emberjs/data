@@ -29,15 +29,9 @@ type FindRecordBuilderOptions = Omit<FindRecordOptions, 'preload'>;
 
   **Example 1**
 
-  ```app/routes/post.js
-  import Route from '@ember/routing/route';
+  ```ts
   import { findRecord } from '@ember-data/legacy-compat/builders';
-
-  export default class PostRoute extends Route {
-    model({ post_id }) {
-      return this.store.request(findRecord('post', post_id));
-    }
-  }
+  const { content: post } = await store.request<Post>(findRecord<Post>('post', '1'));
   ```
 
   **Example 2**
@@ -46,15 +40,9 @@ type FindRecordBuilderOptions = Omit<FindRecordOptions, 'preload'>;
   of `type` (modelName) and `id` as separate arguments. You may recognize this combo as
   the typical pairing from [JSON:API](https://jsonapi.org/format/#document-resource-object-identification)
 
-  ```app/routes/post.js
-  import Route from '@ember/routing/route';
+  ```ts
   import { findRecord } from '@ember-data/legacy-compat/builders';
-
-  export default class PostRoute extends Route {
-    model({ post_id: id }) {
-      return this.store.request(findRecord({ type: 'post', id }).content;
-    }
-  }
+  const { content: post } = await store.request<Post>(findRecord<Post>({ type: 'post', id }));
   ```
 
   All `@ember-data/legacy-compat` builders exist to enable you to migrate your codebase to using the correct syntax for `store.request` while temporarily preserving legacy behaviors.
