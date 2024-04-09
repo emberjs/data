@@ -16,7 +16,7 @@ const config = {
     base.rules(),
     imports.rules(),
     isolation.rules({
-      allowedImports: ['@ember/debug', '@ember/application'],
+      allowedImports: ['@ember/debug', '@ember/string', '@ember/application'],
     }),
     {}
   ),

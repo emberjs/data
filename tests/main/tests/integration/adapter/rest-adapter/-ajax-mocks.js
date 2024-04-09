@@ -2,7 +2,7 @@ import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy'
 
 /**
  * @description Helper function to mock the response of an adapter in order to
- * Test is behaviour.
+ * test its behavior.
  * @param { adapter } RESTAdapter instance
  * @param { response } Response to return from the adapter
  * @return { ajaxCallback } Function that returns information about the last

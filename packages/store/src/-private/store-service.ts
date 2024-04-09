@@ -33,7 +33,7 @@ import type { ModelSchema } from '../-types/q/ds-model';
 import type { OpaqueRecordInstance } from '../-types/q/record-instance';
 import type { SchemaService } from '../-types/q/schema-service';
 import type { FindAllOptions, FindRecordOptions, QueryOptions } from '../-types/q/store';
-import type { LifetimesService, StoreRequestContext, StoreRequestInput } from './cache-handler';
+import type { LifetimesService, StoreRequestInput } from './cache-handler';
 import { IdentifierCache } from './caches/identifier-cache';
 import {
   InstanceCache,
@@ -485,7 +485,7 @@ class Store extends EmberObject {
    * a resource.
    *
    * This hook can be used to select or instantiate any desired
-   * mechanism of presentating cache data to the ui for access
+   * mechanism of presenting cache data to the ui for access
    * mutation, and interaction.
    *
    * @method instantiateRecord (hook)
@@ -1198,8 +1198,8 @@ class Store extends EmberObject {
   */
   findRecord<T>(resource: TypeFromInstance<T>, id: string | number, options?: FindRecordOptions): Promise<T>;
   findRecord(resource: string, id: string | number, options?: FindRecordOptions): Promise<unknown>;
-  findRecord<T>(resource: ResourceIdentifierObject<TypeFromInstance<T>>, id?: FindRecordOptions): Promise<T>;
-  findRecord(resource: ResourceIdentifierObject, id?: FindRecordOptions): Promise<unknown>;
+  findRecord<T>(resource: ResourceIdentifierObject<TypeFromInstance<T>>, options?: FindRecordOptions): Promise<T>;
+  findRecord(resource: ResourceIdentifierObject, options?: FindRecordOptions): Promise<unknown>;
   findRecord(
     resource: string | ResourceIdentifierObject,
     id?: string | number | FindRecordOptions,
@@ -2121,7 +2121,7 @@ class Store extends EmberObject {
     if (DEBUG) {
       assertDestroyingStore(this, 'saveRecord');
     }
-    assert(`Unable to initate save for a record in a disconnected state`, storeFor(record));
+    assert(`Unable to initiate save for a record in a disconnected state`, storeFor(record));
     const identifier = recordIdentifierFor(record);
     const cache = this.cache;
 
@@ -2130,7 +2130,6 @@ class Store extends EmberObject {
       // but just in case we reject here to prevent bad things.
       return Promise.reject(new Error(`Record Is Disconnected`));
     }
-    // TODO we used to check if the record was destroyed here
     assert(
       `Cannot initiate a save request for an unloaded record: ${identifier.lid}`,
       this._instanceCache.recordIsLoaded(identifier)
@@ -2159,9 +2158,6 @@ class Store extends EmberObject {
       records: [identifier],
       cacheOptions: { [SkipCache as symbol]: true },
     };
-
-    // we lie here on the type because legacy doesn't have enough context
-    cache.willCommit(identifier, { request } as unknown as StoreRequestContext);
 
     return this.request<T>(request).then((document) => document.content);
   }
