@@ -1,7 +1,7 @@
 {
   "name": "@ember-data/request-utils",
   "description": "Request Building Utilities for use with EmberData",
-  "version": "5.4.0-alpha.52",
+  "version": "5.4.0-alpha.53",
   "private": false,
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
@@ -22,7 +22,7 @@
     "extends": "../../package.json"
   },
   "peerDependencies": {
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.38"
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.39"
   },
   "dependencies": {
     "ember-cli-babel": "^8.2.0"
@@ -69,8 +69,8 @@
     "@glimmer/component": "^1.1.2",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.38",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.52",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.39",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.53",
     "ember-source": "~5.7.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "rollup": "^4.14.0",

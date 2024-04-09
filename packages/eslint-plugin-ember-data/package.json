@@ -2,7 +2,7 @@
   "name": "eslint-plugin-ember-data",
   "description": "ESLint rules for Applications using EmberData",
   "main": "./src/index.js",
-  "version": "0.0.2-alpha.38",
+  "version": "0.0.2-alpha.39",
   "private": false,
   "repository": {
     "type": "git",

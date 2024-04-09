@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/diagnostic",
-  "version": "0.0.0-alpha.38",
+  "version": "0.0.0-alpha.39",
   "description": "⚡️ A Lightweight Modern Test Runner",
   "keywords": [
     "test",
@@ -105,7 +105,7 @@
     "@embroider/addon-shim": "^1.8.7",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.52",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.53",
     "bun-types": "^1.1.1",
     "@ember/test-helpers": "^3.3.0",
     "ember-source": "~5.7.0",

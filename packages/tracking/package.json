@@ -1,7 +1,7 @@
 {
   "name": "@ember-data/tracking",
   "description": "Tracking Primitives for controlling change notification of Tracked properties when working with EmberData",
-  "version": "5.4.0-alpha.52",
+  "version": "5.4.0-alpha.53",
   "private": false,
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
@@ -27,7 +27,7 @@
     }
   },
   "dependencies": {
-    "@ember-data/private-build-infra": "workspace:5.4.0-alpha.52",
+    "@ember-data/private-build-infra": "workspace:5.4.0-alpha.53",
     "@embroider/macros": "^1.15.0",
     "ember-cli-babel": "^8.2.0"
   },
@@ -79,7 +79,7 @@
     "@glimmer/validator": "^0.91.1",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.52",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.53",
     "ember-source": "~5.7.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "rollup": "^4.14.0",

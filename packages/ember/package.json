@@ -1,7 +1,7 @@
 {
   "name": "@warp-drive/ember",
   "description": "Data bindings and utilities for Ember applications using WarpDrive",
-  "version": "0.0.0-alpha.14",
+  "version": "0.0.0-alpha.15",
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "repository": {
@@ -45,7 +45,7 @@
   "peerDependencies": {
     "@ember-data/store": "^4.12.7 || > 5.3.3",
     "@ember-data/request": "^4.12.7 || > 5.3.3",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.38",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.39",
     "ember-provide-consume-context": "^0.3.1",
     "@ember-data/tracking": "^4.12.7 ||| > 5.3.3",
     "@ember/string": "^3.1.1"
@@ -96,12 +96,12 @@
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "decorator-transforms": "1.1.0",
-    "@ember-data/request": "workspace:5.4.0-alpha.52",
-    "@ember-data/store": "workspace:5.4.0-alpha.52",
-    "@ember-data/tracking": "workspace:5.4.0-alpha.52",
+    "@ember-data/request": "workspace:5.4.0-alpha.53",
+    "@ember-data/store": "workspace:5.4.0-alpha.53",
+    "@ember-data/tracking": "workspace:5.4.0-alpha.53",
     "@ember/string": "^3.1.1",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.38",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.52",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.39",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.53",
     "babel-plugin-ember-template-compilation": "^2.2.1",
     "ember-template-imports": "^4.1.0",
     "ember-source": "~5.7.0",

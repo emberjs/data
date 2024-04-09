@@ -1,6 +1,6 @@
 {
   "name": "full-data-asset-size-app",
-  "version": "5.4.0-alpha.52",
+  "version": "5.4.0-alpha.53",
   "private": true,
   "description": "An app for determining asset-size of the meta package",
   "repository": {
@@ -33,7 +33,7 @@
   "devDependencies": {
     "@babel/core": "^7.24.4",
     "@babel/runtime": "^7.24.4",
-    "@ember-data/private-build-infra": "workspace:5.4.0-alpha.52",
+    "@ember-data/private-build-infra": "workspace:5.4.0-alpha.53",
     "@ember/optional-features": "^2.1.0",
     "@ember/string": "3.1.1",
     "@glimmer/component": "^1.1.2",
@@ -44,7 +44,7 @@
     "ember-cli-dependency-checker": "^3.3.2",
     "ember-cli-htmlbars": "^6.3.0",
     "ember-cli-terser": "^4.0.2",
-    "ember-data": "workspace:5.4.0-alpha.52",
+    "ember-data": "workspace:5.4.0-alpha.53",
     "ember-load-initializers": "^2.1.2",
     "ember-maybe-import-regenerator": "^1.0.0",
     "ember-resolver": "^11.0.1",

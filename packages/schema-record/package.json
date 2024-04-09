@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/schema-record",
-  "version": "0.0.0-alpha.38",
+  "version": "0.0.0-alpha.39",
   "description": "Schema Driven Resource Presentation for WarpDrive and EmberData",
   "keywords": [
     "ember-addon"
@@ -41,9 +41,9 @@
     }
   },
   "peerDependencies": {
-    "@ember-data/store": "workspace:5.4.0-alpha.52",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.38",
-    "@ember-data/tracking": "workspace:5.4.0-alpha.52"
+    "@ember-data/store": "workspace:5.4.0-alpha.53",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.39",
+    "@ember-data/tracking": "workspace:5.4.0-alpha.53"
   },
   "dependenciesMeta": {
     "@ember-data/private-build-infra": {
@@ -66,7 +66,7 @@
     }
   },
   "dependencies": {
-    "@ember-data/private-build-infra": "workspace:5.4.0-alpha.52",
+    "@ember-data/private-build-infra": "workspace:5.4.0-alpha.53",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.15.0",
     "ember-cli-babel": "^8.2.0"
@@ -82,15 +82,15 @@
     "@babel/preset-env": "^7.24.4",
     "@babel/preset-typescript": "^7.24.1",
     "@babel/runtime": "^7.24.4",
-    "@ember-data/request": "workspace:5.4.0-alpha.52",
-    "@ember-data/store": "workspace:5.4.0-alpha.52",
-    "@ember-data/tracking": "workspace:5.4.0-alpha.52",
+    "@ember-data/request": "workspace:5.4.0-alpha.53",
+    "@ember-data/store": "workspace:5.4.0-alpha.53",
+    "@ember-data/tracking": "workspace:5.4.0-alpha.53",
     "@embroider/addon-dev": "^4.2.1",
     "@glimmer/component": "^1.1.2",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.38",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.52",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.39",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.53",
     "ember-source": "~5.7.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "rollup": "^4.14.0",

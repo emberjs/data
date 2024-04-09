@@ -1,6 +1,6 @@
 {
   "name": "docs-tests",
-  "version": "5.4.0-alpha.52",
+  "version": "5.4.0-alpha.53",
   "private": true,
   "description": "Provides tests for blueprints",
   "repository": {
@@ -16,7 +16,7 @@
     "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "devDependencies": {
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.52",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.53",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "qunit": "^2.20.1"
   },
