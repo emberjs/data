@@ -1,11 +1,11 @@
 {
-  "include": ["src"],
+  "include": ["src", "tests"],
   "baseUrl": ".",
   "compilerOptions": {
     "lib": ["ESNext"],
-    "module": "esnext",
-    "target": "esnext",
-    "moduleResolution": "node16",
+    "module": "NodeNext",
+    "target": "ESNext",
+    "moduleResolution": "NodeNext",
     "moduleDetection": "force",
     "strict": true,
     "downlevelIteration": true,
@@ -13,18 +13,18 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
-    "noEmit": false,
+    "noEmit": true,
     "noImplicitOverride": true,
+    "allowImportingTsExtensions": true,
 
     // Enable faster builds
     // but causes us to not rebuild properly
-    "composite": true,
     "incremental": true,
-    "rootDir": "src",
+    "rootDir": ".",
 
     "declaration": false,
     "inlineSourceMap": true,
     "inlineSources": true,
-    "types": ["node"]
+    "types": ["node", "jest"]
   }
 }

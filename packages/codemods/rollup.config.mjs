@@ -5,7 +5,7 @@ const config = {
   input: 'src/index.ts',
   output: [
     {
-      file: 'dist/bundle.js', // CommonJS output for Node.js
+      file: 'dist/index.js', // CommonJS output for Node.js
       format: 'cjs',
       sourcemap: true,
     },

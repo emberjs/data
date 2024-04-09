@@ -12,12 +12,14 @@
   "directories": {
     "test": "tests"
   },
+  "type": "module",
   "scripts": {
-    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
     "build:runtime": "rollup --config",
     "_build": "bun run build:runtime",
     "prepack": "bun run _build",
-    "test": "bun ./diagnostic.js",
+    "check:types": "tsc --noEmit",
+    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
+    "test": "jest",
     "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "files": [
@@ -36,11 +38,15 @@
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@types/jscodeshift": "0.11.11",
-    "@types/node": "^20.11.27",
+    "@types/node": "^20.12.7",
+    "@types/jest": "^29.5.12",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.52",
     "eslint": "^8.57.0",
+    "jest": "^29.7.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
-    "rollup": "^4.14.0"
+    "qunit": "^2.20.1",
+    "rollup": "^4.14.1",
+    "ts-jest": "^29.1.2"
   },
   "engines": {
     "node": ">= 18.20.1"
