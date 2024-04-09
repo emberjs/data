@@ -6,16 +6,16 @@ import { assert } from '@ember/debug';
 import type { StoreRequestInput } from '@ember-data/store';
 import { constructResource, ensureStringId } from '@ember-data/store/-private';
 import type { BaseFinderOptions, FindRecordOptions } from '@ember-data/store/-types/q/store';
-import type { TypeFromInstance } from '@warp-drive/core-types/record';
+import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
 import { SkipCache } from '@warp-drive/core-types/request';
 import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
 
 import { isMaybeIdentifier, normalizeModelName } from './utils';
 
-type FindRecordRequestInput = StoreRequestInput & {
+type FindRecordRequestInput<T extends string> = StoreRequestInput & {
   op: 'findRecord';
   data: {
-    record: ResourceIdentifierObject;
+    record: ResourceIdentifierObject<T>;
     options: FindRecordBuilderOptions;
   };
 };
@@ -71,29 +71,29 @@ type FindRecordBuilderOptions = Omit<FindRecordOptions, 'preload'>;
   @param {FindRecordBuilderOptions} [options] - if the first param is a string this will be the optional options for the request. See examples for available options.
   @return {FindRecordRequestInput} request config
 */
-export function findRecordBuilder<T>(
+export function findRecordBuilder<T extends TypedRecordInstance>(
   resource: TypeFromInstance<T>,
   id: string,
   options?: FindRecordBuilderOptions
-): FindRecordRequestInput;
+): FindRecordRequestInput<TypeFromInstance<T>>;
 export function findRecordBuilder(
   resource: string,
   id: string,
   options?: FindRecordBuilderOptions
-): FindRecordRequestInput;
-export function findRecordBuilder<T>(
+): FindRecordRequestInput<string>;
+export function findRecordBuilder<T extends TypedRecordInstance>(
   resource: ResourceIdentifierObject<TypeFromInstance<T>>,
   options?: FindRecordBuilderOptions
-): FindRecordRequestInput;
+): FindRecordRequestInput<TypeFromInstance<T>>;
 export function findRecordBuilder(
   resource: ResourceIdentifierObject,
   options?: FindRecordBuilderOptions
-): FindRecordRequestInput;
+): FindRecordRequestInput<string>;
 export function findRecordBuilder(
   resource: string | ResourceIdentifierObject,
-  idOrOptions?: string | BaseFinderOptions,
+  idOrOptions?: string | FindRecordBuilderOptions,
   options?: FindRecordBuilderOptions
-): FindRecordRequestInput {
+): FindRecordRequestInput<string> {
   assert(
     `You need to pass a modelName or resource identifier as the first argument to the findRecord builder`,
     resource

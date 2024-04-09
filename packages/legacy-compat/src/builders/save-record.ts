@@ -7,15 +7,16 @@ import { recordIdentifierFor, storeFor, type StoreRequestInput } from '@ember-da
 import type { InstanceCache } from '@ember-data/store/-private/caches/instance-cache';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
+import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
 import { SkipCache } from '@warp-drive/core-types/request';
 
-type SaveRecordRequestInput = StoreRequestInput & {
+type SaveRecordRequestInput<T extends string> = StoreRequestInput & {
   op: 'createRecord' | 'deleteRecord' | 'updateRecord';
   data: {
-    record: StableRecordIdentifier;
+    record: StableRecordIdentifier<T>;
     options: SaveRecordBuilderOptions;
   };
-  records: [StableRecordIdentifier];
+  records: [StableRecordIdentifier<T>];
 };
 
 type SaveRecordBuilderOptions = Record<string, unknown>;
@@ -47,7 +48,10 @@ function resourceIsFullyDeleted(instanceCache: InstanceCache, identifier: Stable
   @param {SaveRecordBuilderOptions} options optional, may include `adapterOptions` hash which will be passed to adapter.saveRecord
   @return {SaveRecordRequestInput} request config
 */
-export function saveRecordBuilder<T>(record: T, options: Record<string, unknown> = {}): SaveRecordRequestInput {
+export function saveRecordBuilder<T extends TypedRecordInstance>(
+  record: T,
+  options: Record<string, unknown> = {}
+): SaveRecordRequestInput<TypeFromInstance<T>> {
   const store = storeFor(record);
   assert(`Unable to initiate save for a record in a disconnected state`, store);
   const identifier = recordIdentifierFor(record);

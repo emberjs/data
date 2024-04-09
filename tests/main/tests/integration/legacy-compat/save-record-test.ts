@@ -6,8 +6,10 @@ import type { CompatStore } from '@ember-data/legacy-compat';
 import { saveRecord } from '@ember-data/legacy-compat/builders';
 import Model, { attr } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
+import { ResourceType } from '@warp-drive/core-types/symbols';
 
 class Post extends Model {
+  [ResourceType] = 'post' as const;
   @attr declare name: string;
 }
 
@@ -44,7 +46,7 @@ module('Integration - legacy-compat/builders/saveRecord', function (hooks) {
       );
 
       const store = this.owner.lookup('service:store') as CompatStore;
-      const newPost = store.createRecord('post', { name: 'Krystan rules, you drool' });
+      const newPost: Post = store.createRecord('post', { name: 'Krystan rules, you drool' });
       const { content: savedPost } = await store.request<Post>(saveRecord(newPost));
 
       assert.strictEqual(savedPost.id, '1', 'post has correct id');
@@ -54,7 +56,7 @@ module('Integration - legacy-compat/builders/saveRecord', function (hooks) {
 
     test('saveRecord', function (assert) {
       const store = this.owner.lookup('service:store') as CompatStore;
-      const newPost = store.createRecord('post', { name: 'Krystan rules, you drool' });
+      const newPost: Post = store.createRecord('post', { name: 'Krystan rules, you drool' });
       const identifier = recordIdentifierFor(newPost);
       const result = saveRecord(newPost);
       assert.deepEqual(
@@ -78,7 +80,7 @@ module('Integration - legacy-compat/builders/saveRecord', function (hooks) {
         adapterOptions: {},
       };
       const store = this.owner.lookup('service:store') as CompatStore;
-      const newPost = store.createRecord('post', { name: 'Krystan rules, you drool' });
+      const newPost: Post = store.createRecord('post', { name: 'Krystan rules, you drool' });
       const identifier = recordIdentifierFor(newPost);
       const result = saveRecord(newPost, options);
       assert.deepEqual(
@@ -113,7 +115,7 @@ module('Integration - legacy-compat/builders/saveRecord', function (hooks) {
       );
 
       const store = this.owner.lookup('service:store') as CompatStore;
-      const existingPost = store.push({
+      const existingPost: Post = store.push({
         data: {
           id: '1',
           type: 'post',
@@ -121,7 +123,7 @@ module('Integration - legacy-compat/builders/saveRecord', function (hooks) {
             name: 'Krystan rules, you drool',
           },
         },
-      }) as Post;
+      });
       existingPost.deleteRecord();
       const { content: savedPost } = await store.request<Post>(saveRecord(existingPost));
 
@@ -133,7 +135,7 @@ module('Integration - legacy-compat/builders/saveRecord', function (hooks) {
 
     test('saveRecord', function (assert) {
       const store = this.owner.lookup('service:store') as CompatStore;
-      const existingPost = store.push({
+      const existingPost: Post = store.push({
         data: {
           id: '1',
           type: 'post',
@@ -141,7 +143,7 @@ module('Integration - legacy-compat/builders/saveRecord', function (hooks) {
             name: 'Krystan rules, you drool',
           },
         },
-      }) as Post;
+      });
       existingPost.deleteRecord();
       const identifier = recordIdentifierFor(existingPost);
       const result = saveRecord(existingPost);
@@ -166,7 +168,7 @@ module('Integration - legacy-compat/builders/saveRecord', function (hooks) {
         adapterOptions: {},
       };
       const store = this.owner.lookup('service:store') as CompatStore;
-      const existingPost = store.push({
+      const existingPost: Post = store.push({
         data: {
           id: '1',
           type: 'post',
@@ -174,7 +176,7 @@ module('Integration - legacy-compat/builders/saveRecord', function (hooks) {
             name: 'Krystan rules, you drool',
           },
         },
-      }) as Post;
+      });
       existingPost.deleteRecord();
       const identifier = recordIdentifierFor(existingPost);
       const result = saveRecord(existingPost, options);
@@ -210,7 +212,7 @@ module('Integration - legacy-compat/builders/saveRecord', function (hooks) {
       );
 
       const store = this.owner.lookup('service:store') as CompatStore;
-      const existingPost = store.push({
+      const existingPost: Post = store.push({
         data: {
           id: '1',
           type: 'post',
@@ -218,7 +220,7 @@ module('Integration - legacy-compat/builders/saveRecord', function (hooks) {
             name: 'Krystan rules, you drool',
           },
         },
-      }) as Post;
+      });
       existingPost.name = 'Chris drools, Krystan rules';
       const { content: savedPost } = await store.request<Post>(saveRecord(existingPost));
 
@@ -230,7 +232,7 @@ module('Integration - legacy-compat/builders/saveRecord', function (hooks) {
 
     test('saveRecord', function (assert) {
       const store = this.owner.lookup('service:store') as CompatStore;
-      const existingPost = store.push({
+      const existingPost: Post = store.push({
         data: {
           id: '1',
           type: 'post',
@@ -238,7 +240,7 @@ module('Integration - legacy-compat/builders/saveRecord', function (hooks) {
             name: 'Krystan rules, you drool',
           },
         },
-      }) as Post;
+      });
       existingPost.name = 'Chris drools, Krystan rules';
       const identifier = recordIdentifierFor(existingPost);
       const result = saveRecord(existingPost);
@@ -263,7 +265,7 @@ module('Integration - legacy-compat/builders/saveRecord', function (hooks) {
         adapterOptions: {},
       };
       const store = this.owner.lookup('service:store') as CompatStore;
-      const existingPost = store.push({
+      const existingPost: Post = store.push({
         data: {
           id: '1',
           type: 'post',
@@ -271,7 +273,7 @@ module('Integration - legacy-compat/builders/saveRecord', function (hooks) {
             name: 'Krystan rules, you drool',
           },
         },
-      }) as Post;
+      });
       existingPost.name = 'Chris drools, Krystan rules';
       const identifier = recordIdentifierFor(existingPost);
       const result = saveRecord(existingPost, options);

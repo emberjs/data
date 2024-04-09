@@ -5,15 +5,15 @@ import { assert } from '@ember/debug';
 
 import type { StoreRequestInput } from '@ember-data/store';
 import type { FindAllOptions } from '@ember-data/store/-types/q/store';
-import type { TypeFromInstance } from '@warp-drive/core-types/record';
+import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
 import { SkipCache } from '@warp-drive/core-types/request';
 
 import { normalizeModelName } from './utils';
 
-type FindAllRequestInput = StoreRequestInput & {
+type FindAllRequestInput<T extends string> = StoreRequestInput & {
   op: 'findAll';
   data: {
-    type: string;
+    type: T;
     options: FindAllBuilderOptions;
   };
 };
@@ -39,12 +39,12 @@ type FindAllBuilderOptions = FindAllOptions;
   @param {FindAllBuilderOptions} [options] optional, may include `adapterOptions` hash which will be passed to adapter.findAll
   @return {FindAllRequestInput} request config
 */
-export function findAllBuilder<T>(type: TypeFromInstance<T>, options?: FindAllBuilderOptions): FindAllRequestInput;
-export function findAllBuilder(type: string, options?: FindAllBuilderOptions): FindAllRequestInput;
-export function findAllBuilder<T>(
-  type: TypeFromInstance<T> | string,
-  options: FindAllBuilderOptions = {}
-): FindAllRequestInput {
+export function findAllBuilder<T extends TypedRecordInstance>(
+  type: TypeFromInstance<T>,
+  options?: FindAllBuilderOptions
+): FindAllRequestInput<TypeFromInstance<T>>;
+export function findAllBuilder(type: string, options?: FindAllBuilderOptions): FindAllRequestInput<string>;
+export function findAllBuilder(type: string, options: FindAllBuilderOptions = {}): FindAllRequestInput<string> {
   assert(`You need to pass a model name to the findAll builder`, type);
   assert(
     `Model name passed to the findAll builder must be a dasherized string instead of ${type}`,

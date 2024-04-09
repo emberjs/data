@@ -5,15 +5,15 @@ import { assert } from '@ember/debug';
 
 import type { StoreRequestInput } from '@ember-data/store';
 import type { QueryOptions } from '@ember-data/store/-types/q/store';
-import type { TypeFromInstance } from '@warp-drive/core-types/record';
+import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
 import { SkipCache } from '@warp-drive/core-types/request';
 
 import { normalizeModelName } from './utils';
 
-type QueryRequestInput = StoreRequestInput & {
+type QueryRequestInput<T extends string> = StoreRequestInput & {
   op: 'query';
   data: {
-    type: string;
+    type: T;
     query: Record<string, unknown>;
     options: QueryBuilderOptions;
   };
@@ -40,21 +40,21 @@ type QueryBuilderOptions = QueryOptions;
   @param {QueryBuilderOptions} [options] optional, may include `adapterOptions` hash which will be passed to adapter.query
   @return {QueryRequestInput} request config
 */
-export function queryBuilder<T>(
+export function queryBuilder<T extends TypedRecordInstance>(
   type: TypeFromInstance<T>,
   query: Record<string, unknown>,
   options?: QueryBuilderOptions
-): QueryRequestInput;
+): QueryRequestInput<TypeFromInstance<T>>;
 export function queryBuilder(
   type: string,
   query: Record<string, unknown>,
   options?: QueryBuilderOptions
-): QueryRequestInput;
+): QueryRequestInput<string>;
 export function queryBuilder(
   type: string,
   query: Record<string, unknown>,
   options: QueryBuilderOptions = {}
-): QueryRequestInput {
+): QueryRequestInput<string> {
   assert(`You need to pass a model name to the query builder`, type);
   assert(`You need to pass a query hash to the query builder`, query);
   assert(
@@ -73,10 +73,10 @@ export function queryBuilder(
   };
 }
 
-type QueryRecordRequestInput = StoreRequestInput & {
+type QueryRecordRequestInput<T extends string> = StoreRequestInput & {
   op: 'queryRecord';
   data: {
-    type: string;
+    type: T;
     query: Record<string, unknown>;
     options: QueryBuilderOptions;
   };
@@ -101,22 +101,32 @@ type QueryRecordRequestInput = StoreRequestInput & {
   @param {QueryBuilderOptions} [options] optional, may include `adapterOptions` hash which will be passed to adapter.query
   @return {QueryRecordRequestInput} request config
 */
-export function queryRecordBuilder(
-  modelName: string,
+export function queryRecordBuilder<T extends TypedRecordInstance>(
+  type: TypeFromInstance<T>,
   query: Record<string, unknown>,
   options?: QueryBuilderOptions
-): QueryRecordRequestInput {
-  assert(`You need to pass a model name to the queryRecord builder`, modelName);
+): QueryRecordRequestInput<TypeFromInstance<T>>;
+export function queryRecordBuilder(
+  type: string,
+  query: Record<string, unknown>,
+  options?: QueryBuilderOptions
+): QueryRecordRequestInput<string>;
+export function queryRecordBuilder(
+  type: string,
+  query: Record<string, unknown>,
+  options?: QueryBuilderOptions
+): QueryRecordRequestInput<string> {
+  assert(`You need to pass a model name to the queryRecord builder`, type);
   assert(`You need to pass a query hash to the queryRecord builder`, query);
   assert(
-    `Model name passed to the queryRecord builder must be a dasherized string instead of ${modelName}`,
-    typeof modelName === 'string'
+    `Model name passed to the queryRecord builder must be a dasherized string instead of ${type}`,
+    typeof type === 'string'
   );
 
   return {
     op: 'queryRecord',
     data: {
-      type: normalizeModelName(modelName),
+      type: normalizeModelName(type),
       query,
       options: options || {},
     },

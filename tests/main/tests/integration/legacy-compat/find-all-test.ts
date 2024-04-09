@@ -5,16 +5,19 @@ import { setupTest } from 'ember-qunit';
 import type { CompatStore } from '@ember-data/legacy-compat';
 import { findAll } from '@ember-data/legacy-compat/builders';
 import Model, { attr } from '@ember-data/model';
+import { ResourceType } from '@warp-drive/core-types/symbols';
 
 type FindAllBuilderOptions = Exclude<Parameters<typeof findAll>[1], undefined>;
+
+class Post extends Model {
+  [ResourceType] = 'post' as const;
+  @attr declare name: string;
+}
 
 module('Integration - legacy-compat/builders/findAll', function (hooks) {
   setupTest(hooks);
 
   test('basic payload', async function (assert) {
-    class Post extends Model {
-      @attr declare name: string;
-    }
     this.owner.register('model:post', Post);
     this.owner.register(
       'adapter:application',
@@ -40,7 +43,7 @@ module('Integration - legacy-compat/builders/findAll', function (hooks) {
     );
 
     const store = this.owner.lookup('service:store') as CompatStore;
-    const { content: results } = await store.request<Post[]>(findAll('post'));
+    const { content: results } = await store.request<Post[]>(findAll<Post>('post'));
 
     assert.strictEqual(results.length, 1, 'post was found');
     assert.strictEqual(results[0].id, '1', 'post has correct id');
@@ -49,7 +52,7 @@ module('Integration - legacy-compat/builders/findAll', function (hooks) {
   });
 
   test('findAll', function (assert) {
-    const result = findAll('post');
+    const result = findAll<Post>('post');
     assert.deepEqual(
       result,
       {

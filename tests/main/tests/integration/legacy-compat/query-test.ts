@@ -5,18 +5,21 @@ import { setupTest } from 'ember-qunit';
 import type { CompatStore } from '@ember-data/legacy-compat';
 import { query, queryRecord } from '@ember-data/legacy-compat/builders';
 import Model, { attr } from '@ember-data/model';
+import { ResourceType } from '@warp-drive/core-types/symbols';
 
 type QueryBuilderOptions = Exclude<Parameters<typeof query>[2], undefined>;
 type QueryRecordBuilderOptions = Exclude<Parameters<typeof queryRecord>[2], undefined>;
+
+class Post extends Model {
+  [ResourceType] = 'post' as const;
+  @attr declare name: string;
+}
 
 module('Integration - legacy-compat/builders/query', function (hooks) {
   setupTest(hooks);
 
   module('query', function () {
     test('basic payload', async function (assert) {
-      class Post extends Model {
-        @attr declare name: string;
-      }
       this.owner.register('model:post', Post);
       this.owner.register(
         'adapter:application',
@@ -42,7 +45,7 @@ module('Integration - legacy-compat/builders/query', function (hooks) {
       );
 
       const store = this.owner.lookup('service:store') as CompatStore;
-      const { content: results } = await store.request<Post[]>(query('post', { id: '1' }));
+      const { content: results } = await store.request<Post[]>(query<Post>('post', { id: '1' }));
 
       assert.strictEqual(results.length, 1, 'post was found');
       assert.strictEqual(results[0].id, '1', 'post has correct id');
@@ -51,7 +54,7 @@ module('Integration - legacy-compat/builders/query', function (hooks) {
     });
 
     test('query', function (assert) {
-      const result = query('post', { id: '1' });
+      const result = query<Post>('post', { id: '1' });
       assert.deepEqual(
         result,
         {
@@ -72,7 +75,7 @@ module('Integration - legacy-compat/builders/query', function (hooks) {
         whatever: true,
         adapterOptions: {},
       };
-      const result = query('post', { id: '1' }, options);
+      const result = query<Post>('post', { id: '1' }, options);
       assert.deepEqual(
         result,
         {
@@ -91,9 +94,6 @@ module('Integration - legacy-compat/builders/query', function (hooks) {
 
   module('queryRecord', function () {
     test('basic payload', async function (assert) {
-      class Post extends Model {
-        @attr declare name: string;
-      }
       this.owner.register('model:post', Post);
       this.owner.register(
         'adapter:application',
@@ -117,7 +117,7 @@ module('Integration - legacy-compat/builders/query', function (hooks) {
       );
 
       const store = this.owner.lookup('service:store') as CompatStore;
-      const { content: post } = await store.request<Post>(queryRecord('post', { id: '1' }));
+      const { content: post } = await store.request<Post>(queryRecord<Post>('post', { id: '1' }));
 
       assert.strictEqual(post.id, '1', 'post has correct id');
       assert.strictEqual(post.name, 'Krystan rules, you drool', 'post has correct name');
@@ -125,7 +125,7 @@ module('Integration - legacy-compat/builders/query', function (hooks) {
     });
 
     test('queryRecord', function (assert) {
-      const result = queryRecord('post', { id: '1' });
+      const result = queryRecord<Post>('post', { id: '1' });
       assert.deepEqual(
         result,
         {
@@ -146,7 +146,7 @@ module('Integration - legacy-compat/builders/query', function (hooks) {
         whatever: true,
         adapterOptions: {},
       };
-      const result = queryRecord('post', { id: '1' }, options);
+      const result = queryRecord<Post>('post', { id: '1' }, options);
       assert.deepEqual(
         result,
         {
