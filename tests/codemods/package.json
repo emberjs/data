@@ -1,5 +1,5 @@
 {
-  "name": "@ember-data/codemods",
+  "name": "codemods-tests",
   "private": true,
   "version": "5.4.0-alpha.52",
   "description": "Codemods for EmberData paradigms",
@@ -9,26 +9,21 @@
     "url": "git+ssh://git@github.com:emberjs/data.git",
     "directory": "packages/codemods"
   },
+  "directories": {
+    "test": "tests"
+  },
+  "type": "module",
   "scripts": {
     "build:runtime": "rollup --config",
-    "build:types": "tsc --build",
-    "_build": "bun run build:runtime && bun run build:types",
+    "_build": "bun run build:runtime",
     "prepack": "bun run _build",
     "check:types": "tsc --noEmit",
     "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    },
-    "./*": {
-      "types": "./dist/*.d.ts",
-      "default": "./dist/*.js"
-    }
-  },
   "files": [
+    "bin",
     "dist"
   ],
   "author": "",
@@ -40,16 +35,19 @@
   "devDependencies": {
     "@babel/core": "^7.24.4",
     "@babel/preset-typescript": "^7.24.1",
+    "@ember-data/codemods": "workspace:5.4.0-alpha.52",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
+    "@types/jest": "^29.5.12",
     "@types/jscodeshift": "0.11.11",
     "@types/node": "^20.12.7",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.52",
     "eslint": "^8.57.0",
+    "jest": "^29.7.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "qunit": "^2.20.1",
-    "rollup-plugin-delete": "^2.0.0",
-    "rollup": "^4.14.1"
+    "rollup": "^4.14.1",
+    "ts-jest": "^29.1.2"
   },
   "engines": {
     "node": ">= 18.20.1"

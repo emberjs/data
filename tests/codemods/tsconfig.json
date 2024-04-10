@@ -1,5 +1,5 @@
 {
-  "include": ["src"],
+  "include": ["tests"],
   "baseUrl": ".",
   "compilerOptions": {
     "lib": ["ESNext"],
@@ -18,14 +18,10 @@
     // Enable faster builds
     // but causes us to not rebuild properly
     // "incremental": true,
-    "rootDir": "src",
+    "rootDir": "tests",
 
-    "outDir": "dist/",
-    "emitDeclarationOnly": true,
-    "declaration": true,
-    "declarationMap": true,
     "inlineSourceMap": true,
     "inlineSources": true,
-    "types": ["node"]
+    "types": ["node", "jest"]
   }
 }

@@ -19,7 +19,7 @@ module.exports = {
   overrides: [
     node.config(),
     node.defaults({
-      files: ['src/**'],
+      files: ['jest.config.cjs'],
     }),
     typescript.defaults(),
   ],

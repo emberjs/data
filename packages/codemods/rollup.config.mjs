@@ -1,5 +1,6 @@
 import babel from '@rollup/plugin-babel';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
+import del from 'rollup-plugin-delete';
 
 const config = {
   input: 'src/index.ts',
@@ -11,6 +12,7 @@ const config = {
     },
   ],
   plugins: [
+    del({ targets: 'dist/*' }),
     nodeResolve({
       extensions: ['.js', '.ts'],
     }),

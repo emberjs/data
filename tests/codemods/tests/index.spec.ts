@@ -1,11 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/unbound-method */
+/* eslint-disable no-console */
+
 import type { Options, Transform } from 'jscodeshift';
 import { applyTransform, type TestOptions } from 'jscodeshift/src/testUtils.js';
 import * as fs from 'node:fs'; // for some reason allowSyntheticDefaultImports isn't working here
 import * as path from 'node:path'; // for some reason allowSyntheticDefaultImports isn't working here
-
-import { logger } from '../utils/log.ts';
 
 function findAllTestFixturesSync(dir: string, fileList: Array<{ filePath: string; ext: string }> = []) {
   const files = fs.readdirSync(dir, { withFileTypes: true });
@@ -51,7 +49,7 @@ function runTests({ only }: RunTestsOptions = {}) {
   Object.entries(testsByTransform).forEach(([transform, tests]) => {
     describe(transform.replace(path.sep, ' > '), () => {
       tests.forEach(({ testName }) => {
-        defineTest(__dirname, `./src/${transform}/index`, transform, testName, null, {
+        defineTest(__dirname, transform, testName, null, {
           parser: 'ts',
         });
       });
@@ -61,7 +59,6 @@ function runTests({ only }: RunTestsOptions = {}) {
 
 function defineTest(
   dirName: string,
-  transformPath: string,
   transformName: string,
   fixturesPath: string,
   options?: Options | null,
@@ -69,41 +66,47 @@ function defineTest(
 ): void {
   const testFilePrefix = `${transformName}/${fixturesPath}`;
   const testName = testFilePrefix ? `transforms correctly using "${testFilePrefix}" data` : 'transforms correctly';
-  describe(transformPath, () => {
-    it(testName, () => {
-      runTest(dirName, transformPath, transformName, fixturesPath, options, testOptions);
+  describe(transformName, () => {
+    it(testName, async () => {
+      await runTest(dirName, transformName, fixturesPath, options, testOptions);
     });
   });
 }
 
-function runTest(
+async function runTest(
   dirName: string,
-  transformPath: string,
   transformName: string,
   fixturesPath: string,
   options?: Options | null,
   testOptions: TestOptions = {}
-): void {
-  const realLoggerWarn = logger.warn;
+): Promise<void> {
+  const realLoggerWarn = console.warn;
   const logs: Array<unknown[]> = [];
-  logger.warn = (...args) => {
+  console.warn = (...args) => {
     logs.push(['warn', ...args]);
   };
 
   const testFilePrefix = `${transformName}/${fixturesPath}`;
 
   // Assumes transform is one level up from __tests__ directory
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const module = require(path.join(dirName, '..', transformPath));
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-  const extension = extensionForParser(testOptions.parser || module.parser);
+
+  const { default: codemods } = await import('@ember-data/codemods');
+
+  if (!(transformName in codemods)) {
+    throw new Error('No codemod found for ' + transformName);
+  }
+
+  // FIXME: Gave up on types here
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+  const transform: Transform = (codemods as any)[transformName];
+
+  const extension = extensionForParser(testOptions.parser);
   const fixtureDir = path.join(dirName, '__testfixtures__');
   const inputPath = path.join(fixtureDir, testFilePrefix + `.input.${extension}`);
   const source = fs.readFileSync(inputPath, 'utf8');
   const expectedOutput = fs.readFileSync(path.join(fixtureDir, testFilePrefix + `.output.${extension}`), 'utf8');
   runInlineTest(
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    module,
+    transform,
     options ?? {},
     {
       path: inputPath,
@@ -120,11 +123,11 @@ function runTest(
     /* empty */
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
   const expectedLogs = JSON.parse(info).expectedLogs ?? [];
   expect(logs).toEqual(expectedLogs);
 
-  logger.warn = realLoggerWarn;
+  console.warn = realLoggerWarn;
 }
 
 // TODO: Fix js tests
