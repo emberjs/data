@@ -1454,8 +1454,8 @@ importers:
         specifier: ^1.13.4
         version: 1.15.0(@glint/template@1.4.0)
       babel-import-util:
-        specifier: ^2.0.1
-        version: 2.0.1
+        specifier: ^2.0.2
+        version: 2.0.2
       babel-plugin-debug-macros:
         specifier: ^0.3.4
         version: 0.3.4(@babel/core@7.24.4)
@@ -6313,7 +6313,7 @@ packages:
       '@types/babel__code-frame': 7.0.6
       '@types/yargs': 17.0.32
       assert-never: 1.2.1
-      babel-import-util: 2.0.1
+      babel-import-util: 2.0.2
       babel-plugin-ember-template-compilation: 2.2.1
       babel-plugin-syntax-dynamic-import: 6.18.0
       babylon: 6.18.0
@@ -6427,7 +6427,7 @@ packages:
     resolution: {integrity: sha512-jNDJ9YlV6Qp9Na9v17qirUewVuq6T0t32nn+bbnFlCRTvmllKluZdYPSC5RuRnEZKTloVYRSF0+f1rgkTIEvxQ==}
     engines: {node: 12.* || 14.* || >= 16}
     dependencies:
-      babel-import-util: 2.0.1
+      babel-import-util: 2.0.2
       debug: 4.3.4(supports-color@8.1.1)
       ember-rfc176-data: 0.3.18
       fs-extra: 9.1.0
@@ -8795,6 +8795,10 @@ packages:
 
   /babel-import-util@2.0.1:
     resolution: {integrity: sha512-N1ZfNprtf/37x0R05J0QCW/9pCAcuI+bjZIK9tlu0JEkwEST7ssdD++gxHRbD58AiG5QE5OuNYhRoEFsc1wESw==}
+    engines: {node: '>= 12.*'}
+
+  /babel-import-util@2.0.2:
+    resolution: {integrity: sha512-pR4vWlVujmYENFbceYcLPYCD+ulYGfmNmbTVd6Xp49d0uk+K3sWy6+O+5RLEa0OonXw9rf3hc9xFmglFnS0MWg==}
     engines: {node: '>= 12.*'}
 
   /babel-loader@8.3.0(@babel/core@7.24.4)(webpack@5.91.0):
@@ -19807,7 +19811,7 @@ packages:
       '@babel/runtime': 7.24.4
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.15.0(@glint/template@1.4.0)
-      babel-import-util: 2.0.1
+      babel-import-util: 2.0.2
       babel-plugin-debug-macros: 0.3.4(@babel/core@7.24.4)
       babel-plugin-filter-imports: 4.0.0
       babel6-plugin-strip-class-callcheck: 6.0.0
