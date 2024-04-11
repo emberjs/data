@@ -76,7 +76,7 @@
     "@babel/runtime": "^7.24.4",
     "@embroider/addon-dev": "^4.3.1",
     "@glimmer/component": "^1.1.2",
-    "@glimmer/validator": "^0.91.2",
+    "@glimmer/validator": "^0.92.0",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.53",
