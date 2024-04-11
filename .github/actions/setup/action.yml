@@ -80,6 +80,7 @@ runs:
       if: ${{ inputs.with-cert }}
       shell: bash
       run: |
+        sudo apt-get -y update
         sudo apt install libnss3-tools
         brew install mkcert
 
