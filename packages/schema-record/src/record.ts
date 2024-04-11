@@ -18,12 +18,13 @@ import {
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { ResourceRelationship as SingleResourceRelationship } from '@warp-drive/core-types/cache/relationship';
-import type { ArrayValue, Value } from '@warp-drive/core-types/json/raw';
+import type { ArrayValue, ObjectValue, Value } from '@warp-drive/core-types/json/raw';
 import { STRUCTURED } from '@warp-drive/core-types/request';
 import type { Link, Links } from '@warp-drive/core-types/spec/raw';
 import { RecordStore } from '@warp-drive/core-types/symbols';
 
 import { ARRAY_SIGNAL, ManagedArray } from './managed-array';
+import { ManagedObject, OBJECT_SIGNAL } from './managed-object';
 import type { SchemaService } from './schema';
 
 export const Destroy = Symbol('Destroy');
@@ -37,6 +38,7 @@ const IgnoredGlobalFields = new Set(['then', STRUCTURED]);
 const RecordSymbols = new Set([Destroy, RecordStore, Identifier, Editable, Parent, Checkout, Legacy, Signals]);
 
 const ManagedArrayMap = new Map<SchemaRecord, Map<FieldSchema, ManagedArray>>();
+const ManagedObjectMap = new Map<SchemaRecord, Map<FieldSchema, ManagedObject>>();
 
 function computeLocal(record: typeof Proxy<SchemaRecord>, field: FieldSchema, prop: string): unknown {
   let signal = peekSignal(record, prop);
@@ -53,6 +55,13 @@ function peekManagedArray(record: SchemaRecord, field: FieldSchema): ManagedArra
   const managedArrayMapForRecord = ManagedArrayMap.get(record);
   if (managedArrayMapForRecord) {
     return managedArrayMapForRecord.get(field);
+  }
+}
+
+function peekManagedObject(record: SchemaRecord, field: FieldSchema): ManagedObject | undefined {
+  const managedObjectMapForRecord = ManagedObjectMap.get(record);
+  if (managedObjectMapForRecord) {
+    return managedObjectMapForRecord.get(field);
   }
 }
 
@@ -110,6 +119,46 @@ function computeArray(
     }
   }
   return managedArray;
+}
+
+function computeObject(
+  store: Store,
+  schema: SchemaService,
+  cache: Cache,
+  record: SchemaRecord,
+  identifier: StableRecordIdentifier,
+  field: FieldSchema,
+  prop: string
+) {
+  const managedObjectMapForRecord = ManagedObjectMap.get(record);
+  let managedObject;
+  if (managedObjectMapForRecord) {
+    managedObject = managedObjectMapForRecord.get(field);
+  }
+  if (managedObject) {
+    return managedObject;
+  } else {
+    let rawValue = cache.getAttr(identifier, prop) as object;
+    if (!rawValue) {
+      return null;
+    }
+    if (field.kind === 'object') {
+      if (field.type !== null) {
+        const transform = schema.transforms.get(field.type);
+        if (!transform) {
+          throw new Error(`No '${field.type}' transform defined for use by ${identifier.type}.${String(prop)}`);
+        }
+        rawValue = transform.hydrate(rawValue as ObjectValue, field.options ?? null, record) as object;
+      }
+    }
+    managedObject = new ManagedObject(store, schema, cache, field, rawValue, identifier, prop, record);
+    if (!managedObjectMapForRecord) {
+      ManagedObjectMap.set(record, new Map([[field, managedObject]]));
+    } else {
+      managedObjectMapForRecord.set(field, managedObject);
+    }
+  }
+  return managedObject;
 }
 
 function computeAttribute(cache: Cache, identifier: StableRecordIdentifier, prop: string): unknown {
@@ -323,6 +372,8 @@ export class SchemaRecord {
             return computeResource(store, cache, target, identifier, field, prop as string);
           case 'derived':
             return computeDerivation(schema, receiver as unknown as SchemaRecord, identifier, field, prop as string);
+          case 'schema-array':
+            throw new Error(`Not Implemented`);
           case 'array':
             assert(
               `SchemaRecord.${field.name} is not available in legacy mode because it has type '${field.kind}'`,
@@ -330,6 +381,18 @@ export class SchemaRecord {
             );
             entangleSignal(signals, receiver, field.name);
             return computeArray(store, schema, cache, target, identifier, field, prop as string);
+          case 'schema-object':
+            // validate any access off of schema, no transform to run
+            // use raw cache value as the object to manage
+            throw new Error(`Not Implemented`);
+          case 'object':
+            assert(
+              `SchemaRecord.${field.name} is not available in legacy mode because it has type '${field.kind}'`,
+              !target[Legacy]
+            );
+            entangleSignal(signals, receiver, field.name);
+            // run transform, then use that value as the object to manage
+            return computeObject(store, schema, cache, target, identifier, field, prop as string);
           default:
             throw new Error(`Field '${String(prop)}' on '${identifier.type}' has the unknown kind '${field.kind}'`);
         }
@@ -399,6 +462,38 @@ export class SchemaRecord {
             if (peeked) {
               const arrSignal = peeked[ARRAY_SIGNAL];
               arrSignal.shouldReset = true;
+            }
+            return true;
+          }
+          case 'object': {
+            if (field.type === null) {
+              let newValue = value;
+              if (value !== null) {
+                newValue = { ...(value as ObjectValue) };
+              } else {
+                ManagedObjectMap.delete(target);
+              }
+
+              cache.setAttr(identifier, prop as string, newValue as Value);
+
+              const peeked = peekManagedObject(self, field);
+              if (peeked) {
+                const objSignal = peeked[OBJECT_SIGNAL];
+                objSignal.shouldReset = true;
+              }
+              return true;
+            }
+            const transform = schema.transforms.get(field.type);
+            if (!transform) {
+              throw new Error(`No '${field.type}' transform defined for use by ${identifier.type}.${String(prop)}`);
+            }
+            const rawValue = transform.serialize({ ...(value as ObjectValue) }, field.options ?? null, target);
+
+            cache.setAttr(identifier, prop as string, rawValue);
+            const peeked = peekManagedObject(self, field);
+            if (peeked) {
+              const objSignal = peeked[OBJECT_SIGNAL];
+              objSignal.shouldReset = true;
             }
             return true;
           }

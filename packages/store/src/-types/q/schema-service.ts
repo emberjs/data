@@ -17,7 +17,9 @@ export interface FieldSchema {
     | 'collection'
     | 'derived'
     | 'object'
+    | 'schema-object'
     | 'array'
+    | 'schema-array'
     | '@id'
     | '@local';
   options?: Record<string, unknown>;
