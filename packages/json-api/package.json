@@ -108,7 +108,7 @@
     "@ember-data/store": "workspace:5.4.0-alpha.53",
     "@ember-data/tracking": "workspace:5.4.0-alpha.53",
     "@ember/string": "^3.1.1",
-    "@embroider/addon-dev": "^4.2.1",
+    "@embroider/addon-dev": "^4.3.1",
     "@glimmer/component": "^1.1.2",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
