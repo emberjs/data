@@ -3494,8 +3494,8 @@ importers:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       qunit-dom:
-        specifier: ^3.0.0
-        version: 3.0.0
+        specifier: ^3.1.0
+        version: 3.1.1
       typescript:
         specifier: ^5.4.4
         version: 5.4.4
@@ -3632,8 +3632,8 @@ importers:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       qunit-dom:
-        specifier: ^3.0.0
-        version: 3.0.0
+        specifier: ^3.1.0
+        version: 3.1.1
       typescript:
         specifier: ^5.4.4
         version: 5.4.4
@@ -3810,8 +3810,8 @@ importers:
         specifier: ^0.3.0
         version: 0.3.0
       qunit-dom:
-        specifier: ^3.0.0
-        version: 3.0.0
+        specifier: ^3.1.0
+        version: 3.1.1
       silent-error:
         specifier: ^1.1.1
         version: 1.1.1
@@ -3947,8 +3947,8 @@ importers:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       qunit-dom:
-        specifier: ^3.0.0
-        version: 3.0.0
+        specifier: ^3.1.0
+        version: 3.1.1
       typescript:
         specifier: ^5.4.4
         version: 5.4.4
@@ -4223,8 +4223,8 @@ importers:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       qunit-dom:
-        specifier: ^3.0.0
-        version: 3.0.0
+        specifier: ^3.1.0
+        version: 3.1.1
       typescript:
         specifier: ^5.4.4
         version: 5.4.4
@@ -4677,8 +4677,8 @@ importers:
         specifier: ^0.3.0
         version: 0.3.0
       qunit-dom:
-        specifier: ^3.0.0
-        version: 3.0.0
+        specifier: ^3.1.0
+        version: 3.1.1
       silent-error:
         specifier: ^1.1.1
         version: 1.1.1
@@ -16719,8 +16719,8 @@ packages:
       - supports-color
     dev: true
 
-  /qunit-dom@3.0.0:
-    resolution: {integrity: sha512-rqGZ9ZgOvtOY+Ph2ElCJ4pRIHouMZmI3DWK35Xr3x3c17/gIwOHHyKAQk6XetqhqepS6p+oXvK6Bx1uZu5jJuw==}
+  /qunit-dom@3.1.1:
+    resolution: {integrity: sha512-Ja2NK+LsQM4iDU5QFtkwbLEbETgr6+7wTf7t6DXW3hWhB6GmAtKA2r3eLnmXpSdncMnoBsedXSKfjM0iMTOUGQ==}
     dev: true
 
   /qunit@2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy):
