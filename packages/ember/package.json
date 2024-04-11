@@ -88,7 +88,7 @@
     "@embroider/addon-dev": "^4.2.1",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
-    "@glimmer/validator": "^0.91.1",
+    "@glimmer/validator": "^0.91.2",
     "@glint/core": "^1.4.0",
     "@glint/environment-ember-loose": "^1.4.0",
     "@glint/environment-ember-template-imports": "^1.4.0",
