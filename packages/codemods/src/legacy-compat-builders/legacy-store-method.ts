@@ -11,6 +11,15 @@ interface LegacyStoreMethodCallExpression extends CallExpression {
   };
 }
 
+/**
+ *
+ * @param j
+ * @param root
+ * @param importInfo
+ * @param existingImport
+ * @returns
+ * @throws {Error} If the last argument is an object with a `preload` key
+ */
 export function transformLegacyStoreMethod(
   j: JSCodeshift,
   root: Collection,
@@ -39,6 +48,21 @@ export function transformLegacyStoreMethod(
     .forEach((rawPath) => {
       // SAFETY: JSCodeshift `find` types aren't as smart as they could be
       const path = rawPath as ASTPath<LegacyStoreMethodCallExpression>;
+
+      if (importInfo.importedName === 'findRecord') {
+        // If the last argument is an object with a `preload` key, throw an error
+        const lastArg = path.value.arguments[path.value.arguments.length - 1];
+        if (
+          j.ObjectExpression.check(lastArg) &&
+          lastArg.properties.some(
+            (prop) => j.ObjectProperty.check(prop) && j.Identifier.check(prop.key) && prop.key.name === 'preload'
+          )
+        ) {
+          throw new Error(
+            `Cannot transform store.findRecord with a 'preload' key. This option is not supported by the legacy compat builders.`
+          );
+        }
+      }
 
       // Replace with, e.g. store.request(findRecord('post', '1'))
 

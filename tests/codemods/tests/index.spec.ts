@@ -89,26 +89,35 @@ async function runTest(
   const inputPath = path.join(fixtureDir, relativePath);
   const source = fs.readFileSync(inputPath, 'utf8');
   const expectedOutput = fs.readFileSync(inputPath.replace('input.', 'output.'), 'utf8');
-  await runInlineTest(
-    transform,
-    options ?? {},
-    {
-      path: inputPath,
-      source,
-    },
-    expectedOutput,
-    testOptions
-  );
 
-  let info = '{}';
-  try {
-    info = fs.readFileSync(inputPath.replace('input.js', 'info.json').replace('input.ts', 'info.json'), 'utf8');
-  } catch {
-    /* empty */
+  const infoJsonPath = inputPath.replace('input.js', 'info.json').replace('input.ts', 'info.json');
+  const infoJson = fs.existsSync(infoJsonPath) ? fs.readFileSync(infoJsonPath, 'utf8') : '{}';
+  const expectedInfo: unknown = JSON.parse(infoJson);
+  if (!isExpectedInfo(expectedInfo)) {
+    throw new Error(`Could not parse info.json: ${infoJson}`);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
-  const expectedLogs = JSON.parse(info).expectedLogs ?? [];
+  try {
+    await runInlineTest(
+      transform,
+      options ?? {},
+      {
+        path: inputPath,
+        source,
+      },
+      expectedOutput,
+      testOptions
+    );
+  } catch (actualError: unknown) {
+    const expectedError = expectedInfo['expectedError'];
+    if (expectedError) {
+      expect((actualError as Error).message).toEqual(expectedError);
+    } else {
+      throw actualError;
+    }
+  }
+
+  const expectedLogs = expectedInfo['expectedLogs'] ?? [];
   expect(logs).toEqual(expectedLogs);
 
   console.warn = realLoggerWarn;
@@ -143,3 +152,7 @@ runTests(
   // Uncomment to test only a specific fixture
   // { only: 'class-method/tracking' },
 );
+
+function isExpectedInfo(value: unknown): value is { expectedLogs?: unknown[]; expectedError?: string } {
+  return typeof value === 'object' && value !== null;
+}
