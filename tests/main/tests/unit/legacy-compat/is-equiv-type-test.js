@@ -1,6 +1,12 @@
+import { dasherize } from '@ember/string';
+
 import { module, test } from 'qunit';
 
-import { isEquivType } from '@ember-data/legacy-compat/utils';
+import { singularize } from 'ember-inflector';
+
+import { configureTypeNormalization, isEquivType } from '@ember-data/legacy-compat/utils';
+
+configureTypeNormalization((type) => dasherize(singularize(type)));
 
 module('Unit | Data Utils | Type | isEquivType (util)', function () {
   test('it compares types as expected', function (assert) {

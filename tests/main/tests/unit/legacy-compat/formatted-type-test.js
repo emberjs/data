@@ -1,6 +1,12 @@
+import { dasherize } from '@ember/string';
+
 import { module, test } from 'qunit';
 
-import { formattedType } from '@ember-data/legacy-compat/utils';
+import { singularize } from 'ember-inflector';
+
+import { configureTypeNormalization, formattedType } from '@ember-data/legacy-compat/utils';
+
+configureTypeNormalization((type) => dasherize(singularize(type)));
 
 module('Unit | Data Utils | Type | formattedType (util)', function () {
   test('it normalizes types as expected', function (assert) {
