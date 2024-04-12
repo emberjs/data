@@ -51,7 +51,7 @@
     "rimraf": "^5.0.5",
     "semver": "^7.6.0",
     "silent-error": "^1.1.1",
-    "typescript": "^5.4.4",
+    "typescript": "^5.4.5",
     "url": "^0.11.3",
     "yuidocjs": "^0.10.2",
     "zlib": "1.0.5"

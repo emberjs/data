@@ -147,7 +147,7 @@
     "pretender": "^3.4.7",
     "qunit": "^2.20.1",
     "qunit-dom": "^3.1.0",
-    "typescript": "^5.4.4",
+    "typescript": "^5.4.5",
     "webpack": "^5.91.0"
   },
   "engines": {
