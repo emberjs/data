@@ -187,10 +187,14 @@ export {
   CacheHandler,
   type LifetimesService,
   type StoreRequestInput,
+  recordIdentifierFor,
+  storeFor,
+} from './-private';
+
+export {
   setIdentifierGenerationMethod,
   setIdentifierUpdateMethod,
   setIdentifierForgetMethod,
   setIdentifierResetMethod,
-  recordIdentifierFor,
-  storeFor,
-} from './-private';
+  setKeyInfoForResource,
+} from './-private/caches/identifier-cache';

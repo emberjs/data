@@ -25,6 +25,8 @@ import type { ExistingResourceObject, ResourceIdentifierObject } from '@warp-dri
 import type {
   ForgetMethod,
   GenerationMethod,
+  KeyInfo,
+  KeyInfoMethod,
   ResetMethod,
   ResourceData,
   UpdateMethod,
@@ -76,18 +78,13 @@ type TypeMap = { [key: string]: KeyOptions };
 // type IdentifierTypeLookup = { all: Set<StableRecordIdentifier>; id: Map<string, StableRecordIdentifier> };
 // type IdentifiersByType = Map<string, IdentifierTypeLookup>;
 type IdentifierMap = Map<string, StableRecordIdentifier>;
-type KeyInfo = {
-  id: string | null;
-  type: string;
-};
+
 type StableCache = {
   resources: IdentifierMap;
   documents: Map<string, StableDocumentIdentifier>;
   resourcesByType: TypeMap;
   polymorphicLidBackMap: Map<string, string[]>;
 };
-
-export type KeyInfoMethod = (resource: unknown, known: StableRecordIdentifier | null) => KeyInfo;
 
 export type MergeMethod = (
   targetIdentifier: StableRecordIdentifier,
