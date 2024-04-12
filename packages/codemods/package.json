@@ -11,7 +11,7 @@
   },
   "scripts": {
     "build:runtime": "rollup --config",
-    "build:types": "tsc --build",
+    "build:types": "tsc --build --emitDeclarationOnly",
     "_build": "bun run build:runtime && bun run build:types",
     "prepack": "bun run _build",
     "check:types": "tsc --noEmit",

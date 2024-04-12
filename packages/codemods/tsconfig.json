@@ -21,7 +21,6 @@
     "rootDir": "src",
 
     "outDir": "dist/",
-    "emitDeclarationOnly": true,
     "declaration": true,
     "declarationMap": true,
     "inlineSourceMap": true,

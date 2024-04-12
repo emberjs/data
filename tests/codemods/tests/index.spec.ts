@@ -4,6 +4,7 @@ import type { Options, Transform } from 'jscodeshift';
 import { applyTransform, type TestOptions } from 'jscodeshift/src/testUtils.js';
 import * as fs from 'node:fs'; // for some reason allowSyntheticDefaultImports isn't working here
 import * as path from 'node:path'; // for some reason allowSyntheticDefaultImports isn't working here
+import * as prettier from 'prettier';
 
 function findAllTestFixturesSync(dir: string, fileList: Array<{ filePath: string; ext: string }> = []) {
   const files = fs.readdirSync(dir, { withFileTypes: true });
@@ -88,7 +89,7 @@ async function runTest(
   const inputPath = path.join(fixtureDir, relativePath);
   const source = fs.readFileSync(inputPath, 'utf8');
   const expectedOutput = fs.readFileSync(inputPath.replace('input.', 'output.'), 'utf8');
-  runInlineTest(
+  await runInlineTest(
     transform,
     options ?? {},
     {
@@ -113,7 +114,7 @@ async function runTest(
   console.warn = realLoggerWarn;
 }
 
-function runInlineTest(
+async function runInlineTest(
   module:
     | {
         default: Transform;
@@ -122,15 +123,19 @@ function runInlineTest(
     | Transform,
   options: Options,
   input: {
-    path?: string;
+    path: string;
     source: string;
   },
   expectedOutput: string,
   testOptions?: TestOptions
 ) {
   const output = applyTransform(module, options, input, testOptions);
-  expect(output).toEqual(expectedOutput.trim());
-  return output;
+  const prettierConfig = await prettier.resolveConfig(input.path);
+  if (!prettierConfig) {
+    throw new Error('Could not resolve prettier config');
+  }
+  const formattedOutput = await prettier.format(output, { ...prettierConfig, filepath: input.path });
+  expect(formattedOutput).toEqual(expectedOutput);
 }
 
 // prettier-ignore
