@@ -23,52 +23,38 @@ interface RunTestsOptions {
 }
 
 function runTests({ only }: RunTestsOptions = {}) {
-  const fixturesPath = path.join(__dirname, '__testfixtures__');
-  const inputFiles = findAllTestFixturesSync(fixturesPath);
+  const absoluteFixturesPath = path.join(__dirname, '__testfixtures__');
+  const inputFiles = findAllTestFixturesSync(absoluteFixturesPath);
 
-  const testsByTransform = inputFiles.reduce<Record<string, Array<{ testName: string; ext: string }>>>(
-    (acc, { filePath, ext }) => {
-      const relativePath = path.relative(fixturesPath, filePath);
-      const transform = relativePath.split(path.sep).slice(0, -1).join(path.sep);
-      const testName = path.basename(relativePath).replace('.input.ts', '').replace('.input.js', '');
-      const fullPath = `${transform}/${testName}`;
+  const testsByTransform = inputFiles.reduce<
+    Record<string, Array<{ relativePath: string; ext: string; testName: string }>>
+  >((acc, { filePath, ext }) => {
+    const relativePath = path.relative(absoluteFixturesPath, filePath);
 
-      if (only && only !== fullPath) {
-        return acc;
-      }
-
-      if (!acc[transform]) {
-        acc[transform] = [];
-      }
-      acc[transform].push({ testName, ext });
+    if (only && only !== relativePath) {
       return acc;
-    },
-    {}
-  );
+    }
+
+    const parts = relativePath.split(path.sep);
+    const transformName = parts[0];
+    const testName = parts.slice(1).join(path.sep);
+
+    if (!acc[transformName]) {
+      acc[transformName] = [];
+    }
+    acc[transformName].push({ relativePath, ext, testName });
+    return acc;
+  }, {});
 
   Object.entries(testsByTransform).forEach(([transform, tests]) => {
-    describe(transform.replace(path.sep, ' > '), () => {
-      tests.forEach(({ testName }) => {
-        defineTest(__dirname, transform, testName, null, {
-          parser: 'ts',
+    describe(transform, () => {
+      tests.forEach(({ relativePath, testName }) => {
+        it(`transforms "${testName}"`, async () => {
+          await runTest(__dirname, transform, relativePath, null, {
+            parser: 'ts',
+          });
         });
       });
-    });
-  });
-}
-
-function defineTest(
-  dirName: string,
-  transformName: string,
-  fixturesPath: string,
-  options?: Options | null,
-  testOptions?: TestOptions
-): void {
-  const testFilePrefix = `${transformName}/${fixturesPath}`;
-  const testName = testFilePrefix ? `transforms correctly using "${testFilePrefix}" data` : 'transforms correctly';
-  describe(transformName, () => {
-    it(testName, async () => {
-      await runTest(dirName, transformName, fixturesPath, options, testOptions);
     });
   });
 }
@@ -76,7 +62,7 @@ function defineTest(
 async function runTest(
   dirName: string,
   transformName: string,
-  fixturesPath: string,
+  relativePath: string,
   options?: Options | null,
   testOptions: TestOptions = {}
 ): Promise<void> {
@@ -85,8 +71,6 @@ async function runTest(
   console.warn = (...args) => {
     logs.push(['warn', ...args]);
   };
-
-  const testFilePrefix = `${transformName}/${fixturesPath}`;
 
   // Assumes transform is one level up from __tests__ directory
 
@@ -100,11 +84,10 @@ async function runTest(
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
   const transform: Transform = (codemods as any)[transformName];
 
-  const extension = extensionForParser(testOptions.parser);
   const fixtureDir = path.join(dirName, '__testfixtures__');
-  const inputPath = path.join(fixtureDir, testFilePrefix + `.input.${extension}`);
+  const inputPath = path.join(fixtureDir, relativePath);
   const source = fs.readFileSync(inputPath, 'utf8');
-  const expectedOutput = fs.readFileSync(path.join(fixtureDir, testFilePrefix + `.output.${extension}`), 'utf8');
+  const expectedOutput = fs.readFileSync(inputPath.replace('input.', 'output.'), 'utf8');
   runInlineTest(
     transform,
     options ?? {},
@@ -118,7 +101,7 @@ async function runTest(
 
   let info = '{}';
   try {
-    info = fs.readFileSync(path.join(fixtureDir, testFilePrefix + `.info.json`), 'utf8');
+    info = fs.readFileSync(inputPath.replace('input.js', 'info.json').replace('input.ts', 'info.json'), 'utf8');
   } catch {
     /* empty */
   }
@@ -128,17 +111,6 @@ async function runTest(
   expect(logs).toEqual(expectedLogs);
 
   console.warn = realLoggerWarn;
-}
-
-// TODO: Fix js tests
-function extensionForParser(parser: TestOptions['parser']) {
-  switch (parser) {
-    case 'ts':
-    case 'tsx':
-      return parser;
-    default:
-      return 'js';
-  }
 }
 
 function runInlineTest(

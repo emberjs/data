@@ -1,5 +1,6 @@
 {
   "include": ["tests"],
+  "exclude": ["tests/__testfixtures__"],
   "baseUrl": ".",
   "compilerOptions": {
     "lib": ["ESNext"],
