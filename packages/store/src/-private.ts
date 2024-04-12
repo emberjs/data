@@ -8,6 +8,8 @@ export { recordIdentifierFor } from './-private/caches/instance-cache';
 
 export { CacheHandler, type LifetimesService } from './-private/cache-handler';
 
+export { isStableIdentifier } from './-private/caches/identifier-cache';
+
 export { default as constructResource } from './-private/utils/construct-resource';
 
 // TODO this should be a deprecated helper but we have so much usage of it
