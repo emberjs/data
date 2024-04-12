@@ -70,6 +70,7 @@ interface CachedResource {
   id: string | null;
   remoteAttrs: Record<string, Value | undefined> | null;
   localAttrs: Record<string, Value | undefined> | null;
+  defaultAttrs: Record<string, Value | undefined> | null;
   inflightAttrs: Record<string, Value | undefined> | null;
   changes: Record<string, [Value | undefined, Value]> | null;
   errors: JsonApiError[] | null;
@@ -1036,6 +1037,7 @@ export default class JSONAPICache implements Cache {
     // we report as `isEmpty` during teardown.
     cached.localAttrs = null;
     cached.remoteAttrs = null;
+    cached.defaultAttrs = null;
     cached.inflightAttrs = null;
 
     const relatedIdentifiers = _allRelatedIdentifiers(storeWrapper, identifier);
@@ -1096,11 +1098,18 @@ export default class JSONAPICache implements Cache {
       return cached.inflightAttrs[attr];
     } else if (cached.remoteAttrs && attr in cached.remoteAttrs) {
       return cached.remoteAttrs[attr];
+    } else if (cached.defaultAttrs && attr in cached.defaultAttrs) {
+      return cached.defaultAttrs[attr];
     } else {
       const attrSchema = this._capabilities.schema.fields(identifier).get(attr);
 
       upgradeCapabilities(this._capabilities);
-      return getDefaultValue(attrSchema, identifier, this._capabilities._store);
+      const defaultValue = getDefaultValue(attrSchema, identifier, this._capabilities._store);
+      if (typeof attrSchema?.options?.defaultValue === 'function') {
+        cached.defaultAttrs = cached.defaultAttrs || (Object.create(null) as Record<string, Value>);
+        cached.defaultAttrs[attr] = defaultValue;
+      }
+      return defaultValue;
     }
   }
 
@@ -1131,6 +1140,10 @@ export default class JSONAPICache implements Cache {
     } else if (cached.localAttrs) {
       delete cached.localAttrs[attr];
       delete cached.changes![attr];
+    }
+
+    if (cached.defaultAttrs && attr in cached.defaultAttrs) {
+      delete cached.defaultAttrs[attr];
     }
 
     this._capabilities.notifyChange(identifier, 'attributes', attr);
@@ -1195,6 +1208,7 @@ export default class JSONAPICache implements Cache {
     }
 
     cached.inflightAttrs = null;
+    cached.defaultAttrs = null;
 
     if (cached.errors) {
       cached.errors = null;
