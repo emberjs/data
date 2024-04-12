@@ -34,7 +34,7 @@ const AssertFn: AssertFunc = ((message: string, condition: unknown) => {
     _AssertFn(message, condition);
   }
   if (DEBUG) {
-    throw new Error(message);
+    throw new Error(`Assertion Failed: ${message}`);
   }
 }) as unknown as AssertFunc;
 let NormalizedType: Normalizer = (str: string) => {
