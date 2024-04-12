@@ -91,6 +91,7 @@ function makeCache(): CachedResource {
     id: null,
     remoteAttrs: null,
     localAttrs: null,
+    defaultAttrs: null,
     inflightAttrs: null,
     changes: null,
     errors: null,
