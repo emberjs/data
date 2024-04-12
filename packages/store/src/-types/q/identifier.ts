@@ -171,3 +171,28 @@ export type ForgetMethod = (identifier: StableIdentifier | StableRecordIdentifie
   @static
 */
 export type ResetMethod = () => void;
+
+/**
+ Configure a callback for when the identifier cache is generating a new
+ StableRecordIdentifier for a resource.
+
+ This method controls the `type` and `id` that will be assigned to the
+ `StableRecordIdentifier` that is created.
+
+ This configuration MUST occur prior to the store instance being created.
+
+ ```js
+ import { setKeyInfoForResource } from '@ember-data/store';
+ ```
+
+  @method setKeyInfoForResource
+  @for @ember-data/store
+  @param method
+  @public
+  @static
+ */
+export type KeyInfo = {
+  id: string | null;
+  type: string;
+};
+export type KeyInfoMethod = (resource: unknown, known: StableRecordIdentifier | null) => KeyInfo;

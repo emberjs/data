@@ -467,6 +467,7 @@ module.exports = {
     '(public) @ember-data/store @ember-data/store#setIdentifierGenerationMethod',
     '(public) @ember-data/store @ember-data/store#setIdentifierResetMethod',
     '(public) @ember-data/store @ember-data/store#setIdentifierUpdateMethod',
+    '(public) @ember-data/store @ember-data/store#setKeyInfoForResource',
     '(public) @ember-data/store CacheManager#changedAttrs',
     '(public) @ember-data/store CacheManager#clientDidCreate',
     '(public) @ember-data/store CacheManager#commitWasRejected',
