@@ -1,10 +1,11 @@
 import { dasherize } from '@ember/string';
 
-import { module, test } from 'qunit';
+import { module } from 'qunit';
 
 import { singularize } from 'ember-inflector';
 
 import { configureTypeNormalization, isEquivType } from '@ember-data/legacy-compat/utils';
+import test from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 configureTypeNormalization((type) => dasherize(singularize(type)));
 

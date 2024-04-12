@@ -1,6 +1,7 @@
-import { module, test } from 'qunit';
+import { module } from 'qunit';
 
 import { formattedId } from '@ember-data/legacy-compat/utils';
+import test from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('Unit | Data Utils | ID | formattedId (util)', function () {
   test('it normalizes id as expected', function (assert) {
