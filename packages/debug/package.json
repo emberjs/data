@@ -63,7 +63,7 @@
     "pnpm-sync-dependencies-meta-injected": "0.0.10"
   },
   "engines": {
-    "node": ">= 18.20.1"
+    "node": ">= 18.20.2"
   },
   "ember-addon": {
     "main": "index.js",
