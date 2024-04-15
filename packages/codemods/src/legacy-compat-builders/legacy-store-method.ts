@@ -12,12 +12,9 @@ interface LegacyStoreMethodCallExpression extends CallExpression {
 }
 
 /**
+ * Transform calls to legacy store methods to use the compat builders.
+ * e.g. `store.findRecord('post', '1')` -> `store.request(findRecord('post', '1'))`
  *
- * @param j
- * @param root
- * @param importInfo
- * @param existingImport
- * @returns
  * @throws {Error} If the last argument is an object with a `preload` key
  */
 export function transformLegacyStoreMethod(
@@ -65,29 +62,35 @@ export function transformLegacyStoreMethod(
       }
 
       // Replace with, e.g. store.request(findRecord('post', '1'))
+      // const builderExpression = j.callExpression.from({
+      //   ...path.value,
+      //   callee: j.identifier.from({
+      //     name: existingImport?.localName ?? importInfo.importedName,
+      //     comments: path.value.callee.comments ?? null,
+      //   }),
+      // });
+      // const storeDotRequestExpression = j.callExpression.from({
+      //   callee: j.memberExpression.from({
+      //     property: j.identifier.from({
+      //       ...path.value.callee.property,
+      //       name: 'request',
+      //     }),
+      //     object: path.value.callee.object,
+      //   }),
+      //   arguments: [builderExpression],
+      // });
 
-      // Create builder expression with the same args
+      // j(path).replaceWith(storeDotRequestExpression);
+
+      // Replace with, e.g. store.request(findRecord('post', '1'))
+      // 1. Change the callee to store.request
+      path.value.callee.property.name = 'request';
+      // 2. Wrap the arguments with the builder expression
       const builderExpression = j.callExpression.from({
         callee: j.identifier(existingImport?.localName ?? importInfo.importedName),
         arguments: path.value.arguments,
       });
-
-      // Change the callee to store.request
-      const replacementCallee = j.memberExpression.from({
-        ...path.value.callee,
-        property: j.identifier.from({
-          ...path.value.callee.property,
-          name: 'request',
-        }),
-      });
-
-      const replacementExpression = j.callExpression.from({
-        ...path.value,
-        callee: replacementCallee,
-        arguments: [builderExpression],
-      });
-
-      j(path).replaceWith(replacementExpression);
+      path.value.arguments = [builderExpression];
 
       if (!existingImport) {
         result.importsToAdd.add(importInfo);

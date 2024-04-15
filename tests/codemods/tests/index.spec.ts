@@ -150,7 +150,7 @@ async function runInlineTest(
 // prettier-ignore
 runTests(
   // Uncomment to test only a specific fixture
-  // { only: 'class-method/tracking' },
+  // { only: 'legacy-compat-builders/js/find-record/preserve-comments/by-identifier-with-options.input.js' },
 );
 
 function isExpectedInfo(value: unknown): value is { expectedLogs?: unknown[]; expectedError?: string } {
