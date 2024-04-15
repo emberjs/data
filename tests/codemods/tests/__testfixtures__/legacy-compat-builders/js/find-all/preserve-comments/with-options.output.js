@@ -15,5 +15,5 @@ const post = store // 2
         // 9
       }
     )
-  ); // 11
+  ).content; // 11
 // 12

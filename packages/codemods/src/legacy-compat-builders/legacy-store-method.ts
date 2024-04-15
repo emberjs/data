@@ -61,7 +61,7 @@ export function transformLegacyStoreMethod(
         }
       }
 
-      // Replace with, e.g. store.request(findRecord('post', '1'))
+      // Replace with, e.g. store.request(findRecord('post', '1')).content
       // 1. Change the callee to store.request
       path.value.callee.property.name = 'request';
       // 2. Wrap the arguments with the builder expression
@@ -70,6 +70,13 @@ export function transformLegacyStoreMethod(
         arguments: path.value.arguments,
       });
       path.value.arguments = [builderExpression];
+      // 3. Wrap the whole expression in a MemberExpression to access the content
+      const memberExpression = j.memberExpression.from({
+        object: path.value,
+        property: j.identifier.from({ name: 'content' }),
+      });
+      // 4. Replace
+      j(path).replaceWith(memberExpression);
 
       if (!existingImport) {
         result.importsToAdd.add(importInfo);

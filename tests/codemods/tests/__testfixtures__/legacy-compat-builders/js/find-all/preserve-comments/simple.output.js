@@ -9,5 +9,5 @@ const post = store // 2
       // 5
       'post'
     )
-  ); // 6
+  ).content; // 6
 // 7

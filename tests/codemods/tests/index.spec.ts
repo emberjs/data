@@ -21,9 +21,10 @@ function findAllTestFixturesSync(dir: string, fileList: Array<{ filePath: string
 
 interface RunTestsOptions {
   only?: string;
+  filter?: RegExp;
 }
 
-function runTests({ only }: RunTestsOptions = {}) {
+function runTests({ only, filter }: RunTestsOptions = {}) {
   const absoluteFixturesPath = path.join(__dirname, '__testfixtures__');
   const inputFiles = findAllTestFixturesSync(absoluteFixturesPath);
 
@@ -33,6 +34,10 @@ function runTests({ only }: RunTestsOptions = {}) {
     const relativePath = path.relative(absoluteFixturesPath, filePath);
 
     if (only && only !== relativePath) {
+      return acc;
+    }
+
+    if (filter && !filter.test(relativePath)) {
       return acc;
     }
 
@@ -151,6 +156,8 @@ async function runInlineTest(
 runTests(
   // Uncomment to test only a specific fixture
   // { only: 'legacy-compat-builders/js/find-record/preserve-comments/by-identifier-with-options.input.js' },
+  // Uncomment to filter by a regex
+  // { filter: /js\// }
 );
 
 function isExpectedInfo(value: unknown): value is { expectedLogs?: unknown[]; expectedError?: string } {

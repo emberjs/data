@@ -2,7 +2,7 @@ import { saveRecord } from '@ember-data/legacy-compat/builders';
 // NOTE: Ideally the comment order and positioning would be unchanged, but due to limitations in recast, this doesn't seem possible
 const post = store.createRecord('post', { name: 'Krystan rules, you drool' });
 // 1
-const { content: savedPost } = store // 2
+const savedPost = store // 2
   // 3
   .request(
     saveRecord(
@@ -17,5 +17,5 @@ const { content: savedPost } = store // 2
         // 9
       }
     )
-  ); // 12
+  ).content; // 12
 // 13

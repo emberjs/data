@@ -9,4 +9,4 @@ const post = store.request(
       adapterOptions: {},
     }
   )
-);
+).content;

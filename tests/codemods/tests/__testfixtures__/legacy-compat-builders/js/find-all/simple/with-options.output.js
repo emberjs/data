@@ -6,4 +6,4 @@ const post = store.request(
     include: 'author,comments',
     adapterOptions: {},
   })
-);
+).content;
