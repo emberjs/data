@@ -33,17 +33,17 @@ function runTests({ only, filter }: RunTestsOptions = {}) {
   >((acc, { filePath, ext }) => {
     const relativePath = path.relative(absoluteFixturesPath, filePath);
 
-    if (only && only !== relativePath) {
-      return acc;
-    }
-
     if (filter && !filter.test(relativePath)) {
       return acc;
     }
 
     const parts = relativePath.split(path.sep);
     const transformName = parts[0];
-    const testName = parts.slice(1).join(path.sep);
+    const testName = parts.slice(1).join(path.sep).replace('.input.ts', '').replace('.input.js', '');
+
+    if (only && only !== `${transformName}/${testName}`) {
+      return acc;
+    }
 
     if (!acc[transformName]) {
       acc[transformName] = [];
@@ -155,7 +155,7 @@ async function runInlineTest(
 // prettier-ignore
 runTests(
   // Uncomment to test only a specific fixture
-  // { only: 'legacy-compat-builders/js/find-record/preserve-comments/by-identifier-with-options.input.js' },
+  // { only: 'legacy-compat-builders/ts/query-record/simple/with-options' },
   // Uncomment to filter by a regex
   // { filter: /js\// }
 );

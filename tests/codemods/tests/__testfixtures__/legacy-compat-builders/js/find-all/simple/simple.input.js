@@ -1,1 +1,1 @@
-const post = store.findRecord('post', '1');
+const post = store.findAll('post');
