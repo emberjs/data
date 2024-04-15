@@ -62,27 +62,6 @@ export function transformLegacyStoreMethod(
       }
 
       // Replace with, e.g. store.request(findRecord('post', '1'))
-      // const builderExpression = j.callExpression.from({
-      //   ...path.value,
-      //   callee: j.identifier.from({
-      //     name: existingImport?.localName ?? importInfo.importedName,
-      //     comments: path.value.callee.comments ?? null,
-      //   }),
-      // });
-      // const storeDotRequestExpression = j.callExpression.from({
-      //   callee: j.memberExpression.from({
-      //     property: j.identifier.from({
-      //       ...path.value.callee.property,
-      //       name: 'request',
-      //     }),
-      //     object: path.value.callee.object,
-      //   }),
-      //   arguments: [builderExpression],
-      // });
-
-      // j(path).replaceWith(storeDotRequestExpression);
-
-      // Replace with, e.g. store.request(findRecord('post', '1'))
       // 1. Change the callee to store.request
       path.value.callee.property.name = 'request';
       // 2. Wrap the arguments with the builder expression
