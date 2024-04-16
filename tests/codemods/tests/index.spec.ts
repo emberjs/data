@@ -1,10 +1,17 @@
+#!/usr/bin/env ts-node
 /* eslint-disable no-console */
 
 import type { Options, Transform } from 'jscodeshift';
 import { applyTransform, type TestOptions } from 'jscodeshift/src/testUtils.js';
+import * as assert from 'node:assert/strict';
 import * as fs from 'node:fs'; // for some reason allowSyntheticDefaultImports isn't working here
 import * as path from 'node:path'; // for some reason allowSyntheticDefaultImports isn't working here
+import { describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import * as prettier from 'prettier';
+
+const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
+const __dirname = path.dirname(__filename); // get the name of the directory
 
 function findAllTestFixturesSync(dir: string, fileList: Array<{ filePath: string; ext: string }> = []) {
   const files = fs.readdirSync(dir, { withFileTypes: true });
@@ -52,15 +59,16 @@ function runTests({ only, filter }: RunTestsOptions = {}) {
     return acc;
   }, {});
 
-  Object.entries(testsByTransform).forEach(([transform, tests]) => {
-    describe(transform, () => {
-      tests.forEach(({ relativePath, testName }) => {
-        it(`transforms "${testName}"`, async () => {
+  Object.entries(testsByTransform).forEach(async ([transform, tests]) => {
+    await describe(transform, async () => {
+      const testPromises = tests.map(({ relativePath, testName }) => {
+        return it(`transforms "${testName}"`, async () => {
           await runTest(__dirname, transform, relativePath, null, {
             parser: 'ts',
           });
         });
       });
+      await Promise.all(testPromises);
     });
   });
 }
@@ -116,14 +124,14 @@ async function runTest(
   } catch (actualError: unknown) {
     const expectedError = expectedInfo['expectedError'];
     if (expectedError) {
-      expect((actualError as Error).message).toEqual(expectedError);
+      assert.strictEqual((actualError as Error).message, expectedError, 'Error message did not match expected.');
     } else {
       throw actualError;
     }
   }
 
   const expectedLogs = expectedInfo['expectedLogs'] ?? [];
-  expect(logs).toEqual(expectedLogs);
+  assert.deepStrictEqual(logs, expectedLogs, 'Logged messages did not match expected.');
 
   console.warn = realLoggerWarn;
 }
@@ -149,7 +157,7 @@ async function runInlineTest(
     throw new Error('Could not resolve prettier config');
   }
   const formattedOutput = await prettier.format(output, { ...prettierConfig, filepath: input.path });
-  expect(formattedOutput).toEqual(expectedOutput);
+  assert.strictEqual(formattedOutput, expectedOutput);
 }
 
 // prettier-ignore

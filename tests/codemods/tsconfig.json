@@ -2,6 +2,7 @@
   "include": ["tests"],
   "exclude": ["tests/__testfixtures__"],
   "baseUrl": ".",
+
   "compilerOptions": {
     "lib": ["ESNext"],
     "module": "NodeNext",
@@ -23,6 +24,6 @@
 
     "inlineSourceMap": true,
     "inlineSources": true,
-    "types": ["node", "jest"]
+    "types": ["node"]
   }
 }

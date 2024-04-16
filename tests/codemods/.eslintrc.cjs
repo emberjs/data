@@ -16,11 +16,5 @@ module.exports = {
 
   ignorePatterns: ignore.ignoreRules(),
 
-  overrides: [
-    node.config(),
-    node.defaults({
-      files: ['jest.config.cjs'],
-    }),
-    typescript.defaults(),
-  ],
+  overrides: [node.config(), node.defaults(), typescript.defaults()],
 };
