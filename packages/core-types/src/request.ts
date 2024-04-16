@@ -1,6 +1,8 @@
 import type { StableRecordIdentifier } from './identifier';
 import type { QueryParamsSerializationOptions } from './params';
+import type { Includes, TypedRecordInstance, TypeFromInstanceOrString } from './record';
 import type { ResourceIdentifierObject } from './spec/raw';
+import type { RequestSignature } from './symbols';
 
 type Store = unknown;
 
@@ -67,13 +69,14 @@ export type CacheOptions = {
    */
   [SkipCache]?: true;
 };
-export type FindRecordRequestOptions = {
+export type FindRecordRequestOptions<T = unknown, RT = unknown> = {
   url: string;
   method: 'GET';
   headers: Headers;
   cacheOptions: CacheOptions;
   op: 'findRecord';
-  records: [ResourceIdentifierObject];
+  records: [ResourceIdentifierObject<TypeFromInstanceOrString<T>>];
+  [RequestSignature]: RT;
 };
 
 export type QueryRequestOptions = {
@@ -135,9 +138,9 @@ export type ImmutableDeleteRequestOptions = ImmutableRequest<DeleteRequestOption
 export type ImmutableUpdateRequestOptions = ImmutableRequest<UpdateRequestOptions>;
 export type ImmutableCreateRequestOptions = ImmutableRequest<CreateRequestOptions>;
 
-export type RemotelyAccessibleIdentifier = {
+export type RemotelyAccessibleIdentifier<T extends string = string> = {
   id: string;
-  type: string;
+  type: T;
   lid?: string;
 };
 
@@ -150,8 +153,8 @@ export type ConstrainedRequestOptions = {
   urlParamsSettings?: QueryParamsSerializationOptions;
 };
 
-export type FindRecordOptions = ConstrainedRequestOptions & {
-  include?: string | string[];
+export type FindRecordOptions<T = unknown> = ConstrainedRequestOptions & {
+  include?: T extends TypedRecordInstance ? Includes<T>[] : string | string[];
 };
 
 export interface StructuredDataDocument<T> {
@@ -298,7 +301,7 @@ export type RequestInfo = Request & {
  *
  * @typedoc
  */
-export type ImmutableRequestInfo = Readonly<Omit<RequestInfo, 'controller'>> & {
+export type ImmutableRequestInfo<T = unknown> = Readonly<Omit<RequestInfo, 'controller'>> & {
   readonly cacheOptions?: Readonly<CacheOptions>;
   readonly headers?: ImmutableHeaders;
   readonly data?: Readonly<Record<string, unknown>>;
@@ -308,6 +311,7 @@ export type ImmutableRequestInfo = Readonly<Omit<RequestInfo, 'controller'>> & {
    * @typedoc
    */
   readonly bodyUsed?: boolean;
+  [RequestSignature]?: T;
 };
 
 export interface ResponseInfo {

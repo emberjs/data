@@ -416,7 +416,7 @@ class Store extends EmberObject {
    * @return {Future}
    * @public
    */
-  request<T>(requestConfig: StoreRequestInput): Future<T> {
+  request<T>(requestConfig: StoreRequestInput<T>): Future<T> {
     // we lazily set the cache handler when we issue the first request
     // because constructor doesn't allow for this to run after
     // the user has had the chance to set the prop.
