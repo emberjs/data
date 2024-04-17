@@ -437,7 +437,8 @@ import { Request } from '@warp-drive/ember';
 - AutoRefresh behavior
 
 Requests can be made to automatically refresh when a browser window or tab comes back to the
-foreground after being backgrounded.
+foreground after being backgrounded or when the network reports as being online after having
+been offline.
 
 ```gjs
 import { Request } from '@warp-drive/ember';
@@ -449,6 +450,20 @@ import { Request } from '@warp-drive/ember';
 </template>
 ```
 
+By default, an auto-refresh will only occur if the browser was backgrounded or offline for more than
+30s before coming back available. This amount of time can be tweaked by setting the number of seconds
+via `@autoRefreshTimeout`.
+
+The behavior of the fetch initiated by the autorefresh can also be adjusted by `@autoRefreshBehavior`
+
+Options are:
+
+- `refresh` (update while continuing to show the current state)
+- `reload` (update and show the loading state until update completes)
+- `delegate` (**default**) trigger the request, but let the cache handler decide whether the update should occur or if the cache is still valid.
+
+---
+
 Similarly, refresh could be set up on a timer or on a websocket subscription by using the yielded
 refresh function and passing it to another component.
 
@@ -456,7 +471,7 @@ refresh function and passing it to another component.
 import { Request } from '@warp-drive/ember';
 
 <template>
-  <Request @request={{@request}} @autoRefresh={{true}}>
+  <Request @request={{@request}}>
     <:content as |result state|>
       <h1>{{result.title}}</h1>
 
