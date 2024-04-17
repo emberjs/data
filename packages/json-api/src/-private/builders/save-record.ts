@@ -75,8 +75,8 @@ function isExisting(identifier: StableRecordIdentifier): identifier is StableExi
  * @param record
  * @param options
  */
-export function deleteRecord<T>(record: T, options: ConstrainedRequestOptions): DeleteRequestOptions<T>;
-export function deleteRecord(record: unknown, options: ConstrainedRequestOptions): DeleteRequestOptions;
+export function deleteRecord<T>(record: T, options?: ConstrainedRequestOptions): DeleteRequestOptions<T>;
+export function deleteRecord(record: unknown, options?: ConstrainedRequestOptions): DeleteRequestOptions;
 export function deleteRecord(record: unknown, options: ConstrainedRequestOptions = {}): DeleteRequestOptions {
   const identifier = recordIdentifierFor(record);
   assert(`Expected to be given a record instance`, identifier);
@@ -148,8 +148,8 @@ export function deleteRecord(record: unknown, options: ConstrainedRequestOptions
  * @param record
  * @param options
  */
-export function createRecord<T>(record: T, options: ConstrainedRequestOptions): CreateRequestOptions<T>;
-export function createRecord(record: unknown, options: ConstrainedRequestOptions): CreateRequestOptions;
+export function createRecord<T>(record: T, options?: ConstrainedRequestOptions): CreateRequestOptions<T>;
+export function createRecord(record: unknown, options?: ConstrainedRequestOptions): CreateRequestOptions;
 export function createRecord(record: unknown, options: ConstrainedRequestOptions = {}): CreateRequestOptions {
   const identifier = recordIdentifierFor(record);
   assert(`Expected to be given a record instance`, identifier);
@@ -225,11 +225,11 @@ export function createRecord(record: unknown, options: ConstrainedRequestOptions
  */
 export function updateRecord<T>(
   record: T,
-  options: ConstrainedRequestOptions & { patch?: boolean }
+  options?: ConstrainedRequestOptions & { patch?: boolean }
 ): UpdateRequestOptions<T>;
 export function updateRecord(
   record: unknown,
-  options: ConstrainedRequestOptions & { patch?: boolean }
+  options?: ConstrainedRequestOptions & { patch?: boolean }
 ): UpdateRequestOptions;
 export function updateRecord(
   record: unknown,

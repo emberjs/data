@@ -66,14 +66,14 @@ import { copyForwardUrlOptions, extractCacheOptions } from './-utils';
 export function query<T>(
   type: TypeFromInstance<T>,
   // eslint-disable-next-line @typescript-eslint/no-shadow
-  query: QueryParamsSource,
-  options: ConstrainedRequestOptions
+  query?: QueryParamsSource,
+  options?: ConstrainedRequestOptions
 ): QueryRequestOptions<T, CollectionResourceDataDocument<T>>;
 export function query(
   type: string,
   // eslint-disable-next-line @typescript-eslint/no-shadow
-  query: QueryParamsSource,
-  options: ConstrainedRequestOptions
+  query?: QueryParamsSource,
+  options?: ConstrainedRequestOptions
 ): QueryRequestOptions;
 export function query(
   type: string,
