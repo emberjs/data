@@ -22,7 +22,7 @@ if (macroCondition(moduleExists('ember-provide-consume-context'))) {
 interface RequestSignature<T> {
   Args: {
     request?: Future<T>;
-    query?: StoreRequestInput;
+    query?: StoreRequestInput<T>;
     store?: Store;
   };
   Blocks: {
@@ -51,7 +51,7 @@ export class Request<T> extends Component<RequestSignature<T>> {
       return request;
     }
     assert(`You must provide either @request or an @query arg with the <Request> component`, query);
-    return this.store.request<T>(query);
+    return this.store.request<T>(query!);
   }
 
   get store(): Store {
