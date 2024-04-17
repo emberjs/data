@@ -117,10 +117,10 @@ module('Integration - legacy-compat/builders/query', function (hooks) {
       );
 
       const store = this.owner.lookup('service:store') as CompatStore;
-      const { content: post } = await store.request<Post>(queryRecord<Post>('post', { id: '1' }));
+      const { content: post } = await store.request(queryRecord<Post>('post', { id: '1' }));
 
-      assert.strictEqual(post.id, '1', 'post has correct id');
-      assert.strictEqual(post.name, 'Krystan rules, you drool', 'post has correct name');
+      assert.strictEqual(post?.id, '1', 'post has correct id');
+      assert.strictEqual(post?.name, 'Krystan rules, you drool', 'post has correct name');
       assert.verifySteps(['adapter-queryRecord'], 'adapter-queryRecord was called');
     });
 

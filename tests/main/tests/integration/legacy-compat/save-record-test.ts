@@ -47,7 +47,7 @@ module('Integration - legacy-compat/builders/saveRecord', function (hooks) {
 
       const store = this.owner.lookup('service:store') as CompatStore;
       const newPost: Post = store.createRecord('post', { name: 'Krystan rules, you drool' });
-      const { content: savedPost } = await store.request<Post>(saveRecord(newPost));
+      const { content: savedPost } = await store.request(saveRecord(newPost));
 
       assert.strictEqual(savedPost.id, '1', 'post has correct id');
       assert.strictEqual(savedPost.name, 'Krystan rules, you drool', 'post has correct name');
@@ -56,7 +56,7 @@ module('Integration - legacy-compat/builders/saveRecord', function (hooks) {
 
     test('saveRecord', function (assert) {
       const store = this.owner.lookup('service:store') as CompatStore;
-      const newPost: Post = store.createRecord('post', { name: 'Krystan rules, you drool' });
+      const newPost = store.createRecord<Post>('post', { name: 'Krystan rules, you drool' });
       const identifier = recordIdentifierFor(newPost);
       const result = saveRecord(newPost);
       assert.deepEqual(
@@ -115,7 +115,7 @@ module('Integration - legacy-compat/builders/saveRecord', function (hooks) {
       );
 
       const store = this.owner.lookup('service:store') as CompatStore;
-      const existingPost: Post = store.push({
+      const existingPost = store.push<Post>({
         data: {
           id: '1',
           type: 'post',
@@ -125,7 +125,7 @@ module('Integration - legacy-compat/builders/saveRecord', function (hooks) {
         },
       });
       existingPost.deleteRecord();
-      const { content: savedPost } = await store.request<Post>(saveRecord(existingPost));
+      const { content: savedPost } = await store.request(saveRecord(existingPost));
 
       assert.strictEqual(savedPost.id, '1', 'post has correct id');
       assert.strictEqual(savedPost.name, 'Krystan rules, you drool', 'post has correct name');
@@ -212,7 +212,7 @@ module('Integration - legacy-compat/builders/saveRecord', function (hooks) {
       );
 
       const store = this.owner.lookup('service:store') as CompatStore;
-      const existingPost: Post = store.push({
+      const existingPost = store.push<Post>({
         data: {
           id: '1',
           type: 'post',
@@ -222,7 +222,7 @@ module('Integration - legacy-compat/builders/saveRecord', function (hooks) {
         },
       });
       existingPost.name = 'Chris drools, Krystan rules';
-      const { content: savedPost } = await store.request<Post>(saveRecord(existingPost));
+      const { content: savedPost } = await store.request(saveRecord(existingPost));
 
       assert.strictEqual(savedPost.id, '1', 'post has correct id');
       assert.strictEqual(savedPost.name, 'Chris drools, Krystan rules', 'post has correct name');
