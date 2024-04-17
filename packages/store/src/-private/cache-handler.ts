@@ -115,12 +115,12 @@ export interface LifetimesService {
   ): void;
 }
 
-export type LooseStoreRequestInfo = Omit<ImmutableRequestInfo, 'records' | 'headers'> & {
+export type LooseStoreRequestInfo<T = unknown> = Omit<ImmutableRequestInfo<T>, 'records' | 'headers'> & {
   records?: ResourceIdentifierObject[];
   headers?: Headers;
 };
 
-export type StoreRequestInput = ImmutableRequestInfo | LooseStoreRequestInfo;
+export type StoreRequestInput<T = unknown> = ImmutableRequestInfo<T> | LooseStoreRequestInfo<T>;
 
 export interface StoreRequestContext extends RequestContext {
   request: ImmutableRequestInfo & { store: Store; [EnableHydration]?: boolean };

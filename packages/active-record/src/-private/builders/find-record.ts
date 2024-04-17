@@ -6,17 +6,17 @@ import { underscore } from '@ember/string';
 import { pluralize } from 'ember-inflector';
 
 import { buildBaseURL, buildQueryParams, type FindRecordUrlOptions } from '@ember-data/request-utils';
+import type { TypeFromInstance } from '@warp-drive/core-types/record';
 import type {
-  ConstrainedRequestOptions,
+  FindRecordOptions,
   FindRecordRequestOptions,
   RemotelyAccessibleIdentifier,
 } from '@warp-drive/core-types/request';
+import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
 
 import { copyForwardUrlOptions, extractCacheOptions } from './-utils';
 
-type FindRecordOptions = ConstrainedRequestOptions & {
-  include?: string | string[];
-};
+export type FindRecordResultDocument<T> = Omit<SingleResourceDataDocument<T>, 'data'> & { data: T };
 
 /**
  * Builds request options to fetch a single resource by a known id or identifier
@@ -76,10 +76,19 @@ type FindRecordOptions = ConstrainedRequestOptions & {
  * @param identifier
  * @param options
  */
+export function findRecord<T>(
+  identifier: RemotelyAccessibleIdentifier<TypeFromInstance<T>>,
+  options?: FindRecordOptions<T>
+): FindRecordRequestOptions<T, FindRecordResultDocument<T>>;
 export function findRecord(
   identifier: RemotelyAccessibleIdentifier,
   options?: FindRecordOptions
 ): FindRecordRequestOptions;
+export function findRecord<T>(
+  type: TypeFromInstance<T>,
+  id: string,
+  options?: FindRecordOptions<T>
+): FindRecordRequestOptions<T, FindRecordResultDocument<T>>;
 export function findRecord(type: string, id: string, options?: FindRecordOptions): FindRecordRequestOptions;
 export function findRecord(
   arg1: string | RemotelyAccessibleIdentifier,

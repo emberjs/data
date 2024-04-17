@@ -23,7 +23,7 @@ export default class ApplicationRoute extends Route {
     const oldBooksPaginated = this.store.query('book', { page: 1, pageSize: 20 });
 
     // Example of new usage (refactored, paginated)
-    const books = this.store.request<Document<Book[]>>(query('book'));
+    const books = this.store.request(query<Book>('book'));
 
     const data = await Promise.all([genres, authors, books, oldBooks, oldBooksPaginated]);
 

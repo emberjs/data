@@ -6,17 +6,15 @@ import { camelize } from '@ember/string';
 import { pluralize } from 'ember-inflector';
 
 import { buildBaseURL, buildQueryParams, type FindRecordUrlOptions } from '@ember-data/request-utils';
+import type { TypeFromInstance } from '@warp-drive/core-types/record';
 import type {
-  ConstrainedRequestOptions,
+  FindRecordOptions,
   FindRecordRequestOptions,
   RemotelyAccessibleIdentifier,
 } from '@warp-drive/core-types/request';
+import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
 
 import { copyForwardUrlOptions, extractCacheOptions } from './-utils';
-
-type FindRecordOptions = ConstrainedRequestOptions & {
-  include?: string | string[];
-};
 
 /**
  * Builds request options to fetch a single resource by a known id or identifier
@@ -76,17 +74,29 @@ type FindRecordOptions = ConstrainedRequestOptions & {
  * @param identifier
  * @param options
  */
+export type FindRecordResultDocument<T> = Omit<SingleResourceDataDocument<T>, 'data'> & { data: T };
+
+export function findRecord<T>(
+  identifier: RemotelyAccessibleIdentifier<TypeFromInstance<T>>,
+  options?: FindRecordOptions<T>
+): FindRecordRequestOptions<T, FindRecordResultDocument<T>>;
 export function findRecord(
   identifier: RemotelyAccessibleIdentifier,
   options?: FindRecordOptions
 ): FindRecordRequestOptions;
+export function findRecord<T>(
+  type: TypeFromInstance<T>,
+  id: string,
+  options?: FindRecordOptions<T>
+): FindRecordRequestOptions<T, FindRecordResultDocument<T>>;
 export function findRecord(type: string, id: string, options?: FindRecordOptions): FindRecordRequestOptions;
-export function findRecord(
-  arg1: string | RemotelyAccessibleIdentifier,
+export function findRecord<T>(
+  arg1: TypeFromInstance<T> | RemotelyAccessibleIdentifier<TypeFromInstance<T>>,
   arg2: string | FindRecordOptions | undefined,
   arg3?: FindRecordOptions
-): FindRecordRequestOptions {
-  const identifier: RemotelyAccessibleIdentifier = typeof arg1 === 'string' ? { type: arg1, id: arg2 as string } : arg1;
+): FindRecordRequestOptions<T, FindRecordResultDocument<T>> {
+  const identifier: RemotelyAccessibleIdentifier<TypeFromInstance<T>> =
+    typeof arg1 === 'string' ? { type: arg1, id: arg2 as string } : arg1;
   const options: FindRecordOptions = (typeof arg1 === 'string' ? arg3 : (arg2 as FindRecordOptions)) || {};
   const cacheOptions = extractCacheOptions(options);
   const urlOptions: FindRecordUrlOptions = {

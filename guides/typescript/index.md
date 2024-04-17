@@ -17,10 +17,8 @@ the following two sections
   - [Using Types Packages](./1-configuration.md#using-types-packages)
 - Usage
   - [Why Brands](./2-why-brands.md)
-  - [Typing Models](./3-typing-models.md)
-  - Typing Transforms
-  - Typing Requests
-  - Typing Builders
+  - [Typing Models & Transforms](./3-typing-models.md)
+  - [Typing Requests & Builders](./4-typing-requests.md)
   - Typing Handlers
   - Using Store APIs
 

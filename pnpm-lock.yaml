@@ -1131,6 +1131,9 @@ importers:
       ember-source:
         specifier: ~5.7.0
         version: 5.7.0(@babel/core@7.24.4)(@glimmer/component@1.1.2)(@glint/template@1.4.0)(webpack@5.91.0)
+      expect-type:
+        specifier: ^0.19.0
+        version: 0.19.0
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.10
         version: 0.0.10
