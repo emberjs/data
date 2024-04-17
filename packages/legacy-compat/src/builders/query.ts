@@ -7,16 +7,18 @@ import type { StoreRequestInput } from '@ember-data/store';
 import type { QueryOptions } from '@ember-data/store/-types/q/store';
 import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
 import { SkipCache } from '@warp-drive/core-types/request';
+import type { RequestSignature } from '@warp-drive/core-types/symbols';
 
 import { normalizeModelName } from './utils';
 
-type QueryRequestInput<T extends string> = StoreRequestInput & {
+type QueryRequestInput<T extends string = string, RT = unknown[]> = StoreRequestInput & {
   op: 'query';
   data: {
     type: T;
     query: Record<string, unknown>;
     options: QueryBuilderOptions;
   };
+  [RequestSignature]?: RT;
 };
 
 type QueryBuilderOptions = QueryOptions;
@@ -44,17 +46,17 @@ export function queryBuilder<T extends TypedRecordInstance>(
   type: TypeFromInstance<T>,
   query: Record<string, unknown>,
   options?: QueryBuilderOptions
-): QueryRequestInput<TypeFromInstance<T>>;
+): QueryRequestInput<TypeFromInstance<T>, T[]>;
 export function queryBuilder(
   type: string,
   query: Record<string, unknown>,
   options?: QueryBuilderOptions
-): QueryRequestInput<string>;
+): QueryRequestInput;
 export function queryBuilder(
   type: string,
   query: Record<string, unknown>,
   options: QueryBuilderOptions = {}
-): QueryRequestInput<string> {
+): QueryRequestInput {
   assert(`You need to pass a model name to the query builder`, type);
   assert(`You need to pass a query hash to the query builder`, query);
   assert(
@@ -73,13 +75,14 @@ export function queryBuilder(
   };
 }
 
-type QueryRecordRequestInput<T extends string> = StoreRequestInput & {
+type QueryRecordRequestInput<T extends string = string, RT = unknown> = StoreRequestInput & {
   op: 'queryRecord';
   data: {
     type: T;
     query: Record<string, unknown>;
     options: QueryBuilderOptions;
   };
+  [RequestSignature]?: RT;
 };
 
 /**
@@ -105,17 +108,17 @@ export function queryRecordBuilder<T extends TypedRecordInstance>(
   type: TypeFromInstance<T>,
   query: Record<string, unknown>,
   options?: QueryBuilderOptions
-): QueryRecordRequestInput<TypeFromInstance<T>>;
+): QueryRecordRequestInput<TypeFromInstance<T>, T | null>;
 export function queryRecordBuilder(
   type: string,
   query: Record<string, unknown>,
   options?: QueryBuilderOptions
-): QueryRecordRequestInput<string>;
+): QueryRecordRequestInput;
 export function queryRecordBuilder(
   type: string,
   query: Record<string, unknown>,
   options?: QueryBuilderOptions
-): QueryRecordRequestInput<string> {
+): QueryRecordRequestInput {
   assert(`You need to pass a model name to the queryRecord builder`, type);
   assert(`You need to pass a query hash to the queryRecord builder`, query);
   assert(

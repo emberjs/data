@@ -101,5 +101,5 @@ export function query(
     headers,
     cacheOptions,
     op: 'query',
-  } as QueryRequestOptions;
+  };
 }

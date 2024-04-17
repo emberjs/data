@@ -89,13 +89,12 @@ export function findRecord<T>(
   options?: FindRecordOptions<T>
 ): FindRecordRequestOptions<T, FindRecordResultDocument<T>>;
 export function findRecord(type: string, id: string, options?: FindRecordOptions): FindRecordRequestOptions;
-export function findRecord<T>(
-  arg1: TypeFromInstance<T> | RemotelyAccessibleIdentifier<TypeFromInstance<T>>,
+export function findRecord(
+  arg1: string | RemotelyAccessibleIdentifier,
   arg2: string | FindRecordOptions | undefined,
   arg3?: FindRecordOptions
-): FindRecordRequestOptions<T, FindRecordResultDocument<T>> {
-  const identifier: RemotelyAccessibleIdentifier<TypeFromInstance<T>> =
-    typeof arg1 === 'string' ? { type: arg1, id: arg2 as string } : arg1;
+): FindRecordRequestOptions {
+  const identifier: RemotelyAccessibleIdentifier = typeof arg1 === 'string' ? { type: arg1, id: arg2 as string } : arg1;
   const options = ((typeof arg1 === 'string' ? arg3 : arg2) || {}) as FindRecordOptions;
   const cacheOptions = extractCacheOptions(options);
   const urlOptions: FindRecordUrlOptions = {
@@ -119,5 +118,5 @@ export function findRecord<T>(
     cacheOptions,
     op: 'findRecord',
     records: [identifier],
-  } as FindRecordRequestOptions<T, FindRecordResultDocument<T>>;
+  };
 }

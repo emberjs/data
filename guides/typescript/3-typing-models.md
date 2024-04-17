@@ -1,4 +1,4 @@
-# Typing Models
+# Typing Models & Transforms
 
 ## ResourceType
 
@@ -15,21 +15,58 @@ export default class User extends Model {
 }
 ```
 
+The benefit of the above is that the value of ResourceType is readable at runtime and thus easy to debug.
+However, you can also choose to do this via types only:
+
+```ts
+import Model, { attr } from '@ember-data/model';
+import type { ResourceType } from '@warp-drive/core-types/symbols';
+
+export default class User extends Model {
+  @attr declare name: string;
+
+  declare [ResourceType]: 'user';
+}
+```
+
+EmberData will never access ResourceType as an actual value, these brands are *purely* for type inference.
+
 ## Transforms
 
 Transforms with a `TransformName` brand will have their type and options validated. Once we move to stage-3 decorators, the signature of the field would also be validated against the transform.
+
+Example: Typing a Transform
+
+```ts
+import type { TransformName } from '@warp-drive/core-types/symbols';
+
+export default class BigIntTransform {
+  deserialize(serialized: string): BigInt | null {
+    return !serialized || serialized === '' ? null : BigInt(serialized + 'n');
+  }
+  serialize(deserialized: BigInt | null): string | null {
+    return !deserialized ? null : String(deserialized);
+  }
+
+  declare [TransformName]: 'big-int';
+
+  static create() {
+    return new this();
+  }
+}
+```
 
 Example: Using Transforms
 
 ```ts
 import Model, { attr } from '@ember-data/model';
 import type { StringTransform } from '@ember-data/serializer/transforms';
-import { ResourceType } from '@warp-drive/core-types/symbols';
+import type { ResourceType } from '@warp-drive/core-types/symbols';
 
 export default class User extends Model {
   @attr<StringTransform>('string') declare name: string;
 
-  [ResourceType] = 'user' as const;
+  declare [ResourceType]: 'user';
 }
 ```
 
