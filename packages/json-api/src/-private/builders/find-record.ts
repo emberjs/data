@@ -119,5 +119,5 @@ export function findRecord<T>(
     cacheOptions,
     op: 'findRecord',
     records: [identifier],
-  } as unknown as FindRecordRequestOptions<T, FindRecordResultDocument<T>>;
+  } as FindRecordRequestOptions<T, FindRecordResultDocument<T>>;
 }
