@@ -41,5 +41,8 @@ export const TransformName = Symbol('$TransformName');
 /**
  * Symbol for use by builders to indicate the return type
  * generic to use for store.request()
+ *
+ * @type {Symbol}
+ * @typedoc
  */
 export const RequestSignature = Symbol('RequestSignature');
