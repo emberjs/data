@@ -25,6 +25,16 @@ if (macroCondition(moduleExists('ember-provide-consume-context'))) {
   provide = consume;
 }
 
+type ContentFeatures<T> = {
+  isOnline: boolean;
+  isHidden: boolean;
+  isRefreshing: boolean;
+  refresh: () => Promise<void>;
+  reload: () => Promise<void>;
+  abort?: () => void;
+  latestRequest?: Future<T>;
+};
+
 interface RequestSignature<T> {
   Args: {
     request?: Future<T>;
@@ -44,7 +54,7 @@ interface RequestSignature<T> {
       error: StructuredErrorDocument,
       features: { isOnline: boolean; isHidden: boolean; retry: () => Promise<void> },
     ];
-    content: [value: T, features: { isOnline: boolean; isHidden: boolean; reload: () => Promise<void> }];
+    content: [value: T, features: ContentFeatures<T>];
     always: [state: RequestState<T>];
   };
 }
@@ -56,7 +66,9 @@ export class Request<T> extends Component<RequestSignature<T>> {
   @provide('store') declare _store: Store;
   @tracked isOnline: boolean = true;
   @tracked isHidden: boolean = true;
+  @tracked isRefreshing: boolean = false;
   @tracked _localRequest: Future<T> | undefined;
+  @tracked _latestRequest: Future<T> | undefined;
   declare unavailableStart: number | null;
   declare onlineChanged: (event: Event) => void;
   declare backgroundChanged: (event: Event) => void;
@@ -123,9 +135,13 @@ export class Request<T> extends Component<RequestSignature<T>> {
           !request.store || request.store === this.store
         );
 
-        this._localRequest = wasStoreRequest
+        this._latestRequest = wasStoreRequest
           ? this.store.request<T>(request)
           : this.store.requestManager.request<T>(request);
+
+        if (val !== 'refresh') {
+          this._localRequest = this._latestRequest;
+        }
       }
     }
 
@@ -139,6 +155,16 @@ export class Request<T> extends Component<RequestSignature<T>> {
     await this._localRequest;
   };
 
+  refresh = async () => {
+    this.isRefreshing = true;
+    this.maybeUpdate('refresh');
+    try {
+      await this._latestRequest;
+    } finally {
+      this.isRefreshing = false;
+    }
+  };
+
   @cached
   get errorFeatures() {
     return {
@@ -150,11 +176,22 @@ export class Request<T> extends Component<RequestSignature<T>> {
 
   @cached
   get contentFeatures() {
-    return {
+    const feat: ContentFeatures<T> = {
       isHidden: this.isHidden,
       isOnline: this.isOnline,
       reload: this.retry,
+      refresh: this.refresh,
+      isRefreshing: this.isRefreshing,
+      latestRequest: this._latestRequest,
     };
+
+    if (feat.isRefreshing) {
+      feat.abort = () => {
+        this._latestRequest?.abort();
+      };
+    }
+
+    return feat;
   }
 
   willDestroy() {
