@@ -63,7 +63,7 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.42",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.56",
-    "rollup": "^4.14.1",
+    "rollup": "^4.14.3",
     "typescript": "^5.4.5",
     "walk-sync": "^3.0.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10"

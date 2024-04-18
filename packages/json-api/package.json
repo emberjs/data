@@ -118,7 +118,7 @@
     "ember-source": "~5.7.0",
     "expect-type": "^0.19.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
-    "rollup": "^4.14.1",
+    "rollup": "^4.14.3",
     "typescript": "^5.4.5",
     "walk-sync": "^3.0.0",
     "webpack": "^5.91.0"
