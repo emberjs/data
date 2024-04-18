@@ -40,7 +40,6 @@
     "test": "tests"
   },
   "scripts": {
-    "test:infra": "ember test",
     "build:types": "tsc --build --emitDeclarationOnly",
     "_build": "bun run build:types",
     "_syncPnpm": "bun run sync-dependencies-meta-injected"

@@ -24,8 +24,7 @@
     "test:docs": "FORCE_COLOR=2  pnpm build:docs && pnpm run -r --workspace-concurrency=-1 --if-present test:docs",
     "test:blueprints": "pnpm run -r --workspace-concurrency=-1 --if-present test:blueprints",
     "test:fastboot": "pnpm run -r --workspace-concurrency=-1 --if-present test:fastboot",
-    "test:embroider": "pnpm run -r ---workspace-concurrency=-1 --if-present test:embroider",
-    "test:infra": "pnpm run -r --workspace-concurrency=-1 --if-present test:infra"
+    "test:embroider": "pnpm run -r ---workspace-concurrency=-1 --if-present test:embroider"
   },
   "devDependencies": {
     "@babel/core": "^7.24.4",
