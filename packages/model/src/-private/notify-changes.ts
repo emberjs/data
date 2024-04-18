@@ -26,7 +26,7 @@ export default function notifyChanges(
     }
   } else if (value === 'relationships') {
     if (key) {
-      const meta = record.constructor.relationshipsByName.get(key);
+      const meta = (record.constructor as typeof Model).relationshipsByName.get(key);
       assert(`Expected to find a relationship for ${key} on ${identifier.type}`, meta);
       notifyRelationship(identifier, key, record, meta);
     } else {

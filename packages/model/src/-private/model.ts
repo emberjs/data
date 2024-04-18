@@ -47,7 +47,7 @@ export type ModelCreateArgs = {
   };
 };
 
-export type StaticModel = typeof Model;
+export type StaticModel = typeof Model & { create(options: ModelCreateArgs): Model };
 export type ModelFactory = { class: StaticModel };
 export type FactoryCache = Record<string, ModelFactory>;
 // we put this on the store for interop because it's used by modelFor and
@@ -100,13 +100,14 @@ function computeOnce(target: object, propertyName: string, desc: PropertyDescrip
   @public
   @extends Ember.EmberObject
 */
-class Model extends EmberObject {
+class Model extends EmberObject implements MinimalLegacyRecord {
   // set during create by the store
   declare store: Store;
   declare ___recordState: RecordState;
   declare ___private_notifications: object;
   declare _createProps: null;
   declare _secretInit: null;
+  declare [RecordStore]: Store;
 
   override init(options: ModelCreateArgs) {
     if (DEBUG) {
@@ -447,6 +448,7 @@ class Model extends EmberObject {
     @type {Boolean}
     @readOnly
   */
+  declare isReloading: boolean;
 
   /**
     All ember models have an id property. This is an identifier
