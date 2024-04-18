@@ -2,9 +2,9 @@ import { assert } from '@ember/debug';
 import { service } from '@ember/service';
 import Component from '@glimmer/component';
 import { cached } from '@glimmer/tracking';
-import type { RequestInfo } from '@warp-drive/core-types/request';
+import { EnableHydration, type RequestInfo } from '@warp-drive/core-types/request';
 import type { Future, StructuredErrorDocument } from '@ember-data/request';
-
+import type { RequestState } from './request-state.ts';
 import { importSync, macroCondition, moduleExists } from '@embroider/macros';
 
 import type { StoreRequestInput } from '@ember-data/store';
@@ -30,11 +30,9 @@ interface RequestSignature<T> {
     request?: Future<T>;
     query?: StoreRequestInput;
     store?: Store;
-    autoRefresh?: boolean;
-    // second we must have been offline or hidden
-    // before we would refresh
-    autoRefreshTimeout?: number;
-    autoRefreshBehavior?: 'refresh' | 'reload' | 'delegate';
+    autorefresh?: boolean;
+    autorefreshThreshold?: number;
+    autorefreshBehavior?: 'refresh' | 'reload' | 'policy';
   };
   Blocks: {
     loading: [state: RequestLoadingState];
@@ -46,7 +44,8 @@ interface RequestSignature<T> {
       error: StructuredErrorDocument,
       features: { isOnline: boolean; isHidden: boolean; retry: () => Promise<void> },
     ];
-    content: [value: T];
+    content: [value: T, features: { isOnline: boolean; isHidden: boolean; reload: () => Promise<void> }];
+    always: [state: RequestState<T>];
   };
 }
 
@@ -80,6 +79,9 @@ export class Request<T> extends Component<RequestSignature<T>> {
 
     this.onlineChanged = (event: Event) => {
       this.isOnline = event.type === 'online';
+      if (event.type === 'offline') {
+        this.unavailableStart = Date.now();
+      }
       this.maybeUpdate();
     };
     this.backgroundChanged = () => {
@@ -92,14 +94,16 @@ export class Request<T> extends Component<RequestSignature<T>> {
     document.addEventListener('visibilitychange', this.backgroundChanged, { passive: true, capture: true });
   }
 
-  maybeUpdate(mode?: 'reload' | 'refresh' | 'delegate'): void {
-    if (this.isOnline && !this.isHidden && (mode || this.args.autoRefresh)) {
-      const deadline = this.args.autoRefreshTimeout ? this.args.autoRefreshTimeout * 1000 : DEFAULT_DEADLINE;
+  maybeUpdate(mode?: 'reload' | 'refresh' | 'policy'): void {
+    if (this.isOnline && !this.isHidden && (mode || this.args.autorefresh)) {
+      const deadline =
+        typeof this.args.autorefreshThreshold === 'number' ? this.args.autorefreshThreshold : DEFAULT_DEADLINE;
       const shouldAttempt = mode || (this.unavailableStart && Date.now() - this.unavailableStart > deadline);
+      this.unavailableStart = null;
 
       if (shouldAttempt) {
         const request = Object.assign({}, this.reqState.request as unknown as RequestInfo);
-        const val = mode ?? this.args.autoRefreshBehavior ?? 'delegate';
+        const val = mode ?? this.args.autorefreshBehavior ?? 'policy';
         switch (val) {
           case 'reload':
             request.cacheOptions = Object.assign({}, request.cacheOptions, { reload: true });
@@ -107,13 +111,21 @@ export class Request<T> extends Component<RequestSignature<T>> {
           case 'refresh':
             request.cacheOptions = Object.assign({}, request.cacheOptions, { backgroundReload: true });
             break;
-          case 'delegate':
+          case 'policy':
             break;
           default:
-            throw new Error(`Invalid ${mode ? 'update mode' : '@autoRefreshBehavior'} for <Request />: ${val}`);
+            throw new Error(`Invalid ${mode ? 'update mode' : '@autorefreshBehavior'} for <Request />: ${val}`);
         }
 
-        this._localRequest = this.store.request<T>(request);
+        const wasStoreRequest = (request as { [EnableHydration]: boolean })[EnableHydration] === true;
+        assert(
+          `Cannot supply a different store via context than was used to create the request`,
+          !request.store || request.store === this.store
+        );
+
+        this._localRequest = wasStoreRequest
+          ? this.store.request<T>(request)
+          : this.store.requestManager.request<T>(request);
       }
     }
 
@@ -133,6 +145,15 @@ export class Request<T> extends Component<RequestSignature<T>> {
       isHidden: this.isHidden,
       isOnline: this.isOnline,
       retry: this.retry,
+    };
+  }
+
+  @cached
+  get contentFeatures() {
+    return {
+      isHidden: this.isHidden,
+      isOnline: this.isOnline,
+      reload: this.retry,
     };
   }
 
@@ -194,9 +215,10 @@ export class Request<T> extends Component<RequestSignature<T>> {
     {{else if (and this.reqState.isError (has-block "error"))}}
       {{yield (notNull this.reqState.error) this.errorFeatures to="error"}}
     {{else if this.reqState.isSuccess}}
-      {{yield (notNull this.reqState.result) to="content"}}
+      {{yield (notNull this.reqState.result) this.contentFeatures to="content"}}
     {{else if (not this.reqState.isCancelled)}}
       <Throw @error={{(notNull this.reqState.error)}} />
     {{/if}}
+    {{yield this.reqState to="always"}}
   </template>
 }

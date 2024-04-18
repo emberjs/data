@@ -91,7 +91,7 @@ class SimpleCacheHandler implements CacheHandler {
   }
 }
 
-async function mockGETSuccess(context: LocalTestContext): Promise<string> {
+async function mockGETSuccess(context: LocalTestContext, attributes?: { name: string }): Promise<string> {
   await GET(
     context,
     'users/1',
@@ -99,9 +99,12 @@ async function mockGETSuccess(context: LocalTestContext): Promise<string> {
       data: {
         id: '1',
         type: 'user',
-        attributes: {
-          name: 'Chris Thoburn',
-        },
+        attributes: Object.assign(
+          {
+            name: 'Chris Thoburn',
+          },
+          attributes
+        ),
       },
     }),
     { RECORD: RECORD }
@@ -662,5 +665,72 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       this.element.textContent?.trim(),
       '[404 Not Found] GET (cors) - https://localhost:1135/users/2Count: 1'
     );
+  });
+
+  test('isOnline updates when expected', async function (assert) {
+    const url = await mockGETSuccess(this);
+    const request = this.manager.request<UserResource>({ url, method: 'GET' });
+
+    await this.render(
+      <template>
+        <Request @request={{request}}>
+          <:content as |result state|>Online: {{state.isOnline}}</:content>
+        </Request>
+      </template>
+    );
+    await request;
+    await rerender();
+
+    assert.equal(this.element.textContent?.trim(), 'Online: true');
+    window.dispatchEvent(new Event('offline'));
+
+    await rerender();
+
+    assert.equal(this.element.textContent?.trim(), 'Online: false');
+    window.dispatchEvent(new Event('online'));
+
+    await rerender();
+
+    assert.equal(this.element.textContent?.trim(), 'Online: true');
+  });
+
+  test('@autorefreshBehavior="reload" works as expected', async function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    store.requestManager = this.manager;
+
+    const url = await mockGETSuccess(this);
+    await mockGETSuccess(this, { name: 'James Thoburn' });
+    const request = this.manager.request<UserResource>({ url, method: 'GET' });
+
+    await this.render(
+      <template>
+        <Request
+          @request={{request}}
+          @autorefresh={{true}}
+          @autorefreshBehavior={{"reload"}}
+          @autorefreshThreshold={{0}}
+        >
+          <:content as |result state|>{{result.data.attributes.name}} | Online: {{state.isOnline}}</:content>
+        </Request>
+      </template>
+    );
+    await request;
+    await rerender();
+
+    assert.equal(this.element.textContent?.trim(), 'Chris Thoburn | Online: true');
+    window.dispatchEvent(new Event('offline'));
+
+    await rerender();
+
+    // enable the auto-refresh threshold to trigger
+    await new Promise((resolve) => setTimeout(resolve, 1));
+
+    assert.equal(this.element.textContent?.trim(), 'Chris Thoburn | Online: false');
+    window.dispatchEvent(new Event('online'));
+
+    // let the event dispatch complete
+    await new Promise((resolve) => setTimeout(resolve, 1));
+    await settled();
+    assert.equal(this.element.textContent?.trim(), 'James Thoburn | Online: true');
   });
 });
