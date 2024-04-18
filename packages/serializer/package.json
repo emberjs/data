@@ -115,7 +115,7 @@
     "webpack": "^5.91.0"
   },
   "engines": {
-    "node": ">= 18.20.1"
+    "node": ">= 18.20.2"
   },
   "volta": {
     "extends": "../../package.json"
