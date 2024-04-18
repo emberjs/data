@@ -10,7 +10,6 @@ export function notNull<T>(x: T | null) {
   return x;
 }
 export const and = (x: unknown, y: unknown) => Boolean(x && y);
-
 interface ThrowSignature<E = Error | string | object> {
   Args: {
     error: E;
