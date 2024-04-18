@@ -2,7 +2,7 @@ import { assert } from '@ember/debug';
 import { service } from '@ember/service';
 import Component from '@glimmer/component';
 import { cached } from '@glimmer/tracking';
-import type { CacheOptions, RequestInfo } from '@warp-drive/core-types/request';
+import type { RequestInfo } from '@warp-drive/core-types/request';
 import type { Future, StructuredErrorDocument } from '@ember-data/request';
 
 import { importSync, macroCondition, moduleExists } from '@embroider/macros';
@@ -13,6 +13,7 @@ import type Store from '@ember-data/store';
 import { getRequestState } from './request-state.ts';
 import type { RequestLoadingState } from './request-state.ts';
 import { and, notNull, Throw } from './await.gts';
+import { tracked } from '@glimmer/tracking';
 
 const not = (x: unknown) => !x;
 // default to 30 seconds unavailable before we refresh
@@ -37,8 +38,14 @@ interface RequestSignature<T> {
   };
   Blocks: {
     loading: [state: RequestLoadingState];
-    cancelled: [error: StructuredErrorDocument];
-    error: [error: StructuredErrorDocument];
+    cancelled: [
+      error: StructuredErrorDocument,
+      features: { isOnline: boolean; isHidden: boolean; retry: () => Promise<void> },
+    ];
+    error: [
+      error: StructuredErrorDocument,
+      features: { isOnline: boolean; isHidden: boolean; retry: () => Promise<void> },
+    ];
     content: [value: T];
   };
 }
@@ -48,11 +55,14 @@ export class Request<T> extends Component<RequestSignature<T>> {
    * @internal
    */
   @provide('store') declare _store: Store;
-  declare online: boolean;
-  declare background: boolean;
+  @tracked isOnline: boolean = true;
+  @tracked isHidden: boolean = true;
+  @tracked _localRequest: Future<T> | undefined;
   declare unavailableStart: number | null;
   declare onlineChanged: (event: Event) => void;
   declare backgroundChanged: (event: Event) => void;
+  declare _originalRequest: Future<T> | undefined;
+  declare _originalQuery: StoreRequestInput | undefined;
 
   constructor(owner: unknown, args: RequestSignature<T>['Args']) {
     super(owner, args);
@@ -64,17 +74,17 @@ export class Request<T> extends Component<RequestSignature<T>> {
       return;
     }
 
-    this.online = window.navigator.onLine;
-    this.unavailableStart = this.online ? null : Date.now();
-    this.background = document.visibilityState === 'hidden';
+    this.isOnline = window.navigator.onLine;
+    this.unavailableStart = this.isOnline ? null : Date.now();
+    this.isHidden = document.visibilityState === 'hidden';
 
     this.onlineChanged = (event: Event) => {
-      this.online = event.type === 'online';
-      this.maybeUpate();
+      this.isOnline = event.type === 'online';
+      this.maybeUpdate();
     };
     this.backgroundChanged = () => {
-      this.background = document.visibilityState === 'hidden';
-      this.maybeUpate();
+      this.isHidden = document.visibilityState === 'hidden';
+      this.maybeUpdate();
     };
 
     window.addEventListener('online', this.onlineChanged, { passive: true, capture: true });
@@ -82,12 +92,15 @@ export class Request<T> extends Component<RequestSignature<T>> {
     document.addEventListener('visibilitychange', this.backgroundChanged, { passive: true, capture: true });
   }
 
-  maybeUpate() {
-    if (this.online && !this.background && this.args.autoRefresh) {
+  maybeUpdate(mode?: 'reload' | 'refresh' | 'delegate'): void {
+    if (this.isOnline && !this.isHidden && (mode || this.args.autoRefresh)) {
       const deadline = this.args.autoRefreshTimeout ? this.args.autoRefreshTimeout * 1000 : DEFAULT_DEADLINE;
-      if (this.unavailableStart && Date.now() - this.unavailableStart > deadline) {
+      const shouldAttempt = mode || (this.unavailableStart && Date.now() - this.unavailableStart > deadline);
+
+      if (shouldAttempt) {
         const request = Object.assign({}, this.reqState.request as unknown as RequestInfo);
-        switch (this.args.autoRefreshBehavior) {
+        const val = mode ?? this.args.autoRefreshBehavior ?? 'delegate';
+        switch (val) {
           case 'reload':
             request.cacheOptions = Object.assign({}, request.cacheOptions, { reload: true });
             break;
@@ -95,12 +108,32 @@ export class Request<T> extends Component<RequestSignature<T>> {
             request.cacheOptions = Object.assign({}, request.cacheOptions, { backgroundReload: true });
             break;
           case 'delegate':
-          default:
             break;
+          default:
+            throw new Error(`Invalid ${mode ? 'update mode' : '@autoRefreshBehavior'} for <Request />: ${val}`);
         }
-        void this.store.request(request).catch(() => {});
+
+        this._localRequest = this.store.request<T>(request);
       }
     }
+
+    if (mode) {
+      throw new Error(`Reload not available: the network is not online or the tab is hidden`);
+    }
+  }
+
+  retry = async () => {
+    this.maybeUpdate('reload');
+    await this._localRequest;
+  };
+
+  @cached
+  get errorFeatures() {
+    return {
+      isHidden: this.isHidden,
+      isOnline: this.isOnline,
+      retry: this.retry,
+    };
   }
 
   willDestroy() {
@@ -120,6 +153,17 @@ export class Request<T> extends Component<RequestSignature<T>> {
   get request() {
     const { request, query } = this.args;
     assert(`Cannot use both @request and @query args with the <Request> component`, !request || !query);
+    const { _localRequest, _originalRequest, _originalQuery } = this;
+    const isOriginalRequest = request === _originalRequest && query === _originalQuery;
+
+    if (_localRequest && isOriginalRequest) {
+      return _localRequest;
+    }
+
+    // update state checks for the next time
+    this._originalQuery = query;
+    this._originalRequest = request;
+
     if (request) {
       return request;
     }
@@ -146,9 +190,9 @@ export class Request<T> extends Component<RequestSignature<T>> {
     {{#if this.reqState.isLoading}}
       {{yield this.reqState.loadingState to="loading"}}
     {{else if (and this.reqState.isCancelled (has-block "cancelled"))}}
-      {{yield (notNull this.reqState.error) to="cancelled"}}
+      {{yield (notNull this.reqState.error) this.errorFeatures to="cancelled"}}
     {{else if (and this.reqState.isError (has-block "error"))}}
-      {{yield (notNull this.reqState.error) to="error"}}
+      {{yield (notNull this.reqState.error) this.errorFeatures to="error"}}
     {{else if this.reqState.isSuccess}}
       {{yield (notNull this.reqState.result) to="content"}}
     {{else if (not this.reqState.isCancelled)}}

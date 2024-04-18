@@ -367,6 +367,12 @@ to the error block to handle.
 
 If no error block is present, the error will be rethrown.
 
+- retry
+
+Cancelled and error'd requests may be retried,
+retry will reuse the error, cancelled and loading
+blocks as appropriate.
+
 - Reloading states
 
 Reload will reset the request state, and so reuse the error, cancelled, and loading
