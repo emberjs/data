@@ -18,6 +18,34 @@ function test(name: string, callback: DiagnosticTest): void {
   return _test<LocalTestContext>(name, callback);
 }
 
+function setupOnError(cb: (message: Error | string) => void) {
+  const originalLog = console.error;
+  let cleanup!: () => void;
+  const handler = function (e: ErrorEvent | (Event & { reason: Error | string })) {
+    if (e instanceof ErrorEvent || e instanceof Event) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      cb('error' in e ? e.error : e.reason);
+    } else {
+      cb(e);
+    }
+    cleanup();
+    return false;
+  };
+  cleanup = () => {
+    window.removeEventListener('unhandledrejection', handler, { capture: true });
+    window.removeEventListener('error', handler, { capture: true });
+    console.error = originalLog;
+  };
+  console.error = handler;
+
+  window.addEventListener('unhandledrejection', handler, { capture: true });
+  window.addEventListener('error', handler, { capture: true });
+
+  return cleanup;
+}
+
 const RECORD = false;
 
 type UserResource = {
@@ -248,6 +276,56 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     );
   });
 
+  test('it rethrows if error block is not present', async function (assert) {
+    const url = await mockGETFailure(this);
+    const request = this.manager.request<UserResource>({ url, method: 'GET' });
+    const state = getRequestState(request);
+
+    let counter = 0;
+    function countFor(_result: unknown) {
+      return ++counter;
+    }
+
+    await this.render(
+      <template>
+        <Request @request={{request}}>
+          <:loading>Pending<br />Count: {{countFor request}}</:loading>
+          <:content as |result|>{{result.data.attributes.name}}<br />Count: {{countFor result}}</:content>
+        </Request>
+      </template>
+    );
+
+    assert.equal(state!, getRequestState(request), 'state is a stable reference');
+    assert.equal(state!.result, null, 'result is null');
+    assert.equal(state!.error, null, 'error is null');
+    assert.equal(counter, 1, 'counter is 1');
+    assert.equal(this.element.textContent?.trim(), 'PendingCount: 1');
+    const cleanup = setupOnError((message) => {
+      assert.step('render-error');
+      assert.true(
+        typeof message === 'string' && message.startsWith('\n\nError occurred:\n\n- While rendering:'),
+        'error message is correct'
+      );
+    });
+    try {
+      await request;
+    } catch {
+      // ignore the error
+    }
+    await rerender();
+    cleanup();
+    assert.verifySteps(['render-error']);
+    assert.equal(state!.result, null, 'after rerender result is still null');
+    assert.true(state!.error instanceof Error, 'error is an instance of Error');
+    assert.equal(
+      (state!.error as Error | undefined)?.message,
+      '[404 Not Found] GET (cors) - https://localhost:1135/users/2',
+      'error message is correct'
+    );
+    assert.equal(counter, 1, 'counter is still 1');
+    assert.equal(this.element.textContent?.trim(), '');
+  });
+
   test('it transitions to cancelled state correctly', async function (assert) {
     const url = await mockGETFailure(this);
     const request = this.manager.request<UserResource>({ url, method: 'GET' });
@@ -292,6 +370,99 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     );
     assert.equal(counter, 2, 'counter is 2');
     assert.equal(this.element.textContent?.trim(), 'Cancelled The user aborted a request.Count: 2');
+  });
+
+  test('it transitions to error state if cancelled block is not present', async function (assert) {
+    const url = await mockGETFailure(this);
+    const request = this.manager.request<UserResource>({ url, method: 'GET' });
+    const state = getRequestState(request);
+
+    let counter = 0;
+    function countFor(_result: unknown) {
+      return ++counter;
+    }
+
+    await this.render(
+      <template>
+        <Request @request={{request}}>
+          <:loading>Pending<br />Count: {{countFor request}}</:loading>
+          <:error as |error|>{{error.message}}<br />Count: {{countFor error}}</:error>
+          <:content as |result|>{{result.data.attributes.name}}<br />Count: {{countFor result}}</:content>
+        </Request>
+      </template>
+    );
+
+    assert.equal(state!, getRequestState(request), 'state is a stable reference');
+    assert.equal(state!.result, null, 'result is null');
+    assert.equal(state!.error, null, 'error is null');
+    assert.equal(counter, 1, 'counter is 1');
+    assert.equal(this.element.textContent?.trim(), 'PendingCount: 1');
+
+    request.abort();
+
+    try {
+      await request;
+    } catch {
+      // ignore the error
+    }
+    await rerender();
+    assert.equal(state!.result, null, 'after rerender result is still null');
+    assert.true(state!.error instanceof Error, 'error is an instance of Error');
+    assert.equal(
+      (state!.error as Error | undefined)?.message,
+      'The user aborted a request.',
+      'error message is correct'
+    );
+    assert.equal(counter, 2, 'counter is 2');
+    assert.equal(this.element.textContent?.trim(), 'The user aborted a request.Count: 2');
+  });
+
+  test('it does not rethrow for cancelled', async function (assert) {
+    const url = await mockGETFailure(this);
+    const request = this.manager.request<UserResource>({ url, method: 'GET' });
+    const state = getRequestState(request);
+
+    let counter = 0;
+    function countFor(_result: unknown) {
+      return ++counter;
+    }
+
+    await this.render(
+      <template>
+        <Request @request={{request}}>
+          <:loading>Pending<br />Count: {{countFor request}}</:loading>
+          <:content as |result|>{{result.data.attributes.name}}<br />Count: {{countFor result}}</:content>
+        </Request>
+      </template>
+    );
+
+    assert.equal(state!, getRequestState(request), 'state is a stable reference');
+    assert.equal(state!.result, null, 'result is null');
+    assert.equal(state!.error, null, 'error is null');
+    assert.equal(counter, 1, 'counter is 1');
+    assert.equal(this.element.textContent?.trim(), 'PendingCount: 1');
+
+    request.abort();
+
+    try {
+      await request;
+    } catch {
+      // ignore the error
+    }
+    try {
+      await rerender();
+    } catch (e) {
+      assert.ok(false, 'rerender should not throw');
+    }
+    assert.equal(state!.result, null, 'after rerender result is still null');
+    assert.true(state!.error instanceof Error, 'error is an instance of Error');
+    assert.equal(
+      (state!.error as Error | undefined)?.message,
+      'The user aborted a request.',
+      'error message is correct'
+    );
+    assert.equal(counter, 1, 'counter is 1');
+    assert.equal(this.element.textContent?.trim(), '');
   });
 
   test('it renders only once when the promise error state is already cached', async function (assert) {

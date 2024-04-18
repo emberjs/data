@@ -14,6 +14,7 @@ import { getRequestState } from './request-state.ts';
 import type { RequestLoadingState } from './request-state.ts';
 import { and, notNull, Throw } from './await.gts';
 
+const not = (x: unknown) => !x;
 // default to 30 seconds unavailable before we refresh
 const DEFAULT_DEADLINE = 30_000;
 
@@ -150,7 +151,7 @@ export class Request<T> extends Component<RequestSignature<T>> {
       {{yield (notNull this.reqState.error) to="error"}}
     {{else if this.reqState.isSuccess}}
       {{yield (notNull this.reqState.result) to="content"}}
-    {{else}}
+    {{else if (not this.reqState.isCancelled)}}
       <Throw @error={{(notNull this.reqState.error)}} />
     {{/if}}
   </template>
