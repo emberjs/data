@@ -8,8 +8,9 @@ import type {
   TSTypeParameterInstantiation,
 } from 'jscodeshift';
 
+import { TransformError } from '../utils/error.js';
 import type { ExistingImport, ImportInfo } from '../utils/imports.js';
-import { logger } from '../utils/log.js';
+import { log } from './log.js';
 import { TransformResult } from './result.js';
 
 interface LegacyStoreMethodCallExpression extends CallExpression {
@@ -46,7 +47,7 @@ export function transformLegacyStoreMethod(
   config: Config,
   existingImport: ExistingImport | undefined
 ): TransformResult {
-  logger.debug(`transforming ${config.importedName} calls`);
+  log.debug('\tTransforming calls:', `store.${config.importedName}`);
 
   const result = new TransformResult();
   const validate = config.transformOptions.validate ?? (() => {});
@@ -119,7 +120,7 @@ export function validateForFindRecord(j: JSCodeshift, path: ASTPath<LegacyStoreM
       (prop) => j.ObjectProperty.check(prop) && j.Identifier.check(prop.key) && prop.key.name === 'preload'
     )
   ) {
-    throw new Error(
+    throw new TransformError(
       `Cannot transform store.findRecord with a 'preload' key. This option is not supported by the legacy compat builders.`
     );
   }
@@ -157,11 +158,11 @@ function assertLegacyStoreMethodTSTypeParameterInstantiation(
   typeParameters: TSTypeParameterInstantiation
 ): asserts typeParameters is LegacyStoreMethodTSTypeParameterInstantiation {
   if (typeParameters.params.length !== 1) {
-    throw new Error(
+    throw new TransformError(
       `Expected exactly one type parameter for ${path.value.callee.property.name} expression, found ${typeParameters.params.length}`
     );
   }
   if (!['TSTypeReference', 'TSAnyKeyword'].includes(typeParameters.params[0].type)) {
-    throw new Error(`Expected singular TSTypeReference, found ${typeParameters.type}`);
+    throw new TransformError(`Expected singular TSTypeReference, found ${typeParameters.type}`);
   }
 }

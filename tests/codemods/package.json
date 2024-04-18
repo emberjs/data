@@ -14,9 +14,6 @@
   },
   "type": "module",
   "scripts": {
-    "build:runtime": "rollup --config",
-    "_build": "bun run build:runtime",
-    "prepack": "bun run _build",
     "check:types": "tsc --noEmit",
     "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
     "test": "tsx --test tests/index.spec.ts",

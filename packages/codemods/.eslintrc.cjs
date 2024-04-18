@@ -19,7 +19,7 @@ module.exports = {
   overrides: [
     node.config(),
     node.defaults({
-      files: ['src/**'],
+      files: ['src/**', 'bin/**'],
     }),
     typescript.defaults(),
   ],

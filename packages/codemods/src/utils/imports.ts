@@ -1,6 +1,7 @@
 import type { ASTPath, Collection, ImportDeclaration, ImportSpecifier, JSCodeshift } from 'jscodeshift';
 
-import { logger } from './log.js';
+import { log } from '../legacy-compat-builders/log.js';
+import { TransformError } from './error.js';
 
 /**
  * Information about an import you are tracking for your codemod.
@@ -49,7 +50,7 @@ export function parseExistingImports(j: JSCodeshift, root: Collection, importInf
 }
 
 function parseImport(path: ASTPath<ImportDeclaration>, importInfo: ImportInfo): ExistingImport | null {
-  logger.debug(`parsing imports`);
+  log.debug('\tParsing imports:', importInfo.importedName);
 
   const importDeclaration = path.value;
   if (!importDeclaration.specifiers || importDeclaration.source.value !== importInfo.sourceValue) {
@@ -77,7 +78,7 @@ function parseImport(path: ASTPath<ImportDeclaration>, importInfo: ImportInfo): 
  * specifier will be added to the first one with specifiers.
  */
 export function addImport(j: JSCodeshift, root: Collection, { importedName, sourceValue }: ImportInfo): void {
-  logger.debug(`adding ${importedName} import`);
+  log.debug(`\tAdding import: ${importedName} from '${sourceValue}'`);
 
   // Check if the import already exists
   const existingDeclarations = root.find(j.ImportDeclaration, {
@@ -106,7 +107,7 @@ export function addImport(j: JSCodeshift, root: Collection, { importedName, sour
     // Add the specifier to the first existing import with specifiers
     const first = existingDeclarations.paths().find((path) => path.value.specifiers);
     if (!first) {
-      throw new Error(`somehow we found multiple import declarations for ${sourceValue} with no specifiers`);
+      throw new TransformError(`somehow we found multiple import declarations for ${sourceValue} with no specifiers`);
     }
     first.value.specifiers = [...(first.value.specifiers ?? []), j.importSpecifier(j.identifier(importedName))];
   }
@@ -117,13 +118,13 @@ export function addImport(j: JSCodeshift, root: Collection, { importedName, sour
  * if removing the last specifier.
  */
 export function removeImport(j: JSCodeshift, { specifier: specifierToRemove, path }: ExistingImport): void {
-  logger.debug(`removing ${specifierToRemove.imported.name} import`);
+  log.debug(`removing ${specifierToRemove.imported.name} import`);
 
   const importDeclaration = path.value;
   const { specifiers } = importDeclaration;
 
   if (!specifiers) {
-    throw new Error('trying to remove a specifier from an import without specifiers');
+    throw new TransformError('trying to remove a specifier from an import without specifiers');
   }
 
   if (specifiers.length === 1) {

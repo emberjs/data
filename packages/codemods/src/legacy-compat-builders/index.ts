@@ -1,9 +1,9 @@
 import type { API, FileInfo, Options } from 'jscodeshift';
 
 import { addImport, parseExistingImports } from '../utils/imports.js';
-import { logger } from '../utils/log.js';
 import { CONFIGS } from './config.js';
 import { transformLegacyStoreMethod } from './legacy-store-method.js';
+import { log } from './log.js';
 import { TransformResult } from './result.js';
 
 /**
@@ -14,9 +14,7 @@ import { TransformResult } from './result.js';
  * | `skipped`    | return `undefined`          | we did not attempt to transform                    |
  * | `ok`         | return `string` (changed)   | we successfully transformed                        |
  */
-export default function (fileInfo: FileInfo, api: API, options: Options): string | undefined {
-  logger.config(options);
-
+export default function (fileInfo: FileInfo, api: API, _options: Options): string | undefined {
   const j = api.jscodeshift;
   const root = j(fileInfo.source);
 
@@ -29,7 +27,7 @@ export default function (fileInfo: FileInfo, api: API, options: Options): string
 
   for (const importToAdd of result.importsToAdd) {
     if (existingImports.get(importToAdd)) {
-      logger.warn(
+      log.warn(
         `Attempted to add import that already exists: \`import { ${existingImports.get(importToAdd)?.localName} } from '${importToAdd.sourceValue}'`
       );
     } else {
@@ -40,3 +38,5 @@ export default function (fileInfo: FileInfo, api: API, options: Options): string
   // TODO: Make quote configurable or pull from prettierrc
   return root.toSource({ quote: 'single' });
 }
+
+export const parser = 'ts';

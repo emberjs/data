@@ -9,10 +9,12 @@
     "url": "git+ssh://git@github.com:emberjs/data.git",
     "directory": "packages/codemods"
   },
+  "bin": {
+    "codemods": "codemods"
+  },
   "scripts": {
-    "build:runtime": "rollup --config",
-    "build:types": "tsc --build --emitDeclarationOnly",
-    "_build": "bun run build:runtime && bun run build:types",
+    "build:cli": "bun build bin/codemods.ts --compile --outfile codemods",
+    "_build": "bun run build:cli",
     "prepack": "bun run _build",
     "check:types": "tsc --noEmit",
     "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
@@ -20,20 +22,18 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    },
-    "./*": {
-      "types": "./dist/*.d.ts",
-      "default": "./dist/*.js"
+      "default": "./src/index.ts"
     }
   },
   "files": [
-    "dist"
+    "bin",
+    "src"
   ],
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^9.2.0",
     "jscodeshift": "^0.15.2",
     "typescript": "^5.4.4"
   },
@@ -43,8 +43,8 @@
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@types/jscodeshift": "0.11.11",
-    "@types/node": "^20.12.7",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.52",
+    "@types/bun": "^1.1.0",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.53",
     "eslint": "^8.57.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "qunit": "^2.20.1",

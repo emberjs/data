@@ -1,5 +1,5 @@
 {
-  "include": ["src"],
+  "include": ["src", "bin", "utils"],
   "baseUrl": ".",
   "compilerOptions": {
     "lib": ["ESNext"],
@@ -14,17 +14,19 @@
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
     "noImplicitOverride": true,
+    "resolveJsonModule": true,
 
     // Enable faster builds
     // but causes us to not rebuild properly
     // "incremental": true,
-    "rootDir": "src",
+    "rootDir": ".",
 
     "outDir": "dist/",
     "declaration": true,
     "declarationMap": true,
     "inlineSourceMap": true,
     "inlineSources": true,
-    "types": ["node"]
+
+    "types": ["bun-types"]
   }
 }
