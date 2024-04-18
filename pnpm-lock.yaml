@@ -3497,7 +3497,7 @@ importers:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       qunit-dom:
-        specifier: ^3.1.0
+        specifier: ^3.1.1
         version: 3.1.1
       typescript:
         specifier: ^5.4.5
@@ -3635,7 +3635,7 @@ importers:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       qunit-dom:
-        specifier: ^3.1.0
+        specifier: ^3.1.1
         version: 3.1.1
       typescript:
         specifier: ^5.4.5
@@ -3813,7 +3813,7 @@ importers:
         specifier: ^0.3.0
         version: 0.3.0
       qunit-dom:
-        specifier: ^3.1.0
+        specifier: ^3.1.1
         version: 3.1.1
       silent-error:
         specifier: ^1.1.1
@@ -3950,7 +3950,7 @@ importers:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       qunit-dom:
-        specifier: ^3.1.0
+        specifier: ^3.1.1
         version: 3.1.1
       typescript:
         specifier: ^5.4.5
@@ -4226,7 +4226,7 @@ importers:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       qunit-dom:
-        specifier: ^3.1.0
+        specifier: ^3.1.1
         version: 3.1.1
       typescript:
         specifier: ^5.4.5
@@ -4680,7 +4680,7 @@ importers:
         specifier: ^0.3.0
         version: 0.3.0
       qunit-dom:
-        specifier: ^3.1.0
+        specifier: ^3.1.1
         version: 3.1.1
       silent-error:
         specifier: ^1.1.1
