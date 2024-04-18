@@ -165,7 +165,7 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
         localState !== existingState &&
         relationship.definition.resetOnRemoteUpdate !== false
       ) {
-        relationship.localState = existingState;
+        relationship.localState = remoteState;
 
         deprecate(
           `EmberData is changing the default semantics of updates to the remote state of relationships.\n\nThe following local state was cleared from the <${
