@@ -59,7 +59,7 @@ export default class Store extends BaseStore {
   override modelFor<T>(type: TypeFromInstance<T>): ModelSchema<T>;
   override modelFor(type: string): ModelSchema;
   override modelFor(type: string): ModelSchema {
-    return modelFor.call(this, type) || super.modelFor(type);
+    return (modelFor.call(this, type) as ModelSchema) || super.modelFor(type);
   }
 
   adapterFor = adapterFor;
