@@ -3,6 +3,11 @@
 import type { ExtractSuggestedCacheTypes, Includes, TypedRecordInstance } from './record';
 import type { ResourceType } from './symbols';
 
+type NoRelations = {
+  name: string;
+  [ResourceType]: 'no-relations';
+};
+
 type NoSelfReference = {
   name: string;
   related: MyThing;
@@ -54,6 +59,12 @@ takesSuggestTypes<NoSelfReference>([
   'not-a-thing',
 ]);
 
+takesSuggestTypes<NoRelations>([
+  'no-relations',
+  // @ts-expect-error not a valid type
+  'not-a-thing',
+]);
+
 function takesIncludes<T extends TypedRecordInstance>(includes: Includes<T>[]) {}
 takesIncludes<MyThing>([
   // @ts-expect-error not a valid path since it doesn't exist
@@ -82,4 +93,9 @@ takesIncludes<MyThing>([
   'otherThings.deep.relatedThing.relatedThing',
   'otherThings.deep.otherThing',
   'otherThings.deep.myThing',
+]);
+
+takesIncludes<NoRelations>([
+  // @ts-expect-error not a valid path since it doesn't exist
+  'not',
 ]);

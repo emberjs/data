@@ -5,7 +5,7 @@ import { pluralize } from 'ember-inflector';
 
 import { buildBaseURL, buildQueryParams, type QueryUrlOptions } from '@ember-data/request-utils';
 import type { QueryParamsSource } from '@warp-drive/core-types/params';
-import type { TypeFromInstance } from '@warp-drive/core-types/record';
+import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
 import type {
   CacheOptions,
   ConstrainedRequestOptions,
@@ -70,10 +70,10 @@ import { ACCEPT_HEADER_VALUE, copyForwardUrlOptions, extractCacheOptions } from 
  * @param query
  * @param options
  */
-export function query<T>(
+export function query<T extends TypedRecordInstance>(
   type: TypeFromInstance<T>,
   // eslint-disable-next-line @typescript-eslint/no-shadow
-  query?: QueryParamsSource,
+  query?: QueryParamsSource<T>,
   options?: ConstrainedRequestOptions
 ): QueryRequestOptions<T, CollectionResourceDataDocument<T>>;
 export function query(

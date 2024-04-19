@@ -73,7 +73,7 @@ export type FindRecordRequestOptions<T = unknown, RT = unknown> = {
   url: string;
   method: 'GET';
   headers: Headers;
-  cacheOptions: CacheOptions<T>;
+  cacheOptions?: CacheOptions<T>;
   op: 'findRecord';
   records: [ResourceIdentifierObject<TypeFromInstanceOrString<T>>];
   [RequestSignature]?: RT;
@@ -83,7 +83,7 @@ export type QueryRequestOptions<T = unknown, RT = unknown> = {
   url: string;
   method: 'GET';
   headers: Headers;
-  cacheOptions: CacheOptions<T>;
+  cacheOptions?: CacheOptions<T>;
   op: 'query';
   [RequestSignature]?: RT;
 };
@@ -306,8 +306,8 @@ export type RequestInfo<T = unknown> = Request & {
  *
  * @typedoc
  */
-export type ImmutableRequestInfo<T = unknown> = Readonly<Omit<RequestInfo, 'controller'>> & {
-  readonly cacheOptions?: Readonly<CacheOptions>;
+export type ImmutableRequestInfo<T = unknown, RT = unknown> = Readonly<Omit<RequestInfo<T>, 'controller'>> & {
+  readonly cacheOptions?: Readonly<CacheOptions<T>>;
   readonly headers?: ImmutableHeaders;
   readonly data?: Readonly<Record<string, unknown>>;
   readonly options?: Readonly<Record<string, unknown>>;
@@ -316,7 +316,7 @@ export type ImmutableRequestInfo<T = unknown> = Readonly<Omit<RequestInfo, 'cont
    * @typedoc
    */
   readonly bodyUsed?: boolean;
-  [RequestSignature]?: T;
+  [RequestSignature]?: RT;
 };
 
 export interface ResponseInfo {

@@ -15,6 +15,7 @@
     "checkJs": false,
     "alwaysStrict": true,
     "strict": true,
+    "exactOptionalPropertyTypes": false,
     "allowSyntheticDefaultImports": true,
 
     "noImplicitAny": true,

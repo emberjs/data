@@ -2,6 +2,7 @@ import { service } from '@ember/service';
 
 import Store from 'ember-data/store';
 
+import type RequestManager from '@ember-data/request';
 import { LifetimesService } from '@ember-data/request-utils';
 
 import CONFIG from '../config/environment';
@@ -10,9 +11,9 @@ import CONFIG from '../config/environment';
 // and JS declaration will always "win" in final build of application
 
 export default class MyStore extends Store {
-  @service requestManager;
+  @service declare requestManager: RequestManager;
 
-  constructor(args) {
+  constructor(args: Record<string, unknown>) {
     super(args);
 
     this.lifetimes = new LifetimesService(CONFIG);

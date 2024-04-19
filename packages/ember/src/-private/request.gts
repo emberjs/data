@@ -32,20 +32,20 @@ if (macroCondition(moduleExists('ember-provide-consume-context'))) {
   provide = consume;
 }
 
-type ContentFeatures<T> = {
+type ContentFeatures<RT> = {
   isOnline: boolean;
   isHidden: boolean;
   isRefreshing: boolean;
   refresh: () => Promise<void>;
   reload: () => Promise<void>;
   abort?: () => void;
-  latestRequest?: Future<T>;
+  latestRequest?: Future<RT>;
 };
 
-interface RequestSignature<T> {
+interface RequestSignature<T, RT> {
   Args: {
-    request?: Future<T>;
-    query?: StoreRequestInput<T>;
+    request?: Future<RT>;
+    query?: StoreRequestInput<T, RT>;
     store?: Store;
     autorefresh?: boolean;
     autorefreshThreshold?: number;
@@ -61,12 +61,12 @@ interface RequestSignature<T> {
       error: StructuredErrorDocument,
       features: { isOnline: boolean; isHidden: boolean; retry: () => Promise<void> },
     ];
-    content: [value: T, features: ContentFeatures<T>];
-    always: [state: RequestState<T>];
+    content: [value: T, features: ContentFeatures<RT>];
+    always: [state: RequestState<T, RT>];
   };
 }
 
-export class Request<T> extends Component<RequestSignature<T>> {
+export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
   /**
    * @internal
    */
@@ -74,15 +74,15 @@ export class Request<T> extends Component<RequestSignature<T>> {
   @tracked isOnline: boolean = true;
   @tracked isHidden: boolean = true;
   @tracked isRefreshing: boolean = false;
-  @tracked _localRequest: Future<T> | undefined;
-  @tracked _latestRequest: Future<T> | undefined;
+  @tracked _localRequest: Future<RT> | undefined;
+  @tracked _latestRequest: Future<RT> | undefined;
   declare unavailableStart: number | null;
   declare onlineChanged: (event: Event) => void;
   declare backgroundChanged: (event: Event) => void;
-  declare _originalRequest: Future<T> | undefined;
-  declare _originalQuery: StoreRequestInput | undefined;
+  declare _originalRequest: Future<RT> | undefined;
+  declare _originalQuery: StoreRequestInput<T, RT> | undefined;
 
-  constructor(owner: unknown, args: RequestSignature<T>['Args']) {
+  constructor(owner: unknown, args: RequestSignature<T, RT>['Args']) {
     super(owner, args);
     this.installListeners();
   }
@@ -121,7 +121,7 @@ export class Request<T> extends Component<RequestSignature<T>> {
       this.unavailableStart = null;
 
       if (shouldAttempt) {
-        const request = Object.assign({}, this.reqState.request as unknown as RequestInfo);
+        const request = Object.assign({}, this.reqState.request as unknown as RequestInfo<T>);
         const val = mode ?? this.args.autorefreshBehavior ?? 'policy';
         switch (val) {
           case 'reload':
@@ -143,8 +143,8 @@ export class Request<T> extends Component<RequestSignature<T>> {
         );
 
         this._latestRequest = wasStoreRequest
-          ? this.store.request<T>(request)
-          : this.store.requestManager.request<T>(request);
+          ? this.store.request<RT, T>(request)
+          : this.store.requestManager.request<RT>(request);
 
         if (val !== 'refresh') {
           this._localRequest = this._latestRequest;
@@ -183,7 +183,7 @@ export class Request<T> extends Component<RequestSignature<T>> {
 
   @cached
   get contentFeatures() {
-    const feat: ContentFeatures<T> = {
+    const feat: ContentFeatures<RT> = {
       isHidden: this.isHidden,
       isOnline: this.isOnline,
       reload: this.retry,
@@ -233,7 +233,7 @@ export class Request<T> extends Component<RequestSignature<T>> {
       return request;
     }
     assert(`You must provide either @request or an @query arg with the <Request> component`, query);
-    return this.store.request<T>(query!);
+    return this.store.request<RT, T>(query!);
   }
 
   get store(): Store {
@@ -248,7 +248,7 @@ export class Request<T> extends Component<RequestSignature<T>> {
   }
 
   get reqState() {
-    return getRequestState<T>(this.request);
+    return getRequestState<RT, T>(this.request);
   }
 
   get result() {

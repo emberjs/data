@@ -8,6 +8,7 @@
     "moduleDetection": "force",
     "declarationDir": "dist",
     "strict": true,
+    "exactOptionalPropertyTypes": false,
     "downlevelIteration": true,
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,

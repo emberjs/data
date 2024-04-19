@@ -416,7 +416,7 @@ class Store extends EmberObject {
    * @return {Future}
    * @public
    */
-  request<T>(requestConfig: StoreRequestInput<T>): Future<T> {
+  request<RT, T = unknown>(requestConfig: StoreRequestInput<T, RT>): Future<RT> {
     // we lazily set the cache handler when we issue the first request
     // because constructor doesn't allow for this to run after
     // the user has had the chance to set the prop.
@@ -458,7 +458,7 @@ class Store extends EmberObject {
       );
     }
 
-    const future = this.requestManager.request<T>(Object.assign(requestConfig, opts));
+    const future = this.requestManager.request<RT>(Object.assign(requestConfig, opts));
 
     future.onFinalize(() => {
       if (LOG_REQUESTS) {
