@@ -5,29 +5,39 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
+import type { AsyncBelongsTo, AsyncHasMany } from '@ember-data/model';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
+import { ResourceType } from '@warp-drive/core-types/symbols';
 
 type RID = { type: string; id: string };
 
 class Car extends Model {
   @attr()
   declare color: string;
+
+  declare [ResourceType]: 'car' | 'ferrari' | 'bmw';
 }
 
-class Ferrari extends Car {}
-class Bmw extends Car {}
+class Ferrari extends Car {
+  [ResourceType] = 'ferrari' as const;
+}
+class Bmw extends Car {
+  [ResourceType] = 'bmw' as const;
+}
 
 class Dealership extends Model {
-  @attr()
+  @attr
   declare name: string;
 
-  @belongsTo('car', { polymorphic: true, async: true, inverse: null })
-  declare bestCar;
+  @belongsTo<Car>('car', { polymorphic: true, async: true, inverse: null })
+  declare bestCar: AsyncBelongsTo<Car>;
 
-  @hasMany('car', { polymorphic: true, async: true, inverse: null })
-  declare allCars;
+  @hasMany<Car>('car', { polymorphic: true, async: true, inverse: null })
+  declare allCars: AsyncHasMany<Car>;
+
+  declare [ResourceType]: 'dealership';
 }
 
 module('Integration | Identifiers - single-table-inheritance polymorphic scenarios', function (hooks) {
@@ -87,12 +97,20 @@ module('Integration | Identifiers - single-table-inheritance polymorphic scenari
       }
       owner.register('adapter:application', TestAdapter);
 
-      const foundFerrari = (await store.findRecord('car', '1')) as Car;
-      assert.strictEqual(foundFerrari.constructor.modelName, 'ferrari', 'We found the right type');
+      const foundFerrari = await store.findRecord<Car>('car', '1');
+      assert.strictEqual(
+        (foundFerrari.constructor as unknown as { modelName: string }).modelName,
+        'ferrari',
+        'We found the right type'
+      );
       assert.strictEqual(recordIdentifierFor(foundFerrari).type, 'ferrari', 'We ended with the correct type');
 
-      const cachedFerrari = (await store.peekRecord('ferrari', '1')) as Ferrari;
-      assert.strictEqual(cachedFerrari.constructor.modelName, 'ferrari', 'We cached the right type');
+      const cachedFerrari = store.peekRecord<Ferrari>('ferrari', '1');
+      assert.strictEqual(
+        (cachedFerrari?.constructor as unknown as { modelName: string }).modelName,
+        'ferrari',
+        'We cached the right type'
+      );
       assert.strictEqual(recordIdentifierFor(cachedFerrari).type, 'ferrari', 'We ended with the correct type');
       assert.strictEqual(foundFerrari, cachedFerrari, 'We have the same car');
     });
@@ -133,12 +151,14 @@ module('Integration | Identifiers - single-table-inheritance polymorphic scenari
               },
             });
           }
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           requests.push({ type, id });
           // return the polymorphic type instead of 'car';
           type = id === '1' ? 'ferrari' : 'bmw';
           return Promise.resolve({
             data: {
               id,
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               type,
               attributes: {
                 color: 'red',
@@ -148,19 +168,23 @@ module('Integration | Identifiers - single-table-inheritance polymorphic scenari
         }
       }
       owner.register('adapter:application', TestAdapter);
-      const topRecord = (await store.findRecord('dealership', '1')) as Dealership;
+      const topRecord = await store.findRecord<Dealership>('dealership', '1');
       const relation = await topRecord.bestCar;
 
-      assert.strictEqual(relation.id, '1', 'We found the right id');
-      assert.strictEqual(relation.constructor.modelName, 'ferrari', 'We found the right type');
+      assert.strictEqual(relation?.id, '1', 'We found the right id');
+      assert.strictEqual(
+        (relation?.constructor as unknown as { modelName: string }).modelName,
+        'ferrari',
+        'We found the right type'
+      );
 
-      const foundFerrari = (await store.findRecord('car', '1')) as Car;
+      const foundFerrari = await store.findRecord('car', '1');
       assert.strictEqual(relation, foundFerrari, 'We found the ferrari by finding car 1');
 
       const allCars = await topRecord.allCars;
       assert.deepEqual(
         allCars.map((c) => {
-          return { id: c.id, type: c.constructor.modelName };
+          return { id: c.id, type: (c.constructor as unknown as { modelName: string }).modelName };
         }),
         [
           { id: '1', type: 'ferrari' },
@@ -169,7 +193,7 @@ module('Integration | Identifiers - single-table-inheritance polymorphic scenari
         'We fetched all the right cars'
       );
       const bmw = allCars.at(1);
-      const foundBmw = (await store.findRecord('car', '2')) as Car;
+      const foundBmw = await store.findRecord('car', '2');
       assert.strictEqual(foundBmw, bmw, 'We found the bmw by finding car 2');
 
       assert.deepEqual(requests, expectedRequests, 'We triggered the expected requests');

@@ -2,19 +2,24 @@
   @module @ember-data/model
  */
 
-import { assert, warn } from '@ember/debug';
+import { assert } from '@ember/debug';
 import EmberObject from '@ember/object';
 
 import { DEBUG } from '@ember-data/env';
-import { HAS_DEBUG_PACKAGE } from '@ember-data/packages';
+import type Store from '@ember-data/store';
+import type { NotificationType } from '@ember-data/store';
 import { recordIdentifierFor, storeFor } from '@ember-data/store';
 import { coerceId } from '@ember-data/store/-private';
 import { compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { Cache } from '@warp-drive/core-types/cache';
+import type { AttributeSchema, RelationshipSchema } from '@warp-drive/core-types/schema';
 import { RecordStore } from '@warp-drive/core-types/symbols';
 
 import Errors from './errors';
 import { LEGACY_SUPPORT } from './legacy-relationships-support';
+import type { MinimalLegacyRecord } from './model-methods';
 import {
   belongsTo,
   changedAttributes,
@@ -31,46 +36,32 @@ import {
 import notifyChanges from './notify-changes';
 import RecordState, { notifySignal, tagged } from './record-state';
 
-function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
-  const possibleRelationships = relationshipsSoFar || [];
+export type ModelCreateArgs = {
+  _createProps: Record<string, unknown>;
+  // TODO @deprecate consider deprecating accessing record properties during init which the below is necessary for
+  _secretInit: {
+    identifier: StableRecordIdentifier;
+    cache: Cache;
+    store: Store;
+    cb: (record: Model, cache: Cache, identifier: StableRecordIdentifier, store: Store) => void;
+  };
+};
 
-  const relationshipMap = inverseType.relationships;
-  if (!relationshipMap) {
-    return possibleRelationships;
-  }
-
-  const relationshipsForType = relationshipMap.get(type.modelName);
-  const relationships = Array.isArray(relationshipsForType)
-    ? relationshipsForType.filter((relationship) => {
-        const optionsForRelationship = relationship.options;
-
-        if (!optionsForRelationship.inverse && optionsForRelationship.inverse !== null) {
-          return true;
-        }
-
-        return name === optionsForRelationship.inverse;
-      })
-    : null;
-
-  if (relationships) {
-    possibleRelationships.push.apply(possibleRelationships, relationships);
-  }
-
-  //Recurse to support polymorphism
-  if (type.superclass) {
-    findPossibleInverses(type.superclass, inverseType, name, possibleRelationships);
-  }
-
-  return possibleRelationships;
-}
+export type StaticModel = typeof Model & { create(options: ModelCreateArgs): Model };
+export type ModelFactory = { class: StaticModel };
+export type FactoryCache = Record<string, ModelFactory>;
+// we put this on the store for interop because it's used by modelFor and
+// instantiateRecord as well.
+export type ModelStore = Store & { _modelFactoryCache: FactoryCache };
 
 /*
  * This decorator allows us to lazily compute
  * an expensive getter on first-access and thereafter
  * never recompute it.
  */
-function computeOnce(target, propertyName, desc) {
-  const cache = new WeakMap();
+function computeOnce(target: object, propertyName: string, desc: PropertyDescriptor) {
+  const cache = new WeakMap<object, { hasComputed: boolean; value: unknown }>();
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   const getter = desc.get;
   desc.get = function () {
     let meta = cache.get(this);
@@ -81,7 +72,7 @@ function computeOnce(target, propertyName, desc) {
     }
 
     if (!meta.hasComputed) {
-      meta.value = getter.call(this);
+      meta.value = (getter as () => unknown).call(this);
       meta.hasComputed = true;
     }
 
@@ -109,12 +100,18 @@ function computeOnce(target, propertyName, desc) {
   @public
   @extends Ember.EmberObject
 */
-class Model extends EmberObject {
-  ___private_notifications;
+class Model extends EmberObject implements MinimalLegacyRecord {
+  // set during create by the store
+  declare store: Store;
+  declare ___recordState: RecordState;
+  declare ___private_notifications: object;
+  declare _createProps: null;
+  declare _secretInit: null;
+  declare [RecordStore]: Store;
 
-  init(options = {}) {
+  override init(options: ModelCreateArgs) {
     if (DEBUG) {
-      if (!options._secretInit && !options._createProps) {
+      if (!options?._secretInit && !options?._createProps) {
         throw new Error(
           'You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.'
         );
@@ -122,8 +119,8 @@ class Model extends EmberObject {
     }
     const createProps = options._createProps;
     const _secretInit = options._secretInit;
-    options._createProps = null;
-    options._secretInit = null;
+    (options as Record<string, unknown>)._createProps = null;
+    (options as Record<string, unknown>)._secretInit = null;
 
     const store = (this.store = _secretInit.store);
     super.init(options);
@@ -133,20 +130,26 @@ class Model extends EmberObject {
     const identity = _secretInit.identifier;
     _secretInit.cb(this, _secretInit.cache, identity, _secretInit.store);
 
-    this.___recordState = DEBUG ? new RecordState(this) : null;
+    this.___recordState = DEBUG
+      ? new RecordState(this as unknown as MinimalLegacyRecord)
+      : (null as unknown as RecordState);
 
     this.setProperties(createProps);
 
     const notifications = store.notifications;
-    this.___private_notifications = notifications.subscribe(identity, (identifier, type, field) => {
-      notifyChanges(identifier, type, field, this, store);
-    });
+    this.___private_notifications = notifications.subscribe(
+      identity,
+      (identifier: StableRecordIdentifier, type: NotificationType, field?: string): void => {
+        notifyChanges(identifier, type, field, this, store);
+      }
+    );
   }
 
-  destroy() {
+  // @ts-expect-error destroy should not return a value
+  override destroy() {
     const identifier = recordIdentifierFor(this);
     this.___recordState?.destroy();
-    const store = storeFor(this);
+    const store = storeFor(this)!;
     store.notifications.unsubscribe(this.___private_notifications);
     // Legacy behavior is to notify the relationships on destroy
     // such that they "clear". It's uncertain this behavior would
@@ -160,8 +163,8 @@ class Model extends EmberObject {
         this.notifyPropertyChange(name);
       }
     });
-    LEGACY_SUPPORT.get(this)?.destroy();
-    LEGACY_SUPPORT.delete(this);
+    LEGACY_SUPPORT.get(this as unknown as MinimalLegacyRecord)?.destroy();
+    LEGACY_SUPPORT.delete(this as unknown as MinimalLegacyRecord);
     LEGACY_SUPPORT.delete(identifier);
 
     super.destroy();
@@ -182,7 +185,7 @@ class Model extends EmberObject {
     @readOnly
   */
   @compat
-  get isEmpty() {
+  get isEmpty(): boolean {
     return this.currentState.isEmpty;
   }
 
@@ -198,7 +201,7 @@ class Model extends EmberObject {
     @readOnly
   */
   @compat
-  get isLoading() {
+  get isLoading(): boolean {
     return this.currentState.isLoading;
   }
 
@@ -225,7 +228,7 @@ class Model extends EmberObject {
     @readOnly
   */
   @compat
-  get isLoaded() {
+  get isLoaded(): boolean {
     return this.currentState.isLoaded;
   }
 
@@ -255,7 +258,7 @@ class Model extends EmberObject {
     @readOnly
   */
   @compat
-  get hasDirtyAttributes() {
+  get hasDirtyAttributes(): boolean {
     return this.currentState.isDirty;
   }
 
@@ -283,7 +286,7 @@ class Model extends EmberObject {
     @readOnly
   */
   @compat
-  get isSaving() {
+  get isSaving(): boolean {
     return this.currentState.isSaving;
   }
 
@@ -326,7 +329,7 @@ class Model extends EmberObject {
     @readOnly
   */
   @compat
-  get isDeleted() {
+  get isDeleted(): boolean {
     return this.currentState.isDeleted;
   }
 
@@ -353,7 +356,7 @@ class Model extends EmberObject {
     @readOnly
   */
   @compat
-  get isNew() {
+  get isNew(): boolean {
     return this.currentState.isNew;
   }
 
@@ -369,7 +372,7 @@ class Model extends EmberObject {
     @readOnly
   */
   @compat
-  get isValid() {
+  get isValid(): boolean {
     return this.currentState.isValid;
   }
 
@@ -395,7 +398,7 @@ class Model extends EmberObject {
     @readOnly
   */
   @compat
-  get dirtyType() {
+  get dirtyType(): 'created' | 'updated' | 'deleted' | '' {
     return this.currentState.dirtyType;
   }
 
@@ -420,7 +423,7 @@ class Model extends EmberObject {
     @readOnly
   */
   @compat
-  get isError() {
+  get isError(): boolean {
     return this.currentState.isError;
   }
   set isError(v) {
@@ -445,6 +448,7 @@ class Model extends EmberObject {
     @type {Boolean}
     @readOnly
   */
+  declare isReloading: boolean;
 
   /**
     All ember models have an id property. This is an identifier
@@ -467,7 +471,7 @@ class Model extends EmberObject {
     @type {String}
   */
   @tagged
-  get id() {
+  get id(): string | null {
     // this guard exists, because some dev-only deprecation code
     // (addListener via validatePropertyInjections) invokes toString before the
     // object is real.
@@ -475,7 +479,7 @@ class Model extends EmberObject {
       try {
         return recordIdentifierFor(this).id;
       } catch {
-        return void 0;
+        return null;
       }
     }
     return recordIdentifierFor(this).id;
@@ -495,8 +499,8 @@ class Model extends EmberObject {
     }
   }
 
-  toString() {
-    return `<model::${this.constructor.modelName}:${this.id}>`;
+  override toString() {
+    return `<model::${(this.constructor as unknown as { modelName: string }).modelName}:${this.id}>`;
   }
 
   /**
@@ -514,7 +518,7 @@ class Model extends EmberObject {
     // error.
     if (!DEBUG) {
       if (!this.___recordState) {
-        this.___recordState = new RecordState(this);
+        this.___recordState = new RecordState(this as unknown as MinimalLegacyRecord);
       }
     }
     return this.___recordState;
@@ -583,8 +587,8 @@ class Model extends EmberObject {
     @type {Errors}
   */
   @computeOnce
-  get errors() {
-    const errors = Errors.create({ __record: this });
+  get errors(): Errors {
+    const errors = (Errors as unknown as { create(obj: object): Errors }).create({ __record: this });
     this.currentState.updateInvalidErrors(errors);
     return errors;
   }
@@ -620,6 +624,7 @@ class Model extends EmberObject {
     @param {Object} options
     @return {Object} an object whose values are primitive JSON values only
   */
+  declare serialize: typeof serialize;
 
   /*
     We hook the default implementation to ensure
@@ -629,8 +634,9 @@ class Model extends EmberObject {
     to trigger their flush. We wouldn't need to
     super in 4.0+ where sync observers are removed.
    */
-  notifyPropertyChange(prop) {
-    notifySignal(this, prop);
+  // @ts-expect-error no return is necessary
+  override notifyPropertyChange(prop: string) {
+    notifySignal(this, prop as keyof this & string);
     super.notifyPropertyChange(prop);
   }
 
@@ -663,6 +669,7 @@ class Model extends EmberObject {
     @method deleteRecord
     @public
   */
+  declare deleteRecord: typeof deleteRecord;
 
   /**
     Same as `deleteRecord`, but saves the record immediately.
@@ -707,6 +714,7 @@ class Model extends EmberObject {
     @return {Promise} a promise that will be resolved when the adapter returns
     successfully or rejected if the adapter returns with an error.
   */
+  declare destroyRecord: typeof destroyRecord;
 
   /**
     Unloads the record from the store. This will not send a delete request
@@ -715,6 +723,7 @@ class Model extends EmberObject {
     @method unloadRecord
     @public
   */
+  declare unloadRecord: typeof unloadRecord;
 
   /**
     Returns an object, whose keys are changed properties, and value is
@@ -762,6 +771,7 @@ class Model extends EmberObject {
     @return {Object} an object, whose keys are changed properties,
       and value is an [oldProp, newProp] array.
   */
+  declare changedAttributes: typeof changedAttributes;
 
   /**
     If the model `hasDirtyAttributes` this function will discard any unsaved
@@ -781,11 +791,13 @@ class Model extends EmberObject {
     @method rollbackAttributes
     @public
   */
+  declare rollbackAttributes: typeof rollbackAttributes;
 
   /**
     @method _createSnapshot
     @private
   */
+  declare _createSnapshot: typeof createSnapshot;
   // TODO @deprecate in favor of a public API or examples of how to test successfully
 
   /**
@@ -829,6 +841,7 @@ class Model extends EmberObject {
     @return {Promise} a promise that will be resolved when the adapter returns
     successfully or rejected if the adapter returns with an error.
   */
+  declare save: typeof save;
 
   /**
     Reload the record from the adapter.
@@ -856,6 +869,7 @@ class Model extends EmberObject {
     adapter returns successfully or rejected if the adapter returns
     with an error.
   */
+  declare reload: typeof reload;
 
   attr() {
     assert(
@@ -914,6 +928,7 @@ class Model extends EmberObject {
     @since 2.5.0
     @return {BelongsToReference} reference for this relationship
   */
+  declare belongsTo: typeof belongsTo;
 
   /**
     Get the reference for the specified hasMany relationship.
@@ -965,6 +980,7 @@ class Model extends EmberObject {
     @since 2.5.0
     @return {HasManyReference} reference for this relationship
   */
+  declare hasMany: typeof hasMany;
 
   /**
    Given a callback, iterates over each of the relationships in the model,
@@ -1015,24 +1031,38 @@ class Model extends EmberObject {
    ```
 
    @method eachRelationship
-    @public
+   @public
    @param {Function} callback the callback to invoke
    @param {any} binding the value to which the callback's `this` should be bound
    */
-  eachRelationship(callback, binding) {
-    this.constructor.eachRelationship(callback, binding);
+  eachRelationship<T>(
+    callback: (
+      this: NoInfer<T> | undefined,
+      key: Exclude<keyof this & string, keyof Model & string>,
+      meta: RelationshipSchema
+    ) => void,
+    binding?: T
+  ): void {
+    (this.constructor as typeof Model).eachRelationship<T, this>(callback, binding);
   }
 
-  relationshipFor(name) {
-    return this.constructor.relationshipsByName.get(name);
+  relationshipFor(name: string): RelationshipSchema | undefined {
+    return (this.constructor as typeof Model).relationshipsByName.get(name);
   }
 
-  inverseFor(name) {
-    return this.constructor.inverseFor(name, storeFor(this));
+  inverseFor(name: string) {
+    return (this.constructor as typeof Model).inverseFor(name, storeFor(this)!);
   }
 
-  eachAttribute(callback, binding) {
-    this.constructor.eachAttribute(callback, binding);
+  eachAttribute<T>(
+    callback: (
+      this: NoInfer<T> | undefined,
+      key: Exclude<keyof this & string, keyof Model & string>,
+      meta: AttributeSchema
+    ) => void,
+    binding?: T
+  ): void {
+    (this.constructor as typeof Model).eachAttribute<T, this>(callback, binding);
   }
 
   static isModel = true;
@@ -1079,7 +1109,7 @@ class Model extends EmberObject {
    @readonly
    @static
   */
-  static modelName = null;
+  static modelName: string = null as unknown as string;
 
   /*
    These class methods below provide relationship
@@ -1120,7 +1150,7 @@ class Model extends EmberObject {
    @param {store} store an instance of Store
    @return {Model} the type of the relationship, or undefined
    */
-  static typeForRelationship(name, store) {
+  static typeForRelationship(name: string, store: Store) {
     assert(
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
@@ -1131,12 +1161,12 @@ class Model extends EmberObject {
   }
 
   @computeOnce
-  static get inverseMap() {
+  static get inverseMap(): Record<string, RelationshipSchema | null> {
     assert(
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
     );
-    return Object.create(null);
+    return Object.create(null) as Record<string, RelationshipSchema | null>;
   }
 
   /**
@@ -1161,8 +1191,8 @@ class Model extends EmberObject {
    ```
 
    ``` js
-   store.modelFor('post').inverseFor('comments', store) // { type: App.Message, name: 'owner', kind: 'belongsTo' }
-   store.modelFor('message').inverseFor('owner', store) // { type: App.Post, name: 'comments', kind: 'hasMany' }
+   store.modelFor('post').inverseFor('comments', store) // { type: 'message', name: 'owner', kind: 'belongsTo' }
+   store.modelFor('message').inverseFor('owner', store) // { type: 'post', name: 'comments', kind: 'hasMany' }
    ```
 
    @method inverseFor
@@ -1172,7 +1202,7 @@ class Model extends EmberObject {
    @param {Store} store
    @return {Object} the inverse relationship, or null
    */
-  static inverseFor(name, store) {
+  static inverseFor(name: string, store: Store): RelationshipSchema | null {
     assert(
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
@@ -1188,144 +1218,46 @@ class Model extends EmberObject {
   }
 
   //Calculate the inverse, ignoring the cache
-  static _findInverseFor(name, store) {
+  static _findInverseFor(name: string, store: Store): RelationshipSchema | null {
     assert(
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
     );
 
-    const relationship = this.relationshipsByName.get(name);
-    const { options } = relationship;
-    const isPolymorphic = options.polymorphic;
+    const relationship = this.relationshipsByName.get(name)!;
+    assert(`No relationship named '${name}' on '${this.modelName}' exists.`, relationship);
 
-    //If inverse is manually specified to be null, like  `comments: hasMany('message', { inverse: null })`
-    const isExplicitInverseNull = options.inverse === null;
-    const isAbstractType =
-      !isExplicitInverseNull && isPolymorphic && !store.getSchemaDefinitionService().doesTypeExist(relationship.type);
-
-    if (isExplicitInverseNull || isAbstractType) {
-      assert(
-        `No schema for the abstract type '${relationship.type}' for the polymorphic relationship '${name}' on '${this.modelName}' was provided by the SchemaDefinitionService.`,
-        !isPolymorphic || isExplicitInverseNull
-      );
+    if (!relationship) {
       return null;
     }
 
-    let fieldOnInverse, inverseKind, inverseRelationship, inverseOptions;
-    const inverseSchema = this.typeForRelationship(name, store);
-
-    // if the type does not exist and we are not polymorphic
-    //If inverse is specified manually, return the inverse
-    if (options.inverse !== undefined) {
-      fieldOnInverse = options.inverse;
-      inverseRelationship = inverseSchema && inverseSchema.relationshipsByName.get(fieldOnInverse);
-
-      assert(
-        `We found no field named '${fieldOnInverse}' on the schema for '${inverseSchema.modelName}' to be the inverse of the '${name}' relationship on '${this.modelName}'. This is most likely due to a missing field on your model definition.`,
-        inverseRelationship
-      );
-
-      // TODO probably just return the whole inverse here
-      inverseKind = inverseRelationship.kind;
-      inverseOptions = inverseRelationship.options;
-    } else {
-      //No inverse was specified manually, we need to use a heuristic to guess one
-      if (relationship.type === relationship.parentModelName) {
-        warn(
-          `Detected a reflexive relationship named '${name}' on the schema for '${relationship.type}' without an inverse option. Look at https://guides.emberjs.com/current/models/relationships/#toc_reflexive-relations for how to explicitly specify inverses.`,
-          false,
-          {
-            id: 'ds.model.reflexive-relationship-without-inverse',
-          }
-        );
-      }
-
-      let possibleRelationships = findPossibleInverses(this, inverseSchema, name);
-
-      if (possibleRelationships.length === 0) {
-        return null;
-      }
-
-      if (DEBUG) {
-        const filteredRelationships = possibleRelationships.filter((possibleRelationship) => {
-          const optionsForRelationship = possibleRelationship.options;
-          return name === optionsForRelationship.inverse;
-        });
-
-        assert(
-          "You defined the '" +
-            name +
-            "' relationship on " +
-            this +
-            ', but you defined the inverse relationships of type ' +
-            inverseSchema.toString() +
-            ' multiple times. Look at https://guides.emberjs.com/current/models/relationships/#toc_explicit-inverses for how to explicitly specify inverses',
-          filteredRelationships.length < 2
-        );
-      }
-
-      const explicitRelationship = possibleRelationships.find((relationship) => relationship.options.inverse === name);
-      if (explicitRelationship) {
-        possibleRelationships = [explicitRelationship];
-      }
-
-      assert(
-        "You defined the '" +
-          name +
-          "' relationship on " +
-          this +
-          ', but multiple possible inverse relationships of type ' +
-          this +
-          ' were found on ' +
-          inverseSchema +
-          '. Look at https://guides.emberjs.com/current/models/relationships/#toc_explicit-inverses for how to explicitly specify inverses',
-        possibleRelationships.length === 1
-      );
-
-      fieldOnInverse = possibleRelationships[0].name;
-      inverseKind = possibleRelationships[0].kind;
-      inverseOptions = possibleRelationships[0].options;
-    }
-
-    // ensure inverse is properly configured
-    if (DEBUG) {
-      if (isPolymorphic) {
-        assert(
-          `Relationships that satisfy polymorphic relationships MUST define which abstract-type they are satisfying using 'as'. The field '${fieldOnInverse}' on type '${inverseSchema.modelName}' is misconfigured.`,
-          inverseOptions.as
-        );
-        assert(
-          `options.as should match the expected type of the polymorphic relationship. Expected field '${fieldOnInverse}' on type '${inverseSchema.modelName}' to specify '${relationship.type}' but found '${inverseOptions.as}'`,
-          !!inverseOptions.as && relationship.type === inverseOptions.as
-        );
-      }
-    }
-
-    // ensure we are properly configured
-    if (DEBUG) {
-      if (inverseOptions.polymorphic) {
-        assert(
-          `Relationships that satisfy polymorphic relationships MUST define which abstract-type they are satisfying using 'as'. The field '${name}' on type '${this.modelName}' is misconfigured.`,
-          options.as
-        );
-        assert(
-          `options.as should match the expected type of the polymorphic relationship. Expected field '${name}' on type '${this.modelName}' to specify '${inverseRelationship.type}' but found '${options.as}'`,
-          !!options.as && inverseRelationship.type === options.as
-        );
-      }
-    }
-
+    const { options } = relationship;
     assert(
-      `The ${inverseSchema.modelName}:${fieldOnInverse} relationship declares 'inverse: null', but it was resolved as the inverse for ${this.modelName}:${name}.`,
-      inverseOptions.inverse !== null
+      `Expected the relationship ${name} on ${this.modelName} to define an inverse.`,
+      options.inverse === null || (typeof options.inverse === 'string' && options.inverse.length > 0)
     );
 
-    return {
-      type: inverseSchema,
-      name: fieldOnInverse,
-      kind: inverseKind,
-      options: inverseOptions,
-    };
+    if (options.inverse === null) {
+      return null;
+    }
+
+    const schemaExists = store.schema.doesTypeExist(relationship.type);
+
+    assert(
+      `No associated schema found for '${relationship.type}' while calculating the inverse of ${name} on ${this.modelName}`,
+      schemaExists
+    );
+
+    if (!schemaExists) {
+      return null;
+    }
+
+    const inverseSchemas = store.schema.relationshipsDefinitionFor({ type: relationship.type });
+    const inverseSchema = inverseSchemas[options.inverse];
+
+    assert(`No inverse relationship found for '${name}' on '${this.modelName}'`, inverseSchema !== undefined);
+
+    return inverseSchema || null;
   }
 
   /**
@@ -1370,13 +1302,13 @@ class Model extends EmberObject {
    */
 
   @computeOnce
-  static get relationships() {
+  static get relationships(): Map<string, RelationshipSchema[]> {
     assert(
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
     );
 
-    const map = new Map();
+    const map = new Map<string, RelationshipSchema[]>();
     const relationshipsByName = this.relationshipsByName;
 
     // Loop through each computed property on the class
@@ -1387,7 +1319,7 @@ class Model extends EmberObject {
         map.set(type, []);
       }
 
-      map.get(type).push(desc);
+      map.get(type)!.push(desc);
     });
 
     return map;
@@ -1433,13 +1365,13 @@ class Model extends EmberObject {
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
     );
-    const names = {
+    const names: { hasMany: string[]; belongsTo: string[] } = {
       hasMany: [],
       belongsTo: [],
     };
 
     this.eachComputedProperty((name, meta) => {
-      if (meta.kind === 'hasMany' || meta.kind === 'belongsTo') {
+      if (isRelationshipSchema(meta)) {
         names[meta.kind].push(name);
       }
     });
@@ -1487,7 +1419,7 @@ class Model extends EmberObject {
       this.modelName
     );
 
-    const types = [];
+    const types: string[] = [];
 
     const rels = this.relationshipsObject;
     const relationships = Object.keys(rels);
@@ -1499,7 +1431,7 @@ class Model extends EmberObject {
       const meta = rels[name];
       const modelName = meta.type;
 
-      if (types.indexOf(modelName) === -1) {
+      if (!types.includes(modelName)) {
         types.push(modelName);
       }
     }
@@ -1544,7 +1476,7 @@ class Model extends EmberObject {
    @readOnly
    */
   @computeOnce
-  static get relationshipsByName() {
+  static get relationshipsByName(): Map<string, RelationshipSchema> {
     assert(
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
@@ -1564,27 +1496,29 @@ class Model extends EmberObject {
   }
 
   @computeOnce
-  static get relationshipsObject() {
+  static get relationshipsObject(): Record<string, RelationshipSchema> {
     assert(
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
     );
 
-    const relationships = Object.create(null);
+    const relationships = Object.create(null) as Record<string, RelationshipSchema>;
     const modelName = this.modelName;
-    this.eachComputedProperty((name, meta) => {
-      if (meta.kind === 'hasMany' || meta.kind === 'belongsTo') {
-        // TODO deprecate key being here
-        meta.key = name;
-        meta.name = name;
-        meta.parentModelName = modelName;
-        relationships[name] = meta;
-
-        assert(
-          `You should not specify both options.as and options.inverse as null on ${modelName}.${meta.name}, as if there is no inverse field there is no abstract type to conform to. You may have intended for this relationship to be polymorphic, or you may have mistakenly set inverse to null.`,
-          !(meta.options.inverse === null && meta.options.as?.length > 0)
-        );
+    this.eachComputedProperty((name: string, meta: unknown) => {
+      if (!isRelationshipSchema(meta)) {
+        return;
       }
+      // TODO deprecate key being here
+      (meta as unknown as { key: string }).key = name;
+      meta.name = name;
+      (meta as unknown as { parentModelName: string }).parentModelName = modelName;
+      relationships[name] = meta;
+
+      assert(`Expected options in meta`, meta.options && typeof meta.options === 'object');
+      assert(
+        `You should not specify both options.as and options.inverse as null on ${modelName}.${meta.name}, as if there is no inverse field there is no abstract type to conform to. You may have intended for this relationship to be polymorphic, or you may have mistakenly set inverse to null.`,
+        !(meta.options.inverse === null && meta.options.as?.length)
+      );
     });
     return relationships;
   }
@@ -1639,9 +1573,9 @@ class Model extends EmberObject {
     const map = new Map();
 
     this.eachComputedProperty((name, meta) => {
-      if (meta.kind === 'hasMany' || meta.kind === 'belongsTo') {
+      if (isRelationshipSchema(meta)) {
         map.set(name, meta.kind);
-      } else if (meta.kind === 'attribute') {
+      } else if (isAttributeSchema(meta)) {
         map.set(name, 'attribute');
       }
     });
@@ -1660,14 +1594,21 @@ class Model extends EmberObject {
    @param {Function} callback the callback to invoke
    @param {any} binding the value to which the callback's `this` should be bound
    */
-  static eachRelationship(callback, binding) {
+  static eachRelationship<T, Schema extends Model>(
+    callback: (
+      this: T | undefined,
+      key: Exclude<keyof Schema & string, keyof Model & string>,
+      relationship: RelationshipSchema
+    ) => void,
+    binding?: T
+  ): void {
     assert(
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
     );
 
     this.relationshipsByName.forEach((relationship, name) => {
-      callback.call(binding, name, relationship);
+      callback.call(binding, name as Exclude<keyof Schema & string, keyof Model & string>, relationship);
     });
   }
 
@@ -1683,7 +1624,7 @@ class Model extends EmberObject {
    @param {Function} callback the callback to invoke
    @param {any} binding the value to which the callback's `this` should be bound
    */
-  static eachRelatedType(callback, binding) {
+  static eachRelatedType<T>(callback: (this: T | undefined, type: string) => void, binding?: T) {
     assert(
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
@@ -1697,7 +1638,16 @@ class Model extends EmberObject {
     }
   }
 
-  static determineRelationshipType(knownSide, store) {
+  /**
+   *
+   * @method determineRelationshipType
+   * @private
+   * @deprecated
+   */
+  static determineRelationshipType(
+    knownSide: RelationshipSchema,
+    store: Store
+  ): 'oneToOne' | 'oneToMany' | 'manyToOne' | 'manyToMany' | 'oneToNone' | 'manyToNone' {
     assert(
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
@@ -1770,7 +1720,7 @@ class Model extends EmberObject {
     const map = new Map();
 
     this.eachComputedProperty((name, meta) => {
-      if (meta.kind === 'attribute') {
+      if (isAttributeSchema(meta)) {
         assert(
           "You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: attr('<type>')` from " +
             this.toString(),
@@ -1778,7 +1728,7 @@ class Model extends EmberObject {
         );
 
         // TODO deprecate key being here
-        meta.key = name;
+        (meta as unknown as { key: string }).key = name;
         meta.name = name;
         map.set(name, meta);
       }
@@ -1832,9 +1782,9 @@ class Model extends EmberObject {
       this.modelName
     );
 
-    const map = new Map();
+    const map = new Map<string, string>();
 
-    this.eachAttribute((name, meta) => {
+    this.eachAttribute((name: string, meta: AttributeSchema) => {
       if (meta.type) {
         map.set(name, meta.type);
       }
@@ -1887,13 +1837,20 @@ class Model extends EmberObject {
    @param {Object} [binding] the value to which the callback's `this` should be bound
    @static
    */
-  static eachAttribute(callback, binding) {
+  static eachAttribute<T, Schema extends Model>(
+    callback: (
+      this: T | undefined,
+      key: Exclude<keyof Schema & string, keyof Model & string>,
+      attribute: AttributeSchema
+    ) => void,
+    binding?: T
+  ): void {
     assert(
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
     );
 
-    this.attributes.forEach((meta, name) => {
+    this.attributes.forEach((meta: AttributeSchema, name: Exclude<keyof Schema & string, keyof Model & string>) => {
       callback.call(binding, name, meta);
     });
   }
@@ -1943,14 +1900,17 @@ class Model extends EmberObject {
    @param {Object} [binding] the value to which the callback's `this` should be bound
    @static
    */
-  static eachTransformedAttribute(callback, binding) {
+  static eachTransformedAttribute<T, Schema extends Model>(
+    callback: (this: T | undefined, key: Exclude<keyof Schema & string, keyof Model & string>, type: string) => void,
+    binding?: T
+  ): void {
     assert(
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
     );
 
-    this.transformedAttributes.forEach((type, name) => {
-      callback.call(binding, name, type);
+    this.transformedAttributes.forEach((type: string, name) => {
+      callback.call(binding, name as Exclude<keyof Schema & string, keyof Model & string>, type);
     });
   }
 
@@ -1961,7 +1921,7 @@ class Model extends EmberObject {
     @public
    @static
    */
-  static toString() {
+  static override toString() {
     assert(
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
@@ -1990,123 +1950,67 @@ defineSignal(Model.prototype, 'isReloading', false);
 Model.prototype._createProps = null;
 Model.prototype._secretInit = null;
 
-if (HAS_DEBUG_PACKAGE) {
-  /**
-   Provides info about the model for debugging purposes
-   by grouping the properties into more semantic groups.
-
-   Meant to be used by debugging tools such as the Chrome Ember Extension.
-
-   - Groups all attributes in "Attributes" group.
-   - Groups all belongsTo relationships in "Belongs To" group.
-   - Groups all hasMany relationships in "Has Many" group.
-   - Groups all flags in "Flags" group.
-   - Flags relationship CPs as expensive properties.
-
-   @method _debugInfo
-   @for Model
-   @private
-   */
-  Model.prototype._debugInfo = function () {
-    const relationships = {};
-    const expensiveProperties = [];
-
-    const identifier = recordIdentifierFor(this);
-    const schema = this.store.getSchemaDefinitionService();
-    const attrDefs = schema.attributesDefinitionFor(identifier);
-    const relDefs = schema.relationshipsDefinitionFor(identifier);
-
-    const attributes = Object.keys(attrDefs);
-    attributes.unshift('id');
-
-    const groups = [
-      {
-        name: 'Attributes',
-        properties: attributes,
-        expand: true,
-      },
-    ];
-
-    Object.keys(relDefs).forEach((name) => {
-      const relationship = relDefs[name];
-
-      let properties = relationships[relationship.kind];
-
-      if (properties === undefined) {
-        properties = relationships[relationship.kind] = [];
-        groups.push({
-          name: relationship.kind,
-          properties,
-          expand: true,
-        });
-      }
-      properties.push(name);
-      expensiveProperties.push(name);
-    });
-
-    groups.push({
-      name: 'Flags',
-      properties: ['isLoaded', 'hasDirtyAttributes', 'isSaving', 'isDeleted', 'isError', 'isNew', 'isValid'],
-    });
-
-    return {
-      propertyInfo: {
-        // include all other mixins / properties (not just the grouped ones)
-        includeOtherProperties: true,
-        groups: groups,
-        // don't pre-calculate unless cached
-        expensiveProperties: expensiveProperties,
-      },
-    };
-  };
-}
-
 if (DEBUG) {
-  const lookupDescriptor = function lookupDescriptor(obj, keyName) {
-    let current = obj;
+  const lookupDescriptor = function lookupDescriptor(obj: object, keyName: string) {
+    let current: object = obj;
     do {
       const descriptor = Object.getOwnPropertyDescriptor(current, keyName);
       if (descriptor !== undefined) {
         return descriptor;
       }
-      current = Object.getPrototypeOf(current);
+      current = Object.getPrototypeOf(current) as object;
     } while (current !== null);
     return null;
   };
 
-  Model.reopen({
-    init() {
-      this._super(...arguments);
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  const init = Model.prototype.init;
+  Model.prototype.init = function (createArgs: ModelCreateArgs) {
+    init.call(this, createArgs);
 
-      const ourDescriptor = lookupDescriptor(Model.prototype, 'currentState');
-      const theirDescriptor = lookupDescriptor(this, 'currentState');
-      const realState = this.___recordState;
-      if (ourDescriptor.get !== theirDescriptor.get || realState !== this.currentState) {
-        throw new Error(
-          `'currentState' is a reserved property name on instances of classes extending Model. Please choose a different property name for ${this.constructor.toString()}`
-        );
-      }
+    const ourDescriptor = lookupDescriptor(Model.prototype, 'currentState');
+    const theirDescriptor = lookupDescriptor(this, 'currentState');
 
-      const ID_DESCRIPTOR = lookupDescriptor(Model.prototype, 'id');
-      const idDesc = lookupDescriptor(this, 'id');
+    if (!ourDescriptor || !theirDescriptor) {
+      throw new Error(
+        `Unable to determine if 'currentState' is a reserved property name on instances of classes extending Model. Please ensure that 'currentState' is not defined as a property on ${this.constructor.toString()}`
+      );
+    }
 
-      if (idDesc.get !== ID_DESCRIPTOR.get) {
-        throw new Error(
-          `You may not set 'id' as an attribute on your model. Please remove any lines that look like: \`id: attr('<type>')\` from ${this.constructor.toString()}`
-        );
-      }
-    },
-  });
+    const realState = this.___recordState;
+    if (ourDescriptor.get !== theirDescriptor.get || realState !== this.currentState) {
+      throw new Error(
+        `'currentState' is a reserved property name on instances of classes extending Model. Please choose a different property name for ${this.constructor.toString()}`
+      );
+    }
 
-  Model.reopen = function deprecatedReopen() {
-    assert(`Model.reopen is deprecated. Use \`class Foo extends Model {}\` to extend your class instead.`);
+    const ID_DESCRIPTOR = lookupDescriptor(Model.prototype, 'id');
+    const idDesc = lookupDescriptor(this, 'id');
+
+    if (!ID_DESCRIPTOR || !idDesc) {
+      throw new Error(
+        `Unable to determine if 'id' is a reserved property name on instances of classes extending Model. Please ensure that 'id' is not defined as a property on ${this.constructor.toString()}`
+      );
+    }
+
+    if (idDesc.get !== ID_DESCRIPTOR.get) {
+      throw new Error(
+        `You may not set 'id' as an attribute on your model. Please remove any lines that look like: \`id: attr('<type>')\` from ${this.constructor.toString()}`
+      );
+    }
   };
 
-  Model.reopenClass = function deprecatedReopenClass() {
-    assert(
-      `Model.reopenClass is deprecated. Use \`class Foo extends Model {}\` to add static methods and properties to your class instead.`
-    );
-  };
+  delete (Model as unknown as { reopen: unknown }).reopen;
+  delete (Model as unknown as { reopenClass: unknown }).reopenClass;
 }
 
 export { Model };
+
+function isRelationshipSchema(meta: unknown): meta is RelationshipSchema {
+  const hasKind = typeof meta === 'object' && meta !== null && 'kind' in meta && 'options' in meta;
+  return hasKind && (meta.kind === 'hasMany' || meta.kind === 'belongsTo');
+}
+
+function isAttributeSchema(meta: unknown): meta is AttributeSchema {
+  return typeof meta === 'object' && meta !== null && 'kind' in meta && meta.kind === 'attribute';
+}

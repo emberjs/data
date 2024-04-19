@@ -35,9 +35,8 @@ module.exports = {
       files: [
         './tests/helpers/accessors.ts',
         './tests/integration/identifiers/configuration-test.ts',
-        './tests/integration/identifiers/lid-reflection-test.ts',
         './tests/integration/identifiers/new-records-test.ts',
-        './tests/integration/identifiers/polymorphic-scenarios-test.ts',
+        // './tests/integration/identifiers/polymorphic-scenarios-test.ts',
         './tests/integration/identifiers/record-identifier-for-test.ts',
         './tests/integration/identifiers/scenarios-test.ts',
         './tests/integration/model-errors-test.ts',

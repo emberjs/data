@@ -45,8 +45,7 @@ class TestStore extends DataStore {
   }
 
   override modelFor(type: string): ModelSchema {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    return modelFor.call(this, type)!;
+    return modelFor.call(this, type) as ModelSchema;
   }
 }
 
@@ -249,7 +248,7 @@ module('Integration - updateRecord', function (hooks) {
     assert.false(user.isSaving, 'The user is no longer saving');
 
     // TODO: Errors type is missing `get`
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+
     const nameErrors = user.errors.get('name') as Array<{
       attribute: string;
       message: string;

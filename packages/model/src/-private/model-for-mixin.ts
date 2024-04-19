@@ -25,7 +25,7 @@ export default function modelForMixin(store: Store, normalizedModelName: string)
   const MaybeMixin = owner.factoryFor(`mixin:${normalizedModelName}`);
   const mixin = MaybeMixin && MaybeMixin.class;
   if (mixin) {
-    const ModelForMixin = Model.extend(mixin);
+    const ModelForMixin = Model.extend(mixin) as unknown as { __isMixin: boolean; __mixin: typeof mixin };
     ModelForMixin.__isMixin = true;
     ModelForMixin.__mixin = mixin;
     //Cache the class as a model

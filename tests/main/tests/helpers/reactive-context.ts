@@ -12,6 +12,14 @@ export interface ReactiveContext {
   reset: () => void;
 }
 
+export async function unboundReactiveContext<T extends Model>(
+  context: TestContext,
+  record: T,
+  fields: { name: string; type: 'field' | 'hasMany' | 'belongsTo' }[]
+): Promise<ReactiveContext> {
+  return reactiveContext.call(context, record, fields);
+}
+
 export async function reactiveContext<T extends Model>(
   this: TestContext,
   record: T,

@@ -29,6 +29,15 @@ class UnbrandedUser extends Model {
 }
 const user = new UnbrandedUser();
 
+type DoesExtend = UnbrandedUser extends Model ? true : false;
+function takeModel<T extends Model>(model: T): T {
+  return model;
+}
+
+expectTypeOf(takeModel(new UnbrandedUser())).toEqualTypeOf<UnbrandedUser>();
+// @ts-expect-error unsure how to fix this, but its a real bug
+expectTypeOf<DoesExtend>().toEqualTypeOf<true>();
+
 expectTypeOf<Awaited<PromiseManyArray<UnbrandedUser>>['modelName']>().toEqualTypeOf<string>();
 expectTypeOf<ManyArray<UnbrandedUser>['modelName']>().toEqualTypeOf<string>();
 expectTypeOf<ManyArray<UnbrandedUser>>().toMatchTypeOf<UnbrandedUser[]>();

@@ -48,7 +48,7 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
     const store = this.owner.lookup('service:store') as Store;
     const record = store.createRecord<User>('user', { name: 'Chris' });
     const identifier = recordIdentifierFor(record);
-    const serialized = record.serialize();
+    const serialized = record.serialize() as Record<string, unknown>;
 
     assert.notStrictEqual(identifier.lid, null, 'We have an lid');
     assert.strictEqual(serialized.lid, identifier.lid, 'We have the right lid');

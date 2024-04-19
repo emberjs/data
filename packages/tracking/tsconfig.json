@@ -9,6 +9,7 @@
     "moduleDetection": "force",
     "declarationDir": "unstable-preview-types",
     "strict": true,
+    "exactOptionalPropertyTypes": false,
     "downlevelIteration": true,
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,

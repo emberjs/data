@@ -9,7 +9,7 @@ import { getRequestState } from '@warp-drive/ember';
 import { mock, MockServerHandler } from '@warp-drive/holodeck';
 import { GET } from '@warp-drive/holodeck/mock';
 
-type RequestState<T> = ReturnType<typeof getRequestState<T>>;
+type RequestState<T, RT> = ReturnType<typeof getRequestState<RT, T>>;
 type UserResource = {
   data: {
     id: string;
@@ -280,10 +280,10 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
     const url = await mockGETSuccess(this);
     const request = this.manager.request<UserResource>({ url, method: 'GET' });
 
-    let state: RequestState<UserResource>;
-    function _getRequestState<T>(p: Future<T>): RequestState<T> {
-      state = getRequestState(p) as RequestState<UserResource>;
-      return state as RequestState<T>;
+    let state: RequestState<UserResource, UserResource>;
+    function _getRequestState<RT, T>(p: Future<RT>): RequestState<T, RT> {
+      state = getRequestState(p) as RequestState<UserResource, UserResource>;
+      return state as RequestState<T, RT>;
     }
     let counter = 0;
     function countFor(_result: unknown) {
@@ -322,10 +322,10 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
     const url = await mockGETSuccess(this);
     const request = this.manager.request<UserResource>({ url, method: 'GET' });
 
-    let state: RequestState<UserResource>;
-    function _getRequestState<T>(p: Future<T>): RequestState<T> {
-      state = getRequestState(p) as RequestState<UserResource>;
-      return state as RequestState<T>;
+    let state: RequestState<UserResource, UserResource>;
+    function _getRequestState<RT, T>(p: Future<RT>): RequestState<T, RT> {
+      state = getRequestState(p) as RequestState<UserResource, UserResource>;
+      return state as RequestState<T, RT>;
     }
     let counter = 0;
     function countFor(_result: unknown) {
@@ -373,10 +373,10 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
     const url = await mockGETFailure(this);
     const request = this.manager.request({ url, method: 'GET' });
 
-    let state: RequestState<UserResource>;
-    function _getRequestState<T>(p: Future<T>): RequestState<T> {
-      state = getRequestState(p) as RequestState<UserResource>;
-      return state as RequestState<T>;
+    let state: RequestState<UserResource, UserResource>;
+    function _getRequestState<RT, T>(p: Future<RT>): RequestState<T, RT> {
+      state = getRequestState(p) as RequestState<UserResource, UserResource>;
+      return state as RequestState<T, RT>;
     }
     let counter = 0;
     function countFor(_result: unknown, _error: unknown) {
@@ -433,10 +433,10 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
     } catch (e) {
       // ignore the error
     }
-    let state: RequestState<UserResource>;
-    function _getRequestState<T>(p: Future<T>): RequestState<T> {
-      state = getRequestState(p) as RequestState<UserResource>;
-      return state as RequestState<T>;
+    let state: RequestState<UserResource, UserResource>;
+    function _getRequestState<RT, T>(p: Future<RT>): RequestState<T, RT> {
+      state = getRequestState(p) as RequestState<UserResource, UserResource>;
+      return state as RequestState<T, RT>;
     }
     let counter = 0;
     function countFor(_result: unknown, _error: unknown) {
