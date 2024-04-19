@@ -5,8 +5,8 @@ import { assert, warn } from '@ember/debug';
 
 import { getOwnConfig, macroCondition } from '@embroider/macros';
 
-import { LOG_IDENTIFIERS } from '@ember-data/debugging';
-import { DEBUG } from '@ember-data/env';
+import { LOG_IDENTIFIERS } from '@warp-drive/build-config/debugging';
+import { DEBUG } from '@warp-drive/build-config/env';
 import {
   CACHE_OWNER,
   DEBUG_CLIENT_ORIGINATED,

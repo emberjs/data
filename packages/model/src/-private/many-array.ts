@@ -3,7 +3,6 @@
 */
 import { assert, deprecate } from '@ember/debug';
 
-import { DEPRECATE_MANY_ARRAY_DUPLICATES } from '@ember-data/deprecations';
 import type Store from '@ember-data/store';
 import type { NativeProxy } from '@ember-data/store/-private';
 import {
@@ -23,6 +22,7 @@ import type { OpaqueRecordInstance } from '@ember-data/store/-types/q/record-ins
 import type { BaseFinderOptions } from '@ember-data/store/-types/q/store';
 import type { Signal } from '@ember-data/tracking/-private';
 import { addToTransaction } from '@ember-data/tracking/-private';
+import { DEPRECATE_MANY_ARRAY_DUPLICATES } from '@warp-drive/build-config/deprecations';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
 import type { Links, PaginationLinks } from '@warp-drive/core-types/spec/raw';

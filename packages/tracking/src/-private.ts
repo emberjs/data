@@ -1,8 +1,8 @@
 import { tagForProperty } from '@ember/-internals/metal';
 import { consumeTag, dirtyTag } from '@glimmer/validator';
 
-import { DEPRECATE_COMPUTED_CHAINS } from '@ember-data/deprecations';
-import { DEBUG } from '@ember-data/env';
+import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 /**
  * This package provides primitives that allow powerful low-level

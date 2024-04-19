@@ -434,7 +434,7 @@ For usage of the store's `requestManager` via `store.request(<req>)` see the
  */
 import { importSync } from '@embroider/macros';
 
-import { DEBUG, TESTING } from '@ember-data/env';
+import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 import type { RequestInfo, StructuredErrorDocument } from '@warp-drive/core-types/request';
 
 import { assertValidRequest } from './debug';

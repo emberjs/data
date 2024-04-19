@@ -1,6 +1,6 @@
 import { type TestContext } from '@ember/test-helpers';
 
-import { DEBUG } from '@ember-data/env';
+import { DEBUG } from '@warp-drive/build-config/env';
 import VERSION, { COMPAT_VERSION } from '@ember-data/unpublished-test-infra/test-support/version';
 import { DeprecationConfig } from './asserts/assert-deprecation';
 

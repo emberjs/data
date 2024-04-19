@@ -26,9 +26,9 @@ pnpm add @ember-data/graph
   @module @ember-data/graph
   @main @ember-data/graph
 */
-import { DEBUG } from '@ember-data/env';
 import type Store from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 import { getStore } from './-private/-utils';
 import { Graph, Graphs } from './-private/graph';

@@ -2,7 +2,6 @@ import { assert } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
 
-import { DEBUG } from '@ember-data/env';
 import type { UpgradedMeta } from '@ember-data/graph/-private/-edge-definition';
 import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection';
 import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
@@ -22,6 +21,7 @@ import type { Cache } from '@ember-data/store/-types/q/cache';
 import type { JsonApiRelationship } from '@ember-data/store/-types/q/record-data-json-api';
 import type { OpaqueRecordInstance } from '@ember-data/store/-types/q/record-instance';
 import type { BaseFinderOptions } from '@ember-data/store/-types/q/store';
+import { DEBUG } from '@warp-drive/build-config/env';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';

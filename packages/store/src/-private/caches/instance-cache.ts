@@ -1,7 +1,7 @@
 import { assert, warn } from '@ember/debug';
 
-import { LOG_INSTANCE_CACHE } from '@ember-data/debugging';
-import { DEBUG } from '@ember-data/env';
+import { LOG_INSTANCE_CACHE } from '@warp-drive/build-config/debugging';
+import { DEBUG } from '@warp-drive/build-config/env';
 import type { RecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { Value } from '@warp-drive/core-types/json/raw';
 import type { TypedRecordInstance, TypeFromInstance, TypeFromInstanceOrString } from '@warp-drive/core-types/record';

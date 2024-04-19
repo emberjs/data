@@ -191,7 +191,6 @@ import { assert } from '@ember/debug';
 import EmberObject from '@ember/object';
 import { inject as service } from '@ember/service';
 
-import { DEBUG } from '@ember-data/env';
 import type { Snapshot, SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
 import type {
   AdapterPayload,
@@ -200,6 +199,7 @@ import type {
 import type { SerializerOptions } from '@ember-data/legacy-compat/legacy-network-handler/minimum-serializer-interface';
 import type Store from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 /**
   An adapter is an object that receives requests from a store and

@@ -1,8 +1,8 @@
 import { assert } from '@ember/debug';
 
-import { DEBUG } from '@ember-data/env';
 import type Store from '@ember-data/store';
 import type { BaseFinderOptions } from '@ember-data/store/-types/q/store';
+import { DEBUG } from '@warp-drive/build-config/env';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { RelationshipSchema } from '@warp-drive/core-types/schema';
 import type { ExistingResourceObject, JsonApiDocument } from '@warp-drive/core-types/spec/raw';

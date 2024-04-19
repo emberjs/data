@@ -5,10 +5,10 @@
 import { assert } from '@ember/debug';
 import EmberObject from '@ember/object';
 
-import { LOG_PAYLOADS, LOG_REQUESTS } from '@ember-data/debugging';
-import { DEBUG, TESTING } from '@ember-data/env';
 import type RequestManager from '@ember-data/request';
 import type { Future } from '@ember-data/request/-private/types';
+import { LOG_PAYLOADS, LOG_REQUESTS } from '@warp-drive/build-config/debugging';
+import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 import type { Graph } from '@warp-drive/core-types/graph';
 import type {
   StableDocumentIdentifier,
