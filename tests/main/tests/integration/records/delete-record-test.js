@@ -495,7 +495,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
       assert.true(company.isDestroying, 'isDestroying should be true');
       assert.true(company.isDestroyed, 'isDestroyed should be true');
       if (DEBUG) {
-        assert.strictEqual(company.id, undefined, 'id access should be safe');
+        assert.strictEqual(company.id, null, 'id access should be safe');
       }
     } catch (e) {
       assert.ok(false, `Should not throw an error, threw ${e.message}`);

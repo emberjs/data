@@ -111,7 +111,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
   override init(options: ModelCreateArgs) {
     if (DEBUG) {
-      if (!options._secretInit && !options._createProps) {
+      if (!options?._secretInit && !options?._createProps) {
         throw new Error(
           'You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.'
         );
