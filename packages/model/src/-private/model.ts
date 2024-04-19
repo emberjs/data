@@ -1031,12 +1031,16 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    ```
 
    @method eachRelationship
-    @public
+   @public
    @param {Function} callback the callback to invoke
    @param {any} binding the value to which the callback's `this` should be bound
    */
   eachRelationship<T>(
-    callback: (this: T | undefined, key: keyof this & string, meta: RelationshipSchema) => void,
+    callback: (
+      this: NoInfer<T> | undefined,
+      key: Exclude<keyof this & string, keyof Model & string>,
+      meta: RelationshipSchema
+    ) => void,
     binding?: T
   ): void {
     (this.constructor as typeof Model).eachRelationship<T, this>(callback, binding);
@@ -1051,7 +1055,11 @@ class Model extends EmberObject implements MinimalLegacyRecord {
   }
 
   eachAttribute<T>(
-    callback: (this: T | undefined, key: keyof this & string, meta: AttributeSchema) => void,
+    callback: (
+      this: NoInfer<T> | undefined,
+      key: Exclude<keyof this & string, keyof Model & string>,
+      meta: AttributeSchema
+    ) => void,
     binding?: T
   ): void {
     (this.constructor as typeof Model).eachAttribute<T, this>(callback, binding);
@@ -1587,7 +1595,11 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    @param {any} binding the value to which the callback's `this` should be bound
    */
   static eachRelationship<T, Schema extends Model>(
-    callback: (this: T | undefined, key: keyof Schema & string, relationship: RelationshipSchema) => void,
+    callback: (
+      this: T | undefined,
+      key: Exclude<keyof Schema & string, keyof Model & string>,
+      relationship: RelationshipSchema
+    ) => void,
     binding?: T
   ): void {
     assert(
@@ -1596,7 +1608,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     );
 
     this.relationshipsByName.forEach((relationship, name) => {
-      callback.call(binding, name as keyof Schema & string, relationship);
+      callback.call(binding, name as Exclude<keyof Schema & string, keyof Model & string>, relationship);
     });
   }
 
@@ -1826,7 +1838,11 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    @static
    */
   static eachAttribute<T, Schema extends Model>(
-    callback: (this: T | undefined, key: keyof Schema & string, attribute: AttributeSchema) => void,
+    callback: (
+      this: T | undefined,
+      key: Exclude<keyof Schema & string, keyof Model & string>,
+      attribute: AttributeSchema
+    ) => void,
     binding?: T
   ): void {
     assert(
@@ -1834,7 +1850,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
       this.modelName
     );
 
-    this.attributes.forEach((meta: AttributeSchema, name: keyof Schema & string) => {
+    this.attributes.forEach((meta: AttributeSchema, name: Exclude<keyof Schema & string, keyof Model & string>) => {
       callback.call(binding, name, meta);
     });
   }
@@ -1885,7 +1901,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    @static
    */
   static eachTransformedAttribute<T, Schema extends Model>(
-    callback: (this: T | undefined, key: keyof Schema & string, type: string) => void,
+    callback: (this: T | undefined, key: Exclude<keyof Schema & string, keyof Model & string>, type: string) => void,
     binding?: T
   ): void {
     assert(
@@ -1894,7 +1910,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     );
 
     this.transformedAttributes.forEach((type: string, name) => {
-      callback.call(binding, name as keyof Schema & string, type);
+      callback.call(binding, name as Exclude<keyof Schema & string, keyof Model & string>, type);
     });
   }
 
