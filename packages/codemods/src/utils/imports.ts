@@ -32,6 +32,7 @@ export interface ExistingImport {
 export type ExistingImports = Map<ImportInfo, ExistingImport>;
 
 export function parseExistingImports(j: JSCodeshift, root: Collection, importInfos: ImportInfos): ExistingImports {
+  log.debug('\tParsing imports');
   const existingImports: ExistingImports = new Map();
 
   root.find(j.ImportDeclaration).forEach((path) => {
@@ -50,8 +51,6 @@ export function parseExistingImports(j: JSCodeshift, root: Collection, importInf
 }
 
 function parseImport(path: ASTPath<ImportDeclaration>, importInfo: ImportInfo): ExistingImport | null {
-  log.debug('\tParsing imports:', importInfo.importedName);
-
   const importDeclaration = path.value;
   if (!importDeclaration.specifiers || importDeclaration.source.value !== importInfo.sourceValue) {
     return null;

@@ -75,6 +75,7 @@ export function transformLegacyStoreMethod(
       },
     })
     .forEach((rawPath) => {
+      result.attemptedTransform = true;
       let path: ValidLegacyStoreMethodCallExpressionPath;
       try {
         assertIsValidLegacyStoreMethodCallExpressionPath(j, rawPath);

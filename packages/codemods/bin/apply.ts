@@ -1,8 +1,10 @@
+import bun from 'bun';
 import chalk from 'chalk';
 import type { Command } from 'commander';
 import { Option } from 'commander';
 import type { Options } from 'jscodeshift';
 import jscodeshift from 'jscodeshift';
+import type Prettier from 'prettier';
 
 import { logger } from '../utils/logger.js';
 import type { CodemodConfig } from './config.js';
@@ -10,7 +12,6 @@ import type { CodemodConfig } from './config.js';
 export function createApplyCommand(program: Command, codemods: CodemodConfig[]) {
   const applyCommand = program
     .command('apply')
-    .argument('<codemod>', 'name of the codemod to apply (see `list` command for available codemods)')
     .argument('<target-glob-pattern...>', 'path to files or glob pattern')
     .description('apply the given codemod to the target file paths');
 
@@ -61,17 +62,29 @@ function createApplyAction(transformName: string) {
     };
     const j = jscodeshift.withParser('ts');
 
+    let prettier;
+    try {
+      prettier = await import('prettier');
+    } catch (e) {
+      log.warn('Prettier is not installed. Skipping formatting.');
+    }
+
     for (const pattern of patterns) {
       const glob = new Bun.Glob(pattern);
-      for await (const filePath of glob.scan('.')) {
-        log.debug('Transforming:', filePath);
+      for await (const filepath of glob.scan('.')) {
+        // Bun.Glob doesn't support `ignores` or similar to avoid certain extensions
+        // https://github.com/oven-sh/bun/issues/8182
+        if (filepath.endsWith('.d.ts')) {
+          continue;
+        }
+        log.debug('Transforming:', filepath);
         result.matches++;
-        const file = Bun.file(filePath);
+        const file = Bun.file(filepath);
         const originalSource = await file.text();
         let transformedSource: string | undefined;
         try {
           transformedSource = transform(
-            { source: originalSource, path: filePath },
+            { source: originalSource, path: filepath },
             {
               j,
               jscodeshift: j,
@@ -81,12 +94,8 @@ function createApplyAction(transformName: string) {
             options
           );
         } catch (error) {
-          if (typeof error === 'object' && error !== null && 'name' in error && error.name === 'TransformError') {
-            result.errors++;
-            log.error(`Error transforming ${filePath}:\n`, error);
-          } else {
-            throw error;
-          }
+          result.errors++;
+          log.error(`Error transforming ${filepath}:\n`, error);
           continue;
         }
 
@@ -95,8 +104,23 @@ function createApplyAction(transformName: string) {
         } else if (transformedSource === originalSource) {
           result.unmodified++;
         } else {
+          if (prettier) {
+            try {
+              const { ignored } = await prettier.getFileInfo(filepath);
+              const prettierConfig = await prettier.resolveConfig(filepath);
+              if (!ignored) {
+                transformedSource = await prettier.format(transformedSource, {
+                  ...prettierConfig,
+                  filepath,
+                });
+              }
+            } catch (error) {
+              log.warn(`Error formatting ${filepath} with prettier:\n`, error);
+            }
+          }
+
+          await Bun.write(filepath, transformedSource);
           result.ok++;
-          await Bun.write(filePath, transformedSource);
         }
       }
     }

@@ -35,6 +35,15 @@ export default function (fileInfo: FileInfo, api: API, _options: Options): strin
     }
   }
 
-  // TODO: Make quote configurable or pull from prettierrc
-  return root.toSource({ quote: 'single' });
+  // Only run `toSource` if we actually attempted to transform.
+  // We need this because recast's handling of comments is really stinky and
+  // will cause unnecessary diffs. Don't want to make users deal with those if
+  // there was nothing to even transform in the file to begin with.
+  if (result.attemptedTransform) {
+    // TODO: Make quote configurable or pull from prettierrc
+    return root.toSource({ quote: 'single' });
+  } else {
+    // unmodified
+    return fileInfo.source;
+  }
 }
