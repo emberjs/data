@@ -12,8 +12,15 @@ import type Store from '@ember-data/store';
 
 import { getRequestState } from './request-state.ts';
 import type { RequestLoadingState } from './request-state.ts';
-import { and, notNull, Throw } from './await.gts';
+import { and, Throw } from './await.gts';
 import { tracked } from '@glimmer/tracking';
+
+function notNull<T>(x: null): never;
+function notNull<T>(x: T): Exclude<T, null>;
+function notNull<T>(x: T | null) {
+  assert('Expected a non-null value, but got null', x !== null);
+  return x;
+}
 
 const not = (x: unknown) => !x;
 // default to 30 seconds unavailable before we refresh
@@ -244,6 +251,10 @@ export class Request<T> extends Component<RequestSignature<T>> {
     return getRequestState<T>(this.request);
   }
 
+  get result() {
+    return this.reqState.result as T;
+  }
+
   <template>
     {{#if this.reqState.isLoading}}
       {{yield this.reqState.loadingState to="loading"}}
@@ -252,7 +263,7 @@ export class Request<T> extends Component<RequestSignature<T>> {
     {{else if (and this.reqState.isError (has-block "error"))}}
       {{yield (notNull this.reqState.error) this.errorFeatures to="error"}}
     {{else if this.reqState.isSuccess}}
-      {{yield (notNull this.reqState.result) this.contentFeatures to="content"}}
+      {{yield this.result this.contentFeatures to="content"}}
     {{else if (not this.reqState.isCancelled)}}
       <Throw @error={{(notNull this.reqState.error)}} />
     {{/if}}
