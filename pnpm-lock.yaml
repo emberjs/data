@@ -2698,12 +2698,6 @@ importers:
       '@ember-data/codemods':
         specifier: workspace:5.4.0-alpha.52
         version: link:../../packages/codemods
-      '@rollup/plugin-babel':
-        specifier: ^6.0.4
-        version: 6.0.4(@babel/core@7.24.4)(rollup@4.14.1)
-      '@rollup/plugin-node-resolve':
-        specifier: ^15.2.3
-        version: 15.2.3(rollup@4.14.1)
       '@types/jscodeshift':
         specifier: 0.11.11
         version: 0.11.11
@@ -2722,9 +2716,6 @@ importers:
       qunit:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
-      rollup:
-        specifier: ^4.14.1
-        version: 4.14.1
       tsx:
         specifier: ^4.7.2
         version: 4.7.2

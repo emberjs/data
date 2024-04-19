@@ -1,4 +1,4 @@
-const post = store.queryRecord(
+const post = await store.queryRecord(
   'post',
   { id: '1' },
   {

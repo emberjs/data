@@ -1,5 +1,5 @@
 import { query } from '@ember-data/legacy-compat/builders';
-const post = store.request(
+const { content: post } = await store.request(
   query(
     'post',
     { id: '1' },
@@ -10,4 +10,4 @@ const post = store.request(
       adapterOptions: {},
     }
   )
-).content;
+);

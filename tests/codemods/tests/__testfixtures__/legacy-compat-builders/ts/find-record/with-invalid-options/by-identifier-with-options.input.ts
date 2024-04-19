@@ -1,5 +1,5 @@
-const validPost = store.findRecord<Post>({ type: 'post', id: '1' });
-const invalidPost = store.findRecord<Post>(
+const validPost = await store.findRecord<Post>({ type: 'post', id: '1' });
+const invalidPost = await store.findRecord<Post>(
   { type: 'post', id: '1' },
   {
     preload: {},

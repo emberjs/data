@@ -1,5 +1,5 @@
 {
-  "include": ["src", "bin", "utils"],
+  "include": ["src", "bin", "utils", "examples"],
   "baseUrl": ".",
   "compilerOptions": {
     "lib": ["ESNext"],

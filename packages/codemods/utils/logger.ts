@@ -2,6 +2,17 @@
 import chalk from 'chalk';
 import type { Options } from 'jscodeshift';
 
+type ConsoleMethod = 'log' | 'error' | 'warn' | 'debug' | 'info';
+
+const TagsByLogLevel = {
+  log: chalk.magenta('[LOG]'),
+  success: chalk.green('[SUCCESS]'),
+  error: chalk.red('[ERROR]'),
+  warn: chalk.yellow('[WARN]'),
+  debug: chalk.blue('[DEBUG]'),
+};
+type TagsByLogLevel = typeof TagsByLogLevel;
+
 /**
  * A singleton logger to use in your codemod.
  *
@@ -27,25 +38,31 @@ class Logger {
   constructor(public name: string) {}
 
   log(...args: any[]): void {
-    console.log(new Date().getTime(), chalk.gray(this.name), chalk.magenta('[LOG]'), ...args);
+    this._log('log', 'log', ...args);
   }
 
   success(...args: any[]): void {
-    console.log(new Date().getTime(), chalk.gray(this.name), chalk.green('[SUCCESS]'), ...args);
+    this._log('log', 'success', ...args);
   }
 
   error(...args: any[]): void {
-    console.error(new Date().getTime(), chalk.gray(this.name), chalk.red('[ERROR]'), ...args);
+    this._log('error', 'error', ...args);
   }
 
   warn(...args: any[]): void {
-    console.warn(new Date().getTime(), chalk.gray(this.name), chalk.yellow('[WARN]'), ...args);
+    console.log(args);
+    this._log('warn', 'warn', ...args);
   }
 
   debug(...args: any[]): void {
     if (Logger.options.verbose === '2') {
-      console.log(new Date().getTime(), chalk.gray(this.name), chalk.blue('[DEBUG]'), ...args);
+      this._log('debug', 'debug', ...args);
     }
+  }
+
+  /** Can't be private because we stub this in tests. Grimace face emoji. */
+  _log<M extends ConsoleMethod>(method: M, level: keyof TagsByLogLevel, ...args: Parameters<Console[M]>): void {
+    return console[method](new Date().getTime(), chalk.gray(this.name), TagsByLogLevel[level], ...args);
   }
 }
 

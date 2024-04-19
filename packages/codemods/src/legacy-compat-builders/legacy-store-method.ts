@@ -1,5 +1,6 @@
 import type {
   ASTPath,
+  AwaitExpression,
   CallExpression,
   Collection,
   Identifier,
@@ -21,16 +22,20 @@ interface LegacyStoreMethodCallExpression extends CallExpression {
   typeParameters?: TSTypeParameterInstantiation | null;
 }
 
+interface ValidLegacyStoreMethodCallExpressionPath extends ASTPath<LegacyStoreMethodCallExpression> {
+  parent: ASTPath<AwaitExpression>;
+}
+
 export interface Config extends ImportInfo {
   transformOptions: {
     validate?: (j: JSCodeshift, path: ASTPath<LegacyStoreMethodCallExpression>) => void;
     extractBuilderTypeParams?: (
       j: JSCodeshift,
-      path: ASTPath<LegacyStoreMethodCallExpression>
+      path: ValidLegacyStoreMethodCallExpressionPath
     ) => TSTypeParameterInstantiation | null;
     extractRequestTypeParams?: (
       j: JSCodeshift,
-      path: ASTPath<LegacyStoreMethodCallExpression>
+      path: ValidLegacyStoreMethodCallExpressionPath
     ) => TSTypeParameterInstantiation | null;
   };
 }
@@ -70,11 +75,25 @@ export function transformLegacyStoreMethod(
       },
     })
     .forEach((rawPath) => {
-      // SAFETY: JSCodeshift `find` types aren't as smart as they could be
-      validate(j, rawPath as ASTPath<LegacyStoreMethodCallExpression>);
-      const builderTypeParameters = extractBuilderTypeParams(j, rawPath as ASTPath<LegacyStoreMethodCallExpression>);
-      const requestTypeParameters = extractRequestTypeParams(j, rawPath as ASTPath<LegacyStoreMethodCallExpression>);
-      const path = { ...rawPath } as ASTPath<LegacyStoreMethodCallExpression>;
+      let path: ValidLegacyStoreMethodCallExpressionPath;
+      try {
+        assertIsValidLegacyStoreMethodCallExpressionPath(j, rawPath);
+        validate(j, rawPath);
+        path = rawPath;
+      } catch (error) {
+        if (error instanceof TransformError) {
+          // Skip this path but continue to transform the rest of the file
+          log.warn(
+            `\tCannot transform expression at loc ${rawPath.value.loc?.start.line}:${rawPath.value.loc?.start.column}-${rawPath.value.loc?.end.line}:${rawPath.value.loc?.end.column}`,
+            error.message
+          );
+          return;
+        }
+        throw error;
+      }
+
+      const builderTypeParameters = extractBuilderTypeParams(j, path);
+      const requestTypeParameters = extractRequestTypeParams(j, path);
 
       // Replace with, e.g. store.request(findRecord('post', '1')).content
       // First, change the callee to store.request
@@ -87,18 +106,33 @@ export function transformLegacyStoreMethod(
         arguments: path.value.arguments,
       });
 
-      // @ts-expect-error JSCodeshift missing types
-      builderExpression.typeParameters = builderTypeParameters;
+      // SAFETY: JSCodeshift types are wrong
+      (builderExpression as unknown as { typeParameters: TSTypeParameterInstantiation | null }).typeParameters =
+        builderTypeParameters;
       path.value.arguments = [builderExpression];
 
-      // Next, wrap the whole expression in a MemberExpression to add `.content`
-      const memberExpression = j.memberExpression.from({
-        object: path.value,
-        property: j.identifier.from({ name: 'content' }),
-      });
+      if (isRecord(path.parent.parent) && j.VariableDeclarator.check(path.parent.parent.value)) {
+        // Replace `const post` with `const { content: post }`
+        // Replace `const { id }` with `const { content: { id } }`
+        path.parent.parent.value.id = j.objectPattern.from({
+          properties: [
+            j.objectProperty.from({
+              key: j.identifier.from({ name: 'content' }),
+              value: path.parent.parent.value.id,
+            }),
+          ],
+        });
+      } else {
+        // It's not assigned to a variable so we don't need to worry about destructuring
+        // Wrap the whole await expression in a MemberExpression to add `.content`
+        const memberExpression = j.memberExpression.from({
+          object: path.parent.value,
+          property: j.identifier.from({ name: 'content' }),
+        });
 
-      // Finally, replace
-      j(rawPath).replaceWith(memberExpression);
+        // Finally, replace
+        j(path.parent).replaceWith(memberExpression);
+      }
 
       if (!existingImport) {
         result.importsToAdd.add(config);
@@ -126,16 +160,33 @@ export function validateForFindRecord(j: JSCodeshift, path: ASTPath<LegacyStoreM
   }
 }
 
+function assertIsValidLegacyStoreMethodCallExpressionPath(
+  j: JSCodeshift,
+  path: ASTPath<CallExpression>
+): asserts path is ValidLegacyStoreMethodCallExpressionPath {
+  // Duplicate logic because JSCodeshift types are stupid
+  if (!j.MemberExpression.check(path.value.callee)) {
+    throw new Error(`JSCodeshift filter failed. path.value.callee is not a MemberExpression`);
+  }
+  if (!j.Identifier.check(path.value.callee.property)) {
+    throw new Error(`JSCodeshift filter failed. path.value.callee.property is not an Identifier`);
+  }
+  // Actual logic for our validation
+  if (!isRecord(path.parent) || !j.AwaitExpression.check(path.parent.value)) {
+    throw new TransformError(`Cannot transform store.${path.value.callee.property.name} without await keyword.`);
+  }
+}
+
 export function singularTypeParam(
   _j: JSCodeshift,
-  path: ASTPath<LegacyStoreMethodCallExpression>
+  path: ValidLegacyStoreMethodCallExpressionPath
 ): TSTypeParameterInstantiation | null {
   return path.value.typeParameters ?? null;
 }
 
 export function arrayTypeParam(
   j: JSCodeshift,
-  path: ASTPath<LegacyStoreMethodCallExpression>
+  path: ValidLegacyStoreMethodCallExpressionPath
 ): TSTypeParameterInstantiation | null {
   const singular = path.value.typeParameters;
   if (!singular) {
@@ -154,7 +205,7 @@ export function arrayTypeParam(
 interface LegacyStoreMethodTSTypeParameterInstantiation extends TSTypeParameterInstantiation {}
 
 function assertLegacyStoreMethodTSTypeParameterInstantiation(
-  path: ASTPath<LegacyStoreMethodCallExpression>,
+  path: ValidLegacyStoreMethodCallExpressionPath,
   typeParameters: TSTypeParameterInstantiation
 ): asserts typeParameters is LegacyStoreMethodTSTypeParameterInstantiation {
   if (typeParameters.params.length !== 1) {
@@ -165,4 +216,8 @@ function assertLegacyStoreMethodTSTypeParameterInstantiation(
   if (!['TSTypeReference', 'TSAnyKeyword'].includes(typeParameters.params[0].type)) {
     throw new TransformError(`Expected singular TSTypeReference, found ${typeParameters.type}`);
   }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
 }

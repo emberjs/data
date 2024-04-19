@@ -33,16 +33,13 @@
   "devDependencies": {
     "@babel/core": "^7.24.4",
     "@babel/preset-typescript": "^7.24.1",
-    "@ember-data/codemods": "workspace:5.4.0-alpha.52",
-    "@rollup/plugin-babel": "^6.0.4",
-    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@ember-data/codemods": "workspace:5.4.0-alpha.53",
     "@types/jscodeshift": "0.11.11",
     "@types/node": "^20.12.7",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.52",
     "eslint": "^8.57.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "qunit": "^2.20.1",
-    "rollup": "^4.14.1",
     "tsx": "^4.7.2"
   },
   "engines": {

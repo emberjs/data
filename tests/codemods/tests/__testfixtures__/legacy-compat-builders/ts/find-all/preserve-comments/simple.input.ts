@@ -1,6 +1,6 @@
 // NOTE: Ideally the comment order and positioning would be unchanged, but due to limitations in recast, this doesn't seem possible
 // 1
-const post = store // 2
+const post = await store // 2
   // 3
   .findAll<Post>(
     // 4

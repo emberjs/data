@@ -1,7 +1,7 @@
 import { queryRecord } from '@ember-data/legacy-compat/builders';
 // NOTE: Ideally the comment order and positioning would be unchanged, but due to limitations in recast, this doesn't seem possible
 // 1
-const post = store // 2
+const { content: post } = await store // 2
   // 3
   .request(
     queryRecord(
@@ -22,5 +22,5 @@ const post = store // 2
         // 14
       }
     )
-  ).content; // 17
+  ); // 17
 // 18

@@ -1,5 +1,4 @@
 #!/usr/bin/env ts-node
-/* eslint-disable no-console */
 
 import type { Options, Transform } from 'jscodeshift';
 import { applyTransform, type TestOptions } from 'jscodeshift/src/testUtils.js';
@@ -62,10 +61,17 @@ function runTests({ only, filter }: RunTestsOptions = {}) {
   Object.entries(testsByTransform).forEach(async ([transform, tests]) => {
     await describe(transform, async () => {
       const testPromises = tests.map(({ relativePath, testName }) => {
-        return it(`transforms "${testName}"`, async () => {
-          await runTest(__dirname, transform, relativePath, null, {
-            parser: 'ts',
-          });
+        return it(`transforms "${testName}"`, async (t) => {
+          await runTest(
+            t,
+            __dirname,
+            transform,
+            relativePath,
+            { parser: 'ts' },
+            {
+              parser: 'ts',
+            }
+          );
         });
       });
       await Promise.all(testPromises);
@@ -74,29 +80,28 @@ function runTests({ only, filter }: RunTestsOptions = {}) {
 }
 
 async function runTest(
+  t: Parameters<Exclude<Parameters<typeof it>[0], undefined>>[0],
   dirName: string,
   transformName: string,
   relativePath: string,
   options?: Options | null,
   testOptions: TestOptions = {}
 ): Promise<void> {
-  const realLoggerWarn = console.warn;
-  const logs: Array<unknown[]> = [];
-  console.warn = (...args) => {
-    logs.push(['warn', ...args]);
-  };
+  const { Codemods, Logs } = await import('@ember-data/codemods');
 
-  // Assumes transform is one level up from __tests__ directory
-
-  const { default: codemods } = await import('@ember-data/codemods');
-
-  if (!(transformName in codemods)) {
+  if (!(transformName in Codemods)) {
     throw new Error('No codemod found for ' + transformName);
   }
+  const transform = Codemods[transformName as keyof typeof Codemods];
 
-  // FIXME: Gave up on types here
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-  const transform: Transform = (codemods as any)[transformName];
+  if (!(transformName in Logs)) {
+    throw new Error('No log found for ' + transformName);
+  }
+  const logs: Array<unknown[]> = [];
+  const log = Logs[transformName as keyof typeof Logs];
+  t.mock.method(log, '_log', (_method: string, level: string, ...args: unknown[]) => {
+    logs.push([level, ...args.map((arg) => (typeof arg === 'string' ? arg.trim() : JSON.stringify(arg)))]);
+  });
 
   const fixtureDir = path.join(dirName, '__testfixtures__');
   const inputPath = path.join(fixtureDir, relativePath);
@@ -110,30 +115,18 @@ async function runTest(
     throw new Error(`Could not parse info.json: ${infoJson}`);
   }
 
-  try {
-    await runInlineTest(
-      transform,
-      options ?? {},
-      {
-        path: inputPath,
-        source,
-      },
-      expectedOutput,
-      testOptions
-    );
-  } catch (actualError: unknown) {
-    const expectedError = expectedInfo['expectedError'];
-    if (expectedError) {
-      assert.strictEqual((actualError as Error).message, expectedError, 'Error message did not match expected.');
-    } else {
-      throw actualError;
-    }
-  }
-
-  const expectedLogs = expectedInfo['expectedLogs'] ?? [];
-  assert.deepStrictEqual(logs, expectedLogs, 'Logged messages did not match expected.');
-
-  console.warn = realLoggerWarn;
+  await runInlineTest(
+    transform,
+    options ?? {},
+    {
+      path: inputPath,
+      source,
+    },
+    expectedOutput,
+    expectedInfo,
+    logs,
+    testOptions
+  );
 }
 
 async function runInlineTest(
@@ -149,25 +142,52 @@ async function runInlineTest(
     source: string;
   },
   expectedOutput: string,
+  expectedInfo: ExpectedInfo,
+  logs: unknown[][],
   testOptions?: TestOptions
 ) {
-  const output = applyTransform(module, options, input, testOptions);
+  let output = input.source;
+  const expectedErrorMessage = expectedInfo['expectedError'];
+  let actualError: unknown;
+  try {
+    output = applyTransform(module, options, input, testOptions);
+  } catch (error: unknown) {
+    actualError = error;
+  }
+  if (expectedErrorMessage && actualError) {
+    assert.strictEqual((actualError as Error).message, expectedErrorMessage, 'Error message did not match expected.');
+  } else if (expectedErrorMessage) {
+    assert.fail(`Expected an error but none was thrown: ${expectedErrorMessage}`);
+  } else if (actualError instanceof Error) {
+    throw actualError;
+  } else if (actualError) {
+    throw new Error(`Invalid error: ${String(actualError)}`);
+  }
+
+  const expectedLogs = expectedInfo['expectedLogs'] ?? [];
+  assert.deepStrictEqual(logs, expectedLogs, 'Logged messages did not match expected.');
+
   const prettierConfig = await prettier.resolveConfig(input.path);
   if (!prettierConfig) {
     throw new Error('Could not resolve prettier config');
   }
   const formattedOutput = await prettier.format(output, { ...prettierConfig, filepath: input.path });
-  assert.strictEqual(formattedOutput, expectedOutput);
+  assert.strictEqual(formattedOutput, expectedOutput, 'Transformed output did not match expected.');
 }
 
 // prettier-ignore
 runTests(
   // Uncomment to test only a specific fixture
-  // { only: 'legacy-compat-builders/ts/query-record/simple/with-options' },
+  // { only: 'legacy-compat-builders/js/query/simple/simple' },
   // Uncomment to filter by a regex
-  // { filter: /js\// }
+  // { filter: /legacy-compat-builders\/js\/async\// }
 );
 
-function isExpectedInfo(value: unknown): value is { expectedLogs?: unknown[]; expectedError?: string } {
+interface ExpectedInfo {
+  expectedLogs?: unknown[];
+  expectedError?: string;
+}
+
+function isExpectedInfo(value: unknown): value is ExpectedInfo {
   return typeof value === 'object' && value !== null;
 }

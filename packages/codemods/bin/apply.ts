@@ -38,11 +38,11 @@ function createApplyAction(transformName: string) {
     log.debug('Running for target-glob-patterns:', patterns);
 
     // const transformPath = await import.meta.resolve(`../src/${transformName}/index.ts`);
-    const codemods = (await import('../src/index.js')).default;
-    if (!(transformName in codemods)) {
+    const { Codemods } = await import('../src/index.js');
+    if (!(transformName in Codemods)) {
       throw new Error(`No codemod found for: ${transformName}`);
     }
-    const transform = codemods[transformName as keyof typeof codemods];
+    const transform = Codemods[transformName as keyof typeof Codemods];
 
     /**
      * | Result       | How-to                      | Meaning                                            |
@@ -53,26 +53,28 @@ function createApplyAction(transformName: string) {
      * | `ok`         | return `string` (changed)   | we successfully transformed                        |
      */
     const result = {
+      matches: 0,
       errors: 0,
       unmodified: 0,
       skipped: 0,
       ok: 0,
     };
+    const j = jscodeshift.withParser('ts');
 
     for (const pattern of patterns) {
       const glob = new Bun.Glob(pattern);
       for await (const filePath of glob.scan('.')) {
         log.debug('Transforming:', filePath);
+        result.matches++;
         const file = Bun.file(filePath);
         const originalSource = await file.text();
-        options.dry = true;
         let transformedSource: string | undefined;
         try {
           transformedSource = transform(
             { source: originalSource, path: filePath },
             {
-              j: jscodeshift,
-              jscodeshift,
+              j,
+              jscodeshift: j,
               stats: (_name: string, _quantity?: number): void => {}, // unused
               report: (_msg: string): void => {}, // unused
             },
@@ -99,9 +101,13 @@ function createApplyAction(transformName: string) {
       }
     }
 
+    if (result.matches === 0) {
+      log.warn('No files matched the provided glob pattern(s):', patterns);
+    }
+
     if (result.errors > 0) {
       log.log(chalk.red(`${result.errors} error(s). See logs above.`));
-    } else {
+    } else if (result.matches > 0) {
       log.success('Zero errors! 🎉');
     }
     if (result.skipped > 0) {

@@ -1,4 +1,4 @@
-const post = store.findRecord(
+const post = await store.findRecord(
   { type: 'post', id: '1' },
   {
     reload: true,

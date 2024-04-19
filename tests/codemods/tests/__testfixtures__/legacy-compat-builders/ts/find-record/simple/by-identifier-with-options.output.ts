@@ -1,5 +1,5 @@
 import { findRecord } from '@ember-data/legacy-compat/builders';
-const post = store.request<Post>(
+const { content: post } = await store.request<Post>(
   findRecord<Post>(
     { type: 'post', id: '1' },
     {
@@ -9,4 +9,4 @@ const post = store.request<Post>(
       adapterOptions: {},
     }
   )
-).content;
+);

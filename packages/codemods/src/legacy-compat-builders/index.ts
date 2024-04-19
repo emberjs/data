@@ -38,5 +38,3 @@ export default function (fileInfo: FileInfo, api: API, _options: Options): strin
   // TODO: Make quote configurable or pull from prettierrc
   return root.toSource({ quote: 'single' });
 }
-
-export const parser = 'ts';

@@ -1,7 +1,7 @@
 import { findRecord } from '@ember-data/legacy-compat/builders';
 // NOTE: Ideally the comment order and positioning would be unchanged, but due to limitations in recast, this doesn't seem possible
 // 1
-const post = store
+const { content: post } = await store
   // 2
   .request(
     findRecord(
@@ -16,5 +16,5 @@ const post = store
         // 8
       }
     )
-  ).content; // 11
+  ); // 11
 // 12

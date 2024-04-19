@@ -1,0 +1,5 @@
+{
+  "expectedLogs": [
+    ["warn", "Cannot transform expression at loc 1:0-1:27", "Cannot transform store.findAll without await keyword."]
+  ]
+}

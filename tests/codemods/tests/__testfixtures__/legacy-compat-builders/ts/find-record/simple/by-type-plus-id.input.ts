@@ -1,1 +1,1 @@
-const post = store.findRecord<Post>('post', '1');
+const post = await store.findRecord<Post>('post', '1');

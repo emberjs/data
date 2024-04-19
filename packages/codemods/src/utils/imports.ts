@@ -107,7 +107,7 @@ export function addImport(j: JSCodeshift, root: Collection, { importedName, sour
     // Add the specifier to the first existing import with specifiers
     const first = existingDeclarations.paths().find((path) => path.value.specifiers);
     if (!first) {
-      throw new TransformError(`somehow we found multiple import declarations for ${sourceValue} with no specifiers`);
+      throw new TransformError(`Somehow we found multiple import declarations for ${sourceValue} with no specifiers`);
     }
     first.value.specifiers = [...(first.value.specifiers ?? []), j.importSpecifier(j.identifier(importedName))];
   }
@@ -124,7 +124,7 @@ export function removeImport(j: JSCodeshift, { specifier: specifierToRemove, pat
   const { specifiers } = importDeclaration;
 
   if (!specifiers) {
-    throw new TransformError('trying to remove a specifier from an import without specifiers');
+    throw new TransformError('Trying to remove a specifier from an import without specifiers');
   }
 
   if (specifiers.length === 1) {

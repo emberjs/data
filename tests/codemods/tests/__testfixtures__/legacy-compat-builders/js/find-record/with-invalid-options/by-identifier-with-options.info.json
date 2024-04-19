@@ -1,3 +1,9 @@
 {
-  "expectedError": "Cannot transform store.findRecord with a 'preload' key. This option is not supported by the legacy compat builders."
+  "expectedLogs": [
+    [
+      "warn",
+      "Cannot transform expression at loc 2:26-7:1",
+      "Cannot transform store.findRecord with a 'preload' key. This option is not supported by the legacy compat builders."
+    ]
+  ]
 }

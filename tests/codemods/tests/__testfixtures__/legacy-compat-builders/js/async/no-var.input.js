@@ -1,0 +1,1 @@
+await store.findAll('post');
