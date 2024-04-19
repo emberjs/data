@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
-// @ts-expect-error TODO: This is supplied via private-build-infra/virtual-packages
 import { graphFor } from '@ember-data/graph/-private';
 import Model, { attr, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';

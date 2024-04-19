@@ -1,5 +1,4 @@
 // Remove once @hasMany is typed
-// @ts-expect-error TODO: This is supplied via private-build-infra/virtual-packages
 import { graphFor } from '@ember-data/graph/-private';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
