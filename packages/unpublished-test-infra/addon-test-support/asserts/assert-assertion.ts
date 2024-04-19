@@ -1,6 +1,6 @@
 import type Assert from 'ember-data-qunit-asserts';
 
-import { DEBUG } from '@ember-data/env';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 import { checkMatcher } from './check-matcher';
 import isThenable from './utils/is-thenable';

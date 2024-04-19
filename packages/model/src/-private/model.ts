@@ -5,13 +5,13 @@
 import { assert } from '@ember/debug';
 import EmberObject from '@ember/object';
 
-import { DEBUG } from '@ember-data/env';
 import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store';
 import { recordIdentifierFor, storeFor } from '@ember-data/store';
 import { coerceId } from '@ember-data/store/-private';
 import { compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';
+import { DEBUG } from '@warp-drive/build-config/env';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { AttributeSchema, RelationshipSchema } from '@warp-drive/core-types/schema';

@@ -6,9 +6,9 @@ import { module, test } from 'qunit';
 import { hbs } from 'ember-cli-htmlbars';
 import { setupRenderingTest } from 'ember-qunit';
 
-import { DEBUG } from '@ember-data/env';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 module('integration/references/autotracking', function (hooks) {
   setupRenderingTest(hooks);

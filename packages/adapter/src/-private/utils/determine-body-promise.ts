@@ -1,6 +1,6 @@
 import { warn } from '@ember/debug';
 
-import { DEBUG } from '@ember-data/env';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 import type { RequestData } from '../../rest';
 import continueOnReject from './continue-on-reject';

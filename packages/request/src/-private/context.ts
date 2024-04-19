@@ -1,4 +1,4 @@
-import { DEBUG } from '@ember-data/env';
+import { DEBUG } from '@warp-drive/build-config/env';
 import type { ImmutableHeaders, ImmutableRequestInfo, RequestInfo, ResponseInfo } from '@warp-drive/core-types/request';
 import { SkipCache } from '@warp-drive/core-types/request';
 

@@ -4,9 +4,9 @@
 import { assert } from '@ember/debug';
 import { computed } from '@ember/object';
 
-import { DEBUG } from '@ember-data/env';
 import { recordIdentifierFor } from '@ember-data/store';
 import { peekCache } from '@ember-data/store/-private';
+import { DEBUG } from '@warp-drive/build-config/env';
 import type { ArrayValue, ObjectValue, PrimitiveValue, Value } from '@warp-drive/core-types/json/raw';
 import type { TransformName } from '@warp-drive/core-types/symbols';
 

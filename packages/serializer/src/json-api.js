@@ -6,7 +6,7 @@ import { dasherize } from '@ember/string';
 
 import { pluralize, singularize } from 'ember-inflector';
 
-import { DEBUG } from '@ember-data/env';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 import JSONSerializer from './json';
 

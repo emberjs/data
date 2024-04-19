@@ -70,8 +70,8 @@
  * }
  * ```
  *
-   @module @ember-data/canary-features
-   @main @ember-data/canary-features
+   @module @warp-drive/build-config/canary-features
+   @main @warp-drive/build-config/canary-features
  */
 /**
   This is the current list of features used at build time for canary releases.

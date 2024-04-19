@@ -2,14 +2,14 @@ import { assert } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
 
-import { LOG_PAYLOADS } from '@ember-data/debugging';
-import { DEBUG, TESTING } from '@ember-data/env';
 import type { Future, Handler, NextFn, StructuredDataDocument } from '@ember-data/request';
 import type Store from '@ember-data/store';
 import type { StoreRequestContext } from '@ember-data/store/-private/cache-handler';
 import type { Collection } from '@ember-data/store/-private/record-arrays/identifier-array';
 import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
 import type { JsonApiError } from '@ember-data/store/-types/q/record-data-json-api';
+import { LOG_PAYLOADS } from '@warp-drive/build-config/debugging';
+import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
 import type { RelationshipSchema } from '@warp-drive/core-types/schema';

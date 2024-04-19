@@ -17,10 +17,10 @@ module.exports = function debugMacros(config) {
     [
       TransformFeatures,
       {
-        source: '@ember-data/canary-features',
+        source: '@warp-drive/build-config/canary-features',
         flags: config.features,
       },
-      '@ember-data/canary-features-stripping',
+      '@warp-drive/build-config/canary-features-stripping',
     ],
     [
       TransformPackages,
@@ -32,7 +32,7 @@ module.exports = function debugMacros(config) {
     [
       TransformDeprecations,
       {
-        source: '@ember-data/deprecations',
+        source: '@warp-drive/build-config/deprecations',
         flags: config.deprecations,
       },
       '@ember-data/deprecation-stripping',
@@ -40,16 +40,16 @@ module.exports = function debugMacros(config) {
     [
       TransformDebugLogging,
       {
-        source: '@ember-data/debugging',
+        source: '@warp-drive/build-config/debugging',
         configKey: 'debug',
         flags: config.debug,
       },
-      '@ember-data/debugging',
+      '@warp-drive/build-config/debugging',
     ],
     [
       TransformDebugLogging,
       {
-        source: '@ember-data/env',
+        source: '@warp-drive/build-config/env',
         configKey: 'env',
         flags: {
           TESTING: true,
@@ -57,7 +57,7 @@ module.exports = function debugMacros(config) {
           DEBUG: true,
         },
       },
-      '@ember-data/env',
+      '@warp-drive/build-config/env',
     ],
     [
       TransformHasDebugPackage,

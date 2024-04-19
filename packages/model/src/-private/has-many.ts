@@ -7,8 +7,8 @@ import { dasherize } from '@ember/string';
 
 import { singularize } from 'ember-inflector';
 
-import { DEPRECATE_NON_STRICT_TYPES } from '@ember-data/deprecations';
-import { DEBUG } from '@ember-data/env';
+import { DEPRECATE_NON_STRICT_TYPES } from '@warp-drive/build-config/deprecations';
+import { DEBUG } from '@warp-drive/build-config/env';
 import type { TypeFromInstance } from '@warp-drive/core-types/record';
 import { RecordStore } from '@warp-drive/core-types/symbols';
 

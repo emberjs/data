@@ -29,7 +29,7 @@
 
     "types": ["ember-source/types"],
     "paths": {
-      "@ember-data/deprecations": ["../../packages/private-build-infra/virtual-packages/deprecations.d.ts"]
+      "@warp-drive/build-config/deprecations": ["../../packages/private-build-infra/virtual-packages/deprecations.d.ts"]
     }
   },
   "references": []

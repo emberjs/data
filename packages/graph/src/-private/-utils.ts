@@ -1,9 +1,9 @@
 import { assert, inspect, warn } from '@ember/debug';
 
-import { LOG_GRAPH } from '@ember-data/debugging';
 import type { Store } from '@ember-data/store/-private';
 import { peekCache } from '@ember-data/store/-private';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
+import { LOG_GRAPH } from '@warp-drive/build-config/debugging';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { UpdateRelationshipOperation } from '@warp-drive/core-types/graph';
 import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
