@@ -61,7 +61,7 @@ interface RequestSignature<T, RT> {
       error: StructuredErrorDocument,
       features: { isOnline: boolean; isHidden: boolean; retry: () => Promise<void> },
     ];
-    content: [value: T, features: ContentFeatures<RT>];
+    content: [value: RT, features: ContentFeatures<RT>];
     always: [state: RequestState<T, RT>];
   };
 }
@@ -252,7 +252,7 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
   }
 
   get result() {
-    return this.reqState.result as T;
+    return this.reqState.result as RT;
   }
 
   <template>

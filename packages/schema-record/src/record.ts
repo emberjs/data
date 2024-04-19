@@ -224,7 +224,7 @@ class ResourceRelationship<T extends SchemaRecord = SchemaRecord> {
     this[Parent] = parent;
   }
 
-  fetch(options?: StoreRequestInput<T>): Future<T> {
+  fetch(options?: StoreRequestInput<T, T>): Future<T> {
     const url = options?.url ?? getHref(this.links.related) ?? getHref(this.links.self) ?? null;
 
     if (!url) {
