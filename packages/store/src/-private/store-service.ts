@@ -688,7 +688,7 @@ class Store extends EmberObject {
     To create a new instance of a `Post` that has a relationship with a `User` record:
 
     ```js
-    let user = this.store.peekRecord('user', 1);
+    let user = this.store.peekRecord('user', '1');
     store.createRecord('post', {
       title: 'Ember is awesome!',
       user: user
@@ -806,7 +806,7 @@ class Store extends EmberObject {
     Example
 
     ```javascript
-    store.findRecord('post', 1).then(function(post) {
+    store.findRecord('post', '1').then(function(post) {
       store.unloadRecord(post);
     });
     ```
@@ -953,8 +953,8 @@ class Store extends EmberObject {
     If you have access to the post model you can also pass the model itself to preload:
 
     ```javascript
-    let post = await store.findRecord('post', 1);
-    let comment = await store.findRecord('comment', 2, { post: myPostModel });
+    let post = await store.findRecord('post', '1');
+    let comment = await store.findRecord('comment', '2', { post: myPostModel });
     ```
 
     ### Reloading
@@ -983,7 +983,7 @@ class Store extends EmberObject {
     //     revision: 2
     //   }
     // ]
-    store.findRecord('post', 1, { reload: true }).then(function(post) {
+    store.findRecord('post', '1', { reload: true }).then(function(post) {
       post.revision; // 2
     });
     ```
@@ -1021,7 +1021,7 @@ class Store extends EmberObject {
       }
     });
 
-    let blogPost = store.findRecord('post', 1).then(function(post) {
+    let blogPost = store.findRecord('post', '1').then(function(post) {
       post.revision; // 1
     });
 
@@ -1260,7 +1260,7 @@ class Store extends EmberObject {
     Example
 
     ```javascript
-    let userRef = store.getReference('user', 1);
+    let userRef = store.getReference('user', '1');
 
     // check if the user is loaded
     let isLoaded = userRef.value() !== null;
@@ -1331,9 +1331,9 @@ class Store extends EmberObject {
     **Example 1**
 
     ```js
-    let post = store.peekRecord('post', 1);
+    let post = store.peekRecord('post', '1');
 
-    post.id; // 1
+    post.id; // '1'
     ```
 
     `peekRecord` can be called with a single identifier argument instead of the combination
@@ -1344,7 +1344,7 @@ class Store extends EmberObject {
 
     ```js
     let post = store.peekRecord({ type: 'post', id });
-    post.id; // 1
+    post.id; // '1'
     ```
 
     If you have previously received an lid from an Identifier for this record, you can lookup the record again using
@@ -1354,7 +1354,7 @@ class Store extends EmberObject {
 
     ```js
     let post = store.peekRecord({ lid });
-    post.id; // 1
+    post.id; // '1'
     ```
 
 
@@ -1426,7 +1426,7 @@ class Store extends EmberObject {
     If you do something like this:
 
     ```javascript
-    store.query('person', { ids: [1, 2, 3] });
+    store.query('person', { ids: ['1', '2', '3'] });
     ```
 
     The request made to the server will look something like this:
