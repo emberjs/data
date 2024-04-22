@@ -111,8 +111,6 @@ GJS and GTS files are not currently supported. PRs welcome! 🧡
 
 # TODO:
 
-* [ ] Handle LegacyStoreMethodCallExpression2
-* [ ] .content; only when returned? any other cases?
 * [ ] Prettier errors
 * [ ] Print log to file
 * [ ] --dry

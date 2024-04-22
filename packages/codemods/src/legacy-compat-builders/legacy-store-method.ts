@@ -90,7 +90,7 @@ export function transformLegacyStoreMethod(
     const builderTypeParameters = extractBuilderTypeParams(j, path);
     const requestTypeParameters = extractRequestTypeParams(j, path);
 
-    // Replace with, e.g. store.request(findRecord('post', '1')).content
+    // Replace with, e.g. store.request(findRecord('post', '1'))
     // First, change the callee to store.request
     path.value.callee.property.name = 'request';
     path.value.typeParameters = requestTypeParameters;
@@ -106,27 +106,30 @@ export function transformLegacyStoreMethod(
       builderTypeParameters;
     path.value.arguments = [builderExpression];
 
-    if (isRecord(path.parent.parent) && j.VariableDeclarator.check(path.parent.parent.value)) {
-      // Replace `const post` with `const { content: post }`
-      // Replace `const { id }` with `const { content: { id } }`
-      path.parent.parent.value.id = j.objectPattern.from({
-        properties: [
-          j.objectProperty.from({
-            key: j.identifier.from({ name: 'content' }),
-            value: path.parent.parent.value.id,
-          }),
-        ],
-      });
-    } else {
-      // It's not assigned to a variable so we don't need to worry about destructuring
-      // Wrap the whole await expression in a MemberExpression to add `.content`
-      const memberExpression = j.memberExpression.from({
-        object: path.parent.value,
-        property: j.identifier.from({ name: 'content' }),
-      });
+    if (isRecord(path.parent.parent)) {
+      if (j.VariableDeclarator.check(path.parent.parent.value)) {
+        // Replace `const post` with `const { content: post }`
+        // Replace `const { id }` with `const { content: { id } }`
+        path.parent.parent.value.id = j.objectPattern.from({
+          properties: [
+            j.objectProperty.from({
+              key: j.identifier.from({ name: 'content' }),
+              value: path.parent.parent.value.id,
+            }),
+          ],
+        });
+      } else if (j.ReturnStatement.check(path.parent.parent.value)) {
+        // It's not assigned to a variable so we don't need to worry about destructuring
+        // but we do need to make sure the value stays the same, so:
+        // Wrap the whole await expression in a MemberExpression to add `.content`
+        const memberExpression = j.memberExpression.from({
+          object: path.parent.value,
+          property: j.identifier.from({ name: 'content' }),
+        });
 
-      // Finally, replace
-      j(path.parent).replaceWith(memberExpression);
+        // Finally, replace
+        j(path.parent).replaceWith(memberExpression);
+      }
     }
 
     if (!existingImport) {

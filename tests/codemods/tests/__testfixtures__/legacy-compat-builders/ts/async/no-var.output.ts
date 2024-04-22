@@ -1,2 +1,5 @@
 import { findAll } from '@ember-data/legacy-compat/builders';
-(await store.request<Post[]>(findAll<Post>('post'))).content;
+async function foo() {
+  await store.request<Post[]>(findAll<Post>('post'));
+  return (await store.request<Post[]>(findAll<Post>('post'))).content;
+}
