@@ -532,9 +532,6 @@ importers:
       jscodeshift:
         specifier: ^0.15.2
         version: 0.15.2
-      prettier:
-        specifier: ^3.2.5
-        version: 3.2.5
       typescript:
         specifier: ^5.4.4
         version: 5.4.4
@@ -566,6 +563,9 @@ importers:
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.10
         version: 0.0.10
+      prettier:
+        specifier: ^3.2.5
+        version: 3.2.5
       qunit:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
