@@ -108,3 +108,12 @@ Calls to legacy store methods that are not currently awaited will not be transfo
 ## Caveats
 
 GJS and GTS files are not currently supported. PRs welcome! 🧡
+
+# TODO:
+
+* [ ] Handle LegacyStoreMethodCallExpression2
+* [ ] .content; only when returned? any other cases?
+* [ ] Prettier errors
+* [ ] Print log to file
+* [ ] --dry
+* [ ] --ignore globs
