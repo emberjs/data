@@ -1,10 +1,8 @@
-import bun from 'bun';
 import chalk from 'chalk';
 import type { Command } from 'commander';
 import { Option } from 'commander';
 import type { Options } from 'jscodeshift';
 import jscodeshift from 'jscodeshift';
-import type Prettier from 'prettier';
 
 import { logger } from '../utils/logger.js';
 import type { CodemodConfig } from './config.js';
@@ -24,6 +22,12 @@ export function createApplyCommand(program: Command, codemods: CodemodConfig[]) 
         new Option('-v, --verbose <level>', 'show more information about the transform process')
           .choices(['0', '1', '2'])
           .default('0')
+      )
+      .addOption(
+        new Option(
+          '-l, --log-file [path]',
+          'write logs to a file. If option is set but no path is provided, logs are written to ember-data-codemods.log'
+        )
       )
       .allowUnknownOption() // to passthrough jscodeshift options
       .action(createApplyAction(codemod.name));
@@ -115,7 +119,8 @@ function createApplyAction(transformName: string) {
                 });
               }
             } catch (error) {
-              log.warn(`Error formatting ${filepath} with prettier:\n`, error);
+              log.warn(`Error formatting ${filepath} with prettier:`);
+              log.warn(error);
             }
           }
 
@@ -130,18 +135,20 @@ function createApplyAction(transformName: string) {
     }
 
     if (result.errors > 0) {
-      log.log(chalk.red(`${result.errors} error(s). See logs above.`));
+      log.info(chalk.red(`${result.errors} error(s). See logs above.`));
     } else if (result.matches > 0) {
       log.success('Zero errors! 🎉');
     }
     if (result.skipped > 0) {
-      log.log(chalk.yellow(`${result.skipped} skipped file(s).`, chalk.gray('Transform did not run. See logs above.')));
+      log.info(
+        chalk.yellow(`${result.skipped} skipped file(s).`, chalk.gray('Transform did not run. See logs above.'))
+      );
     }
     if (result.unmodified > 0) {
-      log.log(`${result.unmodified} unmodified file(s).`, chalk.gray('Transform ran but no changes were made.'));
+      log.info(`${result.unmodified} unmodified file(s).`, chalk.gray('Transform ran but no changes were made.'));
     }
     if (result.ok > 0) {
-      log.log(chalk.green(`${result.ok} transformed file(s).`));
+      log.info(chalk.green(`${result.ok} transformed file(s).`));
     }
   };
 }

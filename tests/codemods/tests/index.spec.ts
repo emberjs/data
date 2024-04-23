@@ -79,6 +79,16 @@ function runTests({ only, filter }: RunTestsOptions = {}) {
   });
 }
 
+function toLogMessage(message: unknown): string[] {
+  if (typeof message === 'string') {
+    return [message.trim()];
+  }
+  if (Array.isArray(message)) {
+    return message.flatMap(toLogMessage);
+  }
+  return [JSON.stringify(message)];
+}
+
 async function runTest(
   t: Parameters<Exclude<Parameters<typeof it>[0], undefined>>[0],
   dirName: string,
@@ -99,8 +109,8 @@ async function runTest(
   }
   const logs: Array<unknown[]> = [];
   const log = Logs[transformName as keyof typeof Logs];
-  t.mock.method(log, '_log', (_method: string, level: string, ...args: unknown[]) => {
-    logs.push([level, ...args.map((arg) => (typeof arg === 'string' ? arg.trim() : JSON.stringify(arg)))]);
+  t.mock.method(log._logger, 'log', (level: string, message: unknown) => {
+    logs.push([level, ...toLogMessage(message)]);
   });
 
   const fixtureDir = path.join(dirName, '__testfixtures__');

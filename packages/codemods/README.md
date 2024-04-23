@@ -111,7 +111,7 @@ GJS and GTS files are not currently supported. PRs welcome! 🧡
 
 # TODO:
 
+* [ ] handle `yield` like `await`
 * [ ] Prettier errors
-* [ ] Print log to file
 * [ ] --dry
 * [ ] --ignore globs
