@@ -2,7 +2,6 @@
   "expectedLogs": [
     [
       "warn",
-      "Cannot transform expression at loc 2:26-4:2",
       "Cannot transform store.findRecord with a 'preload' key. This option is not supported by the legacy compat builders."
     ]
   ]

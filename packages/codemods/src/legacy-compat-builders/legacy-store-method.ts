@@ -3,12 +3,14 @@ import type {
   AwaitExpression,
   CallExpression,
   Collection,
+  FileInfo,
   Identifier,
   JSCodeshift,
   MemberExpression,
   TSTypeParameterInstantiation,
 } from 'jscodeshift';
 
+import { isRecord } from '../../utils/types.js';
 import { TransformError } from '../utils/error.js';
 import type { ExistingImport, ImportInfo } from '../utils/imports.js';
 import type { CONFIGS } from './config.js';
@@ -57,12 +59,13 @@ export interface Config extends ImportInfo {
  * @throws {Error} if the optional `validate` function throws an error
  */
 export function transformLegacyStoreMethod(
+  fileInfo: FileInfo,
   j: JSCodeshift,
   root: Collection,
   config: Config,
   existingImport: ExistingImport | undefined
 ): TransformResult {
-  log.debug('\tTransforming calls:', `store.${config.importedName}`);
+  log.debug({ filepath: fileInfo.path, message: ['\tTransforming calls:', `store.${config.importedName}`] });
 
   const result = new TransformResult();
   const validate = config.transformOptions.validate ?? (() => {});
@@ -78,10 +81,11 @@ export function transformLegacyStoreMethod(
     } catch (error) {
       if (error instanceof TransformError) {
         // Skip this path but continue to transform the rest of the file
-        log.warn(
-          `\tCannot transform expression at loc ${path.value.loc?.start.line}:${path.value.loc?.start.column}-${path.value.loc?.end.line}:${path.value.loc?.end.column}`,
-          error.message
-        );
+        log.warn({
+          filepath: fileInfo.path,
+          loc: path.value.loc,
+          message: error.message,
+        });
         return;
       }
       throw error;
@@ -226,8 +230,4 @@ function assertLegacyStoreMethodTSTypeParameterInstantiation(
   if (!['TSTypeReference', 'TSAnyKeyword'].includes(typeParameters.params[0].type)) {
     throw new TransformError(`Expected singular TSTypeReference, found ${typeParameters.type}`);
   }
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
 }

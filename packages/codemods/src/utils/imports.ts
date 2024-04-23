@@ -1,4 +1,4 @@
-import type { ASTPath, Collection, ImportDeclaration, ImportSpecifier, JSCodeshift } from 'jscodeshift';
+import type { ASTPath, Collection, FileInfo, ImportDeclaration, ImportSpecifier, JSCodeshift } from 'jscodeshift';
 
 import { log } from '../legacy-compat-builders/log.js';
 import { TransformError } from './error.js';
@@ -31,8 +31,13 @@ export interface ExistingImport {
  */
 export type ExistingImports = Map<ImportInfo, ExistingImport>;
 
-export function parseExistingImports(j: JSCodeshift, root: Collection, importInfos: ImportInfos): ExistingImports {
-  log.debug('\tParsing imports');
+export function parseExistingImports(
+  fileInfo: FileInfo,
+  j: JSCodeshift,
+  root: Collection,
+  importInfos: ImportInfos
+): ExistingImports {
+  log.debug({ filepath: fileInfo.path, message: '\tParsing imports' });
   const existingImports: ExistingImports = new Map();
 
   root.find(j.ImportDeclaration).forEach((path) => {
@@ -76,8 +81,13 @@ function parseImport(path: ASTPath<ImportDeclaration>, importInfo: ImportInfo): 
  * If there are multiple existing imports from the same source, the new
  * specifier will be added to the first one with specifiers.
  */
-export function addImport(j: JSCodeshift, root: Collection, { importedName, sourceValue }: ImportInfo): void {
-  log.debug(`\tAdding import: ${importedName} from '${sourceValue}'`);
+export function addImport(
+  fileInfo: FileInfo,
+  j: JSCodeshift,
+  root: Collection,
+  { importedName, sourceValue }: ImportInfo
+): void {
+  log.debug({ filepath: fileInfo.path, message: `\tAdding import: ${importedName} from '${sourceValue}'` });
 
   // Check if the import already exists
   const existingDeclarations = root.find(j.ImportDeclaration, {

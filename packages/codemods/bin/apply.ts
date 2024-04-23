@@ -1,9 +1,9 @@
 import chalk from 'chalk';
 import type { Command } from 'commander';
 import { Option } from 'commander';
-import type { Options } from 'jscodeshift';
 import jscodeshift from 'jscodeshift';
 
+import type { Options } from '../src/legacy-compat-builders/options.js';
 import { logger } from '../utils/logger.js';
 import type { CodemodConfig } from './config.js';
 
@@ -99,7 +99,10 @@ function createApplyAction(transformName: string) {
           );
         } catch (error) {
           result.errors++;
-          log.error(`Error transforming ${filepath}:\n`, error);
+          log.error({
+            filepath,
+            message: error,
+          });
           continue;
         }
 
@@ -119,8 +122,11 @@ function createApplyAction(transformName: string) {
                 });
               }
             } catch (error) {
-              log.warn(`Error formatting ${filepath} with prettier:`);
-              log.warn(error);
+              if (error instanceof Error) {
+                log.warn({ filepath, message: `Prettier error: ${error.message}` });
+              } else {
+                log.warn({ filepath, message: 'Unknown error when running prettier.' });
+              }
             }
           }
 

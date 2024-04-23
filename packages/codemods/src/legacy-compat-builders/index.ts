@@ -1,9 +1,10 @@
-import type { API, FileInfo, Options } from 'jscodeshift';
+import type { API, FileInfo } from 'jscodeshift';
 
 import { addImport, parseExistingImports } from '../utils/imports.js';
 import { CONFIGS } from './config.js';
 import { transformLegacyStoreMethod } from './legacy-store-method.js';
 import { log } from './log.js';
+import type { Options } from './options.js';
 import { TransformResult } from './result.js';
 
 /**
@@ -18,20 +19,21 @@ export default function (fileInfo: FileInfo, api: API, _options: Options): strin
   const j = api.jscodeshift;
   const root = j(fileInfo.source);
 
-  const existingImports = parseExistingImports(j, root, CONFIGS);
+  const existingImports = parseExistingImports(fileInfo, j, root, CONFIGS);
   const result = new TransformResult();
 
   for (const config of CONFIGS) {
-    result.merge(transformLegacyStoreMethod(j, root, config, existingImports.get(config)));
+    result.merge(transformLegacyStoreMethod(fileInfo, j, root, config, existingImports.get(config)));
   }
 
   for (const importToAdd of result.importsToAdd) {
     if (existingImports.get(importToAdd)) {
-      log.warn(
-        `Attempted to add import that already exists: \`import { ${existingImports.get(importToAdd)?.localName} } from '${importToAdd.sourceValue}'`
-      );
+      log.warn({
+        filepath: fileInfo.path,
+        message: `Attempted to add import that already exists: \`import { ${existingImports.get(importToAdd)?.localName} } from '${importToAdd.sourceValue}'`,
+      });
     } else {
-      addImport(j, root, importToAdd);
+      addImport(fileInfo, j, root, importToAdd);
     }
   }
 

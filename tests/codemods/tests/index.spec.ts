@@ -86,6 +86,9 @@ function toLogMessage(message: unknown): string[] {
   if (Array.isArray(message)) {
     return message.flatMap(toLogMessage);
   }
+  if (typeof message === 'object' && message !== null && 'message' in message) {
+    return toLogMessage(message['message']);
+  }
   return [JSON.stringify(message)];
 }
 

@@ -1,8 +1,15 @@
 import chalk from 'chalk';
-import type { Options } from 'jscodeshift';
+import type { Options, SourceLocation } from 'jscodeshift';
 import stripAnsi from 'strip-ansi';
 import type { Logform, Logger as WinstonLogger } from 'winston';
 import { createLogger as createWinstonLogger, format as winstonFormat, transports as winstonTransports } from 'winston';
+
+import { isRecord } from './types';
+
+export interface LoggerOptions extends Options {
+  verbose?: '0' | '1' | '2';
+  logFile?: string | boolean;
+}
 
 const LogLevels = {
   levels: {
@@ -28,34 +35,41 @@ interface PrintInfo extends Logform.TransformableInfo {
   message: unknown;
 }
 
-function formatMessageForConsole(message: unknown): string {
-  if (typeof message === 'string') {
-    return message.trim();
+function formatMessage(raw: unknown, sanitize = (message: string) => message): string {
+  if (typeof raw === 'string') {
+    return sanitize(raw.trim());
   }
-  if (Array.isArray(message)) {
-    return '\n\t' + message.map(formatMessageForFile).join('\n\t');
+  if (Array.isArray(raw)) {
+    return raw.map((m) => formatMessage(m, sanitize)).join(' ');
   }
-  return Bun.inspect(message);
+  if (isRecord(raw)) {
+    let message = '';
+    if (typeof raw['filepath'] === 'string') {
+      let location = `${raw['filepath']}`;
+      if ('loc' in raw && isRecord(raw['loc'])) {
+        const loc = raw.loc as unknown as SourceLocation;
+        location += `:${loc.start.line}:${loc.start.column}`;
+      }
+      message += `at ${location}`;
+    }
+    if (typeof raw['message'] === 'string') {
+      message += `\n\t${formatMessage(raw['message'], sanitize)}`;
+    }
+    if (message.length) {
+      return message;
+    }
+  }
+  return Bun.inspect(raw);
 }
 
 const formatForConsole = winstonFormat.printf((info: Logform.TransformableInfo) => {
   const { level, label, timestamp } = info as PrintInfo;
-  return `${chalk.gray(timestamp)} [${label}] ${level}: ${formatMessageForConsole(info)}`;
+  return `${chalk.gray(timestamp)} [${label}] ${level}: ${formatMessage(info)}`;
 });
-
-function formatMessageForFile(message: unknown): string {
-  if (typeof message === 'string') {
-    return stripAnsi(message.trim());
-  }
-  if (Array.isArray(message)) {
-    return '\n\t' + message.map(formatMessageForFile).join('\n\t');
-  }
-  return Bun.inspect(message);
-}
 
 const formatForFile = winstonFormat.printf((info: Logform.TransformableInfo) => {
   const { level, label, timestamp } = info as PrintInfo;
-  return `${timestamp} [${label}] ${level}: ${formatMessageForFile(info)}`;
+  return `${timestamp} [${label}] ${level}: ${formatMessage(info, stripAnsi)}`;
 });
 
 /**
@@ -66,10 +80,10 @@ const formatForFile = winstonFormat.printf((info: Logform.TransformableInfo) => 
  * - `verbose: '2'` to enable debug logging (this matches the `--verbose` flag in jscodeshift)
  */
 class Logger {
-  private static options: Options = {};
+  private static options: LoggerOptions = {};
   private static loggers = new Map<string, Logger>();
 
-  static config(options: Options): void {
+  static config(options: LoggerOptions): void {
     this.options = options;
   }
 
