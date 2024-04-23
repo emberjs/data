@@ -233,6 +233,9 @@ export default class RecordState {
     notifications.subscribe(identity, (identifier: StableRecordIdentifier, type: NotificationType, key?: string) => {
       switch (type) {
         case 'state':
+          this.notify('isSaved');
+          this.notify('isLoaded');
+          this.notify('isEmpty');
           this.notify('isNew');
           this.notify('isDeleted');
           this.notify('isDirty');
