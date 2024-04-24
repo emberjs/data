@@ -111,7 +111,6 @@ runs:
       # Generates the cert if needed, using our local copy of @warp-drive/holodeck
       run: |
         node ./packages/holodeck/bin/ensure-cert.js
-        mkcert -install
 
     - name: Setup Broccoli Caching
       if: ${{ inputs.restore-broccoli-cache == 'true' }}

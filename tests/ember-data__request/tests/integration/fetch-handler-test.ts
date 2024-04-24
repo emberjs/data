@@ -4,6 +4,8 @@ import { module, test } from '@warp-drive/diagnostic';
 import { mock, MockServerHandler } from '@warp-drive/holodeck';
 import { GET } from '@warp-drive/holodeck/mock';
 
+const RECORD = false;
+
 function isNetworkError(e: unknown): asserts e is Error & {
   status: number;
   statusText: string;
@@ -23,15 +25,20 @@ module('RequestManager | Fetch Handler', function (hooks) {
     const manager = new RequestManager();
     manager.use([new MockServerHandler(this), Fetch]);
 
-    await GET(this, 'users/1', () => ({
-      data: {
-        id: '1',
-        type: 'user',
-        attributes: {
-          name: 'Chris Thoburn',
+    await GET(
+      this,
+      'users/1',
+      () => ({
+        data: {
+          id: '1',
+          type: 'user',
+          attributes: {
+            name: 'Chris Thoburn',
+          },
         },
-      },
-    }));
+      }),
+      { RECORD }
+    );
 
     const doc = await manager.request({ url: 'https://localhost:1135/users/1' });
     const serialized = JSON.parse(JSON.stringify(doc)) as unknown;
@@ -78,23 +85,27 @@ module('RequestManager | Fetch Handler', function (hooks) {
     const manager = new RequestManager();
     manager.use([new MockServerHandler(this), Fetch]);
 
-    await mock(this, () => ({
-      url: 'users/1',
-      status: 404,
-      headers: {},
-      method: 'GET',
-      statusText: 'Not Found',
-      body: null,
-      response: {
-        errors: [
-          {
-            status: '404',
-            title: 'Not Found',
-            detail: 'The resource does not exist.',
-          },
-        ],
-      },
-    }));
+    await mock(
+      this,
+      () => ({
+        url: 'users/1',
+        status: 404,
+        headers: {},
+        method: 'GET',
+        statusText: 'Not Found',
+        body: null,
+        response: {
+          errors: [
+            {
+              status: '404',
+              title: 'Not Found',
+              detail: 'The resource does not exist.',
+            },
+          ],
+        },
+      }),
+      RECORD
+    );
 
     try {
       await manager.request({ url: 'https://localhost:1135/users/1' });
@@ -147,15 +158,20 @@ module('RequestManager | Fetch Handler', function (hooks) {
     const manager = new RequestManager();
     manager.use([new MockServerHandler(this), Fetch]);
 
-    await GET(this, 'users/1', () => ({
-      data: {
-        id: '1',
-        type: 'user',
-        attributes: {
-          name: 'Chris Thoburn',
+    await GET(
+      this,
+      'users/1',
+      () => ({
+        data: {
+          id: '1',
+          type: 'user',
+          attributes: {
+            name: 'Chris Thoburn',
+          },
         },
-      },
-    }));
+      }),
+      { RECORD }
+    );
 
     try {
       const future = manager.request({ url: 'https://localhost:1135/users/1' });

@@ -29,19 +29,20 @@ function getShellConfigFilePath() {
 function getCertInfo() {
   let CERT_PATH = process.env.HOLODECK_SSL_CERT_PATH;
   let KEY_PATH = process.env.HOLODECK_SSL_KEY_PATH;
+  const configFilePath = getShellConfigFilePath();
 
   if (!CERT_PATH) {
     CERT_PATH = path.join(homedir(), 'holodeck-localhost.pem');
     process.env.HOLODECK_SSL_CERT_PATH = CERT_PATH;
-    execSync(`echo '\nexport HOLODECK_SSL_CERT_PATH="${CERT_PATH}"' >> ${getShellConfigFilePath()}`);
-    console.log(`Added HOLODECK_SSL_CERT_PATH to ${getShellConfigFilePath()}`);
+    execSync(`echo '\nexport HOLODECK_SSL_CERT_PATH="${CERT_PATH}"' >> ${configFilePath}`);
+    console.log(`Added HOLODECK_SSL_CERT_PATH to ${configFilePath}`);
   }
 
   if (!KEY_PATH) {
     KEY_PATH = path.join(homedir(), 'holodeck-localhost-key.pem');
     process.env.HOLODECK_SSL_KEY_PATH = KEY_PATH;
-    execSync(`echo '\nexport HOLODECK_SSL_KEY_PATH="${KEY_PATH}"' >> ${getShellConfigFilePath()}`);
-    console.log(`Added HOLODECK_SSL_KEY_PATH to ${getShellConfigFilePath()}`);
+    execSync(`echo '\nexport HOLODECK_SSL_KEY_PATH="${KEY_PATH}"' >> ${configFilePath}`);
+    console.log(`Added HOLODECK_SSL_KEY_PATH to ${configFilePath}`);
   }
 
   if (!fs.existsSync(CERT_PATH) || !fs.existsSync(KEY_PATH)) {
