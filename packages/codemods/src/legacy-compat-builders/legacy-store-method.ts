@@ -8,6 +8,7 @@ import type {
   JSCodeshift,
   MemberExpression,
   TSTypeParameterInstantiation,
+  YieldExpression,
 } from 'jscodeshift';
 
 import { isRecord } from '../../utils/types.js';
@@ -35,7 +36,7 @@ interface LegacyStoreMethodCallExpression extends CallExpression {
 }
 
 interface ValidLegacyStoreMethodCallExpressionPath extends ASTPath<LegacyStoreMethodCallExpression> {
-  parent: ASTPath<AwaitExpression>;
+  parent: ASTPath<AwaitExpression> | ASTPath<YieldExpression>;
 }
 
 export interface Config extends ImportInfo {
@@ -186,8 +187,13 @@ function assertIsValidLegacyStoreMethodCallExpressionPath(
     throw new Error(`JSCodeshift filter failed. path.value.callee.property is not an Identifier`);
   }
   // Actual logic for our validation
-  if (!isRecord(path.parent) || !j.AwaitExpression.check(path.parent.value)) {
-    throw new TransformError(`Cannot transform store.${path.value.callee.property.name} without await keyword.`);
+  if (
+    !isRecord(path.parent) ||
+    !(j.AwaitExpression.check(path.parent.value) || j.YieldExpression.check(path.parent.value))
+  ) {
+    throw new TransformError(
+      `Cannot transform store.${path.value.callee.property.name} without await (or yield) keyword.`
+    );
   }
 }
 
