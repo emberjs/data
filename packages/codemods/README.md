@@ -111,6 +111,5 @@ GJS and GTS files are not currently supported. PRs welcome! 🧡
 
 # TODO:
 
-* [ ] --dry
 * [ ] --ignore globs
 * [ ] Rename new import if one exists with the same name

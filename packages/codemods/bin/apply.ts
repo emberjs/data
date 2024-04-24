@@ -18,6 +18,7 @@ export function createApplyCommand(program: Command, codemods: CodemodConfig[]) 
       .command(`${codemod.name}`)
       .description(codemod.description)
       .argument('<target-glob-pattern...>', 'Path to files or glob pattern')
+      .addOption(new Option('-d, --dry [path]', 'dry run (no changes are made to files)').default(false))
       .addOption(
         new Option('-v, --verbose <level>', 'show more information about the transform process')
           .choices(['0', '1', '2'])
@@ -41,6 +42,9 @@ function createApplyAction(transformName: string) {
 
     log.debug('Running with options:', options);
     log.debug('Running for target-glob-patterns:', patterns);
+    if (options.dry) {
+      log.warn('Running in dry mode. No files will be modified.');
+    }
 
     // const transformPath = await import.meta.resolve(`../src/${transformName}/index.ts`);
     const { Codemods } = await import('../src/index.js');
@@ -104,7 +108,14 @@ function createApplyAction(transformName: string) {
         } else if (transformedSource === originalSource) {
           result.unmodified++;
         } else {
-          await Bun.write(filepath, transformedSource);
+          if (options.dry) {
+            log.info({
+              filepath,
+              message: 'Transformed source:\n\t' + transformedSource,
+            });
+          } else {
+            await Bun.write(filepath, transformedSource);
+          }
           result.ok++;
         }
       }
