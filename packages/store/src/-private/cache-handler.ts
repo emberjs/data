@@ -432,7 +432,9 @@ type RobustError = Error & { error: string | object; errors?: ApiError[] };
 function cloneError(error: RobustError) {
   const isAggregate = isAggregateError(error);
 
-  const cloned = (isAggregate ? new AggregateError(structuredClone(error.errors), error.message) : new Error(error.message)) as RobustError;
+  const cloned = (
+    isAggregate ? new AggregateError(structuredClone(error.errors), error.message) : new Error(error.message)
+  ) as RobustError;
   cloned.stack = error.stack!;
   cloned.error = error.error;
 
