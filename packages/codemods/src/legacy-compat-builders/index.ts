@@ -1,8 +1,7 @@
 import type { API, FileInfo } from 'jscodeshift';
 
-import { addImport, parseExistingImports, safeLocalName } from '../utils/imports.js';
-import { CONFIGS } from './config.js';
-import type { Config } from './legacy-store-method.js';
+import { addImport, parseExistingImports } from '../utils/imports.js';
+import { CONFIGS, IMPORT_INFOS } from './config.js';
 import { transformLegacyStoreMethod } from './legacy-store-method.js';
 import type { Options } from './options.js';
 import { TransformResult } from './result.js';
@@ -19,32 +18,19 @@ export default function (fileInfo: FileInfo, api: API, _options: Options): strin
   const j = api.jscodeshift;
   const root = j(fileInfo.source);
 
-  const { existingImports, knownSpecifierNames } = parseExistingImports(fileInfo, j, root, CONFIGS);
-  const safeConfigs = Array.from(CONFIGS).map((config) => {
-    const safeConfig: Config = { ...config };
+  const parsedImportInfos = parseExistingImports(fileInfo, j, root, IMPORT_INFOS);
 
-    const existing = existingImports.get(config.importedName);
-    if (existing) {
-      if (existing.localName && existing.localName !== config.importedName) {
-        safeConfig.localName = existing.localName;
-      }
-    } else {
-      const localName = safeLocalName(config.importedName, knownSpecifierNames, 'legacy');
-      if (localName && localName !== config.importedName) {
-        safeConfig.localName = localName;
-      }
-    }
-
-    return safeConfig;
-  });
   const result = new TransformResult();
-
-  for (const config of safeConfigs) {
-    result.merge(transformLegacyStoreMethod(fileInfo, j, root, config));
+  for (const parsedImportInfo of parsedImportInfos) {
+    const config = CONFIGS.get(parsedImportInfo.importedName);
+    if (!config) {
+      throw new Error(`could not find config for ${parsedImportInfo.importedName}`);
+    }
+    result.merge(transformLegacyStoreMethod(fileInfo, j, root, config, parsedImportInfo));
   }
 
   for (const importToAdd of result.importsToAdd) {
-    if (!existingImports.get(importToAdd.importedName)) {
+    if (!importToAdd.existingImport) {
       addImport(fileInfo, j, root, importToAdd);
     }
   }

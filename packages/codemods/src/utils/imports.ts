@@ -8,14 +8,19 @@ import { TransformError } from './error.js';
  */
 export interface ImportInfo {
   importedName: string;
-  localName?: string;
   sourceValue: string;
 }
 
 /**
- * Information about the imports you are tracking for your codemod.
+ * Information about an import you are tracking for your codemod, including
+ * information about the import added while parsing imports.
  */
-export type ImportInfos = ReadonlySet<ImportInfo>;
+export interface ParsedImportInfo {
+  importedName: string;
+  localName: string;
+  sourceValue: string;
+  existingImport: ExistingImport | undefined;
+}
 
 /**
  * Information about an existing import corresponding to an ImportInfo's imported name.
@@ -26,20 +31,15 @@ export interface ExistingImport {
   path: ASTPath<ImportDeclaration>;
 }
 
-/**
- * Information about existing imports (if they exist) corresponding to your
- * ImportInfos' imported names.
- */
-export type ExistingImports = Map<string, ExistingImport>;
-
 export function parseExistingImports(
   fileInfo: FileInfo,
   j: JSCodeshift,
   root: Collection,
-  importInfos: ImportInfos
-): { existingImports: ExistingImports; knownSpecifierNames: Set<string> } {
+  importInfos: Set<ImportInfo>
+): Set<ParsedImportInfo> {
   log.debug({ filepath: fileInfo.path, message: '\tParsing imports' });
-  const existingImports: ExistingImports = new Map();
+
+  const existingImports = new Map<string, ExistingImport>();
   const knownSpecifierNames = new Set<string>();
 
   root.find(j.ImportDeclaration).forEach((path) => {
@@ -70,7 +70,17 @@ export function parseExistingImports(
     }
   });
 
-  return { existingImports, knownSpecifierNames };
+  const parsedImportInfos: Set<ParsedImportInfo> = new Set();
+  for (const importInfo of importInfos) {
+    const existingImport = existingImports.get(importInfo.importedName);
+    const localName = existingImport
+      ? existingImport.localName
+      : safeLocalName(importInfo.importedName, knownSpecifierNames, 'legacy');
+
+    parsedImportInfos.add({ ...importInfo, localName, existingImport });
+  }
+
+  return parsedImportInfos;
 }
 
 function parseImport(path: ASTPath<ImportDeclaration>, importInfo: ImportInfo): ExistingImport | null {
@@ -103,7 +113,7 @@ export function addImport(
   fileInfo: FileInfo,
   j: JSCodeshift,
   root: Collection,
-  { importedName, localName, sourceValue }: ImportInfo
+  { importedName, localName, sourceValue }: ParsedImportInfo
 ): void {
   let specifier: ImportSpecifier;
   if (!localName || localName === importedName) {
@@ -174,7 +184,7 @@ export function removeImport(j: JSCodeshift, { specifier: specifierToRemove, pat
   }
 }
 
-export function safeLocalName(desiredName: string, knownSpecifierNames: Set<string>, namespace: string): string {
+function safeLocalName(desiredName: string, knownSpecifierNames: Set<string>, namespace: string): string {
   let result = desiredName;
   let i = 0;
   while (knownSpecifierNames.has(result)) {

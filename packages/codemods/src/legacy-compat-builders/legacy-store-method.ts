@@ -11,15 +11,12 @@ import type {
   YieldExpression,
 } from 'jscodeshift';
 
-import type { ValueOfSet } from '../../utils/types.js';
 import { isRecord } from '../../utils/types.js';
 import { TransformError } from '../utils/error.js';
-import type { ImportInfo } from '../utils/imports.js';
-import type { CONFIGS } from './config.js';
+import type { ParsedImportInfo } from '../utils/imports.js';
+import type { LegacyStoreMethod } from './config.js';
 import { log } from './log.js';
 import { TransformResult } from './result.js';
-
-type LegacyStoreMethod = ValueOfSet<CONFIGS>['importedName'];
 
 interface LegacyStoreMethodCallExpression extends CallExpression {
   callee: MemberExpression & {
@@ -39,7 +36,7 @@ interface ValidLegacyStoreMethodCallExpressionPath extends ASTPath<LegacyStoreMe
   parent: ASTPath<AwaitExpression> | ASTPath<YieldExpression>;
 }
 
-export interface Config extends ImportInfo {
+export interface Config {
   transformOptions: {
     validate?: (j: JSCodeshift, path: ValidLegacyStoreMethodCallExpressionPath) => void;
     extractBuilderTypeParams?: (
@@ -63,9 +60,10 @@ export function transformLegacyStoreMethod(
   fileInfo: FileInfo,
   j: JSCodeshift,
   root: Collection,
-  config: Config
+  config: Config,
+  importInfo: ParsedImportInfo
 ): TransformResult {
-  log.debug({ filepath: fileInfo.path, message: ['\tTransforming calls:', `store.${config.importedName}`] });
+  log.debug({ filepath: fileInfo.path, message: ['\tTransforming calls:', `store.${importInfo.importedName}`] });
 
   const result = new TransformResult();
   const validate = config.transformOptions.validate ?? (() => {});
@@ -73,7 +71,7 @@ export function transformLegacyStoreMethod(
   const extractRequestTypeParams = config.transformOptions.extractRequestTypeParams ?? (() => null);
 
   // Find, e.g., this.store.findRecord('post', '1') or foo.store.findRecord('post', '1') or store.findRecord('post', '1')
-  root.find(j.CallExpression, legacyStoreMethodFinder(config)).forEach((path) => {
+  root.find(j.CallExpression, legacyStoreMethodFinder(importInfo)).forEach((path) => {
     result.attemptedTransform = true;
     try {
       assertIsValidLegacyStoreMethodCallExpressionPath(j, path);
@@ -101,7 +99,7 @@ export function transformLegacyStoreMethod(
 
     // Then, wrap the arguments with the builder expression
     const builderExpression = j.callExpression.from({
-      callee: j.identifier(config.localName ?? config.importedName),
+      callee: j.identifier(importInfo.localName ?? importInfo.importedName),
       arguments: path.value.arguments,
     });
 
@@ -136,18 +134,18 @@ export function transformLegacyStoreMethod(
       }
     }
 
-    result.importsToAdd.add(config);
+    result.importsToAdd.add(importInfo);
   });
 
   return result;
 }
 
-function legacyStoreMethodFinder(config: Config) {
+function legacyStoreMethodFinder(importInfo: ParsedImportInfo) {
   return function filter(value: CallExpression): value is LegacyStoreMethodCallExpression {
     return (
       value.callee.type === 'MemberExpression' &&
       value.callee.property.type === 'Identifier' &&
-      config.importedName === value.callee.property.name &&
+      importInfo.importedName === value.callee.property.name &&
       (value.callee.object.type === 'Identifier' ||
         (value.callee.object.type === 'MemberExpression' && value.callee.object.property.type === 'Identifier'))
     );
