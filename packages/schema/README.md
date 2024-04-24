@@ -28,11 +28,7 @@
 
 Its like GraphQL, RPC, or Protobuf... but for anything!
 
-## Usage
-
-> ⚠️ Private
-
-This package may currently only be used within EmberData. A public version is coming soon 💜
+---
 
 ## Installation
 
@@ -53,7 +49,7 @@ pnpm install @warp-drive/schema
 Scaffold the schema for a `User` resource
 
 ```no-highlight
-npx -p @warp-drive-schema resource user
+npx -p @warp-drive/schema resource user
 ```
 
 Parse Schemas

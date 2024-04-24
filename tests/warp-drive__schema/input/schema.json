@@ -1,0 +1,4 @@
+{
+  "schemas": "./schemas",
+  "dest": "../output"
+}

@@ -16,5 +16,12 @@
   },
   "scripts": {
     "_syncPnpm": "bun run sync-dependencies-meta-injected"
-  }
+  },
+  "engines": {
+    "node": ">= 18.20.1"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  },
+  "packageManager": "pnpm@8.15.6"
 }
