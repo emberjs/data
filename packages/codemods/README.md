@@ -36,7 +36,25 @@ npx @ember-data/codemods apply <codemod-name> --help
 
 ### legacy-compat-builders
 
+```
+npx @ember-data/codemods apply legacy-compat-builders --help
+Usage: @ember-data/codemods apply legacy-compat-builders [options] <target-glob-pattern...>
+
 Updates legacy store methods to use `store.request` and `@ember-data/legacy-compat/builders` instead.
+
+Arguments:
+  target-glob-pattern                    path to files or glob pattern. If using glob pattern, wrap in single quotes.
+
+Options:
+  -d, --dry                              dry run (no changes are made to files) (default: false)
+  -v, --verbose <level>                  show more information about the transform process (choices: "0", "1", "2",
+                                         default: "0")
+  -l, --log-file [path]                  write logs to a file. If option is set but no path is provided, logs are written
+                                         to ember-data-codemods.log
+  -i, --ignore <ignore-glob-pattern...>  ignores the given file or glob pattern. If using glob pattern, wrap in single
+                                         quotes.
+  -h, --help                             display help for command
+```
 
 ### Examples
 
