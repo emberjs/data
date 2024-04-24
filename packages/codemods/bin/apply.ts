@@ -94,7 +94,7 @@ function createApplyAction(transformName: string) {
           result.errors++;
           log.error({
             filepath,
-            message: error,
+            message: error instanceof Error ? error.message : 'Unknown error',
           });
           continue;
         }

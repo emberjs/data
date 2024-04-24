@@ -4,7 +4,7 @@ import stripAnsi from 'strip-ansi';
 import type { Logform, Logger as WinstonLogger } from 'winston';
 import { createLogger as createWinstonLogger, format as winstonFormat, transports as winstonTransports } from 'winston';
 
-import { isRecord } from './types';
+import { isRecord } from './types.js';
 
 export interface LoggerOptions extends Options {
   verbose?: '0' | '1' | '2';
@@ -42,7 +42,7 @@ function formatMessage(raw: unknown, sanitize = (message: string) => message): s
   if (Array.isArray(raw)) {
     return raw.map((m) => formatMessage(m, sanitize)).join(' ');
   }
-  if (isRecord(raw)) {
+  if (isRecord(raw) && !(raw instanceof Error)) {
     let message = '';
     if (typeof raw['filepath'] === 'string') {
       let location = `${raw['filepath']}`;
