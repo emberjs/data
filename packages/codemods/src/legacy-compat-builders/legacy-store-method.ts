@@ -109,14 +109,22 @@ export function transformLegacyStoreMethod(
     path.value.arguments = [builderExpression];
 
     if (isRecord(path.parent.parent)) {
-      if (j.VariableDeclarator.check(path.parent.parent.value)) {
+      if (
+        j.VariableDeclarator.check(path.parent.parent.value) &&
+        (j.Identifier.check(path.parent.parent.value.id) || j.ObjectPattern.check(path.parent.parent.value.id))
+      ) {
         // Replace `const post` with `const { content: post }`
         // Replace `const { id }` with `const { content: { id } }`
+        const id = path.parent.parent.value.id;
+        // Intentionally drop unnecessary type annotation from id, as it causes syntax errors otherwise
+        const value = j.Identifier.check(id)
+          ? j.identifier.from({ ...id, typeAnnotation: null })
+          : j.objectPattern.from({ ...id, typeAnnotation: null });
         path.parent.parent.value.id = j.objectPattern.from({
           properties: [
             j.objectProperty.from({
               key: j.identifier.from({ name: 'content' }),
-              value: path.parent.parent.value.id,
+              value,
             }),
           ],
         });
