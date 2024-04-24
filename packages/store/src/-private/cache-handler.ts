@@ -426,7 +426,7 @@ function isAggregateError(error: Error & { errors?: ApiError[] }): error is Aggr
   return error instanceof AggregateError || (error.name === 'AggregateError' && Array.isArray(error.errors));
 }
 
-type RobustError = Error & { error: string | object; errors?: ApiError[] };
+type RobustError = Error & { error: string | object; errors?: ApiError[]; content?: unknown };
 
 // TODO @runspired, consider if we should deep freeze errors (potentially only in debug) vs cloning them
 function cloneError(error: RobustError) {
