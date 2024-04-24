@@ -11,14 +11,14 @@ import type {
   YieldExpression,
 } from 'jscodeshift';
 
+import type { ValueOfSet } from '../../utils/types.js';
 import { isRecord } from '../../utils/types.js';
 import { TransformError } from '../utils/error.js';
-import type { ExistingImport, ImportInfo } from '../utils/imports.js';
+import type { ImportInfo } from '../utils/imports.js';
 import type { CONFIGS } from './config.js';
 import { log } from './log.js';
 import { TransformResult } from './result.js';
 
-type ValueOfSet<T> = T extends Set<infer V> ? V : never;
 type LegacyStoreMethod = ValueOfSet<CONFIGS>['importedName'];
 
 interface LegacyStoreMethodCallExpression extends CallExpression {
@@ -63,8 +63,7 @@ export function transformLegacyStoreMethod(
   fileInfo: FileInfo,
   j: JSCodeshift,
   root: Collection,
-  config: Config,
-  existingImport: ExistingImport | undefined
+  config: Config
 ): TransformResult {
   log.debug({ filepath: fileInfo.path, message: ['\tTransforming calls:', `store.${config.importedName}`] });
 
@@ -102,7 +101,7 @@ export function transformLegacyStoreMethod(
 
     // Then, wrap the arguments with the builder expression
     const builderExpression = j.callExpression.from({
-      callee: j.identifier(existingImport?.localName ?? config.importedName),
+      callee: j.identifier(config.localName ?? config.importedName),
       arguments: path.value.arguments,
     });
 
@@ -137,9 +136,7 @@ export function transformLegacyStoreMethod(
       }
     }
 
-    if (!existingImport) {
-      result.importsToAdd.add(config);
-    }
+    result.importsToAdd.add(config);
   });
 
   return result;

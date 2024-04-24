@@ -8,6 +8,7 @@ import { TransformError } from './error.js';
  */
 export interface ImportInfo {
   importedName: string;
+  localName?: string;
   sourceValue: string;
 }
 
@@ -17,7 +18,7 @@ export interface ImportInfo {
 export type ImportInfos = ReadonlySet<ImportInfo>;
 
 /**
- * Information about an existing import corresponding to an ImportInfo.
+ * Information about an existing import corresponding to an ImportInfo's imported name.
  */
 export interface ExistingImport {
   localName: string; // e.g. 'computed' or 'renamedComputed'
@@ -27,32 +28,49 @@ export interface ExistingImport {
 
 /**
  * Information about existing imports (if they exist) corresponding to your
- * ImportInfos.
+ * ImportInfos' imported names.
  */
-export type ExistingImports = Map<ImportInfo, ExistingImport>;
+export type ExistingImports = Map<string, ExistingImport>;
 
 export function parseExistingImports(
   fileInfo: FileInfo,
   j: JSCodeshift,
   root: Collection,
   importInfos: ImportInfos
-): ExistingImports {
+): { existingImports: ExistingImports; knownSpecifierNames: Set<string> } {
   log.debug({ filepath: fileInfo.path, message: '\tParsing imports' });
   const existingImports: ExistingImports = new Map();
+  const knownSpecifierNames = new Set<string>();
 
   root.find(j.ImportDeclaration).forEach((path) => {
+    path.value.specifiers?.forEach((specifier) => {
+      switch (specifier.type) {
+        case 'ImportSpecifier': {
+          knownSpecifierNames.add(specifier.local?.name ?? specifier.imported.name);
+          break;
+        }
+        case 'ImportDefaultSpecifier':
+        case 'ImportNamespaceSpecifier': {
+          if (specifier.local) {
+            knownSpecifierNames.add(specifier.local?.name);
+          }
+          break;
+        }
+      }
+    });
+
     for (const importInfo of importInfos) {
-      if (existingImports.has(importInfo)) {
+      if (existingImports.has(importInfo.importedName)) {
         continue;
       }
       const parsed = parseImport(path, importInfo);
       if (parsed) {
-        existingImports.set(importInfo, parsed);
+        existingImports.set(importInfo.importedName, parsed);
       }
     }
   });
 
-  return existingImports;
+  return { existingImports, knownSpecifierNames };
 }
 
 function parseImport(path: ASTPath<ImportDeclaration>, importInfo: ImportInfo): ExistingImport | null {
@@ -85,9 +103,20 @@ export function addImport(
   fileInfo: FileInfo,
   j: JSCodeshift,
   root: Collection,
-  { importedName, sourceValue }: ImportInfo
+  { importedName, localName, sourceValue }: ImportInfo
 ): void {
-  log.debug({ filepath: fileInfo.path, message: `\tAdding import: ${importedName} from '${sourceValue}'` });
+  let specifier: ImportSpecifier;
+  if (!localName || localName === importedName) {
+    log.debug({ filepath: fileInfo.path, message: `\tAdding import: ${importedName} from '${sourceValue}'` });
+    specifier = j.importSpecifier.from({
+      imported: j.identifier(importedName),
+    });
+  } else {
+    specifier = j.importSpecifier.from({
+      imported: j.identifier(importedName),
+      local: j.identifier(localName),
+    });
+  }
 
   // Check if the import already exists
   const existingDeclarations = root.find(j.ImportDeclaration, {
@@ -106,11 +135,9 @@ export function addImport(
         .find(j.Program)
         .get('body', 0)
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        .insertBefore(j.importDeclaration([j.importSpecifier(j.identifier(importedName))], j.literal(sourceValue)));
+        .insertBefore(j.importDeclaration([specifier], j.literal(sourceValue)));
     } else {
-      lastImportCollection.insertAfter(
-        j.importDeclaration([j.importSpecifier(j.identifier(importedName))], j.literal(sourceValue))
-      );
+      lastImportCollection.insertAfter(j.importDeclaration([specifier], j.literal(sourceValue)));
     }
   } else {
     // Add the specifier to the first existing import with specifiers
@@ -118,7 +145,7 @@ export function addImport(
     if (!first) {
       throw new TransformError(`Somehow we found multiple import declarations for ${sourceValue} with no specifiers`);
     }
-    first.value.specifiers = [...(first.value.specifiers ?? []), j.importSpecifier(j.identifier(importedName))];
+    first.value.specifiers = [...(first.value.specifiers ?? []), specifier];
   }
 }
 
@@ -145,4 +172,20 @@ export function removeImport(j: JSCodeshift, { specifier: specifierToRemove, pat
       return specifier !== specifierToRemove;
     });
   }
+}
+
+export function safeLocalName(desiredName: string, knownSpecifierNames: Set<string>, namespace: string): string {
+  let result = desiredName;
+  let i = 0;
+  while (knownSpecifierNames.has(result)) {
+    if (i === 0 && namespace.length) {
+      result = `${namespace}${result.charAt(0).toUpperCase() + result.slice(1)}`;
+    } else if (namespace.length) {
+      result = `${result}${i}`;
+    } else {
+      result = `${result}${i + 1}`;
+    }
+    i++;
+  }
+  return result;
 }

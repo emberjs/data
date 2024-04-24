@@ -8,6 +8,7 @@
     "moduleResolution": "NodeNext",
     "moduleDetection": "force",
     "strict": true,
+    "noFallthroughCasesInSwitch": true,
     "downlevelIteration": true,
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,

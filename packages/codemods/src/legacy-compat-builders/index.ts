@@ -1,9 +1,9 @@
 import type { API, FileInfo } from 'jscodeshift';
 
-import { addImport, parseExistingImports } from '../utils/imports.js';
+import { addImport, parseExistingImports, safeLocalName } from '../utils/imports.js';
 import { CONFIGS } from './config.js';
+import type { Config } from './legacy-store-method.js';
 import { transformLegacyStoreMethod } from './legacy-store-method.js';
-import { log } from './log.js';
 import type { Options } from './options.js';
 import { TransformResult } from './result.js';
 
@@ -19,20 +19,32 @@ export default function (fileInfo: FileInfo, api: API, _options: Options): strin
   const j = api.jscodeshift;
   const root = j(fileInfo.source);
 
-  const existingImports = parseExistingImports(fileInfo, j, root, CONFIGS);
+  const { existingImports, knownSpecifierNames } = parseExistingImports(fileInfo, j, root, CONFIGS);
+  const safeConfigs = Array.from(CONFIGS).map((config) => {
+    const safeConfig: Config = { ...config };
+
+    const existing = existingImports.get(config.importedName);
+    if (existing) {
+      if (existing.localName && existing.localName !== config.importedName) {
+        safeConfig.localName = existing.localName;
+      }
+    } else {
+      const localName = safeLocalName(config.importedName, knownSpecifierNames, 'legacy');
+      if (localName && localName !== config.importedName) {
+        safeConfig.localName = localName;
+      }
+    }
+
+    return safeConfig;
+  });
   const result = new TransformResult();
 
-  for (const config of CONFIGS) {
-    result.merge(transformLegacyStoreMethod(fileInfo, j, root, config, existingImports.get(config)));
+  for (const config of safeConfigs) {
+    result.merge(transformLegacyStoreMethod(fileInfo, j, root, config));
   }
 
   for (const importToAdd of result.importsToAdd) {
-    if (existingImports.get(importToAdd)) {
-      log.warn({
-        filepath: fileInfo.path,
-        message: `Attempted to add import that already exists: \`import { ${existingImports.get(importToAdd)?.localName} } from '${importToAdd.sourceValue}'`,
-      });
-    } else {
+    if (!existingImports.get(importToAdd.importedName)) {
       addImport(fileInfo, j, root, importToAdd);
     }
   }

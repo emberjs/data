@@ -21,6 +21,8 @@ module.exports = {
     node.defaults({
       files: ['src/**', 'bin/**'],
     }),
-    typescript.defaults(),
+    typescript.defaults({
+      rules: { '@typescript-eslint/switch-exhaustiveness-check': 'error' },
+    }),
   ],
 };

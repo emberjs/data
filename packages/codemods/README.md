@@ -108,7 +108,3 @@ Calls to legacy store methods that are not currently awaited will not be transfo
 ## Caveats
 
 GJS and GTS files are not currently supported. PRs welcome! 🧡
-
-# TODO:
-
-* [ ] Rename new import if one exists with the same name
