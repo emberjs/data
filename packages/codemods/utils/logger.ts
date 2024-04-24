@@ -46,16 +46,22 @@ function formatMessage(raw: unknown, sanitize = (message: string) => message): s
     let message = '';
     if (typeof raw['filepath'] === 'string') {
       let location = `${raw['filepath']}`;
+      delete raw['filepath'];
       if ('loc' in raw && isRecord(raw['loc'])) {
         const loc = raw.loc as unknown as SourceLocation;
         location += `:${loc.start.line}:${loc.start.column}`;
+        delete raw['loc'];
       }
       message += `at ${location}`;
     }
-    if (typeof raw['message'] === 'string') {
+    if ('message' in raw) {
       message += `\n\t${formatMessage(raw['message'], sanitize)}`;
+      delete raw['message'];
     }
     if (message.length) {
+      if (Object.entries(raw).length) {
+        message += `\n${Bun.inspect(raw)}`;
+      }
       return message;
     }
   }

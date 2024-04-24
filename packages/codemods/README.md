@@ -111,5 +111,4 @@ GJS and GTS files are not currently supported. PRs welcome! 🧡
 
 # TODO:
 
-* [ ] Fix debug logging
 * [ ] Rename new import if one exists with the same name
