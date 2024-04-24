@@ -86,6 +86,20 @@ function runTests({ only, filter }: RunTestsOptions = {}) {
             );
           })
         );
+
+        testPromises.push(
+          it(`transforms "${testName} (and is idempotent)"`, async (t) => {
+            await runTest(
+              t,
+              transform,
+              { inputPath: outputPath, outputPath, infoPath },
+              {},
+              {
+                parser: 'ts',
+              }
+            );
+          })
+        );
       }
 
       await Promise.all(testPromises);
