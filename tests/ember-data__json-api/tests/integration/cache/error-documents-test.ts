@@ -1,7 +1,7 @@
 import Cache from '@ember-data/json-api';
 import RequestManager from '@ember-data/request';
-import Store, { CacheHandler } from '@ember-data/store';
 import Fetch from '@ember-data/request/fetch';
+import Store, { CacheHandler } from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
 import { module, test } from '@warp-drive/diagnostic';
 import { mock, MockServerHandler } from '@warp-drive/holodeck';
