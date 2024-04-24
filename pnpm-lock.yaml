@@ -3030,6 +3030,9 @@ importers:
       '@warp-drive/diagnostic':
         specifier: workspace:0.0.0-alpha.44
         version: file:packages/diagnostic(@ember/test-helpers@3.3.0)(@embroider/addon-shim@1.8.7)(ember-cli-test-loader@3.1.0)
+      '@warp-drive/holodeck':
+        specifier: workspace:0.0.0-alpha.44
+        version: file:packages/holodeck(@ember-data/request@5.4.0-alpha.58)(@warp-drive/core-types@0.0.0-alpha.44)
       '@warp-drive/internal-config':
         specifier: workspace:5.4.0-alpha.58
         version: link:../../config
@@ -3118,6 +3121,8 @@ importers:
       '@warp-drive/core-types':
         injected: true
       '@warp-drive/diagnostic':
+        injected: true
+      '@warp-drive/holodeck':
         injected: true
       ember-inflector:
         injected: true

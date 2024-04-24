@@ -422,13 +422,23 @@ function fetchContentAndHydrate<T>(
   });
 }
 
-function cloneError(error: Error & { error: string | object }) {
-  const cloned: Error & { error: string | object; content?: object } = new Error(error.message) as Error & {
-    error: string | object;
-    content?: object;
-  };
+function isAggregateError(error: Error & { errors?: ApiError[] }): error is AggregateError & { errors: ApiError[] } {
+  return error instanceof AggregateError || (error.name === 'AggregateError' && Array.isArray(error.errors));
+}
+
+type RobustError = Error & { error: string | object; errors?: ApiError[] };
+
+// TODO @runspired, consider if we should deep freeze errors (potentially only in debug) vs cloning them
+function cloneError(error: RobustError) {
+  const isAggregate = isAggregateError(error);
+
+  const cloned = (isAggregate ? new AggregateError(structuredClone(error.errors), error.message) : new Error(error.message)) as RobustError;
   cloned.stack = error.stack!;
   cloned.error = error.error;
+
+  // copy over enumerable properties
+  Object.assign(cloned, error);
+
   return cloned;
 }
 

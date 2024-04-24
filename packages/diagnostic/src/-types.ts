@@ -77,6 +77,14 @@ export interface Diagnostic {
   expect(count: number): void;
   step(name: string): void;
   verifySteps(steps: string[], message?: string): void;
+  /**
+   * Asserts that the actual value has at least the properties of the expected value.
+   * If additional properties are present on the actual value, they are ignored.
+   *
+   * @param actual
+   * @param expected
+   * @param message
+   */
   satisfies<T extends object, J extends T>(actual: J, expected: T, message?: string): void;
 }
 
