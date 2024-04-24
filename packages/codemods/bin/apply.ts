@@ -1,7 +1,9 @@
 import chalk from 'chalk';
 import type { Command } from 'commander';
 import { Option } from 'commander';
+import ignore from 'ignore';
 import jscodeshift from 'jscodeshift';
+import path from 'path';
 
 import type { Options } from '../src/legacy-compat-builders/options.js';
 import { logger } from '../utils/logger.js';
@@ -18,7 +20,7 @@ export function createApplyCommand(program: Command, codemods: CodemodConfig[]) 
       .command(`${codemod.name}`)
       .description(codemod.description)
       .argument('<target-glob-pattern...>', 'Path to files or glob pattern')
-      .addOption(new Option('-d, --dry [path]', 'dry run (no changes are made to files)').default(false))
+      .addOption(new Option('-d, --dry', 'dry run (no changes are made to files)').default(false))
       .addOption(
         new Option('-v, --verbose <level>', 'show more information about the transform process')
           .choices(['0', '1', '2'])
@@ -30,18 +32,24 @@ export function createApplyCommand(program: Command, codemods: CodemodConfig[]) 
           'write logs to a file. If option is set but no path is provided, logs are written to ember-data-codemods.log'
         )
       )
+      .addOption(new Option('-i, --ignore <ignore-glob-pattern...>', 'ignores the given glob patterns'))
       .allowUnknownOption() // to passthrough jscodeshift options
       .action(createApplyAction(codemod.name));
   }
 }
 
 function createApplyAction(transformName: string) {
-  return async (patterns: string[], options: Options) => {
+  return async (paths: string[], options: Options) => {
     logger.config(options);
     const log = logger.for(transformName);
 
-    log.debug('Running with options:', options);
-    log.debug('Running for target-glob-patterns:', patterns);
+    log.debug('Running with options:', { paths, ...options });
+    // @ts-expect-error Ignore types don't work?
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    const ig = ignore().add(['**/*.d.ts', '**/node_modules/**/*', ...(options.ignore ?? [])]);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    paths = ig.filter(paths.map((p) => path.join(p)));
+    log.debug('Running for paths:', Bun.inspect(paths));
     if (options.dry) {
       log.warn('Running in dry mode. No files will be modified.');
     }
@@ -70,59 +78,109 @@ function createApplyAction(transformName: string) {
     };
     const j = jscodeshift.withParser('ts');
 
-    for (const pattern of patterns) {
-      const glob = new Bun.Glob(pattern);
-      for await (const filepath of glob.scan('.')) {
-        // Bun.Glob doesn't support `ignores` or similar to avoid certain extensions
-        // https://github.com/oven-sh/bun/issues/8182
-        if (filepath.endsWith('.d.ts')) {
-          continue;
-        }
-        log.debug('Transforming:', filepath);
-        result.matches++;
-        const file = Bun.file(filepath);
-        const originalSource = await file.text();
-        let transformedSource: string | undefined;
-        try {
-          transformedSource = transform(
-            { source: originalSource, path: filepath },
-            {
-              j,
-              jscodeshift: j,
-              stats: (_name: string, _quantity?: number): void => {}, // unused
-              report: (_msg: string): void => {}, // unused
-            },
-            options
-          );
-        } catch (error) {
-          result.errors++;
-          log.error({
-            filepath,
-            message: error instanceof Error ? error.message : 'Unknown error',
-          });
-          continue;
-        }
+    // const ignoreGlobs = (options.ignore ?? []).map((pattern) => new Bun.Glob(pattern));
 
-        if (transformedSource === undefined) {
-          result.skipped++;
-        } else if (transformedSource === originalSource) {
-          result.unmodified++;
+    // for (const pattern of patterns) {
+    //   const glob = new Bun.Glob(pattern);
+    //   for await (const filepath of glob.scan('.')) {
+    //     // Bun.Glob doesn't support `ignores` or similar to avoid certain extensions
+    //     // https://github.com/oven-sh/bun/issues/8182
+    //     if (filepath.endsWith('.d.ts')) {
+    //       continue;
+    //     }
+    //     if (ignoreGlobs.some((ignore) => ignore.match(filepath))) {
+    //       log.debug('Skipping:', filepath);
+    //       result.skipped++;
+    //       continue;
+    //     }
+    //     log.debug('Transforming:', filepath);
+    //     result.matches++;
+    //     const file = Bun.file(filepath);
+    //     const originalSource = await file.text();
+    //     let transformedSource: string | undefined;
+    //     try {
+    //       transformedSource = transform(
+    //         { source: originalSource, path: filepath },
+    //         {
+    //           j,
+    //           jscodeshift: j,
+    //           stats: (_name: string, _quantity?: number): void => {}, // unused
+    //           report: (_msg: string): void => {}, // unused
+    //         },
+    //         options
+    //       );
+    //     } catch (error) {
+    //       result.errors++;
+    //       log.error({
+    //         filepath,
+    //         message: error instanceof Error ? error.message : 'Unknown error',
+    //       });
+    //       continue;
+    //     }
+
+    //     if (transformedSource === undefined) {
+    //       result.skipped++;
+    //     } else if (transformedSource === originalSource) {
+    //       result.unmodified++;
+    //     } else {
+    //       if (options.dry) {
+    //         log.info({
+    //           filepath,
+    //           message: 'Transformed source:\n\t' + transformedSource,
+    //         });
+    //       } else {
+    //         await Bun.write(filepath, transformedSource);
+    //       }
+    //       result.ok++;
+    //     }
+    //   }
+    // }
+
+    for (const filepath of paths) {
+      log.debug('Transforming:', filepath);
+      result.matches++;
+      const file = Bun.file(filepath);
+      const originalSource = await file.text();
+      let transformedSource: string | undefined;
+      try {
+        transformedSource = transform(
+          { source: originalSource, path: filepath },
+          {
+            j,
+            jscodeshift: j,
+            stats: (_name: string, _quantity?: number): void => {}, // unused
+            report: (_msg: string): void => {}, // unused
+          },
+          options
+        );
+      } catch (error) {
+        result.errors++;
+        log.error({
+          filepath,
+          message: error instanceof Error ? error.message : 'Unknown error',
+        });
+        continue;
+      }
+
+      if (transformedSource === undefined) {
+        result.skipped++;
+      } else if (transformedSource === originalSource) {
+        result.unmodified++;
+      } else {
+        if (options.dry) {
+          log.info({
+            filepath,
+            message: 'Transformed source:\n\t' + transformedSource,
+          });
         } else {
-          if (options.dry) {
-            log.info({
-              filepath,
-              message: 'Transformed source:\n\t' + transformedSource,
-            });
-          } else {
-            await Bun.write(filepath, transformedSource);
-          }
-          result.ok++;
+          await Bun.write(filepath, transformedSource);
         }
+        result.ok++;
       }
     }
 
     if (result.matches === 0) {
-      log.warn('No files matched the provided glob pattern(s):', patterns);
+      log.warn('No files matched the provided glob pattern(s):', paths);
     }
 
     if (result.errors > 0) {

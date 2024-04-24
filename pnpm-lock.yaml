@@ -529,6 +529,9 @@ importers:
       commander:
         specifier: ^9.2.0
         version: 9.5.0
+      ignore:
+        specifier: ^5.3.1
+        version: 5.3.1
       jscodeshift:
         specifier: ^0.15.2
         version: 0.15.2
