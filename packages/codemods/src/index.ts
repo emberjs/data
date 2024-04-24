@@ -5,6 +5,7 @@ import { log } from './legacy-compat-builders/log.js';
 export const Codemods = {
   'legacy-compat-builders': legacyCompatBuilders,
 };
+export type Codemods = typeof Codemods;
 
 // exports for testing
 export const Logs = {
