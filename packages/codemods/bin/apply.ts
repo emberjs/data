@@ -45,16 +45,18 @@ function createApplyAction(transformName: string) {
 
     log.debug('Running with options:', { paths, ...options });
     // @ts-expect-error Ignore types don't work?
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    const ig = ignore().add(['**/*.d.ts', '**/node_modules/**/*', ...(options.ignore ?? [])]);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    paths = ig.filter(paths.map((p) => path.join(p)));
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+    paths = ignore()
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      .add(['**/*.d.ts', '**/node_modules/**/*', ...(options.ignore ?? [])])
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      .filter(paths.map((p) => path.join(p)));
+
     log.debug('Running for paths:', Bun.inspect(paths));
     if (options.dry) {
       log.warn('Running in dry mode. No files will be modified.');
     }
 
-    // const transformPath = await import.meta.resolve(`../src/${transformName}/index.ts`);
     const { Codemods } = await import('../src/index.js');
     if (!(transformName in Codemods)) {
       throw new Error(`No codemod found for: ${transformName}`);
@@ -77,64 +79,6 @@ function createApplyAction(transformName: string) {
       ok: 0,
     };
     const j = jscodeshift.withParser('ts');
-
-    // const ignoreGlobs = (options.ignore ?? []).map((pattern) => new Bun.Glob(pattern));
-
-    // for (const pattern of patterns) {
-    //   const glob = new Bun.Glob(pattern);
-    //   for await (const filepath of glob.scan('.')) {
-    //     // Bun.Glob doesn't support `ignores` or similar to avoid certain extensions
-    //     // https://github.com/oven-sh/bun/issues/8182
-    //     if (filepath.endsWith('.d.ts')) {
-    //       continue;
-    //     }
-    //     if (ignoreGlobs.some((ignore) => ignore.match(filepath))) {
-    //       log.debug('Skipping:', filepath);
-    //       result.skipped++;
-    //       continue;
-    //     }
-    //     log.debug('Transforming:', filepath);
-    //     result.matches++;
-    //     const file = Bun.file(filepath);
-    //     const originalSource = await file.text();
-    //     let transformedSource: string | undefined;
-    //     try {
-    //       transformedSource = transform(
-    //         { source: originalSource, path: filepath },
-    //         {
-    //           j,
-    //           jscodeshift: j,
-    //           stats: (_name: string, _quantity?: number): void => {}, // unused
-    //           report: (_msg: string): void => {}, // unused
-    //         },
-    //         options
-    //       );
-    //     } catch (error) {
-    //       result.errors++;
-    //       log.error({
-    //         filepath,
-    //         message: error instanceof Error ? error.message : 'Unknown error',
-    //       });
-    //       continue;
-    //     }
-
-    //     if (transformedSource === undefined) {
-    //       result.skipped++;
-    //     } else if (transformedSource === originalSource) {
-    //       result.unmodified++;
-    //     } else {
-    //       if (options.dry) {
-    //         log.info({
-    //           filepath,
-    //           message: 'Transformed source:\n\t' + transformedSource,
-    //         });
-    //       } else {
-    //         await Bun.write(filepath, transformedSource);
-    //       }
-    //       result.ok++;
-    //     }
-    //   }
-    // }
 
     for (const filepath of paths) {
       log.debug('Transforming:', filepath);
