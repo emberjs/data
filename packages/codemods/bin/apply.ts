@@ -66,13 +66,6 @@ function createApplyAction(transformName: string) {
     };
     const j = jscodeshift.withParser('ts');
 
-    let prettier;
-    try {
-      prettier = await import('prettier');
-    } catch (e) {
-      log.warn('Prettier is not installed. Skipping formatting.');
-    }
-
     for (const pattern of patterns) {
       const glob = new Bun.Glob(pattern);
       for await (const filepath of glob.scan('.')) {
@@ -111,25 +104,6 @@ function createApplyAction(transformName: string) {
         } else if (transformedSource === originalSource) {
           result.unmodified++;
         } else {
-          if (prettier) {
-            try {
-              const { ignored } = await prettier.getFileInfo(filepath);
-              const prettierConfig = await prettier.resolveConfig(filepath);
-              if (!ignored) {
-                transformedSource = await prettier.format(transformedSource, {
-                  ...prettierConfig,
-                  filepath,
-                });
-              }
-            } catch (error) {
-              if (error instanceof Error) {
-                log.warn({ filepath, message: `Prettier error: ${error.message}` });
-              } else {
-                log.warn({ filepath, message: 'Unknown error when running prettier.' });
-              }
-            }
-          }
-
           await Bun.write(filepath, transformedSource);
           result.ok++;
         }

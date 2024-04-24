@@ -112,6 +112,6 @@ GJS and GTS files are not currently supported. PRs welcome! 🧡
 # TODO:
 
 * [ ] handle `yield` like `await`
-* [ ] Prettier errors
 * [ ] --dry
 * [ ] --ignore globs
+* [ ] Rename new import if one exists with the same name
