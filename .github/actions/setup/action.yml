@@ -76,7 +76,7 @@ runs:
       id: set-up-homebrew
       uses: Homebrew/actions/setup-homebrew@master
 
-    - name: 'Setup SSL Cert'
+    - name: 'Setup SSL Cert Infra'
       if: ${{ inputs.with-cert }}
       shell: bash
       run: |
@@ -104,6 +104,12 @@ runs:
       run: pnpm install --prefer-offline --ignore-scripts $ADTL_ARGS
       env:
         ADTL_ARGS: ${{ inputs.adtl-install-args }}
+
+    - name: 'Generate SSL Cert'
+      if: ${{ inputs.with-cert }}
+      shell: bash
+      # Generates the cert if needed, using our local copy of @warp-drive/holodeck
+      run: node ./packages/holodeck/bin/ensure-cert.js
 
     - name: Setup Broccoli Caching
       if: ${{ inputs.restore-broccoli-cache == 'true' }}

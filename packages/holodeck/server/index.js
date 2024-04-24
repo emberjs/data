@@ -45,10 +45,7 @@ function getCertInfo() {
   }
 
   if (!fs.existsSync(CERT_PATH) || !fs.existsSync(KEY_PATH)) {
-    console.log('SSL certificate or key not found, generating new ones...');
-
-    execSync(`mkcert -install`);
-    execSync(`mkcert -key-file ${KEY_PATH} -cert-file ${CERT_PATH} localhost`);
+    throw new Error('SSL certificate or key not found, you may need to run `npx -p @warp-drive/holodeck ensure-cert`');
   }
 
   return {

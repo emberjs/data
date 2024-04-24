@@ -36,7 +36,8 @@
     "NCC-1701-a-blue.svg"
   ],
   "bin": {
-    "holodeck": "./bin/holodeck.js"
+    "holodeck": "./bin/holodeck.js",
+    "ensure-cert": "./bin/ensure-cert.js"
   },
   "scripts": {
     "build:types": "tsc --build --force",
