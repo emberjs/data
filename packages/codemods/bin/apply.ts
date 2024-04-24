@@ -10,16 +10,16 @@ import { logger } from '../utils/logger.js';
 import type { CodemodConfig } from './config.js';
 
 export function createApplyCommand(program: Command, codemods: CodemodConfig[]) {
-  const applyCommand = program
-    .command('apply')
-    .argument('<target-glob-pattern...>', 'path to files or glob pattern')
-    .description('apply the given codemod to the target file paths');
+  const applyCommand = program.command('apply').description('apply the given codemod to the target file paths');
 
   for (const codemod of codemods) {
     applyCommand
       .command(`${codemod.name}`)
       .description(codemod.description)
-      .argument('<target-glob-pattern...>', 'Path to files or glob pattern')
+      .argument(
+        '<target-glob-pattern...>',
+        'path to files or glob pattern. If using glob pattern, wrap in single quotes.'
+      )
       .addOption(new Option('-d, --dry', 'dry run (no changes are made to files)').default(false))
       .addOption(
         new Option('-v, --verbose <level>', 'show more information about the transform process')
@@ -32,27 +32,30 @@ export function createApplyCommand(program: Command, codemods: CodemodConfig[]) 
           'write logs to a file. If option is set but no path is provided, logs are written to ember-data-codemods.log'
         )
       )
-      .addOption(new Option('-i, --ignore <ignore-glob-pattern...>', 'ignores the given glob patterns'))
+      .addOption(
+        new Option(
+          '-i, --ignore <ignore-glob-pattern...>',
+          'ignores the given file or glob pattern. If using glob pattern, wrap in single quotes.'
+        )
+      )
       .allowUnknownOption() // to passthrough jscodeshift options
       .action(createApplyAction(codemod.name));
   }
 }
 
 function createApplyAction(transformName: string) {
-  return async (paths: string[], options: Options) => {
+  return async (patterns: string[], options: Options) => {
     logger.config(options);
     const log = logger.for(transformName);
 
-    log.debug('Running with options:', { paths, ...options });
+    log.debug('Running with options:', { targetGlobPattern: patterns, ...options });
     // @ts-expect-error Ignore types don't work?
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
-    paths = ignore()
+    const ig = ignore()
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      .add(['**/*.d.ts', '**/node_modules/**/*', ...(options.ignore ?? [])])
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      .filter(paths.map((p) => path.join(p)));
+      .add(['**/*.d.ts', '**/node_modules/**/*', ...(options.ignore ?? [])]);
 
-    log.debug('Running for paths:', Bun.inspect(paths));
+    log.debug('Running for paths:', Bun.inspect(patterns));
     if (options.dry) {
       log.warn('Running in dry mode. No files will be modified.');
     }
@@ -80,51 +83,60 @@ function createApplyAction(transformName: string) {
     };
     const j = jscodeshift.withParser('ts');
 
-    for (const filepath of paths) {
-      log.debug('Transforming:', filepath);
-      result.matches++;
-      const file = Bun.file(filepath);
-      const originalSource = await file.text();
-      let transformedSource: string | undefined;
-      try {
-        transformedSource = transform(
-          { source: originalSource, path: filepath },
-          {
-            j,
-            jscodeshift: j,
-            stats: (_name: string, _quantity?: number): void => {}, // unused
-            report: (_msg: string): void => {}, // unused
-          },
-          options
-        );
-      } catch (error) {
-        result.errors++;
-        log.error({
-          filepath,
-          message: error instanceof Error ? error.message : 'Unknown error',
-        });
-        continue;
-      }
-
-      if (transformedSource === undefined) {
-        result.skipped++;
-      } else if (transformedSource === originalSource) {
-        result.unmodified++;
-      } else {
-        if (options.dry) {
-          log.info({
-            filepath,
-            message: 'Transformed source:\n\t' + transformedSource,
-          });
-        } else {
-          await Bun.write(filepath, transformedSource);
+    for (const pattern of patterns) {
+      const glob = new Bun.Glob(pattern);
+      for await (const filepath of glob.scan('.')) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+        if (ig.ignores(path.join(filepath))) {
+          log.debug('Skipping ignored file:', filepath);
+          result.skipped++;
+          continue;
         }
-        result.ok++;
+        log.debug('Transforming:', filepath);
+        result.matches++;
+        const file = Bun.file(filepath);
+        const originalSource = await file.text();
+        let transformedSource: string | undefined;
+        try {
+          transformedSource = transform(
+            { source: originalSource, path: filepath },
+            {
+              j,
+              jscodeshift: j,
+              stats: (_name: string, _quantity?: number): void => {}, // unused
+              report: (_msg: string): void => {}, // unused
+            },
+            options
+          );
+        } catch (error) {
+          result.errors++;
+          log.error({
+            filepath,
+            message: error instanceof Error ? error.message : 'Unknown error',
+          });
+          continue;
+        }
+
+        if (transformedSource === undefined) {
+          result.skipped++;
+        } else if (transformedSource === originalSource) {
+          result.unmodified++;
+        } else {
+          if (options.dry) {
+            log.info({
+              filepath,
+              message: 'Transformed source:\n\t' + transformedSource,
+            });
+          } else {
+            await Bun.write(filepath, transformedSource);
+          }
+          result.ok++;
+        }
       }
     }
 
     if (result.matches === 0) {
-      log.warn('No files matched the provided glob pattern(s):', paths);
+      log.warn('No files matched the provided glob pattern(s):', patterns);
     }
 
     if (result.errors > 0) {
