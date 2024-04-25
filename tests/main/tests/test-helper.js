@@ -8,12 +8,12 @@ import { setup } from 'qunit-dom';
 
 import start from 'ember-exam/test-support/start';
 
+import { setBuildURLConfig } from '@ember-data/request-utils';
 import configureAsserts from '@ember-data/unpublished-test-infra/test-support/asserts';
-import { setTestId, setConfig } from '@warp-drive/holodeck';
+import { setConfig,setTestId } from '@warp-drive/holodeck';
 
 import Application from '../app';
 import config from '../config/environment';
-import { setBuildURLConfig } from '@ember-data/request-utils';
 
 const MockHost = `https://${window.location.hostname}:${Number(window.location.port) + 1}`;
 setBuildURLConfig({

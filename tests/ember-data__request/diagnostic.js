@@ -8,7 +8,6 @@ await launch({
     });
   },
   async cleanup() {
-    console.log('cleaning up');
     await holodeck.endProgram();
   },
 });

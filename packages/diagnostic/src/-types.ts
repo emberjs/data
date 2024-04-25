@@ -50,6 +50,7 @@ export type GlobalConfig<TC extends TestContext = TestContext> = {
   _current: SuiteReport | null;
   useTestem: boolean;
   useDiagnostic: boolean;
+  testTimeoutMs: number;
   concurrency: number;
   globalHooks: GlobalHooksStorage<TC>;
   totals: {

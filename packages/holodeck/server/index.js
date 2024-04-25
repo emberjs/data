@@ -15,7 +15,7 @@ import path from 'path';
 
 /** @type {import('bun-types')} */
 const isBun = typeof Bun !== 'undefined';
-
+const DEBUG = process.env.DEBUG?.includes('holodeck') || process.env.DEBUG === '*';
 const CURRENT_FILE = new URL(import.meta.url).pathname;
 
 function getShellConfigFilePath() {
@@ -247,7 +247,9 @@ function createTestHandler(projectRoot) {
 */
 export function createServer(options) {
   const app = new Hono();
-  app.use('*', logger());
+  if (DEBUG) {
+    app.use('*', logger());
+  }
   app.use(
     '*',
     cors({

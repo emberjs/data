@@ -1,9 +1,9 @@
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
+import { buildBaseURL } from '@ember-data/request-utils';
 import { module, test } from '@warp-drive/diagnostic';
 import { mock, MockServerHandler } from '@warp-drive/holodeck';
 import { GET } from '@warp-drive/holodeck/mock';
-import { buildBaseURL } from '@ember-data/request-utils';
 
 const RECORD = false;
 

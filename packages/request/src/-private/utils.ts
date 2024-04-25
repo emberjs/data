@@ -98,10 +98,15 @@ export function handleOutcome<T>(
       if (isDoc(error)) {
         owner.setStream(owner.god.stream);
       }
-      if (!error) {
+      if (!error || !(error instanceof Error)) {
         try {
-          throw new Error(`Request Rejected with an Unknown Error`);
+          throw new Error(error ? error : `Request Rejected with an Unknown Error`);
         } catch (e: unknown) {
+          if (error && typeof error === 'object') {
+            Object.assign(e as Error, error);
+            (e as Error & StructuredErrorDocument).message =
+              (error as Error).message || `Request Rejected with an Unknown Error`;
+          }
           error = e as Error & StructuredErrorDocument;
         }
       }

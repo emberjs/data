@@ -5,7 +5,7 @@ import configureAsserts from '@ember-data/unpublished-test-infra/test-support/as
 import { setupGlobalHooks } from '@warp-drive/diagnostic';
 import { configure } from '@warp-drive/diagnostic/ember';
 import { start } from '@warp-drive/diagnostic/runners/dom';
-import { setTestId, setConfig } from '@warp-drive/holodeck';
+import { setConfig,setTestId } from '@warp-drive/holodeck';
 
 import Application from 'warp-drive__ember/app';
 import config from 'warp-drive__ember/config/environment';
