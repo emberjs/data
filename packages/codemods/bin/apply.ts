@@ -88,7 +88,7 @@ function createApplyAction(transformName: string) {
       for await (const filepath of glob.scan('.')) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         if (ig.ignores(path.join(filepath))) {
-          log.debug('Skipping ignored file:', filepath);
+          log.warn('Skipping ignored file:', filepath);
           result.skipped++;
           continue;
         }
