@@ -7,4 +7,4 @@ const {
     // 4
     id,
   },
-} = await store.request<Post[]>(findAll<Post>('post'));
+} = await store.request(findAll<Post>('post'));

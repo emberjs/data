@@ -43,7 +43,7 @@ module('Integration - legacy-compat/builders/findAll', function (hooks) {
     );
 
     const store = this.owner.lookup('service:store') as CompatStore;
-    const { content: results } = await store.request<Post[]>(findAll<Post>('post'));
+    const { content: results } = await store.request(findAll<Post>('post'));
 
     assert.strictEqual(results.length, 1, 'post was found');
     assert.strictEqual(results[0].id, '1', 'post has correct id');

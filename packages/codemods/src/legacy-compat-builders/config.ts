@@ -1,7 +1,7 @@
 import type { ValueOfSet } from '../../utils/types.js';
 import type { ImportInfo } from '../utils/imports.js';
 import type { Config } from './legacy-store-method.js';
-import { arrayTypeParam, singularTypeParam, validateForFindRecord } from './legacy-store-method.js';
+import { singularTypeParam, validateForFindRecord } from './legacy-store-method.js';
 
 const LegacyCompatBuildersSourceValue = '@ember-data/legacy-compat/builders';
 export const IMPORT_INFOS = new Set([
@@ -36,7 +36,6 @@ export const CONFIGS: Map<string, Config> = new Map([
     {
       transformOptions: {
         extractBuilderTypeParams: singularTypeParam,
-        extractRequestTypeParams: arrayTypeParam,
       },
     },
   ],
@@ -45,7 +44,6 @@ export const CONFIGS: Map<string, Config> = new Map([
     {
       transformOptions: {
         extractBuilderTypeParams: singularTypeParam,
-        extractRequestTypeParams: singularTypeParam,
         validate: validateForFindRecord,
       },
     },
@@ -55,7 +53,6 @@ export const CONFIGS: Map<string, Config> = new Map([
     {
       transformOptions: {
         extractBuilderTypeParams: singularTypeParam,
-        extractRequestTypeParams: arrayTypeParam,
       },
     },
   ],
@@ -64,7 +61,6 @@ export const CONFIGS: Map<string, Config> = new Map([
     {
       transformOptions: {
         extractBuilderTypeParams: singularTypeParam,
-        extractRequestTypeParams: singularTypeParam,
       },
     },
   ],
@@ -73,7 +69,6 @@ export const CONFIGS: Map<string, Config> = new Map([
     {
       transformOptions: {
         extractBuilderTypeParams: () => null,
-        extractRequestTypeParams: singularTypeParam,
       },
     },
   ],

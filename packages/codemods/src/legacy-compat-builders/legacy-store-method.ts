@@ -43,10 +43,6 @@ export interface Config {
       j: JSCodeshift,
       path: ValidLegacyStoreMethodCallExpressionPath
     ) => TSTypeParameterInstantiation | null;
-    extractRequestTypeParams?: (
-      j: JSCodeshift,
-      path: ValidLegacyStoreMethodCallExpressionPath
-    ) => TSTypeParameterInstantiation | null;
   };
 }
 
@@ -68,7 +64,6 @@ export function transformLegacyStoreMethod(
   const result = new TransformResult();
   const validate = config.transformOptions.validate ?? (() => {});
   const extractBuilderTypeParams = config.transformOptions.extractBuilderTypeParams ?? (() => null);
-  const extractRequestTypeParams = config.transformOptions.extractRequestTypeParams ?? (() => null);
 
   // Find, e.g., this.store.findRecord('post', '1') or foo.store.findRecord('post', '1') or store.findRecord('post', '1')
   root.find(j.CallExpression, legacyStoreMethodFinder(importInfo)).forEach((path) => {
@@ -89,13 +84,9 @@ export function transformLegacyStoreMethod(
       throw error;
     }
 
-    const builderTypeParameters = extractBuilderTypeParams(j, path);
-    const requestTypeParameters = extractRequestTypeParams(j, path);
-
     // Replace with, e.g. store.request(findRecord('post', '1'))
     // First, change the callee to store.request
     path.value.callee.property.name = 'request';
-    path.value.typeParameters = requestTypeParameters;
 
     // Then, wrap the arguments with the builder expression
     const builderExpression = j.callExpression.from({
@@ -103,6 +94,8 @@ export function transformLegacyStoreMethod(
       arguments: path.value.arguments,
     });
 
+    const builderTypeParameters = extractBuilderTypeParams(j, path);
+    path.value.typeParameters = null;
     // SAFETY: JSCodeshift types are wrong
     (builderExpression as unknown as { typeParameters: TSTypeParameterInstantiation | null }).typeParameters =
       builderTypeParameters;
@@ -205,38 +198,4 @@ export function singularTypeParam(
   path: ValidLegacyStoreMethodCallExpressionPath
 ): TSTypeParameterInstantiation | null {
   return path.value.typeParameters ?? null;
-}
-
-export function arrayTypeParam(
-  j: JSCodeshift,
-  path: ValidLegacyStoreMethodCallExpressionPath
-): TSTypeParameterInstantiation | null {
-  const singular = path.value.typeParameters;
-  if (!singular) {
-    return null;
-  }
-  assertLegacyStoreMethodTSTypeParameterInstantiation(path, singular);
-  const arrayType = j.tsArrayType.from({
-    elementType: singular.params[0],
-  });
-  return j.tsTypeParameterInstantiation.from({
-    ...singular,
-    params: [arrayType],
-  });
-}
-
-interface LegacyStoreMethodTSTypeParameterInstantiation extends TSTypeParameterInstantiation {}
-
-function assertLegacyStoreMethodTSTypeParameterInstantiation(
-  path: ValidLegacyStoreMethodCallExpressionPath,
-  typeParameters: TSTypeParameterInstantiation
-): asserts typeParameters is LegacyStoreMethodTSTypeParameterInstantiation {
-  if (typeParameters.params.length !== 1) {
-    throw new TransformError(
-      `Expected exactly one type parameter for ${path.value.callee.property.name} expression, found ${typeParameters.params.length}`
-    );
-  }
-  if (!['TSTypeReference', 'TSAnyKeyword'].includes(typeParameters.params[0].type)) {
-    throw new TransformError(`Expected singular TSTypeReference, found ${typeParameters.type}`);
-  }
 }

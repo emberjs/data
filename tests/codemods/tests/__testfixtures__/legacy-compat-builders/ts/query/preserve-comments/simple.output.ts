@@ -3,7 +3,7 @@ import { query } from '@ember-data/legacy-compat/builders';
 // 1
 const { content: post } = await store // 2
   // 3
-  .request<Post[]>(
+  .request(
     query<Post>( // 4
       'post', // 5
       // 6

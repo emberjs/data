@@ -3,7 +3,7 @@ import { findRecord } from '@ember-data/legacy-compat/builders';
 // 1
 const { content: post } = await store
   // 2
-  .request<Post>(
+  .request(
     findRecord<Post>( // 3
       // 9
       // 10

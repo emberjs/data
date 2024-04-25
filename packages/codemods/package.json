@@ -1,7 +1,7 @@
 {
   "name": "@ember-data/codemods",
   "private": true,
-  "version": "5.4.0-alpha.52",
+  "version": "5.4.0-alpha.58",
   "description": "Codemods for EmberData paradigms",
   "keywords": [],
   "repository": {
@@ -49,7 +49,7 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@types/jscodeshift": "0.11.11",
     "@types/bun": "^1.1.0",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.53",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.58",
     "eslint": "^8.57.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "qunit": "^2.20.1",

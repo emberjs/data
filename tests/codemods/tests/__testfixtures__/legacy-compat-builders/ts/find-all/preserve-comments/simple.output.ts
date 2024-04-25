@@ -3,7 +3,7 @@ import { findAll } from '@ember-data/legacy-compat/builders';
 // 1
 const { content: post } = await store // 2
   // 3
-  .request<Post[]>(
+  .request(
     findAll<Post>( // 4
       // 5
       'post'
