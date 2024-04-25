@@ -542,12 +542,6 @@ importers:
         specifier: ^5.4.4
         version: 5.4.4
     devDependencies:
-      '@babel/core':
-        specifier: ^7.24.4
-        version: 7.24.4(supports-color@8.1.1)
-      '@babel/preset-typescript':
-        specifier: ^7.24.1
-        version: 7.24.1(@babel/core@7.24.4)
       '@types/bun':
         specifier: ^1.1.0
         version: 1.1.0
@@ -2683,12 +2677,6 @@ importers:
         specifier: ^5.4.4
         version: 5.4.4
     devDependencies:
-      '@babel/core':
-        specifier: ^7.24.4
-        version: 7.24.4(supports-color@8.1.1)
-      '@babel/preset-typescript':
-        specifier: ^7.24.1
-        version: 7.24.1(@babel/core@7.24.4)
       '@ember-data/codemods':
         specifier: workspace:5.4.0-alpha.52
         version: link:../../packages/codemods
