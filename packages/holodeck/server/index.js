@@ -1,3 +1,4 @@
+/* global Bun */
 import { serve } from '@hono/node-server';
 import chalk from 'chalk';
 import { Hono } from 'hono';
@@ -11,6 +12,11 @@ import http2 from 'node:http2';
 import zlib from 'node:zlib';
 import { homedir, userInfo } from 'os';
 import path from 'path';
+
+/** @type {import('bun-types')} */
+const isBun = typeof Bun !== 'undefined';
+
+const CURRENT_FILE = new URL(import.meta.url).pathname;
 
 function getShellConfigFilePath() {
   const shell = userInfo().shell;
@@ -261,19 +267,107 @@ export function createServer(options) {
   serve({
     fetch: app.fetch,
     createServer: (_, requestListener) => {
-      return http2.createSecureServer(
-        {
-          key: KEY,
-          cert: CERT,
-        },
-        requestListener
-      );
+      try {
+        return http2.createSecureServer(
+          {
+            key: KEY,
+            cert: CERT,
+          },
+          requestListener
+        );
+      } catch (e) {
+        console.log(chalk.yellow(`Failed to create secure server, falling back to http server. Error: ${e.message}`));
+        return http2.createServer(requestListener);
+      }
     },
     port: options.port ?? DEFAULT_PORT,
     hostname: 'localhost',
+    // bun uses TLS options
+    // tls: {
+    //   key: Bun.file(KEY_PATH),
+    //   cert: Bun.file(CERT_PATH),
+    // },
   });
 
   console.log(
     `\tMock server running at ${chalk.magenta('https://localhost:') + chalk.yellow(options.port ?? DEFAULT_PORT)}`
   );
 }
+
+const servers = new Map();
+
+export default {
+  async launchProgram(config = {}) {
+    const projectRoot = process.cwd();
+    const name = await import(path.join(projectRoot, 'package.json'), { with: { type: 'json' } }).then(
+      (pkg) => pkg.name
+    );
+    const options = { name, projectRoot, ...config };
+    console.log(
+      chalk.grey(
+        `\n\t@${chalk.greenBright('warp-drive')}/${chalk.magentaBright(
+          'holodeck'
+        )} 🌅\n\t=================================\n`
+      ) +
+        chalk.grey(
+          `\n\tHolodeck Access Granted\n\t\tprogram: ${chalk.magenta(name)}\n\t\tsettings: ${chalk.green(JSON.stringify(config).split('\n').join(' '))}\n\t\tdirectory: ${chalk.cyan(projectRoot)}\n\t\tengine: ${chalk.cyan(
+            isBun ? 'bun@' + Bun.version : 'node'
+          )}`
+        )
+    );
+    console.log(chalk.grey(`\n\tStarting Subroutines (mode:${chalk.cyan(isBun ? 'bun' : 'node')})`));
+
+    if (isBun) {
+      const serverProcess = Bun.spawn(
+        ['node', '--experimental-default-type=module', CURRENT_FILE, JSON.stringify(options)],
+        {
+          env: process.env,
+          cwd: process.cwd(),
+          stdout: 'inherit',
+          stderr: 'inherit',
+        }
+      );
+      servers.set(projectRoot, serverProcess);
+      return;
+    }
+
+    if (servers.has(projectRoot)) {
+      throw new Error(`Holodeck is already running for project '${name}' at '${projectRoot}'`);
+    }
+
+    servers.set(projectRoot, createServer(options));
+  },
+  async endProgram() {
+    console.log(chalk.grey(`\n\tEnding Subroutines (mode:${chalk.cyan(isBun ? 'bun' : 'node')})`));
+    const projectRoot = process.cwd();
+    const name = await import(path.join(projectRoot, 'package.json'), { with: { type: 'json' } }).then(
+      (pkg) => pkg.name
+    );
+
+    if (!servers.has(projectRoot)) {
+      throw new Error(`Holodeck was not running for project '${name}' at '${projectRoot}'`);
+    }
+
+    if (isBun) {
+      const serverProcess = servers.get(projectRoot);
+      serverProcess.kill();
+      return;
+    }
+
+    servers.get(projectRoot).close();
+    servers.delete(projectRoot);
+  },
+};
+
+function main() {
+  const args = process.argv.slice();
+  if (!isBun && args.length) {
+    if (args[1] !== CURRENT_FILE) {
+      return;
+    }
+    const options = JSON.parse(args[2]);
+    createServer(options);
+  }
+}
+
+main();

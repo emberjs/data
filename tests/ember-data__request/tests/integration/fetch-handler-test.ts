@@ -3,6 +3,7 @@ import Fetch from '@ember-data/request/fetch';
 import { module, test } from '@warp-drive/diagnostic';
 import { mock, MockServerHandler } from '@warp-drive/holodeck';
 import { GET } from '@warp-drive/holodeck/mock';
+import { buildBaseURL } from '@ember-data/request-utils';
 
 const RECORD = false;
 
@@ -40,7 +41,7 @@ module('RequestManager | Fetch Handler', function (hooks) {
       { RECORD }
     );
 
-    const doc = await manager.request({ url: 'https://localhost:1135/users/1' });
+    const doc = await manager.request({ url: buildBaseURL({ resourcePath: 'users/1' }) });
     const serialized = JSON.parse(JSON.stringify(doc)) as unknown;
     // @ts-expect-error
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -62,7 +63,7 @@ module('RequestManager | Fetch Handler', function (hooks) {
           },
         },
         request: {
-          url: 'https://localhost:1135/users/1',
+          url: buildBaseURL({ resourcePath: 'users/1' }),
         },
         response: {
           headers: [
@@ -108,14 +109,14 @@ module('RequestManager | Fetch Handler', function (hooks) {
     );
 
     try {
-      await manager.request({ url: 'https://localhost:1135/users/1' });
+      await manager.request({ url: buildBaseURL({ resourcePath: 'users/1' }) });
       assert.ok(false, 'Should have thrown');
     } catch (e) {
       isNetworkError(e);
       assert.true(e instanceof AggregateError, 'The error is an AggregateError');
       assert.equal(
         e.message,
-        '[404 Not Found] GET (cors) - https://localhost:1135/users/1',
+        `[404 Not Found] GET (cors) - ${buildBaseURL({ resourcePath: 'users/1' })}`,
         'The error message is correct'
       );
       assert.equal(e.status, 404, 'The error status is correct');
@@ -174,7 +175,7 @@ module('RequestManager | Fetch Handler', function (hooks) {
     );
 
     try {
-      const future = manager.request({ url: 'https://localhost:1135/users/1' });
+      const future = manager.request({ url: buildBaseURL({ resourcePath: 'users/1' }) });
       await Promise.resolve();
       future.abort();
       await future;

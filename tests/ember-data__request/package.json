@@ -31,6 +31,9 @@
     "@ember-data/request": {
       "injected": true
     },
+    "@ember-data/request-utils": {
+      "injected": true
+    },
     "@ember-data/private-build-infra": {
       "injected": true
     },
@@ -52,6 +55,7 @@
     "@babel/runtime": "^7.24.4",
     "@ember-data/private-build-infra": "workspace:5.4.0-alpha.58",
     "@ember-data/request": "workspace:5.4.0-alpha.58",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.58",
     "@ember/edition-utils": "^1.2.0",
     "@ember/optional-features": "^2.1.0",
     "@ember/string": "3.1.1",
