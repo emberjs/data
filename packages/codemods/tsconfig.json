@@ -28,6 +28,6 @@
     "inlineSourceMap": true,
     "inlineSources": true,
 
-    "types": ["bun-types"]
+    "types": ["bun"]
   }
 }

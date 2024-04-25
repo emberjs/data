@@ -548,12 +548,6 @@ importers:
       '@babel/preset-typescript':
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.4)
-      '@rollup/plugin-babel':
-        specifier: ^6.0.4
-        version: 6.0.4(@babel/core@7.24.4)(rollup@4.14.1)
-      '@rollup/plugin-node-resolve':
-        specifier: ^15.2.3
-        version: 15.2.3(rollup@4.14.1)
       '@types/bun':
         specifier: ^1.1.0
         version: 1.1.0
@@ -572,12 +566,6 @@ importers:
       qunit:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
-      rollup:
-        specifier: ^4.14.1
-        version: 4.14.1
-      rollup-plugin-delete:
-        specifier: ^2.0.0
-        version: 2.0.0
 
   packages/core-types:
     dependencies:
@@ -2704,12 +2692,12 @@ importers:
       '@ember-data/codemods':
         specifier: workspace:5.4.0-alpha.52
         version: link:../../packages/codemods
+      '@types/bun':
+        specifier: ^1.1.0
+        version: 1.1.0
       '@types/jscodeshift':
         specifier: 0.11.11
         version: 0.11.11
-      '@types/node':
-        specifier: ^20.12.7
-        version: 20.12.7
       '@warp-drive/internal-config':
         specifier: workspace:5.4.0-alpha.52
         version: link:../../config

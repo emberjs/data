@@ -45,16 +45,12 @@
   "devDependencies": {
     "@babel/core": "^7.24.4",
     "@babel/preset-typescript": "^7.24.1",
-    "@rollup/plugin-babel": "^6.0.4",
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "@types/jscodeshift": "0.11.11",
     "@types/bun": "^1.1.0",
+    "@types/jscodeshift": "0.11.11",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.58",
     "eslint": "^8.57.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
-    "qunit": "^2.20.1",
-    "rollup-plugin-delete": "^2.0.0",
-    "rollup": "^4.14.1"
+    "qunit": "^2.20.1"
   },
   "engines": {
     "node": ">= 18.20.1"
