@@ -1,13 +1,21 @@
 import { setApplication } from '@ember/test-helpers';
 
+import { setBuildURLConfig } from '@ember-data/request-utils';
 import configureAsserts from '@ember-data/unpublished-test-infra/test-support/asserts';
 import { setupGlobalHooks } from '@warp-drive/diagnostic';
 import { configure } from '@warp-drive/diagnostic/ember';
 import { start } from '@warp-drive/diagnostic/runners/dom';
-import { setTestId } from '@warp-drive/holodeck';
+import { setConfig, setTestId } from '@warp-drive/holodeck';
 
 import Application from 'warp-drive__ember/app';
 import config from 'warp-drive__ember/config/environment';
+
+const MockHost = `https://${window.location.hostname}:${Number(window.location.port) + 1}`;
+setBuildURLConfig({
+  host: MockHost,
+  namespace: '',
+});
+setConfig({ host: MockHost });
 
 setupGlobalHooks((hooks) => {
   configureAsserts(hooks);

@@ -4,6 +4,11 @@ import type { ScaffoldGenerator } from './mock';
 
 const TEST_IDS = new WeakMap<object, { id: string; request: number; mock: number }>();
 
+let HOST = 'https://localhost:1135/';
+export function setConfig({ host }: { host: string }) {
+  HOST = host.endsWith('/') ? host : `${host}/`;
+}
+
 export function setTestId(context: object, str: string | null) {
   if (str && TEST_IDS.has(context)) {
     throw new Error(`MockServerHandler is already configured with a testId.`);
@@ -68,7 +73,8 @@ export async function mock(owner: object, generate: ScaffoldGenerator, isRecordi
   }
   const testMockNum = test.mock++;
   if (getIsRecording() || isRecording) {
-    const url = `https://localhost:1135/__record?__xTestId=${test.id}&__xTestRequestNumber=${testMockNum}`;
+    const port = window.location.port ? `:${window.location.port}` : '';
+    const url = `${HOST}__record?__xTestId=${test.id}&__xTestRequestNumber=${testMockNum}`;
     await fetch(url, {
       method: 'POST',
       body: JSON.stringify(generate()),

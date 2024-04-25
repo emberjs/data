@@ -48,7 +48,7 @@ function setupOnError(cb: (message: Error | string) => void) {
   return cleanup;
 }
 
-const RECORD = true;
+const RECORD = false;
 
 type UserResource = {
   data: {

@@ -12,11 +12,7 @@ const isBun = typeof Bun !== 'undefined';
 export default async function launch(config) {
   if (isBun) {
     debug(`Bun detected, using Bun.serve()`);
-    if (config.setup) {
-      debug(`Running configured setup hook`);
-      await config.setup();
-      debug(`Configured setup hook completed`);
-    }
+
     const { checkPort } = await import('./bun/port.js');
     const hostname = config.hostname ?? 'localhost';
     const protocol = config.protocol ?? 'http';
@@ -67,6 +63,17 @@ export default async function launch(config) {
         protocol,
         url: `${protocol}://${hostname}:${port}`,
       };
+
+      if (config.setup) {
+        debug(`Running configured setup hook`);
+        await config.setup({
+          port,
+          hostname,
+          protocol,
+        });
+        debug(`Configured setup hook completed`);
+      }
+
       await launchBrowsers(config, state);
     } catch (e) {
       error(`Error: ${e?.message ?? e}`);

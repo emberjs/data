@@ -23,6 +23,7 @@ export const Config: GlobalConfig = {
   useTestem: typeof Testem !== 'undefined',
   // @ts-expect-error
   useDiagnostic: typeof Testem === 'undefined',
+  testTimeoutMs: 50,
   concurrency: 1,
   params: {
     hideReport: {
@@ -148,6 +149,7 @@ export type ConfigOptions = {
   params: Record<string, ParamConfig>;
   useTestem: boolean;
   useDiagnostic: boolean;
+  testTimeoutMs: number;
 };
 const configOptions = [
   'concurrency',
@@ -188,6 +190,8 @@ export function configure(options: Partial<ConfigOptions>): void {
       delete options.params[key];
     }
   });
+
+  Config.testTimeoutMs = options.testTimeoutMs ?? 0;
 
   // copy over any remaining params
   Object.assign(Config.params, options.params);
