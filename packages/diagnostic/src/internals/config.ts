@@ -1,5 +1,4 @@
 /* global Testem */
-import { test } from '../-define';
 import type {
   GlobalCallback,
   GlobalConfig,
