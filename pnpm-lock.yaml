@@ -167,40 +167,40 @@ importers:
   packages/-ember-data:
     dependencies:
       '@ember-data/adapter':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/adapter(@babel/core@7.24.4)(@ember-data/legacy-compat@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/adapter(@babel/core@7.24.4)(@ember-data/legacy-compat@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/debug':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/debug(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/debug(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/graph':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/json-api':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/request-utils@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/request-utils@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/legacy-compat':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/request@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/request@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/model':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/model(@babel/core@7.24.4)(@ember-data/debug@5.4.0-alpha.58)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/legacy-compat@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/model(@babel/core@7.24.4)(@ember-data/debug@5.4.0-alpha.59)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/legacy-compat@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/private-build-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/private-build-infra(@glint/template@1.4.0)
       '@ember-data/request':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/request-utils':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/serializer':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/serializer(@babel/core@7.24.4)(@ember-data/legacy-compat@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/serializer(@babel/core@7.24.4)(@ember-data/legacy-compat@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/store':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember/edition-utils':
         specifier: ^1.2.0
@@ -209,7 +209,7 @@ importers:
         specifier: ^1.13.4
         version: 1.15.0(@glint/template@1.4.0)
       '@warp-drive/core-types':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       broccoli-merge-trees:
         specifier: ^4.2.0
@@ -243,7 +243,7 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       ember-source:
         specifier: ~5.7.0
@@ -320,16 +320,16 @@ importers:
         specifier: ^7.24.4
         version: 7.24.4
       '@ember-data/request':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/request-utils':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/store':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember/string':
         specifier: 3.1.1
@@ -347,10 +347,10 @@ importers:
         specifier: ^15.2.3
         version: 15.2.3(rollup@4.14.3)
       '@warp-drive/core-types':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       ember-inflector:
         specifier: ^4.0.2
@@ -389,7 +389,7 @@ importers:
   packages/adapter:
     dependencies:
       '@ember-data/private-build-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/private-build-infra(@glint/template@1.4.0)
       '@embroider/macros':
         specifier: ^1.13.4
@@ -432,25 +432,25 @@ importers:
         specifier: ^7.24.4
         version: 7.24.4
       '@ember-data/graph':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/json-api':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/request-utils@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/request-utils@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/legacy-compat':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/request@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/request@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/request':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/request-utils':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/store':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember/string':
         specifier: 3.1.1
@@ -471,10 +471,10 @@ importers:
         specifier: ^3.5.29
         version: 3.5.29
       '@warp-drive/core-types':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       ember-inflector:
         specifier: ^4.0.2
@@ -524,7 +524,7 @@ importers:
   packages/core-types:
     dependencies:
       '@ember-data/private-build-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/private-build-infra(@glint/template@1.4.0)
       ember-cli-babel:
         specifier: ^8.2.0
@@ -573,7 +573,7 @@ importers:
         specifier: ^15.2.3
         version: 15.2.3(rollup@4.14.3)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       ember-source:
         specifier: ~5.7.0
@@ -603,7 +603,7 @@ importers:
         specifier: ^7.24.4
         version: 7.24.4(supports-color@8.1.1)
       '@ember-data/private-build-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/private-build-infra(@glint/template@1.4.0)
       '@ember/edition-utils':
         specifier: ^1.2.0
@@ -622,13 +622,13 @@ importers:
         version: 5.91.0
     devDependencies:
       '@ember-data/request':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/store':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember/string':
         specifier: 3.1.1
@@ -637,10 +637,10 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.24.4)
       '@warp-drive/core-types':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       ember-source:
         specifier: ~5.7.0
@@ -714,7 +714,7 @@ importers:
         specifier: ^15.2.3
         version: 15.2.3(rollup@4.14.3)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       bun-types:
         specifier: ^1.1.3
@@ -781,13 +781,13 @@ importers:
         specifier: ^7.24.4
         version: 7.24.4
       '@ember-data/request':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/store':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember/string':
         specifier: 3.1.1
@@ -823,10 +823,10 @@ importers:
         specifier: ^15.2.3
         version: 15.2.3(rollup@4.14.3)
       '@warp-drive/core-types':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       babel-plugin-ember-template-compilation:
         specifier: ^2.2.1
@@ -871,7 +871,7 @@ importers:
   packages/graph:
     dependencies:
       '@ember-data/private-build-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/private-build-infra(@glint/template@1.4.0)
       '@ember/edition-utils':
         specifier: ^1.2.0
@@ -914,13 +914,13 @@ importers:
         specifier: ^7.24.4
         version: 7.24.4
       '@ember-data/request':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/store':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember/string':
         specifier: 3.1.1
@@ -938,10 +938,10 @@ importers:
         specifier: ^15.2.3
         version: 15.2.3(rollup@4.14.3)
       '@warp-drive/core-types':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       ember-source:
         specifier: ~5.7.0
@@ -1006,8 +1006,8 @@ importers:
         specifier: ^7.24.4
         version: 7.24.4
       '@ember-data/request':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@embroider/addon-dev':
         specifier: ^4.3.1
         version: 4.3.1(@glint/template@1.4.0)(rollup@4.14.3)
@@ -1018,10 +1018,10 @@ importers:
         specifier: ^15.2.3
         version: 15.2.3(rollup@4.14.3)
       '@warp-drive/core-types':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.10
@@ -1044,7 +1044,7 @@ importers:
   packages/json-api:
     dependencies:
       '@ember-data/private-build-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/private-build-infra(@glint/template@1.4.0)
       '@ember/edition-utils':
         specifier: ^1.2.0
@@ -1087,19 +1087,19 @@ importers:
         specifier: ^7.24.4
         version: 7.24.4
       '@ember-data/graph':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/request':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/request-utils':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/store':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember/string':
         specifier: 3.1.1
@@ -1117,10 +1117,10 @@ importers:
         specifier: ^15.2.3
         version: 15.2.3(rollup@4.14.3)
       '@warp-drive/core-types':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       ember-inflector:
         specifier: ^4.0.2
@@ -1169,7 +1169,7 @@ importers:
   packages/legacy-compat:
     dependencies:
       '@ember-data/private-build-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/private-build-infra(@glint/template@1.4.0)
       '@embroider/macros':
         specifier: ^1.13.4
@@ -1209,22 +1209,22 @@ importers:
         specifier: ^7.24.4
         version: 7.24.4
       '@ember-data/graph':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/json-api':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/request-utils@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/request-utils@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/request':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/request-utils':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/store':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember/string':
         specifier: 3.1.1
@@ -1242,10 +1242,10 @@ importers:
         specifier: ^15.2.3
         version: 15.2.3(rollup@4.14.3)
       '@warp-drive/core-types':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       ember-inflector:
         specifier: ^4.0.2
@@ -1290,7 +1290,7 @@ importers:
   packages/model:
     dependencies:
       '@ember-data/private-build-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/private-build-infra(@glint/template@1.4.0)
       '@ember/edition-utils':
         specifier: ^1.2.0
@@ -1342,28 +1342,28 @@ importers:
         specifier: ^7.24.4
         version: 7.24.4
       '@ember-data/debug':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/debug(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/debug(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/graph':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/json-api':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/request-utils@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/request-utils@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/legacy-compat':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/request@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/request@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/request':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/request-utils':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/store':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember/string':
         specifier: 3.1.1
@@ -1381,10 +1381,10 @@ importers:
         specifier: ^15.2.3
         version: 15.2.3(rollup@4.14.3)
       '@warp-drive/core-types':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       ember-inflector:
         specifier: ^4.0.2
@@ -1512,7 +1512,7 @@ importers:
   packages/request:
     dependencies:
       '@ember-data/private-build-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/private-build-infra(@glint/template@1.4.0)
       '@ember/test-waiters':
         specifier: ^3.1.0
@@ -1567,10 +1567,10 @@ importers:
         specifier: ^15.2.3
         version: 15.2.3(rollup@4.14.3)
       '@warp-drive/core-types':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       ember-source:
         specifier: ~5.7.0
@@ -1639,10 +1639,10 @@ importers:
         specifier: ^15.2.3
         version: 15.2.3(rollup@4.14.3)
       '@warp-drive/core-types':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       ember-source:
         specifier: ~5.7.0
@@ -1697,16 +1697,16 @@ importers:
         specifier: ^7.24.4
         version: 7.24.4
       '@ember-data/request':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/request-utils':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/store':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember/string':
         specifier: 3.1.1
@@ -1724,10 +1724,10 @@ importers:
         specifier: ^15.2.3
         version: 15.2.3(rollup@4.14.3)
       '@warp-drive/core-types':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       ember-inflector:
         specifier: ^4.0.2
@@ -1790,7 +1790,7 @@ importers:
   packages/schema-record:
     dependencies:
       '@ember-data/private-build-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/private-build-infra(@glint/template@1.4.0)
       '@ember/edition-utils':
         specifier: ^1.2.0
@@ -1833,13 +1833,13 @@ importers:
         specifier: ^7.24.4
         version: 7.24.4
       '@ember-data/request':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/store':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember/string':
         specifier: 3.1.1
@@ -1857,10 +1857,10 @@ importers:
         specifier: ^15.2.3
         version: 15.2.3(rollup@4.14.3)
       '@warp-drive/core-types':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       ember-source:
         specifier: ~5.7.0
@@ -1897,7 +1897,7 @@ importers:
   packages/serializer:
     dependencies:
       '@ember-data/private-build-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/private-build-infra(@glint/template@1.4.0)
       '@embroider/macros':
         specifier: ^1.13.4
@@ -1940,16 +1940,16 @@ importers:
         specifier: ^7.24.4
         version: 7.24.4
       '@ember-data/legacy-compat':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/request@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/request@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/request':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/store':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember/string':
         specifier: 3.1.1
@@ -1967,10 +1967,10 @@ importers:
         specifier: ^15.2.3
         version: 15.2.3(rollup@4.14.3)
       '@warp-drive/core-types':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       ember-inflector:
         specifier: ^4.0.2
@@ -2014,7 +2014,7 @@ importers:
   packages/store:
     dependencies:
       '@ember-data/private-build-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/private-build-infra(@glint/template@1.4.0)
       '@embroider/macros':
         specifier: ^1.13.4
@@ -2054,10 +2054,10 @@ importers:
         specifier: ^7.24.4
         version: 7.24.4
       '@ember-data/request':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember/string':
         specifier: 3.1.1
@@ -2075,10 +2075,10 @@ importers:
         specifier: ^15.2.3
         version: 15.2.3(rollup@4.14.3)
       '@warp-drive/core-types':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       ember-source:
         specifier: ~5.7.0
@@ -2113,7 +2113,7 @@ importers:
   packages/tracking:
     dependencies:
       '@ember-data/private-build-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/private-build-infra(@glint/template@1.4.0)
       '@embroider/macros':
         specifier: ^1.13.4
@@ -2168,7 +2168,7 @@ importers:
         specifier: ^15.2.3
         version: 15.2.3(rollup@4.14.3)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       ember-source:
         specifier: ~5.7.0
@@ -2198,16 +2198,16 @@ importers:
   packages/unpublished-test-infra:
     dependencies:
       '@ember-data/private-build-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/private-build-infra(@glint/template@1.4.0)
       '@ember-data/request':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/store':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember/edition-utils':
         specifier: ^1.2.0
@@ -2222,10 +2222,10 @@ importers:
         specifier: ^2.19.10
         version: 2.19.10
       '@warp-drive/core-types':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@warp-drive/diagnostic':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/diagnostic(@ember/test-helpers@3.3.0)(@embroider/addon-shim@1.8.7)(ember-cli-test-loader@3.1.0)
       broccoli-merge-trees:
         specifier: ^4.2.0
@@ -2343,43 +2343,43 @@ importers:
         specifier: ^7.24.4
         version: 7.24.4(supports-color@8.1.1)
       '@ember-data/adapter':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/adapter(@babel/core@7.24.4)(@ember-data/legacy-compat@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/adapter(@babel/core@7.24.4)(@ember-data/legacy-compat@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/debug':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/debug(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/debug(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/graph':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/json-api':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/request-utils@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/request-utils@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/legacy-compat':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/request@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/request@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/model':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/model(@babel/core@7.24.4)(@ember-data/debug@5.4.0-alpha.58)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/legacy-compat@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/model(@babel/core@7.24.4)(@ember-data/debug@5.4.0-alpha.59)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/legacy-compat@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/private-build-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/private-build-infra(@glint/template@1.4.0)
       '@ember-data/request':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/request-utils':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/serializer':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/serializer(@babel/core@7.24.4)(@ember-data/legacy-compat@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/serializer(@babel/core@7.24.4)(@ember-data/legacy-compat@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/store':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember-data/unpublished-test-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/unpublished-test-infra(@babel/core@7.24.4)(@ember/string@3.1.1)(@embroider/addon-shim@1.8.7)(ember-cli-test-loader@3.1.0)(ember-cli@5.7.0)(ember-source@5.7.0)
       '@ember/string':
         specifier: 3.1.1
@@ -2391,10 +2391,10 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
       '@warp-drive/core-types':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       ember-cli:
         specifier: ~5.7.0
@@ -2464,43 +2464,43 @@ importers:
         specifier: ^7.24.4
         version: 7.24.4
       '@ember-data/active-record':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/active-record(@babel/core@7.24.4)(@ember-data/request-utils@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/active-record(@babel/core@7.24.4)(@ember-data/request-utils@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/debug':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/debug(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/debug(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/graph':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/json-api':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/request-utils@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/request-utils@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/legacy-compat':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/request@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/request@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/model':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/model(@babel/core@7.24.4)(@ember-data/debug@5.4.0-alpha.58)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/legacy-compat@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/model(@babel/core@7.24.4)(@ember-data/debug@5.4.0-alpha.59)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/legacy-compat@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/private-build-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/private-build-infra(@glint/template@1.4.0)
       '@ember-data/request':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/request-utils':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/rest':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/rest(@babel/core@7.24.4)(@ember-data/request-utils@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/rest(@babel/core@7.24.4)(@ember-data/request-utils@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/store':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember-data/unpublished-test-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/unpublished-test-infra(@babel/core@7.24.4)(@ember/string@3.1.1)(@embroider/addon-shim@1.8.7)(ember-cli-test-loader@3.1.0)(ember-cli@5.7.0)(ember-source@5.7.0)
       '@ember/edition-utils':
         specifier: ^1.2.0
@@ -2524,13 +2524,13 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
       '@warp-drive/core-types':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@warp-drive/diagnostic':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/diagnostic(@ember/test-helpers@3.3.0)(@embroider/addon-shim@1.8.7)(ember-cli-test-loader@3.1.0)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       ember-auto-import:
         specifier: ^2.7.0
@@ -2628,7 +2628,7 @@ importers:
   tests/docs:
     devDependencies:
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.10
@@ -2646,37 +2646,37 @@ importers:
         specifier: ^7.24.4
         version: 7.24.4
       '@ember-data/debug':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/debug(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/debug(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/graph':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/json-api':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/request-utils@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/request-utils@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/legacy-compat':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/request@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/request@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/model':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/model(@babel/core@7.24.4)(@ember-data/debug@5.4.0-alpha.58)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/legacy-compat@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/model(@babel/core@7.24.4)(@ember-data/debug@5.4.0-alpha.59)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/legacy-compat@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/request':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/request-utils':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/serializer':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/serializer(@babel/core@7.24.4)(@ember-data/legacy-compat@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/serializer(@babel/core@7.24.4)(@ember-data/legacy-compat@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/store':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember-data/unpublished-test-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/unpublished-test-infra(@babel/core@7.24.4)(@ember/string@3.1.1)(@embroider/addon-shim@1.8.7)(ember-cli-test-loader@3.1.0)(ember-cli@5.7.0)(ember-source@5.7.0)
       '@ember/optional-features':
         specifier: ^2.1.0
@@ -2697,13 +2697,13 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
       '@warp-drive/core-types':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@warp-drive/diagnostic':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/diagnostic(@ember/test-helpers@3.3.0)(@embroider/addon-shim@1.8.7)(ember-cli-test-loader@3.1.0)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       ember-auto-import:
         specifier: ^2.7.0
@@ -2798,37 +2798,37 @@ importers:
         specifier: ^7.24.4
         version: 7.24.4
       '@ember-data/debug':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/debug(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/debug(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/graph':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/json-api':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/request-utils@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/request-utils@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/legacy-compat':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/request@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/request@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/model':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/model(@babel/core@7.24.4)(@ember-data/debug@5.4.0-alpha.58)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/legacy-compat@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/model(@babel/core@7.24.4)(@ember-data/debug@5.4.0-alpha.59)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/legacy-compat@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/private-build-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/private-build-infra(@glint/template@1.4.0)
       '@ember-data/request':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/request-utils':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/store':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember-data/unpublished-test-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/unpublished-test-infra(@babel/core@7.24.4)(@ember/string@3.1.1)(@embroider/addon-shim@1.8.7)(ember-cli-test-loader@3.1.0)(ember-cli@5.7.0)(ember-source@5.7.0)
       '@ember/edition-utils':
         specifier: ^1.2.0
@@ -2855,13 +2855,13 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
       '@warp-drive/core-types':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@warp-drive/diagnostic':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/diagnostic(@ember/test-helpers@3.3.0)(@embroider/addon-shim@1.8.7)(ember-cli-test-loader@3.1.0)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       ember-auto-import:
         specifier: ^2.7.0
@@ -2965,37 +2965,37 @@ importers:
         specifier: ^7.24.4
         version: 7.24.4
       '@ember-data/debug':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/debug(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/debug(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/graph':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/json-api':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/request-utils@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/request-utils@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/legacy-compat':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/request@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/request@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/model':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/model(@babel/core@7.24.4)(@ember-data/debug@5.4.0-alpha.58)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/legacy-compat@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/model(@babel/core@7.24.4)(@ember-data/debug@5.4.0-alpha.59)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/legacy-compat@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/private-build-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/private-build-infra(@glint/template@1.4.0)
       '@ember-data/request':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/request-utils':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/store':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember-data/unpublished-test-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/unpublished-test-infra(@babel/core@7.24.4)(@ember/string@3.1.1)(@embroider/addon-shim@1.8.7)(ember-cli-test-loader@3.1.0)(ember-cli@5.7.0)(ember-source@5.7.0)
       '@ember/edition-utils':
         specifier: ^1.2.0
@@ -3022,16 +3022,16 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
       '@warp-drive/core-types':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@warp-drive/diagnostic':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/diagnostic(@ember/test-helpers@3.3.0)(@embroider/addon-shim@1.8.7)(ember-cli-test-loader@3.1.0)
       '@warp-drive/holodeck':
-        specifier: workspace:0.0.0-alpha.44
-        version: file:packages/holodeck(@ember-data/request@5.4.0-alpha.58)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:0.0.0-alpha.45
+        version: file:packages/holodeck(@ember-data/request@5.4.0-alpha.59)(@warp-drive/core-types@0.0.0-alpha.45)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       ember-auto-import:
         specifier: ^2.7.0
@@ -3137,34 +3137,34 @@ importers:
         specifier: ^7.24.4
         version: 7.24.4
       '@ember-data/adapter':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/adapter(@babel/core@7.24.4)(@ember-data/legacy-compat@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/adapter(@babel/core@7.24.4)(@ember-data/legacy-compat@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/graph':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/json-api':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/request-utils@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/request-utils@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/legacy-compat':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/request@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/request@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/private-build-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/private-build-infra(@glint/template@1.4.0)
       '@ember-data/request':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/request-utils':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/serializer':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/serializer(@babel/core@7.24.4)(@ember-data/legacy-compat@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/serializer(@babel/core@7.24.4)(@ember-data/legacy-compat@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/store':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember/optional-features':
         specifier: ^2.1.0
@@ -3185,13 +3185,13 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
       '@warp-drive/core-types':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@warp-drive/diagnostic':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/diagnostic(@ember/test-helpers@3.3.0)(@embroider/addon-shim@1.8.7)(ember-cli-test-loader@3.1.0)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       ember-auto-import:
         specifier: ^2.7.0
@@ -3281,14 +3281,14 @@ importers:
         specifier: ^7.24.4
         version: 7.24.4
       '@ember-data/private-build-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/private-build-infra(@glint/template@1.4.0)
       '@ember-data/request':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/request-utils':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember/edition-utils':
         specifier: ^1.2.0
         version: 1.2.0
@@ -3311,16 +3311,16 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
       '@warp-drive/core-types':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@warp-drive/diagnostic':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/diagnostic(@ember/test-helpers@3.3.0)(@embroider/addon-shim@1.8.7)(ember-cli-test-loader@3.1.0)
       '@warp-drive/holodeck':
-        specifier: workspace:0.0.0-alpha.44
-        version: file:packages/holodeck(@ember-data/request@5.4.0-alpha.58)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:0.0.0-alpha.45
+        version: file:packages/holodeck(@ember-data/request@5.4.0-alpha.59)(@warp-drive/core-types@0.0.0-alpha.45)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       bun-types:
         specifier: ^1.1.3
@@ -3419,37 +3419,37 @@ importers:
         specifier: ^7.24.4
         version: 7.24.4
       '@ember-data/adapter':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/adapter(@babel/core@7.24.4)(@ember-data/legacy-compat@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/adapter(@babel/core@7.24.4)(@ember-data/legacy-compat@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/debug':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/debug(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/debug(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/graph':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/json-api':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/request-utils@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/request-utils@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/legacy-compat':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/request@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/request@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/model':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/model(@babel/core@7.24.4)(@ember-data/debug@5.4.0-alpha.58)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/legacy-compat@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/model(@babel/core@7.24.4)(@ember-data/debug@5.4.0-alpha.59)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/legacy-compat@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/request':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/request-utils':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/store':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember-data/unpublished-test-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/unpublished-test-infra(@babel/core@7.24.4)(@ember/string@3.1.1)(@embroider/addon-shim@1.8.7)(ember-cli-test-loader@3.1.0)(ember-cli@5.7.0)(ember-source@5.7.0)
       '@ember/optional-features':
         specifier: ^2.1.0
@@ -3467,10 +3467,10 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
       '@warp-drive/core-types':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       ember-auto-import:
         specifier: ^2.7.0
@@ -3562,7 +3562,7 @@ importers:
         specifier: ^2.7.0
         version: 2.7.2(@glint/template@1.4.0)(webpack@5.91.0)
       ember-data:
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/-ember-data(@babel/core@7.24.4)(@ember/string@3.1.1)
       ember-inflector:
         specifier: ^4.0.2
@@ -3581,7 +3581,7 @@ importers:
         specifier: ^7.24.4
         version: 7.24.4
       '@ember-data/unpublished-test-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/unpublished-test-infra(@babel/core@7.24.4)(@ember/string@3.1.1)(@embroider/addon-shim@1.8.7)(ember-cli-test-loader@3.1.0)(ember-cli@5.7.0)(ember-source@5.7.0)
       '@ember/optional-features':
         specifier: ^2.1.0
@@ -3605,7 +3605,7 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       ember-cli:
         specifier: ~5.7.0
@@ -3681,37 +3681,37 @@ importers:
         specifier: ^7.24.4
         version: 7.24.4
       '@ember-data/debug':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/debug(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/debug(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/graph':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/json-api':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/request-utils@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/request-utils@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/legacy-compat':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/request@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/request@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/model':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/model(@babel/core@7.24.4)(@ember-data/debug@5.4.0-alpha.58)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/legacy-compat@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/model(@babel/core@7.24.4)(@ember-data/debug@5.4.0-alpha.59)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/legacy-compat@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/private-build-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/private-build-infra(@glint/template@1.4.0)
       '@ember-data/request':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/request-utils':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/store':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember-data/unpublished-test-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/unpublished-test-infra(@babel/core@7.24.4)(@ember/string@3.1.1)(@embroider/addon-shim@1.8.7)(ember-cli-test-loader@3.1.0)(ember-cli@5.7.0)(ember-source@5.7.0)
       '@ember/edition-utils':
         specifier: ^1.2.0
@@ -3747,10 +3747,10 @@ importers:
         specifier: ^1.9.9
         version: 1.9.9
       '@warp-drive/core-types':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       ember-auto-import:
         specifier: ^2.7.0
@@ -3780,7 +3780,7 @@ importers:
         specifier: ^3.1.0
         version: 3.1.0(@babel/core@7.24.4)
       ember-data:
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/-ember-data(@babel/core@7.24.4)(@ember/string@3.1.1)
       ember-disable-prototype-extensions:
         specifier: ^1.1.3
@@ -3877,7 +3877,7 @@ importers:
   tests/fastboot:
     dependencies:
       '@ember-data/unpublished-test-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/unpublished-test-infra(@babel/core@7.24.4)(@ember/string@3.1.1)(@embroider/addon-shim@1.8.7)(ember-cli-test-loader@3.1.0)(ember-cli@5.7.0)(ember-source@5.7.0)
       '@ember/string':
         specifier: 3.1.1
@@ -3886,7 +3886,7 @@ importers:
         specifier: ^2.7.0
         version: 2.7.2(@glint/template@1.4.0)(webpack@5.91.0)
       ember-data:
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/-ember-data(@babel/core@7.24.4)(@ember/string@3.1.1)
       ember-inflector:
         specifier: ^4.0.2
@@ -3917,7 +3917,7 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       ember-cli:
         specifier: ~5.7.0
@@ -3996,7 +3996,7 @@ importers:
         specifier: ^7.24.4
         version: 7.24.4
       '@ember-data/private-build-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/private-build-infra(@glint/template@1.4.0)
       '@ember/optional-features':
         specifier: ^2.1.0
@@ -4029,7 +4029,7 @@ importers:
         specifier: ^4.0.2
         version: 4.0.2
       ember-data:
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/-ember-data(@babel/core@7.24.4)(@ember/string@3.1.1)
       ember-load-initializers:
         specifier: ^2.1.2
@@ -4076,43 +4076,43 @@ importers:
         specifier: ^7.24.4
         version: 7.24.4
       '@ember-data/adapter':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/adapter(@babel/core@7.24.4)(@ember-data/legacy-compat@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/adapter(@babel/core@7.24.4)(@ember-data/legacy-compat@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/debug':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/debug(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/debug(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/graph':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/json-api':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/request-utils@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/request-utils@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/legacy-compat':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/request@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/request@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/model':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/model(@babel/core@7.24.4)(@ember-data/debug@5.4.0-alpha.58)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/legacy-compat@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/model(@babel/core@7.24.4)(@ember-data/debug@5.4.0-alpha.59)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/legacy-compat@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/private-build-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/private-build-infra(@glint/template@1.4.0)
       '@ember-data/request':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/request-utils':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/serializer':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/serializer(@babel/core@7.24.4)(@ember-data/legacy-compat@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/serializer(@babel/core@7.24.4)(@ember-data/legacy-compat@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/store':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember-data/unpublished-test-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/unpublished-test-infra(@babel/core@7.24.4)(@ember/string@3.1.1)(@embroider/addon-shim@1.8.7)(ember-cli-test-loader@3.1.0)(ember-cli@5.7.0)(ember-source@5.7.0)
       '@ember/edition-utils':
         specifier: ^1.2.0
@@ -4139,13 +4139,13 @@ importers:
         specifier: ^2.19.10
         version: 2.19.10
       '@warp-drive/core-types':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@warp-drive/holodeck':
-        specifier: workspace:0.0.0-alpha.44
-        version: file:packages/holodeck(@ember-data/request@5.4.0-alpha.58)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:0.0.0-alpha.45
+        version: file:packages/holodeck(@ember-data/request@5.4.0-alpha.59)(@warp-drive/core-types@0.0.0-alpha.45)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       broccoli-concat:
         specifier: ^4.2.5
@@ -4193,7 +4193,7 @@ importers:
         specifier: ^3.1.0
         version: 3.1.0(@babel/core@7.24.4)
       ember-data:
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/-ember-data(@babel/core@7.24.4)(@ember/string@3.1.1)
       ember-decorators-polyfill:
         specifier: ^1.1.5
@@ -4299,7 +4299,7 @@ importers:
         specifier: ^2.7.0
         version: 2.7.2(@glint/template@1.4.0)(webpack@5.91.0)
       ember-data:
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/-ember-data(@babel/core@7.24.4)(@ember/string@3.1.1)
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.10
@@ -4336,7 +4336,7 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       ember-cli:
         specifier: ~5.7.0
@@ -4390,37 +4390,37 @@ importers:
         specifier: ^7.24.4
         version: 7.24.4
       '@ember-data/debug':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/debug(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/debug(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/graph':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/json-api':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/request-utils@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/request-utils@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/legacy-compat':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/request@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/request@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/model':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/model(@babel/core@7.24.4)(@ember-data/debug@5.4.0-alpha.58)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/legacy-compat@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/model(@babel/core@7.24.4)(@ember-data/debug@5.4.0-alpha.59)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/legacy-compat@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/private-build-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/private-build-infra(@glint/template@1.4.0)
       '@ember-data/request':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/request-utils':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/store':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember-data/unpublished-test-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/unpublished-test-infra(@babel/core@7.24.4)(@ember/string@3.1.1)(@glint/template@1.4.0)(ember-cli-test-loader@3.1.0)(ember-cli@5.7.0)(ember-source@5.7.0)
       '@ember/edition-utils':
         specifier: ^1.2.0
@@ -4450,23 +4450,23 @@ importers:
         specifier: ^1.4.0
         version: 1.4.0
       '@warp-drive/core-types':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@warp-drive/diagnostic':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/diagnostic(@ember/test-helpers@3.3.0)(@embroider/addon-shim@1.8.7)(ember-cli-test-loader@3.1.0)
       '@warp-drive/ember':
-        specifier: workspace:0.0.0-alpha.20
-        version: file:packages/ember(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:0.0.0-alpha.21
+        version: file:packages/ember(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@warp-drive/holodeck':
-        specifier: workspace:0.0.0-alpha.44
-        version: file:packages/holodeck(@ember-data/request@5.4.0-alpha.58)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:0.0.0-alpha.45
+        version: file:packages/holodeck(@ember-data/request@5.4.0-alpha.59)(@warp-drive/core-types@0.0.0-alpha.45)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       '@warp-drive/schema-record':
-        specifier: workspace:0.0.0-alpha.44
-        version: file:packages/schema-record(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:0.0.0-alpha.45
+        version: file:packages/schema-record(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       ember-auto-import:
         specifier: ^2.7.0
         version: 2.7.2(@glint/template@1.4.0)(webpack@5.91.0)
@@ -4581,37 +4581,37 @@ importers:
         specifier: ^7.24.4
         version: 7.24.4
       '@ember-data/debug':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/debug(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/debug(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/graph':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/json-api':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/request-utils@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/request-utils@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/legacy-compat':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/request@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/request@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/model':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/model(@babel/core@7.24.4)(@ember-data/debug@5.4.0-alpha.58)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/legacy-compat@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/model(@babel/core@7.24.4)(@ember-data/debug@5.4.0-alpha.59)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/legacy-compat@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/private-build-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/private-build-infra(@glint/template@1.4.0)
       '@ember-data/request':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/request-utils':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/store':
-        specifier: workspace:5.4.0-alpha.58
-        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:5.4.0-alpha.59
+        version: file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember-data/unpublished-test-infra':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: file:packages/unpublished-test-infra(@babel/core@7.24.4)(@ember/string@3.1.1)(@embroider/addon-shim@1.8.7)(ember-cli-test-loader@3.1.0)(ember-cli@5.7.0)(ember-source@5.7.0)
       '@ember/edition-utils':
         specifier: ^1.2.0
@@ -4635,14 +4635,14 @@ importers:
         specifier: ^2.19.10
         version: 2.19.10
       '@warp-drive/core-types':
-        specifier: workspace:0.0.0-alpha.44
+        specifier: workspace:0.0.0-alpha.45
         version: file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.58
+        specifier: workspace:5.4.0-alpha.59
         version: link:../../config
       '@warp-drive/schema-record':
-        specifier: workspace:0.0.0-alpha.44
-        version: file:packages/schema-record(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+        specifier: workspace:0.0.0-alpha.45
+        version: file:packages/schema-record(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       ember-auto-import:
         specifier: ^2.7.0
         version: 2.7.2(@glint/template@1.4.0)(webpack@5.91.0)
@@ -19415,17 +19415,17 @@ packages:
     peerDependencies:
       '@ember/string': 3.1.1
     dependencies:
-      '@ember-data/adapter': file:packages/adapter(@babel/core@7.24.4)(@ember-data/legacy-compat@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
-      '@ember-data/debug': file:packages/debug(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
-      '@ember-data/graph': file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
-      '@ember-data/json-api': file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/request-utils@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
-      '@ember-data/legacy-compat': file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/request@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
-      '@ember-data/model': file:packages/model(@babel/core@7.24.4)(@ember-data/debug@5.4.0-alpha.58)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/legacy-compat@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+      '@ember-data/adapter': file:packages/adapter(@babel/core@7.24.4)(@ember-data/legacy-compat@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
+      '@ember-data/debug': file:packages/debug(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
+      '@ember-data/graph': file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
+      '@ember-data/json-api': file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/request-utils@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
+      '@ember-data/legacy-compat': file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/request@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
+      '@ember-data/model': file:packages/model(@babel/core@7.24.4)(@ember-data/debug@5.4.0-alpha.59)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/legacy-compat@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/private-build-infra': file:packages/private-build-infra(@glint/template@1.4.0)
-      '@ember-data/request': file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
-      '@ember-data/request-utils': file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.44)
-      '@ember-data/serializer': file:packages/serializer(@babel/core@7.24.4)(@ember-data/legacy-compat@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
-      '@ember-data/store': file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+      '@ember-data/request': file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
+      '@ember-data/request-utils': file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.45)
+      '@ember-data/serializer': file:packages/serializer(@babel/core@7.24.4)(@ember-data/legacy-compat@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
+      '@ember-data/store': file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking': file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.1.1(@babel/core@7.24.4)
@@ -19446,20 +19446,20 @@ packages:
       - uglify-js
       - webpack-cli
 
-  file:packages/active-record(@babel/core@7.24.4)(@ember-data/request-utils@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2):
+  file:packages/active-record(@babel/core@7.24.4)(@ember-data/request-utils@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2):
     resolution: {directory: packages/active-record, type: directory}
     id: file:packages/active-record
     name: '@ember-data/active-record'
     engines: {node: '>= 18.20.2'}
     peerDependencies:
-      '@ember-data/request-utils': workspace:5.4.0-alpha.58
+      '@ember-data/request-utils': workspace:5.4.0-alpha.59
       '@ember-data/store': ^4.12.0 || ^5.0.0
       '@ember/string': 3.1.1
-      '@warp-drive/core-types': workspace:0.0.0-alpha.44
+      '@warp-drive/core-types': workspace:0.0.0-alpha.45
       ember-inflector: ^4.0.2
     dependencies:
-      '@ember-data/request-utils': file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.44)
-      '@ember-data/store': file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+      '@ember-data/request-utils': file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.45)
+      '@ember-data/store': file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember/string': 3.1.1(@babel/core@7.24.4)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       ember-cli-babel: 8.2.0(@babel/core@7.24.4)
@@ -19469,21 +19469,21 @@ packages:
       - supports-color
     dev: true
 
-  file:packages/adapter(@babel/core@7.24.4)(@ember-data/legacy-compat@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2):
+  file:packages/adapter(@babel/core@7.24.4)(@ember-data/legacy-compat@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2):
     resolution: {directory: packages/adapter, type: directory}
     id: file:packages/adapter
     name: '@ember-data/adapter'
     engines: {node: '>= 18.20.2'}
     peerDependencies:
-      '@ember-data/legacy-compat': workspace:5.4.0-alpha.58
-      '@ember-data/store': workspace:5.4.0-alpha.58
+      '@ember-data/legacy-compat': workspace:5.4.0-alpha.59
+      '@ember-data/store': workspace:5.4.0-alpha.59
       '@ember/string': 3.1.1
-      '@warp-drive/core-types': workspace:0.0.0-alpha.44
+      '@warp-drive/core-types': workspace:0.0.0-alpha.45
       ember-inflector: ^4.0.2
     dependencies:
-      '@ember-data/legacy-compat': file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/request@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+      '@ember-data/legacy-compat': file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/request@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/private-build-infra': file:packages/private-build-infra(@glint/template@1.4.0)
-      '@ember-data/store': file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+      '@ember-data/store': file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember/string': 3.1.1(@babel/core@7.24.4)
       '@embroider/macros': 1.15.0(@glint/template@1.4.0)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
@@ -19508,19 +19508,19 @@ packages:
       - '@glint/template'
       - supports-color
 
-  file:packages/debug(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44):
+  file:packages/debug(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45):
     resolution: {directory: packages/debug, type: directory}
     id: file:packages/debug
     name: '@ember-data/debug'
     engines: {node: '>= 18.20.2'}
     peerDependencies:
-      '@ember-data/store': workspace:5.4.0-alpha.58
+      '@ember-data/store': workspace:5.4.0-alpha.59
       '@ember/string': 3.1.1
-      '@warp-drive/core-types': workspace:0.0.0-alpha.44
+      '@warp-drive/core-types': workspace:0.0.0-alpha.45
     dependencies:
       '@babel/core': 7.24.4(supports-color@8.1.1)
       '@ember-data/private-build-infra': file:packages/private-build-infra(@glint/template@1.4.0)
-      '@ember-data/store': file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+      '@ember-data/store': file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.1.1(@babel/core@7.24.4)
       '@embroider/macros': 1.15.0(@glint/template@1.4.0)
@@ -19563,7 +19563,7 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  file:packages/ember(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44):
+  file:packages/ember(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45):
     resolution: {directory: packages/ember, type: directory}
     id: file:packages/ember
     name: '@warp-drive/ember'
@@ -19573,14 +19573,14 @@ packages:
       '@ember-data/store': ^4.12.7 || > 5.3.3
       '@ember-data/tracking': ^4.12.7 ||| > 5.3.3
       '@ember/string': 3.1.1
-      '@warp-drive/core-types': workspace:0.0.0-alpha.44
+      '@warp-drive/core-types': workspace:0.0.0-alpha.45
       ember-provide-consume-context: ^0.3.1
     peerDependenciesMeta:
       ember-provide-consume-context:
         optional: true
     dependencies:
-      '@ember-data/request': file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
-      '@ember-data/store': file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+      '@ember-data/request': file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
+      '@ember-data/store': file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking': file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember/string': 3.1.1(@babel/core@7.24.4)
       '@ember/test-waiters': 3.1.0(@babel/core@7.24.4)
@@ -19593,17 +19593,17 @@ packages:
       - supports-color
     dev: true
 
-  file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44):
+  file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45):
     resolution: {directory: packages/graph, type: directory}
     id: file:packages/graph
     name: '@ember-data/graph'
     engines: {node: '>= 18.20.2'}
     peerDependencies:
-      '@ember-data/store': workspace:5.4.0-alpha.58
-      '@warp-drive/core-types': workspace:0.0.0-alpha.44
+      '@ember-data/store': workspace:5.4.0-alpha.59
+      '@warp-drive/core-types': workspace:0.0.0-alpha.45
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra(@glint/template@1.4.0)
-      '@ember-data/store': file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+      '@ember-data/store': file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.15.0(@glint/template@1.4.0)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
@@ -19613,43 +19613,42 @@ packages:
       - '@glint/template'
       - supports-color
 
-  file:packages/holodeck(@ember-data/request@5.4.0-alpha.58)(@warp-drive/core-types@0.0.0-alpha.44):
+  file:packages/holodeck(@ember-data/request@5.4.0-alpha.59)(@warp-drive/core-types@0.0.0-alpha.45):
     resolution: {directory: packages/holodeck, type: directory}
     id: file:packages/holodeck
     name: '@warp-drive/holodeck'
     engines: {node: '>= 18.20.2'}
     hasBin: true
     peerDependencies:
-      '@ember-data/request': workspace:5.4.0-alpha.58
-      '@warp-drive/core-types': workspace:0.0.0-alpha.44
+      '@ember-data/request': workspace:5.4.0-alpha.59
+      '@warp-drive/core-types': workspace:0.0.0-alpha.45
     dependencies:
-      '@ember-data/request': file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+      '@ember-data/request': file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@hono/node-server': 1.11.0
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       chalk: 5.3.0
       hono: 4.2.5
-      pm2: 5.3.1
     dev: true
 
-  file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/request-utils@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2):
+  file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/request-utils@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2):
     resolution: {directory: packages/json-api, type: directory}
     id: file:packages/json-api
     name: '@ember-data/json-api'
     engines: {node: '>= 18.20.2'}
     peerDependencies:
-      '@ember-data/graph': workspace:5.4.0-alpha.58
-      '@ember-data/request-utils': workspace:5.4.0-alpha.58
-      '@ember-data/store': workspace:5.4.0-alpha.58
-      '@warp-drive/core-types': workspace:0.0.0-alpha.44
+      '@ember-data/graph': workspace:5.4.0-alpha.59
+      '@ember-data/request-utils': workspace:5.4.0-alpha.59
+      '@ember-data/store': workspace:5.4.0-alpha.59
+      '@warp-drive/core-types': workspace:0.0.0-alpha.45
       ember-inflector: ^4.0.2
     peerDependenciesMeta:
       '@ember-data/request-utils':
         optional: true
     dependencies:
-      '@ember-data/graph': file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+      '@ember-data/graph': file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/private-build-infra': file:packages/private-build-infra(@glint/template@1.4.0)
-      '@ember-data/request-utils': file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.44)
-      '@ember-data/store': file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+      '@ember-data/request-utils': file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.45)
+      '@ember-data/store': file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.15.0(@glint/template@1.4.0)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
@@ -19660,18 +19659,18 @@ packages:
       - '@glint/template'
       - supports-color
 
-  file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/request@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2):
+  file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/request@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2):
     resolution: {directory: packages/legacy-compat, type: directory}
     id: file:packages/legacy-compat
     name: '@ember-data/legacy-compat'
     engines: {node: '>= 18.20.2'}
     peerDependencies:
-      '@ember-data/graph': workspace:5.4.0-alpha.58
-      '@ember-data/json-api': workspace:5.4.0-alpha.58
-      '@ember-data/request': workspace:5.4.0-alpha.58
-      '@ember-data/store': workspace:5.4.0-alpha.58
+      '@ember-data/graph': workspace:5.4.0-alpha.59
+      '@ember-data/json-api': workspace:5.4.0-alpha.59
+      '@ember-data/request': workspace:5.4.0-alpha.59
+      '@ember-data/store': workspace:5.4.0-alpha.59
       '@ember/string': 3.1.1
-      '@warp-drive/core-types': workspace:0.0.0-alpha.44
+      '@warp-drive/core-types': workspace:0.0.0-alpha.45
       ember-inflector: ^4.0.2
     peerDependenciesMeta:
       '@ember-data/graph':
@@ -19681,11 +19680,11 @@ packages:
       ember-inflector:
         optional: true
     dependencies:
-      '@ember-data/graph': file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
-      '@ember-data/json-api': file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/request-utils@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+      '@ember-data/graph': file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
+      '@ember-data/json-api': file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/request-utils@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/private-build-infra': file:packages/private-build-infra(@glint/template@1.4.0)
-      '@ember-data/request': file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
-      '@ember-data/store': file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+      '@ember-data/request': file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
+      '@ember-data/store': file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember/string': 3.1.1(@babel/core@7.24.4)
       '@embroider/macros': 1.15.0(@glint/template@1.4.0)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
@@ -19697,18 +19696,18 @@ packages:
       - supports-color
     dev: true
 
-  file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/request@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2):
+  file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/request@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2):
     resolution: {directory: packages/legacy-compat, type: directory}
     id: file:packages/legacy-compat
     name: '@ember-data/legacy-compat'
     engines: {node: '>= 18.20.2'}
     peerDependencies:
-      '@ember-data/graph': workspace:5.4.0-alpha.58
-      '@ember-data/json-api': workspace:5.4.0-alpha.58
-      '@ember-data/request': workspace:5.4.0-alpha.58
-      '@ember-data/store': workspace:5.4.0-alpha.58
+      '@ember-data/graph': workspace:5.4.0-alpha.59
+      '@ember-data/json-api': workspace:5.4.0-alpha.59
+      '@ember-data/request': workspace:5.4.0-alpha.59
+      '@ember-data/store': workspace:5.4.0-alpha.59
       '@ember/string': 3.1.1
-      '@warp-drive/core-types': workspace:0.0.0-alpha.44
+      '@warp-drive/core-types': workspace:0.0.0-alpha.45
       ember-inflector: ^4.0.2
     peerDependenciesMeta:
       '@ember-data/graph':
@@ -19718,11 +19717,11 @@ packages:
       ember-inflector:
         optional: true
     dependencies:
-      '@ember-data/graph': file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
-      '@ember-data/json-api': file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/request-utils@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+      '@ember-data/graph': file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
+      '@ember-data/json-api': file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/request-utils@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/private-build-infra': file:packages/private-build-infra(@glint/template@1.4.0)
-      '@ember-data/request': file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
-      '@ember-data/store': file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+      '@ember-data/request': file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
+      '@ember-data/store': file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember/string': 3.1.1(@babel/core@7.24.4)
       '@embroider/macros': 1.15.0(@glint/template@1.4.0)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
@@ -19733,20 +19732,20 @@ packages:
       - '@glint/template'
       - supports-color
 
-  file:packages/model(@babel/core@7.24.4)(@ember-data/debug@5.4.0-alpha.58)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/legacy-compat@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2):
+  file:packages/model(@babel/core@7.24.4)(@ember-data/debug@5.4.0-alpha.59)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/legacy-compat@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2):
     resolution: {directory: packages/model, type: directory}
     id: file:packages/model
     name: '@ember-data/model'
     engines: {node: '>= 18.20.2'}
     peerDependencies:
-      '@ember-data/debug': workspace:5.4.0-alpha.58
-      '@ember-data/graph': workspace:5.4.0-alpha.58
-      '@ember-data/json-api': workspace:5.4.0-alpha.58
-      '@ember-data/legacy-compat': workspace:5.4.0-alpha.58
-      '@ember-data/store': workspace:5.4.0-alpha.58
-      '@ember-data/tracking': workspace:5.4.0-alpha.58
+      '@ember-data/debug': workspace:5.4.0-alpha.59
+      '@ember-data/graph': workspace:5.4.0-alpha.59
+      '@ember-data/json-api': workspace:5.4.0-alpha.59
+      '@ember-data/legacy-compat': workspace:5.4.0-alpha.59
+      '@ember-data/store': workspace:5.4.0-alpha.59
+      '@ember-data/tracking': workspace:5.4.0-alpha.59
       '@ember/string': 3.1.1
-      '@warp-drive/core-types': workspace:0.0.0-alpha.44
+      '@warp-drive/core-types': workspace:0.0.0-alpha.45
       ember-inflector: ^4.0.2
     peerDependenciesMeta:
       '@ember-data/debug':
@@ -19756,12 +19755,12 @@ packages:
       '@ember-data/json-api':
         optional: true
     dependencies:
-      '@ember-data/debug': file:packages/debug(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
-      '@ember-data/graph': file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
-      '@ember-data/json-api': file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/request-utils@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
-      '@ember-data/legacy-compat': file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/request@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+      '@ember-data/debug': file:packages/debug(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
+      '@ember-data/graph': file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
+      '@ember-data/json-api': file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/request-utils@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
+      '@ember-data/legacy-compat': file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/request@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/private-build-infra': file:packages/private-build-infra(@glint/template@1.4.0)
-      '@ember-data/store': file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+      '@ember-data/store': file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking': file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.1.1(@babel/core@7.24.4)
@@ -19778,20 +19777,20 @@ packages:
       - supports-color
     dev: true
 
-  file:packages/model(@babel/core@7.24.4)(@ember-data/debug@5.4.0-alpha.58)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/legacy-compat@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2):
+  file:packages/model(@babel/core@7.24.4)(@ember-data/debug@5.4.0-alpha.59)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/legacy-compat@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2):
     resolution: {directory: packages/model, type: directory}
     id: file:packages/model
     name: '@ember-data/model'
     engines: {node: '>= 18.20.2'}
     peerDependencies:
-      '@ember-data/debug': workspace:5.4.0-alpha.58
-      '@ember-data/graph': workspace:5.4.0-alpha.58
-      '@ember-data/json-api': workspace:5.4.0-alpha.58
-      '@ember-data/legacy-compat': workspace:5.4.0-alpha.58
-      '@ember-data/store': workspace:5.4.0-alpha.58
-      '@ember-data/tracking': workspace:5.4.0-alpha.58
+      '@ember-data/debug': workspace:5.4.0-alpha.59
+      '@ember-data/graph': workspace:5.4.0-alpha.59
+      '@ember-data/json-api': workspace:5.4.0-alpha.59
+      '@ember-data/legacy-compat': workspace:5.4.0-alpha.59
+      '@ember-data/store': workspace:5.4.0-alpha.59
+      '@ember-data/tracking': workspace:5.4.0-alpha.59
       '@ember/string': 3.1.1
-      '@warp-drive/core-types': workspace:0.0.0-alpha.44
+      '@warp-drive/core-types': workspace:0.0.0-alpha.45
       ember-inflector: ^4.0.2
     peerDependenciesMeta:
       '@ember-data/debug':
@@ -19801,12 +19800,12 @@ packages:
       '@ember-data/json-api':
         optional: true
     dependencies:
-      '@ember-data/debug': file:packages/debug(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
-      '@ember-data/graph': file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
-      '@ember-data/json-api': file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/request-utils@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
-      '@ember-data/legacy-compat': file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/request@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+      '@ember-data/debug': file:packages/debug(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
+      '@ember-data/graph': file:packages/graph(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
+      '@ember-data/json-api': file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/request-utils@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
+      '@ember-data/legacy-compat': file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/request@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/private-build-infra': file:packages/private-build-infra(@glint/template@1.4.0)
-      '@ember-data/store': file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+      '@ember-data/store': file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking': file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember/edition-utils': 1.2.0
       '@ember/string': 3.1.1(@babel/core@7.24.4)
@@ -19854,13 +19853,13 @@ packages:
       - '@glint/template'
       - supports-color
 
-  file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44):
+  file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45):
     resolution: {directory: packages/request, type: directory}
     id: file:packages/request
     name: '@ember-data/request'
     engines: {node: '>= 18.20.2'}
     peerDependencies:
-      '@warp-drive/core-types': workspace:0.0.0-alpha.44
+      '@warp-drive/core-types': workspace:0.0.0-alpha.45
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra(@glint/template@1.4.0)
       '@ember/test-waiters': 3.1.0(@babel/core@7.24.4)
@@ -19872,13 +19871,13 @@ packages:
       - '@glint/template'
       - supports-color
 
-  file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.44):
+  file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.45):
     resolution: {directory: packages/request-utils, type: directory}
     id: file:packages/request-utils
     name: '@ember-data/request-utils'
     engines: {node: '>= 18.20.2'}
     peerDependencies:
-      '@warp-drive/core-types': workspace:0.0.0-alpha.44
+      '@warp-drive/core-types': workspace:0.0.0-alpha.45
     dependencies:
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       ember-cli-babel: 8.2.0(@babel/core@7.24.4)
@@ -19886,20 +19885,20 @@ packages:
       - '@babel/core'
       - supports-color
 
-  file:packages/rest(@babel/core@7.24.4)(@ember-data/request-utils@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2):
+  file:packages/rest(@babel/core@7.24.4)(@ember-data/request-utils@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2):
     resolution: {directory: packages/rest, type: directory}
     id: file:packages/rest
     name: '@ember-data/rest'
     engines: {node: '>= 18.20.2'}
     peerDependencies:
-      '@ember-data/request-utils': workspace:5.4.0-alpha.58
+      '@ember-data/request-utils': workspace:5.4.0-alpha.59
       '@ember-data/store': ^4.12.0 || ^5.0.0
       '@ember/string': 3.1.1
-      '@warp-drive/core-types': workspace:0.0.0-alpha.44
+      '@warp-drive/core-types': workspace:0.0.0-alpha.45
       ember-inflector: ^4.0.2
     dependencies:
-      '@ember-data/request-utils': file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.44)
-      '@ember-data/store': file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+      '@ember-data/request-utils': file:packages/request-utils(@babel/core@7.24.4)(@warp-drive/core-types@0.0.0-alpha.45)
+      '@ember-data/store': file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember/string': 3.1.1(@babel/core@7.24.4)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       ember-cli-babel: 8.2.0(@babel/core@7.24.4)
@@ -19909,18 +19908,18 @@ packages:
       - supports-color
     dev: true
 
-  file:packages/schema-record(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44):
+  file:packages/schema-record(@babel/core@7.24.4)(@ember-data/store@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45):
     resolution: {directory: packages/schema-record, type: directory}
     id: file:packages/schema-record
     name: '@warp-drive/schema-record'
     engines: {node: '>= 18.20.2'}
     peerDependencies:
-      '@ember-data/store': workspace:5.4.0-alpha.58
-      '@ember-data/tracking': workspace:5.4.0-alpha.58
-      '@warp-drive/core-types': workspace:0.0.0-alpha.44
+      '@ember-data/store': workspace:5.4.0-alpha.59
+      '@ember-data/tracking': workspace:5.4.0-alpha.59
+      '@warp-drive/core-types': workspace:0.0.0-alpha.45
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra(@glint/template@1.4.0)
-      '@ember-data/store': file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+      '@ember-data/store': file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking': file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.15.0(@glint/template@1.4.0)
@@ -19932,18 +19931,18 @@ packages:
       - supports-color
     dev: true
 
-  file:packages/serializer(@babel/core@7.24.4)(@ember-data/legacy-compat@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2):
+  file:packages/serializer(@babel/core@7.24.4)(@ember-data/legacy-compat@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2):
     resolution: {directory: packages/serializer, type: directory}
     id: file:packages/serializer
     name: '@ember-data/serializer'
     engines: {node: '>= 18.20.2'}
     peerDependencies:
-      '@ember-data/legacy-compat': workspace:5.4.0-alpha.58
+      '@ember-data/legacy-compat': workspace:5.4.0-alpha.59
       '@ember/string': 3.1.1
-      '@warp-drive/core-types': workspace:0.0.0-alpha.44
+      '@warp-drive/core-types': workspace:0.0.0-alpha.45
       ember-inflector: ^4.0.2
     dependencies:
-      '@ember-data/legacy-compat': file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.58)(@ember-data/json-api@5.4.0-alpha.58)(@ember-data/request@5.4.0-alpha.58)(@ember-data/store@5.4.0-alpha.58)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.44)(ember-inflector@4.0.2)
+      '@ember-data/legacy-compat': file:packages/legacy-compat(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/json-api@5.4.0-alpha.59)(@ember-data/request@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2)
       '@ember-data/private-build-infra': file:packages/private-build-infra(@glint/template@1.4.0)
       '@ember/string': 3.1.1(@babel/core@7.24.4)
       '@embroider/macros': 1.15.0(@glint/template@1.4.0)
@@ -19956,19 +19955,19 @@ packages:
       - '@glint/template'
       - supports-color
 
-  file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44):
+  file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45):
     resolution: {directory: packages/store, type: directory}
     id: file:packages/store
     name: '@ember-data/store'
     engines: {node: '>= 18.20.2'}
     peerDependencies:
-      '@ember-data/request': workspace:5.4.0-alpha.58
-      '@ember-data/tracking': workspace:5.4.0-alpha.58
+      '@ember-data/request': workspace:5.4.0-alpha.59
+      '@ember-data/tracking': workspace:5.4.0-alpha.59
       '@ember/string': 3.1.1
-      '@warp-drive/core-types': workspace:0.0.0-alpha.44
+      '@warp-drive/core-types': workspace:0.0.0-alpha.45
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra(@glint/template@1.4.0)
-      '@ember-data/request': file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+      '@ember-data/request': file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking': file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember/string': 3.1.1(@babel/core@7.24.4)
       '@embroider/macros': 1.15.0(@glint/template@1.4.0)
@@ -20000,8 +19999,8 @@ packages:
     engines: {node: '>= 18.20.2'}
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra(@glint/template@1.4.0)
-      '@ember-data/request': file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
-      '@ember-data/store': file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+      '@ember-data/request': file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
+      '@ember-data/store': file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking': file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember/edition-utils': 1.2.0
       '@ember/test-helpers': 3.3.0(patch_hash=gppmtiox6pymwamrfimkbxfrsm)(@babel/core@7.24.4)(@glint/template@1.4.0)(ember-source@5.7.0)(webpack@5.91.0)
@@ -20096,8 +20095,8 @@ packages:
     engines: {node: '>= 18.20.2'}
     dependencies:
       '@ember-data/private-build-infra': file:packages/private-build-infra(@glint/template@1.4.0)
-      '@ember-data/request': file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
-      '@ember-data/store': file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.58)(@ember-data/tracking@5.4.0-alpha.58)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.44)
+      '@ember-data/request': file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
+      '@ember-data/store': file:packages/store(@babel/core@7.24.4)(@ember-data/request@5.4.0-alpha.59)(@ember-data/tracking@5.4.0-alpha.59)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)
       '@ember-data/tracking': file:packages/tracking(@babel/core@7.24.4)(@glint/template@1.4.0)
       '@ember/edition-utils': 1.2.0
       '@ember/test-helpers': 3.3.0(patch_hash=gppmtiox6pymwamrfimkbxfrsm)(@babel/core@7.24.4)(@glint/template@1.4.0)(ember-source@5.7.0)(webpack@5.91.0)
