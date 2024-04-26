@@ -985,7 +985,7 @@ importers:
         version: 5.3.0
       hono:
         specifier: ^4.2.4
-        version: 4.2.5
+        version: 4.2.7
     devDependencies:
       '@babel/cli':
         specifier: ^7.24.1
@@ -13993,9 +13993,15 @@ packages:
     dependencies:
       parse-passwd: 1.0.0
 
-  /hono@4.2.5:
-    resolution: {integrity: sha512-uonJD3i/yy005kQ7bPZRVfG3rejYJwyPqBmPoUGijS4UB/qM+YlrZ7xzSWy+ByDu9buGHUG+f+SKzz03Y6V1Kw==}
+  /hono@4.2.7:
+    resolution: {integrity: sha512-k1xHi86tJnRIVvqhFMBDGFKJ8r5O+bEsT4P59ZK59r0F300Xd910/r237inVfuT/VmE86RQQffX4OYNda6dLXw==}
     engines: {node: '>=16.0.0'}
+    dev: false
+
+  /hono@4.2.8:
+    resolution: {integrity: sha512-re/zNrOWb7Sp9KhojlMEgcgvqsE8Rgk9IcmumqsbKa9ruPT5XuOcx1U+xuNaI4SUnwrPsiTQ72MiodtpJEVfjg==}
+    engines: {node: '>=16.0.0'}
+    dev: true
 
   /hosted-git-info@4.1.0:
     resolution: {integrity: sha512-kyCuEOWjJqZuDbRHzL8V93NzQhwIB71oFWSyzVo+KPZI+pnQPPxucdkrOZvkLRnrf5URsQM+IJ09Dw29cRALIA==}
@@ -19627,7 +19633,7 @@ packages:
       '@hono/node-server': 1.11.0
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.24.4)(@glint/template@1.4.0)
       chalk: 5.3.0
-      hono: 4.2.5
+      hono: 4.2.8
     dev: true
 
   file:packages/json-api(@babel/core@7.24.4)(@ember-data/graph@5.4.0-alpha.59)(@ember-data/request-utils@5.4.0-alpha.59)(@ember-data/store@5.4.0-alpha.59)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.45)(ember-inflector@4.0.2):
