@@ -28,6 +28,7 @@
   "files": [
     "bin",
     "src",
+    "utils",
     "codemods"
   ],
   "author": "",
