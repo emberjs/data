@@ -15,7 +15,7 @@
   },
   "scripts": {
     "build": "ember build",
-    "start": "ember test --port=0 --serve --no-launch",
+    "start": "ember test --test-port=0 --serve --no-launch",
     "test": "ember test --test-port=0"
   },
   "dependenciesMeta": {

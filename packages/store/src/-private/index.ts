@@ -39,9 +39,11 @@ export function normalizeModelName(modelName: string) {
   assert(`normalizeModelName support has been removed`);
 }
 
+export { default as constructResource } from './utils/construct-resource';
+
 // TODO this should be a deprecated helper but we have so much usage of it
 // to also eliminate
-export { default as coerceId } from './utils/coerce-id';
+export { default as coerceId, ensureStringId } from './utils/coerce-id';
 
 export {
   default as RecordArray,
