@@ -4,15 +4,7 @@ import { Context, ContextOwner } from './context';
 import { assertValidRequest } from './debug';
 import { createFuture, isFuture } from './future';
 import { setRequestResult } from './promise-cache';
-import type {
-  DeferredFuture,
-  Future,
-  GodContext,
-  Handler,
-  RequestInfo,
-  StructuredDataDocument,
-  StructuredErrorDocument,
-} from './types';
+import type { DeferredFuture, Future, GodContext, Handler, RequestInfo, StructuredDataDocument, StructuredErrorDocument } from './types';
 
 export const STRUCTURED = Symbol('DOC');
 export const IS_CACHE_HANDLER = Symbol('IS_CACHE_HANDLER');
@@ -102,10 +94,15 @@ export function handleOutcome<T>(
       if (isDoc(error)) {
         owner.setStream(owner.god.stream);
       }
-      if (!error) {
+      if (!error || !(error instanceof Error)) {
         try {
-          throw new Error(`Request Rejected with an Unknown Error`);
+          throw new Error(error ? error : `Request Rejected with an Unknown Error`);
         } catch (e: unknown) {
+          if (error && typeof error === 'object') {
+            Object.assign(e as Error, error);
+            (e as Error & StructuredErrorDocument).message =
+              (error as Error).message || `Request Rejected with an Unknown Error`;
+          }
           error = e as Error & StructuredErrorDocument;
         }
       }
@@ -144,18 +141,15 @@ export function executeNextHandler<T>(
   }
 
   const context = new Context(owner);
-  let outcome: Promise<T | StructuredDataDocument<T>> | Future<T> | undefined;
+  let outcome: Promise<T | StructuredDataDocument<T>> | Future<T>;
   try {
     outcome = wares[i].request<T>(context, next);
-
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     if (!!outcome && isCacheHandler(wares[i], i)) {
       if (!(outcome instanceof Promise)) {
         setRequestResult(owner.requestId, { isError: false, result: outcome });
         outcome = Promise.resolve(outcome);
       }
     } else if (DEBUG) {
-      // eslint-disable-next-line @typescript-eslint/no-misused-promises
       if (!outcome || (!(outcome instanceof Promise) && !(typeof outcome === 'object' && 'then' in outcome))) {
         // eslint-disable-next-line no-console
         console.log({ request, handler: wares[i], outcome });
