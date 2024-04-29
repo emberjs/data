@@ -173,6 +173,8 @@ function saveRecord<T>(context: StoreRequestContext): Promise<T> {
   const { store, data, op: operation } = context.request;
   const { options, record: identifier } = data as { record: StableRecordIdentifier; options: Record<string, unknown> };
 
+  store.cache.willCommit(identifier, context);
+
   const saveOptions = Object.assign(
     { [SaveOp]: operation as 'updateRecord' | 'deleteRecord' | 'createRecord' },
     options

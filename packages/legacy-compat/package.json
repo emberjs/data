@@ -51,7 +51,8 @@
   },
   "peerDependencies": {
     "@ember-data/graph": "workspace:4.12.7",
-    "@ember-data/json-api": "workspace:4.12.7"
+    "@ember-data/json-api": "workspace:4.12.7",
+    "@ember/string": "^3.1.1"
   },
   "peerDependenciesMeta": {
     "@ember-data/graph": {
@@ -74,6 +75,7 @@
     "@babel/preset-typescript": "^7.21.4",
     "@babel/preset-env": "^7.21.4",
     "@babel/runtime": "^7.21.0",
+    "@ember/string": "^3.1.1",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-node-resolve": "^15.0.1",
     "tslib": "^2.5.0",

@@ -2418,9 +2418,6 @@ class Store extends EmberObject {
       cacheOptions: { [SkipCache as symbol]: true },
     };
 
-    // we lie here on the type because legacy doesn't have enough context
-    cache.willCommit(identifier, { request } as unknown as StoreRequestContext);
-
     return this.request<RecordInstance>(request).then((document) => document.content);
   }
 
