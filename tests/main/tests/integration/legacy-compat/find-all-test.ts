@@ -2,15 +2,13 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import type { CompatStore } from '@ember-data/legacy-compat';
 import { findAll } from '@ember-data/legacy-compat/builders';
 import Model, { attr } from '@ember-data/model';
-import { ResourceType } from '@warp-drive/core-types/symbols';
+import type Store from '@ember-data/store';
 
 type FindAllBuilderOptions = Exclude<Parameters<typeof findAll>[1], undefined>;
 
 class Post extends Model {
-  [ResourceType] = 'post' as const;
   @attr declare name: string;
 }
 
@@ -42,7 +40,7 @@ module('Integration - legacy-compat/builders/findAll', function (hooks) {
       }
     );
 
-    const store = this.owner.lookup('service:store') as CompatStore;
+    const store = this.owner.lookup('service:store') as Store;
     const { content: results } = await store.request<Post[]>(findAll<Post>('post'));
 
     assert.strictEqual(results.length, 1, 'post was found');

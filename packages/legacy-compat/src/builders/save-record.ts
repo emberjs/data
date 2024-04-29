@@ -3,22 +3,21 @@
  */
 import { assert } from '@ember/debug';
 
-import { recordIdentifierFor, storeFor, type StoreRequestInput } from '@ember-data/store';
+import type Model from '@ember-data/model';
+import { SkipCache } from '@ember-data/request';
+import type { ImmutableRequestInfo } from '@ember-data/request/-private/types';
+import { recordIdentifierFor, storeFor } from '@ember-data/store';
 import type { InstanceCache } from '@ember-data/store/-private/caches/instance-cache';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { Cache } from '@warp-drive/core-types/cache';
-import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
-import { SkipCache } from '@warp-drive/core-types/request';
-import type { RequestSignature } from '@warp-drive/core-types/symbols';
+import type { Cache } from '@ember-data/types/cache/cache';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
-type SaveRecordRequestInput<T extends string = string, RT = unknown> = StoreRequestInput & {
+type SaveRecordRequestInput<T extends string = string, RT = unknown> = ImmutableRequestInfo & {
   op: 'createRecord' | 'deleteRecord' | 'updateRecord';
   data: {
-    record: StableRecordIdentifier<T>;
+    record: StableRecordIdentifier;
     options: SaveRecordBuilderOptions;
   };
-  records: [StableRecordIdentifier<T>];
-  [RequestSignature]?: RT;
+  records: [StableRecordIdentifier];
 };
 
 type SaveRecordBuilderOptions = Record<string, unknown>;
@@ -50,13 +49,13 @@ function resourceIsFullyDeleted(instanceCache: InstanceCache, identifier: Stable
   @param {SaveRecordBuilderOptions} options optional, may include `adapterOptions` hash which will be passed to adapter.saveRecord
   @return {SaveRecordRequestInput} request config
 */
-export function saveRecordBuilder<T extends TypedRecordInstance>(
+export function saveRecordBuilder<T extends Model>(
   record: T,
   options: Record<string, unknown> = {}
-): SaveRecordRequestInput<TypeFromInstance<T>, T> {
+): SaveRecordRequestInput<string, T> {
   const store = storeFor(record);
   assert(`Unable to initiate save for a record in a disconnected state`, store);
-  const identifier = recordIdentifierFor<T>(record);
+  const identifier = recordIdentifierFor(record);
 
   if (!identifier) {
     // this commonly means we're disconnected

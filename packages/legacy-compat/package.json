@@ -47,12 +47,15 @@
   "dependenciesMeta": {
     "@ember-data/private-build-infra": {
       "injected": true
+    },
+    "@ember/string": {
+      "injected": true
     }
   },
   "peerDependencies": {
     "@ember-data/graph": "workspace:4.12.7",
     "@ember-data/json-api": "workspace:4.12.7",
-    "@ember/string": "^3.1.1"
+    "@ember/string": "^3.0.1"
   },
   "peerDependenciesMeta": {
     "@ember-data/graph": {
@@ -75,9 +78,10 @@
     "@babel/preset-typescript": "^7.21.4",
     "@babel/preset-env": "^7.21.4",
     "@babel/runtime": "^7.21.0",
-    "@ember/string": "^3.1.1",
+    "@ember/string": "^3.0.1",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-node-resolve": "^15.0.1",
+    "@types/ember__string": "^3.0.15",
     "tslib": "^2.5.0",
     "walk-sync": "^3.0.0",
     "typescript": "^5.0.3"

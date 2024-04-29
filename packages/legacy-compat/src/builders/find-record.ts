@@ -3,26 +3,28 @@
  */
 import { assert } from '@ember/debug';
 
-import type { StoreRequestInput } from '@ember-data/store';
+import type Model from '@ember-data/model';
+import { SkipCache } from '@ember-data/request';
+import type { ImmutableRequestInfo } from '@ember-data/request/-private/types';
 import { constructResource, ensureStringId } from '@ember-data/store/-private';
-import type { BaseFinderOptions, FindRecordOptions } from '@ember-data/store/-types/q/store';
-import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
-import { SkipCache } from '@warp-drive/core-types/request';
-import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
-import type { RequestSignature } from '@warp-drive/core-types/symbols';
-
+import type { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 import { isMaybeIdentifier, normalizeModelName } from './utils';
 
-type FindRecordRequestInput<T extends string = string, RT = unknown> = StoreRequestInput & {
+// Keeping unused generics for consistency with 5x types
+type FindRecordRequestInput<T extends string = string, RT = unknown> = ImmutableRequestInfo & {
   op: 'findRecord';
   data: {
-    record: ResourceIdentifierObject<T>;
+    record: ResourceIdentifierObject;
     options: FindRecordBuilderOptions;
   };
-  [RequestSignature]?: RT;
 };
 
-type FindRecordBuilderOptions = Omit<FindRecordOptions, 'preload'>;
+type FindRecordBuilderOptions = {
+  reload?: boolean;
+  backgroundReload?: boolean;
+  include?: string | string[];
+  adapterOptions?: Record<string, unknown>;
+};
 
 /**
   This function builds a request config to find the record for a given identifier or type and id combination.
@@ -61,20 +63,20 @@ type FindRecordBuilderOptions = Omit<FindRecordOptions, 'preload'>;
   @param {FindRecordBuilderOptions} [options] - if the first param is a string this will be the optional options for the request. See examples for available options.
   @return {FindRecordRequestInput} request config
 */
-export function findRecordBuilder<T extends TypedRecordInstance>(
-  resource: TypeFromInstance<T>,
+export function findRecordBuilder<T extends Model>(
+  resource: string,
   id: string,
   options?: FindRecordBuilderOptions
-): FindRecordRequestInput<TypeFromInstance<T>, T>;
+): FindRecordRequestInput<string, T>;
 export function findRecordBuilder(
   resource: string,
   id: string,
   options?: FindRecordBuilderOptions
 ): FindRecordRequestInput;
-export function findRecordBuilder<T extends TypedRecordInstance>(
-  resource: ResourceIdentifierObject<TypeFromInstance<T>>,
+export function findRecordBuilder<T extends Model>(
+  resource: ResourceIdentifierObject,
   options?: FindRecordBuilderOptions
-): FindRecordRequestInput<TypeFromInstance<T>, T>;
+): FindRecordRequestInput<string, T>;
 export function findRecordBuilder(
   resource: ResourceIdentifierObject,
   options?: FindRecordBuilderOptions
@@ -89,7 +91,7 @@ export function findRecordBuilder(
     resource
   );
   if (isMaybeIdentifier(resource)) {
-    options = idOrOptions as BaseFinderOptions | undefined;
+    options = idOrOptions as FindRecordBuilderOptions | undefined;
   } else {
     assert(
       `You need to pass a modelName or resource identifier as the first argument to the findRecord builder (passed ${resource})`,
@@ -102,7 +104,7 @@ export function findRecordBuilder(
 
   options = options || {};
 
-  assert('findRecord builder does not support options.preload', !(options as FindRecordOptions).preload);
+  assert('findRecord builder does not support options.preload', !(options as any).preload);
 
   return {
     op: 'findRecord' as const,

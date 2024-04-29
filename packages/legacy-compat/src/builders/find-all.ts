@@ -3,24 +3,26 @@
  */
 import { assert } from '@ember/debug';
 
-import type { StoreRequestInput } from '@ember-data/store';
-import type { FindAllOptions } from '@ember-data/store/-types/q/store';
-import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
-import { SkipCache } from '@warp-drive/core-types/request';
-import type { RequestSignature } from '@warp-drive/core-types/symbols';
-
+import type Model from '@ember-data/model';
+import { SkipCache } from '@ember-data/request';
+import type { ImmutableRequestInfo } from '@ember-data/request/-private/types';
 import { normalizeModelName } from './utils';
 
-type FindAllRequestInput<T extends string = string, RT = unknown[]> = StoreRequestInput & {
+// Keeping unused generics for consistency with 5x types
+type FindAllRequestInput<T extends string = string, RT = unknown[]> = ImmutableRequestInfo & {
   op: 'findAll';
   data: {
     type: T;
     options: FindAllBuilderOptions;
   };
-  [RequestSignature]?: RT;
 };
 
-type FindAllBuilderOptions = FindAllOptions;
+type FindAllBuilderOptions = {
+  reload?: boolean;
+  backgroundReload?: boolean;
+  include?: string | string[];
+  adapterOptions?: Record<string, unknown>;
+};
 
 /**
   This function builds a request config to perform a `findAll` request for the given type.
@@ -41,10 +43,11 @@ type FindAllBuilderOptions = FindAllOptions;
   @param {FindAllBuilderOptions} [options] optional, may include `adapterOptions` hash which will be passed to adapter.findAll
   @return {FindAllRequestInput} request config
 */
-export function findAllBuilder<T extends TypedRecordInstance>(
-  type: TypeFromInstance<T>,
+// Keeping this generic for consistency with 5x types
+export function findAllBuilder<T extends Model>(
+  type: string,
   options?: FindAllBuilderOptions
-): FindAllRequestInput<TypeFromInstance<T>, T[]>;
+): FindAllRequestInput<string, Model[]>;
 export function findAllBuilder(type: string, options?: FindAllBuilderOptions): FindAllRequestInput;
 export function findAllBuilder(type: string, options: FindAllBuilderOptions = {}): FindAllRequestInput {
   assert(`You need to pass a model name to the findAll builder`, type);

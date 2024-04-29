@@ -3,25 +3,23 @@
  */
 import { assert } from '@ember/debug';
 
-import type { StoreRequestInput } from '@ember-data/store';
-import type { QueryOptions } from '@ember-data/store/-types/q/store';
-import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
-import { SkipCache } from '@warp-drive/core-types/request';
-import type { RequestSignature } from '@warp-drive/core-types/symbols';
-
+import type Model from '@ember-data/model';
+import { SkipCache } from '@ember-data/request';
+import type { ImmutableRequestInfo } from '@ember-data/request/-private/types';
 import { normalizeModelName } from './utils';
 
-type QueryRequestInput<T extends string = string, RT = unknown[]> = StoreRequestInput & {
+type QueryRequestInput<T extends string = string, RT = unknown[]> = ImmutableRequestInfo & {
   op: 'query';
   data: {
     type: T;
     query: Record<string, unknown>;
     options: QueryBuilderOptions;
   };
-  [RequestSignature]?: RT;
 };
 
-type QueryBuilderOptions = QueryOptions;
+type QueryBuilderOptions = {
+  [K in string | 'adapterOptions']?: K extends 'adapterOptions' ? Record<string, unknown> : unknown;
+};
 
 /**
   This function builds a request config for a given type and query object.
@@ -42,11 +40,11 @@ type QueryBuilderOptions = QueryOptions;
   @param {QueryBuilderOptions} [options] optional, may include `adapterOptions` hash which will be passed to adapter.query
   @return {QueryRequestInput} request config
 */
-export function queryBuilder<T extends TypedRecordInstance>(
-  type: TypeFromInstance<T>,
+export function queryBuilder<T extends Model>(
+  type: string,
   query: Record<string, unknown>,
   options?: QueryBuilderOptions
-): QueryRequestInput<TypeFromInstance<T>, T[]>;
+): QueryRequestInput<string, T[]>;
 export function queryBuilder(
   type: string,
   query: Record<string, unknown>,
@@ -75,14 +73,13 @@ export function queryBuilder(
   };
 }
 
-type QueryRecordRequestInput<T extends string = string, RT = unknown> = StoreRequestInput & {
+type QueryRecordRequestInput<T extends string = string, RT = unknown> = ImmutableRequestInfo & {
   op: 'queryRecord';
   data: {
     type: T;
     query: Record<string, unknown>;
     options: QueryBuilderOptions;
   };
-  [RequestSignature]?: RT;
 };
 
 /**
@@ -104,11 +101,11 @@ type QueryRecordRequestInput<T extends string = string, RT = unknown> = StoreReq
   @param {QueryBuilderOptions} [options] optional, may include `adapterOptions` hash which will be passed to adapter.query
   @return {QueryRecordRequestInput} request config
 */
-export function queryRecordBuilder<T extends TypedRecordInstance>(
-  type: TypeFromInstance<T>,
+export function queryRecordBuilder<T extends Model>(
+  type: string,
   query: Record<string, unknown>,
   options?: QueryBuilderOptions
-): QueryRecordRequestInput<TypeFromInstance<T>, T | null>;
+): QueryRecordRequestInput<string, T | null>;
 export function queryRecordBuilder(
   type: string,
   query: Record<string, unknown>,

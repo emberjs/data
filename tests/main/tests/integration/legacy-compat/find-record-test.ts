@@ -2,16 +2,13 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import type { CompatStore } from '@ember-data/legacy-compat';
 import { findRecord } from '@ember-data/legacy-compat/builders';
 import Model, { attr } from '@ember-data/model';
-import type { FindRecordOptions } from '@ember-data/store/-types/q/store';
-import { ResourceType } from '@warp-drive/core-types/symbols';
+import type Store from '@ember-data/store';
 
 type FindRecordBuilderOptions = Exclude<Parameters<typeof findRecord>[1], undefined>;
 
 class Post extends Model {
-  [ResourceType] = 'post' as const;
   @attr declare name: string;
 }
 
@@ -41,7 +38,7 @@ module('Integration - legacy-compat/builders/findRecord', function (hooks) {
       }
     );
 
-    const store = this.owner.lookup('service:store') as CompatStore;
+    const store = this.owner.lookup('service:store') as Store;
     const { content: post } = await store.request<Post>(findRecord<Post>('post', '1'));
 
     assert.strictEqual(post.id, '1', 'post has correct id');
@@ -88,8 +85,7 @@ module('Integration - legacy-compat/builders/findRecord', function (hooks) {
   });
 
   test('findRecord by type+id with invalid options', async function (assert) {
-    // Type hacks to ensure we're notified if we add new FindRecordOptions that aren't valid FindRecordBuilderOptions
-    const invalidOptions: Omit<Required<FindRecordOptions>, keyof FindRecordBuilderOptions> = {
+    const invalidOptions = {
       preload: {},
     };
     await assert.expectAssertion(() => {
@@ -138,7 +134,7 @@ module('Integration - legacy-compat/builders/findRecord', function (hooks) {
 
   test('findRecord by identifier with invalid options', async function (assert) {
     // Type hacks to ensure we're notified if we add new FindRecordOptions that aren't valid FindRecordBuilderOptions
-    const invalidOptions: Omit<Required<FindRecordOptions>, keyof FindRecordBuilderOptions> = {
+    const invalidOptions = {
       preload: {},
     };
     await assert.expectAssertion(() => {

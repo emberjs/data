@@ -617,7 +617,7 @@ importers:
         specifier: ^7.21.0
         version: 7.21.0
       '@ember/string':
-        specifier: ^3.1.1
+        specifier: ^3.0.1
         version: 3.1.1
       '@embroider/addon-dev':
         specifier: ^3.0.0
@@ -628,6 +628,9 @@ importers:
       '@rollup/plugin-node-resolve':
         specifier: ^15.0.1
         version: 15.0.1(rollup@3.20.2)
+      '@types/ember__string':
+        specifier: ^3.0.15
+        version: 3.0.15
       rollup:
         specifier: ^3.20.2
         version: 3.20.2
@@ -642,6 +645,8 @@ importers:
         version: 3.0.0
     dependenciesMeta:
       '@ember-data/private-build-infra':
+        injected: true
+      '@ember/string':
         injected: true
 
   packages/model:
@@ -4914,7 +4919,7 @@ packages:
       '@types/ember__routing': 4.0.12(@babel/core@7.21.4)
       '@types/ember__runloop': 4.0.2(@babel/core@7.21.4)
       '@types/ember__service': 4.0.2(@babel/core@7.21.4)
-      '@types/ember__string': 3.0.10
+      '@types/ember__string': 3.0.15
       '@types/ember__template': 4.0.1
       '@types/ember__test': 4.0.1(@babel/core@7.21.4)
       '@types/ember__utils': 4.0.2(@babel/core@7.21.4)
@@ -5061,6 +5066,10 @@ packages:
 
   /@types/ember__string@3.0.10:
     resolution: {integrity: sha512-dxbW06IqPdieA4SEyUfyCUnL8iqUnzdcLUtrfkf8g+DSP2K/RGiexfG6w2NOyOetq8gw8F/WUpNYfMmBcB6Smw==}
+    dev: true
+
+  /@types/ember__string@3.0.15:
+    resolution: {integrity: sha512-SxoaweAJUJKSIt82clIwpi/Fm0IfeisozLnXthnBp/hE2JyVcnOb1wMIbw0CCfzercmyWG1njV45VBqy8SrLDQ==}
     dev: true
 
   /@types/ember__template@4.0.1:
@@ -16135,7 +16144,7 @@ packages:
     peerDependencies:
       '@ember-data/graph': workspace:4.12.7
       '@ember-data/json-api': workspace:4.12.7
-      '@ember/string': ^3.1.1
+      '@ember/string': ^3.0.1
     peerDependenciesMeta:
       '@ember-data/graph':
         optional: true
@@ -16159,7 +16168,7 @@ packages:
     peerDependencies:
       '@ember-data/graph': workspace:4.12.7
       '@ember-data/json-api': workspace:4.12.7
-      '@ember/string': ^3.1.1
+      '@ember/string': ^3.0.1
     peerDependenciesMeta:
       '@ember-data/graph':
         optional: true
@@ -16184,7 +16193,7 @@ packages:
     peerDependencies:
       '@ember-data/graph': workspace:4.12.7
       '@ember-data/json-api': workspace:4.12.7
-      '@ember/string': ^3.1.1
+      '@ember/string': ^3.0.1
     peerDependenciesMeta:
       '@ember-data/graph':
         optional: true
