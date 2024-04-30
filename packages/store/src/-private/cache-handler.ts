@@ -1,10 +1,14 @@
+import { assert } from '@ember/debug';
+
 import type {
+  CacheHandler as CacheHandlerType,
   Future,
-  Handler,
   ImmutableRequestInfo,
   NextFn,
   RequestContext,
-  StructuredErrorDocument,
+  ResponseInfo,
+  StructuredDataDocument,
+  StructuredErrorDocument
 } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';
 import {
@@ -13,22 +17,114 @@ import {
   ResourceErrorDocument,
 } from '@ember-data/types/cache/document';
 import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
-import { RecordInstance } from '@ember-data/types/q/record-instance';
-
+import type { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { JsonApiError } from '@ember-data/types/q/record-data-json-api';
+import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import { Document } from './document';
 
-export type HTTPMethod = 'GET' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-
+/**
+ * A service which an application may provide to the store via
+ * the store's `lifetimes` property to configure the behavior
+ * of the CacheHandler.
+ *
+ * The default behavior for request lifetimes is to never expire
+ * unless manually refreshed via `cacheOptions.reload` or `cacheOptions.backgroundReload`.
+ *
+ * Implementing this service allows you to programatically define
+ * when a request should be considered expired.
+ *
+ * @class <Interface> LifetimesService
+ * @public
+ */
 export interface LifetimesService {
-  isHardExpired(identifier: StableDocumentIdentifier): boolean;
-  isSoftExpired(identifier: StableDocumentIdentifier): boolean;
+  /**
+   * Invoked to determine if the request may be fulfilled from cache
+   * if possible.
+   *
+   * Note, this is only invoked if the request has a cache-key.
+   *
+   * If no cache entry is found or the entry is hard expired,
+   * the request will be fulfilled from the configured request handlers
+   * and the cache will be updated before returning the response.
+   *
+   * @method isHardExpired
+   * @public
+   * @param {StableDocumentIdentifier} identifier
+   * @param {Store} store
+   * @return {boolean} true if the request is considered hard expired
+   */
+  isHardExpired(identifier: StableDocumentIdentifier, store: Store): boolean;
+  /**
+   * Invoked if `isHardExpired` is false to determine if the request
+   * should be update behind the scenes if cache data is already available.
+   *
+   * Note, this is only invoked if the request has a cache-key.
+   *
+   * If true, the request will be fulfilled from cache while a backgrounded
+   * request is made to update the cache via the configured request handlers.
+   *
+   * @method isSoftExpired
+   * @public
+   * @param {StableDocumentIdentifier} identifier
+   * @param {Store} store
+   * @return {boolean} true if the request is considered soft expired
+   */
+  isSoftExpired(identifier: StableDocumentIdentifier, store: Store): boolean;
+
+  /**
+   * Invoked when a request will be sent to the configured request handlers.
+   * This is invoked for both foreground and background requests.
+   *
+   * Note, this is invoked regardless of whether the request has a cache-key.
+   *
+   * @method willRequest [Optional]
+   * @public
+   * @param {ImmutableRequestInfo} request
+   * @param {StableDocumentIdentifier | null} identifier
+   * @param {Store} store
+   * @return {void}
+   */
+  willRequest?(request: ImmutableRequestInfo, identifier: StableDocumentIdentifier | null, store: Store): void;
+
+  /**
+   * Invoked when a request has been fulfilled from the configured request handlers.
+   * This is invoked for both foreground and background requests once the cache has
+   * been updated.
+   *
+   * Note, this is invoked regardless of whether the request has a cache-key.
+   *
+   * @method didRequest [Optional]
+   * @public
+   * @param {ImmutableRequestInfo} request
+   * @param {ImmutableResponse} response
+   * @param {StableDocumentIdentifier | null} identifier
+   * @param {Store} store
+   * @return {void}
+   */
+  didRequest?(
+    request: ImmutableRequestInfo,
+    response: Response | ResponseInfo | null,
+    identifier: StableDocumentIdentifier | null,
+    store: Store
+  ): void;
 }
 
-export type StoreRequestInfo = ImmutableRequestInfo;
+export type LooseStoreRequestInfo<T = unknown, RT = unknown> = Omit<
+  ImmutableRequestInfo,
+  'records' | 'headers'
+> & {
+  records?: ResourceIdentifierObject[];
+  headers?: Headers;
+};
+
+export type StoreRequestInput<T = unknown, RT = unknown> = ImmutableRequestInfo | LooseStoreRequestInfo<T, RT>;
 
 export interface StoreRequestContext extends RequestContext {
-  request: StoreRequestInfo & { store: Store };
+  request: ImmutableRequestInfo & { store: Store; [EnableHydration]?: boolean };
 }
+
+const MUTATION_OPS = new Set(['createRecord', 'updateRecord', 'deleteRecord']);
 
 function isErrorDocument(document: ResourceDataDocument | ResourceErrorDocument): document is ResourceErrorDocument {
   return 'errors' in document;
@@ -36,17 +132,22 @@ function isErrorDocument(document: ResourceDataDocument | ResourceErrorDocument)
 
 function maybeUpdateUiObjects<T>(
   store: Store,
-  request: StoreRequestInfo,
+  request: ImmutableRequestInfo,
   options: {
     shouldHydrate?: boolean;
     shouldFetch?: boolean;
     shouldBackgroundFetch?: boolean;
     identifier: StableDocumentIdentifier | null;
   },
-  document: ResourceDataDocument | ResourceErrorDocument,
+  document: ResourceDataDocument | ResourceErrorDocument | null,
   isFromCache: boolean
 ): T {
   const { identifier } = options;
+
+  if (!document) {
+    assert(`The CacheHandler expected response content but none was found`, !options.shouldHydrate);
+    return document as T;
+  }
 
   if (isErrorDocument(document)) {
     if (!identifier && !options.shouldHydrate) {
@@ -79,7 +180,7 @@ function maybeUpdateUiObjects<T>(
         return document as T;
       }
       const data = recordArrayManager.createArray({
-        type: request.url,
+        type: request.url as string,
         identifiers: document.data,
         doc: document as CollectionResourceDataDocument,
         query: request,
@@ -87,8 +188,8 @@ function maybeUpdateUiObjects<T>(
 
       const doc = new Document(store, null);
       doc.data = data;
-      doc.meta = document.meta;
-      doc.links = document.links;
+      doc.meta = document.meta!;
+      doc.links = document.links!;
 
       return doc as T;
     }
@@ -103,8 +204,8 @@ function maybeUpdateUiObjects<T>(
       recordArrayManager._keyedArrays.set(identifier.lid, managed);
       const doc = new Document<RecordInstance[]>(store, identifier);
       doc.data = managed;
-      doc.meta = document.meta;
-      doc.links = document.links;
+      doc.meta = document.meta!;
+      doc.links = document.links!;
       store._documentCache.set(identifier, doc);
 
       return options.shouldHydrate ? (doc as T) : (document as T);
@@ -113,8 +214,8 @@ function maybeUpdateUiObjects<T>(
       if (!isFromCache) {
         recordArrayManager.populateManagedArray(managed, document.data, document as CollectionResourceDataDocument);
         doc.data = managed;
-        doc.meta = document.meta;
-        doc.links = document.links;
+        doc.meta = document.meta!;
+        doc.links = document.links!;
       }
 
       return options.shouldHydrate ? (doc as T) : (document as T);
@@ -148,21 +249,22 @@ function maybeUpdateUiObjects<T>(
 
 function calcShouldFetch(
   store: Store,
-  request: StoreRequestInfo,
+  request: ImmutableRequestInfo,
   hasCachedValue: boolean,
   identifier: StableDocumentIdentifier | null
 ): boolean {
   const { cacheOptions } = request;
   return (
+    (request.op && MUTATION_OPS.has(request.op)) ||
     cacheOptions?.reload ||
     !hasCachedValue ||
-    (store.lifetimes && identifier ? store.lifetimes.isHardExpired(identifier) : false)
+    (store.lifetimes && identifier ? store.lifetimes.isHardExpired(identifier, store) : false)
   );
 }
 
 function calcShouldBackgroundFetch(
   store: Store,
-  request: StoreRequestInfo,
+  request: ImmutableRequestInfo,
   willFetch: boolean,
   identifier: StableDocumentIdentifier | null
 ): boolean {
@@ -170,8 +272,14 @@ function calcShouldBackgroundFetch(
   return (
     !willFetch &&
     (cacheOptions?.backgroundReload ||
-      (store.lifetimes && identifier ? store.lifetimes.isSoftExpired(identifier) : false))
+      (store.lifetimes && identifier ? store.lifetimes.isSoftExpired(identifier, store) : false))
   );
+}
+
+function isMutation(
+  request: Partial<ImmutableRequestInfo>
+): request is ImmutableRequestInfo & { op: 'createRecord' | 'updateRecord' | 'deleteRecord' } {
+  return Boolean(request.op && MUTATION_OPS.has(request.op));
 }
 
 function fetchContentAndHydrate<T>(
@@ -182,15 +290,46 @@ function fetchContentAndHydrate<T>(
   shouldBackgroundFetch: boolean
 ): Promise<T> {
   const { store } = context.request;
-  const shouldHydrate: boolean =
-    (context.request[Symbol.for('ember-data:enable-hydration')] as boolean | undefined) || false;
-  return next(context.request).then(
+  const shouldHydrate: boolean = context.request[EnableHydration] || false;
+
+  let isMut = false;
+  if (isMutation(context.request)) {
+    isMut = true;
+    // TODO should we handle multiple records in request.records by iteratively calling willCommit for each
+    const record = context.request.data?.record || context.request.records?.[0];
+    assert(
+      `Expected to receive a list of records included in the ${context.request.op} request`,
+      record || !shouldHydrate
+    );
+    if (record) {
+      store.cache.willCommit(record as StableRecordIdentifier, context);
+    }
+  }
+
+  if (store.lifetimes?.willRequest) {
+    store.lifetimes.willRequest(context.request, identifier, store);
+  }
+
+  const promise = next(context.request).then(
     (document) => {
       store.requestManager._pending.delete(context.id);
       store._enableAsyncFlush = true;
       let response: ResourceDataDocument;
       store._join(() => {
-        response = store.cache.put(document) as ResourceDataDocument;
+        if (isMutation(context.request)) {
+          const record = context.request.data?.record || context.request.records?.[0];
+          if (record) {
+            response = store.cache.didCommit(record as StableRecordIdentifier, document) as ResourceDataDocument;
+
+            // a mutation combined with a 204 has no cache impact when no known records were involved
+            // a createRecord with a 201 with an empty response and no known records should similarly
+            // have no cache impact
+          } else if (isCacheAffecting(document)) {
+            response = store.cache.put(document) as ResourceDataDocument;
+          }
+        } else {
+          response = store.cache.put(document) as ResourceDataDocument;
+        }
         response = maybeUpdateUiObjects(
           store,
           context.request,
@@ -200,6 +339,10 @@ function fetchContentAndHydrate<T>(
         );
       });
       store._enableAsyncFlush = null;
+
+      if (store.lifetimes?.didRequest) {
+        store.lifetimes.didRequest(context.request, document.response, identifier, store);
+      }
 
       if (shouldFetch) {
         return response!;
@@ -214,18 +357,41 @@ function fetchContentAndHydrate<T>(
       }
       store.requestManager._pending.delete(context.id);
       store._enableAsyncFlush = true;
-      let response: ResourceErrorDocument;
+      let response: ResourceErrorDocument | undefined;
       store._join(() => {
-        response = store.cache.put(error) as ResourceErrorDocument;
-        response = maybeUpdateUiObjects(
-          store,
-          context.request,
-          { shouldHydrate, shouldFetch, shouldBackgroundFetch, identifier },
-          response,
-          false
-        );
+        if (isMutation(context.request)) {
+          // TODO similar to didCommit we should spec this to be similar to cache.put for handling full response
+          // currently we let the response remain undefiend.
+          const errors =
+            error &&
+            error.content &&
+            typeof error.content === 'object' &&
+            'errors' in error.content &&
+            Array.isArray(error.content.errors)
+              ? (error.content.errors as JsonApiError[])
+              : undefined;
+
+          const record = context.request.data?.record || context.request.records?.[0];
+
+          store.cache.commitWasRejected(record as StableRecordIdentifier, errors);
+          // re-throw the original error to preserve `errors` property.
+          throw error;
+        } else {
+          response = store.cache.put(error) as ResourceErrorDocument;
+          response = maybeUpdateUiObjects(
+            store,
+            context.request,
+            { shouldHydrate, shouldFetch, shouldBackgroundFetch, identifier },
+            response,
+            false
+          );
+        }
       });
       store._enableAsyncFlush = null;
+
+      if (identifier && store.lifetimes?.didRequest) {
+        store.lifetimes.didRequest(context.request, error.response, identifier, store);
+      }
 
       if (!shouldBackgroundFetch) {
         const newError = cloneError(error);
@@ -236,23 +402,91 @@ function fetchContentAndHydrate<T>(
       }
     }
   ) as Promise<T>;
+
+  if (!isMut) {
+    return promise;
+  }
+  assert(`Expected a mutation`, isMutation(context.request));
+
+  // for mutations we need to enqueue the promise with the requestStateService
+  // TODO should we enque a request per record in records?
+  const record = context.request.data?.record || context.request.records?.[0];
+
+  return store._requestCache._enqueue(promise, {
+    data: [{ op: 'saveRecord', recordIdentifier: record as StableRecordIdentifier, options: undefined }],
+  });
 }
 
-function cloneError(error: Error & { error: string | object }) {
-  const cloned: Error & { error: string | object; content: object } = new Error(error.message) as Error & {
-    error: string | object;
-    content: object;
-  };
-  cloned.stack = error.stack;
+function isAggregateError(error: Error & { errors?: JsonApiError[] }): error is AggregateError & { errors: JsonApiError[] } {
+  return error instanceof AggregateError || (error.name === 'AggregateError' && Array.isArray(error.errors));
+}
+
+type RobustError = Error & { error: string | object; errors?: JsonApiError[]; content?: unknown };
+
+// TODO @runspired, consider if we should deep freeze errors (potentially only in debug) vs cloning them
+function cloneError(error: RobustError) {
+  const isAggregate = isAggregateError(error);
+
+  const cloned = (
+    isAggregate ? new AggregateError(structuredClone(error.errors), error.message) : new Error(error.message)
+  ) as RobustError;
+  cloned.stack = error.stack!;
   cloned.error = error.error;
+
+  // copy over enumerable properties
+  Object.assign(cloned, error);
+
   return cloned;
 }
 
 export const SkipCache = Symbol.for('ember-data:skip-cache');
 export const EnableHydration = Symbol.for('ember-data:enable-hydration');
 
-export const CacheHandler: Handler = {
-  request<T>(context: StoreRequestContext, next: NextFn<T>): Promise<T> | Future<T> {
+
+
+/**
+ * A CacheHandler that adds support for using an EmberData Cache with a RequestManager.
+ *
+ * This handler will only run when a request has supplied a `store` instance. Requests
+ * issued by the store via `store.request()` will automatically have the `store` instance
+ * attached to the request.
+ *
+ * ```ts
+ * requestManager.request({
+ *   store: store,
+ *   url: '/api/posts',
+ *   method: 'GET'
+ * });
+ * ```
+ *
+ * When this handler elects to handle a request, it will return the raw `StructuredDocument`
+ * unless the request has `[EnableHydration]` set to `true`. In this case, the handler will
+ * return a `Document` instance that will automatically update the UI when the cache is updated
+ * in the future and will hydrate any identifiers in the StructuredDocument into Record instances.
+ *
+ * When issuing a request via the store, [EnableHydration] is automatically set to `true`. This
+ * means that if desired you can issue requests that utilize the cache without needing to also
+ * utilize Record instances if desired.
+ *
+ * Said differently, you could elect to issue all requests via a RequestManager, without ever using
+ * the store directly, by setting [EnableHydration] to `true` and providing a store instance. Not
+ * necessarily the most useful thing, but the decoupled nature of the RequestManager and incremental-feature
+ * approach of EmberData allows for this flexibility.
+ *
+ * ```ts
+ * import { EnableHydration } from '@warp-drive/core-types/request';
+ *
+ * requestManager.request({
+ *   store: store,
+ *   url: '/api/posts',
+ *   method: 'GET',
+ *   [EnableHydration]: true
+ * });
+ *
+ * @typedoc
+ */
+export const CacheHandler: CacheHandlerType = {
+  request<T>(context: StoreRequestContext, next: NextFn<T>): Promise<T | StructuredDataDocument<T>> | Future<T> | T {
     // if we have no cache or no cache-key skip cache handling
     if (!context.request.store || context.request.cacheOptions?.[SkipCache]) {
       return next(context.request);
@@ -270,11 +504,11 @@ export const CacheHandler: Handler = {
 
     // if we have not skipped cache, determine if we should update behind the scenes
     if (calcShouldBackgroundFetch(store, context.request, false, identifier)) {
-      let promise = fetchContentAndHydrate(next, context, identifier, false, true);
+      const promise = fetchContentAndHydrate(next, context, identifier, false, true);
       store.requestManager._pending.set(context.id, promise);
     }
 
-    const shouldHydrate: boolean = (context.request[EnableHydration] as boolean | undefined) || false;
+    const shouldHydrate: boolean = context.request[EnableHydration] || false;
 
     if ('error' in peeked!) {
       const content = shouldHydrate
@@ -291,17 +525,17 @@ export const CacheHandler: Handler = {
       throw newError;
     }
 
-    return Promise.resolve(
-      shouldHydrate
-        ? maybeUpdateUiObjects<T>(
-            store,
-            context.request,
-            { shouldHydrate, identifier },
-            peeked!.content as ResourceDataDocument,
-            true
-          )
-        : (peeked!.content as T)
-    );
+    const result = shouldHydrate
+      ? maybeUpdateUiObjects<T>(
+          store,
+          context.request,
+          { shouldHydrate, identifier },
+          peeked!.content as ResourceDataDocument,
+          true
+        )
+      : (peeked!.content as T);
+
+    return result;
   },
 };
 
@@ -315,4 +549,19 @@ function copyDocumentProperties(target: { links?: unknown; meta?: unknown; error
   if ('errors' in source) {
     target.errors = source.errors;
   }
+}
+
+function isCacheAffecting<T>(document: StructuredDataDocument<T>): boolean {
+  if (!isMutation(document.request)) {
+    return true;
+  }
+  // a mutation combined with a 204 has no cache impact when no known records were involved
+  // a createRecord with a 201 with an empty response and no known records should similarly
+  // have no cache impact
+
+  if (document.request.op === 'createRecord' && document.response?.status === 201) {
+    return document.content ? Object.keys(document.content).length > 0 : false;
+  }
+
+  return document.response?.status !== 204;
 }
