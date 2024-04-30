@@ -15,7 +15,7 @@
   "scripts": {
     "lint": "eslint . --quiet --cache --cache-strategy=content --report-unused-disable-directives",
     "check:types": "tsc --noEmit",
-    "build:pkg": "rollup --config",
+    "build:pkg": "vite build",
     "prepack": "bun run build:pkg",
     "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
@@ -40,10 +40,10 @@
     }
   },
   "peerDependencies": {
+    "@ember-data/request": "workspace:5.4.0-alpha.59",
     "@ember-data/store": "workspace:5.4.0-alpha.59",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.45",
     "@ember-data/tracking": "workspace:5.4.0-alpha.59",
-    "@ember-data/request": "workspace:5.4.0-alpha.59"
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.45"
   },
   "dependenciesMeta": {
     "@ember-data/request": {
@@ -69,15 +69,17 @@
   },
   "devDependencies": {
     "@babel/core": "^7.24.4",
-    "@babel/plugin-transform-typescript": "^7.24.4",
     "@babel/plugin-transform-runtime": "^7.24.3",
+    "@babel/plugin-transform-typescript": "^7.24.4",
     "@babel/preset-env": "^7.24.4",
     "@babel/preset-typescript": "^7.24.1",
     "@ember-data/request": "workspace:5.4.0-alpha.59",
     "@ember-data/store": "workspace:5.4.0-alpha.59",
     "@ember-data/tracking": "workspace:5.4.0-alpha.59",
+    "@ember/string": "^3.1.1",
     "@embroider/addon-dev": "^4.3.1",
     "@glimmer/component": "^1.1.2",
+    "@rollup/plugin-babel": "^6.0.4",
     "@warp-drive/build-config": "workspace:0.0.0-alpha.1",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.45",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.59",
@@ -86,7 +88,8 @@
     "rollup": "^4.14.3",
     "rollup-plugin-ts": "^3.4.5",
     "typescript": "^5.4.5",
-    "@ember/string": "^3.1.1"
+    "vite": "^5.2.10",
+    "vite-plugin-dts": "^3.9.0"
   },
   "ember": {
     "edition": "octane"
