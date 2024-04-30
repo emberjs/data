@@ -46,8 +46,7 @@ export default defineConfig({
       extensions: ['.js', '.ts'],
     }),
     dts({
-      // Incorrectly duplicates symbols when set to true
-      rollupTypes: false,
+      rollupTypes: true,
       outDir: 'unstable-preview-types',
     }),
   ],

@@ -3,14 +3,6 @@ import { assert } from '@ember/debug';
 import type { Future } from '@ember-data/request';
 import type Store from '@ember-data/store';
 import type { NotificationType, StoreRequestInput } from '@ember-data/store';
-import type {
-  ArrayField,
-  DerivedField,
-  FieldSchema,
-  GenericField,
-  LocalField,
-  ObjectField,
-} from '@warp-drive/core-types/schema/fields';
 import {
   addToTransaction,
   defineSignal,
@@ -26,6 +18,14 @@ import type { Cache } from '@warp-drive/core-types/cache';
 import type { ResourceRelationship as SingleResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { ArrayValue, ObjectValue, Value } from '@warp-drive/core-types/json/raw';
 import { STRUCTURED } from '@warp-drive/core-types/request';
+import type {
+  ArrayField,
+  DerivedField,
+  FieldSchema,
+  GenericField,
+  LocalField,
+  ObjectField,
+} from '@warp-drive/core-types/schema/fields';
 import type { Link, Links } from '@warp-drive/core-types/spec/json-api-raw';
 import { RecordStore } from '@warp-drive/core-types/symbols';
 
@@ -34,6 +34,7 @@ import { ManagedObject } from './managed-object';
 import type { SchemaService } from './schema';
 import { ARRAY_SIGNAL, Checkout, Destroy, Editable, Identifier, Legacy, OBJECT_SIGNAL, Parent } from './symbols';
 
+export { Editable, Legacy } from './symbols';
 const IgnoredGlobalFields = new Set(['then', STRUCTURED]);
 const RecordSymbols = new Set([Destroy, RecordStore, Identifier, Editable, Parent, Checkout, Legacy, Signals]);
 
@@ -283,7 +284,7 @@ export class SchemaRecord {
   declare [Signals]: Map<string, Signal>;
   declare ___notifications: object;
 
-  constructor(store: Store, identifier: StableRecordIdentifier, Mode: { [Editable]: boolean; [Legacy]: boolean }) {
+  constructor(store: Store, identifier: StableRecordIdentifier, Mode: { [Editable]: boolean;[Legacy]: boolean }) {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
     this[RecordStore] = store;
