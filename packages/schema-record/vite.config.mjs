@@ -46,33 +46,9 @@ export default defineConfig({
       extensions: ['.js', '.ts'],
     }),
     dts({
-      rollupTypes: true,
+      // Incorrectly duplicates symbols when set to true
+      rollupTypes: false,
       outDir: 'unstable-preview-types',
-      //afterDiagnostic: ()
     }),
-    {
-      name: 'use-weird-non-ESM-ember-convention',
-      closeBundle: async () => {
-        ///**
-        // * Related issues
-        // * - https://github.com/embroider-build/embroider/issues/1672
-        // * - https://github.com/embroider-build/embroider/pull/1572
-        // * - https://github.com/embroider-build/embroider/issues/1675
-        // *
-        // * Fixed in embroider@4 and especially @embroider/vite
-        // */
-        //await execaCommand('cp dist/index.mjs dist/index.js', { stdio: 'inherit' });
-        //console.log('⚠️ Incorrectly (but neededly) renamed MJS module to JS in a CJS package');
-        //
-        ///**
-        // * https://github.com/microsoft/TypeScript/issues/56571#
-        // * README: https://github.com/NullVoxPopuli/fix-bad-declaration-output
-        // */
-        //await execaCommand(`pnpm fix-bad-declaration-output declarations/`, {
-        //  stdio: 'inherit',
-        //});
-        //console.log('⚠️ Dangerously (but neededly) fixed bad declaration output from typescript');
-      },
-    },
   ],
 });
