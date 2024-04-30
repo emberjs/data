@@ -36,11 +36,14 @@ import type {
   JsonApiDocument,
   SingleResourceDocument,
 } from '@warp-drive/core-types/spec/raw';
+import { ResourceType } from '@warp-drive/core-types/symbols';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
   @attr('string', {})
   name;
+
+  declare [ResourceType]: 'person';
 }
 
 class House extends Model {
