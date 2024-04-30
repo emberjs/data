@@ -8,7 +8,6 @@ import type {
   DerivedField,
   FieldSchema,
   GenericField,
-  IdentityField,
   LocalField,
   ObjectField,
 } from '@warp-drive/core-types/schema/fields';
@@ -30,16 +29,10 @@ import { STRUCTURED } from '@warp-drive/core-types/request';
 import type { Link, Links } from '@warp-drive/core-types/spec/json-api-raw';
 import { RecordStore } from '@warp-drive/core-types/symbols';
 
-import { ARRAY_SIGNAL, ManagedArray } from './managed-array';
-import { ManagedObject, OBJECT_SIGNAL } from './managed-object';
+import { ManagedArray } from './managed-array';
+import { ManagedObject } from './managed-object';
 import type { SchemaService } from './schema';
-
-export const Destroy = Symbol('Destroy');
-export const Identifier = Symbol('Identifier');
-export const Editable = Symbol('Editable');
-export const Parent = Symbol('Parent');
-export const Checkout = Symbol('Checkout');
-export const Legacy = Symbol('Legacy');
+import { ARRAY_SIGNAL, Checkout, Destroy, Editable, Identifier, Legacy, OBJECT_SIGNAL, Parent } from './symbols';
 
 const IgnoredGlobalFields = new Set(['then', STRUCTURED]);
 const RecordSymbols = new Set([Destroy, RecordStore, Identifier, Editable, Parent, Checkout, Legacy, Signals]);

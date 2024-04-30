@@ -11,11 +11,7 @@ import type { ArrayValue, Value } from '@warp-drive/core-types/json/raw';
 
 import type { SchemaRecord } from './record';
 import type { SchemaService } from './schema';
-
-export const SOURCE = Symbol('#source');
-export const MUTATE = Symbol('#update');
-export const ARRAY_SIGNAL = Symbol('#signal');
-export const NOTIFY = Symbol('#notify');
+import { ARRAY_SIGNAL, MUTATE, SOURCE } from './symbols';
 
 export function notifyArray(arr: ManagedArray) {
   addToTransaction(arr[ARRAY_SIGNAL]);

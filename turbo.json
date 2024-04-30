@@ -18,7 +18,7 @@
         "addon-main.*",
         "tsconfig.json",
         "babel.*",
-        "rollup-config.*"
+        "rollup.config.*"
       ],
       "outputs": [
         // V1-Addon convention
@@ -41,7 +41,7 @@
         "addon-main.*",
         "tsconfig.json",
         "babel.*",
-        "rollup-config.*"
+        "rollup.config.*"
       ],
       "outputs": [
         // V1-Addon convention
@@ -91,10 +91,7 @@
     },
 
     "check:types": {
-      "inputs": [
-        "tsconfig.json",
-        "tsconfig.tsbuildinfo"
-      ],
+      "inputs": ["tsconfig.json", "tsconfig.tsbuildinfo"],
       "dependsOn": ["^build:pkg"]
     },
 
@@ -106,7 +103,7 @@
         "addon-main.*",
         "tsconfig.json",
         "babel.*",
-        "rollup-config.*"
+        "rollup.config.*"
       ],
       "outputs": [
         // V1-Addon convention
@@ -128,7 +125,7 @@
         "ember-cli-build.js",
         "addon-main.*",
         "babel.*",
-        "rollup-config.*"
+        "rollup.config.*"
       ],
       "outputs": [
         // V1-Addon convention

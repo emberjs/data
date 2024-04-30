@@ -24,7 +24,11 @@
     "noEmit": true,
     "declaration": false,
 
+    "paths": {
+      "ember-data__graph/*": ["./app/*"]
+    },
+
     "types": ["ember-source/types"]
-  },
+  }
   // "references": [{ "path": "../../packages/build-config" }]
 }

@@ -38,6 +38,7 @@ import type {
 } from '@warp-drive/core-types/spec/json-api-raw';
 import type { MergeOperation } from '@warp-drive/core-types/cache/operations';
 import { ApiError } from '@warp-drive/core-types/spec/error';
+import { ResourceType } from '@warp-drive/core-types/symbols';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs

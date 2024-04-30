@@ -2,13 +2,15 @@ import { assert } from '@ember/debug';
 
 import { recordIdentifierFor } from '@ember-data/store';
 import { createCache, getValue } from '@ember-data/tracking';
-import { type Signal, Signals } from '@ember-data/tracking/-private';
+import { Signals } from '@ember-data/tracking/-private';
+import type { Signal } from '@ember-data/tracking/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Value } from '@warp-drive/core-types/json/raw';
 import type { OpaqueRecordInstance } from '@warp-drive/core-types/record';
 import type { FieldSchema, LegacyAttributeField, LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
 
-import { Identifier, type SchemaRecord } from './record';
+import type { SchemaRecord } from './record';
+import { Identifier } from './symbols';
 
 const Support = new WeakMap<WeakKey, Record<string, unknown>>();
 

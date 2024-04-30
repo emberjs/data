@@ -39,7 +39,7 @@
     "ensure-cert": "./server/ensure-cert.js"
   },
   "scripts": {
-    "check:types": "tsc --noEmit",
+    "check:pkg-types": "tsc --noEmit",
     "build:pkg": "rollup --config",
     "start": "rollup --config --watch",
     "prepack": "bun run build:pkg",
@@ -72,17 +72,17 @@
       "bun": "./server/index.js",
       "deno": "./server/index.js",
       "browser": {
-        "types": "./dist/index.d.ts",
+        "types": "./unstable-preview-types/index.d.ts",
         "default": "./dist/index.js"
       },
       "import": {
-        "types": "./dist/index.d.ts",
+        "types": "./unstable-preview-types/index.d.ts",
         "default": "./dist/index.js"
       },
       "default": "./server/index.js"
     },
     "./mock": {
-      "types": "./dist/mock.d.ts",
+      "types": "./unstable-preview-types/mock.d.ts",
       "default": "./dist/mock.js"
     }
   },

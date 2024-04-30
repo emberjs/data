@@ -8,11 +8,7 @@ import type { ObjectValue, Value } from '@warp-drive/core-types/json/raw';
 
 import type { SchemaRecord } from './record';
 import type { SchemaService } from './schema';
-
-export const SOURCE = Symbol('#source');
-export const MUTATE = Symbol('#update');
-export const OBJECT_SIGNAL = Symbol('#signal');
-export const NOTIFY = Symbol('#notify');
+import { MUTATE, OBJECT_SIGNAL, SOURCE } from './symbols';
 
 export function notifyObject(obj: ManagedObject) {
   addToTransaction(obj[OBJECT_SIGNAL]);

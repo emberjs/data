@@ -9,7 +9,7 @@ import { setup } from 'qunit-dom';
 import start from 'ember-exam/test-support/start';
 
 import { setBuildURLConfig } from '@ember-data/request-utils';
-import configureAsserts from '@ember-data/unpublished-test-infra/test-support/asserts';
+import configureAsserts from '@ember-data/unpublished-test-infra/test-support/asserts/index';
 import { setConfig, setTestId } from '@warp-drive/holodeck';
 
 import Application from '../app';

@@ -5,7 +5,6 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "skipLibCheck": true,
-    "declarationDir": "dist",
     "noEmit": true,
     "allowJs": false,
     "checkJs": false,
@@ -39,6 +38,7 @@
     // maps in your `ember-cli-babel` config and/or `babel.config.js`.
     "declaration": true,
     "declarationMap": true,
+    "declarationDir": "unstable-preview-types",
     "inlineSourceMap": true,
     "inlineSources": true,
 
