@@ -25,7 +25,6 @@
     "ember-cli-babel": "^8.2.0"
   },
   "files": [
-    "unstable-preview-types",
     "addon-main.js",
     "addon",
     "README.md",
@@ -35,14 +34,12 @@
   ],
   "exports": {
     ".": {
-      "types": "./unstable-preview-types/index.d.ts",
       "default": "./addon/index.js"
     }
   },
   "scripts": {
-    "build:types": "tsc --build",
     "build:client": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
-    "_build": "bun run build:client && bun run build:types",
+    "_build": "bun run build:client",
     "prepack": "bun run _build",
     "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
