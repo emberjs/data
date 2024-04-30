@@ -218,6 +218,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     owner.register('model:person', Person);
     owner.register('model:house', House);
     // @ts-expect-error missing type
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     owner.unregister('service:store');
     owner.register('service:store', Store);
     owner.register('adapter:application', JSONAPIAdapter.extend());
