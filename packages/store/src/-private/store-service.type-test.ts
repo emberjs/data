@@ -1,8 +1,10 @@
-import { ResourceType } from '@warp-drive/core-types/symbols';
-import Store from './store-service';
 import { expectTypeOf } from 'expect-type';
-import { IdentifierArray } from '../-private';
-import { Collection } from './record-arrays/identifier-array';
+
+import type { ResourceType } from '@warp-drive/core-types/symbols';
+
+import type { IdentifierArray } from '../-private';
+import type { Collection } from './record-arrays/identifier-array';
+import Store from './store-service';
 
 //////////////////////////////////
 //////////////////////////////////
@@ -221,7 +223,7 @@ import { Collection } from './record-arrays/identifier-array';
     [ResourceType]: 'user';
   };
 
-  expectTypeOf(store.findAll('user')).toEqualTypeOf<Promise<IdentifierArray<unknown>>>();
+  expectTypeOf(store.findAll('user')).toEqualTypeOf<Promise<IdentifierArray>>();
   expectTypeOf(
     // @ts-expect-error no matching signature since no brand from which to check 'user'
     store.findAll<UnbrandedUser>('user')
@@ -274,7 +276,7 @@ import { Collection } from './record-arrays/identifier-array';
     ],
   });
 
-  expectTypeOf<IdentifierArray<unknown>>(result);
+  expectTypeOf<IdentifierArray>(result);
   expectTypeOf<IdentifierArray<MyThing>>(result2);
 }
 
@@ -297,7 +299,7 @@ import { Collection } from './record-arrays/identifier-array';
   // @ts-expect-error expect error since no second argument
   void store.query('user');
 
-  expectTypeOf(store.query('user', {})).toEqualTypeOf<Promise<Collection<unknown>>>();
+  expectTypeOf(store.query('user', {})).toEqualTypeOf<Promise<Collection>>();
   expectTypeOf(
     // @ts-expect-error no matching signature since no brand from which to check 'user'
     store.query<UnbrandedUser>('user', {})
@@ -365,7 +367,7 @@ import { Collection } from './record-arrays/identifier-array';
     ],
   });
 
-  expectTypeOf<Collection<unknown>>(result);
-  expectTypeOf<Collection<unknown>>(result3);
+  expectTypeOf<Collection>(result);
+  expectTypeOf<Collection>(result3);
   expectTypeOf<Collection<MyThing>>(result2);
 }
