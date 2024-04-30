@@ -88,6 +88,7 @@
     "@warp-drive/core-types": "workspace:0.0.0-alpha.45",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.59",
     "ember-source": "~5.7.0",
+    "expect-type": "^0.19.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "rollup": "^4.14.3",
     "typescript": "^5.4.5",
