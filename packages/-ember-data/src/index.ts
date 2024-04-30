@@ -182,11 +182,10 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import RESTAdapter from '@ember-data/adapter/rest';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import Serializer from '@ember-data/serializer';
-import { BooleanTransform, DateTransform, NumberTransform, StringTransform } from '@ember-data/serializer/-private';
 import JSONSerializer from '@ember-data/serializer/json';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
-import Transform from '@ember-data/serializer/transform';
+import Transform, { BooleanTransform, DateTransform, NumberTransform, StringTransform } from '@ember-data/serializer/transform';
 
 import {
   DS,

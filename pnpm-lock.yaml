@@ -763,9 +763,6 @@ importers:
         specifier: ^1.13.4
         version: 1.16.1(@babel/core@7.24.5)(@glint/template@1.4.0)
     devDependencies:
-      '@babel/cli':
-        specifier: ^7.24.1
-        version: 7.24.5(@babel/core@7.24.5)
       '@babel/core':
         specifier: ^7.24.4
         version: 7.24.5(supports-color@8.1.1)
@@ -965,12 +962,12 @@ importers:
         specifier: ^4.2.5
         version: 4.2.9
     devDependencies:
-      '@babel/cli':
-        specifier: ^7.24.1
-        version: 7.24.5(@babel/core@7.24.5)
       '@babel/core':
         specifier: ^7.24.4
         version: 7.24.5(supports-color@8.1.1)
+      '@babel/plugin-transform-runtime':
+        specifier: ^7.24.3
+        version: 7.24.3(@babel/core@7.24.5)
       '@babel/plugin-transform-typescript':
         specifier: ^7.24.4
         version: 7.24.5(@babel/core@7.24.5)
@@ -989,12 +986,6 @@ importers:
       '@embroider/addon-dev':
         specifier: ^4.3.1
         version: 4.3.1(@glint/template@1.4.0)(rollup@4.17.2)
-      '@rollup/plugin-babel':
-        specifier: ^6.0.4
-        version: 6.0.4(@babel/core@7.24.5)(rollup@4.17.2)
-      '@rollup/plugin-node-resolve':
-        specifier: ^15.2.3
-        version: 15.2.3(rollup@4.17.2)
       '@warp-drive/core-types':
         specifier: workspace:0.0.0-alpha.45
         version: file:packages/core-types(@babel/core@7.24.5)(@glint/template@1.4.0)
@@ -1007,6 +998,9 @@ importers:
       rollup:
         specifier: ^4.14.3
         version: 4.17.2
+      rollup-plugin-ts:
+        specifier: ^3.4.5
+        version: 3.4.5(@babel/core@7.24.5)(@babel/plugin-transform-runtime@7.24.3)(@babel/preset-env@7.24.5)(@babel/preset-typescript@7.24.1)(@babel/runtime@7.24.5)(rollup@4.17.2)(typescript@5.4.5)
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -4425,26 +4419,6 @@ packages:
       '@jridgewell/gen-mapping': 0.3.5
       '@jridgewell/trace-mapping': 0.3.25
 
-  /@babel/cli@7.24.5(@babel/core@7.24.5):
-    resolution: {integrity: sha512-2qg1mYtJRsOOWF6IUwLP5jI42P8Cc0hQ5TmnjLrik/4DKouO8dFJN80HEz81VmVeUs97yuuf3vQ/9j7Elrcjlg==}
-    engines: {node: '>=6.9.0'}
-    hasBin: true
-    peerDependencies:
-      '@babel/core': ^7.0.0-0
-    dependencies:
-      '@babel/core': 7.24.5(supports-color@8.1.1)
-      '@jridgewell/trace-mapping': 0.3.25
-      commander: 4.1.1
-      convert-source-map: 2.0.0
-      fs-readdir-recursive: 1.1.0
-      glob: 7.2.3
-      make-dir: 2.1.0
-      slash: 2.0.0
-    optionalDependencies:
-      '@nicolo-ribaudo/chokidar-2': 2.1.8-no-fsevents.3
-      chokidar: 3.6.0
-    dev: true
-
   /@babel/code-frame@7.24.2:
     resolution: {integrity: sha512-y5+tLQyV8pg3fsiln67BVLD1P13Eg4lh5RW9mF0zUuvLrv9uIQ4MCL+CRT+FTsBlBjcIan6PGsLcBN0m3ClUyQ==}
     engines: {node: '>=6.9.0'}
@@ -6494,12 +6468,6 @@ packages:
   /@mdn/browser-compat-data@5.5.23:
     resolution: {integrity: sha512-nIy38qL3nfNcGOz5J2BJQpBXa7vM9QO1+wbyvqqS89lgNTWE8Q10whLsmE0sTVBooXiEaRc4fVME5IXjCYiHAw==}
     dev: true
-
-  /@nicolo-ribaudo/chokidar-2@2.1.8-no-fsevents.3:
-    resolution: {integrity: sha512-s88O1aVtXftvp5bCPB7WnmXc5IwOZZ7YPuwNPt+GtOOXpPvad1LfbmjYv+qII7zP6RU2QGnqve27dnLycEnyEQ==}
-    requiresBuild: true
-    dev: true
-    optional: true
 
   /@nicolo-ribaudo/eslint-scope-5-internals@5.1.1-v1:
     resolution: {integrity: sha512-54/JRvkLIzzDWshCWfuhadfrfZVPiElY8Fcgmg1HroEly/EDSszzhBAsarCux+D/kOslTRquNzuyGSmUSTTHGg==}
@@ -13071,10 +13039,6 @@ packages:
       minipass: 3.3.6
     dev: true
 
-  /fs-readdir-recursive@1.1.0:
-    resolution: {integrity: sha512-GNanXlVr2pf02+sPN40XN8HG+ePaNcvM0q5mZBd668Obwb0yD5GiUbZOFgwn8kGMY6I3mdyDJzieUy3PTYyTRA==}
-    dev: true
-
   /fs-sync@1.0.6:
     resolution: {integrity: sha512-OgbfyvmGVryknZfDXVVhua6OW8946R+AF3O2xxrCW/XFxCYZ4CO2Jrl7kYhrpjZLYvB9gxvWpLikEc9YL9HzCA==}
     dependencies:
@@ -14844,14 +14808,6 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.15
     dev: true
 
-  /make-dir@2.1.0:
-    resolution: {integrity: sha512-LS9X+dc8KLxXCb8dni79fLIIUA5VyZoyjSMCwTluaXA0o27cCK0bhXkpgw+sTXVpPy/lSO57ilRixqk0vDmtRA==}
-    engines: {node: '>=6'}
-    dependencies:
-      pify: 4.0.1
-      semver: 5.7.2
-    dev: true
-
   /make-dir@3.1.0:
     resolution: {integrity: sha512-g3FeP20LNwhALb/6Cz6Dd4F2ngze0jz7tbzrD2wAV+o9FeNHe4rL+yK2md0J/fiSf1sa1ADhXqi5+oVwOM/eGw==}
     engines: {node: '>=8'}
@@ -15985,11 +15941,6 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       safe-buffer: 5.2.1
-    dev: true
-
-  /pify@4.0.1:
-    resolution: {integrity: sha512-uB80kBFb/tfd68bVleG9T5GGsGPjJrLAUpR5PZIrhBnIaRTQRjqdJSsIKkOP6OAIFbj7GOrcudc5pNjZ+geV2g==}
-    engines: {node: '>=6'}
     dev: true
 
   /pinkie-promise@2.0.1:
@@ -17297,11 +17248,6 @@ packages:
 
   /simple-html-tokenizer@0.5.11:
     resolution: {integrity: sha512-C2WEK/Z3HoSFbYq8tI7ni3eOo/NneSPRoPpcM7WdLjFOArFuyXEjAoCdOC3DgMfRyziZQ1hCNR4mrNdWEvD0og==}
-
-  /slash@2.0.0:
-    resolution: {integrity: sha512-ZYKh3Wh2z1PpEXWr0MpSBZ0V6mZHAQfYevttO11c51CaWjGTaadiKZ+wVt1PbMlDV5qhMFslpZCemhwOK7C89A==}
-    engines: {node: '>=6'}
-    dev: true
 
   /slash@3.0.0:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}

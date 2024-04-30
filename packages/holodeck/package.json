@@ -31,6 +31,7 @@
     "README.md",
     "LICENSE.md",
     "server",
+    "unstable-preview-types",
     "NCC-1701-a.svg",
     "NCC-1701-a-blue.svg"
   ],
@@ -49,20 +50,19 @@
     "@warp-drive/core-types": "workspace:0.0.0-alpha.45"
   },
   "devDependencies": {
-    "@babel/cli": "^7.24.1",
     "@babel/core": "^7.24.4",
+    "@babel/plugin-transform-runtime": "^7.24.3",
     "@babel/plugin-transform-typescript": "^7.24.4",
     "@babel/preset-env": "^7.24.4",
     "@babel/preset-typescript": "^7.24.1",
     "@babel/runtime": "^7.24.4",
     "@ember-data/request": "workspace:5.4.0-alpha.59",
     "@embroider/addon-dev": "^4.3.1",
-    "@rollup/plugin-babel": "^6.0.4",
-    "@rollup/plugin-node-resolve": "^15.2.3",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.45",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.59",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "rollup": "^4.14.3",
+    "rollup-plugin-ts": "^3.4.5",
     "typescript": "^5.4.5"
   },
   "type": "module",
