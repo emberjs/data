@@ -1650,7 +1650,7 @@ function setupRelationships(
 }
 
 function patchLocalAttributes(cached: CachedResource): boolean {
-  const { localAttrs, remoteAttrs, inflightAttrs, changes } = cached;
+  const { localAttrs, remoteAttrs, inflightAttrs, defaultAttrs, changes } = cached;
   if (!localAttrs) {
     cached.changes = null;
     return false;
@@ -1671,6 +1671,10 @@ function patchLocalAttributes(cached: CachedResource): boolean {
       hasAppliedPatch = true;
       delete localAttrs[attr];
       delete changes![attr];
+    }
+
+    if (defaultAttrs && attr in defaultAttrs) {
+      delete defaultAttrs[attr];
     }
   }
   return hasAppliedPatch;
