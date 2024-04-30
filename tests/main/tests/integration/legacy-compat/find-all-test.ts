@@ -41,7 +41,7 @@ module('Integration - legacy-compat/builders/findAll', function (hooks) {
     );
 
     const store = this.owner.lookup('service:store') as Store;
-    const { content: results } = await store.request<Post[]>(findAll<Post>('post'));
+    const { content: results } = await store.request<Post[]>(findAll('post'));
 
     assert.strictEqual(results.length, 1, 'post was found');
     assert.strictEqual(results[0].id, '1', 'post has correct id');
@@ -50,7 +50,7 @@ module('Integration - legacy-compat/builders/findAll', function (hooks) {
   });
 
   test('findAll', function (assert) {
-    const result = findAll<Post>('post');
+    const result = findAll('post');
     assert.deepEqual(
       result,
       {

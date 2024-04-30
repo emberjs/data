@@ -11,8 +11,7 @@ import type { LocalRelationshipOperation } from '@ember-data/graph/-private/grap
 import type { ImplicitRelationship } from '@ember-data/graph/-private/graph/index';
 import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
-import { StructuredErrorDocument } from '@ember-data/request/-private/types';
-import { StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
+import { type ImmutableRequestInfo, StructuredErrorDocument } from '@ember-data/request/-private/types';
 import type { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
 import type { ResourceBlob } from '@ember-data/types/cache/aliases';
 import type { Change } from '@ember-data/types/cache/change';
@@ -236,7 +235,7 @@ export default class JSONAPICache implements Cache {
       (resourceDocument as SingleResourceDataDocument | CollectionResourceDataDocument).data = data;
     }
 
-    const request = doc.request as StoreRequestInfo | undefined;
+    const request = doc.request as ImmutableRequestInfo | undefined;
     const identifier = request ? this.__storeWrapper.identifierCache.getOrCreateDocumentIdentifier(request) : null;
 
     if (identifier) {
