@@ -11,7 +11,7 @@ import type { InstanceCache } from '@ember-data/store/-private/caches/instance-c
 import type { Cache } from '@ember-data/types/cache/cache';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
-type SaveRecordRequestInput<T extends string = string, RT = unknown> = ImmutableRequestInfo & {
+type SaveRecordRequestInput = ImmutableRequestInfo & {
   op: 'createRecord' | 'deleteRecord' | 'updateRecord';
   data: {
     record: StableRecordIdentifier;
@@ -52,7 +52,7 @@ function resourceIsFullyDeleted(instanceCache: InstanceCache, identifier: Stable
 export function saveRecordBuilder<T extends Model>(
   record: T,
   options: Record<string, unknown> = {}
-): SaveRecordRequestInput<string, T> {
+): SaveRecordRequestInput {
   const store = storeFor(record);
   assert(`Unable to initiate save for a record in a disconnected state`, store);
   const identifier = recordIdentifierFor(record);

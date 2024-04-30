@@ -5,9 +5,9 @@ import { importSync } from '@embroider/macros';
 import { LOG_PAYLOADS } from '@ember-data/debugging';
 import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/deprecations';
 import { DEBUG, TESTING } from '@ember-data/env';
-import type { Handler, NextFn } from '@ember-data/request/-private/types';
+import type { Handler, ImmutableRequestInfo, NextFn } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';
-import type { StoreRequestContext, StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
+import type { StoreRequestContext } from '@ember-data/store/-private/cache-handler';
 import type { Collection } from '@ember-data/store/-private/record-arrays/identifier-array';
 import { SingleResourceDataDocument } from '@ember-data/types/cache/document';
 import type { ModelSchema } from '@ember-data/types/q/ds-model';
@@ -419,7 +419,7 @@ function _findAll<T>(
   store: Store,
   type: string,
   snapshotArray: SnapshotRecordArray,
-  request: StoreRequestInfo,
+  request: ImmutableRequestInfo,
   isAsyncFlush: boolean
 ): Promise<T> {
   const schema = store.modelFor(type);

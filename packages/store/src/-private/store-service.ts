@@ -22,7 +22,7 @@ import type FetchManager from '@ember-data/legacy-compat/legacy-network-handler/
 import type Model from '@ember-data/model';
 import { HAS_COMPAT_PACKAGE, HAS_GRAPH_PACKAGE, HAS_JSON_API_PACKAGE, HAS_MODEL_PACKAGE } from '@ember-data/packages';
 import type RequestManager from '@ember-data/request';
-import type { Future } from '@ember-data/request/-private/types';
+import type { Future, ImmutableRequestInfo } from '@ember-data/request/-private/types';
 import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { Cache, CacheV1 } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
@@ -42,13 +42,7 @@ import type { SchemaService } from '@ember-data/types/q/schema-service';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
 
-import {
-  EnableHydration,
-  type LifetimesService,
-  SkipCache,
-  StoreRequestContext,
-  type StoreRequestInfo,
-} from './cache-handler';
+import { EnableHydration, type LifetimesService, SkipCache } from './cache-handler';
 import peekCache, { setCacheFor } from './caches/cache-utils';
 import { IdentifierCache } from './caches/identifier-cache';
 import {
@@ -381,7 +375,7 @@ class Store extends EmberObject {
    * @returns {Future}
    * @public
    */
-  request<T>(requestConfig: StoreRequestInfo): Future<T> {
+  request<T>(requestConfig: ImmutableRequestInfo): Future<T> {
     // we lazily set the cache handler when we issue the first request
     // because constructor doesn't allow for this to run after
     // the user has had the chance to set the prop.

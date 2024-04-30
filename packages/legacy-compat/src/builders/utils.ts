@@ -1,5 +1,6 @@
-import type { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 import { dasherize } from '@ember/string';
+
+import type { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 
 export function isMaybeIdentifier(
   maybeIdentifier: string | ResourceIdentifierObject

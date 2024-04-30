@@ -111,12 +111,12 @@ export interface LifetimesService {
   ): void;
 }
 
-export type LooseStoreRequestInfo<T = unknown, RT = unknown> = Omit<ImmutableRequestInfo, 'records' | 'headers'> & {
+export type LooseStoreRequestInfo = Omit<ImmutableRequestInfo, 'records' | 'headers'> & {
   records?: ResourceIdentifierObject[];
   headers?: Headers;
 };
 
-export type StoreRequestInput<T = unknown, RT = unknown> = ImmutableRequestInfo | LooseStoreRequestInfo<T, RT>;
+export type StoreRequestInput = ImmutableRequestInfo | LooseStoreRequestInfo;
 
 export interface StoreRequestContext extends RequestContext {
   request: ImmutableRequestInfo & { store: Store; [EnableHydration]?: boolean };
@@ -428,7 +428,10 @@ function cloneError(error: RobustError) {
   const isAggregate = isAggregateError(error);
 
   const cloned = (
-    isAggregate ? new AggregateError(structuredClone(error.errors), error.message) : new Error(error.message)
+    isAggregate
+      ? // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        new AggregateError(structuredClone(error.errors as JsonApiError[]), error.message)
+      : new Error(error.message)
   ) as RobustError;
   cloned.stack = error.stack!;
   cloned.error = error.error;
