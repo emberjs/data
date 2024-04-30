@@ -1,6 +1,6 @@
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
-import type { Links, Meta, PaginationLinks } from '@warp-drive/core-types/spec/raw';
+import type { Links, Meta, PaginationLinks } from '@warp-drive/core-types/spec/json-api-raw';
 
 import type { UpgradedMeta } from '../-edge-definition';
 import type { RelationshipState } from '../-state';

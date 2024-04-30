@@ -1,0 +1,65 @@
+{
+  "name": "@warp-drive/build-config",
+  "version": "0.0.0-alpha.1",
+  "description": "Provides Build Configuration for projects using WarpDrive or EmberData",
+  "keywords": [
+    "ember-addon"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "packages/build-config"
+  },
+  "license": "MIT",
+  "author": "Chris Thoburn <runspired@users.noreply.github.com>",
+  "scripts": {
+    "build:infra": "rollup --config",
+    "prepack": "bun run build:infra"
+  },
+  "files": [
+    "dist",
+    "unstable-preview-types",
+    "CHANGELOG.md",
+    "README.md",
+    "LICENSE.md",
+    "NCC-1701-a.svg",
+    "NCC-1701-a-blue.svg"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./unstable-preview-types/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./unstable-preview-types/*.d.ts",
+      "default": "./dist/*.js"
+    }
+  },
+  "dependencies": {
+    "@embroider/macros": "^1.15.1",
+    "babel-import-util": "^2.0.2",
+    "semver": "^7.6.0"
+  },
+  "devDependencies": {
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.59",
+    "@types/babel__core": "^7.20.5",
+    "@types/node": "^20.12.7",
+    "@babel/plugin-transform-typescript": "^7.24.4",
+    "@babel/plugin-transform-runtime": "^7.24.3",
+    "@babel/preset-typescript": "^7.24.1",
+    "@babel/core": "^7.24.4",
+    "rollup-plugin-ts": "^3.4.5",
+    "pnpm-sync-dependencies-meta-injected": "0.0.10",
+    "rollup": "^4.14.2",
+    "typescript": "^5.4.5",
+    "bun-types": "^1.1.3"
+  },
+  "engines": {
+    "node": ">= 18.20.1"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  },
+  "packageManager": "pnpm@8.15.6"
+}

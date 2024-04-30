@@ -4,7 +4,7 @@ import type PromiseProxyMixin from '@ember/object/promise-proxy-mixin';
 import type ObjectProxy from '@ember/object/proxy';
 
 import type Store from '@ember-data/store';
-import type { OpaqueRecordInstance } from '@ember-data/store/-types/q/record-instance';
+import type { OpaqueRecordInstance } from '@warp-drive/core-types/record';
 import { cached } from '@ember-data/tracking';
 import type { TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 

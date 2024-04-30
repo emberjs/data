@@ -1,7 +1,7 @@
 import { DEBUG } from '@warp-drive/build-config/env';
+import type { ImmutableHeaders, RequestInfo } from '@warp-drive/core-types/request';
 
 import { Context, upgradeHeaders } from './context';
-import type { ImmutableHeaders, RequestInfo } from '@warp-drive/core-types/request';
 
 const BODY_TYPES = {
   type: 'string',
@@ -133,7 +133,7 @@ export function deepFreeze<T = unknown>(value: T): T {
         case 'error':
         case 'stream':
         default:
-          // eslint-disable-next-line no-console
+           
           // console.log(`Cannot deep-freeze ${_niceType}`);
           return value;
       }
@@ -199,7 +199,7 @@ function validateKey(key: string, value: unknown, errors: string[]) {
       if (typeof value === 'string' || value instanceof ReadableStream) {
         return;
       }
-      let type = niceTypeOf(value);
+      const type = niceTypeOf(value);
       if (schema.klass.includes(type)) {
         return;
       }
@@ -248,7 +248,7 @@ function validateKey(key: string, value: unknown, errors: string[]) {
       }
       const keys = Object.keys(value);
       keys.forEach((k) => {
-        let v: unknown = (value as Record<string, unknown>)[k];
+        const v: unknown = (value as Record<string, unknown>)[k];
         if (typeof k !== 'string') {
           errors.push(`\tThe key ${String(k)} on ${key} should be a string key`);
         } else if (typeof v !== 'string') {
@@ -334,7 +334,7 @@ export function assertValidRequest(
     // handle schema
     const keys = Object.keys(request) as Array<keyof RequestInfo>;
     const validationErrors: string[] = [];
-    const isLegacyRequest: boolean = Boolean('op' in request && !request.url);
+    const isLegacyRequest = Boolean('op' in request && !request.url);
     keys.forEach((key) => {
       if (isLegacyRequest && key === 'data') {
         return;

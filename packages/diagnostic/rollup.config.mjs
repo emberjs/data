@@ -1,6 +1,6 @@
 import { Addon } from '@embroider/addon-dev/rollup';
-import babel from '@rollup/plugin-babel';
-import { nodeResolve } from '@rollup/plugin-node-resolve';
+import ts from 'rollup-plugin-ts';
+import babelConfig from './babel.config.mjs';
 
 import { external } from '@warp-drive/internal-config/rollup/external.js';
 
@@ -19,12 +19,20 @@ export default {
   plugins: [
     // These are the modules that users should be able to import from your
     // addon. Anything not listed here may get optimized away.
-    addon.publicEntrypoints(['index.js', 'reporters/dom.js', 'reporters/tap.js', 'runners/dom.js', 'ember.js']),
+    addon.publicEntrypoints([
+      'index.js',
+      'reporters/dom.js',
+      'reporters/tap.js',
+      'runners/dom.js',
+      'ember.js',
+      '-types.js',
+    ]),
 
-    nodeResolve({ extensions: ['.ts'] }),
-    babel({
-      extensions: ['.ts'],
-      babelHelpers: 'bundled',
+    ts({
+      transpiler: 'babel',
+      babelConfig,
+      transpileOnly: true,
+      browserslist: false,
     }),
 
     addon.keepAssets(['**/*.css']),

@@ -13,9 +13,7 @@
     "extends": "../../package.json"
   },
   "devDependencies": {
-    "pnpm-sync-dependencies-meta-injected": "0.0.10"
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.59"
   },
-  "scripts": {
-    "_syncPnpm": "bun run sync-dependencies-meta-injected"
-  }
+  "scripts": {}
 }

@@ -2,12 +2,12 @@
  * @module @ember-data/experimental-preview-types
  */
 import type Store from '@ember-data/store';
-import type { Collection } from '@ember-data/store/-private/record-arrays/identifier-array';
-import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
-import type { RelationshipSchema } from '@warp-drive/core-types/schema';
+import type { CollectionRecordArray } from '@ember-data/store/-private';
+import type { ModelSchema } from '@ember-data/store/types';
+import type { LegacyRelationshipSchema as RelationshipSchema } from '@warp-drive/core-types/schema/fields';
 
-import type Snapshot from './snapshot';
-import type SnapshotRecordArray from './snapshot-record-array';
+import type { Snapshot } from './snapshot';
+import type { SnapshotRecordArray } from './snapshot-record-array';
 
 type Group = Snapshot[];
 // TODO this should probably just alias unknown
@@ -129,7 +129,7 @@ export interface MinimumAdapterInterface {
    * @param {ModelSchema} schema An object with methods for accessing information about
    *  the type, attributes and relationships of the primary type associated with the request.
    * @param {object} query
-   * @param {Collection} recordArray
+   * @param {CollectionRecordArray} recordArray
    * @param {object} options
    * @return {Promise} a promise resolving with resource data to feed to the associated serializer
    */
@@ -137,7 +137,7 @@ export interface MinimumAdapterInterface {
     store: Store,
     schema: ModelSchema,
     query: Record<string, unknown>,
-    recordArray: Collection,
+    recordArray: CollectionRecordArray,
     options: { adapterOptions?: unknown }
   ): Promise<AdapterPayload>;
 
@@ -514,7 +514,7 @@ export interface MinimumAdapterInterface {
    * The default behavior if this method is not implemented and the option is not specified is to
    * not reload, the same as a return of `false`.
    *
-   * Note: the Promise returned by `store.findAll` resolves to the same RecordArray instance
+   * Note: the Promise returned by `store.findAll` resolves to the same LiveArray instance
    * returned by `store.peekAll` for that type, and will include all records in the store for
    * the given type, including any previously existing records not returned by the reload request.
    *

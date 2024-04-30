@@ -6,9 +6,9 @@ import { assert } from '@ember/debug';
 import { defineSignal } from '@ember-data/tracking/-private';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type { RequestInfo } from '@warp-drive/core-types/request';
-import type { Link, Meta, PaginationLinks } from '@warp-drive/core-types/spec/raw';
+import type { Link, Meta, PaginationLinks } from '@warp-drive/core-types/spec/json-api-raw';
 
-import type Store from './store-service';
+import type { Store } from './store-service';
 
 function urlFromLink(link: Link): string {
   if (typeof link === 'string') return link;

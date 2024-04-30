@@ -6,7 +6,7 @@ import { FetchManager, SnapshotRecordArray } from '@ember-data/legacy-compat/-pr
 import Model, { attr } from '@ember-data/model';
 import { createDeferred } from '@ember-data/request';
 import { recordIdentifierFor } from '@ember-data/store';
-import { RecordArray, SOURCE } from '@ember-data/store/-private';
+import { LiveArray, SOURCE } from '@ember-data/store/-private';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 class Tag extends Model {
@@ -14,11 +14,11 @@ class Tag extends Model {
   name;
 }
 
-module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
+module('unit/record-arrays/live-array - LiveArray', function (hooks) {
   setupTest(hooks);
 
   test('default initial state', async function (assert) {
-    const recordArray = new RecordArray({ type: 'recordType', identifiers: [], store: null });
+    const recordArray = new LiveArray({ type: 'recordType', identifiers: [], store: null });
 
     assert.false(recordArray.isUpdating, 'record is not updating');
     assert.strictEqual(recordArray.modelName, 'recordType', 'has modelName');
@@ -28,7 +28,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
 
   test('custom initial state', async function (assert) {
     const store = {};
-    const recordArray = new RecordArray({
+    const recordArray = new LiveArray({
       type: 'apple',
       identifiers: [],
       store,
@@ -40,7 +40,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
   });
 
   testInDebug('Mutation throws error', async function (assert) {
-    const recordArray = new RecordArray({ identifiers: [], type: 'recordType' });
+    const recordArray = new LiveArray({ identifiers: [], type: 'recordType' });
 
     assert.throws(
       () => {
@@ -72,7 +72,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
       ],
     });
 
-    const recordArray = new RecordArray({
+    const recordArray = new LiveArray({
       type: 'recordType',
       identifiers: records.map(recordIdentifierFor),
       store,
@@ -98,7 +98,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
       },
     };
 
-    const recordArray = new RecordArray({
+    const recordArray = new LiveArray({
       type: 'recordType',
       identifiers: [],
       store,
@@ -132,7 +132,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
       },
     };
 
-    const recordArray = new RecordArray({
+    const recordArray = new LiveArray({
       type: 'recordType',
       identifiers: [],
       store,
@@ -178,7 +178,7 @@ module('unit/record-arrays/record-array - DS.RecordArray', function (hooks) {
       data: [model1, model2],
     });
     const identifiers = [recordIdentifierFor(record1), recordIdentifierFor(record2)];
-    const recordArray = new RecordArray({
+    const recordArray = new LiveArray({
       identifiers,
       store,
     });

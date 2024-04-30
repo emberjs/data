@@ -1,4 +1,4 @@
-const TestemConfig = require('@ember-data/unpublished-test-infra/src/testem/testem');
+const TestemConfig = require('@ember-data/unpublished-test-infra/testem/testem');
 
 module.exports = async function () {
   const holodeck = (await import('@warp-drive/holodeck')).default;

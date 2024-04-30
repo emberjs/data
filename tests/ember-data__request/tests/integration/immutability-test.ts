@@ -1,13 +1,13 @@
 import RequestManager from '@ember-data/request';
-import type { Context } from '@ember-data/request/-private/context';
-import type { Handler, NextFn } from '@ember-data/request/-private/types';
+import type { RequestContext } from '@warp-drive/core-types/request';
+import type { Handler, NextFn } from '@ember-data/request';
 import { module, test } from '@warp-drive/diagnostic';
 
 module('RequestManager | Immutability', function () {
   test('RequestInfo passed to a handler is Immutable', async function (assert) {
     const manager = new RequestManager();
     const handler: Handler = {
-      request<T>(context: Context, next: NextFn<T>) {
+      request<T>(context: RequestContext, next: NextFn<T>) {
         // @ts-expect-error
         context.request.integrity = 'some val';
         return Promise.resolve<T>('hello' as T);
@@ -29,7 +29,7 @@ module('RequestManager | Immutability', function () {
   test('Headers in RequestInfo passed to a handler are Immutable', async function (assert) {
     const manager = new RequestManager();
     const handler: Handler = {
-      request<T>(context: Context, next: NextFn<T>) {
+      request<T>(context: RequestContext, next: NextFn<T>) {
         context.request.headers!.append('house', 'home');
         return Promise.resolve<T>('hello' as T);
       },
@@ -50,7 +50,7 @@ module('RequestManager | Immutability', function () {
   test('Headers in RequestInfo passed to a handler may be edited after cloning', async function (assert) {
     const manager = new RequestManager();
     const handler: Handler = {
-      request<T>(context: Context, next: NextFn<T>) {
+      request<T>(context: RequestContext, next: NextFn<T>) {
         const headers = new Headers(context.request.headers);
         headers.append('house', 'home');
         // @ts-expect-error Types are wrong: Property 'entries' does not exist on type 'Headers'.

@@ -4,7 +4,6 @@ import { setupTest } from 'ember-qunit';
 
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
-import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 import type { ResourceType } from '@warp-drive/core-types/symbols';
 import type { Transform } from '@warp-drive/schema-record/schema';
 import { registerDerivations, SchemaService, withFields } from '@warp-drive/schema-record/schema';
@@ -30,12 +29,10 @@ module('Reads | array fields', function (hooks) {
       fields: withFields([
         {
           name: 'name',
-          type: null,
           kind: 'field',
         },
         {
           name: 'favoriteNumbers',
-          type: null,
           kind: 'array',
         },
       ]),
@@ -78,7 +75,6 @@ module('Reads | array fields', function (hooks) {
       fields: withFields([
         {
           name: 'name',
-          type: null,
           kind: 'field',
         },
         {

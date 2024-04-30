@@ -15,18 +15,16 @@
     "ember-addon"
   ],
   "scripts": {
-    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
-    "build:types": "glint --build",
+    "_lint": "eslint . --quiet --cache --cache-strategy=content --report-unused-disable-directives",
     "check:types": "glint",
-    "build:client": "rollup --config",
-    "_build": "bun run build:client && bun run build:types",
-    "prepack": "bun run _build",
-    "_syncPnpm": "bun run sync-dependencies-meta-injected"
+    "build:pkg": "rollup --config",
+    "prepack": "bun run build:pkg",
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
   "files": [
     "unstable-preview-types",
     "addon-main.cjs",
-    "addon",
+    "dist",
     "README.md",
     "LICENSE.md",
     "ember-data-logo-dark.svg",
@@ -35,11 +33,11 @@
   "exports": {
     ".": {
       "types": "./unstable-preview-types/index.d.ts",
-      "default": "./addon/index.js"
+      "default": "./dist/index.js"
     },
     "./*": {
       "types": "./unstable-preview-types/*.d.ts",
-      "default": "./addon/*.js"
+      "default": "./dist/*.js"
     }
   },
   "peerDependencies": {
@@ -77,9 +75,6 @@
   "devDependencies": {
     "@babel/cli": "^7.24.1",
     "@babel/core": "^7.24.4",
-    "@babel/plugin-proposal-decorators": "^7.24.1",
-    "@babel/plugin-transform-class-properties": "^7.24.1",
-    "@babel/plugin-transform-private-methods": "^7.24.1",
     "@babel/plugin-transform-runtime": "^7.24.3",
     "@babel/plugin-transform-typescript": "^7.24.4",
     "@babel/preset-env": "^7.24.4",
@@ -95,11 +90,12 @@
     "@glint/template": "^1.4.0",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "decorator-transforms": "1.1.0",
+    "decorator-transforms": "^1.1.0",
     "@ember-data/request": "workspace:5.4.0-alpha.59",
     "@ember-data/store": "workspace:5.4.0-alpha.59",
     "@ember-data/tracking": "workspace:5.4.0-alpha.59",
     "@ember/string": "^3.1.1",
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.1",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.45",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.59",
     "babel-plugin-ember-template-compilation": "^2.2.1",

@@ -1,6 +1,5 @@
 import { graphFor } from '@ember-data/graph/-private';
-import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
-import type { Graph } from '@ember-data/graph/-private/graph';
+import type { ResourceEdge, Graph } from '@ember-data/graph/-private';
 import Model, { attr, belongsTo } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';

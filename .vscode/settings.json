@@ -2,6 +2,8 @@
   "eslint.format.enable": true,
   "eslint.workingDirectories": [{ "mode": "auto" }, "packages/*", "tests/*"],
   "eslint.options": { "reportUnusedDisableDirectives": "error" },
+  "eslint.useFlatConfig": true,
+  "eslint.experimental.useFlatConfig": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
@@ -39,5 +41,6 @@
     "editor.insertSpaces": false,
     "editor.tabSize": 4
   },
-  "typescript.preferences.importModuleSpecifier": "project-relative"
+  "typescript.preferences.importModuleSpecifier": "project-relative",
+  "eslint.debug": true
 }

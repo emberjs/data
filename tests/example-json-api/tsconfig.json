@@ -26,6 +26,6 @@
 
     "types": ["ember-source/types"],
     "paths": {}
-  },
-  "references": []
+  }
+  // "references": []
 }

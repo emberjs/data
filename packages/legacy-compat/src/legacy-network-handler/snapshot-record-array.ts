@@ -3,13 +3,13 @@
 */
 import type Store from '@ember-data/store';
 import { SOURCE } from '@ember-data/store/-private';
-import type IdentifierArray from '@ember-data/store/-private/record-arrays/identifier-array';
-import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
-import type { FindAllOptions } from '@ember-data/store/-types/q/store';
+import type { LiveArray } from '@ember-data/store/-private';
+import type { ModelSchema } from '@ember-data/store/types';
+import type { FindAllOptions } from '@ember-data/store/types';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
 import { upgradeStore } from '../-private';
-import type Snapshot from './snapshot';
+import type { Snapshot } from './snapshot';
 /**
   SnapshotRecordArray is not directly instantiable.
   Instances are provided to consuming application's
@@ -18,7 +18,7 @@ import type Snapshot from './snapshot';
   @class SnapshotRecordArray
   @public
 */
-export default class SnapshotRecordArray {
+export class SnapshotRecordArray {
   declare _snapshots: Snapshot[] | null;
   declare _type: ModelSchema | null;
   declare modelName: string;
@@ -112,7 +112,7 @@ export default class SnapshotRecordArray {
     @private
     @type {Array}
   */
-  get _recordArray(): IdentifierArray {
+  get _recordArray(): LiveArray {
     return this.__store.peekAll(this.modelName);
   }
 

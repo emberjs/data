@@ -1,15 +1,17 @@
 import Cache from '@ember-data/json-api';
 import type { StructuredDataDocument } from '@ember-data/request';
 import Store from '@ember-data/store';
-import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
-import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
+import type { NotificationType } from '@ember-data/store';
+import type { CacheCapabilitiesManager } from '@ember-data/store/types';
+import type { FieldSchema } from '@warp-drive/core-types/schema/fields';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
-import type { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
 import type { CollectionResourceDataDocument } from '@warp-drive/core-types/spec/document';
-import type { CollectionResourceDocument } from '@warp-drive/core-types/spec/raw';
+import type { CollectionResourceDocument, ResourceObject } from '@warp-drive/core-types/spec/json-api-raw';
 import { module, test } from '@warp-drive/diagnostic';
+import type { SchemaService } from '@ember-data/store/types';
+
+type AttributesSchema = ReturnType<SchemaService['attributesDefinitionFor']>;
+type RelationshipsSchema = ReturnType<SchemaService['relationshipsDefinitionFor']>;
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
 class TestStore extends Store {
@@ -20,7 +22,7 @@ class TestStore extends Store {
   override instantiateRecord(identifier: StableRecordIdentifier) {
     const { id, lid, type } = identifier;
     const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
-    Object.assign(record, (this.cache.peek(identifier) as JsonApiResource).attributes);
+    Object.assign(record, (this.cache.peek(identifier) as ResourceObject).attributes);
 
     const token = this.notifications.subscribe(
       identifier,

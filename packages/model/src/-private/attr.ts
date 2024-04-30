@@ -104,6 +104,7 @@ function _attr(type?: string | AttrOptions, options?: AttrOptions & object) {
 
         if (!this.isValid) {
           const { errors } = this;
+
           if (errors.get(key)) {
             errors.remove(key);
             this.currentState.cleanErrorRequests();

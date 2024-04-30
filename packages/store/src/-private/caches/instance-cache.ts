@@ -2,20 +2,22 @@ import { assert, warn } from '@ember/debug';
 
 import { LOG_INSTANCE_CACHE } from '@warp-drive/build-config/debugging';
 import { DEBUG } from '@warp-drive/build-config/env';
-import type { RecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { Cache } from '@warp-drive/core-types/cache';
+import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { Value } from '@warp-drive/core-types/json/raw';
 import type { TypedRecordInstance, TypeFromInstance, TypeFromInstanceOrString } from '@warp-drive/core-types/record';
-import type { RelationshipSchema } from '@warp-drive/core-types/schema';
-import type { ExistingResourceIdentifierObject, NewResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
+import type { LegacyRelationshipSchema as RelationshipSchema } from '@warp-drive/core-types/schema/fields';
+import type {
+  ExistingResourceIdentifierObject,
+  ExistingResourceObject,
+  InnerRelationshipDocument,
+} from '@warp-drive/core-types/spec/json-api-raw';
 
-import type { Cache } from '../../-types/q/cache';
-import type { JsonApiRelationship, JsonApiResource } from '../../-types/q/record-data-json-api';
 import type { OpaqueRecordInstance } from '../../-types/q/record-instance';
 import RecordReference from '../legacy-model-support/record-reference';
 import { CacheCapabilitiesManager } from '../managers/cache-capabilities-manager';
 import type { CacheManager } from '../managers/cache-manager';
-import type { CreateRecordProperties } from '../store-service';
-import type Store from '../store-service';
+import type { Store, CreateRecordProperties } from '../store-service';
 import { ensureStringId } from '../utils/coerce-id';
 import { CacheForIdentifierCache, removeRecordDataFor, setCacheFor } from './cache-utils';
 
@@ -106,7 +108,6 @@ export class InstanceCache {
   declare store: Store;
   declare cache: Cache;
   declare _storeWrapper: CacheCapabilitiesManager;
-  declare __cacheFor: (resource: RecordIdentifier) => Cache;
 
   declare __cacheManager: CacheManager;
   __instances: Caches = {
@@ -411,7 +412,7 @@ export function resourceIsFullyDeleted(instanceCache: InstanceCache, identifier:
   */
 type PreloadRelationshipValue = OpaqueRecordInstance | string;
 export function preloadData(store: Store, identifier: StableRecordIdentifier, preload: Record<string, Value>) {
-  const jsonPayload: JsonApiResource = {};
+  const jsonPayload: Partial<ExistingResourceObject> = {};
   //TODO(Igor) consider the polymorphic case
   const schemas = store.getSchemaDefinitionService();
   const relationships = schemas.relationshipsDefinitionFor(identifier);
@@ -439,7 +440,7 @@ export function preloadData(store: Store, identifier: StableRecordIdentifier, pr
 function preloadRelationship(
   schema: RelationshipSchema,
   preloadValue: PreloadRelationshipValue | null | Array<PreloadRelationshipValue>
-): JsonApiRelationship {
+): InnerRelationshipDocument<ExistingResourceIdentifierObject> {
   const relatedType = schema.type;
 
   if (schema.kind === 'hasMany') {
@@ -458,13 +459,13 @@ function preloadRelationship(
 function _convertPreloadRelationshipToJSON(
   value: OpaqueRecordInstance | string,
   type: string
-): ExistingResourceIdentifierObject | NewResourceIdentifierObject {
+): ExistingResourceIdentifierObject {
   if (typeof value === 'string' || typeof value === 'number') {
     return { type, id: ensureStringId(value) };
   }
   // TODO if not a record instance assert it's an identifier
   // and allow identifiers to be used
-  return recordIdentifierFor(value);
+  return recordIdentifierFor(value) as ExistingResourceIdentifierObject;
 }
 
 export function _clearCaches() {

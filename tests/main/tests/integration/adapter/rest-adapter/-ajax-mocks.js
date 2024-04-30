@@ -1,5 +1,3 @@
-import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
-
 /**
  * @description Helper function to mock the response of an adapter in order to
  * test its behavior.
@@ -19,7 +17,7 @@ function ajaxResponse(adapter, value) {
     passedVerb = passedHash.method;
     return Promise.resolve({
       text() {
-        return Promise.resolve(JSON.stringify(deepCopy(value)));
+        return Promise.resolve(JSON.stringify(structuredClone(value)));
       },
       ok: true,
       status: 200,
@@ -31,7 +29,7 @@ function ajaxResponse(adapter, value) {
     passedVerb = verb;
     passedHash = hash;
 
-    return Promise.resolve(deepCopy(value));
+    return Promise.resolve(structuredClone(value));
   };
 
   return () => {

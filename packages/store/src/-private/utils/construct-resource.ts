@@ -1,21 +1,28 @@
 import { assert } from '@ember/debug';
 
-import type { ExistingResourceIdentifierObject, ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
+import type {
+  ExistingResourceIdentifierObject,
+  ResourceIdentifierObject,
+} from '@warp-drive/core-types/spec/json-api-raw';
 
 import { isStableIdentifier } from '../caches/identifier-cache';
-import coerceId from './coerce-id';
-import isNonEmptyString from './is-non-empty-string';
+import { coerceId } from './coerce-id';
+import { isNonEmptyString } from './is-non-empty-string';
 
-function constructResource(type: ResourceIdentifierObject): ResourceIdentifierObject;
-function constructResource(type: string, id: string, lid: string): ExistingResourceIdentifierObject;
-function constructResource(
+export function constructResource(type: ResourceIdentifierObject): ResourceIdentifierObject;
+export function constructResource(type: string, id: string, lid: string): ExistingResourceIdentifierObject;
+export function constructResource(
   type: string | undefined,
   id: null | undefined,
   lid: string
 ): ExistingResourceIdentifierObject;
-function constructResource(type: string, id: string, lid?: string | null): ExistingResourceIdentifierObject;
-function constructResource(type: string, id?: string | number | null, lid?: string | null): ResourceIdentifierObject;
-function constructResource(
+export function constructResource(type: string, id: string, lid?: string | null): ExistingResourceIdentifierObject;
+export function constructResource(
+  type: string,
+  id?: string | number | null,
+  lid?: string | null
+): ResourceIdentifierObject;
+export function constructResource(
   type: string | ResourceIdentifierObject | undefined,
   id?: string | number | null,
   lid?: string | null
@@ -54,5 +61,3 @@ function constructResource(
     return { type, id: trueId };
   }
 }
-
-export default constructResource;

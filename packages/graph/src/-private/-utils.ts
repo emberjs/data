@@ -2,11 +2,11 @@ import { assert, inspect, warn } from '@ember/debug';
 
 import type { Store } from '@ember-data/store/-private';
 import { peekCache } from '@ember-data/store/-private';
-import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
+import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { LOG_GRAPH } from '@warp-drive/build-config/debugging';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { UpdateRelationshipOperation } from '@warp-drive/core-types/graph';
-import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
+import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
 
 import type { UpgradedMeta } from './-edge-definition';
 import { coerceId } from './coerce-id';

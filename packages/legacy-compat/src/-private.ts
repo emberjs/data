@@ -9,9 +9,9 @@ import type { CompatStore } from '.';
   @module @ember-data/legacy-compat
   @main @ember-data/legacy-compat
 */
-export { default as SnapshotRecordArray } from './legacy-network-handler/snapshot-record-array';
+export { SnapshotRecordArray } from './legacy-network-handler/snapshot-record-array';
 export { SaveOp } from './legacy-network-handler/fetch-manager';
-export { default as FetchManager } from './legacy-network-handler/fetch-manager';
-export { default as Snapshot } from './legacy-network-handler/snapshot';
+export { FetchManager } from './legacy-network-handler/fetch-manager';
+export { Snapshot } from './legacy-network-handler/snapshot';
 
 export function upgradeStore(store: Store): asserts store is CompatStore {}

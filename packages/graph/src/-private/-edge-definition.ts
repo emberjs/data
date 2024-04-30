@@ -3,7 +3,7 @@ import { assert } from '@ember/debug';
 import type Store from '@ember-data/store';
 import { DEBUG } from '@warp-drive/build-config/env';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { RelationshipSchema } from '@warp-drive/core-types/schema';
+import type { LegacyRelationshipSchema as RelationshipSchema } from '@warp-drive/core-types/schema/fields';
 
 import { expandingGet, expandingSet, getStore } from './-utils';
 import { assertInheritedSchema } from './debug/assert-polymorphic-type';

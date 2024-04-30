@@ -5,7 +5,7 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import type Store from '@ember-data/store';
-import type { Document } from '@ember-data/store/-private/document';
+import type { Document } from '@ember-data/store';
 import type { SchemaRecord } from '@warp-drive/schema-record/record';
 import { registerDerivations, SchemaService, withFields } from '@warp-drive/schema-record/schema';
 

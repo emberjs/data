@@ -2,7 +2,7 @@ import { assert } from '@ember/debug';
 import { DEBUG } from '@warp-drive/build-config/env';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type Store from '@ember-data/store';
-import type { UpgradedMeta } from '@ember-data/graph/-private/-edge-definition';
+import type { UpgradedMeta } from '@ember-data/graph/-private';
 
 /*
   Assert that `addedRecord` has a valid type so it can be added to the

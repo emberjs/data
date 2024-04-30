@@ -3,15 +3,14 @@ import { assert } from '@ember/debug';
 import type Store from '@ember-data/store';
 import { storeFor } from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store/-private';
-import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type RequestStateService from '@ember-data/store/-private/network/request-cache';
-import type { RequestState } from '@ember-data/store/-private/network/request-cache';
-import type { Cache } from '@ember-data/store/-types/q/cache';
+import type { NotificationType } from '@ember-data/store';
+import type { RequestState, RequestStateService } from '@ember-data/store/-private';
+import type { Cache } from '@warp-drive/core-types/cache';
 import { cached, compat } from '@ember-data/tracking';
 import { addToTransaction, defineSignal, getSignal, peekSignal, subscribe } from '@ember-data/tracking/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
-import type Errors from './errors';
+import type { Errors } from './errors';
 import type { MinimalLegacyRecord } from './model-methods';
 
 const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;

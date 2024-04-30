@@ -1,0 +1,41 @@
+{
+  "include": ["src/**/*"],
+  "compilerOptions": {
+    "lib": ["DOM", "ESNext"],
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "strict": true,
+    "downlevelIteration": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "noEmit": true,
+    "noImplicitOverride": true,
+
+    // Enable faster builds
+    // but causes us to not rebuild properly
+    "composite": true,
+    "incremental": true,
+    "rootDir": "src",
+    "baseUrl": ".",
+
+    "experimentalDecorators": true,
+    "declaration": true,
+    "declarationMap": true,
+    "declarationDir": "unstable-preview-types",
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "types": ["ember-source/types"]
+  },
+  // "references": [
+  //   { "path": "../request" },
+  //   { "path": "../store" },
+  //   { "path": "../model" },
+  //   { "path": "../tracking" },
+  //   { "path": "../core-types" },
+  //   { "path": "../build-config" }
+  // ]
+}

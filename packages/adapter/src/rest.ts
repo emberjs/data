@@ -9,9 +9,9 @@ import { assert, warn } from '@ember/debug';
 import { computed } from '@ember/object';
 
 import type { Snapshot, SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
-import type { AdapterPayload } from '@ember-data/legacy-compat/legacy-network-handler/minimum-adapter-interface';
+import type { AdapterPayload } from '@ember-data/legacy-compat';
 import type Store from '@ember-data/store';
-import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
+import type { ModelSchema } from '@ember-data/store/types';
 import { DEBUG } from '@warp-drive/build-config/env';
 import type { HTTPMethod } from '@warp-drive/core-types/request';
 

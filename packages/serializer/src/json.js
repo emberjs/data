@@ -8,7 +8,7 @@ import { dasherize } from '@ember/string';
 import { singularize } from 'ember-inflector';
 
 import Serializer from '.';
-import { coerceId } from './-private';
+import { coerceId } from './-private/utils';
 
 const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
 const SOURCE_POINTER_PRIMARY_REGEXP = /^\/?data/;

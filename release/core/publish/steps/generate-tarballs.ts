@@ -35,6 +35,10 @@ export async function generatePackageTarballs(
       throw new Error(`Unexpected attempt to publish private package ${pkg.pkgData.name}`);
     }
 
+    if (!Array.isArray(pkg.pkgData.files) || pkg.pkgData.files.length === 0) {
+      throw new Error(`Unexpected attempt to publish package ${pkg.pkgData.name} with no files`);
+    }
+
     try {
       if (pkg.pkgData.scripts?.['prepack']) {
         await exec({ cwd: path.join(PROJECT_ROOT, path.dirname(pkg.filePath)), cmd: `bun run prepack` });

@@ -1,11 +1,8 @@
 import { graphFor } from '@ember-data/graph/-private';
-import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection';
-import type { ImplicitEdge } from '@ember-data/graph/-private/edges/implicit';
-import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
-import type { Graph, GraphEdge } from '@ember-data/graph/-private/graph';
+import type { CollectionEdge, ImplicitEdge, ResourceEdge, Graph, GraphEdge } from '@ember-data/graph/-private';
 import type Model from '@ember-data/model';
 import type Store from '@ember-data/store';
-import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
+import type { ModelSchema } from '@ember-data/store/types';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { ResourceType } from '@warp-drive/core-types/symbols';

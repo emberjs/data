@@ -6,10 +6,10 @@ import { setupTest } from 'ember-qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import type { Cache } from '@ember-data/store/-types/q/cache';
-import type { FieldSchema, SchemaService } from '@ember-data/store/-types/q/schema-service';
+import type { Cache } from '@warp-drive/core-types/cache';
 import type { RecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
-import type { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
+import type { FieldSchema, LegacyAttributeField } from '@warp-drive/core-types/schema/fields';
+import type { SchemaService } from '@ember-data/store/types';
 
 module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
   class Person {
@@ -24,8 +24,8 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
   }
 
   class TestSchema<T extends string> {
-    attributesDefinitionFor(identifier: { type: T }): AttributesSchema {
-      const schema: AttributesSchema = {};
+    attributesDefinitionFor(identifier: { type: T }): Record<string, LegacyAttributeField> {
+      const schema: Record<string, LegacyAttributeField> = {};
       schema.name = {
         kind: 'attribute',
         options: {},
@@ -60,7 +60,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
       return fieldDefs;
     }
 
-    relationshipsDefinitionFor(identifier: { type: T }): RelationshipsSchema {
+    relationshipsDefinitionFor(identifier: { type: T }): ReturnType<SchemaService['relationshipsDefinitionFor']> {
       return {};
     }
 
@@ -239,7 +239,9 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     this.owner.register('service:store', CustomStore);
     const store = this.owner.lookup('service:store') as Store;
     class TestSchema2 {
-      attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
+      attributesDefinitionFor(
+        identifier: RecordIdentifier | { type: string }
+      ): ReturnType<SchemaService['attributesDefinitionFor']> {
         assert.step('Schema:attributesDefinitionFor');
         if (typeof identifier === 'string') {
           assert.strictEqual(identifier, 'person', 'type passed in to the schema hooks');
@@ -289,7 +291,9 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
         return fieldDefs;
       }
 
-      relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
+      relationshipsDefinitionFor(
+        identifier: RecordIdentifier | { type: string }
+      ): ReturnType<SchemaService['relationshipsDefinitionFor']> {
         assert.step('Schema:relationshipsDefinitionFor');
         if (typeof identifier === 'string') {
           assert.strictEqual(identifier, 'person', 'type passed in to the schema hooks');
@@ -422,7 +426,9 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     this.owner.register('service:store', CustomStore);
     const store = this.owner.lookup('service:store') as Store;
     class TestSchema2 {
-      attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
+      attributesDefinitionFor(
+        identifier: RecordIdentifier | { type: string }
+      ): ReturnType<SchemaService['attributesDefinitionFor']> {
         const modelName = (identifier as RecordIdentifier).type || identifier;
         if (modelName === 'person') {
           return {
@@ -472,7 +478,9 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
         return fieldDefs;
       }
 
-      relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
+      relationshipsDefinitionFor(
+        identifier: RecordIdentifier | { type: string }
+      ): ReturnType<SchemaService['relationshipsDefinitionFor']> {
         const modelName = (identifier as RecordIdentifier).type || identifier;
         if (modelName === 'person') {
           return {

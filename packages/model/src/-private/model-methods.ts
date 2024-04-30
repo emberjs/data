@@ -10,7 +10,7 @@ import { peekCache } from '@ember-data/store/-private';
 import type { ChangedAttributesHash } from '@warp-drive/core-types/cache';
 import { RecordStore } from '@warp-drive/core-types/symbols';
 
-import type Errors from './errors';
+import type { Errors } from './errors';
 import { lookupLegacySupport } from './legacy-relationships-support';
 import type RecordState from './record-state';
 import type BelongsToReference from './references/belongs-to';

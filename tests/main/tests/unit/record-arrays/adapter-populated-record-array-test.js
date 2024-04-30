@@ -4,7 +4,7 @@ import { setupTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
 import { createDeferred } from '@ember-data/request';
-import { AdapterPopulatedRecordArray, RecordArrayManager, SOURCE } from '@ember-data/store/-private';
+import { CollectionRecordArray, RecordArrayManager, SOURCE } from '@ember-data/store/-private';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 class Tag extends Model {
@@ -12,11 +12,11 @@ class Tag extends Model {
   name;
 }
 
-module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedRecordArray', function (hooks) {
+module('unit/record-arrays/collection', function (hooks) {
   setupTest(hooks);
 
   test('default initial state', async function (assert) {
-    const recordArray = new AdapterPopulatedRecordArray({
+    const recordArray = new CollectionRecordArray({
       type: 'recordType',
       isLoaded: false,
       identifiers: [],
@@ -33,7 +33,7 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
 
   test('custom initial state', async function (assert) {
     const store = {};
-    const recordArray = new AdapterPopulatedRecordArray({
+    const recordArray = new CollectionRecordArray({
       type: 'apple',
       isLoaded: true,
       identifiers: ['1'],
@@ -51,7 +51,7 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
   });
 
   testInDebug('mutation throws error', function (assert) {
-    const recordArray = new AdapterPopulatedRecordArray({ type: 'recordType', identifiers: [] });
+    const recordArray = new CollectionRecordArray({ type: 'recordType', identifiers: [] });
 
     assert.throws(
       () => {
@@ -77,7 +77,7 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
       },
     };
 
-    const recordArray = new AdapterPopulatedRecordArray({
+    const recordArray = new CollectionRecordArray({
       type: 'recordType',
       store,
       identifiers: [],
@@ -114,7 +114,7 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     const manager = new RecordArrayManager({
       store,
     });
-    const recordArray = new AdapterPopulatedRecordArray({
+    const recordArray = new CollectionRecordArray({
       query: 'some-query',
       manager,
       identifiers: [],

@@ -10,7 +10,7 @@ import { DEBUG } from '@warp-drive/build-config/env';
 import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 
 import { isDocumentIdentifier, isStableIdentifier } from '../caches/identifier-cache';
-import type Store from '../store-service';
+import type { Store } from '../store-service';
 
 export type UnsubscribeToken = object;
 let tokenId = 0;
@@ -32,7 +32,7 @@ export type NotificationType = 'attributes' | 'relationships' | 'identity' | 'er
 export interface NotificationCallback {
   (identifier: StableRecordIdentifier, notificationType: 'attributes' | 'relationships', key?: string): void;
   (identifier: StableRecordIdentifier, notificationType: 'errors' | 'meta' | 'identity' | 'state'): void;
-  (identifier: StableRecordIdentifier, notificationType: NotificationType, key?: string): void;
+  // (identifier: StableRecordIdentifier, notificationType: NotificationType, key?: string): void;
 }
 
 export interface ResourceOperationCallback {
@@ -127,8 +127,7 @@ export default class NotificationManager {
    */
   subscribe(identifier: StableRecordIdentifier, callback: NotificationCallback): UnsubscribeToken;
   subscribe(identifier: 'resource', callback: ResourceOperationCallback): UnsubscribeToken;
-  subscribe(identifier: StableDocumentIdentifier, callback: DocumentOperationCallback): UnsubscribeToken;
-  subscribe(identifier: 'document', callback: DocumentOperationCallback): UnsubscribeToken;
+  subscribe(identifier: 'document' | StableDocumentIdentifier, callback: DocumentOperationCallback): UnsubscribeToken;
   subscribe(
     identifier: StableDocumentIdentifier | StableRecordIdentifier | 'resource' | 'document',
     callback: NotificationCallback | ResourceOperationCallback | DocumentOperationCallback

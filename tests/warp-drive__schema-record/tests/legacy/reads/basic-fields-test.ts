@@ -8,9 +8,8 @@ import {
   registerDerivations as registerLegacyDerivations,
   withFields as withLegacyFields,
 } from '@ember-data/model/migration-support';
-import type Store from '@ember-data/store';
+import type Store from 'warp-drive__schema-record/services/store';
 import { recordIdentifierFor } from '@ember-data/store';
-import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { SchemaRecord } from '@warp-drive/schema-record/record';
 import type { Transform } from '@warp-drive/schema-record/schema';
@@ -167,7 +166,7 @@ module('Legacy | Reads | basic fields', function (hooks) {
     // @ts-expect-error intentionally have not typed the property on the record
     assert.strictEqual(record.lastName, undefined, 'lastName is accessible even though its transform does not exist');
 
-    const resource = store.cache.peek(identifier) as JsonApiResource;
+    const resource = store.cache.peek(identifier)!;
 
     assert.strictEqual(store.cache.getAttr(identifier, 'name'), 'Rey Skybarker', 'cache value for name is correct');
     assert.strictEqual(store.cache.getAttr(identifier, 'age'), 42, 'cache value for age is correct');

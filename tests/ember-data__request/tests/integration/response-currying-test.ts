@@ -1,6 +1,6 @@
 import RequestManager from '@ember-data/request';
-import type { Context } from '@ember-data/request/-private/context';
-import type { Handler, NextFn } from '@ember-data/request/-private/types';
+import type { RequestContext } from '@warp-drive/core-types/request';
+import type { Handler, NextFn } from '@ember-data/request';
 import { module, test } from '@warp-drive/diagnostic';
 
 const IGNORED_HEADERS = new Set(['connection', 'keep-alive', 'content-length', 'date', 'etag', 'last-modified']);
@@ -9,13 +9,13 @@ module('RequestManager | Response Currying', function () {
   test('We curry response when setResponse is not called', async function (assert) {
     const manager = new RequestManager();
     const handler1: Handler = {
-      async request<T>(context: Context, next: NextFn<T>) {
+      async request<T>(context: RequestContext, next: NextFn<T>) {
         const response = await next(context.request);
         return response.content;
       },
     };
     const handler2: Handler = {
-      async request<T>(context: Context, next: NextFn<T>) {
+      async request<T>(context: RequestContext, next: NextFn<T>) {
         const response = await fetch(context.request.url!, context.request);
         context.setResponse(response);
         return response.json();
@@ -55,14 +55,14 @@ module('RequestManager | Response Currying', function () {
   test('We do not curry response when we call next multiple times', async function (assert) {
     const manager = new RequestManager();
     const handler1: Handler = {
-      async request<T>(context: Context, next: NextFn<T>): Promise<T> {
+      async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> {
         await next(context.request);
         await next(context.request);
         return (await next(context.request)).content;
       },
     };
     const handler2: Handler = {
-      async request<T>(context: Context, next: NextFn<T>) {
+      async request<T>(context: RequestContext, next: NextFn<T>) {
         const response = await fetch(context.request.url!, context.request);
         context.setResponse(response);
         return response.json();
@@ -78,12 +78,12 @@ module('RequestManager | Response Currying', function () {
   test('We curry when we return directly', async function (assert) {
     const manager = new RequestManager();
     const handler1: Handler = {
-      async request<T>(context: Context, next: NextFn<T>): Promise<T> {
+      async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> {
         return next(context.request) as unknown as Promise<T>;
       },
     };
     const handler2: Handler = {
-      async request<T>(context: Context, next: NextFn<T>) {
+      async request<T>(context: RequestContext, next: NextFn<T>) {
         const response = await fetch(context.request.url!, context.request);
         context.setResponse(response);
         return response.json();
@@ -123,7 +123,7 @@ module('RequestManager | Response Currying', function () {
   test('We can intercept Response', async function (assert) {
     const manager = new RequestManager();
     const handler1: Handler = {
-      async request<T>(context: Context, next: NextFn<T>): Promise<T> {
+      async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> {
         const doc = await next(context.request);
 
         const response = Object.assign({}, doc.response, { ok: false });
@@ -133,7 +133,7 @@ module('RequestManager | Response Currying', function () {
       },
     };
     const handler2: Handler = {
-      async request<T>(context: Context, next: NextFn<T>) {
+      async request<T>(context: RequestContext, next: NextFn<T>) {
         const response = await fetch(context.request.url!, context.request);
         context.setResponse(response);
         return response.json();
@@ -174,7 +174,7 @@ module('RequestManager | Response Currying', function () {
     assert.expect(3);
     const manager = new RequestManager();
     const handler1: Handler = {
-      async request<T>(context: Context, next: NextFn<T>): Promise<T> {
+      async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> {
         const doc = await next(context.request);
 
         try {
@@ -196,7 +196,7 @@ module('RequestManager | Response Currying', function () {
       },
     };
     const handler2: Handler = {
-      async request<T>(context: Context, next: NextFn<T>) {
+      async request<T>(context: RequestContext, next: NextFn<T>) {
         const response = await fetch(context.request.url!, context.request);
         context.setResponse(response);
         return response.json();
@@ -236,7 +236,7 @@ module('RequestManager | Response Currying', function () {
   test('We can set response to null', async function (assert) {
     const manager = new RequestManager();
     const handler1: Handler = {
-      async request<T>(context: Context, next: NextFn<T>): Promise<T> {
+      async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> {
         const doc = await next(context.request);
 
         context.setResponse(null);
@@ -245,7 +245,7 @@ module('RequestManager | Response Currying', function () {
       },
     };
     const handler2: Handler = {
-      async request<T>(context: Context, next: NextFn<T>) {
+      async request<T>(context: RequestContext, next: NextFn<T>) {
         const response = await fetch(context.request.url!, context.request);
         context.setResponse(response);
         return response.json();

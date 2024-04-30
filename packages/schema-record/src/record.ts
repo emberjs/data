@@ -2,9 +2,16 @@ import { assert } from '@ember/debug';
 
 import type { Future } from '@ember-data/request';
 import type Store from '@ember-data/store';
-import type { StoreRequestInput } from '@ember-data/store/-private/cache-handler';
-import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
+import type { NotificationType, StoreRequestInput } from '@ember-data/store';
+import type {
+  ArrayField,
+  DerivedField,
+  FieldSchema,
+  GenericField,
+  IdentityField,
+  LocalField,
+  ObjectField,
+} from '@warp-drive/core-types/schema/fields';
 import {
   addToTransaction,
   defineSignal,
@@ -20,7 +27,7 @@ import type { Cache } from '@warp-drive/core-types/cache';
 import type { ResourceRelationship as SingleResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { ArrayValue, ObjectValue, Value } from '@warp-drive/core-types/json/raw';
 import { STRUCTURED } from '@warp-drive/core-types/request';
-import type { Link, Links } from '@warp-drive/core-types/spec/raw';
+import type { Link, Links } from '@warp-drive/core-types/spec/json-api-raw';
 import { RecordStore } from '@warp-drive/core-types/symbols';
 
 import { ARRAY_SIGNAL, ManagedArray } from './managed-array';
@@ -40,7 +47,7 @@ const RecordSymbols = new Set([Destroy, RecordStore, Identifier, Editable, Paren
 const ManagedArrayMap = new Map<SchemaRecord, Map<FieldSchema, ManagedArray>>();
 const ManagedObjectMap = new Map<SchemaRecord, Map<FieldSchema, ManagedObject>>();
 
-function computeLocal(record: typeof Proxy<SchemaRecord>, field: FieldSchema, prop: string): unknown {
+function computeLocal(record: typeof Proxy<SchemaRecord>, field: LocalField, prop: string): unknown {
   let signal = peekSignal(record, prop);
 
   if (!signal) {
@@ -70,11 +77,11 @@ function computeField(
   cache: Cache,
   record: SchemaRecord,
   identifier: StableRecordIdentifier,
-  field: FieldSchema,
+  field: GenericField,
   prop: string
 ): unknown {
   const rawValue = cache.getAttr(identifier, prop);
-  if (field.type === null) {
+  if (!field.type) {
     return rawValue;
   }
   const transform = schema.transforms.get(field.type);
@@ -90,7 +97,7 @@ function computeArray(
   cache: Cache,
   record: SchemaRecord,
   identifier: StableRecordIdentifier,
-  field: FieldSchema,
+  field: ArrayField,
   prop: string
 ) {
   // the thing we hand out needs to know its owner and path in a private manner
@@ -127,7 +134,7 @@ function computeObject(
   cache: Cache,
   record: SchemaRecord,
   identifier: StableRecordIdentifier,
-  field: FieldSchema,
+  field: ObjectField,
   prop: string
 ) {
   const managedObjectMapForRecord = ManagedObjectMap.get(record);
@@ -143,7 +150,7 @@ function computeObject(
       return null;
     }
     if (field.kind === 'object') {
-      if (field.type !== null) {
+      if (field.type) {
         const transform = schema.transforms.get(field.type);
         if (!transform) {
           throw new Error(`No '${field.type}' transform defined for use by ${identifier.type}.${String(prop)}`);
@@ -169,10 +176,10 @@ function computeDerivation(
   schema: SchemaService,
   record: SchemaRecord,
   identifier: StableRecordIdentifier,
-  field: FieldSchema,
+  field: DerivedField,
   prop: string
 ): unknown {
-  if (field.type === null) {
+  if (!field.type) {
     throw new Error(`The schema for ${identifier.type}.${String(prop)} is missing the type of the derivation`);
   }
 
@@ -417,7 +424,7 @@ export class SchemaRecord {
             return true;
           }
           case 'field': {
-            if (field.type === null) {
+            if (!field.type) {
               cache.setAttr(identifier, prop as string, value as Value);
               return true;
             }
@@ -436,7 +443,7 @@ export class SchemaRecord {
             return true;
           }
           case 'array': {
-            if (field.type === null) {
+            if (!field.type) {
               cache.setAttr(identifier, prop as string, (value as ArrayValue)?.slice());
               const peeked = peekManagedArray(self, field);
               if (peeked) {
@@ -466,7 +473,7 @@ export class SchemaRecord {
             return true;
           }
           case 'object': {
-            if (field.type === null) {
+            if (!field.type) {
               let newValue = value;
               if (value !== null) {
                 newValue = { ...(value as ObjectValue) };

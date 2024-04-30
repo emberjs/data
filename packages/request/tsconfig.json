@@ -6,8 +6,7 @@
     "moduleResolution": "bundler",
     "skipLibCheck": true,
     "declarationDir": "unstable-preview-types",
-    "emitDeclarationOnly": true,
-    "noEmit": false,
+    "noEmit": true,
     "allowJs": false,
     "checkJs": false,
     "alwaysStrict": true,
@@ -40,11 +39,7 @@
     "inlineSourceMap": true,
     "inlineSources": true,
 
-    "baseUrl": "src",
-
-    "paths": {
-      "@warp-drive/build-config/env": ["../../private-build-infra/virtual-packages/env.d.ts"]
-    }
+    "baseUrl": "src"
   },
-  "references": [{ "path": "../core-types" }]
+  // "references": [{ "path": "../core-types" }, { "path": "../build-config" }]
 }

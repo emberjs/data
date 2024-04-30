@@ -1,6 +1,5 @@
 {
   "include": ["src/**/*"],
-  "baseUrl": ".",
   "compilerOptions": {
     "lib": ["DOM", "ESNext"],
     "module": "esnext",
@@ -15,7 +14,7 @@
     "forceConsistentCasingInFileNames": true,
     "experimentalDecorators": true,
     "allowJs": false,
-    "noEmit": false,
+    "noEmit": true,
     "noImplicitAny": false,
     "noImplicitOverride": true,
 
@@ -24,31 +23,24 @@
     "composite": true,
     "incremental": true,
     "rootDir": "src",
+    "baseUrl": ".",
 
     "declaration": true,
     "declarationMap": true,
     "declarationDir": "unstable-preview-types",
-    "emitDeclarationOnly": true,
     "inlineSourceMap": true,
     "inlineSources": true,
-    "types": ["ember-source/types"],
-
-    "paths": {
-      "@warp-drive/build-config/deprecations": ["../private-build-infra/virtual-packages/deprecations.d.ts"],
-      "@ember-data/packages": ["../private-build-infra/virtual-packages/packages.d.ts"],
-      "@warp-drive/build-config/canary-features": ["../private-build-infra/virtual-packages/canary-features.d.ts"],
-      "@warp-drive/build-config/debugging": ["../private-build-infra/virtual-packages/debugging.d.ts"],
-      "@warp-drive/build-config/env": ["../private-build-infra/virtual-packages/env.d.ts"]
-    }
+    "types": ["ember-source/types"]
   },
-  "references": [
-    { "path": "../graph" },
-    { "path": "../json-api" },
-    { "path": "../legacy-compat" },
-    { "path": "../request" },
-    { "path": "../request-utils" },
-    { "path": "../store" },
-    { "path": "../tracking" },
-    { "path": "../core-types" }
-  ]
+  // "references": [
+  //   { "path": "../graph" },
+  //   { "path": "../json-api" },
+  //   { "path": "../legacy-compat" },
+  //   { "path": "../request" },
+  //   { "path": "../request-utils" },
+  //   { "path": "../store" },
+  //   { "path": "../tracking" },
+  //   { "path": "../core-types" },
+  //   { "path": "../build-config" }
+  // ]
 }

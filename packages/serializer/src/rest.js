@@ -8,7 +8,7 @@ import { singularize } from 'ember-inflector';
 
 import { DEBUG } from '@warp-drive/build-config/env';
 
-import { coerceId } from './-private';
+import { coerceId } from './-private/utils';
 import JSONSerializer from './json';
 
 function makeArray(value) {
@@ -813,6 +813,6 @@ if (DEBUG) {
   });
 }
 
-export { EmbeddedRecordsMixin } from './-private';
+export { EmbeddedRecordsMixin } from './-private/embedded-records-mixin';
 
 export default RESTSerializer;

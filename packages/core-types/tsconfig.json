@@ -5,7 +5,7 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "skipLibCheck": true,
-    "noEmit": false,
+    "noEmit": true,
     "allowJs": false,
     "checkJs": false,
 
@@ -39,7 +39,6 @@
     "declaration": true,
     "declarationMap": true,
     "declarationDir": "unstable-preview-types",
-    "emitDeclarationOnly": true,
     "inlineSourceMap": true,
     "inlineSources": true,
 

@@ -20,7 +20,7 @@ import {
   type StableRecordIdentifier,
 } from '@warp-drive/core-types/identifier';
 import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
-import type { ExistingResourceObject, ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
+import type { ExistingResourceObject, ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
 
 import type {
   ForgetMethod,
@@ -28,13 +28,14 @@ import type {
   KeyInfo,
   KeyInfoMethod,
   ResetMethod,
-  ResourceData,
   UpdateMethod,
 } from '../../-types/q/identifier';
-import coerceId from '../utils/coerce-id';
-import normalizeModelName from '../utils/normalize-model-name';
+import { coerceId } from '../utils/coerce-id';
+import { normalizeModelName } from '../utils/normalize-model-name';
 import installPolyfill from '../utils/uuid-polyfill';
 import { hasId, hasLid, hasType } from './resource-utils';
+
+type ResourceData = unknown;
 
 const IDENTIFIERS = new Set();
 const DOCUMENTS = new Set();

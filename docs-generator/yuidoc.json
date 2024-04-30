@@ -8,10 +8,10 @@
     "preprocessor": "./yui-docs-preprocessor.js",
     "excludeTags": ["internal", "feature", "typedoc", "see", "link", "inheritdoc"],
     "paths": [
-      "../packages/-ember-data/addon",
+      "../packages/-ember-data/src",
       "../packages/core-types/src",
-      "../packages/debug/addon",
-      "../packages/private-build-infra/virtual-packages",
+      "../packages/debug/src",
+      "../packages/build-config/src",
       "../packages/adapter/src",
       "../packages/model/src",
       "../packages/serializer/src",

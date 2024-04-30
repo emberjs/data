@@ -6,7 +6,7 @@ let _fetch: (() => FetchFunction) | null = null;
 type MockRequest = { protocol?: string; get(key: string): string | undefined };
 let REQUEST: MockRequest = null as unknown as MockRequest;
 
-export default function getFetchFunction(): FetchFunction {
+export function getFetchFunction(): FetchFunction {
   // return cached fetch function
   if (_fetch !== null) {
     return _fetch();

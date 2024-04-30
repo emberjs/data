@@ -11,11 +11,11 @@
   },
   "license": "MIT",
   "author": "",
-  "dependencies": {
+  "devDependencies": {
     "pnpm-sync-dependencies-meta-injected": "0.0.10"
   },
   "scripts": {
-    "_syncPnpm": "bun run sync-dependencies-meta-injected"
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
   "engines": {
     "node": ">= 18.20.1"

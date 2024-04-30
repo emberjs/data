@@ -10,9 +10,7 @@
   "license": "MIT",
   "author": "",
   "directories": {},
-  "scripts": {
-    "_syncPnpm": "bun run sync-dependencies-meta-injected"
-  },
+  "scripts": {},
   "dependencies": {
     "@babel/core": "^7.24.4",
     "@babel/plugin-transform-block-scoping": "^7.24.4",
@@ -37,9 +35,7 @@
     "semver": "^7.6.0",
     "silent-error": "^1.1.1"
   },
-  "devDependencies": {
-    "pnpm-sync-dependencies-meta-injected": "0.0.10"
-  },
+  "devDependencies": {},
   "engines": {
     "node": ">= 18.20.2"
   },

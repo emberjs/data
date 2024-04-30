@@ -100,7 +100,7 @@ import { camelize } from '@ember/string';
   @class EmbeddedRecordsMixin
   @public
 */
-export default Mixin.create({
+export const EmbeddedRecordsMixin = Mixin.create({
   /**
     Normalize the record and recursively normalize/extract all the embedded records
     while pushing them into the store as they are encountered

@@ -1,11 +1,11 @@
 import { assert } from '@ember/debug';
 
-import type { BaseFinderOptions } from '@ember-data/store/-types/q/store';
+import type { BaseFinderOptions } from '@ember-data/store/types';
 import { compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';
 import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
 
-import type ManyArray from './many-array';
+import type { RelatedCollection as ManyArray } from './many-array';
 import { LegacyPromiseProxy } from './promise-belongs-to';
 
 export interface HasManyProxyCreateArgs<T = unknown> {
@@ -32,7 +32,7 @@ export interface HasManyProxyCreateArgs<T = unknown> {
   @class PromiseManyArray
   @public
 */
-export default class PromiseManyArray<T = unknown> {
+export class PromiseManyArray<T = unknown> {
   declare promise: Promise<ManyArray<T>> | null;
   declare isDestroyed: boolean;
   declare content: ManyArray<T> | null;

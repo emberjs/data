@@ -17,8 +17,8 @@
   "scripts": {
     "build": "ember build",
     "start": "ember serve",
-    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
-    "_syncPnpm": "bun run sync-dependencies-meta-injected"
+    "lint": "eslint . --quiet --cache --cache-strategy=content --report-unused-disable-directives",
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
   "dependencies": {
     "@ember/string": "3.1.1",

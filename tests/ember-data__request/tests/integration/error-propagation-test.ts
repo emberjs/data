@@ -1,7 +1,7 @@
 import type { StructuredErrorDocument } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
-import type { Context } from '@ember-data/request/-private/context';
-import type { Future, Handler, NextFn } from '@ember-data/request/-private/types';
+import type { RequestContext } from '@warp-drive/core-types/request';
+import type { Future, Handler, NextFn } from '@ember-data/request';
 import { module, test } from '@warp-drive/diagnostic';
 
 function isErrorDoc(e: Error | unknown | StructuredErrorDocument): e is StructuredErrorDocument {
@@ -13,7 +13,7 @@ module('RequestManager | Error Propagation', function () {
     const manager = new RequestManager();
     const catchingHandler: Handler = {
       // @ts-expect-error
-      async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
+      async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T> {
         assert.ok(true, 'catching handler triggered');
         try {
           // await to catch, else error is curried
@@ -25,7 +25,7 @@ module('RequestManager | Error Propagation', function () {
       },
     };
     const throwingHandler: Handler = {
-      request<T>(context: Context, next: NextFn<T>) {
+      request<T>(context: RequestContext, next: NextFn<T>) {
         assert.ok(true, 'throwing handler triggered');
         throw new Error('Oops!');
       },
@@ -39,13 +39,13 @@ module('RequestManager | Error Propagation', function () {
     assert.expect(4);
     const manager = new RequestManager();
     const curryingHandler: Handler = {
-      request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
+      request<T>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T> {
         assert.ok(true, 'catching handler triggered');
         return next({ url: '/curried' });
       },
     };
     const throwingHandler: Handler = {
-      request<T>(context: Context, next: NextFn<T>) {
+      request<T>(context: RequestContext, next: NextFn<T>) {
         assert.ok(true, 'throwing handler triggered');
         throw new Error('Oops!');
       },
@@ -68,13 +68,13 @@ module('RequestManager | Error Propagation', function () {
     const manager = new RequestManager();
     const catchingHandler: Handler = {
       // @ts-expect-error
-      async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
+      async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T> {
         assert.ok(true, 'catching handler triggered');
         return await next({ url: '/curried' });
       },
     };
     const throwingHandler: Handler = {
-      request<T>(context: Context, next: NextFn<T>) {
+      request<T>(context: RequestContext, next: NextFn<T>) {
         assert.ok(true, 'throwing handler triggered');
         throw new Error('Oops!');
       },
@@ -97,13 +97,13 @@ module('RequestManager | Error Propagation', function () {
     const manager = new RequestManager();
     const catchingHandler: Handler = {
       // @ts-expect-error
-      async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
+      async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T> {
         assert.ok(true, 'catching handler triggered');
         return await next({ url: '/curried' });
       },
     };
     const throwingHandler: Handler = {
-      request<T>(context: Context, next: NextFn<T>) {
+      request<T>(context: RequestContext, next: NextFn<T>) {
         assert.ok(true, 'throwing handler triggered');
         throw new Error('Oops!');
       },

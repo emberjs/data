@@ -1,13 +1,16 @@
 import Cache from '@ember-data/json-api';
 import type { StructuredDocument } from '@ember-data/request';
 import Store from '@ember-data/store';
-import type { CacheOperation } from '@ember-data/store/-private/managers/notification-manager';
-import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
+import type { CacheOperation } from '@ember-data/store';
+import type { CacheCapabilitiesManager } from '@ember-data/store/types';
+import type { LegacyFieldSchema as FieldSchema } from '@warp-drive/core-types/schema/fields';
+import type { SchemaService } from '@ember-data/store/types';
 import type { StableDocumentIdentifier, StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
-import type { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
 import type { CollectionResourceDataDocument, ResourceMetaDocument } from '@warp-drive/core-types/spec/document';
 import { module, test } from '@warp-drive/diagnostic';
+
+type AttributesSchema = ReturnType<SchemaService['attributesDefinitionFor']>;
+type RelationshipsSchema = ReturnType<SchemaService['relationshipsDefinitionFor']>;
 
 class TestStore extends Store {
   override createCache(wrapper: CacheCapabilitiesManager) {

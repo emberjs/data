@@ -6,9 +6,10 @@ import { assert } from '@ember/debug';
 import EmberObject from '@ember/object';
 
 import type RequestManager from '@ember-data/request';
-import type { Future } from '@ember-data/request/-private/types';
+import type { Future } from '@ember-data/request';
 import { LOG_PAYLOADS, LOG_REQUESTS } from '@warp-drive/build-config/debugging';
 import { DEBUG, TESTING } from '@warp-drive/build-config/env';
+import type { Cache } from '@warp-drive/core-types/cache';
 import type { Graph } from '@warp-drive/core-types/graph';
 import type {
   StableDocumentIdentifier,
@@ -24,11 +25,10 @@ import type {
   JsonApiDocument,
   ResourceIdentifierObject,
   SingleResourceDocument,
-} from '@warp-drive/core-types/spec/raw';
+} from '@warp-drive/core-types/spec/json-api-raw';
 import type { ResourceType } from '@warp-drive/core-types/symbols';
 
-import type { Cache, CacheV1 } from '../-types/q/cache';
-import type { CacheCapabilitiesManager } from '../-types/q/cache-store-wrapper';
+import type { CacheCapabilitiesManager } from '../-types/q/cache-capabilities-manager';
 import type { ModelSchema } from '../-types/q/ds-model';
 import type { OpaqueRecordInstance } from '../-types/q/record-instance';
 import type { SchemaService } from '../-types/q/schema-service';
@@ -48,13 +48,12 @@ import type RecordReference from './legacy-model-support/record-reference';
 import { getShimClass } from './legacy-model-support/shim-model-class';
 import { CacheManager } from './managers/cache-manager';
 import NotificationManager from './managers/notification-manager';
-import RecordArrayManager from './managers/record-array-manager';
-import RequestStateService, { RequestPromise } from './network/request-cache';
-import type { Collection } from './record-arrays/identifier-array';
-import type IdentifierArray from './record-arrays/identifier-array';
-import coerceId, { ensureStringId } from './utils/coerce-id';
-import constructResource from './utils/construct-resource';
-import normalizeModelName from './utils/normalize-model-name';
+import { RecordArrayManager } from './managers/record-array-manager';
+import { RequestStateService, RequestPromise } from './network/request-cache';
+import type { IdentifierArray, Collection } from './record-arrays/identifier-array';
+import { coerceId, ensureStringId } from './utils/coerce-id';
+import { constructResource } from './utils/construct-resource';
+import { normalizeModelName } from './utils/normalize-model-name';
 
 export { storeFor };
 
@@ -113,9 +112,7 @@ export type CreateRecordProperties<T = MaybeHasId & Record<string, unknown>> = T
 */
 
 // @ts-expect-error
-interface Store {
-  createRecordDataFor?(identifier: StableRecordIdentifier, wrapper: CacheCapabilitiesManager): Cache | CacheV1;
-
+export interface Store {
   createCache(storeWrapper: CacheCapabilitiesManager): Cache;
 
   instantiateRecord(
@@ -126,7 +123,7 @@ interface Store {
   teardownRecord(record: OpaqueRecordInstance): void;
 }
 
-class Store extends EmberObject {
+export class Store extends EmberObject {
   declare recordArrayManager: RecordArrayManager;
 
   /**
@@ -2186,7 +2183,7 @@ class Store extends EmberObject {
    * @property {Cache} cache
    * @public
    */
-  get cache(): Cache {
+  get cache(): ReturnType<this['createCache']> {
     let { cache } = this._instanceCache;
     if (!cache) {
       cache = this._instanceCache.cache = this.createCache(this._instanceCache._storeWrapper);
@@ -2194,7 +2191,8 @@ class Store extends EmberObject {
         cache = new CacheManager(cache);
       }
     }
-    return cache;
+
+    return cache as ReturnType<this['createCache']>;
   }
 
   // @ts-expect-error
@@ -2220,8 +2218,6 @@ class Store extends EmberObject {
     return new this(args);
   }
 }
-
-export default Store;
 
 let assertDestroyingStore: (store: Store, method: string) => void;
 let assertDestroyedStoreOnly: (store: Store, method: string) => void;

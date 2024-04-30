@@ -1,22 +1,24 @@
 import { assert, warn } from '@ember/debug';
 
-import { importSync } from '@embroider/macros';
+import { dependencySatisfies, importSync, macroCondition } from '@embroider/macros';
 
-import { HAS_GRAPH_PACKAGE } from '@ember-data/packages';
 import { createDeferred } from '@ember-data/request';
-import type { Deferred } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';
 import { coerceId } from '@ember-data/store/-private';
-import type { InstanceCache } from '@ember-data/store/-private/caches/instance-cache';
-import type RequestStateService from '@ember-data/store/-private/network/request-cache';
-import type { FindRecordQuery, Request, SaveRecordMutation } from '@ember-data/store/-private/network/request-cache';
-import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
-import type { FindRecordOptions } from '@ember-data/store/-types/q/store';
+import type {
+  InstanceCache,
+  FindRecordQuery,
+  Request,
+  SaveRecordMutation,
+  RequestStateService,
+} from '@ember-data/store/-private';
+import type { ModelSchema } from '@ember-data/store/types';
+import type { FindRecordOptions } from '@ember-data/store/types';
 import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { TypeFromInstance } from '@warp-drive/core-types/record';
 import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
-import type { CollectionResourceDocument, SingleResourceDocument } from '@warp-drive/core-types/spec/raw';
+import type { CollectionResourceDocument, SingleResourceDocument } from '@warp-drive/core-types/spec/json-api-raw';
 
 import { upgradeStore } from '../-private';
 import { assertIdentifierHasId } from './identifier-has-id';
@@ -24,8 +26,9 @@ import { payloadIsNotBlank } from './legacy-data-utils';
 import type { AdapterPayload, MinimumAdapterInterface } from './minimum-adapter-interface';
 import type { MinimumSerializerInterface } from './minimum-serializer-interface';
 import { normalizeResponseHelper } from './serializer-response';
-import Snapshot from './snapshot';
+import { Snapshot } from './snapshot';
 
+type Deferred<T> = ReturnType<typeof createDeferred<T>>;
 type AdapterErrors = Error & { errors?: string[]; isAdapterError?: true };
 type SerializerWithParseErrors = MinimumSerializerInterface & {
   extractErrors?(store: Store, modelClass: ModelSchema, error: AdapterErrors, recordId: string | null): unknown;
@@ -54,7 +57,7 @@ interface PendingSaveItem {
   queryRequest: Request;
 }
 
-export default class FetchManager {
+export class FetchManager {
   declare isDestroyed: boolean;
   declare requestCache: RequestStateService;
   // fetches pending in the runloop, waiting to be coalesced
@@ -169,7 +172,7 @@ export default class FetchManager {
         const cache = store.cache;
         if (!cache || cache.isEmpty(identifier) || isInitialLoad) {
           let isReleasable = true;
-          if (HAS_GRAPH_PACKAGE) {
+          if (macroCondition(dependencySatisfies('@ember-data/graph', '*'))) {
             if (!cache) {
               const graphFor = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private'))
                 .graphFor;

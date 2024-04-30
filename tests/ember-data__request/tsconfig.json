@@ -30,5 +30,5 @@
     "types": ["ember-source/types"],
     "paths": {}
   },
-  "references": [{ "path": "../../packages/request" }, { "path": "../../packages/request-utils" }]
+  // "references": [{ "path": "../../packages/request" }, { "path": "../../packages/request-utils" }]
 }

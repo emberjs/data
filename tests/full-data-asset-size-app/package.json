@@ -17,13 +17,10 @@
   "scripts": {
     "build": "ember build",
     "start": "ember serve",
-    "_syncPnpm": "bun run sync-dependencies-meta-injected"
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
   "dependenciesMeta": {
     "ember-data": {
-      "injected": true
-    },
-    "@ember-data/private-build-infra": {
       "injected": true
     },
     "@ember/string": {
@@ -33,7 +30,6 @@
   "devDependencies": {
     "@babel/core": "^7.24.4",
     "@babel/runtime": "^7.24.4",
-    "@ember-data/private-build-infra": "workspace:5.4.0-alpha.59",
     "@ember/optional-features": "^2.1.0",
     "@ember/string": "3.1.1",
     "@glimmer/component": "^1.1.2",

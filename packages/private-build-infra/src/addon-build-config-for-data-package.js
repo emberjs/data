@@ -1,8 +1,6 @@
 const calculateCacheKeyForTree = require('calculate-cache-key-for-tree');
 const BroccoliDebug = require('broccoli-debug');
 
-const detectModule = require('./utilities/detect-module');
-
 function addonBuildConfigForDataPackage(pkg) {
   return {
     name: pkg.name,
@@ -136,21 +134,6 @@ function addonBuildConfigForDataPackage(pkg) {
       );
       options.emberData.debug = debugOptions;
 
-      const HAS_DEBUG_PACKAGE = detectModule(require, '@ember-data/debug', __dirname, pkg);
-      const HAS_META_PACKAGE = detectModule(require, 'ember-data', __dirname, pkg);
-
-      options.emberData.includeDataAdapterInProduction =
-        typeof options.emberData.includeDataAdapterInProduction === 'boolean'
-          ? options.emberData.includeDataAdapterInProduction
-          : HAS_META_PACKAGE;
-
-      const includeDataAdapter = HAS_DEBUG_PACKAGE
-        ? isProd
-          ? options.emberData.includeDataAdapterInProduction
-          : true
-        : false;
-      options.emberData.includeDataAdapter = includeDataAdapter;
-
       const DEPRECATIONS = require('./deprecations')(options.emberData.compatWith || null);
       const FEATURES = require('./features')(isProd);
       options.emberData.__DEPRECATIONS = DEPRECATIONS;
@@ -167,7 +150,7 @@ function addonBuildConfigForDataPackage(pkg) {
         hostOptions.deprecations || {}
       );
       ownConfig.features = Object.assign({}, FEATURES);
-      ownConfig.includeDataAdapter = includeDataAdapter;
+      // ownConfig.includeDataAdapter = includeDataAdapter;
 
       this._emberDataConfig = ownConfig;
       return ownConfig;

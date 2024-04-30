@@ -139,3 +139,5 @@ export type ExtractSuggestedCacheTypes<T extends TypedRecordInstance> = ExtractU
  * @typedoc
  */
 export type Includes<T extends TypedRecordInstance> = ExtractUnion<T, true>; // ToPaths<ExpandIgnore<T>>;
+
+export type OpaqueRecordInstance = unknown;

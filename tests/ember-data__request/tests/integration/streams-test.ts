@@ -1,6 +1,6 @@
 import RequestManager from '@ember-data/request';
-import type { Context } from '@ember-data/request/-private/context';
-import type { Future, Handler, NextFn } from '@ember-data/request/-private/types';
+import type { RequestContext } from '@warp-drive/core-types/request';
+import type { Future, Handler, NextFn } from '@ember-data/request';
 import { module, test } from '@warp-drive/diagnostic';
 
 module('RequestManager | Streams', function () {
@@ -9,7 +9,7 @@ module('RequestManager | Streams', function () {
     const manager = new RequestManager();
     const handler: Handler = {
       // @ts-expect-error
-      async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
+      async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T> {
         const result = await fetch(context.request.url!, context.request);
 
         if (result.body) {
@@ -43,7 +43,7 @@ module('RequestManager | Streams', function () {
     const manager = new RequestManager();
     const handler1: Handler = {
       // @ts-expect-error
-      async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
+      async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T> {
         const future = next(context.request);
 
         context.setStream(future.getStream());
@@ -53,7 +53,7 @@ module('RequestManager | Streams', function () {
     };
     const handler2: Handler = {
       // @ts-expect-error
-      async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
+      async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T> {
         const result = await fetch(context.request.url!, context.request);
 
         if (result.body) {
@@ -87,7 +87,7 @@ module('RequestManager | Streams', function () {
     const manager = new RequestManager();
     const handler1: Handler = {
       // @ts-expect-error
-      async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
+      async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T> {
         const future = next(context.request);
         const stream = await future.getStream();
         assert.true(stream instanceof ReadableStream, 'we receive the stream');
@@ -98,7 +98,7 @@ module('RequestManager | Streams', function () {
     };
     const handler2: Handler = {
       // @ts-expect-error
-      async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
+      async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T> {
         const result = await fetch(context.request.url!, context.request);
 
         if (result.body) {
@@ -132,14 +132,14 @@ module('RequestManager | Streams', function () {
     const manager = new RequestManager();
     const handler1: Handler = {
       // @ts-expect-error
-      async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
+      async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T> {
         const future = next(context.request);
         return (await future).content;
       },
     };
     const handler2: Handler = {
       // @ts-expect-error
-      async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
+      async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T> {
         const result = await fetch(context.request.url!, context.request);
 
         if (result.body) {
@@ -172,13 +172,13 @@ module('RequestManager | Streams', function () {
     assert.expect(2);
     const manager = new RequestManager();
     const handler1: Handler = {
-      request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
+      request<T>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T> {
         return next(context.request);
       },
     };
     const handler2: Handler = {
       // @ts-expect-error
-      async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
+      async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T> {
         const result = await fetch(context.request.url!, context.request);
 
         if (result.body) {
@@ -212,7 +212,7 @@ module('RequestManager | Streams', function () {
     const manager = new RequestManager();
     const handler1: Handler = {
       // @ts-expect-error
-      async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
+      async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T> {
         const a = await next(context.request);
         const b = await next(context.request);
         return a.content || b.content;
@@ -220,7 +220,7 @@ module('RequestManager | Streams', function () {
     };
     const handler2: Handler = {
       // @ts-expect-error
-      async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
+      async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T> {
         const result = await fetch(context.request.url!, context.request);
 
         if (result.body) {
@@ -254,7 +254,7 @@ module('RequestManager | Streams', function () {
     const manager = new RequestManager();
     const handler1: Handler = {
       // @ts-expect-error
-      async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
+      async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T> {
         await next(context.request);
         await next(context.request);
         return next(context.request);
@@ -262,7 +262,7 @@ module('RequestManager | Streams', function () {
     };
     const handler2: Handler = {
       // @ts-expect-error
-      async request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
+      async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T> {
         const result = await fetch(context.request.url!, context.request);
 
         if (result.body) {

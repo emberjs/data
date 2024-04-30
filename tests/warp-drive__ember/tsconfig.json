@@ -35,14 +35,14 @@
 
     "allowImportingTsExtensions": true
   },
-  "references": [
-    { "path": "../../packages/diagnostic" },
-    { "path": "../../packages/ember" },
-    { "path": "../../packages/schema-record" },
-    { "path": "../../packages/core-types" },
-    { "path": "../../packages/store" },
-    { "path": "../../packages/request" },
-    { "path": "../../packages/legacy-compat" },
-    { "path": "../../packages/model" }
-  ]
+  // "references": [
+  //   { "path": "../../packages/diagnostic" },
+  //   { "path": "../../packages/ember" },
+  //   { "path": "../../packages/schema-record" },
+  //   { "path": "../../packages/core-types" },
+  //   { "path": "../../packages/store" },
+  //   { "path": "../../packages/request" },
+  //   { "path": "../../packages/legacy-compat" },
+  //   { "path": "../../packages/model" }
+  // ]
 }

@@ -101,7 +101,7 @@ const ArrayProxyWithCustomOverrides = ArrayProxy as unknown as new <T>() => Arra
   @public
   @extends Ember.ArrayProxy
  */
-class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
+export class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
   declare __record: { currentState: RecordState };
   /**
     @property errorsByAttributeName
@@ -422,5 +422,3 @@ class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
     return this.errorsFor(attribute).length > 0;
   }
 }
-
-export default Errors;

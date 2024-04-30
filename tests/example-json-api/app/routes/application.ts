@@ -3,7 +3,7 @@ import { service } from '@ember/service';
 
 import { query } from '@ember-data/json-api/request';
 import type Store from '@ember-data/store';
-import type { Document } from '@ember-data/store/-private/document';
+import type { Document } from '@ember-data/store';
 
 import type Author from '../models/author';
 import type Book from '../models/book';

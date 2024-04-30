@@ -4,8 +4,7 @@ import { setupRenderingTest } from 'ember-qunit';
 
 import { adapterFor, LegacyNetworkHandler, serializeRecord, serializerFor } from '@ember-data/legacy-compat';
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
-import type Errors from '@ember-data/model/-private/errors';
-import type RecordState from '@ember-data/model/-private/record-state';
+import type Model from '@ember-data/model';
 import {
   registerDerivations as registerLegacyDerivations,
   withFields as withLegacyFields,
@@ -16,6 +15,9 @@ import { CacheHandler } from '@ember-data/store';
 import type { ResourceType } from '@warp-drive/core-types/symbols';
 import { Editable, Legacy } from '@warp-drive/schema-record/record';
 import { registerDerivations, SchemaService, withFields } from '@warp-drive/schema-record/schema';
+
+type Errors = Model['errors'];
+type RecordState = Model['currentState'];
 
 interface User {
   [Legacy]: boolean;

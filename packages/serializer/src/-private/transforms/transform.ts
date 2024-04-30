@@ -2,8 +2,7 @@
   @module @ember-data/serializer
 */
 import EmberObject from '@ember/object';
-
-import type { AttributeSchema } from '@warp-drive/core-types/schema';
+import { LegacyAttributeField } from '@warp-drive/core-types/schema/fields';
 
 /**
   The `Transform` class is used to serialize and deserialize model
@@ -118,10 +117,8 @@ import type { AttributeSchema } from '@warp-drive/core-types/schema';
   @param options hash of options passed to `attr`
   @return The deserialized value
 */
-interface Transform {
-  serialize(value: unknown, options: AttributeSchema['options']): unknown;
-  deserialize(value: unknown, options: AttributeSchema['options']): unknown;
+export interface Transform {
+  serialize(value: unknown, options: LegacyAttributeField['options']): unknown;
+  deserialize(value: unknown, options: LegacyAttributeField['options']): unknown;
 }
-const Transform = EmberObject;
-
-export default Transform;
+export const Transform = EmberObject;

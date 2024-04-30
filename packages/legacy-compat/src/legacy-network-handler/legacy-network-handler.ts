@@ -4,15 +4,14 @@ import { importSync } from '@embroider/macros';
 
 import type { Future, Handler, NextFn, StructuredDataDocument } from '@ember-data/request';
 import type Store from '@ember-data/store';
-import type { StoreRequestContext } from '@ember-data/store/-private/cache-handler';
-import type { Collection } from '@ember-data/store/-private/record-arrays/identifier-array';
-import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
-import type { JsonApiError } from '@ember-data/store/-types/q/record-data-json-api';
+import type { StoreRequestContext } from '@ember-data/store';
+import type { CollectionRecordArray } from '@ember-data/store/-private';
+import type { ModelSchema } from '@ember-data/store/types';
 import { LOG_PAYLOADS } from '@warp-drive/build-config/debugging';
 import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
-import type { RelationshipSchema } from '@warp-drive/core-types/schema';
+import type { LegacyRelationshipSchema as RelationshipSchema } from '@warp-drive/core-types/schema/fields';
 import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
 import type {
   CollectionResourceDocument,
@@ -20,18 +19,19 @@ import type {
   Links,
   PaginationLinks,
   SingleResourceDocument,
-} from '@warp-drive/core-types/spec/raw';
+} from '@warp-drive/core-types/spec/json-api-raw';
 
 import { upgradeStore } from '../-private';
-import FetchManager, { SaveOp } from './fetch-manager';
+import { FetchManager, SaveOp } from './fetch-manager';
 import { assertIdentifierHasId } from './identifier-has-id';
 import { _findBelongsTo, _findHasMany } from './legacy-data-fetch';
 import { payloadIsNotBlank } from './legacy-data-utils';
 import type { MinimumAdapterInterface } from './minimum-adapter-interface';
 import type { MinimumSerializerInterface } from './minimum-serializer-interface';
 import { normalizeResponseHelper } from './serializer-response';
-import type Snapshot from './snapshot';
-import SnapshotRecordArray from './snapshot-record-array';
+import type { Snapshot } from './snapshot';
+import { SnapshotRecordArray } from './snapshot-record-array';
+import type { ApiError } from '@warp-drive/core-types/spec/error';
 
 type AdapterErrors = Error & { errors?: unknown[]; isAdapterError?: true; code?: string };
 type SerializerWithParseErrors = MinimumSerializerInterface & {
@@ -229,7 +229,7 @@ function saveRecord<T>(context: StoreRequestContext): Promise<T> {
 function adapterDidInvalidate(
   store: Store,
   identifier: StableRecordIdentifier,
-  error: Error & { errors?: JsonApiError[]; isAdapterError?: true; code?: string }
+  error: Error & { errors?: ApiError[]; isAdapterError?: true; code?: string }
 ) {
   upgradeStore(store);
   if (error && error.isAdapterError === true && error.code === 'InvalidError') {
@@ -257,7 +257,7 @@ function adapterDidInvalidate(
       typeof cache.getErrors === 'function'
     );
 
-    let jsonApiErrors: JsonApiError[] = error.errors;
+    let jsonApiErrors: ApiError[] = error.errors;
     if (jsonApiErrors.length === 0) {
       jsonApiErrors = [{ title: 'Invalid Error', detail: '', source: { pointer: '/data' } }];
     }
@@ -272,8 +272,8 @@ function makeArray<T>(value: T | T[]): T[] {
 }
 
 const PRIMARY_ATTRIBUTE_KEY = 'base';
-function errorsHashToArray(errors: Record<string, string | string[]>): JsonApiError[] {
-  const out: JsonApiError[] = [];
+function errorsHashToArray(errors: Record<string, string | string[]>): ApiError[] {
+  const out: ApiError[] = [];
 
   if (errors) {
     Object.keys(errors).forEach((key) => {
@@ -464,13 +464,13 @@ function query<T>(context: StoreRequestContext): Promise<T> {
   const { store, data } = context.request;
   upgradeStore(store);
   let { options } = data as {
-    options: { _recordArray?: Collection; adapterOptions?: Record<string, unknown> };
+    options: { _recordArray?: CollectionRecordArray; adapterOptions?: Record<string, unknown> };
   };
   // eslint-disable-next-line @typescript-eslint/no-shadow
   const { type, query } = data as {
     type: string;
     query: Record<string, unknown>;
-    options: { _recordArray?: Collection; adapterOptions?: Record<string, unknown> };
+    options: { _recordArray?: CollectionRecordArray; adapterOptions?: Record<string, unknown> };
   };
   const adapter = store.adapterFor(type);
 

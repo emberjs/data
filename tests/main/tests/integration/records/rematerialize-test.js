@@ -5,7 +5,6 @@ import { setupTest } from 'ember-qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 
 module('integration/unload - Rematerializing Unloaded Records', function (hooks) {
   setupTest(hooks);
@@ -162,9 +161,9 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
 
       let data;
       if (param === '1') {
-        data = deepCopy(BOAT_ONE);
+        data = structuredClone(BOAT_ONE);
       } else if (param === '2') {
-        data = deepCopy(BOAT_TWO);
+        data = structuredClone(BOAT_TWO);
       } else {
         throw new Error(`404: no such boat with id=${param}`);
       }
@@ -193,7 +192,7 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
     });
 
     const [boaty] = store.push({
-      data: [deepCopy(BOAT_ONE), deepCopy(BOAT_TWO)],
+      data: [structuredClone(BOAT_ONE), structuredClone(BOAT_TWO)],
     });
 
     // assert our initial cache state

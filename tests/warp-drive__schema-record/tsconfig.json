@@ -23,13 +23,15 @@
     "declaration": false,
 
     "types": ["ember-source/types"],
-    "paths": {}
+    "paths": {
+      "warp-drive__schema-record/*": ["./app/*"]
+    }
   },
-  "references": [
-    { "path": "../../packages/schema-record" },
-    { "path": "../../packages/core-types" },
-    { "path": "../../packages/store" },
-    { "path": "../../packages/legacy-compat" },
-    { "path": "../../packages/model" }
-  ]
+  // "references": [
+  //   { "path": "../../packages/schema-record" },
+  //   { "path": "../../packages/core-types" },
+  //   { "path": "../../packages/store" },
+  //   { "path": "../../packages/legacy-compat" },
+  //   { "path": "../../packages/model" }
+  // ]
 }

@@ -1,10 +1,9 @@
 import { assert } from '@ember/debug';
 
-import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection';
-import type { Graph } from '@ember-data/graph/-private/graph';
+import type { CollectionEdge, Graph } from '@ember-data/graph/-private';
 import type Store from '@ember-data/store';
-import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type { BaseFinderOptions } from '@ember-data/store/-types/q/store';
+import type { NotificationType } from '@ember-data/store';
+import type { BaseFinderOptions } from '@ember-data/store/types';
 import { cached, compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';
 import { DEBUG } from '@warp-drive/build-config/env';
@@ -18,13 +17,13 @@ import type {
   LinkObject,
   Meta,
   PaginationLinks,
-} from '@warp-drive/core-types/spec/raw';
+} from '@warp-drive/core-types/spec/json-api-raw';
 
 import type { IsUnknown } from '../belongs-to';
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
 import type { LegacySupport } from '../legacy-relationships-support';
 import { areAllInverseRecordsLoaded, LEGACY_SUPPORT } from '../legacy-relationships-support';
-import type ManyArray from '../many-array';
+import type { RelatedCollection as ManyArray } from '../many-array';
 
 /**
   @module @ember-data/model

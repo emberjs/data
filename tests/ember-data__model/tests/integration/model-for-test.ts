@@ -1,7 +1,7 @@
 import Store from '@ember-data/store';
-import type { FieldSchema, SchemaService } from '@ember-data/store/-types/q/schema-service';
-import type { RelationshipsSchema } from '@warp-drive/core-types/schema';
 import { module, test } from '@warp-drive/diagnostic';
+import type { SchemaService } from '@ember-data/store/types';
+import type { FieldSchema } from '@warp-drive/core-types/schema/fields';
 
 module('modelFor without @ember-data/model', function () {
   test('We can call modelFor', function (assert) {
@@ -55,7 +55,9 @@ module('modelFor without @ember-data/model', function () {
         return fieldDefs;
       }
 
-      relationshipsDefinitionFor(_identifier: { type: string }): RelationshipsSchema {
+      relationshipsDefinitionFor(_identifier: {
+        type: string;
+      }): ReturnType<SchemaService['relationshipsDefinitionFor']> {
         return {};
       }
 
@@ -135,7 +137,9 @@ module('modelFor without @ember-data/model', function () {
         return fieldDefs;
       }
 
-      relationshipsDefinitionFor(_identifier: { type: string }): RelationshipsSchema {
+      relationshipsDefinitionFor(_identifier: {
+        type: string;
+      }): ReturnType<SchemaService['relationshipsDefinitionFor']> {
         return {};
       }
 

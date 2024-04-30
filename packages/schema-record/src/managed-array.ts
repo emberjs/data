@@ -1,8 +1,8 @@
 import { assert } from '@ember/debug';
 
 import type Store from '@ember-data/store';
-import type { OpaqueRecordInstance } from '@ember-data/store/-types/q/record-instance';
-import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
+import type { OpaqueRecordInstance } from '@warp-drive/core-types/record';
+import type { ArrayField } from '@warp-drive/core-types/schema/fields';
 import type { Signal } from '@ember-data/tracking/-private';
 import { addToTransaction, createSignal, subscribe } from '@ember-data/tracking/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -119,7 +119,7 @@ export class ManagedArray {
     store: Store,
     schema: SchemaService,
     cache: Cache,
-    field: FieldSchema,
+    field: ArrayField,
     data: unknown[],
     address: StableRecordIdentifier,
     key: string,
@@ -167,7 +167,7 @@ export class ManagedArray {
           if (!transaction) {
             subscribe(_SIGNAL);
           }
-          if (field.type !== null) {
+          if (field.type) {
             const transform = schema.transforms.get(field.type);
             if (!transform) {
               throw new Error(`No '${field.type}' transform defined for use by ${address.type}.${String(prop)}`);
@@ -226,7 +226,7 @@ export class ManagedArray {
         const reflect = Reflect.set(target, prop, value, receiver);
 
         if (reflect) {
-          if (field.type === null) {
+          if (!field.type) {
             cache.setAttr(self.address, self.key, self[SOURCE] as Value);
             _SIGNAL.shouldReset = true;
             return true;

@@ -10,7 +10,6 @@ import RESTAdapter from '@ember-data/adapter/rest';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer from '@ember-data/serializer/rest';
-import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 class Person extends Model {
@@ -34,7 +33,7 @@ class Car extends Model {
 
 function ajaxResponse(value) {
   return function (url, verb, hash) {
-    return Promise.resolve(deepCopy(value));
+    return Promise.resolve(structuredClone(value));
   };
 }
 
@@ -678,7 +677,7 @@ module('integration/store - findRecord', function (hooks) {
     adapter.ajax = async function () {
       await promise;
 
-      return deepCopy({
+      return structuredClone({
         cars: [
           {
             id: '1',
@@ -733,7 +732,7 @@ module('integration/store - findRecord', function (hooks) {
     adapter.ajax = async function () {
       await Promise.resolve();
 
-      return deepCopy({
+      return structuredClone({
         cars: [
           {
             id: '1',

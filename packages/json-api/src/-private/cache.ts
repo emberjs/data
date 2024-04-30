@@ -4,17 +4,11 @@
 import { assert } from '@ember/debug';
 
 import { graphFor, isBelongsTo, peekGraph } from '@ember-data/graph/-private';
-import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection';
-import type { ImplicitEdge } from '@ember-data/graph/-private/edges/implicit';
-import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
-import type { Graph, GraphEdge } from '@ember-data/graph/-private/graph';
+import type { CollectionEdge, ImplicitEdge, ResourceEdge, Graph, GraphEdge } from '@ember-data/graph/-private';
 import type Store from '@ember-data/store';
-import type { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
-import type { CacheCapabilitiesManager as InternalCapabilitiesManager } from '@ember-data/store/-private/managers/cache-capabilities-manager';
-import type { MergeOperation } from '@ember-data/store/-types/q/cache';
-import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import type { AttributesHash, JsonApiError, JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
-import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
+import type { MergeOperation } from '@warp-drive/core-types/cache/operations';
+import type { CacheCapabilitiesManager } from '@ember-data/store/types';
+import type { FieldSchema } from '@warp-drive/core-types/schema/fields';
 import { LOG_MUTATIONS, LOG_OPERATIONS, LOG_REQUESTS } from '@warp-drive/build-config/debugging';
 import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
@@ -28,7 +22,7 @@ import type {
   StableExistingRecordIdentifier,
   StableRecordIdentifier,
 } from '@warp-drive/core-types/identifier';
-import type { Value } from '@warp-drive/core-types/json/raw';
+import type { ObjectValue, Value } from '@warp-drive/core-types/json/raw';
 import type {
   ImmutableRequestInfo,
   StructuredDataDocument,
@@ -46,9 +40,14 @@ import type {
 import type {
   CollectionResourceDocument,
   ExistingResourceObject,
+  ResourceObject,
   SingleResourceDocument,
   SingleResourceRelationship,
-} from '@warp-drive/core-types/spec/raw';
+} from '@warp-drive/core-types/spec/json-api-raw';
+import type { ApiError } from '@warp-drive/core-types/spec/error';
+
+type IdentifierCache = Store['identifierCache'];
+type InternalCapabilitiesManager = CacheCapabilitiesManager & { _store: Store };
 
 function isImplicit(relationship: GraphEdge): relationship is ImplicitEdge {
   return relationship.definition.isImplicit;
@@ -72,7 +71,7 @@ interface CachedResource {
   localAttrs: Record<string, Value | undefined> | null;
   inflightAttrs: Record<string, Value | undefined> | null;
   changes: Record<string, [Value | undefined, Value]> | null;
-  errors: JsonApiError[] | null;
+  errors: ApiError[] | null;
   isNew: boolean;
   isDeleted: boolean;
   isDeletionCommitted: boolean;
@@ -189,8 +188,8 @@ export default class JSONAPICache implements Cache {
    * @return {ResourceDocument}
    * @public
    */
-  put<T extends SingleResourceDocument>(doc: StructuredDocument<T>): SingleResourceDataDocument;
-  put<T extends CollectionResourceDocument>(doc: StructuredDocument<T>): CollectionResourceDataDocument;
+  put<T extends SingleResourceDocument>(doc: StructuredDataDocument<T>): SingleResourceDataDocument;
+  put<T extends CollectionResourceDocument>(doc: StructuredDataDocument<T>): CollectionResourceDataDocument;
   put<T extends ResourceErrorDocument>(doc: StructuredErrorDocument<T>): ResourceErrorDocument;
   put<T extends ResourceMetaDocument>(doc: StructuredDataDocument<T>): ResourceMetaDocument;
   put(doc: StructuredDocument<ResourceDocument>): ResourceDocument {
@@ -420,11 +419,11 @@ export default class JSONAPICache implements Cache {
    * @method peek
    * @public
    * @param {StableRecordIdentifier | StableDocumentIdentifier} identifier
-   * @return {ResourceDocument | ResourceBlob | null} the known resource data
+   * @return {ResourceDocument | ResourceObject | null} the known resource data
    */
-  peek(identifier: StableRecordIdentifier): ResourceBlob | null;
+  peek(identifier: StableRecordIdentifier): ResourceObject | null;
   peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
-  peek(identifier: StableDocumentIdentifier | StableRecordIdentifier): ResourceBlob | ResourceDocument | null {
+  peek(identifier: StableDocumentIdentifier | StableRecordIdentifier): ResourceObject | ResourceDocument | null {
     if ('type' in identifier) {
       const peeked = this.__safePeek(identifier, false);
 
@@ -433,8 +432,8 @@ export default class JSONAPICache implements Cache {
       }
 
       const { type, id, lid } = identifier;
-      const attributes = Object.assign({}, peeked.remoteAttrs, peeked.inflightAttrs, peeked.localAttrs);
-      const relationships: JsonApiResource['relationships'] = {};
+      const attributes = Object.assign({}, peeked.remoteAttrs, peeked.inflightAttrs, peeked.localAttrs) as ObjectValue;
+      const relationships: ResourceObject['relationships'] = {};
 
       const rels = this.__graph.identifiers.get(identifier);
       if (rels) {
@@ -474,7 +473,7 @@ export default class JSONAPICache implements Cache {
     const document = this.peekRequest(identifier);
 
     if (document) {
-      if ('content' in document) return document.content;
+      if ('content' in document) return document.content!;
     }
     return null;
   }
@@ -508,7 +507,7 @@ export default class JSONAPICache implements Cache {
    */
   upsert(
     identifier: StableRecordIdentifier,
-    data: JsonApiResource,
+    data: ExistingResourceObject,
     calculateChanges?: boolean | undefined
   ): void | string[] {
     let changedKeys: string[] | undefined;
@@ -884,7 +883,7 @@ export default class JSONAPICache implements Cache {
     }
 
     cached.isNew = false;
-    let newCanonicalAttributes: AttributesHash | undefined;
+    let newCanonicalAttributes: ExistingResourceObject['attributes'];
     if (data) {
       if (data.id && !cached.id) {
         cached.id = data.id;
@@ -975,7 +974,7 @@ export default class JSONAPICache implements Cache {
    * @param identifier
    * @param errors
    */
-  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[] | undefined): void {
+  commitWasRejected(identifier: StableRecordIdentifier, errors?: ApiError[] | undefined): void {
     const cached = this.__peek(identifier, false);
     if (cached.inflightAttrs) {
       const keys = Object.keys(cached.inflightAttrs);
@@ -1316,7 +1315,7 @@ export default class JSONAPICache implements Cache {
    * @param identifier
    * @return {JsonApiError[]}
    */
-  getErrors(identifier: StableRecordIdentifier): JsonApiError[] {
+  getErrors(identifier: StableRecordIdentifier): ApiError[] {
     return this.__peek(identifier, true).errors || [];
   }
 
@@ -1452,11 +1451,18 @@ function getRemoteState(rel: CollectionEdge | ResourceEdge) {
   return rel.remoteState;
 }
 
+function hasLegacyDefaultValueFn(options: object | undefined): options is { defaultValue: () => Value } {
+  return !!options && typeof (options as { defaultValue: () => Value }).defaultValue === 'function';
+}
+
 function getDefaultValue(
   schema: FieldSchema | undefined,
   identifier: StableRecordIdentifier,
   store: Store
 ): Value | undefined {
+  if (schema?.kind === '@id') {
+    return null;
+  }
   const options = schema?.options;
 
   if (!schema || (!options && !schema.type)) {
@@ -1468,11 +1474,11 @@ function getDefaultValue(
   }
 
   // legacy support for defaultValues that are functions
-  if (typeof options?.defaultValue === 'function') {
+  if (hasLegacyDefaultValueFn(options)) {
     // If anyone opens an issue for args not working right, we'll restore + deprecate it via a Proxy
     // that lazily instantiates the record. We don't want to provide any args here
     // because in a non @ember-data/model world they don't make sense.
-    return options.defaultValue() as Value;
+    return options.defaultValue();
     // legacy support for defaultValues that are primitives
   } else if (options && 'defaultValue' in options) {
     const defaultValue = options.defaultValue;
@@ -1515,7 +1521,7 @@ function notifyAttributes(storeWrapper: CacheCapabilitiesManager, identifier: St
       There seems to be a potential bug here, where we will return keys that are not
       in the schema
   */
-function calculateChangedKeys(cached: CachedResource, updates?: AttributesHash): string[] {
+function calculateChangedKeys(cached: CachedResource, updates?: ExistingResourceObject['attributes']): string[] {
   const changedKeys: string[] = [];
 
   if (updates) {
@@ -1609,13 +1615,13 @@ function setupRelationships(
   graph: Graph,
   storeWrapper: CacheCapabilitiesManager,
   identifier: StableRecordIdentifier,
-  data: JsonApiResource
+  data: ExistingResourceObject
 ) {
   // TODO @runspired iterating by definitions instead of by payload keys
   // allows relationship payloads to be ignored silently if no relationship
   // definition exists. Ensure there's a test for this and then consider
   // moving this to an assertion. This check should possibly live in the graph.
-  const relationships = storeWrapper.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
+  const relationships = storeWrapper.schema.relationshipsDefinitionFor(identifier);
   const keys = Object.keys(relationships);
   for (let i = 0; i < keys.length; i++) {
     const relationshipName = keys[i];

@@ -5,7 +5,7 @@ import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 
 import type Store from '@ember-data/store';
-import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
+import type { FieldSchema } from '@warp-drive/core-types/schema/fields';
 import type { SchemaRecord } from '@warp-drive/schema-record/record';
 import { registerDerivations, SchemaService, withFields } from '@warp-drive/schema-record/schema';
 

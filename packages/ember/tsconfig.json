@@ -9,8 +9,7 @@
     "moduleResolution": "bundler",
     "skipLibCheck": true,
     "declarationDir": "unstable-preview-types",
-    "emitDeclarationOnly": true,
-    "noEmit": false,
+    "noEmit": true,
     "allowJs": false,
     "checkJs": false,
     "alwaysStrict": true,
@@ -45,13 +44,14 @@
 
     "baseUrl": "src",
 
-    "paths": {
-      "@warp-drive/build-config/env": ["../../private-build-infra/virtual-packages/env.d.ts"]
-    },
-
     "types": ["ember-source/types"],
 
     "allowImportingTsExtensions": true
   },
-  "references": [{ "path": "../store" }, { "path": "../core-types" }, { "path": "../request" }]
+  // "references": [
+  //   { "path": "../store" },
+  //   { "path": "../core-types" },
+  //   { "path": "../request" },
+  //   { "path": "../build-config" }
+  // ]
 }

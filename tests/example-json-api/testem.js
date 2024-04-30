@@ -1,4 +1,4 @@
-const customDotReporter = require('@ember-data/unpublished-test-infra/src/testem/custom-dot-reporter');
+const customDotReporter = require('@ember-data/unpublished-test-infra/testem/custom-dot-reporter');
 
 // eslint-disable-next-line no-console
 console.log(`\n\nLaunching with ${process.env.TESTEM_CI_LAUNCHER || 'Chrome'}\n\n`);

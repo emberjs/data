@@ -2,7 +2,7 @@ import { assert } from '@ember/debug';
 
 import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 
-import type { Cache } from '../../-types/q/cache';
+import type { Cache } from '@warp-drive/core-types/cache';
 import type { OpaqueRecordInstance } from '../../-types/q/record-instance';
 
 /*
@@ -24,9 +24,9 @@ export function removeRecordDataFor(identifier: StableRecordIdentifier | OpaqueR
   CacheForIdentifierCache.delete(identifier);
 }
 
-export default function peekCache(instance: StableRecordIdentifier): Cache | null;
-export default function peekCache(instance: OpaqueRecordInstance): Cache;
-export default function peekCache(instance: StableRecordIdentifier | OpaqueRecordInstance): Cache | null {
+export function peekCache(instance: StableRecordIdentifier): Cache | null;
+export function peekCache(instance: OpaqueRecordInstance): Cache;
+export function peekCache(instance: StableRecordIdentifier | OpaqueRecordInstance): Cache | null {
   if (CacheForIdentifierCache.has(instance as StableRecordIdentifier)) {
     return CacheForIdentifierCache.get(instance as StableRecordIdentifier) as Cache;
   }

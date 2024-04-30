@@ -1,5 +1,5 @@
 import { graphFor } from '@ember-data/graph/-private';
-import type { Graph } from '@ember-data/graph/-private/graph';
+import type { Graph } from '@ember-data/graph/-private';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';

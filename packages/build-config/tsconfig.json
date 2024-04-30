@@ -1,0 +1,48 @@
+{
+  "include": ["src/**/*"],
+  "compilerOptions": {
+    "lib": ["DOM", "ESNext"],
+    "module": "ESNext",
+    "target": "ESNext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "strict": true,
+    "alwaysStrict": true,
+    "downlevelIteration": false,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "allowImportingTsExtensions": true,
+    "forceConsistentCasingInFileNames": true,
+    "experimentalDecorators": false,
+    "allowJs": false,
+    "noEmit": true,
+    "noImplicitAny": true,
+    "noImplicitOverride": true,
+    "noImplicitThis": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "noEmitOnError": false,
+    "strictNullChecks": true,
+    "noErrorTruncation": true,
+    "preserveConstEnums": false,
+    "pretty": true,
+
+    // Enable faster builds
+    // but causes us to not rebuild properly
+    "composite": true,
+    "incremental": true,
+    "rootDir": "src",
+    "baseUrl": ".",
+
+    "declaration": true,
+    "declarationMap": true,
+    "declarationDir": "unstable-preview-types",
+    "inlineSourceMap": true,
+    "inlineSources": true
+    // "types": [],
+    // "paths": {}
+  }
+}

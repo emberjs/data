@@ -6,7 +6,7 @@ import { external } from '@warp-drive/internal-config/rollup/external.js';
 
 const addon = new Addon({
   srcDir: 'src',
-  destDir: 'addon',
+  destDir: 'dist',
 });
 
 export default {

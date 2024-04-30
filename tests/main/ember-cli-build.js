@@ -38,6 +38,7 @@ module.exports = function (defaults) {
   }
 
   const config = {
+    ASSERT_ALL_DEPRECATIONS: process.env.ASSERT_ALL_DEPRECATIONS ? true : false,
     compatWith,
     includeDataAdapterInProduction: true,
     includeDataAdapter: true,

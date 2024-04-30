@@ -1,18 +1,15 @@
 import { assert } from '@ember/debug';
 
 import { type Snapshot, upgradeStore } from '@ember-data/legacy-compat/-private';
-import type {
-  MinimumSerializerInterface,
-  SerializerOptions,
-} from '@ember-data/legacy-compat/legacy-network-handler/minimum-serializer-interface';
+import type { MinimumSerializerInterface, SerializerOptions } from '@ember-data/legacy-compat';
 import type Store from '@ember-data/store';
-import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
+import type { ModelSchema } from '@ember-data/store/types';
 
 type SerializerWithSerializeIntoHash = MinimumSerializerInterface & {
   serializeIntoHash?(hash: object, modelClass: ModelSchema, snapshot: Snapshot, options?: SerializerOptions): void;
 };
 
-export default function serializeIntoHash(
+export function serializeIntoHash(
   store: Store,
   modelClass: ModelSchema,
   snapshot: Snapshot,

@@ -1,7 +1,6 @@
 import { assert } from '@ember/debug';
 
 import { recordIdentifierFor } from '@ember-data/store';
-import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 
 import { Errors } from './-private';
 import type { MinimalLegacyRecord } from './-private/model-methods';
@@ -19,6 +18,7 @@ import {
   unloadRecord,
 } from './-private/model-methods';
 import RecordState from './-private/record-state';
+import { FieldSchema } from '@warp-drive/core-types/schema/fields';
 
 type Derivation<R, T> = (record: R, options: Record<string, unknown> | null, prop: string) => T;
 type SchemaService = {
@@ -135,7 +135,6 @@ export function withFields(fields: FieldSchema[]) {
   fields.push({
     name: 'id',
     kind: '@id',
-    type: null,
   });
   fields.push({
     name: 'isReloading',

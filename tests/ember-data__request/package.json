@@ -18,11 +18,11 @@
     "build:tests": "IS_TESTING=true EMBER_CLI_TEST_COMMAND=true ember build --output-path=dist-test --suppress-sizes",
     "start": "bun run build:tests --watch",
     "_build:production": "pnpm build:tests -e production",
-    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
+    "lint": "eslint . --quiet --cache --cache-strategy=content --report-unused-disable-directives",
     "check:types": "tsc --noEmit",
     "test": "bun ./diagnostic.js",
     "_test:production": "bun ./diagnostic.js",
-    "_syncPnpm": "bun run sync-dependencies-meta-injected"
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
   "dependenciesMeta": {
     "@warp-drive/diagnostic": {
@@ -32,9 +32,6 @@
       "injected": true
     },
     "@ember-data/request-utils": {
-      "injected": true
-    },
-    "@ember-data/private-build-infra": {
       "injected": true
     },
     "@warp-drive/holodeck": {
@@ -48,12 +45,14 @@
     },
     "@warp-drive/core-types": {
       "injected": true
+    },
+    "@warp-drive/build-config": {
+      "injected": true
     }
   },
   "devDependencies": {
     "@babel/core": "^7.24.4",
     "@babel/runtime": "^7.24.4",
-    "@ember-data/private-build-infra": "workspace:5.4.0-alpha.59",
     "@ember-data/request": "workspace:5.4.0-alpha.59",
     "@ember-data/request-utils": "workspace:5.4.0-alpha.59",
     "@ember/edition-utils": "^1.2.0",
@@ -64,6 +63,7 @@
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.45",
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.1",
     "@warp-drive/diagnostic": "workspace:0.0.0-alpha.45",
     "@warp-drive/holodeck": "workspace:0.0.0-alpha.45",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.59",

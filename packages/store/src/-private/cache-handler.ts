@@ -22,11 +22,11 @@ import type {
   ResourceErrorDocument,
 } from '@warp-drive/core-types/spec/document';
 import type { ApiError } from '@warp-drive/core-types/spec/error';
-import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
+import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
 
 import type { OpaqueRecordInstance } from '../-types/q/record-instance';
 import { Document } from './document';
-import type Store from './store-service';
+import type { Store } from './store-service';
 
 /**
  * A service which an application may provide to the store via

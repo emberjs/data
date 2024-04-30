@@ -7,74 +7,97 @@
     /////////////////////////////////////////////////
     /////////////////////////////////////////////////
     //
-    //         Local Dev
+    //         Initial Setup
     //
     /////////////////////////////////////////////////
     /////////////////////////////////////////////////
-    "start": {
-      "dependsOn": ["_syncPnpm", "^_build"],
-      "outputs": [],
-      "cache": false,
-      "persistent": true
+    "build:infra": {
+      "inputs": [
+        // + V2-Addon convention
+        "src/**",
+        "addon-main.*",
+        "tsconfig.json",
+        "babel.*",
+        "rollup-config.*"
+      ],
+      "outputs": [
+        // V1-Addon convention
+        "addon-test-support/**",
+        // V2-Addon convention
+        "dist/**",
+        "unstable-preview-types/**"
+      ],
+      "dependsOn": []
+    },
+
+    // run build in all library packages
+    // these do not require any associated packages
+    // to have been built to build other than
+    // the build:infra packages
+    "build:pkg": {
+      "inputs": [
+        // + V2-Addon convention
+        "src/**",
+        "addon-main.*",
+        "tsconfig.json",
+        "babel.*",
+        "rollup-config.*"
+      ],
+      "outputs": [
+        // V1-Addon convention
+        "addon-test-support/**",
+        // V2-Addon convention
+        "dist/**",
+        "unstable-preview-types/**"
+      ],
+      "dependsOn": ["^build:infra"]
+    },
+
+    // virtual task
+    "crawl-graph": {
+      "dependsOn": ["^crawl-graph"],
+      "cache": false
     },
 
     /////////////////////////////////////////////////
     /////////////////////////////////////////////////
     //
-    //         C.I. / C.D.
+    //         Local Dev
     //
     /////////////////////////////////////////////////
     /////////////////////////////////////////////////
-    "_build": {
-      "inputs": [
-        // + V2-Addon convention
-        "src/**",
-        "addon-main.*",
-        "tsconfig.json",
-        "babel.*",
-        "rollup-config.*"
-      ],
-      "outputs": [
-        // V1-Addon convention
-        "addon/**",
-        "addon-test-support/**",
-        // V2-Addon convention
-        "dist/**",
-        "declarations/**",
-        "unstable-preview-types/**"
-      ],
-      "dependsOn": ["_syncPnpm"]
+    "start": {
+      // "dependsOn": ["_task:sync-hardlinks", "^_build"],
+      // "outputs": [],
+      // "cache": false,
+      // "persistent": true
     },
-    "build": {
-      "inputs": [
-        // + V2-Addon convention
-        "src/**",
-        "tests/**",
-        "addon-main.*",
-        "tsconfig.json",
-        "babel.*",
-        "rollup-config.*"
-      ],
-      "outputs": [
-        // V1-Addon convention
-        "addon/**",
-        "addon-test-support/**",
-        // V2-Addon convention
-        "dist/**",
-        "dist-test/**",
-        "declarations/**",
-        "unstable-preview-types/**"
-      ],
-      "dependsOn": ["_syncPnpm"]
-    },
+
+    /////////////////////////////////////////////////
+    /////////////////////////////////////////////////
+    //
+    //         Checks
+    //
+    /////////////////////////////////////////////////
+    /////////////////////////////////////////////////
+
     "lint": {
-      "cache": false,
-      "dependsOn": ["_syncPnpm", "^_build"]
+      "inputs": [
+        "eslint.*",
+        "tsconfig.json"
+        // the tsc output cache?
+      ],
+      "dependsOn": ["^build:pkg"]
     },
+
     "check:types": {
-      "cache": false,
-      "dependsOn": ["_syncPnpm", "^_build"]
+      "inputs": [
+        "tsconfig.json",
+        "tsconfig.tsbuildinfo"
+      ],
+      "dependsOn": ["^build:pkg"]
     },
+
     "build:tests": {
       "inputs": [
         // + V2-Addon convention
@@ -95,7 +118,7 @@
         "declarations/**",
         "unstable-preview-types/**"
       ],
-      "dependsOn": ["_syncPnpm", "^_build"]
+      "dependsOn": ["_task:sync-hardlinks", "^_build"]
     },
     "build:production": {
       "inputs": [
@@ -116,13 +139,9 @@
         "dist-test/**",
         "declarations/**"
       ],
-      "dependsOn": ["_syncPnpm", "^_build"]
+      "dependsOn": ["_task:sync-hardlinks", "^_build"]
     },
-    // See: https://github.com/pnpm/pnpm/issues/4965
-    "_syncPnpm": {
-      "dependsOn": ["^_build"],
-      "cache": false
-    },
+
     "test": {
       "outputs": [],
       "dependsOn": ["build:tests"]

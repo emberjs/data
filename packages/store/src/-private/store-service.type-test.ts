@@ -2,9 +2,8 @@ import { expectTypeOf } from 'expect-type';
 
 import type { ResourceType } from '@warp-drive/core-types/symbols';
 
-import type { IdentifierArray } from '../-private';
-import type { Collection } from './record-arrays/identifier-array';
-import Store from './store-service';
+import type { IdentifierArray, Collection } from './record-arrays/identifier-array';
+import { Store } from './store-service';
 
 //////////////////////////////////
 //////////////////////////////////

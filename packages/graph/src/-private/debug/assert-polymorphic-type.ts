@@ -2,7 +2,7 @@ import { assert } from '@ember/debug';
 import { DEBUG } from '@warp-drive/build-config/env';
 import type { UpgradedMeta } from '../-edge-definition';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
+import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 
 /*
   Assert that `addedRecord` has a valid type so it can be added to the

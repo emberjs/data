@@ -1,7 +1,7 @@
 import { assert } from '@ember/debug';
 
-import type { MergeOperation } from '@ember-data/store/-types/q/cache';
-import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
+import type { MergeOperation } from '@warp-drive/core-types/cache/operations';
+import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { LOG_GRAPH } from '@warp-drive/build-config/debugging';
 import { DEBUG } from '@warp-drive/build-config/env';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -570,8 +570,8 @@ export class Graph {
         Graphs.forEach((_, key) => {
           assert(
             `Memory Leak Detected, likely the test or app instance previous to this was not torn down properly`,
-            // @ts-expect-error
-            !key.isDestroyed && !key.isDestroying
+            !(key as unknown as { isDestroyed: boolean }).isDestroyed &&
+              !(key as unknown as { isDestroying: boolean }).isDestroying
           );
         });
       }

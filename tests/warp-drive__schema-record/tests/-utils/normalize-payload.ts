@@ -2,7 +2,7 @@ import type Owner from '@ember/owner';
 
 import type Store from '@ember-data/store';
 import type { Value } from '@warp-drive/core-types/json/raw';
-import type { SingleResourceDocument } from '@warp-drive/core-types/spec/raw';
+import type { SingleResourceDocument } from '@warp-drive/core-types/spec/json-api-raw';
 
 export function simplePayloadNormalize(owner: Owner, payload: SingleResourceDocument): SingleResourceDocument {
   const store = owner.lookup('service:store') as Store;

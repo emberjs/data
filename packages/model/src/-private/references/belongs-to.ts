@@ -1,7 +1,6 @@
-import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
-import type { Graph } from '@ember-data/graph/-private/graph';
+import type { ResourceEdge, Graph } from '@ember-data/graph/-private';
 import type Store from '@ember-data/store';
-import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
+import type { NotificationType } from '@ember-data/store';
 import { cached, compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';
 import { DEBUG } from '@warp-drive/build-config/env';
@@ -14,7 +13,7 @@ import type {
   Meta,
   SingleResourceDocument,
   SingleResourceRelationship,
-} from '@warp-drive/core-types/spec/raw';
+} from '@warp-drive/core-types/spec/json-api-raw';
 
 import type { IsUnknown } from '../belongs-to';
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';

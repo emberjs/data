@@ -1,6 +1,6 @@
 const newline = /\r?\n/;
 
-export default function parseResponseHeaders(headersString: string): Record<string, string> {
+export function parseResponseHeaders(headersString: string): Record<string, string> {
   const headers = Object.create(null) as Record<string, string>;
 
   if (!headersString) {

@@ -3,7 +3,6 @@ import EmberObject from '@ember/object';
 import Store from 'ember-data__adapter/services/store';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import { module, test } from '@warp-drive/diagnostic';
 import { setupTest } from '@warp-drive/diagnostic/ember';
@@ -160,7 +159,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    const expectedResultCopy = deepCopy(expectedResult);
+    const expectedResultCopy = structuredClone(expectedResult);
 
     class TestFindHasManyAdapter extends EmberObject {
       findRecord() {
@@ -269,7 +268,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    const expectedResultCopy = deepCopy(expectedResult);
+    const expectedResultCopy = structuredClone(expectedResult);
 
     class TestFindRecordAdapter extends EmberObject {
       coalesceFindRequests = false;
@@ -345,7 +344,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    const expectedResultCopy = deepCopy(expectedResult);
+    const expectedResultCopy = structuredClone(expectedResult);
 
     class TestFindRecordAdapter extends EmberObject {
       coalesceFindRequests = false;
@@ -417,7 +416,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    const expectedResultCopy = deepCopy(expectedResult);
+    const expectedResultCopy = structuredClone(expectedResult);
 
     class TestFindManyAdapter extends EmberObject {
       coalesceFindRequests = true;
@@ -500,7 +499,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    const expectedResultCopy = deepCopy(expectedResult);
+    const expectedResultCopy = structuredClone(expectedResult);
 
     class TestFindManyAdapter extends EmberObject {
       coalesceFindRequests = true;
@@ -582,7 +581,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    const expectedResultCopy = deepCopy(expectedResult);
+    const expectedResultCopy = structuredClone(expectedResult);
 
     class TestFindHasManyAdapter extends EmberObject {
       findRecord() {
@@ -661,7 +660,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    const expectedResultCopy = deepCopy(expectedResult);
+    const expectedResultCopy = structuredClone(expectedResult);
 
     class TestFindManyAdapter extends EmberObject {
       coalesceFindRequests = true;
@@ -739,7 +738,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    const expectedResultCopy = deepCopy(expectedResult);
+    const expectedResultCopy = structuredClone(expectedResult);
 
     class TestFindRecordAdapter extends EmberObject {
       coalesceFindRequests = false;

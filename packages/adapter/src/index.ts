@@ -192,13 +192,10 @@ import EmberObject from '@ember/object';
 import { inject as service } from '@ember/service';
 
 import type { Snapshot, SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
-import type {
-  AdapterPayload,
-  MinimumAdapterInterface,
-} from '@ember-data/legacy-compat/legacy-network-handler/minimum-adapter-interface';
-import type { SerializerOptions } from '@ember-data/legacy-compat/legacy-network-handler/minimum-serializer-interface';
+import type { AdapterPayload, MinimumAdapterInterface } from '@ember-data/legacy-compat';
+import type { SerializerOptions } from '@ember-data/legacy-compat';
 import type Store from '@ember-data/store';
-import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
+import type { ModelSchema } from '@ember-data/store/types';
 import { DEBUG } from '@warp-drive/build-config/env';
 
 /**

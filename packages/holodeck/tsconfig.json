@@ -6,8 +6,7 @@
     "moduleResolution": "bundler",
     "skipLibCheck": true,
     "declarationDir": "dist",
-    "emitDeclarationOnly": true,
-    "noEmit": false,
+    "noEmit": true,
     "allowJs": false,
     "checkJs": false,
 
@@ -44,6 +43,6 @@
     "inlineSources": true,
 
     "baseUrl": "client"
-  },
-  "references": [{ "path": "../request" }, { "path": "../core-types" }]
+  }
+  // "references": [{ "path": "../request" }, { "path": "../core-types" }]
 }

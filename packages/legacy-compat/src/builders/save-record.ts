@@ -4,7 +4,7 @@
 import { assert } from '@ember/debug';
 
 import { recordIdentifierFor, storeFor, type StoreRequestInput } from '@ember-data/store';
-import type { InstanceCache } from '@ember-data/store/-private/caches/instance-cache';
+import type { InstanceCache } from '@ember-data/store/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';

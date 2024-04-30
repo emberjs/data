@@ -7,7 +7,7 @@ import { DEBUG } from '@warp-drive/build-config/env';
 import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 
 import type { FindRecordOptions } from '../../-types/q/store';
-import type Store from '../store-service';
+import type { Store } from '../store-service';
 
 const Touching: unique symbol = Symbol('touching');
 export const RequestPromise: unique symbol = Symbol('promise');
@@ -65,7 +65,7 @@ function hasRecordIdentifier(op: Operation): op is RecordOperation {
  * @class RequestStateService
  * @public
  */
-export default class RequestStateService {
+export class RequestStateService {
   _pending: Map<StableRecordIdentifier, InternalRequest[]> = new Map();
   _done: Map<StableRecordIdentifier, InternalRequest[]> = new Map();
   _subscriptions: Map<StableRecordIdentifier, RequestSubscription[]> = new Map();

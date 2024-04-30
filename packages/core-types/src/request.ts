@@ -1,7 +1,7 @@
 import type { StableRecordIdentifier } from './identifier';
 import type { QueryParamsSerializationOptions } from './params';
 import type { ExtractSuggestedCacheTypes, Includes, TypedRecordInstance, TypeFromInstanceOrString } from './record';
-import type { ResourceIdentifierObject } from './spec/raw';
+import type { ResourceIdentifierObject } from './spec/json-api-raw';
 import type { RequestSignature } from './symbols';
 
 type Store = unknown;

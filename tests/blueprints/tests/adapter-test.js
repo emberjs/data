@@ -3,9 +3,52 @@
 const blueprintHelpers = require('ember-cli-blueprint-test-helpers/helpers');
 const chai = require('ember-cli-blueprint-test-helpers/chai');
 const SilentError = require('silent-error');
-const generateFakePackageManifest = require('@ember-data/unpublished-test-infra/src/node-test-helpers/generate-fake-package-manifest');
-const fixture = require('@ember-data/unpublished-test-infra/src/node-test-helpers/fixture');
-const setupTestEnvironment = require('@ember-data/unpublished-test-infra/src/node-test-helpers/setup-test-environment');
+
+const path = require('path');
+const file = require('ember-cli-blueprint-test-helpers/chai').file;
+
+function fixture(directory, filePath) {
+  return file(path.join(directory, '../fixtures', filePath));
+}
+
+const fs = require('fs');
+
+function generateFakePackageManifest(name, version) {
+  if (!fs.existsSync('node_modules')) {
+    fs.mkdirSync('node_modules');
+  }
+  if (!fs.existsSync('node_modules/' + name)) {
+    fs.mkdirSync('node_modules/' + name);
+  }
+  fs.writeFileSync(
+    'node_modules/' + name + '/package.json',
+    JSON.stringify({
+      version: version,
+    })
+  );
+}
+
+const { setEdition, clearEdition } = require('@ember/edition-utils');
+
+function enableOctane() {
+  beforeEach(function () {
+    setEdition('octane');
+  });
+
+  afterEach(function () {
+    clearEdition();
+  });
+}
+
+function enableClassic() {
+  beforeEach(function () {
+    setEdition('classic');
+  });
+
+  afterEach(function () {
+    clearEdition();
+  });
+}
 
 const setupTestHooks = blueprintHelpers.setupTestHooks;
 const emberNew = blueprintHelpers.emberNew;
@@ -14,8 +57,6 @@ const emberGenerateDestroy = blueprintHelpers.emberGenerateDestroy;
 const modifyPackages = blueprintHelpers.modifyPackages;
 
 const expect = chai.expect;
-const enableOctane = setupTestEnvironment.enableOctane;
-const enableClassic = setupTestEnvironment.enableClassic;
 
 describe('Acceptance: generate and destroy adapter blueprints', function () {
   setupTestHooks(this);

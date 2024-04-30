@@ -13,7 +13,7 @@ class Person extends Model {
   @attr name;
 }
 
-module('IdentifierArray | Classic Chains', function (hooks) {
+module('LiveArray | Classic Chains', function (hooks) {
   setupRenderingTest(hooks);
 
   hooks.beforeEach(function () {

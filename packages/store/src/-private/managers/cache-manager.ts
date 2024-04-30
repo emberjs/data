@@ -1,5 +1,6 @@
 import type { Cache, ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core-types/cache';
 import type { Change } from '@warp-drive/core-types/cache/change';
+import type { MergeOperation } from '@warp-drive/core-types/cache/operations';
 import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
 import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
@@ -8,8 +9,6 @@ import type { StructuredDataDocument, StructuredDocument } from '@warp-drive/cor
 import type { ResourceDocument, SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
 import type { ApiError } from '@warp-drive/core-types/spec/error';
 
-import type { MergeOperation } from '../../-types/q/cache';
-import type { JsonApiResource } from '../../-types/q/record-data-json-api';
 import type { StoreRequestContext } from '../cache-handler';
 
 /**
@@ -157,7 +156,7 @@ export class CacheManager implements Cache {
    * @param hasRecord
    * @return {void | string[]} if `hasRecord` is true then calculated key changes should be returned
    */
-  upsert(identifier: StableRecordIdentifier, data: JsonApiResource, hasRecord: boolean): void | string[] {
+  upsert(identifier: StableRecordIdentifier, data: unknown, hasRecord: boolean): void | string[] {
     return this.#cache.upsert(identifier, data, hasRecord);
   }
 

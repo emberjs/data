@@ -2,9 +2,8 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import type Store from '@ember-data/store';
+import type Store from 'warp-drive__schema-record/services/store';
 import { recordIdentifierFor } from '@ember-data/store';
-import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 import type { ResourceType } from '@warp-drive/core-types/symbols';
 import type { Transform } from '@warp-drive/schema-record/schema';
 import { registerDerivations, SchemaService, withFields } from '@warp-drive/schema-record/schema';
@@ -44,12 +43,10 @@ module('Writes | object fields', function (hooks) {
       fields: withFields([
         {
           name: 'name',
-          type: null,
           kind: 'field',
         },
         {
           name: 'address',
-          type: null,
           kind: 'object',
         },
       ]),
@@ -90,7 +87,7 @@ module('Writes | object fields', function (hooks) {
 
     // test that the data entered the cache properly
     const identifier = recordIdentifierFor(record);
-    const cachedResourceData = store.cache.peek<JsonApiResource>(identifier);
+    const cachedResourceData = store.cache.peek(identifier);
 
     assert.deepEqual(
       cachedResourceData?.attributes?.address,
@@ -108,12 +105,10 @@ module('Writes | object fields', function (hooks) {
       fields: withFields([
         {
           name: 'name',
-          type: null,
           kind: 'field',
         },
         {
           name: 'address',
-          type: null,
           kind: 'object',
         },
       ]),
@@ -150,7 +145,7 @@ module('Writes | object fields', function (hooks) {
     assert.strictEqual(record.address, null, 'The object is correctly set to null');
     // test that the data entered the cache properly
     const identifier = recordIdentifierFor(record);
-    const cachedResourceData = store.cache.peek<JsonApiResource>(identifier);
+    const cachedResourceData = store.cache.peek(identifier);
     assert.deepEqual(cachedResourceData?.attributes?.address, null, 'the cache values are correctly updated');
     record.address = {
       street: '123 Main Street',
@@ -179,12 +174,10 @@ module('Writes | object fields', function (hooks) {
       fields: withFields([
         {
           name: 'name',
-          type: null,
           kind: 'field',
         },
         {
           name: 'address',
-          type: null,
           kind: 'object',
         },
       ]),
@@ -224,7 +217,7 @@ module('Writes | object fields', function (hooks) {
     assert.strictEqual(address, record.address, 'Object reference does not change');
     // test that the data entered the cache properly
     const identifier = recordIdentifierFor(record);
-    const cachedResourceData = store.cache.peek<JsonApiResource>(identifier);
+    const cachedResourceData = store.cache.peek(identifier);
     assert.deepEqual(
       cachedResourceData?.attributes?.address,
       { street: '123 Main Street', city: 'Anytown', state: 'NJ', zip: '12345' },
@@ -241,12 +234,10 @@ module('Writes | object fields', function (hooks) {
       fields: withFields([
         {
           name: 'name',
-          type: null,
           kind: 'field',
         },
         {
           name: 'address',
-          type: null,
           kind: 'object',
         },
       ]),
@@ -307,7 +298,7 @@ module('Writes | object fields', function (hooks) {
     assert.notStrictEqual(address, record2.address, 'We have a new object reference');
     // test that the data entered the cache properly
     const identifier = recordIdentifierFor(record2);
-    const cachedResourceData = store.cache.peek<JsonApiResource>(identifier);
+    const cachedResourceData = store.cache.peek(identifier);
     assert.deepEqual(
       cachedResourceData?.attributes?.address,
       {
@@ -329,7 +320,6 @@ module('Writes | object fields', function (hooks) {
       fields: withFields([
         {
           name: 'name',
-          type: null,
           kind: 'field',
         },
         {
@@ -409,7 +399,7 @@ module('Writes | object fields', function (hooks) {
     assert.strictEqual(address, record.address, 'object reference does not change');
     // test that the data entered the cache properly
     const identifier = recordIdentifierFor(record);
-    const cachedResourceData = store.cache.peek<JsonApiResource>(identifier);
+    const cachedResourceData = store.cache.peek(identifier);
     assert.deepEqual(
       cachedResourceData?.attributes?.address,
       {
@@ -441,7 +431,6 @@ module('Writes | object fields', function (hooks) {
       fields: withFields([
         {
           name: 'name',
-          type: null,
           kind: 'field',
         },
         {
@@ -517,7 +506,7 @@ module('Writes | object fields', function (hooks) {
     assert.strictEqual(address, record.address, 'object reference does not change');
     // test that the data entered the cache properly
     const identifier = recordIdentifierFor(record);
-    const cachedResourceData = store.cache.peek<JsonApiResource>(identifier);
+    const cachedResourceData = store.cache.peek(identifier);
     assert.deepEqual(
       cachedResourceData?.attributes?.address,
       {

@@ -16,11 +16,11 @@
   },
   "scripts": {
     "build": "ember build",
-    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
+    "lint": "eslint . --quiet --cache --cache-strategy=content --report-unused-disable-directives",
     "check:types": "tsc --noEmit",
     "start": "ember serve",
     "test:fastboot": "ember test --test-port=0",
-    "_syncPnpm": "bun run sync-dependencies-meta-injected"
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
   "dependencies": {
     "@ember-data/unpublished-test-infra": "workspace:5.4.0-alpha.59",
@@ -52,6 +52,10 @@
     "@ember/test-helpers": "^3.3.0",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
+    "@ember-data/request": "workspace:5.4.0-alpha.59",
+    "@ember-data/store": "workspace:5.4.0-alpha.59",
+    "@ember-data/tracking": "workspace:5.4.0-alpha.59",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.45",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.59",
     "ember-cli": "~5.7.0",
     "ember-cli-babel": "^8.2.0",

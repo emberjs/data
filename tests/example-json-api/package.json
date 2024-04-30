@@ -17,10 +17,10 @@
   "scripts": {
     "build": "ember build",
     "start": "ember test --port=0 --serve --no-launch",
-    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
+    "lint": "eslint . --quiet --cache --cache-strategy=content --report-unused-disable-directives",
     "check:types": "tsc --noEmit",
     "test:examples": "ember test --test-port=0",
-    "_syncPnpm": "bun run sync-dependencies-meta-injected"
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
   "dependenciesMeta": {
     "ember-data": {
@@ -30,9 +30,6 @@
       "injected": true
     },
     "@ember-data/graph": {
-      "injected": true
-    },
-    "@ember-data/private-build-infra": {
       "injected": true
     },
     "@ember-data/store": {
@@ -77,7 +74,6 @@
     "@ember-data/json-api": "workspace:5.4.0-alpha.59",
     "@ember-data/legacy-compat": "workspace:5.4.0-alpha.59",
     "@ember-data/model": "workspace:5.4.0-alpha.59",
-    "@ember-data/private-build-infra": "workspace:5.4.0-alpha.59",
     "@ember-data/request": "workspace:5.4.0-alpha.59",
     "@ember-data/request-utils": "workspace:5.4.0-alpha.59",
     "@ember-data/store": "workspace:5.4.0-alpha.59",

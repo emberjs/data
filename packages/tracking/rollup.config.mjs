@@ -1,12 +1,12 @@
 import { Addon } from '@embroider/addon-dev/rollup';
-import babel from '@rollup/plugin-babel';
-import { nodeResolve } from '@rollup/plugin-node-resolve';
+import ts from 'rollup-plugin-ts';
+import babelConfig from './babel.config.mjs';
 
 import { external } from '@warp-drive/internal-config/rollup/external.js';
 
 const addon = new Addon({
   srcDir: 'src',
-  destDir: 'addon',
+  destDir: 'dist',
 });
 
 export default {
@@ -28,10 +28,11 @@ export default {
     // addon. Anything not listed here may get optimized away.
     addon.publicEntrypoints(['index.js', '-private.js']),
 
-    nodeResolve({ extensions: ['.ts'] }),
-    babel({
-      extensions: ['.ts'],
-      babelHelpers: 'runtime', // we should consider "external",
+    ts({
+      transpiler: 'babel',
+      babelConfig,
+      // transpileOnly: true,
+      browserslist: false,
     }),
 
     // Remove leftover build artifacts when starting a new build.

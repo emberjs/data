@@ -1,12 +1,11 @@
 import Cache from '@ember-data/json-api';
 import { serializePatch, serializeResources } from '@ember-data/json-api/request';
 import Store from '@ember-data/store';
-import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
-import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
+import type { NotificationType } from '@ember-data/store';
+import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
+import { FieldSchema, LegacyAttributeField, LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
+import { ResourceObject } from '@warp-drive/core-types/spec/json-api-raw';
 import { module, test } from '@warp-drive/diagnostic';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
@@ -18,7 +17,7 @@ class TestStore extends Store {
   override instantiateRecord(identifier: StableRecordIdentifier) {
     const { id, lid, type } = identifier;
     const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
-    Object.assign(record, (this.cache.peek(identifier) as JsonApiResource).attributes);
+    Object.assign(record, (this.cache.peek(identifier) as ResourceObject).attributes);
 
     const token = this.notifications.subscribe(
       identifier,
@@ -41,6 +40,8 @@ class TestStore extends Store {
   }
 }
 
+type AttributesSchema = Record<string, LegacyAttributeField>;
+type RelationshipsSchema = Record<string, LegacyRelationshipSchema>;
 type Schemas<T extends string> = Record<T, { attributes: AttributesSchema; relationships: RelationshipsSchema }>;
 class TestSchema<T extends string> {
   declare schemas: Schemas<T>;

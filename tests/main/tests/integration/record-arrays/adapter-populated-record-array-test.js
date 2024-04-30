@@ -16,7 +16,7 @@ const Person = Model.extend({
   },
 });
 
-module('integration/record-arrays/adapter_populated_record_array - AdapterPopulatedRecordArray', function (hooks) {
+module('integration/record-arrays/collection', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {

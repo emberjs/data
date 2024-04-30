@@ -10,7 +10,7 @@ import {
   withFields as withLegacyFields,
 } from '@ember-data/model/migration-support';
 import type Store from '@ember-data/store';
-import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
+import type { FieldSchema } from '@warp-drive/core-types/schema/fields';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { SchemaRecord } from '@warp-drive/schema-record/record';
 import type { Transform } from '@warp-drive/schema-record/schema';

@@ -1,15 +1,81 @@
 import { assert } from '@ember/debug';
 
-import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
+import { recordIdentifierFor } from '@ember-data/store';
 import { createCache, getValue } from '@ember-data/tracking';
 import { type Signal, Signals } from '@ember-data/tracking/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Value } from '@warp-drive/core-types/json/raw';
-import type { AttributeSchema, RelationshipSchema } from '@warp-drive/core-types/schema';
+import type { OpaqueRecordInstance } from '@warp-drive/core-types/record';
+import type { FieldSchema, LegacyAttributeField, LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
 
-import type { SchemaRecord } from './record';
+import { Identifier, type SchemaRecord } from './record';
 
-export { withFields, registerDerivations } from './-base-fields';
+const Support = new WeakMap<WeakKey, Record<string, unknown>>();
+
+export const SchemaRecordFields: FieldSchema[] = [
+  {
+    type: '@constructor',
+    name: 'constructor',
+    kind: 'derived',
+  },
+  {
+    name: 'id',
+    kind: '@id',
+  },
+  {
+    type: '@identity',
+    name: '$type',
+    kind: 'derived',
+    options: { key: 'type' },
+  },
+];
+
+const _constructor: Derivation<OpaqueRecordInstance, unknown> = function (record) {
+  let state = Support.get(record as WeakKey);
+  if (!state) {
+    state = {};
+    Support.set(record as WeakKey, state);
+  }
+
+  return (state._constructor = state._constructor || {
+    name: `SchemaRecord<${recordIdentifierFor(record).type}>`,
+    get modelName() {
+      throw new Error('Cannot access record.constructor.modelName on non-Legacy Schema Records.');
+    },
+  });
+};
+
+export function withFields(fields: FieldSchema[]) {
+  fields.push(...SchemaRecordFields);
+  return fields;
+}
+
+export function fromIdentity(record: SchemaRecord, options: null, key: string): asserts options;
+export function fromIdentity(record: SchemaRecord, options: { key: 'lid' } | { key: 'type' }, key: string): string;
+export function fromIdentity(record: SchemaRecord, options: { key: 'id' }, key: string): string | null;
+export function fromIdentity(record: SchemaRecord, options: { key: '^' }, key: string): StableRecordIdentifier;
+export function fromIdentity(
+  record: SchemaRecord,
+  options: { key: 'id' | 'lid' | 'type' | '^' } | null,
+  key: string
+): StableRecordIdentifier | string | null {
+  const identifier = record[Identifier];
+  assert(`Cannot compute @identity for a record without an identifier`, identifier);
+  assert(
+    `Expected to receive a key to compute @identity, but got ${String(options)}`,
+    options?.key && ['lid', 'id', 'type', '^'].includes(options.key)
+  );
+
+  return options.key === '^' ? identifier : identifier[options.key];
+}
+
+export function registerDerivations(schema: SchemaService) {
+  schema.registerDerivation(
+    '@identity',
+    fromIdentity as Derivation<SchemaRecord, StableRecordIdentifier | string | null>
+  );
+  schema.registerDerivation('@constructor', _constructor);
+}
 
 /**
  * The full schema for a resource
@@ -24,13 +90,13 @@ type FieldSpec = {
    * from relationship lookup
    * @internal
    */
-  attributes: Record<string, AttributeSchema>;
+  attributes: Record<string, LegacyAttributeField>;
   /**
    * legacy schema service separated attribute
    * from relationship lookup
    * @internal
    */
-  relationships: Record<string, RelationshipSchema>;
+  relationships: Record<string, LegacyRelationshipSchema>;
   /**
    * new schema service is fields based
    * @internal
@@ -129,11 +195,11 @@ export class SchemaService {
         // const attr = Object.assign({}, field, { kind: 'attribute' }) as AttributeSchema;
         // fieldSpec.attributes[attr.name] = attr;
       } else if (field.kind === 'attribute') {
-        fieldSpec.attributes[field.name] = field as AttributeSchema;
+        fieldSpec.attributes[field.name] = field as LegacyAttributeField;
       } else if (field.kind === 'resource' || field.kind === 'collection') {
         const relSchema = Object.assign({}, field, {
           kind: field.kind === 'resource' ? 'belongsTo' : 'hasMany',
-        }) as unknown as RelationshipSchema;
+        }) as unknown as LegacyRelationshipSchema;
         fieldSpec.relationships[field.name] = relSchema;
       } else if (
         field.kind !== 'derived' &&

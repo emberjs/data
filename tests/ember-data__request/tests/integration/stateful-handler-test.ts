@@ -5,8 +5,8 @@ import type { TestContext } from '@ember/test-helpers';
 import Resolver from 'ember-resolver';
 
 import RequestManager from '@ember-data/request';
-import type { Context as HandlerRequestContext } from '@ember-data/request/-private/context';
-import type { NextFn } from '@ember-data/request/-private/types';
+import type { RequestContext } from '@warp-drive/core-types/request';
+import type { NextFn } from '@ember-data/request';
 import { module, test } from '@warp-drive/diagnostic';
 import { setupTest } from '@warp-drive/diagnostic/ember';
 
@@ -33,7 +33,7 @@ module('RequestManager | Stateful Handlers', function (hooks) {
     class MyHandler {
       @service declare intl: { t: (key: string) => string };
 
-      request<T>(req: HandlerRequestContext, next: NextFn<T>) {
+      request<T>(req: RequestContext, next: NextFn<T>) {
         calls++;
         return Promise.resolve(this.intl.t('success!') as T);
       }

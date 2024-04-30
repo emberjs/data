@@ -187,6 +187,7 @@ export function configure(options: Partial<ConfigOptions>): void {
     }
     // don't allow setting these params via configure
     if (options.params?.[key]) {
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
       delete options.params[key];
     }
   });

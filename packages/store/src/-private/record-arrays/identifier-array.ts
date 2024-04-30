@@ -13,15 +13,15 @@ import {
   subscribe,
 } from '@ember-data/tracking/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
-import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
+import type { TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
-import type { Links, PaginationLinks } from '@warp-drive/core-types/spec/raw';
+import type { Links, PaginationLinks } from '@warp-drive/core-types/spec/json-api-raw';
 
 import type { OpaqueRecordInstance } from '../../-types/q/record-instance';
 import { isStableIdentifier } from '../caches/identifier-cache';
 import { recordIdentifierFor } from '../caches/instance-cache';
-import type RecordArrayManager from '../managers/record-array-manager';
-import type Store from '../store-service';
+import type { RecordArrayManager } from '../managers/record-array-manager';
+import type { Store } from '../store-service';
 import { NativeProxy } from './native-proxy-type-fix';
 
 type KeyType = string | symbol | number;
@@ -84,11 +84,11 @@ function convertToInt(prop: KeyType): number | null {
 type ProxiedMethod = (...args: unknown[]) => unknown;
 
 export type IdentifierArrayCreateOptions<T = unknown> = {
-  identifiers: StableRecordIdentifier[];
-  type?: T extends TypedRecordInstance ? TypeFromInstance<T> : string;
+  identifiers: StableRecordIdentifier<TypeFromInstanceOrString<T>>[];
+  type?: TypeFromInstanceOrString<T>;
   store: Store;
   allowMutation: boolean;
-  manager: RecordArrayManager;
+  manager: MinimumManager;
   links?: Links | PaginationLinks | null;
   meta?: Record<string, unknown> | null;
 };
@@ -125,6 +125,10 @@ function safeForEach<T>(
   return instance;
 }
 
+type MinimumManager = {
+  _syncArray: (array: IdentifierArray) => void;
+};
+
 /**
   A record array is an array that contains records of a certain type (or modelName).
   The record array materializes records as needed when they are retrieved for the first
@@ -137,7 +141,7 @@ function safeForEach<T>(
   @class RecordArray
   @public
 */
-interface IdentifierArray<T = unknown> extends Omit<Array<T>, '[]'> {
+export interface IdentifierArray<T = unknown> extends Omit<Array<T>, '[]'> {
   [MUTATE]?(
     target: StableRecordIdentifier[],
     receiver: typeof NativeProxy<StableRecordIdentifier[], T[]>,
@@ -147,7 +151,7 @@ interface IdentifierArray<T = unknown> extends Omit<Array<T>, '[]'> {
   ): unknown;
 }
 
-class IdentifierArray<T = unknown> {
+export class IdentifierArray<T = unknown> {
   declare DEPRECATED_CLASS_NAME: string;
   /**
     The flag to signal a `RecordArray` is currently loading data.
@@ -177,7 +181,7 @@ class IdentifierArray<T = unknown> {
 
   declare links: Links | PaginationLinks | null;
   declare meta: Record<string, unknown> | null;
-  declare modelName?: T extends TypedRecordInstance ? TypeFromInstance<T> : string;
+  declare modelName?: TypeFromInstanceOrString<T>;
   /**
     The store that created this record array.
 
@@ -186,7 +190,7 @@ class IdentifierArray<T = unknown> {
     @type Store
     */
   declare store: Store;
-  declare _manager: RecordArrayManager;
+  declare _manager: MinimumManager;
 
   destroy(clear: boolean) {
     this.isDestroying = !clear;
@@ -386,7 +390,7 @@ class IdentifierArray<T = unknown> {
         }
 
         if (!options.allowMutation) {
-          assert(`Mutating ${String(prop)} on this RecordArray is not allowed.`, options.allowMutation);
+          assert(`Mutating ${String(prop)} on this Array is not allowed.`, options.allowMutation);
           return false;
         }
 
@@ -481,7 +485,7 @@ class IdentifierArray<T = unknown> {
   }
 
   /*
-    Update this RecordArray and return a promise which resolves once the update
+    Update this Array and return a promise which resolves once the update
     is finished.
    */
   _update(): Promise<IdentifierArray<T>> {
@@ -534,15 +538,15 @@ Object.defineProperty(IdentifierArray.prototype, '[]', desc);
 
 defineSignal(IdentifierArray.prototype, 'isUpdating', false);
 
-export default IdentifierArray;
-
 export type CollectionCreateOptions = IdentifierArrayCreateOptions & {
+  manager: RecordArrayManager;
   query: ImmutableRequestInfo | Record<string, unknown> | null;
   isLoaded: boolean;
 };
 
 export class Collection<T = unknown> extends IdentifierArray<T> {
   query: ImmutableRequestInfo | Record<string, unknown> | null = null;
+  declare _manager: RecordArrayManager;
 
   constructor(options: CollectionCreateOptions) {
     super(options as IdentifierArrayCreateOptions);

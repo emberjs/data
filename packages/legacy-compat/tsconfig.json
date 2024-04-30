@@ -1,10 +1,9 @@
 {
   "include": ["src/**/*"],
-  "baseUrl": ".",
   "compilerOptions": {
     "lib": ["DOM", "ESNext"],
-    "module": "esnext",
-    "target": "esnext",
+    "module": "ESNext",
+    "target": "ESNext",
     "moduleResolution": "bundler",
     "moduleDetection": "force",
     "strict": true,
@@ -14,7 +13,7 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
-    "noEmit": false,
+    "noEmit": true,
     "noImplicitOverride": true,
 
     // Enable faster builds
@@ -22,30 +21,23 @@
     "composite": true,
     "incremental": true,
     "rootDir": "src",
+    "baseUrl": ".",
 
     "declaration": true,
     "declarationMap": true,
     "declarationDir": "unstable-preview-types",
-    "emitDeclarationOnly": true,
     "inlineSourceMap": true,
     "inlineSources": true,
-    "types": ["ember-source/types"],
-
-    "paths": {
-      "@warp-drive/build-config/deprecations": ["../private-build-infra/virtual-packages/deprecations.d.ts"],
-      "@ember-data/packages": ["../private-build-infra/virtual-packages/packages.d.ts"],
-      "@warp-drive/build-config/canary-features": ["../private-build-infra/virtual-packages/canary-features.d.ts"],
-      "@warp-drive/build-config/debugging": ["../private-build-infra/virtual-packages/debugging.d.ts"],
-      "@warp-drive/build-config/env": ["../private-build-infra/virtual-packages/env.d.ts"]
-    }
+    "types": ["ember-source/types"]
   },
-  "references": [
-    { "path": "../graph" },
-    { "path": "../json-api" },
-    { "path": "../request" },
-    { "path": "../request-utils" },
-    { "path": "../store" },
-    { "path": "../tracking" },
-    { "path": "../core-types" }
-  ]
+  // "references": [
+  //   { "path": "../graph" },
+  //   { "path": "../json-api" },
+  //   { "path": "../request" },
+  //   { "path": "../request-utils" },
+  //   { "path": "../store" },
+  //   { "path": "../tracking" },
+  //   { "path": "../core-types" },
+  //   { "path": "../build-config" }
+  // ]
 }
