@@ -49,6 +49,8 @@
       "@ember-data/tracking/*": ["packages/tracking/src/*"],
       "@ember-data/request": ["packages/request/src"],
       "@ember-data/request/*": ["packages/request/src/*"],
+      "@ember-data/request-utils": ["packages/request-utils/src"],
+      "@ember-data/request-utils/*": ["packages/request-utils/src/*"],
       "@ember-data/experimental-preview-types": ["packages/experimental-preview-types/src"],
       "@ember-data/experimental-preview-types/*": ["packages/experimental-preview-types/src/*"],
       "@ember-data/debug": ["packages/debug/addon"],
@@ -84,7 +86,10 @@
       "request-test-app/tests/*": ["tests/request/tests/*"],
       "request-test-app/*": ["tests/request/app/*"],
       "*": ["@types/*", "packages/fastboot-test-app/types/*"],
-      "ember-inflector": ["tests/main/node_modules/ember-inflector","packages/-ember-data/node_modules/ember-inflector"]
+      "ember-inflector": [
+        "tests/main/node_modules/ember-inflector",
+        "packages/-ember-data/node_modules/ember-inflector"
+      ]
     }
   },
   "include": [
@@ -95,6 +100,7 @@
     "packages/**/tests/**/*",
     "packages/tracking/src/**/*",
     "packages/request/src/**/*",
+    "packages/request-utils/src/**/*",
     "packages/store/src/**/*",
     "packages/adapter/src/**/*",
     "packages/graph/src/**/*",
@@ -111,5 +117,5 @@
     "tests/**/addon/**/*",
     "tests/**/tests/**/*"
   ],
-  "exclude": ["node_modules", "packages/**/node_modules",  "packages/**/dist",  "packages/**/DEBUG"]
+  "exclude": ["node_modules", "packages/**/node_modules", "packages/**/dist", "packages/**/DEBUG"]
 }

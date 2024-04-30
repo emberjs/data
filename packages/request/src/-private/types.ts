@@ -140,6 +140,7 @@ export interface ImmutableRequestInfo {
     key?: string;
     reload?: boolean;
     backgroundReload?: boolean;
+    types?: string[];
     [SkipCache]?: true;
   };
   readonly store?: Store;

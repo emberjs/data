@@ -8,7 +8,7 @@ import type {
   RequestContext,
   ResponseInfo,
   StructuredDataDocument,
-  StructuredErrorDocument
+  StructuredErrorDocument,
 } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';
 import {
@@ -21,6 +21,7 @@ import type { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-js
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { JsonApiError } from '@ember-data/types/q/record-data-json-api';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
+
 import { Document } from './document';
 
 /**
@@ -110,10 +111,7 @@ export interface LifetimesService {
   ): void;
 }
 
-export type LooseStoreRequestInfo<T = unknown, RT = unknown> = Omit<
-  ImmutableRequestInfo,
-  'records' | 'headers'
-> & {
+export type LooseStoreRequestInfo<T = unknown, RT = unknown> = Omit<ImmutableRequestInfo, 'records' | 'headers'> & {
   records?: ResourceIdentifierObject[];
   headers?: Headers;
 };
@@ -417,7 +415,9 @@ function fetchContentAndHydrate<T>(
   });
 }
 
-function isAggregateError(error: Error & { errors?: JsonApiError[] }): error is AggregateError & { errors: JsonApiError[] } {
+function isAggregateError(
+  error: Error & { errors?: JsonApiError[] }
+): error is AggregateError & { errors: JsonApiError[] } {
   return error instanceof AggregateError || (error.name === 'AggregateError' && Array.isArray(error.errors));
 }
 
@@ -441,8 +441,6 @@ function cloneError(error: RobustError) {
 
 export const SkipCache = Symbol.for('ember-data:skip-cache');
 export const EnableHydration = Symbol.for('ember-data:enable-hydration');
-
-
 
 /**
  * A CacheHandler that adds support for using an EmberData Cache with a RequestManager.
