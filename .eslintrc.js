@@ -321,6 +321,7 @@ module.exports = {
         'packages/*/blueprints/*/index.js',
         'packages/*/config/**/*.js',
         'packages/*/tests/dummy/config/**/*.js',
+        'packages/request-utils/rollup/external.cjs',
       ],
       excludedFiles: [
         'packages/*/addon/**',
