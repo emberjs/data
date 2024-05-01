@@ -3,15 +3,14 @@
  */
 import { assert } from '@ember/debug';
 
-import type Model from '@ember-data/model';
 import { SkipCache } from '@ember-data/request';
 import type { ImmutableRequestInfo } from '@ember-data/request/-private/types';
 import { constructResource, ensureStringId } from '@ember-data/store/-private';
 import type { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
+
 import { isMaybeIdentifier, normalizeModelName } from './utils';
 
-// Keeping unused generics for consistency with 5x types
-type FindRecordRequestInput<T extends string = string, RT = unknown> = ImmutableRequestInfo & {
+type FindRecordRequestInput = ImmutableRequestInfo & {
   op: 'findRecord';
   data: {
     record: ResourceIdentifierObject;
@@ -63,20 +62,20 @@ type FindRecordBuilderOptions = {
   @param {FindRecordBuilderOptions} [options] - if the first param is a string this will be the optional options for the request. See examples for available options.
   @return {FindRecordRequestInput} request config
 */
-export function findRecordBuilder<T extends Model>(
-  resource: string,
-  id: string,
-  options?: FindRecordBuilderOptions
-): FindRecordRequestInput<string, T>;
 export function findRecordBuilder(
   resource: string,
   id: string,
   options?: FindRecordBuilderOptions
 ): FindRecordRequestInput;
-export function findRecordBuilder<T extends Model>(
+export function findRecordBuilder(
+  resource: string,
+  id: string,
+  options?: FindRecordBuilderOptions
+): FindRecordRequestInput;
+export function findRecordBuilder(
   resource: ResourceIdentifierObject,
   options?: FindRecordBuilderOptions
-): FindRecordRequestInput<string, T>;
+): FindRecordRequestInput;
 export function findRecordBuilder(
   resource: ResourceIdentifierObject,
   options?: FindRecordBuilderOptions
@@ -104,7 +103,7 @@ export function findRecordBuilder(
 
   options = options || {};
 
-  assert('findRecord builder does not support options.preload', !(options as any).preload);
+  assert('findRecord builder does not support options.preload', !(options as { preload?: boolean }).preload);
 
   return {
     op: 'findRecord' as const,

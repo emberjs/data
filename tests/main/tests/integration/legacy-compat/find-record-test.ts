@@ -39,7 +39,7 @@ module('Integration - legacy-compat/builders/findRecord', function (hooks) {
     );
 
     const store = this.owner.lookup('service:store') as Store;
-    const { content: post } = await store.request<Post>(findRecord<Post>('post', '1'));
+    const { content: post } = await store.request<Post>(findRecord('post', '1'));
 
     assert.strictEqual(post.id, '1', 'post has correct id');
     assert.strictEqual(post.name, 'Krystan rules, you drool', 'post has correct name');
@@ -47,7 +47,7 @@ module('Integration - legacy-compat/builders/findRecord', function (hooks) {
   });
 
   test('findRecord by type+id', function (assert) {
-    const result = findRecord<Post>('post', '1');
+    const result = findRecord('post', '1');
     assert.deepEqual(
       result,
       {
@@ -69,7 +69,7 @@ module('Integration - legacy-compat/builders/findRecord', function (hooks) {
       include: 'author,comments',
       adapterOptions: {},
     };
-    const result = findRecord<Post>('post', '1', options);
+    const result = findRecord('post', '1', options);
     assert.deepEqual(
       result,
       {
@@ -90,12 +90,12 @@ module('Integration - legacy-compat/builders/findRecord', function (hooks) {
     };
     await assert.expectAssertion(() => {
       // @ts-expect-error TS knows the options are invalid
-      findRecord<Post>('post', '1', invalidOptions);
+      findRecord('post', '1', invalidOptions);
     }, 'Assertion Failed: findRecord builder does not support options.preload');
   });
 
   test('findRecord by identifier', function (assert) {
-    const result = findRecord<Post>({ type: 'post', id: '1' });
+    const result = findRecord({ type: 'post', id: '1' });
     assert.deepEqual(
       result,
       {
@@ -117,7 +117,7 @@ module('Integration - legacy-compat/builders/findRecord', function (hooks) {
       include: 'author,comments',
       adapterOptions: {},
     };
-    const result = findRecord<Post>({ type: 'post', id: '1' }, options);
+    const result = findRecord({ type: 'post', id: '1' }, options);
     assert.deepEqual(
       result,
       {
@@ -139,7 +139,7 @@ module('Integration - legacy-compat/builders/findRecord', function (hooks) {
     };
     await assert.expectAssertion(() => {
       // @ts-expect-error TS knows the options are invalid
-      findRecord<Post>({ type: 'post', id: '1' }, invalidOptions);
+      findRecord({ type: 'post', id: '1' }, invalidOptions);
     }, 'Assertion Failed: findRecord builder does not support options.preload');
   });
 });

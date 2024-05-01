@@ -6,10 +6,9 @@ import { DEPRECATE_RSVP_PROMISE, DEPRECATE_V1_RECORD_DATA } from '@ember-data/de
 import { DEBUG, TESTING } from '@ember-data/env';
 import { HAS_GRAPH_PACKAGE } from '@ember-data/packages';
 import { createDeferred } from '@ember-data/request';
-import type { Deferred } from '@ember-data/request/-private/types';
+import type { Deferred, ImmutableRequestInfo } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';
 import { coerceId } from '@ember-data/store/-private';
-import { StoreRequestInfo } from '@ember-data/store/-private/cache-handler';
 import type { InstanceCache } from '@ember-data/store/-private/caches/instance-cache';
 import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
 import type RequestStateService from '@ember-data/store/-private/network/request-cache';
@@ -115,7 +114,7 @@ export default class FetchManager {
   scheduleFetch(
     identifier: StableExistingRecordIdentifier,
     options: FindOptions,
-    request: StoreRequestInfo
+    request: ImmutableRequestInfo
   ): Promise<StableExistingRecordIdentifier> {
     let query: FindRecordQuery = {
       op: 'findRecord',
@@ -251,7 +250,7 @@ export default class FetchManager {
   fetchDataIfNeededForIdentifier(
     identifier: StableExistingRecordIdentifier,
     options: FindOptions = {},
-    request: StoreRequestInfo
+    request: ImmutableRequestInfo
   ): Promise<StableExistingRecordIdentifier> {
     // pre-loading will change the isEmpty value
     const isEmpty = _isEmpty(this._store._instanceCache, identifier);

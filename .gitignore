@@ -9,6 +9,7 @@ dist-*
 tmp
 packages/tracking/addon
 packages/request/addon
+packages/request-utils/addon
 packages/store/addon
 packages/adapter/addon
 packages/serializer/addon

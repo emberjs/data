@@ -152,7 +152,7 @@ module('RequestManager | Abort', function () {
       assert.ok(false, 'aborting a request should result in the promise rejecting');
     } catch (e) {
       assert.true(e instanceof Error);
-      assert.strictEqual((e as Error).message, 'The user aborted a request.', 'We got the correct error');
+      assert.strictEqual((e as Error).message, 'Root Controller Aborted', 'We got the correct error');
     }
   });
 
@@ -209,7 +209,7 @@ module('RequestManager | Abort', function () {
       assert.ok(false, 'aborting a request should result in the promise rejecting');
     } catch (e) {
       assert.true(e instanceof Error);
-      assert.strictEqual((e as Error).message, 'The user aborted a request.', 'We got the correct error');
+      assert.strictEqual((e as Error).message, 'Root Controller Aborted', 'We got the correct error');
       assert.false(signal.aborted, 'The root signal is not aborted');
     }
   });

@@ -43,7 +43,7 @@ module('Integration - legacy-compat/builders/query', function (hooks) {
       );
 
       const store = this.owner.lookup('service:store') as Store;
-      const { content: results } = await store.request<Post[]>(query<Post>('post', { id: '1' }));
+      const { content: results } = await store.request<Post[]>(query('post', { id: '1' }));
 
       assert.strictEqual(results.length, 1, 'post was found');
       assert.strictEqual(results[0].id, '1', 'post has correct id');
@@ -52,7 +52,7 @@ module('Integration - legacy-compat/builders/query', function (hooks) {
     });
 
     test('query', function (assert) {
-      const result = query<Post>('post', { id: '1' });
+      const result = query('post', { id: '1' });
       assert.deepEqual(
         result,
         {
@@ -73,7 +73,7 @@ module('Integration - legacy-compat/builders/query', function (hooks) {
         whatever: true,
         adapterOptions: {},
       };
-      const result = query<Post>('post', { id: '1' }, options);
+      const result = query('post', { id: '1' }, options);
       assert.deepEqual(
         result,
         {
@@ -115,7 +115,7 @@ module('Integration - legacy-compat/builders/query', function (hooks) {
       );
 
       const store = this.owner.lookup('service:store') as Store;
-      const { content: post } = await store.request<Post>(queryRecord<Post>('post', { id: '1' }));
+      const { content: post } = await store.request<Post>(queryRecord('post', { id: '1' }));
 
       assert.strictEqual(post?.id, '1', 'post has correct id');
       assert.strictEqual(post?.name, 'Krystan rules, you drool', 'post has correct name');
@@ -123,7 +123,7 @@ module('Integration - legacy-compat/builders/query', function (hooks) {
     });
 
     test('queryRecord', function (assert) {
-      const result = queryRecord<Post>('post', { id: '1' });
+      const result = queryRecord('post', { id: '1' });
       assert.deepEqual(
         result,
         {
@@ -144,7 +144,7 @@ module('Integration - legacy-compat/builders/query', function (hooks) {
         whatever: true,
         adapterOptions: {},
       };
-      const result = queryRecord<Post>('post', { id: '1' }, options);
+      const result = queryRecord('post', { id: '1' }, options);
       assert.deepEqual(
         result,
         {
