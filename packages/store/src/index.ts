@@ -191,6 +191,8 @@ export {
   storeFor,
 } from './-private';
 
+export type { NotificationType } from './-private/managers/notification-manager';
+
 export {
   setIdentifierGenerationMethod,
   setIdentifierUpdateMethod,

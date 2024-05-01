@@ -1,6 +1,5 @@
 import { assert } from '@ember/debug';
 
-import { DEBUG } from '@ember-data/env';
 import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection';
 import type { Graph } from '@ember-data/graph/-private/graph';
 import type Store from '@ember-data/store';
@@ -8,6 +7,7 @@ import type { NotificationType } from '@ember-data/store/-private/managers/notif
 import type { BaseFinderOptions } from '@ember-data/store/-types/q/store';
 import { cached, compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';
+import { DEBUG } from '@warp-drive/build-config/env';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { TypeFromInstanceOrString } from '@warp-drive/core-types/record';

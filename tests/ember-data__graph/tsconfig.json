@@ -8,6 +8,7 @@
     "moduleResolution": "bundler",
     "moduleDetection": "force",
     "strict": true,
+    "exactOptionalPropertyTypes": false,
     "downlevelIteration": true,
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
@@ -24,7 +25,17 @@
     "declaration": false,
 
     "types": ["ember-source/types"],
-    "paths": {}
+    "paths": {
+      "@warp-drive/build-config/deprecations": [
+        "../../packages/private-build-infra/virtual-packages/deprecations.d.ts"
+      ],
+      "@ember-data/packages": ["../../packages/private-build-infra/virtual-packages/packages.d.ts"],
+      "@warp-drive/build-config/canary-features": [
+        "../../packages/private-build-infra/virtual-packages/canary-features.d.ts"
+      ],
+      "@warp-drive/build-config/debugging": ["../../packages/private-build-infra/virtual-packages/debugging.d.ts"],
+      "@warp-drive/build-config/env": ["../../packages/private-build-infra/virtual-packages/env.d.ts"]
+    }
   },
   "references": []
 }

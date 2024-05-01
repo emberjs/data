@@ -4,14 +4,15 @@ import { module, test } from 'qunit';
 
 import { setupRenderingTest } from 'ember-qunit';
 
-import { DEPRECATE_MANY_ARRAY_DUPLICATES } from '@ember-data/deprecations';
 import Model, { attr, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
+import { DEPRECATE_MANY_ARRAY_DUPLICATES } from '@warp-drive/build-config/deprecations';
 import type { ExistingResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
+import { ResourceType } from '@warp-drive/core-types/symbols';
 
 import type { ReactiveContext } from '../../../helpers/reactive-context';
-import { reactiveContext } from '../../../helpers/reactive-context';
+import { unboundReactiveContext } from '../../../helpers/reactive-context';
 
 let IS_DEPRECATE_MANY_ARRAY_DUPLICATES = false;
 
@@ -22,6 +23,8 @@ if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
 class User extends Model {
   @attr declare name: string;
   @hasMany('user', { async: false, inverse: 'friends' }) declare friends: User[];
+
+  [ResourceType] = 'user' as const;
 }
 
 function krystanData() {
@@ -406,7 +409,7 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
             test(`followed by Mutation: ${mutation2.name}`, async function (assert) {
               const store = this.owner.lookup('service:store') as Store;
               const user = startingState.cb(store);
-              const rc = await reactiveContext.call(this, user, [{ name: 'friends', type: 'hasMany' }]);
+              const rc = await unboundReactiveContext(this, user, [{ name: 'friends', type: 'hasMany' }]);
               rc.reset();
 
               await applyMutation(assert, store, user, mutation, rc);

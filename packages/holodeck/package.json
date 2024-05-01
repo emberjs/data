@@ -1,7 +1,7 @@
 {
   "name": "@warp-drive/holodeck",
   "description": "⚡️ Simple, Fast HTTP Mocking for Tests",
-  "version": "0.0.0-alpha.40",
+  "version": "0.0.0-alpha.46",
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "repository": {
@@ -12,7 +12,7 @@
   "homepage": "https://github.com/emberjs/data",
   "bugs": "https://github.com/emberjs/data/issues",
   "engines": {
-    "node": ">= 18.20.1"
+    "node": ">= 18.20.2"
   },
   "keywords": [
     "http-mock"
@@ -21,10 +21,9 @@
     "extends": "../../package.json"
   },
   "dependencies": {
-    "@hono/node-server": "^1.9.1",
+    "@hono/node-server": "^1.10.0",
     "chalk": "^5.3.0",
-    "hono": "^4.2.3",
-    "pm2": "^5.3.1"
+    "hono": "^4.2.4"
   },
   "files": [
     "bin",
@@ -36,7 +35,7 @@
     "NCC-1701-a-blue.svg"
   ],
   "bin": {
-    "holodeck": "./bin/holodeck.js"
+    "ensure-cert": "./server/ensure-cert.js"
   },
   "scripts": {
     "build:types": "tsc --build --force",
@@ -47,8 +46,8 @@
     "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "peerDependencies": {
-    "@ember-data/request": "workspace:5.4.0-alpha.54",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.40"
+    "@ember-data/request": "workspace:5.4.0-alpha.60",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.46"
   },
   "devDependencies": {
     "@babel/cli": "^7.24.1",
@@ -57,13 +56,13 @@
     "@babel/preset-env": "^7.24.4",
     "@babel/preset-typescript": "^7.24.1",
     "@babel/runtime": "^7.24.4",
-    "@ember-data/request": "workspace:5.4.0-alpha.54",
+    "@ember-data/request": "workspace:5.4.0-alpha.60",
     "@embroider/addon-dev": "^4.3.1",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.40",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.54",
-    "rollup": "^4.14.1",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.46",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.60",
+    "rollup": "^4.14.3",
     "typescript": "^5.4.5",
     "walk-sync": "^3.0.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10"

@@ -7,7 +7,9 @@ import { pluralize } from 'ember-inflector';
 
 import { buildBaseURL, buildQueryParams, type QueryUrlOptions } from '@ember-data/request-utils';
 import type { QueryParamsSource } from '@warp-drive/core-types/params';
+import type { TypeFromInstance } from '@warp-drive/core-types/record';
 import type { ConstrainedRequestOptions, QueryRequestOptions } from '@warp-drive/core-types/request';
+import type { CollectionResourceDataDocument } from '@warp-drive/core-types/spec/document';
 
 import { copyForwardUrlOptions, extractCacheOptions } from './-utils';
 
@@ -61,6 +63,18 @@ import { copyForwardUrlOptions, extractCacheOptions } from './-utils';
  * @param query
  * @param options
  */
+export function query<T>(
+  type: TypeFromInstance<T>,
+  // eslint-disable-next-line @typescript-eslint/no-shadow
+  query?: QueryParamsSource,
+  options?: ConstrainedRequestOptions
+): QueryRequestOptions<T, CollectionResourceDataDocument<T>>;
+export function query(
+  type: string,
+  // eslint-disable-next-line @typescript-eslint/no-shadow
+  query?: QueryParamsSource,
+  options?: ConstrainedRequestOptions
+): QueryRequestOptions;
 export function query(
   type: string,
   // eslint-disable-next-line @typescript-eslint/no-shadow

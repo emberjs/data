@@ -4,9 +4,9 @@
 import { assert } from '@ember/debug';
 import { computed } from '@ember/object';
 
-import { DEBUG } from '@ember-data/env';
 import { recordIdentifierFor } from '@ember-data/store';
 import { peekCache } from '@ember-data/store/-private';
+import { DEBUG } from '@warp-drive/build-config/env';
 import type { ArrayValue, ObjectValue, PrimitiveValue, Value } from '@warp-drive/core-types/json/raw';
 import type { TransformName } from '@warp-drive/core-types/symbols';
 
@@ -103,11 +103,8 @@ function _attr(type?: string | AttrOptions, options?: AttrOptions & object) {
         cache.setAttr(identifier, key, value);
 
         if (!this.isValid) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           const { errors } = this;
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
           if (errors.get(key)) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
             errors.remove(key);
             this.currentState.cleanErrorRequests();
           }

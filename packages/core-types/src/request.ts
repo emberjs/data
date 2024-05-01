@@ -1,6 +1,8 @@
 import type { StableRecordIdentifier } from './identifier';
 import type { QueryParamsSerializationOptions } from './params';
+import type { ExtractSuggestedCacheTypes, Includes, TypedRecordInstance, TypeFromInstanceOrString } from './record';
 import type { ResourceIdentifierObject } from './spec/raw';
+import type { RequestSignature } from './symbols';
 
 type Store = unknown;
 
@@ -16,7 +18,7 @@ export type HTTPMethod = 'GET' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
  *
  * @typedoc
  */
-export type CacheOptions = {
+export type CacheOptions<T = unknown> = {
   /**
    * A key that uniquely identifies this request. If not present, the url wil be used
    * as the key for any GET request, while all other requests will not be cached.
@@ -54,7 +56,7 @@ export type CacheOptions = {
    *
    * @typedoc
    */
-  types?: string[];
+  types?: T extends TypedRecordInstance ? ExtractSuggestedCacheTypes<T>[] : string[];
 
   /**
    * If true, the request will never be handled by the cache-manager and thus
@@ -67,41 +69,45 @@ export type CacheOptions = {
    */
   [SkipCache]?: true;
 };
-export type FindRecordRequestOptions = {
+export type FindRecordRequestOptions<T = unknown, RT = unknown> = {
   url: string;
   method: 'GET';
   headers: Headers;
-  cacheOptions: CacheOptions;
+  cacheOptions?: CacheOptions<T>;
   op: 'findRecord';
-  records: [ResourceIdentifierObject];
+  records: [ResourceIdentifierObject<TypeFromInstanceOrString<T>>];
+  [RequestSignature]?: RT;
 };
 
-export type QueryRequestOptions = {
+export type QueryRequestOptions<T = unknown, RT = unknown> = {
   url: string;
   method: 'GET';
   headers: Headers;
-  cacheOptions: CacheOptions;
+  cacheOptions?: CacheOptions<T>;
   op: 'query';
+  [RequestSignature]?: RT;
 };
 
-export type PostQueryRequestOptions = {
+export type PostQueryRequestOptions<T = unknown, RT = unknown> = {
   url: string;
   method: 'POST' | 'QUERY';
   headers: Headers;
   body: string;
-  cacheOptions: CacheOptions & { key: string };
+  cacheOptions: CacheOptions<T> & { key: string };
   op: 'query';
+  [RequestSignature]?: RT;
 };
 
-export type DeleteRequestOptions = {
+export type DeleteRequestOptions<T = unknown, RT = unknown> = {
   url: string;
   method: 'DELETE';
   headers: Headers;
   op: 'deleteRecord';
   data: {
-    record: StableRecordIdentifier;
+    record: StableRecordIdentifier<TypeFromInstanceOrString<T>>;
   };
-  records: [ResourceIdentifierObject];
+  records: [ResourceIdentifierObject<TypeFromInstanceOrString<T>>];
+  [RequestSignature]?: RT;
 };
 
 type ImmutableRequest<T> = Readonly<T> & {
@@ -109,35 +115,37 @@ type ImmutableRequest<T> = Readonly<T> & {
   readonly records: [StableRecordIdentifier];
 };
 
-export type UpdateRequestOptions = {
+export type UpdateRequestOptions<T = unknown, RT = unknown> = {
   url: string;
   method: 'PATCH' | 'PUT';
   headers: Headers;
   op: 'updateRecord';
   data: {
-    record: StableRecordIdentifier;
+    record: StableRecordIdentifier<TypeFromInstanceOrString<T>>;
   };
-  records: [ResourceIdentifierObject];
+  records: [ResourceIdentifierObject<TypeFromInstanceOrString<T>>];
+  [RequestSignature]?: RT;
 };
 
-export type CreateRequestOptions = {
+export type CreateRequestOptions<T = unknown, RT = unknown> = {
   url: string;
   method: 'POST';
   headers: Headers;
   op: 'createRecord';
   data: {
-    record: StableRecordIdentifier;
+    record: StableRecordIdentifier<TypeFromInstanceOrString<T>>;
   };
-  records: [ResourceIdentifierObject];
+  records: [ResourceIdentifierObject<TypeFromInstanceOrString<T>>];
+  [RequestSignature]?: RT;
 };
 
 export type ImmutableDeleteRequestOptions = ImmutableRequest<DeleteRequestOptions>;
 export type ImmutableUpdateRequestOptions = ImmutableRequest<UpdateRequestOptions>;
 export type ImmutableCreateRequestOptions = ImmutableRequest<CreateRequestOptions>;
 
-export type RemotelyAccessibleIdentifier = {
+export type RemotelyAccessibleIdentifier<T extends string = string> = {
   id: string;
-  type: string;
+  type: T;
   lid?: string;
 };
 
@@ -150,8 +158,8 @@ export type ConstrainedRequestOptions = {
   urlParamsSettings?: QueryParamsSerializationOptions;
 };
 
-export type FindRecordOptions = ConstrainedRequestOptions & {
-  include?: string | string[];
+export type FindRecordOptions<T = unknown> = ConstrainedRequestOptions & {
+  include?: T extends TypedRecordInstance ? Includes<T>[] : string | string[];
 };
 
 export interface StructuredDataDocument<T> {
@@ -247,7 +255,7 @@ export type ImmutableHeaders = Headers & { clone?(): Headers; toJSON(): [string,
  *
  * @typedoc
  */
-export type RequestInfo = Request & {
+export type RequestInfo<T = unknown> = Request & {
   /**
    * If provided, used instead of the AbortController auto-configured for each request by the RequestManager
    *
@@ -259,7 +267,7 @@ export type RequestInfo = Request & {
    * @see {@link CacheOptions}
    * @typedoc
    */
-  cacheOptions?: CacheOptions;
+  cacheOptions?: CacheOptions<T>;
   store?: Store;
 
   op?: string;
@@ -298,8 +306,8 @@ export type RequestInfo = Request & {
  *
  * @typedoc
  */
-export type ImmutableRequestInfo = Readonly<Omit<RequestInfo, 'controller'>> & {
-  readonly cacheOptions?: Readonly<CacheOptions>;
+export type ImmutableRequestInfo<T = unknown, RT = unknown> = Readonly<Omit<RequestInfo<T>, 'controller'>> & {
+  readonly cacheOptions?: Readonly<CacheOptions<T>>;
   readonly headers?: ImmutableHeaders;
   readonly data?: Readonly<Record<string, unknown>>;
   readonly options?: Readonly<Record<string, unknown>>;
@@ -308,6 +316,7 @@ export type ImmutableRequestInfo = Readonly<Omit<RequestInfo, 'controller'>> & {
    * @typedoc
    */
   readonly bodyUsed?: boolean;
+  [RequestSignature]?: RT;
 };
 
 export interface ResponseInfo {

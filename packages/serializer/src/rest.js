@@ -6,7 +6,7 @@ import { camelize, dasherize } from '@ember/string';
 
 import { singularize } from 'ember-inflector';
 
-import { DEBUG } from '@ember-data/env';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 import { coerceId } from './-private';
 import JSONSerializer from './json';

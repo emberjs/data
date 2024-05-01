@@ -10,7 +10,7 @@ import { dasherize } from '@ember/string';
 
 import { dependencySatisfies, importSync, macroCondition } from '@embroider/macros';
 
-import { DEBUG } from '@ember-data/env';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 interface AssertFunc {
   (desc: string, condition: unknown): asserts condition;

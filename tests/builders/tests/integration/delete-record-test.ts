@@ -45,8 +45,7 @@ class TestStore extends DataStore {
   }
 
   override modelFor(type: string): ModelSchema {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    return modelFor.call(this, type)!;
+    return modelFor.call(this, type) as ModelSchema;
   }
 }
 
@@ -279,7 +278,11 @@ module('Integration - deleteRecord', function (hooks) {
     assert.true(user.hasDirtyAttributes, 'The user is still dirty');
     assert.equal(user.currentState.stateName, 'root.deleted.invalid', 'The user is in the correct state');
     assert.equal(user.dirtyType, 'deleted', 'The user is still dirty');
-    assert.equal(user.adapterError?.message, '405 | Not Authorized', 'The user has the expected error message');
+    assert.equal(
+      (user.adapterError as Error)?.message,
+      '405 | Not Authorized',
+      'The user has the expected error message'
+    );
     assert.true(user.isDeleted, 'The user is still deleted');
     assert.false(user.isSaving, 'The user is no longer saving');
 

@@ -219,16 +219,16 @@ export class RequestLoadingState {
   }
 }
 
-export class RequestState<T = unknown> {
-  #request: Future<T>;
+export class RequestState<T = unknown, RT = unknown> {
+  #request: Future<RT>;
   #loadingState: RequestLoadingState | null = null;
 
-  @tracked result: T | null = null;
+  @tracked result: RT | null = null;
   @tracked error: StructuredErrorDocument | null = null;
   @tracked isLoading = true;
   @tracked isSuccess = false;
   @tracked isError = false;
-  @tracked request: ImmutableRequestInfo | null = null;
+  @tracked request: ImmutableRequestInfo<T, RT> | null = null;
   @tracked response: Response | ResponseInfo | null = null;
 
   get isCancelled(): boolean {
@@ -243,12 +243,12 @@ export class RequestState<T = unknown> {
     return this.#loadingState;
   }
 
-  constructor(future: Future<T>) {
+  constructor(future: Future<RT>) {
     this.#request = future;
-    const state = getPromiseResult<StructuredDocument<T>, StructuredErrorDocument>(future);
+    const state = getPromiseResult<StructuredDocument<RT>, StructuredErrorDocument>(future);
 
     if (state) {
-      this.request = state.result.request;
+      this.request = state.result.request as ImmutableRequestInfo<T, RT>;
       this.response = state.result.response;
       this.isLoading = false;
 
@@ -266,7 +266,7 @@ export class RequestState<T = unknown> {
           this.result = result.content;
           this.isSuccess = true;
           this.isLoading = false;
-          this.request = result.request;
+          this.request = result.request as ImmutableRequestInfo<T, RT>;
           this.response = result.response;
         },
         (error: StructuredErrorDocument) => {
@@ -274,7 +274,7 @@ export class RequestState<T = unknown> {
           this.error = error;
           this.isError = true;
           this.isLoading = false;
-          this.request = error.request;
+          this.request = error.request as ImmutableRequestInfo<T, RT>;
           this.response = error.response;
         }
       );
@@ -282,8 +282,8 @@ export class RequestState<T = unknown> {
   }
 }
 
-export function getRequestState<T>(future: Future<T>): RequestState<T> {
-  let state = RequestCache.get(future) as RequestState<T> | undefined;
+export function getRequestState<RT, T>(future: Future<RT>): RequestState<T, RT> {
+  let state = RequestCache.get(future) as RequestState<T, RT> | undefined;
 
   if (!state) {
     state = new RequestState(future);

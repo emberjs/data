@@ -7,15 +7,17 @@ import type { StoreRequestInput } from '@ember-data/store';
 import type { FindAllOptions } from '@ember-data/store/-types/q/store';
 import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
 import { SkipCache } from '@warp-drive/core-types/request';
+import type { RequestSignature } from '@warp-drive/core-types/symbols';
 
 import { normalizeModelName } from './utils';
 
-type FindAllRequestInput<T extends string> = StoreRequestInput & {
+type FindAllRequestInput<T extends string = string, RT = unknown[]> = StoreRequestInput & {
   op: 'findAll';
   data: {
     type: T;
     options: FindAllBuilderOptions;
   };
+  [RequestSignature]?: RT;
 };
 
 type FindAllBuilderOptions = FindAllOptions;
@@ -42,9 +44,9 @@ type FindAllBuilderOptions = FindAllOptions;
 export function findAllBuilder<T extends TypedRecordInstance>(
   type: TypeFromInstance<T>,
   options?: FindAllBuilderOptions
-): FindAllRequestInput<TypeFromInstance<T>>;
-export function findAllBuilder(type: string, options?: FindAllBuilderOptions): FindAllRequestInput<string>;
-export function findAllBuilder(type: string, options: FindAllBuilderOptions = {}): FindAllRequestInput<string> {
+): FindAllRequestInput<TypeFromInstance<T>, T[]>;
+export function findAllBuilder(type: string, options?: FindAllBuilderOptions): FindAllRequestInput;
+export function findAllBuilder(type: string, options: FindAllBuilderOptions = {}): FindAllRequestInput {
   assert(`You need to pass a model name to the findAll builder`, type);
   assert(
     `Model name passed to the findAll builder must be a dasherized string instead of ${type}`,

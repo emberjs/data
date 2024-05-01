@@ -36,11 +36,14 @@ import type {
   JsonApiDocument,
   SingleResourceDocument,
 } from '@warp-drive/core-types/spec/raw';
+import { ResourceType } from '@warp-drive/core-types/symbols';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
   @attr('string', {})
   name;
+
+  declare [ResourceType]: 'person';
 }
 
 class House extends Model {
@@ -215,6 +218,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     owner.register('model:person', Person);
     owner.register('model:house', House);
     // @ts-expect-error missing type
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     owner.unregister('service:store');
     owner.register('service:store', Store);
     owner.register('adapter:application', JSONAPIAdapter.extend());

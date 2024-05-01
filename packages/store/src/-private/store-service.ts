@@ -5,10 +5,10 @@
 import { assert } from '@ember/debug';
 import EmberObject from '@ember/object';
 
-import { LOG_PAYLOADS, LOG_REQUESTS } from '@ember-data/debugging';
-import { DEBUG, TESTING } from '@ember-data/env';
 import type RequestManager from '@ember-data/request';
 import type { Future } from '@ember-data/request/-private/types';
+import { LOG_PAYLOADS, LOG_REQUESTS } from '@warp-drive/build-config/debugging';
+import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 import type { Graph } from '@warp-drive/core-types/graph';
 import type {
   StableDocumentIdentifier,
@@ -32,7 +32,7 @@ import type { CacheCapabilitiesManager } from '../-types/q/cache-store-wrapper';
 import type { ModelSchema } from '../-types/q/ds-model';
 import type { OpaqueRecordInstance } from '../-types/q/record-instance';
 import type { SchemaService } from '../-types/q/schema-service';
-import type { FindAllOptions, FindRecordOptions, QueryOptions } from '../-types/q/store';
+import type { FindAllOptions, FindRecordOptions, LegacyResourceQuery, QueryOptions } from '../-types/q/store';
 import type { LifetimesService, StoreRequestInput } from './cache-handler';
 import { IdentifierCache } from './caches/identifier-cache';
 import {
@@ -416,7 +416,7 @@ class Store extends EmberObject {
    * @return {Future}
    * @public
    */
-  request<T>(requestConfig: StoreRequestInput): Future<T> {
+  request<RT, T = unknown>(requestConfig: StoreRequestInput<T, RT>): Future<RT> {
     // we lazily set the cache handler when we issue the first request
     // because constructor doesn't allow for this to run after
     // the user has had the chance to set the prop.
@@ -458,7 +458,7 @@ class Store extends EmberObject {
       );
     }
 
-    const future = this.requestManager.request<T>(Object.assign(requestConfig, opts));
+    const future = this.requestManager.request<RT>(Object.assign(requestConfig, opts));
 
     future.onFinalize(() => {
       if (LOG_REQUESTS) {
@@ -688,7 +688,7 @@ class Store extends EmberObject {
     To create a new instance of a `Post` that has a relationship with a `User` record:
 
     ```js
-    let user = this.store.peekRecord('user', 1);
+    let user = this.store.peekRecord('user', '1');
     store.createRecord('post', {
       title: 'Ember is awesome!',
       user: user
@@ -806,7 +806,7 @@ class Store extends EmberObject {
     Example
 
     ```javascript
-    store.findRecord('post', 1).then(function(post) {
+    store.findRecord('post', '1').then(function(post) {
       store.unloadRecord(post);
     });
     ```
@@ -953,8 +953,8 @@ class Store extends EmberObject {
     If you have access to the post model you can also pass the model itself to preload:
 
     ```javascript
-    let post = await store.findRecord('post', 1);
-    let comment = await store.findRecord('comment', 2, { post: myPostModel });
+    let post = await store.findRecord('post', '1');
+    let comment = await store.findRecord('comment', '2', { post: myPostModel });
     ```
 
     ### Reloading
@@ -983,7 +983,7 @@ class Store extends EmberObject {
     //     revision: 2
     //   }
     // ]
-    store.findRecord('post', 1, { reload: true }).then(function(post) {
+    store.findRecord('post', '1', { reload: true }).then(function(post) {
       post.revision; // 2
     });
     ```
@@ -1021,7 +1021,7 @@ class Store extends EmberObject {
       }
     });
 
-    let blogPost = store.findRecord('post', 1).then(function(post) {
+    let blogPost = store.findRecord('post', '1').then(function(post) {
       post.revision; // 1
     });
 
@@ -1196,9 +1196,9 @@ class Store extends EmberObject {
     @param {Object} [options] - if the first param is a string this will be the optional options for the request. See examples for available options.
     @return {Promise} promise
   */
-  findRecord<T>(resource: TypeFromInstance<T>, id: string | number, options?: FindRecordOptions): Promise<T>;
-  findRecord(resource: string, id: string | number, options?: FindRecordOptions): Promise<unknown>;
-  findRecord<T>(resource: ResourceIdentifierObject<TypeFromInstance<T>>, options?: FindRecordOptions): Promise<T>;
+  findRecord<T>(type: TypeFromInstance<T>, id: string | number, options?: FindRecordOptions<T>): Promise<T>;
+  findRecord(type: string, id: string | number, options?: FindRecordOptions): Promise<unknown>;
+  findRecord<T>(resource: ResourceIdentifierObject<TypeFromInstance<T>>, options?: FindRecordOptions<T>): Promise<T>;
   findRecord(resource: ResourceIdentifierObject, options?: FindRecordOptions): Promise<unknown>;
   findRecord(
     resource: string | ResourceIdentifierObject,
@@ -1260,7 +1260,7 @@ class Store extends EmberObject {
     Example
 
     ```javascript
-    let userRef = store.getReference('user', 1);
+    let userRef = store.getReference('user', '1');
 
     // check if the user is loaded
     let isLoaded = userRef.value() !== null;
@@ -1331,9 +1331,9 @@ class Store extends EmberObject {
     **Example 1**
 
     ```js
-    let post = store.peekRecord('post', 1);
+    let post = store.peekRecord('post', '1');
 
-    post.id; // 1
+    post.id; // '1'
     ```
 
     `peekRecord` can be called with a single identifier argument instead of the combination
@@ -1344,7 +1344,7 @@ class Store extends EmberObject {
 
     ```js
     let post = store.peekRecord({ type: 'post', id });
-    post.id; // 1
+    post.id; // '1'
     ```
 
     If you have previously received an lid from an Identifier for this record, you can lookup the record again using
@@ -1354,7 +1354,7 @@ class Store extends EmberObject {
 
     ```js
     let post = store.peekRecord({ lid });
-    post.id; // 1
+    post.id; // '1'
     ```
 
 
@@ -1365,8 +1365,10 @@ class Store extends EmberObject {
     @param {String|Integer} id - optional only if the first param is a ResourceIdentifier, else the string id of the record to be retrieved.
     @return {Model|null} record
   */
-  peekRecord<T = OpaqueRecordInstance>(identifier: string, id: string | number): T | null;
-  peekRecord<T = OpaqueRecordInstance>(identifier: ResourceIdentifierObject): T | null;
+  peekRecord<T>(type: TypeFromInstance<T>, id: string | number): T | null;
+  peekRecord(type: string, id: string | number): unknown | null;
+  peekRecord<T>(identifier: ResourceIdentifierObject<TypeFromInstance<T>>): T | null;
+  peekRecord(identifier: ResourceIdentifierObject): unknown | null;
   peekRecord<T = OpaqueRecordInstance>(identifier: ResourceIdentifierObject | string, id?: string | number): T | null {
     if (arguments.length === 1 && isMaybeIdentifier(identifier)) {
       const stableIdentifier = this.identifierCache.peekRecordIdentifier(identifier);
@@ -1426,7 +1428,7 @@ class Store extends EmberObject {
     If you do something like this:
 
     ```javascript
-    store.query('person', { ids: [1, 2, 3] });
+    store.query('person', { ids: ['1', '2', '3'] });
     ```
 
     The request made to the server will look something like this:
@@ -1448,9 +1450,9 @@ class Store extends EmberObject {
     @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.query
     @return {Promise} promise
   */
-  query<T>(type: TypeFromInstance<T>, query: Record<string, unknown>, options?: QueryOptions): Promise<Collection<T>>;
-  query(type: string, query: Record<string, unknown>, options?: QueryOptions): Promise<Collection>;
-  query(type: string, query: Record<string, unknown>, options: QueryOptions = {}): Promise<Collection> {
+  query<T>(type: TypeFromInstance<T>, query: LegacyResourceQuery<T>, options?: QueryOptions): Promise<Collection<T>>;
+  query(type: string, query: LegacyResourceQuery, options?: QueryOptions): Promise<Collection>;
+  query(type: string, query: LegacyResourceQuery, options: QueryOptions = {}): Promise<Collection> {
     if (DEBUG) {
       assertDestroyingStore(this, 'query');
     }
@@ -1567,30 +1569,32 @@ class Store extends EmberObject {
     @since 1.13.0
     @method queryRecord
     @public
-    @param {String} modelName
-    @param {any} query an opaque query to be used by the adapter
-    @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.queryRecord
+    @param {string} type
+    @param {object} query an opaque query to be used by the adapter
+    @param {object} options optional, may include `adapterOptions` hash which will be passed to adapter.queryRecord
     @return {Promise} promise which resolves with the found record or `null`
   */
+  queryRecord<T>(type: TypeFromInstance<T>, query: LegacyResourceQuery<T>, options?: QueryOptions): Promise<T | null>;
+  queryRecord(type: string, query: LegacyResourceQuery, options?: QueryOptions): Promise<unknown | null>;
   queryRecord(
-    modelName: string,
+    type: string,
     query: Record<string, unknown>,
     options?: QueryOptions
   ): Promise<OpaqueRecordInstance | null> {
     if (DEBUG) {
       assertDestroyingStore(this, 'queryRecord');
     }
-    assert(`You need to pass a model name to the store's queryRecord method`, modelName);
+    assert(`You need to pass a model name to the store's queryRecord method`, type);
     assert(`You need to pass a query hash to the store's queryRecord method`, query);
     assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
+      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${type}`,
+      typeof type === 'string'
     );
 
     const promise = this.request<OpaqueRecordInstance | null>({
       op: 'queryRecord',
       data: {
-        type: normalizeModelName(modelName),
+        type: normalizeModelName(type),
         query,
         options: options || {},
       },
@@ -1788,7 +1792,7 @@ class Store extends EmberObject {
     @param {object} options
     @return {Promise} promise
   */
-  findAll<T>(type: TypeFromInstance<T>, options?: FindAllOptions): Promise<IdentifierArray<T>>;
+  findAll<T>(type: TypeFromInstance<T>, options?: FindAllOptions<T>): Promise<IdentifierArray<T>>;
   findAll(type: string, options?: FindAllOptions): Promise<IdentifierArray>;
   findAll<T>(type: TypeFromInstance<T> | string, options: FindAllOptions = {}): Promise<IdentifierArray<T>> {
     if (DEBUG) {

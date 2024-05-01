@@ -3,7 +3,7 @@ import { render as renderTemplate, settled } from '@ember/test-helpers';
 
 import * as QUnit from 'qunit';
 
-import { PRODUCTION } from '@ember-data/env';
+import { PRODUCTION } from '@warp-drive/build-config/env';
 
 /*
   Temporary replacement for the render test helper

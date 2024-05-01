@@ -5,12 +5,14 @@ import { pluralize } from 'ember-inflector';
 
 import { buildBaseURL, buildQueryParams, type QueryUrlOptions } from '@ember-data/request-utils';
 import type { QueryParamsSource } from '@warp-drive/core-types/params';
+import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
 import type {
   CacheOptions,
   ConstrainedRequestOptions,
   PostQueryRequestOptions,
   QueryRequestOptions,
 } from '@warp-drive/core-types/request';
+import type { CollectionResourceDataDocument } from '@warp-drive/core-types/spec/document';
 
 import { ACCEPT_HEADER_VALUE, copyForwardUrlOptions, extractCacheOptions } from './-utils';
 
@@ -68,6 +70,18 @@ import { ACCEPT_HEADER_VALUE, copyForwardUrlOptions, extractCacheOptions } from 
  * @param query
  * @param options
  */
+export function query<T extends TypedRecordInstance>(
+  type: TypeFromInstance<T>,
+  // eslint-disable-next-line @typescript-eslint/no-shadow
+  query?: QueryParamsSource<T>,
+  options?: ConstrainedRequestOptions
+): QueryRequestOptions<T, CollectionResourceDataDocument<T>>;
+export function query(
+  type: string,
+  // eslint-disable-next-line @typescript-eslint/no-shadow
+  query?: QueryParamsSource,
+  options?: ConstrainedRequestOptions
+): QueryRequestOptions;
 export function query(
   type: string,
   // eslint-disable-next-line @typescript-eslint/no-shadow
@@ -144,6 +158,18 @@ export function query(
  * @param query
  * @param options
  */
+export function postQuery<T>(
+  type: TypeFromInstance<T>,
+  // eslint-disable-next-line @typescript-eslint/no-shadow
+  query?: QueryParamsSource,
+  options?: ConstrainedRequestOptions
+): PostQueryRequestOptions<T, CollectionResourceDataDocument<T>>;
+export function postQuery(
+  type: string,
+  // eslint-disable-next-line @typescript-eslint/no-shadow
+  query?: QueryParamsSource,
+  options?: ConstrainedRequestOptions
+): PostQueryRequestOptions;
 export function postQuery(
   type: string,
   // eslint-disable-next-line @typescript-eslint/no-shadow

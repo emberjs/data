@@ -1,6 +1,6 @@
 import { assert, deprecate } from '@ember/debug';
 
-import { DEPRECATE_NON_STRICT_ID } from '@ember-data/deprecations';
+import { DEPRECATE_NON_STRICT_ID } from '@warp-drive/build-config/deprecations';
 
 // Used by the store to normalize IDs entering the store.  Despite the fact
 // that developers may provide IDs as numbers (e.g., `store.findRecord('person', 1)`),

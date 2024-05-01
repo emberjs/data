@@ -1,6 +1,6 @@
 {
   "name": "ember-data__json-api",
-  "version": "5.4.0-alpha.54",
+  "version": "5.4.0-alpha.60",
   "private": true,
   "description": "Provides tests for @ember-data/json-api",
   "keywords": [],
@@ -16,6 +16,7 @@
   },
   "scripts": {
     "build:tests": "IS_TESTING=true EMBER_CLI_TEST_COMMAND=true ember build --output-path=dist-test --suppress-sizes",
+    "start": "bun run build:tests --watch",
     "build:production": "pnpm build:tests -e production",
     "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
     "check:types": "tsc --noEmit",
@@ -25,6 +26,9 @@
   },
   "dependenciesMeta": {
     "@warp-drive/diagnostic": {
+      "injected": true
+    },
+    "@warp-drive/holodeck": {
       "injected": true
     },
     "@ember-data/json-api": {
@@ -73,17 +77,17 @@
   "devDependencies": {
     "@babel/core": "^7.24.4",
     "@babel/runtime": "^7.24.4",
-    "@ember-data/debug": "workspace:5.4.0-alpha.54",
-    "@ember-data/graph": "workspace:5.4.0-alpha.54",
-    "@ember-data/json-api": "workspace:5.4.0-alpha.54",
-    "@ember-data/legacy-compat": "workspace:5.4.0-alpha.54",
-    "@ember-data/model": "workspace:5.4.0-alpha.54",
-    "@ember-data/private-build-infra": "workspace:5.4.0-alpha.54",
-    "@ember-data/request-utils": "workspace:5.4.0-alpha.54",
-    "@ember-data/request": "workspace:5.4.0-alpha.54",
-    "@ember-data/store": "workspace:5.4.0-alpha.54",
-    "@ember-data/tracking": "workspace:5.4.0-alpha.54",
-    "@ember-data/unpublished-test-infra": "workspace:5.4.0-alpha.54",
+    "@ember-data/debug": "workspace:5.4.0-alpha.60",
+    "@ember-data/graph": "workspace:5.4.0-alpha.60",
+    "@ember-data/json-api": "workspace:5.4.0-alpha.60",
+    "@ember-data/legacy-compat": "workspace:5.4.0-alpha.60",
+    "@ember-data/model": "workspace:5.4.0-alpha.60",
+    "@ember-data/private-build-infra": "workspace:5.4.0-alpha.60",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.60",
+    "@ember-data/request": "workspace:5.4.0-alpha.60",
+    "@ember-data/store": "workspace:5.4.0-alpha.60",
+    "@ember-data/tracking": "workspace:5.4.0-alpha.60",
+    "@ember-data/unpublished-test-infra": "workspace:5.4.0-alpha.60",
     "@ember/edition-utils": "^1.2.0",
     "@ember/optional-features": "^2.1.0",
     "@ember/string": "3.1.1",
@@ -92,9 +96,10 @@
     "@embroider/macros": "^1.15.1",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.40",
-    "@warp-drive/diagnostic": "workspace:0.0.0-alpha.40",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.54",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.46",
+    "@warp-drive/diagnostic": "workspace:0.0.0-alpha.46",
+    "@warp-drive/holodeck": "workspace:0.0.0-alpha.46",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.60",
     "ember-auto-import": "^2.7.2",
     "ember-cli": "~5.7.0",
     "ember-cli-babel": "^8.2.0",
@@ -119,7 +124,7 @@
     "edition": "octane"
   },
   "engines": {
-    "node": ">= 18.20.1"
+    "node": ">= 18.20.2"
   },
   "volta": {
     "extends": "../../package.json"

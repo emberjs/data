@@ -218,6 +218,9 @@ import { Await } from '@warp-drive/ember';
 </template>
 ```
 
+When using the Await component, if no error block is provided and the promise rejects,
+the error will be thrown.
+
 ### RequestState
 
 RequestState extends PromiseState to provide a reactive wrapper for a request `Future` which
@@ -320,6 +323,10 @@ import { Request } from '@warp-drive/ember';
 </template>
 ```
 
+When using the Await component, if no error block is provided and the request rejects,
+the error will be thrown. Cancellation errors are not rethrown if no error block or
+cancellation block is present.
+
 - Streaming Data
 
 The loading state exposes the download `ReadableStream` instance for consumption
@@ -365,7 +372,36 @@ import { Request } from '@warp-drive/ember';
 If a request is aborted but no cancelled block is present, the error will be given
 to the error block to handle.
 
-If no error block is present, the error will be rethrown.
+If no error block is present, the cancellation error will be swallowed.
+
+- retry
+
+Cancelled and error'd requests may be retried,
+retry will reuse the error, cancelled and loading
+blocks as appropriate.
+
+```gjs
+import { Request } from '@warp-drive/ember';
+import { on } from '@ember/modifier';
+
+<template>
+  <Request @request={{@request}}>
+    <:cancelled as |error state|>
+      <h2>The Request Cancelled</h2>
+      <button {{on "click" state.retry}}>Retry</button>
+    </:cancelled>
+
+    <:error as |error state|>
+      <ErrorForm @error={{error}} />
+      <button {{on "click" state.retry}}>Retry</button>
+    </:error>
+
+    <:content as |result|>
+      <h1>{{result.title}}</h1>
+    </:content>
+  </Request>
+</template>
+```
 
 - Reloading states
 
@@ -434,20 +470,35 @@ import { Request } from '@warp-drive/ember';
 </template>
 ```
 
-- AutoRefresh behavior
+- Autorefresh behavior
 
 Requests can be made to automatically refresh when a browser window or tab comes back to the
-foreground after being backgrounded.
+foreground after being backgrounded or when the network reports as being online after having
+been offline.
 
 ```gjs
 import { Request } from '@warp-drive/ember';
 
 <template>
-  <Request @request={{@request}} @autoRefresh={{true}}>
+  <Request @request={{@request}} @autorefresh={{true}}>
     <!-- ... -->
   </Request>
 </template>
 ```
+
+By default, an autorefresh will only occur if the browser was backgrounded or offline for more than
+30s before coming back available. This amount of time can be tweaked by setting the number of milliseconds
+via `@autorefreshThreshold`.
+
+The behavior of the fetch initiated by the autorefresh can also be adjusted by `@autorefreshBehavior`
+
+Options are:
+
+- `refresh` update while continuing to show the current state.
+- `reload` update and show the loading state until update completes)
+- `delegate` (**default**) trigger the request, but let the cache handler decide whether the update should occur or if the cache is still valid.
+
+---
 
 Similarly, refresh could be set up on a timer or on a websocket subscription by using the yielded
 refresh function and passing it to another component.
@@ -456,7 +507,7 @@ refresh function and passing it to another component.
 import { Request } from '@warp-drive/ember';
 
 <template>
-  <Request @request={{@request}} @autoRefresh={{true}}>
+  <Request @request={{@request}}>
     <:content as |result state|>
       <h1>{{result.title}}</h1>
 

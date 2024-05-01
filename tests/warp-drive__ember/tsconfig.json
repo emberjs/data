@@ -11,6 +11,7 @@
     "moduleResolution": "bundler",
     "moduleDetection": "force",
     "strict": true,
+    "exactOptionalPropertyTypes": false,
     "downlevelIteration": true,
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,

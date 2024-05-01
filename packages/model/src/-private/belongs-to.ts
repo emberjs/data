@@ -1,7 +1,7 @@
 import { assert, warn } from '@ember/debug';
 import { computed } from '@ember/object';
 
-import { DEBUG } from '@ember-data/env';
+import { DEBUG } from '@warp-drive/build-config/env';
 import type { TypeFromInstance } from '@warp-drive/core-types/record';
 import { RecordStore } from '@warp-drive/core-types/symbols';
 

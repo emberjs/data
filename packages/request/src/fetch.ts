@@ -12,7 +12,7 @@
  * @main @ember-data/request/fetch
  */
 
-import { DEBUG } from '@ember-data/env';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 import { cloneResponseProperties, type Context } from './-private/context';
 import type { HttpErrorProps } from './-private/utils';
@@ -40,7 +40,8 @@ if (DEBUG) {
     Boolean(
       typeof window !== 'undefined' &&
         ((window as { server?: { pretender: unknown } }).server?.pretender ||
-          window.fetch.toString() !== 'function fetch() { [native code] }')
+          (window.fetch.toString() !== 'function fetch() { [native code] }' &&
+            window.fetch.toString() !== 'function fetch() {\n    [native code]\n}'))
     );
 }
 

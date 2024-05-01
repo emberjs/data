@@ -1,9 +1,9 @@
 import { assert } from '@ember/debug';
 
-import { LOG_GRAPH } from '@ember-data/debugging';
-import { DEBUG } from '@ember-data/env';
 import type { MergeOperation } from '@ember-data/store/-types/q/cache';
 import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
+import { LOG_GRAPH } from '@warp-drive/build-config/debugging';
+import { DEBUG } from '@warp-drive/build-config/env';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { RelationshipDiff } from '@warp-drive/core-types/cache';
 import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';

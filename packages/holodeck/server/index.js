@@ -1,3 +1,4 @@
+/* global Bun */
 import { serve } from '@hono/node-server';
 import chalk from 'chalk';
 import { Hono } from 'hono';
@@ -11,6 +12,11 @@ import http2 from 'node:http2';
 import zlib from 'node:zlib';
 import { homedir, userInfo } from 'os';
 import path from 'path';
+
+/** @type {import('bun-types')} */
+const isBun = typeof Bun !== 'undefined';
+const DEBUG = process.env.DEBUG?.includes('holodeck') || process.env.DEBUG === '*';
+const CURRENT_FILE = new URL(import.meta.url).pathname;
 
 function getShellConfigFilePath() {
   const shell = userInfo().shell;
@@ -29,26 +35,24 @@ function getShellConfigFilePath() {
 function getCertInfo() {
   let CERT_PATH = process.env.HOLODECK_SSL_CERT_PATH;
   let KEY_PATH = process.env.HOLODECK_SSL_KEY_PATH;
+  const configFilePath = getShellConfigFilePath();
 
   if (!CERT_PATH) {
     CERT_PATH = path.join(homedir(), 'holodeck-localhost.pem');
     process.env.HOLODECK_SSL_CERT_PATH = CERT_PATH;
-    execSync(`echo '\nexport HOLODECK_SSL_CERT_PATH="${CERT_PATH}"' >> ${getShellConfigFilePath()}`);
-    console.log(`Added HOLODECK_SSL_CERT_PATH to ${getShellConfigFilePath()}`);
+    execSync(`echo '\nexport HOLODECK_SSL_CERT_PATH="${CERT_PATH}"' >> ${configFilePath}`);
+    console.log(`Added HOLODECK_SSL_CERT_PATH to ${configFilePath}`);
   }
 
   if (!KEY_PATH) {
     KEY_PATH = path.join(homedir(), 'holodeck-localhost-key.pem');
     process.env.HOLODECK_SSL_KEY_PATH = KEY_PATH;
-    execSync(`echo '\nexport HOLODECK_SSL_KEY_PATH="${KEY_PATH}"' >> ${getShellConfigFilePath()}`);
-    console.log(`Added HOLODECK_SSL_KEY_PATH to ${getShellConfigFilePath()}`);
+    execSync(`echo '\nexport HOLODECK_SSL_KEY_PATH="${KEY_PATH}"' >> ${configFilePath}`);
+    console.log(`Added HOLODECK_SSL_KEY_PATH to ${configFilePath}`);
   }
 
   if (!fs.existsSync(CERT_PATH) || !fs.existsSync(KEY_PATH)) {
-    console.log('SSL certificate or key not found, generating new ones...');
-
-    execSync(`mkcert -install`);
-    execSync(`mkcert -key-file ${KEY_PATH} -cert-file ${CERT_PATH} localhost`);
+    throw new Error('SSL certificate or key not found, you may need to run `npx -p @warp-drive/holodeck ensure-cert`');
   }
 
   return {
@@ -243,7 +247,9 @@ function createTestHandler(projectRoot) {
 */
 export function createServer(options) {
   const app = new Hono();
-  app.use('*', logger());
+  if (DEBUG) {
+    app.use('*', logger());
+  }
   app.use(
     '*',
     cors({
@@ -263,19 +269,107 @@ export function createServer(options) {
   serve({
     fetch: app.fetch,
     createServer: (_, requestListener) => {
-      return http2.createSecureServer(
-        {
-          key: KEY,
-          cert: CERT,
-        },
-        requestListener
-      );
+      try {
+        return http2.createSecureServer(
+          {
+            key: KEY,
+            cert: CERT,
+          },
+          requestListener
+        );
+      } catch (e) {
+        console.log(chalk.yellow(`Failed to create secure server, falling back to http server. Error: ${e.message}`));
+        return http2.createServer(requestListener);
+      }
     },
     port: options.port ?? DEFAULT_PORT,
     hostname: 'localhost',
+    // bun uses TLS options
+    // tls: {
+    //   key: Bun.file(KEY_PATH),
+    //   cert: Bun.file(CERT_PATH),
+    // },
   });
 
   console.log(
     `\tMock server running at ${chalk.magenta('https://localhost:') + chalk.yellow(options.port ?? DEFAULT_PORT)}`
   );
 }
+
+const servers = new Map();
+
+export default {
+  async launchProgram(config = {}) {
+    const projectRoot = process.cwd();
+    const name = await import(path.join(projectRoot, 'package.json'), { with: { type: 'json' } }).then(
+      (pkg) => pkg.name
+    );
+    const options = { name, projectRoot, ...config };
+    console.log(
+      chalk.grey(
+        `\n\t@${chalk.greenBright('warp-drive')}/${chalk.magentaBright(
+          'holodeck'
+        )} 🌅\n\t=================================\n`
+      ) +
+        chalk.grey(
+          `\n\tHolodeck Access Granted\n\t\tprogram: ${chalk.magenta(name)}\n\t\tsettings: ${chalk.green(JSON.stringify(config).split('\n').join(' '))}\n\t\tdirectory: ${chalk.cyan(projectRoot)}\n\t\tengine: ${chalk.cyan(
+            isBun ? 'bun@' + Bun.version : 'node'
+          )}`
+        )
+    );
+    console.log(chalk.grey(`\n\tStarting Subroutines (mode:${chalk.cyan(isBun ? 'bun' : 'node')})`));
+
+    if (isBun) {
+      const serverProcess = Bun.spawn(
+        ['node', '--experimental-default-type=module', CURRENT_FILE, JSON.stringify(options)],
+        {
+          env: process.env,
+          cwd: process.cwd(),
+          stdout: 'inherit',
+          stderr: 'inherit',
+        }
+      );
+      servers.set(projectRoot, serverProcess);
+      return;
+    }
+
+    if (servers.has(projectRoot)) {
+      throw new Error(`Holodeck is already running for project '${name}' at '${projectRoot}'`);
+    }
+
+    servers.set(projectRoot, createServer(options));
+  },
+  async endProgram() {
+    console.log(chalk.grey(`\n\tEnding Subroutines (mode:${chalk.cyan(isBun ? 'bun' : 'node')})`));
+    const projectRoot = process.cwd();
+    const name = await import(path.join(projectRoot, 'package.json'), { with: { type: 'json' } }).then(
+      (pkg) => pkg.name
+    );
+
+    if (!servers.has(projectRoot)) {
+      throw new Error(`Holodeck was not running for project '${name}' at '${projectRoot}'`);
+    }
+
+    if (isBun) {
+      const serverProcess = servers.get(projectRoot);
+      serverProcess.kill();
+      return;
+    }
+
+    servers.get(projectRoot).close();
+    servers.delete(projectRoot);
+  },
+};
+
+function main() {
+  const args = process.argv.slice();
+  if (!isBun && args.length) {
+    if (args[1] !== CURRENT_FILE) {
+      return;
+    }
+    const options = JSON.parse(args[2]);
+    createServer(options);
+  }
+}
+
+main();

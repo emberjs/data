@@ -9,15 +9,17 @@ import type { BaseFinderOptions, FindRecordOptions } from '@ember-data/store/-ty
 import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
 import { SkipCache } from '@warp-drive/core-types/request';
 import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
+import type { RequestSignature } from '@warp-drive/core-types/symbols';
 
 import { isMaybeIdentifier, normalizeModelName } from './utils';
 
-type FindRecordRequestInput<T extends string> = StoreRequestInput & {
+type FindRecordRequestInput<T extends string = string, RT = unknown> = StoreRequestInput & {
   op: 'findRecord';
   data: {
     record: ResourceIdentifierObject<T>;
     options: FindRecordBuilderOptions;
   };
+  [RequestSignature]?: RT;
 };
 
 type FindRecordBuilderOptions = Omit<FindRecordOptions, 'preload'>;
@@ -63,25 +65,25 @@ export function findRecordBuilder<T extends TypedRecordInstance>(
   resource: TypeFromInstance<T>,
   id: string,
   options?: FindRecordBuilderOptions
-): FindRecordRequestInput<TypeFromInstance<T>>;
+): FindRecordRequestInput<TypeFromInstance<T>, T>;
 export function findRecordBuilder(
   resource: string,
   id: string,
   options?: FindRecordBuilderOptions
-): FindRecordRequestInput<string>;
+): FindRecordRequestInput;
 export function findRecordBuilder<T extends TypedRecordInstance>(
   resource: ResourceIdentifierObject<TypeFromInstance<T>>,
   options?: FindRecordBuilderOptions
-): FindRecordRequestInput<TypeFromInstance<T>>;
+): FindRecordRequestInput<TypeFromInstance<T>, T>;
 export function findRecordBuilder(
   resource: ResourceIdentifierObject,
   options?: FindRecordBuilderOptions
-): FindRecordRequestInput<string>;
+): FindRecordRequestInput;
 export function findRecordBuilder(
   resource: string | ResourceIdentifierObject,
   idOrOptions?: string | FindRecordBuilderOptions,
   options?: FindRecordBuilderOptions
-): FindRecordRequestInput<string> {
+): FindRecordRequestInput {
   assert(
     `You need to pass a modelName or resource identifier as the first argument to the findRecord builder`,
     resource

@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/private-build-infra",
-  "version": "5.4.0-alpha.54",
+  "version": "5.4.0-alpha.60",
   "description": "The default blueprint for ember-data private packages.",
   "repository": {
     "type": "git",
@@ -41,7 +41,7 @@
     "pnpm-sync-dependencies-meta-injected": "0.0.10"
   },
   "engines": {
-    "node": ">= 18.20.1"
+    "node": ">= 18.20.2"
   },
   "volta": {
     "extends": "../../package.json"

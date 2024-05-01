@@ -1,16 +1,8 @@
-import { assert } from '@ember/debug';
 import Component from '@glimmer/component';
 import { getPromiseState } from './promise-state.ts';
 import { Awaitable } from '@ember-data/request';
 
-export function notNull<T>(x: null): never;
-export function notNull<T>(x: T): Exclude<T, null>;
-export function notNull<T>(x: T | null) {
-  assert('Expected a non-null value, but got null', x !== null);
-  return x;
-}
 export const and = (x: unknown, y: unknown) => Boolean(x && y);
-
 interface ThrowSignature<E = Error | string | object> {
   Args: {
     error: E;
@@ -41,15 +33,23 @@ export class Await<T, E> extends Component<AwaitSignature<T, E>> {
     return getPromiseState<T, E>(this.args.promise);
   }
 
+  get error() {
+    return this.state.error as E;
+  }
+
+  get result() {
+    return this.state.result as T;
+  }
+
   <template>
     {{#if this.state.isPending}}
       {{yield to="pending"}}
     {{else if (and this.state.isError (has-block "error"))}}
-      {{yield (notNull this.state.error) to="error"}}
+      {{yield this.error to="error"}}
     {{else if this.state.isSuccess}}
-      {{yield (notNull this.state.result) to="success"}}
+      {{yield this.result to="success"}}
     {{else}}
-      <Throw @error={{(notNull this.state.error)}} />
+      <Throw @error={{this.error}} />
     {{/if}}
   </template>
 }

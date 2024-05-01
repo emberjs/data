@@ -115,12 +115,15 @@ export interface LifetimesService {
   ): void;
 }
 
-export type LooseStoreRequestInfo = Omit<ImmutableRequestInfo, 'records' | 'headers'> & {
+export type LooseStoreRequestInfo<T = unknown, RT = unknown> = Omit<
+  ImmutableRequestInfo<T, RT>,
+  'records' | 'headers'
+> & {
   records?: ResourceIdentifierObject[];
   headers?: Headers;
 };
 
-export type StoreRequestInput = ImmutableRequestInfo | LooseStoreRequestInfo;
+export type StoreRequestInput<T = unknown, RT = unknown> = ImmutableRequestInfo<T, RT> | LooseStoreRequestInfo<T, RT>;
 
 export interface StoreRequestContext extends RequestContext {
   request: ImmutableRequestInfo & { store: Store; [EnableHydration]?: boolean };
@@ -182,7 +185,7 @@ function maybeUpdateUiObjects<T>(
         return document as T;
       }
       const data = recordArrayManager.createArray({
-        type: request.url,
+        type: request.url as string,
         identifiers: document.data,
         doc: document as CollectionResourceDataDocument,
         query: request,
@@ -190,8 +193,8 @@ function maybeUpdateUiObjects<T>(
 
       const doc = new Document(store, null);
       doc.data = data;
-      doc.meta = document.meta;
-      doc.links = document.links;
+      doc.meta = document.meta!;
+      doc.links = document.links!;
 
       return doc as T;
     }
@@ -206,8 +209,8 @@ function maybeUpdateUiObjects<T>(
       recordArrayManager._keyedArrays.set(identifier.lid, managed);
       const doc = new Document<OpaqueRecordInstance[]>(store, identifier);
       doc.data = managed;
-      doc.meta = document.meta;
-      doc.links = document.links;
+      doc.meta = document.meta!;
+      doc.links = document.links!;
       store._documentCache.set(identifier, doc);
 
       return options.shouldHydrate ? (doc as T) : (document as T);
@@ -216,8 +219,8 @@ function maybeUpdateUiObjects<T>(
       if (!isFromCache) {
         recordArrayManager.populateManagedArray(managed, document.data, document as CollectionResourceDataDocument);
         doc.data = managed;
-        doc.meta = document.meta;
-        doc.links = document.links;
+        doc.meta = document.meta!;
+        doc.links = document.links!;
       }
 
       return options.shouldHydrate ? (doc as T) : (document as T);
@@ -397,7 +400,7 @@ function fetchContentAndHydrate<T>(
 
       if (!shouldBackgroundFetch) {
         const newError = cloneError(error);
-        newError.content = response;
+        newError.content = response!;
         throw newError;
       } else {
         store.notifications._flush();
@@ -419,13 +422,25 @@ function fetchContentAndHydrate<T>(
   });
 }
 
-function cloneError(error: Error & { error: string | object }) {
-  const cloned: Error & { error: string | object; content?: object } = new Error(error.message) as Error & {
-    error: string | object;
-    content?: object;
-  };
-  cloned.stack = error.stack;
+function isAggregateError(error: Error & { errors?: ApiError[] }): error is AggregateError & { errors: ApiError[] } {
+  return error instanceof AggregateError || (error.name === 'AggregateError' && Array.isArray(error.errors));
+}
+
+type RobustError = Error & { error: string | object; errors?: ApiError[]; content?: unknown };
+
+// TODO @runspired, consider if we should deep freeze errors (potentially only in debug) vs cloning them
+function cloneError(error: RobustError) {
+  const isAggregate = isAggregateError(error);
+
+  const cloned = (
+    isAggregate ? new AggregateError(structuredClone(error.errors), error.message) : new Error(error.message)
+  ) as RobustError;
+  cloned.stack = error.stack!;
   cloned.error = error.error;
+
+  // copy over enumerable properties
+  Object.assign(cloned, error);
+
   return cloned;
 }
 

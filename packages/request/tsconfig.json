@@ -12,6 +12,7 @@
     "checkJs": false,
     "alwaysStrict": true,
     "strict": true,
+    "exactOptionalPropertyTypes": false,
     "allowSyntheticDefaultImports": true,
 
     "noImplicitAny": true,
@@ -42,7 +43,7 @@
     "baseUrl": "src",
 
     "paths": {
-      "@ember-data/env": ["../../private-build-infra/virtual-packages/env.d.ts"]
+      "@warp-drive/build-config/env": ["../../private-build-infra/virtual-packages/env.d.ts"]
     }
   },
   "references": [{ "path": "../core-types" }]

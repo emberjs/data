@@ -7,6 +7,15 @@ import { Diagnostic } from './diagnostic';
 
 export const PublicTestInfo = Symbol('TestInfo');
 
+function cancellable(promise: Promise<void>, timeout: number): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const id = setTimeout(() => {
+      reject(new Error('Test Timeout Exceeded: ' + timeout + 'ms'));
+    }, timeout);
+    promise.then(resolve, reject).finally(() => clearTimeout(id));
+  });
+}
+
 export async function runTest<TC extends TestContext>(
   moduleReport: ModuleReport,
   beforeChain: HooksCallback<TC>[],
@@ -56,7 +65,13 @@ export async function runTest<TC extends TestContext>(
   }
 
   try {
-    await test.cb.call(testContext, Assert);
+    const promise = test.cb.call(testContext, Assert);
+
+    if (promise instanceof Promise && Config.testTimeoutMs > 0) {
+      await cancellable(promise, Config.testTimeoutMs);
+    }
+
+    await promise;
   } catch (err) {
     Assert.pushResult({
       message: `Unexpected Test Failure: ${(err as Error).message}`,
@@ -68,20 +83,20 @@ export async function runTest<TC extends TestContext>(
     if (!Config.params.tryCatch.value) {
       throw err;
     }
+  } finally {
+    for (const hook of afterChain) {
+      await hook.call(testContext, Assert);
+    }
+    Assert._finalize();
+
+    groupLogs() && console.groupEnd();
+    testReport.end = instrument() && performance.mark(`test:${test.module.moduleName} > ${test.name}:end`);
+    testReport.measure =
+      instrument() &&
+      performance.measure(`test:${test.module.moduleName} > ${test.name}`, testReport.start.name, testReport.end.name);
+
+    DelegatingReporter.onTestFinish(testReport);
   }
-
-  for (const hook of afterChain) {
-    await hook.call(testContext, Assert);
-  }
-  Assert._finalize();
-
-  groupLogs() && console.groupEnd();
-  testReport.end = instrument() && performance.mark(`test:${test.module.moduleName} > ${test.name}:end`);
-  testReport.measure =
-    instrument() &&
-    performance.measure(`test:${test.module.moduleName} > ${test.name}`, testReport.start.name, testReport.end.name);
-
-  DelegatingReporter.onTestFinish(testReport);
 }
 
 export async function runModule<TC extends TestContext>(

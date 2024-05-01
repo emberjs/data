@@ -49,6 +49,10 @@ Required Packages for Canary Types
 Here's a single install command for pnpm. Swap pnpm for yarn or npm as needed.
 
 ```
+PACKAGES=("@types/ember" "@types/ember-data" "@types/ember-data__adapter" "@types/ember-data__model" "@types/ember-data__serializer" "@types/ember-data__store" "@types/ember__application" "@types/ember__array" "@types/ember__component" "@types/ember__controller" "@types/ember__debug" "@types/ember__destroyable" "@types/ember__engine" "@types/ember__error" "@types/ember__helper" "@types/ember__modifier" "@types/ember__object" "@types/ember__owner" "@types/ember__routing" "@types/ember__runloop" "@types/ember__service" "@types/ember__string" "@types/ember__template" "@types/ember__test" "@types/ember__utils" "ember-data" );
+
+for pkg in "${PACKAGES[@]}"; do pnpm remove "$pkg"; done
+
 pnpm install ember-data@canary @ember-data/adapter@canary @ember-data/graph@canary @ember-data/json-api@canary @ember-data/legacy-compat@canary @ember-data/model@canary @ember-data/request@canary @ember-data/request-utils@canary @ember-data/serializer@canary @ember-data/store@canary @ember-data/tracking@canary @warp-drive/core-types@canary
 ```
 

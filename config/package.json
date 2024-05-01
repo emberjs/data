@@ -1,7 +1,7 @@
 {
   "name": "@warp-drive/internal-config",
   "private": true,
-  "version": "5.4.0-alpha.54",
+  "version": "5.4.0-alpha.60",
   "dependencies": {
     "@babel/core": "^7.24.4",
     "@babel/eslint-parser": "^7.24.1",
@@ -18,7 +18,7 @@
     "typescript": "^5.4.5"
   },
   "engines": {
-    "node": ">= 18.20.1"
+    "node": ">= 18.20.2"
   },
   "volta": {
     "extends": "../package.json"

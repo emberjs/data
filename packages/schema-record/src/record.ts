@@ -1,6 +1,5 @@
 import { assert } from '@ember/debug';
 
-import { DEBUG } from '@ember-data/env';
 import type { Future } from '@ember-data/request';
 import type Store from '@ember-data/store';
 import type { StoreRequestInput } from '@ember-data/store/-private/cache-handler';
@@ -15,6 +14,7 @@ import {
   type Signal,
   Signals,
 } from '@ember-data/tracking/-private';
+import { DEBUG } from '@warp-drive/build-config/env';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { ResourceRelationship as SingleResourceRelationship } from '@warp-drive/core-types/cache/relationship';
@@ -224,7 +224,7 @@ class ResourceRelationship<T extends SchemaRecord = SchemaRecord> {
     this[Parent] = parent;
   }
 
-  fetch(options?: StoreRequestInput): Future<T> {
+  fetch(options?: StoreRequestInput<T, T>): Future<T> {
     const url = options?.url ?? getHref(this.links.related) ?? getHref(this.links.self) ?? null;
 
     if (!url) {

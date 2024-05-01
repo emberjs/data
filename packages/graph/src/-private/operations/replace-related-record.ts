@@ -1,7 +1,7 @@
 import { assert, deprecate } from '@ember/debug';
 
-import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@ember-data/deprecations';
-import { DEBUG } from '@ember-data/env';
+import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp-drive/build-config/deprecations';
+import { DEBUG } from '@warp-drive/build-config/env';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { ReplaceRelatedRecordOperation } from '@warp-drive/core-types/graph';
 
@@ -165,7 +165,7 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
         localState !== existingState &&
         relationship.definition.resetOnRemoteUpdate !== false
       ) {
-        relationship.localState = existingState;
+        relationship.localState = remoteState;
 
         deprecate(
           `EmberData is changing the default semantics of updates to the remote state of relationships.\n\nThe following local state was cleared from the <${

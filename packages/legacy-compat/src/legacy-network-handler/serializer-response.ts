@@ -1,8 +1,8 @@
 import { assert } from '@ember/debug';
 
-import { DEBUG } from '@ember-data/env';
 import type Store from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
+import { DEBUG } from '@warp-drive/build-config/env';
 import type { JsonApiDocument } from '@warp-drive/core-types/spec/raw';
 
 import type { AdapterPayload } from './minimum-adapter-interface';

@@ -9,14 +9,16 @@ import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
 import { SkipCache } from '@warp-drive/core-types/request';
+import type { RequestSignature } from '@warp-drive/core-types/symbols';
 
-type SaveRecordRequestInput<T extends string> = StoreRequestInput & {
+type SaveRecordRequestInput<T extends string = string, RT = unknown> = StoreRequestInput & {
   op: 'createRecord' | 'deleteRecord' | 'updateRecord';
   data: {
     record: StableRecordIdentifier<T>;
     options: SaveRecordBuilderOptions;
   };
   records: [StableRecordIdentifier<T>];
+  [RequestSignature]?: RT;
 };
 
 type SaveRecordBuilderOptions = Record<string, unknown>;
@@ -51,10 +53,10 @@ function resourceIsFullyDeleted(instanceCache: InstanceCache, identifier: Stable
 export function saveRecordBuilder<T extends TypedRecordInstance>(
   record: T,
   options: Record<string, unknown> = {}
-): SaveRecordRequestInput<TypeFromInstance<T>> {
+): SaveRecordRequestInput<TypeFromInstance<T>, T> {
   const store = storeFor(record);
   assert(`Unable to initiate save for a record in a disconnected state`, store);
-  const identifier = recordIdentifierFor(record);
+  const identifier = recordIdentifierFor<T>(record);
 
   if (!identifier) {
     // this commonly means we're disconnected

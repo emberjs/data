@@ -72,8 +72,8 @@
  * The complete list of which versions specific deprecations will be removed in
  * can be found [here](https://github.com/emberjs/data/blob/main/packages/private-build-infra/virtual-packages/deprecations.js "List of EmberData Deprecations")
  *
- * @module @ember-data/deprecations
- * @main @ember-data/deprecations
+ * @module @warp-drive/build-config/deprecations
+ * @main @warp-drive/build-config/deprecations
  */
 
 /**

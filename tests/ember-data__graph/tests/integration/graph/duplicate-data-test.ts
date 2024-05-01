@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
-// @ts-expect-error TODO: This is supplied via private-build-infra/virtual-packages
-import { DEPRECATE_NON_UNIQUE_PAYLOADS } from '@ember-data/deprecations';
 import { graphFor } from '@ember-data/graph/-private';
 import Model, { attr, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import { test } from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+import { DEPRECATE_NON_UNIQUE_PAYLOADS } from '@warp-drive/build-config/deprecations';
 import { module } from '@warp-drive/diagnostic';
 import { setupTest } from '@warp-drive/diagnostic/ember';
 

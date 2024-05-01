@@ -2,7 +2,6 @@ import { assert, warn } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
 
-import { DEBUG, TESTING } from '@ember-data/env';
 import { HAS_GRAPH_PACKAGE } from '@ember-data/packages';
 import { createDeferred } from '@ember-data/request';
 import type { Deferred } from '@ember-data/request/-private/types';
@@ -13,6 +12,7 @@ import type RequestStateService from '@ember-data/store/-private/network/request
 import type { FindRecordQuery, Request, SaveRecordMutation } from '@ember-data/store/-private/network/request-cache';
 import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
 import type { FindRecordOptions } from '@ember-data/store/-types/q/store';
+import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { TypeFromInstance } from '@warp-drive/core-types/record';
 import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';

@@ -32,7 +32,7 @@ export interface MinimalLegacyRecord {
   destroyRecord<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): Promise<T>;
 }
 
-export function rollbackAttributes(this: MinimalLegacyRecord) {
+export function rollbackAttributes<T extends MinimalLegacyRecord>(this: T) {
   const { currentState } = this;
   const { isNew } = currentState;
 
@@ -46,19 +46,25 @@ export function rollbackAttributes(this: MinimalLegacyRecord) {
   });
 }
 
-export function unloadRecord(this: MinimalLegacyRecord) {
+export function unloadRecord<T extends MinimalLegacyRecord>(this: T) {
   if (this.currentState.isNew && (this.isDestroyed || this.isDestroying)) {
     return;
   }
   this[RecordStore].unloadRecord(this);
 }
 
-export function belongsTo(this: MinimalLegacyRecord, prop: string): BelongsToReference {
-  return lookupLegacySupport(this).referenceFor('belongsTo', prop);
+export function belongsTo<T extends MinimalLegacyRecord, K extends keyof T & string>(
+  this: T,
+  prop: K
+): BelongsToReference<T, K> {
+  return lookupLegacySupport(this).referenceFor('belongsTo', prop) as BelongsToReference<T, K>;
 }
 
-export function hasMany(this: MinimalLegacyRecord, prop: string): HasManyReference {
-  return lookupLegacySupport(this).referenceFor('hasMany', prop);
+export function hasMany<T extends MinimalLegacyRecord, K extends keyof T & string>(
+  this: T,
+  prop: K
+): HasManyReference<T, K> {
+  return lookupLegacySupport(this).referenceFor('hasMany', prop) as HasManyReference<T, K>;
 }
 
 export function reload<T extends MinimalLegacyRecord>(this: T, options: Record<string, unknown> = {}): Promise<T> {

@@ -1,4 +1,4 @@
-import { DEBUG } from '@ember-data/env';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 import { Context, upgradeHeaders } from './context';
 import type { ImmutableHeaders, RequestInfo } from '@warp-drive/core-types/request';
