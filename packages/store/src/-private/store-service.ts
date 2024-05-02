@@ -32,7 +32,7 @@ import type { CacheCapabilitiesManager } from '../-types/q/cache-store-wrapper';
 import type { ModelSchema } from '../-types/q/ds-model';
 import type { OpaqueRecordInstance } from '../-types/q/record-instance';
 import type { SchemaService } from '../-types/q/schema-service';
-import type { FindAllOptions, FindRecordOptions, QueryOptions } from '../-types/q/store';
+import type { FindAllOptions, FindRecordOptions, LegacyResourceQuery, QueryOptions } from '../-types/q/store';
 import type { LifetimesService, StoreRequestInput } from './cache-handler';
 import { IdentifierCache } from './caches/identifier-cache';
 import {
@@ -1196,9 +1196,9 @@ class Store extends EmberObject {
     @param {Object} [options] - if the first param is a string this will be the optional options for the request. See examples for available options.
     @return {Promise} promise
   */
-  findRecord<T>(resource: TypeFromInstance<T>, id: string | number, options?: FindRecordOptions): Promise<T>;
-  findRecord(resource: string, id: string | number, options?: FindRecordOptions): Promise<unknown>;
-  findRecord<T>(resource: ResourceIdentifierObject<TypeFromInstance<T>>, options?: FindRecordOptions): Promise<T>;
+  findRecord<T>(type: TypeFromInstance<T>, id: string | number, options?: FindRecordOptions<T>): Promise<T>;
+  findRecord(type: string, id: string | number, options?: FindRecordOptions): Promise<unknown>;
+  findRecord<T>(resource: ResourceIdentifierObject<TypeFromInstance<T>>, options?: FindRecordOptions<T>): Promise<T>;
   findRecord(resource: ResourceIdentifierObject, options?: FindRecordOptions): Promise<unknown>;
   findRecord(
     resource: string | ResourceIdentifierObject,
@@ -1365,8 +1365,10 @@ class Store extends EmberObject {
     @param {String|Integer} id - optional only if the first param is a ResourceIdentifier, else the string id of the record to be retrieved.
     @return {Model|null} record
   */
-  peekRecord<T = OpaqueRecordInstance>(identifier: string, id: string | number): T | null;
-  peekRecord<T = OpaqueRecordInstance>(identifier: ResourceIdentifierObject): T | null;
+  peekRecord<T>(type: TypeFromInstance<T>, id: string | number): T | null;
+  peekRecord(type: string, id: string | number): unknown | null;
+  peekRecord<T>(identifier: ResourceIdentifierObject<TypeFromInstance<T>>): T | null;
+  peekRecord(identifier: ResourceIdentifierObject): unknown | null;
   peekRecord<T = OpaqueRecordInstance>(identifier: ResourceIdentifierObject | string, id?: string | number): T | null {
     if (arguments.length === 1 && isMaybeIdentifier(identifier)) {
       const stableIdentifier = this.identifierCache.peekRecordIdentifier(identifier);
@@ -1448,9 +1450,9 @@ class Store extends EmberObject {
     @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.query
     @return {Promise} promise
   */
-  query<T>(type: TypeFromInstance<T>, query: Record<string, unknown>, options?: QueryOptions): Promise<Collection<T>>;
-  query(type: string, query: Record<string, unknown>, options?: QueryOptions): Promise<Collection>;
-  query(type: string, query: Record<string, unknown>, options: QueryOptions = {}): Promise<Collection> {
+  query<T>(type: TypeFromInstance<T>, query: LegacyResourceQuery<T>, options?: QueryOptions): Promise<Collection<T>>;
+  query(type: string, query: LegacyResourceQuery, options?: QueryOptions): Promise<Collection>;
+  query(type: string, query: LegacyResourceQuery, options: QueryOptions = {}): Promise<Collection> {
     if (DEBUG) {
       assertDestroyingStore(this, 'query');
     }
@@ -1567,30 +1569,32 @@ class Store extends EmberObject {
     @since 1.13.0
     @method queryRecord
     @public
-    @param {String} modelName
-    @param {any} query an opaque query to be used by the adapter
-    @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.queryRecord
+    @param {string} type
+    @param {object} query an opaque query to be used by the adapter
+    @param {object} options optional, may include `adapterOptions` hash which will be passed to adapter.queryRecord
     @return {Promise} promise which resolves with the found record or `null`
   */
+  queryRecord<T>(type: TypeFromInstance<T>, query: LegacyResourceQuery<T>, options?: QueryOptions): Promise<T | null>;
+  queryRecord(type: string, query: LegacyResourceQuery, options?: QueryOptions): Promise<unknown | null>;
   queryRecord(
-    modelName: string,
+    type: string,
     query: Record<string, unknown>,
     options?: QueryOptions
   ): Promise<OpaqueRecordInstance | null> {
     if (DEBUG) {
       assertDestroyingStore(this, 'queryRecord');
     }
-    assert(`You need to pass a model name to the store's queryRecord method`, modelName);
+    assert(`You need to pass a model name to the store's queryRecord method`, type);
     assert(`You need to pass a query hash to the store's queryRecord method`, query);
     assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
+      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${type}`,
+      typeof type === 'string'
     );
 
     const promise = this.request<OpaqueRecordInstance | null>({
       op: 'queryRecord',
       data: {
-        type: normalizeModelName(modelName),
+        type: normalizeModelName(type),
         query,
         options: options || {},
       },
@@ -1788,7 +1792,7 @@ class Store extends EmberObject {
     @param {object} options
     @return {Promise} promise
   */
-  findAll<T>(type: TypeFromInstance<T>, options?: FindAllOptions): Promise<IdentifierArray<T>>;
+  findAll<T>(type: TypeFromInstance<T>, options?: FindAllOptions<T>): Promise<IdentifierArray<T>>;
   findAll(type: string, options?: FindAllOptions): Promise<IdentifierArray>;
   findAll<T>(type: TypeFromInstance<T> | string, options: FindAllOptions = {}): Promise<IdentifierArray<T>> {
     if (DEBUG) {

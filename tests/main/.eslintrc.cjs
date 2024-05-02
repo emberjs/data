@@ -42,7 +42,6 @@ module.exports = {
         './tests/integration/model-errors-test.ts',
         './tests/integration/record-data/record-data-errors-test.ts',
         './tests/integration/record-data/record-data-state-test.ts',
-        './tests/integration/record-data/record-data-test.ts',
         './tests/integration/record-data/store-wrapper-test.ts',
         './tests/integration/relationships/rollback-test.ts',
         './tests/integration/request-state-service-test.ts',

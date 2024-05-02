@@ -7,7 +7,7 @@ import { defineSignal } from '@ember-data/tracking/-private';
 import { DEBUG } from '@warp-drive/build-config/env';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
-import type { TypeFromInstanceOrString } from '@warp-drive/core-types/record';
+import type { TypeFromInstance, TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 import type {
   LinkObject,
   Links,
@@ -328,7 +328,9 @@ export default class BelongsToReference<
   _resource() {
     this._ref; // subscribe
     const cache = this.store.cache;
-    return cache.getRelationship(this.___identifier, this.key) as SingleResourceRelationship;
+    return cache.getRelationship(this.___identifier, this.key) as SingleResourceRelationship<
+      StableRecordIdentifier<TypeFromInstance<Related>>
+    >;
   }
 
   /**
