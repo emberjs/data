@@ -149,6 +149,8 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
         if (val !== 'refresh') {
           this._localRequest = this._latestRequest;
         }
+
+        return;
       }
     }
 
