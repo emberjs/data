@@ -38,10 +38,10 @@ Documentation
 
 - [PromiseState](#promisestate)
   - [getPromiseState](#getpromisestate)
-  - [\<Await />](#await)
+  - [\<Await />](#await-)
 - [RequestState](#requeststate)
   - [getRequestState](#getrequeststate)
-  - [\<Request />](#request)
+  - [\<Request />](#request-)
 
 ---
 
