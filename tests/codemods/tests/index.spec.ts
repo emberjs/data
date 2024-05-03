@@ -35,13 +35,13 @@ interface RunTestsOptions {
 }
 
 function runTests({ only, filter }: RunTestsOptions = {}) {
-  const absoluteFixturesPath = path.join(__dirname, '__testfixtures__');
-  const inputFiles = findAllTestFixturesSync(absoluteFixturesPath);
+  const fixtureDir = path.join(__dirname, '__testfixtures__');
+  const inputFiles = findAllTestFixturesSync(fixtureDir);
 
   const testsByTransform = inputFiles.reduce<
     Record<string, Array<{ inputPath: string; outputPath: string; infoPath: string; testName: string }>>
   >((acc, { filePath, ext }) => {
-    const relativePath = path.relative(absoluteFixturesPath, filePath);
+    const relativePath = path.relative(fixtureDir, filePath);
 
     if (filter && !filter.test(relativePath)) {
       return acc;
@@ -58,7 +58,6 @@ function runTests({ only, filter }: RunTestsOptions = {}) {
     if (!acc[transformName]) {
       acc[transformName] = [];
     }
-    const fixtureDir = path.join(__dirname, '__testfixtures__');
 
     acc[transformName].push({
       inputPath: path.join(fixtureDir, relativePath),
@@ -70,34 +69,29 @@ function runTests({ only, filter }: RunTestsOptions = {}) {
   }, {});
 
   Object.entries(testsByTransform).forEach(async ([transform, tests]) => {
+    const defaultOptionsPath = path.join(fixtureDir, transform, 'default-options.json');
+    const defaultOptionsJson = fs.existsSync(defaultOptionsPath) ? fs.readFileSync(defaultOptionsPath, 'utf8') : '{}';
+    const defaultOptions: unknown = JSON.parse(defaultOptionsJson);
+    if (!isOptions(defaultOptions)) {
+      throw new Error(`Could not parse ${defaultOptionsPath}: ${defaultOptionsJson}`);
+    }
+
     await describe(transform, async () => {
       const testPromises = [];
       for (const { inputPath, outputPath, infoPath, testName } of tests) {
         testPromises.push(
           it(`transforms "${testName}"`, async (t) => {
-            await runTest(
-              t,
-              transform,
-              { inputPath, outputPath, infoPath },
-              {},
-              {
-                parser: 'ts',
-              }
-            );
+            await runTest(t, transform, { inputPath, outputPath, infoPath }, defaultOptions, {
+              parser: 'ts',
+            });
           })
         );
 
         testPromises.push(
           it(`transforms "${testName} (and is idempotent)"`, async (t) => {
-            await runTest(
-              t,
-              transform,
-              { inputPath: outputPath, outputPath, infoPath },
-              {},
-              {
-                parser: 'ts',
-              }
-            );
+            await runTest(t, transform, { inputPath: outputPath, outputPath, infoPath }, defaultOptions, {
+              parser: 'ts',
+            });
           })
         );
       }
@@ -124,8 +118,8 @@ async function runTest(
   t: Parameters<Exclude<Parameters<typeof it>[0], undefined>>[0],
   transformName: string,
   { inputPath, outputPath, infoPath }: { inputPath: string; outputPath: string; infoPath: string },
-  options?: Parameters<Codemod>[2],
-  testOptions: TestOptions = {}
+  defaultOptions: Parameters<Codemod>[2],
+  testOptions: TestOptions
 ): Promise<void> {
   if (!(transformName in Codemods)) {
     throw new Error('No codemod found for ' + transformName);
@@ -144,20 +138,20 @@ async function runTest(
   const source = fs.readFileSync(inputPath, 'utf8');
   const expectedOutput = fs.readFileSync(outputPath, 'utf8');
   const infoJson = fs.existsSync(infoPath) ? fs.readFileSync(infoPath, 'utf8') : '{}';
-  const expectedInfo: unknown = JSON.parse(infoJson);
-  if (!isExpectedInfo(expectedInfo)) {
-    throw new Error(`Could not parse info.json: ${infoJson}`);
+  const info: unknown = JSON.parse(infoJson);
+  if (!isTestInfo(info)) {
+    throw new Error(`Could not parse ${infoPath}: ${infoJson}`);
   }
 
   await runInlineTest(
     transform,
-    options ?? {},
+    defaultOptions,
     {
       path: inputPath,
       source,
     },
     expectedOutput,
-    expectedInfo,
+    info,
     logs,
     testOptions
   );
@@ -165,18 +159,20 @@ async function runTest(
 
 async function runInlineTest(
   module: Codemod,
-  options: Parameters<Codemod>[2],
+  defaultOptions: Parameters<Codemod>[2],
   input: {
     path: string;
     source: string;
   },
   expectedOutput: string,
-  expectedInfo: ExpectedInfo,
+  info: TestInfo,
   logs: unknown[][],
   testOptions?: TestOptions
 ) {
   let output = input.source;
-  const expectedErrorMessage = expectedInfo['expectedError'];
+  const options = { ...defaultOptions, ...(info.options ?? {}) };
+
+  const expectedErrorMessage = info.expectedError;
   let actualError: unknown;
   try {
     output = applyTransform(module as Transform, options, input, testOptions);
@@ -193,7 +189,7 @@ async function runInlineTest(
     throw new Error(`Invalid error: ${String(actualError)}`);
   }
 
-  const expectedLogs = expectedInfo['expectedLogs'] ?? [];
+  const expectedLogs = info['expectedLogs'] ?? [];
   assert.deepStrictEqual(logs, expectedLogs, 'Logged messages did not match expected.');
 
   const prettierConfig = await prettier.resolveConfig(input.path);
@@ -212,11 +208,16 @@ runTests(
   // { filter: /legacy-compat-builders\/js\/async\// }
 );
 
-interface ExpectedInfo {
+interface TestInfo {
   expectedLogs?: unknown[];
   expectedError?: string;
+  options?: Parameters<Codemod>[2];
 }
 
-function isExpectedInfo(value: unknown): value is ExpectedInfo {
+function isTestInfo(value: unknown): value is TestInfo {
+  return typeof value === 'object' && value !== null;
+}
+
+function isOptions(value: unknown): value is Parameters<Codemod>[2] {
   return typeof value === 'object' && value !== null;
 }

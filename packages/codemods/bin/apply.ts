@@ -5,46 +5,59 @@ import ignore from 'ignore';
 import jscodeshift from 'jscodeshift';
 import path from 'path';
 
-import type { Options } from '../src/legacy-compat-builders/options.js';
+import type { SharedCodemodOptions as Options } from '../src/utils/options.js';
 import { logger } from '../utils/logger.js';
 import type { CodemodConfig } from './config.js';
 
 export function createApplyCommand(program: Command, codemods: CodemodConfig[]) {
   const applyCommand = program.command('apply').description('apply the given codemod to the target file paths');
 
+  const commands = new Map<string, Command>();
   for (const codemod of codemods) {
-    applyCommand
+    const command = applyCommand
       .command(`${codemod.name}`)
       .description(codemod.description)
       .argument(
         '<target-glob-pattern...>',
-        'path to files or glob pattern. If using glob pattern, wrap in single quotes.'
+        'Path to files or glob pattern. If using glob pattern, wrap in single quotes.'
       )
       .addOption(new Option('-d, --dry', 'dry run (no changes are made to files)').default(false))
       .addOption(
-        new Option('-v, --verbose <level>', 'show more information about the transform process')
+        new Option('-v, --verbose <level>', 'Show more information about the transform process')
           .choices(['0', '1', '2'])
           .default('0')
       )
       .addOption(
         new Option(
           '-l, --log-file [path]',
-          'write logs to a file. If option is set but no path is provided, logs are written to ember-data-codemods.log'
+          'Write logs to a file. If option is set but no path is provided, logs are written to ember-data-codemods.log'
         )
       )
       .addOption(
         new Option(
           '-i, --ignore <ignore-glob-pattern...>',
-          'ignores the given file or glob pattern. If using glob pattern, wrap in single quotes.'
+          'Ignores the given file or glob pattern. If using glob pattern, wrap in single quotes.'
         )
       )
       .allowUnknownOption() // to passthrough jscodeshift options
       .action(createApplyAction(codemod.name));
+    commands.set(codemod.name, command);
   }
+
+  const legacyCompatBuilders = commands.get('legacy-compat-builders');
+  if (!legacyCompatBuilders) {
+    throw new Error('No codemod found for: legacy-compat-builders');
+  }
+  legacyCompatBuilders.addOption(
+    new Option(
+      '--store-names <store-name...>',
+      "Identifier name associated with the store. If overriding, it is recommended that you include 'store' in your list."
+    ).default(['store'])
+  );
 }
 
 function createApplyAction(transformName: string) {
-  return async (patterns: string[], options: Options) => {
+  return async (patterns: string[], options: Options & Record<string, unknown>) => {
     logger.config(options);
     const log = logger.for(transformName);
 
@@ -106,7 +119,8 @@ function createApplyAction(transformName: string) {
               stats: (_name: string, _quantity?: number): void => {}, // unused
               report: (_msg: string): void => {}, // unused
             },
-            options
+            // SAFETY: This isn't safe TBH. YOLO
+            options as Parameters<typeof transform>[2]
           );
         } catch (error) {
           result.errors++;

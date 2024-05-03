@@ -1,0 +1,5 @@
+{
+  "options": {
+    "storeNames": ["store", "db"]
+  }
+}

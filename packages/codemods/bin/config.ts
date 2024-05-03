@@ -3,6 +3,7 @@ export interface CodemodConfig {
   description: string;
 }
 
+// FIXME: Move this info to src/index.ts
 export const codemods: CodemodConfig[] = [
   {
     name: 'legacy-compat-builders',

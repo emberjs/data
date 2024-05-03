@@ -16,6 +16,7 @@ import { TransformError } from '../utils/error.js';
 import type { ParsedImportInfo } from '../utils/imports.js';
 import type { LegacyStoreMethod } from './config.js';
 import { log } from './log.js';
+import type { Options } from './options.js';
 import { TransformResult } from './result.js';
 
 interface LegacyStoreMethodCallExpression extends CallExpression {
@@ -57,7 +58,8 @@ export function transformLegacyStoreMethod(
   j: JSCodeshift,
   root: Collection,
   config: Config,
-  importInfo: ParsedImportInfo
+  importInfo: ParsedImportInfo,
+  options: Options
 ): TransformResult {
   log.debug({ filepath: fileInfo.path, message: ['\tTransforming calls:', `store.${importInfo.importedName}`] });
 
@@ -66,7 +68,7 @@ export function transformLegacyStoreMethod(
   const extractBuilderTypeParams = config.transformOptions.extractBuilderTypeParams ?? (() => null);
 
   // Find, e.g., this.store.findRecord('post', '1') or foo.store.findRecord('post', '1') or store.findRecord('post', '1')
-  root.find(j.CallExpression, legacyStoreMethodFinder(importInfo)).forEach((path) => {
+  root.find(j.CallExpression, legacyStoreMethodFinder(j, importInfo, options)).forEach((path) => {
     result.attemptedTransform = true;
     try {
       assertIsValidLegacyStoreMethodCallExpressionPath(j, path);
@@ -141,16 +143,25 @@ export function transformLegacyStoreMethod(
   return result;
 }
 
-function legacyStoreMethodFinder(importInfo: ParsedImportInfo) {
+function legacyStoreMethodFinder(j: JSCodeshift, importInfo: ParsedImportInfo, options: Options) {
   return function filter(value: CallExpression): value is LegacyStoreMethodCallExpression {
     return (
       value.callee.type === 'MemberExpression' &&
       value.callee.property.type === 'Identifier' &&
       importInfo.importedName === value.callee.property.name &&
-      (value.callee.object.type === 'Identifier' ||
-        (value.callee.object.type === 'MemberExpression' && value.callee.object.property.type === 'Identifier'))
+      (isStoreIdentifier(j, value.callee.object, options) ||
+        (value.callee.object.type === 'MemberExpression' &&
+          isStoreIdentifier(j, value.callee.object.property, options)))
     );
   };
+}
+
+function isStoreIdentifier(
+  j: JSCodeshift,
+  value: unknown,
+  options: Options
+): value is Identifier & { name: keyof Options['storeNames'] } {
+  return j.Identifier.check(value) && options.storeNames.includes(value.name);
 }
 
 /**

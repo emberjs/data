@@ -1,6 +1,5 @@
-import type { LoggerOptions } from 'winston';
+import type { SharedCodemodOptions } from '../utils/options.js';
 
-export interface Options extends LoggerOptions {
-  dry?: boolean;
-  ignore?: string[];
+export interface Options extends SharedCodemodOptions {
+  storeNames: string[];
 }

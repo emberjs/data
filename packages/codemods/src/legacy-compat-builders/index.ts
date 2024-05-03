@@ -14,7 +14,7 @@ import { TransformResult } from './result.js';
  * | `skipped`    | return `undefined`          | we did not attempt to transform                    |
  * | `ok`         | return `string` (changed)   | we successfully transformed                        |
  */
-export default function (fileInfo: FileInfo, api: API, _options: Options): string | undefined {
+export default function (fileInfo: FileInfo, api: API, options: Options): string | undefined {
   const j = api.jscodeshift;
   const root = j(fileInfo.source);
 
@@ -26,7 +26,7 @@ export default function (fileInfo: FileInfo, api: API, _options: Options): strin
     if (!config) {
       throw new Error(`could not find config for ${parsedImportInfo.importedName}`);
     }
-    result.merge(transformLegacyStoreMethod(fileInfo, j, root, config, parsedImportInfo));
+    result.merge(transformLegacyStoreMethod(fileInfo, j, root, config, parsedImportInfo, options));
   }
 
   for (const importToAdd of result.importsToAdd) {

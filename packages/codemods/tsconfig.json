@@ -27,7 +27,5 @@
     "declarationMap": true,
     "inlineSourceMap": true,
     "inlineSources": true,
-
-    "types": ["bun"]
   }
 }
