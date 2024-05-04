@@ -1,10 +1,9 @@
-import type { ValueOfSet } from '../../utils/types.js';
 import type { ImportInfo } from '../utils/imports.js';
 import type { Config } from './legacy-store-method.js';
 import { singularTypeParam, validateForFindRecord } from './legacy-store-method.js';
 
 const LegacyCompatBuildersSourceValue = '@ember-data/legacy-compat/builders';
-export const IMPORT_INFOS = new Set([
+export const IMPORT_INFOS = [
   {
     importedName: 'findAll' as const,
     sourceValue: LegacyCompatBuildersSourceValue,
@@ -25,10 +24,10 @@ export const IMPORT_INFOS = new Set([
     importedName: 'saveRecord' as const,
     sourceValue: LegacyCompatBuildersSourceValue,
   } satisfies ImportInfo,
-]);
-export type IMPORT_INFOS = typeof IMPORT_INFOS;
+];
+type IMPORT_INFOS = typeof IMPORT_INFOS;
 
-export type LegacyStoreMethod = ValueOfSet<IMPORT_INFOS>['importedName'];
+export type LegacyStoreMethod = IMPORT_INFOS[number]['importedName'];
 
 export const CONFIGS: Map<string, Config> = new Map([
   [

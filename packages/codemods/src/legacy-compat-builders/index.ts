@@ -17,8 +17,13 @@ import { TransformResult } from './result.js';
 export default function (fileInfo: FileInfo, api: API, options: Options): string | undefined {
   const j = api.jscodeshift;
   const root = j(fileInfo.source);
+  const onlyMethods = options.methods;
+  const importInfos =
+    onlyMethods && onlyMethods.length > 0
+      ? IMPORT_INFOS.filter((importInfo) => onlyMethods.includes(importInfo.importedName))
+      : IMPORT_INFOS;
 
-  const parsedImportInfos = parseExistingImports(fileInfo, j, root, IMPORT_INFOS);
+  const parsedImportInfos = parseExistingImports(fileInfo, j, root, importInfos);
 
   const result = new TransformResult();
   for (const parsedImportInfo of parsedImportInfos) {

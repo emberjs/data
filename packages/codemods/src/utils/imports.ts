@@ -35,8 +35,8 @@ export function parseExistingImports(
   fileInfo: FileInfo,
   j: JSCodeshift,
   root: Collection,
-  importInfos: Set<ImportInfo>
-): Set<ParsedImportInfo> {
+  importInfos: ImportInfo[]
+): ParsedImportInfo[] {
   log.debug({ filepath: fileInfo.path, message: '\tParsing imports' });
 
   const existingImports = new Map<string, ExistingImport>();
@@ -70,14 +70,14 @@ export function parseExistingImports(
     }
   });
 
-  const parsedImportInfos: Set<ParsedImportInfo> = new Set();
+  const parsedImportInfos: ParsedImportInfo[] = [];
   for (const importInfo of importInfos) {
     const existingImport = existingImports.get(importInfo.importedName);
     const localName = existingImport
       ? existingImport.localName
       : safeLocalName(importInfo.importedName, knownSpecifierNames, 'legacy');
 
-    parsedImportInfos.add({ ...importInfo, localName, existingImport });
+    parsedImportInfos.push({ ...importInfo, localName, existingImport });
   }
 
   return parsedImportInfos;

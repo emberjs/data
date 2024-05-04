@@ -50,13 +50,14 @@ Options:
   -d, --dry                              dry run (no changes are made to files) (default: false)
   -v, --verbose <level>                  Show more information about the transform process (choices: "0", "1",
                                          "2", default: "0")
-  -l, --log-file [path]                  Write logs to a file. If option is set but no path is provided, logs
-                                         are written to ember-data-codemods.log
-  -i, --ignore <ignore-glob-pattern...>  Ignores the given file or glob pattern. If using glob pattern, wrap
-                                         in single quotes.
+  -l, --log-file [path]                  Write logs to a file. If option is set but no path is provided, logs are
+                                         written to ember-data-codemods.log
+  -i, --ignore <ignore-glob-pattern...>  Ignores the given file or glob pattern. If using glob pattern, wrap in
+                                         single quotes.
   --store-names <store-name...>          Identifier name associated with the store. If overriding, it is
-                                         recommended that you include 'store' in your list. (default:
-                                         ["store"])
+                                         recommended that you include 'store' in your list. (default: ["store"])
+  --method, --methods <method-name...>   Method name(s) to transform. By default, will transform all methods.
+                                         (choices: "findAll", "findRecord", "query", "queryRecord", "saveRecord")
   -h, --help                             display help for command
 ```
 

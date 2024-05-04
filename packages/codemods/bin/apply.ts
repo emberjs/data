@@ -13,6 +13,7 @@ export function createApplyCommand(program: Command, codemods: CodemodConfig[]) 
   const applyCommand = program.command('apply').description('apply the given codemod to the target file paths');
 
   const commands = new Map<string, Command>();
+  // Add arguments that will be used for all codemods
   for (const codemod of codemods) {
     const command = applyCommand
       .command(`${codemod.name}`)
@@ -44,16 +45,24 @@ export function createApplyCommand(program: Command, codemods: CodemodConfig[]) 
     commands.set(codemod.name, command);
   }
 
+  // Add arguments that are specific to the legacy-compat-builders codemod
   const legacyCompatBuilders = commands.get('legacy-compat-builders');
   if (!legacyCompatBuilders) {
     throw new Error('No codemod found for: legacy-compat-builders');
   }
-  legacyCompatBuilders.addOption(
-    new Option(
-      '--store-names <store-name...>',
-      "Identifier name associated with the store. If overriding, it is recommended that you include 'store' in your list."
-    ).default(['store'])
-  );
+  legacyCompatBuilders
+    .addOption(
+      new Option(
+        '--store-names <store-name...>',
+        "Identifier name associated with the store. If overriding, it is recommended that you include 'store' in your list."
+      ).default(['store'])
+    )
+    .addOption(
+      new Option(
+        '--method, --methods <method-name...>',
+        'Method name(s) to transform. By default, will transform all methods.'
+      ).choices(['findAll', 'findRecord', 'query', 'queryRecord', 'saveRecord'])
+    );
 }
 
 function createApplyAction(transformName: string) {
