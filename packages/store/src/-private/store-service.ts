@@ -375,7 +375,7 @@ class Store extends EmberObject {
    * and document cached.
    *
    * The cache key used is `requestConfig.cacheOptions.key`
-   * if present, falling back to `requestconfig.url`.
+   * if present, falling back to `requestConfig.url`.
    *
    * Params are not serialized as part of the cache-key, so
    * either ensure they are already in the url or utilize

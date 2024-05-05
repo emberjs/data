@@ -12,7 +12,7 @@ import { ObjectValue, PrimitiveValue } from '../utils/extract-json';
  * is that "type" points to a legacy transform on
  * "attribute" that a serializer *might* use, while
  * "type" points to a new-style transform on "field"
- * that a record implmentation *must* use.
+ * that a record implementation *must* use.
  */
 export type GenericField = {
   kind: 'field';
@@ -527,7 +527,7 @@ export type LegacyHasManyField = {
      * local state that are present in the remote data,
      * leaving any remaining changes in local state still.
      */
-    resetOnRemoteUpate?: false;
+    resetOnRemoteUpdate?: false;
   };
 };
 
