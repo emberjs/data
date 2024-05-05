@@ -152,7 +152,7 @@ function findHasMany<T>(context: StoreRequestContext): Promise<T> {
       `You tried to load a hasMany relationship from a specified 'link' in the original payload but your adapter does not implement 'findHasMany'`,
       typeof adapter.findHasMany === 'function'
     );
-    assert(`Expected a related link when calling store.findhasMany, found ${String(links)}`, links && links.related);
+    assert(`Expected a related link when calling store.findHasMany, found ${String(links)}`, links && links.related);
 
     return _findHasMany(adapter, store, record, links.related, field, options) as Promise<T>;
   }
@@ -253,7 +253,7 @@ function adapterDidInvalidate(
     assert(
       `Expected the cache in use by resource ${String(
         identifier
-      )} to have a getErrors(identifier) method for retreiving errors.`,
+      )} to have a getErrors(identifier) method for retrieving errors.`,
       typeof cache.getErrors === 'function'
     );
 
