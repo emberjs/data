@@ -25,9 +25,13 @@ A better approach is to use builders and set the generic via inference.
 The signature for `request` will infer the generic for the content type from a special brand on the options passed to it.
 
 ```ts
+import type { RequestSignature } from '@warp-drive/core-types/symbols';
+import type { CollectionRecordArray } from '@ember-data/store/types';
+import type User from '../models/user';
+
 type MyRequest {
   // ...
-  [RequestSignature]: Collection<User>
+  [RequestSignature]: CollectionRecordArray<User>
 }
 
 function buildMyRequest(...): MyRequest { /* ... */ }
@@ -36,7 +40,7 @@ const { content } = await store.request(
   buildMyRequest(...)
 );
 
-// here content will be set to `Collection<User>`
+// here content will be set to `CollectionRecordArray<User>`
 ```
 
 ## Advanced Builders
