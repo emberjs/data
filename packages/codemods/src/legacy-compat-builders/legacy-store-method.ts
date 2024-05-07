@@ -2,8 +2,11 @@ import type {
   ASTPath,
   AwaitExpression,
   CallExpression,
+  ClassMethod,
   Collection,
   FileInfo,
+  FunctionDeclaration,
+  FunctionExpression,
   Identifier,
   JSCodeshift,
   MemberExpression,
@@ -67,9 +70,34 @@ export function transformLegacyStoreMethod(
   const validate = config.transformOptions.validate ?? (() => {});
   const extractBuilderTypeParams = config.transformOptions.extractBuilderTypeParams ?? (() => null);
 
-  // Find, e.g., this.store.findRecord('post', '1') or foo.store.findRecord('post', '1') or store.findRecord('post', '1')
+  if (fileInfo.path.includes('app/routes')) {
+    // First pass, look for places where we can safely add async/await
+    root.find(j.CallExpression, legacyStoreMethodFinder(j, importInfo, options)).forEach((path) => {
+      result.attemptedTransform = true;
+
+      const parentFunction = findParentFunction(j, path);
+
+      // Special case for un-awaited legacy store methods in model hooks
+      if (
+        parentFunction &&
+        j.ClassMethod.check(parentFunction) &&
+        j.Identifier.check(parentFunction.key) &&
+        // WARNING: We don't currently check if we're actually in a Route class
+        parentFunction.key.name === 'model' &&
+        isRecord(path.parent) &&
+        // If the direct parent is a ReturnStatement, this means the call is not awaited
+        j.ReturnStatement.check(path.parent.value)
+      ) {
+        parentFunction.async = true;
+        j(path).replaceWith(j.awaitExpression.from({ argument: path.value }));
+      }
+    });
+  }
+
+  // Second pass. Loop again because we've replaced the path above so we can't assume the type of the path is the same
   root.find(j.CallExpression, legacyStoreMethodFinder(j, importInfo, options)).forEach((path) => {
     result.attemptedTransform = true;
+
     try {
       assertIsValidLegacyStoreMethodCallExpressionPath(j, path);
       validate(j, path);
@@ -143,6 +171,9 @@ export function transformLegacyStoreMethod(
   return result;
 }
 
+/**
+ * Find, e.g., this.store.findRecord('post', '1') or foo.store.findRecord('post', '1') or store.findRecord('post', '1')
+ */
 function legacyStoreMethodFinder(j: JSCodeshift, importInfo: ParsedImportInfo, options: Options) {
   return function filter(value: CallExpression): value is LegacyStoreMethodCallExpression {
     return (
@@ -209,4 +240,19 @@ export function singularTypeParam(
   path: ValidLegacyStoreMethodCallExpressionPath
 ): TSTypeParameterInstantiation | null {
   return path.value.typeParameters ?? null;
+}
+
+export function findParentFunction(
+  j: JSCodeshift,
+  path: ASTPath
+): ClassMethod | FunctionDeclaration | FunctionExpression | null {
+  let parent = isRecord(path.parent) ? path.parent : null;
+  while (parent) {
+    const value = parent.value;
+    if (j.ClassMethod.check(value) || j.FunctionDeclaration.check(value) || j.FunctionExpression.check(value)) {
+      return value;
+    }
+    parent = isRecord(parent.parent) ? parent.parent : null;
+  }
+  return null;
 }

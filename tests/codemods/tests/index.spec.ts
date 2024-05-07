@@ -203,7 +203,7 @@ async function runInlineTest(
 // prettier-ignore
 runTests(
   // Uncomment to test only a specific fixture
-  // { only: 'legacy-compat-builders/js/find-all/simple/simple-this' },
+  // { only: 'legacy-compat-builders/js/async/no-await-in-model-hook' },
   // Uncomment to filter by a regex
   // { filter: /legacy-compat-builders\/js\/async\// }
 );

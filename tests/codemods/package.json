@@ -17,6 +17,7 @@
     "check:types": "tsc --noEmit",
     "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
     "test": "tsx --test tests/index.spec.ts",
+    "fixme": "tsx --test tests/index.spec.ts",
     "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "files": [
