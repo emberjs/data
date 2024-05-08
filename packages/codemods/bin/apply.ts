@@ -75,7 +75,7 @@ function createApplyAction(transformName: string) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     const ig = ignore()
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      .add(['**/*.d.ts', '**/node_modules/**/*', ...(options.ignore ?? [])]);
+      .add(['**/*.d.ts', '**/node_modules/**/*', '**/dist/**/*', ...(options.ignore ?? [])]);
 
     log.debug('Running for paths:', Bun.inspect(patterns));
     if (options.dry) {
