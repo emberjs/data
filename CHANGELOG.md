@@ -308,6 +308,37 @@ Eric Kelly ([@HeroicEric](https://github.com/HeroicEric))
 - Robby Morgan ([@robbytx](https://github.com/robbytx))
 - [@NullVoxPopuli](https://github.com/NullVoxPopuli)
 
+## v4.12.8 (2024-05-08)
+
+#### :rocket: Enhancement
+* [#9389](https://github.com/emberjs/data/pull/9389) Backport request, request-utils, store cache-handler changes to 4.12 ([@gitKrystan](https://github.com/gitKrystan))
+* [#9386](https://github.com/emberjs/data/pull/9386) Backport #9319 to lts-4-12: Add @ember-data/legacy-compat/builders ([@gitKrystan](https://github.com/gitKrystan))
+
+#### Committers: 1
+- Krystan HuffMenne ([@gitKrystan](https://github.com/gitKrystan))
+
+## v4.12.7 (2024-03-28)
+
+#### :bug: Bug Fix
+* `request`
+  * [#9308](https://github.com/emberjs/data/pull/9308) fix: mirage does not support anything (#9307) ([@runspired](https://github.com/runspired))
+
+#### Committers: 1
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+
+## v4.12.6 (2024-03-28)
+
+#### :rocket: Enhancement
+* [#9304](https://github.com/emberjs/data/pull/9304) feat: upates to 4.12 request package to support @warp-drive/ember ([@runspired](https://github.com/runspired))
+
+#### :bug: Bug Fix
+* [#9264](https://github.com/emberjs/data/pull/9264) fix: set localState to latest identifier in belongsTo when merging identifiers (#9263) ([@runspired](https://github.com/runspired))
+* [#9199](https://github.com/emberjs/data/pull/9199) fix: Fetch handler hacks for Mirage ([@gitKrystan](https://github.com/gitKrystan))
+
+#### Committers: 2
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+- Krystan HuffMenne ([@gitKrystan](https://github.com/gitKrystan))
+
 ## v4.12.5 (2023-12-04)
 
 #### :rocket: Enhancement
