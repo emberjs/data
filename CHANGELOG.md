@@ -753,6 +753,46 @@ This is a re-release of 4.10.0
 - [@law-rence](https://github.com/law-rence)
 - Eugen Ciur ([@ciur](https://github.com/ciur))
 
+## v4.6.5 (2024-05-08)
+
+#### :bug: Bug Fix
+* [#9316](https://github.com/emberjs/data/pull/9316) Notify on length when notifying that many-array has changed 
+
+#### Committers: 1
+- 
+Ross Grayton ([@grayt0r](https://github.com/grayt0r))
+
+
+## v4.6.4 (2022-10-02)
+
+#### :bug: Bug Fix
+* `private-build-infra`
+  * [#8199](https://github.com/emberjs/data/pull/8199) [backport release-prev] fix: thread polyfillUUID config through nested deps ([@runspired](https://github.com/runspired))
+
+#### Committers: 1
+- Chris Thoburn ([@runspired](https://github.com/runspired))
+
+## v4.6.3 (2022-09-15)
+
+#### :bug: Bug Fix
+* `store`
+  * fix: allow ManyArray being passed to createRecord
+
+## v4.6.2 (2022-09-15)
+
+#### :bug: Bug Fix
+* `store`
+  * [#8169](https://github.com/emberjs/data/pull/8169) fix: uuid polyfill logic ([@jrjohnson](https://github.com/jrjohnson))
+* `-ember-data`, `model`
+  * [#8148](https://github.com/emberjs/data/pull/8148) Clear subscriptions once unsubscribed, don't unnecessarily churn on subscriptions ([@jrjohnson](https://github.com/jrjohnson))
+* `private-build-infra`
+  * [#8145](https://github.com/emberjs/data/pull/8145) fix earlier versions of node-14 (#8108) ([@jrjohnson](https://github.com/jrjohnson))
+* `private-build-infra`, `store`
+  * [#8144](https://github.com/emberjs/data/pull/8144) Backport add optional polyfill (#8109) ([@jrjohnson](https://github.com/jrjohnson))
+
+#### Committers: 1
+- Jon Johnson ([@jrjohnson](https://github.com/jrjohnson))
+
 ## v4.6.1 (2022-07-28)
 
 #### :bug: Bug Fix
