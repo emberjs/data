@@ -2,7 +2,7 @@
 
 - ⮐ [Cookbook](./index.md)
 
-## Model name convention (or why it was singular)
+## Resource Type (model name) conventions – or, why it was singular
 
 If you have been working with EmberData for a while, you might remember a convention about singular-dasherized resource types (or modelNames). It was a convention that model names should be singular. But why is that? Why not plural? And why dasherized?
 
