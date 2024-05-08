@@ -6,7 +6,7 @@
 
 If you have been working with EmberData for a while, you might remember a convention about singular-dasherized resource types (or modelNames). It was a convention that model names should be singular. But why is that? Why not plural? And why dasherized?
 
-There is no strict rule about model names. You was just using singular names because you had default Serializer configured in your app. It was doing all job of data normalization for you. Mainly it was singularizing `type` of response you had received from server.
+There is no longer any strict rule in EmberData governing what naming convention to use for resource types. Before, you may have been using singular names because you had default Serializer configured in your app. The default serializers assume types should be singular and dasherized, and since they do the job of data normalization for you they would singularize and dasherize the `types` received from your server.
 
 ## So what to choose?
 
