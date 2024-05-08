@@ -40,8 +40,7 @@ if (DEBUG) {
     Boolean(
       typeof window !== 'undefined' &&
         ((window as { server?: { pretender: unknown } }).server?.pretender ||
-          (window.fetch.toString() !== 'function fetch() { [native code] }' &&
-            window.fetch.toString() !== 'function fetch() {\n    [native code]\n}'))
+          window.fetch.toString().replace(/\s+/g, '') !== 'function fetch() { [native code] }'.replace(/\s+/g, ''))
     );
 }
 
