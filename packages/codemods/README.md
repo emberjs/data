@@ -128,6 +128,8 @@ const { content: savedPostNoGeneric } = await store.request(saveRecord(post));
 
 Calls to legacy store methods that are not currently awaited will not be transformed. In order to provide feature parity with the legacy method, we need to access the `content` property from `Future` returned by `store.request`. In order to do this, we need to `await store.request`, but we can't safely add `await` with a codemod as we don't know if the consuming code will be able to handle the change.
 
+There is one exception to this rule. In the case where a route's `model` hook returns a call to a legacy store method, the codemod will transform the legacy store method and will add the `await` keyword.
+
 ## Caveats
 
 GJS and GTS files are not currently supported. PRs welcome! 🧡
