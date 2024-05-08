@@ -1,0 +1,3 @@
+{
+  "expectedLogs": [["warn", "Cannot transform store.findAll without await (or yield) keyword."]]
+}

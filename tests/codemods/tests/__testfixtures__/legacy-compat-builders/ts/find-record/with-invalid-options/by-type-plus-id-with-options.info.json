@@ -1,0 +1,8 @@
+{
+  "expectedLogs": [
+    [
+      "warn",
+      "Cannot transform store.findRecord with a 'preload' key. This option is not supported by the legacy compat builders."
+    ]
+  ]
+}

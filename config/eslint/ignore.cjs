@@ -24,6 +24,7 @@ const RULES = [
   'node_modules',
   '.node_modules.ember-try',
   'package.json.ember-try',
+  'tests/__testfixtures__',
 ];
 
 function ignoreRules(allowAddon) {

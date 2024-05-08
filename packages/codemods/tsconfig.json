@@ -1,0 +1,31 @@
+{
+  "include": ["src", "bin", "utils"],
+  "baseUrl": ".",
+  "compilerOptions": {
+    "lib": ["ESNext"],
+    "module": "NodeNext",
+    "target": "ESNext",
+    "moduleResolution": "NodeNext",
+    "moduleDetection": "force",
+    "strict": true,
+    "noFallthroughCasesInSwitch": true,
+    "downlevelIteration": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "noImplicitOverride": true,
+    "resolveJsonModule": true,
+
+    // Enable faster builds
+    // but causes us to not rebuild properly
+    // "incremental": true,
+    "rootDir": ".",
+
+    "outDir": "dist/",
+    "declaration": true,
+    "declarationMap": true,
+    "inlineSourceMap": true,
+    "inlineSources": true
+  }
+}

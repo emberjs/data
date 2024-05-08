@@ -1,0 +1,51 @@
+{
+  "name": "codemods-tests",
+  "private": true,
+  "version": "5.4.0-alpha.59",
+  "description": "Codemods for EmberData paradigms",
+  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "packages/codemods"
+  },
+  "directories": {
+    "test": "tests"
+  },
+  "type": "module",
+  "scripts": {
+    "check:types": "tsc --noEmit",
+    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
+    "test": "tsx --test tests/index.spec.ts",
+    "fixme": "tsx --test tests/index.spec.ts",
+    "_syncPnpm": "bun run sync-dependencies-meta-injected"
+  },
+  "files": [
+    "bin",
+    "dist"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "jscodeshift": "^0.15.2",
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.4"
+  },
+  "devDependencies": {
+    "@ember-data/codemods": "workspace:5.4.0-alpha.61",
+    "@types/bun": "^1.1.0",
+    "@types/jscodeshift": "0.11.11",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.61",
+    "eslint": "^8.57.0",
+    "pnpm-sync-dependencies-meta-injected": "0.0.10",
+    "qunit": "^2.20.1",
+    "tsx": "^4.7.2"
+  },
+  "engines": {
+    "node": ">= 18.20.1"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  },
+  "packageManager": "pnpm@8.15.6"
+}

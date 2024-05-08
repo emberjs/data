@@ -1,0 +1,29 @@
+{
+  "include": ["tests"],
+  "exclude": ["tests/__testfixtures__"],
+  "baseUrl": ".",
+
+  "compilerOptions": {
+    "lib": ["ESNext"],
+    "module": "NodeNext",
+    "target": "ESNext",
+    "moduleResolution": "NodeNext",
+    "moduleDetection": "force",
+    "strict": true,
+    "downlevelIteration": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "noImplicitOverride": true,
+
+    // Enable faster builds
+    // but causes us to not rebuild properly
+    // "incremental": true,
+    "rootDir": "tests",
+
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "types": ["bun"]
+  }
+}

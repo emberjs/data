@@ -39,5 +39,6 @@
     "editor.insertSpaces": false,
     "editor.tabSize": 4
   },
-  "typescript.preferences.importModuleSpecifier": "project-relative"
+  "typescript.preferences.importModuleSpecifier": "project-relative",
+  "bun.debugTerminal.enabled": true
 }
