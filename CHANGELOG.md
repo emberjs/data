@@ -1,5 +1,14 @@
 # Ember Data Changelog
 
+## v4.12.8 (2024-05-08)
+
+#### :rocket: Enhancement
+* [#9389](https://github.com/emberjs/data/pull/9389) Backport request, request-utils, store cache-handler changes to 4.12 ([@gitKrystan](https://github.com/gitKrystan))
+* [#9386](https://github.com/emberjs/data/pull/9386) Backport #9319 to lts-4-12: Add @ember-data/legacy-compat/builders ([@gitKrystan](https://github.com/gitKrystan))
+
+#### Committers: 1
+- Krystan HuffMenne ([@gitKrystan](https://github.com/gitKrystan))
+
 ## v4.12.7 (2024-03-28)
 
 #### :bug: Bug Fix
