@@ -78,7 +78,7 @@
       "stage": "alpha",
       "types": "alpha",
       "typesPublish": false,
-      "mirrorPublish": false
+      "mirrorPublish": true
     }
   }
 }
