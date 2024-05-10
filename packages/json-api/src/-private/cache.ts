@@ -59,6 +59,7 @@ interface CachedResource {
   id: string | null;
   remoteAttrs: Record<string, unknown> | null;
   localAttrs: Record<string, unknown> | null;
+  defaultAttrs: Record<string, unknown> | null;
   inflightAttrs: Record<string, unknown> | null;
   changes: Record<string, unknown[]> | null;
   errors: JsonApiError[] | null;
@@ -72,6 +73,7 @@ function makeCache(): CachedResource {
     id: null,
     remoteAttrs: null,
     localAttrs: null,
+    defaultAttrs: null,
     inflightAttrs: null,
     changes: null,
     errors: null,
@@ -871,6 +873,7 @@ export default class JSONAPICache implements Cache {
     // we report as `isEmpty` during teardown.
     cached.localAttrs = null;
     cached.remoteAttrs = null;
+    cached.defaultAttrs = null;
     cached.inflightAttrs = null;
 
     let relatedIdentifiers = _allRelatedIdentifiers(storeWrapper, identifier);
@@ -939,9 +942,16 @@ export default class JSONAPICache implements Cache {
       return cached.inflightAttrs[attr];
     } else if (cached.remoteAttrs && attr in cached.remoteAttrs) {
       return cached.remoteAttrs[attr];
+    } else if (cached.defaultAttrs && attr in cached.defaultAttrs) {
+      return cached.defaultAttrs[attr];
     } else {
       const attrSchema = this.__storeWrapper.getSchemaDefinitionService().attributesDefinitionFor(identifier)[attr];
-      return getDefaultValue(attrSchema?.options);
+      const defaultValue = getDefaultValue(attrSchema?.options);
+      if (typeof attrSchema?.options?.defaultValue === 'function') {
+        cached.defaultAttrs = cached.defaultAttrs || (Object.create(null) as Record<string, unknown>);
+        cached.defaultAttrs[attr] = defaultValue;
+      }
+      return defaultValue;
     }
   }
 
@@ -972,6 +982,10 @@ export default class JSONAPICache implements Cache {
     } else if (cached.localAttrs) {
       delete cached.localAttrs[attr];
       delete cached.changes![attr];
+    }
+
+    if (cached.defaultAttrs && attr in cached.defaultAttrs) {
+      delete cached.defaultAttrs[attr];
     }
 
     this.__storeWrapper.notifyChange(identifier, 'attributes', attr);
@@ -1056,6 +1070,7 @@ export default class JSONAPICache implements Cache {
     }
 
     cached.inflightAttrs = null;
+    cached.defaultAttrs = null;
 
     if (cached.errors) {
       cached.errors = null;
@@ -1408,7 +1423,7 @@ function setupRelationships(
 }
 
 function patchLocalAttributes(cached: CachedResource): boolean {
-  const { localAttrs, remoteAttrs, inflightAttrs, changes } = cached;
+  const { localAttrs, remoteAttrs, inflightAttrs, defaultAttrs, changes } = cached;
   if (!localAttrs) {
     cached.changes = null;
     return false;
@@ -1429,6 +1444,10 @@ function patchLocalAttributes(cached: CachedResource): boolean {
       hasAppliedPatch = true;
       delete localAttrs[attr];
       delete changes![attr];
+    }
+
+    if (defaultAttrs && attr in defaultAttrs) {
+      delete defaultAttrs[attr];
     }
   }
   return hasAppliedPatch;

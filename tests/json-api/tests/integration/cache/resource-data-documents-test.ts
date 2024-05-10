@@ -460,4 +460,77 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
       'We can fetch more included data from the cache'
     );
   });
+
+  test('generated default values are retained', function (assert) {
+    const store = new TestStore();
+    let i = 0;
+
+    store.registerSchema(
+      new TestSchema<'user'>({
+        user: {
+          attributes: {
+            name: {
+              kind: 'attribute',
+              name: 'name',
+              type: null,
+              options: {
+                defaultValue: () => {
+                  i++;
+                  return `Name ${i}`;
+                },
+              },
+            },
+          },
+          relationships: {},
+        },
+      })
+    );
+
+    store._run(() => {
+      store.cache.put({
+        content: {
+          data: {
+            type: 'user',
+            id: '1',
+            attributes: {},
+          },
+        },
+      }) as SingleResourceDataDocument;
+    });
+    const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+
+    const name1 = store.cache.getAttr(identifier, 'name');
+    assert.equal(name1, 'Name 1', 'The default value was generated');
+    const name2 = store.cache.getAttr(identifier, 'name');
+    assert.equal(name2, 'Name 1', 'The default value was cached');
+
+    store.cache.setAttr(identifier, 'name', 'Chris');
+    const name3 = store.cache.getAttr(identifier, 'name');
+    assert.equal(name3, 'Chris', 'The value was updated');
+
+    store.cache.setAttr(identifier, 'name', null);
+    const name4 = store.cache.getAttr(identifier, 'name');
+    assert.equal(name4, null, 'Null was set and maintained');
+
+    store.cache.rollbackAttrs(identifier);
+    const name5 = store.cache.getAttr(identifier, 'name');
+    assert.equal(name5, 'Name 2', 'The default value was regenerated');
+
+    store._run(() => {
+      store.cache.put({
+        content: {
+          data: {
+            type: 'user',
+            id: '1',
+            attributes: {
+              name: 'Tomster',
+            },
+          },
+        },
+      }) as SingleResourceDataDocument;
+    });
+
+    const name6 = store.cache.getAttr(identifier, 'name');
+    assert.equal(name6, 'Tomster', 'The value was updated on put');
+  });
 });
