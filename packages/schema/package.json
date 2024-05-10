@@ -23,8 +23,7 @@
   "scripts": {
     "build:parse": "bun build src/parse.ts --compile --outfile parse",
     "build:scaffold": "bun build src/scaffold.ts --compile --outfile scaffold",
-    "_build": "bun run build:parse && bun run build:scaffold",
-    "prepack": "bun run _build"
+    "build:cli": "bun run build:parse && bun run build:scaffold"
   },
   "files": [
     "README.md",
