@@ -1,9 +1,13 @@
+import EmberObject from '@ember/object';
+
 import { expectTypeOf } from 'expect-type';
 
-import type { ResourceType } from '@warp-drive/core-types/symbols';
+import { ResourceType } from '@warp-drive/core-types/symbols';
 
 import type { IdentifierArray } from '../-private';
+import ShimModelClass from './legacy-model-support/shim-model-class';
 import type { Collection } from './record-arrays/identifier-array';
+import type { CreateRecordProperties } from './store-service';
 import Store from './store-service';
 
 //////////////////////////////////
@@ -370,4 +374,28 @@ import Store from './store-service';
   expectTypeOf<Collection>(result);
   expectTypeOf<Collection>(result3);
   expectTypeOf<Collection<MyThing>>(result2);
+}
+
+//////////////////////////////////
+//////////////////////////////////
+// type CreateRecordProperties
+//////////////////////////////////
+//////////////////////////////////
+{
+  class MockModel extends EmberObject {
+    [ResourceType] = 'user' as const;
+    asyncProp = Promise.resolve('async');
+    syncProp = 'sync';
+  }
+
+  const mock = new MockModel();
+
+  expectTypeOf(mock.asyncProp).toEqualTypeOf<Promise<string>>();
+  expectTypeOf(mock.syncProp).toEqualTypeOf<string>();
+
+  const result: CreateRecordProperties<typeof mock> = {};
+
+  // Only `asyncProp` and `syncProp` should be present in the type, they should be optional and
+  // any Promise types should be awaited.
+  expectTypeOf(result).toEqualTypeOf<{ asyncProp?: string; syncProp?: string }>();
 }
