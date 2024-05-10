@@ -14,8 +14,6 @@
   },
   "scripts": {
     "build:cli": "bun build bin/codemods.ts --compile --target node --outfile codemods --sourcemap",
-    "_build": "bun run build:cli",
-    "prepack": "bun run _build",
     "check:types": "tsc --noEmit",
     "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
     "_syncPnpm": "bun run sync-dependencies-meta-injected"
