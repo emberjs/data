@@ -3,14 +3,11 @@
  */
 // this import location is deprecated but breaks in 4.8 and older
 import { assert } from '@ember/debug';
-import type EmberObject from '@ember/object';
-
-import { dependencySatisfies, importSync, macroCondition } from '@embroider/macros';
+import EmberObject from '@ember/object';
 
 import type RequestManager from '@ember-data/request';
 import type { Future } from '@ember-data/request/-private/types';
 import { LOG_PAYLOADS, LOG_REQUESTS } from '@warp-drive/build-config/debugging';
-import { DEPRECATE_STORE_EXTENDS_EMBER_OBJECT } from '@warp-drive/build-config/deprecations';
 import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 import type { Graph } from '@warp-drive/core-types/graph';
 import type {
@@ -109,21 +106,16 @@ export type CreateRecordProperties<T = MaybeHasId & Record<string, unknown>> = T
  * export default class extends Store {}
  * ```
  *
- * Most Applications will only have a single `Store` configured as a Service
+ * Most Ember applications will only have a single `Store` configured as a Service
  * in this manner. However, setting up multiple stores is possible, including using
- * each as a unique service or within a specific context.
+ * each as a unique service.
  *
 
   @class Store
   @public
 */
 
-const BaseClass = macroCondition(dependencySatisfies('ember-source', '*'))
-  ? !DEPRECATE_STORE_EXTENDS_EMBER_OBJECT
-    ? (importSync('@ember/object') as typeof import('@ember/object')).default
-    : class {}
-  : class {};
-
+// @ts-expect-error
 interface Store {
   createRecordDataFor?(identifier: StableRecordIdentifier, wrapper: CacheCapabilitiesManager): Cache | CacheV1;
 
@@ -137,7 +129,7 @@ interface Store {
   teardownRecord(record: OpaqueRecordInstance): void;
 }
 
-class Store extends BaseClass {
+class Store extends EmberObject {
   declare recordArrayManager: RecordArrayManager;
 
   /**
@@ -275,7 +267,7 @@ class Store extends BaseClass {
     @private
   */
   constructor(createArgs?: unknown) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    // @ts-expect-error ember-source types improperly expect createArgs to be `Owner`
     super(createArgs);
     Object.assign(this, createArgs);
 
@@ -2208,6 +2200,7 @@ class Store extends BaseClass {
     return cache;
   }
 
+  // @ts-expect-error
   destroy(): void {
     if (this.isDestroyed) {
       // @ember/test-helpers will call destroy multiple times
