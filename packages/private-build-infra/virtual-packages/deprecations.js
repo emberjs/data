@@ -386,3 +386,17 @@ export const DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE = '5.3';
  * @public
  */
 export const DEPRECATE_MANY_ARRAY_DUPLICATES = '5.3';
+
+/**
+ * **id: ember-data:deprecate-store-extends-ember-object**
+ *
+ * When the flag is `true` (default), the Store class will extend from `@ember/object`.
+ * When the flag is `false` or `ember-source` is not present, the Store will not extend
+ * from EmberObject.
+ *
+ * @property DEPRECATE_STORE_EXTENDS_EMBER_OBJECT
+ * @since 5.4
+ * @until 6.0
+ * @public
+ */
+export const DEPRECATE_STORE_EXTENDS_EMBER_OBJECT = '5.4';
