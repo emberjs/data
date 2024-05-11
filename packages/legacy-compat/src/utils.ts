@@ -191,6 +191,16 @@ export function formattedId(id: string | number | null): string | null {
   return id === null ? null : String(id);
 }
 
+export function expectId(id: string | number): string;
+export function expectId(id: null): never;
+export function expectId(id: string | number | null): string {
+  AssertFn('expectId: id must not be null', id !== null);
+
+  return formattedId(id);
+}
+
+
+
 /**
  * Compares two types for strict equality, converting them to
  * the format expected by the EmberData Cache to ensure
