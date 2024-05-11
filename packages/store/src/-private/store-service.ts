@@ -66,7 +66,10 @@ type CompatStore = Store & {
 };
 function upgradeStore(store: Store): asserts store is CompatStore {}
 
-type FilteredKeys<T> = Omit<T, typeof ResourceType | keyof EmberObject | 'constructor'>;
+type AwaitedKeys<T> = { [K in keyof T]: Awaited<T[K]> };
+
+// `AwaitedKeys` is needed here to resolve any promise types like `PromiseBelongsTo`.
+type FilteredKeys<T> = AwaitedKeys<Omit<T, typeof ResourceType | keyof EmberObject | 'constructor'>>;
 
 type MaybeHasId = { id?: string | null };
 /**
