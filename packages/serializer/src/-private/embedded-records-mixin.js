@@ -585,6 +585,9 @@ export default Mixin.create({
       }
 
       hasMany[i] = { id: data.id, type: data.type };
+      if (data.lid) {
+        hasMany[i].lid = data.lid;
+      }
     }
 
     const relationship = { data: hasMany };
@@ -610,6 +613,10 @@ export default Mixin.create({
 
     const belongsTo = { id: data.id, type: data.type };
     const relationship = { data: belongsTo };
+
+    if (data.lid) {
+      belongsTo.lid = data.lid;
+    }
 
     hash.data.relationships[key] = relationship;
   },

@@ -617,6 +617,10 @@ const JSONSerializer = Serializer.extend({
         relationships: this.extractRelationships(modelClass, resourceHash),
       };
 
+      if (resourceHash.lid) {
+        data.lid = resourceHash.lid;
+      }
+
       this.applyTransforms(modelClass, data.attributes);
     }
 
