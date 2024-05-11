@@ -2,12 +2,15 @@
   @module @ember-data/store
  */
 // this import location is deprecated but breaks in 4.8 and older
-import { assert } from '@ember/debug';
-import EmberObject from '@ember/object';
+import { assert, deprecate } from '@ember/debug';
+import type EmberObject from '@ember/object';
+
+import { dependencySatisfies, importSync, macroCondition } from '@embroider/macros';
 
 import type RequestManager from '@ember-data/request';
 import type { Future } from '@ember-data/request/-private/types';
 import { LOG_PAYLOADS, LOG_REQUESTS } from '@warp-drive/build-config/debugging';
+import { DEPRECATE_STORE_EXTENDS_EMBER_OBJECT } from '@warp-drive/build-config/deprecations';
 import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 import type { Graph } from '@warp-drive/core-types/graph';
 import type {
@@ -106,16 +109,52 @@ export type CreateRecordProperties<T = MaybeHasId & Record<string, unknown>> = T
  * export default class extends Store {}
  * ```
  *
- * Most Ember applications will only have a single `Store` configured as a Service
+ * Most Applications will only have a single `Store` configured as a Service
  * in this manner. However, setting up multiple stores is possible, including using
- * each as a unique service.
+ * each as a unique service or within a specific context.
  *
 
   @class Store
   @public
 */
+const EmptyClass = class {};
+const BaseClass = macroCondition(dependencySatisfies('ember-source', '*'))
+  ? DEPRECATE_STORE_EXTENDS_EMBER_OBJECT
+    ? (importSync('@ember/object') as typeof import('@ember/object')).default
+    : EmptyClass
+  : EmptyClass;
 
-// @ts-expect-error
+if (BaseClass !== EmptyClass) {
+  deprecate(
+    `The Store class extending from EmberObject is deprecated.
+Please remove usage of EmberObject APIs and mark your class as not requiring it.
+
+To mark the class as no longer extending from EmberObject, in ember-cli-build.js
+set the following config:
+
+\`\`\`js
+const app = new EmberApp(defaults, {
+  emberData: {
+    deprecations: {
+      DEPRECATE_STORE_EXTENDS_EMBER_OBJECT: false
+    }
+  }
+});
+\`\`\`
+`,
+    false,
+    {
+      id: 'ember-data:deprecate-store-extends-ember-object',
+      until: '6.0',
+      for: 'ember-data',
+      since: {
+        available: '5.4',
+        enabled: '5.4',
+      },
+    }
+  );
+}
+
 interface Store {
   createRecordDataFor?(identifier: StableRecordIdentifier, wrapper: CacheCapabilitiesManager): Cache | CacheV1;
 
@@ -129,7 +168,7 @@ interface Store {
   teardownRecord(record: OpaqueRecordInstance): void;
 }
 
-class Store extends EmberObject {
+class Store extends BaseClass {
   declare recordArrayManager: RecordArrayManager;
 
   /**
@@ -267,7 +306,7 @@ class Store extends EmberObject {
     @private
   */
   constructor(createArgs?: unknown) {
-    // @ts-expect-error ember-source types improperly expect createArgs to be `Owner`
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     super(createArgs);
     Object.assign(this, createArgs);
 
@@ -2200,7 +2239,6 @@ class Store extends EmberObject {
     return cache;
   }
 
-  // @ts-expect-error
   destroy(): void {
     if (this.isDestroyed) {
       // @ember/test-helpers will call destroy multiple times
