@@ -135,7 +135,9 @@ set the following config:
 \`\`\`js
 const app = new EmberApp(defaults, {
   emberData: {
-    DEPRECATE_STORE_EXTENDS_EMBER_OBJECT: false
+    deprecations: {
+      DEPRECATE_STORE_EXTENDS_EMBER_OBJECT: false
+    }
   }
 });
 \`\`\`
