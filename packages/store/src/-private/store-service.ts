@@ -5,6 +5,8 @@
 import { assert } from '@ember/debug';
 import EmberObject from '@ember/object';
 
+import type Model from '@ember-data/model';
+import type RelatedCollection from '@ember-data/model/-private/many-array';
 import type RequestManager from '@ember-data/request';
 import type { Future } from '@ember-data/request/-private/types';
 import { LOG_PAYLOADS, LOG_REQUESTS } from '@warp-drive/build-config/debugging';
@@ -66,10 +68,15 @@ type CompatStore = Store & {
 };
 function upgradeStore(store: Store): asserts store is CompatStore {}
 
-type AwaitedKeys<T> = { [K in keyof T]: Awaited<T[K]> };
+type UnwrapRelationshipKeys<T> = {
+  // For `AsyncHasMany`: apply `Awaited` and check if the type is a `RelatedCollection`. If so,
+  // unwrap it and convert it to a plain array of the model type. For everything else (including
+  // `AsyncBelongsTo`): apply `Awaited`.
+  [K in keyof T]: NonNullable<Awaited<T[K]>> extends RelatedCollection<infer M> ? Array<M> : Awaited<T[K]>;
+};
 
 // `AwaitedKeys` is needed here to resolve any promise types like `PromiseBelongsTo`.
-type FilteredKeys<T> = AwaitedKeys<Omit<T, typeof ResourceType | keyof EmberObject | 'constructor'>>;
+type FilteredKeys<T> = UnwrapRelationshipKeys<Omit<T, typeof ResourceType | keyof Model | 'constructor'>>;
 
 type MaybeHasId = { id?: string | null };
 /**

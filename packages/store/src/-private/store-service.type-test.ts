@@ -1,7 +1,7 @@
-import EmberObject from '@ember/object';
-
 import { expectTypeOf } from 'expect-type';
 
+import type { AsyncBelongsTo, AsyncHasMany } from '@ember-data/model';
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { ResourceType } from '@warp-drive/core-types/symbols';
 
 import type { IdentifierArray } from '../-private';
@@ -381,20 +381,29 @@ import Store from './store-service';
 //////////////////////////////////
 //////////////////////////////////
 {
-  class MockModel extends EmberObject {
-    [ResourceType] = 'user' as const;
-    asyncProp = Promise.resolve('async');
-    syncProp = 'sync';
+  class MockAuthorModel extends Model {
+    [ResourceType] = 'author' as const;
+    @attr('string')
+    declare authorName: string;
+    @hasMany<MockBookModel>('book', { inverse: 'bookAuthor', async: true })
+    declare authorBooks?: AsyncHasMany<MockBookModel>;
   }
 
-  const mock = new MockModel();
+  class MockBookModel extends Model {
+    [ResourceType] = 'book' as const;
+    @attr('string')
+    declare bookTitle: string;
+    @belongsTo<MockAuthorModel>('author', { inverse: 'authorBooks', async: true })
+    declare bookAuthor?: AsyncBelongsTo<MockAuthorModel>;
+  }
 
-  expectTypeOf(mock.asyncProp).toEqualTypeOf<Promise<string>>();
-  expectTypeOf(mock.syncProp).toEqualTypeOf<string>();
+  // has-many
+  type AuthorPropertiesResult = CreateRecordProperties<MockAuthorModel>;
 
-  const result: CreateRecordProperties<typeof mock> = {};
+  expectTypeOf<AuthorPropertiesResult>().toEqualTypeOf<{ authorName?: string; authorBooks?: Array<MockBookModel> }>();
 
-  // Only `asyncProp` and `syncProp` should be present in the type, they should be optional and
-  // any Promise types should be awaited.
-  expectTypeOf(result).toEqualTypeOf<{ asyncProp?: string; syncProp?: string }>();
+  // belongs-to
+  type BookPropertiesResult = CreateRecordProperties<MockBookModel>;
+
+  expectTypeOf<BookPropertiesResult>().toEqualTypeOf<{ bookTitle?: string; bookAuthor?: MockAuthorModel | null }>();
 }

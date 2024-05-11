@@ -2096,6 +2096,9 @@ importers:
       '@babel/runtime':
         specifier: ^7.24.4
         version: 7.24.4
+      '@ember-data/model':
+        specifier: workspace:5.4.0-alpha.62
+        version: link:../model
       '@ember-data/request':
         specifier: workspace:5.4.0-alpha.64
         version: file:packages/request(@babel/core@7.24.4)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.50)
