@@ -199,8 +199,6 @@ export function expectId(id: string | number | null): string {
   return formattedId(id);
 }
 
-
-
 /**
  * Compares two types for strict equality, converting them to
  * the format expected by the EmberData Cache to ensure
