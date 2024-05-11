@@ -2,7 +2,7 @@
   @module @ember-data/store
  */
 // this import location is deprecated but breaks in 4.8 and older
-import { assert } from '@ember/debug';
+import { assert, deprecate } from '@ember/debug';
 import type EmberObject from '@ember/object';
 
 import { dependencySatisfies, importSync, macroCondition } from '@embroider/macros';
@@ -117,12 +117,41 @@ export type CreateRecordProperties<T = MaybeHasId & Record<string, unknown>> = T
   @class Store
   @public
 */
-
+const EmptyClass = class {};
 const BaseClass = macroCondition(dependencySatisfies('ember-source', '*'))
-  ? !DEPRECATE_STORE_EXTENDS_EMBER_OBJECT
+  ? DEPRECATE_STORE_EXTENDS_EMBER_OBJECT
     ? (importSync('@ember/object') as typeof import('@ember/object')).default
-    : class {}
-  : class {};
+    : EmptyClass
+  : EmptyClass;
+
+if (BaseClass !== EmptyClass) {
+  deprecate(
+    `The Store class extending from EmberObject is deprecated.
+Please remove usage of EmberObject APIs and mark your class as not requiring it.
+
+To mark the class as no longer extending from EmberObject, in ember-cli-build.js
+set the following config:
+
+\`\`\`js
+const app = new EmberApp(defaults, {
+  emberData: {
+    DEPRECATE_STORE_EXTENDS_EMBER_OBJECT: false
+  }
+});
+\`\`\`
+`,
+    false,
+    {
+      id: 'ember-data:deprecate-store-extends-ember-object',
+      until: '6.0',
+      for: 'ember-data',
+      since: {
+        available: '5.4',
+        enabled: '5.4',
+      },
+    }
+  );
+}
 
 interface Store {
   createRecordDataFor?(identifier: StableRecordIdentifier, wrapper: CacheCapabilitiesManager): Cache | CacheV1;
