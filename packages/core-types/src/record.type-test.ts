@@ -49,7 +49,9 @@ type ReallyDeepThing = {
   [ResourceType]: 'really-deep-thing';
 };
 
-function takesSuggestTypes<T extends TypedRecordInstance, MAX_DEPTH extends 3 | 4 | 5 = 3>(types: ExtractSuggestedCacheTypes<T, MAX_DEPTH>[]) {}
+function takesSuggestTypes<T extends TypedRecordInstance, MAX_DEPTH extends 3 | 4 | 5 = 3>(
+  types: ExtractSuggestedCacheTypes<T, MAX_DEPTH>[]
+) {}
 takesSuggestTypes<MyThing>([
   'thing',
   'other-thing',
