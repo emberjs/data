@@ -54,11 +54,13 @@ type Unpacked<T> = T extends (infer U)[] ? U : T;
 type NONE = { __NONE: never };
 
 type __InternalExtract<
+  MAX_DEPTH extends _DEPTHCOUNT,
   T extends TypedRecordInstance,
   V extends TypedRecordInstance,
   IncludePrefix extends boolean,
   Ignore,
   Pre extends string,
+  DEPTH extends _DEPTHCOUNT,
 > =
   // if we extend T, we return the leaf value
   V extends T
@@ -70,22 +72,42 @@ type __InternalExtract<
       ? IncludePrefix extends false
         ? V[typeof ResourceType]
         : Pre
-      : // else add T to Ignore and recurse
-        ExtractUnion<V, IncludePrefix, Ignore | T, Pre>;
+      : // else if we are at max depth, we return never
+        IS_MAX_DEPTH<DEPTH, MAX_DEPTH> extends true
+        ? Pre
+        : // else add T to Ignore and recurse
+          ExtractUnion<MAX_DEPTH, V, IncludePrefix, Ignore | T, Pre, INC_DEPTH<DEPTH>>;
 
 type __ExtractIfRecord<
+  MAX_DEPTH extends _DEPTHCOUNT,
   T extends TypedRecordInstance,
   V,
   IncludePrefix extends boolean,
   Ignore,
   Pre extends string,
-> = V extends TypedRecordInstance ? __InternalExtract<T, V, IncludePrefix, Ignore, Pre> : never;
+  DEPTH extends _DEPTHCOUNT,
+> = V extends TypedRecordInstance ? __InternalExtract<MAX_DEPTH, T, V, IncludePrefix, Ignore, Pre, DEPTH> : never;
 
-type _ExtractUnion<T extends TypedRecordInstance, IncludePrefix extends boolean, Ignore, Pre> = {
+type _ExtractUnion<
+  MAX_DEPTH extends _DEPTHCOUNT,
+  T extends TypedRecordInstance,
+  IncludePrefix extends boolean,
+  Ignore,
+  Pre,
+  DEPTH extends _DEPTHCOUNT,
+> = {
   // for each string key in the record,
   [K in keyof T]: K extends string
     ? // we recursively extract any values that resolve to a TypedRecordInstance
-      __ExtractIfRecord<T, Unpacked<Awaited<T[K]>>, IncludePrefix, Ignore, Pre extends string ? `${Pre}.${K}` : K>
+      __ExtractIfRecord<
+        MAX_DEPTH,
+        T,
+        Unpacked<Awaited<T[K]>>,
+        IncludePrefix,
+        Ignore,
+        Pre extends string ? `${Pre}.${K}` : K,
+        DEPTH
+      >
     : never;
   // then we return any value that is not 'never'
 }[keyof T];
@@ -109,26 +131,38 @@ type _ExtractUnion<T extends TypedRecordInstance, IncludePrefix extends boolean,
  * @typedoc
  */
 type ExtractUnion<
+  MAX_DEPTH extends _DEPTHCOUNT,
   T extends TypedRecordInstance,
   IncludePrefix extends boolean = false,
   Ignore = NONE,
   Pre = NONE,
+  DEPTH extends _DEPTHCOUNT = 1,
 > = Exclude<
   IncludePrefix extends true
     ? // if we want to include prefix, we union with the prefix. Outer Exclude will filter any "NONE" types
-      _ExtractUnion<T, IncludePrefix, Ignore, Pre> | Pre
+      _ExtractUnion<MAX_DEPTH, T, IncludePrefix, Ignore, Pre, DEPTH> | Pre
     : // Else we just union the types.
-      _ExtractUnion<T, IncludePrefix, Ignore, Pre> | T[typeof ResourceType],
+      _ExtractUnion<MAX_DEPTH, T, IncludePrefix, Ignore, Pre, DEPTH> | T[typeof ResourceType],
   NONE
 >;
 
+type _DEPTHCOUNT = 1 | 2 | 3 | 4 | 5;
+type INC_DEPTH<START extends _DEPTHCOUNT> = START extends 1 ? 2 : START extends 2 ? 3 : START extends 3 ? 4 : 5;
+type IS_MAX_DEPTH<
+  DEPTH extends _DEPTHCOUNT,
+  MAX_DEPTH extends _DEPTHCOUNT = DEFAULT_MAX_DEPTH,
+> = DEPTH extends MAX_DEPTH ? true : false;
+type DEFAULT_MAX_DEPTH = 3;
 /**
  * A utility that provides the union of all ResourceName for all potential
  * includes for the given TypedRecordInstance.
  *
  * @typedoc
  */
-export type ExtractSuggestedCacheTypes<T extends TypedRecordInstance> = ExtractUnion<T>; // ToPaths<ExpandIgnore<T, true>, false>;
+export type ExtractSuggestedCacheTypes<
+  T extends TypedRecordInstance,
+  MAX_DEPTH extends _DEPTHCOUNT = DEFAULT_MAX_DEPTH,
+> = ExtractUnion<MAX_DEPTH, T>; // ToPaths<ExpandIgnore<T, true>, false>;
 
 /**
  * A utility that provides the union type of all valid include paths for the given
@@ -138,4 +172,8 @@ export type ExtractSuggestedCacheTypes<T extends TypedRecordInstance> = ExtractU
  *
  * @typedoc
  */
-export type Includes<T extends TypedRecordInstance> = ExtractUnion<T, true>; // ToPaths<ExpandIgnore<T>>;
+export type Includes<T extends TypedRecordInstance, MAX_DEPTH extends _DEPTHCOUNT = DEFAULT_MAX_DEPTH> = ExtractUnion<
+  MAX_DEPTH,
+  T,
+  true
+>; // ToPaths<ExpandIgnore<T>>;

@@ -37,10 +37,21 @@ type DeepThing = {
   relatedThing: MyThing;
   otherThing: OtherThing;
   myThing: DeepThing;
+  reallyDeepThing: ReallyDeepThing;
   [ResourceType]: 'deep-thing';
 };
 
-function takesSuggestTypes<T extends TypedRecordInstance>(types: ExtractSuggestedCacheTypes<T>[]) {}
+type ReallyDeepThing = {
+  name: string;
+  relatedThing: MyThing;
+  otherThing: OtherThing;
+  myThing: DeepThing;
+  [ResourceType]: 'really-deep-thing';
+};
+
+function takesSuggestTypes<T extends TypedRecordInstance, MAX_DEPTH extends 3 | 4 | 5 = 3>(
+  types: ExtractSuggestedCacheTypes<T, MAX_DEPTH>[]
+) {}
 takesSuggestTypes<MyThing>([
   'thing',
   'other-thing',
@@ -54,7 +65,33 @@ takesSuggestTypes<NoSelfReference>([
   'no-self-reference',
   'thing',
   'other-thing',
+  // @ts-expect-error this should fail at recursion depth 3
   'deep-thing',
+  // @ts-expect-error this should fail at recursion depth 4
+  'really-deep-thing',
+  // @ts-expect-error not a valid type
+  'not-a-thing',
+]);
+
+takesSuggestTypes<NoSelfReference, 4>([
+  // we should include our own type even when not self-referential
+  'no-self-reference',
+  'thing',
+  'other-thing',
+  'deep-thing',
+  // @ts-expect-error this should fail at recursion depth 4
+  'really-deep-thing',
+  // @ts-expect-error not a valid type
+  'not-a-thing',
+]);
+
+takesSuggestTypes<NoSelfReference, 5>([
+  // we should include our own type even when not self-referential
+  'no-self-reference',
+  'thing',
+  'other-thing',
+  'deep-thing',
+  'really-deep-thing',
   // @ts-expect-error not a valid type
   'not-a-thing',
 ]);
@@ -93,6 +130,9 @@ takesIncludes<MyThing>([
   'otherThings.deep.relatedThing.relatedThing',
   'otherThings.deep.otherThing',
   'otherThings.deep.myThing',
+  'otherThing.deep.reallyDeepThing',
+  // @ts-expect-error should not include this since depth is capped at 3
+  'otherThing.deep.reallyDeepThing.relatedThing',
 ]);
 
 takesIncludes<NoRelations>([
