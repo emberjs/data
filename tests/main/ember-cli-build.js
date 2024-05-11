@@ -56,6 +56,8 @@ module.exports = function (defaults) {
     features: require('@ember-data/private-build-infra/src/features')(isProd),
     env: require('@ember-data/private-build-infra/src/utilities/get-env')(),
   };
+  config.deprecations.DEPRECATE_STORE_EXTENDS_EMBER_OBJECT = false;
+
   const app = new EmberApp(defaults, {
     emberData: Object.assign({}, config),
     babel: {
