@@ -13,8 +13,7 @@
     "codemods": "codemods"
   },
   "scripts": {
-    "build:pkg": "bun build bin/codemods.ts --compile --target node --outfile codemods --sourcemap",
-    "prepack": "bun run build:pkg",
+    "build:cli": "bun build bin/codemods.ts --compile --target node --outfile codemods --sourcemap",
     "lint": "eslint . --quiet --cache --cache-strategy=content --report-unused-disable-directives",
     "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
