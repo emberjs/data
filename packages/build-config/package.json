@@ -32,6 +32,9 @@
       "types": "./unstable-preview-types/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./*.cjs": {
+      "default": "./dist/*.cjs"
+    },
     "./*": {
       "types": "./unstable-preview-types/*.d.ts",
       "default": "./dist/*.js"
