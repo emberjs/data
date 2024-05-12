@@ -34,6 +34,7 @@ export const FixModuleOutputPlugin = {
     child_process.spawnSync('pnpm', args, {
       stdio: 'inherit',
       cwd: import.meta.dirname,
+      env: { ...process.env, ADDON_LOCATION: process.cwd() },
     });
     DEBUG && console.log(`\t⚠️ Fixes ${files.length} files to import/export from .js instead of .mjs`);
 

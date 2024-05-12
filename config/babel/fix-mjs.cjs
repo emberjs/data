@@ -1,8 +1,8 @@
 module.exports = function () {
-  const pkg = require(process.cwd() + '/package.json');
+  const addonLocation = process.env.ADDON_LOCATION;
+  const pkgPath = addonLocation + '/package.json';
+  const pkg = require(pkgPath);
   const isV1Addon = !pkg['ember-addon'] || pkg['ember-addon'].version === 1;
-
-  console.log('isV1Addon', isV1Addon);
 
   function replaceExt(node) {
     if (node.value.endsWith('.mjs')) {
