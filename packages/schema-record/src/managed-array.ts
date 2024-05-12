@@ -1,21 +1,16 @@
-import { assert } from '@ember/debug';
-
 import type Store from '@ember-data/store';
-import type { OpaqueRecordInstance } from '@ember-data/store/-types/q/record-instance';
-import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 import type { Signal } from '@ember-data/tracking/-private';
 import { addToTransaction, createSignal, subscribe } from '@ember-data/tracking/-private';
+import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { ArrayValue, Value } from '@warp-drive/core-types/json/raw';
+import type { OpaqueRecordInstance } from '@warp-drive/core-types/record';
+import type { ArrayField } from '@warp-drive/core-types/schema/fields';
 
 import type { SchemaRecord } from './record';
 import type { SchemaService } from './schema';
-
-export const SOURCE = Symbol('#source');
-export const MUTATE = Symbol('#update');
-export const ARRAY_SIGNAL = Symbol('#signal');
-export const NOTIFY = Symbol('#notify');
+import { ARRAY_SIGNAL, MUTATE, SOURCE } from './symbols';
 
 export function notifyArray(arr: ManagedArray) {
   addToTransaction(arr[ARRAY_SIGNAL]);
@@ -119,7 +114,7 @@ export class ManagedArray {
     store: Store,
     schema: SchemaService,
     cache: Cache,
-    field: FieldSchema,
+    field: ArrayField,
     data: unknown[],
     address: StableRecordIdentifier,
     key: string,
@@ -167,7 +162,7 @@ export class ManagedArray {
           if (!transaction) {
             subscribe(_SIGNAL);
           }
-          if (field.type !== null) {
+          if (field.type) {
             const transform = schema.transforms.get(field.type);
             if (!transform) {
               throw new Error(`No '${field.type}' transform defined for use by ${address.type}.${String(prop)}`);
@@ -226,7 +221,7 @@ export class ManagedArray {
         const reflect = Reflect.set(target, prop, value, receiver);
 
         if (reflect) {
-          if (field.type === null) {
+          if (!field.type) {
             cache.setAttr(self.address, self.key, self[SOURCE] as Value);
             _SIGNAL.shouldReset = true;
             return true;

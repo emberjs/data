@@ -12,7 +12,7 @@
   "homepage": "https://github.com/emberjs/data",
   "bugs": "https://github.com/emberjs/data/issues",
   "engines": {
-    "node": ">= 18.20.2"
+    "node": ">= 22.1.0"
   },
   "keywords": [
     "http-mock"
@@ -21,16 +21,18 @@
     "extends": "../../package.json"
   },
   "dependencies": {
-    "@hono/node-server": "^1.10.0",
+    "@hono/node-server": "^1.11.0",
     "chalk": "^5.3.0",
-    "hono": "^4.2.4"
+    "hono": "^4.2.5"
   },
+  "type": "module",
   "files": [
     "bin",
     "dist",
     "README.md",
     "LICENSE.md",
     "server",
+    "unstable-preview-types",
     "NCC-1701-a.svg",
     "NCC-1701-a-blue.svg"
   ],
@@ -38,53 +40,45 @@
     "ensure-cert": "./server/ensure-cert.js"
   },
   "scripts": {
-    "build:types": "tsc --build --force",
-    "build:client": "rollup --config",
-    "_build": "bun run build:client && bun run build:types",
-    "start": "rollup --config --watch",
-    "prepack": "bun run _build",
-    "_syncPnpm": "bun run sync-dependencies-meta-injected"
+    "check:pkg-types": "tsc --noEmit",
+    "build:pkg": "vite build;",
+    "prepack": "bun run build:pkg",
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
   "peerDependencies": {
     "@ember-data/request": "workspace:5.4.0-alpha.64",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.50"
   },
   "devDependencies": {
-    "@babel/cli": "^7.24.1",
     "@babel/core": "^7.24.4",
     "@babel/plugin-transform-typescript": "^7.24.4",
     "@babel/preset-env": "^7.24.4",
     "@babel/preset-typescript": "^7.24.1",
     "@babel/runtime": "^7.24.4",
     "@ember-data/request": "workspace:5.4.0-alpha.64",
-    "@embroider/addon-dev": "^4.3.1",
-    "@rollup/plugin-babel": "^6.0.4",
-    "@rollup/plugin-node-resolve": "^15.2.3",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.50",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.64",
-    "rollup": "^4.14.3",
+    "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "typescript": "^5.4.5",
-    "walk-sync": "^3.0.0",
-    "pnpm-sync-dependencies-meta-injected": "0.0.10"
+    "vite": "^5.2.11"
   },
-  "type": "module",
   "exports": {
     ".": {
       "node": "./server/index.js",
       "bun": "./server/index.js",
       "deno": "./server/index.js",
       "browser": {
-        "types": "./dist/index.d.ts",
+        "types": "./unstable-preview-types/index.d.ts",
         "default": "./dist/index.js"
       },
       "import": {
-        "types": "./dist/index.d.ts",
+        "types": "./unstable-preview-types/index.d.ts",
         "default": "./dist/index.js"
       },
       "default": "./server/index.js"
     },
     "./mock": {
-      "types": "./dist/mock.d.ts",
+      "types": "./unstable-preview-types/mock.d.ts",
       "default": "./dist/mock.js"
     }
   },

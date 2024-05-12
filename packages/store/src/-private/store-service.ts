@@ -2,16 +2,18 @@
   @module @ember-data/store
  */
 // this import location is deprecated but breaks in 4.8 and older
-import { assert, deprecate } from '@ember/debug';
+import { deprecate } from '@ember/debug';
 import type EmberObject from '@ember/object';
 
 import { dependencySatisfies, importSync, macroCondition } from '@embroider/macros';
 
 import type RequestManager from '@ember-data/request';
-import type { Future } from '@ember-data/request/-private/types';
+import type { Future } from '@ember-data/request';
 import { LOG_PAYLOADS, LOG_REQUESTS } from '@warp-drive/build-config/debugging';
 import { DEPRECATE_STORE_EXTENDS_EMBER_OBJECT } from '@warp-drive/build-config/deprecations';
 import { DEBUG, TESTING } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
+import type { Cache } from '@warp-drive/core-types/cache';
 import type { Graph } from '@warp-drive/core-types/graph';
 import type {
   StableDocumentIdentifier,
@@ -27,11 +29,10 @@ import type {
   JsonApiDocument,
   ResourceIdentifierObject,
   SingleResourceDocument,
-} from '@warp-drive/core-types/spec/raw';
+} from '@warp-drive/core-types/spec/json-api-raw';
 import type { ResourceType } from '@warp-drive/core-types/symbols';
 
-import type { Cache, CacheV1 } from '../-types/q/cache';
-import type { CacheCapabilitiesManager } from '../-types/q/cache-store-wrapper';
+import type { CacheCapabilitiesManager } from '../-types/q/cache-capabilities-manager';
 import type { ModelSchema } from '../-types/q/ds-model';
 import type { OpaqueRecordInstance } from '../-types/q/record-instance';
 import type { SchemaService } from '../-types/q/schema-service';
@@ -51,13 +52,12 @@ import type RecordReference from './legacy-model-support/record-reference';
 import { getShimClass } from './legacy-model-support/shim-model-class';
 import { CacheManager } from './managers/cache-manager';
 import NotificationManager from './managers/notification-manager';
-import RecordArrayManager from './managers/record-array-manager';
-import RequestStateService, { RequestPromise } from './network/request-cache';
-import type { Collection } from './record-arrays/identifier-array';
-import type IdentifierArray from './record-arrays/identifier-array';
-import coerceId, { ensureStringId } from './utils/coerce-id';
-import constructResource from './utils/construct-resource';
-import normalizeModelName from './utils/normalize-model-name';
+import { RecordArrayManager } from './managers/record-array-manager';
+import { RequestPromise, RequestStateService } from './network/request-cache';
+import type { Collection, IdentifierArray } from './record-arrays/identifier-array';
+import { coerceId, ensureStringId } from './utils/coerce-id';
+import { constructResource } from './utils/construct-resource';
+import { normalizeModelName } from './utils/normalize-model-name';
 
 export { storeFor };
 
@@ -155,9 +155,7 @@ const app = new EmberApp(defaults, {
   );
 }
 
-interface Store {
-  createRecordDataFor?(identifier: StableRecordIdentifier, wrapper: CacheCapabilitiesManager): Cache | CacheV1;
-
+export interface Store {
   createCache(storeWrapper: CacheCapabilitiesManager): Cache;
 
   instantiateRecord(
@@ -168,7 +166,7 @@ interface Store {
   teardownRecord(record: OpaqueRecordInstance): void;
 }
 
-class Store extends BaseClass {
+export class Store extends BaseClass {
   declare recordArrayManager: RecordArrayManager;
 
   /**
@@ -221,7 +219,7 @@ class Store extends BaseClass {
    * ```ts
    * import Store, { CacheHandler } from '@ember-data/store';
    * import RequestManager from '@ember-data/request';
-   * import Fetch from '@ember/data/request/fetch';
+   * import Fetch from '@ember-data/request/fetch';
    *
    * class extends Store {
    *   constructor() {
@@ -500,7 +498,8 @@ class Store extends BaseClass {
       );
     }
 
-    const future = this.requestManager.request<RT>(Object.assign(requestConfig, opts));
+    const request = Object.assign({}, requestConfig, opts);
+    const future = this.requestManager.request(request);
 
     future.onFinalize(() => {
       if (LOG_REQUESTS) {
@@ -879,8 +878,6 @@ class Store extends BaseClass {
     **Example 1**
 
     ```app/routes/post.js
-    import Route from '@ember/routing/route';
-
     export default class PostRoute extends Route {
       model({ post_id }) {
         return this.store.findRecord('post', post_id);
@@ -895,8 +892,6 @@ class Store extends BaseClass {
     the typical pairing from [JSON:API](https://jsonapi.org/format/#document-resource-object-identification)
 
     ```app/routes/post.js
-    import Route from '@ember/routing/route';
-
     export default class PostRoute extends Route {
       model({ post_id: id }) {
         return this.store.findRecord({ type: 'post', id });
@@ -928,8 +923,6 @@ class Store extends BaseClass {
     without also fetching the post you can pass in the post to the `findRecord` call:
 
     ```app/routes/post-comments.js
-    import Route from '@ember/routing/route';
-
     export default class PostRoute extends Route {
       model({ post_id, comment_id: id }) {
         return this.store.findRecord({ type: 'comment', id, { preload: { post: post_id }} });
@@ -964,8 +957,6 @@ class Store extends BaseClass {
     property on the options hash.
 
     ```app/routes/post-comments.js
-    import Route from '@ember/routing/route';
-
     export default class PostRoute extends Route {
       model({ post_id, comment_id: id }) {
         return this.store.findRecord({ type: 'comment', id, { adapterOptions: { post: post_id }} });
@@ -1084,8 +1075,6 @@ class Store extends BaseClass {
     `findRecord`.
 
     ```app/routes/post/edit.js
-    import Route from '@ember/routing/route';
-
     export default class PostEditRoute extends Route {
       model(params) {
         return this.store.findRecord('post', params.post_id, { backgroundReload: false });
@@ -1097,8 +1086,6 @@ class Store extends BaseClass {
     argument it will be passed to your adapter via the snapshot
 
     ```app/routes/post/edit.js
-    import Route from '@ember/routing/route';
-
     export default class PostEditRoute extends Route {
       model(params) {
         return this.store.findRecord('post', params.post_id, {
@@ -1138,8 +1125,6 @@ class Store extends BaseClass {
     comments in the same request:
 
     ```app/routes/post.js
-    import Route from '@ember/routing/route';
-
     export default class PostRoute extends Route {
       model(params) {
         return this.store.findRecord('post', params.post_id, { include: 'comments' });
@@ -1175,8 +1160,6 @@ class Store extends BaseClass {
     comments and the authors of those comments the request would look like this:
 
     ```app/routes/post.js
-    import Route from '@ember/routing/route';
-
     export default class PostRoute extends Route {
       model(params) {
         return this.store.findRecord('post', params.post_id, { include: 'comments,comments.author' });
@@ -1210,24 +1193,22 @@ class Store extends BaseClass {
     Given a `post` model with attributes body, title, publishDate and meta, you can retrieve a filtered list of attributes.
 
     ```app/routes/post.js
-    import Route from '@ember/routing/route';
-    export default Route.extend({
+    export default class extends Route {
       model(params) {
         return this.store.findRecord('post', params.post_id, { adapterOptions: { fields: { post: 'body,title' } });
       }
-    });
+    }
     ```
 
     Moreover, you can filter attributes on related models as well. If a `post` has a `belongsTo` relationship to a user,
     just include the relationship key and attributes.
 
     ```app/routes/post.js
-    import Route from '@ember/routing/route';
-    export default Route.extend({
+    export default class extends Route {
       model(params) {
         return this.store.findRecord('post', params.post_id, { adapterOptions: { fields: { post: 'body,title', user: 'name,email' } });
       }
-    });
+    }
     ```
 
     @since 1.13.0
@@ -1288,7 +1269,7 @@ class Store extends BaseClass {
         record: identifier,
         options,
       },
-      cacheOptions: { [SkipCache as symbol]: true },
+      cacheOptions: { [SkipCache]: true },
     });
 
     return promise.then((document) => {
@@ -1512,7 +1493,7 @@ class Store extends BaseClass {
         query,
         options: options,
       },
-      cacheOptions: { [SkipCache as symbol]: true },
+      cacheOptions: { [SkipCache]: true },
     });
 
     return promise.then((document) => document.content);
@@ -1640,7 +1621,7 @@ class Store extends BaseClass {
         query,
         options: options || {},
       },
-      cacheOptions: { [SkipCache as symbol]: true },
+      cacheOptions: { [SkipCache]: true },
     });
 
     return promise.then((document) => document.content);
@@ -1653,8 +1634,6 @@ class Store extends BaseClass {
     of them.
 
     ```app/routes/authors.js
-    import Route from '@ember/routing/route';
-
     export default class AuthorsRoute extends Route {
       model(params) {
         return this.store.findAll('author');
@@ -1747,8 +1726,6 @@ class Store extends BaseClass {
     `findAll`.
 
     ```app/routes/post/edit.js
-    import Route from '@ember/routing/route';
-
     export default class PostEditRoute extends Route {
       model() {
         return this.store.findAll('post', { backgroundReload: false });
@@ -1760,8 +1737,6 @@ class Store extends BaseClass {
     argument it will be passed to you adapter via the `snapshotRecordArray`
 
     ```app/routes/posts.js
-    import Route from '@ember/routing/route';
-
     export default class PostsRoute extends Route {
       model(params) {
         return this.store.findAll('post', {
@@ -1802,8 +1777,6 @@ class Store extends BaseClass {
     all of the posts' comments in the same request:
 
     ```app/routes/posts.js
-    import Route from '@ember/routing/route';
-
     export default class PostsRoute extends Route {
       model() {
         return this.store.findAll('post', { include: 'comments' });
@@ -1816,8 +1789,6 @@ class Store extends BaseClass {
     comments and the authors of those comments the request would look like this:
 
     ```app/routes/posts.js
-    import Route from '@ember/routing/route';
-
     export default class PostsRoute extends Route {
       model() {
         return this.store.findAll('post', { include: 'comments,comments.author' });
@@ -1852,7 +1823,7 @@ class Store extends BaseClass {
         type: normalizeModelName(type),
         options: options || {},
       },
-      cacheOptions: { [SkipCache as symbol]: true },
+      cacheOptions: { [SkipCache]: true },
     });
 
     return promise.then((document) => document.content);
@@ -2202,7 +2173,7 @@ class Store extends BaseClass {
         record: identifier,
       },
       records: [identifier],
-      cacheOptions: { [SkipCache as symbol]: true },
+      cacheOptions: { [SkipCache]: true },
     };
 
     return this.request<T>(request).then((document) => document.content);
@@ -2228,7 +2199,7 @@ class Store extends BaseClass {
    * @property {Cache} cache
    * @public
    */
-  get cache(): Cache {
+  get cache(): ReturnType<this['createCache']> {
     let { cache } = this._instanceCache;
     if (!cache) {
       cache = this._instanceCache.cache = this.createCache(this._instanceCache._storeWrapper);
@@ -2236,7 +2207,8 @@ class Store extends BaseClass {
         cache = new CacheManager(cache);
       }
     }
-    return cache;
+
+    return cache as ReturnType<this['createCache']>;
   }
 
   destroy(): void {
@@ -2261,8 +2233,6 @@ class Store extends BaseClass {
     return new this(args);
   }
 }
-
-export default Store;
 
 let assertDestroyingStore: (store: Store, method: string) => void;
 let assertDestroyedStoreOnly: (store: Store, method: string) => void;

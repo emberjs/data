@@ -5,14 +5,15 @@
   @module @ember-data/adapter/rest
 */
 import { getOwner } from '@ember/application';
-import { assert, warn } from '@ember/debug';
+import { warn } from '@ember/debug';
 import { computed } from '@ember/object';
 
+import type { AdapterPayload } from '@ember-data/legacy-compat';
 import type { Snapshot, SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
-import type { AdapterPayload } from '@ember-data/legacy-compat/legacy-network-handler/minimum-adapter-interface';
 import type Store from '@ember-data/store';
-import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
+import type { ModelSchema } from '@ember-data/store/types';
 import { DEBUG } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
 import type { HTTPMethod } from '@warp-drive/core-types/request';
 
 import { determineBodyPromise, fetch, parseResponseHeaders, serializeIntoHash, serializeQueryParams } from './-private';
@@ -270,59 +271,19 @@ declare const jQuery: JQueryStatic | undefined;
 
   Some APIs require HTTP headers, e.g. to provide an API key. Arbitrary
   headers can be set as key/value pairs on the `RESTAdapter`'s `headers`
-  object and Ember Data will send them along with each ajax request.
+  object and EmberData will send them along with each ajax request.
 
 
   ```app/adapters/application.js
   import RESTAdapter from '@ember-data/adapter/rest';
-  import { computed } from '@ember/object';
 
   export default class ApplicationAdapter extends RESTAdapter {
-    headers: computed(function() {
+    get headers() {
       return {
         'API_KEY': 'secret key',
         'ANOTHER_HEADER': 'Some header value'
       };
     }
-  }
-  ```
-
-  `headers` can also be used as a computed property to support dynamic
-  headers. In the example below, the `session` object has been
-  injected into an adapter by Ember's container.
-
-  ```app/adapters/application.js
-  import RESTAdapter from '@ember-data/adapter/rest';
-  import { computed } from '@ember/object';
-
-  export default class ApplicationAdapter extends RESTAdapter {
-    headers: computed('session.authToken', function() {
-      return {
-        'API_KEY': this.session.authToken,
-        'ANOTHER_HEADER': 'Some header value'
-      };
-    })
-  }
-  ```
-
-  In some cases, your dynamic headers may require data from some
-  object outside of Ember's observer system (for example
-  `document.cookie`). You can use the
-  [volatile](/api/classes/Ember.ComputedProperty.html?anchor=volatile)
-  function to set the property into a non-cached mode causing the headers to
-  be recomputed with every request.
-
-  ```app/adapters/application.js
-  import RESTAdapter from '@ember-data/adapter/rest';
-  import { computed } from '@ember/object';
-
-  export default class ApplicationAdapter extends RESTAdapter {
-    headers: computed(function() {
-      return {
-        'API_KEY': document.cookie.match(/apiKey\=([^;]*)/)['1'],
-        'ANOTHER_HEADER': 'Some header value'
-      };
-    }).volatile()
   }
   ```
 
@@ -530,15 +491,14 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
 
     ```app/adapters/application.js
     import RESTAdapter from '@ember-data/adapter/rest';
-    import { computed } from '@ember/object';
 
     export default class ApplicationAdapter extends RESTAdapter {
-      headers: computed(function() {
+      get headers() {
         return {
           'API_KEY': 'secret key',
           'ANOTHER_HEADER': 'Some header value'
         };
-      })
+      }
     }
     ```
 
@@ -996,7 +956,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     headers: Record<string, string>,
     payload: Payload,
     requestData: RequestData
-  ): Payload | AdapterError {
+  ): Payload | typeof AdapterError {
     if (this.isSuccess(status, headers, payload)) {
       return payload;
     } else if (this.isInvalid(status, headers, payload)) {
@@ -1021,7 +981,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
         }
     }
 
-    return new AdapterError(errors, detailedMessage);
+    return new AdapterError(errors, detailedMessage) as unknown as typeof AdapterError;
   }
 
   /**

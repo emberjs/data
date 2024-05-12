@@ -17,11 +17,11 @@
   "scripts": {
     "build:tests": "IS_TESTING=true EMBER_CLI_TEST_COMMAND=true ember build --output-path=dist-test --suppress-sizes",
     "_build:production": "pnpm build:tests -e production",
-    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
+    "lint": "eslint . --quiet --cache --cache-strategy=content --report-unused-disable-directives",
     "check:types": "tsc --noEmit",
     "test": "bun ./diagnostic.js",
     "_test:production": "bun ./diagnostic.js",
-    "_syncPnpm": "bun run sync-dependencies-meta-injected"
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
   "dependenciesMeta": {
     "@ember-data/debug": {
@@ -63,10 +63,16 @@
     "@warp-drive/core-types": {
       "injected": true
     },
+    "@warp-rive/build-config": {
+      "injected": true
+    },
     "@ember/string": {
       "injected": true
     },
     "ember-inflector": {
+      "injected": true
+    },
+    "@warp-drive/build-config": {
       "injected": true
     }
   },
@@ -87,10 +93,12 @@
     "@ember/optional-features": "^2.1.0",
     "@ember/string": "3.1.1",
     "@ember/test-helpers": "^3.3.0",
+    "@ember/test-waiters": "^3.1.0",
     "@embroider/addon-shim": "^1.8.7",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.50",
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.1",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.64",
     "@warp-drive/diagnostic": "workspace:0.0.0-alpha.50",
     "ember-auto-import": "^2.7.2",
@@ -111,7 +119,7 @@
     "webpack": "^5.91.0"
   },
   "engines": {
-    "node": ">= 18.20.2"
+    "node": ">= 22.1.0"
   },
   "ember": {
     "edition": "octane"

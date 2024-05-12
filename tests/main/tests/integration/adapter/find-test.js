@@ -177,7 +177,7 @@ module('integration/adapter - Finding Records', function (hooks) {
       assert.ok(false, 'We expected to throw but did not');
     } catch (e) {
       const expectedMessageRegex =
-        "Assertion Failed: You made a 'findRecord' request for a 'person' with id 'the-id', but the adapter's response did not have any data";
+        "You made a 'findRecord' request for a 'person' with id 'the-id', but the adapter's response did not have any data";
 
       assert.strictEqual(expectedMessageRegex, e.message, 'error has the correct error message');
     }
@@ -206,7 +206,7 @@ module('integration/adapter - Finding Records', function (hooks) {
       await Promise.all(promises);
     } catch (e) {
       const expectedMessageRegex =
-        "Assertion Failed: You made a 'findMany' request for 'person' records with ids '[1,2]', but the adapter's response did not have any data";
+        "You made a 'findMany' request for 'person' records with ids '[1,2]', but the adapter's response did not have any data";
 
       assert.strictEqual(expectedMessageRegex, e.message, 'error has the correct error message');
     }

@@ -25,7 +25,7 @@ import { TransformName } from '@warp-drive/core-types/symbols';
   @public
  */
 
-export default class DateTransform {
+export class DateTransform {
   deserialize(serialized: string | number | null, _options?: Record<string, unknown>) {
     if (typeof serialized === 'string') {
       let offset = serialized.indexOf('+');

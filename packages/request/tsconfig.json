@@ -7,14 +7,13 @@
     "skipLibCheck": true,
     "declarationDir": "unstable-preview-types",
     "emitDeclarationOnly": true,
-    "noEmit": false,
     "allowJs": false,
     "checkJs": false,
     "alwaysStrict": true,
     "strict": true,
+    "pretty": true,
     "exactOptionalPropertyTypes": false,
     "allowSyntheticDefaultImports": true,
-
     "noImplicitAny": true,
     "noImplicitThis": true,
     "strictBindCallApply": true,
@@ -27,24 +26,27 @@
     "noErrorTruncation": true,
     "preserveConstEnums": false,
     "experimentalDecorators": true,
-    "pretty": true,
-
-    // Enable faster builds
-    // but causes us to not rebuild properly
     "composite": true,
     "incremental": true,
     "rootDir": "src",
-
     "declaration": true,
     "declarationMap": true,
     "inlineSourceMap": true,
     "inlineSources": true,
-
-    "baseUrl": "src",
-
+    "baseUrl": ".",
     "paths": {
-      "@warp-drive/build-config/env": ["../../private-build-infra/virtual-packages/env.d.ts"]
+      "@warp-drive/core-types": ["../core-types/unstable-preview-types"],
+      "@warp-drive/core-types/*": ["../core-types/unstable-preview-types/*"],
+      "@warp-drive/build-config": ["../build-config/unstable-preview-types"],
+      "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"]
     }
   },
-  "references": [{ "path": "../core-types" }]
+  "references": [
+    {
+      "path": "../core-types"
+    },
+    {
+      "path": "../build-config"
+    }
+  ]
 }

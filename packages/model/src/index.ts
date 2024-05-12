@@ -40,7 +40,7 @@
 export { Model as default, attr, belongsTo, hasMany } from './-private';
 
 export type { PromiseBelongsTo as AsyncBelongsTo } from './-private/promise-belongs-to';
-export type { default as AsyncHasMany } from './-private/promise-many-array';
-export type { default as ManyArray } from './-private/many-array';
+export type { PromiseManyArray as AsyncHasMany } from './-private/promise-many-array';
+export type { RelatedCollection as ManyArray } from './-private/many-array';
 export { instantiateRecord, teardownRecord, modelFor } from './-private/hooks';
 export { ModelSchemaProvider } from './-private/schema-provider';

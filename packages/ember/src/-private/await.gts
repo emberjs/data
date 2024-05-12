@@ -1,6 +1,8 @@
 import Component from '@glimmer/component';
+
+import type { Awaitable } from '@ember-data/request';
+
 import { getPromiseState } from './promise-state.ts';
-import { Awaitable } from '@ember-data/request';
 
 export const and = (x: unknown, y: unknown) => Boolean(x && y);
 interface ThrowSignature<E = Error | string | object> {
@@ -12,6 +14,9 @@ interface ThrowSignature<E = Error | string | object> {
 export class Throw<T> extends Component<ThrowSignature<T>> {
   constructor(owner: unknown, args: ThrowSignature<T>['Args']) {
     super(owner, args);
+    // this error is opaque (user supplied) so we don't validate it
+    // as an Error instance.
+    // eslint-disable-next-line @typescript-eslint/no-throw-literal
     throw this.args.error;
   }
   <template></template>

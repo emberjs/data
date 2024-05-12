@@ -1,6 +1,6 @@
 import type { CollectionRelationship, ResourceRelationship } from './cache/relationship';
 import type { StableRecordIdentifier } from './identifier';
-import type { CollectionResourceRelationship, SingleResourceRelationship } from './spec/raw';
+import type { CollectionResourceRelationship, SingleResourceRelationship } from './spec/json-api-raw';
 
 export interface Graph {
   identifiers: Map<StableRecordIdentifier, unknown>;

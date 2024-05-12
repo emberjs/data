@@ -1,6 +1,6 @@
 import { deprecate } from '@ember/debug';
 
-export { BooleanTransform as default } from '@ember-data/serializer/-private';
+export { BooleanTransform as default } from '@ember-data/serializer/transform';
 
 deprecate(
   "You are relying on ember-data auto-magically installing the BooleanTransform. Use `export { BooleanTransform as default } from '@ember-data/serializer/transform';` in app/transforms/boolean.js instead",

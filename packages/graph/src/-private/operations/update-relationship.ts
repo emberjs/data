@@ -1,13 +1,19 @@
-import { assert, warn } from '@ember/debug';
+import { warn } from '@ember/debug';
 
-import type { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
+import type Store from '@ember-data/store';
+import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { UpdateRelationshipOperation } from '@warp-drive/core-types/graph';
-import type { ExistingResourceIdentifierObject, NewResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
+import type {
+  ExistingResourceIdentifierObject,
+  NewResourceIdentifierObject,
+} from '@warp-drive/core-types/spec/json-api-raw';
 
 import { isBelongsTo, isHasMany, notifyChange } from '../-utils';
 import type { Graph } from '../graph';
 import _normalizeLink from '../normalize-link';
+
+type IdentifierCache = Store['identifierCache'];
 
 /*
     Updates the "canonical" or "remote" state of a relationship, replacing any existing

@@ -1,15 +1,15 @@
 /**
   @module @ember-data/adapter/json-api
  */
-import { assert } from '@ember/debug';
 import { dasherize } from '@ember/string';
 
 import { pluralize } from 'ember-inflector';
 
+import type { AdapterPayload } from '@ember-data/legacy-compat';
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
-import type { AdapterPayload } from '@ember-data/legacy-compat/legacy-network-handler/minimum-adapter-interface';
 import type Store from '@ember-data/store';
-import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
+import type { ModelSchema } from '@ember-data/store/types';
+import { assert } from '@warp-drive/build-config/macros';
 import type { HTTPMethod } from '@warp-drive/core-types/request';
 
 import { serializeIntoHash } from './-private';

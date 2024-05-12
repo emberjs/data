@@ -9,12 +9,11 @@ import { InvalidError } from '@ember-data/adapter/error';
 import Model, { attr } from '@ember-data/model';
 import type { StructuredDataDocument, StructuredDocument } from '@ember-data/request';
 import { recordIdentifierFor } from '@ember-data/store';
-import type { Cache, MergeOperation } from '@ember-data/store/-types/q/cache';
-import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import type { JsonApiError, JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
-import type { ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core-types/cache';
+import type { CacheCapabilitiesManager } from '@ember-data/store/types';
+import type { Cache, ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core-types/cache';
 import type { ResourceBlob } from '@warp-drive/core-types/cache/aliases';
 import type { Change } from '@warp-drive/core-types/cache/change';
+import type { MergeOperation } from '@warp-drive/core-types/cache/operations';
 import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
 import type {
@@ -30,18 +29,20 @@ import type {
   ResourceMetaDocument,
   SingleResourceDataDocument,
 } from '@warp-drive/core-types/spec/document';
+import type { ApiError } from '@warp-drive/core-types/spec/error';
 import type {
   CollectionResourceDocument,
+  ExistingResourceObject,
   JsonApiDocument,
   SingleResourceDocument,
-} from '@warp-drive/core-types/spec/raw';
+} from '@warp-drive/core-types/spec/json-api-raw';
 
 class Person extends Model {
   @attr declare firstName: string;
   @attr declare lastName: string;
 }
 
-class TestRecordData implements Cache {
+class TestCache implements Cache {
   wrapper: CacheCapabilitiesManager;
   _data: Map<StableRecordIdentifier, object> = new Map();
   constructor(wrapper: CacheCapabilitiesManager) {
@@ -67,7 +68,7 @@ class TestRecordData implements Cache {
   put(doc: StructuredDocument<JsonApiDocument>): ResourceDocument {
     if ('content' in doc && !('error' in doc)) {
       const identifier = this.wrapper.identifierCache.getOrCreateRecordIdentifier(doc.content.data as RecordIdentifier);
-      this.upsert(identifier, doc.content.data as JsonApiResource, this.wrapper.hasRecord(identifier));
+      this.upsert(identifier, doc.content.data as ExistingResourceObject, this.wrapper.hasRecord(identifier));
       return { data: identifier } as SingleResourceDataDocument;
     } else if ('error' in doc) {
       throw typeof doc.error === 'string' ? new Error(doc.error) : (doc.error as Error);
@@ -104,12 +105,12 @@ class TestRecordData implements Cache {
   }
   version = '2' as const;
 
-  _errors?: JsonApiError[];
+  _errors?: ApiError[];
   _isNew = false;
 
   upsert(
     identifier: StableRecordIdentifier,
-    data: JsonApiResource,
+    data: ExistingResourceObject,
     calculateChanges?: boolean | undefined
   ): void | string[] {
     if (!this._data.has(identifier)) {
@@ -133,7 +134,7 @@ class TestRecordData implements Cache {
   ): SingleResourceDataDocument {
     return { data: identifier as StableExistingRecordIdentifier };
   }
-  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[] | undefined): void {
+  commitWasRejected(identifier: StableRecordIdentifier, errors?: ApiError[] | undefined): void {
     this._errors = errors;
   }
   unloadRecord(identifier: StableRecordIdentifier): void {}
@@ -173,7 +174,7 @@ class TestRecordData implements Cache {
     throw new Error('Method not implemented.');
   }
 
-  getErrors(identifier: StableRecordIdentifier): JsonApiError[] {
+  getErrors(identifier: StableRecordIdentifier): ApiError[] {
     return this._errors || [];
   }
   isEmpty(identifier: StableRecordIdentifier): boolean {
@@ -198,8 +199,8 @@ module('integration/record-data Custom RecordData (v2) Errors', function (hooks)
 
     const { owner } = this;
 
-    class LifecycleRecordData extends TestRecordData {
-      override commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[]) {
+    class LifecycleRecordData extends TestCache {
+      override commitWasRejected(identifier: StableRecordIdentifier, errors?: ApiError[]) {
         super.commitWasRejected(identifier, errors);
         assert.strictEqual(errors?.[0]?.detail, 'is a generally unsavoury character', 'received the error');
         assert.strictEqual(errors?.[0]?.source?.pointer, '/data/attributes/name', 'pointer is correct');
@@ -260,8 +261,8 @@ module('integration/record-data Custom RecordData (v2) Errors', function (hooks)
 
     const { owner } = this;
 
-    class LifecycleRecordData extends TestRecordData {
-      override commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[]) {
+    class LifecycleRecordData extends TestCache {
+      override commitWasRejected(identifier: StableRecordIdentifier, errors?: ApiError[]) {
         super.commitWasRejected(identifier, errors);
         assert.strictEqual(errors, undefined, 'Did not pass adapter errors');
       }
@@ -307,11 +308,11 @@ module('integration/record-data Custom RecordData (v2) Errors', function (hooks)
 
   test('RecordData Invalid Errors Can Be Reflected On The Record', function (assert) {
     const { owner } = this;
-    let errorsToReturn: JsonApiError[] | undefined;
+    let errorsToReturn: ApiError[] | undefined;
     let storeWrapper!: CacheCapabilitiesManager;
 
-    class LifecycleRecordData extends TestRecordData {
-      override getErrors(): JsonApiError[] {
+    class LifecycleRecordData extends TestCache {
+      override getErrors(): ApiError[] {
         return errorsToReturn || [];
       }
     }

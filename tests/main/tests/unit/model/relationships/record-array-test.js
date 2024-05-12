@@ -6,7 +6,7 @@ import { setupTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
-module('unit/model/relationships - RecordArray', function (hooks) {
+module('unit/model/relationships - ManyArray', function (hooks) {
   setupTest(hooks);
 
   test('can create child record from a hasMany relationship', async function (assert) {

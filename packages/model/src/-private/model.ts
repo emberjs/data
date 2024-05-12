@@ -2,7 +2,6 @@
   @module @ember-data/model
  */
 
-import { assert } from '@ember/debug';
 import EmberObject from '@ember/object';
 
 import type Store from '@ember-data/store';
@@ -12,12 +11,13 @@ import { coerceId } from '@ember-data/store/-private';
 import { compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';
 import { DEBUG } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
-import type { AttributeSchema, RelationshipSchema } from '@warp-drive/core-types/schema';
+import type { LegacyAttributeField, LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
 import { RecordStore } from '@warp-drive/core-types/symbols';
 
-import Errors from './errors';
+import { Errors } from './errors';
 import { LEGACY_SUPPORT } from './legacy-relationships-support';
 import type { MinimalLegacyRecord } from './model-methods';
 import {
@@ -1039,14 +1039,14 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     callback: (
       this: NoInfer<T> | undefined,
       key: Exclude<keyof this & string, keyof Model & string>,
-      meta: RelationshipSchema
+      meta: LegacyRelationshipSchema
     ) => void,
     binding?: T
   ): void {
     (this.constructor as typeof Model).eachRelationship<T, this>(callback, binding);
   }
 
-  relationshipFor(name: string): RelationshipSchema | undefined {
+  relationshipFor(name: string): LegacyRelationshipSchema | undefined {
     return (this.constructor as typeof Model).relationshipsByName.get(name);
   }
 
@@ -1058,7 +1058,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     callback: (
       this: NoInfer<T> | undefined,
       key: Exclude<keyof this & string, keyof Model & string>,
-      meta: AttributeSchema
+      meta: LegacyAttributeField
     ) => void,
     binding?: T
   ): void {
@@ -1161,12 +1161,12 @@ class Model extends EmberObject implements MinimalLegacyRecord {
   }
 
   @computeOnce
-  static get inverseMap(): Record<string, RelationshipSchema | null> {
+  static get inverseMap(): Record<string, LegacyRelationshipSchema | null> {
     assert(
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
     );
-    return Object.create(null) as Record<string, RelationshipSchema | null>;
+    return Object.create(null) as Record<string, LegacyRelationshipSchema | null>;
   }
 
   /**
@@ -1202,7 +1202,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    @param {Store} store
    @return {Object} the inverse relationship, or null
    */
-  static inverseFor(name: string, store: Store): RelationshipSchema | null {
+  static inverseFor(name: string, store: Store): LegacyRelationshipSchema | null {
     assert(
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
@@ -1218,7 +1218,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
   }
 
   //Calculate the inverse, ignoring the cache
-  static _findInverseFor(name: string, store: Store): RelationshipSchema | null {
+  static _findInverseFor(name: string, store: Store): LegacyRelationshipSchema | null {
     assert(
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
@@ -1302,13 +1302,13 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    */
 
   @computeOnce
-  static get relationships(): Map<string, RelationshipSchema[]> {
+  static get relationships(): Map<string, LegacyRelationshipSchema[]> {
     assert(
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
     );
 
-    const map = new Map<string, RelationshipSchema[]>();
+    const map = new Map<string, LegacyRelationshipSchema[]>();
     const relationshipsByName = this.relationshipsByName;
 
     // Loop through each computed property on the class
@@ -1476,7 +1476,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    @readOnly
    */
   @computeOnce
-  static get relationshipsByName(): Map<string, RelationshipSchema> {
+  static get relationshipsByName(): Map<string, LegacyRelationshipSchema> {
     assert(
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
@@ -1496,13 +1496,13 @@ class Model extends EmberObject implements MinimalLegacyRecord {
   }
 
   @computeOnce
-  static get relationshipsObject(): Record<string, RelationshipSchema> {
+  static get relationshipsObject(): Record<string, LegacyRelationshipSchema> {
     assert(
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
     );
 
-    const relationships = Object.create(null) as Record<string, RelationshipSchema>;
+    const relationships = Object.create(null) as Record<string, LegacyRelationshipSchema>;
     const modelName = this.modelName;
     this.eachComputedProperty((name: string, meta: unknown) => {
       if (!isRelationshipSchema(meta)) {
@@ -1511,7 +1511,6 @@ class Model extends EmberObject implements MinimalLegacyRecord {
       // TODO deprecate key being here
       (meta as unknown as { key: string }).key = name;
       meta.name = name;
-      (meta as unknown as { parentModelName: string }).parentModelName = modelName;
       relationships[name] = meta;
 
       assert(`Expected options in meta`, meta.options && typeof meta.options === 'object');
@@ -1598,7 +1597,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     callback: (
       this: T | undefined,
       key: Exclude<keyof Schema & string, keyof Model & string>,
-      relationship: RelationshipSchema
+      relationship: LegacyRelationshipSchema
     ) => void,
     binding?: T
   ): void {
@@ -1645,7 +1644,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    * @deprecated
    */
   static determineRelationshipType(
-    knownSide: RelationshipSchema,
+    knownSide: LegacyRelationshipSchema,
     store: Store
   ): 'oneToOne' | 'oneToMany' | 'manyToOne' | 'manyToMany' | 'oneToNone' | 'manyToNone' {
     assert(
@@ -1784,7 +1783,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
     const map = new Map<string, string>();
 
-    this.eachAttribute((name: string, meta: AttributeSchema) => {
+    this.eachAttribute((name: string, meta: LegacyAttributeField) => {
       if (meta.type) {
         map.set(name, meta.type);
       }
@@ -1841,7 +1840,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     callback: (
       this: T | undefined,
       key: Exclude<keyof Schema & string, keyof Model & string>,
-      attribute: AttributeSchema
+      attribute: LegacyAttributeField
     ) => void,
     binding?: T
   ): void {
@@ -1850,9 +1849,11 @@ class Model extends EmberObject implements MinimalLegacyRecord {
       this.modelName
     );
 
-    this.attributes.forEach((meta: AttributeSchema, name: Exclude<keyof Schema & string, keyof Model & string>) => {
-      callback.call(binding, name, meta);
-    });
+    this.attributes.forEach(
+      (meta: LegacyAttributeField, name: Exclude<keyof Schema & string, keyof Model & string>) => {
+        callback.call(binding, name, meta);
+      }
+    );
   }
 
   /**
@@ -2006,11 +2007,11 @@ if (DEBUG) {
 
 export { Model };
 
-function isRelationshipSchema(meta: unknown): meta is RelationshipSchema {
+function isRelationshipSchema(meta: unknown): meta is LegacyRelationshipSchema {
   const hasKind = typeof meta === 'object' && meta !== null && 'kind' in meta && 'options' in meta;
   return hasKind && (meta.kind === 'hasMany' || meta.kind === 'belongsTo');
 }
 
-function isAttributeSchema(meta: unknown): meta is AttributeSchema {
+function isAttributeSchema(meta: unknown): meta is LegacyAttributeField {
   return typeof meta === 'object' && meta !== null && 'kind' in meta && meta.kind === 'attribute';
 }

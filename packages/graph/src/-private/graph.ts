@@ -1,11 +1,11 @@
-import { assert } from '@ember/debug';
-
-import type { MergeOperation } from '@ember-data/store/-types/q/cache';
-import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
+import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { LOG_GRAPH } from '@warp-drive/build-config/debugging';
 import { DEBUG } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import { getOrSetGlobal, peekTransient, setTransient } from '@warp-drive/core-types/-private';
 import type { RelationshipDiff } from '@warp-drive/core-types/cache';
+import type { MergeOperation } from '@warp-drive/core-types/cache/operations';
 import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 import type {
   DeleteRecordOperation,
@@ -41,9 +41,8 @@ import updateRelationshipOperation from './operations/update-relationship';
 
 export type GraphEdge = ImplicitEdge | CollectionEdge | ResourceEdge;
 
-export const Graphs = new Map<CacheCapabilitiesManager, Graph>();
+export const Graphs = getOrSetGlobal('Graphs', new Map<CacheCapabilitiesManager, Graph>());
 
-let transactionRef = 0;
 type PendingOps = {
   belongsTo?: Map<string, Map<string, RemoteRelationshipOperation[]>>;
   hasMany?: Map<string, Map<string, RemoteRelationshipOperation[]>>;
@@ -507,7 +506,9 @@ export class Graph {
       // eslint-disable-next-line no-console
       console.groupCollapsed(`Graph: Initialized Transaction`);
     }
+    let transactionRef = peekTransient<number>('transactionRef') ?? 0;
     this._transaction = ++transactionRef;
+    setTransient('transactionRef', transactionRef);
     this._willSyncRemote = false;
     const updates = this._pushedUpdates;
     const { deletions, hasMany, belongsTo } = updates;
@@ -570,8 +571,8 @@ export class Graph {
         Graphs.forEach((_, key) => {
           assert(
             `Memory Leak Detected, likely the test or app instance previous to this was not torn down properly`,
-            // @ts-expect-error
-            !key.isDestroyed && !key.isDestroying
+            !(key as unknown as { isDestroyed: boolean }).isDestroyed &&
+              !(key as unknown as { isDestroying: boolean }).isDestroying
           );
         });
       }

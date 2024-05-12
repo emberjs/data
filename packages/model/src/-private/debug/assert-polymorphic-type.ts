@@ -1,8 +1,8 @@
-import { assert } from '@ember/debug';
-import { DEBUG } from '@warp-drive/build-config/env';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { UpgradedMeta } from '@ember-data/graph/-private';
 import type Store from '@ember-data/store';
-import type { UpgradedMeta } from '@ember-data/graph/-private/-edge-definition';
+import { DEBUG } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
 /*
   Assert that `addedRecord` has a valid type so it can be added to the
@@ -24,6 +24,7 @@ let assertPolymorphicType: (
 ) => void;
 
 if (DEBUG) {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   assertPolymorphicType = function assertPolymorphicType(
     parentIdentifier: StableRecordIdentifier,
     parentDefinition: UpgradedMeta,
@@ -34,7 +35,7 @@ if (DEBUG) {
       return;
     }
     if (parentDefinition.isPolymorphic) {
-      let meta = store.getSchemaDefinitionService().relationshipsDefinitionFor(addedIdentifier)[
+      const meta = store.getSchemaDefinitionService().relationshipsDefinitionFor(addedIdentifier)[
         parentDefinition.inverseKey
       ];
       assert(

@@ -1,0 +1,2690 @@
+
+> ember-data__graph@5.4.0-alpha.64 build:tests /Users/cthoburn/github/data/tests/ember-data__graph
+> IS_TESTING=true EMBER_CLI_TEST_COMMAND=true ember build --output-path=dist-test --suppress-sizes
+
+- Building
+Environment: development
+- Building
+ember-auto-import:leader elected 2.7.2 from the app which satisfies ^2.7.2
+- building...
+ember-auto-import:analyzer updating imports for @ember/test-helpers/-internal/-owner-mixin-imports.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/-internal/build-registry.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/-internal/debug-info-helpers.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/-internal/debug-info.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/-internal/deprecations.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/-internal/is-component.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/-internal/is-promise.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/-internal/render-settled.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/-internal/warnings.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/-tuple.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/-utils.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/application.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/build-owner.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/dom/-get-description.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/dom/-get-element.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/dom/-get-elements.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/dom/-get-window-or-element.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/dom/-guard-for-maxlength.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/dom/-is-focusable.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/dom/-is-form-control.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/dom/-is-select-element.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/dom/-logging.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/dom/-target.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/dom/-to-array.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/dom/blur.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/dom/click.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/dom/double-click.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/dom/fill-in.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/dom/find-all.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/dom/find.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/dom/fire-event.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/dom/focus.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/dom/get-root-element.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/dom/scroll-to.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/dom/select.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/dom/tab.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/dom/tap.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/dom/trigger-event.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/dom/trigger-key-event.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/dom/type-in.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/dom/wait-for.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/global.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/has-ember-version.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/helper-hooks.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/index.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/rerender.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/resolver.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/settled.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/setup-application-context.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/setup-context.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/setup-onerror.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/setup-rendering-context.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/teardown-context.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/test-metadata.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/validate-error-handler.js
+ember-auto-import:analyzer updating imports for @ember/test-helpers/wait-until.js
+ember-auto-import:analyzer updating imports for ember-data__graph/app.js
+ember-auto-import:analyzer updating imports for ember-data__graph/component-managers/glimmer.js
+ember-auto-import:analyzer updating imports for ember-data__graph/container-debug-adapter.js
+ember-auto-import:analyzer updating imports for ember-data__graph/helpers/pluralize.js
+ember-auto-import:analyzer updating imports for ember-data__graph/helpers/singularize.js
+ember-auto-import:analyzer updating imports for ember-data__graph/resolver.js
+ember-auto-import:analyzer updating imports for ember-data__graph/router.js
+ember-auto-import:analyzer updating imports for ember-data__graph/services/store.js
+ember-auto-import:analyzer updating imports for ember-data__graph/templates/application.js
+ember-auto-import:analyzer updating imports for ember-data__graph/tests/integration/graph.js
+ember-auto-import:analyzer updating imports for ember-data__graph/tests/integration/graph/diff-preservation-test.js
+ember-auto-import:analyzer updating imports for ember-data__graph/tests/integration/graph/duplicate-data-test.js
+ember-auto-import:analyzer updating imports for ember-data__graph/tests/integration/graph/edge-removal/abstract-edge-removal-test.js
+ember-auto-import:analyzer updating imports for ember-data__graph/tests/integration/graph/edge-removal/helpers.js
+ember-auto-import:analyzer updating imports for ember-data__graph/tests/integration/graph/edge-removal/setup.js
+ember-auto-import:analyzer updating imports for ember-data__graph/tests/integration/graph/edge-test.js
+ember-auto-import:analyzer updating imports for ember-data__graph/tests/integration/graph/graph-test.js
+ember-auto-import:analyzer updating imports for ember-data__graph/tests/integration/graph/order-preservation-test.js
+ember-auto-import:analyzer updating imports for ember-data__graph/tests/integration/graph/polymorphism/implicit-keys-test.js
+ember-auto-import:analyzer updating imports for ember-data__graph/tests/integration/graph/unload-test.js
+ember-auto-import:analyzer updating imports for ember-data__graph/tests/setup-test.js
+ember-auto-import:analyzer updating imports for ember-data__graph/tests/test-helper.js
+ember-auto-import:analyzer imports [
+  {
+    "specifier": "ember",
+    "path": "@ember/test-helpers/-internal/-owner-mixin-imports.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/application/instance",
+    "path": "@ember/test-helpers/-internal/build-registry.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/application",
+    "path": "@ember/test-helpers/-internal/build-registry.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/object",
+    "path": "@ember/test-helpers/-internal/build-registry.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "require",
+    "path": "@ember/test-helpers/-internal/build-registry.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "ember",
+    "path": "@ember/test-helpers/-internal/build-registry.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/-internal/-owner-mixin-imports",
+    "path": "@ember/test-helpers/-internal/build-registry.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/runloop",
+    "path": "@ember/test-helpers/-internal/debug-info.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/-internal/debug-info-helpers",
+    "path": "@ember/test-helpers/-internal/debug-info.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-waiters",
+    "path": "@ember/test-helpers/-internal/debug-info.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/debug",
+    "path": "@ember/test-helpers/-internal/deprecations.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/-internal/is-promise",
+    "path": "@ember/test-helpers/-internal/deprecations.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@glimmer/manager",
+    "path": "@ember/test-helpers/-internal/is-component.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@embroider/macros",
+    "path": "@ember/test-helpers/-internal/render-settled.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/renderer",
+    "path": "@ember/test-helpers/-internal/render-settled.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/debug",
+    "path": "@ember/test-helpers/-internal/warnings.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/-internal/is-promise",
+    "path": "@ember/test-helpers/-internal/warnings.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-is-form-control",
+    "path": "@ember/test-helpers/-utils.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/resolver",
+    "path": "@ember/test-helpers/application.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/-internal/build-registry",
+    "path": "@ember/test-helpers/build-owner.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "dom-element-descriptors",
+    "path": "@ember/test-helpers/dom/-get-description.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/get-root-element",
+    "path": "@ember/test-helpers/dom/-get-element.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-target",
+    "path": "@ember/test-helpers/dom/-get-element.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "dom-element-descriptors",
+    "path": "@ember/test-helpers/dom/-get-element.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "dom-element-descriptors",
+    "path": "@ember/test-helpers/dom/-get-elements.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/get-root-element",
+    "path": "@ember/test-helpers/dom/-get-elements.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-get-element",
+    "path": "@ember/test-helpers/dom/-get-window-or-element.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-target",
+    "path": "@ember/test-helpers/dom/-get-window-or-element.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-is-form-control",
+    "path": "@ember/test-helpers/dom/-is-focusable.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-target",
+    "path": "@ember/test-helpers/dom/-is-focusable.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-target",
+    "path": "@ember/test-helpers/dom/-is-form-control.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-target",
+    "path": "@ember/test-helpers/dom/-is-select-element.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-get-element",
+    "path": "@ember/test-helpers/dom/blur.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/fire-event",
+    "path": "@ember/test-helpers/dom/blur.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/settled",
+    "path": "@ember/test-helpers/dom/blur.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-logging",
+    "path": "@ember/test-helpers/dom/blur.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-is-focusable",
+    "path": "@ember/test-helpers/dom/blur.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/helper-hooks",
+    "path": "@ember/test-helpers/dom/blur.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-get-description",
+    "path": "@ember/test-helpers/dom/blur.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-get-window-or-element",
+    "path": "@ember/test-helpers/dom/click.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/fire-event",
+    "path": "@ember/test-helpers/dom/click.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/focus",
+    "path": "@ember/test-helpers/dom/click.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/settled",
+    "path": "@ember/test-helpers/dom/click.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-is-form-control",
+    "path": "@ember/test-helpers/dom/click.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-target",
+    "path": "@ember/test-helpers/dom/click.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-logging",
+    "path": "@ember/test-helpers/dom/click.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/helper-hooks",
+    "path": "@ember/test-helpers/dom/click.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-get-description",
+    "path": "@ember/test-helpers/dom/click.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-get-window-or-element",
+    "path": "@ember/test-helpers/dom/double-click.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/fire-event",
+    "path": "@ember/test-helpers/dom/double-click.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/focus",
+    "path": "@ember/test-helpers/dom/double-click.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/settled",
+    "path": "@ember/test-helpers/dom/double-click.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/click",
+    "path": "@ember/test-helpers/dom/double-click.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-target",
+    "path": "@ember/test-helpers/dom/double-click.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-logging",
+    "path": "@ember/test-helpers/dom/double-click.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-is-form-control",
+    "path": "@ember/test-helpers/dom/double-click.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/helper-hooks",
+    "path": "@ember/test-helpers/dom/double-click.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-get-description",
+    "path": "@ember/test-helpers/dom/double-click.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-get-element",
+    "path": "@ember/test-helpers/dom/fill-in.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-is-form-control",
+    "path": "@ember/test-helpers/dom/fill-in.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-guard-for-maxlength",
+    "path": "@ember/test-helpers/dom/fill-in.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/focus",
+    "path": "@ember/test-helpers/dom/fill-in.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/settled",
+    "path": "@ember/test-helpers/dom/fill-in.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/fire-event",
+    "path": "@ember/test-helpers/dom/fill-in.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-target",
+    "path": "@ember/test-helpers/dom/fill-in.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-logging",
+    "path": "@ember/test-helpers/dom/fill-in.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/helper-hooks",
+    "path": "@ember/test-helpers/dom/fill-in.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-get-description",
+    "path": "@ember/test-helpers/dom/fill-in.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-get-elements",
+    "path": "@ember/test-helpers/dom/find-all.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-get-element",
+    "path": "@ember/test-helpers/dom/find.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-target",
+    "path": "@ember/test-helpers/dom/fire-event.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/-tuple",
+    "path": "@ember/test-helpers/dom/fire-event.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-logging",
+    "path": "@ember/test-helpers/dom/fire-event.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/helper-hooks",
+    "path": "@ember/test-helpers/dom/fire-event.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-get-element",
+    "path": "@ember/test-helpers/dom/focus.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/fire-event",
+    "path": "@ember/test-helpers/dom/focus.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/settled",
+    "path": "@ember/test-helpers/dom/focus.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-is-focusable",
+    "path": "@ember/test-helpers/dom/focus.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-target",
+    "path": "@ember/test-helpers/dom/focus.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-logging",
+    "path": "@ember/test-helpers/dom/focus.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/helper-hooks",
+    "path": "@ember/test-helpers/dom/focus.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/blur",
+    "path": "@ember/test-helpers/dom/focus.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-get-description",
+    "path": "@ember/test-helpers/dom/focus.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/setup-context",
+    "path": "@ember/test-helpers/dom/get-root-element.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-target",
+    "path": "@ember/test-helpers/dom/get-root-element.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-get-element",
+    "path": "@ember/test-helpers/dom/scroll-to.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/fire-event",
+    "path": "@ember/test-helpers/dom/scroll-to.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/settled",
+    "path": "@ember/test-helpers/dom/scroll-to.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-target",
+    "path": "@ember/test-helpers/dom/scroll-to.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/helper-hooks",
+    "path": "@ember/test-helpers/dom/scroll-to.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-get-description",
+    "path": "@ember/test-helpers/dom/scroll-to.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-get-element",
+    "path": "@ember/test-helpers/dom/select.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-is-select-element",
+    "path": "@ember/test-helpers/dom/select.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/focus",
+    "path": "@ember/test-helpers/dom/select.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/settled",
+    "path": "@ember/test-helpers/dom/select.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/fire-event",
+    "path": "@ember/test-helpers/dom/select.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/helper-hooks",
+    "path": "@ember/test-helpers/dom/select.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-get-description",
+    "path": "@ember/test-helpers/dom/select.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/get-root-element",
+    "path": "@ember/test-helpers/dom/tab.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/settled",
+    "path": "@ember/test-helpers/dom/tab.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/fire-event",
+    "path": "@ember/test-helpers/dom/tab.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-target",
+    "path": "@ember/test-helpers/dom/tab.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/blur",
+    "path": "@ember/test-helpers/dom/tab.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/focus",
+    "path": "@ember/test-helpers/dom/tab.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/-utils",
+    "path": "@ember/test-helpers/dom/tab.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/helper-hooks",
+    "path": "@ember/test-helpers/dom/tab.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-logging",
+    "path": "@ember/test-helpers/dom/tab.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-get-element",
+    "path": "@ember/test-helpers/dom/tap.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/fire-event",
+    "path": "@ember/test-helpers/dom/tap.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/click",
+    "path": "@ember/test-helpers/dom/tap.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/settled",
+    "path": "@ember/test-helpers/dom/tap.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-logging",
+    "path": "@ember/test-helpers/dom/tap.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-is-form-control",
+    "path": "@ember/test-helpers/dom/tap.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/helper-hooks",
+    "path": "@ember/test-helpers/dom/tap.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-get-description",
+    "path": "@ember/test-helpers/dom/tap.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-get-window-or-element",
+    "path": "@ember/test-helpers/dom/trigger-event.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/fire-event",
+    "path": "@ember/test-helpers/dom/trigger-event.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/settled",
+    "path": "@ember/test-helpers/dom/trigger-event.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-logging",
+    "path": "@ember/test-helpers/dom/trigger-event.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-is-form-control",
+    "path": "@ember/test-helpers/dom/trigger-event.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/helper-hooks",
+    "path": "@ember/test-helpers/dom/trigger-event.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-get-description",
+    "path": "@ember/test-helpers/dom/trigger-event.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-get-element",
+    "path": "@ember/test-helpers/dom/trigger-key-event.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/fire-event",
+    "path": "@ember/test-helpers/dom/trigger-key-event.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/settled",
+    "path": "@ember/test-helpers/dom/trigger-key-event.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/fire-event",
+    "path": "@ember/test-helpers/dom/trigger-key-event.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/-utils",
+    "path": "@ember/test-helpers/dom/trigger-key-event.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-logging",
+    "path": "@ember/test-helpers/dom/trigger-key-event.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-is-form-control",
+    "path": "@ember/test-helpers/dom/trigger-key-event.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/helper-hooks",
+    "path": "@ember/test-helpers/dom/trigger-key-event.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-get-description",
+    "path": "@ember/test-helpers/dom/trigger-key-event.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/settled",
+    "path": "@ember/test-helpers/dom/type-in.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-get-element",
+    "path": "@ember/test-helpers/dom/type-in.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-is-form-control",
+    "path": "@ember/test-helpers/dom/type-in.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/focus",
+    "path": "@ember/test-helpers/dom/type-in.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/fire-event",
+    "path": "@ember/test-helpers/dom/type-in.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-guard-for-maxlength",
+    "path": "@ember/test-helpers/dom/type-in.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-target",
+    "path": "@ember/test-helpers/dom/type-in.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/trigger-key-event",
+    "path": "@ember/test-helpers/dom/type-in.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-logging",
+    "path": "@ember/test-helpers/dom/type-in.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/helper-hooks",
+    "path": "@ember/test-helpers/dom/type-in.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-get-description",
+    "path": "@ember/test-helpers/dom/type-in.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/wait-until",
+    "path": "@ember/test-helpers/dom/wait-for.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-get-element",
+    "path": "@ember/test-helpers/dom/wait-for.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-get-elements",
+    "path": "@ember/test-helpers/dom/wait-for.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "dom-element-descriptors",
+    "path": "@ember/test-helpers/dom/wait-for.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/-get-description",
+    "path": "@ember/test-helpers/dom/wait-for.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "ember",
+    "path": "@ember/test-helpers/has-ember-version.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/resolver",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/application",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/has-ember-version",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/setup-context",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/teardown-context",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/setup-rendering-context",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/rerender",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/setup-application-context",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/settled",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/wait-until",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/validate-error-handler",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/setup-onerror",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/-internal/debug-info",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/-internal/debug-info-helpers",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/test-metadata",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/helper-hooks",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/click",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/double-click",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/tab",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/tap",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/focus",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/blur",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/trigger-event",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/trigger-key-event",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/fill-in",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/select",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/wait-for",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/get-root-element",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/find",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/find-all",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/type-in",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/scroll-to",
+    "path": "@ember/test-helpers/index.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/-internal/render-settled",
+    "path": "@ember/test-helpers/rerender.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/runloop",
+    "path": "@ember/test-helpers/settled.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "ember",
+    "path": "@ember/test-helpers/settled.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/application/instance",
+    "path": "@ember/test-helpers/settled.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/-utils",
+    "path": "@ember/test-helpers/settled.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/wait-until",
+    "path": "@ember/test-helpers/settled.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/setup-application-context",
+    "path": "@ember/test-helpers/settled.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-waiters",
+    "path": "@ember/test-helpers/settled.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/-internal/debug-info",
+    "path": "@ember/test-helpers/settled.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/object",
+    "path": "@ember/test-helpers/setup-application-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/setup-context",
+    "path": "@ember/test-helpers/setup-application-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/global",
+    "path": "@ember/test-helpers/setup-application-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/has-ember-version",
+    "path": "@ember/test-helpers/setup-application-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/settled",
+    "path": "@ember/test-helpers/setup-application-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/test-metadata",
+    "path": "@ember/test-helpers/setup-application-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/helper-hooks",
+    "path": "@ember/test-helpers/setup-application-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/debug",
+    "path": "@ember/test-helpers/setup-application-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/runloop",
+    "path": "@ember/test-helpers/setup-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/object",
+    "path": "@ember/test-helpers/setup-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/application",
+    "path": "@ember/test-helpers/setup-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/build-owner",
+    "path": "@ember/test-helpers/setup-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/settled",
+    "path": "@ember/test-helpers/setup-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/setup-onerror",
+    "path": "@ember/test-helpers/setup-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "ember",
+    "path": "@ember/test-helpers/setup-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/debug",
+    "path": "@ember/test-helpers/setup-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/global",
+    "path": "@ember/test-helpers/setup-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/resolver",
+    "path": "@ember/test-helpers/setup-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/application",
+    "path": "@ember/test-helpers/setup-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/test-metadata",
+    "path": "@ember/test-helpers/setup-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/destroyable",
+    "path": "@ember/test-helpers/setup-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/-internal/deprecations",
+    "path": "@ember/test-helpers/setup-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/-internal/warnings",
+    "path": "@ember/test-helpers/setup-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "ember",
+    "path": "@ember/test-helpers/setup-onerror.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/setup-context",
+    "path": "@ember/test-helpers/setup-onerror.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/runloop",
+    "path": "@ember/test-helpers/setup-rendering-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "ember",
+    "path": "@ember/test-helpers/setup-rendering-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/global",
+    "path": "@ember/test-helpers/setup-rendering-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/setup-context",
+    "path": "@ember/test-helpers/setup-rendering-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/settled",
+    "path": "@ember/test-helpers/setup-rendering-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/dom/get-root-element",
+    "path": "@ember/test-helpers/setup-rendering-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/test-metadata",
+    "path": "@ember/test-helpers/setup-rendering-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/debug",
+    "path": "@ember/test-helpers/setup-rendering-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/helper-hooks",
+    "path": "@ember/test-helpers/setup-rendering-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/has-ember-version",
+    "path": "@ember/test-helpers/setup-rendering-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/-internal/is-component",
+    "path": "@ember/test-helpers/setup-rendering-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/setup-context",
+    "path": "@ember/test-helpers/setup-rendering-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/template-factory",
+    "path": "@ember/test-helpers/setup-rendering-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/settled",
+    "path": "@ember/test-helpers/teardown-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/setup-onerror",
+    "path": "@ember/test-helpers/teardown-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/destroyable",
+    "path": "@ember/test-helpers/teardown-context.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "ember",
+    "path": "@ember/test-helpers/validate-error-handler.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  },
+  {
+    "specifier": "@ember/test-helpers/-utils",
+    "path": "@ember/test-helpers/wait-until.js",
+    "isDynamic": false,
+    "package": "@ember/test-helpers",
+    "treeType": "addon-test-support"
+  }
+]
+ember-auto-import:analyzer imports [
+  {
+    "specifier": "@ember/application",
+    "path": "ember-data__graph/app.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "app"
+  },
+  {
+    "specifier": "ember-load-initializers",
+    "path": "ember-data__graph/app.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "app"
+  },
+  {
+    "specifier": "ember-data__graph/config/environment",
+    "path": "ember-data__graph/app.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "app"
+  },
+  {
+    "specifier": "ember-data__graph/resolver",
+    "path": "ember-data__graph/app.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "app"
+  },
+  {
+    "specifier": "@glimmer/component/-private/ember-component-manager",
+    "path": "ember-data__graph/component-managers/glimmer.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "app"
+  },
+  {
+    "specifier": "ember-resolver/container-debug-adapter",
+    "path": "ember-data__graph/container-debug-adapter.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "app"
+  },
+  {
+    "specifier": "ember-inflector/lib/helpers/pluralize",
+    "path": "ember-data__graph/helpers/pluralize.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "app"
+  },
+  {
+    "specifier": "ember-inflector/lib/helpers/singularize",
+    "path": "ember-data__graph/helpers/singularize.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "app"
+  },
+  {
+    "specifier": "ember-resolver",
+    "path": "ember-data__graph/resolver.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "app"
+  },
+  {
+    "specifier": "@ember/routing/router",
+    "path": "ember-data__graph/router.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "app"
+  },
+  {
+    "specifier": "ember-data__graph/config/environment",
+    "path": "ember-data__graph/router.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "app"
+  },
+  {
+    "specifier": "@ember-data/json-api",
+    "path": "ember-data__graph/services/store.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "app"
+  },
+  {
+    "specifier": "@ember-data/legacy-compat",
+    "path": "ember-data__graph/services/store.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "app"
+  },
+  {
+    "specifier": "@ember-data/model/hooks",
+    "path": "ember-data__graph/services/store.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "app"
+  },
+  {
+    "specifier": "@ember-data/request",
+    "path": "ember-data__graph/services/store.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "app"
+  },
+  {
+    "specifier": "@ember-data/request/fetch",
+    "path": "ember-data__graph/services/store.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "app"
+  },
+  {
+    "specifier": "@ember-data/store",
+    "path": "ember-data__graph/services/store.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "app"
+  },
+  {
+    "specifier": "@ember/template-factory",
+    "path": "ember-data__graph/templates/application.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "app"
+  }
+]
+ember-auto-import:analyzer imports [
+  {
+    "specifier": "@warp-drive/diagnostic",
+    "path": "ember-data__graph/tests/integration/graph.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@ember-data/graph/-private",
+    "path": "ember-data__graph/tests/integration/graph/diff-preservation-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@ember-data/model",
+    "path": "ember-data__graph/tests/integration/graph/diff-preservation-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@warp-drive/build-config/deprecations",
+    "path": "ember-data__graph/tests/integration/graph/diff-preservation-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@warp-drive/diagnostic",
+    "path": "ember-data__graph/tests/integration/graph/diff-preservation-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@warp-drive/diagnostic/ember",
+    "path": "ember-data__graph/tests/integration/graph/diff-preservation-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "ember-data__graph/tests/setup-test",
+    "path": "ember-data__graph/tests/integration/graph/diff-preservation-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@ember-data/graph/-private",
+    "path": "ember-data__graph/tests/integration/graph/duplicate-data-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@ember-data/model",
+    "path": "ember-data__graph/tests/integration/graph/duplicate-data-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@warp-drive/build-config/deprecations",
+    "path": "ember-data__graph/tests/integration/graph/duplicate-data-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@warp-drive/build-config/env",
+    "path": "ember-data__graph/tests/integration/graph/duplicate-data-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@warp-drive/diagnostic",
+    "path": "ember-data__graph/tests/integration/graph/duplicate-data-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@warp-drive/diagnostic/ember",
+    "path": "ember-data__graph/tests/integration/graph/duplicate-data-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "ember-data__graph/tests/setup-test",
+    "path": "ember-data__graph/tests/integration/graph/duplicate-data-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@warp-drive/diagnostic",
+    "path": "ember-data__graph/tests/integration/graph/edge-removal/abstract-edge-removal-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "ember-data__graph/tests/integration/graph/edge-removal/helpers",
+    "path": "ember-data__graph/tests/integration/graph/edge-removal/abstract-edge-removal-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "ember-data__graph/tests/integration/graph/edge-removal/setup",
+    "path": "ember-data__graph/tests/integration/graph/edge-removal/abstract-edge-removal-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@ember-data/model",
+    "path": "ember-data__graph/tests/integration/graph/edge-removal/helpers.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@ember-data/store",
+    "path": "ember-data__graph/tests/integration/graph/edge-removal/helpers.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "ember-data__graph/tests/integration/graph/edge-removal/setup",
+    "path": "ember-data__graph/tests/integration/graph/edge-removal/helpers.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@ember-data/graph/-private",
+    "path": "ember-data__graph/tests/integration/graph/edge-removal/setup.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@warp-drive/diagnostic/ember",
+    "path": "ember-data__graph/tests/integration/graph/edge-removal/setup.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@ember-data/graph/-private",
+    "path": "ember-data__graph/tests/integration/graph/edge-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@ember-data/model",
+    "path": "ember-data__graph/tests/integration/graph/edge-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@ember-data/store",
+    "path": "ember-data__graph/tests/integration/graph/edge-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@ember-data/store/-private",
+    "path": "ember-data__graph/tests/integration/graph/edge-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@warp-drive/core-types/symbols",
+    "path": "ember-data__graph/tests/integration/graph/edge-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@warp-drive/diagnostic",
+    "path": "ember-data__graph/tests/integration/graph/edge-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@warp-drive/diagnostic/ember",
+    "path": "ember-data__graph/tests/integration/graph/edge-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "ember-data__graph/tests/integration/graph/edge-removal/setup",
+    "path": "ember-data__graph/tests/integration/graph/edge-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@ember-data/graph/-private",
+    "path": "ember-data__graph/tests/integration/graph/graph-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@ember-data/store",
+    "path": "ember-data__graph/tests/integration/graph/graph-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@warp-drive/diagnostic",
+    "path": "ember-data__graph/tests/integration/graph/graph-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@warp-drive/diagnostic/ember",
+    "path": "ember-data__graph/tests/integration/graph/graph-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@ember-data/graph/-private",
+    "path": "ember-data__graph/tests/integration/graph/order-preservation-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@ember-data/model",
+    "path": "ember-data__graph/tests/integration/graph/order-preservation-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@warp-drive/diagnostic",
+    "path": "ember-data__graph/tests/integration/graph/order-preservation-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@warp-drive/diagnostic/ember",
+    "path": "ember-data__graph/tests/integration/graph/order-preservation-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@ember-data/graph/-private",
+    "path": "ember-data__graph/tests/integration/graph/polymorphism/implicit-keys-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@ember-data/model",
+    "path": "ember-data__graph/tests/integration/graph/polymorphism/implicit-keys-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@ember-data/store",
+    "path": "ember-data__graph/tests/integration/graph/polymorphism/implicit-keys-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@warp-drive/core-types/symbols",
+    "path": "ember-data__graph/tests/integration/graph/polymorphism/implicit-keys-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@warp-drive/diagnostic",
+    "path": "ember-data__graph/tests/integration/graph/polymorphism/implicit-keys-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@warp-drive/diagnostic/ember",
+    "path": "ember-data__graph/tests/integration/graph/polymorphism/implicit-keys-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@ember-data/graph/-private",
+    "path": "ember-data__graph/tests/integration/graph/unload-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@ember-data/model",
+    "path": "ember-data__graph/tests/integration/graph/unload-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@warp-drive/diagnostic",
+    "path": "ember-data__graph/tests/integration/graph/unload-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@warp-drive/diagnostic/ember",
+    "path": "ember-data__graph/tests/integration/graph/unload-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@ember-data/unpublished-test-infra/test-support/test",
+    "path": "ember-data__graph/tests/setup-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@warp-drive/diagnostic",
+    "path": "ember-data__graph/tests/setup-test.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@ember/test-helpers",
+    "path": "ember-data__graph/tests/test-helper.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "ember-data__graph/app",
+    "path": "ember-data__graph/tests/test-helper.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "ember-data__graph/config/environment",
+    "path": "ember-data__graph/tests/test-helper.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@ember-data/unpublished-test-infra/test-support/asserts/index",
+    "path": "ember-data__graph/tests/test-helper.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@warp-drive/diagnostic",
+    "path": "ember-data__graph/tests/test-helper.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@warp-drive/diagnostic/ember",
+    "path": "ember-data__graph/tests/test-helper.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  },
+  {
+    "specifier": "@warp-drive/diagnostic/runners/dom",
+    "path": "ember-data__graph/tests/test-helper.js",
+    "isDynamic": false,
+    "package": "ember-data__graph",
+    "treeType": "test"
+  }
+]
+ember-auto-import:splitter bundleForPath("@ember/test-helpers/dom/-get-description.js")=tests
+ember-auto-import:splitter bundleForPath("@ember/test-helpers/dom/-get-element.js")=tests
+ember-auto-import:splitter bundleForPath("@ember/test-helpers/dom/-get-elements.js")=tests
+ember-auto-import:splitter bundleForPath("@ember/test-helpers/dom/wait-for.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/services/store.js")=app
+ember-auto-import:splitter bundleForPath("ember-data__graph/services/store.js")=app
+ember-auto-import:splitter bundleForPath("ember-data__graph/services/store.js")=app
+ember-auto-import:splitter bundleForPath("ember-data__graph/services/store.js")=app
+ember-auto-import:splitter bundleForPath("ember-data__graph/services/store.js")=app
+ember-auto-import:splitter bundleForPath("ember-data__graph/services/store.js")=app
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/edge-removal/helpers.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/edge-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/graph-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/polymorphism/implicit-keys-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/diff-preservation-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/duplicate-data-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/edge-removal/abstract-edge-removal-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/edge-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/graph-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/order-preservation-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/polymorphism/implicit-keys-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/unload-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/setup-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/test-helper.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/diff-preservation-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/duplicate-data-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/edge-removal/setup.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/edge-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/graph-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/order-preservation-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/polymorphism/implicit-keys-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/unload-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/diff-preservation-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/duplicate-data-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/edge-removal/helpers.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/edge-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/order-preservation-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/polymorphism/implicit-keys-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/unload-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/diff-preservation-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/duplicate-data-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/diff-preservation-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/duplicate-data-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/edge-removal/setup.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/edge-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/graph-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/order-preservation-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/polymorphism/implicit-keys-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/unload-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/test-helper.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/duplicate-data-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/edge-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/edge-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/integration/graph/polymorphism/implicit-keys-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/setup-test.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/test-helper.js")=tests
+ember-auto-import:splitter bundleForPath("ember-data__graph/tests/test-helper.js")=tests
+ember-auto-import:splitter output {
+  "app": {
+    "static": [
+      {
+        "specifier": "@ember-data/json-api",
+        "packageRoot": "/Users/cthoburn/github/data/node_modules/.pnpm/file+packages+json-api_@babel+core@7.24.5_@ember-data+graph@5.4.0-alpha.64_@ember-data+reques_q7qffvqexomb5vkdina7ug2dde/node_modules/@ember-data/json-api",
+        "importedBy": [
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/services/store.js"
+          }
+        ]
+      },
+      {
+        "specifier": "@ember-data/legacy-compat",
+        "packageRoot": "/Users/cthoburn/github/data/node_modules/.pnpm/file+packages+legacy-compat_@babel+core@7.24.5_@ember-data+graph@5.4.0-alpha.64_@ember-data+j_zrw2ek6jvn6xnbs52lqkabpxiq/node_modules/@ember-data/legacy-compat",
+        "importedBy": [
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/services/store.js"
+          }
+        ]
+      },
+      {
+        "specifier": "@ember-data/model/hooks",
+        "packageRoot": "/Users/cthoburn/github/data/node_modules/.pnpm/file+packages+model_@babel+core@7.24.5_@ember-data+graph@5.4.0-alpha.64_@ember-data+json-api@_rbqrxnm3g6jm47lych3aajkbau/node_modules/@ember-data/model",
+        "importedBy": [
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/services/store.js"
+          }
+        ]
+      },
+      {
+        "specifier": "@ember-data/request",
+        "packageRoot": "/Users/cthoburn/github/data/node_modules/.pnpm/file+packages+request_@babel+core@7.24.5_@glint+template@1.4.0_@warp-drive+core-types@0.0.0-alpha.50/node_modules/@ember-data/request",
+        "importedBy": [
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/services/store.js"
+          }
+        ]
+      },
+      {
+        "specifier": "@ember-data/request/fetch",
+        "packageRoot": "/Users/cthoburn/github/data/node_modules/.pnpm/file+packages+request_@babel+core@7.24.5_@glint+template@1.4.0_@warp-drive+core-types@0.0.0-alpha.50/node_modules/@ember-data/request",
+        "importedBy": [
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/services/store.js"
+          }
+        ]
+      },
+      {
+        "specifier": "@ember-data/store",
+        "packageRoot": "/Users/cthoburn/github/data/node_modules/.pnpm/file+packages+store_@babel+core@7.24.5_@ember-data+request@5.4.0-alpha.64_@ember-data+trackin_b56g24sga4en3xqwxyaomidlaa/node_modules/@ember-data/store",
+        "importedBy": [
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/services/store.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/edge-removal/helpers.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/edge-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/graph-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/polymorphism/implicit-keys-test.js"
+          }
+        ]
+      }
+    ],
+    "dynamic": [],
+    "dynamicTemplate": []
+  },
+  "tests": {
+    "static": [
+      {
+        "specifier": "@ember-data/graph/-private",
+        "packageRoot": "/Users/cthoburn/github/data/node_modules/.pnpm/file+packages+graph_@babel+core@7.24.5_@ember-data+store@5.4.0-alpha.64_@glint+template@1.4.0_xn3dcrxp6qb6bhd6oy4skuzqsy/node_modules/@ember-data/graph",
+        "importedBy": [
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/diff-preservation-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/duplicate-data-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/edge-removal/setup.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/edge-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/graph-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/order-preservation-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/polymorphism/implicit-keys-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/unload-test.js"
+          }
+        ]
+      },
+      {
+        "specifier": "@ember-data/model",
+        "packageRoot": "/Users/cthoburn/github/data/node_modules/.pnpm/file+packages+model_@babel+core@7.24.5_@ember-data+graph@5.4.0-alpha.64_@ember-data+json-api@_rbqrxnm3g6jm47lych3aajkbau/node_modules/@ember-data/model",
+        "importedBy": [
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/diff-preservation-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/duplicate-data-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/edge-removal/helpers.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/edge-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/order-preservation-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/polymorphism/implicit-keys-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/unload-test.js"
+          }
+        ]
+      },
+      {
+        "specifier": "@ember-data/store/-private",
+        "packageRoot": "/Users/cthoburn/github/data/node_modules/.pnpm/file+packages+store_@babel+core@7.24.5_@ember-data+request@5.4.0-alpha.64_@ember-data+trackin_b56g24sga4en3xqwxyaomidlaa/node_modules/@ember-data/store",
+        "importedBy": [
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/edge-test.js"
+          }
+        ]
+      },
+      {
+        "specifier": "@ember-data/unpublished-test-infra/test-support/asserts/index",
+        "packageRoot": "/Users/cthoburn/github/data/node_modules/.pnpm/file+packages+unpublished-test-infra_@babel+core@7.24.5_@ember-data+request@5.4.0-alpha.64_@e_pejps6kyscdbvao5m3qx7unhfy/node_modules/@ember-data/unpublished-test-infra",
+        "importedBy": [
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/test-helper.js"
+          }
+        ]
+      },
+      {
+        "specifier": "@ember-data/unpublished-test-infra/test-support/test",
+        "packageRoot": "/Users/cthoburn/github/data/node_modules/.pnpm/file+packages+unpublished-test-infra_@babel+core@7.24.5_@ember-data+request@5.4.0-alpha.64_@e_pejps6kyscdbvao5m3qx7unhfy/node_modules/@ember-data/unpublished-test-infra",
+        "importedBy": [
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/setup-test.js"
+          }
+        ]
+      },
+      {
+        "specifier": "@warp-drive/build-config/deprecations",
+        "packageRoot": "/Users/cthoburn/github/data/node_modules/.pnpm/file+packages+build-config_@babel+core@7.24.5_@glint+template@1.4.0/node_modules/@warp-drive/build-config",
+        "importedBy": [
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/diff-preservation-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/duplicate-data-test.js"
+          }
+        ]
+      },
+      {
+        "specifier": "@warp-drive/build-config/env",
+        "packageRoot": "/Users/cthoburn/github/data/node_modules/.pnpm/file+packages+build-config_@babel+core@7.24.5_@glint+template@1.4.0/node_modules/@warp-drive/build-config",
+        "importedBy": [
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/duplicate-data-test.js"
+          }
+        ]
+      },
+      {
+        "specifier": "@warp-drive/core-types/symbols",
+        "packageRoot": "/Users/cthoburn/github/data/node_modules/.pnpm/file+packages+core-types_@babel+core@7.24.5_@glint+template@1.4.0/node_modules/@warp-drive/core-types",
+        "importedBy": [
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/edge-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/polymorphism/implicit-keys-test.js"
+          }
+        ]
+      },
+      {
+        "specifier": "@warp-drive/diagnostic",
+        "packageRoot": "/Users/cthoburn/github/data/node_modules/.pnpm/file+packages+diagnostic_@ember+test-helpers@3.3.0_ember-cli-test-loader@3.1.0/node_modules/@warp-drive/diagnostic",
+        "importedBy": [
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/diff-preservation-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/duplicate-data-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/edge-removal/abstract-edge-removal-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/edge-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/graph-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/order-preservation-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/polymorphism/implicit-keys-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/unload-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/setup-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/test-helper.js"
+          }
+        ]
+      },
+      {
+        "specifier": "@warp-drive/diagnostic/ember",
+        "packageRoot": "/Users/cthoburn/github/data/node_modules/.pnpm/file+packages+diagnostic_@ember+test-helpers@3.3.0_ember-cli-test-loader@3.1.0/node_modules/@warp-drive/diagnostic",
+        "importedBy": [
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/diff-preservation-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/duplicate-data-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/edge-removal/setup.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/edge-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/graph-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/order-preservation-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/polymorphism/implicit-keys-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/integration/graph/unload-test.js"
+          },
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/test-helper.js"
+          }
+        ]
+      },
+      {
+        "specifier": "@warp-drive/diagnostic/runners/dom",
+        "packageRoot": "/Users/cthoburn/github/data/node_modules/.pnpm/file+packages+diagnostic_@ember+test-helpers@3.3.0_ember-cli-test-loader@3.1.0/node_modules/@warp-drive/diagnostic",
+        "importedBy": [
+          {
+            "package": "ember-data__graph",
+            "path": "ember-data__graph/tests/test-helper.js"
+          }
+        ]
+      },
+      {
+        "specifier": "dom-element-descriptors",
+        "packageRoot": "/Users/cthoburn/github/data/node_modules/.pnpm/dom-element-descriptors@0.5.0/node_modules/dom-element-descriptors",
+        "importedBy": [
+          {
+            "package": "@ember/test-helpers",
+            "path": "@ember/test-helpers/dom/-get-description.js"
+          },
+          {
+            "package": "@ember/test-helpers",
+            "path": "@ember/test-helpers/dom/-get-element.js"
+          },
+          {
+            "package": "@ember/test-helpers",
+            "path": "@ember/test-helpers/dom/-get-elements.js"
+          },
+          {
+            "package": "@ember/test-helpers",
+            "path": "@ember/test-helpers/dom/wait-for.js"
+          }
+        ]
+      }
+    ],
+    "dynamic": [],
+    "dynamicTemplate": []
+  }
+}
+ember-auto-import:webpack webpackConfig {"mode":"development","entry":{"app":["/private/var/folders/51/51f8s9mn649fd4qbcmc998_m0000gp/T/broccoli-749394xXaOXqB1URd/cache-149-webpack_bundler_ember_auto_import_webpack/l.cjs","/private/var/folders/51/51f8s9mn649fd4qbcmc998_m0000gp/T/broccoli-749394xXaOXqB1URd/cache-149-webpack_bundler_ember_auto_import_webpack/app.cjs"],"tests":["/private/var/folders/51/51f8s9mn649fd4qbcmc998_m0000gp/T/broccoli-749394xXaOXqB1URd/cache-149-webpack_bundler_ember_auto_import_webpack/l.cjs","/private/var/folders/51/51f8s9mn649fd4qbcmc998_m0000gp/T/broccoli-749394xXaOXqB1URd/cache-149-webpack_bundler_ember_auto_import_webpack/tests.cjs"]},"performance":{"hints":false},"target":"browserslist:last 1 Chrome versions,last 1 Firefox versions,last 1 Safari versions","output":{"path":"/var/folders/51/51f8s9mn649fd4qbcmc998_m0000gp/T/broccoli-749394xXaOXqB1URd/out-149-webpack_bundler_ember_auto_import_webpack/assets","publicPath":"/assets/","filename":"chunk.[id].[chunkhash].js","chunkFilename":"chunk.[id].[chunkhash].js","libraryTarget":"var","library":"__ember_auto_import__"},"optimization":{"splitChunks":{"chunks":"all"}},"resolveLoader":{"alias":{"babel-loader-8":"/Users/cthoburn/github/data/node_modules/.pnpm/babel-loader@8.3.0_@babel+core@7.24.5_webpack@5.91.0/node_modules/babel-loader/lib/index.js","eai-style-loader":"/Users/cthoburn/github/data/node_modules/.pnpm/style-loader@2.0.0_webpack@5.91.0/node_modules/style-loader/dist/cjs.js","eai-css-loader":"/Users/cthoburn/github/data/node_modules/.pnpm/css-loader@5.2.7_webpack@5.91.0/node_modules/css-loader/dist/cjs.js"}},"resolve":{"extensions":[".js",".ts",".json"],"mainFields":["browser","module","main"],"alias":{"ember-data__graph":"/Users/cthoburn/github/data/tests/ember-data__graph/app"}},"plugins":[],"module":{"rules":[{"use":{"loader":"babel-loader-8","options":{"configFile":false,"babelrc":false,"generatorOpts":{"compact":true},"plugins":[["/Users/cthoburn/github/data/node_modules/.pnpm/@babel+plugin-proposal-decorators@7.24.1_@babel+core@7.24.5/node_modules/@babel/plugin-proposal-decorators/lib/index.js",{"legacy":true}],["/Users/cthoburn/github/data/node_modules/.pnpm/@babel+plugin-transform-class-static-block@7.24.4_@babel+core@7.24.5/node_modules/@babel/plugin-transform-class-static-block/lib/index.js"],["/Users/cthoburn/github/data/node_modules/.pnpm/@babel+plugin-proposal-class-properties@7.18.6_@babel+core@7.24.5/node_modules/@babel/plugin-proposal-class-properties/lib/index.js",{"loose":false}],["/Users/cthoburn/github/data/node_modules/.pnpm/@babel+plugin-proposal-private-methods@7.18.6_@babel+core@7.24.5/node_modules/@babel/plugin-proposal-private-methods/lib/index.js",{"loose":false}],["/Users/cthoburn/github/data/node_modules/.pnpm/babel-plugin-ember-template-compilation@2.2.2/node_modules/babel-plugin-ember-template-compilation/src/node-main.js",{"compilerPath":"/Users/cthoburn/github/data/node_modules/.pnpm/ember-source@5.7.0_@babel+core@7.24.5_@glimmer+component@1.1.2_@glint+template@1.4.0/node_modules/ember-source/dist/ember-template-compiler.js","enableLegacyModules":["ember-cli-htmlbars","ember-cli-htmlbars-inline-precompile","htmlbars-inline-precompile"]},"ember-cli-htmlbars:inline-precompile"],["/Users/cthoburn/github/data/node_modules/.pnpm/@embroider+macros@1.16.1_@babel+core@7.24.5_@glint+template@1.4.0/node_modules/@embroider/macros/src/babel/macros-babel-plugin.js",{"userConfigs":{"/Users/cthoburn/github/data/node_modules/.pnpm/file+packages+unpublished-test-infra_@babel+core@7.24.5_@ember-data+request@5.4.0-alpha.64_@e_pejps6kyscdbvao5m3qx7unhfy/node_modules/@ember-data/unpublished-test-infra":{"VERSION":"5.4.0-alpha.64","ASSERT_ALL_DEPRECATIONS":false},"/Users/cthoburn/github/data/node_modules/.pnpm/file+packages+core-types_@babel+core@7.24.5_@glint+template@1.4.0/node_modules/@warp-drive/core-types":{"PKG":{"name":"@warp-drive/core-types","version":"0.0.0-alpha.50"}}},"globalConfig":{"@embroider/macros":{"isTesting":false},"WarpDrive":{"debug":{"LOG_GRAPH":false,"LOG_IDENTIFIERS":false,"LOG_INSTANCE_CACHE":false,"LOG_MUTATIONS":false,"LOG_NOTIFICATIONS":false,"LOG_OPERATIONS":false,"LOG_PAYLOADS":false,"LOG_REQUESTS":false,"LOG_REQUEST_STATUS":false},"polyfillUUID":false,"includeDataAdapter":false,"compatWith":null,"deprecations":{"DEPRECATE_CATCH_ALL":true,"DEPRECATE_COMPUTED_CHAINS":true,"DEPRECATE_LEGACY_IMPORTS":true,"DEPRECATE_MANY_ARRAY_DUPLICATES":true,"DEPRECATE_NON_STRICT_ID":true,"DEPRECATE_NON_STRICT_TYPES":true,"DEPRECATE_NON_UNIQUE_PAYLOADS":true,"DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE":true},"features":{"SAMPLE_FEATURE_FLAG":null},"env":{"TESTING":true,"PRODUCTION":false,"DEBUG":true}}},"owningPackageRoot":null,"isDevelopingPackageRoots":["/Users/cthoburn/github/data/tests/ember-data__graph"],"appPackageRoot":"/Users/cthoburn/github/data/tests/ember-data__graph","embroiderMacrosConfigMarker":true,"mode":"run-time","importSyncImplementation":"cjs"}],["/Users/cthoburn/github/data/node_modules/.pnpm/@embroider+shared-internals@2.6.0_supports-color@8.1.1/node_modules/@embroider/shared-internals/src/babel-plugin-cache-busting.js",{"version":"b9447762bccdad905cc153df5f2e3be4ac3d0107bbbe77b6c83c4bdfb5a19d28"},"@embroider/macros cache buster: null"]],"presets":[["/Users/cthoburn/github/data/node_modules/.pnpm/@babel+preset-env@7.24.5_@babel+core@7.24.5/node_modules/@babel/preset-env/lib/index.js",{"modules":false,"targets":{"browsers":["last 1 Chrome versions","last 1 Firefox versions","last 1 Safari versions"],"node":"current"}}]]}}},{"use":{"loader":"babel-loader-8","options":{"sourceMaps":false,"generatorOpts":{},"plugins":[["/Users/cthoburn/github/data/node_modules/.pnpm/@embroider+macros@1.16.1_@babel+core@7.24.5_@glint+template@1.4.0/node_modules/@embroider/macros/src/babel/macros-babel-plugin.js",{"userConfigs":{"/Users/cthoburn/github/data/node_modules/.pnpm/file+packages+unpublished-test-infra_@babel+core@7.24.5_@ember-data+request@5.4.0-alpha.64_@e_pejps6kyscdbvao5m3qx7unhfy/node_modules/@ember-data/unpublished-test-infra":{"VERSION":"5.4.0-alpha.64","ASSERT_ALL_DEPRECATIONS":false},"/Users/cthoburn/github/data/node_modules/.pnpm/file+packages+core-types_@babel+core@7.24.5_@glint+template@1.4.0/node_modules/@warp-drive/core-types":{"PKG":{"name":"@warp-drive/core-types","version":"0.0.0-alpha.50"}}},"globalConfig":{"@embroider/macros":{"isTesting":false},"WarpDrive":{"debug":{"LOG_GRAPH":false,"LOG_IDENTIFIERS":false,"LOG_INSTANCE_CACHE":false,"LOG_MUTATIONS":false,"LOG_NOTIFICATIONS":false,"LOG_OPERATIONS":false,"LOG_PAYLOADS":false,"LOG_REQUESTS":false,"LOG_REQUEST_STATUS":false},"polyfillUUID":false,"includeDataAdapter":false,"compatWith":null,"deprecations":{"DEPRECATE_CATCH_ALL":true,"DEPRECATE_COMPUTED_CHAINS":true,"DEPRECATE_LEGACY_IMPORTS":true,"DEPRECATE_MANY_ARRAY_DUPLICATES":true,"DEPRECATE_NON_STRICT_ID":true,"DEPRECATE_NON_STRICT_TYPES":true,"DEPRECATE_NON_UNIQUE_PAYLOADS":true,"DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE":true},"features":{"SAMPLE_FEATURE_FLAG":null},"env":{"TESTING":true,"PRODUCTION":false,"DEBUG":true}}},"owningPackageRoot":"/Users/cthoburn/github/data/tests/ember-data__graph","isDevelopingPackageRoots":["/Users/cthoburn/github/data/tests/ember-data__graph"],"appPackageRoot":"/Users/cthoburn/github/data/tests/ember-data__graph","embroiderMacrosConfigMarker":true,"mode":"run-time","importSyncImplementation":"cjs"}],["/Users/cthoburn/github/data/node_modules/.pnpm/@embroider+shared-internals@2.6.0_supports-color@8.1.1/node_modules/@embroider/shared-internals/src/babel-plugin-cache-busting.js",{"version":"55c2593dfcdbb0ea5bee36d055b2014155f4039b9f0ba5d5eb3b4fc4fd882cb3"},"@embroider/macros cache buster: /Users/cthoburn/github/data/tests/ember-data__graph"],["/Users/cthoburn/github/data/node_modules/.pnpm/ember-auto-import@2.7.2_@glint+template@1.4.0/node_modules/ember-auto-import/js/analyzer-plugin.js",{"MARKER":"eaimeta@70e063a35619d71f"}],["/Users/cthoburn/github/data/node_modules/.pnpm/file+packages+build-config_@babel+core@7.24.5_@glint+template@1.4.0/node_modules/@warp-drive/build-config/dist/babel-plugin-transform-asserts.cjs",{},"@warp-drive/build-config/asserts-stripping"],["/Users/cthoburn/github/data/node_modules/.pnpm/file+packages+build-config_@babel+core@7.24.5_@glint+template@1.4.0/node_modules/@warp-drive/build-config/dist/babel-plugin-transform-features.cjs",{"source":"@warp-drive/build-config/canary-features","flags":{"SAMPLE_FEATURE_FLAG":false}},"@warp-drive/build-config/canary-features-stripping"],["/Users/cthoburn/github/data/node_modules/.pnpm/file+packages+build-config_@babel+core@7.24.5_@glint+template@1.4.0/node_modules/@warp-drive/build-config/dist/babel-plugin-transform-deprecations.cjs",{"source":"@warp-drive/build-config/deprecations","flags":{"DEPRECATE_CATCH_ALL":true,"DEPRECATE_COMPUTED_CHAINS":true,"DEPRECATE_LEGACY_IMPORTS":true,"DEPRECATE_MANY_ARRAY_DUPLICATES":true,"DEPRECATE_NON_STRICT_ID":true,"DEPRECATE_NON_STRICT_TYPES":true,"DEPRECATE_NON_UNIQUE_PAYLOADS":true,"DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE":true}},"@warp-drive/build-config/deprecation-stripping"],["/Users/cthoburn/github/data/node_modules/.pnpm/file+packages+build-config_@babel+core@7.24.5_@glint+template@1.4.0/node_modules/@warp-drive/build-config/dist/babel-plugin-transform-logging.cjs",{"source":"@warp-drive/build-config/debugging","configKey":"debug","flags":{"LOG_GRAPH":false,"LOG_IDENTIFIERS":false,"LOG_INSTANCE_CACHE":false,"LOG_MUTATIONS":false,"LOG_NOTIFICATIONS":false,"LOG_OPERATIONS":false,"LOG_PAYLOADS":false,"LOG_REQUESTS":false,"LOG_REQUEST_STATUS":false}},"@warp-drive/build-config/debugging-stripping"],["/Users/cthoburn/github/data/node_modules/.pnpm/file+packages+build-config_@babel+core@7.24.5_@glint+template@1.4.0/node_modules/@warp-drive/build-config/dist/babel-plugin-transform-logging.cjs",{"source":"@warp-drive/build-config/env","configKey":"env","flags":{"TESTING":true,"PRODUCTION":true,"DEBUG":true}},"@warp-drive/build-config/env"],["/Users/cthoburn/github/data/node_modules/.pnpm/ember-cli-htmlbars@6.3.0/node_modules/ember-cli-htmlbars/lib/colocated-babel-plugin.js",{"requiresModuleApiPolyfill":false}],["/Users/cthoburn/github/data/node_modules/.pnpm/@babel+plugin-transform-typescript@7.24.5_@babel+core@7.24.5/node_modules/@babel/plugin-transform-typescript/lib/index.js",{"allowDeclareFields":true}],["/Users/cthoburn/github/data/node_modules/.pnpm/@babel+plugin-transform-class-static-block@7.24.4_@babel+core@7.24.5/node_modules/@babel/plugin-transform-class-static-block/lib/index.js",{"legacy":true}],["/Users/cthoburn/github/data/node_modules/.pnpm/@babel+plugin-proposal-decorators@7.24.1_@babel+core@7.24.5/node_modules/@babel/plugin-proposal-decorators/lib/index.js",{"legacy":true}],["/Users/cthoburn/github/data/node_modules/.pnpm/@babel+plugin-proposal-private-property-in-object@7.21.11_@babel+core@7.24.5/node_modules/@babel/plugin-proposal-private-property-in-object/lib/index.js",{"loose":false}],["/Users/cthoburn/github/data/node_modules/.pnpm/@babel+plugin-proposal-private-methods@7.18.6_@babel+core@7.24.5/node_modules/@babel/plugin-proposal-private-methods/lib/index.js",{"loose":false}],["/Users/cthoburn/github/data/node_modules/.pnpm/@babel+plugin-proposal-class-properties@7.18.6_@babel+core@7.24.5/node_modules/@babel/plugin-proposal-class-properties/lib/index.js",{"loose":false}],["/Users/cthoburn/github/data/node_modules/.pnpm/babel-plugin-debug-macros@0.3.4_@babel+core@7.24.5/node_modules/babel-plugin-debug-macros/src/index.js",{"flags":[{"source":"@glimmer/env","flags":{"DEBUG":true,"CI":false}}],"debugTools":{"isDebug":true,"source":"@ember/debug","assertPredicateIndex":1},"externalizeHelpers":{"global":"Ember"}},"@ember/debug stripping"],["/Users/cthoburn/github/data/node_modules/.pnpm/babel-plugin-debug-macros@0.3.4_@babel+core@7.24.5/node_modules/babel-plugin-debug-macros/src/index.js",{"externalizeHelpers":{"global":"Ember"},"debugTools":{"isDebug":true,"source":"@ember/application/deprecations","assertPredicateIndex":1}},"@ember/application/deprecations stripping"]],"highlightCode":false,"babelrc":false,"configFile":false,"presets":[["/Users/cthoburn/github/data/node_modules/.pnpm/@babel+preset-env@7.24.5_@babel+core@7.24.5/node_modules/@babel/preset-env/lib/index.js",{"modules":false,"targets":{"browsers":["last 1 Chrome versions","last 1 Firefox versions","last 1 Safari versions"],"node":"current"}}]]}}},{"test":{},"use":[{"loader":"eai-style-loader"},{"loader":"eai-css-loader"}]}]},"node":false}
+ember-auto-import:inserter parsing index.html
+ember-auto-import:inserter looking for scripts with src: [ 'assets/vendor.js', 'assets/test-support.js' ]
+ember-auto-import:inserter looking for link with href: []
+ember-auto-import:inserter found stylesheet with href=/assets/vendor.css
+ember-auto-import:inserter found stylesheet with href=/assets/ember-data__graph.css
+ember-auto-import:inserter found script with src=/assets/vendor.js
+ember-auto-import:inserter inserting [
+  'assets/chunk.vendors-node_modules_pnpm_file_packages_model__babel_core_7_24_5__ember-data_graph_5_4_0-alph-1b35a4.e19e86dd4507bd86c083.js',
+  'assets/chunk.vendors-node_modules_pnpm_file_packages_json-api__babel_core_7_24_5__ember-data_graph_5_4_0-a-b40328.c8a7f500df8441364793.js',
+  'assets/chunk.app.62e56fe9f09b2c11177a.js'
+]
+ember-auto-import:inserter found script with src=/assets/ember-data__graph.js
+ember-auto-import:inserter parsing tests/index.html
+ember-auto-import:inserter looking for scripts with src: [ 'assets/vendor.js', 'assets/test-support.js' ]
+ember-auto-import:inserter looking for link with href: []
+ember-auto-import:inserter found stylesheet with href=/assets/vendor.css
+ember-auto-import:inserter found stylesheet with href=/assets/ember-data__graph.css
+ember-auto-import:inserter found script with src=/assets/vendor.js
+ember-auto-import:inserter inserting [
+  'assets/chunk.vendors-node_modules_pnpm_file_packages_model__babel_core_7_24_5__ember-data_graph_5_4_0-alph-1b35a4.e19e86dd4507bd86c083.js',
+  'assets/chunk.vendors-node_modules_pnpm_file_packages_json-api__babel_core_7_24_5__ember-data_graph_5_4_0-a-b40328.c8a7f500df8441364793.js',
+  'assets/chunk.app.62e56fe9f09b2c11177a.js'
+]
+ember-auto-import:inserter found script with src=/assets/test-support.js
+ember-auto-import:inserter inserting [
+  'assets/chunk.vendors-node_modules_pnpm_file_packages_model__babel_core_7_24_5__ember-data_graph_5_4_0-alph-1b35a4.e19e86dd4507bd86c083.js',
+  'assets/chunk.vendors-node_modules_pnpm_file_packages_diagnostic__ember_test-helpers_3_3_0_ember-cli-test-l-0198c5.3e8eb0339e0ef147db2d.js',
+  'assets/chunk.tests.a3e2a6d63baddaa6e653.js'
+]
+ember-auto-import:inserter found script with src=/assets/ember-data__graph.js
+ember-auto-import:inserter found script with src=/assets/tests.js
+- cleaning up
+cleaning up...
+- cleaning up
+Built project successfully. Stored in "/Users/cthoburn/github/data/tests/ember-data__graph/dist-test".

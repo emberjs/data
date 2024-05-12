@@ -8,6 +8,7 @@
     "moduleResolution": "NodeNext",
     "moduleDetection": "force",
     "strict": true,
+    "pretty": true,
     "noFallthroughCasesInSwitch": true,
     "downlevelIteration": true,
     "skipLibCheck": true,
@@ -16,6 +17,7 @@
     "allowJs": true,
     "noImplicitOverride": true,
     "resolveJsonModule": true,
+    "noEmit": true,
 
     // Enable faster builds
     // but causes us to not rebuild properly

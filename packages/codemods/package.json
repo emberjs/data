@@ -13,9 +13,9 @@
     "codemods": "codemods"
   },
   "scripts": {
-    "build:cli": "bun build bin/codemods.ts --compile --target node --outfile codemods --sourcemap",
-    "check:types": "tsc --noEmit",
-    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
+    "build:pkg": "bun build bin/codemods.ts --compile --target node --outfile codemods --sourcemap",
+    "prepack": "bun run build:pkg",
+    "lint": "eslint . --quiet --cache --cache-strategy=content --report-unused-disable-directives",
     "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
   "exports": {

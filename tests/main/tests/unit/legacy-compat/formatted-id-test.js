@@ -13,42 +13,42 @@ module('Unit | Data Utils | ID | formattedId (util)', function () {
   test('it throws an error when the id is undefined', function (assert) {
     assert.throws(() => {
       formattedId();
-    }, /Error: Assertion Failed: formattedId: id must not be undefined/);
+    }, /Error: formattedId: id must not be undefined/);
   });
 
   test('it throws an error when the id is empty', function (assert) {
     assert.throws(() => {
       formattedId('');
-    }, /Error: Assertion Failed: formattedId: id must not be empty/);
+    }, /Error: formattedId: id must not be empty/);
   });
 
   test('it throws an error when the id is 0', function (assert) {
     assert.throws(() => {
       formattedId(0);
-    }, /Error: Assertion Failed: formattedId: id must not be 0/);
+    }, /Error: formattedId: id must not be 0/);
   });
 
   test('it throws an error when the id is "0"', function (assert) {
     assert.throws(() => {
       formattedId('0');
-    }, /Error: Assertion Failed: formattedId: id must not be 0/);
+    }, /Error: formattedId: id must not be 0/);
   });
 
   test('it throws an error when the id is not a string', function (assert) {
     assert.throws(() => {
       formattedId(new Date());
-    }, /Error: Assertion Failed: formattedId: id must be a number, string or null/);
+    }, /Error: formattedId: id must be a number, string or null/);
 
     assert.throws(() => {
       formattedId([]);
-    }, /Error: Assertion Failed: formattedId: id must be a number, string or null/);
+    }, /Error: formattedId: id must be a number, string or null/);
 
     assert.throws(() => {
       formattedId(true);
-    }, /Error: Assertion Failed: formattedId: id must be a number, string or null/);
+    }, /Error: formattedId: id must be a number, string or null/);
 
     assert.throws(() => {
       formattedId(false);
-    }, /Error: Assertion Failed: formattedId: id must be a number, string or null/);
+    }, /Error: formattedId: id must be a number, string or null/);
   });
 });

@@ -3,7 +3,7 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import type Store from '@ember-data/store';
-import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+import { test as testInDebug } from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('Integration | Identifiers - cache', function (hooks) {
   setupTest(hooks);

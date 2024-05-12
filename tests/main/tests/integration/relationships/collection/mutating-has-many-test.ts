@@ -8,7 +8,7 @@ import Model, { attr, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import { DEPRECATE_MANY_ARRAY_DUPLICATES } from '@warp-drive/build-config/deprecations';
-import type { ExistingResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
+import type { ExistingResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
 import { ResourceType } from '@warp-drive/core-types/symbols';
 
 import type { ReactiveContext } from '../../../helpers/reactive-context';

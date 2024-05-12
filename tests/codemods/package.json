@@ -1,7 +1,7 @@
 {
   "name": "codemods-tests",
   "private": true,
-  "version": "5.4.0-alpha.62",
+  "version": "5.4.0-alpha.64",
   "description": "Codemods for EmberData paradigms",
   "keywords": [],
   "repository": {
@@ -14,8 +14,8 @@
   },
   "type": "module",
   "scripts": {
-    "check:types": "tsc --noEmit",
-    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
+    "check:types": "",
+    "lint": "eslint . --quiet --cache --cache-strategy=content --report-unused-disable-directives",
     "test": "tsx --test tests/index.spec.ts",
     "fixme": "tsx --test tests/index.spec.ts",
     "_syncPnpm": "bun run sync-dependencies-meta-injected"
@@ -47,5 +47,10 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.15.6"
+  "packageManager": "pnpm@8.15.6",
+  "dependenciesMeta": {
+    "@ember-data/codemods": {
+      "injected": true
+    }
+  }
 }

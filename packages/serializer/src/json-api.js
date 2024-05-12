@@ -1,12 +1,13 @@
 /**
  * @module @ember-data/serializer/json-api
  */
-import { assert, warn } from '@ember/debug';
+import { warn } from '@ember/debug';
 import { dasherize } from '@ember/string';
 
 import { pluralize, singularize } from 'ember-inflector';
 
 import { DEBUG } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
 
 import JSONSerializer from './json';
 

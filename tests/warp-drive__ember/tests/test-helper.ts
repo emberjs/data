@@ -1,7 +1,7 @@
 import { setApplication } from '@ember/test-helpers';
 
 import { setBuildURLConfig } from '@ember-data/request-utils';
-import configureAsserts from '@ember-data/unpublished-test-infra/test-support/asserts';
+import configureAsserts from '@ember-data/unpublished-test-infra/test-support/asserts/index';
 import { setupGlobalHooks } from '@warp-drive/diagnostic';
 import { configure } from '@warp-drive/diagnostic/ember';
 import { start } from '@warp-drive/diagnostic/runners/dom';

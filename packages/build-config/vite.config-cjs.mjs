@@ -1,0 +1,23 @@
+import { createConfig } from '@warp-drive/internal-config/vite/config.js';
+
+export const externals = ['babel-import-util', 'fs'];
+
+export const entryPoints = [
+  './cjs-src/transforms/babel-plugin-transform-asserts.js',
+  './cjs-src/transforms/babel-plugin-transform-deprecations.js',
+  './cjs-src/transforms/babel-plugin-transform-features.js',
+  './cjs-src/transforms/babel-plugin-transform-logging.js',
+];
+
+export default createConfig(
+  {
+    entryPoints,
+    flatten: true,
+    format: 'cjs',
+    externals,
+    emptyOutDir: false,
+    fixModule: false,
+    compileTypes: false,
+  },
+  import.meta.resolve
+);

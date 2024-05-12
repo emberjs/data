@@ -1,5 +1,4 @@
-import { assert } from '@ember/debug';
-
+import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { AddToRelatedRecordsOperation } from '@warp-drive/core-types/graph';
 

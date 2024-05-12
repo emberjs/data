@@ -50,6 +50,7 @@ export type TypeFromInstance<T> = T extends TypedRecordInstance ? T[typeof Resou
  */
 export type TypeFromInstanceOrString<T> = T extends TypedRecordInstance ? T[typeof ResourceType] : string;
 
+type IsUniqueSymbol<T> = T extends `___(unique) Symbol(${string})` ? true : false;
 type Unpacked<T> = T extends (infer U)[] ? U : T;
 type NONE = { __NONE: never };
 
@@ -97,18 +98,20 @@ type _ExtractUnion<
   DEPTH extends _DEPTHCOUNT,
 > = {
   // for each string key in the record,
-  [K in keyof T]: K extends string
-    ? // we recursively extract any values that resolve to a TypedRecordInstance
-      __ExtractIfRecord<
-        MAX_DEPTH,
-        T,
-        Unpacked<Awaited<T[K]>>,
-        IncludePrefix,
-        Ignore,
-        Pre extends string ? `${Pre}.${K}` : K,
-        DEPTH
-      >
-    : never;
+  [K in keyof T]: IsUniqueSymbol<K> extends true
+    ? never
+    : K extends string
+      ? // we recursively extract any values that resolve to a TypedRecordInstance
+        __ExtractIfRecord<
+          MAX_DEPTH,
+          T,
+          Unpacked<Awaited<T[K]>>,
+          IncludePrefix,
+          Ignore,
+          Pre extends string ? `${Pre}.${K}` : K,
+          DEPTH
+        >
+      : never;
   // then we return any value that is not 'never'
 }[keyof T];
 
@@ -176,4 +179,6 @@ export type Includes<T extends TypedRecordInstance, MAX_DEPTH extends _DEPTHCOUN
   MAX_DEPTH,
   T,
   true
->; // ToPaths<ExpandIgnore<T>>;
+>;
+
+export type OpaqueRecordInstance = unknown;

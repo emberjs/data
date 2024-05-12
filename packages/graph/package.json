@@ -13,17 +13,15 @@
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "scripts": {
-    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
-    "build:types": "tsc --build",
-    "build:client": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
-    "_build": "bun run build:client && bun run build:types",
-    "prepack": "bun run _build",
-    "_syncPnpm": "bun run sync-dependencies-meta-injected"
+    "lint": "eslint . --quiet --cache --cache-strategy=content --report-unused-disable-directives",
+    "build:pkg": "vite build;",
+    "prepack": "bun run build:pkg",
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
   "files": [
     "unstable-preview-types",
     "addon-main.cjs",
-    "addon",
+    "dist",
     "README.md",
     "LICENSE.md",
     "ember-data-logo-dark.svg",
@@ -32,21 +30,14 @@
   "exports": {
     ".": {
       "types": "./unstable-preview-types/index.d.ts",
-      "default": "./addon/index.js"
+      "default": "./dist/index.js"
     },
     "./*": {
       "types": "./unstable-preview-types/*.d.ts",
-      "default": "./addon/*.js"
+      "default": "./dist/*.js"
     }
   },
-  "peerDependencies": {
-    "@ember-data/store": "workspace:5.4.0-alpha.64",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.50"
-  },
   "dependenciesMeta": {
-    "@ember-data/private-build-infra": {
-      "injected": true
-    },
     "@ember-data/store": {
       "injected": true
     },
@@ -61,44 +52,40 @@
     },
     "@ember/string": {
       "injected": true
+    },
+    "@warp-drive/build-config": {
+      "injected": true
     }
   },
+  "peerDependencies": {
+    "@ember-data/store": "workspace:5.4.0-alpha.64",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.50"
+  },
   "dependencies": {
-    "@ember-data/private-build-infra": "workspace:5.4.0-alpha.64",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.15.1",
-    "ember-cli-babel": "^8.2.0"
+    "@embroider/addon-shim": "^1.8.7"
   },
   "devDependencies": {
-    "@babel/cli": "^7.24.1",
     "@babel/core": "^7.24.4",
-    "@babel/plugin-proposal-decorators": "^7.24.1",
-    "@babel/plugin-transform-class-properties": "^7.24.1",
-    "@babel/plugin-transform-private-methods": "^7.24.1",
-    "@babel/plugin-transform-runtime": "^7.24.3",
     "@babel/plugin-transform-typescript": "^7.24.4",
     "@babel/preset-env": "^7.24.4",
     "@babel/preset-typescript": "^7.24.1",
-    "@babel/runtime": "^7.24.4",
     "@ember-data/request": "workspace:5.4.0-alpha.64",
     "@ember-data/store": "workspace:5.4.0-alpha.64",
     "@ember-data/tracking": "workspace:5.4.0-alpha.64",
     "@ember/string": "^3.1.1",
-    "@embroider/addon-dev": "^4.3.1",
     "@glimmer/component": "^1.1.2",
-    "@rollup/plugin-babel": "^6.0.4",
-    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.1",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.50",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.64",
     "ember-source": "~5.7.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
-    "rollup": "^4.14.3",
     "typescript": "^5.4.5",
-    "walk-sync": "^3.0.0",
-    "webpack": "^5.91.0"
+    "vite": "^5.2.11"
   },
   "engines": {
-    "node": ">= 18.20.2"
+    "node": ">= 22.1.0"
   },
   "volta": {
     "extends": "../../package.json"
@@ -107,7 +94,7 @@
   "ember-addon": {
     "main": "addon-main.cjs",
     "type": "addon",
-    "version": 1
+    "version": 2
   },
   "ember": {
     "edition": "octane"

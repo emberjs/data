@@ -1,15 +1,23 @@
 import Cache from '@ember-data/json-api';
 import type { StructuredDataDocument } from '@ember-data/request';
+import type { NotificationType } from '@ember-data/store';
 import Store from '@ember-data/store';
-import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
-import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
+import type { CacheCapabilitiesManager, SchemaService } from '@ember-data/store/types';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
-import type { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
+import type { FieldSchema } from '@warp-drive/core-types/schema/fields';
 import type { CollectionResourceDataDocument } from '@warp-drive/core-types/spec/document';
-import type { CollectionResourceDocument } from '@warp-drive/core-types/spec/raw';
+import type { CollectionResourceDocument, ResourceObject } from '@warp-drive/core-types/spec/json-api-raw';
 import { module, test } from '@warp-drive/diagnostic';
+
+type AttributesSchema = ReturnType<SchemaService['attributesDefinitionFor']>;
+type RelationshipsSchema = ReturnType<SchemaService['relationshipsDefinitionFor']>;
+
+function asStructuredDocument<T>(doc: {
+  request?: { url: string; cacheOptions?: { key?: string } };
+  content: T;
+}): StructuredDataDocument<T> {
+  return doc as unknown as StructuredDataDocument<T>;
+}
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
 class TestStore extends Store {
@@ -20,7 +28,7 @@ class TestStore extends Store {
   override instantiateRecord(identifier: StableRecordIdentifier) {
     const { id, lid, type } = identifier;
     const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
-    Object.assign(record, (this.cache.peek(identifier) as JsonApiResource).attributes);
+    Object.assign(record, (this.cache.peek(identifier) as ResourceObject).attributes);
 
     const token = this.notifications.subscribe(
       identifier,
@@ -93,14 +101,16 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
     const store = new TestStore();
     store.registerSchema(new TestSchema());
 
-    const responseDocument = store.cache.put({
-      content: {
-        data: [
-          { type: 'user', id: '1', attributes: { name: 'Chris' } },
-          { type: 'user', id: '2', attributes: { name: 'Wesley' } },
-        ],
-      },
-    }) as CollectionResourceDataDocument;
+    const responseDocument = store.cache.put(
+      asStructuredDocument({
+        content: {
+          data: [
+            { type: 'user', id: '1', attributes: { name: 'Chris' } },
+            { type: 'user', id: '2', attributes: { name: 'Wesley' } },
+          ],
+        },
+      })
+    );
     const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
     const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
 
@@ -111,15 +121,17 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
     const store = new TestStore();
     store.registerSchema(new TestSchema());
 
-    const responseDocument = store.cache.put({
-      request: { url: 'https://api.example.com/v1/users' },
-      content: {
-        data: [
-          { type: 'user', id: '1', attributes: { name: 'Chris' } },
-          { type: 'user', id: '2', attributes: { name: 'Wesley' } },
-        ],
-      },
-    }) as CollectionResourceDataDocument;
+    const responseDocument = store.cache.put(
+      asStructuredDocument({
+        request: { url: 'https://api.example.com/v1/users' },
+        content: {
+          data: [
+            { type: 'user', id: '1', attributes: { name: 'Chris' } },
+            { type: 'user', id: '2', attributes: { name: 'Wesley' } },
+          ],
+        },
+      })
+    );
     const identifier = store.identifierCache.getOrCreateRecordIdentifier({
       type: 'user',
       id: '1',
@@ -160,11 +172,13 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
     const store = new TestStore();
     store.registerSchema(new TestSchema());
 
-    const responseDocument = store.cache.put({
-      content: {
-        data: [{ type: 'user', id: '1', attributes: { name: 'Chris' } }],
-      },
-    }) as CollectionResourceDataDocument;
+    const responseDocument = store.cache.put(
+      asStructuredDocument({
+        content: {
+          data: [{ type: 'user', id: '1', attributes: { name: 'Chris' } }],
+        },
+      })
+    );
     const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
 
     assert.deepEqual(responseDocument.data, [identifier], 'We were given the correct data back');
@@ -190,11 +204,13 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
       'Resource Blob is kept updated in the cache after mutation'
     );
 
-    store.cache.put({
-      content: {
-        data: [{ type: 'user', id: '1', attributes: { username: '@runspired' } }],
-      },
-    });
+    store.cache.put(
+      asStructuredDocument({
+        content: {
+          data: [{ type: 'user', id: '1', attributes: { username: '@runspired' } }],
+        },
+      })
+    );
 
     resourceData = store.cache.peek(identifier);
     assert.deepEqual(
@@ -268,65 +284,67 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
 
     let responseDocument: CollectionResourceDataDocument;
     store._run(() => {
-      responseDocument = store.cache.put({
-        content: {
-          data: [
-            {
-              type: 'user',
-              id: '1',
-              attributes: { name: 'Chris' },
-              relationships: {
-                bestFriend: {
-                  data: { type: 'user', id: '2' },
-                },
-                worstEnemy: {
-                  data: { type: 'user', id: '3' },
-                },
-                friends: {
-                  data: [
-                    { type: 'user', id: '2' },
-                    { type: 'user', id: '3' },
-                  ],
-                },
-              },
-            },
-          ],
-          included: [
-            {
-              type: 'user',
-              id: '2',
-              attributes: { name: 'Wesley' },
-              relationships: {
-                bestFriend: {
-                  data: { type: 'user', id: '1' },
-                },
-                friends: {
-                  data: [
-                    { type: 'user', id: '1' },
-                    { type: 'user', id: '3' },
-                  ],
+      responseDocument = store.cache.put(
+        asStructuredDocument({
+          content: {
+            data: [
+              {
+                type: 'user',
+                id: '1',
+                attributes: { name: 'Chris' },
+                relationships: {
+                  bestFriend: {
+                    data: { type: 'user', id: '2' },
+                  },
+                  worstEnemy: {
+                    data: { type: 'user', id: '3' },
+                  },
+                  friends: {
+                    data: [
+                      { type: 'user', id: '2' },
+                      { type: 'user', id: '3' },
+                    ],
+                  },
                 },
               },
-            },
-            {
-              type: 'user',
-              id: '3',
-              attributes: { name: 'Rey' },
-              relationships: {
-                bestFriend: {
-                  data: null,
-                },
-                friends: {
-                  data: [
-                    { type: 'user', id: '1' },
-                    { type: 'user', id: '2' },
-                  ],
+            ],
+            included: [
+              {
+                type: 'user',
+                id: '2',
+                attributes: { name: 'Wesley' },
+                relationships: {
+                  bestFriend: {
+                    data: { type: 'user', id: '1' },
+                  },
+                  friends: {
+                    data: [
+                      { type: 'user', id: '1' },
+                      { type: 'user', id: '3' },
+                    ],
+                  },
                 },
               },
-            },
-          ],
-        },
-      }) as CollectionResourceDataDocument;
+              {
+                type: 'user',
+                id: '3',
+                attributes: { name: 'Rey' },
+                relationships: {
+                  bestFriend: {
+                    data: null,
+                  },
+                  friends: {
+                    data: [
+                      { type: 'user', id: '1' },
+                      { type: 'user', id: '2' },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        })
+      );
     });
     const identifier1 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
     const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });

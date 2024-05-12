@@ -35,17 +35,6 @@
       "types": "private",
       "typesPublish": false
     },
-    "@ember-data/codemods": {
-      "stage": "stable",
-      "types": "private",
-      "mirrorPublish": false,
-      "typesPublish": false
-    },
-    "@ember-data/private-build-infra": {
-      "stage": "stable",
-      "types": "private",
-      "typesPublish": false
-    },
     "@warp-drive/holodeck": {
       "stage": "alpha",
       "types": "private",

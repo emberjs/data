@@ -25,7 +25,7 @@ import { TransformName } from '@warp-drive/core-types/symbols';
   @class StringTransform
   @public
  */
-export default class StringTransform {
+export class StringTransform {
   deserialize(serialized: unknown, _options?: Record<string, unknown>): string | null {
     return !serialized && serialized !== '' ? null : String(serialized);
   }

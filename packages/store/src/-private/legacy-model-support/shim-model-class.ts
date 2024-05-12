@@ -1,12 +1,13 @@
+import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
-import type { AttributeSchema, RelationshipSchema } from '@warp-drive/core-types/schema';
+import type { LegacyAttributeField, LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
 
 import type { KeyOrString, ModelSchema } from '../../-types/q/ds-model';
-import type Store from '../store-service';
+import type { Store } from '../store-service';
 
 // if modelFor turns out to be a bottleneck we should replace with a Map
 // and clear it during store teardown.
-const AvailableShims = new WeakMap<Store, Record<string, ShimModelClass>>();
+const AvailableShims = getOrSetGlobal('AvailableShims', new WeakMap<Store, Record<string, ShimModelClass>>());
 
 export function getShimClass<T>(
   store: Store,
@@ -57,19 +58,19 @@ export default class ShimModelClass<T = unknown> implements ModelSchema<T> {
     return fields;
   }
 
-  get attributes(): Map<KeyOrString<T>, AttributeSchema> {
+  get attributes(): Map<KeyOrString<T>, LegacyAttributeField> {
     const attrs = this.__store.getSchemaDefinitionService().attributesDefinitionFor({ type: this.modelName });
-    return mapFromHash(attrs as Record<keyof T & string, AttributeSchema>);
+    return mapFromHash(attrs as Record<keyof T & string, LegacyAttributeField>);
   }
 
-  get relationshipsByName(): Map<KeyOrString<T>, RelationshipSchema> {
+  get relationshipsByName(): Map<KeyOrString<T>, LegacyRelationshipSchema> {
     const relationships = this.__store
       .getSchemaDefinitionService()
       .relationshipsDefinitionFor({ type: this.modelName });
-    return mapFromHash(relationships as Record<keyof T & string, RelationshipSchema>);
+    return mapFromHash(relationships as Record<keyof T & string, LegacyRelationshipSchema>);
   }
 
-  eachAttribute<K extends KeyOrString<T>>(callback: (key: K, attribute: AttributeSchema) => void, binding?: T) {
+  eachAttribute<K extends KeyOrString<T>>(callback: (key: K, attribute: LegacyAttributeField) => void, binding?: T) {
     const attrDefs = this.__store.getSchemaDefinitionService().attributesDefinitionFor({ type: this.modelName });
     Object.keys(attrDefs).forEach((key) => {
       callback.call(binding, key as K, attrDefs[key]);
@@ -77,7 +78,7 @@ export default class ShimModelClass<T = unknown> implements ModelSchema<T> {
   }
 
   eachRelationship<K extends KeyOrString<T>>(
-    callback: (key: K, relationship: RelationshipSchema) => void,
+    callback: (key: K, relationship: LegacyRelationshipSchema) => void,
     binding?: T
   ) {
     const relationshipDefs = this.__store
@@ -91,8 +92,9 @@ export default class ShimModelClass<T = unknown> implements ModelSchema<T> {
   eachTransformedAttribute<K extends KeyOrString<T>>(callback: (key: K, type: string | null) => void, binding?: T) {
     const attrDefs = this.__store.getSchemaDefinitionService().attributesDefinitionFor({ type: this.modelName });
     Object.keys(attrDefs).forEach((key) => {
-      if (attrDefs[key].type) {
-        callback.call(binding, key as K, attrDefs[key].type);
+      const type = attrDefs[key].type;
+      if (type) {
+        callback.call(binding, key as K, type);
       }
     });
   }

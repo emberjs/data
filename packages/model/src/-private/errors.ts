@@ -101,7 +101,7 @@ const ArrayProxyWithCustomOverrides = ArrayProxy as unknown as new <T>() => Arra
   @public
   @extends Ember.ArrayProxy
  */
-class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
+export class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
   declare __record: { currentState: RecordState };
   /**
     @property errorsByAttributeName
@@ -399,9 +399,6 @@ class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
     Checks if there are error messages for the given attribute.
 
     ```app/controllers/user/edit.js
-    import Controller from '@ember/controller';
-    import { action } from '@ember/object';
-
     export default class UserEditController extends Controller {
       @action
       save(user) {
@@ -422,5 +419,3 @@ class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
     return this.errorsFor(attribute).length > 0;
   }
 }
-
-export default Errors;

@@ -10,7 +10,6 @@
 // };
 
 module.exports = function (app) {
-  // eslint-disable-next-line no-console
   console.log(`\n\n\t💎 mounting mock server\n\n`);
   let mocks;
   try {
@@ -21,7 +20,6 @@ module.exports = function (app) {
       return require(realPath);
     });
   } catch (e) {
-    // eslint-disable-next-line no-console
     console.error(e);
     return;
   }

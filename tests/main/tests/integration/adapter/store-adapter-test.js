@@ -14,6 +14,10 @@ import RESTSerializer from '@ember-data/serializer/rest';
 import { recordIdentifierFor } from '@ember-data/store';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
+function isSnapshot(snapshot) {
+  return snapshot instanceof Snapshot || snapshot.constructor.name === 'Snapshot';
+}
+
 function moveRecordOutOfInFlight(record) {
   // move record out of the inflight state so the tests can clean up
   // correctly
@@ -1080,7 +1084,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     const adapter = store.adapterFor('application');
 
     adapter.createRecord = function (store, type, snapshot) {
-      assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
+      assert.ok(isSnapshot(snapshot), 'snapshot is an instance of Snapshot');
       return Promise.resolve();
     };
 
@@ -1096,7 +1100,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     const adapter = store.adapterFor('application');
 
     adapter.updateRecord = function (store, type, snapshot) {
-      assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
+      assert.ok(isSnapshot(snapshot), 'snapshot is an instance of Snapshot');
       return Promise.resolve();
     };
 
@@ -1122,7 +1126,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     const adapter = store.adapterFor('application');
 
     adapter.deleteRecord = function (store, type, snapshot) {
-      assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
+      assert.ok(isSnapshot(snapshot), 'snapshot is an instance of Snapshot');
       return Promise.resolve();
     };
 
@@ -1148,7 +1152,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     const adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, id, snapshot) {
-      assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
+      assert.ok(isSnapshot(snapshot), 'snapshot is an instance of Snapshot');
       return Promise.resolve({ data: { id: '1', type: 'person' } });
     };
 
@@ -1168,8 +1172,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     adapter.coalesceFindRequests = true;
     adapter.findMany = function (store, type, ids, snapshots) {
-      assert.ok(snapshots[0] instanceof Snapshot, 'snapshots[0] is an instance of Snapshot');
-      assert.ok(snapshots[1] instanceof Snapshot, 'snapshots[1] is an instance of Snapshot');
+      assert.ok(isSnapshot(snapshots[0]), 'snapshots[0] is an instance of Snapshot');
+      assert.ok(isSnapshot(snapshots[1]), 'snapshots[1] is an instance of Snapshot');
       return Promise.resolve({
         data: [
           { id: '2', type: 'dog' },
@@ -1209,7 +1213,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     this.owner.register('model:person', Person);
 
     adapter.findHasMany = function (store, snapshot, link, relationship) {
-      assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
+      assert.ok(isSnapshot(snapshot), 'snapshot is an instance of Snapshot');
       return Promise.resolve({
         data: [
           { id: '2', type: 'dog' },
@@ -1249,7 +1253,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     this.owner.register('model:person', Person);
 
     adapter.findBelongsTo = function (store, snapshot, link, relationship) {
-      assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
+      assert.ok(isSnapshot(snapshot), 'snapshot is an instance of Snapshot');
       return Promise.resolve({ data: { id: '2', type: 'dog' } });
     };
 

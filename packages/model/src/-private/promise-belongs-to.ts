@@ -1,12 +1,11 @@
-import { assert } from '@ember/debug';
 import { computed } from '@ember/object';
 import type PromiseProxyMixin from '@ember/object/promise-proxy-mixin';
 import type ObjectProxy from '@ember/object/proxy';
 
 import type Store from '@ember-data/store';
-import type { OpaqueRecordInstance } from '@ember-data/store/-types/q/record-instance';
 import { cached } from '@ember-data/tracking';
-import type { TypeFromInstanceOrString } from '@warp-drive/core-types/record';
+import { assert } from '@warp-drive/build-config/macros';
+import type { OpaqueRecordInstance, TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 
 import type { LegacySupport } from './legacy-relationships-support';
 import { PromiseObject } from './promise-proxy-base';
@@ -29,7 +28,7 @@ interface PromiseObjectType<T> extends PromiseProxyMixin<T | null>, ObjectProxy<
   // eslint-disable-next-line @typescript-eslint/no-misused-new
   new <PT>(...args: unknown[]): PromiseObjectType<PT>;
 }
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-extraneous-class
 declare class PromiseObjectType<T> {}
 
 const Extended: PromiseObjectType<OpaqueRecordInstance> =

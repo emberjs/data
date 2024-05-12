@@ -56,13 +56,13 @@ module('parseCacheControl', function (hooks) {
     await assert.expectAssertion(() => {
       const header = 'max-age=,';
       parseCacheControl(header);
-    }, /Assertion Failed: Invalid Cache-Control value, expected a value after "=" but got ","/);
+    }, /Invalid Cache-Control value, expected a value after "=" but got ","/);
   });
 
   debug('throws when Cache-Control has invalid value type', async function (assert) {
     await assert.expectAssertion(() => {
       const header = 'max-age="3600"';
       parseCacheControl(header);
-    }, /Assertion Failed: Invalid Cache-Control value, expected a number but got - "3600"/);
+    }, /Invalid Cache-Control value, expected a number but got - "3600"/);
   });
 });

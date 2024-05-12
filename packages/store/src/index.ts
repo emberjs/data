@@ -184,14 +184,16 @@
 
 export {
   Store as default,
+  type StoreRequestContext,
   CacheHandler,
+  type Document,
   type LifetimesService,
   type StoreRequestInput,
   recordIdentifierFor,
   storeFor,
 } from './-private';
 
-export type { NotificationType } from './-private/managers/notification-manager';
+export type { CacheOperation, NotificationType } from './-private/managers/notification-manager';
 
 export {
   setIdentifierGenerationMethod,

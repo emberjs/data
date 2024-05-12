@@ -2,12 +2,12 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
-import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 import type { ResourceType } from '@warp-drive/core-types/symbols';
 import type { Transform } from '@warp-drive/schema-record/schema';
 import { registerDerivations, SchemaService, withFields } from '@warp-drive/schema-record/schema';
+
+import type Store from 'warp-drive__schema-record/services/store';
 
 interface User {
   id: string;
@@ -37,12 +37,10 @@ module('Writes | array fields', function (hooks) {
       fields: withFields([
         {
           name: 'name',
-          type: null,
           kind: 'field',
         },
         {
           name: 'favoriteNumbers',
-          type: null,
           kind: 'array',
         },
       ]),
@@ -69,7 +67,7 @@ module('Writes | array fields', function (hooks) {
 
     // test that the data entered the cache properly
     const identifier = recordIdentifierFor(record);
-    const cachedResourceData = store.cache.peek<JsonApiResource>(identifier);
+    const cachedResourceData = store.cache.peek(identifier)!;
 
     assert.deepEqual(
       cachedResourceData?.attributes?.favoriteNumbers,
@@ -88,12 +86,10 @@ module('Writes | array fields', function (hooks) {
       fields: withFields([
         {
           name: 'name',
-          type: null,
           kind: 'field',
         },
         {
           name: 'favoriteNumbers',
-          type: null,
           kind: 'array',
         },
       ]),
@@ -118,7 +114,7 @@ module('Writes | array fields', function (hooks) {
 
     // test that the data entered the cache properly
     const identifier = recordIdentifierFor(record);
-    const cachedResourceData = store.cache.peek<JsonApiResource>(identifier);
+    const cachedResourceData = store.cache.peek(identifier);
 
     assert.deepEqual(
       cachedResourceData?.attributes?.favoriteNumbers,
@@ -139,12 +135,10 @@ module('Writes | array fields', function (hooks) {
       fields: withFields([
         {
           name: 'name',
-          type: null,
           kind: 'field',
         },
         {
           name: 'favoriteNumbers',
-          type: null,
           kind: 'array',
         },
       ]),
@@ -166,7 +160,7 @@ module('Writes | array fields', function (hooks) {
 
     // test that the data entered the cache properly
     const identifier = recordIdentifierFor(record);
-    const cachedResourceData = store.cache.peek<JsonApiResource>(identifier);
+    const cachedResourceData = store.cache.peek(identifier);
 
     assert.deepEqual(
       cachedResourceData?.attributes?.favoriteNumbers,
@@ -185,12 +179,10 @@ module('Writes | array fields', function (hooks) {
       fields: withFields([
         {
           name: 'name',
-          type: null,
           kind: 'field',
         },
         {
           name: 'favoriteNumbers',
-          type: null,
           kind: 'array',
         },
       ]),
@@ -217,7 +209,7 @@ module('Writes | array fields', function (hooks) {
 
     // test that the data entered the cache properly
     const identifier = recordIdentifierFor(record);
-    const cachedResourceData = store.cache.peek<JsonApiResource>(identifier);
+    const cachedResourceData = store.cache.peek(identifier);
 
     assert.deepEqual(
       cachedResourceData?.attributes?.favoriteNumbers,
@@ -236,12 +228,10 @@ module('Writes | array fields', function (hooks) {
       fields: withFields([
         {
           name: 'name',
-          type: null,
           kind: 'field',
         },
         {
           name: 'favoriteNumbers',
-          type: null,
           kind: 'array',
         },
       ]),
@@ -269,7 +259,7 @@ module('Writes | array fields', function (hooks) {
 
     // test that the data entered the cache properly
     const identifier = recordIdentifierFor(record);
-    const cachedResourceData = store.cache.peek<JsonApiResource>(identifier);
+    const cachedResourceData = store.cache.peek(identifier);
 
     assert.deepEqual(cachedResourceData?.attributes?.favoriteNumbers, ['1'], 'the cache values are correctly updated');
   });
@@ -284,12 +274,10 @@ module('Writes | array fields', function (hooks) {
       fields: withFields([
         {
           name: 'name',
-          type: null,
           kind: 'field',
         },
         {
           name: 'favoriteNumbers',
-          type: null,
           kind: 'array',
         },
       ]),
@@ -316,7 +304,7 @@ module('Writes | array fields', function (hooks) {
 
     // test that the data entered the cache properly
     const identifier = recordIdentifierFor(record);
-    const cachedResourceData = store.cache.peek<JsonApiResource>(identifier);
+    const cachedResourceData = store.cache.peek(identifier);
 
     assert.deepEqual(
       cachedResourceData?.attributes?.favoriteNumbers,
@@ -335,12 +323,10 @@ module('Writes | array fields', function (hooks) {
       fields: withFields([
         {
           name: 'name',
-          type: null,
           kind: 'field',
         },
         {
           name: 'favoriteNumbers',
-          type: null,
           kind: 'array',
         },
       ]),
@@ -368,7 +354,7 @@ module('Writes | array fields', function (hooks) {
 
     // test that the data entered the cache properly
     const identifier = recordIdentifierFor(record);
-    const cachedResourceData = store.cache.peek<JsonApiResource>(identifier);
+    const cachedResourceData = store.cache.peek(identifier);
 
     assert.deepEqual(cachedResourceData?.attributes?.favoriteNumbers, ['2'], 'the cache values are correctly updated');
   });
@@ -383,12 +369,10 @@ module('Writes | array fields', function (hooks) {
       fields: withFields([
         {
           name: 'name',
-          type: null,
           kind: 'field',
         },
         {
           name: 'favoriteNumbers',
-          type: null,
           kind: 'array',
         },
       ]),
@@ -426,7 +410,7 @@ module('Writes | array fields', function (hooks) {
     assert.notStrictEqual(favoriteNumbers, record2.favoriteNumbers, 'This is weird');
     // test that the data entered the cache properly
     const identifier = recordIdentifierFor(record2);
-    const cachedResourceData = store.cache.peek<JsonApiResource>(identifier);
+    const cachedResourceData = store.cache.peek(identifier);
 
     assert.deepEqual(
       cachedResourceData?.attributes?.favoriteNumbers,
@@ -445,7 +429,6 @@ module('Writes | array fields', function (hooks) {
       fields: withFields([
         {
           name: 'name',
-          type: null,
           kind: 'field',
         },
         {
@@ -491,7 +474,7 @@ module('Writes | array fields', function (hooks) {
 
     // test that the data entered the cache properly
     const identifier = recordIdentifierFor(record);
-    const cachedResourceData = store.cache.peek<JsonApiResource>(identifier);
+    const cachedResourceData = store.cache.peek(identifier);
 
     assert.deepEqual(
       cachedResourceData?.attributes?.favoriteNumbers,
@@ -511,7 +494,6 @@ module('Writes | array fields', function (hooks) {
       fields: withFields([
         {
           name: 'name',
-          type: null,
           kind: 'field',
         },
         {
@@ -557,7 +539,7 @@ module('Writes | array fields', function (hooks) {
 
     // test that the data entered the cache properly
     const identifier = recordIdentifierFor(record);
-    const cachedResourceData = store.cache.peek<JsonApiResource>(identifier);
+    const cachedResourceData = store.cache.peek(identifier);
 
     assert.deepEqual(
       cachedResourceData?.attributes?.favoriteNumbers,
@@ -577,7 +559,6 @@ module('Writes | array fields', function (hooks) {
       fields: withFields([
         {
           name: 'name',
-          type: null,
           kind: 'field',
         },
         {
@@ -623,7 +604,7 @@ module('Writes | array fields', function (hooks) {
 
     // test that the data entered the cache properly
     const identifier = recordIdentifierFor(record);
-    const cachedResourceData = store.cache.peek<JsonApiResource>(identifier);
+    const cachedResourceData = store.cache.peek(identifier);
 
     assert.deepEqual(
       cachedResourceData?.attributes?.favoriteNumbers,
@@ -643,7 +624,6 @@ module('Writes | array fields', function (hooks) {
       fields: withFields([
         {
           name: 'name',
-          type: null,
           kind: 'field',
         },
         {
@@ -690,7 +670,7 @@ module('Writes | array fields', function (hooks) {
 
     // test that the data entered the cache properly
     const identifier = recordIdentifierFor(record);
-    const cachedResourceData = store.cache.peek<JsonApiResource>(identifier);
+    const cachedResourceData = store.cache.peek(identifier);
 
     assert.deepEqual(
       cachedResourceData?.attributes?.favoriteNumbers,

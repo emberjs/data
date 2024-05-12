@@ -39,7 +39,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     assert.expectAssertion(function () {
       post = store.createRecord('post');
       post.comments;
-    }, /Assertion Failed: Expected a relationship schema for 'comment.testPost' to match the inverse of 'post.comments', but no relationship schema was found./);
+    }, /Expected a relationship schema for 'comment.testPost' to match the inverse of 'post.comments', but no relationship schema was found./);
   });
 
   testInDebug("Inverse relationships that don't exist throw a nice error for a belongsTo", async function (assert) {

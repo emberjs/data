@@ -2,7 +2,7 @@ import { graphFor } from '@ember-data/graph/-private';
 import Model, { attr, belongsTo } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
-import type { CollectionResourceDocument } from '@warp-drive/core-types/spec/raw';
+import type { CollectionResourceDocument } from '@warp-drive/core-types/spec/json-api-raw';
 import { ResourceType } from '@warp-drive/core-types/symbols';
 import { module, test } from '@warp-drive/diagnostic';
 import { setupTest } from '@warp-drive/diagnostic/ember';

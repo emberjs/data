@@ -8,13 +8,12 @@ import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import type { ImmutableRequestInfo, NextFn, RequestContext, ResponseInfo } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
 import { LifetimesService } from '@ember-data/request-utils';
+import type { NotificationType } from '@ember-data/store';
 import Store, { CacheHandler } from '@ember-data/store';
-import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
-import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
+import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { FieldSchema } from '@warp-drive/core-types/schema/fields';
 import type { ResourceType } from '@warp-drive/core-types/symbols';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
@@ -45,7 +44,7 @@ class BaseTestStore extends Store {
   override instantiateRecord(identifier: StableRecordIdentifier) {
     const { id, lid, type } = identifier;
     const record: FakeRecord = { id, lid, type, identifier } as unknown as FakeRecord;
-    Object.assign(record, (this.cache.peek(identifier) as JsonApiResource).attributes);
+    Object.assign(record, this.cache.peek(identifier)!.attributes);
 
     const token = this.notifications.subscribe(
       identifier,

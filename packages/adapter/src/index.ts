@@ -187,19 +187,15 @@ By default when using with Ember you only need to implement this hook if you wan
   @main @ember-data/adapter
 */
 
-import { assert } from '@ember/debug';
 import EmberObject from '@ember/object';
 import { inject as service } from '@ember/service';
 
+import type { AdapterPayload, MinimumAdapterInterface, SerializerOptions } from '@ember-data/legacy-compat';
 import type { Snapshot, SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
-import type {
-  AdapterPayload,
-  MinimumAdapterInterface,
-} from '@ember-data/legacy-compat/legacy-network-handler/minimum-adapter-interface';
-import type { SerializerOptions } from '@ember-data/legacy-compat/legacy-network-handler/minimum-serializer-interface';
 import type Store from '@ember-data/store';
-import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
+import type { ModelSchema } from '@ember-data/store/types';
 import { DEBUG } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
 
 /**
   An adapter is an object that receives requests from a store and

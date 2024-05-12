@@ -1,14 +1,13 @@
 /**
  * @module @ember-data/store
  */
-import { assert } from '@ember/debug';
-
 import { defineSignal } from '@ember-data/tracking/-private';
+import { assert } from '@warp-drive/build-config/macros';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type { RequestInfo } from '@warp-drive/core-types/request';
-import type { Link, Meta, PaginationLinks } from '@warp-drive/core-types/spec/raw';
+import type { Link, Meta, PaginationLinks } from '@warp-drive/core-types/spec/json-api-raw';
 
-import type Store from './store-service';
+import type { Store } from './store-service';
 
 function urlFromLink(link: Link): string {
   if (typeof link === 'string') return link;
@@ -92,14 +91,18 @@ export class Document<T> {
     this.identifier = identifier;
   }
 
-  async #request(link: keyof PaginationLinks, options: Partial<RequestInfo>): Promise<Document<T> | null> {
+  async #request(
+    link: keyof PaginationLinks,
+    options: Partial<RequestInfo<T, Document<T>>>
+  ): Promise<Document<T> | null> {
     const href = this.links?.[link];
     if (!href) {
       return null;
     }
 
     options.method = options.method || 'GET';
-    const response = await this.#store.request<Document<T>>(Object.assign(options, { url: urlFromLink(href) }));
+    Object.assign(options, { url: urlFromLink(href) });
+    const response = await this.#store.request<Document<T>>(options);
 
     return response.content;
   }
@@ -114,7 +117,7 @@ export class Document<T> {
    * @param {object} options
    * @return Promise<Document>
    */
-  fetch(options: Partial<RequestInfo> = {}): Promise<Document<T>> {
+  fetch(options: Partial<RequestInfo<T, Document<T>>> = {}): Promise<Document<T>> {
     assert(`No self or related link`, this.links?.related || this.links?.self);
     options.cacheOptions = options.cacheOptions || {};
     options.cacheOptions.key = this.identifier?.lid;
@@ -131,7 +134,7 @@ export class Document<T> {
    * @param {object} options
    * @return Promise<Document | null>
    */
-  next(options: Partial<RequestInfo> = {}): Promise<Document<T> | null> {
+  next(options: Partial<RequestInfo<T, Document<T>>> = {}): Promise<Document<T> | null> {
     return this.#request('next', options);
   }
 
@@ -145,7 +148,7 @@ export class Document<T> {
    * @param {object} options
    * @return Promise<Document | null>
    */
-  prev(options: Partial<RequestInfo> = {}): Promise<Document<T> | null> {
+  prev(options: Partial<RequestInfo<T, Document<T>>> = {}): Promise<Document<T> | null> {
     return this.#request('prev', options);
   }
 
@@ -159,7 +162,7 @@ export class Document<T> {
    * @param {object} options
    * @return Promise<Document | null>
    */
-  first(options: Partial<RequestInfo> = {}): Promise<Document<T> | null> {
+  first(options: Partial<RequestInfo<T, Document<T>>> = {}): Promise<Document<T> | null> {
     return this.#request('first', options);
   }
 
@@ -173,7 +176,7 @@ export class Document<T> {
    * @param {object} options
    * @return Promise<Document | null>
    */
-  last(options: Partial<RequestInfo> = {}): Promise<Document<T> | null> {
+  last(options: Partial<RequestInfo<T, Document<T>>> = {}): Promise<Document<T> | null> {
     return this.#request('last', options);
   }
 

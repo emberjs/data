@@ -371,7 +371,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
 
     var snapshot = post._createSnapshot();
     var relationship = snapshot.record.relationshipFor('comments');
-    var key = relationship.key;
+    var key = relationship.name;
 
     var shouldSerialize = store.serializerFor('post').shouldSerializeHasMany(snapshot, key, relationship);
 
@@ -423,9 +423,9 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
       'serializer:comment',
       JSONSerializer.extend({
         serializePolymorphicType(record, json, relationship) {
-          const key = relationship.key;
+          const key = relationship.name;
           const belongsTo = record.belongsTo(key);
-          json[relationship.key + 'TYPE'] = belongsTo.modelName;
+          json[relationship.name + 'TYPE'] = belongsTo.modelName;
 
           assert.ok(true, 'serializePolymorphicType is called when serialize a polymorphic belongsTo');
         },
@@ -1213,7 +1213,7 @@ module('integration/serializer/json - JSONSerializer', function (hooks) {
       'serializer:favorite',
       JSONSerializer.extend({
         serializePolymorphicType(snapshot, json, relationship) {
-          var key = relationship.key;
+          var key = relationship.name;
           json[key + 'TYPE'] = snapshot.belongsTo(key).modelName;
         },
       })

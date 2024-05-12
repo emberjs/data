@@ -1,6 +1,6 @@
 import { rerender, settled } from '@ember/test-helpers';
 
-import { createDeferred, setPromiseResult, type Awaitable } from '@ember-data/request';
+import { type Awaitable, createDeferred, setPromiseResult } from '@ember-data/request';
 import type { RenderingTestContext } from '@warp-drive/diagnostic/ember';
 import { module, setupRenderingTest, test } from '@warp-drive/diagnostic/ember';
 import { getPromiseState } from '@warp-drive/ember';
@@ -8,6 +8,7 @@ import { getPromiseState } from '@warp-drive/ember';
 type PromiseState<T, E> = ReturnType<typeof getPromiseState<T, E>>;
 const SecretSymbol = Symbol.for('LegacyPromiseProxy');
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface PromiseProxy<T, E> extends Promise<T> {}
 class PromiseProxy<T, E> {
   [SecretSymbol]: true;
@@ -40,10 +41,10 @@ module('Integration | get-promise-state', function (hooks) {
   test('it renders each stage of a promise resolving in a new microtask queue', async function (this: RenderingTestContext, assert) {
     const defer = createDeferred<string>();
 
-    let state: PromiseState<string, Error>;
-    function _getPromiseState<T>(p: Promise<T>): PromiseState<T, Error> {
-      state = getPromiseState(p) as PromiseState<string, Error>;
-      return state as PromiseState<T, Error>;
+    let state1: PromiseState<string, Error>;
+    function _getPromiseState(p: Promise<string>): PromiseState<string, Error> {
+      state1 = getPromiseState<string, Error>(p);
+      return state1;
     }
     let counter = 0;
     function countFor(_result: unknown) {
@@ -58,14 +59,14 @@ module('Integration | get-promise-state', function (hooks) {
         {{/let}}
       </template>
     );
-    assert.equal(state!.result, null);
+    assert.equal(state1!.result, null);
     assert.equal(counter, 1);
     assert.equal(this.element.textContent?.trim(), 'Count:\n          1');
     defer.resolve('Our Data');
     await defer.promise;
     await rerender();
-    assert.equal(state!, getPromiseState(defer.promise));
-    assert.equal(state!.result, 'Our Data');
+    assert.equal(state1!, getPromiseState(defer.promise));
+    assert.equal(state1!.result, 'Our Data');
     assert.equal(counter, 2);
     assert.equal(this.element.textContent?.trim(), 'Our DataCount:\n          2');
   });
@@ -73,10 +74,10 @@ module('Integration | get-promise-state', function (hooks) {
   test('it renders each stage of a promise resolving in the same microtask queue', async function (this: RenderingTestContext, assert) {
     const promise = Promise.resolve().then(() => 'Our Data');
 
-    let state: PromiseState<string, Error>;
-    function _getPromiseState<T>(p: Promise<T>): PromiseState<T, Error> {
-      state = getPromiseState(p) as PromiseState<string, Error>;
-      return state as PromiseState<T, Error>;
+    let state1: PromiseState<string, Error>;
+    function _getPromiseState(p: Promise<string>): PromiseState<string, Error> {
+      state1 = getPromiseState<string, Error>(p);
+      return state1;
     }
     let counter = 0;
     function countFor(_result: unknown) {
@@ -91,12 +92,12 @@ module('Integration | get-promise-state', function (hooks) {
         {{/let}}
       </template>
     );
-    assert.equal(state!, getPromiseState(promise));
-    assert.equal(state!.result, null);
+    assert.equal(state1!, getPromiseState(promise));
+    assert.equal(state1!.result, null);
     assert.equal(counter, 1);
     assert.equal(this.element.textContent?.trim(), 'Count:\n          1');
     await rerender();
-    assert.equal(state!.result, 'Our Data');
+    assert.equal(state1!.result, 'Our Data');
     assert.equal(counter, 2);
     assert.equal(this.element.textContent?.trim(), 'Our DataCount:\n          2');
   });
@@ -107,10 +108,10 @@ module('Integration | get-promise-state', function (hooks) {
     const result = await promise;
     setPromiseResult(promise, { result, isError: false });
 
-    let state: PromiseState<string, Error>;
-    function _getPromiseState<T>(p: Promise<T>): PromiseState<T, Error> {
-      state = getPromiseState(p) as PromiseState<string, Error>;
-      return state as PromiseState<T, Error>;
+    let state1: PromiseState<string, Error>;
+    function _getPromiseState(p: Promise<string>): PromiseState<string, Error> {
+      state1 = getPromiseState<string, Error>(p);
+      return state1;
     }
     let counter = 0;
     function countFor(_result: unknown) {
@@ -137,10 +138,10 @@ module('Integration | get-promise-state', function (hooks) {
       throw new Error('Our Error');
     });
 
-    let state: PromiseState<string, Error>;
-    function _getPromiseState<T>(p: Promise<T>): PromiseState<T, Error> {
-      state = getPromiseState(p) as PromiseState<string, Error>;
-      return state as PromiseState<T, Error>;
+    let state1: PromiseState<string, Error>;
+    function _getPromiseState(p: Promise<string>): PromiseState<string, Error> {
+      state1 = getPromiseState<string, Error>(p);
+      return state1;
     }
     let counter = 0;
     function countFor(_result: unknown, _error: unknown) {
@@ -162,15 +163,15 @@ module('Integration | get-promise-state', function (hooks) {
       </template>
     );
 
-    assert.equal(state!, getPromiseState(promise));
-    assert.equal(state!.result, null);
-    assert.equal(state!.error, null);
+    assert.equal(state1!, getPromiseState<never, Error>(promise));
+    assert.equal(state1!.result, null);
+    assert.equal(state1!.error, null);
     assert.equal(counter, 1);
     assert.equal(this.element.textContent?.trim(), 'Pending\n          Count:\n          1');
     await rerender();
-    assert.equal(state!.result, null);
-    assert.true(state!.error instanceof Error);
-    assert.equal((state!.error as Error | undefined)?.message, 'Our Error');
+    assert.equal(state1!.result, null);
+    assert.true(state1!.error instanceof Error);
+    assert.equal((state1!.error as Error | undefined)?.message, 'Our Error');
     assert.equal(counter, 2);
     assert.equal(this.element.textContent?.trim(), 'Our Error\n          Count:\n          2');
   });
@@ -186,10 +187,10 @@ module('Integration | get-promise-state', function (hooks) {
       setPromiseResult(promise, { result: e, isError: true });
     }
 
-    let state: PromiseState<string, Error>;
-    function _getPromiseState<T>(p: Promise<T>): PromiseState<T, Error> {
-      state = getPromiseState(p) as PromiseState<string, Error>;
-      return state as PromiseState<T, Error>;
+    let state1: PromiseState<string, Error>;
+    function _getPromiseState(p: Promise<string>): PromiseState<string, Error> {
+      state1 = getPromiseState<string, Error>(p);
+      return state1;
     }
     let counter = 0;
     function countFor(_result: unknown, _error: unknown) {
@@ -211,15 +212,15 @@ module('Integration | get-promise-state', function (hooks) {
       </template>
     );
 
-    assert.equal(state!.result, null);
-    assert.true(state!.error instanceof Error);
-    assert.equal((state!.error as Error | undefined)?.message, 'Our Error');
+    assert.equal(state1!.result, null);
+    assert.true(state1!.error instanceof Error);
+    assert.equal((state1!.error as Error | undefined)?.message, 'Our Error');
     assert.equal(counter, 1);
     assert.equal(this.element.textContent?.trim(), 'Our Error\n          Count:\n          1');
     await rerender();
-    assert.equal(state!.result, null);
-    assert.true(state!.error instanceof Error);
-    assert.equal((state!.error as Error | undefined)?.message, 'Our Error');
+    assert.equal(state1!.result, null);
+    assert.true(state1!.error instanceof Error);
+    assert.equal((state1!.error as Error | undefined)?.message, 'Our Error');
     assert.equal(counter, 1);
     assert.equal(this.element.textContent?.trim(), 'Our Error\n          Count:\n          1');
   });
@@ -237,10 +238,10 @@ module('Integration | get-promise-state', function (hooks) {
       // do nothing
     }
 
-    let state: PromiseState<string, Error>;
-    function _getPromiseState<T>(p: Promise<T>): PromiseState<T, Error> {
-      state = getPromiseState(p) as PromiseState<string, Error>;
-      return state as PromiseState<T, Error>;
+    let state1: PromiseState<string, Error>;
+    function _getPromiseState(p: Promise<string>): PromiseState<string, Error> {
+      state1 = getPromiseState<string, Error>(p);
+      return state1;
     }
     let counter = 0;
     function countFor(_result: unknown, _error: unknown) {
@@ -262,18 +263,18 @@ module('Integration | get-promise-state', function (hooks) {
       </template>
     );
 
-    assert.equal(state!.result, null);
-    assert.true(state!.error instanceof Error);
-    assert.equal((state!.error as Error | undefined)?.message, 'Our Error');
+    assert.equal(state1!.result, null);
+    assert.true(state1!.error instanceof Error);
+    assert.equal((state1!.error as Error | undefined)?.message, 'Our Error');
     assert.equal(counter, 1);
     assert.equal(this.element.textContent?.trim(), 'Our Error\n          Count:\n          1');
     await rerender();
-    assert.equal(state!.result, null);
-    assert.true(state!.error instanceof Error);
-    assert.equal((state!.error as Error | undefined)?.message, 'Our Error');
+    assert.equal(state1!.result, null);
+    assert.true(state1!.error instanceof Error);
+    assert.equal((state1!.error as Error | undefined)?.message, 'Our Error');
     assert.equal(counter, 1);
     assert.equal(this.element.textContent?.trim(), 'Our Error\n          Count:\n          1');
-    assert.equal(state!, getPromiseState(_promise));
+    assert.equal(state1!, getPromiseState<never, Error>(_promise));
   });
 
   test('it unwraps promise-proxies that utilize the secret symbol for success states', async function (this: RenderingTestContext, assert) {
@@ -282,10 +283,10 @@ module('Integration | get-promise-state', function (hooks) {
     getPromiseState(promise);
     await promise;
 
-    let state: PromiseState<string, Error>;
-    function _getPromiseState<T>(p: Promise<T>): PromiseState<T, Error> {
-      state = getPromiseState(p) as PromiseState<string, Error>;
-      return state as PromiseState<T, Error>;
+    let state1: PromiseState<string, Error>;
+    function _getPromiseState(p: Promise<string>): PromiseState<string, Error> {
+      state1 = getPromiseState<string, Error>(p);
+      return state1;
     }
     let counter = 0;
     function countFor(_result: unknown) {
@@ -305,6 +306,6 @@ module('Integration | get-promise-state', function (hooks) {
     await settled();
 
     assert.equal(this.element.textContent?.trim(), 'Our DataCount:\n          1');
-    assert.equal(state!, getPromiseState(_promise));
+    assert.equal(state1!, getPromiseState(_promise));
   });
 });

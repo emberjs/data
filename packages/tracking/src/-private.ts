@@ -3,6 +3,7 @@ import { consumeTag, dirtyTag } from '@glimmer/validator';
 
 import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
+import { getOrSetGlobal, peekTransient, setTransient } from '@warp-drive/core-types/-private';
 
 /**
  * This package provides primitives that allow powerful low-level
@@ -26,7 +27,6 @@ type Transaction = {
   sub: Set<Tag | Signal>;
   parent: Transaction | null;
 };
-let TRANSACTION: Transaction | null = null;
 
 function createTransaction() {
   const transaction: Transaction = {
@@ -35,10 +35,12 @@ function createTransaction() {
     sub: new Set(),
     parent: null,
   };
+  const TRANSACTION = peekTransient<Transaction>('TRANSACTION');
+
   if (TRANSACTION) {
     transaction.parent = TRANSACTION;
   }
-  TRANSACTION = transaction;
+  setTransient('TRANSACTION', transaction);
 }
 
 function maybeConsume(tag: ReturnType<typeof tagForProperty> | null): void {
@@ -65,6 +67,8 @@ function maybeDirty(tag: ReturnType<typeof tagForProperty> | null): void {
  * @param obj
  */
 export function subscribe(obj: Tag | Signal): void {
+  const TRANSACTION = peekTransient<Transaction | null>('TRANSACTION');
+
   if (TRANSACTION) {
     TRANSACTION.sub.add(obj);
   } else if ('tag' in obj) {
@@ -147,8 +151,8 @@ function updateRef(obj: Tag | Signal): void {
 }
 
 function flushTransaction() {
-  const transaction = TRANSACTION!;
-  TRANSACTION = transaction.parent;
+  const transaction = peekTransient<Transaction>('TRANSACTION')!;
+  setTransient('TRANSACTION', transaction.parent);
   transaction.cbs.forEach((cb) => {
     cb();
   });
@@ -170,8 +174,8 @@ function flushTransaction() {
   });
 }
 async function untrack() {
-  const transaction = TRANSACTION!;
-  TRANSACTION = transaction.parent;
+  const transaction = peekTransient<Transaction>('TRANSACTION')!;
+  setTransient('TRANSACTION', transaction.parent);
 
   // defer writes
   await Promise.resolve();
@@ -186,15 +190,19 @@ async function untrack() {
 }
 
 export function addToTransaction(obj: Tag | Signal): void {
-  if (TRANSACTION) {
-    TRANSACTION.props.add(obj);
+  const transaction = peekTransient<Transaction>('TRANSACTION');
+
+  if (transaction) {
+    transaction.props.add(obj);
   } else {
     updateRef(obj);
   }
 }
 export function addTransactionCB(method: OpaqueFn): void {
-  if (TRANSACTION) {
-    TRANSACTION.cbs.add(method);
+  const transaction = peekTransient<Transaction>('TRANSACTION');
+
+  if (transaction) {
+    transaction.cbs.add(method);
   } else {
     method();
   }
@@ -267,7 +275,7 @@ export function memoTransact<T extends OpaqueFn>(method: T): (...args: unknown[]
   };
 }
 
-export const Signals = Symbol('Signals');
+export const Signals = getOrSetGlobal('Signals', Symbol('Signals'));
 
 /**
  *  use to add a signal property to the prototype of something.

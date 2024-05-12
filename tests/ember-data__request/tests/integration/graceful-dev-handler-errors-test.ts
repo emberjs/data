@@ -1,6 +1,6 @@
+import type { Handler, NextFn } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
-import type { Context } from '@ember-data/request/-private/context';
-import type { Handler, NextFn } from '@ember-data/request/-private/types';
+import type { RequestContext } from '@warp-drive/core-types/request';
 import { module, test } from '@warp-drive/diagnostic';
 
 module('RequestManager | Graceful Handler Errors', function () {
@@ -9,7 +9,7 @@ module('RequestManager | Graceful Handler Errors', function () {
     let called = false;
     let nextArg: unknown = undefined;
     const handler: Handler = {
-      request<T>(context: Context, next: NextFn<T>) {
+      request<T>(context: RequestContext, next: NextFn<T>) {
         called = true;
         // @ts-expect-error
         return nextArg ? next(nextArg) : next();
@@ -68,7 +68,7 @@ module('RequestManager | Graceful Handler Errors', function () {
     let called = false;
     let nextArg: unknown = undefined;
     const handler: Handler = {
-      request<T>(context: Context, next: NextFn<T>) {
+      request<T>(context: RequestContext, next: NextFn<T>) {
         called = true;
         // @ts-expect-error
         return nextArg ? next(nextArg) : next();
@@ -127,7 +127,7 @@ The following issues were found:
     let called = false;
     let nextArg: unknown = undefined;
     const handler: Handler = {
-      request<T>(context: Context, next: NextFn<T>) {
+      request<T>(context: RequestContext, next: NextFn<T>) {
         called = true;
         // @ts-expect-error
         return nextArg ? next(nextArg) : next();

@@ -103,7 +103,7 @@ jobs:
           key: failed-test-log_${{ github.sha }}
 
       - name: Development
-        run: timeout $BROWSER_TIMEOUT pnpm test
+        run: timeout $BROWSER_TIMEOUT pnpm run test
         env:
           TESTEM_CI_LAUNCHER: ${{ matrix.launcher }}
           CI: true

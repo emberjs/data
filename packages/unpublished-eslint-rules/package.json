@@ -11,10 +11,6 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "devDependencies": {
-    "pnpm-sync-dependencies-meta-injected": "0.0.10"
-  },
-  "scripts": {
-    "_syncPnpm": "bun run sync-dependencies-meta-injected"
-  }
+  "devDependencies": {},
+  "scripts": {}
 }

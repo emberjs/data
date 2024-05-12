@@ -1,6 +1,6 @@
 import { deprecate } from '@ember/debug';
 
-export { NumberTransform as default } from '@ember-data/serializer/-private';
+export { NumberTransform as default } from '@ember-data/serializer/transform';
 
 deprecate(
   "You are relying on ember-data auto-magically installing the NumberTransform. Use `export { NumberTransform as default } from '@ember-data/serializer/transform';` in app/transforms/number.js instead",

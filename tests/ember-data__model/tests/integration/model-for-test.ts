@@ -1,6 +1,6 @@
 import Store from '@ember-data/store';
-import type { FieldSchema, SchemaService } from '@ember-data/store/-types/q/schema-service';
-import type { RelationshipsSchema } from '@warp-drive/core-types/schema';
+import type { SchemaService } from '@ember-data/store/types';
+import type { FieldSchema } from '@warp-drive/core-types/schema/fields';
 import { module, test } from '@warp-drive/diagnostic';
 
 module('modelFor without @ember-data/model', function () {
@@ -55,7 +55,9 @@ module('modelFor without @ember-data/model', function () {
         return fieldDefs;
       }
 
-      relationshipsDefinitionFor(_identifier: { type: string }): RelationshipsSchema {
+      relationshipsDefinitionFor(_identifier: {
+        type: string;
+      }): ReturnType<SchemaService['relationshipsDefinitionFor']> {
         return {};
       }
 
@@ -79,7 +81,7 @@ module('modelFor without @ember-data/model', function () {
     } catch (e) {
       assert.equal(
         (e as Error).message,
-        "Assertion Failed: No model was found for 'person' and no schema handles the type",
+        "No model was found for 'person' and no schema handles the type",
         'We throw an error when no schema is available'
       );
     }
@@ -135,7 +137,9 @@ module('modelFor without @ember-data/model', function () {
         return fieldDefs;
       }
 
-      relationshipsDefinitionFor(_identifier: { type: string }): RelationshipsSchema {
+      relationshipsDefinitionFor(_identifier: {
+        type: string;
+      }): ReturnType<SchemaService['relationshipsDefinitionFor']> {
         return {};
       }
 

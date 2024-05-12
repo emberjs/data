@@ -17,8 +17,8 @@
   "scripts": {
     "build": "ember build",
     "start": "ember serve",
-    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
-    "_syncPnpm": "bun run sync-dependencies-meta-injected"
+    "lint": "eslint . --quiet --cache --cache-strategy=content --report-unused-disable-directives",
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
   "dependencies": {
     "@ember/string": "3.1.1",
@@ -40,6 +40,7 @@
     "@babel/runtime": "^7.24.4",
     "@ember/optional-features": "^2.1.0",
     "@ember/test-helpers": "^3.3.0",
+    "@ember/test-waiters": "^3.1.0",
     "@embroider/compat": "^3.4.7",
     "@embroider/core": "^3.4.7",
     "@embroider/webpack": "^3.2.3",
@@ -63,7 +64,7 @@
     "edition": "octane"
   },
   "engines": {
-    "node": ">= 18.20.2"
+    "node": ">= 22.1.0"
   },
   "volta": {
     "extends": "../../package.json"

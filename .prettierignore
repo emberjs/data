@@ -2,6 +2,9 @@
 
 # generated files
 pnpm-lock.yaml
+dist
+unstable-preview-types
+preview-types
 
 # we disagree with prettier and we are even more opinionated than they are
 *.hbs

@@ -27,7 +27,7 @@ class Tool extends Model {
   person;
 }
 
-module('integration/record-array - RecordArray', function (hooks) {
+module('integration/live-array', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
@@ -116,7 +116,7 @@ module('integration/record-array - RecordArray', function (hooks) {
     }
   );
 
-  test('a loaded record is removed from a record array when it is deleted', async function (assert) {
+  test('a loaded record is removed from a live record array when it is deleted', async function (assert) {
     assert.expect(5);
 
     this.owner.register('model:tag', Tag);
@@ -493,7 +493,7 @@ module('integration/record-array - RecordArray', function (hooks) {
     assert.strictEqual(recordArray.at(0).id, '1', 'should retrieve correct record at index 0');
   });
 
-  test("an AdapterPopulatedRecordArray knows if it's loaded or not", async function (assert) {
+  test("a CollectionRecordArray knows if it's loaded or not", async function (assert) {
     const store = this.owner.lookup('service:store');
 
     assert.expect(2);

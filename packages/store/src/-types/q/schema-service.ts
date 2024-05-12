@@ -3,27 +3,15 @@
 */
 
 import type { RecordIdentifier } from '@warp-drive/core-types/identifier';
-import type { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
+import type {
+  FieldSchema,
+  LegacyAttributeField,
+  LegacyBelongsToField,
+  LegacyHasManyField,
+} from '@warp-drive/core-types/schema/fields';
 
-export interface FieldSchema {
-  type: string | null;
-  name: string;
-  kind:
-    | 'attribute'
-    | 'hasMany'
-    | 'belongsTo'
-    | 'field'
-    | 'resource'
-    | 'collection'
-    | 'derived'
-    | 'object'
-    | 'schema-object'
-    | 'array'
-    | 'schema-array'
-    | '@id'
-    | '@local';
-  options?: Record<string, unknown>;
-}
+export type AttributesSchema = Record<string, LegacyAttributeField>;
+export type RelationshipsSchema = Record<string, LegacyBelongsToField | LegacyHasManyField>;
 
 /**
  * The SchemaService provides the ability to query for information about the structure

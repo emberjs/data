@@ -1,22 +1,19 @@
 /**
   @module @ember-data/store
 */
-import { assert } from '@ember/debug';
+import { dependencySatisfies, importSync } from '@embroider/macros';
 
-import { importSync } from '@embroider/macros';
-
-import type { CollectionEdge } from '@ember-data/graph/-private/edges/collection';
-import type { ResourceEdge } from '@ember-data/graph/-private/edges/resource';
-import { HAS_JSON_API_PACKAGE } from '@ember-data/packages';
+import type { CollectionEdge, ResourceEdge } from '@ember-data/graph/-private';
 import type Store from '@ember-data/store';
-import type { FindRecordOptions } from '@ember-data/store/-types/q/store';
+import type { FindRecordOptions } from '@ember-data/store/types';
 import { DEBUG } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { ChangedAttributesHash } from '@warp-drive/core-types/cache';
 import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { Value } from '@warp-drive/core-types/json/raw';
 import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
-import type { AttributeSchema, RelationshipSchema } from '@warp-drive/core-types/schema';
+import type { LegacyAttributeField, LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
 
 import { upgradeStore } from '../-private';
 import type { SerializerOptions } from './minimum-serializer-interface';
@@ -34,7 +31,7 @@ type RecordId = string | null;
   @class Snapshot
   @public
 */
-export default class Snapshot<R = unknown> {
+export class Snapshot<R = unknown> {
   declare __attributes: Record<keyof R & string, unknown> | null;
   declare _belongsToRelationships: Record<string, Snapshot>;
   declare _belongsToIds: Record<string, RecordId>;
@@ -316,14 +313,10 @@ export default class Snapshot<R = unknown> {
       relationshipMeta && relationshipMeta.kind === 'belongsTo'
     );
 
-    // TODO @runspired it seems this code branch would not work with CUSTOM_MODEL_CLASSes
-    // this check is not a regression in behavior because relationships don't currently
-    // function without access to intimate API contracts between RecordData and Model.
-    // This is a requirement we should fix as soon as the relationship layer does not require
-    // this intimate API usage.
-    if (!HAS_JSON_API_PACKAGE) {
-      assert(`snapshot.belongsTo only supported when using the package @ember-data/json-api`);
-    }
+    assert(
+      `snapshot.belongsTo only supported when using the package @ember-data/graph`,
+      dependencySatisfies('@ember-data/graph', '*')
+    );
 
     const graphFor = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private')).graphFor;
     const { identifier } = this;
@@ -432,9 +425,10 @@ export default class Snapshot<R = unknown> {
     // function without access to intimate API contracts between RecordData and Model.
     // This is a requirement we should fix as soon as the relationship layer does not require
     // this intimate API usage.
-    if (!HAS_JSON_API_PACKAGE) {
-      assert(`snapshot.hasMany only supported when using the package @ember-data/json-api`);
-    }
+    assert(
+      `snapshot.hasMany only supported when using the package @ember-data/graph`,
+      dependencySatisfies('@ember-data/graph', '*')
+    );
 
     const graphFor = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private')).graphFor;
     const { identifier } = this;
@@ -500,7 +494,7 @@ export default class Snapshot<R = unknown> {
     @param {Object} [binding] the value to which the callback's `this` should be bound
     @public
   */
-  eachAttribute(callback: (key: string, meta: AttributeSchema) => void, binding?: unknown): void {
+  eachAttribute(callback: (key: string, meta: LegacyAttributeField) => void, binding?: unknown): void {
     const attrDefs = this._store.getSchemaDefinitionService().attributesDefinitionFor(this.identifier);
     Object.keys(attrDefs).forEach((key) => {
       callback.call(binding, key, attrDefs[key]);
@@ -524,7 +518,7 @@ export default class Snapshot<R = unknown> {
     @param {Object} [binding] the value to which the callback's `this` should be bound
     @public
   */
-  eachRelationship(callback: (key: string, meta: RelationshipSchema) => void, binding?: unknown): void {
+  eachRelationship(callback: (key: string, meta: LegacyRelationshipSchema) => void, binding?: unknown): void {
     const relationshipDefs = this._store.getSchemaDefinitionService().relationshipsDefinitionFor(this.identifier);
     Object.keys(relationshipDefs).forEach((key) => {
       callback.call(binding, key, relationshipDefs[key]);

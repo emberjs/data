@@ -151,14 +151,12 @@ module('Integration | Identifiers - single-table-inheritance polymorphic scenari
               },
             });
           }
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           requests.push({ type, id });
           // return the polymorphic type instead of 'car';
           type = id === '1' ? 'ferrari' : 'bmw';
           return Promise.resolve({
             data: {
               id,
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               type,
               attributes: {
                 color: 'red',

@@ -1,6 +1,5 @@
 {
   "include": ["app/**/*", "config/**/*", "tests/**/*"],
-  "baseUrl": ".",
   "compilerOptions": {
     "lib": ["DOM", "ESNext"],
     "module": "esnext",
@@ -8,24 +7,83 @@
     "moduleResolution": "bundler",
     "moduleDetection": "force",
     "strict": true,
+    "pretty": true,
     "exactOptionalPropertyTypes": false,
     "downlevelIteration": true,
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
-
-    "noImplicitOverride": true,
-
+    "baseUrl": ".",
+    "noImplicitOverride": false,
     "experimentalDecorators": true,
-
     "incremental": true,
-
     "noEmit": true,
     "declaration": false,
-
     "types": ["ember-source/types"],
-    "paths": {}
+    "paths": {
+      "@ember-data/adapter": ["../../packages/adapter/unstable-preview-types"],
+      "@ember-data/adapter/*": ["../../packages/adapter/unstable-preview-types/*"],
+      "@ember-data/graph": ["../../packages/graph/unstable-preview-types"],
+      "@ember-data/graph/*": ["../../packages/graph/unstable-preview-types/*"],
+      "@ember-data/json-api": ["../../packages/json-api/unstable-preview-types"],
+      "@ember-data/json-api/*": ["../../packages/json-api/unstable-preview-types/*"],
+      "@ember-data/legacy-compat": ["../../packages/legacy-compat/unstable-preview-types"],
+      "@ember-data/legacy-compat/*": ["../../packages/legacy-compat/unstable-preview-types/*"],
+      "@ember-data/request": ["../../packages/request/unstable-preview-types"],
+      "@ember-data/request/*": ["../../packages/request/unstable-preview-types/*"],
+      "@ember-data/request-utils": ["../../packages/request-utils/unstable-preview-types"],
+      "@ember-data/request-utils/*": ["../../packages/request-utils/unstable-preview-types/*"],
+      "@ember-data/serializer": ["../../packages/serializer/unstable-preview-types"],
+      "@ember-data/serializer/*": ["../../packages/serializer/unstable-preview-types/*"],
+      "@ember-data/store": ["../../packages/store/unstable-preview-types"],
+      "@ember-data/store/*": ["../../packages/store/unstable-preview-types/*"],
+      "@ember-data/tracking": ["../../packages/tracking/unstable-preview-types"],
+      "@ember-data/tracking/*": ["../../packages/tracking/unstable-preview-types/*"],
+      "@warp-drive/core-types": ["../../packages/core-types/unstable-preview-types"],
+      "@warp-drive/core-types/*": ["../../packages/core-types/unstable-preview-types/*"],
+      "@warp-drive/diagnostic": ["../../packages/diagnostic/unstable-preview-types"],
+      "@warp-drive/diagnostic/*": ["../../packages/diagnostic/unstable-preview-types/*"],
+      "@warp-drive/build-config": ["../../packages/build-config/unstable-preview-types"],
+      "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"]
+    }
   },
-  "references": []
+  "references": [
+    {
+      "path": "../../packages/adapter"
+    },
+    {
+      "path": "../../packages/graph"
+    },
+    {
+      "path": "../../packages/json-api"
+    },
+    {
+      "path": "../../packages/legacy-compat"
+    },
+    {
+      "path": "../../packages/request"
+    },
+    {
+      "path": "../../packages/request-utils"
+    },
+    {
+      "path": "../../packages/serializer"
+    },
+    {
+      "path": "../../packages/store"
+    },
+    {
+      "path": "../../packages/tracking"
+    },
+    {
+      "path": "../../packages/core-types"
+    },
+    {
+      "path": "../../packages/diagnostic"
+    },
+    {
+      "path": "../../packages/build-config"
+    }
+  ]
 }

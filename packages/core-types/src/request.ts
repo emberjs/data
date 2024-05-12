@@ -1,15 +1,16 @@
+import { getOrSetGlobal } from './-private';
 import type { StableRecordIdentifier } from './identifier';
 import type { QueryParamsSerializationOptions } from './params';
 import type { ExtractSuggestedCacheTypes, Includes, TypedRecordInstance, TypeFromInstanceOrString } from './record';
-import type { ResourceIdentifierObject } from './spec/raw';
+import type { ResourceIdentifierObject } from './spec/json-api-raw';
 import type { RequestSignature } from './symbols';
 
 type Store = unknown;
 
-export const SkipCache = Symbol.for('wd:skip-cache');
-export const EnableHydration = Symbol.for('wd:enable-hydration');
-export const IS_FUTURE = Symbol('IS_FUTURE');
-export const STRUCTURED = Symbol('DOC');
+export const SkipCache = getOrSetGlobal('SkipCache', Symbol.for('wd:skip-cache'));
+export const EnableHydration = getOrSetGlobal('EnableHydration', Symbol.for('wd:enable-hydration'));
+export const IS_FUTURE = getOrSetGlobal('IS_FUTURE', Symbol('IS_FUTURE'));
+export const STRUCTURED = getOrSetGlobal('DOC', Symbol('DOC'));
 
 export type HTTPMethod = 'GET' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD';
 
@@ -67,7 +68,7 @@ export type CacheOptions<T = unknown> = {
    *
    * @typedoc
    */
-  [SkipCache]?: true;
+  [SkipCache]?: boolean;
 };
 export type FindRecordRequestOptions<T = unknown, RT = unknown> = {
   url: string;
@@ -255,7 +256,7 @@ export type ImmutableHeaders = Headers & { clone?(): Headers; toJSON(): [string,
  *
  * @typedoc
  */
-export type RequestInfo<T = unknown> = Request & {
+export type RequestInfo<T = unknown, RT = unknown> = Request & {
   /**
    * If provided, used instead of the AbortController auto-configured for each request by the RequestManager
    *
@@ -299,6 +300,8 @@ export type RequestInfo<T = unknown> = Request & {
    * @typedoc
    */
   options?: Record<string, unknown>;
+
+  [RequestSignature]?: RT;
 };
 
 /**
@@ -306,7 +309,7 @@ export type RequestInfo<T = unknown> = Request & {
  *
  * @typedoc
  */
-export type ImmutableRequestInfo<T = unknown, RT = unknown> = Readonly<Omit<RequestInfo<T>, 'controller'>> & {
+export type ImmutableRequestInfo<T = unknown, RT = unknown> = Readonly<Omit<RequestInfo<T, RT>, 'controller'>> & {
   readonly cacheOptions?: Readonly<CacheOptions<T>>;
   readonly headers?: ImmutableHeaders;
   readonly data?: Readonly<Record<string, unknown>>;
@@ -316,7 +319,6 @@ export type ImmutableRequestInfo<T = unknown, RT = unknown> = Readonly<Omit<Requ
    * @typedoc
    */
   readonly bodyUsed?: boolean;
-  [RequestSignature]?: RT;
 };
 
 export interface ResponseInfo {
@@ -338,5 +340,5 @@ export interface RequestContext {
   id: number;
 
   setStream(stream: ReadableStream | Promise<ReadableStream | null>): void;
-  setResponse(response: Response | ResponseInfo): void;
+  setResponse(response: Response | ResponseInfo | null): void;
 }

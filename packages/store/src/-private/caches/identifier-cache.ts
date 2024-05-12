@@ -1,12 +1,14 @@
 /**
   @module @ember-data/store
 */
-import { assert, warn } from '@ember/debug';
+import { warn } from '@ember/debug';
 
-import { getOwnConfig, macroCondition } from '@embroider/macros';
+import { getGlobalConfig, macroCondition } from '@embroider/macros';
 
 import { LOG_IDENTIFIERS } from '@warp-drive/build-config/debugging';
 import { DEBUG } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
+import { getOrSetGlobal, peekTransient, setTransient } from '@warp-drive/core-types/-private';
 import {
   CACHE_OWNER,
   DEBUG_CLIENT_ORIGINATED,
@@ -20,7 +22,7 @@ import {
   type StableRecordIdentifier,
 } from '@warp-drive/core-types/identifier';
 import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
-import type { ExistingResourceObject, ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
+import type { ExistingResourceObject, ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
 
 import type {
   ForgetMethod,
@@ -28,16 +30,17 @@ import type {
   KeyInfo,
   KeyInfoMethod,
   ResetMethod,
-  ResourceData,
   UpdateMethod,
 } from '../../-types/q/identifier';
-import coerceId from '../utils/coerce-id';
-import normalizeModelName from '../utils/normalize-model-name';
+import { coerceId } from '../utils/coerce-id';
+import { normalizeModelName } from '../utils/normalize-model-name';
 import installPolyfill from '../utils/uuid-polyfill';
 import { hasId, hasLid, hasType } from './resource-utils';
 
-const IDENTIFIERS = new Set();
-const DOCUMENTS = new Set();
+type ResourceData = unknown;
+
+const IDENTIFIERS = getOrSetGlobal('IDENTIFIERS', new Set());
+const DOCUMENTS = getOrSetGlobal('DOCUMENTS', new Set());
 
 export function isStableIdentifier(identifier: unknown): identifier is StableRecordIdentifier {
   return (identifier as StableRecordIdentifier)[CACHE_OWNER] !== undefined || IDENTIFIERS.has(identifier);
@@ -50,7 +53,7 @@ export function isDocumentIdentifier(identifier: unknown): identifier is StableD
 const isFastBoot = typeof FastBoot !== 'undefined';
 const _crypto: Crypto = isFastBoot ? (FastBoot.require('crypto') as Crypto) : window.crypto;
 
-if (macroCondition(getOwnConfig<{ polyfillUUID: boolean }>().polyfillUUID)) {
+if (macroCondition(getGlobalConfig<{ WarpDrive: { polyfillUUID: boolean } }>().WarpDrive.polyfillUUID)) {
   installPolyfill();
 }
 
@@ -92,30 +95,24 @@ export type MergeMethod = (
   resourceData: unknown
 ) => StableRecordIdentifier;
 
-let configuredForgetMethod: ForgetMethod | null;
-let configuredGenerationMethod: GenerationMethod | null;
-let configuredResetMethod: ResetMethod | null;
-let configuredUpdateMethod: UpdateMethod | null;
-let configuredKeyInfoMethod: KeyInfoMethod | null;
-
 export function setIdentifierGenerationMethod(method: GenerationMethod | null): void {
-  configuredGenerationMethod = method;
+  setTransient('configuredGenerationMethod', method);
 }
 
 export function setIdentifierUpdateMethod(method: UpdateMethod | null): void {
-  configuredUpdateMethod = method;
+  setTransient('configuredUpdateMethod', method);
 }
 
 export function setIdentifierForgetMethod(method: ForgetMethod | null): void {
-  configuredForgetMethod = method;
+  setTransient('configuredForgetMethod', method);
 }
 
 export function setIdentifierResetMethod(method: ResetMethod | null): void {
-  configuredResetMethod = method;
+  setTransient('configuredResetMethod', method);
 }
 
 export function setKeyInfoForResource(method: KeyInfoMethod | null): void {
-  configuredKeyInfoMethod = method;
+  setTransient('configuredKeyInfoMethod', method);
 }
 
 function assertIsRequest(request: unknown): asserts request is ImmutableRequestInfo {
@@ -124,7 +121,9 @@ function assertIsRequest(request: unknown): asserts request is ImmutableRequestI
 
 // Map<type, Map<id, lid>>
 type TypeIdMap = Map<string, Map<string, string>>;
+// TODO can we just delete this?
 const NEW_IDENTIFIERS: TypeIdMap = new Map();
+// TODO @runspired maybe needs peekTransient ?
 let IDENTIFIER_CACHE_ID = 0;
 
 function updateTypeIdMapping(typeMap: TypeIdMap, identifier: StableRecordIdentifier, id: string): void {
@@ -206,7 +205,7 @@ function defaultMergeMethod(
 
 let DEBUG_MAP: WeakMap<StableRecordIdentifier, StableRecordIdentifier>;
 if (DEBUG) {
-  DEBUG_MAP = new WeakMap<StableRecordIdentifier, StableRecordIdentifier>();
+  DEBUG_MAP = getOrSetGlobal('DEBUG_MAP', new WeakMap<StableRecordIdentifier, StableRecordIdentifier>());
 }
 
 /**
@@ -230,19 +229,18 @@ export class IdentifierCache {
   declare _reset: ResetMethod;
   declare _merge: MergeMethod;
   declare _keyInfoForResource: KeyInfoMethod;
-  declare _isDefaultConfig: boolean;
   declare _id: number;
 
   constructor() {
     // we cache the user configuredGenerationMethod at init because it must
     // be configured prior and is not allowed to be changed
-    this._generate = configuredGenerationMethod || (defaultGenerationMethod as GenerationMethod);
-    this._update = configuredUpdateMethod || defaultUpdateMethod;
-    this._forget = configuredForgetMethod || defaultEmptyCallback;
-    this._reset = configuredResetMethod || defaultEmptyCallback;
+    this._generate =
+      peekTransient<GenerationMethod>('configuredGenerationMethod') || (defaultGenerationMethod as GenerationMethod);
+    this._update = peekTransient<UpdateMethod>('configuredUpdateMethod') || defaultUpdateMethod;
+    this._forget = peekTransient<ForgetMethod>('configuredForgetMethod') || defaultEmptyCallback;
+    this._reset = peekTransient<ResetMethod>('configuredResetMethod') || defaultEmptyCallback;
     this._merge = defaultMergeMethod;
-    this._keyInfoForResource = configuredKeyInfoMethod || defaultKeyInfoMethod;
-    this._isDefaultConfig = !configuredGenerationMethod;
+    this._keyInfoForResource = peekTransient<KeyInfoMethod>('configuredKeyInfoMethod') || defaultKeyInfoMethod;
     this._id = IDENTIFIER_CACHE_ID++;
 
     this._cache = {

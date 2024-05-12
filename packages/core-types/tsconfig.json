@@ -5,15 +5,14 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "skipLibCheck": true,
-    "noEmit": false,
+    "emitDeclarationOnly": true,
     "allowJs": false,
     "checkJs": false,
-
     "alwaysStrict": true,
     "strict": true,
+    "pretty": true,
     "exactOptionalPropertyTypes": false,
     "allowSyntheticDefaultImports": true,
-
     "noImplicitAny": true,
     "noImplicitThis": true,
     "strictBindCallApply": true,
@@ -26,23 +25,27 @@
     "noErrorTruncation": true,
     "preserveConstEnums": false,
     "experimentalDecorators": true,
-    "pretty": true,
-
     // Enable faster builds
     // but causes us to not rebuild properly
     "composite": true,
     "incremental": true,
     "rootDir": "src",
-
     // Support generation of source maps. Note: you must *also* enable source
     // maps in your `ember-cli-babel` config and/or `babel.config.js`.
     "declaration": true,
     "declarationMap": true,
     "declarationDir": "unstable-preview-types",
-    "emitDeclarationOnly": true,
     "inlineSourceMap": true,
     "inlineSources": true,
-
-    "baseUrl": "src"
-  }
+    "baseUrl": ".",
+    "paths": {
+      "@warp-drive/build-config": ["../build-config/unstable-preview-types"],
+      "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"]
+    }
+  },
+  "references": [
+    {
+      "path": "../build-config"
+    }
+  ]
 }

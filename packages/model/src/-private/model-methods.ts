@@ -1,5 +1,3 @@
-import { assert } from '@ember/debug';
-
 import { importSync } from '@embroider/macros';
 
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
@@ -7,10 +5,11 @@ import { upgradeStore } from '@ember-data/legacy-compat/-private';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import { peekCache } from '@ember-data/store/-private';
+import { assert } from '@warp-drive/build-config/macros';
 import type { ChangedAttributesHash } from '@warp-drive/core-types/cache';
 import { RecordStore } from '@warp-drive/core-types/symbols';
 
-import type Errors from './errors';
+import type { Errors } from './errors';
 import { lookupLegacySupport } from './legacy-relationships-support';
 import type RecordState from './record-state';
 import type BelongsToReference from './references/belongs-to';

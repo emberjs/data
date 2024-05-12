@@ -1,10 +1,9 @@
 /**
  * @module @ember-data/legacy-compat/builders
  */
-import { assert } from '@ember/debug';
-
 import { recordIdentifierFor, storeFor, type StoreRequestInput } from '@ember-data/store';
-import type { InstanceCache } from '@ember-data/store/-private/caches/instance-cache';
+import type { InstanceCache } from '@ember-data/store/-private';
+import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
@@ -90,6 +89,6 @@ export function saveRecordBuilder<T extends TypedRecordInstance>(
       record: identifier,
     },
     records: [identifier],
-    cacheOptions: { [SkipCache as symbol]: true },
+    cacheOptions: { [SkipCache]: true },
   };
 }

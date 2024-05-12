@@ -60,7 +60,6 @@
     {
       "matchPackageNames": [
         "chai",
-        "mocha",
         "qunit-dom",
         "sinon",
         "ember-exam",

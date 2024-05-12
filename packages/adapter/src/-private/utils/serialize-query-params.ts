@@ -1,4 +1,4 @@
-import { assert } from '@ember/debug';
+import { assert } from '@warp-drive/build-config/macros';
 
 const RBRACKET = /\[\]$/;
 

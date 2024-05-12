@@ -29,7 +29,7 @@ function isNumber(value: number) {
   @class NumberTransform
   @public
  */
-export default class NumberTransform {
+export class NumberTransform {
   deserialize(serialized: string | number | null | undefined, _options?: Record<string, unknown>): number | null {
     if (serialized === '' || serialized === null || serialized === undefined) {
       return null;

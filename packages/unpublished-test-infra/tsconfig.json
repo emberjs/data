@@ -1,43 +1,68 @@
 {
-  "include": ["addon-test-support/**/*", "src/**/*", "tests/**/*", "../../@types/ember-data-qunit-asserts"],
+  "include": ["src/addon-test-support/**/*", "src/**/*", "tests/**/*", "../../@types/ember-data-qunit-asserts"],
   "compilerOptions": {
     "baseUrl": ".",
+    "rootDir": "src",
     "lib": ["DOM", "ESNext"],
     "module": "esnext",
     "target": "esnext",
     "moduleResolution": "bundler",
     "moduleDetection": "force",
     "strict": true,
+    "pretty": true,
     "exactOptionalPropertyTypes": false,
     "downlevelIteration": true,
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
-    "noEmit": false,
-    "noImplicitOverride": true,
-
+    "emitDeclarationOnly": true,
+    "noEmitOnError": false,
+    "noImplicitOverride": false,
     // Enable faster builds
     // but causes us to not rebuild properly
     "composite": true,
     "incremental": true,
-
     "declaration": true,
     "declarationMap": true,
-    "declarationDir": "dist",
+    "declarationDir": "unstable-preview-types",
     "inlineSourceMap": true,
     "inlineSources": true,
     "types": ["ember-source/types"],
-
     "paths": {
-      "dummy/tests/*": ["tests/*"],
-      "dummy/*": ["tests/dummy/app/*", "app/*"],
-      "@ember-data/unpublished-test-infra": ["addon"],
-      "@ember-data/unpublished-test-infra/*": ["addon/*"],
-      "@ember-data/unpublished-test-infra/test-support": ["addon-test-support"],
-      "@ember-data/unpublished-test-infra/test-support/*": ["addon-test-support/*"],
-      "@warp-drive/build-config/env": ["../private-build-infra/virtual-packages/env.d.ts"],
-      "ember-data-qunit-asserts": ["../../@types/ember-data-qunit-asserts"]
+      "ember-data-qunit-asserts": ["../../@types/ember-data-qunit-asserts"],
+      "@ember-data/request": ["../request/unstable-preview-types"],
+      "@ember-data/request/*": ["../request/unstable-preview-types/*"],
+      "@ember-data/store": ["../store/unstable-preview-types"],
+      "@ember-data/store/*": ["../store/unstable-preview-types/*"],
+      "@ember-data/tracking": ["../tracking/unstable-preview-types"],
+      "@ember-data/tracking/*": ["../tracking/unstable-preview-types/*"],
+      "@warp-drive/build-config": ["../build-config/unstable-preview-types"],
+      "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"],
+      "@warp-drive/core-types": ["../core-types/unstable-preview-types"],
+      "@warp-drive/core-types/*": ["../core-types/unstable-preview-types/*"],
+      "@warp-drive/diagnostic": ["../diagnostic/unstable-preview-types"],
+      "@warp-drive/diagnostic/*": ["../diagnostic/unstable-preview-types/*"]
     }
-  }
+  },
+  "references": [
+    {
+      "path": "../diagnostic"
+    },
+    {
+      "path": "../build-config"
+    },
+    {
+      "path": "../store"
+    },
+    {
+      "path": "../request"
+    },
+    {
+      "path": "../core-types"
+    },
+    {
+      "path": "../tracking"
+    }
+  ]
 }
