@@ -114,11 +114,20 @@ function processPackage(info) {
     edited = true;
   }
 
-  // ensure that ember-auto-import is in dependencies
-  if (!pkg.dependencies['ember-auto-import']) {
-    fixed(`Added missin dependency ember-auto-import`);
-    pkg.dependencies['ember-auto-import'] = '^2.7.2';
-    edited = true;
+  // ensure that ember-auto-import is in dependencies if we are test infra
+  if (pkg.name === '@ember-data/unpublished-test-infra') {
+    if (!pkg.dependencies['ember-auto-import']) {
+      fixed(`Added missing dependency ember-auto-import`);
+      pkg.dependencies['ember-auto-import'] = '^2.7.2';
+      edited = true;
+    }
+  } else {
+    // ensure that ember-auto-import is not in dependencies
+    if (pkg.dependencies['ember-auto-import']) {
+      fixed(`Removed ember-auto-import from dependencies`);
+      delete pkg.dependencies['ember-auto-import'];
+      edited = true;
+    }
   }
 
   // ensure that ember-cli-babel is in dependencies

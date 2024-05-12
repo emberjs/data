@@ -84,8 +84,7 @@
     "ember-cli-path-utils": "^1.0.0",
     "@ember/edition-utils": "1.2.0",
     "@warp-drive/build-config": "workspace:0.0.0-alpha.1",
-    "ember-cli-babel": "^8.2.0",
-    "ember-auto-import": "^2.7.2"
+    "ember-cli-babel": "^8.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.24.4",
