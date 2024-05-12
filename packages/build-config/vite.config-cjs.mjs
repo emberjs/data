@@ -7,6 +7,7 @@ export const entryPoints = [
   './cjs-src/transforms/babel-plugin-transform-deprecations.js',
   './cjs-src/transforms/babel-plugin-transform-features.js',
   './cjs-src/transforms/babel-plugin-transform-logging.js',
+  './cjs-src/addon-shim.js',
 ];
 
 export default createConfig(

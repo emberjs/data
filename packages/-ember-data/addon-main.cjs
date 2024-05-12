@@ -1,8 +1,8 @@
 'use strict';
 
-const { addonV1Shim } = require('@embroider/addon-shim');
+const { addonShim } = require('@warp-drive/build-config/addon-shim');
 
-const addon = addonV1Shim(__dirname);
+const addon = addonShim(__dirname);
 addon.options = addon.options || {};
 addon.options['@embroider/macros'] = addon.options['@embroider/macros'] || {};
 addon.options['@embroider/macros'].setOwnConfig = {

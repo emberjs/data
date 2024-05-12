@@ -16,6 +16,16 @@ module.exports = async function (defaults) {
       throwUnlessParallelizable: true,
       enableTypeScriptTransform: true,
     },
+    // autoImport: {
+    //   forbidEval: true,
+    //   webpack: {
+    //     devtool: 'source-map',
+    //     optimization: {
+    //       minimize: false,
+    //       moduleIds: 'named',
+    //     },
+    //   },
+    // },
   });
 
   setConfig(app, __dirname, {

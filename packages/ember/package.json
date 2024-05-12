@@ -116,6 +116,7 @@
   "ember-addon": {
     "main": "addon-main.cjs",
     "type": "addon",
+    "preventDownleveling": true,
     "version": 2
   },
   "ember": {

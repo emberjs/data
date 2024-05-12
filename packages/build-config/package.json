@@ -39,7 +39,9 @@
   },
   "dependencies": {
     "@embroider/macros": "^1.15.1",
+    "@embroider/addon-shim": "^1.8.8",
     "babel-import-util": "^2.0.2",
+    "broccoli-funnel": "^3.0.8",
     "semver": "^7.6.0"
   },
   "devDependencies": {
