@@ -1,6 +1,6 @@
 'use strict';
 
-const { addonShim } = require('@warp-drive/build-config/addon-shim.cjs');
+const { addonShim } = require('@warp-drive/build-config/addon-shim');
 const { version, name } = require('./package.json');
 
 const addon = addonShim(__dirname);
