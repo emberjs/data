@@ -103,7 +103,7 @@
     "ember-cli-string-utils": "^1.1.0",
     "ember-cli-test-info": "^1.0.0",
     "inflection": "~3.0.0",
-    "@warp-drive/build-config": "workspace:5.4.0-alpha.64",
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.1",
     "ember-auto-import": "^2.7.2",
     "ember-cli-babel": "^8.2.0"
   },
