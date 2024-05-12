@@ -6,7 +6,7 @@ export function addonShim(dirName, options) {
 
   const isV2Addon = pkg['ember-addon']?.version === 2;
   if (isV2Addon) {
-    const { addonV1Shim } = require('@warp-drive/build-config/addon-shim');
+    const { addonV1Shim } = require('@embroider/addon-shim');
     return addonV1Shim(dirName, options);
   }
 

@@ -1,6 +1,6 @@
 'use strict';
 
-const { addonShim } = require('@warp-drive/build-config/addon-shim');
+const { addonShim } = require('@warp-drive/build-config/addon-shim.cjs');
 
 const addon = addonShim(__dirname);
 addon.options = addon.options || {};
