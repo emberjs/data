@@ -49,7 +49,7 @@ function walkSync(dir, cb, pkgs = new Map()) {
 }
 
 function processPackage(info) {
-  if (!info.pkg['ember-addon'] || info.pkg['ember-addon'].version === 1) {
+  if (!info.pkg['ember-addon'] || info.pkg['ember-addon'].version === 2) {
     return;
   }
 
