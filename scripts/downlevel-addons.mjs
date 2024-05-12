@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import chalk from 'chalk';
-import JSONC from 'comment-json';
 
 function log(msg) {
   console.log(chalk.grey(msg));
@@ -28,7 +27,6 @@ function walkSync(dir, cb, pkgs = new Map()) {
     const pkg = JSON.parse(fs.readFileSync(fullPkgPath, 'utf-8'));
     const version = pkg.version;
     const workspaceVersion = `workspace:${version}`;
-    const tsConfig = hasTsConfig ? JSONC.parse(fs.readFileSync(fullTsConfigPath, 'utf-8')) : null;
 
     pkgs.set(pkg.name, {
       dirName,
@@ -40,7 +38,6 @@ function walkSync(dir, cb, pkgs = new Map()) {
       fullPkgPath,
       fullTsConfigPath,
       pkg,
-      tsConfig,
       name: pkg.name,
       version,
       workspaceVersion,
