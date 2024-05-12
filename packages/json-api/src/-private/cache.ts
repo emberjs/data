@@ -1103,7 +1103,7 @@ export default class JSONAPICache implements Cache {
 
       upgradeCapabilities(this._capabilities);
       const defaultValue = getDefaultValue(attrSchema, identifier, this._capabilities._store);
-      if (typeof attrSchema?.options?.defaultValue === 'function') {
+      if (schemaHasLegacyDefaultValueFn(attrSchema)) {
         cached.defaultAttrs = cached.defaultAttrs || (Object.create(null) as Record<string, Value>);
         cached.defaultAttrs[attr] = defaultValue;
       }
@@ -1462,6 +1462,11 @@ function getRemoteState(rel: CollectionEdge | ResourceEdge) {
     return rel.remoteState ? [rel.remoteState] : [];
   }
   return rel.remoteState;
+}
+
+function schemaHasLegacyDefaultValueFn(schema: FieldSchema | undefined): boolean {
+  if (!schema || schema?.kind === '@id') return false;
+  return hasLegacyDefaultValueFn(schema.options);
 }
 
 function hasLegacyDefaultValueFn(options: object | undefined): options is { defaultValue: () => Value } {
