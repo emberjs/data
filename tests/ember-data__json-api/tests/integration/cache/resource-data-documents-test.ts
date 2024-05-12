@@ -529,6 +529,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
               name: 'name',
               type: null,
               options: {
+                // @ts-expect-error functions are not allowed in schema
                 defaultValue: () => {
                   i++;
                   return `Name ${i}`;
@@ -542,15 +543,17 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
     );
 
     store._run(() => {
-      store.cache.put({
-        content: {
-          data: {
-            type: 'user',
-            id: '1',
-            attributes: {},
+      store.cache.put(
+        asStructuredDocument({
+          content: {
+            data: {
+              type: 'user',
+              id: '1',
+              attributes: {},
+            },
           },
-        },
-      }) as SingleResourceDataDocument;
+        })
+      );
     });
     const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
 
@@ -572,17 +575,19 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
     assert.equal(name5, 'Name 2', 'The default value was regenerated');
 
     store._run(() => {
-      store.cache.put({
-        content: {
-          data: {
-            type: 'user',
-            id: '1',
-            attributes: {
-              name: 'Tomster',
+      store.cache.put(
+        asStructuredDocument({
+          content: {
+            data: {
+              type: 'user',
+              id: '1',
+              attributes: {
+                name: 'Tomster',
+              },
             },
           },
-        },
-      }) as SingleResourceDataDocument;
+        })
+      );
     });
 
     const name6 = store.cache.getAttr(identifier, 'name');

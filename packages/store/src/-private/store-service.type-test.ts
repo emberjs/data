@@ -4,8 +4,8 @@ import { expectTypeOf } from 'expect-type';
 
 import { ResourceType } from '@warp-drive/core-types/symbols';
 
-import type { CreateRecordProperties } from './store-service';
 import type { Collection, IdentifierArray } from './record-arrays/identifier-array';
+import type { CreateRecordProperties } from './store-service';
 import { Store } from './store-service';
 
 //////////////////////////////////

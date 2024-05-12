@@ -117,6 +117,7 @@ export type CreateRecordProperties<T = MaybeHasId & Record<string, unknown>> = T
   @class Store
   @public
 */
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 const EmptyClass = class {};
 const BaseClass = macroCondition(dependencySatisfies('ember-source', '*'))
   ? DEPRECATE_STORE_EXTENDS_EMBER_OBJECT
