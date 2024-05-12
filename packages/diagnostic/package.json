@@ -85,8 +85,10 @@
     "chalk": "^5.3.0",
     "debug": "^4.3.4",
     "ember-cli-htmlbars": "^6.3.0",
-    "@embroider/addon-shim": "^1.8.7",
-    "tmp": "^0.2.3"
+    "tmp": "^0.2.3",
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.50",
+    "ember-auto-import": "^2.7.2",
+    "ember-cli-babel": "^8.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.24.4",
@@ -114,7 +116,7 @@
   "ember-addon": {
     "main": "addon-main.cjs",
     "type": "addon",
-    "version": 2
+    "version": 1
   },
   "ember": {
     "edition": "octane"

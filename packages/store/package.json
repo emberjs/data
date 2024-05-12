@@ -56,7 +56,9 @@
   },
   "dependencies": {
     "@embroider/macros": "^1.15.1",
-    "@embroider/addon-shim": "^1.8.7"
+    "@warp-drive/build-config": "workspace:5.4.0-alpha.64",
+    "ember-auto-import": "^2.7.2",
+    "ember-cli-babel": "^8.2.0"
   },
   "peerDependencies": {
     "@ember-data/request": "workspace:5.4.0-alpha.64",
@@ -73,7 +75,6 @@
     "@ember-data/tracking": "workspace:5.4.0-alpha.64",
     "@ember/string": "^3.1.1",
     "@glimmer/component": "^1.1.2",
-    "@warp-drive/build-config": "workspace:0.0.0-alpha.1",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.50",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.64",
     "decorator-transforms": "^1.1.0",
@@ -93,7 +94,7 @@
   "ember-addon": {
     "main": "addon-main.cjs",
     "type": "addon",
-    "version": 2
+    "version": 1
   },
   "ember": {
     "edition": "octane"
