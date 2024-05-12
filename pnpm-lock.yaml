@@ -244,6 +244,9 @@ importers:
       '@warp-drive/core-types':
         specifier: workspace:0.0.0-alpha.50
         version: file:packages/core-types(@babel/core@7.24.5)(@glint/template@1.4.0)
+      ember-auto-import:
+        specifier: ^2.7.0
+        version: 2.7.2(@glint/template@1.4.0)
       ember-cli-babel:
         specifier: ^8.2.0
         version: 8.2.0(@babel/core@7.24.5)
@@ -342,6 +345,9 @@ importers:
       '@warp-drive/build-config':
         specifier: workspace:0.0.0-alpha.1
         version: file:packages/build-config(@babel/core@7.24.5)(@glint/template@1.4.0)
+      ember-auto-import:
+        specifier: ^2.7.0
+        version: 2.7.2(@glint/template@1.4.0)
       ember-cli-babel:
         specifier: ^8.2.0
         version: 8.2.0(@babel/core@7.24.5)
@@ -423,6 +429,9 @@ importers:
       '@warp-drive/build-config':
         specifier: workspace:0.0.0-alpha.1
         version: file:packages/build-config(@babel/core@7.24.5)(@glint/template@1.4.0)
+      ember-auto-import:
+        specifier: ^2.7.0
+        version: 2.7.2(@glint/template@1.4.0)
       ember-cli-babel:
         specifier: ^8.2.0
         version: 8.2.0(@babel/core@7.24.5)
@@ -626,6 +635,9 @@ importers:
       '@warp-drive/build-config':
         specifier: workspace:0.0.0-alpha.1
         version: file:packages/build-config(@babel/core@7.24.5)(@glint/template@1.4.0)
+      ember-auto-import:
+        specifier: ^2.7.0
+        version: 2.7.2(@glint/template@1.4.0)
       ember-cli-babel:
         specifier: ^8.2.0
         version: 8.2.0(@babel/core@7.24.5)
@@ -666,6 +678,9 @@ importers:
       '@warp-drive/build-config':
         specifier: workspace:0.0.0-alpha.1
         version: file:packages/build-config(@babel/core@7.24.5)(@glint/template@1.4.0)
+      ember-auto-import:
+        specifier: ^2.7.0
+        version: 2.7.2(@glint/template@1.4.0)
       ember-cli-babel:
         specifier: ^8.2.0
         version: 8.2.0(@babel/core@7.24.5)
@@ -759,6 +774,9 @@ importers:
       debug:
         specifier: ^4.3.4
         version: 4.3.4(supports-color@8.1.1)
+      ember-auto-import:
+        specifier: ^2.7.0
+        version: 2.7.2(@glint/template@1.4.0)
       ember-cli-babel:
         specifier: ^8.2.0
         version: 8.2.0(@babel/core@7.24.5)
@@ -940,6 +958,9 @@ importers:
       '@warp-drive/build-config':
         specifier: workspace:0.0.0-alpha.1
         version: file:packages/build-config(@babel/core@7.24.5)(@glint/template@1.4.0)
+      ember-auto-import:
+        specifier: ^2.7.0
+        version: 2.7.2(@glint/template@1.4.0)
       ember-cli-babel:
         specifier: ^8.2.0
         version: 8.2.0(@babel/core@7.24.5)
@@ -1065,6 +1086,9 @@ importers:
       '@warp-drive/build-config':
         specifier: workspace:0.0.0-alpha.1
         version: file:packages/build-config(@babel/core@7.24.5)(@glint/template@1.4.0)
+      ember-auto-import:
+        specifier: ^2.7.0
+        version: 2.7.2(@glint/template@1.4.0)
       ember-cli-babel:
         specifier: ^8.2.0
         version: 8.2.0(@babel/core@7.24.5)
@@ -1154,6 +1178,9 @@ importers:
       '@warp-drive/build-config':
         specifier: workspace:0.0.0-alpha.1
         version: file:packages/build-config(@babel/core@7.24.5)(@glint/template@1.4.0)
+      ember-auto-import:
+        specifier: ^2.7.0
+        version: 2.7.2(@glint/template@1.4.0)
       ember-cli-babel:
         specifier: ^8.2.0
         version: 8.2.0(@babel/core@7.24.5)
@@ -1251,6 +1278,9 @@ importers:
       '@warp-drive/build-config':
         specifier: workspace:0.0.0-alpha.1
         version: file:packages/build-config(@babel/core@7.24.5)(@glint/template@1.4.0)
+      ember-auto-import:
+        specifier: ^2.7.0
+        version: 2.7.2(@glint/template@1.4.0)
       ember-cli-babel:
         specifier: ^8.2.0
         version: 8.2.0(@babel/core@7.24.5)
@@ -1441,6 +1471,9 @@ importers:
       '@warp-drive/build-config':
         specifier: workspace:0.0.0-alpha.1
         version: file:packages/build-config(@babel/core@7.24.5)(@glint/template@1.4.0)
+      ember-auto-import:
+        specifier: ^2.7.0
+        version: 2.7.2(@glint/template@1.4.0)
       ember-cli-babel:
         specifier: ^8.2.0
         version: 8.2.0(@babel/core@7.24.5)
@@ -1492,6 +1525,9 @@ importers:
       '@warp-drive/build-config':
         specifier: workspace:0.0.0-alpha.1
         version: file:packages/build-config(@babel/core@7.24.5)(@glint/template@1.4.0)
+      ember-auto-import:
+        specifier: ^2.7.0
+        version: 2.7.2(@glint/template@1.4.0)
       ember-cli-babel:
         specifier: ^8.2.0
         version: 8.2.0(@babel/core@7.24.5)
@@ -1543,6 +1579,9 @@ importers:
       '@warp-drive/build-config':
         specifier: workspace:0.0.0-alpha.1
         version: file:packages/build-config(@babel/core@7.24.5)(@glint/template@1.4.0)
+      ember-auto-import:
+        specifier: ^2.7.0
+        version: 2.7.2(@glint/template@1.4.0)
       ember-cli-babel:
         specifier: ^8.2.0
         version: 8.2.0(@babel/core@7.24.5)
@@ -1633,6 +1672,9 @@ importers:
       '@warp-drive/build-config':
         specifier: workspace:0.0.0-alpha.1
         version: file:packages/build-config(@babel/core@7.24.5)(@glint/template@1.4.0)
+      ember-auto-import:
+        specifier: ^2.7.0
+        version: 2.7.2(@glint/template@1.4.0)
       ember-cli-babel:
         specifier: ^8.2.0
         version: 8.2.0(@babel/core@7.24.5)
@@ -1707,6 +1749,9 @@ importers:
       '@warp-drive/build-config':
         specifier: workspace:0.0.0-alpha.1
         version: file:packages/build-config(@babel/core@7.24.5)(@glint/template@1.4.0)
+      ember-auto-import:
+        specifier: ^2.7.0
+        version: 2.7.2(@glint/template@1.4.0)
       ember-cli-babel:
         specifier: ^8.2.0
         version: 8.2.0(@babel/core@7.24.5)
@@ -1803,6 +1848,9 @@ importers:
       '@warp-drive/build-config':
         specifier: workspace:0.0.0-alpha.1
         version: file:packages/build-config(@babel/core@7.24.5)(@glint/template@1.4.0)
+      ember-auto-import:
+        specifier: ^2.7.0
+        version: 2.7.2(@glint/template@1.4.0)
       ember-cli-babel:
         specifier: ^8.2.0
         version: 8.2.0(@babel/core@7.24.5)
@@ -1875,6 +1923,9 @@ importers:
       '@warp-drive/build-config':
         specifier: workspace:0.0.0-alpha.1
         version: file:packages/build-config(@babel/core@7.24.5)(@glint/template@1.4.0)
+      ember-auto-import:
+        specifier: ^2.7.0
+        version: 2.7.2(@glint/template@1.4.0)
       ember-cli-babel:
         specifier: ^8.2.0
         version: 8.2.0(@babel/core@7.24.5)
@@ -1934,6 +1985,9 @@ importers:
       chalk:
         specifier: ^4.1.2
         version: 4.1.2
+      ember-auto-import:
+        specifier: ^2.7.0
+        version: 2.7.2(@glint/template@1.4.0)
       ember-cli-babel:
         specifier: ^8.2.0
         version: 8.2.0(@babel/core@7.24.5)
@@ -4324,7 +4378,7 @@ importers:
         version: file:packages/core-types(@babel/core@7.24.5)(@glint/template@1.4.0)
       '@warp-drive/diagnostic':
         specifier: workspace:0.0.0-alpha.50
-        version: file:packages/diagnostic(@babel/core@7.24.5)(@ember/test-helpers@3.3.0)(ember-cli-test-loader@3.1.0)
+        version: file:packages/diagnostic(@babel/core@7.24.5)(@ember/test-helpers@3.3.0)(@glint/template@1.4.0)(ember-cli-test-loader@3.1.0)
       '@warp-drive/ember':
         specifier: workspace:0.0.0-alpha.26
         version: file:packages/ember(@babel/core@7.24.5)(@ember-data/request@5.4.0-alpha.64)(@ember-data/store@5.4.0-alpha.64)(@ember-data/tracking@5.4.0-alpha.64)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.50)
@@ -19995,8 +20049,12 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
+      - '@swc/core'
       - ember-source
+      - esbuild
       - supports-color
+      - uglify-js
+      - webpack-cli
 
   file:packages/active-record(@babel/core@7.24.5)(@ember-data/request-utils@5.4.0-alpha.64)(@ember-data/store@5.4.0-alpha.64)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.50)(ember-inflector@4.0.2):
     resolution: {directory: packages/active-record, type: directory}
@@ -20023,7 +20081,11 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
+      - '@swc/core'
+      - esbuild
       - supports-color
+      - uglify-js
+      - webpack-cli
     dev: true
 
   file:packages/adapter(@babel/core@7.24.5)(@ember-data/legacy-compat@5.4.0-alpha.64)(@ember-data/store@5.4.0-alpha.64)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.50)(ember-inflector@4.0.2):
@@ -20055,7 +20117,11 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
+      - '@swc/core'
+      - esbuild
       - supports-color
+      - uglify-js
+      - webpack-cli
 
   file:packages/build-config(@babel/core@7.24.5)(@glint/template@1.4.0):
     resolution: {directory: packages/build-config, type: directory}
@@ -20105,7 +20171,11 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
+      - '@swc/core'
+      - esbuild
       - supports-color
+      - uglify-js
+      - webpack-cli
 
   file:packages/debug(@babel/core@7.24.5)(@ember-data/model@5.4.0-alpha.64)(@ember-data/store@5.4.0-alpha.64)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.50):
     resolution: {directory: packages/debug, type: directory}
@@ -20131,7 +20201,11 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
+      - '@swc/core'
+      - esbuild
       - supports-color
+      - uglify-js
+      - webpack-cli
     dev: true
 
   file:packages/debug(@babel/core@7.24.5)(@ember-data/model@5.4.0-alpha.64)(@ember-data/store@5.4.0-alpha.64)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.50):
@@ -20158,7 +20232,44 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
+      - '@swc/core'
+      - esbuild
       - supports-color
+      - uglify-js
+      - webpack-cli
+
+  file:packages/diagnostic(@babel/core@7.24.5)(@ember/test-helpers@3.3.0)(@glint/template@1.4.0)(ember-cli-test-loader@3.1.0):
+    resolution: {directory: packages/diagnostic, type: directory}
+    id: file:packages/diagnostic
+    name: '@warp-drive/diagnostic'
+    engines: {node: '>= 22.1.0'}
+    peerDependencies:
+      '@ember/test-helpers': 3.3.0
+      ember-cli-test-loader: '>= 3.1.0'
+    peerDependenciesMeta:
+      '@ember/test-helpers':
+        optional: true
+      ember-cli-test-loader:
+        optional: true
+    dependencies:
+      '@ember/test-helpers': 3.3.0(patch_hash=gppmtiox6pymwamrfimkbxfrsm)(@babel/core@7.24.5)(@glint/template@1.4.0)(ember-source@5.7.0)
+      '@warp-drive/build-config': link:packages/build-config
+      chalk: 5.3.0
+      debug: 4.3.4(supports-color@8.1.1)
+      ember-auto-import: 2.7.2(@glint/template@1.4.0)
+      ember-cli-babel: 8.2.0(@babel/core@7.24.5)
+      ember-cli-htmlbars: 6.3.0
+      ember-cli-test-loader: 3.1.0(@babel/core@7.24.5)
+      tmp: 0.2.3
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - '@swc/core'
+      - esbuild
+      - supports-color
+      - uglify-js
+      - webpack-cli
+    dev: true
 
   file:packages/diagnostic(@babel/core@7.24.5)(@ember/test-helpers@3.3.0)(ember-cli-test-loader@3.1.0):
     resolution: {directory: packages/diagnostic, type: directory}
@@ -20185,7 +20296,12 @@ packages:
       tmp: 0.2.3
     transitivePeerDependencies:
       - '@babel/core'
+      - '@glint/template'
+      - '@swc/core'
+      - esbuild
       - supports-color
+      - uglify-js
+      - webpack-cli
 
   file:packages/ember(@babel/core@7.24.5)(@ember-data/request@5.4.0-alpha.64)(@ember-data/store@5.4.0-alpha.64)(@ember-data/tracking@5.4.0-alpha.64)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.50):
     resolution: {directory: packages/ember, type: directory}
@@ -20238,7 +20354,11 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
+      - '@swc/core'
+      - esbuild
       - supports-color
+      - uglify-js
+      - webpack-cli
 
   file:packages/holodeck(@ember-data/request@5.4.0-alpha.64)(@warp-drive/core-types@0.0.0-alpha.50):
     resolution: {directory: packages/holodeck, type: directory}
@@ -20286,7 +20406,11 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
+      - '@swc/core'
+      - esbuild
       - supports-color
+      - uglify-js
+      - webpack-cli
 
   file:packages/legacy-compat(@babel/core@7.24.5)(@ember-data/graph@5.4.0-alpha.64)(@ember-data/json-api@5.4.0-alpha.64)(@ember-data/request@5.4.0-alpha.64)(@ember-data/store@5.4.0-alpha.64)(@ember/string@3.1.1)(@ember/test-waiters@3.1.0)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.50)(ember-inflector@4.0.2):
     resolution: {directory: packages/legacy-compat, type: directory}
@@ -20326,7 +20450,11 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
+      - '@swc/core'
+      - esbuild
       - supports-color
+      - uglify-js
+      - webpack-cli
     dev: true
 
   file:packages/legacy-compat(@babel/core@7.24.5)(@ember-data/graph@5.4.0-alpha.64)(@ember-data/json-api@5.4.0-alpha.64)(@ember-data/request@5.4.0-alpha.64)(@ember-data/store@5.4.0-alpha.64)(@ember/string@3.1.1)(@ember/test-waiters@3.1.0)(@warp-drive/core-types@0.0.0-alpha.50)(ember-inflector@4.0.2):
@@ -20367,7 +20495,11 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
+      - '@swc/core'
+      - esbuild
       - supports-color
+      - uglify-js
+      - webpack-cli
 
   file:packages/model(@babel/core@7.24.5)(@ember-data/graph@5.4.0-alpha.64)(@ember-data/json-api@5.4.0-alpha.64)(@ember-data/legacy-compat@5.4.0-alpha.64)(@ember-data/store@5.4.0-alpha.64)(@ember-data/tracking@5.4.0-alpha.64)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.50)(ember-inflector@4.0.2):
     resolution: {directory: packages/model, type: directory}
@@ -20409,7 +20541,11 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
+      - '@swc/core'
+      - esbuild
       - supports-color
+      - uglify-js
+      - webpack-cli
     dev: true
 
   file:packages/model(@babel/core@7.24.5)(@ember-data/graph@5.4.0-alpha.64)(@ember-data/json-api@5.4.0-alpha.64)(@ember-data/legacy-compat@5.4.0-alpha.64)(@ember-data/store@5.4.0-alpha.64)(@ember-data/tracking@5.4.0-alpha.64)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.50)(ember-inflector@4.0.2):
@@ -20452,7 +20588,11 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
+      - '@swc/core'
+      - esbuild
       - supports-color
+      - uglify-js
+      - webpack-cli
 
   file:packages/request(@babel/core@7.24.5)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.50):
     resolution: {directory: packages/request, type: directory}
@@ -20472,7 +20612,11 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
+      - '@swc/core'
+      - esbuild
       - supports-color
+      - uglify-js
+      - webpack-cli
 
   file:packages/request-utils(@babel/core@7.24.5)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.50):
     resolution: {directory: packages/request-utils, type: directory}
@@ -20491,7 +20635,11 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
+      - '@swc/core'
+      - esbuild
       - supports-color
+      - uglify-js
+      - webpack-cli
 
   file:packages/rest(@babel/core@7.24.5)(@ember-data/request-utils@5.4.0-alpha.64)(@ember-data/store@5.4.0-alpha.64)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.50)(ember-inflector@4.0.2):
     resolution: {directory: packages/rest, type: directory}
@@ -20518,7 +20666,11 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
+      - '@swc/core'
+      - esbuild
       - supports-color
+      - uglify-js
+      - webpack-cli
     dev: true
 
   file:packages/schema-record(@babel/core@7.24.5)(@ember-data/request@5.4.0-alpha.64)(@ember-data/store@5.4.0-alpha.64)(@ember-data/tracking@5.4.0-alpha.64)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.50):
@@ -20545,7 +20697,11 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
+      - '@swc/core'
+      - esbuild
       - supports-color
+      - uglify-js
+      - webpack-cli
     dev: true
 
   file:packages/serializer(@babel/core@7.24.5)(@ember-data/legacy-compat@5.4.0-alpha.64)(@ember-data/store@5.4.0-alpha.64)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.50)(ember-inflector@4.0.2):
@@ -20577,7 +20733,11 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
+      - '@swc/core'
+      - esbuild
       - supports-color
+      - uglify-js
+      - webpack-cli
 
   file:packages/store(@babel/core@7.24.5)(@ember-data/request@5.4.0-alpha.64)(@ember-data/tracking@5.4.0-alpha.64)(@ember/string@3.1.1)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.50):
     resolution: {directory: packages/store, type: directory}
@@ -20602,7 +20762,11 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
+      - '@swc/core'
+      - esbuild
       - supports-color
+      - uglify-js
+      - webpack-cli
 
   file:packages/tracking(@babel/core@7.24.5)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.50)(ember-source@5.7.0):
     resolution: {directory: packages/tracking, type: directory}
@@ -20623,7 +20787,11 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
+      - '@swc/core'
+      - esbuild
       - supports-color
+      - uglify-js
+      - webpack-cli
 
   file:packages/unpublished-test-infra(@babel/core@7.24.5)(@ember-data/request@5.4.0-alpha.64)(@ember-data/store@5.4.0-alpha.64)(@ember-data/tracking@5.4.0-alpha.64)(@ember/test-helpers@3.3.0)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.50)(@warp-drive/diagnostic@0.0.0-alpha.50):
     resolution: {directory: packages/unpublished-test-infra, type: directory}
@@ -20649,7 +20817,7 @@ packages:
       '@embroider/macros': 1.16.1(@babel/core@7.24.5)(@glint/template@1.4.0)
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.24.5)(@glint/template@1.4.0)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.24.5)(@glint/template@1.4.0)
-      '@warp-drive/diagnostic': file:packages/diagnostic(@babel/core@7.24.5)(@ember/test-helpers@3.3.0)(ember-cli-test-loader@3.1.0)
+      '@warp-drive/diagnostic': file:packages/diagnostic(@babel/core@7.24.5)(@ember/test-helpers@3.3.0)(@glint/template@1.4.0)(ember-cli-test-loader@3.1.0)
       chalk: 4.1.2
       ember-auto-import: 2.7.2(@glint/template@1.4.0)
       ember-cli-babel: 8.2.0(@babel/core@7.24.5)
@@ -20659,6 +20827,7 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
+      - '@swc/core'
       - arc-templates
       - atpl
       - babel-core
@@ -20673,6 +20842,7 @@ packages:
       - eco
       - ect
       - ejs
+      - esbuild
       - haml-coffee
       - hamlet
       - hamljs
@@ -20709,11 +20879,13 @@ packages:
       - toffee
       - twig
       - twing
+      - uglify-js
       - underscore
       - utf-8-validate
       - vash
       - velocityjs
       - walrus
+      - webpack-cli
       - whiskers
     dev: true
 
@@ -20751,6 +20923,7 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
+      - '@swc/core'
       - arc-templates
       - atpl
       - babel-core
@@ -20765,6 +20938,7 @@ packages:
       - eco
       - ect
       - ejs
+      - esbuild
       - haml-coffee
       - hamlet
       - hamljs
@@ -20801,9 +20975,11 @@ packages:
       - toffee
       - twig
       - twing
+      - uglify-js
       - underscore
       - utf-8-validate
       - vash
       - velocityjs
       - walrus
+      - webpack-cli
       - whiskers

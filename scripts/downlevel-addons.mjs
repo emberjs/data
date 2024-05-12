@@ -114,10 +114,10 @@ function processPackage(info) {
     edited = true;
   }
 
-  // ensure that ember-auto-import is not in dependencies
-  if (pkg.dependencies['ember-auto-import']) {
-    fixed(`Removed dependency ember-auto-import`);
-    delete pkg.dependencies['ember-auto-import'];
+  // ensure that ember-auto-import is in dependencies
+  if (!pkg.dependencies['ember-auto-import']) {
+    fixed(`Added missin dependency ember-auto-import`);
+    pkg.dependencies['ember-auto-import'] = '^2.7.2';
     edited = true;
   }
 

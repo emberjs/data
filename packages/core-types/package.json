@@ -40,7 +40,8 @@
   "dependencies": {
     "@embroider/macros": "^1.15.1",
     "@warp-drive/build-config": "workspace:0.0.0-alpha.1",
-    "ember-cli-babel": "^8.2.0"
+    "ember-cli-babel": "^8.2.0",
+    "ember-auto-import": "^2.7.2"
   },
   "devDependencies": {
     "@babel/core": "^7.24.4",
