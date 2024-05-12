@@ -20,7 +20,7 @@ export function addonShim(dirName, options) {
     treeForAddonStyles() {},
     treeForApp() {},
     treeForAddon() {
-      return this._super.treeForAddon.call(this, new Funnel(path.join(dirname, 'dist')));
+      return this._super.treeForAddon.call(this, new Funnel(path.join(dirName, 'dist')));
     },
   };
 }
