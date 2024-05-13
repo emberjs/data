@@ -50,11 +50,11 @@
     "@warp-drive/core-types": "workspace:0.0.0-alpha.50"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.4",
-    "@babel/plugin-transform-typescript": "^7.24.4",
-    "@babel/preset-env": "^7.24.4",
+    "@babel/core": "^7.24.5",
+    "@babel/plugin-transform-typescript": "^7.24.5",
+    "@babel/preset-env": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
-    "@babel/runtime": "^7.24.4",
+    "@babel/runtime": "^7.24.5",
     "@ember-data/request": "workspace:5.4.0-alpha.64",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.50",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.64",
