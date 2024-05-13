@@ -38,13 +38,13 @@
     }
   },
   "dependencies": {
-    "@embroider/macros": "^1.15.1",
+    "@embroider/macros": "^1.16.1",
     "@warp-drive/build-config": "workspace:0.0.0-alpha.1",
     "ember-cli-babel": "^8.2.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.4",
-    "@babel/plugin-transform-typescript": "^7.24.4",
+    "@babel/core": "^7.24.5",
+    "@babel/plugin-transform-typescript": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.64",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
