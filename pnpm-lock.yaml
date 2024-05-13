@@ -15,7 +15,7 @@ overrides:
   ember-source: ~5.7.0
   ember-cli-babel: ^8.2.0
   ember-cli-htmlbars: ^6.3.0
-  ember-cli-typescript: ^5.2.1
+  ember-cli-typescript: ^5.3.0
   webpack: 5.91.0
   '@ember/string': 3.1.1
   qunit: 2.19.4
@@ -143,10 +143,10 @@ importers:
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.24.5)(rollup@4.17.2)
       '@typescript-eslint/eslint-plugin':
-        specifier: ^7.7.0
+        specifier: ^7.8.0
         version: 7.8.0(@typescript-eslint/parser@7.8.0)(eslint@8.57.0)(typescript@5.4.5)
       '@typescript-eslint/parser':
-        specifier: ^7.7.0
+        specifier: ^7.8.0
         version: 7.8.0(eslint@8.57.0)(typescript@5.4.5)
       ember-eslint-parser:
         specifier: ^0.4.2
@@ -161,7 +161,7 @@ importers:
         specifier: ^2.29.1
         version: 2.29.1(@typescript-eslint/parser@7.8.0)(eslint@8.57.0)
       eslint-plugin-mocha:
-        specifier: ^10.4.2
+        specifier: ^10.4.3
         version: 10.4.3(eslint@8.57.0)
       eslint-plugin-n:
         specifier: ^16.6.2
@@ -170,7 +170,7 @@ importers:
         specifier: ^8.1.1
         version: 8.1.1(eslint@8.57.0)
       eslint-plugin-simple-import-sort:
-        specifier: ^12.0.0
+        specifier: ^12.1.0
         version: 12.1.0(eslint@8.57.0)
       globals:
         specifier: ^15.0.0
@@ -185,11 +185,11 @@ importers:
         specifier: ^5.4.5
         version: 5.4.5
       typescript-eslint:
-        specifier: ^7.7.0
+        specifier: ^7.8.0
         version: 7.8.0(eslint@8.57.0)(typescript@5.4.5)
       vite:
         specifier: ^5.2.11
-        version: 5.2.11(@types/node@20.12.7)
+        version: 5.2.11(@types/node@20.12.11)
       vite-plugin-dts:
         specifier: ^3.9.0
         version: 3.9.0(rollup@4.17.2)(typescript@5.4.5)(vite@5.2.11)
@@ -301,7 +301,7 @@ importers:
         version: 5.4.5
       vite:
         specifier: ^5.2.11
-        version: 5.2.11(@types/node@20.12.7)
+        version: 5.2.11(@types/node@20.12.11)
     dependenciesMeta:
       '@ember-data/adapter':
         injected: true
@@ -393,7 +393,7 @@ importers:
         version: 5.4.5
       vite:
         specifier: ^5.2.11
-        version: 5.2.11(@types/node@20.12.7)
+        version: 5.2.11(@types/node@20.12.11)
     dependenciesMeta:
       '@ember-data/request':
         injected: true
@@ -476,8 +476,8 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.24.5)
       '@types/jquery':
-        specifier: ^3.5.29
-        version: 3.5.29
+        specifier: ^3.5.30
+        version: 3.5.30
       '@warp-drive/core-types':
         specifier: workspace:0.0.0-alpha.50
         version: file:packages/core-types(@babel/core@7.24.5)(@glint/template@1.4.0)
@@ -501,7 +501,7 @@ importers:
         version: 5.4.5
       vite:
         specifier: ^5.2.11
-        version: 5.2.11(@types/node@20.12.7)
+        version: 5.2.11(@types/node@20.12.11)
     dependenciesMeta:
       '@ember-data/graph':
         injected: true
@@ -557,8 +557,8 @@ importers:
         specifier: ^7.20.5
         version: 7.20.5
       '@types/node':
-        specifier: ^20.12.7
-        version: 20.12.7
+        specifier: ^20.12.11
+        version: 20.12.11
       '@warp-drive/internal-config':
         specifier: workspace:5.4.0-alpha.64
         version: link:../../config
@@ -573,7 +573,7 @@ importers:
         version: 5.4.5
       vite:
         specifier: ^5.2.11
-        version: 5.2.11(@types/node@20.12.7)
+        version: 5.2.11(@types/node@20.12.11)
 
   packages/codemods:
     dependencies:
@@ -593,14 +593,14 @@ importers:
         specifier: ^7.1.0
         version: 7.1.0
       typescript:
-        specifier: ^5.4.4
+        specifier: ^5.4.5
         version: 5.4.5
       winston:
         specifier: ^3.13.0
         version: 3.13.0
     devDependencies:
       '@types/bun':
-        specifier: ^1.1.0
+        specifier: ^1.1.1
         version: 1.1.1
       '@types/jscodeshift':
         specifier: 0.11.11
@@ -650,7 +650,7 @@ importers:
         version: 5.4.5
       vite:
         specifier: ^5.2.11
-        version: 5.2.11(@types/node@20.12.7)
+        version: 5.2.11(@types/node@20.12.11)
     dependenciesMeta:
       '@warp-drive/build-config':
         injected: true
@@ -729,7 +729,7 @@ importers:
         version: 5.4.5
       vite:
         specifier: ^5.2.11
-        version: 5.2.11(@types/node@20.12.7)
+        version: 5.2.11(@types/node@20.12.11)
     dependenciesMeta:
       '@ember-data/legacy-compat':
         injected: true
@@ -807,7 +807,7 @@ importers:
         version: 5.4.5
       vite:
         specifier: ^5.2.11
-        version: 5.2.11(@types/node@20.12.7)
+        version: 5.2.11(@types/node@20.12.11)
 
   packages/ember:
     dependencies:
@@ -907,7 +907,7 @@ importers:
         version: 5.4.5
       vite:
         specifier: ^5.2.11
-        version: 5.2.11(@types/node@20.12.7)
+        version: 5.2.11(@types/node@20.12.11)
     dependenciesMeta:
       '@ember-data/request':
         injected: true
@@ -985,7 +985,7 @@ importers:
         version: 5.4.5
       vite:
         specifier: ^5.2.11
-        version: 5.2.11(@types/node@20.12.7)
+        version: 5.2.11(@types/node@20.12.11)
     dependenciesMeta:
       '@ember-data/request':
         injected: true
@@ -1044,7 +1044,7 @@ importers:
         version: 5.4.5
       vite:
         specifier: ^5.2.11
-        version: 5.2.11(@types/node@20.12.7)
+        version: 5.2.11(@types/node@20.12.11)
     dependenciesMeta:
       '@ember-data/request':
         injected: true
@@ -1122,7 +1122,7 @@ importers:
         version: 5.4.5
       vite:
         specifier: ^5.2.11
-        version: 5.2.11(@types/node@20.12.7)
+        version: 5.2.11(@types/node@20.12.11)
     dependenciesMeta:
       '@ember-data/graph':
         injected: true
@@ -1214,7 +1214,7 @@ importers:
         version: 5.4.5
       vite:
         specifier: ^5.2.11
-        version: 5.2.11(@types/node@20.12.7)
+        version: 5.2.11(@types/node@20.12.11)
     dependenciesMeta:
       '@ember-data/graph':
         injected: true
@@ -1329,7 +1329,7 @@ importers:
         version: 5.4.5
       vite:
         specifier: ^5.2.11
-        version: 5.2.11(@types/node@20.12.7)
+        version: 5.2.11(@types/node@20.12.11)
     dependenciesMeta:
       '@ember-data/graph':
         injected: true
@@ -1471,7 +1471,7 @@ importers:
         version: 5.4.5
       vite:
         specifier: ^5.2.11
-        version: 5.2.11(@types/node@20.12.7)
+        version: 5.2.11(@types/node@20.12.11)
     dependenciesMeta:
       '@warp-drive/build-config':
         injected: true
@@ -1522,7 +1522,7 @@ importers:
         version: 5.4.5
       vite:
         specifier: ^5.2.11
-        version: 5.2.11(@types/node@20.12.7)
+        version: 5.2.11(@types/node@20.12.11)
     dependenciesMeta:
       '@warp-drive/build-config':
         injected: true
@@ -1591,7 +1591,7 @@ importers:
         version: 5.4.5
       vite:
         specifier: ^5.2.11
-        version: 5.2.11(@types/node@20.12.7)
+        version: 5.2.11(@types/node@20.12.11)
     dependenciesMeta:
       '@ember-data/request':
         injected: true
@@ -1675,7 +1675,7 @@ importers:
         version: 5.4.5
       vite:
         specifier: ^5.2.11
-        version: 5.2.11(@types/node@20.12.7)
+        version: 5.2.11(@types/node@20.12.11)
     dependenciesMeta:
       '@ember-data/request':
         injected: true
@@ -1770,7 +1770,7 @@ importers:
         version: 5.4.5
       vite:
         specifier: ^5.2.11
-        version: 5.2.11(@types/node@20.12.7)
+        version: 5.2.11(@types/node@20.12.11)
     dependenciesMeta:
       '@ember-data/legacy-compat':
         injected: true
@@ -1848,7 +1848,7 @@ importers:
         version: 5.4.5
       vite:
         specifier: ^5.2.11
-        version: 5.2.11(@types/node@20.12.7)
+        version: 5.2.11(@types/node@20.12.11)
     dependenciesMeta:
       '@ember-data/request':
         injected: true
@@ -1908,7 +1908,7 @@ importers:
         version: 5.4.5
       vite:
         specifier: ^5.2.11
-        version: 5.2.11(@types/node@20.12.7)
+        version: 5.2.11(@types/node@20.12.11)
     dependenciesMeta:
       '@warp-drive/build-config':
         injected: true
@@ -1994,7 +1994,7 @@ importers:
         version: 5.4.5
       vite:
         specifier: ^5.2.11
-        version: 5.2.11(@types/node@20.12.7)
+        version: 5.2.11(@types/node@20.12.11)
     dependenciesMeta:
       '@ember-data/build-config':
         injected: true
@@ -2315,14 +2315,14 @@ importers:
         specifier: ^3.2.5
         version: 3.2.5
       typescript:
-        specifier: ^5.4.4
+        specifier: ^5.4.5
         version: 5.4.5
     devDependencies:
       '@ember-data/codemods':
         specifier: workspace:5.4.0-alpha.64
         version: file:packages/codemods
       '@types/bun':
-        specifier: ^1.1.0
+        specifier: ^1.1.1
         version: 1.1.1
       '@types/jscodeshift':
         specifier: 0.11.11
@@ -7819,8 +7819,8 @@ packages:
   /@types/http-errors@2.0.4:
     resolution: {integrity: sha512-D0CFMMtydbJAegzOyHjtiKPLlvnm3iTZyZRSZoLq2mRhDdmLfIWOCYPfQJ4cu2erKghU++QvjcUjp/5h7hESpA==}
 
-  /@types/jquery@3.5.29:
-    resolution: {integrity: sha512-oXQQC9X9MOPRrMhPHHOsXqeQDnWeCDT3PelUIg/Oy8FAbzSZtFHRjc7IpbfFVmpLtJ+UOoywpRsuO5Jxjybyeg==}
+  /@types/jquery@3.5.30:
+    resolution: {integrity: sha512-nbWKkkyb919DOUxjmRVk8vwtDb0/k8FKncmUKFi+NY+QXqWltooxTrswvz4LspQwxvLdvzBN1TImr6cw3aQx2A==}
     dependencies:
       '@types/sizzle': 2.3.8
     dev: true
@@ -7857,7 +7857,7 @@ packages:
   /@types/morgan@1.9.9:
     resolution: {integrity: sha512-iRYSDKVaC6FkGSpEVVIvrRGw0DfJMiQzIn3qr2G5B3C//AWkulhXgaBd7tS9/J79GWSYMTHGs7PfI5b3Y8m+RQ==}
     dependencies:
-      '@types/node': 20.12.7
+      '@types/node': 20.12.11
     dev: true
 
   /@types/node@20.11.30:
@@ -7868,11 +7868,6 @@ packages:
 
   /@types/node@20.12.11:
     resolution: {integrity: sha512-vDg9PZ/zi+Nqp6boSOT7plNuthRugEKixDv5sFTIpkE89MmNtEArAShI4mxuX2+UrLEe9pxC1vm2cjm9YlWbJw==}
-    dependencies:
-      undici-types: 5.26.5
-
-  /@types/node@20.12.7:
-    resolution: {integrity: sha512-wq0cICSkRLVaf3UGLMGItu/PtdY7oaXaI/RVU+xliKVOtRna3PRY57ZDfztpDL0n11vfymMUnXv8QwYCO7L1wg==}
     dependencies:
       undici-types: 5.26.5
 
@@ -14369,7 +14364,7 @@ packages:
     resolution: {integrity: sha512-7vuh85V5cdDofPyxn58nrPjBktZo0u9x1g8WtjQol+jZDaE+fhN+cIvTj11GndBnMnyfrUOG1sZQxCdjKh+DKg==}
     engines: {node: '>= 10.13.0'}
     dependencies:
-      '@types/node': 20.12.7
+      '@types/node': 20.12.11
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -18713,7 +18708,7 @@ packages:
       kolorist: 1.8.0
       magic-string: 0.30.10
       typescript: 5.4.5
-      vite: 5.2.11(@types/node@20.12.7)
+      vite: 5.2.11(@types/node@20.12.11)
       vue-tsc: 1.8.27(typescript@5.4.5)
     transitivePeerDependencies:
       - '@types/node'
@@ -18721,7 +18716,7 @@ packages:
       - supports-color
     dev: false
 
-  /vite@5.2.11(@types/node@20.12.7):
+  /vite@5.2.11(@types/node@20.12.11):
     resolution: {integrity: sha512-HndV31LWW05i1BLPMUCE1B9E9GFbOu1MbenhS58FuK6owSO5qHm7GiCotrNY1YE5rMeQSFBGmT5ZaLEjFizgiQ==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
@@ -18749,7 +18744,7 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': 20.12.7
+      '@types/node': 20.12.11
       esbuild: 0.20.2
       postcss: 8.4.38
       rollup: 4.17.2
