@@ -65,8 +65,8 @@ importers:
         specifier: ^7.5.8
         version: 7.5.8
       bun-types:
-        specifier: ^1.1.7
-        version: 1.1.7
+        specifier: ^1.1.8
+        version: 1.1.8
       chalk:
         specifier: ^4.1.2
         version: 4.1.2
@@ -563,8 +563,8 @@ importers:
         specifier: workspace:5.4.0-alpha.64
         version: link:../../config
       bun-types:
-        specifier: ^1.1.7
-        version: 1.1.7
+        specifier: ^1.1.8
+        version: 1.1.8
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
         version: 0.0.14
@@ -791,8 +791,8 @@ importers:
         specifier: workspace:5.4.0-alpha.64
         version: link:../../config
       bun-types:
-        specifier: ^1.1.7
-        version: 1.1.7
+        specifier: ^1.1.8
+        version: 1.1.8
       ember-cli-test-loader:
         specifier: ^3.1.0
         version: 3.1.0(@babel/core@7.24.5)
@@ -1613,8 +1613,8 @@ importers:
   packages/schema:
     devDependencies:
       bun-types:
-        specifier: 1.1.7
-        version: 1.1.7
+        specifier: 1.1.8
+        version: 1.1.8
 
   packages/schema-record:
     dependencies:
@@ -3066,8 +3066,8 @@ importers:
         specifier: workspace:5.4.0-alpha.64
         version: link:../../config
       bun-types:
-        specifier: ^1.1.7
-        version: 1.1.7
+        specifier: ^1.1.8
+        version: 1.1.8
       ember-auto-import:
         specifier: ^2.7.2
         version: 2.7.2(@glint/template@1.4.0)
@@ -7940,7 +7940,7 @@ packages:
   /@types/ws@8.5.10:
     resolution: {integrity: sha512-vmQSUcfalpIq0R9q7uTo2lXs6eGIpt9wtnLdMv9LVpIjCA/+ufZRozlVoVelIYixx1ugCBKDhn89vnsEGOCx9A==}
     dependencies:
-      '@types/node': 20.12.7
+      '@types/node': 20.12.11
     dev: true
 
   /@types/yargs-parser@21.0.3:
@@ -9657,8 +9657,8 @@ packages:
       '@types/ws': 8.5.10
     dev: true
 
-  /bun-types@1.1.7:
-    resolution: {integrity: sha512-9L1w3dxXrJ5dg9ERd8cc8IJTHZ+0WpSDB9kIo6tVl1s3msNsotsTeh02Wwy8cvd3a4XWEz9+TrJsqhT0dJ6XCQ==}
+  /bun-types@1.1.8:
+    resolution: {integrity: sha512-dwhfuUKSGK8hm5Llcvb5+ejRh+4mIt8ibObJVKhZBsi0ScpXmt+AlaS1eDW6uRXCHj084Qt0kIqAJ08/7ZGC9Q==}
     dependencies:
       '@types/node': 20.12.11
       '@types/ws': 8.5.10
