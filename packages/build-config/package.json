@@ -56,7 +56,7 @@
     "@babel/core": "^7.24.4",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "typescript": "^5.4.5",
-    "bun-types": "^1.1.7",
+    "bun-types": "^1.1.8",
     "vite": "^5.2.11"
   },
   "engines": {

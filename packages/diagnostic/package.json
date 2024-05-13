@@ -95,7 +95,7 @@
     "@babel/preset-typescript": "^7.24.1",
     "@babel/runtime": "^7.24.4",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.64",
-    "bun-types": "^1.1.7",
+    "bun-types": "^1.1.8",
     "@ember/test-helpers": "^3.3.0",
     "ember-source": "~5.7.0",
     "@glimmer/component": "^1.1.2",
