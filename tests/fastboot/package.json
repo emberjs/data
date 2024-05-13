@@ -28,7 +28,7 @@
     "ember-auto-import": "^2.7.2",
     "ember-data": "workspace:5.4.0-alpha.64",
     "ember-inflector": "^4.0.2",
-    "pnpm-sync-dependencies-meta-injected": "0.0.10",
+    "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "webpack": "^5.91.0"
   },
   "dependenciesMeta": {

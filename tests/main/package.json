@@ -160,6 +160,6 @@
   },
   "packageManager": "pnpm@8.15.8",
   "dependencies": {
-    "pnpm-sync-dependencies-meta-injected": "0.0.10"
+    "pnpm-sync-dependencies-meta-injected": "0.0.14"
   }
 }

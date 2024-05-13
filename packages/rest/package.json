@@ -74,7 +74,7 @@
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.64",
     "ember-inflector": "^4.0.2",
     "ember-source": "~5.7.0",
-    "pnpm-sync-dependencies-meta-injected": "0.0.10",
+    "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "typescript": "^5.4.5",
     "vite": "^5.2.11"
   },

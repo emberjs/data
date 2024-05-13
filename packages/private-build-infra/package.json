@@ -37,7 +37,7 @@
     "silent-error": "^1.1.1"
   },
   "devDependencies": {
-    "pnpm-sync-dependencies-meta-injected": "0.0.10"
+    "pnpm-sync-dependencies-meta-injected": "0.0.14"
   },
   "engines": {
     "node": ">= 22.1.0"

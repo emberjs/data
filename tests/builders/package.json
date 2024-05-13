@@ -118,7 +118,7 @@
     "ember-source": "~5.7.0",
     "ember-source-channel-url": "^3.0.0",
     "loader.js": "^4.7.0",
-    "pnpm-sync-dependencies-meta-injected": "0.0.10",
+    "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "silent-error": "^1.1.1",
     "typescript": "^5.4.5",
     "webpack": "^5.91.0"
