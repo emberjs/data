@@ -43,7 +43,7 @@
     "@ember/test-waiters": "^3.1.0",
     "@embroider/compat": "^3.4.7",
     "@embroider/core": "^3.4.7",
-    "@embroider/webpack": "^3.2.3",
+    "@embroider/webpack": "^4.0.0",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.64",
