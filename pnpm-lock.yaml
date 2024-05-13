@@ -485,7 +485,7 @@ importers:
         specifier: workspace:5.4.0-alpha.64
         version: link:../../config
       decorator-transforms:
-        specifier: ^1.1.0
+        specifier: ^1.2.1
         version: 1.2.1(@babel/core@7.24.5)
       ember-inflector:
         specifier: ^4.0.2
@@ -713,7 +713,7 @@ importers:
         specifier: workspace:5.4.0-alpha.64
         version: link:../../config
       decorator-transforms:
-        specifier: ^1.1.0
+        specifier: ^1.2.1
         version: 1.2.1(@babel/core@7.24.5)
       ember-inflector:
         specifier: ^4.0.2
@@ -885,7 +885,7 @@ importers:
         specifier: ^2.2.1
         version: 2.2.2
       decorator-transforms:
-        specifier: ^1.1.0
+        specifier: ^1.2.1
         version: 1.2.1(@babel/core@7.24.5)
       ember-provide-consume-context:
         specifier: ^0.3.1
@@ -1310,7 +1310,7 @@ importers:
         specifier: workspace:5.4.0-alpha.64
         version: link:../../config
       decorator-transforms:
-        specifier: ^1.1.0
+        specifier: ^1.2.1
         version: 1.2.1(@babel/core@7.24.5)
       ember-inflector:
         specifier: ^4.0.2
@@ -1757,7 +1757,7 @@ importers:
         specifier: workspace:5.4.0-alpha.64
         version: link:../../config
       decorator-transforms:
-        specifier: ^1.1.0
+        specifier: ^1.2.1
         version: 1.2.1(@babel/core@7.24.5)
       ember-inflector:
         specifier: ^4.0.2
@@ -1835,7 +1835,7 @@ importers:
         specifier: workspace:5.4.0-alpha.64
         version: link:../../config
       decorator-transforms:
-        specifier: ^1.1.0
+        specifier: ^1.2.1
         version: 1.2.1(@babel/core@7.24.5)
       ember-source:
         specifier: ~5.7.0
