@@ -173,8 +173,8 @@ importers:
         specifier: ^12.1.0
         version: 12.1.0(eslint@8.57.0)
       globals:
-        specifier: ^15.0.0
-        version: 15.1.0
+        specifier: ^15.2.0
+        version: 15.2.0
       minimatch:
         specifier: ^9.0.4
         version: 9.0.4
@@ -13443,8 +13443,8 @@ packages:
     dependencies:
       type-fest: 0.20.2
 
-  /globals@15.1.0:
-    resolution: {integrity: sha512-926gJqg+4mkxwYKiFvoomM4J0kWESfk3qfTvRL2/oc/tK/eTDBbrfcKnSa2KtfdxB5onoL7D3A3qIHQFpd4+UA==}
+  /globals@15.2.0:
+    resolution: {integrity: sha512-FQ5YwCHZM3nCmtb5FzEWwdUc9K5d3V/w9mzcz8iGD1gC/aOTHc6PouYu0kkKipNJqHAT7m51sqzQjEjIP+cK0A==}
     engines: {node: '>=18'}
     dev: false
 

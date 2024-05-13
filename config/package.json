@@ -12,7 +12,7 @@
     "typescript-eslint": "^7.8.0",
     "@embroider/addon-dev": "^4.3.1",
     "@eslint/js": "^8.57.0",
-    "globals": "^15.0.0",
+    "globals": "^15.2.0",
     "ember-eslint-parser": "^0.4.2",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
