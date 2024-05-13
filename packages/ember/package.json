@@ -100,7 +100,7 @@
     "babel-plugin-ember-template-compilation": "^2.2.5",
     "ember-template-imports": "^4.1.0",
     "ember-source": "~5.7.0",
-    "pnpm-sync-dependencies-meta-injected": "0.0.10",
+    "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "rollup": "^4.17.2",
     "typescript": "^5.4.5",
     "vite": "^5.2.11",

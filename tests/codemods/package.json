@@ -37,7 +37,7 @@
     "@types/jscodeshift": "0.11.11",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.64",
     "eslint": "^8.57.0",
-    "pnpm-sync-dependencies-meta-injected": "0.0.10",
+    "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "qunit": "^2.20.1",
     "tsx": "^4.7.2"
   },
