@@ -23,7 +23,7 @@
   "dependencies": {
     "@hono/node-server": "^1.11.1",
     "chalk": "^5.3.0",
-    "hono": "^4.2.5"
+    "hono": "^4.3.4"
   },
   "type": "module",
   "files": [
