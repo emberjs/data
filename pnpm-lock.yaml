@@ -1359,9 +1359,6 @@ importers:
       '@babel/core':
         specifier: ^7.24.4
         version: 7.24.5(supports-color@8.1.1)
-      '@babel/plugin-transform-block-scoping':
-        specifier: ^7.24.4
-        version: 7.24.5(@babel/core@7.24.5)
       '@babel/runtime':
         specifier: ^7.24.4
         version: 7.24.5
@@ -20076,7 +20073,7 @@ packages:
   file:packages/codemods:
     resolution: {directory: packages/codemods, type: directory}
     name: '@ember-data/codemods'
-    engines: {node: '>= 18.20.1'}
+    engines: {node: '>= 22.1.0'}
     hasBin: true
     dependencies:
       chalk: 5.3.0
