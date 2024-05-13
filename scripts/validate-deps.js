@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const chalk = require('chalk');
 const root = process.cwd();
 
 const pkgs = new Map();
@@ -68,22 +69,22 @@ files.set(configPkg.name, {
 
 pkgs.forEach((pkg) => {
   let edited = false;
-  if (pkg.version !== currentVersion) {
-    throw new Error(`Version mismatch for ${pkg.name} - expected ${currentVersion} but found ${pkg.version}`);
-  }
+  console.log(
+    chalk.grey(`\tValidating ${pkg.private ? '(private) ' : ''}${chalk.yellow(pkg.name)}@${chalk.magenta(pkg.version)}`)
+  );
 
   if (!pkg.scripts) {
-    console.log(`Missing scripts for ${pkg.name}`);
+    console.log(chalk.grey(`\t\t[FIX] Missing scripts`));
     edited = true;
     pkg.scripts = {};
   }
-  if (!pkg.scripts['_syncPnpm']) {
-    console.log(`Missing _syncPnpm script for ${pkg.name}`);
-    edited = true;
-    pkg.scripts['_syncPnpm'] = 'bun run sync-dependencies-meta-injected';
-  }
+  // if (!pkg.scripts['_syncPnpm']) {
+  //   console.log(`Missing _syncPnpm script for ${pkg.name}`);
+  //   edited = true;
+  //   pkg.scripts['_syncPnpm'] = 'bun run sync-dependencies-meta-injected';
+  // }
   if (pkg.scripts['prepare']) {
-    console.log(`Removing prepare script for ${pkg.name}`);
+    console.log(chalk.grey(`\t\t[FIX] Removing scripts.prepare`));
     edited = true;
     delete pkg.scripts['prepare'];
   }

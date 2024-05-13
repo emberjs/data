@@ -39,7 +39,7 @@ import { TransformName } from '@warp-drive/core-types/symbols';
   @class BooleanTransform
   @public
  */
-export default class BooleanTransform {
+export class BooleanTransform {
   deserialize(serialized: boolean | null | number | string, options?: { allowNull?: boolean }): boolean | null {
     if ((serialized === null || serialized === undefined) && options?.allowNull === true) {
       return null;

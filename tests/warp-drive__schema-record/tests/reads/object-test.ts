@@ -2,12 +2,12 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
-import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 import type { ResourceType } from '@warp-drive/core-types/symbols';
 import type { Transform } from '@warp-drive/schema-record/schema';
 import { registerDerivations, SchemaService, withFields } from '@warp-drive/schema-record/schema';
+
+import type Store from 'warp-drive__schema-record/services/store';
 
 type address = {
   street: string;
@@ -37,12 +37,10 @@ module('Reads | object fields', function (hooks) {
       fields: withFields([
         {
           name: 'name',
-          type: null,
           kind: 'field',
         },
         {
           name: 'address',
-          type: null,
           kind: 'object',
         },
       ]),
@@ -69,7 +67,7 @@ module('Reads | object fields', function (hooks) {
 
     // test that the data entered the cache properly
     const identifier = recordIdentifierFor(record);
-    const cachedResourceData = store.cache.peek<JsonApiResource>(identifier);
+    const cachedResourceData = store.cache.peek(identifier);
 
     assert.notStrictEqual(
       cachedResourceData?.attributes?.address,
@@ -97,7 +95,6 @@ module('Reads | object fields', function (hooks) {
       fields: withFields([
         {
           name: 'name',
-          type: null,
           kind: 'field',
         },
         {
@@ -157,7 +154,7 @@ module('Reads | object fields', function (hooks) {
     assert.notStrictEqual(record.address, sourceAddress);
     // test that the data entered the cache properly
     const identifier = recordIdentifierFor(record);
-    const cachedResourceData = store.cache.peek<JsonApiResource>(identifier);
+    const cachedResourceData = store.cache.peek(identifier);
     assert.notStrictEqual(
       cachedResourceData?.attributes?.address,
       sourceAddress,

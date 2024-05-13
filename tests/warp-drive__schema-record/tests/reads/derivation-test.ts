@@ -39,12 +39,10 @@ module('Reads | derivation', function (hooks) {
       fields: withFields([
         {
           name: 'firstName',
-          type: null,
           kind: 'field',
         },
         {
           name: 'lastName',
-          type: null,
           kind: 'field',
         },
         {

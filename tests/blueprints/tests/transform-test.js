@@ -1,24 +1,52 @@
 'use strict';
 
+const { describe, it, beforeEach, afterEach } = require('mocha');
 const blueprintHelpers = require('ember-cli-blueprint-test-helpers/helpers');
 const chai = require('ember-cli-blueprint-test-helpers/chai');
-const generateFakePackageManifest = require('@ember-data/unpublished-test-infra/src/node-test-helpers/generate-fake-package-manifest');
-const fixture = require('@ember-data/unpublished-test-infra/src/node-test-helpers/fixture');
-const setupTestEnvironment = require('@ember-data/unpublished-test-infra/src/node-test-helpers/setup-test-environment');
 
-const setupTestHooks = blueprintHelpers.setupTestHooks;
+const path = require('path');
+const file = require('ember-cli-blueprint-test-helpers/chai').file;
+
+function fixture(directory, filePath) {
+  return file(path.join(directory, '../fixtures', filePath));
+}
+
 const emberNew = blueprintHelpers.emberNew;
 const emberGenerateDestroy = blueprintHelpers.emberGenerateDestroy;
 const modifyPackages = blueprintHelpers.modifyPackages;
 const expect = chai.expect;
-const enableOctane = setupTestEnvironment.enableOctane;
-const enableClassic = setupTestEnvironment.enableClassic;
+const { setEdition, clearEdition } = require('@ember/edition-utils');
+
+function enableOctane(hooks) {
+  hooks.beforeEach(function () {
+    setEdition('octane');
+  });
+
+  hooks.afterEach(function () {
+    clearEdition();
+  });
+}
+
+function enableClassic(hooks) {
+  hooks.beforeEach(function () {
+    setEdition('classic');
+  });
+
+  hooks.afterEach(function () {
+    clearEdition();
+  });
+}
+
+function setupTestHooks(context) {
+  // context.timeout = function () {};
+  blueprintHelpers.setupTestHooks(context);
+}
 
 describe('Acceptance: generate and destroy transform blueprints', function () {
   setupTestHooks(this);
 
   describe('classic', function () {
-    enableClassic();
+    enableClassic({ beforeEach, afterEach });
 
     describe('in app', function () {
       beforeEach(async function () {
@@ -35,7 +63,7 @@ describe('Acceptance: generate and destroy transform blueprints', function () {
             .to.contain('deserialize(serialized) {')
             .to.contain('serialize(deserialized) {');
 
-          expect(_file('tests/unit/transforms/foo-test.js')).to.equal(fixture(__dirname, 'transform-test/rfc232.js'));
+          expect(_file('tests/unit/transforms/foo-test.js')).to.equal(fixture(__dirname, 'transform-test/default.js'));
         });
       });
 
@@ -43,26 +71,7 @@ describe('Acceptance: generate and destroy transform blueprints', function () {
         const args = ['transform-test', 'foo'];
 
         return emberGenerateDestroy(args, (_file) => {
-          expect(_file('tests/unit/transforms/foo-test.js')).to.equal(fixture(__dirname, 'transform-test/rfc232.js'));
-        });
-      });
-
-      describe('transform-test with ember-cli-qunit@4.1.0', function () {
-        beforeEach(async function () {
-          await modifyPackages([{ name: '@ember-data/serializer', dev: true }]);
-          modifyPackages([
-            { name: 'ember-qunit', delete: true },
-            { name: 'ember-cli-qunit', delete: true },
-          ]);
-          generateFakePackageManifest('ember-cli-qunit', '4.1.0');
-        });
-
-        it('transform-test-test foo', function () {
-          return emberGenerateDestroy(['transform-test', 'foo'], (_file) => {
-            expect(_file('tests/unit/transforms/foo-test.js')).to.equal(
-              fixture(__dirname, 'transform-test/default.js')
-            );
-          });
+          expect(_file('tests/unit/transforms/foo-test.js')).to.equal(fixture(__dirname, 'transform-test/default.js'));
         });
       });
     });
@@ -70,7 +79,7 @@ describe('Acceptance: generate and destroy transform blueprints', function () {
 
   describe('octane', function () {
     describe('in app', function () {
-      enableOctane();
+      enableOctane({ beforeEach, afterEach });
 
       beforeEach(async function () {
         await emberNew();
@@ -86,7 +95,7 @@ describe('Acceptance: generate and destroy transform blueprints', function () {
             .to.contain('deserialize(serialized) {')
             .to.contain('serialize(deserialized) {');
 
-          expect(_file('tests/unit/transforms/foo-test.js')).to.equal(fixture(__dirname, 'transform-test/rfc232.js'));
+          expect(_file('tests/unit/transforms/foo-test.js')).to.equal(fixture(__dirname, 'transform-test/default.js'));
         });
       });
 
@@ -94,26 +103,7 @@ describe('Acceptance: generate and destroy transform blueprints', function () {
         const args = ['transform-test', 'foo'];
 
         return emberGenerateDestroy(args, (_file) => {
-          expect(_file('tests/unit/transforms/foo-test.js')).to.equal(fixture(__dirname, 'transform-test/rfc232.js'));
-        });
-      });
-
-      describe('transform-test with ember-cli-qunit@4.1.0', function () {
-        beforeEach(async function () {
-          await modifyPackages([{ name: '@ember-data/serializer', dev: true }]);
-          modifyPackages([
-            { name: 'ember-qunit', delete: true },
-            { name: 'ember-cli-qunit', delete: true },
-          ]);
-          generateFakePackageManifest('ember-cli-qunit', '4.1.0');
-        });
-
-        it('transform-test-test foo', function () {
-          return emberGenerateDestroy(['transform-test', 'foo'], (_file) => {
-            expect(_file('tests/unit/transforms/foo-test.js')).to.equal(
-              fixture(__dirname, 'transform-test/default.js')
-            );
-          });
+          expect(_file('tests/unit/transforms/foo-test.js')).to.equal(fixture(__dirname, 'transform-test/default.js'));
         });
       });
     });
@@ -129,7 +119,7 @@ describe('Acceptance: generate and destroy transform blueprints', function () {
       it('transform-test foo', function () {
         return emberGenerateDestroy(['transform-test', 'foo'], (_file) => {
           expect(_file('tests/unit/transforms/foo-test.js')).to.equal(
-            fixture(__dirname, 'transform-test/rfc232-addon.js')
+            fixture(__dirname, 'transform-test/addon-default.js')
           );
         });
       });

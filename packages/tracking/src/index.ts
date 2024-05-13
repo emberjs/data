@@ -1,5 +1,6 @@
-import { assert } from '@ember/debug';
 import { createCache, getValue } from '@glimmer/tracking/primitives/cache';
+
+import { assert } from '@warp-drive/build-config/macros';
 
 export { transact, memoTransact, untracked } from './-private';
 

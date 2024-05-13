@@ -42,45 +42,45 @@ module('Unit | Data Utils | Type | isEquivType (util)', function () {
   test('it throws an error when type is null', function (assert) {
     assert.throws(() => {
       isEquivType(null, 'post');
-    }, /Error: Assertion Failed: isEquivType: Expected type must not be null/);
+    }, /Error: isEquivType: Expected type must not be null/);
     assert.throws(() => {
       isEquivType('post', null);
-    }, /Error: Assertion Failed: isEquivType: Actual type must not be null/);
+    }, /Error: isEquivType: Actual type must not be null/);
   });
 
   test('it throws an error when type is undefined', function (assert) {
     assert.throws(() => {
       isEquivType(undefined, 'post');
-    }, /Error: Assertion Failed: isEquivType: Expected type must not be undefined/);
+    }, /Error: isEquivType: Expected type must not be undefined/);
     assert.throws(() => {
       isEquivType('post', undefined);
-    }, /Error: Assertion Failed: isEquivType: Actual type must not be undefined/);
+    }, /Error: isEquivType: Actual type must not be undefined/);
   });
 
   test('it throws an error when the type is empty', function (assert) {
     assert.throws(() => {
       isEquivType('', 'post');
-    }, /Error: Assertion Failed: isEquivType: Expected type must not be empty/);
+    }, /Error: isEquivType: Expected type must not be empty/);
     assert.throws(() => {
       isEquivType('post', '');
-    }, /Error: Assertion Failed: isEquivType: Actual type must not be empty/);
+    }, /Error: isEquivType: Actual type must not be empty/);
   });
 
   test('it throws an error when the type is not a string', function (assert) {
     assert.throws(() => {
       isEquivType(new Date(), 'post');
-    }, /Error: Assertion Failed: isEquivType: Expected type must be a string/);
+    }, /Error: isEquivType: Expected type must be a string/);
 
     assert.throws(() => {
       isEquivType([], 'post');
-    }, /Error: Assertion Failed: isEquivType: Expected type must be a string/);
+    }, /Error: isEquivType: Expected type must be a string/);
 
     assert.throws(() => {
       isEquivType('post', new Date());
-    }, /Error: Assertion Failed: isEquivType: Actual type must be a string/);
+    }, /Error: isEquivType: Actual type must be a string/);
 
     assert.throws(() => {
       isEquivType('post', []);
-    }, /Error: Assertion Failed: isEquivType: Actual type must be a string/);
+    }, /Error: isEquivType: Actual type must be a string/);
   });
 });

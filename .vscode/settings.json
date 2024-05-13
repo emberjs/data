@@ -1,7 +1,7 @@
 {
   "eslint.format.enable": true,
   "eslint.workingDirectories": [{ "mode": "auto" }, "packages/*", "tests/*"],
-  "eslint.options": { "reportUnusedDisableDirectives": "error" },
+  "eslint.useFlatConfig": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
@@ -40,5 +40,6 @@
     "editor.tabSize": 4
   },
   "typescript.preferences.importModuleSpecifier": "project-relative",
-  "bun.debugTerminal.enabled": true
+  "bun.debugTerminal.enabled": true,
+  "eslint.debug": true
 }

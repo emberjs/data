@@ -7,10 +7,9 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
-import Model, { attr } from '@ember-data/model';
-
 // TODO move these tests to the DEBUG package
 import DebugAdapter from '@ember-data/debug';
+import Model, { attr } from '@ember-data/model';
 
 module('integration/debug-adapter - DebugAdapter', function (hooks) {
   setupTest(hooks);
@@ -18,14 +17,14 @@ module('integration/debug-adapter - DebugAdapter', function (hooks) {
   let store;
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
     class Post extends Model {
       @attr title;
     }
 
     owner.register('model:post', Post);
     store = owner.lookup('service:store');
-    let _adapter = DebugAdapter.extend({
+    const _adapter = DebugAdapter.extend({
       getModelTypes() {
         return A([{ klass: store.modelFor('post'), name: 'post' }]);
       },
@@ -46,7 +45,7 @@ module('integration/debug-adapter - DebugAdapter', function (hooks) {
     });
     await settled();
 
-    let debugAdapter = this.owner.lookup('data-adapter:main');
+    const debugAdapter = this.owner.lookup('data-adapter:main');
     function added(types) {
       assert.strictEqual(types.length, 1, 'added one type');
       assert.strictEqual(types[0].name, 'post', 'the type is post');
@@ -59,8 +58,8 @@ module('integration/debug-adapter - DebugAdapter', function (hooks) {
 
   test('Watching Model Types', async function (assert) {
     assert.expect(4);
-    let { owner } = this;
-    let debugAdapter = owner.lookup('data-adapter:main');
+    const { owner } = this;
+    const debugAdapter = owner.lookup('data-adapter:main');
 
     function added(types) {
       assert.strictEqual(types.length, 1, 'added one type');
@@ -84,8 +83,8 @@ module('integration/debug-adapter - DebugAdapter', function (hooks) {
 
   test('Watching Model Types On first-create', async function (assert) {
     assert.expect(4);
-    let { owner } = this;
-    let debugAdapter = owner.lookup('data-adapter:main');
+    const { owner } = this;
+    const debugAdapter = owner.lookup('data-adapter:main');
 
     function added(types) {
       assert.strictEqual(types.length, 1, 'added one type');
@@ -102,8 +101,8 @@ module('integration/debug-adapter - DebugAdapter', function (hooks) {
   });
 
   test('Watching Records', async function (assert) {
-    let { owner } = this;
-    let debugAdapter = owner.lookup('data-adapter:main');
+    const { owner } = this;
+    const debugAdapter = owner.lookup('data-adapter:main');
     let addedRecords, updatedRecords, removedRecords;
 
     this.owner.register(
@@ -125,13 +124,13 @@ module('integration/debug-adapter - DebugAdapter', function (hooks) {
       },
     });
 
-    let recordsAdded = function (wrappedRecords) {
+    const recordsAdded = function (wrappedRecords) {
       addedRecords = wrappedRecords;
     };
-    let recordsUpdated = function (wrappedRecords) {
+    const recordsUpdated = function (wrappedRecords) {
       updatedRecords = wrappedRecords;
     };
-    let recordsRemoved = function (...args) {
+    const recordsRemoved = function (...args) {
       // in 3.26 there is only 1 argument - the record removed
       // below 3.26, it is 2 arguments - the index and count removed
       // https://github.com/emberjs/ember.js/pull/19379
@@ -212,8 +211,8 @@ module('integration/debug-adapter - DebugAdapter', function (hooks) {
   });
 
   test('Column names', function (assert) {
-    let { owner } = this;
-    let debugAdapter = owner.lookup('data-adapter:main');
+    const { owner } = this;
+    const debugAdapter = owner.lookup('data-adapter:main');
     class Person extends Model {
       @attr title;
       @attr firstOrLastName;

@@ -20,7 +20,6 @@ import { Snapshot } from '@ember-data/legacy-compat/-private';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import RESTSerializer from '@ember-data/serializer/rest';
 import { recordIdentifierFor } from '@ember-data/store';
-import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp-drive/build-config/deprecations';
@@ -29,6 +28,10 @@ let store, adapter, SuperUser;
 
 let passedUrl, passedVerb, passedHash;
 let server;
+
+function isSnapshot(snapshot) {
+  return snapshot instanceof Snapshot || snapshot.constructor.name === 'Snapshot';
+}
 
 module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   setupTest(hooks);
@@ -62,7 +65,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       passedVerb = passedHash.method;
       return Promise.resolve({
         text() {
-          return Promise.resolve(JSON.stringify(deepCopy(value)));
+          return Promise.resolve(JSON.stringify(structuredClone(value)));
         },
         ok: true,
         status: 200,
@@ -74,7 +77,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       passedVerb = verb;
       passedHash = hash;
 
-      return Promise.resolve(deepCopy(value));
+      return Promise.resolve(structuredClone(value));
     };
   }
 
@@ -883,7 +886,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     assert.deepEqual(post2.getProperties('id', 'name'), { id: '2', name: 'The Parley Letter' }, 'Post 2 is loaded');
 
     assert.strictEqual(posts.length, 2, 'The posts are in the array');
-    assert.true(posts.isLoaded, 'The RecordArray is loaded');
+    assert.true(posts.isLoaded, 'The LiveArray is loaded');
     assert.deepEqual(posts.slice(), [post1, post2], 'The correct records are in the array');
   });
 
@@ -998,7 +1001,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     assert.deepEqual(post2.getProperties('id', 'name'), { id: '2', name: 'The Parley Letter' }, 'Post 2 is loaded');
 
     assert.strictEqual(posts.length, 2, 'The posts are in the array');
-    assert.true(posts.isLoaded, 'The RecordArray is loaded');
+    assert.true(posts.isLoaded, 'The LiveArray is loaded');
     assert.deepEqual(posts.slice(), [post1, post2], 'The correct records are in the array');
   });
 
@@ -1097,7 +1100,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       const len = sortedKeys.length;
       const newQueryParams = {};
 
-      for (var i = 0; i < len; i++) {
+      for (let i = 0; i < len; i++) {
         newQueryParams[sortedKeys[i]] = obj[sortedKeys[i]];
       }
       return newQueryParams;
@@ -1192,7 +1195,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     assert.deepEqual(post2.getProperties('id', 'name'), { id: '2', name: 'The Parley Letter' }, 'Post 2 is loaded');
 
     assert.strictEqual(posts.length, 2, 'The posts are in the array');
-    assert.true(posts.isLoaded, 'The RecordArray is loaded');
+    assert.true(posts.isLoaded, 'The LiveArray is loaded');
     assert.deepEqual(posts.slice(), [post1, post2], 'The correct records are in the array');
   });
 
@@ -1258,7 +1261,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     assert.deepEqual(post2.getProperties('id', 'name'), { id: '2', name: 'The Parley Letter' }, 'Post 2 is loaded');
 
     assert.strictEqual(posts.length, 2, 'The posts are in the array');
-    assert.true(posts.isLoaded, 'The RecordArray is loaded');
+    assert.true(posts.isLoaded, 'The LiveArray is loaded');
     assert.deepEqual(posts.slice(), [post1, post2], 'The correct records are in the array');
   });
 
@@ -1367,7 +1370,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     assert.expectAssertion(
       () => store.queryRecord('post', { slug: 'rails-is-omakaze' }),
-      'Assertion Failed: The adapter returned an array for the primary data of a `queryRecord` response. `queryRecord` should return a single record.'
+      'The adapter returned an array for the primary data of a `queryRecord` response. `queryRecord` should return a single record.'
     );
   });
 
@@ -1828,7 +1831,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     assert.expect(2);
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.buildURL = function (type, id, snapshot, requestType) {
-      assert.ok(snapshot instanceof Snapshot);
+      assert.ok(isSnapshot(snapshot));
       assert.strictEqual(requestType, 'findHasMany');
     };
 
@@ -2016,7 +2019,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     assert.expect(2);
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.buildURL = function (type, id, snapshot, requestType) {
-      assert.ok(snapshot instanceof Snapshot);
+      assert.ok(isSnapshot(snapshot));
       assert.strictEqual(requestType, 'findBelongsTo');
     };
 

@@ -435,6 +435,7 @@ For usage of the store's `requestManager` via `store.request(<req>)` see the
 import { importSync } from '@embroider/macros';
 
 import { DEBUG, TESTING } from '@warp-drive/build-config/env';
+import { peekTransient, setTransient } from '@warp-drive/core-types/-private';
 import type { RequestInfo, StructuredErrorDocument } from '@warp-drive/core-types/request';
 
 import { assertValidRequest } from './debug';
@@ -443,7 +444,6 @@ import { clearRequestResult, getRequestResult, setPromiseResult } from './promis
 import type { CacheHandler, Future, GenericCreateArgs, Handler } from './types';
 import { executeNextHandler, IS_CACHE_HANDLER } from './utils';
 
-let REQ_ID = 0;
 /**
  * ```js
  * import RequestManager from '@ember-data/request';
@@ -602,7 +602,7 @@ export class RequestManager {
    * @param {RequestInfo} request
    * @return {Future}
    */
-  request<T = unknown>(request: RequestInfo): Future<T> {
+  request<RT, T = unknown>(request: RequestInfo<T, RT>): Future<RT> {
     const handlers = this.#handlers;
     if (DEBUG) {
       if (!Object.isFrozen(handlers)) {
@@ -616,8 +616,10 @@ export class RequestManager {
       delete request.controller;
     }
 
-    const requestId = REQ_ID++;
-    const promise = executeNextHandler<T>(handlers, request, 0, {
+    const requestId = peekTransient<number>('REQ_ID') ?? 0;
+    setTransient('REQ_ID', requestId + 1);
+
+    const promise = executeNextHandler<RT>(handlers, request, 0, {
       controller,
       response: null,
       stream: null,

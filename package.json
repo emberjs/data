@@ -7,19 +7,24 @@
     "url": "git+ssh://git@github.com:emberjs/data.git"
   },
   "scripts": {
-    "takeoff": "FORCE_COLOR=2 pnpm install --reporter=append-only",
-    "prepare": "pnpm build",
+    "takeoff": "FORCE_COLOR=2 pnpm install --prefer-offline --reporter=append-only",
+    "prepare": "turbo run build:infra; pnpm --filter './packages/*' run --parallel --if-present sync-hardlinks; turbo run build:pkg; pnpm run prepare:types; pnpm run _task:sync-hardlinks;",
+    "prepare:types": "tsc --build; turbo run build:glint;",
     "release": "./release/index.ts",
-    "build": "turbo _build --log-order=stream --filter=./packages/* --concurrency=1; pnpm run sync:tests",
-    "sync:tests": "pnpm run --filter=./tests/* -r --workspace-concurrency=1 --if-present _syncPnpm",
+    "build": "turbo _build --log-order=stream --filter=./packages/* --concurrency=10;",
+    "_task:sync-hardlinks": "pnpm run -r --parallel --if-present sync-hardlinks;",
     "build:docs": "mkdir -p packages/-ember-data/dist && cd ./docs-generator && node ./compile-docs.js",
-    "lint": "bun run turbo --log-order=stream lint --concurrency=1",
+    "lint:tests": "turbo --log-order=stream lint --filter=./tests/* --continue --concurrency=10",
+    "lint:pkg": "turbo --log-order=stream lint --filter=./packages/* --continue --concurrency=10",
+    "lint": "pnpm run _task:sync-hardlinks; turbo --log-order=stream lint --continue --concurrency=10",
+    "lint:fix": "pnpm run _task:sync-hardlinks; turbo --log-order=stream lint --continue --concurrency=10 -- --fix",
     "lint:prettier": "prettier --check --cache --cache-location=.prettier-cache --log-level=warn .",
     "lint:prettier:fix": "prettier --write --cache --cache-location=.prettier-cache --log-level=warn .",
     "preinstall": "npx only-allow pnpm",
-    "check:types": "bun run turbo --log-order=stream check:types --concurrency=1",
-    "test": "pnpm turbo test --concurrency=1",
-    "test:production": "pnpm turbo test:production --concurrency=1",
+    "check:test-types": "turbo --log-order=stream check:types --filter=./{tests,config}/* --continue --concurrency=10",
+    "check:types": "pnpm run _task:sync-hardlinks; bun run check:test-types",
+    "test": "pnpm run _task:sync-hardlinks; pnpm turbo test --concurrency=1",
+    "test:production": "pnpm run _task:sync-hardlinks; pnpm turbo test:production --concurrency=1",
     "test:try-one": "pnpm --filter main-test-app run test:try-one",
     "test:docs": "FORCE_COLOR=2  pnpm build:docs && pnpm run -r --workspace-concurrency=-1 --if-present test:docs",
     "test:blueprints": "pnpm run -r --workspace-concurrency=-1 --if-present test:blueprints",
@@ -41,10 +46,10 @@
     "common-tags": "^1.8.2",
     "debug": "^4.3.4",
     "execa": "^8.0.1",
+    "comment-json": "^4.2.3",
     "git-repo-version": "^1.0.2",
     "globby": "^14.0.0",
     "lerna-changelog": "^2.2.0",
-    "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "prettier": "^3.2.5",
     "prettier-plugin-ember-template-tag": "^2.0.2",
     "rimraf": "^5.0.5",
@@ -59,13 +64,13 @@
     "turbo": "^1.13.2"
   },
   "engines": {
-    "node": ">= 18.20.2",
+    "node": ">= 22.1.0",
     "yarn": "use pnpm",
     "npm": "use pnpm",
     "pnpm": "8.15.6"
   },
   "volta": {
-    "node": "18.20.2",
+    "node": "22.1.0",
     "pnpm": "8.15.6"
   },
   "packageManager": "pnpm@8.15.6",
@@ -107,6 +112,21 @@
           "ember-source": "*",
           "@ember/test-helpers": "*"
         }
+      },
+      "ember-auto-import": {
+        "dependencies": {
+          "webpack": "*"
+        }
+      },
+      "ember-source": {
+        "dependencies": {
+          "webpack": "*"
+        }
+      },
+      "@ember/test-helpers": {
+        "dependencies": {
+          "webpack": "*"
+        }
       }
     },
     "overrides": {
@@ -116,9 +136,12 @@
       "broccoli-merge-trees": "^4.2.0",
       "@glimmer/validator": "^0.89.0",
       "@glint/template": "^1.4.0",
+      "@ember/test-helpers": "3.3.0",
+      "ember-source": "~5.7.0",
       "ember-cli-babel": "^8.2.0",
       "ember-cli-htmlbars": "^6.3.0",
       "ember-cli-typescript": "^5.2.1",
+      "webpack": "5.91.0",
       "@ember/string": "3.1.1",
       "qunit": "2.19.4",
       "ember-compatibility-helpers": "^1.2.7",
@@ -126,9 +149,7 @@
     },
     "peerDependencyRules": {
       "ignoreMissing": [
-        "rsvp",
-        "webpack",
-        "ember-auto-import"
+        "rsvp"
       ],
       "allowAny": [
         "ember-source",

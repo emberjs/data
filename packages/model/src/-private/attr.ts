@@ -1,12 +1,12 @@
 /**
   @module @ember-data/model
 */
-import { assert } from '@ember/debug';
 import { computed } from '@ember/object';
 
 import { recordIdentifierFor } from '@ember-data/store';
 import { peekCache } from '@ember-data/store/-private';
 import { DEBUG } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
 import type { ArrayValue, ObjectValue, PrimitiveValue, Value } from '@warp-drive/core-types/json/raw';
 import type { TransformName } from '@warp-drive/core-types/symbols';
 
@@ -104,6 +104,7 @@ function _attr(type?: string | AttrOptions, options?: AttrOptions & object) {
 
         if (!this.isValid) {
           const { errors } = this;
+
           if (errors.get(key)) {
             errors.remove(key);
             this.currentState.cleanErrorRequests();

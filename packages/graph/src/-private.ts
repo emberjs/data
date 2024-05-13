@@ -27,13 +27,19 @@ pnpm add @ember-data/graph
   @main @ember-data/graph
 */
 import type Store from '@ember-data/store';
-import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
+import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { DEBUG } from '@warp-drive/build-config/env';
 
 import { getStore } from './-private/-utils';
 import { Graph, Graphs } from './-private/graph';
 
 export { isBelongsTo } from './-private/-utils';
+export type { CollectionEdge } from './-private/edges/collection';
+export type { ResourceEdge } from './-private/edges/resource';
+export type { ImplicitEdge } from './-private/edges/implicit';
+export type { GraphEdge } from './-private/graph';
+export type { UpgradedMeta } from './-private/-edge-definition';
+export type { Graph };
 
 function isStore(maybeStore: unknown): maybeStore is Store {
   return (maybeStore as Store)._instanceCache !== undefined;

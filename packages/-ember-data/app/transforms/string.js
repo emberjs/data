@@ -1,6 +1,6 @@
 import { deprecate } from '@ember/debug';
 
-export { StringTransform as default } from '@ember-data/serializer/-private';
+export { StringTransform as default } from '@ember-data/serializer/transform';
 
 deprecate(
   "You are relying on ember-data auto-magically installing the StringTransform. Use `export { StringTransform as default } from '@ember-data/serializer/transform';` in app/transforms/string.js instead",

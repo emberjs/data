@@ -280,10 +280,10 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
     const url = await mockGETSuccess(this);
     const request = this.manager.request<UserResource>({ url, method: 'GET' });
 
-    let state: RequestState<UserResource, UserResource>;
-    function _getRequestState<RT, T>(p: Future<RT>): RequestState<T, RT> {
-      state = getRequestState(p) as RequestState<UserResource, UserResource>;
-      return state as RequestState<T, RT>;
+    let state1: RequestState<UserResource, UserResource>;
+    function _getRequestState<RT, T = RT>(p: Future<RT>): RequestState<T, RT> {
+      state1 = getRequestState(p) as RequestState<UserResource, UserResource>;
+      return state1 as RequestState<T, RT>;
     }
     let counter = 0;
     function countFor(_result: unknown) {
@@ -299,13 +299,13 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
       </template>
     );
 
-    assert.equal(state!.result, null);
+    assert.equal(state1!.result, null);
     assert.equal(counter, 1);
     assert.equal(this.element.textContent?.trim(), 'Count:\n          1');
     await request;
     await rerender();
-    assert.equal(state!, getRequestState(request));
-    assert.deepEqual(state!.result, {
+    assert.equal(state1!, getRequestState(request));
+    assert.deepEqual(state1!.result, {
       data: {
         id: '1',
         type: 'user',
@@ -322,10 +322,10 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
     const url = await mockGETSuccess(this);
     const request = this.manager.request<UserResource>({ url, method: 'GET' });
 
-    let state: RequestState<UserResource, UserResource>;
-    function _getRequestState<RT, T>(p: Future<RT>): RequestState<T, RT> {
-      state = getRequestState(p) as RequestState<UserResource, UserResource>;
-      return state as RequestState<T, RT>;
+    let state1: RequestState<UserResource, UserResource>;
+    function _getRequestState<RT, T = RT>(p: Future<RT>): RequestState<T, RT> {
+      state1 = getRequestState(p) as RequestState<UserResource, UserResource>;
+      return state1 as RequestState<T, RT>;
     }
     let counter = 0;
     function countFor(_result: unknown) {
@@ -342,7 +342,7 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
       </template>
     );
 
-    assert.deepEqual(state!.result, {
+    assert.deepEqual(state1!.result, {
       data: {
         id: '1',
         type: 'user',
@@ -356,7 +356,7 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
 
     await settled();
 
-    assert.deepEqual(state!.result, {
+    assert.deepEqual(state1!.result, {
       data: {
         id: '1',
         type: 'user',
@@ -373,10 +373,10 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
     const url = await mockGETFailure(this);
     const request = this.manager.request({ url, method: 'GET' });
 
-    let state: RequestState<UserResource, UserResource>;
-    function _getRequestState<RT, T>(p: Future<RT>): RequestState<T, RT> {
-      state = getRequestState(p) as RequestState<UserResource, UserResource>;
-      return state as RequestState<T, RT>;
+    let state1: RequestState<UserResource, UserResource>;
+    function _getRequestState<RT, T = RT>(p: Future<RT>): RequestState<T, RT> {
+      state1 = getRequestState(p) as RequestState<UserResource, UserResource>;
+      return state1 as RequestState<T, RT>;
     }
     let counter = 0;
     function countFor(_result: unknown, _error: unknown) {
@@ -399,9 +399,9 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
       </template>
     );
 
-    assert.equal(state!, getRequestState(request), 'state is a stable reference');
-    assert.equal(state!.result, null, 'result is null');
-    assert.equal(state!.error, null, 'error is null');
+    assert.equal(state1!, getRequestState(request), 'state is a stable reference');
+    assert.equal(state1!.result, null, 'result is null');
+    assert.equal(state1!.error, null, 'error is null');
     assert.equal(counter, 1, 'counter is 1');
     assert.equal(this.element.textContent?.trim(), 'Pending\n          Count:\n          1');
     try {
@@ -410,10 +410,10 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
       // ignore the error
     }
     await rerender();
-    assert.equal(state!.result, null, 'after rerender result is still null');
-    assert.true(state!.error instanceof Error, 'error is an instance of Error');
+    assert.equal(state1!.result, null, 'after rerender result is still null');
+    assert.true(state1!.error instanceof Error, 'error is an instance of Error');
     assert.equal(
-      (state!.error as Error | undefined)?.message,
+      (state1!.error as Error | undefined)?.message,
       '[404 Not Found] GET (cors) - https://localhost:1135/users/2',
       'error message is correct'
     );
@@ -433,10 +433,10 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
     } catch (e) {
       // ignore the error
     }
-    let state: RequestState<UserResource, UserResource>;
-    function _getRequestState<RT, T>(p: Future<RT>): RequestState<T, RT> {
-      state = getRequestState(p) as RequestState<UserResource, UserResource>;
-      return state as RequestState<T, RT>;
+    let state1: RequestState<UserResource, UserResource>;
+    function _getRequestState<RT, T = RT>(p: Future<RT>): RequestState<T, RT> {
+      state1 = getRequestState(p) as RequestState<UserResource, UserResource>;
+      return state1 as RequestState<T, RT>;
     }
     let counter = 0;
     function countFor(_result: unknown, _error: unknown) {
@@ -459,10 +459,10 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
       </template>
     );
 
-    assert.equal(state!.result, null, 'after render result is null');
-    assert.true(state!.error instanceof Error, 'error is an instance of Error');
+    assert.equal(state1!.result, null, 'after render result is null');
+    assert.true(state1!.error instanceof Error, 'error is an instance of Error');
     assert.equal(
-      (state!.error as Error | undefined)?.message,
+      (state1!.error as Error | undefined)?.message,
       '[404 Not Found] GET (cors) - https://localhost:1135/users/2',
       'error message is correct'
     );
@@ -472,10 +472,10 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
       '[404 Not Found] GET (cors) - https://localhost:1135/users/2\n          Count:\n          1'
     );
     await rerender();
-    assert.equal(state!.result, null, 'after rerender result is still null');
-    assert.true(state!.error instanceof Error, 'error is an instance of Error');
+    assert.equal(state1!.result, null, 'after rerender result is still null');
+    assert.true(state1!.error instanceof Error, 'error is an instance of Error');
     assert.equal(
-      (state!.error as Error | undefined)?.message,
+      (state1!.error as Error | undefined)?.message,
       '[404 Not Found] GET (cors) - https://localhost:1135/users/2',
       'error message is correct'
     );

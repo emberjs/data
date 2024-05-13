@@ -153,7 +153,7 @@ module('integration/load - Loading Records', function (hooks) {
     } catch (e) {
       assert.strictEqual(
         e.message,
-        `Assertion Failed: The 'findRecord' request for person:1 resolved indicating success but contained no primary data. To indicate a 404 not found you should either reject the promise returned by the adapter's findRecord method or throw a NotFoundError.`,
+        `The 'findRecord' request for person:1 resolved indicating success but contained no primary data. To indicate a 404 not found you should either reject the promise returned by the adapter's findRecord method or throw a NotFoundError.`,
         'we throw a meaningful error'
       );
     }

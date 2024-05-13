@@ -1,6 +1,6 @@
+import type { Handler, NextFn } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
-import type { Context } from '@ember-data/request/-private/context';
-import type { Handler, NextFn } from '@ember-data/request/-private/types';
+import type { RequestContext } from '@warp-drive/core-types/request';
 import { module, test } from '@warp-drive/diagnostic';
 
 const IGNORED_HEADERS = new Set(['connection', 'keep-alive', 'content-length', 'date', 'etag', 'last-modified']);
@@ -9,7 +9,7 @@ module('RequestManager | Response', function () {
   test('Handlers may set response via Response', async function (assert) {
     const manager = new RequestManager();
     const handler: Handler = {
-      async request<T>(context: Context, next: NextFn<T>) {
+      async request<T>(context: RequestContext, next: NextFn<T>) {
         const response = await fetch(context.request.url!, context.request);
         context.setResponse(response);
         return response.json();

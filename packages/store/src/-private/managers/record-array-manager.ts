@@ -2,22 +2,24 @@
   @module @ember-data/store
 */
 import { addTransactionCB } from '@ember-data/tracking/-private';
+import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
-import type { CollectionResourceDocument } from '@warp-drive/core-types/spec/raw';
+import type { CollectionResourceDocument } from '@warp-drive/core-types/spec/json-api-raw';
 
 import type { CollectionCreateOptions } from '../record-arrays/identifier-array';
-import IdentifierArray, {
+import {
   ARRAY_SIGNAL,
   Collection,
+  IdentifierArray,
   NOTIFY,
   notifyArray,
   SOURCE,
 } from '../record-arrays/identifier-array';
-import type Store from '../store-service';
+import type { Store } from '../store-service';
 import type { CacheOperation, UnsubscribeToken } from './notification-manager';
 
-const FAKE_ARR = {};
+const FAKE_ARR = getOrSetGlobal('FAKE_ARR', {});
 const SLICE_BATCH_SIZE = 1200;
 /**
  * This is a clever optimization.
@@ -75,7 +77,7 @@ type ChangeSet = Map<StableRecordIdentifier, 'add' | 'del'>;
   @class RecordArrayManager
   @internal
 */
-class RecordArrayManager {
+export class RecordArrayManager {
   declare store: Store;
   declare isDestroying: boolean;
   declare isDestroyed: boolean;
@@ -436,5 +438,3 @@ function sync(
     */
   }
 }
-
-export default RecordArrayManager;

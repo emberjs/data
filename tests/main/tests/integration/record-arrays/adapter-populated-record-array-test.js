@@ -16,7 +16,7 @@ const Person = Model.extend({
   },
 });
 
-module('integration/record-arrays/adapter_populated_record_array - AdapterPopulatedRecordArray', function (hooks) {
+module('integration/record-arrays/collection', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
@@ -162,7 +162,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
       () => {
         recordArray.splice(0, 1);
       },
-      'Assertion Failed: Mutating this array of records via splice is not allowed.',
+      'Mutating this array of records via splice is not allowed.',
       'throws error'
     );
   });
@@ -177,7 +177,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
       () => {
         recordArray.splice(0, 1);
       },
-      'Assertion Failed: Mutating this array of records via splice is not allowed.',
+      'Mutating this array of records via splice is not allowed.',
       'throws error'
     );
   });

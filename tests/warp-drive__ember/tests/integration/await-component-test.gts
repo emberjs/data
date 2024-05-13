@@ -1,17 +1,9 @@
 import { rerender, settled } from '@ember/test-helpers';
 
-import { setPromiseResult, type Awaitable } from '@ember-data/request';
+import { type Awaitable, setPromiseResult } from '@ember-data/request';
 import type { RenderingTestContext } from '@warp-drive/diagnostic/ember';
 import { module, setupRenderingTest, test } from '@warp-drive/diagnostic/ember';
 import { Await, getPromiseState } from '@warp-drive/ember';
-import { assert } from '@ember/debug';
-
-function asError<T>(x: Exclude<T, Error>): never;
-function asError<T>(x: T): Error;
-function asError<T>(x: T | null) {
-  assert(`Expected an instance of an error, but got ${typeof x}`, x instanceof Error);
-  return x;
-}
 
 module('Integration | <Await />', function (hooks) {
   setupRenderingTest(hooks);
@@ -35,11 +27,11 @@ module('Integration | <Await />', function (hooks) {
       </template>
     );
 
-    assert.equal(state!.result, null);
+    assert.equal(state.result, null);
     assert.equal(counter, 1);
     assert.equal(this.element.textContent?.trim(), 'Loading...Count: 1');
     await rerender();
-    assert.equal(state!.result, 'Our Data');
+    assert.equal(state.result, 'Our Data');
     assert.equal(counter, 2);
     assert.equal(this.element.textContent?.trim(), 'Our DataCount: 2');
   });
@@ -47,8 +39,8 @@ module('Integration | <Await />', function (hooks) {
   test('it renders only once when the promise already has a result cached', async function (this: RenderingTestContext, assert) {
     const promise: Awaitable<string, Error> = Promise.resolve().then(() => 'Our Data');
 
-    const result = await promise;
-    setPromiseResult(promise, { result, isError: false });
+    const result1 = await promise;
+    setPromiseResult(promise, { result: result1, isError: false });
 
     let counter = 0;
     function countFor(_result: unknown) {
@@ -92,14 +84,14 @@ module('Integration | <Await />', function (hooks) {
       </template>
     );
 
-    assert.equal(state!.result, null);
-    assert.equal(state!.error, null);
+    assert.equal(state.result, null);
+    assert.equal(state.error, null);
     assert.equal(counter, 1);
     assert.equal(this.element.textContent?.trim(), 'Loading...Count: 1');
     await rerender();
-    assert.equal(state!.result, null);
-    assert.true(state!.error instanceof Error);
-    assert.equal((state!.error as Error | undefined)?.message, 'Our Error');
+    assert.equal(state.result, null);
+    assert.true(state.error instanceof Error);
+    assert.equal((state.error as Error | undefined)?.message, 'Our Error');
     assert.equal(counter, 2);
     assert.equal(this.element.textContent?.trim(), 'Our ErrorCount: 2');
   });
@@ -132,15 +124,15 @@ module('Integration | <Await />', function (hooks) {
       </template>
     );
 
-    assert.equal(state!.result, null);
-    assert.true(state!.error instanceof Error);
-    assert.equal((state!.error as Error | undefined)?.message, 'Our Error');
+    assert.equal(state.result, null);
+    assert.true(state.error instanceof Error);
+    assert.equal((state.error as Error | undefined)?.message, 'Our Error');
     assert.equal(counter, 1);
     assert.equal(this.element.textContent?.trim(), 'Our ErrorCount: 1');
     await rerender();
-    assert.equal(state!.result, null);
-    assert.true(state!.error instanceof Error);
-    assert.equal((state!.error as Error | undefined)?.message, 'Our Error');
+    assert.equal(state.result, null);
+    assert.true(state.error instanceof Error);
+    assert.equal((state.error as Error | undefined)?.message, 'Our Error');
     assert.equal(counter, 1);
     assert.equal(this.element.textContent?.trim(), 'Our ErrorCount: 1');
   });

@@ -1,13 +1,12 @@
 /**
  * @module @ember-data/json-api/request
  */
-import { assert } from '@ember/debug';
-
-import type { AttributesHash, JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
+import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { Relationship } from '@warp-drive/core-types/cache/relationship';
 import type { Value } from '@warp-drive/core-types/json/raw';
+import type { ResourceObject } from '@warp-drive/core-types/spec/json-api-raw';
 
 type ChangedRelationshipData = {
   data: Relationship['data'];
@@ -32,12 +31,12 @@ export type JsonApiResourcePatch = {
  * @param {StableRecordIdentifier} identifier
  * @return {object} An object with a `data` property containing the serialized resource patch
  */
-export function serializeResources(cache: Cache, identifiers: StableRecordIdentifier): { data: JsonApiResource };
-export function serializeResources(cache: Cache, identifiers: StableRecordIdentifier[]): { data: JsonApiResource[] };
+export function serializeResources(cache: Cache, identifiers: StableRecordIdentifier): { data: ResourceObject };
+export function serializeResources(cache: Cache, identifiers: StableRecordIdentifier[]): { data: ResourceObject[] };
 export function serializeResources(
   cache: Cache,
   identifiers: StableRecordIdentifier | StableRecordIdentifier[]
-): { data: JsonApiResource | JsonApiResource[] } {
+): { data: ResourceObject | ResourceObject[] } {
   return {
     data: Array.isArray(identifiers)
       ? identifiers.map((identifier) => _serializeResource(cache, identifier))
@@ -45,11 +44,11 @@ export function serializeResources(
   };
 }
 
-function _serializeResource(cache: Cache, identifier: StableRecordIdentifier): JsonApiResource {
+function _serializeResource(cache: Cache, identifier: StableRecordIdentifier): ResourceObject {
   const { id, lid, type } = identifier;
   // yup! this method actually does nothing. It's just here for the dev assertion
   // and to assist in providing a little sugar to the consuming app via the `serializeResources` utility
-  const record = cache.peek(identifier) as JsonApiResource;
+  const record = cache.peek(identifier) as ResourceObject;
   assert(
     `A record with id ${String(id)} and type ${type} for lid ${lid} was not found not in the supplied Cache.`,
     record
@@ -88,7 +87,7 @@ export function serializePatch(
   // options: { include?: string[] } = {}
 ): { data: JsonApiResourcePatch } {
   const { id, lid, type } = identifier;
-  const record = cache.peek(identifier) as JsonApiResource;
+  const record = cache.peek(identifier) as ResourceObject;
   assert(
     `A record with id ${String(id)} and type ${type} for lid ${lid} was not found not in the supplied Cache.`,
     record
@@ -102,7 +101,7 @@ export function serializePatch(
 
   if (cache.hasChangedAttrs(identifier)) {
     const attrsChanges = cache.changedAttrs(identifier);
-    const attributes: AttributesHash = {};
+    const attributes: ResourceObject['attributes'] = {};
 
     Object.keys(attrsChanges).forEach((key) => {
       const change = attrsChanges[key];

@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-restricted-imports
 import { _backburner } from '@ember/runloop';
 import { getSettledState, isSettled, registerHook, setApplication } from '@ember/test-helpers';
 import { getPendingWaiterState } from '@ember/test-waiters';
@@ -9,7 +8,7 @@ import { setup } from 'qunit-dom';
 import start from 'ember-exam/test-support/start';
 
 import { setBuildURLConfig } from '@ember-data/request-utils';
-import configureAsserts from '@ember-data/unpublished-test-infra/test-support/asserts';
+import configureAsserts from '@ember-data/unpublished-test-infra/test-support/asserts/index';
 import { setConfig, setTestId } from '@warp-drive/holodeck';
 
 import Application from '../app';
@@ -127,7 +126,6 @@ function setupMemoryTracking() {
       }
       // if the gc is exposed, use it
       if (typeof gc !== 'undefined') {
-        // eslint-disable-next-line no-undef
         gc();
       }
 

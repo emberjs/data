@@ -14,8 +14,11 @@ import {
   setIdentifierResetMethod,
   setIdentifierUpdateMethod,
 } from '@ember-data/store';
-import type { GenerationMethod, ResourceData } from '@ember-data/store/-types/q/identifier';
 import type { IdentifierBucket, StableIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { ExistingResourceObject, ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
+
+type ResourceData = ResourceIdentifierObject | ExistingResourceObject;
+type GenerationMethod = Parameters<typeof setIdentifierGenerationMethod>[0];
 
 function isNonEmptyString(str: unknown): str is string {
   return typeof str === 'string' && str.length > 0;

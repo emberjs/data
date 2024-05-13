@@ -10,6 +10,7 @@
     "moduleResolution": "NodeNext",
     "moduleDetection": "force",
     "strict": true,
+    "pretty": true,
     "downlevelIteration": true,
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,

@@ -139,7 +139,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       } catch (e) {
         assert.strictEqual(
           e.message,
-          `Assertion Failed: fetched the hasMany relationship 'employees' for company:1 with link '"company/1/employees"', but no data member is present in the response. If no data exists, the response should set { data: [] }`,
+          `fetched the hasMany relationship 'employees' for company:1 with link '"company/1/employees"', but no data member is present in the response. If no data exists, the response should set { data: [] }`,
           'We error appropriately'
         );
       }
@@ -166,7 +166,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       });
 
       post.comments;
-    }, /Assertion Failed: Encountered a relationship identifier without an id for the hasMany relationship 'comments' on <post:1>, expected an identifier but found/);
+    }, /Encountered a relationship identifier without an id for the hasMany relationship 'comments' on <post:1>, expected an identifier but found/);
   });
 
   testInDebug('Invalid hasMany relationship identifiers throw errors for missing type', function (assert) {
@@ -188,7 +188,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
         },
       });
       post.comments;
-    }, /Assertion Failed: Encountered a relationship identifier without a type for the hasMany relationship 'comments' on <post:2>, expected an identifier with type 'comment' but found/);
+    }, /Encountered a relationship identifier without a type for the hasMany relationship 'comments' on <post:2>, expected an identifier with type 'comment' but found/);
   });
 
   test('A record with an async hasMany relationship can safely be saved and later access the relationship', async function (assert) {
@@ -930,7 +930,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
     adapter.findHasMany = function (store, snapshot, link, relationship) {
       assert.strictEqual(relationship.type, 'comment', 'findHasMany relationship type was Comment');
-      assert.strictEqual(relationship.key, 'comments', 'findHasMany relationship key was comments');
+      assert.strictEqual(relationship.name, 'comments', 'findHasMany relationship key was comments');
       assert.strictEqual(link, '/posts/1/comments', 'findHasMany link was /posts/1/comments');
 
       return Promise.resolve({
@@ -948,7 +948,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
     adapter.findHasMany = function (store, snapshot, link, relationship) {
       assert.strictEqual(relationship.type, 'comment', 'findHasMany relationship type was Comment');
-      assert.strictEqual(relationship.key, 'comments', 'findHasMany relationship key was comments');
+      assert.strictEqual(relationship.name, 'comments', 'findHasMany relationship key was comments');
       assert.strictEqual(link, '/posts/1/comments', 'findHasMany link was /posts/1/comments');
 
       return Promise.resolve({
@@ -1700,7 +1700,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       } catch (e) {
         assert.strictEqual(
           e.message,
-          "Assertion Failed: The 'post' type does not implement 'comment' and thus cannot be assigned to the 'comments' relationship in 'post'. If this relationship should be polymorphic, mark post.comments as `polymorphic: true` and post.message as implementing it via `as: 'comment'`.",
+          "The 'post' type does not implement 'comment' and thus cannot be assigned to the 'comments' relationship in 'post'. If this relationship should be polymorphic, mark post.comments as `polymorphic: true` and post.message as implementing it via `as: 'comment'`.",
           'should throw'
         );
       }
@@ -1775,7 +1775,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
         function () {
           user.messages.push(anotherUser);
         },
-        `Assertion Failed: The schema for the relationship 'user' on 'user' type does not correctly implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. If using this record in this polymorphic relationship is desired, correct the errors in the schema shown below:
+        `The schema for the relationship 'user' on 'user' type does not correctly implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. If using this record in this polymorphic relationship is desired, correct the errors in the schema shown below:
 
 \`\`\`
 {
@@ -1907,7 +1907,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
         function () {
           user.messages.push(anotherUser);
         },
-        `Assertion Failed: No 'user' field exists on 'user'. To use this type in the polymorphic relationship 'user.messages' the relationships schema definition for user should include:
+        `No 'user' field exists on 'user'. To use this type in the polymorphic relationship 'user.messages' the relationships schema definition for user should include:
 
 \`\`\`
 {
@@ -2063,7 +2063,7 @@ If using this relationship in a polymorphic manner is desired, the relationships
       } catch (e) {
         assert.strictEqual(
           e.message,
-          `Assertion Failed: The '<goon>.messages' relationship cannot be used polymorphically because '<message>.user is not a polymorphic relationship. To use this relationship in a polymorphic manner, fix the following schema issues on the relationships schema for 'message':
+          `The '<goon>.messages' relationship cannot be used polymorphically because '<message>.user is not a polymorphic relationship. To use this relationship in a polymorphic manner, fix the following schema issues on the relationships schema for 'message':
 
 \`\`\`
 {
@@ -3949,7 +3949,7 @@ If using this relationship in a polymorphic manner is desired, the relationships
     let hasManyCounter = 0;
     adapter.findHasMany = function (store, snapshot, link, relationship) {
       assert.strictEqual(relationship.type, 'comment', 'findHasMany relationship type was Comment');
-      assert.strictEqual(relationship.key, 'comments', 'findHasMany relationship key was comments');
+      assert.strictEqual(relationship.name, 'comments', 'findHasMany relationship key was comments');
       assert.strictEqual(link, '/posts/1/comments', 'findHasMany link was /posts/1/comments');
       hasManyCounter++;
 

@@ -12,8 +12,8 @@
   "author": "",
   "scripts": {
     "test:docs": "qunit ./index.js",
-    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs",
-    "_syncPnpm": "bun run sync-dependencies-meta-injected"
+    "lint": "eslint . --quiet --cache --cache-strategy=content --report-unused-disable-directives",
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
   "devDependencies": {
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.64",
@@ -21,7 +21,7 @@
     "qunit": "^2.20.1"
   },
   "engines": {
-    "node": ">= 18.20.2"
+    "node": ">= 22.1.0"
   },
   "volta": {
     "extends": "../../package.json"

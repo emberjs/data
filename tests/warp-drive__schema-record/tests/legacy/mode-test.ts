@@ -4,8 +4,7 @@ import { setupRenderingTest } from 'ember-qunit';
 
 import { adapterFor, LegacyNetworkHandler, serializeRecord, serializerFor } from '@ember-data/legacy-compat';
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
-import type Errors from '@ember-data/model/-private/errors';
-import type RecordState from '@ember-data/model/-private/record-state';
+import type Model from '@ember-data/model';
 import {
   registerDerivations as registerLegacyDerivations,
   withFields as withLegacyFields,
@@ -16,6 +15,9 @@ import { CacheHandler } from '@ember-data/store';
 import type { ResourceType } from '@warp-drive/core-types/symbols';
 import { Editable, Legacy } from '@warp-drive/schema-record/record';
 import { registerDerivations, SchemaService, withFields } from '@warp-drive/schema-record/schema';
+
+type Errors = Model['errors'];
+type RecordState = Model['currentState'];
 
 interface User {
   [Legacy]: boolean;
@@ -108,7 +110,6 @@ module('Legacy Mode', function (hooks) {
       fields: withFields([
         {
           name: 'name',
-          type: null,
           kind: 'field',
         },
       ]),
@@ -183,7 +184,6 @@ module('Legacy Mode', function (hooks) {
       fields: withFields([
         {
           name: 'name',
-          type: null,
           kind: 'field',
         },
       ]),
@@ -214,7 +214,6 @@ module('Legacy Mode', function (hooks) {
       fields: withLegacyFields([
         {
           name: 'name',
-          type: null,
           kind: 'field',
         },
       ]),
@@ -236,7 +235,7 @@ module('Legacy Mode', function (hooks) {
     } catch (e) {
       assert.strictEqual(
         (e as Error).message,
-        "Assertion Failed: SchemaRecord.name is not available in legacy mode because it has type 'field'",
+        "SchemaRecord.name is not available in legacy mode because it has type 'field'",
         'record.name throws'
       );
     }
@@ -302,7 +301,7 @@ module('Legacy Mode', function (hooks) {
     } catch (e) {
       assert.strictEqual(
         (e as Error).message,
-        "Assertion Failed: SchemaRecord.bestFriend is not available in legacy mode because it has type 'resource'",
+        "SchemaRecord.bestFriend is not available in legacy mode because it has type 'resource'",
         'record.bestFriend throws'
       );
     }

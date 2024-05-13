@@ -1,9 +1,8 @@
 /**
  * @module @ember-data/store
  */
-import { assert } from '@ember/debug';
-
 import type { CacheHandler as CacheHandlerType, Future, NextFn } from '@ember-data/request';
+import { assert } from '@warp-drive/build-config/macros';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type {
   ImmutableCreateRequestOptions,
@@ -22,11 +21,11 @@ import type {
   ResourceErrorDocument,
 } from '@warp-drive/core-types/spec/document';
 import type { ApiError } from '@warp-drive/core-types/spec/error';
-import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
+import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
 
 import type { OpaqueRecordInstance } from '../-types/q/record-instance';
 import { Document } from './document';
-import type Store from './store-service';
+import type { Store } from './store-service';
 
 /**
  * A service which an application may provide to the store via

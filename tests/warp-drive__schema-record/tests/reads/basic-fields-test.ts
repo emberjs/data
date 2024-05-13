@@ -2,13 +2,13 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
-import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { SchemaRecord } from '@warp-drive/schema-record/record';
 import type { Transform } from '@warp-drive/schema-record/schema';
 import { registerDerivations, SchemaService, withFields } from '@warp-drive/schema-record/schema';
+
+import type Store from 'warp-drive__schema-record/services/store';
 
 interface User {
   id: string | null;
@@ -33,7 +33,6 @@ module('Reads | basic fields', function (hooks) {
       fields: withFields([
         {
           name: 'name',
-          type: null,
           kind: 'field',
         },
       ]),
@@ -89,7 +88,6 @@ module('Reads | basic fields', function (hooks) {
       fields: withFields([
         {
           name: 'name',
-          type: null,
           kind: 'field',
         },
         {
@@ -151,7 +149,7 @@ module('Reads | basic fields', function (hooks) {
       );
     }
 
-    const resource = store.cache.peek(identifier) as JsonApiResource;
+    const resource = store.cache.peek(identifier)!;
 
     assert.strictEqual(store.cache.getAttr(identifier, 'name'), 'Rey Skybarker', 'cache value for name is correct');
     assert.strictEqual(store.cache.getAttr(identifier, 'age'), '42', 'cache value for age is correct');

@@ -1,10 +1,9 @@
 /**
  * @module @ember-data/legacy-compat/builders
  */
-import { assert } from '@ember/debug';
-
 import type { StoreRequestInput } from '@ember-data/store';
-import type { FindAllOptions } from '@ember-data/store/-types/q/store';
+import type { FindAllOptions } from '@ember-data/store/types';
+import { assert } from '@warp-drive/build-config/macros';
 import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
 import { SkipCache } from '@warp-drive/core-types/request';
 import type { RequestSignature } from '@warp-drive/core-types/symbols';
@@ -59,6 +58,6 @@ export function findAllBuilder(type: string, options: FindAllBuilderOptions = {}
       type: normalizeModelName(type),
       options: options || {},
     },
-    cacheOptions: { [SkipCache as symbol]: true },
+    cacheOptions: { [SkipCache]: true },
   };
 }

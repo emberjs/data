@@ -4,9 +4,9 @@ import Component from '@glimmer/component';
 
 import { hbs } from 'ember-cli-htmlbars';
 
-import type { OpaqueRecordInstance } from '@ember-data/store/-types/q/record-instance';
-import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
 import type { ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
+import type { OpaqueRecordInstance } from '@warp-drive/core-types/record';
+import type { FieldSchema } from '@warp-drive/core-types/schema/fields';
 
 export async function reactiveContext<T extends OpaqueRecordInstance>(
   this: TestContext,

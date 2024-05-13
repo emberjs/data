@@ -1,14 +1,15 @@
 /**
  * @module @ember-data/serializer/rest
  */
-import { assert, warn } from '@ember/debug';
+import { warn } from '@ember/debug';
 import { camelize, dasherize } from '@ember/string';
 
 import { singularize } from 'ember-inflector';
 
 import { DEBUG } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
 
-import { coerceId } from './-private';
+import { coerceId } from './-private/utils';
 import JSONSerializer from './json';
 
 function makeArray(value) {
@@ -813,6 +814,6 @@ if (DEBUG) {
   });
 }
 
-export { EmbeddedRecordsMixin } from './-private';
+export { EmbeddedRecordsMixin } from './-private/embedded-records-mixin';
 
 export default RESTSerializer;

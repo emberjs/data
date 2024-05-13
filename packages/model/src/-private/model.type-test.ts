@@ -5,10 +5,10 @@ import { ResourceType } from '@warp-drive/core-types/symbols';
 import { attr } from './attr';
 import { belongsTo } from './belongs-to';
 import { hasMany } from './has-many';
-import type ManyArray from './many-array';
+import type { RelatedCollection as ManyArray } from './many-array';
 import { Model } from './model';
 import type { PromiseBelongsTo } from './promise-belongs-to';
-import type PromiseManyArray from './promise-many-array';
+import type { PromiseManyArray } from './promise-many-array';
 import type BelongsToReference from './references/belongs-to';
 import type HasManyReference from './references/has-many';
 

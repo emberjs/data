@@ -10,7 +10,7 @@ import { dasherize } from '@ember/string';
 
 import { dependencySatisfies, importSync, macroCondition } from '@embroider/macros';
 
-import { DEBUG } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
 
 interface AssertFunc {
   (desc: string, condition: unknown): asserts condition;
@@ -33,11 +33,7 @@ const AssertFn: AssertFunc = ((message: string, condition: unknown) => {
   if (!condition) {
     _AssertFn(message, condition);
   }
-  if (DEBUG) {
-    if (!condition) {
-      throw new Error(`Assertion Failed: ${message}`);
-    }
-  }
+  assert(message, condition);
 }) as unknown as AssertFunc;
 let NormalizedType: Normalizer = (str: string) => {
   return singularize(dasherize(str));

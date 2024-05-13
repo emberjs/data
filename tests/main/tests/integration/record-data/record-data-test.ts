@@ -10,12 +10,11 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import type { StructuredDataDocument, StructuredDocument } from '@ember-data/request';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import type { Cache, MergeOperation } from '@ember-data/store/-types/q/cache';
-import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import type { JsonApiError, JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
-import type { ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core-types/cache';
+import type { CacheCapabilitiesManager } from '@ember-data/store/types';
+import type { Cache, ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core-types/cache';
 import type { ResourceBlob } from '@warp-drive/core-types/cache/aliases';
 import type { Change } from '@warp-drive/core-types/cache/change';
+import type { MergeOperation } from '@warp-drive/core-types/cache/operations';
 import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
 import type {
@@ -31,11 +30,13 @@ import type {
   ResourceMetaDocument,
   SingleResourceDataDocument,
 } from '@warp-drive/core-types/spec/document';
+import type { ApiError } from '@warp-drive/core-types/spec/error';
 import type {
   CollectionResourceDocument,
+  ExistingResourceObject,
   JsonApiDocument,
   SingleResourceDocument,
-} from '@warp-drive/core-types/spec/raw';
+} from '@warp-drive/core-types/spec/json-api-raw';
 import { ResourceType } from '@warp-drive/core-types/symbols';
 
 class Person extends Model {
@@ -61,7 +62,7 @@ class House extends Model {
 class TestRecordData implements Cache {
   version = '2' as const;
 
-  _errors?: JsonApiError[];
+  _errors?: ApiError[];
   _isNew = false;
   _storeWrapper: CacheCapabilitiesManager;
   _identifier: StableRecordIdentifier;
@@ -103,7 +104,7 @@ class TestRecordData implements Cache {
         const identifier = this._storeWrapper.identifierCache.getOrCreateRecordIdentifier(
           doc.content.data as RecordIdentifier
         );
-        this.upsert(identifier, doc.content.data as JsonApiResource, this._storeWrapper.hasRecord(identifier));
+        this.upsert(identifier, doc.content.data!, this._storeWrapper.hasRecord(identifier));
         return { data: identifier } as SingleResourceDataDocument;
       }
     } else if ('error' in doc) {
@@ -138,7 +139,7 @@ class TestRecordData implements Cache {
 
   upsert(
     identifier: StableRecordIdentifier,
-    data: JsonApiResource,
+    data: ExistingResourceObject,
     calculateChanges?: boolean | undefined
   ): void | string[] {
     if (!this._data.has(identifier)) {
@@ -160,7 +161,7 @@ class TestRecordData implements Cache {
   didCommit(identifier: StableRecordIdentifier, result: StructuredDataDocument<unknown>): SingleResourceDataDocument {
     return { data: identifier as StableExistingRecordIdentifier };
   }
-  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[] | undefined): void {
+  commitWasRejected(identifier: StableRecordIdentifier, errors?: ApiError[] | undefined): void {
     this._errors = errors;
   }
   unloadRecord(identifier: StableRecordIdentifier): void {}
@@ -192,7 +193,7 @@ class TestRecordData implements Cache {
     throw new Error('Method not implemented.');
   }
 
-  getErrors(identifier: StableRecordIdentifier): JsonApiError[] {
+  getErrors(identifier: StableRecordIdentifier): ApiError[] {
     return this._errors || [];
   }
   isEmpty(identifier: StableRecordIdentifier): boolean {
@@ -218,10 +219,10 @@ module('integration/record-data - Custom RecordData Implementations', function (
     owner.register('model:person', Person);
     owner.register('model:house', House);
     // @ts-expect-error missing type
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+
     owner.unregister('service:store');
     owner.register('service:store', Store);
-    owner.register('adapter:application', JSONAPIAdapter.extend());
+    owner.register('adapter:application', class extends JSONAPIAdapter {});
     owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
@@ -306,7 +307,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
         calledWillCommit++;
       }
 
-      override commitWasRejected(identifier: StableRecordIdentifier, errors: JsonApiError[] | undefined) {
+      override commitWasRejected(identifier: StableRecordIdentifier, errors: ApiError[] | undefined) {
         super.commitWasRejected(identifier, errors);
         calledWasRejected++;
       }

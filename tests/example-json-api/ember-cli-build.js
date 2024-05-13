@@ -2,31 +2,24 @@
 
 const EmberApp = require('ember-cli/lib/broccoli/ember-app');
 
-module.exports = function (defaults) {
+module.exports = async function (defaults) {
+  const { setConfig } = await import('@warp-drive/build-config');
+  const { macros } = await import('@warp-drive/build-config/babel-macros');
+
   const app = new EmberApp(defaults, {
-    emberData: {
-      compatWith: '99.0',
-    },
     babel: {
       // this ensures that the same build-time code stripping that is done
       // for library packages is also done for our tests and dummy app
-      plugins: [
-        ...require('@ember-data/private-build-infra/src/debug-macros')({
-          compatWith: '99.0',
-          debug: {},
-          features: {},
-          deprecations: {},
-          env: require('@ember-data/private-build-infra/src/utilities/get-env')(),
-        }),
-      ],
+      plugins: [...macros()],
     },
     'ember-cli-babel': {
       throwUnlessParallelizable: true,
       enableTypeScriptTransform: true,
     },
-    'ember-cli-terser': {
-      exclude: ['assets/dummy.js', 'assets/tests.js', 'assets/test-support.js'],
-    },
+  });
+
+  setConfig(app, __dirname, {
+    compatWith: process.env.EMBER_DATA_FULL_COMPAT ? '99.0' : null,
   });
 
   const { Webpack } = require('@embroider/webpack');

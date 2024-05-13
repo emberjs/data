@@ -1,7 +1,9 @@
+import { getOrSetGlobal } from './-private';
+
 /*
  * @module @warp-drive/core-types
  */
-export const RecordStore = Symbol('Store');
+export const RecordStore = getOrSetGlobal('Store', Symbol('Store'));
 
 /**
  * Symbol for the type of a resource.
@@ -17,7 +19,7 @@ export const RecordStore = Symbol('Store');
  * @type {Symbol}
  * @typedoc
  */
-export const ResourceType = Symbol('$type');
+export const ResourceType = getOrSetGlobal('$type', Symbol('$type'));
 
 /**
  * Symbol for the name of a transform.
@@ -36,7 +38,7 @@ export const ResourceType = Symbol('$type');
  * @type {Symbol}
  * @typedoc
  */
-export const TransformName = Symbol('$TransformName');
+export const TransformName = getOrSetGlobal('TransformName', Symbol('$TransformName'));
 
 /**
  * Symbol for use by builders to indicate the return type
@@ -45,4 +47,4 @@ export const TransformName = Symbol('$TransformName');
  * @type {Symbol}
  * @typedoc
  */
-export const RequestSignature = Symbol('RequestSignature');
+export const RequestSignature = getOrSetGlobal('RequestSignature', Symbol('RequestSignature'));

@@ -8,24 +8,7 @@ dist
 dist-*
 tmp
 unstable-preview-types
-# packages/-ember-data/addon
-packages/active-record/addon
-packages/adapter/addon
-packages/core-types/addon
-packages/data-worker/addon
-# packages/debug/addon
-packages/graph/addon
-packages/json-api/addon
-packages/legacy-compat/addon
-packages/model/addon
-packages/request-utils/addon
-packages/request/addon
-packages/rest/addon
-packages/schema-record/addon/
-packages/serializer/addon
-packages/store/addon
-packages/tracking/addon
-packages/ember/addon
+packages/*/addon
 
 # dependencies
 bower_components

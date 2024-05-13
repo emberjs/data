@@ -2,7 +2,7 @@ import { deprecate } from '@ember/debug';
 import { dasherize } from '@ember/string';
 
 import { DEPRECATE_NON_STRICT_TYPES } from '@warp-drive/build-config/deprecations';
-import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
+import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
 
 export function isMaybeIdentifier(
   maybeIdentifier: string | ResourceIdentifierObject

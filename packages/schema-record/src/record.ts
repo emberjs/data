@@ -1,10 +1,6 @@
-import { assert } from '@ember/debug';
-
 import type { Future } from '@ember-data/request';
 import type Store from '@ember-data/store';
-import type { StoreRequestInput } from '@ember-data/store/-private/cache-handler';
-import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
+import type { NotificationType, StoreRequestInput } from '@ember-data/store';
 import {
   addToTransaction,
   defineSignal,
@@ -15,32 +11,40 @@ import {
   Signals,
 } from '@ember-data/tracking/-private';
 import { DEBUG } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { ResourceRelationship as SingleResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { ArrayValue, ObjectValue, Value } from '@warp-drive/core-types/json/raw';
 import { STRUCTURED } from '@warp-drive/core-types/request';
-import type { Link, Links } from '@warp-drive/core-types/spec/raw';
+import type {
+  ArrayField,
+  DerivedField,
+  FieldSchema,
+  GenericField,
+  LocalField,
+  ObjectField,
+} from '@warp-drive/core-types/schema/fields';
+import type { Link, Links } from '@warp-drive/core-types/spec/json-api-raw';
 import { RecordStore } from '@warp-drive/core-types/symbols';
 
-import { ARRAY_SIGNAL, ManagedArray } from './managed-array';
-import { ManagedObject, OBJECT_SIGNAL } from './managed-object';
+import { ManagedArray } from './managed-array';
+import { ManagedObject } from './managed-object';
 import type { SchemaService } from './schema';
+import { ARRAY_SIGNAL, Checkout, Destroy, Editable, Identifier, Legacy, OBJECT_SIGNAL, Parent } from './symbols';
 
-export const Destroy = Symbol('Destroy');
-export const Identifier = Symbol('Identifier');
-export const Editable = Symbol('Editable');
-export const Parent = Symbol('Parent');
-export const Checkout = Symbol('Checkout');
-export const Legacy = Symbol('Legacy');
+export { Editable, Legacy } from './symbols';
+const IgnoredGlobalFields = new Set<string>(['then', STRUCTURED]);
+const symbolList = [Destroy, RecordStore, Identifier, Editable, Parent, Checkout, Legacy, Signals];
+const RecordSymbols = new Set(symbolList);
 
-const IgnoredGlobalFields = new Set(['then', STRUCTURED]);
-const RecordSymbols = new Set([Destroy, RecordStore, Identifier, Editable, Parent, Checkout, Legacy, Signals]);
+type RecordSymbol = (typeof symbolList)[number];
 
-const ManagedArrayMap = new Map<SchemaRecord, Map<FieldSchema, ManagedArray>>();
-const ManagedObjectMap = new Map<SchemaRecord, Map<FieldSchema, ManagedObject>>();
+const ManagedArrayMap = getOrSetGlobal('ManagedArrayMap', new Map<SchemaRecord, Map<FieldSchema, ManagedArray>>());
+const ManagedObjectMap = getOrSetGlobal('ManagedObjectMap', new Map<SchemaRecord, Map<FieldSchema, ManagedObject>>());
 
-function computeLocal(record: typeof Proxy<SchemaRecord>, field: FieldSchema, prop: string): unknown {
+function computeLocal(record: typeof Proxy<SchemaRecord>, field: LocalField, prop: string): unknown {
   let signal = peekSignal(record, prop);
 
   if (!signal) {
@@ -70,11 +74,11 @@ function computeField(
   cache: Cache,
   record: SchemaRecord,
   identifier: StableRecordIdentifier,
-  field: FieldSchema,
+  field: GenericField,
   prop: string
 ): unknown {
   const rawValue = cache.getAttr(identifier, prop);
-  if (field.type === null) {
+  if (!field.type) {
     return rawValue;
   }
   const transform = schema.transforms.get(field.type);
@@ -90,7 +94,7 @@ function computeArray(
   cache: Cache,
   record: SchemaRecord,
   identifier: StableRecordIdentifier,
-  field: FieldSchema,
+  field: ArrayField,
   prop: string
 ) {
   // the thing we hand out needs to know its owner and path in a private manner
@@ -127,7 +131,7 @@ function computeObject(
   cache: Cache,
   record: SchemaRecord,
   identifier: StableRecordIdentifier,
-  field: FieldSchema,
+  field: ObjectField,
   prop: string
 ) {
   const managedObjectMapForRecord = ManagedObjectMap.get(record);
@@ -143,7 +147,7 @@ function computeObject(
       return null;
     }
     if (field.kind === 'object') {
-      if (field.type !== null) {
+      if (field.type) {
         const transform = schema.transforms.get(field.type);
         if (!transform) {
           throw new Error(`No '${field.type}' transform defined for use by ${identifier.type}.${String(prop)}`);
@@ -169,10 +173,10 @@ function computeDerivation(
   schema: SchemaService,
   record: SchemaRecord,
   identifier: StableRecordIdentifier,
-  field: FieldSchema,
+  field: DerivedField,
   prop: string
 ): unknown {
-  if (field.type === null) {
+  if (!field.type) {
     throw new Error(`The schema for ${identifier.type}.${String(prop)} is missing the type of the derivation`);
   }
 
@@ -324,7 +328,7 @@ export class SchemaRecord {
 
     return new Proxy(this, {
       get(target: SchemaRecord, prop: string | number | symbol, receiver: typeof Proxy<SchemaRecord>) {
-        if (RecordSymbols.has(prop as symbol)) {
+        if (RecordSymbols.has(prop as RecordSymbol)) {
           return target[prop as keyof SchemaRecord];
         }
 
@@ -338,7 +342,7 @@ export class SchemaRecord {
 
         const field = fields.get(prop as string);
         if (!field) {
-          if (IgnoredGlobalFields.has(prop as string | symbol)) {
+          if (IgnoredGlobalFields.has(prop as string)) {
             return undefined;
           }
           throw new Error(`No field named ${String(prop)} on ${identifier.type}`);
@@ -417,7 +421,7 @@ export class SchemaRecord {
             return true;
           }
           case 'field': {
-            if (field.type === null) {
+            if (!field.type) {
               cache.setAttr(identifier, prop as string, value as Value);
               return true;
             }
@@ -436,7 +440,7 @@ export class SchemaRecord {
             return true;
           }
           case 'array': {
-            if (field.type === null) {
+            if (!field.type) {
               cache.setAttr(identifier, prop as string, (value as ArrayValue)?.slice());
               const peeked = peekManagedArray(self, field);
               if (peeked) {
@@ -466,7 +470,7 @@ export class SchemaRecord {
             return true;
           }
           case 'object': {
-            if (field.type === null) {
+            if (!field.type) {
               let newValue = value;
               if (value !== null) {
                 newValue = { ...(value as ObjectValue) };

@@ -6,15 +6,14 @@
     "target": "esnext",
     "moduleResolution": "bundler",
     "moduleDetection": "force",
-    "declarationDir": "dist",
     "strict": true,
+    "pretty": true,
     "exactOptionalPropertyTypes": false,
     "downlevelIteration": true,
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
-    "noEmit": false,
     "emitDeclarationOnly": true,
 
     // Enable faster builds
@@ -25,6 +24,7 @@
 
     "declaration": true,
     "declarationMap": true,
+    "declarationDir": "unstable-preview-types",
     "inlineSourceMap": true,
     "inlineSources": true,
     "types": ["ember-source/types"]

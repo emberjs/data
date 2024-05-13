@@ -1,4 +1,3 @@
-import { assert } from '@ember/debug';
 import { underscore } from '@ember/string';
 
 import { pluralize } from 'ember-inflector';
@@ -10,6 +9,7 @@ import {
   type UpdateRecordUrlOptions,
 } from '@ember-data/request-utils';
 import { recordIdentifierFor } from '@ember-data/store';
+import { assert } from '@warp-drive/build-config/macros';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type {
   ConstrainedRequestOptions,

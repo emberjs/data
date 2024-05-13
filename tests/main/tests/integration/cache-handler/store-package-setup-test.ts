@@ -6,30 +6,27 @@ import { setupTest } from 'ember-qunit';
 
 import Cache from '@ember-data/json-api';
 import { LegacyNetworkHandler } from '@ember-data/legacy-compat';
-import type { StructuredDataDocument, StructuredErrorDocument } from '@ember-data/request';
+import type { Future, NextFn, StructuredDataDocument, StructuredErrorDocument } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
-import type { Context } from '@ember-data/request/-private/context';
-import type { Future, NextFn } from '@ember-data/request/-private/types';
 import Fetch from '@ember-data/request/fetch';
+import type { Document, NotificationType } from '@ember-data/store';
 import Store, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
-import type { Document } from '@ember-data/store/-private/document';
-import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type { Collection } from '@ember-data/store/-private/record-arrays/identifier-array';
-import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
-import type { OpaqueRecordInstance } from '@ember-data/store/-types/q/record-instance';
-import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
+import type { CollectionRecordArray } from '@ember-data/store/-private';
+import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import type {
   StableDocumentIdentifier,
   StableExistingRecordIdentifier,
   StableRecordIdentifier,
 } from '@warp-drive/core-types/identifier';
+import type { OpaqueRecordInstance } from '@warp-drive/core-types/record';
+import type { RequestContext } from '@warp-drive/core-types/request';
+import type { FieldSchema } from '@warp-drive/core-types/schema/fields';
 import type {
   CollectionResourceDataDocument,
   ResourceDataDocument,
   SingleResourceDataDocument,
 } from '@warp-drive/core-types/spec/document';
-import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/raw';
+import type { ExistingResourceObject, ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
 import type { ResourceType } from '@warp-drive/core-types/symbols';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
@@ -77,7 +74,7 @@ class TestStore extends Store {
   override instantiateRecord(identifier: StableRecordIdentifier) {
     const { id, lid, type } = identifier;
     const record: FakeRecord = { id, lid, type, identifier } as unknown as FakeRecord;
-    Object.assign(record, (this.cache.peek(identifier) as JsonApiResource).attributes);
+    Object.assign(record, this.cache.peek(identifier)!.attributes);
 
     const token = this.notifications.subscribe(
       identifier,
@@ -306,7 +303,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         override instantiateRecord(identifier: StableRecordIdentifier) {
           const { id, lid, type } = identifier;
           const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
-          Object.assign(record, (this.cache.peek(identifier) as JsonApiResource).attributes);
+          Object.assign(record, this.cache.peek(identifier)!.attributes);
 
           const token = this.notifications.subscribe(
             identifier,
@@ -404,7 +401,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         override instantiateRecord(identifier: StableRecordIdentifier) {
           const { id, lid, type } = identifier;
           const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
-          Object.assign(record, (this.cache.peek(identifier) as JsonApiResource).attributes);
+          Object.assign(record, this.cache.peek(identifier)!.attributes);
 
           const token = this.notifications.subscribe(
             identifier,
@@ -503,7 +500,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         override instantiateRecord(identifier: StableRecordIdentifier) {
           const { id, lid, type } = identifier;
           const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
-          Object.assign(record, (this.cache.peek(identifier) as JsonApiResource).attributes);
+          Object.assign(record, this.cache.peek(identifier)!.attributes);
 
           const token = this.notifications.subscribe(
             identifier,
@@ -530,7 +527,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       owner.register('service:request', RequestManagerService);
 
       const store = owner.lookup('service:store') as unknown as TestStore;
-      const userDocument = await store.requestManager.request<SingleResourceDataDocument<JsonApiResource>>({
+      const userDocument = await store.requestManager.request<SingleResourceDataDocument<ExistingResourceObject>>({
         url: '/assets/users/1.json',
       });
 
@@ -1564,7 +1561,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       store.requestManager = new RequestManager();
       store.requestManager.use([
         {
-          request<T>(context: Context) {
+          request<T>(context: RequestContext) {
             assert.step('request');
 
             context.setResponse(
@@ -1602,7 +1599,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       store.requestManager = new RequestManager();
       store.requestManager.use([
         {
-          request<T>(context: Context) {
+          request<T>(context: RequestContext) {
             assert.step('request');
 
             context.setResponse(
@@ -1638,7 +1635,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       store.requestManager = new RequestManager();
       store.requestManager.use([
         {
-          request<T>(context: Context) {
+          request<T>(context: RequestContext) {
             assert.step('request');
 
             context.setResponse(
@@ -1674,7 +1671,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       store.requestManager = new RequestManager();
       store.requestManager.use([
         {
-          request<T>(context: Context) {
+          request<T>(context: RequestContext) {
             assert.step('request');
 
             context.setResponse(
@@ -1707,7 +1704,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       store.requestManager = new RequestManager();
       store.requestManager.use([
         {
-          request<T>(context: Context) {
+          request<T>(context: RequestContext) {
             assert.step('request');
 
             context.setResponse(
@@ -1742,7 +1739,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       store.requestManager.use([
         LegacyNetworkHandler,
         {
-          request<T>(context: Context, next: NextFn<T>): Future<T> {
+          request<T>(context: RequestContext, next: NextFn<T>): Future<T> {
             if (handlerCalls > 0) {
               assert.ok(false, 'fetch handler should not be called again');
             }
@@ -1756,7 +1753,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const docIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({ url: '/assets/users/2.json' })!;
 
       try {
-        await store.request<Collection>({
+        await store.request<CollectionRecordArray>({
           url: '/assets/users/2.json',
         });
         assert.ok(false, 'we should error');
@@ -1772,7 +1769,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const doc = store.cache.peekRequest(docIdentifier) as unknown as StructuredErrorDocument;
 
       try {
-        await store.request<Collection>({
+        await store.request<CollectionRecordArray>({
           url: '/assets/users/2.json',
         });
         assert.ok(false, 'we should error');
@@ -1856,7 +1853,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       })!;
 
       try {
-        await store.request<Collection>({
+        await store.request<CollectionRecordArray>({
           url: '/assets/users/2.json?include=author',
         });
         assert.ok(false, 'we should error');
@@ -1874,7 +1871,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const doc = store.cache.peekRequest(docIdentifier) as unknown as StructuredErrorDocument;
 
       try {
-        await store.request<Collection>({
+        await store.request<CollectionRecordArray>({
           url: '/assets/users/2.json?include=author',
         });
         assert.ok(false, 'we should error');
@@ -1987,7 +1984,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
       // First failed fetch
       try {
-        await store.request<Collection>({
+        await store.request<CollectionRecordArray>({
           url: '/assets/users/2.json?include=author',
           cacheOptions: { reload: true },
         });
@@ -2010,7 +2007,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
       // Replay of failed fetch
       try {
-        await store.request<Collection>({
+        await store.request<CollectionRecordArray>({
           url: '/assets/users/2.json?include=author',
         });
         assert.ok(false, '<Second Failure> we should error');
@@ -2083,7 +2080,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       store.requestManager.use([
         LegacyNetworkHandler,
         {
-          async request<T>(_request: Context, _nextFn: NextFn<T>): Promise<T> {
+          async request<T>(_request: RequestContext, _nextFn: NextFn<T>): Promise<T> {
             handlerCalls++;
             resolve();
             await next;
@@ -2139,7 +2136,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       store.requestManager.use([
         LegacyNetworkHandler,
         {
-          async request<T>(_request: Context, _nextFn: NextFn<T>): Promise<T> {
+          async request<T>(_request: RequestContext, _nextFn: NextFn<T>): Promise<T> {
             handlerCalls++;
             return Promise.resolve({
               data: {
@@ -2152,7 +2149,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         },
       ]);
       store.requestManager.useCache({
-        async request<T>(context: Context, next: NextFn<T>): Promise<T> {
+        async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> {
           const cacheComplete = await CacheHandler.request<T>(context, next);
           resolve();
           await nextPromise;
@@ -2229,7 +2226,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       store.requestManager.use([
         LegacyNetworkHandler,
         {
-          async request<T>(_context: Context, _next: NextFn<T>): Promise<T> {
+          async request<T>(_context: RequestContext, _next: NextFn<T>): Promise<T> {
             if (handlerCalls > 1) {
               assert.ok(false, 'fetch handler should not be called again');
               throw new Error('fetch handler should not be called again');

@@ -1,5 +1,5 @@
 'use strict';
 
-const { addonV1Shim } = require('@embroider/addon-shim');
+const { addonShim } = require('@warp-drive/build-config/addon-shim.cjs');
 
-module.exports = addonV1Shim(__dirname);
+module.exports = addonShim(__dirname);

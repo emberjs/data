@@ -25,28 +25,28 @@ module('Unit | Data Utils | Type | formattedType (util)', function () {
   test('it throws an error when the type is null', function (assert) {
     assert.throws(() => {
       formattedType(null);
-    }, /Error: Assertion Failed: formattedType: type must not be null/);
+    }, /Error: formattedType: type must not be null/);
   });
 
   test('it throws an error when the type is undefined', function (assert) {
     assert.throws(() => {
       formattedType();
-    }, /Error: Assertion Failed: formattedType: type must not be undefined/);
+    }, /Error: formattedType: type must not be undefined/);
   });
 
   test('it throws an error when the type is empty', function (assert) {
     assert.throws(() => {
       formattedType('');
-    }, /Error: Assertion Failed: formattedType: type must not be empty/);
+    }, /Error: formattedType: type must not be empty/);
   });
 
   test('it throws an error when the type is not a string', function (assert) {
     assert.throws(() => {
       formattedType(new Date());
-    }, /Error: Assertion Failed: formattedType: type must be a string/);
+    }, /Error: formattedType: type must be a string/);
 
     assert.throws(() => {
       formattedType([]);
-    }, /Error: Assertion Failed: formattedType: type must be a string/);
+    }, /Error: formattedType: type must be a string/);
   });
 });

@@ -3,27 +3,27 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 
 import type Store from '@ember-data/store';
-import type { Collection } from '@ember-data/store/-private/record-arrays/identifier-array';
+import type { CollectionRecordArray } from '@ember-data/store/-private';
 
 import type Book from '../models/book';
 
 export interface InfiniteBookSignature {
   Element: HTMLUListElement;
   Args: {
-    allBooks: Collection<Book>;
+    allBooks: CollectionRecordArray<Book>;
   };
 }
 
 class Pages<T> {
-  @tracked pages: Collection<T>[] = [];
+  @tracked pages: CollectionRecordArray<T>[] = [];
   @tracked data: T[] = [];
 
-  constructor(page: Collection<T>) {
+  constructor(page: CollectionRecordArray<T>) {
     this.pages = [page];
     this.data = page.slice();
   }
 
-  addPage(page: Collection<T>) {
+  addPage(page: CollectionRecordArray<T>) {
     this.pages.push(page);
     this.data = this.data.concat(page);
   }

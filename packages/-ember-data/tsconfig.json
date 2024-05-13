@@ -1,6 +1,5 @@
 {
-  "include": ["addon/**/*"],
-  "baseUrl": ".",
+  "include": ["src/**/*"],
   "compilerOptions": {
     "lib": ["DOM", "ESNext"],
     "module": "esnext",
@@ -8,49 +7,95 @@
     "moduleResolution": "bundler",
     "moduleDetection": "force",
     "strict": true,
+    "pretty": true,
     "exactOptionalPropertyTypes": false,
     "downlevelIteration": true,
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
-    "noEmit": false,
-    "noImplicitOverride": true,
-
+    "emitDeclarationOnly": true,
+    "noImplicitOverride": false,
     // Enable faster builds
     // but causes us to not rebuild properly
     "composite": true,
     "incremental": true,
-    "rootDir": "addon",
-
+    "rootDir": "src",
+    "baseUrl": ".",
     "declaration": true,
     "declarationMap": true,
     "declarationDir": "unstable-preview-types",
-    "emitDeclarationOnly": true,
     "inlineSourceMap": true,
     "inlineSources": true,
     "types": ["ember-source/types"],
-
     "paths": {
-      "ember-data/version": ["./addon/version.d.ts"],
-      "@warp-drive/build-config/deprecations": ["../private-build-infra/virtual-packages/deprecations.d.ts"],
-      "@ember-data/packages": ["../private-build-infra/virtual-packages/packages.d.ts"],
-      "@warp-drive/build-config/canary-features": ["../private-build-infra/virtual-packages/canary-features.d.ts"],
-      "@warp-drive/build-config/debugging": ["../private-build-infra/virtual-packages/debugging.d.ts"],
-      "@warp-drive/build-config/env": ["../private-build-infra/virtual-packages/env.d.ts"]
+      "@ember-data/adapter": ["../adapter/unstable-preview-types"],
+      "@ember-data/adapter/*": ["../adapter/unstable-preview-types/*"],
+      "@ember-data/debug": ["../debug/unstable-preview-types"],
+      "@ember-data/debug/*": ["../debug/unstable-preview-types/*"],
+      "@ember-data/graph": ["../graph/unstable-preview-types"],
+      "@ember-data/graph/*": ["../graph/unstable-preview-types/*"],
+      "@ember-data/json-api": ["../json-api/unstable-preview-types"],
+      "@ember-data/json-api/*": ["../json-api/unstable-preview-types/*"],
+      "@ember-data/legacy-compat": ["../legacy-compat/unstable-preview-types"],
+      "@ember-data/legacy-compat/*": ["../legacy-compat/unstable-preview-types/*"],
+      "@ember-data/model": ["../model/unstable-preview-types"],
+      "@ember-data/model/*": ["../model/unstable-preview-types/*"],
+      "@ember-data/request": ["../request/unstable-preview-types"],
+      "@ember-data/request/*": ["../request/unstable-preview-types/*"],
+      "@ember-data/request-utils": ["../request-utils/unstable-preview-types"],
+      "@ember-data/request-utils/*": ["../request-utils/unstable-preview-types/*"],
+      "@ember-data/serializer": ["../serializer/unstable-preview-types"],
+      "@ember-data/serializer/*": ["../serializer/unstable-preview-types/*"],
+      "@ember-data/store": ["../store/unstable-preview-types"],
+      "@ember-data/store/*": ["../store/unstable-preview-types/*"],
+      "@ember-data/tracking": ["../tracking/unstable-preview-types"],
+      "@ember-data/tracking/*": ["../tracking/unstable-preview-types/*"],
+      "@warp-drive/core-types": ["../core-types/unstable-preview-types"],
+      "@warp-drive/core-types/*": ["../core-types/unstable-preview-types/*"],
+      "@warp-drive/build-config": ["../build-config/unstable-preview-types"],
+      "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"]
     }
   },
   "references": [
-    { "path": "../adapter" },
-    { "path": "../graph" },
-    { "path": "../json-api" },
-    { "path": "../legacy-compat" },
-    { "path": "../model" },
-    { "path": "../request" },
-    { "path": "../request-utils" },
-    { "path": "../serializer" },
-    { "path": "../store" },
-    { "path": "../tracking" },
-    { "path": "../core-types" }
+    {
+      "path": "../adapter"
+    },
+    {
+      "path": "../graph"
+    },
+    {
+      "path": "../json-api"
+    },
+    {
+      "path": "../legacy-compat"
+    },
+    {
+      "path": "../model"
+    },
+    {
+      "path": "../request"
+    },
+    {
+      "path": "../request-utils"
+    },
+    {
+      "path": "../serializer"
+    },
+    {
+      "path": "../store"
+    },
+    {
+      "path": "../debug"
+    },
+    {
+      "path": "../tracking"
+    },
+    {
+      "path": "../core-types"
+    },
+    {
+      "path": "../build-config"
+    }
   ]
 }

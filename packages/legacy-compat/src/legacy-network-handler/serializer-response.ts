@@ -1,9 +1,8 @@
-import { assert } from '@ember/debug';
-
 import type Store from '@ember-data/store';
-import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
+import type { ModelSchema } from '@ember-data/store/types';
 import { DEBUG } from '@warp-drive/build-config/env';
-import type { JsonApiDocument } from '@warp-drive/core-types/spec/raw';
+import { assert } from '@warp-drive/build-config/macros';
+import type { JsonApiDocument } from '@warp-drive/core-types/spec/json-api-raw';
 
 import type { AdapterPayload } from './minimum-adapter-interface';
 import type { MinimumSerializerInterface, RequestType } from './minimum-serializer-interface';

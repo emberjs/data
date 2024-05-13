@@ -1,8 +1,10 @@
-import { assert } from '@ember/debug';
+/* eslint-disable no-inner-declarations, @typescript-eslint/no-shadow */
+import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { DEBUG } from '@warp-drive/build-config/env';
-import type { UpgradedMeta } from '../-edge-definition';
+import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
+
+import type { UpgradedMeta } from '../-edge-definition';
 
 /*
   Assert that `addedRecord` has a valid type so it can be added to the
@@ -151,10 +153,10 @@ if (DEBUG) {
   }
 
   assertInheritedSchema = function assertInheritedSchema(definition: UpgradedMeta, type: string) {
-    let meta1 = metaFrom(definition);
-    let meta2 = inverseMetaFrom(definition);
-    let errors1 = validateSchema(inverseDefinition(definition), meta1);
-    let errors2 = validateSchema(definitionWithPolymorphic(definition), meta2);
+    const meta1 = metaFrom(definition);
+    const meta2 = inverseMetaFrom(definition);
+    const errors1 = validateSchema(inverseDefinition(definition), meta1);
+    const errors2 = validateSchema(definitionWithPolymorphic(definition), meta2);
 
     if (errors2.size === 0 && errors1.size > 0) {
       throw new Error(
@@ -210,7 +212,7 @@ if (DEBUG) {
       return;
     }
     if (parentDefinition.isPolymorphic) {
-      let meta = store.getSchemaDefinitionService().relationshipsDefinitionFor(addedIdentifier)[
+      const meta = store.getSchemaDefinitionService().relationshipsDefinitionFor(addedIdentifier)[
         parentDefinition.inverseKey
       ];
       assert(
@@ -227,7 +229,7 @@ if (DEBUG) {
         `You should not specify both options.as and options.inverse as null on ${addedIdentifier.type}.${parentDefinition.inverseKey}, as if there is no inverse field there is no abstract type to conform to. You may have intended for this relationship to be polymorphic, or you may have mistakenly set inverse to null.`,
         !(meta.options.inverse === null && meta?.options.as?.length)
       );
-      let errors = validateSchema(parentDefinition, meta);
+      const errors = validateSchema(parentDefinition, meta);
       assert(
         `The schema for the relationship '${parentDefinition.inverseKey}' on '${
           addedIdentifier.type
@@ -244,15 +246,15 @@ if (DEBUG) {
     } else if (addedIdentifier.type !== parentDefinition.type) {
       // if we are not polymorphic
       // then the addedIdentifier.type must be the same as the parentDefinition.type
-      let meta = store.getSchemaDefinitionService().relationshipsDefinitionFor(addedIdentifier)[
+      const meta = store.getSchemaDefinitionService().relationshipsDefinitionFor(addedIdentifier)[
         parentDefinition.inverseKey
       ];
       if (meta?.options.as === parentDefinition.type) {
         // inverse is likely polymorphic but missing the polymorphic flag
-        let meta = store
+        const meta = store
           .getSchemaDefinitionService()
           .relationshipsDefinitionFor({ type: parentDefinition.inverseType })[parentDefinition.key];
-        let errors = validateSchema(definitionWithPolymorphic(inverseDefinition(parentDefinition)), meta);
+        const errors = validateSchema(definitionWithPolymorphic(inverseDefinition(parentDefinition)), meta);
         assert(
           `The '<${addedIdentifier.type}>.${
             parentDefinition.inverseKey

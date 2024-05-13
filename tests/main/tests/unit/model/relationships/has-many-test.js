@@ -6,7 +6,7 @@ import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import { LEGACY_SUPPORT, PromiseManyArray } from '@ember-data/model/-private';
+import { LEGACY_SUPPORT } from '@ember-data/model/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordIdentifierFor } from '@ember-data/store';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
@@ -2287,7 +2287,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
     const store = this.owner.lookup('service:store');
     const tag = store.createRecord('tag');
 
-    assert.ok(tag.people instanceof PromiseManyArray, 'people should be an async relationship');
+    assert.ok(typeof tag.people.then === 'function', 'people should be an async relationship');
   });
 
   test('PromiseHasMany is stable', async function (assert) {
@@ -2655,7 +2655,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
     const adapter = store.adapterFor('application');
 
     adapter.findHasMany = function (store, snapshot, url, relationship) {
-      assert.strictEqual(relationship.key, 'tags', 'relationship should be tags');
+      assert.strictEqual(relationship.name, 'tags', 'relationship should be tags');
 
       return {
         data: [

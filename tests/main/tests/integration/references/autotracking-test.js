@@ -312,7 +312,7 @@ module('integration/references/autotracking', function (hooks) {
       } catch (e) {
         assert.strictEqual(
           e.message,
-          "Assertion Failed: Expected the ID received for the primary 'user' resource being saved to match the current id '6' but received '7'.",
+          "Expected the ID received for the primary 'user' resource being saved to match the current id '6' but received '7'.",
           'threw error'
         );
       }

@@ -13,8 +13,7 @@ import { buildSchema, instantiateRecord, modelFor, teardownRecord } from '@ember
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 import BaseStore, { CacheHandler } from '@ember-data/store';
-import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
+import type { CacheCapabilitiesManager, ModelSchema } from '@ember-data/store/types';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { TypeFromInstance } from '@warp-drive/core-types/record';
 

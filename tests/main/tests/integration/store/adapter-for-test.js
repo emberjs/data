@@ -46,7 +46,7 @@ module('integration/store - adapterFor', function (hooks) {
         return lookup.call(owner, registrationName);
       };
       store.adapterFor('person');
-    }, /Assertion Failed: No adapter was found for 'person' and no 'application' adapter was found as a fallback/);
+    }, /No adapter was found for 'person' and no 'application' adapter was found as a fallback/);
   });
 
   test('we find and instantiate the application adapter', async function (assert) {

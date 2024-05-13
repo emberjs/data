@@ -1636,7 +1636,7 @@ module('integration/embedded-records-mixin', function (hooks) {
 
         serializeHasMany(snapshot, json, relationship) {
           calledSerializeHasMany = true;
-          const key = relationship.key;
+          const key = relationship.name;
           const payloadKey = this.keyForRelationship ? this.keyForRelationship(key, 'hasMany') : key;
           const schema = this.store.modelFor(snapshot.modelName);
           const relationshipType = schema.determineRelationshipType(relationship, store);

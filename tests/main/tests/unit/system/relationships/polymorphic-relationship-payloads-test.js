@@ -3,7 +3,6 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('unit/relationships/relationship-payloads-manager (polymorphic)', function (hooks) {
@@ -31,7 +30,7 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
     let id = 1;
 
     function makeHat(type, props) {
-      const resource = deepCopy(props);
+      const resource = structuredClone(props);
       resource.id = `${id++}`;
       resource.type = type;
       resource.attributes.type = type;
@@ -85,7 +84,7 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
     let id = 1;
 
     function makeHat(type, props) {
-      const resource = deepCopy(props);
+      const resource = structuredClone(props);
       resource.id = `${id++}`;
       resource.type = type;
       resource.attributes.type = type;
@@ -140,7 +139,7 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
     let id = 1;
 
     function makeHat(type, props) {
-      const resource = deepCopy(props);
+      const resource = structuredClone(props);
       resource.id = `${id++}`;
       resource.type = type;
       resource.attributes.type = type;
@@ -197,7 +196,7 @@ module('unit/relationships/relationship-payloads-manager (polymorphic)', functio
     let id = 1;
 
     function makeHat(type, props) {
-      const resource = deepCopy(props);
+      const resource = structuredClone(props);
       resource.id = `${id++}`;
       resource.type = type;
       resource.attributes.type = type;

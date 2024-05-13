@@ -1,6 +1,6 @@
+import type { NextFn } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
-import type { Context as HandlerRequestContext } from '@ember-data/request/-private/context';
-import type { NextFn } from '@ember-data/request/-private/types';
+import type { RequestContext } from '@warp-drive/core-types/request';
 import { module, test } from '@warp-drive/diagnostic';
 
 module('RequestManager | Basic Setup', function () {
@@ -19,7 +19,7 @@ module('RequestManager | Basic Setup', function () {
     let calls = 0;
     manager.use([
       {
-        request<T>(req: HandlerRequestContext, next: NextFn<T>) {
+        request<T>(req: RequestContext, next: NextFn<T>) {
           calls++;
           return Promise.resolve('success!' as T);
         },
@@ -40,14 +40,14 @@ module('RequestManager | Basic Setup', function () {
     let callsB = 0;
     manager.use([
       {
-        async request<T>(req: HandlerRequestContext, next: NextFn<T>) {
+        async request<T>(req: RequestContext, next: NextFn<T>) {
           calls++;
           const outcome = await next(req.request);
           return outcome.content;
         },
       },
       {
-        request<T>(req: HandlerRequestContext, next: NextFn<T>) {
+        request<T>(req: RequestContext, next: NextFn<T>) {
           callsB++;
           return Promise.resolve('success!' as T);
         },
@@ -68,7 +68,7 @@ module('RequestManager | Basic Setup', function () {
     let calls = 0;
 
     const handler = {
-      async request<T>(req: HandlerRequestContext, next: NextFn<T>) {
+      async request<T>(req: RequestContext, next: NextFn<T>) {
         calls++;
         if (calls === 2) {
           return Promise.resolve('success!' as T);

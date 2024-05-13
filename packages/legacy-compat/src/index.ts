@@ -1,19 +1,21 @@
 import { getOwner } from '@ember/application';
-import { assert } from '@ember/debug';
 
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import { _deprecatingNormalize } from '@ember-data/store/-private';
+import { assert } from '@warp-drive/build-config/macros';
 import type { ObjectValue } from '@warp-drive/core-types/json/raw';
 
 import { FetchManager, upgradeStore } from './-private';
-import type { MinimumAdapterInterface } from './legacy-network-handler/minimum-adapter-interface';
+import type { AdapterPayload, MinimumAdapterInterface } from './legacy-network-handler/minimum-adapter-interface';
 import type {
   MinimumSerializerInterface,
   SerializerOptions,
 } from './legacy-network-handler/minimum-serializer-interface';
 
 export { LegacyNetworkHandler } from './legacy-network-handler/legacy-network-handler';
+
+export type { MinimumAdapterInterface, MinimumSerializerInterface, SerializerOptions, AdapterPayload };
 
 /**
  * @module @ember-data/store

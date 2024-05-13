@@ -1,4 +1,5 @@
 import { DEBUG } from '@warp-drive/build-config/env';
+import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import {
   type RequestInfo,
   STRUCTURED,
@@ -12,7 +13,7 @@ import { createFuture, isFuture } from './future';
 import { setRequestResult } from './promise-cache';
 import type { DeferredFuture, Future, GodContext, Handler } from './types';
 
-export const IS_CACHE_HANDLER = Symbol('IS_CACHE_HANDLER');
+export const IS_CACHE_HANDLER = getOrSetGlobal('IS_CACHE_HANDLER', Symbol('IS_CACHE_HANDLER'));
 export function curryFuture<T>(owner: ContextOwner, inbound: Future<T>, outbound: DeferredFuture<T>): Future<T> {
   owner.setStream(inbound.getStream());
 

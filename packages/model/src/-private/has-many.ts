@@ -1,7 +1,7 @@
 /**
   @module @ember-data/model
 */
-import { assert, deprecate } from '@ember/debug';
+import { deprecate } from '@ember/debug';
 import { computed } from '@ember/object';
 import { dasherize } from '@ember/string';
 
@@ -9,6 +9,7 @@ import { singularize } from 'ember-inflector';
 
 import { DEPRECATE_NON_STRICT_TYPES } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
 import type { TypeFromInstance } from '@warp-drive/core-types/record';
 import { RecordStore } from '@warp-drive/core-types/symbols';
 
@@ -54,10 +55,8 @@ function _hasMany<T, Async extends boolean>(
   const meta = {
     type: normalizeType(type),
     options,
-    isRelationship: true,
     kind: 'hasMany',
     name: '<Unknown BelongsTo>',
-    key: null,
   };
 
   return computed({

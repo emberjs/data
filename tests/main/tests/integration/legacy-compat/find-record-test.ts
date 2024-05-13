@@ -5,7 +5,7 @@ import { setupTest } from 'ember-qunit';
 import type { CompatStore } from '@ember-data/legacy-compat';
 import { findRecord } from '@ember-data/legacy-compat/builders';
 import Model, { attr } from '@ember-data/model';
-import type { FindRecordOptions } from '@ember-data/store/-types/q/store';
+import type { FindRecordOptions } from '@ember-data/store/types';
 import { ResourceType } from '@warp-drive/core-types/symbols';
 
 type FindRecordBuilderOptions = Exclude<Parameters<typeof findRecord>[1], undefined>;
@@ -95,7 +95,7 @@ module('Integration - legacy-compat/builders/findRecord', function (hooks) {
     await assert.expectAssertion(() => {
       // @ts-expect-error TS knows the options are invalid
       findRecord<Post>('post', '1', invalidOptions);
-    }, 'Assertion Failed: findRecord builder does not support options.preload');
+    }, 'findRecord builder does not support options.preload');
   });
 
   test('findRecord by identifier', function (assert) {
@@ -144,6 +144,6 @@ module('Integration - legacy-compat/builders/findRecord', function (hooks) {
     await assert.expectAssertion(() => {
       // @ts-expect-error TS knows the options are invalid
       findRecord<Post>({ type: 'post', id: '1' }, invalidOptions);
-    }, 'Assertion Failed: findRecord builder does not support options.preload');
+    }, 'findRecord builder does not support options.preload');
   });
 });

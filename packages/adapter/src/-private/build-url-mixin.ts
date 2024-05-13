@@ -19,7 +19,7 @@ import type { Snapshot, SnapshotRecordArray } from '@ember-data/legacy-compat/-p
 // `interface BuildURLMixin { buildURL: typeof buildURL }`
 // then an extending class overwriting one of the methods will break because typescript
 // thinks it is a switch from an instance prop (that is a method) to an instance method.
-interface BuildURLMixin {
+export interface BuildURLMixin {
   buildURL(
     this: MixtBuildURLMixin,
     modelName: string,
@@ -693,4 +693,4 @@ const mixinProps: BuildURLMixin = {
   pathForType,
 };
 
-export default Mixin.create(mixinProps);
+export const BuildURLMixin = Mixin.create(mixinProps);

@@ -3,7 +3,102 @@
   //
   // https://turbo.build/repo/docs/core-concepts/caching/file-inputs#specifying-additional-inputs
   "globalDependencies": ["pnpm-lock.yaml", "patches/*", ".github/*"],
+
   "pipeline": {
+    /////////////////////////////////////////////////
+    /////////////////////////////////////////////////
+    //
+    //         Initial Setup
+    //
+    /////////////////////////////////////////////////
+    /////////////////////////////////////////////////
+    "build:infra": {
+      "inputs": [
+        // + V2-Addon convention
+        "src/**",
+        "cjs-src/**",
+        "addon-main.*",
+        "tsconfig.json",
+        "babel.*",
+        "vite.config-cjs.*",
+        "vite.config.*",
+        "../../config/**"
+      ],
+      "outputs": [
+        // V1-Addon convention
+        "addon-test-support/**",
+        // V2-Addon convention
+        "dist/**",
+        "unstable-preview-types/**",
+        "tsconfig.tsbuildinfo"
+      ],
+      "dependsOn": [],
+      // https://turbo.build/repo/docs/reference/configuration#outputmode
+      "outputMode": "new-only"
+    },
+
+    // run build in all library packages
+    // these do not require any associated packages
+    // to have been built to build other than
+    // the build:infra packages
+    "build:pkg": {
+      "inputs": [
+        // + V2-Addon convention
+        "src/**",
+        "addon-main.*",
+        "tsconfig.json",
+        "babel.*",
+        "vite.config.*",
+        "../../config/**"
+      ],
+      "outputs": [
+        // V1-Addon convention
+        "addon-test-support/**",
+        // V2-Addon convention
+        "dist/**",
+        "unstable-preview-types/**",
+        "tsconfig.tsbuildinfo"
+      ],
+      "dependsOn": ["^build:infra", "^build:pkg"],
+      // https://turbo.build/repo/docs/reference/configuration#outputmode
+      "outputMode": "new-only"
+    },
+
+    // run build in all library packages
+    // that ship gts files
+    // these do not require any associated packages
+    // to have been built to build other than
+    // the build:infra packages
+    "build:glint": {
+      "inputs": [
+        // + V2-Addon convention
+        "src/**",
+        "addon-main.*",
+        "tsconfig.json",
+        "babel.*",
+        "vite.config.*",
+        "../../config/**",
+        "tsconfig.tsbuildinfo"
+      ],
+      "outputs": [
+        // V1-Addon convention
+        "addon-test-support/**",
+        // V2-Addon convention
+        "dist/**",
+        "unstable-preview-types/**"
+      ],
+      "dependsOn": [],
+      "cache": false,
+      // https://turbo.build/repo/docs/reference/configuration#outputmode
+      "outputMode": "new-only"
+    },
+
+    // virtual task
+    "crawl-graph": {
+      "dependsOn": ["^crawl-graph"],
+      "cache": false
+    },
+
     /////////////////////////////////////////////////
     /////////////////////////////////////////////////
     //
@@ -12,69 +107,34 @@
     /////////////////////////////////////////////////
     /////////////////////////////////////////////////
     "start": {
-      "dependsOn": ["_syncPnpm", "^_build"],
-      "outputs": [],
-      "cache": false,
-      "persistent": true
+      // "dependsOn": ["_task:sync-hardlinks", "^_build"],
+      // "outputs": [],
+      // "cache": false,
+      // "persistent": true
     },
 
     /////////////////////////////////////////////////
     /////////////////////////////////////////////////
     //
-    //         C.I. / C.D.
+    //         Checks
     //
     /////////////////////////////////////////////////
     /////////////////////////////////////////////////
-    "_build": {
-      "inputs": [
-        // + V2-Addon convention
-        "src/**",
-        "addon-main.*",
-        "tsconfig.json",
-        "babel.*",
-        "rollup-config.*"
-      ],
-      "outputs": [
-        // V1-Addon convention
-        "addon/**",
-        "addon-test-support/**",
-        // V2-Addon convention
-        "dist/**",
-        "declarations/**",
-        "unstable-preview-types/**"
-      ],
-      "dependsOn": ["_syncPnpm"]
-    },
-    "build": {
-      "inputs": [
-        // + V2-Addon convention
-        "src/**",
-        "tests/**",
-        "addon-main.*",
-        "tsconfig.json",
-        "babel.*",
-        "rollup-config.*"
-      ],
-      "outputs": [
-        // V1-Addon convention
-        "addon/**",
-        "addon-test-support/**",
-        // V2-Addon convention
-        "dist/**",
-        "dist-test/**",
-        "declarations/**",
-        "unstable-preview-types/**"
-      ],
-      "dependsOn": ["_syncPnpm"]
-    },
+
     "lint": {
-      "cache": false,
-      "dependsOn": ["_syncPnpm", "^_build"]
+      "inputs": ["eslint.*", "tsconfig.json", "tsconfig.tsbuildinfo"],
+      "dependsOn": ["^build:pkg"],
+      // https://turbo.build/repo/docs/reference/configuration#outputmode
+      "outputMode": "new-only"
     },
+
     "check:types": {
-      "cache": false,
-      "dependsOn": ["_syncPnpm", "^_build"]
+      "inputs": ["tsconfig.json", "tsconfig.tsbuildinfo"],
+      "dependsOn": ["^build:pkg"],
+      // https://turbo.build/repo/docs/reference/configuration#outputmode
+      "outputMode": "new-only"
     },
+
     "build:tests": {
       "inputs": [
         // + V2-Addon convention
@@ -83,7 +143,7 @@
         "addon-main.*",
         "tsconfig.json",
         "babel.*",
-        "rollup-config.*"
+        "vite.config.*"
       ],
       "outputs": [
         // V1-Addon convention
@@ -95,7 +155,7 @@
         "declarations/**",
         "unstable-preview-types/**"
       ],
-      "dependsOn": ["_syncPnpm", "^_build"]
+      "dependsOn": ["^build:pkg"]
     },
     "build:production": {
       "inputs": [
@@ -105,7 +165,7 @@
         "ember-cli-build.js",
         "addon-main.*",
         "babel.*",
-        "rollup-config.*"
+        "vite.config.*"
       ],
       "outputs": [
         // V1-Addon convention
@@ -116,13 +176,9 @@
         "dist-test/**",
         "declarations/**"
       ],
-      "dependsOn": ["_syncPnpm", "^_build"]
+      "dependsOn": ["^build:pkg"]
     },
-    // See: https://github.com/pnpm/pnpm/issues/4965
-    "_syncPnpm": {
-      "dependsOn": ["^_build"],
-      "cache": false
-    },
+
     "test": {
       "outputs": [],
       "dependsOn": ["build:tests"]

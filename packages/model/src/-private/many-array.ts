@@ -1,37 +1,41 @@
 /**
   @module @ember-data/store
 */
-import { assert, deprecate } from '@ember/debug';
+import { deprecate } from '@ember/debug';
 
 import type Store from '@ember-data/store';
-import type { NativeProxy } from '@ember-data/store/-private';
+import type { CreateRecordProperties, NativeProxy } from '@ember-data/store/-private';
 import {
   ARRAY_SIGNAL,
   isStableIdentifier,
+  LiveArray,
   MUTATE,
   notifyArray,
-  RecordArray,
   recordIdentifierFor,
   SOURCE,
 } from '@ember-data/store/-private';
-import type { IdentifierArrayCreateOptions } from '@ember-data/store/-private/record-arrays/identifier-array';
-import type { CreateRecordProperties } from '@ember-data/store/-private/store-service';
-import type { Cache } from '@ember-data/store/-types/q/cache';
-import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
-import type { OpaqueRecordInstance } from '@ember-data/store/-types/q/record-instance';
-import type { BaseFinderOptions } from '@ember-data/store/-types/q/store';
+import type { BaseFinderOptions, ModelSchema } from '@ember-data/store/types';
 import type { Signal } from '@ember-data/tracking/-private';
 import { addToTransaction } from '@ember-data/tracking/-private';
 import { DEPRECATE_MANY_ARRAY_DUPLICATES } from '@warp-drive/build-config/deprecations';
+import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
-import type { Links, PaginationLinks } from '@warp-drive/core-types/spec/raw';
+import type { Cache } from '@warp-drive/core-types/cache';
+import type {
+  OpaqueRecordInstance,
+  TypedRecordInstance,
+  TypeFromInstance,
+  TypeFromInstanceOrString,
+} from '@warp-drive/core-types/record';
+import type { Links, PaginationLinks } from '@warp-drive/core-types/spec/json-api-raw';
 
 import type { LegacySupport } from './legacy-relationships-support';
 
-export interface ManyArrayCreateArgs {
-  identifiers: StableRecordIdentifier[];
-  type: string;
+type IdentifierArrayCreateOptions = ConstructorParameters<typeof LiveArray>[0];
+
+export interface ManyArrayCreateArgs<T> {
+  identifiers: StableRecordIdentifier<TypeFromInstanceOrString<T>>[];
+  type: TypeFromInstanceOrString<T>;
   store: Store;
   allowMutation: boolean;
   manager: LegacySupport;
@@ -89,7 +93,7 @@ export interface ManyArrayCreateArgs {
   @class ManyArray
   @public
 */
-export default class RelatedCollection<T = unknown> extends RecordArray<T> {
+export class RelatedCollection<T = unknown> extends LiveArray<T> {
   declare isAsync: boolean;
   /**
     The loading state of this array
@@ -154,14 +158,13 @@ export default class RelatedCollection<T = unknown> extends RecordArray<T> {
   declare links: Links | PaginationLinks | null;
   declare identifier: StableRecordIdentifier;
   declare cache: Cache;
-  // @ts-expect-error
   declare _manager: LegacySupport;
   declare store: Store;
   declare key: string;
   declare type: ModelSchema;
   declare modelName: T extends TypedRecordInstance ? TypeFromInstance<T> : string;
 
-  constructor(options: ManyArrayCreateArgs) {
+  constructor(options: ManyArrayCreateArgs<T>) {
     super(options as unknown as IdentifierArrayCreateOptions);
     this.isLoaded = options.isLoaded || false;
     this.isAsync = options.isAsync || false;
@@ -383,7 +386,6 @@ export default class RelatedCollection<T = unknown> extends RecordArray<T> {
   notify() {
     const signal = this[ARRAY_SIGNAL];
     signal.shouldReset = true;
-    // @ts-expect-error
     notifyArray(this);
   }
 

@@ -1,21 +1,20 @@
-import { assert } from '@ember/debug';
 import { service } from '@ember/service';
 import Component from '@glimmer/component';
-import { cached } from '@glimmer/tracking';
-import { EnableHydration, type RequestInfo } from '@warp-drive/core-types/request';
-import type { Future, StructuredErrorDocument } from '@ember-data/request';
-import type { RequestState } from './request-state.ts';
+import { cached, tracked } from '@glimmer/tracking';
+
 import { importSync, macroCondition, moduleExists } from '@embroider/macros';
 
+import type { Future, StructuredErrorDocument } from '@ember-data/request';
 import type { StoreRequestInput } from '@ember-data/store';
 import type Store from '@ember-data/store';
+import { assert } from '@warp-drive/build-config/macros';
+import { EnableHydration, type RequestInfo } from '@warp-drive/core-types/request';
 
-import { getRequestState } from './request-state.ts';
-import type { RequestLoadingState } from './request-state.ts';
 import { and, Throw } from './await.gts';
-import { tracked } from '@glimmer/tracking';
+import type { RequestLoadingState, RequestState } from './request-state.ts';
+import { getRequestState } from './request-state.ts';
 
-function notNull<T>(x: null): never;
+function notNull(x: null): never;
 function notNull<T>(x: T): Exclude<T, null>;
 function notNull<T>(x: T | null) {
   assert('Expected a non-null value, but got null', x !== null);
@@ -30,6 +29,10 @@ let provide = service;
 if (macroCondition(moduleExists('ember-provide-consume-context'))) {
   const { consume } = importSync('ember-provide-consume-context') as { consume: typeof service };
   provide = consume;
+}
+
+function isNeverString(val: never): string {
+  return val;
 }
 
 type ContentFeatures<RT> = {
@@ -71,9 +74,9 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
    * @internal
    */
   @provide('store') declare _store: Store;
-  @tracked isOnline: boolean = true;
-  @tracked isHidden: boolean = true;
-  @tracked isRefreshing: boolean = false;
+  @tracked isOnline = true;
+  @tracked isHidden = true;
+  @tracked isRefreshing = false;
   @tracked _localRequest: Future<RT> | undefined;
   @tracked _latestRequest: Future<RT> | undefined;
   declare unavailableStart: number | null;
@@ -121,7 +124,7 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
       this.unavailableStart = null;
 
       if (shouldAttempt) {
-        const request = Object.assign({}, this.reqState.request as unknown as RequestInfo<T>);
+        const request = Object.assign({}, this.reqState.request as unknown as RequestInfo<T, RT>);
         const val = mode ?? this.args.autorefreshBehavior ?? 'policy';
         switch (val) {
           case 'reload':
@@ -133,7 +136,9 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
           case 'policy':
             break;
           default:
-            throw new Error(`Invalid ${mode ? 'update mode' : '@autorefreshBehavior'} for <Request />: ${val}`);
+            throw new Error(
+              `Invalid ${mode ? 'update mode' : '@autorefreshBehavior'} for <Request />: ${isNeverString(val)}`
+            );
         }
 
         const wasStoreRequest = (request as { [EnableHydration]: boolean })[EnableHydration] === true;
@@ -143,8 +148,8 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
         );
 
         this._latestRequest = wasStoreRequest
-          ? this.store.request<RT, T>(request)
-          : this.store.requestManager.request<RT>(request);
+          ? this.store.request(request)
+          : this.store.requestManager.request(request);
 
         if (val !== 'refresh') {
           this._localRequest = this._latestRequest;
@@ -235,7 +240,7 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
       return request;
     }
     assert(`You must provide either @request or an @query arg with the <Request> component`, query);
-    return this.store.request<RT, T>(query!);
+    return this.store.request<RT, T>(query);
   }
 
   get store(): Store {

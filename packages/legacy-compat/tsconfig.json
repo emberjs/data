@@ -1,51 +1,76 @@
 {
   "include": ["src/**/*"],
-  "baseUrl": ".",
   "compilerOptions": {
     "lib": ["DOM", "ESNext"],
-    "module": "esnext",
-    "target": "esnext",
+    "module": "ESNext",
+    "target": "ESNext",
     "moduleResolution": "bundler",
     "moduleDetection": "force",
     "strict": true,
+    "pretty": true,
     "exactOptionalPropertyTypes": false,
     "downlevelIteration": true,
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
-    "noEmit": false,
-    "noImplicitOverride": true,
-
+    "noImplicitOverride": false,
+    "emitDeclarationOnly": true,
     // Enable faster builds
     // but causes us to not rebuild properly
     "composite": true,
     "incremental": true,
     "rootDir": "src",
-
+    "baseUrl": ".",
     "declaration": true,
     "declarationMap": true,
     "declarationDir": "unstable-preview-types",
-    "emitDeclarationOnly": true,
     "inlineSourceMap": true,
     "inlineSources": true,
     "types": ["ember-source/types"],
-
     "paths": {
-      "@warp-drive/build-config/deprecations": ["../private-build-infra/virtual-packages/deprecations.d.ts"],
-      "@ember-data/packages": ["../private-build-infra/virtual-packages/packages.d.ts"],
-      "@warp-drive/build-config/canary-features": ["../private-build-infra/virtual-packages/canary-features.d.ts"],
-      "@warp-drive/build-config/debugging": ["../private-build-infra/virtual-packages/debugging.d.ts"],
-      "@warp-drive/build-config/env": ["../private-build-infra/virtual-packages/env.d.ts"]
+      "@ember-data/graph": ["../graph/unstable-preview-types"],
+      "@ember-data/graph/*": ["../graph/unstable-preview-types/*"],
+      "@ember-data/json-api": ["../json-api/unstable-preview-types"],
+      "@ember-data/json-api/*": ["../json-api/unstable-preview-types/*"],
+      "@ember-data/request": ["../request/unstable-preview-types"],
+      "@ember-data/request/*": ["../request/unstable-preview-types/*"],
+      "@ember-data/request-utils": ["../request-utils/unstable-preview-types"],
+      "@ember-data/request-utils/*": ["../request-utils/unstable-preview-types/*"],
+      "@ember-data/store": ["../store/unstable-preview-types"],
+      "@ember-data/store/*": ["../store/unstable-preview-types/*"],
+      "@ember-data/tracking": ["../tracking/unstable-preview-types"],
+      "@ember-data/tracking/*": ["../tracking/unstable-preview-types/*"],
+      "@warp-drive/build-config": ["../build-config/unstable-preview-types"],
+      "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"],
+      "@warp-drive/core-types": ["../core-types/unstable-preview-types"],
+      "@warp-drive/core-types/*": ["../core-types/unstable-preview-types/*"]
     }
   },
   "references": [
-    { "path": "../graph" },
-    { "path": "../json-api" },
-    { "path": "../request" },
-    { "path": "../request-utils" },
-    { "path": "../store" },
-    { "path": "../tracking" },
-    { "path": "../core-types" }
+    {
+      "path": "../graph"
+    },
+    {
+      "path": "../json-api"
+    },
+    {
+      "path": "../request"
+    },
+    {
+      "path": "../request-utils"
+    },
+    {
+      "path": "../store"
+    },
+    {
+      "path": "../tracking"
+    },
+    {
+      "path": "../core-types"
+    },
+    {
+      "path": "../build-config"
+    }
   ]
 }

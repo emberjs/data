@@ -3,7 +3,6 @@ import EmberObject from '@ember/object';
 import Store from 'ember-data__adapter/services/store';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import { module, test } from '@warp-drive/diagnostic';
 import { setupTest } from '@warp-drive/diagnostic/ember';
@@ -56,7 +55,7 @@ class MinimalSerializer extends EmberObject {
 
   // minimal implementation, not json-api compliant
   serializeHasMany(snapshot, json, relationship) {
-    const key = relationship.key;
+    const key = relationship.name;
     const hasMany = snapshot.hasMany(key);
 
     if (hasMany && hasMany.length) {
@@ -144,7 +143,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    const expectedResultCopy = deepCopy(expectedResult);
+    const expectedResultCopy = structuredClone(expectedResult);
 
     class TestFindBelongsToAdapter extends EmberObject {
       findRecord() {
@@ -158,7 +157,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
 
         const expectedURL = initialRecord.data.relationships.post.links.related;
         assert.equal(url, expectedURL, 'url is passed to findBelongsTo');
-        assert.equal(relationship.key, 'post', 'relationship is passed to findBelongsTo');
+        assert.equal(relationship.name, 'post', 'relationship is passed to findBelongsTo');
 
         assert.equal(snapshot.modelName, 'comment', 'snapshot is passed to findBelongsTo with correct modelName');
         assert.equal(snapshot.id, '3', 'snapshot is passed to findBelongsTo with correct id');
@@ -261,7 +260,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    const expectedResultCopy = deepCopy(expectedResult);
+    const expectedResultCopy = structuredClone(expectedResult);
 
     class TestFindRecordAdapter extends EmberObject {
       findRecord(passedStore, type, id, snapshot) {
@@ -340,7 +339,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    const expectedResultCopy = deepCopy(expectedResult);
+    const expectedResultCopy = structuredClone(expectedResult);
 
     class TestFindRecordAdapter extends EmberObject {
       findRecord(passedStore, type, id, snapshot) {
@@ -418,7 +417,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    const expectedResultCopy = deepCopy(expectedResult);
+    const expectedResultCopy = structuredClone(expectedResult);
 
     class TestFindBelongsToAdapter extends EmberObject {
       findRecord() {
@@ -499,7 +498,7 @@ module('integration/belongs-to - Belongs To Tests', function (hooks) {
     // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
-    const expectedResultCopy = deepCopy(expectedResult);
+    const expectedResultCopy = structuredClone(expectedResult);
 
     class TestFindRecordAdapter extends EmberObject {
       findRecord(passedStore, type, id, snapshot) {

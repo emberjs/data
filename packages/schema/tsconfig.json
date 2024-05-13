@@ -7,13 +7,14 @@
     "moduleDetection": "force",
     "allowImportingTsExtensions": true,
     "strict": true,
+    "pretty": true,
     "exactOptionalPropertyTypes": false,
     "downlevelIteration": true,
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
-    "noEmit": true,
+    "emitDeclarationOnly": true,
     "types": ["bun-types"]
   }
 }

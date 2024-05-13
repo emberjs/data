@@ -3,7 +3,7 @@ import { dasherize } from '@ember/string';
 
 import { DEPRECATE_NON_STRICT_TYPES } from '@warp-drive/build-config/deprecations';
 
-export default function normalizeModelName(type: string): string {
+export function normalizeModelName(type: string): string {
   if (DEPRECATE_NON_STRICT_TYPES) {
     const result = dasherize(type);
 

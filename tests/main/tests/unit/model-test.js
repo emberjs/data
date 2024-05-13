@@ -1313,7 +1313,7 @@ module('unit/model - Model', function (hooks) {
 
       assert.expectAssertion(() => {
         person.attr();
-      }, /Assertion Failed: The `attr` method is not available on Model, a Snapshot was probably expected\. Are you passing a Model instead of a Snapshot to your serializer\?/);
+      }, /The `attr` method is not available on Model, a Snapshot was probably expected\. Are you passing a Model instead of a Snapshot to your serializer\?/);
     });
   });
 });

@@ -1,10 +1,9 @@
 /**
  * @module @ember-data/legacy-compat/builders
  */
-import { assert } from '@ember/debug';
-
 import type { StoreRequestInput } from '@ember-data/store';
-import type { QueryOptions } from '@ember-data/store/-types/q/store';
+import type { QueryOptions } from '@ember-data/store/types';
+import { assert } from '@warp-drive/build-config/macros';
 import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
 import { SkipCache } from '@warp-drive/core-types/request';
 import type { RequestSignature } from '@warp-drive/core-types/symbols';
@@ -71,7 +70,7 @@ export function queryBuilder(
       query,
       options: options,
     },
-    cacheOptions: { [SkipCache as symbol]: true },
+    cacheOptions: { [SkipCache]: true },
   };
 }
 
@@ -133,6 +132,6 @@ export function queryRecordBuilder(
       query,
       options: options || {},
     },
-    cacheOptions: { [SkipCache as symbol]: true },
+    cacheOptions: { [SkipCache]: true },
   };
 }

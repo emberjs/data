@@ -3,7 +3,7 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 
 import type Store from '@ember-data/store';
-import type { Document } from '@ember-data/store/-private/document';
+import type { Document } from '@ember-data/store';
 
 import type Book from '../models/book';
 

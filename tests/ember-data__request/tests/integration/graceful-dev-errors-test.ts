@@ -1,6 +1,6 @@
+import type { Handler, NextFn } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
-import type { Context } from '@ember-data/request/-private/context';
-import type { Handler, NextFn } from '@ember-data/request/-private/types';
+import type { RequestContext } from '@warp-drive/core-types/request';
 import { module, test } from '@warp-drive/diagnostic';
 
 module('RequestManager | Graceful Errors', function () {
@@ -118,7 +118,7 @@ module('RequestManager | Graceful Errors', function () {
   test('We error meaningfully for empty requests', async function (assert) {
     const manager = new RequestManager();
     const handler: Handler = {
-      request<T>(_context: Context, _next: NextFn<T>): Promise<T> {
+      request<T>(_context: RequestContext, _next: NextFn<T>): Promise<T> {
         return Promise.resolve<T>('done' as T);
       },
     };
@@ -182,7 +182,7 @@ module('RequestManager | Graceful Errors', function () {
   test('We error meaningfully for invalid next', async function (assert) {
     const manager = new RequestManager();
     const handler = {
-      request<T>(req: Context, next: NextFn<T>) {
+      request<T>(req: RequestContext, next: NextFn<T>) {
         return next(req.request);
       },
     };
@@ -203,7 +203,7 @@ module('RequestManager | Graceful Errors', function () {
   test('We error meaningfully for misshapen requests', async function (assert) {
     const manager = new RequestManager();
     const handler: Handler = {
-      request<T>(_context: Context, _next: NextFn<T>): Promise<T> {
+      request<T>(_context: RequestContext, _next: NextFn<T>): Promise<T> {
         return Promise.resolve<T>('done' as T);
       },
     };

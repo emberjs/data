@@ -1,7 +1,7 @@
-import { assert } from '@ember/debug';
-
 import { recordIdentifierFor } from '@ember-data/store';
-import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
+import { assert } from '@warp-drive/build-config/macros';
+import { getOrSetGlobal } from '@warp-drive/core-types/-private';
+import type { FieldSchema } from '@warp-drive/core-types/schema/fields';
 
 import { Errors } from './-private';
 import type { MinimalLegacyRecord } from './-private/model-methods';
@@ -53,7 +53,7 @@ const LegacyFields = [
   'unloadRecord',
 ];
 
-const LegacySupport = new WeakMap<MinimalLegacyRecord, Record<string, unknown>>();
+const LegacySupport = getOrSetGlobal('LegacySupport', new WeakMap<MinimalLegacyRecord, Record<string, unknown>>());
 
 function legacySupport(record: MinimalLegacyRecord, options: Record<string, unknown> | null, prop: string): unknown {
   let state = LegacySupport.get(record);
@@ -135,7 +135,6 @@ export function withFields(fields: FieldSchema[]) {
   fields.push({
     name: 'id',
     kind: '@id',
-    type: null,
   });
   fields.push({
     name: 'isReloading',

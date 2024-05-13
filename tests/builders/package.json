@@ -17,11 +17,11 @@
   "scripts": {
     "build:tests": "IS_TESTING=true EMBER_CLI_TEST_COMMAND=true ember build --output-path=dist-test --suppress-sizes",
     "build:production": "pnpm build:tests -e production",
-    "lint": "eslint . --quiet --cache --cache-strategy=content --ext .js,.ts,.mjs,.cjs --report-unused-disable-directives",
+    "lint": "eslint . --quiet --cache --cache-strategy=content --report-unused-disable-directives",
     "check:types": "tsc --noEmit",
     "test": "bun ./diagnostic.js",
     "test:production": "bun ./diagnostic.js",
-    "_syncPnpm": "bun run sync-dependencies-meta-injected"
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
   "dependenciesMeta": {
     "@ember-data/json-api": {
@@ -48,9 +48,6 @@
     "@ember-data/active-record": {
       "injected": true
     },
-    "@ember-data/private-build-infra": {
-      "injected": true
-    },
     "@ember-data/unpublished-test-infra": {
       "injected": true
     },
@@ -58,6 +55,9 @@
       "injected": true
     },
     "@warp-drive/core-types": {
+      "injected": true
+    },
+    "@warp-drive/build-config": {
       "injected": true
     },
     "@ember-data/graph": {
@@ -85,7 +85,6 @@
     "@ember-data/json-api": "workspace:5.4.0-alpha.64",
     "@ember-data/legacy-compat": "workspace:5.4.0-alpha.64",
     "@ember-data/model": "workspace:5.4.0-alpha.64",
-    "@ember-data/private-build-infra": "workspace:5.4.0-alpha.64",
     "@ember-data/request": "workspace:5.4.0-alpha.64",
     "@ember-data/request-utils": "workspace:5.4.0-alpha.64",
     "@ember-data/rest": "workspace:5.4.0-alpha.64",
@@ -96,12 +95,14 @@
     "@ember/optional-features": "^2.1.0",
     "@ember/string": "3.1.1",
     "@ember/test-helpers": "^3.3.0",
+    "@ember/test-waiters": "^3.1.0",
     "@embroider/addon-shim": "^1.8.7",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.50",
     "@warp-drive/diagnostic": "workspace:0.0.0-alpha.50",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.64",
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.1",
     "ember-auto-import": "^2.7.2",
     "ember-cli": "~5.7.0",
     "ember-cli-babel": "^8.2.0",
@@ -126,7 +127,7 @@
     "edition": "octane"
   },
   "engines": {
-    "node": ">= 18.20.2"
+    "node": ">= 22.1.0"
   },
   "volta": {
     "extends": "../../package.json"

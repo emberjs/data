@@ -1,30 +1,33 @@
 import { getOwner } from '@ember/application';
 
 import type Store from '@ember-data/store';
-import type { FieldSchema } from '@ember-data/store/-types/q/schema-service';
+import type { SchemaService } from '@ember-data/store/types';
 import type { RecordIdentifier } from '@warp-drive/core-types/identifier';
-import type { AttributesSchema, RelationshipsSchema } from '@warp-drive/core-types/schema';
+import type { LegacyFieldSchema } from '@warp-drive/core-types/schema/fields';
 
 import type { FactoryCache, Model, ModelFactory, ModelStore } from './model';
 import _modelForMixin from './model-for-mixin';
 import { normalizeModelName } from './util';
 
+type AttributesSchema = ReturnType<SchemaService['attributesDefinitionFor']>;
+type RelationshipsSchema = ReturnType<SchemaService['relationshipsDefinitionFor']>;
+
 export class ModelSchemaProvider {
   declare store: ModelStore;
   declare _relationshipsDefCache: Record<string, RelationshipsSchema>;
   declare _attributesDefCache: Record<string, AttributesSchema>;
-  declare _fieldsDefCache: Record<string, Map<string, FieldSchema>>;
+  declare _fieldsDefCache: Record<string, Map<string, LegacyFieldSchema>>;
 
   constructor(store: ModelStore) {
     this.store = store;
     this._relationshipsDefCache = Object.create(null) as Record<string, RelationshipsSchema>;
     this._attributesDefCache = Object.create(null) as Record<string, AttributesSchema>;
-    this._fieldsDefCache = Object.create(null) as Record<string, Map<string, FieldSchema>>;
+    this._fieldsDefCache = Object.create(null) as Record<string, Map<string, LegacyFieldSchema>>;
   }
 
-  fields(identifier: RecordIdentifier | { type: string }): Map<string, FieldSchema> {
+  fields(identifier: RecordIdentifier | { type: string }): Map<string, LegacyFieldSchema> {
     const { type } = identifier;
-    let fieldDefs: Map<string, FieldSchema> | undefined = this._fieldsDefCache[type];
+    let fieldDefs: Map<string, LegacyFieldSchema> | undefined = this._fieldsDefCache[type];
 
     if (fieldDefs === undefined) {
       fieldDefs = new Map();

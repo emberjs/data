@@ -91,7 +91,7 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
       } catch (e) {
         assert.strictEqual(
           e.message,
-          `Assertion Failed: fetched the belongsTo relationship 'parentCompany' for company:1 with link '"company/1/parent-company"', but no data member is present in the response. If no data exists, the response should set { data: null }`,
+          `fetched the belongsTo relationship 'parentCompany' for company:1 with link '"company/1/parent-company"', but no data member is present in the response. If no data exists, the response should set { data: null }`,
           'We error appropriately'
         );
       }
@@ -533,7 +533,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
         },
       });
       post.user;
-    }, /Assertion Failed: Encountered a relationship identifier without an id for the belongsTo relationship 'user' on <post:1>, expected an identifier but found/);
+    }, /Encountered a relationship identifier without an id for the belongsTo relationship 'user' on <post:1>, expected an identifier but found/);
   });
 
   testInDebug('Invalid belongsTo relationship identifiers throw errors for null type', function (assert) {
@@ -558,7 +558,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
         },
       });
       post.user;
-    }, /Assertion Failed: Encountered a relationship identifier without a type for the belongsTo relationship 'user' on <post:2>, expected an identifier with type 'user' but found/);
+    }, /Encountered a relationship identifier without a type for the belongsTo relationship 'user' on <post:2>, expected an identifier with type 'user' but found/);
   });
 
   testInDebug(
@@ -698,7 +698,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
 
     adapter.findBelongsTo = function (store, snapshot, link, relationship) {
       assert.strictEqual(relationship.type, 'group');
-      assert.strictEqual(relationship.key, 'group');
+      assert.strictEqual(relationship.name, 'group');
       assert.strictEqual(link, '/people/1/group');
 
       return Promise.resolve({

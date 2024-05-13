@@ -4,18 +4,16 @@ import JSONAPICache from '@ember-data/json-api';
 import { createRecord } from '@ember-data/json-api/request';
 import Model, { attr, instantiateRecord, teardownRecord } from '@ember-data/model';
 import { buildSchema, modelFor } from '@ember-data/model/hooks';
-import type { RequestContext, StructuredDataDocument } from '@ember-data/request';
+import type { Future, Handler, RequestContext, StructuredDataDocument } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
-import type { Future, Handler } from '@ember-data/request/-private/types';
 import { setBuildURLConfig } from '@ember-data/request-utils';
 import DataStore, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
-import type { CacheCapabilitiesManager } from '@ember-data/store/-types/q/cache-store-wrapper';
-import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
-import type { JsonApiError } from '@ember-data/store/-types/q/record-data-json-api';
+import type { CacheCapabilitiesManager, ModelSchema } from '@ember-data/store/types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
-import type { SingleResourceDocument } from '@warp-drive/core-types/spec/raw';
+import type { ApiError } from '@warp-drive/core-types/spec/error';
+import type { SingleResourceDocument } from '@warp-drive/core-types/spec/json-api-raw';
 import { module, test } from '@warp-drive/diagnostic';
 import { setupTest } from '@warp-drive/diagnostic/ember';
 
@@ -80,7 +78,7 @@ module('Integration - createRecord', function (hooks) {
         assert.step(`didCommit ${committedIdentifier.lid}`);
         return super.didCommit(committedIdentifier, result);
       }
-      override commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[]): void {
+      override commitWasRejected(identifier: StableRecordIdentifier, errors?: ApiError[]): void {
         assert.step(`commitWasRejected ${identifier.lid}`);
         return super.commitWasRejected(identifier, errors);
       }
@@ -161,7 +159,7 @@ module('Integration - createRecord', function (hooks) {
         assert.step(`didCommit ${committedIdentifier.lid}`);
         return super.didCommit(committedIdentifier, result);
       }
-      override commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[]): void {
+      override commitWasRejected(identifier: StableRecordIdentifier, errors?: ApiError[]): void {
         assert.step(`commitWasRejected ${identifier.lid}`);
         return super.commitWasRejected(identifier, errors);
       }
@@ -203,9 +201,9 @@ module('Integration - createRecord', function (hooks) {
     assert.true(user.hasDirtyAttributes, 'The user is dirty');
 
     const validationError: Error & {
-      content: { errors: JsonApiError[] };
+      content: { errors: ApiError[] };
     } = new Error('Something went wrong') as Error & {
-      content: { errors: JsonApiError[] };
+      content: { errors: ApiError[] };
     };
     validationError.content = {
       errors: [
@@ -231,7 +229,7 @@ module('Integration - createRecord', function (hooks) {
       assert.true(e instanceof Error, 'The error is an error');
       assert.equal((e as Error).message, 'Something went wrong', 'The error has the expected error message');
       assert.true(
-        Array.isArray((e as { content: { errors: JsonApiError[] } })?.content?.errors),
+        Array.isArray((e as { content: { errors: ApiError[] } })?.content?.errors),
         'The error has an errors array'
       );
     }

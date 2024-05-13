@@ -1,7 +1,8 @@
-import { assert, deprecate } from '@ember/debug';
+import { deprecate } from '@ember/debug';
 
 import { DEPRECATE_NON_UNIQUE_PAYLOADS } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
 import { isBelongsTo } from './-utils';

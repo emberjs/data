@@ -1,11 +1,10 @@
-import { assert } from '@ember/debug';
-
 import type Store from '@ember-data/store';
-import type { BaseFinderOptions } from '@ember-data/store/-types/q/store';
+import type { BaseFinderOptions } from '@ember-data/store/types';
 import { DEBUG } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { RelationshipSchema } from '@warp-drive/core-types/schema';
-import type { ExistingResourceObject, JsonApiDocument } from '@warp-drive/core-types/spec/raw';
+import type { LegacyRelationshipSchema as RelationshipSchema } from '@warp-drive/core-types/schema/fields';
+import type { ExistingResourceObject, JsonApiDocument } from '@warp-drive/core-types/spec/json-api-raw';
 
 import { upgradeStore } from '../-private';
 import { iterateData, payloadIsNotBlank } from './legacy-data-utils';

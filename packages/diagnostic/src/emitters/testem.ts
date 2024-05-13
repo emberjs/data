@@ -3,10 +3,8 @@ import type { SuiteReport } from '../-types/report';
 import { assert } from '../-utils';
 
 type TestemSocket = {
-  emit(name: 'tests-start'): void; // suite-start
-  emit(name: 'all-test-results'): void; // suite-finish
-  emit(name: 'tests-start', data: CompatTestReport): void; // test-start
-  emit(name: 'test-result', data: CompatTestReport): void; // test-finish
+  emit(name: 'tests-start' | 'all-test-results'): void; // suite-start / suite-finish
+  emit(name: 'tests-start' | 'test-result', data: CompatTestReport): void; // test-start / test-finish
 };
 
 interface TestemGlobal {
@@ -20,10 +18,8 @@ class TestemEmitter implements Emitter {
     this.socket = socket;
   }
 
-  emit(name: 'suite-start', data: SuiteReport): void;
-  emit(name: 'suite-finish', data: SuiteReport): void;
-  emit(name: 'test-start', data: CompatTestReport): void;
-  emit(name: 'test-finish', data: CompatTestReport): void;
+  emit(name: 'suite-start' | 'suite-finish', data: SuiteReport): void;
+  emit(name: 'test-start' | 'test-finish', data: CompatTestReport): void;
   emit(name: 'suite-start' | 'suite-finish' | 'test-start' | 'test-finish', data: SuiteReport | CompatTestReport) {
     assert(
       `Expected event.name to be one of 'suite-start', 'suite-finish', 'test-start' or 'test-finish'`,
