@@ -23,7 +23,7 @@
   "ember-addon": {
     "main": "addon-main.cjs",
     "type": "addon",
-    "version": 1,
+    "version": 2,
     "app-js": {
       "./initializers/ember-data.js": "./app/initializers/ember-data.js",
       "./services/store.js": "./app/services/store.js",
@@ -124,8 +124,7 @@
     "@embroider/macros": "^1.16.1",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.58",
     "ember-inflector": "^4.0.2",
-    "@warp-drive/build-config": "workspace:0.0.0-alpha.9",
-    "ember-cli-babel": "^8.2.0"
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.9"
   },
   "peerDependencies": {
     "@ember/string": "^3.1.1",

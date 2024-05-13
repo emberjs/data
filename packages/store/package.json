@@ -56,8 +56,7 @@
   },
   "dependencies": {
     "@embroider/macros": "^1.16.1",
-    "@warp-drive/build-config": "workspace:0.0.0-alpha.9",
-    "ember-cli-babel": "^8.2.0"
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.9"
   },
   "peerDependencies": {
     "@ember-data/request": "workspace:5.4.0-alpha.72",
@@ -93,7 +92,7 @@
   "ember-addon": {
     "main": "addon-main.cjs",
     "type": "addon",
-    "version": 1
+    "version": 2
   },
   "ember": {
     "edition": "octane"
