@@ -65,8 +65,8 @@ importers:
         specifier: ^7.5.8
         version: 7.5.8
       bun-types:
-        specifier: ^1.1.3
-        version: 1.1.3
+        specifier: ^1.1.7
+        version: 1.1.7
       chalk:
         specifier: ^4.1.2
         version: 4.1.2
@@ -563,8 +563,8 @@ importers:
         specifier: workspace:5.4.0-alpha.64
         version: link:../../config
       bun-types:
-        specifier: ^1.1.3
-        version: 1.1.3
+        specifier: ^1.1.7
+        version: 1.1.7
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.10
         version: 0.0.10
@@ -791,8 +791,8 @@ importers:
         specifier: workspace:5.4.0-alpha.64
         version: link:../../config
       bun-types:
-        specifier: ^1.1.3
-        version: 1.1.3
+        specifier: ^1.1.7
+        version: 1.1.7
       ember-cli-test-loader:
         specifier: ^3.1.0
         version: 3.1.0(@babel/core@7.24.5)
@@ -1616,8 +1616,8 @@ importers:
   packages/schema:
     devDependencies:
       bun-types:
-        specifier: 1.1.3
-        version: 1.1.3
+        specifier: 1.1.7
+        version: 1.1.7
 
   packages/schema-record:
     dependencies:
@@ -3069,8 +3069,8 @@ importers:
         specifier: workspace:5.4.0-alpha.64
         version: link:../../config
       bun-types:
-        specifier: ^1.1.3
-        version: 1.1.3
+        specifier: ^1.1.7
+        version: 1.1.7
       ember-auto-import:
         specifier: ^2.7.0
         version: 2.7.2(@glint/template@1.4.0)
@@ -7930,6 +7930,12 @@ packages:
       undici-types: 5.26.5
     dev: true
 
+  /@types/node@20.12.11:
+    resolution: {integrity: sha512-vDg9PZ/zi+Nqp6boSOT7plNuthRugEKixDv5sFTIpkE89MmNtEArAShI4mxuX2+UrLEe9pxC1vm2cjm9YlWbJw==}
+    dependencies:
+      undici-types: 5.26.5
+    dev: true
+
   /@types/node@20.12.7:
     resolution: {integrity: sha512-wq0cICSkRLVaf3UGLMGItu/PtdY7oaXaI/RVU+xliKVOtRna3PRY57ZDfztpDL0n11vfymMUnXv8QwYCO7L1wg==}
     dependencies:
@@ -10148,17 +10154,17 @@ packages:
     dependencies:
       semver: 7.6.0
 
-  /bun-types@1.1.3:
-    resolution: {integrity: sha512-UB6AlrfSzOmSV3gCTrm2d2e+p/ZeHXrNdrEbFYFL3uy9pIJ02pEYCbtj/HHrDyxKt9YBRH13PDH6Avmt3rKYRA==}
+  /bun-types@1.1.6:
+    resolution: {integrity: sha512-LK2aaJdBBTUkDyN+kRiJHLF3VGrAcdkEHrbBvbmTkccShPw6ZalxxKjWSBJwn4UkikhZdrdA87bZWmfUgkRUYg==}
     dependencies:
       '@types/node': 20.11.30
       '@types/ws': 8.5.10
     dev: true
 
-  /bun-types@1.1.6:
-    resolution: {integrity: sha512-LK2aaJdBBTUkDyN+kRiJHLF3VGrAcdkEHrbBvbmTkccShPw6ZalxxKjWSBJwn4UkikhZdrdA87bZWmfUgkRUYg==}
+  /bun-types@1.1.7:
+    resolution: {integrity: sha512-9L1w3dxXrJ5dg9ERd8cc8IJTHZ+0WpSDB9kIo6tVl1s3msNsotsTeh02Wwy8cvd3a4XWEz9+TrJsqhT0dJ6XCQ==}
     dependencies:
-      '@types/node': 20.11.30
+      '@types/node': 20.12.11
       '@types/ws': 8.5.10
     dev: true
 
