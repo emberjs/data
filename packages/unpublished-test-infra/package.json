@@ -126,5 +126,5 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.15.6"
+  "packageManager": "pnpm@8.15.8"
 }
