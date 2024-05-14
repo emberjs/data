@@ -1354,76 +1354,6 @@ importers:
       ember-inflector:
         injected: true
 
-  packages/private-build-infra:
-    dependencies:
-      '@babel/core':
-        specifier: ^7.24.5
-        version: 7.24.5(supports-color@8.1.1)
-      '@babel/runtime':
-        specifier: ^7.24.5
-        version: 7.24.5
-      '@ember/edition-utils':
-        specifier: ^1.2.0
-        version: 1.2.0
-      '@embroider/macros':
-        specifier: ^1.16.1
-        version: 1.16.1(@babel/core@7.24.5)(@glint/template@1.4.0)
-      babel-import-util:
-        specifier: ^2.1.1
-        version: 2.1.1
-      babel-plugin-debug-macros:
-        specifier: ^0.3.4
-        version: 0.3.4(@babel/core@7.24.5)
-      babel-plugin-filter-imports:
-        specifier: ^4.0.0
-        version: 4.0.0
-      babel6-plugin-strip-class-callcheck:
-        specifier: ^6.0.0
-        version: 6.0.0
-      broccoli-debug:
-        specifier: ^0.6.5
-        version: 0.6.5
-      broccoli-file-creator:
-        specifier: ^2.1.1
-        version: 2.1.1
-      broccoli-merge-trees:
-        specifier: ^4.2.0
-        version: 4.2.0
-      calculate-cache-key-for-tree:
-        specifier: ^2.0.0
-        version: 2.0.0
-      chalk:
-        specifier: ^4.1.2
-        version: 4.1.2
-      ember-cli-babel:
-        specifier: ^8.2.0
-        version: 8.2.0(@babel/core@7.24.5)
-      ember-cli-path-utils:
-        specifier: ^1.0.0
-        version: 1.0.0
-      ember-cli-string-utils:
-        specifier: ^1.1.0
-        version: 1.1.0
-      ember-cli-version-checker:
-        specifier: ^5.1.2
-        version: 5.1.2
-      git-repo-info:
-        specifier: ^2.1.1
-        version: 2.1.1
-      npm-git-info:
-        specifier: ^1.0.3
-        version: 1.0.3
-      semver:
-        specifier: ^7.6.2
-        version: 7.6.2
-      silent-error:
-        specifier: ^1.1.1
-        version: 1.1.1
-    devDependencies:
-      pnpm-sync-dependencies-meta-injected:
-        specifier: 0.0.14
-        version: 0.0.14
-
   packages/request:
     dependencies:
       '@ember/test-waiters':
@@ -8966,6 +8896,7 @@ packages:
 
   /babel6-plugin-strip-class-callcheck@6.0.0:
     resolution: {integrity: sha512-biNFJ7JAK4+9BwswDGL0dmYpvXHvswOFR/iKg3Q/f+pNxPEa5bWZkLHI1fW4spPytkHGMe7f/XtYyhzml9hiWg==}
+    dev: true
 
   /babylon@6.18.0:
     resolution: {integrity: sha512-q/UEjfGJ2Cm3oKV71DJz9d25TPnq5rhBVL2Q4fA5wcC3jcrdn7+SssEybFIxwAvvP+YCsCYNKughoF33GxgycQ==}
@@ -15664,6 +15595,7 @@ packages:
 
   /npm-git-info@1.0.3:
     resolution: {integrity: sha512-i5WBdj4F/ULl16z9ZhsJDMl1EQCMQhHZzBwNnKL2LOA+T8IHNeRkLCVz9uVV9SzUdGTbDq+1oXhIYMe+8148vw==}
+    dev: true
 
   /npm-package-arg@10.1.0:
     resolution: {integrity: sha512-uFyyCEmgBfZTtrKk/5xDfHp6+MdrqGotX/VoOyEEl3mBwiEE5FlBaePanazJSVMPT7vKepcjYBY2ztg9A3yPIA==}
