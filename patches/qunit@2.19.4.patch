@@ -1,8 +1,31 @@
 diff --git a/qunit/qunit.js b/qunit/qunit.js
-index 5e48b79303e8bfe33ba60a9407c2d67879a07841..6020dde7a608bb1a496824bc24c85bc2f7281326 100644
+index 5e48b79303e8bfe33ba60a9407c2d67879a07841..649cd30f59991f1870570d6ec831ed602862a772 100644
 --- a/qunit/qunit.js
 +++ b/qunit/qunit.js
-@@ -5647,6 +5647,9 @@
+@@ -8,6 +8,10 @@
+  */
+ (function () {
+   'use strict';
++  function getKeys(obj) {
++    if (!obj) { return []; }
++    return Object.keys(obj).concat(getKeys(Object.getPrototypeOf(obj)));
++  }
+ 
+   function _typeof(obj) {
+     "@babel/helpers - typeof";
+@@ -1003,10 +1007,7 @@
+             return '[object Object]';
+           }
+           dump.up();
+-          var keys = [];
+-          for (var key in map) {
+-            keys.push(key);
+-          }
++          var keys = getKeys(map);
+ 
+           // Some properties are not always enumerable on Error objects.
+           var nonEnumerableProperties = ['message', 'name'];
+@@ -5647,6 +5648,9 @@
        appendToolbar(beginDetails);
      }
      function appendTest(name, testId, moduleName) {
@@ -12,7 +35,7 @@ index 5e48b79303e8bfe33ba60a9407c2d67879a07841..6020dde7a608bb1a496824bc24c85bc2
        var tests = id('qunit-tests');
        if (!tests) {
          return;
-@@ -5831,6 +5834,13 @@
+@@ -5831,6 +5835,13 @@
        assertList.appendChild(assertLi);
      });
      QUnit.testDone(function (details) {
@@ -26,7 +49,7 @@ index 5e48b79303e8bfe33ba60a9407c2d67879a07841..6020dde7a608bb1a496824bc24c85bc2
        var tests = id('qunit-tests');
        var testItem = id('qunit-test-output-' + details.testId);
        if (!tests || !testItem) {
-@@ -5849,13 +5859,10 @@
+@@ -5849,13 +5860,10 @@
        var good = details.passed;
        var bad = details.failed;
  
@@ -40,7 +63,7 @@ index 5e48b79303e8bfe33ba60a9407c2d67879a07841..6020dde7a608bb1a496824bc24c85bc2
          if (config.collapse) {
            if (!collapseNext) {
              // Skip collapsing the first failing test
-@@ -5871,7 +5878,6 @@
+@@ -5871,7 +5879,6 @@
        var testTitle = testItem.firstChild;
        var testCounts = bad ? "<b class='failed'>" + bad + '</b>, ' + "<b class='passed'>" + good + '</b>, ' : '';
        testTitle.innerHTML += " <b class='counts'>(" + testCounts + details.assertions.length + ')</b>';
