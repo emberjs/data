@@ -50,7 +50,7 @@
   "devDependencies": {
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.65",
     "@types/babel__core": "^7.20.5",
-    "@types/node": "^20.12.11",
+    "@types/node": "^20.12.12",
     "@babel/plugin-transform-typescript": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
     "@babel/core": "^7.24.5",
