@@ -35,7 +35,7 @@
     "ember-cli-babel": "^8.2.0"
   },
   "peerDependencies": {
-    "ember-source": ">= 3.28.0",
+    "ember-source": ">= 3.28.12",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.51"
   },
   "files": [
@@ -82,7 +82,7 @@
     "@glimmer/validator": "^0.92.0",
     "@warp-drive/core-types": "0.0.0-alpha.50",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.65",
-    "ember-source": "~5.7.0",
+    "ember-source": "~5.8.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "typescript": "^5.4.5",
     "vite": "^5.2.11"

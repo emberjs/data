@@ -93,7 +93,7 @@
     "ember-cli": "~5.8.1",
     "ember-cli-blueprint-test-helpers": "^0.19.2",
     "ember-inflector": "^4.0.2",
-    "ember-source": "~5.7.0",
+    "ember-source": "~5.8.0",
     "mocha": "^10.4.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "silent-error": "^1.1.1"
