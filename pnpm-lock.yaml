@@ -191,8 +191,8 @@ importers:
         specifier: ^5.2.11
         version: 5.2.11(@types/node@20.12.11)
       vite-plugin-dts:
-        specifier: ^3.9.0
-        version: 3.9.0(rollup@4.17.2)(typescript@5.4.5)(vite@5.2.11)
+        specifier: ^3.9.1
+        version: 3.9.1(rollup@4.17.2)(typescript@5.4.5)(vite@5.2.11)
       walk-sync:
         specifier: ^3.0.0
         version: 3.0.0
@@ -18768,8 +18768,8 @@ packages:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
 
-  /vite-plugin-dts@3.9.0(rollup@4.17.2)(typescript@5.4.5)(vite@5.2.11):
-    resolution: {integrity: sha512-pwFIEYQ3LZvMafkEGvNnileb6af5JuyZsBfYQrTDYxdeGEy0OS4B4hCsLPo5YGnhK5k9EzyO6BXVO6y+Lt5T2A==}
+  /vite-plugin-dts@3.9.1(rollup@4.17.2)(typescript@5.4.5)(vite@5.2.11):
+    resolution: {integrity: sha512-rVp2KM9Ue22NGWB8dNtWEr+KekN3rIgz1tWD050QnRGlriUCmaDwa7qA5zDEjbXg5lAXhYMSBJtx3q3hQIJZSg==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
       typescript: '*'
