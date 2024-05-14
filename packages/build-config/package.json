@@ -45,7 +45,7 @@
     "@embroider/addon-shim": "^1.8.8",
     "babel-import-util": "^2.1.1",
     "broccoli-funnel": "^3.0.8",
-    "semver": "^7.6.0"
+    "semver": "^7.6.2"
   },
   "devDependencies": {
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.65",
