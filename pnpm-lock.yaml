@@ -581,8 +581,8 @@ importers:
         specifier: ^5.3.0
         version: 5.3.0
       commander:
-        specifier: ^9.5.0
-        version: 9.5.0
+        specifier: ^12.0.0
+        version: 12.0.0
       ignore:
         specifier: ^5.3.1
         version: 5.3.1
@@ -10192,6 +10192,10 @@ packages:
       typical: 4.0.0
     dev: true
 
+  /commander@12.0.0:
+    resolution: {integrity: sha512-MwVNWlYjDTtOjX5PiD7o5pK0UrFU/OYgcJfjjK4RaHZETNtjJqrZa9Y9ds88+A+f+d5lv+561eZ+yCKoS3gbAA==}
+    engines: {node: '>=18'}
+
   /commander@2.15.1:
     resolution: {integrity: sha512-VlfT9F3V0v+jr4yxPc5gg9s62/fIVWsd2Bk2iD435um1NlGMYdVCq+MjcXnhYq2icNOizHr1kK+5TI6H0Hy0ag==}
     dev: true
@@ -10218,6 +10222,8 @@ packages:
     resolution: {integrity: sha512-KRs7WVDKg86PWiuAqhDrAQnTXZKraVcCc6vFdL14qrZ/DcWwuRo7VoiYXalXO7S5GKpqYiVEwCbgFDfxNHKJBQ==}
     engines: {node: ^12.20.0 || >=14}
     requiresBuild: true
+    dev: false
+    optional: true
 
   /comment-json@4.2.3:
     resolution: {integrity: sha512-SsxdiOf064DWoZLH799Ata6u7iV658A11PlWtZATDlXPpKGJnbJZ5Z24ybixAi+LUUqJ/GKowAejtC5GFUG7Tw==}
@@ -19562,7 +19568,7 @@ packages:
     hasBin: true
     dependencies:
       chalk: 5.3.0
-      commander: 9.5.0
+      commander: 12.0.0
       ignore: 5.3.1
       jscodeshift: 0.15.2
       strip-ansi: 7.1.0
