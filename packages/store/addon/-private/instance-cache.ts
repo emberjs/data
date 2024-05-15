@@ -245,6 +245,42 @@ export class InstanceCache {
     return this._internalModelForResource(identifier);
   }
 
+  recordIsLoaded(identifier: StableRecordIdentifier, filterDeleted: boolean = false) {
+    const recordData = this.#instances.recordData.get(identifier);
+    if (!recordData) {
+      return false;
+    }
+    const isNew = recordData.isNew?.();
+    const isEmpty = recordData.isEmpty?.();
+
+    // if we are new we must consider ourselves loaded
+    if (isNew) {
+      return !recordData.isDeleted?.();
+    }
+    // even if we have a past request, if we are now empty we are not loaded
+    // typically this is true after an unloadRecord call
+
+    // if we are not empty, not new && we have a fulfilled request then we are loaded
+    // we should consider allowing for something to be loaded that is simply "not empty".
+    // which is how RecordState currently handles this case; however, RecordState is buggy
+    // in that it does not account for unloading.
+    return filterDeleted && recordData.isDeletionCommitted?.() ? false : !isEmpty;
+
+    /*
+    const req = this.store.getRequestStateService();
+    const fulfilled = req.getLastRequestForRecord(identifier);
+    const isLocallyLoaded = !isEmpty;
+    const isLoading =
+      !isLocallyLoaded &&
+      fulfilled === null &&
+      req.getPendingRequestsForRecord(identifier).some((req) => req.type === 'query');
+    if (isEmpty || (filterDeleted && recordData.isDeletionCommitted(identifier)) || isLoading) {
+      return false;
+    }
+    return true;
+    */
+  }
+
   createSnapshot(identifier: StableRecordIdentifier, options: FindOptions = {}): Snapshot {
     return new Snapshot(options, identifier, this.store);
   }

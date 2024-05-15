@@ -127,10 +127,11 @@ export class LegacySupport {
       }
 
       let promise = this._findBelongsTo(key, resource, relationshipMeta, options);
+      const isLoaded = relatedIdentifier && store._instanceCache.recordIsLoaded(relatedIdentifier);
 
       return this._updatePromiseProxyFor('belongsTo', key, {
         promise,
-        content: relatedIdentifier ? store._instanceCache.getRecord(relatedIdentifier) : null,
+        content: isLoaded ? store._instanceCache.getRecord(relatedIdentifier!) : null,
         _belongsToState,
       });
     } else {
