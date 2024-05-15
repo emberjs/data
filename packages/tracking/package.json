@@ -35,7 +35,7 @@
     "ember-cli-babel": "^8.2.0"
   },
   "peerDependencies": {
-    "ember-source": ">= 3.28.12",
+    "ember-source": ">= 5.8.0",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.51"
   },
   "files": [
