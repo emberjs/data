@@ -43,7 +43,7 @@ export class DOMReporter implements Reporter {
 
   onSuiteStart(report: SuiteReport): void {
     if (this.element.children.length) {
-      this.element.innerHTML = '';
+      this.element.innerText = '';
     }
     const fragment = document.createDocumentFragment();
     this.suite = renderSuite(fragment, report);
