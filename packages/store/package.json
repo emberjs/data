@@ -76,7 +76,7 @@
     "@glimmer/component": "^1.1.2",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.51",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.65",
-    "decorator-transforms": "^1.2.1",
+    "decorator-transforms": "^2.0.0",
     "ember-source": "~5.8.0",
     "expect-type": "^0.19.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",

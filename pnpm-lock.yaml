@@ -485,8 +485,8 @@ importers:
         specifier: workspace:5.4.0-alpha.65
         version: link:../../config
       decorator-transforms:
-        specifier: ^1.2.1
-        version: 1.2.1(@babel/core@7.24.5)
+        specifier: ^2.0.0
+        version: 2.0.0(@babel/core@7.24.5)
       ember-inflector:
         specifier: ^4.0.2
         version: 4.0.2(@babel/core@7.24.5)
@@ -713,8 +713,8 @@ importers:
         specifier: workspace:5.4.0-alpha.65
         version: link:../../config
       decorator-transforms:
-        specifier: ^1.2.1
-        version: 1.2.1(@babel/core@7.24.5)
+        specifier: ^2.0.0
+        version: 2.0.0(@babel/core@7.24.5)
       ember-inflector:
         specifier: ^4.0.2
         version: 4.0.2(@babel/core@7.24.5)
@@ -885,8 +885,8 @@ importers:
         specifier: ^2.2.5
         version: 2.2.5
       decorator-transforms:
-        specifier: ^1.2.1
-        version: 1.2.1(@babel/core@7.24.5)
+        specifier: ^2.0.0
+        version: 2.0.0(@babel/core@7.24.5)
       ember-provide-consume-context:
         specifier: ^0.3.1
         version: 0.3.1(@babel/core@7.24.5)(@ember/test-helpers@3.3.0)(ember-source@5.8.0)
@@ -1310,8 +1310,8 @@ importers:
         specifier: workspace:5.4.0-alpha.65
         version: link:../../config
       decorator-transforms:
-        specifier: ^1.2.1
-        version: 1.2.1(@babel/core@7.24.5)
+        specifier: ^2.0.0
+        version: 2.0.0(@babel/core@7.24.5)
       ember-inflector:
         specifier: ^4.0.2
         version: 4.0.2(@babel/core@7.24.5)
@@ -1684,8 +1684,8 @@ importers:
         specifier: workspace:5.4.0-alpha.65
         version: link:../../config
       decorator-transforms:
-        specifier: ^1.2.1
-        version: 1.2.1(@babel/core@7.24.5)
+        specifier: ^2.0.0
+        version: 2.0.0(@babel/core@7.24.5)
       ember-inflector:
         specifier: ^4.0.2
         version: 4.0.2(@babel/core@7.24.5)
@@ -1762,8 +1762,8 @@ importers:
         specifier: workspace:5.4.0-alpha.65
         version: link:../../config
       decorator-transforms:
-        specifier: ^1.2.1
-        version: 1.2.1(@babel/core@7.24.5)
+        specifier: ^2.0.0
+        version: 2.0.0(@babel/core@7.24.5)
       ember-source:
         specifier: ~5.8.0
         version: 5.8.0(@babel/core@7.24.5)(@glimmer/component@1.1.2)(@glint/template@1.4.0)
@@ -10729,11 +10729,11 @@ packages:
       mimic-response: 1.0.1
     dev: true
 
-  /decorator-transforms@1.2.1(@babel/core@7.24.5):
-    resolution: {integrity: sha512-UUtmyfdlHvYoX3VSG1w5rbvBQ2r5TX1JsE4hmKU9snleFymadA3VACjl6SRfi9YgBCSjBbfQvR1bs9PRW9yBKw==}
+  /decorator-transforms@2.0.0(@babel/core@7.24.5):
+    resolution: {integrity: sha512-ETfQccGcotK01YJsoB0AGTdUp7kS9jI93mBzrRY5Oyo+bOJfa2UKTSjCNf+iRNwAWBmBKlbiCcyL4tkY4C4dZQ==}
     dependencies:
       '@babel/plugin-syntax-decorators': 7.24.1(@babel/core@7.24.5)
-      babel-import-util: 2.1.1
+      babel-import-util: 3.0.0
     transitivePeerDependencies:
       - '@babel/core'
     dev: true
