@@ -49,9 +49,9 @@ import { ACCEPT_HEADER_VALUE, copyForwardUrlOptions, extractCacheOptions } from 
  * - `namespace` - The namespace to use for the request, defaults to the `namespace` configured with `setBuildURLConfig`.
  * - `resourcePath` - The resource path to use for the request, defaults to pluralizing the supplied type
  * - `reload` - Whether to forcibly reload the request if it is already in the store, not supplying this
- *      option will delegate to the store's lifetimes service, defaulting to `false` if none is configured.
+ *      option will delegate to the store's CachePolicy, defaulting to `false` if none is configured.
  * - `backgroundReload` - Whether to reload the request if it is already in the store, but to also resolve the
- *      promise with the cached value, not supplying this option will delegate to the store's lifetimes service,
+ *      promise with the cached value, not supplying this option will delegate to the store's CachePolicy,
  *      defaulting to `false` if none is configured.
  * - `urlParamsSetting` - an object containing options for how to serialize the query params (see `buildQueryParams`)
  *
@@ -137,9 +137,9 @@ export function query(
  * - `namespace` - The namespace to use for the request, defaults to the `namespace` configured with `setBuildURLConfig`.
  * - `resourcePath` - The resource path to use for the request, defaults to pluralizing the supplied type
  * - `reload` - Whether to forcibly reload the request if it is already in the store, not supplying this
- *      option will delegate to the store's lifetimes service, defaulting to `false` if none is configured.
+ *      option will delegate to the store's CachePolicy, defaulting to `false` if none is configured.
  * - `backgroundReload` - Whether to reload the request if it is already in the store, but to also resolve the
- *      promise with the cached value, not supplying this option will delegate to the store's lifetimes service,
+ *      promise with the cached value, not supplying this option will delegate to the store's CachePolicy,
  *      defaulting to `false` if none is configured.
  * - `urlParamsSetting` - an object containing options for how to serialize the query params (see `buildQueryParams`)
  *

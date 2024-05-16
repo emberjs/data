@@ -207,7 +207,7 @@ function saveRecord<T>(context: StoreRequestContext): Promise<T> {
 
       // blatantly lie if we were a createRecord request
       // to give some semblance of cache-control to the
-      // lifetimes service while legacy is still around
+      // CachePolicy while legacy is still around
       if (store.lifetimes?.didRequest && operation === 'createRecord') {
         store.lifetimes.didRequest(context.request, { status: 201 } as Response, null, store);
       }

@@ -6,7 +6,7 @@ export { Store, storeFor } from './-private/store-service';
 
 export { recordIdentifierFor } from './-private/caches/instance-cache';
 
-export { CacheHandler, type LifetimesService, type StoreRequestContext } from './-private/cache-handler';
+export { CacheHandler, type CachePolicy, type StoreRequestContext } from './-private/cache-handler';
 
 export { isStableIdentifier } from './-private/caches/identifier-cache';
 
