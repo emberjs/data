@@ -1,4 +1,4 @@
-import { getOrSetGlobal } from './-private';
+import { getOrSetGlobal, getOrSetUniversal } from './-private';
 import type { StableRecordIdentifier } from './identifier';
 import type { QueryParamsSerializationOptions } from './params';
 import type { ExtractSuggestedCacheTypes, Includes, TypedRecordInstance, TypeFromInstanceOrString } from './record';
@@ -7,8 +7,8 @@ import type { RequestSignature } from './symbols';
 
 type Store = unknown;
 
-export const SkipCache = getOrSetGlobal('SkipCache', Symbol.for('wd:skip-cache'));
-export const EnableHydration = getOrSetGlobal('EnableHydration', Symbol.for('wd:enable-hydration'));
+export const SkipCache = getOrSetUniversal('SkipCache', Symbol.for('wd:skip-cache'));
+export const EnableHydration = getOrSetUniversal('EnableHydration', Symbol.for('wd:enable-hydration'));
 export const IS_FUTURE = getOrSetGlobal('IS_FUTURE', Symbol('IS_FUTURE'));
 export const STRUCTURED = getOrSetGlobal('DOC', Symbol('DOC'));
 
