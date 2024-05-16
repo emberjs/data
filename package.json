@@ -45,7 +45,7 @@
     "command-line-args": "^5.2.1",
     "common-tags": "^1.8.2",
     "debug": "^4.3.4",
-    "execa": "^9.0.2",
+    "execa": "^9.1.0",
     "comment-json": "^4.2.3",
     "git-repo-version": "^1.0.2",
     "globby": "^14.0.1",
