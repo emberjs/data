@@ -4,6 +4,20 @@ import { getOwnConfig } from '@embroider/macros';
 
 import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 
+type UniversalTransientKey =
+  // @ember-data/request
+  'REQ_ID';
+
+type UniversalKey =
+  | `(transient) ${UniversalTransientKey}`
+  // @ember-data/request
+  | 'RequestMap'
+  | 'PromiseCache'
+  | 'RequestCache'
+  // @warp-drive/core-types/request
+  | 'SkipCache'
+  | 'EnableHydration';
+
 type TransientKey =
   // @ember-data/tracking
   | 'TRANSACTION'
@@ -14,9 +28,7 @@ type TransientKey =
   | 'configuredUpdateMethod'
   | 'configuredForgetMethod'
   | 'configuredResetMethod'
-  | 'configuredKeyInfoMethod'
-  // @ember-data/request
-  | 'REQ_ID';
+  | 'configuredKeyInfoMethod';
 
 type GlobalKey =
   | `(transient) ${TransientKey}`
@@ -55,9 +67,6 @@ type GlobalKey =
   // @ember-data/request
   | 'IS_FROZEN'
   | 'IS_CACHE_HANDLER'
-  | 'RequestMap'
-  | 'PromiseCache'
-  | 'RequestCache'
   // @ember-data/store IdentityCache
   | 'DEBUG_MAP'
   | 'IDENTIFIERS'
@@ -72,8 +81,6 @@ type GlobalKey =
   | 'TransformName'
   | 'RequestSignature'
   // @warp-drive/core-types/request
-  | 'SkipCache'
-  | 'EnableHydration'
   | 'IS_FUTURE'
   | 'DOC'
   // @warp-drive/schema-record
@@ -101,7 +108,11 @@ const GlobalRef = globalThis as unknown as Record<
     __warpDrive_hasOtherCopy?: boolean;
     __version: string;
   }
->;
+> & {
+  __warpDrive_universalCache: Record<UniversalKey, unknown>;
+};
+const UniversalCache = (GlobalRef.__warpDrive_universalCache =
+  GlobalRef.__warpDrive_universalCache ?? ({} as Record<UniversalKey, unknown>));
 
 // in order to support mirror packages, we ensure that each
 // unique package name has its own global cache
@@ -157,4 +168,27 @@ export function peekTransient<T>(key: TransientKey): T | null {
 export function setTransient<T>(key: TransientKey, value: T): T {
   const globalKey: `(transient) ${TransientKey}` = `(transient) ${key}`;
   return (ModuleScopedCaches[globalKey] = value);
+}
+
+export function getOrSetUniversal<T, K extends UniversalKey>(key: K, value: T): UniqueSymbolOr<T, K> {
+  if (TESTING) {
+    const existing = UniversalCache[key];
+    if (existing === undefined) {
+      return (UniversalCache[key] = value) as UniqueSymbolOr<T, K>;
+    } else {
+      return existing as UniqueSymbolOr<T, K>;
+    }
+  } else {
+    return value as UniqueSymbolOr<T, K>;
+  }
+}
+
+export function peekUniversalTransient<T>(key: UniversalTransientKey): T | null {
+  const globalKey: `(transient) ${UniversalTransientKey}` = `(transient) ${key}`;
+  return (UniversalCache[globalKey] as T) ?? null;
+}
+
+export function setUniversalTransient<T>(key: UniversalTransientKey, value: T): T {
+  const globalKey: `(transient) ${UniversalTransientKey}` = `(transient) ${key}`;
+  return (UniversalCache[globalKey] = value);
 }

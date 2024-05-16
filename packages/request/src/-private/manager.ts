@@ -435,7 +435,7 @@ For usage of the store's `requestManager` via `store.request(<req>)` see the
 import { importSync } from '@embroider/macros';
 
 import { DEBUG, TESTING } from '@warp-drive/build-config/env';
-import { peekTransient, setTransient } from '@warp-drive/core-types/-private';
+import { peekUniversalTransient, setUniversalTransient } from '@warp-drive/core-types/-private';
 import type { RequestInfo, StructuredErrorDocument } from '@warp-drive/core-types/request';
 
 import { assertValidRequest } from './debug';
@@ -616,8 +616,8 @@ export class RequestManager {
       delete request.controller;
     }
 
-    const requestId = peekTransient<number>('REQ_ID') ?? 0;
-    setTransient('REQ_ID', requestId + 1);
+    const requestId = peekUniversalTransient<number>('REQ_ID') ?? 0;
+    setUniversalTransient('REQ_ID', requestId + 1);
 
     const promise = executeNextHandler<RT>(handlers, request, 0, {
       controller,
