@@ -37,7 +37,7 @@ import type { ModelSchema } from '../-types/q/ds-model';
 import type { OpaqueRecordInstance } from '../-types/q/record-instance';
 import type { SchemaService } from '../-types/q/schema-service';
 import type { FindAllOptions, FindRecordOptions, LegacyResourceQuery, QueryOptions } from '../-types/q/store';
-import type { LifetimesService, StoreRequestInput } from './cache-handler';
+import type { CachePolicy, StoreRequestInput } from './cache-handler';
 import { IdentifierCache } from './caches/identifier-cache';
 import {
   InstanceCache,
@@ -238,7 +238,7 @@ export class Store extends BaseClass {
   declare requestManager: RequestManager;
 
   /**
-   * A Property which an App may set to provide a Lifetimes Service
+   * A Property which an App may set to provide a CachePolicy
    * to control when a cached request becomes stale.
    *
    * Note, when defined, these methods will only be invoked if a
@@ -264,9 +264,9 @@ export class Store extends BaseClass {
    * ```
    *
    * @public
-   * @property {LivetimesService|undefined} lifetimes
+   * @property {CachePolicy|undefined} lifetimes
    */
-  declare lifetimes?: LifetimesService;
+  declare lifetimes?: CachePolicy;
 
   // Private
   declare _graph?: Graph;
@@ -434,7 +434,7 @@ export class Store extends BaseClass {
    * When a cache-key is determined, the request may fulfill
    * from cache provided the cache is not stale.
    *
-   * Cache staleness is determined by the configured LifetimesService
+   * Cache staleness is determined by the configured CachePolicy
    * with priority given to the `cacheOptions.reload` and
    * `cacheOptions.backgroundReload` on the request if present.
    *

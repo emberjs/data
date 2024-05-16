@@ -3,7 +3,7 @@ import { service } from '@ember/service';
 import Store from 'ember-data/store';
 
 import type RequestManager from '@ember-data/request';
-import { LifetimesService } from '@ember-data/request-utils';
+import { CachePolicy } from '@ember-data/request-utils';
 
 import CONFIG from '../config/environment';
 
@@ -16,6 +16,6 @@ export default class MyStore extends Store {
   constructor(args: Record<string, unknown>) {
     super(args);
 
-    this.lifetimes = new LifetimesService(CONFIG);
+    this.lifetimes = new CachePolicy(CONFIG);
   }
 }

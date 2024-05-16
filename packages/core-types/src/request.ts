@@ -44,7 +44,7 @@ export type CacheOptions<T = unknown> = {
   /**
    * Useful for metadata around when to invalidate the cache. Typically used
    * by strategies that invalidate requests by resource type when a new resource
-   * of that type has been created. See the LifetimesService implementation
+   * of that type has been created. See the CachePolicy implementation
    * provided by `@ember-data/request-utils` for an example.
    *
    * It is recommended to only use this for query/queryRecord requests where

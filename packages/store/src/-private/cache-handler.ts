@@ -38,10 +38,10 @@ import type { Store } from './store-service';
  * Implementing this service allows you to programatically define
  * when a request should be considered expired.
  *
- * @class <Interface> LifetimesService
+ * @class <Interface> CachePolicy
  * @public
  */
-export interface LifetimesService {
+export interface CachePolicy {
   /**
    * Invoked to determine if the request may be fulfilled from cache
    * if possible.

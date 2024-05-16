@@ -644,10 +644,10 @@ function isStale(headers: Headers, expirationTime: number): boolean {
   return result;
 }
 
-export type LifetimesConfig = { apiCacheSoftExpires: number; apiCacheHardExpires: number };
+export type PolicyConfig = { apiCacheSoftExpires: number; apiCacheHardExpires: number };
 
 /**
- * A basic LifetimesService that can be added to the Store service.
+ * A basic CachePolicy that can be added to the Store service.
  *
  * Determines staleness based on time since the request was last received from the API
  * using the `date` header.
@@ -678,7 +678,7 @@ export type LifetimesConfig = { apiCacheSoftExpires: number; apiCacheHardExpires
  * Usage:
  *
  * ```ts
- * import { LifetimesService } from '@ember-data/request-utils';
+ * import { CachePolicy } from '@ember-data/request-utils';
  * import DataStore from '@ember-data/store';
  *
  * // ...
@@ -686,17 +686,17 @@ export type LifetimesConfig = { apiCacheSoftExpires: number; apiCacheHardExpires
  * export class Store extends DataStore {
  *   constructor(args) {
  *     super(args);
- *     this.lifetimes = new LifetimesService({ apiCacheSoftExpires: 30_000, apiCacheHardExpires: 60_000 });
+ *     this.lifetimes = new CachePolicy({ apiCacheSoftExpires: 30_000, apiCacheHardExpires: 60_000 });
  *   }
  * }
  * ```
  *
- * @class LifetimesService
+ * @class CachePolicy
  * @public
  * @module @ember-data/request-utils
  */
-export class LifetimesService {
-  declare config: LifetimesConfig;
+export class CachePolicy {
+  declare config: PolicyConfig;
   declare _stores: WeakMap<Store, { invalidated: Set<string>; types: Map<string, Set<string>> }>;
 
   _getStore(store: Store): { invalidated: Set<string>; types: Map<string, Set<string>> } {
@@ -708,12 +708,12 @@ export class LifetimesService {
     return set;
   }
 
-  constructor(config: LifetimesConfig) {
+  constructor(config: PolicyConfig) {
     this._stores = new WeakMap();
 
-    const _config = arguments.length === 1 ? config : (arguments[1] as unknown as LifetimesConfig);
+    const _config = arguments.length === 1 ? config : (arguments[1] as unknown as PolicyConfig);
     deprecate(
-      `Passing a Store to the LifetimesService is deprecated, please pass only a config instead.`,
+      `Passing a Store to the CachePolicy is deprecated, please pass only a config instead.`,
       arguments.length === 1,
       {
         id: 'ember-data:request-utils:lifetimes-service-store-arg',
@@ -725,22 +725,16 @@ export class LifetimesService {
         until: '6.0',
       }
     );
-    assert(`You must pass a config to the LifetimesService`, _config);
-    assert(
-      `You must pass a apiCacheSoftExpires to the LifetimesService`,
-      typeof _config.apiCacheSoftExpires === 'number'
-    );
-    assert(
-      `You must pass a apiCacheHardExpires to the LifetimesService`,
-      typeof _config.apiCacheHardExpires === 'number'
-    );
+    assert(`You must pass a config to the CachePolicy`, _config);
+    assert(`You must pass a apiCacheSoftExpires to the CachePolicy`, typeof _config.apiCacheSoftExpires === 'number');
+    assert(`You must pass a apiCacheHardExpires to the CachePolicy`, typeof _config.apiCacheHardExpires === 'number');
     this.config = _config;
   }
 
   /**
    * Invalidate a request by its identifier for a given store instance.
    *
-   * While the store argument may seem redundant, the lifetimes service
+   * While the store argument may seem redundant, the CachePolicy
    * is designed to be shared across multiple stores / forks
    * of the store.
    *
@@ -761,7 +755,7 @@ export class LifetimesService {
    * Invalidate all requests associated to a specific type
    * for a given store instance.
    *
-   * While the store argument may seem redundant, the lifetimes service
+   * While the store argument may seem redundant, the CachePolicy
    * is designed to be shared across multiple stores / forks
    * of the store.
    *
@@ -890,5 +884,24 @@ export class LifetimesService {
     const cache = store.cache;
     const cached = cache.peekRequest(identifier);
     return !cached || !cached.response || isStale(cached.response.headers, this.config.apiCacheSoftExpires);
+  }
+}
+
+export class LifetimesService extends CachePolicy {
+  constructor(config: PolicyConfig) {
+    deprecate(
+      `\`import { LifetimesService } from '@ember-data/request-utils';\` is deprecated, please use \`import { CachePolicy } from '@ember-data/request-utils';\` instead.`,
+      false,
+      {
+        id: 'ember-data:deprecate-lifetimes-service-import',
+        since: {
+          enabled: '5.4',
+          available: '5.4',
+        },
+        for: 'ember-data',
+        until: '6.0',
+      }
+    );
+    super(config);
   }
 }

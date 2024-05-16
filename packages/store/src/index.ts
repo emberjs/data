@@ -187,7 +187,7 @@ export {
   type StoreRequestContext,
   CacheHandler,
   type Document,
-  type LifetimesService,
+  type CachePolicy,
   type StoreRequestInput,
   recordIdentifierFor,
   storeFor,

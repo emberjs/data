@@ -7,7 +7,7 @@ import { LegacyNetworkHandler } from '@ember-data/legacy-compat';
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import type { ImmutableRequestInfo, NextFn, RequestContext, ResponseInfo } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
-import { LifetimesService } from '@ember-data/request-utils';
+import { CachePolicy } from '@ember-data/request-utils';
 import type { NotificationType } from '@ember-data/store';
 import Store, { CacheHandler } from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
@@ -208,8 +208,8 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
     assert.verifySteps(['isHardExpired', 'isSoftExpired']);
   });
 
-  test('@ember-data/request-utils LifetimesService handles createRecord requests', async function (assert) {
-    class InterceptLifetimes extends LifetimesService {
+  test('@ember-data/request-utils CachePolicy handles createRecord requests', async function (assert) {
+    class InterceptLifetimes extends CachePolicy {
       override didRequest(
         request: ImmutableRequestInfo,
         response: Response | ResponseInfo | null,
@@ -368,7 +368,7 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
     );
   });
 
-  test('@ember-data/request-utils legacy createRecord operations invalidate the LifetimesService type list', async function (assert) {
+  test('@ember-data/request-utils legacy createRecord operations invalidate the CachePolicy type list', async function (assert) {
     class AppAdapter {
       createRecord(
         _store: Store,
@@ -380,7 +380,7 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
       }
     }
     const adapter = new AppAdapter();
-    class InterceptLifetimes extends LifetimesService {
+    class InterceptLifetimes extends CachePolicy {
       override didRequest(
         request: ImmutableRequestInfo,
         response: Response | ResponseInfo | null,
@@ -540,7 +540,7 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
   });
 
   test('An AdHoc createRecord request can invalidate the request cache via records', async function (assert) {
-    class InterceptLifetimes extends LifetimesService {
+    class InterceptLifetimes extends CachePolicy {
       override didRequest(
         request: ImmutableRequestInfo,
         response: Response | ResponseInfo | null,
@@ -701,7 +701,7 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
   });
 
   test('An AdHoc createRecord request can invalidate the request cache via cacheOptions', async function (assert) {
-    class InterceptLifetimes extends LifetimesService {
+    class InterceptLifetimes extends CachePolicy {
       override didRequest(
         request: ImmutableRequestInfo,
         response: Response | ResponseInfo | null,
