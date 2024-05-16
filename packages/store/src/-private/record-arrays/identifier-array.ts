@@ -510,21 +510,23 @@ class IdentifierArray {
     if (DEPRECATE_A_USAGE) {
       const meta = Ember.meta(this);
       meta.hasMixin = (mixin: Object) => {
-        deprecate(`Do not call A() on EmberData RecordArrays`, false, {
-          id: 'ember-data:no-a-with-array-like',
-          until: '5.0',
-          since: { enabled: '4.7', available: '4.7' },
-          for: 'ember-data',
-        });
         // @ts-expect-error ArrayMixin is more than a type
         if (mixin === NativeArray || mixin === ArrayMixin) {
           return true;
         }
         return false;
       };
+      meta.addMixin = (mixin: Object) => {
+        deprecate(`Do not call A() on EmberData RecordArrays`, false, {
+          id: 'ember-data:no-a-with-array-like',
+          until: '5.0',
+          since: { enabled: '4.7', available: '4.7' },
+          for: 'ember-data',
+        });
+      };
     } else if (DEBUG) {
       const meta = Ember.meta(this);
-      meta.hasMixin = (mixin: Object) => {
+      meta.addMixin = (mixin: Object) => {
         assert(`Do not call A() on EmberData RecordArrays`);
       };
     }
