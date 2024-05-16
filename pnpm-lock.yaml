@@ -2270,7 +2270,7 @@ importers:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=h2fz5inojlzu6daraxt5bghsqy)
       tsx:
-        specifier: ^4.10.0
+        specifier: ^4.10.1
         version: 4.10.2
     dependenciesMeta:
       '@ember-data/codemods':
