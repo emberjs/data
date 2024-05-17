@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/serializer",
-  "version": "5.4.0-alpha.65",
+  "version": "5.4.0-alpha.66",
   "description": "Provides Legacy JSON, JSON:API and REST Implementations of the Serializer Interface for use with @ember-data/store",
   "keywords": [
     "ember-addon"
@@ -46,9 +46,9 @@
   },
   "peerDependencies": {
     "@ember/string": "^3.1.1",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.51",
-    "@ember-data/legacy-compat": "workspace:5.4.0-alpha.65",
-    "@ember-data/store": "workspace:5.4.0-alpha.65",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.52",
+    "@ember-data/legacy-compat": "workspace:5.4.0-alpha.66",
+    "@ember-data/store": "workspace:5.4.0-alpha.66",
     "ember-inflector": "^4.0.2"
   },
   "dependenciesMeta": {
@@ -83,7 +83,7 @@
     "ember-cli-string-utils": "^1.1.0",
     "ember-cli-path-utils": "^1.0.0",
     "@ember/edition-utils": "1.2.0",
-    "@warp-drive/build-config": "workspace:0.0.0-alpha.2",
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.3",
     "ember-cli-babel": "^8.2.0"
   },
   "devDependencies": {
@@ -91,15 +91,15 @@
     "@babel/plugin-transform-typescript": "^7.24.5",
     "@babel/preset-env": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
-    "@ember-data/request": "workspace:5.4.0-alpha.65",
-    "@ember-data/store": "workspace:5.4.0-alpha.65",
-    "@ember-data/tracking": "workspace:5.4.0-alpha.65",
-    "@ember-data/legacy-compat": "workspace:5.4.0-alpha.65",
+    "@ember-data/request": "workspace:5.4.0-alpha.66",
+    "@ember-data/store": "workspace:5.4.0-alpha.66",
+    "@ember-data/tracking": "workspace:5.4.0-alpha.66",
+    "@ember-data/legacy-compat": "workspace:5.4.0-alpha.66",
     "@ember/test-waiters": "^3.1.0",
     "@ember/string": "^3.1.1",
     "@glimmer/component": "^1.1.2",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.51",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.65",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.52",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.66",
     "decorator-transforms": "^2.0.0",
     "ember-inflector": "^4.0.2",
     "ember-source": "~5.8.0",
