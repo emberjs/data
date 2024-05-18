@@ -27,8 +27,8 @@ export interface MinimalLegacyRecord {
 
   deleteRecord(): void;
   unloadRecord(): void;
-  save<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): Promise<T>;
-  destroyRecord<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): Promise<T>;
+  save<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): Promise<this>;
+  destroyRecord<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): Promise<this>;
 }
 
 export function rollbackAttributes<T extends MinimalLegacyRecord>(this: T) {

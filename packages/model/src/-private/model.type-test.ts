@@ -1,5 +1,6 @@
 import { expectTypeOf } from 'expect-type';
 
+import type { LegacyAttributeField, LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
 import { ResourceType } from '@warp-drive/core-types/symbols';
 
 import { attr } from './attr';
@@ -35,7 +36,6 @@ function takeModel<T extends Model>(model: T): T {
 }
 
 expectTypeOf(takeModel(new UnbrandedUser())).toEqualTypeOf<UnbrandedUser>();
-// @ts-expect-error unsure how to fix this, but its a real bug
 expectTypeOf<DoesExtend>().toEqualTypeOf<true>();
 
 expectTypeOf<Awaited<PromiseManyArray<UnbrandedUser>>['modelName']>().toEqualTypeOf<string>();
@@ -145,3 +145,57 @@ expectTypeOf(branded.hasMany('enemies').identifiers[0].type).not.toEqualTypeOf<s
 expectTypeOf(branded.hasMany('enemies').key).toEqualTypeOf<'enemies'>();
 expectTypeOf(branded.hasMany('enemies').type).toEqualTypeOf<'user'>();
 expectTypeOf(branded.hasMany('enemies').value()).toMatchTypeOf<BrandedUser[] | null>();
+
+// these ensure subclasses satisfy Model
+function takesAModel(arg: Model) {}
+takesAModel(user);
+takesAModel(branded);
+
+user.eachAttribute((key, meta) => {
+  // bestFriend is in the wrong place because the records aren't branded
+  expectTypeOf(key).toEqualTypeOf<'name' | 'bestFriend'>();
+  expectTypeOf(meta).toEqualTypeOf<LegacyAttributeField>();
+});
+user.eachRelationship((key, meta) => {
+  expectTypeOf(key).toEqualTypeOf<'twin' | 'enemies' | 'friends'>();
+  expectTypeOf(meta).toEqualTypeOf<LegacyRelationshipSchema>();
+});
+
+branded.eachAttribute((key, meta) => {
+  expectTypeOf(key).toEqualTypeOf<'name'>();
+  expectTypeOf(meta).toEqualTypeOf<LegacyAttributeField>();
+});
+
+branded.eachRelationship((key, meta) => {
+  expectTypeOf(key).toEqualTypeOf<'bestFriend' | 'twin' | 'enemies' | 'friends'>();
+  expectTypeOf(meta).toEqualTypeOf<LegacyRelationshipSchema>();
+});
+
+// this ensures that `serialize` can be overridden
+class UserWithCustomSerialize extends Model {
+  @attr('string') declare name: string | null;
+
+  serialize() {
+    return { name: this.name };
+  }
+}
+expectTypeOf(new UserWithCustomSerialize().serialize()).toEqualTypeOf<{ name: string | null }>();
+class FooModel extends Model {
+  [ResourceType] = 'foo' as const;
+
+  private myMethod() {
+    // ...
+  }
+
+  save(options?: Record<string, unknown>): Promise<this> {
+    if (this.currentState.isNew && this.currentState.isDeleted) {
+      return Promise.resolve(this);
+    }
+
+    this.myMethod();
+
+    return super.save(options);
+  }
+}
+
+expectTypeOf(new FooModel().save()).toEqualTypeOf<Promise<FooModel>>();
