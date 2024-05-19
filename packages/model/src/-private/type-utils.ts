@@ -64,5 +64,7 @@ type _TrueKeys<ThisType> = Exclude<keyof ThisType & string, (keyof Model & strin
 /**
  * Get the keys of all fields defined on the given subclass of Model
  * that don't exist on EmberObject or Model.
+ *
+ * @typedoc
  */
 export type SubclassKeys<ThisType> = _TrueKeys<ThisType> extends never ? string : _TrueKeys<ThisType>;

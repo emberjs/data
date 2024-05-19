@@ -210,7 +210,7 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
 
   test('@ember-data/request-utils CachePolicy handles createRecord requests', async function (assert) {
     class InterceptLifetimes extends CachePolicy {
-      override didRequest(
+      didRequest(
         request: ImmutableRequestInfo,
         response: Response | ResponseInfo | null,
         identifier: StableDocumentIdentifier | null,
@@ -219,18 +219,14 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
         assert.step('didRequest');
         super.didRequest(request, response, identifier, store);
       }
-      override isHardExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
+      isHardExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
         const result = super.isHardExpired(identifier, store);
         assert.step(`isHardExpired: ${result}`);
         return result;
       }
-      override isSoftExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
+      isSoftExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
         const result = super.isSoftExpired(identifier, store);
         assert.step(`isSoftExpired: ${result}`);
-        if (result) {
-          // debugger;
-          super.isSoftExpired(identifier, store);
-        }
         return result;
       }
     }
