@@ -17,7 +17,8 @@
   "scripts": {
     "lint": "eslint . --quiet --cache --cache-strategy=content --report-unused-disable-directives",
     "build:pkg": "vite build;",
-    "prepack": "bun run _build && cd ../../ && bun run build:docs"
+    "prepack": "bun run build:pkg && cd ../../ && bun run build:docs",
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
   "ember-addon": {
     "main": "addon-main.cjs",
