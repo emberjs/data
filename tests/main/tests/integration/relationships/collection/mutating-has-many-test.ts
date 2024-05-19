@@ -4,6 +4,7 @@ import { module, test } from 'qunit';
 
 import { setupRenderingTest } from 'ember-qunit';
 
+import type { ManyArray } from '@ember-data/model';
 import Model, { attr, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
@@ -22,7 +23,7 @@ if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
 
 class User extends Model {
   @attr declare name: string;
-  @hasMany('user', { async: false, inverse: 'friends' }) declare friends: User[];
+  @hasMany('user', { async: false, inverse: 'friends' }) declare friends: ManyArray<User>;
 
   [ResourceType] = 'user' as const;
 }

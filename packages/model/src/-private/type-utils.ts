@@ -19,7 +19,7 @@ type GetMappedKey<M, V> = { [K in keyof M]-?: ExcludeNull<M[K]> extends V ? K : 
  */
 export type MaybeBelongsToFields<ThisType> =
   _TrueKeys<ThisType> extends never ? string : _MaybeBelongsToFields<ThisType>;
-type _MaybeBelongsToFields<ThisType> = GetMappedKey<ThisType, PromiseBelongsTo | TypedRecordInstance>;
+export type _MaybeBelongsToFields<ThisType> = GetMappedKey<ThisType, PromiseBelongsTo | TypedRecordInstance>;
 
 /**
  * Get the keys of fields that are maybe defined as `hasMany` relationships

@@ -39,6 +39,7 @@ import RecordState, { notifySignal, tagged } from './record-state';
 import type BelongsToReference from './references/belongs-to';
 import type HasManyReference from './references/has-many';
 import type {
+  _MaybeBelongsToFields,
   isSubClass,
   MaybeAttrFields,
   MaybeBelongsToFields,
@@ -121,14 +122,11 @@ interface Model {
   save<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): Promise<this>;
   reload<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): Promise<T>;
 
-  belongsTo<T extends MinimalLegacyRecord, K extends MaybeBelongsToFields<T>>(
-    this: T,
-    prop: K
-  ): BelongsToReference<T, K>;
-  // belongsTo<T extends MinimalLegacyRecord, K extends keyof T & string>(
+  // belongsTo<T extends MinimalLegacyRecord, K extends MaybeBelongsToFields<T>>(
   //   this: T,
-  //   prop: K extends MaybeBelongsToFields<T> ? K : string
+  //   prop: K
   // ): BelongsToReference<T, K>;
+  belongsTo<K extends _MaybeBelongsToFields<this>>(prop: K): BelongsToReference<this, K>;
   hasMany<T extends MinimalLegacyRecord, K extends MaybeHasManyFields<T>>(this: T, prop: K): HasManyReference<T, K>;
   deleteRecord<T extends MinimalLegacyRecord>(this: T): void;
 }

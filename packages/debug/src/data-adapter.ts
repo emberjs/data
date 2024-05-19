@@ -35,7 +35,6 @@ import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/store/types';
 import { assert } from '@warp-drive/build-config/macros';
-import { isSubClass } from '@ember-data/model/-private/type-utils';
 
 const StoreTypesMap = new WeakMap<Store, Map<string, boolean>>();
 

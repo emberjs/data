@@ -6,6 +6,7 @@ import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
+import type { ManyArray } from '@ember-data/model';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { createDeferred } from '@ember-data/request';
 import type Store from '@ember-data/store';
@@ -151,11 +152,15 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
     class Ingredient extends Model {
       @attr name;
       @belongsTo('cake', { async: true, inverse: null }) cake;
+
+      [ResourceType] = 'ingredient' as const;
     }
 
     class Cake extends Model {
       @attr name;
-      @hasMany('ingredient', { inverse: null, async: false }) declare ingredients: Ingredient[];
+      @hasMany('ingredient', { inverse: null, async: false }) declare ingredients: ManyArray<Ingredient>;
+
+      [ResourceType] = 'cake' as const;
     }
 
     this.owner.register('model:ingredient', Ingredient);
@@ -218,8 +223,8 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
     this.owner.register('adapter:application', TestAdapter);
 
     const store = this.owner.lookup('service:store') as Store;
-    const cheese = store.createRecord('ingredient', { name: 'Cheese' }) as Ingredient;
-    const cake = store.createRecord('cake', { name: 'Cheesecake', ingredients: [cheese] }) as Cake;
+    const cheese = store.createRecord<Ingredient>('ingredient', { name: 'Cheese' });
+    const cake = store.createRecord<Cake>('cake', { name: 'Cheesecake', ingredients: [cheese] });
 
     // Consume ids before save() to check for update errors
     assert.strictEqual(cake.id, null, 'cake id is initially null');
@@ -237,11 +242,15 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
   test('belongsTo() has correct state after .save() on a newly created record with sideposted child record when lid is provided in the response payload', async function (assert: Assert) {
     class Topping extends Model {
       @attr name;
+
+      [ResourceType] = 'topping' as const;
     }
 
     class Cake extends Model {
       @attr name;
       @belongsTo('topping', { inverse: null, async: false }) declare topping: Topping;
+
+      [ResourceType] = 'cake' as const;
     }
 
     this.owner.register('model:topping', Topping);
@@ -299,8 +308,8 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
     this.owner.register('adapter:application', TestAdapter);
 
     const store = this.owner.lookup('service:store') as Store;
-    const cheese = store.createRecord('topping', { name: 'Cheese' }) as Topping;
-    const cake = store.createRecord('cake', { name: 'Cheesecake', topping: cheese }) as Cake;
+    const cheese = store.createRecord<Topping>('topping', { name: 'Cheese' });
+    const cake = store.createRecord<Cake>('cake', { name: 'Cheesecake', topping: cheese });
 
     await cake.save();
 

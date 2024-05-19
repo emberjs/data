@@ -12,7 +12,8 @@ export default class Person extends Model {
   @belongsTo('person', { async: true, inverse: 'children' })
   declare parent: AsyncBelongsTo<Person>;
 
-  get parentId() {
+  get parentId(): string | null {
+    // @ts-expect-error apparently TS can't infer that `this` is a Person :/
     return this.belongsTo('parent').id();
   }
 
