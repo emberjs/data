@@ -75,10 +75,10 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
       super(args);
       this.registerSchema(new TestSchema());
     }
-    override instantiateRecord(identifier, createOptions) {
+    instantiateRecord(identifier, createOptions) {
       return new Person(this);
     }
-    override teardownRecord(record) {}
+    teardownRecord(record) {}
   }
   setupTest(hooks);
 
@@ -102,7 +102,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     let notificationCount = 0;
     let identifier: StableRecordIdentifier;
     class CreationStore extends CustomStore {
-      override instantiateRecord(id: StableRecordIdentifier, createRecordArgs): object {
+      instantiateRecord(id: StableRecordIdentifier, createRecordArgs): object {
         identifier = id;
         this.notifications.subscribe(identifier, (passedId, key) => {
           notificationCount++;
@@ -137,13 +137,13 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     assert.expect(5);
     let returnValue: unknown;
     class CreationStore extends CustomStore {
-      override instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs) {
+      instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs) {
         assert.strictEqual(identifier.type, 'person', 'Identifier type passed in correctly');
         assert.deepEqual(createRecordArgs, { name: 'chris', otherProp: 'unk' }, 'createRecordArg passed in');
         returnValue = {};
         return returnValue;
       }
-      override teardownRecord(record) {
+      teardownRecord(record) {
         assert.strictEqual(record, person, 'Passed in person to teardown');
       }
     }
@@ -232,10 +232,10 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     );
     // eslint-disable-next-line @typescript-eslint/no-shadow
     class CustomStore extends Store {
-      override instantiateRecord(identifier, createOptions) {
+      instantiateRecord(identifier, createOptions) {
         return new Person(this);
       }
-      override teardownRecord(record) {}
+      teardownRecord(record) {}
     }
     this.owner.register('service:store', CustomStore);
     const store = this.owner.lookup('service:store') as Store;
@@ -380,7 +380,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     );
     const subscribedValues: string[] = [];
     class CreationStore extends CustomStore {
-      override instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs) {
+      instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs) {
         ident = identifier;
         assert.false(this.cache.isDeleted(identifier), 'we are not deleted when we start');
         this.notifications.subscribe(identifier, (passedId, key: string) => {
@@ -389,7 +389,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
         });
         return {};
       }
-      override teardownRecord(record) {
+      teardownRecord(record) {
         assert.strictEqual(record, person, 'Passed in person to teardown');
       }
     }
@@ -419,10 +419,10 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     );
     // eslint-disable-next-line @typescript-eslint/no-shadow
     class CustomStore extends Store {
-      override instantiateRecord(identifier, createOptions) {
+      instantiateRecord(identifier, createOptions) {
         return new Person(this);
       }
-      override teardownRecord(record) {}
+      teardownRecord(record) {}
     }
     this.owner.register('service:store', CustomStore);
     const store = this.owner.lookup('service:store') as Store;

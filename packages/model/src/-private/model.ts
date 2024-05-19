@@ -133,7 +133,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
   declare ___private_notifications: object;
   declare [RecordStore]: Store;
 
-  override init(options: ModelCreateArgs) {
+  init(options: ModelCreateArgs) {
     if (DEBUG) {
       if (!options?._secretInit && !options?._createProps) {
         throw new Error(
@@ -170,7 +170,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
   }
 
   // @ts-expect-error destroy should not return a value, but ember's types force it to
-  override destroy(): this {
+  destroy(): this {
     const identifier = recordIdentifierFor(this);
     this.___recordState?.destroy();
     const store = storeFor(this)!;
@@ -523,7 +523,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     }
   }
 
-  override toString() {
+  toString() {
     return `<model::${(this.constructor as unknown as { modelName: string }).modelName}:${this.id}>`;
   }
 
@@ -657,7 +657,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     super in 4.0+ where sync observers are removed.
    */
   // @ts-expect-error no return is necessary, but Ember's types are forcing it
-  override notifyPropertyChange(prop: string): this {
+  notifyPropertyChange(prop: string): this {
     notifySignal(this, prop as keyof this & string);
     super.notifyPropertyChange(prop);
   }
@@ -1924,7 +1924,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @public
    @static
    */
-  static override toString() {
+  static toString() {
     assert(
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
