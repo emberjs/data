@@ -19,6 +19,7 @@ import type { IsUnknown } from '../belongs-to';
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
 import type { LegacySupport } from '../legacy-relationships-support';
 import { areAllInverseRecordsLoaded, LEGACY_SUPPORT } from '../legacy-relationships-support';
+import type { MaybeBelongsToFields } from '../type-utils';
 import { isMaybeResource } from './has-many';
 
 /**
@@ -68,8 +69,8 @@ function isResourceIdentiferWithRelatedLinks(
  */
 export default class BelongsToReference<
   T = unknown,
-  K extends string = IsUnknown<T> extends true ? string : keyof T & string,
-  Related = K extends keyof T ? Awaited<T[K]> : unknown,
+  K extends string = IsUnknown<T> extends true ? string : MaybeBelongsToFields<T>,
+  Related = K extends keyof T ? Exclude<Awaited<T[K]>, null> : unknown,
 > {
   declare graph: Graph;
   declare store: Store;

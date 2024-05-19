@@ -6,7 +6,8 @@ import type { Model } from './model';
 import type { PromiseBelongsTo } from './promise-belongs-to';
 import type { PromiseManyArray } from './promise-many-array';
 
-type GetMappedKey<M, V> = { [K in keyof M]-?: M[K] extends V ? K : never }[keyof M] & string;
+type ExcludeNull<T> = Exclude<T, null> extends never ? T : Exclude<T, null>;
+type GetMappedKey<M, V> = { [K in keyof M]-?: ExcludeNull<M[K]> extends V ? K : never }[keyof M] & string;
 
 /**
  * Get the keys of fields that are maybe defined as `belongsTo` relationships
@@ -16,10 +17,9 @@ type GetMappedKey<M, V> = { [K in keyof M]-?: M[K] extends V ? K : never }[keyof
  *
  * @typedoc
  */
-export type MaybeBelongsToFields<ThisType extends Model> = GetMappedKey<
-  ThisType,
-  PromiseBelongsTo | TypedRecordInstance
->;
+export type MaybeBelongsToFields<ThisType> =
+  _TrueKeys<ThisType> extends never ? string : _MaybeBelongsToFields<ThisType>;
+type _MaybeBelongsToFields<ThisType> = GetMappedKey<ThisType, PromiseBelongsTo | TypedRecordInstance>;
 
 /**
  * Get the keys of fields that are maybe defined as `hasMany` relationships
@@ -29,7 +29,8 @@ export type MaybeBelongsToFields<ThisType extends Model> = GetMappedKey<
  *
  * @typedoc
  */
-export type MaybeHasManyFields<ThisType extends Model> = GetMappedKey<ThisType, RelatedCollection | PromiseManyArray>;
+export type MaybeHasManyFields<ThisType> = _TrueKeys<ThisType> extends never ? string : _MaybeHasManyFields<ThisType>;
+type _MaybeHasManyFields<ThisType> = GetMappedKey<ThisType, RelatedCollection | PromiseManyArray>;
 
 /**
  * Get the keys of fields that are maybe defined as `attr` fields
@@ -42,10 +43,10 @@ export type MaybeHasManyFields<ThisType extends Model> = GetMappedKey<ThisType, 
  *
  * @typedoc
  */
-export type MaybeAttrFields<ThisType extends Model> =
+export type MaybeAttrFields<ThisType> =
   _TrueKeys<ThisType> extends never
     ? string
-    : Exclude<_TrueKeys<ThisType>, MaybeBelongsToFields<ThisType> | MaybeHasManyFields<ThisType>>;
+    : Exclude<_TrueKeys<ThisType>, _MaybeBelongsToFields<ThisType> | _MaybeHasManyFields<ThisType>>;
 
 /**
  * Get the keys of fields that are maybe defined as relationships
@@ -55,13 +56,13 @@ export type MaybeAttrFields<ThisType extends Model> =
  *
  * @typedoc
  */
-export type MaybeRelationshipFields<ThisType extends Model> =
-  _TrueKeys<ThisType> extends never ? string : MaybeBelongsToFields<ThisType> | MaybeHasManyFields<ThisType>;
+export type MaybeRelationshipFields<ThisType> =
+  _TrueKeys<ThisType> extends never ? string : _MaybeBelongsToFields<ThisType> | _MaybeHasManyFields<ThisType>;
 
-type _TrueKeys<ThisType extends Model> = Exclude<keyof ThisType & string, (keyof Model & string) | typeof ResourceType>;
+type _TrueKeys<ThisType> = Exclude<keyof ThisType & string, (keyof Model & string) | typeof ResourceType>;
 
 /**
  * Get the keys of all fields defined on the given subclass of Model
  * that don't exist on EmberObject or Model.
  */
-export type SubclassKeys<ThisType extends Model> = _TrueKeys<ThisType> extends never ? string : _TrueKeys<ThisType>;
+export type SubclassKeys<ThisType> = _TrueKeys<ThisType> extends never ? string : _TrueKeys<ThisType>;

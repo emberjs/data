@@ -14,6 +14,7 @@ import { lookupLegacySupport } from './legacy-relationships-support';
 import type RecordState from './record-state';
 import type BelongsToReference from './references/belongs-to';
 import type HasManyReference from './references/has-many';
+import type { MaybeBelongsToFields, MaybeHasManyFields } from './type-utils';
 
 export interface MinimalLegacyRecord {
   errors: Errors;
@@ -52,14 +53,14 @@ export function unloadRecord<T extends MinimalLegacyRecord>(this: T) {
   this[RecordStore].unloadRecord(this);
 }
 
-export function belongsTo<T extends MinimalLegacyRecord, K extends keyof T & string>(
+export function belongsTo<T extends MinimalLegacyRecord, K extends MaybeBelongsToFields<T>>(
   this: T,
   prop: K
 ): BelongsToReference<T, K> {
   return lookupLegacySupport(this).referenceFor('belongsTo', prop) as BelongsToReference<T, K>;
 }
 
-export function hasMany<T extends MinimalLegacyRecord, K extends keyof T & string>(
+export function hasMany<T extends MinimalLegacyRecord, K extends MaybeHasManyFields<T>>(
   this: T,
   prop: K
 ): HasManyReference<T, K> {

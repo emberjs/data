@@ -1,5 +1,3 @@
-import EmberObject from '@ember/object';
-
 import { expectTypeOf } from 'expect-type';
 
 import { ResourceType } from '@warp-drive/core-types/symbols';
@@ -380,10 +378,20 @@ import { Store } from './store-service';
 //////////////////////////////////
 //////////////////////////////////
 {
-  class MockModel extends EmberObject {
+  class MockModel {
     [ResourceType] = 'user' as const;
     asyncProp = Promise.resolve('async');
     syncProp = 'sync';
+
+    // some fake Model properties
+
+    // some fake EmberObject properties
+    reopen(): void {}
+    destroy(): void {}
+    init(): void {}
+    isDestroyed = false;
+    isDestroying = false;
+    willDestroy(): void {}
   }
 
   const mock = new MockModel();
@@ -391,9 +399,22 @@ import { Store } from './store-service';
   expectTypeOf(mock.asyncProp).toEqualTypeOf<Promise<string>>();
   expectTypeOf(mock.syncProp).toEqualTypeOf<string>();
 
-  const result: CreateRecordProperties<typeof mock> = {};
+  const result: CreateRecordProperties<MockModel> = {};
 
   // Only `asyncProp` and `syncProp` should be present in the type, they should be optional and
   // any Promise types should be awaited.
-  expectTypeOf(result).toEqualTypeOf<{ asyncProp?: string; syncProp?: string }>();
+  expectTypeOf(result).toEqualTypeOf<{
+    asyncProp?: string;
+    syncProp?: string;
+  }>();
+
+  const fullResult: Required<CreateRecordProperties<MockModel>> = {
+    asyncProp: 'async',
+    syncProp: 'sync',
+  };
+
+  expectTypeOf(fullResult).toEqualTypeOf<{
+    asyncProp: string;
+    syncProp: string;
+  }>();
 }

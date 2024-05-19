@@ -1,5 +1,6 @@
 import { expectTypeOf } from 'expect-type';
 
+import Store from '@ember-data/store';
 import type { LegacyAttributeField, LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
 import { ResourceType } from '@warp-drive/core-types/symbols';
 
@@ -51,7 +52,7 @@ expectTypeOf<Awaited<typeof user.twin>>().toEqualTypeOf<UnbrandedUser | null>();
 class BrandedUser extends Model {
   @attr('string') declare name: string | null;
   @hasMany('user', { async: false, inverse: null }) declare enemies: ManyArray<BrandedUser>;
-  @belongsTo('user', { async: false, inverse: null }) declare bestFriend: BrandedUser;
+  @belongsTo('user', { async: false, inverse: null }) declare bestFriend: BrandedUser | null;
   @hasMany('user', { async: true, inverse: 'friends' }) declare friends: PromiseManyArray<BrandedUser>;
   @belongsTo('user', { async: true, inverse: 'twin' }) declare twin: PromiseBelongsTo<BrandedUser>;
 
@@ -65,7 +66,7 @@ expectTypeOf<ManyArray<BrandedUser>>().toMatchTypeOf<BrandedUser[]>();
 
 expectTypeOf(branded.name).toEqualTypeOf<string | null>();
 expectTypeOf(branded.enemies).toEqualTypeOf<ManyArray<BrandedUser>>();
-expectTypeOf(branded.bestFriend).toEqualTypeOf<BrandedUser>();
+expectTypeOf(branded.bestFriend).toEqualTypeOf<BrandedUser | null>();
 expectTypeOf<Awaited<typeof branded.friends>>().toEqualTypeOf<ManyArray<BrandedUser>>();
 expectTypeOf<Awaited<typeof branded.twin>>().toEqualTypeOf<BrandedUser | null>();
 
@@ -107,12 +108,31 @@ expectTypeOf(
   )
 ).toBeNever;
 
-expectTypeOf(user.belongsTo('bestFriend')).toEqualTypeOf<BelongsToReference<UnbrandedUser, 'bestFriend'>>();
-expectTypeOf(user.belongsTo('bestFriend').___identifier.type).toEqualTypeOf<string>();
-expectTypeOf(user.belongsTo('bestFriend').identifier!.type).toEqualTypeOf<string>();
-expectTypeOf(user.belongsTo('bestFriend').key).toEqualTypeOf<'bestFriend'>();
-expectTypeOf(user.belongsTo('bestFriend').type).toEqualTypeOf<string>();
-expectTypeOf(user.belongsTo('bestFriend').value()).toEqualTypeOf<UnbrandedUser | null>();
+// bestFriend is a never because
+// the value it points to is not branded
+// we could make it *mostly* work but that would
+// make other types less useful.
+expectTypeOf(
+  user.belongsTo(
+    // @ts-expect-error
+    'bestFriend'
+  )
+).toBeNever;
+
+// const bestFriend = user.belongsTo('bestFriend');
+// expectTypeOf(bestFriend).toEqualTypeOf<BelongsToReference<UnbrandedUser, 'bestFriend'>>();
+// expectTypeOf(bestFriend.___identifier.type).toEqualTypeOf<string>();
+// expectTypeOf(bestFriend.identifier!.type).toEqualTypeOf<string>();
+// expectTypeOf(bestFriend.key).toEqualTypeOf<'bestFriend'>();
+// expectTypeOf(bestFriend.type).toEqualTypeOf<string>();
+// expectTypeOf(bestFriend.value()).toEqualTypeOf<UnbrandedUser | null>();
+
+expectTypeOf(user.belongsTo('twin')).toEqualTypeOf<BelongsToReference<UnbrandedUser, 'twin'>>();
+expectTypeOf(user.belongsTo('twin').___identifier.type).toEqualTypeOf<string>();
+expectTypeOf(user.belongsTo('twin').identifier!.type).toEqualTypeOf<string>();
+expectTypeOf(user.belongsTo('twin').key).toEqualTypeOf<'twin'>();
+expectTypeOf(user.belongsTo('twin').type).toEqualTypeOf<string>();
+expectTypeOf(user.belongsTo('twin').value()).toEqualTypeOf<UnbrandedUser | null>();
 
 expectTypeOf(branded.belongsTo('bestFriend')).toEqualTypeOf<BelongsToReference<BrandedUser, 'bestFriend'>>();
 expectTypeOf(branded.belongsTo('bestFriend').___identifier.type).toEqualTypeOf<'user'>();
@@ -199,3 +219,58 @@ class FooModel extends Model {
 }
 
 expectTypeOf(new FooModel().save()).toEqualTypeOf<Promise<FooModel>>();
+
+const store = new Store();
+
+type CreateProps = Parameters<typeof store.createRecord<BrandedUser>>[1];
+
+expectTypeOf({
+  name: 'foo',
+  bestFriend: null,
+  enemies: [],
+  friends: [],
+  twin: null,
+}).toMatchTypeOf<CreateProps>();
+
+expectTypeOf({ notAProp: 'nope' }).not.toMatchTypeOf<CreateProps>();
+expectTypeOf({ crew: [] }).not.toMatchTypeOf<CreateProps>();
+
+store.createRecord<BrandedUser>('user', {
+  name: 'foo',
+  bestFriend: null,
+  enemies: [],
+  friends: [],
+  twin: null,
+  // @ts-expect-error not a field
+  crew: [],
+});
+
+store.createRecord<BrandedUser>('user', {
+  name: 'foo',
+  bestFriend: null,
+  enemies: [],
+  friends: [],
+  twin: null,
+  // @ts-expect-error not a field
+  notAField: 'nope',
+});
+
+store.createRecord<BrandedUser>('user', {
+  name: 'foo',
+  bestFriend: null,
+  enemies: [],
+  friends: [],
+  twin: null,
+  // @ts-expect-error is a Model field
+  isNew: true,
+});
+
+store.createRecord<BrandedUser>('user', {
+  name: 'foo',
+  bestFriend: null,
+  enemies: [],
+  friends: [],
+  twin: null,
+  // @ts-expect-error is an EmberObject field
+  isDestroyed: true,
+});

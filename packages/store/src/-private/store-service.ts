@@ -3,7 +3,6 @@
  */
 // this import location is deprecated but breaks in 4.8 and older
 import { deprecate } from '@ember/debug';
-import type EmberObject from '@ember/object';
 
 import { dependencySatisfies, importSync, macroCondition } from '@embroider/macros';
 
@@ -61,6 +60,68 @@ import { normalizeModelName } from './utils/normalize-model-name';
 
 export { storeFor };
 
+// We inline this list of methods to avoid importing EmberObject
+type EmberObjectKey =
+  | '_debugContainerKey'
+  | '_super'
+  | 'addObserver'
+  | 'cacheFor'
+  | 'concatenatedProperties'
+  | 'decrementProperty'
+  | 'destroy'
+  | 'get'
+  | 'getProperties'
+  | 'incrementProperty'
+  | 'init'
+  | 'isDestroyed'
+  | 'isDestroying'
+  | 'mergedProperties'
+  | 'notifyPropertyChange'
+  | 'removeObserver'
+  | 'reopen'
+  | 'set'
+  | 'setProperties'
+  | 'toggleProperty'
+  | 'toString'
+  | 'willDestroy';
+
+type DSModelKeys =
+  | '___(unique) Symbol(Store)'
+  | '___private_notifications'
+  | '___recordState'
+  | '_createSnapshot'
+  | 'adapterError'
+  | 'attr'
+  | 'belongsTo'
+  | 'changedAttributes'
+  | 'currentState'
+  | 'deleteRecord'
+  | 'destroyRecord'
+  | 'dirtyType'
+  | 'eachAttribute'
+  | 'eachRelationship'
+  | 'errors'
+  | 'hasDirtyAttributes'
+  | 'hasMany'
+  | 'id'
+  | 'inverseFor'
+  | 'isDeleted'
+  | 'isEmpty'
+  | 'isError'
+  | 'isLoaded'
+  | 'isLoading'
+  | 'isNew'
+  | 'isReloading'
+  | 'isSaving'
+  | 'isValid'
+  | 'relationshipFor'
+  | 'reload'
+  | 'rollbackAttributes'
+  | 'save'
+  | 'serialize'
+  | 'store'
+  | 'unloadRecord';
+
 type CompatStore = Store & {
   adapterFor?: (
     type: string,
@@ -69,10 +130,11 @@ type CompatStore = Store & {
 };
 function upgradeStore(store: Store): asserts store is CompatStore {}
 
-type AwaitedKeys<T> = { [K in keyof T]: Awaited<T[K]> };
+type DownlevelArrays<T> = T extends Array<infer U> ? U[] : T;
+type AwaitedKeys<T> = { [K in keyof T & string]: DownlevelArrays<Awaited<T[K]>> };
 
 // `AwaitedKeys` is needed here to resolve any promise types like `PromiseBelongsTo`.
-type FilteredKeys<T> = AwaitedKeys<Omit<T, typeof ResourceType | keyof EmberObject | 'constructor'>>;
+type FilteredKeys<T> = AwaitedKeys<Omit<T, typeof ResourceType | EmberObjectKey | DSModelKeys | 'constructor'>>;
 
 type MaybeHasId = { id?: string | null };
 /**
@@ -93,9 +155,9 @@ type MaybeHasId = { id?: string | null };
  * @typedoc
  */
 export type CreateRecordProperties<T = MaybeHasId & Record<string, unknown>> = T extends TypedRecordInstance
-  ? FilteredKeys<Partial<T>>
+  ? Partial<FilteredKeys<T>>
   : T extends MaybeHasId
-    ? MaybeHasId & FilteredKeys<Partial<T>>
+    ? MaybeHasId & Partial<FilteredKeys<T>>
     : MaybeHasId & Record<string, unknown>;
 
 /**
@@ -118,10 +180,13 @@ export type CreateRecordProperties<T = MaybeHasId & Record<string, unknown>> = T
   @public
 */
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
-const EmptyClass = class {};
+const EmptyClass = class {
+  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
+  constructor(args?: unknown) {}
+};
 const BaseClass = macroCondition(dependencySatisfies('ember-source', '*'))
   ? DEPRECATE_STORE_EXTENDS_EMBER_OBJECT
-    ? (importSync('@ember/object') as typeof import('@ember/object')).default
+    ? (importSync('@ember/object') as typeof EmptyClass)
     : EmptyClass
   : EmptyClass;
 
@@ -159,7 +224,8 @@ const app = new EmberApp(defaults, {
 export interface Store {
   createCache(storeWrapper: CacheCapabilitiesManager): Cache;
 
-  instantiateRecord(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  instantiateRecord<T>(
     identifier: StableRecordIdentifier,
     createRecordArgs: { [key: string]: unknown }
   ): OpaqueRecordInstance;
@@ -305,7 +371,6 @@ export class Store extends BaseClass {
     @private
   */
   constructor(createArgs?: unknown) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     super(createArgs);
     Object.assign(this, createArgs);
 

@@ -38,7 +38,7 @@ import notifyChanges from './notify-changes';
 import RecordState, { notifySignal, tagged } from './record-state';
 import type BelongsToReference from './references/belongs-to';
 import type HasManyReference from './references/has-many';
-import type { MaybeAttrFields, MaybeRelationshipFields } from './type-utils';
+import type { MaybeAttrFields, MaybeBelongsToFields, MaybeHasManyFields, MaybeRelationshipFields } from './type-utils';
 
 export type ModelCreateArgs = {
   _createProps: Record<string, unknown>;
@@ -114,8 +114,16 @@ interface Model {
   _createSnapshot<T extends MinimalLegacyRecord>(this: T): Snapshot<T>;
   save<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): Promise<this>;
   reload<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): Promise<T>;
-  belongsTo<T extends MinimalLegacyRecord, K extends keyof T & string>(this: T, prop: K): BelongsToReference<T, K>;
-  hasMany<T extends MinimalLegacyRecord, K extends keyof T & string>(this: T, prop: K): HasManyReference<T, K>;
+
+  belongsTo<T extends MinimalLegacyRecord, K extends MaybeBelongsToFields<T>>(
+    this: T,
+    prop: K
+  ): BelongsToReference<T, K>;
+  // belongsTo<T extends MinimalLegacyRecord, K extends keyof T & string>(
+  //   this: T,
+  //   prop: K extends MaybeBelongsToFields<T> ? K : string
+  // ): BelongsToReference<T, K>;
+  hasMany<T extends MinimalLegacyRecord, K extends MaybeHasManyFields<T>>(this: T, prop: K): HasManyReference<T, K>;
   deleteRecord<T extends MinimalLegacyRecord>(this: T): void;
 }
 class Model extends EmberObject implements MinimalLegacyRecord {
@@ -123,8 +131,6 @@ class Model extends EmberObject implements MinimalLegacyRecord {
   declare store: Store;
   declare ___recordState: RecordState;
   declare ___private_notifications: object;
-  declare _createProps: null;
-  declare _secretInit: null;
   declare [RecordStore]: Store;
 
   override init(options: ModelCreateArgs) {
@@ -1946,8 +1952,8 @@ defineSignal(Model.prototype, 'isReloading', false);
 
 // this is required to prevent `init` from passing
 // the values initialized during create to `setUnknownProperty`
-Model.prototype._createProps = null;
-Model.prototype._secretInit = null;
+(Model.prototype as unknown as { _createProps: null })._createProps = null;
+(Model.prototype as unknown as { _secretInit: null })._secretInit = null;
 
 if (DEBUG) {
   const lookupDescriptor = function lookupDescriptor(obj: object, keyName: string) {
@@ -1962,6 +1968,7 @@ if (DEBUG) {
     return null;
   };
 
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   const init = Model.prototype.init;
   Model.prototype.init = function (createArgs: ModelCreateArgs) {
     init.call(this, createArgs);
