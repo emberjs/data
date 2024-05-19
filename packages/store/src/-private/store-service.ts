@@ -103,7 +103,6 @@ type DSModelKeys =
   | 'errors'
   | 'hasDirtyAttributes'
   | 'hasMany'
-  | 'id'
   | 'inverseFor'
   | 'isDeleted'
   | 'isEmpty'

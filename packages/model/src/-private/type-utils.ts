@@ -43,10 +43,10 @@ type _MaybeHasManyFields<ThisType> = GetMappedKey<ThisType, RelatedCollection | 
  *
  * @typedoc
  */
-export type MaybeAttrFields<ThisType> =
-  _TrueKeys<ThisType> extends never
-    ? string
-    : Exclude<_TrueKeys<ThisType>, _MaybeBelongsToFields<ThisType> | _MaybeHasManyFields<ThisType>>;
+export type MaybeAttrFields<ThisType> = Exclude<
+  _TrueKeys<ThisType>,
+  _MaybeBelongsToFields<ThisType> | _MaybeHasManyFields<ThisType>
+>;
 
 /**
  * Get the keys of fields that are maybe defined as relationships
@@ -60,7 +60,7 @@ export type MaybeRelationshipFields<ThisType> =
   _TrueKeys<ThisType> extends never ? string : _MaybeBelongsToFields<ThisType> | _MaybeHasManyFields<ThisType>;
 
 type _TrueKeys<ThisType> = Exclude<keyof ThisType & string, (keyof Model & string) | typeof ResourceType>;
-
+export type isSubClass<ThisType> = _TrueKeys<ThisType> extends never ? false : true;
 /**
  * Get the keys of all fields defined on the given subclass of Model
  * that don't exist on EmberObject or Model.

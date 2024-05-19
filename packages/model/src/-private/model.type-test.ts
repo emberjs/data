@@ -13,6 +13,7 @@ import type { PromiseBelongsTo } from './promise-belongs-to';
 import type { PromiseManyArray } from './promise-many-array';
 import type BelongsToReference from './references/belongs-to';
 import type HasManyReference from './references/has-many';
+import type { isSubClass, MaybeAttrFields } from './type-utils';
 
 // ------------------------------
 //              💚
@@ -22,14 +23,20 @@ import type HasManyReference from './references/has-many';
 //              🐹
 // ⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇
 
+expectTypeOf<MaybeAttrFields<Model>>().toEqualTypeOf<never>();
+expectTypeOf<isSubClass<Model>>().toEqualTypeOf<false>();
+
 class UnbrandedUser extends Model {
   @attr('string') declare name: string | null;
   @hasMany('user', { async: false, inverse: null }) declare enemies: ManyArray<UnbrandedUser>;
-  @belongsTo('user', { async: false, inverse: null }) declare bestFriend: UnbrandedUser;
+  @belongsTo('user', { async: false, inverse: null }) declare bestFriend: UnbrandedUser | null;
   @hasMany('user', { async: true, inverse: 'friends' }) declare friends: PromiseManyArray<UnbrandedUser>;
   @belongsTo('user', { async: true, inverse: 'twin' }) declare twin: PromiseBelongsTo<UnbrandedUser>;
 }
 const user = new UnbrandedUser();
+
+expectTypeOf<MaybeAttrFields<UnbrandedUser>>().toEqualTypeOf<'name' | 'bestFriend'>();
+expectTypeOf<isSubClass<UnbrandedUser>>().toEqualTypeOf<true>();
 
 type DoesExtend = UnbrandedUser extends Model ? true : false;
 function takeModel<T extends Model>(model: T): T {
@@ -45,7 +52,7 @@ expectTypeOf<ManyArray<UnbrandedUser>>().toMatchTypeOf<UnbrandedUser[]>();
 
 expectTypeOf(user.name).toEqualTypeOf<string | null>();
 expectTypeOf(user.enemies).toEqualTypeOf<ManyArray<UnbrandedUser>>();
-expectTypeOf(user.bestFriend).toEqualTypeOf<UnbrandedUser>();
+expectTypeOf(user.bestFriend).toEqualTypeOf<UnbrandedUser | null>();
 expectTypeOf<Awaited<typeof user.friends>>().toEqualTypeOf<ManyArray<UnbrandedUser>>();
 expectTypeOf<Awaited<typeof user.twin>>().toEqualTypeOf<UnbrandedUser | null>();
 
@@ -59,6 +66,9 @@ class BrandedUser extends Model {
   [ResourceType] = 'user' as const;
 }
 const branded = new BrandedUser();
+
+expectTypeOf<MaybeAttrFields<BrandedUser>>().toEqualTypeOf<'name'>();
+expectTypeOf<isSubClass<BrandedUser>>().toEqualTypeOf<true>();
 
 expectTypeOf<Awaited<PromiseManyArray<BrandedUser>>['modelName']>().toEqualTypeOf<'user'>();
 expectTypeOf<ManyArray<BrandedUser>['modelName']>().toEqualTypeOf<'user'>();

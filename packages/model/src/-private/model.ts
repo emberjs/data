@@ -38,7 +38,13 @@ import notifyChanges from './notify-changes';
 import RecordState, { notifySignal, tagged } from './record-state';
 import type BelongsToReference from './references/belongs-to';
 import type HasManyReference from './references/has-many';
-import type { MaybeAttrFields, MaybeBelongsToFields, MaybeHasManyFields, MaybeRelationshipFields } from './type-utils';
+import type {
+  isSubClass,
+  MaybeAttrFields,
+  MaybeBelongsToFields,
+  MaybeHasManyFields,
+  MaybeRelationshipFields,
+} from './type-utils';
 
 export type ModelCreateArgs = {
   _createProps: Record<string, unknown>;
@@ -1067,7 +1073,11 @@ class Model extends EmberObject implements MinimalLegacyRecord {
   }
 
   eachAttribute<T>(
-    callback: (this: NoInfer<T> | undefined, key: MaybeAttrFields<this>, meta: LegacyAttributeField) => void,
+    callback: (
+      this: NoInfer<T> | undefined,
+      key: isSubClass<this> extends true ? MaybeAttrFields<this> : string,
+      meta: LegacyAttributeField
+    ) => void,
     binding?: T
   ): void {
     (this.constructor as typeof Model).eachAttribute<T, this>(callback, binding);

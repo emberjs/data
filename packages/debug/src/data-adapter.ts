@@ -35,6 +35,7 @@ import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/store/types';
 import { assert } from '@warp-drive/build-config/macros';
+import { isSubClass } from '@ember-data/model/-private/type-utils';
 
 const StoreTypesMap = new WeakMap<Store, Map<string, boolean>>();
 
@@ -330,7 +331,7 @@ export default class extends DataAdapter<Model> {
     @param {Model} record to get values from
     @return {Object} Keys should match column names defined by the model type
   */
-  getRecordColumnValues(record: Model) {
+  getRecordColumnValues<T extends Model>(record: T) {
     let count = 0;
     const columnValues: Record<string, unknown> = { id: record.id };
 
@@ -338,7 +339,7 @@ export default class extends DataAdapter<Model> {
       if (count++ > this.attributeLimit) {
         return false;
       }
-      columnValues[key] = record[key];
+      columnValues[key] = record[key as keyof T];
     });
     return columnValues;
   }
@@ -351,13 +352,13 @@ export default class extends DataAdapter<Model> {
     @param {Model} record
     @return {Array} Relevant keywords for search based on the record's attribute values
   */
-  getRecordKeywords(record: Model): NativeArray<unknown> {
+  getRecordKeywords<T extends Model>(record: T): NativeArray<unknown> {
     const keywords: unknown[] = [record.id];
     const keys = ['id'];
 
     record.eachAttribute((key) => {
       keys.push(key);
-      keywords.push(record[key]);
+      keywords.push(record[key as keyof T]);
     });
 
     return A(keywords);
