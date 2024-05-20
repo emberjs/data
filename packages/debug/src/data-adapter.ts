@@ -161,7 +161,7 @@ export default class extends DataAdapter<Model> {
     @return {Array} List of objects defining filters
      The object should have a `name` and `desc` property
   */
-  override getFilters() {
+  getFilters() {
     return [
       { name: 'isNew', desc: 'New' },
       { name: 'isModified', desc: 'Modified' },
@@ -169,7 +169,7 @@ export default class extends DataAdapter<Model> {
     ];
   }
 
-  override _nameToClass(type: string) {
+  _nameToClass(type: string) {
     return this.store.modelFor(type);
   }
 
@@ -185,7 +185,7 @@ export default class extends DataAdapter<Model> {
     Takes an array of objects containing wrapped types.
     @return {Function} Method to call to remove all observers
   */
-  override watchModelTypes(typesAdded: WrappedTypeCallback, typesUpdated: WrappedTypeCallback) {
+  watchModelTypes(typesAdded: WrappedTypeCallback, typesUpdated: WrappedTypeCallback) {
     const { store } = this;
 
     const discoveredTypes = typesMapFor(store);
@@ -277,7 +277,7 @@ export default class extends DataAdapter<Model> {
      name: {String} The name of the column
      desc: {String} Humanized description (what would show in a table column name)
   */
-  override columnsForType(typeClass: ModelSchema) {
+  columnsForType(typeClass: ModelSchema) {
     const columns = [
       {
         name: 'id',
@@ -306,7 +306,7 @@ export default class extends DataAdapter<Model> {
      This array will be observed for changes,
      so it should update when new records are added/removed
   */
-  override getRecords(modelClass: ModelSchema, modelName: string) {
+  getRecords(modelClass: ModelSchema, modelName: string) {
     if (arguments.length < 2) {
       // Legacy Ember.js < 1.13 support
       const containerKey = (modelClass as unknown as { _debugContainerKey?: string })._debugContainerKey;
@@ -330,7 +330,7 @@ export default class extends DataAdapter<Model> {
     @param {Model} record to get values from
     @return {Object} Keys should match column names defined by the model type
   */
-  override getRecordColumnValues(record: Model) {
+  getRecordColumnValues<T extends Model>(record: T) {
     let count = 0;
     const columnValues: Record<string, unknown> = { id: record.id };
 
@@ -338,7 +338,7 @@ export default class extends DataAdapter<Model> {
       if (count++ > this.attributeLimit) {
         return false;
       }
-      columnValues[key] = record[key];
+      columnValues[key] = record[key as keyof T];
     });
     return columnValues;
   }
@@ -351,13 +351,13 @@ export default class extends DataAdapter<Model> {
     @param {Model} record
     @return {Array} Relevant keywords for search based on the record's attribute values
   */
-  override getRecordKeywords(record: Model): NativeArray<unknown> {
+  getRecordKeywords<T extends Model>(record: T): NativeArray<unknown> {
     const keywords: unknown[] = [record.id];
     const keys = ['id'];
 
     record.eachAttribute((key) => {
       keys.push(key);
-      keywords.push(record[key]);
+      keywords.push(record[key as keyof T]);
     });
 
     return A(keywords);
@@ -372,7 +372,7 @@ export default class extends DataAdapter<Model> {
     @param {Model} record
     @return {Object} The record state filter values
   */
-  override getRecordFilterValues(record: Model) {
+  getRecordFilterValues(record: Model) {
     return {
       isNew: record.isNew,
       isModified: record.hasDirtyAttributes && !record.isNew,
@@ -389,7 +389,7 @@ export default class extends DataAdapter<Model> {
     @param {Model} record
     @return {String} The record color
   */
-  override getRecordColor(record: Model) {
+  getRecordColor(record: Model) {
     let color = 'black';
     if (record.isNew) {
       color = 'green';

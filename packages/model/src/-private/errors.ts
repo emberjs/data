@@ -176,7 +176,7 @@ export class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
     @private
   */
   @computed()
-  override get content(): NativeArray<ValidationError> {
+  get content(): NativeArray<ValidationError> {
     return A();
   }
 
@@ -374,7 +374,7 @@ export class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
    @method clear
    @public
    */
-  override clear(): void {
+  clear(): void {
     if (this.isEmpty) {
       return;
     }

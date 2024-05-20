@@ -433,7 +433,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @public
     @type {boolean}
   */
-  override get coalesceFindRequests() {
+  get coalesceFindRequests() {
     const coalesceFindRequests = this._coalesceFindRequests;
     if (typeof coalesceFindRequests === 'boolean') {
       return coalesceFindRequests;
@@ -441,7 +441,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     return (this._coalesceFindRequests = false);
   }
 
-  override set coalesceFindRequests(value: boolean) {
+  set coalesceFindRequests(value: boolean) {
     this._coalesceFindRequests = value;
   }
 
@@ -526,7 +526,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  override findRecord(store: Store, type: ModelSchema, id: string, snapshot: Snapshot): Promise<AdapterPayload> {
+  findRecord(store: Store, type: ModelSchema, id: string, snapshot: Snapshot): Promise<AdapterPayload> {
     const url = this.buildURL(type.modelName, id, snapshot, 'findRecord');
     const query: QueryState = this.buildQuery(snapshot);
 
@@ -548,7 +548,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {SnapshotRecordArray} snapshotRecordArray
     @return {Promise} promise
   */
-  override findAll(
+  findAll(
     store: Store,
     type: ModelSchema,
     sinceToken: null,
@@ -584,7 +584,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} adapterOptions
     @return {Promise} promise
   */
-  override query(store: Store, type: ModelSchema, query: Record<string, unknown>): Promise<AdapterPayload> {
+  query(store: Store, type: ModelSchema, query: Record<string, unknown>): Promise<AdapterPayload> {
     const url = this.buildURL(type.modelName, null, null, 'query', query);
 
     if (this.sortQueryParams) {
@@ -614,7 +614,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Object} adapterOptions
     @return {Promise} promise
   */
-  override queryRecord(
+  queryRecord(
     store: Store,
     type: ModelSchema,
     query: Record<string, unknown>,
@@ -789,7 +789,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  override createRecord(store: Store, type: ModelSchema, snapshot: Snapshot): Promise<AdapterPayload> {
+  createRecord(store: Store, type: ModelSchema, snapshot: Snapshot): Promise<AdapterPayload> {
     const url = this.buildURL(type.modelName, null, snapshot, 'createRecord');
 
     const data = serializeIntoHash(store, type, snapshot);
@@ -814,7 +814,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  override updateRecord(store: Store, schema: ModelSchema, snapshot: Snapshot): Promise<AdapterPayload> {
+  updateRecord(store: Store, schema: ModelSchema, snapshot: Snapshot): Promise<AdapterPayload> {
     const data = serializeIntoHash(store, schema, snapshot, {});
     const type = snapshot.modelName;
     const id = snapshot.id;
@@ -836,7 +836,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @param {Snapshot} snapshot
     @return {Promise} promise
   */
-  override deleteRecord(store: Store, schema: ModelSchema, snapshot: Snapshot): Promise<AdapterPayload> {
+  deleteRecord(store: Store, schema: ModelSchema, snapshot: Snapshot): Promise<AdapterPayload> {
     const type = snapshot.modelName;
     const id = snapshot.id;
     assert(`Attempted to delete the ${type} record, but the record has no id`, typeof id === 'string' && id.length > 0);
@@ -897,7 +897,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     @return {Array}  an array of arrays of records, each of which is to be
                       loaded separately by `findMany`.
   */
-  override groupRecordsForFindMany(store: Store, snapshots: Snapshot[]): Snapshot[][] {
+  groupRecordsForFindMany(store: Store, snapshots: Snapshot[]): Snapshot[][] {
     const groups: Map<string, Snapshot[]> = new Map();
     const maxURLLength = this.maxURLLength;
 

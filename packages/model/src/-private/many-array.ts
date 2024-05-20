@@ -452,7 +452,7 @@ export class RelatedCollection<T = unknown> extends LiveArray<T> {
     return record;
   }
 
-  override destroy() {
+  destroy() {
     super.destroy(false);
   }
 }

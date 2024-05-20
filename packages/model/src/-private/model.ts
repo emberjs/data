@@ -4,6 +4,7 @@
 
 import EmberObject from '@ember/object';
 
+import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store';
 import { recordIdentifierFor, storeFor } from '@ember-data/store';
@@ -13,7 +14,7 @@ import { defineSignal } from '@ember-data/tracking/-private';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { Cache } from '@warp-drive/core-types/cache';
+import type { Cache, ChangedAttributesHash } from '@warp-drive/core-types/cache';
 import type { LegacyAttributeField, LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
 import { RecordStore } from '@warp-drive/core-types/symbols';
 
@@ -35,6 +36,15 @@ import {
 } from './model-methods';
 import notifyChanges from './notify-changes';
 import RecordState, { notifySignal, tagged } from './record-state';
+import type BelongsToReference from './references/belongs-to';
+import type HasManyReference from './references/has-many';
+import type {
+  _MaybeBelongsToFields,
+  isSubClass,
+  MaybeAttrFields,
+  MaybeHasManyFields,
+  MaybeRelationshipFields,
+} from './type-utils';
 
 export type ModelCreateArgs = {
   _createProps: Record<string, unknown>;
@@ -100,16 +110,36 @@ function computeOnce(target: object, propertyName: string, desc: PropertyDescrip
   @public
   @extends Ember.EmberObject
 */
+
+interface Model {
+  serialize<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown> | undefined): unknown;
+  destroyRecord<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): Promise<this>;
+  unloadRecord<T extends MinimalLegacyRecord>(this: T): void;
+  changedAttributes<T extends MinimalLegacyRecord>(this: T): ChangedAttributesHash;
+  rollbackAttributes<T extends MinimalLegacyRecord>(this: T): void;
+  _createSnapshot<T extends MinimalLegacyRecord>(this: T): Snapshot<T>;
+  save<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): Promise<this>;
+  reload<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): Promise<T>;
+
+  // belongsTo<T extends MinimalLegacyRecord, K extends MaybeBelongsToFields<T>>(
+  //   this: T,
+  //   prop: K
+  // ): BelongsToReference<T, K>;
+  belongsTo<T extends Model, K extends keyof T & string>(
+    this: T,
+    prop: K & (K extends _MaybeBelongsToFields<T> ? K : never)
+  ): BelongsToReference<T, K>;
+  hasMany<T extends MinimalLegacyRecord, K extends MaybeHasManyFields<T>>(this: T, prop: K): HasManyReference<T, K>;
+  deleteRecord<T extends MinimalLegacyRecord>(this: T): void;
+}
 class Model extends EmberObject implements MinimalLegacyRecord {
   // set during create by the store
   declare store: Store;
   declare ___recordState: RecordState;
   declare ___private_notifications: object;
-  declare _createProps: null;
-  declare _secretInit: null;
   declare [RecordStore]: Store;
 
-  override init(options: ModelCreateArgs) {
+  init(options: ModelCreateArgs) {
     if (DEBUG) {
       if (!options?._secretInit && !options?._createProps) {
         throw new Error(
@@ -145,8 +175,8 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     );
   }
 
-  // @ts-expect-error destroy should not return a value
-  override destroy() {
+  // @ts-expect-error destroy should not return a value, but ember's types force it to
+  destroy(): this {
     const identifier = recordIdentifierFor(this);
     this.___recordState?.destroy();
     const store = storeFor(this)!;
@@ -499,7 +529,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     }
   }
 
-  override toString() {
+  toString() {
     return `<model::${(this.constructor as unknown as { modelName: string }).modelName}:${this.id}>`;
   }
 
@@ -624,8 +654,6 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @param {Object} options
     @return {Object} an object whose values are primitive JSON values only
   */
-  declare serialize: typeof serialize;
-
   /*
     We hook the default implementation to ensure
     our tagged properties are properly notified
@@ -634,8 +662,8 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     to trigger their flush. We wouldn't need to
     super in 4.0+ where sync observers are removed.
    */
-  // @ts-expect-error no return is necessary
-  override notifyPropertyChange(prop: string) {
+  // @ts-expect-error no return is necessary, but Ember's types are forcing it
+  notifyPropertyChange(prop: string): this {
     notifySignal(this, prop as keyof this & string);
     super.notifyPropertyChange(prop);
   }
@@ -669,7 +697,6 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @method deleteRecord
     @public
   */
-  declare deleteRecord: typeof deleteRecord;
 
   /**
     Same as `deleteRecord`, but saves the record immediately.
@@ -714,7 +741,6 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @return {Promise} a promise that will be resolved when the adapter returns
     successfully or rejected if the adapter returns with an error.
   */
-  declare destroyRecord: typeof destroyRecord;
 
   /**
     Unloads the record from the store. This will not send a delete request
@@ -723,7 +749,6 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @method unloadRecord
     @public
   */
-  declare unloadRecord: typeof unloadRecord;
 
   /**
     Returns an object, whose keys are changed properties, and value is
@@ -771,7 +796,6 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @return {Object} an object, whose keys are changed properties,
       and value is an [oldProp, newProp] array.
   */
-  declare changedAttributes: typeof changedAttributes;
 
   /**
     If the model `hasDirtyAttributes` this function will discard any unsaved
@@ -791,13 +815,11 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @method rollbackAttributes
     @public
   */
-  declare rollbackAttributes: typeof rollbackAttributes;
 
   /**
     @method _createSnapshot
     @private
   */
-  declare _createSnapshot: typeof createSnapshot;
   // TODO @deprecate in favor of a public API or examples of how to test successfully
 
   /**
@@ -841,7 +863,6 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @return {Promise} a promise that will be resolved when the adapter returns
     successfully or rejected if the adapter returns with an error.
   */
-  declare save: typeof save;
 
   /**
     Reload the record from the adapter.
@@ -869,7 +890,6 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     adapter returns successfully or rejected if the adapter returns
     with an error.
   */
-  declare reload: typeof reload;
 
   attr() {
     assert(
@@ -928,7 +948,6 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @since 2.5.0
     @return {BelongsToReference} reference for this relationship
   */
-  declare belongsTo: typeof belongsTo;
 
   /**
     Get the reference for the specified hasMany relationship.
@@ -980,7 +999,6 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @since 2.5.0
     @return {HasManyReference} reference for this relationship
   */
-  declare hasMany: typeof hasMany;
 
   /**
    Given a callback, iterates over each of the relationships in the model,
@@ -1038,7 +1056,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
   eachRelationship<T>(
     callback: (
       this: NoInfer<T> | undefined,
-      key: Exclude<keyof this & string, keyof Model & string>,
+      key: MaybeRelationshipFields<this>,
       meta: LegacyRelationshipSchema
     ) => void,
     binding?: T
@@ -1057,7 +1075,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
   eachAttribute<T>(
     callback: (
       this: NoInfer<T> | undefined,
-      key: Exclude<keyof this & string, keyof Model & string>,
+      key: isSubClass<this> extends true ? MaybeAttrFields<this> : string,
       meta: LegacyAttributeField
     ) => void,
     binding?: T
@@ -1413,7 +1431,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    @readOnly
    */
   @computeOnce
-  static get relatedTypes() {
+  static get relatedTypes(): string[] {
     assert(
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
@@ -1564,7 +1582,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    @readOnly
    */
   @computeOnce
-  static get fields() {
+  static get fields(): Map<string, 'attribute' | 'belongsTo' | 'hasMany'> {
     assert(
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
@@ -1596,7 +1614,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
   static eachRelationship<T, Schema extends Model>(
     callback: (
       this: T | undefined,
-      key: Exclude<keyof Schema & string, keyof Model & string>,
+      key: MaybeRelationshipFields<Schema>,
       relationship: LegacyRelationshipSchema
     ) => void,
     binding?: T
@@ -1607,7 +1625,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     );
 
     this.relationshipsByName.forEach((relationship, name) => {
-      callback.call(binding, name as Exclude<keyof Schema & string, keyof Model & string>, relationship);
+      callback.call(binding, name as MaybeRelationshipFields<Schema>, relationship);
     });
   }
 
@@ -1710,7 +1728,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    @readOnly
    */
   @computeOnce
-  static get attributes() {
+  static get attributes(): Map<string, LegacyAttributeField> {
     assert(
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
@@ -1837,11 +1855,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    @static
    */
   static eachAttribute<T, Schema extends Model>(
-    callback: (
-      this: T | undefined,
-      key: Exclude<keyof Schema & string, keyof Model & string>,
-      attribute: LegacyAttributeField
-    ) => void,
+    callback: (this: T | undefined, key: MaybeAttrFields<Schema>, attribute: LegacyAttributeField) => void,
     binding?: T
   ): void {
     assert(
@@ -1849,11 +1863,9 @@ class Model extends EmberObject implements MinimalLegacyRecord {
       this.modelName
     );
 
-    this.attributes.forEach(
-      (meta: LegacyAttributeField, name: Exclude<keyof Schema & string, keyof Model & string>) => {
-        callback.call(binding, name, meta);
-      }
-    );
+    this.attributes.forEach((meta, name) => {
+      callback.call(binding, name as MaybeAttrFields<Schema>, meta);
+    });
   }
 
   /**
@@ -1922,7 +1934,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @public
    @static
    */
-  static override toString() {
+  static toString() {
     assert(
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
@@ -1932,7 +1944,9 @@ class Model extends EmberObject implements MinimalLegacyRecord {
   }
 }
 
+// @ts-expect-error TS doesn't know how to do `this` function overloads
 Model.prototype.save = save;
+// @ts-expect-error TS doesn't know how to do `this` function overloads
 Model.prototype.destroyRecord = destroyRecord;
 Model.prototype.unloadRecord = unloadRecord;
 Model.prototype.hasMany = hasMany;
@@ -1948,8 +1962,8 @@ defineSignal(Model.prototype, 'isReloading', false);
 
 // this is required to prevent `init` from passing
 // the values initialized during create to `setUnknownProperty`
-Model.prototype._createProps = null;
-Model.prototype._secretInit = null;
+(Model.prototype as unknown as { _createProps: null })._createProps = null;
+(Model.prototype as unknown as { _secretInit: null })._secretInit = null;
 
 if (DEBUG) {
   const lookupDescriptor = function lookupDescriptor(obj: object, keyName: string) {

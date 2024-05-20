@@ -162,7 +162,7 @@ import RESTAdapter from './rest';
   @extends RESTAdapter
 */
 class JSONAPIAdapter extends RESTAdapter {
-  override _defaultContentType = 'application/vnd.api+json';
+  _defaultContentType = 'application/vnd.api+json';
 
   /**
     @method ajaxOptions
@@ -172,7 +172,7 @@ class JSONAPIAdapter extends RESTAdapter {
     @param {Object} options
     @return {Object}
   */
-  override ajaxOptions(
+  ajaxOptions(
     url: string,
     type: HTTPMethod,
     options: JQueryAjaxSettings | RequestInit = {}
@@ -240,7 +240,7 @@ class JSONAPIAdapter extends RESTAdapter {
     @public
     @type {boolean}
   */
-  override get coalesceFindRequests() {
+  get coalesceFindRequests() {
     const coalesceFindRequests = this._coalesceFindRequests;
     if (typeof coalesceFindRequests === 'boolean') {
       return coalesceFindRequests;
@@ -248,21 +248,21 @@ class JSONAPIAdapter extends RESTAdapter {
     return (this._coalesceFindRequests = false);
   }
 
-  override set coalesceFindRequests(value: boolean) {
+  set coalesceFindRequests(value: boolean) {
     this._coalesceFindRequests = value;
   }
 
-  override findMany(store: Store, type: ModelSchema, ids: string[], snapshots: Snapshot[]): Promise<AdapterPayload> {
+  findMany(store: Store, type: ModelSchema, ids: string[], snapshots: Snapshot[]): Promise<AdapterPayload> {
     const url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
     return this.ajax(url, 'GET', { data: { filter: { id: ids.join(',') } } });
   }
 
-  override pathForType(modelName: string): string {
+  pathForType(modelName: string): string {
     const dasherized = dasherize(modelName);
     return pluralize(dasherized);
   }
 
-  override updateRecord(store: Store, schema: ModelSchema, snapshot: Snapshot): Promise<AdapterPayload> {
+  updateRecord(store: Store, schema: ModelSchema, snapshot: Snapshot): Promise<AdapterPayload> {
     const data = serializeIntoHash(store, schema, snapshot);
     const type = snapshot.modelName;
     const id = snapshot.id;

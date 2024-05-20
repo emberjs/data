@@ -1,5 +1,7 @@
 import { expectTypeOf } from 'expect-type';
 
+import Store from '@ember-data/store';
+import type { LegacyAttributeField, LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
 import { ResourceType } from '@warp-drive/core-types/symbols';
 
 import { attr } from './attr';
@@ -11,6 +13,7 @@ import type { PromiseBelongsTo } from './promise-belongs-to';
 import type { PromiseManyArray } from './promise-many-array';
 import type BelongsToReference from './references/belongs-to';
 import type HasManyReference from './references/has-many';
+import type { isSubClass, MaybeAttrFields, MaybeBelongsToFields } from './type-utils';
 
 // ------------------------------
 //              💚
@@ -20,14 +23,20 @@ import type HasManyReference from './references/has-many';
 //              🐹
 // ⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇
 
+expectTypeOf<MaybeAttrFields<Model>>().toEqualTypeOf<never>();
+expectTypeOf<isSubClass<Model>>().toEqualTypeOf<false>();
+
 class UnbrandedUser extends Model {
   @attr('string') declare name: string | null;
   @hasMany('user', { async: false, inverse: null }) declare enemies: ManyArray<UnbrandedUser>;
-  @belongsTo('user', { async: false, inverse: null }) declare bestFriend: UnbrandedUser;
+  @belongsTo('user', { async: false, inverse: null }) declare bestFriend: UnbrandedUser | null;
   @hasMany('user', { async: true, inverse: 'friends' }) declare friends: PromiseManyArray<UnbrandedUser>;
   @belongsTo('user', { async: true, inverse: 'twin' }) declare twin: PromiseBelongsTo<UnbrandedUser>;
 }
 const user = new UnbrandedUser();
+
+expectTypeOf<MaybeAttrFields<UnbrandedUser>>().toEqualTypeOf<'name' | 'bestFriend'>();
+expectTypeOf<isSubClass<UnbrandedUser>>().toEqualTypeOf<true>();
 
 type DoesExtend = UnbrandedUser extends Model ? true : false;
 function takeModel<T extends Model>(model: T): T {
@@ -35,7 +44,6 @@ function takeModel<T extends Model>(model: T): T {
 }
 
 expectTypeOf(takeModel(new UnbrandedUser())).toEqualTypeOf<UnbrandedUser>();
-// @ts-expect-error unsure how to fix this, but its a real bug
 expectTypeOf<DoesExtend>().toEqualTypeOf<true>();
 
 expectTypeOf<Awaited<PromiseManyArray<UnbrandedUser>>['modelName']>().toEqualTypeOf<string>();
@@ -44,14 +52,14 @@ expectTypeOf<ManyArray<UnbrandedUser>>().toMatchTypeOf<UnbrandedUser[]>();
 
 expectTypeOf(user.name).toEqualTypeOf<string | null>();
 expectTypeOf(user.enemies).toEqualTypeOf<ManyArray<UnbrandedUser>>();
-expectTypeOf(user.bestFriend).toEqualTypeOf<UnbrandedUser>();
+expectTypeOf(user.bestFriend).toEqualTypeOf<UnbrandedUser | null>();
 expectTypeOf<Awaited<typeof user.friends>>().toEqualTypeOf<ManyArray<UnbrandedUser>>();
 expectTypeOf<Awaited<typeof user.twin>>().toEqualTypeOf<UnbrandedUser | null>();
 
 class BrandedUser extends Model {
   @attr('string') declare name: string | null;
   @hasMany('user', { async: false, inverse: null }) declare enemies: ManyArray<BrandedUser>;
-  @belongsTo('user', { async: false, inverse: null }) declare bestFriend: BrandedUser;
+  @belongsTo('user', { async: false, inverse: null }) declare bestFriend: BrandedUser | null;
   @hasMany('user', { async: true, inverse: 'friends' }) declare friends: PromiseManyArray<BrandedUser>;
   @belongsTo('user', { async: true, inverse: 'twin' }) declare twin: PromiseBelongsTo<BrandedUser>;
 
@@ -59,13 +67,16 @@ class BrandedUser extends Model {
 }
 const branded = new BrandedUser();
 
+expectTypeOf<MaybeAttrFields<BrandedUser>>().toEqualTypeOf<'name'>();
+expectTypeOf<isSubClass<BrandedUser>>().toEqualTypeOf<true>();
+
 expectTypeOf<Awaited<PromiseManyArray<BrandedUser>>['modelName']>().toEqualTypeOf<'user'>();
 expectTypeOf<ManyArray<BrandedUser>['modelName']>().toEqualTypeOf<'user'>();
 expectTypeOf<ManyArray<BrandedUser>>().toMatchTypeOf<BrandedUser[]>();
 
 expectTypeOf(branded.name).toEqualTypeOf<string | null>();
 expectTypeOf(branded.enemies).toEqualTypeOf<ManyArray<BrandedUser>>();
-expectTypeOf(branded.bestFriend).toEqualTypeOf<BrandedUser>();
+expectTypeOf(branded.bestFriend).toEqualTypeOf<BrandedUser | null>();
 expectTypeOf<Awaited<typeof branded.friends>>().toEqualTypeOf<ManyArray<BrandedUser>>();
 expectTypeOf<Awaited<typeof branded.twin>>().toEqualTypeOf<BrandedUser | null>();
 
@@ -107,12 +118,31 @@ expectTypeOf(
   )
 ).toBeNever;
 
-expectTypeOf(user.belongsTo('bestFriend')).toEqualTypeOf<BelongsToReference<UnbrandedUser, 'bestFriend'>>();
-expectTypeOf(user.belongsTo('bestFriend').___identifier.type).toEqualTypeOf<string>();
-expectTypeOf(user.belongsTo('bestFriend').identifier!.type).toEqualTypeOf<string>();
-expectTypeOf(user.belongsTo('bestFriend').key).toEqualTypeOf<'bestFriend'>();
-expectTypeOf(user.belongsTo('bestFriend').type).toEqualTypeOf<string>();
-expectTypeOf(user.belongsTo('bestFriend').value()).toEqualTypeOf<UnbrandedUser | null>();
+// bestFriend is a never because
+// the value it points to is not branded
+// we could make it *mostly* work but that would
+// make other types less useful.
+expectTypeOf(
+  user.belongsTo(
+    // @ts-expect-error
+    'bestFriend'
+  )
+).toBeNever;
+
+// const bestFriend = user.belongsTo('bestFriend');
+// expectTypeOf(bestFriend).toEqualTypeOf<BelongsToReference<UnbrandedUser, 'bestFriend'>>();
+// expectTypeOf(bestFriend.___identifier.type).toEqualTypeOf<string>();
+// expectTypeOf(bestFriend.identifier!.type).toEqualTypeOf<string>();
+// expectTypeOf(bestFriend.key).toEqualTypeOf<'bestFriend'>();
+// expectTypeOf(bestFriend.type).toEqualTypeOf<string>();
+// expectTypeOf(bestFriend.value()).toEqualTypeOf<UnbrandedUser | null>();
+
+expectTypeOf(user.belongsTo('twin')).toEqualTypeOf<BelongsToReference<UnbrandedUser, 'twin'>>();
+expectTypeOf(user.belongsTo('twin').___identifier.type).toEqualTypeOf<string>();
+expectTypeOf(user.belongsTo('twin').identifier!.type).toEqualTypeOf<string>();
+expectTypeOf(user.belongsTo('twin').key).toEqualTypeOf<'twin'>();
+expectTypeOf(user.belongsTo('twin').type).toEqualTypeOf<string>();
+expectTypeOf(user.belongsTo('twin').value()).toEqualTypeOf<UnbrandedUser | null>();
 
 expectTypeOf(branded.belongsTo('bestFriend')).toEqualTypeOf<BelongsToReference<BrandedUser, 'bestFriend'>>();
 expectTypeOf(branded.belongsTo('bestFriend').___identifier.type).toEqualTypeOf<'user'>();
@@ -145,3 +175,123 @@ expectTypeOf(branded.hasMany('enemies').identifiers[0].type).not.toEqualTypeOf<s
 expectTypeOf(branded.hasMany('enemies').key).toEqualTypeOf<'enemies'>();
 expectTypeOf(branded.hasMany('enemies').type).toEqualTypeOf<'user'>();
 expectTypeOf(branded.hasMany('enemies').value()).toMatchTypeOf<BrandedUser[] | null>();
+
+// these ensure subclasses satisfy Model
+function takesAModel(arg: Model) {}
+takesAModel(user);
+takesAModel(branded);
+
+user.eachAttribute((key, meta) => {
+  // bestFriend is in the wrong place because the records aren't branded
+  expectTypeOf(key).toEqualTypeOf<'name' | 'bestFriend'>();
+  expectTypeOf(meta).toEqualTypeOf<LegacyAttributeField>();
+});
+user.eachRelationship((key, meta) => {
+  expectTypeOf(key).toEqualTypeOf<'twin' | 'enemies' | 'friends'>();
+  expectTypeOf(meta).toEqualTypeOf<LegacyRelationshipSchema>();
+});
+
+branded.eachAttribute((key, meta) => {
+  expectTypeOf(key).toEqualTypeOf<'name'>();
+  expectTypeOf(meta).toEqualTypeOf<LegacyAttributeField>();
+});
+
+branded.eachRelationship((key, meta) => {
+  expectTypeOf(key).toEqualTypeOf<'bestFriend' | 'twin' | 'enemies' | 'friends'>();
+  expectTypeOf(meta).toEqualTypeOf<LegacyRelationshipSchema>();
+});
+
+// this ensures that `serialize` can be overridden
+class UserWithCustomSerialize extends Model {
+  @attr('string') declare name: string | null;
+
+  serialize() {
+    return { name: this.name };
+  }
+}
+expectTypeOf(new UserWithCustomSerialize().serialize()).toEqualTypeOf<{ name: string | null }>();
+class FooModel extends Model {
+  [ResourceType] = 'foo' as const;
+
+  private myMethod() {
+    // ...
+  }
+
+  save(options?: Record<string, unknown>): Promise<this> {
+    if (this.currentState.isNew && this.currentState.isDeleted) {
+      return Promise.resolve(this);
+    }
+
+    this.myMethod();
+
+    return super.save(options);
+  }
+}
+
+expectTypeOf(new FooModel().save()).toEqualTypeOf<Promise<FooModel>>();
+
+const store = new Store();
+
+type CreateProps = Parameters<typeof store.createRecord<BrandedUser>>[1];
+
+expectTypeOf({
+  name: 'foo',
+  bestFriend: null,
+  enemies: [],
+  friends: [],
+  twin: null,
+}).toMatchTypeOf<CreateProps>();
+
+expectTypeOf({ notAProp: 'nope' }).not.toMatchTypeOf<CreateProps>();
+expectTypeOf({ crew: [] }).not.toMatchTypeOf<CreateProps>();
+
+store.createRecord<BrandedUser>('user', {
+  name: 'foo',
+  bestFriend: null,
+  enemies: [],
+  friends: [],
+  twin: null,
+  // @ts-expect-error not a field
+  crew: [],
+});
+
+store.createRecord<BrandedUser>('user', {
+  name: 'foo',
+  bestFriend: null,
+  enemies: [],
+  friends: [],
+  twin: null,
+  // @ts-expect-error not a field
+  notAField: 'nope',
+});
+
+store.createRecord<BrandedUser>('user', {
+  name: 'foo',
+  bestFriend: null,
+  enemies: [],
+  friends: [],
+  twin: null,
+  // @ts-expect-error is a Model field
+  isNew: true,
+});
+
+store.createRecord<BrandedUser>('user', {
+  name: 'foo',
+  bestFriend: null,
+  enemies: [],
+  friends: [],
+  twin: null,
+  // @ts-expect-error is an EmberObject field
+  isDestroyed: true,
+});
+
+class HasGetter extends Model {
+  @belongsTo('user', { async: false, inverse: null }) declare bestFriend: BrandedUser | null;
+
+  get bestFriendId(): string | null {
+    return this.belongsTo<HasGetter, 'bestFriend'>('bestFriend').id();
+  }
+}
+const hasGetter = new HasGetter();
+expectTypeOf<MaybeBelongsToFields<typeof hasGetter>>().toEqualTypeOf<'bestFriend'>();
+expectTypeOf(hasGetter.belongsTo('bestFriend').id()).toEqualTypeOf<string | null>();

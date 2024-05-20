@@ -23,6 +23,7 @@ import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
 import type { LegacySupport } from '../legacy-relationships-support';
 import { areAllInverseRecordsLoaded, LEGACY_SUPPORT } from '../legacy-relationships-support';
 import type { RelatedCollection as ManyArray } from '../many-array';
+import type { MaybeHasManyFields } from '../type-utils';
 
 /**
   @module @ember-data/model
@@ -71,7 +72,7 @@ function isResourceIdentiferWithRelatedLinks(
  */
 export default class HasManyReference<
   T = unknown,
-  K extends string = IsUnknown<T> extends true ? string : keyof T & string,
+  K extends string = IsUnknown<T> extends true ? string : MaybeHasManyFields<T>,
   Related = K extends keyof T ? ArrayItemType<Awaited<T[K]>> : unknown,
 > {
   declare graph: Graph;

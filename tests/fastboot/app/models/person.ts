@@ -12,8 +12,8 @@ export default class Person extends Model {
   @belongsTo('person', { async: true, inverse: 'children' })
   declare parent: AsyncBelongsTo<Person>;
 
-  get parentId() {
-    return this.belongsTo('parent').id();
+  get parentId(): string | null {
+    return this.belongsTo<Person, 'parent'>('parent').id();
   }
 
   toNode() {
