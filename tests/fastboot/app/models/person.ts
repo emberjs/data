@@ -13,8 +13,7 @@ export default class Person extends Model {
   declare parent: AsyncBelongsTo<Person>;
 
   get parentId(): string | null {
-    // @ts-expect-error apparently TS can't infer that `this` is a Person :/
-    return this.belongsTo('parent').id();
+    return this.belongsTo<Person, 'parent'>('parent').id();
   }
 
   toNode() {

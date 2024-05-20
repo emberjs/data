@@ -1,5 +1,4 @@
 import { expectTypeOf } from 'expect-type';
-import { has } from 'require';
 
 import Store from '@ember-data/store';
 import type { LegacyAttributeField, LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
@@ -14,7 +13,7 @@ import type { PromiseBelongsTo } from './promise-belongs-to';
 import type { PromiseManyArray } from './promise-many-array';
 import type BelongsToReference from './references/belongs-to';
 import type HasManyReference from './references/has-many';
-import type { isSubClass, MaybeAttrFields, MaybeBelongsToFields } from './type-utils';
+import type { _MaybeBelongsToFields, isSubClass, MaybeAttrFields, MaybeBelongsToFields } from './type-utils';
 
 // ------------------------------
 //              💚
@@ -290,8 +289,7 @@ class HasGetter extends Model {
   @belongsTo('user', { async: false, inverse: null }) declare bestFriend: BrandedUser | null;
 
   get bestFriendId(): string | null {
-    // @ts-expect-error apparently TS can't infer keys on this types when exclude is used
-    return this.belongsTo('bestFriend').id();
+    return this.belongsTo<HasGetter, 'bestFriend'>('bestFriend').id();
   }
 }
 const hasGetter = new HasGetter();

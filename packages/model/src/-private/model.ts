@@ -126,7 +126,10 @@ interface Model {
   //   this: T,
   //   prop: K
   // ): BelongsToReference<T, K>;
-  belongsTo<K extends _MaybeBelongsToFields<this>>(prop: K): BelongsToReference<this, K>;
+  belongsTo<T extends Model, K extends keyof T & string>(
+    this: T,
+    prop: K & (K extends _MaybeBelongsToFields<T> ? K : never)
+  ): BelongsToReference<T, K>;
   hasMany<T extends MinimalLegacyRecord, K extends MaybeHasManyFields<T>>(this: T, prop: K): HasManyReference<T, K>;
   deleteRecord<T extends MinimalLegacyRecord>(this: T): void;
 }
