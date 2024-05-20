@@ -42,7 +42,6 @@ import type {
   _MaybeBelongsToFields,
   isSubClass,
   MaybeAttrFields,
-  MaybeBelongsToFields,
   MaybeHasManyFields,
   MaybeRelationshipFields,
 } from './type-utils';

@@ -13,7 +13,7 @@ import type { PromiseBelongsTo } from './promise-belongs-to';
 import type { PromiseManyArray } from './promise-many-array';
 import type BelongsToReference from './references/belongs-to';
 import type HasManyReference from './references/has-many';
-import type { _MaybeBelongsToFields, isSubClass, MaybeAttrFields, MaybeBelongsToFields } from './type-utils';
+import type { isSubClass, MaybeAttrFields, MaybeBelongsToFields } from './type-utils';
 
 // ------------------------------
 //              💚
