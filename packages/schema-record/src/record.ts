@@ -81,8 +81,7 @@ function computeField(
   if (!field.type) {
     return rawValue;
   }
-  const transform = schema.transformation(field.type);
-  assert(`No '${field.type}' transform defined for use by ${identifier.type}.${String(prop)}`, transform);
+  const transform = schema.transformation(field);
   return transform.hydrate(rawValue, field.options ?? null, record);
 }
 
@@ -146,8 +145,7 @@ function computeObject(
     }
     if (field.kind === 'object') {
       if (field.type) {
-        const transform = schema.transformation(field.type);
-        assert(`No '${field.type}' transform defined for use by ${identifier.type}.${String(prop)}`, transform);
+        const transform = schema.transformation(field);
         rawValue = transform.hydrate(rawValue as ObjectValue, field.options ?? null, record) as object;
       }
     }
@@ -172,13 +170,7 @@ function computeDerivation(
   field: DerivedField,
   prop: string
 ): unknown {
-  if (!field.type) {
-    throw new Error(`The schema for ${identifier.type}.${String(prop)} is missing the type of the derivation`);
-  }
-
-  const derivation = schema.derivation(field.type);
-  assert(`No '${field.type}' derivation defined for use by ${identifier.type}.${String(prop)}`, derivation);
-  return derivation(record, field.options ?? null, prop);
+  return schema.derivation(field)(record, field.options ?? null, prop);
 }
 
 // TODO probably this should just be a Document
@@ -349,7 +341,7 @@ export class SchemaRecord {
             return identifier.id;
           case '@hash':
             // TODO pass actual cache value not {}
-            return schema.hashFn(field.type)({}, field.options ?? null, field.name ?? null);
+            return schema.hashFn(field)({}, field.options ?? null, field.name ?? null);
           case '@local': {
             const lastValue = computeLocal(receiver, field, prop as string);
             entangleSignal(signals, receiver, prop as string);
@@ -423,9 +415,7 @@ export class SchemaRecord {
               cache.setAttr(identifier, prop as string, value as Value);
               return true;
             }
-            const transform = schema.transformation(field.type);
-            assert(`No '${field.type}' transform defined for use by ${identifier.type}.${String(prop)}`, transform);
-
+            const transform = schema.transformation(field);
             const rawValue = transform.serialize(value, field.options ?? null, target);
             cache.setAttr(identifier, prop as string, rawValue);
             return true;
@@ -448,9 +438,7 @@ export class SchemaRecord {
               return true;
             }
 
-            const transform = schema.transformation(field.type);
-            assert(`No '${field.type}' transform defined for use by ${identifier.type}.${String(prop)}`, transform);
-
+            const transform = schema.transformation(field);
             const rawValue = (value as ArrayValue).map((item) =>
               transform.serialize(item, field.options ?? null, target)
             );
@@ -480,8 +468,7 @@ export class SchemaRecord {
               }
               return true;
             }
-            const transform = schema.transformation(field.type);
-            assert(`No '${field.type}' transform defined for use by ${identifier.type}.${String(prop)}`, transform);
+            const transform = schema.transformation(field);
             const rawValue = transform.serialize({ ...(value as ObjectValue) }, field.options ?? null, target);
 
             cache.setAttr(identifier, prop as string, rawValue);

@@ -7,10 +7,15 @@ import type { RecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { ObjectValue } from '@warp-drive/core-types/json/raw';
 import type { Derivation, HashFn, Transformation } from '@warp-drive/core-types/schema/concepts';
 import type {
+  ArrayField,
+  DerivedField,
   FieldSchema,
+  GenericField,
+  HashField,
   LegacyAttributeField,
   LegacyBelongsToField,
   LegacyHasManyField,
+  ObjectField,
   ResourceSchema,
 } from '@warp-drive/core-types/schema/fields';
 
@@ -126,34 +131,37 @@ export interface SchemaService {
   fields(resource: { type: string } | StableRecordIdentifier): Map<string, FieldSchema>;
 
   /**
-   * Returns the transformation registered with the provided name.
+   * Returns the transformation registered with the name provided
+   * by `field.type`. Validates that the field is a valid transformable.
    *
    * @method transformation
    * @public
-   * @param name
+   * @param {TransformableField|{ type: string }} field
    * @returns {Transformation}
    */
-  transformation(name: string): Transformation;
+  transformation(field: GenericField | ObjectField | ArrayField | { type: string }): Transformation;
 
   /**
-   * Returns the hash function registered with the provided name.
+   * Returns the hash function registered with the name provided
+   * by `field.type`. Validates that the field is a valid HashField.
    *
    * @method hashFn
    * @public
-   * @param name
+   * @param {HashField|{ type: string }} field
    * @returns {HashFn}
    */
-  hashFn(name: string): HashFn;
+  hashFn(field: HashField | { type: string }): HashFn;
 
   /**
-   * Returns the derivation registered with the provided name.
+   * Returns the derivation registered with the name provided
+   * by `field.type`. Validates that the field is a valid DerivedField.
    *
    * @method derivation
    * @public
-   * @param name
+   * @param {DerivedField|{ type: string }} field
    * @returns {Derivation}
    */
-  derivation(name: string): Derivation;
+  derivation(field: DerivedField | { type: string }): Derivation;
 
   /**
    * Returns the schema for the provided resource type.

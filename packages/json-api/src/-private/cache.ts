@@ -1506,7 +1506,7 @@ function getDefaultValue(
 
     // new style transforms
   } else if (schema.kind !== 'attribute' && schema.type) {
-    const transform = store.schema.transformation(schema.type);
+    const transform = store.schema.transformation(schema);
 
     if (transform?.defaultValue) {
       return transform.defaultValue(options || null, identifier);

@@ -4,9 +4,14 @@ import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Value } from '@warp-drive/core-types/json/raw';
 import type { Derivation, HashFn, Transformation } from '@warp-drive/core-types/schema/concepts';
 import type {
+  ArrayField,
+  DerivedField,
   FieldSchema,
+  GenericField,
+  HashField,
   LegacyAttributeField,
   LegacyRelationshipSchema,
+  ObjectField,
   ResourceSchema,
 } from '@warp-drive/core-types/schema/fields';
 import { Type } from '@warp-drive/core-types/symbols';
@@ -43,27 +48,62 @@ export class TestSchema implements SchemaService {
     this._assert?.step('TestSchema:resourceHasTrait');
     return this._schemas.get(resource.type)!.traits.has(trait);
   }
-  transformation(name: string): Transformation {
-    this._assert?.step('TestSchema:transformation');
-    assert(`No transformation registered with name ${name}`, this._transforms.has(name));
-    return this._transforms.get(name)!;
+  transformation(field: GenericField | ObjectField | ArrayField | { type: string }): Transformation {
+    const kind = 'kind' in field ? field.kind : '<unknown kind>';
+    const name = 'name' in field ? field.name : '<unknown name>';
+    assert(
+      `'${kind}' fields cannot be transformed. Only fields of kind 'field' 'object' or 'array' can specify a transformation. Attempted to find '${field.type ?? '<unknown type>'}' on field '${name}'.`,
+      !('kind' in field) || ['field', 'object', 'array'].includes(kind)
+    );
+    assert(
+      `Expected the '${kind}' field '${name}' to specify a transformation via 'field.type', but none was present`,
+      field.type
+    );
+    assert(
+      `No transformation registered with name '${field.type}' for '${kind}' field '${name}'`,
+      this._transforms.has(field.type)
+    );
+    return this._transforms.get(field.type)!;
   }
-  derivation(name: string): Derivation {
-    this._assert?.step('TestSchema:derivation');
-    assert(`No derivation registered with name ${name}`, this._derivations.has(name));
-    return this._derivations.get(name)!;
+  derivation(field: DerivedField | { type: string }): Derivation {
+    const kind = 'kind' in field ? field.kind : '<unknown kind>';
+    const name = 'name' in field ? field.name : '<unknown name>';
+    assert(
+      `The '${kind}' field '${name}' is not derived and so cannot be used to lookup a derivation`,
+      !('kind' in field) || kind === 'derived'
+    );
+    assert(
+      `Expected the '${kind}' field '${name}' to specify a derivation via 'field.type', but no value was present`,
+      field.type
+    );
+    assert(
+      `No '${field.type}' derivation registered for use by the '${kind}' field '${name}'`,
+      this._derivations.has(field.type)
+    );
+    return this._derivations.get(field.type)!;
+  }
+  hashFn(field: HashField | { type: string }): HashFn {
+    const kind = 'kind' in field ? field.kind : '<unknown kind>';
+    const name = 'name' in field ? field.name : '<unknown name>';
+    assert(
+      `The '${kind}' field '${name}' is not a HashField and so cannot be used to lookup a hash function`,
+      !('kind' in field) || kind === '@hash'
+    );
+    assert(
+      `Expected the '${kind}' field '${name}' to specify a hash function via 'field.type', but no value was present`,
+      field.type
+    );
+    assert(
+      `No '${field.type}' hash function is registered for use by the '${kind}' field '${name}'`,
+      this._hashFns.has(field.type)
+    );
+    return this._hashFns.get(field.type)!;
   }
   resource(resource: StableRecordIdentifier | { type: string }): ResourceSchema {
     this._assert?.step('TestSchema:resource');
     assert(`No resource registered with name ${resource.type}`, this._schemas.has(resource.type));
     return this._schemas.get(resource.type)!.original;
   }
-  hashFn(name: string): HashFn {
-    this._assert?.step('TestSchema:hashFn');
-    assert(`No hash function registered with name ${name}`, this._hashFns.has(name));
-    return this._hashFns.get(name)!;
-  }
-
   registerTransformation<T extends Value = string, PT = unknown>(transformation: Transformation<T, PT>): void {
     this._assert?.step('TestSchema:registerTransformation');
     this._transforms.set(transformation[Type], transformation as Transformation);

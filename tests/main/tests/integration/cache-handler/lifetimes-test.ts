@@ -15,7 +15,15 @@ import type { Cache } from '@warp-drive/core-types/cache';
 import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { ObjectValue } from '@warp-drive/core-types/json/raw';
 import type { Derivation, HashFn, Transformation } from '@warp-drive/core-types/schema/concepts';
-import type { FieldSchema, ResourceSchema } from '@warp-drive/core-types/schema/fields';
+import type {
+  ArrayField,
+  DerivedField,
+  FieldSchema,
+  GenericField,
+  HashField,
+  ObjectField,
+  ResourceSchema,
+} from '@warp-drive/core-types/schema/fields';
 import type { ResourceType } from '@warp-drive/core-types/symbols';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
@@ -35,12 +43,6 @@ class BaseTestStore extends Store {
       resourceHasTrait: function (resource: StableRecordIdentifier | { type: string }, trait: string): boolean {
         throw new Error('Function not implemented.');
       },
-      transformation: function (name: string): Transformation {
-        throw new Error('Function not implemented.');
-      },
-      derivation: function (name: string): Derivation {
-        throw new Error('Function not implemented.');
-      },
       resource: function (resource: StableRecordIdentifier | { type: string }): ResourceSchema {
         throw new Error('Function not implemented.');
       },
@@ -56,10 +58,16 @@ class BaseTestStore extends Store {
       registerDerivation<R, T, FM extends ObjectValue | null>(derivation: Derivation<R, T, FM>): void {
         throw new Error('Function not implemented.');
       },
-      hashFn: function (name: string): HashFn {
+      registerHashFn: function (hashFn: HashFn): void {
         throw new Error('Function not implemented.');
       },
-      registerHashFn: function (hashFn: HashFn): void {
+      transformation: function (field: GenericField | ObjectField | ArrayField | { type: string }): Transformation {
+        throw new Error('Function not implemented.');
+      },
+      hashFn: function (field: HashField | { type: string }): HashFn {
+        throw new Error('Function not implemented.');
+      },
+      derivation: function (field: DerivedField | { type: string }): Derivation {
         throw new Error('Function not implemented.');
       },
     };

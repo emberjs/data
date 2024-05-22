@@ -7,7 +7,15 @@ import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import type { ObjectValue } from '@warp-drive/core-types/json/raw';
 import type { Derivation, HashFn, Transformation } from '@warp-drive/core-types/schema/concepts';
-import type { FieldSchema, ResourceSchema } from '@warp-drive/core-types/schema/fields';
+import type {
+  ArrayField,
+  DerivedField,
+  FieldSchema,
+  GenericField,
+  HashField,
+  ObjectField,
+  ResourceSchema,
+} from '@warp-drive/core-types/schema/fields';
 import { Type } from '@warp-drive/core-types/symbols';
 import type { WithPartial } from '@warp-drive/core-types/utils';
 
@@ -203,14 +211,14 @@ export class DelegatingSchemaService implements SchemaService {
     }
     return this._secondary.fields(resource);
   }
-  transformation(name: string): Transformation {
-    return this._preferred.transformation(name);
+  transformation(field: GenericField | ObjectField | ArrayField | { type: string }): Transformation {
+    return this._preferred.transformation(field);
   }
-  hashFn(name: string): HashFn {
-    return this._preferred.hashFn(name);
+  hashFn(field: HashField | { type: string }): HashFn {
+    return this._preferred.hashFn(field);
   }
-  derivation(name: string): Derivation {
-    return this._preferred.derivation(name);
+  derivation(field: DerivedField | { type: string }): Derivation {
+    return this._preferred.derivation(field);
   }
   resource(resource: StableRecordIdentifier | { type: string }): ResourceSchema {
     if (this._preferred.hasResource(resource)) {

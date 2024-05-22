@@ -112,7 +112,11 @@ module('Reads | derivation', function (hooks) {
       record.fullName;
       assert.ok(false, 'record.fullName should throw');
     } catch (e) {
-      assert.strictEqual((e as Error).message, "No derivation registered with name 'concat'", 'record.fullName throws');
+      assert.strictEqual(
+        (e as Error).message,
+        "No 'concat' derivation registered for use by the 'derived' field 'fullName'",
+        'record.fullName throws'
+      );
     }
   });
 });

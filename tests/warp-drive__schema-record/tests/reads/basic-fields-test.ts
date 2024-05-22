@@ -150,7 +150,7 @@ module('Reads | basic fields', function (hooks) {
     } catch (e) {
       assert.strictEqual(
         (e as Error).message,
-        `No transformation registered with name 'string'`,
+        `No transformation registered with name 'string' for 'field' field 'lastName'`,
         'should error when accessing unknown field transform'
       );
     }
