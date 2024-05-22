@@ -30,6 +30,12 @@
     "typesPublish": true
   },
   "rules": {
+    "@ember-data/codemods": {
+      "stage": "stable",
+      "types": "private",
+      "typesPublish": false,
+      "mirrorPublish": false
+    },
     "@ember-data/debug": {
       "stage": "stable",
       "types": "private",
