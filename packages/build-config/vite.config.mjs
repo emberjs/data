@@ -1,6 +1,6 @@
 import { createConfig } from '@warp-drive/internal-config/vite/config.js';
 
-export const externals = ['fs', 'semver'];
+export const externals = ['fs', 'path', 'semver'];
 
 export const entryPoints = [
   './src/index.ts',

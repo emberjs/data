@@ -1,9 +1,13 @@
 import fs from 'fs';
+import path from 'path';
 
 import * as CURRENT_FEATURES from '../../canary-features.ts';
 type FEATURE = keyof typeof CURRENT_FEATURES;
 
-const version = JSON.parse(fs.readFileSync('../../package.json', 'utf-8')).version;
+const dirname = new URL(import.meta.url).pathname;
+const relativePkgPath = path.join(dirname, '../../package.json');
+
+const version = JSON.parse(fs.readFileSync(relativePkgPath, 'utf-8')).version;
 const isCanary = version.includes('alpha');
 
 export function getFeatures(isProd: boolean): { [key in FEATURE]: boolean } {
