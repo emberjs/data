@@ -2,7 +2,7 @@
 // import JSONAPICache from '@ember-data/json-api';
 // import RequestManager from '@ember-data/request';
 // import Fetch from '@ember-data/request/fetch';
-// import { LifetimesService } from '@ember-data/request-utils';
+// import { CachePolicy } from '@ember-data/request-utils';
 // import DataStore from '@ember-data/store';
 // import type { Cache } from '@ember-data/types/cache/cache';
 // import type { CacheCapabilitiesManager } from '@ember-data/types/q/cache-store-wrapper';
@@ -28,7 +28,7 @@
 
 //     // our indexeddb cache will respect lifetimes, so registering
 //     // a lifetimes service (even if not this one) is important!
-//     this.lifetimes = new LifetimesService(this, CONFIG);
+//     this.lifetimes = new CachePolicy(CONFIG);
 //   }
 
 //   // we still use an in-mem cache in the worker in order to ensure
