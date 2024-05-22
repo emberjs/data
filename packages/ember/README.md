@@ -308,7 +308,7 @@ import { Request } from '@warp-drive/ember';
 <template>
   <Request @request={{@request}}>
     <:loading as |state|>
-      <Spinner @percentDone={{state.completeRatio}} />
+      <Spinner @percentDone={{state.completedRatio}} />
       <button {{on "click" state.abort}}>Cancel</button>
     </:loading>
 

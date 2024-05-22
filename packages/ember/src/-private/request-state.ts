@@ -193,12 +193,12 @@ export class RequestLoadingState {
     return (this.endTime || this.lastPacketTime) - this.startTime;
   }
 
-  get completeRatio(): number {
+  get completedRatio(): number {
     return this.sizeHint ? this.bytesLoaded / this.sizeHint : 0;
   }
 
   get remainingRatio(): number {
-    return 1 - this.completeRatio;
+    return 1 - this.completedRatio;
   }
 
   get duration(): number {
