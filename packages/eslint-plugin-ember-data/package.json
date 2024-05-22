@@ -15,5 +15,9 @@
   "devDependencies": {
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.67"
   },
+  "files": [
+    "src",
+    "CHANGELOG.md"
+  ],
   "scripts": {}
 }
