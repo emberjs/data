@@ -924,7 +924,26 @@ importers:
         specifier: workspace:5.4.0-alpha.91
         version: link:../../config
 
-  packages/experiments: {}
+  packages/experiments:
+    devDependencies:
+      '@ember-data/request':
+        specifier: workspace:5.4.0-alpha.70
+        version: link:../request
+      '@ember-data/request-utils':
+        specifier: workspace:5.4.0-alpha.70
+        version: link:../request-utils
+      '@ember-data/store':
+        specifier: workspace:5.4.0-alpha.70
+        version: link:../store
+      '@ember-data/tracking':
+        specifier: workspace:5.4.0-alpha.70
+        version: link:../tracking
+      '@warp-drive/build-config':
+        specifier: workspace:0.0.0-alpha.7
+        version: link:../build-config
+      '@warp-drive/core-types':
+        specifier: workspace:0.0.0-alpha.56
+        version: link:../core-types
 
   packages/graph:
     dependencies:

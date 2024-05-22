@@ -1,21 +1,16 @@
-import type { LocalRelationshipOperation } from '@ember-data/graph/-private/-operations';
-import type { StructuredDataDocument } from '@ember-data/request/-private/types';
-import type { StoreRequestContext } from '@ember-data/store/-private/cache-handler';
-import type { Change } from '@ember-data/types/cache/change';
-import type {
-  ResourceDocument,
-  SingleResourceDataDocument,
-  StructuredDocument,
-} from '@ember-data/types/cache/document';
-import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
-import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
-import type {
-  CollectionResourceRelationship,
-  SingleResourceRelationship,
-} from '@ember-data/types/q/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { JsonApiError, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
-
+import type { StableRecordIdentifier } from "@warp-drive/core-types";
+import type { Cache, ChangedAttributesHash, RelationshipDiff } from "@warp-drive/core-types/cache";
+import type { ResourceBlob } from "@warp-drive/core-types/cache/aliases";
+import type { Change } from "@warp-drive/core-types/cache/change";
+import type { Mutation } from "@warp-drive/core-types/cache/mutations";
+import type { Operation } from "@warp-drive/core-types/cache/operations";
+import type { StableDocumentIdentifier, StableExistingRecordIdentifier } from "@warp-drive/core-types/identifier";
+import type { TypeFromInstanceOrString } from "@warp-drive/core-types/record";
+import type { ResourceDocument, SingleResourceDataDocument } from "@warp-drive/core-types/spec/document";
+import type { RequestContext, StructuredDataDocument, StructuredDocument } from '@warp-drive/core-types/request';
+import { ApiError } from "@warp-drive/core-types/spec/error";
+import { Value } from "@warp-drive/core-types/json/raw";
+import { CollectionRelationship, ResourceRelationship } from "@warp-drive/core-types/cache/relationship";
 /**
  * The PersistedCache wraps a Cache to enhance it with
  * IndexedDB Persistence.
@@ -26,6 +21,7 @@ import type { JsonApiError, JsonApiResource } from '@ember-data/types/q/record-d
 export class PersistedCache implements Cache {
   declare _cache: Cache;
   declare _db: IDBDatabase;
+  declare version: '2';
 
   constructor(cache: Cache, db: IDBDatabase) {
     this.version = '2';
@@ -74,15 +70,15 @@ export class PersistedCache implements Cache {
 
     requests.put(request);
 
-    if ('data' in result) {
-      const resourceData: StableRecordIdentifier[] = Array.isArray(result.data) ? result.data : [result.data];
+    if ('data' in result && result.data) {
+      const resourceData: StableExistingRecordIdentifier[] = Array.isArray(result.data) ? result.data : [result.data];
       resourceData.forEach((identifier) => {
         resources.put(this._cache.peek(identifier), identifier.lid);
       });
     }
 
-    if ('included' in result) {
-      const included: StableRecordIdentifier[] = result.included;
+    if ('included' in result && result.included) {
+      const included: StableExistingRecordIdentifier[] = result.included;
       included.forEach((identifier) => {
         resources.put(this._cache.peek(identifier), identifier.lid);
       });
@@ -102,7 +98,7 @@ export class PersistedCache implements Cache {
    * @param op the operation to perform
    * @returns {void}
    */
-  patch(op: MergeOperation): void {
+  patch(op: Operation): void {
     this._cache.patch(op);
   }
 
@@ -114,7 +110,7 @@ export class PersistedCache implements Cache {
    * @internal
    * @param mutation
    */
-  mutate(mutation: LocalRelationshipOperation): void {
+  mutate(mutation: Mutation): void {
     this._cache.mutate(mutation);
   }
 
@@ -150,7 +146,7 @@ export class PersistedCache implements Cache {
    * @param {StableRecordIdentifier | StableDocumentIdentifier} identifier
    * @returns {ResourceDocument | ResourceBlob | null} the known resource data
    */
-  peek(identifier: StableRecordIdentifier): unknown;
+  peek<T = unknown>(identifier: StableRecordIdentifier<TypeFromInstanceOrString<T>>): T | null;
   peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
   peek(identifier: StableRecordIdentifier | StableDocumentIdentifier): unknown {
     return this._cache.peek(identifier);
@@ -179,7 +175,7 @@ export class PersistedCache implements Cache {
    * @param hasRecord
    * @returns {void | string[]} if `hasRecord` is true then calculated key changes should be returned
    */
-  upsert(identifier: StableRecordIdentifier, data: JsonApiResource, hasRecord: boolean): void | string[] {
+  upsert(identifier: StableRecordIdentifier, data: ResourceBlob, hasRecord: boolean): void | string[] {
     return this._cache.upsert(identifier, data, hasRecord);
   }
 
@@ -320,7 +316,7 @@ export class PersistedCache implements Cache {
    * @internal
    * @param identifier
    */
-  willCommit(identifier: StableRecordIdentifier, context: StoreRequestContext): void {
+  willCommit(identifier: StableRecordIdentifier, context: RequestContext): void {
     this._cache.willCommit(identifier, context);
   }
 
@@ -346,7 +342,7 @@ export class PersistedCache implements Cache {
    * @param identifier
    * @param errors
    */
-  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[]): void {
+  commitWasRejected(identifier: StableRecordIdentifier, errors?: ApiError[]): void {
     this._cache.commitWasRejected(identifier, errors);
   }
 
@@ -374,8 +370,8 @@ export class PersistedCache implements Cache {
    * @param propertyName
    * @returns {unknown}
    */
-  getAttr(identifier: StableRecordIdentifier, propertyName: string): unknown {
-    return this._cache.getAttr(identifier, propertyName);
+  getAttr(identifier: StableRecordIdentifier, field: string): Value | undefined {
+    return this._cache.getAttr(identifier, field);
   }
 
   /**
@@ -387,7 +383,7 @@ export class PersistedCache implements Cache {
    * @param propertyName
    * @param value
    */
-  setAttr(identifier: StableRecordIdentifier, propertyName: string, value: unknown): void {
+  setAttr(identifier: StableRecordIdentifier, propertyName: string, value: Value): void {
     this._cache.setAttr(identifier, propertyName, value);
   }
 
@@ -427,6 +423,66 @@ export class PersistedCache implements Cache {
     return this._cache.rollbackAttrs(identifier);
   }
 
+  /**
+   * Query the cache for the changes to relationships of a resource.
+   *
+   * Returns a map of relationship names to RelationshipDiff objects.
+   *
+   * ```ts
+   * type RelationshipDiff =
+  | {
+      kind: 'collection';
+      remoteState: StableRecordIdentifier[];
+      additions: Set<StableRecordIdentifier>;
+      removals: Set<StableRecordIdentifier>;
+      localState: StableRecordIdentifier[];
+      reordered: boolean;
+    }
+  | {
+      kind: 'resource';
+      remoteState: StableRecordIdentifier | null;
+      localState: StableRecordIdentifier | null;
+    };
+    ```
+   *
+   * @method changedRelationships
+   * @public
+   * @param {StableRecordIdentifier} identifier
+   * @return {Map<string, RelationshipDiff>}
+   */
+  changedRelationships(identifier: StableRecordIdentifier): Map<string, RelationshipDiff> {
+    return this._cache.changedRelationships(identifier);
+  }
+
+  /**
+   * Query the cache for whether any mutated attributes exist
+   *
+   * @method hasChangedRelationships
+   * @public
+   * @param {StableRecordIdentifier} identifier
+   * @return {boolean}
+   */
+  hasChangedRelationships(identifier: StableRecordIdentifier): boolean {
+    return this._cache.hasChangedRelationships(identifier);
+  }
+
+  /**
+   * Tell the cache to discard any uncommitted mutations to relationships.
+   *
+   * This will also discard the change on any appropriate inverses.
+   *
+   * This method is a candidate to become a mutation
+   *
+   * @method rollbackRelationships
+   * @public
+   * @param {StableRecordIdentifier} identifier
+   * @return {string[]} the names of relationships that were restored
+   */
+  rollbackRelationships(identifier: StableRecordIdentifier): string[] {
+    return this._cache.rollbackRelationships(identifier);
+  }
+
+
   // Relationships
   // =============
 
@@ -441,9 +497,10 @@ export class PersistedCache implements Cache {
    */
   getRelationship(
     identifier: StableRecordIdentifier,
-    propertyName: string
-  ): SingleResourceRelationship | CollectionResourceRelationship {
-    return this._cache.getRelationship(identifier, propertyName);
+    field: string,
+    isCollection?: boolean
+  ): ResourceRelationship | CollectionRelationship {
+    return this._cache.getRelationship(identifier, field, isCollection);
   }
 
   // Resource State
@@ -470,7 +527,7 @@ export class PersistedCache implements Cache {
    * @param identifier
    * @returns
    */
-  getErrors(identifier: StableRecordIdentifier): JsonApiError[] {
+  getErrors(identifier: StableRecordIdentifier): ApiError[] {
     return this._cache.getErrors(identifier);
   }
 
