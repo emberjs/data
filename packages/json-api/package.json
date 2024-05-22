@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/json-api",
-  "version": "5.4.0-alpha.68",
+  "version": "5.4.0-alpha.69",
   "description": "Provides a JSON:API document and resource cache implementation for EmberData",
   "keywords": [
     "ember-addon"
@@ -77,16 +77,16 @@
     }
   },
   "peerDependencies": {
-    "@ember-data/graph": "workspace:5.4.0-alpha.68",
-    "@ember-data/request-utils": "workspace:5.4.0-alpha.68",
-    "@ember-data/store": "workspace:5.4.0-alpha.68",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.54",
+    "@ember-data/graph": "workspace:5.4.0-alpha.69",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.69",
+    "@ember-data/store": "workspace:5.4.0-alpha.69",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.55",
     "ember-inflector": "^4.0.2"
   },
   "dependencies": {
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.16.1",
-    "@warp-drive/build-config": "workspace:0.0.0-alpha.5",
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.6",
     "ember-cli-babel": "^8.2.0"
   },
   "devDependencies": {
@@ -94,15 +94,15 @@
     "@babel/plugin-transform-typescript": "^7.24.5",
     "@babel/preset-env": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
-    "@ember-data/graph": "workspace:5.4.0-alpha.68",
-    "@ember-data/request": "workspace:5.4.0-alpha.68",
-    "@ember-data/request-utils": "workspace:5.4.0-alpha.68",
-    "@ember-data/store": "workspace:5.4.0-alpha.68",
-    "@ember-data/tracking": "workspace:5.4.0-alpha.68",
+    "@ember-data/graph": "workspace:5.4.0-alpha.69",
+    "@ember-data/request": "workspace:5.4.0-alpha.69",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.69",
+    "@ember-data/store": "workspace:5.4.0-alpha.69",
+    "@ember-data/tracking": "workspace:5.4.0-alpha.69",
     "@ember/string": "^3.1.1",
     "@glimmer/component": "^1.1.2",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.54",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.68",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.55",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.69",
     "ember-inflector": "^4.0.2",
     "ember-source": "~5.8.0",
     "expect-type": "^0.19.0",

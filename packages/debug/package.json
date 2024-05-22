@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/debug",
-  "version": "5.4.0-alpha.68",
+  "version": "5.4.0-alpha.69",
   "description": "Provides support for the ember-inspector for apps built with Ember and EmberData",
   "keywords": [
     "ember-addon"
@@ -40,10 +40,10 @@
     }
   },
   "peerDependencies": {
-    "@ember-data/store": "workspace:5.4.0-alpha.68",
-    "@ember-data/model": "workspace:5.4.0-alpha.68",
+    "@ember-data/store": "workspace:5.4.0-alpha.69",
+    "@ember-data/model": "workspace:5.4.0-alpha.69",
     "@ember/string": "^3.1.1",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.54"
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.55"
   },
   "dependenciesMeta": {
     "@ember/string": {
@@ -74,7 +74,7 @@
   "dependencies": {
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.16.1",
-    "@warp-drive/build-config": "workspace:0.0.0-alpha.5",
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.6",
     "ember-cli-babel": "^8.2.0"
   },
   "devDependencies": {
@@ -82,16 +82,16 @@
     "@babel/plugin-transform-typescript": "^7.24.5",
     "@babel/preset-env": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
-    "@ember-data/request": "workspace:5.4.0-alpha.68",
-    "@ember-data/legacy-compat": "workspace:5.4.0-alpha.68",
-    "@ember-data/store": "workspace:5.4.0-alpha.68",
-    "@ember-data/model": "workspace:5.4.0-alpha.68",
-    "@ember-data/tracking": "workspace:5.4.0-alpha.68",
+    "@ember-data/request": "workspace:5.4.0-alpha.69",
+    "@ember-data/legacy-compat": "workspace:5.4.0-alpha.69",
+    "@ember-data/store": "workspace:5.4.0-alpha.69",
+    "@ember-data/model": "workspace:5.4.0-alpha.69",
+    "@ember-data/tracking": "workspace:5.4.0-alpha.69",
     "@ember/test-waiters": "^3.1.0",
     "@ember/string": "^3.1.1",
     "@glimmer/component": "^1.1.2",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.54",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.68",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.55",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.69",
     "ember-source": "~5.8.0",
     "ember-inflector": "^4.0.2",
     "decorator-transforms": "^2.0.0",
