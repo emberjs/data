@@ -28,16 +28,6 @@ export function getShimClass<T>(
   return shim;
 }
 
-function mapFromHash<K extends string, T>(hash: Record<K, T>): Map<K, T> {
-  const map: Map<K, T> = new Map();
-  for (const i in hash) {
-    if (Object.prototype.hasOwnProperty.call(hash, i)) {
-      map.set(i, hash[i]);
-    }
-  }
-  return map;
-}
-
 // Mimics the static apis of @ember-data/model
 export default class ShimModelClass<T = unknown> implements ModelSchema<T> {
   declare __store: Store;
@@ -48,32 +38,49 @@ export default class ShimModelClass<T = unknown> implements ModelSchema<T> {
   }
 
   get fields(): Map<KeyOrString<T>, 'attribute' | 'belongsTo' | 'hasMany'> {
-    const attrs = this.__store.getSchemaDefinitionService().attributesDefinitionFor({ type: this.modelName });
-    const relationships = this.__store
-      .getSchemaDefinitionService()
-      .relationshipsDefinitionFor({ type: this.modelName });
     const fields = new Map<KeyOrString<T>, 'attribute' | 'belongsTo' | 'hasMany'>();
-    Object.keys(attrs).forEach((key) => fields.set(key as KeyOrString<T>, 'attribute'));
-    Object.keys(relationships).forEach((key) => fields.set(key as KeyOrString<T>, relationships[key].kind));
+    const fieldSchemas = this.__store.schema.fields({ type: this.modelName });
+
+    fieldSchemas.forEach((schema, key) => {
+      if (schema.kind === 'attribute' || schema.kind === 'belongsTo' || schema.kind === 'hasMany') {
+        fields.set(key as KeyOrString<T>, schema.kind);
+      }
+    });
+
     return fields;
   }
 
   get attributes(): Map<KeyOrString<T>, LegacyAttributeField> {
-    const attrs = this.__store.getSchemaDefinitionService().attributesDefinitionFor({ type: this.modelName });
-    return mapFromHash(attrs as Record<keyof T & string, LegacyAttributeField>);
+    const attrs = new Map<KeyOrString<T>, LegacyAttributeField>();
+    const fields = this.__store.schema.fields({ type: this.modelName });
+
+    fields.forEach((schema, key) => {
+      if (schema.kind === 'attribute') {
+        attrs.set(key as KeyOrString<T>, schema);
+      }
+    });
+
+    return attrs;
   }
 
   get relationshipsByName(): Map<KeyOrString<T>, LegacyRelationshipSchema> {
-    const relationships = this.__store
-      .getSchemaDefinitionService()
-      .relationshipsDefinitionFor({ type: this.modelName });
-    return mapFromHash(relationships as Record<keyof T & string, LegacyRelationshipSchema>);
+    const rels = new Map<KeyOrString<T>, LegacyRelationshipSchema>();
+    const fields = this.__store.schema.fields({ type: this.modelName });
+
+    fields.forEach((schema, key) => {
+      if (schema.kind === 'belongsTo' || schema.kind === 'hasMany') {
+        rels.set(key as KeyOrString<T>, schema);
+      }
+    });
+
+    return rels;
   }
 
   eachAttribute<K extends KeyOrString<T>>(callback: (key: K, attribute: LegacyAttributeField) => void, binding?: T) {
-    const attrDefs = this.__store.getSchemaDefinitionService().attributesDefinitionFor({ type: this.modelName });
-    Object.keys(attrDefs).forEach((key) => {
-      callback.call(binding, key as K, attrDefs[key]);
+    this.__store.schema.fields({ type: this.modelName }).forEach((schema, key) => {
+      if (schema.kind === 'attribute') {
+        callback.call(binding, key as K, schema);
+      }
     });
   }
 
@@ -81,20 +88,18 @@ export default class ShimModelClass<T = unknown> implements ModelSchema<T> {
     callback: (key: K, relationship: LegacyRelationshipSchema) => void,
     binding?: T
   ) {
-    const relationshipDefs = this.__store
-      .getSchemaDefinitionService()
-      .relationshipsDefinitionFor({ type: this.modelName });
-    Object.keys(relationshipDefs).forEach((key) => {
-      callback.call(binding, key as K, relationshipDefs[key]);
+    this.__store.schema.fields({ type: this.modelName }).forEach((schema, key) => {
+      if (schema.kind === 'belongsTo' || schema.kind === 'hasMany') {
+        callback.call(binding, key as K, schema);
+      }
     });
   }
 
   eachTransformedAttribute<K extends KeyOrString<T>>(callback: (key: K, type: string | null) => void, binding?: T) {
-    const attrDefs = this.__store.getSchemaDefinitionService().attributesDefinitionFor({ type: this.modelName });
-    Object.keys(attrDefs).forEach((key) => {
-      const type = attrDefs[key].type;
-      if (type) {
-        callback.call(binding, key as K, type);
+    this.__store.schema.fields({ type: this.modelName }).forEach((schema, key) => {
+      if (schema.kind === 'attribute') {
+        const type = schema.type;
+        if (type) callback.call(binding, key as K, type);
       }
     });
   }

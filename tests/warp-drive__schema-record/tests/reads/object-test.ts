@@ -3,9 +3,9 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import { recordIdentifierFor } from '@ember-data/store';
-import type { ResourceType } from '@warp-drive/core-types/symbols';
-import type { Transform } from '@warp-drive/schema-record/schema';
-import { registerDerivations, SchemaService, withFields } from '@warp-drive/schema-record/schema';
+import { type ResourceType, Type } from '@warp-drive/core-types/symbols';
+import type { Transformation } from '@warp-drive/schema-record/schema';
+import { registerDerivations, withDefaults } from '@warp-drive/schema-record/schema';
 
 import type Store from 'warp-drive__schema-record/services/store';
 
@@ -29,22 +29,24 @@ module('Reads | object fields', function (hooks) {
 
   test('we can use simple object fields with no `type`', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
     registerDerivations(schema);
 
-    schema.defineSchema('user', {
-      fields: withFields([
-        {
-          name: 'name',
-          kind: 'field',
-        },
-        {
-          name: 'address',
-          kind: 'object',
-        },
-      ]),
-    });
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'address',
+            kind: 'object',
+          },
+        ],
+      })
+    );
 
     const sourceAddress: address = {
       street: '123 Main St',
@@ -88,23 +90,25 @@ module('Reads | object fields', function (hooks) {
 
   test('we can use simple object fields with a `type`', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
     registerDerivations(schema);
-    schema.defineSchema('user', {
-      fields: withFields([
-        {
-          name: 'name',
-          kind: 'field',
-        },
-        {
-          name: 'address',
-          type: 'zip-string-from-int',
-          kind: 'object',
-        },
-      ]),
-    });
-    const ZipStringFromIntTransform: Transform<address, address> = {
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'address',
+            type: 'zip-string-from-int',
+            kind: 'object',
+          },
+        ],
+      })
+    );
+    const ZipStringFromIntTransform: Transformation<address, address> = {
       serialize(value: address, options, _record): address {
         if (typeof value.zip === 'string') {
           return {
@@ -128,8 +132,9 @@ module('Reads | object fields', function (hooks) {
         assert.ok(false, 'unexpected defaultValue');
         throw new Error('unexpected defaultValue');
       },
+      [Type]: 'zip-string-from-int',
     };
-    schema.registerTransform('zip-string-from-int', ZipStringFromIntTransform);
+    schema.registerTransformation(ZipStringFromIntTransform);
     const sourceAddress = {
       street: '123 Main St',
       city: 'Anytown',

@@ -1,4 +1,4 @@
-import { keepAssets } from '@warp-drive/internal-config/rollup/keep-assets';
+import { keepAssets } from '@warp-drive/internal-config/vite/keep-assets';
 import { createConfig } from '@warp-drive/internal-config/vite/config.js';
 
 export const externals = [
@@ -19,9 +19,7 @@ export default createConfig(
   {
     entryPoints,
     externals,
-    rollup: {
-      plugins: [keepAssets({ from: 'src', include: ['./styles/**/*.css'] })],
-    },
+    plugins: [keepAssets({ from: 'src', include: ['./styles/**/*.css'], dist: 'dist' })],
   },
   import.meta.resolve
 );

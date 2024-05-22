@@ -2,12 +2,16 @@
   @module @ember-data/store
 */
 
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { RecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { ObjectValue } from '@warp-drive/core-types/json/raw';
+import type { Derivation, HashFn, Transformation } from '@warp-drive/core-types/schema/concepts';
 import type {
   FieldSchema,
   LegacyAttributeField,
   LegacyBelongsToField,
   LegacyHasManyField,
+  ResourceSchema,
 } from '@warp-drive/core-types/schema/fields';
 
 export type AttributesSchema = Record<string, LegacyAttributeField>;
@@ -32,18 +36,16 @@ export type RelationshipsSchema = Record<string, LegacyBelongsToField | LegacyHa
  * resulting in no need to bundle and ship potentially large and expensive JSON
  * or large Javascript based Models to pull information from.
  *
- * To register a custom schema implementation, extend the store service or
- * lookup and register the schema service first thing on app-boot. Example below
- * shows extending the service.
+ * To register a custom schema implementation, implement the store's `createSchemaService`
+ * hook to return an instance of your service.
  *
  * ```ts
  * import Store from '@ember-data/store';
  * import CustomSchemas from './custom-schemas';
  *
  * export default class extends Store {
- *   constructor(...args) {
- *     super(...args);
- *     this.registerSchema(new CustomSchemas());
+ *   createSchemaService() {
+ *     return new CustomSchemas();
  *   }
  * }
  * ```
@@ -55,39 +57,179 @@ export type RelationshipsSchema = Record<string, LegacyBelongsToField | LegacyHa
  * export default class extends Component {
  *  @service store;
  *
- *  get attributes() {
+ *  get fields() {
  *    return this.store
  *      .schema
- *      .attributesDefinitionFor(this.args.dataType);
+ *      .fields(this.args.dataType);
  *  }
  * }
  * ```
- *
- * Note: there can only be one schema service registered at a time.
- * If you register a new schema service, the old one will be replaced.
- *
- * If you would like to inherit from another schema service, you can do so by
- * using typical class inheritance patterns OR by accessing the existing
- * schema service at runtime before replacing it with your own, and then
- * having your own delegate to it when needed.
  *
  * @class <Interface> SchemaService
  * @public
  */
 export interface SchemaService {
   /**
-   * Queries whether the schema-definition-service recognizes `type` as a resource type
+   * DEPRECATED - use `hasResource` instead
+   *
+   * Queries whether the SchemaService recognizes `type` as a resource type
    *
    * @method doesTypeExist
+   * @public
+   * @deprecated
+   * @param {string} type
+   * @return {boolean}
+   */
+  doesTypeExist?(type: string): boolean;
+
+  /**
+   * Queries whether the SchemaService recognizes `type` as a resource type
+   *
+   * @method hasResource
+   * @public
+   * @param {StableRecordIdentifier|{ type: string }} resource
+   * @return {boolean}
+   */
+  hasResource(resource: { type: string } | StableRecordIdentifier): boolean;
+
+  /**
+   * Queries whether the SchemaService recognizes `type` as a resource trait
+   *
+   * @method hasTrait
    * @public
    * @param {string} type
    * @return {boolean}
    */
-  doesTypeExist(type: string): boolean;
-
-  fields({ type }: { type: string }): Map<string, FieldSchema>;
+  hasTrait(type: string): boolean;
 
   /**
+   * Queries whether the given resource has the given trait
+   *
+   * @method resourceHasTrait
+   * @public
+   * @param {StableRecordIdentifier|{ type: string }} resource
+   * @param {string} trait
+   * @return {boolean}
+   */
+  resourceHasTrait(resource: { type: string } | StableRecordIdentifier, trait: string): boolean;
+
+  /**
+   * Queries for the fields of a given resource type or resource identity.
+   *
+   * Should error if the resource type is not recognized.
+   *
+   * @method fields
+   * @public
+   * @param {StableRecordIdentifier|{ type: string }} resource
+   * @return {Map<string, FieldSchema>}
+   */
+  fields(resource: { type: string } | StableRecordIdentifier): Map<string, FieldSchema>;
+
+  /**
+   * Returns the transformation registered with the provided name.
+   *
+   * @method transformation
+   * @public
+   * @param name
+   * @returns {Transformation}
+   */
+  transformation(name: string): Transformation;
+
+  /**
+   * Returns the hash function registered with the provided name.
+   *
+   * @method hashFn
+   * @public
+   * @param name
+   * @returns {HashFn}
+   */
+  hashFn(name: string): HashFn;
+
+  /**
+   * Returns the derivation registered with the provided name.
+   *
+   * @method derivation
+   * @public
+   * @param name
+   * @returns {Derivation}
+   */
+  derivation(name: string): Derivation;
+
+  /**
+   * Returns the schema for the provided resource type.
+   *
+   * @method resource
+   * @public
+   * @param {StableRecordIdentifier|{ type: string }} resource
+   * @return {ResourceSchema}
+   */
+  resource(resource: { type: string } | StableRecordIdentifier): ResourceSchema;
+
+  /**
+   * Enables registration of multiple ResourceSchemas at once.
+   *
+   * This can be useful for either pre-loading schema information
+   * or for registering schema information delivered by API calls
+   * or other sources just-in-time.
+   *
+   * @method registerResources
+   * @public
+   * @param schemas
+   */
+  registerResources(schemas: ResourceSchema[]): void;
+
+  /**
+   * Enables registration of a single ResourceSchema.
+   *
+   * This can be useful for either pre-loading schema information
+   * or for registering schema information delivered by API calls
+   * or other sources just-in-time.
+   *
+   * @method registerResource
+   * @public
+   * @param {ResourceSchema} schema
+   */
+  registerResource(schema: ResourceSchema): void;
+
+  /**
+   * Enables registration of a transformation.
+   *
+   * The transformation can later be retrieved by the name
+   * attached to it's `[Type]` property.
+   *
+   * @method registerTransformations
+   * @public
+   * @param {Transformation} transform
+   */
+  registerTransformation(transform: Transformation): void;
+
+  /**
+   * Enables registration of a derivation.
+   *
+   * The derivation can later be retrieved by the name
+   * attached to it's `[Type]` property.
+   *
+   * @method registerDerivations
+   * @public
+   * @param {Derivation} derivation
+   */
+  registerDerivation<R, T, FM extends ObjectValue | null>(derivation: Derivation<R, T, FM>): void;
+
+  /**
+   * Enables registration of a hashing function
+   *
+   * The hashing function can later be retrieved by the name
+   * attached to it's `[Type]` property.
+   *
+   * @method registerHashFn
+   * @public
+   * @param {HashFn} hashfn
+   */
+  registerHashFn(hashFn: HashFn): void;
+
+  /**
+   * DEPRECATED - use `fields` instead
+   *
    * Returns definitions for all properties of the specified resource
    * that are considered "attributes". Generally these are properties
    * that are not related to book-keeping state on the client and do
@@ -125,12 +267,15 @@ export interface SchemaService {
    *
    * @method attributesDefinitionFor
    * @public
+   * @deprecated
    * @param {RecordIdentifier|{ type: string }} identifier
    * @return {AttributesSchema}
    */
-  attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema;
+  attributesDefinitionFor?(identifier: RecordIdentifier | { type: string }): AttributesSchema;
 
   /**
+   * DEPRECATED - use `fields` instead
+   *
    * Returns definitions for all properties of the specified resource
    * that are considered "relationships". Generally these are properties
    * that represent a linkage to another resource.
@@ -205,8 +350,9 @@ export interface SchemaService {
    *
    * @method relationshipsDefinitionFor
    * @public
+   * @deprecated
    * @param {RecordIdentifier|{ type: string }} identifier
    * @return {RelationshipsSchema}
    */
-  relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema;
+  relationshipsDefinitionFor?(identifier: RecordIdentifier | { type: string }): RelationshipsSchema;
 }

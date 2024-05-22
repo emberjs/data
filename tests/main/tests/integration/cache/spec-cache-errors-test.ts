@@ -191,15 +191,15 @@ class TestCache implements Cache {
   }
 }
 
-module('integration/record-data Custom RecordData (v2) Errors', function (hooks) {
+module('integration/record-data Custom Cache (v2) Errors', function (hooks) {
   setupTest(hooks);
 
-  test('RecordData Invalid Errors', async function (assert) {
+  test('Cache Invalid Errors', async function (assert) {
     assert.expect(3);
 
     const { owner } = this;
 
-    class LifecycleRecordData extends TestCache {
+    class LifecycleCache extends TestCache {
       override commitWasRejected(identifier: StableRecordIdentifier, errors?: ApiError[]) {
         super.commitWasRejected(identifier, errors);
         assert.strictEqual(errors?.[0]?.detail, 'is a generally unsavoury character', 'received the error');
@@ -208,7 +208,7 @@ module('integration/record-data Custom RecordData (v2) Errors', function (hooks)
     }
     class TestStore extends Store {
       override createCache(wrapper: CacheCapabilitiesManager) {
-        return new LifecycleRecordData(wrapper) as Cache;
+        return new LifecycleCache(wrapper) as Cache;
       }
     }
     class TestAdapter extends EmberObject {
@@ -256,12 +256,12 @@ module('integration/record-data Custom RecordData (v2) Errors', function (hooks)
     }
   });
 
-  test('RecordData Network Errors', async function (assert) {
+  test('Cache Network Errors', async function (assert) {
     assert.expect(2);
 
     const { owner } = this;
 
-    class LifecycleRecordData extends TestCache {
+    class LifecycleCache extends TestCache {
       override commitWasRejected(identifier: StableRecordIdentifier, errors?: ApiError[]) {
         super.commitWasRejected(identifier, errors);
         assert.strictEqual(errors, undefined, 'Did not pass adapter errors');
@@ -269,7 +269,7 @@ module('integration/record-data Custom RecordData (v2) Errors', function (hooks)
     }
     class TestStore extends Store {
       override createCache(wrapper: CacheCapabilitiesManager) {
-        return new LifecycleRecordData(wrapper) as Cache;
+        return new LifecycleCache(wrapper) as Cache;
       }
     }
     class TestAdapter extends EmberObject {
@@ -306,12 +306,12 @@ module('integration/record-data Custom RecordData (v2) Errors', function (hooks)
     }
   });
 
-  test('RecordData Invalid Errors Can Be Reflected On The Record', function (assert) {
+  test('Cache Invalid Errors Can Be Reflected On The Record', function (assert) {
     const { owner } = this;
     let errorsToReturn: ApiError[] | undefined;
     let storeWrapper!: CacheCapabilitiesManager;
 
-    class LifecycleRecordData extends TestCache {
+    class LifecycleCache extends TestCache {
       override getErrors(): ApiError[] {
         return errorsToReturn || [];
       }
@@ -320,7 +320,7 @@ module('integration/record-data Custom RecordData (v2) Errors', function (hooks)
     class TestStore extends Store {
       override createCache(wrapper: CacheCapabilitiesManager) {
         storeWrapper = wrapper;
-        return new LifecycleRecordData(wrapper) as Cache;
+        return new LifecycleCache(wrapper) as Cache;
       }
     }
 

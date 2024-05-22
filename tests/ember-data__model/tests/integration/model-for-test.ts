@@ -1,11 +1,15 @@
 import Store from '@ember-data/store';
 import type { SchemaService } from '@ember-data/store/types';
-import type { FieldSchema } from '@warp-drive/core-types/schema/fields';
 import { module, test } from '@warp-drive/diagnostic';
+
+import { TestSchema } from '../utils/schema';
 
 module('modelFor without @ember-data/model', function () {
   test('We can call modelFor', function (assert) {
     class TestStore extends Store {
+      createSchemaService(): SchemaService {
+        return new TestSchema();
+      }
       override instantiateRecord() {
         return {
           id: '1',
@@ -18,55 +22,17 @@ module('modelFor without @ember-data/model', function () {
       }
     }
     const store = new TestStore();
-
-    class TestSchema implements SchemaService {
-      attributesDefinitionFor(_identifier: { type: string }) {
-        return {
-          name: {
-            name: 'name',
-            kind: 'attribute' as const,
-            type: null,
-          },
-        };
-      }
-
-      _fieldsDefCache = {} as Record<string, Map<string, FieldSchema>>;
-
-      fields(identifier: { type: string }): Map<string, FieldSchema> {
-        const { type } = identifier;
-        let fieldDefs: Map<string, FieldSchema> | undefined = this._fieldsDefCache[type];
-
-        if (fieldDefs === undefined) {
-          fieldDefs = new Map();
-          this._fieldsDefCache[type] = fieldDefs;
-
-          const attributes = this.attributesDefinitionFor(identifier);
-          const relationships = this.relationshipsDefinitionFor(identifier);
-
-          for (const attr of Object.values(attributes)) {
-            fieldDefs.set(attr.name, attr);
-          }
-
-          for (const rel of Object.values(relationships)) {
-            fieldDefs.set(rel.name, rel);
-          }
-        }
-
-        return fieldDefs;
-      }
-
-      relationshipsDefinitionFor(_identifier: {
-        type: string;
-      }): ReturnType<SchemaService['relationshipsDefinitionFor']> {
-        return {};
-      }
-
-      doesTypeExist(type: string) {
-        return type === 'user';
-      }
-    }
-
-    store.registerSchema(new TestSchema());
+    store.schema.registerResource({
+      identity: { name: 'id', kind: '@id' },
+      type: 'user',
+      fields: [
+        {
+          name: 'name',
+          type: null,
+          kind: 'attribute',
+        },
+      ],
+    });
 
     try {
       store.modelFor('user');
@@ -89,6 +55,9 @@ module('modelFor without @ember-data/model', function () {
 
   test('modelFor returns a stable reference', function (assert) {
     class TestStore extends Store {
+      createSchemaService(): SchemaService {
+        return new TestSchema();
+      }
       override instantiateRecord() {
         return {
           id: '1',
@@ -101,54 +70,17 @@ module('modelFor without @ember-data/model', function () {
       }
     }
     const store = new TestStore();
-    class TestSchema implements SchemaService {
-      attributesDefinitionFor(_identifier: { type: string }) {
-        return {
-          name: {
-            name: 'name',
-            kind: 'attribute' as const,
-            type: null,
-          },
-        };
-      }
-
-      _fieldsDefCache = {} as Record<string, Map<string, FieldSchema>>;
-
-      fields(identifier: { type: string }): Map<string, FieldSchema> {
-        const { type } = identifier;
-        let fieldDefs: Map<string, FieldSchema> | undefined = this._fieldsDefCache[type];
-
-        if (fieldDefs === undefined) {
-          fieldDefs = new Map();
-          this._fieldsDefCache[type] = fieldDefs;
-
-          const attributes = this.attributesDefinitionFor(identifier);
-          const relationships = this.relationshipsDefinitionFor(identifier);
-
-          for (const attr of Object.values(attributes)) {
-            fieldDefs.set(attr.name, attr);
-          }
-
-          for (const rel of Object.values(relationships)) {
-            fieldDefs.set(rel.name, rel);
-          }
-        }
-
-        return fieldDefs;
-      }
-
-      relationshipsDefinitionFor(_identifier: {
-        type: string;
-      }): ReturnType<SchemaService['relationshipsDefinitionFor']> {
-        return {};
-      }
-
-      doesTypeExist(type: string) {
-        return type === 'user';
-      }
-    }
-
-    store.registerSchema(new TestSchema());
+    store.schema.registerResource({
+      identity: { name: 'id', kind: '@id' },
+      type: 'user',
+      fields: [
+        {
+          name: 'name',
+          type: null,
+          kind: 'attribute',
+        },
+      ],
+    });
 
     const ShimUser1 = store.modelFor('user');
     const ShimUser2 = store.modelFor('user');

@@ -5,8 +5,7 @@ import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 
 import type Store from '@ember-data/store';
-import type { FieldSchema } from '@warp-drive/core-types/schema/fields';
-import { registerDerivations, SchemaService, withFields } from '@warp-drive/schema-record/schema';
+import { registerDerivations, withDefaults } from '@warp-drive/schema-record/schema';
 
 import { reactiveContext } from '../-utils/reactive-context';
 
@@ -26,21 +25,21 @@ module('Reactivity | array fields can receive remote updates', function (hooks) 
 
   test('we can use simple fields with no `type`', async function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
     registerDerivations(schema);
 
-    schema.defineSchema('user', {
-      fields: withFields([
-        {
-          name: 'favoriteNumbers',
-          kind: 'array',
-        },
-      ]),
-    });
-    const fieldsMap = schema.schemas.get('user')!.fields;
-    const fields: FieldSchema[] = [...fieldsMap.values()];
-
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'favoriteNumbers',
+            kind: 'array',
+          },
+        ],
+      })
+    );
+    const resource = schema.resource({ type: 'user' });
     const record = store.push({
       data: {
         type: 'user',
@@ -53,7 +52,7 @@ module('Reactivity | array fields can receive remote updates', function (hooks) 
     assert.strictEqual(record.$type, 'user', '$type is accessible');
     assert.deepEqual(record.favoriteNumbers, ['1', '2'], 'favoriteNumbers is accessible');
 
-    const { counters, fieldOrder } = await reactiveContext.call(this, record, fields);
+    const { counters, fieldOrder } = await reactiveContext.call(this, record, resource);
     const favoriteNumbersIndex = fieldOrder.indexOf('favoriteNumbers');
 
     assert.strictEqual(counters.id, 1, 'idCount is 1');

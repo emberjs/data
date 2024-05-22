@@ -3,9 +3,9 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import { recordIdentifierFor } from '@ember-data/store';
-import type { ResourceType } from '@warp-drive/core-types/symbols';
-import type { Transform } from '@warp-drive/schema-record/schema';
-import { registerDerivations, SchemaService, withFields } from '@warp-drive/schema-record/schema';
+import { type ResourceType, Type } from '@warp-drive/core-types/symbols';
+import type { Transformation } from '@warp-drive/schema-record/schema';
+import { registerDerivations, withDefaults } from '@warp-drive/schema-record/schema';
 
 import type Store from 'warp-drive__schema-record/services/store';
 
@@ -36,22 +36,24 @@ module('Writes | object fields', function (hooks) {
 
   test('we can update to a new object', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
     registerDerivations(schema);
 
-    schema.defineSchema('user', {
-      fields: withFields([
-        {
-          name: 'name',
-          kind: 'field',
-        },
-        {
-          name: 'address',
-          kind: 'object',
-        },
-      ]),
-    });
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'address',
+            kind: 'object',
+          },
+        ],
+      })
+    );
 
     const record = store.push<User>({
       data: {
@@ -99,21 +101,23 @@ module('Writes | object fields', function (hooks) {
 
   test('we can update to null', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
     registerDerivations(schema);
-    schema.defineSchema('user', {
-      fields: withFields([
-        {
-          name: 'name',
-          kind: 'field',
-        },
-        {
-          name: 'address',
-          kind: 'object',
-        },
-      ]),
-    });
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'address',
+            kind: 'object',
+          },
+        ],
+      })
+    );
     const record = store.push<User>({
       data: {
         type: 'user',
@@ -168,21 +172,23 @@ module('Writes | object fields', function (hooks) {
 
   test('we can update a single value in the object', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
     registerDerivations(schema);
-    schema.defineSchema('user', {
-      fields: withFields([
-        {
-          name: 'name',
-          kind: 'field',
-        },
-        {
-          name: 'address',
-          kind: 'object',
-        },
-      ]),
-    });
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'address',
+            kind: 'object',
+          },
+        ],
+      })
+    );
     const record = store.push<User>({
       data: {
         type: 'user',
@@ -228,21 +234,23 @@ module('Writes | object fields', function (hooks) {
 
   test('we can assign an object value to another record', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
     registerDerivations(schema);
-    schema.defineSchema('user', {
-      fields: withFields([
-        {
-          name: 'name',
-          kind: 'field',
-        },
-        {
-          name: 'address',
-          kind: 'object',
-        },
-      ]),
-    });
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'address',
+            kind: 'object',
+          },
+        ],
+      })
+    );
     const record = store.push<User>({
       data: {
         type: 'user',
@@ -314,24 +322,26 @@ module('Writes | object fields', function (hooks) {
 
   test('we can edit simple object fields with a `type`', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
     registerDerivations(schema);
-    schema.defineSchema('user', {
-      fields: withFields([
-        {
-          name: 'name',
-          kind: 'field',
-        },
-        {
-          name: 'address',
-          type: 'zip-string-from-int',
-          kind: 'object',
-        },
-      ]),
-    });
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'address',
+            type: 'zip-string-from-int',
+            kind: 'object',
+          },
+        ],
+      })
+    );
 
-    const ZipStringFromIntTransform: Transform<address, address> = {
+    const ZipStringFromIntTransform: Transformation<address, address> = {
       serialize(value: address, options, _record): address {
         if (typeof value.zip === 'string') {
           return {
@@ -355,8 +365,9 @@ module('Writes | object fields', function (hooks) {
         assert.ok(false, 'unexpected defaultValue');
         throw new Error('unexpected defaultValue');
       },
+      [Type]: 'zip-string-from-int',
     };
-    schema.registerTransform('zip-string-from-int', ZipStringFromIntTransform);
+    schema.registerTransformation(ZipStringFromIntTransform);
 
     const sourceAddress = {
       street: '123 Main St',
@@ -425,24 +436,26 @@ module('Writes | object fields', function (hooks) {
 
   test('we can edit single values in object fields with a `type`', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
     registerDerivations(schema);
-    schema.defineSchema('user', {
-      fields: withFields([
-        {
-          name: 'name',
-          kind: 'field',
-        },
-        {
-          name: 'address',
-          type: 'zip-string-from-int',
-          kind: 'object',
-        },
-      ]),
-    });
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'address',
+            type: 'zip-string-from-int',
+            kind: 'object',
+          },
+        ],
+      })
+    );
 
-    const ZipStringFromIntTransform: Transform<address, address> = {
+    const ZipStringFromIntTransform: Transformation<address, address> = {
       serialize(value: address, options, _record): address {
         if (typeof value.zip === 'string') {
           return {
@@ -466,8 +479,9 @@ module('Writes | object fields', function (hooks) {
         assert.ok(false, 'unexpected defaultValue');
         throw new Error('unexpected defaultValue');
       },
+      [Type]: 'zip-string-from-int',
     };
-    schema.registerTransform('zip-string-from-int', ZipStringFromIntTransform);
+    schema.registerTransformation(ZipStringFromIntTransform);
 
     const sourceAddress = {
       street: '123 Main St',

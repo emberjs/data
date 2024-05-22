@@ -209,11 +209,11 @@ const RESTSerializer = JSONSerializer.extend({
 
     if (!primaryHasTypeAttribute && hash.type) {
       // Support polymorphic records in async relationships
-      const modelName = this.modelNameFromPayloadKey(hash.type);
+      const type = this.modelNameFromPayloadKey(hash.type);
 
-      if (store.getSchemaDefinitionService().doesTypeExist(modelName)) {
-        serializer = store.serializerFor(modelName);
-        modelClass = store.modelFor(modelName);
+      if (store.schema.hasResource({ type })) {
+        serializer = store.serializerFor(type);
+        modelClass = store.modelFor(type);
       }
     }
 
@@ -278,15 +278,15 @@ const RESTSerializer = JSONSerializer.extend({
         modelName = prop.substr(1);
       }
 
-      var typeName = this.modelNameFromPayloadKey(modelName);
-      if (!store.getSchemaDefinitionService().doesTypeExist(typeName)) {
-        warn(this.warnMessageNoModelForKey(modelName, typeName), false, {
+      const type = this.modelNameFromPayloadKey(modelName);
+      if (!store.schema.hasResource({ type })) {
+        warn(this.warnMessageNoModelForKey(modelName, type), false, {
           id: 'ds.serializer.model-for-key-missing',
         });
         continue;
       }
 
-      var isPrimary = !forcedSecondary && this.isPrimaryType(store, typeName, primaryModelClass);
+      var isPrimary = !forcedSecondary && this.isPrimaryType(store, type, primaryModelClass);
       var value = payload[prop];
 
       if (value === null) {
@@ -318,7 +318,7 @@ const RESTSerializer = JSONSerializer.extend({
         continue;
       }
 
-      const { data, included } = this._normalizeArray(store, typeName, value, prop);
+      const { data, included } = this._normalizeArray(store, type, value, prop);
 
       if (included) {
         documentHash.included = documentHash.included.concat(included);
@@ -400,19 +400,19 @@ const RESTSerializer = JSONSerializer.extend({
       included: [],
     };
 
-    for (var prop in payload) {
-      var modelName = this.modelNameFromPayloadKey(prop);
-      if (!store.getSchemaDefinitionService().doesTypeExist(modelName)) {
-        warn(this.warnMessageNoModelForKey(prop, modelName), false, {
+    for (const prop in payload) {
+      const type = this.modelNameFromPayloadKey(prop);
+      if (!store.schema.hasResource({ type })) {
+        warn(this.warnMessageNoModelForKey(prop, type), false, {
           id: 'ds.serializer.model-for-key-missing',
         });
         continue;
       }
-      var type = store.modelFor(modelName);
-      var typeSerializer = store.serializerFor(type.modelName);
+      const ModelSchema = store.modelFor(type);
+      const typeSerializer = store.serializerFor(ModelSchema.modelName);
 
       makeArray(payload[prop]).forEach((hash) => {
-        const { data, included } = typeSerializer.normalize(type, hash, prop);
+        const { data, included } = typeSerializer.normalize(ModelSchema, hash, prop);
         documentHash.data.push(data);
         if (included) {
           documentHash.included = documentHash.included.concat(included);

@@ -1,7 +1,11 @@
 import { recordIdentifierFor } from '@ember-data/store';
+import type { SchemaService } from '@ember-data/store/types';
 import { assert } from '@warp-drive/build-config/macros';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
-import type { FieldSchema } from '@warp-drive/core-types/schema/fields';
+import type { ObjectValue } from '@warp-drive/core-types/json/raw';
+import type { ResourceSchema } from '@warp-drive/core-types/schema/fields';
+import { Type } from '@warp-drive/core-types/symbols';
+import type { WithPartial } from '@warp-drive/core-types/utils';
 
 import { Errors } from './-private';
 import type { MinimalLegacyRecord } from './-private/model-methods';
@@ -20,10 +24,6 @@ import {
 } from './-private/model-methods';
 import RecordState from './-private/record-state';
 
-type Derivation<R, T> = (record: R, options: Record<string, unknown> | null, prop: string) => T;
-type SchemaService = {
-  registerDerivation(name: string, derivation: Derivation<unknown, unknown>): void;
-};
 // 'isDestroying', 'isDestroyed'
 const LegacyFields = [
   '_createSnapshot',
@@ -55,7 +55,7 @@ const LegacyFields = [
 
 const LegacySupport = getOrSetGlobal('LegacySupport', new WeakMap<MinimalLegacyRecord, Record<string, unknown>>());
 
-function legacySupport(record: MinimalLegacyRecord, options: Record<string, unknown> | null, prop: string): unknown {
+function legacySupport(record: MinimalLegacyRecord, options: ObjectValue | null, prop: string): unknown {
   let state = LegacySupport.get(record);
   if (!state) {
     state = {};
@@ -123,40 +123,40 @@ function legacySupport(record: MinimalLegacyRecord, options: Record<string, unkn
       assert(`${prop} is not a supported legacy field`, false);
   }
 }
+legacySupport[Type] = '@legacy';
 
-export function withFields(fields: FieldSchema[]) {
+export function withDefaults(schema: WithPartial<ResourceSchema, 'legacy' | 'identity'>): ResourceSchema {
+  schema.legacy = true;
+  schema.identity = { kind: '@id', name: 'id' };
+
   LegacyFields.forEach((field) => {
-    fields.push({
+    schema.fields.push({
       type: '@legacy',
       name: field,
       kind: 'derived',
     });
   });
-  fields.push({
-    name: 'id',
-    kind: '@id',
-  });
-  fields.push({
+  schema.fields.push({
     name: 'isReloading',
     kind: '@local',
     type: 'boolean',
     options: { defaultValue: false },
   });
-  fields.push({
+  schema.fields.push({
     name: 'isDestroying',
     kind: '@local',
     type: 'boolean',
     options: { defaultValue: false },
   });
-  fields.push({
+  schema.fields.push({
     name: 'isDestroyed',
     kind: '@local',
     type: 'boolean',
     options: { defaultValue: false },
   });
-  return fields;
+  return schema as ResourceSchema;
 }
 
 export function registerDerivations(schema: SchemaService) {
-  schema.registerDerivation('@legacy', legacySupport as Derivation<unknown, unknown>);
+  schema.registerDerivation(legacySupport);
 }

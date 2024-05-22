@@ -62,6 +62,61 @@ export type IdentityField = {
 };
 
 /**
+ * Represents a specialized field whose computed value
+ * will be used as the primary key of a schema-object
+ * for serializability and comparison purposes.
+ *
+ * This field functions similarly to derived fields in that
+ * it is non-settable, derived state but differs in that
+ * it is only able to compute off of cache state and is given
+ * no access to a record instance.
+ *
+ * This means that if a hashing function wants to compute its value
+ * taking into account transformations and derivations it must
+ * perform those itself.
+ *
+ * A schema-array can declare its "key" value to be `@hash` if
+ * a schema-object has such a field.
+ *
+ * Only one hash field is permittable per schema-object, and
+ * it should be placed in the `ResourceSchema`'s `@id` field
+ * in place of an `IdentityField`.
+ *
+ * @typedoc
+ */
+export type HashField = {
+  kind: '@hash';
+
+  /**
+   * The name of the field that serves as the
+   * hash for the resource.
+   *
+   * Only required if access to this value by
+   * the UI is desired, it can be `null` otherwise.
+   *
+   * @typedoc
+   */
+  name: string | null;
+
+  /**
+   * The name of a function to run to compute the hash.
+   * The function will only have access to the cached
+   * data for the record.
+   *
+   * @typedoc
+   */
+  type: string;
+
+  /**
+   * Any options that should be provided to the hash
+   * function.
+   *
+   * @typedoc
+   */
+  options?: ObjectValue;
+};
+
+/**
  * Represents a field whose value is a local
  * value that is not stored in the cache, nor
  * is it sent to the server.
@@ -76,8 +131,9 @@ export type IdentityField = {
  *
  * For this reason Local fields should be used sparingly.
  *
- * In the future, we may choose to only allow our
- * own SchemaRecord to utilize them.
+ * Currently, while we document this feature here,
+ * only allow our own SchemaRecord should utilize them
+ * and the feature should be considered private.
  *
  * Example use cases that drove the creation of local
  * fields are states like `isDestroying` and `isDestroyed`
@@ -160,8 +216,26 @@ export type SchemaObjectField = {
    */
   type: string;
 
-  // FIXME: would we ever need options here?
-  options?: ObjectValue;
+  options?: {
+    /**
+     * Whether this SchemaObject is Polymorphic.
+     *
+     * If the SchemaObject is polymorphic, `options.type` must also be supplied.
+     *
+     * @typedoc
+     */
+    polymorphic?: boolean;
+
+    /**
+     * If the SchemaObject is Polymorphic, the key on the raw cache data to use
+     * as the "resource-type" value for the schema-object.
+     *
+     * Defaults to "type".
+     *
+     * @typedoc
+     */
+    type?: string;
+  };
 };
 
 /**
@@ -219,8 +293,64 @@ export type SchemaArrayField = {
    */
   type: string;
 
-  // FIXME: would we ever need options here?
-  options?: ObjectValue;
+  /**
+   * Options for configuring the behavior of the
+   * SchemaArray.
+   *
+   * @typedoc
+   */
+
+  /**
+   * Options for configuring the behavior of the
+   * SchemaArray.
+   *
+   * @typedoc
+   */
+  options?: {
+    /**
+     * Configures how the SchemaArray determines whether
+     * an object in the cache is the same as an object
+     * previously used to instantiate one of the schema-objects
+     * it contains.
+     *
+     * The default is `'@identity'`.
+     *
+     * Valid options are:
+     *
+     * - `'@identity'` (default) : the cached object's referential identity will be used.
+     *       This may result in significant instability when resource data is updated from the API
+     * - `'@index'`              : the cached object's index in the array will be used.
+     *       This is only a good choice for arrays that rarely if ever change membership
+     * - `'@hash'`               : will lookup the `@hash` function supplied in the ResourceSchema for
+     *       The contained schema-object and use the computed result to determine and compare identity.
+     * - <field-name> (string)   : the name of a field to use as the key, only GenericFields (kind `field`)
+     *       Are valid field names for this purpose. The cache state without transforms applied will be
+     *       used when comparing values. The field value should be unique enough to guarantee two schema-objects
+     *       of the same type will not collide.
+     *
+     * @typedoc
+     */
+    key?: '@identity' | '@index' | '@hash' | string;
+
+    /**
+     * Whether this SchemaArray is Polymorphic.
+     *
+     * If the SchemaArray is polymorphic, `options.type` must also be supplied.
+     *
+     * @typedoc
+     */
+    polymorphic?: boolean;
+
+    /**
+     * If the SchemaArray is Polymorphic, the key on the raw cache data to use
+     * as the "resource-type" value for the schema-object.
+     *
+     * Defaults to "type".
+     *
+     * @typedoc
+     */
+    type?: string;
+  };
 };
 
 /**
@@ -478,8 +608,7 @@ export type LegacyAttributeField = {
  * Represents a field that is a reference to
  * another resource.
  *
- * This is the legacy version of the `ResourceField`
- * type, and is used to represent fields that were
+ * This is the legacy version of the `ResourceField`.
  *
  * @typedoc
  */
@@ -570,6 +699,11 @@ export type LegacyBelongsToField = {
  * > [!CAUTION]
  * > This Field is LEGACY
  *
+ * Represents a field that is a reference to
+ * a collection of other resources.
+ *
+ * This is the legacy version of the `CollectionField`.
+ *
  * @typedoc
  */
 export type LegacyHasManyField = {
@@ -653,7 +787,6 @@ export type LegacyHasManyField = {
 
 export type FieldSchema =
   | GenericField
-  | IdentityField
   | LocalField
   | ObjectField
   | SchemaObjectField
@@ -666,8 +799,16 @@ export type FieldSchema =
   | LegacyBelongsToField
   | LegacyHasManyField;
 
-export type Schema = {
-  '@id': IdentityField | null;
+export type ResourceSchema = {
+  legacy?: boolean;
+  /**
+   * For primary resources, this should be an IdentityField
+   *
+   * for schema-objects, this should be either a HashField or null
+   *
+   * @typedoc
+   */
+  identity: IdentityField | HashField | null;
   /**
    * The name of the schema
    *
@@ -684,8 +825,8 @@ export type Schema = {
    *
    * @typedoc
    */
-  '@type': string;
-  traits: string[];
+  type: string;
+  traits?: string[];
   fields: FieldSchema[];
 };
 

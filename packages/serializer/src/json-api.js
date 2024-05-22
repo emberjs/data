@@ -195,17 +195,17 @@ const JSONAPISerializer = JSONSerializer.extend({
   _normalizeResourceHelper(resourceHash) {
     assert(this.warnMessageForUndefinedType(), resourceHash.type);
 
-    const modelName = this.modelNameFromPayloadKey(resourceHash.type);
+    const type = this.modelNameFromPayloadKey(resourceHash.type);
 
-    if (!this.store.getSchemaDefinitionService().doesTypeExist(modelName)) {
-      warn(this.warnMessageNoModelForType(modelName, resourceHash.type, 'modelNameFromPayloadKey'), false, {
+    if (!this.store.schema.hasResource({ type })) {
+      warn(this.warnMessageNoModelForType(type, resourceHash.type, 'modelNameFromPayloadKey'), false, {
         id: 'ds.serializer.model-for-type-missing',
       });
       return null;
     }
 
-    const modelClass = this.store.modelFor(modelName);
-    const serializer = this.store.serializerFor(modelName);
+    const modelClass = this.store.modelFor(type);
+    const serializer = this.store.serializerFor(type);
     const { data } = serializer.normalize(modelClass, resourceHash);
     return data;
   },

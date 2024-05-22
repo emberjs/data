@@ -6,10 +6,10 @@ import { setupTest } from 'ember-qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import type { SchemaService } from '@ember-data/store/types';
 import type { Cache } from '@warp-drive/core-types/cache';
-import type { RecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
-import type { FieldSchema, LegacyAttributeField } from '@warp-drive/core-types/schema/fields';
+import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+
+import { TestSchema } from '../../utils/schema';
 
 module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
   class Person {
@@ -24,56 +24,21 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     }
   }
 
-  class TestSchema<T extends string> {
-    attributesDefinitionFor(identifier: { type: T }): Record<string, LegacyAttributeField> {
-      const schema: Record<string, LegacyAttributeField> = {};
-      schema.name = {
-        kind: 'attribute',
-        options: {},
-        type: 'string',
-        name: 'name',
-      };
-      return schema;
-    }
-
-    _fieldsDefCache: Record<string, Map<string, FieldSchema>> = {};
-
-    fields(identifier: { type: T }): Map<string, FieldSchema> {
-      const { type } = identifier;
-      let fieldDefs: Map<string, FieldSchema> | undefined = this._fieldsDefCache[type];
-
-      if (fieldDefs === undefined) {
-        fieldDefs = new Map();
-        this._fieldsDefCache[type] = fieldDefs;
-
-        const attributes = this.attributesDefinitionFor(identifier);
-        const relationships = this.relationshipsDefinitionFor(identifier);
-
-        for (const attr of Object.values(attributes)) {
-          fieldDefs.set(attr.name, attr);
-        }
-
-        for (const rel of Object.values(relationships)) {
-          fieldDefs.set(rel.name, rel);
-        }
-      }
-
-      return fieldDefs;
-    }
-
-    relationshipsDefinitionFor(identifier: { type: T }): ReturnType<SchemaService['relationshipsDefinitionFor']> {
-      return {};
-    }
-
-    doesTypeExist(type: string) {
-      return true;
-    }
-  }
-
   class CustomStore extends Store {
-    constructor(args: Record<string, unknown>) {
-      super(args);
-      this.registerSchema(new TestSchema());
+    createSchemaService() {
+      const schema = new TestSchema();
+      schema.registerResource({
+        identity: { name: 'id', kind: '@id' },
+        type: 'person',
+        fields: [
+          {
+            name: 'name',
+            kind: 'attribute',
+            type: null,
+          },
+        ],
+      });
+      return schema;
     }
     instantiateRecord(identifier, createOptions) {
       return new Person(this);
@@ -120,14 +85,14 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     }
     this.owner.register('service:store', CreationStore);
     const store = this.owner.lookup('service:store') as Store;
-    const storeWrapper = store._instanceCache._storeWrapper;
+    const capabilities = store._instanceCache._storeWrapper;
     store.push({ data: { id: '1', type: 'person', attributes: { name: 'chris' } } });
     // emulate this happening within a single push
     store._join(() => {
-      storeWrapper.notifyChange(identifier, 'relationships', 'key');
-      storeWrapper.notifyChange(identifier, 'relationships', 'key');
-      storeWrapper.notifyChange(identifier, 'state');
-      storeWrapper.notifyChange(identifier, 'errors');
+      capabilities.notifyChange(identifier, 'relationships', 'key');
+      capabilities.notifyChange(identifier, 'relationships', 'key');
+      capabilities.notifyChange(identifier, 'state');
+      capabilities.notifyChange(identifier, 'errors');
     });
 
     assert.strictEqual(notificationCount, 3, 'called notification callback');
@@ -154,14 +119,17 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     assert.deepEqual(returnValue, person, 'record instantiating does not modify the returned value');
   });
 
-  test('attribute and relationship with custom schema definition', async function (assert) {
+  test('fields with custom schema definition', async function (assert) {
     this.owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
         shouldBackgroundReloadRecord: () => false,
         createRecord: (store, type, snapshot: Snapshot) => {
           let count = 0;
-          assert.verifySteps(['Schema:attributesDefinitionFor', 'Schema:fields']);
+          assert.verifySteps(
+            ['TestSchema:fields', 'TestSchema:fields', 'TestSchema:hasResource', 'TestSchema:hasResource'],
+            'serialization of record for save'
+          );
           assert.step('Adapter:createRecord');
           snapshot.eachAttribute((attr, attrDef) => {
             if (count === 0) {
@@ -219,10 +187,10 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
           });
           assert.verifySteps([
             'Adapter:createRecord',
-            'Schema:attributesDefinitionFor',
+            'TestSchema:fields',
             'Adapter:createRecord:attr:name',
             'Adapter:createRecord:attr:age',
-            'Schema:relationshipsDefinitionFor',
+            'TestSchema:fields',
             'Adapter:createRecord:rel:boats',
             'Adapter:createRecord:rel:house',
           ]);
@@ -230,121 +198,62 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
         },
       })
     );
-    // eslint-disable-next-line @typescript-eslint/no-shadow
-    class CustomStore extends Store {
-      instantiateRecord(identifier, createOptions) {
-        return new Person(this);
-      }
-      teardownRecord(record) {}
-    }
+
     this.owner.register('service:store', CustomStore);
-    const store = this.owner.lookup('service:store') as Store;
-    class TestSchema2 {
-      attributesDefinitionFor(
-        identifier: RecordIdentifier | { type: string }
-      ): ReturnType<SchemaService['attributesDefinitionFor']> {
-        assert.step('Schema:attributesDefinitionFor');
-        if (typeof identifier === 'string') {
-          assert.strictEqual(identifier, 'person', 'type passed in to the schema hooks');
-        } else {
-          assert.strictEqual(identifier.type, 'person', 'type passed in to the schema hooks');
-        }
-        return {
-          name: {
-            type: 'string',
-            kind: 'attribute',
-            options: {},
-            name: 'name',
+    const store = this.owner.lookup('service:store') as CustomStore;
+    store.schema._assert = assert;
+    store.schema.registerResource({
+      identity: { name: 'id', kind: '@id' },
+      type: 'person',
+      fields: [
+        {
+          type: 'string',
+          kind: 'attribute',
+          options: {},
+          name: 'name',
+        },
+        {
+          type: 'number',
+          kind: 'attribute',
+          options: {},
+          name: 'age',
+        },
+        {
+          type: 'ship',
+          kind: 'hasMany',
+          options: {
+            inverse: null,
+            async: false,
           },
-          age: {
-            type: 'number',
-            kind: 'attribute',
-            options: {},
-            name: 'age',
+          name: 'boats',
+        },
+        {
+          type: 'house',
+          kind: 'belongsTo',
+          options: {
+            inverse: null,
+            async: false,
           },
-        };
-      }
+          name: 'house',
+        },
+      ],
+    });
 
-      _fieldsDefCache: Record<string, Map<string, FieldSchema>> = {};
-
-      fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
-        assert.step('Schema:fields');
-        const { type } = identifier;
-        let fieldDefs: Map<string, FieldSchema> | undefined = this._fieldsDefCache[type];
-
-        if (fieldDefs === undefined) {
-          assert.step('Schema:fields(calc)');
-          fieldDefs = new Map();
-          this._fieldsDefCache[type] = fieldDefs;
-
-          const attributes = this.attributesDefinitionFor(identifier);
-          const relationships = this.relationshipsDefinitionFor(identifier);
-
-          for (const attr of Object.values(attributes)) {
-            fieldDefs.set(attr.name, attr);
-          }
-
-          for (const rel of Object.values(relationships)) {
-            fieldDefs.set(rel.name, rel);
-          }
-        }
-
-        return fieldDefs;
-      }
-
-      relationshipsDefinitionFor(
-        identifier: RecordIdentifier | { type: string }
-      ): ReturnType<SchemaService['relationshipsDefinitionFor']> {
-        assert.step('Schema:relationshipsDefinitionFor');
-        if (typeof identifier === 'string') {
-          assert.strictEqual(identifier, 'person', 'type passed in to the schema hooks');
-        } else {
-          assert.strictEqual(identifier.type, 'person', 'type passed in to the schema hooks');
-        }
-        return {
-          boats: {
-            type: 'ship',
-            kind: 'hasMany',
-            options: {
-              inverse: null,
-              async: false,
-            },
-            name: 'boats',
-          },
-          house: {
-            type: 'house',
-            kind: 'belongsTo',
-            options: {
-              inverse: null,
-              async: false,
-            },
-            name: 'house',
-          },
-        };
-      }
-
-      doesTypeExist() {
-        return true;
-      }
-    }
-
-    const schema: SchemaService = new TestSchema2();
-    store.registerSchemaDefinitionService(schema);
-    assert.verifySteps([]);
+    assert.verifySteps(['TestSchema:registerResource'], 'initial population of schema');
     const person = store.createRecord('person', { name: 'chris' }) as Person;
-    assert.verifySteps([
-      'Schema:relationshipsDefinitionFor',
-      'Schema:fields',
-      'Schema:fields(calc)',
-      'Schema:attributesDefinitionFor',
-      'Schema:relationshipsDefinitionFor',
-    ]);
+    assert.verifySteps(['TestSchema:fields', 'TestSchema:fields'], 'population of record on create');
     await person.save();
-    assert.verifySteps([
-      'Schema:attributesDefinitionFor',
-      'Schema:attributesDefinitionFor',
-      'Schema:relationshipsDefinitionFor',
-    ]);
+    assert.verifySteps(
+      [
+        'TestSchema:hasResource',
+        'TestSchema:hasResource',
+        'TestSchema:hasResource',
+        'TestSchema:fields',
+        'TestSchema:fields',
+        'TestSchema:fields',
+      ],
+      'update of record on save completion'
+    );
   });
 
   test('store.saveRecord', async function (assert) {
@@ -417,95 +326,45 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
         },
       })
     );
-    // eslint-disable-next-line @typescript-eslint/no-shadow
-    class CustomStore extends Store {
-      instantiateRecord(identifier, createOptions) {
-        return new Person(this);
-      }
-      teardownRecord(record) {}
-    }
+
     this.owner.register('service:store', CustomStore);
-    const store = this.owner.lookup('service:store') as Store;
-    class TestSchema2 {
-      attributesDefinitionFor(
-        identifier: RecordIdentifier | { type: string }
-      ): ReturnType<SchemaService['attributesDefinitionFor']> {
-        const modelName = (identifier as RecordIdentifier).type || identifier;
-        if (modelName === 'person') {
-          return {
-            name: {
-              type: 'string',
-              kind: 'attribute',
-              options: {},
-              name: 'name',
+    const store = this.owner.lookup('service:store') as CustomStore;
+    store.schema.registerResources([
+      {
+        identity: { name: 'id', kind: '@id' },
+        type: 'person',
+        fields: [
+          {
+            type: 'house',
+            kind: 'belongsTo',
+            options: {
+              inverse: null,
+              async: true,
             },
-          };
-        } else if (modelName === 'house') {
-          return {
-            address: {
-              type: 'string',
-              kind: 'attribute',
-              options: {},
-              name: 'address',
-            },
-          };
-        } else {
-          return {};
-        }
-      }
+            name: 'house',
+          },
+          {
+            type: 'string',
+            kind: 'attribute',
+            options: {},
+            name: 'name',
+          },
+        ],
+      },
+      {
+        identity: { name: 'id', kind: '@id' },
+        type: 'house',
+        fields: [
+          {
+            type: 'string',
+            kind: 'attribute',
+            options: {},
+            name: 'address',
+          },
+        ],
+      },
+    ]);
 
-      _fieldsDefCache: Record<string, Map<string, FieldSchema>> = {};
-
-      fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
-        const { type } = identifier;
-        let fieldDefs: Map<string, FieldSchema> | undefined = this._fieldsDefCache[type];
-
-        if (fieldDefs === undefined) {
-          fieldDefs = new Map();
-          this._fieldsDefCache[type] = fieldDefs;
-
-          const attributes = this.attributesDefinitionFor(identifier);
-          const relationships = this.relationshipsDefinitionFor(identifier);
-
-          for (const attr of Object.values(attributes)) {
-            fieldDefs.set(attr.name, attr);
-          }
-
-          for (const rel of Object.values(relationships)) {
-            fieldDefs.set(rel.name, rel);
-          }
-        }
-
-        return fieldDefs;
-      }
-
-      relationshipsDefinitionFor(
-        identifier: RecordIdentifier | { type: string }
-      ): ReturnType<SchemaService['relationshipsDefinitionFor']> {
-        const modelName = (identifier as RecordIdentifier).type || identifier;
-        if (modelName === 'person') {
-          return {
-            house: {
-              type: 'house',
-              kind: 'belongsTo',
-              options: {
-                inverse: null,
-                async: true,
-              },
-              name: 'house',
-            },
-          };
-        } else {
-          return {};
-        }
-      }
-
-      doesTypeExist() {
-        return true;
-      }
-    }
-    const schema = new TestSchema2();
-    store.registerSchemaDefinitionService(schema);
     const person = store.push({
       data: {
         type: 'person',
@@ -537,158 +396,4 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
       'serializes record correctly'
     );
   });
-
-  /*
-  TODO determine if there's any validity to keeping these
-  tes('relationshipReferenceFor belongsTo', async function (assert) {
-    assert.expect(3);
-    this.owner.register('service:store', CustomStore);
-    store = this.owner.lookup('service:store') as unknown as Store;
-    let schema: SchemaDefinitionService = {
-      attributesDefinitionFor({ type: modelName }: { type: string }): AttributesSchema {
-        if (modelName === 'person') {
-          return {
-            name: {
-              type: 'string',
-              kind: 'attribute',
-              options: {},
-              name: 'name',
-            },
-          };
-        } else if (modelName === 'house') {
-          return {
-            address: {
-              type: 'string',
-              kind: 'attribute',
-              options: {},
-              name: 'address',
-            },
-          };
-        } else {
-          return {};
-        }
-      },
-      relationshipsDefinitionFor({ type: modelName }: { type: string }): RelationshipsSchema {
-        if (modelName === 'person') {
-          return {
-            house: {
-              type: 'house',
-              kind: 'belongsTo',
-              options: {
-                inverse: null,
-              },
-              key: 'house',
-              name: 'house',
-            },
-          };
-        } else {
-          return {};
-        }
-      },
-      doesTypeExist() {
-        return true;
-      },
-    };
-    store.registerSchemaDefinitionService(schema);
-    store.push({
-      data: {
-        type: 'house',
-        id: '1',
-        attributes: { address: 'boat' },
-      },
-    });
-    let person = store.push({
-      data: {
-        type: 'person',
-        id: '7',
-        attributes: { name: 'chris' },
-        relationships: { house: { data: { type: 'house', id: '1' } } },
-      },
-    });
-    let identifier = recordIdentifierFor(person);
-    let relationship = store.relationshipReferenceFor({ type: 'person', id: '7', lid: identifier.lid }, 'house');
-    assert.strictEqual(relationship.id(), '1', 'house relationship id found');
-    assert.strictEqual(relationship.type, 'house', 'house relationship type found');
-    assert.strictEqual(relationship.parent.id(), '7', 'house relationship parent found');
-  });
-
-  tes('relationshipReferenceFor hasMany', async function (assert) {
-    assert.expect(3);
-    this.owner.register('service:store', CustomStore);
-    store = this.owner.lookup('service:store') as unknown as Store;
-    let schema: SchemaDefinitionService = {
-      attributesDefinitionFor({ type: modelName }: { type: string }): AttributesSchema {
-        if (modelName === 'person') {
-          return {
-            name: {
-              type: 'string',
-              kind: 'attribute',
-              options: {},
-              name: 'name',
-            },
-          };
-        } else if (modelName === 'house') {
-          return {
-            address: {
-              type: 'string',
-              kind: 'attribute',
-              options: {},
-              name: 'address',
-            },
-          };
-        } else {
-          return {};
-        }
-      },
-      relationshipsDefinitionFor({ type: modelName }: { type: string }): RelationshipsSchema {
-        if (modelName === 'person') {
-          return {
-            house: {
-              type: 'house',
-              kind: 'hasMany',
-              options: {
-                inverse: null,
-              },
-              key: 'house',
-              name: 'house',
-            },
-          };
-        } else {
-          return {};
-        }
-      },
-      doesTypeExist() {
-        return true;
-      },
-    };
-    store.registerSchemaDefinitionService(schema);
-    store.push({
-      data: {
-        type: 'house',
-        id: '1',
-        attributes: { address: 'boat' },
-      },
-    });
-    let person = store.push({
-      data: {
-        type: 'person',
-        id: '7',
-        attributes: { name: 'chris' },
-        relationships: {
-          house: {
-            data: [
-              { type: 'house', id: '1' },
-              { type: 'house', id: '2' },
-            ],
-          },
-        },
-      },
-    });
-    let identifier = recordIdentifierFor(person);
-    let relationship = store.relationshipReferenceFor({ type: 'person', id: '7', lid: identifier.lid }, 'house');
-    assert.deepEqual(relationship.ids(), ['1', '2'], 'relationship found');
-    assert.strictEqual(relationship.type, 'house', 'house relationship type found');
-    assert.strictEqual(relationship.parent.id(), '7', 'house relationship parent found');
-  });
-  */
 });

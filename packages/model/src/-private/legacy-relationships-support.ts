@@ -450,13 +450,15 @@ export class LegacySupport {
         (typeof adapter.findHasMany === 'function' || typeof identifiers === 'undefined') &&
         (shouldForceReload || hasDematerializedInverse || isStale || (!allInverseRecordsAreLoaded && !isEmpty));
 
-      const relationshipMeta = this.store
-        .getSchemaDefinitionService()
-        .relationshipsDefinitionFor({ type: definition.inverseType })[definition.key];
+      const field = this.store.schema.fields({ type: definition.inverseType }).get(definition.key);
+      assert(
+        `Expected a hasMany field definition for ${definition.inverseType}.${definition.key}`,
+        field && field.kind === 'hasMany'
+      );
 
       const request = {
         useLink: shouldFindViaLink,
-        field: relationshipMeta,
+        field,
         links: resource.links,
         meta: resource.meta,
         options,
@@ -534,13 +536,14 @@ export class LegacySupport {
       resource.links?.related &&
       (shouldForceReload || hasDematerializedInverse || isStale || (!allInverseRecordsAreLoaded && !isEmpty));
 
-    const relationshipMeta = this.store.getSchemaDefinitionService().relationshipsDefinitionFor(this.identifier)[
-      relationship.definition.key
-    ];
-    assert(`Attempted to access a belongsTo relationship but no definition exists for it`, relationshipMeta);
+    const field = this.store.schema.fields(this.identifier).get(relationship.definition.key);
+    assert(
+      `Attempted to access a belongsTo relationship but no definition exists for it`,
+      field && field.kind === 'belongsTo'
+    );
     const request = {
       useLink: shouldFindViaLink,
-      field: relationshipMeta,
+      field,
       links: resource.links,
       meta: resource.meta,
       options,

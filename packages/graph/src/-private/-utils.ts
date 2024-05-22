@@ -232,7 +232,7 @@ export function assertRelationshipData(
       )}' } for the '${identifier.type}.${meta.key}' ${meta.kind} relationship on <${identifier.type}:${String(
         identifier.id
       )}>, but no schema exists for that type.`,
-      store.getSchemaDefinitionService().doesTypeExist(data.type)
+      store.schema.hasResource(data)
     );
   } else {
     assert(
@@ -241,7 +241,7 @@ export function assertRelationshipData(
       } relationship '${meta.key}' on <${identifier.type}:${String(
         identifier.id
       )}>, Expected an identifier with type '${meta.type}'. No schema was found for '${data.type}'.`,
-      data === null || !data.type || store.getSchemaDefinitionService().doesTypeExist(data.type)
+      data === null || !data.type || store.schema.hasResource(data)
     );
   }
 }

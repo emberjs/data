@@ -13,7 +13,7 @@ import type { ExistingResourceIdentifierObject } from '@warp-drive/core-types/sp
 import { ResourceType } from '@warp-drive/core-types/symbols';
 
 import type { ReactiveContext } from '../../../helpers/reactive-context';
-import { unboundReactiveContext } from '../../../helpers/reactive-context';
+import { reactiveContext } from '../../../helpers/reactive-context';
 
 let IS_DEPRECATE_MANY_ARRAY_DUPLICATES = false;
 
@@ -410,7 +410,11 @@ module('Integration | Relationships | Collection | Mutation', function (hooks) {
             test(`followed by Mutation: ${mutation2.name}`, async function (assert) {
               const store = this.owner.lookup('service:store') as Store;
               const user = startingState.cb(store);
-              const rc = await unboundReactiveContext(this, user, [{ name: 'friends', type: 'hasMany' }]);
+              const rc = await reactiveContext.call(this, user, {
+                identity: null,
+                type: 'user',
+                fields: [{ name: 'friends', kind: 'hasMany', type: 'user', options: { async: false, inverse: null } }],
+              });
               rc.reset();
 
               await applyMutation(assert, store, user, mutation, rc);

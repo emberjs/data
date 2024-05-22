@@ -47,7 +47,7 @@ class Person extends Model {
   lastName;
 }
 
-class TestRecordData implements Cache {
+class TestCache implements Cache {
   _storeWrapper: CacheCapabilitiesManager;
   _identifier: StableRecordIdentifier;
 
@@ -242,7 +242,7 @@ module('integration/record-data - Record Data State', function (hooks) {
     };
     const { owner } = this;
 
-    class LifecycleRecordData extends TestRecordData {
+    class LifecycleCache extends TestCache {
       override isNew(): boolean {
         return isNew;
       }
@@ -263,7 +263,7 @@ module('integration/record-data - Record Data State', function (hooks) {
     class TestStore extends Store {
       override createCache(wrapper: CacheCapabilitiesManager) {
         // @ts-expect-error
-        return new LifecycleRecordData(wrapper) as Cache;
+        return new LifecycleCache(wrapper) as Cache;
       }
     }
 
@@ -327,7 +327,7 @@ module('integration/record-data - Record Data State', function (hooks) {
     };
     const { owner } = this;
 
-    class LifecycleRecordData extends TestRecordData {
+    class LifecycleCache extends TestCache {
       constructor(sw: CacheCapabilitiesManager, identifier: StableRecordIdentifier) {
         super(sw, identifier);
         storeWrapper = sw;
@@ -358,7 +358,7 @@ module('integration/record-data - Record Data State', function (hooks) {
     class TestStore extends Store {
       override createCache(wrapper: CacheCapabilitiesManager) {
         // @ts-expect-error
-        return new LifecycleRecordData(wrapper) as Cache;
+        return new LifecycleCache(wrapper) as Cache;
       }
     }
 

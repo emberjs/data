@@ -17,8 +17,10 @@ export default class Store extends DataStore {
     const manager = (this.requestManager = new RequestManager());
     manager.use([Fetch]);
     manager.useCache(CacheHandler);
+  }
 
-    this.registerSchema(buildSchema(this));
+  createSchemaService(): ReturnType<typeof buildSchema> {
+    return buildSchema(this);
   }
 
   override createCache(capabilities: CacheCapabilitiesManager): Cache {

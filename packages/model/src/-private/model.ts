@@ -1259,7 +1259,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
       return null;
     }
 
-    const schemaExists = store.schema.doesTypeExist(relationship.type);
+    const schemaExists = store.schema.hasResource(relationship);
 
     assert(
       `No associated schema found for '${relationship.type}' while calculating the inverse of ${name} on ${this.modelName}`,
@@ -1270,12 +1270,13 @@ class Model extends EmberObject implements MinimalLegacyRecord {
       return null;
     }
 
-    const inverseSchemas = store.schema.relationshipsDefinitionFor({ type: relationship.type });
-    const inverseSchema = inverseSchemas[options.inverse];
+    const inverseField = store.schema.fields(relationship).get(options.inverse);
+    assert(
+      `No inverse relationship found for '${name}' on '${this.modelName}'`,
+      inverseField && (inverseField.kind === 'belongsTo' || inverseField.kind === 'hasMany')
+    );
 
-    assert(`No inverse relationship found for '${name}' on '${this.modelName}'`, inverseSchema !== undefined);
-
-    return inverseSchema || null;
+    return inverseField || null;
   }
 
   /**
@@ -1734,7 +1735,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
       this.modelName
     );
 
-    const map = new Map();
+    const map = new Map<string, LegacyAttributeField>();
 
     this.eachComputedProperty((name, meta) => {
       if (isAttributeSchema(meta)) {

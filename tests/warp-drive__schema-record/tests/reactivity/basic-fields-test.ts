@@ -6,10 +6,10 @@ import { setupRenderingTest } from 'ember-qunit';
 
 import type Store from '@ember-data/store';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { FieldSchema } from '@warp-drive/core-types/schema/fields';
+import { Type } from '@warp-drive/core-types/symbols';
 import type { SchemaRecord } from '@warp-drive/schema-record/record';
-import type { Transform } from '@warp-drive/schema-record/schema';
-import { registerDerivations, SchemaService, withFields } from '@warp-drive/schema-record/schema';
+import type { Transformation } from '@warp-drive/schema-record/schema';
+import { registerDerivations, withDefaults } from '@warp-drive/schema-record/schema';
 
 import { reactiveContext } from '../-utils/reactive-context';
 
@@ -28,21 +28,21 @@ module('Reactivity | basic fields can receive remote updates', function (hooks) 
 
   test('we can use simple fields with no `type`', async function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
     registerDerivations(schema);
 
-    schema.defineSchema('user', {
-      fields: withFields([
-        {
-          name: 'name',
-          kind: 'field',
-        },
-      ]),
-    });
-    const fieldsMap = schema.schemas.get('user')!.fields;
-    const fields: FieldSchema[] = [...fieldsMap.values()];
-
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+        ],
+      })
+    );
+    const resource = schema.resource({ type: 'user' });
     const record = store.push({
       data: {
         type: 'user',
@@ -55,7 +55,7 @@ module('Reactivity | basic fields can receive remote updates', function (hooks) 
     assert.strictEqual(record.$type, 'user', '$type is accessible');
     assert.strictEqual(record.name, 'Rey Pupatine', 'name is accessible');
 
-    const { counters, fieldOrder } = await reactiveContext.call(this, record, fields);
+    const { counters, fieldOrder } = await reactiveContext.call(this, record, resource);
     const nameIndex = fieldOrder.indexOf('name');
 
     assert.strictEqual(counters.id, 1, 'idCount is 1');
@@ -88,11 +88,10 @@ module('Reactivity | basic fields can receive remote updates', function (hooks) 
 
   test('we can use simple fields with a `type`', async function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
     registerDerivations(schema);
 
-    const FloatTransform: Transform<string | number, number> = {
+    const FloatTransform: Transformation<string | number, number> = {
       serialize(value: string | number, options: { precision?: number } | null, _record: SchemaRecord): string {
         return typeof value === 'number'
           ? value.toFixed(options?.precision ?? 3)
@@ -108,45 +107,47 @@ module('Reactivity | basic fields can receive remote updates', function (hooks) 
         const v = 0;
         return v.toFixed(_options?.precision ?? 3);
       },
+      [Type]: 'float',
     };
 
-    schema.registerTransform('float', FloatTransform);
+    schema.registerTransformation(FloatTransform);
 
-    schema.defineSchema('user', {
-      fields: withFields([
-        {
-          name: 'name',
-          kind: 'field',
-        },
-        {
-          name: 'rank',
-          type: 'float',
-          kind: 'field',
-          options: { precision: 0 },
-        },
-        {
-          name: 'age',
-          type: 'float',
-          options: { precision: 0 },
-          kind: 'field',
-        },
-        {
-          name: 'netWorth',
-          type: 'float',
-          options: { precision: 2 },
-          kind: 'field',
-        },
-        {
-          name: 'coolometer',
-          type: 'float',
-          kind: 'field',
-        },
-      ]),
-    });
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'rank',
+            type: 'float',
+            kind: 'field',
+            options: { precision: 0 },
+          },
+          {
+            name: 'age',
+            type: 'float',
+            options: { precision: 0 },
+            kind: 'field',
+          },
+          {
+            name: 'netWorth',
+            type: 'float',
+            options: { precision: 2 },
+            kind: 'field',
+          },
+          {
+            name: 'coolometer',
+            type: 'float',
+            kind: 'field',
+          },
+        ],
+      })
+    );
 
-    const fieldsMap = schema.schemas.get('user')!.fields;
-    const fields: FieldSchema[] = [...fieldsMap.values()];
-
+    const resource = schema.resource({ type: 'user' });
     const record = store.push({
       data: {
         type: 'user',
@@ -168,7 +169,7 @@ module('Reactivity | basic fields can receive remote updates', function (hooks) 
     assert.strictEqual(record.coolometer, 100, 'coolometer is accessible');
     assert.strictEqual(record.rank, 0, 'rank is accessible');
 
-    const { counters, fieldOrder } = await reactiveContext.call(this, record, fields);
+    const { counters, fieldOrder } = await reactiveContext.call(this, record, resource);
     const nameIndex = fieldOrder.indexOf('name');
 
     assert.strictEqual(counters.id, 1, 'idCount is 1');

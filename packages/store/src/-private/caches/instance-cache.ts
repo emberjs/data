@@ -416,17 +416,17 @@ type PreloadRelationshipValue = OpaqueRecordInstance | string;
 export function preloadData(store: Store, identifier: StableRecordIdentifier, preload: Record<string, Value>) {
   const jsonPayload: Partial<ExistingResourceObject> = {};
   //TODO(Igor) consider the polymorphic case
-  const schemas = store.getSchemaDefinitionService();
-  const relationships = schemas.relationshipsDefinitionFor(identifier);
+  const schemas = store.schema;
+  const fields = schemas.fields(identifier);
   Object.keys(preload).forEach((key) => {
     const preloadValue = preload[key];
 
-    const relationshipMeta = relationships[key];
-    if (relationshipMeta) {
+    const field = fields.get(key);
+    if (field && (field.kind === 'hasMany' || field.kind === 'belongsTo')) {
       if (!jsonPayload.relationships) {
         jsonPayload.relationships = {};
       }
-      jsonPayload.relationships[key] = preloadRelationship(relationshipMeta, preloadValue);
+      jsonPayload.relationships[key] = preloadRelationship(field, preloadValue);
     } else {
       if (!jsonPayload.attributes) {
         jsonPayload.attributes = {};

@@ -35,9 +35,11 @@ if (DEBUG) {
       return;
     }
     if (parentDefinition.isPolymorphic) {
-      const meta = store.getSchemaDefinitionService().relationshipsDefinitionFor(addedIdentifier)[
-        parentDefinition.inverseKey
-      ];
+      const meta = store.schema.fields(addedIdentifier)?.get(parentDefinition.inverseKey);
+      assert(
+        `Expected the schema for the field ${parentDefinition.inverseKey} on ${addedIdentifier.type} to be for a legacy relationship`,
+        !meta || meta.kind === 'belongsTo' || meta.kind === 'hasMany'
+      );
       assert(
         `The schema for the relationship '${parentDefinition.inverseKey}' on '${addedIdentifier.type}' type does not implement '${parentDefinition.type}' and thus cannot be assigned to the '${parentDefinition.key}' relationship in '${parentIdentifier.type}'. The definition should specify 'as: "${parentDefinition.type}"' in options.`,
         meta?.options.as === parentDefinition.type

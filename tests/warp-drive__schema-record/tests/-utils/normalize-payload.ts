@@ -6,7 +6,7 @@ import type { SingleResourceDocument } from '@warp-drive/core-types/spec/json-ap
 
 export function simplePayloadNormalize(owner: Owner, payload: SingleResourceDocument): SingleResourceDocument {
   const store = owner.lookup('service:store') as Store;
-  const attrSchema = store.schema.attributesDefinitionFor(payload.data);
+  const fields = store.schema.fields(payload.data);
   const attrs = payload.data.attributes;
 
   if (!attrs) {
@@ -14,7 +14,7 @@ export function simplePayloadNormalize(owner: Owner, payload: SingleResourceDocu
   }
 
   Object.keys(attrs).forEach((key) => {
-    const schema = attrSchema[key];
+    const schema = fields.get(key);
 
     if (schema) {
       if (schema.type) {

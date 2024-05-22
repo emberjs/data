@@ -5,9 +5,9 @@ import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 
 import type Store from '@ember-data/store';
-import type { FieldSchema } from '@warp-drive/core-types/schema/fields';
+import { Type } from '@warp-drive/core-types/symbols';
 import type { SchemaRecord } from '@warp-drive/schema-record/record';
-import { registerDerivations, SchemaService, withFields } from '@warp-drive/schema-record/schema';
+import { registerDerivations, withDefaults } from '@warp-drive/schema-record/schema';
 
 import { reactiveContext } from '../-utils/reactive-context';
 
@@ -24,8 +24,7 @@ module('Reactivity | derivation', function (hooks) {
 
   test('we can derive from simple fields', async function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
 
     function concat(
       record: SchemaRecord & { [key: string]: unknown },
@@ -36,32 +35,34 @@ module('Reactivity | derivation', function (hooks) {
       const opts = options as { fields: string[]; separator?: string };
       return opts.fields.map((field) => record[field]).join(opts.separator ?? '');
     }
+    concat[Type] = 'concat';
 
-    schema.registerDerivation('concat', concat);
+    schema.registerDerivation(concat);
     registerDerivations(schema);
 
-    schema.defineSchema('user', {
-      fields: withFields([
-        {
-          name: 'firstName',
-          kind: 'field',
-        },
-        {
-          name: 'lastName',
-          kind: 'field',
-        },
-        {
-          name: 'fullName',
-          type: 'concat',
-          options: { fields: ['firstName', 'lastName'], separator: ' ' },
-          kind: 'derived',
-        },
-      ]),
-    });
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'firstName',
+            kind: 'field',
+          },
+          {
+            name: 'lastName',
+            kind: 'field',
+          },
+          {
+            name: 'fullName',
+            type: 'concat',
+            options: { fields: ['firstName', 'lastName'], separator: ' ' },
+            kind: 'derived',
+          },
+        ],
+      })
+    );
 
-    const fieldsMap = schema.schemas.get('user')!.fields;
-    const fields: FieldSchema[] = [...fieldsMap.values()];
-
+    const resource = schema.resource({ type: 'user' });
     const record = store.push({
       data: {
         id: '1',
@@ -79,7 +80,7 @@ module('Reactivity | derivation', function (hooks) {
     assert.strictEqual(record.lastName, 'Pupatine', 'lastName is accessible');
     assert.strictEqual(record.fullName, 'Rey Pupatine', 'fullName is accessible');
 
-    const { counters, fieldOrder } = await reactiveContext.call(this, record, fields);
+    const { counters, fieldOrder } = await reactiveContext.call(this, record, resource);
     const nameIndex = fieldOrder.indexOf('firstName');
 
     assert.strictEqual(counters.id, 1, 'id Count is 1');
@@ -122,8 +123,7 @@ module('Reactivity | derivation', function (hooks) {
 
   test('derivations do not re-run unless the tracked state they consume is dirtied', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
     registerDerivations(schema);
 
     function concat(
@@ -137,31 +137,34 @@ module('Reactivity | derivation', function (hooks) {
       assert.step(`concat: ${result}`);
       return result;
     }
+    concat[Type] = 'concat';
 
-    schema.registerDerivation('concat', concat);
-
-    schema.defineSchema('user', {
-      fields: withFields([
-        {
-          name: 'age',
-          kind: 'field',
-        },
-        {
-          name: 'firstName',
-          kind: 'field',
-        },
-        {
-          name: 'lastName',
-          kind: 'field',
-        },
-        {
-          name: 'fullName',
-          type: 'concat',
-          options: { fields: ['firstName', 'lastName'], separator: ' ' },
-          kind: 'derived',
-        },
-      ]),
-    });
+    schema.registerDerivation(concat);
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'age',
+            kind: 'field',
+          },
+          {
+            name: 'firstName',
+            kind: 'field',
+          },
+          {
+            name: 'lastName',
+            kind: 'field',
+          },
+          {
+            name: 'fullName',
+            type: 'concat',
+            options: { fields: ['firstName', 'lastName'], separator: ' ' },
+            kind: 'derived',
+          },
+        ],
+      })
+    );
 
     const record = store.push({
       data: {
@@ -179,15 +182,10 @@ module('Reactivity | derivation', function (hooks) {
     assert.strictEqual(record.$type, 'user', '$type is accessible');
     assert.strictEqual(record.firstName, 'Rey', 'firstName is accessible');
     assert.strictEqual(record.lastName, 'Pupatine', 'lastName is accessible');
-
     assert.verifySteps([], 'no concat yet');
-
     assert.strictEqual(record.fullName, 'Rey Pupatine', 'fullName is accessible');
-
     assert.verifySteps(['concat: Rey Pupatine'], 'concat happened');
-
     assert.strictEqual(record.fullName, 'Rey Pupatine', 'fullName is accessible');
-
     assert.verifySteps([], 'no additional concat');
 
     store.push({
@@ -203,7 +201,6 @@ module('Reactivity | derivation', function (hooks) {
     }) as User;
 
     assert.strictEqual(record.fullName, 'Rey Pupatine', 'fullName is accessible');
-
     assert.verifySteps([], 'no additional concat');
 
     store.push({
