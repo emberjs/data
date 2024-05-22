@@ -163,8 +163,7 @@ export class ManagedArray {
             subscribe(_SIGNAL);
           }
           if (field.type) {
-            const transform = schema.transformation(field.type);
-            assert(`No '${field.type}' transform defined for use by ${address.type}.${String(prop)}`, transform);
+            const transform = schema.transformation(field);
             return transform.hydrate(val as Value, field.options ?? null, self.owner);
           }
           return val;
@@ -225,8 +224,7 @@ export class ManagedArray {
             return true;
           }
 
-          const transform = schema.transformation(field.type);
-          assert(`No '${field.type}' transform defined for use by ${address.type}.${String(prop)}`, transform);
+          const transform = schema.transformation(field);
           const rawValue = (self[SOURCE] as ArrayValue).map((item) =>
             transform.serialize(item, field.options ?? null, self.owner)
           );

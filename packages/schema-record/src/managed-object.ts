@@ -76,8 +76,7 @@ export class ManagedObject {
           let newData = cache.getAttr(self.address, self.key);
           if (newData && newData !== self[SOURCE]) {
             if (field.type) {
-              const transform = schema.transformation(field.type);
-              assert(`No '${field.type}' transform defined for use by ${address.type}.${String(prop)}`, transform);
+              const transform = schema.transformation(field);
               newData = transform.hydrate(newData as ObjectValue, field.options ?? null, self.owner) as ObjectValue;
             }
             self[SOURCE] = { ...(newData as ObjectValue) }; // Add type assertion for newData
@@ -119,8 +118,7 @@ export class ManagedObject {
             return true;
           }
 
-          const transform = schema.transformation(field.type);
-          assert(`No '${field.type}' transform defined for use by ${address.type}.${String(prop)}`, transform);
+          const transform = schema.transformation(field);
           const val = transform.serialize(self[SOURCE], field.options ?? null, self.owner);
           cache.setAttr(self.address, self.key, val);
           _SIGNAL.shouldReset = true;

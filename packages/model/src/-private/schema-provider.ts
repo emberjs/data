@@ -9,9 +9,14 @@ import type { RecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-
 import type { ObjectValue } from '@warp-drive/core-types/json/raw';
 import type { Derivation, HashFn, Transformation } from '@warp-drive/core-types/schema/concepts';
 import type {
+  ArrayField,
+  DerivedField,
+  GenericField,
+  HashField,
   LegacyAttributeField,
   LegacyFieldSchema,
   LegacyRelationshipSchema,
+  ObjectField,
   ResourceSchema,
 } from '@warp-drive/core-types/schema/fields';
 
@@ -55,14 +60,14 @@ export class ModelSchemaProvider implements SchemaService {
     assert(`resourceHasTrait is not available with @ember-data/model's SchemaService`);
     return false;
   }
-  transformation(name: string): Transformation {
+  transformation(field: GenericField | ObjectField | ArrayField | { type: string }): Transformation {
     assert(`transformation is not available with @ember-data/model's SchemaService`);
   }
-  hashFn(name: string): HashFn {
-    assert(`hashFn is not available with @ember-data/model's SchemaService`);
-  }
-  derivation(name: string): Derivation {
+  derivation(field: DerivedField | { type: string }): Derivation {
     assert(`derivation is not available with @ember-data/model's SchemaService`);
+  }
+  hashFn(field: HashField | { type: string }): HashFn {
+    assert(`hashFn is not available with @ember-data/model's SchemaService`);
   }
   resource(resource: StableRecordIdentifier | { type: string }): ResourceSchema {
     const type = normalizeModelName(resource.type);
