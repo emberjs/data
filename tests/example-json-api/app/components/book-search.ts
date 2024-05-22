@@ -26,7 +26,8 @@ export default class BookListComponent extends Component<BookSearchSignature> {
 
   @cached
   get sortOptions() {
-    return Object.keys(this.store.getSchemaDefinitionService().attributesDefinitionFor({ type: 'book' }));
+    const fields = this.store.schema.fields({ type: 'book' });
+    return Array.from(fields.keys()).filter((key) => fields.get(key)!.kind === 'attribute');
   }
 
   @cached

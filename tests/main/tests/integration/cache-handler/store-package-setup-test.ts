@@ -12,7 +12,7 @@ import Fetch from '@ember-data/request/fetch';
 import type { Document, NotificationType } from '@ember-data/store';
 import Store, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
 import type { CollectionRecordArray } from '@ember-data/store/-private';
-import type { CacheCapabilitiesManager } from '@ember-data/store/types';
+import type { CacheCapabilitiesManager, SchemaService } from '@ember-data/store/types';
 import type {
   StableDocumentIdentifier,
   StableExistingRecordIdentifier,
@@ -20,6 +20,7 @@ import type {
 } from '@warp-drive/core-types/identifier';
 import type { OpaqueRecordInstance } from '@warp-drive/core-types/record';
 import type { RequestContext } from '@warp-drive/core-types/request';
+import type { HashFn } from '@warp-drive/core-types/schema/concepts';
 import type { FieldSchema } from '@warp-drive/core-types/schema/fields';
 import type {
   CollectionResourceDataDocument,
@@ -49,22 +50,50 @@ class RequestManagerService extends RequestManager {
 class TestStore extends Store {
   @service('request') declare requestManager: RequestManager;
 
-  constructor() {
-    super(...arguments);
-    this.registerSchema({
-      attributesDefinitionFor() {
-        return {};
+  createSchemaService(): SchemaService {
+    const schemaService: SchemaService = {
+      registerDerivation() {
+        throw new Error('Method not implemented.');
+      },
+      registerTransformation() {
+        throw new Error('Method not implemented.');
+      },
+      registerResources() {
+        throw new Error('Method not implemented.');
+      },
+      registerResource() {
+        throw new Error('Method not implemented.');
+      },
+      resource() {
+        throw new Error('Method not implemented.');
+      },
+      transformation() {
+        throw new Error('Method not implemented.');
+      },
+      derivation() {
+        throw new Error('Method not implemented.');
       },
       fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
         return new Map();
       },
-      relationshipsDefinitionFor() {
-        return {};
+      hasTrait() {
+        return false;
       },
-      doesTypeExist() {
+      resourceHasTrait() {
+        return false;
+      },
+      hasResource() {
         return true;
       },
-    });
+      hashFn: function (name: string): HashFn {
+        throw new Error('Function not implemented.');
+      },
+      registerHashFn: function (hashFn: HashFn): void {
+        throw new Error('Function not implemented.');
+      },
+    };
+
+    return schemaService;
   }
 
   override createCache(wrapper: CacheCapabilitiesManager) {
@@ -265,67 +294,6 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
     test('When using @ember-data/store, the cache-handler can hydrate any op code', async function (assert) {
       const { owner } = this;
 
-      // eslint-disable-next-line @typescript-eslint/no-shadow
-      class RequestManagerService extends RequestManager {
-        constructor() {
-          super(...arguments);
-          this.use([LegacyNetworkHandler, Fetch]);
-          this.useCache(CacheHandler);
-        }
-      }
-
-      // eslint-disable-next-line @typescript-eslint/no-shadow
-      class TestStore extends Store {
-        @service('request') declare requestManager: RequestManager;
-
-        constructor() {
-          super(...arguments);
-          this.registerSchemaDefinitionService({
-            attributesDefinitionFor() {
-              return {};
-            },
-            fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
-              return new Map();
-            },
-            relationshipsDefinitionFor() {
-              return {};
-            },
-            doesTypeExist() {
-              return true;
-            },
-          });
-        }
-
-        override createCache(wrapper: CacheCapabilitiesManager) {
-          return new Cache(wrapper);
-        }
-
-        override instantiateRecord(identifier: StableRecordIdentifier) {
-          const { id, lid, type } = identifier;
-          const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
-          Object.assign(record, this.cache.peek(identifier)!.attributes);
-
-          const token = this.notifications.subscribe(
-            identifier,
-            (_: StableRecordIdentifier, kind: NotificationType, key?: string) => {
-              if (kind === 'attributes' && key) {
-                record[key] = this.cache.getAttr(identifier, key);
-              }
-            }
-          );
-
-          record.destroy = () => {
-            this.notifications.unsubscribe(token);
-          };
-
-          return record;
-        }
-
-        override teardownRecord(record: FakeRecord) {
-          record.destroy();
-        }
-      }
-
       owner.register('service:store', TestStore);
       owner.register('service:request', RequestManagerService);
 
@@ -362,67 +330,6 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
     test('When using @ember-data/store, the cache-handler will cache but not hydrate if the request has the store but does not originate from the store', async function (assert) {
       const { owner } = this;
-
-      // eslint-disable-next-line @typescript-eslint/no-shadow
-      class RequestManagerService extends RequestManager {
-        constructor() {
-          super(...arguments);
-          this.use([LegacyNetworkHandler, Fetch]);
-          this.useCache(CacheHandler);
-        }
-      }
-
-      // eslint-disable-next-line @typescript-eslint/no-shadow
-      class TestStore extends Store {
-        @service('request') declare requestManager: RequestManager;
-
-        constructor() {
-          super(...arguments);
-          this.registerSchemaDefinitionService({
-            attributesDefinitionFor() {
-              return {};
-            },
-            fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
-              return new Map();
-            },
-            relationshipsDefinitionFor() {
-              return {};
-            },
-            doesTypeExist() {
-              return true;
-            },
-          });
-        }
-
-        override createCache(wrapper: CacheCapabilitiesManager) {
-          return new Cache(wrapper);
-        }
-
-        override instantiateRecord(identifier: StableRecordIdentifier) {
-          const { id, lid, type } = identifier;
-          const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
-          Object.assign(record, this.cache.peek(identifier)!.attributes);
-
-          const token = this.notifications.subscribe(
-            identifier,
-            (_: StableRecordIdentifier, kind: NotificationType, key?: string) => {
-              if (kind === 'attributes' && key) {
-                record[key] = this.cache.getAttr(identifier, key);
-              }
-            }
-          );
-
-          record.destroy = () => {
-            this.notifications.unsubscribe(token);
-          };
-
-          return record;
-        }
-
-        override teardownRecord(record: FakeRecord) {
-          record.destroy();
-        }
-      }
 
       owner.register('service:store', TestStore);
       owner.register('service:request', RequestManagerService);
@@ -461,67 +368,6 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
     test('When using @ember-data/store, the cache-handler will neither cache nor hydrate if the request does not originate from the store and no store is included', async function (assert) {
       const { owner } = this;
-
-      // eslint-disable-next-line @typescript-eslint/no-shadow
-      class RequestManagerService extends RequestManager {
-        constructor() {
-          super(...arguments);
-          this.use([LegacyNetworkHandler, Fetch]);
-          this.useCache(CacheHandler);
-        }
-      }
-
-      // eslint-disable-next-line @typescript-eslint/no-shadow
-      class TestStore extends Store {
-        @service('request') declare requestManager: RequestManager;
-
-        constructor() {
-          super(...arguments);
-          this.registerSchemaDefinitionService({
-            attributesDefinitionFor() {
-              return {};
-            },
-            fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
-              return new Map();
-            },
-            relationshipsDefinitionFor() {
-              return {};
-            },
-            doesTypeExist() {
-              return true;
-            },
-          });
-        }
-
-        override createCache(wrapper: CacheCapabilitiesManager) {
-          return new Cache(wrapper);
-        }
-
-        override instantiateRecord(identifier: StableRecordIdentifier) {
-          const { id, lid, type } = identifier;
-          const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
-          Object.assign(record, this.cache.peek(identifier)!.attributes);
-
-          const token = this.notifications.subscribe(
-            identifier,
-            (_: StableRecordIdentifier, kind: NotificationType, key?: string) => {
-              if (kind === 'attributes' && key) {
-                record[key] = this.cache.getAttr(identifier, key);
-              }
-            }
-          );
-
-          record.destroy = () => {
-            this.notifications.unsubscribe(token);
-          };
-
-          return record;
-        }
-
-        override teardownRecord(record: FakeRecord) {
-          record.destroy();
-        }
-      }
 
       owner.register('service:store', TestStore);
       owner.register('service:request', RequestManagerService);

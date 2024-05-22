@@ -4,7 +4,7 @@ import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
-import type { UpgradedMeta } from '../-edge-definition';
+import { isLegacyField, isRelationshipField, temporaryConvertToLegacy, type UpgradedMeta } from '../-edge-definition';
 
 /*
   Assert that `addedRecord` has a valid type so it can be added to the
@@ -212,9 +212,7 @@ if (DEBUG) {
       return;
     }
     if (parentDefinition.isPolymorphic) {
-      const meta = store.getSchemaDefinitionService().relationshipsDefinitionFor(addedIdentifier)[
-        parentDefinition.inverseKey
-      ];
+      let meta = store.schema.fields(addedIdentifier).get(parentDefinition.inverseKey);
       assert(
         `No '${parentDefinition.inverseKey}' field exists on '${
           addedIdentifier.type
@@ -225,6 +223,11 @@ if (DEBUG) {
         )}`,
         meta
       );
+      assert(
+        `Expected the field ${parentDefinition.inverseKey} to be a relationship`,
+        meta && isRelationshipField(meta)
+      );
+      meta = isLegacyField(meta) ? meta : temporaryConvertToLegacy(meta);
       assert(
         `You should not specify both options.as and options.inverse as null on ${addedIdentifier.type}.${parentDefinition.inverseKey}, as if there is no inverse field there is no abstract type to conform to. You may have intended for this relationship to be polymorphic, or you may have mistakenly set inverse to null.`,
         !(meta.options.inverse === null && meta?.options.as?.length)
@@ -246,14 +249,17 @@ if (DEBUG) {
     } else if (addedIdentifier.type !== parentDefinition.type) {
       // if we are not polymorphic
       // then the addedIdentifier.type must be the same as the parentDefinition.type
-      const meta = store.getSchemaDefinitionService().relationshipsDefinitionFor(addedIdentifier)[
-        parentDefinition.inverseKey
-      ];
+      let meta = store.schema.fields(addedIdentifier).get(parentDefinition.inverseKey);
+      assert(
+        `Expected the field ${parentDefinition.inverseKey} to be a relationship`,
+        !meta || isRelationshipField(meta)
+      );
+      meta = meta && (isLegacyField(meta) ? meta : temporaryConvertToLegacy(meta));
       if (meta?.options.as === parentDefinition.type) {
         // inverse is likely polymorphic but missing the polymorphic flag
-        const meta = store
-          .getSchemaDefinitionService()
-          .relationshipsDefinitionFor({ type: parentDefinition.inverseType })[parentDefinition.key];
+        let meta = store.schema.fields({ type: parentDefinition.inverseType }).get(parentDefinition.key);
+        assert(`Expected the field ${parentDefinition.key} to be a relationship`, meta && isRelationshipField(meta));
+        meta = isLegacyField(meta) ? meta : temporaryConvertToLegacy(meta);
         const errors = validateSchema(definitionWithPolymorphic(inverseDefinition(parentDefinition)), meta);
         assert(
           `The '<${addedIdentifier.type}>.${

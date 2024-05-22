@@ -63,36 +63,39 @@ function debugInfo(this: Model) {
   const expensiveProperties: string[] = [];
 
   const identifier = recordIdentifierFor(this);
-  const schema = this.store.getSchemaDefinitionService();
-  const attrDefs = schema.attributesDefinitionFor(identifier);
-  const relDefs = schema.relationshipsDefinitionFor(identifier);
+  const fields = this.store.schema.fields(identifier);
 
-  const attributes = Object.keys(attrDefs);
-  attributes.unshift('id');
+  const attrGroup = {
+    name: 'Attributes',
+    properties: ['id'],
+    expand: true,
+  };
+  const attributes = attrGroup.properties;
+  const groups = [attrGroup];
 
-  const groups = [
-    {
-      name: 'Attributes',
-      properties: attributes,
-      expand: true,
-    },
-  ];
+  for (const field of fields.values()) {
+    switch (field.kind) {
+      case 'attribute':
+        attributes.push(field.name);
+        break;
+      case 'belongsTo':
+      case 'hasMany': {
+        let properties: string[] | undefined = relationships[field.kind];
 
-  Object.keys(relDefs).forEach((name) => {
-    const relationship = relDefs[name];
-    let properties: string[] | undefined = relationships[relationship.kind];
-
-    if (properties === undefined) {
-      properties = relationships[relationship.kind] = [];
-      groups.push({
-        name: relationship.kind,
-        properties,
-        expand: true,
-      });
+        if (properties === undefined) {
+          properties = relationships[field.kind] = [];
+          groups.push({
+            name: field.kind,
+            properties,
+            expand: true,
+          });
+        }
+        properties.push(field.name);
+        expensiveProperties.push(field.name);
+        break;
+      }
     }
-    properties.push(name);
-    expensiveProperties.push(name);
-  });
+  }
 
   groups.push({
     name: 'Flags',

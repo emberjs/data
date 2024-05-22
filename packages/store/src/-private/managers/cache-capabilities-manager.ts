@@ -1,3 +1,4 @@
+import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 
@@ -12,6 +13,9 @@ import type { NotificationType } from './notification-manager';
   @module @ember-data/store
 */
 
+export interface CacheCapabilitiesManager {
+  getSchemaDefinitionService(): SchemaService;
+}
 export class CacheCapabilitiesManager implements StoreWrapper {
   declare _willNotify: boolean;
   declare _pendingNotifies: Map<StableRecordIdentifier, Set<string>>;
@@ -88,10 +92,6 @@ export class CacheCapabilitiesManager implements StoreWrapper {
     this._store.notifications.notify(identifier, namespace, key);
   }
 
-  getSchemaDefinitionService(): SchemaService {
-    return this._store.getSchemaDefinitionService();
-  }
-
   get schema() {
     return this._store.schema;
   }
@@ -110,4 +110,11 @@ export class CacheCapabilitiesManager implements StoreWrapper {
     this._store._instanceCache.disconnect(identifier);
     this._pendingNotifies.delete(identifier);
   }
+}
+
+if (ENABLE_LEGACY_SCHEMA_SERVICE) {
+  CacheCapabilitiesManager.prototype.getSchemaDefinitionService = function () {
+    // FIXME add deprecation for this
+    return this._store.schema;
+  };
 }

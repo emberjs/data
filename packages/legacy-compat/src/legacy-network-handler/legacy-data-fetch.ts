@@ -227,11 +227,14 @@ function ensureRelationshipIsSetToParent(
 }
 
 function inverseForRelationship(store: Store, identifier: { type: string; id?: string }, key: string) {
-  const definition = store.getSchemaDefinitionService().relationshipsDefinitionFor(identifier)[key];
+  const definition = store.schema.fields(identifier).get(key);
   if (!definition) {
     return null;
   }
-
+  assert(
+    `Expected the field definition to be a relationship`,
+    definition.kind === 'hasMany' || definition.kind === 'belongsTo'
+  );
   assert(
     `Expected the relationship defintion to specify the inverse type or null.`,
     definition.options?.inverse === null ||
@@ -251,11 +254,14 @@ function getInverse(
   const inverseKey = inverseForRelationship(store, { type: parentType }, lhs_relationshipName);
 
   if (inverseKey) {
-    const definition = store.getSchemaDefinitionService().relationshipsDefinitionFor({ type });
-    const { kind } = definition[inverseKey];
+    const definition = store.schema.fields({ type }).get(inverseKey);
+    assert(
+      `Expected the field definition to be a relationship`,
+      definition && (definition.kind === 'hasMany' || definition.kind === 'belongsTo')
+    );
     return {
       inverseKey,
-      kind,
+      kind: definition.kind,
     };
   }
 }

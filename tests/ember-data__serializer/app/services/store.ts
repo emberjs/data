@@ -13,7 +13,7 @@ import { buildSchema, instantiateRecord, modelFor, teardownRecord } from '@ember
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 import BaseStore, { CacheHandler } from '@ember-data/store';
-import type { CacheCapabilitiesManager, ModelSchema } from '@ember-data/store/types';
+import type { CacheCapabilitiesManager, ModelSchema, SchemaService } from '@ember-data/store/types';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { TypeFromInstance } from '@warp-drive/core-types/record';
 
@@ -23,7 +23,10 @@ export default class Store extends BaseStore {
     this.requestManager = new RequestManager();
     this.requestManager.use([LegacyNetworkHandler, Fetch]);
     this.requestManager.useCache(CacheHandler);
-    this.registerSchema(buildSchema(this));
+  }
+
+  createSchemaService(): SchemaService {
+    return buildSchema(this);
   }
 
   override createCache(capabilities: CacheCapabilitiesManager) {

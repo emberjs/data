@@ -48,6 +48,9 @@
       },
       "default": "./server/index.js"
     },
+    "./*.css": {
+      "default": "./dist/*.css"
+    },
     "./server/*": {
       "node": "./server/*.js",
       "bun": "./server/*.js",

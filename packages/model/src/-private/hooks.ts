@@ -72,10 +72,7 @@ export function modelFor<T>(this: Store, modelName: TypeFromInstanceOrString<T>)
   if (!ignoreType) {
     return klass;
   }
-  assert(
-    `No model was found for '${type}' and no schema handles the type`,
-    this.getSchemaDefinitionService().doesTypeExist(type)
-  );
+  assert(`No model was found for '${type}' and no schema handles the type`, this.schema.hasResource({ type }));
 }
 
 function secretInit(record: Model, cache: Cache, identifier: StableRecordIdentifier, store: Store): void {

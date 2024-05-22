@@ -26,7 +26,12 @@ import type {
   StructuredDocument,
   StructuredErrorDocument,
 } from '@warp-drive/core-types/request';
-import type { FieldSchema } from '@warp-drive/core-types/schema/fields';
+import type {
+  CollectionField,
+  FieldSchema,
+  LegacyRelationshipSchema,
+  ResourceField,
+} from '@warp-drive/core-types/schema/fields';
 import type {
   CollectionResourceDataDocument,
   ResourceDataDocument,
@@ -812,15 +817,14 @@ export default class JSONAPICache implements Cache {
     if (DEBUG) {
       if (!DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
         // save off info about saved relationships
-        const relationships = this._capabilities.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
-        Object.keys(relationships).forEach((relationshipName) => {
-          const relationship = relationships[relationshipName];
-          if (relationship.kind === 'belongsTo') {
-            if (this.__graph._isDirty(identifier, relationshipName)) {
-              const relationshipData = this.__graph.getData(identifier, relationshipName);
+        const fields = this._capabilities.schema.fields(identifier);
+        fields.forEach((schema, name) => {
+          if (schema.kind === 'belongsTo') {
+            if (this.__graph._isDirty(identifier, name)) {
+              const relationshipData = this.__graph.getData(identifier, name);
               const inFlight = (cached.inflightRelationships =
                 cached.inflightRelationships || (Object.create(null) as Record<string, unknown>));
-              inFlight[relationshipName] = relationshipData;
+              inFlight[name] = relationshipData;
             }
           }
         });
@@ -902,15 +906,12 @@ export default class JSONAPICache implements Cache {
           if (!DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
             // assert against bad API behavior where a belongsTo relationship
             // is saved but the return payload indicates a different final state.
-            const relationships = this._capabilities
-              .getSchemaDefinitionService()
-              .relationshipsDefinitionFor(identifier);
-            Object.keys(relationships).forEach((relationshipName) => {
-              const relationship = relationships[relationshipName];
-              if (relationship.kind === 'belongsTo') {
-                const relationshipData = data.relationships![relationshipName]?.data;
+            const fields = this._capabilities.schema.fields(identifier);
+            fields.forEach((field, name) => {
+              if (field.kind === 'belongsTo') {
+                const relationshipData = data.relationships![name]?.data;
                 if (relationshipData !== undefined) {
-                  const inFlightData = cached.inflightRelationships?.[relationshipName] as SingleResourceRelationship;
+                  const inFlightData = cached.inflightRelationships?.[name] as SingleResourceRelationship;
                   if (!inFlightData || !('data' in inFlightData)) {
                     return;
                   }
@@ -918,7 +919,7 @@ export default class JSONAPICache implements Cache {
                     ? this._capabilities.identifierCache.getOrCreateRecordIdentifier(relationshipData)
                     : null;
                   assert(
-                    `Expected the resource relationship '<${identifier.type}>.${relationshipName}' on ${
+                    `Expected the resource relationship '<${identifier.type}>.${name}' on ${
                       identifier.lid
                     } to be saved as ${inFlightData.data ? inFlightData.data.lid : '<null>'} but it was saved as ${
                       actualData ? actualData.lid : '<null>'
@@ -1465,7 +1466,7 @@ function getRemoteState(rel: CollectionEdge | ResourceEdge) {
 }
 
 function schemaHasLegacyDefaultValueFn(schema: FieldSchema | undefined): boolean {
-  if (!schema || schema?.kind === '@id') return false;
+  if (!schema) return false;
   return hasLegacyDefaultValueFn(schema.options);
 }
 
@@ -1478,9 +1479,6 @@ function getDefaultValue(
   identifier: StableRecordIdentifier,
   store: Store
 ): Value | undefined {
-  if (schema?.kind === '@id') {
-    return null;
-  }
   const options = schema?.options;
 
   if (!schema || (!options && !schema.type)) {
@@ -1508,14 +1506,7 @@ function getDefaultValue(
 
     // new style transforms
   } else if (schema.kind !== 'attribute' && schema.type) {
-    const transform = (
-      store.schema as unknown as {
-        transforms?: Map<
-          string,
-          { defaultValue(options: Record<string, unknown> | null, identifier: StableRecordIdentifier): Value }
-        >;
-      }
-    ).transforms?.get(schema.type);
+    const transform = store.schema.transformation(schema.type);
 
     if (transform?.defaultValue) {
       return transform.defaultValue(options || null, identifier);
@@ -1631,7 +1622,7 @@ function _isLoading(
 
 function setupRelationships(
   graph: Graph,
-  storeWrapper: CacheCapabilitiesManager,
+  capabilities: CacheCapabilitiesManager,
   identifier: StableRecordIdentifier,
   data: ExistingResourceObject
 ) {
@@ -1639,23 +1630,25 @@ function setupRelationships(
   // allows relationship payloads to be ignored silently if no relationship
   // definition exists. Ensure there's a test for this and then consider
   // moving this to an assertion. This check should possibly live in the graph.
-  const relationships = storeWrapper.schema.relationshipsDefinitionFor(identifier);
-  const keys = Object.keys(relationships);
-  for (let i = 0; i < keys.length; i++) {
-    const relationshipName = keys[i];
-    const relationshipData = data.relationships![relationshipName];
+  const fields = capabilities.schema.fields(identifier);
+  for (const [name, field] of fields) {
+    if (!isRelationship(field)) continue;
 
-    if (!relationshipData) {
-      continue;
-    }
+    const relationshipData = data.relationships![name];
+    if (!relationshipData) continue;
 
     graph.push({
       op: 'updateRelationship',
       record: identifier,
-      field: relationshipName,
+      field: name,
       value: relationshipData,
     });
   }
+}
+
+const RelationshipKinds = new Set(['hasMany', 'belongsTo', 'resource', 'collection']);
+function isRelationship(field: FieldSchema): field is LegacyRelationshipSchema | CollectionField | ResourceField {
+  return RelationshipKinds.has(field.kind);
 }
 
 function patchLocalAttributes(cached: CachedResource): boolean {
@@ -1700,7 +1693,7 @@ function putOne(
   );
   assert(
     `Missing Resource Type: received resource data with a type '${resource.type}' but no schema could be found with that name.`,
-    cache._capabilities.getSchemaDefinitionService().doesTypeExist(resource.type)
+    cache._capabilities.schema.hasResource(resource)
   );
   let identifier: StableRecordIdentifier | undefined = identifiers.peekRecordIdentifier(resource);
 

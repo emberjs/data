@@ -59,7 +59,7 @@ class House extends Model {
   tenants;
 }
 
-class TestRecordData implements Cache {
+class TestCache implements Cache {
   version = '2' as const;
 
   _errors?: ApiError[];
@@ -210,7 +210,7 @@ class TestRecordData implements Cache {
   }
 }
 
-module('integration/record-data - Custom RecordData Implementations', function (hooks) {
+module('integration/record-data - Custom Cache Implementations', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
@@ -226,7 +226,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
-  test('A RecordData implementation that has the required spec methods should not error out', async function (assert) {
+  test('A Cache implementation that has the required spec methods should not error out', async function (assert) {
     const { owner } = this;
     const store: Store = owner.lookup('service:store') as unknown as Store;
 
@@ -289,7 +289,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     let calledDidCommit = 0;
     let isNew = false;
 
-    class LifecycleRecordData extends TestRecordData {
+    class LifecycleCache extends TestCache {
       override upsert() {
         calledUpsert++;
       }
@@ -338,7 +338,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     class TestStore extends Store {
       override createCache(storeWrapper: CacheCapabilitiesManager) {
         // @ts-expect-error
-        return new LifecycleRecordData(storeWrapper) as Cache;
+        return new LifecycleCache(storeWrapper) as Cache;
       }
     }
 
@@ -436,7 +436,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     const { owner } = this;
     let calledGet = 0;
 
-    class AttributeRecordData extends TestRecordData {
+    class AttributeCache extends TestCache {
       changedAttributes() {
         return { name: ['old', 'new'] as [string, string] };
       }
@@ -474,7 +474,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     class TestStore extends Store {
       override createCache(storeWrapper: CacheCapabilitiesManager) {
         // @ts-expect-error
-        return new AttributeRecordData(storeWrapper) as Cache;
+        return new AttributeCache(storeWrapper) as Cache;
       }
     }
 

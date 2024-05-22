@@ -357,16 +357,21 @@ module('Integration | Relationships | Explicit Polymorphic BelongsTo', function 
       [
         'taggable',
         {
-          tag: {
-            kind: 'belongsTo',
-            type: 'tag',
-            name: 'tag',
-            options: {
-              async: false,
-              inverse: 'tagged',
-              as: 'taggable',
-            },
-          },
+          fields: new Map([
+            [
+              'tag',
+              {
+                kind: 'belongsTo',
+                type: 'tag',
+                name: 'tag',
+                options: {
+                  async: false,
+                  inverse: 'tagged',
+                  as: 'taggable',
+                },
+              },
+            ],
+          ]),
         },
       ],
     ]);
@@ -376,28 +381,23 @@ module('Integration | Relationships | Explicit Polymorphic BelongsTo', function 
         this._schema = schema;
       }
 
-      doesTypeExist(type) {
+      hasResource({ type }) {
         if (AbstractSchemas.has(type)) {
           return true; // some apps may want `true`
         }
-        return this._schema.doesTypeExist(type);
-      }
-
-      attributesDefinitionFor(identifier) {
-        return this._schema.attributesDefinitionFor(identifier);
+        return this._schema.hasResource({ type });
       }
 
       fields(identifier) {
+        const schema = AbstractSchemas.get(identifier.type);
+        if (schema) {
+          return schema.fields;
+        }
         return this._schema.fields(identifier);
       }
-
-      relationshipsDefinitionFor(identifier) {
-        const schema = AbstractSchemas.get(identifier.type);
-        return schema || this._schema.relationshipsDefinitionFor(identifier);
-      }
     }
-    const schema = store.getSchemaDefinitionService();
-    store.registerSchemaDefinitionService(new SchemaDelegator(schema));
+    const schema = store.createSchemaService();
+    store.createSchemaService = () => new SchemaDelegator(schema);
 
     owner.register(
       'model:tag',

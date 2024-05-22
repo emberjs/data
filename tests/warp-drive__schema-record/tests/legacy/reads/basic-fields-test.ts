@@ -6,13 +6,13 @@ import { setupTest } from 'ember-qunit';
 
 import {
   registerDerivations as registerLegacyDerivations,
-  withFields as withLegacyFields,
+  withDefaults as withLegacy,
 } from '@ember-data/model/migration-support';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import { Type } from '@warp-drive/core-types/symbols';
 import type { SchemaRecord } from '@warp-drive/schema-record/record';
-import type { Transform } from '@warp-drive/schema-record/schema';
-import { SchemaService } from '@warp-drive/schema-record/schema';
+import type { Transformation } from '@warp-drive/schema-record/schema';
 
 import type Store from 'warp-drive__schema-record/services/store';
 
@@ -31,20 +31,21 @@ module('Legacy | Reads | basic fields', function (hooks) {
 
   test('we can use simple fields with no `type`', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
     registerLegacyDerivations(schema);
 
-    schema.defineSchema('user', {
-      legacy: true,
-      fields: withLegacyFields([
-        {
-          name: 'name',
-          type: null,
-          kind: 'attribute',
-        },
-      ]),
-    });
+    schema.registerResource(
+      withLegacy({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            type: null,
+            kind: 'attribute',
+          },
+        ],
+      })
+    );
 
     const record = store.createRecord('user', { name: 'Rey Skybarker' }) as User;
 
@@ -72,8 +73,7 @@ module('Legacy | Reads | basic fields', function (hooks) {
 
   test('we can use simple fields with a `type`', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
     registerLegacyDerivations(schema);
 
     this.owner.register(
@@ -88,7 +88,7 @@ module('Legacy | Reads | basic fields', function (hooks) {
       }
     );
 
-    const FloatTransform: Transform<string | number, number> = {
+    const FloatTransform: Transformation<string | number, number> = {
       serialize(value: string | number, options: { precision?: number } | null, _record: SchemaRecord): never {
         assert.ok(false, 'unexpected serialize');
         throw new Error('unexpected serialize');
@@ -101,49 +101,52 @@ module('Legacy | Reads | basic fields', function (hooks) {
         assert.ok(false, 'unexpected defaultValue');
         throw new Error('unexpected defaultValue');
       },
+      [Type]: 'float',
     };
 
-    schema.registerTransform('float', FloatTransform);
+    schema.registerTransformation(FloatTransform);
 
-    schema.defineSchema('user', {
-      legacy: true,
-      fields: withLegacyFields([
-        {
-          name: 'name',
-          type: null,
-          kind: 'attribute',
-        },
-        {
-          name: 'lastName',
-          type: 'string',
-          kind: 'attribute',
-        },
-        {
-          name: 'rank',
-          type: 'float',
-          kind: 'attribute',
-          options: { precision: 0, defaultValue: 0 },
-        },
-        {
-          name: 'age',
-          type: 'float',
-          options: { precision: 0, defaultValue: 0 },
-          kind: 'attribute',
-        },
-        {
-          name: 'netWorth',
-          type: 'float',
-          options: { precision: 2, defaultValue: 0 },
-          kind: 'attribute',
-        },
-        {
-          name: 'coolometer',
-          type: 'float',
-          options: { defaultValue: 0 },
-          kind: 'attribute',
-        },
-      ]),
-    });
+    schema.registerResource(
+      withLegacy({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            type: null,
+            kind: 'attribute',
+          },
+          {
+            name: 'lastName',
+            type: 'string',
+            kind: 'attribute',
+          },
+          {
+            name: 'rank',
+            type: 'float',
+            kind: 'attribute',
+            options: { precision: 0, defaultValue: 0 },
+          },
+          {
+            name: 'age',
+            type: 'float',
+            options: { precision: 0, defaultValue: 0 },
+            kind: 'attribute',
+          },
+          {
+            name: 'netWorth',
+            type: 'float',
+            options: { precision: 2, defaultValue: 0 },
+            kind: 'attribute',
+          },
+          {
+            name: 'coolometer',
+            type: 'float',
+            options: { defaultValue: 0 },
+            kind: 'attribute',
+          },
+        ],
+      })
+    );
 
     const record = store.createRecord('user', {
       name: 'Rey Skybarker',

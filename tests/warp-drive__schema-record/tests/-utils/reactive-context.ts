@@ -6,14 +6,18 @@ import { hbs } from 'ember-cli-htmlbars';
 
 import type { ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { OpaqueRecordInstance } from '@warp-drive/core-types/record';
-import type { FieldSchema } from '@warp-drive/core-types/schema/fields';
+import type { FieldSchema, IdentityField, ResourceSchema } from '@warp-drive/core-types/schema/fields';
 
 export async function reactiveContext<T extends OpaqueRecordInstance>(
   this: TestContext,
   record: T,
-  fields: FieldSchema[]
+  resource: ResourceSchema
 ) {
   const _fields: string[] = [];
+  const fields: Array<FieldSchema | IdentityField> = resource.fields.slice();
+  if (resource.identity?.name) {
+    fields.unshift(resource.identity as IdentityField);
+  }
   fields.forEach((field) => {
     _fields.push(field.name + 'Count');
     _fields.push(field.name);
@@ -41,7 +45,10 @@ export async function reactiveContext<T extends OpaqueRecordInstance>(
           field.kind === 'attribute' ||
           field.kind === 'field' ||
           field.kind === 'derived' ||
-          field.kind === 'array'
+          field.kind === 'array' ||
+          field.kind === '@id' ||
+          // @ts-expect-error we secretly allow this
+          field.kind === '@hash'
         ) {
           return record[field.name as keyof T] as unknown;
         } else if (field.kind === 'resource') {

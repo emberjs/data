@@ -4,12 +4,16 @@ import type { NotificationType } from '@ember-data/store';
 import Store from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { FieldSchema, LegacyAttributeField, LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
 import type { ResourceObject } from '@warp-drive/core-types/spec/json-api-raw';
 import { module, test } from '@warp-drive/diagnostic';
 
+import { TestSchema } from '../utils/schema';
+
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
 class TestStore extends Store {
+  createSchemaService() {
+    return new TestSchema();
+  }
   override createCache(wrapper: CacheCapabilitiesManager) {
     return new Cache(wrapper);
   }
@@ -40,97 +44,45 @@ class TestStore extends Store {
   }
 }
 
-type AttributesSchema = Record<string, LegacyAttributeField>;
-type RelationshipsSchema = Record<string, LegacyRelationshipSchema>;
-type Schemas<T extends string> = Record<T, { attributes: AttributesSchema; relationships: RelationshipsSchema }>;
-class TestSchema<T extends string> {
-  declare schemas: Schemas<T>;
-  constructor(schemas?: Schemas<T>) {
-    this.schemas = schemas || ({} as Schemas<T>);
-  }
-
-  attributesDefinitionFor(identifier: { type: T }): AttributesSchema {
-    return this.schemas[identifier.type]?.attributes || {};
-  }
-
-  _fieldsDefCache: Record<string, Map<string, FieldSchema>> = {};
-
-  fields(identifier: { type: T }): Map<string, FieldSchema> {
-    const { type } = identifier;
-    let fieldDefs: Map<string, FieldSchema> | undefined = this._fieldsDefCache[type];
-
-    if (fieldDefs === undefined) {
-      fieldDefs = new Map();
-      this._fieldsDefCache[type] = fieldDefs;
-
-      const attributes = this.attributesDefinitionFor(identifier);
-      const relationships = this.relationshipsDefinitionFor(identifier);
-
-      for (const attr of Object.values(attributes)) {
-        fieldDefs.set(attr.name, attr);
-      }
-
-      for (const rel of Object.values(relationships)) {
-        fieldDefs.set(rel.name, rel);
-      }
-    }
-
-    return fieldDefs;
-  }
-
-  relationshipsDefinitionFor(identifier: { type: T }): RelationshipsSchema {
-    return this.schemas[identifier.type]?.relationships || {};
-  }
-
-  doesTypeExist(type: string) {
-    return type in this.schemas ? true : Object.keys(this.schemas).length === 0 ? true : false;
-  }
-}
-
 module('Integration | @ember-data/json-api/request', function (hooks) {
   let store: TestStore;
   hooks.beforeEach(function () {
     store = new TestStore();
-
-    store.registerSchema(
-      new TestSchema<'user'>({
-        user: {
-          attributes: {
-            firstName: { kind: 'attribute', name: 'firstName', type: null },
-            lastName: { kind: 'attribute', name: 'lastName', type: null },
-          },
-          relationships: {
-            bestFriend: {
-              kind: 'belongsTo',
-              type: 'user',
-              name: 'bestFriend',
-              options: {
-                async: false,
-                inverse: 'bestFriend',
-              },
-            },
-            worstEnemy: {
-              kind: 'belongsTo',
-              type: 'user',
-              name: 'worstEnemy',
-              options: {
-                async: false,
-                inverse: null,
-              },
-            },
-            friends: {
-              kind: 'hasMany',
-              type: 'user',
-              name: 'friends',
-              options: {
-                async: false,
-                inverse: 'friends',
-              },
-            },
+    store.schema.registerResource({
+      identity: null,
+      type: 'user',
+      fields: [
+        { kind: 'attribute', name: 'firstName', type: null },
+        { kind: 'attribute', name: 'lastName', type: null },
+        {
+          kind: 'belongsTo',
+          type: 'user',
+          name: 'bestFriend',
+          options: {
+            async: false,
+            inverse: 'bestFriend',
           },
         },
-      })
-    );
+        {
+          kind: 'belongsTo',
+          type: 'user',
+          name: 'worstEnemy',
+          options: {
+            async: false,
+            inverse: null,
+          },
+        },
+        {
+          kind: 'hasMany',
+          type: 'user',
+          name: 'friends',
+          options: {
+            async: false,
+            inverse: 'friends',
+          },
+        },
+      ],
+    });
 
     store.push({
       data: {

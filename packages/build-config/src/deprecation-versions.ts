@@ -398,3 +398,27 @@ export const DEPRECATE_MANY_ARRAY_DUPLICATES = '5.3';
  * @public
  */
 export const DEPRECATE_STORE_EXTENDS_EMBER_OBJECT = '5.4';
+
+/**
+ * **id: ember-data:schema-service-updates**
+ *
+ * When the flag is `true` (default), the legacy schema
+ * service features will be enabled on the store and
+ * the service, and deprecations will be thrown when
+ * they are used.
+ *
+ * Deprecated features include:
+ *
+ * - `Store.registerSchema` method is deprecated in favor of the `Store.createSchemaService` hook
+ * - `Store.registerSchemaDefinitionService` method is deprecated in favor of the `Store.createSchemaService` hook
+ * - `Store.getSchemaDefinitionService` method is deprecated in favor of `Store.schema` property
+ * - `SchemaService.doesTypeExist` method is deprecated in favor of the `SchemaService.hasResource` method
+ * - `SchemaService.attributesDefinitionFor` method is deprecated in favor of the `SchemaService.fields` method
+ * - `SchemaService.relationshipsDefinitionFor` method is deprecated in favor of the `SchemaService.fields` method
+ *
+ * @property ENABLE_LEGACY_SCHEMA_SERVICE
+ * @since 5.4
+ * @until 6.0
+ * @public
+ */
+export const ENABLE_LEGACY_SCHEMA_SERVICE = '5.4';

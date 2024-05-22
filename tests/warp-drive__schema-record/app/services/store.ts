@@ -6,6 +6,7 @@ import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import { instantiateRecord, teardownRecord } from '@warp-drive/schema-record/hooks';
 import type { SchemaRecord } from '@warp-drive/schema-record/record';
+import { SchemaService } from '@warp-drive/schema-record/schema';
 
 export default class Store extends DataStore {
   constructor(args: unknown) {
@@ -14,6 +15,10 @@ export default class Store extends DataStore {
     const manager = (this.requestManager = new RequestManager());
     manager.use([Fetch]);
     manager.useCache(CacheHandler);
+  }
+
+  createSchemaService() {
+    return new SchemaService();
   }
 
   override createCache(capabilities: CacheCapabilitiesManager) {

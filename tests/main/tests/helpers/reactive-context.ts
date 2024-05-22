@@ -5,6 +5,7 @@ import Component from '@glimmer/component';
 import { hbs } from 'ember-cli-htmlbars';
 
 import type Model from '@ember-data/model';
+import type { FieldSchema, IdentityField, ResourceSchema } from '@warp-drive/core-types/schema/fields';
 
 export interface ReactiveContext {
   counters: Record<string, number | undefined>;
@@ -12,20 +13,16 @@ export interface ReactiveContext {
   reset: () => void;
 }
 
-export async function unboundReactiveContext<T extends Model>(
-  context: TestContext,
-  record: T,
-  fields: { name: string; type: 'field' | 'hasMany' | 'belongsTo' }[]
-): Promise<ReactiveContext> {
-  return reactiveContext.call(context, record, fields);
-}
-
 export async function reactiveContext<T extends Model>(
   this: TestContext,
   record: T,
-  fields: { name: string; type: 'field' | 'hasMany' | 'belongsTo' }[]
+  resource: ResourceSchema
 ): Promise<ReactiveContext> {
   const _fields: string[] = [];
+  const fields: Array<FieldSchema | IdentityField> = resource.fields.slice();
+  if (resource.identity?.name) {
+    fields.unshift(resource.identity as IdentityField);
+  }
   fields.forEach((field) => {
     _fields.push(field.name + 'Count');
     _fields.push(field.name);
@@ -48,7 +45,7 @@ export async function reactiveContext<T extends Model>(
     Object.defineProperty(ReactiveComponent.prototype, field.name, {
       get() {
         counters[field.name]++;
-        switch (field.type) {
+        switch (field.kind) {
           case 'hasMany':
             return `[${(record[field.name as keyof T] as Model[]).map((r) => r.id).join(',')}]`;
           case 'belongsTo':
@@ -56,8 +53,7 @@ export async function reactiveContext<T extends Model>(
           case 'field':
             return record[field.name as keyof T] as unknown;
           default:
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new Error(`Unknown field type ${field.type} for field ${field.name}`);
+            throw new Error(`Unknown field kind ${field.kind} for field ${field.name}`);
         }
       },
     });

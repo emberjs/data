@@ -1,6 +1,7 @@
 import type Store from '@ember-data/store';
 import type { Signal } from '@ember-data/tracking/-private';
 import { addToTransaction, createSignal, subscribe } from '@ember-data/tracking/-private';
+import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { ObjectValue, Value } from '@warp-drive/core-types/json/raw';
@@ -75,10 +76,8 @@ export class ManagedObject {
           let newData = cache.getAttr(self.address, self.key);
           if (newData && newData !== self[SOURCE]) {
             if (field.type) {
-              const transform = schema.transforms.get(field.type);
-              if (!transform) {
-                throw new Error(`No '${field.type}' transform defined for use by ${address.type}.${String(prop)}`);
-              }
+              const transform = schema.transformation(field.type);
+              assert(`No '${field.type}' transform defined for use by ${address.type}.${String(prop)}`, transform);
               newData = transform.hydrate(newData as ObjectValue, field.options ?? null, self.owner) as ObjectValue;
             }
             self[SOURCE] = { ...(newData as ObjectValue) }; // Add type assertion for newData
@@ -120,10 +119,8 @@ export class ManagedObject {
             return true;
           }
 
-          const transform = schema.transforms.get(field.type);
-          if (!transform) {
-            throw new Error(`No '${field.type}' transform defined for use by ${address.type}.${String(prop)}`);
-          }
+          const transform = schema.transformation(field.type);
+          assert(`No '${field.type}' transform defined for use by ${address.type}.${String(prop)}`, transform);
           const val = transform.serialize(self[SOURCE], field.options ?? null, self.owner);
           cache.setAttr(self.address, self.key, val);
           _SIGNAL.shouldReset = true;

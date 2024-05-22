@@ -23,7 +23,10 @@ export default class Store extends BaseStore {
     this.requestManager = new RequestManager();
     this.requestManager.use([LegacyNetworkHandler, Fetch]);
     this.requestManager.useCache(CacheHandler);
-    this.registerSchema(buildSchema(this));
+  }
+
+  createSchemaService(): ReturnType<typeof buildSchema> {
+    return buildSchema(this);
   }
 
   override createCache(capabilities: CacheCapabilitiesManager) {

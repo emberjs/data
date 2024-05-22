@@ -167,11 +167,13 @@ export class Snapshot<R = unknown> {
     }
     const attributes = (this.__attributes = Object.create(null) as Record<string, unknown>);
     const { identifier } = this;
-    const attrs = Object.keys(this._store.getSchemaDefinitionService().attributesDefinitionFor(identifier));
+    const attrs = this._store.schema.fields(identifier);
     const cache = this._store.cache;
 
-    attrs.forEach((keyName) => {
-      attributes[keyName] = cache.getAttr(identifier, keyName);
+    attrs.forEach((field, keyName) => {
+      if (field.kind === 'attribute') {
+        attributes[keyName] = cache.getAttr(identifier, keyName);
+      }
     });
 
     return attributes;
@@ -305,9 +307,7 @@ export class Snapshot<R = unknown> {
       return this._belongsToRelationships[keyName];
     }
 
-    const relationshipMeta = store.getSchemaDefinitionService().relationshipsDefinitionFor({ type: this.modelName })[
-      keyName
-    ];
+    const relationshipMeta = store.schema.fields({ type: this.modelName }).get(keyName);
     assert(
       `Model '${this.identifier.lid}' has no belongsTo relationship named '${keyName}' defined.`,
       relationshipMeta && relationshipMeta.kind === 'belongsTo'
@@ -412,9 +412,7 @@ export class Snapshot<R = unknown> {
 
     const store = this._store;
     upgradeStore(store);
-    const relationshipMeta = store.getSchemaDefinitionService().relationshipsDefinitionFor({ type: this.modelName })[
-      keyName
-    ];
+    const relationshipMeta = store.schema.fields({ type: this.modelName }).get(keyName);
     assert(
       `Model '${this.identifier.lid}' has no hasMany relationship named '${keyName}' defined.`,
       relationshipMeta && relationshipMeta.kind === 'hasMany'
@@ -495,9 +493,11 @@ export class Snapshot<R = unknown> {
     @public
   */
   eachAttribute(callback: (key: string, meta: LegacyAttributeField) => void, binding?: unknown): void {
-    const attrDefs = this._store.getSchemaDefinitionService().attributesDefinitionFor(this.identifier);
-    Object.keys(attrDefs).forEach((key) => {
-      callback.call(binding, key, attrDefs[key]);
+    const fields = this._store.schema.fields(this.identifier);
+    fields.forEach((field, key) => {
+      if (field.kind === 'attribute') {
+        callback.call(binding, key, field);
+      }
     });
   }
 
@@ -519,9 +519,11 @@ export class Snapshot<R = unknown> {
     @public
   */
   eachRelationship(callback: (key: string, meta: LegacyRelationshipSchema) => void, binding?: unknown): void {
-    const relationshipDefs = this._store.getSchemaDefinitionService().relationshipsDefinitionFor(this.identifier);
-    Object.keys(relationshipDefs).forEach((key) => {
-      callback.call(binding, key, relationshipDefs[key]);
+    const fields = this._store.schema.fields(this.identifier);
+    fields.forEach((field, key) => {
+      if (field.kind === 'belongsTo' || field.kind === 'hasMany') {
+        callback.call(binding, key, field);
+      }
     });
   }
 

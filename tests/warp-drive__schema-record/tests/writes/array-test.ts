@@ -3,9 +3,9 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import { recordIdentifierFor } from '@ember-data/store';
-import type { ResourceType } from '@warp-drive/core-types/symbols';
-import type { Transform } from '@warp-drive/schema-record/schema';
-import { registerDerivations, SchemaService, withFields } from '@warp-drive/schema-record/schema';
+import { type ResourceType, Type } from '@warp-drive/core-types/symbols';
+import type { Transformation } from '@warp-drive/schema-record/schema';
+import { registerDerivations, withDefaults } from '@warp-drive/schema-record/schema';
 
 import type Store from 'warp-drive__schema-record/services/store';
 
@@ -29,22 +29,24 @@ module('Writes | array fields', function (hooks) {
 
   test('we can update to a new array', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
     registerDerivations(schema);
 
-    schema.defineSchema('user', {
-      fields: withFields([
-        {
-          name: 'name',
-          kind: 'field',
-        },
-        {
-          name: 'favoriteNumbers',
-          kind: 'array',
-        },
-      ]),
-    });
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'favoriteNumbers',
+            kind: 'array',
+          },
+        ],
+      })
+    );
 
     const record = store.push<User>({
       data: {
@@ -78,22 +80,24 @@ module('Writes | array fields', function (hooks) {
 
   test('we can update to null', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
     registerDerivations(schema);
 
-    schema.defineSchema('user', {
-      fields: withFields([
-        {
-          name: 'name',
-          kind: 'field',
-        },
-        {
-          name: 'favoriteNumbers',
-          kind: 'array',
-        },
-      ]),
-    });
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'favoriteNumbers',
+            kind: 'array',
+          },
+        ],
+      })
+    );
 
     const record = store.push<User>({
       data: {
@@ -127,22 +131,24 @@ module('Writes | array fields', function (hooks) {
 
   test('we can update a single value in the array', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
     registerDerivations(schema);
 
-    schema.defineSchema('user', {
-      fields: withFields([
-        {
-          name: 'name',
-          kind: 'field',
-        },
-        {
-          name: 'favoriteNumbers',
-          kind: 'array',
-        },
-      ]),
-    });
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'favoriteNumbers',
+            kind: 'array',
+          },
+        ],
+      })
+    );
 
     const record = store.push<User>({
       data: {
@@ -171,22 +177,24 @@ module('Writes | array fields', function (hooks) {
 
   test('we can push a new value on to the array', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
     registerDerivations(schema);
 
-    schema.defineSchema('user', {
-      fields: withFields([
-        {
-          name: 'name',
-          kind: 'field',
-        },
-        {
-          name: 'favoriteNumbers',
-          kind: 'array',
-        },
-      ]),
-    });
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'favoriteNumbers',
+            kind: 'array',
+          },
+        ],
+      })
+    );
 
     const record = store.push<User>({
       data: {
@@ -220,22 +228,24 @@ module('Writes | array fields', function (hooks) {
 
   test('we can pop a value off of the array', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
     registerDerivations(schema);
 
-    schema.defineSchema('user', {
-      fields: withFields([
-        {
-          name: 'name',
-          kind: 'field',
-        },
-        {
-          name: 'favoriteNumbers',
-          kind: 'array',
-        },
-      ]),
-    });
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'favoriteNumbers',
+            kind: 'array',
+          },
+        ],
+      })
+    );
 
     const record = store.push<User>({
       data: {
@@ -266,22 +276,24 @@ module('Writes | array fields', function (hooks) {
 
   test('we can unshift a value on to the array', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
     registerDerivations(schema);
 
-    schema.defineSchema('user', {
-      fields: withFields([
-        {
-          name: 'name',
-          kind: 'field',
-        },
-        {
-          name: 'favoriteNumbers',
-          kind: 'array',
-        },
-      ]),
-    });
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'favoriteNumbers',
+            kind: 'array',
+          },
+        ],
+      })
+    );
 
     const record = store.push<User>({
       data: {
@@ -315,22 +327,24 @@ module('Writes | array fields', function (hooks) {
 
   test('we can shift a value off of the array', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
     registerDerivations(schema);
 
-    schema.defineSchema('user', {
-      fields: withFields([
-        {
-          name: 'name',
-          kind: 'field',
-        },
-        {
-          name: 'favoriteNumbers',
-          kind: 'array',
-        },
-      ]),
-    });
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'favoriteNumbers',
+            kind: 'array',
+          },
+        ],
+      })
+    );
 
     const record = store.push<User>({
       data: {
@@ -361,22 +375,24 @@ module('Writes | array fields', function (hooks) {
 
   test('we can assign an array value to another record', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
     registerDerivations(schema);
 
-    schema.defineSchema('user', {
-      fields: withFields([
-        {
-          name: 'name',
-          kind: 'field',
-        },
-        {
-          name: 'favoriteNumbers',
-          kind: 'array',
-        },
-      ]),
-    });
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'favoriteNumbers',
+            kind: 'array',
+          },
+        ],
+      })
+    );
 
     const record = store.push<User>({
       data: {
@@ -421,25 +437,27 @@ module('Writes | array fields', function (hooks) {
 
   test('we can edit simple array fields with a `type`', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
     registerDerivations(schema);
 
-    schema.defineSchema('user', {
-      fields: withFields([
-        {
-          name: 'name',
-          kind: 'field',
-        },
-        {
-          name: 'favoriteNumbers',
-          type: 'string-from-int',
-          kind: 'array',
-        },
-      ]),
-    });
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'favoriteNumbers',
+            type: 'string-from-int',
+            kind: 'array',
+          },
+        ],
+      })
+    );
 
-    const StringFromIntTransform: Transform<number, string> = {
+    const StringFromIntTransform: Transformation<number, string> = {
       serialize(value: string, options, _record): number {
         return parseInt(value);
       },
@@ -450,9 +468,10 @@ module('Writes | array fields', function (hooks) {
         assert.ok(false, 'unexpected defaultValue');
         throw new Error('unexpected defaultValue');
       },
+      [Type]: 'string-from-int',
     };
 
-    schema.registerTransform('string-from-int', StringFromIntTransform);
+    schema.registerTransformation(StringFromIntTransform);
 
     const sourceArray = ['1', '2'];
     const record = store.createRecord<CreateUserType>('user', { name: 'Rey Skybarker', favoriteNumbers: sourceArray });
@@ -486,25 +505,27 @@ module('Writes | array fields', function (hooks) {
 
   test('we can edit single values in array fields with a `type`', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
     registerDerivations(schema);
 
-    schema.defineSchema('user', {
-      fields: withFields([
-        {
-          name: 'name',
-          kind: 'field',
-        },
-        {
-          name: 'favoriteNumbers',
-          type: 'string-from-int',
-          kind: 'array',
-        },
-      ]),
-    });
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'favoriteNumbers',
+            type: 'string-from-int',
+            kind: 'array',
+          },
+        ],
+      })
+    );
 
-    const StringFromIntTransform: Transform<number, string> = {
+    const StringFromIntTransform: Transformation<number, string> = {
       serialize(value: string, options, _record): number {
         return parseInt(value);
       },
@@ -515,9 +536,10 @@ module('Writes | array fields', function (hooks) {
         assert.ok(false, 'unexpected defaultValue');
         throw new Error('unexpected defaultValue');
       },
+      [Type]: 'string-from-int',
     };
 
-    schema.registerTransform('string-from-int', StringFromIntTransform);
+    schema.registerTransformation(StringFromIntTransform);
 
     const sourceArray = ['1', '2'];
     const record = store.createRecord<CreateUserType>('user', { name: 'Rey Skybarker', favoriteNumbers: sourceArray });
@@ -551,25 +573,27 @@ module('Writes | array fields', function (hooks) {
 
   test('we can push a new value on to array fields with a `type`', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
     registerDerivations(schema);
 
-    schema.defineSchema('user', {
-      fields: withFields([
-        {
-          name: 'name',
-          kind: 'field',
-        },
-        {
-          name: 'favoriteNumbers',
-          type: 'string-from-int',
-          kind: 'array',
-        },
-      ]),
-    });
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'favoriteNumbers',
+            type: 'string-from-int',
+            kind: 'array',
+          },
+        ],
+      })
+    );
 
-    const StringFromIntTransform: Transform<number, string> = {
+    const StringFromIntTransform: Transformation<number, string> = {
       serialize(value: string, options, _record): number {
         return parseInt(value);
       },
@@ -580,9 +604,10 @@ module('Writes | array fields', function (hooks) {
         assert.ok(false, 'unexpected defaultValue');
         throw new Error('unexpected defaultValue');
       },
+      [Type]: 'string-from-int',
     };
 
-    schema.registerTransform('string-from-int', StringFromIntTransform);
+    schema.registerTransformation(StringFromIntTransform);
 
     const sourceArray = ['1', '2'];
     const record = store.createRecord<CreateUserType>('user', { name: 'Rey Skybarker', favoriteNumbers: sourceArray });
@@ -616,25 +641,27 @@ module('Writes | array fields', function (hooks) {
 
   test('we can pop a value off of an array fields with a `type`', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
     registerDerivations(schema);
 
-    schema.defineSchema('user', {
-      fields: withFields([
-        {
-          name: 'name',
-          kind: 'field',
-        },
-        {
-          name: 'favoriteNumbers',
-          type: 'string-from-int',
-          kind: 'array',
-        },
-      ]),
-    });
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'favoriteNumbers',
+            type: 'string-from-int',
+            kind: 'array',
+          },
+        ],
+      })
+    );
 
-    const StringFromIntTransform: Transform<number, string> = {
+    const StringFromIntTransform: Transformation<number, string> = {
       serialize(value: string, options, _record): number {
         return parseInt(value);
       },
@@ -645,9 +672,10 @@ module('Writes | array fields', function (hooks) {
         assert.ok(false, 'unexpected defaultValue');
         throw new Error('unexpected defaultValue');
       },
+      [Type]: 'string-from-int',
     };
 
-    schema.registerTransform('string-from-int', StringFromIntTransform);
+    schema.registerTransformation(StringFromIntTransform);
 
     const sourceArray = ['1', '2'];
     const record = store.createRecord<CreateUserType>('user', { name: 'Rey Skybarker', favoriteNumbers: sourceArray });

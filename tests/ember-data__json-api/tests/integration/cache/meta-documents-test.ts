@@ -2,14 +2,12 @@ import Cache from '@ember-data/json-api';
 import type { StructuredDataDocument, StructuredDocument } from '@ember-data/request';
 import type { CacheOperation } from '@ember-data/store';
 import Store from '@ember-data/store';
-import type { CacheCapabilitiesManager, SchemaService } from '@ember-data/store/types';
+import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import type { StableDocumentIdentifier, StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
-import type { LegacyFieldSchema as FieldSchema } from '@warp-drive/core-types/schema/fields';
 import type { CollectionResourceDataDocument, ResourceMetaDocument } from '@warp-drive/core-types/spec/document';
 import { module, test } from '@warp-drive/diagnostic';
 
-type AttributesSchema = ReturnType<SchemaService['attributesDefinitionFor']>;
-type RelationshipsSchema = ReturnType<SchemaService['relationshipsDefinitionFor']>;
+import { TestSchema } from '../../utils/schema';
 
 function asStructuredDocument<T>(doc: {
   request?: { url: string; cacheOptions?: { key?: string } };
@@ -19,53 +17,11 @@ function asStructuredDocument<T>(doc: {
 }
 
 class TestStore extends Store {
+  createSchemaService() {
+    return new TestSchema();
+  }
   override createCache(wrapper: CacheCapabilitiesManager) {
     return new Cache(wrapper);
-  }
-}
-
-type Schemas<T extends string> = Record<T, { attributes: AttributesSchema; relationships: RelationshipsSchema }>;
-class TestSchema<T extends string> {
-  declare schemas: Schemas<T>;
-  constructor(schemas?: Schemas<T>) {
-    this.schemas = schemas || ({} as Schemas<T>);
-  }
-
-  attributesDefinitionFor(identifier: { type: T }): AttributesSchema {
-    return this.schemas[identifier.type]?.attributes || {};
-  }
-
-  _fieldsDefCache: Record<string, Map<string, FieldSchema>> = {};
-
-  fields(identifier: { type: T }): Map<string, FieldSchema> {
-    const { type } = identifier;
-    let fieldDefs: Map<string, FieldSchema> | undefined = this._fieldsDefCache[type];
-
-    if (fieldDefs === undefined) {
-      fieldDefs = new Map();
-      this._fieldsDefCache[type] = fieldDefs;
-
-      const attributes = this.attributesDefinitionFor(identifier);
-      const relationships = this.relationshipsDefinitionFor(identifier);
-
-      for (const attr of Object.values(attributes)) {
-        fieldDefs.set(attr.name, attr);
-      }
-
-      for (const rel of Object.values(relationships)) {
-        fieldDefs.set(rel.name, rel);
-      }
-    }
-
-    return fieldDefs;
-  }
-
-  relationshipsDefinitionFor(identifier: { type: T }): RelationshipsSchema {
-    return this.schemas[identifier.type]?.relationships || {};
-  }
-
-  doesTypeExist(type: string) {
-    return type in this.schemas ? true : Object.keys(this.schemas).length === 0 ? true : false;
   }
 }
 
@@ -232,7 +188,6 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
 
   test('updating cache with a meta document disregards prior data', function (assert) {
     const store = new TestStore();
-    store.registerSchema(new TestSchema());
 
     const responseDocument = store.cache.put(
       asStructuredDocument({

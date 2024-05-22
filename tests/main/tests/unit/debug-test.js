@@ -44,7 +44,7 @@ module('Debug', function (hooks) {
     assert.deepEqual(propertyInfo.groups[2].properties, ['posts']);
   });
 
-  test('_debugInfo supports arbitray relationship types', async function (assert) {
+  test('_debugInfo supports arbitrary relationship types', async function (assert) {
     class MaritalStatus extends Model {
       @attr('string') name;
     }
@@ -59,15 +59,6 @@ module('Debug', function (hooks) {
       @belongsTo('marital-status', { async: false, inverse: null }) maritalStatus;
     }
 
-    // posts: computed(() => [1, 2, 3])
-    // .readOnly()
-    // .meta({
-    //   options: { inverse: null },
-    //   kind: 'customRelationship',
-    //   name: 'posts',
-    //   type: 'post',
-    // }),
-
     this.owner.register('model:marital-status', MaritalStatus);
     this.owner.register('model:post', Post);
     this.owner.register('model:user', User);
@@ -79,35 +70,30 @@ module('Debug', function (hooks) {
         this._schema = schema;
       }
 
-      doesTypeExist(type) {
-        return this._schema.doesTypeExist(type);
-      }
-
-      attributesDefinitionFor(identifier) {
-        return this._schema.attributesDefinitionFor(identifier);
+      hasResource({ type }) {
+        return this._schema.hasResource({ type });
       }
 
       fields(identifier) {
-        return this._schema.fields(identifier);
-      }
-
-      relationshipsDefinitionFor(identifier) {
-        const sup = this._schema.relationshipsDefinitionFor(identifier);
+        const sup = this._schema.fields(identifier);
         if (identifier.type === 'user') {
-          return Object.assign(sup, {
-            posts: {
-              kind: 'customRelationship',
-              name: 'posts',
-              type: 'post',
-              options: { async: false, inverse: null },
-            },
-          });
+          return new Map([
+            [
+              'posts',
+              {
+                kind: 'customRelationship',
+                name: 'posts',
+                type: 'post',
+                options: { async: false, inverse: null },
+              },
+            ],
+          ]);
         }
         return sup;
       }
     }
-    const schema = store.getSchemaDefinitionService();
-    store.registerSchemaDefinitionService(new SchemaDelegator(schema));
+    const schema = store.createSchemaService();
+    store.createSchemaService = () => new SchemaDelegator(schema);
 
     const record = store.createRecord('user');
     const propertyInfo = record._debugInfo().propertyInfo;

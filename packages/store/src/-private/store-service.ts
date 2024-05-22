@@ -9,7 +9,10 @@ import { dependencySatisfies, importSync, macroCondition } from '@embroider/macr
 import type RequestManager from '@ember-data/request';
 import type { Future } from '@ember-data/request';
 import { LOG_PAYLOADS, LOG_REQUESTS } from '@warp-drive/build-config/debugging';
-import { DEPRECATE_STORE_EXTENDS_EMBER_OBJECT } from '@warp-drive/build-config/deprecations';
+import {
+  DEPRECATE_STORE_EXTENDS_EMBER_OBJECT,
+  ENABLE_LEGACY_SCHEMA_SERVICE,
+} from '@warp-drive/build-config/deprecations';
 import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { Cache } from '@warp-drive/core-types/cache';
@@ -221,7 +224,7 @@ const app = new EmberApp(defaults, {
 }
 
 export interface Store {
-  createCache(storeWrapper: CacheCapabilitiesManager): Cache;
+  createCache(capabilities: CacheCapabilitiesManager): Cache;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   instantiateRecord<T>(
@@ -230,6 +233,193 @@ export interface Store {
   ): OpaqueRecordInstance;
 
   teardownRecord(record: OpaqueRecordInstance): void;
+
+  /* This hook enables an app to supply a SchemaService
+   * for use when information about a resource's schema needs
+   * to be queried.
+   *
+   * This method will only be called once to instantiate the singleton
+   * service, which can then be accessed via `store.schema`.
+   *
+   * For Example, to use the default SchemaService for SchemaRecord
+   *
+   * ```ts
+   * import { SchemaService } from '@warp-drive/schema-record/schema';
+   *
+   * class extends Store {
+   *   createSchemaService() {
+   *     return new SchemaService();
+   *   }
+   * }
+   * ```
+   *
+   * Or to use the SchemaService for @ember-data/model
+   *
+   * ```ts
+   * import { buildSchema } from '@ember-data/model/hooks';
+   *
+   * class extends Store {
+   *   createSchemaService() {
+   *     return buildSchema(this);
+   *   }
+   * }
+   * ```
+   *
+   * If you wish to chain services, you must either
+   * instantiate each schema source directly or super to retrieve
+   * an existing service. For convenience, when migrating from
+   * `@ember-data/model` to `@warp-drive/schema-record` a
+   * SchemaService is provided that handles this transition
+   * for you:
+   *
+   * ```ts
+   * import { DelegatingSchemaService } from '@ember-data/model/migration-support';
+   * import { SchemaService } from '@warp-drive/schema-record/schema';
+   *
+   * class extends Store {
+   *   createSchemaService() {
+   *     const schema = new SchemaService();
+   *     return new DelegatingSchemaService(this, schema);
+   *   }
+   * }
+   * ```
+   *
+   * When using the DelegateSchemaService, the schema will first
+   * be sourced from directly registered schemas, then will fallback
+   * to sourcing a schema from available models if no schema is found.
+   *
+   * @method createSchemaService (hook)
+   * @return {SchemaService}
+   * @public
+   */
+  createSchemaService(): SchemaService;
+
+  /**
+   * DEPRECATED - Use the property `store.schema` instead.
+   *
+   * Provides access to the SchemaDefinitionService instance
+   * for this Store instance.
+   *
+   * The SchemaDefinitionService can be used to query for
+   * information about the schema of a resource.
+   *
+   * @method getSchemaDefinitionService
+   * @deprecated
+   * @public
+   */
+  getSchemaDefinitionService(): SchemaService;
+
+  /**
+   * DEPRECATED - Use `createSchemaService` instead.
+   *
+   * Allows an app to register a custom SchemaService
+   * for use when information about a resource's schema needs
+   * to be queried.
+   *
+   * This method can only be called more than once, but only one schema
+   * definition service may exist. Therefore if you wish to chain services
+   * you must lookup the existing service and close over it with the new
+   * service by accessing `store.schema` prior to registration.
+   *
+   * For Example:
+   *
+   * ```ts
+   * import Store from '@ember-data/store';
+   *
+   * class SchemaDelegator {
+   *   constructor(schema) {
+   *     this._schema = schema;
+   *   }
+   *
+   *   hasResource(resource: { type: string }): boolean {
+   *     if (AbstractSchemas.has(resource.type)) {
+   *       return true;
+   *     }
+   *     return this._schema.hasResource(resource);
+   *   }
+   *
+   *   attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
+   *     return this._schema.attributesDefinitionFor(identifier);
+   *   }
+   *
+   *   relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
+   *     const schema = AbstractSchemas.get(identifier.type);
+   *     return schema || this._schema.relationshipsDefinitionFor(identifier);
+   *   }
+   * }
+   *
+   * export default class extends Store {
+   *   constructor(...args) {
+   *     super(...args);
+   *
+   *     const schema = this.createSchemaService();
+   *     this.registerSchemaDefinitionService(new SchemaDelegator(schema));
+   *   }
+   * }
+   * ```
+   *
+   * @method registerSchemaDefinitionService
+   * @param {SchemaService} schema
+   * @deprecated
+   * @public
+   */
+  registerSchemaDefinitionService(schema: SchemaService): void;
+
+  /**
+   * DEPRECATED - Use `createSchemaService` instead.
+   *
+   * Allows an app to register a custom SchemaService
+   * for use when information about a resource's schema needs
+   * to be queried.
+   *
+   * This method can only be called more than once, but only one schema
+   * definition service may exist. Therefore if you wish to chain services
+   * you must lookup the existing service and close over it with the new
+   * service by accessing `store.schema` prior to registration.
+   *
+   * For Example:
+   *
+   * ```ts
+   * import Store from '@ember-data/store';
+   *
+   * class SchemaDelegator {
+   *   constructor(schema) {
+   *     this._schema = schema;
+   *   }
+   *
+   *   hasResource(resource: { type: string }): boolean {
+   *     if (AbstractSchemas.has(resource.type)) {
+   *       return true;
+   *     }
+   *     return this._schema.hasResource(resource);
+   *   }
+   *
+   *   attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
+   *     return this._schema.attributesDefinitionFor(identifier);
+   *   }
+   *
+   *   relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
+   *     const schema = AbstractSchemas.get(identifier.type);
+   *     return schema || this._schema.relationshipsDefinitionFor(identifier);
+   *   }
+   * }
+   *
+   * export default class extends Store {
+   *   constructor(...args) {
+   *     super(...args);
+   *
+   *     const schema = this.schema;
+   *     this.registerSchema(new SchemaDelegator(schema));
+   *   }
+   * }
+   * ```
+   *
+   * @method registerSchema
+   * @param {SchemaService} schema
+   * @deprecated
+   * @public
+   */
+  registerSchema(schema: SchemaService): void;
 }
 
 export class Store extends BaseClass {
@@ -257,8 +447,11 @@ export class Store extends BaseClass {
    * @property {SchemaService} schema
    * @public
    */
-  get schema(): SchemaService {
-    return this.getSchemaDefinitionService();
+  get schema(): ReturnType<this['createSchemaService']> {
+    if (!this._schema) {
+      this._schema = this.createSchemaService();
+    }
+    return this._schema as ReturnType<this['createSchemaService']>;
   }
   declare _schema: SchemaService;
 
@@ -615,133 +808,6 @@ export class Store extends BaseClass {
    */
 
   /**
-   * Provides access to the SchemaDefinitionService instance
-   * for this Store instance.
-   *
-   * The SchemaDefinitionService can be used to query for
-   * information about the schema of a resource.
-   *
-   * @method getSchemaDefinitionService
-   * @public
-   */
-  getSchemaDefinitionService(): SchemaService {
-    assert(`You must registerSchemaDefinitionService with the store to use custom model classes`, this._schema);
-    return this._schema;
-  }
-
-  /**
-   * DEPRECATED - Use `registerSchema` instead.
-   *
-   * Allows an app to register a custom SchemaService
-   * for use when information about a resource's schema needs
-   * to be queried.
-   *
-   * This method can only be called more than once, but only one schema
-   * definition service may exist. Therefore if you wish to chain services
-   * you must lookup the existing service and close over it with the new
-   * service by accessing `store.schema` prior to registration.
-   *
-   * For Example:
-   *
-   * ```ts
-   * import Store from '@ember-data/store';
-   *
-   * class SchemaDelegator {
-   *   constructor(schema) {
-   *     this._schema = schema;
-   *   }
-   *
-   *   doesTypeExist(type: string): boolean {
-   *     if (AbstractSchemas.has(type)) {
-   *       return true;
-   *     }
-   *     return this._schema.doesTypeExist(type);
-   *   }
-   *
-   *   attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
-   *     return this._schema.attributesDefinitionFor(identifier);
-   *   }
-   *
-   *   relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
-   *     const schema = AbstractSchemas.get(identifier.type);
-   *     return schema || this._schema.relationshipsDefinitionFor(identifier);
-   *   }
-   * }
-   *
-   * export default class extends Store {
-   *   constructor(...args) {
-   *     super(...args);
-   *
-   *     const schema = this.schema;
-   *     this.registerSchemaDefinitionService(new SchemaDelegator(schema));
-   *   }
-   * }
-   * ```
-   *
-   * @method registerSchemaDefinitionService
-   * @param {SchemaService} schema
-   * @deprecated
-   * @public
-   */
-  registerSchemaDefinitionService(schema: SchemaService) {
-    this._schema = schema;
-  }
-  /**
-   * Allows an app to register a custom SchemaService
-   * for use when information about a resource's schema needs
-   * to be queried.
-   *
-   * This method can only be called more than once, but only one schema
-   * definition service may exist. Therefore if you wish to chain services
-   * you must lookup the existing service and close over it with the new
-   * service by accessing `store.schema` prior to registration.
-   *
-   * For Example:
-   *
-   * ```ts
-   * import Store from '@ember-data/store';
-   *
-   * class SchemaDelegator {
-   *   constructor(schema) {
-   *     this._schema = schema;
-   *   }
-   *
-   *   doesTypeExist(type: string): boolean {
-   *     if (AbstractSchemas.has(type)) {
-   *       return true;
-   *     }
-   *     return this._schema.doesTypeExist(type);
-   *   }
-   *
-   *   attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
-   *     return this._schema.attributesDefinitionFor(identifier);
-   *   }
-   *
-   *   relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
-   *     const schema = AbstractSchemas.get(identifier.type);
-   *     return schema || this._schema.relationshipsDefinitionFor(identifier);
-   *   }
-   * }
-   *
-   * export default class extends Store {
-   *   constructor(...args) {
-   *     super(...args);
-   *
-   *     const schema = this.schema;
-   *     this.registerSchema(new SchemaDelegator(schema));
-   *   }
-   * }
-   * ```
-   *
-   * @method registerSchema
-   * @param {SchemaService} schema
-   * @public
-   */
-  registerSchema(schema: SchemaService) {
-    this._schema = schema;
-  }
-
-  /**
     Returns the schema for a particular resource type (modelName).
 
     When used with Model from @ember-data/model the return is the model class,
@@ -760,21 +826,20 @@ export class Store extends BaseClass {
 
     @method modelFor
     @public
+    @deprecated
     @param {string} type
     @return {ModelSchema}
     */
-  // TODO @deprecate in favor of schema APIs, requires adapter/serializer overhaul or replacement
   modelFor<T>(type: TypeFromInstance<T>): ModelSchema<T>;
   modelFor(type: string): ModelSchema;
   modelFor<T>(type: T extends TypedRecordInstance ? TypeFromInstance<T> : string): ModelSchema<T> {
+    // FIXME add deprecation and deprecation stripping
+    // FIXME/TODO update RFC to remove this method
     if (DEBUG) {
       assertDestroyedStoreOnly(this, 'modelFor');
     }
     assert(`You need to pass <type> to the store's modelFor method`, typeof type === 'string' && type.length);
-    assert(
-      `No model was found for '${type}' and no schema handles the type`,
-      this.getSchemaDefinitionService().doesTypeExist(type)
-    );
+    assert(`No model was found for '${type}' and no schema handles the type`, this.schema.hasResource({ type }));
 
     return getShimClass<T>(this, type);
   }
@@ -2299,6 +2364,46 @@ export class Store extends BaseClass {
   }
 }
 
+if (ENABLE_LEGACY_SCHEMA_SERVICE) {
+  Store.prototype.getSchemaDefinitionService = function (): SchemaService {
+    assert(`You must registerSchemaDefinitionService with the store to use custom model classes`, this._schema);
+    deprecate(`Use \`store.schema\` instead of \`store.getSchemaDefinitionService()\``, false, {
+      id: 'ember-data:schema-service-updates',
+      until: '5.0',
+      for: 'ember-data',
+      since: {
+        available: '5.4',
+        enabled: '5.4',
+      },
+    });
+    return this._schema;
+  };
+  Store.prototype.registerSchemaDefinitionService = function (schema: SchemaService) {
+    deprecate(`Use \`store.createSchemaService\` instead of \`store.registerSchemaDefinitionService()\``, false, {
+      id: 'ember-data:schema-service-updates',
+      until: '5.0',
+      for: 'ember-data',
+      since: {
+        available: '5.4',
+        enabled: '5.4',
+      },
+    });
+    this._schema = schema;
+  };
+  Store.prototype.registerSchema = function (schema: SchemaService) {
+    deprecate(`Use \`store.createSchemaService\` instead of \`store.registerSchema()\``, false, {
+      id: 'ember-data:schema-service-updates',
+      until: '5.0',
+      for: 'ember-data',
+      since: {
+        available: '5.4',
+        enabled: '5.4',
+      },
+    });
+    this._schema = schema;
+  };
+}
+
 let assertDestroyingStore: (store: Store, method: string) => void;
 let assertDestroyedStoreOnly: (store: Store, method: string) => void;
 
@@ -2348,27 +2453,24 @@ function normalizeProperties(
     const { type } = identifier;
 
     // convert relationship Records to RecordDatas before passing to RecordData
-    const defs = store.getSchemaDefinitionService().relationshipsDefinitionFor({ type });
+    const defs = store.schema.fields({ type });
 
-    if (defs !== null) {
+    if (defs.size) {
       const keys = Object.keys(properties);
-      let relationshipValue;
 
       for (let i = 0; i < keys.length; i++) {
         const prop = keys[i];
-        const def = defs[prop];
+        const field = defs.get(prop);
 
-        if (def !== undefined) {
-          if (def.kind === 'hasMany') {
-            if (DEBUG) {
-              assertRecordsPassedToHasMany(properties[prop] as OpaqueRecordInstance[]);
-            }
-            relationshipValue = extractIdentifiersFromRecords(properties[prop] as OpaqueRecordInstance[]);
-          } else {
-            relationshipValue = extractIdentifierFromRecord(properties[prop]);
+        if (!field) continue;
+
+        if (field.kind === 'hasMany') {
+          if (DEBUG) {
+            assertRecordsPassedToHasMany(properties[prop] as OpaqueRecordInstance[]);
           }
-
-          properties[prop] = relationshipValue;
+          properties[prop] = extractIdentifiersFromRecords(properties[prop] as OpaqueRecordInstance[]);
+        } else if (field.kind === 'belongsTo') {
+          properties[prop] = extractIdentifierFromRecord(properties[prop]);
         }
       }
     }

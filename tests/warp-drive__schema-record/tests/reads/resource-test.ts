@@ -6,8 +6,9 @@ import { setupTest } from 'ember-qunit';
 
 import type Store from '@ember-data/store';
 import type { Document } from '@ember-data/store';
+import { Type } from '@warp-drive/core-types/symbols';
 import type { SchemaRecord } from '@warp-drive/schema-record/record';
-import { registerDerivations, SchemaService, withFields } from '@warp-drive/schema-record/schema';
+import { registerDerivations, withDefaults } from '@warp-drive/schema-record/schema';
 
 interface User {
   id: string | null;
@@ -21,8 +22,7 @@ module('Reads | resource', function (hooks) {
 
   test('we can use simple fields with no `type`', function (this: TestContext, assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
 
     function concat(
       record: SchemaRecord & { [key: string]: unknown },
@@ -33,24 +33,28 @@ module('Reads | resource', function (hooks) {
       const opts = options as { fields: string[]; separator?: string };
       return opts.fields.map((field) => record[field]).join(opts.separator ?? '');
     }
+    concat[Type] = 'concat';
 
-    schema.registerDerivation('concat', concat);
+    schema.registerDerivation(concat);
     registerDerivations(schema);
 
-    schema.defineSchema('user', {
-      fields: withFields([
-        {
-          name: 'name',
-          kind: 'field',
-        },
-        {
-          name: 'bestFriend',
-          type: 'user',
-          kind: 'resource',
-          options: { inverse: 'bestFriend', async: true },
-        },
-      ]),
-    });
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'bestFriend',
+            type: 'user',
+            kind: 'resource',
+            options: { inverse: 'bestFriend', async: true },
+          },
+        ],
+      })
+    );
 
     const record = store.push({
       data: {

@@ -15,6 +15,7 @@ export const entryPoints = [
   './src/record.ts',
   './src/request.ts',
   './src/symbols.ts',
+  './src/utils.ts',
   // non-public
   './src/-private.ts',
 ];

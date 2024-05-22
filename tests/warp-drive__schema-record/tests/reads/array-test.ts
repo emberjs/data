@@ -3,9 +3,9 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import { recordIdentifierFor } from '@ember-data/store';
-import type { ResourceType } from '@warp-drive/core-types/symbols';
-import type { Transform } from '@warp-drive/schema-record/schema';
-import { registerDerivations, SchemaService, withFields } from '@warp-drive/schema-record/schema';
+import { type ResourceType, Type } from '@warp-drive/core-types/symbols';
+import type { Transformation } from '@warp-drive/schema-record/schema';
+import { registerDerivations, withDefaults } from '@warp-drive/schema-record/schema';
 
 import type Store from 'warp-drive__schema-record/services/store';
 
@@ -22,22 +22,24 @@ module('Reads | array fields', function (hooks) {
 
   test('we can use simple array fields with no `type`', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
     registerDerivations(schema);
 
-    schema.defineSchema('user', {
-      fields: withFields([
-        {
-          name: 'name',
-          kind: 'field',
-        },
-        {
-          name: 'favoriteNumbers',
-          kind: 'array',
-        },
-      ]),
-    });
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'favoriteNumbers',
+            kind: 'array',
+          },
+        ],
+      })
+    );
 
     const sourceArray = ['1', '2'];
     const record = store.createRecord<CreateUserType>('user', { name: 'Rey Skybarker', favoriteNumbers: sourceArray });
@@ -68,25 +70,27 @@ module('Reads | array fields', function (hooks) {
 
   test('we can use simple array fields with a `type`', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
     registerDerivations(schema);
 
-    schema.defineSchema('user', {
-      fields: withFields([
-        {
-          name: 'name',
-          kind: 'field',
-        },
-        {
-          name: 'favoriteNumbers',
-          type: 'string-from-int',
-          kind: 'array',
-        },
-      ]),
-    });
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'favoriteNumbers',
+            type: 'string-from-int',
+            kind: 'array',
+          },
+        ],
+      })
+    );
 
-    const StringFromIntTransform: Transform<number, string> = {
+    const StringFromIntTransform: Transformation<number, string> = {
       serialize(value: string, options, _record): number {
         return parseInt(value);
       },
@@ -97,9 +101,10 @@ module('Reads | array fields', function (hooks) {
         assert.ok(false, 'unexpected defaultValue');
         throw new Error('unexpected defaultValue');
       },
+      [Type]: 'string-from-int',
     };
 
-    schema.registerTransform('string-from-int', StringFromIntTransform);
+    schema.registerTransformation(StringFromIntTransform);
 
     const sourceArray = ['1', '2'];
     const record = store.createRecord<CreateUserType>('user', { name: 'Rey Skybarker', favoriteNumbers: sourceArray });

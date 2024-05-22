@@ -10,31 +10,61 @@ import RequestManager from '@ember-data/request';
 import { CachePolicy } from '@ember-data/request-utils';
 import type { NotificationType } from '@ember-data/store';
 import Store, { CacheHandler } from '@ember-data/store';
-import type { CacheCapabilitiesManager } from '@ember-data/store/types';
+import type { CacheCapabilitiesManager, SchemaService } from '@ember-data/store/types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
-import type { FieldSchema } from '@warp-drive/core-types/schema/fields';
+import type { ObjectValue } from '@warp-drive/core-types/json/raw';
+import type { Derivation, HashFn, Transformation } from '@warp-drive/core-types/schema/concepts';
+import type { FieldSchema, ResourceSchema } from '@warp-drive/core-types/schema/fields';
 import type { ResourceType } from '@warp-drive/core-types/symbols';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
 
 class BaseTestStore extends Store {
-  constructor() {
-    super(...arguments);
-    this.registerSchema({
-      attributesDefinitionFor() {
-        return {};
-      },
+  createSchemaService(): SchemaService {
+    const schemaService: SchemaService = {
       fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
         return new Map();
       },
-      relationshipsDefinitionFor() {
-        return {};
-      },
-      doesTypeExist() {
+      hasResource() {
         return true;
       },
-    });
+      hasTrait: function (type: string): boolean {
+        throw new Error('Function not implemented.');
+      },
+      resourceHasTrait: function (resource: StableRecordIdentifier | { type: string }, trait: string): boolean {
+        throw new Error('Function not implemented.');
+      },
+      transformation: function (name: string): Transformation {
+        throw new Error('Function not implemented.');
+      },
+      derivation: function (name: string): Derivation {
+        throw new Error('Function not implemented.');
+      },
+      resource: function (resource: StableRecordIdentifier | { type: string }): ResourceSchema {
+        throw new Error('Function not implemented.');
+      },
+      registerResources: function (schemas: ResourceSchema[]): void {
+        throw new Error('Function not implemented.');
+      },
+      registerResource: function (schema: ResourceSchema): void {
+        throw new Error('Function not implemented.');
+      },
+      registerTransformation: function (transform: Transformation): void {
+        throw new Error('Function not implemented.');
+      },
+      registerDerivation<R, T, FM extends ObjectValue | null>(derivation: Derivation<R, T, FM>): void {
+        throw new Error('Function not implemented.');
+      },
+      hashFn: function (name: string): HashFn {
+        throw new Error('Function not implemented.');
+      },
+      registerHashFn: function (hashFn: HashFn): void {
+        throw new Error('Function not implemented.');
+      },
+    };
+
+    return schemaService;
   }
 
   override createCache(wrapper: CacheCapabilitiesManager) {

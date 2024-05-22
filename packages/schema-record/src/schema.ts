@@ -1,13 +1,24 @@
+import { deprecate } from '@ember/debug';
+
 import { recordIdentifierFor } from '@ember-data/store';
+import type { SchemaService as SchemaServiceInterface } from '@ember-data/store/types';
 import { createCache, getValue } from '@ember-data/tracking';
 import type { Signal } from '@ember-data/tracking/-private';
 import { Signals } from '@ember-data/tracking/-private';
+import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
-import type { Value } from '@warp-drive/core-types/json/raw';
-import type { OpaqueRecordInstance } from '@warp-drive/core-types/record';
-import type { FieldSchema, LegacyAttributeField, LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
+import type { ObjectValue, Value } from '@warp-drive/core-types/json/raw';
+import type { Derivation, HashFn } from '@warp-drive/core-types/schema/concepts';
+import type {
+  FieldSchema,
+  LegacyAttributeField,
+  LegacyRelationshipSchema,
+  ResourceSchema,
+} from '@warp-drive/core-types/schema/fields';
+import { Type } from '@warp-drive/core-types/symbols';
+import type { WithPartial } from '@warp-drive/core-types/utils';
 
 import type { SchemaRecord } from './record';
 import { Identifier } from './symbols';
@@ -21,10 +32,6 @@ export const SchemaRecordFields: FieldSchema[] = [
     kind: 'derived',
   },
   {
-    name: 'id',
-    kind: '@id',
-  },
-  {
     type: '@identity',
     name: '$type',
     kind: 'derived',
@@ -32,7 +39,7 @@ export const SchemaRecordFields: FieldSchema[] = [
   },
 ];
 
-const _constructor: Derivation<OpaqueRecordInstance, unknown> = function (record) {
+function _constructor(record: SchemaRecord) {
   let state = Support.get(record as WeakKey);
   if (!state) {
     state = {};
@@ -45,17 +52,19 @@ const _constructor: Derivation<OpaqueRecordInstance, unknown> = function (record
       throw new Error('Cannot access record.constructor.modelName on non-Legacy Schema Records.');
     },
   });
-};
+}
+_constructor[Type] = '@constructor';
 
-export function withFields(fields: FieldSchema[]) {
-  fields.push(...SchemaRecordFields);
-  return fields;
+export function withDefaults(schema: WithPartial<ResourceSchema, 'identity'>): ResourceSchema {
+  schema.identity = schema.identity || { name: 'id', kind: '@id' };
+  schema.fields.push(...SchemaRecordFields);
+  return schema as ResourceSchema;
 }
 
-export function fromIdentity(record: SchemaRecord, options: null, key: string): asserts options;
 export function fromIdentity(record: SchemaRecord, options: { key: 'lid' } | { key: 'type' }, key: string): string;
 export function fromIdentity(record: SchemaRecord, options: { key: 'id' }, key: string): string | null;
 export function fromIdentity(record: SchemaRecord, options: { key: '^' }, key: string): StableRecordIdentifier;
+export function fromIdentity(record: SchemaRecord, options: null, key: string): asserts options;
 export function fromIdentity(
   record: SchemaRecord,
   options: { key: 'id' | 'lid' | 'type' | '^' } | null,
@@ -70,54 +79,27 @@ export function fromIdentity(
 
   return options.key === '^' ? identifier : identifier[options.key];
 }
+fromIdentity[Type] = '@identity';
 
-export function registerDerivations(schema: SchemaService) {
-  schema.registerDerivation(
-    '@identity',
-    fromIdentity as Derivation<SchemaRecord, StableRecordIdentifier | string | null>
-  );
-  schema.registerDerivation('@constructor', _constructor);
+export function registerDerivations(schema: SchemaServiceInterface) {
+  schema.registerDerivation(fromIdentity);
+  schema.registerDerivation(_constructor);
 }
 
-/**
- * The full schema for a resource
- *
- * @class FieldSpec
- * @internal
- */
-type FieldSpec = {
-  '@id': FieldSchema | null;
-  /**
-   * legacy schema service separated attribute
-   * from relationship lookup
-   * @internal
-   */
-  attributes: Record<string, LegacyAttributeField>;
-  /**
-   * legacy schema service separated attribute
-   * from relationship lookup
-   * @internal
-   */
-  relationships: Record<string, LegacyRelationshipSchema>;
-  /**
-   * new schema service is fields based
-   * @internal
-   */
+type InternalSchema = {
+  original: ResourceSchema;
+  traits: Set<string>;
   fields: Map<string, FieldSchema>;
-  /**
-   * legacy model mode support
-   * @internal
-   */
-  legacy?: boolean;
+  attributes: Record<string, LegacyAttributeField>;
+  relationships: Record<string, LegacyRelationshipSchema>;
 };
 
-export type Transform<T extends Value = string, PT = unknown> = {
+export type Transformation<T extends Value = Value, PT = unknown> = {
   serialize(value: PT, options: Record<string, unknown> | null, record: SchemaRecord): T;
   hydrate(value: T | undefined, options: Record<string, unknown> | null, record: SchemaRecord): PT;
   defaultValue?(options: Record<string, unknown> | null, identifier: StableRecordIdentifier): T;
+  [Type]: string;
 };
-
-export type Derivation<R, T> = (record: R, options: Record<string, unknown> | null, prop: string) => T;
 
 /**
  * Wraps a derivation in a new function with Derivation signature but that looks
@@ -127,8 +109,10 @@ export type Derivation<R, T> = (record: R, options: Record<string, unknown> | nu
  * @param options
  * @param prop
  */
-function makeCachedDerivation<R, T>(derivation: Derivation<R, T>): Derivation<R, T> {
-  return (record: R, options: Record<string, unknown> | null, prop: string): T => {
+function makeCachedDerivation<R, T, FM extends ObjectValue | null>(
+  derivation: Derivation<R, T, FM>
+): Derivation<R, T, FM> {
+  const memoizedDerivation = (record: R, options: FM, prop: string): T => {
     const signals = (record as { [Signals]: Map<string, Signal> })[Signals];
     let signal = signals.get(prop);
     if (!signal) {
@@ -140,84 +124,98 @@ function makeCachedDerivation<R, T>(derivation: Derivation<R, T>): Derivation<R,
 
     return getValue(signal as unknown as ReturnType<typeof createCache>) as T;
   };
+  memoizedDerivation[Type] = derivation[Type];
+  return memoizedDerivation;
 }
 
-export class SchemaService {
-  declare schemas: Map<string, FieldSpec>;
-  declare transforms: Map<string, Transform<Value>>;
-  declare derivations: Map<string, Derivation<unknown, unknown>>;
+export interface SchemaService {
+  doesTypeExist(type: string): boolean;
+  attributesDefinitionFor(identifier: { type: string }): InternalSchema['attributes'];
+  relationshipsDefinitionFor(identifier: { type: string }): InternalSchema['relationships'];
+}
+export class SchemaService implements SchemaServiceInterface {
+  declare _schemas: Map<string, InternalSchema>;
+  declare _transforms: Map<string, Transformation>;
+  declare _hashFns: Map<string, HashFn>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  declare _derivations: Map<string, Derivation<any, any, any>>;
+  declare _traits: Set<string>;
 
   constructor() {
-    this.schemas = new Map();
-    this.transforms = new Map();
-    this.derivations = new Map();
+    this._schemas = new Map();
+    this._transforms = new Map();
+    this._hashFns = new Map();
+    this._derivations = new Map();
   }
-
-  registerTransform<T extends Value = string, PT = unknown>(type: string, transform: Transform<T, PT>): void {
-    this.transforms.set(type, transform);
+  hasTrait(type: string): boolean {
+    return this._traits.has(type);
   }
-
-  registerDerivation<R, T>(type: string, derivation: Derivation<R, T>): void {
-    this.derivations.set(type, makeCachedDerivation(derivation) as Derivation<unknown, unknown>);
+  resourceHasTrait(resource: StableRecordIdentifier | { type: string }, trait: string): boolean {
+    return this._schemas.get(resource.type)!.traits.has(trait);
   }
+  transformation(name: string): Transformation {
+    assert(`No transformation registered with name '${name}'`, this._transforms.has(name));
+    return this._transforms.get(name)!;
+  }
+  derivation(name: string): Derivation {
+    assert(`No derivation registered with name '${name}'`, this._derivations.has(name));
+    return this._derivations.get(name)!;
+  }
+  resource(resource: StableRecordIdentifier | { type: string }): ResourceSchema {
+    assert(`No resource registered with name '${resource.type}'`, this._schemas.has(resource.type));
+    return this._schemas.get(resource.type)!.original;
+  }
+  hashFn(name: string): HashFn {
+    assert(`No hash function registered with name '${name}'`, this._hashFns.has(name));
+    return this._hashFns.get(name)!;
+  }
+  registerResources(schemas: ResourceSchema[]): void {
+    schemas.forEach((schema) => {
+      this.registerResource(schema);
+    });
+  }
+  registerResource(schema: ResourceSchema): void {
+    const fields = new Map<string, FieldSchema>();
+    const relationships: Record<string, LegacyRelationshipSchema> = {};
+    const attributes: Record<string, LegacyAttributeField> = {};
 
-  defineSchema(name: string, schema: { legacy?: boolean; fields: FieldSchema[] }): void {
-    const { legacy, fields } = schema;
-    const fieldSpec: FieldSpec = {
-      '@id': null,
-      attributes: {},
-      relationships: {},
-      fields: new Map(),
-      legacy: legacy ?? false,
-    };
-
-    assert(
-      `Only one field can be defined as @id, ${name} has more than one: ${fields
-        .filter((f) => f.kind === '@id')
-        .map((f) => f.name)
-        .join(' ')}`,
-      fields.filter((f) => f.kind === '@id').length <= 1
-    );
-    fields.forEach((field) => {
-      fieldSpec.fields.set(field.name, field);
-
-      if (field.kind === '@id') {
-        fieldSpec['@id'] = field;
-      } else if (field.kind === 'field') {
-        // We don't add 'field' fields to attributes in order to allow simpler
-        // migration between transformation behaviors
-        // serializers and things which call attributesDefinitionFor will
-        // only run on the things that are legacy attribute mode, while all fields
-        // will have their serialize/hydrate logic managed by the cache and record
-        //
-        // This means that if you want to normalize fields pre-cache insertion
-        // Or pre-api call you wil need to use the newer `schema.fields()` API
-        // To opt-in to that ability (which note, is now an anti-pattern)
-        //
-        // const attr = Object.assign({}, field, { kind: 'attribute' }) as AttributeSchema;
-        // fieldSpec.attributes[attr.name] = attr;
-      } else if (field.kind === 'attribute') {
-        fieldSpec.attributes[field.name] = field;
-      } else if (field.kind === 'resource' || field.kind === 'collection') {
-        const relSchema = Object.assign({}, field, {
-          kind: field.kind === 'resource' ? 'belongsTo' : 'hasMany',
-        }) as unknown as LegacyRelationshipSchema;
-        fieldSpec.relationships[field.name] = relSchema;
-      } else if (
-        field.kind !== 'derived' &&
-        field.kind !== '@local' &&
-        field.kind !== 'array' &&
-        field.kind !== 'object'
-      ) {
-        throw new Error(`Unknown field kind ${field.kind}`);
+    schema.fields.forEach((field) => {
+      assert(
+        `${field.kind} is not valid inside a ResourceSchema's fields.`,
+        // @ts-expect-error we are checking for mistakes at runtime
+        field.kind !== '@id' && field.kind !== '@hash'
+      );
+      fields.set(field.name, field);
+      if (field.kind === 'attribute') {
+        attributes[field.name] = field;
+      } else if (field.kind === 'belongsTo' || field.kind === 'hasMany') {
+        relationships[field.name] = field;
       }
     });
 
-    this.schemas.set(name, fieldSpec);
+    const traits = new Set<string>(schema.traits);
+    traits.forEach((trait) => {
+      this._traits.add(trait);
+    });
+
+    const internalSchema: InternalSchema = { original: schema, fields, relationships, attributes, traits };
+    this._schemas.set(schema.type, internalSchema);
   }
 
-  fields({ type }: { type: string }): FieldSpec['fields'] {
-    const schema = this.schemas.get(type);
+  registerTransformation<T extends Value = string, PT = unknown>(transformation: Transformation<T, PT>): void {
+    this._transforms.set(transformation[Type], transformation as Transformation);
+  }
+
+  registerDerivation<R, T, FM extends ObjectValue | null>(derivation: Derivation<R, T, FM>): void {
+    this._derivations.set(derivation[Type], makeCachedDerivation(derivation));
+  }
+
+  registerHashFn<T extends object>(hashFn: HashFn<T>): void {
+    this._hashFns.set(hashFn[Type], hashFn as HashFn);
+  }
+
+  fields({ type }: { type: string }): InternalSchema['fields'] {
+    const schema = this._schemas.get(type);
 
     if (!schema) {
       throw new Error(`No schema defined for ${type}`);
@@ -226,27 +224,68 @@ export class SchemaService {
     return schema.fields;
   }
 
-  attributesDefinitionFor({ type }: { type: string }): FieldSpec['attributes'] {
-    const schema = this.schemas.get(type);
+  hasResource(resource: { type: string }): boolean {
+    return this._schemas.has(resource.type);
+  }
+}
+
+if (ENABLE_LEGACY_SCHEMA_SERVICE) {
+  SchemaService.prototype.attributesDefinitionFor = function ({
+    type,
+  }: {
+    type: string;
+  }): InternalSchema['attributes'] {
+    deprecate(`Use \`schema.fields({ type })\` instead of \`schema.attributesDefinitionFor({ type })\``, false, {
+      id: 'ember-data:schema-service-updates',
+      until: '5.0',
+      for: 'ember-data',
+      since: {
+        available: '5.4',
+        enabled: '5.4',
+      },
+    });
+    const schema = this._schemas.get(type);
 
     if (!schema) {
       throw new Error(`No schema defined for ${type}`);
     }
 
     return schema.attributes;
-  }
+  };
 
-  relationshipsDefinitionFor({ type }: { type: string }): FieldSpec['relationships'] {
-    const schema = this.schemas.get(type);
+  SchemaService.prototype.relationshipsDefinitionFor = function ({
+    type,
+  }: {
+    type: string;
+  }): InternalSchema['relationships'] {
+    deprecate(`Use \`schema.fields({ type })\` instead of \`schema.relationshipsDefinitionFor({ type })\``, false, {
+      id: 'ember-data:schema-service-updates',
+      until: '5.0',
+      for: 'ember-data',
+      since: {
+        available: '5.4',
+        enabled: '5.4',
+      },
+    });
+    const schema = this._schemas.get(type);
 
     if (!schema) {
       throw new Error(`No schema defined for ${type}`);
     }
 
     return schema.relationships;
-  }
+  };
 
-  doesTypeExist(type: string): boolean {
-    return this.schemas.has(type);
-  }
+  SchemaService.prototype.doesTypeExist = function (type: string): boolean {
+    deprecate(`Use \`schema.hasResource({ type })\` instead of \`schema.doesTypeExist(type)\``, false, {
+      id: 'ember-data:schema-service-updates',
+      until: '5.0',
+      for: 'ember-data',
+      since: {
+        available: '5.4',
+        enabled: '5.4',
+      },
+    });
+    return this._schemas.has(type);
+  };
 }

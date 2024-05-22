@@ -34,6 +34,8 @@ export type CacheCapabilitiesManager = {
   identifierCache: IdentifierCache;
 
   /**
+   * DEPRECATED - use the schema property
+   *
    * Provides access to the SchemaService instance
    * for this Store instance.
    *
@@ -41,6 +43,7 @@ export type CacheCapabilitiesManager = {
    * information about the schema of a resource.
    *
    * @method getSchemaDefinitionService
+   * @deprecated
    * @public
    */
   getSchemaDefinitionService(): SchemaService;

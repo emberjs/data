@@ -9,8 +9,6 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
-import type { ExistingResourceObject } from '@warp-drive/core-types/spec/json-api-raw';
 
 class Person extends Model {
   @attr('string', {})
@@ -39,43 +37,25 @@ class House extends Model {
   tenants;
 }
 
-let houseHash: ExistingResourceObject;
-let houseHash2: ExistingResourceObject;
-
-module('integration/store-wrapper - RecordData StoreWrapper tests', function (hooks) {
+module('integration/cache-capabilities', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
     const { owner } = this;
-    houseHash = {
-      type: 'house',
-      id: '1',
-      attributes: {
-        name: 'Moomin',
-      },
-    };
-
-    houseHash2 = {
-      type: 'house',
-      id: '2',
-      attributes: {
-        name: 'Lodge',
-      },
-    };
 
     owner.register('model:person', Person);
     owner.register('model:house', House);
     owner.register('model:car', Car);
   });
 
-  test('Relationship definitions', function (assert) {
+  test('schema', function (assert) {
     const { owner } = this;
-    let storeWrapper!: CacheCapabilitiesManager;
+    let capabilities!: CacheCapabilitiesManager;
 
     class TestStore extends Store {
-      override createCache(wrapper: CacheCapabilitiesManager) {
-        storeWrapper = wrapper;
-        return super.createCache(wrapper);
+      override createCache(cacheCapabilities: CacheCapabilitiesManager) {
+        capabilities = cacheCapabilities;
+        return super.createCache(cacheCapabilities);
       }
     }
 
@@ -83,81 +63,16 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     const store = owner.lookup('service:store') as unknown as Store;
     store.cache;
 
-    const houseAttrs = {
-      name: {
-        type: 'string',
-        isAttribute: true,
-        kind: 'attribute' as const,
-        options: {},
-        key: 'name',
-        name: 'name',
-      },
-    };
-
-    assert.deepEqual(
-      storeWrapper.getSchemaDefinitionService().attributesDefinitionFor({ type: 'house' }),
-      houseAttrs,
-      'can lookup attribute definitions for self'
-    );
-
-    const carAttrs = {
-      make: {
-        type: 'string',
-        isAttribute: true,
-        kind: 'attribute' as const,
-        options: {},
-        key: 'make',
-        name: 'make',
-      },
-    };
-
-    assert.deepEqual(
-      storeWrapper.getSchemaDefinitionService().attributesDefinitionFor({ type: 'car' }),
-      carAttrs,
-      'can lookup attribute definitions for other models'
-    );
-
-    const houseRelationships = {
-      landlord: {
-        key: 'landlord',
-        kind: 'belongsTo',
-        name: 'landlord',
-        type: 'person',
-        options: { async: false, inverse: null },
-      },
-      car: {
-        key: 'car',
-        kind: 'belongsTo',
-        name: 'car',
-        type: 'car',
-        options: { async: false, inverse: 'garage' },
-      },
-      tenants: {
-        key: 'tenants',
-        kind: 'hasMany',
-        name: 'tenants',
-        options: { async: false, inverse: null },
-        type: 'person',
-      },
-    };
-    const schema = storeWrapper.getSchemaDefinitionService().relationshipsDefinitionFor({ type: 'house' });
-
-    // Retrieve only public values from the result
-    // This should go away once we put private things in symbols/weakmaps
-    assert.deepEqual(
-      houseRelationships as Record<string, LegacyRelationshipSchema>,
-      schema,
-      'can lookup relationship definitions'
-    );
+    assert.strictEqual(capabilities.schema, store.schema, 'capabilities exposes the schema service');
   });
 
   test('setRecordId', function (assert) {
     const { owner } = this;
-    let storeWrapper!: CacheCapabilitiesManager;
+    let capabilities!: CacheCapabilitiesManager;
 
     class TestStore extends Store {
       override createCache(wrapper: CacheCapabilitiesManager) {
-        storeWrapper = wrapper;
+        capabilities = wrapper;
         return super.createCache(wrapper);
       }
     }
@@ -166,7 +81,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     const store = owner.lookup('service:store') as unknown as Store;
 
     const house = store.createRecord('house', {}) as Model;
-    storeWrapper.setRecordId(recordIdentifierFor(house), '17');
+    capabilities.setRecordId(recordIdentifierFor(house), '17');
     assert.strictEqual(house.id, '17', 'setRecordId correctly set the id');
     assert.strictEqual(
       store.peekRecord('house', '17'),
@@ -190,7 +105,23 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     const store = owner.lookup('service:store') as unknown as Store;
 
     store.push({
-      data: [houseHash, houseHash2],
+      data: [
+        {
+          type: 'house',
+          id: '1',
+          attributes: {
+            name: 'Moomin',
+          },
+        },
+
+        {
+          type: 'house',
+          id: '2',
+          attributes: {
+            name: 'Lodge',
+          },
+        },
+      ],
     });
     store.peekRecord('house', '1');
 

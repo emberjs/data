@@ -175,9 +175,6 @@ importers:
       globals:
         specifier: ^15.2.0
         version: 15.2.0
-      minimatch:
-        specifier: ^9.0.4
-        version: 9.0.4
       rollup:
         specifier: ^4.17.2
         version: 4.17.2
@@ -193,9 +190,6 @@ importers:
       vite-plugin-dts:
         specifier: ^3.9.1
         version: 3.9.1(rollup@4.17.2)(typescript@5.4.5)(vite@5.2.11)
-      walk-sync:
-        specifier: ^3.0.0
-        version: 3.0.0
 
   packages/-ember-data:
     dependencies:

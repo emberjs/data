@@ -2,15 +2,13 @@ import Cache from '@ember-data/json-api';
 import type { StructuredDataDocument } from '@ember-data/request';
 import type { NotificationType } from '@ember-data/store';
 import Store from '@ember-data/store';
-import type { CacheCapabilitiesManager, SchemaService } from '@ember-data/store/types';
+import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
-import type { FieldSchema } from '@warp-drive/core-types/schema/fields';
 import type { CollectionResourceDataDocument } from '@warp-drive/core-types/spec/document';
 import type { CollectionResourceDocument, ResourceObject } from '@warp-drive/core-types/spec/json-api-raw';
 import { module, test } from '@warp-drive/diagnostic';
 
-type AttributesSchema = ReturnType<SchemaService['attributesDefinitionFor']>;
-type RelationshipsSchema = ReturnType<SchemaService['relationshipsDefinitionFor']>;
+import { TestSchema } from '../../utils/schema';
 
 function asStructuredDocument<T>(doc: {
   request?: { url: string; cacheOptions?: { key?: string } };
@@ -20,7 +18,12 @@ function asStructuredDocument<T>(doc: {
 }
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
+
 class TestStore extends Store {
+  createSchemaService() {
+    return new TestSchema();
+  }
+
   override createCache(wrapper: CacheCapabilitiesManager) {
     return new Cache(wrapper);
   }
@@ -51,55 +54,9 @@ class TestStore extends Store {
   }
 }
 
-type Schemas<T extends string> = Record<T, { attributes: AttributesSchema; relationships: RelationshipsSchema }>;
-class TestSchema<T extends string> {
-  declare schemas: Schemas<T>;
-  constructor(schemas?: Schemas<T>) {
-    this.schemas = schemas || ({} as Schemas<T>);
-  }
-
-  attributesDefinitionFor(identifier: { type: T }): AttributesSchema {
-    return this.schemas[identifier.type]?.attributes || {};
-  }
-
-  _fieldsDefCache: Record<string, Map<string, FieldSchema>> = {};
-
-  fields(identifier: { type: T }): Map<string, FieldSchema> {
-    const { type } = identifier;
-    let fieldDefs: Map<string, FieldSchema> | undefined = this._fieldsDefCache[type];
-
-    if (fieldDefs === undefined) {
-      fieldDefs = new Map();
-      this._fieldsDefCache[type] = fieldDefs;
-
-      const attributes = this.attributesDefinitionFor(identifier);
-      const relationships = this.relationshipsDefinitionFor(identifier);
-
-      for (const attr of Object.values(attributes)) {
-        fieldDefs.set(attr.name, attr);
-      }
-
-      for (const rel of Object.values(relationships)) {
-        fieldDefs.set(rel.name, rel);
-      }
-    }
-
-    return fieldDefs;
-  }
-
-  relationshipsDefinitionFor(identifier: { type: T }): RelationshipsSchema {
-    return this.schemas[identifier.type]?.relationships || {};
-  }
-
-  doesTypeExist(type: string) {
-    return type in this.schemas ? true : Object.keys(this.schemas).length === 0 ? true : false;
-  }
-}
-
 module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)', function () {
   test('simple collection resource documents are correctly managed', function (assert) {
     const store = new TestStore();
-    store.registerSchema(new TestSchema());
 
     const responseDocument = store.cache.put(
       asStructuredDocument({
@@ -119,7 +76,6 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
 
   test('collection resource documents are correctly cached', function (assert) {
     const store = new TestStore();
-    store.registerSchema(new TestSchema());
 
     const responseDocument = store.cache.put(
       asStructuredDocument({
@@ -170,7 +126,6 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
 
   test('resources are accessible via `peek`', function (assert) {
     const store = new TestStore();
-    store.registerSchema(new TestSchema());
 
     const responseDocument = store.cache.put(
       asStructuredDocument({
@@ -242,45 +197,40 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
 
   test('resource relationships are accessible via `peek`', function (assert) {
     const store = new TestStore();
-
-    store.registerSchema(
-      new TestSchema<'user'>({
-        user: {
-          attributes: {
-            name: { kind: 'attribute', name: 'name', type: null },
-          },
-          relationships: {
-            bestFriend: {
-              kind: 'belongsTo',
-              type: 'user',
-              name: 'bestFriend',
-              options: {
-                async: false,
-                inverse: 'bestFriend',
-              },
-            },
-            worstEnemy: {
-              kind: 'belongsTo',
-              type: 'user',
-              name: 'worstEnemy',
-              options: {
-                async: false,
-                inverse: null,
-              },
-            },
-            friends: {
-              kind: 'hasMany',
-              type: 'user',
-              name: 'friends',
-              options: {
-                async: false,
-                inverse: 'friends',
-              },
-            },
+    store.schema.registerResource({
+      identity: null,
+      type: 'user',
+      fields: [
+        { kind: 'attribute', name: 'name', type: null },
+        {
+          kind: 'belongsTo',
+          type: 'user',
+          name: 'bestFriend',
+          options: {
+            async: false,
+            inverse: 'bestFriend',
           },
         },
-      })
-    );
+        {
+          kind: 'belongsTo',
+          type: 'user',
+          name: 'worstEnemy',
+          options: {
+            async: false,
+            inverse: null,
+          },
+        },
+        {
+          kind: 'hasMany',
+          type: 'user',
+          name: 'friends',
+          options: {
+            async: false,
+            inverse: 'friends',
+          },
+        },
+      ],
+    });
 
     let responseDocument: CollectionResourceDataDocument;
     store._run(() => {

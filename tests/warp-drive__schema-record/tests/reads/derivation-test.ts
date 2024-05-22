@@ -3,8 +3,9 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import type Store from '@ember-data/store';
+import { Type } from '@warp-drive/core-types/symbols';
 import type { SchemaRecord } from '@warp-drive/schema-record/record';
-import { registerDerivations, SchemaService, withFields } from '@warp-drive/schema-record/schema';
+import { registerDerivations, withDefaults } from '@warp-drive/schema-record/schema';
 
 interface User {
   id: string | null;
@@ -19,8 +20,7 @@ module('Reads | derivation', function (hooks) {
 
   test('we can use simple fields with no `type`', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
 
     function concat(
       record: SchemaRecord & { [key: string]: unknown },
@@ -31,28 +31,32 @@ module('Reads | derivation', function (hooks) {
       const opts = options as { fields: string[]; separator?: string };
       return opts.fields.map((field) => record[field]).join(opts.separator ?? '');
     }
+    concat[Type] = 'concat';
 
-    schema.registerDerivation('concat', concat);
+    schema.registerDerivation(concat);
     registerDerivations(schema);
 
-    schema.defineSchema('user', {
-      fields: withFields([
-        {
-          name: 'firstName',
-          kind: 'field',
-        },
-        {
-          name: 'lastName',
-          kind: 'field',
-        },
-        {
-          name: 'fullName',
-          type: 'concat',
-          options: { fields: ['firstName', 'lastName'], separator: ' ' },
-          kind: 'derived',
-        },
-      ]),
-    });
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'firstName',
+            kind: 'field',
+          },
+          {
+            name: 'lastName',
+            kind: 'field',
+          },
+          {
+            name: 'fullName',
+            type: 'concat',
+            options: { fields: ['firstName', 'lastName'], separator: ' ' },
+            kind: 'derived',
+          },
+        ],
+      })
+    );
 
     const record = store.createRecord('user', { firstName: 'Rey', lastName: 'Skybarker' }) as User;
 
@@ -66,30 +70,32 @@ module('Reads | derivation', function (hooks) {
 
   test('throws an error if derivation is not found', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const schema = new SchemaService();
-    store.registerSchema(schema);
+    const { schema } = store;
     registerDerivations(schema);
 
-    schema.defineSchema('user', {
-      fields: withFields([
-        {
-          name: 'firstName',
-          type: null,
-          kind: 'attribute',
-        },
-        {
-          name: 'lastName',
-          type: null,
-          kind: 'attribute',
-        },
-        {
-          name: 'fullName',
-          type: 'concat',
-          options: { fields: ['firstName', 'lastName'], separator: ' ' },
-          kind: 'derived',
-        },
-      ]),
-    });
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'firstName',
+            type: null,
+            kind: 'attribute',
+          },
+          {
+            name: 'lastName',
+            type: null,
+            kind: 'attribute',
+          },
+          {
+            name: 'fullName',
+            type: 'concat',
+            options: { fields: ['firstName', 'lastName'], separator: ' ' },
+            kind: 'derived',
+          },
+        ],
+      })
+    );
 
     const record = store.push({
       data: {
@@ -106,11 +112,7 @@ module('Reads | derivation', function (hooks) {
       record.fullName;
       assert.ok(false, 'record.fullName should throw');
     } catch (e) {
-      assert.strictEqual(
-        (e as Error).message,
-        "No 'concat' derivation defined for use by user.fullName",
-        'record.fullName throws'
-      );
+      assert.strictEqual((e as Error).message, "No derivation registered with name 'concat'", 'record.fullName throws');
     }
   });
 });

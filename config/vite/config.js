@@ -48,6 +48,7 @@ export function createConfig(options, resolve) {
         : undefined,
       options.fixModule ? FixModuleOutputPlugin : undefined,
       // options.compileTypes === true && options.rollupTypes === false ? CompileTypesPlugin(options.useGlint) : undefined,
+      ...(options.plugins ?? []),
     ]
       .concat(options.plugins || [])
       .filter(Boolean),
