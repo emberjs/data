@@ -1,4 +1,5 @@
 import { getOwner } from '@ember/application';
+import { deprecate } from '@ember/debug';
 
 import type Store from '@ember-data/store';
 import type { SchemaService } from '@ember-data/store/types';
@@ -17,7 +18,6 @@ import type {
 import type { FactoryCache, Model, ModelFactory, ModelStore } from './model';
 import _modelForMixin from './model-for-mixin';
 import { normalizeModelName } from './util';
-import { deprecate } from '@ember/debug';
 
 type AttributesSchema = ReturnType<Exclude<SchemaService['attributesDefinitionFor'], undefined>>;
 type RelationshipsSchema = ReturnType<Exclude<SchemaService['relationshipsDefinitionFor'], undefined>>;

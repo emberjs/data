@@ -247,14 +247,16 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     assert.verifySteps(['TestSchema:fields', 'TestSchema:fields'], 'population of record on create');
     await person.save();
     assert.verifySteps(
-      [
-        'TestSchema:hasResource',
-        'TestSchema:hasResource',
-        'TestSchema:hasResource',
-        'TestSchema:fields',
-        'TestSchema:fields',
-        'TestSchema:fields',
-      ],
+      DEBUG
+        ? [
+            'TestSchema:hasResource',
+            'TestSchema:hasResource',
+            'TestSchema:hasResource',
+            'TestSchema:fields',
+            'TestSchema:fields',
+            'TestSchema:fields',
+          ]
+        : ['TestSchema:hasResource', 'TestSchema:fields', 'TestSchema:fields', 'TestSchema:fields'],
       'update of record on save completion'
     );
   });
