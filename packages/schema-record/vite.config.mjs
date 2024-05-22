@@ -1,6 +1,6 @@
 import { createConfig } from '@warp-drive/internal-config/vite/config.js';
 
-export const externals = [];
+export const externals = ['@ember/debug'];
 
 export const entryPoints = ['src/hooks.ts', 'src/record.ts', 'src/schema.ts'];
 

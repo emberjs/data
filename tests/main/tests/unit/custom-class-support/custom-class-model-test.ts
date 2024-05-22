@@ -6,6 +6,7 @@ import { setupTest } from 'ember-qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { DEBUG } from '@warp-drive/build-config/env';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 
@@ -127,7 +128,9 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
         createRecord: (store, type, snapshot: Snapshot) => {
           let count = 0;
           assert.verifySteps(
-            ['TestSchema:fields', 'TestSchema:fields', 'TestSchema:hasResource', 'TestSchema:hasResource'],
+            DEBUG
+              ? ['TestSchema:fields', 'TestSchema:fields', 'TestSchema:hasResource', 'TestSchema:hasResource']
+              : ['TestSchema:fields', 'TestSchema:fields'],
             'serialization of record for save'
           );
           assert.step('Adapter:createRecord');

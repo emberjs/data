@@ -11,7 +11,7 @@ export default [
   // browser (js/ts) ================
   typescript.browser({
     srcDirs: ['src'],
-    allowedImports: [],
+    allowedImports: ['@ember/debug'],
   }),
 
   // node (module) ================

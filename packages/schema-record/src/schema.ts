@@ -1,3 +1,5 @@
+import { deprecate } from '@ember/debug';
+
 import { recordIdentifierFor } from '@ember-data/store';
 import type { SchemaService as SchemaServiceInterface } from '@ember-data/store/types';
 import { createCache, getValue } from '@ember-data/tracking';
@@ -233,6 +235,15 @@ if (ENABLE_LEGACY_SCHEMA_SERVICE) {
   }: {
     type: string;
   }): InternalSchema['attributes'] {
+    deprecate(`Use \`schema.fields({ type })\` instead of \`schema.attributesDefinitionFor({ type })\``, false, {
+      id: 'ember-data:schema-service-updates',
+      until: '5.0',
+      for: 'ember-data',
+      since: {
+        available: '5.4',
+        enabled: '5.4',
+      },
+    });
     const schema = this._schemas.get(type);
 
     if (!schema) {
@@ -247,6 +258,15 @@ if (ENABLE_LEGACY_SCHEMA_SERVICE) {
   }: {
     type: string;
   }): InternalSchema['relationships'] {
+    deprecate(`Use \`schema.fields({ type })\` instead of \`schema.relationshipsDefinitionFor({ type })\``, false, {
+      id: 'ember-data:schema-service-updates',
+      until: '5.0',
+      for: 'ember-data',
+      since: {
+        available: '5.4',
+        enabled: '5.4',
+      },
+    });
     const schema = this._schemas.get(type);
 
     if (!schema) {
@@ -257,6 +277,15 @@ if (ENABLE_LEGACY_SCHEMA_SERVICE) {
   };
 
   SchemaService.prototype.doesTypeExist = function (type: string): boolean {
+    deprecate(`Use \`schema.hasResource({ type })\` instead of \`schema.doesTypeExist(type)\``, false, {
+      id: 'ember-data:schema-service-updates',
+      until: '5.0',
+      for: 'ember-data',
+      since: {
+        available: '5.4',
+        enabled: '5.4',
+      },
+    });
     return this._schemas.has(type);
   };
 }

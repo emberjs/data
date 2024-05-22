@@ -17,6 +17,7 @@ import type {
 import type { FactoryCache, Model, ModelFactory, ModelStore } from './model';
 import _modelForMixin from './model-for-mixin';
 import { normalizeModelName } from './util';
+import { deprecate } from '@ember/debug';
 
 type AttributesSchema = ReturnType<Exclude<SchemaService['attributesDefinitionFor'], undefined>>;
 type RelationshipsSchema = ReturnType<Exclude<SchemaService['relationshipsDefinitionFor'], undefined>>;
@@ -158,14 +159,30 @@ export class ModelSchemaProvider implements SchemaService {
 
 if (ENABLE_LEGACY_SCHEMA_SERVICE) {
   ModelSchemaProvider.prototype.doesTypeExist = function (type: string): boolean {
-    // TODO @pr add deprecation here
+    deprecate(`Use \`schema.hasResource({ type })\` instead of \`schema.doesTypeExist(type)\``, false, {
+      id: 'ember-data:schema-service-updates',
+      until: '5.0',
+      for: 'ember-data',
+      since: {
+        available: '5.4',
+        enabled: '5.4',
+      },
+    });
     return this.hasResource({ type });
   };
 
   ModelSchemaProvider.prototype.attributesDefinitionFor = function (
     resource: RecordIdentifier | { type: string }
   ): AttributesSchema {
-    // TODO @pr add deprecation here
+    deprecate(`Use \`schema.fields({ type })\` instead of \`schema.attributesDefinitionFor({ type })\``, false, {
+      id: 'ember-data:schema-service-updates',
+      until: '5.0',
+      for: 'ember-data',
+      since: {
+        available: '5.4',
+        enabled: '5.4',
+      },
+    });
     const type = normalizeModelName(resource.type);
 
     if (!this._schemas.has(type)) {
@@ -178,7 +195,15 @@ if (ENABLE_LEGACY_SCHEMA_SERVICE) {
   ModelSchemaProvider.prototype.relationshipsDefinitionFor = function (
     resource: RecordIdentifier | { type: string }
   ): RelationshipsSchema {
-    // TODO @pr add deprecation here
+    deprecate(`Use \`schema.fields({ type })\` instead of \`schema.relationshipsDefinitionFor({ type })\``, false, {
+      id: 'ember-data:schema-service-updates',
+      until: '5.0',
+      for: 'ember-data',
+      since: {
+        available: '5.4',
+        enabled: '5.4',
+      },
+    });
     const type = normalizeModelName(resource.type);
 
     if (!this._schemas.has(type)) {
