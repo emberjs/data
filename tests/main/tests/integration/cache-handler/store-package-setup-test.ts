@@ -73,7 +73,7 @@ class TestStore extends Store {
       derivation() {
         throw new Error('Method not implemented.');
       },
-      fields(identifier: StableRecordIdentifier | { type: string; }): Map<string, FieldSchema> {
+      fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
         return new Map();
       },
       hasTrait() {
@@ -88,9 +88,9 @@ class TestStore extends Store {
       registerHashFn: function (hashFn: HashFn): void {
         throw new Error('Function not implemented.');
       },
-      hashFn: function (field: HashField | { type: string; }): HashFn {
+      hashFn: function (field: HashField | { type: string }): HashFn {
         throw new Error('Function not implemented.');
-      }
+      },
     };
 
     return schemaService;
