@@ -214,9 +214,9 @@ export class RequestLoadingState {
     this._future = future;
   }
 
-  abort(): void {
+  abort = (): void => {
     this._future.abort();
-  }
+  };
 }
 
 export class RequestState<T = unknown, RT = unknown> {
