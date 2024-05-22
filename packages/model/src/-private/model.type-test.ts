@@ -295,3 +295,11 @@ class HasGetter extends Model {
 const hasGetter = new HasGetter();
 expectTypeOf<MaybeBelongsToFields<typeof hasGetter>>().toEqualTypeOf<'bestFriend'>();
 expectTypeOf(hasGetter.belongsTo('bestFriend').id()).toEqualTypeOf<string | null>();
+
+function expectsArray<T>(array: T[]) {}
+
+// ManyArray<User> works
+expectsArray(branded.enemies);
+
+// PromiseManyArray<User> works only if awaited
+expectsArray(await branded.friends);
