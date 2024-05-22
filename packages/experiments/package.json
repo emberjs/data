@@ -1,0 +1,24 @@
+{
+  "name": "@warp-drive/experiments",
+  "description": "Experimental features for EmberData/WarpDrive",
+  "version": "5.4.0-alpha.10",
+  "private": true,
+  "license": "MIT",
+  "author": "Chris Thoburn <runspired@users.noreply.github.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "packages/experiments"
+  },
+  "homepage": "https://github.com/emberjs/data",
+  "bugs": "https://github.com/emberjs/data/issues",
+  "engines": {
+    "node": ">= 22.1.0"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  },
+  "files": [],
+  "scripts": {},
+  "devDependencies": {}
+}

@@ -924,6 +924,8 @@ importers:
         specifier: workspace:5.4.0-alpha.91
         version: link:../../config
 
+  packages/experiments: {}
+
   packages/graph:
     dependencies:
       '@embroider/macros':
