@@ -30,7 +30,7 @@
 Install using your javascript package manager of choice. For instance with [pnpm](https://pnpm.io/)
 
 ```no-highlight
-pnpm add @warp-driveexperiments
+pnpm add @warp-drive/experiments
 ```
 
 ## 🚀 Setup
