@@ -36,7 +36,7 @@
     "inlineSourceMap": true,
     "inlineSources": true,
     "baseUrl": ".",
-    "types": ["ember-source/types"],
+    "types": [],
     "allowImportingTsExtensions": true,
     "paths": {
       "@ember-data/request": ["../request/unstable-preview-types"],
