@@ -21,7 +21,7 @@ import type {
 import type { OpaqueRecordInstance } from '@warp-drive/core-types/record';
 import type { RequestContext } from '@warp-drive/core-types/request';
 import type { HashFn } from '@warp-drive/core-types/schema/concepts';
-import type { FieldSchema } from '@warp-drive/core-types/schema/fields';
+import type { FieldSchema, HashField } from '@warp-drive/core-types/schema/fields';
 import type {
   CollectionResourceDataDocument,
   ResourceDataDocument,
@@ -73,7 +73,7 @@ class TestStore extends Store {
       derivation() {
         throw new Error('Method not implemented.');
       },
-      fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
+      fields(identifier: StableRecordIdentifier | { type: string; }): Map<string, FieldSchema> {
         return new Map();
       },
       hasTrait() {
@@ -85,12 +85,12 @@ class TestStore extends Store {
       hasResource() {
         return true;
       },
-      hashFn: function (name: string): HashFn {
-        throw new Error('Function not implemented.');
-      },
       registerHashFn: function (hashFn: HashFn): void {
         throw new Error('Function not implemented.');
       },
+      hashFn: function (field: HashField | { type: string; }): HashFn {
+        throw new Error('Function not implemented.');
+      }
     };
 
     return schemaService;
