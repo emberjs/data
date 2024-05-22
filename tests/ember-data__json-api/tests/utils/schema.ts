@@ -47,25 +47,52 @@ export class TestSchema implements SchemaService {
   transformation(field: GenericField | ObjectField | ArrayField | { type: string }): Transformation {
     const kind = 'kind' in field ? field.kind : '<unknown kind>';
     const name = 'name' in field ? field.name : '<unknown name>';
-    assert(`'${kind}' fields cannot be transformed. Only fields of kind 'field' 'object' or 'array' can specify a transformation. Attempted to find '${field.type ?? '<unknown type>'}' on field '${name}'.`, !('kind' in field) || ['field', 'object', 'array'].includes(kind));
-    assert(`Expected the '${kind}' field '${name}' to specify a transformation via 'field.type', but none was present`, field.type);
-    assert(`No transformation registered with name '${field.type}' for '${kind}' field '${name}'`, this._transforms.has(field.type));
+    assert(
+      `'${kind}' fields cannot be transformed. Only fields of kind 'field' 'object' or 'array' can specify a transformation. Attempted to find '${field.type ?? '<unknown type>'}' on field '${name}'.`,
+      !('kind' in field) || ['field', 'object', 'array'].includes(kind)
+    );
+    assert(
+      `Expected the '${kind}' field '${name}' to specify a transformation via 'field.type', but none was present`,
+      field.type
+    );
+    assert(
+      `No transformation registered with name '${field.type}' for '${kind}' field '${name}'`,
+      this._transforms.has(field.type)
+    );
     return this._transforms.get(field.type)!;
   }
   derivation(field: DerivedField | { type: string }): Derivation {
     const kind = 'kind' in field ? field.kind : '<unknown kind>';
     const name = 'name' in field ? field.name : '<unknown name>';
-    assert(`The '${kind}' field '${name}' is not derived and so cannot be used to lookup a derivation`, !('kind' in field) || kind === 'derived');
-    assert(`Expected the '${kind}' field '${name}' to specify a derivation via 'field.type', but no value was present`, field.type);
-    assert(`No '${field.type}' derivation registered for use by the '${kind}' field '${name}'`, this._derivations.has(field.type));
+    assert(
+      `The '${kind}' field '${name}' is not derived and so cannot be used to lookup a derivation`,
+      !('kind' in field) || kind === 'derived'
+    );
+    assert(
+      `Expected the '${kind}' field '${name}' to specify a derivation via 'field.type', but no value was present`,
+      field.type
+    );
+    assert(
+      `No '${field.type}' derivation registered for use by the '${kind}' field '${name}'`,
+      this._derivations.has(field.type)
+    );
     return this._derivations.get(field.type)!;
   }
   hashFn(field: HashField | { type: string }): HashFn {
     const kind = 'kind' in field ? field.kind : '<unknown kind>';
     const name = 'name' in field ? field.name : '<unknown name>';
-    assert(`The '${kind}' field '${name}' is not a HashField and so cannot be used to lookup a hash function`, !('kind' in field) || kind === '@hash');
-    assert(`Expected the '${kind}' field '${name}' to specify a hash function via 'field.type', but no value was present`, field.type);
-    assert(`No '${field.type}' hash function is registered for use by the '${kind}' field '${name}'`, this._hashFns.has(field.type));
+    assert(
+      `The '${kind}' field '${name}' is not a HashField and so cannot be used to lookup a hash function`,
+      !('kind' in field) || kind === '@hash'
+    );
+    assert(
+      `Expected the '${kind}' field '${name}' to specify a hash function via 'field.type', but no value was present`,
+      field.type
+    );
+    assert(
+      `No '${field.type}' hash function is registered for use by the '${kind}' field '${name}'`,
+      this._hashFns.has(field.type)
+    );
     return this._hashFns.get(field.type)!;
   }
   resource(resource: StableRecordIdentifier | { type: string }): ResourceSchema {
