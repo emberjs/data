@@ -42,6 +42,9 @@ Documentation
 - [RequestState](#requeststate)
   - [getRequestState](#getrequeststate)
   - [\<Request />](#request-)
+- [PaginationState](#paginationstate)
+  - [getPaginationState](#getpaginationstate)
+  - [\<Paginate />](#paginate-)
 
 ---
 
@@ -297,8 +300,15 @@ import { getRequestState } from '@warp-drive/ember';
 
 #### \<Request />
 
-Alternatively, use the `<Request>` component. Note: the request component
-taps into additional capabilities *beyond* what `RequestState` offers.
+To make working with requests in templates even easier, you can use
+the `<Request>` component.
+
+The `<Request />` component is *layout-less*. It is pure declarative control
+flow with built-in state management utilities, and is designed to seamlessly
+integrate with preferred patterns for loading data for routes and modals.
+
+`<Request />` taps into additional capabilities *beyond*
+what `RequestState` offers.
 
 - Completion states and an abort function are available as part of loading state
 
@@ -373,6 +383,45 @@ If a request is aborted but no cancelled block is present, the error will be giv
 to the error block to handle.
 
 If no error block is present, the cancellation error will be swallowed.
+
+- Idle is an additional state.
+
+The `<:idle>` state occurs when the request or query passed to the component
+is `undefined` or `null`.
+
+```gjs
+import { Request } from '@warp-drive/ember';
+
+
+<template>
+  <Request @request={{@request}}>
+    <:idle><button {{on "click" @makeRequest}}>Load Preview?</button></:idle>
+  </Request>
+</template>
+```
+
+`<:idle>` states allow you avoid wrapping `<Request />` components in `{{#if}}` blocks
+when the request isn't ready to be made. E.g. No need do to this:
+
+```gjs
+import { Request } from '@warp-drive/ember';
+
+<template>
+  {{#if @request}}
+    <Request @request={{@request}}>
+  
+    </Request>
+  {{else}}
+    <button {{on "click" @makeRequest}}>Load Preview?</button>
+  {{/if}}
+</template>
+```
+
+> [!IMPORTANT]
+> `null` and `undefined` are only valid arguments to `<Request />` if an `<:idle>` block is provided.
+
+An important note is that `<:idle>` is effectively a special-cased error state. If no idle block is
+provided, the component *will* throw an error if the argument is `null` or `undefined`.
 
 - retry
 
@@ -529,6 +578,162 @@ import { Request } from '@warp-drive/ember';
 
 If a matching request is refreshed or reloaded by any other component, the `Request` component will react accordingly.
 
+### PaginationState
+
+### getPaginationState
+
+#### \<Paginate />
+
+The `<Paginate />` component is *layout-less*. Just like `<Request />`, it is pure
+declarative control flow with built-in state management utilities.
+
+It's API mimic's `<Request />`, but 
+
+**Render an infinite list**
+
+```gjs
+import { Paginate } from '@warp-drive/ember';
+
+<template>
+  <Paginate @request={{@request}} as |content|>
+      <VerticalCollection
+        @items={{pages.data}}
+        @lastReached={{pages.next}}
+        @firstReached={{pages.prev}}
+      as |item|>
+        {{item.title}}
+      </VerticalCollection>
+  </Paginate>
+</template>
+```
+
+**Initial Request is loading**
+
+```diff
+  <Paginate @request={{@request}} as |pages|>
++   <:loading><Spinner /></:loading>
++
++   <:content as |pages|>
+      <VerticalCollection
+        @items={{pages.data}}
+        @lastReached={{pages.next}}
+        @firstReached={{pages.prev}}
+      as |item|>
+        {{item.title}}
+      </VerticalCollection>
++   <:content>
+  </Paginate>
+```
+
+**Initial request errors**
+
+```diff
+  <Paginate @request={{@request}} as |pages|>
+    <:loading><Spinner /></:loading>
+
+    <:content as |pages|>
+      <VerticalCollection
+        @items={{pages.data}}
+        @lastReached={{pages.next}}
+        @firstReached={{pages.prev}}
+      as |item|>
+        {{item.title}}
+      </VerticalCollection>
+    <:content>
++
++   <:error as |error state|>
++     <ErrorForm @error={{error}} />
++     <button {{on "click" state.retry}}>Retry</button>
++   </:error>
+  </Paginate>
+```
+
+**Subsequent request is loading**
+
+```diff
+  <Paginate @request={{@request}} as |pages|>
+    <:loading><Spinner /></:loading>
+
+    <:content as |pages state|>
++     {{#if state.isLoadingPrev}}
++       <Request @request={{state.prevRequest}}>
++         <:loading><Spinner /></:loading>
++       </Request>
++     {{/if}}
+      <VerticalCollection
+        @items={{pages.data}}
+        @lastReached={{pages.next}}
+        @firstReached={{pages.prev}}
+      as |item|>
+        {{item.title}}
+      </VerticalCollection>
+    <:content>
++   {{#if state.isLoadingNext}}
++       <Request @request={{state.nextRequest}}>
++         <:loading><Spinner /></:loading>
++       </Request>
++   {{/if}}
+
+    <:error as |error state|>
+      <ErrorForm @error={{error}} />
+      <button {{on "click" state.retry}}>Retry</button>
+    </:error>
+  </Paginate>
+```
+
+**Subsequent request errors**
+
+```gjs
+import { Paginate } from '@warp-drive/ember';
+
+<template>
+  <Paginate @request={{@request}} as |pages|>
+    <VerticalCollection
+        @items={{pages.data}}
+        @lastReached={{pages.next}}
+        @firstReached={{pages.prev}}
+      as |item|>
+
+    </VerticalCollection>
+  </Paginate>
+</template>
+```
+
+**Render individual pages**
+
+```gjs
+import { Paginate } from '@warp-drive/ember';
+
+<template>
+  <Paginate @request={{@request}} as |pages|>
+   <VerticalCollection
+        @items={{pages.data}}
+        @lastReached={{pages.next}}
+        @firstReached={{pages.prev}}
+      as |item|>
+
+    </VerticalCollection>
+  </Paginate>
+</template>
+```
+
+**Page Links**
+
+```gjs
+import { Paginate } from '@warp-drive/ember';
+
+<template>
+  <Paginate @request={{@request}} as |pages|>
+    <VerticalCollection
+        @items={{pages.data}}
+        @lastReached={{pages.next}}
+        @firstReached={{pages.prev}}
+      as |item|>
+
+    </VerticalCollection>
+  </Paginate>
+</template>
+```
 
 ---
 
