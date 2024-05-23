@@ -101,13 +101,19 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
 
     this.onlineChanged = (event: Event) => {
       this.isOnline = event.type === 'online';
-      if (event.type === 'offline') {
+      if (event.type === 'offline' && this.unavailableStart === null) {
         this.unavailableStart = Date.now();
       }
       this.maybeUpdate();
     };
     this.backgroundChanged = () => {
-      this.isHidden = document.visibilityState === 'hidden';
+      const isHidden = document.visibilityState === 'hidden';
+      this.isHidden = isHidden;
+
+      if (isHidden && this.unavailableStart === null) {
+        this.unavailableStart = Date.now();
+      }
+
       this.maybeUpdate();
     };
 
