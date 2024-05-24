@@ -400,7 +400,7 @@ import { Request } from '@warp-drive/ember';
 </template>
 ```
 
-`<:idle>` states allow you avoid wrapping `<Request />` components in `{{#if}}` blocks
+`<:idle>` states allows us to avoid wrapping `<Request />` components in `{{#if}}` blocks
 when the request isn't ready to be made. E.g. No need do to this:
 
 ```gjs
@@ -589,19 +589,24 @@ If a matching request is refreshed or reloaded by any other component, the `Requ
 The `<Paginate />` component is *layout-less*. Just like `<Request />`, it is pure
 declarative control flow with built-in state management utilities.
 
-Note however, `<Paginate />` works *because* it understands pagination links. Pagination links
-are a feature of WarpDrive/EmberData response documents. If your API does not generate pagination
-links, you may want consider using a handler to process API responses for paginated queries that
-generates pagination links for you. This is useful to do *even if you do not use `<Paginate />`* as
-quite a few WarpDrive/EmberData features work best with links.
+`<Paginate />` works *because* it understands pagination links.
 
-The `<Paginate />` Component's API mimics `<Request />`, but expands the possibilities to afford an extremely
-flexible toolbox for managing the state of any paginated flow you might want to build. All of the same top-level
-states (`idle` `loading` `content` `pending` `error` `cancelled`) are available for use, with `idle`, `loading`,
-`error` and `cancelled` specifically applying to the state of the initiating request passed into the component.
+> [!Tip]
+> Pagination links are a feature of WarpDrive/EmberData response documents. If your API does
+> not generate pagination links, you may want consider using a handler to process API responses
+> for paginated queries that generates pagination links for you. This is useful to do 
+> *even if you do not use `<Paginate />`* as quite a few WarpDrive/EmberData features work best
+> with links.
 
-The `content` block alters `result` to a `pages` object that exposes information about all pages but otherwise
-has the same semantics as being the `success` block of the primary request.
+`<Paginate />`'s API mimics `<Request />`, but expands the possibilities to afford an extremely
+flexible toolbox for managing the state of any paginated flow we want to build.
+
+All of the same top-level states (`idle` `loading` `content` `pending` `error` `cancelled`) are
+available to us for use. `idle`, `loading`, `error` and `cancelled` apply only to the state of
+the initiating request passed into the component.
+
+The `content` block is entered when the initial request resolves, and yields a `pages` object
+that exposes information about all pages.
 
 Three new blocks are added:
 - `<:prev as |request|>`, which is active while a request for a previous link is being performed
@@ -610,22 +615,22 @@ Three new blocks are added:
 
 > [!TIP]
 > If the `<:default>` block is provided, no other named blocks will ever be utilized. E.g. the use of
-> default represents a separate mode for the component in which you have signaled that request state
+> default represents a separate mode for the component in which we have signaled that request state
 > management will occur elsewhere
 
-While the `<Paginate/>` component is *layout-less*, named blocks do have to render *somewhere* ;)
+While the `<Paginate/>` component is *layout-less*, named blocks do have to render *somewhere* 😉
 
-This means that when multiple blocks are capable of being rendered at the same time that insertion
-order may matter. To that end, we guarantee that blocks render into the DOM in the following order
-with zero wrapping elements. So content placed in one block will be sibling to content placed in
-another block if both are rendered.
+When multiple blocks are capable of being rendered at the same time that insertion order may matter.
+
+We guarantee that blocks render into the DOM in the following order with zero wrapping elements.
+So content placed in one block will be sibling to content placed in another block if both are rendered.
 
 - prev
 - content
 - next
 
 No other blocks are capable of being rendered simultaneously. It is possible for all three of these
-blocks to be shown concurrently if a prev and next requests are both triggered.
+blocks to be shown concurrently if both `prev` and `next` requests are triggered.
 
 Below, we show a number of example usages.
 
@@ -645,7 +650,8 @@ import { Paginate } from '@warp-drive/ember';
         @items={{pages.data}}
         @lastReached={{pages.next}}
         @firstReached={{pages.prev}}
-      as |item|>
+        as |item|
+      >
         {{item.title}}
       </VerticalCollection>
   </Paginate>
@@ -663,7 +669,8 @@ import { Paginate } from '@warp-drive/ember';
         @items={{pages.data}}
         @lastReached={{pages.next}}
         @firstReached={{pages.prev}}
-      as |item|>
+        as |item|
+      >
         {{item.title}}
       </VerticalCollection>
 +   <:content>
@@ -681,7 +688,8 @@ import { Paginate } from '@warp-drive/ember';
         @items={{pages.data}}
         @lastReached={{pages.next}}
         @firstReached={{pages.prev}}
-      as |item|>
+        as |item|
+      >
         {{item.title}}
       </VerticalCollection>
     <:content>
@@ -693,7 +701,7 @@ import { Paginate } from '@warp-drive/ember';
   </Paginate>
 ```
 
-**Subsequent request is loading**
+**Displaying a spinner when a subsequent request is loading**
 
 ```diff
   <Paginate @request={{@request}} as |pages|>
@@ -706,7 +714,8 @@ import { Paginate } from '@warp-drive/ember';
         @items={{pages.data}}
         @lastReached={{pages.next}}
         @firstReached={{pages.prev}}
-      as |item|>
+        as |item|
+      >
         {{item.title}}
       </VerticalCollection>
     <:content>
@@ -720,11 +729,11 @@ import { Paginate } from '@warp-drive/ember';
   </Paginate>
 ```
 
-**Subsequent request errors**
+**Displaying errors from a subsequent request**
 
-When an error occurs on `next` or `prev` request,
+When an error occurs on `next` or `prev` requests,
 the associated block remains active until the request
-succeeds. This enables you to handle the full control
+succeeds. This enables us to handle the full control
 flow for the subsequent request by passing it into `<Request />`!
 
 ```diff
@@ -748,7 +757,8 @@ flow for the subsequent request by passing it into `<Request />`!
         @items={{pages.data}}
         @lastReached={{pages.next}}
         @firstReached={{pages.prev}}
-      as |item|>
+        as |item|
+      >
         {{item.title}}
       </VerticalCollection>
     <:content>
@@ -764,8 +774,9 @@ flow for the subsequent request by passing it into `<Request />`!
 
 **Advanced handling of Subsequent**
 
-In some cases, you may find the `prev` and `next` blocks too limiting. If so, you can access
-the `prevRequest` and `nextRequest` directly.
+In some cases, utilizing the `prev` and `next` blocks might limit the desired UX.
+When this happens, we can use the `prevRequest` and `nextRequest` properties
+to compose more advanced handling behaviors.
 
 ```diff
  <Paginate @request={{@request}} as |pages|>
@@ -781,7 +792,8 @@ the `prevRequest` and `nextRequest` directly.
         @items={{pages.data}}
         @lastReached={{pages.next}}
         @firstReached={{pages.prev}}
-      as |item|>
+        as |item|
+      >
         {{item.title}}
       </VerticalCollection>
 
@@ -800,11 +812,14 @@ the `prevRequest` and `nextRequest` directly.
 
 #### Render Individual pages
 
+The `<Paginate />` component works equally well for tab / link style pagination
+UX as it does for InfiniteFeed style UX.
+
 **Render the active page**
 
 > [!TIP]
-> Remember, the `<:loading>` and `<:error>` states only applying to the initial request,
-> Not to the current active page.
+> Remember, the `<:loading>` and `<:error>` states apply only to the initial request,
+> not to the activePage.
 
 ```gjs
 import { Paginate } from '@warp-drive/ember';
@@ -863,9 +878,9 @@ The `text` property on the link will be a single `'.'` in these cases.
 
 **Total Pages Hints**
 
-The PaginationLinks container utilizes two hints for helping to manage its links collection: `currentPage` and `totalPages`.
-These hints can be provided by providing a PageHints function to the component. Whenever a request loads, the hint function will
-be run.
+The PaginationLinks container utilizes two hints for helping to manage the links collection: `currentPage` and `totalPages`.
+We can provide these hints by passing in a `PageHints` function to the component. Whenever a request loads, the hint function
+will be run.
 
 ```ts
 interface PageHints {
@@ -878,21 +893,24 @@ interface PageHints {
 ```
 
 > [!Tip]
-> The `<Paginate />` component is agnostic to page size. If you would like to hint
+> The `<Paginate />` component is agnostic to page size. If we would like to hint
 > to something like `VerticalCollection` how many total items might conceivably be loaded,
-> just pull that information from the response meta! example: `page.meta.estimatedTotal.bestGuess`
+> we can easily access that information from the response! For example, if we were
+> Using the JSON:API Pagination Profiles Spec, the hint could come from
+> `pages.activePage.meta.estimatedTotal.bestGuess`
 
 **Substates for loading individual pages**
 
-Often in a tabbed structure we will want individual loading states for the request for each page.
-This is where the using the `default` block comes in handy. Here is the same example as above but
-with a loading state for each individual page.
+Often in a tabbed structure we will want individual loading states for the request for each
+individual page. This is a scenario where using the `default` block comes in handy.
 
-In this case, the `activePageRequest` will start as the request for the first page, and update as
-the user clicks through.
+Below is the same example as above but with a loading state per-page.
 
-This additionally gives us the ability to provide a stable ui-frame and navigation experience that
-wraps the loading and error states.
+In this case, the `activePageRequest` will start as the request for the first page,
+and update as the user clicks through.
+
+In addition to per-page control-flow, this gives us the ability to provide a stable ui-frame
+and navigation experience that wraps these loading and error states.
 
 ```gjs
 import { Paginate, EachLink } from '@warp-drive/ember';
