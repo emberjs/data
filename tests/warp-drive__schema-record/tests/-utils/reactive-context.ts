@@ -46,6 +46,8 @@ export async function reactiveContext<T extends OpaqueRecordInstance>(
           field.kind === 'field' ||
           field.kind === 'derived' ||
           field.kind === 'array' ||
+          field.kind === 'object' ||
+          field.kind === 'schema-array' ||
           field.kind === '@id' ||
           // @ts-expect-error we secretly allow this
           field.kind === '@hash'

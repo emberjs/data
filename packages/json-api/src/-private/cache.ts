@@ -1089,27 +1089,58 @@ export default class JSONAPICache implements Cache {
    * @param field
    * @return {unknown}
    */
-  getAttr(identifier: StableRecordIdentifier, attr: string): Value | undefined {
-    const cached = this.__peek(identifier, true);
-    if (cached.localAttrs && attr in cached.localAttrs) {
-      return cached.localAttrs[attr];
-    } else if (cached.inflightAttrs && attr in cached.inflightAttrs) {
-      return cached.inflightAttrs[attr];
-    } else if (cached.remoteAttrs && attr in cached.remoteAttrs) {
-      return cached.remoteAttrs[attr];
-    } else if (cached.defaultAttrs && attr in cached.defaultAttrs) {
-      return cached.defaultAttrs[attr];
-    } else {
-      const attrSchema = this._capabilities.schema.fields(identifier).get(attr);
-
-      upgradeCapabilities(this._capabilities);
-      const defaultValue = getDefaultValue(attrSchema, identifier, this._capabilities._store);
-      if (schemaHasLegacyDefaultValueFn(attrSchema)) {
-        cached.defaultAttrs = cached.defaultAttrs || (Object.create(null) as Record<string, Value>);
-        cached.defaultAttrs[attr] = defaultValue;
-      }
-      return defaultValue;
+  getAttr(identifier: StableRecordIdentifier, attr: string | string[]): Value | undefined {
+    const isSimplePath = !Array.isArray(attr) || attr.length === 1;
+    if (Array.isArray(attr) && attr.length === 1) {
+      attr = attr[0];
     }
+
+    if (isSimplePath) {
+      const attribute = attr as string;
+      const cached = this.__peek(identifier, true);
+      if (cached.localAttrs && attribute in cached.localAttrs) {
+        return cached.localAttrs[attribute];
+      } else if (cached.inflightAttrs && attribute in cached.inflightAttrs) {
+        return cached.inflightAttrs[attribute];
+      } else if (cached.remoteAttrs && attribute in cached.remoteAttrs) {
+        return cached.remoteAttrs[attribute];
+      } else if (cached.defaultAttrs && attribute in cached.defaultAttrs) {
+        return cached.defaultAttrs[attribute];
+      } else {
+        const attrSchema = this._capabilities.schema.fields(identifier).get(attribute);
+
+        upgradeCapabilities(this._capabilities);
+        const defaultValue = getDefaultValue(attrSchema, identifier, this._capabilities._store);
+        if (schemaHasLegacyDefaultValueFn(attrSchema)) {
+          cached.defaultAttrs = cached.defaultAttrs || (Object.create(null) as Record<string, Value>);
+          cached.defaultAttrs[attribute] = defaultValue;
+        }
+        return defaultValue;
+      }
+    }
+
+    // TODO @runspired consider whether we need a defaultValue cache in SchemaRecord
+    // like we do for the simple case above.
+    const path: string[] = attr as string[];
+    const cached = this.__peek(identifier, true);
+    const basePath = path[0];
+    let current = cached.localAttrs && basePath in cached.localAttrs ? cached.localAttrs[basePath] : undefined;
+    if (current === undefined) {
+      current = cached.inflightAttrs && basePath in cached.inflightAttrs ? cached.inflightAttrs[basePath] : undefined;
+    }
+    if (current === undefined) {
+      current = cached.remoteAttrs && basePath in cached.remoteAttrs ? cached.remoteAttrs[basePath] : undefined;
+    }
+    if (current === undefined) {
+      return undefined;
+    }
+    for (let i = 1; i < path.length; i++) {
+      current = (current as ObjectValue)[path[i]];
+      if (current === undefined) {
+        return undefined;
+      }
+    }
+    return current;
   }
 
   /**
@@ -1123,29 +1154,114 @@ export default class JSONAPICache implements Cache {
    * @param field
    * @param value
    */
-  setAttr(identifier: StableRecordIdentifier, attr: string, value: Value): void {
+  setAttr(identifier: StableRecordIdentifier, attr: string | string[], value: Value): void {
+    // this assert works to ensure we have a non-empty string and/or a non-empty array
+    assert('setAttr must receive at least one attribute path', attr.length > 0);
+    const isSimplePath = !Array.isArray(attr) || attr.length === 1;
+
+    if (Array.isArray(attr) && attr.length === 1) {
+      attr = attr[0];
+    }
+
+    if (isSimplePath) {
+      const cached = this.__peek(identifier, false);
+      const currentAttr = attr as string;
+      const existing =
+        cached.inflightAttrs && currentAttr in cached.inflightAttrs
+          ? cached.inflightAttrs[currentAttr]
+          : cached.remoteAttrs && currentAttr in cached.remoteAttrs
+            ? cached.remoteAttrs[currentAttr]
+            : undefined;
+
+      if (existing !== value) {
+        cached.localAttrs = cached.localAttrs || (Object.create(null) as Record<string, Value>);
+        cached.localAttrs[currentAttr] = value;
+        cached.changes = cached.changes || (Object.create(null) as Record<string, [Value, Value]>);
+        cached.changes[currentAttr] = [existing, value];
+      } else if (cached.localAttrs) {
+        delete cached.localAttrs[currentAttr];
+        delete cached.changes![currentAttr];
+      }
+
+      if (cached.defaultAttrs && currentAttr in cached.defaultAttrs) {
+        delete cached.defaultAttrs[currentAttr];
+      }
+
+      this._capabilities.notifyChange(identifier, 'attributes', currentAttr);
+      return;
+    }
+
+    // get current value from local else inflight else remote
+    // structuredClone current if not local (or always?)
+    // traverse path, update value at path
+    // notify change at first link in path.
+    // second pass optimization is change notifyChange signature to take an array path
+
+    // guaranteed that we have path of at least 2 in length
+    const path: string[] = attr as string[];
+
     const cached = this.__peek(identifier, false);
+
+    // get existing cache record for base path
+    const basePath = path[0];
     const existing =
-      cached.inflightAttrs && attr in cached.inflightAttrs
-        ? cached.inflightAttrs[attr]
-        : cached.remoteAttrs && attr in cached.remoteAttrs
-          ? cached.remoteAttrs[attr]
+      cached.inflightAttrs && basePath in cached.inflightAttrs
+        ? cached.inflightAttrs[basePath]
+        : cached.remoteAttrs && basePath in cached.remoteAttrs
+          ? cached.remoteAttrs[basePath]
           : undefined;
-    if (existing !== value) {
+
+    let existingAttr;
+    if (existing) {
+      existingAttr = (existing as ObjectValue)[path[1]];
+
+      for (let i = 2; i < path.length; i++) {
+        // the specific change we're making is at path[length - 1]
+        existingAttr = (existingAttr as ObjectValue)[path[i]];
+      }
+    }
+
+    if (existingAttr !== value) {
       cached.localAttrs = cached.localAttrs || (Object.create(null) as Record<string, Value>);
-      cached.localAttrs[attr] = value;
+      cached.localAttrs[basePath] = cached.localAttrs[basePath] || structuredClone(existing);
       cached.changes = cached.changes || (Object.create(null) as Record<string, [Value, Value]>);
-      cached.changes[attr] = [existing, value];
+      let currentLocal = cached.localAttrs[basePath] as ObjectValue;
+      let nextLink = 1;
+
+      while (nextLink < path.length - 1) {
+        currentLocal = currentLocal[path[nextLink++]] as ObjectValue;
+      }
+      currentLocal[path[nextLink]] = value as ObjectValue;
+
+      cached.changes[basePath] = [existing, cached.localAttrs[basePath] as ObjectValue];
+
+      // since we initiaize the value as basePath as a clone of the value at the remote basePath
+      // then in theory we can use JSON.stringify to compare the two values as key insertion order
+      // ought to be consistent.
+      // we try/catch this because users have a habit of doing "Bad Things"TM wherein the cache contains
+      // stateful values that are not JSON serializable correctly such as Dates.
+      // in the case that we error, we fallback to not removing the local value
+      // so that any changes we don't understand are preserved. Thse objects would then sometimes
+      // appear to be dirty unnecessarily, and for folks that open an issue we can guide them
+      // to make their cache data less stateful.
     } else if (cached.localAttrs) {
-      delete cached.localAttrs[attr];
-      delete cached.changes![attr];
+      try {
+        if (!existing) {
+          return;
+        }
+        const existingStr = JSON.stringify(existing);
+        const newStr = JSON.stringify(cached.localAttrs[basePath]);
+
+        if (existingStr !== newStr) {
+          delete cached.localAttrs[basePath];
+          delete cached.changes![basePath];
+        }
+      } catch (e) {
+        // noop
+      }
     }
 
-    if (cached.defaultAttrs && attr in cached.defaultAttrs) {
-      delete cached.defaultAttrs[attr];
-    }
-
-    this._capabilities.notifyChange(identifier, 'attributes', attr);
+    this._capabilities.notifyChange(identifier, 'attributes', basePath);
   }
 
   /**

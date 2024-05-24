@@ -339,7 +339,7 @@ export interface Cache {
    * @param field
    * @return {unknown}
    */
-  getAttr(identifier: StableRecordIdentifier, field: string): Value | undefined;
+  getAttr(identifier: StableRecordIdentifier, field: string | string[]): Value | undefined;
 
   /**
    * Mutate the data for an attribute in the cache
@@ -352,7 +352,7 @@ export interface Cache {
    * @param field
    * @param value
    */
-  setAttr(identifier: StableRecordIdentifier, field: string, value: Value): void;
+  setAttr(identifier: StableRecordIdentifier, field: string | string[], value: Value): void;
 
   /**
    * Query the cache for the changed attributes of a resource.

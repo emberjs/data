@@ -25,6 +25,7 @@ import type {
   GenericField,
   LocalField,
   ObjectField,
+  SchemaArrayField,
 } from '@warp-drive/core-types/schema/fields';
 import type { Link, Links } from '@warp-drive/core-types/spec/json-api-raw';
 import { RecordStore } from '@warp-drive/core-types/symbols';
@@ -32,11 +33,33 @@ import { RecordStore } from '@warp-drive/core-types/symbols';
 import { ManagedArray } from './managed-array';
 import { ManagedObject } from './managed-object';
 import type { SchemaService } from './schema';
-import { ARRAY_SIGNAL, Checkout, Destroy, Editable, Identifier, Legacy, OBJECT_SIGNAL, Parent } from './symbols';
+import {
+  ARRAY_SIGNAL,
+  Checkout,
+  Destroy,
+  Editable,
+  EmbeddedPath,
+  EmbeddedType,
+  Identifier,
+  Legacy,
+  OBJECT_SIGNAL,
+  Parent,
+} from './symbols';
 
 export { Editable, Legacy } from './symbols';
-const IgnoredGlobalFields = new Set<string>(['then', STRUCTURED]);
-const symbolList = [Destroy, RecordStore, Identifier, Editable, Parent, Checkout, Legacy, Signals];
+const IgnoredGlobalFields = new Set<string>(['length', 'nodeType', 'then', 'setInterval', STRUCTURED]);
+const symbolList = [
+  Destroy,
+  RecordStore,
+  Identifier,
+  Editable,
+  Parent,
+  Checkout,
+  Legacy,
+  Signals,
+  EmbeddedPath,
+  EmbeddedType,
+];
 const RecordSymbols = new Set(symbolList);
 
 type RecordSymbol = (typeof symbolList)[number];
@@ -75,7 +98,7 @@ function computeField(
   record: SchemaRecord,
   identifier: StableRecordIdentifier,
   field: GenericField,
-  prop: string
+  prop: string | string[]
 ): unknown {
   const rawValue = cache.getAttr(identifier, prop);
   if (!field.type) {
@@ -91,8 +114,9 @@ function computeArray(
   cache: Cache,
   record: SchemaRecord,
   identifier: StableRecordIdentifier,
-  field: ArrayField,
-  prop: string
+  field: ArrayField | SchemaArrayField,
+  path: string[],
+  isSchemaArray = false
 ) {
   // the thing we hand out needs to know its owner and path in a private manner
   // its "address" is the parent identifier (identifier) + field name (field.name)
@@ -108,11 +132,11 @@ function computeArray(
   if (managedArray) {
     return managedArray;
   } else {
-    const rawValue = cache.getAttr(identifier, prop) as unknown[];
+    const rawValue = cache.getAttr(identifier, path) as unknown[];
     if (!rawValue) {
       return null;
     }
-    managedArray = new ManagedArray(store, schema, cache, field, rawValue, identifier, prop, record);
+    managedArray = new ManagedArray(store, schema, cache, field, rawValue, identifier, path, record, isSchemaArray);
     if (!managedArrayMapForRecord) {
       ManagedArrayMap.set(record, new Map([[field, managedArray]]));
     } else {
@@ -240,6 +264,10 @@ defineSignal(ResourceRelationship.prototype, 'data');
 defineSignal(ResourceRelationship.prototype, 'links');
 defineSignal(ResourceRelationship.prototype, 'meta');
 
+function isPathMatch(a: string[], b: string[]) {
+  return a.length === b.length && a.every((v, i) => v === b[i]);
+}
+
 function getHref(link?: Link | null): string | null {
   if (!link) {
     return null;
@@ -268,43 +296,90 @@ function computeResource<T extends SchemaRecord>(
 export class SchemaRecord {
   declare [RecordStore]: Store;
   declare [Identifier]: StableRecordIdentifier;
+  declare [Parent]: StableRecordIdentifier;
+  declare [EmbeddedType]: string | null;
+  declare [EmbeddedPath]: string[] | null;
   declare [Editable]: boolean;
   declare [Legacy]: boolean;
   declare [Signals]: Map<string, Signal>;
+  declare [Symbol.toStringTag]: `SchemaRecord<${string}>`;
   declare ___notifications: object;
 
-  constructor(store: Store, identifier: StableRecordIdentifier, Mode: { [Editable]: boolean; [Legacy]: boolean }) {
+  constructor(
+    store: Store,
+    identifier: StableRecordIdentifier,
+    Mode: { [Editable]: boolean; [Legacy]: boolean },
+    isEmbedded = false,
+    embeddedType: string | null = null,
+    embeddedPath: string[] | null = null
+  ) {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
     this[RecordStore] = store;
-    this[Identifier] = identifier;
+    if (isEmbedded) {
+      this[Parent] = identifier;
+    } else {
+      this[Identifier] = identifier;
+    }
     const IS_EDITABLE = (this[Editable] = Mode[Editable] ?? false);
     this[Legacy] = Mode[Legacy] ?? false;
 
     const schema = store.schema as unknown as SchemaService;
     const cache = store.cache;
     const identityField = schema.resource(identifier).identity;
-    const fields = schema.fields(identifier);
+
+    this[EmbeddedType] = embeddedType;
+    this[EmbeddedPath] = embeddedPath;
+
+    let fields: Map<string, FieldSchema>;
+    if (isEmbedded) {
+      fields = schema.fields({ type: embeddedType as string });
+    } else {
+      fields = schema.fields(identifier);
+    }
 
     const signals: Map<string, Signal> = new Map();
     this[Signals] = signals;
+    // what signal do we need for embedded record?
     this.___notifications = store.notifications.subscribe(
       identifier,
-      (_: StableRecordIdentifier, type: NotificationType, key?: string) => {
+      (_: StableRecordIdentifier, type: NotificationType, key?: string | string[]) => {
         switch (type) {
           case 'attributes':
             if (key) {
-              const signal = signals.get(key);
-              if (signal) {
-                addToTransaction(signal);
-              }
-              const field = fields.get(key);
-              if (field?.kind === 'array') {
-                const peeked = peekManagedArray(self, field);
-                if (peeked) {
-                  const arrSignal = peeked[ARRAY_SIGNAL];
-                  arrSignal.shouldReset = true;
-                  addToTransaction(arrSignal);
+              if (Array.isArray(key)) {
+                if (!isEmbedded) return; // deep paths will be handled by embedded records
+                // TODO we should have the notification manager
+                // ensure it is safe for each callback to mutate this array
+                if (isPathMatch(embeddedPath!, key)) {
+                  // handle the notification
+                  // TODO we should likely handle this notification here
+                  // also we should add a LOGGING flag
+                  // eslint-disable-next-line no-console
+                  console.warn(`Notification unhandled for ${key.join(',')} on ${identifier.type}`, self);
+                  return;
+                }
+
+                // TODO we should add a LOGGING flag
+                // console.log(`Deep notification skipped for ${key.join('.')} on ${identifier.type}`, self);
+                // deep notify the key path
+              } else {
+                if (isEmbedded) return; // base paths never apply to embedded records
+
+                // TODO determine what LOGGING flag to wrap this in if any
+                // console.log(`Notification for ${key} on ${identifier.type}`, self);
+                const signal = signals.get(key);
+                if (signal) {
+                  addToTransaction(signal);
+                }
+                const field = fields.get(key);
+                if (field?.kind === 'array' || field?.kind === 'schema-array') {
+                  const peeked = peekManagedArray(self, field);
+                  if (peeked) {
+                    const arrSignal = peeked[ARRAY_SIGNAL];
+                    arrSignal.shouldReset = true;
+                    addToTransaction(arrSignal);
+                  }
                 }
               }
             }
@@ -314,9 +389,59 @@ export class SchemaRecord {
     );
 
     return new Proxy(this, {
+      ownKeys() {
+        return Array.from(fields.keys());
+      },
+
+      has(target: SchemaRecord, prop: string | number | symbol) {
+        return fields.has(prop as string);
+      },
+
+      getOwnPropertyDescriptor(target, prop) {
+        if (!fields.has(prop as string)) {
+          throw new Error(`No field named ${String(prop)} on ${identifier.type}`);
+        }
+        const schemaForField = fields.get(prop as string)!;
+        switch (schemaForField.kind) {
+          case 'derived':
+            return {
+              writable: false,
+              enumerable: true,
+              configurable: true,
+            };
+          case '@local':
+          case 'field':
+          case 'attribute':
+          case 'resource':
+          case 'schema-array':
+          case 'array':
+          case 'schema-object':
+          case 'object':
+            return {
+              writable: IS_EDITABLE,
+              enumerable: true,
+              configurable: true,
+            };
+        }
+      },
+
       get(target: SchemaRecord, prop: string | number | symbol, receiver: typeof Proxy<SchemaRecord>) {
         if (RecordSymbols.has(prop as RecordSymbol)) {
           return target[prop as keyof SchemaRecord];
+        }
+
+        if (prop === Symbol.toStringTag) {
+          return `SchemaRecord<${identifier.type}:${identifier.id} (${identifier.lid})>`;
+        }
+
+        if (prop === 'toString') {
+          return function () {
+            return `SchemaRecord<${identifier.type}:${identifier.id} (${identifier.lid})>`;
+          };
+        }
+
+        if (prop === Symbol.toPrimitive) {
+          return null;
         }
 
         if (prop === '___notifications') {
@@ -327,10 +452,16 @@ export class SchemaRecord {
         // for its own usage.
         // _, @, $, *
 
+        const propArray = isEmbedded ? embeddedPath!.slice() : [];
+        propArray.push(prop as string);
+
         const field = prop === identityField?.name ? identityField : fields.get(prop as string);
         if (!field) {
           if (IgnoredGlobalFields.has(prop as string)) {
             return undefined;
+          }
+          if (prop === 'constructor') {
+            return SchemaRecord;
           }
           throw new Error(`No field named ${String(prop)} on ${identifier.type}`);
         }
@@ -353,7 +484,7 @@ export class SchemaRecord {
               !target[Legacy]
             );
             entangleSignal(signals, receiver, field.name);
-            return computeField(schema, cache, target, identifier, field, prop as string);
+            return computeField(schema, cache, target, identifier, field, propArray);
           case 'attribute':
             entangleSignal(signals, receiver, field.name);
             return computeAttribute(cache, identifier, prop as string);
@@ -367,14 +498,15 @@ export class SchemaRecord {
           case 'derived':
             return computeDerivation(schema, receiver as unknown as SchemaRecord, identifier, field, prop as string);
           case 'schema-array':
-            throw new Error(`Not Implemented`);
+            entangleSignal(signals, receiver, field.name);
+            return computeArray(store, schema, cache, target, identifier, field, propArray, true);
           case 'array':
             assert(
               `SchemaRecord.${field.name} is not available in legacy mode because it has type '${field.kind}'`,
               !target[Legacy]
             );
             entangleSignal(signals, receiver, field.name);
-            return computeArray(store, schema, cache, target, identifier, field, prop as string);
+            return computeArray(store, schema, cache, target, identifier, field, propArray);
           case 'schema-object':
             // validate any access off of schema, no transform to run
             // use raw cache value as the object to manage
@@ -396,6 +528,9 @@ export class SchemaRecord {
           throw new Error(`Cannot set ${String(prop)} on ${identifier.type} because the record is not editable`);
         }
 
+        const propArray = isEmbedded ? embeddedPath!.slice() : [];
+        propArray.push(prop as string);
+
         const field = fields.get(prop as string);
         if (!field) {
           throw new Error(`There is no field named ${String(prop)} on ${identifier.type}`);
@@ -412,21 +547,21 @@ export class SchemaRecord {
           }
           case 'field': {
             if (!field.type) {
-              cache.setAttr(identifier, prop as string, value as Value);
+              cache.setAttr(identifier, propArray, value as Value);
               return true;
             }
             const transform = schema.transformation(field);
             const rawValue = transform.serialize(value, field.options ?? null, target);
-            cache.setAttr(identifier, prop as string, rawValue);
+            cache.setAttr(identifier, propArray, rawValue);
             return true;
           }
           case 'attribute': {
-            cache.setAttr(identifier, prop as string, value as Value);
+            cache.setAttr(identifier, propArray, value as Value);
             return true;
           }
           case 'array': {
             if (!field.type) {
-              cache.setAttr(identifier, prop as string, (value as ArrayValue)?.slice());
+              cache.setAttr(identifier, propArray, (value as ArrayValue)?.slice());
               const peeked = peekManagedArray(self, field);
               if (peeked) {
                 const arrSignal = peeked[ARRAY_SIGNAL];
@@ -442,11 +577,27 @@ export class SchemaRecord {
             const rawValue = (value as ArrayValue).map((item) =>
               transform.serialize(item, field.options ?? null, target)
             );
-            cache.setAttr(identifier, prop as string, rawValue);
+            cache.setAttr(identifier, propArray, rawValue);
             const peeked = peekManagedArray(self, field);
             if (peeked) {
               const arrSignal = peeked[ARRAY_SIGNAL];
               arrSignal.shouldReset = true;
+            }
+            return true;
+          }
+          case 'schema-array': {
+            const arrayValue = (value as ArrayValue)?.slice();
+            if (!Array.isArray(arrayValue)) {
+              ManagedArrayMap.delete(target);
+            }
+            cache.setAttr(identifier, propArray, arrayValue);
+            const peeked = peekManagedArray(self, field);
+            if (peeked) {
+              const arrSignal = peeked[ARRAY_SIGNAL];
+              arrSignal.shouldReset = true;
+            }
+            if (!Array.isArray(value)) {
+              ManagedArrayMap.delete(target);
             }
             return true;
           }
@@ -459,7 +610,7 @@ export class SchemaRecord {
                 ManagedObjectMap.delete(target);
               }
 
-              cache.setAttr(identifier, prop as string, newValue as Value);
+              cache.setAttr(identifier, propArray, newValue as Value);
 
               const peeked = peekManagedObject(self, field);
               if (peeked) {
@@ -471,7 +622,7 @@ export class SchemaRecord {
             const transform = schema.transformation(field);
             const rawValue = transform.serialize({ ...(value as ObjectValue) }, field.options ?? null, target);
 
-            cache.setAttr(identifier, prop as string, rawValue);
+            cache.setAttr(identifier, propArray, rawValue);
             const peeked = peekManagedObject(self, field);
             if (peeked) {
               const objSignal = peeked[OBJECT_SIGNAL];

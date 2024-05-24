@@ -4,13 +4,13 @@ import { addToTransaction, createSignal, subscribe } from '@ember-data/tracking/
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
-import type { ArrayValue, Value } from '@warp-drive/core-types/json/raw';
+import type { ArrayValue, ObjectValue, Value } from '@warp-drive/core-types/json/raw';
 import type { OpaqueRecordInstance } from '@warp-drive/core-types/record';
-import type { ArrayField } from '@warp-drive/core-types/schema/fields';
+import type { ArrayField, HashField, SchemaArrayField } from '@warp-drive/core-types/schema/fields';
 
-import type { SchemaRecord } from './record';
+import { SchemaRecord } from './record';
 import type { SchemaService } from './schema';
-import { ARRAY_SIGNAL, MUTATE, SOURCE } from './symbols';
+import { ARRAY_SIGNAL, Editable, Identifier, Legacy, MUTATE, SOURCE } from './symbols';
 
 export function notifyArray(arr: ManagedArray) {
   addToTransaction(arr[ARRAY_SIGNAL]);
@@ -106,7 +106,7 @@ export interface ManagedArray extends Omit<Array<unknown>, '[]'> {
 export class ManagedArray {
   [SOURCE]: unknown[];
   declare address: StableRecordIdentifier;
-  declare key: string;
+  declare path: string[];
   declare owner: SchemaRecord;
   declare [ARRAY_SIGNAL]: Signal;
 
@@ -114,11 +114,12 @@ export class ManagedArray {
     store: Store,
     schema: SchemaService,
     cache: Cache,
-    field: ArrayField,
+    field: ArrayField | SchemaArrayField,
     data: unknown[],
     address: StableRecordIdentifier,
-    key: string,
-    owner: SchemaRecord
+    path: string[],
+    owner: SchemaRecord,
+    isSchemaArray: boolean
   ) {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
@@ -127,10 +128,22 @@ export class ManagedArray {
     const _SIGNAL = this[ARRAY_SIGNAL];
     const boundFns = new Map<KeyType, ProxiedMethod>();
     this.address = address;
-    this.key = key;
+    this.path = path;
     this.owner = owner;
     let transaction = false;
-
+    type StorageKlass = typeof WeakMap<object, WeakRef<SchemaRecord>>;
+    const mode = (field as SchemaArrayField).options?.key ?? '@identity';
+    const RefStorage: StorageKlass =
+      mode === '@identity'
+        ? (WeakMap as unknown as StorageKlass)
+        : // CAUTION CAUTION CAUTION
+          // this is a pile of lies
+          // the Map is Map<string, WeakRef<SchemaRecord>>
+          // but TS does not understand how to juggle modes like this
+          // internal to a method like ours without us duplicating the code
+          // into two separate methods.
+          Map<object, WeakRef<SchemaRecord>>;
+    const ManagedRecordRefs = isSchemaArray ? new RefStorage() : null;
     const proxy = new Proxy(this[SOURCE], {
       get<R extends typeof Proxy<unknown[]>>(target: unknown[], prop: keyof R, receiver: R) {
         if (prop === ARRAY_SIGNAL) {
@@ -138,9 +151,6 @@ export class ManagedArray {
         }
         if (prop === 'address') {
           return self.address;
-        }
-        if (prop === 'key') {
-          return self.key;
         }
         if (prop === 'owner') {
           return self.owner;
@@ -150,7 +160,7 @@ export class ManagedArray {
         if (_SIGNAL.shouldReset && (index !== null || SYNC_PROPS.has(prop) || isArrayGetter(prop))) {
           _SIGNAL.t = false;
           _SIGNAL.shouldReset = false;
-          const newData = cache.getAttr(self.address, self.key);
+          const newData = cache.getAttr(address, path);
           if (newData && newData !== self[SOURCE]) {
             self[SOURCE].length = 0;
             self[SOURCE].push(...(newData as ArrayValue));
@@ -158,7 +168,78 @@ export class ManagedArray {
         }
 
         if (index !== null) {
-          const val = target[index];
+          let val;
+          if (mode === '@hash') {
+            val = target[index];
+            const hashField = schema.resource({ type: field.type! }).identity as HashField;
+            const hashFn = schema.hashFn(hashField);
+            val = hashFn(val as object, null, null);
+          } else {
+            // if mode is not @identity or @index, then access the key path.
+            // we should assert that `mode` is a string
+            // it should read directly from the cache value for that field (e.g. no derivation, no transformation)
+            // and, we likely should lookup the associated field and throw an error IF
+            // the given field does not exist OR
+            // the field is anything other than a GenericField or LegacyAttributeField.
+            if (mode !== '@identity' && mode !== '@index') {
+              assert('mode must be a string', typeof mode === 'string');
+              const modeField = schema.resource({ type: field.type! }).fields.find((f) => f.name === mode);
+              assert('field must exist in schema', modeField);
+              assert(
+                'field must be a GenericField or LegacyAttributeField',
+                modeField.kind === 'field' || modeField.kind === 'attribute'
+              );
+            }
+            val =
+              mode === '@identity'
+                ? target[index]
+                : mode === '@index'
+                  ? '@index'
+                  : (target[index] as ObjectValue)[mode];
+          }
+
+          if (isSchemaArray) {
+            if (!transaction) {
+              subscribe(_SIGNAL);
+            }
+
+            if (val) {
+              const recordRef = ManagedRecordRefs!.get(val);
+              let record = recordRef?.deref();
+
+              if (!record) {
+                const recordPath = path.slice();
+                // this is a dirty lie since path is string[] but really we
+                // should change the types for paths to `Array<string | number>`
+                // TODO we should allow the schema for the field to define a "key"
+                // for stability. Default should be `@identity` which means that
+                // same object reference from cache should result in same SchemaRecord
+                // embedded object.
+                recordPath.push(index as unknown as string);
+                record = new SchemaRecord(
+                  store,
+                  self.owner[Identifier],
+                  { [Editable]: self.owner[Editable], [Legacy]: self.owner[Legacy] },
+                  true,
+                  field.type,
+                  recordPath
+                );
+                // if mode is not @identity or @index, then access the key path now
+                // to determine the key value.
+                // chris says we can implement this as a special kind `@hash` which
+                // would be a function that only has access to the cache value and not
+                // the record itself, so derivation is possible but intentionally limited
+                // and non-reactive?
+                ManagedRecordRefs!.set(val, new WeakRef(record));
+              } else {
+                // TODO update embeddedPath if required
+              }
+              return record;
+            }
+
+            return val;
+          }
+
           if (!transaction) {
             subscribe(_SIGNAL);
           }
@@ -205,11 +286,6 @@ export class ManagedArray {
           self.address = value;
           return true;
         }
-        if (prop === 'key') {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          self.key = value;
-          return true;
-        }
         if (prop === 'owner') {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           self.owner = value;
@@ -219,16 +295,22 @@ export class ManagedArray {
 
         if (reflect) {
           if (!field.type) {
-            cache.setAttr(self.address, self.key, self[SOURCE] as Value);
+            cache.setAttr(address, path, self[SOURCE] as Value);
             _SIGNAL.shouldReset = true;
             return true;
           }
 
-          const transform = schema.transformation(field);
-          const rawValue = (self[SOURCE] as ArrayValue).map((item) =>
-            transform.serialize(item, field.options ?? null, self.owner)
-          );
-          cache.setAttr(self.address, self.key, rawValue as Value);
+          let rawValue = self[SOURCE] as ArrayValue;
+          if (!isSchemaArray) {
+            const transform = schema.transformation(field);
+            if (!transform) {
+              throw new Error(`No '${field.type}' transform defined for use by ${address.type}.${String(prop)}`);
+            }
+            rawValue = (self[SOURCE] as ArrayValue).map((item) =>
+              transform.serialize(item, field.options ?? null, self.owner)
+            );
+          }
+          cache.setAttr(address, path, rawValue as Value);
           _SIGNAL.shouldReset = true;
         }
         return reflect;
