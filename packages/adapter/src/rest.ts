@@ -203,7 +203,7 @@ declare const jQuery: JQueryStatic | undefined;
   ```
 
   If the records in the relationship are not known when the response
-  is serialized it's also possible to represent the relationship as a
+  is serialized it is also possible to represent the relationship as a
   URL using the `links` key in the response. Ember Data will fetch
   this URL to resolve the relationship when it is accessed for the
   first time.
@@ -1468,12 +1468,12 @@ export function fetchOptions(
     } else {
       // NOTE: a request's body cannot be an object, so we stringify it if it is.
       // JSON.stringify removes keys with values of `undefined` (mimics jQuery.ajax).
-      // If the data is not a POJO (it's a String, FormData, etc), we just set it.
-      // If the data is a string, we assume it's a stringified object.
+      // If the data is not a POJO (it is a String, FormData, etc), we just set it.
+      // If the data is a string, we assume it is a stringified object.
 
       /* We check for Objects this way because we want the logic inside the consequent to run
        * if `options.data` is a POJO, not if it is a data structure whose `typeof` returns "object"
-       * when it's not (Array, FormData, etc). The reason we don't use `options.data.constructor`
+       * when it is not (Array, FormData, etc). The reason we don't use `options.data.constructor`
        * to check is in case `data` is an object with no prototype (e.g. created with null).
        */
       if (Object.prototype.toString.call(options.data) === '[object Object]') {

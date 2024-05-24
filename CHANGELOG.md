@@ -3515,7 +3515,7 @@ methods.
 - add documentation for the Store's find method
 - Do not double include the host when it uses a protocol relative url.
 - Deprecate RecordArray.pushRecord()
-- Wrap the errorThrown in an Error object if it's a string.
+- Wrap the errorThrown in an Error object if it is a string.
 - Use forEach instead of private api for accessing Map values
 - Disable unknown keys warning by default
 - remove type check for addCanonicalRecord in belongsto relationship
@@ -3617,7 +3617,7 @@ export default DS.RESTSerializer.extend({
 
 ##### `store.metaForType()` has been deprecated
 
-`store.metaForType()` has been deprecated because of it's ambiguous naming.
+`store.metaForType()` has been deprecated because of it is ambiguous naming.
 Please use `store.metadataFor()` to get metadata and `store.setMetadataFor()`
 to set metadata.
 
@@ -3935,7 +3935,7 @@ correctly will need a shim for Object.create.
 - Update ember version to 1.4.0
 - lock server while compiling assets
 - [DOC] Fix extractArray
-- Don't pass the resolver where it's not needed
+- Don't pass the resolver where it is not needed
 - force jshint on failure
 - explicitly set a handlebars dependency to a version known to work.
 - Remove Dead Code from RESTAdapter's Test

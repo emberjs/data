@@ -529,7 +529,7 @@ export default class CustomDotReporter {
 }
 
 // Instead of completely removing, we replace the contents with an empty string so that CI will still cache it.
-// While this shouldn't ever really be necessary it's a bit more correct to make sure that the log gets cleared
+// While this shouldn't ever really be necessary it is a bit more correct to make sure that the log gets cleared
 // in the cache as well.
 function remove(filePath) {
   fs.writeFileSync(filePath, '', { encoding: 'utf-8' });

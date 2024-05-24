@@ -44,13 +44,13 @@ Wrangle your application's data management with scalable patterns for developer 
 The core of *Ember*‍**Data** is the `Store`, which coordinates interaction between your application, the `Cache`, and sources of data (such as your `API` or a local persistence layer).
 Optionally, the Store can be configured to hydrate the response data into rich presentation classes.
 
-*Ember*‍**Data** is both resource centric and document centric in it's approach to caching, requesting and presenting data. Your application's configuration and usage drives which is important and when.
+*Ember*‍**Data** is both resource centric and document centric in its approach to caching, requesting and presenting data. Your application's configuration and usage drives which is important and when.
 
 The `Store` is a **coordinator**. When using a `Store` you configure what cache to use, how cache data should be presented to the UI, and where it should look for requested data when it is not available in the cache.
 
 This coordination is handled opaquely to the nature of the requests issued and the format of the data being handled. This approach gives applications broad flexibility to configure *Ember*‍**Data** to best suite their needs. This makes *Ember*‍**Data** a powerful solution for applications regardless of their size and complexity.
 
-*Ember*‍**Data** is designed to scale, with a religious focus on performance and asset-size to keep its footprint small but speedy while still being able to handle large complex APIs in huge data-driven applications with no additional code and no added application complexity. It's goal is to prevent applications from writing code to manage data that is difficult to maintain or reason about.
+*Ember*‍**Data** is designed to scale, with a religious focus on performance and asset-size to keep its footprint small but speedy while still being able to handle large complex APIs in huge data-driven applications with no additional code and no added application complexity. Its goal is to prevent applications from writing code to manage data that is difficult to maintain or reason about.
 
 *Ember*‍**Data**'s power comes not from specific features, data formats, or adherence to specific API specs such as `JSON:API` `trpc` or `GraphQL`, but from solid conventions around requesting and mutating data developed over decades of experience scaling developer productivity.
 
