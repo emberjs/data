@@ -894,7 +894,7 @@ the user clicks through.
 This additionally gives us the ability to provide a stable ui-frame and navigation experience that
 wraps the loading and error states.
 
-```gts
+```gjs
 import { Paginate, EachLink } from '@warp-drive/ember';
 
 <template>
