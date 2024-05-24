@@ -596,7 +596,7 @@ generates pagination links for you. This is useful to do *even if you do not use
 quite a few WarpDrive/EmberData features work best with links.
 
 The `<Paginate />` Component's API mimics `<Request />`, but expands the possibilities to afford an extremely
-flexibly toolbox for managing the state of any paginated flow you might want to build. All of the same top-level
+flexible toolbox for managing the state of any paginated flow you might want to build. All of the same top-level
 states (`idle` `loading` `content` `pending` `error` `cancelled`) are available for use, with `idle`, `loading`,
 `error` and `cancelled` specifically applying to the state of the initiating request passed into the component.
 
@@ -803,9 +803,8 @@ the `prevRequest` and `nextRequest` directly.
 **Render the active page**
 
 > [!TIP]
-> When rendering individual pages, `activePage` enhances the `<:loading>` and `<:error>` states.
-> Instead of applying to the initial request, they now apply to the current active page, which
-> initially *is* the page returned by the initial request.
+> Remember, the `<:loading>` and `<:error>` states only applying to the initial request,
+> Not to the current active page.
 
 ```gjs
 import { Paginate } from '@warp-drive/ember';
@@ -826,22 +825,101 @@ import { Paginate } from '@warp-drive/ember';
 <template>
 ```
 
-**Page Links**
+**Render Pagination Links**
 
-```gjs
-import { Paginate } from '@warp-drive/ember';
+`pages.links` exposes a `PaginationLinks` container with helpful utilities for creating
+navigation links. A companion component makes rendering links quick to setup.
+
+The `<EachLink/>` component renders each available link or placeholder. Placeholders
+occur when it is known that a link *could* exist but we have not yet received the link.
+The `text` property on the link will be a single `'.'` in these cases.
+
+```diff
+- import { Paginate } from '@warp-drive/ember';
++ import { Paginate, EachLink } from '@warp-drive/ember';
+
+ <template>
+   <Paginate @request={{@request}}>
+     <:loading><Spinner /></:loading>
+
+     <:content as |pages state|>
+       <MyPageDisplay @page={{pages.activePage}} />
++
++      <EachLink @pages={{pages}}>
++        <:placeholder as |link|>{{link.text}}</:placeholder>
++        <:link as |link|>
++          <button {{on "click" link.setActive}}>{{link.index}}</button>
++        </:link>
++    </EachLink>
+     <:content>
+
+     <:error as |error state|>
+       <ErrorForm @error={{error}} />
+       <button {{on "click" state.retry}}>Retry</button>
+     </:error>
+   </Paginate>
+ <template>
+```
+
+**Total Pages Hints**
+
+The PaginationLinks container utilizes two hints for helping to manage its links collection: `currentPage` and `totalPages`.
+These hints can be provided by providing a PageHints function to the component. Whenever a request loads, the hint function will
+be run.
+
+```ts
+interface PageHints {
+  (result: ResourceCollectionDocument): { currentPage: number; totalPages: number; }
+}
+```
+
+```hbs
+<Paginate @request={{@request}} @pageHints={{@pageHintsFn}}>
+```
+
+> [!Tip]
+> The `<Paginate />` component is agnostic to page size. If you would like to hint
+> to something like `VerticalCollection` how many total items might conceivably be loaded,
+> just pull that information from the response meta! example: `page.meta.estimatedTotal.bestGuess`
+
+**Substates for loading individual pages**
+
+Often in a tabbed structure we will want individual loading states for the request for each page.
+This is where the using the `default` block comes in handy. Here is the same example as above but
+with a loading state for each individual page.
+
+In this case, the `activePageRequest` will start as the request for the first page, and update as
+the user clicks through.
+
+This additionally gives us the ability to provide a stable ui-frame and navigation experience that
+wraps the loading and error states.
+
+```gts
+import { Paginate, EachLink } from '@warp-drive/ember';
 
 <template>
-  <Paginate @request={{@request}} as |pages|>
-    <VerticalCollection
-        @items={{pages.data}}
-        @lastReached={{pages.next}}
-        @firstReached={{pages.prev}}
-      as |item|>
+  <Paginate @request={{@request}} as |pages state|>
+    <Request @request={{pages.activePageRequest}}>
+      <:loading><Spinner /></:loading>
 
-    </VerticalCollection>
+      <:content as |page|>
+        <MyPageDisplay @page={{page}} />
+      </:content>
+
+      <:error as |error state|>
+        <ErrorForm @error={{error}} />
+        <button {{on "click" state.retry}}>Retry</button>
+      </:error>
+    </Request>
+
+    <EachLink @pages={{pages}}>
+      <:placeholder as |link|>{{link.text}}</:placeholder>
+      <:link as |link|>
+        <button {{on "click" link.setActive}}>{{link.index}}</button>
+      </:link>
+    </EachLink>
   </Paginate>
-</template>
+ <template>
 ```
 
 ---
