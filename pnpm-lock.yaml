@@ -12,7 +12,6 @@ overrides:
   '@glimmer/validator': ^0.92.0
   '@glint/template': ^1.4.0
   '@ember/test-helpers': 3.3.0
-  ember-source: ~5.8.0
   ember-cli-babel: ^8.2.0
   ember-cli-htmlbars: ^6.3.0
   ember-cli-typescript: ^5.3.0
