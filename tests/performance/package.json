@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@ember/string": "3.1.1",
-    "ember-auto-import": "^2.7.2",
+    "ember-auto-import": "^2.7.3",
     "ember-data": "workspace:5.4.0-alpha.72",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "webpack": "^5.91.0"

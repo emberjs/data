@@ -31,8 +31,7 @@
   },
   "dependencies": {
     "@embroider/macros": "^1.16.1",
-    "@warp-drive/build-config": "workspace:0.0.0-alpha.9",
-    "ember-cli-babel": "^8.2.0"
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.9"
   },
   "peerDependencies": {
     "ember-source": ">= 3.28.12",
@@ -66,7 +65,7 @@
   "ember-addon": {
     "main": "addon-main.cjs",
     "type": "addon",
-    "version": 1,
+    "version": 2,
     "externals": [
       "@ember/-internals",
       "@ember/-internals/metal",
