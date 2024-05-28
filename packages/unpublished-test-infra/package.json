@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/unpublished-test-infra",
-  "version": "5.4.0-alpha.72",
+  "version": "5.4.0-alpha.73",
   "private": true,
   "description": "The default blueprint for ember-data private packages.",
   "keywords": [
@@ -74,11 +74,11 @@
   },
   "peerDependencies": {
     "qunit": "^2.20.1",
-    "@ember-data/request": "workspace:5.4.0-alpha.72",
-    "@ember-data/store": "workspace:5.4.0-alpha.72",
-    "@ember-data/tracking": "workspace:5.4.0-alpha.72",
-    "@warp-drive/diagnostic": "workspace:0.0.0-alpha.58",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.58",
+    "@ember-data/request": "workspace:5.4.0-alpha.73",
+    "@ember-data/store": "workspace:5.4.0-alpha.73",
+    "@ember-data/tracking": "workspace:5.4.0-alpha.73",
+    "@warp-drive/diagnostic": "workspace:0.0.0-alpha.59",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.59",
     "@ember/test-helpers": "^3.3.0"
   },
   "dependencies": {
@@ -87,7 +87,7 @@
     "qunit": "^2.20.1",
     "semver": "^7.6.2",
     "testem": "^3.12.0",
-    "@warp-drive/build-config": "workspace:0.0.0-alpha.9"
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.10"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
@@ -99,12 +99,12 @@
     "@ember/string": "^3.1.1",
     "@types/semver": "^7.5.8",
     "@types/qunit": "^2.19.10",
-    "@ember-data/request": "workspace:5.4.0-alpha.72",
-    "@ember-data/store": "workspace:5.4.0-alpha.72",
-    "@ember-data/tracking": "workspace:5.4.0-alpha.72",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.58",
-    "@warp-drive/diagnostic": "workspace:0.0.0-alpha.58",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.72",
+    "@ember-data/request": "workspace:5.4.0-alpha.73",
+    "@ember-data/store": "workspace:5.4.0-alpha.73",
+    "@ember-data/tracking": "workspace:5.4.0-alpha.73",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.59",
+    "@warp-drive/diagnostic": "workspace:0.0.0-alpha.59",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.73",
     "ember-source": "~5.8.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "typescript": "^5.4.5",
