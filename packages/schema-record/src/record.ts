@@ -463,6 +463,10 @@ export class SchemaRecord {
           if (prop === 'constructor') {
             return SchemaRecord;
           }
+          // too many things check for random symbols
+          if (typeof prop === 'symbol') {
+            return undefined;
+          }
           throw new Error(`No field named ${String(prop)} on ${identifier.type}`);
         }
 

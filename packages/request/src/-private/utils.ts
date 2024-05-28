@@ -1,11 +1,12 @@
 import { DEBUG } from '@warp-drive/build-config/env';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
-import {
-  type RequestInfo,
-  STRUCTURED,
-  type StructuredDataDocument,
-  type StructuredErrorDocument,
+import type {
+  RequestInfo,
+  StructuredDataDocument,
+  StructuredDocument,
+  StructuredErrorDocument,
 } from '@warp-drive/core-types/request';
+import { STRUCTURED } from '@warp-drive/core-types/request';
 
 import { Context, ContextOwner } from './context';
 import { assertValidRequest } from './debug';
@@ -57,6 +58,28 @@ export function curryFuture<T>(owner: ContextOwner, inbound: Future<T>, outbound
 
 function isDoc<T>(doc: T | StructuredDataDocument<T>): doc is StructuredDataDocument<T> {
   return doc && (doc as StructuredDataDocument<T>)[STRUCTURED] === true;
+}
+
+function ensureDoc<T>(owner: ContextOwner, content: T | Error, isError: boolean): StructuredDocument<T> {
+  if (isDoc(content)) {
+    return content as StructuredDocument<T>;
+  }
+
+  if (isError) {
+    return {
+      [STRUCTURED]: true,
+      request: owner.request,
+      response: owner.getResponse(),
+      error: content as Error,
+    } as StructuredErrorDocument<T>;
+  }
+
+  return {
+    [STRUCTURED]: true,
+    request: owner.request,
+    response: owner.getResponse(),
+    content: content as T,
+  };
 }
 
 export type HttpErrorProps = {
@@ -151,7 +174,7 @@ export function executeNextHandler<T>(
     outcome = wares[i].request<T>(context, next);
     if (!!outcome && isCacheHandler(wares[i], i)) {
       if (!(outcome instanceof Promise)) {
-        setRequestResult(owner.requestId, { isError: false, result: outcome });
+        setRequestResult(owner.requestId, { isError: false, result: ensureDoc(owner, outcome, false) });
         outcome = Promise.resolve(outcome);
       }
     } else if (DEBUG) {
@@ -166,7 +189,7 @@ export function executeNextHandler<T>(
     }
   } catch (e) {
     if (isCacheHandler(wares[i], i)) {
-      setRequestResult(owner.requestId, { isError: true, result: e });
+      setRequestResult(owner.requestId, { isError: true, result: ensureDoc(owner, e, true) });
     }
     outcome = Promise.reject<StructuredDataDocument<T>>(e);
   }

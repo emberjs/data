@@ -507,9 +507,12 @@ export const CacheHandler: CacheHandlerType = {
       store.requestManager._pending.set(context.id, promise);
     }
 
-    const shouldHydrate: boolean = context.request[EnableHydration] || false;
+    assert(`Expected a peeked request to be present`, peeked);
 
-    if ('error' in peeked!) {
+    const shouldHydrate: boolean = context.request[EnableHydration] || false;
+    context.setResponse(peeked.response);
+
+    if ('error' in peeked) {
       const content = shouldHydrate
         ? maybeUpdateUiObjects<T>(
             store,
@@ -529,10 +532,10 @@ export const CacheHandler: CacheHandlerType = {
           store,
           context.request,
           { shouldHydrate, identifier },
-          peeked!.content as ResourceDataDocument,
+          peeked.content as ResourceDataDocument,
           true
         )
-      : (peeked!.content as T);
+      : (peeked.content as T);
 
     return result;
   },

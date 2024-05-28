@@ -3,6 +3,7 @@ import { rerender, settled } from '@ember/test-helpers';
 import type { CacheHandler, Future, NextFn, RequestContext, StructuredDataDocument } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
+import { buildBaseURL } from '@ember-data/request-utils';
 import type { RenderingTestContext } from '@warp-drive/diagnostic/ember';
 import { module, setupRenderingTest, test as _test } from '@warp-drive/diagnostic/ember';
 import { getRequestState } from '@warp-drive/ember';
@@ -77,7 +78,7 @@ async function mockGETSuccess(context: LocalTestContext): Promise<string> {
     }),
     { RECORD: RECORD }
   );
-  return 'https://localhost:1135/users/1';
+  return buildBaseURL({ resourcePath: 'users/1' });
 }
 async function mockGETFailure(context: LocalTestContext): Promise<string> {
   await mock(
@@ -102,7 +103,7 @@ async function mockGETFailure(context: LocalTestContext): Promise<string> {
     RECORD
   );
 
-  return 'https://localhost:1135/users/2';
+  return buildBaseURL({ resourcePath: 'users/2' });
 }
 
 module<LocalTestContext>('Integration | get-request-state', function (hooks) {
@@ -169,9 +170,11 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
         status: 404,
         name: 'NotFoundError',
         isRequestError: true,
-        error: '[404 Not Found] GET (cors) - https://localhost:1135/users/2?__xTestId=b830e11d&__xTestRequestNumber=0',
+        error: `[404 Not Found] GET (cors) - ${buildBaseURL({
+          resourcePath: 'users/2',
+        })}?__xTestId=b830e11d&__xTestRequestNumber=0`,
         statusText: 'Not Found',
-        message: '[404 Not Found] GET (cors) - https://localhost:1135/users/2',
+        message: `[404 Not Found] GET (cors) - ${buildBaseURL({ resourcePath: 'users/2' })}`,
         errors: [{ status: '404', title: 'Not Found', detail: 'The resource does not exist.' }],
         content: {
           errors: [{ status: '404', title: 'Not Found', detail: 'The resource does not exist.' }],
@@ -414,13 +417,13 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
     assert.true(state1!.error instanceof Error, 'error is an instance of Error');
     assert.equal(
       (state1!.error as Error | undefined)?.message,
-      '[404 Not Found] GET (cors) - https://localhost:1135/users/2',
+      `[404 Not Found] GET (cors) - ${buildBaseURL({ resourcePath: 'users/2' })}`,
       'error message is correct'
     );
     assert.equal(counter, 2, 'counter is 2');
     assert.equal(
       this.element.textContent?.trim(),
-      '[404 Not Found] GET (cors) - https://localhost:1135/users/2\n          Count:\n          2'
+      `[404 Not Found] GET (cors) - ${buildBaseURL({ resourcePath: 'users/2' })}\n          Count:\n          2`
     );
   });
 
@@ -463,26 +466,26 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
     assert.true(state1!.error instanceof Error, 'error is an instance of Error');
     assert.equal(
       (state1!.error as Error | undefined)?.message,
-      '[404 Not Found] GET (cors) - https://localhost:1135/users/2',
+      `[404 Not Found] GET (cors) - ${buildBaseURL({ resourcePath: 'users/2' })}`,
       'error message is correct'
     );
     assert.equal(counter, 1, 'counter is 1');
     assert.equal(
       this.element.textContent?.trim(),
-      '[404 Not Found] GET (cors) - https://localhost:1135/users/2\n          Count:\n          1'
+      `[404 Not Found] GET (cors) - ${buildBaseURL({ resourcePath: 'users/2' })}\n          Count:\n          1`
     );
     await rerender();
     assert.equal(state1!.result, null, 'after rerender result is still null');
     assert.true(state1!.error instanceof Error, 'error is an instance of Error');
     assert.equal(
       (state1!.error as Error | undefined)?.message,
-      '[404 Not Found] GET (cors) - https://localhost:1135/users/2',
+      `[404 Not Found] GET (cors) - ${buildBaseURL({ resourcePath: 'users/2' })}`,
       'error message is correct'
     );
     assert.equal(counter, 1, 'counter is 1');
     assert.equal(
       this.element.textContent?.trim(),
-      '[404 Not Found] GET (cors) - https://localhost:1135/users/2\n          Count:\n          1'
+      `[404 Not Found] GET (cors) - ${buildBaseURL({ resourcePath: 'users/2' })}\n          Count:\n          1`
     );
   });
 });
