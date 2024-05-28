@@ -2,16 +2,21 @@
 import { fn } from '@ember/helper';
 import { on } from '@ember/modifier';
 import { click, rerender, settled } from '@ember/test-helpers';
+import { tracked } from '@glimmer/tracking';
 
 import type { CacheHandler, Future, NextFn, RequestContext, StructuredDataDocument } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
+import { buildBaseURL } from '@ember-data/request-utils';
 import type Store from '@ember-data/store';
+import { CacheHandler as StoreHandler } from '@ember-data/store';
+import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
 import type { RenderingTestContext } from '@warp-drive/diagnostic/ember';
 import { module, setupRenderingTest, test as _test } from '@warp-drive/diagnostic/ember';
 import { getRequestState, Request } from '@warp-drive/ember';
 import { mock, MockServerHandler } from '@warp-drive/holodeck';
 import { GET } from '@warp-drive/holodeck/mock';
+import { registerDerivations, withDefaults } from '@warp-drive/schema-record/schema';
 
 // our tests use a rendering test context and add manager to it
 interface LocalTestContext extends RenderingTestContext {
@@ -95,6 +100,7 @@ class SimpleCacheHandler implements CacheHandler {
 }
 
 async function mockGETSuccess(context: LocalTestContext, attributes?: { name: string }): Promise<string> {
+  const url = buildBaseURL({ resourcePath: 'users/1' });
   await GET(
     context,
     'users/1',
@@ -112,9 +118,10 @@ async function mockGETSuccess(context: LocalTestContext, attributes?: { name: st
     }),
     { RECORD: RECORD }
   );
-  return 'https://localhost:1135/users/1';
+  return url;
 }
 async function mockGETFailure(context: LocalTestContext): Promise<string> {
+  const url = buildBaseURL({ resourcePath: 'users/2' });
   await mock(
     context,
     () => ({
@@ -137,9 +144,10 @@ async function mockGETFailure(context: LocalTestContext): Promise<string> {
     RECORD
   );
 
-  return 'https://localhost:1135/users/2';
+  return url;
 }
 async function mockRetrySuccess(context: LocalTestContext): Promise<string> {
+  const url = buildBaseURL({ resourcePath: 'users/2' });
   await GET(
     context,
     'users/2',
@@ -154,7 +162,7 @@ async function mockRetrySuccess(context: LocalTestContext): Promise<string> {
     }),
     { RECORD: RECORD }
   );
-  return 'https://localhost:1135/users/2';
+  return url;
 }
 
 module<LocalTestContext>('Integration | <Request />', function (hooks) {
@@ -291,14 +299,11 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     assert.true(state.error instanceof Error, 'error is an instance of Error');
     assert.equal(
       (state.error as Error | undefined)?.message,
-      '[404 Not Found] GET (cors) - https://localhost:1135/users/2',
+      `[404 Not Found] GET (cors) - ${url}`,
       'error message is correct'
     );
     assert.equal(counter, 2, 'counter is 2');
-    assert.equal(
-      this.element.textContent?.trim(),
-      '[404 Not Found] GET (cors) - https://localhost:1135/users/2Count: 2'
-    );
+    assert.equal(this.element.textContent?.trim(), `[404 Not Found] GET (cors) - ${url}Count: 2`);
   });
 
   test('we can retry from error state', async function (assert) {
@@ -347,20 +352,149 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     assert.true(state2.error instanceof Error, 'error is an instance of Error');
     assert.equal(
       (state2.error as Error | undefined)?.message,
-      '[404 Not Found] GET (cors) - https://localhost:1135/users/2',
+      `[404 Not Found] GET (cors) - ${url}`,
       'error message is correct'
     );
     assert.equal(counter, 2, 'counter is 2');
-    assert.equal(
-      this.element.textContent?.trim(),
-      '[404 Not Found] GET (cors) - https://localhost:1135/users/2Count:2Retry'
-    );
+    assert.equal(this.element.textContent?.trim(), `[404 Not Found] GET (cors) - ${url}Count:2Retry`);
 
     await click('[test-id="retry-button"]');
 
     assert.verifySteps(['retry']);
     assert.equal(counter, 4, 'counter is 4');
     assert.equal(this.element.textContent?.trim(), 'Chris ThoburnCount: 4');
+  });
+
+  test('externally retriggered request works as expected', async function (assert) {
+    const url = await mockRetrySuccess(this);
+    const request = this.manager.request<UserResource>({ url, method: 'GET' });
+    const state2 = getRequestState(request);
+
+    class RequestSource {
+      @tracked request: Future<UserResource> = request;
+    }
+    const source = new RequestSource();
+
+    let counter = 0;
+    function countFor(_result: unknown) {
+      return ++counter;
+    }
+    function retry(state1: { retry: () => void }) {
+      assert.step('retry');
+      return state1.retry();
+    }
+
+    await this.render(
+      <template>
+        <Request @request={{source.request}}>
+          <:loading as |state|>Pending<br />Count: {{countFor state}}</:loading>
+          <:error as |error state|>{{error.message}}<br />Count:
+            {{~countFor error~}}
+            <button {{on "click" (fn retry state)}} test-id="retry-button">Retry</button>
+          </:error>
+          <:content as |result|>{{result.data.attributes.name}}<br />Count: {{countFor result}}</:content>
+        </Request>
+      </template>
+    );
+
+    assert.equal(state2, getRequestState(request), 'state is a stable reference');
+    assert.equal(counter, 1, 'counter is 1');
+    assert.equal(this.element.textContent?.trim(), 'PendingCount: 1');
+
+    await request;
+    await rerender();
+
+    assert.equal(counter, 2, 'counter is 2');
+    assert.equal(this.element.textContent?.trim(), 'Chris ThoburnCount: 2');
+
+    const request2 = this.manager.request<UserResource>({ url, method: 'GET' });
+    source.request = request2;
+
+    await rerender();
+
+    assert.equal(counter, 3, 'counter is 3');
+    assert.equal(this.element.textContent?.trim(), 'Chris ThoburnCount: 3');
+  });
+
+  test('externally retriggered request works as expected (store CacheHandler)', async function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const manager = new RequestManager();
+    manager.use([new MockServerHandler(this), Fetch]);
+    manager.useCache(StoreHandler);
+    store.requestManager = manager;
+    this.manager = manager;
+
+    registerDerivations(store.schema);
+    store.schema.registerResource(
+      withDefaults({
+        type: 'user',
+        identity: { name: 'id', kind: '@id' },
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+        ],
+      })
+    );
+    type User = {
+      id: string;
+      name: string;
+    };
+
+    const url = await mockRetrySuccess(this);
+    const request = store.request<SingleResourceDataDocument<User>>({ url, method: 'GET' });
+    const state2 = getRequestState(request);
+
+    class RequestSource {
+      @tracked request: Future<SingleResourceDataDocument<User>> = request;
+    }
+    const source = new RequestSource();
+
+    let counter = 0;
+    function countFor(_result: unknown) {
+      return ++counter;
+    }
+    function retry(state1: { retry: () => void }) {
+      assert.step('retry');
+      return state1.retry();
+    }
+
+    await this.render(
+      <template>
+        <Request @request={{source.request}}>
+          <:loading as |state|>Pending<br />Count: {{countFor state}}</:loading>
+          <:error as |error state|>{{error.message}}<br />Count:
+            {{~countFor error~}}
+            <button {{on "click" (fn retry state)}} test-id="retry-button">Retry</button>
+          </:error>
+          <:content as |result|>{{result.data.name}}<br />Count: {{countFor result}}</:content>
+        </Request>
+      </template>
+    );
+
+    assert.equal(state2, getRequestState(request), 'state is a stable reference');
+    assert.equal(counter, 1, 'counter is 1');
+    assert.equal(this.element.textContent?.trim(), 'PendingCount: 1');
+
+    await request;
+    await rerender();
+    assert.equal(counter, 2, 'counter is 2');
+    assert.equal(this.element.textContent?.trim(), 'Chris ThoburnCount: 2');
+
+    const request2 = store.request<SingleResourceDataDocument<User>>({ url, method: 'GET' });
+    source.request = request2;
+
+    await rerender();
+
+    assert.equal(counter, 3, 'counter is 3');
+    assert.equal(this.element.textContent?.trim(), 'Chris ThoburnCount: 3');
+
+    await request2;
+    await rerender();
+
+    assert.equal(counter, 3, 'counter is 3');
+    assert.equal(this.element.textContent?.trim(), 'Chris ThoburnCount: 3');
   });
 
   test('it rethrows if error block is not present', async function (assert) {
@@ -406,7 +540,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     assert.true(state.error instanceof Error, 'error is an instance of Error');
     assert.equal(
       (state.error as Error | undefined)?.message,
-      '[404 Not Found] GET (cors) - https://localhost:1135/users/2',
+      `[404 Not Found] GET (cors) - ${url}`,
       'error message is correct'
     );
     assert.equal(counter, 1, 'counter is still 1');
@@ -647,27 +781,21 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     assert.true(state.error instanceof Error, 'error is an instance of Error');
     assert.equal(
       (state.error as Error | undefined)?.message,
-      '[404 Not Found] GET (cors) - https://localhost:1135/users/2',
+      `[404 Not Found] GET (cors) - ${url}`,
       'error message is correct'
     );
     assert.equal(counter, 1, 'counter is 1');
-    assert.equal(
-      this.element.textContent?.trim(),
-      '[404 Not Found] GET (cors) - https://localhost:1135/users/2Count: 1'
-    );
+    assert.equal(this.element.textContent?.trim(), `[404 Not Found] GET (cors) - ${url}Count: 1`);
     await rerender();
     assert.equal(state.result, null, 'after rerender result is still null');
     assert.true(state.error instanceof Error, 'error is an instance of Error');
     assert.equal(
       (state.error as Error | undefined)?.message,
-      '[404 Not Found] GET (cors) - https://localhost:1135/users/2',
+      `[404 Not Found] GET (cors) - ${url}`,
       'error message is correct'
     );
     assert.equal(counter, 1, 'counter is 1');
-    assert.equal(
-      this.element.textContent?.trim(),
-      '[404 Not Found] GET (cors) - https://localhost:1135/users/2Count: 1'
-    );
+    assert.equal(this.element.textContent?.trim(), `[404 Not Found] GET (cors) - ${url}Count: 1`);
   });
 
   test('isOnline updates when expected', async function (assert) {
