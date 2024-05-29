@@ -15,7 +15,7 @@ export function notifyObject(obj: ManagedObject) {
 }
 
 type KeyType = string | symbol | number;
-const ignoredGlobalFields = new Set<String>(['constructor', 'setInterval', 'nodeType', 'length']);
+const ignoredGlobalFields = new Set<string>(['constructor', 'setInterval', 'nodeType', 'length']);
 
 export interface ManagedObject {
   [MUTATE]?(
@@ -102,8 +102,8 @@ export class ManagedObject {
         if (isSchemaObject) {
           const fields = schema.fields({ type: field.type! });
           // TODO: is there a better way to do this?
-          if (typeof prop === 'string' && !ignoredGlobalFields.has(prop as string) && !fields.has(prop as string)) {
-            throw new Error(`Field ${prop as string} does not exist on schema object ${field.type}`);
+          if (typeof prop === 'string' && !ignoredGlobalFields.has(prop) && !fields.has(prop)) {
+            throw new Error(`Field ${prop} does not exist on schema object ${field.type}`);
           }
         }
 

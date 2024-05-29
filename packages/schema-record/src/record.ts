@@ -645,8 +645,8 @@ export class SchemaRecord {
             let newValue = value;
             if (value !== null) {
               newValue = { ...(value as ObjectValue) };
-              const fields = schema.fields({ type: field.type });
-              for (const key of Object.keys(newValue!)) {
+              fields = schema.fields({ type: field.type });
+              for (const key of Object.keys(newValue as ObjectValue)) {
                 if (!fields.has(key)) {
                   throw new Error(`Field ${key} does not exist on schema object ${field.type}`);
                 }
