@@ -26,6 +26,7 @@ import type {
   LocalField,
   ObjectField,
   SchemaArrayField,
+  SchemaObjectField,
 } from '@warp-drive/core-types/schema/fields';
 import type { Link, Links } from '@warp-drive/core-types/spec/json-api-raw';
 import { RecordStore } from '@warp-drive/core-types/symbols';
@@ -152,8 +153,9 @@ function computeObject(
   cache: Cache,
   record: SchemaRecord,
   identifier: StableRecordIdentifier,
-  field: ObjectField,
-  prop: string
+  field: ObjectField | SchemaObjectField,
+  prop: string,
+  isSchemaObject = false
 ) {
   const managedObjectMapForRecord = ManagedObjectMap.get(record);
   let managedObject;
@@ -173,7 +175,7 @@ function computeObject(
         rawValue = transform.hydrate(rawValue as ObjectValue, field.options ?? null, record) as object;
       }
     }
-    managedObject = new ManagedObject(store, schema, cache, field, rawValue, identifier, prop, record);
+    managedObject = new ManagedObject(store, schema, cache, field, rawValue, identifier, prop, record, isSchemaObject);
     if (!managedObjectMapForRecord) {
       ManagedObjectMap.set(record, new Map([[field, managedObject]]));
     } else {
@@ -381,6 +383,14 @@ export class SchemaRecord {
                     addToTransaction(arrSignal);
                   }
                 }
+                if (field?.kind === 'object' || field?.kind === 'schema-object') {
+                  const peeked = peekManagedObject(self, field);
+                  if (peeked) {
+                    const objSignal = peeked[OBJECT_SIGNAL];
+                    objSignal.shouldReset = true;
+                    addToTransaction(objSignal);
+                  }
+                }
               }
             }
             break;
@@ -510,7 +520,8 @@ export class SchemaRecord {
           case 'schema-object':
             // validate any access off of schema, no transform to run
             // use raw cache value as the object to manage
-            throw new Error(`Not Implemented`);
+            entangleSignal(signals, receiver, field.name);
+            return computeObject(store, schema, cache, target, identifier, field, prop as string, true);
           case 'object':
             assert(
               `SchemaRecord.${field.name} is not available in legacy mode because it has type '${field.kind}'`,
@@ -623,6 +634,27 @@ export class SchemaRecord {
             const rawValue = transform.serialize({ ...(value as ObjectValue) }, field.options ?? null, target);
 
             cache.setAttr(identifier, propArray, rawValue);
+            const peeked = peekManagedObject(self, field);
+            if (peeked) {
+              const objSignal = peeked[OBJECT_SIGNAL];
+              objSignal.shouldReset = true;
+            }
+            return true;
+          }
+          case 'schema-object': {
+            let newValue = value;
+            if (value !== null) {
+              newValue = { ...(value as ObjectValue) };
+              const fields = schema.fields({ type: field.type });
+              for (const key of Object.keys(newValue!)) {
+                if (!fields.has(key)) {
+                  throw new Error(`Field ${key} does not exist on schema object ${field.type}`);
+                }
+              }
+            } else {
+              ManagedObjectMap.delete(target);
+            }
+            cache.setAttr(identifier, propArray, newValue as Value);
             const peeked = peekManagedObject(self, field);
             if (peeked) {
               const objSignal = peeked[OBJECT_SIGNAL];
