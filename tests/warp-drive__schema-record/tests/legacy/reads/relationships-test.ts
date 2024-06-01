@@ -1,37 +1,28 @@
-import EmberObject from '@ember/object';
-
 import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
+import { PromiseBelongsTo, PromiseManyArray } from '@ember-data/model/-private';
 import {
   registerDerivations as registerLegacyDerivations,
   withDefaults as withLegacy,
 } from '@ember-data/model/migration-support';
-import { recordIdentifierFor } from '@ember-data/store';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import { Type } from '@warp-drive/core-types/symbols';
-import type { SchemaRecord } from '@warp-drive/schema-record/record';
-import type { Transformation } from '@warp-drive/schema-record/schema';
+import type { Type } from '@warp-drive/core-types/symbols';
 
 import type Store from 'warp-drive__schema-record/services/store';
-import { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
-import { SingleResourceDocument } from '@warp-drive/core-types/spec/json-api-raw';
-import { PromiseBelongsTo, PromiseManyArray } from '@ember-data/model/-private';
-
-interface User {
-  id: string | null;
-  $type: 'user';
-  name: string;
-  bestFriend: User | null;
-  friends: User[];
-  [Type]: 'user';
-}
 
 module('Legacy | Reads | relationships', function (hooks) {
   setupTest(hooks);
 
   test('we can use sync belongsTo', function (assert) {
+    type User = {
+      id: string | null;
+      $type: 'user';
+      name: string;
+      bestFriend: User | null;
+      friends: User[];
+      [Type]: 'user';
+    };
     const store = this.owner.lookup('service:store') as Store;
     const { schema } = store;
     registerLegacyDerivations(schema);
@@ -92,6 +83,14 @@ module('Legacy | Reads | relationships', function (hooks) {
   });
 
   test('we can use sync hasMany', function (assert) {
+    type User = {
+      id: string | null;
+      $type: 'user';
+      name: string;
+      bestFriend: User | null;
+      friends: User[];
+      [Type]: 'user';
+    };
     const store = this.owner.lookup('service:store') as Store;
     const { schema } = store;
     registerLegacyDerivations(schema);
