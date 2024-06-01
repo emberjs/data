@@ -664,6 +664,35 @@ export class SchemaRecord {
           case 'derived': {
             throw new Error(`Cannot set ${String(prop)} on ${identifier.type} because it is derived`);
           }
+          case 'belongsTo':
+            if (!HAS_MODEL_PACKAGE) {
+              assert(
+                `Cannot use belongsTo fields in your schema unless @ember-data/model is installed to provide legacy model support. ${field.name} should likely be migrated to be a resource field.`
+              );
+            }
+            assert(`Expected to have a getLegacySupport function`, getLegacySupport);
+            assert(`Can only use belongsTo fields when the resource is in legacy mode`, Mode[Legacy]);
+            store._join(() => {
+              getLegacySupport(receiver as unknown as MinimalLegacyRecord).setDirtyBelongsTo(field.name, value);
+            });
+            return true;
+          case 'hasMany':
+            if (!HAS_MODEL_PACKAGE) {
+              assert(
+                `Cannot use hasMany fields in your schema unless @ember-data/model is installed to provide legacy model support.  ${field.name} should likely be migrated to be a collection field.`
+              );
+            }
+            assert(`Expected to have a getLegacySupport function`, getLegacySupport);
+            assert(`Can only use hasMany fields when the resource is in legacy mode`, Mode[Legacy]);
+            assert(`You must pass an array of records to set a hasMany relationship`, Array.isArray(value));
+            store._join(() => {
+              const support = getLegacySupport(receiver as unknown as MinimalLegacyRecord);
+              const manyArray = support.getManyArray(field.name);
+
+              manyArray.splice(0, manyArray.length, ...value);
+            });
+            return true;
+
           default:
             throw new Error(`Unknown field kind ${field.kind}`);
         }
