@@ -440,14 +440,14 @@ export class LegacySupport {
       }
       const { definition, state } = relationship;
       upgradeStore(this.store);
-      const adapter = this.store.adapterFor(definition.type);
+      const adapter = this.store.adapterFor?.(definition.type);
       const { isStale, hasDematerializedInverse, hasReceivedData, isEmpty, shouldForceReload } = state;
       const allInverseRecordsAreLoaded = areAllInverseRecordsLoaded(this.store, resource);
       const identifiers = resource.data;
       const shouldFindViaLink =
         resource.links &&
         resource.links.related &&
-        (typeof adapter.findHasMany === 'function' || typeof identifiers === 'undefined') &&
+        (typeof adapter?.findHasMany === 'function' || typeof identifiers === 'undefined') &&
         (shouldForceReload || hasDematerializedInverse || isStale || (!allInverseRecordsAreLoaded && !isEmpty));
 
       const field = this.store.schema.fields({ type: definition.inverseType }).get(definition.key);

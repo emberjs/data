@@ -45,6 +45,13 @@ import {
   OBJECT_SIGNAL,
   Parent,
 } from './symbols';
+import { dependencySatisfies, importSync } from '@embroider/macros';
+import type { MinimalLegacyRecord } from '@ember-data/model/-private/model-methods';
+
+const HAS_MODEL_PACKAGE = dependencySatisfies('@ember-data/model', '*');
+const getLegacySupport = HAS_MODEL_PACKAGE
+  ? (importSync('@ember-data/model/-private') as typeof import('@ember-data/model/-private')).lookupLegacySupport
+  : null;
 
 export { Editable, Legacy } from './symbols';
 const IgnoredGlobalFields = new Set<string>(['length', 'nodeType', 'then', 'setInterval', STRUCTURED]);
@@ -444,6 +451,7 @@ export class SchemaRecord {
           return null;
         }
 
+        // TODO make this a symbol
         if (prop === '___notifications') {
           return target.___notifications;
         }
@@ -523,6 +531,24 @@ export class SchemaRecord {
             entangleSignal(signals, receiver, field.name);
             // run transform, then use that value as the object to manage
             return computeObject(store, schema, cache, target, identifier, field, prop as string);
+          case 'belongsTo':
+            if (!HAS_MODEL_PACKAGE) {
+              assert(
+                `Cannot use belongsTo fields in your schema unless @ember-data/model is installed to provide legacy model support. ${field.name} should likely be migrated to be a resource field.`
+              );
+            }
+            assert(`Expected to have a getLegacySupport function`, getLegacySupport);
+            assert(`Can only use belongsTo fields when the resource is in legacy mode`, Mode[Legacy]);
+            return getLegacySupport(receiver as unknown as MinimalLegacyRecord).getBelongsTo(field.name);
+          case 'hasMany':
+            if (!HAS_MODEL_PACKAGE) {
+              assert(
+                `Cannot use hasMany fields in your schema unless @ember-data/model is installed to provide legacy model support.  ${field.name} should likely be migrated to be a collection field.`
+              );
+            }
+            assert(`Expected to have a getLegacySupport function`, getLegacySupport);
+            assert(`Can only use hasMany fields when the resource is in legacy mode`, Mode[Legacy]);
+            return getLegacySupport(receiver as unknown as MinimalLegacyRecord).getHasMany(field.name);
           default:
             throw new Error(`Field '${String(prop)}' on '${identifier.type}' has the unknown kind '${field.kind}'`);
         }
