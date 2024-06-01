@@ -1,3 +1,6 @@
+import { dependencySatisfies, importSync } from '@embroider/macros';
+
+import type { MinimalLegacyRecord } from '@ember-data/model/-private/model-methods';
 import type { Future } from '@ember-data/request';
 import type Store from '@ember-data/store';
 import type { NotificationType, StoreRequestInput } from '@ember-data/store';
@@ -45,8 +48,6 @@ import {
   OBJECT_SIGNAL,
   Parent,
 } from './symbols';
-import { dependencySatisfies, importSync } from '@embroider/macros';
-import type { MinimalLegacyRecord } from '@ember-data/model/-private/model-methods';
 
 const HAS_MODEL_PACKAGE = dependencySatisfies('@ember-data/model', '*');
 const getLegacySupport = HAS_MODEL_PACKAGE
