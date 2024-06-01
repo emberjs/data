@@ -33,6 +33,8 @@
       "@ember-data/request/*": ["../request/unstable-preview-types/*"],
       "@ember-data/store": ["../store/unstable-preview-types"],
       "@ember-data/store/*": ["../store/unstable-preview-types/*"],
+      "@ember-data/model": ["../model/unstable-preview-types"],
+      "@ember-data/model/*": ["../model/unstable-preview-types/*"],
       "@ember-data/tracking": ["../tracking/unstable-preview-types"],
       "@ember-data/tracking/*": ["../tracking/unstable-preview-types/*"],
       "@warp-drive/build-config": ["../build-config/unstable-preview-types"],
@@ -44,6 +46,9 @@
   "references": [
     {
       "path": "../request"
+    },
+    {
+      "path": "../model"
     },
     {
       "path": "../store"
