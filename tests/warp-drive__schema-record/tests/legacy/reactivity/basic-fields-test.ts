@@ -17,6 +17,7 @@ import type { Transformation } from '@warp-drive/schema-record/schema';
 
 import { simplePayloadNormalize } from '../../-utils/normalize-payload';
 import { reactiveContext } from '../../-utils/reactive-context';
+import { recordIdentifierFor } from '@ember-data/store';
 
 interface User {
   id: string | null;
@@ -354,5 +355,87 @@ module('Legacy | Reactivity | basic fields can receive remote updates', function
 
     assert.dom(`li:nth-child(${nameIndex + 1})`).hasText('name: Rey Skybarker', 'name is rendered');
     assert.dom(`li:nth-child(${nameIndex + 3})`).hasText('coolometer:', 'coolometer is rendered');
+  });
+
+  test('id works when updated after createRecord', async function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const { schema } = store;
+    registerLegacyDerivations(schema);
+
+    schema.registerResource(
+      withLegacy({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            type: null,
+            kind: 'attribute',
+          },
+        ],
+      })
+    );
+
+    const record = store.createRecord('user', {}) as User;
+    const resource = schema.resource({ type: 'user' });
+
+    const { counters, fieldOrder } = await reactiveContext.call(this, record, resource);
+    const idIndex = fieldOrder.indexOf('id');
+
+    assert.strictEqual(record.id, null, 'id is accessible');
+    assert.strictEqual(counters.id, 1, 'idCount is 1');
+    assert.dom(`li:nth-child(${idIndex + 1})`).hasText('id:', 'id is rendered');
+
+    record.id = '1';
+    assert.strictEqual(record.id, '1', 'id is accessible');
+
+    await rerender();
+    assert.strictEqual(counters.id, 2, 'idCount is 2');
+    assert.dom(`li:nth-child(${idIndex + 1})`).hasText('id: 1', 'id is rendered');
+  });
+
+  test('id works when updated after save', async function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const { schema } = store;
+    registerLegacyDerivations(schema);
+
+    schema.registerResource(
+      withLegacy({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            type: null,
+            kind: 'attribute',
+          },
+        ],
+      })
+    );
+
+    const record = store.createRecord('user', { name: 'Rey' }) as User;
+    const identifier = recordIdentifierFor(record);
+    const resource = schema.resource({ type: 'user' });
+
+    const { counters, fieldOrder } = await reactiveContext.call(this, record, resource);
+    const idIndex = fieldOrder.indexOf('id');
+
+    assert.strictEqual(record.id, null, 'id is accessible');
+    assert.strictEqual(counters.id, 1, 'idCount is 1');
+    assert.dom(`li:nth-child(${idIndex + 1})`).hasText('id:', 'id is rendered');
+
+    store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        lid: identifier.lid,
+        attributes: {
+          name: 'Rey',
+        },
+      },
+    });
+
+    assert.strictEqual(record.id, '1', 'id is accessible');
+    await rerender();
+    assert.strictEqual(counters.id, 2, 'idCount is 2');
+    assert.dom(`li:nth-child(${idIndex + 1})`).hasText('id: 1', 'id is rendered');
   });
 });
