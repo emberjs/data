@@ -138,6 +138,9 @@ export class SchemaRecord {
           case 'field':
           case 'attribute':
           case 'resource':
+          case 'belongsTo':
+          case 'hasMany':
+          case 'collection':
           case 'schema-array':
           case 'array':
           case 'schema-object':
@@ -257,6 +260,7 @@ export class SchemaRecord {
             }
             assert(`Expected to have a getLegacySupport function`, getLegacySupport);
             assert(`Can only use belongsTo fields when the resource is in legacy mode`, Mode[Legacy]);
+            entangleSignal(signals, receiver, field.name);
             return getLegacySupport(receiver as unknown as MinimalLegacyRecord).getBelongsTo(field.name);
           case 'hasMany':
             if (!HAS_MODEL_PACKAGE) {
@@ -465,9 +469,17 @@ export class SchemaRecord {
             if (key) {
               if (Array.isArray(key)) {
               } else {
+                if (isEmbedded) return; // base paths never apply to embedded records
+
                 const field = fields.get(key);
                 assert(`Expected relationshp ${key} to be the name of a field`, field);
                 if (field.kind === 'belongsTo') {
+                  // TODO determine what LOGGING flag to wrap this in if any
+                  // console.log(`Notification for ${key} on ${identifier.type}`, self);
+                  const signal = signals.get(key);
+                  if (signal) {
+                    addToTransaction(signal);
+                  }
                   // FIXME
                 } else if (field.kind === 'resource') {
                   // FIXME

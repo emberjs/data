@@ -8,10 +8,15 @@ import type { ResourceRelationship } from '@warp-drive/core-types/cache/relation
 import type { OpaqueRecordInstance } from '@warp-drive/core-types/record';
 import type { FieldSchema, IdentityField, ResourceSchema } from '@warp-drive/core-types/schema/fields';
 
+type Template<T> = {
+  [key in keyof T & string]?: string;
+};
+
 export async function reactiveContext<T extends OpaqueRecordInstance>(
   this: TestContext,
   record: T,
-  resource: ResourceSchema
+  resource: ResourceSchema,
+  template?: Template<T>
 ) {
   const _fields: string[] = [];
   const fields: Array<FieldSchema | IdentityField> = resource.fields.slice();
@@ -55,6 +60,34 @@ export async function reactiveContext<T extends OpaqueRecordInstance>(
           return record[field.name as keyof T] as unknown;
         } else if (field.kind === 'resource') {
           return (record[field.name as keyof T] as ResourceRelationship).data?.id;
+        } else if (field.kind === 'belongsTo') {
+          if (template && field.name in template) {
+            const key = template[field.name as keyof T & string]!;
+            let value = record[field.name as keyof T] as { [key: string]: string };
+
+            if (field.options.async) {
+              // @ts-expect-error promise proxy reach through
+              value = record[field.name].content as { [key: string]: string };
+            }
+
+            return value?.[key];
+          } else {
+            return (record[field.name as keyof T] as { id: string })?.id;
+          }
+        } else if (field.kind === 'hasMany') {
+          if (template && field.name in template) {
+            const key = template[field.name as keyof T & string]!;
+            let arr = record[field.name as keyof T] as Array<{ [key: string]: string }>;
+
+            if (field.options.async) {
+              // @ts-expect-error promise proxy reach through
+              arr = record[field.name].content as Array<{ [key: string]: string }>;
+            }
+
+            return arr.map((v) => v[key]).join(', ');
+          } else {
+            return (record[field.name as keyof T] as { length: string })?.length;
+          }
         }
       },
     });
