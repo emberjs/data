@@ -303,6 +303,7 @@ export class SchemaRecord {
               store._instanceCache.setRecordId(identifier, normalizedId);
               store.notifications.notify(identifier, 'identity');
             }
+            return true;
           }
           case '@local': {
             const signal = getSignal(receiver, prop as string, true);
