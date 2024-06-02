@@ -284,12 +284,27 @@ export class SchemaRecord {
         const propArray = isEmbedded ? embeddedPath!.slice() : [];
         propArray.push(prop as string);
 
-        const field = fields.get(prop as string);
+        const field = prop === identityField?.name ? identityField : fields.get(prop as string);
         if (!field) {
           throw new Error(`There is no field named ${String(prop)} on ${identifier.type}`);
         }
 
         switch (field.kind) {
+          case '@id': {
+            assert(`Expected to receive a string id`, typeof value === 'string' && value.length);
+            const normalizedId = String(value);
+            const didChange = normalizedId !== identifier.id;
+            assert(
+              `Cannot set ${identifier.type} record's id to ${normalizedId}, because id is already ${identifier.id}`,
+              !didChange || identifier.id === null
+            );
+
+            if (normalizedId !== null && didChange) {
+              store._instanceCache.setRecordId(identifier, normalizedId);
+              store.notifications.notify(identifier, 'identity');
+            }
+            return true;
+          }
           case '@local': {
             const signal = getSignal(receiver, prop as string, true);
             if (signal.lastValue !== value) {
@@ -426,6 +441,17 @@ export class SchemaRecord {
       identifier,
       (_: StableRecordIdentifier, type: NotificationType, key?: string | string[]) => {
         switch (type) {
+          case 'identity': {
+            if (isEmbedded || !identityField) return; // base paths never apply to embedded records
+
+            if (identityField.name && identityField.kind === '@id') {
+              const signal = signals.get('@identity');
+              if (signal) {
+                addToTransaction(signal);
+              }
+            }
+            break;
+          }
           case 'attributes':
             if (key) {
               if (Array.isArray(key)) {
@@ -516,6 +542,8 @@ export class SchemaRecord {
                 }
               }
             }
+
+            break;
         }
       }
     );
