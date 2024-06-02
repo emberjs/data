@@ -6,9 +6,9 @@ import type { Cache } from '@warp-drive/core-types/cache';
 import type { ObjectValue, Value } from '@warp-drive/core-types/json/raw';
 import type { ObjectField } from '@warp-drive/core-types/schema/fields';
 
-import type { SchemaRecord } from './record';
-import type { SchemaService } from './schema';
-import { MUTATE, OBJECT_SIGNAL, SOURCE } from './symbols';
+import type { SchemaRecord } from '../record';
+import type { SchemaService } from '../schema';
+import { MUTATE, OBJECT_SIGNAL, SOURCE } from '../symbols';
 
 export function notifyObject(obj: ManagedObject) {
   addToTransaction(obj[OBJECT_SIGNAL]);

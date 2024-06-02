@@ -8,9 +8,9 @@ import type { ArrayValue, ObjectValue, Value } from '@warp-drive/core-types/json
 import type { OpaqueRecordInstance } from '@warp-drive/core-types/record';
 import type { ArrayField, HashField, SchemaArrayField } from '@warp-drive/core-types/schema/fields';
 
-import { SchemaRecord } from './record';
-import type { SchemaService } from './schema';
-import { ARRAY_SIGNAL, Editable, Identifier, Legacy, MUTATE, SOURCE } from './symbols';
+import { SchemaRecord } from '../record';
+import type { SchemaService } from '../schema';
+import { ARRAY_SIGNAL, Editable, Identifier, Legacy, MUTATE, SOURCE } from '../symbols';
 
 export function notifyArray(arr: ManagedArray) {
   addToTransaction(arr[ARRAY_SIGNAL]);

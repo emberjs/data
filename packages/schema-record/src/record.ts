@@ -1,40 +1,29 @@
 import { dependencySatisfies, importSync } from '@embroider/macros';
 
 import type { MinimalLegacyRecord } from '@ember-data/model/-private/model-methods';
-import type { Future } from '@ember-data/request';
 import type Store from '@ember-data/store';
-import type { NotificationType, StoreRequestInput } from '@ember-data/store';
-import {
-  addToTransaction,
-  defineSignal,
-  entangleSignal,
-  getSignal,
-  peekSignal,
-  type Signal,
-  Signals,
-} from '@ember-data/tracking/-private';
-import { DEBUG } from '@warp-drive/build-config/env';
+import type { NotificationType } from '@ember-data/store';
+import { addToTransaction, entangleSignal, getSignal, type Signal, Signals } from '@ember-data/tracking/-private';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import { getOrSetGlobal } from '@warp-drive/core-types/-private';
-import type { Cache } from '@warp-drive/core-types/cache';
-import type { ResourceRelationship as SingleResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { ArrayValue, ObjectValue, Value } from '@warp-drive/core-types/json/raw';
 import { STRUCTURED } from '@warp-drive/core-types/request';
-import type {
-  ArrayField,
-  DerivedField,
-  FieldSchema,
-  GenericField,
-  LocalField,
-  ObjectField,
-  SchemaArrayField,
-} from '@warp-drive/core-types/schema/fields';
-import type { Link, Links } from '@warp-drive/core-types/spec/json-api-raw';
+import type { FieldSchema } from '@warp-drive/core-types/schema/fields';
 import { RecordStore } from '@warp-drive/core-types/symbols';
 
-import { ManagedArray } from './managed-array';
-import { ManagedObject } from './managed-object';
+import {
+  computeArray,
+  computeAttribute,
+  computeDerivation,
+  computeField,
+  computeLocal,
+  computeObject,
+  computeResource,
+  ManagedArrayMap,
+  ManagedObjectMap,
+  peekManagedArray,
+  peekManagedObject,
+} from './-private/compute';
 import type { SchemaService } from './schema';
 import {
   ARRAY_SIGNAL,
@@ -72,233 +61,8 @@ const RecordSymbols = new Set(symbolList);
 
 type RecordSymbol = (typeof symbolList)[number];
 
-const ManagedArrayMap = getOrSetGlobal('ManagedArrayMap', new Map<SchemaRecord, Map<FieldSchema, ManagedArray>>());
-const ManagedObjectMap = getOrSetGlobal('ManagedObjectMap', new Map<SchemaRecord, Map<FieldSchema, ManagedObject>>());
-
-function computeLocal(record: typeof Proxy<SchemaRecord>, field: LocalField, prop: string): unknown {
-  let signal = peekSignal(record, prop);
-
-  if (!signal) {
-    signal = getSignal(record, prop, false);
-    signal.lastValue = field.options?.defaultValue ?? null;
-  }
-
-  return signal.lastValue;
-}
-
-function peekManagedArray(record: SchemaRecord, field: FieldSchema): ManagedArray | undefined {
-  const managedArrayMapForRecord = ManagedArrayMap.get(record);
-  if (managedArrayMapForRecord) {
-    return managedArrayMapForRecord.get(field);
-  }
-}
-
-function peekManagedObject(record: SchemaRecord, field: FieldSchema): ManagedObject | undefined {
-  const managedObjectMapForRecord = ManagedObjectMap.get(record);
-  if (managedObjectMapForRecord) {
-    return managedObjectMapForRecord.get(field);
-  }
-}
-
-function computeField(
-  schema: SchemaService,
-  cache: Cache,
-  record: SchemaRecord,
-  identifier: StableRecordIdentifier,
-  field: GenericField,
-  prop: string | string[]
-): unknown {
-  const rawValue = cache.getAttr(identifier, prop);
-  if (!field.type) {
-    return rawValue;
-  }
-  const transform = schema.transformation(field);
-  return transform.hydrate(rawValue, field.options ?? null, record);
-}
-
-function computeArray(
-  store: Store,
-  schema: SchemaService,
-  cache: Cache,
-  record: SchemaRecord,
-  identifier: StableRecordIdentifier,
-  field: ArrayField | SchemaArrayField,
-  path: string[],
-  isSchemaArray = false
-) {
-  // the thing we hand out needs to know its owner and path in a private manner
-  // its "address" is the parent identifier (identifier) + field name (field.name)
-  //  in the nested object case field name here is the full dot path from root resource to this value
-  // its "key" is the field on the parent record
-  // its "owner" is the parent record
-
-  const managedArrayMapForRecord = ManagedArrayMap.get(record);
-  let managedArray;
-  if (managedArrayMapForRecord) {
-    managedArray = managedArrayMapForRecord.get(field);
-  }
-  if (managedArray) {
-    return managedArray;
-  } else {
-    const rawValue = cache.getAttr(identifier, path) as unknown[];
-    if (!rawValue) {
-      return null;
-    }
-    managedArray = new ManagedArray(store, schema, cache, field, rawValue, identifier, path, record, isSchemaArray);
-    if (!managedArrayMapForRecord) {
-      ManagedArrayMap.set(record, new Map([[field, managedArray]]));
-    } else {
-      managedArrayMapForRecord.set(field, managedArray);
-    }
-  }
-  return managedArray;
-}
-
-function computeObject(
-  store: Store,
-  schema: SchemaService,
-  cache: Cache,
-  record: SchemaRecord,
-  identifier: StableRecordIdentifier,
-  field: ObjectField,
-  prop: string
-) {
-  const managedObjectMapForRecord = ManagedObjectMap.get(record);
-  let managedObject;
-  if (managedObjectMapForRecord) {
-    managedObject = managedObjectMapForRecord.get(field);
-  }
-  if (managedObject) {
-    return managedObject;
-  } else {
-    let rawValue = cache.getAttr(identifier, prop) as object;
-    if (!rawValue) {
-      return null;
-    }
-    if (field.kind === 'object') {
-      if (field.type) {
-        const transform = schema.transformation(field);
-        rawValue = transform.hydrate(rawValue as ObjectValue, field.options ?? null, record) as object;
-      }
-    }
-    managedObject = new ManagedObject(store, schema, cache, field, rawValue, identifier, prop, record);
-    if (!managedObjectMapForRecord) {
-      ManagedObjectMap.set(record, new Map([[field, managedObject]]));
-    } else {
-      managedObjectMapForRecord.set(field, managedObject);
-    }
-  }
-  return managedObject;
-}
-
-function computeAttribute(cache: Cache, identifier: StableRecordIdentifier, prop: string): unknown {
-  return cache.getAttr(identifier, prop);
-}
-
-function computeDerivation(
-  schema: SchemaService,
-  record: SchemaRecord,
-  identifier: StableRecordIdentifier,
-  field: DerivedField,
-  prop: string
-): unknown {
-  return schema.derivation(field)(record, field.options ?? null, prop);
-}
-
-// TODO probably this should just be a Document
-// but its separate until we work out the lid situation
-class ResourceRelationship<T extends SchemaRecord = SchemaRecord> {
-  declare lid: string;
-  declare [Parent]: SchemaRecord;
-  declare [RecordStore]: Store;
-  declare name: string;
-
-  declare data: T | null;
-  declare links: Links;
-  declare meta: Record<string, unknown>;
-
-  constructor(
-    store: Store,
-    cache: Cache,
-    parent: SchemaRecord,
-    identifier: StableRecordIdentifier,
-    field: FieldSchema,
-    name: string
-  ) {
-    const rawValue = cache.getRelationship(identifier, name) as SingleResourceRelationship;
-
-    // TODO setup true lids for relationship documents
-    // @ts-expect-error we need to give relationship documents a lid
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    this.lid = rawValue.lid ?? rawValue.links?.self ?? `relationship:${identifier.lid}.${name}`;
-    this.data = rawValue.data ? store.peekRecord<T>(rawValue.data) : null;
-    this.name = name;
-
-    if (DEBUG) {
-      this.links = Object.freeze(Object.assign({}, rawValue.links));
-      this.meta = Object.freeze(Object.assign({}, rawValue.meta));
-    } else {
-      this.links = rawValue.links ?? {};
-      this.meta = rawValue.meta ?? {};
-    }
-
-    this[RecordStore] = store;
-    this[Parent] = parent;
-  }
-
-  fetch(options?: StoreRequestInput<T, T>): Future<T> {
-    const url = options?.url ?? getHref(this.links.related) ?? getHref(this.links.self) ?? null;
-
-    if (!url) {
-      throw new Error(
-        `Cannot ${options?.method ?? 'fetch'} ${this[Parent][Identifier].type}.${String(
-          this.name
-        )} because it has no related link`
-      );
-    }
-    const request = Object.assign(
-      {
-        url,
-        method: 'GET',
-      },
-      options
-    );
-
-    return this[RecordStore].request<T>(request);
-  }
-}
-
-defineSignal(ResourceRelationship.prototype, 'data');
-defineSignal(ResourceRelationship.prototype, 'links');
-defineSignal(ResourceRelationship.prototype, 'meta');
-
 function isPathMatch(a: string[], b: string[]) {
   return a.length === b.length && a.every((v, i) => v === b[i]);
-}
-
-function getHref(link?: Link | null): string | null {
-  if (!link) {
-    return null;
-  }
-  if (typeof link === 'string') {
-    return link;
-  }
-  return link.href;
-}
-
-function computeResource<T extends SchemaRecord>(
-  store: Store,
-  cache: Cache,
-  parent: SchemaRecord,
-  identifier: StableRecordIdentifier,
-  field: FieldSchema,
-  prop: string
-): ResourceRelationship<T> {
-  if (field.kind !== 'resource') {
-    throw new Error(`The schema for ${identifier.type}.${String(prop)} is not a resource relationship`);
-  }
-
-  return new ResourceRelationship<T>(store, cache, parent, identifier, field, prop);
 }
 
 export class SchemaRecord {
@@ -348,55 +112,8 @@ export class SchemaRecord {
 
     const signals: Map<string, Signal> = new Map();
     this[Signals] = signals;
-    // what signal do we need for embedded record?
-    this.___notifications = store.notifications.subscribe(
-      identifier,
-      (_: StableRecordIdentifier, type: NotificationType, key?: string | string[]) => {
-        switch (type) {
-          case 'attributes':
-            if (key) {
-              if (Array.isArray(key)) {
-                if (!isEmbedded) return; // deep paths will be handled by embedded records
-                // TODO we should have the notification manager
-                // ensure it is safe for each callback to mutate this array
-                if (isPathMatch(embeddedPath!, key)) {
-                  // handle the notification
-                  // TODO we should likely handle this notification here
-                  // also we should add a LOGGING flag
-                  // eslint-disable-next-line no-console
-                  console.warn(`Notification unhandled for ${key.join(',')} on ${identifier.type}`, self);
-                  return;
-                }
 
-                // TODO we should add a LOGGING flag
-                // console.log(`Deep notification skipped for ${key.join('.')} on ${identifier.type}`, self);
-                // deep notify the key path
-              } else {
-                if (isEmbedded) return; // base paths never apply to embedded records
-
-                // TODO determine what LOGGING flag to wrap this in if any
-                // console.log(`Notification for ${key} on ${identifier.type}`, self);
-                const signal = signals.get(key);
-                if (signal) {
-                  addToTransaction(signal);
-                }
-                const field = fields.get(key);
-                if (field?.kind === 'array' || field?.kind === 'schema-array') {
-                  const peeked = peekManagedArray(self, field);
-                  if (peeked) {
-                    const arrSignal = peeked[ARRAY_SIGNAL];
-                    arrSignal.shouldReset = true;
-                    addToTransaction(arrSignal);
-                  }
-                }
-              }
-            }
-            break;
-        }
-      }
-    );
-
-    return new Proxy(this, {
+    const proxy = new Proxy(this, {
       ownKeys() {
         return Array.from(fields.keys());
       },
@@ -421,6 +138,9 @@ export class SchemaRecord {
           case 'field':
           case 'attribute':
           case 'resource':
+          case 'belongsTo':
+          case 'hasMany':
+          case 'collection':
           case 'schema-array':
           case 'array':
           case 'schema-object':
@@ -540,6 +260,7 @@ export class SchemaRecord {
             }
             assert(`Expected to have a getLegacySupport function`, getLegacySupport);
             assert(`Can only use belongsTo fields when the resource is in legacy mode`, Mode[Legacy]);
+            entangleSignal(signals, receiver, field.name);
             return getLegacySupport(receiver as unknown as MinimalLegacyRecord).getBelongsTo(field.name);
           case 'hasMany':
             if (!HAS_MODEL_PACKAGE) {
@@ -549,6 +270,7 @@ export class SchemaRecord {
             }
             assert(`Expected to have a getLegacySupport function`, getLegacySupport);
             assert(`Can only use hasMany fields when the resource is in legacy mode`, Mode[Legacy]);
+            entangleSignal(signals, receiver, field.name);
             return getLegacySupport(receiver as unknown as MinimalLegacyRecord).getHasMany(field.name);
           default:
             throw new Error(`Field '${String(prop)}' on '${identifier.type}' has the unknown kind '${field.kind}'`);
@@ -664,11 +386,141 @@ export class SchemaRecord {
           case 'derived': {
             throw new Error(`Cannot set ${String(prop)} on ${identifier.type} because it is derived`);
           }
+          case 'belongsTo':
+            if (!HAS_MODEL_PACKAGE) {
+              assert(
+                `Cannot use belongsTo fields in your schema unless @ember-data/model is installed to provide legacy model support. ${field.name} should likely be migrated to be a resource field.`
+              );
+            }
+            assert(`Expected to have a getLegacySupport function`, getLegacySupport);
+            assert(`Can only use belongsTo fields when the resource is in legacy mode`, Mode[Legacy]);
+            store._join(() => {
+              getLegacySupport(receiver as unknown as MinimalLegacyRecord).setDirtyBelongsTo(field.name, value);
+            });
+            return true;
+          case 'hasMany':
+            if (!HAS_MODEL_PACKAGE) {
+              assert(
+                `Cannot use hasMany fields in your schema unless @ember-data/model is installed to provide legacy model support.  ${field.name} should likely be migrated to be a collection field.`
+              );
+            }
+            assert(`Expected to have a getLegacySupport function`, getLegacySupport);
+            assert(`Can only use hasMany fields when the resource is in legacy mode`, Mode[Legacy]);
+            assert(`You must pass an array of records to set a hasMany relationship`, Array.isArray(value));
+            store._join(() => {
+              const support = getLegacySupport(receiver as unknown as MinimalLegacyRecord);
+              const manyArray = support.getManyArray(field.name);
+
+              manyArray.splice(0, manyArray.length, ...(value as unknown[]));
+            });
+            return true;
+
           default:
             throw new Error(`Unknown field kind ${field.kind}`);
         }
       },
     });
+
+    // what signal do we need for embedded record?
+    this.___notifications = store.notifications.subscribe(
+      identifier,
+      (_: StableRecordIdentifier, type: NotificationType, key?: string | string[]) => {
+        switch (type) {
+          case 'attributes':
+            if (key) {
+              if (Array.isArray(key)) {
+                if (!isEmbedded) return; // deep paths will be handled by embedded records
+                // TODO we should have the notification manager
+                // ensure it is safe for each callback to mutate this array
+                if (isPathMatch(embeddedPath!, key)) {
+                  // handle the notification
+                  // TODO we should likely handle this notification here
+                  // also we should add a LOGGING flag
+                  // eslint-disable-next-line no-console
+                  console.warn(`Notification unhandled for ${key.join(',')} on ${identifier.type}`, self);
+                  return;
+                }
+
+                // TODO we should add a LOGGING flag
+                // console.log(`Deep notification skipped for ${key.join('.')} on ${identifier.type}`, self);
+                // deep notify the key path
+              } else {
+                if (isEmbedded) return; // base paths never apply to embedded records
+
+                // TODO determine what LOGGING flag to wrap this in if any
+                // console.log(`Notification for ${key} on ${identifier.type}`, self);
+                const signal = signals.get(key);
+                if (signal) {
+                  addToTransaction(signal);
+                }
+                const field = fields.get(key);
+                if (field?.kind === 'array' || field?.kind === 'schema-array') {
+                  const peeked = peekManagedArray(self, field);
+                  if (peeked) {
+                    const arrSignal = peeked[ARRAY_SIGNAL];
+                    arrSignal.shouldReset = true;
+                    addToTransaction(arrSignal);
+                  }
+                }
+              }
+            }
+            break;
+          case 'relationships':
+            if (key) {
+              if (Array.isArray(key)) {
+                // FIXME
+              } else {
+                if (isEmbedded) return; // base paths never apply to embedded records
+
+                const field = fields.get(key);
+                assert(`Expected relationshp ${key} to be the name of a field`, field);
+                if (field.kind === 'belongsTo') {
+                  // TODO determine what LOGGING flag to wrap this in if any
+                  // console.log(`Notification for ${key} on ${identifier.type}`, self);
+                  const signal = signals.get(key);
+                  if (signal) {
+                    addToTransaction(signal);
+                  }
+                  // FIXME
+                } else if (field.kind === 'resource') {
+                  // FIXME
+                } else if (field.kind === 'hasMany') {
+                  assert(`Expected to have a getLegacySupport function`, getLegacySupport);
+                  assert(`Can only use hasMany fields when the resource is in legacy mode`, Mode[Legacy]);
+
+                  const support = getLegacySupport(proxy as unknown as MinimalLegacyRecord);
+                  const manyArray = support && support._manyArrayCache[key];
+                  const hasPromise =
+                    support && (support._relationshipPromisesCache[key] as Promise<unknown> | undefined);
+
+                  if (manyArray && hasPromise) {
+                    // do nothing, we will notify the ManyArray directly
+                    // once the fetch has completed.
+                    return;
+                  }
+
+                  if (manyArray) {
+                    manyArray.notify();
+
+                    assert(`Expected options to exist on relationship meta`, field.options);
+                    assert(`Expected async to exist on relationship meta options`, 'async' in field.options);
+                    if (field.options.async) {
+                      const signal = signals.get(key);
+                      if (signal) {
+                        addToTransaction(signal);
+                      }
+                    }
+                  }
+                } else if (field.kind === 'collection') {
+                  // FIXME
+                }
+              }
+            }
+        }
+      }
+    );
+
+    return proxy;
   }
 
   [Destroy](): void {
