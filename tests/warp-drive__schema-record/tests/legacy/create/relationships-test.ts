@@ -2,7 +2,6 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import { PromiseBelongsTo, PromiseManyArray } from '@ember-data/model/-private';
 import {
   registerDerivations as registerLegacyDerivations,
   withDefaults as withLegacy,

@@ -1,5 +1,3 @@
-import { dependencySatisfies, importSync } from '@embroider/macros';
-
 import type { Future } from '@ember-data/request';
 import type Store from '@ember-data/store';
 import type { StoreRequestInput } from '@ember-data/store';
@@ -22,11 +20,11 @@ import type {
 import type { Link, Links } from '@warp-drive/core-types/spec/json-api-raw';
 import { RecordStore } from '@warp-drive/core-types/symbols';
 
-import { ManagedArray } from './managed-array';
-import { ManagedObject } from './managed-object';
+import type { SchemaRecord } from '../record';
 import type { SchemaService } from '../schema';
 import { Identifier, Parent } from '../symbols';
-import { SchemaRecord } from '../record';
+import { ManagedArray } from './managed-array';
+import { ManagedObject } from './managed-object';
 
 export const ManagedArrayMap = getOrSetGlobal(
   'ManagedArrayMap',

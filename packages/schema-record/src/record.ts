@@ -11,6 +11,19 @@ import { STRUCTURED } from '@warp-drive/core-types/request';
 import type { FieldSchema } from '@warp-drive/core-types/schema/fields';
 import { RecordStore } from '@warp-drive/core-types/symbols';
 
+import {
+  computeArray,
+  computeAttribute,
+  computeDerivation,
+  computeField,
+  computeLocal,
+  computeObject,
+  computeResource,
+  ManagedArrayMap,
+  ManagedObjectMap,
+  peekManagedArray,
+  peekManagedObject,
+} from './-private/compute';
 import type { SchemaService } from './schema';
 import {
   ARRAY_SIGNAL,
@@ -24,19 +37,6 @@ import {
   OBJECT_SIGNAL,
   Parent,
 } from './symbols';
-import {
-  ManagedArrayMap,
-  ManagedObjectMap,
-  computeArray,
-  computeAttribute,
-  computeDerivation,
-  computeField,
-  computeLocal,
-  computeObject,
-  computeResource,
-  peekManagedArray,
-  peekManagedObject,
-} from './-private/compute';
 
 const HAS_MODEL_PACKAGE = dependencySatisfies('@ember-data/model', '*');
 const getLegacySupport = HAS_MODEL_PACKAGE
@@ -411,7 +411,7 @@ export class SchemaRecord {
               const support = getLegacySupport(receiver as unknown as MinimalLegacyRecord);
               const manyArray = support.getManyArray(field.name);
 
-              manyArray.splice(0, manyArray.length, ...value);
+              manyArray.splice(0, manyArray.length, ...(value as unknown[]));
             });
             return true;
 
@@ -468,6 +468,7 @@ export class SchemaRecord {
           case 'relationships':
             if (key) {
               if (Array.isArray(key)) {
+                // FIXME
               } else {
                 if (isEmbedded) return; // base paths never apply to embedded records
 

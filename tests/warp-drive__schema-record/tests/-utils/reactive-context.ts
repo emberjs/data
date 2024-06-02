@@ -67,6 +67,7 @@ export async function reactiveContext<T extends OpaqueRecordInstance>(
 
             if (field.options.async) {
               // @ts-expect-error promise proxy reach through
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
               value = record[field.name].content as { [key: string]: string };
             }
 
@@ -81,6 +82,7 @@ export async function reactiveContext<T extends OpaqueRecordInstance>(
 
             if (field.options.async) {
               // @ts-expect-error promise proxy reach through
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
               arr = record[field.name].content as Array<{ [key: string]: string }>;
             }
 

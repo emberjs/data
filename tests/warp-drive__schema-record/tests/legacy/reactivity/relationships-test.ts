@@ -1,8 +1,11 @@
+import { rerender } from '@ember/test-helpers';
+
 import { module, test } from 'qunit';
 
 import { setupRenderingTest } from 'ember-qunit';
 
-import { PromiseBelongsTo, PromiseManyArray } from '@ember-data/model/-private';
+import type { PromiseManyArray } from '@ember-data/model/-private';
+import { PromiseBelongsTo } from '@ember-data/model/-private';
 import {
   registerDerivations as registerLegacyDerivations,
   withDefaults as withLegacy,
@@ -10,8 +13,8 @@ import {
 import type { Type } from '@warp-drive/core-types/symbols';
 
 import type Store from 'warp-drive__schema-record/services/store';
+
 import { reactiveContext } from '../../-utils/reactive-context';
-import { rerender } from '@ember/test-helpers';
 
 module('Legacy | Reactivity | relationships', function (hooks) {
   setupRenderingTest(hooks);
