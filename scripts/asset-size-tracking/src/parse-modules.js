@@ -1,6 +1,6 @@
 const Library = require('./library');
 
-const moduleNames = ['ember-data', '@ember-data', '@ember/ordered-set', 'ember-inflector'];
+const moduleNames = ['ember-data', '@ember-data', '@warp-drive'];
 
 module.exports = function parseModules(builtAsset) {
   let modules = builtAsset.split('define(').join('MODULE_SPLIT_POINTdefine(').split('MODULE_SPLIT_POINT');
@@ -23,13 +23,9 @@ module.exports = function parseModules(builtAsset) {
 
     let packageName = 'ember-data';
 
-    if (name.indexOf('@ember-data/') === 0) {
+    if (name.indexOf('@ember-data/') === 0 || name.startsWith('@warp-drive/')) {
       let subPackageEnd = name.indexOf('/', 12);
       packageName = name.substring(0, subPackageEnd);
-    } else if (name.indexOf('ember-inflector') === 0) {
-      packageName = 'ember-inflector';
-    } else if (name.indexOf('@ember/ordered-set') === 0) {
-      packageName = '@ember/ordered-set';
     }
 
     library.getPackage(packageName).addModule(name, m);

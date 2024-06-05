@@ -1,14 +1,13 @@
-import { module, test } from '@warp-drive/diagnostic';
-
 import {
-  singularize,
-  pluralize,
   irregular,
   plural,
-  singular,
-  uncountable,
+  pluralize,
   resetToDefaults,
+  singular,
+  singularize,
+  uncountable,
 } from '@ember-data/request-utils/string';
+import { module, test } from '@warp-drive/diagnostic';
 
 module('Inflector', function (hooks) {
   hooks.afterEach(() => {

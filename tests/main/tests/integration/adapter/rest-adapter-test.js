@@ -1,10 +1,8 @@
 import { get } from '@ember/object';
-import { underscore } from '@ember/string';
 
 import Pretender from 'pretender';
 import { module, test } from 'qunit';
 
-import { singularize } from 'ember-inflector';
 import { setupTest } from 'ember-qunit';
 
 import AdapterError, {
@@ -18,6 +16,7 @@ import AdapterError, {
 import RESTAdapter from '@ember-data/adapter/rest';
 import { Snapshot } from '@ember-data/legacy-compat/-private';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { singularize,underscore  } from '@ember-data/request-utils/string';
 import RESTSerializer from '@ember-data/serializer/rest';
 import { recordIdentifierFor } from '@ember-data/store';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';

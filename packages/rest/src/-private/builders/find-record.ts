@@ -1,11 +1,8 @@
 /**
  * @module @ember-data/rest/request
  */
-import { camelize } from '@ember/string';
-
-import { pluralize } from 'ember-inflector';
-
 import { buildBaseURL, buildQueryParams, type FindRecordUrlOptions } from '@ember-data/request-utils';
+import { camelize , pluralize } from '@ember-data/request-utils/string';
 import type { TypeFromInstance } from '@warp-drive/core-types/record';
 import type {
   FindRecordOptions,

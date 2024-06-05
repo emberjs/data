@@ -161,8 +161,6 @@ that has not explicitly activated it. To activate it set the appropriate flag to
  @module ember-data-overview
  @main ember-data-overview
 */
-import 'ember-inflector';
-
 import { deprecate } from '@ember/debug';
 
 import { dependencySatisfies, importSync, macroCondition } from '@embroider/macros';

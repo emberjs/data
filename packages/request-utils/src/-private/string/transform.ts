@@ -129,8 +129,7 @@ export function camelize(str: string): string {
 }
 
 /**
-  More general than decamelize. Returns the lower\_case\_and\_underscored
-  form of a string.
+  Returns the lower\_case\_and\_underscored form of a string.
 
   ```js
   import { underscore } from '@ember-data/request-utils/string';

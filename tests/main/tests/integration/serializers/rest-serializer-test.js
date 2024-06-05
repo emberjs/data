@@ -1,12 +1,10 @@
-import { dasherize, decamelize } from '@ember/string';
-
 import { module, test } from 'qunit';
 
-import Inflector, { singularize } from 'ember-inflector';
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { dasherize, resetToDefaults, singularize,uncountable, underscore } from '@ember-data/request-utils/string';
 import JSONSerializer from '@ember-data/serializer/json';
 import RESTSerializer from '@ember-data/serializer/rest';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
@@ -70,11 +68,13 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     const store = this.owner.lookup('service:store');
     const serializer = store.serializerFor('application');
 
-    Inflector.inflector.uncountable('words');
+    uncountable('words');
     const expectedModelName = 'multi-words';
 
     assert.strictEqual(serializer.modelNameFromPayloadKey('multi_words'), expectedModelName);
     assert.strictEqual(serializer.modelNameFromPayloadKey('multi-words'), expectedModelName);
+
+    resetToDefaults();
   });
 
   test('normalizeResponse should extract meta using extractMeta', function (assert) {
@@ -298,7 +298,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     });
   });
 
-  test('serialize polymorphicType with decamelized modelName', function (assert) {
+  test('serialize polymorphicType with camelCase modelName', function (assert) {
     const store = this.owner.lookup('service:store');
     const serializer = store.serializerFor('application');
 
@@ -426,7 +426,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
           superVillain: 'is_super_villain',
         },
         keyForAttribute(attr) {
-          return decamelize(attr);
+          return underscore(attr);
         },
       })
     );
@@ -451,7 +451,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
           name: 'full_name',
         },
         keyForAttribute(attr) {
-          return decamelize(attr);
+          return underscore(attr);
         },
       })
     );
@@ -483,7 +483,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     });
   });
 
-  test('serializeIntoHash with decamelized modelName', function (assert) {
+  test('serializeIntoHash with underscored modelName', function (assert) {
     const store = this.owner.lookup('service:store');
     const serializer = store.serializerFor('application');
 

@@ -10,12 +10,6 @@ function isNonEmptyString(str) {
   return typeof str === 'string' && str.length > 0;
 }
 function isOwnModule(item) {
-  if (item.module) {
-    return ['ember-inflector'].indexOf(item.module) === -1;
-  }
-  if (item.class) {
-    return ['Ember.Inflector', 'Ember.HTMLBars.helpers'].indexOf(item.class) === -1;
-  }
   return item.file.indexOf('node_modules') === -1;
 }
 

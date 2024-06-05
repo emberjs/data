@@ -1,9 +1,7 @@
 import Mixin from '@ember/object/mixin';
-import { camelize } from '@ember/string';
-
-import { pluralize } from 'ember-inflector';
 
 import type { Snapshot, SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
+import { camelize , pluralize } from '@ember-data/request-utils/string';
 
 /**
   @module @ember-data/adapter
@@ -654,12 +652,11 @@ function urlPrefix(this: MixtBuildURLMixin, path?: string | null, parentURL?: st
 
     ```app/adapters/application.js
     import RESTAdapter from '@ember-data/adapter/rest';
-    import { decamelize, pluralize } from '<app-name>/utils/string-utils';
+    import { undesrcore, pluralize } from '<app-name>/utils/string-utils';
 
     export default class ApplicationAdapter extends RESTAdapter {
       pathForType(modelName) {
-        var decamelized = decamelize(modelName);
-        return pluralize(decamelized);
+        return pluralize(underscore(modelName));
       }
     }
     ```

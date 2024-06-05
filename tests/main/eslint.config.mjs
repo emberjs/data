@@ -19,11 +19,9 @@ const AllowedImports = [
   '@ember/routing/route',
   '@ember/runloop',
   '@ember/service',
-  '@ember/string',
   '@ember/test-helpers',
   '@ember/test-waiters',
   '@glimmer/component',
-  'ember-inflector',
   'qunit',
 ];
 

@@ -37,12 +37,6 @@
     "@warp-drive/holodeck": {
       "injected": true
     },
-    "@ember/string": {
-      "injected": true
-    },
-    "ember-inflector": {
-      "injected": true
-    },
     "@warp-drive/core-types": {
       "injected": true
     },
@@ -57,7 +51,6 @@
     "@ember-data/request-utils": "workspace:5.4.0-alpha.74",
     "@ember/edition-utils": "^1.2.0",
     "@ember/optional-features": "^2.1.0",
-    "@ember/string": "3.1.1",
     "@ember/test-helpers": "^3.3.0",
     "@ember/test-waiters": "^3.1.0",
     "@embroider/addon-shim": "^1.8.8",
@@ -79,7 +72,6 @@
     "ember-cli-terser": "~4.0.2",
     "ember-cli-test-loader": "^3.1.0",
     "ember-disable-prototype-extensions": "^1.1.3",
-    "ember-inflector": "^4.0.2",
     "ember-load-initializers": "^2.1.2",
     "ember-maybe-import-regenerator": "^1.0.0",
     "ember-resolver": "^11.0.1",

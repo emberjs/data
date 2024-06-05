@@ -1,6 +1,6 @@
 import { warn } from '@ember/debug';
 import Mixin from '@ember/object/mixin';
-import { camelize } from '@ember/string';
+import { camelize } from '@ember-data/request-utils/string';
 
 /**
   @module @ember-data/serializer/rest

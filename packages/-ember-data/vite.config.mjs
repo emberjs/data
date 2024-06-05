@@ -9,7 +9,6 @@ export const externals = [
   '@ember/object/proxy',
   '@ember/application',
   '@ember/owner',
-  'ember-inflector',
   'qunit',
   '@ember/test-waiters',
   '@ember/test-helpers',

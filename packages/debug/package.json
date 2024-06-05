@@ -42,13 +42,10 @@
   "peerDependencies": {
     "@ember-data/store": "workspace:5.4.0-alpha.74",
     "@ember-data/model": "workspace:5.4.0-alpha.74",
-    "@ember/string": "^3.1.1",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.74",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.60"
   },
   "dependenciesMeta": {
-    "@ember/string": {
-      "injected": true
-    },
     "@ember-data/store": {
       "injected": true
     },
@@ -59,6 +56,9 @@
       "injected": true
     },
     "@ember-data/request": {
+      "injected": true
+    },
+    "@ember-data/request-utils": {
       "injected": true
     },
     "@warp-drive/core-types": {
@@ -83,16 +83,15 @@
     "@babel/preset-typescript": "^7.24.1",
     "@ember-data/request": "workspace:5.4.0-alpha.74",
     "@ember-data/legacy-compat": "workspace:5.4.0-alpha.74",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.74",
     "@ember-data/store": "workspace:5.4.0-alpha.74",
     "@ember-data/model": "workspace:5.4.0-alpha.74",
     "@ember-data/tracking": "workspace:5.4.0-alpha.74",
     "@ember/test-waiters": "^3.1.0",
-    "@ember/string": "^3.1.1",
     "@glimmer/component": "^1.1.2",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.60",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.74",
     "ember-source": "~5.8.0",
-    "ember-inflector": "^4.0.2",
     "decorator-transforms": "^2.0.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "typescript": "^5.4.5",

@@ -6,9 +6,7 @@
   @main @ember-data/legacy-compat/utils
   @deprecated
 */
-import { dasherize } from '@ember/string';
-
-import { dependencySatisfies, importSync, macroCondition } from '@embroider/macros';
+import { dasherize, singularize } from '@ember-data/request-utils/string';
 
 import { assert } from '@warp-drive/build-config/macros';
 
@@ -19,10 +17,6 @@ interface AssertFunc {
 
 type Reporter = (type: 'formatted-id' | 'formatted-type', actual: unknown, expected: unknown) => void;
 type Normalizer = (type: string) => string;
-let singularize: (str: string) => string;
-if (macroCondition(dependencySatisfies('ember-inflector', '*'))) {
-  singularize = (importSync('ember-inflector') as typeof import('ember-inflector')).singularize;
-}
 
 let MismatchReporter: Reporter = function () {};
 

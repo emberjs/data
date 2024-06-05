@@ -16,7 +16,6 @@ export default [
       '@embroider/macros',
       '@ember/application/namespace',
       'ember',
-      'ember-inflector',
       '@ember/debug',
       '@ember/array/proxy',
       '@ember/object/promise-proxy-mixin',

@@ -4,15 +4,7 @@ import * as node from '@warp-drive/internal-config/eslint/node.js';
 import * as typescript from '@warp-drive/internal-config/eslint/typescript.js';
 import * as js from '@warp-drive/internal-config/eslint/browser.js';
 
-const AllowedImports = [
-  'ember-inflector',
-  '@ember/application',
-  '@ember/service',
-  '@ember/debug',
-  '@ember/object',
-  '@ember/string',
-  '@ember/object/mixin',
-];
+const AllowedImports = ['@ember/application', '@ember/service', '@ember/debug', '@ember/object', '@ember/object/mixin'];
 
 /** @type {import('eslint').Linter.FlatConfig[]} */
 export default [

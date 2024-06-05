@@ -1,4 +1,4 @@
-import { pluralize } from 'ember-inflector';
+import { pluralize } from '@ember-data/request-utils/string';
 
 import {
   buildBaseURL,

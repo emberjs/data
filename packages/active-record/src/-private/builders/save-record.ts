@@ -1,6 +1,6 @@
-import { underscore } from '@ember/string';
+import { underscore } from '@ember-data/request-utils/string';
 
-import { pluralize } from 'ember-inflector';
+import { pluralize } from '@ember-data/request-utils/string';
 
 import {
   buildBaseURL,

@@ -21,7 +21,6 @@
     "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
   "dependencies": {
-    "@ember/string": "3.1.1",
     "ember-auto-import": "^2.7.3",
     "ember-data": "workspace:5.4.0-alpha.74",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
@@ -29,9 +28,6 @@
   },
   "dependenciesMeta": {
     "ember-data": {
-      "injected": true
-    },
-    "@ember/string": {
       "injected": true
     }
   },

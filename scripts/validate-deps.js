@@ -4,7 +4,7 @@ const chalk = require('chalk');
 const root = process.cwd();
 
 const pkgs = new Map();
-const otherPkgs = new Set(['ember-inflector', '@ember/string']);
+const otherPkgs = new Set([]);
 const files = new Map();
 const currentVersion = require(path.join(root, 'package.json')).version;
 const peer_exceptions = {

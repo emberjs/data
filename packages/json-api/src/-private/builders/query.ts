@@ -1,7 +1,7 @@
 /**
  * @module @ember-data/json-api/request
  */
-import { pluralize } from 'ember-inflector';
+import { pluralize } from '@ember-data/request-utils/string';
 
 import { buildBaseURL, buildQueryParams, type QueryUrlOptions } from '@ember-data/request-utils';
 import type { QueryParamsSource } from '@warp-drive/core-types/params';

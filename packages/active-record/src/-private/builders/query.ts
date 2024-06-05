@@ -1,9 +1,9 @@
 /**
  * @module @ember-data/active-record/request
  */
-import { underscore } from '@ember/string';
+import { underscore } from '@ember-data/request-utils/string';
 
-import { pluralize } from 'ember-inflector';
+import { pluralize } from '@ember-data/request-utils/string';
 
 import { buildBaseURL, buildQueryParams, type QueryUrlOptions } from '@ember-data/request-utils';
 import type { QueryParamsSource } from '@warp-drive/core-types/params';

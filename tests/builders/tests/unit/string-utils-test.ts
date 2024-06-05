@@ -1,6 +1,6 @@
-import { module, test } from '@warp-drive/diagnostic';
 import { camelize, capitalize, dasherize, underscore } from '@ember-data/request-utils/string';
-import { Diagnostic } from '@warp-drive/diagnostic/-types';
+import { module, test } from '@warp-drive/diagnostic';
+import type { Diagnostic } from '@warp-drive/diagnostic/-types';
 
 const createTestFunction = (assert: Diagnostic, fn: (v: string) => string) => {
   return (given: string, expected: string, description: string) => {

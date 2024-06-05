@@ -43,10 +43,10 @@
   "peerDependencies": {
     "@ember-data/store": "^4.12.7 || > 5.3.3",
     "@ember-data/request": "^4.12.7 || > 5.3.3",
+    "@ember-data/request-utils": "^4.12.7 || > 5.3.3",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.60",
     "ember-provide-consume-context": "^0.3.1",
-    "@ember-data/tracking": "^4.12.7 || > 5.3.3",
-    "@ember/string": "^3.1.1"
+    "@ember-data/tracking": "^4.12.7 || > 5.3.3"
   },
   "dependencies": {
     "@ember/test-waiters": "^3.1.0",
@@ -58,6 +58,9 @@
       "injected": true
     },
     "@ember-data/request": {
+      "injected": true
+    },
+    "@ember-data/request-utils": {
       "injected": true
     },
     "@warp-drive/core-types": {
@@ -91,9 +94,9 @@
     "decorator-transforms": "^2.0.0",
     "@embroider/addon-dev": "^4.3.1",
     "@ember-data/request": "workspace:5.4.0-alpha.74",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.74",
     "@ember-data/store": "workspace:5.4.0-alpha.74",
     "@ember-data/tracking": "workspace:5.4.0-alpha.74",
-    "@ember/string": "^3.1.1",
     "@ember/test-helpers": "^3.3.0",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.60",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.74",
