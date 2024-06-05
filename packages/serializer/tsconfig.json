@@ -1,7 +1,12 @@
 {
-  "include": ["src/**/*"],
+  "include": [
+    "src/**/*"
+  ],
   "compilerOptions": {
-    "lib": ["DOM", "ESNext"],
+    "lib": [
+      "DOM",
+      "ESNext"
+    ],
     "module": "esnext",
     "target": "esnext",
     "moduleResolution": "bundler",
@@ -28,20 +33,52 @@
     "declarationDir": "unstable-preview-types",
     "inlineSourceMap": true,
     "inlineSources": true,
-    "types": ["ember-source/types"],
+    "types": [
+      "ember-source/types"
+    ],
     "paths": {
-      "@ember-data/request": ["../request/unstable-preview-types"],
-      "@ember-data/request/*": ["../request/unstable-preview-types/*"],
-      "@ember-data/store": ["../store/unstable-preview-types"],
-      "@ember-data/store/*": ["../store/unstable-preview-types/*"],
-      "@ember-data/tracking": ["../tracking/unstable-preview-types"],
-      "@ember-data/tracking/*": ["../tracking/unstable-preview-types/*"],
-      "@ember-data/legacy-compat": ["../legacy-compat/unstable-preview-types"],
-      "@ember-data/legacy-compat/*": ["../legacy-compat/unstable-preview-types/*"],
-      "@warp-drive/build-config": ["../build-config/unstable-preview-types"],
-      "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"],
-      "@warp-drive/core-types": ["../core-types/unstable-preview-types"],
-      "@warp-drive/core-types/*": ["../core-types/unstable-preview-types/*"]
+      "@ember-data/request": [
+        "../request/unstable-preview-types"
+      ],
+      "@ember-data/request/*": [
+        "../request/unstable-preview-types/*"
+      ],
+      "@ember-data/store": [
+        "../store/unstable-preview-types"
+      ],
+      "@ember-data/store/*": [
+        "../store/unstable-preview-types/*"
+      ],
+      "@ember-data/tracking": [
+        "../tracking/unstable-preview-types"
+      ],
+      "@ember-data/tracking/*": [
+        "../tracking/unstable-preview-types/*"
+      ],
+      "@ember-data/legacy-compat": [
+        "../legacy-compat/unstable-preview-types"
+      ],
+      "@ember-data/legacy-compat/*": [
+        "../legacy-compat/unstable-preview-types/*"
+      ],
+      "@warp-drive/build-config": [
+        "../build-config/unstable-preview-types"
+      ],
+      "@warp-drive/build-config/*": [
+        "../build-config/unstable-preview-types/*"
+      ],
+      "@warp-drive/core-types": [
+        "../core-types/unstable-preview-types"
+      ],
+      "@warp-drive/core-types/*": [
+        "../core-types/unstable-preview-types/*"
+      ],
+      "@ember-data/request-utils": [
+        "../request-utils/unstable-preview-types"
+      ],
+      "@ember-data/request-utils/*": [
+        "../request-utils/unstable-preview-types/*"
+      ]
     }
   },
   "references": [
@@ -62,6 +99,9 @@
     },
     {
       "path": "../legacy-compat"
+    },
+    {
+      "path": "../request-utils"
     }
   ]
 }

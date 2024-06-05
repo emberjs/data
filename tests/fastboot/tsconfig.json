@@ -1,7 +1,15 @@
 {
-  "include": ["app/**/*", "config/**/*", "tests/**/*", "types/**/*"],
+  "include": [
+    "app/**/*",
+    "config/**/*",
+    "tests/**/*",
+    "types/**/*"
+  ],
   "compilerOptions": {
-    "lib": ["DOM", "ESNext"],
+    "lib": [
+      "DOM",
+      "ESNext"
+    ],
     "module": "esnext",
     "target": "esnext",
     "moduleResolution": "bundler",
@@ -20,26 +28,70 @@
     "incremental": true,
     "noEmit": true,
     "declaration": false,
-    "types": ["ember-source/types"],
+    "types": [
+      "ember-source/types"
+    ],
     "paths": {
-      "@ember-data/unpublished-test-infra": ["../../packages/unpublished-test-infra/unstable-preview-types"],
-      "@ember-data/unpublished-test-infra/*": ["../../packages/unpublished-test-infra/unstable-preview-types/*"],
-      "ember-data": ["../../packages/-ember-data/unstable-preview-types"],
-      "ember-data/*": ["../../packages/-ember-data/unstable-preview-types/*"],
-      "@ember-data/request": ["../../packages/request/unstable-preview-types"],
-      "@ember-data/request/*": ["../../packages/request/unstable-preview-types/*"],
-      "@ember-data/store": ["../../packages/store/unstable-preview-types"],
-      "@ember-data/store/*": ["../../packages/store/unstable-preview-types/*"],
-      "@ember-data/model": ["../../packages/model/unstable-preview-types"],
-      "@ember-data/model/*": ["../../packages/model/unstable-preview-types/*"],
-      "@ember-data/tracking": ["../../packages/tracking/unstable-preview-types"],
-      "@ember-data/tracking/*": ["../../packages/tracking/unstable-preview-types/*"],
-      "@warp-drive/core-types": ["../../packages/core-types/unstable-preview-types"],
-      "@warp-drive/core-types/*": ["../../packages/core-types/unstable-preview-types/*"],
-      "@warp-drive/build-config": ["../../packages/build-config/unstable-preview-types"],
-      "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"],
-      "@ember-data/legacy-compat": ["../../packages/legacy-compat/unstable-preview-types"],
-      "@ember-data/legacy-compat/*": ["../../packages/legacy-compat/unstable-preview-types/*"]
+      "@ember-data/unpublished-test-infra": [
+        "../../packages/unpublished-test-infra/unstable-preview-types"
+      ],
+      "@ember-data/unpublished-test-infra/*": [
+        "../../packages/unpublished-test-infra/unstable-preview-types/*"
+      ],
+      "ember-data": [
+        "../../packages/-ember-data/unstable-preview-types"
+      ],
+      "ember-data/*": [
+        "../../packages/-ember-data/unstable-preview-types/*"
+      ],
+      "@ember-data/request": [
+        "../../packages/request/unstable-preview-types"
+      ],
+      "@ember-data/request/*": [
+        "../../packages/request/unstable-preview-types/*"
+      ],
+      "@ember-data/store": [
+        "../../packages/store/unstable-preview-types"
+      ],
+      "@ember-data/store/*": [
+        "../../packages/store/unstable-preview-types/*"
+      ],
+      "@ember-data/model": [
+        "../../packages/model/unstable-preview-types"
+      ],
+      "@ember-data/model/*": [
+        "../../packages/model/unstable-preview-types/*"
+      ],
+      "@ember-data/tracking": [
+        "../../packages/tracking/unstable-preview-types"
+      ],
+      "@ember-data/tracking/*": [
+        "../../packages/tracking/unstable-preview-types/*"
+      ],
+      "@warp-drive/core-types": [
+        "../../packages/core-types/unstable-preview-types"
+      ],
+      "@warp-drive/core-types/*": [
+        "../../packages/core-types/unstable-preview-types/*"
+      ],
+      "@warp-drive/build-config": [
+        "../../packages/build-config/unstable-preview-types"
+      ],
+      "@warp-drive/build-config/*": [
+        "../../packages/build-config/unstable-preview-types/*"
+      ],
+      "@ember-data/legacy-compat": [
+        "../../packages/legacy-compat/unstable-preview-types"
+      ],
+      "@ember-data/legacy-compat/*": [
+        "../../packages/legacy-compat/unstable-preview-types/*"
+      ],
+      "@ember-data/request-utils": [
+        "../../packages/request-utils/unstable-preview-types"
+      ],
+      "@ember-data/request-utils/*": [
+        "../../packages/request-utils/unstable-preview-types/*"
+      ]
     }
   },
   "references": [
@@ -69,6 +121,9 @@
     },
     {
       "path": "../../packages/legacy-compat"
+    },
+    {
+      "path": "../../packages/request-utils"
     }
   ]
 }

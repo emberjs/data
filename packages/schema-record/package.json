@@ -68,6 +68,12 @@
     },
     "@warp-drive/build-config": {
       "injected": true
+    },
+    "@ember-data/legacy-compat": {
+      "injected": true
+    },
+    "@ember-data/request-utils": {
+      "injected": true
     }
   },
   "dependencies": {
@@ -85,6 +91,7 @@
     "@ember-data/legacy-compat": "workspace:5.4.0-alpha.74",
     "@ember-data/tracking": "workspace:5.4.0-alpha.74",
     "@ember-data/request-utils": "workspace:5.4.0-alpha.74",
+    "@ember/test-waiters": "^3.1.0",
     "@glimmer/component": "^1.1.2",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.60",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.74",

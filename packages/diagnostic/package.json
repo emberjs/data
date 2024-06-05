@@ -123,5 +123,9 @@
   "ember": {
     "edition": "octane"
   },
-  "dependenciesMeta": {}
+  "dependenciesMeta": {
+    "@warp-drive/build-config": {
+      "injected": true
+    }
+  }
 }

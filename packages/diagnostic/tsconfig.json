@@ -1,7 +1,12 @@
 {
-  "include": ["src/**/*"],
+  "include": [
+    "src/**/*"
+  ],
   "compilerOptions": {
-    "lib": ["DOM", "ESNext"],
+    "lib": [
+      "DOM",
+      "ESNext"
+    ],
     "module": "esnext",
     "target": "esnext",
     "moduleResolution": "bundler",
@@ -15,18 +20,31 @@
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
     "emitDeclarationOnly": true,
-
     // Enable faster builds
     // but causes us to not rebuild properly
     "composite": true,
     "incremental": true,
     "rootDir": "src",
-
     "declaration": true,
     "declarationMap": true,
     "declarationDir": "unstable-preview-types",
     "inlineSourceMap": true,
     "inlineSources": true,
-    "types": ["ember-source/types"]
-  }
+    "types": [
+      "ember-source/types"
+    ],
+    "paths": {
+      "@warp-drive/build-config": [
+        "../build-config/unstable-preview-types"
+      ],
+      "@warp-drive/build-config/*": [
+        "../build-config/unstable-preview-types/*"
+      ]
+    }
+  },
+  "references": [
+    {
+      "path": "../build-config"
+    }
+  ]
 }
