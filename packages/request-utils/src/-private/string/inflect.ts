@@ -79,13 +79,13 @@ export function clearRules() {
 export function singularize(word: string) {
   assert(`singularize expects to receive a non-empty string`, typeof word === 'string' && word.length > 0);
   if (!word) return '';
-  return SINGULARS.get(word.toLowerCase());
+  return SINGULARS.get(word);
 }
 
 export function pluralize(word: string) {
   assert(`pluralize expects to receive a non-empty string`, typeof word === 'string' && word.length > 0);
   if (!word) return '';
-  return PLURALS.get(word.toLowerCase());
+  return PLURALS.get(word);
 }
 
 function unshiftMap<K, V>(v: [K, V], map: Map<K, V>) {
