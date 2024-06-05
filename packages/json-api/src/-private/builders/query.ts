@@ -1,9 +1,8 @@
 /**
  * @module @ember-data/json-api/request
  */
-import { pluralize } from '@ember-data/request-utils/string';
-
 import { buildBaseURL, buildQueryParams, type QueryUrlOptions } from '@ember-data/request-utils';
+import { pluralize } from '@ember-data/request-utils/string';
 import type { QueryParamsSource } from '@warp-drive/core-types/params';
 import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
 import type {

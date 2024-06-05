@@ -7,7 +7,6 @@
   @deprecated
 */
 import { dasherize, singularize } from '@ember-data/request-utils/string';
-
 import { assert } from '@warp-drive/build-config/macros';
 
 interface AssertFunc {

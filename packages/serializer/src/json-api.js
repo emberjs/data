@@ -2,10 +2,8 @@
  * @module @ember-data/serializer/json-api
  */
 import { warn } from '@ember/debug';
-import { dasherize } from '@ember-data/request-utils/string';
 
-import { pluralize, singularize } from '@ember-data/request-utils/string';
-
+import { dasherize , pluralize, singularize } from '@ember-data/request-utils/string';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 

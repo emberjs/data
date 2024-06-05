@@ -2,10 +2,8 @@
  * @module @ember-data/serializer/rest
  */
 import { warn } from '@ember/debug';
-import { camelize, dasherize } from '@ember-data/request-utils/string';
 
-import { singularize } from '@ember-data/request-utils/string';
-
+import { camelize, dasherize , singularize } from '@ember-data/request-utils/string';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 

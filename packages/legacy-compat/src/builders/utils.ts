@@ -1,6 +1,6 @@
 import { deprecate } from '@ember/debug';
-import { dasherize } from '@ember-data/request-utils/string';
 
+import { dasherize } from '@ember-data/request-utils/string';
 import { DEPRECATE_NON_STRICT_TYPES } from '@warp-drive/build-config/deprecations';
 import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
 

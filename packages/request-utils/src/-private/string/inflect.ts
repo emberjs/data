@@ -30,14 +30,14 @@ export function loadUncountable(uncountables: string[]) {
   });
 }
 
-export function irregular(singular: string, plural: string) {
+export function irregular(single: string, plur: string) {
   //pluralizing
-  IRREGULAR.set(singular.toLowerCase(), plural);
-  IRREGULAR.set(plural.toLowerCase(), plural);
+  IRREGULAR.set(single.toLowerCase(), plur);
+  IRREGULAR.set(plur.toLowerCase(), plur);
 
   //singularizing
-  INVERSE_IRREGULAR.set(plural.toLowerCase(), singular);
-  INVERSE_IRREGULAR.set(singular.toLowerCase(), singular);
+  INVERSE_IRREGULAR.set(plur.toLowerCase(), single);
+  INVERSE_IRREGULAR.set(single.toLowerCase(), single);
 }
 
 export function loadIrregular(irregularPairs: Array<[string, string]>) {
@@ -125,7 +125,7 @@ function _singularize(word: string) {
   return inflect(word, SINGULAR_RULES, INVERSE_IRREGULAR);
 }
 
-function inflect(word: string, typeRules: Map<RegExp, string>, irregular: Map<string, string>) {
+function inflect(word: string, typeRules: Map<RegExp, string>, irregulars: Map<string, string>) {
   // empty strings
   const isBlank = !word || BLANK_REGEX.test(word);
   if (isBlank) {
@@ -147,9 +147,9 @@ function inflect(word: string, typeRules: Map<RegExp, string>, irregular: Map<st
 
   // handle irregulars
   const isCamelized = CAMELIZED_REGEX.test(word);
-  for (let [rule, substitution] of irregular) {
+  for (let [rule, substitution] of irregulars) {
     if (lowercase.match(rule + '$')) {
-      if (isCamelized && lastWord && irregular.has(lastWord)) {
+      if (isCamelized && lastWord && irregulars.has(lastWord)) {
         substitution = capitalize(substitution);
         rule = capitalize(rule);
       }

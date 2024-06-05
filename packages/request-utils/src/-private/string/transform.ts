@@ -70,15 +70,17 @@ const STRING_DASHERIZE_CACHE = new LRUCache<string, string>((key: string) =>
   key.replace(STRING_DECAMELIZE_REGEXP, '$1_$2').toLowerCase().replace(STRING_DASHERIZE_REGEXP, '-')
 );
 
+// eslint-disable-next-line no-useless-escape
 const STRING_CAMELIZE_REGEXP_1 = /(\-|\_|\.|\s)+(.)?/g;
 const STRING_CAMELIZE_REGEXP_2 = /(^|\/)([A-Z])/g;
 const CAMELIZE_CACHE = new LRUCache<string, string>((key: string) =>
   key
-    .replace(STRING_CAMELIZE_REGEXP_1, (_match, _separator, chr) => (chr ? chr.toUpperCase() : ''))
+    .replace(STRING_CAMELIZE_REGEXP_1, (_match, _separator, chr: string | null) => (chr ? chr.toUpperCase() : ''))
     .replace(STRING_CAMELIZE_REGEXP_2, (match /*, separator, chr */) => match.toLowerCase())
 );
 
 const STRING_UNDERSCORE_REGEXP_1 = /([a-z\d])([A-Z]+)/g;
+// eslint-disable-next-line no-useless-escape
 const STRING_UNDERSCORE_REGEXP_2 = /\-|\s+/g;
 const UNDERSCORE_CACHE = new LRUCache<string, string>((str: string) =>
   str.replace(STRING_UNDERSCORE_REGEXP_1, '$1_$2').replace(STRING_UNDERSCORE_REGEXP_2, '_').toLowerCase()
