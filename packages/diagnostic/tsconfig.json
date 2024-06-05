@@ -1,12 +1,7 @@
 {
-  "include": [
-    "src/**/*"
-  ],
+  "include": ["src/**/*"],
   "compilerOptions": {
-    "lib": [
-      "DOM",
-      "ESNext"
-    ],
+    "lib": ["DOM", "ESNext"],
     "module": "esnext",
     "target": "esnext",
     "moduleResolution": "bundler",
@@ -30,16 +25,10 @@
     "declarationDir": "unstable-preview-types",
     "inlineSourceMap": true,
     "inlineSources": true,
-    "types": [
-      "ember-source/types"
-    ],
+    "types": ["ember-source/types"],
     "paths": {
-      "@warp-drive/build-config": [
-        "../build-config/unstable-preview-types"
-      ],
-      "@warp-drive/build-config/*": [
-        "../build-config/unstable-preview-types/*"
-      ]
+      "@warp-drive/build-config": ["../build-config/unstable-preview-types"],
+      "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"]
     }
   },
   "references": [

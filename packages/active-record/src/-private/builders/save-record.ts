@@ -4,7 +4,7 @@ import {
   type DeleteRecordUrlOptions,
   type UpdateRecordUrlOptions,
 } from '@ember-data/request-utils';
-import { pluralize,underscore  } from '@ember-data/request-utils/string';
+import { pluralize, underscore } from '@ember-data/request-utils/string';
 import { recordIdentifierFor } from '@ember-data/store';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';

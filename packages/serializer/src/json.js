@@ -4,7 +4,7 @@
 import { getOwner } from '@ember/application';
 import { warn } from '@ember/debug';
 
-import { dasherize , singularize } from '@ember-data/request-utils/string';
+import { dasherize, singularize } from '@ember-data/request-utils/string';
 import { assert } from '@warp-drive/build-config/macros';
 
 import Serializer from '.';

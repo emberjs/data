@@ -1,14 +1,7 @@
 {
-  "include": [
-    "src/**/*",
-    "../../@types/fastboot",
-    "../../@types/@glimmer/tracking.d.ts"
-  ],
+  "include": ["src/**/*", "../../@types/fastboot", "../../@types/@glimmer/tracking.d.ts"],
   "glint": {
-    "environment": [
-      "ember-loose",
-      "ember-template-imports"
-    ]
+    "environment": ["ember-loose", "ember-template-imports"]
   },
   "compilerOptions": {
     "target": "ESNext",
@@ -46,47 +39,21 @@
     "inlineSourceMap": true,
     "inlineSources": true,
     "baseUrl": ".",
-    "types": [
-      "ember-source/types"
-    ],
+    "types": ["ember-source/types"],
     "allowImportingTsExtensions": true,
     "paths": {
-      "@ember-data/request": [
-        "../request/unstable-preview-types"
-      ],
-      "@ember-data/request/*": [
-        "../request/unstable-preview-types/*"
-      ],
-      "@ember-data/store": [
-        "../store/unstable-preview-types"
-      ],
-      "@ember-data/store/*": [
-        "../store/unstable-preview-types/*"
-      ],
-      "@ember-data/tracking": [
-        "../tracking/unstable-preview-types"
-      ],
-      "@ember-data/tracking/*": [
-        "../tracking/unstable-preview-types/*"
-      ],
-      "@warp-drive/build-config": [
-        "../build-config/unstable-preview-types"
-      ],
-      "@warp-drive/build-config/*": [
-        "../build-config/unstable-preview-types/*"
-      ],
-      "@warp-drive/core-types": [
-        "../core-types/unstable-preview-types"
-      ],
-      "@warp-drive/core-types/*": [
-        "../core-types/unstable-preview-types/*"
-      ],
-      "@ember-data/request-utils": [
-        "../request-utils/unstable-preview-types"
-      ],
-      "@ember-data/request-utils/*": [
-        "../request-utils/unstable-preview-types/*"
-      ]
+      "@ember-data/request": ["../request/unstable-preview-types"],
+      "@ember-data/request/*": ["../request/unstable-preview-types/*"],
+      "@ember-data/store": ["../store/unstable-preview-types"],
+      "@ember-data/store/*": ["../store/unstable-preview-types/*"],
+      "@ember-data/tracking": ["../tracking/unstable-preview-types"],
+      "@ember-data/tracking/*": ["../tracking/unstable-preview-types/*"],
+      "@warp-drive/build-config": ["../build-config/unstable-preview-types"],
+      "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"],
+      "@warp-drive/core-types": ["../core-types/unstable-preview-types"],
+      "@warp-drive/core-types/*": ["../core-types/unstable-preview-types/*"],
+      "@ember-data/request-utils": ["../request-utils/unstable-preview-types"],
+      "@ember-data/request-utils/*": ["../request-utils/unstable-preview-types/*"]
     }
   },
   "references": [
