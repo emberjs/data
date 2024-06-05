@@ -2,10 +2,8 @@
  * @module @ember-data/serializer/rest
  */
 import { warn } from '@ember/debug';
-import { camelize, dasherize } from '@ember/string';
 
-import { singularize } from 'ember-inflector';
-
+import { camelize, dasherize, singularize } from '@ember-data/request-utils/string';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 
@@ -654,11 +652,11 @@ const RESTSerializer = JSONSerializer.extend({
 
     ```app/serializers/application.js
     import RESTSerializer from '@ember-data/serializer/rest';
-    import { decamelize } from '<app-name>/utils/string-utils';
+    import { underscore } from '<app-name>/utils/string-utils';
 
     export default class ApplicationSerializer extends RESTSerializer {
       serializeIntoHash(data, type, record, options) {
-        let root = decamelize(type.modelName);
+        let root = underscore(type.modelName);
         data[root] = this.serialize(record, options);
       }
     }

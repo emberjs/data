@@ -43,12 +43,6 @@
     "@warp-drive/build-config": {
       "injected": true
     },
-    "@ember/string": {
-      "injected": true
-    },
-    "ember-inflector": {
-      "injected": true
-    },
     "@ember-data/legacy-compat": {
       "injected": true
     },
@@ -78,7 +72,6 @@
     "@ember-data/store": "workspace:5.4.0-alpha.74",
     "@ember-data/tracking": "workspace:5.4.0-alpha.74",
     "@ember/optional-features": "^2.1.0",
-    "@ember/string": "3.1.1",
     "@ember/test-helpers": "^3.3.0",
     "@ember/test-waiters": "^3.1.0",
     "@embroider/addon-shim": "^1.8.8",
@@ -95,7 +88,6 @@
     "ember-cli-htmlbars": "^6.3.0",
     "ember-cli-inject-live-reload": "^2.1.0",
     "ember-cli-test-loader": "^3.1.0",
-    "ember-inflector": "^4.0.2",
     "ember-load-initializers": "^2.1.2",
     "ember-maybe-import-regenerator": "^1.0.0",
     "ember-resolver": "^11.0.1",

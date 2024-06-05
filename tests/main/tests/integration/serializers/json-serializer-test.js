@@ -1,10 +1,9 @@
-import { underscore } from '@ember/string';
-
 import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { underscore } from '@ember-data/request-utils/string';
 import JSONSerializer from '@ember-data/serializer/json';
 import { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
 import Transform from '@ember-data/serializer/transform';

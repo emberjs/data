@@ -11,7 +11,7 @@ export default [
   // browser (js/ts) ================
   typescript.browser({
     srcDirs: ['src'],
-    allowedImports: ['ember-inflector', '@ember/string'],
+    allowedImports: [],
   }),
 
   // node (module) ================

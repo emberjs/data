@@ -50,9 +50,8 @@
     "@ember-data/legacy-compat": "workspace:5.4.0-alpha.74",
     "@ember-data/store": "workspace:5.4.0-alpha.74",
     "@ember-data/tracking": "workspace:5.4.0-alpha.74",
-    "@ember/string": "^3.1.1",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.60",
-    "ember-inflector": "^4.0.2"
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.74",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.60"
   },
   "peerDependenciesMeta": {
     "@ember-data/json-api": {
@@ -79,12 +78,6 @@
       "injected": true
     },
     "@warp-drive/core-types": {
-      "injected": true
-    },
-    "@ember/string": {
-      "injected": true
-    },
-    "ember-inflector": {
       "injected": true
     },
     "@ember-data/request": {
@@ -118,12 +111,10 @@
     "@ember-data/store": "workspace:5.4.0-alpha.74",
     "@ember-data/tracking": "workspace:5.4.0-alpha.74",
     "@ember/test-waiters": "^3.1.0",
-    "@ember/string": "^3.1.1",
     "@glimmer/component": "^1.1.2",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.60",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.74",
     "decorator-transforms": "^2.0.0",
-    "ember-inflector": "^4.0.2",
     "ember-source": "~5.8.0",
     "expect-type": "^0.19.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",

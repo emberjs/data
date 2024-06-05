@@ -42,7 +42,9 @@
       "@warp-drive/core-types": ["../core-types/unstable-preview-types"],
       "@warp-drive/core-types/*": ["../core-types/unstable-preview-types/*"],
       "@warp-drive/diagnostic": ["../diagnostic/unstable-preview-types"],
-      "@warp-drive/diagnostic/*": ["../diagnostic/unstable-preview-types/*"]
+      "@warp-drive/diagnostic/*": ["../diagnostic/unstable-preview-types/*"],
+      "@ember-data/request-utils": ["../request-utils/unstable-preview-types"],
+      "@ember-data/request-utils/*": ["../request-utils/unstable-preview-types/*"]
     }
   },
   "references": [
@@ -63,6 +65,9 @@
     },
     {
       "path": "../tracking"
+    },
+    {
+      "path": "../request-utils"
     }
   ]
 }

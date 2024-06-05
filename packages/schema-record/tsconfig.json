@@ -40,7 +40,11 @@
       "@warp-drive/build-config": ["../build-config/unstable-preview-types"],
       "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"],
       "@warp-drive/core-types": ["../core-types/unstable-preview-types"],
-      "@warp-drive/core-types/*": ["../core-types/unstable-preview-types/*"]
+      "@warp-drive/core-types/*": ["../core-types/unstable-preview-types/*"],
+      "@ember-data/legacy-compat": ["../legacy-compat/unstable-preview-types"],
+      "@ember-data/legacy-compat/*": ["../legacy-compat/unstable-preview-types/*"],
+      "@ember-data/request-utils": ["../request-utils/unstable-preview-types"],
+      "@ember-data/request-utils/*": ["../request-utils/unstable-preview-types/*"]
     }
   },
   "references": [
@@ -61,6 +65,12 @@
     },
     {
       "path": "../build-config"
+    },
+    {
+      "path": "../legacy-compat"
+    },
+    {
+      "path": "../request-utils"
     }
   ]
 }

@@ -28,9 +28,9 @@ import { A } from '@ember/array';
 import DataAdapter from '@ember/debug/data-adapter';
 import { addObserver, removeObserver } from '@ember/object/observers';
 import { inject as service } from '@ember/service';
-import { capitalize, underscore } from '@ember/string';
 
 import type Model from '@ember-data/model';
+import { capitalize, underscore } from '@ember-data/request-utils/string';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/store/types';

@@ -1,12 +1,10 @@
-import { decamelize, underscore } from '@ember/string';
-
 import { module, test } from 'qunit';
 
-import { pluralize } from 'ember-inflector';
 import { setupTest } from 'ember-qunit';
 
 import RESTAdapter from '@ember-data/adapter/rest';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { dasherize, pluralize, underscore } from '@ember-data/request-utils/string';
 import RESTSerializer from '@ember-data/serializer/rest';
 
 module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', function (hooks) {
@@ -205,8 +203,8 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
   test('buildURL - with camelized names', async function (assert) {
     adapter.setProperties({
       pathForType(type) {
-        const decamelized = decamelize(type);
-        return underscore(pluralize(decamelized));
+        const dasherized = dasherize(type);
+        return underscore(pluralize(dasherized));
       },
     });
 

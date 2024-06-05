@@ -76,7 +76,7 @@
       "groupName": "testing"
     },
     {
-      "matchPackageNames": ["ember-inflector", "ember-promise-helpers"],
+      "matchPackageNames": ["ember-promise-helpers"],
       "groupName": "data-utils"
     },
     {

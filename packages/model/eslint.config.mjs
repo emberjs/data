@@ -12,11 +12,9 @@ export default [
   typescript.browser({
     srcDirs: ['src'],
     allowedImports: [
-      'ember-inflector',
       '@ember/array',
       '@ember/array/proxy',
       '@ember/debug',
-      '@ember/string',
       '@ember/object/internals',
       '@ember/object/proxy',
       '@ember/object/computed',

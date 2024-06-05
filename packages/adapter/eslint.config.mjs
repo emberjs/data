@@ -12,30 +12,14 @@ export default [
   // browser (js) ================
   js.browser({
     srcDirs: ['src'],
-    allowedImports: [
-      '@ember/object',
-      '@ember/application',
-      '@ember/service',
-      '@ember/debug',
-      'ember-inflector',
-      '@ember/object/mixin',
-      '@ember/string',
-    ],
+    allowedImports: ['@ember/object', '@ember/application', '@ember/service', '@ember/debug', '@ember/object/mixin'],
   }),
 
   // browser (ts) ================
   typescript.browser({
     files: ['**/*.ts', '**/*.gts'],
     srcDirs: ['src'],
-    allowedImports: [
-      '@ember/object',
-      '@ember/application',
-      '@ember/service',
-      '@ember/debug',
-      'ember-inflector',
-      '@ember/object/mixin',
-      '@ember/string',
-    ],
+    allowedImports: ['@ember/object', '@ember/application', '@ember/service', '@ember/debug', '@ember/object/mixin'],
   }),
 
   // node (module) ================

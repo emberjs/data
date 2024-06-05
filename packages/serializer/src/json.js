@@ -3,10 +3,8 @@
  */
 import { getOwner } from '@ember/application';
 import { warn } from '@ember/debug';
-import { dasherize } from '@ember/string';
 
-import { singularize } from 'ember-inflector';
-
+import { dasherize, singularize } from '@ember-data/request-utils/string';
 import { assert } from '@warp-drive/build-config/macros';
 
 import Serializer from '.';
@@ -1151,11 +1149,11 @@ const JSONSerializer = Serializer.extend({
 
     ```app/serializers/application.js
     import RESTSerializer from '@ember-data/serializer/rest';
-    import { decamelize } from '<app-name>/utils/string-utils';
+    import { underscoren} from '<app-name>/utils/string-utils';
 
     export default class ApplicationSerializer extends RESTSerializer {
       serializeIntoHash(data, type, snapshot, options) {
-        let root = decamelize(type.modelName);
+        let root = underscore(type.modelName);
         data[root] = this.serialize(snapshot, options);
       }
     }

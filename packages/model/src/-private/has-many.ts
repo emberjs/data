@@ -3,10 +3,8 @@
 */
 import { deprecate } from '@ember/debug';
 import { computed } from '@ember/object';
-import { dasherize } from '@ember/string';
 
-import { singularize } from 'ember-inflector';
-
+import { dasherize, singularize } from '@ember-data/request-utils/string';
 import { DEPRECATE_NON_STRICT_TYPES } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
