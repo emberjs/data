@@ -54,6 +54,9 @@
       "types": "./unstable-preview-types/test-support/index.d.ts",
       "default": "./dist/test-support/index.js"
     },
+    "./app/*": {
+      "default": "./app/*.js"
+    },
     "./*": {
       "types": "./unstable-preview-types/*.d.ts",
       "default": "./dist/*.js"
