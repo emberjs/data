@@ -1,6 +1,7 @@
-import { LRUCache, capitalize } from './transform';
-import { defaultRules } from './inflections';
 import { assert } from '@warp-drive/build-config/macros';
+
+import { defaultRules } from './inflections';
+import { capitalize,LRUCache } from './transform';
 
 const BLANK_REGEX = /^\s*$/;
 const LAST_WORD_DASHED_REGEX = /([\w/-]+[_/\s-])([a-z\d]+$)/;
