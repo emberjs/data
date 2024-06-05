@@ -1,4 +1,6 @@
 import {
+  clear,
+  clearRules,
   irregular,
   plural,
   pluralize,
@@ -16,26 +18,32 @@ module('Inflector', function (hooks) {
 
   module('dsl', () => {
     test('ability to add additional pluralization rules', (assert) => {
+      clearRules();
       assert.equal(pluralize('cow'), 'cow', 'no pluralization rule');
 
       plural(/$/, 's');
+      clear();
 
       assert.equal(pluralize('cow'), 'cows', 'pluralization rule was applied');
     });
 
     test('ability to add additional singularization rules', (assert) => {
+      clearRules();
       assert.equal(singularize('cows'), 'cows', 'no singularization rule was applied');
 
       singular(/s$/, '');
+      clear();
 
       assert.equal(singularize('cows'), 'cow', 'singularization rule was applied');
     });
 
     test('ability to add additional uncountable rules', (assert) => {
+      clearRules();
       plural(/$/, 's');
       assert.equal(pluralize('cow'), 'cows', 'pluralization rule was applied');
 
       uncountable('cow');
+      clear();
       assert.equal(pluralize('cow'), 'cow', 'pluralization rule NOT was applied');
       assert.equal(pluralize('redCow'), 'redCow', 'pluralization rule NOT was applied');
       assert.equal(pluralize('red-cow'), 'red-cow', 'pluralization rule NOT was applied');
@@ -43,6 +51,7 @@ module('Inflector', function (hooks) {
     });
 
     test('ability to add additional irregular rules', (assert) => {
+      clearRules();
       singular(/s$/, '');
       plural(/$/, 's');
 
@@ -59,6 +68,7 @@ module('Inflector', function (hooks) {
       assert.equal(pluralize('red/cow'), 'red/cows', 'regular pluralization rule was applied');
 
       irregular('cow', 'kine');
+      clear();
 
       assert.equal(singularize('kine'), 'cow', 'irregular singularization rule was applied');
       assert.equal(pluralize('cow'), 'kine', 'irregular pluralization rule was applied');
@@ -95,6 +105,7 @@ module('Inflector', function (hooks) {
     });
 
     test('ability to add identical singular and pluralizations', (assert) => {
+      clearRules();
       singular(/s$/, '');
       plural(/$/, 's');
 
@@ -103,6 +114,7 @@ module('Inflector', function (hooks) {
 
       irregular('settings', 'settings');
       irregular('userPreferences', 'userPreferences');
+      clear();
 
       assert.equal(singularize('settings'), 'settings', 'irregular singularization rule was applied on lowercase word');
       assert.equal(pluralize('settings'), 'settings', 'irregular pluralization rule was applied on lowercase word');
@@ -169,7 +181,7 @@ module('Inflector', function (hooks) {
 
       assert.equal(singularize('12'), '1');
       assert.equal(singularize('22'), '2');
-      assert.equal(singularize('32'), '3');
+      assert.equal(singularize('32'), '32'); // because the rule for '2' takes precedence :facepalm:
       assert.equal(singularize('wordy'), 'word');
     });
 
