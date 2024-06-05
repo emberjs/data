@@ -4,7 +4,7 @@ import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import { dasherize, resetToDefaults, singularize,uncountable, underscore } from '@ember-data/request-utils/string';
+import { dasherize, resetToDefaults, singularize, uncountable, underscore } from '@ember-data/request-utils/string';
 import JSONSerializer from '@ember-data/serializer/json';
 import RESTSerializer from '@ember-data/serializer/rest';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';

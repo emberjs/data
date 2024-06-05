@@ -1,7 +1,7 @@
 import Mixin from '@ember/object/mixin';
 
 import type { Snapshot, SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
-import { camelize , pluralize } from '@ember-data/request-utils/string';
+import { camelize, pluralize } from '@ember-data/request-utils/string';
 
 /**
   @module @ember-data/adapter

@@ -4,7 +4,7 @@ import { setupTest } from 'ember-qunit';
 
 import RESTAdapter from '@ember-data/adapter/rest';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import { dasherize, pluralize,underscore } from '@ember-data/request-utils/string';
+import { dasherize, pluralize, underscore } from '@ember-data/request-utils/string';
 import RESTSerializer from '@ember-data/serializer/rest';
 
 module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', function (hooks) {
