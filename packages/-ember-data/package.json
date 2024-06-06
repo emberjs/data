@@ -1,6 +1,6 @@
 {
   "name": "ember-data",
-  "version": "5.4.0-alpha.75",
+  "version": "5.4.0-beta.5",
   "description": "The lightweight reactive data library for JavaScript applications",
   "keywords": [
     "ember-addon"
@@ -106,21 +106,21 @@
     }
   },
   "dependencies": {
-    "@ember-data/adapter": "workspace:5.4.0-alpha.75",
-    "@ember-data/debug": "workspace:5.4.0-alpha.75",
-    "@ember-data/graph": "workspace:5.4.0-alpha.75",
-    "@ember-data/json-api": "workspace:5.4.0-alpha.75",
-    "@ember-data/legacy-compat": "workspace:5.4.0-alpha.75",
-    "@ember-data/model": "workspace:5.4.0-alpha.75",
-    "@ember-data/request": "workspace:5.4.0-alpha.75",
-    "@ember-data/request-utils": "workspace:5.4.0-alpha.75",
-    "@ember-data/serializer": "workspace:5.4.0-alpha.75",
-    "@ember-data/store": "workspace:5.4.0-alpha.75",
-    "@ember-data/tracking": "workspace:5.4.0-alpha.75",
+    "@ember-data/adapter": "workspace:5.4.0-beta.5",
+    "@ember-data/debug": "workspace:5.4.0-beta.5",
+    "@ember-data/graph": "workspace:5.4.0-beta.5",
+    "@ember-data/json-api": "workspace:5.4.0-beta.5",
+    "@ember-data/legacy-compat": "workspace:5.4.0-beta.5",
+    "@ember-data/model": "workspace:5.4.0-beta.5",
+    "@ember-data/request": "workspace:5.4.0-beta.5",
+    "@ember-data/request-utils": "workspace:5.4.0-beta.5",
+    "@ember-data/serializer": "workspace:5.4.0-beta.5",
+    "@ember-data/store": "workspace:5.4.0-beta.5",
+    "@ember-data/tracking": "workspace:5.4.0-beta.5",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.16.1",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.61",
-    "@warp-drive/build-config": "workspace:0.0.0-alpha.12"
+    "@warp-drive/core-types": "workspace:0.0.0-beta.5",
+    "@warp-drive/build-config": "workspace:0.0.0-beta.0"
   },
   "peerDependencies": {
     "@ember/test-helpers": "^3.3.0",
@@ -148,7 +148,7 @@
     "@glimmer/tracking": "^1.1.2",
     "@types/qunit": "^2.19.10",
     "@ember/test-helpers": "^3.3.0",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.75",
+    "@warp-drive/internal-config": "workspace:5.4.0-beta.5",
     "ember-source": "~5.8.0",
     "eslint": "^8.57.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
