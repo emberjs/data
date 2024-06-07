@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/build-config",
-  "version": "0.0.0-alpha.12",
+  "version": "0.0.0-alpha.13",
   "description": "Provides Build Configuration for projects using WarpDrive or EmberData",
   "keywords": [
     "ember-data",
@@ -48,7 +48,7 @@
     "semver": "^7.6.2"
   },
   "devDependencies": {
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.75",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.76",
     "@types/babel__core": "^7.20.5",
     "@types/node": "^20.12.12",
     "@babel/plugin-transform-typescript": "^7.24.5",
