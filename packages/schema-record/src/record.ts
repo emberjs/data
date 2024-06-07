@@ -1,4 +1,4 @@
-import { dependencySatisfies, importSync } from '@embroider/macros';
+import { dependencySatisfies, importSync, macroCondition } from '@embroider/macros';
 
 import type { MinimalLegacyRecord } from '@ember-data/model/-private/model-methods';
 import type Store from '@ember-data/store';
@@ -39,7 +39,7 @@ import {
 } from './symbols';
 
 const HAS_MODEL_PACKAGE = dependencySatisfies('@ember-data/model', '*');
-const getLegacySupport = HAS_MODEL_PACKAGE
+const getLegacySupport = macroCondition(dependencySatisfies('@ember-data/model', '*'))
   ? (importSync('@ember-data/model/-private') as typeof import('@ember-data/model/-private')).lookupLegacySupport
   : null;
 
