@@ -16,6 +16,7 @@ import type {
   LocalField,
   ObjectField,
   SchemaArrayField,
+  SchemaObjectField,
 } from '@warp-drive/core-types/schema/fields';
 import type { Link, Links } from '@warp-drive/core-types/spec/json-api-raw';
 import { RecordStore } from '@warp-drive/core-types/symbols';
@@ -120,8 +121,9 @@ export function computeObject(
   cache: Cache,
   record: SchemaRecord,
   identifier: StableRecordIdentifier,
-  field: ObjectField,
-  prop: string
+  field: ObjectField | SchemaObjectField,
+  prop: string,
+  isSchemaObject = false
 ) {
   const managedObjectMapForRecord = ManagedObjectMap.get(record);
   let managedObject;
@@ -141,7 +143,7 @@ export function computeObject(
         rawValue = transform.hydrate(rawValue as ObjectValue, field.options ?? null, record) as object;
       }
     }
-    managedObject = new ManagedObject(store, schema, cache, field, rawValue, identifier, prop, record);
+    managedObject = new ManagedObject(store, schema, cache, field, rawValue, identifier, prop, record, isSchemaObject);
     if (!managedObjectMapForRecord) {
       ManagedObjectMap.set(record, new Map([[field, managedObject]]));
     } else {

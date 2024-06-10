@@ -4,7 +4,7 @@ import { addToTransaction, createSignal, subscribe } from '@ember-data/tracking/
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { ObjectValue, Value } from '@warp-drive/core-types/json/raw';
-import type { ObjectField } from '@warp-drive/core-types/schema/fields';
+import type { ObjectField, SchemaObjectField } from '@warp-drive/core-types/schema/fields';
 
 import type { SchemaRecord } from '../record';
 import type { SchemaService } from '../schema';
@@ -15,7 +15,7 @@ export function notifyObject(obj: ManagedObject) {
 }
 
 type KeyType = string | symbol | number;
-
+const ignoredGlobalFields = new Set<string>(['constructor', 'setInterval', 'nodeType', 'length']);
 export interface ManagedObject {
   [MUTATE]?(
     target: unknown[],
@@ -37,11 +37,12 @@ export class ManagedObject {
     store: Store,
     schema: SchemaService,
     cache: Cache,
-    field: ObjectField,
+    field: ObjectField | SchemaObjectField,
     data: object,
     address: StableRecordIdentifier,
     key: string,
-    owner: SchemaRecord
+    owner: SchemaRecord,
+    isSchemaObject: boolean
   ) {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
@@ -68,17 +69,39 @@ export class ManagedObject {
         if (prop === 'owner') {
           return self.owner;
         }
+        if (prop === Symbol.toStringTag) {
+          return `ManagedObject<${address.type}:${address.id} (${address.lid})>`;
+        }
 
+        if (prop === 'toString') {
+          return function () {
+            return `ManagedObject<${address.type}:${address.id} (${address.lid})>`;
+          };
+        }
+
+        if (prop === 'toHTML') {
+          return function () {
+            return '<div>ManagedObject</div>';
+          };
+        }
         if (_SIGNAL.shouldReset) {
           _SIGNAL.t = false;
           _SIGNAL.shouldReset = false;
           let newData = cache.getAttr(self.address, self.key);
           if (newData && newData !== self[SOURCE]) {
-            if (field.type) {
+            if (!isSchemaObject && field.type) {
               const transform = schema.transformation(field);
               newData = transform.hydrate(newData as ObjectValue, field.options ?? null, self.owner) as ObjectValue;
             }
             self[SOURCE] = { ...(newData as ObjectValue) }; // Add type assertion for newData
+          }
+        }
+
+        if (isSchemaObject) {
+          const fields = schema.fields({ type: field.type! });
+          // TODO: is there a better way to do this?
+          if (typeof prop === 'string' && !ignoredGlobalFields.has(prop) && !fields.has(prop)) {
+            throw new Error(`Field ${prop} does not exist on schema object ${field.type}`);
           }
         }
 
@@ -108,10 +131,16 @@ export class ManagedObject {
           self.owner = value;
           return true;
         }
+        if (isSchemaObject) {
+          const fields = schema.fields({ type: field.type! });
+          if (typeof prop === 'string' && !ignoredGlobalFields.has(prop) && !fields.has(prop)) {
+            throw new Error(`Field ${prop} does not exist on schema object ${field.type}`);
+          }
+        }
         const reflect = Reflect.set(target, prop, value, receiver);
 
         if (reflect) {
-          if (!field.type) {
+          if (isSchemaObject || !field.type) {
             cache.setAttr(self.address, self.key, self[SOURCE] as Value);
             _SIGNAL.shouldReset = true;
             return true;
