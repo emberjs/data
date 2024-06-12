@@ -319,7 +319,7 @@ importers:
         specifier: ^1.16.1
         version: 1.16.1(@babel/core@7.24.5)(@glint/template@1.4.0)
       '@warp-drive/build-config':
-        specifier: workspace:0.0.0-alpha.13
+        specifier: workspace:0.0.0-alpha.14
         version: file:packages/build-config(@babel/core@7.24.5)(@glint/template@1.4.0)
       chalk:
         specifier: ^5.3.0
@@ -338,7 +338,7 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1(@babel/core@7.24.5)
       '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.76
+        specifier: workspace:5.4.0-alpha.77
         version: link:../../config
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14

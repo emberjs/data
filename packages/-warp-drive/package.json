@@ -51,7 +51,7 @@
   },
   "dependencies": {
     "@embroider/macros": "^1.16.1",
-    "@warp-drive/build-config": "workspace:0.0.0-alpha.13",
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.14",
     "semver": "^7.6.2",
     "chalk": "^5.3.0"
   },
@@ -59,13 +59,13 @@
     "@babel/core": "^7.24.5",
     "@babel/plugin-transform-typescript": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.76",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.77",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "typescript": "^5.4.5",
     "vite": "^5.2.11"
   },
   "engines": {
-    "node": ">= 22.1.0"
+    "node": ">= 18.20.3"
   },
   "volta": {
     "extends": "../../package.json"
