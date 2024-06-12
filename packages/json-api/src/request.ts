@@ -31,8 +31,8 @@ import { findRecord } from '@ember-data/json-api/request';
 
 const options = findRecord('ember-developer', '1', { include: ['pets', 'friends'] });
 
-/\*
-  => {
+/*
+  {
     url: 'https://api.example.com/v1/ember-developers/1?include=friends,pets',
     method: 'GET',
     headers: <Headers>,
@@ -41,7 +41,7 @@ const options = findRecord('ember-developer', '1', { include: ['pets', 'friends'
     op: 'findRecord';
     records: [{ type: 'ember-developer', id: '1' }]
   }
-*\/
+*\
 ```
 
 Request builder output may be used with either `requestManager.request` or `store.request`.
