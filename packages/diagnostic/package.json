@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/diagnostic",
-  "version": "0.0.0-alpha.63",
+  "version": "0.0.0-alpha.64",
   "description": "⚡️ A Lightweight Modern Test Runner",
   "keywords": [
     "test",
@@ -89,7 +89,7 @@
     "debug": "^4.3.4",
     "ember-cli-htmlbars": "^6.3.0",
     "tmp": "^0.2.3",
-    "@warp-drive/build-config": "workspace:0.0.0-alpha.14"
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.15"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
@@ -97,7 +97,7 @@
     "@babel/preset-env": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
     "@babel/runtime": "^7.24.5",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.77",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.78",
     "bun-types": "^1.1.8",
     "@ember/test-helpers": "^3.3.0",
     "ember-source": "~5.8.0",
