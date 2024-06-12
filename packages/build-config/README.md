@@ -33,11 +33,30 @@ pnpm install @warp-drive/build-config
 ## Usage
 
 ```ts
-import { setBuildConfig } from '@warp-drive/build-config';
+import { setConfig } from '@warp-drive/build-config';
 
-setBuildConfig({
+setConfig(app, __dirname, {
   // ... options
 });
+```
+
+In an ember-cli-build file that'll typically look like this:
+
+```ts
+const EmberApp = require('ember-cli/lib/broccoli/ember-app');
+
+module.exports = async function (defaults) {
+  const { setConfig } = await import('@warp-drive/build-config');
+
+  const app = new EmberApp(defaults, {});
+
+  setConfig(app, __dirname, {
+    // WarpDrive/EmberData settings go here (if any)
+  });
+
+  return app.toTree();
+};
+
 ```
 
 ### ♥️ Credits
