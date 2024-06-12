@@ -91,6 +91,15 @@ export const COMMANDS: CommandConfig = {
     options: RETROFIT_OPTIONS,
     load: () => import('./commands/retrofit.ts').then((v) => v.retrofit),
   },
+  eject: {
+    name: 'Eject',
+    cmd: 'eject',
+    description:
+      'Removes the ember-data package from your project, installing and configuring individual dependencies instead',
+    alt: [],
+    options: {},
+    load: () => import('./commands/eject.ts').then((v) => v.eject),
+  },
 };
 
 export const Bin = {
