@@ -98,7 +98,7 @@
     "vite": "^5.2.11"
   },
   "engines": {
-    "node": ">= 22.1.0"
+    "node": ">= 18.20.3"
   },
   "ember-addon": {
     "main": "addon-main.cjs",
