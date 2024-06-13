@@ -1,5 +1,6 @@
 import fs from 'fs';
 import { execSync } from 'node:child_process';
+import path from 'path';
 
 type NpmInfo = {
   'dist-tags': Record<string, string>;
@@ -37,14 +38,16 @@ export async function getInfo(project: string): Promise<NpmInfo> {
 }
 
 export function getPackageManagerFromLockfile(): 'yarn' | 'npm' | 'bun' | 'pnpm' {
-  if (fs.existsSync('pnpm-lock.yaml')) {
+  const dir = String(execSync('git rev-parse --show-toplevel'));
+  if (fs.existsSync(path.join(dir, 'pnpm-lock.yaml'))) {
     return 'pnpm';
-  } else if (fs.existsSync('package-lock.json')) {
+  } else if (fs.existsSync(path.join(dir, 'package-lock.json'))) {
     return 'npm';
-  } else if (fs.existsSync('yarn.lock')) {
+  } else if (fs.existsSync(path.join(dir, 'yarn.lock'))) {
     return 'yarn';
-  } else if (fs.existsSync('bun.lock')) {
+  } else if (fs.existsSync(path.join(dir, 'bun.lock'))) {
     return 'bun';
   }
+
   return 'npm';
 }

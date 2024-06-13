@@ -25,7 +25,8 @@
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "scripts": {
-    "build:pkg": "vite build;"
+    "build:pkg": "vite build;",
+    "prepack": "bun run build:pkg"
   },
   "bin": {
     "warp-drive": "./dist/warp-drive",

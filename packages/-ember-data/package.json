@@ -17,7 +17,7 @@
   "scripts": {
     "lint": "eslint . --quiet --cache --cache-strategy=content --report-unused-disable-directives",
     "build:pkg": "vite build;",
-    "prepack": "bun run build:pkg && cd ../../ && bun run build:docs",
+    "prepack": "bun run build:pkg",
     "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
   "ember-addon": {
@@ -34,7 +34,6 @@
     }
   },
   "files": [
-    "dist/docs/data.json",
     "ember-data-logo-dark.svg",
     "ember-data-logo-light.svg",
     "LICENSE.md",
