@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/schema-record",
-  "version": "0.0.0-alpha.64",
+  "version": "0.0.0-alpha.65",
   "description": "Schema Driven Resource Presentation for WarpDrive and EmberData",
   "keywords": [
     "ember-addon"
@@ -39,11 +39,11 @@
     }
   },
   "peerDependencies": {
-    "@ember-data/request": "workspace:5.4.0-alpha.78",
-    "@ember-data/model": "workspace:5.4.0-alpha.78",
-    "@ember-data/store": "workspace:5.4.0-alpha.78",
-    "@ember-data/tracking": "workspace:5.4.0-alpha.78",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.64"
+    "@ember-data/request": "workspace:5.4.0-alpha.79",
+    "@ember-data/model": "workspace:5.4.0-alpha.79",
+    "@ember-data/store": "workspace:5.4.0-alpha.79",
+    "@ember-data/tracking": "workspace:5.4.0-alpha.79",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.65"
   },
   "peerDependenciesMeta": {
     "@ember-data/model": {
@@ -78,23 +78,23 @@
   },
   "dependencies": {
     "@embroider/macros": "^1.16.1",
-    "@warp-drive/build-config": "workspace:0.0.0-alpha.15"
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.16"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
     "@babel/plugin-transform-typescript": "^7.24.5",
     "@babel/preset-env": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
-    "@ember-data/request": "workspace:5.4.0-alpha.78",
-    "@ember-data/model": "workspace:5.4.0-alpha.78",
-    "@ember-data/store": "workspace:5.4.0-alpha.78",
-    "@ember-data/legacy-compat": "workspace:5.4.0-alpha.78",
-    "@ember-data/tracking": "workspace:5.4.0-alpha.78",
-    "@ember-data/request-utils": "workspace:5.4.0-alpha.78",
+    "@ember-data/request": "workspace:5.4.0-alpha.79",
+    "@ember-data/model": "workspace:5.4.0-alpha.79",
+    "@ember-data/store": "workspace:5.4.0-alpha.79",
+    "@ember-data/legacy-compat": "workspace:5.4.0-alpha.79",
+    "@ember-data/tracking": "workspace:5.4.0-alpha.79",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.79",
     "@ember/test-waiters": "^3.1.0",
     "@glimmer/component": "^1.1.2",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.64",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.78",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.65",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.79",
     "ember-source": "~5.8.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "typescript": "^5.4.5",
