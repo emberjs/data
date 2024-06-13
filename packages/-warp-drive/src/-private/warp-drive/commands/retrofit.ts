@@ -325,8 +325,11 @@ async function retrofitTypes(flags: Map<string, string | number | boolean | null
           throw new Error(`Could not find type path for ${pkgName}`);
         }
 
-        edited = true;
-        tsConfig.compilerOptions.types.push(`./node_modules/${pkgName}/${typePath}`);
+        const fullTypePath = `./node_modules/${pkgName}/${typePath}`;
+        if (!tsConfig.compilerOptions.types.includes(fullTypePath)) {
+          edited = true;
+          tsConfig.compilerOptions.types.push(fullTypePath);
+        }
       }
     }
 
