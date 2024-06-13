@@ -1,3 +1,4 @@
+import { getTags } from '../shared/npm.ts';
 import type { CommandConfig, FlagConfig } from '../shared/parse-args.ts';
 
 export const INSTALL_OPTIONS: FlagConfig = {
@@ -27,6 +28,7 @@ export const INSTALL_OPTIONS: FlagConfig = {
   },
 };
 
+const RETROFIT_COMMANDS = ['types', 'mirror'];
 export const RETROFIT_OPTIONS: FlagConfig = {
   help: {
     name: 'Help',
@@ -51,6 +53,99 @@ export const RETROFIT_OPTIONS: FlagConfig = {
     default_value: false,
     description: 'Print this usage manual.',
     examples: ['npx warp-drive retrofit --help'],
+  },
+  command_string: {
+    name: 'Command String',
+    flag: 'command_string',
+    type: String,
+    description: '<cmd@version> positional shorthand for fits that take a version arg',
+    examples: [],
+    default_value() {
+      return null;
+    },
+    validate: async (value: unknown) => {
+      if (typeof value !== 'string') {
+        throw new Error(`Expected <cmdString> to be a string`);
+      }
+      const [cmd, version] = value.split('@');
+
+      if (!RETROFIT_COMMANDS.includes(cmd)) {
+        throw new Error(`Command in <cmd@version> (${value}) must be one of ${RETROFIT_COMMANDS.join(', ')}`);
+      }
+
+      if (!version && !value.includes('@')) {
+        return;
+      }
+
+      const distTags = await getTags('ember-data');
+      if (!distTags.has(version)) {
+        throw new Error(`version in <cmd@version> (${value}) must be a valid NPM dist-tag`);
+      }
+    },
+    positional: true,
+    positional_index: 0,
+  },
+  fit: {
+    name: 'Fit',
+    flag: 'fit',
+    type: String,
+    description: '',
+    examples: [],
+    default_value: (options: Map<string, string | number | boolean | null>) => {
+      const cmdString = options.get('command_string');
+      if (!cmdString || typeof cmdString !== 'string') {
+        throw new Error(`Must specify a fit to retrofit`);
+      }
+      const [cmd] = cmdString.split('@');
+
+      if (!RETROFIT_COMMANDS.includes(cmd)) {
+        throw new Error(`Command in <cmd@version> (${cmdString}) must be one of ${RETROFIT_COMMANDS.join(', ')}`);
+      }
+
+      return cmd;
+    },
+    validate: (value: unknown) => {
+      if (!value || typeof value !== 'string' || !RETROFIT_COMMANDS.includes(value)) {
+        throw new Error(`Command (${value as string}) must be one of ${RETROFIT_COMMANDS.join(', ')}`);
+      }
+    },
+  },
+
+  version: {
+    name: 'Version',
+    flag: 'version',
+    type: String,
+    description: '',
+    examples: [],
+    default_value: async (options: Map<string, string | number | boolean | null>) => {
+      const cmdString = options.get('command_string');
+      if (!cmdString || typeof cmdString !== 'string') {
+        throw new Error(`Must specify a fit to retrofit`);
+      }
+      const [, version] = cmdString.split('@');
+
+      if (!version) {
+        throw new Error(`Expected a version to be included in <cmd@version>`);
+      }
+
+      const distTags = await getTags('ember-data');
+      if (!distTags.has(version)) {
+        throw new Error(`version in <cmd@version> (${version}) must be a valid NPM dist-tag`);
+      }
+
+      return version;
+    },
+    validate: async (value: unknown) => {
+      if (!value || typeof value !== 'string') {
+        throw new Error(`version must be a string`);
+      }
+      const distTags = await getTags('ember-data');
+      if (!distTags.has(value)) {
+        throw new Error(
+          `version (${value}) must be a valid NPM dist-tag: available ${Array.from(distTags).join(', ')}`
+        );
+      }
+    },
   },
 };
 
@@ -90,6 +185,15 @@ export const COMMANDS: CommandConfig = {
     example: '$ npx warp-drive retrofit',
     options: RETROFIT_OPTIONS,
     load: () => import('./commands/retrofit.ts').then((v) => v.retrofit),
+  },
+  eject: {
+    name: 'Eject',
+    cmd: 'eject',
+    description:
+      'Removes the ember-data package from your project, installing and configuring individual dependencies instead',
+    alt: [],
+    options: {},
+    load: () => import('./commands/eject.ts').then((v) => v.eject),
   },
 };
 

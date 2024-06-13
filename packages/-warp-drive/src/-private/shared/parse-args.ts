@@ -30,7 +30,12 @@ export type Command = {
   load: () => Promise<CmdFn>;
 };
 
-export type CmdFn = (args: string[]) => Promise<void>;
+type FlagPrimitiveValue = string | number | boolean | null;
+export type ParsedFlags = {
+  full: Map<string, FlagPrimitiveValue>;
+  specified: Map<string, FlagPrimitiveValue>;
+};
+export type CmdFn = (flags: ParsedFlags) => Promise<void>;
 
 export type CommandConfig = Record<string, Command>;
 export type Flag = {
@@ -39,7 +44,7 @@ export type Flag = {
   flag_aliases?: string[];
   flag_mispellings?: string[];
   description: string;
-  validate?: (value: unknown, config: Map<string, string | number | boolean | null>) => void | Promise<void>;
+  validate?: (value: unknown, config: Map<string, FlagPrimitiveValue>) => void | Promise<void>;
   examples: Array<
     | string
     | {
@@ -53,9 +58,7 @@ export type Flag = {
     | number
     | boolean
     | null
-    | ((
-        config: Map<string, string | number | boolean | null>
-      ) => string | number | boolean | null | Promise<string | number | boolean | null>);
+    | ((config: Map<string, FlagPrimitiveValue>) => FlagPrimitiveValue | Promise<FlagPrimitiveValue>);
   /*
     Positional flags are not specified by name, but by position
     When using this with more than one positional flag, you must specify positional_index
@@ -101,7 +104,7 @@ export type BinConfig = {
 
 const FalseyStrings = new Set(['false', '0', 'no', 'n', 'off', '']);
 
-function processRawValue(config: Flag, raw_value: string | undefined): string | number | boolean | null {
+function processRawValue(config: Flag, raw_value: string | undefined): FlagPrimitiveValue {
   if (raw_value === undefined) {
     if (config.type === Boolean) {
       return config.invert_boolean ? false : true;
@@ -120,10 +123,7 @@ function processRawValue(config: Flag, raw_value: string | undefined): string | 
   }
 }
 
-async function processMissingFlag(
-  config: Flag,
-  values: Map<string, string | number | boolean | null>
-): Promise<string | number | boolean | null> {
+async function processMissingFlag(config: Flag, values: Map<string, FlagPrimitiveValue>): Promise<FlagPrimitiveValue> {
   if (config.default_value !== undefined) {
     if (typeof config.default_value === 'function') {
       return await config.default_value(values);
@@ -384,6 +384,11 @@ export function getCommands<T extends Record<string, { default?: boolean; alt?: 
   return commands;
 }
 
+const EMPTY_FLAGS = {
+  full: new Map<string, FlagPrimitiveValue>(),
+  specified: new Map<string, FlagPrimitiveValue>(),
+};
+
 export async function runBinCommand(config: BinConfig): Promise<void> {
   const args = process.argv.slice(2);
 
@@ -404,6 +409,8 @@ export async function runBinCommand(config: BinConfig): Promise<void> {
   }
 
   const cmdFn = await cmd.load();
-  await cmdFn(args);
+  const flags = cmd.options ? await parseRawFlags(args, cmd.options) : EMPTY_FLAGS;
+
+  await cmdFn(flags);
   process.exit(0);
 }

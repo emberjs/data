@@ -41,6 +41,18 @@
       "types": "private",
       "typesPublish": false
     },
+    "warp-drive": {
+      "stage": "alpha",
+      "types": "private",
+      "typesPublish": false,
+      "mirrorPublish": false
+    },
+    "@warp-drive/build-config": {
+      "stage": "alpha",
+      "types": "alpha",
+      "typesPublish": false,
+      "mirrorPublish": true
+    },
     "@warp-drive/holodeck": {
       "stage": "alpha",
       "types": "private",

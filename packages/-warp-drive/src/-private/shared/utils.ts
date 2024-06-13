@@ -1,4 +1,8 @@
 import chalk from 'chalk';
+import fs from 'fs';
+import path from 'path';
+
+import type { SEMVER_VERSION } from './channel';
 
 /**
  * Like Pick but returns an object type instead of a union type.
@@ -242,4 +246,56 @@ export function rebalanceLines(str: string, max_length = 75): string {
 export function write(out: string): void {
   // eslint-disable-next-line no-console
   console.log(out);
+}
+
+type ExportConfig = Record<string, string | Record<string, string | Record<string, string>>>;
+
+export type PACKAGEJSON = {
+  name: string;
+  version: SEMVER_VERSION;
+  private: boolean;
+  dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+  peerDependencies?: Record<string, string>;
+  scripts?: Record<string, string>;
+  files?: string[];
+  exports?: ExportConfig;
+  'ember-addon'?: {
+    main?: 'addon-main.js';
+    type?: 'addon';
+    version?: 1 | 2;
+  };
+  author?: string;
+  license?: string;
+  repository?: {
+    type: string;
+    url: string;
+    directory?: string;
+  };
+};
+
+export function getPkgJson() {
+  const file = fs.readFileSync(path.join(process.cwd(), 'package.json'), { encoding: 'utf-8' });
+  const json = JSON.parse(file) as PACKAGEJSON;
+  return json;
+}
+
+export function writePkgJson(json: PACKAGEJSON) {
+  fs.writeFileSync(path.join(process.cwd(), 'package.json'), JSON.stringify(json, null, 2) + '\n');
+}
+
+export function getLocalPkgJson(name: string) {
+  const file = fs.readFileSync(path.join(process.cwd(), 'node_modules', name, 'package.json'), { encoding: 'utf-8' });
+  const json = JSON.parse(file) as PACKAGEJSON;
+  return json;
+}
+
+export function getTypePathFor(name: string) {
+  const pkg = getLocalPkgJson(name);
+  const isAlpha = pkg.files?.includes('unstable-preview-types');
+  const isBeta = pkg.files?.includes('preview-types');
+  const base = pkg.exports?.['.'];
+  const isStable = !isAlpha && !isBeta && typeof base === 'object' && base?.['types'] !== undefined;
+
+  return isAlpha ? 'unstable-preview-types' : isBeta ? 'preview-types' : isStable ? 'types' : null;
 }

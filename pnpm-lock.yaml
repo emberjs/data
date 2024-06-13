@@ -324,6 +324,9 @@ importers:
       chalk:
         specifier: ^5.3.0
         version: 5.3.0
+      comment-json:
+        specifier: ^4.2.3
+        version: 4.2.3
       semver:
         specifier: ^7.6.2
         version: 7.6.2
@@ -8296,7 +8299,6 @@ packages:
 
   /array-timsort@1.0.3:
     resolution: {integrity: sha512-/+3GRL7dDAGEfM6TseQk/U+mi18TU2Ms9I3UlLdUMhz2hbvGNTKdj9xniwXfUqgYhHxRx0+8UnKkvlNwVU+cWQ==}
-    dev: true
 
   /array-to-error@1.1.1:
     resolution: {integrity: sha512-kqcQ8s7uQfg3UViYON3kCMcck3A9exxgq+riVuKy08Mx00VN4EJhK30L2VpjE58LQHKhcE/GRpvbVUhqTvqzGQ==}
@@ -9932,7 +9934,6 @@ packages:
       esprima: 4.0.1
       has-own-prop: 2.0.0
       repeat-string: 1.6.1
-    dev: true
 
   /common-ancestor-path@1.0.1:
     resolution: {integrity: sha512-L3sHRo1pXXEqX8VU28kfgUY+YGsk09hPqZiZmLacNib6XNTCM8ubYeT7ryXQw8asB1sKgcU5lkB7ONug08aB8w==}
@@ -13402,7 +13403,6 @@ packages:
   /has-own-prop@2.0.0:
     resolution: {integrity: sha512-Pq0h+hvsVm6dDEa8x82GnLSYHOzNDt7f0ddFa3FqcQlgzEiptPqL+XrOJNavjOzSYiYWIrgeVYYgGlLmnxwilQ==}
     engines: {node: '>=8'}
-    dev: true
 
   /has-property-descriptors@1.0.2:
     resolution: {integrity: sha512-55JNKuIW+vq4Ke1BjOTjM2YctQIvCT7GFzHwmfZPGo5wnrgkid0YQtnAleFSqumZm4az3n2BS+erby5ipJdgrg==}
