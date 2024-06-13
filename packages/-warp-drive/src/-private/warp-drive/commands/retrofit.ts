@@ -116,6 +116,7 @@ async function retrofitTypes(flags: Map<string, string | number | boolean | null
 
   // get matching version of each installed package
   // from npm based on the dist-tag
+  write(`\tGenerating update for ${installed.size} installed dependencies`);
   const seen = new Set<string>();
   const toInstall = new Map<string, { dev?: true; version: string; existing?: true }>();
 
@@ -146,9 +147,11 @@ async function retrofitTypes(flags: Map<string, string | number | boolean | null
       relatedDeps = {};
 
       for (const depName in mainPkgDeps) {
-        const typesPkg = getTypesPackageName(depName);
-        if (typesPkg) {
-          relatedDeps[typesPkg] = mainPkgDeps[depName];
+        if (ALL.includes(depName)) {
+          const typesPkg = getTypesPackageName(depName);
+          if (typesPkg) {
+            relatedDeps[typesPkg] = mainPkgDeps[depName];
+          }
         }
       }
     }
@@ -169,6 +172,7 @@ async function retrofitTypes(flags: Map<string, string | number | boolean | null
   }
 
   // same for needed packages
+  write(`\tGenerating update for ${needed.size} missing dependencies`);
   for (const [pkgName, available] of needed) {
     if (seen.has(pkgName)) {
       continue;
@@ -273,6 +277,7 @@ async function retrofitTypes(flags: Map<string, string | number | boolean | null
     const pkgManager = getPackageManagerFromLockfile();
     const installCmd = `${pkgManager} install`;
     await exec(installCmd);
+    write(`\t✅ Updated package.json`);
   }
 
   // ensure tsconfig for each installed and needed package
@@ -329,6 +334,8 @@ async function retrofitTypes(flags: Map<string, string | number | boolean | null
       tsConfig.compilerOptions.types.sort();
       fs.writeFileSync(fullTsConfigPath, JSONC.stringify(tsConfig, null, 2) + '\n');
       write(chalk.grey(`\t✅  updated tsconfig.json`));
+    } else {
+      write(`\tNo tsconfig updates required!`);
     }
   }
 }

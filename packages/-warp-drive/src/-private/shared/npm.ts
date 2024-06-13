@@ -38,7 +38,7 @@ export async function getInfo(project: string): Promise<NpmInfo> {
 }
 
 export function getPackageManagerFromLockfile(): 'yarn' | 'npm' | 'bun' | 'pnpm' {
-  const dir = String(execSync('git rev-parse --show-toplevel'));
+  const dir = String(execSync('git rev-parse --show-toplevel')).trim();
   if (fs.existsSync(path.join(dir, 'pnpm-lock.yaml'))) {
     return 'pnpm';
   } else if (fs.existsSync(path.join(dir, 'package-lock.json'))) {
