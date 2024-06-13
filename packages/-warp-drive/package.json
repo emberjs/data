@@ -1,6 +1,6 @@
 {
   "name": "warp-drive",
-  "version": "0.1.0-alpha.4",
+  "version": "0.1.0-alpha.5",
   "private": false,
   "description": "WarpDrive is the data framework for ambitious web applications",
   "keywords": [
@@ -51,7 +51,7 @@
   },
   "dependencies": {
     "@embroider/macros": "^1.16.1",
-    "@warp-drive/build-config": "workspace:0.0.0-alpha.18",
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.19",
     "semver": "^7.6.2",
     "chalk": "^5.3.0",
     "comment-json": "^4.2.3"
@@ -60,7 +60,7 @@
     "@babel/core": "^7.24.5",
     "@babel/plugin-transform-typescript": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.81",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.82",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "typescript": "^5.4.5",
     "vite": "^5.2.11"
