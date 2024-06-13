@@ -1,16 +1,12 @@
 import chalk from 'chalk';
-import {
-  branchForChannelAndVersion,
-  CHANNEL,
-  channelForBranch,
-  npmDistTagForChannelAndVersion,
-  SEMVER_VERSION,
-  VALID_BRANCHES,
-} from './channel';
-import { getFile } from './json-file';
-import { exec } from './cmd';
-import { gatherPackages, loadStrategy, Package } from './package';
 import path from 'path';
+
+import type { CHANNEL, SEMVER_VERSION, VALID_BRANCHES } from './channel';
+import { branchForChannelAndVersion, channelForBranch, npmDistTagForChannelAndVersion } from './channel';
+import { exec } from './cmd';
+import { getFile } from './json-file';
+import type { Package } from './package';
+import { gatherPackages, loadStrategy } from './package';
 
 export type LTS_TAG = `lts-${number}-${number}`;
 export type RELEASE_TAG = `release-${number}-${number}`;
@@ -192,7 +188,7 @@ export async function getAllPackagesForGitTag(tag: GIT_TAG): Promise<Map<string,
   try {
     await exec({ cmd: ['sh', '-c', `git archive ${tag} --prefix ${relativeTmpDir} | tar -x`] });
   } catch (e) {
-    if (await isUnrecoverableExtractionError(e as unknown as Error)) {
+    if (await isUnrecoverableExtractionError(e as Error)) {
       console.log(chalk.red(`🔴 Failed to extract git tag ${tag} to ${relativeTmpDir}`));
       throw e;
     } else {
