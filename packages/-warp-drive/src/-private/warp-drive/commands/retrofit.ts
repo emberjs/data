@@ -160,6 +160,10 @@ async function retrofitTypes(flags: Map<string, string | number | boolean | null
       if (!ALL.includes(depName) || seen.has(depName) || installed.has(depName)) {
         continue;
       }
+      // don't install optional deps
+      if (relatedInfo.peerDependenciesMeta?.[depName]?.optional) {
+        continue;
+      }
 
       seen.add(depName);
       const depInfo = await getInfo(`${depName}@${relatedDeps[depName]}`);
@@ -209,6 +213,10 @@ async function retrofitTypes(flags: Map<string, string | number | boolean | null
 
     for (const depName in relatedDeps) {
       if (!ALL.includes(depName) || seen.has(depName) || needed.has(depName)) {
+        continue;
+      }
+      // don't install optional deps
+      if (relatedInfo.peerDependenciesMeta?.[depName]?.optional) {
         continue;
       }
 
