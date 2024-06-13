@@ -29,10 +29,9 @@
     "prepack": "bun run build:pkg"
   },
   "bin": {
-    "warp-drive": "./dist/warp-drive",
-    "warpdrive": "./dist/warp-drive",
-    "wd": "./dist/warp-drive",
-    "engage": "./dist/engage"
+    "warp-drive": "./dist/warp-drive.js",
+    "warpdrive": "./dist/warp-drive.js",
+    "wd": "./dist/warp-drive.js"
   },
   "files": [
     "unstable-preview-types",
