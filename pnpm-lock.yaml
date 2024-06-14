@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  ember-auto-import: 2.7.3
+  ember-auto-import: ^2.7.3
   '@embroider/macros': ^1.16.1
   broccoli-funnel: ^3.0.8
   broccoli-merge-trees: ^4.2.0
@@ -2057,7 +2057,7 @@ importers:
         specifier: workspace:5.4.0-alpha.84
         version: link:../../config
       ember-auto-import:
-        specifier: 2.7.3
+        specifier: ^2.7.3
         version: 2.7.3(@glint/template@1.4.0)
       ember-cli:
         specifier: ~5.8.1
@@ -2269,7 +2269,7 @@ importers:
         specifier: workspace:5.4.0-alpha.84
         version: link:../../config
       ember-auto-import:
-        specifier: 2.7.3
+        specifier: ^2.7.3
         version: 2.7.3(@glint/template@1.4.0)
       ember-cli:
         specifier: ~5.8.1
@@ -2424,7 +2424,7 @@ importers:
         specifier: workspace:5.4.0-alpha.84
         version: link:../../config
       ember-auto-import:
-        specifier: 2.7.3
+        specifier: ^2.7.3
         version: 2.7.3(@glint/template@1.4.0)
       ember-cli:
         specifier: ~5.8.1
@@ -2587,7 +2587,7 @@ importers:
         specifier: workspace:5.4.0-alpha.84
         version: link:../../config
       ember-auto-import:
-        specifier: 2.7.3
+        specifier: ^2.7.3
         version: 2.7.3(@glint/template@1.4.0)
       ember-cli:
         specifier: ~5.8.1
@@ -2740,7 +2740,7 @@ importers:
         specifier: workspace:5.4.0-alpha.84
         version: link:../../config
       ember-auto-import:
-        specifier: 2.7.3
+        specifier: ^2.7.3
         version: 2.7.3(@glint/template@1.4.0)
       ember-cli:
         specifier: ~5.8.1
@@ -2865,7 +2865,7 @@ importers:
         specifier: ^1.1.8
         version: 1.1.8
       ember-auto-import:
-        specifier: 2.7.3
+        specifier: ^2.7.3
         version: 2.7.3(@glint/template@1.4.0)
       ember-cli:
         specifier: ~5.8.1
@@ -3008,7 +3008,7 @@ importers:
         specifier: workspace:5.4.0-alpha.84
         version: link:../../config
       ember-auto-import:
-        specifier: 2.7.3
+        specifier: ^2.7.3
         version: 2.7.3(@glint/template@1.4.0)
       ember-cli:
         specifier: ~5.8.1
@@ -3161,7 +3161,7 @@ importers:
         specifier: workspace:5.4.0-alpha.84
         version: link:../../config
       ember-auto-import:
-        specifier: 2.7.3
+        specifier: ^2.7.3
         version: 2.7.3(@glint/template@1.4.0)
       ember-cli:
         specifier: ~5.8.1
@@ -3337,7 +3337,7 @@ importers:
         specifier: workspace:5.4.0-alpha.84
         version: link:../../config
       ember-auto-import:
-        specifier: 2.7.3
+        specifier: ^2.7.3
         version: 2.7.3(@glint/template@1.4.0)
       ember-cli:
         specifier: ~5.8.1
@@ -3455,7 +3455,7 @@ importers:
         specifier: workspace:5.4.0-alpha.84
         version: file:packages/unpublished-test-infra(@babel/core@7.24.5)(@ember-data/request@5.4.0-alpha.84)(@ember-data/store@5.4.0-alpha.84)(@ember-data/tracking@5.4.0-alpha.84)(@ember/test-helpers@3.3.0)(@warp-drive/core-types@0.0.0-alpha.70)(@warp-drive/diagnostic@0.0.0-alpha.70)
       ember-auto-import:
-        specifier: 2.7.3
+        specifier: ^2.7.3
         version: 2.7.3(@glint/template@1.4.0)
       ember-data:
         specifier: workspace:5.4.0-alpha.84
@@ -3616,7 +3616,7 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
       ember-auto-import:
-        specifier: 2.7.3
+        specifier: ^2.7.3
         version: 2.7.3(@glint/template@1.4.0)
       ember-cli:
         specifier: ~5.8.1
@@ -3767,7 +3767,7 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       ember-auto-import:
-        specifier: 2.7.3
+        specifier: ^2.7.3
         version: 2.7.3(@glint/template@1.4.0)
       ember-cached-decorator-polyfill:
         specifier: ^1.0.2
@@ -3887,7 +3887,7 @@ importers:
   tests/performance:
     dependencies:
       ember-auto-import:
-        specifier: 2.7.3
+        specifier: ^2.7.3
         version: 2.7.3(@glint/template@1.4.0)
       ember-data:
         specifier: workspace:5.4.0-alpha.84
@@ -4060,7 +4060,7 @@ importers:
         specifier: workspace:0.0.0-alpha.70
         version: file:packages/schema-record(@babel/core@7.24.5)(@ember-data/model@5.4.0-alpha.84)(@ember-data/request@5.4.0-alpha.84)(@ember-data/store@5.4.0-alpha.84)(@ember-data/tracking@5.4.0-alpha.84)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.70)
       ember-auto-import:
-        specifier: 2.7.3
+        specifier: ^2.7.3
         version: 2.7.3(@glint/template@1.4.0)
       ember-cli:
         specifier: ~5.8.1
@@ -4229,7 +4229,7 @@ importers:
         specifier: workspace:0.0.0-alpha.70
         version: file:packages/schema-record(@babel/core@7.24.5)(@ember-data/model@5.4.0-alpha.84)(@ember-data/request@5.4.0-alpha.84)(@ember-data/store@5.4.0-alpha.84)(@ember-data/tracking@5.4.0-alpha.84)(@warp-drive/core-types@0.0.0-alpha.70)
       ember-auto-import:
-        specifier: 2.7.3
+        specifier: ^2.7.3
         version: 2.7.3(@glint/template@1.4.0)
       ember-cli:
         specifier: ~5.8.1
