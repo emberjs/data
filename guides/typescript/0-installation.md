@@ -1,5 +1,26 @@
 # Installation
 
+WarpDrive now provides a cli that will handle installation and configuration for you
+when installing the types-packages for native types to use with older releases (such as 4.12).
+
+```cli
+npx warp-drive retrofit types@canary
+```
+
+The cli will
+
+- uninstall DT packages for ember-source and ember-data
+- add native types as sources to your ts-config for both ember-source and ember-data
+- install all required types packages for ember-data based on the dependencies in your package.json
+
+The cli may also be used to update to the latest canary versions of the types by
+simply running the command again.
+
+For additional documentation or to manuall install and configure, continue reading the
+below guide.
+
+=========================================================
+
 > [!CAUTION]
 > EmberData does not maintain the DefinitelyTyped types for 
 > EmberData (e.g. the `@types/ember-data__*`). If you were

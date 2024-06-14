@@ -1,13 +1,13 @@
 /*
  * @module @warp-drive/core-types
  */
-import type { ResourceType } from './symbols';
+import type { Type } from './symbols';
 
 /**
  * Records may be anything, They don't even
  * have to be objects.
  *
- * Whatever they are, if they have a ResourceType
+ * Whatever they are, if they have a Type
  * property, that property will be used by EmberData
  * and WarpDrive to provide better type safety and
  * intellisense.
@@ -27,28 +27,28 @@ export interface TypedRecordInstance {
    * take advantage of this to provide better type
    * safety and intellisense.
    *
-   * @property {ResourceType} [ResourceType]
+   * @property {Type} [Type]
    * @type {string}
    * @typedoc
    */
-  [ResourceType]: string;
+  [Type]: string;
 }
 
 /**
- * A type utility that extracts the ResourceType if available,
+ * A type utility that extracts the Type if available,
  * otherwise it returns never.
  *
  * @typedoc
  */
-export type TypeFromInstance<T> = T extends TypedRecordInstance ? T[typeof ResourceType] : never;
+export type TypeFromInstance<T> = T extends TypedRecordInstance ? T[typeof Type] : never;
 
 /**
- * A type utility that extracts the ResourceType if available,
+ * A type utility that extracts the Type if available,
  * otherwise it returns string
  *
  * @typedoc
  */
-export type TypeFromInstanceOrString<T> = T extends TypedRecordInstance ? T[typeof ResourceType] : string;
+export type TypeFromInstanceOrString<T> = T extends TypedRecordInstance ? T[typeof Type] : string;
 
 type IsUniqueSymbol<T> = T extends `___(unique) Symbol(${string})` ? true : false;
 type Unpacked<T> = T extends (infer U)[] ? U : T;
@@ -66,12 +66,12 @@ type __InternalExtract<
   // if we extend T, we return the leaf value
   V extends T
     ? IncludePrefix extends false
-      ? V[typeof ResourceType]
+      ? V[typeof Type]
       : Pre
     : // else if we are in Ignore we add the lead and exit
       V extends Ignore
       ? IncludePrefix extends false
-        ? V[typeof ResourceType]
+        ? V[typeof Type]
         : Pre
       : // else if we are at max depth, we return never
         IS_MAX_DEPTH<DEPTH, MAX_DEPTH> extends true
@@ -145,7 +145,7 @@ type ExtractUnion<
     ? // if we want to include prefix, we union with the prefix. Outer Exclude will filter any "NONE" types
       _ExtractUnion<MAX_DEPTH, T, IncludePrefix, Ignore, Pre, DEPTH> | Pre
     : // Else we just union the types.
-      _ExtractUnion<MAX_DEPTH, T, IncludePrefix, Ignore, Pre, DEPTH> | T[typeof ResourceType],
+      _ExtractUnion<MAX_DEPTH, T, IncludePrefix, Ignore, Pre, DEPTH> | T[typeof Type],
   NONE
 >;
 

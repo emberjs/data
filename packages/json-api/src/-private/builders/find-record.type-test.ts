@@ -1,7 +1,7 @@
 import { expectTypeOf } from 'expect-type';
 
 import Store from '@ember-data/store';
-import { RequestSignature, type ResourceType } from '@warp-drive/core-types/symbols';
+import { RequestSignature, type Type } from '@warp-drive/core-types/symbols';
 
 import type { FindRecordResultDocument } from './find-record';
 import { findRecord } from './find-record';
@@ -12,7 +12,7 @@ type MyThing = {
   relatedThings: MyThing[];
   otherThing: OtherThing;
   otherThings: OtherThing[];
-  [ResourceType]: 'thing';
+  [Type]: 'thing';
 };
 
 type OtherThing = {
@@ -21,7 +21,7 @@ type OtherThing = {
   deals: OtherThing[];
   original: MyThing;
   deep: DeepThing;
-  [ResourceType]: 'other-thing';
+  [Type]: 'other-thing';
 };
 
 type DeepThing = {
@@ -29,7 +29,7 @@ type DeepThing = {
   relatedThing: MyThing;
   otherThing: OtherThing;
   myThing: DeepThing;
-  [ResourceType]: 'deep-thing';
+  [Type]: 'deep-thing';
 };
 
 const store = new Store();

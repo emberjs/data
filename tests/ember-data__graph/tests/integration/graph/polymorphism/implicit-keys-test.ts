@@ -3,7 +3,7 @@ import Model, { attr, belongsTo } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { CollectionResourceDocument } from '@warp-drive/core-types/spec/json-api-raw';
-import { ResourceType } from '@warp-drive/core-types/symbols';
+import { Type } from '@warp-drive/core-types/symbols';
 import { module, test } from '@warp-drive/diagnostic';
 import { setupTest } from '@warp-drive/diagnostic/ember';
 
@@ -15,16 +15,16 @@ module('Integration | Graph | Implicit Keys', function (hooks) {
     class User extends Model {
       @attr declare name: string;
       @belongsTo('organization', { async: false, inverse: null }) declare organization: Organization;
-      [ResourceType] = 'user' as const;
+      [Type] = 'user' as const;
     }
     class Product extends Model {
       @attr declare name: string;
       @belongsTo('organization', { async: false, inverse: null }) declare organization: Organization;
-      [ResourceType] = 'product' as const;
+      [Type] = 'product' as const;
     }
     class Organization extends Model {
       @attr declare name: string;
-      [ResourceType] = 'organization' as const;
+      [Type] = 'organization' as const;
     }
     owner.register('model:user', User);
     owner.register('model:product', Product);

@@ -11,7 +11,7 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { createDeferred } from '@ember-data/request';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
-import { ResourceType } from '@warp-drive/core-types/symbols';
+import { Type } from '@warp-drive/core-types/symbols';
 
 module('Integration | Identifiers - lid reflection', function (hooks: NestedHooks) {
   setupTest(hooks);
@@ -20,7 +20,7 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
     @attr declare name: string;
     @attr declare age: number;
 
-    [ResourceType] = 'user' as const;
+    [Type] = 'user' as const;
   }
 
   hooks.beforeEach(function () {
@@ -153,14 +153,14 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
       @attr name;
       @belongsTo('cake', { async: true, inverse: null }) cake;
 
-      [ResourceType] = 'ingredient' as const;
+      [Type] = 'ingredient' as const;
     }
 
     class Cake extends Model {
       @attr name;
       @hasMany('ingredient', { inverse: null, async: false }) declare ingredients: ManyArray<Ingredient>;
 
-      [ResourceType] = 'cake' as const;
+      [Type] = 'cake' as const;
     }
 
     this.owner.register('model:ingredient', Ingredient);
@@ -243,14 +243,14 @@ module('Integration | Identifiers - lid reflection', function (hooks: NestedHook
     class Topping extends Model {
       @attr name;
 
-      [ResourceType] = 'topping' as const;
+      [Type] = 'topping' as const;
     }
 
     class Cake extends Model {
       @attr name;
       @belongsTo('topping', { inverse: null, async: false }) declare topping: Topping;
 
-      [ResourceType] = 'cake' as const;
+      [Type] = 'cake' as const;
     }
 
     this.owner.register('model:topping', Topping);

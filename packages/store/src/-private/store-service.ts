@@ -32,7 +32,7 @@ import type {
   ResourceIdentifierObject,
   SingleResourceDocument,
 } from '@warp-drive/core-types/spec/json-api-raw';
-import type { ResourceType } from '@warp-drive/core-types/symbols';
+import type { Type } from '@warp-drive/core-types/symbols';
 
 import type { CacheCapabilitiesManager } from '../-types/q/cache-capabilities-manager';
 import type { ModelSchema } from '../-types/q/ds-model';
@@ -136,7 +136,7 @@ type DownlevelArrays<T> = T extends Array<infer U> ? U[] : T;
 type AwaitedKeys<T> = { [K in keyof T & string]: DownlevelArrays<Awaited<T[K]>> };
 
 // `AwaitedKeys` is needed here to resolve any promise types like `PromiseBelongsTo`.
-type FilteredKeys<T> = AwaitedKeys<Omit<T, typeof ResourceType | EmberObjectKey | DSModelKeys | 'constructor'>>;
+type FilteredKeys<T> = AwaitedKeys<Omit<T, typeof Type | EmberObjectKey | DSModelKeys | 'constructor'>>;
 
 type MaybeHasId = { id?: string | null };
 /**

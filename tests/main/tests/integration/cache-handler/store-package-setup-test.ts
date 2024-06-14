@@ -28,7 +28,7 @@ import type {
   SingleResourceDataDocument,
 } from '@warp-drive/core-types/spec/document';
 import type { ExistingResourceObject, ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
-import type { ResourceType } from '@warp-drive/core-types/symbols';
+import type { Type } from '@warp-drive/core-types/symbols';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
 type UserRecord = {
@@ -36,7 +36,7 @@ type UserRecord = {
   name: string;
   identifier: StableRecordIdentifier;
   destroy: () => void;
-  [ResourceType]: 'user';
+  [Type]: 'user';
 };
 
 class RequestManagerService extends RequestManager {

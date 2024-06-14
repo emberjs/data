@@ -1,17 +1,17 @@
 // test
 
 import type { ExtractSuggestedCacheTypes, Includes, TypedRecordInstance } from './record';
-import type { ResourceType } from './symbols';
+import type { Type } from './symbols';
 
 type NoRelations = {
   name: string;
-  [ResourceType]: 'no-relations';
+  [Type]: 'no-relations';
 };
 
 type NoSelfReference = {
   name: string;
   related: MyThing;
-  [ResourceType]: 'no-self-reference';
+  [Type]: 'no-self-reference';
 };
 
 type MyThing = {
@@ -20,7 +20,7 @@ type MyThing = {
   relatedThings: MyThing[];
   otherThing: OtherThing;
   otherThings: OtherThing[];
-  [ResourceType]: 'thing';
+  [Type]: 'thing';
 };
 
 type OtherThing = {
@@ -29,7 +29,7 @@ type OtherThing = {
   deals: OtherThing[];
   original: MyThing;
   deep: DeepThing;
-  [ResourceType]: 'other-thing';
+  [Type]: 'other-thing';
 };
 
 type DeepThing = {
@@ -38,7 +38,7 @@ type DeepThing = {
   otherThing: OtherThing;
   myThing: DeepThing;
   reallyDeepThing: ReallyDeepThing;
-  [ResourceType]: 'deep-thing';
+  [Type]: 'deep-thing';
 };
 
 type ReallyDeepThing = {
@@ -46,7 +46,7 @@ type ReallyDeepThing = {
   relatedThing: MyThing;
   otherThing: OtherThing;
   myThing: DeepThing;
-  [ResourceType]: 'really-deep-thing';
+  [Type]: 'really-deep-thing';
 };
 
 function takesSuggestTypes<T extends TypedRecordInstance, MAX_DEPTH extends 3 | 4 | 5 = 3>(

@@ -3,7 +3,7 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import { recordIdentifierFor } from '@ember-data/store';
-import type { ResourceType } from '@warp-drive/core-types/symbols';
+import type { Type } from '@warp-drive/core-types/symbols';
 import { registerDerivations, withDefaults } from '@warp-drive/schema-record/schema';
 
 import type Store from 'warp-drive__schema-record/services/store';
@@ -19,7 +19,7 @@ interface User {
   $type: 'user';
   name: string;
   address: address | null;
-  [ResourceType]: 'user';
+  [Type]: 'user';
 }
 
 module('Writes | schema-object fields', function (hooks) {

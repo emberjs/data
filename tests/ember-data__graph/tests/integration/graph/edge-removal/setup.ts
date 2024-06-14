@@ -5,7 +5,7 @@ import type Store from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/store/types';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
-import type { ResourceType } from '@warp-drive/core-types/symbols';
+import type { Type } from '@warp-drive/core-types/symbols';
 import type { Hooks } from '@warp-drive/diagnostic/-types';
 import type { RenderingTestContext } from '@warp-drive/diagnostic/ember';
 import { setupTest } from '@warp-drive/diagnostic/ember';
@@ -128,7 +128,7 @@ export type UserRecord = Model & {
   name?: string;
   bestFriend?: UserRecord;
   bestFriends?: UserRecord[];
-  [ResourceType]: 'user';
+  [Type]: 'user';
 };
 
 export interface Context extends RenderingTestContext {

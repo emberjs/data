@@ -10,12 +10,12 @@ For example:
 
 ```ts
 import Model, { attr } from '@ember-data/model';
-import { ResourceType } from '@warp-drive/core-types/symbols';
+import { Type } from '@warp-drive/core-types/symbols';
 
 export default class User extends Model {
   @attr declare name: string;
 
-  [ResourceType] = 'user' as const;
+  [Type] = 'user' as const;
 }
 ```
 

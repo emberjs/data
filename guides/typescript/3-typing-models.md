@@ -1,44 +1,44 @@
 # Typing Models & Transforms
 
-## ResourceType
+## Type
 
-Example: add the `ResourceType` brand to the `user` model.
+Example: add the `Type` brand to the `user` model.
 
 ```ts
 import Model, { attr } from '@ember-data/model';
-import { ResourceType } from '@warp-drive/core-types/symbols';
+import { Type } from '@warp-drive/core-types/symbols';
 
 export default class User extends Model {
   @attr declare name: string;
 
-  [ResourceType] = 'user' as const;
+  [Type] = 'user' as const;
 }
 ```
 
-The benefit of the above is that the value of ResourceType is readable at runtime and thus easy to debug.
+The benefit of the above is that the value of Type is readable at runtime and thus easy to debug.
 However, you can also choose to do this via types only:
 
 ```ts
 import Model, { attr } from '@ember-data/model';
-import type { ResourceType } from '@warp-drive/core-types/symbols';
+import type { Type } from '@warp-drive/core-types/symbols';
 
 export default class User extends Model {
   @attr declare name: string;
 
-  declare [ResourceType]: 'user';
+  declare [Type]: 'user';
 }
 ```
 
-EmberData will never access ResourceType as an actual value, these brands are *purely* for type inference.
+EmberData will never access Type as an actual value, these brands are *purely* for type inference.
 
 ## Transforms
 
-Transforms with a `TransformName` brand will have their type and options validated. Once we move to stage-3 decorators, the signature of the field would also be validated against the transform.
+Transforms with a `Type` brand will have their type and options validated. Once we move to stage-3 decorators, the signature of the field would also be validated against the transform.
 
 Example: Typing a Transform
 
 ```ts
-import type { TransformName } from '@warp-drive/core-types/symbols';
+import type { Type } from '@warp-drive/core-types/symbols';
 
 export default class BigIntTransform {
   deserialize(serialized: string): BigInt | null {
@@ -48,7 +48,7 @@ export default class BigIntTransform {
     return !deserialized ? null : String(deserialized);
   }
 
-  declare [TransformName]: 'big-int';
+  declare [Type]: 'big-int';
 
   static create() {
     return new this();
@@ -61,12 +61,12 @@ Example: Using Transforms
 ```ts
 import Model, { attr } from '@ember-data/model';
 import type { StringTransform } from '@ember-data/serializer/transforms';
-import type { ResourceType } from '@warp-drive/core-types/symbols';
+import type { Type } from '@warp-drive/core-types/symbols';
 
 export default class User extends Model {
   @attr<StringTransform>('string') declare name: string;
 
-  declare [ResourceType]: 'user';
+  declare [Type]: 'user';
 }
 ```
 
@@ -79,13 +79,13 @@ Once we move to stage-3 decorators, explicitly setting the generic would not be 
 ```ts
 import Model, { belongsTo } from '@ember-data/model';
 import type Address from './address';
-import { ResourceType } from '@warp-drive/core-types/symbols';
+import { Type } from '@warp-drive/core-types/symbols';
 
 export default class User extends Model {
   @belongsTo<Address>('address', { async: false, inverse: null })
   declare address: Address;
 
-  [ResourceType] = 'user' as const;
+  [Type] = 'user' as const;
 }
 ```
 
@@ -98,13 +98,13 @@ Once we move to stage-3 decorators, explicitly setting the generic would not be 
 ```ts
 import Model, { belongsTo, AsyncBelongsTo } from '@ember-data/model';
 import type Address from './address';
-import { ResourceType } from '@warp-drive/core-types/symbols';
+import { Type } from '@warp-drive/core-types/symbols';
 
 export default class User extends Model {
   @belongsTo<Address>('address', { async: true, inverse: null })
   declare address: AsyncBelongsTo<Address>;
 
-  [ResourceType] = 'user' as const;
+  [Type] = 'user' as const;
 }
 ```
 
@@ -119,13 +119,13 @@ Once we move to stage-3 decorators, explicitly setting the generic would not be 
 ```ts
 import Model, { hasMany } from '@ember-data/model';
 import type Post from './post';
-import { ResourceType } from '@warp-drive/core-types/symbols';
+import { Type } from '@warp-drive/core-types/symbols';
 
 export default class User extends Model {
   @hasMany<Post>('post', { async: false, inverse: 'author' })
   declare posts: Post[];
 
-  [ResourceType] = 'user' as const;
+  [Type] = 'user' as const;
 }
 ```
 
@@ -136,15 +136,15 @@ export default class User extends Model {
 Once we move to stage-3 decorators, explicitly setting the generic would not be required as it could be infered from the field's type.
 
 ```ts
-import Model, { hasMany, ManyArray } from '@ember-data/model';
+import Model, { hasMany, HasMany } from '@ember-data/model';
 import type Post from './post';
-import { ResourceType } from '@warp-drive/core-types/symbols';
+import { Type } from '@warp-drive/core-types/symbols';
 
 export default class User extends Model {
   @hasMany<Post>('post', { async: false, inverse: 'author' })
-  declare posts: ManyArray<Post>;
+  declare posts: HasMany<Post>;
 
-  [ResourceType] = 'user' as const;
+  [Type] = 'user' as const;
 }
 ```
 
@@ -160,17 +160,17 @@ Once we move to stage-3 decorators, explicitly setting the generic would not be 
 ```ts
 import Model, { hasMany, AsyncHasMany } from '@ember-data/model';
 import type Post from './post';
-import { ResourceType } from '@warp-drive/core-types/symbols';
+import { Type } from '@warp-drive/core-types/symbols';
 
 export default class User extends Model {
   @hasMany<Post>('post', { async: true, inverse: 'author' })
   declare posts: Promise<Post[]>;
 
-  [ResourceType] = 'user' as const;
+  [Type] = 'user' as const;
 }
 ```
 
-`Promise<ManyArray<Post>>` also works.
+`Promise<HasMany<Post>>` also works.
 
 ## Async HasMany (with links, meta, etc.)
 
@@ -181,12 +181,12 @@ Once we move to stage-3 decorators, explicitly setting the generic would not be 
 ```ts
 import Model, { hasMany, AsyncHasMany } from '@ember-data/model';
 import type Post from './post';
-import { ResourceType } from '@warp-drive/core-types/symbols';
+import { Type } from '@warp-drive/core-types/symbols';
 
 export default class User extends Model {
   @hasMany<Post>('post', { async: true, inverse: 'author' })
   declare posts: AsyncHasMany<Post>;
 
-  [ResourceType] = 'user' as const;
+  [Type] = 'user' as const;
 }
 ```

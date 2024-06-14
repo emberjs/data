@@ -1,6 +1,6 @@
 import { expectTypeOf } from 'expect-type';
 
-import { ResourceType } from '@warp-drive/core-types/symbols';
+import { Type } from '@warp-drive/core-types/symbols';
 
 import type { Collection, IdentifierArray } from './record-arrays/identifier-array';
 import type { CreateRecordProperties } from './store-service';
@@ -19,7 +19,7 @@ import { Store } from './store-service';
   };
   type BrandedUser = {
     name: string;
-    [ResourceType]: 'user';
+    [Type]: 'user';
   };
 
   const result1 = store.peekRecord('user', '1');
@@ -56,7 +56,7 @@ import { Store } from './store-service';
   };
   type BrandedUser = {
     name: string;
-    [ResourceType]: 'user';
+    [Type]: 'user';
   };
 
   expectTypeOf(store.findRecord('user', '1')).toEqualTypeOf<Promise<unknown>>();
@@ -76,7 +76,7 @@ import { Store } from './store-service';
     relatedThings: MyThing[];
     otherThing: OtherThing;
     otherThings: OtherThing[];
-    [ResourceType]: 'thing';
+    [Type]: 'thing';
   };
   type OtherThing = {
     name: string;
@@ -84,14 +84,14 @@ import { Store } from './store-service';
     deals: OtherThing[];
     original: MyThing;
     deep: DeepThing;
-    [ResourceType]: 'other-thing';
+    [Type]: 'other-thing';
   };
   type DeepThing = {
     name: string;
     relatedThing: MyThing;
     otherThing: OtherThing;
     myThing: DeepThing;
-    [ResourceType]: 'deep-thing';
+    [Type]: 'deep-thing';
   };
 
   const result = await store.findRecord('thing', '1');
@@ -129,7 +129,7 @@ import { Store } from './store-service';
   };
   type BrandedUser = {
     name: string;
-    [ResourceType]: 'user';
+    [Type]: 'user';
   };
 
   // @ts-expect-error expect error since no second argument
@@ -152,7 +152,7 @@ import { Store } from './store-service';
     relatedThings: MyThing[];
     otherThing: OtherThing;
     otherThings: OtherThing[];
-    [ResourceType]: 'thing';
+    [Type]: 'thing';
   };
   type OtherThing = {
     name: string;
@@ -160,14 +160,14 @@ import { Store } from './store-service';
     deals: OtherThing[];
     original: MyThing;
     deep: DeepThing;
-    [ResourceType]: 'other-thing';
+    [Type]: 'other-thing';
   };
   type DeepThing = {
     name: string;
     relatedThing: MyThing;
     otherThing: OtherThing;
     myThing: DeepThing;
-    [ResourceType]: 'deep-thing';
+    [Type]: 'deep-thing';
   };
 
   const result = await store.queryRecord('thing', {});
@@ -220,7 +220,7 @@ import { Store } from './store-service';
   };
   type BrandedUser = {
     name: string;
-    [ResourceType]: 'user';
+    [Type]: 'user';
   };
 
   expectTypeOf(store.findAll('user')).toEqualTypeOf<Promise<IdentifierArray>>();
@@ -240,7 +240,7 @@ import { Store } from './store-service';
     relatedThings: MyThing[];
     otherThing: OtherThing;
     otherThings: OtherThing[];
-    [ResourceType]: 'thing';
+    [Type]: 'thing';
   };
   type OtherThing = {
     name: string;
@@ -248,14 +248,14 @@ import { Store } from './store-service';
     deals: OtherThing[];
     original: MyThing;
     deep: DeepThing;
-    [ResourceType]: 'other-thing';
+    [Type]: 'other-thing';
   };
   type DeepThing = {
     name: string;
     relatedThing: MyThing;
     otherThing: OtherThing;
     myThing: DeepThing;
-    [ResourceType]: 'deep-thing';
+    [Type]: 'deep-thing';
   };
 
   const result = await store.findAll('thing');
@@ -293,7 +293,7 @@ import { Store } from './store-service';
   };
   type BrandedUser = {
     name: string;
-    [ResourceType]: 'user';
+    [Type]: 'user';
   };
 
   // @ts-expect-error expect error since no second argument
@@ -316,7 +316,7 @@ import { Store } from './store-service';
     relatedThings: MyThing[];
     otherThing: OtherThing;
     otherThings: OtherThing[];
-    [ResourceType]: 'thing';
+    [Type]: 'thing';
   };
   type OtherThing = {
     name: string;
@@ -324,14 +324,14 @@ import { Store } from './store-service';
     deals: OtherThing[];
     original: MyThing;
     deep: DeepThing;
-    [ResourceType]: 'other-thing';
+    [Type]: 'other-thing';
   };
   type DeepThing = {
     name: string;
     relatedThing: MyThing;
     otherThing: OtherThing;
     myThing: DeepThing;
-    [ResourceType]: 'deep-thing';
+    [Type]: 'deep-thing';
   };
 
   const result = await store.query('thing', {});
@@ -379,7 +379,7 @@ import { Store } from './store-service';
 //////////////////////////////////
 {
   class MockModel {
-    [ResourceType] = 'user' as const;
+    [Type] = 'user' as const;
     asyncProp = Promise.resolve('async');
     syncProp = 'sync';
 
