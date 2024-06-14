@@ -41,11 +41,11 @@
  * are compatible with on the `emberData` config in your `ember-cli-build.js` file.
  *
  * ```js
- * let app = new EmberApp(defaults, {
- *   emberData: {
- *     compatWith: '3.12',
- *   },
- * });
+ * const { setConfig } = await import('@warp-drive/build-config');
+ *
+ * let app = new EmberApp(defaults, {});
+ *
+ * setConfig(app, __dirname, { compatWith: '3.12' });
  * ```
  *
  * Alternatively, individual deprecations can be resolved (and thus have its support stripped)
@@ -59,14 +59,16 @@
  * when removing code for only some deprecations associated to a version number.
  *
  * ```js
- * let app = new EmberApp(defaults, {
- *   emberData: {
- *     deprecations: {
- *       DEPRECATE_FOO_BEHAVIOR: false // set to false to strip this code
- *       DEPRECATE_BAR_BEHAVIOR: true // force to true to not strip this code
- *     }
+ * const { setConfig } = await import('@warp-drive/build-config');
+ *
+ * let app = new EmberApp(defaults, {});
+ *
+ * setConfig(app, __dirname, {
+ *   deprecations: {
+ *     DEPRECATE_FOO_BEHAVIOR: false // set to false to strip this code
+ *     DEPRECATE_BAR_BEHAVIOR: true // force to true to not strip this code
  *   }
- * })
+ * });
  * ```
  *
  * The complete list of which versions specific deprecations will be removed in
@@ -280,14 +282,16 @@ export const DEPRECATE_NON_UNIQUE_PAYLOADS = '5.3';
  * to `false` in ember-cli-build.js
  *
  * ```js
- * let app = new EmberApp(defaults, {
- *   emberData: {
- *     deprecations: {
- *        // set to false to strip the deprecated code (thereby opting into the new behavior)
- *       DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE: false
- *     }
+ * const { setConfig } = await import('@warp-drive/build-config');
+ *
+ * let app = new EmberApp(defaults, {});
+ *
+ * setConfig(app, __dirname, {
+ *   deprecations: {
+ *     // set to false to strip the deprecated code (thereby opting into the new behavior)
+ *     DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE: false
  *   }
- * })
+ * });
  * ```
  *
  * To resolve this deprecation on an individual relationship, adjust the `options` passed to
@@ -428,6 +432,15 @@ export const ENABLE_LEGACY_SCHEMA_SERVICE = '5.4';
  *
  * Deprecates the use of ember-inflector for pluralization and singularization in favor
  * of the `@ember-data/request-utils` package.
+ *
+ * This deprecation can be resolved by removing usage of ember-inflector or by using
+ * both ember-inflector and @ember-data/request-utils in parallel and updating your
+ * EmberData/WarpDrive build config to mark the deprecation as resolved
+ * in ember-cli-build
+ *
+ * ```js
+ * setConfig(app, __dirname, { deprecations: { DEPRECATE_EMBER_INFLECTOR: false }});
+ * ```
  *
  * @property DEPRECATE_EMBER_INFLECTOR
  * @since 5.3
