@@ -4,7 +4,7 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import { peekCache } from '@ember-data/store/-private';
-import { ResourceType } from '@warp-drive/core-types/symbols';
+import { Type } from '@warp-drive/core-types/symbols';
 import { module, test } from '@warp-drive/diagnostic';
 import { setupTest } from '@warp-drive/diagnostic/ember';
 
@@ -35,7 +35,7 @@ module('Integration | Graph | Edges', function (hooks) {
       class User extends Model {
         @attr declare name: string;
         @belongsTo('user', { async: false, inverse: 'bestFriend' }) declare bestFriend: User;
-        [ResourceType] = 'user' as const;
+        [Type] = 'user' as const;
       }
       owner.register('model:user', User);
 

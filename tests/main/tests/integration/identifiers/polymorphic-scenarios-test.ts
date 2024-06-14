@@ -9,7 +9,7 @@ import type { AsyncBelongsTo, AsyncHasMany } from '@ember-data/model';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
-import { ResourceType } from '@warp-drive/core-types/symbols';
+import { Type } from '@warp-drive/core-types/symbols';
 
 type RID = { type: string; id: string };
 
@@ -17,14 +17,14 @@ class Car extends Model {
   @attr()
   declare color: string;
 
-  declare [ResourceType]: 'car' | 'ferrari' | 'bmw';
+  declare [Type]: 'car' | 'ferrari' | 'bmw';
 }
 
 class Ferrari extends Car {
-  [ResourceType] = 'ferrari' as const;
+  [Type] = 'ferrari' as const;
 }
 class Bmw extends Car {
-  [ResourceType] = 'bmw' as const;
+  [Type] = 'bmw' as const;
 }
 
 class Dealership extends Model {
@@ -37,7 +37,7 @@ class Dealership extends Model {
   @hasMany<Car>('car', { polymorphic: true, async: true, inverse: null })
   declare allCars: AsyncHasMany<Car>;
 
-  declare [ResourceType]: 'dealership';
+  declare [Type]: 'dealership';
 }
 
 module('Integration | Identifiers - single-table-inheritance polymorphic scenarios', function (hooks) {

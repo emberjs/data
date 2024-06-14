@@ -24,7 +24,7 @@ import type {
   ObjectField,
   ResourceSchema,
 } from '@warp-drive/core-types/schema/fields';
-import type { ResourceType } from '@warp-drive/core-types/symbols';
+import type { Type } from '@warp-drive/core-types/symbols';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
 
@@ -334,7 +334,7 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
 
     assert.verifySteps(['isHardExpired: false', 'isSoftExpired: false'], 'we resolve from cache still');
 
-    const record = store.createRecord<{ identifier: StableRecordIdentifier; [ResourceType]: 'test' }>('test', {});
+    const record = store.createRecord<{ identifier: StableRecordIdentifier; [Type]: 'test' }>('test', {});
 
     await store.request({
       url: '/test',
@@ -666,7 +666,7 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
     assert.verifySteps(['isHardExpired: false', 'isSoftExpired: false'], 'we resolve from cache still');
 
     // issue an out of band createRecord request with a record identifier
-    const record = store.createRecord<{ identifier: StableRecordIdentifier; [ResourceType]: 'test' }>('test', {});
+    const record = store.createRecord<{ identifier: StableRecordIdentifier; [Type]: 'test' }>('test', {});
     await store.requestManager.request({
       store,
       url: '/test',

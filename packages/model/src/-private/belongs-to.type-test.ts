@@ -1,6 +1,6 @@
 import { expectTypeOf } from 'expect-type';
 
-import type { ResourceType } from '@warp-drive/core-types/symbols';
+import type { Type } from '@warp-drive/core-types/symbols';
 
 import type { RelationshipDecorator, RelationshipOptions } from './belongs-to';
 import { belongsTo } from './belongs-to';
@@ -14,7 +14,7 @@ import { belongsTo } from './belongs-to';
 // ⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇
 
 type User = {
-  [ResourceType]: 'user';
+  [Type]: 'user';
   friends: User[];
 };
 

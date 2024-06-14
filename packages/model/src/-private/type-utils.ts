@@ -1,5 +1,5 @@
 import type { TypedRecordInstance } from '@warp-drive/core-types/record';
-import type { ResourceType } from '@warp-drive/core-types/symbols';
+import type { Type } from '@warp-drive/core-types/symbols';
 
 import type { RelatedCollection } from './many-array';
 import type { Model } from './model';
@@ -59,7 +59,7 @@ export type MaybeAttrFields<ThisType> = Exclude<
 export type MaybeRelationshipFields<ThisType> =
   _TrueKeys<ThisType> extends never ? string : _MaybeBelongsToFields<ThisType> | _MaybeHasManyFields<ThisType>;
 
-type _TrueKeys<ThisType> = Exclude<keyof ThisType & string, (keyof Model & string) | typeof ResourceType>;
+type _TrueKeys<ThisType> = Exclude<keyof ThisType & string, (keyof Model & string) | typeof Type>;
 export type isSubClass<ThisType> = _TrueKeys<ThisType> extends never ? false : true;
 /**
  * Get the keys of all fields defined on the given subclass of Model

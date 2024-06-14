@@ -5,7 +5,7 @@ import { setupTest } from 'ember-qunit';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
-import type { ResourceType } from '@warp-drive/core-types/symbols';
+import type { Type } from '@warp-drive/core-types/symbols';
 import { registerDerivations, withDefaults } from '@warp-drive/schema-record/schema';
 
 interface address {
@@ -20,7 +20,7 @@ interface CreateUserType {
   $type: 'user';
   name: string | null;
   addresses: Array<address | null> | null;
-  [ResourceType]: 'user';
+  [Type]: 'user';
 }
 
 module('Writes | schema-array fields', function (hooks) {

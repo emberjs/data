@@ -5,13 +5,13 @@ import { setupTest } from 'ember-qunit';
 import type { CompatStore } from '@ember-data/legacy-compat';
 import { query, queryRecord } from '@ember-data/legacy-compat/builders';
 import Model, { attr } from '@ember-data/model';
-import { ResourceType } from '@warp-drive/core-types/symbols';
+import { Type } from '@warp-drive/core-types/symbols';
 
 type QueryBuilderOptions = Exclude<Parameters<typeof query>[2], undefined>;
 type QueryRecordBuilderOptions = Exclude<Parameters<typeof queryRecord>[2], undefined>;
 
 class Post extends Model {
-  [ResourceType] = 'post' as const;
+  [Type] = 'post' as const;
   @attr declare name: string;
 }
 
