@@ -1,16 +1,16 @@
-import type { StableRecordIdentifier } from "@warp-drive/core-types";
-import type { Cache, ChangedAttributesHash, RelationshipDiff } from "@warp-drive/core-types/cache";
-import type { ResourceBlob } from "@warp-drive/core-types/cache/aliases";
-import type { Change } from "@warp-drive/core-types/cache/change";
-import type { Mutation } from "@warp-drive/core-types/cache/mutations";
-import type { Operation } from "@warp-drive/core-types/cache/operations";
-import type { StableDocumentIdentifier, StableExistingRecordIdentifier } from "@warp-drive/core-types/identifier";
-import type { TypeFromInstanceOrString } from "@warp-drive/core-types/record";
-import type { ResourceDocument, SingleResourceDataDocument } from "@warp-drive/core-types/spec/document";
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { Cache, ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core-types/cache';
+import type { ResourceBlob } from '@warp-drive/core-types/cache/aliases';
+import type { Change } from '@warp-drive/core-types/cache/change';
+import type { Mutation } from '@warp-drive/core-types/cache/mutations';
+import type { Operation } from '@warp-drive/core-types/cache/operations';
+import type { StableDocumentIdentifier, StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { TypeFromInstanceOrString } from '@warp-drive/core-types/record';
+import type { ResourceDocument, SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
 import type { RequestContext, StructuredDataDocument, StructuredDocument } from '@warp-drive/core-types/request';
-import { ApiError } from "@warp-drive/core-types/spec/error";
-import { Value } from "@warp-drive/core-types/json/raw";
-import { CollectionRelationship, ResourceRelationship } from "@warp-drive/core-types/cache/relationship";
+import { ApiError } from '@warp-drive/core-types/spec/error';
+import { Value } from '@warp-drive/core-types/json/raw';
+import { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 /**
  * The PersistedCache wraps a Cache to enhance it with
  * IndexedDB Persistence.
@@ -481,7 +481,6 @@ export class PersistedCache implements Cache {
   rollbackRelationships(identifier: StableRecordIdentifier): string[] {
     return this._cache.rollbackRelationships(identifier);
   }
-
 
   // Relationships
   // =============

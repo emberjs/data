@@ -1,8 +1,8 @@
-import type { CacheHandler, Handler, NextFn, RequestContext, StructuredDocument } from "@ember-data/request";
-import { StableExistingRecordIdentifier } from "@warp-drive/core-types/identifier";
-import { ResourceDocument } from "@warp-drive/core-types/spec/document";
+import type { CacheHandler, Handler, NextFn, RequestContext, StructuredDocument } from '@ember-data/request';
+import { StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
+import { ResourceDocument } from '@warp-drive/core-types/spec/document';
 
-const EmberDataCacheVersion = 1;
+const WarpDriveCacheVersion = 1;
 
 class PersistedCacheFetch implements Handler {
   request<T>(context: RequestContext, next: NextFn<T>) {
@@ -10,6 +10,10 @@ class PersistedCacheFetch implements Handler {
   }
 }
 
+/**
+ * A CacheHandler that wraps another CacheHandler to enable persisted caching
+ * of requests and responses.
+ */
 export class PersistedCacheHandler implements CacheHandler {
   declare _fetch: PersistedCacheFetch;
   declare _handler: CacheHandler;
@@ -17,7 +21,7 @@ export class PersistedCacheHandler implements CacheHandler {
   declare _setup: Promise<void>;
 
   async _setupCache(): Promise<void> {
-    const request = indexedDB.open('EmberDataCache', EmberDataCacheVersion);
+    const request = indexedDB.open('WarpDriveCache', WarpDriveCacheVersion);
 
     await new Promise((resolve, reject) => {
       request.onerror = reject;
@@ -38,7 +42,9 @@ export class PersistedCacheHandler implements CacheHandler {
         const result: IDBDatabase = (event.target as unknown as { result: IDBDatabase }).result;
 
         if (!result) {
-          throw new Error('Unable to upgrade IndexedDB database for PersistedCache: no IDBDatabase present on \`event.target.result\`');
+          throw new Error(
+            'Unable to upgrade IndexedDB database for PersistedCache: no IDBDatabase present on `event.target.result`'
+          );
         }
         // its not clear from the docs if (1) this method can be a promise or (2) how things like oncomplete
         // for createObjectStore are handled.
@@ -58,7 +64,8 @@ export class PersistedCacheHandler implements CacheHandler {
   }
 
   request<T>(context: RequestContext, next: NextFn<T>) {
-    const nextFn = ((req: RequestContext['request']) => this._fetch.request(Object.assign({}, context, { request: req }), next)) as NextFn<T>;
+    const nextFn = ((req: RequestContext['request']) =>
+      this._fetch.request(Object.assign({}, context, { request: req }), next)) as NextFn<T>;
 
     if (!this._db) {
       return this._handler.request(context, nextFn);
@@ -99,7 +106,6 @@ export class PersistedCacheHandler implements CacheHandler {
     return result;
   }
 }
-
 
 async function upgradeCache(db: IDBDatabase, oldVersion: number): Promise<void> {
   const promises: Promise<void>[] = [];
