@@ -1,6 +1,6 @@
 {
   "name": "performance-test-app",
-  "version": "5.4.0-alpha.83",
+  "version": "5.4.0-alpha.84",
   "private": true,
   "description": "Small description for performance-test-app goes here",
   "repository": {
@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "ember-auto-import": "^2.7.3",
-    "ember-data": "workspace:5.4.0-alpha.83",
+    "ember-data": "workspace:5.4.0-alpha.84",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "webpack": "^5.91.0"
   },
@@ -42,7 +42,7 @@
     "@embroider/webpack": "^4.0.0",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.83",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.84",
     "ember-cli": "~5.8.1",
     "ember-cli-babel": "^8.2.0",
     "ember-cli-dependency-checker": "^3.3.2",

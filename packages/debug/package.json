@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/debug",
-  "version": "5.4.0-alpha.83",
+  "version": "5.4.0-alpha.84",
   "description": "Provides support for the ember-inspector for apps built with Ember and EmberData",
   "keywords": [
     "ember-addon"
@@ -40,10 +40,10 @@
     }
   },
   "peerDependencies": {
-    "@ember-data/store": "workspace:5.4.0-alpha.83",
-    "@ember-data/model": "workspace:5.4.0-alpha.83",
-    "@ember-data/request-utils": "workspace:5.4.0-alpha.83",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.69"
+    "@ember-data/store": "workspace:5.4.0-alpha.84",
+    "@ember-data/model": "workspace:5.4.0-alpha.84",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.84",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.70"
   },
   "dependenciesMeta": {
     "@ember-data/store": {
@@ -74,23 +74,23 @@
   "dependencies": {
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.16.1",
-    "@warp-drive/build-config": "workspace:0.0.0-alpha.20"
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.21"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
     "@babel/plugin-transform-typescript": "^7.24.5",
     "@babel/preset-env": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
-    "@ember-data/request": "workspace:5.4.0-alpha.83",
-    "@ember-data/legacy-compat": "workspace:5.4.0-alpha.83",
-    "@ember-data/request-utils": "workspace:5.4.0-alpha.83",
-    "@ember-data/store": "workspace:5.4.0-alpha.83",
-    "@ember-data/model": "workspace:5.4.0-alpha.83",
-    "@ember-data/tracking": "workspace:5.4.0-alpha.83",
+    "@ember-data/request": "workspace:5.4.0-alpha.84",
+    "@ember-data/legacy-compat": "workspace:5.4.0-alpha.84",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.84",
+    "@ember-data/store": "workspace:5.4.0-alpha.84",
+    "@ember-data/model": "workspace:5.4.0-alpha.84",
+    "@ember-data/tracking": "workspace:5.4.0-alpha.84",
     "@ember/test-waiters": "^3.1.0",
     "@glimmer/component": "^1.1.2",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.69",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.83",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.70",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.84",
     "ember-source": "~5.8.0",
     "decorator-transforms": "^2.0.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
