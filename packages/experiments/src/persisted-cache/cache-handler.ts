@@ -12,7 +12,9 @@ class PersistedCacheFetch implements Handler {
 
 /**
  * A CacheHandler that wraps another CacheHandler to enable persisted caching
- * of requests and responses.
+ * of requests to IndexedDB.
+ *
+ *
  */
 export class PersistedCacheHandler implements CacheHandler {
   declare _fetch: PersistedCacheFetch;
