@@ -22,5 +22,7 @@ export default [
   node.cjs(),
 
   // browser (test) ================
-  diagnostic.browser(),
+  diagnostic.browser({
+    allowedImports: ['ember-inflector'],
+  }),
 ];

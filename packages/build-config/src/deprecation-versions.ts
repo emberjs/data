@@ -422,3 +422,16 @@ export const DEPRECATE_STORE_EXTENDS_EMBER_OBJECT = '5.4';
  * @public
  */
 export const ENABLE_LEGACY_SCHEMA_SERVICE = '5.4';
+
+/**
+ * **id: warp-drive.ember-inflector**
+ *
+ * Deprecates the use of ember-inflector for pluralization and singularization in favor
+ * of the `@ember-data/request-utils` package.
+ *
+ * @property DEPRECATE_EMBER_INFLECTOR
+ * @since 5.3
+ * @until 6.0
+ * @public
+ */
+export const DEPRECATE_EMBER_INFLECTOR = '5.3';
