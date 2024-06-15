@@ -45,7 +45,7 @@
     "@babel/core": "^7.24.5",
     "@babel/plugin-transform-typescript": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
-    "@warp-drive/internal-config": "workspace:5.4.0-beta.7",
+    "@warp-drive/internal-config": "workspace:5.3.4",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "typescript": "^5.4.5",
     "vite": "^5.2.11"
@@ -69,5 +69,6 @@
     "@warp-drive/build-config": {
       "injected": true
     }
-  }
+  },
+  "private": true
 }
