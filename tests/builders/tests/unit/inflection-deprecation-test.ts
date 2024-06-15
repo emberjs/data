@@ -9,6 +9,7 @@ module('Unit | Inflection Deprecation', function (hooks) {
   setupTest(hooks);
 
   test('Uncountable works as expected', function (assert) {
+    // @ts-expect-error foo is not on this
     this.foo = foo; // use foo to avoid tree-shaking
     Inflector.inflector.uncountable('trails');
 
