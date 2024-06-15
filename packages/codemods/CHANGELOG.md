@@ -2,7 +2,7 @@
 
 For the full project changelog see [https://github.com/emberjs/data/blob/main/CHANGELOG.md](https://github.com/emberjs/data/blob/main/CHANGELOG.md)
 
-## v5.3.4-alpha.0 (2024-06-15)
+## v5.3.4 (2024-06-15)
 
 #### :rocket: Enhancement
 

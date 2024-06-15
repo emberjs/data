@@ -1,6 +1,6 @@
 # @ember-data/serializer Changelog
 
-## v5.3.4-alpha.0 (2024-06-15)
+## v5.3.4 (2024-06-15)
 
 #### :memo: Documentation
 
