@@ -1,5 +1,10 @@
 # EmberData Changelog
 
+## v5.3.4 (2024-06-15)
+
+#### Committers: (0)
+
+
 ## v5.3.3 (2024-03-02)
 
 #### :bug: Bug Fix
