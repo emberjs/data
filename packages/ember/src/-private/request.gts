@@ -25,10 +25,10 @@ const not = (x: unknown) => !x;
 // default to 30 seconds unavailable before we refresh
 const DEFAULT_DEADLINE = 30_000;
 
-let provide = service;
+let consume = service;
 if (macroCondition(moduleExists('ember-provide-consume-context'))) {
-  const { consume } = importSync('ember-provide-consume-context') as { consume: typeof service };
-  provide = consume;
+  const { consume: contextConsume } = importSync('ember-provide-consume-context') as { consume: typeof service };
+  consume = contextConsume;
 }
 
 function isNeverString(val: never): string {
@@ -73,7 +73,7 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
   /**
    * @internal
    */
-  @provide('store') declare _store: Store;
+  @consume('store') declare _store: Store;
   @tracked isOnline = true;
   @tracked isHidden = true;
   @tracked isRefreshing = false;
