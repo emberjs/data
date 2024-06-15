@@ -9,3 +9,4 @@ export const DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE: boolean 
 export const DEPRECATE_MANY_ARRAY_DUPLICATES: boolean = true;
 export const DEPRECATE_STORE_EXTENDS_EMBER_OBJECT: boolean = true;
 export const ENABLE_LEGACY_SCHEMA_SERVICE: boolean = true;
+export const DEPRECATE_EMBER_INFLECTOR: boolean = true;
