@@ -1,5 +1,19 @@
 # eslint-plugin-ember-data Changelog
 
+## v0.0.2-alpha.71 (2024-06-15)
+
+#### :rocket: Enhancement
+
+* [#9260](https://github.com/emberjs/data/pull/9260) feat: ember specific data utils ([@runspired](https://github.com/runspired))
+
+#### :house: Internal
+
+* [#9292](https://github.com/emberjs/data/pull/9292) feat: add new build-config package ([@runspired](https://github.com/runspired))
+
+#### Committers: (1)
+
+Chris Thoburn ([@runspired](https://github.com/runspired))
+
 For the full project changelog see [https://github.com/emberjs/data/blob/main/CHANGELOG.md](https://github.com/emberjs/data/blob/main/CHANGELOG.md)
 
 ## v0.0.2-alpha.9 (2024-02-24)

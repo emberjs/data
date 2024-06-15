@@ -1,5 +1,42 @@
 # ember-data Changelog
 
+## v5.3.4-alpha.0 (2024-06-15)
+
+#### :evergreen_tree: New Deprecation
+
+* [#9479](https://github.com/emberjs/data/pull/9479) feat: support migration path for ember-inflector usage ([@runspired](https://github.com/runspired))
+
+#### :memo: Documentation
+
+* [#9328](https://github.com/emberjs/data/pull/9328) chore: update READMEs with status and dist tag info ([@runspired](https://github.com/runspired))
+
+#### :rocket: Enhancement
+
+* [#9471](https://github.com/emberjs/data/pull/9471) feat: npx warp-drive ([@runspired](https://github.com/runspired))
+* [#9468](https://github.com/emberjs/data/pull/9468) feat: string utils 🌌  ([@runspired](https://github.com/runspired))
+* [#9407](https://github.com/emberjs/data/pull/9407) feat: v2 addons ([@runspired](https://github.com/runspired))
+* [#9448](https://github.com/emberjs/data/pull/9448) feat: impl SchemaService RFC ([@runspired](https://github.com/runspired))
+* [#9450](https://github.com/emberjs/data/pull/9450) feat: improve typing around Model and createRecord ([@runspired](https://github.com/runspired))
+* [#9366](https://github.com/emberjs/data/pull/9366) feat: typed Model ([@runspired](https://github.com/runspired))
+* [#9260](https://github.com/emberjs/data/pull/9260) feat: ember specific data utils ([@runspired](https://github.com/runspired))
+* [#9244](https://github.com/emberjs/data/pull/9244) feat: improves consumer-facing store types ([@runspired](https://github.com/runspired))
+
+#### :bug: Bug Fix
+
+* [#9469](https://github.com/emberjs/data/pull/9469) Fix exports for 'ember-data' ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+* [#9318](https://github.com/emberjs/data/pull/9318) fix: be more specific in files in case .npmignore is ignored ([@runspired](https://github.com/runspired))
+
+#### :house: Internal
+
+* [#9477](https://github.com/emberjs/data/pull/9477) fix: add deprecation and avoid breaking configs ([@runspired](https://github.com/runspired))
+* [#9292](https://github.com/emberjs/data/pull/9292) feat: add new build-config package ([@runspired](https://github.com/runspired))
+* [#9370](https://github.com/emberjs/data/pull/9370) chore: rename macros ([@runspired](https://github.com/runspired))
+
+#### Committers: (2)
+
+Chris Thoburn ([@runspired](https://github.com/runspired))
+[@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
 For the full project changelog see [https://github.com/emberjs/data/blob/main/CHANGELOG.md](https://github.com/emberjs/data/blob/main/CHANGELOG.md)
 
 ## v5.3.1 (2024-02-24)

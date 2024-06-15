@@ -1,5 +1,33 @@
 # @ember-data/tracking Changelog
 
+## v5.3.4-alpha.0 (2024-06-15)
+
+#### :memo: Documentation
+
+* [#9328](https://github.com/emberjs/data/pull/9328) chore: update READMEs with status and dist tag info ([@runspired](https://github.com/runspired))
+
+#### :rocket: Enhancement
+
+* [#9471](https://github.com/emberjs/data/pull/9471) feat: npx warp-drive ([@runspired](https://github.com/runspired))
+* [#9407](https://github.com/emberjs/data/pull/9407) feat: v2 addons ([@runspired](https://github.com/runspired))
+* [#9366](https://github.com/emberjs/data/pull/9366) feat: typed Model ([@runspired](https://github.com/runspired))
+* [#9260](https://github.com/emberjs/data/pull/9260) feat: ember specific data utils ([@runspired](https://github.com/runspired))
+
+#### :bug: Bug Fix
+
+* [#9265](https://github.com/emberjs/data/pull/9265) feat: Improve config handling for polyfillUUID ([@MehulKChaudhari](https://github.com/MehulKChaudhari))
+
+#### :house: Internal
+
+* [#9292](https://github.com/emberjs/data/pull/9292) feat: add new build-config package ([@runspired](https://github.com/runspired))
+* [#9370](https://github.com/emberjs/data/pull/9370) chore: rename macros ([@runspired](https://github.com/runspired))
+* [#9303](https://github.com/emberjs/data/pull/9303) infra: setup mirror and types publishing ([@runspired](https://github.com/runspired))
+
+#### Committers: (2)
+
+Chris Thoburn ([@runspired](https://github.com/runspired))
+Mehul Kiran Chaudhari ([@MehulKChaudhari](https://github.com/MehulKChaudhari))
+
 For the full project changelog see [https://github.com/emberjs/data/blob/main/CHANGELOG.md](https://github.com/emberjs/data/blob/main/CHANGELOG.md)
 
 ## v5.3.1 (2024-02-24)

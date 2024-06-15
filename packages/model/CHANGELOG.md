@@ -1,5 +1,48 @@
 # @ember-data/model Changelog
 
+## v5.3.4-alpha.0 (2024-06-15)
+
+#### :memo: Documentation
+
+* [#9328](https://github.com/emberjs/data/pull/9328) chore: update READMEs with status and dist tag info ([@runspired](https://github.com/runspired))
+
+#### :rocket: Enhancement
+
+* [#9471](https://github.com/emberjs/data/pull/9471) feat: npx warp-drive ([@runspired](https://github.com/runspired))
+* [#9468](https://github.com/emberjs/data/pull/9468) feat: string utils 🌌  ([@runspired](https://github.com/runspired))
+* [#9464](https://github.com/emberjs/data/pull/9464) feat: implement support for legacy hasMany and belongsTo relationship reads ([@runspired](https://github.com/runspired))
+* [#9407](https://github.com/emberjs/data/pull/9407) feat: v2 addons ([@runspired](https://github.com/runspired))
+* [#9453](https://github.com/emberjs/data/pull/9453) feat: update SchemaService to reflect RFC updates ([@runspired](https://github.com/runspired))
+* [#9448](https://github.com/emberjs/data/pull/9448) feat: impl SchemaService RFC ([@runspired](https://github.com/runspired))
+* [#9450](https://github.com/emberjs/data/pull/9450) feat: improve typing around Model and createRecord ([@runspired](https://github.com/runspired))
+* [#9387](https://github.com/emberjs/data/pull/9387) feat: better types for legacy store methods ([@runspired](https://github.com/runspired))
+* [#9366](https://github.com/emberjs/data/pull/9366) feat: typed Model ([@runspired](https://github.com/runspired))
+* [#9317](https://github.com/emberjs/data/pull/9317) feat: ensure data utils work well with legacy relationship proxies ([@runspired](https://github.com/runspired))
+* [#9260](https://github.com/emberjs/data/pull/9260) feat: ember specific data utils ([@runspired](https://github.com/runspired))
+* [#9256](https://github.com/emberjs/data/pull/9256) feat: improve alpha types support ([@runspired](https://github.com/runspired))
+* [#9250](https://github.com/emberjs/data/pull/9250) feat: fix types for legacy decorator syntax ([@runspired](https://github.com/runspired))
+* [#9249](https://github.com/emberjs/data/pull/9249) chore: handle declare statements in module rewriting ([@runspired](https://github.com/runspired))
+* [#9245](https://github.com/emberjs/data/pull/9245) feat: add consumer types for Model APIs ([@runspired](https://github.com/runspired))
+* [#9244](https://github.com/emberjs/data/pull/9244) feat: improves consumer-facing store types ([@runspired](https://github.com/runspired))
+
+#### :bug: Bug Fix
+
+* [#9265](https://github.com/emberjs/data/pull/9265) feat: Improve config handling for polyfillUUID ([@MehulKChaudhari](https://github.com/MehulKChaudhari))
+
+#### :house: Internal
+
+* [#9476](https://github.com/emberjs/data/pull/9476) chore: cleanup symbol usage ([@runspired](https://github.com/runspired))
+* [#9463](https://github.com/emberjs/data/pull/9463) types: ManyArray => HasMany ([@runspired](https://github.com/runspired))
+* [#9292](https://github.com/emberjs/data/pull/9292) feat: add new build-config package ([@runspired](https://github.com/runspired))
+* [#9370](https://github.com/emberjs/data/pull/9370) chore: rename macros ([@runspired](https://github.com/runspired))
+* [#9303](https://github.com/emberjs/data/pull/9303) infra: setup mirror and types publishing ([@runspired](https://github.com/runspired))
+* [#9279](https://github.com/emberjs/data/pull/9279) types: branded transforms and improve types needed for serializers ([@runspired](https://github.com/runspired))
+
+#### Committers: (2)
+
+Chris Thoburn ([@runspired](https://github.com/runspired))
+Mehul Kiran Chaudhari ([@MehulKChaudhari](https://github.com/MehulKChaudhari))
+
 For the full project changelog see [https://github.com/emberjs/data/blob/main/CHANGELOG.md](https://github.com/emberjs/data/blob/main/CHANGELOG.md)
 
 ## v5.3.1 (2024-02-24)

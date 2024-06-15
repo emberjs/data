@@ -1,5 +1,29 @@
 # @warp-drive/holodeck Changelog
 
+## v0.0.0-alpha.71 (2024-06-15)
+
+#### :memo: Documentation
+
+* [#9328](https://github.com/emberjs/data/pull/9328) chore: update READMEs with status and dist tag info ([@runspired](https://github.com/runspired))
+
+#### :rocket: Enhancement
+
+* [#9471](https://github.com/emberjs/data/pull/9471) feat: npx warp-drive ([@runspired](https://github.com/runspired))
+* [#9366](https://github.com/emberjs/data/pull/9366) feat: typed Model ([@runspired](https://github.com/runspired))
+* [#9260](https://github.com/emberjs/data/pull/9260) feat: ember specific data utils ([@runspired](https://github.com/runspired))
+
+#### :bug: Bug Fix
+
+* [#9383](https://github.com/emberjs/data/pull/9383) fix: ensure cache-handler clones full errors ([@runspired](https://github.com/runspired))
+
+#### :house: Internal
+
+* [#9292](https://github.com/emberjs/data/pull/9292) feat: add new build-config package ([@runspired](https://github.com/runspired))
+
+#### Committers: (1)
+
+Chris Thoburn ([@runspired](https://github.com/runspired))
+
 For the full project changelog see [https://github.com/emberjs/data/blob/main/CHANGELOG.md](https://github.com/emberjs/data/blob/main/CHANGELOG.md)
 
 ## v0.0.0-alpha.9 (2024-02-24)

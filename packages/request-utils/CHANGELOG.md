@@ -1,5 +1,33 @@
 # @ember-data/request-utils Changelog
 
+## v5.3.4-alpha.0 (2024-06-15)
+
+#### :evergreen_tree: New Deprecation
+
+* [#9479](https://github.com/emberjs/data/pull/9479) feat: support migration path for ember-inflector usage ([@runspired](https://github.com/runspired))
+
+#### :memo: Documentation
+
+* [#9328](https://github.com/emberjs/data/pull/9328) chore: update READMEs with status and dist tag info ([@runspired](https://github.com/runspired))
+
+#### :rocket: Enhancement
+
+* [#9471](https://github.com/emberjs/data/pull/9471) feat: npx warp-drive ([@runspired](https://github.com/runspired))
+* [#9468](https://github.com/emberjs/data/pull/9468) feat: string utils 🌌  ([@runspired](https://github.com/runspired))
+* [#9407](https://github.com/emberjs/data/pull/9407) feat: v2 addons ([@runspired](https://github.com/runspired))
+* [#9444](https://github.com/emberjs/data/pull/9444) feat: rename LifetimesService => CachePolicy for clarity ([@runspired](https://github.com/runspired))
+* [#9366](https://github.com/emberjs/data/pull/9366) feat: typed Model ([@runspired](https://github.com/runspired))
+* [#9314](https://github.com/emberjs/data/pull/9314) feat: improve lifetime handling of ad-hoc createRecord requests ([@runspired](https://github.com/runspired))
+* [#9260](https://github.com/emberjs/data/pull/9260) feat: ember specific data utils ([@runspired](https://github.com/runspired))
+
+#### :house: Internal
+
+* [#9292](https://github.com/emberjs/data/pull/9292) feat: add new build-config package ([@runspired](https://github.com/runspired))
+
+#### Committers: (1)
+
+Chris Thoburn ([@runspired](https://github.com/runspired))
+
 For the full project changelog see [https://github.com/emberjs/data/blob/main/CHANGELOG.md](https://github.com/emberjs/data/blob/main/CHANGELOG.md)
 
 ## v5.3.1 (2024-02-24)
