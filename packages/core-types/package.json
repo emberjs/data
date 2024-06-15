@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/core-types",
-  "version": "0.0.0-alpha.71",
+  "version": "0.0.0-beta.7",
   "description": "Provides core logic, utils and types for WarpDrive and EmberData",
   "keywords": [
     "ember-addon"
@@ -39,13 +39,13 @@
   },
   "dependencies": {
     "@embroider/macros": "^1.16.1",
-    "@warp-drive/build-config": "workspace:0.0.0-alpha.22"
+    "@warp-drive/build-config": "workspace:0.0.0-beta.2"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
     "@babel/plugin-transform-typescript": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.85",
+    "@warp-drive/internal-config": "workspace:5.4.0-beta.7",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "typescript": "^5.4.5",
     "vite": "^5.2.11"
