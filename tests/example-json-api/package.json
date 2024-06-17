@@ -77,9 +77,9 @@
     "@ember/optional-features": "^2.1.0",
     "@ember/test-helpers": "^3.3.0",
     "@ember/test-waiters": "^3.1.0",
-    "@embroider/compat": "^3.5.0",
-    "@embroider/core": "^3.4.9",
-    "@embroider/webpack": "^4.0.0",
+    "@embroider/compat": "^3.5.3",
+    "@embroider/core": "^3.4.12",
+    "@embroider/webpack": "^4.0.3",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "@html-next/vertical-collection": "^4.0.2",
@@ -87,7 +87,7 @@
     "@warp-drive/core-types": "workspace:0.0.0-alpha.71",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.85",
     "ember-auto-import": "^2.7.3",
-    "ember-cli": "~5.8.1",
+    "ember-cli": "~5.9.0",
     "ember-cli-babel": "^8.2.0",
     "ember-cli-dependency-checker": "^3.3.2",
     "ember-cli-htmlbars": "^6.3.0",
@@ -114,7 +114,7 @@
     "qunit-dom": "^3.1.1",
     "silent-error": "^1.1.1",
     "typescript": "^5.4.5",
-    "webpack": "^5.91.0"
+    "webpack": "^5.92.0"
   },
   "ember": {
     "edition": "octane"
