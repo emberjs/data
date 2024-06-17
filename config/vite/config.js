@@ -18,7 +18,7 @@ export function createConfig(options, resolve) {
     build: {
       outDir: 'dist',
       emptyOutDir: options.emptyOutDir ?? true,
-      target: ['esnext', 'firefox121'],
+      target: options.target ?? ['esnext', 'firefox121'],
       minify: false,
       sourcemap: true,
       lib: {
