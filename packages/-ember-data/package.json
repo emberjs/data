@@ -56,6 +56,9 @@
     "./app/*": {
       "default": "./app/*.js"
     },
+    "./blueprints/*": {
+      "default": "./blueprints/*.js"
+    },
     "./*": {
       "types": "./unstable-preview-types/*.d.ts",
       "default": "./dist/*.js"
