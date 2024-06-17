@@ -1,7 +1,7 @@
 {
   "name": "@ember-data/active-record",
   "description": "ActiveRecord Format Support for EmberData",
-  "version": "5.4.0-alpha.86",
+  "version": "5.4.0-alpha.87",
   "private": false,
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
@@ -46,24 +46,24 @@
   },
   "dependencies": {
     "@embroider/macros": "^1.16.1",
-    "@warp-drive/build-config": "workspace:0.0.0-alpha.23"
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.24"
   },
   "peerDependencies": {
-    "@ember-data/request-utils": "workspace:5.4.0-alpha.86",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.87",
     "@ember-data/store": "^4.12.0 || ^5.0.0",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.72"
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.73"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
     "@babel/plugin-transform-typescript": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
-    "@ember-data/request": "workspace:5.4.0-alpha.86",
-    "@ember-data/request-utils": "workspace:5.4.0-alpha.86",
-    "@ember-data/store": "workspace:5.4.0-alpha.86",
-    "@ember-data/tracking": "workspace:5.4.0-alpha.86",
+    "@ember-data/request": "workspace:5.4.0-alpha.87",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.87",
+    "@ember-data/store": "workspace:5.4.0-alpha.87",
+    "@ember-data/tracking": "workspace:5.4.0-alpha.87",
     "@glimmer/component": "^1.1.2",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.72",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.86",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.73",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.87",
     "ember-source": "~5.8.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "vite": "^5.2.11",
