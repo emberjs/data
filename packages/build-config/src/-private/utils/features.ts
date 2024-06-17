@@ -6,7 +6,7 @@ import * as CURRENT_FEATURES from '../../canary-features.ts';
 type FEATURE = keyof typeof CURRENT_FEATURES;
 
 const dirname = typeof __dirname !== 'undefined' ? __dirname : fileURLToPath(new URL('.', import.meta.url));
-const relativePkgPath = path.join(dirname, '../../package.json');
+const relativePkgPath = path.join(dirname, '../package.json');
 
 const version = JSON.parse(fs.readFileSync(relativePkgPath, 'utf-8')).version;
 const isCanary = version.includes('alpha');
