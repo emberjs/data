@@ -1,6 +1,6 @@
 import { createConfig } from '@warp-drive/internal-config/vite/config.js';
 
-export const externals = ['babel-import-util', 'fs', 'path'];
+export const externals = ['babel-import-util', 'fs', 'path', 'url'];
 
 export const entryPoints = [
   './cjs-src/transforms/babel-plugin-transform-asserts.js',
@@ -17,6 +17,7 @@ export default createConfig(
     flatten: true,
     format: 'cjs',
     externals,
+    target: ['esnext', 'firefox121', 'node18'],
     emptyOutDir: false,
     fixModule: false,
     compileTypes: false,

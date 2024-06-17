@@ -1,10 +1,11 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 import * as CURRENT_FEATURES from '../../canary-features.ts';
 type FEATURE = keyof typeof CURRENT_FEATURES;
 
-const dirname = new URL(import.meta.url).pathname;
+const dirname = typeof __dirname !== 'undefined' ? __dirname : fileURLToPath(new URL('.', import.meta.url));
 const relativePkgPath = path.join(dirname, '../../package.json');
 
 const version = JSON.parse(fs.readFileSync(relativePkgPath, 'utf-8')).version;
