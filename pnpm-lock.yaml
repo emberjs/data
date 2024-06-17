@@ -1746,8 +1746,8 @@ importers:
         specifier: ^0.92.0
         version: 0.92.0
       '@warp-drive/core-types':
-        specifier: 0.0.0-alpha.50
-        version: 0.0.0-alpha.50(@babel/core@7.24.5)
+        specifier: workspace:0.0.0-alpha.71
+        version: file:packages/core-types(@babel/core@7.24.5)(@glint/template@1.4.0)
       '@warp-drive/internal-config':
         specifier: workspace:5.4.0-alpha.85
         version: link:../../config
@@ -5622,37 +5622,6 @@ packages:
       enabled: 2.0.0
       kuler: 2.0.0
 
-  /@ember-data/private-build-infra@5.4.0-alpha.64:
-    resolution: {integrity: sha512-BipAUd49H+JvnW4TOnjvo2xEfpxxzQUjPpEAE5FCz2gBbtZRDD1ilN4GZY21Fe924Dx6Dmdj+O2sVufIJi66Jw==}
-    engines: {node: '>= 18.20.2'}
-    dependencies:
-      '@babel/core': 7.24.5(supports-color@8.1.1)
-      '@babel/plugin-transform-block-scoping': 7.24.5(@babel/core@7.24.5)
-      '@babel/runtime': 7.24.5
-      '@ember/edition-utils': 1.2.0
-      '@embroider/macros': 1.16.1(@babel/core@7.24.5)(@glint/template@1.4.0)
-      babel-import-util: 2.1.1
-      babel-plugin-debug-macros: 0.3.4(@babel/core@7.24.5)
-      babel-plugin-filter-imports: 4.0.0
-      babel6-plugin-strip-class-callcheck: 6.0.0
-      broccoli-debug: 0.6.5
-      broccoli-file-creator: 2.1.1
-      broccoli-merge-trees: 4.2.0
-      calculate-cache-key-for-tree: 2.0.0
-      chalk: 4.1.2
-      ember-cli-babel: 8.2.0(@babel/core@7.24.5)
-      ember-cli-path-utils: 1.0.0
-      ember-cli-string-utils: 1.1.0
-      ember-cli-version-checker: 5.1.2
-      git-repo-info: 2.1.1
-      npm-git-info: 1.0.3
-      semver: 7.6.2
-      silent-error: 1.1.1
-    transitivePeerDependencies:
-      - '@glint/template'
-      - supports-color
-    dev: true
-
   /@ember-data/rfc395-data@0.0.4:
     resolution: {integrity: sha512-tGRdvgC9/QMQSuSuJV45xoyhI0Pzjm7A9o/MVVA3HakXIImJbbzx/k/6dO9CUEQXIyS2y0fW6C1XaYOG7rY0FQ==}
 
@@ -5865,6 +5834,9 @@ packages:
     peerDependencies:
       '@embroider/core': ^3.4.0
       webpack: 5.91.0
+    peerDependenciesMeta:
+      webpack:
+        optional: true
     dependencies:
       '@embroider/core': 3.4.9(@glint/template@1.4.0)
       webpack: 5.91.0
@@ -7874,18 +7846,6 @@ packages:
   /@vue/shared@3.4.26:
     resolution: {integrity: sha512-Fg4zwR0GNnjzodMt3KRy2AWGMKQXByl56+4HjN87soxLNU9P5xcJkstAlIeEF3cU6UYOzmJl1tV0dVPGIljCnQ==}
     dev: false
-
-  /@warp-drive/core-types@0.0.0-alpha.50(@babel/core@7.24.5):
-    resolution: {integrity: sha512-meBsVdZGBtgh0yLAF9ZSgnVYIEPgfDtKXnLFdB3namxJgxqWr66VV95JKtJ4qtSY5txQf8W2MyufrfV0dQpYbQ==}
-    engines: {node: '>= 18.20.2'}
-    dependencies:
-      '@ember-data/private-build-infra': 5.4.0-alpha.64
-      ember-cli-babel: 8.2.0(@babel/core@7.24.5)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-    dev: true
 
   /@webassemblyjs/ast@1.12.1:
     resolution: {integrity: sha512-EKfMUOPRRUTy5UII4qJDGPpqfwjOmZ5jeGFwid9mnoqIFK+e0vqoi1qH56JpmZSzEL53jKnNzScdmftJyG5xWg==}
@@ -15364,10 +15324,6 @@ packages:
   /normalize-url@4.5.1:
     resolution: {integrity: sha512-9UZCFRHQdNrfTpGg8+1INIg93B6zE0aXMVFkw1WFwvO4SlZywU6aLg5Of0Ap/PgcbSw4LNxvMWXMeugwMCX0AA==}
     engines: {node: '>=8'}
-    dev: true
-
-  /npm-git-info@1.0.3:
-    resolution: {integrity: sha512-i5WBdj4F/ULl16z9ZhsJDMl1EQCMQhHZzBwNnKL2LOA+T8IHNeRkLCVz9uVV9SzUdGTbDq+1oXhIYMe+8148vw==}
     dev: true
 
   /npm-package-arg@10.1.0:
