@@ -24,7 +24,7 @@ if (DEPRECATE_EMBER_INFLECTOR) {
       plural(...args);
 
       deprecate(
-        `WarpDrive/EmberData no longer uses ember-inflector for pluralization.\nPlease \`import { plural } from '@warp-drive/request-utils';\` instead to register a custom pluralization rule for use with EmberData.`,
+        `WarpDrive/EmberData no longer uses ember-inflector for pluralization.\nPlease \`import { plural } from '@ember-data/request-utils/string';\` instead to register a custom pluralization rule for use with EmberData.`,
         false,
         {
           id: 'warp-drive.ember-inflector',
@@ -45,7 +45,7 @@ if (DEPRECATE_EMBER_INFLECTOR) {
       singular(...args);
 
       deprecate(
-        `WarpDrive/EmberData no longer uses ember-inflector for singularization.\nPlease \`import { singular } from '@warp-drive/request-utils';\` instead to register a custom singularization rule for use with EmberData.`,
+        `WarpDrive/EmberData no longer uses ember-inflector for singularization.\nPlease \`import { singular } from '@ember-data/request-utils/string';\` instead to register a custom singularization rule for use with EmberData.`,
         false,
         {
           id: 'warp-drive.ember-inflector',
@@ -66,7 +66,7 @@ if (DEPRECATE_EMBER_INFLECTOR) {
       irregular(...args);
 
       deprecate(
-        `WarpDrive/EmberData no longer uses ember-inflector for irregular rules.\nPlease \`import { irregular } from '@warp-drive/request-utils';\` instead to register a custom irregular rule for use with EmberData.`,
+        `WarpDrive/EmberData no longer uses ember-inflector for irregular rules.\nPlease \`import { irregular } from '@ember-data/request-utils/string';\` instead to register a custom irregular rule for use with EmberData.`,
         false,
         {
           id: 'warp-drive.ember-inflector',
@@ -87,7 +87,7 @@ if (DEPRECATE_EMBER_INFLECTOR) {
       uncountable(...args);
 
       deprecate(
-        `WarpDrive/EmberData no longer uses ember-inflector for uncountable rules.\nPlease \`import { uncountable } from '@warp-drive/request-utils';\` instead to register a custom uncountable rule for use with EmberData.`,
+        `WarpDrive/EmberData no longer uses ember-inflector for uncountable rules.\nPlease \`import { uncountable } from '@ember-data/request-utils/string';\` instead to register a custom uncountable rule for use with EmberData.`,
         false,
         {
           id: 'warp-drive.ember-inflector',
