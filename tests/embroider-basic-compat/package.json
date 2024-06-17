@@ -103,7 +103,7 @@
     "ember-cli": "~5.9.0",
     "ember-cli-babel": "^8.2.0",
     "ember-cli-dependency-checker": "^3.3.2",
-    "ember-cli-fastboot": "^4.1.4",
+    "ember-cli-fastboot": "^4.1.5",
     "ember-cli-fastboot-testing": "^0.6.1",
     "ember-cli-htmlbars": "^6.3.0",
     "ember-cli-inject-live-reload": "^2.1.0",
