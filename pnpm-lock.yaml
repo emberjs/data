@@ -531,8 +531,8 @@ importers:
         specifier: ^1.16.1
         version: 1.16.1(@babel/core@7.24.5)(@glint/template@1.4.0)
       babel-import-util:
-        specifier: ^2.1.1
-        version: 2.1.1
+        specifier: ^3.0.0
+        version: 3.0.0
       broccoli-funnel:
         specifier: ^3.0.8
         version: 3.0.8
@@ -19322,7 +19322,7 @@ packages:
     dependencies:
       '@embroider/addon-shim': 1.8.9
       '@embroider/macros': 1.16.1(@babel/core@7.24.5)(@glint/template@1.4.0)
-      babel-import-util: 2.1.1
+      babel-import-util: 3.0.0
       broccoli-funnel: 3.0.8
       semver: 7.6.2
     transitivePeerDependencies:
