@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/serializer",
-  "version": "5.4.0-alpha.85",
+  "version": "5.4.0-alpha.86",
   "description": "Provides Legacy JSON, JSON:API and REST Implementations of the Serializer Interface for use with @ember-data/store",
   "keywords": [
     "ember-addon"
@@ -48,10 +48,10 @@
     }
   },
   "peerDependencies": {
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.71",
-    "@ember-data/legacy-compat": "workspace:5.4.0-alpha.85",
-    "@ember-data/request-utils": "workspace:5.4.0-alpha.85",
-    "@ember-data/store": "workspace:5.4.0-alpha.85"
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.72",
+    "@ember-data/legacy-compat": "workspace:5.4.0-alpha.86",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.86",
+    "@ember-data/store": "workspace:5.4.0-alpha.86"
   },
   "dependenciesMeta": {
     "@warp-drive/core-types": {
@@ -82,22 +82,22 @@
     "ember-cli-string-utils": "^1.1.0",
     "ember-cli-path-utils": "^1.0.0",
     "@ember/edition-utils": "1.2.0",
-    "@warp-drive/build-config": "workspace:0.0.0-alpha.22"
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.23"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
     "@babel/plugin-transform-typescript": "^7.24.5",
     "@babel/preset-env": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
-    "@ember-data/request": "workspace:5.4.0-alpha.85",
-    "@ember-data/request-utils": "workspace:5.4.0-alpha.85",
-    "@ember-data/store": "workspace:5.4.0-alpha.85",
-    "@ember-data/tracking": "workspace:5.4.0-alpha.85",
-    "@ember-data/legacy-compat": "workspace:5.4.0-alpha.85",
+    "@ember-data/request": "workspace:5.4.0-alpha.86",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.86",
+    "@ember-data/store": "workspace:5.4.0-alpha.86",
+    "@ember-data/tracking": "workspace:5.4.0-alpha.86",
+    "@ember-data/legacy-compat": "workspace:5.4.0-alpha.86",
     "@ember/test-waiters": "^3.1.0",
     "@glimmer/component": "^1.1.2",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.71",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.85",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.72",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.86",
     "decorator-transforms": "^2.0.0",
     "ember-source": "~5.8.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",

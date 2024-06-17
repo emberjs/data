@@ -1,7 +1,7 @@
 {
   "name": "@warp-drive/holodeck",
   "description": "⚡️ Simple, Fast HTTP Mocking for Tests",
-  "version": "0.0.0-alpha.71",
+  "version": "0.0.0-alpha.72",
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "repository": {
@@ -46,8 +46,8 @@
     "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
   "peerDependencies": {
-    "@ember-data/request": "workspace:5.4.0-alpha.85",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.71"
+    "@ember-data/request": "workspace:5.4.0-alpha.86",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.72"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
@@ -55,9 +55,9 @@
     "@babel/preset-env": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
     "@babel/runtime": "^7.24.5",
-    "@ember-data/request": "workspace:5.4.0-alpha.85",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.71",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.85",
+    "@ember-data/request": "workspace:5.4.0-alpha.86",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.72",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.86",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "typescript": "^5.4.5",
     "vite": "^5.2.11"
