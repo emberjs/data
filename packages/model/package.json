@@ -40,7 +40,7 @@
       "default": "./dist/index.js"
     },
     "./blueprints/*": {
-      "default": "./blueprints/*.js"
+      "default": "./dist/blueprints/*.js"
     },
     "./*": {
       "types": "./unstable-preview-types/*.d.ts",
