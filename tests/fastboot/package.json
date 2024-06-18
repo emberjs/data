@@ -1,6 +1,6 @@
 {
   "name": "fastboot-test-app",
-  "version": "5.4.0-beta.8",
+  "version": "5.3.5",
   "private": true,
   "description": "Small description for fastboot-test-app goes here",
   "repository": {
@@ -23,9 +23,9 @@
     "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
   "dependencies": {
-    "@ember-data/unpublished-test-infra": "workspace:5.4.0-beta.8",
+    "@ember-data/unpublished-test-infra": "workspace:5.3.5",
     "ember-auto-import": "^2.7.3",
-    "ember-data": "workspace:5.4.0-beta.8",
+    "ember-data": "workspace:5.3.5",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "webpack": "^5.92.0"
   },
@@ -69,14 +69,14 @@
     "@ember/test-waiters": "^3.1.0",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
-    "@ember-data/request": "workspace:5.4.0-beta.8",
-    "@ember-data/request-utils": "workspace:5.4.0-beta.8",
-    "@ember-data/store": "workspace:5.4.0-beta.8",
-    "@ember-data/model": "workspace:5.4.0-beta.8",
-    "@ember-data/legacy-compat": "workspace:5.4.0-beta.8",
-    "@ember-data/tracking": "workspace:5.4.0-beta.8",
+    "@ember-data/request": "workspace:5.3.5",
+    "@ember-data/request-utils": "workspace:5.3.5",
+    "@ember-data/store": "workspace:5.3.5",
+    "@ember-data/model": "workspace:5.3.5",
+    "@ember-data/legacy-compat": "workspace:5.3.5",
+    "@ember-data/tracking": "workspace:5.3.5",
     "@warp-drive/core-types": "workspace:0.0.0-beta.8",
-    "@warp-drive/internal-config": "workspace:5.4.0-beta.8",
+    "@warp-drive/internal-config": "workspace:5.3.5",
     "@warp-drive/build-config": "workspace:0.0.0-beta.3",
     "ember-cli": "~5.9.0",
     "ember-cli-babel": "^8.2.0",

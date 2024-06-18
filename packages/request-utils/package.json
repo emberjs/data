@@ -1,7 +1,7 @@
 {
   "name": "@ember-data/request-utils",
   "description": "Request Building Utilities for use with EmberData",
-  "version": "5.4.0-beta.8",
+  "version": "5.3.5",
   "private": false,
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
@@ -76,7 +76,7 @@
     "@glimmer/component": "^1.1.2",
     "@ember/string": "3.1.1",
     "@warp-drive/core-types": "workspace:0.0.0-beta.8",
-    "@warp-drive/internal-config": "workspace:5.4.0-beta.8",
+    "@warp-drive/internal-config": "workspace:5.3.5",
     "ember-source": "~5.8.0",
     "ember-inflector": "4.0.2",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",

@@ -1,7 +1,7 @@
 {
   "name": "warp-drive",
   "version": "0.1.0-beta.2",
-  "private": false,
+  "private": true,
   "description": "WarpDrive is the data framework for ambitious web applications",
   "keywords": [
     "typescript",
@@ -60,7 +60,7 @@
     "@babel/core": "^7.24.5",
     "@babel/plugin-transform-typescript": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
-    "@warp-drive/internal-config": "workspace:5.4.0-beta.8",
+    "@warp-drive/internal-config": "workspace:5.3.5",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "typescript": "^5.4.5",
     "vite": "^5.2.11"

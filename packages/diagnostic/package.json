@@ -97,7 +97,7 @@
     "@babel/preset-env": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
     "@babel/runtime": "^7.24.5",
-    "@warp-drive/internal-config": "workspace:5.4.0-beta.8",
+    "@warp-drive/internal-config": "workspace:5.3.5",
     "bun-types": "^1.1.8",
     "@ember/test-helpers": "^3.3.0",
     "ember-source": "~5.8.0",
@@ -127,5 +127,6 @@
     "@warp-drive/build-config": {
       "injected": true
     }
-  }
+  },
+  "private": true
 }
