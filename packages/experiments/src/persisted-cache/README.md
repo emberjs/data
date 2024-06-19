@@ -15,7 +15,6 @@
 
 <h3 align="center">PersistedCache</h3>
 
-
 - ⚡️ Load new tabs or windows without ever hitting network
 - ♻️ Replay requests reliably in any order and still get the latest state of all associated resources
 
@@ -29,7 +28,21 @@ Or use favorite your javascript package manager.
 
 ## Configure
 
+```ts
+class Store {
+  constructor() {
+    const rm = new RequestManager();
+    rm.use([new PersistedFetch(), Fetch]);
+    rm.useCache(CacheHandler);
+    this.requestManager = rm;
+  }
 
+  createCache() {
+    const jsonapi = new JSONAPICache();
+    return new PersistedCache(jsonapi);
+  }
+}
+```
 
 ## How it Works
 

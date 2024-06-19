@@ -1,7 +1,7 @@
 {
   "name": "@warp-drive/experiments",
   "description": "Experimental features for EmberData/WarpDrive",
-  "version": "0.0.1-alpha.83",
+  "version": "0.0.1-alpha.89",
   "private": true,
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
@@ -29,11 +29,11 @@
   ],
   "scripts": {},
   "devDependencies": {
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.69",
-    "@warp-drive/build-config": "workspace:0.0.0-alpha.20",
-    "@ember-data/request": "workspace:5.4.0-alpha.83",
-    "@ember-data/request-utils": "workspace:5.4.0-alpha.83",
-    "@ember-data/store": "workspace:5.4.0-alpha.83",
-    "@ember-data/tracking": "workspace:5.4.0-alpha.83"
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.74",
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.25",
+    "@ember-data/request": "workspace:5.4.0-alpha.88",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.88",
+    "@ember-data/store": "workspace:5.4.0-alpha.88",
+    "@ember-data/tracking": "workspace:5.4.0-alpha.88"
   }
 }
