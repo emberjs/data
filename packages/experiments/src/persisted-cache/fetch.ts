@@ -29,7 +29,7 @@ async function checkCache<T>(
   identifier: StableDocumentIdentifier
 ): Promise<T> {
   const { store } = context.request;
-  const transaction = db.transaction('request', 'readonly');
+  const transaction = db.transaction(['request'], 'readonly');
   const objectStore = transaction.objectStore('request');
   const request = objectStore.get(identifier.lid);
 
