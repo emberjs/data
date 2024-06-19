@@ -1,4 +1,1 @@
-import { getOwnConfig } from '@embroider/macros';
-
-const VERSION = getOwnConfig<{ VERSION: string }>().VERSION;
-export default VERSION;
+export { version as default } from '../package.json';

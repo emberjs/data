@@ -1,8 +1,8 @@
 // in testing mode, we utilize globals to ensure only one copy exists of
 // these maps, due to bugs in ember-auto-import
-import { getOwnConfig } from '@embroider/macros';
-
 import { DEBUG, TESTING } from '@warp-drive/build-config/env';
+
+import { name, version } from '../package.json';
 
 type UniversalTransientKey =
   // @ember-data/request
@@ -118,12 +118,11 @@ const UniversalCache = (GlobalRef.__warpDrive_universalCache =
 
 // in order to support mirror packages, we ensure that each
 // unique package name has its own global cache
-const PkgInfo = getOwnConfig<{ PKG: { name: string; version: string } }>().PKG;
-GlobalRef[PkgInfo.name] = GlobalRef[PkgInfo.name] ?? { __version: PkgInfo.version };
-const GlobalSink = GlobalRef[PkgInfo.name];
+GlobalRef[name] = GlobalRef[name] ?? { __version: version };
+const GlobalSink = GlobalRef[name];
 
 if (DEBUG) {
-  if (GlobalSink.__version !== PkgInfo.version) {
+  if (GlobalSink.__version !== version) {
     throw new Error('Multiple versions of WarpDrive detected, the application will malfunction.');
   }
 }
