@@ -29,13 +29,14 @@ import DataAdapter from '@ember/debug/data-adapter';
 import { addObserver, removeObserver } from '@ember/object/observers';
 import { inject as service } from '@ember/service';
 
+import { getGlobalConfig, macroCondition } from '@embroider/macros';
+
 import type Model from '@ember-data/model';
 import { capitalize, underscore } from '@ember-data/request-utils/string';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/store/types';
 import { assert } from '@warp-drive/build-config/macros';
-import { getGlobalConfig, macroCondition } from '@embroider/macros';
 
 const StoreTypesMap = new WeakMap<Store, Map<string, boolean>>();
 
