@@ -35,6 +35,7 @@ import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/store/types';
 import { assert } from '@warp-drive/build-config/macros';
+import { getGlobalConfig, macroCondition } from '@embroider/macros';
 
 const StoreTypesMap = new WeakMap<Store, Map<string, boolean>>();
 
@@ -151,7 +152,7 @@ function typesMapFor(store: Store): Map<string, boolean> {
   @extends DataAdapter
   @private
 */
-export default class extends DataAdapter<Model> {
+class InspectorDataAdapter extends DataAdapter<Model> {
   @service('store') declare store: Store;
 
   /**
@@ -435,3 +436,9 @@ export default class extends DataAdapter<Model> {
     return release;
   }
 }
+
+export default macroCondition(
+  getGlobalConfig<{ WarpDrive: { includeDataAdapter: boolean } }>().WarpDrive.includeDataAdapter
+)
+  ? InspectorDataAdapter
+  : null;
