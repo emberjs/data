@@ -4,6 +4,7 @@ import { dependencySatisfies, importSync, macroCondition } from '@embroider/macr
 
 import { DEPRECATE_EMBER_INFLECTOR } from '@warp-drive/build-config/deprecations';
 
+import { defaultRules as WarpDriveDefaults } from './-private/string/inflections';
 import { irregular, plural, singular, uncountable } from './string';
 
 if (DEPRECATE_EMBER_INFLECTOR) {
@@ -44,11 +45,22 @@ if (DEPRECATE_EMBER_INFLECTOR) {
       // lower cased string
       uncountable: Record<string, boolean>;
     };
+
+    // ember-inflector mutates the default rules arrays
+    // with user supplied rules, so we keep track of what
+    // is default via our own list.
+    const defaultPluralKeys = new Set<string>();
+    const defaultSingularKeys = new Set<string>();
+    WarpDriveDefaults.plurals.forEach(([regex]) => {
+      defaultPluralKeys.add(regex.toString());
+    });
+    WarpDriveDefaults.singular.forEach(([regex]) => {
+      defaultSingularKeys.add(regex.toString());
+    });
+
     const { defaultRules } = Inflector as unknown as { defaultRules: DefaultRules };
     const { rules } = inflector as unknown as { rules: InternalRules };
 
-    const pluralMap = new Map(defaultRules.plurals);
-    const singularMap = new Map(defaultRules.singular);
     const irregularMap = new Map<string, string>();
     const toIgnore = new Set<string>();
     const uncountableSet = new Set(defaultRules.uncountable);
@@ -65,7 +77,7 @@ if (DEPRECATE_EMBER_INFLECTOR) {
 
     // load plurals
     rules.plurals.forEach(([regex, replacement]) => {
-      if (pluralMap.has(regex)) {
+      if (defaultPluralKeys.has(regex.toString())) {
         return;
       }
 
@@ -89,7 +101,7 @@ if (DEPRECATE_EMBER_INFLECTOR) {
 
     // load singulars
     rules.singular.forEach(([regex, replacement]) => {
-      if (singularMap.has(regex)) {
+      if (defaultSingularKeys.has(regex.toString())) {
         return;
       }
 
