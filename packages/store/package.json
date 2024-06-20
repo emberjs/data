@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/store",
-  "version": "5.4.0-beta.10",
+  "version": "5.3.7",
   "description": "The core of EmberData. Provides the Store service which coordinates the cache with the network and presentation layers.",
   "keywords": [
     "ember-addon"
@@ -59,9 +59,9 @@
     "@warp-drive/build-config": "workspace:0.0.0-beta.5"
   },
   "peerDependencies": {
-    "@ember-data/request": "workspace:5.4.0-beta.10",
-    "@ember-data/request-utils": "workspace:5.4.0-beta.10",
-    "@ember-data/tracking": "workspace:5.4.0-beta.10",
+    "@ember-data/request": "workspace:5.3.7",
+    "@ember-data/request-utils": "workspace:5.3.7",
+    "@ember-data/tracking": "workspace:5.3.7",
     "@warp-drive/core-types": "workspace:0.0.0-beta.10"
   },
   "devDependencies": {
@@ -69,12 +69,12 @@
     "@babel/plugin-transform-typescript": "^7.24.5",
     "@babel/preset-env": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
-    "@ember-data/request": "workspace:5.4.0-beta.10",
-    "@ember-data/request-utils": "workspace:5.4.0-beta.10",
-    "@ember-data/tracking": "workspace:5.4.0-beta.10",
+    "@ember-data/request": "workspace:5.3.7",
+    "@ember-data/request-utils": "workspace:5.3.7",
+    "@ember-data/tracking": "workspace:5.3.7",
     "@glimmer/component": "^1.1.2",
     "@warp-drive/core-types": "workspace:0.0.0-beta.10",
-    "@warp-drive/internal-config": "workspace:5.4.0-beta.10",
+    "@warp-drive/internal-config": "workspace:5.3.7",
     "decorator-transforms": "^2.0.0",
     "ember-source": "~5.8.0",
     "expect-type": "^0.19.0",

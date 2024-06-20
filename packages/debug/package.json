@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/debug",
-  "version": "5.4.0-beta.10",
+  "version": "5.3.7",
   "description": "Provides support for the ember-inspector for apps built with Ember and EmberData",
   "keywords": [
     "ember-addon"
@@ -40,9 +40,9 @@
     }
   },
   "peerDependencies": {
-    "@ember-data/store": "workspace:5.4.0-beta.10",
-    "@ember-data/model": "workspace:5.4.0-beta.10",
-    "@ember-data/request-utils": "workspace:5.4.0-beta.10",
+    "@ember-data/store": "workspace:5.3.7",
+    "@ember-data/model": "workspace:5.3.7",
+    "@ember-data/request-utils": "workspace:5.3.7",
     "@warp-drive/core-types": "workspace:0.0.0-beta.10"
   },
   "dependenciesMeta": {
@@ -81,16 +81,16 @@
     "@babel/plugin-transform-typescript": "^7.24.5",
     "@babel/preset-env": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
-    "@ember-data/request": "workspace:5.4.0-beta.10",
-    "@ember-data/legacy-compat": "workspace:5.4.0-beta.10",
-    "@ember-data/request-utils": "workspace:5.4.0-beta.10",
-    "@ember-data/store": "workspace:5.4.0-beta.10",
-    "@ember-data/model": "workspace:5.4.0-beta.10",
-    "@ember-data/tracking": "workspace:5.4.0-beta.10",
+    "@ember-data/request": "workspace:5.3.7",
+    "@ember-data/legacy-compat": "workspace:5.3.7",
+    "@ember-data/request-utils": "workspace:5.3.7",
+    "@ember-data/store": "workspace:5.3.7",
+    "@ember-data/model": "workspace:5.3.7",
+    "@ember-data/tracking": "workspace:5.3.7",
     "@ember/test-waiters": "^3.1.0",
     "@glimmer/component": "^1.1.2",
     "@warp-drive/core-types": "workspace:0.0.0-beta.10",
-    "@warp-drive/internal-config": "workspace:5.4.0-beta.10",
+    "@warp-drive/internal-config": "workspace:5.3.7",
     "ember-source": "~5.8.0",
     "decorator-transforms": "^2.0.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",

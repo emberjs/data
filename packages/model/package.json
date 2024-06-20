@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/model",
-  "version": "5.4.0-beta.10",
+  "version": "5.3.7",
   "description": "A basic Ember implementation of a resource presentation layer for use with @ember-data/store",
   "keywords": [
     "ember-addon"
@@ -48,12 +48,12 @@
     }
   },
   "peerDependencies": {
-    "@ember-data/graph": "workspace:5.4.0-beta.10",
-    "@ember-data/json-api": "workspace:5.4.0-beta.10",
-    "@ember-data/legacy-compat": "workspace:5.4.0-beta.10",
-    "@ember-data/store": "workspace:5.4.0-beta.10",
-    "@ember-data/tracking": "workspace:5.4.0-beta.10",
-    "@ember-data/request-utils": "workspace:5.4.0-beta.10",
+    "@ember-data/graph": "workspace:5.3.7",
+    "@ember-data/json-api": "workspace:5.3.7",
+    "@ember-data/legacy-compat": "workspace:5.3.7",
+    "@ember-data/store": "workspace:5.3.7",
+    "@ember-data/tracking": "workspace:5.3.7",
+    "@ember-data/request-utils": "workspace:5.3.7",
     "@warp-drive/core-types": "workspace:0.0.0-beta.10"
   },
   "peerDependenciesMeta": {
@@ -106,17 +106,17 @@
     "@babel/plugin-transform-typescript": "^7.24.5",
     "@babel/preset-env": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
-    "@ember-data/graph": "workspace:5.4.0-beta.10",
-    "@ember-data/json-api": "workspace:5.4.0-beta.10",
-    "@ember-data/legacy-compat": "workspace:5.4.0-beta.10",
-    "@ember-data/request": "workspace:5.4.0-beta.10",
-    "@ember-data/request-utils": "workspace:5.4.0-beta.10",
-    "@ember-data/store": "workspace:5.4.0-beta.10",
-    "@ember-data/tracking": "workspace:5.4.0-beta.10",
+    "@ember-data/graph": "workspace:5.3.7",
+    "@ember-data/json-api": "workspace:5.3.7",
+    "@ember-data/legacy-compat": "workspace:5.3.7",
+    "@ember-data/request": "workspace:5.3.7",
+    "@ember-data/request-utils": "workspace:5.3.7",
+    "@ember-data/store": "workspace:5.3.7",
+    "@ember-data/tracking": "workspace:5.3.7",
     "@ember/test-waiters": "^3.1.0",
     "@glimmer/component": "^1.1.2",
     "@warp-drive/core-types": "workspace:0.0.0-beta.10",
-    "@warp-drive/internal-config": "workspace:5.4.0-beta.10",
+    "@warp-drive/internal-config": "workspace:5.3.7",
     "decorator-transforms": "^2.0.0",
     "ember-source": "~5.8.0",
     "expect-type": "^0.19.0",
