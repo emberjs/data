@@ -10,7 +10,7 @@ import type { ArrayField, HashField, SchemaArrayField } from '@warp-drive/core-t
 
 import { SchemaRecord } from '../record';
 import type { SchemaService } from '../schema';
-import { ARRAY_SIGNAL, Editable, Identifier, Legacy, MUTATE, SOURCE } from '../symbols';
+import { ARRAY_SIGNAL, Editable, Identifier, Legacy, MUTATE, Parent, SOURCE } from '../symbols';
 
 export function notifyArray(arr: ManagedArray) {
   addToTransaction(arr[ARRAY_SIGNAL]);
@@ -105,7 +105,7 @@ export interface ManagedArray extends Omit<Array<unknown>, '[]'> {
 
 export class ManagedArray {
   [SOURCE]: unknown[];
-  declare address: StableRecordIdentifier;
+  declare identifier: StableRecordIdentifier;
   declare path: string[];
   declare owner: SchemaRecord;
   declare [ARRAY_SIGNAL]: Signal;
@@ -116,7 +116,7 @@ export class ManagedArray {
     cache: Cache,
     field: ArrayField | SchemaArrayField,
     data: unknown[],
-    address: StableRecordIdentifier,
+    identifier: StableRecordIdentifier,
     path: string[],
     owner: SchemaRecord,
     isSchemaArray: boolean
@@ -127,7 +127,7 @@ export class ManagedArray {
     this[ARRAY_SIGNAL] = createSignal(this, 'length');
     const _SIGNAL = this[ARRAY_SIGNAL];
     const boundFns = new Map<KeyType, ProxiedMethod>();
-    this.address = address;
+    this.identifier = identifier;
     this.path = path;
     this.owner = owner;
     let transaction = false;
@@ -149,8 +149,8 @@ export class ManagedArray {
         if (prop === ARRAY_SIGNAL) {
           return _SIGNAL;
         }
-        if (prop === 'address') {
-          return self.address;
+        if (prop === 'identifier') {
+          return self.identifier;
         }
         if (prop === 'owner') {
           return self.owner;
@@ -160,7 +160,7 @@ export class ManagedArray {
         if (_SIGNAL.shouldReset && (index !== null || SYNC_PROPS.has(prop) || isArrayGetter(prop))) {
           _SIGNAL.t = false;
           _SIGNAL.shouldReset = false;
-          const newData = cache.getAttr(address, path);
+          const newData = cache.getAttr(identifier, path);
           if (newData && newData !== self[SOURCE]) {
             self[SOURCE].length = 0;
             self[SOURCE].push(...(newData as ArrayValue));
@@ -216,9 +216,11 @@ export class ManagedArray {
                 // same object reference from cache should result in same SchemaRecord
                 // embedded object.
                 recordPath.push(index as unknown as string);
+                const recordIdentifier = self.owner[Identifier] || self.owner[Parent];
+
                 record = new SchemaRecord(
                   store,
-                  self.owner[Identifier],
+                  recordIdentifier,
                   { [Editable]: self.owner[Editable], [Legacy]: self.owner[Legacy] },
                   true,
                   field.type,
@@ -281,9 +283,9 @@ export class ManagedArray {
         return Reflect.get(target, prop, receiver);
       },
       set(target, prop: KeyType, value, receiver) {
-        if (prop === 'address') {
+        if (prop === 'identifier') {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          self.address = value;
+          self.identifier = value;
           return true;
         }
         if (prop === 'owner') {
@@ -295,7 +297,7 @@ export class ManagedArray {
 
         if (reflect) {
           if (!field.type) {
-            cache.setAttr(address, path, self[SOURCE] as Value);
+            cache.setAttr(identifier, path, self[SOURCE] as Value);
             _SIGNAL.shouldReset = true;
             return true;
           }
@@ -304,13 +306,13 @@ export class ManagedArray {
           if (!isSchemaArray) {
             const transform = schema.transformation(field);
             if (!transform) {
-              throw new Error(`No '${field.type}' transform defined for use by ${address.type}.${String(prop)}`);
+              throw new Error(`No '${field.type}' transform defined for use by ${identifier.type}.${String(prop)}`);
             }
             rawValue = (self[SOURCE] as ArrayValue).map((item) =>
               transform.serialize(item, field.options ?? null, self.owner)
             );
           }
-          cache.setAttr(address, path, rawValue as Value);
+          cache.setAttr(identifier, path, rawValue as Value);
           _SIGNAL.shouldReset = true;
         }
         return reflect;

@@ -88,14 +88,14 @@ module('Writes | schema-object fields', function (hooks) {
     assert.strictEqual(record.id, '1', 'id is accessible');
     assert.strictEqual(record.$type, 'user', '$type is accessible');
     assert.strictEqual(record.name, 'Rey Pupatine', 'name is accessible');
-    assert.deepEqual(
+    assert.propEqual(
       record.address,
       { street: '123 Main Street', city: 'Anytown', state: 'NY', zip: '12345' },
       'We have the correct address object'
     );
     const address = record.address;
     record.address = { street: '456 Elm Street', city: 'Sometown', state: 'NJ', zip: '23456' };
-    assert.deepEqual(
+    assert.propEqual(
       record.address,
       { street: '456 Elm Street', city: 'Sometown', state: 'NJ', zip: '23456' },
       'we have the correct Object members'
@@ -173,7 +173,7 @@ module('Writes | schema-object fields', function (hooks) {
     assert.strictEqual(record.id, '1', 'id is accessible');
     assert.strictEqual(record.$type, 'user', '$type is accessible');
     assert.strictEqual(record.name, 'Rey Pupatine', 'name is accessible');
-    assert.deepEqual(
+    assert.propEqual(
       record.address,
       {
         street: '123 Main Street',
@@ -195,7 +195,7 @@ module('Writes | schema-object fields', function (hooks) {
       state: 'NY',
       zip: '12345',
     };
-    assert.deepEqual(
+    assert.propEqual(
       record.address,
       {
         street: '123 Main Street',
@@ -259,7 +259,7 @@ module('Writes | schema-object fields', function (hooks) {
         },
       },
     });
-    assert.deepEqual(
+    assert.propEqual(
       record.address,
       {
         street: '123 Main Street',
@@ -271,7 +271,7 @@ module('Writes | schema-object fields', function (hooks) {
     );
     const address = record.address;
     record.address!.state = 'NJ';
-    assert.deepEqual(
+    assert.propEqual(
       record.address,
       {
         street: '123 Main Street',
@@ -362,7 +362,7 @@ module('Writes | schema-object fields', function (hooks) {
     assert.strictEqual(record2.id, '2', 'id is accessible');
     assert.strictEqual(record2.$type, 'user', '$type is accessible');
     assert.strictEqual(record2.name, 'Luke Skybarker', 'name is accessible');
-    assert.deepEqual(
+    assert.propEqual(
       record.address,
       {
         street: '123 Main Street',
@@ -375,7 +375,7 @@ module('Writes | schema-object fields', function (hooks) {
     assert.strictEqual(record.address, record.address, 'We have a stable object reference');
     const address = record.address;
     record2.address = record.address;
-    assert.deepEqual(
+    assert.propEqual(
       record2.address,
       {
         street: '123 Main Street',
@@ -463,7 +463,7 @@ module('Writes | schema-object fields', function (hooks) {
     assert.strictEqual(record.id, '1', 'id is accessible');
     assert.strictEqual(record.$type, 'user', '$type is accessible');
     assert.strictEqual(record.name, 'Rey Pupatine', 'name is accessible');
-    assert.deepEqual(
+    assert.propEqual(
       record.address,
       {
         street: '123 Main Street',
@@ -477,7 +477,7 @@ module('Writes | schema-object fields', function (hooks) {
     assert.throws(() => {
       //@ts-expect-error
       record.address!.notAField = 'This should throw';
-    }, /Field notAField does not exist on schema object address/);
+    }, /There is no field named notAField on address/);
     assert.throws(() => {
       record.address = {
         street: '456 Elm Street',
