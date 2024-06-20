@@ -20,6 +20,153 @@ if (DEPRECATE_EMBER_INFLECTOR) {
     // eslint-disable-next-line @typescript-eslint/unbound-method
     const originalUncountable = inflector.uncountable;
 
+    // copy over any already registered rules
+    type DefaultRules = {
+      plurals: [RegExp, string][];
+      singular: [RegExp, string][];
+      irregularPairs: [string, string][];
+      uncountable: string[];
+    };
+    type InternalRules = {
+      plurals: [RegExp, string][];
+      singular: [RegExp, string][];
+
+      // [str1, str2] =>
+      // { [str1.lower]: str2 }
+      // { [str2.lower]: str2 }
+      irregular: Record<string, string>;
+
+      // [str1, str2] =>
+      // { [str2.lower]: str1 }
+      // { [str1.lower]: str1 }
+      irregularInverse: Record<string, string>;
+
+      // lower cased string
+      uncountable: Record<string, boolean>;
+    };
+    const { defaultRules } = Inflector as unknown as { defaultRules: DefaultRules };
+    const { rules } = inflector as unknown as { rules: InternalRules };
+
+    const pluralMap = new Map(defaultRules.plurals);
+    const singularMap = new Map(defaultRules.singular);
+    const irregularMap = new Map<string, string>();
+    const toIgnore = new Set<string>();
+    const uncountableSet = new Set(defaultRules.uncountable);
+
+    defaultRules.irregularPairs.forEach(([single, plur]) => {
+      irregularMap.set(single.toLowerCase(), plur);
+      toIgnore.add(plur.toLowerCase());
+    });
+    const irregularLookups = new Map<string, string>();
+    Object.keys(rules.irregular).forEach((single) => {
+      const plur = rules.irregular[single];
+      irregularLookups.set(single, plur);
+    });
+
+    // load plurals
+    rules.plurals.forEach(([regex, replacement]) => {
+      if (pluralMap.has(regex)) {
+        return;
+      }
+
+      plural(regex, replacement);
+
+      deprecate(
+        `WarpDrive/EmberData no longer uses ember-inflector for pluralization.\nPlease \`import { plural } from '@ember-data/request-utils/string';\` instead to register a custom pluralization rule for use with EmberData.`,
+        false,
+        {
+          id: 'warp-drive.ember-inflector',
+          until: '6.0.0',
+          for: 'warp-drive',
+          since: {
+            enabled: '5.3.4',
+            available: '5.3.4',
+          },
+          url: 'https://deprecations.emberjs.com/id/warp-drive.ember-inflector',
+        }
+      );
+    });
+
+    // load singulars
+    rules.singular.forEach(([regex, replacement]) => {
+      if (singularMap.has(regex)) {
+        return;
+      }
+
+      singular(regex, replacement);
+
+      deprecate(
+        `WarpDrive/EmberData no longer uses ember-inflector for singularization.\nPlease \`import { singular } from '@ember-data/request-utils/string';\` instead to register a custom singularization rule for use with EmberData.`,
+        false,
+        {
+          id: 'warp-drive.ember-inflector',
+          until: '6.0.0',
+          for: 'warp-drive',
+          since: {
+            enabled: '5.3.4',
+            available: '5.3.4',
+          },
+          url: 'https://deprecations.emberjs.com/id/warp-drive.ember-inflector',
+        }
+      );
+    });
+
+    // load irregulars
+    Object.keys(rules.irregular).forEach((single) => {
+      const plur = rules.irregular[single];
+      const defaultPlur = irregularMap.get(single);
+      if (defaultPlur && defaultPlur === plur) {
+        return;
+      }
+
+      if (toIgnore.has(single)) {
+        return;
+      }
+
+      const actualSingle = irregularLookups.get(plur.toLowerCase()) || single;
+      toIgnore.add(plur.toLowerCase());
+      irregular(actualSingle, plur);
+
+      deprecate(
+        `WarpDrive/EmberData no longer uses ember-inflector for irregular rules.\nPlease \`import { irregular } from '@ember-data/request-utils/string';\` instead to register a custom irregular rule for use with EmberData for '${actualSingle}' <=> '${plur}'.`,
+        false,
+        {
+          id: 'warp-drive.ember-inflector',
+          until: '6.0.0',
+          for: 'warp-drive',
+          since: {
+            enabled: '5.3.4',
+            available: '5.3.4',
+          },
+          url: 'https://deprecations.emberjs.com/id/warp-drive.ember-inflector',
+        }
+      );
+    });
+
+    // load uncountables
+    Object.keys(rules.uncountable).forEach((word) => {
+      if (uncountableSet.has(word) || rules.uncountable[word] !== true) {
+        return;
+      }
+
+      uncountable(word);
+
+      deprecate(
+        `WarpDrive/EmberData no longer uses ember-inflector for uncountable rules.\nPlease \`import { uncountable } from '@ember-data/request-utils/string';\` instead to register a custom uncountable rule for '${word}' for use with EmberData.`,
+        false,
+        {
+          id: 'warp-drive.ember-inflector',
+          until: '6.0.0',
+          for: 'warp-drive',
+          since: {
+            enabled: '5.3.4',
+            available: '5.3.4',
+          },
+          url: 'https://deprecations.emberjs.com/id/warp-drive.ember-inflector',
+        }
+      );
+    });
+
     inflector.plural = function (...args: Parameters<typeof originalPlural>) {
       plural(...args);
 

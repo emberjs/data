@@ -103,7 +103,10 @@
   "ember-addon": {
     "main": "addon-main.cjs",
     "type": "addon",
-    "version": 2
+    "version": 2,
+    "app-js": {
+      "./data-adapter.js": "./dist/data-adapter.js"
+    }
   },
   "volta": {
     "extends": "../../package.json"

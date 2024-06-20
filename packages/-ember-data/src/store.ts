@@ -1,5 +1,3 @@
-import '@ember-data/request-utils/deprecation-support';
-
 import JSONAPICache from '@ember-data/json-api';
 import {
   adapterFor,

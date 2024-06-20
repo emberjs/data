@@ -1,3 +1,5 @@
+import '@ember-data/request-utils/deprecation-support';
+
 /*
   This code initializes EmberData in an Ember application.
 */

@@ -80,8 +80,8 @@ export function setConfig(context: object, appRoot: string, config: WarpDriveCon
   const FEATURES = getFeatures(env.PRODUCTION);
 
   const includeDataAdapterInProduction =
-    typeof config.includeDataAdapterInProduction === 'boolean' ? config.includeDataAdapterInProduction : false;
-  const includeDataAdapter = env.PRODUCTION ? includeDataAdapterInProduction : false;
+    typeof config.includeDataAdapterInProduction === 'boolean' ? config.includeDataAdapterInProduction : true;
+  const includeDataAdapter = env.PRODUCTION ? includeDataAdapterInProduction : true;
 
   const finalizedConfig: InternalWarpDriveConfig = {
     debug: debugOptions,
