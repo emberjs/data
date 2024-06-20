@@ -3133,6 +3133,9 @@ importers:
       '@ember/optional-features':
         specifier: ^2.1.0
         version: 2.1.0
+      '@ember/string':
+        specifier: ^3.1.1
+        version: 3.1.1(@babel/core@7.24.5)
       '@ember/test-helpers':
         specifier: 3.3.0
         version: 3.3.0(patch_hash=gppmtiox6pymwamrfimkbxfrsm)(@babel/core@7.24.5)(@glint/template@1.4.0)(ember-source@5.8.0)
@@ -3189,7 +3192,10 @@ importers:
         version: 2.1.0
       ember-data:
         specifier: workspace:5.4.0-alpha.88
-        version: file:packages/-ember-data(@babel/core@7.24.5)(@ember/test-helpers@3.3.0)(@ember/test-waiters@3.1.0)(ember-source@5.8.0)(qunit@2.19.4)
+        version: file:packages/-ember-data(@babel/core@7.24.5)(@ember/string@3.1.1)(@ember/test-helpers@3.3.0)(@ember/test-waiters@3.1.0)(ember-inflector@4.0.2)(ember-source@5.8.0)(qunit@2.19.4)
+      ember-inflector:
+        specifier: 4.0.2
+        version: 4.0.2(@babel/core@7.24.5)
       ember-load-initializers:
         specifier: ^2.1.2
         version: 2.1.2(@babel/core@7.24.5)
@@ -3462,7 +3468,7 @@ importers:
         version: 2.7.3(@glint/template@1.4.0)
       ember-data:
         specifier: workspace:5.4.0-alpha.88
-        version: file:packages/-ember-data(@babel/core@7.24.5)(@ember/test-helpers@3.3.0)(@ember/test-waiters@3.1.0)(ember-source@5.8.0)(qunit@2.19.4)
+        version: file:packages/-ember-data(@babel/core@7.24.5)(@ember/string@3.1.1)(@ember/test-helpers@3.3.0)(@ember/test-waiters@3.1.0)(ember-inflector@4.0.2)(ember-source@5.8.0)(qunit@2.19.4)
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
         version: 0.0.14
@@ -3497,6 +3503,9 @@ importers:
       '@ember/optional-features':
         specifier: ^2.1.0
         version: 2.1.0
+      '@ember/string':
+        specifier: ^3.1.1
+        version: 3.1.1(@babel/core@7.24.5)
       '@ember/test-helpers':
         specifier: 3.3.0
         version: 3.3.0(patch_hash=gppmtiox6pymwamrfimkbxfrsm)(@babel/core@7.24.5)(@glint/template@1.4.0)(ember-source@5.8.0)
@@ -3542,6 +3551,9 @@ importers:
       ember-cli-version-checker:
         specifier: ^5.1.2
         version: 5.1.2
+      ember-inflector:
+        specifier: 4.0.2
+        version: 4.0.2(@babel/core@7.24.5)
       ember-load-initializers:
         specifier: ^2.1.2
         version: 2.1.2(@babel/core@7.24.5)
@@ -3721,6 +3733,9 @@ importers:
       '@ember/optional-features':
         specifier: ^2.1.0
         version: 2.1.0
+      '@ember/string':
+        specifier: ^3.1.1
+        version: 3.1.1(@babel/core@7.24.5)
       '@ember/test-helpers':
         specifier: 3.3.0
         version: 3.3.0(patch_hash=gppmtiox6pymwamrfimkbxfrsm)(@babel/core@7.24.5)(@glint/template@1.4.0)(ember-source@5.8.0)
@@ -3798,7 +3813,7 @@ importers:
         version: 3.1.0(@babel/core@7.24.5)
       ember-data:
         specifier: workspace:5.4.0-alpha.88
-        version: file:packages/-ember-data(@babel/core@7.24.5)(@ember/test-helpers@3.3.0)(@ember/test-waiters@3.1.0)(ember-source@5.8.0)(qunit@2.19.4)
+        version: file:packages/-ember-data(@babel/core@7.24.5)(@ember/string@3.1.1)(@ember/test-helpers@3.3.0)(@ember/test-waiters@3.1.0)(ember-inflector@4.0.2)(ember-source@5.8.0)(qunit@2.19.4)
       ember-decorators-polyfill:
         specifier: ^1.1.5
         version: 1.1.5(@babel/core@7.24.5)
@@ -3808,6 +3823,9 @@ importers:
       ember-exam:
         specifier: ^9.0.0
         version: 9.0.0(ember-qunit@8.0.2)(ember-source@5.8.0)(qunit@2.19.4)
+      ember-inflector:
+        specifier: 4.0.2
+        version: 4.0.2(@babel/core@7.24.5)
       ember-load-initializers:
         specifier: ^2.1.2
         version: 2.1.2(@babel/core@7.24.5)
@@ -5834,9 +5852,6 @@ packages:
     peerDependencies:
       '@embroider/core': ^3.4.0
       webpack: 5.92.0
-    peerDependenciesMeta:
-      webpack:
-        optional: true
     dependencies:
       '@embroider/core': 3.4.12(@glint/template@1.4.0)
       webpack: 5.92.0
@@ -19138,6 +19153,49 @@ packages:
     resolution: {integrity: sha512-40fpE2II+Cd3k8HWTWONfeKE2jL+P42iWJ1zzps5W51qcTsOUKM5Q5m2PFb0CLxlmFAaUuUdJGc3OfZy947v0w==}
     engines: {node: '>=0.2.0'}
     dev: true
+
+  file:packages/-ember-data(@babel/core@7.24.5)(@ember/string@3.1.1)(@ember/test-helpers@3.3.0)(@ember/test-waiters@3.1.0)(ember-inflector@4.0.2)(ember-source@5.8.0)(qunit@2.19.4):
+    resolution: {directory: packages/-ember-data, type: directory}
+    id: file:packages/-ember-data
+    name: ember-data
+    engines: {node: '>= 18.20.3'}
+    peerDependencies:
+      '@ember/test-helpers': 3.3.0
+      '@ember/test-waiters': ^3.1.0
+      qunit: 2.19.4
+    peerDependenciesMeta:
+      '@ember/test-helpers':
+        optional: true
+      '@ember/test-waiters':
+        optional: true
+      qunit:
+        optional: true
+    dependencies:
+      '@ember-data/adapter': file:packages/adapter(@babel/core@7.24.5)(@ember-data/legacy-compat@5.4.0-alpha.88)(@ember-data/request-utils@5.4.0-alpha.88)(@ember-data/store@5.4.0-alpha.88)(@warp-drive/core-types@0.0.0-alpha.74)
+      '@ember-data/debug': file:packages/debug(@babel/core@7.24.5)(@ember-data/model@5.4.0-alpha.88)(@ember-data/request-utils@5.4.0-alpha.88)(@ember-data/store@5.4.0-alpha.88)(@warp-drive/core-types@0.0.0-alpha.74)
+      '@ember-data/graph': file:packages/graph(@babel/core@7.24.5)(@ember-data/store@5.4.0-alpha.88)(@warp-drive/core-types@0.0.0-alpha.74)
+      '@ember-data/json-api': file:packages/json-api(@babel/core@7.24.5)(@ember-data/graph@5.4.0-alpha.88)(@ember-data/request-utils@5.4.0-alpha.88)(@ember-data/store@5.4.0-alpha.88)(@warp-drive/core-types@0.0.0-alpha.74)
+      '@ember-data/legacy-compat': file:packages/legacy-compat(@babel/core@7.24.5)(@ember-data/graph@5.4.0-alpha.88)(@ember-data/json-api@5.4.0-alpha.88)(@ember-data/request-utils@5.4.0-alpha.88)(@ember-data/request@5.4.0-alpha.88)(@ember-data/store@5.4.0-alpha.88)(@ember/test-waiters@3.1.0)(@warp-drive/core-types@0.0.0-alpha.74)
+      '@ember-data/model': file:packages/model(@babel/core@7.24.5)(@ember-data/graph@5.4.0-alpha.88)(@ember-data/json-api@5.4.0-alpha.88)(@ember-data/legacy-compat@5.4.0-alpha.88)(@ember-data/request-utils@5.4.0-alpha.88)(@ember-data/store@5.4.0-alpha.88)(@ember-data/tracking@5.4.0-alpha.88)(@warp-drive/core-types@0.0.0-alpha.74)
+      '@ember-data/request': file:packages/request(@babel/core@7.24.5)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.74)
+      '@ember-data/request-utils': file:packages/request-utils(@babel/core@7.24.5)(@ember/string@3.1.1)(@warp-drive/core-types@0.0.0-alpha.74)(ember-inflector@4.0.2)
+      '@ember-data/serializer': file:packages/serializer(@babel/core@7.24.5)(@ember-data/legacy-compat@5.4.0-alpha.88)(@ember-data/request-utils@5.4.0-alpha.88)(@ember-data/store@5.4.0-alpha.88)(@warp-drive/core-types@0.0.0-alpha.74)
+      '@ember-data/store': file:packages/store(@babel/core@7.24.5)(@ember-data/request-utils@5.4.0-alpha.88)(@ember-data/request@5.4.0-alpha.88)(@ember-data/tracking@5.4.0-alpha.88)(@warp-drive/core-types@0.0.0-alpha.74)
+      '@ember-data/tracking': file:packages/tracking(@babel/core@7.24.5)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.74)(ember-source@5.8.0)
+      '@ember/edition-utils': 1.2.0
+      '@ember/test-helpers': 3.3.0(patch_hash=gppmtiox6pymwamrfimkbxfrsm)(@babel/core@7.24.5)(@glint/template@1.4.0)(ember-source@5.8.0)
+      '@ember/test-waiters': 3.1.0(@babel/core@7.24.5)
+      '@embroider/macros': 1.16.1(@babel/core@7.24.5)(@glint/template@1.4.0)
+      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.24.5)(@glint/template@1.4.0)
+      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.24.5)(@glint/template@1.4.0)
+      qunit: 2.19.4(patch_hash=2jwk2nz4gqke2k5hv6ptj42llu)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@ember/string'
+      - '@glint/template'
+      - ember-inflector
+      - ember-source
+      - supports-color
 
   file:packages/-ember-data(@babel/core@7.24.5)(@ember/test-helpers@3.3.0)(@ember/test-waiters@3.1.0)(ember-source@5.8.0)(qunit@2.19.4):
     resolution: {directory: packages/-ember-data, type: directory}
