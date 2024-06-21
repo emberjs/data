@@ -12,14 +12,51 @@ export interface Graph {
   destroy(): void;
 }
 
+/**
+ * Operations are granular instructions that can be applied to a cache to
+ * update its state.
+ *
+ * They are a bit like a PATCH but with greater context around the specific
+ * change being requested.
+ *
+ * @typedoc
+ */
 export interface Operation {
   op: string;
 }
 
+/**
+ * Replace the current relationship remote state with an entirely
+ * new state.
+ *
+ * Effectively a PUT on the specific field.
+ *
+ * > [!Warning]
+ * > This operation behaves differently when used on a paginated collection.
+ * > In the paginated case, value is used to update the links and meta of the
+ * > relationshipObject.
+ * > If data is present, it is presumed that the data represents the data that
+ * > would be found on the `related` link in links, and will update the data
+ * > links, and meta on that page.
+ *
+ * @typedoc
+ */
 export interface UpdateRelationshipOperation {
   op: 'updateRelationship';
+  /**
+   * The resource to operate on
+   * @typedoc
+   */
   record: StableRecordIdentifier;
+  /**
+   * The field on the resource that is being updated.
+   * @typedoc
+   */
   field: string;
+  /**
+   * The new value for the relationship.
+   * @typedoc
+   */
   value: SingleResourceRelationship | CollectionResourceRelationship;
 }
 

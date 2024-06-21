@@ -2,6 +2,7 @@ import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-typ
 import type { LegacyAttributeField, LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
 
 export type KeyOrString<T> = keyof T & string extends never ? string : keyof T & string;
+export type FieldKind = 'attribute' | 'belongsTo' | 'hasMany' | 'collection';
 
 /**
  * Minimum subset of static schema methods and properties on the
