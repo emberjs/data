@@ -32,6 +32,36 @@ export async function retrofit(flags: ParsedFlags) {
 }
 
 async function retrofitTypes(flags: Map<string, string | number | boolean | null>) {
+  if (!flags.get('monorepo')) {
+    return retrofitTypesForProject(flags);
+  }
+
+  // get the monorepo packages
+  const { getPackageList } = await import('../../shared/repo');
+  const { packages, rootDir, rootPackage, pkgManager } = await getPackageList();
+  const originalDir = process.cwd();
+
+  for (const pkg of packages) {
+    write(`Updating ${chalk.cyan(pkg.packageJson.name)}\n====================\n`);
+    process.chdir(pkg.dir);
+    await retrofitTypesForProject(flags);
+  }
+
+  write(`Updating ${chalk.cyan(rootPackage!.packageJson.name)} (<monoreporoot>)\n====================\n`);
+  process.chdir(rootDir);
+  await retrofitTypesForProject(flags, { isRoot: true, pkgManager });
+
+  const installCmd = `${pkgManager} install`;
+  await exec(installCmd);
+  write(`\t✅ Updated lockfile`);
+
+  process.chdir(originalDir);
+}
+
+async function retrofitTypesForProject(
+  flags: Map<string, string | number | boolean | null>,
+  options?: { isRoot: boolean; pkgManager: string }
+) {
   const version = flags.get('version');
   assertIsString(version);
 
@@ -232,7 +262,7 @@ async function retrofitTypes(flags: Map<string, string | number | boolean | null
 
   // add the packages to the package.json
   // and install them
-  write(chalk.grey(`\t📦  Installing ${toInstall.size} packages`));
+  write(chalk.grey(`\t📦  Updating versions for ${toInstall.size} packages`));
   if (toInstall.size > 0) {
     // add the packages to the package.json
     for (const [pkgName, config] of toInstall) {
@@ -262,6 +292,32 @@ async function retrofitTypes(flags: Map<string, string | number | boolean | null
       }
       pkg.devDependencies = sortedDeps;
     }
+    if (pkg.pnpm?.overrides) {
+      const keys = Object.keys(pkg.pnpm.overrides ?? {}).sort();
+      const sortedDeps: Record<string, string> = {};
+      for (const key of keys) {
+        sortedDeps[key] = pkg.pnpm.overrides[key];
+      }
+      pkg.pnpm.overrides = sortedDeps;
+    }
+  }
+
+  const overrideChanges = new Set<string>();
+  if (pkg.pnpm?.overrides) {
+    write(chalk.grey(`\t🔍  Checking for pnpm overrides to update`));
+    for (const pkgName of Object.keys(pkg.pnpm.overrides)) {
+      if (toInstall.has(pkgName)) {
+        const value = pkg.pnpm.overrides[pkgName];
+        const info = await getInfo(`${pkgName}@${version}`);
+        const newValue = info.version;
+
+        if (value !== newValue) {
+          overrideChanges.add(pkgName);
+          pkg.pnpm.overrides[pkgName] = newValue;
+        }
+      }
+    }
+    write(chalk.grey(`\t✅ Updated ${overrideChanges.size} pnpm overrides`));
   }
 
   const removed = new Set();
@@ -277,15 +333,31 @@ async function retrofitTypes(flags: Map<string, string | number | boolean | null
   }
   write(chalk.grey(`\t🗑  Removing ${removed.size} DefinitelyTyped packages`));
 
-  if (removed.size > 0 || toInstall.size > 0) {
+  if (removed.size > 0 || toInstall.size > 0 || overrideChanges.size > 0) {
     writePkgJson(pkg);
+    write(`\t✅ Updated package.json`);
 
     // determine which package manager to use
     // and install the packages
-    const pkgManager = getPackageManagerFromLockfile();
-    const installCmd = `${pkgManager} install`;
-    await exec(installCmd);
-    write(`\t✅ Updated package.json`);
+    if (!flags.get('monorepo')) {
+      const pkgManager = getPackageManagerFromLockfile();
+      const installCmd = `${pkgManager} install`;
+      await exec(installCmd);
+      write(`\t✅ Updated lockfile`);
+    } else {
+      write(`\t☑️ Skipped lockfile update`);
+    }
+  }
+
+  const hasAtLeastOnePackage = toInstall.size > 0 || needed.size > 0 || installed.size > 0;
+  if (!hasAtLeastOnePackage) {
+    write(`\tNo WarpDrive/EmberData packages detected`);
+    return;
+  }
+
+  if (options?.isRoot) {
+    write(chalk.grey(`\t☑️ Skipped tsconfig.json update for monorepo root`));
+    return;
   }
 
   // ensure tsconfig for each installed and needed package
@@ -296,9 +368,9 @@ async function retrofitTypes(flags: Map<string, string | number | boolean | null
     write(chalk.yellow(`\t⚠️  No tsconfig.json found in the current working directory`));
     const tsConfig = structuredClone(TS_CONFIG) as { compilerOptions: { types: string[] } };
     tsConfig.compilerOptions.types = ['ember-source/types'];
-    for (const [pkgName] of toInstall) {
+    for (const [pkgName, details] of toInstall) {
       if (Types.includes(pkgName)) {
-        const typePath = getTypePathFor(pkgName);
+        const typePath = await getTypePathFor(pkgName, details.version);
         if (!typePath) {
           throw new Error(`Could not find type path for ${pkgName}`);
         }
@@ -326,9 +398,9 @@ async function retrofitTypes(flags: Map<string, string | number | boolean | null
       tsConfig.compilerOptions.types.push('ember-source/types');
     }
 
-    for (const [pkgName] of toInstall) {
+    for (const [pkgName, details] of toInstall) {
       if (Types.includes(pkgName)) {
-        const typePath = getTypePathFor(pkgName);
+        const typePath = await getTypePathFor(pkgName, details.version);
         if (!typePath) {
           throw new Error(`Could not find type path for ${pkgName}`);
         }

@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 
 import type { SEMVER_VERSION } from './channel';
+import { exec, getInfo } from './npm';
 
 /**
  * Like Pick but returns an object type instead of a union type.
@@ -272,6 +273,9 @@ export type PACKAGEJSON = {
     url: string;
     directory?: string;
   };
+  pnpm?: {
+    overrides?: Record<string, string>;
+  };
 };
 
 export function getPkgJson() {
@@ -284,14 +288,63 @@ export function writePkgJson(json: PACKAGEJSON) {
   fs.writeFileSync(path.join(process.cwd(), 'package.json'), JSON.stringify(json, null, 2) + '\n');
 }
 
-export function getLocalPkgJson(name: string) {
+const pkgJsonCache: Record<string, PACKAGEJSON> = {};
+export function getLocalPkgJson(name: string, version: string) {
+  if (pkgJsonCache[`${name}@${version}`]) {
+    return pkgJsonCache[`${name}@${version}`];
+  }
+
   const file = fs.readFileSync(path.join(process.cwd(), 'node_modules', name, 'package.json'), { encoding: 'utf-8' });
   const json = JSON.parse(file) as PACKAGEJSON;
+
+  pkgJsonCache[`${name}@${json.version}`] = json;
+  if (json.version === version) {
+    return json;
+  }
+
+  return null;
+}
+
+export async function getRemotePkgJson(name: string, version: string) {
+  if (pkgJsonCache[`${name}@${version}`]) {
+    return pkgJsonCache[`${name}@${version}`];
+  }
+
+  const dir = path.join(process.cwd(), 'tmp');
+  fs.mkdirSync(dir, { recursive: true });
+
+  // get the tarball path
+  const info = await getInfo(`${name}@${version}`);
+  const remoteTarball = info.dist.tarball;
+
+  const tarballName = `${name}-${version}`.replace('/', '_');
+
+  // download the package if needed
+  if (!fs.existsSync(path.join(dir, tarballName, 'package.json'))) {
+    await exec(`curl -L ${remoteTarball} -o ${tarballName}.tgz`, { cwd: dir });
+    await exec(`tar -xzf ${tarballName}.tgz && mv package ${tarballName}`, { cwd: dir });
+  }
+  const file = fs.readFileSync(path.join(dir, tarballName, 'package.json'), { encoding: 'utf-8' });
+  const json = JSON.parse(file) as PACKAGEJSON;
+  pkgJsonCache[`${name}@${json.version}`] = json;
   return json;
 }
 
-export function getTypePathFor(name: string) {
-  const pkg = getLocalPkgJson(name);
+export async function getPkgJsonFor(name: string, version: string) {
+  try {
+    const pkg = getLocalPkgJson(name, version);
+    if (pkg) {
+      return pkg;
+    }
+  } catch {
+    // ignore
+  }
+
+  return getRemotePkgJson(name, version);
+}
+
+export async function getTypePathFor(name: string, version: string) {
+  const pkg = await getPkgJsonFor(name, version);
   const isAlpha = pkg.files?.includes('unstable-preview-types');
   const isBeta = pkg.files?.includes('preview-types');
   const base = pkg.exports?.['.'];

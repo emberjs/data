@@ -33,7 +33,7 @@ export const RETROFIT_OPTIONS: FlagConfig = {
   help: {
     name: 'Help',
     flag: 'help',
-    flag_aliases: ['h', 'm'],
+    flag_aliases: ['h'],
     flag_mispellings: [
       'desc',
       'describe',
@@ -146,6 +146,16 @@ export const RETROFIT_OPTIONS: FlagConfig = {
         );
       }
     },
+  },
+
+  monorepo: {
+    name: 'Monorepo',
+    flag: 'monorepo',
+    flag_aliases: ['m'],
+    type: Boolean,
+    description: 'Retrofit a monorepo setup',
+    examples: [],
+    default_value: false,
   },
 };
 
