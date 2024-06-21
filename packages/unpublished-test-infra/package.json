@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/unpublished-test-infra",
-  "version": "5.4.0-alpha.91",
+  "version": "5.4.0-beta.11",
   "private": true,
   "description": "The default blueprint for ember-data private packages.",
   "keywords": [
@@ -77,11 +77,11 @@
   },
   "peerDependencies": {
     "qunit": "^2.20.1",
-    "@ember-data/request": "workspace:5.4.0-alpha.91",
-    "@ember-data/store": "workspace:5.4.0-alpha.91",
-    "@ember-data/tracking": "workspace:5.4.0-alpha.91",
-    "@warp-drive/diagnostic": "workspace:0.0.0-alpha.77",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.77",
+    "@ember-data/request": "workspace:5.4.0-beta.11",
+    "@ember-data/store": "workspace:5.4.0-beta.11",
+    "@ember-data/tracking": "workspace:5.4.0-beta.11",
+    "@warp-drive/diagnostic": "workspace:0.0.0-beta.11",
+    "@warp-drive/core-types": "workspace:0.0.0-beta.11",
     "@ember/test-helpers": "^3.3.0"
   },
   "dependencies": {
@@ -90,7 +90,7 @@
     "qunit": "^2.20.1",
     "semver": "^7.6.2",
     "testem": "^3.12.0",
-    "@warp-drive/build-config": "workspace:0.0.0-alpha.28"
+    "@warp-drive/build-config": "workspace:0.0.0-beta.6"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
@@ -101,13 +101,13 @@
     "@glimmer/component": "^1.1.2",
     "@types/semver": "^7.5.8",
     "@types/qunit": "^2.19.10",
-    "@ember-data/request": "workspace:5.4.0-alpha.91",
-    "@ember-data/request-utils": "workspace:5.4.0-alpha.91",
-    "@ember-data/store": "workspace:5.4.0-alpha.91",
-    "@ember-data/tracking": "workspace:5.4.0-alpha.91",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.77",
-    "@warp-drive/diagnostic": "workspace:0.0.0-alpha.77",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.91",
+    "@ember-data/request": "workspace:5.4.0-beta.11",
+    "@ember-data/request-utils": "workspace:5.4.0-beta.11",
+    "@ember-data/store": "workspace:5.4.0-beta.11",
+    "@ember-data/tracking": "workspace:5.4.0-beta.11",
+    "@warp-drive/core-types": "workspace:0.0.0-beta.11",
+    "@warp-drive/diagnostic": "workspace:0.0.0-beta.11",
+    "@warp-drive/internal-config": "workspace:5.4.0-beta.11",
     "ember-source": "~5.8.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "typescript": "^5.4.5",
