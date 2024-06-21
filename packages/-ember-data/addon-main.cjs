@@ -8,6 +8,19 @@ if (pkg['ember-addon'].version === 1) {
   delete addon.treeForApp;
 }
 
+function findApp(addon) {
+  let current = addon;
+  let app;
+
+  // Keep iterating upward until we don't have a grandparent.
+  // Has to do this grandparent check because at some point we hit the project.
+  do {
+    app = current.app || app;
+  } while (current.parent.parent && (current = current.parent));
+
+  return app;
+}
+
 const included = addon.included;
 addon.included = function includedIntercept() {
   // we access this as a side-effect to ember-cli will give us a super call
@@ -16,7 +29,7 @@ addon.included = function includedIntercept() {
     return included?.apply(this, arguments);
   }
   this.hasBeenCalled = true;
-  const app = this.app;
+  const app = findApp(this);
   const dirname = app.project.root;
   const { setConfig } = require('@warp-drive/build-config/cjs-set-config.cjs');
   setConfig(app, dirname, Object.assign({}, app.options?.emberData, { ___legacy_support: true }));
