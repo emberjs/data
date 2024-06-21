@@ -1,7 +1,7 @@
 {
   "name": "@ember-data/request",
   "description": "⚡️ A simple, small and fast framework-agnostic library to make `fetch` happen",
-  "version": "5.4.0-beta.11",
+  "version": "5.3.8",
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "repository": {
@@ -54,7 +54,7 @@
     "@babel/preset-typescript": "^7.24.1",
     "@glimmer/component": "^1.1.2",
     "@warp-drive/core-types": "workspace:0.0.0-beta.11",
-    "@warp-drive/internal-config": "workspace:5.4.0-beta.11",
+    "@warp-drive/internal-config": "workspace:5.3.8",
     "ember-source": "~5.8.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "typescript": "^5.4.5",
