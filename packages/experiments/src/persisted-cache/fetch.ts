@@ -1,53 +1,120 @@
-import type { CacheHandler, Future, Handler, NextFn, RequestContext, StructuredDocument } from '@ember-data/request';
-import { getCache } from './db';
+import type {
+  Future,
+  Handler,
+  ImmutableRequestInfo,
+  NextFn,
+  StructuredDataDocument,
+  StructuredErrorDocument,
+} from '@ember-data/request';
+import { getCache, getCachedRequest } from './db';
 import { SkipCache } from '@warp-drive/core-types/request';
-import { StoreRequestContext } from '@ember-data/store';
-import { ResourceDocument } from '@warp-drive/core-types/spec/document';
+import Store, { StoreRequestContext } from '@ember-data/store';
 import { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 
 /**
  * A Handler that resolves requests from the persisted cache.
  */
 export class PersistedFetch implements Handler {
-  request<T>(context: StoreRequestContext, next: NextFn<T>): Future<T> {
+  request<T>(context: StoreRequestContext, next: NextFn<T>): Future<T> | Promise<StructuredDataDocument<T>> {
     const identifier = getPossiblyPersistedRequestId(context.request);
 
     if (!identifier) {
       return next(context.request);
     }
 
-    return getCache().then((db) => {
-      return checkCache(db, context, next, identifier);
-    });
+    return getCache()
+      .then((db) => {
+        return getCachedRequest(db, identifier.lid);
+      })
+      .then(
+        (cached) => {
+          // if there is no cached value, we should still try to resolve
+          // from the network
+          if (!cached) {
+            return next(context.request);
+          }
+
+          // add our cache header
+          cached.request.headers?.append('X-WarpDrive-Cache', 'IndexedDB');
+
+          // if there is a cached value, we insert it into the memory cache
+          // and then check the CachePolicy
+          const { store } = context.request;
+          store.cache.put(cached);
+
+          // determine if we are a foreground or background fetch
+          const shouldFetch = calcShouldFetch(store, context.request, true, identifier);
+          if (shouldFetch) {
+            return next(context.request);
+          }
+
+          // trigger a background load if necessary
+          const shouldBackgroundFetch = calcShouldBackgroundFetch(store, context.request, shouldFetch, identifier);
+          if (shouldBackgroundFetch) {
+            void Promise.resolve().then(() => {
+              return next(context.request)
+                .then((response) => {
+                  if (response) {
+                    store.cache.put(response);
+                  }
+                })
+                .catch((error) => {
+                  // if there is an error fetching from the network,
+                  // we ignore it for now.
+                });
+            });
+          }
+
+          // eagerly return the data we did have
+          // throwing if it was an error document
+          if ('error' in cached) {
+            // TODO we may need to instantiate some errors here since this
+            // is getting pulled from the cache
+            //
+            // even if it were persisted as an Error its likely not from the
+            // same domain and won't pass instanceof checks
+            throw cached as StructuredErrorDocument;
+          }
+
+          return cached as StructuredDataDocument<T>;
+        },
+        (_error) => {
+          // if there is an error fetching from cache,
+          // we should still try to resolve from the network
+          return next(context.request);
+        }
+      );
   }
 }
 
-async function checkCache<T>(
-  db: IDBDatabase,
-  context: StoreRequestContext,
-  next: NextFn<T>,
-  identifier: StableDocumentIdentifier
-): Promise<T> {
-  const { store } = context.request;
-  const transaction = db.transaction(['request'], 'readonly');
-  const objectStore = transaction.objectStore('request');
-  const request = objectStore.get(identifier.lid);
+const MUTATION_OPS = new Set(['createRecord', 'updateRecord', 'deleteRecord']);
+function calcShouldFetch(
+  store: Store,
+  request: ImmutableRequestInfo,
+  hasCachedValue: boolean,
+  identifier: StableDocumentIdentifier | null
+): boolean {
+  const { cacheOptions } = request;
+  return (
+    (request.op && MUTATION_OPS.has(request.op)) ||
+    cacheOptions?.reload ||
+    !hasCachedValue ||
+    (store.lifetimes && identifier ? store.lifetimes.isHardExpired(identifier, store) : false)
+  );
+}
 
-  return new Promise<T>((resolve, reject) => {
-    request.onerror = reject;
-    request.onsuccess = () => {
-      const result = request.result as StructuredDocument | undefined;
-
-      if (!result) {
-        return next(context.request);
-      }
-
-      const document = ResourceDocument.fromJSONAPI(result);
-      store.cache.updateRequest(identifier, document);
-
-      resolve(document as T);
-    };
-  });
+function calcShouldBackgroundFetch(
+  store: Store,
+  request: ImmutableRequestInfo,
+  willFetch: boolean,
+  identifier: StableDocumentIdentifier | null
+): boolean {
+  const { cacheOptions } = request;
+  return (
+    !willFetch &&
+    (cacheOptions?.backgroundReload ||
+      (store.lifetimes && identifier ? store.lifetimes.isSoftExpired(identifier, store) : false))
+  );
 }
 
 function getPossiblyPersistedRequestId(request: StoreRequestContext['request']): null | StableDocumentIdentifier {
@@ -55,6 +122,12 @@ function getPossiblyPersistedRequestId(request: StoreRequestContext['request']):
 
   // if there is no store, this is not a request we can resolve from the persisted cache
   if (!store) {
+    return null;
+  }
+
+  // if this is a mutation, we never want to resolve from cache
+  // TODO - for offline mode we should consider some form of persisted-queue
+  if (request.op && MUTATION_OPS.has(request.op)) {
     return null;
   }
 
