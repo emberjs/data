@@ -25,6 +25,8 @@ export type Deferred<T> = {
   promise: Promise<T>;
 };
 
+export type ManagedRequestPriority = { blocking: boolean };
+
 export type DeferredStream = {
   resolve(v: ReadableStream | null): void;
   reject(v: unknown): void;

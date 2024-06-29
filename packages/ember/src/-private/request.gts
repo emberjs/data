@@ -84,11 +84,23 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
   declare backgroundChanged: (event: Event) => void;
   declare _originalRequest: Future<RT> | undefined;
   declare _originalQuery: StoreRequestInput<T, RT> | undefined;
+  declare _subscription: object | undefined;
+  declare _subscribedTo: object | undefined;
 
   constructor(owner: unknown, args: RequestSignature<T, RT>['Args']) {
     super(owner, args);
     this.installListeners();
+    this.updateSubscriptions();
   }
+
+  updateSubscriptions() {
+    const requestId = this.request.id;
+    const subscribedTo =
+    if (this._subscription) {
+    }
+  }
+
+  removeSubscriptions() {}
 
   installListeners() {
     if (typeof window === 'undefined') {
@@ -215,6 +227,8 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
   }
 
   willDestroy() {
+    this.removeSubscriptions();
+
     if (typeof window === 'undefined') {
       return;
     }

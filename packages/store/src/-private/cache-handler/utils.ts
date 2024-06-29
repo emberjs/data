@@ -104,3 +104,17 @@ export function isErrorDocument(
 ): document is ResourceErrorDocument {
   return 'errors' in document;
 }
+
+export function getPriority(
+  identifier: StableDocumentIdentifier | null,
+  deduped: Map<StableDocumentIdentifier, { priority: { blocking: boolean } }>,
+  priority: { blocking: boolean }
+) {
+  if (identifier) {
+    const existing = deduped.get(identifier);
+    if (existing) {
+      return existing.priority;
+    }
+  }
+  return priority;
+}
