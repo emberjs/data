@@ -98,6 +98,27 @@ export interface CachePolicy {
    *
    * Note, this is invoked regardless of whether the request has a cache-key.
    *
+   * It is best practice to notify the store of any requests marked as invalidated
+   * so that request subscriptions can reload when needed.
+   *
+   * ```ts
+   * store.notifications.notify(identifier, 'invalidated');
+   * ```
+   *
+   * This allows any thing subscribed to the request to be notified of the change
+   *
+   * e.g.
+   *
+   * ```ts
+   * store.notifications.subscribe(identifier, (_, type) => {
+   *   if (type === 'invalidated') {
+   *     // do update
+   *   }
+   * });
+   * ```
+   *
+   * Note,
+   *
    * @method didRequest [Optional]
    * @public
    * @param {ImmutableRequestInfo} request
@@ -139,8 +160,6 @@ function maybeUpdateUiObjects<T>(
   request: ImmutableRequestInfo,
   options: {
     shouldHydrate?: boolean;
-    shouldFetch?: boolean;
-    shouldBackgroundFetch?: boolean;
     identifier: StableDocumentIdentifier | null;
   },
   document: ResourceDataDocument | ResourceErrorDocument | null,
@@ -290,8 +309,7 @@ function fetchContentAndHydrate<T>(
   next: NextFn<T>,
   context: StoreRequestContext,
   identifier: StableDocumentIdentifier | null,
-  shouldFetch: boolean,
-  shouldBackgroundFetch: boolean
+  priority: { blocking: boolean }
 ): Promise<T> {
   const { store } = context.request;
   const shouldHydrate: boolean = context.request[EnableHydration] || false;
@@ -334,13 +352,7 @@ function fetchContentAndHydrate<T>(
         } else {
           response = store.cache.put(document) as ResourceDataDocument;
         }
-        response = maybeUpdateUiObjects(
-          store,
-          context.request,
-          { shouldHydrate, shouldFetch, shouldBackgroundFetch, identifier },
-          response,
-          false
-        );
+        response = maybeUpdateUiObjects(store, context.request, { shouldHydrate, identifier }, response, false);
       });
       store._enableAsyncFlush = null;
 
@@ -348,9 +360,10 @@ function fetchContentAndHydrate<T>(
         store.lifetimes.didRequest(context.request, document.response, identifier, store);
       }
 
-      if (shouldFetch) {
+      const finalPriority = getPriority(identifier, store.requestManager._deduped, priority);
+      if (finalPriority.blocking) {
         return response!;
-      } else if (shouldBackgroundFetch) {
+      } else {
         store.notifications._flush();
       }
     },
@@ -382,13 +395,7 @@ function fetchContentAndHydrate<T>(
           throw error;
         } else {
           response = store.cache.put(error) as ResourceErrorDocument;
-          response = maybeUpdateUiObjects(
-            store,
-            context.request,
-            { shouldHydrate, shouldFetch, shouldBackgroundFetch, identifier },
-            response,
-            false
-          );
+          response = maybeUpdateUiObjects(store, context.request, { shouldHydrate, identifier }, response, false);
         }
       });
       store._enableAsyncFlush = null;
@@ -397,7 +404,8 @@ function fetchContentAndHydrate<T>(
         store.lifetimes.didRequest(context.request, error.response, identifier, store);
       }
 
-      if (!shouldBackgroundFetch) {
+      const finalPriority = getPriority(identifier, store.requestManager._deduped, priority);
+      if (finalPriority.blocking) {
         const newError = cloneError(error);
         newError.content = response!;
         throw newError;
@@ -494,16 +502,36 @@ export const CacheHandler: CacheHandlerType = {
     const { store } = context.request;
     const identifier = store.identifierCache.getOrCreateDocumentIdentifier(context.request);
 
+    // used to dedupe existing requests that match
+    const DEDUPE = store.requestManager._deduped;
+    const activeRequest = identifier && DEDUPE.get(identifier);
     const peeked = identifier ? store.cache.peekRequest(identifier) : null;
 
     // determine if we should skip cache
     if (calcShouldFetch(store, context.request, !!peeked, identifier)) {
-      return fetchContentAndHydrate(next, context, identifier, true, false);
+      if (activeRequest) {
+        activeRequest.priority = { blocking: true };
+        return activeRequest.promise as Promise<T>;
+      }
+      const promise = fetchContentAndHydrate(next, context, identifier, { blocking: true });
+      if (identifier) {
+        promise.finally(() => {
+          DEDUPE.delete(identifier);
+        });
+        DEDUPE.set(identifier, { priority: { blocking: true }, promise });
+      }
+      return promise;
     }
 
     // if we have not skipped cache, determine if we should update behind the scenes
     if (calcShouldBackgroundFetch(store, context.request, false, identifier)) {
-      const promise = fetchContentAndHydrate(next, context, identifier, false, true);
+      const promise = activeRequest?.promise || fetchContentAndHydrate(next, context, identifier, { blocking: false });
+      if (identifier && !activeRequest) {
+        promise.finally(() => {
+          DEDUPE.delete(identifier);
+        });
+        DEDUPE.set(identifier, { priority: { blocking: false }, promise });
+      }
       store.requestManager._pending.set(context.id, promise);
     }
 
@@ -566,4 +594,18 @@ function isCacheAffecting<T>(document: StructuredDataDocument<T>): boolean {
   }
 
   return document.response?.status !== 204;
+}
+
+function getPriority(
+  identifier: StableDocumentIdentifier | null,
+  deduped: Map<StableDocumentIdentifier, { priority: { blocking: boolean } }>,
+  priority: { blocking: boolean }
+) {
+  if (identifier) {
+    const existing = deduped.get(identifier);
+    if (existing) {
+      return existing.priority;
+    }
+  }
+  return priority;
 }
