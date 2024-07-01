@@ -2,7 +2,7 @@
  * @module @ember-data/legacy-compat/builders
  */
 import type { StoreRequestInput } from '@ember-data/store';
-import type { QueryOptions } from '@ember-data/store/types';
+import type { LegacyResourceQuery, QueryOptions } from '@ember-data/store/types';
 import { assert } from '@warp-drive/build-config/macros';
 import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
 import { SkipCache } from '@warp-drive/core-types/request';
@@ -14,7 +14,7 @@ type QueryRequestInput<T extends string = string, RT = unknown[]> = StoreRequest
   op: 'query';
   data: {
     type: T;
-    query: Record<string, unknown>;
+    query: LegacyResourceQuery;
     options: QueryBuilderOptions;
   };
   [RequestSignature]?: RT;
@@ -43,17 +43,17 @@ type QueryBuilderOptions = QueryOptions;
 */
 export function queryBuilder<T extends TypedRecordInstance>(
   type: TypeFromInstance<T>,
-  query: Record<string, unknown>,
+  query: LegacyResourceQuery<T>,
   options?: QueryBuilderOptions
 ): QueryRequestInput<TypeFromInstance<T>, T[]>;
 export function queryBuilder(
   type: string,
-  query: Record<string, unknown>,
+  query: LegacyResourceQuery,
   options?: QueryBuilderOptions
 ): QueryRequestInput;
 export function queryBuilder(
   type: string,
-  query: Record<string, unknown>,
+  query: LegacyResourceQuery,
   options: QueryBuilderOptions = {}
 ): QueryRequestInput {
   assert(`You need to pass a model name to the query builder`, type);
@@ -78,7 +78,7 @@ type QueryRecordRequestInput<T extends string = string, RT = unknown> = StoreReq
   op: 'queryRecord';
   data: {
     type: T;
-    query: Record<string, unknown>;
+    query: LegacyResourceQuery;
     options: QueryBuilderOptions;
   };
   [RequestSignature]?: RT;
@@ -105,17 +105,17 @@ type QueryRecordRequestInput<T extends string = string, RT = unknown> = StoreReq
 */
 export function queryRecordBuilder<T extends TypedRecordInstance>(
   type: TypeFromInstance<T>,
-  query: Record<string, unknown>,
+  query: LegacyResourceQuery<T>,
   options?: QueryBuilderOptions
 ): QueryRecordRequestInput<TypeFromInstance<T>, T | null>;
 export function queryRecordBuilder(
   type: string,
-  query: Record<string, unknown>,
+  query: LegacyResourceQuery,
   options?: QueryBuilderOptions
 ): QueryRecordRequestInput;
 export function queryRecordBuilder(
   type: string,
-  query: Record<string, unknown>,
+  query: LegacyResourceQuery,
   options?: QueryBuilderOptions
 ): QueryRecordRequestInput {
   assert(`You need to pass a model name to the queryRecord builder`, type);

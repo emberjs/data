@@ -10,7 +10,7 @@ import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import { DEPRECATE_MANY_ARRAY_DUPLICATES } from '@warp-drive/build-config/deprecations';
 import type { ExistingResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
-import { ResourceType } from '@warp-drive/core-types/symbols';
+import { Type } from '@warp-drive/core-types/symbols';
 
 import type { ReactiveContext } from '../../../helpers/reactive-context';
 import { reactiveContext } from '../../../helpers/reactive-context';
@@ -25,7 +25,7 @@ class User extends Model {
   @attr declare name: string;
   @hasMany('user', { async: false, inverse: 'friends' }) declare friends: ManyArray<User>;
 
-  [ResourceType] = 'user' as const;
+  [Type] = 'user' as const;
 }
 
 function krystanData() {

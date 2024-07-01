@@ -1,6 +1,6 @@
 {
   "name": "root",
-  "version": "5.4.0-alpha.76",
+  "version": "5.4.0-alpha.91",
   "private": true,
   "repository": {
     "type": "git",
@@ -50,7 +50,7 @@
     "git-repo-version": "^1.0.2",
     "globby": "^14.0.1",
     "lerna-changelog": "^2.2.0",
-    "prettier": "^3.2.5",
+    "prettier": "^3.3.2",
     "prettier-plugin-ember-template-tag": "^2.0.2",
     "rimraf": "^5.0.6",
     "semver": "^7.6.2",
@@ -64,13 +64,13 @@
     "turbo": "^1.13.3"
   },
   "engines": {
-    "node": ">= 22.1.0",
+    "node": ">= 18.20.3",
     "yarn": "use pnpm",
     "npm": "use pnpm",
     "pnpm": "8.15.8"
   },
   "volta": {
-    "node": "22.1.0",
+    "node": "22.3.0",
     "pnpm": "8.15.8"
   },
   "packageManager": "pnpm@8.15.8",
@@ -140,7 +140,7 @@
       "ember-cli-babel": "^8.2.0",
       "ember-cli-htmlbars": "^6.3.0",
       "ember-cli-typescript": "^5.3.0",
-      "webpack": "5.91.0",
+      "webpack": "5.92.0",
       "qunit": "2.19.4",
       "ember-compatibility-helpers": "^1.2.7",
       "testem": "~3.11.0"

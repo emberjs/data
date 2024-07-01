@@ -1,6 +1,6 @@
 {
   "name": "ember-data",
-  "version": "5.4.0-alpha.76",
+  "version": "5.4.0-alpha.91",
   "description": "The lightweight reactive data library for JavaScript applications",
   "keywords": [
     "ember-addon"
@@ -17,7 +17,7 @@
   "scripts": {
     "lint": "eslint . --quiet --cache --cache-strategy=content --report-unused-disable-directives",
     "build:pkg": "vite build;",
-    "prepack": "bun run build:pkg && cd ../../ && bun run build:docs",
+    "prepack": "bun run build:pkg",
     "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
   "ember-addon": {
@@ -34,7 +34,6 @@
     }
   },
   "files": [
-    "dist/docs/data.json",
     "ember-data-logo-dark.svg",
     "ember-data-logo-light.svg",
     "LICENSE.md",
@@ -56,6 +55,9 @@
     },
     "./app/*": {
       "default": "./app/*.js"
+    },
+    "./blueprints/*": {
+      "default": "./blueprints/*.js"
     },
     "./*": {
       "types": "./unstable-preview-types/*.d.ts",
@@ -106,21 +108,21 @@
     }
   },
   "dependencies": {
-    "@ember-data/adapter": "workspace:5.4.0-alpha.76",
-    "@ember-data/debug": "workspace:5.4.0-alpha.76",
-    "@ember-data/graph": "workspace:5.4.0-alpha.76",
-    "@ember-data/json-api": "workspace:5.4.0-alpha.76",
-    "@ember-data/legacy-compat": "workspace:5.4.0-alpha.76",
-    "@ember-data/model": "workspace:5.4.0-alpha.76",
-    "@ember-data/request": "workspace:5.4.0-alpha.76",
-    "@ember-data/request-utils": "workspace:5.4.0-alpha.76",
-    "@ember-data/serializer": "workspace:5.4.0-alpha.76",
-    "@ember-data/store": "workspace:5.4.0-alpha.76",
-    "@ember-data/tracking": "workspace:5.4.0-alpha.76",
+    "@ember-data/adapter": "workspace:5.4.0-alpha.91",
+    "@ember-data/debug": "workspace:5.4.0-alpha.91",
+    "@ember-data/graph": "workspace:5.4.0-alpha.91",
+    "@ember-data/json-api": "workspace:5.4.0-alpha.91",
+    "@ember-data/legacy-compat": "workspace:5.4.0-alpha.91",
+    "@ember-data/model": "workspace:5.4.0-alpha.91",
+    "@ember-data/request": "workspace:5.4.0-alpha.91",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.91",
+    "@ember-data/serializer": "workspace:5.4.0-alpha.91",
+    "@ember-data/store": "workspace:5.4.0-alpha.91",
+    "@ember-data/tracking": "workspace:5.4.0-alpha.91",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.16.1",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.62",
-    "@warp-drive/build-config": "workspace:0.0.0-alpha.13"
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.77",
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.28"
   },
   "peerDependencies": {
     "@ember/test-helpers": "^3.3.0",
@@ -148,7 +150,7 @@
     "@glimmer/tracking": "^1.1.2",
     "@types/qunit": "^2.19.10",
     "@ember/test-helpers": "^3.3.0",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.76",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.91",
     "ember-source": "~5.8.0",
     "eslint": "^8.57.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
@@ -157,7 +159,7 @@
     "qunit": "^2.18.0"
   },
   "engines": {
-    "node": ">= 22.1.0"
+    "node": ">= 18.20.3"
   },
   "ember": {
     "edition": "octane"

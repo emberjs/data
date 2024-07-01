@@ -13,6 +13,8 @@ export type LernaChangeset = {
   byPackage: Record<string, Record<string, Map<string, Entry>>>;
 };
 
+const IgnoredPackages = new Set(['private-build-infra']);
+
 // e.g. match lines ending in "asljasdfjh ([@runspired](https://github.com/runspired))""
 const CommitterRegEx = /.*\s\(?\[@([a-zA-Z0-9-]+)\]\(https:\/\/github.com\/\1\)\)?$/;
 
@@ -63,7 +65,10 @@ function packagesBySubPath(strategy: STRATEGY, packages: Map<string, Package>): 
   return subPathMap;
 }
 
-function packageForSubPath(strategy: STRATEGY, subPath: string, packages: Map<string, Package>): string {
+function packageForSubPath(strategy: STRATEGY, subPath: string, packages: Map<string, Package>): string | null {
+  if (IgnoredPackages.has(subPath)) {
+    return null;
+  }
   const pkg = packages.get(subPath);
   if (pkg) {
     return pkg.pkgData.name;
@@ -90,9 +95,12 @@ function extractLoggedEntry(
 
   currentEntry?.packages.forEach((subPath) => {
     const pkg = packageForSubPath(strategy, subPath, subPathMap);
-    byPackage[pkg] = byPackage[pkg] || {};
-    byPackage[pkg][currentSection] = byPackage[pkg][currentSection] || new Map();
-    byPackage[pkg][currentSection].set(PRNumber, currentEntry as Entry);
+
+    if (pkg) {
+      byPackage[pkg] = byPackage[pkg] || {};
+      byPackage[pkg][currentSection] = byPackage[pkg][currentSection] || new Map();
+      byPackage[pkg][currentSection].set(PRNumber, currentEntry as Entry);
+    }
   });
 }
 

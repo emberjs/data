@@ -1,5 +1,32 @@
 # @ember-data/active-record Changelog
 
+## v5.3.4 (2024-06-15)
+
+#### :memo: Documentation
+
+* [#9328](https://github.com/emberjs/data/pull/9328) chore: update READMEs with status and dist tag info ([@runspired](https://github.com/runspired))
+* [#9299](https://github.com/emberjs/data/pull/9299) doc: use store for save-record docs  ([@Yelinz](https://github.com/Yelinz))
+
+#### :rocket: Enhancement
+
+* [#9471](https://github.com/emberjs/data/pull/9471) feat: npx warp-drive ([@runspired](https://github.com/runspired))
+* [#9468](https://github.com/emberjs/data/pull/9468) feat: string utils 🌌  ([@runspired](https://github.com/runspired))
+* [#9407](https://github.com/emberjs/data/pull/9407) feat: v2 addons ([@runspired](https://github.com/runspired))
+* [#9444](https://github.com/emberjs/data/pull/9444) feat: rename LifetimesService => CachePolicy for clarity ([@runspired](https://github.com/runspired))
+* [#9366](https://github.com/emberjs/data/pull/9366) feat: typed Model ([@runspired](https://github.com/runspired))
+* [#9359](https://github.com/emberjs/data/pull/9359) feat: type checked builders and inferred request types from builders ([@runspired](https://github.com/runspired))
+* [#9260](https://github.com/emberjs/data/pull/9260) feat: ember specific data utils ([@runspired](https://github.com/runspired))
+
+#### :house: Internal
+
+* [#9292](https://github.com/emberjs/data/pull/9292) feat: add new build-config package ([@runspired](https://github.com/runspired))
+* [#9370](https://github.com/emberjs/data/pull/9370) chore: rename macros ([@runspired](https://github.com/runspired))
+
+#### Committers: (2)
+
+Chris Thoburn ([@runspired](https://github.com/runspired))
+Yelin Zhang ([@Yelinz](https://github.com/Yelinz))
+
 For the full project changelog see [https://github.com/emberjs/data/blob/main/CHANGELOG.md](https://github.com/emberjs/data/blob/main/CHANGELOG.md)
 
 ## v5.3.1 (2024-02-24)

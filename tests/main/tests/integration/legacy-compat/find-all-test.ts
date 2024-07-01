@@ -5,12 +5,12 @@ import { setupTest } from 'ember-qunit';
 import type { CompatStore } from '@ember-data/legacy-compat';
 import { findAll } from '@ember-data/legacy-compat/builders';
 import Model, { attr } from '@ember-data/model';
-import { ResourceType } from '@warp-drive/core-types/symbols';
+import { Type } from '@warp-drive/core-types/symbols';
 
 type FindAllBuilderOptions = Exclude<Parameters<typeof findAll>[1], undefined>;
 
 class Post extends Model {
-  [ResourceType] = 'post' as const;
+  [Type] = 'post' as const;
   @attr declare name: string;
 }
 

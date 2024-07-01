@@ -1,19 +1,19 @@
 {
   "name": "@warp-drive/internal-config",
   "private": true,
-  "version": "5.4.0-alpha.76",
+  "version": "5.4.0-alpha.91",
   "type": "module",
   "dependencies": {
     "@babel/cli": "^7.24.5",
     "@babel/core": "^7.24.5",
     "@rollup/plugin-babel": "^6.0.4",
-    "@typescript-eslint/eslint-plugin": "^7.9.0",
-    "@typescript-eslint/parser": "^7.9.0",
-    "typescript-eslint": "^7.9.0",
+    "@typescript-eslint/eslint-plugin": "^7.13.0",
+    "@typescript-eslint/parser": "^7.13.0",
+    "typescript-eslint": "^7.13.0",
     "@embroider/addon-dev": "^4.3.1",
     "@eslint/js": "^8.57.0",
     "globals": "^15.2.0",
-    "ember-eslint-parser": "^0.4.2",
+    "ember-eslint-parser": "^0.4.3",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.29.1",
@@ -27,7 +27,7 @@
     "vite-plugin-dts": "^3.9.1"
   },
   "engines": {
-    "node": ">= 22.1.0"
+    "node": ">= 18.20.3"
   },
   "volta": {
     "extends": "../package.json"

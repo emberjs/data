@@ -54,9 +54,9 @@ export default function (babel) {
             specifier.scope.removeOwnBinding(localBindingName);
             specifier.remove();
           });
-        }
-        if (path.get('specifiers').length === 0) {
-          path.remove();
+          if (path.get('specifiers').length === 0) {
+            path.remove();
+          }
         }
       },
 

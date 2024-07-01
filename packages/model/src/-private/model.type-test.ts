@@ -2,7 +2,7 @@ import { expectTypeOf } from 'expect-type';
 
 import Store from '@ember-data/store';
 import type { LegacyAttributeField, LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
-import { ResourceType } from '@warp-drive/core-types/symbols';
+import { Type } from '@warp-drive/core-types/symbols';
 
 import { attr } from './attr';
 import { belongsTo } from './belongs-to';
@@ -63,7 +63,7 @@ class BrandedUser extends Model {
   @hasMany('user', { async: true, inverse: 'friends' }) declare friends: PromiseManyArray<BrandedUser>;
   @belongsTo('user', { async: true, inverse: 'twin' }) declare twin: PromiseBelongsTo<BrandedUser>;
 
-  [ResourceType] = 'user' as const;
+  [Type] = 'user' as const;
 }
 const branded = new BrandedUser();
 
@@ -93,7 +93,7 @@ class BrandedTypedUser extends Model {
   @belongsTo<BrandedTypedUser>('user', { async: false, inverse: 'crew' })
   declare leader: PromiseBelongsTo<BrandedTypedUser>;
 
-  [ResourceType] = 'user' as const;
+  [Type] = 'user' as const;
 }
 const brandedAndTyped = new BrandedTypedUser();
 
@@ -211,7 +211,7 @@ class UserWithCustomSerialize extends Model {
 }
 expectTypeOf(new UserWithCustomSerialize().serialize()).toEqualTypeOf<{ name: string | null }>();
 class FooModel extends Model {
-  [ResourceType] = 'foo' as const;
+  [Type] = 'foo' as const;
 
   private myMethod() {
     // ...

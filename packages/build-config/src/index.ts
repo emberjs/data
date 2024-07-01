@@ -43,10 +43,35 @@ function recastMacrosConfig(macros: object): MacrosWithGlobalConfig {
 
 export function setConfig(context: object, appRoot: string, config: WarpDriveConfig) {
   const macros = recastMacrosConfig(_MacrosConfig.for(context, appRoot));
+  const isLegacySupport = (config as unknown as { ___legacy_support?: boolean }).___legacy_support;
+  const hasDeprecatedConfig = isLegacySupport && Object.keys(config).length > 1;
+  const hasInitiatedConfig = macros.globalConfig['WarpDrive'];
 
-  if (macros.globalConfig['WarpDrive']) {
+  // setConfig called by user prior to legacy support called
+  if (isLegacySupport && hasInitiatedConfig) {
+    if (hasDeprecatedConfig) {
+      throw new Error(
+        'You have provided a config object to setConfig, but are also using the legacy emberData options key in ember-cli-build. Please remove the emberData key from options.'
+      );
+    }
     return;
   }
+
+  // legacy support called prior to user setConfig
+  if (isLegacySupport && hasDeprecatedConfig) {
+    console.warn(
+      `You are using the legacy emberData key in your ember-cli-build.js file. This key is deprecated and will be removed in the next major version of EmberData/WarpDrive. Please use \`import { setConfig } from '@warp-drive/build-config';\` instead.`
+    );
+  }
+
+  // included hooks run during class initialization of the EmberApp instance
+  // so our hook will run before the user has a chance to call setConfig
+  // else we could print a useful message here
+  // else if (isLegacySupport) {
+  //   console.warn(
+  //     `WarpDrive requires your ember-cli-build file to set a base configuration for the project.\n\nUsage:\n\t\`import { setConfig } from '@warp-drive/build-config';\n\tsetConfig(app, __dirname, {});\``
+  //   );
+  // }
 
   const debugOptions: InternalWarpDriveConfig['debug'] = Object.assign({}, LOGGING, config.debug);
 
@@ -55,8 +80,8 @@ export function setConfig(context: object, appRoot: string, config: WarpDriveCon
   const FEATURES = getFeatures(env.PRODUCTION);
 
   const includeDataAdapterInProduction =
-    typeof config.includeDataAdapterInProduction === 'boolean' ? config.includeDataAdapterInProduction : false;
-  const includeDataAdapter = env.PRODUCTION ? includeDataAdapterInProduction : false;
+    typeof config.includeDataAdapterInProduction === 'boolean' ? config.includeDataAdapterInProduction : true;
+  const includeDataAdapter = env.PRODUCTION ? includeDataAdapterInProduction : true;
 
   const finalizedConfig: InternalWarpDriveConfig = {
     debug: debugOptions,

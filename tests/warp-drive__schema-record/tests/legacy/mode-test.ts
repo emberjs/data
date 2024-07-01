@@ -12,7 +12,7 @@ import {
 import RequestManager from '@ember-data/request';
 import type Store from '@ember-data/store';
 import { CacheHandler } from '@ember-data/store';
-import type { ResourceType } from '@warp-drive/core-types/symbols';
+import type { Type } from '@warp-drive/core-types/symbols';
 import { Editable, Legacy } from '@warp-drive/schema-record/record';
 import { registerDerivations, withDefaults } from '@warp-drive/schema-record/schema';
 
@@ -55,7 +55,7 @@ interface User {
   rollbackAttributes(): void;
   reload(): Promise<User>;
   destroyRecord(): Promise<User>;
-  [ResourceType]: 'user';
+  [Type]: 'user';
 }
 
 module('Legacy Mode', function (hooks) {

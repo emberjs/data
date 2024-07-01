@@ -1,6 +1,6 @@
 {
   "name": "ember-data__model",
-  "version": "5.4.0-alpha.76",
+  "version": "5.4.0-alpha.91",
   "private": true,
   "description": "Tests for @ember-data/model",
   "repository": {
@@ -62,27 +62,27 @@
   "devDependencies": {
     "@babel/core": "^7.24.5",
     "@babel/runtime": "^7.24.5",
-    "@ember-data/adapter": "workspace:5.4.0-alpha.76",
-    "@ember-data/graph": "workspace:5.4.0-alpha.76",
-    "@ember-data/json-api": "workspace:5.4.0-alpha.76",
-    "@ember-data/legacy-compat": "workspace:5.4.0-alpha.76",
-    "@ember-data/request": "workspace:5.4.0-alpha.76",
-    "@ember-data/request-utils": "workspace:5.4.0-alpha.76",
-    "@ember-data/serializer": "workspace:5.4.0-alpha.76",
-    "@ember-data/store": "workspace:5.4.0-alpha.76",
-    "@ember-data/tracking": "workspace:5.4.0-alpha.76",
+    "@ember-data/adapter": "workspace:5.4.0-alpha.91",
+    "@ember-data/graph": "workspace:5.4.0-alpha.91",
+    "@ember-data/json-api": "workspace:5.4.0-alpha.91",
+    "@ember-data/legacy-compat": "workspace:5.4.0-alpha.91",
+    "@ember-data/request": "workspace:5.4.0-alpha.91",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.91",
+    "@ember-data/serializer": "workspace:5.4.0-alpha.91",
+    "@ember-data/store": "workspace:5.4.0-alpha.91",
+    "@ember-data/tracking": "workspace:5.4.0-alpha.91",
     "@ember/optional-features": "^2.1.0",
     "@ember/test-helpers": "^3.3.0",
     "@ember/test-waiters": "^3.1.0",
-    "@embroider/addon-shim": "^1.8.8",
+    "@embroider/addon-shim": "^1.8.9",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.62",
-    "@warp-drive/diagnostic": "workspace:0.0.0-alpha.62",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.76",
-    "@warp-drive/build-config": "workspace:0.0.0-alpha.13",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.77",
+    "@warp-drive/diagnostic": "workspace:0.0.0-alpha.77",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.91",
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.28",
     "ember-auto-import": "^2.7.3",
-    "ember-cli": "~5.8.1",
+    "ember-cli": "~5.9.0",
     "ember-cli-babel": "^8.2.0",
     "ember-cli-dependency-checker": "^3.3.2",
     "ember-cli-htmlbars": "^6.3.0",
@@ -94,10 +94,10 @@
     "ember-source": "~5.8.0",
     "loader.js": "^4.7.0",
     "typescript": "^5.4.5",
-    "webpack": "^5.91.0"
+    "webpack": "^5.92.0"
   },
   "engines": {
-    "node": ">= 22.1.0"
+    "node": ">= 18.20.3"
   },
   "ember": {
     "edition": "octane"
