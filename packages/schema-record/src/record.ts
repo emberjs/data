@@ -19,6 +19,7 @@ import {
   computeLocal,
   computeObject,
   computeResource,
+  computeSchemaObject,
   ManagedArrayMap,
   ManagedObjectMap,
   peekManagedArray,
@@ -44,7 +45,7 @@ const getLegacySupport = macroCondition(dependencySatisfies('@ember-data/model',
   : null;
 
 export { Editable, Legacy } from './symbols';
-const IgnoredGlobalFields = new Set<string>(['length', 'nodeType', 'then', 'setInterval', STRUCTURED]);
+const IgnoredGlobalFields = new Set<string>(['length', 'nodeType', 'then', 'setInterval', 'document', STRUCTURED]);
 const symbolList = [
   Destroy,
   RecordStore,
@@ -168,6 +169,12 @@ export class SchemaRecord {
           };
         }
 
+        if (prop === 'toHTML') {
+          return function () {
+            return `<div>SchemaRecord<${identifier.type}:${identifier.id} (${identifier.lid})></div>`;
+          };
+        }
+
         if (prop === Symbol.toPrimitive) {
           return null;
         }
@@ -196,7 +203,12 @@ export class SchemaRecord {
           if (typeof prop === 'symbol') {
             return undefined;
           }
-          throw new Error(`No field named ${String(prop)} on ${identifier.type}`);
+          let type = identifier.type;
+          if (isEmbedded) {
+            type = embeddedType!;
+          }
+
+          throw new Error(`No field named ${String(prop)} on ${type}`);
         }
 
         switch (field.kind) {
@@ -239,20 +251,31 @@ export class SchemaRecord {
               !target[Legacy]
             );
             entangleSignal(signals, receiver, field.name);
-            return computeArray(store, schema, cache, target, identifier, field, propArray);
-          case 'schema-object':
-            // validate any access off of schema, no transform to run
-            // use raw cache value as the object to manage
-            entangleSignal(signals, receiver, field.name);
-            return computeObject(store, schema, cache, target, identifier, field, prop as string, true);
+            return computeArray(store, schema, cache, target, identifier, field, propArray, false);
           case 'object':
             assert(
               `SchemaRecord.${field.name} is not available in legacy mode because it has type '${field.kind}'`,
               !target[Legacy]
             );
             entangleSignal(signals, receiver, field.name);
+            return computeObject(store, schema, cache, target, identifier, field, propArray);
+          case 'schema-object':
+            assert(
+              `SchemaRecord.${field.name} is not available in legacy mode because it has type '${field.kind}'`,
+              !target[Legacy]
+            );
+            entangleSignal(signals, receiver, field.name);
             // run transform, then use that value as the object to manage
-            return computeObject(store, schema, cache, target, identifier, field, prop as string);
+            return computeSchemaObject(
+              store,
+              cache,
+              target,
+              identifier,
+              field,
+              propArray,
+              Mode[Legacy],
+              Mode[Editable]
+            );
           case 'belongsTo':
             if (!HAS_MODEL_PACKAGE) {
               assert(
@@ -287,7 +310,8 @@ export class SchemaRecord {
 
         const field = prop === identityField?.name ? identityField : fields.get(prop as string);
         if (!field) {
-          throw new Error(`There is no field named ${String(prop)} on ${identifier.type}`);
+          const type = isEmbedded ? embeddedType! : identifier.type;
+          throw new Error(`There is no field named ${String(prop)} on ${type}`);
         }
 
         switch (field.kind) {
@@ -414,11 +438,11 @@ export class SchemaRecord {
               ManagedObjectMap.delete(target);
             }
             cache.setAttr(identifier, propArray, newValue as Value);
-            const peeked = peekManagedObject(self, field);
-            if (peeked) {
-              const objSignal = peeked[OBJECT_SIGNAL];
-              objSignal.shouldReset = true;
-            }
+            // const peeked = peekManagedObject(self, field);
+            // if (peeked) {
+            //   const objSignal = peeked[OBJECT_SIGNAL];
+            //   objSignal.shouldReset = true;
+            // }
             return true;
           }
           case 'derived': {
@@ -511,7 +535,7 @@ export class SchemaRecord {
                     addToTransaction(arrSignal);
                   }
                 }
-                if (field?.kind === 'object' || field?.kind === 'schema-object') {
+                if (field?.kind === 'object') {
                   const peeked = peekManagedObject(self, field);
                   if (peeked) {
                     const objSignal = peeked[OBJECT_SIGNAL];

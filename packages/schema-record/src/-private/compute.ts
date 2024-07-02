@@ -21,9 +21,9 @@ import type {
 import type { Link, Links } from '@warp-drive/core-types/spec/json-api-raw';
 import { RecordStore } from '@warp-drive/core-types/symbols';
 
-import type { SchemaRecord } from '../record';
+import { SchemaRecord } from '../record';
 import type { SchemaService } from '../schema';
-import { Identifier, Parent } from '../symbols';
+import { Editable, Identifier, Legacy, Parent } from '../symbols';
 import { ManagedArray } from './managed-array';
 import { ManagedObject } from './managed-object';
 
@@ -33,7 +33,7 @@ export const ManagedArrayMap = getOrSetGlobal(
 );
 export const ManagedObjectMap = getOrSetGlobal(
   'ManagedObjectMap',
-  new Map<SchemaRecord, Map<FieldSchema, ManagedObject>>()
+  new Map<SchemaRecord, Map<FieldSchema, ManagedObject | SchemaRecord>>()
 );
 
 export function computeLocal(record: typeof Proxy<SchemaRecord>, field: LocalField, prop: string): unknown {
@@ -54,7 +54,12 @@ export function peekManagedArray(record: SchemaRecord, field: FieldSchema): Mana
   }
 }
 
-export function peekManagedObject(record: SchemaRecord, field: FieldSchema): ManagedObject | undefined {
+export function peekManagedObject(record: SchemaRecord, field: ObjectField): ManagedObject | undefined;
+export function peekManagedObject(record: SchemaRecord, field: SchemaObjectField): SchemaRecord | undefined;
+export function peekManagedObject(
+  record: SchemaRecord,
+  field: ObjectField | SchemaObjectField
+): ManagedObject | SchemaRecord | undefined {
   const managedObjectMapForRecord = ManagedObjectMap.get(record);
   if (managedObjectMapForRecord) {
     return managedObjectMapForRecord.get(field);
@@ -85,7 +90,7 @@ export function computeArray(
   identifier: StableRecordIdentifier,
   field: ArrayField | SchemaArrayField,
   path: string[],
-  isSchemaArray = false
+  isSchemaArray: boolean
 ) {
   // the thing we hand out needs to know its owner and path in a private manner
   // its "address" is the parent identifier (identifier) + field name (field.name)
@@ -122,8 +127,7 @@ export function computeObject(
   record: SchemaRecord,
   identifier: StableRecordIdentifier,
   field: ObjectField | SchemaObjectField,
-  prop: string,
-  isSchemaObject = false
+  path: string[]
 ) {
   const managedObjectMapForRecord = ManagedObjectMap.get(record);
   let managedObject;
@@ -133,7 +137,7 @@ export function computeObject(
   if (managedObject) {
     return managedObject;
   } else {
-    let rawValue = cache.getAttr(identifier, prop) as object;
+    let rawValue = cache.getAttr(identifier, path) as object;
     if (!rawValue) {
       return null;
     }
@@ -142,15 +146,59 @@ export function computeObject(
         const transform = schema.transformation(field);
         rawValue = transform.hydrate(rawValue as ObjectValue, field.options ?? null, record) as object;
       }
-    }
-    managedObject = new ManagedObject(store, schema, cache, field, rawValue, identifier, prop, record, isSchemaObject);
-    if (!managedObjectMapForRecord) {
-      ManagedObjectMap.set(record, new Map([[field, managedObject]]));
-    } else {
-      managedObjectMapForRecord.set(field, managedObject);
+      // for schema-object, this should likely be an embedded SchemaRecord now
+      managedObject = new ManagedObject(store, schema, cache, field, rawValue, identifier, path, record, false);
+      if (!managedObjectMapForRecord) {
+        ManagedObjectMap.set(record, new Map([[field, managedObject]]));
+      } else {
+        managedObjectMapForRecord.set(field, managedObject);
+      }
     }
   }
   return managedObject;
+}
+
+export function computeSchemaObject(
+  store: Store,
+  cache: Cache,
+  record: SchemaRecord,
+  identifier: StableRecordIdentifier,
+  field: ObjectField | SchemaObjectField,
+  path: string[],
+  legacy: boolean,
+  editable: boolean
+) {
+  const schemaObjectMapForRecord = ManagedObjectMap.get(record);
+  let schemaObject;
+  if (schemaObjectMapForRecord) {
+    schemaObject = schemaObjectMapForRecord.get(field);
+  }
+  if (schemaObject) {
+    return schemaObject;
+  } else {
+    const rawValue = cache.getAttr(identifier, path) as object;
+    if (!rawValue) {
+      return null;
+    }
+    const embeddedPath = path.slice();
+    schemaObject = new SchemaRecord(
+      store,
+      identifier,
+      {
+        [Editable]: editable,
+        [Legacy]: legacy,
+      },
+      true,
+      field.type,
+      embeddedPath
+    );
+  }
+  if (!schemaObjectMapForRecord) {
+    ManagedObjectMap.set(record, new Map([[field, schemaObject]]));
+  } else {
+    schemaObjectMapForRecord.set(field, schemaObject);
+  }
+  return schemaObject;
 }
 
 export function computeAttribute(cache: Cache, identifier: StableRecordIdentifier, prop: string): unknown {
