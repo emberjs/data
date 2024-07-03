@@ -8,8 +8,9 @@ import type {
 } from '@ember-data/request';
 import { getCache, getCachedRequest } from './db';
 import { SkipCache } from '@warp-drive/core-types/request';
-import Store, { StoreRequestContext } from '@ember-data/store';
-import { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type Store from '@ember-data/store';
+import type { StoreRequestContext } from '@ember-data/store';
+import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 
 /**
  * A Handler that resolves requests from the persisted cache.

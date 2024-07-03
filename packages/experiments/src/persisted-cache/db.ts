@@ -1,10 +1,10 @@
 import type { StructuredDocument } from '@ember-data/request';
-import Store from '@ember-data/store';
+import type Store from '@ember-data/store';
 import { assert } from '@warp-drive/build-config/macros';
-import { Cache } from '@warp-drive/core-types/cache';
-import { ExistingRecordIdentifier, StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { Cache } from '@warp-drive/core-types/cache';
+import type { ExistingRecordIdentifier, StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { ResourceDocument } from '@warp-drive/core-types/spec/document';
-import { ExistingResourceObject, ResourceObject } from '@warp-drive/core-types/spec/json-api-raw';
+import type { ExistingResourceObject, ResourceObject } from '@warp-drive/core-types/spec/json-api-raw';
 
 const WarpDriveCacheVersion = 1;
 

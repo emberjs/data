@@ -8,9 +8,9 @@ import type { StableDocumentIdentifier, StableExistingRecordIdentifier } from '@
 import type { TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 import type { ResourceDocument, SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
 import type { RequestContext, StructuredDataDocument, StructuredDocument } from '@warp-drive/core-types/request';
-import { ApiError } from '@warp-drive/core-types/spec/error';
-import { Value } from '@warp-drive/core-types/json/raw';
-import { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
+import type { ApiError } from '@warp-drive/core-types/spec/error';
+import type { Value } from '@warp-drive/core-types/json/raw';
+import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 /**
  * The PersistedCache wraps a Cache to enhance it with
  * IndexedDB Persistence.

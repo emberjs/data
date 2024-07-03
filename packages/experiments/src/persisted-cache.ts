@@ -1,1 +1,1 @@
-export { PersistedCache } from './persisted-cache/index.ts';
+export { PersistedCache } from './persisted-cache/cache.ts';
