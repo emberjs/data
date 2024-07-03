@@ -19,7 +19,7 @@ type business = {
   name: string;
   address?: address;
   addresses?: address[];
-}
+};
 interface User {
   id: string;
   $type: 'user';
@@ -584,7 +584,7 @@ module('Writes | schema-object fields', function (hooks) {
         },
       },
     });
-    
+
     assert.strictEqual(record.id, '1', 'id is accessible');
     assert.strictEqual(record.$type, 'user', '$type is accessible');
     assert.strictEqual(record.name, 'Rey Skybarker', 'name is accessible');
@@ -781,7 +781,5 @@ module('Writes | schema-object fields', function (hooks) {
       },
       'the cache values are correct for a nested object field'
     );
-
   });
-
 });
