@@ -94,7 +94,35 @@ export class Diagnostic<TC extends TestContext> {
 
   notEqual<T>(actual: T, expected: T, message?: string): void {
     if (actual === expected) {
-      throw new Error(message || `Expected ${String(actual)} to not equal ${String(expected)}`);
+      if (this.__config.params.tryCatch.value) {
+        try {
+          throw new Error(message || `Expected ${String(actual)} to not equal ${String(expected)}`);
+        } catch (err) {
+          this.pushResult({
+            message: message || 'notEqual',
+            stack: (err as Error).stack!,
+            passed: false,
+            actual,
+            expected,
+          });
+        }
+      } else {
+        this.pushResult({
+          message: message || 'notEqual',
+          stack: '',
+          passed: false,
+          actual,
+          expected,
+        });
+      }
+    } else {
+      this.pushResult({
+        message: message || 'notEqual',
+        stack: '',
+        passed: true,
+        actual: true,
+        expected: true,
+      });
     }
   }
 
