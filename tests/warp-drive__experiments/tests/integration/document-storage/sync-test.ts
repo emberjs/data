@@ -177,7 +177,7 @@ module('Unit | DocumentStorage | Sync', function (_hooks) {
     foo2.attributes.name = 'foo again';
 
     const invalidationEvent = new Promise<void>((resolve, reject) => {
-      const channel = new BroadcastChannel(storage1._storage.options.scope);
+      const channel = new BroadcastChannel(storage1._storage.options.scope as string);
       const timeout = setTimeout(reject, 100);
       channel.onmessage = (event) => {
         if (event.data.type === 'patch') {
@@ -201,8 +201,8 @@ module('Unit | DocumentStorage | Sync', function (_hooks) {
 
     await invalidationEvent;
 
-    assert.false(storage1._storage._invalidated, 'we do not invalidate ourselves');
-    assert.true(storage2._storage._invalidated, 'we invalidate others');
+    assert.false(storage1._storage._invalidated as boolean, 'we do not invalidate ourselves');
+    assert.true(storage2._storage._invalidated as boolean, 'we invalidate others');
 
     // get the updated document from storage2
     const readDoc2 = await storage2.getDocument({ lid: 'test-1-doc' });

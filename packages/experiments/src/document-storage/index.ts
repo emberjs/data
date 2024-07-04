@@ -16,9 +16,26 @@ export type DocumentStorageOptions = {
    * user to have multiple accounts, each account can have its own storage!
    */
   scope: string;
+  /**
+   * When set to true, if other instances of the storage are created with
+   * the same scope, they will not share the same in-memory cache and BroadcastChannel.
+   *
+   * This is mostly useful for testing purposes to replicate the behavior of
+   * multiple tabs or workers.
+   */
   isolated: boolean;
 };
+/**
+ * DocumentStorage is specifically designed around WarpDrive Cache and Request concepts.
+ *
+ * CacheFileDocument is a StructuredDocument (request response) whose `content` is
+ * the ResourceDocument returned by inserting the request into a Store's Cache.
+ */
 type CacheFileDocument = StructuredDocument<ResourceDocument<ExistingRecordIdentifier>>;
+/**
+ * A CacheDocument is a reconstructed request response that rehydrates ResourceDocument
+ * with the associated resources based on their identifiers.
+ */
 type CacheDocument = StructuredDocument<ResourceDocument<ExistingResourceObject>>;
 type CacheFile = {
   documents: [string, CacheFileDocument][];
@@ -26,22 +43,7 @@ type CacheFile = {
 };
 type DocumentIdentifier = { lid: string };
 
-/**
- * DocumentStorage is a wrapper around the StorageManager API that provides
- * a simple interface for reading and updating documents and requests.
- *
- * - optimize for storing requests/documents
- * - optimize for storing resources
- * - optimize for looking up resources associated to a document
- * - optimize for notifying cross-tab when data is updated
- *
- * optional features:
- *
- * - support for offline mode
- * - ?? support for relationship based cache traversal
- * - a way to index records by type + another field (e.g updatedAt/createAt/name)
- *   such that simple queries can be done without having to scan all records
- */
+
 class InternalDocumentStorage {
   declare readonly options: DocumentStorageOptions;
   declare _fileHandle: Promise<FileSystemFileHandle>;
@@ -261,6 +263,24 @@ function docHasData<T>(doc: ResourceDocument<T>): doc is ResourceDataDocument<T>
 
 const Storages = new Map<string, WeakRef<InternalDocumentStorage>>();
 
+/**
+ * DocumentStorage is a wrapper around the StorageManager API that provides
+ * a simple interface for reading and updating documents and requests.
+ *
+ * Some goals for this experiment:
+ *
+ * - optimize for storing requests/documents
+ * - optimize for storing resources
+ * - optimize for looking up resources associated to a document
+ * - optimize for notifying cross-tab when data is updated
+ *
+ * optional features:
+ *
+ * - support for offline mode
+ * - ?? support for relationship based cache traversal
+ * - a way to index records by type + another field (e.g updatedAt/createAt/name)
+ *   such that simple queries can be done without having to scan all records
+ */
 export class DocumentStorage {
   declare readonly _storage: InternalDocumentStorage;
 
