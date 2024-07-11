@@ -17,7 +17,7 @@
   "author": "",
   "license": "MIT",
   "peerDependencies": {
-    "@ember/string": "^3.0.1"
+    "@ember/string": "^3.0.1 || ^4.0.0"
   },
   "dependencies": {
     "@ember-data/adapter": "workspace:4.12.8",
@@ -76,7 +76,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.21.4",
-    "@ember/string": "^3.0.1",
+    "@ember/string": "^4.0.0",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "ember-source": "~4.12.0",
