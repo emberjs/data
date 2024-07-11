@@ -1,3 +1,4 @@
+import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type {
   ImmutableCreateRequestOptions,
   ImmutableDeleteRequestOptions,
@@ -5,10 +6,10 @@ import type {
   ImmutableUpdateRequestOptions,
   StructuredDataDocument,
 } from '@warp-drive/core-types/request';
-import type { Store } from '../store-service';
-import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
-import type { ApiError } from '@warp-drive/core-types/spec/error';
 import type { ResourceDataDocument, ResourceErrorDocument } from '@warp-drive/core-types/spec/document';
+import type { ApiError } from '@warp-drive/core-types/spec/error';
+
+import type { Store } from '../store-service';
 
 export const MUTATION_OPS = new Set(['createRecord', 'updateRecord', 'deleteRecord']);
 

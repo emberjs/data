@@ -19,7 +19,6 @@ import type {
 import type { ApiError } from '@warp-drive/core-types/spec/error';
 import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
 
-import type { OpaqueRecordInstance } from '../../-types/q/record-instance';
 import { Document } from '../document';
 import type { Store } from '../store-service';
 import {
@@ -246,11 +245,11 @@ function maybeUpdateErrorUiObjects<T>(
 ): ResourceErrorDocument {
   const { identifier } = options;
 
-  assert(`Expected an error document`, isErrorDocument(document));
-
-  if (!identifier && !options.shouldHydrate) {
+  // TODO investigate why ResourceErrorDocument is insufficient for expressing all error types
+  if (!isErrorDocument(document) || (!identifier && !options.shouldHydrate)) {
     return document;
   }
+
   let doc: Document<T> | undefined;
   if (identifier) {
     doc = store._documentCache.get(identifier) as Document<T> | undefined;

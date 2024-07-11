@@ -40,6 +40,7 @@ import type { OpaqueRecordInstance } from '../-types/q/record-instance';
 import type { SchemaService } from '../-types/q/schema-service';
 import type { FindAllOptions, FindRecordOptions, LegacyResourceQuery, QueryOptions } from '../-types/q/store';
 import type { StoreRequestInput } from './cache-handler/handler';
+import type { CachePolicy } from './cache-handler/types';
 import { IdentifierCache } from './caches/identifier-cache';
 import {
   InstanceCache,
@@ -60,7 +61,6 @@ import type { Collection, IdentifierArray } from './record-arrays/identifier-arr
 import { coerceId, ensureStringId } from './utils/coerce-id';
 import { constructResource } from './utils/construct-resource';
 import { normalizeModelName } from './utils/normalize-model-name';
-import type { CachePolicy } from './cache-handler/types';
 
 export { storeFor };
 
