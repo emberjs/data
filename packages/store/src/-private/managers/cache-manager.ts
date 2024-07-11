@@ -9,7 +9,7 @@ import type { StructuredDataDocument, StructuredDocument } from '@warp-drive/cor
 import type { ResourceDocument, SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
 import type { ApiError } from '@warp-drive/core-types/spec/error';
 
-import type { StoreRequestContext } from '../cache-handler';
+import type { StoreRequestContext } from '../cache-handler/handler';
 
 /**
  * The CacheManager wraps a Cache enforcing that only

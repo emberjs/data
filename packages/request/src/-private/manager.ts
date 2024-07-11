@@ -523,6 +523,14 @@ import { executeNextHandler, IS_CACHE_HANDLER } from './utils';
 export class RequestManager {
   #handlers: Handler[] = [];
   declare _hasCacheHandler: boolean;
+  /**
+   * A map of pending requests from request.id to their
+   * associated CacheHandler promise.
+   *
+   * This queue is managed by the CacheHandler
+   *
+   * @internal
+   */
   declare _pending: Map<number, Promise<unknown>>;
 
   constructor(options?: GenericCreateArgs) {

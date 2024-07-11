@@ -6,7 +6,8 @@ export { Store, storeFor } from './-private/store-service';
 
 export { recordIdentifierFor } from './-private/caches/instance-cache';
 
-export { CacheHandler, type CachePolicy, type StoreRequestContext } from './-private/cache-handler';
+export { CacheHandler, type StoreRequestContext } from './-private/cache-handler/handler';
+export { type CachePolicy } from './-private/cache-handler/types';
 
 export { isStableIdentifier } from './-private/caches/identifier-cache';
 
@@ -47,4 +48,4 @@ export { peekCache, removeRecordDataFor } from './-private/caches/cache-utils';
 export { setRecordIdentifier, StoreMap } from './-private/caches/instance-cache';
 export { setCacheFor } from './-private/caches/cache-utils';
 export { normalizeModelName as _deprecatingNormalize } from './-private/utils/normalize-model-name';
-export type { StoreRequestInput } from './-private/cache-handler';
+export type { StoreRequestInput } from './-private/cache-handler/handler';

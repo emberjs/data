@@ -39,7 +39,8 @@ import type { ModelSchema } from '../-types/q/ds-model';
 import type { OpaqueRecordInstance } from '../-types/q/record-instance';
 import type { SchemaService } from '../-types/q/schema-service';
 import type { FindAllOptions, FindRecordOptions, LegacyResourceQuery, QueryOptions } from '../-types/q/store';
-import type { CachePolicy, StoreRequestInput } from './cache-handler';
+import type { StoreRequestInput } from './cache-handler/handler';
+import type { CachePolicy } from './cache-handler/types';
 import { IdentifierCache } from './caches/identifier-cache';
 import {
   InstanceCache,
@@ -537,6 +538,16 @@ export class Store extends BaseClass {
 
   declare _cbs: { coalesce?: () => void; sync?: () => void; notify?: () => void } | null;
   declare _forceShim: boolean;
+  /**
+   * Async flush buffers notifications until flushed
+   * by finalization of a future configured by store.request
+   *
+   * This is useful for ensuring that notifications are delivered
+   * prior to the promise resolving but without risk of promise
+   * interleaving.
+   *
+   * @internal
+   */
   declare _enableAsyncFlush: boolean | null;
 
   // DEBUG-only properties
@@ -614,6 +625,16 @@ export class Store extends BaseClass {
       this._cbs = null;
     }
   }
+
+  /**
+   * Executes the callback, ensurng that any work that calls
+   * store._schedule is executed after in the right order.
+   *
+   * When queues already exist, scheduled callbacks will
+   * join the existing queue.
+   *
+   * @internal
+   */
   _join(cb: () => void): void {
     if (this._cbs) {
       cb();
