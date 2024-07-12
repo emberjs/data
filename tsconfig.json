@@ -22,6 +22,7 @@
     { "path": "./packages/serializer" },
     { "path": "./packages/store" },
     { "path": "./packages/tracking" },
-    { "path": "./packages/unpublished-test-infra" }
+    { "path": "./packages/unpublished-test-infra" },
+    { "path": "./packages/experiments" }
   ]
 }

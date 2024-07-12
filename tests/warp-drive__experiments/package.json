@@ -1,0 +1,143 @@
+{
+  "name": "warp-drive__experiments",
+  "version": "5.4.0-alpha.92",
+  "description": "Provides tests for @warp-drive/experiments",
+  "private": true,
+  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "tests/warp-drive__experiments"
+  },
+  "license": "MIT",
+  "author": "",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "build:tests": "IS_TESTING=true EMBER_CLI_TEST_COMMAND=true ember build --output-path=dist-test --suppress-sizes",
+    "_build:production": "bun run build:tests -e production",
+    "lint": "eslint . --quiet --cache --cache-strategy=content --report-unused-disable-directives",
+    "check:types": "tsc --noEmit",
+    "start": "bun run build:tests --watch",
+    "test": "bun ./diagnostic.js",
+    "_test:production": "bun ./diagnostic.js",
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+  },
+  "dependenciesMeta": {
+    "@warp-drive/ember": {
+      "injected": true
+    },
+    "@warp-drive/holodeck": {
+      "injected": true
+    },
+    "@warp-drive/diagnostic": {
+      "injected": true
+    },
+    "@warp-drive/schema-record": {
+      "injected": true
+    },
+    "@ember-data/store": {
+      "injected": true
+    },
+    "@ember-data/model": {
+      "injected": true
+    },
+    "@ember-data/legacy-compat": {
+      "injected": true
+    },
+    "@ember-data/request": {
+      "injected": true
+    },
+    "@ember-data/tracking": {
+      "injected": true
+    },
+    "@ember-data/json-api": {
+      "injected": true
+    },
+    "@ember-data/graph": {
+      "injected": true
+    },
+    "@ember-data/request-utils": {
+      "injected": true
+    },
+    "@warp-drive/core-types": {
+      "injected": true
+    },
+    "@warp-drive/build-config": {
+      "injected": true
+    },
+    "@warp-drive/experiments": {
+      "injected": true
+    },
+    "@ember-data/unpublished-test-infra": {
+      "injected": true
+    },
+    "@ember-data/debug": {
+      "injected": true
+    }
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.5",
+    "@babel/runtime": "^7.24.5",
+    "@ember-data/debug": "workspace:5.4.0-alpha.92",
+    "@ember-data/graph": "workspace:5.4.0-alpha.92",
+    "@ember-data/json-api": "workspace:5.4.0-alpha.92",
+    "@ember-data/request": "workspace:5.4.0-alpha.92",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.92",
+    "@ember-data/store": "workspace:5.4.0-alpha.92",
+    "@ember-data/tracking": "workspace:5.4.0-alpha.92",
+    "@ember-data/unpublished-test-infra": "workspace:5.4.0-alpha.92",
+    "@ember-data/model": "workspace:5.4.0-alpha.92",
+    "@ember-data/legacy-compat": "workspace:5.4.0-alpha.92",
+    "@ember/edition-utils": "^1.2.0",
+    "@ember/optional-features": "^2.1.0",
+    "@ember/test-helpers": "^3.3.0",
+    "@ember/test-waiters": "^3.1.0",
+    "@embroider/core": "^3.4.14",
+    "@embroider/compat": "^3.5.5",
+    "@embroider/webpack": "^4.0.4",
+    "@embroider/router": "^2.1.8",
+    "@glimmer/component": "^1.1.2",
+    "@glimmer/tracking": "^1.1.2",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.78",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.92",
+    "@warp-drive/schema-record": "workspace:0.0.0-alpha.78",
+    "@warp-drive/ember": "workspace:0.0.0-alpha.54",
+    "@warp-drive/diagnostic": "workspace:0.0.0-alpha.78",
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.29",
+    "@warp-drive/holodeck": "workspace:0.0.0-alpha.78",
+    "@warp-drive/experiments": "workspace:0.0.1-alpha.92",
+    "ember-auto-import": "^2.7.4",
+    "ember-cli": "~5.9.0",
+    "ember-cli-babel": "^8.2.0",
+    "ember-cli-dependency-checker": "^3.3.2",
+    "ember-cli-htmlbars": "^6.3.0",
+    "ember-cli-inject-live-reload": "^2.1.0",
+    "ember-cli-test-loader": "^3.1.0",
+    "ember-disable-prototype-extensions": "^1.1.3",
+    "ember-load-initializers": "^2.1.2",
+    "ember-maybe-import-regenerator": "^1.0.0",
+    "ember-resolver": "^11.0.1",
+    "ember-source": "~5.8.0",
+    "ember-source-channel-url": "^3.0.0",
+    "ember-template-imports": "^4.1.1",
+    "loader.js": "^4.7.0",
+    "silent-error": "^1.1.1",
+    "typescript": "^5.4.5",
+    "webpack": "^5.92.0"
+  },
+  "ember": {
+    "edition": "octane"
+  },
+  "engines": {
+    "node": ">= 18.20.3"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  },
+  "packageManager": "pnpm@8.15.8",
+  "dependencies": {
+    "pnpm-sync-dependencies-meta-injected": "0.0.14"
+  }
+}

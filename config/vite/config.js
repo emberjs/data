@@ -29,6 +29,7 @@ export function createConfig(options, resolve) {
         external: external(options.externals),
         plugins: options.rollup?.plugins,
         output: {
+          hoistTransitiveImports: false,
           preserveModules: options.rollup?.preserveModules ?? false,
         },
       },

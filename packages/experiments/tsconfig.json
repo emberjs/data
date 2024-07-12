@@ -1,0 +1,56 @@
+{
+  "include": ["src/**/*"],
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "strict": true,
+    "pretty": true,
+    "noImplicitAny": true,
+    "exactOptionalPropertyTypes": false,
+    "downlevelIteration": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "emitDeclarationOnly": true,
+    "noImplicitOverride": false,
+    // Enable faster builds
+    // but causes us to not rebuild properly
+    "composite": true,
+    "incremental": true,
+    "rootDir": "src",
+    "baseUrl": ".",
+    "declaration": true,
+    "declarationMap": true,
+    "declarationDir": "unstable-preview-types",
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "types": [],
+    "paths": {
+      "@ember-data/request": ["../request/unstable-preview-types"],
+      "@ember-data/request/*": ["../request/unstable-preview-types/*"],
+      "@ember-data/store": ["../store/unstable-preview-types"],
+      "@ember-data/store/*": ["../store/unstable-preview-types/*"],
+      "@warp-drive/build-config": ["../build-config/unstable-preview-types"],
+      "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"],
+      "@warp-drive/core-types": ["../core-types/unstable-preview-types"],
+      "@warp-drive/core-types/*": ["../core-types/unstable-preview-types/*"]
+    }
+  },
+  "references": [
+    {
+      "path": "../store"
+    },
+    {
+      "path": "../core-types"
+    },
+    {
+      "path": "../request"
+    },
+    {
+      "path": "../build-config"
+    }
+  ]
+}

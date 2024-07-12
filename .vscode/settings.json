@@ -41,5 +41,6 @@
   },
   "typescript.preferences.importModuleSpecifier": "project-relative",
   "bun.debugTerminal.enabled": true,
-  "eslint.debug": true
+  "eslint.debug": true,
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

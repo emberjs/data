@@ -1,0 +1,88 @@
+{
+  "name": "@warp-drive/experiments",
+  "description": "Experimental features for EmberData/WarpDrive",
+  "version": "0.0.1-alpha.92",
+  "private": true,
+  "license": "MIT",
+  "author": "Chris Thoburn <runspired@users.noreply.github.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "packages/experiments"
+  },
+  "homepage": "https://github.com/emberjs/data",
+  "bugs": "https://github.com/emberjs/data/issues",
+  "exports": {
+    "./persisted-cache": {
+      "types": "./unstable-preview-types/persisted-cache.d.ts",
+      "default": "./dist/persisted-cache.js"
+    },
+    "./document-storage": {
+      "types": "./unstable-preview-types/document-storage.d.ts",
+      "default": "./dist/document-storage.js"
+    },
+    "./data-worker": {
+      "types": "./unstable-preview-types/data-worker.d.ts",
+      "default": "./dist/data-worker.js"
+    },
+    "./worker-fetch": {
+      "types": "./unstable-preview-types/worker-fetch.d.ts",
+      "default": "./dist/worker-fetch.js"
+    }
+  },
+  "files": [
+    "dist",
+    "unstable-preview-types",
+    "CHANGELOG.md",
+    "README.md",
+    "LICENSE.md",
+    "NCC-1701-a-blue.svg",
+    "NCC-1701-a.svg"
+  ],
+  "scripts": {
+    "lint": "eslint . --quiet --cache --cache-strategy=content --report-unused-disable-directives",
+    "build:pkg": "vite build;",
+    "prepack": "bun run build:pkg",
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+  },
+  "peerDependencies": {
+    "@sqlite.org/sqlite-wasm": "3.46.0-build2",
+    "@ember-data/request": "workspace:5.4.0-alpha.92",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.92",
+    "@ember-data/store": "workspace:5.4.0-alpha.92",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.78"
+  },
+  "peerDependenciesMeta": {
+    "@sqlite.org/sqlite-wasm": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@embroider/macros": "^1.16.1",
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.29"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.5",
+    "@babel/plugin-transform-typescript": "^7.24.5",
+    "@babel/preset-env": "^7.24.5",
+    "@babel/preset-typescript": "^7.24.1",
+    "@ember-data/request": "workspace:5.4.0-alpha.92",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.92",
+    "@ember-data/store": "workspace:5.4.0-alpha.92",
+    "@ember-data/tracking": "workspace:5.4.0-alpha.92",
+    "@glimmer/component": "^1.1.2",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.78",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.92",
+    "ember-source": "~5.8.0",
+    "pnpm-sync-dependencies-meta-injected": "0.0.14",
+    "@sqlite.org/sqlite-wasm": "3.46.0-build2",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.11"
+  },
+  "engines": {
+    "node": ">= 18.20.3"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}
