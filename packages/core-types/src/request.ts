@@ -327,7 +327,7 @@ export interface ResponseInfo {
   readonly redirected: boolean;
   readonly status: number;
   readonly statusText: string;
-  readonly type: string;
+  readonly type: ResponseType;
   readonly url: string;
 }
 

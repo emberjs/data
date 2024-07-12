@@ -9,7 +9,7 @@ type UUIDv4 = `${string}-${string}-${string}-${string}-${string}`;
 
 export default function installPolyfill() {
   const isFastBoot = typeof FastBoot !== 'undefined';
-  const CRYPTO: Crypto = isFastBoot ? (FastBoot.require('crypto') as Crypto) : window.crypto;
+  const CRYPTO: Crypto = isFastBoot ? (FastBoot.require('crypto') as Crypto) : globalThis.crypto;
 
   if (!CRYPTO.randomUUID) {
     // we might be able to optimize this by requesting more bytes than we need at a time

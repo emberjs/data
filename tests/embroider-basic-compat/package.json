@@ -81,7 +81,7 @@
     "@embroider/compat": "^3.5.3",
     "@embroider/core": "^3.4.12",
     "@embroider/webpack": "^4.0.3",
-    "ember-auto-import": "^2.7.3",
+    "ember-auto-import": "^2.7.4",
     "ember-data": "workspace:5.4.0-alpha.92",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "webpack": "^5.92.0",

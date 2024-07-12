@@ -51,7 +51,7 @@ export function isDocumentIdentifier(identifier: unknown): identifier is StableD
 }
 
 const isFastBoot = typeof FastBoot !== 'undefined';
-const _crypto: Crypto = isFastBoot ? (FastBoot.require('crypto') as Crypto) : window.crypto;
+const _crypto: Crypto = isFastBoot ? (FastBoot.require('crypto') as Crypto) : globalThis.crypto;
 
 if (macroCondition(getGlobalConfig<{ WarpDrive: { polyfillUUID: boolean } }>().WarpDrive.polyfillUUID)) {
   installPolyfill();
