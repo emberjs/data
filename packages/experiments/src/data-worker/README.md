@@ -25,7 +25,7 @@
 pnpm add @warp-drive/experiments
 ```
 
-Or use favorite your javascript package manager.
+Or use your favorite javascript package manager.
 
 ## About
 
@@ -139,7 +139,7 @@ manager.use([new WorkerFetch(worker)]);
 ```
 
 > [!TIP]
-> SharedWorker and Worker are both supported; however, SharedWorker is preferred
+> SharedWorker and Worker are both supported; however, SharedWorker is preferred. 
 > Worker is sometimes the better choice for test environments.
 
 
