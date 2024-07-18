@@ -252,7 +252,7 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
         request: ImmutableRequestInfo,
         response: Response | ResponseInfo | null,
         identifier: StableDocumentIdentifier | null,
-        store: { cache: Cache }
+        store: Store
       ): void {
         assert.step('didRequest');
         super.didRequest(request, response, identifier, store);
@@ -419,7 +419,7 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
         request: ImmutableRequestInfo,
         response: Response | ResponseInfo | null,
         identifier: StableDocumentIdentifier | null,
-        store: { cache: Cache }
+        store: Store
       ): void {
         assert.step('didRequest');
         super.didRequest(request, response, identifier, store);
@@ -579,7 +579,7 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
         request: ImmutableRequestInfo,
         response: Response | ResponseInfo | null,
         identifier: StableDocumentIdentifier | null,
-        store: { cache: Cache }
+        store: Store
       ): void {
         assert.step('didRequest');
         super.didRequest(request, response, identifier, store);
@@ -740,7 +740,7 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
         request: ImmutableRequestInfo,
         response: Response | ResponseInfo | null,
         identifier: StableDocumentIdentifier | null,
-        store: { cache: Cache }
+        store: Store
       ): void {
         assert.step('didRequest');
         super.didRequest(request, response, identifier, store);

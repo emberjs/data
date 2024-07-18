@@ -1,17 +1,41 @@
 import { deprecate } from '@ember/debug';
 
 import { assert } from '@warp-drive/build-config/macros';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type { QueryParamsSerializationOptions, QueryParamsSource, Serializable } from '@warp-drive/core-types/params';
 import type { ImmutableRequestInfo, ResponseInfo } from '@warp-drive/core-types/request';
 
+type UnsubscribeToken = object;
+type CacheOperation = 'added' | 'removed' | 'updated' | 'state';
+type DocumentCacheOperation = 'invalidated' | 'added' | 'removed' | 'updated' | 'state';
+
+export interface NotificationCallback {
+  (identifier: StableRecordIdentifier, notificationType: 'attributes' | 'relationships', key?: string): void;
+  (identifier: StableRecordIdentifier, notificationType: 'errors' | 'meta' | 'identity' | 'state'): void;
+  // (identifier: StableRecordIdentifier, notificationType: NotificationType, key?: string): void;
+}
+
+interface ResourceOperationCallback {
+  // resource updates
+  (identifier: StableRecordIdentifier, notificationType: CacheOperation): void;
+}
+
+interface DocumentOperationCallback {
+  // document updates
+  (identifier: StableDocumentIdentifier, notificationType: DocumentCacheOperation): void;
+}
+
 type NotificationManager = {
-  notify(id: StableDocumentIdentifier, op: 'invalidated'): void;
-  subcribe(
-    id: StableDocumentIdentifier,
-    fn: (_id: StableDocumentIdentifier, op: 'invalidated' | 'added' | 'removed' | 'state') => void
-  ): void;
+  subscribe(identifier: StableRecordIdentifier, callback: NotificationCallback): UnsubscribeToken;
+  subscribe(identifier: 'resource', callback: ResourceOperationCallback): UnsubscribeToken;
+  subscribe(identifier: 'document' | StableDocumentIdentifier, callback: DocumentOperationCallback): UnsubscribeToken;
+
+  notify(identifier: StableRecordIdentifier, value: 'attributes' | 'relationships', key?: string): boolean;
+  notify(identifier: StableRecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'state'): boolean;
+  notify(identifier: StableRecordIdentifier, value: CacheOperation): boolean;
+  notify(identifier: StableDocumentIdentifier, value: DocumentCacheOperation): boolean;
 };
 
 type Store = {
