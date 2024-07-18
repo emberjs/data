@@ -287,6 +287,19 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
             this.maybeUpdate();
             break;
           }
+          case 'state': {
+            const latest = this.store.requestManager._deduped.get(requestId);
+            const priority = latest?.priority;
+            if (!priority) {
+              this.isRefreshing = false;
+            } else if (priority.blocking) {
+              // TODO should we just treat this as refreshing?
+              this.isRefreshing = false;
+              void this.retry();
+            } else {
+              this.isRefreshing = true;
+            }
+          }
         }
       });
     }
