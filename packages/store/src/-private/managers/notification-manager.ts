@@ -17,6 +17,7 @@ let tokenId = 0;
 
 const CacheOperations = new Set(['added', 'removed', 'state', 'updated']);
 export type CacheOperation = 'added' | 'removed' | 'updated' | 'state';
+export type DocumentCacheOperation = 'invalidated' | 'added' | 'removed' | 'updated' | 'state';
 
 function isCacheOperationValue(value: NotificationType | CacheOperation): value is CacheOperation {
   return CacheOperations.has(value);

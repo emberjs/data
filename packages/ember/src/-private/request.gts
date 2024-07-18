@@ -192,8 +192,13 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
     this.removeSubscriptions();
 
     if (requestId) {
-      this._subscription = this.store.notifications.subscribe(requestId, () => {
-        // handle state changes
+      this._subscription = this.store.notifications.subscribe(requestId, (_id: StableDocumentIdentifier, op: 'invalidated' | 'state' | 'added' | 'updated' | 'removed') => {
+        switch (op) {
+          case 'invalidated': {
+            this.maybeUpdate('policy');
+            break;
+          }
+        }
       });
     }
   }
