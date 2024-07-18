@@ -8,6 +8,7 @@ import type { Future, StructuredErrorDocument } from '@ember-data/request';
 import type { StoreRequestInput } from '@ember-data/store';
 import type Store from '@ember-data/store';
 import { assert } from '@warp-drive/build-config/macros';
+import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier.js';
 import { EnableHydration, type RequestInfo } from '@warp-drive/core-types/request';
 
 import { and, Throw } from './await.gts';
@@ -47,7 +48,7 @@ type ContentFeatures<RT> = {
 
 interface RequestSignature<T, RT> {
   Args: {
-    request?: Future<RT>;
+    request?: RequestFuture<RT>;
     query?: StoreRequestInput<T, RT>;
     store?: Store;
     autorefresh?: boolean;
@@ -69,39 +70,148 @@ interface RequestSignature<T, RT> {
   };
 }
 
+type RequestFuture<T> = Future<T> & { lid: StableDocumentIdentifier | null; id: number };
+
+/**
+ * The `<Request>` component is a powerful tool for managing data fetching and
+ * state in your Ember application. It provides declarative reactive control-flow
+ * for managing requests and state in your application.
+ *
+ * @typedoc
+ */
 export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
   /**
+   * The store instance to use for making requests. If contexts are available, this
+   * will be the `store` on the context, else it will be the store service.
+   *
    * @internal
    */
   @consume('store') declare _store: Store;
+
+  /**
+   * Whether the browser reports that the network is online.
+   *
+   * @internal
+   */
   @tracked isOnline = true;
+
+  /**
+   * Whether the browser reports that the tab is hidden.
+   *
+   * @internal
+   */
   @tracked isHidden = true;
+
+  /**
+   * Whether the component is currently refreshing the request.
+   *
+   * @internal
+   */
   @tracked isRefreshing = false;
-  @tracked _localRequest: Future<RT> | undefined;
-  @tracked _latestRequest: Future<RT> | undefined;
+
+  /**
+   * The most recent blocking request that was made, typically
+   * the result of a reload.
+   *
+   * This will never be the original request passed as an arg to
+   * the component.
+   *
+   * @internal
+   */
+  @tracked _localRequest: RequestFuture<RT> | undefined;
+
+  /**
+   * The most recent request that was made, typically due to either a
+   * reload or a refresh.
+   *
+   * This will never be the original request passed as an arg to
+   * the component.
+   *
+   * @internal
+   */
+  @tracked _latestRequest: RequestFuture<RT> | undefined;
+
+  /**
+   * The time at which the network was reported as offline.
+   *
+   * @internal
+   */
   declare unavailableStart: number | null;
+
+  /**
+   * The event listener for network status changes,
+   * cached to use the reference for removal.
+   *
+   * @internal
+   */
   declare onlineChanged: (event: Event) => void;
+
+  /**
+   * The event listener for visibility status changes,
+   * cached to use the reference for removal.
+   *
+   * @internal
+   */
   declare backgroundChanged: (event: Event) => void;
-  declare _originalRequest: Future<RT> | undefined;
+
+  /**
+   * The last request passed as an arg to the component,
+   * cached for comparison.
+   *
+   * @internal
+   */
+  declare _originalRequest: RequestFuture<RT> | undefined;
+
+  /**
+   * The last query passed as an arg to the component,
+   * cached for comparison.
+   *
+   * @internal
+   */
   declare _originalQuery: StoreRequestInput<T, RT> | undefined;
-  declare _subscription: object | undefined;
-  declare _subscribedTo: object | undefined;
+
+  declare _subscription: object | null;
+  declare _subscribedTo: object | null;
 
   constructor(owner: unknown, args: RequestSignature<T, RT>['Args']) {
     super(owner, args);
+    this._subscribedTo = null;
+    this._subscription = null;
+
     this.installListeners();
     this.updateSubscriptions();
   }
 
   updateSubscriptions() {
-    const requestId = this.request.id;
-    const subscribedTo =
-    if (this._subscription) {
+    const requestId = this.request.lid;
+
+    if (this._subscribedTo === requestId) {
+      return;
+    }
+
+    this.removeSubscriptions();
+
+    if (requestId) {
+      this._subscription = this.store.notifications.subscribe(requestId, () => {
+        // handle state changes
+      });
     }
   }
 
-  removeSubscriptions() {}
+  removeSubscriptions() {
+    if (this._subscription) {
+      this.store.notifications.unsubscribe(this._subscription);
+      this._subscribedTo = null;
+      this._subscription = null;
+    }
+  }
 
+  /**
+   * Install the event listeners for network and visibility changes.
+   * This is only done in browser environments with a global `window`.
+   *
+   * @internal
+   */
   installListeners() {
     if (typeof window === 'undefined') {
       return;
@@ -134,6 +244,19 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
     document.addEventListener('visibilitychange', this.backgroundChanged, { passive: true, capture: true });
   }
 
+  /**
+   * If the network is online and the tab is visible, either reload or refresh the request
+   * based on the component's configuration and the requested update mode.
+   *
+   * Valid modes are:
+   *
+   * - `'reload'`: Force a reload of the request.
+   * - `'refresh'`: Refresh the request in the background.
+   * - `'policy'`: Make the request, letting the store's configured CachePolicy decide whether to reload, refresh, or do nothing.
+   * - `undefined`: Make the request using the component's autorefreshBehavior setting if the autorefreshThreshold has passed.
+   *
+   * @internal
+   */
   maybeUpdate(mode?: 'reload' | 'refresh' | 'policy'): void {
     if (this.isOnline && !this.isHidden && (mode || this.args.autorefresh)) {
       const deadline =
@@ -182,11 +305,21 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
     }
   }
 
+  /**
+   * Retry the request, reloading it from the server.
+   *
+   * @internal
+   */
   retry = async () => {
     this.maybeUpdate('reload');
     await this._localRequest;
   };
 
+  /**
+   * Refresh the request, updating it in the background.
+   *
+   * @internal
+   */
   refresh = async () => {
     this.isRefreshing = true;
     this.maybeUpdate('refresh');
@@ -242,7 +375,7 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
   }
 
   @cached
-  get request() {
+  get request(): RequestFuture<RT> {
     const { request, query } = this.args;
     assert(`Cannot use both @request and @query args with the <Request> component`, !request || !query);
     const { _localRequest, _originalRequest, _originalQuery } = this;

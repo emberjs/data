@@ -613,7 +613,9 @@ export class RequestManager {
    * @param {RequestInfo} request
    * @return {Future}
    */
-  request<RT, T = unknown>(request: RequestInfo<T, RT>): Future<RT> {
+  request<RT, T = unknown>(
+    request: RequestInfo<T, RT>
+  ): Future<RT> & { id: number; lid: StableDocumentIdentifier | null } {
     const handlers = this.#handlers;
     if (DEBUG) {
       if (!Object.isFrozen(handlers)) {
@@ -630,13 +632,15 @@ export class RequestManager {
     const requestId = peekUniversalTransient<number>('REQ_ID') ?? 0;
     setUniversalTransient('REQ_ID', requestId + 1);
 
-    const promise = executeNextHandler<RT>(handlers, request, 0, {
+    const context = {
       controller,
       response: null,
       stream: null,
       hasRequestedStream: false,
       id: requestId,
-    });
+      identifier: null,
+    };
+    const promise = executeNextHandler<RT>(handlers, request, 0, context);
 
     // the cache handler will set the result of the request synchronously
     // if it is able to fulfill the request from the cache
@@ -662,7 +666,9 @@ export class RequestManager {
             }
           ),
           promise
-        );
+        ) as Future<RT> & { id: number; lid: StableDocumentIdentifier | null };
+        finalPromise.id = requestId;
+        finalPromise.lid = context.identifier;
 
         if (cacheResult) {
           setPromiseResult(finalPromise, cacheResult);
@@ -692,7 +698,9 @@ export class RequestManager {
         }
       ),
       promise
-    );
+    ) as Future<RT> & { id: number; lid: StableDocumentIdentifier | null };
+    finalPromise.id = requestId;
+    finalPromise.lid = context.identifier;
 
     if (cacheResult) {
       setPromiseResult(finalPromise, cacheResult);

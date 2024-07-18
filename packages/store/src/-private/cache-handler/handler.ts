@@ -89,7 +89,10 @@ export interface StoreRequestContext extends RequestContext {
  * @typedoc
  */
 export const CacheHandler: CacheHandlerType = {
-  request<T>(context: StoreRequestContext, next: NextFn<T>): Promise<T | StructuredDataDocument<T>> | Future<T> | T {
+  request<T>(
+    context: StoreRequestContext & { setIdentifier(identifier: StableDocumentIdentifier): void },
+    next: NextFn<T>
+  ): Promise<T | StructuredDataDocument<T>> | Future<T> | T {
     // if we have no cache or no cache-key skip cache handling
     if (!context.request.store || context.request.cacheOptions?.[SkipCache]) {
       return next(context.request);
@@ -97,6 +100,10 @@ export const CacheHandler: CacheHandlerType = {
 
     const { store } = context.request;
     const identifier = store.identifierCache.getOrCreateDocumentIdentifier(context.request);
+
+    if (identifier) {
+      context.setIdentifier(identifier);
+    }
 
     // used to dedupe existing requests that match
     const DEDUPE = store.requestManager._deduped;

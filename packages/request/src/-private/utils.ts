@@ -168,11 +168,15 @@ export function executeNextHandler<T>(
     return executeNextHandler(wares, r, i + 1, god);
   }
 
-  const context = new Context(owner);
+  const _isCacheHandler = isCacheHandler(wares[i], i);
+  const context = new Context(owner, _isCacheHandler);
   let outcome: Promise<T | StructuredDataDocument<T>> | Future<T>;
   try {
     outcome = wares[i].request<T>(context, next);
-    if (!!outcome && isCacheHandler(wares[i], i)) {
+    if (_isCacheHandler) {
+      context._finalize();
+    }
+    if (!!outcome && _isCacheHandler) {
       if (!(outcome instanceof Promise)) {
         setRequestResult(owner.requestId, { isError: false, result: ensureDoc(owner, outcome, false) });
         outcome = Promise.resolve(outcome);
@@ -188,7 +192,7 @@ export function executeNextHandler<T>(
       }
     }
   } catch (e) {
-    if (isCacheHandler(wares[i], i)) {
+    if (_isCacheHandler) {
       setRequestResult(owner.requestId, { isError: true, result: ensureDoc(owner, e, true) });
     }
     outcome = Promise.reject<StructuredDataDocument<T>>(e);

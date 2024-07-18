@@ -1,5 +1,6 @@
 /* eslint-disable no-irregular-whitespace */
 
+import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type {
   IS_FUTURE,
   RequestContext,
@@ -17,6 +18,7 @@ export interface GodContext {
   stream: ReadableStream | Promise<ReadableStream | null> | null;
   hasRequestedStream: boolean;
   id: number;
+  identifier: StableDocumentIdentifier | null;
 }
 
 export type Deferred<T> = {
