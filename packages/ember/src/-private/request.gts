@@ -36,6 +36,9 @@ function isNeverString(val: never): string {
   return val;
 }
 
+type AutorefreshBehaviorType = 'online' | 'interval' | 'invalid';
+type AutorefreshBehaviorCombos = true | AutorefreshBehaviorType | `${AutorefreshBehaviorType},${AutorefreshBehaviorType}` | `${AutorefreshBehaviorType},${AutorefreshBehaviorType},${AutorefreshBehaviorType}`;
+
 type ContentFeatures<RT> = {
   isOnline: boolean;
   isHidden: boolean;
@@ -51,7 +54,7 @@ interface RequestSignature<T, RT> {
     request?: RequestFuture<RT>;
     query?: StoreRequestInput<T, RT>;
     store?: Store;
-    autorefresh?: boolean;
+    autorefresh?: AutorefreshBehaviorCombos;
     autorefreshThreshold?: number;
     autorefreshBehavior?: 'refresh' | 'reload' | 'policy';
   };
@@ -137,6 +140,9 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
    * @internal
    */
   declare unavailableStart: number | null;
+  declare intervalStart: number | null;
+  declare nextInterval: number | null;
+  declare invalidated: boolean;
 
   /**
    * The event listener for network status changes,
@@ -177,25 +183,108 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
     super(owner, args);
     this._subscribedTo = null;
     this._subscription = null;
+    this.intervalStart = null;
+    this.invalidated = false;
+    this.nextInterval = null;
 
     this.installListeners();
     this.updateSubscriptions();
+    void this.scheduleInterval();
+  }
+
+  @cached
+  get autorefreshTypes(): Set<AutorefreshBehaviorType> {
+    const { autorefresh } = this.args;
+    let types: AutorefreshBehaviorType[];
+
+    if (autorefresh === true) {
+      types = ['online', 'invalid'];
+    } else if (typeof autorefresh === 'string') {
+      types = autorefresh.split(',') as AutorefreshBehaviorType[];
+    } else {
+      types = [];
+    }
+
+    return new Set(types);
+  }
+
+  // we only run this function on component creation
+  // and when an update is triggered, so it does not
+  // react to changes in the autorefreshThreshold
+  // or autorefresh args.
+  //
+  // if we need to react to those changes, we can
+  // use a modifier or internal component or some
+  // such to trigger a re-run of this function.
+  async scheduleInterval() {
+    const { autorefreshThreshold } = this.args;
+    const hasValidThreshold = typeof autorefreshThreshold === 'number' && autorefreshThreshold > 0;
+
+    if (
+      // dont schedule in SSR
+      typeof window === 'undefined' ||
+      // dont schedule without a threshold
+      !hasValidThreshold ||
+      // dont schedule if we weren't told to
+      !this.autorefreshTypes.has('interval') ||
+      // dont schedule if we're already scheduled
+      this.intervalStart !== null
+      ) {
+      return;
+    }
+
+    // if we have a current request, wait for it to finish
+    // before scheduling the next one
+    if (this._latestRequest) {
+      try {
+        await this._latestRequest;
+      } catch {
+        // ignore errors here, we just want to wait for the request to finish
+      }
+
+       if (this.isDestroyed) {
+        return;
+      }
+    }
+
+    // setup the next interval
+    this.intervalStart = Date.now();
+    this.nextInterval = setTimeout(() => {
+      this.maybeUpdate();
+    }, autorefreshThreshold);
+  }
+
+  clearInterval() {
+    if (this.nextInterval) {
+      clearTimeout(this.nextInterval);
+      this.intervalStart = null;
+    }
   }
 
   updateSubscriptions() {
     const requestId = this.request.lid;
 
+    // if we're not autorefreshing on invalid, we don't need to subscribe
+    if (!this.autorefreshTypes.has('invalid')) {
+      this.removeSubscriptions();
+      return;
+    }
+
+    // if we're already subscribed to this request, we don't need to do anything
     if (this._subscribedTo === requestId) {
       return;
     }
 
+    // if we're subscribed to a different request, we need to unsubscribe
     this.removeSubscriptions();
 
+    // if we have a request, we need to subscribe to it
     if (requestId) {
       this._subscription = this.store.notifications.subscribe(requestId, (_id: StableDocumentIdentifier, op: 'invalidated' | 'state' | 'added' | 'updated' | 'removed') => {
         switch (op) {
           case 'invalidated': {
-            this.maybeUpdate('policy');
+            this.invalidated = true;
+            this.maybeUpdate();
             break;
           }
         }
@@ -262,51 +351,74 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
    *
    * @internal
    */
-  maybeUpdate(mode?: 'reload' | 'refresh' | 'policy'): void {
-    if (this.isOnline && !this.isHidden && (mode || this.args.autorefresh)) {
-      const deadline =
-        typeof this.args.autorefreshThreshold === 'number' ? this.args.autorefreshThreshold : DEFAULT_DEADLINE;
-      const shouldAttempt = mode || (this.unavailableStart && Date.now() - this.unavailableStart > deadline);
-      this.unavailableStart = null;
+  maybeUpdate(mode?: 'reload' | 'refresh' | 'policy' | 'invalidated'): void {
+    const canAttempt = this.isOnline && !this.isHidden && (mode || this.autorefreshTypes.size);
 
-      if (shouldAttempt) {
-        const request = Object.assign({}, this.reqState.request as unknown as RequestInfo<T, RT>);
-        const val = mode ?? this.args.autorefreshBehavior ?? 'policy';
-        switch (val) {
-          case 'reload':
-            request.cacheOptions = Object.assign({}, request.cacheOptions, { reload: true });
-            break;
-          case 'refresh':
-            request.cacheOptions = Object.assign({}, request.cacheOptions, { backgroundReload: true });
-            break;
-          case 'policy':
-            break;
-          default:
-            throw new Error(
-              `Invalid ${mode ? 'update mode' : '@autorefreshBehavior'} for <Request />: ${isNeverString(val)}`
-            );
-        }
+    if (!canAttempt) {
+      if (mode && mode !== 'invalidated') {
+        throw new Error(`Reload not available: the network is not online or the tab is hidden`);
+      }
 
-        const wasStoreRequest = (request as { [EnableHydration]: boolean })[EnableHydration] === true;
-        assert(
-          `Cannot supply a different store via context than was used to create the request`,
-          !request.store || request.store === this.store
-        );
+      return;
+    }
 
-        this._latestRequest = wasStoreRequest
-          ? this.store.request(request)
-          : this.store.requestManager.request(request);
+    const { autorefreshTypes } = this;
+    let shouldAttempt = Boolean(mode);
 
-        if (val !== 'refresh') {
-          this._localRequest = this._latestRequest;
-        }
+    if (!shouldAttempt && autorefreshTypes.has('online')) {
+      const { unavailableStart } = this;
+      const { autorefreshThreshold } = this.args;
+      const deadline = typeof autorefreshThreshold === 'number' ? autorefreshThreshold : DEFAULT_DEADLINE;
+      shouldAttempt = Boolean((unavailableStart && Date.now() - unavailableStart > deadline));
+    }
 
-        return;
+    if (!shouldAttempt && autorefreshTypes.has('interval')) {
+      const { intervalStart } = this;
+      const { autorefreshThreshold } = this.args;
+
+      if (intervalStart && typeof autorefreshThreshold === 'number' && autorefreshThreshold > 0) {
+        shouldAttempt = Boolean(Date.now() - intervalStart > autorefreshThreshold);
       }
     }
 
-    if (mode) {
-      throw new Error(`Reload not available: the network is not online or the tab is hidden`);
+    this.unavailableStart = null;
+    this.invalidated = false;
+
+    if (shouldAttempt) {
+      this.clearInterval();
+      const request = Object.assign({}, this.reqState.request as unknown as RequestInfo<T, RT>);
+      const realMode = mode === 'invalidated' ? null : mode;
+      const val = realMode ?? this.args.autorefreshBehavior ?? 'policy';
+      switch (val) {
+        case 'reload':
+          request.cacheOptions = Object.assign({}, request.cacheOptions, { reload: true });
+          break;
+        case 'refresh':
+          request.cacheOptions = Object.assign({}, request.cacheOptions, { backgroundReload: true });
+          break;
+        case 'policy':
+          break;
+        default:
+          throw new Error(
+            `Invalid ${mode ? 'update mode' : '@autorefreshBehavior'} for <Request />: ${isNeverString(val)}`
+          );
+      }
+
+      const wasStoreRequest = (request as { [EnableHydration]: boolean })[EnableHydration] === true;
+      assert(
+        `Cannot supply a different store via context than was used to create the request`,
+        !request.store || request.store === this.store
+      );
+
+      this._latestRequest = wasStoreRequest
+        ? this.store.request(request)
+        : this.store.requestManager.request(request);
+
+      if (val !== 'refresh') {
+        this._localRequest = this._latestRequest;
+      }
+
+      void this.scheduleInterval();
     }
   }
 
@@ -370,6 +482,8 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
     if (typeof window === 'undefined') {
       return;
     }
+
+    this.clearInterval();
 
     window.removeEventListener('online', this.onlineChanged, { passive: true, capture: true } as unknown as boolean);
     window.removeEventListener('offline', this.onlineChanged, { passive: true, capture: true } as unknown as boolean);
