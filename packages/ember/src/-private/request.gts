@@ -264,12 +264,6 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
   updateSubscriptions() {
     const requestId = this.request.lid;
 
-    // if we're not autorefreshing on invalid, we don't need to subscribe
-    if (!this.autorefreshTypes.has('invalid')) {
-      this.removeSubscriptions();
-      return;
-    }
-
     // if we're already subscribed to this request, we don't need to do anything
     if (this._subscribedTo === requestId) {
       return;
@@ -283,8 +277,11 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
       this._subscription = this.store.notifications.subscribe(requestId, (_id: StableDocumentIdentifier, op: 'invalidated' | 'state' | 'added' | 'updated' | 'removed') => {
         switch (op) {
           case 'invalidated': {
-            this.invalidated = true;
-            this.maybeUpdate();
+            // if we're subscribed to invalidations, we need to update
+            if (this.autorefreshTypes.has('invalid')) {
+              this.invalidated = true;
+              this.maybeUpdate();
+            }
             break;
           }
           case 'state': {
@@ -295,7 +292,7 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
             } else if (priority.blocking) {
               // TODO should we just treat this as refreshing?
               this.isRefreshing = false;
-              void this.retry();
+              this.maybeUpdate('policy', true);
             } else {
               this.isRefreshing = true;
             }
@@ -364,11 +361,11 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
    *
    * @internal
    */
-  maybeUpdate(mode?: 'reload' | 'refresh' | 'policy' | 'invalidated'): void {
+  maybeUpdate(mode?: 'reload' | 'refresh' | 'policy' | 'invalidated', silent?: boolean): void {
     const canAttempt = this.isOnline && !this.isHidden && (mode || this.autorefreshTypes.size);
 
     if (!canAttempt) {
-      if (mode && mode !== 'invalidated') {
+      if (!silent && mode && mode !== 'invalidated') {
         throw new Error(`Reload not available: the network is not online or the tab is hidden`);
       }
 
@@ -451,13 +448,8 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
    * @internal
    */
   refresh = async () => {
-    this.isRefreshing = true;
     this.maybeUpdate('refresh');
-    try {
-      await this._latestRequest;
-    } finally {
-      this.isRefreshing = false;
-    }
+    await this._latestRequest;
   };
 
   @cached
