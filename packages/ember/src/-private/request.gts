@@ -37,7 +37,11 @@ function isNeverString(val: never): string {
 }
 
 type AutorefreshBehaviorType = 'online' | 'interval' | 'invalid';
-type AutorefreshBehaviorCombos = true | AutorefreshBehaviorType | `${AutorefreshBehaviorType},${AutorefreshBehaviorType}` | `${AutorefreshBehaviorType},${AutorefreshBehaviorType},${AutorefreshBehaviorType}`;
+type AutorefreshBehaviorCombos =
+  | true
+  | AutorefreshBehaviorType
+  | `${AutorefreshBehaviorType},${AutorefreshBehaviorType}`
+  | `${AutorefreshBehaviorType},${AutorefreshBehaviorType},${AutorefreshBehaviorType}`;
 
 type ContentFeatures<RT> = {
   isOnline: boolean;
@@ -229,7 +233,7 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
       !this.autorefreshTypes.has('interval') ||
       // dont schedule if we're already scheduled
       this.intervalStart !== null
-      ) {
+    ) {
       return;
     }
 
@@ -242,7 +246,7 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
         // ignore errors here, we just want to wait for the request to finish
       }
 
-       if (this.isDestroyed) {
+      if (this.isDestroyed) {
         return;
       }
     }
@@ -274,31 +278,34 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
 
     // if we have a request, we need to subscribe to it
     if (requestId) {
-      this._subscription = this.store.notifications.subscribe(requestId, (_id: StableDocumentIdentifier, op: 'invalidated' | 'state' | 'added' | 'updated' | 'removed') => {
-        switch (op) {
-          case 'invalidated': {
-            // if we're subscribed to invalidations, we need to update
-            if (this.autorefreshTypes.has('invalid')) {
-              this.invalidated = true;
-              this.maybeUpdate();
+      this._subscription = this.store.notifications.subscribe(
+        requestId,
+        (_id: StableDocumentIdentifier, op: 'invalidated' | 'state' | 'added' | 'updated' | 'removed') => {
+          switch (op) {
+            case 'invalidated': {
+              // if we're subscribed to invalidations, we need to update
+              if (this.autorefreshTypes.has('invalid')) {
+                this.invalidated = true;
+                this.maybeUpdate();
+              }
+              break;
             }
-            break;
-          }
-          case 'state': {
-            const latest = this.store.requestManager._deduped.get(requestId);
-            const priority = latest?.priority;
-            if (!priority) {
-              this.isRefreshing = false;
-            } else if (priority.blocking) {
-              // TODO should we just treat this as refreshing?
-              this.isRefreshing = false;
-              this.maybeUpdate('policy', true);
-            } else {
-              this.isRefreshing = true;
+            case 'state': {
+              const latest = this.store.requestManager._deduped.get(requestId);
+              const priority = latest?.priority;
+              if (!priority) {
+                this.isRefreshing = false;
+              } else if (priority.blocking) {
+                // TODO should we just treat this as refreshing?
+                this.isRefreshing = false;
+                this.maybeUpdate('policy', true);
+              } else {
+                this.isRefreshing = true;
+              }
             }
           }
         }
-      });
+      );
     }
   }
 
@@ -379,7 +386,7 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
       const { unavailableStart } = this;
       const { autorefreshThreshold } = this.args;
       const deadline = typeof autorefreshThreshold === 'number' ? autorefreshThreshold : DEFAULT_DEADLINE;
-      shouldAttempt = Boolean((unavailableStart && Date.now() - unavailableStart > deadline));
+      shouldAttempt = Boolean(unavailableStart && Date.now() - unavailableStart > deadline);
     }
 
     if (!shouldAttempt && autorefreshTypes.has('interval')) {
@@ -420,9 +427,7 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
         !request.store || request.store === this.store
       );
 
-      this._latestRequest = wasStoreRequest
-        ? this.store.request(request)
-        : this.store.requestManager.request(request);
+      this._latestRequest = wasStoreRequest ? this.store.request(request) : this.store.requestManager.request(request);
 
       if (val !== 'refresh') {
         this._localRequest = this._latestRequest;
