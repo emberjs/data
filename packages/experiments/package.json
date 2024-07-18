@@ -2,7 +2,6 @@
   "name": "@warp-drive/experiments",
   "description": "Experimental features for EmberData/WarpDrive",
   "version": "0.0.1-alpha.94",
-  "private": true,
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "repository": {
