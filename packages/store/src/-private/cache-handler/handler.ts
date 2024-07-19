@@ -116,10 +116,10 @@ export const CacheHandler: CacheHandlerType = {
         activeRequest.priority = { blocking: true };
         return activeRequest.promise as Promise<T>;
       }
-      const promise = fetchContentAndHydrate(next, context, identifier, { blocking: true });
+      let promise = fetchContentAndHydrate(next, context, identifier, { blocking: true });
       if (identifier) {
         store.notifications.notify(identifier, 'state');
-        void promise.finally(() => {
+        promise = promise.finally(() => {
           DEDUPE.delete(identifier);
           store.notifications.notify(identifier, 'state');
         });
@@ -130,10 +130,10 @@ export const CacheHandler: CacheHandlerType = {
 
     // if we have not skipped cache, determine if we should update behind the scenes
     if (calcShouldBackgroundFetch(store, context.request, false, identifier)) {
-      const promise = activeRequest?.promise || fetchContentAndHydrate(next, context, identifier, { blocking: false });
+      let promise = activeRequest?.promise || fetchContentAndHydrate(next, context, identifier, { blocking: false });
       if (identifier && !activeRequest) {
         store.notifications.notify(identifier, 'state');
-        void promise.finally(() => {
+        promise = promise.finally(() => {
           DEDUPE.delete(identifier);
           store.notifications.notify(identifier, 'state');
         });
