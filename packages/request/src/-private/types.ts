@@ -81,6 +81,7 @@ export type Future<T> = Promise<StructuredDataDocument<T>> & {
    *
    * @property lid
    * @type {StableDocumentIdentifier | null}
+   * @public
    */
   lid: StableDocumentIdentifier | null;
 
@@ -90,6 +91,7 @@ export type Future<T> = Promise<StructuredDataDocument<T>> & {
    *
    * @property id
    * @type {number}
+   * @public
    */
   id: number;
 };

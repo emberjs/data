@@ -396,6 +396,8 @@ module.exports = {
     '(public) @ember-data/request Future#abort',
     '(public) @ember-data/request Future#getStream',
     '(public) @ember-data/request Future#onFinalize',
+    '(public) @ember-data/request Future#id',
+    '(public) @ember-data/request Future#lid',
     '(public) @ember-data/request-utils @ember-data/request-utils#buildBaseURL',
     '(public) @ember-data/request-utils @ember-data/request-utils#buildQueryParams',
     '(public) @ember-data/request-utils @ember-data/request-utils#filterEmpty',
