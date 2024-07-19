@@ -471,8 +471,7 @@ import { executeNextHandler, IS_CACHE_HANDLER } from './utils';
  * const { apiUrl } = Config;
  *
  * // ... create manager
- * const manager = new RequestManager();
- * manager.use([Auth, Fetch]);
+ * const manager = new RequestManager().use([Auth, Fetch]);
  *
  * // ... execute a request
  * const response = await manager.request({
@@ -551,9 +550,9 @@ export class RequestManager {
    * @method useCache
    * @public
    * @param {Handler[]} cacheHandler
-   * @return {void}
+   * @return {ThisType}
    */
-  useCache(cacheHandler: CacheHandler & { [IS_CACHE_HANDLER]?: true }): void {
+  useCache(cacheHandler: CacheHandler & { [IS_CACHE_HANDLER]?: true }): this {
     if (DEBUG) {
       if (this._hasCacheHandler) {
         throw new Error(`\`RequestManager.useCache(<handler>)\` May only be invoked once.`);
@@ -567,6 +566,7 @@ export class RequestManager {
     }
     cacheHandler[IS_CACHE_HANDLER] = true;
     this.#handlers.unshift(cacheHandler as Handler);
+    return this;
   }
 
   /**
@@ -579,9 +579,9 @@ export class RequestManager {
    * @method use
    * @public
    * @param {Handler[]} newHandlers
-   * @return {void}
+   * @return {ThisType}
    */
-  use(newHandlers: Handler[]): void {
+  use(newHandlers: Handler[]): this {
     const handlers = this.#handlers;
     if (DEBUG) {
       if (Object.isFrozen(handlers)) {
@@ -601,6 +601,7 @@ export class RequestManager {
       });
     }
     handlers.push(...newHandlers);
+    return this;
   }
 
   /**

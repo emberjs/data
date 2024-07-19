@@ -3830,6 +3830,9 @@ importers:
       '@warp-drive/internal-config':
         specifier: workspace:5.4.0-alpha.95
         version: link:../../config
+      '@warp-drive/schema-record':
+        specifier: workspace:0.0.0-alpha.80
+        version: link:../../packages/schema-record
       broccoli-concat:
         specifier: ^4.2.5
         version: 4.2.5
