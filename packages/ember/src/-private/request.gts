@@ -55,7 +55,7 @@ type ContentFeatures<RT> = {
 
 interface RequestSignature<T, RT> {
   Args: {
-    request?: RequestFuture<RT>;
+    request?: Future<RT>;
     query?: StoreRequestInput<T, RT>;
     store?: Store;
     autorefresh?: AutorefreshBehaviorCombos;
@@ -76,8 +76,6 @@ interface RequestSignature<T, RT> {
     always: [state: RequestState<T, RT>];
   };
 }
-
-type RequestFuture<T> = Future<T> & { lid: StableDocumentIdentifier | null; id: number };
 
 /**
  * The `<Request>` component is a powerful tool for managing data fetching and
@@ -125,7 +123,7 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
    *
    * @internal
    */
-  @tracked _localRequest: RequestFuture<RT> | undefined;
+  @tracked _localRequest: Future<RT> | undefined;
 
   /**
    * The most recent request that was made, typically due to either a
@@ -136,7 +134,7 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
    *
    * @internal
    */
-  @tracked _latestRequest: RequestFuture<RT> | undefined;
+  @tracked _latestRequest: Future<RT> | undefined;
 
   /**
    * The time at which the network was reported as offline.
@@ -170,7 +168,7 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
    *
    * @internal
    */
-  declare _originalRequest: RequestFuture<RT> | undefined;
+  declare _originalRequest: Future<RT> | undefined;
 
   /**
    * The last query passed as an arg to the component,
@@ -504,7 +502,7 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
   }
 
   @cached
-  get request(): RequestFuture<RT> {
+  get request(): Future<RT> {
     const { request, query } = this.args;
     assert(`Cannot use both @request and @query args with the <Request> component`, !request || !query);
     const { _localRequest, _originalRequest, _originalQuery } = this;

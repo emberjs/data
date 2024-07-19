@@ -735,9 +735,7 @@ export class Store extends BaseClass {
    * @return {Future}
    * @public
    */
-  request<RT, T = unknown>(
-    requestConfig: StoreRequestInput<T, RT>
-  ): Future<RT> & { id: number; lid: StableDocumentIdentifier | null } {
+  request<RT, T = unknown>(requestConfig: StoreRequestInput<T, RT>): Future<RT> {
     // we lazily set the cache handler when we issue the first request
     // because constructor doesn't allow for this to run after
     // the user has had the chance to set the prop.

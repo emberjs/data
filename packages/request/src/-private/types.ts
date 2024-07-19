@@ -74,6 +74,24 @@ export type Future<T> = Promise<StructuredDataDocument<T>> & {
    * @return void
    */
   onFinalize(cb: () => void): void;
+
+  /**
+   * The identifier of the associated request, if any, as
+   * assigned by the CacheHandler.
+   *
+   * @property lid
+   * @type {StableDocumentIdentifier | null}
+   */
+  lid: StableDocumentIdentifier | null;
+
+  /**
+   * The id of the associated request, if any, as assigned
+   * by the RequestManager
+   *
+   * @property id
+   * @type {number}
+   */
+  id: number;
 };
 
 export type DeferredFuture<T> = {

@@ -613,9 +613,7 @@ export class RequestManager {
    * @param {RequestInfo} request
    * @return {Future}
    */
-  request<RT, T = unknown>(
-    request: RequestInfo<T, RT>
-  ): Future<RT> & { id: number; lid: StableDocumentIdentifier | null } {
+  request<RT, T = unknown>(request: RequestInfo<T, RT>): Future<RT> {
     const handlers = this.#handlers;
     if (DEBUG) {
       if (!Object.isFrozen(handlers)) {
@@ -666,9 +664,7 @@ export class RequestManager {
             }
           ),
           promise
-        ) as Future<RT> & { id: number; lid: StableDocumentIdentifier | null };
-        finalPromise.id = requestId;
-        finalPromise.lid = context.identifier;
+        );
 
         if (cacheResult) {
           setPromiseResult(finalPromise, cacheResult);
@@ -698,9 +694,7 @@ export class RequestManager {
         }
       ),
       promise
-    ) as Future<RT> & { id: number; lid: StableDocumentIdentifier | null };
-    finalPromise.id = requestId;
-    finalPromise.lid = context.identifier;
+    );
 
     if (cacheResult) {
       setPromiseResult(finalPromise, cacheResult);
