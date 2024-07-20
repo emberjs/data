@@ -816,9 +816,10 @@ export class CachePolicy {
     const notifications = store.notifications;
 
     if (set) {
+      // TODO batch notifications
       set.forEach((id) => {
-        notifications.notify(id, 'invalidated');
         storeCache.invalidated.add(id);
+        notifications.notify(id, 'invalidated');
       });
     }
   }

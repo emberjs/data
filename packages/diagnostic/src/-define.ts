@@ -33,8 +33,10 @@ export function module<TC extends TestContext = TestContext>(name: string, cb: M
   const tests: OrderedMap<TestInfo<TC>> = { byName: new Map(), byOrder: [] };
   const modules: OrderedMap<ModuleInfo<TC>> = { byName: new Map(), byOrder: [] };
   const moduleInfo = {
+    id: generateHash(moduleName),
     moduleName,
     name,
+    skipped: null,
     cb,
     config: moduleConfig,
     tests,

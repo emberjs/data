@@ -21,7 +21,7 @@ export interface Emitter {
 export type ParamConfig = {
   id: string;
   label: string;
-  value: boolean;
+  value: boolean | string;
 };
 
 export type GlobalHooksStorage<TC extends TestContext> = {
@@ -36,6 +36,7 @@ export type GlobalHooksStorage<TC extends TestContext> = {
 export type GlobalConfig<TC extends TestContext = TestContext> = {
   params: {
     [key in
+      | 'search'
       | 'concurrency'
       | 'tryCatch'
       | 'instrument'
@@ -45,6 +46,8 @@ export type GlobalConfig<TC extends TestContext = TestContext> = {
       | 'debug'
       | 'container']: ParamConfig;
   };
+  tests: Set<string>;
+  modules: Set<string>;
   _current: SuiteReport | null;
   useTestem: boolean;
   useDiagnostic: boolean;
@@ -125,6 +128,8 @@ export interface OrderedMap<T> {
 }
 
 export interface ModuleInfo<TC extends TestContext> {
+  id: string;
+  skipped: boolean | null;
   moduleName: string;
   name: string;
   cb: ModuleCallback<TC>;

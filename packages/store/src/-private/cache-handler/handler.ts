@@ -118,12 +118,12 @@ export const CacheHandler: CacheHandlerType = {
       }
       let promise = fetchContentAndHydrate(next, context, identifier, { blocking: true });
       if (identifier) {
-        store.notifications.notify(identifier, 'state');
         promise = promise.finally(() => {
           DEDUPE.delete(identifier);
           store.notifications.notify(identifier, 'state');
         });
         DEDUPE.set(identifier, { priority: { blocking: true }, promise });
+        store.notifications.notify(identifier, 'state');
       }
       return promise;
     }
@@ -132,12 +132,12 @@ export const CacheHandler: CacheHandlerType = {
     if (calcShouldBackgroundFetch(store, context.request, false, identifier)) {
       let promise = activeRequest?.promise || fetchContentAndHydrate(next, context, identifier, { blocking: false });
       if (identifier && !activeRequest) {
-        store.notifications.notify(identifier, 'state');
         promise = promise.finally(() => {
           DEDUPE.delete(identifier);
           store.notifications.notify(identifier, 'state');
         });
         DEDUPE.set(identifier, { priority: { blocking: false }, promise });
+        store.notifications.notify(identifier, 'state');
       }
       store.requestManager._pending.set(context.id, promise);
     }

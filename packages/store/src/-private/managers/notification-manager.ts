@@ -247,14 +247,15 @@ export default class NotificationManager {
   }
 
   _flush() {
-    if (this._buffered.size) {
-      this._buffered.forEach((states, identifier) => {
+    const buffered = this._buffered;
+    if (buffered.size) {
+      this._buffered = new Map();
+      buffered.forEach((states, identifier) => {
         states.forEach((args) => {
           // @ts-expect-error
           this._flushNotification(identifier, args[0], args[1]);
         });
       });
-      this._buffered = new Map();
     }
 
     this._hasFlush = false;

@@ -195,7 +195,7 @@ function makeRow(tr: HTMLTableRowElement, cells: string[]) {
 
 function getURL(id: string) {
   const currentURL = new URL(window.location.href);
-  currentURL.searchParams.set('test', id);
+  currentURL.searchParams.set('t', id);
   return currentURL.href;
 }
 

@@ -41,14 +41,6 @@
     "prepack": "bun run build:pkg",
     "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
-  "peerDependenciesMeta": {
-    "qunit": {
-      "optional": true
-    },
-    "@warp-drive/diagnostic": {
-      "optional": true
-    }
-  },
   "dependenciesMeta": {
     "@ember-data/store": {
       "injected": true
@@ -77,6 +69,7 @@
   },
   "peerDependencies": {
     "qunit": "^2.20.1",
+    "testem": "^3.12.0",
     "@ember-data/request": "workspace:5.4.0-alpha.95",
     "@ember-data/store": "workspace:5.4.0-alpha.95",
     "@ember-data/tracking": "workspace:5.4.0-alpha.95",
@@ -84,12 +77,22 @@
     "@warp-drive/core-types": "workspace:0.0.0-alpha.81",
     "@ember/test-helpers": "^3.3.0"
   },
+  "peerDependenciesMeta": {
+    "qunit": {
+      "optional": true
+    },
+    "testem": {
+      "optional": true
+    },
+    "@warp-drive/diagnostic": {
+      "optional": true
+    }
+  },
   "dependencies": {
     "@embroider/macros": "^1.16.1",
     "chalk": "^4.1.2",
     "qunit": "^2.20.1",
     "semver": "^7.6.2",
-    "testem": "^3.12.0",
     "@warp-drive/build-config": "workspace:0.0.0-alpha.32"
   },
   "devDependencies": {

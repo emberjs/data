@@ -221,7 +221,6 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
   async scheduleInterval() {
     const { autorefreshThreshold } = this.args;
     const hasValidThreshold = typeof autorefreshThreshold === 'number' && autorefreshThreshold > 0;
-
     if (
       // dont schedule in SSR
       typeof window === 'undefined' ||
@@ -367,7 +366,7 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
    * @internal
    */
   maybeUpdate(mode?: 'reload' | 'refresh' | 'policy' | 'invalidated', silent?: boolean): void {
-    const canAttempt = this.isOnline && !this.isHidden && (mode || this.autorefreshTypes.size);
+    const canAttempt = Boolean(this.isOnline && !this.isHidden && (mode || this.autorefreshTypes.size));
 
     if (!canAttempt) {
       if (!silent && mode && mode !== 'invalidated') {
@@ -378,7 +377,7 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
     }
 
     const { autorefreshTypes } = this;
-    let shouldAttempt = Boolean(mode);
+    let shouldAttempt = this.invalidated || Boolean(mode);
 
     if (!shouldAttempt && autorefreshTypes.has('online')) {
       const { unavailableStart } = this;
