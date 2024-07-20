@@ -436,12 +436,13 @@ import { importSync } from '@embroider/macros';
 
 import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 import { peekUniversalTransient, setUniversalTransient } from '@warp-drive/core-types/-private';
+import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type { RequestInfo, StructuredErrorDocument } from '@warp-drive/core-types/request';
 
 import { assertValidRequest } from './debug';
 import { upgradePromise } from './future';
 import { clearRequestResult, getRequestResult, setPromiseResult } from './promise-cache';
-import type { CacheHandler, Future, GenericCreateArgs, Handler } from './types';
+import type { CacheHandler, Future, GenericCreateArgs, Handler, ManagedRequestPriority } from './types';
 import { executeNextHandler, IS_CACHE_HANDLER } from './utils';
 
 /**
@@ -470,8 +471,7 @@ import { executeNextHandler, IS_CACHE_HANDLER } from './utils';
  * const { apiUrl } = Config;
  *
  * // ... create manager
- * const manager = new RequestManager();
- * manager.use([Auth, Fetch]);
+ * const manager = new RequestManager().use([Auth, Fetch]);
  *
  * // ... execute a request
  * const response = await manager.request({
@@ -532,10 +532,12 @@ export class RequestManager {
    * @internal
    */
   declare _pending: Map<number, Promise<unknown>>;
+  declare _deduped: Map<StableDocumentIdentifier, { priority: ManagedRequestPriority; promise: Promise<unknown> }>;
 
   constructor(options?: GenericCreateArgs) {
     Object.assign(this, options);
     this._pending = new Map();
+    this._deduped = new Map();
   }
 
   /**
@@ -548,9 +550,9 @@ export class RequestManager {
    * @method useCache
    * @public
    * @param {Handler[]} cacheHandler
-   * @return {void}
+   * @return {ThisType}
    */
-  useCache(cacheHandler: CacheHandler & { [IS_CACHE_HANDLER]?: true }): void {
+  useCache(cacheHandler: CacheHandler & { [IS_CACHE_HANDLER]?: true }): this {
     if (DEBUG) {
       if (this._hasCacheHandler) {
         throw new Error(`\`RequestManager.useCache(<handler>)\` May only be invoked once.`);
@@ -564,6 +566,7 @@ export class RequestManager {
     }
     cacheHandler[IS_CACHE_HANDLER] = true;
     this.#handlers.unshift(cacheHandler as Handler);
+    return this;
   }
 
   /**
@@ -576,9 +579,9 @@ export class RequestManager {
    * @method use
    * @public
    * @param {Handler[]} newHandlers
-   * @return {void}
+   * @return {ThisType}
    */
-  use(newHandlers: Handler[]): void {
+  use(newHandlers: Handler[]): this {
     const handlers = this.#handlers;
     if (DEBUG) {
       if (Object.isFrozen(handlers)) {
@@ -598,6 +601,7 @@ export class RequestManager {
       });
     }
     handlers.push(...newHandlers);
+    return this;
   }
 
   /**
@@ -627,13 +631,15 @@ export class RequestManager {
     const requestId = peekUniversalTransient<number>('REQ_ID') ?? 0;
     setUniversalTransient('REQ_ID', requestId + 1);
 
-    const promise = executeNextHandler<RT>(handlers, request, 0, {
+    const context = {
       controller,
       response: null,
       stream: null,
       hasRequestedStream: false,
       id: requestId,
-    });
+      identifier: null,
+    };
+    const promise = executeNextHandler<RT>(handlers, request, 0, context);
 
     // the cache handler will set the result of the request synchronously
     // if it is able to fulfill the request from the cache

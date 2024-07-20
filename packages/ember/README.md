@@ -472,9 +472,18 @@ import { Request } from '@warp-drive/ember';
 
 - Autorefresh behavior
 
-Requests can be made to automatically refresh when a browser window or tab comes back to the
-foreground after being backgrounded or when the network reports as being online after having
-been offline.
+Requests can be made to automatically refresh under any combination of three separate conditions
+by supplying a value to the `@autorefresh` arg.
+
+- `online` when a browser window or tab comes back to the foreground after being backgrounded
+or when the network reports as being online after having been offline.
+- `interval` which occurs whenever `@autorefreshThreshold` has been exceeded
+- `invalid` which occurs when the store associated to the request emits an invalidation notification for the request in use.
+
+These conditions can be used in any combination by providing a comma separated list e.g.
+`interval,invalid`
+
+A value of `true` is equivalent to `online,invalid`.
 
 ```gjs
 import { Request } from '@warp-drive/ember';
@@ -496,7 +505,7 @@ Options are:
 
 - `refresh` update while continuing to show the current state.
 - `reload` update and show the loading state until update completes)
-- `delegate` (**default**) trigger the request, but let the cache handler decide whether the update should occur or if the cache is still valid.
+- `policy` (**default**) trigger the request, but let the cache handler decide whether the update should occur or if the cache is still valid.
 
 ---
 

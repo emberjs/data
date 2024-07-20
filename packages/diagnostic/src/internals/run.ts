@@ -22,6 +22,10 @@ export async function runTest<TC extends TestContext>(
   test: TestInfo<TC>,
   afterChain: HooksCallback<TC>[]
 ) {
+  if (Config.tests.size && !Config.tests.has(test.id)) {
+    return;
+  }
+
   const testContext = {
     [PublicTestInfo]: {
       id: test.id,
@@ -104,6 +108,10 @@ export async function runModule<TC extends TestContext>(
   parents: ModuleInfo<TC>[] | null,
   promises: Promise<void>[]
 ) {
+  if (module.skipped) {
+    return;
+  }
+
   groupLogs() && console.groupCollapsed(module.name);
   const moduleReport: ModuleReport = {
     name: module.moduleName,

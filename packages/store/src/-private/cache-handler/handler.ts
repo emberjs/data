@@ -2,6 +2,7 @@
  * @module @ember-data/store
  */
 import type { CacheHandler as CacheHandlerType, Future, NextFn } from '@ember-data/request';
+import type { ManagedRequestPriority } from '@ember-data/request/-private/types';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type {
@@ -26,6 +27,7 @@ import {
   calcShouldFetch,
   cloneError,
   copyDocumentProperties,
+  getPriority,
   isCacheAffecting,
   isErrorDocument,
   isMutation,
@@ -87,7 +89,10 @@ export interface StoreRequestContext extends RequestContext {
  * @typedoc
  */
 export const CacheHandler: CacheHandlerType = {
-  request<T>(context: StoreRequestContext, next: NextFn<T>): Promise<T | StructuredDataDocument<T>> | Future<T> | T {
+  request<T>(
+    context: StoreRequestContext & { setIdentifier(identifier: StableDocumentIdentifier): void },
+    next: NextFn<T>
+  ): Promise<T | StructuredDataDocument<T>> | Future<T> | T {
     // if we have no cache or no cache-key skip cache handling
     if (!context.request.store || context.request.cacheOptions?.[SkipCache]) {
       return next(context.request);
@@ -96,16 +101,44 @@ export const CacheHandler: CacheHandlerType = {
     const { store } = context.request;
     const identifier = store.identifierCache.getOrCreateDocumentIdentifier(context.request);
 
+    if (identifier) {
+      context.setIdentifier(identifier);
+    }
+
+    // used to dedupe existing requests that match
+    const DEDUPE = store.requestManager._deduped;
+    const activeRequest = identifier && DEDUPE.get(identifier);
     const peeked = identifier ? store.cache.peekRequest(identifier) : null;
 
     // determine if we should skip cache
     if (calcShouldFetch(store, context.request, !!peeked, identifier)) {
-      return fetchContentAndHydrate(next, context, identifier, true, false);
+      if (activeRequest) {
+        activeRequest.priority = { blocking: true };
+        return activeRequest.promise as Promise<T>;
+      }
+      let promise = fetchContentAndHydrate(next, context, identifier, { blocking: true });
+      if (identifier) {
+        promise = promise.finally(() => {
+          DEDUPE.delete(identifier);
+          store.notifications.notify(identifier, 'state');
+        });
+        DEDUPE.set(identifier, { priority: { blocking: true }, promise });
+        store.notifications.notify(identifier, 'state');
+      }
+      return promise;
     }
 
     // if we have not skipped cache, determine if we should update behind the scenes
     if (calcShouldBackgroundFetch(store, context.request, false, identifier)) {
-      const promise = fetchContentAndHydrate(next, context, identifier, false, true);
+      let promise = activeRequest?.promise || fetchContentAndHydrate(next, context, identifier, { blocking: false });
+      if (identifier && !activeRequest) {
+        promise = promise.finally(() => {
+          DEDUPE.delete(identifier);
+          store.notifications.notify(identifier, 'state');
+        });
+        DEDUPE.set(identifier, { priority: { blocking: false }, promise });
+        store.notifications.notify(identifier, 'state');
+      }
       store.requestManager._pending.set(context.id, promise);
     }
 
@@ -142,17 +175,19 @@ export const CacheHandler: CacheHandlerType = {
   },
 };
 
-type UpdateOptions = {
+type HydrationOptions = {
   shouldHydrate?: boolean;
-  shouldFetch?: boolean;
-  shouldBackgroundFetch?: boolean;
   identifier: StableDocumentIdentifier | null;
+};
+
+type UpdateOptions = HydrationOptions & {
+  priority: ManagedRequestPriority;
 };
 
 function maybeUpdateUiObjects<T>(
   store: Store,
   request: ImmutableRequestInfo,
-  options: UpdateOptions,
+  options: HydrationOptions,
   document: ResourceDataDocument | null,
   isFromCache: boolean
 ): Document<T> | ResourceDataDocument | null {
@@ -239,7 +274,7 @@ function maybeUpdateUiObjects<T>(
 
 function maybeUpdateErrorUiObjects<T>(
   store: Store,
-  options: UpdateOptions,
+  options: HydrationOptions,
   document: ResourceErrorDocument,
   isFromCache: boolean
 ): ResourceErrorDocument {
@@ -273,7 +308,7 @@ function maybeUpdateErrorUiObjects<T>(
 function updateCacheForSuccess<T>(
   store: Store,
   request: StoreRequestContext['request'],
-  options: UpdateOptions,
+  options: HydrationOptions,
   document: StructuredDataDocument<T>
 ) {
   let response: ResourceDataDocument | null = null;
@@ -313,9 +348,10 @@ function handleFetchSuccess<T>(
     store.lifetimes.didRequest(context.request, document.response, options.identifier, store);
   }
 
-  if (options.shouldFetch) {
+  const finalPriority = getPriority(options.identifier, store.requestManager._deduped, options.priority);
+  if (finalPriority.blocking) {
     return response!;
-  } else if (options.shouldBackgroundFetch) {
+  } else {
     store.notifications._flush();
   }
 }
@@ -323,7 +359,7 @@ function handleFetchSuccess<T>(
 function updateCacheForError<T>(
   store: Store,
   context: StoreRequestContext,
-  options: UpdateOptions,
+  options: HydrationOptions,
   error: StructuredErrorDocument<T>
 ) {
   let response: ResourceErrorDocument | undefined;
@@ -373,7 +409,8 @@ function handleFetchError<T>(
     throw error;
   }
 
-  if (!options.shouldBackgroundFetch) {
+  const finalPriority = getPriority(options.identifier, store.requestManager._deduped, options.priority);
+  if (finalPriority.blocking) {
     const newError = cloneError(error);
     newError.content = response!;
     throw newError;
@@ -386,12 +423,11 @@ function fetchContentAndHydrate<T>(
   next: NextFn<T>,
   context: StoreRequestContext,
   identifier: StableDocumentIdentifier | null,
-  shouldFetch: boolean,
-  shouldBackgroundFetch: boolean
+  priority: { blocking: boolean }
 ): Promise<T> {
   const { store } = context.request;
   const shouldHydrate: boolean = context.request[EnableHydration] || false;
-  const options = { shouldBackgroundFetch, shouldFetch, shouldHydrate, identifier };
+  const options = { shouldHydrate, identifier, priority };
 
   let isMut = false;
   if (isMutation(context.request)) {

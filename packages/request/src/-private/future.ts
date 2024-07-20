@@ -26,6 +26,8 @@ export function upgradePromise<T>(promise: Promise<StructuredDocument<T>>, futur
   (promise as Future<T>).abort = future.abort;
   // eslint-disable-next-line @typescript-eslint/unbound-method
   (promise as Future<T>).onFinalize = future.onFinalize;
+  (promise as Future<T>).id = future.id;
+  (promise as Future<T>).lid = future.lid;
 
   return promise as Future<T>;
 }
@@ -51,6 +53,9 @@ export function createFuture<T>(owner: ContextOwner): DeferredFuture<T> {
   promise.abort = (reason?: string) => {
     owner.abort(enhanceReason(reason));
   };
+  promise.id = owner.requestId;
+  promise.lid = owner.god.identifier;
+
   deferred.promise = promise;
   return deferred;
 }

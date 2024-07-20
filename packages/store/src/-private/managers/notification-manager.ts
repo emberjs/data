@@ -15,10 +15,13 @@ import type { Store } from '../store-service';
 export type UnsubscribeToken = object;
 let tokenId = 0;
 
-const CacheOperations = new Set(['added', 'removed', 'state', 'updated']);
+const CacheOperations = new Set(['added', 'removed', 'state', 'updated', 'invalidated']);
 export type CacheOperation = 'added' | 'removed' | 'updated' | 'state';
+export type DocumentCacheOperation = 'invalidated' | 'added' | 'removed' | 'updated' | 'state';
 
-function isCacheOperationValue(value: NotificationType | CacheOperation): value is CacheOperation {
+function isCacheOperationValue(
+  value: NotificationType | CacheOperation | DocumentCacheOperation
+): value is DocumentCacheOperation {
   return CacheOperations.has(value);
 }
 
@@ -42,7 +45,7 @@ export interface ResourceOperationCallback {
 
 export interface DocumentOperationCallback {
   // document updates
-  (identifier: StableDocumentIdentifier, notificationType: CacheOperation): void;
+  (identifier: StableDocumentIdentifier, notificationType: DocumentCacheOperation): void;
 }
 
 function _unsubscribe(
@@ -177,10 +180,11 @@ export default class NotificationManager {
    */
   notify(identifier: StableRecordIdentifier, value: 'attributes' | 'relationships', key?: string): boolean;
   notify(identifier: StableRecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'state'): boolean;
-  notify(identifier: StableRecordIdentifier | StableDocumentIdentifier, value: CacheOperation): boolean;
+  notify(identifier: StableRecordIdentifier, value: CacheOperation): boolean;
+  notify(identifier: StableDocumentIdentifier, value: DocumentCacheOperation): boolean;
   notify(
     identifier: StableRecordIdentifier | StableDocumentIdentifier,
-    value: NotificationType | CacheOperation,
+    value: NotificationType | CacheOperation | DocumentCacheOperation,
     key?: string
   ): boolean {
     assert(
@@ -243,14 +247,15 @@ export default class NotificationManager {
   }
 
   _flush() {
-    if (this._buffered.size) {
-      this._buffered.forEach((states, identifier) => {
+    const buffered = this._buffered;
+    if (buffered.size) {
+      this._buffered = new Map();
+      buffered.forEach((states, identifier) => {
         states.forEach((args) => {
           // @ts-expect-error
           this._flushNotification(identifier, args[0], args[1]);
         });
       });
-      this._buffered = new Map();
     }
 
     this._hasFlush = false;

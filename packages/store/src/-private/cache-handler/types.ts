@@ -74,6 +74,28 @@ export interface CachePolicy {
    *
    * Note, this is invoked regardless of whether the request has a cache-key.
    *
+   * It is best practice to notify the store of any requests marked as invalidated
+   * so that request subscriptions can reload when needed.
+   *
+   * ```ts
+   * store.notifications.notify(identifier, 'invalidated');
+   * ```
+   *
+   * This allows anything subscribed to the request to be notified of the change
+   *
+   * e.g.
+   *
+   * ```ts
+   * store.notifications.subscribe(identifier, (_, type) => {
+   *   if (type === 'invalidated') {
+   *     // do update
+   *   }
+   * });
+   * ```
+   *
+   * Note,
+   *
+   *
    * @method didRequest [Optional]
    * @public
    * @param {ImmutableRequestInfo} request

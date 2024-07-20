@@ -195,7 +195,7 @@ function makeRow(tr: HTMLTableRowElement, cells: string[]) {
 
 function getURL(id: string) {
   const currentURL = new URL(window.location.href);
-  currentURL.searchParams.set('test', id);
+  currentURL.searchParams.set('t', id);
   return currentURL.href;
 }
 
@@ -273,8 +273,14 @@ function renderSuite(element: DocumentFragment, suiteReport: SuiteReport): Suite
     const input = document.createElement('input');
     input.id = value.id;
     input.name = value.id;
-    input.type = 'checkbox';
-    input.checked = value.value;
+
+    if (typeof value.value === 'string') {
+      input.type = 'text';
+      input.value = value.value;
+    } else {
+      input.type = 'checkbox';
+      input.checked = value.value;
+    }
 
     function update() {
       value.value = input.checked;

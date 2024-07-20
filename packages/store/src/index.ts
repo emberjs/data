@@ -193,7 +193,11 @@ export {
   storeFor,
 } from './-private';
 
-export type { CacheOperation, NotificationType } from './-private/managers/notification-manager';
+export type {
+  DocumentCacheOperation,
+  CacheOperation,
+  NotificationType,
+} from './-private/managers/notification-manager';
 
 export {
   setIdentifierGenerationMethod,

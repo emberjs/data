@@ -10,6 +10,12 @@ import type {
 } from '../-types';
 import { assert } from '../-utils';
 
+const urlParams = new URLSearchParams(window.location.search);
+
+const search = urlParams.get('search');
+const tests = new Set(urlParams.getAll('t'));
+const modules = new Set(urlParams.getAll('m'));
+
 export const Config: GlobalConfig = {
   globalHooks: {
     beforeEach: [],
@@ -25,7 +31,14 @@ export const Config: GlobalConfig = {
   useDiagnostic: typeof Testem === 'undefined',
   testTimeoutMs: 50,
   concurrency: 1,
+  modules,
+  tests,
   params: {
+    search: {
+      id: 'search',
+      label: 'Filter Tests',
+      value: search ?? '',
+    },
     hideReport: {
       id: 'hideReport',
       label: 'Hide Report',

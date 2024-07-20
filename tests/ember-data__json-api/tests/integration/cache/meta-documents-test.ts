@@ -1,6 +1,6 @@
 import Cache from '@ember-data/json-api';
 import type { StructuredDataDocument, StructuredDocument } from '@ember-data/request';
-import type { CacheOperation } from '@ember-data/store';
+import type { DocumentCacheOperation } from '@ember-data/store';
 import Store from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import type { StableDocumentIdentifier, StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
@@ -277,7 +277,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
     })!;
 
     let isUpdating = false;
-    store.notifications.subscribe('document', (identifier: StableDocumentIdentifier, type: CacheOperation) => {
+    store.notifications.subscribe('document', (identifier: StableDocumentIdentifier, type: DocumentCacheOperation) => {
       if (isUpdating) {
         assert.equal(type, 'updated', 'We were notified of an update');
         assert.equal(identifier, documentIdentifier, 'We were notified of the correct document');
@@ -287,15 +287,18 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
       }
     });
 
-    store.notifications.subscribe(documentIdentifier, (identifier: StableDocumentIdentifier, type: CacheOperation) => {
-      if (isUpdating) {
-        assert.equal(type, 'updated', 'We were notified of an update');
-        assert.equal(identifier, documentIdentifier, 'We were notified of the correct document');
-      } else {
-        assert.equal(type, 'added', 'We were notified of an add');
-        assert.equal(identifier, documentIdentifier, 'We were notified of the correct document');
+    store.notifications.subscribe(
+      documentIdentifier,
+      (identifier: StableDocumentIdentifier, type: DocumentCacheOperation) => {
+        if (isUpdating) {
+          assert.equal(type, 'updated', 'We were notified of an update');
+          assert.equal(identifier, documentIdentifier, 'We were notified of the correct document');
+        } else {
+          assert.equal(type, 'added', 'We were notified of an add');
+          assert.equal(identifier, documentIdentifier, 'We were notified of the correct document');
+        }
       }
-    });
+    );
 
     store._run(() => {
       const responseDocument = store.cache.put(

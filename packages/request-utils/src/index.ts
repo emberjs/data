@@ -1,13 +1,46 @@
 import { deprecate } from '@ember/debug';
 
 import { assert } from '@warp-drive/build-config/macros';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type { QueryParamsSerializationOptions, QueryParamsSource, Serializable } from '@warp-drive/core-types/params';
 import type { ImmutableRequestInfo, ResponseInfo } from '@warp-drive/core-types/request';
 
+type UnsubscribeToken = object;
+type CacheOperation = 'added' | 'removed' | 'updated' | 'state';
+type DocumentCacheOperation = 'invalidated' | 'added' | 'removed' | 'updated' | 'state';
+
+export interface NotificationCallback {
+  (identifier: StableRecordIdentifier, notificationType: 'attributes' | 'relationships', key?: string): void;
+  (identifier: StableRecordIdentifier, notificationType: 'errors' | 'meta' | 'identity' | 'state'): void;
+  // (identifier: StableRecordIdentifier, notificationType: NotificationType, key?: string): void;
+}
+
+interface ResourceOperationCallback {
+  // resource updates
+  (identifier: StableRecordIdentifier, notificationType: CacheOperation): void;
+}
+
+interface DocumentOperationCallback {
+  // document updates
+  (identifier: StableDocumentIdentifier, notificationType: DocumentCacheOperation): void;
+}
+
+type NotificationManager = {
+  subscribe(identifier: StableRecordIdentifier, callback: NotificationCallback): UnsubscribeToken;
+  subscribe(identifier: 'resource', callback: ResourceOperationCallback): UnsubscribeToken;
+  subscribe(identifier: 'document' | StableDocumentIdentifier, callback: DocumentOperationCallback): UnsubscribeToken;
+
+  notify(identifier: StableRecordIdentifier, value: 'attributes' | 'relationships', key?: string): boolean;
+  notify(identifier: StableRecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'state'): boolean;
+  notify(identifier: StableRecordIdentifier, value: CacheOperation): boolean;
+  notify(identifier: StableDocumentIdentifier, value: DocumentCacheOperation): boolean;
+};
+
 type Store = {
   cache: Cache;
+  notifications: NotificationManager;
 };
 
 /**
@@ -697,9 +730,15 @@ export type PolicyConfig = { apiCacheSoftExpires: number; apiCacheHardExpires: n
  */
 export class CachePolicy {
   declare config: PolicyConfig;
-  declare _stores: WeakMap<Store, { invalidated: Set<string>; types: Map<string, Set<string>> }>;
+  declare _stores: WeakMap<
+    Store,
+    { invalidated: Set<StableDocumentIdentifier>; types: Map<string, Set<StableDocumentIdentifier>> }
+  >;
 
-  _getStore(store: Store): { invalidated: Set<string>; types: Map<string, Set<string>> } {
+  _getStore(store: Store): {
+    invalidated: Set<StableDocumentIdentifier>;
+    types: Map<string, Set<StableDocumentIdentifier>>;
+  } {
     let set = this._stores.get(store);
     if (!set) {
       set = { invalidated: new Set(), types: new Map() };
@@ -748,7 +787,7 @@ export class CachePolicy {
    * @param {Store} store
    */
   invalidateRequest(identifier: StableDocumentIdentifier, store: Store): void {
-    this._getStore(store).invalidated.add(identifier.lid);
+    this._getStore(store).invalidated.add(identifier);
   }
 
   /**
@@ -774,9 +813,13 @@ export class CachePolicy {
   invalidateRequestsForType(type: string, store: Store): void {
     const storeCache = this._getStore(store);
     const set = storeCache.types.get(type);
+    const notifications = store.notifications;
+
     if (set) {
+      // TODO batch notifications
       set.forEach((id) => {
         storeCache.invalidated.add(id);
+        notifications.notify(id, 'invalidated');
       });
     }
   }
@@ -827,10 +870,10 @@ export class CachePolicy {
       request.cacheOptions?.types.forEach((type) => {
         const set = storeCache.types.get(type);
         if (set) {
-          set.add(identifier.lid);
-          storeCache.invalidated.delete(identifier.lid);
+          set.add(identifier);
+          storeCache.invalidated.delete(identifier);
         } else {
-          storeCache.types.set(type, new Set([identifier.lid]));
+          storeCache.types.set(type, new Set([identifier]));
         }
       });
     }
@@ -856,7 +899,7 @@ export class CachePolicy {
   isHardExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
     // if we are explicitly invalidated, we are hard expired
     const storeCache = this._getStore(store);
-    if (storeCache.invalidated.has(identifier.lid)) {
+    if (storeCache.invalidated.has(identifier)) {
       return true;
     }
     const cache = store.cache;

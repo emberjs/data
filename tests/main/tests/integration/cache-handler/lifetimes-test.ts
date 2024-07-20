@@ -11,7 +11,6 @@ import { CachePolicy } from '@ember-data/request-utils';
 import type { NotificationType } from '@ember-data/store';
 import Store, { CacheHandler } from '@ember-data/store';
 import type { CacheCapabilitiesManager, SchemaService } from '@ember-data/store/types';
-import type { Cache } from '@warp-drive/core-types/cache';
 import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { ObjectValue } from '@warp-drive/core-types/json/raw';
 import type { Derivation, HashFn, Transformation } from '@warp-drive/core-types/schema/concepts';
@@ -252,7 +251,7 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
         request: ImmutableRequestInfo,
         response: Response | ResponseInfo | null,
         identifier: StableDocumentIdentifier | null,
-        store: { cache: Cache }
+        store: Store
       ): void {
         assert.step('didRequest');
         super.didRequest(request, response, identifier, store);
@@ -419,7 +418,7 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
         request: ImmutableRequestInfo,
         response: Response | ResponseInfo | null,
         identifier: StableDocumentIdentifier | null,
-        store: { cache: Cache }
+        store: Store
       ): void {
         assert.step('didRequest');
         super.didRequest(request, response, identifier, store);
@@ -579,7 +578,7 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
         request: ImmutableRequestInfo,
         response: Response | ResponseInfo | null,
         identifier: StableDocumentIdentifier | null,
-        store: { cache: Cache }
+        store: Store
       ): void {
         assert.step('didRequest');
         super.didRequest(request, response, identifier, store);
@@ -740,7 +739,7 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
         request: ImmutableRequestInfo,
         response: Response | ResponseInfo | null,
         identifier: StableDocumentIdentifier | null,
-        store: { cache: Cache }
+        store: Store
       ): void {
         assert.step('didRequest');
         super.didRequest(request, response, identifier, store);

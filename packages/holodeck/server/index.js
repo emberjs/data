@@ -342,11 +342,11 @@ export default {
   async endProgram() {
     console.log(chalk.grey(`\n\tEnding Subroutines (mode:${chalk.cyan(isBun ? 'bun' : 'node')})`));
     const projectRoot = process.cwd();
-    const name = await import(path.join(projectRoot, 'package.json'), { with: { type: 'json' } }).then(
-      (pkg) => pkg.name
-    );
 
     if (!servers.has(projectRoot)) {
+      const name = await import(path.join(projectRoot, 'package.json'), { with: { type: 'json' } }).then(
+        (pkg) => pkg.name
+      );
       throw new Error(`Holodeck was not running for project '${name}' at '${projectRoot}'`);
     }
 

@@ -1,5 +1,6 @@
 /* eslint-disable no-irregular-whitespace */
 
+import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type {
   IS_FUTURE,
   RequestContext,
@@ -17,6 +18,7 @@ export interface GodContext {
   stream: ReadableStream | Promise<ReadableStream | null> | null;
   hasRequestedStream: boolean;
   id: number;
+  identifier: StableDocumentIdentifier | null;
 }
 
 export type Deferred<T> = {
@@ -24,6 +26,8 @@ export type Deferred<T> = {
   reject(v: unknown): void;
   promise: Promise<T>;
 };
+
+export type ManagedRequestPriority = { blocking: boolean };
 
 export type DeferredStream = {
   resolve(v: ReadableStream | null): void;
@@ -70,6 +74,26 @@ export type Future<T> = Promise<StructuredDataDocument<T>> & {
    * @return void
    */
   onFinalize(cb: () => void): void;
+
+  /**
+   * The identifier of the associated request, if any, as
+   * assigned by the CacheHandler.
+   *
+   * @property lid
+   * @type {StableDocumentIdentifier | null}
+   * @public
+   */
+  lid: StableDocumentIdentifier | null;
+
+  /**
+   * The id of the associated request, if any, as assigned
+   * by the RequestManager
+   *
+   * @property id
+   * @type {number}
+   * @public
+   */
+  id: number;
 };
 
 export type DeferredFuture<T> = {
