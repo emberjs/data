@@ -1,11 +1,11 @@
 import { rerender, settled } from '@ember/test-helpers';
 
 import JSONAPICache from '@ember-data/json-api';
-import type { Handler,NextFn, RequestContext } from '@ember-data/request';
+import type { Handler, NextFn, RequestContext } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 import { buildBaseURL, CachePolicy } from '@ember-data/request-utils';
-import Store, { CacheHandler  } from '@ember-data/store';
+import Store, { CacheHandler } from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
@@ -18,7 +18,7 @@ import { MockServerHandler } from '@warp-drive/holodeck';
 import { GET } from '@warp-drive/holodeck/mock';
 import { instantiateRecord, teardownRecord } from '@warp-drive/schema-record/hooks';
 import type { SchemaRecord } from '@warp-drive/schema-record/record';
-import { registerDerivations, SchemaService,withDefaults } from '@warp-drive/schema-record/schema';
+import { registerDerivations, SchemaService, withDefaults } from '@warp-drive/schema-record/schema';
 
 const RECORD = false;
 
@@ -42,7 +42,6 @@ class Logger implements Handler {
 }
 
 class TestStore extends Store {
-
   setupRequestManager(testContext: TestContext, assert: Diagnostic): void {
     this.requestManager = new RequestManager()
       .use([new Logger(assert), new MockServerHandler(testContext), Fetch])
@@ -111,11 +110,10 @@ async function mockGETSuccess(context: LocalTestContext, attributes?: { name: st
   return url;
 }
 
-
 module<LocalTestContext>('Integration | <Request /> | Invalidation', function (hooks) {
   setupRenderingTest(hooks);
 
-  hooks.beforeEach(function(assert: Diagnostic) {
+  hooks.beforeEach(function (assert: Diagnostic) {
     this.owner.register('service:store', TestStore);
     this.store = this.owner.lookup('service:store') as TestStore;
     this.store.setupRequestManager(this, assert);
@@ -127,18 +125,14 @@ module<LocalTestContext>('Integration | <Request /> | Invalidation', function (h
     const request = this.store.request<SingleResourceDataDocument<User>>({
       url,
       method: 'GET',
-      cacheOptions: { types: ['user']}
+      cacheOptions: { types: ['user'] },
     });
 
     assert.equal(request.lid?.lid, url, 'lid is set');
 
     await this.render(
       <template>
-        <Request
-          @request={{request}}
-          @autorefresh={{true}}
-          @autorefreshBehavior={{"reload"}}
-        >
+        <Request @request={{request}} @autorefresh={{true}} @autorefreshBehavior={{"reload"}}>
           <:content as |result|>{{result.data.name}}</:content>
         </Request>
       </template>
@@ -167,7 +161,7 @@ module<LocalTestContext>('Integration | <Request /> | Invalidation', function (h
     const request = this.store.request<SingleResourceDataDocument<User>>({
       url,
       method: 'GET',
-      cacheOptions: { types: ['user']}
+      cacheOptions: { types: ['user'] },
     });
 
     assert.equal(request.lid?.lid, url, 'lid is set');
@@ -176,7 +170,7 @@ module<LocalTestContext>('Integration | <Request /> | Invalidation', function (h
       <template>
         <Request
           @request={{request}}
-          @autorefresh={{'interval'}}
+          @autorefresh={{"interval"}}
           @autorefreshThreshold={{5}}
           @autorefreshBehavior={{"reload"}}
         >
