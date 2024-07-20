@@ -60,6 +60,13 @@ export function handleBunFetch(config, state, req, server) {
 
     // serve test assets
     debug(`Serving asset ${route} for browser ${bId} window ${wId}`);
-    return new Response(Bun.file(path.join(process.cwd(), config.assets, route)));
+    const asset = Bun.file(path.join(process.cwd(), config.assets, route));
+
+    return asset.exists().then((exists) => {
+      if (!exists) {
+        return new Response('Not Found', { status: 404 });
+      }
+      new Response(asset);
+    });
   }
 }
