@@ -111,7 +111,7 @@ export class Graph {
     return relationships[propertyName] !== undefined;
   }
 
-  getDefinition(identifier: StableRecordIdentifier, propertyName: string): UpgradedMeta {
+  getDefinition(identifier: { type: string }, propertyName: string): UpgradedMeta {
     let defs = this._metaCache[identifier.type];
     let meta: UpgradedMeta | null | undefined = defs?.[propertyName];
     if (!meta) {

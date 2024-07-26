@@ -183,6 +183,10 @@ function ensureRelationshipIsSetToParent(
   if (inverse) {
     const { inverseKey, kind } = inverse;
 
+    if (kind === 'collection') {
+      return;
+    }
+
     const relationshipData = relationships[inverseKey]?.data as RelationshipData | undefined;
 
     if (DEBUG) {
