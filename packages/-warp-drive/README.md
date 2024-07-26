@@ -22,6 +22,27 @@
 npx warp-drive
 ```
 
+## Available Commands
+
+### Retrofit
+
+- `npx warp-drive retrofit <fit>@<distTag>`
+
+Retrofits are scripts that help you update your project. Sort of like codemods, but usually operating at the dependency configuration level instead of on specific lines of code.
+
+Retrofits can be used both to adopt a new feature initially and upgrade the configuration of that feature to later.
+
+#### Retrofitting to a specific version
+
+Each retrofit has the ability to update to the configuration required for a specific npm `distTag`
+(`latest`|`canary`|`beta`|`lts`).
+
+#### Available Fits
+
+- `types`
+- `channel`
+
+
 
 ### ♥️ Credits
 
