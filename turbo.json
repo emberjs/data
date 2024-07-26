@@ -180,10 +180,12 @@
     },
 
     "test": {
+      "inputs": ["../../packages/diagnostic/server/**"],
       "outputs": [],
       "dependsOn": ["build:tests"]
     },
     "test:production": {
+      "inputs": ["../../packages/diagnostic/server/**"],
       "outputs": [],
       "dependsOn": ["build:production"]
     }
