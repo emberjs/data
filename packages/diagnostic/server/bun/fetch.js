@@ -66,7 +66,7 @@ export function handleBunFetch(config, state, req, server) {
       if (!exists) {
         return new Response('Not Found', { status: 404 });
       }
-      new Response(asset);
+      return new Response(asset);
     });
   }
 }
