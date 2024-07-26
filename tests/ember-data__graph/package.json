@@ -20,6 +20,7 @@
     "lint": "eslint . --quiet --cache --cache-strategy=content --report-unused-disable-directives",
     "check:types": "tsc --noEmit",
     "test": "bun ./diagnostic.js",
+    "start": "pnpm build:tests --watch",
     "test:production": "bun ./diagnostic.js",
     "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
@@ -62,6 +63,9 @@
     },
     "@ember-data/debug": {
       "injected": true
+    },
+    "@warp-drive/schema-record": {
+      "injected": true
     }
   },
   "devDependencies": {
@@ -88,6 +92,7 @@
     "@warp-drive/build-config": "workspace:0.0.0-alpha.34",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.83",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.97",
+    "@warp-drive/schema-record": "workspace:0.0.0-alpha.83",
     "@warp-drive/diagnostic": "workspace:0.0.0-alpha.83",
     "ember-auto-import": "^2.7.4",
     "ember-cli": "~5.9.0",

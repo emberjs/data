@@ -2487,6 +2487,9 @@ importers:
       '@warp-drive/internal-config':
         specifier: workspace:5.4.0-alpha.97
         version: link:../../config
+      '@warp-drive/schema-record':
+        specifier: workspace:0.0.0-alpha.83
+        version: file:packages/schema-record(@babel/core@7.24.5)(@ember-data/model@5.4.0-alpha.97)(@ember-data/request@5.4.0-alpha.97)(@ember-data/store@5.4.0-alpha.97)(@ember-data/tracking@5.4.0-alpha.97)(@warp-drive/core-types@0.0.0-alpha.83)
       ember-auto-import:
         specifier: ^2.7.4
         version: 2.7.4(@glint/template@1.4.0)
@@ -2567,6 +2570,8 @@ importers:
       '@warp-drive/core-types':
         injected: true
       '@warp-drive/diagnostic':
+        injected: true
+      '@warp-drive/schema-record':
         injected: true
 
   tests/ember-data__json-api:

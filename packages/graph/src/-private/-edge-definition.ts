@@ -385,7 +385,7 @@ export function isRHS(info: EdgeDefinition, type: string, key: string): boolean 
 
 export function upgradeDefinition(
   graph: Graph,
-  identifier: StableRecordIdentifier,
+  identifier: { type: string },
   propertyName: string,
   isImplicit = false
 ): EdgeDefinition | null {
