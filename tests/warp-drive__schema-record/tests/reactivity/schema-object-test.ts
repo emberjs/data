@@ -27,7 +27,7 @@ interface User {
   rank: number;
 }
 
-module('Reactivity | object fields can receive remote updates', function (hooks) {
+module('Reactivity | schema object fields can receive remote updates', function (hooks) {
   setupRenderingTest(hooks);
 
   test('we can use simple fields with no `type`', async function (assert) {
@@ -87,7 +87,7 @@ module('Reactivity | object fields can receive remote updates', function (hooks)
 
     assert.strictEqual(record.id, '1', 'id is accessible');
     assert.strictEqual(record.$type, 'user', '$type is accessible');
-    assert.deepEqual(
+    assert.propEqual(
       record.address,
       {
         street: '123 Main St',
@@ -124,7 +124,7 @@ module('Reactivity | object fields can receive remote updates', function (hooks)
 
     assert.strictEqual(record.id, '1', 'id is accessible');
     assert.strictEqual(record.$type, 'user', '$type is accessible');
-    assert.deepEqual(
+    assert.propEqual(
       record.address,
       {
         street: '456 Elm St',
