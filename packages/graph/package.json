@@ -15,6 +15,7 @@
   "scripts": {
     "lint": "eslint . --quiet --cache --cache-strategy=content --report-unused-disable-directives",
     "build:pkg": "vite build;",
+    "start": "vite build --watch;",
     "prepack": "bun run build:pkg",
     "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },

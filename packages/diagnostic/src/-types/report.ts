@@ -30,6 +30,7 @@ export interface TestReport {
   module: ModuleReport;
 }
 export interface ModuleReport {
+  id: string;
   name: string;
   start: PerformanceMark | null;
   end: PerformanceMark | null;

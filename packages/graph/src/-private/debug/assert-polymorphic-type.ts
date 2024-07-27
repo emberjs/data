@@ -3,8 +3,14 @@ import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type {
+  CollectionField,
+  LegacyBelongsToField,
+  LegacyHasManyField,
+  ResourceField,
+} from '@warp-drive/core-types/schema/fields';
 
-import { isLegacyField, isRelationshipField, temporaryConvertToLegacy, type UpgradedMeta } from '../-edge-definition';
+import { isLegacyField, isRelationshipField, type UpgradedMeta } from '../-edge-definition';
 
 /*
   Assert that `addedRecord` has a valid type so it can be added to the
@@ -69,6 +75,15 @@ if (DEBUG) {
     };
   };
   type RelationshipSchemaError = 'name' | 'type' | 'kind' | 'as' | 'async' | 'polymorphic' | 'inverse';
+
+  function temporaryConvertToLegacy(field: ResourceField | CollectionField): LegacyBelongsToField | LegacyHasManyField {
+    return {
+      kind: field.kind === 'resource' ? 'belongsTo' : 'hasMany',
+      name: field.name,
+      type: field.type,
+      options: Object.assign({}, { async: false, inverse: null, resetOnRemoteUpdate: false as const }, field.options),
+    };
+  }
 
   function expectedSchema(definition: UpgradedMeta) {
     return printSchema({

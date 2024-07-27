@@ -26,19 +26,12 @@ export function isLegacyField(field: FieldSchema): field is LegacyBelongsToField
   return field.kind === 'belongsTo' || field.kind === 'hasMany';
 }
 
-export function isRelationshipField(field: FieldSchema): field is RelationshipField {
-  return RELATIONSHIP_KINDS.includes(field.kind);
+export function isModernField(field: FieldSchema): field is ResourceField | CollectionField {
+  return field.kind === 'resource' || field.kind === 'collection';
 }
 
-export function temporaryConvertToLegacy(
-  field: ResourceField | CollectionField
-): LegacyBelongsToField | LegacyHasManyField {
-  return {
-    kind: field.kind === 'resource' ? 'belongsTo' : 'hasMany',
-    name: field.name,
-    type: field.type,
-    options: Object.assign({}, { async: false, inverse: null, resetOnRemoteUpdate: false as const }, field.options),
-  };
+export function isRelationshipField(field: FieldSchema): field is RelationshipField {
+  return RELATIONSHIP_KINDS.includes(field.kind);
 }
 
 /**
@@ -208,14 +201,7 @@ function syncMeta(definition: UpgradedMeta, inverseDefinition: UpgradedMeta) {
   inverseDefinition.resetOnRemoteUpdate = resetOnRemoteUpdate;
 }
 
-function isCollectionKind(meta: RelationshipField): meta is CollectionField {
-  return meta.kind === 'collection';
-}
-
 function upgradeMeta(meta: RelationshipField): UpgradedMeta {
-  if (!isLegacyField(meta)) {
-    meta = temporaryConvertToLegacy(meta);
-  }
   const niceMeta: UpgradedMeta = {} as UpgradedMeta;
   const options = meta.options;
   niceMeta.kind = meta.kind;
@@ -223,9 +209,9 @@ function upgradeMeta(meta: RelationshipField): UpgradedMeta {
   niceMeta.type = meta.type;
   assert(
     `Expected relationship definition to specify async`,
-    isCollectionKind(meta) || typeof meta.options?.async === 'boolean'
+    isModernField(meta) || typeof meta.options?.async === 'boolean'
   );
-  niceMeta.isAsync = isCollectionKind(meta) ? true : meta.options.async;
+  niceMeta.isAsync = isModernField(meta) ? Boolean(meta.options?.async) : meta.options.async;
   niceMeta.isImplicit = false;
   niceMeta.isCollection = meta.kind === 'hasMany' || meta.kind === 'collection';
   niceMeta.isPolymorphic = Boolean(options && options.polymorphic);
@@ -608,6 +594,11 @@ function inverseForRelationship(store: Store, identifier: StableRecordIdentifier
   }
 
   assert(`Expected ${key} to be a relationship`, isRelationshipField(definition));
+
+  if (definition.kind === 'collection' || definition.kind === 'resource') {
+    return definition.options?.inverse || null;
+  }
+
   assert(
     `Expected the relationship defintion to specify the inverse type or null.`,
     definition.options?.inverse === null ||

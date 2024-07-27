@@ -159,13 +159,18 @@ export class DOMReporter implements Reporter {
         `${iconForTestStatus(test)} ${labelForTestStatus(test)}`,
         durationForTest(test),
         `${test.module.name} > `,
-        `${test.name} (${test.result.diagnostics.length})`,
-        getURL(test.id),
+        `${test.name} (${countPassed(test.result.diagnostics)}/${test.result.diagnostics.length})`,
+        getTestURL(test.id),
+        getModuleURL(test.module.id),
       ]);
       this.suite.results.set(test, tr);
     });
     this.suite.resultsList.appendChild(fragment);
   }
+}
+
+function countPassed(diagnostics: DiagnosticReport[]) {
+  return diagnostics.filter((d) => d.passed).length;
 }
 
 function makeRow(tr: HTMLTableRowElement, cells: string[]) {
@@ -183,7 +188,12 @@ function makeRow(tr: HTMLTableRowElement, cells: string[]) {
     } else if (i === 5) {
       const a = document.createElement('a');
       a.href = cell;
-      a.appendChild(document.createTextNode('rerun'));
+      a.appendChild(document.createTextNode('rerun test'));
+      td.appendChild(a);
+    } else if (i === 6) {
+      const a = document.createElement('a');
+      a.href = cell;
+      a.appendChild(document.createTextNode('rerun module'));
       td.appendChild(a);
     } else {
       const text = document.createTextNode(cell);
@@ -193,9 +203,15 @@ function makeRow(tr: HTMLTableRowElement, cells: string[]) {
   }
 }
 
-function getURL(id: string) {
+function getTestURL(id: string) {
   const currentURL = new URL(window.location.href);
   currentURL.searchParams.set('t', id);
+  return currentURL.href;
+}
+function getModuleURL(id: string) {
+  const currentURL = new URL(window.location.href);
+  currentURL.searchParams.delete('t');
+  currentURL.searchParams.set('m', id);
   return currentURL.href;
 }
 

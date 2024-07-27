@@ -114,6 +114,7 @@ export async function runModule<TC extends TestContext>(
 
   groupLogs() && console.groupCollapsed(module.name);
   const moduleReport: ModuleReport = {
+    id: module.id,
     name: module.moduleName,
     start: null,
     end: null,
