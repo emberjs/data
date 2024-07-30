@@ -52,9 +52,9 @@
     "version": 2
   },
   "peerDependencies": {
-    "@ember/string": "3.1.1",
+    "@ember/string": "^3.1.1 || ^4.0.0",
     "@warp-drive/core-types": "workspace:0.0.0-beta.11",
-    "ember-inflector": "4.0.2"
+    "ember-inflector": "^4.0.2"
   },
   "peerDependenciesMeta": {
     "ember-inflector": {
