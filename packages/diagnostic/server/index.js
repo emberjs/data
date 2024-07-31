@@ -5,6 +5,7 @@ import { launchBrowsers } from './bun/launch-browser.js';
 import { buildHandler } from './bun/socket-handler.js';
 import { debug, error, print } from './utils/debug.js';
 import { getPort } from './utils/port.js';
+import { addCloseHandler } from './bun/watch.js';
 
 /** @type {import('bun-types')} */
 const isBun = typeof Bun !== 'undefined';
@@ -73,6 +74,20 @@ export default async function launch(config) {
         });
         debug(`Configured setup hook completed`);
       }
+
+      addCloseHandler(
+        async () => {
+          if (config.cleanup) {
+            debug(`Running configured cleanup hook`);
+            await config.cleanup();
+            debug(`Configured cleanup hook completed`);
+          }
+        },
+        {
+          label: 'diagnostic server',
+          exit: true,
+        }
+      );
 
       await launchBrowsers(config, state);
     } catch (e) {

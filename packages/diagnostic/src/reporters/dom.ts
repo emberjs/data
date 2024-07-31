@@ -178,6 +178,7 @@ function makeRow(tr: HTMLTableRowElement, cells: string[]) {
     const cell = cells[i];
     const td = document.createElement('td');
     if (i === 3) {
+      td.className = 'warp-drive__diagnostic-test-name';
       const strong = document.createElement('strong');
       const text = document.createTextNode(cell);
       strong.appendChild(text);
@@ -371,6 +372,17 @@ function renderSuite(element: DocumentFragment, suiteReport: SuiteReport): Suite
 
   const resultsTable = document.createElement('table');
   element.appendChild(resultsTable);
+
+  const colGroup = document.createElement('colgroup');
+  const colName = document.createElement('col');
+  colName.classList.add('warp-drive__diagnostic-test-name');
+  colGroup.appendChild(document.createElement('col')); // index
+  colGroup.appendChild(document.createElement('col')); // status
+  colGroup.appendChild(document.createElement('col')); // duration
+  colGroup.appendChild(colName); // name
+  colGroup.appendChild(document.createElement('col')); // rerun test
+  colGroup.appendChild(document.createElement('col')); // rerun module
+  resultsTable.appendChild(colGroup);
 
   const resultsList = document.createElement('tbody');
   resultsList.classList.add('diagnostic-results');

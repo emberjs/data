@@ -2,7 +2,7 @@ import { assert } from '@ember/debug';
 
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
-import type { Meta, PaginationLinks } from '@warp-drive/core-types/spec/raw';
+import type { Meta, PaginationLinks } from '@warp-drive/core-types/spec/json-api-raw';
 
 import type { UpgradedMeta } from '../-edge-definition';
 

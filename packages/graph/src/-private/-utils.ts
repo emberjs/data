@@ -81,6 +81,14 @@ export function isNew(identifier: StableRecordIdentifier): boolean {
   return Boolean(cache?.isNew(identifier));
 }
 
+export function isResource(relationship: GraphEdge): relationship is ResourceEdge {
+  return relationship.definition.kind === 'resource';
+}
+
+export function isCollection(relationship: GraphEdge): relationship is CollectionEdge {
+  return relationship.definition.kind === 'collection';
+}
+
 export function isBelongsTo(relationship: GraphEdge): relationship is ResourceEdge {
   return relationship.definition.kind === 'belongsTo';
 }

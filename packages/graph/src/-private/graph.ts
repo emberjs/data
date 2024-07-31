@@ -22,16 +22,23 @@ import {
   forAllRelatedIdentifiers,
   getStore,
   isBelongsTo,
+  isCollection,
   isHasMany,
   isImplicit,
   isNew,
+  isResource,
   notifyChange,
   removeIdentifierCompletelyFromRelationship,
 } from './-utils';
 import { type CollectionEdge, createCollectionEdge, legacyGetCollectionRelationshipData } from './edges/collection';
 import type { ImplicitEdge, ImplicitMeta } from './edges/implicit';
 import { createImplicitEdge } from './edges/implicit';
-import { createResourceEdge, legacyGetResourceRelationshipData, type ResourceEdge } from './edges/resource';
+import {
+  createResourceEdge,
+  getResourceRelationshipData,
+  legacyGetResourceRelationshipData,
+  type ResourceEdge,
+} from './edges/resource';
 import addToRelatedRecords from './operations/add-to-related-records';
 import { mergeIdentifier } from './operations/merge-identifier';
 import removeFromRelatedRecords from './operations/remove-from-related-records';
@@ -44,10 +51,25 @@ export type GraphEdge = ImplicitEdge | CollectionEdge | ResourceEdge;
 export const Graphs = getOrSetGlobal('Graphs', new Map<CacheCapabilitiesManager, Graph>());
 
 type PendingOps = {
-  belongsTo?: Map<string, Map<string, RemoteRelationshipOperation[]>>;
-  hasMany?: Map<string, Map<string, RemoteRelationshipOperation[]>>;
+  single?: Map<string, Map<string, RemoteRelationshipOperation[]>>;
+  multi?: Map<string, Map<string, RemoteRelationshipOperation[]>>;
   deletions: DeleteRecordOperation[];
 };
+
+export function isSingleKind(kind: UpgradedMeta['kind']): kind is 'belongsTo' | 'resource' {
+  return kind === 'belongsTo' || kind === 'resource';
+}
+
+export function isMultiKind(kind: UpgradedMeta['kind']): kind is 'hasMany' | 'collection' {
+  return kind === 'hasMany' || kind === 'collection';
+}
+
+function updateTypeForKind(kind: UpgradedMeta['kind']): 'single' | 'multi' {
+  if (isSingleKind(kind)) {
+    return 'single';
+  }
+  return 'multi';
+}
 
 /*
  * Graph acts as the cache for relationship data. It allows for
@@ -93,8 +115,8 @@ export class Graph {
     this._willSyncRemote = false;
     this._willSyncLocal = false;
     this._pushedUpdates = {
-      belongsTo: undefined,
-      hasMany: undefined,
+      single: undefined,
+      multi: undefined,
       deletions: [],
     };
     this._updatedRelationships = new Set();
@@ -111,6 +133,19 @@ export class Graph {
     return relationships[propertyName] !== undefined;
   }
 
+  /**
+   * Retrieves the relationship schema for the record identified by `identifier`
+   * and the relationship `propertyName`.
+   *
+   * This method will cache the relationship schema for future lookups.
+   *
+   * Relationship schemas are derived from relationship FieldSchemas such as
+   * LegacyHasManyField, LegacyBelongsToField, ResourceField, and CollectionField,
+   * but are upgraded to contain more complete information about both sides of the
+   * relationship.
+   *
+   * @typedoc
+   */
   getDefinition(identifier: { type: string }, propertyName: string): UpgradedMeta {
     let defs = this._metaCache[identifier.type];
     let meta: UpgradedMeta | null | undefined = defs?.[propertyName];
@@ -131,6 +166,14 @@ export class Graph {
     return meta;
   }
 
+  /**
+   * Retrieves the cache storage for the relationship `propertyName` on the record
+   * identified by `identifier`.
+   *
+   * If the storage does not exist, it will be created.
+   *
+   * @typedoc
+   */
   get(identifier: StableRecordIdentifier, propertyName: string): GraphEdge {
     assert(`expected propertyName`, propertyName);
     let relationships = this.identifiers.get(identifier);
@@ -143,10 +186,12 @@ export class Graph {
     if (!relationship) {
       const meta = this.getDefinition(identifier, propertyName);
 
-      if (meta.kind === 'belongsTo') {
+      if (isSingleKind(meta.kind)) {
         relationship = relationships[propertyName] = createResourceEdge(meta, identifier);
       } else if (meta.kind === 'hasMany') {
         relationship = relationships[propertyName] = createCollectionEdge(meta, identifier);
+      } else if (meta.kind === 'collection') {
+        assert(`Collection is not yet implemented`);
       } else {
         assert(`Expected kind to be implicit`, meta.kind === 'implicit' && meta.isImplicit === true);
         relationship = relationships[propertyName] = createImplicitEdge(meta as ImplicitMeta, identifier);
@@ -156,6 +201,17 @@ export class Graph {
     return relationship;
   }
 
+  /**
+   * Retrieves the cached data for the relationship `propertyName` on the record
+   * in a Document format.
+   *
+   * Any local mutations to the relationship will be applied to the data returned.
+   *
+   * To retrieve the raw data without local mutations applied, use either `get`
+   * or `getChanged`
+   *
+   * @typedoc
+   */
   getData(identifier: StableRecordIdentifier, propertyName: string): ResourceRelationship | CollectionRelationship {
     const relationship = this.get(identifier, propertyName);
 
@@ -163,12 +219,18 @@ export class Graph {
 
     if (isBelongsTo(relationship)) {
       return legacyGetResourceRelationshipData(relationship);
+    } else if (isHasMany(relationship)) {
+      return legacyGetCollectionRelationshipData(relationship);
+    } else if (isResource(relationship)) {
+      return getResourceRelationshipData(relationship);
+    } else {
+      assert(`Expected a collection relationship`, isCollection(relationship));
+      throw new Error('not implemented');
+      // return getCollectionRelationshipData(relationship);
     }
-
-    return legacyGetCollectionRelationshipData(relationship);
   }
 
-  /*
+  /**
    * Allows for the graph to dynamically discover polymorphic connections
    * without needing to walk prototype chains.
    *
@@ -178,6 +240,8 @@ export class Graph {
    * Currently we assert before calling this. For a public API we will want
    * to call out to the schema manager to ask if we should consider these
    * types as equivalent for a given relationship.
+   *
+   * @internal
    */
   registerPolymorphicType(type1: string, type2: string): void {
     const typeCache = this._potentialPolymorphicTypes;
@@ -511,20 +575,20 @@ export class Graph {
     setTransient('transactionRef', transactionRef);
     this._willSyncRemote = false;
     const updates = this._pushedUpdates;
-    const { deletions, hasMany, belongsTo } = updates;
+    const { deletions, multi, single } = updates;
     updates.deletions = [];
-    updates.hasMany = undefined;
-    updates.belongsTo = undefined;
+    updates.multi = undefined;
+    updates.single = undefined;
 
     for (let i = 0; i < deletions.length; i++) {
       this.update(deletions[i], true);
     }
 
-    if (hasMany) {
-      flushPending(this, hasMany);
+    if (multi) {
+      flushPending(this, multi);
     }
-    if (belongsTo) {
-      flushPending(this, belongsTo);
+    if (single) {
+      flushPending(this, single);
     }
 
     this._transaction = null;
@@ -766,8 +830,8 @@ function addPending(
   definition: UpgradedMeta,
   op: RemoteRelationshipOperation & { field: string }
 ): void {
-  const lc = (cache[definition.kind as 'hasMany' | 'belongsTo'] =
-    cache[definition.kind as 'hasMany' | 'belongsTo'] || new Map<string, Map<string, RemoteRelationshipOperation[]>>());
+  const updateKind = updateTypeForKind(definition.kind);
+  const lc = (cache[updateKind] = cache[updateKind] || new Map<string, Map<string, RemoteRelationshipOperation[]>>());
   let lc2 = lc.get(definition.inverseType);
   if (!lc2) {
     lc2 = new Map<string, RemoteRelationshipOperation[]>();

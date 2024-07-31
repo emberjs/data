@@ -131,6 +131,7 @@ body {
 }
 
 #warp-drive__diagnostic table {
+  table-layout: fixed;
   box-sizing: border-box;
   border-collapse: separate;
   border-spacing: 0 0.1rem;
@@ -141,6 +142,18 @@ body {
 #warp-drive__diagnostic div,
 #warp-drive__diagnostic table td {
   box-sizing: border-box;
+}
+#warp-drive__diagnostic table col:nth-of-type(1) {
+  width: 2.5rem;
+}
+#warp-drive__diagnostic table col:nth-of-type(2) {
+  width: 2.5rem;
+}
+#warp-drive__diagnostic table col:nth-of-type(3) {
+  width: 2.5rem;
+}
+#warp-drive__diagnostic table .warp-drive__diagnostic-test-name {
+  width: calc(100vw - 16rem);
 }
 
 #warp-drive__diagnostic table tr {
@@ -167,6 +180,8 @@ body {
 #warp-drive__diagnostic table tr td:first-of-type {
   border-radius: 0.1rem 0 0 0.1rem;
   padding-left: 0.5rem;
+  font-size: 0.6em;
+  line-height: 0.6rem;
 }
 #warp-drive__diagnostic table tr td:last-of-type {
   padding-right: 0.5rem;
@@ -177,6 +192,10 @@ body {
 }
 #warp-drive__diagnostic table tr:nth-last-of-type(odd) {
   background: rgba(0, 0, 0, 0.8);
+}
+#warp-drive__diagnostic table tr.passed td:nth-child(2) {
+  font-size: 0.6em;
+  line-height: 0.6em;
 }
 #warp-drive__diagnostic table tr.passed td:nth-child(2) {
   color: green;
@@ -192,6 +211,15 @@ body {
 }
 #warp-drive__diagnostic table td:nth-child(3) {
   color: yellow;
-  font-size: 0.75em;
-  line-height: 0.75rem;
+  font-size: 0.6em;
+  line-height: 0.6rem;
+}
+#warp-drive__diagnostic table tr.passed td:nth-child(4) {
+  font-size: 0.85em;
+  line-height: 1.5em;
+}
+#warp-drive__diagnostic table tr.passed td:nth-child(5),
+#warp-drive__diagnostic table tr.passed td:nth-child(6) {
+  font-size: 0.6em;
+  line-height: 0.6em;
 }

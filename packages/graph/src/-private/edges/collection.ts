@@ -7,6 +7,11 @@ import type { UpgradedMeta } from '../-edge-definition';
 import type { RelationshipState } from '../-state';
 import { createState } from '../-state';
 
+/**
+ * Stores the data for one side of a "hasMany" relationship.
+ *
+ * @typedoc
+ */
 export interface CollectionEdge {
   definition: UpgradedMeta;
   identifier: StableRecordIdentifier;

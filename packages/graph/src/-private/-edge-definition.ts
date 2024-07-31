@@ -576,6 +576,23 @@ export function upgradeDefinition(
     isReflexive: isSelfReferential && propertyName === inverseKey,
   };
 
+  assert(
+    `a belongsTo relationship can only relate to a belongsTo or hasMany relationship`,
+    definition.kind !== 'belongsTo' || ['belongsTo', 'hasMany', 'implicit'].includes(definition.inverseKind)
+  );
+  assert(
+    `a hasMany relationship can only relate to a belongsTo or hasMany relationship`,
+    definition.kind !== 'hasMany' || ['belongsTo', 'hasMany', 'implicit'].includes(definition.inverseKind)
+  );
+  assert(
+    `a resource relationship can only relate to a resource or collection relationship`,
+    definition.kind !== 'resource' || ['resource', 'collection', 'implicit'].includes(definition.inverseKind)
+  );
+  assert(
+    `a collection relationship can only relate to a resource or collection relationship`,
+    definition.kind !== 'collection' || ['resource', 'collection', 'implicit'].includes(definition.inverseKind)
+  );
+
   // Create entries for the baseModelName as well as modelName to speed up
   //  inverse lookups
   expandingSet<EdgeDefinition | null>(cache, baseType, propertyName, info);

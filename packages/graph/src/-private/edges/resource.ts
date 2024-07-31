@@ -6,13 +6,10 @@ import type { UpgradedMeta } from '../-edge-definition';
 import type { RelationshipState } from '../-state';
 import { createState } from '../-state';
 
-/*
- * @module @ember-data/graph
- *
+/**
  * Stores the data for one side of a "single" resource relationship.
  *
- * @class ResourceEdge
- * @internal
+ * @typedoc
  */
 export interface ResourceEdge {
   definition: UpgradedMeta;
@@ -36,6 +33,28 @@ export function createResourceEdge(definition: UpgradedMeta, identifier: StableR
     meta: null,
     links: null,
   };
+}
+
+export function getResourceRelationshipData(source: ResourceEdge): ResourceRelationship {
+  let data: StableRecordIdentifier | null | undefined;
+  const payload: ResourceRelationship = {};
+  if (source.localState) {
+    data = source.localState;
+  }
+  if (source.localState === null && source.state.hasReceivedData) {
+    data = null;
+  }
+  if (source.links) {
+    payload.links = source.links;
+  }
+  if (data !== undefined) {
+    payload.data = data;
+  }
+  if (source.meta) {
+    payload.meta = source.meta;
+  }
+
+  return payload;
 }
 
 export function legacyGetResourceRelationshipData(source: ResourceEdge): ResourceRelationship {
