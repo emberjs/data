@@ -54,7 +54,7 @@
   "peerDependencies": {
     "@ember/string": "^3.1.1 || ^4.0.0",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.85",
-    "ember-inflector": "4.0.2"
+    "ember-inflector": "^4.0.2 || ^5.0.0"
   },
   "peerDependenciesMeta": {
     "ember-inflector": {
