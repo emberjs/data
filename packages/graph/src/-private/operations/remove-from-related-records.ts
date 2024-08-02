@@ -3,8 +3,8 @@ import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { RemoveFromRelatedRecordsOperation } from '@warp-drive/core-types/graph';
 
 import { _removeLocal } from '../-diff';
-import { isHasMany, notifyChange } from '../-utils';
-import type { CollectionEdge } from '../edges/collection';
+import { isHasManyEdge, notifyChange } from '../-utils';
+import type { LegacyHasManyEdge } from '../edges/has-many';
 import type { Graph } from '../graph';
 import { removeFromInverse } from './replace-related-records';
 
@@ -17,7 +17,7 @@ export default function removeFromRelatedRecords(graph: Graph, op: RemoveFromRel
   const relationship = graph.get(record, op.field);
   assert(
     `You can only '${op.op}' on a hasMany relationship. ${record.type}.${op.field} is a ${relationship.definition.kind}`,
-    isHasMany(relationship)
+    isHasManyEdge(relationship)
   );
   // TODO we should potentially thread the index information through here
   // when available as it may make it faster to remove from the local state
@@ -35,7 +35,7 @@ export default function removeFromRelatedRecords(graph: Graph, op: RemoveFromRel
 
 function removeRelatedRecord(
   graph: Graph,
-  relationship: CollectionEdge,
+  relationship: LegacyHasManyEdge,
   record: StableRecordIdentifier,
   value: StableRecordIdentifier,
   isRemote: false

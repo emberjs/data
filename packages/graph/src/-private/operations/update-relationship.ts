@@ -9,19 +9,44 @@ import type {
   NewResourceIdentifierObject,
 } from '@warp-drive/core-types/spec/json-api-raw';
 
-import { isBelongsTo, isHasMany, notifyChange } from '../-utils';
+import { isCollectionEdge, isImplicitEdge, isResourceEdge, notifyChange } from '../-utils';
+import type { LegacyBelongsToEdge } from '../edges/belongs-to';
+import type { CollectionEdge } from '../edges/collection';
+import type { LegacyHasManyEdge } from '../edges/has-many';
+import type { ResourceEdge } from '../edges/resource';
 import type { Graph } from '../graph';
 import _normalizeLink from '../normalize-link';
 
 type IdentifierCache = Store['identifierCache'];
 
+export function updateRelationshipOperation(graph: Graph, op: UpdateRelationshipOperation) {
+  const relationship = graph.get(op.record, op.field);
+  assert(`Cannot update an implicit relationship`, !isImplicitEdge(relationship));
+
+  if (isResourceEdge(relationship) || isCollectionEdge(relationship)) {
+    updateModernRelationshipOperation(graph, op, relationship);
+  } else {
+    legacyUpdateRelationshipOperation(graph, op, relationship);
+  }
+}
+
+function updateModernRelationshipOperation(
+  graph: Graph,
+  op: UpdateRelationshipOperation,
+  relationship: ResourceEdge | CollectionEdge
+) {
+  throw new Error('Not implemented');
+}
+
 /*
     Updates the "canonical" or "remote" state of a relationship, replacing any existing
     state and blowing away any local changes (excepting new records).
 */
-export default function updateRelationshipOperation(graph: Graph, op: UpdateRelationshipOperation) {
-  const relationship = graph.get(op.record, op.field);
-  assert(`Cannot update an implicit relationship`, isHasMany(relationship) || isBelongsTo(relationship));
+function legacyUpdateRelationshipOperation(
+  graph: Graph,
+  op: UpdateRelationshipOperation,
+  relationship: LegacyBelongsToEdge | LegacyHasManyEdge
+) {
   const { definition, state, identifier } = relationship;
   const { isCollection } = definition;
 

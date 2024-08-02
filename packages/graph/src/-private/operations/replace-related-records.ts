@@ -7,9 +7,9 @@ import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { ReplaceRelatedRecordsOperation } from '@warp-drive/core-types/graph';
 
 import { _addLocal, _removeLocal, _removeRemote, diffCollection } from '../-diff';
-import { isBelongsTo, isHasMany, isNew, notifyChange } from '../-utils';
+import { isBelongsToEdge, isHasManyEdge, isNew, notifyChange } from '../-utils';
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
-import type { CollectionEdge } from '../edges/collection';
+import type { LegacyHasManyEdge } from '../edges/has-many';
 import type { Graph } from '../graph';
 
 /*
@@ -78,7 +78,7 @@ export default function replaceRelatedRecords(graph: Graph, op: ReplaceRelatedRe
 function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOperation, isRemote: boolean) {
   const identifiers = op.value;
   const relationship = graph.get(op.record, op.field);
-  assert(`expected hasMany relationship`, isHasMany(relationship));
+  assert(`expected hasMany relationship`, isHasManyEdge(relationship));
 
   // relationships for newly created records begin in the dirty state, so if updated
   // before flushed we would fail to notify. This check helps us avoid that.
@@ -173,7 +173,7 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
 
   assert(
     `You can only '${op.op}' on a hasMany relationship. ${op.record.type}.${op.field} is a ${relationship.definition.kind}`,
-    isHasMany(relationship)
+    isHasManyEdge(relationship)
   );
   if (isRemote) {
     graph._addToTransaction(relationship);
@@ -322,7 +322,7 @@ export function addToInverse(
     graph.registerPolymorphicType(type, value.type);
   }
 
-  if (isBelongsTo(relationship)) {
+  if (isBelongsToEdge(relationship)) {
     relationship.state.hasReceivedData = true;
     relationship.state.isEmpty = false;
 
@@ -341,7 +341,7 @@ export function addToInverse(
       relationship.localState = value;
       notifyChange(graph, identifier, key);
     }
-  } else if (isHasMany(relationship)) {
+  } else if (isHasManyEdge(relationship)) {
     if (isRemote) {
       // TODO this needs to alert stuffs
       // And patch state better
@@ -387,7 +387,7 @@ export function notifyInverseOfPotentialMaterialization(
   isRemote: boolean
 ) {
   const relationship = graph.get(identifier, key);
-  if (isHasMany(relationship) && isRemote && relationship.remoteMembers.has(value)) {
+  if (isHasManyEdge(relationship) && isRemote && relationship.remoteMembers.has(value)) {
     notifyChange(graph, identifier, key);
   }
 }
@@ -401,7 +401,7 @@ export function removeFromInverse(
 ) {
   const relationship = graph.get(identifier, key);
 
-  if (isBelongsTo(relationship)) {
+  if (isBelongsToEdge(relationship)) {
     relationship.state.isEmpty = true;
     if (isRemote) {
       graph._addToTransaction(relationship);
@@ -412,7 +412,7 @@ export function removeFromInverse(
 
       notifyChange(graph, identifier, key);
     }
-  } else if (isHasMany(relationship)) {
+  } else if (isHasManyEdge(relationship)) {
     if (isRemote) {
       graph._addToTransaction(relationship);
       if (_removeRemote(relationship, value)) {
@@ -435,6 +435,6 @@ export function removeFromInverse(
   }
 }
 
-function flushCanonical(graph: Graph, rel: CollectionEdge) {
+function flushCanonical(graph: Graph, rel: LegacyHasManyEdge) {
   graph._scheduleLocalSync(rel);
 }

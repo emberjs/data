@@ -21,32 +21,34 @@ import {
   assertValidRelationshipPayload,
   forAllRelatedIdentifiers,
   getStore,
-  isBelongsTo,
-  isCollection,
-  isHasMany,
-  isImplicit,
+  isBelongsToEdge,
+  isCollectionEdge,
+  isHasManyEdge,
+  isImplicitEdge,
   isNew,
-  isResource,
+  isResourceEdge,
   notifyChange,
   removeIdentifierCompletelyFromRelationship,
 } from './-utils';
-import { type CollectionEdge, createCollectionEdge, legacyGetCollectionRelationshipData } from './edges/collection';
+import {
+  createLegacyBelongsToEdge,
+  getLegacyBelongsToRelationshipData,
+  type LegacyBelongsToEdge,
+} from './edges/belongs-to';
+import type { CollectionEdge } from './edges/collection';
+import { createLegacyHasManyEdge, legacyGetCollectionRelationshipData, type LegacyHasManyEdge } from './edges/has-many';
 import type { ImplicitEdge, ImplicitMeta } from './edges/implicit';
 import { createImplicitEdge } from './edges/implicit';
-import {
-  createResourceEdge,
-  getResourceRelationshipData,
-  legacyGetResourceRelationshipData,
-  type ResourceEdge,
-} from './edges/resource';
+import type { ResourceEdge } from './edges/resource';
+import { createResourceEdge, getResourceRelationshipData } from './edges/resource';
 import addToRelatedRecords from './operations/add-to-related-records';
 import { mergeIdentifier } from './operations/merge-identifier';
 import removeFromRelatedRecords from './operations/remove-from-related-records';
 import replaceRelatedRecord from './operations/replace-related-record';
 import replaceRelatedRecords from './operations/replace-related-records';
-import updateRelationshipOperation from './operations/update-relationship';
+import { updateRelationshipOperation } from './operations/update-relationship';
 
-export type GraphEdge = ImplicitEdge | CollectionEdge | ResourceEdge;
+export type GraphEdge = ImplicitEdge | LegacyHasManyEdge | LegacyBelongsToEdge | ResourceEdge | CollectionEdge;
 
 export const Graphs = getOrSetGlobal('Graphs', new Map<CacheCapabilitiesManager, Graph>());
 
@@ -58,6 +60,10 @@ type PendingOps = {
 
 export function isSingleKind(kind: UpgradedMeta['kind']): kind is 'belongsTo' | 'resource' {
   return kind === 'belongsTo' || kind === 'resource';
+}
+
+function isSingleEdge(edge: GraphEdge): edge is LegacyBelongsToEdge | ResourceEdge {
+  return isBelongsToEdge(edge) || isResourceEdge(edge);
 }
 
 export function isMultiKind(kind: UpgradedMeta['kind']): kind is 'hasMany' | 'collection' {
@@ -101,7 +107,7 @@ export class Graph {
   declare _willSyncLocal: boolean;
   declare silenceNotifications: boolean;
   declare _pushedUpdates: PendingOps;
-  declare _updatedRelationships: Set<CollectionEdge>;
+  declare _updatedRelationships: Set<LegacyHasManyEdge>;
   declare _transaction: number | null;
   declare _removing: StableRecordIdentifier | null;
 
@@ -186,10 +192,12 @@ export class Graph {
     if (!relationship) {
       const meta = this.getDefinition(identifier, propertyName);
 
-      if (isSingleKind(meta.kind)) {
+      if (meta.kind === 'belongsTo') {
+        relationship = relationships[propertyName] = createLegacyBelongsToEdge(meta, identifier);
+      } else if (meta.kind === 'resource') {
         relationship = relationships[propertyName] = createResourceEdge(meta, identifier);
       } else if (meta.kind === 'hasMany') {
-        relationship = relationships[propertyName] = createCollectionEdge(meta, identifier);
+        relationship = relationships[propertyName] = createLegacyHasManyEdge(meta, identifier);
       } else if (meta.kind === 'collection') {
         assert(`Collection is not yet implemented`);
       } else {
@@ -215,16 +223,16 @@ export class Graph {
   getData(identifier: StableRecordIdentifier, propertyName: string): ResourceRelationship | CollectionRelationship {
     const relationship = this.get(identifier, propertyName);
 
-    assert(`Cannot getData() on an implicit relationship`, !isImplicit(relationship));
+    assert(`Cannot getData() on an implicit relationship`, !isImplicitEdge(relationship));
 
-    if (isBelongsTo(relationship)) {
-      return legacyGetResourceRelationshipData(relationship);
-    } else if (isHasMany(relationship)) {
+    if (isBelongsToEdge(relationship)) {
+      return getLegacyBelongsToRelationshipData(relationship);
+    } else if (isHasManyEdge(relationship)) {
       return legacyGetCollectionRelationshipData(relationship);
-    } else if (isResource(relationship)) {
+    } else if (isResourceEdge(relationship)) {
       return getResourceRelationshipData(relationship);
     } else {
-      assert(`Expected a collection relationship`, isCollection(relationship));
+      assert(`Expected a collection relationship`, isCollectionEdge(relationship));
       throw new Error('not implemented');
       // return getCollectionRelationshipData(relationship);
     }
@@ -337,7 +345,7 @@ export class Graph {
           return;
         }
         /*#__NOINLINE__*/ destroyRelationship(this, rel, silenceNotifications);
-        if (/*#__NOINLINE__*/ isImplicit(rel)) {
+        if (/*#__NOINLINE__*/ isImplicitEdge(rel)) {
           // @ts-expect-error
           relationships[key] = undefined;
         }
@@ -354,9 +362,9 @@ export class Graph {
     if (!relationship) {
       return false;
     }
-    if (isBelongsTo(relationship)) {
+    if (isSingleEdge(relationship)) {
       return relationship.localState !== relationship.remoteState;
-    } else if (isHasMany(relationship)) {
+    } else if (isHasManyEdge(relationship)) {
       const hasAdditions = relationship.additions !== null && relationship.additions.size > 0;
       const hasRemovals = relationship.removals !== null && relationship.removals.size > 0;
       return hasAdditions || hasRemovals || isReordered(relationship);
@@ -379,7 +387,7 @@ export class Graph {
       if (!relationship) {
         continue;
       }
-      if (isBelongsTo(relationship)) {
+      if (isSingleEdge(relationship)) {
         if (relationship.localState !== relationship.remoteState) {
           changed.set(field, {
             kind: 'resource',
@@ -387,7 +395,7 @@ export class Graph {
             localState: relationship.localState,
           });
         }
-      } else if (isHasMany(relationship)) {
+      } else if (isHasManyEdge(relationship)) {
         const hasAdditions = relationship.additions !== null && relationship.additions.size > 0;
         const hasRemovals = relationship.removals !== null && relationship.removals.size > 0;
         const reordered = isReordered(relationship);
@@ -437,7 +445,7 @@ export class Graph {
       }
 
       if (this._isDirty(identifier, field)) {
-        rollbackRelationship(this, identifier, field, relationship as CollectionEdge | ResourceEdge);
+        rollbackRelationship(this, identifier, field, relationship as LegacyHasManyEdge | LegacyBelongsToEdge);
         changed.push(field);
       }
     }
@@ -489,7 +497,7 @@ export class Graph {
   ): void {
     assert(
       `Cannot update an implicit relationship`,
-      op.op === 'deleteRecord' || op.op === 'mergeIdentifiers' || !isImplicit(this.get(op.record, op.field))
+      op.op === 'deleteRecord' || op.op === 'mergeIdentifiers' || !isImplicitEdge(this.get(op.record, op.field))
     );
     if (LOG_GRAPH) {
       // eslint-disable-next-line no-console
@@ -554,7 +562,7 @@ export class Graph {
     }
   }
 
-  _scheduleLocalSync(relationship: CollectionEdge) {
+  _scheduleLocalSync(relationship: LegacyHasManyEdge) {
     this._updatedRelationships.add(relationship);
     if (!this._willSyncLocal) {
       this._willSyncLocal = true;
@@ -600,7 +608,7 @@ export class Graph {
     }
   }
 
-  _addToTransaction(relationship: CollectionEdge | ResourceEdge) {
+  _addToTransaction(relationship: LegacyHasManyEdge | LegacyBelongsToEdge) {
     assert(`expected a transaction`, this._transaction !== null);
     if (LOG_GRAPH) {
       // eslint-disable-next-line no-console
@@ -670,7 +678,7 @@ function flushPendingList(graph: Graph, opList: RemoteRelationshipOperation[]) {
 // disconnect the graph.  Because it's not async, we don't need to keep around
 // the identifier as an id-wrapper for references
 function destroyRelationship(graph: Graph, rel: GraphEdge, silenceNotifications?: boolean) {
-  if (isImplicit(rel)) {
+  if (isImplicitEdge(rel)) {
     if (graph.isReleasable(rel.identifier)) {
       /*#__NOINLINE__*/ removeCompletelyFromInverse(graph, rel);
     }
@@ -722,37 +730,39 @@ function notifyInverseOfDematerialization(
   }
 
   const relationship = graph.get(inverseIdentifier, inverseKey);
-  assert(`expected no implicit`, !isImplicit(relationship));
+  assert(`expected no implicit`, !isImplicitEdge(relationship));
 
   // For remote members, it is possible that inverseRecordData has already been associated to
   // to another record. For such cases, do not dematerialize the inverseRecordData
-  if (!isBelongsTo(relationship) || !relationship.localState || identifier === relationship.localState) {
+  if (!isSingleEdge(relationship) || !relationship.localState || identifier === relationship.localState) {
     /*#__NOINLINE__*/ removeDematerializedInverse(graph, relationship, identifier, silenceNotifications);
   }
 }
 
-function clearRelationship(relationship: CollectionEdge | ResourceEdge) {
-  if (isBelongsTo(relationship)) {
+function clearRelationship(relationship: LegacyHasManyEdge | LegacyBelongsToEdge | ResourceEdge | CollectionEdge) {
+  if (isBelongsToEdge(relationship)) {
     relationship.localState = null;
     relationship.remoteState = null;
     relationship.state.hasReceivedData = false;
     relationship.state.isEmpty = true;
-  } else {
+  } else if (isHasManyEdge(relationship)) {
     relationship.remoteMembers.clear();
     relationship.remoteState = [];
     relationship.additions = null;
     relationship.removals = null;
     relationship.localState = null;
+  } else {
+    throw new Error('not implemented');
   }
 }
 
 function removeDematerializedInverse(
   graph: Graph,
-  relationship: CollectionEdge | ResourceEdge,
+  relationship: LegacyHasManyEdge | LegacyBelongsToEdge | ResourceEdge | CollectionEdge,
   inverseIdentifier: StableRecordIdentifier,
   silenceNotifications?: boolean
 ) {
-  if (isBelongsTo(relationship)) {
+  if (isBelongsToEdge(relationship)) {
     const localInverse = relationship.localState;
     if (!relationship.definition.isAsync || (localInverse && isNew(localInverse))) {
       // unloading inverse of a sync relationship is treated as a client-side
@@ -779,7 +789,7 @@ function removeDematerializedInverse(
     if (!silenceNotifications) {
       notifyChange(graph, relationship.identifier, relationship.definition.key);
     }
-  } else {
+  } else if (isHasManyEdge(relationship)) {
     if (!relationship.definition.isAsync || (inverseIdentifier && isNew(inverseIdentifier))) {
       // unloading inverse of a sync relationship is treated as a client-side
       // delete, so actually remove the models don't merely invalidate the cp
@@ -794,6 +804,8 @@ function removeDematerializedInverse(
     if (!silenceNotifications) {
       notifyChange(graph, relationship.identifier, relationship.definition.key);
     }
+  } else {
+    throw new Error('not implemented');
   }
 }
 
@@ -807,21 +819,23 @@ function removeCompletelyFromInverse(graph: Graph, relationship: GraphEdge) {
     }
   });
 
-  if (isBelongsTo(relationship)) {
+  if (isBelongsToEdge(relationship)) {
     if (!relationship.definition.isAsync) {
       clearRelationship(relationship);
     }
 
     relationship.localState = null;
-  } else if (isHasMany(relationship)) {
+  } else if (isHasManyEdge(relationship)) {
     if (!relationship.definition.isAsync) {
       clearRelationship(relationship);
 
       notifyChange(graph, relationship.identifier, relationship.definition.key);
     }
-  } else {
+  } else if (isImplicitEdge(relationship)) {
     relationship.remoteMembers.clear();
     relationship.localMembers.clear();
+  } else {
+    throw new Error('not implemented');
   }
 }
 
@@ -845,7 +859,7 @@ function addPending(
   arr.push(op);
 }
 
-function isReordered(relationship: CollectionEdge): boolean {
+function isReordered(relationship: LegacyHasManyEdge): boolean {
   // if we are dirty we are never re-ordered because accessing
   // the state would flush away any reordering.
   if (relationship.isDirty) {

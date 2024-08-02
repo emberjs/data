@@ -6,13 +6,14 @@ import type { Links, Meta } from '@warp-drive/core-types/spec/json-api-raw';
 import type { UpgradedMeta } from '../-edge-definition';
 import type { RelationshipState } from '../-state';
 import { createState } from '../-state';
+
 /**
  * Stores the data for one side of a "single" resource relationship.
  *
  * @typedoc
  */
-export interface ResourceEdge {
-  definition: UpgradedMeta & { kind: 'resource' };
+export interface LegacyBelongsToEdge {
+  definition: UpgradedMeta & { kind: 'belongsTo' };
   identifier: StableRecordIdentifier;
   state: RelationshipState;
   localState: StableRecordIdentifier | null;
@@ -22,12 +23,15 @@ export interface ResourceEdge {
   transactionRef: number;
 }
 
-export function isResourceKind(definition: UpgradedMeta): definition is UpgradedMeta & { kind: 'resource' } {
-  return definition.kind === 'resource';
+export function isLegacyBelongsToKind(definition: UpgradedMeta): definition is UpgradedMeta & { kind: 'belongsTo' } {
+  return definition.kind === 'belongsTo';
 }
 
-export function createResourceEdge(definition: UpgradedMeta, identifier: StableRecordIdentifier): ResourceEdge {
-  assert(`Expected a resource relationship`, isResourceKind(definition));
+export function createLegacyBelongsToEdge(
+  definition: UpgradedMeta,
+  identifier: StableRecordIdentifier
+): LegacyBelongsToEdge {
+  assert(`Expected a belongsTo relationship`, isLegacyBelongsToKind(definition));
   return {
     definition,
     identifier,
@@ -40,7 +44,7 @@ export function createResourceEdge(definition: UpgradedMeta, identifier: StableR
   };
 }
 
-export function getResourceRelationshipData(source: ResourceEdge): ResourceRelationship {
+export function getLegacyBelongsToRelationshipData(source: LegacyBelongsToEdge): ResourceRelationship {
   let data: StableRecordIdentifier | null | undefined;
   const payload: ResourceRelationship = {};
   if (source.localState) {

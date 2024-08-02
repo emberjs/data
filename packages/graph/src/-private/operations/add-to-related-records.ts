@@ -3,8 +3,8 @@ import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { AddToRelatedRecordsOperation } from '@warp-drive/core-types/graph';
 
 import { _addLocal } from '../-diff';
-import { isHasMany, notifyChange } from '../-utils';
-import type { CollectionEdge } from '../edges/collection';
+import { isHasManyEdge, notifyChange } from '../-utils';
+import type { LegacyHasManyEdge } from '../edges/has-many';
 import type { Graph } from '../graph';
 import { addToInverse } from './replace-related-records';
 
@@ -17,7 +17,7 @@ export default function addToRelatedRecords(graph: Graph, op: AddToRelatedRecord
   const relationship = graph.get(record, op.field);
   assert(
     `You can only '${op.op}' on a hasMany relationship. ${record.type}.${op.field} is a ${relationship.definition.kind}`,
-    isHasMany(relationship)
+    isHasManyEdge(relationship)
   );
   if (Array.isArray(value)) {
     for (let i = 0; i < value.length; i++) {
@@ -32,7 +32,7 @@ export default function addToRelatedRecords(graph: Graph, op: AddToRelatedRecord
 
 function addRelatedRecord(
   graph: Graph,
-  relationship: CollectionEdge,
+  relationship: LegacyHasManyEdge,
   record: StableRecordIdentifier,
   value: StableRecordIdentifier,
   index: number | undefined,

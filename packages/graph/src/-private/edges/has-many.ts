@@ -3,7 +3,7 @@ import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { Links, Meta, PaginationLinks } from '@warp-drive/core-types/spec/json-api-raw';
 
-// import { computeLocalState } from '../-diff';
+import { computeLocalState } from '../-diff';
 import type { UpgradedMeta } from '../-edge-definition';
 import type { RelationshipState } from '../-state';
 import { createState } from '../-state';
@@ -13,8 +13,8 @@ import { createState } from '../-state';
  *
  * @typedoc
  */
-export interface CollectionEdge {
-  definition: UpgradedMeta & { kind: 'collection' };
+export interface LegacyHasManyEdge {
+  definition: UpgradedMeta & { kind: 'hasMany' };
   identifier: StableRecordIdentifier;
   state: RelationshipState;
 
@@ -37,12 +37,15 @@ export interface CollectionEdge {
   };
 }
 
-export function isCollectionKind(definition: UpgradedMeta): definition is UpgradedMeta & { kind: 'collection' } {
-  return definition.kind === 'collection';
+export function isLegacyHasManyKind(definition: UpgradedMeta): definition is UpgradedMeta & { kind: 'hasMany' } {
+  return definition.kind === 'hasMany';
 }
 
-export function createCollectionEdge(definition: UpgradedMeta, identifier: StableRecordIdentifier): CollectionEdge {
-  assert(`Expected a hasMany relationship`, isCollectionKind(definition));
+export function createLegacyHasManyEdge(
+  definition: UpgradedMeta,
+  identifier: StableRecordIdentifier
+): LegacyHasManyEdge {
+  assert(`Expected a hasMany relationship`, isLegacyHasManyKind(definition));
   return {
     definition,
     identifier,
@@ -62,11 +65,11 @@ export function createCollectionEdge(definition: UpgradedMeta, identifier: Stabl
   };
 }
 
-export function getCollectionRelationshipData(source: CollectionEdge): CollectionRelationship {
+export function legacyGetCollectionRelationshipData(source: LegacyHasManyEdge): CollectionRelationship {
   const payload: CollectionRelationship = {};
 
   if (source.state.hasReceivedData) {
-    // payload.data = computeLocalState(source);
+    payload.data = computeLocalState(source);
   }
 
   if (source.links) {

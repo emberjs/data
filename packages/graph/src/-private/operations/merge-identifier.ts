@@ -1,9 +1,9 @@
 import type { MergeOperation } from '@warp-drive/core-types/cache/operations';
 
-import { forAllRelatedIdentifiers, isBelongsTo, isHasMany, notifyChange } from '../-utils';
-import type { CollectionEdge } from '../edges/collection';
+import { forAllRelatedIdentifiers, isBelongsToEdge, isHasManyEdge, notifyChange } from '../-utils';
+import type { LegacyHasManyEdge } from '../edges/has-many';
 import type { ImplicitEdge } from '../edges/implicit';
-import type { ResourceEdge } from '../edges/resource';
+import type { LegacyBelongsToEdge } from '../edges/belongs-to';
 import type { Graph, GraphEdge } from '../graph';
 
 export function mergeIdentifier(graph: Graph, op: MergeOperation, relationships: Record<string, GraphEdge>) {
@@ -25,16 +25,16 @@ function mergeIdentifierForRelationship(graph: Graph, op: MergeOperation, rel: G
 }
 
 function mergeInRelationship(graph: Graph, rel: GraphEdge, op: MergeOperation): void {
-  if (isBelongsTo(rel)) {
+  if (isBelongsToEdge(rel)) {
     mergeBelongsTo(graph, rel, op);
-  } else if (isHasMany(rel)) {
+  } else if (isHasManyEdge(rel)) {
     mergeHasMany(graph, rel, op);
   } else {
     mergeImplicit(graph, rel, op);
   }
 }
 
-function mergeBelongsTo(graph: Graph, rel: ResourceEdge, op: MergeOperation): void {
+function mergeBelongsTo(graph: Graph, rel: LegacyBelongsToEdge, op: MergeOperation): void {
   if (rel.remoteState === op.record) {
     rel.remoteState = op.value;
   }
@@ -44,7 +44,7 @@ function mergeBelongsTo(graph: Graph, rel: ResourceEdge, op: MergeOperation): vo
   }
 }
 
-function mergeHasMany(graph: Graph, rel: CollectionEdge, op: MergeOperation): void {
+function mergeHasMany(graph: Graph, rel: LegacyHasManyEdge, op: MergeOperation): void {
   if (rel.remoteMembers.has(op.record)) {
     rel.remoteMembers.delete(op.record);
     rel.remoteMembers.add(op.value);

@@ -33,9 +33,9 @@ import { DEBUG } from '@warp-drive/build-config/env';
 import { getStore } from './-private/-utils';
 import { Graph, Graphs } from './-private/graph';
 
-export { isBelongsTo } from './-private/-utils';
-export type { CollectionEdge } from './-private/edges/collection';
-export type { ResourceEdge } from './-private/edges/resource';
+export { isBelongsToEdge as isBelongsTo } from './-private/-utils';
+export type { LegacyHasManyEdge as CollectionEdge } from './-private/edges/has-many';
+export type { LegacyBelongsToEdge as ResourceEdge } from './-private/edges/belongs-to';
 export type { ImplicitEdge } from './-private/edges/implicit';
 export type { GraphEdge } from './-private/graph';
 export type { UpgradedMeta } from './-private/-edge-definition';

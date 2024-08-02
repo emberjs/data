@@ -5,10 +5,10 @@ import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
-import { isBelongsTo } from './-utils';
+import { isBelongsToEdge } from './-utils';
 import { assertPolymorphicType } from './debug/assert-polymorphic-type';
-import type { CollectionEdge } from './edges/collection';
-import type { ResourceEdge } from './edges/resource';
+import type { LegacyBelongsToEdge } from './edges/belongs-to';
+import type { LegacyHasManyEdge } from './edges/has-many';
 import type { Graph } from './graph';
 import replaceRelatedRecord from './operations/replace-related-record';
 import replaceRelatedRecords from './operations/replace-related-records';
@@ -164,7 +164,7 @@ type Diff<T> = {
 
 export function diffCollection(
   finalState: StableRecordIdentifier[],
-  relationship: CollectionEdge,
+  relationship: LegacyHasManyEdge,
   onAdd: (v: StableRecordIdentifier) => void,
   onDel: (v: StableRecordIdentifier) => void
 ): Diff<StableRecordIdentifier> {
@@ -202,7 +202,7 @@ export function diffCollection(
   return _compare(finalState, finalSet, remoteState, remoteMembers, onAdd, onDel);
 }
 
-export function computeLocalState(storage: CollectionEdge): StableRecordIdentifier[] {
+export function computeLocalState(storage: LegacyHasManyEdge): StableRecordIdentifier[] {
   if (!storage.isDirty) {
     assert(`Expected localState to be present`, Array.isArray(storage.localState));
     return storage.localState;
@@ -227,7 +227,7 @@ export function computeLocalState(storage: CollectionEdge): StableRecordIdentifi
 export function _addLocal(
   graph: Graph,
   record: StableRecordIdentifier,
-  relationship: CollectionEdge,
+  relationship: LegacyHasManyEdge,
   value: StableRecordIdentifier,
   index: number | null
 ): boolean {
@@ -284,7 +284,7 @@ export function _addLocal(
   return true;
 }
 
-export function _removeLocal(relationship: CollectionEdge, value: StableRecordIdentifier): boolean {
+export function _removeLocal(relationship: LegacyHasManyEdge, value: StableRecordIdentifier): boolean {
   assert(`expected an identifier to remove from the collection relationship`, value);
   const { remoteMembers, additions } = relationship;
   let removals = relationship.removals;
@@ -327,7 +327,7 @@ export function _removeLocal(relationship: CollectionEdge, value: StableRecordId
   return true;
 }
 
-export function _removeRemote(relationship: CollectionEdge, value: StableRecordIdentifier): boolean {
+export function _removeRemote(relationship: LegacyHasManyEdge, value: StableRecordIdentifier): boolean {
   assert(`expected an identifier to remove from the collection relationship`, value);
   const { remoteMembers, additions, removals, remoteState } = relationship;
 
@@ -379,9 +379,9 @@ export function rollbackRelationship(
   graph: Graph,
   identifier: StableRecordIdentifier,
   field: string,
-  relationship: CollectionEdge | ResourceEdge
+  relationship: LegacyHasManyEdge | LegacyBelongsToEdge
 ): void {
-  if (isBelongsTo(relationship)) {
+  if (isBelongsToEdge(relationship)) {
     replaceRelatedRecord(
       graph,
       {

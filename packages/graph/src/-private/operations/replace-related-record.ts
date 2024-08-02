@@ -6,7 +6,7 @@ import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { ReplaceRelatedRecordOperation } from '@warp-drive/core-types/graph';
 
-import { isBelongsTo, isNew, notifyChange } from '../-utils';
+import { isBelongsToEdge, isNew, notifyChange } from '../-utils';
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
 import type { Graph } from '../graph';
 import { addToInverse, notifyInverseOfPotentialMaterialization, removeFromInverse } from './replace-related-records';
@@ -15,7 +15,7 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
   const relationship = graph.get(op.record, op.field);
   assert(
     `You can only '${op.op}' on a belongsTo relationship. ${op.record.type}.${op.field} is a ${relationship.definition.kind}`,
-    isBelongsTo(relationship)
+    isBelongsToEdge(relationship)
   );
   if (isRemote) {
     graph._addToTransaction(relationship);

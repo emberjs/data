@@ -11,7 +11,9 @@ import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-
 
 import type { UpgradedMeta } from './-edge-definition';
 import { coerceId } from './coerce-id';
+import type { LegacyBelongsToEdge } from './edges/belongs-to';
 import type { CollectionEdge } from './edges/collection';
+import type { LegacyHasManyEdge } from './edges/has-many';
 import type { ImplicitEdge } from './edges/implicit';
 import type { ResourceEdge } from './edges/resource';
 import type { Graph, GraphEdge } from './graph';
@@ -33,7 +35,7 @@ export function expandingSet<T>(cache: Record<string, Record<string, T>>, key1: 
 
 export function assertValidRelationshipPayload(graph: Graph, op: UpdateRelationshipOperation) {
   const relationship = graph.get(op.record, op.field);
-  assert(`Cannot update an implicit relationship`, isHasMany(relationship) || isBelongsTo(relationship));
+  assert(`Cannot update an implicit relationship`, !isImplicitEdge(relationship));
   const payload = op.value;
   const { definition, identifier, state } = relationship;
   const { type } = identifier;
@@ -81,35 +83,35 @@ export function isNew(identifier: StableRecordIdentifier): boolean {
   return Boolean(cache?.isNew(identifier));
 }
 
-export function isResource(relationship: GraphEdge): relationship is ResourceEdge {
+export function isResourceEdge(relationship: GraphEdge): relationship is ResourceEdge {
   return relationship.definition.kind === 'resource';
 }
 
-export function isCollection(relationship: GraphEdge): relationship is CollectionEdge {
+export function isCollectionEdge(relationship: GraphEdge): relationship is CollectionEdge {
   return relationship.definition.kind === 'collection';
 }
 
-export function isBelongsTo(relationship: GraphEdge): relationship is ResourceEdge {
+export function isBelongsToEdge(relationship: GraphEdge): relationship is LegacyBelongsToEdge {
   return relationship.definition.kind === 'belongsTo';
 }
 
-export function isImplicit(relationship: GraphEdge): relationship is ImplicitEdge {
+export function isImplicitEdge(relationship: GraphEdge): relationship is ImplicitEdge {
   return relationship.definition.isImplicit;
 }
 
-export function isHasMany(relationship: GraphEdge): relationship is CollectionEdge {
+export function isHasManyEdge(relationship: GraphEdge): relationship is LegacyHasManyEdge {
   return relationship.definition.kind === 'hasMany';
 }
 
 export function forAllRelatedIdentifiers(rel: GraphEdge, cb: (identifier: StableRecordIdentifier) => void): void {
-  if (isBelongsTo(rel)) {
+  if (isBelongsToEdge(rel) || isResourceEdge(rel)) {
     if (rel.remoteState) {
       cb(rel.remoteState);
     }
     if (rel.localState && rel.localState !== rel.remoteState) {
       cb(rel.localState);
     }
-  } else if (isHasMany(rel)) {
+  } else if (isHasManyEdge(rel)) {
     // TODO
     // rel.remoteMembers.forEach(cb);
     // might be simpler if performance is not a concern
@@ -118,6 +120,8 @@ export function forAllRelatedIdentifiers(rel: GraphEdge, cb: (identifier: Stable
       cb(inverseIdentifier);
     }
     rel.additions?.forEach(cb);
+  } else if (isCollectionEdge(rel)) {
+    throw new Error('Not implemented');
   } else {
     rel.localMembers.forEach(cb);
     rel.remoteMembers.forEach((inverseIdentifier) => {
@@ -140,7 +144,7 @@ export function removeIdentifierCompletelyFromRelationship(
   value: StableRecordIdentifier,
   silenceNotifications?: boolean
 ): void {
-  if (isBelongsTo(relationship)) {
+  if (isBelongsToEdge(relationship)) {
     if (relationship.remoteState === value) {
       relationship.remoteState = null;
     }
@@ -154,7 +158,7 @@ export function removeIdentifierCompletelyFromRelationship(
         notifyChange(graph, relationship.identifier, relationship.definition.key);
       }
     }
-  } else if (isHasMany(relationship)) {
+  } else if (isHasManyEdge(relationship)) {
     relationship.remoteMembers.delete(value);
     relationship.additions?.delete(value);
     const wasInRemovals = relationship.removals?.delete(value);
@@ -176,9 +180,11 @@ export function removeIdentifierCompletelyFromRelationship(
         }
       }
     }
-  } else {
+  } else if (isImplicitEdge(relationship)) {
     relationship.remoteMembers.delete(value);
     relationship.localMembers.delete(value);
+  } else {
+    throw new Error('Not implemented');
   }
 }
 
