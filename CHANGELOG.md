@@ -1,5 +1,10 @@
 # Ember Data Changelog
 
+## 4.6.6 (2024-08-05)
+
+### :rocket: Enhancement
+* [#9520](https://github.com/emberjs/data/pull/9520) Remove usage of deprecated `@ember/error` package
+
 ## 4.6.5 (2024-05-08)
 
 #### :bug: Bug Fix
