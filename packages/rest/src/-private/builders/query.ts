@@ -43,7 +43,7 @@ import { copyForwardUrlOptions, extractCacheOptions } from './-utils';
  * - `backgroundReload` - Whether to reload the request if it is already in the store, but to also resolve the
  *      promise with the cached value, not supplying this option will delegate to the store's CachePolicy,
  *      defaulting to `false` if none is configured.
- * - `urlParamsSetting` - an object containing options for how to serialize the query params (see `buildQueryParams`)
+ * - `urlParamsSettings` - an object containing options for how to serialize the query params (see `buildQueryParams`)
  *
  * ```ts
  * import { query } from '@ember-data/rest/request';
