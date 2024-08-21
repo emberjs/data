@@ -31,6 +31,8 @@
     "ember-cli-babel": "^7.26.11"
   },
   "devDependencies": {
+    "@ember/string": "^3.0.1",
+    "@ember-data/store": "workspace:4.12.8",
     "webpack": "^5.77.0"
   },
   "engines": {

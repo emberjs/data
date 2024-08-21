@@ -45,6 +45,7 @@
     "@babel/core": "^7.21.4",
     "@babel/runtime": "^7.21.0",
     "@ember-data/adapter": "workspace:4.12.8",
+    "@ember-data/legacy-compat": "workspace:4.12.8",
     "@ember-data/model": "workspace:4.12.8",
     "@ember-data/serializer": "workspace:4.12.8",
     "@ember-data/store": "workspace:4.12.8",

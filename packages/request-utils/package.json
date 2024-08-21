@@ -65,8 +65,10 @@
     "ember-source": "~5.7.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.10",
     "rollup": "^4.14.3",
+    "rsvp": "^4.8.5",
     "typescript": "^5.4.5",
-    "walk-sync": "^3.0.0"
+    "walk-sync": "^3.0.0",
+    "webpack": "^5.77.0"
   },
   "ember": {
     "edition": "octane"
