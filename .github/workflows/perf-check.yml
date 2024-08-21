@@ -33,7 +33,7 @@ jobs:
           originSha=$(git rev-parse HEAD^2)
           echo $originSha > tmp/sha-for-commit.txt
           git show --format=short --no-patch $originSha
-      - uses: pnpm/action-setup@c3b53f6a16e57305370b4ae5a540c2077a1d50dd # tag=v2.2.4
+      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # tag=v4.0.0
       - uses: actions/setup-node@v3
         with:
           node-version: 19.x
