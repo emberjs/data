@@ -67,8 +67,9 @@
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-node-resolve": "^15.0.1",
     "tslib": "^2.5.0",
+    "typescript": "^5.0.3",
     "walk-sync": "^3.0.0",
-    "typescript": "^5.0.3"
+    "webpack": "^5.77.0"
   },
   "ember": {
     "edition": "octane"
@@ -79,5 +80,5 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.1.0"
+  "packageManager": "pnpm@9.7.1"
 }
