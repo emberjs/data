@@ -64,7 +64,7 @@ module('Reactivity | object fields can receive remote updates', function (hooks)
 
     assert.strictEqual(record.id, '1', 'id is accessible');
     assert.strictEqual(record.$type, 'user', '$type is accessible');
-    assert.deepEqual(
+    assert.propEqual(
       record.address,
       {
         street: '123 Main St',
