@@ -56,6 +56,63 @@ export class ManagedObject {
     const transaction = false;
 
     const proxy = new Proxy(this[SOURCE], {
+      ownKeys() {
+        if (isSchemaObject) {
+          const fields = schema.fields({ type: field.type! });
+          return Array.from(fields.keys());
+        }
+
+        return Object.keys(self[SOURCE]);
+      },
+
+      has(target: unknown, prop: string | number | symbol) {
+        if (isSchemaObject) {
+          const fields = schema.fields({ type: field.type! });
+          return fields.has(prop as string);
+        }
+
+        return prop in self[SOURCE];
+      },
+
+      getOwnPropertyDescriptor(target, prop) {
+        if (!isSchemaObject) {
+          return {
+            writable: false,
+            enumerable: true,
+            configurable: true,
+          };
+        }
+        const fields = schema.fields({ type: field.type! });
+        if (!fields.has(prop as string)) {
+          throw new Error(`No field named ${String(prop)} on ${field.type}`);
+        }
+        const schemaForField = fields.get(prop as string)!;
+        switch (schemaForField.kind) {
+          case 'derived':
+            return {
+              writable: false,
+              enumerable: true,
+              configurable: true,
+            };
+          case '@local':
+          case 'field':
+          case 'attribute':
+          case 'resource':
+          case 'belongsTo':
+          case 'hasMany':
+          case 'collection':
+          case 'schema-array':
+          case 'array':
+          case 'schema-object':
+          case 'object':
+            return {
+              writable: false, // IS_EDITABLE,
+              enumerable: true,
+              configurable: true,
+            };
+        }
+      },
+
       get<R extends typeof Proxy<object>>(target: object, prop: keyof R, receiver: R) {
         if (prop === OBJECT_SIGNAL) {
           return _SIGNAL;
