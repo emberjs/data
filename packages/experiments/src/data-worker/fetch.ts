@@ -166,13 +166,17 @@ export function enhanceReason(reason?: string) {
 }
 
 function prepareRequest(request: Context['request']): { signal: AbortSignal | null; request: RequestInfo } {
-  const { signal } = request;
+  const { signal, headers } = request;
   const requestCopy = Object.assign({}, request) as RequestInfo;
 
   delete requestCopy.store;
 
   if (signal instanceof AbortSignal) {
     delete requestCopy.signal;
+  }
+
+  if (headers instanceof Headers) {
+    requestCopy.headers = Array.from(headers.entries()) as unknown as Headers;
   }
 
   return { signal: signal || null, request: requestCopy };

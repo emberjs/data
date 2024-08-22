@@ -42,7 +42,7 @@ export class DataWorker {
           this.abortRequest(event.data);
           break;
         case 'request':
-          void this.request(event.data);
+          void this.request(prepareRequest(event.data));
           break;
       }
     };
@@ -83,13 +83,10 @@ type Mutable<T> = { -readonly [P in keyof T]: T[P] };
 function softCloneResponse(response: Response | ResponseInfo | null) {
   if (!response) return null;
 
-  const clone: Partial<Mutable<Omit<Response, 'headers'>>> & { headers?: Record<string, string | number> } = {};
+  const clone: Partial<Mutable<Response>> = {};
 
   if (response.headers) {
-    clone.headers = {};
-    for (const [key, value] of response.headers.entries()) {
-      clone.headers[key] = value;
-    }
+    clone.headers = Array.from(response.headers.entries()) as unknown as Headers;
   }
 
   clone.ok = response.ok;
@@ -113,4 +110,12 @@ function prepareResponse<T>(result: StructuredDataDocument<T>) {
   };
 
   return newResponse;
+}
+
+function prepareRequest(event: RequestEventData) {
+  if (event.data.headers) {
+    event.data.headers = new Headers(event.data.headers);
+  }
+
+  return event;
 }
