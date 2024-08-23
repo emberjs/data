@@ -21,20 +21,30 @@ export class DataWorker {
   }
 
   initialize() {
-    const fn = (event: MessageEvent<ThreadInitEventData>) => {
-      const { type } = event.data;
-
-      switch (type) {
-        case 'connect':
-          this.setupThread(event.data.thread, event.ports[0]);
-          break;
-      }
-    };
-
     if (this.isSharedWorker) {
-      (globalThis as unknown as { onconnect: typeof globalThis.onmessage }).onconnect = fn;
+      (globalThis as unknown as { onconnect: typeof globalThis.onmessage }).onconnect = (e) => {
+        const port = e.ports[0];
+        port.onmessage = (event: MessageEvent<ThreadInitEventData>) => {
+          const { type } = event.data;
+
+          switch (type) {
+            case 'connect':
+              this.setupThread(event.data.thread, port);
+              break;
+          }
+        };
+        port.start();
+      };
     } else {
-      globalThis.onmessage = fn;
+      globalThis.onmessage = (event: MessageEvent<ThreadInitEventData>) => {
+        const { type } = event.data;
+
+        switch (type) {
+          case 'connect':
+            this.setupThread(event.data.thread, event.ports[0]);
+            break;
+        }
+      };
     }
   }
 
