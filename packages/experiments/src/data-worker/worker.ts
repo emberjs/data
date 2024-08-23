@@ -16,8 +16,8 @@ export class DataWorker {
     this.store = new UserStore();
     this.threads = new Map();
     this.pending = new Map();
-    this.initialize();
     this.isSharedWorker = globalThis instanceof WorkerScope;
+    this.initialize();
   }
 
   initialize() {
