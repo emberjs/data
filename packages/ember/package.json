@@ -1,7 +1,7 @@
 {
   "name": "@warp-drive/ember",
   "description": "Data bindings and utilities for Ember applications using WarpDrive",
-  "version": "0.0.0-alpha.63",
+  "version": "0.0.0-alpha.64",
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "repository": {
@@ -44,14 +44,14 @@
     "@ember-data/store": "^4.12.7 || > 5.3.3",
     "@ember-data/request": "^4.12.7 || > 5.3.3",
     "@ember-data/request-utils": "^4.12.7 || > 5.3.3",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.87",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.88",
     "ember-provide-consume-context": "^0.3.1",
     "@ember-data/tracking": "^4.12.7 || > 5.3.3"
   },
   "dependencies": {
     "@ember/test-waiters": "^3.1.0",
     "@embroider/macros": "^1.16.1",
-    "@warp-drive/build-config": "workspace:0.0.0-alpha.38"
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.39"
   },
   "dependenciesMeta": {
     "@ember-data/store": {
@@ -93,13 +93,13 @@
     "@glint/template": "^1.4.0",
     "decorator-transforms": "^2.0.0",
     "@embroider/addon-dev": "^4.3.1",
-    "@ember-data/request": "workspace:5.4.0-alpha.101",
-    "@ember-data/request-utils": "workspace:5.4.0-alpha.101",
-    "@ember-data/store": "workspace:5.4.0-alpha.101",
-    "@ember-data/tracking": "workspace:5.4.0-alpha.101",
+    "@ember-data/request": "workspace:5.4.0-alpha.102",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.102",
+    "@ember-data/store": "workspace:5.4.0-alpha.102",
+    "@ember-data/tracking": "workspace:5.4.0-alpha.102",
     "@ember/test-helpers": "^3.3.0",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.87",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.101",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.88",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.102",
     "babel-plugin-ember-template-compilation": "^2.2.5",
     "ember-template-imports": "^4.1.1",
     "ember-source": "~5.8.0",
