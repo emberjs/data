@@ -1,6 +1,6 @@
 {
   "name": "full-data-asset-size-app",
-  "version": "5.4.0-alpha.103",
+  "version": "5.4.0-alpha.104",
   "private": true,
   "description": "An app for determining asset-size of the meta package",
   "repository": {
@@ -36,7 +36,7 @@
     "ember-cli-dependency-checker": "^3.3.2",
     "ember-cli-htmlbars": "^6.3.0",
     "ember-cli-terser": "^4.0.2",
-    "ember-data": "workspace:5.4.0-alpha.103",
+    "ember-data": "workspace:5.4.0-alpha.104",
     "@ember/test-waiters": "^3.1.0",
     "ember-load-initializers": "^2.1.2",
     "ember-maybe-import-regenerator": "^1.0.0",
