@@ -3,20 +3,25 @@ import type Store from '@ember-data/store';
 
 import type { AbortEventData, RequestEventData, ThreadInitEventData, WorkerThreadEvent } from './types';
 
+const WorkerScope = (globalThis as unknown as { SharedWorkerGlobalScope: FunctionConstructor }).SharedWorkerGlobalScope;
+
 export class DataWorker {
   declare store: Store;
   declare threads: Map<string, MessagePort>;
   declare pending: Map<string, Map<number, Future<unknown>>>;
+  declare isSharedWorker: boolean;
 
   constructor(UserStore: typeof Store) {
+    (globalThis as unknown as { name: string }).name = 'WarpDrive DataWorker';
     this.store = new UserStore();
     this.threads = new Map();
     this.pending = new Map();
     this.initialize();
+    this.isSharedWorker = globalThis instanceof WorkerScope;
   }
 
   initialize() {
-    globalThis.onmessage = (event: MessageEvent<ThreadInitEventData>) => {
+    const fn = (event: MessageEvent<ThreadInitEventData>) => {
       const { type } = event.data;
 
       switch (type) {
@@ -25,6 +30,12 @@ export class DataWorker {
           break;
       }
     };
+
+    if (this.isSharedWorker) {
+      (globalThis as unknown as { onconnect: typeof globalThis.onmessage }).onconnect = fn;
+    } else {
+      globalThis.onmessage = fn;
+    }
   }
 
   setupThread(thread: string, port: MessagePort) {
