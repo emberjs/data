@@ -142,6 +142,23 @@ manager.use([new WorkerFetch(worker)]);
 > SharedWorker and Worker are both supported; however, SharedWorker is preferred. 
 > Worker is sometimes the better choice for test environments.
 
+### Step 3. Configure Persistence
+
+Pass `{ persisted: true }` to the DataWorker as the second arg e.g.
+
+```ts
+new DataWorker(WorkerStore, { persisted: true });
+```
+
+When persistence it activated, if a given request does not have an in-memory cache entry
+the cache handler will first attempt to load a persisted response into the in-memory cache
+before continuing with its checks on staleness etc.
+
+#### Scopes
+
+- setting the scope
+- clearing a scope
+- changing a scope
 
 #### Usage in SSR
 

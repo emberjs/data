@@ -1,6 +1,7 @@
 import type { Future, ResponseInfo, StructuredDataDocument } from '@ember-data/request';
 import type Store from '@ember-data/store';
 
+import { DocumentStorage } from '../document-storage';
 import type { AbortEventData, RequestEventData, ThreadInitEventData, WorkerThreadEvent } from './types';
 
 const WorkerScope = (globalThis as unknown as { SharedWorkerGlobalScope: FunctionConstructor }).SharedWorkerGlobalScope;
@@ -10,17 +11,25 @@ export class DataWorker {
   declare threads: Map<string, MessagePort>;
   declare pending: Map<string, Map<number, Future<unknown>>>;
   declare isSharedWorker: boolean;
+  declare options: { persisted: boolean; scope?: string };
+  declare storage: DocumentStorage;
 
-  constructor(UserStore: typeof Store) {
-    (globalThis as unknown as { name: string }).name = 'WarpDrive DataWorker';
+  constructor(UserStore: typeof Store, options?: { persisted: boolean }) {
     this.store = new UserStore();
     this.threads = new Map();
     this.pending = new Map();
+    this.options = options || { persisted: false };
     this.isSharedWorker = globalThis instanceof WorkerScope;
     this.initialize();
   }
 
   initialize() {
+    // enable the CacheHandler to access the worker
+    (this.store as unknown as { _worker: DataWorker })._worker = this;
+    if (this.options.persisted) {
+      // will be accessed by the worker's CacheHandler off of store
+      this.storage = new DocumentStorage({ scope: this.options.scope });
+    }
     if (this.isSharedWorker) {
       (globalThis as unknown as { onconnect: typeof globalThis.onmessage }).onconnect = (e) => {
         const port = e.ports[0];

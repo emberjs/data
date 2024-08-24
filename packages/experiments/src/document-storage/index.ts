@@ -144,7 +144,7 @@ class InternalDocumentStorage {
   async getDocument(key: DocumentIdentifier): Promise<CacheDocument | null> {
     const cache = await this._read();
     // clone the document to avoid leaking the internal cache
-    const document = structuredClone(cache.documents.get(key.lid));
+    const document = safeDocumentHydrate(cache.documents.get(key.lid));
 
     if (!document) {
       return null;
@@ -209,25 +209,62 @@ class InternalDocumentStorage {
     }
 
     if (docHasData(document.content)) {
-      if (Array.isArray(document.content.data)) {
-        document.content.data.forEach((resourceIdentifier) => {
-          const resource = resourceCollector(resourceIdentifier);
-          resources.set(resourceIdentifier.lid, structuredClone(resource));
-        });
-      } else if (document.content.data) {
-        const resource = resourceCollector(document.content.data);
-        resources.set(document.content.data.lid, structuredClone(resource));
-      }
-
-      if (document.content.included) {
-        document.content.included.forEach((resourceIdentifier) => {
-          const resource = resourceCollector(resourceIdentifier);
-          resources.set(resourceIdentifier.lid, structuredClone(resource));
-        });
-      }
+      this._getResources(document.content, resourceCollector, resources);
     }
 
-    await this._patch(document.content.lid, structuredClone(document), resources);
+    await this._patch(document.content.lid, safeDocumentClone(document), resources);
+  }
+
+  _getResources(
+    document: ResourceDataDocument<ExistingRecordIdentifier>,
+    resourceCollector: (resourceIdentifier: ExistingRecordIdentifier) => ExistingResourceObject,
+    resources: Map<string, ExistingResourceObject> = new Map<string, ExistingResourceObject>()
+  ) {
+    if (Array.isArray(document.data)) {
+      document.data.forEach((resourceIdentifier) => {
+        const resource = resourceCollector(resourceIdentifier);
+        resources.set(resourceIdentifier.lid, structuredClone(resource));
+      });
+    } else if (document.data) {
+      const resource = resourceCollector(document.data);
+      resources.set(document.data.lid, structuredClone(resource));
+    }
+
+    if (document.included) {
+      document.included.forEach((resourceIdentifier) => {
+        const resource = resourceCollector(resourceIdentifier);
+        resources.set(resourceIdentifier.lid, structuredClone(resource));
+      });
+    }
+
+    return resources;
+  }
+
+  async putResources(
+    document: ResourceDataDocument<ExistingRecordIdentifier>,
+    resourceCollector: (resourceIdentifier: ExistingRecordIdentifier) => ExistingResourceObject
+  ) {
+    const fileHandle = await this._fileHandle;
+    // secure a lock before getting latest state
+    const writable = await fileHandle.createWritable();
+
+    const cache = await this._read();
+    const updatedResources = this._getResources(document, resourceCollector);
+
+    updatedResources.forEach((resource, key) => {
+      cache.resources.set(key, resource);
+    });
+
+    const documents = [...cache.documents.entries()];
+    const resources = [...cache.resources.entries()];
+    const cacheFile: CacheFile = {
+      documents,
+      resources,
+    };
+
+    await writable.write(JSON.stringify(cacheFile));
+    await writable.close();
+    this._channel.postMessage({ type: 'patch', key: null, resources: [...updatedResources.keys()] });
   }
 
   async clear(reset?: boolean) {
@@ -251,6 +288,14 @@ class InternalDocumentStorage {
       }
     }
   }
+}
+
+function safeDocumentClone<T>(document: T): T {
+  return structuredClone(document);
+}
+
+function safeDocumentHydrate<T>(document: T): T {
+  return structuredClone(document);
 }
 
 function docHasData<T>(doc: ResourceDocument<T>): doc is ResourceDataDocument<T> {
@@ -309,6 +354,13 @@ export class DocumentStorage {
     resourceCollector: (resourceIdentifier: ExistingRecordIdentifier) => ExistingResourceObject
   ): Promise<void> {
     return this._storage.putDocument(document, resourceCollector);
+  }
+
+  putResources(
+    document: ResourceDataDocument<ExistingRecordIdentifier>,
+    resourceCollector: (resourceIdentifier: ExistingRecordIdentifier) => ExistingResourceObject
+  ): Promise<void> {
+    return this._storage.putResources(document, resourceCollector);
   }
 
   clear(reset?: boolean) {
