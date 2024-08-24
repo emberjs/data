@@ -71,9 +71,17 @@ export default class PromiseManyArray {
         }
         return false;
       };
+      meta.addMixin = (mixin: object) => {
+        deprecate(`Do not use A() on an EmberData PromiseManyArray`, false, {
+          id: 'ember-data:no-a-with-array-like',
+          until: '5.0',
+          since: { enabled: '4.7', available: '4.7' },
+          for: 'ember-data',
+        });
+      };
     } else if (DEBUG) {
       const meta = Ember.meta(this);
-      meta.hasMixin = (mixin: Object) => {
+      meta.addMixin = (mixin: object) => {
         assert(`Do not use A() on an EmberData PromiseManyArray`);
       };
     }
