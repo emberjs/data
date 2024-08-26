@@ -16,10 +16,14 @@ export class ImageWorker {
   declare cache: Map<string, string>;
 
   constructor(options?: { persisted: boolean }) {
+    // disable if running on main thread
+    if (typeof window !== 'undefined') {
+      return;
+    }
     this.threads = new Map();
     this.pendingImages = new Map();
     this.options = options || { persisted: false };
-    this.isSharedWorker = globalThis instanceof WorkerScope;
+    this.isSharedWorker = WorkerScope && globalThis instanceof WorkerScope;
     this.initialize();
   }
 

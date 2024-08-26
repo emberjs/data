@@ -15,11 +15,15 @@ export class DataWorker {
   declare storage: DocumentStorage;
 
   constructor(UserStore: typeof Store, options?: { persisted: boolean }) {
+    // disable if running on main thread
+    if (typeof window !== 'undefined') {
+      return;
+    }
     this.store = new UserStore();
     this.threads = new Map();
     this.pending = new Map();
     this.options = options || { persisted: false };
-    this.isSharedWorker = globalThis instanceof WorkerScope;
+    this.isSharedWorker = WorkerScope && globalThis instanceof WorkerScope;
     this.initialize();
   }
 
