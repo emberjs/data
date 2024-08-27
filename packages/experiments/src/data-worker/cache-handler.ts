@@ -1,6 +1,7 @@
 import type { CacheHandler as CacheHandlerType, Future, NextFn } from '@ember-data/request';
 import type Store from '@ember-data/store';
 import type { StoreRequestContext } from '@ember-data/store';
+import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { ExistingRecordIdentifier, StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type {
@@ -49,7 +50,11 @@ export const CacheHandler: CacheHandlerType = {
             }
             return completeRequest(identifier, store, context, next);
           })
-          .catch(() => {
+          .catch((e) => {
+            if (DEBUG) {
+              // eslint-disable-next-line no-console
+              console.log('Unable to retrieve document from persisted storage', e);
+            }
             return completeRequest(identifier, store, context, next);
           });
       }

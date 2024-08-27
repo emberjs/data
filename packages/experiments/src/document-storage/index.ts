@@ -314,7 +314,7 @@ function safeDocumentSerialize<T>(document: T): T {
   return newDoc as T;
 }
 
-function prepareRequest(request: StoreRequestContext['request']): { signal: AbortSignal | null; request: RequestInfo } {
+function prepareRequest(request: StoreRequestContext['request']): RequestInfo {
   const { signal, headers } = request;
   const requestCopy = Object.assign({}, request) as RequestInfo;
 
@@ -328,7 +328,7 @@ function prepareRequest(request: StoreRequestContext['request']): { signal: Abor
     requestCopy.headers = Array.from(headers.entries()) as unknown as Headers;
   }
 
-  return { signal: signal || null, request: requestCopy };
+  return requestCopy;
 }
 
 type Mutable<T> = { -readonly [P in keyof T]: T[P] };

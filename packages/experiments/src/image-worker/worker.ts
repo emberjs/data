@@ -22,6 +22,7 @@ export class ImageWorker {
     }
     this.threads = new Map();
     this.pendingImages = new Map();
+    this.cache = new Map();
     this.options = options || { persisted: false };
     this.isSharedWorker = WorkerScope && globalThis instanceof WorkerScope;
     this.initialize();
@@ -96,6 +97,6 @@ export class ImageWorker {
 
     const objectUrl = await this.fetch(url);
     const port = this.threads.get(thread)!;
-    port.postMessage({ type: 'success-response', thread, url: objectUrl });
+    port.postMessage({ type: 'success-response', thread, url, objectUrl });
   }
 }
