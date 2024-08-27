@@ -1,7 +1,7 @@
 {
   "name": "@ember-data/request",
   "description": "⚡️ A simple, small and fast framework-agnostic library to make `fetch` happen",
-  "version": "5.4.0-alpha.105",
+  "version": "5.4.0-alpha.106",
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "repository": {
@@ -40,12 +40,12 @@
     }
   },
   "peerDependencies": {
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.91"
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.92"
   },
   "dependencies": {
     "@ember/test-waiters": "^3.1.0",
     "@embroider/macros": "^1.16.1",
-    "@warp-drive/build-config": "workspace:0.0.0-alpha.42"
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.43"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
@@ -53,8 +53,8 @@
     "@babel/preset-env": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
     "@glimmer/component": "^1.1.2",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.91",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.105",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.92",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.106",
     "ember-source": "~5.8.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "typescript": "^5.4.5",
