@@ -1,7 +1,7 @@
 {
   "name": "@warp-drive/experiments",
   "description": "Experimental features for EmberData/WarpDrive",
-  "version": "0.0.1-alpha.106",
+  "version": "0.0.1-alpha.107",
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "repository": {
@@ -54,10 +54,10 @@
   },
   "peerDependencies": {
     "@sqlite.org/sqlite-wasm": "3.46.0-build2",
-    "@ember-data/request": "workspace:5.4.0-alpha.106",
-    "@ember-data/request-utils": "workspace:5.4.0-alpha.106",
-    "@ember-data/store": "workspace:5.4.0-alpha.106",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.92"
+    "@ember-data/request": "workspace:5.4.0-alpha.107",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.107",
+    "@ember-data/store": "workspace:5.4.0-alpha.107",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.93"
   },
   "peerDependenciesMeta": {
     "@sqlite.org/sqlite-wasm": {
@@ -66,20 +66,20 @@
   },
   "dependencies": {
     "@embroider/macros": "^1.16.1",
-    "@warp-drive/build-config": "workspace:0.0.0-alpha.43"
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.44"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
     "@babel/plugin-transform-typescript": "^7.24.5",
     "@babel/preset-env": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
-    "@ember-data/request": "workspace:5.4.0-alpha.106",
-    "@ember-data/request-utils": "workspace:5.4.0-alpha.106",
-    "@ember-data/store": "workspace:5.4.0-alpha.106",
-    "@ember-data/tracking": "workspace:5.4.0-alpha.106",
+    "@ember-data/request": "workspace:5.4.0-alpha.107",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.107",
+    "@ember-data/store": "workspace:5.4.0-alpha.107",
+    "@ember-data/tracking": "workspace:5.4.0-alpha.107",
     "@glimmer/component": "^1.1.2",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.92",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.106",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.93",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.107",
     "ember-source": "~5.8.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "@sqlite.org/sqlite-wasm": "3.46.0-build2",
