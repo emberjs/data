@@ -14,7 +14,7 @@ export class DataWorker {
   declare options: { persisted: boolean; scope?: string };
   declare storage: DocumentStorage;
 
-  constructor(UserStore: typeof Store, options?: { persisted: boolean }) {
+  constructor(UserStore: typeof Store, options?: { persisted: boolean; scope?: string }) {
     // disable if running on main thread
     if (typeof window !== 'undefined') {
       return;
@@ -22,7 +22,7 @@ export class DataWorker {
     this.store = new UserStore();
     this.threads = new Map();
     this.pending = new Map();
-    this.options = options || { persisted: false };
+    this.options = Object.assign({ persisted: false, scope: '' }, options);
     this.isSharedWorker = WorkerScope && globalThis instanceof WorkerScope;
     this.initialize();
   }
