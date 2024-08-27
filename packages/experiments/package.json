@@ -27,6 +27,14 @@
     "./worker-fetch": {
       "types": "./unstable-preview-types/worker-fetch.d.ts",
       "default": "./dist/worker-fetch.js"
+    },
+    "./image-worker": {
+      "types": "./unstable-preview-types/image-worker.d.ts",
+      "default": "./dist/image-worker.js"
+    },
+    "./image-fetch": {
+      "types": "./unstable-preview-types/image-fetch.d.ts",
+      "default": "./dist/image-fetch.js"
     }
   },
   "files": [
