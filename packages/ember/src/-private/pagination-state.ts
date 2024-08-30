@@ -1,3 +1,6 @@
+/**
+ * @module @warp-drive/ember
+ */
 import { cached, tracked } from '@glimmer/tracking';
 
 import type {
@@ -8,11 +11,13 @@ import type {
   StructuredErrorDocument,
 } from '@ember-data/request';
 import type { Document } from '@ember-data/store';
+import { assert } from '@warp-drive/build-config/macros';
+import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 
 import type { RequestState } from './request-state';
 import { getRequestState } from './request-state';
 
-const RequestCache = new WeakMap<Future<unknown>, PaginationState>();
+const RequestCache = new WeakMap<StableDocumentIdentifier, PaginationState>();
 
 type FirstLink<T, RT> = {
   prev: null;
@@ -79,12 +84,33 @@ class PaginationState<T = unknown, RT extends Document<T[]> = Document<T[]>> {
   }
 }
 
+/**
+ * Get the pagination state for a given request, this will return the same
+ * PaginationState instance for the same request, even if the future is
+ * a different instance based on the cache identity of the request.
+ *
+ * ```ts
+ * import { getPaginationState } from '@warp-drive/ember';
+ *
+ * const future = store.request(query('user', { page: { size: 10 } }));
+ * const state = getPaginationState(future);
+ * ```
+ *
+ * @public
+ * @static
+ * @for @warp-drive/ember
+ * @param future
+ * @return {PaginationState}
+ */
 export function getPaginationState<T, RT extends Document<T[]>>(future: Future<RT>): PaginationState<T, RT> {
-  let state = RequestCache.get(future) as PaginationState<T, RT> | undefined;
+  const lid = future.lid;
+  assert(`Can only use getPaginationState with a cacheable request`, lid !== null);
+
+  let state = RequestCache.get(lid) as PaginationState<T, RT> | undefined;
 
   if (!state) {
     state = new PaginationState(future);
-    RequestCache.set(future, state);
+    RequestCache.set(lid, state);
   }
 
   return state;
