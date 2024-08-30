@@ -35,6 +35,80 @@ export type GenericField = {
   options?: ObjectValue;
 };
 
+
+/**
+ * A field that can be used to alias one key to another
+ * key present in the cache version of the resource.
+ *
+ * Unlike DerivedField, an AliasField may write to its
+ * source when a record is in an editable mode.
+ *
+ * AliasFields may utilize a transform, specified by type,
+ * to pre/post process the field.
+ *
+ * An AliasField may also specify a `kind` via options.
+ * `kind` may be any other valid field kind other than
+ *
+ * - `@hash`
+ * - `@id`
+ * - `@local`
+ * - `derived`
+ *
+ * This allows an AliasField to rename any field in the cache.
+ *
+ * Alias fields are generally intended to be used to support migrating
+ * between different schemas, though there are times where they are useful
+ * as a form of advanced derivation when used with a transform. For instance,
+ * an AliasField could be used to expose both a string and a Date version of the
+ * same field, with both being capable of being written to.
+ *
+ * @typedoc
+ */
+export type AliasField = {
+  kind: 'alias';
+  name: string;
+
+  /**
+   * the name of the transform to use, if any
+   * @typedoc
+   */
+  type?: string;
+
+  /**
+   * Additional configuratin for this field
+   *
+   * @typedoc
+   */
+  options?: {
+    /**
+     * The name of the field in the cache from which to source
+     * the value for this field.
+     *
+     * @typedoc
+     */
+    name: string;
+
+    /**
+     * The kind of field that this alias should be treated as, defaults
+     * to 'field'
+     *
+     * @typedoc
+     */
+    kind?: Exclude<FieldSchema['kind'], '@id' | '@local' | '@hash' | 'derived'>
+
+    /**
+     * Options to pass to the transform, if any
+     *
+     * Must comply to the specific transform's options
+     * schema.
+     *
+     * @typedoc
+     */
+    options?: ObjectValue;
+  }
+};
+
+
 /**
  * A field that can be used to alias one key to another
  * key present in the cache version of the resource.

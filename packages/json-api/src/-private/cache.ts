@@ -9,7 +9,7 @@ import { LOG_MUTATIONS, LOG_OPERATIONS, LOG_REQUESTS } from '@warp-drive/build-c
 import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
-import type { Cache, ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core-types/cache';
+import type { Cache, CacheV2, ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core-types/cache';
 import type { Change } from '@warp-drive/core-types/cache/change';
 import type { MergeOperation } from '@warp-drive/core-types/cache/operations';
 import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
@@ -127,7 +127,7 @@ function makeCache(): CachedResource {
   @public
  */
 
-export default class JSONAPICache implements Cache {
+export default class JSONAPICache implements CacheV2 {
   /**
    * The Cache Version that this implementation implements.
    *
