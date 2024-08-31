@@ -20,7 +20,16 @@ import { instantiateRecord, teardownRecord } from '@warp-drive/schema-record/hoo
 import type { SchemaRecord } from '@warp-drive/schema-record/record';
 import { registerDerivations, SchemaService, withDefaults } from '@warp-drive/schema-record/schema';
 
-const RECORD = false;
+function trim(str?: string | null): string {
+  if (!str) {
+    return '';
+  }
+  return str
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .join(' ');
+}
 
 type User = {
   id: string;
@@ -90,23 +99,18 @@ function test(name: string, callback: DiagnosticTest): void {
 
 async function mockGETSuccess(context: LocalTestContext, attributes?: { name: string }): Promise<string> {
   const url = buildBaseURL({ resourcePath: 'users/1' });
-  await GET(
-    context,
-    'users/1',
-    () => ({
-      data: {
-        id: '1',
-        type: 'user',
-        attributes: Object.assign(
-          {
-            name: 'Chris Thoburn',
-          },
-          attributes
-        ),
-      },
-    }),
-    { RECORD: RECORD }
-  );
+  await GET(context, 'users/1', () => ({
+    data: {
+      id: '1',
+      type: 'user',
+      attributes: Object.assign(
+        {
+          name: 'Chris Thoburn',
+        },
+        attributes
+      ),
+    },
+  }));
   return url;
 }
 
@@ -134,16 +138,18 @@ module<LocalTestContext>('Integration | <Request /> | Subscription', function (h
     await this.render(
       <template>
         <Request @request={{request}}>
-          <:content as |result state|>{{result.data.name}}
+          <:content as |result state|>
+            {{result.data.name}}
             |
-            {{if state.isRefreshing "is refreshing" "is fresh"}}</:content>
+            {{if state.isRefreshing "is refreshing" "is fresh"}}
+          </:content>
         </Request>
       </template>
     );
     await request;
     await rerender();
 
-    assert.equal(this.element.textContent?.trim(), 'Chris Thoburn | is fresh');
+    assert.equal(trim(this.element.textContent), 'Chris Thoburn | is fresh');
     assert.verifySteps([`request: GET ${url}`]);
 
     const req2 = this.store.request<SingleResourceDataDocument<User>>({
@@ -152,11 +158,11 @@ module<LocalTestContext>('Integration | <Request /> | Subscription', function (h
       cacheOptions: { types: ['user'], backgroundReload: true },
     });
     await rerender();
-    assert.equal(this.element.textContent?.trim(), 'Chris Thoburn | is refreshing');
+    assert.equal(trim(this.element.textContent), 'Chris Thoburn | is refreshing');
 
     await req2;
     await this.store._getAllPending();
-    assert.equal(this.element.textContent?.trim(), 'Chris Thoburn x2 | is fresh');
+    assert.equal(trim(this.element.textContent), 'Chris Thoburn x2 | is fresh');
     assert.verifySteps([`request: GET ${url}`]);
   });
 
@@ -183,7 +189,7 @@ module<LocalTestContext>('Integration | <Request /> | Subscription', function (h
     await request;
     await rerender();
 
-    assert.equal(this.element.textContent?.trim(), 'Chris Thoburn');
+    assert.equal(trim(this.element.textContent), 'Chris Thoburn');
     assert.verifySteps([`request: GET ${url}`]);
 
     // force expiration
@@ -194,11 +200,11 @@ module<LocalTestContext>('Integration | <Request /> | Subscription', function (h
       cacheOptions: { types: ['user'] },
     });
     await rerender();
-    assert.equal(this.element.textContent?.trim(), 'Loading...');
+    assert.equal(trim(this.element.textContent), 'Loading...');
 
     await req2;
     await rerender();
-    assert.equal(this.element.textContent?.trim(), 'Chris Thoburn x2');
+    assert.equal(trim(this.element.textContent), 'Chris Thoburn x2');
     assert.verifySteps([`request: GET ${url}`]);
   });
 });
