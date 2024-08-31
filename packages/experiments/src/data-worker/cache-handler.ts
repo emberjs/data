@@ -1,14 +1,25 @@
 import type { CacheHandler as CacheHandlerType, Future, NextFn } from '@ember-data/request';
 import type Store from '@ember-data/store';
 import type { StoreRequestContext } from '@ember-data/store';
+import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
-import type { StructuredDataDocument, StructuredErrorDocument } from '@warp-drive/core-types/request';
+import type { ExistingRecordIdentifier, StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type {
+  StructuredDataDocument,
+  StructuredDocument,
+  StructuredErrorDocument,
+} from '@warp-drive/core-types/request';
 import { SkipCache } from '@warp-drive/core-types/request';
-import type { ResourceDataDocument, ResourceErrorDocument } from '@warp-drive/core-types/spec/document';
+import type {
+  ResourceDataDocument,
+  ResourceDocument,
+  ResourceErrorDocument,
+} from '@warp-drive/core-types/spec/document';
 import type { ApiError } from '@warp-drive/core-types/spec/error';
+import type { ExistingResourceObject } from '@warp-drive/core-types/spec/json-api-raw';
 
 import { calcShouldFetch, cloneError, isCacheAffecting, isMutation } from './utils';
+import type { DataWorker } from './worker';
 
 /**
  * A simplified CacheHandler that hydrates ResourceDataDocuments from the cache
@@ -27,22 +38,54 @@ export const CacheHandler: CacheHandlerType = {
     const identifier = store.identifierCache.getOrCreateDocumentIdentifier(context.request);
     const peeked = identifier ? store.cache.peekRequest(identifier) : null;
 
-    // In a Worker, any time we are asked to make a request, data needs to be returned.
-    // background requests are ergo no different than foreground requests.
-    if (calcShouldFetch(store, context.request, !!peeked, identifier)) {
-      return fetchContentAndHydrate(next, context, identifier);
+    if (identifier && !peeked) {
+      // if we are using persisted cache, we should attempt to populate the in-memory cache now
+      const worker = (store as unknown as { _worker: DataWorker })._worker;
+      if (worker?.storage) {
+        return worker.storage
+          .getDocument(identifier)
+          .then((document) => {
+            if (document) {
+              store.cache.put(document);
+            }
+            return completeRequest(identifier, store, context, next);
+          })
+          .catch((e) => {
+            if (DEBUG) {
+              // eslint-disable-next-line no-console
+              console.log('Unable to retrieve document from persisted storage', e);
+            }
+            return completeRequest(identifier, store, context, next);
+          });
+      }
     }
 
-    assert(`Expected a peeked request to be present`, peeked);
-    context.setResponse(peeked.response);
-
-    if ('error' in peeked) {
-      throw peeked;
-    }
-
-    return maybeUpdateObjects<T>(store, peeked.content as ResourceDataDocument);
+    return completeRequest(identifier, store, context, next);
   },
 };
+
+function completeRequest<T>(
+  identifier: StableDocumentIdentifier | null,
+  store: Store,
+  context: StoreRequestContext,
+  next: NextFn<T>
+) {
+  const peeked = identifier ? store.cache.peekRequest(identifier) : null;
+  // In a Worker, any time we are asked to make a request, data needs to be returned.
+  // background requests are ergo no different than foreground requests.
+  if (calcShouldFetch(store, context.request, !!peeked, identifier)) {
+    return fetchContentAndHydrate(next, context, identifier);
+  }
+
+  assert(`Expected a peeked request to be present`, peeked);
+  context.setResponse(peeked.response);
+
+  if ('error' in peeked) {
+    throw peeked;
+  }
+
+  return maybeUpdateObjects<T>(store, peeked.content as ResourceDataDocument);
+}
 
 function maybeUpdateObjects<T>(store: Store, document: ResourceDataDocument | null): T {
   if (!document) {
@@ -58,6 +101,29 @@ function maybeUpdateObjects<T>(store: Store, document: ResourceDataDocument | nu
   } else {
     const data = (document.data ? store.cache.peek(document.data) : null) as T;
     return Object.assign({}, document, { data }) as T;
+  }
+}
+
+function maybeUpdatePersistedCache(
+  store: Store,
+  document: StructuredDocument<ResourceDocument<ExistingRecordIdentifier>> | null,
+  resourceDocument?: ResourceDataDocument
+) {
+  const worker = (store as unknown as { _worker: DataWorker })._worker;
+
+  if (!worker?.storage) {
+    return;
+  }
+
+  if (!document && resourceDocument) {
+    // we have resources to update but not a full request to cache
+    void worker.storage.putResources(resourceDocument, (resourceIdentifier) => {
+      return store.cache.peek(resourceIdentifier) as ExistingResourceObject;
+    });
+  } else if (document) {
+    void worker.storage.putDocument(document, (resourceIdentifier) => {
+      return store.cache.peek(resourceIdentifier) as ExistingResourceObject;
+    });
   }
 }
 
@@ -77,9 +143,16 @@ function updateCacheForSuccess<T>(
       // have no cache impact
     } else if (isCacheAffecting(document)) {
       response = store.cache.put(document) as ResourceDataDocument;
+      maybeUpdatePersistedCache(store, null, response);
     }
   } else {
     response = store.cache.put(document) as ResourceDataDocument;
+
+    if (response.lid) {
+      const identifier = store.identifierCache.getOrCreateDocumentIdentifier(request);
+      const full = store.cache.peekRequest(identifier!);
+      maybeUpdatePersistedCache(store, full);
+    }
   }
   return maybeUpdateObjects(store, response);
 }
@@ -123,6 +196,10 @@ function updateCacheForError<T>(
 
     store.cache.commitWasRejected(record, errors);
   } else {
+    const identifier = store.identifierCache.getOrCreateDocumentIdentifier(request);
+    if (identifier) {
+      maybeUpdatePersistedCache(store, error as StructuredErrorDocument<ResourceErrorDocument>);
+    }
     return store.cache.put(error) as ResourceErrorDocument;
   }
 }

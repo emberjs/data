@@ -66,12 +66,7 @@ export class WorkerFetch {
     this.worker = worker as SharedWorker;
 
     if (!isServerEnv) {
-      this.channel = new MessageChannel();
-
-      const port = this.worker instanceof SharedWorker ? this.worker.port : this.worker;
-      port.postMessage({ type: 'connect', thread: this.threadId }, [this.channel.port2]);
-
-      this.channel.port1.onmessage = (event: MainThreadEvent<unknown>) => {
+      const fn = (event: MainThreadEvent<unknown>) => {
         const { type, id, data } = event.data;
         const info = this.cleanupRequest(id);
 
@@ -101,6 +96,16 @@ export class WorkerFetch {
           return;
         }
       };
+
+      if (worker instanceof SharedWorker) {
+        worker.port.postMessage({ type: 'connect', thread: this.threadId });
+        worker.port.onmessage = fn;
+      } else if (worker) {
+        this.channel = new MessageChannel();
+        worker.postMessage({ type: 'connect', thread: this.threadId }, [this.channel.port2]);
+
+        this.channel.port1.onmessage = fn;
+      }
     }
   }
 
@@ -116,7 +121,7 @@ export class WorkerFetch {
   }
 
   send(event: RequestEventData | AbortEventData) {
-    this.channel.port1.postMessage(event);
+    this.worker instanceof SharedWorker ? this.worker.port.postMessage(event) : this.channel.port1.postMessage(event);
   }
 
   request<T>(context: Context, next: NextFn<T>): Promise<T> | Future<T> {
@@ -166,13 +171,17 @@ export function enhanceReason(reason?: string) {
 }
 
 function prepareRequest(request: Context['request']): { signal: AbortSignal | null; request: RequestInfo } {
-  const { signal } = request;
+  const { signal, headers } = request;
   const requestCopy = Object.assign({}, request) as RequestInfo;
 
   delete requestCopy.store;
 
   if (signal instanceof AbortSignal) {
     delete requestCopy.signal;
+  }
+
+  if (headers instanceof Headers) {
+    requestCopy.headers = Array.from(headers.entries()) as unknown as Headers;
   }
 
   return { signal: signal || null, request: requestCopy };

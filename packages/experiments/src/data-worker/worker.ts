@@ -1,30 +1,64 @@
 import type { Future, ResponseInfo, StructuredDataDocument } from '@ember-data/request';
 import type Store from '@ember-data/store';
 
+import { DocumentStorage } from '../document-storage';
 import type { AbortEventData, RequestEventData, ThreadInitEventData, WorkerThreadEvent } from './types';
+
+const WorkerScope = (globalThis as unknown as { SharedWorkerGlobalScope: FunctionConstructor }).SharedWorkerGlobalScope;
 
 export class DataWorker {
   declare store: Store;
   declare threads: Map<string, MessagePort>;
   declare pending: Map<string, Map<number, Future<unknown>>>;
+  declare isSharedWorker: boolean;
+  declare options: { persisted: boolean; scope?: string };
+  declare storage: DocumentStorage;
 
-  constructor(UserStore: typeof Store) {
+  constructor(UserStore: typeof Store, options?: { persisted: boolean; scope?: string }) {
+    // disable if running on main thread
+    if (typeof window !== 'undefined') {
+      return;
+    }
     this.store = new UserStore();
     this.threads = new Map();
     this.pending = new Map();
+    this.options = Object.assign({ persisted: false, scope: '' }, options);
+    this.isSharedWorker = WorkerScope && globalThis instanceof WorkerScope;
     this.initialize();
   }
 
   initialize() {
-    globalThis.onmessage = (event: MessageEvent<ThreadInitEventData>) => {
-      const { type } = event.data;
+    // enable the CacheHandler to access the worker
+    (this.store as unknown as { _worker: DataWorker })._worker = this;
+    if (this.options.persisted) {
+      // will be accessed by the worker's CacheHandler off of store
+      this.storage = new DocumentStorage({ scope: this.options.scope });
+    }
+    if (this.isSharedWorker) {
+      (globalThis as unknown as { onconnect: typeof globalThis.onmessage }).onconnect = (e) => {
+        const port = e.ports[0];
+        port.onmessage = (event: MessageEvent<ThreadInitEventData>) => {
+          const { type } = event.data;
 
-      switch (type) {
-        case 'connect':
-          this.setupThread(event.data.thread, event.ports[0]);
-          break;
-      }
-    };
+          switch (type) {
+            case 'connect':
+              this.setupThread(event.data.thread, port);
+              break;
+          }
+        };
+        port.start();
+      };
+    } else {
+      globalThis.onmessage = (event: MessageEvent<ThreadInitEventData>) => {
+        const { type } = event.data;
+
+        switch (type) {
+          case 'connect':
+            this.setupThread(event.data.thread, event.ports[0]);
+            break;
+        }
+      };
+    }
   }
 
   setupThread(thread: string, port: MessagePort) {
@@ -42,7 +76,7 @@ export class DataWorker {
           this.abortRequest(event.data);
           break;
         case 'request':
-          void this.request(event.data);
+          void this.request(prepareRequest(event.data));
           break;
       }
     };
@@ -83,13 +117,10 @@ type Mutable<T> = { -readonly [P in keyof T]: T[P] };
 function softCloneResponse(response: Response | ResponseInfo | null) {
   if (!response) return null;
 
-  const clone: Partial<Mutable<Omit<Response, 'headers'>>> & { headers?: Record<string, string | number> } = {};
+  const clone: Partial<Mutable<Response>> = {};
 
   if (response.headers) {
-    clone.headers = {};
-    for (const [key, value] of response.headers.entries()) {
-      clone.headers[key] = value;
-    }
+    clone.headers = Array.from(response.headers.entries()) as unknown as Headers;
   }
 
   clone.ok = response.ok;
@@ -113,4 +144,12 @@ function prepareResponse<T>(result: StructuredDataDocument<T>) {
   };
 
   return newResponse;
+}
+
+function prepareRequest(event: RequestEventData) {
+  if (event.data.headers) {
+    event.data.headers = new Headers(event.data.headers);
+  }
+
+  return event;
 }

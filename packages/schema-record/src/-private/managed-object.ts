@@ -4,6 +4,7 @@ import { addToTransaction, createSignal, subscribe } from '@ember-data/tracking/
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { ObjectValue, Value } from '@warp-drive/core-types/json/raw';
+import { STRUCTURED } from '@warp-drive/core-types/request';
 import type { ObjectField, SchemaObjectField } from '@warp-drive/core-types/schema/fields';
 
 import type { SchemaRecord } from '../record';
@@ -15,7 +16,7 @@ export function notifyObject(obj: ManagedObject) {
 }
 
 type KeyType = string | symbol | number;
-const ignoredGlobalFields = new Set<string>(['constructor', 'setInterval', 'nodeType', 'length']);
+const ignoredGlobalFields = new Set<string>(['setInterval', 'nodeType', 'nodeName', 'length', 'document', STRUCTURED]);
 export interface ManagedObject {
   [MUTATE]?(
     target: unknown[],
@@ -28,8 +29,8 @@ export interface ManagedObject {
 
 export class ManagedObject {
   [SOURCE]: object;
-  declare address: StableRecordIdentifier;
-  declare key: string;
+  declare identifier: StableRecordIdentifier;
+  declare path: string[];
   declare owner: SchemaRecord;
   declare [OBJECT_SIGNAL]: Signal;
 
@@ -39,8 +40,8 @@ export class ManagedObject {
     cache: Cache,
     field: ObjectField | SchemaObjectField,
     data: object,
-    address: StableRecordIdentifier,
-    key: string,
+    identifier: StableRecordIdentifier,
+    path: string[],
     owner: SchemaRecord,
     isSchemaObject: boolean
   ) {
@@ -50,32 +51,89 @@ export class ManagedObject {
     this[OBJECT_SIGNAL] = createSignal(this, 'length');
     const _SIGNAL = this[OBJECT_SIGNAL];
     // const boundFns = new Map<KeyType, ProxiedMethod>();
-    this.address = address;
-    this.key = key;
+    this.identifier = identifier;
+    this.path = path;
     this.owner = owner;
     const transaction = false;
 
     const proxy = new Proxy(this[SOURCE], {
+      ownKeys() {
+        if (isSchemaObject) {
+          const fields = schema.fields({ type: field.type! });
+          return Array.from(fields.keys());
+        }
+
+        return Object.keys(self[SOURCE]);
+      },
+
+      has(target: unknown, prop: string | number | symbol) {
+        if (isSchemaObject) {
+          const fields = schema.fields({ type: field.type! });
+          return fields.has(prop as string);
+        }
+
+        return prop in self[SOURCE];
+      },
+
+      getOwnPropertyDescriptor(target, prop) {
+        if (!isSchemaObject) {
+          return {
+            writable: false,
+            enumerable: true,
+            configurable: true,
+          };
+        }
+        const fields = schema.fields({ type: field.type! });
+        if (!fields.has(prop as string)) {
+          throw new Error(`No field named ${String(prop)} on ${field.type}`);
+        }
+        const schemaForField = fields.get(prop as string)!;
+        switch (schemaForField.kind) {
+          case 'derived':
+            return {
+              writable: false,
+              enumerable: true,
+              configurable: true,
+            };
+          case '@local':
+          case 'field':
+          case 'attribute':
+          case 'resource':
+          case 'belongsTo':
+          case 'hasMany':
+          case 'collection':
+          case 'schema-array':
+          case 'array':
+          case 'schema-object':
+          case 'object':
+            return {
+              writable: false, // IS_EDITABLE,
+              enumerable: true,
+              configurable: true,
+            };
+        }
+      },
+
       get<R extends typeof Proxy<object>>(target: object, prop: keyof R, receiver: R) {
         if (prop === OBJECT_SIGNAL) {
           return _SIGNAL;
         }
-        if (prop === 'address') {
-          return self.address;
-        }
-        if (prop === 'key') {
-          return self.key;
+        if (prop === 'identifier') {
+          return self.identifier;
         }
         if (prop === 'owner') {
           return self.owner;
         }
         if (prop === Symbol.toStringTag) {
-          return `ManagedObject<${address.type}:${address.id} (${address.lid})>`;
+          return `ManagedObject<${identifier.type}:${identifier.id} (${identifier.lid})>`;
+        }
+        if (prop === 'constructor') {
+          return Object;
         }
 
         if (prop === 'toString') {
           return function () {
-            return `ManagedObject<${address.type}:${address.id} (${address.lid})>`;
+            return `ManagedObject<${identifier.type}:${identifier.id} (${identifier.lid})>`;
           };
         }
 
@@ -87,7 +145,7 @@ export class ManagedObject {
         if (_SIGNAL.shouldReset) {
           _SIGNAL.t = false;
           _SIGNAL.shouldReset = false;
-          let newData = cache.getAttr(self.address, self.key);
+          let newData = cache.getAttr(self.identifier, self.path);
           if (newData && newData !== self[SOURCE]) {
             if (!isSchemaObject && field.type) {
               const transform = schema.transformation(field);
@@ -116,14 +174,9 @@ export class ManagedObject {
       },
 
       set(target, prop: KeyType, value, receiver) {
-        if (prop === 'address') {
+        if (prop === 'identifier') {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          self.address = value;
-          return true;
-        }
-        if (prop === 'key') {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          self.key = value;
+          self.identifier = value;
           return true;
         }
         if (prop === 'owner') {
@@ -141,14 +194,14 @@ export class ManagedObject {
 
         if (reflect) {
           if (isSchemaObject || !field.type) {
-            cache.setAttr(self.address, self.key, self[SOURCE] as Value);
+            cache.setAttr(self.identifier, self.path, self[SOURCE] as Value);
             _SIGNAL.shouldReset = true;
             return true;
           }
 
           const transform = schema.transformation(field);
           const val = transform.serialize(self[SOURCE], field.options ?? null, self.owner);
-          cache.setAttr(self.address, self.key, val);
+          cache.setAttr(self.identifier, self.path, val);
           _SIGNAL.shouldReset = true;
         }
         return reflect;

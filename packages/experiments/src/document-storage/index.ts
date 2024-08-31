@@ -1,4 +1,6 @@
-import type { StructuredDocument } from '@ember-data/request';
+import type { RequestInfo, ResponseInfo, StructuredDocument } from '@ember-data/request';
+import type { StoreRequestContext } from '@ember-data/store';
+import { assert } from '@warp-drive/build-config/macros';
 import type { ExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { ResourceDataDocument, ResourceDocument } from '@warp-drive/core-types/spec/document';
 import type { ExistingResourceObject } from '@warp-drive/core-types/spec/json-api-raw';
@@ -144,7 +146,7 @@ class InternalDocumentStorage {
   async getDocument(key: DocumentIdentifier): Promise<CacheDocument | null> {
     const cache = await this._read();
     // clone the document to avoid leaking the internal cache
-    const document = structuredClone(cache.documents.get(key.lid));
+    const document = safeDocumentHydrate(cache.documents.get(key.lid));
 
     if (!document) {
       return null;
@@ -209,25 +211,62 @@ class InternalDocumentStorage {
     }
 
     if (docHasData(document.content)) {
-      if (Array.isArray(document.content.data)) {
-        document.content.data.forEach((resourceIdentifier) => {
-          const resource = resourceCollector(resourceIdentifier);
-          resources.set(resourceIdentifier.lid, structuredClone(resource));
-        });
-      } else if (document.content.data) {
-        const resource = resourceCollector(document.content.data);
-        resources.set(document.content.data.lid, structuredClone(resource));
-      }
-
-      if (document.content.included) {
-        document.content.included.forEach((resourceIdentifier) => {
-          const resource = resourceCollector(resourceIdentifier);
-          resources.set(resourceIdentifier.lid, structuredClone(resource));
-        });
-      }
+      this._getResources(document.content, resourceCollector, resources);
     }
 
-    await this._patch(document.content.lid, structuredClone(document), resources);
+    await this._patch(document.content.lid, safeDocumentSerialize(document), resources);
+  }
+
+  _getResources(
+    document: ResourceDataDocument<ExistingRecordIdentifier>,
+    resourceCollector: (resourceIdentifier: ExistingRecordIdentifier) => ExistingResourceObject,
+    resources: Map<string, ExistingResourceObject> = new Map<string, ExistingResourceObject>()
+  ) {
+    if (Array.isArray(document.data)) {
+      document.data.forEach((resourceIdentifier) => {
+        const resource = resourceCollector(resourceIdentifier);
+        resources.set(resourceIdentifier.lid, structuredClone(resource));
+      });
+    } else if (document.data) {
+      const resource = resourceCollector(document.data);
+      resources.set(document.data.lid, structuredClone(resource));
+    }
+
+    if (document.included) {
+      document.included.forEach((resourceIdentifier) => {
+        const resource = resourceCollector(resourceIdentifier);
+        resources.set(resourceIdentifier.lid, structuredClone(resource));
+      });
+    }
+
+    return resources;
+  }
+
+  async putResources(
+    document: ResourceDataDocument<ExistingRecordIdentifier>,
+    resourceCollector: (resourceIdentifier: ExistingRecordIdentifier) => ExistingResourceObject
+  ) {
+    const fileHandle = await this._fileHandle;
+    // secure a lock before getting latest state
+    const writable = await fileHandle.createWritable();
+
+    const cache = await this._read();
+    const updatedResources = this._getResources(document, resourceCollector);
+
+    updatedResources.forEach((resource, key) => {
+      cache.resources.set(key, resource);
+    });
+
+    const documents = [...cache.documents.entries()];
+    const resources = [...cache.resources.entries()];
+    const cacheFile: CacheFile = {
+      documents,
+      resources,
+    };
+
+    await writable.write(JSON.stringify(cacheFile));
+    await writable.close();
+    this._channel.postMessage({ type: 'patch', key: null, resources: [...updatedResources.keys()] });
   }
 
   async clear(reset?: boolean) {
@@ -251,6 +290,94 @@ class InternalDocumentStorage {
       }
     }
   }
+}
+
+function safeDocumentSerialize<T>(document: T): T {
+  assert(`Expected to receive a document`, document && typeof document === 'object');
+  const doc = document as unknown as {
+    request?: StoreRequestContext['request'];
+    response?: Response;
+    content?: unknown;
+  };
+  const newDoc: { request?: unknown; response?: unknown; content?: unknown } = {};
+  if ('request' in doc) {
+    newDoc.request = prepareRequest(doc.request!);
+  }
+  if ('response' in doc) {
+    newDoc.response = prepareResponse(doc.response!);
+  }
+
+  if ('content' in doc) {
+    newDoc.content = structuredClone(doc.content);
+  }
+
+  return newDoc as T;
+}
+
+function prepareRequest(request: StoreRequestContext['request']): RequestInfo {
+  const { signal, headers } = request;
+  const requestCopy = Object.assign({}, request) as RequestInfo;
+
+  delete requestCopy.store;
+
+  if (signal instanceof AbortSignal) {
+    delete requestCopy.signal;
+  }
+
+  if (headers instanceof Headers) {
+    requestCopy.headers = Array.from(headers.entries()) as unknown as Headers;
+  }
+
+  return requestCopy;
+}
+
+type Mutable<T> = { -readonly [P in keyof T]: T[P] };
+
+function prepareResponse(response: Response | ResponseInfo | null) {
+  if (!response) return null;
+
+  const clone: Partial<Mutable<Response>> = {};
+
+  if (response.headers) {
+    clone.headers = Array.from(response.headers.entries()) as unknown as Headers;
+  }
+
+  clone.ok = response.ok;
+  clone.redirected = response.redirected;
+  clone.status = response.status;
+  clone.statusText = response.statusText;
+  clone.type = response.type;
+  clone.url = response.url;
+
+  return clone;
+}
+
+function safeDocumentHydrate<T>(document: T): T {
+  assert(`Expected to receive a document`, document && typeof document === 'object');
+  const doc = document as unknown as {
+    request?: Request | StoreRequestContext['request'];
+    response?: Response;
+    content?: unknown;
+  };
+  const newDoc: { request?: StoreRequestContext['request'] | Request; response?: Response; content?: unknown } = {};
+
+  if ('request' in doc) {
+    const headers = new Headers(doc.request!.headers);
+    const req = Object.assign({}, doc.request, { headers });
+    newDoc.request = new Request(doc.request!.url ?? '', req);
+  }
+
+  if ('response' in doc) {
+    const headers = new Headers(doc.response!.headers);
+    const resp = Object.assign({}, doc.response, { headers });
+    newDoc.response = new Response(null, resp);
+  }
+
+  if ('content' in doc) {
+    newDoc.content = structuredClone(doc.content);
+  }
+
+  return newDoc as T;
 }
 
 function docHasData<T>(doc: ResourceDocument<T>): doc is ResourceDataDocument<T> {
@@ -309,6 +436,13 @@ export class DocumentStorage {
     resourceCollector: (resourceIdentifier: ExistingRecordIdentifier) => ExistingResourceObject
   ): Promise<void> {
     return this._storage.putDocument(document, resourceCollector);
+  }
+
+  putResources(
+    document: ResourceDataDocument<ExistingRecordIdentifier>,
+    resourceCollector: (resourceIdentifier: ExistingRecordIdentifier) => ExistingResourceObject
+  ): Promise<void> {
+    return this._storage.putResources(document, resourceCollector);
   }
 
   clear(reset?: boolean) {
