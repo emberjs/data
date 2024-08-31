@@ -25,6 +25,9 @@ function notNull<T>(x: T | null) {
 const not = (x: unknown) => !x;
 // default to 30 seconds unavailable before we refresh
 const DEFAULT_DEADLINE = 30_000;
+const IdleBlockMissingError = new Error(
+  'No idle block provided for <Request> component, and no query or request was provided.'
+);
 
 let consume = service;
 if (macroCondition(moduleExists('ember-provide-consume-context'))) {
@@ -63,6 +66,7 @@ interface RequestSignature<T, RT> {
     autorefreshBehavior?: 'refresh' | 'reload' | 'policy';
   };
   Blocks: {
+    idle: [];
     loading: [state: RequestLoadingState];
     cancelled: [
       error: StructuredErrorDocument,
@@ -145,6 +149,7 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
   declare intervalStart: number | null;
   declare nextInterval: number | null;
   declare invalidated: boolean;
+  declare isUpdating: boolean;
 
   /**
    * The event listener for network status changes,
@@ -190,8 +195,27 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
     this.nextInterval = null;
 
     this.installListeners();
-    this.updateSubscriptions();
-    void this.scheduleInterval();
+    void this.beginPolling();
+  }
+
+  async beginPolling() {
+    // await the initial request
+    try {
+      await this.request;
+    } catch {
+      // ignore errors here, we just want to wait for the request to finish
+    } finally {
+      if (!this.isDestroyed) {
+        void this.scheduleInterval();
+      }
+    }
+  }
+
+  @cached
+  get isIdle() {
+    const { request, query } = this.args;
+
+    return Boolean(!request && !query);
   }
 
   @cached
@@ -263,7 +287,10 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
   }
 
   updateSubscriptions() {
-    const requestId = this.request.lid;
+    if (this.isIdle) {
+      return;
+    }
+    const requestId = this._request.lid;
 
     // if we're already subscribed to this request, we don't need to do anything
     if (this._subscribedTo === requestId) {
@@ -275,9 +302,15 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
 
     // if we have a request, we need to subscribe to it
     if (requestId) {
+      this._subscribedTo = requestId;
       this._subscription = this.store.notifications.subscribe(
         requestId,
         (_id: StableDocumentIdentifier, op: 'invalidated' | 'state' | 'added' | 'updated' | 'removed') => {
+          // ignore subscription events that occur while our own component's request
+          // is ocurring
+          if (this.isUpdating) {
+            return;
+          }
           switch (op) {
             case 'invalidated': {
               // if we're subscribed to invalidations, we need to update
@@ -366,6 +399,9 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
    * @internal
    */
   maybeUpdate(mode?: 'reload' | 'refresh' | 'policy' | 'invalidated', silent?: boolean): void {
+    if (this.isIdle) {
+      return;
+    }
     const canAttempt = Boolean(this.isOnline && !this.isHidden && (mode || this.autorefreshTypes.size));
 
     if (!canAttempt) {
@@ -391,7 +427,7 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
       const { autorefreshThreshold } = this.args;
 
       if (intervalStart && typeof autorefreshThreshold === 'number' && autorefreshThreshold > 0) {
-        shouldAttempt = Boolean(Date.now() - intervalStart > autorefreshThreshold);
+        shouldAttempt = Boolean(Date.now() - intervalStart >= autorefreshThreshold);
       }
     }
 
@@ -424,6 +460,7 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
         !request.store || request.store === this.store
       );
 
+      this.isUpdating = true;
       this._latestRequest = wasStoreRequest ? this.store.request(request) : this.store.requestManager.request(request);
 
       if (val !== 'refresh') {
@@ -431,6 +468,12 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
       }
 
       void this.scheduleInterval();
+      void this._latestRequest.finally(() => {
+        this.isUpdating = false;
+      });
+    } else {
+      // TODO probably want this
+      // void this.scheduleInterval();
     }
   }
 
@@ -501,7 +544,7 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
   }
 
   @cached
-  get request(): Future<RT> {
+  get _request(): Future<RT> {
     const { request, query } = this.args;
     assert(`Cannot use both @request and @query args with the <Request> component`, !request || !query);
     const { _localRequest, _originalRequest, _originalQuery } = this;
@@ -520,6 +563,13 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
     }
     assert(`You must provide either @request or an @query arg with the <Request> component`, query);
     return this.store.request<RT, T>(query);
+  }
+
+  @cached
+  get request(): Future<RT> {
+    const request = this._request;
+    this.updateSubscriptions();
+    return request;
   }
 
   get store(): Store {
@@ -542,7 +592,11 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
   }
 
   <template>
-    {{#if this.reqState.isLoading}}
+    {{#if (and this.isIdle (has-block "idle"))}}
+      {{yield to="idle"}}
+    {{else if this.isIdle}}
+      <Throw @error={{IdleBlockMissingError}} />
+    {{else if this.reqState.isLoading}}
       {{yield this.reqState.loadingState to="loading"}}
     {{else if (and this.reqState.isCancelled (has-block "cancelled"))}}
       {{yield (notNull this.reqState.error) this.errorFeatures to="cancelled"}}

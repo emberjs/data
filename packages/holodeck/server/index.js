@@ -147,95 +147,115 @@ function replayRequest(context, cacheKey) {
 
 function createTestHandler(projectRoot) {
   const TestHandler = async (context) => {
-    const { req } = context;
+    try {
+      const { req } = context;
 
-    const testId = req.query('__xTestId');
-    const testRequestNumber = req.query('__xTestRequestNumber');
-    const niceUrl = getNiceUrl(req.url);
+      const testId = req.query('__xTestId');
+      const testRequestNumber = req.query('__xTestRequestNumber');
+      const niceUrl = getNiceUrl(req.url);
 
-    if (!testId) {
+      if (!testId) {
+        context.header('Content-Type', 'application/vnd.api+json');
+        context.status(400);
+        return context.body(
+          JSON.stringify({
+            errors: [
+              {
+                status: '400',
+                code: 'MISSING_X_TEST_ID_HEADER',
+                title: 'Request to the http mock server is missing the `X-Test-Id` header',
+                detail:
+                  "The `X-Test-Id` header is used to identify the test that is making the request to the mock server. This is used to ensure that the mock server is only used for the test that is currently running. If using @ember-data/request add import { MockServerHandler } from '@warp-drive/holodeck'; to your request handlers.",
+                source: { header: 'X-Test-Id' },
+              },
+            ],
+          })
+        );
+      }
+
+      if (!testRequestNumber) {
+        context.header('Content-Type', 'application/vnd.api+json');
+        context.status(400);
+        return context.body(
+          JSON.stringify({
+            errors: [
+              {
+                status: '400',
+                code: 'MISSING_X_TEST_REQUEST_NUMBER_HEADER',
+                title: 'Request to the http mock server is missing the `X-Test-Request-Number` header',
+                detail:
+                  "The `X-Test-Request-Number` header is used to identify the request number for the current test. This is used to ensure that the mock server response is deterministic for the test that is currently running. If using @ember-data/request add import { MockServerHandler } from '@warp-drive/holodeck'; to your request handlers.",
+                source: { header: 'X-Test-Request-Number' },
+              },
+            ],
+          })
+        );
+      }
+
+      if (req.method === 'POST' || niceUrl === '__record') {
+        const payload = await req.json();
+        const { url, headers, method, status, statusText, body, response } = payload;
+        const cacheKey = generateFilepath({
+          projectRoot,
+          testId,
+          url,
+          method,
+          body: body ? JSON.stringify(body) : null,
+          testRequestNumber,
+        });
+        // allow Content-Type to be overridden
+        headers['Content-Type'] = headers['Content-Type'] || 'application/vnd.api+json';
+        // We always compress and chunk the response
+        headers['Content-Encoding'] = 'br';
+        // we don't cache since tests will often reuse similar urls for different payload
+        headers['Cache-Control'] = 'no-store';
+
+        const cacheDir = generateFileDir({
+          projectRoot,
+          testId,
+          url,
+          method,
+          testRequestNumber,
+        });
+
+        fs.mkdirSync(cacheDir, { recursive: true });
+        fs.writeFileSync(
+          `${cacheKey}.meta.json`,
+          JSON.stringify({ url, status, statusText, headers, method, requestBody: body }, null, 2)
+        );
+        fs.writeFileSync(`${cacheKey}.body.br`, compress(JSON.stringify(response)));
+        context.status(204);
+        return context.body(null);
+      } else {
+        const body = await req.text();
+        const cacheKey = generateFilepath({
+          projectRoot,
+          testId,
+          url: niceUrl,
+          method: req.method,
+          body,
+          testRequestNumber,
+        });
+        return replayRequest(context, cacheKey);
+      }
+    } catch (e) {
+      if (e instanceof HTTPException) {
+        throw e;
+      }
       context.header('Content-Type', 'application/vnd.api+json');
-      context.status(400);
+      context.status(500);
       return context.body(
         JSON.stringify({
           errors: [
             {
-              status: '400',
-              code: 'MISSING_X_TEST_ID_HEADER',
-              title: 'Request to the http mock server is missing the `X-Test-Id` header',
-              detail:
-                "The `X-Test-Id` header is used to identify the test that is making the request to the mock server. This is used to ensure that the mock server is only used for the test that is currently running. If using @ember-data/request add import { MockServerHandler } from '@warp-drive/holodeck'; to your request handlers.",
-              source: { header: 'X-Test-Id' },
+              status: '500',
+              code: 'MOCK_SERVER_ERROR',
+              title: 'Mock Server Error during Request',
+              detail: e.message,
             },
           ],
         })
       );
-    }
-
-    if (!testRequestNumber) {
-      context.header('Content-Type', 'application/vnd.api+json');
-      context.status(400);
-      return context.body(
-        JSON.stringify({
-          errors: [
-            {
-              status: '400',
-              code: 'MISSING_X_TEST_REQUEST_NUMBER_HEADER',
-              title: 'Request to the http mock server is missing the `X-Test-Request-Number` header',
-              detail:
-                "The `X-Test-Request-Number` header is used to identify the request number for the current test. This is used to ensure that the mock server response is deterministic for the test that is currently running. If using @ember-data/request add import { MockServerHandler } from '@warp-drive/holodeck'; to your request handlers.",
-              source: { header: 'X-Test-Request-Number' },
-            },
-          ],
-        })
-      );
-    }
-
-    if (req.method === 'POST' || niceUrl === '__record') {
-      const payload = await req.json();
-      const { url, headers, method, status, statusText, body, response } = payload;
-      const cacheKey = generateFilepath({
-        projectRoot,
-        testId,
-        url,
-        method,
-        body: body ? JSON.stringify(body) : null,
-        testRequestNumber,
-      });
-      // allow Content-Type to be overridden
-      headers['Content-Type'] = headers['Content-Type'] || 'application/vnd.api+json';
-      // We always compress and chunk the response
-      headers['Content-Encoding'] = 'br';
-      // we don't cache since tests will often reuse similar urls for different payload
-      headers['Cache-Control'] = 'no-store';
-
-      const cacheDir = generateFileDir({
-        projectRoot,
-        testId,
-        url,
-        method,
-        testRequestNumber,
-      });
-
-      fs.mkdirSync(cacheDir, { recursive: true });
-      fs.writeFileSync(
-        `${cacheKey}.meta.json`,
-        JSON.stringify({ url, status, statusText, headers, method, requestBody: body }, null, 2)
-      );
-      fs.writeFileSync(`${cacheKey}.body.br`, compress(JSON.stringify(response)));
-      context.status(204);
-      return context.body(null);
-    } else {
-      const body = await req.text();
-      const cacheKey = generateFilepath({
-        projectRoot,
-        testId,
-        url: niceUrl,
-        method: req.method,
-        body,
-        testRequestNumber,
-      });
-      return replayRequest(context, cacheKey);
     }
   };
 

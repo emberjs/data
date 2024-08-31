@@ -30,8 +30,6 @@ function test(name: string, callback: DiagnosticTest): void {
   return _test<LocalTestContext>(name, callback);
 }
 
-const RECORD = false;
-
 class SimpleCacheHandler implements CacheHandler {
   _cache: Map<string, unknown> = new Map();
   request<T = unknown>(
@@ -64,44 +62,35 @@ class SimpleCacheHandler implements CacheHandler {
 }
 
 async function mockGETSuccess(context: LocalTestContext): Promise<string> {
-  await GET(
-    context,
-    'users/1',
-    () => ({
-      data: {
-        id: '1',
-        type: 'user',
-        attributes: {
-          name: 'Chris Thoburn',
-        },
+  await GET(context, 'users/1', () => ({
+    data: {
+      id: '1',
+      type: 'user',
+      attributes: {
+        name: 'Chris Thoburn',
       },
-    }),
-    { RECORD: RECORD }
-  );
+    },
+  }));
   return buildBaseURL({ resourcePath: 'users/1' });
 }
 async function mockGETFailure(context: LocalTestContext): Promise<string> {
-  await mock(
-    context,
-    () => ({
-      url: 'users/2',
-      status: 404,
-      headers: {},
-      method: 'GET',
-      statusText: 'Not Found',
-      body: null,
-      response: {
-        errors: [
-          {
-            status: '404',
-            title: 'Not Found',
-            detail: 'The resource does not exist.',
-          },
-        ],
-      },
-    }),
-    RECORD
-  );
+  await mock(context, () => ({
+    url: 'users/2',
+    status: 404,
+    headers: {},
+    method: 'GET',
+    statusText: 'Not Found',
+    body: null,
+    response: {
+      errors: [
+        {
+          status: '404',
+          title: 'Not Found',
+          detail: 'The resource does not exist.',
+        },
+      ],
+    },
+  }));
 
   return buildBaseURL({ resourcePath: 'users/2' });
 }

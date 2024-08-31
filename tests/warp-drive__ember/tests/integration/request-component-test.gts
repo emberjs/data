@@ -56,8 +56,6 @@ function setupOnError(cb: (message: Error | string) => void) {
   return cleanup;
 }
 
-const RECORD = false;
-
 type UserResource = {
   data: {
     id: string;
@@ -101,67 +99,53 @@ class SimpleCacheHandler implements CacheHandler {
 
 async function mockGETSuccess(context: LocalTestContext, attributes?: { name: string }): Promise<string> {
   const url = buildBaseURL({ resourcePath: 'users/1' });
-  await GET(
-    context,
-    'users/1',
-    () => ({
-      data: {
-        id: '1',
-        type: 'user',
-        attributes: Object.assign(
-          {
-            name: 'Chris Thoburn',
-          },
-          attributes
-        ),
-      },
-    }),
-    { RECORD: RECORD }
-  );
+  await GET(context, 'users/1', () => ({
+    data: {
+      id: '1',
+      type: 'user',
+      attributes: Object.assign(
+        {
+          name: 'Chris Thoburn',
+        },
+        attributes
+      ),
+    },
+  }));
   return url;
 }
 async function mockGETFailure(context: LocalTestContext): Promise<string> {
   const url = buildBaseURL({ resourcePath: 'users/2' });
-  await mock(
-    context,
-    () => ({
-      url: 'users/2',
-      status: 404,
-      headers: {},
-      method: 'GET',
-      statusText: 'Not Found',
-      body: null,
-      response: {
-        errors: [
-          {
-            status: '404',
-            title: 'Not Found',
-            detail: 'The resource does not exist.',
-          },
-        ],
-      },
-    }),
-    RECORD
-  );
+  await mock(context, () => ({
+    url: 'users/2',
+    status: 404,
+    headers: {},
+    method: 'GET',
+    statusText: 'Not Found',
+    body: null,
+    response: {
+      errors: [
+        {
+          status: '404',
+          title: 'Not Found',
+          detail: 'The resource does not exist.',
+        },
+      ],
+    },
+  }));
 
   return url;
 }
 async function mockRetrySuccess(context: LocalTestContext): Promise<string> {
   const url = buildBaseURL({ resourcePath: 'users/2' });
-  await GET(
-    context,
-    'users/2',
-    () => ({
-      data: {
-        id: '2',
-        type: 'user',
-        attributes: {
-          name: 'Chris Thoburn',
-        },
+  await GET(context, 'users/2', () => ({
+    data: {
+      id: '2',
+      type: 'user',
+      attributes: {
+        name: 'Chris Thoburn',
       },
-    }),
-    { RECORD: RECORD }
-  );
+    },
+  }));
   return url;
 }
 
@@ -863,5 +847,88 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     await new Promise((resolve) => setTimeout(resolve, 1));
     await settled();
     assert.equal(this.element.textContent?.trim(), 'James Thoburn | Online: true');
+  });
+
+  test('idle state does not error', async function (assert) {
+    const cleanup = setupOnError((_message) => {
+      assert.step('render-error');
+    });
+    await this.render(
+      <template>
+        <Request>
+          <:idle>Waiting</:idle>
+          <:content>Content</:content>
+          <:error>Error</:error>
+        </Request>
+      </template>
+    );
+
+    assert.equal(this.element.textContent?.trim(), 'Waiting');
+    assert.verifySteps([], 'no error should be thrown');
+    cleanup();
+  });
+
+  test('idle state errors if no idle block is present', async function (assert) {
+    const cleanup = setupOnError((message) => {
+      assert.step('render-error');
+
+      assert.true(
+        typeof message === 'string' && message.startsWith('\n\nError occurred:\n\n- While rendering:'),
+        'error message is correct'
+      );
+    });
+    try {
+      await this.render(
+        <template>
+          <Request>
+            <:content>Content</:content>
+            <:error>Error</:error>
+          </Request>
+        </template>
+      );
+    } catch (e) {
+      assert.step('render-error-caught');
+      const message = e instanceof Error ? e.message : e;
+      assert.true(
+        typeof message === 'string' &&
+          message.includes('No idle block provided for <Request> component, and no query or request was provided'),
+        `error message is correct: ${String(message)}`
+      );
+    }
+
+    assert.equal(this.element.textContent?.trim(), '');
+    assert.verifySteps(['render-error', 'render-error-caught'], 'error should be thrown');
+    cleanup();
+  });
+
+  test('idle state allows for transition to request states', async function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    store.requestManager = this.manager;
+
+    const url = await mockGETSuccess(this);
+
+    class State {
+      @tracked request: ReturnType<typeof store.request> | undefined = undefined;
+    }
+    const state = new State();
+    await this.render(
+      <template>
+        <Request @request={{state.request}}>
+          <:idle>Waiting</:idle>
+          <:content>Content</:content>
+          <:error>Error</:error>
+        </Request>
+      </template>
+    );
+
+    assert.equal(this.element.textContent?.trim(), 'Waiting');
+
+    const request = store.request<UserResource>({ url, method: 'GET' });
+    state.request = request;
+
+    await request;
+    await rerender();
+
+    assert.equal(this.element.textContent?.trim(), 'Content');
   });
 });

@@ -2,7 +2,7 @@ import { rerender, settled } from '@ember/test-helpers';
 
 import JSONAPICache from '@ember-data/json-api';
 import type { Handler, NextFn, RequestContext } from '@ember-data/request';
-import RequestManager from '@ember-data/request';
+import RequestManager, { createDeferred } from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 import { buildBaseURL, CachePolicy } from '@ember-data/request-utils';
 import Store, { CacheHandler } from '@ember-data/store';
@@ -20,8 +20,6 @@ import { instantiateRecord, teardownRecord } from '@warp-drive/schema-record/hoo
 import type { SchemaRecord } from '@warp-drive/schema-record/record';
 import { registerDerivations, SchemaService, withDefaults } from '@warp-drive/schema-record/schema';
 
-const RECORD = false;
-
 type User = {
   id: string;
   name: string;
@@ -30,22 +28,62 @@ type User = {
 
 class Logger implements Handler {
   assert: Diagnostic;
+  deferMode: boolean;
+  deferred: ReturnType<typeof createDeferred> | undefined;
+  deferredResponse: ReturnType<typeof createDeferred> | undefined;
+  deferredRequest: ReturnType<typeof createDeferred>;
 
   constructor(assert: Diagnostic) {
     this.assert = assert;
+    this.deferMode = false;
+    this.deferredRequest = createDeferred();
   }
 
-  request<T>(context: RequestContext, next: NextFn<T>) {
+  nextPromise() {
+    return this.deferredRequest.promise;
+  }
+
+  async release() {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    if (!this.deferred) {
+      throw new Error('no deferred available to release');
+    }
+    this.deferred.resolve(this.deferredResponse!.promise);
+    await this.deferred.promise;
+    this.deferred = undefined;
+    this.deferredResponse = undefined;
+    await settled();
+  }
+
+  async request<T>(context: RequestContext, next: NextFn<T>) {
+    if (this.deferMode) {
+      if (this.deferred) {
+        throw new Error('deferred already exists');
+      }
+      this.deferred = createDeferred<T>();
+      this.deferredResponse = createDeferred<T>();
+      this.deferredRequest.resolve(context.request);
+      this.deferredRequest = createDeferred();
+    }
     this.assert.step(`request: ${context.request.method ?? 'GET'} ${context.request.url}`);
-    return next(context.request);
+    const result = await next(context.request);
+
+    if (this.deferred) {
+      this.deferredResponse!.resolve(result);
+      return this.deferred.promise as Promise<T>;
+    }
+
+    return result;
   }
 }
 
 class TestStore extends Store {
-  setupRequestManager(testContext: TestContext, assert: Diagnostic): void {
+  setupRequestManager(testContext: TestContext, assert: Diagnostic): Logger {
+    const logger = new Logger(assert);
     this.requestManager = new RequestManager()
-      .use([new Logger(assert), new MockServerHandler(testContext), Fetch])
+      .use([logger, new MockServerHandler(testContext), Fetch])
       .useCache(CacheHandler);
+    return logger;
   }
 
   lifetimes = new CachePolicy({
@@ -82,6 +120,7 @@ class TestStore extends Store {
 // our tests use a rendering test context and add store to it
 interface LocalTestContext extends RenderingTestContext {
   store: TestStore;
+  logger: Logger;
 }
 type DiagnosticTest = Parameters<typeof _test<LocalTestContext>>[1];
 function test(name: string, callback: DiagnosticTest): void {
@@ -90,23 +129,18 @@ function test(name: string, callback: DiagnosticTest): void {
 
 async function mockGETSuccess(context: LocalTestContext, attributes?: { name: string }): Promise<string> {
   const url = buildBaseURL({ resourcePath: 'users/1' });
-  await GET(
-    context,
-    'users/1',
-    () => ({
-      data: {
-        id: '1',
-        type: 'user',
-        attributes: Object.assign(
-          {
-            name: 'Chris Thoburn',
-          },
-          attributes
-        ),
-      },
-    }),
-    { RECORD: RECORD }
-  );
+  await GET(context, 'users/1', () => ({
+    data: {
+      id: '1',
+      type: 'user',
+      attributes: Object.assign(
+        {
+          name: 'Chris Thoburn',
+        },
+        attributes
+      ),
+    },
+  }));
   return url;
 }
 
@@ -116,7 +150,7 @@ module<LocalTestContext>('Integration | <Request /> | Invalidation', function (h
   hooks.beforeEach(function (assert: Diagnostic) {
     this.owner.register('service:store', TestStore);
     this.store = this.owner.lookup('service:store') as TestStore;
-    this.store.setupRequestManager(this, assert);
+    this.logger = this.store.setupRequestManager(this, assert);
   });
 
   test('@autorefresh={{true}} refreshes on invalidation events', async function (assert) {
@@ -158,6 +192,7 @@ module<LocalTestContext>('Integration | <Request /> | Invalidation', function (h
     await mockGETSuccess(this, { name: 'Chris Thoburn x2' });
     await mockGETSuccess(this, { name: 'Chris Thoburn x3' });
 
+    this.logger.deferMode = true;
     const request = this.store.request<SingleResourceDataDocument<User>>({
       url,
       method: 'GET',
@@ -178,21 +213,21 @@ module<LocalTestContext>('Integration | <Request /> | Invalidation', function (h
         </Request>
       </template>
     );
+    await this.logger.release();
     await request;
     await rerender();
 
     assert.equal(this.element.textContent?.trim(), 'Chris Thoburn');
     assert.verifySteps([`request: GET ${url}`]);
-
-    await new Promise((resolve) => setTimeout(resolve, 5));
-    await settled();
+    await this.logger.nextPromise();
+    await this.logger.release();
     await rerender();
 
     assert.equal(this.element.textContent?.trim(), 'Chris Thoburn x2');
     assert.verifySteps([`request: GET ${url}`]);
 
-    await new Promise((resolve) => setTimeout(resolve, 5));
-    await settled();
+    await this.logger.nextPromise();
+    await this.logger.release();
     await rerender();
 
     assert.equal(this.element.textContent?.trim(), 'Chris Thoburn x3');

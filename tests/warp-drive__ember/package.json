@@ -91,6 +91,7 @@
     "@ember/optional-features": "^2.1.0",
     "@ember/test-helpers": "^3.3.0",
     "@ember/test-waiters": "^3.1.0",
+    "@embroider/macros": "^1.16.1",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "@glint/environment-ember-loose": "^1.4.0",
