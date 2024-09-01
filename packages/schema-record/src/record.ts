@@ -266,7 +266,7 @@ export class SchemaRecord {
               !target[Legacy]
             );
             entangleSignal(signals, receiver, field.name);
-            return computeObject(store, schema, cache, target, identifier, field, propArray);
+            return computeObject(schema, cache, target, identifier, field, propArray, Mode[Editable]);
           case 'schema-object':
             assert(
               `SchemaRecord.${field.name} is not available in legacy mode because it has type '${field.kind}'`,
@@ -435,6 +435,7 @@ export class SchemaRecord {
           case 'schema-object': {
             let newValue = value;
             if (value !== null) {
+              assert(`Expected value to be an object`, typeof value === 'object');
               newValue = { ...(value as ObjectValue) };
               const schemaFields = schema.fields({ type: field.type });
               for (const key of Object.keys(newValue as ObjectValue)) {

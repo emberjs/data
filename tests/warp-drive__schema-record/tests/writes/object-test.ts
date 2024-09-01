@@ -504,8 +504,9 @@ module('Writes | object fields', function (hooks) {
       'We have the correct object members'
     );
     assert.strictEqual(record.address, record.address, 'We have a stable object reference');
-    assert.notStrictEqual(record.address, sourceAddress);
+    assert.notStrictEqual(record.address, sourceAddress, 'we do not keep the source object reference');
     const address = record.address;
+    assert.strictEqual(record.address?.zip, '12345', 'zip is accessible');
     record.address!.zip = '23456';
 
     assert.deepEqual(
