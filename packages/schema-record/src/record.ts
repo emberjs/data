@@ -139,6 +139,7 @@ export class SchemaRecord {
           case 'field':
           case 'attribute':
           case 'resource':
+          case 'alias':
           case 'belongsTo':
           case 'hasMany':
           case 'collection':
@@ -191,8 +192,8 @@ export class SchemaRecord {
         const propArray = isEmbedded ? embeddedPath!.slice() : [];
         propArray.push(prop as string);
 
-        const field = prop === identityField?.name ? identityField : fields.get(prop as string);
-        if (!field) {
+        const maybeField = prop === identityField?.name ? identityField : fields.get(prop as string);
+        if (!maybeField) {
           if (IgnoredGlobalFields.has(prop as string)) {
             return undefined;
           }
@@ -210,6 +211,13 @@ export class SchemaRecord {
 
           throw new Error(`No field named ${String(prop)} on ${type}`);
         }
+
+        const field = maybeField.kind === 'alias' ? maybeField.options : maybeField;
+
+        assert(
+          `Alias fields cannot alias '@id' '@local' '@hash' or 'derived' fields`,
+          maybeField.kind !== 'alias' || !['@id', '@local', '@hash', 'derived'].includes(maybeField.options.kind)
+        );
 
         switch (field.kind) {
           case '@id':
