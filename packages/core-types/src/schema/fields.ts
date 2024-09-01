@@ -67,13 +67,15 @@ export type GenericField = {
 export type AliasField = {
   kind: 'alias';
   name: string;
+  type: null; // should always be null
 
   /**
    * The field def for which this is an alias.
    *
    * @typedoc
    */
-  options: GenericField
+  options:
+    | GenericField
     | ObjectField
     | SchemaObjectField
     | ArrayField

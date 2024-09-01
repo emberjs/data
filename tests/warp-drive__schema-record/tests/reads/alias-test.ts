@@ -16,6 +16,7 @@ interface User {
   $type: 'user';
   rawNetWorth: string;
   netWorth: number;
+  [Type]: 'user';
 }
 
 module('Reads | Alias fields', function (hooks) {
@@ -58,10 +59,11 @@ module('Reads | Alias fields', function (hooks) {
           {
             kind: 'alias',
             name: 'netWorth',
-            type: 'float',
+            type: null,
             options: {
               name: 'rawNetWorth',
               kind: 'field',
+              type: 'float',
               options: { precision: 2 },
             },
           },
@@ -70,22 +72,22 @@ module('Reads | Alias fields', function (hooks) {
     );
 
     const record = store.createRecord<User>('user', {
-      rawNetWorth: '1_000_000.009',
+      rawNetWorth: '1000000.009',
     });
     const identifier = recordIdentifierFor(record);
     const resource = store.cache.peek(identifier)!;
 
-    assert.strictEqual(record.rawNetWorth, '1_000_000.009', 'netWorth is accessible');
-    assert.strictEqual(record.netWorth, 1_000_000.01, 'netWorth is accessible');
+    assert.strictEqual(record.rawNetWorth, '1000000.009', 'netWorth is accessible in raw form');
+    assert.strictEqual(record.netWorth, 1_000_000.009, 'netWorth is accessible in numeric form');
     assert.strictEqual(
       store.cache.getAttr(identifier, 'rawNetWorth'),
-      '1000000.01',
+      '1000000.009',
       'cache value for netWorth is correct'
     );
     assert.strictEqual(store.cache.getAttr(identifier, 'netWorth'), undefined, 'not caching the alias field');
     assert.strictEqual(
       resource.attributes?.rawNetWorth,
-      '1000000.01',
+      '1000000.009',
       'resource cache value for rawNetWorth is correct'
     );
     assert.strictEqual(resource.attributes?.netWorth, undefined, 'resource cache value for netWorth is correct');
@@ -96,8 +98,8 @@ module('Reads | Alias fields', function (hooks) {
     const identifier2 = recordIdentifierFor(record2);
     const resource2 = store.cache.peek(identifier2)!;
 
-    assert.strictEqual(record2.rawNetWorth, '1_000_000.009', 'netWorth is accessible');
-    assert.strictEqual(record2.netWorth, 1_000_000.01, 'netWorth is accessible');
+    assert.strictEqual(record2.rawNetWorth, '1000000.01', 'netWorth is accessible in raw form');
+    assert.strictEqual(record2.netWorth, 1_000_000.01, 'netWorth is accessible in numeric form');
     assert.strictEqual(
       store.cache.getAttr(identifier2, 'rawNetWorth'),
       '1000000.01',

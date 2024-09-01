@@ -189,9 +189,6 @@ export class SchemaRecord {
         // for its own usage.
         // _, @, $, *
 
-        const propArray = isEmbedded ? embeddedPath!.slice() : [];
-        propArray.push(prop as string);
-
         const maybeField = prop === identityField?.name ? identityField : fields.get(prop as string);
         if (!maybeField) {
           if (IgnoredGlobalFields.has(prop as string)) {
@@ -213,11 +210,15 @@ export class SchemaRecord {
         }
 
         const field = maybeField.kind === 'alias' ? maybeField.options : maybeField;
-
         assert(
           `Alias fields cannot alias '@id' '@local' '@hash' or 'derived' fields`,
           maybeField.kind !== 'alias' || !['@id', '@local', '@hash', 'derived'].includes(maybeField.options.kind)
         );
+        const propArray = isEmbedded ? embeddedPath!.slice() : [];
+        // we use the field.name instead of prop here because we want to use the cache-path not
+        // the record path.
+        propArray.push(field.name as string);
+        // propArray.push(prop as string);
 
         switch (field.kind) {
           case '@id':
@@ -313,14 +314,21 @@ export class SchemaRecord {
           throw new Error(`Cannot set ${String(prop)} on ${identifier.type} because the record is not editable`);
         }
 
-        const propArray = isEmbedded ? embeddedPath!.slice() : [];
-        propArray.push(prop as string);
-
-        const field = prop === identityField?.name ? identityField : fields.get(prop as string);
-        if (!field) {
+        const maybeField = prop === identityField?.name ? identityField : fields.get(prop as string);
+        if (!maybeField) {
           const type = isEmbedded ? embeddedType! : identifier.type;
           throw new Error(`There is no field named ${String(prop)} on ${type}`);
         }
+        const field = maybeField.kind === 'alias' ? maybeField.options : maybeField;
+        assert(
+          `Alias fields cannot alias '@id' '@local' '@hash' or 'derived' fields`,
+          maybeField.kind !== 'alias' || !['@id', '@local', '@hash', 'derived'].includes(maybeField.options.kind)
+        );
+        const propArray = isEmbedded ? embeddedPath!.slice() : [];
+        // we use the field.name instead of prop here because we want to use the cache-path not
+        // the record path.
+        propArray.push(field.name as string);
+        // propArray.push(prop as string);
 
         switch (field.kind) {
           case '@id': {
