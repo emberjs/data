@@ -35,7 +35,6 @@ export type GenericField = {
   options?: ObjectValue;
 };
 
-
 /**
  * A field that can be used to alias one key to another
  * key present in the cache version of the resource.
