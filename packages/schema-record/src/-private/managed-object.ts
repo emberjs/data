@@ -1,22 +1,26 @@
-import type Store from '@ember-data/store';
 import type { Signal } from '@ember-data/tracking/-private';
 import { addToTransaction, createSignal, subscribe } from '@ember-data/tracking/-private';
+import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { ObjectValue, Value } from '@warp-drive/core-types/json/raw';
-import { STRUCTURED } from '@warp-drive/core-types/request';
+// import { STRUCTURED } from '@warp-drive/core-types/request';
 import type { ObjectField, SchemaObjectField } from '@warp-drive/core-types/schema/fields';
 
 import type { SchemaRecord } from '../record';
 import type { SchemaService } from '../schema';
-import { MUTATE, OBJECT_SIGNAL, SOURCE } from '../symbols';
+import { Editable, EmbeddedPath, MUTATE, OBJECT_SIGNAL, Parent, SOURCE } from '../symbols';
 
 export function notifyObject(obj: ManagedObject) {
   addToTransaction(obj[OBJECT_SIGNAL]);
 }
 
+type ObjectSymbol = typeof OBJECT_SIGNAL | typeof Parent | typeof SOURCE | typeof Editable | typeof EmbeddedPath;
+const ObjectSymbols = new Set<ObjectSymbol>([OBJECT_SIGNAL, Parent, SOURCE, Editable, EmbeddedPath]);
+
 type KeyType = string | symbol | number;
-const ignoredGlobalFields = new Set<string>(['setInterval', 'nodeType', 'nodeName', 'length', 'document', STRUCTURED]);
+// const ignoredGlobalFields = new Set<string>(['setInterval', 'nodeType', 'nodeName', 'length', 'document', STRUCTURED]);
+
 export interface ManagedObject {
   [MUTATE]?(
     target: unknown[],
@@ -28,14 +32,13 @@ export interface ManagedObject {
 }
 
 export class ManagedObject {
-  [SOURCE]: object;
-  declare identifier: StableRecordIdentifier;
-  declare path: string[];
-  declare owner: SchemaRecord;
+  declare [SOURCE]: object;
+  declare [Parent]: StableRecordIdentifier;
+  declare [EmbeddedPath]: string[];
   declare [OBJECT_SIGNAL]: Signal;
+  declare [Editable]: boolean;
 
   constructor(
-    store: Store,
     schema: SchemaService,
     cache: Cache,
     field: ObjectField | SchemaObjectField,
@@ -43,86 +46,41 @@ export class ManagedObject {
     identifier: StableRecordIdentifier,
     path: string[],
     owner: SchemaRecord,
-    isSchemaObject: boolean
+    editable: boolean
   ) {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
     this[SOURCE] = { ...data };
     this[OBJECT_SIGNAL] = createSignal(this, 'length');
-    const _SIGNAL = this[OBJECT_SIGNAL];
-    // const boundFns = new Map<KeyType, ProxiedMethod>();
-    this.identifier = identifier;
-    this.path = path;
-    this.owner = owner;
-    const transaction = false;
+    this[Editable] = editable;
+    this[Parent] = identifier;
+    this[EmbeddedPath] = path;
 
+    const _SIGNAL = this[OBJECT_SIGNAL];
     const proxy = new Proxy(this[SOURCE], {
       ownKeys() {
-        if (isSchemaObject) {
-          const fields = schema.fields({ type: field.type! });
-          return Array.from(fields.keys());
-        }
-
         return Object.keys(self[SOURCE]);
       },
 
       has(target: unknown, prop: string | number | symbol) {
-        if (isSchemaObject) {
-          const fields = schema.fields({ type: field.type! });
-          return fields.has(prop as string);
-        }
-
         return prop in self[SOURCE];
       },
 
       getOwnPropertyDescriptor(target, prop) {
-        if (!isSchemaObject) {
-          return {
-            writable: false,
-            enumerable: true,
-            configurable: true,
-          };
-        }
-        const fields = schema.fields({ type: field.type! });
-        if (!fields.has(prop as string)) {
-          throw new Error(`No field named ${String(prop)} on ${field.type}`);
-        }
-        const schemaForField = fields.get(prop as string)!;
-        switch (schemaForField.kind) {
-          case 'derived':
-            return {
-              writable: false,
-              enumerable: true,
-              configurable: true,
-            };
-          case '@local':
-          case 'field':
-          case 'attribute':
-          case 'resource':
-          case 'belongsTo':
-          case 'hasMany':
-          case 'collection':
-          case 'schema-array':
-          case 'array':
-          case 'schema-object':
-          case 'object':
-            return {
-              writable: false, // IS_EDITABLE,
-              enumerable: true,
-              configurable: true,
-            };
-        }
+        return {
+          writable: editable,
+          enumerable: true,
+          configurable: true,
+        };
       },
 
       get<R extends typeof Proxy<object>>(target: object, prop: keyof R, receiver: R) {
-        if (prop === OBJECT_SIGNAL) {
-          return _SIGNAL;
+        if (ObjectSymbols.has(prop as ObjectSymbol)) {
+          return self[prop as keyof typeof target];
         }
-        if (prop === 'identifier') {
-          return self.identifier;
-        }
-        if (prop === 'owner') {
-          return self.owner;
+
+        if (prop === Symbol.toPrimitive) {
+          return null;
         }
         if (prop === Symbol.toStringTag) {
           return `ManagedObject<${identifier.type}:${identifier.id} (${identifier.lid})>`;
@@ -130,43 +88,32 @@ export class ManagedObject {
         if (prop === 'constructor') {
           return Object;
         }
-
         if (prop === 'toString') {
           return function () {
             return `ManagedObject<${identifier.type}:${identifier.id} (${identifier.lid})>`;
           };
         }
-
         if (prop === 'toHTML') {
           return function () {
             return '<div>ManagedObject</div>';
           };
         }
+
         if (_SIGNAL.shouldReset) {
           _SIGNAL.t = false;
           _SIGNAL.shouldReset = false;
-          let newData = cache.getAttr(self.identifier, self.path);
+          let newData = cache.getAttr(identifier, path);
           if (newData && newData !== self[SOURCE]) {
-            if (!isSchemaObject && field.type) {
+            if (field.type) {
               const transform = schema.transformation(field);
-              newData = transform.hydrate(newData as ObjectValue, field.options ?? null, self.owner) as ObjectValue;
+              newData = transform.hydrate(newData as ObjectValue, field.options ?? null, owner) as ObjectValue;
             }
             self[SOURCE] = { ...(newData as ObjectValue) }; // Add type assertion for newData
           }
         }
 
-        if (isSchemaObject) {
-          const fields = schema.fields({ type: field.type! });
-          // TODO: is there a better way to do this?
-          if (typeof prop === 'string' && !ignoredGlobalFields.has(prop) && !fields.has(prop)) {
-            throw new Error(`Field ${prop} does not exist on schema object ${field.type}`);
-          }
-        }
-
         if (prop in self[SOURCE]) {
-          if (!transaction) {
-            subscribe(_SIGNAL);
-          }
+          subscribe(_SIGNAL);
 
           return (self[SOURCE] as R)[prop];
         }
@@ -174,37 +121,22 @@ export class ManagedObject {
       },
 
       set(target, prop: KeyType, value, receiver) {
-        if (prop === 'identifier') {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          self.identifier = value;
-          return true;
-        }
-        if (prop === 'owner') {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          self.owner = value;
-          return true;
-        }
-        if (isSchemaObject) {
-          const fields = schema.fields({ type: field.type! });
-          if (typeof prop === 'string' && !ignoredGlobalFields.has(prop) && !fields.has(prop)) {
-            throw new Error(`Field ${prop} does not exist on schema object ${field.type}`);
-          }
-        }
+        assert(`Cannot set read-only property '${String(prop)}' on ManagedObject`, editable);
         const reflect = Reflect.set(target, prop, value, receiver);
-
-        if (reflect) {
-          if (isSchemaObject || !field.type) {
-            cache.setAttr(self.identifier, self.path, self[SOURCE] as Value);
-            _SIGNAL.shouldReset = true;
-            return true;
-          }
-
-          const transform = schema.transformation(field);
-          const val = transform.serialize(self[SOURCE], field.options ?? null, self.owner);
-          cache.setAttr(self.identifier, self.path, val);
-          _SIGNAL.shouldReset = true;
+        if (!reflect) {
+          return false;
         }
-        return reflect;
+
+        if (!field.type) {
+          cache.setAttr(identifier, path, self[SOURCE] as Value);
+        } else {
+          const transform = schema.transformation(field);
+          const val = transform.serialize(self[SOURCE], field.options ?? null, owner);
+          cache.setAttr(identifier, path, val);
+        }
+
+        _SIGNAL.shouldReset = true;
+        return true;
       },
     }) as ManagedObject;
 

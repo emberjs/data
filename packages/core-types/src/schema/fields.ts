@@ -36,6 +36,57 @@ export type GenericField = {
 };
 
 /**
+ * A field that can be used to alias one key to another
+ * key present in the cache version of the resource.
+ *
+ * Unlike DerivedField, an AliasField may write to its
+ * source when a record is in an editable mode.
+ *
+ * AliasFields may utilize a transform, specified by type,
+ * to pre/post process the field.
+ *
+ * An AliasField may also specify a `kind` via options.
+ * `kind` may be any other valid field kind other than
+ *
+ * - `@hash`
+ * - `@id`
+ * - `@local`
+ * - `derived`
+ *
+ * This allows an AliasField to rename any field in the cache.
+ *
+ * Alias fields are generally intended to be used to support migrating
+ * between different schemas, though there are times where they are useful
+ * as a form of advanced derivation when used with a transform. For instance,
+ * an AliasField could be used to expose both a string and a Date version of the
+ * same field, with both being capable of being written to.
+ *
+ * @typedoc
+ */
+export type AliasField = {
+  kind: 'alias';
+  name: string;
+  type: null; // should always be null
+
+  /**
+   * The field def for which this is an alias.
+   *
+   * @typedoc
+   */
+  options:
+    | GenericField
+    | ObjectField
+    | SchemaObjectField
+    | ArrayField
+    | SchemaArrayField
+    | ResourceField
+    | CollectionField
+    | LegacyAttributeField
+    | LegacyBelongsToField
+    | LegacyHasManyField;
+};
+
+/**
  * Represents a field whose value is the primary
  * key of the resource.
  *
@@ -787,6 +838,7 @@ export type LegacyHasManyField = {
 
 export type FieldSchema =
   | GenericField
+  | AliasField
   | LocalField
   | ObjectField
   | SchemaObjectField

@@ -121,13 +121,13 @@ export function computeArray(
 }
 
 export function computeObject(
-  store: Store,
   schema: SchemaService,
   cache: Cache,
   record: SchemaRecord,
   identifier: StableRecordIdentifier,
-  field: ObjectField | SchemaObjectField,
-  path: string[]
+  field: ObjectField,
+  path: string[],
+  editable: boolean
 ) {
   const managedObjectMapForRecord = ManagedObjectMap.get(record);
   let managedObject;
@@ -141,18 +141,16 @@ export function computeObject(
     if (!rawValue) {
       return null;
     }
-    if (field.kind === 'object') {
-      if (field.type) {
-        const transform = schema.transformation(field);
-        rawValue = transform.hydrate(rawValue as ObjectValue, field.options ?? null, record) as object;
-      }
-      // for schema-object, this should likely be an embedded SchemaRecord now
-      managedObject = new ManagedObject(store, schema, cache, field, rawValue, identifier, path, record, false);
-      if (!managedObjectMapForRecord) {
-        ManagedObjectMap.set(record, new Map([[field, managedObject]]));
-      } else {
-        managedObjectMapForRecord.set(field, managedObject);
-      }
+    if (field.type) {
+      const transform = schema.transformation(field);
+      rawValue = transform.hydrate(rawValue as ObjectValue, field.options ?? null, record) as object;
+    }
+    managedObject = new ManagedObject(schema, cache, field, rawValue, identifier, path, record, editable);
+
+    if (!managedObjectMapForRecord) {
+      ManagedObjectMap.set(record, new Map([[field, managedObject]]));
+    } else {
+      managedObjectMapForRecord.set(field, managedObject);
     }
   }
   return managedObject;
@@ -163,7 +161,7 @@ export function computeSchemaObject(
   cache: Cache,
   record: SchemaRecord,
   identifier: StableRecordIdentifier,
-  field: ObjectField | SchemaObjectField,
+  field: SchemaObjectField,
   path: string[],
   legacy: boolean,
   editable: boolean
