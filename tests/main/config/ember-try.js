@@ -14,6 +14,11 @@ module.exports = function () {
               '@ember/test-helpers': '3.3.0',
               'ember-source': '~4.4.0',
             },
+            pnpm: {
+              patchedDependencies: {
+                '@ember/test-helpers@3.3.0': 'patches/@ember__test-helpers@3.3.0.patch',
+              },
+            },
           },
         },
         {
@@ -39,6 +44,11 @@ module.exports = function () {
               '@ember/test-helpers': '3.3.0',
               'ember-source': '~3.28.0',
               'ember-cli': '~4.12.2',
+            },
+            pnpm: {
+              patchedDependencies: {
+                '@ember/test-helpers@3.3.0': 'patches/@ember__test-helpers@3.3.0.patch',
+              },
             },
           },
         },
