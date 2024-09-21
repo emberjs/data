@@ -41,6 +41,9 @@ importers:
       '@babel/core':
         specifier: ^7.24.5
         version: 7.24.5(supports-color@8.1.1)
+      '@ember/test-helpers':
+        specifier: ^4.0.4
+        version: 4.0.4(@babel/core@7.24.5)(@glint/template@1.4.0)(ember-source@5.8.0)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.24.5)
@@ -80,6 +83,9 @@ importers:
       debug:
         specifier: ^4.3.4
         version: 4.3.5(supports-color@8.1.1)
+      ember-source:
+        specifier: ~5.8.0
+        version: 5.8.0(@babel/core@7.24.5)(@glimmer/component@1.1.2)(@glint/template@1.4.0)
       execa:
         specifier: ^9.1.0
         version: 9.1.0
