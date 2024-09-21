@@ -112,5 +112,14 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.15.8"
+  "packageManager": "pnpm@8.15.8",
+  "pnpm": {
+    "packageExtensions": {
+      "ember-cli-fastboot-testing": {
+        "peerDependencies": {
+          "@ember/test-helpers": "*"
+        }
+      }
+    }
+  }
 }
