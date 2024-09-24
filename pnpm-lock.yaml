@@ -20,15 +20,12 @@ overrides:
   ember-compatibility-helpers: ^1.2.7
   testem: ~3.11.0
 
-packageExtensionsChecksum: 1a6cb317b4c079e99528cb898b9480a9
+packageExtensionsChecksum: 857c739f5bcb163e3b893945e0bd5cc7
 
 patchedDependencies:
   '@ember/test-helpers@4.0.4':
     hash: zignhd6n3rugkiuawsmbuxfdka
     path: patches/@ember__test-helpers@4.0.4.patch
-  ember-cli-fastboot-testing@0.6.1:
-    hash: sykwktu3sqo4haolag74e4573m
-    path: patches/ember-cli-fastboot-testing@0.6.1.patch
   qunit@2.19.4:
     hash: 2jwk2nz4gqke2k5hv6ptj42llu
     path: patches/qunit@2.19.4.patch
@@ -3252,8 +3249,8 @@ importers:
         specifier: ^4.1.4
         version: 4.1.4(@babel/core@7.24.5)(ember-cli@5.9.0)(ember-source@5.8.0)
       ember-cli-fastboot-testing:
-        specifier: ^0.6.1
-        version: 0.6.1(patch_hash=sykwktu3sqo4haolag74e4573m)(@babel/core@7.24.5)(@ember/test-helpers@4.0.4)(ember-cli-fastboot@4.1.4)(ember-cli@5.9.0)(ember-source@5.8.0)
+        specifier: ^0.6.2
+        version: 0.6.2(@babel/core@7.24.5)(@ember/test-helpers@4.0.4)(ember-cli-fastboot@4.1.4)(ember-cli@5.9.0)(ember-source@5.8.0)
       ember-cli-htmlbars:
         specifier: ^6.3.0
         version: 6.3.0
@@ -3610,8 +3607,8 @@ importers:
         specifier: ^4.1.4
         version: 4.1.4(@babel/core@7.24.5)(ember-cli@5.9.0)(ember-source@5.8.0)
       ember-cli-fastboot-testing:
-        specifier: ^0.6.1
-        version: 0.6.1(patch_hash=sykwktu3sqo4haolag74e4573m)(@babel/core@7.24.5)(@ember/test-helpers@4.0.4)(ember-cli-fastboot@4.1.4)(ember-cli@5.9.0)(ember-source@5.8.0)
+        specifier: ^0.6.2
+        version: 0.6.2(@babel/core@7.24.5)(@ember/test-helpers@4.0.4)(ember-cli-fastboot@4.1.4)(ember-cli@5.9.0)(ember-source@5.8.0)
       ember-cli-htmlbars:
         specifier: ^6.3.0
         version: 6.3.0
@@ -11353,8 +11350,8 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /ember-cli-fastboot-testing@0.6.1(patch_hash=sykwktu3sqo4haolag74e4573m)(@babel/core@7.24.5)(@ember/test-helpers@4.0.4)(ember-cli-fastboot@4.1.4)(ember-cli@5.9.0)(ember-source@5.8.0):
-    resolution: {integrity: sha512-nevPv77Wjk0Mslb0AF0wgHfbjki6Fi3/dapTrFz17WLX6n5maLr/MTL1hZcZdbT+69DHdgckCza8Z1WyxiUbBA==}
+  /ember-cli-fastboot-testing@0.6.2(@babel/core@7.24.5)(@ember/test-helpers@4.0.4)(ember-cli-fastboot@4.1.4)(ember-cli@5.9.0)(ember-source@5.8.0):
+    resolution: {integrity: sha512-RwOM0Y2fT5PtiMkG7yXWCaCLGFatwKpfPT4Xt6Hxqf2ZAEkbVQWJw/aFaKLLOAo2kfted8nKdkRvZM6Jm647Pg==}
     engines: {node: 12.* || 14.* || 16.* || >= 18}
     peerDependencies:
       '@ember/test-helpers': 4.0.4
@@ -11387,7 +11384,6 @@ packages:
       - utf-8-validate
       - webpack-cli
     dev: true
-    patched: true
 
   /ember-cli-fastboot@4.1.4(@babel/core@7.24.5)(ember-cli@5.9.0)(ember-source@5.8.0):
     resolution: {integrity: sha512-RYgmY8oiEnPHQ5A8T2jKKB5IbZG8JZuxHCiFoMcOnD+85T3rVulgF7Wt7GFzZ3Ic2pocSFZef45jZG+gT1mJnA==}
