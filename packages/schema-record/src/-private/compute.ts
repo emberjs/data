@@ -90,7 +90,9 @@ export function computeArray(
   identifier: StableRecordIdentifier,
   field: ArrayField | SchemaArrayField,
   path: string[],
-  isSchemaArray: boolean
+  isSchemaArray: boolean,
+  editable: boolean,
+  legacy: boolean
 ) {
   // the thing we hand out needs to know its owner and path in a private manner
   // its "address" is the parent identifier (identifier) + field name (field.name)
@@ -110,7 +112,19 @@ export function computeArray(
     if (!rawValue) {
       return null;
     }
-    managedArray = new ManagedArray(store, schema, cache, field, rawValue, identifier, path, record, isSchemaArray);
+    managedArray = new ManagedArray(
+      store,
+      schema,
+      cache,
+      field,
+      rawValue,
+      identifier,
+      path,
+      record,
+      isSchemaArray,
+      editable,
+      legacy
+    );
     if (!managedArrayMapForRecord) {
       ManagedArrayMap.set(record, new Map([[field, managedArray]]));
     } else {
@@ -127,7 +141,8 @@ export function computeObject(
   identifier: StableRecordIdentifier,
   field: ObjectField,
   path: string[],
-  editable: boolean
+  editable: boolean,
+  legacy: boolean
 ) {
   const managedObjectMapForRecord = ManagedObjectMap.get(record);
   let managedObject;
@@ -145,7 +160,7 @@ export function computeObject(
       const transform = schema.transformation(field);
       rawValue = transform.hydrate(rawValue as ObjectValue, field.options ?? null, record) as object;
     }
-    managedObject = new ManagedObject(schema, cache, field, rawValue, identifier, path, record, editable);
+    managedObject = new ManagedObject(schema, cache, field, rawValue, identifier, path, record, editable, legacy);
 
     if (!managedObjectMapForRecord) {
       ManagedObjectMap.set(record, new Map([[field, managedObject]]));
