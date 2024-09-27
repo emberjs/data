@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
-    "@ember/test-helpers": "4.0.4",
+    "@ember/test-helpers": "3.3.0",
     "@glimmer/component": "^1.1.2",
     "@glint/core": "^1.4.0",
     "@glint/environment-ember-loose": "^1.4.0",
