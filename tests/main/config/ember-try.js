@@ -11,16 +11,8 @@ module.exports = function () {
           name: 'ember-lts-4.4',
           npm: {
             devDependencies: {
-              'ember-source': '~4.4.0',
-            },
-            overrides: {
               '@ember/test-helpers': '3.3.0',
-            },
-            pnpm: {
-              patchedDependencies: {
-                '@ember/test-helpers@3.3.0': 'patches/@ember__test-helpers@3.3.0.patch',
-                '@ember/test-helpers@4.0.4': null,
-              },
+              'ember-source': '~4.4.0',
             },
           },
         },
@@ -47,12 +39,6 @@ module.exports = function () {
               '@ember/test-helpers': '3.3.0',
               'ember-source': '~3.28.0',
               'ember-cli': '~4.12.2',
-            },
-            pnpm: {
-              patchedDependencies: {
-                '@ember/test-helpers@3.3.0': 'patches/@ember__test-helpers@3.3.0.patch',
-                '@ember/test-helpers@4.0.4': null,
-              },
             },
           },
         },
