@@ -44,7 +44,7 @@ const getLegacySupport = macroCondition(dependencySatisfies('@ember-data/model',
   ? (importSync('@ember-data/model/-private') as typeof import('@ember-data/model/-private')).lookupLegacySupport
   : null;
 
-export { Editable, Legacy } from './symbols';
+export { Editable, Legacy, Checkout } from './symbols';
 const IgnoredGlobalFields = new Set<string>(['length', 'nodeType', 'then', 'setInterval', 'document', STRUCTURED]);
 const symbolList = [
   Destroy,
@@ -66,6 +66,7 @@ function isPathMatch(a: string[], b: string[]) {
   return a.length === b.length && a.every((v, i) => v === b[i]);
 }
 
+const Editables = new WeakMap<SchemaRecord, SchemaRecord>();
 export class SchemaRecord {
   declare [RecordStore]: Store;
   declare [Identifier]: StableRecordIdentifier;
@@ -655,6 +656,31 @@ export class SchemaRecord {
     this[RecordStore].notifications.unsubscribe(this.___notifications);
   }
   [Checkout](): Promise<SchemaRecord> {
-    return Promise.resolve(this);
+    const editable = Editables.get(this);
+    if (editable) {
+      return Promise.resolve(editable);
+    }
+
+    const embeddedType = this[EmbeddedType];
+    const embeddedPath = this[EmbeddedPath];
+    const isEmbedded = embeddedType !== null && embeddedPath !== null;
+
+    if (isEmbedded) {
+      throw new Error(`Cannot checkout an embedded record (yet)`);
+    }
+
+    const editableRecord = new SchemaRecord(
+      this[RecordStore],
+      this[Identifier],
+      {
+        [Editable]: true,
+        [Legacy]: this[Legacy],
+      },
+      isEmbedded,
+      embeddedType,
+      embeddedPath
+    );
+
+    return Promise.resolve(editableRecord);
   }
 }
