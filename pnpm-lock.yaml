@@ -3579,7 +3579,7 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(@babel/core@7.24.5)
       '@ember/test-helpers':
-        specifier: ^4.0.4
+        specifier: 4.0.4
         version: 4.0.4(patch_hash=zignhd6n3rugkiuawsmbuxfdka)(@babel/core@7.24.5)(@glint/template@1.4.0)(ember-source@5.8.0)
       '@ember/test-waiters':
         specifier: ^3.1.0
