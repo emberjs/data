@@ -28,9 +28,6 @@ patchedDependencies:
   '@ember/test-helpers@4.0.4':
     hash: zignhd6n3rugkiuawsmbuxfdka
     path: patches/@ember__test-helpers@4.0.4.patch
-  ember-provide-consume-context@0.3.1:
-    hash: 43pzgyk4kwlhbsigofioxt6aiq
-    path: patches/ember-provide-consume-context@0.3.1.patch
   qunit@2.19.4:
     hash: 2jwk2nz4gqke2k5hv6ptj42llu
     path: patches/qunit@2.19.4.patch
@@ -91,6 +88,9 @@ importers:
       debug:
         specifier: ^4.3.4
         version: 4.3.5(supports-color@8.1.1)
+      ember-provide-consume-context:
+        specifier: ^0.3.2
+        version: 0.3.2(@babel/core@7.24.5)(@ember/test-helpers@4.0.4)(ember-source@5.8.0)
       ember-source:
         specifier: ~5.8.0
         version: 5.8.0(@babel/core@7.24.5)(@glimmer/component@1.1.2)(@glint/template@1.4.0)
@@ -895,8 +895,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0(@babel/core@7.24.5)
       ember-provide-consume-context:
-        specifier: ^0.3.1
-        version: 0.3.1(patch_hash=43pzgyk4kwlhbsigofioxt6aiq)(@babel/core@7.24.5)(@ember/test-helpers@4.0.4)(ember-source@5.8.0)
+        specifier: ^0.3.2
+        version: 0.3.2(@babel/core@7.24.5)(@ember/test-helpers@4.0.4)(ember-source@5.8.0)
       ember-source:
         specifier: ~5.8.0
         version: 5.8.0(@babel/core@7.24.5)(@glimmer/component@1.1.2)(@glint/template@1.4.0)
@@ -11391,6 +11391,9 @@ packages:
       ember-cli: '*'
       ember-cli-fastboot: '*'
       ember-source: '*'
+    peerDependenciesMeta:
+      '@ember/test-helpers':
+        optional: true
     dependencies:
       '@ember/test-helpers': 4.0.4(patch_hash=zignhd6n3rugkiuawsmbuxfdka)(@babel/core@7.24.5)(@glint/template@1.4.0)(ember-source@5.8.0)
       body-parser: 1.20.2
@@ -11891,11 +11894,14 @@ packages:
       - supports-color
     dev: true
 
-  /ember-provide-consume-context@0.3.1(patch_hash=43pzgyk4kwlhbsigofioxt6aiq)(@babel/core@7.24.5)(@ember/test-helpers@4.0.4)(ember-source@5.8.0):
-    resolution: {integrity: sha512-bit/W23qNto4uO2H+O9NPK1klO1FwLhzwN9Goo/5cdKHKM4u0G6QFfY/vEHMaHIu97Exh1MMFtLBx5y9iZTPmw==}
+  /ember-provide-consume-context@0.3.2(@babel/core@7.24.5)(@ember/test-helpers@4.0.4)(ember-source@5.8.0):
+    resolution: {integrity: sha512-BdehgX3jZf0NaxRxgQNGa/RBfxCBbjBTr5F6YdIccCdEMzbvgrgetMXb/M4oNv1psvH3vnRZVoNI/MlipKs/sA==}
     peerDependencies:
       '@ember/test-helpers': ^2.9.1 || ^3.0.0
       ember-source: '*'
+    peerDependenciesMeta:
+      '@ember/test-helpers':
+        optional: true
     dependencies:
       '@ember/test-helpers': 4.0.4(patch_hash=zignhd6n3rugkiuawsmbuxfdka)(@babel/core@7.24.5)(@glint/template@1.4.0)(ember-source@5.8.0)
       '@embroider/addon-shim': 1.8.9
@@ -11905,7 +11911,6 @@ packages:
       - '@babel/core'
       - supports-color
     dev: true
-    patched: true
 
   /ember-qunit@8.0.2(@babel/core@7.24.5)(@ember/test-helpers@3.3.0)(ember-source@5.8.0)(qunit@2.19.4):
     resolution: {integrity: sha512-Rf60jeUTWNsF3Imf/FLujW/B/DFmKVXKmXO1lirTXjpertKfwRhp/3MnN8a/U/WyodTIsERkInGT1IqTtphCdQ==}
@@ -11913,6 +11918,9 @@ packages:
       '@ember/test-helpers': '>=3.0.3'
       ember-source: '*'
       qunit: 2.19.4
+    peerDependenciesMeta:
+      '@ember/test-helpers':
+        optional: true
     dependencies:
       '@ember/test-helpers': 3.3.0(patch_hash=gppmtiox6pymwamrfimkbxfrsm)(@babel/core@7.24.5)(ember-source@5.8.0)
       '@embroider/addon-shim': 1.8.9
@@ -11932,6 +11940,9 @@ packages:
       '@ember/test-helpers': '>=3.0.3'
       ember-source: '*'
       qunit: 2.19.4
+    peerDependenciesMeta:
+      '@ember/test-helpers':
+        optional: true
     dependencies:
       '@ember/test-helpers': 4.0.4(patch_hash=zignhd6n3rugkiuawsmbuxfdka)(@babel/core@7.24.5)(@glint/template@1.4.0)(ember-source@5.8.0)
       '@embroider/addon-shim': 1.8.9
@@ -20607,6 +20618,8 @@ packages:
       '@warp-drive/diagnostic': workspace:0.0.0-alpha.94
       testem: ~3.11.0
     peerDependenciesMeta:
+      '@ember/test-helpers':
+        optional: true
       '@warp-drive/diagnostic':
         optional: true
       testem:
@@ -20642,6 +20655,8 @@ packages:
       '@warp-drive/diagnostic': workspace:0.0.0-alpha.94
       testem: ~3.11.0
     peerDependenciesMeta:
+      '@ember/test-helpers':
+        optional: true
       '@warp-drive/diagnostic':
         optional: true
       testem:
@@ -20678,6 +20693,8 @@ packages:
       '@warp-drive/diagnostic': workspace:0.0.0-alpha.94
       testem: ~3.11.0
     peerDependenciesMeta:
+      '@ember/test-helpers':
+        optional: true
       '@warp-drive/diagnostic':
         optional: true
       testem:

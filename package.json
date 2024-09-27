@@ -48,6 +48,7 @@
     "common-tags": "^1.8.2",
     "debug": "^4.3.4",
     "ember-source": "~5.8.0",
+    "ember-provide-consume-context": "^0.3.2",
     "execa": "^9.1.0",
     "git-repo-version": "^1.0.2",
     "globby": "^14.0.1",
@@ -150,6 +151,7 @@
         "rsvp"
       ],
       "allowAny": [
+        "@ember/test-helpers",
         "ember-source",
         "typescript"
       ]
@@ -158,8 +160,7 @@
       "qunit@2.19.4": "patches/qunit@2.19.4.patch",
       "testem@3.11.0": "patches/testem@3.11.0.patch",
       "@ember/test-helpers@3.3.0": "patches/@ember__test-helpers@3.3.0.patch",
-      "@ember/test-helpers@4.0.4": "patches/@ember__test-helpers@4.0.4.patch",
-      "ember-provide-consume-context@0.3.1": "patches/ember-provide-consume-context@0.3.1.patch"
+      "@ember/test-helpers@4.0.4": "patches/@ember__test-helpers@4.0.4.patch"
     }
   }
 }
