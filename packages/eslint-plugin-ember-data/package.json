@@ -22,7 +22,8 @@
   },
   "files": [
     "src",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "README.md"
   ],
   "scripts": {
     "test": "mocha tests"
