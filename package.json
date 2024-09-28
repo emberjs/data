@@ -48,7 +48,6 @@
     "common-tags": "^1.8.2",
     "debug": "^4.3.4",
     "ember-source": "~5.8.0",
-    "ember-provide-consume-context": "^0.3.2",
     "execa": "^9.1.0",
     "git-repo-version": "^1.0.2",
     "globby": "^14.0.1",
@@ -133,7 +132,7 @@
     },
     "overrides": {
       "ember-auto-import": "^2.8.1",
-      "@embroider/macros": "^1.16.6",
+      "@embroider/macros": "^1.16.1",
       "broccoli-funnel": "^3.0.8",
       "broccoli-merge-trees": "^4.2.0",
       "@glimmer/validator": "^0.92.0",
