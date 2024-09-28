@@ -1,24 +1,24 @@
 // @ts-nocheck
-const rule = require('../rules/no-create-record-rerender');
+const rule = require('../src/rules/no-create-record-rerender');
 const RuleTester = require('eslint').RuleTester;
 
 const eslintTester = new RuleTester({
-	parser: require.resolve('@babel/eslint-parser'),
-	parserOptions: {
-		ecmaVersion: 'latest',
-		sourceType: 'module',
-		requireConfigFile: false,
-		babelOptions: {
-			babelrc: false,
-			plugins: [['@babel/plugin-proposal-decorators', { decoratorsBeforeExport: true }]],
-		},
-	},
+  parser: require.resolve('@babel/eslint-parser'),
+  parserOptions: {
+    ecmaVersion: 'latest',
+    sourceType: 'module',
+    requireConfigFile: false,
+    babelOptions: {
+      babelrc: false,
+      plugins: [['@babel/plugin-proposal-decorators', { decoratorsBeforeExport: true }]],
+    },
+  },
 });
 
 eslintTester.run('no-create-record-rerender', rule, {
-	valid: [
-		{
-			code: `
+  valid: [
+    {
+      code: `
 		    export default class MyComponent extends Component {
 		      @service store;
 		      @action newThing() {
@@ -26,9 +26,9 @@ eslintTester.run('no-create-record-rerender', rule, {
 		      }
 		    }
 		  `,
-		},
-		{
-			code: `
+    },
+    {
+      code: `
 				export default class MyComponent extends Component {
 					@service store;
 					newThing = () => {
@@ -36,9 +36,9 @@ eslintTester.run('no-create-record-rerender', rule, {
 					}
 				}
 		  `,
-		},
-		{
-			code: `
+    },
+    {
+      code: `
 		    export default class MyComponent extends Component {
 		      @service store;
 		      constructor() {
@@ -46,9 +46,9 @@ eslintTester.run('no-create-record-rerender', rule, {
 		      }
 		    }
 		  `,
-		},
-		{
-			code: `
+    },
+    {
+      code: `
 		    export default Component.extend({
 					store: service(),
 		      init() {
@@ -56,27 +56,27 @@ eslintTester.run('no-create-record-rerender', rule, {
 		      }
 		    })
 		  `,
-		},
-		{
-			code: `
+    },
+    {
+      code: `
 				const pojo = {
 					model: this.store.createRecord('thing')
 				};
 			`,
-		},
-		{
-			code: `
+    },
+    {
+      code: `
 				const pojo = {
 					init() {
 						this.model = this.store.createRecord('thing');
 					}
 				};
 			`,
-		},
-	],
-	invalid: [
-		{
-			code: `
+    },
+  ],
+  invalid: [
+    {
+      code: `
 		    export default class MyComponent extends Component {
 		      @service store;
 		      constructor() {
@@ -84,12 +84,12 @@ eslintTester.run('no-create-record-rerender', rule, {
 		      }
 		    }
 		  `,
-			errors: [
-				'Cannot call `store.createRecord` in a constructor. Calling `store.createRecord` inside constructors, getters, and class properties can cause issues with re-renders.',
-			],
-		},
-		{
-			code: `
+      errors: [
+        'Cannot call `store.createRecord` in a constructor. Calling `store.createRecord` inside constructors, getters, and class properties can cause issues with re-renders.',
+      ],
+    },
+    {
+      code: `
 		    export default class MyComponent extends Component {
 		      @service store;
 		      get myModel() {
@@ -97,23 +97,23 @@ eslintTester.run('no-create-record-rerender', rule, {
 		      }
 		    }
 		  `,
-			errors: [
-				'Cannot call `store.createRecord` in a getter. Calling `store.createRecord` inside constructors, getters, and class properties can cause issues with re-renders.',
-			],
-		},
-		{
-			code: `
+      errors: [
+        'Cannot call `store.createRecord` in a getter. Calling `store.createRecord` inside constructors, getters, and class properties can cause issues with re-renders.',
+      ],
+    },
+    {
+      code: `
         export default class MyComponent extends Component {
           @service store;
           model = this.store.createRecord('thing');
         }
       `,
-			errors: [
-				'Cannot call `store.createRecord` in a class property initializer. Calling `store.createRecord` inside constructors, getters, and class properties can cause issues with re-renders.',
-			],
-		},
-		{
-			code: `
+      errors: [
+        'Cannot call `store.createRecord` in a class property initializer. Calling `store.createRecord` inside constructors, getters, and class properties can cause issues with re-renders.',
+      ],
+    },
+    {
+      code: `
 		    export default Component.extend({
 					store: service(),
 		      init() {
@@ -121,20 +121,20 @@ eslintTester.run('no-create-record-rerender', rule, {
 		      }
 		    })
 		  `,
-			errors: [
-				'Cannot call `store.createRecord` in a lifecycle hook. Calling `store.createRecord` inside constructors, getters, and class properties can cause issues with re-renders.',
-			],
-		},
-		{
-			code: `
+      errors: [
+        'Cannot call `store.createRecord` in a lifecycle hook. Calling `store.createRecord` inside constructors, getters, and class properties can cause issues with re-renders.',
+      ],
+    },
+    {
+      code: `
 		    export default Component.extend({
 					store: service(),
 		      model: this.store.createRecord('foo')
 		    })
 		  `,
-			errors: [
-				'Cannot call `store.createRecord` in an object property initializer. Calling `store.createRecord` inside constructors, getters, and class properties can cause issues with re-renders.',
-			],
-		},
-	],
+      errors: [
+        'Cannot call `store.createRecord` in an object property initializer. Calling `store.createRecord` inside constructors, getters, and class properties can cause issues with re-renders.',
+      ],
+    },
+  ],
 });
