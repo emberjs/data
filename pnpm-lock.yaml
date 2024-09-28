@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  ember-auto-import: ^2.8.1
+  ember-auto-import: ^2.7.4
   '@embroider/macros': ^1.16.1
   broccoli-funnel: ^3.0.8
   broccoli-merge-trees: ^4.2.0
@@ -2129,7 +2129,7 @@ importers:
         specifier: workspace:5.4.0-alpha.109
         version: link:../../config
       ember-auto-import:
-        specifier: ^2.8.1
+        specifier: ^2.7.4
         version: 2.8.1(@glint/template@1.4.0)
       ember-cli:
         specifier: ~5.9.0
@@ -2341,7 +2341,7 @@ importers:
         specifier: workspace:5.4.0-alpha.109
         version: link:../../config
       ember-auto-import:
-        specifier: ^2.8.1
+        specifier: ^2.7.4
         version: 2.8.1(@glint/template@1.4.0)
       ember-cli:
         specifier: ~5.9.0
@@ -2496,7 +2496,7 @@ importers:
         specifier: workspace:5.4.0-alpha.109
         version: link:../../config
       ember-auto-import:
-        specifier: ^2.8.1
+        specifier: ^2.7.4
         version: 2.8.1(@glint/template@1.4.0)
       ember-cli:
         specifier: ~5.9.0
@@ -2659,7 +2659,7 @@ importers:
         specifier: workspace:5.4.0-alpha.109
         version: link:../../config
       ember-auto-import:
-        specifier: ^2.8.1
+        specifier: ^2.7.4
         version: 2.8.1(@glint/template@1.4.0)
       ember-cli:
         specifier: ~5.9.0
@@ -2812,7 +2812,7 @@ importers:
         specifier: workspace:5.4.0-alpha.109
         version: link:../../config
       ember-auto-import:
-        specifier: ^2.8.1
+        specifier: ^2.7.4
         version: 2.8.1(@glint/template@1.4.0)
       ember-cli:
         specifier: ~5.9.0
@@ -2937,7 +2937,7 @@ importers:
         specifier: ^1.1.8
         version: 1.1.8
       ember-auto-import:
-        specifier: ^2.8.1
+        specifier: ^2.7.4
         version: 2.8.1(@glint/template@1.4.0)
       ember-cli:
         specifier: ~5.9.0
@@ -3080,7 +3080,7 @@ importers:
         specifier: workspace:5.4.0-alpha.109
         version: link:../../config
       ember-auto-import:
-        specifier: ^2.8.1
+        specifier: ^2.7.4
         version: 2.8.1(@glint/template@1.4.0)
       ember-cli:
         specifier: ~5.9.0
@@ -3212,13 +3212,13 @@ importers:
         specifier: ^3.1.0
         version: 3.1.0(@babel/core@7.24.5)
       '@embroider/compat':
-        specifier: ^3.6.1
+        specifier: ^3.5.3
         version: 3.6.1(@embroider/core@3.4.16)
       '@embroider/core':
-        specifier: ^3.4.16
+        specifier: ^3.4.12
         version: 3.4.16
       '@embroider/webpack':
-        specifier: ^4.0.5
+        specifier: ^4.0.3
         version: 4.0.5(@embroider/core@3.4.16)(webpack@5.92.0)
       '@glimmer/component':
         specifier: ^1.1.2
@@ -3236,7 +3236,7 @@ importers:
         specifier: workspace:5.4.0-alpha.109
         version: link:../../config
       ember-auto-import:
-        specifier: ^2.8.1
+        specifier: ^2.7.4
         version: 2.8.1(@glint/template@1.4.0)
       ember-cli:
         specifier: ~5.9.0
@@ -3388,13 +3388,13 @@ importers:
         specifier: ^3.1.0
         version: 3.1.0(@babel/core@7.24.5)
       '@embroider/compat':
-        specifier: ^3.6.1
+        specifier: ^3.5.3
         version: 3.6.1(@embroider/core@3.4.16)
       '@embroider/core':
-        specifier: ^3.4.16
+        specifier: ^3.4.12
         version: 3.4.16
       '@embroider/webpack':
-        specifier: ^4.0.5
+        specifier: ^4.0.3
         version: 4.0.5(@embroider/core@3.4.16)(webpack@5.92.0)
       '@glimmer/component':
         specifier: ^1.1.2
@@ -3415,7 +3415,7 @@ importers:
         specifier: workspace:5.4.0-alpha.109
         version: link:../../config
       ember-auto-import:
-        specifier: ^2.8.1
+        specifier: ^2.7.4
         version: 2.8.1(@glint/template@1.4.0)
       ember-cli:
         specifier: ~5.9.0
@@ -3533,7 +3533,7 @@ importers:
         specifier: workspace:5.4.0-alpha.109
         version: file:packages/unpublished-test-infra(@babel/core@7.24.5)(@ember-data/request@5.4.0-alpha.109)(@ember-data/store@5.4.0-alpha.109)(@ember-data/tracking@5.4.0-alpha.109)(@ember/test-helpers@4.0.4)(@warp-drive/core-types@0.0.0-alpha.95)(@warp-drive/diagnostic@0.0.0-alpha.95)
       ember-auto-import:
-        specifier: ^2.8.1
+        specifier: ^2.7.4
         version: 2.8.1(@glint/template@1.4.0)
       ember-data:
         specifier: workspace:5.4.0-alpha.109
@@ -3700,7 +3700,7 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
       ember-auto-import:
-        specifier: ^2.8.1
+        specifier: ^2.7.4
         version: 2.8.1(@glint/template@1.4.0)
       ember-cli:
         specifier: ~5.9.0
@@ -3857,7 +3857,7 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       ember-auto-import:
-        specifier: ^2.8.1
+        specifier: ^2.7.4
         version: 2.8.1(@glint/template@1.4.0)
       ember-cached-decorator-polyfill:
         specifier: ^1.0.2
@@ -3980,7 +3980,7 @@ importers:
   tests/performance:
     dependencies:
       ember-auto-import:
-        specifier: ^2.8.1
+        specifier: ^2.7.4
         version: 2.8.1(@glint/template@1.4.0)
       ember-data:
         specifier: workspace:5.4.0-alpha.109
@@ -4008,13 +4008,13 @@ importers:
         specifier: ^3.1.0
         version: 3.1.0(@babel/core@7.24.5)
       '@embroider/compat':
-        specifier: ^3.6.1
+        specifier: ^3.5.3
         version: 3.6.1(@embroider/core@3.4.16)
       '@embroider/core':
-        specifier: ^3.4.16
+        specifier: ^3.4.12
         version: 3.4.16
       '@embroider/webpack':
-        specifier: ^4.0.5
+        specifier: ^4.0.3
         version: 4.0.5(@embroider/core@3.4.16)(webpack@5.92.0)
       '@glimmer/component':
         specifier: ^1.1.2
@@ -4156,7 +4156,7 @@ importers:
         specifier: workspace:0.0.0-alpha.95
         version: file:packages/schema-record(@babel/core@7.24.5)(@ember-data/model@5.4.0-alpha.109)(@ember-data/request@5.4.0-alpha.109)(@ember-data/store@5.4.0-alpha.109)(@ember-data/tracking@5.4.0-alpha.109)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.95)
       ember-auto-import:
-        specifier: ^2.8.1
+        specifier: ^2.7.4
         version: 2.8.1(@glint/template@1.4.0)
       ember-cli:
         specifier: ~5.9.0
@@ -4340,7 +4340,7 @@ importers:
         specifier: workspace:0.0.0-alpha.95
         version: file:packages/schema-record(@babel/core@7.24.5)(@ember-data/model@5.4.0-alpha.109)(@ember-data/request@5.4.0-alpha.109)(@ember-data/store@5.4.0-alpha.109)(@ember-data/tracking@5.4.0-alpha.109)(@warp-drive/core-types@0.0.0-alpha.95)
       ember-auto-import:
-        specifier: ^2.8.1
+        specifier: ^2.7.4
         version: 2.8.1(@glint/template@1.4.0)
       ember-cli:
         specifier: ~5.9.0
@@ -4511,7 +4511,7 @@ importers:
         specifier: workspace:0.0.0-alpha.95
         version: file:packages/schema-record(@babel/core@7.24.5)(@ember-data/model@5.4.0-alpha.109)(@ember-data/request@5.4.0-alpha.109)(@ember-data/store@5.4.0-alpha.109)(@ember-data/tracking@5.4.0-alpha.109)(@warp-drive/core-types@0.0.0-alpha.95)
       ember-auto-import:
-        specifier: ^2.8.1
+        specifier: ^2.7.4
         version: 2.8.1(@glint/template@1.4.0)
       ember-cli:
         specifier: ~5.9.0
@@ -4805,7 +4805,6 @@ packages:
   /@babel/helper-plugin-utils@7.24.8:
     resolution: {integrity: sha512-FFWx5142D8h2Mgr/iPVGH5G7w6jDn4jUSpZTyDnQO0Yn7Ks2Kuz6Pci8H6MPCoUJegd/UZQ3tAvfLCxQSnWWwg==}
     engines: {node: '>=6.9.0'}
-    dev: true
 
   /@babel/helper-remap-async-to-generator@7.22.20(@babel/core@7.24.5):
     resolution: {integrity: sha512-pBGyV4uBqOns+0UvhsTO8qgl8hO89PmiDYv+/COyp1aeMcmfrfruz+/nCMFiYyFF/Knn0yfrC85ZzNFjembFTw==}
@@ -4942,7 +4941,7 @@ packages:
     dependencies:
       '@babel/core': 7.24.5(supports-color@8.1.1)
       '@babel/helper-create-class-features-plugin': 7.24.5(@babel/core@7.24.5)
-      '@babel/helper-plugin-utils': 7.24.5
+      '@babel/helper-plugin-utils': 7.24.8
 
   /@babel/plugin-proposal-decorators@7.24.1(@babel/core@7.24.5):
     resolution: {integrity: sha512-zPEvzFijn+hRvJuX2Vu3KbEBN39LN3f7tW3MQO2LsIs57B26KU+kUc82BdAktS1VCM6libzh45eKGI65lg0cpA==}
@@ -4964,7 +4963,7 @@ packages:
     dependencies:
       '@babel/core': 7.24.5(supports-color@8.1.1)
       '@babel/helper-create-class-features-plugin': 7.24.5(@babel/core@7.24.5)
-      '@babel/helper-plugin-utils': 7.24.5
+      '@babel/helper-plugin-utils': 7.24.8
 
   /@babel/plugin-proposal-private-property-in-object@7.21.0-placeholder-for-preset-env.2(@babel/core@7.24.5):
     resolution: {integrity: sha512-SOSkfJDddaM7mak6cPEpswyTRnuRltl429hMraQEglW+OkovnCzsiszTmsrlY//qLFjCpQDFRvjdm2wA5pPm9w==}
@@ -11235,7 +11234,7 @@ packages:
       '@babel/plugin-transform-class-static-block': 7.24.4(@babel/core@7.24.5)
       '@babel/preset-env': 7.24.5(@babel/core@7.24.5)(supports-color@8.1.1)
       '@embroider/macros': 1.16.6(@babel/core@7.24.5)(@glint/template@1.4.0)
-      '@embroider/shared-internals': 2.6.2(supports-color@8.1.1)
+      '@embroider/shared-internals': 2.6.3(supports-color@8.1.1)
       babel-loader: 8.3.0(@babel/core@7.24.5)(webpack@5.92.0)
       babel-plugin-ember-modules-api-polyfill: 3.5.0
       babel-plugin-ember-template-compilation: 2.2.5
