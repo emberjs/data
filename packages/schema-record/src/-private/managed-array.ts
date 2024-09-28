@@ -109,6 +109,8 @@ export class ManagedArray {
   declare path: string[];
   declare owner: SchemaRecord;
   declare [ARRAY_SIGNAL]: Signal;
+  declare [Editable]: boolean;
+  declare [Legacy]: boolean;
 
   constructor(
     store: Store,
@@ -119,12 +121,16 @@ export class ManagedArray {
     identifier: StableRecordIdentifier,
     path: string[],
     owner: SchemaRecord,
-    isSchemaArray: boolean
+    isSchemaArray: boolean,
+    editable: boolean,
+    legacy: boolean
   ) {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
     this[SOURCE] = data?.slice();
     this[ARRAY_SIGNAL] = createSignal(this, 'length');
+    this[Editable] = editable;
+    this[Legacy] = legacy;
     const _SIGNAL = this[ARRAY_SIGNAL];
     const boundFns = new Map<KeyType, ProxiedMethod>();
     this.identifier = identifier;

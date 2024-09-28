@@ -9,7 +9,7 @@ import type { ObjectField, SchemaObjectField } from '@warp-drive/core-types/sche
 
 import type { SchemaRecord } from '../record';
 import type { SchemaService } from '../schema';
-import { Editable, EmbeddedPath, MUTATE, OBJECT_SIGNAL, Parent, SOURCE } from '../symbols';
+import { Editable, EmbeddedPath, Legacy, MUTATE, OBJECT_SIGNAL, Parent, SOURCE } from '../symbols';
 
 export function notifyObject(obj: ManagedObject) {
   addToTransaction(obj[OBJECT_SIGNAL]);
@@ -37,6 +37,7 @@ export class ManagedObject {
   declare [EmbeddedPath]: string[];
   declare [OBJECT_SIGNAL]: Signal;
   declare [Editable]: boolean;
+  declare [Legacy]: boolean;
 
   constructor(
     schema: SchemaService,
@@ -46,13 +47,15 @@ export class ManagedObject {
     identifier: StableRecordIdentifier,
     path: string[],
     owner: SchemaRecord,
-    editable: boolean
+    editable: boolean,
+    legacy: boolean
   ) {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
     this[SOURCE] = { ...data };
     this[OBJECT_SIGNAL] = createSignal(this, 'length');
     this[Editable] = editable;
+    this[Legacy] = legacy;
     this[Parent] = identifier;
     this[EmbeddedPath] = path;
 

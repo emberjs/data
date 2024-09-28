@@ -253,21 +253,43 @@ export class SchemaRecord {
             return computeDerivation(schema, receiver as unknown as SchemaRecord, identifier, field, prop as string);
           case 'schema-array':
             entangleSignal(signals, receiver, field.name);
-            return computeArray(store, schema, cache, target, identifier, field, propArray, true);
+            return computeArray(
+              store,
+              schema,
+              cache,
+              target,
+              identifier,
+              field,
+              propArray,
+              true,
+              Mode[Editable],
+              Mode[Legacy]
+            );
           case 'array':
             assert(
               `SchemaRecord.${field.name} is not available in legacy mode because it has type '${field.kind}'`,
               !target[Legacy]
             );
             entangleSignal(signals, receiver, field.name);
-            return computeArray(store, schema, cache, target, identifier, field, propArray, false);
+            return computeArray(
+              store,
+              schema,
+              cache,
+              target,
+              identifier,
+              field,
+              propArray,
+              false,
+              Mode[Editable],
+              Mode[Legacy]
+            );
           case 'object':
             assert(
               `SchemaRecord.${field.name} is not available in legacy mode because it has type '${field.kind}'`,
               !target[Legacy]
             );
             entangleSignal(signals, receiver, field.name);
-            return computeObject(schema, cache, target, identifier, field, propArray, Mode[Editable]);
+            return computeObject(schema, cache, target, identifier, field, propArray, Mode[Editable], Mode[Legacy]);
           case 'schema-object':
             assert(
               `SchemaRecord.${field.name} is not available in legacy mode because it has type '${field.kind}'`,
