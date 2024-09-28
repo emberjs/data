@@ -25,7 +25,7 @@ module.exports = {
       description: 'Disallow use of `store.createRecord` in getters, constructors, and class properties',
       category: 'Possible Errors',
       recommended: true,
-      url: 'https://ember-luna.com/docs/5-patterns/best-practices/general#dontusecreaterecordinsideconstructorsgettersorclassproperties',
+      url: 'https://github.com/emberjs/data/tree/main/packages/eslint-plugin-ember-data/docs/rules/no-create-record-rerender.md',
     },
     messages: {
       [messageId]:

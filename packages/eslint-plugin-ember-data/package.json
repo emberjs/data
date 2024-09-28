@@ -22,6 +22,7 @@
   },
   "files": [
     "src",
+    "docs",
     "CHANGELOG.md",
     "README.md"
   ],

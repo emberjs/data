@@ -12,7 +12,7 @@
 
 | Rule | Description | Category | ✨ |
 | ---- | ----------- | -------- | -- |
-| no-create-record-rerender | Helps avoid patterns that often lead to excess or broken renders | 🐞⚡️ | ✅ |
+| [no-create-record-rerender](./docs/no-create-record-rerender.md) | Helps avoid patterns that often lead to excess or broken renders | 🐞⚡️ | ✅ |
 | no-methods-in-models      | restricts adding methods to model classes | usage | ✅ |
 | no-computeds-in-models    | restricts adding computed properties to model classes | usage | ✅ |
 | no-getters-in-models      | restricts adding getters/setters to model classes | usage | ✅ |
