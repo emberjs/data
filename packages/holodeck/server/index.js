@@ -35,24 +35,13 @@ function getShellConfigFilePath() {
 function getCertInfo() {
   let CERT_PATH = process.env.HOLODECK_SSL_CERT_PATH;
   let KEY_PATH = process.env.HOLODECK_SSL_KEY_PATH;
-  const configFilePath = getShellConfigFilePath();
 
-  if (!CERT_PATH) {
-    CERT_PATH = path.join(homedir(), 'holodeck-localhost.pem');
-    process.env.HOLODECK_SSL_CERT_PATH = CERT_PATH;
-    execSync(`echo '\nexport HOLODECK_SSL_CERT_PATH="${CERT_PATH}"' >> ${configFilePath}`);
-    console.log(`Added HOLODECK_SSL_CERT_PATH to ${configFilePath}`);
-  }
-
-  if (!KEY_PATH) {
-    KEY_PATH = path.join(homedir(), 'holodeck-localhost-key.pem');
-    process.env.HOLODECK_SSL_KEY_PATH = KEY_PATH;
-    execSync(`echo '\nexport HOLODECK_SSL_KEY_PATH="${KEY_PATH}"' >> ${configFilePath}`);
-    console.log(`Added HOLODECK_SSL_KEY_PATH to ${configFilePath}`);
-  }
-
-  if (!fs.existsSync(CERT_PATH) || !fs.existsSync(KEY_PATH)) {
-    throw new Error('SSL certificate or key not found, you may need to run `npx -p @warp-drive/holodeck ensure-cert`');
+  if (!CERT_PATH || !KEY_PATH) {
+    throw new Error(
+      'SSL certificate or key paths were not found in your environment, you may need to run `pnpx @warp-drive/holodeck ensure-cert`'
+    );
+  } else if (!fs.existsSync(CERT_PATH) || !fs.existsSync(KEY_PATH)) {
+    throw new Error('SSL certificate or key not found, you may need to run `pnpx @warp-drive/holodeck ensure-cert`');
   }
 
   return {
