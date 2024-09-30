@@ -34,11 +34,22 @@ Installation [doc](https://bun.sh/docs/installation#windows)
 
 ## Install certificate packages
 
-Using homebrew on MacOS or Linux
+Install mkcert using homebrew on MacOS or Linux
 ```sh
 brew install mkcert
 ```
 can be done using Chocolatey, Scoop or MacPorts (User choice) checkout installation [doc][https://github.com/FiloSottile/mkcert?tab=readme-ov-file#installation]
+
+For Firefox users, Mozilla NSS is also needed
+Using homebrew on MacOS
+```sh
+brew install nss
+```
+Or apt on Linux
+```sh
+sudo apt install libnss3-tools
+```
+but can also be done using other methods.
 
 ## Clone the repository
 
@@ -57,7 +68,7 @@ Currently the install command is also what builds all of the individual packages
 ## Create certificates
 
 ```sh
-node ./packages/holodeck/server/ensure-cert.js
+pnpx @warp-drive/holodeck ensure-cert
 ```
 
 ## Run some commands
