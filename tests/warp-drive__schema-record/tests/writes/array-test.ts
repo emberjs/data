@@ -65,6 +65,7 @@ module('Writes | array fields', function (hooks) {
         attributes: { name: 'Rey Pupatine', favoriteNumbers: ['1', '2'] },
       },
     });
+
     const record = await immutableRecord[Checkout]();
 
     assert.strictEqual(record.id, '1', 'id is accessible');

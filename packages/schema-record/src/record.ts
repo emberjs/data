@@ -3,6 +3,7 @@ import { dependencySatisfies, importSync, macroCondition } from '@embroider/macr
 import type { MinimalLegacyRecord } from '@ember-data/model/-private/model-methods';
 import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store';
+import { recordIdentifierFor, setRecordIdentifier } from '@ember-data/store/-private';
 import { addToTransaction, entangleSignal, getSignal, type Signal, Signals } from '@ember-data/tracking/-private';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -680,7 +681,7 @@ export class SchemaRecord {
       embeddedType,
       embeddedPath
     );
-
+    setRecordIdentifier(editableRecord, recordIdentifierFor(this));
     return Promise.resolve(editableRecord);
   }
 }

@@ -4,6 +4,7 @@ import { setupTest } from 'ember-qunit';
 
 import { recordIdentifierFor } from '@ember-data/store';
 import { Type } from '@warp-drive/core-types/symbols';
+import { Checkout } from '@warp-drive/schema-record/record';
 import type { Transformation } from '@warp-drive/schema-record/schema';
 import { registerDerivations, withDefaults } from '@warp-drive/schema-record/schema';
 
@@ -15,13 +16,24 @@ type address = {
   state: string;
   zip: string | number;
 };
-interface User {
+
+type User = Readonly<{
   id: string;
   $type: 'user';
   name: string;
   address: address | null;
   [Type]: 'user';
-}
+  [Checkout](): Promise<EditableUser>;
+}>;
+
+type EditableUser = {
+  readonly id: string;
+  readonly $type: 'user';
+  name: string;
+  address: address | null;
+  readonly [Type]: 'user';
+};
+
 interface CreateUserType {
   id: string | null;
   $type: 'user';
@@ -34,7 +46,7 @@ interface CreateUserType {
 module('Writes | object fields', function (hooks) {
   setupTest(hooks);
 
-  test('we can update to a new object', function (assert) {
+  test('we can update to a new object', async function (assert) {
     const store = this.owner.lookup('service:store') as Store;
     const { schema } = store;
     registerDerivations(schema);
@@ -55,7 +67,7 @@ module('Writes | object fields', function (hooks) {
       })
     );
 
-    const record = store.push<User>({
+    const immutableRecord = store.push<User>({
       data: {
         type: 'user',
         id: '1',
@@ -71,6 +83,7 @@ module('Writes | object fields', function (hooks) {
       },
     });
 
+    const record = await immutableRecord[Checkout]();
     assert.strictEqual(record.id, '1', 'id is accessible');
     assert.strictEqual(record.$type, 'user', '$type is accessible');
     assert.strictEqual(record.name, 'Rey Pupatine', 'name is accessible');
@@ -99,7 +112,7 @@ module('Writes | object fields', function (hooks) {
     );
   });
 
-  test('we can update to null', function (assert) {
+  test('we can update to null', async function (assert) {
     const store = this.owner.lookup('service:store') as Store;
     const { schema } = store;
     registerDerivations(schema);
@@ -118,7 +131,7 @@ module('Writes | object fields', function (hooks) {
         ],
       })
     );
-    const record = store.push<User>({
+    const immutableRecord = store.push<User>({
       data: {
         type: 'user',
         id: '1',
@@ -133,6 +146,8 @@ module('Writes | object fields', function (hooks) {
         },
       },
     });
+
+    const record = await immutableRecord[Checkout]();
     assert.strictEqual(record.id, '1', 'id is accessible');
     assert.strictEqual(record.$type, 'user', '$type is accessible');
     assert.strictEqual(record.name, 'Rey Pupatine', 'name is accessible');
@@ -170,7 +185,7 @@ module('Writes | object fields', function (hooks) {
     );
   });
 
-  test('we can update a single value in the object', function (assert) {
+  test('we can update a single value in the object', async function (assert) {
     const store = this.owner.lookup('service:store') as Store;
     const { schema } = store;
     registerDerivations(schema);
@@ -189,7 +204,7 @@ module('Writes | object fields', function (hooks) {
         ],
       })
     );
-    const record = store.push<User>({
+    const immutableRecord = store.push<User>({
       data: {
         type: 'user',
         id: '1',
@@ -199,6 +214,8 @@ module('Writes | object fields', function (hooks) {
         },
       },
     });
+
+    const record = await immutableRecord[Checkout]();
     assert.deepEqual(
       record.address,
       {
@@ -232,7 +249,7 @@ module('Writes | object fields', function (hooks) {
     );
   });
 
-  test('we can assign an object value to another record', function (assert) {
+  test('we can assign an object value to another record', async function (assert) {
     const store = this.owner.lookup('service:store') as Store;
     const { schema } = store;
     registerDerivations(schema);
@@ -251,7 +268,7 @@ module('Writes | object fields', function (hooks) {
         ],
       })
     );
-    const record = store.push<User>({
+    const immutableRecord = store.push<User>({
       data: {
         type: 'user',
         id: '1',
@@ -266,13 +283,17 @@ module('Writes | object fields', function (hooks) {
         },
       },
     });
-    const record2 = store.push<User>({
+    const immutableRecord2 = store.push<User>({
       data: {
         type: 'user',
         id: '2',
         attributes: { name: 'Luke Skybarker' },
       },
     });
+
+    const record = await immutableRecord[Checkout]();
+    const record2 = await immutableRecord2[Checkout]();
+
     assert.strictEqual(record.id, '1', 'id is accessible');
     assert.strictEqual(record.$type, 'user', '$type is accessible');
     assert.strictEqual(record.name, 'Rey Pupatine', 'name is accessible');
