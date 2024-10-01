@@ -5,32 +5,16 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { HTTPException } from 'hono/http-exception';
 import { logger } from 'hono/logger';
-import { execSync } from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import http2 from 'node:http2';
 import zlib from 'node:zlib';
-import { homedir, userInfo } from 'os';
 import path from 'path';
 
 /** @type {import('bun-types')} */
 const isBun = typeof Bun !== 'undefined';
 const DEBUG = process.env.DEBUG?.includes('holodeck') || process.env.DEBUG === '*';
 const CURRENT_FILE = new URL(import.meta.url).pathname;
-
-function getShellConfigFilePath() {
-  const shell = userInfo().shell;
-  switch (shell) {
-    case '/bin/zsh':
-      return path.join(homedir(), '.zshrc');
-    case '/bin/bash':
-      return path.join(homedir(), '.bashrc');
-    default:
-      throw Error(
-        `Unable to determine configuration file for shell: ${shell}. Manual SSL Cert Setup Required for Holodeck.`
-      );
-  }
-}
 
 function getCertInfo() {
   let CERT_PATH = process.env.HOLODECK_SSL_CERT_PATH;
