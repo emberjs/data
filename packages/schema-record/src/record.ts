@@ -335,7 +335,8 @@ export class SchemaRecord {
       },
       set(target: SchemaRecord, prop: string | number | symbol, value: unknown, receiver: typeof Proxy<SchemaRecord>) {
         if (!IS_EDITABLE) {
-          throw new Error(`Cannot set ${String(prop)} on ${identifier.type} because the record is not editable`);
+          const type = isEmbedded ? embeddedType : identifier.type;
+          throw new Error(`Cannot set ${String(prop)} on ${type} because the record is not editable`);
         }
 
         const maybeField = prop === identityField?.name ? identityField : fields.get(prop as string);

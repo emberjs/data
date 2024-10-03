@@ -46,6 +46,447 @@ interface CreateUserType {
 module('Writes | object fields', function (hooks) {
   setupTest(hooks);
 
+  module('Immutability', function () {
+    test('we cannot update to a new object', function (assert) {
+      const store = this.owner.lookup('service:store') as Store;
+      const { schema } = store;
+      registerDerivations(schema);
+
+      schema.registerResource(
+        withDefaults({
+          type: 'user',
+          fields: [
+            {
+              name: 'name',
+              kind: 'field',
+            },
+            {
+              name: 'address',
+              kind: 'object',
+            },
+          ],
+        })
+      );
+
+      const record = store.push<User>({
+        data: {
+          type: 'user',
+          id: '1',
+          attributes: {
+            name: 'Rey Pupatine',
+            address: {
+              street: '123 Main Street',
+              city: 'Anytown',
+              state: 'NY',
+              zip: '12345',
+            },
+          },
+        },
+      });
+
+      assert.strictEqual(record.id, '1', 'id is accessible');
+      assert.strictEqual(record.$type, 'user', '$type is accessible');
+      assert.strictEqual(record.name, 'Rey Pupatine', 'name is accessible');
+      assert.deepEqual(
+        record.address,
+        { street: '123 Main Street', city: 'Anytown', state: 'NY', zip: '12345' },
+        'We have the correct address object'
+      );
+      assert.throws(() => {
+        // @ts-expect-error we're testing the immutability of the object
+        record.address = { street: '456 Elm Street', city: 'Sometown', state: 'NJ', zip: '23456' };
+      }, /Error: Cannot set address on user because the record is not editable/);
+
+      assert.deepEqual(
+        record.address,
+        { street: '123 Main Street', city: 'Anytown', state: 'NY', zip: '12345' },
+        'We have the correct address object'
+      );
+    });
+
+    test('we cannot update to null', function (assert) {
+      const store = this.owner.lookup('service:store') as Store;
+      const { schema } = store;
+      registerDerivations(schema);
+      schema.registerResource(
+        withDefaults({
+          type: 'user',
+          fields: [
+            {
+              name: 'name',
+              kind: 'field',
+            },
+            {
+              name: 'address',
+              kind: 'object',
+            },
+          ],
+        })
+      );
+      const record = store.push<User>({
+        data: {
+          type: 'user',
+          id: '1',
+          attributes: {
+            name: 'Rey Pupatine',
+            address: {
+              street: '123 Main Street',
+              city: 'Anytown',
+              state: 'NY',
+              zip: '12345',
+            },
+          },
+        },
+      });
+
+      assert.strictEqual(record.id, '1', 'id is accessible');
+      assert.strictEqual(record.$type, 'user', '$type is accessible');
+      assert.strictEqual(record.name, 'Rey Pupatine', 'name is accessible');
+      assert.deepEqual(
+        record.address,
+        {
+          street: '123 Main Street',
+          city: 'Anytown',
+          state: 'NY',
+          zip: '12345',
+        },
+        'We have the correct address object'
+      );
+      assert.throws(() => {
+        // @ts-expect-error we're testing the immutability of the object
+        record.address = null;
+      }, /Error: Cannot set address on user because the record is not editable/);
+
+      assert.deepEqual(
+        record.address,
+        {
+          street: '123 Main Street',
+          city: 'Anytown',
+          state: 'NY',
+          zip: '12345',
+        },
+        'We have the correct address object'
+      );
+    });
+
+    test('we cannot update a single value in the object', function (assert) {
+      const store = this.owner.lookup('service:store') as Store;
+      const { schema } = store;
+      registerDerivations(schema);
+      schema.registerResource(
+        withDefaults({
+          type: 'user',
+          fields: [
+            {
+              name: 'name',
+              kind: 'field',
+            },
+            {
+              name: 'address',
+              kind: 'object',
+            },
+          ],
+        })
+      );
+      const record = store.push<User>({
+        data: {
+          type: 'user',
+          id: '1',
+          attributes: {
+            name: 'Rey Pupatine',
+            address: { street: '123 Main Street', city: 'Anytown', state: 'NY', zip: '12345' },
+          },
+        },
+      });
+
+      assert.deepEqual(
+        record.address,
+        {
+          street: '123 Main Street',
+          city: 'Anytown',
+          state: 'NY',
+          zip: '12345',
+        },
+        'We have the correct address object'
+      );
+      assert.throws(() => {
+        record.address!.state = 'NJ';
+      }, /Error: Cannot set read-only property 'state' on ManagedObject/);
+      assert.deepEqual(
+        record.address,
+        {
+          street: '123 Main Street',
+          city: 'Anytown',
+          state: 'NY',
+          zip: '12345',
+        },
+        'We have the correct address object'
+      );
+    });
+
+    test('we cannot assign an object value to another record', function (assert) {
+      const store = this.owner.lookup('service:store') as Store;
+      const { schema } = store;
+      registerDerivations(schema);
+      schema.registerResource(
+        withDefaults({
+          type: 'user',
+          fields: [
+            {
+              name: 'name',
+              kind: 'field',
+            },
+            {
+              name: 'address',
+              kind: 'object',
+            },
+          ],
+        })
+      );
+      const record = store.push<User>({
+        data: {
+          type: 'user',
+          id: '1',
+          attributes: {
+            name: 'Rey Pupatine',
+            address: {
+              street: '123 Main Street',
+              city: 'Anytown',
+              state: 'NY',
+              zip: '12345',
+            },
+          },
+        },
+      });
+      const record2 = store.push<User>({
+        data: {
+          type: 'user',
+          id: '2',
+          attributes: { name: 'Luke Skybarker' },
+        },
+      });
+
+      assert.strictEqual(record.id, '1', 'id is accessible');
+      assert.strictEqual(record.$type, 'user', '$type is accessible');
+      assert.strictEqual(record.name, 'Rey Pupatine', 'name is accessible');
+      assert.strictEqual(record2.id, '2', 'id is accessible');
+      assert.strictEqual(record2.$type, 'user', '$type is accessible');
+      assert.strictEqual(record2.name, 'Luke Skybarker', 'name is accessible');
+      assert.deepEqual(
+        record.address,
+        {
+          street: '123 Main Street',
+          city: 'Anytown',
+          state: 'NY',
+          zip: '12345',
+        },
+        'We have the correct address object'
+      );
+      assert.strictEqual(record.address, record.address, 'We have a stable object reference');
+      assert.throws(() => {
+        // @ts-expect-error we're testing the immutability of the object
+        record2.address = record.address;
+      }, /Error: Cannot set address on user because the record is not editable/);
+      assert.strictEqual(record2.address, null, 'Record2 address object is not updated');
+    });
+
+    test('we cannot edit simple object fields with a `type`', function (assert) {
+      const store = this.owner.lookup('service:store') as Store;
+      const { schema } = store;
+      registerDerivations(schema);
+      schema.registerResource(
+        withDefaults({
+          type: 'user',
+          fields: [
+            {
+              name: 'name',
+              kind: 'field',
+            },
+            {
+              name: 'address',
+              type: 'zip-string-from-int',
+              kind: 'object',
+            },
+          ],
+        })
+      );
+
+      const ZipStringFromIntTransform: Transformation<address, address> = {
+        serialize(value: address, options, _record): address {
+          if (typeof value.zip === 'string') {
+            return {
+              street: value.street,
+              city: value.city,
+              state: value.state,
+              zip: parseInt(value.zip),
+            };
+          }
+          return value;
+        },
+        hydrate(value: address, _options, _record): address {
+          return {
+            street: value.street,
+            city: value.city,
+            state: value.state,
+            zip: value.zip?.toString(),
+          };
+        },
+        defaultValue(_options, _identifier) {
+          assert.ok(false, 'unexpected defaultValue');
+          throw new Error('unexpected defaultValue');
+        },
+        [Type]: 'zip-string-from-int',
+      };
+      schema.registerTransformation(ZipStringFromIntTransform);
+
+      const record = store.push<User>({
+        data: {
+          type: 'user',
+          id: '1',
+          attributes: {
+            name: 'Rey Skybarker',
+            address: {
+              street: '123 Main St',
+              city: 'Anytown',
+              state: 'NY',
+              zip: 12345,
+            },
+          },
+        },
+      });
+      assert.strictEqual(record.id, '1', 'id is accessible');
+      assert.strictEqual(record.$type, 'user', '$type is accessible');
+      assert.strictEqual(record.name, 'Rey Skybarker', 'name is accessible');
+      assert.deepEqual(
+        record.address,
+        {
+          street: '123 Main St',
+          city: 'Anytown',
+          state: 'NY',
+          zip: '12345',
+        },
+        'We have the correct object members'
+      );
+      assert.strictEqual(record.address, record.address, 'We have a stable object reference');
+      assert.throws(() => {
+        // @ts-expect-error we're testing the immutability of the object
+        record.address = {
+          street: '456 Elm St',
+          city: 'Sometown',
+          state: 'NJ',
+          zip: '23456',
+        };
+      }, /Error: Cannot set address on user because the record is not editable/);
+
+      assert.deepEqual(
+        record.address,
+        {
+          street: '123 Main St',
+          city: 'Anytown',
+          state: 'NY',
+          zip: '12345',
+        },
+        'We have the correct object members'
+      );
+    });
+
+    test('we cannot edit single values in object fields with a `type`', function (assert) {
+      const store = this.owner.lookup('service:store') as Store;
+      const { schema } = store;
+      registerDerivations(schema);
+      schema.registerResource(
+        withDefaults({
+          type: 'user',
+          fields: [
+            {
+              name: 'name',
+              kind: 'field',
+            },
+            {
+              name: 'address',
+              type: 'zip-string-from-int',
+              kind: 'object',
+            },
+          ],
+        })
+      );
+
+      const ZipStringFromIntTransform: Transformation<address, address> = {
+        serialize(value: address, options, _record): address {
+          if (typeof value.zip === 'string') {
+            return {
+              street: value.street,
+              city: value.city,
+              state: value.state,
+              zip: parseInt(value.zip),
+            };
+          }
+          return value;
+        },
+        hydrate(value: address, _options, _record): address {
+          return {
+            street: value.street,
+            city: value.city,
+            state: value.state,
+            zip: value.zip?.toString(),
+          };
+        },
+        defaultValue(_options, _identifier) {
+          assert.ok(false, 'unexpected defaultValue');
+          throw new Error('unexpected defaultValue');
+        },
+        [Type]: 'zip-string-from-int',
+      };
+      schema.registerTransformation(ZipStringFromIntTransform);
+
+      const record = store.push<User>({
+        data: {
+          type: 'user',
+          id: '1',
+          attributes: {
+            name: 'Rey Skybarker',
+            address: {
+              street: '123 Main St',
+              city: 'Anytown',
+              state: 'NY',
+              zip: 12345,
+            },
+          },
+        },
+      });
+      assert.strictEqual(record.id, '1', 'id is accessible');
+      assert.strictEqual(record.$type, 'user', '$type is accessible');
+      assert.strictEqual(record.name, 'Rey Skybarker', 'name is accessible');
+      assert.deepEqual(
+        record.address,
+        {
+          street: '123 Main St',
+          city: 'Anytown',
+          state: 'NY',
+          zip: '12345',
+        },
+        'We have the correct object members'
+      );
+      assert.strictEqual(record.address, record.address, 'We have a stable object reference');
+      assert.strictEqual(record.address?.zip, '12345', 'zip is accessible');
+      assert.throws(() => {
+        record.address!.zip = '23456';
+      }, /Error: Cannot set read-only property 'zip' on ManagedObject/);
+
+      assert.deepEqual(
+        record.address,
+        {
+          street: '123 Main St',
+          city: 'Anytown',
+          state: 'NY',
+          zip: '12345',
+        },
+        'We have the correct object members'
+      );
+    });
+  });
+
+  // Editable tests
   test('we can update to a new object', async function (assert) {
     const store = this.owner.lookup('service:store') as Store;
     const { schema } = store;

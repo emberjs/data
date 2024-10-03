@@ -37,6 +37,591 @@ interface CreateUserType {
 module('Writes | array fields', function (hooks) {
   setupTest(hooks);
 
+  module('Immutability', function () {
+    test('we cannot update to a new array', function (assert) {
+      const store = this.owner.lookup('service:store') as Store;
+      const { schema } = store;
+      registerDerivations(schema);
+
+      schema.registerResource(
+        withDefaults({
+          type: 'user',
+          fields: [
+            {
+              name: 'name',
+              kind: 'field',
+            },
+            {
+              name: 'favoriteNumbers',
+              kind: 'array',
+            },
+          ],
+        })
+      );
+
+      const record = store.push<User>({
+        data: {
+          type: 'user',
+          id: '1',
+          attributes: { name: 'Rey Pupatine', favoriteNumbers: ['1', '2'] },
+        },
+      });
+
+      assert.strictEqual(record.id, '1', 'id is accessible');
+      assert.strictEqual(record.$type, 'user', '$type is accessible');
+      assert.strictEqual(record.name, 'Rey Pupatine', 'name is accessible');
+      assert.true(Array.isArray(record.favoriteNumbers), 'we can access favoriteNumber array');
+      assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
+      assert.strictEqual(record.favoriteNumbers, record.favoriteNumbers, 'We have a stable array reference');
+      assert.throws(() => {
+        // @ts-expect-error we're testing the immutability of the array
+        record.favoriteNumbers = ['3', '4'];
+      }, /Error: Cannot set favoriteNumbers on user because the record is not editable/);
+      assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
+    });
+
+    test('we cannot update to null', function (assert) {
+      const store = this.owner.lookup('service:store') as Store;
+      const { schema } = store;
+      registerDerivations(schema);
+
+      schema.registerResource(
+        withDefaults({
+          type: 'user',
+          fields: [
+            {
+              name: 'name',
+              kind: 'field',
+            },
+            {
+              name: 'favoriteNumbers',
+              kind: 'array',
+            },
+          ],
+        })
+      );
+
+      const record = store.push<User>({
+        data: {
+          type: 'user',
+          id: '1',
+          attributes: { name: 'Rey Pupatine', favoriteNumbers: ['1', '2'] },
+        },
+      });
+
+      assert.strictEqual(record.id, '1', 'id is accessible');
+      assert.strictEqual(record.$type, 'user', '$type is accessible');
+      assert.strictEqual(record.name, 'Rey Pupatine', 'name is accessible');
+      assert.true(Array.isArray(record.favoriteNumbers), 'we can access favoriteNumber array');
+      assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
+      assert.strictEqual(record.favoriteNumbers, record.favoriteNumbers, 'We have a stable array reference');
+      assert.throws(() => {
+        // @ts-expect-error we're testing the immutability of the array
+        record.favoriteNumbers = null;
+      }, /Error: Cannot set favoriteNumbers on user because the record is not editable/);
+      assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
+    });
+
+    test('we cannot update a single value in the array', function (assert) {
+      const store = this.owner.lookup('service:store') as Store;
+      const { schema } = store;
+      registerDerivations(schema);
+
+      schema.registerResource(
+        withDefaults({
+          type: 'user',
+          fields: [
+            {
+              name: 'name',
+              kind: 'field',
+            },
+            {
+              name: 'favoriteNumbers',
+              kind: 'array',
+            },
+          ],
+        })
+      );
+
+      const record = store.push<User>({
+        data: {
+          type: 'user',
+          id: '1',
+          attributes: { name: 'Rey Pupatine', favoriteNumbers: ['1', '2'] },
+        },
+      });
+
+      assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
+      assert.throws(() => {
+        record.favoriteNumbers![0] = '3';
+      }, /Error: Cannot set 0 on favoriteNumbers because the record is not editable/);
+      assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
+    });
+
+    test('we cannot push a new value on to the array', function (assert) {
+      const store = this.owner.lookup('service:store') as Store;
+      const { schema } = store;
+      registerDerivations(schema);
+
+      schema.registerResource(
+        withDefaults({
+          type: 'user',
+          fields: [
+            {
+              name: 'name',
+              kind: 'field',
+            },
+            {
+              name: 'favoriteNumbers',
+              kind: 'array',
+            },
+          ],
+        })
+      );
+
+      const record = store.push<User>({
+        data: {
+          type: 'user',
+          id: '1',
+          attributes: { name: 'Rey Pupatine', favoriteNumbers: ['1', '2'] },
+        },
+      });
+
+      assert.strictEqual(record.id, '1', 'id is accessible');
+      assert.strictEqual(record.$type, 'user', '$type is accessible');
+      assert.strictEqual(record.name, 'Rey Pupatine', 'name is accessible');
+      assert.true(Array.isArray(record.favoriteNumbers), 'we can access favoriteNumber array');
+      assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
+      assert.strictEqual(record.favoriteNumbers, record.favoriteNumbers, 'We have a stable array reference');
+      assert.throws(() => {
+        record.favoriteNumbers?.push('3');
+      }, /Error: Mutating this array via push is not allowed because the record is not editable/);
+
+      assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
+    });
+
+    test('we cannot pop a value off of the array', function (assert) {
+      const store = this.owner.lookup('service:store') as Store;
+      const { schema } = store;
+      registerDerivations(schema);
+
+      schema.registerResource(
+        withDefaults({
+          type: 'user',
+          fields: [
+            {
+              name: 'name',
+              kind: 'field',
+            },
+            {
+              name: 'favoriteNumbers',
+              kind: 'array',
+            },
+          ],
+        })
+      );
+
+      const record = store.push<User>({
+        data: {
+          type: 'user',
+          id: '1',
+          attributes: { name: 'Rey Pupatine', favoriteNumbers: ['1', '2'] },
+        },
+      });
+
+      assert.strictEqual(record.id, '1', 'id is accessible');
+      assert.strictEqual(record.$type, 'user', '$type is accessible');
+      assert.strictEqual(record.name, 'Rey Pupatine', 'name is accessible');
+      assert.true(Array.isArray(record.favoriteNumbers), 'we can access favoriteNumber array');
+      assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
+      assert.strictEqual(record.favoriteNumbers, record.favoriteNumbers, 'We have a stable array reference');
+      assert.throws(() => {
+        record.favoriteNumbers?.pop();
+      }, /Error: Mutating this array via pop is not allowed because the record is not editable/);
+      assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
+    });
+
+    test('we cannot unshift a value on to the array', function (assert) {
+      const store = this.owner.lookup('service:store') as Store;
+      const { schema } = store;
+      registerDerivations(schema);
+
+      schema.registerResource(
+        withDefaults({
+          type: 'user',
+          fields: [
+            {
+              name: 'name',
+              kind: 'field',
+            },
+            {
+              name: 'favoriteNumbers',
+              kind: 'array',
+            },
+          ],
+        })
+      );
+
+      const record = store.push<User>({
+        data: {
+          type: 'user',
+          id: '1',
+          attributes: { name: 'Rey Pupatine', favoriteNumbers: ['1', '2'] },
+        },
+      });
+
+      assert.strictEqual(record.id, '1', 'id is accessible');
+      assert.strictEqual(record.$type, 'user', '$type is accessible');
+      assert.strictEqual(record.name, 'Rey Pupatine', 'name is accessible');
+      assert.true(Array.isArray(record.favoriteNumbers), 'we can access favoriteNumber array');
+      assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
+      assert.strictEqual(record.favoriteNumbers, record.favoriteNumbers, 'We have a stable array reference');
+      assert.throws(() => {
+        record.favoriteNumbers?.unshift('3');
+      }, /Error: Mutating this array via unshift is not allowed because the record is not editable/);
+      assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
+    });
+
+    test('we cannot shift a value off of the array', function (assert) {
+      const store = this.owner.lookup('service:store') as Store;
+      const { schema } = store;
+      registerDerivations(schema);
+
+      schema.registerResource(
+        withDefaults({
+          type: 'user',
+          fields: [
+            {
+              name: 'name',
+              kind: 'field',
+            },
+            {
+              name: 'favoriteNumbers',
+              kind: 'array',
+            },
+          ],
+        })
+      );
+
+      const record = store.push<User>({
+        data: {
+          type: 'user',
+          id: '1',
+          attributes: { name: 'Rey Pupatine', favoriteNumbers: ['1', '2'] },
+        },
+      });
+
+      assert.strictEqual(record.id, '1', 'id is accessible');
+      assert.strictEqual(record.$type, 'user', '$type is accessible');
+      assert.strictEqual(record.name, 'Rey Pupatine', 'name is accessible');
+      assert.true(Array.isArray(record.favoriteNumbers), 'we can access favoriteNumber array');
+      assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
+      assert.strictEqual(record.favoriteNumbers, record.favoriteNumbers, 'We have a stable array reference');
+      assert.throws(() => {
+        record.favoriteNumbers?.shift();
+      }, /Error: Mutating this array via shift is not allowed because the record is not editable/);
+      assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
+    });
+
+    test('we cannot assign an array value to another record', function (assert) {
+      const store = this.owner.lookup('service:store') as Store;
+      const { schema } = store;
+      registerDerivations(schema);
+
+      schema.registerResource(
+        withDefaults({
+          type: 'user',
+          fields: [
+            {
+              name: 'name',
+              kind: 'field',
+            },
+            {
+              name: 'favoriteNumbers',
+              kind: 'array',
+            },
+          ],
+        })
+      );
+
+      const record = store.push<User>({
+        data: {
+          type: 'user',
+          id: '1',
+          attributes: { name: 'Rey Pupatine', favoriteNumbers: ['1', '2'] },
+        },
+      });
+
+      const record2 = store.push<User>({
+        data: {
+          type: 'user',
+          id: '2',
+          attributes: { name: 'Luke Skybarker' },
+        },
+      });
+
+      assert.strictEqual(record.id, '1', 'id is accessible');
+      assert.strictEqual(record.$type, 'user', '$type is accessible');
+      assert.strictEqual(record.name, 'Rey Pupatine', 'name is accessible');
+      assert.strictEqual(record2.id, '2', 'id is accessible');
+      assert.strictEqual(record2.$type, 'user', '$type is accessible');
+      assert.strictEqual(record2.name, 'Luke Skybarker', 'name is accessible');
+      assert.true(Array.isArray(record.favoriteNumbers), 'we can access favoriteNumber array');
+      assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
+      assert.strictEqual(record.favoriteNumbers, record.favoriteNumbers, 'We have a stable array reference');
+      assert.throws(() => {
+        // @ts-expect-error we're testing the immutability of the array
+        record2.favoriteNumbers = record.favoriteNumbers;
+      }, /Error: Cannot set favoriteNumbers on user because the record is not editable/);
+
+      assert.strictEqual(record2.favoriteNumbers, null, 'the second record array has not been updated');
+    });
+
+    test('we cannot edit simple array fields with a `type`', function (assert) {
+      const store = this.owner.lookup('service:store') as Store;
+      const { schema } = store;
+      registerDerivations(schema);
+
+      schema.registerResource(
+        withDefaults({
+          type: 'user',
+          fields: [
+            {
+              name: 'name',
+              kind: 'field',
+            },
+            {
+              name: 'favoriteNumbers',
+              type: 'string-from-int',
+              kind: 'array',
+            },
+          ],
+        })
+      );
+
+      const StringFromIntTransform: Transformation<number, string> = {
+        serialize(value: string, options, _record): number {
+          return parseInt(value);
+        },
+        hydrate(value: number, _options, _record): string {
+          return value.toString();
+        },
+        defaultValue(_options, _identifier) {
+          assert.ok(false, 'unexpected defaultValue');
+          throw new Error('unexpected defaultValue');
+        },
+        [Type]: 'string-from-int',
+      };
+
+      schema.registerTransformation(StringFromIntTransform);
+
+      const record = store.push<User>({
+        data: {
+          type: 'user',
+          id: '1',
+          attributes: { name: 'Rey Skybarker', favoriteNumbers: [1, 2] },
+        },
+      });
+
+      assert.strictEqual(record.id, '1', 'id is accessible');
+      assert.strictEqual(record.$type, 'user', '$type is accessible');
+      assert.strictEqual(record.name, 'Rey Skybarker', 'name is accessible');
+      assert.true(Array.isArray(record.favoriteNumbers), 'we can access favoriteNumber array');
+      assert.deepEqual(record.favoriteNumbers!.slice(), ['1', '2'], 'We have the correct array members');
+
+      assert.strictEqual(record.favoriteNumbers, record.favoriteNumbers, 'We have a stable array reference');
+
+      assert.throws(() => {
+        // @ts-expect-error we're testing the immutability of the array
+        record.favoriteNumbers = ['3', '4'];
+      }, /Error: Cannot set favoriteNumbers on user because the record is not editable/);
+
+      assert.deepEqual(record.favoriteNumbers!.slice(), ['1', '2'], 'We have the correct array members');
+    });
+
+    test('we cannot edit single values in array fields with a `type`', function (assert) {
+      const store = this.owner.lookup('service:store') as Store;
+      const { schema } = store;
+      registerDerivations(schema);
+
+      schema.registerResource(
+        withDefaults({
+          type: 'user',
+          fields: [
+            {
+              name: 'name',
+              kind: 'field',
+            },
+            {
+              name: 'favoriteNumbers',
+              type: 'string-from-int',
+              kind: 'array',
+            },
+          ],
+        })
+      );
+
+      const StringFromIntTransform: Transformation<number, string> = {
+        serialize(value: string, options, _record): number {
+          return parseInt(value);
+        },
+        hydrate(value: number, _options, _record): string {
+          return value.toString();
+        },
+        defaultValue(_options, _identifier) {
+          assert.ok(false, 'unexpected defaultValue');
+          throw new Error('unexpected defaultValue');
+        },
+        [Type]: 'string-from-int',
+      };
+
+      schema.registerTransformation(StringFromIntTransform);
+
+      const record = store.push<User>({
+        data: {
+          type: 'user',
+          id: '1',
+          attributes: { name: 'Rey Skybarker', favoriteNumbers: [1, 2] },
+        },
+      });
+
+      assert.strictEqual(record.id, '1', 'id is accessible');
+      assert.strictEqual(record.$type, 'user', '$type is accessible');
+      assert.strictEqual(record.name, 'Rey Skybarker', 'name is accessible');
+      assert.true(Array.isArray(record.favoriteNumbers), 'we can access favoriteNumber array');
+      assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
+
+      assert.strictEqual(record.favoriteNumbers, record.favoriteNumbers, 'We have a stable array reference');
+
+      assert.throws(() => {
+        record.favoriteNumbers![0] = '3';
+      }, /Error: Cannot set 0 on favoriteNumbers because the record is not editable/);
+
+      assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
+    });
+
+    test('we cannot push a new value on to array fields with a `type`', function (assert) {
+      const store = this.owner.lookup('service:store') as Store;
+      const { schema } = store;
+      registerDerivations(schema);
+
+      schema.registerResource(
+        withDefaults({
+          type: 'user',
+          fields: [
+            {
+              name: 'name',
+              kind: 'field',
+            },
+            {
+              name: 'favoriteNumbers',
+              type: 'string-from-int',
+              kind: 'array',
+            },
+          ],
+        })
+      );
+
+      const StringFromIntTransform: Transformation<number, string> = {
+        serialize(value: string, options, _record): number {
+          return parseInt(value);
+        },
+        hydrate(value: number, _options, _record): string {
+          return value.toString();
+        },
+        defaultValue(_options, _identifier) {
+          assert.ok(false, 'unexpected defaultValue');
+          throw new Error('unexpected defaultValue');
+        },
+        [Type]: 'string-from-int',
+      };
+
+      schema.registerTransformation(StringFromIntTransform);
+
+      const record = store.push<User>({
+        data: {
+          type: 'user',
+          id: '1',
+          attributes: { name: 'Rey Skybarker', favoriteNumbers: [1, 2] },
+        },
+      });
+      assert.strictEqual(record.id, '1', 'id is accessible');
+      assert.strictEqual(record.$type, 'user', '$type is accessible');
+      assert.strictEqual(record.name, 'Rey Skybarker', 'name is accessible');
+      assert.true(Array.isArray(record.favoriteNumbers), 'we can access favoriteNumber array');
+      assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
+
+      assert.strictEqual(record.favoriteNumbers, record.favoriteNumbers, 'We have a stable array reference');
+
+      assert.throws(() => {
+        record.favoriteNumbers?.push('3');
+      }, /Error: Mutating this array via push is not allowed because the record is not editable/);
+
+      assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
+    });
+
+    test('we can pop a value off of an array fields with a `type`', function (assert) {
+      const store = this.owner.lookup('service:store') as Store;
+      const { schema } = store;
+      registerDerivations(schema);
+
+      schema.registerResource(
+        withDefaults({
+          type: 'user',
+          fields: [
+            {
+              name: 'name',
+              kind: 'field',
+            },
+            {
+              name: 'favoriteNumbers',
+              type: 'string-from-int',
+              kind: 'array',
+            },
+          ],
+        })
+      );
+
+      const StringFromIntTransform: Transformation<number, string> = {
+        serialize(value: string, options, _record): number {
+          return parseInt(value);
+        },
+        hydrate(value: number, _options, _record): string {
+          return value.toString();
+        },
+        defaultValue(_options, _identifier) {
+          assert.ok(false, 'unexpected defaultValue');
+          throw new Error('unexpected defaultValue');
+        },
+        [Type]: 'string-from-int',
+      };
+
+      schema.registerTransformation(StringFromIntTransform);
+
+      const record = store.push<User>({
+        data: {
+          type: 'user',
+          id: '1',
+          attributes: { name: 'Rey Skybarker', favoriteNumbers: [1, 2] },
+        },
+      });
+      assert.strictEqual(record.id, '1', 'id is accessible');
+      assert.strictEqual(record.$type, 'user', '$type is accessible');
+      assert.strictEqual(record.name, 'Rey Skybarker', 'name is accessible');
+      assert.true(Array.isArray(record.favoriteNumbers), 'we can access favoriteNumber array');
+      assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
+
+      assert.strictEqual(record.favoriteNumbers, record.favoriteNumbers, 'We have a stable array reference');
+
+      assert.throws(() => {
+        record.favoriteNumbers?.pop();
+      }, /Error: Mutating this array via pop is not allowed because the record is not editable/);
+
+      assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
+    });
+  });
+
+  // Editable tests
   test('we can update to a new array', async function (assert) {
     const store = this.owner.lookup('service:store') as Store;
     const { schema } = store;
