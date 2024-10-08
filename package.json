@@ -150,7 +150,6 @@
         "rsvp"
       ],
       "allowAny": [
-        "@ember/test-helpers",
         "ember-source",
         "typescript"
       ]
