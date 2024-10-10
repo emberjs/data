@@ -63,8 +63,8 @@ importers:
         specifier: ^7.5.8
         version: 7.5.8
       bun-types:
-        specifier: ^1.1.8
-        version: 1.1.8
+        specifier: ^1.1.29
+        version: 1.1.29
       chalk:
         specifier: ^4.1.2
         version: 4.1.2
@@ -565,8 +565,8 @@ importers:
         specifier: workspace:5.4.0-alpha.109
         version: link:../../config
       bun-types:
-        specifier: ^1.1.8
-        version: 1.1.8
+        specifier: ^1.1.29
+        version: 1.1.29
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
         version: 0.0.14
@@ -784,8 +784,8 @@ importers:
         specifier: workspace:5.4.0-alpha.109
         version: link:../../config
       bun-types:
-        specifier: ^1.1.8
-        version: 1.1.8
+        specifier: ^1.1.29
+        version: 1.1.29
       ember-cli-test-loader:
         specifier: ^3.1.0
         version: 3.1.0(@babel/core@7.24.5)
@@ -1538,8 +1538,8 @@ importers:
   packages/schema:
     devDependencies:
       bun-types:
-        specifier: 1.1.8
-        version: 1.1.8
+        specifier: 1.1.29
+        version: 1.1.29
 
   packages/schema-record:
     dependencies:
@@ -2926,8 +2926,8 @@ importers:
         specifier: workspace:5.4.0-alpha.109
         version: link:../../config
       bun-types:
-        specifier: ^1.1.8
-        version: 1.1.8
+        specifier: ^1.1.29
+        version: 1.1.29
       ember-auto-import:
         specifier: ^2.7.4
         version: 2.7.4(@glint/template@1.4.0)
@@ -9704,8 +9704,8 @@ packages:
       '@types/ws': 8.5.10
     dev: true
 
-  /bun-types@1.1.8:
-    resolution: {integrity: sha512-dwhfuUKSGK8hm5Llcvb5+ejRh+4mIt8ibObJVKhZBsi0ScpXmt+AlaS1eDW6uRXCHj084Qt0kIqAJ08/7ZGC9Q==}
+  /bun-types@1.1.29:
+    resolution: {integrity: sha512-En3/TzSPMPyl5UlUB1MHzHpcrZDakTm7mS203eLoX1fBoEa3PW+aSS8GAqVJ7Is/m34Z5ogL+ECniLY0uDaCPw==}
     dependencies:
       '@types/node': 20.12.12
       '@types/ws': 8.5.10
