@@ -12,12 +12,21 @@
   "volta": {
     "extends": "../../package.json"
   },
+  "dependencies": {
+    "requireindex": "^1.2.0",
+    "eslint": "^9.11.1",
+    "mocha": "^10.7.3"
+  },
   "devDependencies": {
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.109"
   },
   "files": [
     "src",
-    "CHANGELOG.md"
+    "docs",
+    "CHANGELOG.md",
+    "README.md"
   ],
-  "scripts": {}
+  "scripts": {
+    "test": "mocha tests"
+  }
 }

@@ -1,3 +1,7 @@
+'use strict';
+
+const requireIndex = require('requireindex');
+
 module.exports = {
-  rules: {},
+  rules: requireIndex(`${__dirname}/rules`),
 };
