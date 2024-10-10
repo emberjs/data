@@ -46,9 +46,12 @@ const SYNC_PROPS = new Set<KeyType>(['[]', 'length']);
 function isArrayGetter<T>(prop: KeyType): prop is keyof Array<T> {
   return ARRAY_GETTER_METHODS.has(prop);
 }
-// function isArraySetter<T>(prop: KeyType): prop is keyof Array<T> {
-//   return ARRAY_SETTER_METHODS.has(prop);
-// }
+const ARRAY_SETTER_METHODS = new Set<KeyType>(['push', 'pop', 'unshift', 'shift', 'splice', 'sort']);
+
+function isArraySetter<T>(prop: KeyType): prop is keyof Array<T> {
+  return ARRAY_SETTER_METHODS.has(prop);
+}
+
 // function isSelfProp<T extends object>(self: T, prop: KeyType): prop is keyof T {
 //   return prop in self;
 // }
@@ -129,7 +132,7 @@ export class ManagedArray {
     const self = this;
     this[SOURCE] = data?.slice();
     this[ARRAY_SIGNAL] = createSignal(this, 'length');
-    this[Editable] = editable;
+    const IS_EDITABLE = (this[Editable] = editable ?? false);
     this[Legacy] = legacy;
     const _SIGNAL = this[ARRAY_SIGNAL];
     const boundFns = new Map<KeyType, ProxiedMethod>();
@@ -286,9 +289,37 @@ export class ManagedArray {
           return fn;
         }
 
+        if (isArraySetter(prop)) {
+          let fn = boundFns.get(prop);
+
+          if (fn === undefined) {
+            fn = function () {
+              if (!IS_EDITABLE) {
+                throw new Error(
+                  `Mutating this array via ${String(prop)} is not allowed because the record is not editable`
+                );
+              }
+              subscribe(_SIGNAL);
+              transaction = true;
+              const result = Reflect.apply(target[prop] as ProxiedMethod, receiver, arguments) as unknown;
+              transaction = false;
+              return result;
+            };
+            boundFns.set(prop, fn);
+          }
+          return fn;
+        }
+
         return Reflect.get(target, prop, receiver);
       },
       set(target, prop: KeyType, value, receiver) {
+        if (!IS_EDITABLE) {
+          let errorPath = identifier.type;
+          if (path) {
+            errorPath = path[path.length - 1];
+          }
+          throw new Error(`Cannot set ${String(prop)} on ${errorPath} because the record is not editable`);
+        }
         if (prop === 'identifier') {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           self.identifier = value;
