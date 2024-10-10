@@ -84,7 +84,7 @@
     "ember-auto-import": "^2.7.4",
     "ember-data": "workspace:5.4.0-alpha.109",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
-    "webpack": "^5.92.0",
+    "webpack": "^5.94.0",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "@ember-data/request": "workspace:5.4.0-alpha.109",

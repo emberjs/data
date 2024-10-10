@@ -108,7 +108,7 @@
     "loader.js": "^4.7.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "typescript": "^5.4.5",
-    "webpack": "^5.92.0"
+    "webpack": "^5.94.0"
   },
   "engines": {
     "node": ">= 18.20.3"
