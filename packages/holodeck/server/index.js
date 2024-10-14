@@ -9,6 +9,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import http2 from 'node:http2';
 import zlib from 'node:zlib';
+import { homedir } from 'os';
 import path from 'path';
 
 /** @type {import('bun-types')} */
@@ -20,11 +21,25 @@ function getCertInfo() {
   let CERT_PATH = process.env.HOLODECK_SSL_CERT_PATH;
   let KEY_PATH = process.env.HOLODECK_SSL_KEY_PATH;
 
-  if (!CERT_PATH || !KEY_PATH) {
-    throw new Error(
-      'SSL certificate or key paths were not found in your environment, you may need to run `pnpx @warp-drive/holodeck ensure-cert`'
+  if (!CERT_PATH) {
+    CERT_PATH = path.join(homedir(), 'holodeck-localhost.pem');
+    process.env.HOLODECK_SSL_CERT_PATH = CERT_PATH;
+
+    console.log(
+      `HOLODECK_SSL_CERT_PATH was not found in the current environment. Setting it to default value of ${CERT_PATH}`
     );
-  } else if (!fs.existsSync(CERT_PATH) || !fs.existsSync(KEY_PATH)) {
+  }
+
+  if (!KEY_PATH) {
+    KEY_PATH = path.join(homedir(), 'holodeck-localhost-key.pem');
+    process.env.HOLODECK_SSL_KEY_PATH = KEY_PATH;
+
+    console.log(
+      `HOLODECK_SSL_KEY_PATH was not found in the current environment. Setting it to default value of ${KEY_PATH}`
+    );
+  }
+
+  if (!fs.existsSync(CERT_PATH) || !fs.existsSync(KEY_PATH)) {
     throw new Error('SSL certificate or key not found, you may need to run `pnpx @warp-drive/holodeck ensure-cert`');
   }
 
