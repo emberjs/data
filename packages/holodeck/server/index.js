@@ -5,12 +5,11 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { HTTPException } from 'hono/http-exception';
 import { logger } from 'hono/logger';
-import { execSync } from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import http2 from 'node:http2';
 import zlib from 'node:zlib';
-import { homedir, userInfo } from 'os';
+import { homedir } from 'os';
 import path from 'path';
 
 /** @type {import('bun-types')} */
@@ -18,41 +17,30 @@ const isBun = typeof Bun !== 'undefined';
 const DEBUG = process.env.DEBUG?.includes('holodeck') || process.env.DEBUG === '*';
 const CURRENT_FILE = new URL(import.meta.url).pathname;
 
-function getShellConfigFilePath() {
-  const shell = userInfo().shell;
-  switch (shell) {
-    case '/bin/zsh':
-      return path.join(homedir(), '.zshrc');
-    case '/bin/bash':
-      return path.join(homedir(), '.bashrc');
-    default:
-      throw Error(
-        `Unable to determine configuration file for shell: ${shell}. Manual SSL Cert Setup Required for Holodeck.`
-      );
-  }
-}
-
 function getCertInfo() {
   let CERT_PATH = process.env.HOLODECK_SSL_CERT_PATH;
   let KEY_PATH = process.env.HOLODECK_SSL_KEY_PATH;
-  const configFilePath = getShellConfigFilePath();
 
   if (!CERT_PATH) {
     CERT_PATH = path.join(homedir(), 'holodeck-localhost.pem');
     process.env.HOLODECK_SSL_CERT_PATH = CERT_PATH;
-    execSync(`echo '\nexport HOLODECK_SSL_CERT_PATH="${CERT_PATH}"' >> ${configFilePath}`);
-    console.log(`Added HOLODECK_SSL_CERT_PATH to ${configFilePath}`);
+
+    console.log(
+      `HOLODECK_SSL_CERT_PATH was not found in the current environment. Setting it to default value of ${CERT_PATH}`
+    );
   }
 
   if (!KEY_PATH) {
     KEY_PATH = path.join(homedir(), 'holodeck-localhost-key.pem');
     process.env.HOLODECK_SSL_KEY_PATH = KEY_PATH;
-    execSync(`echo '\nexport HOLODECK_SSL_KEY_PATH="${KEY_PATH}"' >> ${configFilePath}`);
-    console.log(`Added HOLODECK_SSL_KEY_PATH to ${configFilePath}`);
+
+    console.log(
+      `HOLODECK_SSL_KEY_PATH was not found in the current environment. Setting it to default value of ${KEY_PATH}`
+    );
   }
 
   if (!fs.existsSync(CERT_PATH) || !fs.existsSync(KEY_PATH)) {
-    throw new Error('SSL certificate or key not found, you may need to run `npx -p @warp-drive/holodeck ensure-cert`');
+    throw new Error('SSL certificate or key not found, you may need to run `pnpx @warp-drive/holodeck ensure-cert`');
   }
 
   return {

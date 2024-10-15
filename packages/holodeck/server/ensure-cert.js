@@ -23,18 +23,26 @@ function main() {
   let KEY_PATH = process.env.HOLODECK_SSL_KEY_PATH;
   const configFilePath = getShellConfigFilePath();
 
-  if (!CERT_PATH) {
-    CERT_PATH = path.join(homedir(), 'holodeck-localhost.pem');
-    process.env.HOLODECK_SSL_CERT_PATH = CERT_PATH;
-    execSync(`echo '\nexport HOLODECK_SSL_CERT_PATH="${CERT_PATH}"' >> ${configFilePath}`);
-    console.log(`Added HOLODECK_SSL_CERT_PATH to ${configFilePath}`);
-  }
+  if (!CERT_PATH || !KEY_PATH) {
+    console.log(`Environment variables not found, updating the environment config file...\n`);
 
-  if (!KEY_PATH) {
-    KEY_PATH = path.join(homedir(), 'holodeck-localhost-key.pem');
-    process.env.HOLODECK_SSL_KEY_PATH = KEY_PATH;
-    execSync(`echo '\nexport HOLODECK_SSL_KEY_PATH="${KEY_PATH}"' >> ${configFilePath}`);
-    console.log(`Added HOLODECK_SSL_KEY_PATH to ${configFilePath}`);
+    if (!CERT_PATH) {
+      CERT_PATH = path.join(homedir(), 'holodeck-localhost.pem');
+      process.env.HOLODECK_SSL_CERT_PATH = CERT_PATH;
+      execSync(`echo '\nexport HOLODECK_SSL_CERT_PATH="${CERT_PATH}"' >> ${configFilePath}`);
+      console.log(`Added HOLODECK_SSL_CERT_PATH to ${configFilePath}`);
+    }
+
+    if (!KEY_PATH) {
+      KEY_PATH = path.join(homedir(), 'holodeck-localhost-key.pem');
+      process.env.HOLODECK_SSL_KEY_PATH = KEY_PATH;
+      execSync(`echo '\nexport HOLODECK_SSL_KEY_PATH="${KEY_PATH}"' >> ${configFilePath}`);
+      console.log(`Added HOLODECK_SSL_KEY_PATH to ${configFilePath}`);
+    }
+
+    console.log(
+      `\n*** Please restart your terminal session to apply the changes or run \`source ${configFilePath}\`. ***\n`
+    );
   }
 
   if (!fs.existsSync(CERT_PATH) || !fs.existsSync(KEY_PATH)) {
