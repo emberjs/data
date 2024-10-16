@@ -890,8 +890,8 @@ importers:
         specifier: ~5.8.0
         version: 5.8.0(@babel/core@7.24.5)(@glimmer/component@1.1.2)(@glint/template@1.4.0)
       ember-template-imports:
-        specifier: ^4.1.1
-        version: 4.1.1
+        specifier: ^4.1.3
+        version: 4.1.3
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
         version: 0.0.14
@@ -4187,8 +4187,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       ember-template-imports:
-        specifier: ^4.1.1
-        version: 4.1.1
+        specifier: ^4.1.3
+        version: 4.1.3
       loader.js:
         specifier: ^4.7.0
         version: 4.7.0
@@ -4371,8 +4371,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       ember-template-imports:
-        specifier: ^4.1.1
-        version: 4.1.1
+        specifier: ^4.1.3
+        version: 4.1.3
       loader.js:
         specifier: ^4.7.0
         version: 4.7.0
@@ -11903,8 +11903,8 @@ packages:
       - supports-color
     dev: true
 
-  /ember-template-imports@4.1.1:
-    resolution: {integrity: sha512-mnbL3hjo/Ctg7rkBtuYkBRJUn5bDYRQCEZQxmNozRnfoEp2RLSbT6SFJRAFDYXT2OrY+8i821S4kPL1i0QuGIw==}
+  /ember-template-imports@4.1.3:
+    resolution: {integrity: sha512-0R7FBozyG2lLH7DxeB8w/PVsdQdG2W+jZx8Y9aPWtfV7qjZlsZ9mfRgn1acF0OD1J5wEUduaSC4MAmWL+A7maQ==}
     engines: {node: 16.* || >= 18}
     dependencies:
       broccoli-stew: 3.0.0
