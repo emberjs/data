@@ -114,8 +114,8 @@ importers:
         specifier: ^5.4.5
         version: 5.4.5
       url:
-        specifier: ^0.11.3
-        version: 0.11.3
+        specifier: ^0.11.4
+        version: 0.11.4
       yuidocjs:
         specifier: ^0.10.2
         version: 0.10.2
@@ -16788,13 +16788,6 @@ packages:
     dependencies:
       side-channel: 1.0.6
 
-  /qs@6.12.1:
-    resolution: {integrity: sha512-zWmv4RSuB9r2mYQw3zxQuHWeU+42aKi1wWig/j4ele4ygELZ7PEO6MM7rim9oAQH2A5MWfsAVf/jPvTPgCbvUQ==}
-    engines: {node: '>=0.6'}
-    dependencies:
-      side-channel: 1.0.6
-    dev: true
-
   /qs@6.13.0:
     resolution: {integrity: sha512-+38qI9SOr8tfZ4QmJNplMUxqjbe7LKvvZgWdExBOmd+egZTtjLB67Gu0HRX3u/XOq7UU2Nx6nsjvS16Z9uwfpg==}
     engines: {node: '>=0.6'}
@@ -19022,11 +19015,12 @@ packages:
       querystringify: 2.2.0
       requires-port: 1.0.0
 
-  /url@0.11.3:
-    resolution: {integrity: sha512-6hxOLGfZASQK/cijlZnZJTq8OXAkt/3YGfQX45vvMYXpZoo8NdWZcY73K108Jf759lS1Bv/8wXnHDTSz17dSRw==}
+  /url@0.11.4:
+    resolution: {integrity: sha512-oCwdVC7mTuWiPyjLUz/COz5TLk6wgp0RCsN+wHZ2Ekneac9w8uuV0njcbbie2ME+Vs+d6duwmYuR3HgQXs1fOg==}
+    engines: {node: '>= 0.4'}
     dependencies:
       punycode: 1.4.1
-      qs: 6.12.1
+      qs: 6.13.0
     dev: true
 
   /use@3.1.1:
