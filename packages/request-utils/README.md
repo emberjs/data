@@ -19,7 +19,7 @@
 
 This package provides Simple utility function to assist in url building, query params, and other common request operations.
 
-It's built for [*Ember***Data**](https://github.com/emberjs/data/) but useful more broadly if you're looking for lightweight functions to assist in working with urls and query params.
+It is built for [*Ember***Data**](https://github.com/emberjs/data/) but useful more broadly if you're looking for lightweight functions to assist in working with urls and query params.
 
 ## Installation
 

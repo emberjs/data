@@ -152,7 +152,7 @@ export function transformLegacyStoreMethod(
           ],
         });
       } else if (j.ReturnStatement.check(path.parent.parent.value)) {
-        // It's not assigned to a variable so we don't need to worry about destructuring
+        // It is not assigned to a variable so we don't need to worry about destructuring
         // but we do need to make sure the value stays the same, so:
         // Wrap the whole await expression in a MemberExpression to add `.content`
         const memberExpression = j.memberExpression.from({

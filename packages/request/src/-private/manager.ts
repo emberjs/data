@@ -93,7 +93,7 @@ const users = userList.content;
 
 ### Making Requests
 
-`RequestManager` has a single asyncronous method as it's API: `request`
+`RequestManager` has a single asyncronous method as its API: `request`
 
 ```ts
 class RequestManager {
