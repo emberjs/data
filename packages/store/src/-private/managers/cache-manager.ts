@@ -1,4 +1,4 @@
-import type { Cache, ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core-types/cache';
+import type { Cache, CacheV2, ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core-types/cache';
 import type { Change } from '@warp-drive/core-types/cache/change';
 import type { MergeOperation } from '@warp-drive/core-types/cache/operations';
 import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
@@ -29,7 +29,7 @@ import type { StoreRequestContext } from '../cache-handler/handler';
  * @class CacheManager
  * @public
  */
-export class CacheManager implements Cache {
+export class CacheManager implements CacheV2 {
   version = '2' as const;
 
   #cache: Cache;
