@@ -1278,7 +1278,7 @@ export class Store extends BaseClass {
     ```app/routes/post.js
     export default class PostRoute extends Route {
       model(params) {
-        return this.store.findRecord('post', params.post_id, { include: 'comments' });
+        return this.store.findRecord('post', params.post_id, { include: ['comments'] });
       }
     }
     ```
@@ -1305,15 +1305,17 @@ export class Store extends BaseClass {
     In this case, the post's comments would then be available in your template as
     `model.comments`.
 
-    Multiple relationships can be requested using an `include` parameter consisting of a
-    comma-separated list (without white-space) while nested relationships can be specified
-    using a dot-separated sequence of relationship names. So to request both the post's
+    Multiple relationships can be requested using an `include` parameter consisting
+    of a list of relationship names, while nested relationships can be specified using a
+    dot-separated sequence of relationship names. So to request both the post's
     comments and the authors of those comments the request would look like this:
 
     ```app/routes/post.js
     export default class PostRoute extends Route {
       model(params) {
-        return this.store.findRecord('post', params.post_id, { include: 'comments,comments.author' });
+        return this.store.findRecord('post', params.post_id, {
+          include: ['comments', 'comments.author']
+        });
       }
     }
     ```
@@ -1930,19 +1932,19 @@ export class Store extends BaseClass {
     ```app/routes/posts.js
     export default class PostsRoute extends Route {
       model() {
-        return this.store.findAll('post', { include: 'comments' });
+        return this.store.findAll('post', { include: ['comments'] });
       }
     }
     ```
     Multiple relationships can be requested using an `include` parameter consisting of a
-    comma-separated list (without white-space) while nested relationships can be specified
+    list of relationship names, while nested relationships can be specified
     using a dot-separated sequence of relationship names. So to request both the posts'
     comments and the authors of those comments the request would look like this:
 
     ```app/routes/posts.js
     export default class PostsRoute extends Route {
       model() {
-        return this.store.findAll('post', { include: 'comments,comments.author' });
+        return this.store.findAll('post', { include: ['comments', 'comments.author'] });
       }
     }
     ```
