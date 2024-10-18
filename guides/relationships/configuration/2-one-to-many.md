@@ -59,7 +59,7 @@ graph LR;
 With distinct relationships, we may edit one side without affecting the state of the inverse. This is particularly useful
 in two situations.
 
-First, it may be the case that the user has thousands or tens of thousands of activities. In this case, you likely don't want whichever individual activities you happen to load to create an incomplete list of the TrailRunner's activities. It's better to load and work with the activities list in isolation, ideally in a paginated manner.
+First, it may be the case that the user has thousands or tens of thousands of activities. In this case, you likely don't want whichever individual activities you happen to load to create an incomplete list of the TrailRunner's activities. It is better to load and work with the activities list in isolation, ideally in a paginated manner.
 
 Second, it may be the case that runner is able to share the activity data with another runner that forgot to record. By not coupling the relationship, the ActivityData can still be owned by the first runner by included in the second runner's list of activities as well.
 

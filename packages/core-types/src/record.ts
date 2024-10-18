@@ -129,7 +129,7 @@ type _ExtractUnion<
  * to allow for other strategies.
  *
  * There's a 90% chance this particular implementation belongs being in the JSON:API package instead
- * of core-types, but it's here for now.
+ * of core-types, but it is here for now.
  *
  * @typedoc
  */
