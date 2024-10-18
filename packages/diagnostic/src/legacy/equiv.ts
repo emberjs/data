@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-call,@typescript-eslint/ban-types,@typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access */
 /*
  * The utils below are from QUnit to support deepEqual.
  */
@@ -276,6 +276,7 @@ const entryTypeCallbacks = {
           typeof actual.constructor !== 'undefined' &&
           typeof actual[i] === 'function' &&
           typeof expected[i] === 'function' &&
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
           (actual[i] as Function).toString() === (expected[i] as Function).toString()
         ) {
           continue;
@@ -303,6 +304,7 @@ const entryTypeCallbacks = {
         typeof expected.constructor !== 'undefined' &&
         typeof expected[i] === 'function' &&
         typeof actual[i] === 'function' &&
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
         (expected[i] as Function).toString() === (actual[i] as Function).toString()
       ) {
         continue;

@@ -741,7 +741,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
 
     try {
       await request;
-    } catch (e) {
+    } catch {
       // ignore the error
     }
     const state = getRequestState(request);

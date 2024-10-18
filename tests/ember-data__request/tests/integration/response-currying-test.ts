@@ -18,7 +18,7 @@ module('RequestManager | Response Currying', function () {
       async request<T>(context: RequestContext, next: NextFn<T>) {
         const response = await fetch(context.request.url!, context.request);
         context.setResponse(response);
-        return response.json();
+        return response.json() as Promise<T>;
       },
     };
     manager.use([handler1, handler2]);
@@ -65,7 +65,7 @@ module('RequestManager | Response Currying', function () {
       async request<T>(context: RequestContext, next: NextFn<T>) {
         const response = await fetch(context.request.url!, context.request);
         context.setResponse(response);
-        return response.json();
+        return response.json() as Promise<T>;
       },
     };
     manager.use([handler1, handler2]);
@@ -86,7 +86,7 @@ module('RequestManager | Response Currying', function () {
       async request<T>(context: RequestContext, next: NextFn<T>) {
         const response = await fetch(context.request.url!, context.request);
         context.setResponse(response);
-        return response.json();
+        return response.json() as Promise<T>;
       },
     };
     manager.use([handler1, handler2]);
@@ -136,7 +136,7 @@ module('RequestManager | Response Currying', function () {
       async request<T>(context: RequestContext, next: NextFn<T>) {
         const response = await fetch(context.request.url!, context.request);
         context.setResponse(response);
-        return response.json();
+        return response.json() as Promise<T>;
       },
     };
     manager.use([handler1, handler2]);
@@ -181,14 +181,14 @@ module('RequestManager | Response Currying', function () {
           // @ts-expect-error
           doc.response!.ok = false;
           assert.ok(false, 'we should be immutable');
-        } catch (e) {
+        } catch {
           assert.ok(true, 'we are immutable');
         }
 
         try {
           doc.response!.headers.append('foo', 'bar');
           assert.ok(false, 'we should be immutable');
-        } catch (e) {
+        } catch {
           assert.ok(true, 'we are immutable');
         }
 
@@ -199,7 +199,7 @@ module('RequestManager | Response Currying', function () {
       async request<T>(context: RequestContext, next: NextFn<T>) {
         const response = await fetch(context.request.url!, context.request);
         context.setResponse(response);
-        return response.json();
+        return response.json() as Promise<T>;
       },
     };
     manager.use([handler1, handler2]);
@@ -248,7 +248,7 @@ module('RequestManager | Response Currying', function () {
       async request<T>(context: RequestContext, next: NextFn<T>) {
         const response = await fetch(context.request.url!, context.request);
         context.setResponse(response);
-        return response.json();
+        return response.json() as Promise<T>;
       },
     };
     manager.use([handler1, handler2]);

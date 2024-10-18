@@ -1,4 +1,4 @@
-/* eslint-disable no-inner-declarations, @typescript-eslint/no-shadow */
+/* eslint-disable @typescript-eslint/no-shadow */
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';

@@ -1055,7 +1055,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
       if (response.ok && !(payload instanceof Error)) {
         return fetchSuccessHandler(this, payload, response, requestData);
       } else {
-        // eslint-disable-next-line @typescript-eslint/no-throw-literal
+        // eslint-disable-next-line @typescript-eslint/only-throw-error
         throw fetchErrorHandler(this, payload, response, null, requestData);
       }
     } else {
@@ -1180,7 +1180,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
 
     try {
       json = JSON.parse(responseText);
-    } catch (e) {
+    } catch {
       // ignored
     }
 
@@ -1281,6 +1281,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface RESTAdapter extends MixtBuildURLMixin {}
 
 function ajaxSuccess(
@@ -1293,10 +1294,12 @@ function ajaxSuccess(
   try {
     response = adapter.handleResponse(responseData.status, responseData.headers, payload, requestData);
   } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
     return Promise.reject(error);
   }
 
   if (response && response.isAdapterError) {
+    // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
     return Promise.reject(response);
   } else {
     return response;
@@ -1526,6 +1529,7 @@ function execjQAjax(
 
     hash.error = function (jqXHR, textStatus, errorThrown: Error | string) {
       const error = ajaxErrorHandler(adapter, jqXHR, errorThrown, requestData);
+      // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
       reject(error);
     };
 

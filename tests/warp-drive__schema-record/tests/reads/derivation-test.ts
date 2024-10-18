@@ -109,6 +109,7 @@ module('Reads | derivation', function (hooks) {
     }) as User;
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       record.fullName;
       assert.ok(false, 'record.fullName should throw');
     } catch (e) {

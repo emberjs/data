@@ -112,7 +112,7 @@ function computeOnce(target: object, propertyName: string, desc: PropertyDescrip
 */
 
 interface Model {
-  serialize<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown> | undefined): unknown;
+  serialize<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>  ): unknown;
   destroyRecord<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): Promise<this>;
   unloadRecord<T extends MinimalLegacyRecord>(this: T): void;
   changedAttributes<T extends MinimalLegacyRecord>(this: T): ChangedAttributesHash;

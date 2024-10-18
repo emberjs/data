@@ -55,6 +55,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
       'adapter:application',
       JSONAPIAdapter.extend({
         shouldBackgroundReloadRecord: () => false,
+        // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
         createRecord: () => Promise.reject(),
       })
     );
@@ -327,6 +328,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
       JSONAPIAdapter.extend({
         shouldBackgroundReloadRecord: () => false,
         createRecord: (store, type, snapshot) => {
+          // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
           return Promise.reject();
         },
       })

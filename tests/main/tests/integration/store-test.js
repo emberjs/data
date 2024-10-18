@@ -1174,7 +1174,7 @@ module('integration/store - findAll', function (hooks) {
       const applicationAdapter = store.adapterFor('application');
 
       assert.ok(applicationAdapter);
-    } catch (_error) {
+    } catch {
       assert.ok(false, 'An error was thrown while looking for application adapter');
     }
   });
@@ -1192,7 +1192,7 @@ module('integration/store - findAll', function (hooks) {
       const applicationSerializer = store.serializerFor('application');
 
       assert.ok(applicationSerializer);
-    } catch (_error) {
+    } catch {
       assert.ok(false, 'An error was thrown while looking for application serializer');
     }
   });
@@ -1238,7 +1238,7 @@ module('integration/store - deleteRecord', function (hooks) {
 
     try {
       store.push({ data: null });
-    } catch (_error) {
+    } catch {
       assert.ok(false, 'push null value for `data` to store throws an error');
     }
   });

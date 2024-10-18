@@ -169,7 +169,6 @@ const Fetch = {
         context.setStream(stream!.readable);
       }
 
-      // eslint-disable-next-line no-constant-condition
       while (true) {
         // we manually read the stream instead of using `response.json()`
         // or `response.text()` because if we need to stream the body

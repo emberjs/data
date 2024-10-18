@@ -51,6 +51,7 @@ export class PromiseManyArray<T = unknown> {
     // shouldn't be needed, but ends up being needed
     // for computed chains even in 4.x
     if (DEPRECATE_COMPUTED_CHAINS) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       this['[]'];
     }
     return this.content ? this.content.length : 0;
@@ -222,7 +223,7 @@ if (DEPRECATE_COMPUTED_CHAINS) {
   // requires that the tag `'[]'` be notified
   // on the ArrayProxy in order for `{{#each}}`
   // to recompute. We entangle the '[]' tag from content
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+
   Object.defineProperty(PromiseManyArray.prototype, '[]', desc);
 }
 

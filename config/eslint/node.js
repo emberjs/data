@@ -71,6 +71,7 @@ export function esm(config) {
       'diagnostic.js',
       'diagnostic.mjs',
       'eslint.config.mjs',
+      'vite.config.mjs',
       'holodeck.js',
       'holodeck.mjs',
       'rollup.config.mjs',

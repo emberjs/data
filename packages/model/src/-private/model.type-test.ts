@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import { expectTypeOf } from 'expect-type';
 
 import Store from '@ember-data/store';

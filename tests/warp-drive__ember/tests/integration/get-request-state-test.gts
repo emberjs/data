@@ -422,7 +422,7 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
 
     try {
       await request;
-    } catch (e) {
+    } catch {
       // ignore the error
     }
     let state1: RequestState<UserResource, UserResource>;

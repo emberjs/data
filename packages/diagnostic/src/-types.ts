@@ -90,6 +90,7 @@ export interface Diagnostic {
   satisfies<T extends object, J extends T>(actual: J, expected: T, message?: string): void;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface TestContext {}
 
 export type GlobalCallback = () => void | Promise<void>;

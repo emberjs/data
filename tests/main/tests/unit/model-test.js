@@ -324,7 +324,7 @@ module('unit/model - Model', function (hooks) {
       try {
         person.set('id', 'john');
         assert.ok(false, 'we should have thrown an error during mutation');
-      } catch (e) {
+      } catch {
         assert.ok(true, 'we did throw');
       }
 

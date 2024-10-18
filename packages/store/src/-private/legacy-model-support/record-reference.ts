@@ -69,6 +69,7 @@ export default class RecordReference {
      @return {String} The id of the record.
   */
   id() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     this._ref; // consume the tracked prop
     return this.___identifier.id;
   }

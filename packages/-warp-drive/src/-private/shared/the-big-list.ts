@@ -19,9 +19,11 @@ export const Main = [
   '@warp-drive/ember',
   '@warp-drive/holodeck',
   '@warp-drive/schema-record',
+  '@warp-drive/experiments',
   '@warp-drive/schema',
   'ember-data',
   'eslint-plugin-ember-data',
+  'eslint-plugin-warp-drive',
   'warp-drive',
 ];
 

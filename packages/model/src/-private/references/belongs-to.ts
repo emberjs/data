@@ -326,6 +326,7 @@ export default class BelongsToReference<
   }
 
   _resource() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     this._ref; // subscribe
     const cache = this.store.cache;
     return cache.getRelationship(this.___identifier, this.key) as SingleResourceRelationship<

@@ -36,7 +36,7 @@
     "@types/bun": "^1.1.4",
     "@types/jscodeshift": "0.11.11",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.112",
-    "eslint": "^8.57.0",
+    "eslint": "^9.12.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "qunit": "^2.20.1",
     "tsx": "^4.10.4"

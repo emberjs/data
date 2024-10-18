@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import { expectTypeOf } from 'expect-type';
 
 import type { Type } from '@warp-drive/core-types/symbols';

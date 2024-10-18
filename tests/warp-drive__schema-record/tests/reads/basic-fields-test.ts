@@ -50,6 +50,7 @@ module('Reads | basic fields', function (hooks) {
 
     try {
       // @ts-expect-error intentionally accessing unknown field
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       record.lastName;
       assert.ok(false, 'should error when accessing unknown field');
     } catch (e) {
@@ -145,6 +146,7 @@ module('Reads | basic fields', function (hooks) {
 
     try {
       // @ts-expect-error intentionally have not typed the property on the record
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       record.lastName;
       assert.ok(false, 'should error when accessing a field with an unknown transform');
     } catch (e) {

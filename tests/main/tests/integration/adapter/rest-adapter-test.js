@@ -2520,7 +2520,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     try {
       await store.findRecord('post', '1');
-    } catch (error) {
+    } catch {
       assert.ok(true, 'Unexpected error is captured by the promise chain');
     }
   });
@@ -2549,7 +2549,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     try {
       await store.findRecord('post', '1');
-    } catch (error) {
+    } catch {
       assert.ok(true, 'Unexpected error is captured by the promise chain');
     }
   });
