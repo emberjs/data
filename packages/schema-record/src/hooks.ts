@@ -12,7 +12,7 @@ export function instantiateRecord(
 ): SchemaRecord {
   const schema = store.schema as unknown as SchemaService;
   const isLegacy = schema.resource(identifier)?.legacy ?? false;
-  const isEditable = isLegacy || Boolean(createArgs);
+  const isEditable = isLegacy || store.cache.isNew(identifier);
   const record = new SchemaRecord(store, identifier, {
     [Editable]: isEditable,
     [Legacy]: isLegacy,
