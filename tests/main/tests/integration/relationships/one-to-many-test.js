@@ -354,6 +354,99 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', f
     assert.strictEqual(user.accounts.at(0), undefined, 'Account was successfully removed');
   });
 
+  test('Fetching a belongsTo that is set to null removes the record from a relationship - sync - and do it twice', function (assert) {
+    const store = this.owner.lookup('service:store');
+
+    var user, account;
+    account = store.push({
+      data: {
+        id: '2',
+        type: 'account',
+        attributes: {
+          state: 'lonely',
+        },
+      },
+    });
+
+    user = store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
+        },
+        relationships: {
+          accounts: {
+            data: [
+              {
+                id: '2',
+                type: 'account',
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    store.push({
+      data: {
+        id: '2',
+        type: 'account',
+        attributes: {
+          state: 'lonely',
+        },
+        relationships: {
+          user: {
+            data: null,
+          },
+        },
+      },
+    });
+
+    assert.strictEqual(user.accounts.at(0), undefined, 'Account was successfully removed');
+
+    user = store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
+        },
+        relationships: {
+          accounts: {
+            data: [
+              {
+                id: '2',
+                type: 'account',
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    // NOTE: Uncomment the assertion below, and for some reason, the test will succeed...
+
+    // assert.strictEqual(user.accounts.at(0), account, 'Accounts relationship was set up correctly - 2nd time');
+
+    store.push({
+      data: {
+        id: '2',
+        type: 'account',
+        attributes: {
+          state: 'lonely',
+        },
+        relationships: {
+          user: {
+            data: null,
+          },
+        },
+      },
+    });
+
+    assert.strictEqual(user.accounts.at(0), undefined, 'Account was successfully removed - 2nd time');
+  });
+
   test('Fetching a belongsTo that is not defined does not remove the record from a relationship - async', async function (assert) {
     const store = this.owner.lookup('service:store');
 
