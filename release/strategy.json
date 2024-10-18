@@ -71,6 +71,12 @@
       "typesPublish": false,
       "mirrorPublish": false
     },
+    "eslint-plugin-warp-drive": {
+      "stage": "alpha",
+      "types": "private",
+      "typesPublish": false,
+      "mirrorPublish": false
+    },
     "@warp-drive/core-types": {
       "stage": "alpha",
       "types": "alpha"

@@ -93,6 +93,7 @@ module('Legacy Mode', function (hooks) {
     assert.true(record[Editable], 'record is editable');
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       record.$type;
       assert.ok(false, 'record.$type should throw');
     } catch (e) {
@@ -128,6 +129,7 @@ module('Legacy Mode', function (hooks) {
     assert.false(record[Legacy], 'record is in legacy mode');
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       (record.constructor as { modelName?: string }).modelName;
       assert.ok(false, 'record.constructor.modelName should throw');
     } catch (e) {
@@ -235,6 +237,7 @@ module('Legacy Mode', function (hooks) {
     assert.true(record[Legacy], 'record is in legacy mode');
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       record.name;
       assert.ok(false, 'record.name should throw');
     } catch (e) {
@@ -302,6 +305,7 @@ module('Legacy Mode', function (hooks) {
     assert.true(record[Legacy], 'record is in legacy mode');
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       record.bestFriend;
       assert.ok(false, 'record.bestFriend should throw');
     } catch (e) {

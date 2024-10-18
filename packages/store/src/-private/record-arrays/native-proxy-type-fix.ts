@@ -19,7 +19,7 @@ interface ProxyHandler<T extends object> {
    * @param newTarget The constructor that was originally called.
    * @internal
    */
-  // eslint-disable-next-line @typescript-eslint/ban-types
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   construct?(target: T, argArray: any[], newTarget: Function): object;
 
   /**

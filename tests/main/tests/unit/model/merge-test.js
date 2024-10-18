@@ -202,7 +202,7 @@ module('unit/model/merge - Merging', function (hooks) {
     try {
       await person.save();
       assert.ok(false, 'We should throw during save');
-    } catch (e) {
+    } catch {
       assert.ok(true, 'We rejected the save');
     }
     assert.false(person.isValid, 'the person is currently invalid');

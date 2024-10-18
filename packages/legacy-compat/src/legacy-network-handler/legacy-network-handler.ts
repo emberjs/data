@@ -194,7 +194,7 @@ function saveRecord<T>(context: StoreRequestContext): Promise<T> {
           const payloadCopy: unknown = payload ? JSON.parse(JSON.stringify(payload)) : payload;
           // eslint-disable-next-line no-console
           console.log(`EmberData | Payload - ${operation}`, payloadCopy);
-        } catch (e) {
+        } catch {
           // eslint-disable-next-line no-console
           console.log(`EmberData | Payload - ${operation}`, payload);
         }
@@ -397,6 +397,7 @@ function findAll<T>(context: StoreRequestContext): Promise<T> {
 
   let fetch: Promise<T> | undefined;
   if (shouldReload) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     maybeRecordArray && (maybeRecordArray.isUpdating = true);
     fetch = _findAll(adapter, store, type, snapshotArray, context.request, true);
   } else {
@@ -407,6 +408,7 @@ function findAll<T>(context: StoreRequestContext): Promise<T> {
       (options.backgroundReload !== false &&
         (!adapter.shouldBackgroundReloadAll || adapter.shouldBackgroundReloadAll(store, snapshotArray)))
     ) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       maybeRecordArray && (maybeRecordArray.isUpdating = true);
       void _findAll(adapter, store, type, snapshotArray, context.request, false);
     }

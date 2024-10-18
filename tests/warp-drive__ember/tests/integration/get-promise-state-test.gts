@@ -8,7 +8,7 @@ import { getPromiseState } from '@warp-drive/ember';
 type PromiseState<T, E> = ReturnType<typeof getPromiseState<T, E>>;
 const SecretSymbol = Symbol.for('LegacyPromiseProxy');
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-object-type
 interface PromiseProxy<T, E> extends Promise<T> {}
 class PromiseProxy<T, E> {
   [SecretSymbol]: true;
@@ -20,8 +20,8 @@ class PromiseProxy<T, E> {
   }
 
   then<T1, T2>(
-    onFulfilled?: ((value: T) => unknown) | undefined | null,
-    onRejected?: ((error: E) => T2 | Promise<T2>) | undefined | null
+    onFulfilled?: ((value: T) => unknown) | null,
+    onRejected?: ((error: E) => T2 | Promise<T2>) | null
   ): Promise<T1 | T2> {
     return this.promise.then(onFulfilled!, onRejected!) as Promise<T1 | T2>;
   }

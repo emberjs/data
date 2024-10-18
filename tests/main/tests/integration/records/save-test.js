@@ -57,7 +57,7 @@ module('integration/records/save - Save Record', function (hooks) {
     try {
       await post.save();
       assert.ok(false, 'we should err');
-    } catch (error) {
+    } catch {
       assert.ok(true, 'we errored during save');
     }
   });

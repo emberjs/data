@@ -357,7 +357,7 @@ export default class JSONAPICache implements Cache {
         const _data = JSON.parse(JSON.stringify(op)) as object;
         // eslint-disable-next-line no-console
         console.log(`EmberData | Operation - patch ${op.op}`, _data);
-      } catch (e) {
+      } catch {
         // eslint-disable-next-line no-console
         console.log(`EmberData | Operation - patch ${op.op}`, op);
       }
@@ -386,7 +386,7 @@ export default class JSONAPICache implements Cache {
         const _data = JSON.parse(JSON.stringify(mutation)) as object;
         // eslint-disable-next-line no-console
         console.log(`EmberData | Mutation - update ${mutation.op}`, _data);
-      } catch (e) {
+      } catch {
         // eslint-disable-next-line no-console
         console.log(`EmberData | Mutation - update ${mutation.op}`, mutation);
       }
@@ -513,7 +513,7 @@ export default class JSONAPICache implements Cache {
   upsert(
     identifier: StableRecordIdentifier,
     data: ExistingResourceObject,
-    calculateChanges?: boolean | undefined
+    calculateChanges?: boolean
   ): void | string[] {
     let changedKeys: string[] | undefined;
     const peeked = this.__safePeek(identifier, false);
@@ -528,7 +528,7 @@ export default class JSONAPICache implements Cache {
         const _data = JSON.parse(JSON.stringify(data)) as object;
         // eslint-disable-next-line no-console
         console.log(`EmberData | Operation - upsert (${existed ? 'merge' : 'insert'})`, _data);
-      } catch (e) {
+      } catch {
         // eslint-disable-next-line no-console
         console.log(`EmberData | Operation - upsert (${existed ? 'merge' : 'insert'})`, data);
       }
@@ -695,16 +695,13 @@ export default class JSONAPICache implements Cache {
    * @param identifier
    * @param createArgs
    */
-  clientDidCreate(
-    identifier: StableRecordIdentifier,
-    options?: Record<string, Value> | undefined
-  ): Record<string, unknown> {
+  clientDidCreate(identifier: StableRecordIdentifier, options?: Record<string, Value>): Record<string, unknown> {
     if (LOG_MUTATIONS) {
       try {
         const _data = options ? (JSON.parse(JSON.stringify(options)) as object) : options;
         // eslint-disable-next-line no-console
         console.log(`EmberData | Mutation - clientDidCreate ${identifier.lid}`, _data);
-      } catch (e) {
+      } catch {
         // eslint-disable-next-line no-console
         console.log(`EmberData | Mutation - clientDidCreate ${identifier.lid}`, options);
       }
@@ -975,7 +972,7 @@ export default class JSONAPICache implements Cache {
    * @param identifier
    * @param errors
    */
-  commitWasRejected(identifier: StableRecordIdentifier, errors?: ApiError[] | undefined): void {
+  commitWasRejected(identifier: StableRecordIdentifier, errors?: ApiError[]): void {
     const cached = this.__peek(identifier, false);
     if (cached.inflightAttrs) {
       const keys = Object.keys(cached.inflightAttrs);
@@ -1256,7 +1253,7 @@ export default class JSONAPICache implements Cache {
           delete cached.localAttrs[basePath];
           delete cached.changes![basePath];
         }
-      } catch (e) {
+      } catch {
         // noop
       }
     }

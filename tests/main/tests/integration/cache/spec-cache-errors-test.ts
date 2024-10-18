@@ -111,7 +111,7 @@ class TestCache implements Cache {
   upsert(
     identifier: StableRecordIdentifier,
     data: ExistingResourceObject,
-    calculateChanges?: boolean | undefined
+    calculateChanges?: boolean
   ): void | string[] {
     if (!this._data.has(identifier)) {
       this.wrapper.notifyChange(identifier, 'added');
@@ -120,10 +120,7 @@ class TestCache implements Cache {
     this.wrapper.notifyChange(identifier, 'attributes');
     this.wrapper.notifyChange(identifier, 'relationships');
   }
-  clientDidCreate(
-    identifier: StableRecordIdentifier,
-    options?: Record<string, unknown> | undefined
-  ): Record<string, unknown> {
+  clientDidCreate(identifier: StableRecordIdentifier, options?: Record<string, unknown>): Record<string, unknown> {
     this._isNew = true;
     return {};
   }
@@ -134,7 +131,7 @@ class TestCache implements Cache {
   ): SingleResourceDataDocument {
     return { data: identifier as StableExistingRecordIdentifier };
   }
-  commitWasRejected(identifier: StableRecordIdentifier, errors?: ApiError[] | undefined): void {
+  commitWasRejected(identifier: StableRecordIdentifier, errors?: ApiError[]): void {
     this._errors = errors;
   }
   unloadRecord(identifier: StableRecordIdentifier): void {}
@@ -163,7 +160,7 @@ class TestCache implements Cache {
     identifier: StableRecordIdentifier,
     propertyName: string,
     value: StableRecordIdentifier[],
-    idx?: number | undefined
+    idx?: number
   ): void {
     throw new Error('Method not implemented.');
   }
@@ -213,6 +210,7 @@ module('integration/record-data Custom Cache (v2) Errors', function (hooks) {
     }
     class TestAdapter extends EmberObject {
       updateRecord() {
+        // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
         return Promise.reject(
           // @ts-expect-error Constructor of class 'InvalidError' is private
           new InvalidError([
@@ -251,7 +249,7 @@ module('integration/record-data Custom Cache (v2) Errors', function (hooks) {
     try {
       await person.save();
       assert.ok(false, 'we should error');
-    } catch (error) {
+    } catch {
       assert.ok(true, 'we erred');
     }
   });
@@ -274,6 +272,7 @@ module('integration/record-data Custom Cache (v2) Errors', function (hooks) {
     }
     class TestAdapter extends EmberObject {
       updateRecord() {
+        // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
         return Promise.reject();
       }
 
@@ -301,7 +300,7 @@ module('integration/record-data Custom Cache (v2) Errors', function (hooks) {
     try {
       await person.save();
       assert.ok(false, 'we should error');
-    } catch (error) {
+    } catch {
       assert.ok(true, 'we erred');
     }
   });

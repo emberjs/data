@@ -44,7 +44,7 @@ export function rules(config = {}) {
     '@typescript-eslint/no-import-type-side-effects': 'error',
     '@typescript-eslint/no-inferrable-types': 'error',
     '@typescript-eslint/no-meaningless-void-operator': 'error',
-    '@typescript-eslint/no-throw-literal': 'error',
+    '@typescript-eslint/only-throw-error': 'error',
     // Many failures for these; they seem intentional so I don't want to just auto-fix:
     // '@typescript-eslint/no-unnecessary-boolean-literal-compare': 'error',
     // '@typescript-eslint/no-unnecessary-condition': 'error',
@@ -123,6 +123,8 @@ export function browser(config) {
       parser: parser(),
       parserOptions: {
         project: './tsconfig.json',
+        // projectService: true,
+        // tsconfigRootDir: import.meta.dirname,
         extraFileExtensions: ['.gts', '.gjs'],
       },
       /** @type {2022} */

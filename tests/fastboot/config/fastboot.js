@@ -1,3 +1,4 @@
+/* eslint-disable n/no-unsupported-features/node-builtins */
 module.exports = function (environment) {
   return {
     buildSandboxGlobals(defaultGlobals) {

@@ -140,7 +140,7 @@ class TestCache implements Cache {
   upsert(
     identifier: StableRecordIdentifier,
     data: ExistingResourceObject,
-    calculateChanges?: boolean | undefined
+    calculateChanges?: boolean
   ): void | string[] {
     if (!this._data.has(identifier)) {
       this._storeWrapper.notifyChange(identifier, 'added');
@@ -150,10 +150,7 @@ class TestCache implements Cache {
     this._storeWrapper.notifyChange(identifier, 'relationships');
   }
 
-  clientDidCreate(
-    identifier: StableRecordIdentifier,
-    options?: Record<string, unknown> | undefined
-  ): Record<string, unknown> {
+  clientDidCreate(identifier: StableRecordIdentifier, options?: Record<string, unknown>): Record<string, unknown> {
     this._isNew = true;
     return {};
   }
@@ -161,7 +158,7 @@ class TestCache implements Cache {
   didCommit(identifier: StableRecordIdentifier, result: StructuredDataDocument<unknown>): SingleResourceDataDocument {
     return { data: identifier as StableExistingRecordIdentifier };
   }
-  commitWasRejected(identifier: StableRecordIdentifier, errors?: ApiError[] | undefined): void {
+  commitWasRejected(identifier: StableRecordIdentifier, errors?: ApiError[]): void {
     this._errors = errors;
   }
   unloadRecord(identifier: StableRecordIdentifier): void {}
@@ -296,7 +293,7 @@ module('integration/record-data - Custom Cache Implementations', function (hooks
 
       override clientDidCreate(
         identifier: StableRecordIdentifier,
-        options?: Record<string, unknown> | undefined
+        options?: Record<string, unknown>
       ): Record<string, unknown> {
         calledClientDidCreate++;
         isNew = true;
@@ -348,6 +345,7 @@ module('integration/record-data - Custom Cache Implementations', function (hooks
         if (called === 1) {
           return Promise.resolve();
         } else if (called > 1) {
+          // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
           return Promise.reject();
         }
       },

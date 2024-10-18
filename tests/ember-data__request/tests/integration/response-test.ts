@@ -12,7 +12,7 @@ module('RequestManager | Response', function () {
       async request<T>(context: RequestContext, next: NextFn<T>) {
         const response = await fetch(context.request.url!, context.request);
         context.setResponse(response);
-        return response.json();
+        return response.json() as Promise<T>;
       },
     };
     manager.use([handler]);

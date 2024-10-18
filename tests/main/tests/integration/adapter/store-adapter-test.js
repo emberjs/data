@@ -434,7 +434,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     try {
       await tom.save();
       assert.ok(false, 'We should throw during save');
-    } catch (e) {
+    } catch {
       assert.true(tom.isError, 'Tom is now errored');
       assert.strictEqual(tom.adapterError, error, 'error object is exposed');
 
@@ -478,7 +478,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     try {
       await yehuda.save();
       assert.ok(false, 'We should have erred');
-    } catch (e) {
+    } catch {
       assert.false(yehuda.isValid, 'the record is invalid');
       assert.ok(get(yehuda, 'errors.name'), 'The errors.name property exists');
 

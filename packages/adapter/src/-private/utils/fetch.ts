@@ -1,6 +1,6 @@
 import { assert } from '@warp-drive/build-config/macros';
 
-type FetchFunction = (input: RequestInfo, init?: RequestInit | undefined) => Promise<Response>;
+type FetchFunction = (input: RequestInfo, init?: RequestInit) => Promise<Response>;
 
 let _fetch: (() => FetchFunction) | null = null;
 type MockRequest = { protocol?: string; get(key: string): string | undefined };
@@ -26,7 +26,6 @@ export function getFetchFunction(): FetchFunction {
       const httpRegex = /^https?:\/\//;
       const protocolRelativeRegex = /^\/\//;
 
-      // eslint-disable-next-line no-inner-declarations
       function parseRequest(request: MockRequest) {
         if (request === null) {
           throw new Error(
@@ -38,7 +37,6 @@ export function getFetchFunction(): FetchFunction {
         return [request.get('host'), protocol];
       }
 
-      // eslint-disable-next-line no-inner-declarations
       function buildAbsoluteUrl(url: string) {
         if (protocolRelativeRegex.test(url)) {
           const [host] = parseRequest(REQUEST);
@@ -50,7 +48,6 @@ export function getFetchFunction(): FetchFunction {
         return url;
       }
 
-      // eslint-disable-next-line no-inner-declarations
       function patchedFetch(input: string | { href: string } | RequestInfo, options?: RequestInit) {
         if (input && typeof input === 'object' && 'href' in input) {
           const url = buildAbsoluteUrl(input.href);
@@ -65,7 +62,7 @@ export function getFetchFunction(): FetchFunction {
       }
 
       _fetch = () => patchedFetch;
-    } catch (e) {
+    } catch {
       throw new Error(`Unable to create a compatible 'fetch' for FastBoot with node-fetch`);
     }
   }

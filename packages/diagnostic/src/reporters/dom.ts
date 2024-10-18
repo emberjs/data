@@ -102,11 +102,13 @@ export class DOMReporter implements Reporter {
       });
 
       if (compatTestReport.failed > 0 || test.result.failed) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this.settings.params.debug.value && console.log(test, compatTestReport);
       }
 
       this._socket.emit('test-finish', compatTestReport);
     } else if (test.result.failed) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       this.settings.params.debug.value && console.log(test);
     }
 

@@ -18,6 +18,7 @@ const RULES = [
   '.git/*',
   '.broccoli-cache/*',
   'unstable-preview-types/*',
+  'vite.config.mjs.timestamp-*',
 
   // # Special Cases
   'docs/*',

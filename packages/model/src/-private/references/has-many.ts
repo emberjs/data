@@ -149,6 +149,7 @@ export default class HasManyReference<
   @cached
   @compat
   get identifiers(): StableRecordIdentifier<TypeFromInstanceOrString<Related>>[] {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     this._ref; // consume the tracked prop
 
     const resource = this._resource();
@@ -608,6 +609,7 @@ export default class HasManyReference<
     if (!loaded) {
       // subscribe to changes
       // for when we are not loaded yet
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       this._ref;
       return null;
     }

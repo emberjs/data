@@ -204,7 +204,7 @@ module('Integration | Records | New Record Unload', function (hooks) {
     try {
       await Pat.save();
       assert.ok(false, 'save failed');
-    } catch (e) {
+    } catch {
       assert.ok(true, 'save failed');
     }
 
@@ -254,7 +254,7 @@ module('Integration | Records | New Record Unload', function (hooks) {
     try {
       await Pat.save();
       assert.ok(false, 'save failed');
-    } catch (e) {
+    } catch {
       assert.ok(true, 'save failed');
     }
 
@@ -304,7 +304,7 @@ module('Integration | Records | New Record Unload', function (hooks) {
     try {
       await Pat.save();
       assert.ok(false, 'save failed');
-    } catch (e) {
+    } catch {
       assert.ok(true, 'save failed');
     }
 
@@ -354,7 +354,7 @@ module('Integration | Records | New Record Unload', function (hooks) {
     try {
       await Pat.save();
       assert.ok(true, 'save succeeded');
-    } catch (e) {
+    } catch {
       assert.ok(false, 'save succeeded');
     }
 
@@ -409,7 +409,7 @@ module('Integration | Records | New Record Unload', function (hooks) {
     try {
       await Pat.save();
       assert.ok(true, 'save succeeded');
-    } catch (e) {
+    } catch {
       assert.ok(false, 'save succeeded');
     }
 

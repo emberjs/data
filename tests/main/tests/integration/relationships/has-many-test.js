@@ -2896,7 +2896,7 @@ If using this relationship in a polymorphic manner is desired, the relationships
       store.destroy();
       await settled();
       assert.ok(true, 'store destroyed correctly');
-    } catch (error) {
+    } catch {
       assert.ok(false, 'store prevented from being destroyed');
     }
   });

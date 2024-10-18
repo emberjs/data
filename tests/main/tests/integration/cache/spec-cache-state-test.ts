@@ -126,7 +126,7 @@ class TestCache implements Cache {
   upsert(
     identifier: StableRecordIdentifier,
     data: ExistingResourceObject,
-    calculateChanges?: boolean | undefined
+    calculateChanges?: boolean
   ): void | string[] {
     if (!this._data.has(identifier)) {
       this._storeWrapper.notifyChange(identifier, 'added');
@@ -143,10 +143,7 @@ class TestCache implements Cache {
   _errors?: ApiError[];
   _isNew = false;
 
-  clientDidCreate(
-    identifier: StableRecordIdentifier,
-    options?: Record<string, unknown> | undefined
-  ): Record<string, unknown> {
+  clientDidCreate(identifier: StableRecordIdentifier, options?: Record<string, unknown>): Record<string, unknown> {
     this._isNew = true;
     this._storeWrapper.notifyChange(identifier, 'added');
     return {};
@@ -155,7 +152,7 @@ class TestCache implements Cache {
   didCommit(identifier: StableRecordIdentifier, result: StructuredDataDocument<unknown>): SingleResourceDataDocument {
     return { data: identifier as StableExistingRecordIdentifier };
   }
-  commitWasRejected(identifier: StableRecordIdentifier, errors?: ApiError[] | undefined): void {
+  commitWasRejected(identifier: StableRecordIdentifier, errors?: ApiError[]): void {
     this._errors = errors;
   }
   unloadRecord(identifier: StableRecordIdentifier): void {}
@@ -184,7 +181,7 @@ class TestCache implements Cache {
     identifier: StableRecordIdentifier,
     propertyName: string,
     value: StableRecordIdentifier[],
-    idx?: number | undefined
+    idx?: number
   ): void {
     throw new Error('Method not implemented.');
   }

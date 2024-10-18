@@ -1,4 +1,4 @@
-# eslint-plugin-ember-data Changelog
+# eslint-plugin-warp-drive Changelog
 
 ## v0.0.2-alpha.71 (2024-06-15)
 

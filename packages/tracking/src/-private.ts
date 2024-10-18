@@ -78,6 +78,7 @@ export function subscribe(obj: Tag | Signal): void {
     }
     consumeTag(obj.tag);
   } else {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     obj.ref;
   }
 }
@@ -169,6 +170,7 @@ function flushTransaction() {
       }
       consumeTag(obj.tag);
     } else {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       obj.ref;
     }
   });
@@ -415,7 +417,6 @@ export function createSignal<T extends object>(obj: T, key: string): Signal {
   };
 
   if (DEBUG) {
-    // eslint-disable-next-line no-inner-declarations
     function tryGet<T1 = string>(prop: string): T1 | undefined {
       try {
         return obj[prop as keyof typeof obj] as unknown as T1;

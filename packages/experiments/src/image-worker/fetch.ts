@@ -68,6 +68,7 @@ export class ImageFetch {
   }
 
   _send(event: RequestEventData) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     this.worker instanceof SharedWorker ? this.worker.port.postMessage(event) : this.channel.port1.postMessage(event);
   }
 

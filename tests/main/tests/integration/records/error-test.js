@@ -215,7 +215,7 @@ module('integration/records/error', function (hooks) {
 
     try {
       person = await person.save();
-    } catch (_error) {
+    } catch {
       const errors = person.errors;
 
       assert.strictEqual(errors.length, 2, 'Adds two errors to the model');

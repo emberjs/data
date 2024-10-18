@@ -2255,7 +2255,7 @@ export class Store extends BaseClass {
         const data: unknown = JSON.parse(JSON.stringify(jsonApiDoc)) as unknown;
         // eslint-disable-next-line no-console
         console.log('EmberData | Payload - push', data);
-      } catch (e) {
+      } catch {
         // eslint-disable-next-line no-console
         console.log('EmberData | Payload - push', jsonApiDoc);
       }
