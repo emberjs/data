@@ -45,7 +45,7 @@
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.112",
     "eslint": "^8.57.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
-    "qunit": "^2.20.1"
+    "qunit": "^2.22.0"
   },
   "engines": {
     "node": ">= 18.20.3"
