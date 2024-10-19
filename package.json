@@ -44,7 +44,7 @@
     "chalk": "^4.1.2",
     "co": "^4.6.0",
     "command-line-args": "^5.2.1",
-    "comment-json": "^4.2.3",
+    "comment-json": "^4.2.5",
     "common-tags": "^1.8.2",
     "debug": "^4.3.7",
     "ember-source": "~5.8.0",
