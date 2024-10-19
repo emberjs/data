@@ -3,6 +3,7 @@ import { dependencySatisfies, importSync, macroCondition } from '@embroider/macr
 import type { MinimalLegacyRecord } from '@ember-data/model/-private/model-methods';
 import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store';
+import { recordIdentifierFor, setRecordIdentifier } from '@ember-data/store/-private';
 import { addToTransaction, entangleSignal, getSignal, type Signal, Signals } from '@ember-data/tracking/-private';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -44,7 +45,7 @@ const getLegacySupport = macroCondition(dependencySatisfies('@ember-data/model',
   ? (importSync('@ember-data/model/-private') as typeof import('@ember-data/model/-private')).lookupLegacySupport
   : null;
 
-export { Editable, Legacy } from './symbols';
+export { Editable, Legacy, Checkout } from './symbols';
 const IgnoredGlobalFields = new Set<string>(['length', 'nodeType', 'then', 'setInterval', 'document', STRUCTURED]);
 const symbolList = [
   Destroy,
@@ -66,6 +67,7 @@ function isPathMatch(a: string[], b: string[]) {
   return a.length === b.length && a.every((v, i) => v === b[i]);
 }
 
+const Editables = new WeakMap<SchemaRecord, SchemaRecord>();
 export class SchemaRecord {
   declare [RecordStore]: Store;
   declare [Identifier]: StableRecordIdentifier;
@@ -333,7 +335,8 @@ export class SchemaRecord {
       },
       set(target: SchemaRecord, prop: string | number | symbol, value: unknown, receiver: typeof Proxy<SchemaRecord>) {
         if (!IS_EDITABLE) {
-          throw new Error(`Cannot set ${String(prop)} on ${identifier.type} because the record is not editable`);
+          const type = isEmbedded ? embeddedType : identifier.type;
+          throw new Error(`Cannot set ${String(prop)} on ${type} because the record is not editable`);
         }
 
         const maybeField = prop === identityField?.name ? identityField : fields.get(prop as string);
@@ -655,6 +658,31 @@ export class SchemaRecord {
     this[RecordStore].notifications.unsubscribe(this.___notifications);
   }
   [Checkout](): Promise<SchemaRecord> {
-    return Promise.resolve(this);
+    const editable = Editables.get(this);
+    if (editable) {
+      return Promise.resolve(editable);
+    }
+
+    const embeddedType = this[EmbeddedType];
+    const embeddedPath = this[EmbeddedPath];
+    const isEmbedded = embeddedType !== null && embeddedPath !== null;
+
+    if (isEmbedded) {
+      throw new Error(`Cannot checkout an embedded record (yet)`);
+    }
+
+    const editableRecord = new SchemaRecord(
+      this[RecordStore],
+      this[Identifier],
+      {
+        [Editable]: true,
+        [Legacy]: this[Legacy],
+      },
+      isEmbedded,
+      embeddedType,
+      embeddedPath
+    );
+    setRecordIdentifier(editableRecord, recordIdentifierFor(this));
+    return Promise.resolve(editableRecord);
   }
 }
