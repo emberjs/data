@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@ember-data/unpublished-test-infra": "workspace:5.4.0-alpha.112",
-    "ember-auto-import": "^2.7.4",
+    "ember-auto-import": "^2.8.1",
     "ember-data": "workspace:5.4.0-alpha.112",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "webpack": "^5.92.0"

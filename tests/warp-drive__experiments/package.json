@@ -108,7 +108,7 @@
     "@warp-drive/build-config": "workspace:0.0.0-alpha.49",
     "@warp-drive/holodeck": "workspace:0.0.0-alpha.98",
     "@warp-drive/experiments": "workspace:0.0.1-alpha.112",
-    "ember-auto-import": "^2.7.4",
+    "ember-auto-import": "^2.8.1",
     "ember-cli": "~5.9.0",
     "ember-cli-babel": "^8.2.0",
     "ember-cli-dependency-checker": "^3.3.2",
