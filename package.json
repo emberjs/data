@@ -64,7 +64,7 @@
     "turbo": "^1.13.3"
   },
   "engines": {
-    "node": ">= 18.20.3",
+    "node": ">= 18.20.4",
     "yarn": "use pnpm",
     "npm": "use pnpm",
     "pnpm": "8.15.9"
