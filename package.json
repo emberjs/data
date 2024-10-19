@@ -46,7 +46,7 @@
     "command-line-args": "^5.2.1",
     "comment-json": "^4.2.3",
     "common-tags": "^1.8.2",
-    "debug": "^4.3.4",
+    "debug": "^4.3.7",
     "ember-source": "~5.8.0",
     "execa": "^9.1.0",
     "git-repo-version": "^1.0.2",
