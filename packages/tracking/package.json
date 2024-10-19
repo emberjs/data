@@ -78,10 +78,10 @@
     "@babel/preset-env": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
     "@glimmer/component": "^1.1.2",
-    "@glimmer/validator": "^0.92.0",
+    "@glimmer/validator": "^0.92.3",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.98",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.112",
-    "ember-source": "~5.8.0",
+    "ember-source": "~5.12.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "typescript": "^5.4.5",
     "vite": "^5.2.11"
