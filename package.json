@@ -50,7 +50,7 @@
     "ember-source": "~5.8.0",
     "execa": "^9.1.0",
     "git-repo-version": "^1.0.2",
-    "globby": "^14.0.1",
+    "globby": "^14.0.2",
     "lerna-changelog": "^2.2.0",
     "prettier": "^3.3.2",
     "prettier-plugin-ember-template-tag": "^2.0.2",
