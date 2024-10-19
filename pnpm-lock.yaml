@@ -22,6 +22,9 @@ overrides:
 packageExtensionsChecksum: 857c739f5bcb163e3b893945e0bd5cc7
 
 patchedDependencies:
+  '@ember/test-helpers@3.3.0':
+    hash: gppmtiox6pymwamrfimkbxfrsm
+    path: patches/@ember__test-helpers@3.3.0.patch
   '@ember/test-helpers@4.0.4':
     hash: zignhd6n3rugkiuawsmbuxfdka
     path: patches/@ember__test-helpers@4.0.4.patch
@@ -44,8 +47,8 @@ importers:
         specifier: ^7.24.5
         version: 7.24.5(supports-color@8.1.1)
       '@ember/test-helpers':
-        specifier: 4.0.4
-        version: 4.0.4(patch_hash=zignhd6n3rugkiuawsmbuxfdka)(@babel/core@7.24.5)(@glint/template@1.4.0)(ember-source@5.8.0)
+        specifier: 3.3.0
+        version: 3.3.0(patch_hash=gppmtiox6pymwamrfimkbxfrsm)(@babel/core@7.24.5)(@glint/template@1.4.0)(ember-source@5.8.0)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.24.5)
@@ -6096,6 +6099,34 @@ packages:
       - '@babel/core'
       - supports-color
 
+  /@ember/test-helpers@3.3.0(patch_hash=gppmtiox6pymwamrfimkbxfrsm)(@babel/core@7.24.5)(@glint/template@1.4.0)(ember-source@5.8.0):
+    resolution: {integrity: sha512-HEI28wtjnQuEj9+DstHUEEKPtqPAEVN9AAVr4EifVCd3DyEDy0m6hFT4qbap1WxAIktLja2QXGJg50lVWzZc5g==}
+    engines: {node: 16.* || >= 18}
+    peerDependencies:
+      ember-source: '*'
+    dependencies:
+      '@ember/test-waiters': 3.1.0(@babel/core@7.24.5)
+      '@embroider/macros': 1.16.1(@babel/core@7.24.5)(@glint/template@1.4.0)
+      '@simple-dom/interface': 1.4.0
+      broccoli-debug: 0.6.5
+      broccoli-funnel: 3.0.8
+      dom-element-descriptors: 0.5.0
+      ember-auto-import: 2.7.4(@glint/template@1.4.0)
+      ember-cli-babel: 8.2.0(@babel/core@7.24.5)
+      ember-cli-htmlbars: 6.3.0
+      ember-source: 5.8.0(@babel/core@7.24.5)(@glimmer/component@1.1.2)(@glint/template@1.4.0)
+      webpack: 5.94.0
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - '@swc/core'
+      - esbuild
+      - supports-color
+      - uglify-js
+      - webpack-cli
+    dev: true
+    patched: true
+
   /@ember/test-helpers@4.0.4(patch_hash=zignhd6n3rugkiuawsmbuxfdka)(@babel/core@7.24.5)(@glint/template@1.4.0)(ember-source@5.12.0):
     resolution: {integrity: sha512-1mbOVyVEcLxYOGzBaeeaQkCrL1o9Av86QaHk/1RvrVBW24I6YUj1ILLEi2qLZT5PzcCy0TdfadHT3hKJwJ0GcQ==}
     peerDependencies:
@@ -6117,30 +6148,6 @@ packages:
       - supports-color
       - uglify-js
       - webpack-cli
-    patched: true
-
-  /@ember/test-helpers@4.0.4(patch_hash=zignhd6n3rugkiuawsmbuxfdka)(@babel/core@7.24.5)(@glint/template@1.4.0)(ember-source@5.8.0):
-    resolution: {integrity: sha512-1mbOVyVEcLxYOGzBaeeaQkCrL1o9Av86QaHk/1RvrVBW24I6YUj1ILLEi2qLZT5PzcCy0TdfadHT3hKJwJ0GcQ==}
-    peerDependencies:
-      ember-source: '*'
-    dependencies:
-      '@ember/test-waiters': 3.1.0(@babel/core@7.24.5)
-      '@embroider/addon-shim': 1.8.9
-      '@embroider/macros': 1.16.1(@babel/core@7.24.5)(@glint/template@1.4.0)
-      '@simple-dom/interface': 1.4.0
-      decorator-transforms: 2.0.0(@babel/core@7.24.5)
-      dom-element-descriptors: 0.5.0
-      ember-source: 5.8.0(@babel/core@7.24.5)(@glimmer/component@1.1.2)(@glint/template@1.4.0)
-      webpack: 5.94.0
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - '@swc/core'
-      - esbuild
-      - supports-color
-      - uglify-js
-      - webpack-cli
-    dev: true
     patched: true
 
   /@ember/test-waiters@3.1.0(@babel/core@7.24.5):
@@ -21056,7 +21063,7 @@ packages:
       '@ember-data/request': workspace:5.4.0-alpha.112
       '@ember-data/store': workspace:5.4.0-alpha.112
       '@ember-data/tracking': workspace:5.4.0-alpha.112
-      '@ember/test-helpers': 4.0.4
+      '@ember/test-helpers': 3.3.0 || ^4.0.4
       '@warp-drive/core-types': workspace:0.0.0-alpha.98
       '@warp-drive/diagnostic': workspace:0.0.0-alpha.98
       testem: ~3.11.0
@@ -21092,7 +21099,7 @@ packages:
       '@ember-data/request': workspace:5.4.0-alpha.112
       '@ember-data/store': workspace:5.4.0-alpha.112
       '@ember-data/tracking': workspace:5.4.0-alpha.112
-      '@ember/test-helpers': 4.0.4
+      '@ember/test-helpers': 3.3.0 || ^4.0.4
       '@warp-drive/core-types': workspace:0.0.0-alpha.98
       '@warp-drive/diagnostic': workspace:0.0.0-alpha.98
       testem: ~3.11.0

@@ -75,7 +75,7 @@
     "@ember-data/tracking": "workspace:5.4.0-alpha.112",
     "@warp-drive/diagnostic": "workspace:0.0.0-alpha.98",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.98",
-    "@ember/test-helpers": "4.0.4"
+    "@ember/test-helpers": "3.3.0 || ^4.0.4"
   },
   "peerDependenciesMeta": {
     "qunit": {
