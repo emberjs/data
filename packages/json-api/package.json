@@ -72,7 +72,7 @@
     "@warp-drive/core-types": "workspace:0.0.0-alpha.98"
   },
   "dependencies": {
-    "@embroider/macros": "^1.16.1",
+    "@embroider/macros": "^1.16.6",
     "@warp-drive/build-config": "workspace:0.0.0-alpha.49"
   },
   "devDependencies": {
