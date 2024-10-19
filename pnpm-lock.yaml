@@ -895,8 +895,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0(@babel/core@7.24.5)
       ember-provide-consume-context:
-        specifier: ^0.4.0
-        version: 0.4.0(@babel/core@7.24.5)(@ember/test-helpers@4.0.4)(ember-source@5.12.0)
+        specifier: ^0.5.0
+        version: 0.5.0(@babel/core@7.24.5)(@ember/test-helpers@4.0.4)(ember-source@5.12.0)
       ember-source:
         specifier: ~5.12.0
         version: 5.12.0(@glimmer/component@1.1.2)(@glint/template@1.4.0)
@@ -12315,8 +12315,8 @@ packages:
       - supports-color
     dev: true
 
-  /ember-provide-consume-context@0.4.0(@babel/core@7.24.5)(@ember/test-helpers@4.0.4)(ember-source@5.12.0):
-    resolution: {integrity: sha512-OdzzubcgX0Fj81UlKjskbZQsbc8y9XTo5WYca1MT8iq4cAJdqJCRynaIUElQDjvKliD/e6X9DL59z5L5zre/Fg==}
+  /ember-provide-consume-context@0.5.0(@babel/core@7.24.5)(@ember/test-helpers@4.0.4)(ember-source@5.12.0):
+    resolution: {integrity: sha512-EfXZEBxIQJlEpiNX6RzpjMQxpg0Rd8EZkpktY5GSHYXPDKBYYyITvDWEwG4uHDB4D+aX7UahQqQBZoDSa1ltrg==}
     peerDependencies:
       '@ember/test-helpers': ^2.9.1 || ^3.0.0 || ^4.0.0
       ember-source: '*'
@@ -20794,7 +20794,7 @@ packages:
       '@ember-data/store': ^4.12.7 || > 5.3.3
       '@ember-data/tracking': ^4.12.7 || > 5.3.3
       '@warp-drive/core-types': workspace:0.0.0-alpha.98
-      ember-provide-consume-context: ^0.4.0
+      ember-provide-consume-context: ^0.5.0
     peerDependenciesMeta:
       ember-provide-consume-context:
         optional: true
@@ -20824,7 +20824,7 @@ packages:
       '@ember-data/store': ^4.12.7 || > 5.3.3
       '@ember-data/tracking': ^4.12.7 || > 5.3.3
       '@warp-drive/core-types': workspace:0.0.0-alpha.98
-      ember-provide-consume-context: ^0.4.0
+      ember-provide-consume-context: ^0.5.0
     peerDependenciesMeta:
       ember-provide-consume-context:
         optional: true
