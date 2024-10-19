@@ -330,8 +330,8 @@ importers:
         specifier: ^1.16.6
         version: 1.16.9(@babel/core@7.24.5)(@glint/template@1.4.0)
       '@manypkg/get-packages':
-        specifier: ^2.2.1
-        version: 2.2.1
+        specifier: ^2.2.2
+        version: 2.2.2
       '@warp-drive/build-config':
         specifier: workspace:0.0.0-alpha.49
         version: file:packages/build-config(@babel/core@7.24.5)(@glint/template@1.4.0)
@@ -7447,31 +7447,28 @@ packages:
     dependencies:
       call-bind: 1.0.7
 
-  /@manypkg/find-root@2.2.1:
-    resolution: {integrity: sha512-34NlypD5mmTY65cFAK7QPgY5Tzt0qXR4ZRXdg97xAlkiLuwXUPBEXy5Hsqzd+7S2acsLxUz6Cs50rlDZQr4xUA==}
+  /@manypkg/find-root@2.2.3:
+    resolution: {integrity: sha512-jtEZKczWTueJYHjGpxU3KJQ08Gsrf4r6Q2GjmPp/RGk5leeYAA1eyDADSAF+KVCsQ6EwZd/FMcOFCoMhtqdCtQ==}
     engines: {node: '>=14.18.0'}
     dependencies:
-      '@manypkg/tools': 1.1.0
-      find-up: 4.1.0
-      fs-extra: 8.1.0
+      '@manypkg/tools': 1.1.2
     dev: false
 
-  /@manypkg/get-packages@2.2.1:
-    resolution: {integrity: sha512-TrJd86paBkKEx6InhObcUhuoJNcATlbO6+s1dQdLd4+Y1SLDKJUAMhU46kTZ1SOFbegTuhDbIF3j+Jy564BERA==}
+  /@manypkg/get-packages@2.2.2:
+    resolution: {integrity: sha512-3+Zd8kLZmsyJFmWTBtY0MAuCErI7yKB2cjMBlujvSVKZ2R/BMXi0kjCXu2dtRlSq/ML86t1FkumT0yreQ3n8OQ==}
     engines: {node: '>=14.18.0'}
     dependencies:
-      '@manypkg/find-root': 2.2.1
-      '@manypkg/tools': 1.1.0
+      '@manypkg/find-root': 2.2.3
+      '@manypkg/tools': 1.1.2
     dev: false
 
-  /@manypkg/tools@1.1.0:
-    resolution: {integrity: sha512-SkAyKAByB9l93Slyg8AUHGuM2kjvWioUTCckT/03J09jYnfEzMO/wSXmEhnKGYs6qx9De8TH4yJCl0Y9lRgnyQ==}
+  /@manypkg/tools@1.1.2:
+    resolution: {integrity: sha512-3lBouSuF7CqlseLB+FKES0K4FQ02JrbEoRtJhxnsyB1s5v4AP03gsoohN8jp7DcOImhaR9scYdztq3/sLfk/qQ==}
     engines: {node: '>=14.18.0'}
     dependencies:
-      fs-extra: 8.1.0
-      globby: 11.1.0
+      fast-glob: 3.3.2
       jju: 1.4.0
-      read-yaml-file: 1.1.0
+      js-yaml: 4.1.0
     dev: false
 
   /@microsoft/api-extractor-model@7.28.13:
@@ -14369,18 +14366,6 @@ packages:
       merge2: 1.4.1
       slash: 3.0.0
 
-  /globby@11.1.0:
-    resolution: {integrity: sha512-jhIXaOzy1sb8IyocaruWSn1TjmnBVs8Ayhcy83rmxNJ8q2uWKCAj3CnJY+KpGSXCueAPc0i05kVvVKtP1t9S3g==}
-    engines: {node: '>=10'}
-    dependencies:
-      array-union: 2.1.0
-      dir-glob: 3.0.1
-      fast-glob: 3.3.2
-      ignore: 5.3.1
-      merge2: 1.4.1
-      slash: 3.0.0
-    dev: false
-
   /globby@14.0.1:
     resolution: {integrity: sha512-jOMLD2Z7MAhyG8aJpNOpmziMOP4rPLcc95oQPKXBazW82z+CEgPFBQvEpRUa1KeIMUJo4Wsm+q6uzO/Q/4BksQ==}
     engines: {node: '>=18'}
@@ -17607,16 +17592,6 @@ packages:
     dependencies:
       ini: 3.0.1
       strip-bom: 4.0.0
-
-  /read-yaml-file@1.1.0:
-    resolution: {integrity: sha512-VIMnQi/Z4HT2Fxuwg5KrY174U1VdUIASQVWXXyqtNRtxSr9IYkn1rsI6Tb6HsrHCmB7gVpNwX6JxPTHcH6IoTA==}
-    engines: {node: '>=6'}
-    dependencies:
-      graceful-fs: 4.2.11
-      js-yaml: 3.14.1
-      pify: 4.0.1
-      strip-bom: 3.0.0
-    dev: false
 
   /read-yaml-file@2.1.0:
     resolution: {integrity: sha512-UkRNRIwnhG+y7hpqnycCL/xbTk7+ia9VuVTC0S+zVbwd65DI9eUpRMfsWIGrCWxTU/mi+JW8cHQCrv+zfCbEPQ==}
