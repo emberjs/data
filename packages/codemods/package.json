@@ -33,7 +33,7 @@
   "dependencies": {
     "chalk": "^5.3.0",
     "commander": "^12.1.0",
-    "ignore": "^5.3.1",
+    "ignore": "^5.3.2",
     "jscodeshift": "^0.15.2",
     "strip-ansi": "^7.1.0",
     "typescript": "^5.4.5",
