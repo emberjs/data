@@ -33,20 +33,22 @@
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
+    "@ember/test-helpers": "3.3.0",
+    "@glimmer/component": "^1.1.2",
     "@glint/core": "^1.4.0",
     "@glint/environment-ember-loose": "^1.4.0",
     "@glint/environment-ember-template-imports": "^1.4.0",
     "@glint/template": "^1.4.0",
-    "@glimmer/component": "^1.1.2",
     "@types/semver": "^7.5.8",
     "bun-types": "^1.1.30",
     "chalk": "^4.1.2",
     "co": "^4.6.0",
     "command-line-args": "^5.2.1",
+    "comment-json": "^4.2.3",
     "common-tags": "^1.8.2",
     "debug": "^4.3.4",
+    "ember-source": "~5.8.0",
     "execa": "^9.1.0",
-    "comment-json": "^4.2.3",
     "git-repo-version": "^1.0.2",
     "globby": "^14.0.1",
     "lerna-changelog": "^2.2.0",
@@ -109,8 +111,7 @@
         "peerDependencies": {
           "ember-cli": "*",
           "ember-cli-fastboot": "*",
-          "ember-source": "*",
-          "@ember/test-helpers": "*"
+          "ember-source": "*"
         }
       },
       "ember-auto-import": {
@@ -130,13 +131,12 @@
       }
     },
     "overrides": {
-      "ember-auto-import": "^2.7.4",
-      "@embroider/macros": "^1.16.1",
+      "ember-auto-import": "^2.8.1",
+      "@embroider/macros": "^1.16.6",
       "broccoli-funnel": "^3.0.8",
       "broccoli-merge-trees": "^4.2.0",
       "@glimmer/validator": "^0.92.3",
       "@glint/template": "^1.4.0",
-      "@ember/test-helpers": "3.3.0",
       "ember-cli-babel": "^8.2.0",
       "ember-cli-htmlbars": "^6.3.0",
       "ember-cli-typescript": "^5.3.0",
@@ -157,7 +157,8 @@
     "patchedDependencies": {
       "qunit@2.19.4": "patches/qunit@2.19.4.patch",
       "testem@3.11.0": "patches/testem@3.11.0.patch",
-      "@ember/test-helpers@3.3.0": "patches/@ember__test-helpers@3.3.0.patch"
+      "@ember/test-helpers@3.3.0": "patches/@ember__test-helpers@3.3.0.patch",
+      "@ember/test-helpers@4.0.4": "patches/@ember__test-helpers@4.0.4.patch"
     }
   }
 }

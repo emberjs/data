@@ -21,7 +21,7 @@
     "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
   "dependencies": {
-    "ember-auto-import": "^2.7.4",
+    "ember-auto-import": "^2.8.1",
     "ember-data": "workspace:5.4.0-alpha.112",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "webpack": "^5.92.0"
@@ -35,7 +35,7 @@
     "@babel/core": "^7.24.5",
     "@babel/runtime": "^7.24.5",
     "@ember/optional-features": "^2.1.0",
-    "@ember/test-helpers": "^3.3.0",
+    "@ember/test-helpers": "4.0.4",
     "@ember/test-waiters": "^3.1.0",
     "@embroider/compat": "^3.5.3",
     "@embroider/core": "^3.4.12",
