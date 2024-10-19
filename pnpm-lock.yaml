@@ -113,8 +113,8 @@ importers:
         specifier: ^5.0.6
         version: 5.0.7
       semver:
-        specifier: ^7.6.2
-        version: 7.6.2
+        specifier: ^7.6.3
+        version: 7.6.3
       silent-error:
         specifier: ^1.1.1
         version: 1.1.1
@@ -345,8 +345,8 @@ importers:
         specifier: ^4.3.7
         version: 4.3.7(supports-color@8.1.1)
       semver:
-        specifier: ^7.6.2
-        version: 7.6.2
+        specifier: ^7.6.3
+        version: 7.6.3
     devDependencies:
       '@babel/core':
         specifier: ^7.24.5
@@ -554,8 +554,8 @@ importers:
         specifier: ^3.0.8
         version: 3.0.8
       semver:
-        specifier: ^7.6.2
-        version: 7.6.2
+        specifier: ^7.6.3
+        version: 7.6.3
     devDependencies:
       '@babel/core':
         specifier: ^7.24.5
@@ -1883,8 +1883,8 @@ importers:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=2jwk2nz4gqke2k5hv6ptj42llu)
       semver:
-        specifier: ^7.6.2
-        version: 7.6.2
+        specifier: ^7.6.3
+        version: 7.6.3
     devDependencies:
       '@babel/core':
         specifier: ^7.24.5
@@ -6203,7 +6203,7 @@ packages:
       '@embroider/shared-internals': 2.6.2(supports-color@8.1.1)
       broccoli-funnel: 3.0.8
       common-ancestor-path: 1.0.1
-      semver: 7.6.2
+      semver: 7.6.3
     transitivePeerDependencies:
       - supports-color
 
@@ -6278,7 +6278,7 @@ packages:
       pkg-up: 3.1.0
       resolve: 1.22.8
       resolve-package-path: 4.0.3
-      semver: 7.6.2
+      semver: 7.6.3
       symlink-or-copy: 1.3.1
       tree-sync: 2.1.0
       typescript-memoize: 1.1.1
@@ -6337,7 +6337,7 @@ packages:
       pkg-up: 3.1.0
       resolve: 1.22.8
       resolve-package-path: 4.0.3
-      semver: 7.6.2
+      semver: 7.6.3
       symlink-or-copy: 1.3.1
       tree-sync: 2.1.0
       typescript-memoize: 1.1.1
@@ -6412,7 +6412,7 @@ packages:
       lodash: 4.17.21
       resolve: 1.22.8
       resolve-package-path: 4.0.3
-      semver: 7.6.2
+      semver: 7.6.3
       typescript-memoize: 1.1.1
       walk-sync: 3.0.0
     transitivePeerDependencies:
@@ -6495,7 +6495,7 @@ packages:
       lodash: 4.17.21
       minimatch: 3.1.2
       resolve-package-path: 4.0.3
-      semver: 7.6.2
+      semver: 7.6.3
       typescript-memoize: 1.1.1
     transitivePeerDependencies:
       - supports-color
@@ -6514,7 +6514,7 @@ packages:
       minimatch: 3.1.2
       pkg-entry-points: 1.1.0
       resolve-package-path: 4.0.3
-      semver: 7.6.2
+      semver: 7.6.3
       typescript-memoize: 1.1.1
     transitivePeerDependencies:
       - supports-color
@@ -6543,7 +6543,7 @@ packages:
       jsdom: 16.7.0(supports-color@8.1.1)
       lodash: 4.17.21
       mini-css-extract-plugin: 2.9.0(webpack@5.94.0)
-      semver: 7.6.2
+      semver: 7.6.3
       source-map-url: 0.4.1
       style-loader: 2.0.0(webpack@5.94.0)
       supports-color: 8.1.1
@@ -6580,7 +6580,7 @@ packages:
       jsdom: 25.0.1(supports-color@8.1.1)
       lodash: 4.17.21
       mini-css-extract-plugin: 2.9.0(webpack@5.94.0)
-      semver: 7.6.2
+      semver: 7.6.3
       source-map-url: 0.4.1
       style-loader: 2.0.0(webpack@5.94.0)
       supports-color: 8.1.1
@@ -7275,7 +7275,7 @@ packages:
     dependencies:
       '@glimmer/syntax': 0.84.3
       escape-string-regexp: 4.0.0
-      semver: 7.6.2
+      semver: 7.6.3
       silent-error: 1.1.1
       typescript: 5.4.5
       uuid: 8.3.2
@@ -7549,7 +7549,7 @@ packages:
     resolution: {integrity: sha512-8KG5RD0GVP4ydEzRn/I4BNDuxDtqVbOdm8675T49OIG/NGhaK0pjPX7ZcDlvKYbA+ulvVK3ztfcF4uBdOxuJbQ==}
     dependencies:
       '@gar/promisify': 1.1.3
-      semver: 7.6.2
+      semver: 7.6.3
     dev: true
 
   /@npmcli/move-file@1.1.2:
@@ -7771,7 +7771,7 @@ packages:
       ramda: /@pnpm/ramda@0.28.1
       right-pad: 1.0.1
       rxjs: 7.8.1
-      semver: 7.6.2
+      semver: 7.6.3
       stacktracey: 2.1.8
       string-length: 4.0.2
       strip-ansi: 6.0.1
@@ -7915,7 +7915,7 @@ packages:
       detect-libc: 2.0.3
       execa: /safe-execa@0.1.2
       mem: 8.1.1
-      semver: 7.6.2
+      semver: 7.6.3
 
   /@pnpm/pnpmfile@5.0.7(@pnpm/logger@5.0.0):
     resolution: {integrity: sha512-A8uwamvs9jhf3DYLuGHCngWW8WXEDgcm3nwOeRTWJOOgButgXueIRHcEZPiKgQwy6t116ntimNeW5H3/hjim6w==}
@@ -8654,7 +8654,7 @@ packages:
       fast-glob: 3.3.2
       is-glob: 4.0.3
       minimatch: 9.0.5
-      semver: 7.6.2
+      semver: 7.6.3
       ts-api-utils: 1.3.0(typescript@5.4.5)
       typescript: 5.4.5
     transitivePeerDependencies:
@@ -10271,7 +10271,7 @@ packages:
   /builtins@5.1.0:
     resolution: {integrity: sha512-SW9lzGTLvWTP1AY8xeAMZimqDrIaSdLQUcVr9DMef51niJ022Ri87SwRRKYm4A6iHfkPaiVUu/Duw2Wc4J7kKg==}
     dependencies:
-      semver: 7.6.2
+      semver: 7.6.3
 
   /bun-types@1.1.13:
     resolution: {integrity: sha512-G/TqF0SsMQGLr4g7K3B2BK8BrPEA1EqCNwxZbyRdj5M4t54zvwyaqvRJOW34kuPqc2IvNNalRU3swc8B4oc4FA==}
@@ -11217,7 +11217,7 @@ packages:
       postcss-modules-values: 4.0.0(postcss@8.4.47)
       postcss-value-parser: 4.2.0
       schema-utils: 3.3.0
-      semver: 7.6.2
+      semver: 7.6.3
       webpack: 5.94.0
 
   /css-tree@1.1.3:
@@ -11684,7 +11684,7 @@ packages:
       pkg-entry-points: 1.1.0
       resolve: 1.22.8
       resolve-package-path: 4.0.3
-      semver: 7.6.2
+      semver: 7.6.3
       style-loader: 2.0.0(webpack@5.94.0)
       typescript-memoize: 1.1.1
       walk-sync: 3.0.0
@@ -11766,7 +11766,7 @@ packages:
       ember-cli-version-checker: 5.1.2
       ensure-posix-path: 1.1.1
       resolve-package-path: 4.0.3
-      semver: 7.6.2
+      semver: 7.6.3
     transitivePeerDependencies:
       - supports-color
 
@@ -11892,7 +11892,7 @@ packages:
       hash-for-dep: 1.5.1
       heimdalljs-logger: 0.1.10
       js-string-escape: 1.0.1
-      semver: 7.6.2
+      semver: 7.6.3
       silent-error: 1.1.1
       walk-sync: 2.2.0
     transitivePeerDependencies:
@@ -12015,7 +12015,7 @@ packages:
       fs-extra: 9.1.0
       resolve: 1.22.8
       rsvp: 4.8.5
-      semver: 7.6.2
+      semver: 7.6.3
       stagehand: 1.0.1
       walk-sync: 2.2.0
     transitivePeerDependencies:
@@ -12033,7 +12033,7 @@ packages:
     engines: {node: 10.* || >= 12.*}
     dependencies:
       resolve-package-path: 3.1.0
-      semver: 7.6.2
+      semver: 7.6.3
       silent-error: 1.1.1
     transitivePeerDependencies:
       - supports-color
@@ -12115,7 +12115,7 @@ packages:
       resolve-package-path: 4.0.3
       safe-stable-stringify: 2.4.3
       sane: 5.0.1
-      semver: 7.6.2
+      semver: 7.6.3
       silent-error: 1.1.1
       sort-package-json: 1.57.0
       symlink-or-copy: 1.3.1
@@ -12257,7 +12257,7 @@ packages:
       npmlog: 7.0.1
       qunit: 2.19.4(patch_hash=2jwk2nz4gqke2k5hv6ptj42llu)
       rimraf: 5.0.7
-      semver: 7.6.2
+      semver: 7.6.3
       silent-error: 1.1.1
     transitivePeerDependencies:
       - '@glint/template'
@@ -12517,7 +12517,7 @@ packages:
       inflection: 2.0.1
       route-recognizer: 0.3.4
       router_js: 8.0.5(route-recognizer@0.3.4)
-      semver: 7.6.2
+      semver: 7.6.3
       silent-error: 1.1.1
       simple-html-tokenizer: 0.5.11
       webpack: 5.94.0
@@ -12561,7 +12561,7 @@ packages:
       lodash: 4.17.21
       package-json: 6.5.0
       remote-git-tags: 3.0.0
-      semver: 7.6.2
+      semver: 7.6.3
     transitivePeerDependencies:
       - encoding
     dev: true
@@ -12579,7 +12579,7 @@ packages:
       fs-extra: 6.0.1
       resolve: 1.22.8
       rimraf: 3.0.2
-      semver: 7.6.2
+      semver: 7.6.3
       walk-sync: 2.2.0
     transitivePeerDependencies:
       - encoding
@@ -12860,7 +12860,7 @@ packages:
       eslint: '>=6.0.0'
     dependencies:
       eslint: 9.12.0
-      semver: 7.6.2
+      semver: 7.6.3
     dev: false
 
   /eslint-config-prettier@9.1.0(eslint@9.12.0):
@@ -16465,7 +16465,7 @@ packages:
     dependencies:
       growly: 1.3.0
       is-wsl: 2.2.0
-      semver: 7.6.2
+      semver: 7.6.3
       shellwords: 0.1.1
       uuid: 8.3.2
       which: 2.0.2
@@ -16516,7 +16516,7 @@ packages:
     dependencies:
       hosted-git-info: 6.1.1
       proc-log: 3.0.0
-      semver: 7.6.2
+      semver: 7.6.3
       validate-npm-package-name: 5.0.0
 
   /npm-run-path@2.0.2:
@@ -17186,7 +17186,7 @@ packages:
       pm2-deploy: 1.0.2
       pm2-multimeter: 0.1.2
       promptly: 2.2.0
-      semver: 7.6.2
+      semver: 7.6.3
       source-map-support: 0.5.21
       sprintf-js: 1.1.2
       vizion: 2.2.1
@@ -18196,6 +18196,11 @@ packages:
 
   /semver@7.6.2:
     resolution: {integrity: sha512-FNAIBWCx9qcRhoHcgcJ0gvU7SN1lYU2ZXuSfl04bSC5OpvDHFyJCjdNHomPXxjQlCBU67YW64PzY7/VIEH7F2w==}
+    engines: {node: '>=10'}
+    hasBin: true
+
+  /semver@7.6.3:
+    resolution: {integrity: sha512-oVekP1cKtI+CTDvHWYFUcMtsK/00wmAEfyqKfNdARm8u1wNVhSgaX7A8d4UuIlUI5e84iEwOhs7ZPYRmzU9U6A==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -19886,7 +19891,7 @@ packages:
     dependencies:
       '@volar/typescript': 1.11.1
       '@vue/language-core': 1.8.27(typescript@5.4.5)
-      semver: 7.6.2
+      semver: 7.6.3
       typescript: 5.4.5
     dev: false
 
@@ -20646,7 +20651,7 @@ packages:
       '@embroider/macros': 1.16.9(@babel/core@7.24.5)(@glint/template@1.4.0)
       babel-import-util: 2.1.1
       broccoli-funnel: 3.0.8
-      semver: 7.6.2
+      semver: 7.6.3
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -21372,7 +21377,7 @@ packages:
       '@warp-drive/diagnostic': file:packages/diagnostic(@babel/core@7.24.5)(@ember/test-helpers@4.0.4)(@glint/template@1.4.0)(ember-cli-test-loader@3.1.0)
       chalk: 4.1.2
       qunit: 2.19.4(patch_hash=2jwk2nz4gqke2k5hv6ptj42llu)
-      semver: 7.6.2
+      semver: 7.6.3
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -21408,7 +21413,7 @@ packages:
       '@warp-drive/diagnostic': file:packages/diagnostic(@babel/core@7.24.5)(@ember/test-helpers@4.0.4)(ember-cli-test-loader@3.1.0)
       chalk: 4.1.2
       qunit: 2.19.4(patch_hash=2jwk2nz4gqke2k5hv6ptj42llu)
-      semver: 7.6.2
+      semver: 7.6.3
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
