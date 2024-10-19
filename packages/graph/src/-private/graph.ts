@@ -331,8 +331,8 @@ export class Graph {
         if (hasAdditions || hasRemovals || reordered) {
           changed.set(field, {
             kind: 'collection',
-            additions: new Set(relationship.additions) || new Set(),
-            removals: new Set(relationship.removals) || new Set(),
+            additions: new Set(relationship.additions),
+            removals: new Set(relationship.removals),
             remoteState: relationship.remoteState,
             localState: legacyGetCollectionRelationshipData(relationship).data || [],
             reordered,
