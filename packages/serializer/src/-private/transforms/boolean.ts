@@ -2,7 +2,7 @@
   @module @ember-data/serializer
 */
 
-import { TransformName } from '@warp-drive/core-types/symbols';
+import type { TransformName } from '@warp-drive/core-types/symbols';
 
 /**
   The `BooleanTransform` class is used to serialize and deserialize
@@ -64,7 +64,7 @@ export class BooleanTransform {
     return Boolean(deserialized);
   }
 
-  [TransformName] = 'boolean' as const;
+  declare [TransformName]: 'boolean';
 
   static create() {
     return new this();

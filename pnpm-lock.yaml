@@ -1691,6 +1691,9 @@ importers:
       '@ember-data/legacy-compat':
         specifier: workspace:5.4.0-alpha.112
         version: file:packages/legacy-compat(@babel/core@7.24.5)(@ember-data/graph@5.4.0-alpha.112)(@ember-data/json-api@5.4.0-alpha.112)(@ember-data/request-utils@5.4.0-alpha.112)(@ember-data/request@5.4.0-alpha.112)(@ember-data/store@5.4.0-alpha.112)(@ember/test-waiters@3.1.0)(@warp-drive/core-types@0.0.0-alpha.98)
+      '@ember-data/model':
+        specifier: workspace:5.4.0-alpha.112
+        version: file:packages/model(@babel/core@7.24.5)(@ember-data/graph@5.4.0-alpha.112)(@ember-data/json-api@5.4.0-alpha.112)(@ember-data/legacy-compat@5.4.0-alpha.112)(@ember-data/request-utils@5.4.0-alpha.112)(@ember-data/store@5.4.0-alpha.112)(@ember-data/tracking@5.4.0-alpha.112)(@warp-drive/core-types@0.0.0-alpha.98)
       '@ember-data/request':
         specifier: workspace:5.4.0-alpha.112
         version: file:packages/request(@babel/core@7.24.5)(@glint/template@1.4.0)(@warp-drive/core-types@0.0.0-alpha.98)
@@ -1732,6 +1735,8 @@ importers:
         version: 5.2.14(@types/node@20.14.2)
     dependenciesMeta:
       '@ember-data/legacy-compat':
+        injected: true
+      '@ember-data/model':
         injected: true
       '@ember-data/request':
         injected: true

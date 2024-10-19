@@ -6,6 +6,7 @@ import type { TransformName } from '@warp-drive/core-types/symbols';
 import type {
   AttrOptions,
   DataDecorator,
+  ExtractOptions,
   GetMaybeDeserializeValue,
   OptionsFromInstance,
   TypedTransformInstance,
@@ -32,6 +33,21 @@ type ExampleDateTransform = {
   deserialize(value: string, options: { stripTimeZone?: boolean }): Date;
   [TransformName]: 'date';
 };
+type ExampleBooleanTransform = {
+  deserialize(serialized: boolean | null | number | string, options?: { allowNull?: boolean }): boolean | null;
+  serialize(deserialized: boolean | null, options?: { allowNull?: boolean }): boolean | null;
+  [TransformName]: 'boolean';
+};
+type A1 = GetMaybeDeserializeValue<ExampleBooleanTransform>;
+type A2 = TypeFromInstance<ExampleBooleanTransform>;
+type A3 = TypedTransformInstance<A1, A2>;
+type A4 = ExampleBooleanTransform extends A3 ? true : false;
+type A5 = ExtractOptions<ExampleBooleanTransform>;
+type A6 = OptionsFromInstance<ExampleBooleanTransform>;
+
+expectTypeOf<A4>().toEqualTypeOf<true>();
+expectTypeOf<A5>().toMatchTypeOf<{ allowNull?: boolean } | undefined>();
+expectTypeOf<A6>().toMatchTypeOf<{ allowNull?: boolean } | undefined>();
 
 expectTypeOf<
   TypedTransformInstance<GetMaybeDeserializeValue<ExampleDateTransform>, TypeFromInstance<ExampleDateTransform>>
