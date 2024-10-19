@@ -110,7 +110,7 @@
     "ember-provide-consume-context": "^0.3.2"
   },
   "engines": {
-    "node": ">= 18.20.3"
+    "node": ">= 18.20.4"
   },
   "volta": {
     "extends": "../../package.json"
