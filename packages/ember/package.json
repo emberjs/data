@@ -45,12 +45,12 @@
     "@ember-data/request": "^4.12.7 || > 5.3.3",
     "@ember-data/request-utils": "^4.12.7 || > 5.3.3",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.98",
-    "ember-provide-consume-context": "^0.3.2",
+    "ember-provide-consume-context": "^0.4.0",
     "@ember-data/tracking": "^4.12.7 || > 5.3.3"
   },
   "dependencies": {
     "@ember/test-waiters": "^3.1.0",
-    "@embroider/macros": "^1.16.1",
+    "@embroider/macros": "^1.16.6",
     "@warp-drive/build-config": "workspace:0.0.0-alpha.49"
   },
   "dependenciesMeta": {
@@ -97,7 +97,7 @@
     "@ember-data/request-utils": "workspace:5.4.0-alpha.112",
     "@ember-data/store": "workspace:5.4.0-alpha.112",
     "@ember-data/tracking": "workspace:5.4.0-alpha.112",
-    "@ember/test-helpers": "^3.3.0",
+    "@ember/test-helpers": "4.0.4",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.98",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.112",
     "babel-plugin-ember-template-compilation": "^2.2.5",
@@ -107,7 +107,7 @@
     "rollup": "^4.17.2",
     "typescript": "^5.4.5",
     "vite": "^5.2.11",
-    "ember-provide-consume-context": "^0.3.2"
+    "ember-provide-consume-context": "^0.4.0"
   },
   "engines": {
     "node": ">= 18.20.3"
