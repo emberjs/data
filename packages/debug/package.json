@@ -105,7 +105,7 @@
     "type": "addon",
     "version": 2,
     "app-js": {
-      "./data-adapter.js": "./dist/data-adapter.js"
+      "./data-adapter.js": "./dist/_app_/data-adapter.js"
     }
   },
   "volta": {
