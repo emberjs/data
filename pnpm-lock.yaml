@@ -929,12 +929,6 @@ importers:
       '@warp-drive/core-types':
         injected: true
 
-  packages/eslint-plugin-ember-data:
-    devDependencies:
-      '@warp-drive/internal-config':
-        specifier: workspace:5.4.0-alpha.112
-        version: link:../../config
-
   packages/eslint-plugin-warp-drive:
     dependencies:
       requireindex:
