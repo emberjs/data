@@ -1,5 +1,5 @@
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import type { Type } from '@warp-drive/core-types/record';
+import type { Type } from '@warp-drive/core-types/symbols';
 
 export default class Foo extends Model {
   @attr declare name: string | null;
