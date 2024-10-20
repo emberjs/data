@@ -109,12 +109,8 @@ activate this polyfill:
 
 ```ts
 let app = new EmberApp(defaults, {
-  '@embroider/macros': {
-    setConfig: {
-      '@ember-data/store': {
-        polyfillUUID: true
-      },
-    },
+  emberData: {
+    polyfillUUID: true
   },
 });
 ```
