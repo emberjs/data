@@ -153,7 +153,12 @@ export type TypedTransformInstance<V, T extends string> =
   | LooseTransformInstance<V, boolean, T>
   | LooseTransformInstance<V, null, T>
   | LooseTransformInstance<V, ObjectValue, T>
-  | LooseTransformInstance<V, ArrayValue, T>;
+  | LooseTransformInstance<V, ArrayValue, T>
+  | LooseTransformInstance<V, string | null, T>
+  | LooseTransformInstance<V, number | null, T>
+  | LooseTransformInstance<V, boolean | null, T>
+  | LooseTransformInstance<V, ObjectValue | null, T>
+  | LooseTransformInstance<V, ArrayValue | null, T>;
 
 // see note on Explicit ANY above
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -162,6 +167,8 @@ export type GetMaybeDeserializeValue<T> = T extends { deserialize: (...args: any
   : never;
 
 export type TypeFromInstance<T> = T extends TransformHasType ? T[typeof TransformName] : never;
+export type ExtractOptions<T extends TypedTransformInstance<GetMaybeDeserializeValue<T>, TypeFromInstance<T>>> =
+  Parameters<T['deserialize']>[1] & Parameters<T['serialize']>[1] & AttrOptions<ReturnType<T['deserialize']>>;
 export type OptionsFromInstance<T> =
   TypeFromInstance<T> extends never
     ? never

@@ -30,6 +30,8 @@
     "inlineSources": true,
     "types": ["ember-source/types"],
     "paths": {
+      "@ember-data/model": ["../model/unstable-preview-types"],
+      "@ember-data/model/*": ["../model/unstable-preview-types/*"],
       "@ember-data/request": ["../request/unstable-preview-types"],
       "@ember-data/request/*": ["../request/unstable-preview-types/*"],
       "@ember-data/store": ["../store/unstable-preview-types"],
@@ -47,6 +49,9 @@
     }
   },
   "references": [
+    {
+      "path": "../model"
+    },
     {
       "path": "../request"
     },
