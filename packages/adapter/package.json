@@ -103,7 +103,7 @@
     "@ember-data/tracking": "workspace:5.4.0-alpha.112",
     "@ember/test-waiters": "^3.1.0",
     "@glimmer/component": "^1.1.2",
-    "decorator-transforms": "^2.0.0",
+    "decorator-transforms": "^2.2.2",
     "@types/jquery": "^3.5.30",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.98",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.112",

@@ -91,7 +91,7 @@
     "@glint/environment-ember-loose": "^1.4.0",
     "@glint/environment-ember-template-imports": "^1.4.0",
     "@glint/template": "^1.4.0",
-    "decorator-transforms": "^2.0.0",
+    "decorator-transforms": "^2.2.2",
     "@embroider/addon-dev": "^4.3.1",
     "@ember-data/request": "workspace:5.4.0-alpha.112",
     "@ember-data/request-utils": "workspace:5.4.0-alpha.112",
