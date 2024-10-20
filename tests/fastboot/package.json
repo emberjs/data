@@ -27,7 +27,7 @@
     "ember-auto-import": "^2.8.1",
     "ember-data": "workspace:5.4.0-alpha.112",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
-    "webpack": "^5.92.0"
+    "webpack": "^5.95.0"
   },
   "dependenciesMeta": {
     "ember-data": {
@@ -79,7 +79,7 @@
     "@warp-drive/core-types": "workspace:0.0.0-alpha.98",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.112",
     "@warp-drive/build-config": "workspace:0.0.0-alpha.49",
-    "ember-cli": "~5.9.0",
+    "ember-cli": "~5.12.0",
     "ember-cli-babel": "^8.2.0",
     "ember-cli-dependency-checker": "^3.3.2",
     "ember-cli-fastboot": "^4.1.5",
