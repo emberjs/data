@@ -138,7 +138,7 @@ import fetch from './fetch';
 
 // ... execute a request
 const { content: collection } = await fetch.request(query('company', {
-  include: 'ceo',
+  include: ['ceo'],
   fields: {
     company: 'name',
     employee: ['name', 'profileImage']
@@ -182,7 +182,7 @@ import { query } from '@ember-data/json-api/request';
 
 // ... execute a request
 const { content: collection } = await store.request(query('company', {
-  include: 'ceo',
+  include: ['ceo'],
   fields: {
     company: 'name',
     employee: ['name', 'profileImage']
@@ -249,7 +249,7 @@ import fetch from './fetch';
 // ... execute a request
 try {
   const result = await fetch.request(query('company', {
-    include: 'ceo',
+    include: ['ceo'],
     fields: {
       company: 'name',
       employee: ['name', 'profileImage']

@@ -33,7 +33,7 @@ import Adapter, { BuildURLMixin } from './index';
 
 type Payload = Error | Record<string, unknown> | unknown[] | string | undefined;
 
-type QueryState = {
+export type QueryState = {
   include?: unknown;
   since?: unknown;
 };
@@ -1273,6 +1273,9 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
       const { include } = snapshot;
 
       if (include) {
+        // note: if user passed in an array, this will serialize like `?include[]=foo&include[]=bar`
+        // but if user passed in a string, this will serialize like `?include=foo,bar`
+        // users that want consistent behavior should override this method
         query.include = include;
       }
     }

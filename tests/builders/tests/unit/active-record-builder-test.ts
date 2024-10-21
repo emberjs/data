@@ -60,7 +60,7 @@ module('ActiveRecord | Request Builders', function (hooks) {
   test('findRecord by identifier with options', function (this: TestContext, assert) {
     const result = findRecord(
       { type: 'user-setting', id: '1' },
-      { reload: true, backgroundReload: false, include: 'user,friends' }
+      { reload: true, backgroundReload: false, include: ['user', 'friends'] }
     );
     assert.deepEqual(
       result,

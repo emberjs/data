@@ -182,3 +182,19 @@ export type Includes<T extends TypedRecordInstance, MAX_DEPTH extends _DEPTHCOUN
 >;
 
 export type OpaqueRecordInstance = unknown;
+
+export type _StringSatisfiesIncludes<T extends string, SET extends string, FT extends string> = T extends SET
+  ? FT
+  : T extends `${infer U},${infer V}`
+    ? U extends SET
+      ? _StringSatisfiesIncludes<V, Exclude<SET, U>, FT>
+      : never
+    : never;
+
+export type StringSatisfiesIncludes<T extends string, SET extends string> = _StringSatisfiesIncludes<T, SET, T>;
+
+export function createIncludeValidator<T extends TypedRecordInstance>() {
+  return function validateIncludes<U extends string>(includes: StringSatisfiesIncludes<U, Includes<T>>): U {
+    return includes;
+  };
+}
