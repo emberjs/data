@@ -169,6 +169,7 @@ module.exports = {
     '(public) @ember-data/adapter BuildURLMixin#urlForQueryRecord',
     '(public) @ember-data/adapter BuildURLMixin#urlForUpdateRecord',
     '(public) @ember-data/adapter/json-api JSONAPIAdapter#coalesceFindRequests',
+    '(public) @ember-data/adapter/json-api JSONAPIAdapter#buildQuery',
     '(public) @ember-data/adapter/rest RESTAdapter#buildQuery',
     '(public) @ember-data/adapter/rest RESTAdapter#coalesceFindRequests',
     '(public) @ember-data/adapter/rest RESTAdapter#createRecord',

@@ -2,7 +2,7 @@
   @module @ember-data/adapter/json-api
  */
 import type { AdapterPayload } from '@ember-data/legacy-compat';
-import type { Snapshot } from '@ember-data/legacy-compat/-private';
+import type { Snapshot, SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
 import { dasherize, pluralize } from '@ember-data/request-utils/string';
 import type Store from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/store/types';
@@ -10,7 +10,7 @@ import { assert } from '@warp-drive/build-config/macros';
 import type { HTTPMethod } from '@warp-drive/core-types/request';
 
 import { serializeIntoHash } from './-private';
-import type { FetchRequestInit, JQueryRequestInit } from './rest';
+import type { FetchRequestInit, JQueryRequestInit, QueryState } from './rest';
 import RESTAdapter from './rest';
 
 /**
@@ -268,6 +268,31 @@ class JSONAPIAdapter extends RESTAdapter {
     const url = this.buildURL(type, id, snapshot, 'updateRecord');
 
     return this.ajax(url, 'PATCH', { data: data });
+  }
+
+  /**
+    Used by `findAll` and `findRecord` to build the query's `data` hash
+    supplied to the ajax method.
+
+    @method buildQuery
+    @since 2.5.0
+    @public
+    @param  {Snapshot} snapshot
+    @return {Object}
+  */
+  buildQuery(snapshot: Snapshot | SnapshotRecordArray): QueryState {
+    const query: QueryState = {};
+
+    if (snapshot) {
+      const { include } = snapshot;
+      const normalizedInclude = Array.isArray(include) ? include.join(',') : include;
+
+      if (normalizedInclude) {
+        query.include = normalizedInclude;
+      }
+    }
+
+    return query;
   }
 }
 
