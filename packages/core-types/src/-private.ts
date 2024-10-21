@@ -123,7 +123,9 @@ const GlobalSink = GlobalRef[name];
 
 if (DEBUG) {
   if (GlobalSink.__version !== version) {
-    throw new Error('Multiple versions of WarpDrive detected, the application will malfunction.');
+    throw new Error(
+      `Multiple versions of WarpDrive detected (${GlobalSink.__version}, ${version}), the application will malfunction.`
+    );
   }
 }
 
