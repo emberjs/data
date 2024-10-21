@@ -44,7 +44,7 @@ What does consistency look like?
 
 ### But what about JSON:API spec?
 
-It's pretty simple, JSON:API spec agnostic about the `type` field convention. Here is the quote from the spec:
+It is pretty simple, JSON:API spec agnostic about the `type` field convention. Here is the quote from the spec:
 
 > Note: This spec is agnostic about inflection rules, so the value of type can be either plural or singular. However, the same value should be used consistently throughout an implementation.
 

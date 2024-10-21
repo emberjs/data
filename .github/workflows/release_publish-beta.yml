@@ -72,7 +72,7 @@ jobs:
         run: echo "value=$(bun --silent release latest beta)" >> $GITHUB_OUTPUT
       - name: Publish New Release
         # For beta-cycle we always increment from the branch state
-        # For mirror we increment from the last beta version, unless it's start of a new cycle.
+        # For mirror we increment from the last beta version, unless it is start of a new cycle.
         if: github.event.inputs.kind == 'beta-cycle' || github.event.inputs.is-cycle-start == 'true'
         run: bun release exec publish beta
         env:
