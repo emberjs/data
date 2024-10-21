@@ -42,6 +42,9 @@ Documentation
 - [RequestState](#requeststate)
   - [getRequestState](#getrequeststate)
   - [\<Request />](#request-)
+- [PaginationState](#paginationstate)
+  - [getPaginationState](#getpaginationstate)
+  - [\<Paginate />](#paginate-)
 
 ---
 
@@ -84,7 +87,7 @@ That brings us to our second motivation: performance.
 Performance is always at the heart of WarpDrive libraries.
 
 `@warp-drive/ember` isn't just a library of utilities for working with reactive
-asynchronous data in your Ember app. It's *also* a way to optimize your app for
+asynchronous data in your Ember app. It is *also* a way to optimize your app for
 faster, more correct renders.
 
 It starts with `setPromiseResult` a simple core primitive provided by the library
@@ -295,12 +298,19 @@ import { getRequestState } from '@warp-drive/ember';
 </template>
 ```
 
-#### \<Request />
+### \<Request />
 
-Alternatively, use the `<Request>` component. Note: the request component
-taps into additional capabilities *beyond* what `RequestState` offers.
+To make working with requests in templates even easier, you can use
+the `<Request>` component.
 
-- Completion states and an abort function are available as part of loading state
+The `<Request />` component is *layout-less*. It is pure declarative control
+flow with built-in state management utilities, and is designed to seamlessly
+integrate with preferred patterns for loading data for routes and modals.
+
+`<Request />` taps into additional capabilities *beyond*
+what `RequestState` offers.
+
+#### Completion states and an abort function are available as part of loading state
 
 ```gjs
 import { Request } from '@warp-drive/ember';
@@ -327,7 +337,7 @@ When using the Await component, if no error block is provided and the request re
 the error will be thrown. Cancellation errors are not rethrown if no error block or
 cancellation block is present.
 
-- Streaming Data
+#### Streaming Data
 
 The loading state exposes the download `ReadableStream` instance for consumption
 
@@ -347,7 +357,7 @@ import { Request } from '@warp-drive/ember';
 </template>
 ```
 
-- Cancelled is an additional state.
+#### Cancelled is an additional state.
 
 ```gjs
 import { Request } from '@warp-drive/ember';
@@ -374,7 +384,46 @@ to the error block to handle.
 
 If no error block is present, the cancellation error will be swallowed.
 
-- retry
+#### Idle is an additional state.
+
+The `<:idle>` state occurs when the request or query passed to the component
+is `undefined` or `null`.
+
+```gjs
+import { Request } from '@warp-drive/ember';
+
+
+<template>
+  <Request @request={{@request}}>
+    <:idle><button {{on "click" @makeRequest}}>Load Preview?</button></:idle>
+  </Request>
+</template>
+```
+
+`<:idle>` states allows us to avoid wrapping `<Request />` components in `{{#if}}` blocks
+when the request isn't ready to be made. E.g. No need do to this:
+
+```gjs
+import { Request } from '@warp-drive/ember';
+
+<template>
+  {{#if @request}}
+    <Request @request={{@request}}>
+  
+    </Request>
+  {{else}}
+    <button {{on "click" @makeRequest}}>Load Preview?</button>
+  {{/if}}
+</template>
+```
+
+> [!IMPORTANT]
+> `null` and `undefined` are only valid arguments to `<Request />` if an `<:idle>` block is provided.
+
+An important note is that `<:idle>` is effectively a special-cased error state. If no idle block is
+provided, the component *will* throw an error if the argument is `null` or `undefined`.
+
+#### retry
 
 Cancelled and error'd requests may be retried,
 retry will reuse the error, cancelled and loading
@@ -403,7 +452,7 @@ import { on } from '@ember/modifier';
 </template>
 ```
 
-- Reloading states
+#### Reloading states
 
 Reload will reset the request state, and so reuse the error, cancelled, and loading
 blocks as appropriate.
@@ -470,7 +519,7 @@ import { Request } from '@warp-drive/ember';
 </template>
 ```
 
-- Autorefresh behavior
+#### Autorefresh behavior
 
 Requests can be made to automatically refresh under any combination of three separate conditions
 by supplying a value to the `@autorefresh` arg.
@@ -529,6 +578,367 @@ import { Request } from '@warp-drive/ember';
 
 If a matching request is refreshed or reloaded by any other component, the `Request` component will react accordingly.
 
+---
+
+### PaginationState
+
+### getPaginationState
+
+### \<Paginate />
+
+The `<Paginate />` component is *layout-less*. Just like `<Request />`, it is pure
+declarative control flow with built-in state management utilities.
+
+`<Paginate />` works *because* it understands pagination links.
+
+> [!Tip]
+> Pagination links are a feature of WarpDrive/EmberData response documents. If your API does
+> not generate pagination links, you may want consider using a handler to process API responses
+> for paginated queries that generates pagination links for you. This is useful to do 
+> *even if you do not use `<Paginate />`* as quite a few WarpDrive/EmberData features work best
+> with links.
+
+`<Paginate />`'s API mimics `<Request />`, but expands the possibilities to afford an extremely
+flexible toolbox for managing the state of any paginated flow we want to build.
+
+All of the same top-level states (`idle` `loading` `content` `pending` `error` `cancelled`) are
+available to us for use. `idle`, `loading`, `error` and `cancelled` apply only to the state of
+the initiating request passed into the component.
+
+The `content` block is entered when the initial request resolves, and yields a `pages` object
+that exposes information about all pages.
+
+Three new blocks are added:
+- `<:prev as |request|>`, which is active while a request for a previous link is being performed
+- `<:next as |request|>`, which is active while a request for a next link is being performed
+- `<:default>`, which allows use of `Paginate` without any other blocks.
+
+> [!TIP]
+> If the `<:default>` block is provided, no other named blocks will ever be utilized. E.g. the use of
+> default represents a separate mode for the component in which we have signaled that request state
+> management will occur elsewhere
+
+While the `<Paginate/>` component is *layout-less*, named blocks do have to render *somewhere* 😉
+
+When multiple blocks are capable of being rendered at the same time that insertion order may matter.
+
+We guarantee that blocks render into the DOM in the following order with zero wrapping elements.
+So content placed in one block will be sibling to content placed in another block if both are rendered.
+
+- prev
+- content
+- next
+
+No other blocks are capable of being rendered simultaneously. It is possible for all three of these
+blocks to be shown concurrently if both `prev` and `next` requests are triggered.
+
+Below, we show a number of example usages.
+
+#### Render an infinite list
+
+Here we use `<Paginate />` together with [VerticalCollection](https://github.com/html-next/vertical-collection/)
+to provide bidirectional infinite scroll.
+
+**without error/loading states**
+
+```gjs
+import { Paginate } from '@warp-drive/ember';
+
+<template>
+  <Paginate @request={{@request}} as |pages|>
+      <VerticalCollection
+        @items={{pages.data}}
+        @lastReached={{pages.next}}
+        @firstReached={{pages.prev}}
+        as |item|
+      >
+        {{item.title}}
+      </VerticalCollection>
+  </Paginate>
+</template>
+```
+
+**With a loading state for the initial request**
+
+```diff
+  <Paginate @request={{@request}} as |pages|>
++   <:loading><Spinner /></:loading>
++
++   <:content as |pages|>
+      <VerticalCollection
+        @items={{pages.data}}
+        @lastReached={{pages.next}}
+        @firstReached={{pages.prev}}
+        as |item|
+      >
+        {{item.title}}
+      </VerticalCollection>
++   <:content>
+  </Paginate>
+```
+
+**With an error state for errors on the initial request**
+
+```diff
+  <Paginate @request={{@request}} as |pages|>
+    <:loading><Spinner /></:loading>
+
+    <:content as |pages|>
+      <VerticalCollection
+        @items={{pages.data}}
+        @lastReached={{pages.next}}
+        @firstReached={{pages.prev}}
+        as |item|
+      >
+        {{item.title}}
+      </VerticalCollection>
+    <:content>
++
++   <:error as |error state|>
++     <ErrorForm @error={{error}} />
++     <button {{on "click" state.retry}}>Retry</button>
++   </:error>
+  </Paginate>
+```
+
+**Displaying a spinner when a subsequent request is loading**
+
+```diff
+  <Paginate @request={{@request}} as |pages|>
+    <:loading><Spinner /></:loading>
++   
++   <:prev><Spinner /></:prev>
+
+    <:content as |pages state|>
+      <VerticalCollection
+        @items={{pages.data}}
+        @lastReached={{pages.next}}
+        @firstReached={{pages.prev}}
+        as |item|
+      >
+        {{item.title}}
+      </VerticalCollection>
+    <:content>
++
++   <:next><Spinner /></:loading>
+
+    <:error as |error state|>
+      <ErrorForm @error={{error}} />
+      <button {{on "click" state.retry}}>Retry</button>
+    </:error>
+  </Paginate>
+```
+
+**Displaying errors from a subsequent request**
+
+When an error occurs on `next` or `prev` requests,
+the associated block remains active until the request
+succeeds. This enables us to handle the full control
+flow for the subsequent request by passing it into `<Request />`!
+
+```diff
+  <Paginate @request={{@request}} as |pages|>
+    <:loading><Spinner /></:loading>
+   
+-   <:prev><Spinner /></:prev>
++   <:prev as |request|>
++     <Request @request={{request}}>
++       <:loading><Spinner /></:loading>
++
++       <:error as |error state|>
++         <ErrorForm @error={{error}} />
++         <button {{on "click" state.retry}}>Retry</button>
++       </:error>
++     </Request>
++   </:prev>
+
+    <:content as |pages state|>
+      <VerticalCollection
+        @items={{pages.data}}
+        @lastReached={{pages.next}}
+        @firstReached={{pages.prev}}
+        as |item|
+      >
+        {{item.title}}
+      </VerticalCollection>
+    <:content>
+
+    <:next><Spinner /></:loading>
+
+    <:error as |error state|>
+      <ErrorForm @error={{error}} />
+      <button {{on "click" state.retry}}>Retry</button>
+    </:error>
+  </Paginate>
+```
+
+**Advanced handling of Subsequent**
+
+In some cases, utilizing the `prev` and `next` blocks might limit the desired UX.
+When this happens, we can use the `prevRequest` and `nextRequest` properties
+to compose more advanced handling behaviors.
+
+```diff
+ <Paginate @request={{@request}} as |pages|>
+    <:loading><Spinner /></:loading>
+
+    <:content as |pages state|>
++     <Request @request={{state.prevRequest}}>
++       <:loading><Spinner /></:loading>
++       <:idle><button {{on "click" pages.prev}}>Load More</button></:idle
++     </Request>
+
+      <VerticalCollection
+        @items={{pages.data}}
+        @lastReached={{pages.next}}
+        @firstReached={{pages.prev}}
+        as |item|
+      >
+        {{item.title}}
+      </VerticalCollection>
+
++     <Request @request={{state.nextRequest}}>
++       <:loading><Spinner /></:loading>
++       <:idle><button {{on "click" pages.next}}>Load More</button></:idle
++     </Request>
+    <:content>
+
+    <:error as |error state|>
+      <ErrorForm @error={{error}} />
+      <button {{on "click" state.retry}}>Retry</button>
+    </:error>
+  </Paginate>
+```
+
+#### Render Individual pages
+
+The `<Paginate />` component works equally well for tab / link style pagination
+UX as it does for InfiniteFeed style UX.
+
+**Render the active page**
+
+> [!TIP]
+> Remember, the `<:loading>` and `<:error>` states apply only to the initial request,
+> not to the activePage.
+
+```gjs
+import { Paginate } from '@warp-drive/ember';
+
+<template>
+  <Paginate @request={{@request}}>
+    <:loading><Spinner /></:loading>
+
+    <:content as |pages state|>
+      <MyPageDisplay @page={{pages.activePage}} />
+    <:content>
+
+    <:error as |error state|>
+      <ErrorForm @error={{error}} />
+      <button {{on "click" state.retry}}>Retry</button>
+    </:error>
+  </Paginate>
+<template>
+```
+
+**Render Pagination Links**
+
+`pages.links` exposes a `PaginationLinks` container with helpful utilities for creating
+navigation links. A companion component makes rendering links quick to setup.
+
+The `<EachLink/>` component renders each available link or placeholder. Placeholders
+occur when it is known that a link *could* exist but we have not yet received the link.
+The `text` property on the link will be a single `'.'` in these cases.
+
+```diff
+- import { Paginate } from '@warp-drive/ember';
++ import { Paginate, EachLink } from '@warp-drive/ember';
+
+ <template>
+   <Paginate @request={{@request}}>
+     <:loading><Spinner /></:loading>
+
+     <:content as |pages state|>
+       <MyPageDisplay @page={{pages.activePage}} />
++
++      <EachLink @pages={{pages}}>
++        <:placeholder as |link|>{{link.text}}</:placeholder>
++        <:link as |link|>
++          <button {{on "click" link.setActive}}>{{link.index}}</button>
++        </:link>
++    </EachLink>
+     <:content>
+
+     <:error as |error state|>
+       <ErrorForm @error={{error}} />
+       <button {{on "click" state.retry}}>Retry</button>
+     </:error>
+   </Paginate>
+ <template>
+```
+
+**Total Pages Hints**
+
+The PaginationLinks container utilizes two hints for helping to manage the links collection: `currentPage` and `totalPages`.
+We can provide these hints by passing in a `PageHints` function to the component. Whenever a request loads, the hint function
+will be run.
+
+```ts
+interface PageHints {
+  (result: ResourceCollectionDocument): { currentPage: number; totalPages: number; }
+}
+```
+
+```hbs
+<Paginate @request={{@request}} @pageHints={{@pageHintsFn}}>
+```
+
+> [!Tip]
+> The `<Paginate />` component is agnostic to page size. If we would like to hint
+> to something like `VerticalCollection` how many total items might conceivably be loaded,
+> we can easily access that information from the response! For example, if we were
+> Using the JSON:API Pagination Profiles Spec, the hint could come from
+> `pages.activePage.meta.estimatedTotal.bestGuess`
+
+**Substates for loading individual pages**
+
+Often in a tabbed structure we will want individual loading states for the request for each
+individual page. This is a scenario where using the `default` block comes in handy.
+
+Below is the same example as above but with a loading state per-page.
+
+In this case, the `activePageRequest` will start as the request for the first page,
+and update as the user clicks through.
+
+In addition to per-page control-flow, this gives us the ability to provide a stable ui-frame
+and navigation experience that wraps these loading and error states.
+
+```gjs
+import { Paginate, EachLink } from '@warp-drive/ember';
+
+<template>
+  <Paginate @request={{@request}} as |pages state|>
+    <Request @request={{pages.activePageRequest}}>
+      <:loading><Spinner /></:loading>
+
+      <:content as |page|>
+        <MyPageDisplay @page={{page}} />
+      </:content>
+
+      <:error as |error state|>
+        <ErrorForm @error={{error}} />
+        <button {{on "click" state.retry}}>Retry</button>
+      </:error>
+    </Request>
+
+    <EachLink @pages={{pages}}>
+      <:placeholder as |link|>{{link.text}}</:placeholder>
+      <:link as |link|>
+        <button {{on "click" link.setActive}}>{{link.index}}</button>
+      </:link>
+    </EachLink>
+  </Paginate>
+ <template>
+```
 
 ---
 

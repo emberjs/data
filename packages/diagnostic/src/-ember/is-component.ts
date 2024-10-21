@@ -10,7 +10,7 @@ export type ComponentLike = object;
  * (see https://github.com/emberjs/rfcs/pull/785 for more info).
  * @private
  * @param {Object} maybeComponent The thing you think might be a component
- * @returns {boolean} True if it's a component, false if not
+ * @returns {boolean} True if it is a component, false if not
  */
 function isComponent(maybeComponent: object): maybeComponent is ComponentLike {
   return !!(getComponentManager as (c: object, v: boolean) => object)(maybeComponent, true);
