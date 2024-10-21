@@ -1271,9 +1271,10 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
 
     if (snapshot) {
       const { include } = snapshot;
+      const normalizedInclude = Array.isArray(include) ? include.join(',') : include;
 
-      if (include) {
-        query.include = include;
+      if (normalizedInclude) {
+        query.include = normalizedInclude;
       }
     }
 

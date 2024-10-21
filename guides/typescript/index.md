@@ -19,6 +19,7 @@ the following two sections
   - [Why Brands](./2-why-brands.md)
   - [Typing Models & Transforms](./3-typing-models.md)
   - [Typing Requests & Builders](./4-typing-requests.md)
+  - [Typing Includes](./5-typing-includes.md)
   - Typing Handlers
   - Using Store APIs
 
