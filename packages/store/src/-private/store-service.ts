@@ -1306,7 +1306,7 @@ export class Store extends BaseClass {
     `model.comments`.
 
     Multiple relationships can be requested using an `include` parameter consisting of a
-    comma-separated list (without white-space) while nested relationships can be specified
+    list of relationship names, while nested relationships can be specified
     using a dot-separated sequence of relationship names. So to request both the post's
     comments and the authors of those comments the request would look like this:
 
@@ -1935,7 +1935,7 @@ export class Store extends BaseClass {
     }
     ```
     Multiple relationships can be requested using an `include` parameter consisting of a
-    comma-separated list (without white-space) while nested relationships can be specified
+    list or relationship names, while nested relationships can be specified
     using a dot-separated sequence of relationship names. So to request both the posts'
     comments and the authors of those comments the request would look like this:
 
