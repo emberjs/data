@@ -1,5 +1,6 @@
 // test
 
+import { createIncludeValidator } from './params';
 import type { ExtractSuggestedCacheTypes, Includes, TypedRecordInstance } from './record';
 import type { Type } from './symbols';
 
@@ -139,3 +140,59 @@ takesIncludes<NoRelations>([
   // @ts-expect-error not a valid path since it doesn't exist
   'not',
 ]);
+
+const validator = createIncludeValidator<MyThing>();
+
+function expectString(t: string) {}
+function expectNever(t: never) {}
+
+expectString(validator('relatedThing,otherThing,otherThings.thirdThing'));
+expectString(validator('relatedThing,otherThing,otherThings.thirdThing'));
+expectString(validator('relatedThing,otherThing,otherThings.thirdThing'));
+expectString(validator('relatedThing,otherThing,otherThings.thirdThing'));
+expectString(validator('relatedThing,otherThing,otherThings.thirdThing'));
+expectString(validator('relatedThing,otherThing,otherThings.thirdThing'));
+expectString(validator('relatedThing,otherThing,otherThings.thirdThing'));
+expectString(validator('relatedThing,otherThing,otherThings.thirdThing'));
+expectString(validator('relatedThing,otherThing,otherThings.thirdThing'));
+
+expectNever(
+  // @ts-expect-error not a valid path since it doesn't exist
+  validator('not')
+);
+expectString(validator('relatedThing'));
+expectString(validator('relatedThings'));
+expectString(validator('otherThing'));
+expectString(validator('otherThings'));
+expectNever(
+  // @ts-expect-error not a valid path since its an attribute
+  validator('name')
+);
+expectString(validator('otherThing.thirdThing'));
+expectString(validator('otherThing.deals'));
+expectString(validator('otherThing.original'));
+expectNever(
+  // @ts-expect-error should not include this since original was already processed above
+  validator('otherThing.original.relatedThing')
+);
+expectString(validator('otherThing.deep'));
+expectString(validator('otherThing.deep.relatedThing'));
+expectString(validator('otherThing.deep.otherThing'));
+expectString(validator('otherThing.deep.myThing'));
+expectString(validator('otherThings.thirdThing'));
+expectString(validator('otherThings.deals'));
+expectString(validator('otherThings.original'));
+expectString(validator('otherThings.deep'));
+expectString(validator('otherThings.deep.relatedThing'));
+
+expectNever(
+  // @ts-expect-error should not include this since original was already processed above
+  validator('otherThings.deep.relatedThing.relatedThing')
+);
+expectString(validator('otherThings.deep.otherThing'));
+expectString(validator('otherThings.deep.myThing'));
+expectString(validator('otherThing.deep.reallyDeepThing'));
+expectNever(
+  // @ts-expect-error should not include this since depth is capped at 3
+  validator('otherThing.deep.reallyDeepThing.relatedThing')
+);
