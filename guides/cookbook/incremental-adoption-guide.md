@@ -106,14 +106,14 @@ import { service } from '@ember/service';
 export default class AuthHandler {
   @service session;
 
-  request({ request }, next) {
+  async request({ request }, next) {
     const headers = new Headers(request.headers);
     headers.append(
       'Authorization',
       `Bearer ${this.session.accessToken}`,
     );
 
-    return next(Object.assign({}, request, { headers }));
+    return await next(Object.assign({}, request, { headers }));
   }
 }
 ```

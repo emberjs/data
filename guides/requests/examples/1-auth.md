@@ -44,7 +44,7 @@ const AuthHandler: Handler = {
       `Bearer ${ourSecureToken}`,
     );
 
-    return next(Object.assign({}, context.request, { headers }));
+    return await next(Object.assign({}, context.request, { headers }));
   }
 }
 ```
@@ -82,14 +82,14 @@ import type { NextFn, RequestContext } from '@ember-data/request';
 export default class AuthHandler {
   @service session;
 
-  request<T>(context: RequestContext, next: NextFn<T>) {
+  async request<T>(context: RequestContext, next: NextFn<T>) {
     const headers = new Headers(context.request.headers);
     headers.append(
       'Authorization',
       `Bearer ${this.session.accessToken}`,
     );
 
-    return next(Object.assign({}, context.request, { headers }));
+    return await next(Object.assign({}, context.request, { headers }));
   }
 }
 ```
@@ -160,10 +160,10 @@ const AuthHandler: Handler = {
         'X-CSRF-Token',
         document.cookie.match(/csrfToken=([^;]+)/)[1],
       );
-      return next(Object.assign({}, context.request, { headers }));
+      return await next(Object.assign({}, context.request, { headers }));
     }
 
-    return next(context.request);
+    return await next(context.request);
   }
 }
 ```
