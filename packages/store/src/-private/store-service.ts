@@ -1278,7 +1278,7 @@ export class Store extends BaseClass {
     ```app/routes/post.js
     export default class PostRoute extends Route {
       model(params) {
-        return this.store.findRecord('post', params.post_id, { include: 'comments' });
+        return this.store.findRecord('post', params.post_id, { include: ['comments'] });
       }
     }
     ```
@@ -1313,7 +1313,7 @@ export class Store extends BaseClass {
     ```app/routes/post.js
     export default class PostRoute extends Route {
       model(params) {
-        return this.store.findRecord('post', params.post_id, { include: 'comments,comments.author' });
+        return this.store.findRecord('post', params.post_id, { include: ['comments','comments.author'] });
       }
     }
     ```
@@ -1930,7 +1930,7 @@ export class Store extends BaseClass {
     ```app/routes/posts.js
     export default class PostsRoute extends Route {
       model() {
-        return this.store.findAll('post', { include: 'comments' });
+        return this.store.findAll('post', { include: ['comments'] });
       }
     }
     ```
@@ -1942,7 +1942,7 @@ export class Store extends BaseClass {
     ```app/routes/posts.js
     export default class PostsRoute extends Route {
       model() {
-        return this.store.findAll('post', { include: 'comments,comments.author' });
+        return this.store.findAll('post', { include: ['comments','comments.author'] });
       }
     }
     ```
