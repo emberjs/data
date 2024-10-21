@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/graph",
-  "version": "5.4.0-alpha.112",
+  "version": "5.4.0-alpha.113",
   "description": "Provides a normalized graph for managing relationships between resources",
   "keywords": [
     "ember-addon"
@@ -58,25 +58,25 @@
     }
   },
   "peerDependencies": {
-    "@ember-data/store": "workspace:5.4.0-alpha.112",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.98"
+    "@ember-data/store": "workspace:5.4.0-alpha.113",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.99"
   },
   "dependencies": {
     "@embroider/macros": "^1.16.6",
-    "@warp-drive/build-config": "workspace:0.0.0-alpha.49"
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.50"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
     "@babel/plugin-transform-typescript": "^7.24.5",
     "@babel/preset-env": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
-    "@ember-data/request": "workspace:5.4.0-alpha.112",
-    "@ember-data/request-utils": "workspace:5.4.0-alpha.112",
-    "@ember-data/store": "workspace:5.4.0-alpha.112",
-    "@ember-data/tracking": "workspace:5.4.0-alpha.112",
+    "@ember-data/request": "workspace:5.4.0-alpha.113",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.113",
+    "@ember-data/store": "workspace:5.4.0-alpha.113",
+    "@ember-data/tracking": "workspace:5.4.0-alpha.113",
     "@glimmer/component": "^1.1.2",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.98",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.112",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.99",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.113",
     "ember-source": "~5.12.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "typescript": "^5.4.5",
