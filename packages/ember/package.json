@@ -93,13 +93,13 @@
     "@glint/template": "^1.4.0",
     "decorator-transforms": "^2.2.2",
     "@embroider/addon-dev": "^4.3.1",
-    "@ember-data/request": "workspace:5.4.0-beta.12",
-    "@ember-data/request-utils": "workspace:5.4.0-beta.12",
-    "@ember-data/store": "workspace:5.4.0-beta.12",
-    "@ember-data/tracking": "workspace:5.4.0-beta.12",
+    "@ember-data/request": "workspace:5.3.9",
+    "@ember-data/request-utils": "workspace:5.3.9",
+    "@ember-data/store": "workspace:5.3.9",
+    "@ember-data/tracking": "workspace:5.3.9",
     "@ember/test-helpers": "4.0.4",
     "@warp-drive/core-types": "workspace:0.0.0-beta.12",
-    "@warp-drive/internal-config": "workspace:5.4.0-beta.12",
+    "@warp-drive/internal-config": "workspace:5.3.9",
     "babel-plugin-ember-template-compilation": "^2.2.5",
     "ember-template-imports": "^4.1.3",
     "ember-source": "~5.12.0",
@@ -123,5 +123,6 @@
   },
   "ember": {
     "edition": "octane"
-  }
+  },
+  "private": true
 }

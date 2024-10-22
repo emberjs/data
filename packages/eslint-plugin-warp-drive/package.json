@@ -3,7 +3,7 @@
   "description": "ESLint rules for Applications using WarpDrive or EmberData",
   "main": "./src/index.js",
   "version": "0.0.2-beta.0",
-  "private": false,
+  "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/emberjs/data.git",
@@ -16,7 +16,7 @@
     "requireindex": "^1.2.0"
   },
   "devDependencies": {
-    "@warp-drive/internal-config": "workspace:5.4.0-beta.12",
+    "@warp-drive/internal-config": "workspace:5.3.9",
     "@babel/plugin-proposal-decorators": "7.25.7",
     "@babel/core": "^7.24.5",
     "eslint": "^9.12.0",

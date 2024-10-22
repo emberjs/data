@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/serializer",
-  "version": "5.4.0-beta.12",
+  "version": "5.3.9",
   "description": "Provides Legacy JSON, JSON:API and REST Implementations of the Serializer Interface for use with @ember-data/store",
   "keywords": [
     "ember-addon"
@@ -49,9 +49,9 @@
   },
   "peerDependencies": {
     "@warp-drive/core-types": "workspace:0.0.0-beta.12",
-    "@ember-data/legacy-compat": "workspace:5.4.0-beta.12",
-    "@ember-data/request-utils": "workspace:5.4.0-beta.12",
-    "@ember-data/store": "workspace:5.4.0-beta.12"
+    "@ember-data/legacy-compat": "workspace:5.3.9",
+    "@ember-data/request-utils": "workspace:5.3.9",
+    "@ember-data/store": "workspace:5.3.9"
   },
   "dependenciesMeta": {
     "@warp-drive/core-types": {
@@ -92,16 +92,16 @@
     "@babel/plugin-transform-typescript": "^7.24.5",
     "@babel/preset-env": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
-    "@ember-data/model": "workspace:5.4.0-beta.12",
-    "@ember-data/request": "workspace:5.4.0-beta.12",
-    "@ember-data/request-utils": "workspace:5.4.0-beta.12",
-    "@ember-data/store": "workspace:5.4.0-beta.12",
-    "@ember-data/tracking": "workspace:5.4.0-beta.12",
-    "@ember-data/legacy-compat": "workspace:5.4.0-beta.12",
+    "@ember-data/model": "workspace:5.3.9",
+    "@ember-data/request": "workspace:5.3.9",
+    "@ember-data/request-utils": "workspace:5.3.9",
+    "@ember-data/store": "workspace:5.3.9",
+    "@ember-data/tracking": "workspace:5.3.9",
+    "@ember-data/legacy-compat": "workspace:5.3.9",
     "@ember/test-waiters": "^3.1.0",
     "@glimmer/component": "^1.1.2",
     "@warp-drive/core-types": "workspace:0.0.0-beta.12",
-    "@warp-drive/internal-config": "workspace:5.4.0-beta.12",
+    "@warp-drive/internal-config": "workspace:5.3.9",
     "decorator-transforms": "^2.2.2",
     "ember-source": "~5.12.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
