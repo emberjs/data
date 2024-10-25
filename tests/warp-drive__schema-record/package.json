@@ -82,7 +82,7 @@
     "@ember/test-waiters": "^3.1.0",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
-    "@types/qunit": "^2.19.10",
+    "@types/qunit": "^2.19.11",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.99",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.113",
     "@warp-drive/schema-record": "workspace:0.0.0-alpha.99",
@@ -106,7 +106,7 @@
     "qunit-console-grouper": "^0.3.0",
     "qunit-dom": "^3.1.1",
     "silent-error": "^1.1.1",
-    "typescript": "^5.4.5",
+    "typescript": "^5.6.3",
     "webpack": "^5.92.0"
   },
   "ember": {
