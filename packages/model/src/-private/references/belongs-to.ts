@@ -634,6 +634,8 @@ export default class BelongsToReference<
    @param {Object} options the options to pass in.
    @return {Promise} a promise that resolves with the record in this belongs-to relationship.
    */
+  // load and reload on the references will need to understand linksmode and make a `findBelongsTo`
+  // or `findHasMany` operation request with the link instead of getBelongsto/reloadBelongsTo etc
   async load(options?: Record<string, unknown>): Promise<Related | null> {
     const support: LegacySupport = (LEGACY_SUPPORT as Map<StableRecordIdentifier, LegacySupport>).get(
       this.___identifier

@@ -245,6 +245,7 @@ export class SchemaRecord {
             entangleSignal(signals, receiver, field.name);
             return computeAttribute(cache, identifier, prop as string);
           case 'resource':
+            // we will do something very similar to this for belongsTo in links mode
             assert(
               `SchemaRecord.${field.name} is not available in legacy mode because it has type '${field.kind}'`,
               !target[Legacy]
@@ -310,14 +311,25 @@ export class SchemaRecord {
               Mode[Editable]
             );
           case 'belongsTo':
+            if (field.options.linksMode) {
+              // do non-legacy approach else do the below
+              // unlike computeResource, we will just return the record value
+              // in the async case, we should probably just return a promise resolving to the record value
+              // we can error for the async case initially in favor of shipping sync case quickly
+            }
             if (!HAS_MODEL_PACKAGE) {
               assert(
                 `Cannot use belongsTo fields in your schema unless @ember-data/model is installed to provide legacy model support. ${field.name} should likely be migrated to be a resource field.`
               );
             }
+            // change here would be to detect the new "links-only" mode
+            // likely we should do this via an option on the schema
+            // if in that mode, you are no longer required to use legacy
+            // if in that mode, even if legacy, we no longer go through getLegacySupport
             assert(`Expected to have a getLegacySupport function`, getLegacySupport);
             assert(`Can only use belongsTo fields when the resource is in legacy mode`, Mode[Legacy]);
             entangleSignal(signals, receiver, field.name);
+
             return getLegacySupport(receiver as unknown as MinimalLegacyRecord).getBelongsTo(field.name);
           case 'hasMany':
             if (!HAS_MODEL_PACKAGE) {

@@ -1,3 +1,13 @@
+// before doing any of the things for legacy, write and fix tests for non-legacy links-only mode
+// - those tests will be in a new file under tests/reads/belongs-to-test.ts in this test app
+//
+// the main thing to do for legacy:
+// we should add tests to this file for a record in legacy-mode but with links-only mode on relationships
+//
+// a second thing to do for legacy:
+// we should also add tests to the main test suite to confirm that instances of @ember-data/model in links-only
+// mode fetch their async relationship data via the link via requestmanager without requiring the legacy support
+// infrastructure.
 import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
