@@ -246,7 +246,6 @@ export class SchemaRecord {
             entangleSignal(signals, receiver, field.name);
             return computeAttribute(cache, identifier, prop as string);
           case 'resource':
-            // we will do something very similar to this for belongsTo in links mode
             assert(
               `SchemaRecord.${field.name} is not available in legacy mode because it has type '${field.kind}'`,
               !target[Legacy]
@@ -330,7 +329,6 @@ export class SchemaRecord {
             assert(`Expected to have a getLegacySupport function`, getLegacySupport);
             assert(`Can only use belongsTo fields when the resource is in legacy mode`, Mode[Legacy]);
             entangleSignal(signals, receiver, field.name);
-
             return getLegacySupport(receiver as unknown as MinimalLegacyRecord).getBelongsTo(field.name);
           case 'hasMany':
             if (!HAS_MODEL_PACKAGE) {
