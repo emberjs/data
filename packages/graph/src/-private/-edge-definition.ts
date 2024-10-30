@@ -197,6 +197,7 @@ function syncMeta(definition: UpgradedMeta, inverseDefinition: UpgradedMeta) {
   definition.inverseIsCollection = inverseDefinition.isCollection;
   definition.inverseIsPolymorphic = inverseDefinition.isPolymorphic;
   definition.inverseIsImplicit = inverseDefinition.isImplicit;
+  definition.inverseIsLinksMode = inverseDefinition.isLinksMode;
   const resetOnRemoteUpdate =
     definition.resetOnRemoteUpdate === false || inverseDefinition.resetOnRemoteUpdate === false ? false : true;
   definition.resetOnRemoteUpdate = resetOnRemoteUpdate;
@@ -226,11 +227,11 @@ function upgradeMeta(meta: RelationshipField): UpgradedMeta {
   niceMeta.inverseIsCollection = BOOL_LATER;
   niceMeta.inverseIsLinksMode = BOOL_LATER;
 
-  niceMeta.resetOnRemoteUpdate = isLegacyField(meta)
-    ? meta.options?.resetOnRemoteUpdate === false
-      ? false
-      : true
-    : false;
+  // prettier-ignore
+  niceMeta.resetOnRemoteUpdate = !isLegacyField(meta) ? false
+    : meta.options?.linksMode ? false
+    : meta.options?.resetOnRemoteUpdate === false ? false
+    : true;
 
   return niceMeta;
 }
