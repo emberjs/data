@@ -80,4 +80,70 @@ module('Reads | belongsTo in linksMode', function (hooks) {
     assert.strictEqual(record.bestFriend?.name, 'Rey', 'bestFriend.name is accessible');
     assert.strictEqual(record.bestFriend?.bestFriend?.id, record.id, 'bestFriend is reciprocal');
   });
+
+  test('we error for async belongsTo access in linksMode because we are not implemented yet', function (this: TestContext, assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const { schema } = store;
+
+    registerDerivations(schema);
+
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'bestFriend',
+            type: 'user',
+            kind: 'belongsTo',
+            options: { inverse: 'bestFriend', async: true, linksMode: true },
+          },
+        ],
+      })
+    );
+
+    const record = store.push<User>({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Chris',
+        },
+        relationships: {
+          bestFriend: {
+            links: { related: '/user/1/bestFriend' },
+            data: { type: 'user', id: '2' },
+          },
+        },
+      },
+      included: [
+        // NOTE: If this is included, we can assume the link is pre-fetched
+        {
+          type: 'user',
+          id: '2',
+          attributes: {
+            name: 'Rey',
+          },
+          relationships: {
+            bestFriend: {
+              links: { related: '/user/2/bestFriend' },
+              data: { type: 'user', id: '1' },
+            },
+          },
+        },
+      ],
+    });
+
+    assert.strictEqual(record.id, '1', 'id is accessible');
+    assert.strictEqual(record.$type, 'user', '$type is accessible');
+    assert.strictEqual(record.name, 'Chris', 'name is accessible');
+
+    assert.expectAssertion(
+      () => record.bestFriend,
+      'Cannot fetch user.bestFriend because the field is in linksMode but async is not yet supported'
+    );
+  });
 });

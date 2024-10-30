@@ -39,6 +39,7 @@ import {
   OBJECT_SIGNAL,
   Parent,
 } from './symbols';
+import type { SingleResourceRelationship } from '@warp-drive/core-types/spec/json-api-raw';
 
 const HAS_MODEL_PACKAGE = dependencySatisfies('@ember-data/model', '*');
 const getLegacySupport = macroCondition(dependencySatisfies('@ember-data/model', '*'))
@@ -312,20 +313,20 @@ export class SchemaRecord {
             );
           case 'belongsTo':
             if (field.options.linksMode) {
-              // do non-legacy approach else do the below
-              // unlike computeResource, we will just return the record value
-              // in the async case, we should probably just return a promise resolving to the record value
-              // we can error for the async case initially in favor of shipping sync case quickly
+              assert(
+                `Cannot fetch ${identifier.type}.${field.name} because the field is in linksMode but async is not yet supported`,
+                !field.options.async
+              );
+
+              entangleSignal(signals, receiver, field.name);
+              const rawValue = cache.getRelationship(identifier, field.name) as SingleResourceRelationship;
+              return rawValue.data ? store.peekRecord(rawValue.data) : null;
             }
             if (!HAS_MODEL_PACKAGE) {
               assert(
                 `Cannot use belongsTo fields in your schema unless @ember-data/model is installed to provide legacy model support. ${field.name} should likely be migrated to be a resource field.`
               );
             }
-            // change here would be to detect the new "links-only" mode
-            // likely we should do this via an option on the schema
-            // if in that mode, you are no longer required to use legacy
-            // if in that mode, even if legacy, we no longer go through getLegacySupport
             assert(`Expected to have a getLegacySupport function`, getLegacySupport);
             assert(`Can only use belongsTo fields when the resource is in legacy mode`, Mode[Legacy]);
             entangleSignal(signals, receiver, field.name);
