@@ -124,6 +124,7 @@ export interface UpgradedMeta {
   isCollection: boolean;
   isPolymorphic: boolean;
   resetOnRemoteUpdate: boolean;
+  isLinksMode: boolean;
 
   inverseKind: 'implicit' | RelationshipFieldKind;
   /**
@@ -140,6 +141,7 @@ export interface UpgradedMeta {
   inverseIsImplicit: boolean;
   inverseIsCollection: boolean;
   inverseIsPolymorphic: boolean;
+  inverseIsLinksMode: boolean;
 }
 
 export interface EdgeDefinition {
@@ -215,12 +217,14 @@ function upgradeMeta(meta: RelationshipField): UpgradedMeta {
   niceMeta.isImplicit = false;
   niceMeta.isCollection = meta.kind === 'hasMany';
   niceMeta.isPolymorphic = options && !!options.polymorphic;
+  niceMeta.isLinksMode = options.linksMode ?? false;
 
   niceMeta.inverseKey = (options && options.inverse) || STR_LATER;
   niceMeta.inverseType = STR_LATER;
   niceMeta.inverseIsAsync = BOOL_LATER;
   niceMeta.inverseIsImplicit = (options && options.inverse === null) || BOOL_LATER;
   niceMeta.inverseIsCollection = BOOL_LATER;
+  niceMeta.inverseIsLinksMode = BOOL_LATER;
 
   niceMeta.resetOnRemoteUpdate = isLegacyField(meta)
     ? meta.options?.resetOnRemoteUpdate === false
