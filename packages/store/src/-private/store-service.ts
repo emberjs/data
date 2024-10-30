@@ -2390,7 +2390,7 @@ if (ENABLE_LEGACY_SCHEMA_SERVICE) {
     assert(`You must registerSchemaDefinitionService with the store to use custom model classes`, this._schema);
     deprecate(`Use \`store.schema\` instead of \`store.getSchemaDefinitionService()\``, false, {
       id: 'ember-data:schema-service-updates',
-      until: '5.0',
+      until: '6.0',
       for: 'ember-data',
       since: {
         available: '5.4',
@@ -2402,7 +2402,7 @@ if (ENABLE_LEGACY_SCHEMA_SERVICE) {
   Store.prototype.registerSchemaDefinitionService = function (schema: SchemaService) {
     deprecate(`Use \`store.createSchemaService\` instead of \`store.registerSchemaDefinitionService()\``, false, {
       id: 'ember-data:schema-service-updates',
-      until: '5.0',
+      until: '6.0',
       for: 'ember-data',
       since: {
         available: '5.4',
@@ -2414,7 +2414,7 @@ if (ENABLE_LEGACY_SCHEMA_SERVICE) {
   Store.prototype.registerSchema = function (schema: SchemaService) {
     deprecate(`Use \`store.createSchemaService\` instead of \`store.registerSchema()\``, false, {
       id: 'ember-data:schema-service-updates',
-      until: '5.0',
+      until: '6.0',
       for: 'ember-data',
       since: {
         available: '5.4',
