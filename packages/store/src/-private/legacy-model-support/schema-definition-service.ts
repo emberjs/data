@@ -20,7 +20,11 @@ if (HAS_MODEL_PACKAGE) {
   let _found;
   _modelForMixin = function () {
     if (!_found) {
-      _found = (importSync('@ember-data/model/-private') as typeof import('@ember-data/model/-private'))._modelForMixin;
+      _found = (
+        importSync(
+          '@ember-data/model/-private/model-for-mixin'
+        ) as typeof import('@ember-data/model/-private/model-for-mixin')
+      ).default;
     }
     return _found(...arguments);
   };
