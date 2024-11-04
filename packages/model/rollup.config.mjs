@@ -47,7 +47,7 @@ export default {
       'json-api.js',
       'rest.js',
       '-private.js',
-      '-private/model-for-mixin',
+      '-private/model-for-mixin.js',
     ]),
 
     nodeResolve({ extensions: ['.ts', '.js'] }),
