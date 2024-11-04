@@ -7,7 +7,14 @@ export { default as Errors } from './-private/errors';
 export { default as ManyArray } from './-private/many-array';
 export { default as PromiseBelongsTo } from './-private/promise-belongs-to';
 export { default as PromiseManyArray } from './-private/promise-many-array';
-export { default as _modelForMixin } from './-private/model-for-mixin';
+// We can't re-export from here, becaues it creates a module cycle
+// (which prevents vite and sometimes webpack from loading)
+// - @ember-data/model/-private
+//   -> @ember-data/model/has-many-abc123 (private module from rollup)
+//     -> @ember-data/store/-private
+//       -> @ember-data/store/index-abc123 (private module from rollup)
+//         -> importSync of @ember-data/model/-private
+//export { default as _modelForMixin } from './-private/model-for-mixin';
 
 // // Used by tests
 export { default as diffArray } from './-private/diff-array';
