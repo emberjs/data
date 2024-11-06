@@ -10,6 +10,7 @@ import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { ArrayValue, ObjectValue, Value } from '@warp-drive/core-types/json/raw';
 import { STRUCTURED } from '@warp-drive/core-types/request';
 import type { FieldSchema } from '@warp-drive/core-types/schema/fields';
+import type { SingleResourceRelationship } from '@warp-drive/core-types/spec/json-api-raw';
 import { RecordStore } from '@warp-drive/core-types/symbols';
 
 import {
@@ -39,7 +40,6 @@ import {
   OBJECT_SIGNAL,
   Parent,
 } from './symbols';
-import type { SingleResourceRelationship } from '@warp-drive/core-types/spec/json-api-raw';
 
 const HAS_MODEL_PACKAGE = dependencySatisfies('@ember-data/model', '*');
 const getLegacySupport = macroCondition(dependencySatisfies('@ember-data/model', '*'))
