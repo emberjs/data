@@ -1,6 +1,6 @@
 # WarpDrive
 
-Read [The Manual](./manual/0-overview.md)
+Read [The Manual](./manual/0-index.md)
 
 
 ## Other Topics
