@@ -10,6 +10,12 @@ Though the actual source and connection type do not matter, in a typical app req
 
 ### Fetch Example
 
+<br>
+
+*Run This Example* → [Request | Fetch Example](https://warpdrive.nullvoxpopuli.com/manual/requests/fetch)
+
+<br>
+
 In order to make requests, first we create a request manager for our
 application, and we tell it to fulfill requests using the `Fetch` handler.
 

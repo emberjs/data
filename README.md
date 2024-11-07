@@ -3,14 +3,14 @@
     class="project-logo"
     src="./logos/warp-drive-logo-dark.svg#gh-light-mode-only"
     alt="WarpDrive"
-    width="180px"
+    width="240px"
     title="WarpDrive"
     />
   <img
     class="project-logo"
     src="./logos/warp-drive-logo-gold.svg#gh-dark-mode-only"
     alt="WarpDrive"
-    width="180px"
+    width="240px"
     title="WarpDrive"
     />
 </h1>
