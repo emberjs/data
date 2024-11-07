@@ -319,6 +319,8 @@ export class SchemaRecord {
 
               entangleSignal(signals, receiver, field.name);
               const rawValue = cache.getRelationship(identifier, field.name) as SingleResourceRelationship;
+
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-return
               return rawValue.data ? store.peekRecord(rawValue.data) : null;
             }
             if (!HAS_MODEL_PACKAGE) {
