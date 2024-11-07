@@ -15,11 +15,11 @@
     />
 </h1>
 
-![NPM Stable Version](https://img.shields.io/npm/v/ember-data/latest?label=version&style=flat&color=90EE90)
-![NPM Downloads](https://img.shields.io/npm/dm/ember-data.svg?style=flat&color=90EE90)
-![License](https://img.shields.io/github/license/emberjs/data.svg?style=flat&color=90EE90)
-[![Docs](https://img.shields.io/badge/API%20Docs-grey?logo=ember.js)](https://api.emberjs.com/ember-data/release)
-[![Discord Community Server](https://img.shields.io/badge/Discord-grey?logo=discord)](https://discord.gg/zT3asNS
+![NPM Stable Version](https://img.shields.io/npm/v/ember-data/latest?label=version&style=flat&color=FFC474)
+![NPM Downloads](https://img.shields.io/npm/dm/ember-data.svg?style=flat&color=FFC474)
+![License](https://img.shields.io/github/license/emberjs/data.svg?style=flat&color=FFC474)
+[![Docs](https://img.shields.io/badge/API%20Docs-grey?logo=ember.js&logoColor=FFC474)](https://api.emberjs.com/ember-data/release)
+[![Discord Community Server](https://img.shields.io/badge/Discord-grey?logo=discord&logoColor=FFC474)](https://discord.gg/zT3asNS
 )
 
 <p align="center">
