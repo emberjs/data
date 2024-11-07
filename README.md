@@ -1,43 +1,58 @@
 <p align="center">
   <img
     class="project-logo"
-    src="./ember-data-logo-light.svg#gh-light-mode-only"
+    src="./logos/NCC-1701-a-blue.svg#gh-light-mode-only"
     alt="EmberData"
-    width="240px"
+    width="80px"
     title="EmberData"
     />
   <img
     class="project-logo"
-    src="./ember-data-logo-dark.svg#gh-dark-mode-only"
+    src="./logos/NCC-1701-a.svg#gh-dark-mode-only"
     alt="EmberData"
-    width="240px"
+    width="80px"
     title="EmberData"
     />
 </p>
 
-<p align="center">The lightweight reactive data library for JavaScript applications</p>
+# WarpDrive
 
-[![Build Status](https://github.com/emberjs/data/workflows/Main/badge.svg)](https://github.com/emberjs/data/actions?workflow=Main)
-[![Discord Community Server](https://img.shields.io/discord/480462759797063690.svg?logo=discord)](https://discord.gg/zT3asNS)
+![NPM Stable Version](https://img.shields.io/npm/v/ember-data/latest?label=version&style=flat&color=90EE90)
+![NPM Downloads](https://img.shields.io/npm/dm/ember-data.svg?style=flat&color=90EE90)
+![License](https://img.shields.io/github/license/emberjs/data.svg?style=flat&color=90EE90)
+[![Docs](https://img.shields.io/badge/API%20Docs-grey?logo=ember.js)](https://api.emberjs.com/ember-data/release)
+[![Discord Community Server](https://img.shields.io/badge/Discord-grey?logo=discord)](https://discord.gg/zT3asNS
+)
 
----
+<p align="center">
+  <br>
+  <a href="https://warp-drive.io">WarpDrive</a> is a lightweight data library for web apps &mdash;
+  <br>
+  universal, typed, reactive, and ready to scale.
+  <br/><br/>
+<p>
 
-Wrangle your application's data management with scalable patterns for developer productivity.
+WarpDrive provides features that make it easy to build scalable, fast, feature
+rich application &mdash; letting you ship better experiences more quickly without re-architecting your app or API. WarpDrive is:
 
 - ⚡️ Committed to Best-In-Class Performance
 - 🌲 Focused on being as svelte as possible
 - 🚀 SSR Ready
-- 🔜 Typescript Support
-- 🐹 Built with ♥️ by [Ember](https://emberjs.com)
+- 💚 Typed
+- 🔜 works with any framework
 - ⚛️ Supports any API: `GraphQL` `JSON:API` `REST` `tRPC` ...bespoke or a mix
+- 🐹 Built with ♥️ by [Ember](https://emberjs.com)
 
-**Tagged Releases**
+<br>
+<br>
 
-- ![NPM Canary Version](https://img.shields.io/npm/v/ember-data/canary?label=%40canary&color=FFBF00)
-- ![NPM Beta Version](https://img.shields.io/npm/v/ember-data/beta?label=%40beta&color=ff00ff)
-- ![NPM Stable Version](https://img.shields.io/npm/v/ember-data/latest?label=%40latest&color=90EE90)
-- ![NPM LTS Version](https://img.shields.io/npm/v/ember-data/lts?label=%40lts&color=0096FF)
-- ![NPM LTS 4.12 Version](https://img.shields.io/npm/v/ember-data/lts-4-12?label=%40lts-4-12&color=bbbbbb)
+*Get Started* → [Guides](./guides/index.md)
+
+<br>
+
+---
+
+<br>
 
 ### 📖 On This Page
 
