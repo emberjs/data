@@ -482,6 +482,7 @@ export class LegacySupport {
               [EnableHydration]: false,
             }
           : {
+              op: 'findHasMany',
               records: identifiers || [],
               data: request,
               cacheOptions: { [Symbol.for('wd:skip-cache')]: true },
