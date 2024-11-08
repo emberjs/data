@@ -50,7 +50,7 @@ rich application &mdash; letting you ship better experiences more quickly withou
 
 <br>
 
-### Quick Links
+## Quick Links
 
 - [Installation](#installation)
 - [API Docs](https://api.emberjs.com/ember-data/release)
