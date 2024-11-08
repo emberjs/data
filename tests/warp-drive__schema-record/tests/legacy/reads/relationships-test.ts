@@ -1,13 +1,9 @@
-// before doing any of the things for legacy, write and fix tests for non-legacy links-only mode
-// - those tests will be in a new file under tests/reads/belongs-to-test.ts in this test app
-//
-// the main thing to do for legacy:
-// we should add tests to this file for a record in legacy-mode but with links-only mode on relationships
-//
 // a second thing to do for legacy:
 // we should also add tests to the main test suite to confirm that instances of @ember-data/model in links-only
 // mode fetch their async relationship data via the link via requestmanager without requiring the legacy support
 // infrastructure.
+import type { TestContext } from '@ember/test-helpers';
+
 import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
@@ -16,10 +12,14 @@ import { PromiseBelongsTo, PromiseManyArray } from '@ember-data/model/-private';
 import {
   registerDerivations as registerLegacyDerivations,
   withDefaults as withLegacy,
+  type WithLegacyDerivations,
 } from '@ember-data/model/migration-support';
+import type { Handler, NextFn } from '@ember-data/request';
+import RequestManager from '@ember-data/request';
+import type Store from '@ember-data/store';
+import { CacheHandler } from '@ember-data/store';
+import type { RequestContext } from '@warp-drive/core-types/request';
 import type { Type } from '@warp-drive/core-types/symbols';
-
-import type Store from 'warp-drive__schema-record/services/store';
 
 module('Legacy | Reads | relationships', function (hooks) {
   setupTest(hooks);
@@ -309,5 +309,107 @@ module('Legacy | Reads | relationships', function (hooks) {
     assert.strictEqual(MattFriends.length, 1, 'Matt has only one friend :(');
     assert.strictEqual(ReyFriends[0], Matt, 'Rey has Matt as bestFriend');
     assert.strictEqual(MattFriends[0], Rey, 'Matt has Rey as bestFriend');
+  });
+
+  test('we can reload sync belongsTo in linksMode', async function (this: TestContext, assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const { schema } = store;
+
+    registerLegacyDerivations(schema);
+
+    type LegacyUser = WithLegacyDerivations<{
+      [Type]: 'user';
+      id: string;
+      name: string;
+      bestFriend: LegacyUser | null;
+    }>;
+
+    schema.registerResource(
+      withLegacy({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'attribute',
+          },
+          {
+            name: 'bestFriend',
+            type: 'user',
+            kind: 'belongsTo',
+            options: { inverse: 'bestFriend', async: false, linksMode: true },
+          },
+        ],
+      })
+    );
+
+    const record = store.push<LegacyUser>({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Chris',
+        },
+        relationships: {
+          bestFriend: {
+            links: { related: '/user/1/bestFriend' },
+            data: { type: 'user', id: '2' },
+          },
+        },
+      },
+      included: [
+        {
+          type: 'user',
+          id: '2',
+          attributes: {
+            name: 'Rey',
+          },
+          relationships: {
+            bestFriend: {
+              links: { related: '/user/2/bestFriend' },
+              data: { type: 'user', id: '1' },
+            },
+          },
+        },
+      ],
+    });
+
+    assert.strictEqual(record.id, '1', 'id is correct');
+    assert.strictEqual(record.name, 'Chris', 'name is correct');
+    assert.strictEqual(record.bestFriend?.id, '2', 'bestFriend.id is correct');
+    assert.strictEqual(record.bestFriend?.name, 'Rey', 'bestFriend.name is correct');
+
+    const manager = new RequestManager();
+    const handler: Handler = {
+      request<T>(context: RequestContext, next: NextFn<T>): Promise<T> {
+        assert.step(`op=${context.request.op ?? 'UNKNOWN OP CODE'}, url=${context.request.url ?? 'UNKNOWN URL'}`);
+        return Promise.resolve({
+          data: {
+            type: 'user',
+            id: '3',
+            attributes: {
+              name: 'Ray',
+            },
+            relationships: {
+              bestFriend: {
+                links: { related: '/user/3/bestFriend' },
+                data: { type: 'user', id: '1' },
+              },
+            },
+          },
+        } as T);
+      },
+    };
+    manager.use([handler]);
+    manager.useCache(CacheHandler);
+    store.requestManager = manager;
+
+    await record.belongsTo('bestFriend').reload();
+
+    assert.verifySteps(['op=findBelongsTo, url=/user/1/bestFriend'], 'op and url are correct');
+
+    assert.strictEqual(record.id, '1', 'id is correct');
+    assert.strictEqual(record.name, 'Chris', 'name is correct');
+    assert.strictEqual(record.bestFriend?.id, '3', 'bestFriend.id is correct');
+    assert.strictEqual(record.bestFriend?.name, 'Ray', 'bestFriend.name is correct');
   });
 });

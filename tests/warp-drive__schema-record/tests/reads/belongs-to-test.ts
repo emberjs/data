@@ -52,6 +52,7 @@ module('Reads | belongsTo in linksMode', function (hooks) {
         },
         relationships: {
           bestFriend: {
+            links: { related: '/user/1/bestFriend' },
             data: { type: 'user', id: '2' },
           },
         },
