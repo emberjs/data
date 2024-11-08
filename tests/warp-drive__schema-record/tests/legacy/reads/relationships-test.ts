@@ -1,7 +1,3 @@
-// a second thing to do for legacy:
-// we should also add tests to the main test suite to confirm that instances of @ember-data/model in links-only
-// mode fetch their async relationship data via the link via requestmanager without requiring the legacy support
-// infrastructure.
 import type { TestContext } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';

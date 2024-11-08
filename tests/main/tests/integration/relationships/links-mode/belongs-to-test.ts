@@ -99,7 +99,10 @@ module('integration/relationship/belongs-to BelongsTo Relationships (linksMode)'
 
     await record.belongsTo('bestFriend').reload();
 
-    assert.verifySteps(['op=findBelongsTo, url=/user/1/bestFriend'], 'op and url are correct');
+    assert.verifySteps(
+      ['LegacyNetworkHandler.request was called', 'op=findBelongsTo, url=/user/1/bestFriend'],
+      'op and url are correct'
+    );
 
     assert.strictEqual(record.id, '1', 'id is correct');
     assert.strictEqual(record.name, 'Chris', 'name is correct');
