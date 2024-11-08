@@ -1,19 +1,17 @@
-<p align="center">
+<h1 align="center">
   <img
     class="project-logo"
     src="./logos/github-header.svg#gh-light-mode-only"
-    alt="WarpDrive"
-    title="WarpDrive"
+    alt="WarpDrive | Boldly go where no app has gone before"
+    title="WarpDrive | Boldly go where no app has gone before"
     />
   <img
     class="project-logo"
     src="./logos/github-header.svg#gh-dark-mode-only"
-    alt="WarpDrive"
-    title="WarpDrive"
+    alt="WarpDrive | Boldly go where no app has gone before"
+    title="WarpDrive | Boldly go where no app has gone before"
     />
-</p>
-
-# WarpDrive
+</h1>
 
 ![NPM Stable Version](https://img.shields.io/npm/v/ember-data/latest?label=version&style=flat&color=FFC474)
 ![NPM Downloads](https://img.shields.io/npm/dm/ember-data.svg?style=flat&color=FFC474)
