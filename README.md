@@ -66,17 +66,6 @@ rich application &mdash; letting you ship better experiences more quickly withou
 
 ## Installation
 
-Install using your javascript package manager of choice. For instance with [pnpm](https://pnpm.io/)
-
-```no-highlight
-pnpm add ember-data
-```
-
-> [!NOTE]
-> `ember-data` is installed by the default application blueprint for new applications generated with `ember-cli`. You can check what version is installed by looking in the `devDependencies` hash of your project's [package.json](https://docs.npmjs.com/cli/v8/configuring-npm/package-json) file.
-
-### Advanced Installation
-
 ```sh
 npx warp-drive 
 ```
