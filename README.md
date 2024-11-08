@@ -1,19 +1,19 @@
-<h1 align="center">
+<p align="center">
   <img
     class="project-logo"
-    src="./logos/warp-drive-logo-dark.svg#gh-light-mode-only"
+    src="./logos/github-header.svg#gh-light-mode-only"
     alt="WarpDrive"
-    width="240px"
     title="WarpDrive"
     />
   <img
     class="project-logo"
-    src="./logos/warp-drive-logo-gold.svg#gh-dark-mode-only"
+    src="./logos/github-header.svg#gh-dark-mode-only"
     alt="WarpDrive"
-    width="240px"
     title="WarpDrive"
     />
-</h1>
+</p>
+
+# WarpDrive
 
 ![NPM Stable Version](https://img.shields.io/npm/v/ember-data/latest?label=version&style=flat&color=FFC474)
 ![NPM Downloads](https://img.shields.io/npm/dm/ember-data.svg?style=flat&color=FFC474)
