@@ -303,7 +303,6 @@ export type RequestInfo<T = unknown, RT = unknown> = Request & {
 
   [RequestSignature]?: RT;
 
-  // FIXME: Shouldn't this remain private?
   [EnableHydration]?: boolean;
 };
 
