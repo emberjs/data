@@ -6,3 +6,6 @@
 - EmberConf 2024 | [The EmberData Upgrade Path with Kirill Shaplyko](https://www.youtube.com/watch?v=3_kTmfLG6b0)
 - EmberFest 2024 | [The Architecture of WarpDrive | Beyond Universal – Chris Thoburn](https://www.youtube.com/watch?v=BCv8OgcG5vM)
 
+## Blog Posts
+
+- [Not Your Parent's EmberData](https://runspired.com/2024/01/31/modern-ember-data.html) | *2024-01-31* by [Chris Thoburn](https://github.com/runspired)
