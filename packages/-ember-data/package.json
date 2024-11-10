@@ -125,6 +125,7 @@
     "@warp-drive/build-config": "workspace:0.0.0-alpha.52"
   },
   "peerDependencies": {
+    "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",
     "@ember/test-helpers": "^3.3.0 || ^4.0.4",
     "@ember/test-waiters": "^3.1.0",
     "qunit": "^2.18.0"
