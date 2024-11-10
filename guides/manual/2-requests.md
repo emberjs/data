@@ -10,14 +10,20 @@ Though the actual source and connection type do not matter, in a typical app req
 
 ### Fetch Example
 
+> [!TIP]
+> When we want to show integration with a framework, this tutorial
+> uses [EmberJS](https://emberjs.com), a powerful modern web framework with an established multi-decade legacy.
+
 <br>
 
 *Run This Example* → [Request | Fetch Example](https://warpdrive.nullvoxpopuli.com/manual/requests/fetch)
 
 <br>
 
-In order to make requests, first we create a request manager for our
-application, and we tell it to fulfill requests using the `Fetch` handler.
+Data fetching is managed by a `RequestManager`, which executes handlers you provide.
+
+In order to make requests, first we create a `RequestManager` for our
+application, and we tell it to fulfill requests using a `Fetch` handler.
 
 ```ts
 import RequestManager from '@ember-data/request';
@@ -90,7 +96,19 @@ flowchart LR
 
 ### Handlers
 
-Requests are fulfilled by handlers. A handler receives the RequestContext as well as a `next` function with which to pass along a request to the next handler if it so chooses.
+Requests are completed by handlers. Each handler may choose to fulfill the request, modify it,
+or pass it along unchanged to the next handler.
+
+A handler receives the request `context` as well as a `next` function with which to pass along
+a request if it so chooses.
+
+`next` returns a Future, which is a promise with a few additional capabilities. Futures resolve
+with the response from the next handler in the chain. This allows a handler to read or modify
+the response if it wants.
+
+> [!Important]
+> requests are immutable, to modify one the handler must create a new request, copying over or
+> cloning the parts it wants to leave unchanged.
 
 ```ts
 type NextFn<T> = (req: RequestInfo) => Future<T>;
