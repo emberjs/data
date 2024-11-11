@@ -9,11 +9,7 @@ type Template<T> = {
   [key in keyof T & string]?: string;
 };
 
-export async function reactiveContext<T>(
-  record: T,
-  resource: ResourceSchema,
-  template?: Template<T>
-) {
+export async function reactiveContext<T>(record: T, resource: ResourceSchema, template?: Template<T>) {
   type Key = keyof T & string;
   const _fields: string[] = [];
   const fields: Array<FieldSchema | IdentityField> = resource.fields.slice();
@@ -28,7 +24,6 @@ export async function reactiveContext<T>(
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface ReactiveComponent extends Record<string, string> {}
   class ReactiveComponent extends Component {
-
     get __allFields() {
       return _fields as unknown as string;
     }
@@ -36,9 +31,9 @@ export async function reactiveContext<T>(
     <template>
       <div class="reactive-context">
         <ul>
-        {{#each this.__allFields as |prop|}}
-          <li>{{prop}}: {{get this prop}}</li>
-        {{/each}}
+          {{#each this.__allFields as |prop|}}
+            <li>{{prop}}: {{get this prop}}</li>
+          {{/each}}
         </ul>
       </div>
     </template>
