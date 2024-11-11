@@ -408,4 +408,112 @@ module('Legacy | Reads | relationships', function (hooks) {
     assert.strictEqual(record.bestFriend?.id, '3', 'bestFriend.id is correct');
     assert.strictEqual(record.bestFriend?.name, 'Ray', 'bestFriend.name is correct');
   });
+
+  test('sync belongsTo reload will error if no links in response in linksMode', async function (this: TestContext, assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const { schema } = store;
+
+    registerLegacyDerivations(schema);
+
+    type LegacyUser = WithLegacyDerivations<{
+      [Type]: 'user';
+      id: string;
+      name: string;
+      bestFriend: LegacyUser | null;
+    }>;
+
+    schema.registerResource(
+      withLegacy({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'attribute',
+          },
+          {
+            name: 'bestFriend',
+            type: 'user',
+            kind: 'belongsTo',
+            options: { inverse: 'bestFriend', async: false, linksMode: true },
+          },
+        ],
+      })
+    );
+
+    const record = store.push<LegacyUser>({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Chris',
+        },
+        relationships: {
+          bestFriend: {
+            links: { related: '/user/1/bestFriend' },
+            data: { type: 'user', id: '2' },
+          },
+        },
+      },
+      included: [
+        {
+          type: 'user',
+          id: '2',
+          attributes: {
+            name: 'Rey',
+          },
+          relationships: {
+            bestFriend: {
+              links: { related: '/user/2/bestFriend' },
+              data: { type: 'user', id: '1' },
+            },
+          },
+        },
+      ],
+    });
+
+    assert.strictEqual(record.id, '1', 'id is correct');
+    assert.strictEqual(record.name, 'Chris', 'name is correct');
+    assert.strictEqual(record.bestFriend?.id, '2', 'bestFriend.id is correct');
+    assert.strictEqual(record.bestFriend?.name, 'Rey', 'bestFriend.name is correct');
+
+    const manager = new RequestManager();
+    const handler: Handler = {
+      request<T>(context: RequestContext, next: NextFn<T>): Promise<T> {
+        assert.step(`op=${context.request.op ?? 'UNKNOWN OP CODE'}, url=${context.request.url ?? 'UNKNOWN URL'}`);
+        return Promise.resolve({
+          data: {
+            type: 'user',
+            id: '3',
+            attributes: {
+              name: 'Ray',
+            },
+            relationships: {
+              bestFriend: {
+                data: { type: 'user', id: '1' },
+              },
+            },
+          },
+        } as T);
+      },
+    };
+    manager.use([handler]);
+    manager.useCache(CacheHandler);
+    store.requestManager = manager;
+
+    await assert.expectAssertion(
+      () => record.belongsTo('bestFriend').reload(),
+      'Cannot fetch user.bestFriend because the field is in linksMode but the response includes no links'
+    );
+
+    assert.verifySteps(['op=findBelongsTo, url=/user/1/bestFriend'], 'op and url are correct');
+  });
 });
+
+/*
+FIXME:
+link but no data key = not supported YET
+link + data: null = supported
+link + data with identifier
+  referenced record in same payload = supported
+  referenced record not in payload = not supported
+*/

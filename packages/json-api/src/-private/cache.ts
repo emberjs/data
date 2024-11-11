@@ -207,7 +207,7 @@ export default class JSONAPICache implements Cache {
     } else if (isMetaDocument(doc)) {
       return this._putDocument(doc, undefined, undefined);
     }
-
+    // TODO: Check that the payload has the related documents
     const jsonApiDoc = doc.content as SingleResourceDocument | CollectionResourceDocument;
     const included = jsonApiDoc.included;
     let i: number, length: number;

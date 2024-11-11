@@ -109,6 +109,88 @@ module('integration/relationship/belongs-to BelongsTo Relationships (linksMode)'
     assert.strictEqual(record.bestFriend?.id, '3', 'bestFriend.id is correct');
     assert.strictEqual(record.bestFriend?.name, 'Ray', 'bestFriend.name is correct');
   });
+
+  test('belongsTo reload fails if no links in response in linksMode', async function (this: TestContext, assert) {
+    const store = this.owner.lookup('service:store') as Store;
+
+    const manager = new RequestManager();
+    const handler: Handler = {
+      request<T>(context): Promise<T> {
+        assert.step(`op=${context.request.op ?? 'UNKNOWN OP CODE'}, url=${context.request.url ?? 'UNKNOWN URL'}`);
+        return Promise.resolve({
+          data: {
+            type: 'user',
+            id: '3',
+            attributes: {
+              name: 'Ray',
+            },
+            relationships: {
+              bestFriend: {
+                data: { type: 'user', id: '1' },
+              },
+            },
+          },
+        } as T);
+      },
+    };
+    const InterceptingHandler: Handler = {
+      request(context, next) {
+        assert.step('LegacyNetworkHandler.request was called');
+        return LegacyNetworkHandler.request(context, next);
+      },
+    };
+
+    manager.use([InterceptingHandler, handler]);
+    manager.useCache(CacheHandler);
+    store.requestManager = manager;
+
+    const record = store.push<User>({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Chris',
+        },
+        relationships: {
+          bestFriend: {
+            links: { related: '/user/1/bestFriend' },
+            data: { type: 'user', id: '2' },
+          },
+        },
+      },
+      included: [
+        {
+          type: 'user',
+          id: '2',
+          attributes: {
+            name: 'Rey',
+          },
+          relationships: {
+            bestFriend: {
+              links: { related: '/user/2/bestFriend' },
+              data: { type: 'user', id: '1' },
+            },
+          },
+        },
+      ],
+    });
+
+    assert.strictEqual(record.id, '1', 'id is accessible');
+    assert.strictEqual(record.name, 'Chris', 'name is accessible');
+    assert.strictEqual(record.bestFriend?.id, '2', 'bestFriend.id is accessible');
+    assert.strictEqual(record.bestFriend?.name, 'Rey', 'bestFriend.name is accessible');
+    assert.strictEqual(record.bestFriend?.bestFriend?.id, record.id, 'bestFriend is reciprocal');
+
+    await assert.expectAssertion(
+      () => record.belongsTo('bestFriend').reload(),
+      'Cannot fetch user.bestFriend because the field is in linksMode but the response includes no links'
+    );
+
+    assert.verifySteps(
+      ['LegacyNetworkHandler.request was called', 'op=findBelongsTo, url=/user/1/bestFriend'],
+      'op and url are correct'
+    );
+  });
 });
 
 // TODO: a second thing to do for legacy:
