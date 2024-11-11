@@ -1,10 +1,10 @@
+import { get } from '@ember/helper';
 import type { TestContext } from '@ember/test-helpers';
 import { render } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 
 import type Model from '@ember-data/model';
 import type { FieldSchema, IdentityField, ResourceSchema } from '@warp-drive/core-types/schema/fields';
-import { get } from '@ember/helper';
 
 export interface ReactiveContext {
   counters: Record<string, number | undefined>;
@@ -27,6 +27,7 @@ export async function reactiveContext<T extends Model>(
     _fields.push(field.name);
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface ReactiveComponent extends Record<string, string> {}
   class ReactiveComponent extends Component {
     get __allFields() {
