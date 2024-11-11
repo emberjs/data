@@ -1,4 +1,7 @@
 {
+  "glint": {
+    "environment": ["ember-loose", "ember-template-imports"]
+  },
   "files": [],
   "include": [],
   "references": [
