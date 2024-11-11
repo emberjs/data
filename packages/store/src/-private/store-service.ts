@@ -187,11 +187,15 @@ const EmptyClass = class {
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(args?: unknown) {}
 };
-const BaseClass = macroCondition(dependencySatisfies('ember-source', '*'))
+const _BaseClass = macroCondition(dependencySatisfies('ember-source', '*'))
   ? DEPRECATE_STORE_EXTENDS_EMBER_OBJECT
     ? (importSync('@ember/object') as typeof EmptyClass)
     : EmptyClass
   : EmptyClass;
+
+const BaseClass = (_BaseClass as unknown as { default?: typeof EmptyClass }).default
+  ? ((_BaseClass as unknown as { default?: typeof EmptyClass }).default as typeof EmptyClass)
+  : _BaseClass;
 
 if (BaseClass !== EmptyClass) {
   deprecate(
