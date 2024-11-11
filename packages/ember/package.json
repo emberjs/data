@@ -15,7 +15,7 @@
     "ember-addon"
   ],
   "scripts": {
-    "_lint": "eslint . --quiet --cache --cache-strategy=content --report-unused-disable-directives",
+    "_lint": "eslint . --quiet --cache --cache-strategy=content",
     "build:glint": "glint --build",
     "build:pkg": "vite build;",
     "prepack": "bun run build:pkg",
