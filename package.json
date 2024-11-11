@@ -133,8 +133,7 @@
       }
     },
     "overrides": {
-      "ember-auto-import": "^2.8.1",
-      "@embroider/macros": "^1.16.6",
+      "ember-auto-import": "^2.10.0",
       "broccoli-funnel": "^3.0.8",
       "broccoli-merge-trees": "^4.2.0",
       "@glimmer/validator": "^0.92.3",

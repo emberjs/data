@@ -1,0 +1,164 @@
+{
+  "name": "vite-basic-compat",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Small description for vite-basic-compat goes here",
+  "repository": "",
+  "license": "MIT",
+  "author": "",
+  "directories": {
+    "doc": "doc",
+    "test": "tests"
+  },
+  "scripts": {
+    "build": "vite build",
+    "lint": "concurrently \"pnpm:lint:*(!fix)\" --names \"lint:\"",
+    "lint:fix": "concurrently \"pnpm:lint:*:fix\" --names \"fix:\"",
+    "lint:hbs": "ember-template-lint .",
+    "lint:hbs:fix": "ember-template-lint . --fix",
+    "lint:js": "eslint . --cache",
+    "lint:js:fix": "eslint . --fix",
+    "lint:types": "glint",
+    "start": "vite",
+    "test:vite": "vite build --mode test && ember test --path dist"
+  },
+  "dependenciesMeta": {
+    "ember-data": {
+      "injected": true
+    },
+    "@ember-data/tracking": {
+      "injected": true
+    },
+    "@ember-data/store": {
+      "injected": true
+    },
+    "@ember-data/request": {
+      "injected": true
+    },
+    "@ember-data/adapter": {
+      "injected": true
+    },
+    "@ember-data/graph": {
+      "injected": true
+    },
+    "@ember-data/debug": {
+      "injected": true
+    },
+    "@ember-data/model": {
+      "injected": true
+    },
+    "@ember-data/json-api": {
+      "injected": true
+    },
+    "@ember-data/request-utils": {
+      "injected": true
+    },
+    "@ember-data/legacy-compat": {
+      "injected": true
+    },
+    "@ember-data/serializer": {
+      "injected": true
+    },
+    "@ember-data/unpublished-test-infra": {
+      "injected": true
+    },
+    "@warp-drive/core-types": {
+      "injected": true
+    },
+    "@warp-drive/build-config": {
+      "injected": true
+    }
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/eslint-parser": "^7.25.9",
+    "@babel/plugin-transform-runtime": "^7.25.9",
+    "@babel/plugin-transform-typescript": "^7.25.9",
+    "@babel/runtime": "^7.26.0",
+    "@ember-data/unpublished-test-infra": "workspace:5.4.0-alpha.115",
+    "@ember/optional-features": "^2.1.0",
+    "@ember/string": "^4.0.0",
+    "@ember/test-waiters": "^3.1.0",
+    "@ember/test-helpers": "^4.0.4",
+    "@embroider/compat": "3.6.2-unstable.c51ca2b",
+    "@embroider/config-meta-loader": "0.0.1-unstable.c51ca2b",
+    "@embroider/core": "3.4.16-unstable.c51ca2b",
+    "@embroider/test-setup": "4.0.1-unstable.c51ca2b",
+    "@embroider/vite": "0.2.1-unstable.c51ca2b",
+    "@glimmer/component": "^1.1.2",
+    "@glimmer/tracking": "^1.1.2",
+    "@glint/core": "1.4.1-unstable.34c4510",
+    "@glint/environment-ember-loose": "1.4.1-unstable.34c4510",
+    "@glint/environment-ember-template-imports": "1.4.1-unstable.34c4510",
+    "@glint/template": "1.4.1-unstable.34c4510",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@tsconfig/ember": "^3.0.8",
+    "@types/eslint__js": "^8.42.3",
+    "@types/qunit": "^2.19.10",
+    "@types/rsvp": "^4.0.9",
+    "@typescript-eslint/eslint-plugin": "^8.14.0",
+    "@typescript-eslint/parser": "^8.14.0",
+    "babel-plugin-ember-template-compilation": "^2.3.0",
+    "concurrently": "^9.1.0",
+    "decorator-transforms": "^2.3.0",
+    "ember-auto-import": "^2.8.1",
+    "ember-cli": "~5.12.0",
+    "ember-cli-babel": "^8.2.0",
+    "ember-cli-htmlbars": "^6.3.0",
+    "ember-data": "workspace:5.4.0-alpha.115",
+    "@ember-data/request": "workspace:5.4.0-alpha.115",
+    "@ember-data/store": "workspace:5.4.0-alpha.115",
+    "@ember-data/adapter": "workspace:5.4.0-alpha.115",
+    "@ember-data/debug": "workspace:5.4.0-alpha.115",
+    "@ember-data/graph": "workspace:5.4.0-alpha.115",
+    "@ember-data/json-api": "workspace:5.4.0-alpha.115",
+    "@ember-data/legacy-compat": "workspace:5.4.0-alpha.115",
+    "@ember-data/model": "workspace:5.4.0-alpha.115",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.115",
+    "@ember-data/serializer": "workspace:5.4.0-alpha.115",
+    "@ember-data/tracking": "workspace:5.4.0-alpha.115",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.101",
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.52",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.115",
+    "ember-load-initializers": "^3.0.1",
+    "ember-modifier": "^4.2.0",
+    "ember-page-title": "^8.2.3",
+    "ember-qunit": "^8.1.0",
+    "ember-resolver": "^13.0.2",
+    "ember-route-template": "^1.0.3",
+    "ember-source": "~5.12.0",
+    "ember-template-lint": "^6.0.0",
+    "ember-welcome-page": "^7.0.2",
+    "eslint": "^9.14.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-ember": "^12.3.1",
+    "eslint-plugin-n": "^17.13.1",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-qunit": "^8.1.2",
+    "globals": "^15.12.0",
+    "loader.js": "^4.7.0",
+    "prettier": "^3.3.3",
+    "prettier-plugin-ember-template-tag": "^2.0.4",
+    "qunit": "^2.22.0",
+    "qunit-dom": "^3.3.0",
+    "tracked-built-ins": "^3.3.0",
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^8.13.0",
+    "vite": "^5.4.11",
+    "webpack": "^5.95.0"
+  },
+  "engines": {
+    "node": ">= 18"
+  },
+  "ember": {
+    "edition": "octane"
+  },
+  "ember-addon": {
+    "type": "app",
+    "version": 2
+  },
+  "exports": {
+    "./tests/*": "./tests/*",
+    "./*": "./app/*"
+  }
+}
