@@ -25,10 +25,10 @@ class ErrorList extends Component<{ model: Model; field: string }> {
 
   <template>
     <ul class="error-list">
-    {{#each this.errors as |error|}}
-      <li class="error-list__error">{{error}}</li>
-    {{/each}}
-  </ul>
+      {{#each this.errors as |error|}}
+        <li class="error-list__error">{{error}}</li>
+      {{/each}}
+    </ul>
   </template>
 }
 
@@ -47,15 +47,11 @@ module('integration/model.errors', function (hooks) {
   });
 
   test('Model errors are autotracked', async function (this: CurrentTestContext, assert) {
-    const tag = this.tag = (this.owner.lookup('service:store') as Store).createRecord('tag', {}) as Tag;
+    const tag = (this.tag = (this.owner.lookup('service:store') as Store).createRecord('tag', {}) as Tag);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const errors: any = get(this.tag, 'errors');
 
-    await render(
-      <template>
-        <ErrorList @model={{tag}} @field="name"/>
-      </template>
-    );
+    await render(<template><ErrorList @model={{tag}} @field="name" /></template>);
 
     assert.dom('.error-list__error').doesNotExist();
 
