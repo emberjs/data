@@ -1,3 +1,4 @@
+import { get } from '@ember/helper';
 import type { TestContext } from '@ember/test-helpers';
 import { render } from '@ember/test-helpers';
 import Component from '@glimmer/component';
@@ -32,7 +33,8 @@ export async function reactiveContext<T extends OpaqueRecordInstance>(
     }
 
     <template>
-      <div class="reactive-context"><ul>{{#each this.__allFields as |prop|}}<li>{{prop}}: {{get this prop}}</li>{{/each}}</ul></div>
+      <div class="reactive-context"><ul>{{#each this.__allFields as |prop|}}<li>{{prop}}:
+              {{get this prop}}</li>{{/each}}</ul></div>
     </template>
   }
   const counters: Record<string, number> = {};
