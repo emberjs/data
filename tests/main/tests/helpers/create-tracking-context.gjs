@@ -3,23 +3,30 @@ import Component from '@glimmer/component';
 // eslint-disable-next-line no-restricted-imports
 import { tracked } from '@glimmer/tracking';
 
-import { hbs } from 'ember-cli-htmlbars';
-
-export default async function createTrackingContext(owner, props) {
+// eslint-disable-next-line @typescript-eslint/require-await
+export default async function createTrackingContext(props) {
   let instance;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   const testKeys = Object.keys(props);
   class TestComponent extends Component {
     @tracked count = 1;
 
     constructor() {
       super(...arguments);
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
       instance = this;
     }
 
     get ___value() {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       this.count;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return testKeys.map((key) => this[key]);
     }
+
+    <template>
+      <div class="test">{{this.count}}<ul>{{#each this.___value as |prop|}}<li>{{prop}}</li>{{/each}}</ul></div>
+    </template>
   }
 
   const defs = {};
@@ -27,14 +34,8 @@ export default async function createTrackingContext(owner, props) {
 
   Object.defineProperties(TestComponent.prototype, defs);
 
-  owner.register('component:test-component', TestComponent);
-  owner.register(
-    'template:components/test-component',
-    hbs`<div class="test">{{this.count}}<ul>{{#each this.___value as |prop|}}<li>{{prop}}</li>{{/each}}</ul></div>`
-  );
-
   async function initialRender() {
-    await render(hbs`<TestComponent/>`);
+    await render(<template><TestComponent /></template>);
   }
 
   return {

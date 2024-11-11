@@ -2,8 +2,6 @@ import type { TestContext } from '@ember/test-helpers';
 import { render } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 
-import { hbs } from 'ember-cli-htmlbars';
-
 import type { ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { OpaqueRecordInstance } from '@warp-drive/core-types/record';
 import type { FieldSchema, IdentityField, ResourceSchema } from '@warp-drive/core-types/schema/fields';
@@ -32,6 +30,10 @@ export async function reactiveContext<T extends OpaqueRecordInstance>(
     get __allFields() {
       return _fields;
     }
+
+    <template>
+      <div class="reactive-context"><ul>{{#each this.__allFields as |prop|}}<li>{{prop}}: {{get this prop}}</li>{{/each}}</ul></div>
+    </template>
   }
   const counters: Record<string, number> = {};
 
@@ -96,13 +98,7 @@ export async function reactiveContext<T extends OpaqueRecordInstance>(
     });
   });
 
-  this.owner.register('component:reactive-component', ReactiveComponent);
-  this.owner.register(
-    'template:components/reactive-component',
-    hbs`<div class="reactive-context"><ul>{{#each this.__allFields as |prop|}}<li>{{prop}}: {{get this prop}}</li>{{/each}}</ul></div>`
-  );
-
-  await render(hbs`<ReactiveComponent />`);
+  await render(<template><ReactiveComponent /></template>);
 
   function reset() {
     fields.forEach((field) => {
