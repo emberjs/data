@@ -1,3 +1,4 @@
+import { setComponentTemplate } from '@ember/component';
 import { render, settled } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 
@@ -59,8 +60,7 @@ module('acceptance/tracking-model-id - tracking model id', function (hooks) {
   hooks.beforeEach(function () {
     const { owner } = this;
     owner.register('model:widget', Widget);
-    owner.register('component:widget-list', WidgetList);
-    owner.register('template:components/widget-list', layout);
+    owner.register('component:widget-list', setComponentTemplate(layout, WidgetList));
     owner.register('adapter:application', TestAdapter);
     owner.register('serializer:application', JSONAPISerializer);
   });

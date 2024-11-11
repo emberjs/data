@@ -1,3 +1,4 @@
+import { setComponentTemplate } from '@ember/component';
 import { inject as service } from '@ember/service';
 import { render, settled } from '@ember/test-helpers';
 import Component from '@glimmer/component';
@@ -49,8 +50,7 @@ module('acceptance/tracking-transactions', function (hooks) {
     `;
 
     owner.register('model:widget', Widget);
-    owner.register('component:widget-creator', WidgetCreator);
-    owner.register('template:components/widget-creator', layout);
+    owner.register('component:widget-creator', setComponentTemplate(layout, WidgetCreator));
     const store = owner.lookup('service:store');
 
     await render(hbs`
@@ -105,8 +105,7 @@ module('acceptance/tracking-transactions', function (hooks) {
     `;
 
     owner.register('model:widget', Widget);
-    owner.register('component:widget-creator', WidgetCreator);
-    owner.register('template:components/widget-creator', layout);
+    owner.register('component:widget-creator', setComponentTemplate(layout, WidgetCreator));
     const store = owner.lookup('service:store');
 
     await render(hbs`
@@ -184,8 +183,7 @@ module('acceptance/tracking-transactions', function (hooks) {
     `;
 
     owner.register('model:widget', Widget);
-    owner.register('component:widget-creator', WidgetCreator);
-    owner.register('template:components/widget-creator', layout);
+    owner.register('component:widget-creator', setComponentTemplate(layout, WidgetCreator));
     this.name = 'Chris';
 
     await render(hbs`
