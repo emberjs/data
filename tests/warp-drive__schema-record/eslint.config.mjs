@@ -12,6 +12,7 @@ export default [
 
   // browser (js/ts) ================
   typescript.browser({
+    enableGlint: true,
     srcDirs: ['app', 'tests'],
     allowedImports: ['@ember/application', '@ember/object', '@ember/owner'],
   }),

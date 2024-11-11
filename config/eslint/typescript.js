@@ -3,6 +3,8 @@ import * as js from './browser.js';
 import * as imports from './imports.js';
 import tseslint from 'typescript-eslint';
 import globals from 'globals';
+import noop from 'ember-eslint-parser/noop';
+import emberEslintParser from 'ember-eslint-parser';
 
 /** @returns {import('eslint').Linter.FlatConfig} */
 function mergeTsConfigs(configArray) {
@@ -82,7 +84,18 @@ export function rules(config = {}) {
   return finalized;
 }
 
-export function parser() {
+export function parser(enableGlint = false) {
+  if (enableGlint) {
+    return Object.assign(
+      {
+        meta: {
+          name: 'ember-eslint-parser',
+          version: '*',
+        },
+      },
+      emberEslintParser
+    );
+  }
   const merged = mergeTsConfigs(tseslint.configs.recommended);
   // @ts-expect-error
   return merged.languageOptions.parser;
@@ -114,16 +127,16 @@ export function browser(config) {
   /** @type {string[]} */
   const files = Array.isArray(config.srcDirs) ? constructFileGlobs(config.srcDirs, config.files) : config.files;
 
-  return {
+  const lintconfig = {
     files,
     linterOptions: {
       reportUnusedDisableDirectives: 'error',
     },
     languageOptions: {
-      parser: parser(),
+      parser: parser(config.enableGlint),
       parserOptions: {
         project: './tsconfig.json',
-        projectService: true,
+        // projectService: true,
         // tsconfigRootDir: import.meta.dirname,
         extraFileExtensions: ['.gts', '.gjs'],
       },
@@ -137,6 +150,23 @@ export function browser(config) {
     // @ts-expect-error
     plugins: Object.assign({}, imports.plugins(), plugins()),
   };
+
+  if (config.enableGlint) {
+    lintconfig.processor = 'ember/noop';
+    lintconfig.plugins = Object.assign({}, lintconfig.plugins, {
+      ember: {
+        meta: {
+          name: 'ember',
+          version: '*',
+        },
+        processors: {
+          noop,
+        },
+      },
+    });
+  }
+
+  return lintconfig;
 }
 
 /** @returns {import('eslint').Linter.FlatConfig} */
