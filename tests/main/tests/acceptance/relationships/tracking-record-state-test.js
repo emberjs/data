@@ -1,3 +1,4 @@
+import { setComponentTemplate } from '@ember/component';
 import { action } from '@ember/object';
 import { inject } from '@ember/service';
 import { click, findAll, render } from '@ember/test-helpers';
@@ -136,8 +137,7 @@ module('tracking state flags on a record', function (hooks) {
     }
 
     this.owner.register('model:person', Person);
-    this.owner.register('component:children-list', ChildrenList);
-    this.owner.register('template:components/children-list', layout);
+    this.owner.register('component:children-list', setComponentTemplate(layout, ChildrenList));
     this.owner.register('serializer:application', Serializer);
     this.owner.register('adapter:application', Adapter);
     const store = this.owner.lookup('service:store');

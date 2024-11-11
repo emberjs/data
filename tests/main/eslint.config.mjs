@@ -4,6 +4,7 @@ import * as node from '@warp-drive/internal-config/eslint/node.js';
 import * as typescript from '@warp-drive/internal-config/eslint/typescript.js';
 import * as qunit from '@warp-drive/internal-config/eslint/qunit.js';
 import * as js from '@warp-drive/internal-config/eslint/browser.js';
+import * as gts from '@warp-drive/internal-config/eslint/gts.js';
 
 const AllowedImports = [
   '@ember/application',
@@ -39,7 +40,17 @@ export default [
 
   // browser (js/ts) ================
   typescript.browser({
-    files: ['**/*.ts', '**/*.gts'],
+    srcDirs: ['app', 'tests'],
+    allowedImports: AllowedImports,
+    rules: {
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+    },
+  }),
+
+  // gts
+  gts.browser({
     srcDirs: ['app', 'tests'],
     allowedImports: AllowedImports,
     rules: {

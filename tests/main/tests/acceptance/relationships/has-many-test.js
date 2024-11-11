@@ -1,4 +1,5 @@
 import ArrayProxy from '@ember/array/proxy';
+import { setComponentTemplate } from '@ember/component';
 import { action } from '@ember/object';
 import { sort } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
@@ -768,8 +769,7 @@ module('autotracking through ArrayProxy', function (hooks) {
         {{/each}}
       </ul>
     `;
-    owner.register('component:person-overview', PersonOverview);
-    owner.register('template:components/person-overview', layout);
+    owner.register('component:person-overview', setComponentTemplate(layout, PersonOverview));
     this.set('person', chris);
     await render(hbs`<PersonOverview @person={{this.person}} />`);
     assert.strictEqual(find('#comments-count').textContent, 'Comments (3)', 'We have the right comments count');
@@ -840,8 +840,7 @@ module('autotracking has-many', function (hooks) {
         {{/each}}
       </ul>
     `;
-    this.owner.register('component:children-list', ChildrenList);
-    this.owner.register('template:components/children-list', layout);
+    this.owner.register('component:children-list', setComponentTemplate(layout, ChildrenList));
 
     store.createRecord('person', { id: '1', name: 'Doodad' });
     const person = store.peekRecord('person', '1');
@@ -887,8 +886,7 @@ module('autotracking has-many', function (hooks) {
         {{/each}}
       </ul>
     `;
-    this.owner.register('component:children-list', ChildrenList);
-    this.owner.register('template:components/children-list', layout);
+    this.owner.register('component:children-list', setComponentTemplate(layout, ChildrenList));
 
     store.createRecord('person', { id: '1', name: 'Doodad' });
     this.person = store.peekRecord('person', '1');
@@ -935,8 +933,7 @@ module('autotracking has-many', function (hooks) {
         {{/each}}
       </ul>
     `;
-    this.owner.register('component:children-list', ChildrenList);
-    this.owner.register('template:components/children-list', layout);
+    this.owner.register('component:children-list', setComponentTemplate(layout, ChildrenList));
 
     store.createRecord('person', { id: '1', name: 'Doodad' });
     this.person = store.peekRecord('person', '1');
@@ -980,8 +977,7 @@ module('autotracking has-many', function (hooks) {
 
       <h2>{{this.firstChild.name}}</h2>
     `;
-    this.owner.register('component:children-list', ChildrenList);
-    this.owner.register('template:components/children-list', layout);
+    this.owner.register('component:children-list', setComponentTemplate(layout, ChildrenList));
 
     store.createRecord('person', { id: '1', name: 'Doodad' });
     this.person = store.peekRecord('person', '1');
@@ -1026,8 +1022,7 @@ module('autotracking has-many', function (hooks) {
         {{/each}}
       </ul>
     `;
-    this.owner.register('component:children-list', ChildrenList);
-    this.owner.register('template:components/children-list', layout);
+    this.owner.register('component:children-list', setComponentTemplate(layout, ChildrenList));
 
     store.createRecord('person', { id: '1', name: 'Doodad' });
     this.person = store.peekRecord('person', '1');
@@ -1076,8 +1071,7 @@ module('autotracking has-many', function (hooks) {
         {{/each}}
       </ul>
     `;
-    this.owner.register('component:children-list', ChildrenList);
-    this.owner.register('template:components/children-list', layout);
+    this.owner.register('component:children-list', setComponentTemplate(layout, ChildrenList));
 
     store.createRecord('person', { id: '1', name: 'Doodad' });
     this.person = store.peekRecord('person', '1');
@@ -1141,8 +1135,7 @@ module('autotracking has-many', function (hooks) {
         {{/each}}
       </ul>
     `;
-    this.owner.register('component:children-list', ChildrenList);
-    this.owner.register('template:components/children-list', layout);
+    this.owner.register('component:children-list', setComponentTemplate(layout, ChildrenList));
 
     this.person = store.push({
       data: {
@@ -1226,8 +1219,7 @@ module('autotracking has-many', function (hooks) {
         {{/each}}
       </ul>
     `;
-    this.owner.register('component:people-list', PeopleList);
-    this.owner.register('template:components/people-list', layout);
+    this.owner.register('component:people-list', setComponentTemplate(layout, PeopleList));
 
     store.createRecord('person', { id: '1', name: 'Doodad' });
 
