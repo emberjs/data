@@ -41,6 +41,7 @@
     }
   },
   "peerDependencies": {
+    "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",
     "@ember-data/store": "^4.12.7 || > 5.3.3",
     "@ember-data/request": "^4.12.7 || > 5.3.3",
     "@ember-data/request-utils": "^4.12.7 || > 5.3.3",

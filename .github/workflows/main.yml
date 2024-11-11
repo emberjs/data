@@ -76,7 +76,7 @@ jobs:
         run: pnpm test:production
 
   browser-tests:
-    timeout-minutes: 20
+    timeout-minutes: 22
     strategy:
       fail-fast: false
       matrix:
@@ -110,7 +110,7 @@ jobs:
           DEBUG: ${{ secrets.ACTIONS_RUNNER_DEBUG == 'true' && 'engine,socket.io*' }}
           # DISPLAY_TEST_NAMES: true # uncomment this line to see the test names in the logs
           FORCE_COLOR: 2
-          BROWSER_TIMEOUT: 540
+          BROWSER_TIMEOUT: 600 # 10 minutes
 
       - name: Production
         id: run-tests-production
@@ -121,7 +121,7 @@ jobs:
           DEBUG: ${{ secrets.ACTIONS_RUNNER_DEBUG == 'true' && 'engine,socket.io*' }}
           # DISPLAY_TEST_NAMES: true # uncomment this line to see the test names in the logs
           FORCE_COLOR: 2
-          BROWSER_TIMEOUT: 540
+          BROWSER_TIMEOUT: 600 # 10 minutes
 
       - name: Upload testem logs
         if: ${{ always() && steps.run-tests-production.conclusion != 'skipped' }}

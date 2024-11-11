@@ -58,6 +58,7 @@
     }
   },
   "peerDependencies": {
+    "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",
     "@ember-data/store": "workspace:5.4.0-alpha.115",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.101"
   },
