@@ -13,7 +13,7 @@
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "scripts": {
-    "lint": "eslint . --quiet --cache --cache-strategy=content --report-unused-disable-directives",
+    "lint": "eslint . --quiet --cache --cache-strategy=content",
     "build:pkg": "vite build;",
     "prepack": "bun run build:pkg",
     "sync-hardlinks": "bun run sync-dependencies-meta-injected"
