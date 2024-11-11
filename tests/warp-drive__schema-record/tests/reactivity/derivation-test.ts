@@ -80,7 +80,7 @@ module('Reactivity | derivation', function (hooks) {
     assert.strictEqual(record.lastName, 'Pupatine', 'lastName is accessible');
     assert.strictEqual(record.fullName, 'Rey Pupatine', 'fullName is accessible');
 
-    const { counters, fieldOrder } = await reactiveContext.call(this, record, resource);
+    const { counters, fieldOrder } = await reactiveContext(record, resource);
     const nameIndex = fieldOrder.indexOf('firstName');
 
     assert.strictEqual(counters.id, 1, 'id Count is 1');

@@ -55,7 +55,7 @@ module('Reactivity | basic fields can receive remote updates', function (hooks) 
     assert.strictEqual(record.$type, 'user', '$type is accessible');
     assert.strictEqual(record.name, 'Rey Pupatine', 'name is accessible');
 
-    const { counters, fieldOrder } = await reactiveContext.call(this, record, resource);
+    const { counters, fieldOrder } = await reactiveContext(record, resource);
     const nameIndex = fieldOrder.indexOf('name');
 
     assert.strictEqual(counters.id, 1, 'idCount is 1');
@@ -169,7 +169,7 @@ module('Reactivity | basic fields can receive remote updates', function (hooks) 
     assert.strictEqual(record.coolometer, 100, 'coolometer is accessible');
     assert.strictEqual(record.rank, 0, 'rank is accessible');
 
-    const { counters, fieldOrder } = await reactiveContext.call(this, record, resource);
+    const { counters, fieldOrder } = await reactiveContext(record, resource);
     const nameIndex = fieldOrder.indexOf('name');
 
     assert.strictEqual(counters.id, 1, 'idCount is 1');

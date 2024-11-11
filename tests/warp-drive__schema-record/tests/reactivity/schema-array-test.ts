@@ -118,7 +118,7 @@ module('Reactivity | schema-array fields can receive remote updates', function (
     const addressRecord0 = record.addresses![0]!;
     const addressRecord1 = record.addresses![1]!;
 
-    const { counters, fieldOrder } = await reactiveContext.call(this, record, fields);
+    const { counters, fieldOrder } = await reactiveContext(record, fields);
     const favoriteNumbersIndex = fieldOrder.indexOf('favoriteNumbers');
 
     assert.strictEqual(counters.id, 1, 'idCount is 1');

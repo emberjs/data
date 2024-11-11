@@ -1,22 +1,20 @@
 import { get } from '@ember/helper';
-import type { TestContext } from '@ember/test-helpers';
 import { render } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 
 import type { ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
-import type { OpaqueRecordInstance } from '@warp-drive/core-types/record';
 import type { FieldSchema, IdentityField, ResourceSchema } from '@warp-drive/core-types/schema/fields';
 
 type Template<T> = {
   [key in keyof T & string]?: string;
 };
 
-export async function reactiveContext<T extends OpaqueRecordInstance>(
-  this: TestContext,
+export async function reactiveContext<T>(
   record: T,
   resource: ResourceSchema,
   template?: Template<T>
 ) {
+  type Key = keyof T & string;
   const _fields: string[] = [];
   const fields: Array<FieldSchema | IdentityField> = resource.fields.slice();
   if (resource.identity?.name) {
@@ -27,28 +25,36 @@ export async function reactiveContext<T extends OpaqueRecordInstance>(
     _fields.push(field.name);
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  interface ReactiveComponent extends Record<string, string> {}
   class ReactiveComponent extends Component {
+
     get __allFields() {
-      return _fields;
+      return _fields as unknown as string;
     }
 
     <template>
-      <div class="reactive-context"><ul>{{#each this.__allFields as |prop|}}<li>{{prop}}:
-              {{get this prop}}</li>{{/each}}</ul></div>
+      <div class="reactive-context">
+        <ul>
+        {{#each this.__allFields as |prop|}}
+          <li>{{prop}}: {{get this prop}}</li>
+        {{/each}}
+        </ul>
+      </div>
     </template>
   }
-  const counters: Record<string, number> = {};
+  const counters = {} as Record<Key, number>;
 
   fields.forEach((field) => {
-    counters[field.name] = 0;
+    counters[field.name as Key] = 0;
     Object.defineProperty(ReactiveComponent.prototype, field.name + 'Count', {
       get() {
-        return counters[field.name];
+        return counters[field.name as Key];
       },
     });
     Object.defineProperty(ReactiveComponent.prototype, field.name, {
       get() {
-        counters[field.name]++;
+        counters[field.name as Key]++;
 
         if (
           field.kind === 'attribute' ||
@@ -104,7 +110,7 @@ export async function reactiveContext<T extends OpaqueRecordInstance>(
 
   function reset() {
     fields.forEach((field) => {
-      counters[field.name] = 0;
+      counters[field.name as Key] = 0;
     });
   }
 

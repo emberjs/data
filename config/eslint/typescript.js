@@ -123,7 +123,7 @@ export function browser(config) {
       parser: parser(),
       parserOptions: {
         project: './tsconfig.json',
-        // projectService: true,
+        projectService: true,
         // tsconfigRootDir: import.meta.dirname,
         extraFileExtensions: ['.gts', '.gjs'],
       },

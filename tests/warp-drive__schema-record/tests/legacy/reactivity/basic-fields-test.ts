@@ -26,6 +26,7 @@ interface User {
   netWorth: number;
   coolometer: number;
   rank: number;
+  [Type]: 'user';
 }
 
 module('Legacy | Reactivity | basic fields can receive remote updates', function (hooks) {
@@ -50,18 +51,18 @@ module('Legacy | Reactivity | basic fields can receive remote updates', function
     );
 
     const resource = schema.resource({ type: 'user' });
-    const record = store.push({
+    const record = store.push<User>({
       data: {
         type: 'user',
         id: '1',
         attributes: { name: 'Rey Pupatine' },
       },
-    }) as User;
+    });
 
     assert.strictEqual(record.id, '1', 'id is accessible');
     assert.strictEqual(record.name, 'Rey Pupatine', 'name is accessible');
 
-    const { counters, fieldOrder } = await reactiveContext.call(this, record, resource);
+    const { counters, fieldOrder } = await reactiveContext(record, resource);
     const nameIndex = fieldOrder.indexOf('name');
 
     assert.strictEqual(counters.id, 1, 'idCount is 1');
@@ -187,7 +188,7 @@ module('Legacy | Reactivity | basic fields can receive remote updates', function
     assert.strictEqual(record.coolometer, 100, 'coolometer is accessible');
     assert.strictEqual(record.rank, 0, 'rank is accessible');
 
-    const { counters, fieldOrder } = await reactiveContext.call(this, record, resource);
+    const { counters, fieldOrder } = await reactiveContext(record, resource);
     const nameIndex = fieldOrder.indexOf('name');
 
     assert.strictEqual(counters.id, 1, 'idCount is 1');
@@ -320,7 +321,7 @@ module('Legacy | Reactivity | basic fields can receive remote updates', function
     assert.strictEqual(record.id, '1', 'id is accessible');
     assert.strictEqual(record.name, 'Rey Pupatine', 'name is accessible');
     assert.strictEqual(record.coolometer, undefined, 'coolometer is accessible');
-    const { counters, fieldOrder } = await reactiveContext.call(this, record, resource);
+    const { counters, fieldOrder } = await reactiveContext(record, resource);
     const nameIndex = fieldOrder.indexOf('name');
 
     assert.strictEqual(counters.id, 1, 'idCount is 1');
@@ -375,10 +376,10 @@ module('Legacy | Reactivity | basic fields can receive remote updates', function
       })
     );
 
-    const record = store.createRecord('user', {}) as User;
+    const record = store.createRecord<User>('user', {});
     const resource = schema.resource({ type: 'user' });
 
-    const { counters, fieldOrder } = await reactiveContext.call(this, record, resource);
+    const { counters, fieldOrder } = await reactiveContext(record, resource);
     const idIndex = fieldOrder.indexOf('id');
 
     assert.strictEqual(record.id, null, 'id is accessible');
@@ -411,11 +412,11 @@ module('Legacy | Reactivity | basic fields can receive remote updates', function
       })
     );
 
-    const record = store.createRecord('user', { name: 'Rey' }) as User;
+    const record = store.createRecord<User>('user', { name: 'Rey' });
     const identifier = recordIdentifierFor(record);
     const resource = schema.resource({ type: 'user' });
 
-    const { counters, fieldOrder } = await reactiveContext.call(this, record, resource);
+    const { counters, fieldOrder } = await reactiveContext(record, resource);
     const idIndex = fieldOrder.indexOf('id');
 
     assert.strictEqual(record.id, null, 'id is accessible');

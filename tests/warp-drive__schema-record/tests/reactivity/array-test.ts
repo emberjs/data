@@ -52,7 +52,7 @@ module('Reactivity | array fields can receive remote updates', function (hooks) 
     assert.strictEqual(record.$type, 'user', '$type is accessible');
     assert.deepEqual(record.favoriteNumbers, ['1', '2'], 'favoriteNumbers is accessible');
 
-    const { counters, fieldOrder } = await reactiveContext.call(this, record, resource);
+    const { counters, fieldOrder } = await reactiveContext(record, resource);
     const favoriteNumbersIndex = fieldOrder.indexOf('favoriteNumbers');
 
     assert.strictEqual(counters.id, 1, 'idCount is 1');

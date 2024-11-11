@@ -95,7 +95,7 @@ module('Legacy | Reactivity | relationships', function (hooks) {
     const Wes = store.peekRecord<User>('user', '3')!;
     const resource = schema.resource({ type: 'user' });
 
-    const { counters, fieldOrder } = await reactiveContext.call(this, Rey, resource, {
+    const { counters, fieldOrder } = await reactiveContext(Rey, resource, {
       bestFriend: 'name',
     });
 
@@ -216,7 +216,7 @@ module('Legacy | Reactivity | relationships', function (hooks) {
     const Wes = store.peekRecord<User>('user', '3')!;
     const resource = schema.resource({ type: 'user' });
 
-    const { counters, fieldOrder } = await reactiveContext.call(this, Rey, resource, {
+    const { counters, fieldOrder } = await reactiveContext(Rey, resource, {
       friends: 'name',
     });
 
@@ -343,7 +343,7 @@ module('Legacy | Reactivity | relationships', function (hooks) {
     const Wes = store.peekRecord<User>('user', '3')!;
     const resource = schema.resource({ type: 'user' });
 
-    const { counters, fieldOrder } = await reactiveContext.call(this, Rey, resource, {
+    const { counters, fieldOrder } = await reactiveContext(Rey, resource, {
       friends: 'name',
     });
 
@@ -472,7 +472,7 @@ module('Legacy | Reactivity | relationships', function (hooks) {
     const Wes = store.peekRecord<User>('user', '3')!;
     const resource = schema.resource({ type: 'user' });
 
-    const { counters, fieldOrder } = await reactiveContext.call(this, Rey, resource, {
+    const { counters, fieldOrder } = await reactiveContext(Rey, resource, {
       bestFriend: 'name',
     });
 
@@ -604,7 +604,7 @@ module('Legacy | Reactivity | relationships', function (hooks) {
     const Wes = store.peekRecord<User>('user', '3')!;
     const resource = schema.resource({ type: 'user' });
 
-    const { counters, fieldOrder } = await reactiveContext.call(this, Rey, resource, {
+    const { counters, fieldOrder } = await reactiveContext(Rey, resource, {
       friends: 'name',
     });
 
@@ -747,7 +747,7 @@ module('Legacy | Reactivity | relationships', function (hooks) {
     const Wes = store.peekRecord<User>('user', '3')!;
     const resource = schema.resource({ type: 'user' });
 
-    const { counters, fieldOrder } = await reactiveContext.call(this, Rey, resource, {
+    const { counters, fieldOrder } = await reactiveContext(Rey, resource, {
       friends: 'name',
     });
 
