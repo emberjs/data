@@ -2,6 +2,9 @@
   "name": "ember-data",
   "version": "4.12.8",
   "description": "The lightweight reactive data library for JavaScript applications",
+  "keywords": [
+    "ember-addon"
+  ],
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com:emberjs/data.git",
@@ -12,33 +15,57 @@
     "test": "tests"
   },
   "scripts": {
-    "prepack": "cd ../../ && pnpm build:docs"
+    "lint": "eslint . --quiet --cache --cache-strategy=content",
+    "build:pkg": "vite build;",
+    "prepack": "bun run build:pkg",
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+  },
+  "ember-addon": {
+    "main": "addon-main.cjs",
+    "type": "addon",
+    "version": 2,
+    "app-js": {
+      "./initializers/ember-data.js": "./app/initializers/ember-data.js",
+      "./services/store.js": "./app/services/store.js",
+      "./transforms/date.js": "./app/transforms/date.js",
+      "./transforms/number.js": "./app/transforms/number.js",
+      "./transforms/string.js": "./app/transforms/string.js",
+      "./transforms/boolean.js": "./app/transforms/boolean.js"
+    }
+  },
+  "files": [
+    "ember-data-logo-dark.svg",
+    "ember-data-logo-light.svg",
+    "LICENSE.md",
+    "README.md",
+    "addon-main.cjs",
+    "dist",
+    "app",
+    "blueprints",
+    "unstable-preview-types"
+  ],
+  "exports": {
+    ".": {
+      "types": "./unstable-preview-types/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./test-support": {
+      "types": "./unstable-preview-types/test-support/index.d.ts",
+      "default": "./dist/test-support/index.js"
+    },
+    "./app/*": {
+      "default": "./app/*.js"
+    },
+    "./blueprints/*": {
+      "default": "./blueprints/*.js"
+    },
+    "./*": {
+      "types": "./unstable-preview-types/*.d.ts",
+      "default": "./dist/*.js"
+    }
   },
   "author": "",
   "license": "MIT",
-  "peerDependencies": {
-    "@ember/string": "^3.0.1 || ^4.0.0"
-  },
-  "dependencies": {
-    "@ember-data/adapter": "workspace:4.12.8",
-    "@ember-data/debug": "workspace:4.12.8",
-    "@ember-data/model": "workspace:4.12.8",
-    "@ember-data/private-build-infra": "workspace:4.12.8",
-    "@ember-data/json-api": "workspace:4.12.8",
-    "@ember-data/legacy-compat": "workspace:4.12.8",
-    "@ember-data/request": "workspace:4.12.8",
-    "@ember-data/serializer": "workspace:4.12.8",
-    "@ember-data/store": "workspace:4.12.8",
-    "@ember-data/tracking": "workspace:4.12.8",
-    "@ember-data/graph": "workspace:4.12.8",
-    "@ember/edition-utils": "^1.2.0",
-    "@embroider/macros": "^1.10.0",
-    "@glimmer/env": "^0.1.7",
-    "broccoli-merge-trees": "^4.2.0",
-    "ember-auto-import": "^2.6.1",
-    "ember-cli-babel": "^7.26.11",
-    "ember-inflector": "^4.0.2"
-  },
   "dependenciesMeta": {
     "@ember-data/adapter": {
       "injected": true
@@ -70,30 +97,73 @@
     "@ember-data/tracking": {
       "injected": true
     },
-    "@ember-data/private-build-infra": {
+    "@warp-drive/core-types": {
+      "injected": true
+    },
+    "@warp-drive/build-config": {
       "injected": true
     }
   },
+  "dependencies": {
+    "@ember-data/adapter": "workspace:*",
+    "@ember-data/debug": "workspace:*",
+    "@ember-data/graph": "workspace:*",
+    "@ember-data/json-api": "workspace:*",
+    "@ember-data/legacy-compat": "workspace:*",
+    "@ember-data/model": "workspace:*",
+    "@ember-data/request": "workspace:*",
+    "@ember-data/request-utils": "workspace:*",
+    "@ember-data/serializer": "workspace:*",
+    "@ember-data/store": "workspace:*",
+    "@ember-data/tracking": "workspace:*",
+    "@ember/edition-utils": "^1.2.0",
+    "@embroider/macros": "^1.16.6",
+    "@warp-drive/core-types": "workspace:*",
+    "@warp-drive/build-config": "workspace:*"
+  },
+  "peerDependencies": {
+    "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",
+    "@ember/test-helpers": "^3.3.0 || ^4.0.4",
+    "@ember/test-waiters": "^3.1.0",
+    "qunit": "^2.18.0"
+  },
+  "peerDependenciesMeta": {
+    "@ember/test-helpers": {
+      "optional": true
+    },
+    "@ember/test-waiters": {
+      "optional": true
+    },
+    "qunit": {
+      "optional": true
+    }
+  },
   "devDependencies": {
-    "@babel/core": "^7.21.4",
-    "@ember/string": "^4.0.0",
+    "@babel/core": "^7.24.5",
+    "@babel/plugin-transform-typescript": "^7.24.5",
+    "@babel/preset-env": "^7.24.5",
+    "@babel/preset-typescript": "^7.24.1",
+    "@ember/test-waiters": "^3.1.0",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
-    "ember-source": "~4.12.0",
-    "webpack": "^5.77.0"
+    "@types/qunit": "^2.19.10",
+    "@ember/test-helpers": "4.0.4",
+    "@warp-drive/internal-config": "workspace:*",
+    "ember-source": "~5.12.0",
+    "eslint": "^9.12.0",
+    "pnpm-sync-dependencies-meta-injected": "0.0.14",
+    "vite": "^5.2.11",
+    "typescript": "^5.4.5",
+    "qunit": "^2.18.0"
   },
   "engines": {
-    "node": "16.* || >= 18.*"
+    "node": ">= 18.20.4"
   },
-  "keywords": [
-    "ember-addon"
-  ],
-  "ember-addon": {},
   "ember": {
     "edition": "octane"
   },
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@9.7.1"
+  "packageManager": "pnpm@8.15.9"
 }
