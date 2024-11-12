@@ -22,8 +22,9 @@ const parserOptions = {
       ecmaVersion: 'latest',
     },
     ts: {
-      projectService: true,
-      tsconfigRootDir: import.meta.dirname,
+      /* don't type check this package */
+      ecmaFeatures: { modules: true },
+      ecmaVersion: 'latest',
     },
   },
 };
