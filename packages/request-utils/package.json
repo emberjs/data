@@ -1,7 +1,7 @@
 {
   "name": "@ember-data/request-utils",
   "description": "Request Building Utilities for use with EmberData",
-  "version": "5.4.0-alpha.115",
+  "version": "5.4.0-alpha.116",
   "private": false,
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
@@ -54,7 +54,7 @@
   "peerDependencies": {
     "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",
     "@ember/string": "^3.1.1 || ^4.0.0",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.101",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.102",
     "ember-inflector": "^4.0.2 || ^5.0.0"
   },
   "peerDependenciesMeta": {
@@ -67,7 +67,7 @@
   },
   "dependencies": {
     "@embroider/macros": "^1.16.6",
-    "@warp-drive/build-config": "workspace:0.0.0-alpha.52"
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.53"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
@@ -76,8 +76,8 @@
     "@babel/preset-typescript": "^7.24.1",
     "@glimmer/component": "^1.1.2",
     "@ember/string": "3.1.1",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.101",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.115",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.102",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.116",
     "ember-source": "~5.12.0",
     "ember-inflector": "4.0.3",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
