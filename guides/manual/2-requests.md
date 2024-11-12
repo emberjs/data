@@ -98,13 +98,17 @@ flowchart LR
     E <--> H@{ shape: lin-cyl, label: "Source C" }
 ```
 
-### Handlers
-
-Requests are completed by handlers. Each handler may choose to fulfill the request, modify it,
-or pass it along unchanged to the next handler.
 
 A handler receives the request `context` as well as a `next` function with which to pass along
 a request if it so chooses.
+
+```ts
+type NextFn<T> = (req: RequestInfo) => Future<T>;
+
+type Handler = {
+  request<T>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T>;
+}
+```
 
 `next` returns a Future, which is a promise with a few additional capabilities. Futures resolve
 with the response from the next handler in the chain. This allows a handler to read or modify
