@@ -115,11 +115,6 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
         hasUpdatedLink = true;
       }
     }
-
-    assert(
-      `Cannot fetch ${identifier?.type ?? 'unknown'}.${op.field} because the field is in linksMode but the response is missing links`,
-      !definition.isLinksMode || (payload.links && payload.links.related)
-    );
   }
 
   /*

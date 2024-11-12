@@ -311,6 +311,46 @@ module('Legacy | Reads | relationships', function (hooks) {
     const store = this.owner.lookup('service:store') as Store;
     const { schema } = store;
 
+    const manager = new RequestManager();
+    const handler: Handler = {
+      request<T>(context: RequestContext, next: NextFn<T>): Promise<T> {
+        assert.step(`op=${context.request.op ?? 'UNKNOWN OP CODE'}, url=${context.request.url ?? 'UNKNOWN URL'}`);
+        return Promise.resolve({
+          data: {
+            type: 'user',
+            id: '3',
+            attributes: {
+              name: 'Ray',
+            },
+            relationships: {
+              bestFriend: {
+                links: { related: '/user/3/bestFriend' },
+                data: { type: 'user', id: '1' },
+              },
+            },
+          },
+          included: [
+            {
+              type: 'user',
+              id: '1',
+              attributes: {
+                name: 'Chris',
+              },
+              relationships: {
+                bestFriend: {
+                  links: { related: '/user/1/bestFriend' },
+                  data: { type: 'user', id: '3' },
+                },
+              },
+            },
+          ],
+        } as T);
+      },
+    };
+    manager.use([handler]);
+    manager.useCache(CacheHandler);
+    store.requestManager = manager;
+
     registerLegacyDerivations(schema);
 
     type LegacyUser = WithLegacyDerivations<{
@@ -373,31 +413,6 @@ module('Legacy | Reads | relationships', function (hooks) {
     assert.strictEqual(record.name, 'Chris', 'name is correct');
     assert.strictEqual(record.bestFriend?.id, '2', 'bestFriend.id is correct');
     assert.strictEqual(record.bestFriend?.name, 'Rey', 'bestFriend.name is correct');
-
-    const manager = new RequestManager();
-    const handler: Handler = {
-      request<T>(context: RequestContext, next: NextFn<T>): Promise<T> {
-        assert.step(`op=${context.request.op ?? 'UNKNOWN OP CODE'}, url=${context.request.url ?? 'UNKNOWN URL'}`);
-        return Promise.resolve({
-          data: {
-            type: 'user',
-            id: '3',
-            attributes: {
-              name: 'Ray',
-            },
-            relationships: {
-              bestFriend: {
-                links: { related: '/user/3/bestFriend' },
-                data: { type: 'user', id: '1' },
-              },
-            },
-          },
-        } as T);
-      },
-    };
-    manager.use([handler]);
-    manager.useCache(CacheHandler);
-    store.requestManager = manager;
 
     await record.belongsTo('bestFriend').reload();
 
@@ -502,7 +517,7 @@ module('Legacy | Reads | relationships', function (hooks) {
 
     await assert.expectAssertion(
       () => record.belongsTo('bestFriend').reload(),
-      'Cannot fetch user.bestFriend because the field is in linksMode but the response is missing links'
+      'Cannot fetch user.bestFriend because the field is in linksMode but the related link is missing'
     );
 
     assert.verifySteps(['op=findBelongsTo, url=/user/1/bestFriend'], 'op and url are correct');
