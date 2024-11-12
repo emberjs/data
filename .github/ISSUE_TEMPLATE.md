@@ -23,7 +23,7 @@ If a previous version of `ember-data` worked as `expected`, which was the most r
 
 ### Versions
 
-Run the following command and paste the output below: `pnpm list ember-source && pnpm list ember-cli && pnpm list --pattern ember-data`.
+Run the following command and paste the output below: `pnpm list ember-source && pnpm list ember-cli && pnpm list "*ember-data*"`.
 
 ```cli
 [Replace this line with the output]
