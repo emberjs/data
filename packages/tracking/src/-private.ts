@@ -1,4 +1,4 @@
-import { DEBUG } from '@ember-data/env';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 /**
  * This package provides primitives that allow powerful low-level
