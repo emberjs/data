@@ -70,7 +70,7 @@ const { content } = await manager.request<UsersQuery>({ url: '/users' });
 
 > [!TIP]
 > Manually supplying the generic is NOT the preferred way
-> to type a request, look for the section on [builders]()
+> to type a request, look for the section on [builders](./7-builders.md)
 > later.
 
 ### The Chain of Responsibility
