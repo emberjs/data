@@ -820,4 +820,144 @@ module('Legacy | Reactivity | relationships', function (hooks) {
     assert.dom(`li:nth-child(${nameIndex + 1})`).hasText('name: Rey Skybarker', 'name is rendered');
     assert.dom(`li:nth-child(${friendsIndex + 1})`).hasText('friends: Matt Seidel, Wesley Thoburn', 'name is rendered');
   });
+
+  test('sync belongsTo in linksMode is reactive', async function (assert) {
+    type User = {
+      id: string | null;
+      $type: 'user';
+      name: string;
+      bestFriend: User | null;
+      friends: User[];
+      [Type]: 'user';
+    };
+    const store = this.owner.lookup('service:store') as Store;
+    const { schema } = store;
+    registerLegacyDerivations(schema);
+
+    schema.registerResource(
+      withLegacy({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            type: null,
+            kind: 'attribute',
+          },
+          {
+            name: 'bestFriend',
+            type: 'user',
+            kind: 'belongsTo',
+            options: { async: false, inverse: 'bestFriend', linksMode: true },
+          },
+        ],
+      })
+    );
+
+    const Rey = store.push<User>({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Rey Skybarker',
+        },
+        relationships: {
+          bestFriend: {
+            links: { related: '/user/1/bestFriend' },
+            data: { type: 'user', id: '2' },
+          },
+        },
+      },
+      included: [
+        {
+          type: 'user',
+          id: '2',
+          attributes: {
+            name: 'Matt Seidel',
+          },
+          relationships: {
+            bestFriend: {
+              links: { related: '/user/2/bestFriend' },
+              data: { type: 'user', id: '1' },
+            },
+          },
+        },
+        {
+          type: 'user',
+          id: '3',
+          attributes: {
+            name: 'Wesley Thoburn',
+          },
+          relationships: {
+            bestFriend: {
+              links: { related: '/user/3/bestFriend' },
+              data: null,
+            },
+          },
+        },
+      ],
+    });
+    const Matt = store.peekRecord<User>('user', '2')!;
+    const Wes = store.peekRecord<User>('user', '3')!;
+    const resource = schema.resource({ type: 'user' });
+
+    const { counters, fieldOrder } = await reactiveContext.call(this, Rey, resource, {
+      bestFriend: 'name',
+    });
+
+    const nameIndex = fieldOrder.indexOf('name');
+    const bestFriendIndex = fieldOrder.indexOf('bestFriend');
+
+    assert.strictEqual(counters.id, 1, 'idCount is 1');
+    assert.strictEqual(counters.name, 1, 'nameCount is 1');
+    assert.strictEqual(counters.bestFriend, 1, 'bestFriendCount is 1');
+    assert.strictEqual(Rey.bestFriend?.id, '2', 'id is accessible');
+    assert.strictEqual(Rey.bestFriend?.name, 'Matt Seidel', 'name is accessible');
+
+    assert.dom(`li:nth-child(${nameIndex + 1})`).hasText('name: Rey Skybarker', 'name is rendered');
+    assert.dom(`li:nth-child(${bestFriendIndex + 1})`).hasText('bestFriend: Matt Seidel', 'name is rendered');
+
+    // remote update
+    store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          bestFriend: {
+            links: { related: '/user/1/bestFriend' },
+            data: { type: 'user', id: '3' },
+          },
+        },
+      },
+      included: [
+        {
+          type: 'user',
+          id: '3',
+          attributes: {
+            name: 'Wesley Thoburn',
+          },
+          relationships: {
+            bestFriend: {
+              links: { related: '/user/3/bestFriend' },
+              data: { type: 'user', id: '1' },
+            },
+          },
+        },
+      ],
+    });
+
+    assert.strictEqual(Rey.bestFriend, Wes, 'Wes is now the bestFriend of Rey');
+    assert.strictEqual(Wes.bestFriend, Rey, 'Rey is now the bestFriend of Wes');
+    assert.strictEqual(Matt.bestFriend, null, 'Matt no longer has a bestFriend');
+    assert.strictEqual(Rey.bestFriend?.id, '3', 'id is accessible');
+    assert.strictEqual(Rey.bestFriend?.name, 'Wesley Thoburn', 'name is accessible');
+
+    await rerender();
+
+    assert.strictEqual(counters.id, 1, 'idCount is 1');
+    assert.strictEqual(counters.name, 1, 'nameCount is 1');
+    assert.strictEqual(counters.bestFriend, 2, 'bestFriendCount is 2');
+
+    assert.dom(`li:nth-child(${nameIndex + 1})`).hasText('name: Rey Skybarker', 'name is rendered');
+    assert.dom(`li:nth-child(${bestFriendIndex + 1})`).hasText('bestFriend: Wesley Thoburn', 'name is rendered');
+  });
 });
