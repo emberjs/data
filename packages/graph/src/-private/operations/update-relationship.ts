@@ -117,7 +117,7 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
     }
 
     assert(
-      `Cannot fetch ${identifier?.type ?? 'unknown'}.${op.field} because the field is in linksMode but the response includes no links`,
+      `Cannot fetch ${identifier?.type ?? 'unknown'}.${op.field} because the field is in linksMode but the response is missing links`,
       !definition.isLinksMode || (payload.links && payload.links.related)
     );
   }

@@ -502,18 +502,9 @@ module('Legacy | Reads | relationships', function (hooks) {
 
     await assert.expectAssertion(
       () => record.belongsTo('bestFriend').reload(),
-      'Cannot fetch user.bestFriend because the field is in linksMode but the response includes no links'
+      'Cannot fetch user.bestFriend because the field is in linksMode but the response is missing links'
     );
 
     assert.verifySteps(['op=findBelongsTo, url=/user/1/bestFriend'], 'op and url are correct');
   });
 });
-
-/*
-FIXME:
-link but no data key = not supported YET
-link + data: null = supported
-link + data with identifier
-  referenced record in same payload = supported
-  referenced record not in payload = not supported
-*/

@@ -84,6 +84,7 @@ module('integration/relationship/belongs-to BelongsTo Relationships (linksMode)'
           },
           relationships: {
             bestFriend: {
+              links: { related: '/user/2/bestFriend' },
               data: { type: 'user', id: '1' },
             },
           },
@@ -126,6 +127,7 @@ module('integration/relationship/belongs-to BelongsTo Relationships (linksMode)'
             },
             relationships: {
               bestFriend: {
+                // oops we forgot links
                 data: { type: 'user', id: '1' },
               },
             },
@@ -183,7 +185,7 @@ module('integration/relationship/belongs-to BelongsTo Relationships (linksMode)'
 
     await assert.expectAssertion(
       () => record.belongsTo('bestFriend').reload(),
-      'Cannot fetch user.bestFriend because the field is in linksMode but the response includes no links'
+      'Cannot fetch user.bestFriend because the field is in linksMode but the response is missing links'
     );
 
     assert.verifySteps(
@@ -191,9 +193,154 @@ module('integration/relationship/belongs-to BelongsTo Relationships (linksMode)'
       'op and url are correct'
     );
   });
+
+  test('belongsTo reload fails if relationship data is undefined', async function (this: TestContext, assert) {
+    const store = this.owner.lookup('service:store') as Store;
+
+    const manager = new RequestManager();
+    const handler: Handler = {
+      request<T>(context): Promise<T> {
+        assert.step(`op=${context.request.op ?? 'UNKNOWN OP CODE'}, url=${context.request.url ?? 'UNKNOWN URL'}`);
+        return Promise.resolve({
+          data: {
+            type: 'user',
+            id: '3',
+            attributes: {
+              name: 'Ray',
+            },
+            relationships: {
+              bestFriend: {
+                links: { related: '/user/1/bestFriend' },
+                // oops no data
+              },
+            },
+          },
+        } as T);
+      },
+    };
+    const InterceptingHandler: Handler = {
+      request(context, next) {
+        assert.step('LegacyNetworkHandler.request was called');
+        return LegacyNetworkHandler.request(context, next);
+      },
+    };
+
+    manager.use([InterceptingHandler, handler]);
+    manager.useCache(CacheHandler);
+    store.requestManager = manager;
+
+    const record = store.push<User>({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Chris',
+        },
+        relationships: {
+          bestFriend: {
+            links: { related: '/user/1/bestFriend' },
+            data: { type: 'user', id: '2' },
+          },
+        },
+      },
+      included: [],
+    });
+
+    assert.strictEqual(record.id, '1', 'id is accessible');
+    assert.strictEqual(record.name, 'Chris', 'name is accessible');
+    assert.strictEqual(record.bestFriend?.id, '2', 'bestFriend.id is accessible');
+    assert.strictEqual(record.bestFriend?.name, 'Rey', 'bestFriend.name is accessible');
+    assert.strictEqual(record.bestFriend?.bestFriend?.id, record.id, 'bestFriend is reciprocal');
+
+    await assert.expectAssertion(
+      () => record.belongsTo('bestFriend').reload(),
+      'Cannot fetch user.bestFriend because the field is in linksMode but the response includes no data'
+    );
+
+    assert.verifySteps(
+      ['LegacyNetworkHandler.request was called', 'op=findBelongsTo, url=/user/1/bestFriend'],
+      'op and url are correct'
+    );
+  });
+
+  test('belongsTo reload allowed if relationship data is null', async function (this: TestContext, assert) {
+    const store = this.owner.lookup('service:store') as Store;
+
+    const manager = new RequestManager();
+    const handler: Handler = {
+      request<T>(context): Promise<T> {
+        assert.step(`op=${context.request.op ?? 'UNKNOWN OP CODE'}, url=${context.request.url ?? 'UNKNOWN URL'}`);
+        return Promise.resolve({
+          data: {
+            type: 'user',
+            id: '3',
+            attributes: {
+              name: 'Ray',
+            },
+            relationships: {
+              bestFriend: {},
+            },
+          },
+        } as T);
+      },
+    };
+    const InterceptingHandler: Handler = {
+      request(context, next) {
+        assert.step('LegacyNetworkHandler.request was called');
+        return LegacyNetworkHandler.request(context, next);
+      },
+    };
+
+    manager.use([InterceptingHandler, handler]);
+    manager.useCache(CacheHandler);
+    store.requestManager = manager;
+
+    const record = store.push<User>({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Chris',
+        },
+        relationships: {
+          bestFriend: {
+            links: { related: '/user/1/bestFriend' },
+            data: null,
+          },
+        },
+      },
+      included: [],
+    });
+
+    assert.strictEqual(record.id, '1', 'id is accessible');
+    assert.strictEqual(record.name, 'Chris', 'name is accessible');
+    assert.strictEqual(record.bestFriend?.id, '2', 'bestFriend.id is accessible');
+    assert.strictEqual(record.bestFriend?.name, 'Rey', 'bestFriend.name is accessible');
+    assert.strictEqual(record.bestFriend?.bestFriend?.id, record.id, 'bestFriend is reciprocal');
+
+    await record.belongsTo('bestFriend').reload();
+
+    assert.verifySteps(
+      ['LegacyNetworkHandler.request was called', 'op=findBelongsTo, url=/user/1/bestFriend'],
+      'op and url are correct'
+    );
+
+    assert.strictEqual(record.id, '1', 'id is correct');
+    assert.strictEqual(record.name, 'Chris', 'name is correct');
+    assert.strictEqual(record.bestFriend, null, 'bestFriend is correct');
+  });
 });
 
 // TODO: a second thing to do for legacy:
 // we should also add tests to the main test suite to confirm that instances of @ember-data/model in links-only
 // mode fetch their async relationship data via the link via requestmanager without requiring the legacy support
 // infrastructure.
+
+/*
+FIXME:
+link but no data key = not supported YET
+link + data: null = supported
+link + data with identifier
+  referenced record in same payload = supported
+  referenced record not in payload = not supported
+*/

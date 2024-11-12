@@ -130,6 +130,7 @@ module('Reads | belongsTo in linksMode', function (hooks) {
           },
           relationships: {
             bestFriend: {
+              links: { related: '/user/2/bestFriend' },
               data: { type: 'user', id: '1' },
             },
           },
@@ -165,6 +166,7 @@ module('Reads | belongsTo in linksMode', function (hooks) {
           },
           relationships: {
             bestFriend: {
+              links: { related: '/user/3/bestFriend' },
               data: { type: 'user', id: '1' },
             },
           },
@@ -211,6 +213,7 @@ module('Reads | belongsTo in linksMode', function (hooks) {
         },
         relationships: {
           bestFriend: {
+            // oops we forgot links
             data: { type: 'user', id: '2' },
           },
         },
@@ -224,6 +227,7 @@ module('Reads | belongsTo in linksMode', function (hooks) {
           },
           relationships: {
             bestFriend: {
+              links: { related: '/user/2/bestFriend' },
               data: { type: 'user', id: '1' },
             },
           },
@@ -237,8 +241,222 @@ module('Reads | belongsTo in linksMode', function (hooks) {
 
     await assert.expectAssertion(
       () => record.bestFriend,
-      'Cannot fetch user.bestFriend because the field is in linksMode but the response includes no links'
+      'Cannot fetch user.bestFriend because the field is in linksMode but the response is missing links'
     );
+  });
+
+  test('we error in linksMode if the relationship includes do not include a link', async function (this: TestContext, assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const { schema } = store;
+
+    registerDerivations(schema);
+
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'bestFriend',
+            type: 'user',
+            kind: 'belongsTo',
+            options: { inverse: 'bestFriend', async: false, linksMode: true },
+          },
+        ],
+      })
+    );
+
+    const record = store.push<User>({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Chris',
+        },
+        relationships: {
+          bestFriend: {
+            links: { related: '/user/1/bestFriend' },
+            data: { type: 'user', id: '2' },
+          },
+        },
+      },
+      included: [
+        {
+          type: 'user',
+          id: '2',
+          attributes: {
+            name: 'Rey',
+          },
+          relationships: {
+            bestFriend: {
+              // oops we forgot links
+              data: { type: 'user', id: '1' },
+            },
+          },
+        },
+      ],
+    });
+
+    assert.strictEqual(record.id, '1', 'id is accessible');
+    assert.strictEqual(record.$type, 'user', '$type is accessible');
+    assert.strictEqual(record.name, 'Chris', 'name is accessible');
+
+    await assert.expectAssertion(
+      () => record.bestFriend,
+      'Cannot fetch user.bestFriend because the field is in linksMode but the response is missing links'
+    );
+  });
+
+  test('we error in linksMode if the relationships are not included', async function (this: TestContext, assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const { schema } = store;
+
+    registerDerivations(schema);
+
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'bestFriend',
+            type: 'user',
+            kind: 'belongsTo',
+            options: { inverse: 'bestFriend', async: false, linksMode: true },
+          },
+        ],
+      })
+    );
+
+    const record = store.push<User>({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Chris',
+        },
+        relationships: {
+          bestFriend: {
+            links: { related: '/user/1/bestFriend' },
+            data: { type: 'user', id: '2' },
+          },
+        },
+      },
+      included: [],
+    });
+
+    assert.strictEqual(record.id, '1', 'id is accessible');
+    assert.strictEqual(record.$type, 'user', '$type is accessible');
+    assert.strictEqual(record.name, 'Chris', 'name is accessible');
+
+    await assert.expectAssertion(
+      () => record.bestFriend,
+      'Cannot fetch user.bestFriend because the field is in linksMode but the response includes no relationship data'
+    );
+  });
+
+  test('we error in linksMode if the relationship data is undefined', async function (this: TestContext, assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const { schema } = store;
+
+    registerDerivations(schema);
+
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'bestFriend',
+            type: 'user',
+            kind: 'belongsTo',
+            options: { inverse: 'bestFriend', async: false, linksMode: true },
+          },
+        ],
+      })
+    );
+
+    const record = store.push<User>({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Chris',
+        },
+        relationships: {
+          bestFriend: {
+            links: { related: '/user/1/bestFriend' },
+            // oops we forgot data
+          },
+        },
+      },
+      included: [],
+    });
+
+    assert.strictEqual(record.id, '1', 'id is accessible');
+    assert.strictEqual(record.$type, 'user', '$type is accessible');
+    assert.strictEqual(record.name, 'Chris', 'name is accessible');
+
+    await assert.expectAssertion(
+      () => record.bestFriend,
+      'Cannot fetch user.bestFriend because the field is in linksMode but the response includes no data'
+    );
+  });
+
+  test('we do not error in linksMode if the relationship data is null', function (this: TestContext, assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const { schema } = store;
+
+    registerDerivations(schema);
+
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'bestFriend',
+            type: 'user',
+            kind: 'belongsTo',
+            options: { inverse: 'bestFriend', async: false, linksMode: true },
+          },
+        ],
+      })
+    );
+
+    const record = store.push<User>({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Chris',
+        },
+        relationships: {
+          bestFriend: {
+            links: { related: '/user/1/bestFriend' },
+            data: null,
+          },
+        },
+      },
+      included: [],
+    });
+
+    assert.strictEqual(record.id, '1', 'id is accessible');
+    assert.strictEqual(record.$type, 'user', '$type is accessible');
+    assert.strictEqual(record.name, 'Chris', 'name is accessible');
+    assert.strictEqual(record.bestFriend, null, 'bestFriend is null');
   });
 
   test('we error for async belongsTo access in linksMode because we are not implemented yet', async function (this: TestContext, assert) {
