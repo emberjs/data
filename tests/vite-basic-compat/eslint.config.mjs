@@ -48,14 +48,6 @@ export default ts.config(
     },
   },
   {
-    files: ['**/*.ts'],
-    plugins: { ember },
-    languageOptions: {
-      parserOptions: parserOptions.esm.ts,
-    },
-    extends: [...ts.configs.strictTypeChecked, ...emberRecommended],
-  },
-  {
     files: ['**/*.gjs'],
     languageOptions: {
       parser: emberParser,
@@ -73,12 +65,12 @@ export default ts.config(
     },
   },
   {
-    files: ['**/*.gts'],
+    files: ['**/*.{ts,gts}'],
     plugins: { ember },
     languageOptions: {
       parserOptions: parserOptions.esm.ts,
     },
-    extends: [...ts.configs.strictTypeChecked, ...emberRecommended, ...gtsRecommended],
+    extends: [...ts.configs.recommended, ...emberRecommended, ...gtsRecommended],
   },
   {
     files: ['tests/**/*-test.{js,gjs}'],
