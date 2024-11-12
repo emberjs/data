@@ -1,5 +1,8 @@
 {
   "include": ["app/**/*", "config/**/*", "tests/**/*"],
+  "glint": {
+    "environment": ["ember-loose", "ember-template-imports"]
+  },
   "compilerOptions": {
     "lib": ["DOM", "ESNext"],
     "module": "esnext",

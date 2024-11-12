@@ -160,7 +160,7 @@ module('integration/references/has-many', function (hooks) {
 
     const personsReference = family.hasMany('persons');
     let renderedValue;
-    const context = await createTrackingContext(this.owner, {
+    const context = await createTrackingContext({
       get value() {
         renderedValue = personsReference.value();
         return renderedValue;

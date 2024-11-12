@@ -75,7 +75,7 @@ module('Reactivity | object fields can receive remote updates', function (hooks)
       'address is accessible'
     );
 
-    const { counters } = await reactiveContext.call(this, record, resource);
+    const { counters } = await reactiveContext(record, resource);
     // TODO: actually render the address object and verify
     // const addressIndex = fieldOrder.indexOf('address');
 
