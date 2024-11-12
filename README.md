@@ -67,8 +67,13 @@ rich application &mdash; letting you ship better experiences more quickly withou
 ## Installation
 
 ```sh
-npx warp-drive 
+pnpm add ember-data
 ```
+
+> [!NOTE]
+> This will install the "legacy" experience. A new installer
+> is currently being worked on for the Polaris experience and will
+> be available soon.
 
 ## Compatibility
 
