@@ -1,3 +1,7 @@
+| | |
+| -- | -- |
+| [← Introduction](./1-overview.md) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Key Data Structures →](./3-data.md) |
+
 ## Requests
 
 Requests are how your application fetches data from a source or asks the source to update data to a new state.
@@ -120,6 +124,12 @@ type Handler = {
 
 A handler may be any object with a `request` method. This allows both stateful and non-stateful handlers to be utilized.
 
-### Creating Great Handlers
+> [!TIP]
+> Handlers should take care of the most generalizable concerns. In general great handlers
+> - apply to many-if-not-all requests
+> - have a clear heuristic by which they activate (a header, op-code, option, or url scheme)
+> - don't block response streaming (we'll talk about this later)
 
-Handlers should take care of the most generalizable concerns
+| | |
+| -- | -- |
+| [← Introduction](./1-overview.md) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Key Data Structures →](./3-data.md) |
