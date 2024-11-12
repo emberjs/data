@@ -8,6 +8,13 @@
   "files.associations": {
     "turbo.json": "jsonc"
   },
+  "typescript.preferences.autoImportSpecifierExcludeRegexes": [
+    "^@ember/-internals/.*$",
+    "^@ember-data/*/-private(.*?)$",
+    "^@warp-drive/*/-private(.*?)$",
+    "^ember-data/.*$",
+    "^ember-data$"
+  ],
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
   "[javascript]": {
