@@ -18,7 +18,6 @@
     "lint:hbs:fix": "ember-template-lint . --fix",
     "lint:js": "eslint . --cache",
     "lint:js:fix": "eslint . --fix",
-    "lint:types": "glint",
     "start": "vite",
     "test:vite": "vite build --mode test && ember test --path dist"
   },
@@ -87,10 +86,6 @@
     "@embroider/vite": "0.2.1-unstable.c51ca2b",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
-    "@glint/core": "1.4.1-unstable.34c4510",
-    "@glint/environment-ember-loose": "1.4.1-unstable.34c4510",
-    "@glint/environment-ember-template-imports": "1.4.1-unstable.34c4510",
-    "@glint/template": "1.4.1-unstable.34c4510",
     "@rollup/plugin-babel": "^6.0.4",
     "@tsconfig/ember": "^3.0.8",
     "@types/eslint__js": "^8.42.3",
