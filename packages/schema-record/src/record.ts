@@ -312,11 +312,6 @@ export class SchemaRecord {
             );
           case 'belongsTo':
             if (field.options.linksMode) {
-              assert(
-                `Cannot fetch ${identifier.type}.${field.name} because the field is in linksMode but async is not yet supported`,
-                !field.options.async
-              );
-
               entangleSignal(signals, receiver, field.name);
               const rawValue = cache.getRelationship(identifier, field.name) as SingleResourceRelationship;
 
