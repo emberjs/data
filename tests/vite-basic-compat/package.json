@@ -19,7 +19,8 @@
     "lint:js": "eslint . --cache",
     "lint:js:fix": "eslint . --fix",
     "start": "vite",
-    "test:vite": "vite build --mode test && ember test --path dist"
+    "test:vite": "vite build --mode test && ember test --path dist",
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
   "dependenciesMeta": {
     "ember-data": {
