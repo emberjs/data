@@ -133,6 +133,7 @@
     "eslint-plugin-qunit": "^8.1.2",
     "globals": "^15.12.0",
     "loader.js": "^4.7.0",
+    "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "prettier": "^3.3.3",
     "prettier-plugin-ember-template-tag": "^2.0.4",
     "qunit": "^2.22.0",
