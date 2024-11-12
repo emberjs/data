@@ -7,16 +7,8 @@ concat-stats-for
 dist
 dist-*
 tmp
-packages/tracking/addon
-packages/request/addon
-packages/request-utils/addon
-packages/store/addon
-packages/adapter/addon
-packages/serializer/addon
-packages/model/addon
-packages/json-api/addon
-packages/graph/addon
-packages/legacy-compat/addon
+unstable-preview-types
+packages/*/addon
 
 # dependencies
 bower_components
@@ -24,15 +16,18 @@ node_modules
 scripts/asset-size-tracking/current-data.json
 
 # misc
+.turbo/
 .env*
 .pnp*
+.prettier-cache
 .sass-cache
-/.eslintcache
+.eslintcache
 /onnect.lock
 coverage/*
 libpeerconnection.log
 npm-debug.log*
 testem.log
+test-execution-*.json
 yarn-error.log
 .broccoli-cache
 tsconfig.tsbuildinfo
@@ -58,6 +53,6 @@ benchmarks/results/*.json
 /packages/*/DEBUG
 /tests/*/DEBUG
 
-.vscode/
+!.vscode/
 .idea/
 *.iml
