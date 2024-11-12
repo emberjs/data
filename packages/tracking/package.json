@@ -35,7 +35,7 @@
   },
   "peerDependencies": {
     "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.102"
+    "@warp-drive/core-types": "workspace:*"
   },
   "files": [
     "unstable-preview-types",
