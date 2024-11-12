@@ -8,3 +8,4 @@
 3) [Key Data Structures](./3-data.md)
 4) [Caching](./4-caching.md)
 5) [Working with Data in your UI](./5-presentation.md)
+6) [Field Schemas](./6-schemas.md)
