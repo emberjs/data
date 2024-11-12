@@ -32,6 +32,8 @@ to a request-centric library and began accelerating towards our goal of becoming
 a universal library prepared for the demands of web applications over the coming
 decades.
 
+<br>
+
 ## Why WarpDrive?
 
 WarpDrive is the data framework for building ambitious applications.
@@ -57,6 +59,8 @@ domain, you can dedupe and cache requests across multiple apps and tabs at once!
 This means we are as good for embedded content and MPAs as we are for SPAs.
 
 Our core philosophy is to deliver value that lasts decades and evolves with your app.
+
+<br>
 
 | | |
 | -- | -- |

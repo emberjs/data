@@ -4,15 +4,27 @@
 
 ## Caching
 
+<br>
+
 ### CacheHandler
+
+<br>
 
 ### CachePolicy
 
+<br>
+
 ### In-Memory Cache
+
+<br>
 
 ### Cache Eviction
 
+<br>
+
 ### Persisted Caching
+
+<br>
 
 | | |
 | -- | -- |

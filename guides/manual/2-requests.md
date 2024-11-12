@@ -12,6 +12,8 @@ Sources can be anything that has the ability for you to store and retrieve data:
 
 Though the actual source and connection type do not matter, in a typical app requests are fulfilled by making [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) calls against server endpoints making up an API.
 
+<br>
+
 ### Fetch Example
 
 > [!TIP]
@@ -73,6 +75,8 @@ const { content } = await manager.request<UsersQuery>({ url: '/users' });
 > to type a request, look for the section on [builders](./7-builders.md)
 > later.
 
+<br>
+
 ### The Chain of Responsibility
 
 When we created the request manager for our application above, you may have noticed that when we told it to fulfill requests using the `Fetch` handler we did so by passing in an array:
@@ -133,6 +137,8 @@ A handler may be any object with a `request` method. This allows both stateful a
 > - apply to many-if-not-all requests
 > - have a clear heuristic by which they activate (a header, op-code, option, or url scheme)
 > - don't block response streaming (we'll talk about this later)
+
+<br>
 
 | | |
 | -- | -- |

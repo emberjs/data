@@ -64,6 +64,8 @@ rich application &mdash; letting you ship better experiences more quickly withou
 - [Team](https://emberjs.com/team)
 - [Blog](https://emberjs.com/blog)
 
+<br>
+
 ## Installation
 
 ```sh
@@ -74,6 +76,8 @@ pnpm add ember-data
 > This will install the "legacy" experience. A new installer
 > is currently being worked on for the Polaris experience and will
 > be available soon.
+
+<br>
 
 ## Compatibility
 
@@ -99,6 +103,8 @@ project tested against at the point of release.
 | unsupported[^1]<br>(prior LTS) | ![NPM Stable Version](https://img.shields.io/npm/v/ember-data/lts-4-4?label&color=90EE90) | `4.4.6`   | `3.28` `4.*` | `3.28` `4.4` | `3.28.12`<br> `>= 4.*` |
 
 [^1]: This version may receive special long-term patches to assist model-fragments users in creating a migration path onto 5.x and off of ModelFragments
+
+<br>
 
 ## The Big List of Versions
 
@@ -127,9 +133,13 @@ project tested against at the point of release.
 | [@ember-data/store](./packages/store#readme) | 🌌 | ![NPM LTS 4.12 Version](https://img.shields.io/npm/v/@ember-data/store/lts-4-12?label&color=bbbbbb) | ![NPM LTS Version](https://img.shields.io/npm/v/@ember-data/store/lts?label&color=0096ff) | ![NPM Stable Version](https://img.shields.io/npm/v/@ember-data/store/latest?label&color=90EE90) | ![NPM Beta Version](https://img.shields.io/npm/v/@ember-data/store/beta?label&color=ff00ff) | ![NPM Canary Version](https://img.shields.io/npm/v/@ember-data/store/canary?label&color=FFBF00) |
 | [@ember-data/tracking](./packages/tracking#readme) | 🌌🐹 | ![NPM LTS 4.12 Version](https://img.shields.io/npm/v/@ember-data/tracking/lts-4-12?label&color=bbbbbb) | ![NPM LTS Version](https://img.shields.io/npm/v/@ember-data/tracking/lts?label&color=0096ff) | ![NPM Stable Version](https://img.shields.io/npm/v/@ember-data/tracking/latest?label&color=90EE90) | ![NPM Beta Version](https://img.shields.io/npm/v/@ember-data/tracking/beta?label&color=ff00ff) | ![NPM Canary Version](https://img.shields.io/npm/v/@ember-data/tracking/canary?label&color=FFBF00) |
 
+<br>
+
 ## Code of Conduct
 
 Refer to the [Code of Conduct](https://github.com/emberjs/data/blob/main/CODE_OF_CONDUCT.md) for community guidelines and inclusivity.
+
+<br>
 
 ### License
 

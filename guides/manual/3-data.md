@@ -20,6 +20,8 @@ Misalignment tends to occur when API and Application developers don't work toget
 requirements, or when the format in use is "lossy" (unable to accurately convey the full scope of
 information being serialized)
 
+<br>
+
 | | |
 | -- | -- |
 | [← Making Requests](./2-requests.md) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Caching →](./4-caching.md) |
