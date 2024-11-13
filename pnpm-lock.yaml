@@ -2005,7 +2005,7 @@ importers:
         version: file:packages/tracking(@babel/core@7.24.5)(@glint/template@1.5.0)(@warp-drive/core-types@0.0.0-alpha.102)(ember-source@5.12.0)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:5.4.0-alpha.116
-        version: file:packages/unpublished-test-infra(@babel/core@7.24.5)(@ember-data/request@5.4.0-alpha.116)(@ember-data/store@5.4.0-alpha.116)(@ember-data/tracking@5.4.0-alpha.116)(@ember/test-helpers@4.0.4)(@warp-drive/core-types@0.0.0-alpha.102)(ember-source@5.12.0)(qunit@2.19.4)
+        version: file:packages/unpublished-test-infra(@babel/core@7.24.5)(@ember-data/request@5.4.0-alpha.116)(@ember-data/store@5.4.0-alpha.116)(@ember-data/tracking@5.4.0-alpha.116)(@ember/test-helpers@4.0.4)(@warp-drive/core-types@0.0.0-alpha.102)(@warp-drive/diagnostic@0.0.0-alpha.102)(ember-source@5.12.0)
       '@ember/edition-utils':
         specifier: ^1.2.0
         version: 1.2.0
@@ -3083,7 +3083,7 @@ importers:
         version: file:packages/tracking(@babel/core@7.24.5)(@glint/template@1.5.0)(@warp-drive/core-types@0.0.0-alpha.102)(ember-source@5.12.0)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:5.4.0-alpha.116
-        version: file:packages/unpublished-test-infra(@babel/core@7.24.5)(@ember-data/request@5.4.0-alpha.116)(@ember-data/store@5.4.0-alpha.116)(@ember-data/tracking@5.4.0-alpha.116)(@ember/test-helpers@4.0.4)(@warp-drive/core-types@0.0.0-alpha.102)(ember-source@5.12.0)(qunit@2.19.4)
+        version: file:packages/unpublished-test-infra(@babel/core@7.24.5)(@ember-data/request@5.4.0-alpha.116)(@ember-data/store@5.4.0-alpha.116)(@ember-data/tracking@5.4.0-alpha.116)(@ember/test-helpers@4.0.4)(@warp-drive/core-types@0.0.0-alpha.102)(@warp-drive/diagnostic@0.0.0-alpha.102)(ember-source@5.12.0)
       '@ember/optional-features':
         specifier: ^2.1.0
         version: 2.1.0
@@ -3227,7 +3227,7 @@ importers:
         version: file:packages/tracking(@babel/core@7.24.5)(@glint/template@1.5.0)(@warp-drive/core-types@0.0.0-alpha.102)(ember-source@5.12.0)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:5.4.0-alpha.116
-        version: file:packages/unpublished-test-infra(@babel/core@7.24.5)(@ember-data/request@5.4.0-alpha.116)(@ember-data/store@5.4.0-alpha.116)(@ember-data/tracking@5.4.0-alpha.116)(@ember/test-helpers@4.0.4)(@warp-drive/core-types@0.0.0-alpha.102)(ember-source@5.12.0)(qunit@2.19.4)
+        version: file:packages/unpublished-test-infra(@babel/core@7.24.5)(@ember-data/request@5.4.0-alpha.116)(@ember-data/store@5.4.0-alpha.116)(@ember-data/tracking@5.4.0-alpha.116)(@ember/test-helpers@4.0.4)(@warp-drive/core-types@0.0.0-alpha.102)(@warp-drive/diagnostic@0.0.0-alpha.102)(ember-source@5.12.0)
       '@ember/optional-features':
         specifier: ^2.1.0
         version: 2.1.0
@@ -3403,7 +3403,7 @@ importers:
         version: file:packages/tracking(@babel/core@7.24.5)(@glint/template@1.5.0)(@warp-drive/core-types@0.0.0-alpha.102)(ember-source@5.12.0)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:5.4.0-alpha.116
-        version: file:packages/unpublished-test-infra(@babel/core@7.24.5)(@ember-data/request@5.4.0-alpha.116)(@ember-data/store@5.4.0-alpha.116)(@ember-data/tracking@5.4.0-alpha.116)(@ember/test-helpers@4.0.4)(@warp-drive/core-types@0.0.0-alpha.102)(ember-source@5.12.0)(qunit@2.19.4)
+        version: file:packages/unpublished-test-infra(@babel/core@7.24.5)(@ember-data/request@5.4.0-alpha.116)(@ember-data/store@5.4.0-alpha.116)(@ember-data/tracking@5.4.0-alpha.116)(@ember/test-helpers@4.0.4)(@warp-drive/core-types@0.0.0-alpha.102)(@warp-drive/diagnostic@0.0.0-alpha.102)(ember-source@5.12.0)
       '@ember/edition-utils':
         specifier: ^1.2.0
         version: 1.2.0
@@ -3560,7 +3560,7 @@ importers:
     dependencies:
       '@ember-data/unpublished-test-infra':
         specifier: workspace:5.4.0-alpha.116
-        version: file:packages/unpublished-test-infra(@babel/core@7.24.5)(@ember-data/request@5.4.0-alpha.116)(@ember-data/store@5.4.0-alpha.116)(@ember-data/tracking@5.4.0-alpha.116)(@ember/test-helpers@4.0.4)(@warp-drive/core-types@0.0.0-alpha.102)(ember-source@5.12.0)(qunit@2.19.4)
+        version: file:packages/unpublished-test-infra(@babel/core@7.24.5)(@ember-data/request@5.4.0-alpha.116)(@ember-data/store@5.4.0-alpha.116)(@ember-data/tracking@5.4.0-alpha.116)(@ember/test-helpers@4.0.4)(@warp-drive/core-types@0.0.0-alpha.102)(@warp-drive/diagnostic@0.0.0-alpha.102)(ember-source@5.12.0)
       ember-auto-import:
         specifier: ^2.10.0
         version: 2.10.0(@glint/template@1.5.0)
@@ -3824,7 +3824,7 @@ importers:
         version: file:packages/tracking(@babel/core@7.24.5)(@glint/template@1.5.0)(@warp-drive/core-types@0.0.0-alpha.102)(ember-source@5.12.0)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:5.4.0-alpha.116
-        version: file:packages/unpublished-test-infra(@babel/core@7.24.5)(@ember-data/request@5.4.0-alpha.116)(@ember-data/store@5.4.0-alpha.116)(@ember-data/tracking@5.4.0-alpha.116)(@ember/test-helpers@4.0.4)(@glint/template@1.5.0)(@warp-drive/core-types@0.0.0-alpha.102)(ember-source@5.12.0)(qunit@2.19.4)
+        version: file:packages/unpublished-test-infra(@babel/core@7.24.5)(@ember-data/request@5.4.0-alpha.116)(@ember-data/store@5.4.0-alpha.116)(@ember-data/tracking@5.4.0-alpha.116)(@ember/test-helpers@4.0.4)(@glint/template@1.5.0)(@warp-drive/core-types@0.0.0-alpha.102)(@warp-drive/diagnostic@0.0.0-alpha.102)(ember-source@5.12.0)
       '@ember/edition-utils':
         specifier: ^1.2.0
         version: 1.2.0
@@ -4155,7 +4155,7 @@ importers:
         version: file:packages/tracking(@babel/core@7.26.0)(@warp-drive/core-types@0.0.0-alpha.102)(ember-source@5.12.0)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:5.4.0-alpha.116
-        version: file:packages/unpublished-test-infra(@babel/core@7.26.0)(@ember-data/request@5.4.0-alpha.116)(@ember-data/store@5.4.0-alpha.116)(@ember-data/tracking@5.4.0-alpha.116)(@ember/test-helpers@4.0.4)(@warp-drive/core-types@0.0.0-alpha.102)(ember-source@5.12.0)(qunit@2.19.4)
+        version: file:packages/unpublished-test-infra(@babel/core@7.26.0)(@ember-data/request@5.4.0-alpha.116)(@ember-data/store@5.4.0-alpha.116)(@ember-data/tracking@5.4.0-alpha.116)(@ember/test-helpers@4.0.4)(@warp-drive/core-types@0.0.0-alpha.102)(ember-source@5.12.0)
       '@ember/optional-features':
         specifier: ^2.1.0
         version: 2.1.0
@@ -4773,7 +4773,7 @@ importers:
         version: file:packages/tracking(@babel/core@7.24.5)(@glint/template@1.5.0)(@warp-drive/core-types@0.0.0-alpha.102)(ember-source@5.12.0)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:5.4.0-alpha.116
-        version: file:packages/unpublished-test-infra(@babel/core@7.24.5)(@ember-data/request@5.4.0-alpha.116)(@ember-data/store@5.4.0-alpha.116)(@ember-data/tracking@5.4.0-alpha.116)(@ember/test-helpers@4.0.4)(@glint/template@1.5.0)(@warp-drive/core-types@0.0.0-alpha.102)(ember-source@5.12.0)(qunit@2.19.4)
+        version: file:packages/unpublished-test-infra(@babel/core@7.24.5)(@ember-data/request@5.4.0-alpha.116)(@ember-data/store@5.4.0-alpha.116)(@ember-data/tracking@5.4.0-alpha.116)(@ember/test-helpers@4.0.4)(@glint/template@1.5.0)(@warp-drive/core-types@0.0.0-alpha.102)(@warp-drive/diagnostic@0.0.0-alpha.102)(ember-source@5.12.0)
       '@ember/edition-utils':
         specifier: ^1.2.0
         version: 1.2.0
@@ -9528,7 +9528,7 @@ packages:
   /@glint/environment-ember-loose@1.5.0(@glimmer/component@1.1.2)(@glint/template@1.5.0)(ember-cli-htmlbars@6.3.0):
     resolution: {integrity: sha512-QCP4pVupq8zGcBmMDcEq9XI5lfrnklwNOIuzdXb8OnbcY6qpuwz5Y6VOsA1WNGRcip/5wwOsmI6gsAEUTlbvPQ==}
     peerDependencies:
-      '@glimmer/component': ^1.1.2
+      '@glimmer/component': '*'
       '@glint/template': 1.5.0
       '@types/ember__array': ^4.0.2
       '@types/ember__component': ^4.0.10
@@ -15067,7 +15067,7 @@ packages:
     dependencies:
       '@embroider/addon-shim': 1.8.9
       '@simple-dom/document': 1.4.0
-      ember-source: 5.12.0(@glimmer/component@2.0.0)
+      ember-source: 5.12.0(@glimmer/component@1.1.2)(@glint/template@1.5.0)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -15214,7 +15214,7 @@ packages:
     resolution: {integrity: sha512-2MWlJmQEeeiIk9p5CDMuvD470YPi7/4wXgU41ftbWc9svwF+0usoe4PLoLC0T/jV6YX+3SY5tumQfxLSLoFhmQ==}
     engines: {node: '>= 18.*'}
     peerDependencies:
-      '@glimmer/component': ^1.1.2
+      '@glimmer/component': '*'
     dependencies:
       '@babel/core': 7.24.5(supports-color@8.1.1)
       '@ember/edition-utils': 1.2.0
@@ -15272,7 +15272,7 @@ packages:
     resolution: {integrity: sha512-2MWlJmQEeeiIk9p5CDMuvD470YPi7/4wXgU41ftbWc9svwF+0usoe4PLoLC0T/jV6YX+3SY5tumQfxLSLoFhmQ==}
     engines: {node: '>= 18.*'}
     peerDependencies:
-      '@glimmer/component': ^1.1.2
+      '@glimmer/component': '*'
     dependencies:
       '@babel/core': 7.24.5(supports-color@8.1.1)
       '@ember/edition-utils': 1.2.0
@@ -24862,12 +24862,9 @@ packages:
       '@warp-drive/core-types': workspace:0.0.0-alpha.102
       '@warp-drive/diagnostic': workspace:0.0.0-alpha.102
       ember-source: '*'
-      qunit: 2.19.4
       testem: ~3.11.0
     peerDependenciesMeta:
       '@warp-drive/diagnostic':
-        optional: true
-      qunit:
         optional: true
       testem:
         optional: true
@@ -24880,46 +24877,6 @@ packages:
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.24.5)(@glint/template@1.5.0)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.24.5)(@glint/template@1.5.0)
       '@warp-drive/diagnostic': file:packages/diagnostic(@babel/core@7.24.5)(@ember/test-helpers@4.0.4)(@glint/template@1.5.0)(ember-cli-test-loader@3.1.0)(ember-source@5.12.0)
-      chalk: 4.1.2
-      ember-source: 5.12.0(@glimmer/component@1.1.2)(@glint/template@1.5.0)
-      qunit: 2.19.4(patch_hash=2jwk2nz4gqke2k5hv6ptj42llu)
-      semver: 7.6.3
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-    dev: true
-
-  file:packages/unpublished-test-infra(@babel/core@7.24.5)(@ember-data/request@5.4.0-alpha.116)(@ember-data/store@5.4.0-alpha.116)(@ember-data/tracking@5.4.0-alpha.116)(@ember/test-helpers@4.0.4)(@glint/template@1.5.0)(@warp-drive/core-types@0.0.0-alpha.102)(ember-source@5.12.0)(qunit@2.19.4):
-    resolution: {directory: packages/unpublished-test-infra, type: directory}
-    id: file:packages/unpublished-test-infra
-    name: '@ember-data/unpublished-test-infra'
-    engines: {node: '>= 18.20.4'}
-    peerDependencies:
-      '@ember-data/request': workspace:5.4.0-alpha.116
-      '@ember-data/store': workspace:5.4.0-alpha.116
-      '@ember-data/tracking': workspace:5.4.0-alpha.116
-      '@ember/test-helpers': 3.3.0 || ^4.0.4
-      '@warp-drive/core-types': workspace:0.0.0-alpha.102
-      '@warp-drive/diagnostic': workspace:0.0.0-alpha.102
-      ember-source: '*'
-      qunit: 2.19.4
-      testem: ~3.11.0
-    peerDependenciesMeta:
-      '@warp-drive/diagnostic':
-        optional: true
-      qunit:
-        optional: true
-      testem:
-        optional: true
-    dependencies:
-      '@ember-data/request': file:packages/request(@babel/core@7.24.5)(@glint/template@1.5.0)(@warp-drive/core-types@0.0.0-alpha.102)
-      '@ember-data/store': file:packages/store(@babel/core@7.24.5)(@ember-data/request-utils@5.4.0-alpha.116)(@ember-data/request@5.4.0-alpha.116)(@ember-data/tracking@5.4.0-alpha.116)(@glint/template@1.5.0)(@warp-drive/core-types@0.0.0-alpha.102)(ember-source@5.12.0)
-      '@ember-data/tracking': file:packages/tracking(@babel/core@7.24.5)(@glint/template@1.5.0)(@warp-drive/core-types@0.0.0-alpha.102)(ember-source@5.12.0)
-      '@ember/test-helpers': 4.0.4(patch_hash=zignhd6n3rugkiuawsmbuxfdka)(@babel/core@7.24.5)(@glint/template@1.5.0)(ember-source@5.12.0)
-      '@embroider/macros': 1.16.9(@babel/core@7.24.5)(@glint/template@1.5.0)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.24.5)(@glint/template@1.5.0)
-      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.24.5)(@glint/template@1.5.0)
       chalk: 4.1.2
       ember-source: 5.12.0(@glimmer/component@1.1.2)(@glint/template@1.5.0)
       qunit: 2.19.4(patch_hash=2jwk2nz4gqke2k5hv6ptj42llu)
@@ -24943,12 +24900,9 @@ packages:
       '@warp-drive/core-types': workspace:0.0.0-alpha.102
       '@warp-drive/diagnostic': workspace:0.0.0-alpha.102
       ember-source: '*'
-      qunit: 2.19.4
       testem: ~3.11.0
     peerDependenciesMeta:
       '@warp-drive/diagnostic':
-        optional: true
-      qunit:
         optional: true
       testem:
         optional: true
@@ -24970,7 +24924,7 @@ packages:
       - '@glint/template'
       - supports-color
 
-  file:packages/unpublished-test-infra(@babel/core@7.24.5)(@ember-data/request@5.4.0-alpha.116)(@ember-data/store@5.4.0-alpha.116)(@ember-data/tracking@5.4.0-alpha.116)(@ember/test-helpers@4.0.4)(@warp-drive/core-types@0.0.0-alpha.102)(ember-source@5.12.0)(qunit@2.19.4):
+  file:packages/unpublished-test-infra(@babel/core@7.26.0)(@ember-data/request@5.4.0-alpha.116)(@ember-data/store@5.4.0-alpha.116)(@ember-data/tracking@5.4.0-alpha.116)(@ember/test-helpers@4.0.4)(@warp-drive/core-types@0.0.0-alpha.102)(ember-source@5.12.0):
     resolution: {directory: packages/unpublished-test-infra, type: directory}
     id: file:packages/unpublished-test-infra
     name: '@ember-data/unpublished-test-infra'
@@ -24983,51 +24937,9 @@ packages:
       '@warp-drive/core-types': workspace:0.0.0-alpha.102
       '@warp-drive/diagnostic': workspace:0.0.0-alpha.102
       ember-source: '*'
-      qunit: 2.19.4
       testem: ~3.11.0
     peerDependenciesMeta:
       '@warp-drive/diagnostic':
-        optional: true
-      qunit:
-        optional: true
-      testem:
-        optional: true
-    dependencies:
-      '@ember-data/request': file:packages/request(@babel/core@7.24.5)(@glint/template@1.5.0)(@warp-drive/core-types@0.0.0-alpha.102)
-      '@ember-data/store': file:packages/store(@babel/core@7.24.5)(@ember-data/request-utils@5.4.0-alpha.116)(@ember-data/request@5.4.0-alpha.116)(@ember-data/tracking@5.4.0-alpha.116)(@warp-drive/core-types@0.0.0-alpha.102)(ember-source@5.12.0)
-      '@ember-data/tracking': file:packages/tracking(@babel/core@7.24.5)(@glint/template@1.5.0)(@warp-drive/core-types@0.0.0-alpha.102)(ember-source@5.12.0)
-      '@ember/test-helpers': 4.0.4(patch_hash=zignhd6n3rugkiuawsmbuxfdka)(@babel/core@7.24.5)(@glint/template@1.5.0)(ember-source@5.12.0)
-      '@embroider/macros': 1.16.9(@babel/core@7.24.5)(@glint/template@1.5.0)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.24.5)(@glint/template@1.5.0)
-      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.24.5)(@glint/template@1.5.0)
-      chalk: 4.1.2
-      ember-source: 5.12.0(@glimmer/component@1.1.2)(@glint/template@1.5.0)
-      qunit: 2.19.4(patch_hash=2jwk2nz4gqke2k5hv6ptj42llu)
-      semver: 7.6.3
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
-  file:packages/unpublished-test-infra(@babel/core@7.26.0)(@ember-data/request@5.4.0-alpha.116)(@ember-data/store@5.4.0-alpha.116)(@ember-data/tracking@5.4.0-alpha.116)(@ember/test-helpers@4.0.4)(@warp-drive/core-types@0.0.0-alpha.102)(ember-source@5.12.0)(qunit@2.19.4):
-    resolution: {directory: packages/unpublished-test-infra, type: directory}
-    id: file:packages/unpublished-test-infra
-    name: '@ember-data/unpublished-test-infra'
-    engines: {node: '>= 18.20.4'}
-    peerDependencies:
-      '@ember-data/request': workspace:5.4.0-alpha.116
-      '@ember-data/store': workspace:5.4.0-alpha.116
-      '@ember-data/tracking': workspace:5.4.0-alpha.116
-      '@ember/test-helpers': 3.3.0 || ^4.0.4
-      '@warp-drive/core-types': workspace:0.0.0-alpha.102
-      '@warp-drive/diagnostic': workspace:0.0.0-alpha.102
-      ember-source: '*'
-      qunit: 2.19.4
-      testem: ~3.11.0
-    peerDependenciesMeta:
-      '@warp-drive/diagnostic':
-        optional: true
-      qunit:
         optional: true
       testem:
         optional: true
