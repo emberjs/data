@@ -1,6 +1,5 @@
 // deprecations
 export const DEPRECATE_CATCH_ALL: boolean = true;
-export const DEPRECATE_3_12: boolean = true;
 export const DEPRECATE_SAVE_PROMISE_ACCESS: boolean = true;
 export const DEPRECATE_RSVP_PROMISE: boolean = true;
 export const DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS: boolean = true;

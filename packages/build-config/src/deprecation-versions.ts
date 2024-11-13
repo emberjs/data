@@ -90,18 +90,6 @@
 export const DEPRECATE_CATCH_ALL = '99.0';
 
 /**
- * The following list represents deprecations currently active.
- *
- * Some deprecation flags guard multiple deprecation IDs. All
- * associated IDs are listed.
- *
- * @class CurrentDeprecations
- * @public
- */
-export const DEPRECATE_CATCH_ALL = '99.0';
-export const DEPRECATE_3_12 = '3.12';
-
-/**
  * **id: ember-data:rsvp-unresolved-async**
  *
  * Deprecates when a request promise did not resolve prior to the store tearing down.
