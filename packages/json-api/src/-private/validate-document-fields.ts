@@ -17,6 +17,12 @@ export function validateDocumentFields(
     return;
   }
 
+  if (typeof jsonApiDoc.data !== 'object') {
+    throw new Error(
+      `Expected a resource object in the 'data' property in the document provided to the cache, but was ${typeof jsonApiDoc.data}`
+    );
+  }
+
   if (Array.isArray(data)) {
     for (const resource of data) {
       validateResourceFields(schema, resource, { verifyIncluded: true, included });

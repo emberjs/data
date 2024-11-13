@@ -276,11 +276,6 @@ export default class JSONAPICache implements Cache {
       );
     }
 
-    assert(
-      `Expected a resource object in the 'data' property in the document provided to the cache, but was ${typeof jsonApiDoc.data}`,
-      typeof jsonApiDoc.data === 'object'
-    );
-
     const identifier = putOne(this, identifierCache, jsonApiDoc.data);
     return this._putDocument(
       doc as StructuredDataDocument<SingleResourceDocument>,
