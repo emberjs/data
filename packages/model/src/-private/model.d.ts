@@ -23,7 +23,6 @@ export type ModelCreateArgs = {
   };
 };
 
-
 class Model extends EmberObject {
   store: Store;
   errors: Errors;
@@ -32,7 +31,7 @@ class Model extends EmberObject {
   toString(): string;
   save(): Promise<this>;
   hasMany(key: string): HasManyReference;
-  belongsTo(key: string): BelongsToReference
+  belongsTo(key: string): BelongsToReference;
   eachRelationship<T>(callback: (this: T, key: string, meta: RelationshipSchema) => void, binding?: T): void;
   eachAttribute<T>(callback: (this: T, key: string, meta: AttributeSchema) => void, binding?: T): void;
   invalidErrorsChanged(errors: JsonApiError[]): void;
@@ -52,7 +51,10 @@ class Model extends EmberObject {
   static attributes: Map<string, AttributeSchema>;
   static relationshipsByName: Map<string, RelationshipSchema>;
   static eachAttribute<T>(callback: (this: T, key: string, attribute: AttributeSchema) => void, binding?: T): void;
-  static eachRelationship<T>(callback: (this: T, key: string, relationship: RelationshipSchema) => void, binding?: T): void;
+  static eachRelationship<T>(
+    callback: (this: T, key: string, relationship: RelationshipSchema) => void,
+    binding?: T
+  ): void;
   static eachTransformedAttribute<T>(callback: (this: T, key: string, type: string | null) => void, binding?: T): void;
 
   static toString(): string;

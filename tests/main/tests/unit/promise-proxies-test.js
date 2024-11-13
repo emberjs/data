@@ -174,9 +174,14 @@ module('unit/PromiseBelongsTo', function (hooks) {
 
     const belongsToProxy = parent.child;
 
-    assert.expectAssertion(() => {
-      belongsToProxy.meta;
-    }, 'You attempted to access meta on the promise for the async belongsTo relationship ' + `child:child'.` + '\nUse `record.belongsTo(relationshipName).meta()` instead.');
+    assert.expectAssertion(
+      () => {
+        belongsToProxy.meta;
+      },
+      'You attempted to access meta on the promise for the async belongsTo relationship ' +
+        `child:child'.` +
+        '\nUse `record.belongsTo(relationshipName).meta()` instead.'
+    );
     assert.strictEqual(parent.belongsTo('child').meta(), meta);
 
     await belongsToProxy;

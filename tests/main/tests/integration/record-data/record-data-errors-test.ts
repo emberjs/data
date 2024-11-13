@@ -397,7 +397,11 @@ if (!DEPRECATE_V1_RECORD_DATA) {
     }
 
     class TestRecordIdentifier implements NewRecordIdentifier {
-      constructor(public id: string | null, public lid: string, public type: string) {}
+      constructor(
+        public id: string | null,
+        public lid: string,
+        public type: string
+      ) {}
     }
 
     class TestRecordData implements CacheV1 {

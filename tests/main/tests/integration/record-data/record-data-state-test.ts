@@ -52,7 +52,11 @@ class Person extends Model {
 }
 
 class TestRecordIdentifier implements NewRecordIdentifier {
-  constructor(public id: string | null, public lid: string, public type: string) {}
+  constructor(
+    public id: string | null,
+    public lid: string,
+    public type: string
+  ) {}
 }
 
 class V1TestRecordData implements CacheV1 {
