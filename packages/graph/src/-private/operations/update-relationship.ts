@@ -1,11 +1,19 @@
-import { assert, warn } from '@ember/debug';
+import { warn } from '@ember/debug';
 
-import type { ExistingResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
+import type Store from '@ember-data/store';
+import { assert } from '@warp-drive/build-config/macros';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { UpdateRelationshipOperation } from '@warp-drive/core-types/graph';
+import type {
+  ExistingResourceIdentifierObject,
+  NewResourceIdentifierObject,
+} from '@warp-drive/core-types/spec/json-api-raw';
 
-import _normalizeLink from '../../normalize-link';
-import type { UpdateRelationshipOperation } from '../-operations';
 import { isBelongsTo, isHasMany, notifyChange } from '../-utils';
 import type { Graph } from '../graph';
+import _normalizeLink from '../normalize-link';
+
+type IdentifierCache = Store['identifierCache'];
 
 /*
     Updates the "canonical" or "remote" state of a relationship, replacing any existing
@@ -36,25 +44,23 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
       }
       assert(`Expected an array`, Array.isArray(payload.data));
       const cache = graph.store.identifierCache;
-      // TODO may not need to cast to stable identifiers here since update likely does this too
       graph.update(
         {
           op: 'replaceRelatedRecords',
           record: identifier,
           field: op.field,
-          value: payload.data.map((i) => cache.getOrCreateRecordIdentifier(i)),
+          value: upgradeIdentifiers(payload.data, cache),
         },
         true
       );
     } else {
-      // TODO may not need to cast to stable identifiers here since update likely does this too
       graph.update(
         {
           op: 'replaceRelatedRecord',
           record: identifier,
           field: op.field,
           value: payload.data
-            ? graph.store.identifierCache.getOrCreateRecordIdentifier(payload.data as ExistingResourceIdentifierObject)
+            ? graph.store.identifierCache.upgradeIdentifier(payload.data as ExistingResourceIdentifierObject)
             : null,
         },
         true
@@ -144,7 +150,11 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
     // this only works when the side with just a link is a belongsTo, as we
     // don't know if a hasMany has full information or not.
     // see #7049 for context.
-    if (isCollection || !relationship.state.hasReceivedData || relationship.transactionRef === 0) {
+    if (
+      isCollection ||
+      !relationship.state.hasReceivedData ||
+      isStaleTransaction(relationship.transactionRef, graph._transaction)
+    ) {
       relationship.state.isStale = true;
 
       notifyChange(graph, relationship.identifier, relationship.definition.key);
@@ -152,4 +162,22 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
       relationship.state.isStale = false;
     }
   }
+}
+
+function isStaleTransaction(relationshipTransactionId: number, graphTransactionId: number | null) {
+  return (
+    relationshipTransactionId === 0 || // relationship has never notified
+    graphTransactionId === null || // we are not in a transaction
+    relationshipTransactionId < graphTransactionId // we are not part of the current transaction
+  );
+}
+
+export function upgradeIdentifiers(
+  arr: (ExistingResourceIdentifierObject | NewResourceIdentifierObject | StableRecordIdentifier)[],
+  cache: IdentifierCache
+): StableRecordIdentifier[] {
+  for (let i = 0; i < arr.length; i++) {
+    arr[i] = cache.upgradeIdentifier(arr[i]);
+  }
+  return arr as StableRecordIdentifier[];
 }

@@ -1,29 +1,32 @@
-import { assert, inspect, warn } from '@ember/debug';
+import { inspect, warn } from '@ember/debug';
 
 import type { Store } from '@ember-data/store/-private';
 import { peekCache } from '@ember-data/store/-private';
-import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { Dict } from '@ember-data/types/q/utils';
+import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { LOG_GRAPH } from '@warp-drive/build-config/debugging';
+import { assert } from '@warp-drive/build-config/macros';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { UpdateRelationshipOperation } from '@warp-drive/core-types/graph';
+import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
 
-import { coerceId } from '../coerce-id';
-import type BelongsToRelationship from '../relationships/state/belongs-to';
-import type ManyRelationship from '../relationships/state/has-many';
-import type { UpdateRelationshipOperation } from './-operations';
-import type { Graph, ImplicitRelationship } from './graph';
+import type { UpgradedMeta } from './-edge-definition';
+import { coerceId } from './coerce-id';
+import type { CollectionEdge } from './edges/collection';
+import type { ImplicitEdge } from './edges/implicit';
+import type { ResourceEdge } from './edges/resource';
+import type { Graph, GraphEdge } from './graph';
 
-export function getStore(wrapper: CacheStoreWrapper | { _store: Store }): Store {
+export function getStore(wrapper: CacheCapabilitiesManager | { _store: Store }): Store {
   assert(`expected a private _store property`, '_store' in wrapper);
   return wrapper._store;
 }
 
-export function expandingGet<T>(cache: Dict<Dict<T>>, key1: string, key2: string): T | undefined {
+export function expandingGet<T>(cache: Record<string, Record<string, T>>, key1: string, key2: string): T | undefined {
   const mainCache = (cache[key1] = cache[key1] || Object.create(null));
   return mainCache[key2];
 }
 
-export function expandingSet<T>(cache: Dict<Dict<T>>, key1: string, key2: string, value: T): void {
+export function expandingSet<T>(cache: Record<string, Record<string, T>>, key1: string, key2: string, value: T): void {
   const mainCache = (cache[key1] = cache[key1] || Object.create(null));
   mainCache[key2] = value;
 }
@@ -78,28 +81,19 @@ export function isNew(identifier: StableRecordIdentifier): boolean {
   return Boolean(cache?.isNew(identifier));
 }
 
-export function isBelongsTo(
-  relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship
-): relationship is BelongsToRelationship {
+export function isBelongsTo(relationship: GraphEdge): relationship is ResourceEdge {
   return relationship.definition.kind === 'belongsTo';
 }
 
-export function isImplicit(
-  relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship
-): relationship is ImplicitRelationship {
+export function isImplicit(relationship: GraphEdge): relationship is ImplicitEdge {
   return relationship.definition.isImplicit;
 }
 
-export function isHasMany(
-  relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship
-): relationship is ManyRelationship {
+export function isHasMany(relationship: GraphEdge): relationship is CollectionEdge {
   return relationship.definition.kind === 'hasMany';
 }
 
-export function forAllRelatedIdentifiers(
-  rel: BelongsToRelationship | ManyRelationship | ImplicitRelationship,
-  cb: (identifier: StableRecordIdentifier) => void
-): void {
+export function forAllRelatedIdentifiers(rel: GraphEdge, cb: (identifier: StableRecordIdentifier) => void): void {
   if (isBelongsTo(rel)) {
     if (rel.remoteState) {
       cb(rel.remoteState);
@@ -108,36 +102,18 @@ export function forAllRelatedIdentifiers(
       cb(rel.localState);
     }
   } else if (isHasMany(rel)) {
-    // ensure we don't walk anything twice if an entry is
-    // in both localMembers and remoteMembers
-    const seen = new Set();
-
-    for (let i = 0; i < rel.localState.length; i++) {
-      const inverseIdentifier = rel.localState[i];
-      if (!seen.has(inverseIdentifier)) {
-        seen.add(inverseIdentifier);
-        cb(inverseIdentifier);
-      }
-    }
-
+    // TODO
+    // rel.remoteMembers.forEach(cb);
+    // might be simpler if performance is not a concern
     for (let i = 0; i < rel.remoteState.length; i++) {
       const inverseIdentifier = rel.remoteState[i];
-      if (!seen.has(inverseIdentifier)) {
-        seen.add(inverseIdentifier);
-        cb(inverseIdentifier);
-      }
+      cb(inverseIdentifier);
     }
+    rel.additions?.forEach(cb);
   } else {
-    const seen = new Set();
-    rel.localMembers.forEach((inverseIdentifier) => {
-      if (!seen.has(inverseIdentifier)) {
-        seen.add(inverseIdentifier);
-        cb(inverseIdentifier);
-      }
-    });
+    rel.localMembers.forEach(cb);
     rel.remoteMembers.forEach((inverseIdentifier) => {
-      if (!seen.has(inverseIdentifier)) {
-        seen.add(inverseIdentifier);
+      if (!rel.localMembers.has(inverseIdentifier)) {
         cb(inverseIdentifier);
       }
     });
@@ -152,7 +128,7 @@ export function forAllRelatedIdentifiers(
   */
 export function removeIdentifierCompletelyFromRelationship(
   graph: Graph,
-  relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship,
+  relationship: GraphEdge,
   value: StableRecordIdentifier,
   silenceNotifications?: boolean
 ): void {
@@ -172,21 +148,24 @@ export function removeIdentifierCompletelyFromRelationship(
     }
   } else if (isHasMany(relationship)) {
     relationship.remoteMembers.delete(value);
-    relationship.localMembers.delete(value);
+    relationship.additions?.delete(value);
+    const wasInRemovals = relationship.removals?.delete(value);
 
     const canonicalIndex = relationship.remoteState.indexOf(value);
     if (canonicalIndex !== -1) {
       relationship.remoteState.splice(canonicalIndex, 1);
     }
 
-    const currentIndex = relationship.localState.indexOf(value);
-    if (currentIndex !== -1) {
-      relationship.localState.splice(currentIndex, 1);
-      // This allows dematerialized inverses to be rematerialized
-      // we shouldn't be notifying here though, figure out where
-      // a notification was missed elsewhere.
-      if (!silenceNotifications) {
-        notifyChange(graph, relationship.identifier, relationship.definition.key);
+    if (!wasInRemovals) {
+      const currentIndex = relationship.localState?.indexOf(value);
+      if (currentIndex !== -1 && currentIndex !== undefined) {
+        relationship.localState!.splice(currentIndex, 1);
+        // This allows dematerialized inverses to be rematerialized
+        // we shouldn't be notifying here though, figure out where
+        // a notification was missed elsewhere.
+        if (!silenceNotifications) {
+          notifyChange(graph, relationship.identifier, relationship.definition.key);
+        }
       }
     }
   } else {
@@ -212,7 +191,12 @@ export function notifyChange(graph: Graph, identifier: StableRecordIdentifier, k
   graph.store.notifyChange(identifier, 'relationships', key);
 }
 
-export function assertRelationshipData(store, identifier, data, meta) {
+export function assertRelationshipData(
+  store: Store,
+  identifier: StableRecordIdentifier,
+  data: ResourceIdentifierObject,
+  meta: UpgradedMeta
+) {
   assert(
     `A ${identifier.type} record was pushed into the store with the value of ${meta.key} being '${JSON.stringify(
       data
@@ -224,25 +208,40 @@ export function assertRelationshipData(store, identifier, data, meta) {
   assert(
     `Encountered a relationship identifier without a type for the ${meta.kind} relationship '${meta.key}' on <${
       identifier.type
-    }:${identifier.id}>, expected an identifier with type '${meta.type}' but found\n\n'${JSON.stringify(
+    }:${String(identifier.id)}>, expected an identifier with type '${meta.type}' but found\n\n'${JSON.stringify(
       data,
       null,
       2
     )}'\n\nPlease check your serializer and make sure it is serializing the relationship payload into a JSON API format.`,
-    data === null || (typeof data.type === 'string' && data.type.length)
+    data === null || ('type' in data && typeof data.type === 'string' && data.type.length)
   );
   assert(
     `Encountered a relationship identifier without an id for the ${meta.kind} relationship '${meta.key}' on <${
       identifier.type
-    }:${identifier.id}>, expected an identifier but found\n\n'${JSON.stringify(
+    }:${String(identifier.id)}>, expected an identifier but found\n\n'${JSON.stringify(
       data,
       null,
       2
     )}'\n\nPlease check your serializer and make sure it is serializing the relationship payload into a JSON API format.`,
     data === null || !!coerceId(data.id)
   );
-  assert(
-    `Encountered a relationship identifier with type '${data.type}' for the ${meta.kind} relationship '${meta.key}' on <${identifier.type}:${identifier.id}>, Expected an identifier with type '${meta.type}'. No model was found for '${data.type}'.`,
-    data === null || !data.type || store.getSchemaDefinitionService().doesTypeExist(data.type)
-  );
+  if (data?.type === meta.type) {
+    assert(
+      `Missing Schema: Encountered a relationship identifier { type: '${data.type}', id: '${String(
+        data.id
+      )}' } for the '${identifier.type}.${meta.key}' ${meta.kind} relationship on <${identifier.type}:${String(
+        identifier.id
+      )}>, but no schema exists for that type.`,
+      store.schema.hasResource(data)
+    );
+  } else {
+    assert(
+      `Missing Schema: Encountered a relationship identifier with type '${data.type}' for the ${
+        meta.kind
+      } relationship '${meta.key}' on <${identifier.type}:${String(
+        identifier.id
+      )}>, Expected an identifier with type '${meta.type}'. No schema was found for '${data.type}'.`,
+      data === null || !data.type || store.schema.hasResource(data)
+    );
+  }
 }

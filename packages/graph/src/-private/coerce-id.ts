@@ -1,4 +1,4 @@
-import { DEBUG } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
 
 // Used by the store to normalize IDs entering the store.  Despite the fact
 // that developers may provide IDs as numbers (e.g., `store.findRecord('person', 1)`),
@@ -9,16 +9,12 @@ import { DEBUG } from '@warp-drive/build-config/env';
 type Coercable = string | number | boolean | null | undefined | symbol;
 
 export function coerceId(id: Coercable): string | null {
-  if (id === null || id === undefined || id === '') {
-    return null;
-  }
-  if (typeof id === 'string') {
-    return id;
-  }
-  if (typeof id === 'symbol') {
-    return id.toString();
-  }
-  return '' + id;
+  assert(
+    `Resource IDs must be a non-empty string or null. Received '${String(id)}'.`,
+    id === null || (typeof id === 'string' && id.length > 0)
+  );
+
+  return id;
 }
 
 export function ensureStringId(id: Coercable): string {
@@ -26,14 +22,10 @@ export function ensureStringId(id: Coercable): string {
   if (typeof id === 'string') {
     normalized = id.length > 0 ? id : null;
   } else if (typeof id === 'number' && !isNaN(id)) {
-    normalized = '' + id;
+    normalized = String(id);
   }
 
-  if (DEBUG) {
-    if (normalized === null) {
-      throw new Error(`Expected id to be a string or number, received ${String(id)}`);
-    }
-  }
+  assert(`Expected id to be a string or number, received ${String(id)}`, normalized !== null);
 
-  return normalized!;
+  return normalized;
 }

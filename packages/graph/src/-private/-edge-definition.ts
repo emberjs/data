@@ -1,18 +1,47 @@
-import { assert } from '@ember/debug';
-
-import type { RelationshipDefinition } from '@ember-data/model/-private/relationship-meta';
 import type Store from '@ember-data/store';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
-import type { Dict } from '@ember-data/types/q/utils';
-import { DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
-import { assertInheritedSchema } from '../debug/assert-polymorphic-type';
+import type {
+  CollectionField,
+  FieldSchema,
+  LegacyBelongsToField,
+  LegacyHasManyField,
+  ResourceField,
+} from '@warp-drive/core-types/schema/fields';
+
 import { expandingGet, expandingSet, getStore } from './-utils';
+import { assertInheritedSchema } from './debug/assert-polymorphic-type';
 import type { Graph } from './graph';
+import { DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE } from '@warp-drive/build-config/deprecations';
 
-export type EdgeCache = Dict<Dict<EdgeDefinition | null>>;
+export type EdgeCache = Record<string, Record<string, EdgeDefinition | null>>;
+
+export type RelationshipField = LegacyBelongsToField | LegacyHasManyField | ResourceField | CollectionField;
+export type RelationshipFieldKind = RelationshipField['kind'];
+export type CollectionKind = 'hasMany' | 'collection';
+export type ResourceKind = 'belongsTo' | 'resource';
+export const RELATIONSHIP_KINDS = ['belongsTo', 'hasMany', 'resource', 'collection'];
+
+export function isLegacyField(field: FieldSchema): field is LegacyBelongsToField | LegacyHasManyField {
+  return field.kind === 'belongsTo' || field.kind === 'hasMany';
+}
+
+export function isRelationshipField(field: FieldSchema): field is RelationshipField {
+  return RELATIONSHIP_KINDS.includes(field.kind);
+}
+
+export function temporaryConvertToLegacy(
+  field: ResourceField | CollectionField
+): LegacyBelongsToField | LegacyHasManyField {
+  return {
+    kind: field.kind === 'resource' ? 'belongsTo' : 'hasMany',
+    name: field.name,
+    type: field.type,
+    options: Object.assign({}, { async: false, inverse: null, resetOnRemoteUpdate: false as const }, field.options),
+  };
+}
 
 /**
  *
@@ -51,6 +80,7 @@ export type EdgeCache = Dict<Dict<EdgeDefinition | null>>;
  *   inverseIsCollection: false,
  *   inverseIsPolymorphic: false,
  * }
+ * ```
  *
  * The UpgradeMeta for the LHS would be:
  *
@@ -78,7 +108,7 @@ export type EdgeCache = Dict<Dict<EdgeDefinition | null>>;
  * @internal
  */
 export interface UpgradedMeta {
-  kind: 'hasMany' | 'belongsTo' | 'implicit';
+  kind: 'implicit' | RelationshipFieldKind;
   /**
    * The field name on `this` record
    *
@@ -95,8 +125,9 @@ export interface UpgradedMeta {
   isImplicit: boolean;
   isCollection: boolean;
   isPolymorphic: boolean;
+  resetOnRemoteUpdate: boolean;
 
-  inverseKind: 'hasMany' | 'belongsTo' | 'implicit';
+  inverseKind: 'implicit' | RelationshipFieldKind;
   /**
    * The field name on the opposing record
    * @internal
@@ -166,9 +197,16 @@ function syncMeta(definition: UpgradedMeta, inverseDefinition: UpgradedMeta) {
   definition.inverseIsCollection = inverseDefinition.isCollection;
   definition.inverseIsPolymorphic = inverseDefinition.isPolymorphic;
   definition.inverseIsImplicit = inverseDefinition.isImplicit;
+  const resetOnRemoteUpdate =
+    definition.resetOnRemoteUpdate === false || inverseDefinition.resetOnRemoteUpdate === false ? false : true;
+  definition.resetOnRemoteUpdate = resetOnRemoteUpdate;
+  inverseDefinition.resetOnRemoteUpdate = resetOnRemoteUpdate;
 }
 
-function upgradeMeta(meta: RelationshipSchema): UpgradedMeta {
+function upgradeMeta(meta: RelationshipField): UpgradedMeta {
+  if (!isLegacyField(meta)) {
+    meta = temporaryConvertToLegacy(meta);
+  }
   const niceMeta: UpgradedMeta = {} as UpgradedMeta;
   const options = meta.options;
   niceMeta.kind = meta.kind;
@@ -186,6 +224,12 @@ function upgradeMeta(meta: RelationshipSchema): UpgradedMeta {
   niceMeta.inverseIsImplicit = (options && options.inverse === null) || BOOL_LATER;
   niceMeta.inverseIsCollection = BOOL_LATER;
 
+  niceMeta.resetOnRemoteUpdate = isLegacyField(meta)
+    ? meta.options?.resetOnRemoteUpdate === false
+      ? false
+      : true
+    : false;
+
   return niceMeta;
 }
 
@@ -197,18 +241,18 @@ function assertConfiguration(info: EdgeDefinition, type: string, key: string) {
       return true;
     }
 
-    const isRHS =
+    const _isRHS =
       key === info.rhs_relationshipName &&
       (type === info.rhs_baseModelName || // base or non-polymorphic
         // if the other side is polymorphic then we need to scan our modelNames
         (info.lhs_isPolymorphic && info.rhs_modelNames.includes(type))); // polymorphic
-    const isLHS =
+    const _isLHS =
       key === info.lhs_relationshipName &&
       (type === info.lhs_baseModelName || // base or non-polymorphic
         // if the other side is polymorphic then we need to scan our modelNames
         (info.rhs_isPolymorphic && info.lhs_modelNames.includes(type))); // polymorphic;
 
-    if (!isRHS && !isLHS) {
+    if (!_isRHS && !_isLHS) {
       /*
         this occurs when we are likely polymorphic but not configured to be polymorphic
         most often due to extending a class that has a relationship definition on it.
@@ -274,7 +318,7 @@ function assertConfiguration(info: EdgeDefinition, type: string, key: string) {
       );
     }
 
-    if (isRHS && isLHS) {
+    if (_isRHS && _isLHS) {
       // not sure how we get here but it's probably the result of some form of inheritance
       // without having specified polymorphism correctly leading to it not being self-referential
       // OPEN AN ISSUE :: we would like to improve our errors but need to understand what corner case got us here
@@ -336,7 +380,7 @@ export function upgradeDefinition(
   const polymorphicLookup = graph._potentialPolymorphicTypes;
 
   const { type } = identifier;
-  let cached = expandingGet<EdgeDefinition | null>(cache, type, propertyName);
+  let cached = /*#__NOINLINE__*/ expandingGet<EdgeDefinition | null>(cache, type, propertyName);
 
   // CASE: We have a cached resolution (null if no relationship exists)
   if (cached !== undefined) {
@@ -348,36 +392,38 @@ export function upgradeDefinition(
     !isImplicit
   );
 
-  const relationships = storeWrapper.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
+  const relationships = storeWrapper.schema.fields(identifier);
   assert(`Expected to have a relationship definition for ${type} but none was found.`, relationships);
-  const meta = relationships[propertyName];
+  const meta = relationships.get(propertyName);
 
   if (!meta) {
     // TODO potentially we should just be permissive here since this is an implicit relationship
     // and not require the lookup table to be populated
     if (polymorphicLookup[type]) {
-      const altTypes = Object.keys(polymorphicLookup[type] as {});
+      const altTypes = Object.keys(polymorphicLookup[type]);
       for (let i = 0; i < altTypes.length; i++) {
-        const cached = expandingGet<EdgeDefinition | null>(cache, altTypes[i], propertyName);
-        if (cached) {
-          expandingSet<EdgeDefinition | null>(cache, type, propertyName, cached);
-          cached.rhs_modelNames.push(type);
-          return cached;
+        const _cached = expandingGet<EdgeDefinition | null>(cache, altTypes[i], propertyName);
+        if (_cached) {
+          /*#__NOINLINE__*/ expandingSet<EdgeDefinition | null>(cache, type, propertyName, _cached);
+          _cached.rhs_modelNames.push(type);
+          return _cached;
         }
       }
     }
 
     // CASE: We don't have a relationship at all
     // we should only hit this in prod
-    assert(`Expected to find a relationship definition for ${type}.${propertyName} but none was found.`, meta);
+    assert(`Expected a relationship schema for '${type}.${propertyName}', but no relationship schema was found.`, meta);
 
-    cache[type]![propertyName] = null;
+    cache[type][propertyName] = null;
     return null;
   }
-  const definition = upgradeMeta(meta);
 
-  let inverseDefinition;
-  let inverseKey;
+  assert(`Expected ${propertyName} to be a relationship`, isRelationshipField(meta));
+  const definition = /*#__NOINLINE__*/ upgradeMeta(meta);
+
+  let inverseDefinition: UpgradedMeta | null;
+  let inverseKey: string | null;
   const inverseType = definition.type;
 
   // CASE: Inverse is explicitly null
@@ -386,7 +432,7 @@ export function upgradeDefinition(
     assert(`Expected the inverse model to exist`, getStore(storeWrapper).modelFor(inverseType));
     inverseDefinition = null;
   } else {
-    inverseKey = inverseForRelationship(getStore(storeWrapper), identifier, propertyName);
+    inverseKey = /*#__NOINLINE__*/ inverseForRelationship(getStore(storeWrapper), identifier, propertyName);
 
     // CASE: If we are polymorphic, and we declared an inverse that is non-null
     // we must assume that the lack of inverseKey means that there is no
@@ -401,28 +447,30 @@ export function upgradeDefinition(
         isImplicit: false,
         isCollection: false, // this must be updated when we find the first belongsTo or hasMany definition that matches
         isPolymorphic: false,
-        isInitialized: false, // tracks whether we have seen the other side at least once
-      };
+      } as UpgradedMeta; // the rest of the fields are populated by syncMeta
 
       // CASE: Inverse resolves to null
     } else if (!inverseKey) {
       inverseDefinition = null;
     } else {
       // CASE: We have an explicit inverse or were able to resolve one
-      const inverseDefinitions = storeWrapper
-        .getSchemaDefinitionService()
-        .relationshipsDefinitionFor({ type: inverseType });
+      const inverseDefinitions = storeWrapper.schema.fields({ type: inverseType });
       assert(`Expected to have a relationship definition for ${inverseType} but none was found.`, inverseDefinitions);
-      const meta = inverseDefinitions[inverseKey];
-      assert(`Expected to find a relationship definition for ${inverseType}.${inverseKey} but none was found.`, meta);
-      inverseDefinition = upgradeMeta(meta);
+      const metaFromInverse = inverseDefinitions.get(inverseKey);
+      assert(
+        `Expected a relationship schema for '${inverseType}.${inverseKey}' to match the inverse of '${type}.${propertyName}', but no relationship schema was found.`,
+        metaFromInverse
+      );
+      assert(`Expected ${inverseKey} to be a relationship`, isRelationshipField(metaFromInverse));
+
+      inverseDefinition = upgradeMeta(metaFromInverse);
     }
   }
 
   // CASE: We have no inverse
   if (!inverseDefinition) {
     // polish off meta
-    inverseKey = implicitKeyFor(type, propertyName);
+    inverseKey = /*#__NOINLINE__*/ implicitKeyFor(type, propertyName);
     inverseDefinition = {
       kind: 'implicit',
       key: inverseKey,
@@ -431,7 +479,7 @@ export function upgradeDefinition(
       isImplicit: true,
       isCollection: true, // with implicits any number of records could point at us
       isPolymorphic: false,
-    };
+    } as UpgradedMeta; // the rest of the fields are populated by syncMeta
 
     syncMeta(definition, inverseDefinition);
     syncMeta(inverseDefinition, definition);
@@ -467,13 +515,17 @@ export function upgradeDefinition(
   // TODO we want to assert this but this breaks all of our shoddily written tests
   /*
     if (DEBUG) {
-      let inverseDoubleCheck = inverseMeta.type.inverseFor(inverseRelationshipName, store);
+      let inverseDoubleCheck = inverseFor(inverseRelationshipName, store);
 
       assert(`The ${inverseBaseModelName}:${inverseRelationshipName} relationship declares 'inverse: null', but it was resolved as the inverse for ${baseModelName}:${relationshipName}.`, inverseDoubleCheck);
     }
   */
   // CASE: We may have already discovered the inverse for the baseModelName
   // CASE: We have already discovered the inverse
+  assert(
+    `We should have determined an inverseKey by now, open an issue if this is hit`,
+    typeof inverseKey! === 'string' && inverseKey.length > 0
+  );
   cached = expandingGet(cache, baseType, propertyName) || expandingGet(cache, inverseType, inverseKey);
 
   if (cached) {
@@ -483,8 +535,8 @@ export function upgradeDefinition(
       cached.hasInverse !== false
     );
 
-    const isLHS = cached.lhs_baseModelName === baseType;
-    const modelNames = isLHS ? cached.lhs_modelNames : cached.rhs_modelNames;
+    const _isLHS = cached.lhs_baseModelName === baseType;
+    const modelNames = _isLHS ? cached.lhs_modelNames : cached.rhs_modelNames;
     // make this lookup easier in the future by caching the key
     modelNames.push(type);
     expandingSet<EdgeDefinition | null>(cache, type, propertyName, cached);
@@ -531,12 +583,16 @@ export function upgradeDefinition(
   return info;
 }
 
-function metaIsRelationshipDefinition(meta: RelationshipSchema): meta is RelationshipDefinition {
+type RelationshipDefinition = RelationshipField & {
+  _inverseKey: (store: Store, modelClass: unknown) => string | null;
+};
+
+function metaIsRelationshipDefinition(meta: RelationshipField): meta is RelationshipDefinition {
   return typeof (meta as RelationshipDefinition)._inverseKey === 'function';
 }
 
 function inverseForRelationship(store: Store, identifier: StableRecordIdentifier | { type: string }, key: string) {
-  const definition = store.getSchemaDefinitionService().relationshipsDefinitionFor(identifier)[key];
+  const definition = store.schema.fields(identifier).get(key);
   if (!definition) {
     return null;
   }
@@ -548,6 +604,7 @@ function inverseForRelationship(store: Store, identifier: StableRecordIdentifier
     }
   }
 
+  assert(`Expected ${key} to be a relationship`, isRelationshipField(definition));
   assert(
     `Expected the relationship defintion to specify the inverse type or null.`,
     definition.options?.inverse === null ||

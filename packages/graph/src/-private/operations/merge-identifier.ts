@@ -1,12 +1,12 @@
-import type { MergeOperation } from '@ember-data/types/q/cache';
-import type { Dict } from '@ember-data/types/q/utils';
+import type { MergeOperation } from '@warp-drive/core-types/cache/operations';
 
-import type BelongsToRelationship from '../../relationships/state/belongs-to';
-import type ManyRelationship from '../../relationships/state/has-many';
 import { forAllRelatedIdentifiers, isBelongsTo, isHasMany, notifyChange } from '../-utils';
-import type { Graph, ImplicitRelationship, RelationshipEdge } from '../graph';
+import type { CollectionEdge } from '../edges/collection';
+import type { ImplicitEdge } from '../edges/implicit';
+import type { ResourceEdge } from '../edges/resource';
+import type { Graph, GraphEdge } from '../graph';
 
-export function mergeIdentifier(graph: Graph, op: MergeOperation, relationships: Dict<RelationshipEdge>) {
+export function mergeIdentifier(graph: Graph, op: MergeOperation, relationships: Record<string, GraphEdge>) {
   Object.keys(relationships).forEach((key) => {
     const rel = relationships[key];
     if (!rel) {
@@ -16,7 +16,7 @@ export function mergeIdentifier(graph: Graph, op: MergeOperation, relationships:
   });
 }
 
-function mergeIdentifierForRelationship(graph: Graph, op: MergeOperation, rel: RelationshipEdge): void {
+function mergeIdentifierForRelationship(graph: Graph, op: MergeOperation, rel: GraphEdge): void {
   rel.identifier = op.value;
   forAllRelatedIdentifiers(rel, (identifier) => {
     const inverse = graph.get(identifier, rel.definition.inverseKey);
@@ -24,7 +24,7 @@ function mergeIdentifierForRelationship(graph: Graph, op: MergeOperation, rel: R
   });
 }
 
-function mergeInRelationship(graph: Graph, rel: RelationshipEdge, op: MergeOperation): void {
+function mergeInRelationship(graph: Graph, rel: GraphEdge, op: MergeOperation): void {
   if (isBelongsTo(rel)) {
     mergeBelongsTo(graph, rel, op);
   } else if (isHasMany(rel)) {
@@ -34,7 +34,7 @@ function mergeInRelationship(graph: Graph, rel: RelationshipEdge, op: MergeOpera
   }
 }
 
-function mergeBelongsTo(graph: Graph, rel: BelongsToRelationship, op: MergeOperation): void {
+function mergeBelongsTo(graph: Graph, rel: ResourceEdge, op: MergeOperation): void {
   if (rel.remoteState === op.record) {
     rel.remoteState = op.value;
   }
@@ -44,23 +44,30 @@ function mergeBelongsTo(graph: Graph, rel: BelongsToRelationship, op: MergeOpera
   }
 }
 
-function mergeHasMany(graph: Graph, rel: ManyRelationship, op: MergeOperation): void {
+function mergeHasMany(graph: Graph, rel: CollectionEdge, op: MergeOperation): void {
   if (rel.remoteMembers.has(op.record)) {
     rel.remoteMembers.delete(op.record);
     rel.remoteMembers.add(op.value);
     const index = rel.remoteState.indexOf(op.record);
     rel.remoteState.splice(index, 1, op.value);
+    rel.isDirty = true;
   }
-  if (rel.localMembers.has(op.record)) {
-    rel.localMembers.delete(op.record);
-    rel.localMembers.add(op.value);
-    const index = rel.localState.indexOf(op.record);
-    rel.localState.splice(index, 1, op.value);
+  if (rel.additions?.has(op.record)) {
+    rel.additions.delete(op.record);
+    rel.additions.add(op.value);
+    rel.isDirty = true;
+  }
+  if (rel.removals?.has(op.record)) {
+    rel.removals.delete(op.record);
+    rel.removals.add(op.value);
+    rel.isDirty = true;
+  }
+  if (rel.isDirty) {
     notifyChange(graph, rel.identifier, rel.definition.key);
   }
 }
 
-function mergeImplicit(graph: Graph, rel: ImplicitRelationship, op: MergeOperation): void {
+function mergeImplicit(graph: Graph, rel: ImplicitEdge, op: MergeOperation): void {
   if (rel.remoteMembers.has(op.record)) {
     rel.remoteMembers.delete(op.record);
     rel.remoteMembers.add(op.value);
