@@ -30,6 +30,7 @@
     "test:docs": "FORCE_COLOR=2  pnpm build:docs && pnpm run -r --workspace-concurrency=-1 --if-present test:docs",
     "test:blueprints": "pnpm run -r --workspace-concurrency=-1 --if-present test:blueprints",
     "test:fastboot": "pnpm run -r --workspace-concurrency=-1 --if-present test:fastboot",
+    "test:vite": "pnpm run -r ---workspace-concurrency=-1 --if-present test:vite",
     "test:embroider": "pnpm run -r ---workspace-concurrency=-1 --if-present test:embroider"
   },
   "devDependencies": {
@@ -103,6 +104,12 @@
           "ember-cli": "*"
         }
       },
+      "ember-page-title": {
+        "peerDependencies": {
+          "@glimmer/component": "*",
+          "ember-source": "*"
+        }
+      },
       "ember-cli-fastboot": {
         "peerDependencies": {
           "ember-cli": "*",
@@ -124,6 +131,9 @@
       "ember-source": {
         "dependencies": {
           "webpack": "*"
+        },
+        "peerDependencies": {
+          "@glimmer/component": "*"
         }
       },
       "@ember/test-helpers": {
@@ -133,8 +143,7 @@
       }
     },
     "overrides": {
-      "ember-auto-import": "^2.8.1",
-      "@embroider/macros": "^1.16.6",
+      "ember-auto-import": "^2.10.0",
       "broccoli-funnel": "^3.0.8",
       "broccoli-merge-trees": "^4.2.0",
       "@glimmer/validator": "^0.92.3",
@@ -156,6 +165,7 @@
       ],
       "allowAny": [
         "ember-source",
+        "@glimmer/component",
         "typescript"
       ]
     },
