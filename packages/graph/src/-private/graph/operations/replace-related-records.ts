@@ -1,7 +1,7 @@
 import { assert } from '@ember/debug';
 
-import { DEBUG } from '@warp-drive/build-config/env';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 import { assertPolymorphicType } from '../../debug/assert-polymorphic-type';
 import type ManyRelationship from '../../relationships/state/has-many';
@@ -340,13 +340,13 @@ export function removeFromInverse(
   } else if (isHasMany(relationship)) {
     if (isRemote) {
       graph._addToTransaction(relationship);
-      let index = relationship.remoteState.indexOf(value);
+      const index = relationship.remoteState.indexOf(value);
       if (index !== -1) {
         relationship.remoteMembers.delete(value);
         relationship.remoteState.splice(index, 1);
       }
     }
-    let index = relationship.localState.indexOf(value);
+    const index = relationship.localState.indexOf(value);
     if (index !== -1) {
       relationship.localMembers.delete(value);
       relationship.localState.splice(index, 1);
@@ -365,12 +365,12 @@ export function removeFromInverse(
 }
 
 export function syncRemoteToLocal(graph: Graph, rel: ManyRelationship) {
-  let toSet = rel.remoteState;
-  let newIdentifiers = rel.localState.filter((identifier) => isNew(identifier) && toSet.indexOf(identifier) === -1);
-  let existingState = rel.localState;
+  const toSet = rel.remoteState;
+  const newIdentifiers = rel.localState.filter((identifier) => isNew(identifier) && !toSet.includes(identifier));
+  const existingState = rel.localState;
   rel.localState = toSet.concat(newIdentifiers);
 
-  let localMembers = (rel.localMembers = new Set<StableRecordIdentifier>());
+  const localMembers = (rel.localMembers = new Set<StableRecordIdentifier>());
   rel.remoteMembers.forEach((v) => localMembers.add(v));
   for (let i = 0; i < newIdentifiers.length; i++) {
     localMembers.add(newIdentifiers[i]);

@@ -119,7 +119,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
           }
 
           let lid = resource.lid;
-          let username = 'attributes' in resource && resource.attributes && resource.attributes.username;
+          const username = 'attributes' in resource && resource.attributes && resource.attributes.username;
 
           // try the username cache
           if (!lid && isNonEmptyString(username)) {
@@ -180,7 +180,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       const recordById = await store.findRecord('user', '1');
       const identifierById = recordIdentifierFor(recordById);
       const recordByUsername = await store.queryRecord('user', { username: '@runspired' });
-      const identifierByUsername = recordIdentifierFor(recordByUsername!);
+      const identifierByUsername = recordIdentifierFor(recordByUsername);
 
       assert.strictEqual(identifierById, identifierByUsername, 'The identifiers should be identical');
       assert.strictEqual(recordById, recordByUsername, 'The records should be identical');
@@ -199,7 +199,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
     test(`queryRecord with username then findRecord with id`, async function (assert) {
       const store = this.owner.lookup('service:store') as Store;
       const recordByUsername = await store.queryRecord('user', { username: '@runspired' });
-      const identifierByUsername = recordIdentifierFor(recordByUsername!);
+      const identifierByUsername = recordIdentifierFor(recordByUsername);
       const recordById = await store.findRecord('user', '1');
       const identifierById = recordIdentifierFor(recordById);
 
@@ -228,8 +228,8 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       const recordByUsername2 = await recordByUsernamePromise2;
 
       const identifierById = recordIdentifierFor(recordById);
-      const identifierByUsername1 = recordIdentifierFor(recordByUsername1!);
-      const identifierByUsername2 = recordIdentifierFor(recordByUsername2!);
+      const identifierByUsername1 = recordIdentifierFor(recordByUsername1);
+      const identifierByUsername2 = recordIdentifierFor(recordByUsername2);
 
       assert.strictEqual(identifierById, identifierByUsername1, 'The identifiers should be identical');
       assert.strictEqual(identifierById, identifierByUsername2, 'The identifiers should be identical');
@@ -316,7 +316,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
             return `local:user:${localIdInc++}`;
           }
           let lid = resource.lid;
-          let username = 'attributes' in resource && resource.attributes && resource.attributes.username;
+          const username = 'attributes' in resource && resource.attributes && resource.attributes.username;
 
           // try the username cache
           if (!lid && isNonEmptyString(username)) {

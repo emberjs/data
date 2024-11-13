@@ -5,10 +5,8 @@ import { assert, warn } from '@ember/debug';
 
 import { getOwnConfig, macroCondition } from '@embroider/macros';
 
-import { LOG_IDENTIFIERS } from '@warp-drive/build-config/debugging';
-import { DEBUG } from '@warp-drive/build-config/env';
-import { ImmutableRequestInfo } from '@ember-data/request/-private/types';
-import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
+import type { ImmutableRequestInfo } from '@ember-data/request/-private/types';
+import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { ExistingResourceObject, ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 import type {
   ForgetMethod,
@@ -23,6 +21,8 @@ import type {
   UpdateMethod,
 } from '@ember-data/types/q/identifier';
 import type { ConfidentDict } from '@ember-data/types/q/utils';
+import { LOG_IDENTIFIERS } from '@warp-drive/build-config/debugging';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 import coerceId from '../utils/coerce-id';
 import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from '../utils/identifier-debug-consts';
@@ -115,7 +115,7 @@ function defaultGenerationMethod(
       return (data as WithLid).lid;
     }
     if ((data as WithId).id !== undefined) {
-      let { type, id } = data as WithId;
+      const { type, id } = data as WithId;
       // TODO: add test for id not a string
       if (isNonEmptyString(coerceId(id))) {
         return `@lid:${normalizeModelName(type)}-${id}`;
@@ -200,7 +200,7 @@ export class IdentifierCache {
   _getRecordIdentifier(resource: ResourceIdentifierObject, shouldGenerate: false): StableRecordIdentifier | undefined;
   _getRecordIdentifier(
     resource: ResourceIdentifierObject,
-    shouldGenerate: boolean = false
+    shouldGenerate = false
   ): StableRecordIdentifier | undefined {
     // short circuit if we're already the stable version
     if (isStableIdentifier(resource)) {
@@ -217,7 +217,7 @@ export class IdentifierCache {
       return resource;
     }
 
-    let lid = coerceId(resource.lid);
+    const lid = coerceId(resource.lid);
     let identifier: StableRecordIdentifier | undefined = lid !== null ? this._cache.lids.get(lid) : undefined;
 
     if (identifier !== undefined) {
@@ -242,10 +242,10 @@ export class IdentifierCache {
     // `type` must always be present
     assert('resource.type needs to be a string', 'type' in resource && isNonEmptyString(resource.type));
 
-    let type = resource.type && normalizeModelName(resource.type);
-    let id = coerceId(resource.id);
+    const type = resource.type && normalizeModelName(resource.type);
+    const id = coerceId(resource.id);
 
-    let keyOptions = getTypeIndex(this._cache.types, type);
+    const keyOptions = getTypeIndex(this._cache.types, type);
 
     // go straight for the stable RecordIdentifier key'd to `lid`
     if (lid !== null) {
@@ -261,7 +261,7 @@ export class IdentifierCache {
     if (identifier === undefined) {
       // we have definitely not seen this resource before
       // so we allow the user configured `GenerationMethod` to tell us
-      let newLid = this._generate(resource, 'record');
+      const newLid = this._generate(resource, 'record');
       if (LOG_IDENTIFIERS) {
         // eslint-disable-next-line no-console
         console.log(`Identifiers: lid ${newLid} determined for resource`, resource);
@@ -428,9 +428,9 @@ export class IdentifierCache {
    @public
   */
   createIdentifierForNewRecord(data: { type: string; id?: string | null }): StableRecordIdentifier {
-    let newLid = this._generate(data, 'record');
-    let identifier = makeStableRecordIdentifier(data.id || null, data.type, newLid, 'record', true);
-    let keyOptions = getTypeIndex(this._cache.types, data.type);
+    const newLid = this._generate(data, 'record');
+    const identifier = makeStableRecordIdentifier(data.id || null, data.type, newLid, 'record', true);
+    const keyOptions = getTypeIndex(this._cache.types, data.type);
 
     // populate our unique table
     if (DEBUG) {
@@ -490,7 +490,7 @@ export class IdentifierCache {
         (data as ExistingResourceObject).type &&
         identifier.type !== normalizeModelName((data as ExistingResourceObject).type)
       ) {
-        let incomingDataResource = { ...data };
+        const incomingDataResource = { ...data };
         // Need to strip the lid from the incomingData in order force a new identifier creation
         delete incomingDataResource.lid;
         existingIdentifier = this.getOrCreateRecordIdentifier(incomingDataResource);
@@ -498,8 +498,8 @@ export class IdentifierCache {
     }
 
     if (existingIdentifier) {
-      let keyOptions = getTypeIndex(this._cache.types, identifier.type);
-      let generatedIdentifier = identifier;
+      const keyOptions = getTypeIndex(this._cache.types, identifier.type);
+      const generatedIdentifier = identifier;
       identifier = this._mergeRecordIdentifiers(
         keyOptions,
         generatedIdentifier,
@@ -516,7 +516,7 @@ export class IdentifierCache {
       }
     }
 
-    let id = identifier.id;
+    const id = identifier.id;
     performRecordIdentifierUpdate(identifier, data, this._update);
     newId = identifier.id;
 
@@ -529,7 +529,7 @@ export class IdentifierCache {
           data
         );
       }
-      let keyOptions = getTypeIndex(this._cache.types, identifier.type);
+      const keyOptions = getTypeIndex(this._cache.types, identifier.type);
       keyOptions.id.set(newId, identifier);
 
       if (id !== null) {
@@ -555,8 +555,8 @@ export class IdentifierCache {
     newId: string
   ): StableRecordIdentifier {
     // delegate determining which identifier to keep to the configured MergeMethod
-    let kept = this._merge(identifier, existingIdentifier, data);
-    let abandoned = kept === identifier ? existingIdentifier : identifier;
+    const kept = this._merge(identifier, existingIdentifier, data);
+    const abandoned = kept === identifier ? existingIdentifier : identifier;
 
     // cleanup the identifier we no longer need
     this.forgetRecordIdentifier(abandoned);
@@ -564,7 +564,7 @@ export class IdentifierCache {
     // ensure a secondary cache entry for this id for the identifier we do keep
     keyOptions.id.set(newId, kept);
     // ensure a secondary cache entry for this id for the abandoned identifier's type we do keep
-    let baseKeyOptions = getTypeIndex(this._cache.types, existingIdentifier.type);
+    const baseKeyOptions = getTypeIndex(this._cache.types, existingIdentifier.type);
     baseKeyOptions.id.set(newId, kept);
 
     // make sure that the `lid` on the data we are processing matches the lid we kept
@@ -586,8 +586,8 @@ export class IdentifierCache {
    @public
   */
   forgetRecordIdentifier(identifierObject: RecordIdentifier): void {
-    let identifier = this.getOrCreateRecordIdentifier(identifierObject);
-    let keyOptions = getTypeIndex(this._cache.types, identifier.type);
+    const identifier = this.getOrCreateRecordIdentifier(identifierObject);
+    const keyOptions = getTypeIndex(this._cache.types, identifier.type);
     if (identifier.id !== null) {
       keyOptions.id.delete(identifier.id);
     }
@@ -629,9 +629,9 @@ function makeStableRecordIdentifier(
   type: string,
   lid: string,
   bucket: IdentifierBucket,
-  clientOriginated: boolean = false
+  clientOriginated = false
 ): Readonly<StableRecordIdentifier> {
-  let recordIdentifier = {
+  const recordIdentifier = {
     lid,
     id,
     type,
@@ -652,11 +652,11 @@ function makeStableRecordIdentifier(
         return recordIdentifier.type;
       },
       toString() {
-        let { type, id, lid } = recordIdentifier;
+        const { type, id, lid } = recordIdentifier;
         return `${clientOriginated ? '[CLIENT_ORIGINATED] ' : ''}${type}:${id} (${lid})`;
       },
       toJSON() {
-        let { type, id, lid } = recordIdentifier;
+        const { type, id, lid } = recordIdentifier;
         return { type, id, lid };
       },
     };
@@ -673,16 +673,16 @@ function makeStableRecordIdentifier(
 
 function performRecordIdentifierUpdate(identifier: StableRecordIdentifier, data: ResourceData, updateFn: UpdateMethod) {
   if (DEBUG) {
-    let { lid } = data;
-    let id = 'id' in data ? data.id : undefined;
-    let type = 'type' in data && data.type && normalizeModelName(data.type);
+    const { lid } = data;
+    const id = 'id' in data ? data.id : undefined;
+    const type = 'type' in data && data.type && normalizeModelName(data.type);
 
     // get the mutable instance behind our proxy wrapper
-    let wrapper = identifier;
+    const wrapper = identifier;
     identifier = DEBUG_MAP.get(wrapper);
 
     if (lid !== undefined) {
-      let newLid = coerceId(lid);
+      const newLid = coerceId(lid);
       if (newLid !== identifier.lid) {
         throw new Error(
           `The 'lid' for a RecordIdentifier cannot be updated once it has been created. Attempted to set lid for '${wrapper}' to '${lid}'.`
@@ -691,7 +691,7 @@ function performRecordIdentifierUpdate(identifier: StableRecordIdentifier, data:
     }
 
     if (id !== undefined) {
-      let newId = coerceId(id);
+      const newId = coerceId(id);
 
       if (identifier.id !== null && identifier.id !== newId) {
         // here we warn and ignore, as this may be a mistake, but we allow the user
@@ -734,21 +734,21 @@ function detectMerge(
 ): StableRecordIdentifier | false {
   const { id, type, lid } = identifier;
   if (id !== null && id !== newId && newId !== null) {
-    let keyOptions = getTypeIndex(typesCache, identifier.type);
-    let existingIdentifier = keyOptions.id.get(newId);
+    const keyOptions = getTypeIndex(typesCache, identifier.type);
+    const existingIdentifier = keyOptions.id.get(newId);
 
     return existingIdentifier !== undefined ? existingIdentifier : false;
   } else {
-    let newType = (data as ExistingResourceObject).type && normalizeModelName((data as ExistingResourceObject).type);
+    const newType = (data as ExistingResourceObject).type && normalizeModelName((data as ExistingResourceObject).type);
 
     // If the ids and type are the same but lid is not the same, we should trigger a merge of the identifiers
     if (id !== null && id === newId && newType === type && data.lid && data.lid !== lid) {
-      let existingIdentifier = lids.get(data.lid);
+      const existingIdentifier = lids.get(data.lid);
       return existingIdentifier !== undefined ? existingIdentifier : false;
       // If the lids are the same, and ids are the same, but types are different we should trigger a merge of the identifiers
     } else if (id !== null && id === newId && newType && newType !== type && data.lid && data.lid === lid) {
-      let keyOptions = getTypeIndex(typesCache, newType);
-      let existingIdentifier = keyOptions.id.get(id);
+      const keyOptions = getTypeIndex(typesCache, newType);
+      const existingIdentifier = keyOptions.id.get(id);
       return existingIdentifier !== undefined ? existingIdentifier : false;
     }
   }

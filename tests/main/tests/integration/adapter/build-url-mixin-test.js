@@ -25,7 +25,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
   }
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
     class SuperUser extends Model {}
 
     owner.register('adapter:application', RESTAdapter.extend());
@@ -82,7 +82,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
 
     ajaxResponse({ posts: [{ id: '1', links: { comments: 'comments' } }] });
 
-    let post = await store.findRecord('post', '1');
+    const post = await store.findRecord('post', '1');
     ajaxResponse({ comments: [{ id: '1' }] });
 
     await post.comments;
@@ -109,7 +109,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
 
     ajaxResponse({ posts: [{ id: '1', links: { comments: '/api/v1/posts/1/comments' } }] });
 
-    let post = await store.findRecord('post', '1');
+    const post = await store.findRecord('post', '1');
 
     ajaxResponse({ comments: [{ id: '1' }] });
     await post.comments;
@@ -136,7 +136,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
 
     ajaxResponse({ posts: [{ id: '1', links: { comments: '/api/v1/posts/1/comments' } }] });
 
-    let post = await store.findRecord('post', '1');
+    const post = await store.findRecord('post', '1');
     ajaxResponse({ comments: [{ id: '1' }] });
 
     await post.comments;
@@ -163,7 +163,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
 
     ajaxResponse({ posts: [{ id: '1', links: { comments: '/api/v1/posts/1/comments' } }] });
 
-    let post = await store.findRecord('post', '1');
+    const post = await store.findRecord('post', '1');
     ajaxResponse({ comments: [{ id: '1' }] });
 
     await post.comments;
@@ -197,7 +197,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
       ],
     });
 
-    let post = await store.findRecord('post', '1');
+    const post = await store.findRecord('post', '1');
     ajaxResponse({ comments: [{ id: '1' }] });
 
     await post.comments;
@@ -207,7 +207,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
   test('buildURL - with camelized names', async function (assert) {
     adapter.setProperties({
       pathForType(type) {
-        let decamelized = decamelize(type);
+        const decamelized = decamelize(type);
         return underscore(pluralize(decamelized));
       },
     });
@@ -237,7 +237,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
 
     ajaxResponse({ comments: [{ id: '1' }] });
 
-    let post = store.push({
+    const post = store.push({
       data: {
         type: 'post',
         id: '2',
@@ -271,7 +271,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
     adapter.coalesceFindRequests = true;
 
     ajaxResponse({ comments: [{ id: '1' }, { id: '2' }, { id: '3' }] });
-    let post = store.push({
+    const post = store.push({
       data: {
         type: 'post',
         id: '2',
@@ -310,13 +310,13 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
 
     ajaxResponse({ comments: [{ id: '1' }] });
 
-    let post = store.push({
+    const post = store.push({
       data: {
         type: 'post',
         id: '2',
       },
     });
-    let comment = store.createRecord('comment');
+    const comment = store.createRecord('comment');
     comment.set('post', post);
     await comment.save();
     assert.strictEqual(passedUrl, '/posts/2/comments/');
@@ -339,7 +339,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
       return '/posts/' + snapshot.belongsTo('post', { id: true }) + '/comments/';
     };
 
-    let post = store.push({
+    const post = store.push({
       data: {
         id: '2',
         type: 'post',
@@ -351,7 +351,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
 
     ajaxResponse({ comments: [{ id: '1' }] });
 
-    let comment = store.createRecord('comment');
+    const comment = store.createRecord('comment');
     comment.set('post', post);
 
     await comment.save();
@@ -378,13 +378,13 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
 
     ajaxResponse({ comments: [{ id: '1' }] });
 
-    let post = store.push({
+    const post = store.push({
       data: {
         type: 'post',
         id: '2',
       },
     });
-    let comment = store.push({
+    const comment = store.push({
       data: {
         type: 'comment',
         id: '1',
@@ -415,13 +415,13 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
 
     ajaxResponse({ comments: [{ id: '1' }] });
 
-    let post = store.push({
+    const post = store.push({
       data: {
         type: 'post',
         id: '2',
       },
     });
-    let comment = store.push({
+    const comment = store.push({
       data: {
         type: 'comment',
         id: '1',

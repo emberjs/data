@@ -9,7 +9,7 @@ function isPlainObject(obj: any): boolean {
  * This is directly copied from jQuery.param.
  */
 export function serializeQueryParams(queryParamsObject: object | string): string {
-  let s: any[] = [];
+  const s: any[] = [];
   function buildParams(prefix: string, obj: any) {
     let i, len, key;
 

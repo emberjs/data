@@ -40,7 +40,7 @@ type DeepThing = {
 const store = new Store();
 const requestInit = query<MyThing>('thing');
 
-expectTypeOf<CollectionResourceDataDocument<MyThing>>(requestInit[RequestSignature]!);
+expectTypeOf<CollectionResourceDataDocument<MyThing>>(requestInit[RequestSignature]);
 
 const result = await store.request(query('thing', {}));
 const query2 = query<MyThing>('thing', {

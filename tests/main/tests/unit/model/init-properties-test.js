@@ -47,8 +47,8 @@ function setupModels(owner, testState) {
   owner.register('adapter:application', JSONAPIAdapter.extend());
   owner.register('serializer:application', class extends JSONAPISerializer {});
 
-  let store = owner.lookup('service:store');
-  let adapter = store.adapterFor('application');
+  const store = owner.lookup('service:store');
+  const adapter = store.adapterFor('application');
 
   return { adapter, store };
 }
@@ -68,7 +68,7 @@ module('unit/model - init properties', function (hooks) {
       assert.ok(record.comments.at(0) instanceof types.Comment, 'hasMany relationships are available as expected');
     }
 
-    let { store } = setupModels(this.owner, testState);
+    const { store } = setupModels(this.owner, testState);
 
     comment = store.push({
       data: {
@@ -106,7 +106,7 @@ module('unit/model - init properties', function (hooks) {
       assert.ok(record.comments.at(0) instanceof types.Comment, 'hasMany relationships are available as expected');
     }
 
-    let { store } = setupModels(this.owner, testState);
+    const { store } = setupModels(this.owner, testState);
 
     store.push({
       data: {
@@ -154,7 +154,7 @@ module('unit/model - init properties', function (hooks) {
       assert.ok(record.comments.at(0) instanceof types.Comment, 'hasMany relationships are available as expected');
     }
 
-    let { adapter, store } = setupModels(this.owner, testState);
+    const { adapter, store } = setupModels(this.owner, testState);
 
     adapter.findRecord = () => {
       return resolve({
@@ -204,7 +204,7 @@ module('unit/model - init properties', function (hooks) {
       assert.ok(record.comments.at(0) instanceof types.Comment, 'hasMany relationships are available as expected');
     }
 
-    let { adapter, store } = setupModels(this.owner, testState);
+    const { adapter, store } = setupModels(this.owner, testState);
 
     adapter.queryRecord = () => {
       return resolve({
@@ -262,7 +262,7 @@ module('unit/model - init properties', function (hooks) {
     this.owner.register('adapter:application', JSONAPIAdapter.extend());
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     run(() => {
       store.createRecord('post', {

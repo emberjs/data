@@ -4,8 +4,6 @@ import { cached, tracked } from '@glimmer/tracking';
 
 import type { Object as JSONObject, Value as JSONValue } from 'json-typescript';
 
-import { DEPRECATE_PROMISE_PROXIES, DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
-import { DEBUG } from '@warp-drive/build-config/env';
 import type { Graph } from '@ember-data/graph/-private/graph/graph';
 import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
 import type Store from '@ember-data/store';
@@ -20,9 +18,12 @@ import type {
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { Dict } from '@ember-data/types/q/utils';
+import { DEPRECATE_PROMISE_PROXIES, DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
-import { areAllInverseRecordsLoaded, LegacySupport } from '../legacy-relationships-support';
+import type { LegacySupport } from '../legacy-relationships-support';
+import { areAllInverseRecordsLoaded } from '../legacy-relationships-support';
 import { LEGACY_SUPPORT } from '../model';
 
 /**
@@ -116,7 +117,7 @@ export default class BelongsToReference {
       this.___relatedToken = null;
     }
 
-    let resource = this._resource();
+    const resource = this._resource();
     if (resource && resource.data) {
       const identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resource.data);
       this.___relatedToken = this.store.notifications.subscribe(
@@ -217,11 +218,11 @@ export default class BelongsToReference {
    @return {String} The link Ember Data will use to fetch or reload this belongs-to relationship.
    */
   link(): string | null {
-    let resource = this._resource();
+    const resource = this._resource();
 
     if (isResourceIdentiferWithRelatedLinks(resource)) {
       if (resource.links) {
-        let related = resource.links.related;
+        const related = resource.links.related;
         return !related || typeof related === 'string' ? related : related.href;
       }
     }
@@ -236,7 +237,7 @@ export default class BelongsToReference {
    * @returns
    */
   links(): Links | null {
-    let resource = this._resource();
+    const resource = this._resource();
 
     return resource && resource.links ? resource.links : null;
   }
@@ -283,7 +284,7 @@ export default class BelongsToReference {
    */
   meta() {
     let meta: Dict<JSONValue> | null = null;
-    let resource = this._resource();
+    const resource = this._resource();
     if (resource && resource.meta && typeof resource.meta === 'object') {
       meta = resource.meta;
     }
@@ -341,7 +342,7 @@ export default class BelongsToReference {
    @return {String} The name of the remote type. This should either be `link` or `id`
    */
   remoteType(): 'link' | 'id' {
-    let value = this._resource();
+    const value = this._resource();
     if (isResourceIdentiferWithRelatedLinks(value)) {
       return 'link';
     }
@@ -416,7 +417,7 @@ export default class BelongsToReference {
         }
       }
     }
-    let record = this.store.push(jsonApiDoc);
+    const record = this.store.push(jsonApiDoc);
 
     if (DEBUG) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
@@ -492,7 +493,7 @@ export default class BelongsToReference {
    @return {Model} the record in this relationship
    */
   value(): RecordInstance | null {
-    let resource = this._resource();
+    const resource = this._resource();
     return resource && resource.data ? this.store.peekRecord(resource.data) : null;
   }
 

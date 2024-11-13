@@ -36,11 +36,11 @@ module('unit/model/merge - Merging', function (hooks) {
 
     this.owner.register('adapter:application', ApplicationAdapter);
 
-    let person = this.store.createRecord('person', { name: 'Tom Dale' });
+    const person = this.store.createRecord('person', { name: 'Tom Dale' });
 
     // Make sure saving isn't resolved synchronously
     return run(() => {
-      let save = person.save();
+      const save = person.save();
 
       assert.strictEqual(person.name, 'Tom Dale');
 
@@ -81,7 +81,7 @@ module('unit/model/merge - Merging', function (hooks) {
     });
 
     return run(() => {
-      let promise = person.save();
+      const promise = person.save();
 
       assert.strictEqual(person.name, 'Thomas Dale');
 
@@ -266,7 +266,7 @@ module('unit/model/merge - Merging', function (hooks) {
 
     this.owner.register('adapter:application', ApplicationAdapter);
 
-    let person = run(() => {
+    const person = run(() => {
       return this.store.push({
         data: {
           type: 'person',

@@ -25,7 +25,7 @@ type Transaction = {
 let TRANSACTION: Transaction | null = null;
 
 function createTransaction() {
-  let transaction: Transaction = {
+  const transaction: Transaction = {
     cbs: new Set(),
     props: new Set(),
     sub: new Set(),
@@ -55,12 +55,12 @@ function updateRef(obj: Tag): void {
           e.message = e.message.replace(
             'You attempted to update `ref` on `Tag`',
             // @ts-expect-error
-            `You attempted to update <${obj._debug_base}>.${obj._debug_prop}` // eslint-disable-line
+            `You attempted to update <${obj._debug_base}>.${obj._debug_prop}`  
           );
           e.stack = e.stack?.replace(
             'You attempted to update `ref` on `Tag`',
             // @ts-expect-error
-            `You attempted to update <${obj._debug_base}>.${obj._debug_prop}` // eslint-disable-line
+            `You attempted to update <${obj._debug_base}>.${obj._debug_prop}`  
           );
 
           const lines = e.stack?.split(`\n`);
@@ -102,7 +102,7 @@ function updateRef(obj: Tag): void {
 }
 
 function flushTransaction() {
-  let transaction = TRANSACTION!;
+  const transaction = TRANSACTION!;
   TRANSACTION = transaction.parent;
   transaction.cbs.forEach((cb) => {
     cb();
@@ -117,7 +117,7 @@ function flushTransaction() {
   });
 }
 async function untrack() {
-  let transaction = TRANSACTION!;
+  const transaction = TRANSACTION!;
   TRANSACTION = transaction.parent;
 
   // defer writes

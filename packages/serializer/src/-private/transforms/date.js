@@ -25,7 +25,7 @@
 
 export default class DateTransform {
   deserialize(serialized) {
-    let type = typeof serialized;
+    const type = typeof serialized;
 
     if (type === 'string') {
       let offset = serialized.indexOf('+');

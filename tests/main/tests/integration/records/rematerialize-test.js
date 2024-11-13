@@ -36,13 +36,13 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
     this.owner.register('model:person', Person);
     this.owner.register('model:car', Car);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     // disable background reloading so we do not re-create the relationship.
     adapter.shouldBackgroundReloadRecord = () => false;
 
-    let adam = run(() => {
+    const adam = run(() => {
       store.push({
         data: {
           type: 'person',
@@ -61,7 +61,7 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
       return store.peekRecord('person', 1);
     });
 
-    let bob = run(() => {
+    const bob = run(() => {
       store.push({
         data: {
           type: 'car',
@@ -81,7 +81,7 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
       return store.peekRecord('car', 1);
     });
 
-    let person = store.peekRecord('person', 1);
+    const person = store.peekRecord('person', 1);
     assert.strictEqual(person.cars.length, 1, 'The inital length of cars is correct');
 
     assert.notStrictEqual(store.peekRecord('person', '1'), null, 'The person is in the store');
@@ -115,7 +115,7 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
       });
     });
 
-    let rematerializedPerson = bob.person;
+    const rematerializedPerson = bob.person;
     assert.strictEqual(rematerializedPerson.id, '1');
     assert.strictEqual(rematerializedPerson.name, 'Adam Sunderland');
     // the person is rematerialized; the previous person is *not* re-used
@@ -140,8 +140,8 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
     this.owner.register('model:person', Person);
     this.owner.register('model:boat', Boat);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     // disable background reloading so we do not re-create the relationship.
     adapter.shouldBackgroundReloadRecord = () => false;
@@ -190,7 +190,7 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
       };
     };
 
-    let adam = store.push({
+    const adam = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -208,7 +208,7 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
       },
     });
 
-    let [boaty] = store.push({
+    const [boaty] = store.push({
       data: [deepCopy(BOAT_ONE), deepCopy(BOAT_TWO)],
     });
 
@@ -236,7 +236,7 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
 
     // cause a rematerialization, this should also cause us to fetch boat '1' again
     boats = await adam.boats;
-    let rematerializedBoaty = boats.at(1);
+    const rematerializedBoaty = boats.at(1);
 
     assert.ok(!!rematerializedBoaty, 'We have a boat!');
     assert.strictEqual(adam.boats.length, 2, 'boats.length correct after rematerialization');

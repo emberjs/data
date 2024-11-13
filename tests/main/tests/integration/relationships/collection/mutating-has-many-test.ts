@@ -4,13 +4,14 @@ import { module, test } from 'qunit';
 
 import { setupRenderingTest } from 'ember-qunit';
 
-import { DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 } from '@warp-drive/build-config/deprecations';
 import Model, { attr, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
-import { ExistingResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
+import type { ExistingResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
+import { DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 } from '@warp-drive/build-config/deprecations';
 
-import { ReactiveContext, reactiveContext } from '../../../helpers/reactive-context';
+import type { ReactiveContext} from '../../../helpers/reactive-context';
+import { reactiveContext } from '../../../helpers/reactive-context';
 
 let IS_DEPRECATE_MANY_ARRAY_DUPLICATES = false;
 

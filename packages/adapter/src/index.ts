@@ -188,12 +188,12 @@ By default when using with Ember you only need to implement this hook if you wan
 import EmberObject from '@ember/object';
 import { inject as service } from '@ember/service';
 
-import { DEBUG } from '@warp-drive/build-config/env';
 import type { Snapshot, SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
 import type Store from '@ember-data/store';
 import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
 import type { AdapterPayload, MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapter-interface';
 import type { Dict } from '@ember-data/types/q/utils';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 /**
   An adapter is an object that receives requests from a store and
@@ -654,7 +654,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @type {boolean}
   */
   get coalesceFindRequests() {
-    let coalesceFindRequests = this._coalesceFindRequests;
+    const coalesceFindRequests = this._coalesceFindRequests;
     if (typeof coalesceFindRequests === 'boolean') {
       return coalesceFindRequests;
     }

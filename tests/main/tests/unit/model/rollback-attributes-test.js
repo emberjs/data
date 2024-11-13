@@ -30,8 +30,8 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
     });
 
     test('changes to attributes can be rolled back', function (assert) {
-      let store = this.owner.lookup('service:store');
-      let person = store.push({
+      const store = this.owner.lookup('service:store');
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -52,7 +52,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
     });
 
     test('changes to unassigned attributes can be rolled back', function (assert) {
-      let store = this.owner.lookup('service:store');
+      const store = this.owner.lookup('service:store');
       let person;
 
       run(() => {
@@ -84,7 +84,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
       const adapter = store.adapterFor('application');
 
       let resolve;
-      let trap = new Promise((r) => (resolve = r));
+      const trap = new Promise((r) => (resolve = r));
       adapter.updateRecord = async function (store, type, snapshot) {
         resolve();
         await trap;
@@ -127,14 +127,14 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
     });
 
     test("a record's changes can be made if it fails to save", async function (assert) {
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
 
       adapter.updateRecord = function (store, type, snapshot) {
         return reject();
       };
 
-      let person = store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -164,8 +164,8 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
     });
 
     test(`a deleted record's attributes can be rollbacked if it fails to save, record arrays are updated accordingly`, function (assert) {
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
 
       adapter.deleteRecord = function (store, type, snapshot) {
         return reject();
@@ -217,8 +217,8 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
     });
 
     test(`new record's attributes can be rollbacked`, function (assert) {
-      let store = this.owner.lookup('service:store');
-      let person = store.createRecord('person', { id: '1' });
+      const store = this.owner.lookup('service:store');
+      const person = store.createRecord('person', { id: '1' });
 
       assert.true(person.isNew, 'must be new');
       assert.true(person.hasDirtyAttributes, 'must be dirty');
@@ -231,14 +231,14 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
     });
 
     test(`invalid new record's attributes can be rollbacked`, async function (assert) {
-      let error = new InvalidError([
+      const error = new InvalidError([
         {
           detail: 'is invalid',
           source: { pointer: 'data/attributes/name' },
         },
       ]);
 
-      let adapter = RESTAdapter.extend({
+      const adapter = RESTAdapter.extend({
         ajax(url, type, hash) {
           return reject(error);
         },
@@ -247,8 +247,8 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
       this.owner.register('adapter:application', adapter);
       this.owner.register('serializer:application', RESTSerializer.extend());
 
-      let store = this.owner.lookup('service:store');
-      let person = store.createRecord('person', { id: '1' });
+      const store = this.owner.lookup('service:store');
+      const person = store.createRecord('person', { id: '1' });
 
       assert.true(person.isNew, 'must be new');
       assert.true(person.hasDirtyAttributes, 'must be dirty');
@@ -268,9 +268,9 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
     });
 
     test(`invalid record's attributes can be rollbacked after multiple failed calls - #3677`, function (assert) {
-      let adapter = RESTAdapter.extend({
+      const adapter = RESTAdapter.extend({
         ajax(url, type, hash) {
-          let error = new InvalidError();
+          const error = new InvalidError();
           return reject(error);
         },
       });
@@ -278,7 +278,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
       this.owner.register('adapter:application', adapter);
       this.owner.register('serializer:application', RESTSerializer.extend());
 
-      let store = this.owner.lookup('service:store');
+      const store = this.owner.lookup('service:store');
 
       let person;
       run(() => {
@@ -320,7 +320,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
     });
 
     test(`deleted record's attributes can be rollbacked`, function (assert) {
-      let store = this.owner.lookup('service:store');
+      const store = this.owner.lookup('service:store');
 
       let person, people;
 
@@ -472,14 +472,14 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
       name: attr(),
     });
 
-    let error = new InvalidError([
+    const error = new InvalidError([
       {
         detail: 'is invalid',
         source: { pointer: 'data/attributes/name' },
       },
     ]);
 
-    let adapter = RESTAdapter.extend({
+    const adapter = RESTAdapter.extend({
       ajax(url, type, hash) {
         return reject(error);
       },
@@ -489,8 +489,8 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
     this.owner.register('adapter:application', adapter);
     this.owner.register('serializer:application', RESTSerializer.extend());
 
-    let store = this.owner.lookup('service:store');
-    let dog = store.push({
+    const store = this.owner.lookup('service:store');
+    const dog = store.push({
       data: {
         type: 'dog',
         id: '1',

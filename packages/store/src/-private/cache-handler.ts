@@ -11,12 +11,12 @@ import type {
   StructuredErrorDocument,
 } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';
-import {
+import type {
   CollectionResourceDataDocument,
   ResourceDataDocument,
   ResourceErrorDocument,
 } from '@ember-data/types/cache/document';
-import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
+import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { JsonApiError } from '@ember-data/types/q/record-data-json-api';
@@ -225,7 +225,7 @@ function maybeUpdateUiObjects<T>(
     const data = document.data ? store.peekRecord(document.data) : null;
     let doc: Document<RecordInstance | null> | undefined;
     if (identifier) {
-      doc = store._documentCache.get(identifier) as Document<RecordInstance | null> | undefined;
+      doc = store._documentCache.get(identifier);
     }
 
     if (!doc) {
@@ -429,7 +429,7 @@ function cloneError(error: RobustError) {
 
   const cloned = (
     isAggregate
-      ? // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      ?  
         new AggregateError(structuredClone(error.errors as JsonApiError[]), error.message)
       : new Error(error.message)
   ) as RobustError;

@@ -26,7 +26,7 @@ import type Store from '../store-service';
 export default class RecordReference {
   declare store: Store;
   // unsubscribe token given to us by the notification manager
-  ___token!: Object;
+  ___token!: object;
   ___identifier: StableRecordIdentifier;
 
   @tracked _ref = 0;

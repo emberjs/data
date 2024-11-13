@@ -4,7 +4,6 @@
 
 import { deprecate } from '@ember/debug';
 
-import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@warp-drive/build-config/deprecations';
 import type Store from '@ember-data/store';
 import { SOURCE } from '@ember-data/store/-private';
 import type IdentifierArray from '@ember-data/store/-private/record-arrays/identifier-array';
@@ -12,6 +11,7 @@ import type { DSModelSchema, ModelSchema } from '@ember-data/types/q/ds-model';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
+import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@warp-drive/build-config/deprecations';
 
 import type Snapshot from './snapshot';
 /**

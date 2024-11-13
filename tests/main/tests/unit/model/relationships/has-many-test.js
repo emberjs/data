@@ -5,7 +5,6 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
-import { DEPRECATE_ARRAY_LIKE, DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 } from '@warp-drive/build-config/deprecations';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { LEGACY_SUPPORT, PromiseManyArray } from '@ember-data/model/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
@@ -13,6 +12,7 @@ import { recordIdentifierFor } from '@ember-data/store';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import todo from '@ember-data/unpublished-test-infra/test-support/todo';
+import { DEPRECATE_ARRAY_LIKE, DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 } from '@warp-drive/build-config/deprecations';
 
 let IS_DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 = false;
 
@@ -191,8 +191,8 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:pet', Pet);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, id, snapshot) {
       if (type === Tag && id === '12') {
@@ -271,7 +271,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     assert.strictEqual(person.name, 'Tom Dale', 'precond - retrieves person record from store');
 
-    let tags = person.tags;
+    const tags = person.tags;
     assert.strictEqual(tags.length, 1, 'the list of tags should have the correct length');
     assert.strictEqual(tags.at(0).name, 'friendly', 'the first tag should be a Tag');
 
@@ -336,7 +336,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     assert.strictEqual(cyvid.name, 'Cyvid Hamluck', 'precond - retrieves person record from store');
 
-    let pets = cyvid.pets;
+    const pets = cyvid.pets;
     assert.strictEqual(pets.length, 1, 'the list of pets should have the correct length');
     assert.strictEqual(pets.at(0).name, 'fluffy', 'the first pet should be correct');
 
@@ -380,8 +380,8 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
@@ -414,7 +414,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
       ],
     });
 
-    let tag = store.peekRecord('tag', 1);
+    const tag = store.peekRecord('tag', 1);
     tag.addObserver('people', () => {
       assert.ok(false, 'observer is not called');
     });
@@ -446,8 +446,8 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
@@ -466,7 +466,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
       },
     });
 
-    let tag = store.peekRecord('tag', 1);
+    const tag = store.peekRecord('tag', 1);
 
     assert.strictEqual(tag.people.length, 0, 'relationship is correct');
   });
@@ -487,8 +487,8 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
@@ -546,8 +546,8 @@ module('unit/model/relationships - hasMany', function (hooks) {
       },
     });
 
-    let tag = store.peekRecord('tag', 1);
-    let person = store.peekRecord('person', 1);
+    const tag = store.peekRecord('tag', 1);
+    const person = store.peekRecord('person', 1);
 
     assert.strictEqual(person.tag, null, 'relationship is empty');
     assert.strictEqual(tag.people.length, 0, 'relationship is correct');
@@ -577,7 +577,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     // first we push in data with the relationship
     store.push({
@@ -621,7 +621,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
       ],
     });
 
-    let tag = store.peekRecord('tag', 1);
+    const tag = store.peekRecord('tag', 1);
     assert.strictEqual(tag.people.length, 1, 'relationship does not contain duplicates');
   });
 
@@ -649,7 +649,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     // first we push in data with the relationship
     store.push({
@@ -745,11 +745,11 @@ module('unit/model/relationships - hasMany', function (hooks) {
       ],
     });
 
-    let tag = store.peekRecord('tag', 1);
+    const tag = store.peekRecord('tag', 1);
     assert.strictEqual(tag.people.length, 2, 'relationship does contain all data');
-    let person1 = store.peekRecord('person', 1);
+    const person1 = store.peekRecord('person', 1);
     assert.strictEqual(person1.tags.length, 2, 'relationship does contain all data');
-    let person2 = store.peekRecord('person', 2);
+    const person2 = store.peekRecord('person', 2);
     assert.strictEqual(person2.tags.length, 2, 'relationship does contain all data');
   });
 
@@ -769,8 +769,8 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
@@ -850,8 +850,8 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
@@ -875,7 +875,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
       },
     });
 
-    let eddy = store.peekRecord('person', 1);
+    const eddy = store.peekRecord('person', 1);
     assert.deepEqual(
       eddy.trueFriends.map((r) => r.name),
       ['Edward II'],
@@ -906,8 +906,8 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:pet', Pet);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, id, snapshot) {
       if (type === Tag && id === '12') {
@@ -999,7 +999,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
     );
 
     const tagsAgain = await wycats.tags;
-    let newTag = store.createRecord('tag');
+    const newTag = store.createRecord('tag');
     tagsAgain.push(newTag);
     await settled();
 
@@ -1017,7 +1017,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     assert.strictEqual(
       store.modelFor('person').typeForRelationship('tags', store),
@@ -1036,7 +1036,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     assert.strictEqual(
       store.modelFor('person').typeForRelationship('tags', store),
@@ -1055,7 +1055,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     assert.strictEqual(
       store.modelFor('person').typeForRelationship('tag', store),
@@ -1076,7 +1076,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     assert.strictEqual(
       store.modelFor('person').typeForRelationship('tags', store),
@@ -1100,8 +1100,8 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:person', Person);
     this.owner.register('model:tag', Tag);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
@@ -1168,8 +1168,8 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.coalesceFindRequests = true;
     adapter.findMany = function (store, type, ids, snapshots) {
@@ -1231,8 +1231,8 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
@@ -1288,8 +1288,8 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:person', Person);
     this.owner.register('model:pet', Pet);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.deleteRecord = () => {
@@ -1384,8 +1384,8 @@ module('unit/model/relationships - hasMany', function (hooks) {
       this.owner.register('model:person', Person);
       this.owner.register('model:pet', Pet);
 
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
 
       adapter.shouldBackgroundReloadRecord = () => false;
       adapter.deleteRecord = () => {
@@ -1464,7 +1464,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
         },
       });
 
-      let hasManyCanonical = person.hasMany('pets').hasManyRelationship.remoteState;
+      const hasManyCanonical = person.hasMany('pets').hasManyRelationship.remoteState;
 
       assert.todo.deepEqual(
         pets.map((p) => p.id),
@@ -1497,8 +1497,8 @@ module('unit/model/relationships - hasMany', function (hooks) {
       this.owner.register('model:person', Person);
       this.owner.register('model:pet', Pet);
 
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
 
       adapter.shouldBackgroundReloadRecord = () => false;
       adapter.deleteRecord = () => {
@@ -1582,7 +1582,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
         },
       });
 
-      let hasManyCanonical = person.hasMany('pets').hasManyRelationship.remoteState;
+      const hasManyCanonical = person.hasMany('pets').hasManyRelationship.remoteState;
 
       assert.todo.deepEqual(
         pets.map((p) => p.id),
@@ -1613,8 +1613,8 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:person', Person);
     this.owner.register('model:pet', Pet);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.deleteRecord = () => {
@@ -1709,8 +1709,8 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:person', Person);
     this.owner.register('model:dog', Dog);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.deleteRecord = () => {
@@ -1782,8 +1782,8 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:person', Person);
     this.owner.register('model:dog', Dog);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.deleteRecord = () => {
@@ -1855,8 +1855,8 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:person', Person);
     this.owner.register('model:dog', Dog);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.deleteRecord = () => {
@@ -1933,7 +1933,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:person', Person);
     this.owner.register('model:car', Car);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     store.push({
       data: [
@@ -1957,8 +1957,8 @@ module('unit/model/relationships - hasMany', function (hooks) {
       ],
     });
 
-    let person = store.peekRecord('person', 1);
-    let cars = person.cars;
+    const person = store.peekRecord('person', 1);
+    const cars = person.cars;
 
     assert.strictEqual(cars.length, 2);
 
@@ -1997,8 +1997,8 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:person', Person);
     this.owner.register('model:pet', Pet);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.deleteRecord = () => {
@@ -2109,7 +2109,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     store.push({
       data: [
@@ -2154,8 +2154,8 @@ module('unit/model/relationships - hasMany', function (hooks) {
       ],
     });
 
-    let tom = store.peekRecord('person', '1');
-    let sylvain = store.peekRecord('person', '2');
+    const tom = store.peekRecord('person', '1');
+    const sylvain = store.peekRecord('person', '2');
     // Test that since sylvain.tags instanceof ManyArray,
     // adding records on Relationship iterates correctly.
     if (DEPRECATE_ARRAY_LIKE) {
@@ -2189,7 +2189,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
       this.owner.register('model:tag', Tag);
       this.owner.register('model:person', Person);
 
-      let store = this.owner.lookup('service:store');
+      const store = this.owner.lookup('service:store');
 
       store.push({
         data: [
@@ -2222,8 +2222,8 @@ module('unit/model/relationships - hasMany', function (hooks) {
         ],
       });
 
-      let tom = store.peekRecord('person', '1');
-      let tag = store.peekRecord('tag', '2');
+      const tom = store.peekRecord('person', '1');
+      const tag = store.peekRecord('tag', '2');
       assert.expectAssertion(() => {
         tom.tags.setObjects(tag);
       }, /Assertion Failed: ManyArray.setObjects expects to receive an array as its argument/);
@@ -2246,8 +2246,8 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
@@ -2276,7 +2276,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
       ],
     });
 
-    let tag = person.tags.at(0);
+    const tag = person.tags.at(0);
 
     assert.strictEqual(tag.name, 'ember', 'precond - relationships work');
 
@@ -2299,13 +2299,13 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let person = store.createRecord('person');
-    let tag1 = store.createRecord('tag');
-    let tag2 = store.createRecord('tag');
-    let tag3 = store.createRecord('tag');
-    let tags = person.tags;
+    const person = store.createRecord('person');
+    const tag1 = store.createRecord('tag');
+    const tag2 = store.createRecord('tag');
+    const tag3 = store.createRecord('tag');
+    const tags = person.tags;
 
     tags.push(tag1, tag2, tag3);
     tags.splice(tags.indexOf(tag2), 1);
@@ -2338,8 +2338,8 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let tag = store.createRecord('tag');
+    const store = this.owner.lookup('service:store');
+    const tag = store.createRecord('tag');
 
     assert.ok(tag.people instanceof PromiseManyArray, 'people should be an async relationship');
   });
@@ -2358,15 +2358,15 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let tag = store.createRecord('tag');
-    let people = tag.people;
-    let peopleCached = tag.people;
+    const store = this.owner.lookup('service:store');
+    const tag = store.createRecord('tag');
+    const people = tag.people;
+    const peopleCached = tag.people;
 
     assert.strictEqual(people, peopleCached);
 
     tag.notifyPropertyChange('people');
-    let notifiedPeople = tag.people;
+    const notifiedPeople = tag.people;
 
     assert.strictEqual(people, notifiedPeople);
 
@@ -2387,10 +2387,10 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let tag = store.createRecord('tag');
-    let peopleProxy = tag.people;
-    let people = await peopleProxy;
+    const store = this.owner.lookup('service:store');
+    const tag = store.createRecord('tag');
+    const peopleProxy = tag.people;
+    const people = await peopleProxy;
 
     tag.unloadRecord();
     assert.true(people.isDestroying, 'people is destroying sync after unloadRecord');
@@ -2480,7 +2480,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
       },
     });
 
-    let post = store.peekRecord('post', '1');
+    const post = store.peekRecord('post', '1');
 
     const promise = post.comments;
     const promise2 = post.comments;
@@ -2655,8 +2655,8 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let tag = store.createRecord('tag');
+    const store = this.owner.lookup('service:store');
+    const tag = store.createRecord('tag');
     tag.hasMany('people').hasManyRelationship;
     const support = LEGACY_SUPPORT.get(tag);
     const sync = support._syncArray;
@@ -2678,7 +2678,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
       'expect people hasMany to not dirty after fetch completes, as we did not hit network'
     );
 
-    let person = store.createRecord('person');
+    const person = store.createRecord('person');
 
     assert.strictEqual(peopleDidChange, 0, 'expect people hasMany to not sync before access');
     people = await tag.people;
@@ -2706,8 +2706,8 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findHasMany = function (store, snapshot, url, relationship) {
       assert.strictEqual(relationship.key, 'tags', 'relationship should be tags');
@@ -2771,9 +2771,9 @@ module('unit/model/relationships - hasMany', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let tag = store.createRecord('tag');
-    let person = store.createRecord('person');
+    const store = this.owner.lookup('service:store');
+    const tag = store.createRecord('tag');
+    const person = store.createRecord('person');
 
     assert.expectAssertion(() => {
       tag.people = person;
@@ -2798,8 +2798,8 @@ module('unit/model/relationships - hasMany', function (hooks) {
       this.owner.register('model:tag', Tag);
       this.owner.register('model:person', Person);
 
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
 
       adapter.findRecord = function () {
         return {
@@ -2810,8 +2810,8 @@ module('unit/model/relationships - hasMany', function (hooks) {
         };
       };
 
-      let tag = store.createRecord('tag');
-      let person = store.findRecord('person', '1');
+      const tag = store.createRecord('tag');
+      const person = store.findRecord('person', '1');
       await person;
 
       tag.people = [person];

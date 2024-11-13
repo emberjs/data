@@ -1,10 +1,10 @@
 import { cacheFor } from '@ember/object/internals';
 
-import { DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
 import type Store from '@ember-data/store';
 import { peekCache } from '@ember-data/store/-private';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import { DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
 
 import type Model from './model';
 import { LEGACY_SUPPORT } from './model';
@@ -26,7 +26,7 @@ export default function notifyChanges(
     }
   } else if (value === 'relationships') {
     if (key) {
-      let meta = record.constructor.relationshipsByName.get(key);
+      const meta = record.constructor.relationshipsByName.get(key);
       notifyRelationship(identifier, key, record, meta);
     } else {
       record.eachRelationship((key, meta) => {
@@ -42,9 +42,9 @@ function notifyRelationship(identifier: StableRecordIdentifier, key: string, rec
   if (meta.kind === 'belongsTo') {
     record.notifyPropertyChange(key);
   } else if (meta.kind === 'hasMany') {
-    let support = LEGACY_SUPPORT.get(identifier);
-    let manyArray = support && support._manyArrayCache[key];
-    let hasPromise = support && support._relationshipPromisesCache[key];
+    const support = LEGACY_SUPPORT.get(identifier);
+    const manyArray = support && support._manyArrayCache[key];
+    const hasPromise = support && support._relationshipPromisesCache[key];
 
     if (manyArray && hasPromise) {
       // do nothing, we will notify the ManyArray directly
@@ -66,7 +66,7 @@ function notifyRelationship(identifier: StableRecordIdentifier, key: string, rec
 }
 
 function notifyAttribute(store: Store, identifier: StableRecordIdentifier, key: string, record: Model) {
-  let currentValue = cacheFor(record, key);
+  const currentValue = cacheFor(record, key);
   const cache = DEPRECATE_V1_RECORD_DATA ? peekCache(record)! : store.cache;
   if (currentValue !== cache.getAttr(identifier, key)) {
     record.notifyPropertyChange(key);

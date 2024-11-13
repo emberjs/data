@@ -39,7 +39,7 @@ export default class BelongsToRelationship {
 
   getData(): SingleResourceRelationship {
     let data;
-    let payload: any = {};
+    const payload: any = {};
     if (this.localState) {
       data = this.localState;
     }

@@ -1,11 +1,11 @@
 import { assert } from '@ember/debug';
 
-import { LOG_GRAPH } from '@warp-drive/build-config/debugging';
-import { DEBUG } from '@warp-drive/build-config/env';
-import { MergeOperation } from '@ember-data/types/q/cache';
+import type { MergeOperation } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { Dict } from '@ember-data/types/q/utils';
+import { LOG_GRAPH } from '@warp-drive/build-config/debugging';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 import BelongsToRelationship from '../relationships/state/belongs-to';
 import ManyRelationship from '../relationships/state/has-many';
@@ -97,7 +97,7 @@ export class Graph {
   }
 
   has(identifier: StableRecordIdentifier, propertyName: string): boolean {
-    let relationships = this.identifiers.get(identifier);
+    const relationships = this.identifiers.get(identifier);
     if (!relationships) {
       return false;
     }
@@ -241,7 +241,7 @@ export class Graph {
       // cleans up the graph but retains some nodes
       // to allow for rematerialization
       Object.keys(relationships).forEach((key) => {
-        let rel = relationships[key]!;
+        const rel = relationships[key]!;
         if (!rel) {
           return;
         }
@@ -295,7 +295,7 @@ export class Graph {
   update(op: LocalRelationshipOperation, isRemote?: false): void;
   update(
     op: MergeOperation | LocalRelationshipOperation | RemoteRelationshipOperation | UnknownOperation,
-    isRemote: boolean = false
+    isRemote = false
   ): void {
     assert(
       `Cannot update an implicit relationship`,
@@ -424,7 +424,7 @@ export class Graph {
       return;
     }
     this._willSyncLocal = false;
-    let updated = this._updatedRelationships;
+    const updated = this._updatedRelationships;
     this._updatedRelationships = new Set();
     updated.forEach((rel) => syncRemoteToLocal(this, rel));
   }
@@ -505,7 +505,7 @@ function notifyInverseOfDematerialization(
     return;
   }
 
-  let relationship = graph.get(inverseIdentifier, inverseKey);
+  const relationship = graph.get(inverseIdentifier, inverseKey);
   assert(`expected no implicit`, !isImplicit(relationship));
 
   // For remote members, it is possible that inverseRecordData has already been associated to

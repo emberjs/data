@@ -5,15 +5,15 @@ import { dependentKeyCompat } from '@ember/object/compat';
 import { tracked } from '@glimmer/tracking';
 import Ember from 'ember';
 
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { RecordInstance } from '@ember-data/types/q/record-instance';
+import type { FindOptions } from '@ember-data/types/q/store';
 import {
   DEPRECATE_A_USAGE,
   DEPRECATE_COMPUTED_CHAINS,
   DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS,
 } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
-import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { RecordInstance } from '@ember-data/types/q/record-instance';
-import { FindOptions } from '@ember-data/types/q/store';
 
 import type ManyArray from './many-array';
 
@@ -58,7 +58,7 @@ export default class PromiseManyArray {
 
     if (DEPRECATE_A_USAGE) {
       const meta = Ember.meta(this);
-      meta.hasMixin = (mixin: Object) => {
+      meta.hasMixin = (mixin: object) => {
         deprecate(`Do not use A() on an EmberData PromiseManyArray`, false, {
           id: 'ember-data:no-a-with-array-like',
           until: '5.0',
@@ -73,7 +73,7 @@ export default class PromiseManyArray {
       };
     } else if (DEBUG) {
       const meta = Ember.meta(this);
-      meta.hasMixin = (mixin: Object) => {
+      meta.hasMixin = (mixin: object) => {
         assert(`Do not use A() on an EmberData PromiseManyArray`);
       };
     }
@@ -146,28 +146,28 @@ export default class PromiseManyArray {
    * @property {boolean} isPending
    * @public
    */
-  @tracked isPending: boolean = false;
+  @tracked isPending = false;
   /**
    * Whether the loading promise rejected
    *
    * @property {boolean} isRejected
    * @public
    */
-  @tracked isRejected: boolean = false;
+  @tracked isRejected = false;
   /**
    * Whether the loading promise succeeded
    *
    * @property {boolean} isFulfilled
    * @public
    */
-  @tracked isFulfilled: boolean = false;
+  @tracked isFulfilled = false;
   /**
    * Whether the loading promise completed (resolved or rejected)
    *
    * @property {boolean} isSettled
    * @public
    */
-  @tracked isSettled: boolean = false;
+  @tracked isSettled = false;
 
   /**
    * chain this promise

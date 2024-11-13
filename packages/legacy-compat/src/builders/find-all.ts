@@ -43,7 +43,7 @@ type FindAllBuilderOptions = {
   @param {FindAllBuilderOptions} [options] optional, may include `adapterOptions` hash which will be passed to adapter.findAll
   @return {FindAllRequestInput} request config
 */
-export function findAllBuilder(type: string, options?: FindAllBuilderOptions): FindAllRequestInput<string>;
+export function findAllBuilder(type: string, options?: FindAllBuilderOptions): FindAllRequestInput;
 export function findAllBuilder(type: string, options?: FindAllBuilderOptions): FindAllRequestInput;
 export function findAllBuilder(type: string, options: FindAllBuilderOptions = {}): FindAllRequestInput {
   assert(`You need to pass a model name to the findAll builder`, type);

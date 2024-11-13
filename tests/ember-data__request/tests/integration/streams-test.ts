@@ -10,7 +10,7 @@ module('RequestManager | Streams', function () {
     const handler: Handler = {
       // @ts-expect-error
       async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T> {
-        const result = await fetch(context.request.url!, context.request);
+        const result = await fetch(context.request.url, context.request);
 
         if (result.body) {
           context.setStream(result.clone().body!);
@@ -54,7 +54,7 @@ module('RequestManager | Streams', function () {
     const handler2: Handler = {
       // @ts-expect-error
       async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T> {
-        const result = await fetch(context.request.url!, context.request);
+        const result = await fetch(context.request.url, context.request);
 
         if (result.body) {
           context.setStream(result.clone().body!);
@@ -99,7 +99,7 @@ module('RequestManager | Streams', function () {
     const handler2: Handler = {
       // @ts-expect-error
       async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T> {
-        const result = await fetch(context.request.url!, context.request);
+        const result = await fetch(context.request.url, context.request);
 
         if (result.body) {
           context.setStream(result.clone().body!);
@@ -140,7 +140,7 @@ module('RequestManager | Streams', function () {
     const handler2: Handler = {
       // @ts-expect-error
       async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T> {
-        const result = await fetch(context.request.url!, context.request);
+        const result = await fetch(context.request.url, context.request);
 
         if (result.body) {
           context.setStream(result.clone().body!);
@@ -179,7 +179,7 @@ module('RequestManager | Streams', function () {
     const handler2: Handler = {
       // @ts-expect-error
       async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T> {
-        const result = await fetch(context.request.url!, context.request);
+        const result = await fetch(context.request.url, context.request);
 
         if (result.body) {
           context.setStream(result.clone().body!);
@@ -221,7 +221,7 @@ module('RequestManager | Streams', function () {
     const handler2: Handler = {
       // @ts-expect-error
       async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T> {
-        const result = await fetch(context.request.url!, context.request);
+        const result = await fetch(context.request.url, context.request);
 
         if (result.body) {
           context.setStream(result.clone().body!);
@@ -263,7 +263,7 @@ module('RequestManager | Streams', function () {
     const handler2: Handler = {
       // @ts-expect-error
       async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T> {
-        const result = await fetch(context.request.url!, context.request);
+        const result = await fetch(context.request.url, context.request);
 
         if (result.body) {
           context.setStream(result.clone().body!);

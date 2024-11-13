@@ -21,7 +21,7 @@ module('integration/store/query-record - Query one record with a query hash', fu
   });
 
   testInDebug('It raises an assertion when no type is passed', async function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     await assert.expectAssertion(async function () {
       await store.queryRecord();
@@ -29,7 +29,7 @@ module('integration/store/query-record - Query one record with a query hash', fu
   });
 
   testInDebug('It raises an assertion when no query hash is passed', async function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     await assert.expectAssertion(async function () {
       await store.queryRecord('person');
@@ -39,8 +39,8 @@ module('integration/store/query-record - Query one record with a query hash', fu
   test("When a record is requested, the adapter's queryRecord method should be called.", async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let Person = store.modelFor('person');
+    const store = this.owner.lookup('service:store');
+    const Person = store.modelFor('person');
 
     this.owner.register(
       'adapter:person',
@@ -69,7 +69,7 @@ module('integration/store/query-record - Query one record with a query hash', fu
       })
     );
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     await store.queryRecord('person', {}).catch(function (reason) {
       assert.ok(true, 'The rejection handler was called');
@@ -110,7 +110,7 @@ module('integration/store/query-record - Query one record with a query hash', fu
       })
     );
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     await store.queryRecord('person', { related: 'posts' });
   });

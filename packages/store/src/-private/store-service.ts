@@ -8,22 +8,13 @@ import { _backburner as emberBackburner } from '@ember/runloop';
 
 import { importSync } from '@embroider/macros';
 
-import { LOG_PAYLOADS, LOG_REQUESTS } from '@warp-drive/build-config/debugging';
-import {
-  DEPRECATE_HAS_RECORD,
-  DEPRECATE_JSON_API_FALLBACK,
-  DEPRECATE_PROMISE_PROXIES,
-  DEPRECATE_STORE_FIND,
-  DEPRECATE_V1_RECORD_DATA,
-} from '@warp-drive/build-config/deprecations';
-import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 import type CacheClass from '@ember-data/json-api';
 import type FetchManager from '@ember-data/legacy-compat/legacy-network-handler/fetch-manager';
 import type Model from '@ember-data/model';
 import { HAS_COMPAT_PACKAGE, HAS_GRAPH_PACKAGE, HAS_JSON_API_PACKAGE, HAS_MODEL_PACKAGE } from '@ember-data/packages';
 import type RequestManager from '@ember-data/request';
 import type { Future, ImmutableRequestInfo } from '@ember-data/request/-private/types';
-import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
+import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { Cache, CacheV1 } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { DSModel } from '@ember-data/types/q/ds-model';
@@ -41,6 +32,15 @@ import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { SchemaService } from '@ember-data/types/q/schema-service';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
+import { LOG_PAYLOADS, LOG_REQUESTS } from '@warp-drive/build-config/debugging';
+import {
+  DEPRECATE_HAS_RECORD,
+  DEPRECATE_JSON_API_FALLBACK,
+  DEPRECATE_PROMISE_PROXIES,
+  DEPRECATE_STORE_FIND,
+  DEPRECATE_V1_RECORD_DATA,
+} from '@warp-drive/build-config/deprecations';
+import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 
 import { EnableHydration, type LifetimesService, SkipCache } from './cache-handler';
 import peekCache, { setCacheFor } from './caches/cache-utils';
@@ -55,17 +55,20 @@ import {
   storeFor,
   StoreMap,
 } from './caches/instance-cache';
-import { Document } from './document';
-import RecordReference from './legacy-model-support/record-reference';
+import type { Document } from './document';
+import type RecordReference from './legacy-model-support/record-reference';
 import { DSModelSchemaDefinitionService, getModelFactory } from './legacy-model-support/schema-definition-service';
 import type ShimModelClass from './legacy-model-support/shim-model-class';
 import { getShimClass } from './legacy-model-support/shim-model-class';
-import { legacyCachePut, NonSingletonCacheManager, SingletonCacheManager } from './managers/cache-manager';
+import type { NonSingletonCacheManager} from './managers/cache-manager';
+import { legacyCachePut, SingletonCacheManager } from './managers/cache-manager';
 import NotificationManager from './managers/notification-manager';
 import RecordArrayManager from './managers/record-array-manager';
 import RequestStateService, { RequestPromise } from './network/request-cache';
-import { PromiseArray, promiseArray, PromiseObject, promiseObject } from './proxies/promise-proxies';
-import IdentifierArray, { Collection } from './record-arrays/identifier-array';
+import type { PromiseArray, PromiseObject} from './proxies/promise-proxies';
+import { promiseArray, promiseObject } from './proxies/promise-proxies';
+import type { Collection } from './record-arrays/identifier-array';
+import type IdentifierArray from './record-arrays/identifier-array';
 import coerceId, { ensureStringId } from './utils/coerce-id';
 import constructResource from './utils/construct-resource';
 import normalizeModelName from './utils/normalize-model-name';
@@ -379,7 +382,7 @@ class Store extends EmberObject {
     // we lazily set the cache handler when we issue the first request
     // because constructor doesn't allow for this to run after
     // the user has had the chance to set the prop.
-    let opts: { store: Store; disableTestWaiter?: boolean; [EnableHydration]: true } = {
+    const opts: { store: Store; disableTestWaiter?: boolean; [EnableHydration]: true } = {
       store: this,
       [EnableHydration]: true,
     };
@@ -450,11 +453,11 @@ class Store extends EmberObject {
     createRecordArgs: { [key: string]: unknown }
   ): DSModel | RecordInstance {
     if (HAS_MODEL_PACKAGE) {
-      let modelName = identifier.type;
+      const modelName = identifier.type;
 
       const cache = DEPRECATE_V1_RECORD_DATA ? this._instanceCache.getResourceCache(identifier) : this.cache;
       // TODO deprecate allowing unknown args setting
-      let createOptions: any = {
+      const createOptions: any = {
         _createProps: createRecordArgs,
         // TODO @deprecate consider deprecating accessing record properties during init which the below is necessary for
         _secretInit: {
@@ -665,8 +668,8 @@ class Store extends EmberObject {
       typeof modelName === 'string'
     );
     if (HAS_MODEL_PACKAGE) {
-      let normalizedModelName = normalizeModelName(modelName);
-      let maybeFactory = getModelFactory(this, this._modelFactoryCache, normalizedModelName);
+      const normalizedModelName = normalizeModelName(modelName);
+      const maybeFactory = getModelFactory(this, this._modelFactoryCache, normalizedModelName);
 
       // for factorFor factory/class split
       const klass = maybeFactory && maybeFactory.class ? maybeFactory.class : null;
@@ -738,8 +741,8 @@ class Store extends EmberObject {
     let record!: RecordInstance;
     emberBackburner.join(() => {
       this._join(() => {
-        let normalizedModelName = normalizeModelName(modelName);
-        let properties = { ...inputProperties };
+        const normalizedModelName = normalizeModelName(modelName);
+        const properties = { ...inputProperties };
 
         // If the passed properties do not include a primary key,
         // give the adapter an opportunity to generate one. Typically,
@@ -747,7 +750,7 @@ class Store extends EmberObject {
         // to avoid conflicts.
 
         if (properties.id === null || properties.id === undefined) {
-          let adapter = this.adapterFor(modelName);
+          const adapter = this.adapterFor(modelName);
 
           if (adapter && adapter.generateIdForRecord) {
             properties.id = adapter.generateIdForRecord(this, modelName, properties);
@@ -1287,7 +1290,7 @@ class Store extends EmberObject {
       resource
     );
     if (isMaybeIdentifier(resource)) {
-      options = id as FindOptions | undefined;
+      options = id;
     } else {
       assert(
         `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${resource}`,
@@ -1309,7 +1312,7 @@ class Store extends EmberObject {
         options.reload = true;
       }
       this._join(() => {
-        preloadData(this, identifier, options!.preload!);
+        preloadData(this, identifier, options!.preload);
       });
     }
 
@@ -1393,7 +1396,7 @@ class Store extends EmberObject {
       isMaybeIdentifier(resourceIdentifier)
     );
 
-    let identifier: StableRecordIdentifier = this.identifierCache.getOrCreateRecordIdentifier(resourceIdentifier);
+    const identifier: StableRecordIdentifier = this.identifierCache.getOrCreateRecordIdentifier(resourceIdentifier);
 
     return this._instanceCache.getReference(identifier);
   }
@@ -1986,7 +1989,7 @@ class Store extends EmberObject {
       typeof modelName === 'string'
     );
 
-    let type = normalizeModelName(modelName);
+    const type = normalizeModelName(modelName);
     return this.recordArrayManager.liveArrayFor(type);
   }
 
@@ -2031,7 +2034,7 @@ class Store extends EmberObject {
         this.recordArrayManager.clear();
         this._instanceCache.clear();
       } else {
-        let normalizedModelName = normalizeModelName(modelName);
+        const normalizedModelName = normalizeModelName(modelName);
         this._instanceCache.clear(normalizedModelName);
       }
     });
@@ -2195,10 +2198,10 @@ class Store extends EmberObject {
     if (DEBUG) {
       assertDestroyingStore(this, 'push');
     }
-    let pushed = this._push(data, false);
+    const pushed = this._push(data, false);
 
     if (Array.isArray(pushed)) {
-      let records = pushed.map((identifier) => this._instanceCache.getRecord(identifier));
+      const records = pushed.map((identifier) => this._instanceCache.getRecord(identifier));
       return records;
     }
 
@@ -2227,7 +2230,7 @@ class Store extends EmberObject {
     }
     if (LOG_PAYLOADS) {
       try {
-        let data = JSON.parse(JSON.stringify(jsonApiDoc));
+        const data = JSON.parse(JSON.stringify(jsonApiDoc));
         // eslint-disable-next-line no-console
         console.log('EmberData | Payload - push', data);
       } catch (e) {
@@ -2328,7 +2331,7 @@ class Store extends EmberObject {
         `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
         typeof modelName === 'string'
       );
-      let normalizedModelName = normalizeModelName(modelName);
+      const normalizedModelName = normalizeModelName(modelName);
       serializer = this.serializerFor(normalizedModelName);
     }
     assert(
@@ -2369,7 +2372,7 @@ class Store extends EmberObject {
       assertDestroyingStore(this, 'saveRecord');
     }
     assert(`Unable to initate save for a record in a disconnected state`, storeFor(record));
-    let identifier = recordIdentifierFor(record);
+    const identifier = recordIdentifierFor(record);
     const cache =
       identifier &&
       (DEPRECATE_V1_RECORD_DATA ? this._instanceCache.peek({ identifier, bucket: 'resourceCache' }) : this.cache);
@@ -2501,9 +2504,9 @@ class Store extends EmberObject {
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${typeof modelName}`,
       typeof modelName === 'string'
     );
-    let normalizedModelName = normalizeModelName(modelName);
-    let serializer = this.serializerFor(normalizedModelName);
-    let model = this.modelFor(normalizedModelName);
+    const normalizedModelName = normalizeModelName(modelName);
+    const serializer = this.serializerFor(normalizedModelName);
+    const model = this.modelFor(normalizedModelName);
     assert(
       `You must define a normalize method in your serializer in order to call store.normalize`,
       serializer?.normalize
@@ -2534,15 +2537,15 @@ class Store extends EmberObject {
       `Passing classes to store.adapterFor has been removed. Please pass a dasherized string instead of ${modelName}`,
       typeof modelName === 'string'
     );
-    let normalizedModelName = normalizeModelName(modelName);
+    const normalizedModelName = normalizeModelName(modelName);
 
-    let { _adapterCache } = this;
+    const { _adapterCache } = this;
     let adapter = _adapterCache[normalizedModelName];
     if (adapter) {
       return adapter;
     }
 
-    let owner: any = getOwner(this);
+    const owner: any = getOwner(this);
 
     // name specific adapter
     adapter = owner.lookup(`adapter:${normalizedModelName}`);
@@ -2610,15 +2613,15 @@ class Store extends EmberObject {
       `Passing classes to store.serializerFor has been removed. Please pass a dasherized string instead of ${modelName}`,
       typeof modelName === 'string'
     );
-    let normalizedModelName = normalizeModelName(modelName);
+    const normalizedModelName = normalizeModelName(modelName);
 
-    let { _serializerCache } = this;
+    const { _serializerCache } = this;
     let serializer = _serializerCache[normalizedModelName];
     if (serializer) {
       return serializer;
     }
 
-    let owner: any = getOwner(this);
+    const owner: any = getOwner(this);
 
     // by name
     serializer = owner.lookup(`serializer:${normalizedModelName}`);
@@ -2646,15 +2649,15 @@ class Store extends EmberObject {
     }
     this.isDestroying = true;
     // enqueue destruction of any adapters/serializers we have created
-    for (let adapterName in this._adapterCache) {
-      let adapter = this._adapterCache[adapterName]!;
+    for (const adapterName in this._adapterCache) {
+      const adapter = this._adapterCache[adapterName]!;
       if (typeof adapter.destroy === 'function') {
         adapter.destroy();
       }
     }
 
-    for (let serializerName in this._serializerCache) {
-      let serializer = this._serializerCache[serializerName]!;
+    for (const serializerName in this._serializerCache) {
+      const serializer = this._serializerCache[serializerName]!;
       if (typeof serializer.destroy === 'function') {
         serializer.destroy();
       }
@@ -2663,7 +2666,7 @@ class Store extends EmberObject {
     if (HAS_GRAPH_PACKAGE) {
       const peekGraph = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private'))
         .peekGraph;
-      let graph = peekGraph(this);
+      const graph = peekGraph(this);
       if (graph) {
         graph.destroy();
       }
@@ -2724,7 +2727,7 @@ function normalizeProperties(
   store: Store,
   identifier: StableRecordIdentifier,
   properties?: { [key: string]: unknown },
-  isForV1: boolean = false
+  isForV1 = false
 ): { [key: string]: unknown } | undefined {
   // assert here
   if (properties !== undefined) {
@@ -2739,15 +2742,15 @@ function normalizeProperties(
     const { type } = identifier;
 
     // convert relationship Records to RecordDatas before passing to RecordData
-    let defs = store.getSchemaDefinitionService().relationshipsDefinitionFor({ type });
+    const defs = store.getSchemaDefinitionService().relationshipsDefinitionFor({ type });
 
     if (defs !== null) {
-      let keys = Object.keys(properties);
+      const keys = Object.keys(properties);
       let relationshipValue;
 
       for (let i = 0; i < keys.length; i++) {
-        let prop = keys[i];
-        let def = defs[prop];
+        const prop = keys[i];
+        const def = defs[prop];
 
         if (def !== undefined) {
           if (def.kind === 'hasMany') {
@@ -2786,7 +2789,7 @@ function assertRecordsPassedToHasMany(records: RecordInstance[]) {
   );
 }
 
-function extractIdentifiersFromRecords(records: RecordInstance[], isForV1: boolean = false): StableRecordIdentifier[] {
+function extractIdentifiersFromRecords(records: RecordInstance[], isForV1 = false): StableRecordIdentifier[] {
   return records.map((record) => extractIdentifierFromRecord(record, isForV1)) as StableRecordIdentifier[];
 }
 
@@ -2794,7 +2797,7 @@ type PromiseProxyRecord = { then(): void; content: RecordInstance | null | undef
 
 function extractIdentifierFromRecord(
   recordOrPromiseRecord: PromiseProxyRecord | RecordInstance | null,
-  isForV1: boolean = false
+  isForV1 = false
 ) {
   if (!recordOrPromiseRecord) {
     return null;
@@ -2803,7 +2806,7 @@ function extractIdentifierFromRecord(
 
   if (DEPRECATE_PROMISE_PROXIES) {
     if (isPromiseRecord(recordOrPromiseRecord)) {
-      let content = recordOrPromiseRecord.content;
+      const content = recordOrPromiseRecord.content;
       assert(
         'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.',
         content !== undefined

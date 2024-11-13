@@ -110,7 +110,7 @@ const Fetch = {
     let response: Response;
 
     try {
-      response = await _fetch(context.request.url!, context.request);
+      response = await _fetch(context.request.url, context.request);
     } catch (e) {
       if (e instanceof DOMException && e.name === 'AbortError') {
         (e as unknown as HttpErrorProps).statusText = 'Aborted';

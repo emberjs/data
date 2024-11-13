@@ -66,7 +66,7 @@ class TestAdapter extends JSONAPIAdapter {
       return this.pausePromise.then(() => this._nextPayload());
     }
 
-    let payload = this._payloads.shift();
+    const payload = this._payloads.shift();
 
     if (payload === undefined) {
       this.assert.ok(false, 'Too many adapter requests have been made!');
@@ -104,7 +104,7 @@ class TestAdapter extends JSONAPIAdapter {
 }
 
 function makePeopleWithRelationshipData() {
-  let people = [
+  const people = [
     {
       type: 'person',
       id: '1:no-children-or-parent',
@@ -199,7 +199,7 @@ function makePeopleWithRelationshipData() {
     },
   ];
 
-  let peopleHash = {};
+  const peopleHash = {};
   people.forEach((person) => {
     peopleHash[person.id] = person;
   });
@@ -216,7 +216,7 @@ module('async belongs-to rendering tests', function (hooks) {
   setupRenderingTest(hooks);
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
     owner.register('model:person', Person);
     owner.register('model:pet', Pet);
     owner.register('adapter:application', TestAdapter);
@@ -234,7 +234,7 @@ module('async belongs-to rendering tests', function (hooks) {
 
   module('for local changes', function (hooks) {
     hooks.beforeEach(function () {
-      let { owner } = this;
+      const { owner } = this;
       owner.register('model:person', Person);
       owner.register('model:pet', Pet);
     });
@@ -325,7 +325,7 @@ module('async belongs-to rendering tests', function (hooks) {
     });
 
     test('async belongsTo returns correct new value after a local change', async function (assert) {
-      let chris = store.push({
+      const chris = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -360,8 +360,8 @@ module('async belongs-to rendering tests', function (hooks) {
         ],
       });
 
-      let shen = store.peekRecord('pet', '1');
-      let pirate = store.peekRecord('pet', '2');
+      const shen = store.peekRecord('pet', '1');
+      const pirate = store.peekRecord('pet', '2');
       let bestDog = await chris.bestDog;
 
       this.set('chris', chris);
@@ -411,8 +411,8 @@ module('async belongs-to rendering tests', function (hooks) {
 
   module('for data-no-link scenarios', function () {
     test('We can render an async belongs-to', async function (assert) {
-      let people = makePeopleWithRelationshipData();
-      let sedona = store.push({
+      const people = makePeopleWithRelationshipData();
+      const sedona = store.push({
         data: people.dict['5:has-parent-no-children'],
       });
 
@@ -429,8 +429,8 @@ module('async belongs-to rendering tests', function (hooks) {
     });
 
     test('We can delete an async belongs-to', async function (assert) {
-      let people = makePeopleWithRelationshipData();
-      let sedona = store.push({
+      const people = makePeopleWithRelationshipData();
+      const sedona = store.push({
         data: people.dict['5:has-parent-no-children'],
       });
 
@@ -443,9 +443,9 @@ module('async belongs-to rendering tests', function (hooks) {
       <p>{{this.sedona.parent.name}}</p>
       `);
 
-      let parent = await sedona.parent;
+      const parent = await sedona.parent;
       await parent.destroyRecord();
-      let newParent = await sedona.parent;
+      const newParent = await sedona.parent;
 
       assert.strictEqual(newParent, null, 'We no longer have a parent');
       assert.strictEqual(
@@ -456,8 +456,8 @@ module('async belongs-to rendering tests', function (hooks) {
     });
 
     test('Re-rendering an async belongsTo does not cause a new fetch', async function (assert) {
-      let people = makePeopleWithRelationshipData();
-      let sedona = store.push({
+      const people = makePeopleWithRelationshipData();
+      const sedona = store.push({
         data: people.dict['5:has-parent-no-children'],
       });
 
@@ -480,8 +480,8 @@ module('async belongs-to rendering tests', function (hooks) {
     });
 
     test('Rendering an async belongs-to whose fetch fails does not trigger a new request', async function (assert) {
-      let people = makePeopleWithRelationshipData();
-      let sedona = store.push({
+      const people = makePeopleWithRelationshipData();
+      const sedona = store.push({
         data: people.dict['5:has-parent-no-children'],
       });
 
@@ -513,7 +513,7 @@ module('async belongs-to rendering tests', function (hooks) {
 
       // Here we assign our handler to the corresponding global, window property
       window.addEventListener('unhandledrejection', globalPromiseRejectionHandler, true);
-      let originalPushResult = assert.pushResult;
+      const originalPushResult = assert.pushResult;
       assert.pushResult = function (result) {
         if (
           result.result === false &&
@@ -532,8 +532,8 @@ module('async belongs-to rendering tests', function (hooks) {
 
       const relationship = sedona.belongsTo('parent').belongsToRelationship;
       const { state, definition } = relationship;
-      let RelationshipPromiseCache = LEGACY_SUPPORT.get(sedona)._relationshipPromisesCache;
-      let RelationshipProxyCache = LEGACY_SUPPORT.get(sedona)._relationshipProxyCache;
+      const RelationshipPromiseCache = LEGACY_SUPPORT.get(sedona)._relationshipPromisesCache;
+      const RelationshipProxyCache = LEGACY_SUPPORT.get(sedona)._relationshipProxyCache;
 
       assert.true(definition.isAsync, 'The relationship is async');
       assert.false(state.isEmpty, 'The relationship is not empty');
@@ -546,7 +546,7 @@ module('async belongs-to rendering tests', function (hooks) {
       assert.false(!!relationship.link, 'The relationship does not have a link');
 
       try {
-        let result = sedona.parent.content;
+        const result = sedona.parent.content;
         assert.strictEqual(result, null, 're-access is safe');
       } catch (e) {
         assert.ok(false, `Re-accessing unexpectedly resulted in rejected promise error: ${e.message}`);
@@ -565,8 +565,8 @@ module('async belongs-to rendering tests', function (hooks) {
 
     test('accessing a linked async belongs-to whose fetch fails does not error for null proxy content', async function (assert) {
       assert.expect(3);
-      let people = makePeopleWithRelationshipData();
-      let sedona = store.push({
+      const people = makePeopleWithRelationshipData();
+      const sedona = store.push({
         data: people.dict['6:has-linked-parent'],
       });
 
@@ -597,8 +597,8 @@ module('async belongs-to rendering tests', function (hooks) {
 
   test('Can reset a previously failed linked async belongs-to', async function (assert) {
     assert.expect(5);
-    let people = makePeopleWithRelationshipData();
-    let sedona = store.push({
+    const people = makePeopleWithRelationshipData();
+    const sedona = store.push({
       data: people.dict['6:has-linked-parent'],
     });
 
@@ -616,7 +616,7 @@ module('async belongs-to rendering tests', function (hooks) {
 
     // Here we assign our handler to the corresponding global, window property
     window.addEventListener('unhandledrejection', globalPromiseRejectionHandler, true);
-    let originalPushResult = assert.pushResult;
+    const originalPushResult = assert.pushResult;
     assert.pushResult = function (result) {
       if (result.result === false && result.message === 'global failure: Error: person not found') {
         return;

@@ -60,8 +60,8 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
   });
 
   test('Calling pushPayload works', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let serializer = store.serializerFor('application');
+    const store = this.owner.lookup('service:store');
+    const serializer = store.serializerFor('application');
 
     serializer.pushPayload(store, {
       data: {
@@ -120,8 +120,8 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
   });
 
   testInDebug('Warns when normalizing an unknown type', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let User = store.modelFor('user');
+    const store = this.owner.lookup('service:store');
+    const User = store.modelFor('user');
 
     var documentHash = {
       data: {
@@ -141,8 +141,8 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
   });
 
   testInDebug('Warns when normalizing payload with unknown type included', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let User = store.modelFor('user');
+    const store = this.owner.lookup('service:store');
+    const User = store.modelFor('user');
 
     var documentHash = {
       data: {
@@ -177,7 +177,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
   });
 
   testInDebug('Warns but does not fail when pushing payload with unknown type included', function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     var documentHash = {
       data: {
@@ -210,7 +210,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
   });
 
   testInDebug('Errors when pushing payload with unknown type included in relationship', function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     var documentHash = {
       data: {
@@ -236,8 +236,8 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
   });
 
   testInDebug('Warns when normalizing with type missing', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let User = store.modelFor('user');
+    const store = this.owner.lookup('service:store');
+    const User = store.modelFor('user');
 
     var documentHash = {
       data: {
@@ -267,8 +267,8 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
       })
     );
 
-    let store = this.owner.lookup('service:store');
-    let User = store.modelFor('user');
+    const store = this.owner.lookup('service:store');
+    const User = store.modelFor('user');
 
     var jsonHash = {
       data: {
@@ -314,7 +314,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
       })
     );
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
     var company, user;
 
     run(function () {
@@ -352,8 +352,8 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
       })
     );
 
-    let store = this.owner.lookup('service:store');
-    let User = store.modelFor('user');
+    const store = this.owner.lookup('service:store');
+    const User = store.modelFor('user');
 
     var jsonHash = {
       data: {
@@ -380,9 +380,9 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
       })
     );
 
-    let store = this.owner.lookup('service:store');
-    let project = store.createRecord('project', { 'company-name': 'Tilde Inc.' });
-    let payload = store.serializerFor('project').serialize(project._createSnapshot());
+    const store = this.owner.lookup('service:store');
+    const project = store.createRecord('project', { 'company-name': 'Tilde Inc.' });
+    const payload = store.serializerFor('project').serialize(project._createSnapshot());
 
     assert.strictEqual(payload.data.attributes['company_name'], 'Tilde Inc.');
   });
@@ -404,8 +404,8 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
 
     this.owner.register('model:user', User);
 
-    let store = this.owner.lookup('service:store');
-    let user = store.createRecord('user', { myCustomField: 'value' });
+    const store = this.owner.lookup('service:store');
+    const user = store.createRecord('user', { myCustomField: 'value' });
 
     this.owner.register(
       'transform:custom',
@@ -428,8 +428,8 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
   });
 
   test('a belongsTo relationship that is not set will not be in the relationships key', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let serializer = store.serializerFor('application');
+    const store = this.owner.lookup('service:store');
+    const serializer = store.serializerFor('application');
 
     run(function () {
       serializer.pushPayload(store, {
@@ -439,9 +439,9 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
         },
       });
 
-      let handle = store.peekRecord('handle', 1);
+      const handle = store.peekRecord('handle', 1);
 
-      let serialized = handle.serialize({ includeId: true });
+      const serialized = handle.serialize({ includeId: true });
       assert.deepEqual(serialized, {
         data: {
           type: 'handles',
@@ -452,8 +452,8 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
   });
 
   test('a belongsTo relationship that is set to null will show as null in the relationships key', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let serializer = store.serializerFor('application');
+    const store = this.owner.lookup('service:store');
+    const serializer = store.serializerFor('application');
 
     serializer.pushPayload(store, {
       data: {
@@ -462,10 +462,10 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
       },
     });
 
-    let handle = store.peekRecord('handle', 1);
+    const handle = store.peekRecord('handle', 1);
     handle.set('user', null);
 
-    let serialized = handle.serialize({ includeId: true });
+    const serialized = handle.serialize({ includeId: true });
     assert.deepEqual(serialized, {
       data: {
         type: 'handles',
@@ -480,8 +480,8 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
   });
 
   test('a belongsTo relationship set to a new record will not show in the relationships key', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let serializer = store.serializerFor('application');
+    const store = this.owner.lookup('service:store');
+    const serializer = store.serializerFor('application');
 
     run(function () {
       serializer.pushPayload(store, {
@@ -491,11 +491,11 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
         },
       });
 
-      let handle = store.peekRecord('handle', 1);
-      let user = store.createRecord('user');
+      const handle = store.peekRecord('handle', 1);
+      const user = store.createRecord('user');
       handle.set('user', user);
 
-      let serialized = handle.serialize({ includeId: true });
+      const serialized = handle.serialize({ includeId: true });
       assert.deepEqual(serialized, {
         data: {
           type: 'handles',
@@ -515,7 +515,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
       })
     );
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     run(function () {
       store.serializerFor('user').pushPayload(store, {
@@ -537,9 +537,9 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
         ],
       });
 
-      let user = store.peekRecord('user', 1);
+      const user = store.peekRecord('user', 1);
 
-      let serialized = user.serialize({ includeId: true });
+      const serialized = user.serialize({ includeId: true });
 
       assert.deepEqual(serialized, {
         data: {
@@ -573,7 +573,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
       })
     );
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     run(function () {
       store.serializerFor('user').pushPayload(store, {
@@ -595,10 +595,10 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
         ],
       });
 
-      let user = store.peekRecord('user', 1);
+      const user = store.peekRecord('user', 1);
       store.createRecord('handle', { user });
 
-      let serialized = user.serialize({ includeId: true });
+      const serialized = user.serialize({ includeId: true });
 
       assert.deepEqual(serialized, {
         data: {
@@ -632,7 +632,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
       })
     );
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     run(function () {
       store.serializerFor('user').pushPayload(store, {
@@ -642,10 +642,10 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
         },
       });
 
-      let user = store.peekRecord('user', 1);
+      const user = store.peekRecord('user', 1);
       store.createRecord('handle', { user });
 
-      let serialized = user.serialize({ includeId: true });
+      const serialized = user.serialize({ includeId: true });
 
       assert.deepEqual(serialized, {
         data: {
@@ -676,7 +676,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
       })
     );
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     store.serializerFor('user').pushPayload(store, {
       data: {
@@ -697,15 +697,15 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
       ],
     });
 
-    let user = store.peekRecord('user', '1');
-    let handle1 = store.peekRecord('handle', '1');
-    let handle2 = store.peekRecord('handle', '2');
+    const user = store.peekRecord('user', '1');
+    const handle1 = store.peekRecord('handle', '1');
+    const handle2 = store.peekRecord('handle', '2');
 
     const handles = await user.handles;
     handles.splice(handles.indexOf(handle1), 1);
     handles.splice(handles.indexOf(handle2), 1);
 
-    let serialized = user.serialize({ includeId: true });
+    const serialized = user.serialize({ includeId: true });
 
     assert.deepEqual(serialized, {
       data: {
@@ -740,8 +740,8 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
   });
 
   testInDebug('Asserts when normalized attribute key is not found in payload but original key is', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let User = store.modelFor('user');
+    const store = this.owner.lookup('service:store');
+    const User = store.modelFor('user');
 
     var jsonHash = {
       data: {
@@ -761,8 +761,8 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', functi
   testInDebug(
     'Asserts when normalized relationship key is not found in payload but original key is',
     function (assert) {
-      let store = this.owner.lookup('service:store');
-      let User = store.modelFor('user');
+      const store = this.owner.lookup('service:store');
+      const User = store.modelFor('user');
 
       var jsonHash = {
         data: {

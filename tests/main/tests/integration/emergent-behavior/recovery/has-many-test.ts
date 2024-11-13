@@ -2,11 +2,11 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import { DEBUG } from '@warp-drive/build-config/env';
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import Model, { attr, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/types/q/ds-model';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 let IS_DEBUG = false;
 

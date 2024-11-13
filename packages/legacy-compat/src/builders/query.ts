@@ -44,7 +44,7 @@ export function queryBuilder(
   type: string,
   query: Record<string, unknown>,
   options?: QueryBuilderOptions
-): QueryRequestInput<string>;
+): QueryRequestInput;
 export function queryBuilder(
   type: string,
   query: Record<string, unknown>,
@@ -105,7 +105,7 @@ export function queryRecordBuilder(
   type: string,
   query: Record<string, unknown>,
   options?: QueryBuilderOptions
-): QueryRecordRequestInput<string>;
+): QueryRecordRequestInput;
 export function queryRecordBuilder(
   type: string,
   query: Record<string, unknown>,

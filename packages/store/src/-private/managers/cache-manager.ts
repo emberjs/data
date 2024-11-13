@@ -31,7 +31,7 @@ export function legacyCachePut(
   const jsonApiDoc = doc.content;
   let ret: ResourceDocument;
   store._join(() => {
-    let included = jsonApiDoc.included;
+    const included = jsonApiDoc.included;
     let i: number, length: number;
 
     if (included) {
@@ -42,7 +42,7 @@ export function legacyCachePut(
 
     if (Array.isArray(jsonApiDoc.data)) {
       length = jsonApiDoc.data.length;
-      let identifiers: StableExistingRecordIdentifier[] = [];
+      const identifiers: StableExistingRecordIdentifier[] = [];
 
       for (i = 0; i < length; i++) {
         identifiers.push(store._instanceCache.loadData(jsonApiDoc.data[i]));
@@ -141,7 +141,7 @@ export class NonSingletonCacheManager implements Cache {
   }
 
   #isDeprecated(cache: Cache | CacheV1): cache is CacheV1 {
-    let version = cache.version || '1';
+    const version = cache.version || '1';
     return version !== this.version;
   }
 
@@ -243,8 +243,8 @@ export class NonSingletonCacheManager implements Cache {
             );
             return;
           }
-          cache.removeFromHasMany(mutation.field, [instanceCache.getResourceCache(mutation.prior!)]);
-          cache.addToHasMany(mutation.field, [instanceCache.getResourceCache(mutation.value!)], mutation.index);
+          cache.removeFromHasMany(mutation.field, [instanceCache.getResourceCache(mutation.prior)]);
+          cache.addToHasMany(mutation.field, [instanceCache.getResourceCache(mutation.value)], mutation.index);
           return;
         case 'sortRelatedRecords':
           return;
@@ -810,7 +810,7 @@ export class NonSingletonCacheManager implements Cache {
     const cache = this.#cache;
 
     if (this.#isDeprecated(cache)) {
-      let isBelongsTo = !isCollection;
+      const isBelongsTo = !isCollection;
       return isBelongsTo ? cache.getBelongsTo(propertyName) : cache.getHasMany(propertyName);
     }
 
@@ -834,7 +834,7 @@ export class NonSingletonCacheManager implements Cache {
     if (this.#isDeprecated(cache)) {
       return cache.getBelongsTo(propertyName);
     } else {
-      let identifier = this.#identifier;
+      const identifier = this.#identifier;
       return cache.getRelationship(identifier, propertyName) as SingleResourceRelationship;
     }
   }
@@ -856,7 +856,7 @@ export class NonSingletonCacheManager implements Cache {
     if (this.#isDeprecated(cache)) {
       return cache.getHasMany(propertyName);
     } else {
-      let identifier = this.#identifier;
+      const identifier = this.#identifier;
       return cache.getRelationship(identifier, propertyName) as CollectionResourceRelationship;
     }
   }

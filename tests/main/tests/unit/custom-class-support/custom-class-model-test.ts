@@ -1,4 +1,4 @@
-import { TestContext } from '@ember/test-helpers';
+import type { TestContext } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 import RSVP from 'rsvp';
@@ -9,7 +9,7 @@ import { setupTest } from 'ember-qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import { Cache } from '@ember-data/types/q/cache';
+import type { Cache } from '@ember-data/types/q/cache';
 import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
@@ -34,7 +34,7 @@ module('unit/model - Custom Class Model', function (hooks) {
       super(args);
       this.registerSchemaDefinitionService({
         attributesDefinitionFor() {
-          let schema: AttributesSchema = {};
+          const schema: AttributesSchema = {};
           schema.name = {
             kind: 'attribute',
             options: {},
@@ -59,7 +59,7 @@ module('unit/model - Custom Class Model', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
 
     owner.register(
       'adapter:application',
@@ -77,7 +77,7 @@ module('unit/model - Custom Class Model', function (hooks) {
     let notificationCount = 0;
     let identifier;
     class CreationStore extends CustomStore {
-      instantiateRecord(id: StableRecordIdentifier, createRecordArgs): Object {
+      instantiateRecord(id: StableRecordIdentifier, createRecordArgs): object {
         identifier = id;
         this.notifications.subscribe(identifier, (passedId, key) => {
           notificationCount++;
@@ -124,7 +124,7 @@ module('unit/model - Custom Class Model', function (hooks) {
     }
     this.owner.register('service:store', CreationStore);
     store = this.owner.lookup('service:store') as Store;
-    let person = store.createRecord('person', { name: 'chris', otherProp: 'unk' });
+    const person = store.createRecord('person', { name: 'chris', otherProp: 'unk' });
     assert.strictEqual(returnValue, person, 'createRecord returns the instantiated record');
     assert.deepEqual(returnValue, person, 'record instantiating does not modify the returned value');
   });
@@ -146,7 +146,7 @@ module('unit/model - Custom Class Model', function (hooks) {
       }
       this.owner.register('service:store', CreationStore);
       store = this.owner.lookup('service:store') as Store;
-      let schema: SchemaService = {
+      const schema: SchemaService = {
         attributesDefinitionFor({ type: string }): AttributesSchema {
           return {
             name: {
@@ -235,7 +235,7 @@ module('unit/model - Custom Class Model', function (hooks) {
     }
     this.owner.register('service:store', CustomStore);
     store = this.owner.lookup('service:store') as Store;
-    let schema: SchemaService = {
+    const schema: SchemaService = {
       attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
         if (typeof identifier === 'string') {
           assert.strictEqual(identifier, 'person', 'type passed in to the schema hooks');
@@ -289,7 +289,7 @@ module('unit/model - Custom Class Model', function (hooks) {
       },
     };
     store.registerSchemaDefinitionService(schema);
-    let person = store.createRecord('person', { name: 'chris' });
+    const person = store.createRecord('person', { name: 'chris' });
     await (person as unknown as Person).save();
   });
 
@@ -306,8 +306,8 @@ module('unit/model - Custom Class Model', function (hooks) {
     );
     this.owner.register('service:store', CustomStore);
     store = this.owner.lookup('service:store') as Store;
-    let person = store.createRecord('person', { name: 'chris' });
-    let promisePerson = await store.saveRecord(person);
+    const person = store.createRecord('person', { name: 'chris' });
+    const promisePerson = await store.saveRecord(person);
     assert.strictEqual(person, promisePerson, 'save promise resolves with the same record');
   });
 
@@ -342,11 +342,11 @@ module('unit/model - Custom Class Model', function (hooks) {
     this.owner.register('service:store', CreationStore);
     const store = this.owner.lookup('service:store') as Store;
     const rd: Cache = store.cache;
-    let person = store.push({ data: { type: 'person', id: '1', attributes: { name: 'chris' } } });
+    const person = store.push({ data: { type: 'person', id: '1', attributes: { name: 'chris' } } });
     store.deleteRecord(person);
-    assert.true(rd!.isDeleted(ident!), 'record has been marked as deleted');
+    assert.true(rd!.isDeleted(ident), 'record has been marked as deleted');
     await store.saveRecord(person);
-    assert.true(rd!.isDeletionCommitted(ident!), 'deletion has been commited');
+    assert.true(rd!.isDeletionCommitted(ident), 'deletion has been commited');
     assert.strictEqual(subscribedValues.length, 3, 'we received the proper notifications');
     // TODO this indicates our implementation could likely be more efficient
     assert.deepEqual(subscribedValues, ['state', 'removed', 'state'], 'state change to deleted has been notified');
@@ -371,9 +371,9 @@ module('unit/model - Custom Class Model', function (hooks) {
     }
     this.owner.register('service:store', CustomStore);
     store = this.owner.lookup('service:store') as Store;
-    let schema: SchemaService = {
+    const schema: SchemaService = {
       attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
-        let modelName = (identifier as RecordIdentifier).type || identifier;
+        const modelName = (identifier as RecordIdentifier).type || identifier;
         if (modelName === 'person') {
           return {
             name: {
@@ -397,7 +397,7 @@ module('unit/model - Custom Class Model', function (hooks) {
         }
       },
       relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
-        let modelName = (identifier as RecordIdentifier).type || identifier;
+        const modelName = (identifier as RecordIdentifier).type || identifier;
         if (modelName === 'person') {
           return {
             house: {
@@ -420,7 +420,7 @@ module('unit/model - Custom Class Model', function (hooks) {
       },
     };
     store.registerSchemaDefinitionService(schema);
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '7',
@@ -428,7 +428,7 @@ module('unit/model - Custom Class Model', function (hooks) {
         relationships: { house: { data: { type: 'house', id: '1' } } },
       },
     });
-    let serialized = store.serializeRecord(person, { includeId: true });
+    const serialized = store.serializeRecord(person, { includeId: true });
     assert.deepEqual(
       {
         data: {

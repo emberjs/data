@@ -1,7 +1,7 @@
-import { DEBUG } from '@warp-drive/build-config/env';
 import type Store from '@ember-data/store';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 import type { UpgradedMeta } from './-edge-definition';
 import { getStore } from './-utils';

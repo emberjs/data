@@ -6,7 +6,7 @@ import hbs from 'htmlbars-inline-precompile';
 
 export default async function createTrackingContext(owner, props) {
   let instance;
-  let testKeys = Object.keys(props);
+  const testKeys = Object.keys(props);
   class TestComponent extends Component {
     @tracked count = 1;
 
@@ -21,7 +21,7 @@ export default async function createTrackingContext(owner, props) {
     }
   }
 
-  let defs = {};
+  const defs = {};
   testKeys.forEach((key) => (defs[key] = Object.getOwnPropertyDescriptor(props, key)));
 
   Object.defineProperties(TestComponent.prototype, defs);

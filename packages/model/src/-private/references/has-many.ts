@@ -4,10 +4,8 @@ import { cached, tracked } from '@glimmer/tracking';
 
 import type { Object as JSONObject, Value as JSONValue } from 'json-typescript';
 
-import { ManyArray } from 'ember-data/-private';
+import type { ManyArray } from 'ember-data/-private';
 
-import { DEPRECATE_PROMISE_PROXIES, DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
-import { DEBUG } from '@warp-drive/build-config/env';
 import type { Graph } from '@ember-data/graph/-private/graph/graph';
 import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
 import type Store from '@ember-data/store';
@@ -25,9 +23,12 @@ import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
+import { DEPRECATE_PROMISE_PROXIES, DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
-import { areAllInverseRecordsLoaded, LegacySupport } from '../legacy-relationships-support';
+import type { LegacySupport } from '../legacy-relationships-support';
+import { areAllInverseRecordsLoaded } from '../legacy-relationships-support';
 import { LEGACY_SUPPORT } from '../model';
 
 /**
@@ -61,9 +62,9 @@ export default class HasManyReference {
   declare store: Store;
 
   // unsubscribe tokens given to us by the notification manager
-  ___token!: Object;
+  ___token!: object;
   ___identifier: StableRecordIdentifier;
-  ___relatedTokenMap!: Map<StableRecordIdentifier, Object>;
+  ___relatedTokenMap!: Map<StableRecordIdentifier, object>;
 
   @tracked _ref = 0;
 
@@ -112,9 +113,9 @@ export default class HasManyReference {
   get identifiers(): StableRecordIdentifier[] {
     this._ref; // consume the tracked prop
 
-    let resource = this._resource();
+    const resource = this._resource();
 
-    let map = this.___relatedTokenMap;
+    const map = this.___relatedTokenMap;
     this.___relatedTokenMap = new Map();
 
     if (resource && resource.data) {
@@ -198,7 +199,7 @@ export default class HasManyReference {
    @return {String} The name of the remote type. This should either be `link` or `ids`
    */
   remoteType(): 'link' | 'ids' {
-    let value = this._resource();
+    const value = this._resource();
     if (value && value.links && value.links.related) {
       return 'link';
     }
@@ -284,11 +285,11 @@ export default class HasManyReference {
    @return {String} The link Ember Data will use to fetch or reload this belongs-to relationship.
    */
   link(): string | null {
-    let resource = this._resource();
+    const resource = this._resource();
 
     if (isResourceIdentiferWithRelatedLinks(resource)) {
       if (resource.links) {
-        let related = resource.links.related;
+        const related = resource.links.related;
         return !related || typeof related === 'string' ? related : related.href;
       }
     }
@@ -303,7 +304,7 @@ export default class HasManyReference {
    * @returns
    */
   links(): PaginationLinks | null {
-    let resource = this._resource();
+    const resource = this._resource();
 
     return resource && resource.links ? resource.links : null;
   }
@@ -350,7 +351,7 @@ export default class HasManyReference {
   */
   meta() {
     let meta: Dict<JSONValue> | null = null;
-    let resource = this._resource();
+    const resource = this._resource();
     if (resource && resource.meta && typeof resource.meta === 'object') {
       meta = resource.meta;
     }
@@ -438,7 +439,7 @@ export default class HasManyReference {
 
     const { store } = this;
 
-    let identifiers = array.map((obj) => {
+    const identifiers = array.map((obj) => {
       let record: RecordInstance;
       if ('data' in obj) {
         // TODO deprecate pushing non-valid JSON:API here
@@ -448,8 +449,8 @@ export default class HasManyReference {
       }
 
       if (DEBUG) {
-        let relationshipMeta = this.hasManyRelationship.definition;
-        let identifier = this.hasManyRelationship.identifier;
+        const relationshipMeta = this.hasManyRelationship.definition;
+        const identifier = this.hasManyRelationship.identifier;
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         assertPolymorphicType(identifier, relationshipMeta, recordIdentifierFor(record), store);
@@ -471,12 +472,12 @@ export default class HasManyReference {
   }
 
   _isLoaded() {
-    let hasRelationshipDataProperty = this.hasManyRelationship.state.hasReceivedData;
+    const hasRelationshipDataProperty = this.hasManyRelationship.state.hasReceivedData;
     if (!hasRelationshipDataProperty) {
       return false;
     }
 
-    let localState = this.hasManyRelationship.localState;
+    const localState = this.hasManyRelationship.localState;
 
     return localState.every((identifier) => {
       return this.store._instanceCache.recordIsLoaded(identifier, true) === true;

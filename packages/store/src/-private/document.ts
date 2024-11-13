@@ -1,9 +1,9 @@
 import { assert } from '@ember/debug';
 import { tracked } from '@glimmer/tracking';
 
-import { RequestInfo } from '@ember-data/request/-private/types';
-import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
-import { Link, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
+import type { RequestInfo } from '@ember-data/request/-private/types';
+import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
+import type { Link, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
 
 import type Store from './store-service';
 

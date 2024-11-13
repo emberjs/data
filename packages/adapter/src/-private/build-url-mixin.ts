@@ -301,9 +301,9 @@ function buildURL(
   */
 function _buildURL(this: MixtBuildURLMixin, modelName: string | null | undefined, id?: string | null): string {
   let path;
-  let url: string[] = [];
-  let { host } = this;
-  let prefix = this.urlPrefix();
+  const url: string[] = [];
+  const { host } = this;
+  const prefix = this.urlPrefix();
 
   if (modelName) {
     path = this.pathForType(modelName);
@@ -631,7 +631,7 @@ function urlPrefix(this: MixtBuildURLMixin, path?: string | null, parentURL?: st
   }
 
   // No path provided
-  let url: string[] = [];
+  const url: string[] = [];
   if (host) {
     url.push(host);
   }
@@ -670,7 +670,7 @@ function urlPrefix(this: MixtBuildURLMixin, path?: string | null, parentURL?: st
     @return {String} path
   **/
 function pathForType(this: MixtBuildURLMixin, modelName: string): string {
-  let camelized = camelize(modelName);
+  const camelized = camelize(modelName);
   return pluralize(camelized);
 }
 

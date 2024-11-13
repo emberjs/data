@@ -43,7 +43,7 @@ export default class BooleanTransform {
       return null;
     }
 
-    let type = typeof serialized;
+    const type = typeof serialized;
     if (type === 'boolean') {
       return serialized;
     } else if (type === 'string') {

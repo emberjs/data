@@ -1,7 +1,6 @@
 import { assert, deprecate } from '@ember/debug';
 
-import { DEPRECATE_V1_RECORD_DATA, DEPRECATE_V1CACHE_STORE_APIS } from '@warp-drive/build-config/deprecations';
-import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
+import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { Cache } from '@ember-data/types/q/cache';
 import type {
   LegacyCacheStoreWrapper,
@@ -9,14 +8,16 @@ import type {
 } from '@ember-data/types/q/cache-store-wrapper';
 import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
-import { SchemaService } from '@ember-data/types/q/schema-service';
+import type { SchemaService } from '@ember-data/types/q/schema-service';
+import { DEPRECATE_V1_RECORD_DATA, DEPRECATE_V1CACHE_STORE_APIS } from '@warp-drive/build-config/deprecations';
 
-import { IdentifierCache, isDocumentIdentifier, isStableIdentifier } from '../caches/identifier-cache';
+import type { IdentifierCache} from '../caches/identifier-cache';
+import { isDocumentIdentifier, isStableIdentifier } from '../caches/identifier-cache';
 import type Store from '../store-service';
 import coerceId from '../utils/coerce-id';
 import constructResource from '../utils/construct-resource';
 import normalizeModelName from '../utils/normalize-model-name';
-import { NotificationType } from './notification-manager';
+import type { NotificationType } from './notification-manager';
 
 /**
   @module @ember-data/store
@@ -65,7 +66,7 @@ class LegacyWrapper implements LegacyCacheStoreWrapper {
       return;
     }
 
-    let pending = this._pendingNotifies;
+    const pending = this._pendingNotifies;
     this._pendingNotifies = new Map();
     this._willNotify = false;
 
@@ -316,7 +317,7 @@ class LegacyWrapper implements LegacyCacheStoreWrapper {
             since: { enabled: '4.7', available: '4.7' },
           }
         );
-        let resource = constructResource(type, id, lid) as RecordIdentifier;
+        const resource = constructResource(type, id, lid) as RecordIdentifier;
         identifier = this.identifierCache.peekRecordIdentifier(resource)!;
       } else {
         identifier = type;
@@ -377,7 +378,7 @@ class V2CacheStoreWrapper implements StoreWrapper {
       return;
     }
 
-    let pending = this._pendingNotifies;
+    const pending = this._pendingNotifies;
     this._pendingNotifies = new Map();
     this._willNotify = false;
 

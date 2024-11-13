@@ -28,7 +28,7 @@ module('[@ember-data/model] unit - relationships', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
 
     owner.register('model:occupation', Occupation);
     owner.register('model:person', Person);
@@ -39,11 +39,11 @@ module('[@ember-data/model] unit - relationships', function (hooks) {
   });
 
   test('exposes a hash of the relationships on a model', function (assert) {
-    let Person = store.modelFor('person');
+    const Person = store.modelFor('person');
 
-    let relationships = get(Person, 'relationships');
+    const relationships = get(Person, 'relationships');
     function extractDetails(key) {
-      let descs = relationships.get(key);
+      const descs = relationships.get(key);
 
       return descs.map((desc) => {
         return {
@@ -81,7 +81,7 @@ module('[@ember-data/model] unit - relationships', function (hooks) {
   });
 
   test('eachRelatedType() iterates over relations without duplication', function (assert) {
-    let relations = [];
+    const relations = [];
 
     Person.eachRelatedType((modelName) => relations.push(modelName));
 
@@ -89,7 +89,7 @@ module('[@ember-data/model] unit - relationships', function (hooks) {
   });
 
   test('normalizing belongsTo relationship names', function (assert) {
-    let User = store.modelFor('user');
+    const User = store.modelFor('user');
 
     const relationships = get(User, 'relationships');
 
@@ -102,7 +102,7 @@ module('[@ember-data/model] unit - relationships', function (hooks) {
 
   test('normalizing hasMany relationship names', function (assert) {
     let store;
-    let { owner } = this;
+    const { owner } = this;
 
     class StreamItem extends Model {
       @belongsTo('user', { async: true, inverse: 'streamItems' }) user;
@@ -118,7 +118,7 @@ module('[@ember-data/model] unit - relationships', function (hooks) {
 
     store = owner.lookup('service:store');
 
-    let user = store.modelFor('user');
+    const user = store.modelFor('user');
 
     const relationships = get(user, 'relationships');
 
@@ -134,7 +134,7 @@ module('[@ember-data/model] unit - relationships', function (hooks) {
     { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 6 },
     function (assert) {
       let store;
-      let { owner } = this;
+      const { owner } = this;
 
       class StreamItem extends Model {
         @belongsTo user;
@@ -150,7 +150,7 @@ module('[@ember-data/model] unit - relationships', function (hooks) {
 
       store = owner.lookup('service:store');
 
-      let user = store.modelFor('user');
+      const user = store.modelFor('user');
 
       const relationships = get(user, 'relationships');
 

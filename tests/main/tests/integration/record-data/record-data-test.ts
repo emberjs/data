@@ -7,14 +7,13 @@ import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import { DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import { StructuredDataDocument } from '@ember-data/request/-private/types';
+import type { StructuredDataDocument } from '@ember-data/request/-private/types';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import { ResourceBlob } from '@ember-data/types/cache/aliases';
-import { Change } from '@ember-data/types/cache/change';
-import {
+import type { ResourceBlob } from '@ember-data/types/cache/aliases';
+import type { Change } from '@ember-data/types/cache/change';
+import type {
   CollectionResourceDataDocument,
   ResourceDocument,
   ResourceErrorDocument,
@@ -22,10 +21,10 @@ import {
   SingleResourceDataDocument,
   StructuredDocument,
 } from '@ember-data/types/cache/document';
-import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
+import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { Cache, ChangedAttributesHash, MergeOperation } from '@ember-data/types/q/cache';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
-import { DSModel } from '@ember-data/types/q/ds-model';
+import type { DSModel } from '@ember-data/types/q/ds-model';
 import type {
   CollectionResourceDocument,
   CollectionResourceRelationship,
@@ -40,6 +39,7 @@ import type {
 } from '@ember-data/types/q/identifier';
 import type { JsonApiError, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
 import type { Dict } from '@ember-data/types/q/utils';
+import { DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
@@ -133,7 +133,7 @@ class V2TestRecordData implements Cache {
   version: '2' = '2';
 
   _errors?: JsonApiError[];
-  _isNew: boolean = false;
+  _isNew = false;
   _storeWrapper: CacheStoreWrapper;
   _identifier: StableRecordIdentifier;
 
@@ -199,7 +199,7 @@ class V2TestRecordData implements Cache {
   upsert(
     identifier: StableRecordIdentifier,
     data: JsonApiResource,
-    calculateChanges?: boolean | undefined
+    calculateChanges?: boolean  
   ): void | string[] {
     if (!this._data.has(identifier)) {
       this._storeWrapper.notifyChange(identifier, 'added');
@@ -209,7 +209,7 @@ class V2TestRecordData implements Cache {
     this._storeWrapper.notifyChange(identifier, 'relationships');
   }
 
-  clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown> | undefined): Dict<unknown> {
+  clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown>  ): Dict<unknown> {
     this._isNew = true;
     return {};
   }
@@ -217,7 +217,7 @@ class V2TestRecordData implements Cache {
   didCommit(identifier: StableRecordIdentifier, result: StructuredDataDocument<unknown>): SingleResourceDataDocument {
     return { data: identifier as StableExistingRecordIdentifier };
   }
-  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[] | undefined): void {
+  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[]  ): void {
     this._errors = errors;
   }
   unloadRecord(identifier: StableRecordIdentifier): void {}
@@ -281,7 +281,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
 
     owner.register('model:person', Person);
     owner.register('model:house', House);
@@ -314,7 +314,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
       ],
     });
 
-    let all = store.peekAll('person');
+    const all = store.peekAll('person');
     assert.strictEqual(all.length, 2, 'we have 2 records');
 
     store.push({
@@ -347,7 +347,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
         name: 'Scumbag Dale',
       },
     };
-    let { owner } = this;
+    const { owner } = this;
     let calledUpsert = 0;
     let calledClientDidCreate = 0;
     let calledWillCommit = 0;
@@ -422,7 +422,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
       }
     }
 
-    let TestAdapter = EmberObject.extend({
+    const TestAdapter = EmberObject.extend({
       updateRecord() {
         called++;
         if (called === 1) {
@@ -447,7 +447,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     });
     assert.strictEqual(calledUpsert, 1, 'Called upsert');
 
-    let person = store.peekRecord('person', '1') as DSModel;
+    const person = store.peekRecord('person', '1') as DSModel;
     person.save();
     assert.strictEqual(calledWillCommit, 1, 'Called willCommit');
 
@@ -479,7 +479,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     calledRollbackAttributes = 0;
     calledDidCommit = 0;
 
-    let clientPerson: DSModel = store.createRecord('person', { id: '2' }) as DSModel;
+    const clientPerson: DSModel = store.createRecord('person', { id: '2' }) as DSModel;
     assert.strictEqual(calledClientDidCreate, 1, 'Called clientDidCreate');
 
     clientPerson.save();
@@ -506,7 +506,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
   });
 
   test('Record Data attribute setting', async function (assert) {
-    let expectedCount = DEPRECATE_V1_RECORD_DATA ? 14 : 13;
+    const expectedCount = DEPRECATE_V1_RECORD_DATA ? 14 : 13;
     assert.expect(expectedCount);
     const personHash = {
       type: 'person',
@@ -516,7 +516,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
       },
     };
 
-    let { owner } = this;
+    const { owner } = this;
     let calledGet = 0;
 
     class AttributeRecordData extends TestRecordData {
@@ -577,7 +577,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
       data: [personHash],
     });
 
-    let person = store.peekRecord('person', '1') as DSModel;
+    const person = store.peekRecord('person', '1') as DSModel;
     assert.strictEqual(person.name, 'new attribute');
     assert.strictEqual(calledGet, 1, 'called getAttr for initial get');
     person.set('name', 'new value');

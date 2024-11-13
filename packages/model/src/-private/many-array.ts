@@ -3,7 +3,6 @@
 */
 import { assert, deprecate } from '@ember/debug';
 
-import { DEPRECATE_MANY_ARRAY_DUPLICATES_4_12, DEPRECATE_PROMISE_PROXIES } from '@warp-drive/build-config/deprecations';
 import type Store from '@ember-data/store';
 import {
   IDENTIFIER_ARRAY_TAG,
@@ -15,7 +14,7 @@ import {
   SOURCE,
 } from '@ember-data/store/-private';
 import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
-import { IdentifierArrayCreateOptions } from '@ember-data/store/-private/record-arrays/identifier-array';
+import type { IdentifierArrayCreateOptions } from '@ember-data/store/-private/record-arrays/identifier-array';
 import type { CreateRecordProperties } from '@ember-data/store/-private/store-service';
 import { addToTransaction, type Tag } from '@ember-data/tracking/-private';
 import type { Cache } from '@ember-data/types/q/cache';
@@ -24,8 +23,9 @@ import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
+import { DEPRECATE_MANY_ARRAY_DUPLICATES_4_12, DEPRECATE_PROMISE_PROXIES } from '@warp-drive/build-config/deprecations';
 
-import { LegacySupport } from './legacy-relationships-support';
+import type { LegacySupport } from './legacy-relationships-support';
 
 /*
 NOTES ON MANY ARRAY DUPLICATION DEPRECATION APPROACH:
@@ -504,7 +504,7 @@ function extractIdentifiersFromRecords(records: RecordInstance[]): StableRecordI
 function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord | RecordInstance) {
   if (DEPRECATE_PROMISE_PROXIES) {
     if (isPromiseRecord(recordOrPromiseRecord)) {
-      let content = recordOrPromiseRecord.content;
+      const content = recordOrPromiseRecord.content;
       assert(
         'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo relationship.',
         content !== undefined && content !== null

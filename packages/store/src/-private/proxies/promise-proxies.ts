@@ -3,8 +3,8 @@ import { get } from '@ember/object';
 import type ComputedProperty from '@ember/object/computed';
 import { reads } from '@ember/object/computed';
 
-import { DEBUG } from '@warp-drive/build-config/env';
 import type { Dict } from '@ember-data/types/q/utils';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 import { PromiseArrayProxy, PromiseObjectProxy } from './promise-proxy-base';
 

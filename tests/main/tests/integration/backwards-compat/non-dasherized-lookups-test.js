@@ -30,7 +30,7 @@ module(
     test('can lookup records using camelCase strings', async function (assert) {
       assert.expect(1);
 
-      let store = this.owner.lookup('service:store');
+      const store = this.owner.lookup('service:store');
 
       store.pushPayload('post-note', {
         data: {
@@ -50,7 +50,7 @@ module(
     test('can lookup records using under_scored strings', async function (assert) {
       assert.expect(1);
 
-      let store = this.owner.lookup('service:store');
+      const store = this.owner.lookup('service:store');
 
       store.pushPayload('post-note', {
         data: {
@@ -105,7 +105,7 @@ module(
     test('looks up belongsTo using camelCase strings', async function (assert) {
       assert.expect(1);
 
-      let store = this.owner.lookup('service:store');
+      const store = this.owner.lookup('service:store');
 
       store.pushPayload('post-note', {
         data: {
@@ -138,7 +138,7 @@ module(
     test('looks up belongsTo using under_scored strings', async function (assert) {
       assert.expect(1);
 
-      let store = this.owner.lookup('service:store');
+      const store = this.owner.lookup('service:store');
 
       store.pushPayload('long_model_name', {
         data: {

@@ -4,7 +4,8 @@ import { setupTest } from 'ember-qunit';
 
 import { saveRecord } from '@ember-data/legacy-compat/builders';
 import Model, { attr } from '@ember-data/model';
-import Store, { recordIdentifierFor } from '@ember-data/store';
+import type Store from '@ember-data/store';
+import { recordIdentifierFor } from '@ember-data/store';
 
 class Post extends Model {
   @attr declare name: string;

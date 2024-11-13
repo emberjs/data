@@ -12,7 +12,7 @@ import type {
 } from '@ember-data/types/q/fetch-manager';
 import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
-import Store from '../store-service';
+import type Store from '../store-service';
 
 const Touching: unique symbol = Symbol('touching');
 export const RequestPromise: unique symbol = Symbol('promise');
@@ -51,14 +51,14 @@ export default class RequestStateService {
   }
 
   _enqueue<T>(promise: Promise<T>, queryRequest: Request): Promise<T> {
-    let query = queryRequest.data[0];
+    const query = queryRequest.data[0];
     if (hasRecordIdentifier(query)) {
-      let lid = query.recordIdentifier.lid;
-      let type = query.op === 'saveRecord' ? ('mutation' as const) : ('query' as const);
+      const lid = query.recordIdentifier.lid;
+      const type = query.op === 'saveRecord' ? ('mutation' as const) : ('query' as const);
       if (!this._pending[lid]) {
         this._pending[lid] = [];
       }
-      let request: InternalRequest = {
+      const request: InternalRequest = {
         state: 'pending',
         request: queryRequest,
         type,
@@ -70,7 +70,7 @@ export default class RequestStateService {
       return promise.then(
         (result) => {
           this._dequeue(lid, request);
-          let finalizedRequest = {
+          const finalizedRequest = {
             state: 'fulfilled',
             request: queryRequest,
             type,
@@ -83,7 +83,7 @@ export default class RequestStateService {
         },
         (error) => {
           this._dequeue(lid, request);
-          let finalizedRequest = {
+          const finalizedRequest = {
             state: 'rejected',
             request: queryRequest,
             type,
@@ -135,7 +135,7 @@ export default class RequestStateService {
   _addDone(request: InternalRequest) {
     request[Touching].forEach((identifier) => {
       // TODO add support for multiple
-      let requestDataOp = request.request.data[0].op;
+      const requestDataOp = request.request.data[0].op;
       let requests = this._done.get(identifier);
 
       if (requests) {
@@ -216,7 +216,7 @@ export default class RequestStateService {
    * @returns {RequestState | null} the state of the most recent request for the given identifier
    */
   getLastRequestForRecord(identifier: RecordIdentifier): RequestState | null {
-    let requests = this._done.get(identifier);
+    const requests = this._done.get(identifier);
     if (requests) {
       return requests[requests.length - 1];
     }

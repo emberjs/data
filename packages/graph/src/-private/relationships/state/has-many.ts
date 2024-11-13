@@ -51,7 +51,7 @@ export default class ManyRelationship {
   }
 
   getData(): CollectionResourceRelationship {
-    let payload: any = {};
+    const payload: any = {};
     if (this.state.hasReceivedData) {
       payload.data = this.localState.slice();
     }

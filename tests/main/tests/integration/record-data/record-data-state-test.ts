@@ -7,10 +7,9 @@ import { Promise } from 'rsvp';
 import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
-import { DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
-import { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
+import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
 import Model, { attr } from '@ember-data/model';
-import { StructuredDataDocument } from '@ember-data/request/-private/types';
+import type { StructuredDataDocument } from '@ember-data/request/-private/types';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { ResourceBlob } from '@ember-data/types/cache/aliases';
@@ -40,7 +39,8 @@ import type {
   StableRecordIdentifier,
 } from '@ember-data/types/q/identifier';
 import type { JsonApiError, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
-import { Dict } from '@ember-data/types/q/utils';
+import type { Dict } from '@ember-data/types/q/utils';
+import { DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
@@ -218,7 +218,7 @@ class V2TestRecordData implements Cache {
   upsert(
     identifier: StableRecordIdentifier,
     data: JsonApiResource,
-    calculateChanges?: boolean | undefined
+    calculateChanges?: boolean  
   ): void | string[] {
     if (!this._data.has(identifier)) {
       this._storeWrapper.notifyChange(identifier, 'added');
@@ -233,9 +233,9 @@ class V2TestRecordData implements Cache {
   version: '2' = '2';
 
   _errors?: JsonApiError[];
-  _isNew: boolean = false;
+  _isNew = false;
 
-  clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown> | undefined): Dict<unknown> {
+  clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown>  ): Dict<unknown> {
     this._isNew = true;
     this._storeWrapper.notifyChange(identifier, 'added');
     return {};
@@ -244,7 +244,7 @@ class V2TestRecordData implements Cache {
   didCommit(identifier: StableRecordIdentifier, result: StructuredDataDocument<unknown>): SingleResourceDataDocument {
     return { data: identifier as StableExistingRecordIdentifier };
   }
-  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[] | undefined): void {
+  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[]  ): void {
     this._errors = errors;
   }
   unloadRecord(identifier: StableRecordIdentifier): void {}
@@ -273,7 +273,7 @@ class V2TestRecordData implements Cache {
     identifier: StableRecordIdentifier,
     propertyName: string,
     value: StableRecordIdentifier[],
-    idx?: number | undefined
+    idx?: number  
   ): void {
     throw new Error('Method not implemented.');
   }
@@ -314,7 +314,7 @@ module('integration/record-data - Record Data State', function (hooks) {
   let store;
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
 
     owner.register('model:person', Person);
     owner.unregister('service:store');
@@ -337,7 +337,7 @@ module('integration/record-data - Record Data State', function (hooks) {
         name: 'Scumbag Dale',
       },
     };
-    let { owner } = this;
+    const { owner } = this;
 
     class LifecycleRecordData extends TestRecordData {
       isNew(): boolean {
@@ -368,7 +368,7 @@ module('integration/record-data - Record Data State', function (hooks) {
       }
     }
 
-    let TestAdapter = EmberObject.extend({
+    const TestAdapter = EmberObject.extend({
       deleteRecord() {
         calledDelete = true;
         return Promise.resolve();
@@ -394,7 +394,7 @@ module('integration/record-data - Record Data State', function (hooks) {
       data: [personHash],
     });
 
-    let person = store.peekRecord('person', '1');
+    const person = store.peekRecord('person', '1');
     isNew = true;
     await person.save();
     assert.true(calledCreate, 'called create if record isNew');
@@ -427,7 +427,7 @@ module('integration/record-data - Record Data State', function (hooks) {
         name: 'Scumbag Dale',
       },
     };
-    let { owner } = this;
+    const { owner } = this;
 
     class LifecycleRecordData extends TestRecordData {
       constructor(sw: CacheStoreWrapper, identifier: StableRecordIdentifier) {
@@ -476,9 +476,9 @@ module('integration/record-data - Record Data State', function (hooks) {
       data: [personHash],
     });
 
-    let person = store.peekRecord('person', '1');
-    let personIdentifier = recordIdentifierFor(person);
-    let people = store.peekAll('person');
+    const person = store.peekRecord('person', '1');
+    const personIdentifier = recordIdentifierFor(person);
+    const people = store.peekAll('person');
     assert.strictEqual(people.length, 1, 'live array starting length is 1');
 
     isNew = true;

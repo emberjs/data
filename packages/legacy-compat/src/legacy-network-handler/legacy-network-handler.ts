@@ -2,14 +2,11 @@ import { assert } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
 
-import { LOG_PAYLOADS } from '@warp-drive/build-config/debugging';
-import { DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
-import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 import type { Handler, ImmutableRequestInfo, NextFn } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';
 import type { StoreRequestContext } from '@ember-data/store/-private/cache-handler';
 import type { Collection } from '@ember-data/store/-private/record-arrays/identifier-array';
-import { SingleResourceDataDocument } from '@ember-data/types/cache/document';
+import type { SingleResourceDataDocument } from '@ember-data/types/cache/document';
 import type { ModelSchema } from '@ember-data/types/q/ds-model';
 import type {
   CollectionResourceDocument,
@@ -23,6 +20,9 @@ import type { AdapterPayload, MinimumAdapterInterface } from '@ember-data/types/
 import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-serializer-interface';
 import type { JsonApiError } from '@ember-data/types/q/record-data-json-api';
 import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
+import { LOG_PAYLOADS } from '@warp-drive/build-config/debugging';
+import { DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
+import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 
 import { guardDestroyedStore } from './common';
 import FetchManager, { SaveOp } from './fetch-manager';
@@ -99,7 +99,7 @@ function findBelongsTo<T>(context: StoreRequestContext): Promise<T> {
   const identifier = identifiers?.[0];
 
   // short circuit if we are already loading
-  let pendingRequest =
+  const pendingRequest =
     identifier && store._fetchManager.getPendingFetch(identifier as StableExistingRecordIdentifier, options);
   if (pendingRequest) {
     return pendingRequest as Promise<T>;
@@ -112,7 +112,7 @@ function findBelongsTo<T>(context: StoreRequestContext): Promise<T> {
   assert(`Expected an identifier`, Array.isArray(identifiers) && identifiers.length === 1);
 
   const manager = store._fetchManager;
-  assertIdentifierHasId(identifier!);
+  assertIdentifierHasId(identifier);
 
   return options.reload
     ? (manager.scheduleFetch(identifier, options, context.request) as Promise<T>)
@@ -158,7 +158,7 @@ function findHasMany<T>(context: StoreRequestContext): Promise<T> {
   const manager = store._fetchManager;
 
   for (let i = 0; i < identifiers!.length; i++) {
-    let identifier = identifiers![i];
+    const identifier = identifiers![i];
     // TODO we probably can be lenient here and return from cache for the isNew case
     assertIdentifierHasId(identifier);
     fetches[i] = options.reload
@@ -185,7 +185,7 @@ function saveRecord<T>(context: StoreRequestContext): Promise<T> {
     .then((payload) => {
       if (LOG_PAYLOADS) {
         try {
-          let data: unknown = payload ? JSON.parse(JSON.stringify(payload)) : payload;
+          const data: unknown = payload ? JSON.parse(JSON.stringify(payload)) : payload;
           // eslint-disable-next-line no-console
           console.log(`EmberData | Payload - ${operation!}`, data);
         } catch (e) {
@@ -215,7 +215,7 @@ function saveRecord<T>(context: StoreRequestContext): Promise<T> {
           store._push({ data: null, included: payload.included }, true);
         }
       });
-      return store.peekRecord(result!.data!);
+      return store.peekRecord(result!.data);
     })
     .catch((e: unknown) => {
       let err = e;
@@ -235,12 +235,12 @@ function adapterDidInvalidate(
   error: Error & { errors?: JsonApiError[]; isAdapterError?: true; code?: string }
 ) {
   if (error && error.isAdapterError === true && error.code === 'InvalidError') {
-    let serializer = store.serializerFor(identifier.type) as SerializerWithParseErrors;
+    const serializer = store.serializerFor(identifier.type);
 
     // TODO @deprecate extractErrors being called
     // TODO remove extractErrors from the default serializers.
     if (serializer && typeof serializer.extractErrors === 'function') {
-      let errorsHash = serializer.extractErrors(store, store.modelFor(identifier.type), error, identifier.id) as Record<
+      const errorsHash = serializer.extractErrors(store, store.modelFor(identifier.type), error, identifier.id) as Record<
         string,
         string | string[]
       >;
@@ -277,7 +277,7 @@ function errorsHashToArray(errors: Record<string, string | string[]>): JsonApiEr
 
   if (errors) {
     Object.keys(errors).forEach((key) => {
-      let messages = makeArray(errors[key]);
+      const messages = makeArray(errors[key]);
       for (let i = 0; i < messages.length; i++) {
         let title = 'Invalid Attribute';
         let pointer = `/data/attributes/${key}`;
@@ -318,7 +318,7 @@ function findRecord<T>(context: StoreRequestContext): Promise<T> {
     promise = store._fetchManager.scheduleFetch(identifier, options, context.request);
   } else {
     let snapshot: Snapshot | null = null;
-    let adapter = store.adapterFor(identifier.type);
+    const adapter = store.adapterFor(identifier.type);
 
     // Refetch the record if the adapter thinks the record is stale
     if (

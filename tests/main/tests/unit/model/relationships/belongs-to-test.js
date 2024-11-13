@@ -35,8 +35,8 @@ module('unit/model/relationships - belongsTo', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
@@ -109,8 +109,8 @@ module('unit/model/relationships - belongsTo', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
@@ -144,9 +144,9 @@ module('unit/model/relationships - belongsTo', function (hooks) {
     });
 
     return run(() => {
-      let person = store.peekRecord('person', 2);
+      const person = store.peekRecord('person', 2);
 
-      let tagDidChange = () => assert.ok(false, 'observer is not called');
+      const tagDidChange = () => assert.ok(false, 'observer is not called');
 
       person.addObserver('tag', tagDidChange);
 
@@ -172,8 +172,8 @@ module('unit/model/relationships - belongsTo', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, id, snapshot) {
       if (type === Person) {
@@ -226,8 +226,8 @@ module('unit/model/relationships - belongsTo', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.coalesceFindRequests = false;
 
@@ -286,8 +286,8 @@ module('unit/model/relationships - belongsTo', function (hooks) {
       }
     };
 
-    let persons = [store.peekRecord('person', '1'), store.peekRecord('person', '2')];
-    let [tag1, tag2] = await Promise.all(persons.map((person) => get(person, 'tag')));
+    const persons = [store.peekRecord('person', '1'), store.peekRecord('person', '2')];
+    const [tag1, tag2] = await Promise.all(persons.map((person) => get(person, 'tag')));
 
     assert.strictEqual(get(tag1, 'name'), 'friendly', 'Tom Dale is now friendly');
     assert.true(get(tag1, 'isLoaded'), "Tom Dale's tag is now loaded");
@@ -311,8 +311,8 @@ module('unit/model/relationships - belongsTo', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.coalesceFindRequests = true;
 
@@ -369,8 +369,8 @@ module('unit/model/relationships - belongsTo', function (hooks) {
       throw new Error('findRecord should not be called');
     };
 
-    let persons = [store.peekRecord('person', '1'), store.peekRecord('person', '2')];
-    let [tag1, tag2] = await Promise.all(persons.map((person) => get(person, 'tag')));
+    const persons = [store.peekRecord('person', '1'), store.peekRecord('person', '2')];
+    const [tag1, tag2] = await Promise.all(persons.map((person) => get(person, 'tag')));
 
     assert.strictEqual(get(tag1, 'name'), 'friendly', 'Tom Dale is now friendly');
     assert.true(get(tag1, 'isLoaded'), "Tom Dale's tag is now loaded");
@@ -394,7 +394,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     run(() => {
       store.push({
@@ -423,7 +423,7 @@ module('unit/model/relationships - belongsTo', function (hooks) {
     });
 
     return run(() => {
-      let person = store.peekRecord('person', 1);
+      const person = store.peekRecord('person', 1);
       assert.strictEqual(get(person, 'name'), 'Tom Dale', 'The person is now populated');
       return run(() => {
         return get(person, 'tag');
@@ -445,8 +445,8 @@ module('unit/model/relationships - belongsTo', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:user', User);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     const [user, tag1, tag2] = store.push({
       data: [
@@ -509,8 +509,8 @@ module('unit/model/relationships - belongsTo', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
@@ -537,8 +537,8 @@ module('unit/model/relationships - belongsTo', function (hooks) {
     this.owner.register('model:occupation', Occupation);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
@@ -608,8 +608,8 @@ module('unit/model/relationships - belongsTo', function (hooks) {
     this.owner.register('model:occupation', Occupation);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.strictEqual(snapshot.belongsTo('person').id, '1');
@@ -650,8 +650,8 @@ module('unit/model/relationships - belongsTo', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
@@ -720,8 +720,8 @@ module('unit/model/relationships - belongsTo', function (hooks) {
     this.owner.register('model:hobby', Hobby);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
@@ -780,8 +780,8 @@ module('unit/model/relationships - belongsTo', function (hooks) {
     this.owner.register('model:hobby', Hobby);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
@@ -841,10 +841,10 @@ module('unit/model/relationships - belongsTo', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     const theTag = store.push({ data: { type: 'tag', id: '1', attributes: { name: 'ember' } } });
-    let person = store.createRecord('person', { tag: theTag });
+    const person = store.createRecord('person', { tag: theTag });
     const personTag = person.tag;
     assert.ok(personTag.then, 'tag should be an async relationship');
     const tag = await personTag;

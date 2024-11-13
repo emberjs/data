@@ -1,6 +1,6 @@
 import { assert } from '@ember/debug';
 
-type FetchFunction = (input: RequestInfo, init?: RequestInit | undefined) => Promise<Response>;
+type FetchFunction = (input: RequestInfo, init?: RequestInit  ) => Promise<Response>;
 
 let _fetch: (() => FetchFunction) | null = null;
 type MockRequest = { protocol?: string; get(key: string): string | undefined };
@@ -26,7 +26,7 @@ export default function getFetchFunction(): FetchFunction {
       const httpRegex = /^https?:\/\//;
       const protocolRelativeRegex = /^\/\//;
 
-      // eslint-disable-next-line no-inner-declarations
+       
       function parseRequest(request: MockRequest) {
         if (request === null) {
           throw new Error(
@@ -38,19 +38,19 @@ export default function getFetchFunction(): FetchFunction {
         return [request.get('host'), protocol];
       }
 
-      // eslint-disable-next-line no-inner-declarations
+       
       function buildAbsoluteUrl(url: string) {
         if (protocolRelativeRegex.test(url)) {
-          let [host] = parseRequest(REQUEST);
+          const [host] = parseRequest(REQUEST);
           url = host + url;
         } else if (!httpRegex.test(url)) {
-          let [host, protocol] = parseRequest(REQUEST);
+          const [host, protocol] = parseRequest(REQUEST);
           url = protocol + '//' + host + url;
         }
         return url;
       }
 
-      // eslint-disable-next-line no-inner-declarations
+       
       function patchedFetch(input, options) {
         if (input && input.href) {
           input.url = buildAbsoluteUrl(input.href);

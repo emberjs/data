@@ -4,10 +4,10 @@
 import { assert } from '@ember/debug';
 import { _backburner } from '@ember/runloop';
 
+import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import { LOG_NOTIFICATIONS } from '@warp-drive/build-config/debugging';
 import { DEBUG } from '@warp-drive/build-config/env';
-import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 
 import { isDocumentIdentifier, isStableIdentifier } from '../caches/identifier-cache';
 import type Store from '../store-service';
@@ -53,7 +53,7 @@ function _unsubscribe(
     Map<UnsubscribeToken, NotificationCallback | ResourceOperationCallback | DocumentOperationCallback>
   >
 ) {
-  let identifier = tokens.get(token);
+  const identifier = tokens.get(token);
   if (LOG_NOTIFICATIONS) {
     if (!identifier) {
       // eslint-disable-next-line no-console
@@ -147,7 +147,7 @@ export default class NotificationManager {
       this._cache.set(identifier, map);
     }
 
-    let unsubToken = DEBUG ? { _tokenRef: tokenId++ } : {};
+    const unsubToken = DEBUG ? { _tokenRef: tokenId++ } : {};
     map.set(unsubToken, callback);
     this._tokens.set(unsubToken, identifier);
     return unsubToken;
@@ -216,7 +216,7 @@ export default class NotificationManager {
       }
       buffer.push([value, key]);
 
-      void this._scheduleNotify();
+      this._scheduleNotify();
     }
 
     return hasSubscribers;
@@ -274,7 +274,7 @@ export default class NotificationManager {
 
     // TODO for documents this will need to switch based on Identifier kind
     if (isCacheOperationValue(value)) {
-      let callbackMap = this._cache.get(isDocumentIdentifier(identifier) ? 'document' : 'resource') as Map<
+      const callbackMap = this._cache.get(isDocumentIdentifier(identifier) ? 'document' : 'resource') as Map<
         UnsubscribeToken,
         ResourceOperationCallback | DocumentOperationCallback
       >;
@@ -286,7 +286,7 @@ export default class NotificationManager {
       }
     }
 
-    let callbackMap = this._cache.get(identifier);
+    const callbackMap = this._cache.get(identifier);
     if (!callbackMap || !callbackMap.size) {
       return false;
     }

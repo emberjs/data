@@ -1,6 +1,6 @@
 import 'qunit-dom'; // tell TS consider *.dom extension for assert
 
-// @ts-ignore
+// @ts-expect-error
 import { setComponentTemplate } from '@ember/component';
 import { get } from '@ember/object';
 import { render, settled } from '@ember/test-helpers';
@@ -42,7 +42,7 @@ module('integration/model.errors', function (hooks) {
   setupRenderingTest(hooks);
 
   hooks.beforeEach(function (this: CurrentTestContext) {
-    let { owner } = this;
+    const { owner } = this;
 
     owner.register('model:tag', Tag);
     owner.register('component:error-list', setComponentTemplate(template, ErrorList));

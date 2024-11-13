@@ -4,14 +4,12 @@
 import { assert } from '@ember/debug';
 import { schedule } from '@ember/runloop';
 
-import { LOG_MUTATIONS, LOG_OPERATIONS } from '@warp-drive/build-config/debugging';
-import { DEBUG } from '@warp-drive/build-config/env';
 import { graphFor, peekGraph } from '@ember-data/graph/-private';
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
 import type { ImplicitRelationship } from '@ember-data/graph/-private/graph/index';
 import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
-import { type ImmutableRequestInfo, StructuredErrorDocument } from '@ember-data/request/-private/types';
+import type { type ImmutableRequestInfo,StructuredErrorDocument  } from '@ember-data/request/-private/types';
 import type { IdentifierCache } from '@ember-data/store/-private/caches/identifier-cache';
 import type { ResourceBlob } from '@ember-data/types/cache/aliases';
 import type { Change } from '@ember-data/types/cache/change';
@@ -38,6 +36,8 @@ import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@em
 import type { AttributesHash, JsonApiError, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
 import type { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 import type { Dict } from '@ember-data/types/q/utils';
+import { LOG_MUTATIONS, LOG_OPERATIONS } from '@warp-drive/build-config/debugging';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 function isImplicit(
   relationship: ManyRelationship | ImplicitRelationship | BelongsToRelationship
@@ -176,13 +176,13 @@ export default class JSONAPICache implements Cache {
   put<T extends ResourceMetaDocument>(doc: StructuredDataDocument<T>): ResourceMetaDocument;
   put(doc: StructuredDocument<ResourceDocument>): ResourceDocument {
     if (isErrorDocument(doc)) {
-      return this._putDocument(doc as StructuredErrorDocument<ResourceErrorDocument>);
+      return this._putDocument(doc);
     } else if (isMetaDocument(doc)) {
       return this._putDocument(doc);
     }
 
-    const jsonApiDoc = doc.content as SingleResourceDocument | CollectionResourceDocument;
-    let included = jsonApiDoc.included;
+    const jsonApiDoc = doc.content;
+    const included = jsonApiDoc.included;
     let i: number, length: number;
     const { identifierCache } = this.__storeWrapper;
 
@@ -194,7 +194,7 @@ export default class JSONAPICache implements Cache {
 
     if (Array.isArray(jsonApiDoc.data)) {
       length = jsonApiDoc.data.length;
-      let identifiers: StableExistingRecordIdentifier[] = [];
+      const identifiers: StableExistingRecordIdentifier[] = [];
 
       for (i = 0; i < length; i++) {
         identifiers.push(putOne(this, identifierCache, jsonApiDoc.data[i]));
@@ -211,7 +211,7 @@ export default class JSONAPICache implements Cache {
       typeof jsonApiDoc.data === 'object'
     );
 
-    let identifier = putOne(this, identifierCache, jsonApiDoc.data);
+    const identifier = putOne(this, identifierCache, jsonApiDoc.data);
     return this._putDocument(doc as StructuredDataDocument<SingleResourceDocument>, identifier);
   }
 
@@ -234,10 +234,10 @@ export default class JSONAPICache implements Cache {
       isErrorDocument(doc) ? fromStructuredError(doc) : fromBaseDocument(doc);
 
     if (data !== undefined) {
-      (resourceDocument as SingleResourceDataDocument | CollectionResourceDataDocument).data = data;
+      (resourceDocument).data = data;
     }
 
-    const request = doc.request as ImmutableRequestInfo | undefined;
+    const request = doc.request;
     const identifier = request ? this.__storeWrapper.identifierCache.getOrCreateDocumentIdentifier(request) : null;
 
     if (identifier) {
@@ -269,7 +269,7 @@ export default class JSONAPICache implements Cache {
   patch(op: MergeOperation): void {
     if (LOG_OPERATIONS) {
       try {
-        let _data = JSON.parse(JSON.stringify(op));
+        const _data = JSON.parse(JSON.stringify(op));
         // eslint-disable-next-line no-console
         console.log(`EmberData | Operation - patch ${op.op}`, _data);
       } catch (e) {
@@ -298,7 +298,7 @@ export default class JSONAPICache implements Cache {
   mutate(mutation: LocalRelationshipOperation): void {
     if (LOG_MUTATIONS) {
       try {
-        let _data = JSON.parse(JSON.stringify(mutation));
+        const _data = JSON.parse(JSON.stringify(mutation));
         // eslint-disable-next-line no-console
         console.log(`EmberData | Mutation - update ${mutation.op}`, _data);
       } catch (e) {
@@ -363,7 +363,7 @@ export default class JSONAPICache implements Cache {
           if (!rel || rel.definition.isImplicit) {
             return;
           }
-          relationships[key] = (rel as ManyRelationship | BelongsToRelationship).getData();
+          relationships[key] = (rel).getData();
         });
       }
       return {
@@ -409,7 +409,7 @@ export default class JSONAPICache implements Cache {
   upsert(
     identifier: StableRecordIdentifier,
     data: JsonApiResource,
-    calculateChanges?: boolean | undefined
+    calculateChanges?: boolean  
   ): void | string[] {
     let changedKeys: string[] | undefined;
     const peeked = this.__safePeek(identifier, false);
@@ -417,11 +417,11 @@ export default class JSONAPICache implements Cache {
     const cached = peeked || this._createCache(identifier);
 
     const isLoading = _isLoading(peeked, this.__storeWrapper, identifier) || !recordIsLoaded(peeked);
-    let isUpdate = !_isEmpty(peeked) && !isLoading;
+    const isUpdate = !_isEmpty(peeked) && !isLoading;
 
     if (LOG_OPERATIONS) {
       try {
-        let _data = JSON.parse(JSON.stringify(data));
+        const _data = JSON.parse(JSON.stringify(data));
         // eslint-disable-next-line no-console
         console.log(`EmberData | Operation - upsert (${existed ? 'merge' : 'insert'})`, _data);
       } catch (e) {
@@ -588,10 +588,10 @@ export default class JSONAPICache implements Cache {
    * @param identifier
    * @param createArgs
    */
-  clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown> | undefined): Dict<unknown> {
+  clientDidCreate(identifier: StableRecordIdentifier, options?: Dict<unknown>  ): Dict<unknown> {
     if (LOG_MUTATIONS) {
       try {
-        let _data = options ? JSON.parse(JSON.stringify(options)) : options;
+        const _data = options ? JSON.parse(JSON.stringify(options)) : options;
         // eslint-disable-next-line no-console
         console.log(`EmberData | Mutation - clientDidCreate ${identifier.lid}`, _data);
       } catch (e) {
@@ -601,18 +601,18 @@ export default class JSONAPICache implements Cache {
     }
     const cached = this._createCache(identifier);
     cached.isNew = true;
-    let createOptions = {};
+    const createOptions = {};
 
     if (options !== undefined) {
       const storeWrapper = this.__storeWrapper;
-      let attributeDefs = storeWrapper.getSchemaDefinitionService().attributesDefinitionFor(identifier);
-      let relationshipDefs = storeWrapper.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
+      const attributeDefs = storeWrapper.getSchemaDefinitionService().attributesDefinitionFor(identifier);
+      const relationshipDefs = storeWrapper.getSchemaDefinitionService().relationshipsDefinitionFor(identifier);
       const graph = graphFor(storeWrapper);
-      let propertyNames = Object.keys(options);
+      const propertyNames = Object.keys(options);
 
       for (let i = 0; i < propertyNames.length; i++) {
-        let name = propertyNames[i];
-        let propertyValue = options[name];
+        const name = propertyNames[i];
+        const propertyValue = options[name];
 
         if (name === 'id') {
           continue;
@@ -620,7 +620,7 @@ export default class JSONAPICache implements Cache {
 
         const fieldType: AttributeSchema | RelationshipSchema | undefined =
           relationshipDefs[name] || attributeDefs[name];
-        let kind = fieldType !== undefined ? ('kind' in fieldType ? fieldType.kind : 'attribute') : null;
+        const kind = fieldType !== undefined ? ('kind' in fieldType ? fieldType.kind : 'attribute') : null;
         let relationship;
 
         switch (kind) {
@@ -632,7 +632,7 @@ export default class JSONAPICache implements Cache {
               op: 'replaceRelatedRecord',
               field: name,
               record: identifier,
-              value: propertyValue as StableRecordIdentifier | null,
+              value: propertyValue,
             });
             relationship = graph.get(identifier, name);
             relationship.state.hasReceivedData = true;
@@ -783,7 +783,7 @@ export default class JSONAPICache implements Cache {
       }
       newCanonicalAttributes = data.attributes;
     }
-    let changedKeys = calculateChangedKeys(cached, newCanonicalAttributes);
+    const changedKeys = calculateChangedKeys(cached, newCanonicalAttributes);
 
     cached.remoteAttrs = Object.assign(
       cached.remoteAttrs || Object.create(null),
@@ -822,12 +822,12 @@ export default class JSONAPICache implements Cache {
    * @param identifier
    * @param errors
    */
-  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[] | undefined): void {
+  commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[]  ): void {
     const cached = this.__peek(identifier, false);
     if (cached.inflightAttrs) {
-      let keys = Object.keys(cached.inflightAttrs);
+      const keys = Object.keys(cached.inflightAttrs);
       if (keys.length > 0) {
-        let attrs = (cached.localAttrs = cached.localAttrs || Object.create(null));
+        const attrs = (cached.localAttrs = cached.localAttrs || Object.create(null));
         for (let i = 0; i < keys.length; i++) {
           if (attrs[keys[i]] === undefined) {
             attrs[keys[i]] = cached.inflightAttrs[keys[i]];
@@ -876,10 +876,10 @@ export default class JSONAPICache implements Cache {
     cached.defaultAttrs = null;
     cached.inflightAttrs = null;
 
-    let relatedIdentifiers = _allRelatedIdentifiers(storeWrapper, identifier);
+    const relatedIdentifiers = _allRelatedIdentifiers(storeWrapper, identifier);
     if (areAllModelsUnloaded(storeWrapper, relatedIdentifiers)) {
       for (let i = 0; i < relatedIdentifiers.length; ++i) {
-        let identifier = relatedIdentifiers[i];
+        const identifier = relatedIdentifiers[i];
         storeWrapper.notifyChange(identifier, 'removed');
         removed = true;
         storeWrapper.disconnectRecord(identifier);
@@ -1099,7 +1099,7 @@ export default class JSONAPICache implements Cache {
     identifier: StableRecordIdentifier,
     field: string
   ): SingleResourceRelationship | CollectionResourceRelationship {
-    return (graphFor(this.__storeWrapper).get(identifier, field) as BelongsToRelationship | ManyRelationship).getData();
+    return (graphFor(this.__storeWrapper).get(identifier, field)).getData();
   }
 
   // Resource State
@@ -1241,7 +1241,7 @@ export default class JSONAPICache implements Cache {
    * @returns {CachedResource}
    */
   __peek(identifier: StableRecordIdentifier, allowDestroyed: boolean): CachedResource {
-    let resource = this.__safePeek(identifier, allowDestroyed);
+    const resource = this.__safePeek(identifier, allowDestroyed);
     assert(
       `Expected Cache to have a resource entry for the identifier ${String(identifier)} but none was found`,
       resource
@@ -1252,7 +1252,7 @@ export default class JSONAPICache implements Cache {
 
 function areAllModelsUnloaded(wrapper: V2CacheStoreWrapper, identifiers: StableRecordIdentifier[]): boolean {
   for (let i = 0; i < identifiers.length; ++i) {
-    let identifier = identifiers[i];
+    const identifier = identifiers[i];
     if (wrapper.hasRecord(identifier)) {
       return false;
     }
@@ -1283,7 +1283,7 @@ function getDefaultValue(options: { defaultValue?: unknown } | undefined) {
     // because in a non @ember-data/model world they don't make sense.
     return options.defaultValue();
   } else {
-    let defaultValue = options.defaultValue;
+    const defaultValue = options.defaultValue;
     assert(
       `Non primitive defaultValues are not supported because they are shared between all instances. If you would like to use a complex object as a default value please provide a function that returns the complex object.`,
       typeof defaultValue !== 'object' || defaultValue === null
@@ -1309,7 +1309,7 @@ function notifyAttributes(storeWrapper: CacheStoreWrapper, identifier: StableRec
       in the schema
   */
 function calculateChangedKeys(cached: CachedResource, updates?: AttributesHash) {
-  let changedKeys: string[] = [];
+  const changedKeys: string[] = [];
 
   if (updates) {
     const keys = Object.keys(updates);
@@ -1319,8 +1319,8 @@ function calculateChangedKeys(cached: CachedResource, updates?: AttributesHash) 
     const original = Object.assign(Object.create(null), cached.remoteAttrs, cached.inflightAttrs);
 
     for (let i = 0; i < length; i++) {
-      let key = keys[i];
-      let value = updates[key];
+      const key = keys[i];
+      const value = updates[key];
 
       // A value in localAttrs means the user has a local change to
       // this attribute. We never override this value when merging
@@ -1354,7 +1354,7 @@ function _isEmpty(peeked: CachedResource | undefined): boolean {
   return (!isNew || isDeleted) && isEmpty;
 }
 
-function recordIsLoaded(cached: CachedResource | undefined, filterDeleted: boolean = false): boolean {
+function recordIsLoaded(cached: CachedResource | undefined, filterDeleted = false): boolean {
   if (!cached) {
     return false;
   }
@@ -1429,10 +1429,10 @@ function patchLocalAttributes(cached: CachedResource): boolean {
     return false;
   }
   let hasAppliedPatch = false;
-  let mutatedKeys = Object.keys(localAttrs);
+  const mutatedKeys = Object.keys(localAttrs);
 
   for (let i = 0, length = mutatedKeys.length; i < length; i++) {
-    let attr = mutatedKeys[i];
+    const attr = mutatedKeys[i];
     const existing =
       inflightAttrs && attr in inflightAttrs
         ? inflightAttrs[attr]
@@ -1497,10 +1497,10 @@ function _directlyRelatedIdentifiersIterable(storeWrapper: CacheStoreWrapper, or
   const findNext = () => {
     while (i < initializedRelationshipsArr.length) {
       while (j < 2) {
-        let relatedIdentifiers =
+        const relatedIdentifiers =
           j === 0 ? getLocalState(initializedRelationshipsArr[i]) : getRemoteState(initializedRelationshipsArr[i]);
         while (k < relatedIdentifiers.length) {
-          let relatedIdentifier = relatedIdentifiers[k++];
+          const relatedIdentifier = relatedIdentifiers[k++];
           if (relatedIdentifier !== null) {
             return relatedIdentifier;
           }
@@ -1540,12 +1540,12 @@ function _allRelatedIdentifiers(
   storeWrapper: CacheStoreWrapper,
   originating: StableRecordIdentifier
 ): StableRecordIdentifier[] {
-  let array: StableRecordIdentifier[] = [];
-  let queue: StableRecordIdentifier[] = [];
-  let seen = new Set();
+  const array: StableRecordIdentifier[] = [];
+  const queue: StableRecordIdentifier[] = [];
+  const seen = new Set();
   queue.push(originating);
   while (queue.length > 0) {
-    let identifier = queue.shift()!;
+    const identifier = queue.shift()!;
     array.push(identifier);
     seen.add(identifier);
 

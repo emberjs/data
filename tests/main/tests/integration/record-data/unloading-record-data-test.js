@@ -4,8 +4,8 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import { DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
 
 class Person extends Model {
   @hasMany('pet', { inverse: null, async: false })
@@ -26,7 +26,7 @@ module('RecordData Compatibility', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
     owner.register('model:person', Person);
     owner.register('model:pet', Pet);
     store = owner.lookup('service:store');
@@ -43,7 +43,7 @@ module('RecordData Compatibility', function (hooks) {
     }
 
     pushData(jsonApiResource, shouldCalculateChanges) {
-      let oldAttrs = this.attributes;
+      const oldAttrs = this.attributes;
       let changedKeys;
 
       this.attributes = jsonApiResource.attributes || null;
@@ -118,7 +118,7 @@ module('RecordData Compatibility', function (hooks) {
     }
 
     upsert(identifier, jsonApiResource, shouldCalculateChanges) {
-      let oldAttrs = this.attributes;
+      const oldAttrs = this.attributes;
       let changedKeys;
 
       this.attributes = jsonApiResource.attributes || null;
@@ -189,7 +189,7 @@ module('RecordData Compatibility', function (hooks) {
         }
       };
 
-      let chris = store.push({
+      const chris = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -222,8 +222,8 @@ module('RecordData Compatibility', function (hooks) {
           },
         ],
       });
-      let pets = chris.pets;
-      let shen = pets.at(0);
+      const pets = chris.pets;
+      const shen = pets.at(0);
 
       if (DEPRECATE_V1_RECORD_DATA) {
         assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 5 });

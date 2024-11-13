@@ -37,7 +37,7 @@ module('integration/load - Loading Records', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
     owner.register('model:person', Person);
     store = owner.lookup('service:store');
   });
@@ -161,7 +161,7 @@ module('integration/load - Loading Records', function (hooks) {
   });
 
   test('Empty records remain in the empty state while data is being fetched', async function (assert) {
-    let payloads = [
+    const payloads = [
       {
         data: {
           type: 'person',
@@ -216,7 +216,7 @@ module('integration/load - Loading Records', function (hooks) {
       'adapter:application',
       JSONAPIAdapter.extend({
         findRecord() {
-          let payload = payloads.shift();
+          const payload = payloads.shift();
 
           if (payload === undefined) {
             return reject(new Error('Invalid Request'));
@@ -235,7 +235,7 @@ module('integration/load - Loading Records', function (hooks) {
       })
     );
 
-    let identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '1' });
+    const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '1' });
     const instanceCache = store._instanceCache;
     let cache = instanceCache.peek({ identifier, bucket: 'resourceCache' });
 
@@ -250,7 +250,7 @@ module('integration/load - Loading Records', function (hooks) {
     assert.strictEqual(cache, undefined, 'awaiting first fetch: We remain in the empty state');
     assert.true(_isLoading(instanceCache, identifier), 'awaiting first fetch: We have now triggered a load');
 
-    let record = await recordPromise;
+    const record = await recordPromise;
 
     // test that after the initial load our state is correct
     cache = instanceCache.peek({ identifier, bucket: 'resourceCache' });
@@ -258,13 +258,13 @@ module('integration/load - Loading Records', function (hooks) {
     assert.false(_isLoading(instanceCache, identifier), 'after first fetch: We have loaded');
     assert.false(record.isReloading, 'after first fetch: We are not reloading');
 
-    let bestFriend = await record.bestFriend;
-    let trueBestFriend = await bestFriend.bestFriend;
+    const bestFriend = await record.bestFriend;
+    const trueBestFriend = await bestFriend.bestFriend;
 
     // shen is our retainer for the record we are testing
     //  that ensures unloadRecord later in this test does not fully
     //  discard the identifier
-    let shen = store.peekRecord('person', '2');
+    const shen = store.peekRecord('person', '2');
 
     assert.strictEqual(bestFriend, shen, 'Precond: bestFriend is correct');
     assert.strictEqual(trueBestFriend, record, 'Precond: bestFriend of bestFriend is correct');

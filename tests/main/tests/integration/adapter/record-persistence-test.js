@@ -28,8 +28,8 @@ module('integration/adapter/record_persistence - Persisting Records', function (
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.updateRecord = function (_store, type, snapshot) {
       assert.strictEqual(type, Person, "The type of the record is 'Person'");
@@ -72,8 +72,8 @@ module('integration/adapter/record_persistence - Persisting Records', function (
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     let tom;
 
@@ -108,8 +108,8 @@ module('integration/adapter/record_persistence - Persisting Records', function (
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     let tom;
 
@@ -120,7 +120,7 @@ module('integration/adapter/record_persistence - Persisting Records', function (
     tom = store.createRecord('person', { name: 'Tom Dale' });
     tom = await tom.save();
 
-    let retrievedTom = await store.findRecord('person', '1');
+    const retrievedTom = await store.findRecord('person', '1');
 
     assert.strictEqual(tom, retrievedTom, 'The retrieved record is the same as the created record');
   });
@@ -142,8 +142,8 @@ module('integration/adapter/record_persistence - Persisting Records', function (
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.deleteRecord = function (_store, type, snapshot) {
       assert.strictEqual(type, Person, "The type of the record is 'Person'");
@@ -162,7 +162,7 @@ module('integration/adapter/record_persistence - Persisting Records', function (
       },
     });
 
-    let tom = await store.findRecord('person', '1');
+    const tom = await store.findRecord('person', '1');
 
     tom.deleteRecord();
 
@@ -188,8 +188,8 @@ module('integration/adapter/record_persistence - Persisting Records', function (
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.updateRecord = function (_store, _type, snapshot) {
       if (snapshot.id === '1') {
@@ -233,7 +233,7 @@ module('integration/adapter/record_persistence - Persisting Records', function (
       ],
     });
 
-    let { tom, yehuda } = await hash({
+    const { tom, yehuda } = await hash({
       tom: store.findRecord('person', '1'),
       yehuda: store.findRecord('person', '2'),
     });
@@ -244,7 +244,7 @@ module('integration/adapter/record_persistence - Persisting Records', function (
     assert.true(tom.hasDirtyAttributes, 'Tom is dirty');
     assert.true(yehuda.hasDirtyAttributes, 'Yehuda is dirty');
 
-    let [{ value: savedTom }, { value: savedYehuda }] = await allSettled([tom.save(), yehuda.save()]);
+    const [{ value: savedTom }, { value: savedYehuda }] = await allSettled([tom.save(), yehuda.save()]);
 
     assert.strictEqual(savedTom, tom, 'The record is correct');
     assert.strictEqual(savedYehuda, yehuda, 'The record is correct');
@@ -285,8 +285,8 @@ module('integration/adapter/record_persistence - Persisting Records', function (
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.deleteRecord = () => resolve();
 
@@ -309,7 +309,7 @@ module('integration/adapter/record_persistence - Persisting Records', function (
       ],
     });
 
-    let { tom, yehuda } = await hash({
+    const { tom, yehuda } = await hash({
       tom: store.findRecord('person', '1'),
       yehuda: store.findRecord('person', '2'),
     });
@@ -350,8 +350,8 @@ module('integration/adapter/record_persistence - Persisting Records', function (
       })
     );
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     let tom;
 

@@ -25,8 +25,8 @@ module('unit/model/relationships - RecordArray', function (hooks) {
     this.owner.register('model:tag', Tag);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
@@ -40,7 +40,7 @@ module('unit/model/relationships - RecordArray', function (hooks) {
       },
     });
 
-    let person = await store.findRecord('person', 1);
+    const person = await store.findRecord('person', 1);
     person.tags.createRecord({ name: 'cool' });
 
     assert.strictEqual(get(person, 'name'), 'Tom Dale', 'precond - retrieves person record from store');

@@ -23,9 +23,9 @@ module('integration/store/query', function (hooks) {
     'meta is proxied correctly on the PromiseArray',
     { id: 'ember-data:deprecate-promise-proxies', until: '5.0', count: 2 },
     async function (assert) {
-      let store = this.owner.lookup('service:store');
+      const store = this.owner.lookup('service:store');
 
-      let defered = RSVP.defer();
+      const defered = RSVP.defer();
 
       this.owner.register(
         'adapter:person',
@@ -36,7 +36,7 @@ module('integration/store/query', function (hooks) {
         })
       );
 
-      let result = store.query('person', {});
+      const result = store.query('person', {});
 
       assert.notOk(result.meta?.foo, 'precond: meta is not yet set');
 

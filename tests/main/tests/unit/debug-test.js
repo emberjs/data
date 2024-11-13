@@ -30,9 +30,9 @@ if (HAS_DEBUG_PACKAGE) {
       this.owner.register('model:post', Post);
       this.owner.register('model:user', User);
 
-      let record = this.owner.lookup('service:store').createRecord('user');
+      const record = this.owner.lookup('service:store').createRecord('user');
 
-      let propertyInfo = record._debugInfo().propertyInfo;
+      const propertyInfo = record._debugInfo().propertyInfo;
 
       assert.strictEqual(propertyInfo.groups.length, 4);
       assert.strictEqual(propertyInfo.groups[0].name, 'Attributes');

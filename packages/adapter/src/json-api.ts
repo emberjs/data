@@ -176,7 +176,7 @@ class JSONAPIAdapter extends RESTAdapter {
     type: string,
     options: JQueryAjaxSettings | RequestInit = {}
   ): JQueryRequestInit | FetchRequestInit {
-    let hash = super.ajaxOptions(url, type, options);
+    const hash = super.ajaxOptions(url, type, options);
 
     hash.headers['Accept'] = hash.headers['Accept'] || 'application/vnd.api+json';
 
@@ -240,7 +240,7 @@ class JSONAPIAdapter extends RESTAdapter {
     @type {boolean}
   */
   get coalesceFindRequests() {
-    let coalesceFindRequests = this._coalesceFindRequests;
+    const coalesceFindRequests = this._coalesceFindRequests;
     if (typeof coalesceFindRequests === 'boolean') {
       return coalesceFindRequests;
     }
@@ -252,12 +252,12 @@ class JSONAPIAdapter extends RESTAdapter {
   }
 
   findMany(store: Store, type: ShimModelClass, ids: string[], snapshots: Snapshot[]): Promise<AdapterPayload> {
-    let url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
+    const url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
     return this.ajax(url, 'GET', { data: { filter: { id: ids.join(',') } } });
   }
 
   pathForType(modelName): string {
-    let dasherized = dasherize(modelName);
+    const dasherized = dasherize(modelName);
     return pluralize(dasherized);
   }
 
@@ -267,7 +267,7 @@ class JSONAPIAdapter extends RESTAdapter {
     const id = snapshot.id;
     assert(`Attempted to update the ${type} record, but the record has no id`, typeof id === 'string' && id.length > 0);
 
-    let url = this.buildURL(type, id, snapshot, 'updateRecord');
+    const url = this.buildURL(type, id, snapshot, 'updateRecord');
 
     return this.ajax(url, 'PATCH', { data: data });
   }

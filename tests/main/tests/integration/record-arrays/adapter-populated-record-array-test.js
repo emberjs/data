@@ -35,10 +35,10 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
 
     this.owner.register('adapter:application', ApplicationAdapter);
 
-    let store = this.owner.lookup('service:store');
-    let recordArray = store.recordArrayManager.createArray({ type: 'person', query: null });
+    const store = this.owner.lookup('service:store');
+    const recordArray = store.recordArrayManager.createArray({ type: 'person', query: null });
 
-    let payload = {
+    const payload = {
       data: [
         {
           type: 'person',
@@ -64,7 +64,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
       ],
     };
 
-    let results = store._push(payload);
+    const results = store._push(payload);
 
     store.recordArrayManager.populateManagedArray(recordArray, results, payload);
 
@@ -76,10 +76,10 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
   });
 
   test('stores the metadata off the payload', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let recordArray = store.recordArrayManager.createArray({ type: 'person', query: null });
+    const store = this.owner.lookup('service:store');
+    const recordArray = store.recordArrayManager.createArray({ type: 'person', query: null });
 
-    let payload = {
+    const payload = {
       data: [
         {
           type: 'person',
@@ -108,17 +108,17 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
       },
     };
 
-    let results = store._push(payload);
+    const results = store._push(payload);
 
     store.recordArrayManager.populateManagedArray(recordArray, results, payload);
     assert.strictEqual(recordArray.meta.foo, 'bar', 'expected meta.foo to be bar from payload');
   });
 
   test('stores the links off the payload', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let recordArray = store.recordArrayManager.createArray({ type: 'person', query: null });
+    const store = this.owner.lookup('service:store');
+    const recordArray = store.recordArrayManager.createArray({ type: 'person', query: null });
 
-    let payload = {
+    const payload = {
       data: [
         {
           type: 'person',
@@ -147,15 +147,15 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
       },
     };
 
-    let results = store._push(payload);
+    const results = store._push(payload);
 
     store.recordArrayManager.populateManagedArray(recordArray, results, payload);
     assert.strictEqual(recordArray.links.first, '/foo?page=1', 'expected links.first to be "/foo?page=1" from payload');
   });
 
   test('recordArray.replace() throws error', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let recordArray = store.recordArrayManager.createArray({ type: 'person', query: null });
+    const store = this.owner.lookup('service:store');
+    const recordArray = store.recordArrayManager.createArray({ type: 'person', query: null });
 
     await settled();
 
@@ -170,8 +170,8 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
   });
 
   test('recordArray mutation throws error', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let recordArray = store.recordArrayManager.createArray({ type: 'person', query: null });
+    const store = this.owner.lookup('service:store');
+    const recordArray = store.recordArrayManager.createArray({ type: 'person', query: null });
 
     await settled();
 
@@ -186,16 +186,16 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
 
   test('pass record array to adapter.query regardless of its arity', async function (assert) {
     assert.expect(2);
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
-    let payload = {
+    const payload = {
       data: [
         { id: '1', type: 'person', attributes: { name: 'Scumbag Dale' } },
         { id: '2', type: 'person', attributes: { name: 'Scumbag Katz' } },
       ],
     };
-    let actualQuery = {};
+    const actualQuery = {};
 
     // arity 3
     adapter.query = function (store, type, query) {
@@ -216,8 +216,8 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
   });
 
   test('loadRecord re-syncs identifiers recordArrays', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     let payload = {
       data: [
@@ -259,9 +259,9 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
     assert.expect(8);
 
     let queryArr, findArray;
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
-    let array = [{ id: '1', type: 'person', attributes: { name: 'Scumbag Dale' } }];
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+    const array = [{ id: '1', type: 'person', attributes: { name: 'Scumbag Dale' } }];
 
     // resemble server side filtering
     adapter.query = function (store, type, query, recordArray) {

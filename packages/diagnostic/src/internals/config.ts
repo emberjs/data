@@ -196,7 +196,7 @@ export function configure(options: Partial<ConfigOptions>): void {
   }
   configOptions.forEach((key) => {
     if (key in options && typeof options[key] === 'boolean') {
-      Config.params[key].value = options[key] as boolean;
+      Config.params[key].value = options[key];
     }
     // don't allow setting these params via configure
     if (options.params?.[key]) {

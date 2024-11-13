@@ -72,9 +72,9 @@ module('integration/records/relationship-changes - Relationship changes', functi
     function (assert) {
       assert.expect(1);
 
-      let store = this.owner.lookup('service:store');
+      const store = this.owner.lookup('service:store');
 
-      let Obj = EmberObject.extend({
+      const Obj = EmberObject.extend({
         person: null,
         siblings: alias('person.siblings'),
       });
@@ -117,7 +117,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
       });
 
       run(() => {
-        let cpResult = get(obj, 'siblings').slice();
+        const cpResult = get(obj, 'siblings').slice();
         assert.strictEqual(cpResult.length, 1, 'siblings cp should have recalculated');
         obj.destroy();
       });
@@ -130,9 +130,9 @@ module('integration/records/relationship-changes - Relationship changes', functi
     function (assert) {
       assert.expect(2);
 
-      let store = this.owner.lookup('service:store');
+      const store = this.owner.lookup('service:store');
 
-      let Obj = EmberObject.extend({
+      const Obj = EmberObject.extend({
         person: null,
         firstSibling: alias('person.siblings.firstObject'),
       });
@@ -175,7 +175,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
       });
 
       run(() => {
-        let cpResult = get(obj, 'firstSibling');
+        const cpResult = get(obj, 'firstSibling');
         assert.strictEqual(get(cpResult, 'id'), '1', 'siblings cp should have recalculated');
         obj.destroy();
       });
@@ -334,7 +334,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
   test('Calling push with relationship does not trigger observers if the relationship was not changed', function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
     let person = null;
     let observerCount = 0;
 

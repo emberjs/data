@@ -1,11 +1,11 @@
 import { assert, inspect, warn } from '@ember/debug';
 
-import { LOG_GRAPH } from '@warp-drive/build-config/debugging';
 import type { Store } from '@ember-data/store/-private';
 import { peekCache } from '@ember-data/store/-private';
 import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { Dict } from '@ember-data/types/q/utils';
+import { LOG_GRAPH } from '@warp-drive/build-config/debugging';
 
 import { coerceId } from '../coerce-id';
 import type BelongsToRelationship from '../relationships/state/belongs-to';
@@ -19,12 +19,12 @@ export function getStore(wrapper: CacheStoreWrapper | { _store: Store }): Store 
 }
 
 export function expandingGet<T>(cache: Dict<Dict<T>>, key1: string, key2: string): T | undefined {
-  let mainCache = (cache[key1] = cache[key1] || Object.create(null));
+  const mainCache = (cache[key1] = cache[key1] || Object.create(null));
   return mainCache[key2];
 }
 
 export function expandingSet<T>(cache: Dict<Dict<T>>, key1: string, key2: string, value: T): void {
-  let mainCache = (cache[key1] = cache[key1] || Object.create(null));
+  const mainCache = (cache[key1] = cache[key1] || Object.create(null));
   mainCache[key2] = value;
 }
 
@@ -110,7 +110,7 @@ export function forAllRelatedIdentifiers(
   } else if (isHasMany(rel)) {
     // ensure we don't walk anything twice if an entry is
     // in both localMembers and remoteMembers
-    let seen = new Set();
+    const seen = new Set();
 
     for (let i = 0; i < rel.localState.length; i++) {
       const inverseIdentifier = rel.localState[i];
@@ -128,7 +128,7 @@ export function forAllRelatedIdentifiers(
       }
     }
   } else {
-    let seen = new Set();
+    const seen = new Set();
     rel.localMembers.forEach((inverseIdentifier) => {
       if (!seen.has(inverseIdentifier)) {
         seen.add(inverseIdentifier);

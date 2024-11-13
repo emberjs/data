@@ -1,7 +1,7 @@
 export type DecoratorPropertyDescriptor = (PropertyDescriptor & { initializer?: any }) | undefined;
 
 export function isElementDescriptor(args: any[]): args is [object, string, DecoratorPropertyDescriptor] {
-  let [maybeTarget, maybeKey, maybeDesc] = args;
+  const [maybeTarget, maybeKey, maybeDesc] = args;
 
   return (
     // Ensure we have the right number of args

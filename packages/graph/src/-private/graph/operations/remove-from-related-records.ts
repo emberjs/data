@@ -44,7 +44,7 @@ function removeRelatedRecord(
   }
 
   localMembers.delete(value);
-  let index = localState.indexOf(value);
+  const index = localState.indexOf(value);
 
   assert(`expected localMembers and localState to be in sync`, index !== -1);
   localState.splice(index, 1);

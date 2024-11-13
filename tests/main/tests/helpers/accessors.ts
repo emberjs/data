@@ -35,9 +35,9 @@ export function implicitRelationshipsFor(
   if (!rels) {
     throw new Error(`Expected at least one relationship to be populated`);
   }
-  let implicits = Object.create(null);
+  const implicits = Object.create(null);
   Object.keys(rels).forEach((key) => {
-    let rel = rels[key]!;
+    const rel = rels[key]!;
     if (rel.definition.isImplicit) {
       implicits[key] = rel;
     }

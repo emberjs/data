@@ -7,7 +7,6 @@ import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
 import { InvalidError } from '@ember-data/adapter/error';
-import { DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
 import Model, { attr } from '@ember-data/model';
 import type { StructuredDataDocument } from '@ember-data/request/-private/types';
@@ -41,6 +40,7 @@ import type {
   StableRecordIdentifier,
 } from '@ember-data/types/q/identifier';
 import type { JsonApiError, JsonApiResource } from '@ember-data/types/q/record-data-json-api';
+import { DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
 
 if (!DEPRECATE_V1_RECORD_DATA) {
   class Person extends Model {
@@ -105,12 +105,12 @@ if (!DEPRECATE_V1_RECORD_DATA) {
     version: '2' = '2';
 
     _errors?: JsonApiError[];
-    _isNew: boolean = false;
+    _isNew = false;
 
     upsert(
       identifier: StableRecordIdentifier,
       data: JsonApiResource,
-      calculateChanges?: boolean | undefined
+      calculateChanges?: boolean  
     ): void | string[] {
       if (!this._data.has(identifier)) {
         this.wrapper.notifyChange(identifier, 'added');
@@ -121,7 +121,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
     }
     clientDidCreate(
       identifier: StableRecordIdentifier,
-      options?: Record<string, unknown> | undefined
+      options?: Record<string, unknown>  
     ): Record<string, unknown> {
       this._isNew = true;
       return {};
@@ -133,7 +133,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
     ): SingleResourceDataDocument {
       return { data: identifier as StableExistingRecordIdentifier };
     }
-    commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[] | undefined): void {
+    commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[]  ): void {
       this._errors = errors;
     }
     unloadRecord(identifier: StableRecordIdentifier): void {}
@@ -162,7 +162,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
       identifier: StableRecordIdentifier,
       propertyName: string,
       value: StableRecordIdentifier[],
-      idx?: number | undefined
+      idx?: number  
     ): void {
       throw new Error('Method not implemented.');
     }
@@ -377,7 +377,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
 
       assert.false(person.isValid, 'person is not valid');
       assert.strictEqual(person.errors.errorsFor('firstName').length, 0, 'no errors on firstName');
-      let lastNameError = person.errors.errorsFor('lastName').objectAt(0);
+      const lastNameError = person.errors.errorsFor('lastName').objectAt(0);
       assert.strictEqual(lastNameError?.attribute, 'lastName', 'error shows up on lastName');
     });
   });
@@ -501,7 +501,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
     }
 
     hooks.beforeEach(function () {
-      let { owner } = this;
+      const { owner } = this;
 
       owner.register('model:person', Person);
       owner.unregister('service:store');
@@ -519,7 +519,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
           name: 'Scumbag Dale',
         },
       };
-      let { owner } = this;
+      const { owner } = this;
 
       class LifecycleRecordData extends TestRecordData {
         commitWasRejected(recordIdentifier, errors) {
@@ -539,7 +539,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
         }
       }
 
-      let TestAdapter = EmberObject.extend({
+      const TestAdapter = EmberObject.extend({
         updateRecord() {
           return Promise.reject(
             new InvalidError([
@@ -567,7 +567,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
       store.push({
         data: [personHash],
       });
-      let person = store.peekRecord('person', '1');
+      const person = store.peekRecord('person', '1');
       await person.save().then(
         () => {},
         (err) => {}
@@ -584,7 +584,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
           name: 'Scumbag Dale',
         },
       };
-      let { owner } = this;
+      const { owner } = this;
 
       class LifecycleRecordData extends TestRecordData {
         commitWasRejected(recordIdentifier, errors) {
@@ -603,7 +603,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
         }
       }
 
-      let TestAdapter = EmberObject.extend({
+      const TestAdapter = EmberObject.extend({
         updateRecord() {
           return Promise.reject();
         },
@@ -617,7 +617,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
       store.push({
         data: [personHash],
       });
-      let person = store.peekRecord('person', '1');
+      const person = store.peekRecord('person', '1');
       await person.save().then(
         () => {},
         (err) => {}
@@ -636,7 +636,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
           lastName: 'something',
         },
       };
-      let { owner } = this;
+      const { owner } = this;
       let errorsToReturn = [
         {
           title: 'Invalid Attribute',
@@ -674,9 +674,9 @@ if (!DEPRECATE_V1_RECORD_DATA) {
       store.push({
         data: [personHash],
       });
-      let person = store.peekRecord('person', '1');
+      const person = store.peekRecord('person', '1');
       const identifier = recordIdentifierFor(person);
-      let nameError = person.errors.errorsFor('name').at(0);
+      const nameError = person.errors.errorsFor('name').at(0);
       assert.strictEqual(nameError.attribute, 'name', 'error shows up on name');
       assert.false(person.isValid, 'person is not valid');
       errorsToReturn = [];
@@ -695,7 +695,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
       storeWrapper.notifyChange(identifier, 'errors');
       assert.false(person.isValid, 'person is valid');
       assert.strictEqual(person.errors.errorsFor('name').length, 0, 'no errors on name');
-      let lastNameError = person.errors.errorsFor('lastName').at(0);
+      const lastNameError = person.errors.errorsFor('lastName').at(0);
       assert.strictEqual(lastNameError.attribute, 'lastName', 'error shows up on lastName');
       assert.expectDeprecation({ id: 'ember-data:deprecate-v1-cache', count: 2 });
     });

@@ -2,8 +2,6 @@ import { assert } from '@ember/debug';
 import { dependentKeyCompat } from '@ember/object/compat';
 import { cached, tracked } from '@glimmer/tracking';
 
-import { DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
-import { DEBUG } from '@warp-drive/build-config/env';
 import type Store from '@ember-data/store';
 import { storeFor } from '@ember-data/store';
 import { peekCache, recordIdentifierFor } from '@ember-data/store/-private';
@@ -12,8 +10,10 @@ import type RequestStateService from '@ember-data/store/-private/network/request
 import { addToTransaction, subscribe } from '@ember-data/tracking/-private';
 import type { Cache } from '@ember-data/types/q/cache';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import { DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
+import { DEBUG } from '@warp-drive/build-config/env';
 
-import Model from './model';
+import type Model from './model';
 
 const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
 const SOURCE_POINTER_PRIMARY_REGEXP = /^\/?data/;
@@ -80,7 +80,7 @@ function getTag(record, key) {
 }
 
 export function peekTag(record, key) {
-  let tags = Tags.get(record);
+  const tags = Tags.get(record);
   return tags && tags[key];
 }
 
@@ -96,7 +96,7 @@ export function tagged(_target, key, desc) {
   const getter = desc.get;
   const setter = desc.set;
   desc.get = function () {
-    let tag = getTag(this, key);
+    const tag = getTag(this, key);
     subscribe(tag);
 
     if (tag.isDirty) {
@@ -181,8 +181,8 @@ export default class RecordState {
     this._errorRequests = [];
     this._lastError = null;
 
-    let requests = store.getRequestStateService();
-    let notifications = store.notifications;
+    const requests = store.getRequestStateService();
+    const notifications = store.notifications;
 
     const handleRequest = (req) => {
       if (req.type === 'mutation') {
@@ -280,15 +280,15 @@ export default class RecordState {
       `Expected the Cache instance for ${this.identifier}  to implement getErrors(identifier)`,
       typeof this.cache.getErrors === 'function'
     );
-    let jsonApiErrors = this.cache.getErrors(this.identifier);
+    const jsonApiErrors = this.cache.getErrors(this.identifier);
 
     errors.clear();
 
     for (let i = 0; i < jsonApiErrors.length; i++) {
-      let error = jsonApiErrors[i];
+      const error = jsonApiErrors[i];
 
       if (error.source && error.source.pointer) {
-        let keyMatch = error.source.pointer.match(SOURCE_POINTER_REGEXP);
+        const keyMatch = error.source.pointer.match(SOURCE_POINTER_REGEXP);
         let key: string | undefined;
 
         if (keyMatch) {
@@ -298,7 +298,7 @@ export default class RecordState {
         }
 
         if (key) {
-          let errMsg = error.detail || error.title;
+          const errMsg = error.detail || error.title;
           errors.add(key, errMsg);
         }
       }
@@ -330,7 +330,7 @@ export default class RecordState {
 
   @tagged
   get isSaved() {
-    let rd = this.cache;
+    const rd = this.cache;
     if (this.isDeleted) {
       assert(`Expected Cache to implement isDeletionCommitted()`, rd.isDeletionCommitted);
       return rd.isDeletionCommitted(this.identifier);
@@ -343,7 +343,7 @@ export default class RecordState {
 
   @tagged
   get isEmpty() {
-    let rd = this.cache;
+    const rd = this.cache;
     // TODO this is not actually an RFC'd concept. Determine the
     // correct heuristic to replace this with.
     assert(`Expected Cache to implement isEmpty()`, rd.isEmpty);
@@ -352,14 +352,14 @@ export default class RecordState {
 
   @tagged
   get isNew() {
-    let rd = this.cache;
+    const rd = this.cache;
     assert(`Expected Cache to implement isNew()`, rd.isNew);
     return rd.isNew(this.identifier);
   }
 
   @tagged
   get isDeleted() {
-    let rd = this.cache;
+    const rd = this.cache;
     assert(`Expected Cache to implement isDeleted()`, rd.isDeleted);
     return rd.isDeleted(this.identifier);
   }
@@ -371,7 +371,7 @@ export default class RecordState {
 
   @tagged
   get isDirty() {
-    let rd = this.cache;
+    const rd = this.cache;
     if (rd.isDeletionCommitted(this.identifier) || (this.isDeleted && this.isNew)) {
       return false;
     }
@@ -380,7 +380,7 @@ export default class RecordState {
 
   @tagged
   get isError() {
-    let errorReq = this._errorRequests[this._errorRequests.length - 1];
+    const errorReq = this._errorRequests[this._errorRequests.length - 1];
     if (!errorReq) {
       return false;
     } else {
@@ -390,7 +390,7 @@ export default class RecordState {
 
   @tagged
   get adapterError() {
-    let request = this._lastError;
+    const request = this._lastError;
     if (!request) {
       return null;
     }

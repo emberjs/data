@@ -8,7 +8,7 @@ import type Store from '@ember-data/store';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { Dict } from '@ember-data/types/q/utils';
 
-import { LegacySupport } from './legacy-relationships-support';
+import type { LegacySupport } from './legacy-relationships-support';
 import { PromiseObject } from './promise-proxy-base';
 import type BelongsToReference from './references/belongs-to';
 
@@ -75,7 +75,7 @@ class PromiseBelongsTo extends Extended<RecordInstance> {
 
   async reload(options: Dict<unknown>): Promise<this> {
     assert('You are trying to reload an async belongsTo before it has been created', this.content !== undefined);
-    let { key, legacySupport } = this._belongsToState;
+    const { key, legacySupport } = this._belongsToState;
     await legacySupport.reloadBelongsTo(key, options);
     return this;
   }

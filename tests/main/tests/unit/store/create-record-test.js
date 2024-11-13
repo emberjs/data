@@ -28,8 +28,8 @@ module('unit/store/createRecord - Store creating records', function (hooks) {
     this.owner.register('model:comment', Comment);
     this.owner.register('model:author', Author);
 
-    let store = this.owner.lookup('service:store');
-    let comment = store.push({
+    const store = this.owner.lookup('service:store');
+    const comment = store.push({
       data: {
         type: 'comment',
         id: '1',
@@ -38,7 +38,7 @@ module('unit/store/createRecord - Store creating records', function (hooks) {
         },
       },
     });
-    let author = store.push({
+    const author = store.push({
       data: {
         type: 'author',
         id: '1',
@@ -48,13 +48,13 @@ module('unit/store/createRecord - Store creating records', function (hooks) {
       },
     });
 
-    let properties = {
+    const properties = {
       title: 'My Post',
       randomProp: 'An unknown prop',
       comments: [comment],
       author,
     };
-    let propertiesClone = {
+    const propertiesClone = {
       title: 'My Post',
       randomProp: 'An unknown prop',
       comments: [comment],
@@ -79,7 +79,7 @@ module('unit/store/createRecord - Store creating records', function (hooks) {
     this.owner.register('model:record', Record);
     this.owner.register('model:storage', Storage);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     store.push({
       data: [
@@ -100,8 +100,8 @@ module('unit/store/createRecord - Store creating records', function (hooks) {
       ],
     });
 
-    let records = store.peekAll('record').slice();
-    let storage = store.createRecord('storage', { name: 'Great store', records: records });
+    const records = store.peekAll('record').slice();
+    const storage = store.createRecord('storage', { name: 'Great store', records: records });
 
     assert.strictEqual(storage.name, 'Great store', 'The attribute is well defined');
     assert.strictEqual(
@@ -127,9 +127,9 @@ module('unit/store/createRecord - Store with models by dash', function (hooks) {
 
     this.owner.register('model:some-thing', SomeThing);
 
-    let store = this.owner.lookup('service:store');
-    let attributes = { foo: 'bar' };
-    let record = store.createRecord('some-thing', attributes);
+    const store = this.owner.lookup('service:store');
+    const attributes = { foo: 'bar' };
+    const record = store.createRecord('some-thing', attributes);
 
     assert.strictEqual(record.foo, attributes.foo, 'The record is created');
     assert.strictEqual(store.modelFor('some-thing').modelName, 'some-thing');

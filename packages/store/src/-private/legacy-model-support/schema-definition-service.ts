@@ -3,12 +3,12 @@ import { deprecate } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
 
-import { DEPRECATE_STRING_ARG_SCHEMAS } from '@warp-drive/build-config/deprecations';
 import type Model from '@ember-data/model';
 import type { ModelFactory } from '@ember-data/model/-private/model';
 import { HAS_MODEL_PACKAGE } from '@ember-data/packages';
 import type { RecordIdentifier } from '@ember-data/types/q/identifier';
 import type { AttributesSchema, RelationshipsSchema } from '@ember-data/types/q/record-data-schemas';
+import { DEPRECATE_STRING_ARG_SCHEMAS } from '@warp-drive/build-config/deprecations';
 
 import type Store from '../store-service';
 import normalizeModelName from '../utils/normalize-model-name';
@@ -63,8 +63,8 @@ export class DSModelSchemaDefinitionService {
     attributes = this._attributesDefCache[modelName];
 
     if (attributes === undefined) {
-      let modelClass = this.store.modelFor(modelName);
-      let attributeMap = modelClass.attributes;
+      const modelClass = this.store.modelFor(modelName);
+      const attributeMap = modelClass.attributes;
 
       attributes = Object.create(null);
       attributeMap.forEach((meta, name) => (attributes[name] = meta));
@@ -100,7 +100,7 @@ export class DSModelSchemaDefinitionService {
     relationships = this._relationshipsDefCache[modelName];
 
     if (relationships === undefined) {
-      let modelClass = this.store.modelFor(modelName) as typeof Model;
+      const modelClass = this.store.modelFor(modelName);
       relationships = modelClass.relationshipsObject || null;
       this._relationshipsDefCache[modelName] = relationships;
     }
@@ -109,8 +109,8 @@ export class DSModelSchemaDefinitionService {
   }
 
   doesTypeExist(modelName: string): boolean {
-    let normalizedModelName = normalizeModelName(modelName);
-    let factory = getModelFactory(this.store, this.store._modelFactoryCache, normalizedModelName);
+    const normalizedModelName = normalizeModelName(modelName);
+    const factory = getModelFactory(this.store, this.store._modelFactoryCache, normalizedModelName);
 
     return factory !== null;
   }
@@ -120,7 +120,7 @@ export function getModelFactory(store: Store, cache, normalizedModelName: string
   let factory = cache[normalizedModelName];
 
   if (!factory) {
-    let owner: any = getOwner(store);
+    const owner: any = getOwner(store);
     factory = owner.factoryFor(`model:${normalizedModelName}`);
 
     if (HAS_MODEL_PACKAGE) {
@@ -135,10 +135,10 @@ export function getModelFactory(store: Store, cache, normalizedModelName: string
       return null;
     }
 
-    let klass = factory.class;
+    const klass = factory.class;
 
     if (klass.isModel) {
-      let hasOwnModelNameSet = klass.modelName && Object.prototype.hasOwnProperty.call(klass, 'modelName');
+      const hasOwnModelNameSet = klass.modelName && Object.prototype.hasOwnProperty.call(klass, 'modelName');
       if (!hasOwnModelNameSet) {
         Object.defineProperty(klass, 'modelName', { value: normalizedModelName });
       }

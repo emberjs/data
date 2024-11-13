@@ -56,9 +56,9 @@ module('integration/snapshot - Snapshot', function (hooks) {
     }
     owner.register('model:address', Address);
 
-    let newAddress = store.createRecord('address', {});
-    let snapshot = newAddress._createSnapshot();
-    let expected = {
+    const newAddress = store.createRecord('address', {});
+    const snapshot = newAddress._createSnapshot();
+    const expected = {
       country: 'USA',
       state: 'CA',
       street: undefined,
@@ -82,8 +82,8 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       },
     });
-    let post = store.peekRecord('post', 1);
-    let snapshot = post._createSnapshot();
+    const post = store.peekRecord('post', 1);
+    const snapshot = post._createSnapshot();
 
     assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
   });
@@ -100,8 +100,8 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       },
     });
-    let post = store.peekRecord('post', 1);
-    let snapshot = post._createSnapshot();
+    const post = store.peekRecord('post', 1);
+    const snapshot = post._createSnapshot();
 
     assert.strictEqual(snapshot.id, '1', 'id is correct');
     assert.strictEqual(snapshot.modelName, 'post', 'modelName is correct');
@@ -118,7 +118,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
       assert.expect(3);
 
       let postClassLoaded = false;
-      let modelFor = store.modelFor;
+      const modelFor = store.modelFor;
       store.modelFor = (name) => {
         if (name === 'post') {
           postClassLoaded = true;
@@ -135,8 +135,8 @@ module('integration/snapshot - Snapshot', function (hooks) {
           },
         },
       });
-      let identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'post', id: '1' });
-      let snapshot = await store._fetchManager.createSnapshot(identifier);
+      const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'post', id: '1' });
+      const snapshot = await store._fetchManager.createSnapshot(identifier);
 
       assert.false(postClassLoaded, 'model class is not eagerly loaded');
       assert.strictEqual(snapshot.type, _Post, 'type is correct');
@@ -178,9 +178,9 @@ module('integration/snapshot - Snapshot', function (hooks) {
       },
     });
 
-    let identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'post', id: '1' });
-    let snapshot = store._fetchManager.createSnapshot(identifier);
-    let expected = {
+    const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'post', id: '1' });
+    const snapshot = store._fetchManager.createSnapshot(identifier);
+    const expected = {
       author: undefined,
       title: 'Hello World',
     };
@@ -203,9 +203,9 @@ module('integration/snapshot - Snapshot', function (hooks) {
       },
     });
 
-    let identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'post', id: '1' });
-    let snapshot = store._fetchManager.createSnapshot(identifier);
-    let expected = {
+    const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'post', id: '1' });
+    const snapshot = store._fetchManager.createSnapshot(identifier);
+    const expected = {
       author: undefined,
       title: 'Hello World',
     };
@@ -225,8 +225,8 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       },
     });
-    let post = store.peekRecord('post', 1);
-    let snapshot = post._createSnapshot();
+    const post = store.peekRecord('post', 1);
+    const snapshot = post._createSnapshot();
 
     assert.strictEqual(snapshot.attr('title'), 'Hello World', 'snapshot title is correct');
     post.set('title', 'Tomster');
@@ -245,8 +245,8 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       },
     });
-    let post = store.peekRecord('post', 1);
-    let snapshot = post._createSnapshot();
+    const post = store.peekRecord('post', 1);
+    const snapshot = post._createSnapshot();
     assert.expectAssertion(
       () => {
         snapshot.attr('unknown');
@@ -268,10 +268,10 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       },
     });
-    let post = store.peekRecord('post', 1);
-    let snapshot = post._createSnapshot();
+    const post = store.peekRecord('post', 1);
+    const snapshot = post._createSnapshot();
 
-    let attributes = snapshot.attributes();
+    const attributes = snapshot.attributes();
 
     assert.deepEqual(attributes, { author: undefined, title: 'Hello World' }, 'attributes are returned correctly');
   });
@@ -288,11 +288,11 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       },
     });
-    let post = store.peekRecord('post', 1);
+    const post = store.peekRecord('post', 1);
     post.set('title', 'Hello World!');
-    let snapshot = post._createSnapshot();
+    const snapshot = post._createSnapshot();
 
-    let changes = snapshot.changedAttributes();
+    const changes = snapshot.changedAttributes();
 
     assert.deepEqual(changes.title, ['Hello World', 'Hello World!'], 'changed attributes are returned correctly');
   });
@@ -309,9 +309,9 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       },
     });
-    let comment = store.peekRecord('comment', 1);
-    let snapshot = comment._createSnapshot();
-    let relationship = snapshot.belongsTo('post');
+    const comment = store.peekRecord('comment', 1);
+    const snapshot = comment._createSnapshot();
+    const relationship = snapshot.belongsTo('post');
 
     assert.strictEqual(relationship, undefined, 'relationship is undefined');
   });
@@ -342,9 +342,9 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       ],
     });
-    let comment = store.peekRecord('comment', 2);
-    let snapshot = comment._createSnapshot();
-    let relationship = snapshot.belongsTo('post');
+    const comment = store.peekRecord('comment', 2);
+    const snapshot = comment._createSnapshot();
+    const relationship = snapshot.belongsTo('post');
 
     assert.strictEqual(relationship, null, 'relationship is unset');
   });
@@ -375,9 +375,9 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       ],
     });
-    let comment = store.peekRecord('comment', 2);
-    let snapshot = comment._createSnapshot();
-    let relationship = snapshot.belongsTo('post');
+    const comment = store.peekRecord('comment', 2);
+    const snapshot = comment._createSnapshot();
+    const relationship = snapshot.belongsTo('post');
 
     assert.ok(relationship instanceof Snapshot, 'snapshot is an instance of Snapshot');
     assert.strictEqual(relationship.id, '1', 'post id is correct');
@@ -412,9 +412,9 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       ],
     });
-    let comment = store.peekRecord('comment', 2);
-    let snapshot = comment._createSnapshot();
-    let relationship = snapshot.belongsTo('post');
+    const comment = store.peekRecord('comment', 2);
+    const snapshot = comment._createSnapshot();
+    const relationship = snapshot.belongsTo('post');
 
     assert.ok(relationship instanceof Snapshot, 'snapshot is an instance of Snapshot');
     assert.deepEqual(relationship.changedAttributes(), {}, 'changedAttributes are correct');
@@ -446,13 +446,13 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       ],
     });
-    let post = store.peekRecord('post', 1);
-    let comment = store.peekRecord('comment', 2);
+    const post = store.peekRecord('post', 1);
+    const comment = store.peekRecord('comment', 2);
 
     post.deleteRecord();
 
-    let snapshot = comment._createSnapshot();
-    let relationship = snapshot.belongsTo('post');
+    const snapshot = comment._createSnapshot();
+    const relationship = snapshot.belongsTo('post');
 
     assert.strictEqual(relationship, null, 'relationship unset after deleted');
   });
@@ -476,9 +476,9 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       },
     });
-    let comment = store.peekRecord('comment', 2);
-    let snapshot = comment._createSnapshot();
-    let relationship = snapshot.belongsTo('post');
+    const comment = store.peekRecord('comment', 2);
+    const snapshot = comment._createSnapshot();
+    const relationship = snapshot.belongsTo('post');
 
     assert.strictEqual(relationship, undefined, 'relationship is undefined');
   });
@@ -506,7 +506,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       },
     });
-    let comment = store.peekRecord('comment', 2);
+    const comment = store.peekRecord('comment', 2);
 
     assert.strictEqual(comment._createSnapshot().belongsTo('post'), undefined, 'relationship is undefined');
     await comment.post;
@@ -525,8 +525,8 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       },
     });
-    let post = store.peekRecord('post', 1);
-    let snapshot = post._createSnapshot();
+    const post = store.peekRecord('post', 1);
+    const snapshot = post._createSnapshot();
 
     assert.expectAssertion(
       () => {
@@ -588,11 +588,11 @@ module('integration/snapshot - Snapshot', function (hooks) {
     // fetch the link
     const post = await comment.post;
 
-    let postSnapshot = post._createSnapshot();
-    let commentSnapshot = comment._createSnapshot();
+    const postSnapshot = post._createSnapshot();
+    const commentSnapshot = comment._createSnapshot();
 
-    let hasManyRelationship = postSnapshot.hasMany('comments');
-    let belongsToRelationship = commentSnapshot.belongsTo('post');
+    const hasManyRelationship = postSnapshot.hasMany('comments');
+    const belongsToRelationship = commentSnapshot.belongsTo('post');
 
     assert.ok(hasManyRelationship instanceof Array, 'hasMany relationship is an instance of Array');
     assert.strictEqual(hasManyRelationship.length, 1, 'hasMany relationship contains related object');
@@ -626,17 +626,17 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       ],
     });
-    let post = store.peekRecord('post', '1');
-    let comment = store.peekRecord('comment', '2');
+    const post = store.peekRecord('post', '1');
+    const comment = store.peekRecord('comment', '2');
 
     const comments = await post.comments;
     comments.push(comment);
 
-    let postSnapshot = post._createSnapshot();
-    let commentSnapshot = comment._createSnapshot();
+    const postSnapshot = post._createSnapshot();
+    const commentSnapshot = comment._createSnapshot();
 
-    let hasManyRelationship = postSnapshot.hasMany('comments');
-    let belongsToRelationship = commentSnapshot.belongsTo('post');
+    const hasManyRelationship = postSnapshot.hasMany('comments');
+    const belongsToRelationship = commentSnapshot.belongsTo('post');
 
     assert.ok(hasManyRelationship instanceof Array, 'hasMany relationship is an instance of Array');
     assert.strictEqual(hasManyRelationship.length, 1, 'hasMany relationship contains related object');
@@ -670,16 +670,16 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       ],
     });
-    let post = store.peekRecord('post', 1);
-    let comment = store.peekRecord('comment', 2);
+    const post = store.peekRecord('post', 1);
+    const comment = store.peekRecord('comment', 2);
 
     comment.set('post', post);
 
-    let postSnapshot = post._createSnapshot();
-    let commentSnapshot = comment._createSnapshot();
+    const postSnapshot = post._createSnapshot();
+    const commentSnapshot = comment._createSnapshot();
 
-    let hasManyRelationship = postSnapshot.hasMany('comments');
-    let belongsToRelationship = commentSnapshot.belongsTo('post');
+    const hasManyRelationship = postSnapshot.hasMany('comments');
+    const belongsToRelationship = commentSnapshot.belongsTo('post');
 
     assert.ok(hasManyRelationship instanceof Array, 'hasMany relationship is an instance of Array');
     assert.strictEqual(hasManyRelationship.length, 1, 'hasMany relationship contains related object');
@@ -718,9 +718,9 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       ],
     });
-    let comment = store.peekRecord('comment', 2);
-    let snapshot = comment._createSnapshot();
-    let relationship = snapshot.belongsTo('post', { id: true });
+    const comment = store.peekRecord('comment', 2);
+    const snapshot = comment._createSnapshot();
+    const relationship = snapshot.belongsTo('post', { id: true });
 
     assert.strictEqual(relationship, '1', 'relationship ID correctly returned');
   });
@@ -751,13 +751,13 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       ],
     });
-    let post = store.peekRecord('post', 1);
-    let comment = store.peekRecord('comment', 2);
+    const post = store.peekRecord('post', 1);
+    const comment = store.peekRecord('comment', 2);
 
     post.deleteRecord();
 
-    let snapshot = comment._createSnapshot();
-    let relationship = snapshot.belongsTo('post', { id: true });
+    const snapshot = comment._createSnapshot();
+    const relationship = snapshot.belongsTo('post', { id: true });
 
     assert.strictEqual(relationship, null, 'relationship unset after deleted');
   });
@@ -774,9 +774,9 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       },
     });
-    let post = store.peekRecord('post', 1);
-    let snapshot = post._createSnapshot();
-    let relationship = snapshot.hasMany('comments');
+    const post = store.peekRecord('post', 1);
+    const snapshot = post._createSnapshot();
+    const relationship = snapshot.hasMany('comments');
 
     assert.strictEqual(relationship, undefined, 'relationship is undefined');
   });
@@ -798,9 +798,9 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       },
     });
-    let post = store.peekRecord('post', 1);
-    let snapshot = post._createSnapshot();
-    let relationship = snapshot.hasMany('comments');
+    const post = store.peekRecord('post', 1);
+    const snapshot = post._createSnapshot();
+    const relationship = snapshot.hasMany('comments');
 
     assert.ok(relationship instanceof Array, 'relationship is an instance of Array');
     assert.strictEqual(relationship.length, 0, 'relationship is empty');
@@ -842,14 +842,14 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       ],
     });
-    let post = store.peekRecord('post', 3);
-    let snapshot = post._createSnapshot();
-    let relationship = snapshot.hasMany('comments');
+    const post = store.peekRecord('post', 3);
+    const snapshot = post._createSnapshot();
+    const relationship = snapshot.hasMany('comments');
 
     assert.ok(relationship instanceof Array, 'relationship is an instance of Array');
     assert.strictEqual(relationship.length, 2, 'relationship has two items');
 
-    let relationship1 = relationship[0];
+    const relationship1 = relationship[0];
 
     assert.ok(relationship1 instanceof Snapshot, 'relationship item is an instance of Snapshot');
     assert.strictEqual(relationship1.id, '1', 'relationship item id is correct');
@@ -892,15 +892,15 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       ],
     });
-    let comment1 = store.peekRecord('comment', 1);
-    let comment2 = store.peekRecord('comment', 2);
-    let post = store.peekRecord('post', 3);
+    const comment1 = store.peekRecord('comment', 1);
+    const comment2 = store.peekRecord('comment', 2);
+    const post = store.peekRecord('post', 3);
 
     comment1.deleteRecord();
     comment2.deleteRecord();
 
-    let snapshot = post._createSnapshot();
-    let relationship = snapshot.hasMany('comments');
+    const snapshot = post._createSnapshot();
+    const relationship = snapshot.hasMany('comments');
 
     assert.ok(relationship instanceof Array, 'relationship is an instance of Array');
     assert.strictEqual(relationship.length, 0, 'relationship is empty');
@@ -926,9 +926,9 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       },
     });
-    let post = store.peekRecord('post', 1);
-    let snapshot = post._createSnapshot();
-    let relationship = snapshot.hasMany('comments', { ids: true });
+    const post = store.peekRecord('post', 1);
+    const snapshot = post._createSnapshot();
+    const relationship = snapshot.hasMany('comments', { ids: true });
 
     assert.deepEqual(relationship, ['2', '3'], 'relationship IDs correctly returned');
   });
@@ -969,15 +969,15 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       ],
     });
-    let comment1 = store.peekRecord('comment', 1);
-    let comment2 = store.peekRecord('comment', 2);
-    let post = store.peekRecord('post', 3);
+    const comment1 = store.peekRecord('comment', 1);
+    const comment2 = store.peekRecord('comment', 2);
+    const post = store.peekRecord('post', 3);
 
     comment1.deleteRecord();
     comment2.deleteRecord();
 
-    let snapshot = post._createSnapshot();
-    let relationship = snapshot.hasMany('comments', { ids: true });
+    const snapshot = post._createSnapshot();
+    const relationship = snapshot.hasMany('comments', { ids: true });
 
     assert.ok(relationship instanceof Array, 'relationship is an instance of Array');
     assert.strictEqual(relationship.length, 0, 'relationship is empty');
@@ -1002,9 +1002,9 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       },
     });
-    let post = store.peekRecord('post', 1);
-    let snapshot = post._createSnapshot();
-    let relationship = snapshot.hasMany('comments');
+    const post = store.peekRecord('post', 1);
+    const snapshot = post._createSnapshot();
+    const relationship = snapshot.hasMany('comments');
 
     assert.strictEqual(relationship, undefined, 'relationship is undefined');
   });
@@ -1035,11 +1035,11 @@ module('integration/snapshot - Snapshot', function (hooks) {
       },
     });
 
-    let post = store.peekRecord('post', 1);
+    const post = store.peekRecord('post', 1);
 
     await post.comments.then((comments) => {
-      let snapshot = post._createSnapshot();
-      let relationship = snapshot.hasMany('comments');
+      const snapshot = post._createSnapshot();
+      const relationship = snapshot.hasMany('comments');
 
       assert.ok(relationship instanceof Array, 'relationship is an instance of Array');
       assert.strictEqual(relationship.length, 1, 'relationship has one item');
@@ -1058,8 +1058,8 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       },
     });
-    let post = store.peekRecord('post', 1);
-    let snapshot = post._createSnapshot();
+    const post = store.peekRecord('post', 1);
+    const snapshot = post._createSnapshot();
 
     assert.expectAssertion(
       () => {
@@ -1114,14 +1114,14 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       ],
     });
-    let comment3 = store.peekRecord('comment', 3);
-    let post = store.peekRecord('post', 4);
+    const comment3 = store.peekRecord('comment', 3);
+    const post = store.peekRecord('post', 4);
     const comments = await post.comments;
     comments.splice(comments.indexOf(comment3), 1);
     comments.unshift(comment3);
 
-    let snapshot = post._createSnapshot();
-    let relationship = snapshot.hasMany('comments');
+    const snapshot = post._createSnapshot();
+    const relationship = snapshot.hasMany('comments');
 
     assert.strictEqual(relationship[0].id, '3', 'order of comment 3 is correct');
     assert.strictEqual(relationship[1].id, '1', 'order of comment 1 is correct');
@@ -1140,10 +1140,10 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       },
     });
-    let post = store.peekRecord('post', 1);
-    let snapshot = post._createSnapshot();
+    const post = store.peekRecord('post', 1);
+    const snapshot = post._createSnapshot();
 
-    let attributes = [];
+    const attributes = [];
     snapshot.eachAttribute((name) => attributes.push(name));
     assert.deepEqual(attributes, ['author', 'title'], 'attributes are iterated correctly');
   });
@@ -1151,8 +1151,8 @@ module('integration/snapshot - Snapshot', function (hooks) {
   test('snapshot.eachRelationship() proxies to record', function (assert) {
     assert.expect(2);
 
-    let getRelationships = function (snapshot) {
-      let relationships = [];
+    const getRelationships = function (snapshot) {
+      const relationships = [];
       snapshot.eachRelationship((name) => relationships.push(name));
       return relationships;
     };
@@ -1175,8 +1175,8 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       ],
     });
-    let comment = store.peekRecord('comment', 1);
-    let post = store.peekRecord('post', 2);
+    const comment = store.peekRecord('comment', 1);
+    const post = store.peekRecord('post', 2);
     let snapshot;
 
     snapshot = comment._createSnapshot();
@@ -1207,8 +1207,8 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       },
     });
-    let comment = store.peekRecord('comment', 1);
-    let snapshot = comment._createSnapshot();
+    const comment = store.peekRecord('comment', 1);
+    const snapshot = comment._createSnapshot();
 
     snapshot.belongsTo('post');
   });
@@ -1237,8 +1237,8 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       },
     });
-    let post = store.peekRecord('post', 1);
-    let snapshot = post._createSnapshot();
+    const post = store.peekRecord('post', 1);
+    const snapshot = post._createSnapshot();
 
     snapshot.hasMany('comments');
   });
@@ -1255,12 +1255,12 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       },
     });
-    let post = store.peekRecord('post', 1);
-    let snapshot = post._createSnapshot();
+    const post = store.peekRecord('post', 1);
+    const snapshot = post._createSnapshot();
 
     post.set('title', 'New Title');
 
-    let expected = {
+    const expected = {
       data: {
         attributes: {
           author: undefined,

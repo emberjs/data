@@ -2,9 +2,9 @@ import { dasherize } from '@ember/string';
 
 import { singularize } from 'ember-inflector';
 
-import { DEBUG } from '@warp-drive/build-config/env';
 import type Store from '@ember-data/store';
 import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 function typeForRelationshipMeta(meta) {
   let modelName = dasherize(meta.type || meta.key);
@@ -17,7 +17,7 @@ function typeForRelationshipMeta(meta) {
 }
 
 function shouldFindInverse(relationshipMeta) {
-  let options = relationshipMeta.options;
+  const options = relationshipMeta.options;
   return !(options && options.inverse === null);
 }
 

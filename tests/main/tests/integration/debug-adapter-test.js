@@ -20,14 +20,14 @@ if (has('@ember-data/debug')) {
     let store;
 
     hooks.beforeEach(function () {
-      let { owner } = this;
+      const { owner } = this;
       class Post extends Model {
         @attr title;
       }
 
       owner.register('model:post', Post);
       store = owner.lookup('service:store');
-      let _adapter = DebugAdapter.extend({
+      const _adapter = DebugAdapter.extend({
         getModelTypes() {
           return A([{ klass: store.modelFor('post'), name: 'post' }]);
         },
@@ -37,8 +37,8 @@ if (has('@ember-data/debug')) {
 
     test('Watching Model Types', async function (assert) {
       assert.expect(4);
-      let { owner } = this;
-      let debugAdapter = owner.lookup('data-adapter:main');
+      const { owner } = this;
+      const debugAdapter = owner.lookup('data-adapter:main');
 
       function added(types) {
         assert.strictEqual(types.length, 1, 'added one type');
@@ -62,8 +62,8 @@ if (has('@ember-data/debug')) {
 
     test('Watching Model Types On first-create', async function (assert) {
       assert.expect(4);
-      let { owner } = this;
-      let debugAdapter = owner.lookup('data-adapter:main');
+      const { owner } = this;
+      const debugAdapter = owner.lookup('data-adapter:main');
 
       function added(types) {
         assert.strictEqual(types.length, 1, 'added one type');
@@ -80,8 +80,8 @@ if (has('@ember-data/debug')) {
     });
 
     test('Watching Records', async function (assert) {
-      let { owner } = this;
-      let debugAdapter = owner.lookup('data-adapter:main');
+      const { owner } = this;
+      const debugAdapter = owner.lookup('data-adapter:main');
       let addedRecords, updatedRecords, removedRecords;
 
       this.owner.register(
@@ -103,13 +103,13 @@ if (has('@ember-data/debug')) {
         },
       });
 
-      let recordsAdded = function (wrappedRecords) {
+      const recordsAdded = function (wrappedRecords) {
         addedRecords = wrappedRecords;
       };
-      let recordsUpdated = function (wrappedRecords) {
+      const recordsUpdated = function (wrappedRecords) {
         updatedRecords = wrappedRecords;
       };
-      let recordsRemoved = function (...args) {
+      const recordsRemoved = function (...args) {
         // in 3.26 there is only 1 argument - the record removed
         // below 3.26, it is 2 arguments - the index and count removed
         // https://github.com/emberjs/ember.js/pull/19379
@@ -190,8 +190,8 @@ if (has('@ember-data/debug')) {
     });
 
     test('Column names', function (assert) {
-      let { owner } = this;
-      let debugAdapter = owner.lookup('data-adapter:main');
+      const { owner } = this;
+      const debugAdapter = owner.lookup('data-adapter:main');
       class Person extends Model {
         @attr title;
         @attr firstOrLastName;

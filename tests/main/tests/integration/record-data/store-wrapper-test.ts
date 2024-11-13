@@ -5,13 +5,13 @@ import { module, test } from 'qunit';
 import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
-import { DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
-import { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
-import { DSModel } from '@ember-data/types/q/ds-model';
-import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
+import type { DSModel } from '@ember-data/types/q/ds-model';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import publicProps from '@ember-data/unpublished-test-infra/test-support/public-props';
+import { DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
 
 class Person extends Model {
   @attr('string', {})
@@ -113,7 +113,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
     houseHash = {
       type: 'house',
       id: '1',
@@ -152,7 +152,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     const store = owner.lookup('service:store') as Store;
     store.cache;
 
-    let houseAttrs = {
+    const houseAttrs = {
       name: {
         type: 'string',
         isAttribute: true,
@@ -167,7 +167,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
       'can lookup attribute definitions for self'
     );
 
-    let carAttrs = {
+    const carAttrs = {
       make: {
         type: 'string',
         isAttribute: true,
@@ -182,7 +182,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
       'can lookup attribute definitions for other models'
     );
 
-    let houseRelationships = {
+    const houseRelationships = {
       landlord: {
         key: 'landlord',
         kind: 'belongsTo',
@@ -205,8 +205,8 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
         type: 'person',
       },
     };
-    let schema = storeWrapper.getSchemaDefinitionService().relationshipsDefinitionFor({ type: 'house' });
-    let result = publicProps(['key', 'kind', 'name', 'type', 'options'], schema);
+    const schema = storeWrapper.getSchemaDefinitionService().relationshipsDefinitionFor({ type: 'house' });
+    const result = publicProps(['key', 'kind', 'name', 'type', 'options'], schema);
 
     // Retrive only public values from the result
     // This should go away once we put private things in symbols/weakmaps
@@ -216,7 +216,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
   if (DEPRECATE_V1_RECORD_DATA) {
     test('RecordDataFor', async function (assert) {
       assert.expect(DEPRECATE_V1_RECORD_DATA ? 4 : 3);
-      let { owner } = this;
+      const { owner } = this;
 
       let count = 0;
       class RecordDataForTest extends TestRecordData {
@@ -272,7 +272,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
 
     test('recordDataFor - create new', async function (assert) {
       assert.expect(DEPRECATE_V1_RECORD_DATA ? 4 : 3);
-      let { owner } = this;
+      const { owner } = this;
       let count = 0;
       let cache;
       let newRecordData;
@@ -280,7 +280,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
 
       class RecordDataForTest extends TestRecordData {
         id: string;
-        _isNew: boolean = false;
+        _isNew = false;
 
         constructor(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper) {
           super();
@@ -358,7 +358,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     owner.register('service:store', TestStore);
     const store = owner.lookup('service:store') as Store;
 
-    let house = store.createRecord('house', {}) as DSModel;
+    const house = store.createRecord('house', {}) as DSModel;
     storeWrapper.setRecordId(recordIdentifierFor(house), '17');
     assert.strictEqual(house.id, '17', 'setRecordId correctly set the id');
     assert.strictEqual(
@@ -388,7 +388,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
     store.peekRecord('house', '1');
 
     // TODO isRecordInUse returns true if record has never been instantiated, think through whether thats correct
-    let house2 = store.peekRecord('house', '2') as DSModel;
+    const house2 = store.peekRecord('house', '2') as DSModel;
     house2.unloadRecord();
 
     store.createRecord('house', {});

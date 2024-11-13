@@ -13,6 +13,12 @@ import { tracked } from '@glimmer/tracking';
 import { dirtyTag } from '@glimmer/validator';
 import Ember from 'ember';
 
+import type { ImmutableRequestInfo } from '@ember-data/request/-private/types';
+import { addToTransaction, subscribe } from '@ember-data/tracking/-private';
+import type { Links, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
+import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { RecordInstance } from '@ember-data/types/q/record-instance';
+import type { Dict } from '@ember-data/types/q/utils';
 import {
   DEPRECATE_A_USAGE,
   DEPRECATE_ARRAY_LIKE,
@@ -21,17 +27,12 @@ import {
   DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS,
 } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
-import { ImmutableRequestInfo } from '@ember-data/request/-private/types';
-import { addToTransaction, subscribe } from '@ember-data/tracking/-private';
-import { Links, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { RecordInstance } from '@ember-data/types/q/record-instance';
-import { Dict } from '@ember-data/types/q/utils';
 
 import { isStableIdentifier } from '../caches/identifier-cache';
 import { recordIdentifierFor } from '../caches/instance-cache';
 import type RecordArrayManager from '../managers/record-array-manager';
-import { PromiseArray, promiseArray } from '../proxies/promise-proxies';
+import type { PromiseArray} from '../proxies/promise-proxies';
+import { promiseArray } from '../proxies/promise-proxies';
 import type Store from '../store-service';
 
 type KeyType = string | symbol | number;
@@ -215,10 +216,10 @@ class IdentifierArray {
     @public
     @type Boolean
   */
-  @tracked isUpdating: boolean = false;
-  isLoaded: boolean = true;
-  isDestroying: boolean = false;
-  isDestroyed: boolean = false;
+  @tracked isUpdating = false;
+  isLoaded = true;
+  isDestroying = false;
+  isDestroyed = false;
   _updatingPromise: PromiseArray<RecordInstance, IdentifierArray> | Promise<IdentifierArray> | null = null;
 
   [IS_COLLECTION] = true;
@@ -292,7 +293,7 @@ class IdentifierArray {
       links: options.links || null,
       meta: options.meta || null,
     };
-    let transaction: boolean = false;
+    let transaction = false;
 
     // when a mutation occurs
     // we track all mutations within the call
@@ -300,7 +301,7 @@ class IdentifierArray {
 
     const proxy = new Proxy<StableRecordIdentifier[], RecordInstance[]>(this[SOURCE], {
       get(target: StableRecordIdentifier[], prop: KeyType, receiver: typeof Proxy<StableRecordIdentifier[]>): unknown {
-        let index = convertToInt(prop);
+        const index = convertToInt(prop);
         if (_TAG.shouldReset && (index !== null || SYNC_PROPS.has(prop) || isArrayGetter(prop))) {
           options.manager._syncArray(receiver as unknown as IdentifierArray);
           _TAG.t = false;
@@ -393,7 +394,7 @@ class IdentifierArray {
           let fn = boundFns.get(prop);
           if (fn) return fn;
 
-          let outcome: unknown = self[prop];
+          const outcome: unknown = self[prop];
 
           if (typeof outcome === 'function') {
             fn = function () {
@@ -439,7 +440,7 @@ class IdentifierArray {
           PrivateState.meta = (value || null) as Dict<unknown> | null;
           return true;
         }
-        let index = convertToInt(prop);
+        const index = convertToInt(prop);
 
         // we do not allow "holey" arrays and so if the index is
         // greater than length then we will disallow setting it.
@@ -466,8 +467,8 @@ class IdentifierArray {
           return false;
         }
 
-        let original: StableRecordIdentifier | undefined = target[index];
-        let newIdentifier = extractIdentifierFromRecord(value as RecordInstance);
+        const original: StableRecordIdentifier | undefined = target[index];
+        const newIdentifier = extractIdentifierFromRecord(value as RecordInstance);
         assert(`Expected a record`, isStableIdentifier(newIdentifier));
         // We generate "transactions" whenever a setter method on the array
         // is called and might bulk update multiple array cells. Fundamentally,
@@ -509,7 +510,7 @@ class IdentifierArray {
 
     if (DEPRECATE_A_USAGE) {
       const meta = Ember.meta(this);
-      meta.hasMixin = (mixin: Object) => {
+      meta.hasMixin = (mixin: object) => {
         deprecate(`Do not call A() on EmberData RecordArrays`, false, {
           id: 'ember-data:no-a-with-array-like',
           until: '5.0',
@@ -524,7 +525,7 @@ class IdentifierArray {
       };
     } else if (DEBUG) {
       const meta = Ember.meta(this);
-      meta.hasMixin = (mixin: Object) => {
+      meta.hasMixin = (mixin: object) => {
         assert(`Do not call A() on EmberData RecordArrays`);
       };
     }
@@ -561,7 +562,7 @@ class IdentifierArray {
 
     this.isUpdating = true;
 
-    let updatingPromise = this._update();
+    const updatingPromise = this._update();
     updatingPromise.finally(() => {
       this._updatingPromise = null;
       if (this.isDestroying || this.isDestroyed) {
@@ -603,7 +604,7 @@ class IdentifierArray {
     @return {PromiseArray} promise
   */
   save(): PromiseArray<RecordInstance, IdentifierArray> | Promise<IdentifierArray> {
-    let promise = Promise.all(this.map((record) => this.store.saveRecord(record))).then(() => this);
+    const promise = Promise.all(this.map((record) => this.store.saveRecord(record))).then(() => this);
 
     if (DEPRECATE_PROMISE_PROXIES) {
       return promiseArray<RecordInstance, IdentifierArray>(promise);
@@ -712,7 +713,7 @@ if (DEPRECATE_ARRAY_LIKE) {
 
   IdentifierArray.prototype.addObject = function (obj: RecordInstance) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'addObject', 'push');
-    let index = this.indexOf(obj);
+    const index = this.indexOf(obj);
     if (index === -1) {
       this.push(obj);
     }
@@ -722,7 +723,7 @@ if (DEPRECATE_ARRAY_LIKE) {
   IdentifierArray.prototype.addObjects = function (objs: RecordInstance[]) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'addObjects', 'push');
     objs.forEach((obj: RecordInstance) => {
-      let index = this.indexOf(obj);
+      const index = this.indexOf(obj);
       if (index === -1) {
         this.push(obj);
       }
@@ -767,7 +768,7 @@ if (DEPRECATE_ARRAY_LIKE) {
   IdentifierArray.prototype.objectAt = function (index: number) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'objectAt', 'at');
     //For negative index values go back from the end of the array
-    let arrIndex = Math.sign(index) === -1 ? this.length + index : index;
+    const arrIndex = Math.sign(index) === -1 ? this.length + index : index;
     return this[arrIndex];
   };
 
@@ -857,13 +858,13 @@ if (DEPRECATE_ARRAY_LIKE) {
 
   IdentifierArray.prototype.isAny = function (prop, value) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'isAny', 'some');
-    let hasValue = arguments.length === 2;
+    const hasValue = arguments.length === 2;
     return this.some((v) => (hasValue ? v[prop] === value : v[prop] === true));
   };
 
   IdentifierArray.prototype.isEvery = function (prop, value) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'isEvery', 'every');
-    let hasValue = arguments.length === 2;
+    const hasValue = arguments.length === 2;
     return this.every((v) => (hasValue ? v[prop] === value : v[prop] === true));
   };
 
@@ -904,11 +905,11 @@ if (DEPRECATE_ARRAY_LIKE) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'sortBy', '.slice().sort');
     return this.slice().sort((a, b) => {
       for (let i = 0; i < sortKeys.length; i++) {
-        let key = sortKeys[i];
-        let propA = get(a, key);
-        let propB = get(b, key);
+        const key = sortKeys[i];
+        const propA = get(a, key);
+        const propB = get(b, key);
         // return 1 or -1 else continue to the next sortKey
-        let compareValue = compare(propA, propB);
+        const compareValue = compare(propA, propB);
 
         if (compareValue) {
           return compareValue;
@@ -995,10 +996,10 @@ if (DEPRECATE_ARRAY_LIKE) {
   IdentifierArray.prototype.uniqBy = function (key: string) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'uniqBy', 'filter');
     // all current managed arrays are already enforced as unique
-    let seen = new Set();
-    let result: RecordInstance[] = [];
+    const seen = new Set();
+    const result: RecordInstance[] = [];
     this.forEach((item) => {
-      let value = get(item, key);
+      const value = get(item, key);
       if (seen.has(value)) {
         return;
       }
@@ -1046,7 +1047,7 @@ function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord |
   }
 
   if (isPromiseRecord(recordOrPromiseRecord)) {
-    let content = recordOrPromiseRecord.content;
+    const content = recordOrPromiseRecord.content;
     assert(
       'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo relationship.',
       content !== undefined && content !== null

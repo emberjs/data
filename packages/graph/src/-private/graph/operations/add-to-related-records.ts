@@ -1,7 +1,7 @@
 import { assert } from '@ember/debug';
 
-import { DEBUG } from '@warp-drive/build-config/env';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 import { assertPolymorphicType } from '../../debug/assert-polymorphic-type';
 import type ManyRelationship from '../../relationships/state/has-many';

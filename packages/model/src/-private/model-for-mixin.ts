@@ -24,11 +24,11 @@ import Model from './model';
     in this case
   */
 export default function modelForMixin(store: Store, normalizedModelName: string): Model | null {
-  let owner: any = getOwner(store);
-  let MaybeMixin = owner.factoryFor(`mixin:${normalizedModelName}`);
-  let mixin = MaybeMixin && MaybeMixin.class;
+  const owner: any = getOwner(store);
+  const MaybeMixin = owner.factoryFor(`mixin:${normalizedModelName}`);
+  const mixin = MaybeMixin && MaybeMixin.class;
   if (mixin) {
-    let ModelForMixin = Model.extend(mixin);
+    const ModelForMixin = Model.extend(mixin);
     ModelForMixin.__isMixin = true;
     ModelForMixin.__mixin = mixin;
     //Cache the class as a model

@@ -5,10 +5,10 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
-import { DEPRECATE_NON_EXPLICIT_POLYMORPHISM } from '@warp-drive/build-config/deprecations';
 import Model, { attr, belongsTo } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+import { DEPRECATE_NON_EXPLICIT_POLYMORPHISM } from '@warp-drive/build-config/deprecations';
 
 module(
   'integration/relationships/polymorphic_mixins_belongs_to_test - Polymorphic belongsTo relationships with mixins',

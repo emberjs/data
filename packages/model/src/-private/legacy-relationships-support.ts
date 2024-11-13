@@ -2,8 +2,6 @@ import { assert, deprecate } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
 
-import { DEPRECATE_PROMISE_PROXIES } from '@warp-drive/build-config/deprecations';
-import { DEBUG } from '@warp-drive/build-config/env';
 import type { UpgradedMeta } from '@ember-data/graph/-private/graph/-edge-definition';
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
 import type { ImplicitRelationship } from '@ember-data/graph/-private/graph/index';
@@ -22,12 +20,14 @@ import {
 import type { NonSingletonCacheManager } from '@ember-data/store/-private/managers/cache-manager';
 import type { Cache } from '@ember-data/types/q/cache';
 import type { DSModel } from '@ember-data/types/q/ds-model';
-import { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
+import type { CollectionResourceRelationship, SingleResourceRelationship } from '@ember-data/types/q/ember-data-json-api';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { JsonApiRelationship } from '@ember-data/types/q/record-data-json-api';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import type { FindOptions } from '@ember-data/types/q/store';
 import type { Dict } from '@ember-data/types/q/utils';
+import { DEPRECATE_PROMISE_PROXIES } from '@warp-drive/build-config/deprecations';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 import RelatedCollection from './many-array';
 import type { BelongsToProxyCreateArgs, BelongsToProxyMeta } from './promise-belongs-to';
@@ -77,7 +77,7 @@ export class LegacySupport {
     const currentState = array[SOURCE];
     const identifier = this.identifier;
 
-    let [identifiers, jsonApi] = this._getCurrentState(identifier, array.key);
+    const [identifiers, jsonApi] = this._getCurrentState(identifier, array.key);
 
     if (jsonApi.meta) {
       array.meta = jsonApi.meta;
@@ -111,7 +111,7 @@ export class LegacySupport {
   }
 
   reloadBelongsTo(key: string, options?: FindOptions): Promise<RecordInstance | null> {
-    let loadingPromise = this._relationshipPromisesCache[key] as Promise<RecordInstance | null> | undefined;
+    const loadingPromise = this._relationshipPromisesCache[key] as Promise<RecordInstance | null> | undefined;
     if (loadingPromise) {
       return loadingPromise;
     }
@@ -120,10 +120,10 @@ export class LegacySupport {
     const relationship = graphFor(this.store).get(this.identifier, key);
     assert(`Expected ${key} to be a belongs-to relationship`, isBelongsTo(relationship));
 
-    let resource = this.cache.getRelationship(this.identifier, key) as SingleResourceRelationship;
+    const resource = this.cache.getRelationship(this.identifier, key) as SingleResourceRelationship;
     relationship.state.hasFailedLoadAttempt = false;
     relationship.state.shouldForceReload = true;
-    let promise = this._findBelongsTo(key, resource, relationship, options);
+    const promise = this._findBelongsTo(key, resource, relationship, options);
     if (this._relationshipProxyCache[key]) {
       return this._updatePromiseProxyFor('belongsTo', key, { promise });
     }
@@ -132,8 +132,8 @@ export class LegacySupport {
 
   getBelongsTo(key: string, options?: FindOptions): PromiseBelongsTo | RecordInstance | null {
     const { identifier, cache } = this;
-    let resource = cache.getRelationship(this.identifier, key) as SingleResourceRelationship;
-    let relatedIdentifier = resource && resource.data ? resource.data : null;
+    const resource = cache.getRelationship(this.identifier, key) as SingleResourceRelationship;
+    const relatedIdentifier = resource && resource.data ? resource.data : null;
     assert(`Expected a stable identifier`, !relatedIdentifier || isStableIdentifier(relatedIdentifier));
 
     const store = this.store;
@@ -141,8 +141,8 @@ export class LegacySupport {
     const relationship = graphFor(store).get(this.identifier, key);
     assert(`Expected ${key} to be a belongs-to relationship`, isBelongsTo(relationship));
 
-    let isAsync = relationship.definition.isAsync;
-    let _belongsToState: BelongsToProxyMeta = {
+    const isAsync = relationship.definition.isAsync;
+    const _belongsToState: BelongsToProxyMeta = {
       key,
       store,
       legacySupport: this,
@@ -154,12 +154,12 @@ export class LegacySupport {
         return this._relationshipProxyCache[key] as PromiseBelongsTo;
       }
 
-      let promise = this._findBelongsTo(key, resource, relationship, options);
+      const promise = this._findBelongsTo(key, resource, relationship, options);
       const isLoaded = relatedIdentifier && store._instanceCache.recordIsLoaded(relatedIdentifier);
 
       return this._updatePromiseProxyFor('belongsTo', key, {
         promise,
-        content: isLoaded ? store._instanceCache.getRecord(relatedIdentifier!) : null,
+        content: isLoaded ? store._instanceCache.getRecord(relatedIdentifier) : null,
         _belongsToState,
       });
     } else {
@@ -194,13 +194,13 @@ export class LegacySupport {
     identifier: StableRecordIdentifier,
     field: string
   ): [StableRecordIdentifier[], CollectionResourceRelationship] {
-    let jsonApi = (this.cache as NonSingletonCacheManager).getRelationship(
+    const jsonApi = (this.cache as NonSingletonCacheManager).getRelationship(
       identifier,
       field,
       true
     ) as CollectionResourceRelationship;
     const cache = this.store._instanceCache;
-    let identifiers: StableRecordIdentifier[] = [];
+    const identifiers: StableRecordIdentifier[] = [];
     if (jsonApi.data) {
       for (let i = 0; i < jsonApi.data.length; i++) {
         const identifier = jsonApi.data[i];
@@ -282,7 +282,7 @@ export class LegacySupport {
 
   reloadHasMany(key: string, options?: FindOptions) {
     if (HAS_JSON_API_PACKAGE) {
-      let loadingPromise = this._relationshipPromisesCache[key];
+      const loadingPromise = this._relationshipPromisesCache[key];
       if (loadingPromise) {
         return loadingPromise;
       }
@@ -293,8 +293,8 @@ export class LegacySupport {
 
       state.hasFailedLoadAttempt = false;
       state.shouldForceReload = true;
-      let manyArray = this.getManyArray(key, definition);
-      let promise = this.fetchAsyncHasMany(key, relationship, manyArray, options);
+      const manyArray = this.getManyArray(key, definition);
+      const promise = this.fetchAsyncHasMany(key, relationship, manyArray, options);
 
       if (this._relationshipProxyCache[key]) {
         return this._updatePromiseProxyFor('hasMany', key, { promise });
@@ -311,14 +311,14 @@ export class LegacySupport {
         .graphFor;
       const relationship = graphFor(this.store).get(this.identifier, key) as ManyRelationship;
       const { definition, state } = relationship;
-      let manyArray = this.getManyArray(key, definition);
+      const manyArray = this.getManyArray(key, definition);
 
       if (definition.isAsync) {
         if (state.hasFailedLoadAttempt) {
           return this._relationshipProxyCache[key] as PromiseManyArray;
         }
 
-        let promise = this.fetchAsyncHasMany(key, relationship, manyArray, options);
+        const promise = this.fetchAsyncHasMany(key, relationship, manyArray, options);
 
         return this._updatePromiseProxyFor('hasMany', key, { promise, content: manyArray });
       } else {
@@ -391,8 +391,8 @@ export class LegacySupport {
 
       if (DEBUG) {
         if (kind) {
-          let modelName = this.identifier.type;
-          let actualRelationshipKind = relationship.definition.kind;
+          const modelName = this.identifier.type;
+          const actualRelationshipKind = relationship.definition.kind;
           assert(
             `You tried to get the '${name}' relationship on a '${modelName}' via record.${kind}('${name}'), but the relationship is of kind '${actualRelationshipKind}'. Use record.${actualRelationshipKind}('${name}') instead.`,
             actualRelationshipKind === kind
@@ -400,7 +400,7 @@ export class LegacySupport {
         }
       }
 
-      let relationshipKind = relationship.definition.kind;
+      const relationshipKind = relationship.definition.kind;
 
       if (relationshipKind === 'belongsTo') {
         reference = new BelongsToReference(
@@ -512,13 +512,13 @@ export class LegacySupport {
     // in order to prevent infinite re-render if the request
     // fails.
     if (this._pending[key]) {
-      return this._pending[key]!;
+      return this._pending[key];
     }
 
     const identifier = resource.data ? resource.data : null;
     assert(`Expected a stable identifier`, !identifier || isStableIdentifier(identifier));
 
-    let { isStale, hasDematerializedInverse, hasReceivedData, isEmpty, shouldForceReload } = relationship.state;
+    const { isStale, hasDematerializedInverse, hasReceivedData, isEmpty, shouldForceReload } = relationship.state;
 
     const allInverseRecordsAreLoaded = areAllInverseRecordsLoaded(this.store, resource);
     const shouldFindViaLink =
@@ -667,7 +667,7 @@ function handleCompletedRelationshipRequest(
 
   if (error) {
     relationship.state.hasFailedLoadAttempt = true;
-    let proxy = recordExt._relationshipProxyCache[key];
+    const proxy = recordExt._relationshipProxyCache[key];
     // belongsTo relationships are sometimes unloaded
     // when a load fails, in this case we need
     // to make sure that we aren't proxying
@@ -710,7 +710,7 @@ function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord |
 
   if (DEPRECATE_PROMISE_PROXIES) {
     if (isPromiseRecord(recordOrPromiseRecord)) {
-      let content = recordOrPromiseRecord.content;
+      const content = recordOrPromiseRecord.content;
       assert(
         'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.',
         content !== undefined
@@ -740,10 +740,10 @@ function isPromiseRecord(record: PromiseProxyRecord | RecordInstance): record is
 }
 
 function anyUnloaded(store: Store, relationship: ManyRelationship) {
-  let state = relationship.localState;
+  const state = relationship.localState;
   const cache = store._instanceCache;
   const unloaded = state.find((s) => {
-    let isLoaded = cache.recordIsLoaded(s, true);
+    const isLoaded = cache.recordIsLoaded(s, true);
     return !isLoaded;
   });
 

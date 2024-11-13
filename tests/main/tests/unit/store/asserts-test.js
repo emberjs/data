@@ -11,7 +11,7 @@ import test from '@ember-data/unpublished-test-infra/test-support/test-in-debug'
 module('unit/store/asserts - DS.Store methods produce useful assertion messages', function (hooks) {
   setupTest(hooks);
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
     owner.register('model:foo', Model.extend());
   });
 
@@ -32,7 +32,7 @@ module('unit/store/asserts - DS.Store methods produce useful assertion messages'
   test('Calling Store methods with no modelName asserts', function (assert) {
     assert.expect(MODEL_NAME_METHODS.length);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     MODEL_NAME_METHODS.forEach((methodName) => {
       let assertion = `You need to pass a model name to the store's ${methodName} method`;

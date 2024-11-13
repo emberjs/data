@@ -31,14 +31,14 @@ module('integration/record-array - RecordArray', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
 
     owner.register('model:person', Person);
   });
 
   test('acts as a live query', async function (assert) {
     const store = this.owner.lookup('service:store');
-    let recordArray = store.peekAll('person');
+    const recordArray = store.peekAll('person');
 
     store.push({
       data: {
@@ -72,8 +72,8 @@ module('integration/record-array - RecordArray', function (hooks) {
   test('acts as a live query (normalized names)', async function (assert) {
     const store = this.owner.lookup('service:store');
 
-    let recordArray = store.peekAll('Person');
-    let otherRecordArray = store.peekAll('person');
+    const recordArray = store.peekAll('Person');
+    const otherRecordArray = store.peekAll('person');
 
     assert.strictEqual(recordArray, otherRecordArray, 'Person and person are the same record-array');
 
@@ -157,9 +157,9 @@ module('integration/record-array - RecordArray', function (hooks) {
       ],
     });
 
-    let scumbag = await store.findRecord('person', '1');
-    let tag = await store.findRecord('tag', '1');
-    let recordArray = tag.people;
+    const scumbag = await store.findRecord('person', '1');
+    const tag = await store.findRecord('tag', '1');
+    const recordArray = tag.people;
 
     recordArray.push(scumbag);
 
@@ -323,8 +323,8 @@ module('integration/record-array - RecordArray', function (hooks) {
       ],
     });
 
-    let scumbag = store.peekRecord('person', 1);
-    let tag = store.peekRecord('tag', 1);
+    const scumbag = store.peekRecord('person', 1);
+    const tag = store.peekRecord('tag', 1);
 
     scumbag.deleteRecord();
 
@@ -375,9 +375,9 @@ module('integration/record-array - RecordArray', function (hooks) {
       ],
     });
 
-    let scumbag = store.peekRecord('person', 1);
-    let tag = store.peekRecord('tag', 1);
-    let tool = store.peekRecord('tool', 1);
+    const scumbag = store.peekRecord('person', 1);
+    const tag = store.peekRecord('tag', 1);
+    const tool = store.peekRecord('tool', 1);
 
     assert.strictEqual(tag.people.length, 1, 'record is in the record array');
     assert.strictEqual(tool.person, scumbag, 'the tool belongs to the record');
@@ -392,8 +392,8 @@ module('integration/record-array - RecordArray', function (hooks) {
   test('a newly created record is removed from a record array when it is deleted', async function (assert) {
     const store = this.owner.lookup('service:store');
 
-    let recordArray = store.peekAll('person');
-    let scumbag = store.createRecord('person', {
+    const recordArray = store.peekAll('person');
+    const scumbag = store.createRecord('person', {
       name: 'Scumbag Dale',
     });
 
@@ -443,7 +443,7 @@ module('integration/record-array - RecordArray', function (hooks) {
       ],
     });
 
-    let recordArray = store.peekAll('person');
+    const recordArray = store.peekAll('person');
 
     assert.strictEqual(recordArray.at(20), undefined, 'objects outside of the range just return undefined');
   });
@@ -478,7 +478,7 @@ module('integration/record-array - RecordArray', function (hooks) {
       ],
     });
 
-    let recordArray = store.peekAll('person');
+    const recordArray = store.peekAll('person');
 
     assert.strictEqual(recordArray.at(2).id, '3', 'should retrieve correct record at index 2');
     assert.strictEqual(recordArray.at(1).id, '2', 'should retrieve correct record at index 1');
@@ -489,7 +489,7 @@ module('integration/record-array - RecordArray', function (hooks) {
     const store = this.owner.lookup('service:store');
 
     assert.expect(2);
-    let adapter = store.adapterFor('person');
+    const adapter = store.adapterFor('person');
 
     adapter.query = function (store, type, query, recordArray) {
       assert.false(recordArray.isLoaded, 'not loaded yet');
@@ -502,7 +502,7 @@ module('integration/record-array - RecordArray', function (hooks) {
       });
     };
 
-    let people = await store.query('person', { page: 1 });
+    const people = await store.query('person', { page: 1 });
 
     assert.true(people.isLoaded, 'The array is now loaded');
   });

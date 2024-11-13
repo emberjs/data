@@ -75,7 +75,7 @@ import { DEPRECATE_HELPERS } from '@warp-drive/build-config/deprecations';
 */
 function AdapterError(errors, message = 'Adapter operation failed') {
   this.isAdapterError = true;
-  let error = Error.call(this, message);
+  const error = Error.call(this, message);
 
   if (error) {
     this.stack = error.stack;
@@ -104,7 +104,7 @@ function extendFn(ErrorClass) {
 }
 
 function extend(ParentErrorClass, defaultMessage) {
-  let ErrorClass = function (errors, message) {
+  const ErrorClass = function (errors, message) {
     assert('`AdapterError` expects json-api formatted errors array.', Array.isArray(errors || []));
     ParentErrorClass.call(this, errors, message || defaultMessage);
   };
@@ -400,11 +400,11 @@ export function errorsHashToArray(errors) {
       until: '5.0',
       since: { available: '4.7', enabled: '4.7' },
     });
-    let out = [];
+    const out = [];
 
     if (errors) {
       Object.keys(errors).forEach((key) => {
-        let messages = makeArray(errors[key]);
+        const messages = makeArray(errors[key]);
         for (let i = 0; i < messages.length; i++) {
           let title = 'Invalid Attribute';
           let pointer = `/data/attributes/${key}`;
@@ -475,7 +475,7 @@ export function errorsArrayToHash(errors) {
       until: '5.0',
       since: { available: '4.7', enabled: '4.7' },
     });
-    let out = {};
+    const out = {};
 
     if (errors) {
       errors.forEach((error) => {

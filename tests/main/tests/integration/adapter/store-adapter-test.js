@@ -18,11 +18,11 @@ import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in
 function moveRecordOutOfInFlight(record) {
   // move record out of the inflight state so the tests can clean up
   // correctly
-  let { store } = record;
-  let identifier = recordIdentifierFor(record);
+  const { store } = record;
+  const identifier = recordIdentifierFor(record);
 
   // TODO this would be made nicer by a cancellation API
-  let pending = store.getRequestStateService().getPendingRequestsForRecord(identifier);
+  const pending = store.getRequestStateService().getPendingRequestsForRecord(identifier);
   pending.splice(0, pending.length);
 }
 
@@ -46,8 +46,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test('Records loaded multiple times and retrieved in recordArray are ready to send state events', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.query = function (store, type, query, recordArray) {
       return resolve({
@@ -83,9 +83,9 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test('by default, createRecords calls createRecord once per record', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
-    let Person = store.modelFor('person');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+    const Person = store.modelFor('person');
 
     let count = 1;
     adapter.shouldBackgroundReloadRecord = () => false;
@@ -100,8 +100,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         assert.ok(false, 'should not have invoked more than 2 times');
       }
 
-      let hash = snapshot.attributes();
-      let recordId = count;
+      const hash = snapshot.attributes();
+      const recordId = count;
       hash['updated-at'] = 'now';
 
       count++;
@@ -117,12 +117,12 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     let tom = store.createRecord('person', { name: 'Tom Dale' });
     let yehuda = store.createRecord('person', { name: 'Yehuda Katz' });
 
-    let promise = hash({
+    const promise = hash({
       tom: tom.save(),
       yehuda: yehuda.save(),
     });
 
-    let records = await promise;
+    const records = await promise;
     tom = records.tom;
     yehuda = records.yehuda;
 
@@ -141,9 +141,9 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test('by default, updateRecords calls updateRecord once per record', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
-    let Person = store.modelFor('person');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+    const Person = store.modelFor('person');
 
     let count = 0;
     adapter.shouldBackgroundReloadRecord = () => false;
@@ -184,25 +184,25 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       ],
     });
 
-    let promise = hash({
+    const promise = hash({
       tom: store.findRecord('person', '1'),
       yehuda: store.findRecord('person', '2'),
     });
 
-    let records1 = await promise;
-    let tom = records1.tom;
-    let yehuda = records1.yehuda;
+    const records1 = await promise;
+    const tom = records1.tom;
+    const yehuda = records1.yehuda;
 
     set(tom, 'name', 'Tom Dale');
     set(yehuda, 'name', 'Yehuda Katz');
 
-    let records2 = await hash({
+    const records2 = await hash({
       tom: tom.save(),
       yehuda: yehuda.save(),
     });
 
-    let tom2 = records2.tom;
-    let yehuda2 = records2.yehuda;
+    const tom2 = records2.tom;
+    const yehuda2 = records2.yehuda;
 
     assert.false(tom2.isSaving, 'record is no longer saving');
     assert.true(tom2.isLoaded, 'record is loaded');
@@ -212,9 +212,9 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test('additional new values can be returned on store save', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
-    let Person = store.modelFor('person');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+    const Person = store.modelFor('person');
 
     let count = 0;
     adapter.shouldBackgroundReloadRecord = () => false;
@@ -278,9 +278,9 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('by default, deleteRecord calls deleteRecord once per record', async function (assert) {
     assert.expect(4);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
-    let Person = store.modelFor('person');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+    const Person = store.modelFor('person');
 
     let count = 0;
     adapter.shouldBackgroundReloadRecord = () => false;
@@ -319,14 +319,14 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       ],
     });
 
-    let promise = hash({
+    const promise = hash({
       tom: store.findRecord('person', '1'),
       yehuda: store.findRecord('person', '2'),
     });
 
-    let records = await promise;
-    let tom = records.tom;
-    let yehuda = records.yehuda;
+    const records = await promise;
+    const tom = records.tom;
+    const yehuda = records.yehuda;
 
     tom.deleteRecord();
     yehuda.deleteRecord();
@@ -337,9 +337,9 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('by default, destroyRecord calls deleteRecord once per record without requiring .save', async function (assert) {
     assert.expect(4);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
-    let Person = store.modelFor('person');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+    const Person = store.modelFor('person');
 
     let count = 0;
 
@@ -379,14 +379,14 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       ],
     });
 
-    let promise = hash({
+    const promise = hash({
       tom: store.findRecord('person', '1'),
       yehuda: store.findRecord('person', '2'),
     });
 
-    let records = await promise;
-    let tom = records.tom;
-    let yehuda = records.yehuda;
+    const records = await promise;
+    const tom = records.tom;
+    const yehuda = records.yehuda;
 
     return EmberPromise.all([tom.destroyRecord(), yehuda.destroyRecord()]);
   });
@@ -394,8 +394,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('if an existing model is edited then deleted, deleteRecord is called on the adapter', async function (assert) {
     assert.expect(5);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     let count = 0;
     adapter.shouldBackgroundReloadRecord = () => false;
@@ -435,11 +435,11 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test('if a deleted record errors, it enters the error state', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     let count = 0;
-    let error = new AdapterError();
+    const error = new AdapterError();
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.deleteRecord = function (store, type, snapshot) {
@@ -478,9 +478,9 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test('if a created record is marked as invalid by the server, it enters an error state', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
-    let Person = store.modelFor('person');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+    const Person = store.modelFor('person');
 
     adapter.createRecord = function (store, type, snapshot) {
       assert.strictEqual(type, Person, 'the type is correct');
@@ -502,7 +502,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       }
     };
 
-    let yehuda = store.createRecord('person', { id: '1', name: 'Yehuda Katz' });
+    const yehuda = store.createRecord('person', { id: '1', name: 'Yehuda Katz' });
     // Wrap this in an Ember.run so that all chained async behavior is set up
     // before flushing any scheduled behavior.
 
@@ -523,7 +523,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
       assert.true(yehuda.isNew, 'precond - record is still new');
 
-      let person = await yehuda.save();
+      const person = await yehuda.save();
 
       assert.strictEqual(person, yehuda, 'The promise resolves with the saved record');
 
@@ -533,8 +533,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test('allows errors on arbitrary properties on create', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.createRecord = function (store, type, snapshot) {
       if (snapshot.attr('name').indexOf('Bro') === -1) {
@@ -554,12 +554,12 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       }
     };
 
-    let yehuda = store.createRecord('person', { id: '1', name: 'Yehuda Katz' });
+    const yehuda = store.createRecord('person', { id: '1', name: 'Yehuda Katz' });
 
     // Wrap this in an Ember.run so that all chained async behavior is set up
     // before flushing any scheduled behavior.
 
-    let person = await yehuda.save().catch(() => {
+    const person = await yehuda.save().catch(() => {
       assert.false(yehuda.isValid, 'the record is invalid');
       assert.ok(get(yehuda, 'errors.base'), 'The errors.base property exists');
       assert.deepEqual(get(yehuda, 'errors').errorsFor('base'), [
@@ -587,9 +587,9 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test('if a created record is marked as invalid by the server, you can attempt the save again', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
-    let Person = store.modelFor('person');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+    const Person = store.modelFor('person');
 
     let saveCount = 0;
     adapter.createRecord = function (store, type, snapshot) {
@@ -613,12 +613,12 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       }
     };
 
-    let yehuda = store.createRecord('person', { id: '1', name: 'Yehuda Katz' });
+    const yehuda = store.createRecord('person', { id: '1', name: 'Yehuda Katz' });
 
     // Wrap this in an Ember.run so that all chained async behavior is set up
     // before flushing any scheduled behavior.
 
-    let person = await yehuda
+    const person = await yehuda
       .save()
       .catch((reason) => {
         assert.strictEqual(saveCount, 1, 'The record has been saved once');
@@ -653,16 +653,16 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test('if a created record is marked as erred by the server, it enters an error state', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
-    let error = new AdapterError();
+    const error = new AdapterError();
 
     adapter.createRecord = function (store, type, snapshot) {
       return reject(error);
     };
 
-    let person = store.createRecord('person', { id: '1', name: 'John Doe' });
+    const person = store.createRecord('person', { id: '1', name: 'John Doe' });
 
     return person.save().catch(() => {
       assert.ok(person.isError, 'the record is in the error state');
@@ -671,9 +671,9 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test('if an updated record is marked as invalid by the server, it enters an error state', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
-    let Person = store.modelFor('person');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+    const Person = store.modelFor('person');
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.updateRecord = function (store, type, snapshot) {
@@ -696,7 +696,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       }
     };
 
-    let yehuda = store.push({
+    const yehuda = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -708,7 +708,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     store.peekRecord('person', '1');
 
-    let person = await store.findRecord('person', '1');
+    const person = await store.findRecord('person', '1');
     assert.strictEqual(person, yehuda, 'The same object is passed through');
 
     assert.true(yehuda.isValid, 'precond - the record is valid');
@@ -717,8 +717,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     assert.true(yehuda.hasDirtyAttributes, 'the record is dirty');
 
-    let reason = yehuda.save();
-    let response = await reason.catch(() => {
+    const reason = yehuda.save();
+    const response = await reason.catch(() => {
       assert.true(yehuda.hasDirtyAttributes, 'the record is still dirty');
       assert.false(yehuda.isValid, 'the record is invalid');
 
@@ -736,8 +736,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test('records can have errors on arbitrary properties after update', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.updateRecord = function (store, type, snapshot) {
@@ -758,7 +758,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       }
     };
 
-    let yehuda = store.push({
+    const yehuda = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -769,7 +769,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     });
     store.peekRecord('person', '1');
 
-    let person = await store.findRecord('person', '1');
+    const person = await store.findRecord('person', '1');
 
     assert.strictEqual(person, yehuda, 'The same object is passed through');
 
@@ -779,8 +779,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     assert.true(yehuda.hasDirtyAttributes, 'the record is dirty');
 
-    let reason = yehuda.save();
-    let response = await reason.catch(() => {
+    const reason = yehuda.save();
+    const response = await reason.catch(() => {
       assert.true(yehuda.hasDirtyAttributes, 'the record is still dirty');
       assert.false(yehuda.isValid, 'the record is invalid');
       assert.ok(get(yehuda, 'errors.base'), 'The errors.base property exists');
@@ -807,9 +807,9 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test('if an updated record is marked as invalid by the server, you can attempt the save again', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
-    let Person = store.modelFor('person');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+    const Person = store.modelFor('person');
 
     let saveCount = 0;
     adapter.shouldBackgroundReloadRecord = () => false;
@@ -833,7 +833,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       }
     };
 
-    let yehuda = store.push({
+    const yehuda = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -844,7 +844,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     });
     store.peekRecord('person', '1');
 
-    let person = await store.findRecord('person', '1');
+    const person = await store.findRecord('person', '1');
     assert.strictEqual(person, yehuda, 'The same object is passed through');
 
     assert.true(yehuda.isValid, 'precond - the record is valid');
@@ -853,8 +853,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     assert.true(yehuda.hasDirtyAttributes, 'the record is dirty');
 
-    let reason = yehuda.save();
-    let response = await reason
+    const reason = yehuda.save();
+    const response = await reason
       .catch((reason) => {
         assert.strictEqual(saveCount, 1, 'The record has been saved once');
         assert.ok(
@@ -884,17 +884,17 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test('if a updated record is marked as erred by the server, it enters an error state', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
-    let error = new AdapterError();
+    const error = new AdapterError();
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.updateRecord = function (store, type, snapshot) {
       return reject(error);
     };
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -905,11 +905,11 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     });
     store.peekRecord('person', '1');
 
-    let record = await store.findRecord('person', '1');
+    const record = await store.findRecord('person', '1');
 
     assert.strictEqual(record, person, 'The person was resolved');
     person.set('name', 'Jonathan Doe');
-    let reason = person.save();
+    const reason = person.save();
     reason.catch(() => {
       assert.ok(person.isError, 'the record is in the error state');
       assert.strictEqual(person.adapterError, error, 'error object is exposed');
@@ -919,9 +919,9 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('can be created after the Store', async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
-    let Person = store.modelFor('person');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+    const Person = store.modelFor('person');
 
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.strictEqual(type, Person, 'the type is correct');
@@ -932,8 +932,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test('relationships returned via `commit` do not trigger additional findManys', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     class Person extends Model {
       @hasMany('dog', { async: false, inverse: null }) dogs;
@@ -1014,8 +1014,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   });
 
   test("relationships don't get reset if the links is the same", async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     class Person extends Model {
       @hasMany('dog', { async: true, inverse: null }) dogs;
@@ -1049,11 +1049,11 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       },
     });
 
-    let person = await store.findRecord('person', '1');
+    const person = await store.findRecord('person', '1');
 
-    let tom = person;
-    let dogs = tom.dogs;
-    let record = await dogs;
+    const tom = person;
+    const dogs = tom.dogs;
+    const record = await dogs;
 
     assert.strictEqual(record.length, 1, 'The dogs are loaded');
     store.push({
@@ -1073,14 +1073,14 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       },
     });
     assert.strictEqual(typeof tom.dogs.then, 'function', 'dogs is a thenable');
-    let record2 = await tom.dogs;
+    const record2 = await tom.dogs;
 
     assert.strictEqual(record2.length, 1, 'The same dogs are loaded');
   });
 
   test('async hasMany always returns a promise', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
     class Person extends Model {
       @hasMany('dog', { async: true, inverse: null }) dogs;
     }
@@ -1102,7 +1102,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       });
     };
 
-    let tom = store.createRecord('person', { name: 'Tom Dale' });
+    const tom = store.createRecord('person', { name: 'Tom Dale' });
 
     assert.strictEqual(typeof tom.dogs.then, 'function', 'dogs is a thenable before save');
 
@@ -1113,15 +1113,15 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('createRecord receives a snapshot', async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.createRecord = function (store, type, snapshot) {
       assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
       return resolve();
     };
 
-    let record = store.createRecord('person', { name: 'Tom Dale', id: '1' });
+    const record = store.createRecord('person', { name: 'Tom Dale', id: '1' });
 
     await record.save();
   });
@@ -1129,8 +1129,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('updateRecord receives a snapshot', async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.updateRecord = function (store, type, snapshot) {
       assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
@@ -1157,8 +1157,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('deleteRecord receives a snapshot', async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.deleteRecord = function (store, type, snapshot) {
       assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
@@ -1185,8 +1185,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('findRecord receives a snapshot', async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
@@ -1199,8 +1199,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('findMany receives an array of snapshots', async function (assert) {
     assert.expect(2);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
     class Person extends Model {
       @hasMany('dog', { async: true, inverse: null }) dogs;
     }
@@ -1243,8 +1243,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('findHasMany receives a snapshot', async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
     class Person extends Model {
       @hasMany('dog', { async: true, inverse: null }) dogs;
     }
@@ -1284,8 +1284,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('findBelongsTo receives a snapshot', async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     class Person extends Model {
       @belongsTo('dog', { async: true, inverse: null }) dog;
@@ -1321,8 +1321,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('record.save should pass adapterOptions to the updateRecord method', async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.updateRecord = function (store, type, snapshot) {
       assert.deepEqual(snapshot.adapterOptions, { subscribe: true });
@@ -1338,15 +1338,15 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         },
       },
     });
-    let person = store.peekRecord('person', '1');
+    const person = store.peekRecord('person', '1');
     await person.save({ adapterOptions: { subscribe: true } });
   });
 
   test('record.save should pass adapterOptions to the createRecord method', async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.createRecord = function (store, type, snapshot) {
       assert.deepEqual(snapshot.adapterOptions, { subscribe: true });
@@ -1359,8 +1359,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('record.save should pass adapterOptions to the deleteRecord method', async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.deleteRecord = function (store, type, snapshot) {
       assert.deepEqual(snapshot.adapterOptions, { subscribe: true });
@@ -1376,15 +1376,15 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         },
       },
     });
-    let person = store.peekRecord('person', '1');
+    const person = store.peekRecord('person', '1');
     await person.destroyRecord({ adapterOptions: { subscribe: true } });
   });
 
   test('store.findRecord should pass adapterOptions to adapter.findRecord', async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.deepEqual(snapshot.adapterOptions, { query: { embed: true } });
@@ -1397,8 +1397,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('store.query should pass adapterOptions to adapter.query ', async function (assert) {
     assert.expect(2);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.query = function (store, type, query, array, options) {
       assert.notOk('adapterOptions' in query);
@@ -1412,8 +1412,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('store.queryRecord should pass adapterOptions to adapter.queryRecord', async function (assert) {
     assert.expect(2);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.queryRecord = function (store, type, query, snapshot) {
       assert.notOk('adapterOptions' in query);
@@ -1427,8 +1427,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test("store.findRecord should pass 'include' to adapter.findRecord", async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = (store, type, id, snapshot) => {
       assert.strictEqual(snapshot.include, 'books', 'include passed to adapter.findRecord');
@@ -1441,11 +1441,11 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test('store.findAll should pass adapterOptions to the adapter.findAll method', async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findAll = function (store, type, sinceToken, arraySnapshot) {
-      let adapterOptions = arraySnapshot.adapterOptions;
+      const adapterOptions = arraySnapshot.adapterOptions;
       assert.deepEqual(adapterOptions, { query: { embed: true } });
       return resolve({ data: [{ id: '1', type: 'person' }] });
     };
@@ -1456,8 +1456,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   test("store.findAll should pass 'include' to adapter.findAll", async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findAll = function (store, type, sinceToken, arraySnapshot) {
       assert.strictEqual(arraySnapshot.include, 'books', 'include passed to adapter.findAll');
@@ -1506,11 +1506,11 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', RESTSerializer.extend());
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let post = await store.findRecord('post', '1');
+    const post = await store.findRecord('post', '1');
 
-    let comments = await post.comments;
+    const comments = await post.comments;
 
     assert.strictEqual(comments.length, 3);
   });
@@ -1518,12 +1518,12 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   testInDebug(
     'There should be a friendly error for if the adapter does not implement createRecord',
     async function (assert) {
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
 
       adapter.createRecord = null;
 
-      let tom = store.createRecord('person', { name: 'Tom Dale' });
+      const tom = store.createRecord('person', { name: 'Tom Dale' });
 
       await assert.expectAssertion(async () => {
         await tom.save();
@@ -1536,12 +1536,12 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   testInDebug(
     'There should be a friendly error for if the adapter does not implement updateRecord',
     async function (assert) {
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
 
       adapter.updateRecord = null;
 
-      let tom = store.push({ data: { type: 'person', id: '1' } });
+      const tom = store.push({ data: { type: 'person', id: '1' } });
 
       await assert.expectAssertion(async () => {
         await tom.save();
@@ -1554,12 +1554,12 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
   testInDebug(
     'There should be a friendly error for if the adapter does not implement deleteRecord',
     async function (assert) {
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
 
       adapter.deleteRecord = null;
 
-      let tom = store.push({ data: { type: 'person', id: '1' } });
+      const tom = store.push({ data: { type: 'person', id: '1' } });
 
       await assert.expectAssertion(async () => {
         tom.deleteRecord();

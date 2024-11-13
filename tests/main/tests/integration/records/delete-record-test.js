@@ -10,11 +10,11 @@ import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import { InvalidError } from '@ember-data/adapter/error';
-import { DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
-import { DEBUG } from '@warp-drive/build-config/env';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordIdentifierFor } from '@ember-data/store';
+import { DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 module('integration/deletedRecord - Deleting Records', function (hooks) {
   setupTest(hooks);
@@ -54,8 +54,8 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
   });
 
   test('records should not be removed from record arrays just after deleting, but only after committing them', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.deleteRecord = function () {
       return EmberPromise.resolve();
@@ -79,8 +79,8 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
         },
       ],
     });
-    let adam = store.peekRecord('person', 1);
-    let all = store.peekAll('person');
+    const adam = store.peekRecord('person', 1);
+    const all = store.peekAll('person');
 
     // pre-condition
     assert.strictEqual(all.length, 2, 'pre-condition: 2 records in array');
@@ -104,8 +104,8 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
 
     this.owner.register('model:group', Group);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.deleteRecord = function () {
       return EmberPromise.resolve();
@@ -142,8 +142,8 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
       ],
     });
 
-    let group = store.peekRecord('group', '1');
-    let person = store.peekRecord('person', '1');
+    const group = store.peekRecord('group', '1');
+    const person = store.peekRecord('person', '1');
 
     // Sanity Check we are in the correct state.
     assert.strictEqual(group.people.length, 2, 'expected 2 related records before delete');
@@ -155,8 +155,8 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
   });
 
   test('records can be deleted during record array enumeration', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.deleteRecord = function () {
       return EmberPromise.resolve();
@@ -199,8 +199,8 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
   });
 
   test('Deleting an invalid newly created record should remove it from the store', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.createRecord = function () {
       return EmberPromise.reject(
@@ -216,7 +216,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
       );
     };
 
-    let record = store.createRecord('person', { name: 'pablobm' });
+    const record = store.createRecord('person', { name: 'pablobm' });
     // Invalidate the record to put it in the `root.loaded.created.invalid` state
     await record.save().catch(() => {});
 
@@ -228,7 +228,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     );
     assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
-    let identifier = recordIdentifierFor(record);
+    const identifier = recordIdentifierFor(record);
     const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(identifier) : store.cache;
 
     record.deleteRecord();
@@ -238,8 +238,8 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
   });
 
   test('Destroying an invalid newly created record should remove it from the store', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.deleteRecord = function () {
       assert.fail("The adapter's deletedRecord method should not be called when the record was created locally.");
@@ -259,7 +259,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
       );
     };
 
-    let record = store.createRecord('person', { name: 'pablobm' });
+    const record = store.createRecord('person', { name: 'pablobm' });
     // Invalidate the record to put it in the `root.loaded.created.invalid` state
     await record.save().catch(() => {});
 
@@ -271,7 +271,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     );
     assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
-    let identifier = recordIdentifierFor(record);
+    const identifier = recordIdentifierFor(record);
     const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(identifier) : store.cache;
 
     await record.destroyRecord();
@@ -281,8 +281,8 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
   });
 
   test('Will resolve destroy and save in same loop', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     let adam, dave;
     let promises;
@@ -308,8 +308,8 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
   });
 
   test('Calling save on a newly created then deleted record should not error', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.createRecord = function () {
       assert.fail('We should not call adapter.createRecord on save');
@@ -321,11 +321,11 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
       assert.fail('We should not call adapter.deleteRecord on save');
     };
 
-    let record = store.createRecord('person', { name: 'pablobm' });
+    const record = store.createRecord('person', { name: 'pablobm' });
 
     assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
-    let identifier = recordIdentifierFor(record);
+    const identifier = recordIdentifierFor(record);
     const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(identifier) : store.cache;
 
     record.deleteRecord();
@@ -342,8 +342,8 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
   });
 
   test('Calling unloadRecord on a newly created then deleted record should not error', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.createRecord = function () {
       assert.fail('We should not call adapter.createRecord on save');
@@ -355,11 +355,11 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
       assert.fail('We should not call adapter.deleteRecord on save');
     };
 
-    let record = store.createRecord('person', { name: 'pablobm' });
+    const record = store.createRecord('person', { name: 'pablobm' });
 
     assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
-    let identifier = recordIdentifierFor(record);
+    const identifier = recordIdentifierFor(record);
     const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(identifier) : store.cache;
 
     record.deleteRecord();
@@ -403,8 +403,8 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     this.owner.register('model:group', Group);
     this.owner.register('model:employee', Employee);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.deleteRecord = function () {
       return EmberPromise.resolve();

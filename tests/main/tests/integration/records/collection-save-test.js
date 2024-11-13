@@ -23,15 +23,15 @@ module('integration/records/collection_save - Save Collection of Records', funct
   test('Collection will resolve save on success', async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     let id = 1;
 
     store.createRecord('post', { title: 'Hello' });
     store.createRecord('post', { title: 'World' });
 
-    let posts = store.peekAll('post');
+    const posts = store.peekAll('post');
 
     adapter.createRecord = function (store, type, snapshot) {
       return resolve({ data: { id: id++, type: 'post' } });
@@ -43,13 +43,13 @@ module('integration/records/collection_save - Save Collection of Records', funct
   });
 
   test('Collection will reject save on error', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     store.createRecord('post', { title: 'Hello' });
     store.createRecord('post', { title: 'World' });
 
-    let posts = store.peekAll('post');
+    const posts = store.peekAll('post');
 
     adapter.createRecord = function (store, type, snapshot) {
       return reject();
@@ -64,13 +64,13 @@ module('integration/records/collection_save - Save Collection of Records', funct
   });
 
   test('Retry is allowed in a failure handler', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     store.createRecord('post', { title: 'Hello' });
     store.createRecord('post', { title: 'World' });
 
-    let posts = store.peekAll('post');
+    const posts = store.peekAll('post');
 
     let count = 0;
     let id = 1;
@@ -100,13 +100,13 @@ module('integration/records/collection_save - Save Collection of Records', funct
   test('Collection will reject save on invalid', async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     store.createRecord('post', { title: 'Hello' });
     store.createRecord('post', { title: 'World' });
 
-    let posts = store.peekAll('post');
+    const posts = store.peekAll('post');
 
     adapter.createRecord = function (store, type, snapshot) {
       return reject({ title: 'invalid' });

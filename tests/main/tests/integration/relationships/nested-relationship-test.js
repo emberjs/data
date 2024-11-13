@@ -36,8 +36,8 @@ module('integration/relationships/nested_relationships_test - Nested relationshi
   */
 
   test('Sideloaded nested relationships load correctly', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => {
       return false;
@@ -123,18 +123,18 @@ module('integration/relationships/nested_relationships_test - Nested relationshi
       ],
     });
 
-    let kid = store.peekRecord('kid', '1');
+    const kid = store.peekRecord('kid', '1');
     const middleAger = await kid.middleAger;
     assert.ok(middleAger, 'MiddleAger relationship was set up correctly');
 
-    let middleAgerName = middleAger.name;
-    let kids = await middleAger.kids;
+    const middleAgerName = middleAger.name;
+    const kids = await middleAger.kids;
     assert.strictEqual(middleAgerName, 'Middle Ager 1', 'MiddleAger name is there');
     assert.ok(kids.includes(kid));
 
     const elder = await middleAger.elder;
     assert.notEqual(elder, null, 'Elder relationship was set up correctly');
-    let elderName = elder.name;
+    const elderName = elder.name;
     assert.strictEqual(elderName, 'Elder 1', 'Elder name is there');
   });
 });
