@@ -30,22 +30,10 @@
     "typesPublish": true
   },
   "rules": {
-    "@ember-data/codemods": {
-      "stage": "stable",
-      "types": "private",
-      "typesPublish": false,
-      "mirrorPublish": false
-    },
     "@ember-data/debug": {
       "stage": "stable",
       "types": "private",
       "typesPublish": false
-    },
-    "warp-drive": {
-      "stage": "alpha",
-      "types": "private",
-      "typesPublish": false,
-      "mirrorPublish": false
     },
     "@warp-drive/build-config": {
       "stage": "alpha",
@@ -53,51 +41,9 @@
       "typesPublish": false,
       "mirrorPublish": true
     },
-    "@warp-drive/holodeck": {
-      "stage": "alpha",
-      "types": "private",
-      "typesPublish": false,
-      "mirrorPublish": false
-    },
-    "@warp-drive/diagnostic": {
-      "stage": "alpha",
-      "types": "private",
-      "typesPublish": false,
-      "mirrorPublish": false
-    },
-    "eslint-plugin-ember-data": {
-      "stage": "alpha",
-      "types": "private",
-      "typesPublish": false,
-      "mirrorPublish": false
-    },
-    "eslint-plugin-warp-drive": {
-      "stage": "alpha",
-      "types": "private",
-      "typesPublish": false,
-      "mirrorPublish": false
-    },
     "@warp-drive/core-types": {
       "stage": "alpha",
       "types": "alpha"
-    },
-    "@warp-drive/ember": {
-      "stage": "alpha",
-      "types": "alpha",
-      "typesPublish": false,
-      "mirrorPublish": false
-    },
-    "@warp-drive/schema": {
-      "stage": "alpha",
-      "types": "private",
-      "typesPublish": false,
-      "mirrorPublish": false
-    },
-    "@warp-drive/schema-record": {
-      "stage": "alpha",
-      "types": "alpha",
-      "typesPublish": false,
-      "mirrorPublish": true
     }
   }
 }

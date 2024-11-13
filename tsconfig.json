@@ -12,7 +12,6 @@
     { "path": "./packages/core-types" },
     { "path": "./packages/debug" },
     { "path": "./packages/diagnostic" },
-    // { "path": "./packages/ember" },
     { "path": "./packages/graph" },
     { "path": "./packages/holodeck" },
     { "path": "./packages/json-api" },
@@ -21,11 +20,9 @@
     { "path": "./packages/request" },
     { "path": "./packages/request-utils" },
     { "path": "./packages/rest" },
-    { "path": "./packages/schema-record" },
     { "path": "./packages/serializer" },
     { "path": "./packages/store" },
     { "path": "./packages/tracking" },
-    { "path": "./packages/unpublished-test-infra" },
-    { "path": "./packages/experiments" }
+    { "path": "./packages/unpublished-test-infra" }
   ]
 }
