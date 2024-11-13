@@ -6,8 +6,8 @@ import {
   DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC,
   DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE,
   DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE,
-} from '@ember-data/deprecations';
-import { DEBUG } from '@ember-data/env';
+} from '@warp-drive/build-config/deprecations';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 import { lookupLegacySupport } from './model';
 import { computedMacroWithOptionalParams } from './util';

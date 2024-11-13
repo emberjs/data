@@ -7,7 +7,7 @@ import { module } from 'qunit';
 
 import { setupRenderingTest } from 'ember-qunit';
 
-import { DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS } from '@ember-data/deprecations';
+import { DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS } from '@warp-drive/build-config/deprecations';
 import Model, { attr, hasMany } from '@ember-data/model';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 

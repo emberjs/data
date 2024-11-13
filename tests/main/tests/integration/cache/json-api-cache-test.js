@@ -4,7 +4,7 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/deprecations';
+import { DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
 import Model, { attr } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
 

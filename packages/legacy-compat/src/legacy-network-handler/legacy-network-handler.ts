@@ -2,9 +2,9 @@ import { assert } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
 
-import { LOG_PAYLOADS } from '@ember-data/debugging';
-import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/deprecations';
-import { DEBUG, TESTING } from '@ember-data/env';
+import { LOG_PAYLOADS } from '@warp-drive/build-config/debugging';
+import { DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
+import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 import type { Handler, ImmutableRequestInfo, NextFn } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';
 import type { StoreRequestContext } from '@ember-data/store/-private/cache-handler';

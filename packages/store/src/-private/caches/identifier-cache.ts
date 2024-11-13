@@ -5,8 +5,8 @@ import { assert, warn } from '@ember/debug';
 
 import { getOwnConfig, macroCondition } from '@embroider/macros';
 
-import { LOG_IDENTIFIERS } from '@ember-data/debugging';
-import { DEBUG } from '@ember-data/env';
+import { LOG_IDENTIFIERS } from '@warp-drive/build-config/debugging';
+import { DEBUG } from '@warp-drive/build-config/env';
 import { ImmutableRequestInfo } from '@ember-data/request/-private/types';
 import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { ExistingResourceObject, ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';

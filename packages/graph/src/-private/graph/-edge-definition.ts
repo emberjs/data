@@ -1,7 +1,7 @@
 import { assert } from '@ember/debug';
 
-import { DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE } from '@ember-data/deprecations';
-import { DEBUG } from '@ember-data/env';
+import { DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE } from '@warp-drive/build-config/deprecations';
+import { DEBUG } from '@warp-drive/build-config/env';
 import type { RelationshipDefinition } from '@ember-data/model/-private/relationship-meta';
 import type Store from '@ember-data/store';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';

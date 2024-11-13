@@ -9,8 +9,8 @@ import {
   DEPRECATE_A_USAGE,
   DEPRECATE_COMPUTED_CHAINS,
   DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS,
-} from '@ember-data/deprecations';
-import { DEBUG } from '@ember-data/env';
+} from '@warp-drive/build-config/deprecations';
+import { DEBUG } from '@warp-drive/build-config/env';
 import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 import type { RecordInstance } from '@ember-data/types/q/record-instance';
 import { FindOptions } from '@ember-data/types/q/store';

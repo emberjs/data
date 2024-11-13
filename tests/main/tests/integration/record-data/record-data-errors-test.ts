@@ -7,7 +7,7 @@ import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
 import { InvalidError } from '@ember-data/adapter/error';
-import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/deprecations';
+import { DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
 import Model, { attr } from '@ember-data/model';
 import type { StructuredDataDocument } from '@ember-data/request/-private/types';

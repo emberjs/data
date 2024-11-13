@@ -5,7 +5,7 @@ import { assert, deprecate } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
 
-import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS, DEPRECATE_V1_RECORD_DATA } from '@ember-data/deprecations';
+import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS, DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
 import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
 import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
 import { HAS_JSON_API_PACKAGE } from '@ember-data/packages';

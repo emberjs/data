@@ -4,8 +4,8 @@
 import { assert } from '@ember/debug';
 import { _backburner } from '@ember/runloop';
 
-import { LOG_NOTIFICATIONS } from '@ember-data/debugging';
-import { DEBUG } from '@ember-data/env';
+import { LOG_NOTIFICATIONS } from '@warp-drive/build-config/debugging';
+import { DEBUG } from '@warp-drive/build-config/env';
 import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
 

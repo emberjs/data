@@ -8,15 +8,15 @@ import { _backburner as emberBackburner } from '@ember/runloop';
 
 import { importSync } from '@embroider/macros';
 
-import { LOG_PAYLOADS, LOG_REQUESTS } from '@ember-data/debugging';
+import { LOG_PAYLOADS, LOG_REQUESTS } from '@warp-drive/build-config/debugging';
 import {
   DEPRECATE_HAS_RECORD,
   DEPRECATE_JSON_API_FALLBACK,
   DEPRECATE_PROMISE_PROXIES,
   DEPRECATE_STORE_FIND,
   DEPRECATE_V1_RECORD_DATA,
-} from '@ember-data/deprecations';
-import { DEBUG, TESTING } from '@ember-data/env';
+} from '@warp-drive/build-config/deprecations';
+import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 import type CacheClass from '@ember-data/json-api';
 import type FetchManager from '@ember-data/legacy-compat/legacy-network-handler/fetch-manager';
 import type Model from '@ember-data/model';

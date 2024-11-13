@@ -1,6 +1,6 @@
 import { assert } from '@ember/debug';
 
-import { DEBUG } from '@ember-data/env';
+import { DEBUG } from '@warp-drive/build-config/env';
 import type Store from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/types/q/ds-model';
 import type { JsonApiDocument } from '@ember-data/types/q/ember-data-json-api';

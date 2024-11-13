@@ -4,7 +4,7 @@
 
 import { assert, deprecate } from '@ember/debug';
 
-import { DEPRECATE_HELPERS } from '@ember-data/deprecations';
+import { DEPRECATE_HELPERS } from '@warp-drive/build-config/deprecations';
 
 import _normalize from './utils/normalize-model-name';
 

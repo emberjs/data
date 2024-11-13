@@ -1,6 +1,6 @@
 import { cacheFor } from '@ember/object/internals';
 
-import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/deprecations';
+import { DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
 import type Store from '@ember-data/store';
 import { peekCache } from '@ember-data/store/-private';
 import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';

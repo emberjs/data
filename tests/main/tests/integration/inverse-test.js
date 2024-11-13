@@ -2,7 +2,7 @@ import { module } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import { DEBUG } from '@ember-data/env';
+import { DEBUG } from '@warp-drive/build-config/env';
 import Model, { attr, belongsTo } from '@ember-data/model';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 

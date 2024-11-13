@@ -2,8 +2,8 @@ import { assert, deprecate } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
 
-import { DEPRECATE_PROMISE_PROXIES } from '@ember-data/deprecations';
-import { DEBUG } from '@ember-data/env';
+import { DEPRECATE_PROMISE_PROXIES } from '@warp-drive/build-config/deprecations';
+import { DEBUG } from '@warp-drive/build-config/env';
 import type { UpgradedMeta } from '@ember-data/graph/-private/graph/-edge-definition';
 import type { LocalRelationshipOperation } from '@ember-data/graph/-private/graph/-operations';
 import type { ImplicitRelationship } from '@ember-data/graph/-private/graph/index';

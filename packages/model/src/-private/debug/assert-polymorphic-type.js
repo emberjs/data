@@ -1,7 +1,7 @@
 import { assert } from '@ember/debug';
-import { DEBUG } from '@ember-data/env';
+import { DEBUG } from '@warp-drive/build-config/env';
 
-import { DEPRECATE_NON_EXPLICIT_POLYMORPHISM } from '@ember-data/deprecations';
+import { DEPRECATE_NON_EXPLICIT_POLYMORPHISM } from '@warp-drive/build-config/deprecations';
 
 /*
   Assert that `addedRecord` has a valid type so it can be added to the

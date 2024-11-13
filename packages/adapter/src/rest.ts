@@ -6,7 +6,7 @@ import { assert, warn } from '@ember/debug';
 import { computed } from '@ember/object';
 import { join } from '@ember/runloop';
 
-import { DEBUG } from '@ember-data/env';
+import { DEBUG } from '@warp-drive/build-config/env';
 import type { Snapshot, SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
 import type Store from '@ember-data/store';
 import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';

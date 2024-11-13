@@ -1,6 +1,6 @@
 import { assert, deprecate } from '@ember/debug';
 
-import { DEPRECATE_V1_RECORD_DATA, DEPRECATE_V1CACHE_STORE_APIS } from '@ember-data/deprecations';
+import { DEPRECATE_V1_RECORD_DATA, DEPRECATE_V1CACHE_STORE_APIS } from '@warp-drive/build-config/deprecations';
 import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
 import type { Cache } from '@ember-data/types/q/cache';
 import type {

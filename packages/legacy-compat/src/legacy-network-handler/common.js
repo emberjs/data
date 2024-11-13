@@ -1,6 +1,6 @@
 import { deprecate } from '@ember/debug';
 
-import { DEPRECATE_RSVP_PROMISE } from '@ember-data/deprecations';
+import { DEPRECATE_RSVP_PROMISE } from '@warp-drive/build-config/deprecations';
 
 export function _bind(fn, ...args) {
   return function () {

@@ -14,7 +14,7 @@ import { setupRenderingTest } from 'ember-qunit';
 
 import { ServerError } from '@ember-data/adapter/error';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import { DEPRECATE_ARRAY_LIKE } from '@ember-data/deprecations';
+import { DEPRECATE_ARRAY_LIKE } from '@warp-drive/build-config/deprecations';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { LEGACY_SUPPORT } from '@ember-data/model/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';

@@ -2,8 +2,8 @@ import { assert, deprecate, warn } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
 
-import { DEPRECATE_RSVP_PROMISE, DEPRECATE_V1_RECORD_DATA } from '@ember-data/deprecations';
-import { DEBUG, TESTING } from '@ember-data/env';
+import { DEPRECATE_RSVP_PROMISE, DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
+import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 import { HAS_GRAPH_PACKAGE } from '@ember-data/packages';
 import { createDeferred } from '@ember-data/request';
 import type { Deferred, ImmutableRequestInfo } from '@ember-data/request/-private/types';

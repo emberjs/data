@@ -1,6 +1,6 @@
 import { warn } from '@ember/debug';
 
-import { DEBUG } from '@ember-data/env';
+import { DEBUG } from '@warp-drive/build-config/env';
 import type { Dict } from '@ember-data/types/q/utils';
 
 import type { RequestData } from '../../rest';

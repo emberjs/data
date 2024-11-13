@@ -2,13 +2,13 @@ import { assert, deprecate, warn } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
 
-import { LOG_INSTANCE_CACHE } from '@ember-data/debugging';
+import { LOG_INSTANCE_CACHE } from '@warp-drive/build-config/debugging';
 import {
   DEPRECATE_INSTANTIATE_RECORD_ARGS,
   DEPRECATE_V1_RECORD_DATA,
   DEPRECATE_V1CACHE_STORE_APIS,
-} from '@ember-data/deprecations';
-import { DEBUG } from '@ember-data/env';
+} from '@warp-drive/build-config/deprecations';
+import { DEBUG } from '@warp-drive/build-config/env';
 import type { Graph } from '@ember-data/graph/-private/graph/graph';
 import type { peekGraph } from '@ember-data/graph/-private/graph/index';
 import { HAS_GRAPH_PACKAGE, HAS_JSON_API_PACKAGE } from '@ember-data/packages';

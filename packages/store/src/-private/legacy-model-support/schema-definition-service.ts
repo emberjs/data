@@ -3,7 +3,7 @@ import { deprecate } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
 
-import { DEPRECATE_STRING_ARG_SCHEMAS } from '@ember-data/deprecations';
+import { DEPRECATE_STRING_ARG_SCHEMAS } from '@warp-drive/build-config/deprecations';
 import type Model from '@ember-data/model';
 import type { ModelFactory } from '@ember-data/model/-private/model';
 import { HAS_MODEL_PACKAGE } from '@ember-data/packages';

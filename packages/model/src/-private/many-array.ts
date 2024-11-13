@@ -3,7 +3,7 @@
 */
 import { assert, deprecate } from '@ember/debug';
 
-import { DEPRECATE_MANY_ARRAY_DUPLICATES_4_12, DEPRECATE_PROMISE_PROXIES } from '@ember-data/deprecations';
+import { DEPRECATE_MANY_ARRAY_DUPLICATES_4_12, DEPRECATE_PROMISE_PROXIES } from '@warp-drive/build-config/deprecations';
 import type Store from '@ember-data/store';
 import {
   IDENTIFIER_ARRAY_TAG,

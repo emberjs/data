@@ -1,7 +1,7 @@
 import { deprecate } from '@ember/debug';
 import { get } from '@ember/object';
 
-import { DEBUG } from '@ember-data/env';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 import { PromiseObject } from './promise-proxy-base';
 

@@ -6,8 +6,8 @@ import type { Object as JSONObject, Value as JSONValue } from 'json-typescript';
 
 import { ManyArray } from 'ember-data/-private';
 
-import { DEPRECATE_PROMISE_PROXIES, DEPRECATE_V1_RECORD_DATA } from '@ember-data/deprecations';
-import { DEBUG } from '@ember-data/env';
+import { DEPRECATE_PROMISE_PROXIES, DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
+import { DEBUG } from '@warp-drive/build-config/env';
 import type { Graph } from '@ember-data/graph/-private/graph/graph';
 import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
 import type Store from '@ember-data/store';

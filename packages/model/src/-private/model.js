@@ -17,8 +17,8 @@ import {
   DEPRECATE_NON_EXPLICIT_POLYMORPHISM,
   DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE,
   DEPRECATE_SAVE_PROMISE_ACCESS,
-} from '@ember-data/deprecations';
-import { DEBUG } from '@ember-data/env';
+} from '@warp-drive/build-config/deprecations';
+import { DEBUG } from '@warp-drive/build-config/env';
 import { HAS_DEBUG_PACKAGE } from '@ember-data/packages';
 import { recordIdentifierFor, storeFor } from '@ember-data/store';
 import { coerceId, peekCache } from '@ember-data/store/-private';
