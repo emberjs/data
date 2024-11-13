@@ -103,6 +103,12 @@
           "ember-cli": "*"
         }
       },
+      "ember-page-title": {
+        "peerDependencies": {
+          "@glimmer/component": "*",
+          "ember-source": "*"
+        }
+      },
       "ember-cli-fastboot": {
         "peerDependencies": {
           "ember-cli": "*",
@@ -124,6 +130,9 @@
       "ember-source": {
         "dependencies": {
           "webpack": "*"
+        },
+        "peerDependencies": {
+          "@glimmer/component": "*"
         }
       },
       "@ember/test-helpers": {
@@ -133,7 +142,7 @@
       }
     },
     "overrides": {
-      "ember-auto-import": "^2.8.1",
+      "ember-auto-import": "^2.10.0",
       "@embroider/macros": "^1.16.6",
       "broccoli-funnel": "^3.0.8",
       "broccoli-merge-trees": "^4.2.0",
@@ -156,6 +165,7 @@
       ],
       "allowAny": [
         "ember-source",
+        "@glimmer/component",
         "typescript"
       ]
     },
