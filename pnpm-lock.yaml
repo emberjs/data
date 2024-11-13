@@ -21,7 +21,7 @@ overrides:
   ember-compatibility-helpers: ^1.2.7
   testem: ~3.11.0
 
-packageExtensionsChecksum: 857c739f5bcb163e3b893945e0bd5cc7
+packageExtensionsChecksum: 10ad8371ed129520d984fb4ace777d13
 
 patchedDependencies:
   '@ember/test-helpers@3.3.0':
@@ -3484,7 +3484,7 @@ importers:
         version: 1.0.0(@babel/core@7.24.5)
       ember-page-title:
         specifier: ^8.2.3
-        version: 8.2.3(ember-source@5.12.0)
+        version: 8.2.3(@glimmer/component@1.1.2)(ember-source@5.12.0)
       ember-qunit:
         specifier: ^8.0.2
         version: 8.0.2(@babel/core@7.24.5)(@ember/test-helpers@4.0.4)(@glint/template@1.5.0)(ember-source@5.12.0)(qunit@2.19.4)
@@ -4251,7 +4251,7 @@ importers:
         version: 4.2.0(@babel/core@7.26.0)(ember-source@5.12.0)
       ember-page-title:
         specifier: ^8.2.3
-        version: 8.2.3(ember-source@5.12.0)
+        version: 8.2.3(@glimmer/component@2.0.0)(ember-source@5.12.0)
       ember-qunit:
         specifier: ^8.1.0
         version: 8.1.1(@babel/core@7.26.0)(@ember/test-helpers@4.0.4)(ember-source@5.12.0)(qunit@2.19.4)
@@ -15059,15 +15059,32 @@ packages:
       - supports-color
     dev: true
 
-  /ember-page-title@8.2.3(ember-source@5.12.0):
+  /ember-page-title@8.2.3(@glimmer/component@1.1.2)(ember-source@5.12.0):
     resolution: {integrity: sha512-9XH4EVPCpSCyXRsLPzdDydU4HgQnaVeJJTrRF0WVh5bZERI9DgxuHv1NPmZU28todHRH91KcBc5nx8kIVJmqUw==}
     engines: {node: 16.* || >= 18}
     peerDependencies:
+      '@glimmer/component': '*'
       ember-source: '*'
     dependencies:
       '@embroider/addon-shim': 1.8.9
+      '@glimmer/component': 1.1.2(@babel/core@7.24.5)
       '@simple-dom/document': 1.4.0
       ember-source: 5.12.0(@glimmer/component@1.1.2)(@glint/template@1.5.0)
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
+  /ember-page-title@8.2.3(@glimmer/component@2.0.0)(ember-source@5.12.0):
+    resolution: {integrity: sha512-9XH4EVPCpSCyXRsLPzdDydU4HgQnaVeJJTrRF0WVh5bZERI9DgxuHv1NPmZU28todHRH91KcBc5nx8kIVJmqUw==}
+    engines: {node: 16.* || >= 18}
+    peerDependencies:
+      '@glimmer/component': '*'
+      ember-source: '*'
+    dependencies:
+      '@embroider/addon-shim': 1.8.9
+      '@glimmer/component': 2.0.0
+      '@simple-dom/document': 1.4.0
+      ember-source: 5.12.0(@glimmer/component@2.0.0)
     transitivePeerDependencies:
       - supports-color
     dev: true

@@ -104,6 +104,12 @@
           "ember-cli": "*"
         }
       },
+      "ember-page-title": {
+        "peerDependencies": {
+          "@glimmer/component": "*",
+          "ember-source": "*"
+        }
+      },
       "ember-cli-fastboot": {
         "peerDependencies": {
           "ember-cli": "*",
@@ -125,6 +131,9 @@
       "ember-source": {
         "dependencies": {
           "webpack": "*"
+        },
+        "peerDependencies": {
+          "@glimmer/component": "*"
         }
       },
       "@ember/test-helpers": {
