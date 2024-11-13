@@ -6,11 +6,10 @@ module.exports = function (environment) {
     podModulePrefix: 'main-test-app',
     environment: environment,
     rootURL: '/',
-    locationType: 'auto',
+    locationType: 'history',
     EmberENV: {
       RAISE_ON_DEPRECATION: false,
     },
-    ASSERT_ALL_DEPRECATIONS: process.env.ASSERT_ALL_DEPRECATIONS === 'true',
 
     APP: {
       // Here you can pass flags/options to your application instance
