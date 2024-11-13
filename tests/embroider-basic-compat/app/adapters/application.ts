@@ -1,4 +1,3 @@
-// @ts-expect-error
 import RESTAdapter from '@ember-data/adapter/rest';
 import type { SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
 

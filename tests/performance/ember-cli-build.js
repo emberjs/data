@@ -1,11 +1,9 @@
-/* eslint node/no-unpublished-require: 'off' */
-
 'use strict';
 
 const EmberApp = require('ember-cli/lib/broccoli/ember-app');
 
 module.exports = function (defaults) {
-  let app = new EmberApp(defaults, {
+  const app = new EmberApp(defaults, {
     fingerprint: {
       enabled: false,
     },
@@ -27,5 +25,58 @@ module.exports = function (defaults) {
   // please specify an object with the list of modules as keys
   // along with the exports of each module as its value.
 
-  return app.toTree();
+  const { Webpack } = require('@embroider/webpack');
+  const TerserPlugin = require('terser-webpack-plugin');
+
+  return require('@embroider/compat').compatBuild(app, Webpack, {
+    //
+    // staticAddonTestSupportTrees: true,
+    // staticAddonTrees: true,
+    // staticHelpers: true,
+    // staticModifiers: true,
+    // staticComponents: true,
+    // splitAtRoutes: ['route.name'], // can also be a RegExp
+    packagerOptions: {
+      webpackConfig: {
+        optimization: {
+          minimize: true,
+          minimizer: [
+            new TerserPlugin({
+              terserOptions: {
+                compress: {
+                  ecma: 2022,
+                  passes: 6, // slow, but worth it
+                  negate_iife: false,
+                  sequences: 30,
+                  defaults: true,
+                  arguments: false,
+                  keep_fargs: false,
+                  toplevel: false,
+                  unsafe: true,
+                  unsafe_comps: true,
+                  unsafe_math: true,
+                  unsafe_symbols: true,
+                  unsafe_proto: true,
+                  unsafe_undefined: true,
+                  inline: 5,
+                  reduce_funcs: false,
+                },
+                mangle: {
+                  keep_classnames: true,
+                  keep_fnames: true,
+                  module: true,
+                },
+                format: { beautify: true },
+                toplevel: false,
+                sourceMap: false,
+                ecma: 2022,
+              },
+            }),
+          ],
+        },
+      },
+    },
+    //
+    extraPublicTrees: [],
+  });
 };
