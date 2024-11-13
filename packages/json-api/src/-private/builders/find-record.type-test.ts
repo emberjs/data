@@ -35,7 +35,7 @@ type DeepThing = {
 const store = new Store();
 const query = findRecord<MyThing>('thing', '1');
 
-expectTypeOf<FindRecordResultDocument<MyThing>>(query[RequestSignature]);
+expectTypeOf<FindRecordResultDocument<MyThing>>(query[RequestSignature]!);
 
 const result = await store.request(findRecord('thing', '1'));
 const result2 = await store.request(
