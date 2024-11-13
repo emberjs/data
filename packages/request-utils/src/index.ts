@@ -1,12 +1,46 @@
-import { assert, deprecate } from '@ember/debug';
+import { deprecate } from '@ember/debug';
 
-import type { ImmutableRequestInfo } from '@ember-data/request/-private/types';
-import type { Cache } from '@ember-data/types/cache/cache';
-import type { ResponseInfo } from '@ember-data/types/cache/document';
-import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
+import { assert } from '@warp-drive/build-config/macros';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { Cache } from '@warp-drive/core-types/cache';
+import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type { QueryParamsSerializationOptions, QueryParamsSource, Serializable } from '@warp-drive/core-types/params';
+import type { ImmutableRequestInfo, ResponseInfo } from '@warp-drive/core-types/request';
+
+type UnsubscribeToken = object;
+type CacheOperation = 'added' | 'removed' | 'updated' | 'state';
+type DocumentCacheOperation = 'invalidated' | 'added' | 'removed' | 'updated' | 'state';
+
+export interface NotificationCallback {
+  (identifier: StableRecordIdentifier, notificationType: 'attributes' | 'relationships', key?: string): void;
+  (identifier: StableRecordIdentifier, notificationType: 'errors' | 'meta' | 'identity' | 'state'): void;
+  // (identifier: StableRecordIdentifier, notificationType: NotificationType, key?: string): void;
+}
+
+interface ResourceOperationCallback {
+  // resource updates
+  (identifier: StableRecordIdentifier, notificationType: CacheOperation): void;
+}
+
+interface DocumentOperationCallback {
+  // document updates
+  (identifier: StableDocumentIdentifier, notificationType: DocumentCacheOperation): void;
+}
+
+type NotificationManager = {
+  subscribe(identifier: StableRecordIdentifier, callback: NotificationCallback): UnsubscribeToken;
+  subscribe(identifier: 'resource', callback: ResourceOperationCallback): UnsubscribeToken;
+  subscribe(identifier: 'document' | StableDocumentIdentifier, callback: DocumentOperationCallback): UnsubscribeToken;
+
+  notify(identifier: StableRecordIdentifier, value: 'attributes' | 'relationships', key?: string): boolean;
+  notify(identifier: StableRecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'state'): boolean;
+  notify(identifier: StableRecordIdentifier, value: CacheOperation): boolean;
+  notify(identifier: StableDocumentIdentifier, value: DocumentCacheOperation): boolean;
+};
 
 type Store = {
   cache: Cache;
+  notifications: NotificationManager;
 };
 
 /**
@@ -53,18 +87,7 @@ type Store = {
 // host and namespace which are provided by the final consuming
 // class to the prototype which can result in overwrite errors
 
-type SerializablePrimitive = string | number | boolean | null;
-type Serializable = SerializablePrimitive | SerializablePrimitive[];
-type QueryParamsSerializationOptions = {
-  arrayFormat?: 'bracket' | 'indices' | 'repeat' | 'comma';
-};
-type QueryParamsSource =
-  | ({
-      include?: string | string[];
-    } & Record<Exclude<string, 'include'>, Serializable>)
-  | URLSearchParams;
-
-interface BuildURLConfig {
+export interface BuildURLConfig {
   host: string | null;
   namespace: string | null;
 }
@@ -626,6 +649,7 @@ export function parseCacheControl(header: string): CacheControlValue {
     }
 
     if (i === header.length - 1) {
+      // @ts-expect-error TS incorrectly thinks that optional keys must have a type that includes undefined
       cacheControlValue[key] = NUMERIC_KEYS.has(key) ? parseCacheControlValue(value) : true;
     }
   }
@@ -653,10 +677,10 @@ function isStale(headers: Headers, expirationTime: number): boolean {
   return result;
 }
 
-export type LifetimesConfig = { apiCacheSoftExpires: number; apiCacheHardExpires: number };
+export type PolicyConfig = { apiCacheSoftExpires: number; apiCacheHardExpires: number };
 
 /**
- * A basic LifetimesService that can be added to the Store service.
+ * A basic CachePolicy that can be added to the Store service.
  *
  * Determines staleness based on time since the request was last received from the API
  * using the `date` header.
@@ -687,7 +711,7 @@ export type LifetimesConfig = { apiCacheSoftExpires: number; apiCacheHardExpires
  * Usage:
  *
  * ```ts
- * import { LifetimesService } from '@ember-data/request-utils';
+ * import { CachePolicy } from '@ember-data/request-utils';
  * import DataStore from '@ember-data/store';
  *
  * // ...
@@ -695,20 +719,26 @@ export type LifetimesConfig = { apiCacheSoftExpires: number; apiCacheHardExpires
  * export class Store extends DataStore {
  *   constructor(args) {
  *     super(args);
- *     this.lifetimes = new LifetimesService({ apiCacheSoftExpires: 30_000, apiCacheHardExpires: 60_000 });
+ *     this.lifetimes = new CachePolicy({ apiCacheSoftExpires: 30_000, apiCacheHardExpires: 60_000 });
  *   }
  * }
  * ```
  *
- * @class LifetimesService
+ * @class CachePolicy
  * @public
  * @module @ember-data/request-utils
  */
-export class LifetimesService {
-  declare config: LifetimesConfig;
-  declare _stores: WeakMap<Store, { invalidated: Set<string>; types: Map<string, Set<string>> }>;
+export class CachePolicy {
+  declare config: PolicyConfig;
+  declare _stores: WeakMap<
+    Store,
+    { invalidated: Set<StableDocumentIdentifier>; types: Map<string, Set<StableDocumentIdentifier>> }
+  >;
 
-  _getStore(store: Store): { invalidated: Set<string>; types: Map<string, Set<string>> } {
+  _getStore(store: Store): {
+    invalidated: Set<StableDocumentIdentifier>;
+    types: Map<string, Set<StableDocumentIdentifier>>;
+  } {
     let set = this._stores.get(store);
     if (!set) {
       set = { invalidated: new Set(), types: new Map() };
@@ -717,12 +747,12 @@ export class LifetimesService {
     return set;
   }
 
-  constructor(config: LifetimesConfig) {
+  constructor(config: PolicyConfig) {
     this._stores = new WeakMap();
 
-    const _config = arguments.length === 1 ? config : (arguments[1] as unknown as LifetimesConfig);
+    const _config = arguments.length === 1 ? config : (arguments[1] as unknown as PolicyConfig);
     deprecate(
-      `Passing a Store to the LifetimesService is deprecated, please pass only a config instead.`,
+      `Passing a Store to the CachePolicy is deprecated, please pass only a config instead.`,
       arguments.length === 1,
       {
         id: 'ember-data:request-utils:lifetimes-service-store-arg',
@@ -734,22 +764,16 @@ export class LifetimesService {
         until: '6.0',
       }
     );
-    assert(`You must pass a config to the LifetimesService`, _config);
-    assert(
-      `You must pass a apiCacheSoftExpires to the LifetimesService`,
-      typeof _config.apiCacheSoftExpires === 'number'
-    );
-    assert(
-      `You must pass a apiCacheHardExpires to the LifetimesService`,
-      typeof _config.apiCacheHardExpires === 'number'
-    );
+    assert(`You must pass a config to the CachePolicy`, _config);
+    assert(`You must pass a apiCacheSoftExpires to the CachePolicy`, typeof _config.apiCacheSoftExpires === 'number');
+    assert(`You must pass a apiCacheHardExpires to the CachePolicy`, typeof _config.apiCacheHardExpires === 'number');
     this.config = _config;
   }
 
   /**
    * Invalidate a request by its identifier for a given store instance.
    *
-   * While the store argument may seem redundant, the lifetimes service
+   * While the store argument may seem redundant, the CachePolicy
    * is designed to be shared across multiple stores / forks
    * of the store.
    *
@@ -763,14 +787,14 @@ export class LifetimesService {
    * @param {Store} store
    */
   invalidateRequest(identifier: StableDocumentIdentifier, store: Store): void {
-    this._getStore(store).invalidated.add(identifier.lid);
+    this._getStore(store).invalidated.add(identifier);
   }
 
   /**
    * Invalidate all requests associated to a specific type
    * for a given store instance.
    *
-   * While the store argument may seem redundant, the lifetimes service
+   * While the store argument may seem redundant, the CachePolicy
    * is designed to be shared across multiple stores / forks
    * of the store.
    *
@@ -789,9 +813,13 @@ export class LifetimesService {
   invalidateRequestsForType(type: string, store: Store): void {
     const storeCache = this._getStore(store);
     const set = storeCache.types.get(type);
+    const notifications = store.notifications;
+
     if (set) {
+      // TODO batch notifications
       set.forEach((id) => {
         storeCache.invalidated.add(id);
+        notifications.notify(id, 'invalidated');
       });
     }
   }
@@ -842,10 +870,10 @@ export class LifetimesService {
       request.cacheOptions?.types.forEach((type) => {
         const set = storeCache.types.get(type);
         if (set) {
-          set.add(identifier.lid);
-          storeCache.invalidated.delete(identifier.lid);
+          set.add(identifier);
+          storeCache.invalidated.delete(identifier);
         } else {
-          storeCache.types.set(type, new Set([identifier.lid]));
+          storeCache.types.set(type, new Set([identifier]));
         }
       });
     }
@@ -871,7 +899,7 @@ export class LifetimesService {
   isHardExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
     // if we are explicitly invalidated, we are hard expired
     const storeCache = this._getStore(store);
-    if (storeCache.invalidated.has(identifier.lid)) {
+    if (storeCache.invalidated.has(identifier)) {
       return true;
     }
     const cache = store.cache;
@@ -899,5 +927,24 @@ export class LifetimesService {
     const cache = store.cache;
     const cached = cache.peekRequest(identifier);
     return !cached || !cached.response || isStale(cached.response.headers, this.config.apiCacheSoftExpires);
+  }
+}
+
+export class LifetimesService extends CachePolicy {
+  constructor(config: PolicyConfig) {
+    deprecate(
+      `\`import { LifetimesService } from '@ember-data/request-utils';\` is deprecated, please use \`import { CachePolicy } from '@ember-data/request-utils';\` instead.`,
+      false,
+      {
+        id: 'ember-data:deprecate-lifetimes-service-import',
+        since: {
+          enabled: '5.4',
+          available: '4.13',
+        },
+        for: 'ember-data',
+        until: '6.0',
+      }
+    );
+    super(config);
   }
 }
