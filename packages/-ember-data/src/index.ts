@@ -109,12 +109,8 @@ activate this polyfill:
 
 ```ts
 let app = new EmberApp(defaults, {
-  '@embroider/macros': {
-    setConfig: {
-      '@ember-data/store': {
-        polyfillUUID: true
-      },
-    },
+  emberData: {
+    polyfillUUID: true
   },
 });
 ```
@@ -161,7 +157,7 @@ that has not explicitly activated it. To activate it set the appropriate flag to
  @module ember-data-overview
  @main ember-data-overview
 */
-import 'ember-inflector';
+import { deprecate } from '@ember/debug';
 
 import { dependencySatisfies, importSync, macroCondition } from '@embroider/macros';
 
@@ -169,8 +165,6 @@ import Adapter, { BuildURLMixin } from '@ember-data/adapter';
 import AdapterError, {
   AbortError,
   ConflictError,
-  errorsArrayToHash,
-  errorsHashToArray,
   ForbiddenError,
   InvalidError,
   NotFoundError,
@@ -182,12 +176,15 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import RESTAdapter from '@ember-data/adapter/rest';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import Serializer from '@ember-data/serializer';
-import { BooleanTransform, DateTransform, NumberTransform, StringTransform } from '@ember-data/serializer/-private';
 import JSONSerializer from '@ember-data/serializer/json';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
-import Transform from '@ember-data/serializer/transform';
-import { normalizeModelName } from '@ember-data/store';
+import Transform, {
+  BooleanTransform,
+  DateTransform,
+  NumberTransform,
+  StringTransform,
+} from '@ember-data/serializer/transform';
 
 import {
   DS,
@@ -199,74 +196,107 @@ import {
   RecordArrayManager,
   Snapshot,
   Store,
-} from './-private';
+} from './-private/index';
 import setupContainer from './setup-container';
+
+deprecate(
+  'Importing from `ember-data` is deprecated. Please import from the appropriate `@ember-data/*` instead.',
+  false,
+  {
+    id: 'ember-data:deprecate-legacy-imports',
+    for: 'ember-data',
+    until: '6.0',
+    since: {
+      enabled: '5.2',
+      available: '5.2',
+    },
+  }
+);
+
+interface DSLibrary extends DS {
+  Store: typeof Store;
+  PromiseArray: typeof PromiseArray;
+  PromiseObject: typeof PromiseObject;
+  PromiseManyArray: typeof PromiseManyArray;
+  Model: typeof Model;
+  attr: typeof attr;
+  Errors: typeof Errors;
+  Snapshot: typeof Snapshot;
+  Adapter: typeof Adapter;
+  AdapterError: typeof AdapterError;
+  InvalidError: typeof InvalidError;
+  TimeoutError: typeof TimeoutError;
+  AbortError: typeof AbortError;
+  UnauthorizedError: typeof UnauthorizedError;
+  ForbiddenError: typeof ForbiddenError;
+  NotFoundError: typeof NotFoundError;
+  ConflictError: typeof ConflictError;
+  ServerError: typeof ServerError;
+  Serializer: typeof Serializer;
+  DebugAdapter?: typeof import('@ember-data/debug').default;
+  ManyArray: typeof ManyArray;
+  RecordArrayManager: typeof RecordArrayManager;
+  RESTAdapter: typeof RESTAdapter;
+  BuildURLMixin: typeof BuildURLMixin;
+  RESTSerializer: typeof RESTSerializer;
+  JSONSerializer: typeof JSONSerializer;
+  JSONAPIAdapter: typeof JSONAPIAdapter;
+  JSONAPISerializer: typeof JSONAPISerializer;
+  Transform: typeof Transform;
+  DateTransform: typeof DateTransform;
+  StringTransform: typeof StringTransform;
+  NumberTransform: typeof NumberTransform;
+  BooleanTransform: typeof BooleanTransform;
+  EmbeddedRecordsMixin: typeof EmbeddedRecordsMixin;
+  belongsTo: typeof belongsTo;
+  hasMany: typeof hasMany;
+  _setupContainer: typeof setupContainer;
+}
+
+function upgradeDS(obj: unknown): asserts obj is DSLibrary {}
+
+upgradeDS(DS);
 
 DS.Store = Store;
 DS.PromiseArray = PromiseArray;
 DS.PromiseObject = PromiseObject;
-
 DS.PromiseManyArray = PromiseManyArray;
-
 DS.Model = Model;
 DS.attr = attr;
 DS.Errors = Errors;
-
 DS.Snapshot = Snapshot;
-
 DS.Adapter = Adapter;
-
 DS.AdapterError = AdapterError;
 DS.InvalidError = InvalidError;
 DS.TimeoutError = TimeoutError;
 DS.AbortError = AbortError;
-
 DS.UnauthorizedError = UnauthorizedError;
 DS.ForbiddenError = ForbiddenError;
 DS.NotFoundError = NotFoundError;
 DS.ConflictError = ConflictError;
 DS.ServerError = ServerError;
-
-DS.errorsHashToArray = errorsHashToArray;
-DS.errorsArrayToHash = errorsArrayToHash;
-
 DS.Serializer = Serializer;
 
 if (macroCondition(dependencySatisfies('@ember-data/debug', '*'))) {
-  DS.DebugAdapter = importSync('@ember-data/debug').default;
+  DS.DebugAdapter = importSync('@ember-data/debug') as typeof import('@ember-data/debug').default;
 }
 
 DS.ManyArray = ManyArray;
-
 DS.RecordArrayManager = RecordArrayManager;
-
 DS.RESTAdapter = RESTAdapter;
 DS.BuildURLMixin = BuildURLMixin;
-
 DS.RESTSerializer = RESTSerializer;
 DS.JSONSerializer = JSONSerializer;
-
 DS.JSONAPIAdapter = JSONAPIAdapter;
 DS.JSONAPISerializer = JSONAPISerializer;
-
 DS.Transform = Transform;
 DS.DateTransform = DateTransform;
 DS.StringTransform = StringTransform;
 DS.NumberTransform = NumberTransform;
 DS.BooleanTransform = BooleanTransform;
-
 DS.EmbeddedRecordsMixin = EmbeddedRecordsMixin;
-
 DS.belongsTo = belongsTo;
 DS.hasMany = hasMany;
-
 DS._setupContainer = setupContainer;
-
-Object.defineProperty(DS, 'normalizeModelName', {
-  enumerable: true,
-  writable: false,
-  configurable: false,
-  value: normalizeModelName,
-});
 
 export default DS;
