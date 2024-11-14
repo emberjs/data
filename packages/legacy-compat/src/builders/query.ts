@@ -1,25 +1,26 @@
 /**
  * @module @ember-data/legacy-compat/builders
  */
-import { assert } from '@ember/debug';
-
-import { SkipCache } from '@ember-data/request';
-import type { ImmutableRequestInfo } from '@ember-data/request/-private/types';
+import type { StoreRequestInput } from '@ember-data/store';
+import type { LegacyResourceQuery, QueryOptions } from '@ember-data/store/types';
+import { assert } from '@warp-drive/build-config/macros';
+import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
+import { SkipCache } from '@warp-drive/core-types/request';
+import type { RequestSignature } from '@warp-drive/core-types/symbols';
 
 import { normalizeModelName } from './utils';
 
-type QueryRequestInput<T extends string = string> = ImmutableRequestInfo & {
+type QueryRequestInput<T extends string = string, RT = unknown[]> = StoreRequestInput & {
   op: 'query';
   data: {
     type: T;
-    query: Record<string, unknown>;
+    query: LegacyResourceQuery;
     options: QueryBuilderOptions;
   };
+  [RequestSignature]?: RT;
 };
 
-type QueryBuilderOptions = {
-  [K in string | 'adapterOptions']?: K extends 'adapterOptions' ? Record<string, unknown> : unknown;
-};
+type QueryBuilderOptions = QueryOptions;
 
 /**
   This function builds a request config for a given type and query object.
@@ -40,19 +41,19 @@ type QueryBuilderOptions = {
   @param {QueryBuilderOptions} [options] optional, may include `adapterOptions` hash which will be passed to adapter.query
   @return {QueryRequestInput} request config
 */
+export function queryBuilder<T extends TypedRecordInstance>(
+  type: TypeFromInstance<T>,
+  query: LegacyResourceQuery<T>,
+  options?: QueryBuilderOptions
+): QueryRequestInput<TypeFromInstance<T>, T[]>;
 export function queryBuilder(
   type: string,
-  query: Record<string, unknown>,
+  query: LegacyResourceQuery,
   options?: QueryBuilderOptions
 ): QueryRequestInput;
 export function queryBuilder(
   type: string,
-  query: Record<string, unknown>,
-  options?: QueryBuilderOptions
-): QueryRequestInput;
-export function queryBuilder(
-  type: string,
-  query: Record<string, unknown>,
+  query: LegacyResourceQuery,
   options: QueryBuilderOptions = {}
 ): QueryRequestInput {
   assert(`You need to pass a model name to the query builder`, type);
@@ -69,17 +70,18 @@ export function queryBuilder(
       query,
       options: options,
     },
-    cacheOptions: { [SkipCache as symbol]: true },
+    cacheOptions: { [SkipCache]: true },
   };
 }
 
-type QueryRecordRequestInput<T extends string = string> = ImmutableRequestInfo & {
+type QueryRecordRequestInput<T extends string = string, RT = unknown> = StoreRequestInput & {
   op: 'queryRecord';
   data: {
     type: T;
-    query: Record<string, unknown>;
+    query: LegacyResourceQuery;
     options: QueryBuilderOptions;
   };
+  [RequestSignature]?: RT;
 };
 
 /**
@@ -101,19 +103,19 @@ type QueryRecordRequestInput<T extends string = string> = ImmutableRequestInfo &
   @param {QueryBuilderOptions} [options] optional, may include `adapterOptions` hash which will be passed to adapter.query
   @return {QueryRecordRequestInput} request config
 */
+export function queryRecordBuilder<T extends TypedRecordInstance>(
+  type: TypeFromInstance<T>,
+  query: LegacyResourceQuery<T>,
+  options?: QueryBuilderOptions
+): QueryRecordRequestInput<TypeFromInstance<T>, T | null>;
 export function queryRecordBuilder(
   type: string,
-  query: Record<string, unknown>,
+  query: LegacyResourceQuery,
   options?: QueryBuilderOptions
 ): QueryRecordRequestInput;
 export function queryRecordBuilder(
   type: string,
-  query: Record<string, unknown>,
-  options?: QueryBuilderOptions
-): QueryRecordRequestInput;
-export function queryRecordBuilder(
-  type: string,
-  query: Record<string, unknown>,
+  query: LegacyResourceQuery,
   options?: QueryBuilderOptions
 ): QueryRecordRequestInput {
   assert(`You need to pass a model name to the queryRecord builder`, type);
@@ -130,6 +132,6 @@ export function queryRecordBuilder(
       query,
       options: options || {},
     },
-    cacheOptions: { [SkipCache as symbol]: true },
+    cacheOptions: { [SkipCache]: true },
   };
 }

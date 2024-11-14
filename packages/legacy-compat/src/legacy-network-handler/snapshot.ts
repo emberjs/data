@@ -1,23 +1,25 @@
 /**
   @module @ember-data/store
 */
-import { assert, deprecate } from '@ember/debug';
+import { dependencySatisfies, importSync } from '@embroider/macros';
 
-import { importSync } from '@embroider/macros';
-
-import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
-import type ManyRelationship from '@ember-data/graph/-private/relationships/state/has-many';
-import { HAS_JSON_API_PACKAGE } from '@ember-data/packages';
+import type { CollectionEdge, ResourceEdge } from '@ember-data/graph/-private';
 import type Store from '@ember-data/store';
-import type { ChangedAttributesHash } from '@ember-data/types/q/cache';
-import type { DSModelSchema } from '@ember-data/types/q/ds-model';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { OptionsHash } from '@ember-data/types/q/minimum-serializer-interface';
-import type { AttributeSchema, RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
-import type { RecordInstance } from '@ember-data/types/q/record-instance';
-import type { FindOptions } from '@ember-data/types/q/store';
-import type { Dict } from '@ember-data/types/q/utils';
-import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS, DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
+import type { FindRecordOptions } from '@ember-data/store/types';
+import { DEBUG } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ChangedAttributesHash } from '@warp-drive/core-types/cache';
+import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
+import type { Value } from '@warp-drive/core-types/json/raw';
+import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
+import type { LegacyAttributeField, LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
+
+import { upgradeStore } from '../-private';
+import type { SerializerOptions } from './minimum-serializer-interface';
+import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@warp-drive/build-config/deprecations';
+import { deprecate } from '@ember/debug';
+import { ModelSchema } from '@ember-data/store/types';
 
 type RecordId = string | null;
 
@@ -32,20 +34,30 @@ type RecordId = string | null;
   @class Snapshot
   @public
 */
-export default class Snapshot {
-  declare __attributes: Dict<unknown> | null;
-  declare _belongsToRelationships: Dict<Snapshot>;
-  declare _belongsToIds: Dict<RecordId>;
-  declare _hasManyRelationships: Dict<Snapshot[]>;
-  declare _hasManyIds: Dict<RecordId[]>;
+export class Snapshot<R = unknown> {
+  declare __attributes: Record<keyof R & string, unknown> | null;
+  declare _belongsToRelationships: Record<string, Snapshot>;
+  declare _belongsToIds: Record<string, RecordId>;
+  declare _hasManyRelationships: Record<string, Snapshot[]>;
+  declare _hasManyIds: Record<string, RecordId[]>;
   declare _changedAttributes: ChangedAttributesHash;
 
-  declare identifier: StableRecordIdentifier;
-  declare modelName: string;
+  declare identifier: StableRecordIdentifier<R extends TypedRecordInstance ? TypeFromInstance<R> : string>;
+  declare modelName: R extends TypedRecordInstance ? TypeFromInstance<R> : string;
   declare id: string | null;
-  declare include?: unknown;
-  declare adapterOptions?: Dict<unknown>;
+  declare include?: string | string[];
+  declare adapterOptions?: Record<string, unknown>;
   declare _store: Store;
+
+  /**
+   The type of the underlying record for this snapshot, as a Model.
+
+   @property type
+    @public
+    @deprecated
+   @type {Model}
+   */
+  declare type: ModelSchema;
 
   /**
    * @method constructor
@@ -55,16 +67,20 @@ export default class Snapshot {
    * @param identifier
    * @param _store
    */
-  constructor(options: FindOptions, identifier: StableRecordIdentifier, store: Store) {
+  constructor(
+    options: FindRecordOptions,
+    identifier: StableRecordIdentifier<R extends TypedRecordInstance ? TypeFromInstance<R> : string>,
+    store: Store
+  ) {
     this._store = store;
 
     this.__attributes = null;
-    this._belongsToRelationships = Object.create(null) as Dict<Snapshot>;
-    this._belongsToIds = Object.create(null) as Dict<RecordId>;
-    this._hasManyRelationships = Object.create(null) as Dict<Snapshot[]>;
-    this._hasManyIds = Object.create(null) as Dict<RecordId[]>;
+    this._belongsToRelationships = Object.create(null) as Record<string, Snapshot>;
+    this._belongsToIds = Object.create(null) as Record<string, RecordId>;
+    this._hasManyRelationships = Object.create(null) as Record<string, Snapshot[]>;
+    this._hasManyIds = Object.create(null) as Record<string, RecordId[]>;
 
-    const hasRecord = !!store._instanceCache.peek({ identifier, bucket: 'record' });
+    const hasRecord = !!store._instanceCache.peek(identifier);
     this.modelName = identifier.type;
 
     /**
@@ -84,6 +100,7 @@ export default class Snapshot {
       the values.
      */
     if (hasRecord) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       this._attributes;
     }
 
@@ -130,9 +147,7 @@ export default class Snapshot {
      */
     this.modelName = identifier.type;
     if (hasRecord) {
-      const cache = DEPRECATE_V1_RECORD_DATA
-        ? this._store._instanceCache.getResourceCache(identifier)
-        : this._store.cache;
+      const cache = this._store.cache;
       this._changedAttributes = cache.changedAttrs(identifier);
     }
   }
@@ -151,48 +166,35 @@ export default class Snapshot {
    @type {Model}
    @public
    */
-  get record(): RecordInstance | null {
-    const record = this._store.peekRecord(this.identifier);
+  get record(): R | null {
+    const record = this._store.peekRecord<R>(this.identifier);
     assert(
-      `Record ${this.identifier.type} ${String(this.identifier.id)} (${
-        this.identifier.lid
-      }) is not yet loaded and thus cannot be accessed from the Snapshot during serialization`,
+      `Record ${this.identifier.type} ${this.identifier.id} (${this.identifier.lid}) is not yet loaded and thus cannot be accessed from the Snapshot during serialization`,
       record !== null
     );
     return record;
   }
 
-  get _attributes(): Dict<unknown> {
+  get _attributes(): Record<keyof R & string, unknown> {
     if (this.__attributes !== null) {
       return this.__attributes;
     }
-    const attributes = (this.__attributes = Object.create(null) as Dict<unknown>);
+    const attributes = (this.__attributes = Object.create(null) as Record<string, unknown>);
     const { identifier } = this;
-    const attrs = Object.keys(this._store.getSchemaDefinitionService().attributesDefinitionFor(identifier));
-    const cache = DEPRECATE_V1_RECORD_DATA
-      ? this._store._instanceCache.getResourceCache(identifier)
-      : this._store.cache;
+    const attrs = this._store.schema.fields(identifier);
+    const cache = this._store.cache;
 
-    attrs.forEach((keyName) => {
-      attributes[keyName] = cache.getAttr(identifier, keyName);
+    attrs.forEach((field, keyName) => {
+      if (field.kind === 'attribute') {
+        attributes[keyName] = cache.getAttr(identifier, keyName);
+      }
     });
 
     return attributes;
   }
 
-  /**
-   The type of the underlying record for this snapshot, as a Model.
-
-   @property type
-    @public
-    @deprecated
-   @type {Model}
-   */
-
   get isNew(): boolean {
-    const cache = DEPRECATE_V1_RECORD_DATA
-      ? this._store._instanceCache.peek({ identifier: this.identifier, bucket: 'resourceCache' })
-      : this._store.cache;
+    const cache = this._store.cache;
     return cache?.isNew(this.identifier) || false;
   }
 
@@ -214,7 +216,7 @@ export default class Snapshot {
    @return {Object} The attribute value or undefined
    @public
    */
-  attr(keyName: string): unknown {
+  attr(keyName: keyof R & string): unknown {
     if (keyName in this._attributes) {
       return this._attributes[keyName];
     }
@@ -235,7 +237,7 @@ export default class Snapshot {
    @return {Object} All attributes of the current snapshot
    @public
    */
-  attributes(): Dict<unknown> {
+  attributes(): Record<keyof R & string, unknown> {
     return { ...this._attributes };
   }
 
@@ -264,7 +266,7 @@ export default class Snapshot {
 
     for (let i = 0, length = changedAttributeKeys.length; i < length; i++) {
       const key = changedAttributeKeys[i];
-      changedAttributes[key] = this._changedAttributes[key].slice() as [unknown, unknown];
+      changedAttributes[key] = this._changedAttributes[key].slice() as [Value | undefined, Value];
     }
 
     return changedAttributes;
@@ -319,51 +321,46 @@ export default class Snapshot {
       return this._belongsToRelationships[keyName];
     }
 
-    const relationshipMeta = store.getSchemaDefinitionService().relationshipsDefinitionFor({ type: this.modelName })[
-      keyName
-    ];
+    const relationshipMeta = store.schema.fields({ type: this.modelName }).get(keyName);
     assert(
       `Model '${this.identifier.lid}' has no belongsTo relationship named '${keyName}' defined.`,
       relationshipMeta && relationshipMeta.kind === 'belongsTo'
     );
 
-    // TODO @runspired it seems this code branch would not work with CUSTOM_MODEL_CLASSes
-    // this check is not a regression in behavior because relationships don't currently
-    // function without access to intimate API contracts between RecordData and Model.
-    // This is a requirement we should fix as soon as the relationship layer does not require
-    // this intimate API usage.
-    if (!HAS_JSON_API_PACKAGE) {
-      assert(`snapshot.belongsTo only supported when using the package @ember-data/json-api`);
-    }
+    assert(
+      `snapshot.belongsTo only supported when using the package @ember-data/graph`,
+      dependencySatisfies('@ember-data/graph', '*')
+    );
 
     const graphFor = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private')).graphFor;
     const { identifier } = this;
-    const relationship = graphFor(this._store).get(identifier, keyName) as BelongsToRelationship;
 
-    assert(
-      `You looked up the ${keyName} belongsTo relationship for { type: ${identifier.type}, id: ${
-        identifier.id || ''
-      }, lid: ${identifier.lid} but no such relationship was found.`,
-      relationship
-    );
-    assert(
-      `You looked up the ${keyName} belongsTo relationship for { type: ${identifier.type}, id: ${
-        identifier.id || ''
-      }, lid: ${identifier.lid} but that relationship is a hasMany.`,
-      relationship.definition.kind === 'belongsTo'
-    );
+    if (DEBUG) {
+      const relationship = graphFor(this._store).get(identifier, keyName) as ResourceEdge;
+      assert(
+        `You looked up the ${keyName} belongsTo relationship for { type: ${identifier.type}, id: ${
+          identifier.id || ''
+        }, lid: ${identifier.lid} but no such relationship was found.`,
+        relationship
+      );
+      assert(
+        `You looked up the ${keyName} belongsTo relationship for { type: ${identifier.type}, id: ${
+          identifier.id || ''
+        }, lid: ${identifier.lid} but that relationship is a hasMany.`,
+        relationship.definition.kind === 'belongsTo'
+      );
+    }
 
-    const value = relationship.getData();
+    const value = graphFor(this._store).getData(identifier, keyName);
     const data = value && value.data;
+    upgradeStore(store);
 
     const inverseIdentifier = data ? store.identifierCache.getOrCreateRecordIdentifier(data) : null;
 
     if (value && value.data !== undefined) {
-      const cache = DEPRECATE_V1_RECORD_DATA
-        ? inverseIdentifier && store._instanceCache.getResourceCache(inverseIdentifier)
-        : store.cache;
+      const cache = store.cache;
 
-      if (inverseIdentifier && !cache!.isDeleted(inverseIdentifier)) {
+      if (inverseIdentifier && !cache.isDeleted(inverseIdentifier)) {
         if (returnModeIsId) {
           result = inverseIdentifier.id;
         } else {
@@ -428,9 +425,8 @@ export default class Snapshot {
     }
 
     const store = this._store;
-    const relationshipMeta = store.getSchemaDefinitionService().relationshipsDefinitionFor({ type: this.modelName })[
-      keyName
-    ];
+    upgradeStore(store);
+    const relationshipMeta = store.schema.fields({ type: this.modelName }).get(keyName);
     assert(
       `Model '${this.identifier.lid}' has no hasMany relationship named '${keyName}' defined.`,
       relationshipMeta && relationshipMeta.kind === 'hasMany'
@@ -441,33 +437,36 @@ export default class Snapshot {
     // function without access to intimate API contracts between RecordData and Model.
     // This is a requirement we should fix as soon as the relationship layer does not require
     // this intimate API usage.
-    if (!HAS_JSON_API_PACKAGE) {
-      assert(`snapshot.hasMany only supported when using the package @ember-data/json-api`);
-    }
+    assert(
+      `snapshot.hasMany only supported when using the package @ember-data/graph`,
+      dependencySatisfies('@ember-data/graph', '*')
+    );
 
     const graphFor = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private')).graphFor;
     const { identifier } = this;
-    const relationship = graphFor(this._store).get(identifier, keyName) as ManyRelationship;
-    assert(
-      `You looked up the ${keyName} hasMany relationship for { type: ${identifier.type}, id: ${
-        identifier.id || ''
-      }, lid: ${identifier.lid} but no such relationship was found.`,
-      relationship
-    );
-    assert(
-      `You looked up the ${keyName} hasMany relationship for { type: ${identifier.type}, id: ${
-        identifier.id || ''
-      }, lid: ${identifier.lid} but that relationship is a belongsTo.`,
-      relationship.definition.kind === 'hasMany'
-    );
+    if (DEBUG) {
+      const relationship = graphFor(this._store).get(identifier, keyName) as CollectionEdge;
+      assert(
+        `You looked up the ${keyName} hasMany relationship for { type: ${identifier.type}, id: ${
+          identifier.id || ''
+        }, lid: ${identifier.lid} but no such relationship was found.`,
+        relationship
+      );
+      assert(
+        `You looked up the ${keyName} hasMany relationship for { type: ${identifier.type}, id: ${
+          identifier.id || ''
+        }, lid: ${identifier.lid} but that relationship is a belongsTo.`,
+        relationship.definition.kind === 'hasMany'
+      );
+    }
 
-    const value = relationship.getData();
+    const value = graphFor(this._store).getData(identifier, keyName) as CollectionRelationship;
 
     if (value.data) {
       results = [];
       value.data.forEach((member) => {
         const inverseIdentifier = store.identifierCache.getOrCreateRecordIdentifier(member);
-        const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(inverseIdentifier) : store.cache;
+        const cache = store.cache;
 
         if (!cache.isDeleted(inverseIdentifier)) {
           if (returnModeIsIds) {
@@ -507,10 +506,12 @@ export default class Snapshot {
     @param {Object} [binding] the value to which the callback's `this` should be bound
     @public
   */
-  eachAttribute(callback: (key: string, meta: AttributeSchema) => void, binding?: unknown): void {
-    const attrDefs = this._store.getSchemaDefinitionService().attributesDefinitionFor(this.identifier);
-    Object.keys(attrDefs).forEach((key) => {
-      callback.call(binding, key, attrDefs[key] as AttributeSchema);
+  eachAttribute(callback: (key: string, meta: LegacyAttributeField) => void, binding?: unknown): void {
+    const fields = this._store.schema.fields(this.identifier);
+    fields.forEach((field, key) => {
+      if (field.kind === 'attribute') {
+        callback.call(binding, key, field);
+      }
     });
   }
 
@@ -531,10 +532,12 @@ export default class Snapshot {
     @param {Object} [binding] the value to which the callback's `this` should be bound
     @public
   */
-  eachRelationship(callback: (key: string, meta: RelationshipSchema) => void, binding?: unknown): void {
-    const relationshipDefs = this._store.getSchemaDefinitionService().relationshipsDefinitionFor(this.identifier);
-    Object.keys(relationshipDefs).forEach((key) => {
-      callback.call(binding, key, relationshipDefs[key] as RelationshipSchema);
+  eachRelationship(callback: (key: string, meta: LegacyRelationshipSchema) => void, binding?: unknown): void {
+    const fields = this._store.schema.fields(this.identifier);
+    fields.forEach((field, key) => {
+      if (field.kind === 'belongsTo' || field.kind === 'hasMany') {
+        callback.call(binding, key, field);
+      }
     });
   }
 
@@ -564,7 +567,8 @@ export default class Snapshot {
     @return {Object} an object whose values are primitive JSON values only
     @public
    */
-  serialize(options?: OptionsHash): unknown {
+  serialize(options?: SerializerOptions): unknown {
+    upgradeStore(this._store);
     const serializer = this._store.serializerFor(this.modelName);
     assert(`Cannot serialize record, no serializer found`, serializer);
     return serializer.serialize(this, options);
@@ -584,7 +588,7 @@ if (DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS) {
           since: { available: '4.5.0', enabled: '4.5.0' },
         }
       );
-      return this._store.modelFor(this.identifier.type) as DSModelSchema;
+      return this._store.modelFor(this.identifier.type) as ModelSchema;
     },
   });
 }

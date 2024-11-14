@@ -1,49 +1,52 @@
-import { assert, deprecate, warn } from '@ember/debug';
+import { deprecate, warn } from '@ember/debug';
 
-import { importSync } from '@embroider/macros';
+import { dependencySatisfies, importSync, macroCondition } from '@embroider/macros';
 
-import { HAS_GRAPH_PACKAGE } from '@ember-data/packages';
 import { createDeferred } from '@ember-data/request';
-import type { Deferred, ImmutableRequestInfo } from '@ember-data/request/-private/types';
 import type Store from '@ember-data/store';
-import { coerceId } from '@ember-data/store/-private';
-import type { InstanceCache } from '@ember-data/store/-private/caches/instance-cache';
-import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
-import type RequestStateService from '@ember-data/store/-private/network/request-cache';
-import type { CollectionResourceDocument, SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';
-import type { FindRecordQuery, Request, SaveRecordMutation } from '@ember-data/types/q/fetch-manager';
 import type {
-  RecordIdentifier,
-  StableExistingRecordIdentifier,
-  StableRecordIdentifier,
-} from '@ember-data/types/q/identifier';
-import type { AdapterPayload, MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapter-interface';
-import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-serializer-interface';
-import type { FindOptions } from '@ember-data/types/q/store';
-import { DEPRECATE_RSVP_PROMISE, DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
+  FindRecordQuery,
+  InstanceCache,
+  Request,
+  RequestStateService,
+  SaveRecordMutation,
+} from '@ember-data/store/-private';
+import { coerceId } from '@ember-data/store/-private';
+import type { FindRecordOptions, ModelSchema } from '@ember-data/store/types';
 import { DEBUG, TESTING } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
+import { getOrSetGlobal } from '@warp-drive/core-types/-private';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { TypeFromInstance } from '@warp-drive/core-types/record';
+import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
+import type { CollectionResourceDocument, SingleResourceDocument } from '@warp-drive/core-types/spec/json-api-raw';
 
-import { _objectIsAlive, guardDestroyedStore } from './common';
+import { upgradeStore } from '../-private';
 import { assertIdentifierHasId } from './identifier-has-id';
 import { payloadIsNotBlank } from './legacy-data-utils';
+import type { AdapterPayload, MinimumAdapterInterface } from './minimum-adapter-interface';
+import type { MinimumSerializerInterface } from './minimum-serializer-interface';
 import { normalizeResponseHelper } from './serializer-response';
-import Snapshot from './snapshot';
+import { Snapshot } from './snapshot';
+import { DEPRECATE_RSVP_PROMISE } from '@warp-drive/build-config/deprecations';
+import { _objectIsAlive } from './utils';
 
+type Deferred<T> = ReturnType<typeof createDeferred<T>>;
 type AdapterErrors = Error & { errors?: string[]; isAdapterError?: true };
 type SerializerWithParseErrors = MinimumSerializerInterface & {
-  extractErrors?(store: Store, modelClass: ShimModelClass, error: AdapterErrors, recordId: string | null): unknown;
+  extractErrors?(store: Store, modelClass: ModelSchema, error: AdapterErrors, recordId: string | null): unknown;
 };
 
-export const SaveOp: unique symbol = Symbol('SaveOp');
+export const SaveOp = getOrSetGlobal('SaveOp', Symbol('SaveOp'));
 
-export type FetchMutationOptions = FindOptions & { [SaveOp]: 'createRecord' | 'deleteRecord' | 'updateRecord' };
+export type FetchMutationOptions = FindRecordOptions & { [SaveOp]: 'createRecord' | 'deleteRecord' | 'updateRecord' };
 
 interface PendingFetchItem {
   identifier: StableExistingRecordIdentifier;
   queryRequest: Request;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   resolver: Deferred<any>;
-  options: FindOptions;
+  options: FindRecordOptions;
   trace?: unknown;
   promise: Promise<StableExistingRecordIdentifier>;
 }
@@ -52,12 +55,12 @@ interface PendingSaveItem {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   resolver: Deferred<any>;
   snapshot: Snapshot;
-  identifier: RecordIdentifier;
+  identifier: StableRecordIdentifier;
   options: FetchMutationOptions;
   queryRequest: Request;
 }
 
-export default class FetchManager {
+export class FetchManager {
   declare isDestroyed: boolean;
   declare requestCache: RequestStateService;
   // fetches pending in the runloop, waiting to be coalesced
@@ -72,7 +75,9 @@ export default class FetchManager {
     this.isDestroyed = false;
   }
 
-  createSnapshot(identifier: StableRecordIdentifier, options: FindOptions = {}): Snapshot {
+  createSnapshot<T>(identifier: StableRecordIdentifier<TypeFromInstance<T>>, options?: FindRecordOptions): Snapshot<T>;
+  createSnapshot(identifier: StableRecordIdentifier, options?: FindRecordOptions): Snapshot;
+  createSnapshot(identifier: StableRecordIdentifier, options: FindRecordOptions = {}): Snapshot {
     return new Snapshot(options, identifier, this._store);
   }
 
@@ -84,7 +89,10 @@ export default class FetchManager {
 
     @internal
   */
-  scheduleSave(identifier: RecordIdentifier, options: FetchMutationOptions): Promise<null | SingleResourceDocument> {
+  scheduleSave(
+    identifier: StableRecordIdentifier,
+    options: FetchMutationOptions
+  ): Promise<null | SingleResourceDocument> {
     const resolver = createDeferred<SingleResourceDocument | null>();
     const query: SaveRecordMutation = {
       op: 'saveRecord',
@@ -113,7 +121,7 @@ export default class FetchManager {
 
   scheduleFetch(
     identifier: StableExistingRecordIdentifier,
-    options: FindOptions,
+    options: FindRecordOptions,
     request: ImmutableRequestInfo
   ): Promise<StableExistingRecordIdentifier> {
     const query: FindRecordQuery = {
@@ -164,12 +172,10 @@ export default class FetchManager {
       },
       (error) => {
         assert(`Async Leak Detected: Expected the store to not be destroyed`, !store.isDestroyed);
-        const cache = DEPRECATE_V1_RECORD_DATA
-          ? store._instanceCache.peek({ identifier, bucket: 'resourceCache' })
-          : store.cache;
+        const cache = store.cache;
         if (!cache || cache.isEmpty(identifier) || isInitialLoad) {
           let isReleasable = true;
-          if (HAS_GRAPH_PACKAGE) {
+          if (macroCondition(dependencySatisfies('@ember-data/graph', '*'))) {
             if (!cache) {
               const graphFor = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private'))
                 .graphFor;
@@ -225,7 +231,7 @@ export default class FetchManager {
     return promise;
   }
 
-  getPendingFetch(identifier: StableExistingRecordIdentifier, options: FindOptions) {
+  getPendingFetch(identifier: StableExistingRecordIdentifier, options: FindRecordOptions) {
     const pendingFetches = this._pendingFetch.get(identifier.type)?.get(identifier);
 
     // We already have a pending fetch for this
@@ -249,7 +255,7 @@ export default class FetchManager {
 
   fetchDataIfNeededForIdentifier(
     identifier: StableExistingRecordIdentifier,
-    options: FindOptions = {},
+    options: FindRecordOptions = {},
     request: ImmutableRequestInfo
   ): Promise<StableExistingRecordIdentifier> {
     // pre-loading will change the isEmpty value
@@ -282,9 +288,7 @@ export default class FetchManager {
 }
 
 function _isEmpty(instanceCache: InstanceCache, identifier: StableRecordIdentifier): boolean {
-  const cache = DEPRECATE_V1_RECORD_DATA
-    ? instanceCache.__instances.resourceCache.get(identifier)
-    : instanceCache.cache;
+  const cache = instanceCache.cache;
   if (!cache) {
     return true;
   }
@@ -303,7 +307,7 @@ function _isLoading(cache: InstanceCache, identifier: StableRecordIdentifier): b
   return (
     !isLoaded &&
     // fulfilled === null &&
-    req.getPendingRequestsForRecord(identifier).some((req) => req.type === 'query')
+    req.getPendingRequestsForRecord(identifier).some((r) => r.type === 'query')
   );
 }
 
@@ -343,7 +347,7 @@ function optionsSatisfies(current: object | undefined, existing: object | undefi
 }
 
 // this function helps resolve whether we have a pending request that we should use instead
-function isSameRequest(options: FindOptions = {}, existingOptions: FindOptions = {}) {
+function isSameRequest(options: FindRecordOptions = {}, existingOptions: FindRecordOptions = {}) {
   return (
     optionsSatisfies(options.adapterOptions, existingOptions.adapterOptions) &&
     includesSatisfies(options.include, existingOptions.include)
@@ -357,20 +361,19 @@ function _findMany(
   snapshots: Snapshot[]
 ): Promise<CollectionResourceDocument> {
   const modelClass = store.modelFor(modelName); // `adapter.findMany` gets the modelClass still
-  let promise = Promise.resolve().then(() => {
+  const promise = Promise.resolve().then(() => {
     const ids = snapshots.map((s) => s.id!);
     assert(
       `Cannot fetch a record without an id`,
       ids.every((v) => v !== null)
     );
-     
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     assert(`Expected this adapter to implement findMany for coalescing`, adapter.findMany);
     const ret = adapter.findMany(store, modelClass, ids, snapshots);
     assert('adapter.findMany returned undefined, this was very likely a mistake', ret !== undefined);
     return ret;
   });
-
-  promise = guardDestroyedStore(promise, store) as Promise<AdapterPayload>;
+  upgradeStore(store);
 
   return promise.then((adapterPayload) => {
     assert(
@@ -385,7 +388,7 @@ function _findMany(
   });
 }
 
-function rejectFetchedItems(fetchMap: Map<Snapshot, PendingFetchItem>, snapshots: Snapshot[], error?) {
+function rejectFetchedItems(fetchMap: Map<Snapshot, PendingFetchItem>, snapshots: Snapshot[], error?: Error) {
   for (let i = 0, l = snapshots.length; i < l; i++) {
     const snapshot = snapshots[i];
     const pair = fetchMap.get(snapshot);
@@ -461,8 +464,8 @@ function handleFoundRecords(
 
   // reject missing records
   const rejected: Snapshot[] = [];
-  snapshotsById.forEach((snapshots) => {
-    rejected.push(...snapshots);
+  snapshotsById.forEach((snapshotArray) => {
+    rejected.push(...snapshotArray);
   });
   warn(
     'Ember Data expected to find records with the following ids in the adapter response from findMany but they were missing: [ "' +
@@ -477,6 +480,7 @@ function handleFoundRecords(
 }
 
 function _fetchRecord(store: Store, adapter: MinimumAdapterInterface, fetchItem: PendingFetchItem) {
+  upgradeStore(store);
   const identifier = fetchItem.identifier;
   const modelName = identifier.type;
 
@@ -495,7 +499,7 @@ function _fetchRecord(store: Store, adapter: MinimumAdapterInterface, fetchItem:
   });
 
   promise = promise.then((adapterPayload) => {
-    assert(`Async Leak Detected: Expected the store to not be destroyed`, _objectIsAlive(store));
+    assert(`Async Leak Detected: Expected the store to not be destroyed`, !(store.isDestroyed || store.isDestroying));
     assert(
       `You made a 'findRecord' request for a '${modelName}' with id '${id}', but the adapter's response did not have any data`,
       !!payloadIsNotBlank(adapterPayload)
@@ -537,7 +541,7 @@ function _processCoalescedGroup(
       .then((payloads: CollectionResourceDocument) => {
         handleFoundRecords(store, fetchMap, group, payloads);
       })
-      .catch((error) => {
+      .catch((error: Error) => {
         rejectFetchedItems(fetchMap, group, error);
       });
   } else if (group.length === 1) {
@@ -552,6 +556,7 @@ function _flushPendingFetchForType(
   pendingFetchMap: Map<StableExistingRecordIdentifier, PendingFetchItem[]>,
   modelName: string
 ) {
+  upgradeStore(store);
   const adapter = store.adapterFor(modelName);
   const shouldCoalesce = !!adapter.findMany && adapter.coalesceFindRequests;
 
@@ -602,6 +607,7 @@ function _flushPendingFetchForType(
 
 function _flushPendingSave(store: Store, pending: PendingSaveItem) {
   const { snapshot, resolver, identifier, options } = pending;
+  upgradeStore(store);
   const adapter = store.adapterFor(identifier.type);
   const operation = options[SaveOp];
 
@@ -624,7 +630,6 @@ function _flushPendingSave(store: Store, pending: PendingSaveItem) {
   );
 
   promise = promise.then((adapterPayload) => {
-     
     if (!_objectIsAlive(record)) {
       if (DEPRECATE_RSVP_PROMISE) {
         deprecate(

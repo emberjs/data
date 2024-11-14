@@ -4,32 +4,33 @@
 
 import { deprecate } from '@ember/debug';
 
-import type Store from '@ember-data/store';
-import { SOURCE } from '@ember-data/store/-private';
-import type IdentifierArray from '@ember-data/store/-private/record-arrays/identifier-array';
-import type { DSModelSchema, ModelSchema } from '@ember-data/types/q/ds-model';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { FindOptions } from '@ember-data/types/q/store';
-import type { Dict } from '@ember-data/types/q/utils';
 import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@warp-drive/build-config/deprecations';
 
-import type Snapshot from './snapshot';
+import type Store from '@ember-data/store';
+import type { LiveArray } from '@ember-data/store/-private';
+import { SOURCE } from '@ember-data/store/-private';
+import type { FindAllOptions, ModelSchema } from '@ember-data/store/types';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+
+import { upgradeStore } from '../-private';
+import type { Snapshot } from './snapshot';
+
 /**
   SnapshotRecordArray is not directly instantiable.
   Instances are provided to consuming application's
-  adapters for certain requests.
+  adapters for certain `findAll` requests.
 
   @class SnapshotRecordArray
   @public
 */
-export default class SnapshotRecordArray {
+export class SnapshotRecordArray {
   declare _snapshots: Snapshot[] | null;
   declare _type: ModelSchema | null;
   declare modelName: string;
   declare __store: Store;
 
-  declare adapterOptions?: Dict<unknown>;
-  declare include?: string;
+  declare adapterOptions?: Record<string, unknown>;
+  declare include?: string | string[];
 
   /**
     SnapshotRecordArray is not directly instantiable.
@@ -43,7 +44,7 @@ export default class SnapshotRecordArray {
     @param {string} type
     @param options
    */
-  constructor(store: Store, type: string, options: FindOptions = {}) {
+  constructor(store: Store, type: string, options: FindAllOptions = {}) {
     this.__store = store;
     /**
       An array of snapshots
@@ -116,7 +117,7 @@ export default class SnapshotRecordArray {
     @private
     @type {Array}
   */
-  get _recordArray(): IdentifierArray {
+  get _recordArray(): LiveArray {
     return this.__store.peekAll(this.modelName);
   }
 
@@ -175,6 +176,7 @@ export default class SnapshotRecordArray {
     if (this._snapshots !== null) {
       return this._snapshots;
     }
+    upgradeStore(this.__store);
 
     const { _fetchManager } = this.__store;
     this._snapshots = this._recordArray[SOURCE].map((identifier: StableRecordIdentifier) =>

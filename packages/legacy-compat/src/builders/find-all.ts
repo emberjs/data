@@ -1,28 +1,25 @@
 /**
  * @module @ember-data/legacy-compat/builders
  */
-import { assert } from '@ember/debug';
-
-import { SkipCache } from '@ember-data/request';
-import type { ImmutableRequestInfo } from '@ember-data/request/-private/types';
+import type { StoreRequestInput } from '@ember-data/store';
+import type { FindAllOptions } from '@ember-data/store/types';
+import { assert } from '@warp-drive/build-config/macros';
+import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
+import { SkipCache } from '@warp-drive/core-types/request';
+import type { RequestSignature } from '@warp-drive/core-types/symbols';
 
 import { normalizeModelName } from './utils';
 
-// Keeping unused generics for consistency with 5x types
-type FindAllRequestInput<T extends string = string> = ImmutableRequestInfo & {
+type FindAllRequestInput<T extends string = string, RT = unknown[]> = StoreRequestInput & {
   op: 'findAll';
   data: {
     type: T;
     options: FindAllBuilderOptions;
   };
+  [RequestSignature]?: RT;
 };
 
-type FindAllBuilderOptions = {
-  reload?: boolean;
-  backgroundReload?: boolean;
-  include?: string | string[];
-  adapterOptions?: Record<string, unknown>;
-};
+type FindAllBuilderOptions<T = unknown> = FindAllOptions<T>;
 
 /**
   This function builds a request config to perform a `findAll` request for the given type.
@@ -43,7 +40,10 @@ type FindAllBuilderOptions = {
   @param {FindAllBuilderOptions} [options] optional, may include `adapterOptions` hash which will be passed to adapter.findAll
   @return {FindAllRequestInput} request config
 */
-export function findAllBuilder(type: string, options?: FindAllBuilderOptions): FindAllRequestInput;
+export function findAllBuilder<T extends TypedRecordInstance>(
+  type: TypeFromInstance<T>,
+  options?: FindAllBuilderOptions<T>
+): FindAllRequestInput<TypeFromInstance<T>, T[]>;
 export function findAllBuilder(type: string, options?: FindAllBuilderOptions): FindAllRequestInput;
 export function findAllBuilder(type: string, options: FindAllBuilderOptions = {}): FindAllRequestInput {
   assert(`You need to pass a model name to the findAll builder`, type);
@@ -58,6 +58,6 @@ export function findAllBuilder(type: string, options: FindAllBuilderOptions = {}
       type: normalizeModelName(type),
       options: options || {},
     },
-    cacheOptions: { [SkipCache as symbol]: true },
+    cacheOptions: { [SkipCache]: true },
   };
 }

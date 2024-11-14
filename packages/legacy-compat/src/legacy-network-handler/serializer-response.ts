@@ -1,11 +1,11 @@
-import { assert } from '@ember/debug';
-
 import type Store from '@ember-data/store';
-import type { ModelSchema } from '@ember-data/types/q/ds-model';
-import type { JsonApiDocument } from '@ember-data/types/q/ember-data-json-api';
-import type { AdapterPayload } from '@ember-data/types/q/minimum-adapter-interface';
-import type { MinimumSerializerInterface, RequestType } from '@ember-data/types/q/minimum-serializer-interface';
+import type { ModelSchema } from '@ember-data/store/types';
 import { DEBUG } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
+import type { JsonApiDocument } from '@warp-drive/core-types/spec/json-api-raw';
+
+import type { AdapterPayload } from './minimum-adapter-interface';
+import type { MinimumSerializerInterface, RequestType } from './minimum-serializer-interface';
 
 /**
   This is a helper method that validates a JSON API top-level document

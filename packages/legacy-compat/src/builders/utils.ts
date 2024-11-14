@@ -1,6 +1,5 @@
-import { dasherize } from '@ember/string';
-
-import type { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
+import { dasherize } from '@ember-data/request-utils/string';
+import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
 
 export function isMaybeIdentifier(
   maybeIdentifier: string | ResourceIdentifierObject
