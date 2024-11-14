@@ -392,27 +392,6 @@ export const DEPRECATE_HELPERS = '4.7';
 export const DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS = '4.7';
 
 /**
- * **id: ember-data:deprecate-v1cache-store-apis**
- *
- * Deprecates various methods on the store and store-cache-wrapper
- * that were specific to the v1 cache.
- *
- * Most applications should not encounter this deprecation, but if you
- * do it means that an addon you are using is likely using these methods
- * as part of having implemented its own cache.
- *
- * The implementation will need to update to the V2 Cache API equivalent method
- * as detailed in the deprecation method. Generally this means the implementation
- * needs to be more broadly reworked to use the newer V2.1 Cache API.
- *
- * @property DEPRECATE_V1CACHE_STORE_APIS
- * @since 4.7
- * @until 5.0
- * @public
- */
-export const DEPRECATE_V1CACHE_STORE_APIS = '4.7';
-
-/**
  * **id: ember-data:deprecate-non-strict-relationships**
  *
  * Deprecates when belongsTo and hasMany relationships are defined
@@ -553,26 +532,6 @@ export const DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC = '4.7';
  * @public
  */
 export const DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE = '4.7';
-
-/**
- * **id: ember-data:deprecate-v1-cache**
- *
- * Deprecates instantiating a non-singleton cache via `store.createRecordDataFor`
- * in favor of a singleton-cache via `store.createCache`.
- *
- * Most applications should not encounter this deprecation, but if you
- * do it means that an addon you are using is likely using an unsupported cache
- * implementation.
- *
- * The implementation will need to update to the V2 Cache API and be integrated
- * via the `createCache` hook.
- *
- * @property DEPRECATE_V1_RECORD_DATA
- * @since 4.12
- * @until 5.0
- * @public
- */
-export const DEPRECATE_V1_RECORD_DATA = '4.12';
 
 /**
  * **id: ember-data:no-a-with-array-like**
