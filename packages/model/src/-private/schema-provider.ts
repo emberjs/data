@@ -3,7 +3,7 @@ import { deprecate } from '@ember/debug';
 
 import type Store from '@ember-data/store';
 import type { SchemaService } from '@ember-data/store/types';
-import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/build-config/deprecations';
+import { DEPRECATE_STRING_ARG_SCHEMAS, ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
 import type { RecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { ObjectValue } from '@warp-drive/core-types/json/raw';
@@ -179,6 +179,27 @@ if (ENABLE_LEGACY_SCHEMA_SERVICE) {
   ModelSchemaProvider.prototype.attributesDefinitionFor = function (
     resource: RecordIdentifier | { type: string }
   ): AttributesSchema {
+    let rawType: string;
+    if (DEPRECATE_STRING_ARG_SCHEMAS) {
+      if (typeof resource === 'string') {
+        deprecate(
+          `relationshipsDefinitionFor expects either a record identifier or an argument of shape { type: string }, received a string.`,
+          false,
+          {
+            id: 'ember-data:deprecate-string-arg-schemas',
+            for: 'ember-data',
+            until: '5.0',
+            since: { enabled: '4.5', available: '4.5' },
+          }
+        );
+        rawType = resource;
+      } else {
+        rawType = resource.type;
+      }
+    } else {
+      rawType = resource.type;
+    }
+
     deprecate(`Use \`schema.fields({ type })\` instead of \`schema.attributesDefinitionFor({ type })\``, false, {
       id: 'ember-data:schema-service-updates',
       until: '6.0',
@@ -188,7 +209,7 @@ if (ENABLE_LEGACY_SCHEMA_SERVICE) {
         enabled: '5.4',
       },
     });
-    const type = normalizeModelName(resource.type);
+    const type = normalizeModelName(rawType);
 
     if (!this._schemas.has(type)) {
       this._loadModelSchema(type);
@@ -200,6 +221,27 @@ if (ENABLE_LEGACY_SCHEMA_SERVICE) {
   ModelSchemaProvider.prototype.relationshipsDefinitionFor = function (
     resource: RecordIdentifier | { type: string }
   ): RelationshipsSchema {
+    let rawType: string;
+    if (DEPRECATE_STRING_ARG_SCHEMAS) {
+      if (typeof resource === 'string') {
+        deprecate(
+          `relationshipsDefinitionFor expects either a record identifier or an argument of shape { type: string }, received a string.`,
+          false,
+          {
+            id: 'ember-data:deprecate-string-arg-schemas',
+            for: 'ember-data',
+            until: '5.0',
+            since: { enabled: '4.5', available: '4.5' },
+          }
+        );
+        rawType = resource;
+      } else {
+        rawType = resource.type;
+      }
+    } else {
+      rawType = resource.type;
+    }
+
     deprecate(`Use \`schema.fields({ type })\` instead of \`schema.relationshipsDefinitionFor({ type })\``, false, {
       id: 'ember-data:schema-service-updates',
       until: '6.0',
@@ -209,7 +251,7 @@ if (ENABLE_LEGACY_SCHEMA_SERVICE) {
         enabled: '5.4',
       },
     });
-    const type = normalizeModelName(resource.type);
+    const type = normalizeModelName(rawType);
 
     if (!this._schemas.has(type)) {
       this._loadModelSchema(type);

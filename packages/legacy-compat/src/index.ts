@@ -12,6 +12,8 @@ import type {
   SerializerOptions,
 } from './legacy-network-handler/minimum-serializer-interface';
 import { normalizeModelName } from './builders/utils';
+import { DEPRECATE_JSON_API_FALLBACK } from '@warp-drive/build-config/deprecations';
+import { deprecate } from '@ember/debug';
 
 export { LegacyNetworkHandler } from './legacy-network-handler/legacy-network-handler';
 
@@ -91,6 +93,28 @@ export function adapterFor(this: Store, modelName: string, _allowMissing?: true)
     _adapterCache[normalizedModelName] = adapter;
     _adapterCache.application = adapter;
     return adapter;
+  }
+
+  if (DEPRECATE_JSON_API_FALLBACK) {
+    // final fallback, no model specific adapter, no application adapter, no
+    // `adapter` property on store: use json-api adapter
+    adapter = _adapterCache['-json-api'] || owner.lookup('adapter:-json-api');
+    if (adapter !== undefined) {
+      deprecate(
+        `Your application is utilizing a deprecated hidden fallback adapter (-json-api). Please implement an application adapter to function as your fallback.`,
+        false,
+        {
+          id: 'ember-data:deprecate-secret-adapter-fallback',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.5', enabled: '4.5' },
+        }
+      );
+      _adapterCache[normalizedModelName] = adapter;
+      _adapterCache['-json-api'] = adapter;
+
+      return adapter;
+    }
   }
 
   assert(

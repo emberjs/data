@@ -687,37 +687,6 @@ export const DEPRECATE_COMPUTED_CHAINS = '5.0';
 export const DEPRECATE_NON_EXPLICIT_POLYMORPHISM = '4.7';
 
 /**
- * **id: ember-data:deprecate-instantiate-record-args**
- *
- * Deprecates using the former 3rd and 4th arguments to `Store.instantiateRecord` which are now
- * available as properties on the store.
- *
- * **old**
- * ```ts
- * {
- *   instantiateRecord(identifier, createArgs, recordDataFor, notifications) {
- *     const cache = recordDataFor(identifier);
- *   }
- * }
- * ```
- *
- * **new**
- * ```ts
- * {
- *   instantiateRecord(identifier, createArgs) {
- *      const { cache, notifications } = this;
- *   }
- * }
- * ```
- *
- * @property DEPRECATE_INSTANTIATE_RECORD_ARGS
- * @since 4.7
- * @until 5.0
- * @public
- */
-export const DEPRECATE_INSTANTIATE_RECORD_ARGS = '4.12';
-
-/**
  * **id: ember-data:deprecate-many-array-duplicates-4-12**
  *
  * HACK: This deprecation flag is being used as a feature flag to optionally
@@ -927,6 +896,20 @@ export const DEPRECATE_NON_UNIQUE_PAYLOADS = '5.3';
  * @public
  */
 export const DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE = '5.3';
+
+/**
+ * **id: ember-data:deprecate-store-extends-ember-object**
+ *
+ * When the flag is `true` (default), the Store class will extend from `@ember/object`.
+ * When the flag is `false` or `ember-source` is not present, the Store will not extend
+ * from EmberObject.
+ *
+ * @property DEPRECATE_STORE_EXTENDS_EMBER_OBJECT
+ * @since 5.4
+ * @until 6.0
+ * @public
+ */
+export const DEPRECATE_STORE_EXTENDS_EMBER_OBJECT = '5.4';
 
 /**
  * **id: ember-data:schema-service-updates**
