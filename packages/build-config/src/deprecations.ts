@@ -25,4 +25,5 @@ export const DEPRECATE_INSTANTIATE_RECORD_ARGS: boolean = true;
 export const DEPRECATE_MANY_ARRAY_DUPLICATES_4_12: boolean = true;
 export const DEPRECATE_NON_UNIQUE_PAYLOADS: boolean = true;
 export const DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE: boolean = true;
+export const ENABLE_LEGACY_SCHEMA_SERVICE: boolean = true;
 export const DEPRECATE_EMBER_INFLECTOR: boolean = true;
