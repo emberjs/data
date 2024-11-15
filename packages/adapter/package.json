@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/adapter",
-  "version": "5.4.0-alpha.116",
+  "version": "5.4.0-alpha.117",
   "description": "Provides Legacy JSON:API and REST Implementations of the Adapter Interface for use with @ember-data/store",
   "keywords": [
     "ember-addon"
@@ -49,10 +49,10 @@
   },
   "peerDependencies": {
     "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",
-    "@ember-data/legacy-compat": "workspace:5.4.0-alpha.116",
-    "@ember-data/store": "workspace:5.4.0-alpha.116",
-    "@ember-data/request-utils": "workspace:5.4.0-alpha.116",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.102"
+    "@ember-data/legacy-compat": "workspace:5.4.0-alpha.117",
+    "@ember-data/store": "workspace:5.4.0-alpha.117",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.117",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.103"
   },
   "dependenciesMeta": {
     "@warp-drive/core-types": {
@@ -89,25 +89,25 @@
     "ember-cli-string-utils": "^1.1.0",
     "ember-cli-path-utils": "^1.0.0",
     "@ember/edition-utils": "1.2.0",
-    "@warp-drive/build-config": "workspace:0.0.0-alpha.53"
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.54"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
     "@babel/plugin-transform-typescript": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
-    "@ember-data/graph": "workspace:5.4.0-alpha.116",
-    "@ember-data/json-api": "workspace:5.4.0-alpha.116",
-    "@ember-data/legacy-compat": "workspace:5.4.0-alpha.116",
-    "@ember-data/request": "workspace:5.4.0-alpha.116",
-    "@ember-data/request-utils": "workspace:5.4.0-alpha.116",
-    "@ember-data/store": "workspace:5.4.0-alpha.116",
-    "@ember-data/tracking": "workspace:5.4.0-alpha.116",
+    "@ember-data/graph": "workspace:5.4.0-alpha.117",
+    "@ember-data/json-api": "workspace:5.4.0-alpha.117",
+    "@ember-data/legacy-compat": "workspace:5.4.0-alpha.117",
+    "@ember-data/request": "workspace:5.4.0-alpha.117",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.117",
+    "@ember-data/store": "workspace:5.4.0-alpha.117",
+    "@ember-data/tracking": "workspace:5.4.0-alpha.117",
     "@ember/test-waiters": "^3.1.0",
     "@glimmer/component": "^1.1.2",
     "decorator-transforms": "^2.2.2",
     "@types/jquery": "^3.5.30",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.102",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.116",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.103",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.117",
     "ember-source": "~5.12.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "typescript": "^5.4.5",

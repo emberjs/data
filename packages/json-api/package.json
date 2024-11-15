@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/json-api",
-  "version": "5.4.0-alpha.116",
+  "version": "5.4.0-alpha.117",
   "description": "Provides a JSON:API document and resource cache implementation for EmberData",
   "keywords": [
     "ember-addon"
@@ -66,28 +66,28 @@
     }
   },
   "peerDependencies": {
-    "@ember-data/graph": "workspace:5.4.0-alpha.116",
-    "@ember-data/request-utils": "workspace:5.4.0-alpha.116",
-    "@ember-data/store": "workspace:5.4.0-alpha.116",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.102"
+    "@ember-data/graph": "workspace:5.4.0-alpha.117",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.117",
+    "@ember-data/store": "workspace:5.4.0-alpha.117",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.103"
   },
   "dependencies": {
     "@embroider/macros": "^1.16.6",
-    "@warp-drive/build-config": "workspace:0.0.0-alpha.53"
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.54"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
     "@babel/plugin-transform-typescript": "^7.24.5",
     "@babel/preset-env": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
-    "@ember-data/graph": "workspace:5.4.0-alpha.116",
-    "@ember-data/request": "workspace:5.4.0-alpha.116",
-    "@ember-data/request-utils": "workspace:5.4.0-alpha.116",
-    "@ember-data/store": "workspace:5.4.0-alpha.116",
-    "@ember-data/tracking": "workspace:5.4.0-alpha.116",
+    "@ember-data/graph": "workspace:5.4.0-alpha.117",
+    "@ember-data/request": "workspace:5.4.0-alpha.117",
+    "@ember-data/request-utils": "workspace:5.4.0-alpha.117",
+    "@ember-data/store": "workspace:5.4.0-alpha.117",
+    "@ember-data/tracking": "workspace:5.4.0-alpha.117",
     "@glimmer/component": "^1.1.2",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.102",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.116",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.103",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.117",
     "ember-source": "~5.12.0",
     "expect-type": "^0.20.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",

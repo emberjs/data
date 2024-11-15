@@ -1,7 +1,7 @@
 {
   "name": "@ember-data/tracking",
   "description": "Tracking Primitives for controlling change notification of Tracked properties when working with EmberData",
-  "version": "5.4.0-alpha.116",
+  "version": "5.4.0-alpha.117",
   "private": false,
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
@@ -31,11 +31,11 @@
   },
   "dependencies": {
     "@embroider/macros": "^1.16.6",
-    "@warp-drive/build-config": "workspace:0.0.0-alpha.53"
+    "@warp-drive/build-config": "workspace:0.0.0-alpha.54"
   },
   "peerDependencies": {
     "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.102"
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.103"
   },
   "files": [
     "unstable-preview-types",
@@ -79,8 +79,8 @@
     "@babel/preset-typescript": "^7.24.1",
     "@glimmer/component": "^1.1.2",
     "@glimmer/validator": "^0.92.3",
-    "@warp-drive/core-types": "workspace:0.0.0-alpha.102",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.116",
+    "@warp-drive/core-types": "workspace:0.0.0-alpha.103",
+    "@warp-drive/internal-config": "workspace:5.4.0-alpha.117",
     "ember-source": "~5.12.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "typescript": "^5.4.5",
