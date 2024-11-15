@@ -1,15 +1,15 @@
 const path = require('path');
 
 const testInfo = require('ember-cli-test-info');
-const useTestFrameworkDetector = require('@ember-data/private-build-infra/src/utilities/test-framework-detector');
-const modulePrefixForProject = require('@ember-data/private-build-infra/src/utilities/module-prefix-for-project');
+const { dasherize } = require('ember-cli-string-utils');
 
-module.exports = useTestFrameworkDetector({
-  description: 'Generates a transform unit test.',
+module.exports = {
+  description: 'Generates an EmberData Transform unit test',
+  supportsAddon() { return false; },
 
   root: __dirname,
 
-  fileMapTokens(options) {
+  fileMapTokens() {
     return {
       __root__() {
         return 'tests';
@@ -21,9 +21,15 @@ module.exports = useTestFrameworkDetector({
   },
 
   locals(options) {
+    const modulePrefix = dasherize(options.project.config().modulePrefix);
     return {
       friendlyTestDescription: testInfo.description(options.entity.name, 'Unit', 'Transform'),
-      modulePrefix: modulePrefixForProject(options.project),
+      modulePrefix,
     };
   },
-});
+
+  filesPath() {
+    return path.join(__dirname, 'qunit-files')
+  }
+};
+

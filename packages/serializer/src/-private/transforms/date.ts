@@ -2,6 +2,8 @@
   @module @ember-data/serializer
 */
 
+import { TransformName } from '@warp-drive/core-types/symbols';
+
 /**
  The `DateTransform` class is used to serialize and deserialize
  date attributes on Ember Data record objects. This transform is used
@@ -23,11 +25,9 @@
   @public
  */
 
-export default class DateTransform {
-  deserialize(serialized) {
-    const type = typeof serialized;
-
-    if (type === 'string') {
+export class DateTransform {
+  deserialize(serialized: string | number | null, _options?: Record<string, unknown>) {
+    if (typeof serialized === 'string') {
       let offset = serialized.indexOf('+');
 
       if (offset !== -1 && serialized.length - 5 === offset) {
@@ -35,7 +35,7 @@ export default class DateTransform {
         return new Date(serialized.slice(0, offset) + ':' + serialized.slice(offset));
       }
       return new Date(serialized);
-    } else if (type === 'number') {
+    } else if (typeof serialized === 'number') {
       return new Date(serialized);
     } else if (serialized === null || serialized === undefined) {
       // if the value is null return null
@@ -46,13 +46,16 @@ export default class DateTransform {
     }
   }
 
-  serialize(date) {
+  serialize(date: Date, _options?: Record<string, unknown>): string | null {
+    // @ts-expect-error isNaN accepts date as it is coercible
     if (date instanceof Date && !isNaN(date)) {
       return date.toISOString();
     } else {
       return null;
     }
   }
+
+  [TransformName] = 'date' as const;
 
   static create() {
     return new this();

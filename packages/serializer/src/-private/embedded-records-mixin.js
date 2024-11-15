@@ -1,7 +1,7 @@
-import { A } from '@ember/array';
 import { warn } from '@ember/debug';
 import Mixin from '@ember/object/mixin';
-import { camelize } from '@ember/string';
+
+import { camelize } from '@ember-data/request-utils/string';
 
 /**
   @module @ember-data/serializer/rest
@@ -101,7 +101,7 @@ import { camelize } from '@ember/string';
   @class EmbeddedRecordsMixin
   @public
 */
-export default Mixin.create({
+export const EmbeddedRecordsMixin = Mixin.create({
   /**
     Normalize the record and recursively normalize/extract all the embedded records
     while pushing them into the store as they are encountered
@@ -201,7 +201,7 @@ export default Mixin.create({
     @param {Object} relationship
   */
   serializeBelongsTo(snapshot, json, relationship) {
-    const attr = relationship.key;
+    const attr = relationship.name;
     if (this.noSerializeOptionSpecified(attr)) {
       this._super(snapshot, json, relationship);
       return;
@@ -211,9 +211,9 @@ export default Mixin.create({
     const embeddedSnapshot = snapshot.belongsTo(attr);
     if (includeIds) {
       const schema = this.store.modelFor(snapshot.modelName);
-      let serializedKey = this._getMappedKey(relationship.key, schema);
-      if (serializedKey === relationship.key && this.keyForRelationship) {
-        serializedKey = this.keyForRelationship(relationship.key, relationship.kind, 'serialize');
+      let serializedKey = this._getMappedKey(relationship.name, schema);
+      if (serializedKey === relationship.name && this.keyForRelationship) {
+        serializedKey = this.keyForRelationship(relationship.name, relationship.kind, 'serialize');
       }
 
       if (!embeddedSnapshot) {
@@ -231,11 +231,11 @@ export default Mixin.create({
   },
 
   _serializeEmbeddedBelongsTo(snapshot, json, relationship) {
-    const embeddedSnapshot = snapshot.belongsTo(relationship.key);
+    const embeddedSnapshot = snapshot.belongsTo(relationship.name);
     const schema = this.store.modelFor(snapshot.modelName);
-    let serializedKey = this._getMappedKey(relationship.key, schema);
-    if (serializedKey === relationship.key && this.keyForRelationship) {
-      serializedKey = this.keyForRelationship(relationship.key, relationship.kind, 'serialize');
+    let serializedKey = this._getMappedKey(relationship.name, schema);
+    if (serializedKey === relationship.name && this.keyForRelationship) {
+      serializedKey = this.keyForRelationship(relationship.name, relationship.kind, 'serialize');
     }
 
     if (!embeddedSnapshot) {
@@ -389,7 +389,7 @@ export default Mixin.create({
     @param {Object} relationship
   */
   serializeHasMany(snapshot, json, relationship) {
-    const attr = relationship.key;
+    const attr = relationship.name;
     if (this.noSerializeOptionSpecified(attr)) {
       this._super(snapshot, json, relationship);
       return;
@@ -397,9 +397,9 @@ export default Mixin.create({
 
     if (this.hasSerializeIdsOption(attr)) {
       const schema = this.store.modelFor(snapshot.modelName);
-      let serializedKey = this._getMappedKey(relationship.key, schema);
-      if (serializedKey === relationship.key && this.keyForRelationship) {
-        serializedKey = this.keyForRelationship(relationship.key, relationship.kind, 'serialize');
+      let serializedKey = this._getMappedKey(relationship.name, schema);
+      if (serializedKey === relationship.name && this.keyForRelationship) {
+        serializedKey = this.keyForRelationship(relationship.name, relationship.kind, 'serialize');
       }
 
       json[serializedKey] = snapshot.hasMany(attr, { ids: true });
@@ -421,10 +421,10 @@ export default Mixin.create({
     TODO: Make the default in Ember-data 3.0??
   */
   _serializeHasManyAsIdsAndTypes(snapshot, json, relationship) {
-    const serializedKey = this.keyForAttribute(relationship.key, 'serialize');
-    const hasMany = snapshot.hasMany(relationship.key);
+    const serializedKey = this.keyForAttribute(relationship.name, 'serialize');
+    const hasMany = snapshot.hasMany(relationship.name) || [];
 
-    json[serializedKey] = A(hasMany).map(function (recordSnapshot) {
+    json[serializedKey] = hasMany.map(function (recordSnapshot) {
       //
       // I'm sure I'm being utterly naive here. Probably id is a configurable property and
       // type too, and the modelName has to be normalized somehow.
@@ -435,14 +435,14 @@ export default Mixin.create({
 
   _serializeEmbeddedHasMany(snapshot, json, relationship) {
     const schema = this.store.modelFor(snapshot.modelName);
-    let serializedKey = this._getMappedKey(relationship.key, schema);
-    if (serializedKey === relationship.key && this.keyForRelationship) {
-      serializedKey = this.keyForRelationship(relationship.key, relationship.kind, 'serialize');
+    let serializedKey = this._getMappedKey(relationship.name, schema);
+    if (serializedKey === relationship.name && this.keyForRelationship) {
+      serializedKey = this.keyForRelationship(relationship.name, relationship.kind, 'serialize');
     }
 
     warn(
       `The embedded relationship '${serializedKey}' is undefined for '${snapshot.modelName}' with id '${snapshot.id}'. Please include it in your original payload.`,
-      typeof snapshot.hasMany(relationship.key) !== 'undefined',
+      typeof snapshot.hasMany(relationship.name) !== 'undefined',
       { id: 'ds.serializer.embedded-relationship-undefined' }
     );
 
@@ -453,12 +453,11 @@ export default Mixin.create({
     Returns an array of embedded records serialized to JSON
   */
   _generateSerializedHasMany(snapshot, relationship) {
-    const hasMany = snapshot.hasMany(relationship.key);
-    const manyArray = A(hasMany);
-    const ret = new Array(manyArray.length);
+    const hasMany = snapshot.hasMany(relationship.name) || [];
+    const ret = new Array(hasMany.length);
 
-    for (let i = 0; i < manyArray.length; i++) {
-      const embeddedSnapshot = manyArray[i];
+    for (let i = 0; i < hasMany.length; i++) {
+      const embeddedSnapshot = hasMany[i];
       const embeddedJson = embeddedSnapshot.serialize({ includeId: true });
       this.removeEmbeddedForeignKey(snapshot, embeddedSnapshot, relationship, embeddedJson);
       ret[i] = embeddedJson;
@@ -487,7 +486,7 @@ export default Mixin.create({
   removeEmbeddedForeignKey(snapshot, embeddedSnapshot, relationship, json) {
     if (relationship.kind === 'belongsTo') {
       const schema = this.store.modelFor(snapshot.modelName);
-      const parentRecord = schema.inverseFor(relationship.key, this.store);
+      const parentRecord = schema.inverseFor(relationship.name, this.store);
       if (parentRecord) {
         const name = parentRecord.name;
         const embeddedSerializer = this.store.serializerFor(embeddedSnapshot.modelName);
@@ -587,6 +586,9 @@ export default Mixin.create({
       }
 
       hasMany[i] = { id: data.id, type: data.type };
+      if (data.lid) {
+        hasMany[i].lid = data.lid;
+      }
     }
 
     const relationship = { data: hasMany };
@@ -612,6 +614,10 @@ export default Mixin.create({
 
     const belongsTo = { id: data.id, type: data.type };
     const relationship = { data: belongsTo };
+
+    if (data.lid) {
+      belongsTo.lid = data.lid;
+    }
 
     hash.data.relationships[key] = relationship;
   },

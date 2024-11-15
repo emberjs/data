@@ -2,6 +2,8 @@
   @module @ember-data/serializer
 */
 
+import type { TransformName } from '@warp-drive/core-types/symbols';
+
 /**
   The `BooleanTransform` class is used to serialize and deserialize
   boolean attributes on Ember Data record objects. This transform is
@@ -37,31 +39,32 @@
   @class BooleanTransform
   @public
  */
-export default class BooleanTransform {
-  deserialize(serialized, options) {
-    if ((serialized === null || serialized === undefined) && options.allowNull === true) {
+export class BooleanTransform {
+  deserialize(serialized: boolean | null | number | string, options?: { allowNull?: boolean }): boolean | null {
+    if ((serialized === null || serialized === undefined) && options?.allowNull === true) {
       return null;
     }
 
-    const type = typeof serialized;
-    if (type === 'boolean') {
+    if (typeof serialized === 'boolean') {
       return serialized;
-    } else if (type === 'string') {
+    } else if (typeof serialized === 'string') {
       return /^(true|t|1)$/i.test(serialized);
-    } else if (type === 'number') {
+    } else if (typeof serialized === 'number') {
       return serialized === 1;
     } else {
       return false;
     }
   }
 
-  serialize(deserialized, options) {
-    if ((deserialized === null || deserialized === undefined) && options.allowNull === true) {
+  serialize(deserialized: boolean | null, options?: { allowNull?: boolean }): boolean | null {
+    if ((deserialized === null || deserialized === undefined) && options?.allowNull === true) {
       return null;
     }
 
     return Boolean(deserialized);
   }
+
+  declare [TransformName]: 'boolean';
 
   static create() {
     return new this();

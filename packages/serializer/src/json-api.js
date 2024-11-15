@@ -1,12 +1,11 @@
 /**
  * @module @ember-data/serializer/json-api
  */
-import { assert, warn } from '@ember/debug';
-import { dasherize } from '@ember/string';
+import { warn } from '@ember/debug';
 
-import { pluralize, singularize } from 'ember-inflector';
-
+import { dasherize, pluralize, singularize } from '@ember-data/request-utils/string';
 import { DEBUG } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
 
 import JSONSerializer from './json';
 
@@ -194,20 +193,17 @@ const JSONAPISerializer = JSONSerializer.extend({
   _normalizeResourceHelper(resourceHash) {
     assert(this.warnMessageForUndefinedType(), resourceHash.type);
 
-    let modelName, usedLookup;
+    const type = this.modelNameFromPayloadKey(resourceHash.type);
 
-    modelName = this.modelNameFromPayloadKey(resourceHash.type);
-    usedLookup = 'modelNameFromPayloadKey';
-
-    if (!this.store.getSchemaDefinitionService().doesTypeExist(modelName)) {
-      warn(this.warnMessageNoModelForType(modelName, resourceHash.type, usedLookup), false, {
+    if (!this.store.schema.hasResource({ type })) {
+      warn(this.warnMessageNoModelForType(type, resourceHash.type, 'modelNameFromPayloadKey'), false, {
         id: 'ds.serializer.model-for-type-missing',
       });
       return null;
     }
 
-    const modelClass = this.store.modelFor(modelName);
-    const serializer = this.store.serializerFor(modelName);
+    const modelClass = this.store.modelFor(type);
+    const serializer = this.store.serializerFor(type);
     const { data } = serializer.normalize(modelClass, resourceHash);
     return data;
   },
@@ -364,7 +360,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     @return {String} the model's modelName
   */
   modelNameFromPayloadKey(key) {
-    return singularize(dasherize(key));
+    return dasherize(singularize(key));
   },
 
   /**
@@ -397,6 +393,10 @@ const JSONAPISerializer = JSONSerializer.extend({
       attributes: this.extractAttributes(modelClass, resourceHash),
       relationships: this.extractRelationships(modelClass, resourceHash),
     };
+
+    if (resourceHash.lid) {
+      data.lid = resourceHash.lid;
+    }
 
     this.applyTransforms(modelClass, data.attributes);
 
@@ -667,19 +667,19 @@ const JSONAPISerializer = JSONSerializer.extend({
   },
 
   serializeBelongsTo(snapshot, json, relationship) {
-    const key = relationship.key;
+    const name = relationship.name;
 
-    if (this._canSerialize(key)) {
-      const belongsTo = snapshot.belongsTo(key);
+    if (this._canSerialize(name)) {
+      const belongsTo = snapshot.belongsTo(name);
       const belongsToIsNotNew = belongsTo && !belongsTo.isNew;
 
       if (belongsTo === null || belongsToIsNotNew) {
         json.relationships = json.relationships || {};
 
         const schema = this.store.modelFor(snapshot.modelName);
-        let payloadKey = this._getMappedKey(key, schema);
-        if (payloadKey === key) {
-          payloadKey = this.keyForRelationship(key, 'belongsTo', 'serialize');
+        let payloadKey = this._getMappedKey(name, schema);
+        if (payloadKey === name) {
+          payloadKey = this.keyForRelationship(name, 'belongsTo', 'serialize');
         }
 
         let data = null;
@@ -698,17 +698,17 @@ const JSONAPISerializer = JSONSerializer.extend({
   },
 
   serializeHasMany(snapshot, json, relationship) {
-    const key = relationship.key;
+    const name = relationship.name;
 
-    if (this.shouldSerializeHasMany(snapshot, key, relationship)) {
-      const hasMany = snapshot.hasMany(key);
+    if (this.shouldSerializeHasMany(snapshot, name, relationship)) {
+      const hasMany = snapshot.hasMany(name);
       if (hasMany !== undefined) {
         json.relationships = json.relationships || {};
 
         const schema = this.store.modelFor(snapshot.modelName);
-        let payloadKey = this._getMappedKey(key, schema);
-        if (payloadKey === key && this.keyForRelationship) {
-          payloadKey = this.keyForRelationship(key, 'hasMany', 'serialize');
+        let payloadKey = this._getMappedKey(name, schema);
+        if (payloadKey === name && this.keyForRelationship) {
+          payloadKey = this.keyForRelationship(name, 'hasMany', 'serialize');
         }
 
         // only serialize has many relationships that are not new

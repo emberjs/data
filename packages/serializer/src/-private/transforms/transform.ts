@@ -1,6 +1,9 @@
 /**
   @module @ember-data/serializer
 */
+import EmberObject from '@ember/object';
+
+import type { LegacyAttributeField } from '@warp-drive/core-types/schema/fields';
 
 /**
   The `Transform` class is used to serialize and deserialize model
@@ -115,4 +118,8 @@
   @param options hash of options passed to `attr`
   @return The deserialized value
 */
-export { default } from '@ember/object';
+export interface Transform {
+  serialize(value: unknown, options: LegacyAttributeField['options']): unknown;
+  deserialize(value: unknown, options: LegacyAttributeField['options']): unknown;
+}
+export const Transform = EmberObject;

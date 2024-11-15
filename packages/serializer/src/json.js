@@ -2,12 +2,13 @@
  * @module @ember-data/serializer/json
  */
 import { getOwner } from '@ember/application';
-import { assert, warn } from '@ember/debug';
-import { dasherize } from '@ember/string';
+import { warn } from '@ember/debug';
 
-import { coerceId } from '@ember-data/store/-private';
+import { dasherize, singularize } from '@ember-data/request-utils/string';
+import { assert } from '@warp-drive/build-config/macros';
 
 import Serializer from '.';
+import { coerceId } from './-private/utils';
 
 const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
 const SOURCE_POINTER_PRIMARY_REGEXP = /^\/?data/;
@@ -616,6 +617,10 @@ const JSONSerializer = Serializer.extend({
         relationships: this.extractRelationships(modelClass, resourceHash),
       };
 
+      if (resourceHash.lid) {
+        data.lid = resourceHash.lid;
+      }
+
       this.applyTransforms(modelClass, data.attributes);
     }
 
@@ -694,7 +699,7 @@ const JSONSerializer = Serializer.extend({
 
       return relationshipHash;
     }
-    return { id: coerceId(relationshipHash), type: relationshipModelName };
+    return { id: coerceId(relationshipHash), type: dasherize(singularize(relationshipModelName)) };
   },
 
   /**
@@ -802,7 +807,7 @@ const JSONSerializer = Serializer.extend({
     @return {String} the model's modelName
   */
   modelNameFromPayloadKey(key) {
-    return dasherize(key);
+    return dasherize(singularize(key));
   },
 
   /**
@@ -941,7 +946,7 @@ const JSONSerializer = Serializer.extend({
     @public
     @param {Snapshot} snapshot
     @param {String} key
-    @param {String} relationshipType
+    @param {RelationshipSchema} relationship
     @return {boolean} true if the hasMany relationship should be serialized
   */
   shouldSerializeHasMany(snapshot, key, relationship) {
@@ -1144,11 +1149,11 @@ const JSONSerializer = Serializer.extend({
 
     ```app/serializers/application.js
     import RESTSerializer from '@ember-data/serializer/rest';
-    import { decamelize } from '<app-name>/utils/string-utils';
+    import { underscoren} from '<app-name>/utils/string-utils';
 
     export default class ApplicationSerializer extends RESTSerializer {
       serializeIntoHash(data, type, snapshot, options) {
-        let root = decamelize(type.modelName);
+        let root = underscore(type.modelName);
         data[root] = this.serialize(snapshot, options);
       }
     }
@@ -1224,7 +1229,7 @@ const JSONSerializer = Serializer.extend({
 
     export default class PostSerializer extends JSONSerializer {
       serializeBelongsTo(snapshot, json, relationship) {
-        let key = relationship.key;
+        let key = relationship.name;
         let belongsTo = snapshot.belongsTo(key);
 
         key = this.keyForRelationship ? this.keyForRelationship(key, "belongsTo", "serialize") : key;
@@ -1241,17 +1246,17 @@ const JSONSerializer = Serializer.extend({
     @param {Object} relationship
   */
   serializeBelongsTo(snapshot, json, relationship) {
-    const key = relationship.key;
+    const name = relationship.name;
 
-    if (this._canSerialize(key)) {
-      const belongsToId = snapshot.belongsTo(key, { id: true });
+    if (this._canSerialize(name)) {
+      const belongsToId = snapshot.belongsTo(name, { id: true });
 
       // if provided, use the mapping provided by `attrs` in
       // the serializer
       const schema = this.store.modelFor(snapshot.modelName);
-      let payloadKey = this._getMappedKey(key, schema);
-      if (payloadKey === key && this.keyForRelationship) {
-        payloadKey = this.keyForRelationship(key, 'belongsTo', 'serialize');
+      let payloadKey = this._getMappedKey(name, schema);
+      if (payloadKey === name && this.keyForRelationship) {
+        payloadKey = this.keyForRelationship(name, 'belongsTo', 'serialize');
       }
 
       //Need to check whether the id is there for new&async records
@@ -1278,7 +1283,7 @@ const JSONSerializer = Serializer.extend({
 
    export default class PostSerializer extends JSONSerializer {
      serializeHasMany(snapshot, json, relationship) {
-       let key = relationship.key;
+       let key = relationship.name;
        if (key === 'comments') {
          return;
        } else {
@@ -1295,17 +1300,17 @@ const JSONSerializer = Serializer.extend({
    @param {Object} relationship
   */
   serializeHasMany(snapshot, json, relationship) {
-    const key = relationship.key;
+    const name = relationship.name;
 
-    if (this.shouldSerializeHasMany(snapshot, key, relationship)) {
-      const hasMany = snapshot.hasMany(key, { ids: true });
+    if (this.shouldSerializeHasMany(snapshot, name, relationship)) {
+      const hasMany = snapshot.hasMany(name, { ids: true });
       if (hasMany !== undefined) {
         // if provided, use the mapping provided by `attrs` in
         // the serializer
         const schema = this.store.modelFor(snapshot.modelName);
-        let payloadKey = this._getMappedKey(key, schema);
-        if (payloadKey === key && this.keyForRelationship) {
-          payloadKey = this.keyForRelationship(key, 'hasMany', 'serialize');
+        let payloadKey = this._getMappedKey(name, schema);
+        if (payloadKey === name && this.keyForRelationship) {
+          payloadKey = this.keyForRelationship(name, 'hasMany', 'serialize');
         }
 
         json[payloadKey] = hasMany;
@@ -1327,7 +1332,7 @@ const JSONSerializer = Serializer.extend({
 
     export default class CommentSerializer extends JSONSerializer {
       serializePolymorphicType(snapshot, json, relationship) {
-        let key = relationship.key;
+        let key = relationship.name;
         let belongsTo = snapshot.belongsTo(key);
 
         key = this.keyForAttribute ? this.keyForAttribute(key, 'serialize') : key;
