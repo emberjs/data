@@ -5,6 +5,7 @@ import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
 import { DEPRECATE_NON_EXPLICIT_POLYMORPHISM } from '@warp-drive/build-config/deprecations';
+import { FieldSchema, LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
 
 /*
   Assert that `addedRecord` has a valid type so it can be added to the
@@ -38,6 +39,10 @@ if (DEBUG) {
     return addedModelClass.prototype instanceof modelClass || modelClass.detect(addedModelClass);
   };
 
+  const isRelationshipField = function isRelationshipField(meta: FieldSchema): meta is LegacyRelationshipSchema {
+    return meta.kind === 'hasMany' || meta.kind === 'belongsTo';
+  };
+
   // eslint-disable-next-line @typescript-eslint/no-shadow
   assertPolymorphicType = function assertPolymorphicType(
     parentIdentifier: StableRecordIdentifier,
@@ -51,13 +56,17 @@ if (DEBUG) {
     let asserted = false;
     if (parentDefinition.isPolymorphic) {
       const meta = store.schema.fields(addedIdentifier)?.get(parentDefinition.inverseKey);
+      assert(
+        `Expected to find a relationship field schema for ${parentDefinition.inverseKey} on ${addedIdentifier.type} but none was found`,
+        meta && isRelationshipField(meta)
+      );
 
       if (!DEPRECATE_NON_EXPLICIT_POLYMORPHISM) {
         assert(
           `The schema for the relationship '${parentDefinition.inverseKey}' on '${addedIdentifier.type}' type does not implement '${parentDefinition.type}' and thus cannot be assigned to the '${parentDefinition.key}' relationship in '${parentIdentifier.type}'. The definition should specify 'as: "${parentDefinition.type}"' in options.`,
           meta.options.as === parentDefinition.type
         );
-      } else if (meta?.options?.as?.length > 0) {
+      } else if ((meta.options.as?.length ?? 0) > 0) {
         asserted = true;
         assert(
           `The schema for the relationship '${parentDefinition.inverseKey}' on '${addedIdentifier.type}' type does not implement '${parentDefinition.type}' and thus cannot be assigned to the '${parentDefinition.key}' relationship in '${parentIdentifier.type}'. The definition should specify 'as: "${parentDefinition.type}"' in options.`,

@@ -2353,8 +2353,7 @@ function legacyFindInverseFor(Klass: typeof Model, name: string, store: Store) {
 
   //If inverse is manually specified to be null, like  `comments: hasMany('message', { inverse: null })`
   const isExplicitInverseNull = options.inverse === null;
-  const isAbstractType =
-    !isExplicitInverseNull && isPolymorphic && !store.getSchemaDefinitionService().doesTypeExist(relationship.type);
+  const isAbstractType = !isExplicitInverseNull && isPolymorphic && !store.schema.hasResource(relationship);
 
   if (isExplicitInverseNull || isAbstractType) {
     assert(
@@ -2366,6 +2365,7 @@ function legacyFindInverseFor(Klass: typeof Model, name: string, store: Store) {
 
   let fieldOnInverse, inverseKind, inverseRelationship, inverseOptions;
   let inverseSchema = Klass.typeForRelationship(name, store);
+  assert(`No model was found for '${relationship.type}'`, inverseSchema);
 
   // if the type does not exist and we are not polymorphic
   //If inverse is specified manually, return the inverse
@@ -2505,7 +2505,7 @@ function legacyFindInverseFor(Klass: typeof Model, name: string, store: Store) {
   );
 
   return {
-    type: inverseSchema,
+    type: inverseSchema.modelName,
     name: fieldOnInverse,
     kind: inverseKind,
     options: inverseOptions,
