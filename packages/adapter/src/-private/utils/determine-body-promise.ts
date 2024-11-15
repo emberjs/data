@@ -1,12 +1,11 @@
 import { warn } from '@ember/debug';
 
-import type { Dict } from '@ember-data/types/q/utils';
 import { DEBUG } from '@warp-drive/build-config/env';
 
 import type { RequestData } from '../../rest';
-import continueOnReject from './continue-on-reject';
+import { continueOnReject } from './continue-on-reject';
 
-type Payload = Error | Dict<unknown> | unknown[] | string | undefined;
+type Payload = Error | Record<string, unknown> | unknown[] | string | undefined;
 
 interface CustomSyntaxError extends SyntaxError {
   payload: Payload;
@@ -45,7 +44,7 @@ function _determineContent(response: Response, requestData: JQueryAjaxSettings, 
   }
 
   try {
-    ret = JSON.parse(payload as string);
+    ret = JSON.parse(payload as string) as Payload;
   } catch (e) {
     if (!(e instanceof SyntaxError)) {
       return e as Error;

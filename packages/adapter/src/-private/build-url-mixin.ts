@@ -1,10 +1,7 @@
 import Mixin from '@ember/object/mixin';
-import { camelize } from '@ember/string';
-
-import { pluralize } from 'ember-inflector';
 
 import type { Snapshot, SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
-import type { Dict } from '@ember-data/types/q/utils';
+import { camelize, pluralize } from '@ember-data/request-utils/string';
 
 /**
   @module @ember-data/adapter
@@ -20,7 +17,7 @@ import type { Dict } from '@ember-data/types/q/utils';
 // `interface BuildURLMixin { buildURL: typeof buildURL }`
 // then an extending class overwriting one of the methods will break because typescript
 // thinks it is a switch from an instance prop (that is a method) to an instance method.
-interface BuildURLMixin {
+export interface BuildURLMixin {
   buildURL(
     this: MixtBuildURLMixin,
     modelName: string,
@@ -41,7 +38,7 @@ interface BuildURLMixin {
     id: null,
     snapshot: null,
     requestType: 'query',
-    query: Dict<unknown>
+    query: Record<string, unknown>
   ): string;
   buildURL(
     this: MixtBuildURLMixin,
@@ -49,7 +46,7 @@ interface BuildURLMixin {
     id: null,
     snapshot: null,
     requestType: 'queryRecord',
-    query: Dict<unknown>
+    query: Record<string, unknown>
   ): string;
   buildURL(
     this: MixtBuildURLMixin,
@@ -97,8 +94,8 @@ interface BuildURLMixin {
   _buildURL(this: MixtBuildURLMixin, modelName: string | null | undefined, id?: string | null): string;
   urlForFindRecord(this: MixtBuildURLMixin, id: string, modelName: string, snapshot: Snapshot): string;
   urlForFindAll(this: MixtBuildURLMixin, modelName: string, snapshots: SnapshotRecordArray): string;
-  urlForQueryRecord(this: MixtBuildURLMixin, query: Dict<unknown>, modelName: string): string;
-  urlForQuery(this: MixtBuildURLMixin, query: Dict<unknown>, modelName: string): string;
+  urlForQueryRecord(this: MixtBuildURLMixin, query: Record<string, unknown>, modelName: string): string;
+  urlForQuery(this: MixtBuildURLMixin, query: Record<string, unknown>, modelName: string): string;
   urlForFindMany(this: MixtBuildURLMixin, ids: string[], modelName: string, snapshots: Snapshot[]): string;
   urlForFindHasMany(this: MixtBuildURLMixin, id: string, modelName: string, snapshot: Snapshot): string;
   urlForFindBelongsTo(this: MixtBuildURLMixin, id: string, modelName: string, snapshot: Snapshot): string;
@@ -112,7 +109,7 @@ interface BuildURLMixin {
 // prevents the final constructed object from needing to add
 // host and namespace which are provided by the final consuming
 // class to the prototype which can result in overwrite errors
-interface MixtBuildURLMixin extends BuildURLMixin {
+export interface MixtBuildURLMixin extends BuildURLMixin {
   host: string | null;
   namespace: string | null;
 }
@@ -185,7 +182,7 @@ function buildURL(
   id: null,
   snapshot: null,
   requestType: 'query',
-  query: Dict<unknown>
+  query: Record<string, unknown>
 ): string;
 function buildURL(
   this: MixtBuildURLMixin,
@@ -193,7 +190,7 @@ function buildURL(
   id: null,
   snapshot: null,
   requestType: 'queryRecord',
-  query: Dict<unknown>
+  query: Record<string, unknown>
 ): string;
 function buildURL(
   this: MixtBuildURLMixin,
@@ -241,7 +238,7 @@ function buildURL(this: MixtBuildURLMixin, modelName: string, id: string, snapsh
 function buildURL(
   this: MixtBuildURLMixin,
   modelName: string,
-  id: string | string[] | Dict<unknown> | null,
+  id: string | string[] | Record<string, unknown> | null,
   snapshot: Snapshot | Snapshot[] | SnapshotRecordArray | null,
   requestType?:
     | 'findRecord'
@@ -254,7 +251,7 @@ function buildURL(
     | 'createRecord'
     | 'updateRecord'
     | 'deleteRecord',
-  query?: Dict<unknown>
+  query?: Record<string, unknown>
 ): string {
   /*
       Switch statements in typescript don't currently narrow even when the function is implemented
@@ -300,7 +297,7 @@ function buildURL(
     @return {String} url
   */
 function _buildURL(this: MixtBuildURLMixin, modelName: string | null | undefined, id?: string | null): string {
-  let path;
+  let path: string;
   const url: string[] = [];
   const { host } = this;
   const prefix = this.urlPrefix();
@@ -408,7 +405,7 @@ function urlForFindAll(this: MixtBuildURLMixin, modelName: string, snapshots: Sn
    @param {String} modelName
    @return {String} url
    */
-function urlForQuery(this: MixtBuildURLMixin, query: Dict<unknown>, modelName: string): string {
+function urlForQuery(this: MixtBuildURLMixin, query: Record<string, unknown>, modelName: string): string {
   return this._buildURL(modelName);
 }
 
@@ -434,7 +431,7 @@ function urlForQuery(this: MixtBuildURLMixin, query: Dict<unknown>, modelName: s
    @param {String} modelName
    @return {String} url
    */
-function urlForQueryRecord(this: MixtBuildURLMixin, query: Dict<unknown>, modelName: string): string {
+function urlForQueryRecord(this: MixtBuildURLMixin, query: Record<string, unknown>, modelName: string): string {
   return this._buildURL(modelName);
 }
 
@@ -609,7 +606,8 @@ function urlForDeleteRecord(this: MixtBuildURLMixin, id: string, modelName: stri
     @return {String} urlPrefix
   */
 function urlPrefix(this: MixtBuildURLMixin, path?: string | null, parentURL?: string): string {
-  let { host, namespace } = this;
+  const { namespace } = this;
+  let { host } = this;
 
   if (!host || host === '/') {
     host = '';
@@ -654,12 +652,11 @@ function urlPrefix(this: MixtBuildURLMixin, path?: string | null, parentURL?: st
 
     ```app/adapters/application.js
     import RESTAdapter from '@ember-data/adapter/rest';
-    import { decamelize, pluralize } from '<app-name>/utils/string-utils';
+    import { undesrcore, pluralize } from '<app-name>/utils/string-utils';
 
     export default class ApplicationAdapter extends RESTAdapter {
       pathForType(modelName) {
-        var decamelized = decamelize(modelName);
-        return pluralize(decamelized);
+        return pluralize(underscore(modelName));
       }
     }
     ```
@@ -693,4 +690,4 @@ const mixinProps: BuildURLMixin = {
   pathForType,
 };
 
-export default Mixin.create(mixinProps);
+export const BuildURLMixin = Mixin.create(mixinProps);

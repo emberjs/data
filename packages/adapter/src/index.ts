@@ -67,16 +67,18 @@
   your Adapter does not need the method.
 
   ```ts
-  import EmberObject from '@ember/object';
-
   async function fetchData(url, options = {}) {
     let response = await fetch(url, options);
     return response.toJSON();
   }
 
-  export default class ApplicationAdapter extends EmberObject {
+  export default class ApplicationAdapter {
     findRecord(_, { modelName }, id) {
       return fetchData(`./${modelName}s/${id}`);
+    }
+
+    static create() {
+      return new this();
     }
   }
   ```
@@ -147,7 +149,7 @@ Note: If you are using Ember and would like to make use of `service` injections 
   ```js
   import Store from '@ember-data/store';
   import Adapter from '@ember-data/adapter/json-api';
-  import { getOwner, setOwner } from '@ember/application';
+  import { getOwner, setOwner } from '@ember/owner';
 
   class extends Store {
     #adapter = null;
@@ -188,12 +190,12 @@ By default when using with Ember you only need to implement this hook if you wan
 import EmberObject from '@ember/object';
 import { inject as service } from '@ember/service';
 
+import type { AdapterPayload, MinimumAdapterInterface, SerializerOptions } from '@ember-data/legacy-compat';
 import type { Snapshot, SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
 import type Store from '@ember-data/store';
-import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
-import type { AdapterPayload, MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapter-interface';
-import type { Dict } from '@ember-data/types/q/utils';
+import type { ModelSchema } from '@ember-data/store/types';
 import { DEBUG } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
 
 /**
   An adapter is an object that receives requests from a store and
@@ -294,7 +296,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @public
   */
   // @ts-expect-error
-  findRecord(store: Store, type: ShimModelClass, id: string, snapshot: Snapshot): Promise<AdapterPayload> {
+  findRecord(store: Store, type: ModelSchema, id: string, snapshot: Snapshot): Promise<AdapterPayload> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a findRecord override');
     }
@@ -326,15 +328,15 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @method findAll
     @param {Store} store
     @param {Model} type
-    @param {undefined} neverSet a value is never provided to this argument
+    @param {null} neverSet a value is never provided to this argument
     @param {SnapshotRecordArray} snapshotRecordArray
     @return {Promise} promise
     @public
   */
   findAll(
     store: Store,
-    type: ShimModelClass,
-    neverSet,
+    type: ModelSchema,
+    neverSet: null,
     snapshotRecordArray: SnapshotRecordArray
     // @ts-expect-error
   ): Promise<AdapterPayload> {
@@ -376,7 +378,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @public
   */
   // @ts-expect-error
-  query(store: Store, type: ShimModelClass, query): Promise<AdapterPayload> {
+  query(store: Store, type: ModelSchema, query): Promise<AdapterPayload> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a query override');
     }
@@ -421,7 +423,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @public
   */
   // @ts-expect-error
-  queryRecord(store: Store, type: ShimModelClass, query, adapterOptions): Promise<AdapterPayload> {
+  queryRecord(store: Store, type: ModelSchema, query, adapterOptions): Promise<AdapterPayload> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a queryRecord override');
     }
@@ -485,8 +487,13 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @return {Object} serialized snapshot
     @public
   */
-  serialize(snapshot, options): Dict<unknown> {
-    return snapshot.serialize(options);
+  serialize(snapshot: Snapshot, options: SerializerOptions): Record<string, unknown> {
+    const serialized = snapshot.serialize(options);
+    assert(
+      `Your adapter's serialize method must return an object, but it returned ${typeof serialized}`,
+      serialized && typeof serialized === 'object'
+    );
+    return serialized as Record<string, unknown>;
   }
 
   /**
@@ -531,7 +538,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @public
   */
   // @ts-expect-error
-  createRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): Promise<AdapterPayload> {
+  createRecord(store: Store, type: ModelSchema, snapshot: Snapshot): Promise<AdapterPayload> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a createRecord override');
     }
@@ -588,7 +595,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @public
   */
   // @ts-expect-error
-  updateRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): Promise<AdapterPayload> {
+  updateRecord(store: Store, type: ModelSchema, snapshot: Snapshot): Promise<AdapterPayload> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a updateRecord override');
     }
@@ -637,7 +644,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @public
   */
   // @ts-expect-error
-  deleteRecord(store: Store, type: ShimModelClass, snapshot: Snapshot): Promise<AdapterPayload> {
+  deleteRecord(store: Store, type: ModelSchema, snapshot: Snapshot): Promise<AdapterPayload> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a deleteRecord override');
     }
@@ -863,7 +870,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     @return {Boolean}
     @public
   */
-  shouldBackgroundReloadRecord(store: Store, Snapshot): boolean {
+  shouldBackgroundReloadRecord(store: Store, snapshot: Snapshot): boolean {
     return true;
   }
 

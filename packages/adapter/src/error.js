@@ -1,9 +1,10 @@
 /**
   @module @ember-data/adapter/error
  */
-import { assert, deprecate } from '@ember/debug';
-
+import { deprecate } from '@ember/debug';
 import { DEPRECATE_HELPERS } from '@warp-drive/build-config/deprecations';
+import { assert } from '@warp-drive/build-config/macros';
+import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 
 /**
   ## Overview
@@ -52,7 +53,6 @@ import { DEPRECATE_HELPERS } from '@warp-drive/build-config/deprecations';
   `under-maintenance` route:
 
   ```app/routes/application.js
-  import Route from '@ember/routing/route';
   import MaintenanceError from '../adapters/maintenance-error';
 
   export default class ApplicationRoute extends Route {
@@ -73,7 +73,7 @@ import { DEPRECATE_HELPERS } from '@warp-drive/build-config/deprecations';
   @class AdapterError
   @public
 */
-function AdapterError(errors, message = 'Adapter operation failed') {
+function _AdapterError(errors, message = 'Adapter operation failed') {
   this.isAdapterError = true;
   const error = Error.call(this, message);
 
@@ -95,6 +95,12 @@ function AdapterError(errors, message = 'Adapter operation failed') {
   ];
 }
 
+_AdapterError.prototype = Object.create(Error.prototype);
+_AdapterError.prototype.code = 'AdapterError';
+_AdapterError.extend = extendFn(_AdapterError);
+
+const AdapterError = getOrSetGlobal('AdapterError', _AdapterError);
+
 export default AdapterError;
 
 function extendFn(ErrorClass) {
@@ -113,10 +119,6 @@ function extend(ParentErrorClass, defaultMessage) {
 
   return ErrorClass;
 }
-
-AdapterError.prototype = Object.create(Error.prototype);
-AdapterError.prototype.code = 'AdapterError';
-AdapterError.extend = extendFn(AdapterError);
 
 /**
   A `InvalidError` is used by an adapter to signal the external API
@@ -179,7 +181,10 @@ AdapterError.extend = extendFn(AdapterError);
   @extends AdapterError
 */
 // TODO @deprecate extractError documentation
-export const InvalidError = extend(AdapterError, 'The adapter rejected the commit because it was invalid');
+export const InvalidError = getOrSetGlobal(
+  'InvalidError',
+  extend(AdapterError, 'The adapter rejected the commit because it was invalid')
+);
 InvalidError.prototype.code = 'InvalidError';
 
 /**
@@ -191,9 +196,7 @@ InvalidError.prototype.code = 'InvalidError';
   connection if an adapter operation has timed out:
 
   ```app/routes/application.js
-  import Route from '@ember/routing/route';
   import { TimeoutError } from '@ember-data/adapter/error';
-  import { action } from '@ember/object';
 
   export default class ApplicationRoute extends Route {
     @action
@@ -213,7 +216,7 @@ InvalidError.prototype.code = 'InvalidError';
   @public
   @extends AdapterError
 */
-export const TimeoutError = extend(AdapterError, 'The adapter operation timed out');
+export const TimeoutError = getOrSetGlobal('TimeoutError', extend(AdapterError, 'The adapter operation timed out'));
 TimeoutError.prototype.code = 'TimeoutError';
 
 /**
@@ -226,7 +229,7 @@ TimeoutError.prototype.code = 'TimeoutError';
   @public
   @extends AdapterError
 */
-export const AbortError = extend(AdapterError, 'The adapter operation was aborted');
+export const AbortError = getOrSetGlobal('AbortError', extend(AdapterError, 'The adapter operation was aborted'));
 AbortError.prototype.code = 'AbortError';
 
 /**
@@ -239,9 +242,7 @@ AbortError.prototype.code = 'AbortError';
   request is unauthorized:
 
   ```app/routes/application.js
-  import Route from '@ember/routing/route';
   import { UnauthorizedError } from '@ember-data/adapter/error';
-  import { action } from '@ember/object';
 
   export default class ApplicationRoute extends Route {
     @action
@@ -261,7 +262,10 @@ AbortError.prototype.code = 'AbortError';
   @public
   @extends AdapterError
 */
-export const UnauthorizedError = extend(AdapterError, 'The adapter operation is unauthorized');
+export const UnauthorizedError = getOrSetGlobal(
+  'UnauthorizedError',
+  extend(AdapterError, 'The adapter operation is unauthorized')
+);
 UnauthorizedError.prototype.code = 'UnauthorizedError';
 
 /**
@@ -275,7 +279,10 @@ UnauthorizedError.prototype.code = 'UnauthorizedError';
   @public
   @extends AdapterError
 */
-export const ForbiddenError = extend(AdapterError, 'The adapter operation is forbidden');
+export const ForbiddenError = getOrSetGlobal(
+  'ForbiddenError',
+  extend(AdapterError, 'The adapter operation is forbidden')
+);
 ForbiddenError.prototype.code = 'ForbiddenError';
 
 /**
@@ -287,10 +294,7 @@ ForbiddenError.prototype.code = 'ForbiddenError';
   for a specific model that does not exist. For example:
 
   ```app/routes/post.js
-  import Route from '@ember/routing/route';
   import { NotFoundError } from '@ember-data/adapter/error';
-  import { inject as service } from '@ember/service';
-  import { action } from '@ember/object';
 
   export default class PostRoute extends Route {
     @service store;
@@ -314,7 +318,10 @@ ForbiddenError.prototype.code = 'ForbiddenError';
   @public
   @extends AdapterError
 */
-export const NotFoundError = extend(AdapterError, 'The adapter could not find the resource');
+export const NotFoundError = getOrSetGlobal(
+  'NotFoundError',
+  extend(AdapterError, 'The adapter could not find the resource')
+);
 NotFoundError.prototype.code = 'NotFoundError';
 
 /**
@@ -328,7 +335,10 @@ NotFoundError.prototype.code = 'NotFoundError';
   @public
   @extends AdapterError
 */
-export const ConflictError = extend(AdapterError, 'The adapter operation failed due to a conflict');
+export const ConflictError = getOrSetGlobal(
+  'ConflictError',
+  extend(AdapterError, 'The adapter operation failed due to a conflict')
+);
 ConflictError.prototype.code = 'ConflictError';
 
 /**
@@ -340,7 +350,10 @@ ConflictError.prototype.code = 'ConflictError';
   @public
   @extends AdapterError
 */
-export const ServerError = extend(AdapterError, 'The adapter operation failed due to a server error');
+export const ServerError = getOrSetGlobal(
+  'ServerError',
+  extend(AdapterError, 'The adapter operation failed due to a server error')
+);
 ServerError.prototype.code = 'ServerError';
 
 function makeArray(value) {
