@@ -1,25 +1,25 @@
 /**
   @module @ember-data/store
 */
-import type { ImmutableRequestInfo } from '@ember-data/request/-private/types';
 import { addTransactionCB } from '@ember-data/tracking/-private';
-import type { CollectionResourceDocument } from '@ember-data/types/q/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { Dict } from '@ember-data/types/q/utils';
+import { getOrSetGlobal } from '@warp-drive/core-types/-private';
+import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
+import type { CollectionResourceDocument } from '@warp-drive/core-types/spec/json-api-raw';
 
-import type {
-  CollectionCreateOptions} from '../record-arrays/identifier-array';
-import IdentifierArray, {
+import type { CollectionCreateOptions } from '../record-arrays/identifier-array';
+import {
+  ARRAY_SIGNAL,
   Collection,
-  IDENTIFIER_ARRAY_TAG,
+  IdentifierArray,
   NOTIFY,
   notifyArray,
   SOURCE,
 } from '../record-arrays/identifier-array';
-import type Store from '../store-service';
+import type { Store } from '../store-service';
 import type { CacheOperation, UnsubscribeToken } from './notification-manager';
 
-const FAKE_ARR = {};
+const FAKE_ARR = getOrSetGlobal('FAKE_ARR', {});
 const SLICE_BATCH_SIZE = 1200;
 /**
  * This is a clever optimization.
@@ -77,7 +77,7 @@ type ChangeSet = Map<StableRecordIdentifier, 'add' | 'del'>;
   @class RecordArrayManager
   @internal
 */
-class RecordArrayManager {
+export class RecordArrayManager {
   declare store: Store;
   declare isDestroying: boolean;
   declare isDestroyed: boolean;
@@ -170,7 +170,7 @@ class RecordArrayManager {
 
   createArray(config: {
     type?: string;
-    query?: ImmutableRequestInfo | Dict<unknown>;
+    query?: ImmutableRequestInfo | Record<string, unknown>;
     identifiers?: StableRecordIdentifier[];
     doc?: CollectionResourceDocument;
   }): Collection {
@@ -199,7 +199,7 @@ class RecordArrayManager {
     if (array === FAKE_ARR) {
       return;
     }
-    const tag = array[IDENTIFIER_ARRAY_TAG];
+    const tag = array[ARRAY_SIGNAL];
     if (!tag.shouldReset) {
       tag.shouldReset = true;
       addTransactionCB(array[NOTIFY]);
@@ -345,7 +345,6 @@ class RecordArrayManager {
     this.clear(false);
     this._live.clear();
     this.isDestroyed = true;
-     
     this.store.notifications.unsubscribe(this._subscription);
   }
 }
@@ -439,5 +438,3 @@ function sync(
     */
   }
 }
-
-export default RecordArrayManager;

@@ -1,24 +1,34 @@
 /**
   @module @ember-data/store
 */
-// @ts-expect-error
-import { tagForProperty } from '@ember/-internals/metal';
-import { assert, deprecate } from '@ember/debug';
+import { compat } from '@ember-data/tracking';
+import type { Signal } from '@ember-data/tracking/-private';
+import {
+  addToTransaction,
+  createArrayTags,
+  createSignal,
+  defineSignal,
+  subscribe,
+} from '@ember-data/tracking/-private';
+import { assert } from '@warp-drive/build-config/macros';
+import { getOrSetGlobal } from '@warp-drive/core-types/-private';
+import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { TypeFromInstanceOrString } from '@warp-drive/core-types/record';
+import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
+import type { Links, PaginationLinks } from '@warp-drive/core-types/spec/json-api-raw';
+
+import type { OpaqueRecordInstance } from '../../-types/q/record-instance';
+import { isStableIdentifier } from '../caches/identifier-cache';
+import { recordIdentifierFor } from '../caches/instance-cache';
+import type { RecordArrayManager } from '../managers/record-array-manager';
+import type { Store } from '../store-service';
+import { NativeProxy } from './native-proxy-type-fix';
+
+import { deprecate } from '@ember/debug';
 import { get, set } from '@ember/object';
-import { dependentKeyCompat } from '@ember/object/compat';
 // eslint-disable-next-line no-restricted-imports
 import { compare } from '@ember/utils';
-import { tracked } from '@glimmer/tracking';
-// @ts-expect-error
-import { dirtyTag } from '@glimmer/validator';
 import Ember from 'ember';
-
-import type { ImmutableRequestInfo } from '@ember-data/request/-private/types';
-import { addToTransaction, subscribe } from '@ember-data/tracking/-private';
-import type { Links, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { RecordInstance } from '@ember-data/types/q/record-instance';
-import type { Dict } from '@ember-data/types/q/utils';
 import {
   DEPRECATE_A_USAGE,
   DEPRECATE_ARRAY_LIKE,
@@ -28,12 +38,8 @@ import {
 } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 
-import { isStableIdentifier } from '../caches/identifier-cache';
-import { recordIdentifierFor } from '../caches/instance-cache';
-import type RecordArrayManager from '../managers/record-array-manager';
-import type { PromiseArray} from '../proxies/promise-proxies';
+import type { PromiseArray } from '../proxies/promise-proxies';
 import { promiseArray } from '../proxies/promise-proxies';
-import type Store from '../store-service';
 
 type KeyType = string | symbol | number;
 const ARRAY_GETTER_METHODS = new Set<KeyType>([
@@ -62,28 +68,24 @@ const ARRAY_GETTER_METHODS = new Set<KeyType>([
 ]);
 const ARRAY_SETTER_METHODS = new Set<KeyType>(['push', 'pop', 'unshift', 'shift', 'splice', 'sort']);
 const SYNC_PROPS = new Set<KeyType>(['[]', 'length', 'links', 'meta']);
-function isArrayGetter(prop: KeyType): boolean {
+function isArrayGetter<T>(prop: KeyType): prop is keyof Array<T> {
   return ARRAY_GETTER_METHODS.has(prop);
 }
-function isArraySetter(prop: KeyType): boolean {
+function isArraySetter<T>(prop: KeyType): prop is keyof Array<T> {
   return ARRAY_SETTER_METHODS.has(prop);
 }
+function isSelfProp<T extends object>(self: T, prop: KeyType): prop is Exclude<keyof T, number> {
+  return prop in self;
+}
 
-export const IDENTIFIER_ARRAY_TAG = Symbol('#tag');
-export const SOURCE = Symbol('#source');
-export const MUTATE = Symbol('#update');
-export const NOTIFY = Symbol('#notify');
-const IS_COLLECTION = Symbol.for('Collection');
+export const ARRAY_SIGNAL = getOrSetGlobal('#signal', Symbol('#signal'));
+export const SOURCE = getOrSetGlobal('#source', Symbol('#source'));
+export const MUTATE = getOrSetGlobal('#update', Symbol('#update'));
+export const NOTIFY = getOrSetGlobal('#notify', Symbol('#notify'));
+const IS_COLLECTION = getOrSetGlobal('IS_COLLECTION', Symbol.for('Collection'));
 
 export function notifyArray(arr: IdentifierArray) {
-  addToTransaction(arr[IDENTIFIER_ARRAY_TAG]);
-
-  if (DEPRECATE_COMPUTED_CHAINS) {
-    // eslint-disable-next-line
-    dirtyTag(tagForProperty(arr, 'length'));
-    // eslint-disable-next-line
-    dirtyTag(tagForProperty(arr, '[]'));
-  }
+  addToTransaction(arr[ARRAY_SIGNAL]);
 }
 
 function convertToInt(prop: KeyType): number | null {
@@ -96,43 +98,16 @@ function convertToInt(prop: KeyType): number | null {
   return num % 1 === 0 ? num : null;
 }
 
-class Tag {
-  @tracked ref = null;
-  declare shouldReset: boolean;
-  /*
-   * whether this was part of a transaction when last mutated
-   */
-  declare t: boolean;
-  declare _debug_base: string;
-  declare _debug_prop: string;
-
-  constructor() {
-    if (DEBUG) {
-      const [arr, prop] = arguments as unknown as [IdentifierArray, string];
-
-      this._debug_base = arr.constructor.name + ':' + String(arr.modelName);
-      this._debug_prop = prop;
-    }
-    this.shouldReset = false;
-    this.t = false;
-  }
-}
-
 type ProxiedMethod = (...args: unknown[]) => unknown;
-declare global {
-  interface ProxyConstructor {
-    new <TSource extends object, TTarget extends object>(target: TSource, handler: ProxyHandler<TSource>): TTarget;
-  }
-}
 
-export type IdentifierArrayCreateOptions = {
-  identifiers: StableRecordIdentifier[];
-  type?: string;
+export type IdentifierArrayCreateOptions<T = unknown> = {
+  identifiers: StableRecordIdentifier<TypeFromInstanceOrString<T>>[];
+  type?: TypeFromInstanceOrString<T>;
   store: Store;
   allowMutation: boolean;
-  manager: RecordArrayManager;
+  manager: MinimumManager;
   links?: Links | PaginationLinks | null;
-  meta?: Dict<unknown> | null;
+  meta?: Record<string, unknown> | null;
 };
 
 function deprecateArrayLike(className: string, fnName: string, replName: string) {
@@ -150,14 +125,14 @@ function deprecateArrayLike(className: string, fnName: string, replName: string)
 
 interface PrivateState {
   links: Links | PaginationLinks | null;
-  meta: Dict<unknown> | null;
+  meta: Record<string, unknown> | null;
 }
-type ForEachCB = (record: RecordInstance, index: number, context: typeof Proxy<StableRecordIdentifier[]>) => void;
-function safeForEach(
-  instance: typeof Proxy<StableRecordIdentifier[]>,
+type ForEachCB<T> = (record: T, index: number, context: typeof NativeProxy<StableRecordIdentifier[], T[]>) => void;
+function safeForEach<T>(
+  instance: typeof NativeProxy<StableRecordIdentifier[], T[]>,
   arr: StableRecordIdentifier[],
   store: Store,
-  callback: ForEachCB,
+  callback: ForEachCB<T>,
   target: unknown
 ) {
   if (target === undefined) {
@@ -174,11 +149,15 @@ function safeForEach(
   const length = arr.length; // we need to access length to ensure we are consumed
 
   for (let index = 0; index < length; index++) {
-    callback.call(target, store._instanceCache.getRecord(arr[index]), index, instance);
+    callback.call(target, store._instanceCache.getRecord(arr[index]) as T, index, instance);
   }
 
   return instance;
 }
+
+type MinimumManager = {
+  _syncArray: (array: IdentifierArray) => void;
+};
 
 /**
   A record array is an array that contains records of a certain type (or modelName).
@@ -192,16 +171,17 @@ function safeForEach(
   @class RecordArray
   @public
 */
-interface IdentifierArray extends Omit<Array<RecordInstance>, '[]'> {
+export interface IdentifierArray<T = unknown> extends Omit<Array<T>, '[]'> {
   [MUTATE]?(
     target: StableRecordIdentifier[],
-    receiver: typeof Proxy<StableRecordIdentifier[]>,
+    receiver: typeof NativeProxy<StableRecordIdentifier[], T[]>,
     prop: string,
     args: unknown[],
-    _TAG: Tag
+    _SIGNAL: Signal
   ): unknown;
 }
-class IdentifierArray {
+
+export class IdentifierArray<T = unknown> {
   declare DEPRECATED_CLASS_NAME: string;
   /**
     The flag to signal a `RecordArray` is currently loading data.
@@ -216,21 +196,22 @@ class IdentifierArray {
     @public
     @type Boolean
   */
-  @tracked isUpdating = false;
+  declare isUpdating: boolean;
   isLoaded = true;
   isDestroying = false;
   isDestroyed = false;
-  _updatingPromise: PromiseArray<RecordInstance, IdentifierArray> | Promise<IdentifierArray> | null = null;
+  _updatingPromise: Promise<IdentifierArray<T>> | null = null;
 
   [IS_COLLECTION] = true;
-  declare [IDENTIFIER_ARRAY_TAG]: Tag;
+  declare [ARRAY_SIGNAL]: Signal;
   [SOURCE]: StableRecordIdentifier[];
   [NOTIFY]() {
     notifyArray(this);
   }
 
   declare links: Links | PaginationLinks | null;
-  declare meta: Dict<unknown> | null;
+  declare meta: Record<string, unknown> | null;
+  declare modelName?: TypeFromInstanceOrString<T>;
 
   /**
    The modelClass represented by this record array.
@@ -240,7 +221,7 @@ class IdentifierArray {
     @deprecated
    @type {subclass of Model}
    */
-  declare modelName?: string;
+  declare type: unknown;
   /**
     The store that created this record array.
 
@@ -249,7 +230,7 @@ class IdentifierArray {
     @type Store
     */
   declare store: Store;
-  declare _manager: RecordArrayManager;
+  declare _manager: MinimumManager;
 
   destroy(clear: boolean) {
     this.isDestroying = !clear;
@@ -261,7 +242,7 @@ class IdentifierArray {
   }
 
   // length must be on self for proxied methods to work properly
-  @dependentKeyCompat
+  @compat
   get length() {
     return this[SOURCE].length;
   }
@@ -269,26 +250,17 @@ class IdentifierArray {
     this[SOURCE].length = value;
   }
 
-  // here to support computed chains
-  // and {{#each}}
-  get '[]'() {
-    if (DEPRECATE_COMPUTED_CHAINS) {
-      return this;
-    }
-  }
-
-  constructor(options: IdentifierArrayCreateOptions) {
+  constructor(options: IdentifierArrayCreateOptions<T>) {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
     this.modelName = options.type;
     this.store = options.store;
     this._manager = options.manager;
     this[SOURCE] = options.identifiers;
-    // @ts-expect-error
-    this[IDENTIFIER_ARRAY_TAG] = DEBUG ? new Tag(this, 'length') : new Tag();
+    this[ARRAY_SIGNAL] = createSignal(this, 'length');
     const store = options.store;
     const boundFns = new Map<KeyType, ProxiedMethod>();
-    const _TAG = this[IDENTIFIER_ARRAY_TAG];
+    const _SIGNAL = this[ARRAY_SIGNAL];
     const PrivateState: PrivateState = {
       links: options.links || null,
       meta: options.meta || null,
@@ -299,26 +271,30 @@ class IdentifierArray {
     // we track all mutations within the call
     // and forward them as one
 
-    const proxy = new Proxy<StableRecordIdentifier[], RecordInstance[]>(this[SOURCE], {
-      get(target: StableRecordIdentifier[], prop: KeyType, receiver: typeof Proxy<StableRecordIdentifier[]>): unknown {
+    const proxy = new NativeProxy<StableRecordIdentifier[], T[]>(this[SOURCE], {
+      get<R extends typeof NativeProxy<StableRecordIdentifier[], T[]>>(
+        target: StableRecordIdentifier[],
+        prop: keyof R,
+        receiver: R
+      ): unknown {
         const index = convertToInt(prop);
-        if (_TAG.shouldReset && (index !== null || SYNC_PROPS.has(prop) || isArrayGetter(prop))) {
+        if (_SIGNAL.shouldReset && (index !== null || SYNC_PROPS.has(prop) || isArrayGetter(prop))) {
           options.manager._syncArray(receiver as unknown as IdentifierArray);
-          _TAG.t = false;
-          _TAG.shouldReset = false;
+          _SIGNAL.t = false;
+          _SIGNAL.shouldReset = false;
         }
 
         if (index !== null) {
           const identifier = target[index];
           if (!transaction) {
-            subscribe(_TAG);
+            subscribe(_SIGNAL);
           }
           return identifier && store._instanceCache.getRecord(identifier);
         }
 
-        if (prop === 'meta') return subscribe(_TAG), PrivateState.meta;
-        if (prop === 'links') return subscribe(_TAG), PrivateState.links;
-        if (prop === '[]') return subscribe(_TAG), receiver;
+        if (prop === 'meta') return subscribe(_SIGNAL), PrivateState.meta;
+        if (prop === 'links') return subscribe(_SIGNAL), PrivateState.links;
+        if (prop === '[]') return subscribe(_SIGNAL), receiver;
 
         if (isArrayGetter(prop)) {
           let fn = boundFns.get(prop);
@@ -326,15 +302,15 @@ class IdentifierArray {
           if (fn === undefined) {
             if (prop === 'forEach') {
               fn = function () {
-                subscribe(_TAG);
+                subscribe(_SIGNAL);
                 transaction = true;
-                const result = safeForEach(receiver, target, store, arguments[0] as ForEachCB, arguments[1]);
+                const result = safeForEach(receiver, target, store, arguments[0] as ForEachCB<T>, arguments[1]);
                 transaction = false;
                 return result;
               };
             } else {
               fn = function () {
-                subscribe(_TAG);
+                subscribe(_SIGNAL);
                 // array functions must run through Reflect to work properly
                 // binding via other means will not work.
                 transaction = true;
@@ -365,7 +341,7 @@ class IdentifierArray {
               assert(`Cannot start a new array transaction while a previous transaction is underway`, !transaction);
 
               transaction = true;
-              const result = self[MUTATE]!(target, receiver, prop as string, args, _TAG);
+              const result = self[MUTATE]!(target, receiver, prop as string, args, _SIGNAL);
               transaction = false;
               return result;
             };
@@ -376,18 +352,20 @@ class IdentifierArray {
           return fn;
         }
 
-        if (prop in self) {
+        if (isSelfProp(self, prop)) {
           if (DEPRECATE_ARRAY_LIKE) {
             if (prop === 'firstObject') {
-              deprecateArrayLike(self.DEPRECATED_CLASS_NAME, prop, '[0]');
+              deprecateArrayLike(self.DEPRECATED_CLASS_NAME, prop as string, '[0]');
+              // @ts-expect-error adding MutableArray method calling index signature
               return receiver[0];
             } else if (prop === 'lastObject') {
-              deprecateArrayLike(self.DEPRECATED_CLASS_NAME, prop, 'at(-1)');
+              deprecateArrayLike(self.DEPRECATED_CLASS_NAME, prop as string, 'at(-1)');
+              // @ts-expect-error adding MutableArray method calling index signature
               return receiver[receiver.length - 1];
             }
           }
 
-          if (prop === NOTIFY || prop === IDENTIFIER_ARRAY_TAG || prop === SOURCE) {
+          if (prop === NOTIFY || prop === ARRAY_SIGNAL || prop === SOURCE) {
             return self[prop];
           }
 
@@ -398,7 +376,7 @@ class IdentifierArray {
 
           if (typeof outcome === 'function') {
             fn = function () {
-              subscribe(_TAG);
+              subscribe(_SIGNAL);
               // array functions must run through Reflect to work properly
               // binding via other means will not work.
               return Reflect.apply(outcome as ProxiedMethod, receiver, arguments) as unknown;
@@ -408,22 +386,23 @@ class IdentifierArray {
             return fn;
           }
 
-          return subscribe(_TAG), outcome;
+          return subscribe(_SIGNAL), outcome;
         }
 
-        return target[prop];
+        return target[prop as keyof StableRecordIdentifier[]];
       },
 
+      // FIXME: Should this get a generic like get above?
       set(
         target: StableRecordIdentifier[],
         prop: KeyType,
         value: unknown,
-        receiver: typeof Proxy<StableRecordIdentifier[]>
+        receiver: typeof NativeProxy<StableRecordIdentifier[], T[]>
       ): boolean {
         if (prop === 'length') {
           if (!transaction && value === 0) {
             transaction = true;
-            self[MUTATE]!(target, receiver, 'length 0', [], _TAG);
+            self[MUTATE]!(target, receiver, 'length 0', [], _SIGNAL);
             transaction = false;
             return true;
           } else if (transaction) {
@@ -437,7 +416,7 @@ class IdentifierArray {
           return true;
         }
         if (prop === 'meta') {
-          PrivateState.meta = (value || null) as Dict<unknown> | null;
+          PrivateState.meta = (value || null) as Record<string, unknown> | null;
           return true;
         }
         const index = convertToInt(prop);
@@ -451,11 +430,12 @@ class IdentifierArray {
         // a transaction.
         if (index === null || index > target.length) {
           if (index !== null && transaction) {
-            const identifier = recordIdentifierFor(value as RecordInstance);
+            const identifier = recordIdentifierFor(value as OpaqueRecordInstance);
             assert(`Cannot set index ${index} past the end of the array.`, isStableIdentifier(identifier));
             target[index] = identifier;
             return true;
-          } else if (prop in self) {
+          } else if (isSelfProp(self, prop)) {
+            // @ts-expect-error not all properties are indeces and we can't safely cast
             self[prop] = value;
             return true;
           }
@@ -463,12 +443,14 @@ class IdentifierArray {
         }
 
         if (!options.allowMutation) {
-          assert(`Mutating ${String(prop)} on this RecordArray is not allowed.`, options.allowMutation);
+          assert(`Mutating ${String(prop)} on this Array is not allowed.`, options.allowMutation);
           return false;
         }
 
         const original: StableRecordIdentifier | undefined = target[index];
-        const newIdentifier = extractIdentifierFromRecord(value as RecordInstance);
+        const newIdentifier = extractIdentifierFromRecord(value);
+        // FIXME this line was added on main and I'm not sure why
+        (target as unknown as Record<KeyType, unknown>)[index] = newIdentifier;
         assert(`Expected a record`, isStableIdentifier(newIdentifier));
         // We generate "transactions" whenever a setter method on the array
         // is called and might bulk update multiple array cells. Fundamentally,
@@ -487,7 +469,7 @@ class IdentifierArray {
         // a transaction.
         // while "arr[arr.length] = newVal;" is handled by this replace cell code path.
         if (!transaction) {
-          self[MUTATE]!(target, receiver, 'replace cell', [index, original, newIdentifier], _TAG);
+          self[MUTATE]!(target, receiver, 'replace cell', [index, original, newIdentifier], _SIGNAL);
         } else {
           target[index] = newIdentifier;
         }
@@ -506,7 +488,7 @@ class IdentifierArray {
       getPrototypeOf() {
         return IdentifierArray.prototype;
       },
-    }) as IdentifierArray;
+    }) as IdentifierArray<T>;
 
     if (DEPRECATE_A_USAGE) {
       const meta = Ember.meta(this);
@@ -529,6 +511,8 @@ class IdentifierArray {
         assert(`Do not call A() on EmberData RecordArrays`);
       };
     }
+
+    createArrayTags(proxy, _SIGNAL);
 
     this[NOTIFY] = this[NOTIFY].bind(proxy);
 
@@ -555,7 +539,8 @@ class IdentifierArray {
     @method update
     @public
   */
-  update(): PromiseArray<RecordInstance, IdentifierArray> | Promise<IdentifierArray> {
+  // @ts-expect-error IdentifierArray is not a MutableArray
+  update(): PromiseArray<T, IdentifierArray<T>> | Promise<IdentifierArray<T>> {
     if (this.isUpdating) {
       return this._updatingPromise!;
     }
@@ -580,9 +565,13 @@ class IdentifierArray {
     Update this RecordArray and return a promise which resolves once the update
     is finished.
    */
-  _update(): PromiseArray<RecordInstance, IdentifierArray> | Promise<IdentifierArray> {
+  _update(): Promise<IdentifierArray<T>> {
     assert(`_update cannot be used with this array`, this.modelName);
-    return this.store.findAll(this.modelName, { reload: true });
+    // @ts-expect-error typescript is unable to handle the complexity of
+    //   T = unknown, modelName = string
+    //   T extends TypedRecordInstance, modelName = TypeFromInstance<T>
+    // both being valid options to pass through here.
+    return this.store.findAll<T>(this.modelName, { reload: true });
   }
 
   // TODO deprecate
@@ -603,16 +592,38 @@ class IdentifierArray {
     @public
     @return {PromiseArray} promise
   */
-  save(): PromiseArray<RecordInstance, IdentifierArray> | Promise<IdentifierArray> {
+  // @ts-expect-error IdentifierArray is not a MutableArray
+  save(): PromiseArray<T, IdentifierArray<T>> | Promise<IdentifierArray<T>> {
     const promise = Promise.all(this.map((record) => this.store.saveRecord(record))).then(() => this);
 
     if (DEPRECATE_PROMISE_PROXIES) {
-      return promiseArray<RecordInstance, IdentifierArray>(promise);
+      // @ts-expect-error IdentifierArray is not a MutableArray
+      return promiseArray<T, IdentifierArray<T>>(promise);
     }
 
     return promise;
   }
 }
+
+// this will error if someone tries to call
+// A(identifierArray) since it is not configurable
+// which is preferable to the `meta` override we used
+// before which required importing all of Ember
+const desc = {
+  enumerable: true,
+  configurable: false,
+  get: function () {
+    // here to support computed chains
+    // and {{#each}}
+    if (DEPRECATE_COMPUTED_CHAINS) {
+      return this;
+    }
+  },
+};
+compat(desc);
+Object.defineProperty(IdentifierArray.prototype, '[]', desc);
+
+defineSignal(IdentifierArray.prototype, 'isUpdating', false);
 
 export default IdentifierArray;
 
@@ -640,12 +651,14 @@ if (DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS) {
 }
 
 export type CollectionCreateOptions = IdentifierArrayCreateOptions & {
-  query: ImmutableRequestInfo | Dict<unknown> | null;
+  manager: RecordArrayManager;
+  query: ImmutableRequestInfo | Record<string, unknown> | null;
   isLoaded: boolean;
 };
 
-export class Collection extends IdentifierArray {
-  query: ImmutableRequestInfo | Dict<unknown> | null = null;
+export class Collection<T = unknown> extends IdentifierArray<T> {
+  query: ImmutableRequestInfo | Record<string, unknown> | null = null;
+  declare _manager: RecordArrayManager;
 
   constructor(options: CollectionCreateOptions) {
     super(options as IdentifierArrayCreateOptions);
@@ -653,18 +666,24 @@ export class Collection extends IdentifierArray {
     this.isLoaded = options.isLoaded || false;
   }
 
-  _update(): PromiseArray<RecordInstance, Collection> | Promise<Collection> {
+  _update(): Promise<Collection<T>> {
     const { store, query } = this;
 
     // TODO save options from initial request?
     assert(`update cannot be used with this array`, this.modelName);
     assert(`update cannot be used with no query`, query);
-    const promise = store.query(this.modelName, query as Dict<unknown>, { _recordArray: this });
+    // @ts-expect-error typescript is unable to handle the complexity of
+    //   T = unknown, modelName = string
+    //   T extends TypedRecordInstance, modelName = TypeFromInstance<T>
+    // both being valid options to pass through here.
+    const promise = store.query<T>(this.modelName, query as Record<string, unknown>, { _recordArray: this });
 
     if (DEPRECATE_PROMISE_PROXIES) {
+      // @ts-expect-error Collection is not a MutableArray
       return promiseArray(promise);
     }
-    return promise;
+
+    return promise as Promise<Collection<T>>;
   }
 
   destroy(clear: boolean) {
@@ -694,8 +713,9 @@ if (DEPRECATE_ARRAY_LIKE) {
     'set',
     'setProperties',
     'toggleProperty',
-  ];
+  ] as const;
   EmberObjectMethods.forEach((method) => {
+    // @ts-expect-error adding MutableArray method
     IdentifierArray.prototype[method] = function delegatedMethod(...args: unknown[]): unknown {
       deprecate(
         `The EmberObject ${method} method on the class ${this.DEPRECATED_CLASS_NAME} is deprecated. Use dot-notation javascript get/set access instead.`,
@@ -707,11 +727,13 @@ if (DEPRECATE_ARRAY_LIKE) {
           for: 'ember-data',
         }
       );
+      // @ts-expect-error ember is missing types for some methods
       return (Ember[method] as (...args: unknown[]) => unknown)(this, ...args);
     };
   });
 
-  IdentifierArray.prototype.addObject = function (obj: RecordInstance) {
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.addObject = function (obj: OpaqueRecordInstance) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'addObject', 'push');
     const index = this.indexOf(obj);
     if (index === -1) {
@@ -720,9 +742,10 @@ if (DEPRECATE_ARRAY_LIKE) {
     return this;
   };
 
-  IdentifierArray.prototype.addObjects = function (objs: RecordInstance[]) {
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.addObjects = function (objs: OpaqueRecordInstance[]) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'addObjects', 'push');
-    objs.forEach((obj: RecordInstance) => {
+    objs.forEach((obj: OpaqueRecordInstance) => {
       const index = this.indexOf(obj);
       if (index === -1) {
         this.push(obj);
@@ -731,40 +754,47 @@ if (DEPRECATE_ARRAY_LIKE) {
     return this;
   };
 
+  // @ts-expect-error adding MutableArray method
   IdentifierArray.prototype.popObject = function () {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'popObject', 'pop');
-    return this.pop() as RecordInstance;
+    return this.pop() as OpaqueRecordInstance;
   };
 
-  IdentifierArray.prototype.pushObject = function (obj: RecordInstance) {
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.pushObject = function (obj: OpaqueRecordInstance) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'pushObject', 'push');
     this.push(obj);
     return obj;
   };
 
-  IdentifierArray.prototype.pushObjects = function (objs: RecordInstance[]) {
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.pushObjects = function (objs: OpaqueRecordInstance[]) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'pushObjects', 'push');
     this.push(...objs);
     return this;
   };
 
+  // @ts-expect-error adding MutableArray method
   IdentifierArray.prototype.shiftObject = function () {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'shiftObject', 'shift');
     return this.shift()!;
   };
 
-  IdentifierArray.prototype.unshiftObject = function (obj: RecordInstance) {
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.unshiftObject = function (obj: OpaqueRecordInstance) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'unshiftObject', 'unshift');
     this.unshift(obj);
     return obj;
   };
 
-  IdentifierArray.prototype.unshiftObjects = function (objs: RecordInstance[]) {
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.unshiftObjects = function (objs: OpaqueRecordInstance[]) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'unshiftObjects', 'unshift');
     this.unshift(...objs);
     return this;
   };
 
+  // @ts-expect-error adding MutableArray method
   IdentifierArray.prototype.objectAt = function (index: number) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'objectAt', 'at');
     //For negative index values go back from the end of the array
@@ -772,24 +802,29 @@ if (DEPRECATE_ARRAY_LIKE) {
     return this[arrIndex];
   };
 
+  // @ts-expect-error adding MutableArray method
   IdentifierArray.prototype.objectsAt = function (indices: number[]) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'objectsAt', 'at');
+    // @ts-expect-error adding MutableArray method
     return indices.map((index) => this.objectAt(index)!);
   };
 
+  // @ts-expect-error adding MutableArray method
   IdentifierArray.prototype.removeAt = function (index: number) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'removeAt', 'splice');
     this.splice(index, 1);
     return this;
   };
 
-  IdentifierArray.prototype.insertAt = function (index: number, obj: RecordInstance) {
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.insertAt = function (index: number, obj: OpaqueRecordInstance) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'insertAt', 'splice');
     this.splice(index, 0, obj);
     return this;
   };
 
-  IdentifierArray.prototype.removeObject = function (obj: RecordInstance) {
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.removeObject = function (obj: OpaqueRecordInstance) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'removeObject', 'splice');
     const index = this.indexOf(obj);
     if (index !== -1) {
@@ -798,7 +833,8 @@ if (DEPRECATE_ARRAY_LIKE) {
     return this;
   };
 
-  IdentifierArray.prototype.removeObjects = function (objs: RecordInstance[]) {
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.removeObjects = function (objs: OpaqueRecordInstance[]) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'removeObjects', 'splice');
     objs.forEach((obj) => {
       const index = this.indexOf(obj);
@@ -809,12 +845,14 @@ if (DEPRECATE_ARRAY_LIKE) {
     return this;
   };
 
+  // @ts-expect-error adding MutableArray method
   IdentifierArray.prototype.toArray = function () {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'toArray', 'slice');
     return this.slice();
   };
 
-  IdentifierArray.prototype.replace = function (idx: number, amt: number, objects?: RecordInstance[]) {
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.replace = function (idx: number, amt: number, objects?: OpaqueRecordInstance[]) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'replace', 'splice');
     if (objects) {
       this.splice(idx, amt, ...objects);
@@ -823,13 +861,15 @@ if (DEPRECATE_ARRAY_LIKE) {
     }
   };
 
+  // @ts-expect-error adding MutableArray method
   IdentifierArray.prototype.clear = function () {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'clear', 'length = 0');
     this.splice(0, this.length);
     return this;
   };
 
-  IdentifierArray.prototype.setObjects = function (objects: RecordInstance[]) {
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.setObjects = function (objects: OpaqueRecordInstance[]) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'setObjects', '`arr.length = 0; arr.push(objects);`');
     assert(
       `${this.DEPRECATED_CLASS_NAME}.setObjects expects to receive an array as its argument`,
@@ -840,44 +880,52 @@ if (DEPRECATE_ARRAY_LIKE) {
     return this;
   };
 
+  // @ts-expect-error adding MutableArray method
   IdentifierArray.prototype.reverseObjects = function () {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'reverseObjects', 'reverse');
     this.reverse();
     return this;
   };
 
+  // @ts-expect-error adding MutableArray method
   IdentifierArray.prototype.compact = function () {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'compact', 'filter');
     return this.filter((v) => v !== null && v !== undefined);
   };
 
+  // @ts-expect-error adding MutableArray method
   IdentifierArray.prototype.any = function (callback, target) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'any', 'some');
     return this.some(callback, target);
   };
 
+  // @ts-expect-error adding MutableArray method
   IdentifierArray.prototype.isAny = function (prop, value) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'isAny', 'some');
     const hasValue = arguments.length === 2;
     return this.some((v) => (hasValue ? v[prop] === value : v[prop] === true));
   };
 
+  // @ts-expect-error adding MutableArray method
   IdentifierArray.prototype.isEvery = function (prop, value) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'isEvery', 'every');
     const hasValue = arguments.length === 2;
     return this.every((v) => (hasValue ? v[prop] === value : v[prop] === true));
   };
 
+  // @ts-expect-error adding MutableArray method
   IdentifierArray.prototype.getEach = function (key: string) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'getEach', 'map');
     return this.map((value) => get(value, key));
   };
 
+  // @ts-expect-error adding MutableArray method
   IdentifierArray.prototype.mapBy = function (key: string) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'mapBy', 'map');
     return this.map((value) => get(value, key));
   };
 
+  // @ts-expect-error adding MutableArray method
   IdentifierArray.prototype.findBy = function (key: string, value?: unknown) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'findBy', 'find');
     if (arguments.length === 2) {
@@ -889,6 +937,7 @@ if (DEPRECATE_ARRAY_LIKE) {
     }
   };
 
+  // @ts-expect-error adding MutableArray method
   IdentifierArray.prototype.filterBy = function (key: string, value?: unknown) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'filterBy', 'filter');
     if (arguments.length === 2) {
@@ -901,6 +950,7 @@ if (DEPRECATE_ARRAY_LIKE) {
     });
   };
 
+  // @ts-expect-error adding MutableArray method
   IdentifierArray.prototype.sortBy = function (...sortKeys: string[]) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'sortBy', '.slice().sort');
     return this.slice().sort((a, b) => {
@@ -961,6 +1011,7 @@ if (DEPRECATE_ARRAY_LIKE) {
     );
   };
 
+  // @ts-expect-error adding MutableArray method
   IdentifierArray.prototype.reject = function (callback, target?: unknown) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'reject', 'filter');
     assert('`reject` expects a function as first argument.', typeof callback === 'function');
@@ -969,6 +1020,7 @@ if (DEPRECATE_ARRAY_LIKE) {
     });
   };
 
+  // @ts-expect-error adding MutableArray method
   IdentifierArray.prototype.rejectBy = function (key: string, value?: unknown) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'rejectBy', 'filter');
     if (arguments.length === 2) {
@@ -981,11 +1033,13 @@ if (DEPRECATE_ARRAY_LIKE) {
     });
   };
 
+  // @ts-expect-error adding MutableArray method
   IdentifierArray.prototype.setEach = function (key: string, value: unknown) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'setEach', 'forEach');
     this.forEach((item) => set(item, key, value));
   };
 
+  // @ts-expect-error adding MutableArray method
   IdentifierArray.prototype.uniq = function () {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'uniq', 'filter');
     // all current managed arrays are already enforced as unique
@@ -997,7 +1051,7 @@ if (DEPRECATE_ARRAY_LIKE) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'uniqBy', 'filter');
     // all current managed arrays are already enforced as unique
     const seen = new Set();
-    const result: RecordInstance[] = [];
+    const result: OpaqueRecordInstance[] = [];
     this.forEach((item) => {
       const value = get(item, key);
       if (seen.has(value)) {
@@ -1009,7 +1063,8 @@ if (DEPRECATE_ARRAY_LIKE) {
     return result;
   };
 
-  IdentifierArray.prototype.without = function (value: RecordInstance) {
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.without = function (value: OpaqueRecordInstance) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'without', 'slice');
     const newArr = this.slice();
     const index = this.indexOf(value);
@@ -1025,9 +1080,9 @@ if (DEPRECATE_ARRAY_LIKE) {
   IdentifierArray.prototype.lastObject = null;
 }
 
-type PromiseProxyRecord = { then(): void; content: RecordInstance | null | undefined };
+type PromiseProxyRecord = { then(): void; content: OpaqueRecordInstance | null | undefined };
 
-function assertRecordPassedToHasMany(record: RecordInstance | PromiseProxyRecord) {
+function assertRecordPassedToHasMany(record: OpaqueRecordInstance | PromiseProxyRecord) {
   assert(
     `All elements of a hasMany relationship must be instances of Model, you passed $${typeof record}`,
     (function () {
@@ -1041,7 +1096,7 @@ function assertRecordPassedToHasMany(record: RecordInstance | PromiseProxyRecord
   );
 }
 
-function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord | RecordInstance | null) {
+function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord | OpaqueRecordInstance | null) {
   if (!recordOrPromiseRecord) {
     return null;
   }
@@ -1060,6 +1115,6 @@ function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord |
   return recordIdentifierFor(recordOrPromiseRecord);
 }
 
-function isPromiseRecord(record: PromiseProxyRecord | RecordInstance): record is PromiseProxyRecord {
-  return !!record.then;
+function isPromiseRecord(record: PromiseProxyRecord | OpaqueRecordInstance): record is PromiseProxyRecord {
+  return Boolean(typeof record === 'object' && record && 'then' in record);
 }

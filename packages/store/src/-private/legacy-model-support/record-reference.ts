@@ -1,15 +1,14 @@
-import { assert } from '@ember/debug';
-import { tracked } from '@glimmer/tracking';
-
+import { defineSignal } from '@ember-data/tracking/-private';
+import { assert } from '@warp-drive/build-config/macros';
+import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 /**
   @module @ember-data/store
 */
-import type { SingleResourceDocument } from '@ember-data/types/q/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { RecordInstance } from '@ember-data/types/q/record-instance';
+import type { SingleResourceDocument } from '@warp-drive/core-types/spec/json-api-raw';
 
+import type { OpaqueRecordInstance } from '../../-types/q/record-instance';
 import type { NotificationType } from '../managers/notification-manager';
-import type Store from '../store-service';
+import type { Store } from '../store-service';
 
 /**
   @module @ember-data/store
@@ -21,7 +20,6 @@ import type Store from '../store-service';
 
    @class RecordReference
    @public
-   @extends Reference
 */
 export default class RecordReference {
   declare store: Store;
@@ -29,7 +27,7 @@ export default class RecordReference {
   ___token!: object;
   ___identifier: StableRecordIdentifier;
 
-  @tracked _ref = 0;
+  declare _ref: number;
 
   constructor(store: Store, identifier: StableRecordIdentifier) {
     this.store = store;
@@ -71,6 +69,7 @@ export default class RecordReference {
      @return {String} The id of the record.
   */
   id() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     this._ref; // consume the tracked prop
     return this.___identifier.id;
   }
@@ -157,7 +156,7 @@ export default class RecordReference {
     @param objectOrPromise a JSON:API ResourceDocument or a promise resolving to one
     @return a promise for the value (record or relationship)
   */
-  push(objectOrPromise: SingleResourceDocument | Promise<SingleResourceDocument>): Promise<RecordInstance> {
+  push(objectOrPromise: SingleResourceDocument | Promise<SingleResourceDocument>): Promise<OpaqueRecordInstance> {
     // TODO @deprecate pushing unresolved payloads
     return Promise.resolve(objectOrPromise).then((data) => {
       return this.store.push(data);
@@ -181,7 +180,7 @@ export default class RecordReference {
     @public
      @return {Model} the record for this RecordReference
   */
-  value(): RecordInstance | null {
+  value(): OpaqueRecordInstance | null {
     return this.store.peekRecord(this.___identifier);
   }
 
@@ -235,3 +234,5 @@ export default class RecordReference {
     assert(`Unable to fetch record of type ${this.type} without an id`);
   }
 }
+
+defineSignal(RecordReference.prototype, '_ref');

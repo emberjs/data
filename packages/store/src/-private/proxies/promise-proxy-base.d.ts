@@ -10,27 +10,29 @@ export class PromiseArrayProxy<I, T> extends ArrayProxy<I, T> {
    * If the proxied promise is rejected this will contain the reason
    * provided.
    */
-  reason: string | Error;
+  declare reason: string | Error;
   /*
    * Once the proxied promise has settled this will become `false`.
    */
-  isPending: boolean;
+  declare isPending: boolean;
   /*
    * Once the proxied promise has settled this will become `true`.
    */
-  isSettled: boolean;
+  declare isSettled: boolean;
   /*
    * Will become `true` if the proxied promise is rejected.
    */
-  isRejected: boolean;
+  declare isRejected: boolean;
   /*
    * Will become `true` if the proxied promise is fulfilled.
    */
-  isFulfilled: boolean;
+  declare isFulfilled: boolean;
   /*
    * The promise whose fulfillment value is being proxied by this object.
    */
-  promise: Promise<T>;
+  declare promise: Promise<T>;
+
+  declare finally<U>(onFinally?: () => U): Promise<U>;
 }
 
 export interface PromiseObjectProxy<T> extends Promise<T> {}

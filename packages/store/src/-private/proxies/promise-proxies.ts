@@ -3,7 +3,6 @@ import { get } from '@ember/object';
 import type ComputedProperty from '@ember/object/computed';
 import { reads } from '@ember/object/computed';
 
-import type { Dict } from '@ember-data/types/q/utils';
 import { DEBUG } from '@warp-drive/build-config/env';
 
 import { PromiseArrayProxy, PromiseObjectProxy } from './promise-proxy-base';
@@ -44,18 +43,18 @@ import { PromiseArrayProxy, PromiseObjectProxy } from './promise-proxy-base';
   @uses Ember.PromiseProxyMixin
 */
 interface EmberNativeArrayLike<T> {
-  length: number | ComputedProperty<number>;
+  length: number;
   objectAt(idx: number): T | undefined;
 }
 interface EmberArrayProxyLike<T> {
-  length: number | ComputedProperty<number>;
+  length: number;
   objectAtContent(idx: number): T | undefined;
 }
 type EmberArrayLike<T> = EmberNativeArrayLike<T> | EmberArrayProxyLike<T>;
 
 export class PromiseArray<I, T extends EmberArrayLike<I>> extends PromiseArrayProxy<I, T> {
   @reads('content.meta')
-  declare meta?: Dict<unknown>;
+  declare meta?: Record<string, unknown>;
 }
 
 /**
