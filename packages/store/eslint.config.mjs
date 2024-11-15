@@ -11,7 +11,15 @@ export default [
   // browser (js/ts) ================
   typescript.browser({
     srcDirs: ['src'],
-    allowedImports: ['@ember/runloop', '@ember/application', '@ember/owner', '@ember/debug', '@ember/object'],
+    allowedImports: [
+      'ember',
+      '@ember/utils',
+      '@ember/runloop',
+      '@ember/application',
+      '@ember/owner',
+      '@ember/debug',
+      '@ember/object',
+    ],
   }),
 
   // node (module) ================
