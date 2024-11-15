@@ -1,117 +1,71 @@
-import { assert } from '@ember/debug';
-import { dependentKeyCompat } from '@ember/object/compat';
-import { cached, tracked } from '@glimmer/tracking';
-
 import type Store from '@ember-data/store';
+import type { NotificationType } from '@ember-data/store';
 import { storeFor } from '@ember-data/store';
-import { peekCache, recordIdentifierFor } from '@ember-data/store/-private';
-import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type RequestStateService from '@ember-data/store/-private/network/request-cache';
-import { addToTransaction, subscribe } from '@ember-data/tracking/-private';
-import type { Cache } from '@ember-data/types/q/cache';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import { DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
-import { DEBUG } from '@warp-drive/build-config/env';
+import type { RequestState, RequestStateService } from '@ember-data/store/-private';
+import { recordIdentifierFor } from '@ember-data/store/-private';
+import { cached, compat } from '@ember-data/tracking';
+import { addToTransaction, defineSignal, getSignal, peekSignal, subscribe } from '@ember-data/tracking/-private';
+import { assert } from '@warp-drive/build-config/macros';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { Cache } from '@warp-drive/core-types/cache';
 
-import type Model from './model';
+import type { Errors } from './errors';
+import type { MinimalLegacyRecord } from './model-methods';
 
 const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
 const SOURCE_POINTER_PRIMARY_REGEXP = /^\/?data/;
 const PRIMARY_ATTRIBUTE_KEY = 'base';
-function isInvalidError(error) {
-  return error && error.isAdapterError === true && error.code === 'InvalidError';
+function isInvalidError(error: unknown): error is Error & { isAdapterError: true; code: 'InvalidError' } {
+  return (
+    !!error &&
+    error instanceof Error &&
+    'isAdapterError' in error &&
+    error.isAdapterError === true &&
+    'code' in error &&
+    error.code === 'InvalidError'
+  );
 }
 
 /**
- * Tag provides a cache for a getter
- * that recomputes only when a specific
- * tracked property that it manages is dirtied.
- *
- * This allows us to bust the cache for a value
- * that otherwise doesn't access anything tracked
- * as well as control the timing of that notification.
- *
- * @internal
- */
-class Tag {
-  declare rev: number;
-  declare isDirty: boolean;
-  declare value: any;
-  declare t: boolean;
-  declare _debug_base: string;
-  declare _debug_prop: string;
-
-  constructor() {
-    if (DEBUG) {
-      const [base, prop] = arguments as unknown as [string, string];
-      this._debug_base = base;
-      this._debug_prop = prop;
-    }
-    this.rev = 1;
-    this.isDirty = true;
-    this.value = undefined;
-    /*
-     * whether this was part of a transaction when mutated
-     */
-    this.t = false;
-  }
-  @tracked ref = null;
-
-  notify() {
-    this.isDirty = true;
-    addToTransaction(this);
-    this.rev++;
-  }
-  consume(v) {
-    this.isDirty = false;
-    this.value = v; // set cached value
-  }
-}
-
-const Tags = new WeakMap();
-function getTag(record, key) {
-  let tags = Tags.get(record);
-  if (!tags) {
-    tags = Object.create(null);
-    Tags.set(record, tags);
-  }
-  // @ts-expect-error
-  return (tags[key] = tags[key] || (DEBUG ? new Tag(record.constructor.modelName, key) : new Tag()));
-}
-
-export function peekTag(record, key) {
-  const tags = Tags.get(record);
-  return tags && tags[key];
-}
-
-/**
- * A decorattor that caches a getter while
+ * A decorator that caches a getter while
  * providing the ability to bust that cache
  * when we so choose in a way that notifies
- * glimmer's tracking system.
+ * tracking systems.
  *
  * @internal
  */
-export function tagged(_target, key, desc) {
-  const getter = desc.get;
-  const setter = desc.set;
-  desc.get = function () {
-    const tag = getTag(this, key);
-    subscribe(tag);
+export function tagged<T extends object, K extends keyof T & string>(_target: T, key: K, desc: PropertyDescriptor) {
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  const getter = desc.get as (this: T) => unknown;
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  const setter = desc.set as (this: T, v: unknown) => void;
 
-    if (tag.isDirty) {
-      tag.consume(getter.call(this));
+  desc.get = function (this: T) {
+    const signal = getSignal(this, key, true);
+    subscribe(signal);
+
+    if (signal.shouldReset) {
+      signal.shouldReset = false;
+      signal.lastValue = getter.call(this);
     }
 
-    return tag.value;
+    return signal.lastValue;
   };
-  desc.set = function (v) {
-    getTag(this, key); // ensure tag is setup in case we want to use it.
+  desc.set = function (this: T, v: unknown) {
+    getSignal(this, key, true); // ensure signal is setup in case we want to use it.
     // probably notify here but not yet.
     setter.call(this, v);
   };
-  dependentKeyCompat(desc);
+  compat(desc);
   return desc;
+}
+
+export function notifySignal<T extends object, K extends keyof T & string>(obj: T, key: K) {
+  const signal = peekSignal(obj, key);
+  if (signal) {
+    signal.shouldReset = true;
+    addToTransaction(signal);
+  }
 }
 
 /**
@@ -156,24 +110,24 @@ root
 export default class RecordState {
   declare store: Store;
   declare identifier: StableRecordIdentifier;
-  declare record: Model;
+  declare record: MinimalLegacyRecord;
   declare rs: RequestStateService;
 
   declare pendingCount: number;
   declare fulfilledCount: number;
   declare rejectedCount: number;
   declare cache: Cache;
-  declare _errorRequests: any[];
-  declare _lastError: any;
+  declare _errorRequests: RequestState[];
+  declare _lastError: RequestState | null;
   declare handler: object;
 
-  constructor(record: Model) {
+  constructor(record: MinimalLegacyRecord) {
     const store = storeFor(record)!;
     const identity = recordIdentifierFor(record);
 
     this.identifier = identity;
     this.record = record;
-    this.cache = DEPRECATE_V1_RECORD_DATA ? peekCache(record)! : store.cache;
+    this.cache = store.cache;
 
     this.pendingCount = 0;
     this.fulfilledCount = 0;
@@ -184,7 +138,7 @@ export default class RecordState {
     const requests = store.getRequestStateService();
     const notifications = store.notifications;
 
-    const handleRequest = (req) => {
+    const handleRequest = (req: RequestState) => {
       if (req.type === 'mutation') {
         switch (req.state) {
           case 'pending':
@@ -203,6 +157,7 @@ export default class RecordState {
             this._errorRequests = [];
             this._lastError = null;
             this.isSaving = false;
+            this.notify('isDirty');
             notifyErrorsStateChanged(this);
             break;
         }
@@ -238,11 +193,9 @@ export default class RecordState {
 
     // we instantiate lazily
     // so we grab anything we don't have yet
-    if (!DEBUG) {
-      const lastRequest = requests.getLastRequestForRecord(identity);
-      if (lastRequest) {
-        handleRequest(lastRequest);
-      }
+    const lastRequest = requests.getLastRequestForRecord(identity);
+    if (lastRequest) {
+      handleRequest(lastRequest);
     }
 
     this.handler = notifications.subscribe(
@@ -250,6 +203,7 @@ export default class RecordState {
       (identifier: StableRecordIdentifier, type: NotificationType, key?: string) => {
         switch (type) {
           case 'state':
+            this.notify('isSaved');
             this.notify('isNew');
             this.notify('isDeleted');
             this.notify('isDirty');
@@ -271,13 +225,13 @@ export default class RecordState {
     storeFor(this.record)!.notifications.unsubscribe(this.handler);
   }
 
-  notify(key) {
-    getTag(this, key).notify();
+  notify(key: keyof this & string) {
+    notifySignal(this, key);
   }
 
-  updateInvalidErrors(errors) {
+  updateInvalidErrors(errors: Errors) {
     assert(
-      `Expected the Cache instance for ${this.identifier}  to implement getErrors(identifier)`,
+      `Expected the Cache instance for ${this.identifier.lid}  to implement getErrors(identifier)`,
       typeof this.cache.getErrors === 'function'
     );
     const jsonApiErrors = this.cache.getErrors(this.identifier);
@@ -299,6 +253,7 @@ export default class RecordState {
 
         if (key) {
           const errMsg = error.detail || error.title;
+          assert(`Expected field error to have a detail or title to use as the message`, errMsg);
           errors.add(key, errMsg);
         }
       }
@@ -313,7 +268,7 @@ export default class RecordState {
     this._lastError = null;
   }
 
-  @tracked isSaving = false;
+  declare isSaving: boolean;
 
   @tagged
   get isLoading() {
@@ -332,7 +287,7 @@ export default class RecordState {
   get isSaved() {
     const rd = this.cache;
     if (this.isDeleted) {
-      assert(`Expected Cache to implement isDeletionCommitted()`, rd.isDeletionCommitted);
+      assert(`Expected Cache to implement isDeletionCommitted()`, typeof rd.isDeletionCommitted === 'function');
       return rd.isDeletionCommitted(this.identifier);
     }
     if (this.isNew || this.isEmpty || !this.isValid || this.isDirty || this.isLoading) {
@@ -346,21 +301,21 @@ export default class RecordState {
     const rd = this.cache;
     // TODO this is not actually an RFC'd concept. Determine the
     // correct heuristic to replace this with.
-    assert(`Expected Cache to implement isEmpty()`, rd.isEmpty);
+    assert(`Expected Cache to implement isEmpty()`, typeof rd.isEmpty === 'function');
     return !this.isNew && rd.isEmpty(this.identifier);
   }
 
   @tagged
   get isNew() {
     const rd = this.cache;
-    assert(`Expected Cache to implement isNew()`, rd.isNew);
+    assert(`Expected Cache to implement isNew()`, typeof rd.isNew === 'function');
     return rd.isNew(this.identifier);
   }
 
   @tagged
   get isDeleted() {
     const rd = this.cache;
-    assert(`Expected Cache to implement isDeleted()`, rd.isDeleted);
+    assert(`Expected Cache to implement isDeleted()`, typeof rd.isDeleted === 'function');
     return rd.isDeleted(this.identifier);
   }
 
@@ -372,10 +327,10 @@ export default class RecordState {
   @tagged
   get isDirty() {
     const rd = this.cache;
-    if (rd.isDeletionCommitted(this.identifier) || (this.isDeleted && this.isNew)) {
+    if (this.isEmpty || rd.isDeletionCommitted(this.identifier) || (this.isDeleted && this.isNew)) {
       return false;
     }
-    return this.isNew || rd.hasChangedAttrs(this.identifier);
+    return this.isDeleted || this.isNew || rd.hasChangedAttrs(this.identifier);
   }
 
   @tagged
@@ -394,7 +349,7 @@ export default class RecordState {
     if (!request) {
       return null;
     }
-    return request.state === 'rejected' && request.response.data;
+    return request.state === 'rejected' && request.response!.data;
   }
 
   @cached
@@ -455,7 +410,7 @@ export default class RecordState {
       return '';
 
       // deleted substates
-    } else if (this.isDeleted) {
+    } else if (this.isDirty && this.isDeleted) {
       return 'deleted';
 
       // loaded.created substates
@@ -472,6 +427,7 @@ export default class RecordState {
     }
   }
 }
+defineSignal(RecordState.prototype, 'isSaving', false);
 
 function notifyErrorsStateChanged(state: RecordState) {
   state.notify('isValid');

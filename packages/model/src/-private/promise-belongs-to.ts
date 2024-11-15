@@ -1,36 +1,38 @@
-import { assert } from '@ember/debug';
 import { computed } from '@ember/object';
 import type PromiseProxyMixin from '@ember/object/promise-proxy-mixin';
 import type ObjectProxy from '@ember/object/proxy';
-import { cached } from '@glimmer/tracking';
 
 import type Store from '@ember-data/store';
-import type { RecordInstance } from '@ember-data/types/q/record-instance';
-import type { Dict } from '@ember-data/types/q/utils';
+import { cached } from '@ember-data/tracking';
+import { assert } from '@warp-drive/build-config/macros';
+import type { OpaqueRecordInstance, TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 
 import type { LegacySupport } from './legacy-relationships-support';
 import { PromiseObject } from './promise-proxy-base';
-import type BelongsToReference from './references/belongs-to';
 
-export interface BelongsToProxyMeta {
+export interface BelongsToProxyMeta<T = unknown> {
   key: string;
   store: Store;
   legacySupport: LegacySupport;
-  modelName: string;
+  modelName: TypeFromInstanceOrString<T>;
 }
-export interface BelongsToProxyCreateArgs {
-  promise: Promise<RecordInstance | null>;
-  content?: RecordInstance | null;
-  _belongsToState: BelongsToProxyMeta;
+export interface BelongsToProxyCreateArgs<T = unknown> {
+  promise: Promise<T | null>;
+  content?: T | null;
+  _belongsToState: BelongsToProxyMeta<T>;
 }
 
-interface PromiseObjectType<T extends object> extends PromiseProxyMixin<T | null>, ObjectProxy<T> {
-  new <T extends object>(...args: unknown[]): PromiseObjectType<T>;
-}
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-declare class PromiseObjectType<T extends object> {}
+export const LegacyPromiseProxy = Symbol.for('LegacyPromiseProxy');
 
-const Extended: PromiseObjectType<RecordInstance> = PromiseObject as unknown as PromiseObjectType<RecordInstance>;
+interface PromiseObjectType<T> extends PromiseProxyMixin<T | null>, ObjectProxy<T> {
+  // eslint-disable-next-line @typescript-eslint/no-misused-new
+  new <PT>(...args: unknown[]): PromiseObjectType<PT>;
+}
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-extraneous-class
+declare class PromiseObjectType<T> {}
+
+const Extended: PromiseObjectType<OpaqueRecordInstance> =
+  PromiseObject as unknown as PromiseObjectType<OpaqueRecordInstance>;
 
 /**
  @module @ember-data/model
@@ -45,13 +47,13 @@ const Extended: PromiseObjectType<RecordInstance> = PromiseObject as unknown as 
   @extends PromiseObject
   @private
 */
-class PromiseBelongsTo extends Extended<RecordInstance> {
-  declare _belongsToState: BelongsToProxyMeta;
+class PromiseBelongsTo<T = unknown> extends Extended<T> {
+  declare _belongsToState: BelongsToProxyMeta<T>;
 
   @cached
-  get id() {
+  get id(): string | null {
     const { key, legacySupport } = this._belongsToState;
-    const ref = legacySupport.referenceFor('belongsTo', key) as BelongsToReference;
+    const ref = legacySupport.referenceFor('belongsTo', key);
 
     return ref.id();
   }
@@ -65,7 +67,7 @@ class PromiseBelongsTo extends Extended<RecordInstance> {
     if (1) {
       assert(
         'You attempted to access meta on the promise for the async belongsTo relationship ' +
-          `${this.get('_belongsToState').modelName}:${this.get('_belongsToState').key}'.` +
+          `${this._belongsToState.modelName}:${this._belongsToState.key}'.` +
           '\nUse `record.belongsTo(relationshipName).meta()` instead.',
         false
       );
@@ -73,12 +75,14 @@ class PromiseBelongsTo extends Extended<RecordInstance> {
     return;
   }
 
-  async reload(options: Dict<unknown>): Promise<this> {
+  async reload(options: Record<string, unknown>): Promise<this> {
     assert('You are trying to reload an async belongsTo before it has been created', this.content !== undefined);
     const { key, legacySupport } = this._belongsToState;
     await legacySupport.reloadBelongsTo(key, options);
     return this;
   }
+
+  [LegacyPromiseProxy] = true as const;
 }
 
-export default PromiseBelongsTo;
+export { PromiseBelongsTo };

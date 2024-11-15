@@ -1,30 +1,28 @@
-import { deprecate } from '@ember/debug';
-import { dependentKeyCompat } from '@ember/object/compat';
-import { cached, tracked } from '@glimmer/tracking';
-
-import type { Object as JSONObject, Value as JSONValue } from 'json-typescript';
-
-import type { Graph } from '@ember-data/graph/-private/graph/graph';
-import type BelongsToRelationship from '@ember-data/graph/-private/relationships/state/belongs-to';
+import type { Graph, ResourceEdge } from '@ember-data/graph/-private';
 import type Store from '@ember-data/store';
-import { recordIdentifierFor } from '@ember-data/store/-private';
-import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
+import type { NotificationType } from '@ember-data/store';
+import { cached, compat } from '@ember-data/tracking';
+import { defineSignal } from '@ember-data/tracking/-private';
+import { DEBUG } from '@warp-drive/build-config/env';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { TypeFromInstance, TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 import type {
   LinkObject,
   Links,
+  Meta,
   SingleResourceDocument,
   SingleResourceRelationship,
-} from '@ember-data/types/q/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { RecordInstance } from '@ember-data/types/q/record-instance';
-import type { Dict } from '@ember-data/types/q/utils';
-import { DEPRECATE_PROMISE_PROXIES, DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
-import { DEBUG } from '@warp-drive/build-config/env';
+} from '@warp-drive/core-types/spec/json-api-raw';
 
+import type { IsUnknown } from '../belongs-to';
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
 import type { LegacySupport } from '../legacy-relationships-support';
-import { areAllInverseRecordsLoaded } from '../legacy-relationships-support';
-import { LEGACY_SUPPORT } from '../model';
+import { areAllInverseRecordsLoaded, LEGACY_SUPPORT } from '../legacy-relationships-support';
+import type { MaybeBelongsToFields } from '../type-utils';
+import { isMaybeResource } from './has-many';
+import { deprecate } from '@ember/debug';
+import { DEPRECATE_PROMISE_PROXIES } from '@warp-drive/build-config/deprecations';
 
 /**
   @module @ember-data/model
@@ -34,7 +32,7 @@ interface ResourceIdentifier {
   links?: {
     related?: string | LinkObject;
   };
-  meta?: JSONObject;
+  meta?: Meta;
 }
 
 function isResourceIdentiferWithRelatedLinks(
@@ -44,40 +42,78 @@ function isResourceIdentiferWithRelatedLinks(
 }
 
 /**
- A `BelongsToReference` is a low-level API that allows users and
- addon authors to perform meta-operations on a belongs-to
- relationship.
+ A `BelongsToReference` is a low-level API that allows access
+ and manipulation of a belongsTo relationship.
+
+ It is especially useful when you're dealing with `async` relationships
+ from `@ember-data/model` as it allows synchronous access to
+ the relationship data if loaded, as well as APIs for loading, reloading
+ the data or accessing available information without triggering a load.
+
+ It may also be useful when using `sync` relationships with `@ember-data/model`
+ that need to be loaded/reloaded with more precise timing than marking the
+ relationship as `async` and relying on autofetch would have allowed.
+
+ However,keep in mind that marking a relationship as `async: false` will introduce
+ bugs into your application if the data is not always guaranteed to be available
+ by the time the relationship is accessed. Ergo, it is recommended when using this
+ approach to utilize `links` for unloaded relationship state instead of identifiers.
+
+ Reference APIs are entangled with the relationship's underlying state,
+ thus any getters or cached properties that utilize these will properly
+ invalidate if the relationship state changes.
+
+ References are "stable", meaning that multiple calls to retrieve the reference
+  for a given relationship will always return the same HasManyReference.
 
  @class BelongsToReference
  @public
  */
-export default class BelongsToReference {
-  declare key: string;
-  declare belongsToRelationship: BelongsToRelationship;
-  declare type: string;
-  ___identifier: StableRecordIdentifier;
-  declare store: Store;
+export default class BelongsToReference<
+  T = unknown,
+  K extends string = IsUnknown<T> extends true ? string : MaybeBelongsToFields<T>,
+  Related = K extends keyof T ? Exclude<Awaited<T[K]>, null> : unknown,
+> {
   declare graph: Graph;
+  declare store: Store;
+  declare belongsToRelationship: ResourceEdge;
+  /**
+   * The field name on the parent record for this has-many relationship.
+   *
+   * @property {String} key
+   * @public
+   */
+  declare key: K;
+
+  /**
+   * The type of resource this relationship will contain.
+   *
+   * @property {String} type
+   * @public
+   */
+  declare type: TypeFromInstanceOrString<Related>;
 
   // unsubscribe tokens given to us by the notification manager
-  ___token!: object;
-  ___relatedToken: object | null = null;
+  declare ___token: object;
+  declare ___identifier: StableRecordIdentifier<TypeFromInstanceOrString<T>>;
+  declare ___relatedToken: object | null;
 
-  @tracked _ref = 0;
+  declare _ref: number;
 
   constructor(
     store: Store,
     graph: Graph,
-    parentIdentifier: StableRecordIdentifier,
-    belongsToRelationship: BelongsToRelationship,
-    key: string
+    parentIdentifier: StableRecordIdentifier<TypeFromInstanceOrString<T>>,
+    belongsToRelationship: ResourceEdge,
+    key: K
   ) {
     this.graph = graph;
     this.key = key;
     this.belongsToRelationship = belongsToRelationship;
-    this.type = belongsToRelationship.definition.type;
+    this.type = belongsToRelationship.definition.type as TypeFromInstanceOrString<Related>;
     this.store = store;
     this.___identifier = parentIdentifier;
+    this.___relatedToken = null;
 
     this.___token = store.notifications.subscribe(
       parentIdentifier,
@@ -110,8 +146,8 @@ export default class BelongsToReference {
    * @public
    */
   @cached
-  @dependentKeyCompat
-  get identifier(): StableRecordIdentifier | null {
+  @compat
+  get identifier(): StableRecordIdentifier<TypeFromInstanceOrString<Related>> | null {
     if (this.___relatedToken) {
       this.store.notifications.unsubscribe(this.___relatedToken);
       this.___relatedToken = null;
@@ -129,7 +165,7 @@ export default class BelongsToReference {
         }
       );
 
-      return identifier;
+      return identifier as StableRecordIdentifier<TypeFromInstanceOrString<Related>>;
     }
 
     return null;
@@ -234,7 +270,7 @@ export default class BelongsToReference {
    *
    * @method links
    * @public
-   * @returns
+   * @return
    */
   links(): Links | null {
     const resource = this._resource();
@@ -282,8 +318,8 @@ export default class BelongsToReference {
     @public
    @return {Object} The meta information for the belongs-to relationship.
    */
-  meta() {
-    let meta: Dict<JSONValue> | null = null;
+  meta(): Meta | null {
+    let meta: Meta | null = null;
     const resource = this._resource();
     if (resource && resource.meta && typeof resource.meta === 'object') {
       meta = resource.meta;
@@ -292,11 +328,12 @@ export default class BelongsToReference {
   }
 
   _resource() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     this._ref; // subscribe
-    const cache = DEPRECATE_V1_RECORD_DATA
-      ? this.store._instanceCache.getResourceCache(this.___identifier)
-      : this.store.cache;
-    return cache.getRelationship(this.___identifier, this.key) as SingleResourceRelationship;
+    const cache = this.store.cache;
+    return cache.getRelationship(this.___identifier, this.key) as SingleResourceRelationship<
+      StableRecordIdentifier<TypeFromInstance<Related>>
+    >;
   }
 
   /**
@@ -350,11 +387,12 @@ export default class BelongsToReference {
   }
 
   /**
-   `push` can be used to update the data in the relationship and Ember
-   Data will treat the new data as the canonical value of this
-   relationship on the backend.
+   `push` can be used to update the data in the relationship and EmberData
+   will treat the new data as the canonical value of this relationship on
+   the backend. A value of `null` (e.g. `{ data: null }`) can be passed to
+   clear the relationship.
 
-   Example
+   Example model
 
    ```app/models/blog.js
    import Model, { belongsTo } from '@ember-data/model';
@@ -362,45 +400,94 @@ export default class BelongsToReference {
    export default class BlogModel extends Model {
       @belongsTo('user', { async: true, inverse: null }) user;
     }
+   ```
 
-   let blog = store.push({
+   Setup some initial state, note we haven't loaded the user yet:
+
+   ```js
+   const blog = store.push({
       data: {
         type: 'blog',
-        id: 1,
+        id: '1',
         relationships: {
           user: {
-            data: { type: 'user', id: 1 }
+            data: { type: 'user', id: '1' }
           }
         }
       }
-    });
-   let userRef = blog.belongsTo('user');
+   });
 
-   // provide data for reference
-   userRef.push({
-      data: {
-        type: 'user',
-        id: 1,
-        attributes: {
-          username: "@user"
-        }
-      }
-    }).then(function(user) {
-      userRef.value() === user;
-    });
+   const userRef = blog.belongsTo('user');
+   userRef.id(); // '1'
    ```
 
+   Update the state using `push`, note we can do this even without
+   having loaded the user yet by providing a resource-identifier.
+
+   Both full a resource and a resource-identifier are supported.
+
+   ```js
+   await userRef.push({
+      data: {
+        type: 'user',
+        id: '2',
+      }
+    });
+
+    userRef.id(); // '2'
+   ```
+
+   You may also pass in links and meta fore the relationship, and sideload
+   additional resources that might be required.
+
+   ```js
+    await userRef.push({
+        data: {
+          type: 'user',
+          id: '2',
+        },
+        links: {
+          related: '/articles/1/author'
+        },
+        meta: {
+          lastUpdated: Date.now()
+        },
+        included: [
+          {
+            type: 'user-preview',
+            id: '2',
+            attributes: {
+              username: '@runspired'
+            }
+          }
+        ]
+      });
+    ```
+
+   By default, the store will attempt to fetch the record if it is not loaded or its
+   resource data is not included in the call to `push` before resolving the returned
+   promise with the new state..
+
+   Alternatively, pass `true` as the second argument to avoid fetching unloaded records
+   and instead the promise will resolve with void without attempting to fetch. This is
+   particularly useful if you want to update the state of the relationship without
+   forcing the load of all of the associated record.
+
    @method push
-    @public
-   @param {Object|Promise} objectOrPromise a promise that resolves to a JSONAPI document object describing the new value of this relationship.
-   @return {Promise<record>} A promise that resolves with the new value in this belongs-to relationship.
-   */
-  async push(data: SingleResourceDocument | Promise<SingleResourceDocument>): Promise<RecordInstance> {
-    let jsonApiDoc: SingleResourceDocument = data as SingleResourceDocument;
+   @public
+   @param {Object} doc a JSONAPI document object describing the new value of this relationship.
+   @param {Boolean} [skipFetch] if `true`, do not attempt to fetch unloaded records
+   @return {Promise<OpaqueRecordInstance | null | void>}
+  */
+  async push(
+    maybeDoc: SingleResourceDocument | Promise<SingleResourceDocument>,
+    skipFetch?: boolean
+  ): Promise<Related | null | void> {
+    let doc: SingleResourceDocument = maybeDoc as SingleResourceDocument;
     if (DEPRECATE_PROMISE_PROXIES) {
-      if ((data as { then: unknown }).then) {
-        jsonApiDoc = await data;
-        if (jsonApiDoc !== data) {
+      if ((maybeDoc as { then: unknown }).then) {
+        doc = await maybeDoc;
+        if (doc !== maybeDoc) {
           deprecate(
             `You passed in a Promise to a Reference API that now expects a resolved value. await the value before setting it.`,
             false,
@@ -417,29 +504,44 @@ export default class BelongsToReference {
         }
       }
     }
-    const record = this.store.push(jsonApiDoc);
+
+    const { store } = this;
+    const isResourceData = doc.data && isMaybeResource(doc.data);
+    const added = isResourceData
+      ? (store._push(doc, true) as StableExistingRecordIdentifier)
+      : doc.data
+        ? (store.identifierCache.getOrCreateRecordIdentifier(doc.data) as StableExistingRecordIdentifier)
+        : null;
+    const { identifier } = this.belongsToRelationship;
 
     if (DEBUG) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      assertPolymorphicType(
-        this.belongsToRelationship.identifier,
-        this.belongsToRelationship.definition,
-        recordIdentifierFor(record),
-        this.store
-      );
+      if (added) {
+        assertPolymorphicType(identifier, this.belongsToRelationship.definition, added, store);
+      }
     }
 
-    const { identifier } = this.belongsToRelationship;
-    this.store._join(() => {
+    const newData: SingleResourceRelationship = {};
+
+    // only set data if it was passed in
+    if (doc.data || doc.data === null) {
+      newData.data = added;
+    }
+    if ('links' in doc) {
+      newData.links = doc.links;
+    }
+    if ('meta' in doc) {
+      newData.meta = doc.meta;
+    }
+    store._join(() => {
       this.graph.push({
-        op: 'replaceRelatedRecord',
+        op: 'updateRelationship',
         record: identifier,
         field: this.key,
-        value: recordIdentifierFor(record),
+        value: newData,
       });
     });
 
-    return record;
+    if (!skipFetch) return this.load();
   }
 
   /**
@@ -492,7 +594,7 @@ export default class BelongsToReference {
     @public
    @return {Model} the record in this relationship
    */
-  value(): RecordInstance | null {
+  value(): Related | null {
     const resource = this._resource();
     return resource && resource.data ? this.store.peekRecord(resource.data) : null;
   }
@@ -559,7 +661,7 @@ export default class BelongsToReference {
    @param {Object} options the options to pass in.
    @return {Promise} a promise that resolves with the record in this belongs-to relationship.
    */
-  load(options?: Dict<unknown>) {
+  async load(options?: Record<string, unknown>): Promise<Related | null> {
     const support: LegacySupport = (LEGACY_SUPPORT as Map<StableRecordIdentifier, LegacySupport>).get(
       this.___identifier
     )!;
@@ -567,7 +669,9 @@ export default class BelongsToReference {
       !this.belongsToRelationship.definition.isAsync && !areAllInverseRecordsLoaded(this.store, this._resource());
     return fetchSyncRel
       ? support.reloadBelongsTo(this.key, options).then(() => this.value())
-      : support.getBelongsTo(this.key, options);
+      : // we cast to fix the return type since typescript and eslint don't understand async functions
+        // properly
+        (support.getBelongsTo(this.key, options) as Promise<Related | null>);
   }
 
   /**
@@ -620,10 +724,11 @@ export default class BelongsToReference {
    @param {Object} options the options to pass in.
    @return {Promise} a promise that resolves with the record in this belongs-to relationship after the reload has completed.
    */
-  reload(options?: Dict<unknown>) {
+  reload(options?: Record<string, unknown>) {
     const support: LegacySupport = (LEGACY_SUPPORT as Map<StableRecordIdentifier, LegacySupport>).get(
       this.___identifier
     )!;
     return support.reloadBelongsTo(this.key, options).then(() => this.value());
   }
 }
+defineSignal(BelongsToReference.prototype, '_ref', 0);

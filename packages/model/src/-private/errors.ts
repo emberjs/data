@@ -1,5 +1,4 @@
-import { A } from '@ember/array';
-import type NativeArray from '@ember/array/-private/native-array';
+import { A, type NativeArray } from '@ember/array';
 import ArrayProxy from '@ember/array/proxy';
 import { computed, get } from '@ember/object';
 import { mapBy, not } from '@ember/object/computed';
@@ -13,7 +12,7 @@ type ValidationError = {
 /**
   @module @ember-data/model
 */
-interface ArrayProxyWithCustomOverrides<T, M = T> extends Omit<ArrayProxy<T, M>, 'clear' | 'content'> {
+interface ArrayProxyWithCustomOverrides<T> extends Omit<ArrayProxy<T>, 'clear' | 'content'> {
   // Omit causes `content` to be merged with the class def for ArrayProxy
   // which then causes it to be seen as a property, disallowing defining it
   // as an accessor. This restores our ability to define it as an accessor.
@@ -25,7 +24,7 @@ interface ArrayProxyWithCustomOverrides<T, M = T> extends Omit<ArrayProxy<T, M>,
 // we force the type here to our own construct because mixin and extend patterns
 // lose generic signatures. We also do this because we need to Omit `clear` from
 // the type of ArrayProxy as we override it's signature.
-const ArrayProxyWithCustomOverrides = ArrayProxy as unknown as new <T, M = T>() => ArrayProxyWithCustomOverrides<T, M>;
+const ArrayProxyWithCustomOverrides = ArrayProxy as unknown as new <T>() => ArrayProxyWithCustomOverrides<T>;
 
 /**
   Holds validation errors for a given record, organized by attribute names.
@@ -102,7 +101,7 @@ const ArrayProxyWithCustomOverrides = ArrayProxy as unknown as new <T, M = T>() 
   @public
   @extends Ember.ArrayProxy
  */
-export default class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
+export class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
   declare __record: { currentState: RecordState };
   /**
     @property errorsByAttributeName
@@ -400,9 +399,6 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
     Checks if there are error messages for the given attribute.
 
     ```app/controllers/user/edit.js
-    import Controller from '@ember/controller';
-    import { action } from '@ember/object';
-
     export default class UserEditController extends Controller {
       @action
       save(user) {

@@ -69,5 +69,5 @@ export function deprecatedPromiseObject<T>(promise: Promise<T>): PromiseObject<T
     },
   };
 
-  return new Proxy(promiseObjectProxy, handler);
+  return new Proxy(promiseObjectProxy, handler) as PromiseObject<T>;
 }

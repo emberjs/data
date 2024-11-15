@@ -1,31 +1,37 @@
 /**
   @module @ember-data/store
 */
-import { assert, deprecate } from '@ember/debug';
+import { deprecate } from '@ember/debug';
 
 import type Store from '@ember-data/store';
+import type { CreateRecordProperties, NativeProxy } from '@ember-data/store/-private';
 import {
-  IDENTIFIER_ARRAY_TAG,
+  ARRAY_SIGNAL,
   isStableIdentifier,
+  LiveArray,
   MUTATE,
   notifyArray,
-  RecordArray,
   recordIdentifierFor,
   SOURCE,
 } from '@ember-data/store/-private';
-import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
-import type { IdentifierArrayCreateOptions } from '@ember-data/store/-private/record-arrays/identifier-array';
-import type { CreateRecordProperties } from '@ember-data/store/-private/store-service';
-import { addToTransaction, type Tag } from '@ember-data/tracking/-private';
-import type { Cache } from '@ember-data/types/q/cache';
-import type { Links, PaginationLinks } from '@ember-data/types/q/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { RecordInstance } from '@ember-data/types/q/record-instance';
-import type { FindOptions } from '@ember-data/types/q/store';
-import type { Dict } from '@ember-data/types/q/utils';
+import type { BaseFinderOptions, ModelSchema } from '@ember-data/store/types';
+import type { Signal } from '@ember-data/tracking/-private';
+import { addToTransaction } from '@ember-data/tracking/-private';
 import { DEPRECATE_MANY_ARRAY_DUPLICATES_4_12, DEPRECATE_PROMISE_PROXIES } from '@warp-drive/build-config/deprecations';
+import { assert } from '@warp-drive/build-config/macros';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { Cache } from '@warp-drive/core-types/cache';
+import type {
+  OpaqueRecordInstance,
+  TypedRecordInstance,
+  TypeFromInstance,
+  TypeFromInstanceOrString,
+} from '@warp-drive/core-types/record';
+import type { Links, PaginationLinks } from '@warp-drive/core-types/spec/json-api-raw';
 
 import type { LegacySupport } from './legacy-relationships-support';
+
+type IdentifierArrayCreateOptions = ConstructorParameters<typeof LiveArray>[0];
 
 /*
 NOTES ON MANY ARRAY DUPLICATION DEPRECATION APPROACH:
@@ -49,16 +55,16 @@ DEPRECATE_MANY_ARRAY_DUPLICATES === false => no dedupe, error (same as 6.0)
 no-dedupe, error
 */
 
-export interface ManyArrayCreateArgs {
-  identifiers: StableRecordIdentifier[];
-  type: string;
+export interface ManyArrayCreateArgs<T> {
+  identifiers: StableRecordIdentifier<TypeFromInstanceOrString<T>>[];
+  type: TypeFromInstanceOrString<T>;
   store: Store;
   allowMutation: boolean;
   manager: LegacySupport;
 
   identifier: StableRecordIdentifier;
   cache: Cache;
-  meta: Dict<unknown> | null;
+  meta: Record<string, unknown> | null;
   links: Links | PaginationLinks | null;
   key: string;
   isPolymorphic: boolean;
@@ -109,7 +115,7 @@ export interface ManyArrayCreateArgs {
   @class ManyArray
   @public
 */
-export default class RelatedCollection extends RecordArray {
+export class RelatedCollection<T = unknown> extends LiveArray<T> {
   declare isAsync: boolean;
   /**
     The loading state of this array
@@ -164,7 +170,7 @@ export default class RelatedCollection extends RecordArray {
     @property {Object | null} meta
     @public
     */
-  declare meta: Dict<unknown> | null;
+  declare meta: Record<string, unknown> | null;
   /**
      * Retrieve the links for this relationship
      *
@@ -174,13 +180,13 @@ export default class RelatedCollection extends RecordArray {
   declare links: Links | PaginationLinks | null;
   declare identifier: StableRecordIdentifier;
   declare cache: Cache;
-  // @ts-expect-error
   declare _manager: LegacySupport;
   declare store: Store;
   declare key: string;
-  declare type: ShimModelClass;
+  declare type: ModelSchema;
+  declare modelName: T extends TypedRecordInstance ? TypeFromInstance<T> : string;
 
-  constructor(options: ManyArrayCreateArgs) {
+  constructor(options: ManyArrayCreateArgs<T>) {
     super(options as unknown as IdentifierArrayCreateOptions);
     this.isLoaded = options.isLoaded || false;
     this.isAsync = options.isAsync || false;
@@ -191,30 +197,30 @@ export default class RelatedCollection extends RecordArray {
 
   [MUTATE](
     target: StableRecordIdentifier[],
-    receiver: typeof Proxy<StableRecordIdentifier[]>,
+    receiver: typeof NativeProxy<StableRecordIdentifier[], T[]>,
     prop: string,
     args: unknown[],
-    _TAG: Tag
+    _SIGNAL: Signal
   ): unknown {
     switch (prop) {
       case 'length 0': {
         Reflect.set(target, 'length', 0);
-        mutateReplaceRelatedRecords(this, [], _TAG);
+        mutateReplaceRelatedRecords(this, [], _SIGNAL);
         return true;
       }
       case 'replace cell': {
         const [index, prior, value] = args as [number, StableRecordIdentifier, StableRecordIdentifier];
         target[index] = value;
-        mutateReplaceRelatedRecord(this, { value, prior, index }, _TAG);
+        mutateReplaceRelatedRecord(this, { value, prior, index }, _SIGNAL);
         return true;
       }
       case 'push': {
         if (DEPRECATE_MANY_ARRAY_DUPLICATES_4_12) {
           // dedupe, no error
           const seen = new Set(target);
-          const unique = new Set<RecordInstance>();
+          const unique = new Set<OpaqueRecordInstance>();
 
-          (args as RecordInstance[]).forEach((item) => {
+          (args as OpaqueRecordInstance[]).forEach((item) => {
             const identifier = recordIdentifierFor(item);
             if (!seen.has(identifier)) {
               seen.add(identifier);
@@ -223,16 +229,16 @@ export default class RelatedCollection extends RecordArray {
           });
 
           const newArgs = Array.from(unique);
-          const result = Reflect.apply(target[prop], receiver, newArgs) as RecordInstance[];
+          const result = Reflect.apply(target[prop], receiver, newArgs) as OpaqueRecordInstance[];
 
           if (newArgs.length) {
-            mutateAddToRelatedRecords(this, { value: extractIdentifiersFromRecords(newArgs) }, _TAG);
+            mutateAddToRelatedRecords(this, { value: extractIdentifiersFromRecords(newArgs) }, _SIGNAL);
           }
           return result;
         }
 
         // else, no dedupe, error on duplicates
-        const newValues = extractIdentifiersFromRecords(args as RecordInstance[]);
+        const newValues = extractIdentifiersFromRecords(args as OpaqueRecordInstance[]);
 
         assertNoDuplicates(
           this,
@@ -241,9 +247,9 @@ export default class RelatedCollection extends RecordArray {
           `Cannot push duplicates to a hasMany's state.`
         );
 
-        const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
+        const result = Reflect.apply(target[prop], receiver, args) as OpaqueRecordInstance[];
         if (newValues.length) {
-          mutateAddToRelatedRecords(this, { value: newValues }, _TAG);
+          mutateAddToRelatedRecords(this, { value: newValues }, _SIGNAL);
         }
         return result;
       }
@@ -251,7 +257,7 @@ export default class RelatedCollection extends RecordArray {
       case 'pop': {
         const result: unknown = Reflect.apply(target[prop], receiver, args);
         if (result) {
-          mutateRemoveFromRelatedRecords(this, { value: recordIdentifierFor(result as RecordInstance) }, _TAG);
+          mutateRemoveFromRelatedRecords(this, { value: recordIdentifierFor(result as OpaqueRecordInstance) }, _SIGNAL);
         }
         return result;
       }
@@ -260,9 +266,9 @@ export default class RelatedCollection extends RecordArray {
         if (DEPRECATE_MANY_ARRAY_DUPLICATES_4_12) {
           // dedupe, no error
           const seen = new Set(target);
-          const unique = new Set<RecordInstance>();
+          const unique = new Set<OpaqueRecordInstance>();
 
-          (args as RecordInstance[]).forEach((item) => {
+          (args as OpaqueRecordInstance[]).forEach((item) => {
             const identifier = recordIdentifierFor(item);
             if (!seen.has(identifier)) {
               seen.add(identifier);
@@ -274,13 +280,13 @@ export default class RelatedCollection extends RecordArray {
           const result: unknown = Reflect.apply(target[prop], receiver, newArgs);
 
           if (newArgs.length) {
-            mutateAddToRelatedRecords(this, { value: extractIdentifiersFromRecords(newArgs), index: 0 }, _TAG);
+            mutateAddToRelatedRecords(this, { value: extractIdentifiersFromRecords(newArgs), index: 0 }, _SIGNAL);
           }
           return result;
         }
 
         // else, no dedupe, error on duplicates
-        const newValues = extractIdentifiersFromRecords(args as RecordInstance[]);
+        const newValues = extractIdentifiersFromRecords(args as OpaqueRecordInstance[]);
 
         assertNoDuplicates(
           this,
@@ -289,9 +295,9 @@ export default class RelatedCollection extends RecordArray {
           `Cannot unshift duplicates to a hasMany's state.`
         );
 
-        const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
+        const result = Reflect.apply(target[prop], receiver, args) as OpaqueRecordInstance[];
         if (newValues.length) {
-          mutateAddToRelatedRecords(this, { value: newValues, index: 0 }, _TAG);
+          mutateAddToRelatedRecords(this, { value: newValues, index: 0 }, _SIGNAL);
         }
         return result;
       }
@@ -302,8 +308,8 @@ export default class RelatedCollection extends RecordArray {
         if (result) {
           mutateRemoveFromRelatedRecords(
             this,
-            { value: recordIdentifierFor(result as RecordInstance), index: 0 },
-            _TAG
+            { value: recordIdentifierFor(result as OpaqueRecordInstance), index: 0 },
+            _SIGNAL
           );
         }
         return result;
@@ -311,12 +317,12 @@ export default class RelatedCollection extends RecordArray {
 
       case 'sort': {
         const result: unknown = Reflect.apply(target[prop], receiver, args);
-        mutateSortRelatedRecords(this, (result as RecordInstance[]).map(recordIdentifierFor), _TAG);
+        mutateSortRelatedRecords(this, (result as OpaqueRecordInstance[]).map(recordIdentifierFor), _SIGNAL);
         return result;
       }
 
       case 'splice': {
-        const [start, deleteCount, ...adds] = args as [number, number, ...RecordInstance[]];
+        const [start, deleteCount, ...adds] = args as [number, number, ...OpaqueRecordInstance[]];
 
         // detect a full replace
         if (start === 0 && deleteCount === this[SOURCE].length) {
@@ -326,9 +332,9 @@ export default class RelatedCollection extends RecordArray {
             const unique = Array.from(current);
             const newArgs = ([start, deleteCount] as unknown[]).concat(unique);
 
-            const result = Reflect.apply(target[prop], receiver, newArgs) as RecordInstance[];
+            const result = Reflect.apply(target[prop], receiver, newArgs) as OpaqueRecordInstance[];
 
-            mutateReplaceRelatedRecords(this, extractIdentifiersFromRecords(unique), _TAG);
+            mutateReplaceRelatedRecords(this, extractIdentifiersFromRecords(unique), _SIGNAL);
             return result;
           }
 
@@ -342,8 +348,8 @@ export default class RelatedCollection extends RecordArray {
             `Cannot replace a hasMany's state with a new state that contains duplicates.`
           );
 
-          const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
-          mutateReplaceRelatedRecords(this, newValues, _TAG);
+          const result = Reflect.apply(target[prop], receiver, args) as OpaqueRecordInstance[];
+          mutateReplaceRelatedRecords(this, newValues, _SIGNAL);
           return result;
         }
 
@@ -353,7 +359,7 @@ export default class RelatedCollection extends RecordArray {
           currentState.splice(start, deleteCount);
 
           const seen = new Set(currentState);
-          const unique: RecordInstance[] = [];
+          const unique: OpaqueRecordInstance[] = [];
           adds.forEach((item) => {
             const identifier = recordIdentifierFor(item);
             if (!seen.has(identifier)) {
@@ -363,14 +369,14 @@ export default class RelatedCollection extends RecordArray {
           });
 
           const newArgs = [start, deleteCount, ...unique];
-          const result = Reflect.apply(target[prop], receiver, newArgs) as RecordInstance[];
+          const result = Reflect.apply(target[prop], receiver, newArgs) as OpaqueRecordInstance[];
 
           if (deleteCount > 0) {
-            mutateRemoveFromRelatedRecords(this, { value: result.map(recordIdentifierFor), index: start }, _TAG);
+            mutateRemoveFromRelatedRecords(this, { value: result.map(recordIdentifierFor), index: start }, _SIGNAL);
           }
 
           if (unique.length > 0) {
-            mutateAddToRelatedRecords(this, { value: extractIdentifiersFromRecords(unique), index: start }, _TAG);
+            mutateAddToRelatedRecords(this, { value: extractIdentifiersFromRecords(unique), index: start }, _SIGNAL);
           }
 
           return result;
@@ -385,12 +391,12 @@ export default class RelatedCollection extends RecordArray {
           `Cannot splice a hasMany's state with a new state that contains duplicates.`
         );
 
-        const result = Reflect.apply(target[prop], receiver, args) as RecordInstance[];
+        const result = Reflect.apply(target[prop], receiver, args) as OpaqueRecordInstance[];
         if (deleteCount > 0) {
-          mutateRemoveFromRelatedRecords(this, { value: result.map(recordIdentifierFor), index: start }, _TAG);
+          mutateRemoveFromRelatedRecords(this, { value: result.map(recordIdentifierFor), index: start }, _SIGNAL);
         }
         if (newValues.length > 0) {
-          mutateAddToRelatedRecords(this, { value: newValues, index: start }, _TAG);
+          mutateAddToRelatedRecords(this, { value: newValues, index: start }, _SIGNAL);
         }
         return result;
       }
@@ -400,9 +406,8 @@ export default class RelatedCollection extends RecordArray {
   }
 
   notify() {
-    const tag = this[IDENTIFIER_ARRAY_TAG];
-    tag.shouldReset = true;
-    // @ts-expect-error
+    const signal = this[ARRAY_SIGNAL];
+    signal.shouldReset = true;
     notifyArray(this);
   }
 
@@ -428,9 +433,9 @@ export default class RelatedCollection extends RecordArray {
     @method reload
     @public
   */
-  reload(options?: FindOptions) {
+  reload(options?: BaseFinderOptions): Promise<this> {
     // TODO this is odd, we don't ask the store for anything else like this?
-    return this._manager.reloadHasMany(this.key, options);
+    return this._manager.reloadHasMany<T>(this.key, options) as Promise<this>;
   }
 
   /**
@@ -460,10 +465,10 @@ export default class RelatedCollection extends RecordArray {
     @param {Object} hash
     @return {Model} record
   */
-  createRecord(hash: CreateRecordProperties): RecordInstance {
+  createRecord(hash: CreateRecordProperties<T>): T {
     const { store } = this;
     assert(`Expected modelName to be set`, this.modelName);
-    const record = store.createRecord(this.modelName, hash);
+    const record = store.createRecord<T>(this.modelName as TypeFromInstance<T>, hash);
     this.push(record);
 
     return record;
@@ -481,9 +486,9 @@ RelatedCollection.prototype._inverseIsAsync = false;
 RelatedCollection.prototype.key = '';
 RelatedCollection.prototype.DEPRECATED_CLASS_NAME = 'ManyArray';
 
-type PromiseProxyRecord = { then(): void; content: RecordInstance | null | undefined };
+type PromiseProxyRecord = { then(): void; content: OpaqueRecordInstance | null | undefined };
 
-function assertRecordPassedToHasMany(record: RecordInstance | PromiseProxyRecord) {
+function assertRecordPassedToHasMany(record: OpaqueRecordInstance | PromiseProxyRecord) {
   assert(
     `All elements of a hasMany relationship must be instances of Model, you passed $${typeof record}`,
     (function () {
@@ -497,11 +502,11 @@ function assertRecordPassedToHasMany(record: RecordInstance | PromiseProxyRecord
   );
 }
 
-function extractIdentifiersFromRecords(records: RecordInstance[]): StableRecordIdentifier[] {
+function extractIdentifiersFromRecords(records: OpaqueRecordInstance[]): StableRecordIdentifier[] {
   return records.map(extractIdentifierFromRecord);
 }
 
-function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord | RecordInstance) {
+function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord | OpaqueRecordInstance) {
   if (DEPRECATE_PROMISE_PROXIES) {
     if (isPromiseRecord(recordOrPromiseRecord)) {
       const content = recordOrPromiseRecord.content;
@@ -531,8 +536,8 @@ function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord |
   return recordIdentifierFor(recordOrPromiseRecord);
 }
 
-function isPromiseRecord(record: PromiseProxyRecord | RecordInstance): record is PromiseProxyRecord {
-  return !!record.then;
+function isPromiseRecord(record: PromiseProxyRecord | OpaqueRecordInstance): record is PromiseProxyRecord {
+  return Boolean(typeof record === 'object' && record && 'then' in record);
 }
 
 function assertNoDuplicates(
@@ -563,7 +568,7 @@ function assertNoDuplicates(
 function mutateAddToRelatedRecords(
   collection: RelatedCollection,
   operationInfo: { value: StableRecordIdentifier | StableRecordIdentifier[]; index?: number },
-  _TAG: Tag
+  _SIGNAL: Signal
 ) {
   mutate(
     collection,
@@ -573,14 +578,14 @@ function mutateAddToRelatedRecords(
       field: collection.key,
       ...operationInfo,
     },
-    _TAG
+    _SIGNAL
   );
 }
 
 function mutateRemoveFromRelatedRecords(
   collection: RelatedCollection,
   operationInfo: { value: StableRecordIdentifier | StableRecordIdentifier[]; index?: number },
-  _TAG: Tag
+  _SIGNAL: Signal
 ) {
   mutate(
     collection,
@@ -590,7 +595,7 @@ function mutateRemoveFromRelatedRecords(
       field: collection.key,
       ...operationInfo,
     },
-    _TAG
+    _SIGNAL
   );
 }
 
@@ -601,7 +606,7 @@ function mutateReplaceRelatedRecord(
     prior: StableRecordIdentifier;
     index: number;
   },
-  _TAG: Tag
+  _SIGNAL: Signal
 ) {
   mutate(
     collection,
@@ -611,11 +616,11 @@ function mutateReplaceRelatedRecord(
       field: collection.key,
       ...operationInfo,
     },
-    _TAG
+    _SIGNAL
   );
 }
 
-function mutateReplaceRelatedRecords(collection: RelatedCollection, value: StableRecordIdentifier[], _TAG: Tag) {
+function mutateReplaceRelatedRecords(collection: RelatedCollection, value: StableRecordIdentifier[], _SIGNAL: Signal) {
   mutate(
     collection,
     {
@@ -624,11 +629,11 @@ function mutateReplaceRelatedRecords(collection: RelatedCollection, value: Stabl
       field: collection.key,
       value,
     },
-    _TAG
+    _SIGNAL
   );
 }
 
-function mutateSortRelatedRecords(collection: RelatedCollection, value: StableRecordIdentifier[], _TAG: Tag) {
+function mutateSortRelatedRecords(collection: RelatedCollection, value: StableRecordIdentifier[], _SIGNAL: Signal) {
   mutate(
     collection,
     {
@@ -637,11 +642,11 @@ function mutateSortRelatedRecords(collection: RelatedCollection, value: StableRe
       field: collection.key,
       value,
     },
-    _TAG
+    _SIGNAL
   );
 }
 
-function mutate(collection: RelatedCollection, mutation: Parameters<LegacySupport['mutate']>[0], _TAG: Tag) {
+function mutate(collection: RelatedCollection, mutation: Parameters<LegacySupport['mutate']>[0], _SIGNAL: Signal) {
   collection._manager.mutate(mutation);
-  addToTransaction(_TAG);
+  addToTransaction(_SIGNAL);
 }

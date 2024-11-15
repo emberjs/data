@@ -1,16 +1,27 @@
+const path = require('path');
 const EOL = require('os').EOL;
+
+const { has } = require('@ember/edition-utils');
 
 const inflection = require('inflection');
 const stringUtils = require('ember-cli-string-utils');
-const useEditionDetector = require('@ember-data/private-build-infra/src/utilities/edition-detector');
-const { has } = require('@ember/edition-utils');
 
-module.exports = useEditionDetector({
-  description: 'Generates an ember-data model.',
+module.exports = {
+  description: 'Generates an ember-data Model.',
 
   anonymousOptions: ['name', 'attr:type'],
 
   root: __dirname,
+
+  filesPath() {
+    let hasOctane = has('octane');
+    if (hasOctane && process.env.EMBER_EDITION === 'classic') {
+      hasOctane = false; //forcible override
+    }
+    let rootPath = hasOctane ? 'native-files' : 'files';
+    return path.join(__dirname, rootPath);
+  },
+
 
   locals(options) {
     let attrs = [];
@@ -109,7 +120,7 @@ module.exports = useEditionDetector({
       needs,
     };
   },
-});
+}
 
 function nativeAttr(attr) {
   let name = attr.name,
@@ -148,3 +159,5 @@ function classicAttr(attr) {
   }
   return propertyName + ': ' + result;
 }
+
+

@@ -1,13 +1,10 @@
-import { dasherize } from '@ember/string';
-
-import { singularize } from 'ember-inflector';
-
+import { dasherize, singularize } from '@ember-data/request-utils/string';
 import type Store from '@ember-data/store';
-import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
 import { DEBUG } from '@warp-drive/build-config/env';
+import { LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
 
-function typeForRelationshipMeta(meta) {
-  let modelName = dasherize(meta.type || meta.key);
+function typeForRelationshipMeta(meta: LegacyRelationshipSchema): string {
+  let modelName = dasherize(meta.type || meta.name);
 
   if (meta.kind === 'hasMany') {
     modelName = singularize(modelName);
@@ -21,7 +18,7 @@ function shouldFindInverse(relationshipMeta) {
   return !(options && options.inverse === null);
 }
 
-class RelationshipDefinition implements RelationshipSchema {
+class RelationshipDefinition {
   declare _type: string;
   declare __inverseKey: string;
   declare __hasCalculatedInverse: boolean;
@@ -29,21 +26,14 @@ class RelationshipDefinition implements RelationshipSchema {
   declare inverseIsAsync: string | null;
   declare meta: any;
 
-  constructor(meta: any) {
+  constructor(meta: LegacyRelationshipSchema, parentModelName: string) {
     this._type = '';
     this.__inverseKey = '';
     this.__hasCalculatedInverse = false;
-    this.parentModelName = meta.parentModelName;
+    this.parentModelName = parentModelName;
     this.meta = meta;
   }
 
-  /**
-   * @internal
-   * @deprecated
-   */
-  get key(): string {
-    return this.meta.key;
-  }
   get kind(): 'belongsTo' | 'hasMany' {
     return this.meta.kind;
   }
@@ -74,12 +64,12 @@ class RelationshipDefinition implements RelationshipSchema {
     let inverse: any = null;
 
     if (shouldFindInverse(this.meta)) {
-      inverse = modelClass.inverseFor(this.key, store);
+      inverse = modelClass.inverseFor(this.name, store);
     }
     // TODO make this error again for the non-polymorphic case
     if (DEBUG) {
       if (!this.options.polymorphic) {
-        modelClass.typeForRelationship(this.key, store);
+        modelClass.typeForRelationship(this.name, store);
       }
     }
 
@@ -93,6 +83,9 @@ class RelationshipDefinition implements RelationshipSchema {
 }
 export type { RelationshipDefinition };
 
-export function relationshipFromMeta(meta: RelationshipSchema): RelationshipDefinition {
-  return new RelationshipDefinition(meta);
+export function relationshipFromMeta(
+  meta: LegacyRelationshipSchema,
+  parentModelName: string
+): LegacyRelationshipSchema {
+  return new RelationshipDefinition(meta, parentModelName) as unknown as LegacyRelationshipSchema;
 }
