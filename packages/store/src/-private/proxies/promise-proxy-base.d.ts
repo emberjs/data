@@ -2,7 +2,7 @@ import ArrayProxy from '@ember/array/proxy';
 import ObjectProxy from '@ember/object/proxy';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export interface PromiseArrayProxy<I, T> extends Promise<T> {}
+export interface PromiseArrayProxy<I, T> extends ArrayProxy<I, T>, Promise<T> {}
 export class PromiseArrayProxy<I, T> extends ArrayProxy<I, T> {
   declare content: T;
 
@@ -35,7 +35,7 @@ export class PromiseArrayProxy<I, T> extends ArrayProxy<I, T> {
   declare finally<U>(onFinally?: () => U): Promise<U>;
 }
 
-export interface PromiseObjectProxy<T> extends Promise<T> {}
+export interface PromiseObjectProxy<T> extends ObjectProxy<T>, Promise<T> {}
 export class PromiseObjectProxy<T> extends ObjectProxy<T> {
   declare content?: T | null;
 

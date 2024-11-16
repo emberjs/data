@@ -53,7 +53,7 @@ export type AttrOptions<DV = PrimitiveValue | object | unknown[]> = {
   defaultValue?: DV extends PrimitiveValue ? DV : () => DV;
 };
 
-function _attr(type?: string | AttrOptions, options?: AttrOptions & object) {
+function _attr(type?: string | AttrOptions, options?: AttrOptions) {
   if (typeof type === 'object') {
     options = type;
     type = undefined;

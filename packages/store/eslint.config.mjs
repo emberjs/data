@@ -19,6 +19,7 @@ export default [
       '@ember/owner',
       '@ember/debug',
       '@ember/object',
+      '@ember/object/computed',
     ],
   }),
 

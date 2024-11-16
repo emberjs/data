@@ -587,7 +587,7 @@ type RelationshipDefinition = RelationshipField & {
   _inverseKey: (store: Store, modelClass: unknown) => string | null;
 };
 
-function metaIsRelationshipDefinition(meta: RelationshipField): meta is RelationshipDefinition {
+function metaIsRelationshipDefinition(meta: FieldSchema): meta is RelationshipDefinition {
   return typeof (meta as RelationshipDefinition)._inverseKey === 'function';
 }
 

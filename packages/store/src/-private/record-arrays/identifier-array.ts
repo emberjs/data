@@ -38,7 +38,6 @@ import {
 } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 
-import type { PromiseArray } from '../proxies/promise-proxies';
 import { promiseArray } from '../proxies/promise-proxies';
 
 type KeyType = string | symbol | number;
@@ -539,8 +538,7 @@ export class IdentifierArray<T = unknown> {
     @method update
     @public
   */
-  // @ts-expect-error IdentifierArray is not a MutableArray
-  update(): PromiseArray<T, IdentifierArray<T>> | Promise<IdentifierArray<T>> {
+  update(): Promise<IdentifierArray<T>> {
     if (this.isUpdating) {
       return this._updatingPromise!;
     }
@@ -590,15 +588,14 @@ export class IdentifierArray<T = unknown> {
 
     @method save
     @public
-    @return {PromiseArray} promise
+    @return {Promise<IdentifierArray>} promise
   */
-  // @ts-expect-error IdentifierArray is not a MutableArray
-  save(): PromiseArray<T, IdentifierArray<T>> | Promise<IdentifierArray<T>> {
+  save(): Promise<IdentifierArray<T>> {
     const promise = Promise.all(this.map((record) => this.store.saveRecord(record))).then(() => this);
 
     if (DEPRECATE_PROMISE_PROXIES) {
       // @ts-expect-error IdentifierArray is not a MutableArray
-      return promiseArray<T, IdentifierArray<T>>(promise);
+      return promiseArray<T, IdentifierArray<T>>(promise) as Promise<IdentifierArray<T>>;
     }
 
     return promise;

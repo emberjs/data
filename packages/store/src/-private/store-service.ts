@@ -1766,10 +1766,7 @@ export class Store extends BaseClass {
     });
 
     if (DEPRECATE_PROMISE_PROXIES) {
-      return promiseArray(
-        // @ts-expect-error because we are in fact not ArrayLike all the time
-        promise.then((document) => document.content)
-      ) as unknown as Promise<Collection>;
+      return promiseArray(promise.then((document) => document.content)) as unknown as Promise<Collection>;
     }
     return promise.then((document) => document.content);
   }
@@ -2106,10 +2103,7 @@ export class Store extends BaseClass {
     });
 
     if (DEPRECATE_PROMISE_PROXIES) {
-      return promiseArray(
-        // @ts-expect-error because we are in fact not ArrayLike all the time
-        promise.then((document) => document.content)
-      ) as unknown as Promise<IdentifierArray<T>>;
+      return promiseArray(promise.then((document) => document.content)) as unknown as Promise<IdentifierArray<T>>;
     }
 
     return promise.then((document) => document.content);

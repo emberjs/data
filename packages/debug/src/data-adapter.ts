@@ -252,7 +252,7 @@ class InspectorDataAdapter extends DataAdapter<Model> {
   ) {
     if (discoveredTypes.get(type) !== true) {
       const klass = store.modelFor(type);
-      installDebugInfo(klass);
+      installDebugInfo(klass as typeof Model);
       const wrapped = this.wrapModelType(klass, type);
       releaseMethods.push(this.observeModelType(type, typesUpdated));
       typesAdded([wrapped]);

@@ -14,6 +14,7 @@ import { DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE, DEPRECATE_RSVP_PROMISE } from 
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './utils';
 import { deprecate } from '@ember/debug';
 import { ModelSchema } from '@ember-data/store/types';
+import { StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
 
 export function _findHasMany(
   adapter: MinimumAdapterInterface,
@@ -22,9 +23,9 @@ export function _findHasMany(
   link: string | null | { href: string },
   relationship: RelationshipSchema,
   options: BaseFinderOptions
-) {
+): Promise<StableExistingRecordIdentifier[]> {
   upgradeStore(store);
-  let promise = Promise.resolve().then(() => {
+  let promise: Promise<unknown> = Promise.resolve().then(() => {
     const snapshot = store._fetchManager.createSnapshot(identifier, options);
     const useLink = !link || typeof link === 'string';
     const relatedLink = useLink ? link : link.href;
@@ -91,7 +92,7 @@ export function _findHasMany(
     promise = _guard(promise, _bind(_objectIsAlive, record));
   }
 
-  return promise;
+  return promise as Promise<StableExistingRecordIdentifier[]>;
 }
 
 export function _findBelongsTo(
