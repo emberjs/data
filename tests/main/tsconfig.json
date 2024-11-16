@@ -109,9 +109,6 @@
     },
     {
       "path": "../../packages/-ember-data"
-    },
-    {
-      "path": "../../packages/schema-record"
     }
   ]
 }

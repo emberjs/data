@@ -715,7 +715,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     });
     const all2 = store.peekAll('person');
     assert.strictEqual(all2.length, 1, 'after next push: record array has one item');
-     
+
     assert.true(all === all2, 'after next push: record array is the same');
   });
 

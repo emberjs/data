@@ -1,14 +1,14 @@
 import ArrayProxy from '@ember/array/proxy';
+import { setComponentTemplate } from '@ember/component';
 import { action } from '@ember/object';
 import { sort } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
-import { click, find, findAll, render, rerender } from '@ember/test-helpers';
+import { click, find, findAll, render, rerender, settled } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 
-import hbs from 'htmlbars-inline-precompile';
-import { module, test } from 'qunit';
-import { reject, resolve } from 'rsvp';
+import QUnit, { module, test } from 'qunit';
 
+import { hbs } from 'ember-cli-htmlbars';
 import { render as legacyRender } from 'ember-data/test-support';
 import { setupRenderingTest } from 'ember-qunit';
 
@@ -17,6 +17,7 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { LEGACY_SUPPORT } from '@ember-data/model/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import { DEPRECATE_ARRAY_LIKE } from '@warp-drive/build-config/deprecations';
 
@@ -61,13 +62,13 @@ class TestAdapter extends JSONAPIAdapter {
 
     if (payload === undefined) {
       this.assert.ok(false, 'Too many adapter requests have been made!');
-      return resolve({ data: null });
+      return Promise.resolve({ data: null });
     }
 
     if (payload instanceof ServerError) {
-      return reject(payload);
+      return Promise.reject(payload);
     }
-    return resolve(payload);
+    return Promise.resolve(payload);
   }
 
   // find by link
@@ -214,8 +215,6 @@ function makePeopleWithRelationshipLinks(removeData = true) {
 }
 
 module('async has-many rendering tests', function (hooks) {
-  let store;
-  let adapter;
   setupRenderingTest(hooks);
 
   hooks.beforeEach(function () {
@@ -223,12 +222,12 @@ module('async has-many rendering tests', function (hooks) {
     owner.register('model:person', Person);
     owner.register('adapter:application', TestAdapter);
     owner.register('serializer:application', JSONAPISerializer);
-    store = owner.lookup('service:store');
-    adapter = store.adapterFor('application');
   });
 
   module('for data-no-link scenarios', function () {
     test('We can render an async hasMany', async function (assert) {
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
       const people = makePeopleWithRelationshipData();
       const parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
@@ -256,6 +255,8 @@ module('async has-many rendering tests', function (hooks) {
     });
 
     test('Re-rendering an async hasMany does not cause a new fetch', async function (assert) {
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
       const people = makePeopleWithRelationshipData();
       const parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
@@ -295,23 +296,53 @@ module('async has-many rendering tests', function (hooks) {
     });
 
     test('Rendering an async hasMany whose fetch fails does not trigger a new request', async function (assert) {
-      assert.expect(11);
+      const store = this.owner.lookup('service:store');
       const people = makePeopleWithRelationshipData();
       const parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
       });
+      let hasFired = false;
 
-      adapter.setupPayloads(assert, [
-        { data: people.dict['4:has-parent-no-children'] },
-        new ServerError([], 'hard error while finding <person>5:has-parent-no-children'),
-      ]);
+      class TestAdapter {
+        static create() {
+          return new this();
+        }
+
+        shouldReloadRecord() {
+          return false;
+        }
+
+        shouldBackgroundReloadRecord() {
+          return false;
+        }
+
+        findRecord(_store, schema, id) {
+          assert.step(`findRecord ${schema.modelName} ${id}`);
+
+          if (id === '4:has-parent-no-children') {
+            return Promise.resolve({ data: people.dict['4:has-parent-no-children'] });
+          }
+          if (hasFired) {
+            assert.ok(false, 'We only reject a single time');
+            // prevent further recursive calls
+            return Promise.resolve({ data: people.dict['5:has-parent-no-children'] });
+          }
+          // slight delay helps ensure we are less flakey
+          return new Promise((_res, rej) => {
+            setTimeout(() => {
+              rej(new Error('hard error while finding <person>5:has-parent-no-children'));
+            }, 5);
+          });
+        }
+      }
+      this.owner.register('adapter:application', TestAdapter);
 
       // render
       this.set('parent', parent);
 
-      let hasFired = false;
       // This function handles any unhandled promise rejections
       const globalPromiseRejectionHandler = (event) => {
+        assert.step('unhandledrejection');
         if (!hasFired) {
           hasFired = true;
           assert.ok(true, 'Children promise did reject');
@@ -322,7 +353,7 @@ module('async has-many rendering tests', function (hooks) {
           );
         } else {
           assert.ok(false, 'We only reject a single time');
-          adapter.pause(); // prevent further recursive calls to load the relationship
+          // adapter.pause(); // prevent further recursive calls to load the relationship
         }
         event.preventDefault();
         return false;
@@ -330,18 +361,16 @@ module('async has-many rendering tests', function (hooks) {
 
       // Here we assign our handler to the corresponding global, window property
       window.addEventListener('unhandledrejection', globalPromiseRejectionHandler, true);
-      const originalPushResult = assert.pushResult;
-      assert.pushResult = function (result) {
-        if (
-          result.result === false &&
-          result.message === 'global failure: Error: hard error while finding <person>5:has-parent-no-children'
-        ) {
-          return;
+      const onUncaughtException = QUnit.onUncaughtException;
+      QUnit.onUncaughtException = function (error) {
+        assert.step('onUncaughtException');
+        assert.strictEqual(error.message, 'hard error while finding <person>5:has-parent-no-children');
+        if (error.message !== 'hard error while finding <person>5:has-parent-no-children') {
+          onUncaughtException.call(this, error);
         }
-        return originalPushResult.call(this, result);
       };
 
-      await legacyRender(hbs`
+      await render(hbs`
         <ul>
         {{#each this.parent.children as |child|}}
           <li>{{child.name}}</li>
@@ -349,9 +378,19 @@ module('async has-many rendering tests', function (hooks) {
         </ul>
       `);
 
+      await store._getAllPending();
+      await settled();
+
+      assert.verifySteps([
+        'findRecord person 4:has-parent-no-children',
+        'findRecord person 5:has-parent-no-children',
+        'onUncaughtException',
+        'unhandledrejection',
+      ]);
+
       const names = findAll('li').map((e) => e.textContent);
 
-      assert.deepEqual(names, ['Selena has a parent'], 'We rendered only the names for successful requests');
+      assert.arrayStrictEquals(names, ['Selena has a parent'], 'We rendered only the names for successful requests');
 
       const relationshipState = parent.hasMany('children').hasManyRelationship;
       const RelationshipPromiseCache = LEGACY_SUPPORT.get(parent)._relationshipPromisesCache;
@@ -366,13 +405,19 @@ module('async has-many rendering tests', function (hooks) {
       assert.true(!!RelationshipProxyCache['children'], 'The relationship has a promise proxy');
       assert.false(!!relationshipState.link, 'The relationship does not have a link');
 
+      await rerender();
+
+      assert.verifySteps([]);
+
       window.removeEventListener('unhandledrejection', globalPromiseRejectionHandler, true);
-      assert.pushResult = originalPushResult;
+      QUnit.onUncaughtException = onUncaughtException;
     });
   });
 
   module('for link-no-data scenarios', function () {
     test('We can render an async hasMany with a link', async function (assert) {
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
       const people = makePeopleWithRelationshipLinks(true);
       const parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
@@ -397,6 +442,8 @@ module('async has-many rendering tests', function (hooks) {
     });
 
     test('Re-rendering an async hasMany with a link does not cause a new fetch', async function (assert) {
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
       const people = makePeopleWithRelationshipLinks(true);
       const parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
@@ -433,6 +480,8 @@ module('async has-many rendering tests', function (hooks) {
     });
 
     test('Rendering an async hasMany with a link whose fetch fails does not trigger a new request', async function (assert) {
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
       assert.expect(11);
       const people = makePeopleWithRelationshipLinks(true);
       const parent = store.push({
@@ -516,6 +565,8 @@ module('async has-many rendering tests', function (hooks) {
 
   module('for link-and-data scenarios', function () {
     test('We can render an async hasMany with a link and data', async function (assert) {
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
       const people = makePeopleWithRelationshipLinks(false);
       const parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
@@ -540,6 +591,8 @@ module('async has-many rendering tests', function (hooks) {
     });
 
     test('Rendering an async hasMany with a link and data where data has been side-loaded does not fetch the link', async function (assert) {
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
       const people = makePeopleWithRelationshipLinks(false);
       const parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
@@ -566,6 +619,8 @@ module('async has-many rendering tests', function (hooks) {
     });
 
     test('Re-rendering an async hasMany with a link and data does not cause a new fetch', async function (assert) {
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
       const people = makePeopleWithRelationshipLinks(false);
       const parent = store.push({
         data: people.dict['3:has-2-children-and-parent'],
@@ -717,8 +772,7 @@ module('autotracking through ArrayProxy', function (hooks) {
         {{/each}}
       </ul>
     `;
-    owner.register('component:person-overview', PersonOverview);
-    owner.register('template:components/person-overview', layout);
+    owner.register('component:person-overview', setComponentTemplate(layout, PersonOverview));
     this.set('person', chris);
     await render(hbs`<PersonOverview @person={{this.person}} />`);
     assert.strictEqual(find('#comments-count').textContent, 'Comments (3)', 'We have the right comments count');
@@ -795,8 +849,7 @@ module('autotracking has-many', function (hooks) {
         {{/each}}
       </ul>
     `;
-    this.owner.register('component:children-list', ChildrenList);
-    this.owner.register('template:components/children-list', layout);
+    this.owner.register('component:children-list', setComponentTemplate(layout, ChildrenList));
 
     store.createRecord('person', { id: '1', name: 'Doodad' });
     const person = store.peekRecord('person', '1');
@@ -851,8 +904,7 @@ module('autotracking has-many', function (hooks) {
         {{/each}}
       </ul>
     `;
-      this.owner.register('component:children-list', ChildrenList);
-      this.owner.register('template:components/children-list', layout);
+      this.owner.register('component:children-list', setComponentTemplate(layout, ChildrenList));
 
       store.createRecord('person', { id: '1', name: 'Doodad' });
       this.person = store.peekRecord('person', '1');
@@ -903,8 +955,7 @@ module('autotracking has-many', function (hooks) {
         {{/each}}
       </ul>
     `;
-      this.owner.register('component:children-list', ChildrenList);
-      this.owner.register('template:components/children-list', layout);
+      this.owner.register('component:children-list', setComponentTemplate(layout, ChildrenList));
 
       store.createRecord('person', { id: '1', name: 'Doodad' });
       this.person = store.peekRecord('person', '1');
@@ -962,8 +1013,7 @@ module('autotracking has-many', function (hooks) {
       <h2>{{this.firstChild.name}}</h2>
       <h3>{{this.lastChild.name}}</h3>
     `;
-      this.owner.register('component:children-list', ChildrenList);
-      this.owner.register('template:components/children-list', layout);
+      this.owner.register('component:children-list', setComponentTemplate(layout, ChildrenList));
 
       store.createRecord('person', { id: '1', name: 'Doodad' });
       this.person = store.peekRecord('person', '1');
@@ -1013,8 +1063,7 @@ module('autotracking has-many', function (hooks) {
         {{/each}}
       </ul>
     `;
-      this.owner.register('component:children-list', ChildrenList);
-      this.owner.register('template:components/children-list', layout);
+      this.owner.register('component:children-list', setComponentTemplate(layout, ChildrenList));
 
       store.createRecord('person', { id: '1', name: 'Doodad' });
       this.person = store.peekRecord('person', '1');
@@ -1059,8 +1108,7 @@ module('autotracking has-many', function (hooks) {
         {{/each}}
       </ul>
     `;
-    this.owner.register('component:children-list', ChildrenList);
-    this.owner.register('template:components/children-list', layout);
+    this.owner.register('component:children-list', setComponentTemplate(layout, ChildrenList));
 
     store.createRecord('person', { id: '1', name: 'Doodad' });
     this.person = store.peekRecord('person', '1');
@@ -1107,8 +1155,7 @@ module('autotracking has-many', function (hooks) {
         {{/each}}
       </ul>
     `;
-    this.owner.register('component:children-list', ChildrenList);
-    this.owner.register('template:components/children-list', layout);
+    this.owner.register('component:children-list', setComponentTemplate(layout, ChildrenList));
 
     store.createRecord('person', { id: '1', name: 'Doodad' });
     this.person = store.peekRecord('person', '1');
@@ -1152,8 +1199,7 @@ module('autotracking has-many', function (hooks) {
 
       <h2>{{this.firstChild.name}}</h2>
     `;
-    this.owner.register('component:children-list', ChildrenList);
-    this.owner.register('template:components/children-list', layout);
+    this.owner.register('component:children-list', setComponentTemplate(layout, ChildrenList));
 
     store.createRecord('person', { id: '1', name: 'Doodad' });
     this.person = store.peekRecord('person', '1');
@@ -1198,8 +1244,7 @@ module('autotracking has-many', function (hooks) {
         {{/each}}
       </ul>
     `;
-    this.owner.register('component:children-list', ChildrenList);
-    this.owner.register('template:components/children-list', layout);
+    this.owner.register('component:children-list', setComponentTemplate(layout, ChildrenList));
 
     store.createRecord('person', { id: '1', name: 'Doodad' });
     this.person = store.peekRecord('person', '1');
@@ -1248,8 +1293,7 @@ module('autotracking has-many', function (hooks) {
         {{/each}}
       </ul>
     `;
-    this.owner.register('component:children-list', ChildrenList);
-    this.owner.register('template:components/children-list', layout);
+    this.owner.register('component:children-list', setComponentTemplate(layout, ChildrenList));
 
     store.createRecord('person', { id: '1', name: 'Doodad' });
     this.person = store.peekRecord('person', '1');
@@ -1313,8 +1357,7 @@ module('autotracking has-many', function (hooks) {
         {{/each}}
       </ul>
     `;
-    this.owner.register('component:children-list', ChildrenList);
-    this.owner.register('template:components/children-list', layout);
+    this.owner.register('component:children-list', setComponentTemplate(layout, ChildrenList));
 
     this.person = store.push({
       data: {
@@ -1398,8 +1441,7 @@ module('autotracking has-many', function (hooks) {
         {{/each}}
       </ul>
     `;
-    this.owner.register('component:people-list', PeopleList);
-    this.owner.register('template:components/people-list', layout);
+    this.owner.register('component:people-list', setComponentTemplate(layout, PeopleList));
 
     store.createRecord('person', { id: '1', name: 'Doodad' });
 

@@ -82,9 +82,11 @@ module('unit/adapters/parse-response-headers', function () {
   ('\r\nfoo: bar');
 
   test('ignores headers that do not contain a colon', function (assert) {
-    const headersString = ['Content-Encoding: gzip', 'I am ignored because I do not contain a colon', 'apple: pie'].join(
-      CRLF
-    );
+    const headersString = [
+      'Content-Encoding: gzip',
+      'I am ignored because I do not contain a colon',
+      'apple: pie',
+    ].join(CRLF);
 
     const headers = parseResponseHeaders(headersString);
 

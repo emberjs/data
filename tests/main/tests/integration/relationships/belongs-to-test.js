@@ -2033,7 +2033,6 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     const friend = await bestFriendPromise;
     const enemy = await worstEnemyPromise;
 
-     
     assert.true(friend !== enemy, 'we got separate records');
   });
 });

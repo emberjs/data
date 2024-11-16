@@ -276,8 +276,7 @@ const entryTypeCallbacks = {
           typeof actual.constructor !== 'undefined' &&
           typeof actual[i] === 'function' &&
           typeof expected[i] === 'function' &&
-           
-          (actual[i]).toString() === (expected[i]).toString()
+          actual[i].toString() === expected[i].toString()
         ) {
           continue;
         }
@@ -304,8 +303,7 @@ const entryTypeCallbacks = {
         typeof expected.constructor !== 'undefined' &&
         typeof expected[i] === 'function' &&
         typeof actual[i] === 'function' &&
-         
-        (expected[i]).toString() === (actual[i]).toString()
+        expected[i].toString() === actual[i].toString()
       ) {
         continue;
       }

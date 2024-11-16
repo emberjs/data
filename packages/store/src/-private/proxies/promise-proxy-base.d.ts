@@ -31,8 +31,6 @@ export class PromiseArrayProxy<I, T> extends ArrayProxy<I, T> {
    * The promise whose fulfillment value is being proxied by this object.
    */
   declare promise: Promise<T>;
-
-  declare finally<U>(onFinally?: () => U): Promise<U>;
 }
 
 export interface PromiseObjectProxy<T> extends ObjectProxy<T>, Promise<T> {}

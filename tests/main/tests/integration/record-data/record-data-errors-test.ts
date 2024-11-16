@@ -107,11 +107,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
     _errors?: JsonApiError[];
     _isNew = false;
 
-    upsert(
-      identifier: StableRecordIdentifier,
-      data: JsonApiResource,
-      calculateChanges?: boolean  
-    ): void | string[] {
+    upsert(identifier: StableRecordIdentifier, data: JsonApiResource, calculateChanges?: boolean): void | string[] {
       if (!this._data.has(identifier)) {
         this.wrapper.notifyChange(identifier, 'added');
       }
@@ -119,10 +115,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
       this.wrapper.notifyChange(identifier, 'attributes');
       this.wrapper.notifyChange(identifier, 'relationships');
     }
-    clientDidCreate(
-      identifier: StableRecordIdentifier,
-      options?: Record<string, unknown>  
-    ): Record<string, unknown> {
+    clientDidCreate(identifier: StableRecordIdentifier, options?: Record<string, unknown>): Record<string, unknown> {
       this._isNew = true;
       return {};
     }
@@ -133,7 +126,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
     ): SingleResourceDataDocument {
       return { data: identifier as StableExistingRecordIdentifier };
     }
-    commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[]  ): void {
+    commitWasRejected(identifier: StableRecordIdentifier, errors?: JsonApiError[]): void {
       this._errors = errors;
     }
     unloadRecord(identifier: StableRecordIdentifier): void {}
@@ -162,7 +155,7 @@ if (!DEPRECATE_V1_RECORD_DATA) {
       identifier: StableRecordIdentifier,
       propertyName: string,
       value: StableRecordIdentifier[],
-      idx?: number  
+      idx?: number
     ): void {
       throw new Error('Method not implemented.');
     }

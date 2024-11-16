@@ -10,7 +10,7 @@ import { recordIdentifierFor } from '@ember-data/store';
 import type { ExistingResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
 import { DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 } from '@warp-drive/build-config/deprecations';
 
-import type { ReactiveContext} from '../../../helpers/reactive-context';
+import type { ReactiveContext } from '../../../helpers/reactive-context';
 import { reactiveContext } from '../../../helpers/reactive-context';
 
 let IS_DEPRECATE_MANY_ARRAY_DUPLICATES = false;
