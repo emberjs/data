@@ -16,7 +16,7 @@ module('RequestManager | Response Currying', function () {
     };
     const handler2: Handler = {
       async request<T>(context: RequestContext, next: NextFn<T>) {
-        const response = await fetch(context.request.url, context.request);
+        const response = await fetch(context.request.url!, context.request);
         context.setResponse(response);
         return response.json() as Promise<T>;
       },
@@ -63,7 +63,7 @@ module('RequestManager | Response Currying', function () {
     };
     const handler2: Handler = {
       async request<T>(context: RequestContext, next: NextFn<T>) {
-        const response = await fetch(context.request.url, context.request);
+        const response = await fetch(context.request.url!, context.request);
         context.setResponse(response);
         return response.json() as Promise<T>;
       },
@@ -84,7 +84,7 @@ module('RequestManager | Response Currying', function () {
     };
     const handler2: Handler = {
       async request<T>(context: RequestContext, next: NextFn<T>) {
-        const response = await fetch(context.request.url, context.request);
+        const response = await fetch(context.request.url!, context.request);
         context.setResponse(response);
         return response.json() as Promise<T>;
       },
@@ -134,7 +134,7 @@ module('RequestManager | Response Currying', function () {
     };
     const handler2: Handler = {
       async request<T>(context: RequestContext, next: NextFn<T>) {
-        const response = await fetch(context.request.url, context.request);
+        const response = await fetch(context.request.url!, context.request);
         context.setResponse(response);
         return response.json() as Promise<T>;
       },
@@ -197,7 +197,7 @@ module('RequestManager | Response Currying', function () {
     };
     const handler2: Handler = {
       async request<T>(context: RequestContext, next: NextFn<T>) {
-        const response = await fetch(context.request.url, context.request);
+        const response = await fetch(context.request.url!, context.request);
         context.setResponse(response);
         return response.json() as Promise<T>;
       },
@@ -246,7 +246,7 @@ module('RequestManager | Response Currying', function () {
     };
     const handler2: Handler = {
       async request<T>(context: RequestContext, next: NextFn<T>) {
-        const response = await fetch(context.request.url, context.request);
+        const response = await fetch(context.request.url!, context.request);
         context.setResponse(response);
         return response.json() as Promise<T>;
       },

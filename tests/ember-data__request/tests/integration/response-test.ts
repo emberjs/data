@@ -10,7 +10,7 @@ module('RequestManager | Response', function () {
     const manager = new RequestManager();
     const handler: Handler = {
       async request<T>(context: RequestContext, next: NextFn<T>) {
-        const response = await fetch(context.request.url, context.request);
+        const response = await fetch(context.request.url!, context.request);
         context.setResponse(response);
         return response.json() as Promise<T>;
       },

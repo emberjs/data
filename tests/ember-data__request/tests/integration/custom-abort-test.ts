@@ -15,7 +15,7 @@ module('RequestManager | Custom Abort', function () {
         assert.equal(context.request.signal, controller.signal, 'we receive the correct signal');
         // @ts-expect-error
         assert.equal(context.request.controller, undefined, 'we do not receive the controller');
-        const result = await fetch(context.request.url, context.request);
+        const result = await fetch(context.request.url!, context.request);
 
         return result.json() as T;
       },
@@ -55,7 +55,7 @@ module('RequestManager | Custom Abort', function () {
         assert.equal(context.request.signal, controller.signal, 'we receive the correct signal');
         // @ts-expect-error
         assert.equal(context.request.controller, undefined, 'we do not receive the controller');
-        const result = await fetch(context.request.url, context.request);
+        const result = await fetch(context.request.url!, context.request);
 
         return result.json() as T;
       },
@@ -90,7 +90,7 @@ module('RequestManager | Custom Abort', function () {
       // @ts-expect-error
       async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T> {
         assert.true(context.request.signal instanceof AbortSignal, 'we receive the abort signal in handler2');
-        const result = await fetch(context.request.url, context.request);
+        const result = await fetch(context.request.url!, context.request);
 
         return result.json() as T;
       },
@@ -127,7 +127,7 @@ module('RequestManager | Custom Abort', function () {
         assert.true(context.request.signal instanceof AbortSignal, 'we receive the abort signal in handler2');
         const request: RequestInfo = Object.assign({}, context.request) as RequestInfo;
         delete request.signal;
-        const result = await fetch(request.url, request);
+        const result = await fetch(request.url!, request);
 
         return result.json() as T;
       },

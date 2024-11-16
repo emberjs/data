@@ -11,7 +11,7 @@ module('RequestManager | Abort', function () {
       // @ts-expect-error
       async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T> {
         assert.true(context.request.signal instanceof AbortSignal, 'we receive the abort signal');
-        const result = await fetch(context.request.url, context.request);
+        const result = await fetch(context.request.url!, context.request);
 
         return result.json() as T;
       },
@@ -45,7 +45,7 @@ module('RequestManager | Abort', function () {
       // @ts-expect-error
       async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T> {
         assert.true(context.request.signal instanceof AbortSignal, 'we receive the abort signal in handler2');
-        const result = await fetch(context.request.url, context.request);
+        const result = await fetch(context.request.url!, context.request);
 
         return result.json() as T;
       },
@@ -82,7 +82,7 @@ module('RequestManager | Abort', function () {
       // @ts-expect-error
       async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> | Future<T> {
         assert.true(context.request.signal instanceof AbortSignal, 'we receive the abort signal in handler2');
-        const result = await fetch(context.request.url, context.request);
+        const result = await fetch(context.request.url!, context.request);
 
         return result.json() as T;
       },
@@ -128,7 +128,7 @@ module('RequestManager | Abort', function () {
         resolvePre();
         await beforeFetch;
 
-        const result = await fetch(context.request.url, context.request);
+        const result = await fetch(context.request.url!, context.request);
 
         return result.json() as T;
       },
@@ -181,7 +181,7 @@ module('RequestManager | Abort', function () {
         resolvePre();
         await beforeFetch;
 
-        const result = await fetch(context.request.url, context.request);
+        const result = await fetch(context.request.url!, context.request);
 
         return result.json() as T;
       },
@@ -223,7 +223,7 @@ module('RequestManager | Abort', function () {
         assert.true(context.request.signal instanceof AbortSignal, 'we receive the abort signal in handler2');
         const request: RequestInfo = Object.assign({}, context.request) as RequestInfo;
         delete request.signal;
-        const result = await fetch(request.url, request);
+        const result = await fetch(request.url!, request);
 
         return result.json() as T;
       },
