@@ -41,8 +41,8 @@ const EventConfig = {
 class App extends Application {
   modulePrefix = config.modulePrefix;
   podModulePrefix = config.podModulePrefix;
-  Resolver = Resolver;
-  customEvents = EventConfig;
+  override Resolver = Resolver;
+  override customEvents = EventConfig;
 }
 
 loadInitializers(App, config.modulePrefix);
