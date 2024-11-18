@@ -7,6 +7,47 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 module('unit/store/createRecord - Store creating records', function (hooks) {
   setupTest(hooks);
 
+  test(`allows unknown properties to be delivered to the record (classic)`, function (assert) {
+    class Post extends Model {
+      @attr title;
+      recent = false;
+    }
+    const ClassicPost = Model.extend({
+      title: attr(),
+      recent: false,
+    });
+
+    this.owner.register('model:post', Post);
+    this.owner.register('model:classic-post', ClassicPost);
+    const store = this.owner.lookup('service:store');
+
+    const originalInstantiate = store.instantiateRecord;
+    store.instantiateRecord = function (record, properties) {
+      assert.step('instantiateRecord');
+      assert.strictEqual(properties.unknownProp, 'Unknown prop', 'unknownProp is passed along');
+      assert.true(properties.recent, 'recent is passed along');
+      return originalInstantiate.apply(this, arguments);
+    };
+
+    const record = store.createRecord('post', {
+      title: 'Ember.js is good',
+      recent: true,
+      unknownProp: 'Unknown prop',
+    });
+    const classicRecord = store.createRecord('classic-post', {
+      title: 'Ember.js is good',
+      recent: true,
+      unknownProp: 'Unknown prop',
+    });
+
+    assert.strictEqual(record.unknownProp, 'Unknown prop', 'unknownProp is set');
+    assert.true(record.recent, 'recent is set');
+    assert.strictEqual(classicRecord.unknownProp, 'Unknown prop', 'unknownProp is set');
+    assert.true(classicRecord.recent, 'recent is set');
+
+    assert.verifySteps(['instantiateRecord', 'instantiateRecord']);
+  });
+
   test(`doesn't modify passed in properties hash`, function (assert) {
     const Post = Model.extend({
       title: attr(),
