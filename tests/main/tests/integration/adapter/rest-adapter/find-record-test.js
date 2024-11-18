@@ -173,7 +173,7 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
 
       await assert.expectAssertion(async () => {
         await store.findRecord(identifier);
-      }, 'Assertion Failed: Attempted to schedule a fetch for a record without an id.');
+      }, 'Attempted to schedule a fetch for a record without an id.');
     }
   );
 
@@ -200,7 +200,7 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
 
         await assert.expectAssertion(async () => {
           await store.findRecord(identifier, options);
-        }, 'Assertion Failed: Attempted to schedule a fetch for a record without an id.');
+        }, 'Attempted to schedule a fetch for a record without an id.');
       }
     );
   });
