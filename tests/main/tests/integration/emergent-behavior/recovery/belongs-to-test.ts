@@ -5,8 +5,8 @@ import { setupTest } from 'ember-qunit';
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import Model, { attr, belongsTo } from '@ember-data/model';
 import type Store from '@ember-data/store';
-import type { ModelSchema } from '@ember-data/types/q/ds-model';
 import { DEBUG } from '@warp-drive/build-config/env';
+import { ModelSchema } from '@ember-data/store/types';
 
 let IS_DEBUG = false;
 
