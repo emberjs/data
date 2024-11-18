@@ -1,7 +1,6 @@
 import { get, set } from '@ember/object';
 
 import { module, test } from 'qunit';
-import { hash, Promise as EmberPromise, reject, resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -14,6 +13,10 @@ import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer from '@ember-data/serializer/rest';
 import { recordIdentifierFor } from '@ember-data/store';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+
+function isSnapshot(snapshot) {
+  return snapshot instanceof Snapshot || snapshot.constructor.name === 'Snapshot';
+}
 
 function moveRecordOutOfInFlight(record) {
   // move record out of the inflight state so the tests can clean up
@@ -50,7 +53,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     const adapter = store.adapterFor('application');
 
     adapter.query = function (store, type, query, recordArray) {
-      return resolve({
+      return Promise.resolve({
         data: [
           {
             id: '1',
@@ -105,7 +108,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       hash['updated-at'] = 'now';
 
       count++;
-      return resolve({
+      return Promise.resolve({
         data: {
           id: recordId,
           type: 'person',
@@ -117,14 +120,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     let tom = store.createRecord('person', { name: 'Tom Dale' });
     let yehuda = store.createRecord('person', { name: 'Yehuda Katz' });
 
-    const promise = hash({
-      tom: tom.save(),
-      yehuda: yehuda.save(),
-    });
-
-    const records = await promise;
-    tom = records.tom;
-    yehuda = records.yehuda;
+    [tom, yehuda] = await Promise.all([tom.save(), yehuda.save()]);
 
     assert.strictEqual(
       tom,
@@ -162,7 +158,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
       assert.true(snapshot.record.isSaving, 'record is saving');
 
-      return resolve();
+      return Promise.resolve();
     };
 
     store.push({
@@ -184,25 +180,12 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       ],
     });
 
-    const promise = hash({
-      tom: store.findRecord('person', '1'),
-      yehuda: store.findRecord('person', '2'),
-    });
-
-    const records1 = await promise;
-    const tom = records1.tom;
-    const yehuda = records1.yehuda;
+    const [tom, yehuda] = await Promise.all([store.findRecord('person', '1'), store.findRecord('person', '2')]);
 
     set(tom, 'name', 'Tom Dale');
     set(yehuda, 'name', 'Yehuda Katz');
 
-    const records2 = await hash({
-      tom: tom.save(),
-      yehuda: yehuda.save(),
-    });
-
-    const tom2 = records2.tom;
-    const yehuda2 = records2.yehuda;
+    const [tom2, yehuda2] = await Promise.all([tom.save(), yehuda.save()]);
 
     assert.false(tom2.isSaving, 'record is no longer saving');
     assert.true(tom2.isLoaded, 'record is loaded');
@@ -224,12 +207,12 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       count++;
       if (count === 1) {
         assert.strictEqual(snapshot.attr('name'), 'Tom Dale');
-        return resolve({
+        return Promise.resolve({
           data: { id: '1', type: 'person', attributes: { name: 'Tom Dale', 'updated-at': 'now' } },
         });
       } else if (count === 2) {
         assert.strictEqual(snapshot.attr('name'), 'Yehuda Katz');
-        return resolve({
+        return Promise.resolve({
           data: {
             id: '2',
             type: 'person',
@@ -297,7 +280,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
       count++;
 
-      return resolve();
+      return Promise.resolve();
     };
 
     store.push({
@@ -319,19 +302,12 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       ],
     });
 
-    const promise = hash({
-      tom: store.findRecord('person', '1'),
-      yehuda: store.findRecord('person', '2'),
-    });
-
-    const records = await promise;
-    const tom = records.tom;
-    const yehuda = records.yehuda;
+    const [tom, yehuda] = await Promise.all([store.findRecord('person', '1'), store.findRecord('person', '2')]);
 
     tom.deleteRecord();
     yehuda.deleteRecord();
 
-    return EmberPromise.all([tom.save(), yehuda.save()]);
+    await Promise.all([tom.save(), yehuda.save()]);
   });
 
   test('by default, destroyRecord calls deleteRecord once per record without requiring .save', async function (assert) {
@@ -357,7 +333,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
       count++;
 
-      return resolve();
+      return Promise.resolve();
     };
 
     store.push({
@@ -379,16 +355,9 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       ],
     });
 
-    const promise = hash({
-      tom: store.findRecord('person', '1'),
-      yehuda: store.findRecord('person', '2'),
-    });
+    const [tom, yehuda] = await Promise.all([store.findRecord('person', '1'), store.findRecord('person', '2')]);
 
-    const records = await promise;
-    const tom = records.tom;
-    const yehuda = records.yehuda;
-
-    return EmberPromise.all([tom.destroyRecord(), yehuda.destroyRecord()]);
+    await Promise.all([tom.destroyRecord(), yehuda.destroyRecord()]);
   });
 
   test('if an existing model is edited then deleted, deleteRecord is called on the adapter', async function (assert) {
@@ -404,7 +373,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       assert.strictEqual(snapshot.id, 'deleted-record', 'should pass correct record to deleteRecord');
       assert.strictEqual(count, 1, 'should only call deleteRecord method of adapter once');
 
-      return resolve();
+      return Promise.resolve();
     };
 
     adapter.updateRecord = function () {
@@ -444,9 +413,9 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.deleteRecord = function (store, type, snapshot) {
       if (count++ === 0) {
-        return reject(error);
+        return Promise.reject(error);
       } else {
-        return resolve();
+        return Promise.resolve();
       }
     };
 
@@ -465,7 +434,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     try {
       await tom.save();
       assert.ok(false, 'We should throw during save');
-    } catch (e) {
+    } catch {
       assert.true(tom.isError, 'Tom is now errored');
       assert.strictEqual(tom.adapterError, error, 'error object is exposed');
 
@@ -486,7 +455,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       assert.strictEqual(type, Person, 'the type is correct');
 
       if (snapshot.attr('name').indexOf('Bro') === -1) {
-        return reject(
+        return Promise.reject(
           new InvalidError([
             {
               title: 'Invalid Attribute',
@@ -498,7 +467,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
           ])
         );
       } else {
-        return resolve();
+        return Promise.resolve();
       }
     };
 
@@ -509,7 +478,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     try {
       await yehuda.save();
       assert.ok(false, 'We should have erred');
-    } catch (e) {
+    } catch {
       assert.false(yehuda.isValid, 'the record is invalid');
       assert.ok(get(yehuda, 'errors.name'), 'The errors.name property exists');
 
@@ -538,7 +507,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     adapter.createRecord = function (store, type, snapshot) {
       if (snapshot.attr('name').indexOf('Bro') === -1) {
-        return reject(
+        return Promise.reject(
           new InvalidError([
             {
               title: 'Invalid Attribute',
@@ -550,7 +519,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
           ])
         );
       } else {
-        return resolve();
+        return Promise.resolve();
       }
     };
 
@@ -597,7 +566,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       saveCount++;
 
       if (snapshot.attr('name').indexOf('Bro') === -1) {
-        return reject(
+        return Promise.reject(
           new InvalidError([
             {
               title: 'Invalid Attribute',
@@ -609,7 +578,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
           ])
         );
       } else {
-        return resolve();
+        return Promise.resolve();
       }
     };
 
@@ -659,7 +628,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     const error = new AdapterError();
 
     adapter.createRecord = function (store, type, snapshot) {
-      return reject(error);
+      return Promise.reject(error);
     };
 
     const person = store.createRecord('person', { id: '1', name: 'John Doe' });
@@ -680,7 +649,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       assert.strictEqual(type, Person, 'the type is correct');
 
       if (snapshot.attr('name').indexOf('Bro') === -1) {
-        return reject(
+        return Promise.reject(
           new InvalidError([
             {
               title: 'Invalid Attribute',
@@ -692,7 +661,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
           ])
         );
       } else {
-        return resolve();
+        return Promise.resolve();
       }
     };
 
@@ -742,7 +711,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.updateRecord = function (store, type, snapshot) {
       if (snapshot.attr('name').indexOf('Bro') === -1) {
-        return reject(
+        return Promise.reject(
           new InvalidError([
             {
               title: 'Invalid Attribute',
@@ -754,7 +723,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
           ])
         );
       } else {
-        return resolve();
+        return Promise.resolve();
       }
     };
 
@@ -817,7 +786,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       assert.strictEqual(type, Person, 'the type is correct');
       saveCount++;
       if (snapshot.attr('name').indexOf('Bro') === -1) {
-        return reject(
+        return Promise.reject(
           new InvalidError([
             {
               title: 'Invalid Attribute',
@@ -829,7 +798,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
           ])
         );
       } else {
-        return resolve();
+        return Promise.resolve();
       }
     };
 
@@ -891,7 +860,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.updateRecord = function (store, type, snapshot) {
-      return reject(error);
+      return Promise.reject(error);
     };
 
     const person = store.push({
@@ -925,7 +894,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.strictEqual(type, Person, 'the type is correct');
-      return resolve({ data: { id: '1', type: 'person' } });
+      return Promise.resolve({ data: { id: '1', type: 'person' } });
     };
 
     await store.findRecord('person', '1');
@@ -954,7 +923,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     adapter.shouldBackgroundReloadRecord = () => false;
 
     adapter.findRecord = function (store, type, id, snapshot) {
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'person',
@@ -969,36 +938,34 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     };
 
     adapter.updateRecord = function (store, type, snapshot) {
-      return new EmberPromise((resolve, reject) => {
-        store.push({
-          data: {
-            type: 'person',
-            id: '1',
-            attributes: {
-              name: 'Tom Dale',
-            },
-            relationships: {
-              dogs: {
-                data: [
-                  { type: 'dog', id: '1' },
-                  { type: 'dog', id: '2' },
-                ],
-              },
+      store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'Tom Dale',
+          },
+          relationships: {
+            dogs: {
+              data: [
+                { type: 'dog', id: '1' },
+                { type: 'dog', id: '2' },
+              ],
             },
           },
-          included: [
-            {
-              type: 'dog',
-              id: '2',
-              attributes: {
-                name: 'Scruffles',
-              },
+        },
+        included: [
+          {
+            type: 'dog',
+            id: '2',
+            attributes: {
+              name: 'Scruffles',
             },
-          ],
-        });
-
-        resolve({ data: { id: '1', type: 'dog', attributes: { name: 'Scruffy' } } });
+          },
+        ],
       });
+
+      return Promise.resolve({ data: { id: '1', type: 'dog', attributes: { name: 'Scruffy' } } });
     };
 
     adapter.findMany = function (store, type, ids, snapshots) {
@@ -1029,7 +996,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     adapter.findHasMany = function (store, snapshot, link, relationship) {
       assert.strictEqual(count++, 0, 'findHasMany is only called once');
 
-      return resolve({ data: [{ id: '1', type: 'dog', attributes: { name: 'Scruffy' } }] });
+      return Promise.resolve({ data: [{ id: '1', type: 'dog', attributes: { name: 'Scruffy' } }] });
     };
 
     store.push({
@@ -1088,7 +1055,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     this.owner.register('model:person', Person);
 
     adapter.createRecord = function (store, type, snapshot) {
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'person',
@@ -1117,8 +1084,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     const adapter = store.adapterFor('application');
 
     adapter.createRecord = function (store, type, snapshot) {
-      assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
-      return resolve();
+      assert.ok(isSnapshot(snapshot), 'snapshot is an instance of Snapshot');
+      return Promise.resolve();
     };
 
     const record = store.createRecord('person', { name: 'Tom Dale', id: '1' });
@@ -1133,11 +1100,9 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     const adapter = store.adapterFor('application');
 
     adapter.updateRecord = function (store, type, snapshot) {
-      assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
-      return resolve();
+      assert.ok(isSnapshot(snapshot), 'snapshot is an instance of Snapshot');
+      return Promise.resolve();
     };
-
-    let person;
 
     store.push({
       data: {
@@ -1148,7 +1113,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         },
       },
     });
-    person = store.peekRecord('person', '1');
+    const person = store.peekRecord('person', '1');
 
     set(person, 'name', 'Tomster');
     await person.save();
@@ -1161,11 +1126,9 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     const adapter = store.adapterFor('application');
 
     adapter.deleteRecord = function (store, type, snapshot) {
-      assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
-      return resolve();
+      assert.ok(isSnapshot(snapshot), 'snapshot is an instance of Snapshot');
+      return Promise.resolve();
     };
-
-    let person;
 
     store.push({
       data: {
@@ -1176,7 +1139,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         },
       },
     });
-    person = store.peekRecord('person', '1');
+    const person = store.peekRecord('person', '1');
 
     person.deleteRecord();
     await person.save();
@@ -1189,8 +1152,8 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     const adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, id, snapshot) {
-      assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
-      return resolve({ data: { id: '1', type: 'person' } });
+      assert.ok(isSnapshot(snapshot), 'snapshot is an instance of Snapshot');
+      return Promise.resolve({ data: { id: '1', type: 'person' } });
     };
 
     await store.findRecord('person', '1');
@@ -1209,17 +1172,15 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     adapter.coalesceFindRequests = true;
     adapter.findMany = function (store, type, ids, snapshots) {
-      assert.ok(snapshots[0] instanceof Snapshot, 'snapshots[0] is an instance of Snapshot');
-      assert.ok(snapshots[1] instanceof Snapshot, 'snapshots[1] is an instance of Snapshot');
-      return resolve({
+      assert.ok(isSnapshot(snapshots[0]), 'snapshots[0] is an instance of Snapshot');
+      assert.ok(isSnapshot(snapshots[1]), 'snapshots[1] is an instance of Snapshot');
+      return Promise.resolve({
         data: [
           { id: '2', type: 'dog' },
           { id: '3', type: 'dog' },
         ],
       });
     };
-
-    let person;
 
     store.push({
       data: {
@@ -1235,7 +1196,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         },
       },
     });
-    person = store.peekRecord('person', '1');
+    const person = store.peekRecord('person', '1');
 
     await person.dogs;
   });
@@ -1252,16 +1213,14 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     this.owner.register('model:person', Person);
 
     adapter.findHasMany = function (store, snapshot, link, relationship) {
-      assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
-      return resolve({
+      assert.ok(isSnapshot(snapshot), 'snapshot is an instance of Snapshot');
+      return Promise.resolve({
         data: [
           { id: '2', type: 'dog' },
           { id: '3', type: 'dog' },
         ],
       });
     };
-
-    let person;
 
     store.push({
       data: {
@@ -1276,7 +1235,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         },
       },
     });
-    person = store.peekRecord('person', '1');
+    const person = store.peekRecord('person', '1');
 
     await person.dogs;
   });
@@ -1294,11 +1253,9 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     this.owner.register('model:person', Person);
 
     adapter.findBelongsTo = function (store, snapshot, link, relationship) {
-      assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
-      return resolve({ data: { id: '2', type: 'dog' } });
+      assert.ok(isSnapshot(snapshot), 'snapshot is an instance of Snapshot');
+      return Promise.resolve({ data: { id: '2', type: 'dog' } });
     };
-
-    let person;
 
     store.push({
       data: {
@@ -1313,7 +1270,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         },
       },
     });
-    person = store.peekRecord('person', '1');
+    const person = store.peekRecord('person', '1');
 
     await person.dog;
   });
@@ -1326,7 +1283,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     adapter.updateRecord = function (store, type, snapshot) {
       assert.deepEqual(snapshot.adapterOptions, { subscribe: true });
-      return resolve({ data: { id: '1', type: 'person' } });
+      return Promise.resolve({ data: { id: '1', type: 'person' } });
     };
 
     store.push({
@@ -1350,7 +1307,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     adapter.createRecord = function (store, type, snapshot) {
       assert.deepEqual(snapshot.adapterOptions, { subscribe: true });
-      return resolve({ data: { id: '1', type: 'person' } });
+      return Promise.resolve({ data: { id: '1', type: 'person' } });
     };
 
     await store.createRecord('person', { name: 'Tom' }).save({ adapterOptions: { subscribe: true } });
@@ -1364,7 +1321,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     adapter.deleteRecord = function (store, type, snapshot) {
       assert.deepEqual(snapshot.adapterOptions, { subscribe: true });
-      return resolve({ data: { id: '1', type: 'person' } });
+      return Promise.resolve({ data: { id: '1', type: 'person' } });
     };
 
     store.push({
@@ -1388,7 +1345,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.deepEqual(snapshot.adapterOptions, { query: { embed: true } });
-      return resolve({ data: { id: '1', type: 'person' } });
+      return Promise.resolve({ data: { id: '1', type: 'person' } });
     };
 
     await store.findRecord('person', '1', { adapterOptions: { query: { embed: true } } });
@@ -1432,7 +1389,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     adapter.findRecord = (store, type, id, snapshot) => {
       assert.strictEqual(snapshot.include, 'books', 'include passed to adapter.findRecord');
-      return resolve({ data: { id: '1', type: 'person' } });
+      return Promise.resolve({ data: { id: '1', type: 'person' } });
     };
 
     await store.findRecord('person', '1', { include: 'books' });
@@ -1447,7 +1404,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     adapter.findAll = function (store, type, sinceToken, arraySnapshot) {
       const adapterOptions = arraySnapshot.adapterOptions;
       assert.deepEqual(adapterOptions, { query: { embed: true } });
-      return resolve({ data: [{ id: '1', type: 'person' }] });
+      return Promise.resolve({ data: [{ id: '1', type: 'person' }] });
     };
 
     await store.findAll('person', { adapterOptions: { query: { embed: true } } });
@@ -1461,7 +1418,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
 
     adapter.findAll = function (store, type, sinceToken, arraySnapshot) {
       assert.strictEqual(arraySnapshot.include, 'books', 'include passed to adapter.findAll');
-      return resolve({ data: [{ id: '1', type: 'person' }] });
+      return Promise.resolve({ data: [{ id: '1', type: 'person' }] });
     };
 
     await store.findAll('person', { include: 'books' });
@@ -1488,7 +1445,7 @@ module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
         };
       }
       findHasMany() {
-        return resolve({
+        return Promise.resolve({
           comments: [
             { id: '1', name: 'FIRST' },
             { id: '2', name: 'Rails is unagi' },

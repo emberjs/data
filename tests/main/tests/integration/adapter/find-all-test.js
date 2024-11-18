@@ -1,11 +1,11 @@
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { defer, reject, resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
+import { createDeferred } from '@ember-data/request';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
@@ -44,7 +44,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
       // this will get called twice
       assert.ok(true, "the adapter's findAll method should be invoked");
 
-      return resolve({
+      return Promise.resolve({
         data: [
           {
             id: '1',
@@ -80,9 +80,9 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
       assert.ok(true, "the adapter's findAll method should be invoked");
 
       if (count++ === 0) {
-        return reject();
+        return Promise.reject();
       } else {
-        return resolve({
+        return Promise.resolve({
           data: [
             {
               id: '1',
@@ -148,7 +148,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
 
   testInDebug('When all records are requested, assert the payload is not blank', async function (assert) {
     const adapter = store.adapterFor('person');
-    adapter.findAll = () => resolve({});
+    adapter.findAll = () => Promise.resolve({});
 
     assert.expectAssertion(
       () => store.findAll('person'),
@@ -157,7 +157,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
   });
 
   test('isUpdating is true while records are fetched', async function (assert) {
-    const findAllDeferred = defer();
+    const findAllDeferred = createDeferred();
     const adapter = store.adapterFor('person');
     adapter.findAll = () => findAllDeferred.promise;
     adapter.shouldReloadAll = () => true;
@@ -186,7 +186,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
   });
 
   test('isUpdating is true while records are fetched in the background', async function (assert) {
-    const findAllDeferred = defer();
+    const findAllDeferred = createDeferred();
     const adapter = store.adapterFor('person');
     adapter.findAll = () => {
       return findAllDeferred.promise;
@@ -223,7 +223,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function 
   });
 
   test('isUpdating is false if records are not fetched in the background', async function (assert) {
-    const findAllDeferred = defer();
+    const findAllDeferred = createDeferred();
     const adapter = store.adapterFor('person');
     adapter.findAll = () => {
       return findAllDeferred.promise;

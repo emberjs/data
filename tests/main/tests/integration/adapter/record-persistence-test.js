@@ -1,5 +1,4 @@
 import { module, test } from 'qunit';
-import { allSettled, hash, resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -35,7 +34,7 @@ module('integration/adapter/record_persistence - Persisting Records', function (
       assert.strictEqual(type, Person, "The type of the record is 'Person'");
       assert.strictEqual(snapshot.record, tom, 'The record in the snapshot is the correct one');
 
-      return resolve();
+      return Promise.resolve();
     };
 
     const tom = store.push({
@@ -75,13 +74,14 @@ module('integration/adapter/record_persistence - Persisting Records', function (
     const store = this.owner.lookup('service:store');
     const adapter = store.adapterFor('application');
 
+    // eslint-disable-next-line prefer-const
     let tom;
 
     adapter.createRecord = function (_store, type, snapshot) {
       assert.strictEqual(type, Person, "The type of the record is 'Person'");
       assert.strictEqual(snapshot.record, tom, 'The record in the snapshot is the correct one');
 
-      return resolve({ data: { id: '1', type: 'person', attributes: { name: 'Tom Dale' } } });
+      return Promise.resolve({ data: { id: '1', type: 'person', attributes: { name: 'Tom Dale' } } });
     };
 
     tom = store.createRecord('person', { name: 'Tom Dale' });
@@ -114,7 +114,7 @@ module('integration/adapter/record_persistence - Persisting Records', function (
     let tom;
 
     adapter.createRecord = function (store, type, snapshot) {
-      return resolve({ data: { id: '1', type: 'person', attributes: { name: 'Tom Dale' } } });
+      return Promise.resolve({ data: { id: '1', type: 'person', attributes: { name: 'Tom Dale' } } });
     };
 
     tom = store.createRecord('person', { name: 'Tom Dale' });
@@ -149,7 +149,7 @@ module('integration/adapter/record_persistence - Persisting Records', function (
       assert.strictEqual(type, Person, "The type of the record is 'Person'");
       assert.strictEqual(snapshot.record, tom, 'The record in the snapshot is the correct one');
 
-      return resolve();
+      return Promise.resolve();
     };
 
     store.push({
@@ -193,7 +193,7 @@ module('integration/adapter/record_persistence - Persisting Records', function (
 
     adapter.updateRecord = function (_store, _type, snapshot) {
       if (snapshot.id === '1') {
-        return resolve({
+        return Promise.resolve({
           data: {
             id: '1',
             type: 'person',
@@ -205,7 +205,7 @@ module('integration/adapter/record_persistence - Persisting Records', function (
         });
       }
 
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '2',
           type: 'person',
@@ -233,10 +233,7 @@ module('integration/adapter/record_persistence - Persisting Records', function (
       ],
     });
 
-    const { tom, yehuda } = await hash({
-      tom: store.findRecord('person', '1'),
-      yehuda: store.findRecord('person', '2'),
-    });
+    const [tom, yehuda] = await Promise.all([store.findRecord('person', '1'), store.findRecord('person', '2')]);
 
     tom.set('name', 'Draaaaaahm Dale');
     yehuda.set('name', 'Goy Katz');
@@ -244,12 +241,12 @@ module('integration/adapter/record_persistence - Persisting Records', function (
     assert.true(tom.hasDirtyAttributes, 'Tom is dirty');
     assert.true(yehuda.hasDirtyAttributes, 'Yehuda is dirty');
 
-    const [{ value: savedTom }, { value: savedYehuda }] = await allSettled([tom.save(), yehuda.save()]);
+    const [{ value: savedTom }, { value: savedYehuda }] = await Promise.allSettled([tom.save(), yehuda.save()]);
 
     assert.strictEqual(savedTom, tom, 'The record is correct');
     assert.strictEqual(savedYehuda, yehuda, 'The record is correct');
     assert.false(tom.hasDirtyAttributes, 'Tom is not dirty after saving record');
-    assert.false(yehuda.hasDirtyAttributes, 'Yehuda is not dirty after dsaving record');
+    assert.false(yehuda.hasDirtyAttributes, 'Yehuda is not dirty after saving record');
     assert.strictEqual(tom.name, 'Tom Dale', 'name attribute should reflect value of hash returned from the request');
     assert.strictEqual(
       tom.updatedAt,
@@ -288,7 +285,7 @@ module('integration/adapter/record_persistence - Persisting Records', function (
     const store = this.owner.lookup('service:store');
     const adapter = store.adapterFor('application');
 
-    adapter.deleteRecord = () => resolve();
+    adapter.deleteRecord = () => Promise.resolve();
 
     store.push({
       data: [
@@ -309,16 +306,13 @@ module('integration/adapter/record_persistence - Persisting Records', function (
       ],
     });
 
-    const { tom, yehuda } = await hash({
-      tom: store.findRecord('person', '1'),
-      yehuda: store.findRecord('person', '2'),
-    });
+    const [tom, yehuda] = await Promise.all([store.findRecord('person', '1'), store.findRecord('person', '2')]);
 
     assert.false(tom.isDeleted, 'Tom is not deleted');
     assert.false(yehuda.isDeleted, 'Yehuda is not deleted');
 
-    await allSettled([tom.deleteRecord(), yehuda.deleteRecord()]);
-    await allSettled([tom.save(), yehuda.save()]);
+    await Promise.allSettled([tom.deleteRecord(), yehuda.deleteRecord()]);
+    await Promise.allSettled([tom.save(), yehuda.save()]);
 
     assert.true(tom.isDeleted, 'Tom is marked as deleted');
     assert.true(yehuda.isDeleted, 'Yehuda is marked as deleted');
@@ -353,13 +347,14 @@ module('integration/adapter/record_persistence - Persisting Records', function (
     const store = this.owner.lookup('service:store');
     const adapter = store.adapterFor('application');
 
+    // eslint-disable-next-line prefer-const
     let tom;
 
     adapter.createRecord = function (_store, type, snapshot) {
       assert.strictEqual(type, Person, "The type of the record is 'Person'");
       assert.strictEqual(snapshot.record, tom, 'The record in the snapshot is the correct one');
 
-      return resolve({ data: { id: '1' } });
+      return Promise.resolve({ data: { id: '1' } });
     };
 
     tom = store.createRecord('person', { name: 'Tom Dale' });

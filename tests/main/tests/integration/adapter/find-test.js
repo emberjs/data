@@ -1,5 +1,4 @@
 import { module, test } from 'qunit';
-import { all, allSettled, Promise, reject, resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -8,28 +7,8 @@ import Model, { attr } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
-module('integration/adapter/find - Finding Records', function (hooks) {
+module('integration/adapter - Finding Records', function (hooks) {
   setupTest(hooks);
-
-  testInDebug('It raises an assertion when `undefined` is passed as id (#1705)', async function (assert) {
-    class Person extends Model {
-      @attr('string') name;
-    }
-
-    this.owner.register('model:person', Person);
-    this.owner.register('adapter:application', Adapter.extend());
-    this.owner.register('serializer:application', class extends JSONAPISerializer {});
-
-    const store = this.owner.lookup('service:store');
-
-    await assert.expectAssertion(async () => {
-      await store.find('person', undefined);
-    }, `You cannot pass 'undefined' as id to the store's find method`);
-
-    await assert.expectAssertion(async () => {
-      await store.find('person', null);
-    }, `You cannot pass 'null' as id to the store's find method`);
-  });
 
   test("When a single record is requested, the adapter's find method should be called unless it's loaded.", async function (assert) {
     assert.expect(2);
@@ -118,7 +97,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
       },
     });
 
-    await allSettled([firstPlayerRequest, secondPlayerRequest]);
+    await Promise.allSettled([firstPlayerRequest, secondPlayerRequest]);
   });
 
   test('When a single record is requested, and the promise is rejected, .findRecord() is rejected.', async function (assert) {
@@ -133,7 +112,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
       'adapter:person',
       Adapter.extend({
         findRecord() {
-          return reject();
+          return Promise.reject();
         },
       })
     );
@@ -143,7 +122,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
     try {
       await store.findRecord('person', '1');
       assert.ok(false, 'We expected to throw but did not');
-    } catch (e) {
+    } catch {
       assert.ok(true, 'The rejection handler was called');
     }
   });
@@ -160,7 +139,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
       'adapter:person',
       Adapter.extend({
         findRecord() {
-          return reject();
+          return Promise.reject();
         },
       })
     );
@@ -170,7 +149,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
     try {
       await store.findRecord('person', '1');
       assert.ok(false, 'We expected to throw but did not');
-    } catch (e) {
+    } catch {
       assert.ok(true, 'The rejection handler was called');
       assert.strictEqual(store.peekRecord('person', '1'), null, 'The record has been unloaded');
     }
@@ -187,7 +166,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
     this.owner.register(
       'adapter:person',
       Adapter.extend({
-        findRecord: () => resolve({}),
+        findRecord: () => Promise.resolve({}),
       })
     );
 
@@ -198,7 +177,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
       assert.ok(false, 'We expected to throw but did not');
     } catch (e) {
       const expectedMessageRegex =
-        "Assertion Failed: You made a 'findRecord' request for a 'person' with id 'the-id', but the adapter's response did not have any data";
+        "You made a 'findRecord' request for a 'person' with id 'the-id', but the adapter's response did not have any data";
 
       assert.strictEqual(expectedMessageRegex, e.message, 'error has the correct error message');
     }
@@ -216,7 +195,7 @@ module('integration/adapter/find - Finding Records', function (hooks) {
       'adapter:person',
       Adapter.extend({
         coalesceFindRequests: true,
-        findMany: () => resolve({}),
+        findMany: () => Promise.resolve({}),
       })
     );
 
@@ -224,10 +203,10 @@ module('integration/adapter/find - Finding Records', function (hooks) {
     const promises = [store.findRecord('person', '1'), store.findRecord('person', '2')];
 
     try {
-      await all(promises);
+      await Promise.all(promises);
     } catch (e) {
       const expectedMessageRegex =
-        "Assertion Failed: You made a 'findMany' request for 'person' records with ids '[1,2]', but the adapter's response did not have any data";
+        "You made a 'findMany' request for 'person' records with ids '[1,2]', but the adapter's response did not have any data";
 
       assert.strictEqual(expectedMessageRegex, e.message, 'error has the correct error message');
     }

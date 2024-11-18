@@ -24,6 +24,7 @@ module('integration/adapter/serialize - DS.Adapter integration test', function (
 
     serializer.serialize = function (snapshot, options) {
       assert.deepEqual(options, { foo: 'bar' });
+      return {};
     };
 
     const person = store.createRecord('person');

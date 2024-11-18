@@ -3,8 +3,10 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import RESTAdapter from '@ember-data/adapter/rest';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer from '@ember-data/serializer/rest';
 
 import { ajaxResponse } from './-ajax-mocks';
@@ -522,39 +524,53 @@ module('integration/adapter/rest_adapter - REST Adapter - createRecord', functio
   test("createRecord - response can contain relationships the client doesn't yet know about", async function (assert) {
     assert.expect(3); // while recorlength is 2, we are getting 4 assertions
 
-    const Post = Model.extend({
-      name: attr('string'),
-      comments: hasMany('comment', { async: false, inverse: 'post' }),
-    });
-    const Comment = Model.extend({
-      name: attr('string'),
-      post: belongsTo('post', { async: false, inverse: 'comments' }),
-    });
+    class Post extends Model {
+      @attr('string') name;
+      @hasMany('comment', { async: false, inverse: 'post' }) comments;
+    }
+    class Comment extends Model {
+      @attr('string') name;
+      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+    }
 
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
-    this.owner.register('adapter:application', RESTAdapter.extend());
-    this.owner.register('serializer:application', RESTSerializer.extend());
+    this.owner.register('adapter:application', JSONAPIAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer);
 
     const store = this.owner.lookup('service:store');
     const adapter = store.adapterFor('application');
 
-    ajaxResponse(adapter, {
-      posts: [
-        {
+    adapter.createRecord = function () {
+      return {
+        data: {
           id: '1',
-          name: 'Rails is omakase',
-          comments: ['2'],
+          type: 'post',
+          attributes: {
+            name: 'Rails is omakase',
+          },
+          relationships: {
+            comments: {
+              data: [{ type: 'comment', id: '1' }],
+            },
+          },
         },
-      ],
-      comments: [
-        {
-          id: '2',
-          name: 'Another Comment',
-          post: '1',
-        },
-      ],
-    });
+        included: [
+          {
+            id: '1',
+            type: 'comment',
+            attributes: {
+              name: 'Dat Parlay Letter',
+            },
+            relationships: {
+              post: {
+                data: { type: 'post', id: '1' },
+              },
+            },
+          },
+        ],
+      };
+    };
 
     const post = store.createRecord('post', { name: 'Rails is omakase' });
 
