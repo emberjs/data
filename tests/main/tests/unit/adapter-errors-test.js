@@ -106,6 +106,13 @@ module('unit/adapter-errors - AdapterError', function () {
     assert.strictEqual(error.message, 'Adapter operation failed');
   });
 
+  test('CustomAdapterError with default message', function (assert) {
+    const CustomAdapterError = AdapterError.extend({ message: 'custom error!' });
+    const error = new CustomAdapterError();
+
+    assert.strictEqual(error.message, 'custom error!');
+  });
+
   if (DEPRECATE_HELPERS) {
     const errorsHash = {
       name: ['is invalid', 'must be a string'],
