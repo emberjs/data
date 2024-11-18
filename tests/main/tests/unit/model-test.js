@@ -1,7 +1,6 @@
 import { computed, get, observer, set } from '@ember/object';
 
 import { module, test } from 'qunit';
-import { reject, resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -71,7 +70,7 @@ module('unit/model - Model', function (hooks) {
 
     test('supports canonical updates via pushedData in root.deleted.saved', async function (assert) {
       adapter.deleteRecord = () => {
-        return resolve({ data: null });
+        return Promise.resolve({ data: null });
       };
 
       const record = store.push({
@@ -116,7 +115,7 @@ module('unit/model - Model', function (hooks) {
 
     testInDebug('Does not support dirtying in root.deleted.saved', async function (assert) {
       adapter.deleteRecord = () => {
-        return resolve({ data: null });
+        return Promise.resolve({ data: null });
       };
 
       const record = store.push({
@@ -325,7 +324,7 @@ module('unit/model - Model', function (hooks) {
       try {
         person.set('id', 'john');
         assert.ok(false, 'we should have thrown an error during mutation');
-      } catch (e) {
+      } catch {
         assert.ok(true, 'we did throw');
       }
 
@@ -669,7 +668,7 @@ module('unit/model - Model', function (hooks) {
     test('ensure model exits loading state, materializes data and fulfills promise only after data is available', async function (assert) {
       assert.expect(2);
       adapter.findRecord = () =>
-        resolve({
+        Promise.resolve({
           data: {
             id: '1',
             type: 'person',
@@ -934,7 +933,7 @@ module('unit/model - Model', function (hooks) {
 
     test('resetting a property to the current in-flight value causes it to become clean when the save completes', async function (assert) {
       adapter.updateRecord = function () {
-        return resolve();
+        return Promise.resolve();
       };
 
       store.push({
@@ -992,7 +991,7 @@ module('unit/model - Model', function (hooks) {
 
     test('an invalid record becomes clean again if changed property is reset', async function (assert) {
       adapter.updateRecord = () => {
-        return reject(
+        return Promise.reject(
           new InvalidError([
             {
               source: {
@@ -1040,7 +1039,7 @@ module('unit/model - Model', function (hooks) {
 
     test('an invalid record stays dirty if only invalid property is reset', async function (assert) {
       adapter.updateRecord = () => {
-        return reject(
+        return Promise.reject(
           new InvalidError([
             {
               source: {
@@ -1177,12 +1176,10 @@ module('unit/model - Model', function (hooks) {
           likes: [undefined, 'Cheese'],
         });
 
-        return resolve({ data: { id: '1', type: 'mascot' } });
+        return Promise.resolve({ data: { id: '1', type: 'mascot' } });
       };
 
-      let cat;
-
-      cat = store.createRecord('mascot');
+      const cat = store.createRecord('mascot');
       cat.setProperties({
         name: 'Argon',
         likes: 'Cheese',
@@ -1193,6 +1190,7 @@ module('unit/model - Model', function (hooks) {
 
     test('changedAttributes() works while the record is being updated', async function (assert) {
       assert.expect(1);
+      // eslint-disable-next-line prefer-const
       let cat;
 
       class Mascot extends Model {
@@ -1235,7 +1233,7 @@ module('unit/model - Model', function (hooks) {
 
     test('changedAttributes() reset after save', async function (assert) {
       adapter.updateRecord = function (store, type, snapshot) {
-        return resolve({
+        return Promise.resolve({
           data: {
             id: '1',
             type: 'person',
@@ -1275,6 +1273,7 @@ module('unit/model - Model', function (hooks) {
 
     test('@attr decorator works without parens', async function (assert) {
       assert.expect(1);
+      // eslint-disable-next-line prefer-const
       let cat;
 
       class Mascot extends Model {
@@ -1314,7 +1313,7 @@ module('unit/model - Model', function (hooks) {
 
       assert.expectAssertion(() => {
         person.attr();
-      }, /Assertion Failed: The `attr` method is not available on Model, a Snapshot was probably expected\. Are you passing a Model instead of a Snapshot to your serializer\?/);
+      }, /The `attr` method is not available on Model, a Snapshot was probably expected\. Are you passing a Model instead of a Snapshot to your serializer\?/);
     });
   });
 });
