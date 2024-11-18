@@ -1,7 +1,6 @@
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { Promise } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -17,7 +16,7 @@ const Person = Model.extend({
   },
 });
 
-module('integration/record-arrays/adapter_populated_record_array - AdapterPopulatedRecordArray', function (hooks) {
+module('integration/record-arrays/collection', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
@@ -153,6 +152,21 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
     assert.strictEqual(recordArray.links.first, '/foo?page=1', 'expected links.first to be "/foo?page=1" from payload');
   });
 
+  test('recordArray.splice() throws error', async function (assert) {
+    const store = this.owner.lookup('service:store');
+    const recordArray = store.recordArrayManager.createArray({ type: 'person', query: null });
+
+    await settled();
+
+    assert.expectAssertion(
+      () => {
+        recordArray.splice(0, 1);
+      },
+      'Mutating this array of records via splice is not allowed.',
+      'throws error'
+    );
+  });
+
   test('recordArray.replace() throws error', async function (assert) {
     const store = this.owner.lookup('service:store');
     const recordArray = store.recordArrayManager.createArray({ type: 'person', query: null });
@@ -179,7 +193,7 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
       () => {
         recordArray.splice(0, 1);
       },
-      'Assertion Failed: Mutating this array of records via splice is not allowed.',
+      'Mutating this array of records via splice is not allowed.',
       'throws error'
     );
   });
@@ -258,7 +272,6 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
   test('when an adapter populated record gets updated the array contents are also updated', async function (assert) {
     assert.expect(8);
 
-    let queryArr, findArray;
     const store = this.owner.lookup('service:store');
     const adapter = store.adapterFor('application');
     const array = [{ id: '1', type: 'person', attributes: { name: 'Scumbag Dale' } }];
@@ -274,8 +287,8 @@ module('integration/record-arrays/adapter_populated_record_array - AdapterPopula
       return { data: array.slice(0) };
     };
 
-    queryArr = await store.query('person', { slice: 1 });
-    findArray = await store.findAll('person');
+    const queryArr = await store.query('person', { slice: 1 });
+    const findArray = await store.findAll('person');
 
     assert.strictEqual(queryArr.length, 0, 'No records for this query');
     assert.false(queryArr.isUpdating, 'Record array isUpdating state updated');
