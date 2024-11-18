@@ -101,7 +101,6 @@ module('[@ember-data/model] unit - relationships', function (hooks) {
   });
 
   test('normalizing hasMany relationship names', function (assert) {
-    let store;
     const { owner } = this;
 
     class StreamItem extends Model {
@@ -116,7 +115,7 @@ module('[@ember-data/model] unit - relationships', function (hooks) {
     owner.register('model:stream-item', StreamItem);
     owner.register('model:user', User);
 
-    store = owner.lookup('service:store');
+    const store = owner.lookup('service:store');
 
     const user = store.modelFor('user');
 
@@ -133,7 +132,6 @@ module('[@ember-data/model] unit - relationships', function (hooks) {
     'decorators works without parens',
     { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 6 },
     function (assert) {
-      let store;
       const { owner } = this;
 
       class StreamItem extends Model {
@@ -148,7 +146,7 @@ module('[@ember-data/model] unit - relationships', function (hooks) {
       owner.register('model:stream-item', StreamItem);
       owner.register('model:user', User);
 
-      store = owner.lookup('service:store');
+      const store = owner.lookup('service:store');
 
       const user = store.modelFor('user');
 
