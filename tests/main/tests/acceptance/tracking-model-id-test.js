@@ -1,10 +1,10 @@
+import { setComponentTemplate } from '@ember/component';
 import { render, settled } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 
-import hbs from 'htmlbars-inline-precompile';
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
+import { hbs } from 'ember-cli-htmlbars';
 import { setupRenderingTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
@@ -42,7 +42,7 @@ const layout = hbs`
 
 class TestAdapter extends JSONAPIAdapter {
   createRecord() {
-    return resolve({
+    return Promise.resolve({
       data: {
         id: '4',
         type: 'widget',
@@ -60,8 +60,7 @@ module('acceptance/tracking-model-id - tracking model id', function (hooks) {
   hooks.beforeEach(function () {
     const { owner } = this;
     owner.register('model:widget', Widget);
-    owner.register('component:widget-list', WidgetList);
-    owner.register('template:components/widget-list', layout);
+    owner.register('component:widget-list', setComponentTemplate(layout, WidgetList));
     owner.register('adapter:application', TestAdapter);
     owner.register('serializer:application', JSONAPISerializer);
   });

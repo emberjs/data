@@ -1,15 +1,17 @@
+import { setComponentTemplate } from '@ember/component';
 import { inject as service } from '@ember/service';
 import { render, settled } from '@ember/test-helpers';
 import Component from '@glimmer/component';
-import { cached, tracked } from '@glimmer/tracking';
+// eslint-disable-next-line no-restricted-imports
+import { tracked } from '@glimmer/tracking';
 
-import hbs from 'htmlbars-inline-precompile';
 import { module, test } from 'qunit';
 
+import { hbs } from 'ember-cli-htmlbars';
 import { setupRenderingTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
-import { memoTransact, transact, untracked } from '@ember-data/tracking';
+import { cached, memoTransact, transact, untracked } from '@ember-data/tracking';
 
 module('acceptance/tracking-transactions', function (hooks) {
   setupRenderingTest(hooks);
@@ -48,8 +50,7 @@ module('acceptance/tracking-transactions', function (hooks) {
     `;
 
     owner.register('model:widget', Widget);
-    owner.register('component:widget-creator', WidgetCreator);
-    owner.register('template:components/widget-creator', layout);
+    owner.register('component:widget-creator', setComponentTemplate(layout, WidgetCreator));
     const store = owner.lookup('service:store');
 
     await render(hbs`
@@ -104,8 +105,7 @@ module('acceptance/tracking-transactions', function (hooks) {
     `;
 
     owner.register('model:widget', Widget);
-    owner.register('component:widget-creator', WidgetCreator);
-    owner.register('template:components/widget-creator', layout);
+    owner.register('component:widget-creator', setComponentTemplate(layout, WidgetCreator));
     const store = owner.lookup('service:store');
 
     await render(hbs`
@@ -183,8 +183,7 @@ module('acceptance/tracking-transactions', function (hooks) {
     `;
 
     owner.register('model:widget', Widget);
-    owner.register('component:widget-creator', WidgetCreator);
-    owner.register('template:components/widget-creator', layout);
+    owner.register('component:widget-creator', setComponentTemplate(layout, WidgetCreator));
     this.name = 'Chris';
 
     await render(hbs`

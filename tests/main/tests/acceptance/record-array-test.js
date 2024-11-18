@@ -1,9 +1,9 @@
 import { computed } from '@ember/object';
 import { findAll, render, rerender } from '@ember/test-helpers';
 
-import hbs from 'htmlbars-inline-precompile';
 import { module, test } from 'qunit';
 
+import { hbs } from 'ember-cli-htmlbars';
 import { setupRenderingTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
@@ -13,7 +13,7 @@ class Person extends Model {
   @attr name;
 }
 
-module('IdentifierArray | Classic Chains', function (hooks) {
+module('LiveArray | Classic Chains', function (hooks) {
   setupRenderingTest(hooks);
 
   hooks.beforeEach(function () {

@@ -1,13 +1,14 @@
+import { setComponentTemplate } from '@ember/component';
 import { action } from '@ember/object';
 import { inject } from '@ember/service';
 import { click, findAll, render } from '@ember/test-helpers';
 import Component from '@glimmer/component';
+// eslint-disable-next-line no-restricted-imports
 import { tracked } from '@glimmer/tracking';
 
-import hbs from 'htmlbars-inline-precompile';
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
+import { hbs } from 'ember-cli-htmlbars';
 import { setupRenderingTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
@@ -32,7 +33,7 @@ module('tracking state flags on a record', function (hooks) {
           tag.rev; // subscribe
           if (_isDirty && !_isUpdating) {
             _isUpdating = true;
-            resolve(desc.get.call(this)).then((v) => {
+            Promise.resolve(desc.get.call(this)).then((v) => {
               _value = v;
               _isDirty = false;
               tag.rev++;
@@ -128,7 +129,7 @@ module('tracking state flags on a record', function (hooks) {
     class Adapter {
       createRecord() {
         assert.ok(true, 'createRecord was called to save');
-        return resolve({ data: { type: 'person', id: `${serverId++}` } });
+        return Promise.resolve({ data: { type: 'person', id: `${serverId++}` } });
       }
       static create() {
         return new this();
@@ -136,8 +137,7 @@ module('tracking state flags on a record', function (hooks) {
     }
 
     this.owner.register('model:person', Person);
-    this.owner.register('component:children-list', ChildrenList);
-    this.owner.register('template:components/children-list', layout);
+    this.owner.register('component:children-list', setComponentTemplate(layout, ChildrenList));
     this.owner.register('serializer:application', Serializer);
     this.owner.register('adapter:application', Adapter);
     const store = this.owner.lookup('service:store');
