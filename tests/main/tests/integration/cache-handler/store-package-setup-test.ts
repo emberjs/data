@@ -6,32 +6,38 @@ import { setupTest } from 'ember-qunit';
 
 import Cache from '@ember-data/json-api';
 import { LegacyNetworkHandler } from '@ember-data/legacy-compat';
+import type { Future, NextFn, StructuredDataDocument, StructuredErrorDocument } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
-import type { Context } from '@ember-data/request/-private/context';
-import type {
-  Future,
-  NextFn,
-  StructuredDataDocument,
-  StructuredErrorDocument,
-} from '@ember-data/request/-private/types';
 import Fetch from '@ember-data/request/fetch';
+import type { Document, NotificationType } from '@ember-data/store';
 import Store, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
-import type { Document } from '@ember-data/store/-private/document';
-import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type { Collection } from '@ember-data/store/-private/record-arrays/identifier-array';
+import type { CollectionRecordArray } from '@ember-data/store/-private';
+import type { CacheCapabilitiesManager, SchemaService } from '@ember-data/store/types';
+import type {
+  StableDocumentIdentifier,
+  StableExistingRecordIdentifier,
+  StableRecordIdentifier,
+} from '@warp-drive/core-types/identifier';
+import type { OpaqueRecordInstance } from '@warp-drive/core-types/record';
+import type { RequestContext } from '@warp-drive/core-types/request';
+import type { HashFn } from '@warp-drive/core-types/schema/concepts';
+import type { FieldSchema, HashField } from '@warp-drive/core-types/schema/fields';
 import type {
   CollectionResourceDataDocument,
   ResourceDataDocument,
   SingleResourceDataDocument,
-} from '@ember-data/types/cache/document';
-import type { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
-import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
-import type { ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { JsonApiResource } from '@ember-data/types/q/record-data-json-api';
-import type { RecordInstance } from '@ember-data/types/q/record-instance';
+} from '@warp-drive/core-types/spec/document';
+import type { ExistingResourceObject, ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
+import type { Type } from '@warp-drive/core-types/symbols';
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
+type UserRecord = {
+  id: string;
+  name: string;
+  identifier: StableRecordIdentifier;
+  destroy: () => void;
+  [Type]: 'user';
+};
 
 class RequestManagerService extends RequestManager {
   constructor() {
@@ -44,14 +50,60 @@ class RequestManagerService extends RequestManager {
 class TestStore extends Store {
   @service('request') declare requestManager: RequestManager;
 
-  createCache(wrapper: CacheStoreWrapper) {
+  createSchemaService(): SchemaService {
+    const schemaService: SchemaService = {
+      registerDerivation() {
+        throw new Error('Method not implemented.');
+      },
+      registerTransformation() {
+        throw new Error('Method not implemented.');
+      },
+      registerResources() {
+        throw new Error('Method not implemented.');
+      },
+      registerResource() {
+        throw new Error('Method not implemented.');
+      },
+      resource() {
+        throw new Error('Method not implemented.');
+      },
+      transformation() {
+        throw new Error('Method not implemented.');
+      },
+      derivation() {
+        throw new Error('Method not implemented.');
+      },
+      fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
+        return new Map();
+      },
+      hasTrait() {
+        return false;
+      },
+      resourceHasTrait() {
+        return false;
+      },
+      hasResource() {
+        return true;
+      },
+      registerHashFn: function (hashFn: HashFn): void {
+        throw new Error('Function not implemented.');
+      },
+      hashFn: function (field: HashField | { type: string }): HashFn {
+        throw new Error('Function not implemented.');
+      },
+    };
+
+    return schemaService;
+  }
+
+  override createCache(wrapper: CacheCapabilitiesManager) {
     return new Cache(wrapper);
   }
 
-  instantiateRecord(identifier: StableRecordIdentifier) {
+  override instantiateRecord(identifier: StableRecordIdentifier) {
     const { id, lid, type } = identifier;
-    const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
-    Object.assign(record, (this.cache.peek(identifier) as JsonApiResource).attributes);
+    const record: FakeRecord = { id, lid, type, identifier } as unknown as FakeRecord;
+    Object.assign(record, this.cache.peek(identifier)!.attributes);
 
     const token = this.notifications.subscribe(
       identifier,
@@ -69,7 +121,7 @@ class TestStore extends Store {
     return record;
   }
 
-  teardownRecord(record: FakeRecord) {
+  override teardownRecord(record: FakeRecord) {
     record.destroy();
   }
 }
@@ -102,12 +154,12 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
     test('fetching a resource document loads the cache and hydrates the record', async function (assert) {
       const { owner } = this;
 
-      const store = owner.lookup('service:store') as TestStore;
-      const userDocument = await store.request<Document<RecordInstance>>({
+      const store = owner.lookup('service:store') as unknown as TestStore;
+      const userDocument = await store.request<Document<OpaqueRecordInstance>>({
         url: '/assets/users/1.json',
       });
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-      const record = store.peekRecord(identifier);
+      const record = store.peekRecord<FakeRecord | null>(identifier);
       const data = userDocument.content.data;
 
       assert.strictEqual(record?.name, 'Chris Thoburn', 'record name is correct');
@@ -134,7 +186,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
     test('re-fetching a resource document returns from cache as expected', async function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
 
       let handlerCalls = 0;
       store.requestManager = new RequestManager();
@@ -167,11 +219,11 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       ]);
       store.requestManager.useCache(CacheHandler);
 
-      const userDocument = await store.request<Document<RecordInstance>>({
+      const userDocument = await store.request<Document<OpaqueRecordInstance>>({
         url: '/assets/users/1.json',
       });
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-      const record = store.peekRecord(identifier);
+      const record = store.peekRecord<FakeRecord | null>(identifier);
       const data = userDocument.content.data;
 
       assert.strictEqual(record?.name, 'Chris Thoburn', 'record name is correct');
@@ -195,7 +247,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         'we get access to the document meta'
       );
 
-      const userDocument2 = await store.request<Document<RecordInstance>>({
+      const userDocument2 = await store.request<Document<OpaqueRecordInstance>>({
         url: '/assets/users/1.json',
       });
       const data2 = userDocument2.content.data;
@@ -225,7 +277,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
     test('fetching a resource document that errors', async function (assert) {
       const { owner } = this;
 
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
       try {
         await store.request<SingleResourceDataDocument>({
           url: '/assets/users/2.json',
@@ -242,57 +294,16 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
     test('When using @ember-data/store, the cache-handler can hydrate any op code', async function (assert) {
       const { owner } = this;
 
-      class RequestManagerService extends RequestManager {
-        constructor() {
-          super(...arguments);
-          this.use([LegacyNetworkHandler, Fetch]);
-          this.useCache(CacheHandler);
-        }
-      }
-
-      class TestStore extends Store {
-        @service('request') declare requestManager: RequestManager;
-
-        createCache(wrapper: CacheStoreWrapper) {
-          return new Cache(wrapper);
-        }
-
-        instantiateRecord(identifier: StableRecordIdentifier) {
-          const { id, lid, type } = identifier;
-          const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
-          Object.assign(record, (this.cache.peek(identifier) as JsonApiResource).attributes);
-
-          const token = this.notifications.subscribe(
-            identifier,
-            (_: StableRecordIdentifier, kind: NotificationType, key?: string) => {
-              if (kind === 'attributes' && key) {
-                record[key] = this.cache.getAttr(identifier, key);
-              }
-            }
-          );
-
-          record.destroy = () => {
-            this.notifications.unsubscribe(token);
-          };
-
-          return record;
-        }
-
-        teardownRecord(record: FakeRecord) {
-          record.destroy();
-        }
-      }
-
       owner.register('service:store', TestStore);
       owner.register('service:request', RequestManagerService);
 
-      const store = owner.lookup('service:store') as TestStore;
-      const userDocument = await store.request<Document<RecordInstance>>({
+      const store = owner.lookup('service:store') as unknown as TestStore;
+      const userDocument = await store.request<Document<OpaqueRecordInstance>>({
         op: 'random-op',
         url: '/assets/users/1.json',
       });
       const identifier = recordIdentifierFor(userDocument.content.data);
-      const record = store.peekRecord(identifier);
+      const record = store.peekRecord<FakeRecord | null>(identifier);
       assert.strictEqual(record?.name, 'Chris Thoburn');
       assert.strictEqual(userDocument.content.data, record, 'we get a hydrated record back as data');
 
@@ -320,51 +331,10 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
     test('When using @ember-data/store, the cache-handler will cache but not hydrate if the request has the store but does not originate from the store', async function (assert) {
       const { owner } = this;
 
-      class RequestManagerService extends RequestManager {
-        constructor() {
-          super(...arguments);
-          this.use([LegacyNetworkHandler, Fetch]);
-          this.useCache(CacheHandler);
-        }
-      }
-
-      class TestStore extends Store {
-        @service('request') declare requestManager: RequestManager;
-
-        createCache(wrapper: CacheStoreWrapper) {
-          return new Cache(wrapper);
-        }
-
-        instantiateRecord(identifier: StableRecordIdentifier) {
-          const { id, lid, type } = identifier;
-          const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
-          Object.assign(record, (this.cache.peek(identifier) as JsonApiResource).attributes);
-
-          const token = this.notifications.subscribe(
-            identifier,
-            (_: StableRecordIdentifier, kind: NotificationType, key?: string) => {
-              if (kind === 'attributes' && key) {
-                record[key] = this.cache.getAttr(identifier, key);
-              }
-            }
-          );
-
-          record.destroy = () => {
-            this.notifications.unsubscribe(token);
-          };
-
-          return record;
-        }
-
-        teardownRecord(record: FakeRecord) {
-          record.destroy();
-        }
-      }
-
       owner.register('service:store', TestStore);
       owner.register('service:request', RequestManagerService);
 
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
       const userDocument = await store.requestManager.request<SingleResourceDataDocument>({
         store,
         url: '/assets/users/1.json',
@@ -392,59 +362,18 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         'we get access to the document meta'
       );
 
-      const record = store.peekRecord(userDocument.content.data);
+      const record = store.peekRecord<FakeRecord | null>(userDocument.content.data!);
       assert.strictEqual(record?.name, 'Chris Thoburn');
     });
 
     test('When using @ember-data/store, the cache-handler will neither cache nor hydrate if the request does not originate from the store and no store is included', async function (assert) {
       const { owner } = this;
 
-      class RequestManagerService extends RequestManager {
-        constructor() {
-          super(...arguments);
-          this.use([LegacyNetworkHandler, Fetch]);
-          this.useCache(CacheHandler);
-        }
-      }
-
-      class TestStore extends Store {
-        @service('request') declare requestManager: RequestManager;
-
-        createCache(wrapper: CacheStoreWrapper) {
-          return new Cache(wrapper);
-        }
-
-        instantiateRecord(identifier: StableRecordIdentifier) {
-          const { id, lid, type } = identifier;
-          const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
-          Object.assign(record, (this.cache.peek(identifier) as JsonApiResource).attributes);
-
-          const token = this.notifications.subscribe(
-            identifier,
-            (_: StableRecordIdentifier, kind: NotificationType, key?: string) => {
-              if (kind === 'attributes' && key) {
-                record[key] = this.cache.getAttr(identifier, key);
-              }
-            }
-          );
-
-          record.destroy = () => {
-            this.notifications.unsubscribe(token);
-          };
-
-          return record;
-        }
-
-        teardownRecord(record: FakeRecord) {
-          record.destroy();
-        }
-      }
-
       owner.register('service:store', TestStore);
       owner.register('service:request', RequestManagerService);
 
-      const store = owner.lookup('service:store') as TestStore;
-      const userDocument = await store.requestManager.request<SingleResourceDataDocument<JsonApiResource>>({
+      const store = owner.lookup('service:store') as unknown as TestStore;
+      const userDocument = await store.requestManager.request<SingleResourceDataDocument<ExistingResourceObject>>({
         url: '/assets/users/1.json',
       });
 
@@ -482,7 +411,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
     test('background re-fetching a resource returns from cache as expected, updates once complete', async function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
 
       let handlerCalls = 0;
       store.requestManager = new RequestManager();
@@ -531,12 +460,12 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       ]);
       store.requestManager.useCache(CacheHandler);
 
-      const userDocument = await store.request<Document<RecordInstance>>({
+      const userDocument = await store.request<Document<OpaqueRecordInstance>>({
         url: '/assets/users/1.json',
       });
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-      const record = store.peekRecord(identifier);
-      const data = userDocument.content.data!;
+      const record = store.peekRecord<FakeRecord | null>(identifier);
+      const data = userDocument.content.data;
 
       assert.strictEqual(record?.name, 'Chris Thoburn', '<Initial> record name is correct');
       assert.strictEqual(data, record, '<Initial> record was returned as data');
@@ -560,11 +489,11 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         '<Initial> we get access to the document meta'
       );
 
-      const userDocument2 = await store.request<Document<RecordInstance>>({
+      const userDocument2 = await store.request<Document<OpaqueRecordInstance>>({
         url: '/assets/users/1.json',
         cacheOptions: { backgroundReload: true },
       });
-      const data2 = userDocument2.content.data!;
+      const data2 = userDocument2.content.data;
 
       assert.strictEqual(data2, record, '<Cached> record was returned as data');
       assert.strictEqual(data2 && recordIdentifierFor(data2), identifier, '<Cached> we get a record back as data');
@@ -589,9 +518,9 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
       await store._getAllPending();
 
-      const data3 = userDocument2.content.data!;
+      const data3 = userDocument2.content.data;
       const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
-      const record2 = store.peekRecord(identifier2);
+      const record2 = store.peekRecord<FakeRecord | null>(identifier2);
 
       assert.strictEqual(record2?.name, 'Wesley Thoburn', '<Updated> record2 name is correct');
       assert.strictEqual(userDocument.content, userDocument2.content, '<Updated> documents are the same');
@@ -623,7 +552,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
     test('fetching with hydration, then background re-fetching a resource without hydration returns from cache as expected, updates once complete', async function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
 
       let handlerCalls = 0;
       store.requestManager = new RequestManager();
@@ -672,12 +601,12 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       ]);
       store.requestManager.useCache(CacheHandler);
 
-      const userDocument = await store.request<Document<RecordInstance>>({
+      const userDocument = await store.request<Document<OpaqueRecordInstance>>({
         url: '/assets/users/1.json',
       });
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-      const record = store.peekRecord(identifier);
-      const data = userDocument.content.data!;
+      const record = store.peekRecord<FakeRecord | null>(identifier);
+      const data = userDocument.content.data;
 
       assert.strictEqual(record?.name, 'Chris Thoburn', '<Initial> record name is correct');
       assert.strictEqual(data, record, '<Initial> record was returned as data');
@@ -701,7 +630,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         '<Initial> we get access to the document meta'
       );
 
-      // Backgrond Re-Fetch without Hydration
+      // Background Re-Fetch without Hydration
       const userDocument2 = await store.requestManager.request<SingleResourceDataDocument>({
         store,
         url: '/assets/users/1.json',
@@ -734,11 +663,11 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
       // Assert the initial document was updated
       const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
-      const record2 = store.peekRecord(identifier2);
+      const record2 = store.peekRecord<FakeRecord | null>(identifier2);
 
       assert.strictEqual(handlerCalls, 2, 'fetch handler should only be called twice');
       assert.strictEqual(record2?.name, 'Wesley Thoburn', 'record2 name is correct');
-      const data3 = userDocument.content.data!;
+      const data3 = userDocument.content.data;
 
       assert.strictEqual(record2?.name, 'Wesley Thoburn', '<Updated> record2 name is correct');
       assert.strictEqual(userDocument.content, userDocument.content, '<Updated> documents are the same');
@@ -769,7 +698,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
     test('background re-fetching a resource without hydration returns from cache as expected, updates once complete', async function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
 
       let handlerCalls = 0;
       store.requestManager = new RequestManager();
@@ -823,8 +752,11 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         store,
         url: '/assets/users/1.json',
       });
-      const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-      const record = store.peekRecord(identifier);
+      const identifier = store.identifierCache.getOrCreateRecordIdentifier({
+        type: 'user',
+        id: '1',
+      }) as StableExistingRecordIdentifier;
+      const record = store.peekRecord<FakeRecord | null>(identifier);
       const data = userDocument.content.data!;
 
       assert.strictEqual(record?.name, 'Chris Thoburn', '<Initial> record name is correct');
@@ -879,10 +811,13 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       await store._getAllPending();
 
       const updatedUserDocument = store.cache.peekRequest(
-        store.identifierCache.getOrCreateDocumentIdentifier({ url: '/assets/users/1.json' })
+        store.identifierCache.getOrCreateDocumentIdentifier({ url: '/assets/users/1.json' })!
       ) as unknown as StructuredDataDocument<ResourceDataDocument>;
       const data3 = updatedUserDocument?.content?.data;
-      const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
+      const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({
+        type: 'user',
+        id: '2',
+      }) as StableExistingRecordIdentifier;
 
       assert.strictEqual(data3, identifier2, 'we get an identifier back as data');
       assert.strictEqual(updatedUserDocument.content.lid, '/assets/users/1.json', 'we get back url as the cache key');
@@ -909,7 +844,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
   module('Collection', function () {
     test('re-fetching a resource collection returns from cache as expected', async function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
 
       let handlerCalls = 0;
       store.requestManager = new RequestManager();
@@ -945,11 +880,11 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       ]);
       store.requestManager.useCache(CacheHandler);
 
-      const userDocument = await store.request<Document<RecordInstance[]>>({
+      const userDocument = await store.request<Document<OpaqueRecordInstance[]>>({
         url: '/assets/users/list.json',
       });
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-      const record = store.peekRecord(identifier);
+      const record = store.peekRecord<FakeRecord | null>(identifier);
       const data = userDocument.content.data!;
 
       assert.strictEqual(record?.name, 'Chris Thoburn', 'record name is correct');
@@ -976,7 +911,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         'we get access to the document meta'
       );
 
-      const userDocument2 = await store.request<Document<RecordInstance[]>>({
+      const userDocument2 = await store.request<Document<OpaqueRecordInstance[]>>({
         url: '/assets/users/list.json',
       });
       const data2 = userDocument2.content.data!;
@@ -1008,7 +943,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
     test('background re-fetching a resource collection returns from cache as expected, updates once complete', async function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
 
       let handlerCalls = 0;
       store.requestManager = new RequestManager();
@@ -1059,11 +994,11 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       ]);
       store.requestManager.useCache(CacheHandler);
 
-      const userDocument = await store.request<Document<RecordInstance[]>>({
+      const userDocument = await store.request<Document<OpaqueRecordInstance[]>>({
         url: '/assets/users/list.json',
       });
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-      const record = store.peekRecord(identifier);
+      const record = store.peekRecord<FakeRecord | null>(identifier);
       const data = userDocument.content.data!;
 
       assert.strictEqual(record?.name, 'Chris Thoburn', 'record name is correct');
@@ -1090,7 +1025,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         'we get access to the document meta'
       );
 
-      const userDocument2 = await store.request<Document<RecordInstance[]>>({
+      const userDocument2 = await store.request<Document<OpaqueRecordInstance[]>>({
         url: '/assets/users/list.json',
         cacheOptions: { backgroundReload: true },
       });
@@ -1122,7 +1057,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       await store._getAllPending();
 
       const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
-      const record2 = store.peekRecord(identifier2);
+      const record2 = store.peekRecord<FakeRecord | null>(identifier2);
 
       assert.strictEqual(record2?.name, 'Wesley Thoburn', 'record2 name is correct');
       assert.strictEqual(data.length, 2, 'recordArray has two records');
@@ -1156,7 +1091,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
     test('fetching with hydration, then background re-fetching a resource collection without hydration returns from cache as expected, updates once complete', async function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
 
       let handlerCalls = 0;
       store.requestManager = new RequestManager();
@@ -1208,12 +1143,12 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       store.requestManager.useCache(CacheHandler);
 
       // Initial Fetch with Hydration
-      const userDocument = await store.request<Document<RecordInstance[]>>({
+      const userDocument = await store.request<Document<OpaqueRecordInstance[]>>({
         url: '/assets/users/list.json',
       });
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
       const data = userDocument.content.data!;
-      const record = store.peekRecord(identifier);
+      const record = store.peekRecord<FakeRecord | null>(identifier);
 
       assert.strictEqual(record?.name, 'Chris Thoburn', 'record name is correct');
       assert.true(Array.isArray(data), 'recordArray was returned as data');
@@ -1239,7 +1174,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         'we get access to the document meta'
       );
 
-      // Backgrond Re-Fetch without Hydration
+      // Background Re-Fetch without Hydration
       const userDocument2 = await store.requestManager.request<CollectionResourceDataDocument>({
         store,
         url: '/assets/users/list.json',
@@ -1275,7 +1210,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
       // Assert the initial document was updated
       const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
-      const record2 = store.peekRecord(identifier2);
+      const record2 = store.peekRecord<FakeRecord | null>(identifier2);
 
       assert.strictEqual(handlerCalls, 2, 'fetch handler should only be called twice');
       assert.strictEqual(record2?.name, 'Wesley Thoburn', 'record2 name is correct');
@@ -1317,7 +1252,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
     test('background re-fetching a resource collection without hydration returns from cache as expected, updates once complete', async function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
 
       let handlerCalls = 0;
       store.requestManager = new RequestManager();
@@ -1430,7 +1365,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       await store._getAllPending();
 
       const updatedUserDocument = store.cache.peekRequest(
-        store.identifierCache.getOrCreateDocumentIdentifier({ url: '/assets/users/list.json' })
+        store.identifierCache.getOrCreateDocumentIdentifier({ url: '/assets/users/list.json' })!
       ) as unknown as StructuredDataDocument<CollectionResourceDataDocument>;
       const data3 = updatedUserDocument?.content?.data;
       const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
@@ -1463,17 +1398,194 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
     });
   });
 
+  module('Mutation', function () {
+    test('when an updateRecord results in a 204 we do not error', async function (assert) {
+      const { owner } = this;
+
+      const store = owner.lookup('service:store') as unknown as TestStore;
+
+      store.requestManager = new RequestManager();
+      store.requestManager.use([
+        {
+          request<T>(context: RequestContext) {
+            assert.step('request');
+
+            context.setResponse(
+              new Response(null, {
+                status: 204,
+                statusText: 'No Content',
+              })
+            );
+
+            return Promise.resolve(null) as Promise<T>;
+          },
+        },
+      ]);
+      store.requestManager.useCache(CacheHandler);
+
+      const record = store.push<UserRecord>({ data: { type: 'user', id: '1', attributes: { name: 'Chris Thoburn' } } });
+      assert.false(store.cache.hasChangedAttrs(record.identifier), 'record is clean');
+      store.cache.setAttr(record.identifier, 'name', 'Wesley Thoburn');
+      assert.true(store.cache.hasChangedAttrs(record.identifier), 'record is dirty');
+      await store.request({
+        op: 'updateRecord',
+        method: 'PATCH',
+        url: '/users',
+        records: [record.identifier],
+      });
+      assert.false(store.cache.hasChangedAttrs(record.identifier), 'record is clean');
+      assert.verifySteps(['request']);
+    });
+
+    test('when a createRecord results in a 201 we do not error so long as we already had an ID', async function (assert) {
+      const { owner } = this;
+
+      const store = owner.lookup('service:store') as unknown as TestStore;
+
+      store.requestManager = new RequestManager();
+      store.requestManager.use([
+        {
+          request<T>(context: RequestContext) {
+            assert.step('request');
+
+            context.setResponse(
+              new Response('{}', {
+                status: 201,
+                statusText: 'Created',
+              })
+            );
+
+            return Promise.resolve({}) as Promise<T>;
+          },
+        },
+      ]);
+      store.requestManager.useCache(CacheHandler);
+
+      const record = store.createRecord<UserRecord>('user', { id: '1', name: 'Chris Thoburn' });
+      assert.true(store.cache.isNew(record.identifier), 'record is new');
+      await store.request({
+        op: 'createRecord',
+        method: 'POST',
+        url: '/users',
+        records: [record.identifier],
+      });
+      assert.false(store.cache.isNew(record.identifier), 'record is saved');
+      assert.verifySteps(['request']);
+    });
+
+    test('when a createRecord results in a 204 we do not error so long as we already had an ID', async function (assert) {
+      const { owner } = this;
+
+      const store = owner.lookup('service:store') as unknown as TestStore;
+
+      store.requestManager = new RequestManager();
+      store.requestManager.use([
+        {
+          request<T>(context: RequestContext) {
+            assert.step('request');
+
+            context.setResponse(
+              new Response(null, {
+                status: 204,
+                statusText: 'No Content',
+              })
+            );
+
+            return Promise.resolve(null) as Promise<T>;
+          },
+        },
+      ]);
+      store.requestManager.useCache(CacheHandler);
+
+      const record = store.createRecord<UserRecord>('user', { id: '1', name: 'Chris Thoburn' });
+      assert.true(store.cache.isNew(record.identifier), 'record is new');
+      await store.request({
+        op: 'createRecord',
+        method: 'POST',
+        url: '/users',
+        records: [record.identifier],
+      });
+      assert.false(store.cache.isNew(record.identifier), 'record is saved');
+      assert.verifySteps(['request']);
+    });
+
+    test('when a createRecord results in a 201 and had no records, we do not error', async function (assert) {
+      const { owner } = this;
+
+      const store = owner.lookup('service:store') as unknown as TestStore;
+
+      store.requestManager = new RequestManager();
+      store.requestManager.use([
+        {
+          request<T>(context: RequestContext) {
+            assert.step('request');
+
+            context.setResponse(
+              new Response(null, {
+                status: 204,
+                statusText: 'No Content',
+              })
+            );
+
+            return Promise.resolve(null) as Promise<T>;
+          },
+        },
+      ]);
+      store.requestManager.useCache(CacheHandler);
+
+      await store.requestManager.request({
+        store, // use the CacheHandler but don't hydrate
+        op: 'createRecord',
+        method: 'POST',
+        url: '/users',
+      });
+      assert.verifySteps(['request']);
+    });
+
+    test('when a createRecord results in a 204 and had no records, we do not error', async function (assert) {
+      const { owner } = this;
+
+      const store = owner.lookup('service:store') as unknown as TestStore;
+
+      store.requestManager = new RequestManager();
+      store.requestManager.use([
+        {
+          request<T>(context: RequestContext) {
+            assert.step('request');
+
+            context.setResponse(
+              new Response(null, {
+                status: 204,
+                statusText: 'No Content',
+              })
+            );
+
+            return Promise.resolve(null) as Promise<T>;
+          },
+        },
+      ]);
+      store.requestManager.useCache(CacheHandler);
+      await store.requestManager.request({
+        store, // use the CacheHandler but don't hydrate
+        op: 'createRecord',
+        method: 'POST',
+        url: '/users',
+      });
+      assert.verifySteps(['request']);
+    });
+  });
+
   module('Errors', function () {
     test('fetching a resource document that errors, request can be replayed', async function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
 
       let handlerCalls = 0;
       store.requestManager = new RequestManager();
       store.requestManager.use([
         LegacyNetworkHandler,
         {
-          request<T>(context: Context, next: NextFn<T>): Future<T> {
+          request<T>(context: RequestContext, next: NextFn<T>): Future<T> {
             if (handlerCalls > 0) {
               assert.ok(false, 'fetch handler should not be called again');
             }
@@ -1487,20 +1599,23 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const docIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({ url: '/assets/users/2.json' })!;
 
       try {
-        await store.request<Collection>({
+        await store.request<CollectionRecordArray>({
           url: '/assets/users/2.json',
         });
         assert.ok(false, 'we should error');
       } catch (errorDocument: unknown) {
         assertIsErrorDocument(assert, errorDocument);
-        assert.true(errorDocument.message.startsWith('[404 Not Found] GET (basic) - '), 'We receive the correct error');
+        assert.true(
+          errorDocument.message.startsWith('[404 Not Found] GET (basic) - '),
+          `We receive the correct error: ${errorDocument.message}`
+        );
       }
       assert.strictEqual(handlerCalls, 1, 'fetch handler should be called once');
 
       const doc = store.cache.peekRequest(docIdentifier) as unknown as StructuredErrorDocument;
 
       try {
-        await store.request<Collection>({
+        await store.request<CollectionRecordArray>({
           url: '/assets/users/2.json',
         });
         assert.ok(false, 'we should error');
@@ -1521,7 +1636,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
     test('fetching a resource document that errors with detail, errors available as content', async function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
 
       function getErrorPayload(lid?: string | StableDocumentIdentifier) {
         if (lid) {
@@ -1584,7 +1699,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       })!;
 
       try {
-        await store.request<Collection>({
+        await store.request<CollectionRecordArray>({
           url: '/assets/users/2.json?include=author',
         });
         assert.ok(false, 'we should error');
@@ -1602,7 +1717,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const doc = store.cache.peekRequest(docIdentifier) as unknown as StructuredErrorDocument;
 
       try {
-        await store.request<Collection>({
+        await store.request<CollectionRecordArray>({
           url: '/assets/users/2.json?include=author',
         });
         assert.ok(false, 'we should error');
@@ -1629,7 +1744,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
     test('fetching a resource document that succeeds, then later errors with detail, errors available as content', async function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
 
       function getErrorPayload(lid?: string | StableDocumentIdentifier) {
         if (lid) {
@@ -1703,7 +1818,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const resourceIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
 
       // Initial successful fetch
-      const originalDoc = await store.request<Document<RecordInstance>>({
+      const originalDoc = await store.request<Document<FakeRecord>>({
         url: '/assets/users/2.json?include=author',
       });
       const originalRawDoc = store.cache.peekRequest(
@@ -1715,7 +1830,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
       // First failed fetch
       try {
-        await store.request<Collection>({
+        await store.request<CollectionRecordArray>({
           url: '/assets/users/2.json?include=author',
           cacheOptions: { reload: true },
         });
@@ -1738,7 +1853,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
       // Replay of failed fetch
       try {
-        await store.request<Collection>({
+        await store.request<CollectionRecordArray>({
           url: '/assets/users/2.json?include=author',
         });
         assert.ok(false, '<Second Failure> we should error');
@@ -1795,7 +1910,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
   module('AbortController', function () {
     test('aborting a request pre-cache-insert does not affect the cache', async function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
       const resourceIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
       const documentIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
         url: '/assets/users/list.json',
@@ -1811,7 +1926,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       store.requestManager.use([
         LegacyNetworkHandler,
         {
-          async request<T>(_request: Context, _nextFn: NextFn<T>): Promise<T> {
+          async request<T>(_request: RequestContext, _nextFn: NextFn<T>): Promise<T> {
             handlerCalls++;
             resolve();
             await next;
@@ -1851,7 +1966,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
     test('aborting a request post-cache-insert maintains cache-update but returns abort rejection', async function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
       const resourceIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
       const documentIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
         url: '/assets/users/list.json',
@@ -1867,7 +1982,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       store.requestManager.use([
         LegacyNetworkHandler,
         {
-          async request<T>(_request: Context, _nextFn: NextFn<T>): Promise<T> {
+          async request<T>(_request: RequestContext, _nextFn: NextFn<T>): Promise<T> {
             handlerCalls++;
             return Promise.resolve({
               data: {
@@ -1880,7 +1995,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         },
       ]);
       store.requestManager.useCache({
-        async request<T>(context: Context, next: NextFn<T>): Promise<T> {
+        async request<T>(context: RequestContext, next: NextFn<T>): Promise<T> {
           const cacheComplete = await CacheHandler.request<T>(context, next);
           resolve();
           await nextPromise;
@@ -1913,15 +2028,15 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
     test('aborting a request post-request does nothing', async function (assert) {
       const { owner } = this;
 
-      const store = owner.lookup('service:store') as TestStore;
-      const request = store.request<Document<RecordInstance>>({
+      const store = owner.lookup('service:store') as unknown as TestStore;
+      const request = store.request<Document<OpaqueRecordInstance>>({
         url: '/assets/users/1.json',
       });
       const userDocument = await request;
       request.abort();
 
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-      const record = store.peekRecord(identifier);
+      const record = store.peekRecord<FakeRecord | null>(identifier);
       const data = userDocument.content.data;
 
       assert.strictEqual(record?.name, 'Chris Thoburn', 'record name is correct');
@@ -1948,7 +2063,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
     test('aborting a background-request does not result in an uncaught error', async function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as TestStore;
+      const store = owner.lookup('service:store') as unknown as TestStore;
 
       let handlerCalls = 0;
       let resolve!: (v?: unknown) => void;
@@ -1957,7 +2072,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       store.requestManager.use([
         LegacyNetworkHandler,
         {
-          async request<T>(_context: Context, _next: NextFn<T>): Promise<T> {
+          async request<T>(_context: RequestContext, _next: NextFn<T>): Promise<T> {
             if (handlerCalls > 1) {
               assert.ok(false, 'fetch handler should not be called again');
               throw new Error('fetch handler should not be called again');
@@ -2003,12 +2118,12 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       ]);
       store.requestManager.useCache(CacheHandler);
 
-      const userDocument = await store.request<Document<RecordInstance>>({
+      const userDocument = await store.request<Document<OpaqueRecordInstance>>({
         url: '/assets/users/1.json',
       });
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-      const record = store.peekRecord(identifier);
-      const data = userDocument.content.data!;
+      const record = store.peekRecord<FakeRecord | null>(identifier);
+      const data = userDocument.content.data;
 
       assert.strictEqual(record?.name, 'Chris Thoburn', '<Initial> record name is correct');
       assert.strictEqual(data, record, '<Initial> record was returned as data');
@@ -2032,12 +2147,12 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         '<Initial> we get access to the document meta'
       );
 
-      const request2 = store.request<Document<RecordInstance>>({
+      const request2 = store.request<Document<OpaqueRecordInstance>>({
         url: '/assets/users/1.json',
         cacheOptions: { backgroundReload: true },
       });
       const userDocument2 = await request2;
-      const data2 = userDocument2.content.data!;
+      const data2 = userDocument2.content.data;
 
       assert.strictEqual(data2, record, '<Cached> record was returned as data');
       assert.strictEqual(data2 && recordIdentifierFor(data2), identifier, '<Cached> we get a record back as data');
@@ -2064,7 +2179,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       resolve();
       await store._getAllPending();
 
-      const data3 = userDocument2.content.data!;
+      const data3 = userDocument2.content.data;
       const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
       const record2 = store.peekRecord(identifier2);
 
