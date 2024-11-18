@@ -1,10 +1,9 @@
-import { camelize, dasherize } from '@ember/string';
-
 import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
 import Model from '@ember-data/model';
+import { camelize, dasherize } from '@ember-data/request-utils/string';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 module('unit/store/model_for - DS.Store#modelFor', function (hooks) {

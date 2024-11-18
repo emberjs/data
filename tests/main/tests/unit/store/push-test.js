@@ -1,8 +1,4 @@
-import EmberObject from '@ember/object';
-import { run } from '@ember/runloop';
-
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -79,7 +75,7 @@ module('unit/store/push - Store#push', function (hooks) {
     assert.notOk(person.changedAttributes().firstName);
   });
 
-  test('Calling push with a normalized hash returns a record', function (assert) {
+  test('Calling push with a normalized hash returns a record', async function (assert) {
     assert.expect(2);
     const store = this.owner.lookup('service:store');
 
@@ -87,34 +83,32 @@ module('unit/store/push - Store#push', function (hooks) {
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
-    return run(() => {
-      const person = store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {
-            firstName: 'Yehuda',
-            lastName: 'Katz',
-          },
-        },
-      });
-
-      return store.findRecord('person', 'wat').then((foundPerson) => {
-        assert.strictEqual(
-          foundPerson,
-          person,
-          'record returned via load() is the same as the record returned from findRecord()'
-        );
-        assert.deepEqual(foundPerson.getProperties('id', 'firstName', 'lastName'), {
-          id: 'wat',
+    const person = store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {
           firstName: 'Yehuda',
           lastName: 'Katz',
-        });
+        },
+      },
+    });
+
+    await store.findRecord('person', 'wat').then((foundPerson) => {
+      assert.strictEqual(
+        foundPerson,
+        person,
+        'record returned via push() is the same as the record returned from findRecord()'
+      );
+      assert.deepEqual(foundPerson.getProperties('id', 'firstName', 'lastName'), {
+        id: 'wat',
+        firstName: 'Yehuda',
+        lastName: 'Katz',
       });
     });
   });
 
-  test('Calling push with partial records updates just those attributes', function (assert) {
+  test('Calling push with partial records updates just those attributes', async function (assert) {
     assert.expect(2);
     const store = this.owner.lookup('service:store');
 
@@ -122,75 +116,70 @@ module('unit/store/push - Store#push', function (hooks) {
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
-    return run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {
-            firstName: 'Yehuda',
-            lastName: 'Katz',
-          },
-        },
-      });
-
-      const person = store.peekRecord('person', 'wat');
-
-      store.push({
-        data: {
-          type: 'person',
-          id: 'wat',
-          attributes: {
-            lastName: 'Katz!',
-          },
-        },
-      });
-
-      return store.findRecord('person', 'wat').then((foundPerson) => {
-        assert.strictEqual(
-          foundPerson,
-          person,
-          'record returned via load() is the same as the record returned from findRecord()'
-        );
-        assert.deepEqual(foundPerson.getProperties('id', 'firstName', 'lastName'), {
-          id: 'wat',
+    store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {
           firstName: 'Yehuda',
+          lastName: 'Katz',
+        },
+      },
+    });
+
+    const person = store.peekRecord('person', 'wat');
+
+    store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {
           lastName: 'Katz!',
-        });
+        },
+      },
+    });
+
+    await store.findRecord('person', 'wat').then((foundPerson) => {
+      assert.strictEqual(
+        foundPerson,
+        person,
+        'record returned via load() is the same as the record returned from findRecord()'
+      );
+      assert.deepEqual(foundPerson.getProperties('id', 'firstName', 'lastName'), {
+        id: 'wat',
+        firstName: 'Yehuda',
+        lastName: 'Katz!',
       });
     });
   });
 
   test('Calling push on normalize allows partial updates with raw JSON', function (assert) {
     this.owner.register('serializer:person', RESTSerializer);
-    let person;
     const store = this.owner.lookup('service:store');
 
-    run(() => {
-      person = store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            firstName: 'Robert',
-            lastName: 'Jackson',
-          },
+    const person = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          firstName: 'Robert',
+          lastName: 'Jackson',
         },
-      });
-
-      store.push(
-        store.normalize('person', {
-          id: '1',
-          firstName: 'Jacquie',
-        })
-      );
+      },
     });
+
+    store.push(
+      store.normalize('person', {
+        id: '1',
+        firstName: 'Jacquie',
+      })
+    );
 
     assert.strictEqual(person.firstName, 'Jacquie', 'you can push raw JSON into the store');
     assert.strictEqual(person.lastName, 'Jackson', 'existing fields are untouched');
   });
 
-  test('Calling push with a normalized hash containing IDs of related records returns a record', function (assert) {
+  test('Calling push with a normalized hash containing IDs of related records returns a record', async function (assert) {
     assert.expect(1);
     const store = this.owner.lookup('service:store');
 
@@ -206,7 +195,7 @@ module('unit/store/push - Store#push', function (hooks) {
 
     adapter.findRecord = function (store, type, id) {
       if (id === '1') {
-        return resolve({
+        return Promise.resolve({
           data: {
             id: '1',
             type: 'phone-number',
@@ -221,7 +210,7 @@ module('unit/store/push - Store#push', function (hooks) {
       }
 
       if (id === '2') {
-        return resolve({
+        return Promise.resolve({
           data: {
             id: '2',
             type: 'phone-number',
@@ -236,77 +225,75 @@ module('unit/store/push - Store#push', function (hooks) {
       }
     };
 
-    return run(() => {
-      const normalized = store.normalize('person', {
-        id: 'wat',
-        type: 'person',
-        attributes: {
-          'first-name': 'John',
-          'last-name': 'Smith',
+    const normalized = store.normalize('person', {
+      id: 'wat',
+      type: 'person',
+      attributes: {
+        'first-name': 'John',
+        'last-name': 'Smith',
+      },
+      relationships: {
+        'phone-numbers': {
+          data: [
+            { id: '1', type: 'phone-number' },
+            { id: '2', type: 'phone-number' },
+          ],
         },
-        relationships: {
-          'phone-numbers': {
-            data: [
-              { id: '1', type: 'phone-number' },
-              { id: '2', type: 'phone-number' },
-            ],
-          },
-        },
-      });
-      const person = store.push(normalized);
+      },
+    });
+    const person = store.push(normalized);
 
-      return person.phoneNumbers.then((phoneNumbers) => {
-        const items = phoneNumbers.map((item) => {
-          return item ? item.getProperties('id', 'number', 'person') : null;
-        });
-        assert.deepEqual(items, [
-          {
-            id: '1',
-            number: '5551212',
-            person: person,
-          },
-          {
-            id: '2',
-            number: '5552121',
-            person: person,
-          },
-        ]);
+    await person.phoneNumbers.then((phoneNumbers) => {
+      const items = phoneNumbers.map((item) => {
+        return item ? item.getProperties('id', 'number', 'person') : null;
       });
+      assert.deepEqual(items, [
+        {
+          id: '1',
+          number: '5551212',
+          person: person,
+        },
+        {
+          id: '2',
+          number: '5552121',
+          person: person,
+        },
+      ]);
     });
   });
 
   testInDebug('calling push without data argument as an object raises an error', function (assert) {
     const store = this.owner.lookup('service:store');
-    const invalidValues = [null, 1, 'string', EmberObject.create(), EmberObject.extend(), true];
+    const invalidValues = [null, 1, 'string', class {}, true];
 
-    assert.expect(invalidValues.length);
+    assert.expect(invalidValues.length + 1);
 
     invalidValues.forEach((invalidValue) => {
       assert.expectAssertion(() => {
-        run(() => {
-          store.push('person', invalidValue);
-        });
-      }, /object/);
+        store.push(invalidValue);
+      }, /Expected a JSON:API Document as the content provided to the cache/);
     });
+
+    assert.expectAssertion(() => {
+      store.push({});
+    }, /Expected a resource object in the 'data' property in the document provided to the cache/);
   });
 
   testInDebug('Calling push with a link for a non async relationship should warn if no data', function (assert) {
     const store = this.owner.lookup('service:store');
     assert.expectWarning(() => {
-      run(() => {
-        store.push({
-          data: {
-            type: 'person',
-            id: '1',
-            relationships: {
-              phoneNumbers: {
-                links: {
-                  related: '/api/people/1/phone-numbers',
-                },
+      store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          relationships: {
+            phoneNumbers: {
+              links: {
+                related: '/api/people/1/phone-numbers',
               },
             },
           },
-        });
+        },
       });
     }, /You pushed a record of type 'person' with a relationship 'phoneNumbers' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload. EmberData will treat this relationship as known-to-be-empty./);
   });
@@ -316,24 +303,22 @@ module('unit/store/push - Store#push', function (hooks) {
     function (assert) {
       const store = this.owner.lookup('service:store');
       assert.expectNoWarning(() => {
-        run(() => {
-          store.push({
-            data: {
-              type: 'person',
-              id: '1',
-              relationships: {
-                phoneNumbers: {
-                  data: [
-                    { type: 'phone-number', id: '2' },
-                    { type: 'phone-number', id: '3' },
-                  ],
-                  links: {
-                    related: '/api/people/1/phone-numbers',
-                  },
+        store.push({
+          data: {
+            type: 'person',
+            id: '1',
+            relationships: {
+              phoneNumbers: {
+                data: [
+                  { type: 'phone-number', id: '2' },
+                  { type: 'phone-number', id: '3' },
+                ],
+                links: {
+                  related: '/api/people/1/phone-numbers',
                 },
               },
             },
-          });
+          },
         });
       });
     }
@@ -398,15 +383,13 @@ module('unit/store/push - Store#push', function (hooks) {
   testInDebug('Calling push with an unknown model name throws an assertion error', function (assert) {
     const store = this.owner.lookup('service:store');
     assert.expectAssertion(() => {
-      run(() => {
-        store.push({
-          data: {
-            id: '1',
-            type: 'unknown',
-          },
-        });
+      store.push({
+        data: {
+          id: '1',
+          type: 'unknown',
+        },
       });
-    }, /You tried to push data with a type 'unknown' but no model could be found with that name/);
+    }, "Missing Resource Type: received resource data with a type 'unknown' but no schema could be found with that name.");
   });
 
   test('Calling push with a link containing an object', function (assert) {
@@ -419,22 +402,20 @@ module('unit/store/push - Store#push', function (hooks) {
     this.owner.register('model:person', Person);
     const store = this.owner.lookup('service:store');
 
-    run(() => {
-      store.push(
-        store.normalize('person', {
-          id: '1',
-          type: 'person',
-          attributes: {
-            'first-name': 'Tan',
+    store.push(
+      store.normalize('person', {
+        id: '1',
+        type: 'person',
+        attributes: {
+          'first-name': 'Tan',
+        },
+        relationships: {
+          'phone-numbers': {
+            links: { related: '/api/people/1/phone-numbers' },
           },
-          relationships: {
-            'phone-numbers': {
-              links: { related: '/api/people/1/phone-numbers' },
-            },
-          },
-        })
-      );
-    });
+        },
+      })
+    );
 
     const person = store.peekRecord('person', 1);
 
@@ -443,24 +424,22 @@ module('unit/store/push - Store#push', function (hooks) {
 
   test('Calling push with a link containing the value null', function (assert) {
     const store = this.owner.lookup('service:store');
-    run(() => {
-      store.push(
-        store.normalize('person', {
-          id: '1',
-          type: 'person',
-          attributes: {
-            'first-name': 'Tan',
-          },
-          relationships: {
-            'phone-numbers': {
-              links: {
-                related: null,
-              },
+    store.push(
+      store.normalize('person', {
+        id: '1',
+        type: 'person',
+        attributes: {
+          'first-name': 'Tan',
+        },
+        relationships: {
+          'phone-numbers': {
+            links: {
+              related: null,
             },
           },
-        })
-      );
-    });
+        },
+      })
+    );
 
     const person = store.peekRecord('person', 1);
 
@@ -470,34 +449,32 @@ module('unit/store/push - Store#push', function (hooks) {
   testInDebug('calling push with hasMany relationship the value must be an array', function (assert) {
     const store = this.owner.lookup('service:store');
     assert.expectAssertion(() => {
-      run(() => {
-        store.push({
-          data: {
-            type: 'person',
-            id: '1',
-            relationships: {
-              phoneNumbers: {
-                data: 1,
-              },
+      store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          relationships: {
+            phoneNumbers: {
+              data: 1,
             },
           },
-        });
+        },
       });
     });
   });
 
   testInDebug('calling push with missing or invalid `id` throws assertion error', function (assert) {
+    this.owner.register('model:user', class extends Model {});
     const store = this.owner.lookup('service:store');
-    const invalidValues = [{}, { id: null }, { id: '' }];
+
+    const invalidValues = [{ type: 'user' }, { id: null, type: 'user' }, { id: '', type: 'user' }];
 
     assert.expect(invalidValues.length);
 
     invalidValues.forEach((invalidValue) => {
       assert.expectAssertion(() => {
-        run(() => {
-          store.push({
-            data: invalidValue,
-          });
+        store.push({
+          data: invalidValue,
         });
       }, /You must include an 'id'/);
     });
@@ -506,18 +483,16 @@ module('unit/store/push - Store#push', function (hooks) {
   testInDebug('calling push with belongsTo relationship the value must not be an array', function (assert) {
     const store = this.owner.lookup('service:store');
     assert.expectAssertion(() => {
-      run(() => {
-        store.push({
-          data: {
-            type: 'phone-number',
-            id: '1',
-            relationships: {
-              person: {
-                data: [1],
-              },
+      store.push({
+        data: {
+          type: 'phone-number',
+          id: '1',
+          relationships: {
+            person: {
+              data: [1],
             },
           },
-        });
+        },
       });
     }, /must not be an array/);
   });
@@ -525,18 +500,16 @@ module('unit/store/push - Store#push', function (hooks) {
   testInDebug('Calling push with unknown keys should not warn by default', function (assert) {
     const store = this.owner.lookup('service:store');
     assert.expectNoWarning(() => {
-      run(() => {
-        store.push({
-          data: {
-            type: 'person',
-            id: '1',
-            attributes: {
-              firstName: 'Tomster',
-              emailAddress: 'tomster@emberjs.com',
-              isMascot: true,
-            },
+      store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          attributes: {
+            firstName: 'Tomster',
+            emailAddress: 'tomster@emberjs.com',
+            isMascot: true,
           },
-        });
+        },
       });
     }, /The payload for 'person' contains these unknown .*: .* Make sure they've been defined in your model./);
   });
@@ -561,13 +534,11 @@ module('unit/store/push - Store#push', function (hooks) {
       assert.notOk('modelFor was triggered as a result of a call to store._push');
     };
 
-    run(() => {
-      store._push({
-        data: {
-          id: '1',
-          type: 'person',
-        },
-      });
+    store._push({
+      data: {
+        id: '1',
+        type: 'person',
+      },
     });
 
     store.modelFor = originalCall;
@@ -576,17 +547,13 @@ module('unit/store/push - Store#push', function (hooks) {
 
   test('_push returns an array of identifiers if an array is pushed', function (assert) {
     const store = this.owner.lookup('service:store');
-    let pushResult;
-
-    run(() => {
-      pushResult = store._push({
-        data: [
-          {
-            id: '1',
-            type: 'person',
-          },
-        ],
-      });
+    const pushResult = store._push({
+      data: [
+        {
+          id: '1',
+          type: 'person',
+        },
+      ],
     });
 
     assert.ok(pushResult instanceof Array);
@@ -596,12 +563,8 @@ module('unit/store/push - Store#push', function (hooks) {
 
   test('_push returns null if no data is pushed', function (assert) {
     const store = this.owner.lookup('service:store');
-    let pushResult;
-
-    run(() => {
-      pushResult = store._push({
-        data: null,
-      });
+    const pushResult = store._push({
+      data: null,
     });
 
     assert.strictEqual(pushResult, null);
@@ -620,30 +583,26 @@ module('unit/store/push - Store#pushPayload', function (hooks) {
 
   test('Calling pushPayload allows pushing raw JSON', function (assert) {
     const store = this.owner.lookup('service:store');
-    run(() => {
-      store.pushPayload('post', {
-        posts: [
-          {
-            id: '1',
-            postTitle: 'Ember rocks',
-          },
-        ],
-      });
+    store.pushPayload('post', {
+      posts: [
+        {
+          id: '1',
+          postTitle: 'Ember rocks',
+        },
+      ],
     });
 
     const post = store.peekRecord('post', 1);
 
     assert.strictEqual(post.postTitle, 'Ember rocks', 'you can push raw JSON into the store');
 
-    run(() => {
-      store.pushPayload('post', {
-        posts: [
-          {
-            id: '1',
-            postTitle: 'Ember rocks (updated)',
-          },
-        ],
-      });
+    store.pushPayload('post', {
+      posts: [
+        {
+          id: '1',
+          postTitle: 'Ember rocks (updated)',
+        },
+      ],
     });
 
     assert.strictEqual(post.postTitle, 'Ember rocks (updated)', 'You can update data in the store');
@@ -652,26 +611,22 @@ module('unit/store/push - Store#pushPayload', function (hooks) {
   test('Calling pushPayload allows pushing singular payload properties', function (assert) {
     const store = this.owner.lookup('service:store');
 
-    run(() => {
-      store.pushPayload('post', {
-        post: {
-          id: '1',
-          postTitle: 'Ember rocks',
-        },
-      });
+    store.pushPayload('post', {
+      post: {
+        id: '1',
+        postTitle: 'Ember rocks',
+      },
     });
 
     const post = store.peekRecord('post', 1);
 
     assert.strictEqual(post.postTitle, 'Ember rocks', 'you can push raw JSON into the store');
 
-    run(() => {
-      store.pushPayload('post', {
-        post: {
-          id: '1',
-          postTitle: 'Ember rocks (updated)',
-        },
-      });
+    store.pushPayload('post', {
+      post: {
+        id: '1',
+        postTitle: 'Ember rocks (updated)',
+      },
     });
 
     assert.strictEqual(post.postTitle, 'Ember rocks (updated)', 'You can update data in the store');
@@ -707,21 +662,19 @@ module('unit/store/push - Store#pushPayload', function (hooks) {
 
     const store = this.owner.lookup('service:store');
 
-    run(() => {
-      store.pushPayload('post', {
-        posts: [
-          {
-            id: '1',
-            postTitle: 'Ember rocks',
-          },
-        ],
-        people: [
-          {
-            id: '2',
-            firstName: 'Yehuda',
-          },
-        ],
-      });
+    store.pushPayload('post', {
+      posts: [
+        {
+          id: '1',
+          postTitle: 'Ember rocks',
+        },
+      ],
+      people: [
+        {
+          id: '2',
+          firstName: 'Yehuda',
+        },
+      ],
     });
 
     const post = store.peekRecord('post', '1');
@@ -747,10 +700,8 @@ module('unit/store/push - Store#pushPayload', function (hooks) {
     );
     const store = this.owner.lookup('service:store');
 
-    run(() => {
-      store.pushPayload({
-        posts: [{ id: '1', postTitle: 'Ember rocks' }],
-      });
+    store.pushPayload({
+      posts: [{ id: '1', postTitle: 'Ember rocks' }],
     });
   });
 
@@ -784,21 +735,19 @@ module('unit/store/push - Store#pushPayload', function (hooks) {
     );
 
     const store = this.owner.lookup('service:store');
-    run(() => {
-      store.pushPayload({
-        posts: [
-          {
-            id: '1',
-            postTitle: 'Ember rocks',
-          },
-        ],
-        people: [
-          {
-            id: '2',
-            firstName: 'Yehuda',
-          },
-        ],
-      });
+    store.pushPayload({
+      posts: [
+        {
+          id: '1',
+          postTitle: 'Ember rocks',
+        },
+      ],
+      people: [
+        {
+          id: '2',
+          firstName: 'Yehuda',
+        },
+      ],
     });
 
     var post = store.peekRecord('post', 1);
@@ -821,16 +770,14 @@ module('unit/store/push - Store#pushPayload', function (hooks) {
     );
 
     const store = this.owner.lookup('service:store');
-    run(() => {
-      store.pushPayload('person', {
-        people: [
-          {
-            id: '1',
-            firstName: 'Robert',
-            lastName: 'Jackson',
-          },
-        ],
-      });
+    store.pushPayload('person', {
+      people: [
+        {
+          id: '1',
+          firstName: 'Robert',
+          lastName: 'Jackson',
+        },
+      ],
     });
 
     const person = store.peekRecord('person', 1);
@@ -838,15 +785,13 @@ module('unit/store/push - Store#pushPayload', function (hooks) {
     assert.strictEqual(person.firstName, 'Robert', 'you can push raw JSON into the store');
     assert.strictEqual(person.lastName, 'Jackson', 'you can push raw JSON into the store');
 
-    run(() => {
-      store.pushPayload('person', {
-        people: [
-          {
-            id: '1',
-            firstName: 'Jacquie',
-          },
-        ],
-      });
+    store.pushPayload('person', {
+      people: [
+        {
+          id: '1',
+          firstName: 'Jacquie',
+        },
+      ],
     });
 
     assert.strictEqual(person.firstName, 'Jacquie', 'you can push raw JSON into the store');
@@ -957,25 +902,23 @@ module('unit/store/push - Store#push with JSON-API', function (hooks) {
     assert.expect(2);
     const store = this.owner.lookup('service:store');
 
-    run(() => {
-      store.push({
-        data: [
-          {
-            type: 'person',
-            id: '1',
-            attributes: {
-              name: 'Tom Dale',
-            },
+    store.push({
+      data: [
+        {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'Tom Dale',
           },
-          {
-            type: 'person',
-            id: '2',
-            attributes: {
-              name: 'Tomster',
-            },
+        },
+        {
+          type: 'person',
+          id: '2',
+          attributes: {
+            name: 'Tomster',
           },
-        ],
-      });
+        },
+      ],
     });
 
     const tom = store.peekRecord('person', 1);
@@ -989,46 +932,44 @@ module('unit/store/push - Store#push with JSON-API', function (hooks) {
     assert.expect(2);
     const store = this.owner.lookup('service:store');
 
-    run(() => {
-      store.push({
-        data: [
-          {
-            type: 'person',
-            id: '1',
-            attributes: {
-              name: 'Tomster',
-            },
-            relationships: {
-              cars: [
-                {
-                  data: {
-                    type: 'person',
-                    id: '1',
-                  },
-                },
-              ],
-            },
+    store.push({
+      data: [
+        {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'Tomster',
           },
-        ],
-        included: [
-          {
-            type: 'car',
-            id: '1',
-            attributes: {
-              make: 'Dodge',
-              model: 'Neon',
-            },
-            relationships: {
-              person: {
+          relationships: {
+            cars: [
+              {
                 data: {
-                  id: '1',
                   type: 'person',
+                  id: '1',
                 },
+              },
+            ],
+          },
+        },
+      ],
+      included: [
+        {
+          type: 'car',
+          id: '1',
+          attributes: {
+            make: 'Dodge',
+            model: 'Neon',
+          },
+          relationships: {
+            person: {
+              data: {
+                id: '1',
+                type: 'person',
               },
             },
           },
-        ],
-      });
+        },
+      ],
     });
 
     const tomster = store.peekRecord('person', 1);
