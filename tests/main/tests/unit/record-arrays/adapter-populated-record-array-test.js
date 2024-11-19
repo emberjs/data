@@ -1,10 +1,15 @@
 import { module, skip, test } from 'qunit';
-import RSVP from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
-import { AdapterPopulatedRecordArray, RecordArrayManager, SOURCE } from '@ember-data/store/-private';
+import { createDeferred } from '@ember-data/request';
+import {
+  AdapterPopulatedRecordArray,
+  CollectionRecordArray,
+  RecordArrayManager,
+  SOURCE,
+} from '@ember-data/store/-private';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 class Tag extends Model {
@@ -12,11 +17,11 @@ class Tag extends Model {
   name;
 }
 
-module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedRecordArray', function (hooks) {
+module('unit/record-arrays/collection', function (hooks) {
   setupTest(hooks);
 
   test('default initial state', async function (assert) {
-    const recordArray = new AdapterPopulatedRecordArray({
+    const recordArray = new CollectionRecordArray({
       type: 'recordType',
       isLoaded: false,
       identifiers: [],
@@ -33,7 +38,7 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
 
   test('custom initial state', async function (assert) {
     const store = {};
-    const recordArray = new AdapterPopulatedRecordArray({
+    const recordArray = new CollectionRecordArray({
       type: 'apple',
       isLoaded: true,
       identifiers: ['1'],
@@ -62,10 +67,21 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     );
     assert.expectDeprecation({ id: 'ember-data:deprecate-array-like' });
   });
+  testInDebug('mutation throws error', function (assert) {
+    const recordArray = new CollectionRecordArray({ type: 'recordType', identifiers: [] });
+
+    assert.throws(
+      () => {
+        recordArray.splice(0, 1);
+      },
+      Error('Mutating this array of records via splice is not allowed.'),
+      'throws error'
+    );
+  });
 
   test('#update uses _update enabling query specific behavior', async function (assert) {
     let queryCalled = 0;
-    const deferred = RSVP.defer();
+    const deferred = createDeferred();
 
     const store = {
       query(modelName, query, options) {
@@ -78,7 +94,7 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
       },
     };
 
-    const recordArray = new AdapterPopulatedRecordArray({
+    const recordArray = new CollectionRecordArray({
       type: 'recordType',
       store,
       identifiers: [],
@@ -115,7 +131,7 @@ module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedR
     const manager = new RecordArrayManager({
       store,
     });
-    const recordArray = new AdapterPopulatedRecordArray({
+    const recordArray = new CollectionRecordArray({
       query: 'some-query',
       manager,
       identifiers: [],

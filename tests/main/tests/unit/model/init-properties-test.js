@@ -1,9 +1,7 @@
 import { get } from '@ember/object';
-import { run } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -12,8 +10,6 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 function setupModels(owner, testState) {
-  let types;
-
   const Comment = Model.extend({
     text: attr(),
     post: belongsTo('post', { async: false, inverse: 'comments' }),
@@ -34,7 +30,7 @@ function setupModels(owner, testState) {
     },
   });
 
-  types = {
+  const types = {
     Author,
     Comment,
     Post,
@@ -58,8 +54,6 @@ module('unit/model - init properties', function (hooks) {
 
   test('createRecord(properties) makes properties available during record init', function (assert) {
     assert.expect(4);
-    let comment;
-    let author;
 
     function testState(types, record) {
       assert.strictEqual(get(record, 'title'), 'My Post', 'Attrs are available as expected');
@@ -70,7 +64,7 @@ module('unit/model - init properties', function (hooks) {
 
     const { store } = setupModels(this.owner, testState);
 
-    comment = store.push({
+    const comment = store.push({
       data: {
         type: 'comment',
         id: '1',
@@ -79,7 +73,7 @@ module('unit/model - init properties', function (hooks) {
         },
       },
     });
-    author = store.push({
+    const author = store.push({
       data: {
         type: 'author',
         id: '1',
@@ -157,7 +151,7 @@ module('unit/model - init properties', function (hooks) {
     const { adapter, store } = setupModels(this.owner, testState);
 
     adapter.findRecord = () => {
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'post',
           id: '1',
@@ -207,7 +201,7 @@ module('unit/model - init properties', function (hooks) {
     const { adapter, store } = setupModels(this.owner, testState);
 
     adapter.queryRecord = () => {
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'post',
           id: '1',
@@ -245,7 +239,7 @@ module('unit/model - init properties', function (hooks) {
     await store.queryRecord('post', { id: '1' });
   });
 
-  test('Model class does not get properties passed to setUknownProperty accidentally', function (assert) {
+  test('Model class does not get properties passed to setUnknownProperty accidentally', function (assert) {
     assert.expect(2);
     // If we end up passing additional properties to init in modelClasses, we will need to come up with a strategy for
     // how to get setUnknownProperty to continue working
@@ -253,8 +247,8 @@ module('unit/model - init properties', function (hooks) {
     const Post = Model.extend({
       title: attr(),
       setUnknownProperty: function (key, value) {
-        assert.strictEqual(key, 'randomProp', 'Passed the correct key to setUknownProperty');
-        assert.strictEqual(value, 'An unknown prop', 'Passed the correct value to setUknownProperty');
+        assert.strictEqual(key, 'randomProp', 'Passed the correct key to setUnknownProperty');
+        assert.strictEqual(value, 'An unknown prop', 'Passed the correct value to setUnknownProperty');
       },
     });
 
@@ -264,11 +258,9 @@ module('unit/model - init properties', function (hooks) {
 
     const store = this.owner.lookup('service:store');
 
-    run(() => {
-      store.createRecord('post', {
-        title: 'My Post',
-        randomProp: 'An unknown prop',
-      });
+    store.createRecord('post', {
+      title: 'My Post',
+      randomProp: 'An unknown prop',
     });
   });
 });
