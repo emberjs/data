@@ -1,7 +1,6 @@
 import EmberObject from '@ember/object';
 
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -20,7 +19,7 @@ module('JSON:API links access on relationships', function (hooks) {
     class ApplicationAdapter extends EmberObject {
       findRecord() {}
       findHasMany() {
-        return resolve({
+        return Promise.resolve({
           data: [],
         });
       }
@@ -98,7 +97,7 @@ module('JSON:API links access on relationships', function (hooks) {
     class ApplicationAdapter extends EmberObject {
       findRecord() {}
       findHasMany() {
-        return resolve({
+        return Promise.resolve({
           data: [],
         });
       }
@@ -176,7 +175,7 @@ module('JSON:API links access on relationships', function (hooks) {
     class ApplicationAdapter extends EmberObject {
       findRecord() {}
       findHasMany() {
-        return resolve({
+        return Promise.resolve({
           data: [],
         });
       }
@@ -242,7 +241,7 @@ module('JSON:API links access on relationships', function (hooks) {
     class ApplicationAdapter extends EmberObject {
       findRecord() {}
       findHasMany() {
-        return resolve({
+        return Promise.resolve({
           data: [],
           links: {
             self: { href: '/some/other/path' },

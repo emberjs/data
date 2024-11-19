@@ -1,7 +1,6 @@
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -9,7 +8,6 @@ import Adapter from '@ember-data/adapter';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 
 module('integration/relationship/json-api-links | Relationship state updates', function (hooks) {
   setupTest(hooks);
@@ -34,7 +32,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
       'adapter:user',
       class extends JSONAPISerializer {
         findRecord(store, type, id) {
-          return resolve({
+          return Promise.resolve({
             data: {
               id,
               type: 'user',
@@ -53,7 +51,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
       'adapter:organisation',
       class extends JSONAPISerializer {
         findRecord(store, type, id) {
-          return resolve({
+          return Promise.resolve({
             data: {
               type: 'organisation',
               id,
@@ -155,7 +153,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
       },
       findRecord(_, __, id) {
         assert.notStrictEqual(id, '1', `adapter findRecord called for all IDs except "1", called for "${id}"`);
-        return resolve({
+        return Promise.resolve({
           data: {
             type: 'pet',
             id,
@@ -225,7 +223,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     const Adapter = JSONAPIAdapter.extend({
       findHasMany(_, __, link) {
         assert.strictEqual(link, './user/1/pets', 'We fetched via the correct link');
-        return resolve({
+        return Promise.resolve({
           data: [
             {
               type: 'pet',
@@ -307,7 +305,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     const Adapter = JSONAPIAdapter.extend({
       findHasMany(_, __, link) {
         assert.strictEqual(link, './user/1/pets', 'We fetched via the correct link');
-        return resolve({
+        return Promise.resolve({
           data: [
             {
               type: 'pet',
@@ -391,7 +389,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     const Adapter = JSONAPIAdapter.extend({
       findHasMany(_, __, link) {
         assert.strictEqual(link, './user/1/pets', 'We fetched via the correct link');
-        return resolve({
+        return Promise.resolve({
           data: [
             {
               type: 'pet',
@@ -478,7 +476,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     const Adapter = JSONAPIAdapter.extend({
       findHasMany(_, __, link) {
         assert.strictEqual(link, './user/1/pets', 'We fetched via the correct link');
-        return resolve({
+        return Promise.resolve({
           data: [
             {
               type: 'pet',
@@ -548,7 +546,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     const Adapter = JSONAPIAdapter.extend({
       findHasMany(_, __, link) {
         assert.strictEqual(link, './user/1/pets', 'We fetched via the correct link');
-        return resolve({
+        return Promise.resolve({
           data: [
             {
               type: 'pet',
@@ -691,11 +689,11 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
           payloads.user.data.relationships.pets.links.related,
           'We fetched the appropriate link'
         );
-        return resolve(deepCopy(payloads.pets));
+        return Promise.resolve(structuredClone(payloads.pets));
       };
 
       // setup user
-      const user = store.push(deepCopy(payloads.user));
+      const user = store.push(structuredClone(payloads.user));
       const pets = await user.pets;
 
       assert.ok(!!pets, 'We found our pets');
@@ -733,11 +731,11 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
             'We fetched the appropriate link'
           );
         }
-        return resolve(deepCopy(payloads.pets));
+        return Promise.resolve(structuredClone(payloads.pets));
       };
 
       // setup user
-      const user = store.push(deepCopy(payloads.user));
+      const user = store.push(structuredClone(payloads.user));
       const pets = await user.pets;
 
       assert.ok(!!pets, 'We found our pets');
@@ -781,11 +779,11 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
             'We fetched the appropriate link'
           );
         }
-        return resolve(deepCopy(payloads.home));
+        return Promise.resolve(structuredClone(payloads.home));
       };
 
       // setup user
-      const user = store.push(deepCopy(payloads.user));
+      const user = store.push(structuredClone(payloads.user));
       const home = user.home;
       await home;
 
@@ -820,11 +818,11 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
           !homeRelWasEmpty && link === payloads.user.data.relationships.home.links.related,
           'We fetched the appropriate link'
         );
-        return resolve(deepCopy(payloads.home));
+        return Promise.resolve(structuredClone(payloads.home));
       };
 
       // setup user
-      const user = store.push(deepCopy(payloads.user));
+      const user = store.push(structuredClone(payloads.user));
       const home = await user.home;
 
       assert.ok(!!home, 'We found our home');
@@ -992,12 +990,12 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
           payloads.user.data.relationships.pets.links.related,
           'We fetched the appropriate link'
         );
-        return resolve(deepCopy(payloads.pets));
+        return Promise.resolve(structuredClone(payloads.pets));
       };
 
       // setup user and pets
-      const user = store.push(deepCopy(payloads.user));
-      store.push(deepCopy(payloads.pets));
+      const user = store.push(structuredClone(payloads.user));
+      store.push(structuredClone(payloads.pets));
       const pets = await user.pets;
 
       assert.ok(!!pets, 'We found our pets');
@@ -1024,12 +1022,12 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
           payloads.user.data.relationships.pets.links.related,
           'We fetched the appropriate link'
         );
-        return resolve(deepCopy(payloads.pets));
+        return Promise.resolve(structuredClone(payloads.pets));
       };
 
       // setup user and pets
-      const user = store.push(deepCopy(payloads.user));
-      store.push(deepCopy(payloads.pets));
+      const user = store.push(structuredClone(payloads.user));
+      store.push(structuredClone(payloads.pets));
       const pets = await user.pets;
 
       assert.ok(!!pets, 'We found our pets');
@@ -1059,12 +1057,12 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
           payloads.user.data.relationships.home.links.related,
           'We fetched the appropriate link'
         );
-        return resolve(deepCopy(payloads.home));
+        return Promise.resolve(structuredClone(payloads.home));
       };
 
       // setup user and home
-      const user = store.push(deepCopy(payloads.user));
-      store.push(deepCopy(payloads.home));
+      const user = store.push(structuredClone(payloads.user));
+      store.push(structuredClone(payloads.home));
       await settled();
       const home = user.home;
 
@@ -1094,12 +1092,12 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
           payloads.user.data.relationships.home.links.related,
           'We fetched the appropriate link'
         );
-        return resolve(deepCopy(payloads.home));
+        return Promise.resolve(structuredClone(payloads.home));
       };
 
       // setup user
-      const user = store.push(deepCopy(payloads.user));
-      store.push(deepCopy(payloads.home));
+      const user = store.push(structuredClone(payloads.user));
+      store.push(structuredClone(payloads.home));
       await settled();
       const home = await user.home;
 
@@ -1317,7 +1315,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
       assert.ok(true, 'We should call findRecord');
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'pet',
           id: '1',
@@ -1376,7 +1374,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
       assert.ok(true, 'We should call findRecord');
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'pet',
           id: '1',
@@ -1436,7 +1434,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
       assert.ok(true, 'We should call findRecord');
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'home',
           id: '1',
@@ -1495,7 +1493,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
       assert.ok(true, 'We should call findRecord');
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'home',
           id: '1',
@@ -1557,7 +1555,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
       assert.ok(true, 'We should call findRecord');
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'pet',
           id: '1',
@@ -1627,7 +1625,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
       assert.ok(true, 'We should call findRecord');
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'pet',
           id: '1',
@@ -1704,7 +1702,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
       assert.ok(true, 'We should call findRecord');
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'home',
           id: '1',
@@ -1774,7 +1772,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
       assert.ok(true, 'We should call findRecord');
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'home',
           id: '1',
@@ -1944,14 +1942,14 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
         );
       }
 
-      return resolve({
+      return Promise.resolve({
         data: [],
       });
     };
 
     // setup users
-    const user1 = store.push(deepCopy(user1Payload));
-    const user2 = store.push(deepCopy(user2Payload));
+    const user1 = store.push(structuredClone(user1Payload));
+    const user2 = store.push(structuredClone(user2Payload));
 
     // should not fire a request
     requestedUser = null;
