@@ -1,10 +1,9 @@
-import { run } from '@ember/runloop';
+import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 
+import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
-
-import Store from '@ember-data/store';
 
 class TestAdapter {
   constructor(args) {
@@ -193,7 +192,8 @@ module('integration/store - serializerFor', function (hooks) {
     assert.ok(serializer instanceof AppSerializer, 'precond - We found the correct serializer');
     assert.ok(didInstantiate, 'precond - We instantiated the serializer');
 
-    run(store, 'destroy');
+    store.destroy();
+    await settled();
 
     assert.ok(didDestroy, 'serializer was destroyed');
   });
