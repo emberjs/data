@@ -1,13 +1,13 @@
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { defer } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import { InvalidError } from '@ember-data/adapter/error';
 import Model, { attr } from '@ember-data/model';
+import { createDeferred } from '@ember-data/request';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import { DEPRECATE_SAVE_PROMISE_ACCESS } from '@warp-drive/build-config/deprecations';
@@ -30,7 +30,7 @@ module('integration/records/save - Save Record', function (hooks) {
     const adapter = store.adapterFor('application');
     const post = store.createRecord('post', { title: 'toto' });
 
-    const deferred = defer();
+    const deferred = createDeferred();
     adapter.createRecord = function (store, type, snapshot) {
       return deferred.promise;
     };
@@ -81,7 +81,7 @@ module('integration/records/save - Save Record', function (hooks) {
     try {
       await post.save();
       assert.ok(false, 'we should err');
-    } catch (error) {
+    } catch {
       assert.ok(true, 'we errored during save');
     }
   });
@@ -138,7 +138,7 @@ module('integration/records/save - Save Record', function (hooks) {
     assert.strictEqual(post.id, '123', 'The post ID made it through');
   });
 
-  test('Repeated failed saves keeps the record in uncommited state', async function (assert) {
+  test('Repeated failed saves keeps the record in uncommitted state', async function (assert) {
     assert.expect(4);
 
     const store = this.owner.lookup('service:store');

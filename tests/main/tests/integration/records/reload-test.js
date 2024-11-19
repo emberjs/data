@@ -1,7 +1,6 @@
 import { get } from '@ember/object';
 
 import { module, test } from 'qunit';
-import { reject, resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -56,7 +55,7 @@ module('integration/reload - Reloading Records', function (hooks) {
         findRecord(store, type, id, snapshot) {
           if (count === 0) {
             count++;
-            return resolve({ data: { id: id, type: 'person', attributes: { name: 'Tom Dale' } } });
+            return Promise.resolve({ data: { id: id, type: 'person', attributes: { name: 'Tom Dale' } } });
           } else if (count === 1) {
             assert.strictEqual(
               snapshot.adapterOptions,
@@ -64,7 +63,7 @@ module('integration/reload - Reloading Records', function (hooks) {
               'We passed adapterOptions via reload'
             );
             count++;
-            return resolve({
+            return Promise.resolve({
               data: { id: id, type: 'person', attributes: { name: 'Braaaahm Dale' } },
             });
           } else {
@@ -114,9 +113,9 @@ module('integration/reload - Reloading Records', function (hooks) {
         findRecord() {
           assert.true(tom.isReloading, 'Tom is reloading');
           if (count++ === 0) {
-            return reject();
+            return Promise.reject();
           } else {
-            return resolve({
+            return Promise.resolve({
               data: { id: '1', type: 'person', attributes: { name: 'Thomas Dale' } },
             });
           }
@@ -165,7 +164,7 @@ module('integration/reload - Reloading Records', function (hooks) {
 
         findRecord(store, type, id, snapshot) {
           assert.ok(true, 'We should call findRecord');
-          return resolve(getTomDale());
+          return Promise.resolve(getTomDale());
         },
       })
     );
@@ -220,7 +219,7 @@ module('integration/reload - Reloading Records', function (hooks) {
         findRecord(store, type, id, snapshot) {
           switch (type.modelName) {
             case 'person':
-              return resolve({
+              return Promise.resolve({
                 data: {
                   id: '1',
                   type: 'person',
@@ -236,16 +235,15 @@ module('integration/reload - Reloading Records', function (hooks) {
                 },
               });
             case 'tag':
-              return resolve({ data: { id: id, type: 'tag', attributes: { name: tagsById[id] } } });
+              return Promise.resolve({ data: { id: id, type: 'tag', attributes: { name: tagsById[id] } } });
           }
         },
       })
     );
 
-    let tom;
     let person = await store.findRecord('person', '1');
 
-    tom = person;
+    const tom = person;
     assert.strictEqual(person.name, 'Tom', 'precond');
 
     let tags = await person.tags;
@@ -283,7 +281,7 @@ module('integration/reload - Reloading Records', function (hooks) {
         JSONAPIAdapter.extend({
           findRecord() {
             assert.ok('We called findRecord');
-            return resolve({
+            return Promise.resolve({
               data: {
                 type: 'person',
                 id: '1',
@@ -340,7 +338,7 @@ module('integration/reload - Reloading Records', function (hooks) {
         JSONAPIAdapter.extend({
           findRecord() {
             assert.ok('We called findRecord');
-            return resolve({
+            return Promise.resolve({
               data: {
                 type: 'person',
                 id: '1',
@@ -388,7 +386,7 @@ module('integration/reload - Reloading Records', function (hooks) {
         JSONAPIAdapter.extend({
           findRecord() {
             assert.ok('We called findRecord');
-            return resolve({
+            return Promise.resolve({
               data: {
                 type: 'person',
                 id: '1',
@@ -445,7 +443,7 @@ module('integration/reload - Reloading Records', function (hooks) {
         JSONAPIAdapter.extend({
           findRecord() {
             assert.ok('We called findRecord');
-            return resolve({
+            return Promise.resolve({
               data: {
                 type: 'person',
                 id: '1',
@@ -495,7 +493,7 @@ module('integration/reload - Reloading Records', function (hooks) {
         JSONAPIAdapter.extend({
           findBelongsTo() {
             assert.ok('We called findRecord');
-            return resolve({
+            return Promise.resolve({
               data: {
                 type: 'person',
                 id: '1',
@@ -555,7 +553,7 @@ module('integration/reload - Reloading Records', function (hooks) {
         JSONAPIAdapter.extend({
           findBelongsTo() {
             assert.ok('We called findRecord');
-            return resolve({
+            return Promise.resolve({
               data: {
                 type: 'person',
                 id: '1',
@@ -606,7 +604,7 @@ module('integration/reload - Reloading Records', function (hooks) {
         JSONAPIAdapter.extend({
           findHasMany() {
             assert.ok('We called findRecord');
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   type: 'person',
@@ -668,7 +666,7 @@ module('integration/reload - Reloading Records', function (hooks) {
         JSONAPIAdapter.extend({
           findHasMany() {
             assert.ok('We called findRecord');
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   type: 'person',

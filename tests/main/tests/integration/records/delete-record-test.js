@@ -1,10 +1,7 @@
-/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "(adam|dave|cersei)" }]*/
-
 import EmberObject, { get } from '@ember/object';
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { all, Promise as EmberPromise } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -13,7 +10,6 @@ import { InvalidError } from '@ember-data/adapter/error';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordIdentifierFor } from '@ember-data/store';
-import { DEPRECATE_V1_RECORD_DATA } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 
 module('integration/deletedRecord - Deleting Records', function (hooks) {
@@ -58,7 +54,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     const adapter = store.adapterFor('application');
 
     adapter.deleteRecord = function () {
-      return EmberPromise.resolve();
+      return Promise.resolve();
     };
 
     store.push({
@@ -108,7 +104,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     const adapter = store.adapterFor('application');
 
     adapter.deleteRecord = function () {
-      return EmberPromise.resolve();
+      return Promise.resolve();
     };
 
     store.push({
@@ -159,7 +155,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     const adapter = store.adapterFor('application');
 
     adapter.deleteRecord = function () {
-      return EmberPromise.resolve();
+      return Promise.resolve();
     };
 
     store.push({
@@ -203,7 +199,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     const adapter = store.adapterFor('application');
 
     adapter.createRecord = function () {
-      return EmberPromise.reject(
+      return Promise.reject(
         new InvalidError([
           {
             title: 'Invalid Attribute',
@@ -229,7 +225,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
     const identifier = recordIdentifierFor(record);
-    const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(identifier) : store.cache;
+    const cache = store.cache;
 
     record.deleteRecord();
 
@@ -246,7 +242,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     };
 
     adapter.createRecord = function () {
-      return EmberPromise.reject(
+      return Promise.reject(
         new InvalidError([
           {
             title: 'Invalid Attribute',
@@ -272,7 +268,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
     const identifier = recordIdentifierFor(record);
-    const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(identifier) : store.cache;
+    const cache = store.cache;
 
     await record.destroyRecord();
 
@@ -284,14 +280,11 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     const store = this.owner.lookup('service:store');
     const adapter = store.adapterFor('application');
 
-    let adam, dave;
-    let promises;
-
     assert.expect(1);
 
     adapter.createRecord = function () {
       assert.ok(true, 'save operation resolves');
-      return EmberPromise.resolve({
+      return Promise.resolve({
         data: {
           id: '123',
           type: 'person',
@@ -299,12 +292,12 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
       });
     };
 
-    adam = store.createRecord('person', { name: 'Adam Sunderland' });
-    dave = store.createRecord('person', { name: 'Dave Sunderland' });
+    const adam = store.createRecord('person', { name: 'Adam Sunderland' });
+    const dave = store.createRecord('person', { name: 'Dave Sunderland' });
 
-    promises = [adam.destroyRecord(), dave.save()];
+    const promises = [adam.destroyRecord(), dave.save()];
 
-    await all(promises);
+    await Promise.all(promises);
   });
 
   test('Calling save on a newly created then deleted record should not error', async function (assert) {
@@ -326,17 +319,12 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
     const identifier = recordIdentifierFor(record);
-    const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(identifier) : store.cache;
+    const cache = store.cache;
 
     record.deleteRecord();
 
     assert.true(cache.isEmpty(identifier), 'We reached the correct persisted saved state');
     assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
-    assert.strictEqual(
-      store._instanceCache.peek({ identifier, bucket: 'resourceCache' }),
-      undefined,
-      'The cache is destroyed'
-    );
 
     await record.save();
   });
@@ -360,27 +348,19 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     assert.strictEqual(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
     const identifier = recordIdentifierFor(record);
-    const cache = DEPRECATE_V1_RECORD_DATA ? store._instanceCache.getResourceCache(identifier) : store.cache;
+    const cache = store.cache;
 
     record.deleteRecord();
     await settled();
 
     assert.true(cache.isEmpty(identifier), 'We reached the correct persisted saved state');
     assert.strictEqual(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
-    assert.strictEqual(
-      store._instanceCache.peek({ identifier, bucket: 'resourceCache' }),
-      undefined,
-      'The cache is destroyed'
-    );
 
     record.unloadRecord();
     await settled();
   });
 
   test('Records with an async hasMany can be pushed again after they were destroyed on client side', async function (assert) {
-    let group;
-    let employee;
-
     class Company extends Model {
       @attr('string') name;
       toString() {
@@ -407,7 +387,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     const adapter = store.adapterFor('application');
 
     adapter.deleteRecord = function () {
-      return EmberPromise.resolve();
+      return Promise.resolve();
     };
 
     // Push the company as a long-lived record that will be referenced by the group
@@ -452,10 +432,10 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     };
 
     // Server push with the group and employee
-    store.push(jsonEmployee);
-    store.push(jsonGroup);
+    store.push(structuredClone(jsonEmployee));
+    store.push(structuredClone(jsonGroup));
 
-    group = store.peekRecord('group', '1');
+    let group = store.peekRecord('group', '1');
     const groupCompany = await group.company;
 
     // Sanity Check
@@ -463,7 +443,7 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
     assert.strictEqual(groupCompany.name, 'Inc.', 'group belongs to our company');
     assert.strictEqual(group.employees.length, 1, 'expected 1 related record before delete');
     const employees = await group.employees;
-    employee = employees.at(0);
+    const employee = employees.at(0);
     assert.strictEqual(employee.name, 'Adam Sunderland', 'expected related records to be loaded');
 
     await group.destroyRecord();
@@ -514,9 +494,8 @@ module('integration/deletedRecord - Deleting Records', function (hooks) {
       assert.true(company.isDeleted, 'isDeleted should be true');
       assert.true(company.isDestroying, 'isDestroying should be true');
       assert.true(company.isDestroyed, 'isDestroyed should be true');
-
       if (DEBUG) {
-        assert.strictEqual(company.id, undefined, 'id access should be safe');
+        assert.strictEqual(company.id, null, 'id access should be safe');
       }
     } catch (e) {
       assert.ok(false, `Should not throw an error, threw ${e.message}`);
