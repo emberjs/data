@@ -1,8 +1,6 @@
-import { run } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -29,7 +27,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     });
 
     const ApplicationAdapter = Adapter.extend({
-      deleteRecord: () => resolve(),
+      deleteRecord: () => Promise.resolve(),
     });
 
     const ApplicationSerializer = class extends JSONAPISerializer {};
@@ -45,41 +43,39 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     Server loading tests
   */
 
-  test('Relationship is available from both sides even if only loaded from one side - async', function (assert) {
+  test('Relationship is available from both sides even if only loaded from one side - async', async function (assert) {
     const store = this.owner.lookup('service:store');
 
     var stanley, stanleysFriend;
-    run(function () {
-      stanley = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Stanley',
-          },
-          relationships: {
-            bestFriend: {
-              data: {
-                id: '2',
-                type: 'user',
-              },
+    stanley = store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
+        },
+        relationships: {
+          bestFriend: {
+            data: {
+              id: '2',
+              type: 'user',
             },
           },
         },
-      });
-      stanleysFriend = store.push({
-        data: {
-          id: '2',
-          type: 'user',
-          attributes: {
-            name: "Stanley's friend",
-          },
+      },
+    });
+    stanleysFriend = store.push({
+      data: {
+        id: '2',
+        type: 'user',
+        attributes: {
+          name: "Stanley's friend",
         },
-      });
+      },
+    });
 
-      stanleysFriend.bestFriend.then(function (fetchedUser) {
-        assert.strictEqual(fetchedUser, stanley, 'User relationship was set up correctly');
-      });
+    await stanleysFriend.bestFriend.then(function (fetchedUser) {
+      assert.strictEqual(fetchedUser, stanley, 'User relationship was set up correctly');
     });
   });
 
@@ -87,126 +83,117 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     const store = this.owner.lookup('service:store');
 
     var job, user;
-    run(function () {
-      job = store.push({
-        data: {
-          id: '2',
-          type: 'job',
-          attributes: {
-            isGood: true,
-          },
+    job = store.push({
+      data: {
+        id: '2',
+        type: 'job',
+        attributes: {
+          isGood: true,
         },
-      });
-      user = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Stanley',
-          },
-          relationships: {
-            job: {
-              data: {
-                id: '2',
-                type: 'job',
-              },
+      },
+    });
+    user = store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
+        },
+        relationships: {
+          job: {
+            data: {
+              id: '2',
+              type: 'job',
             },
           },
         },
-      });
+      },
     });
     assert.strictEqual(job.user, user, 'User relationship was set up correctly');
   });
 
-  test('Fetching a belongsTo that is set to null removes the record from a relationship - async', function (assert) {
+  test('Fetching a belongsTo that is set to null removes the record from a relationship - async', async function (assert) {
     const store = this.owner.lookup('service:store');
 
     var stanleysFriend;
-    run(function () {
-      stanleysFriend = store.push({
-        data: {
-          id: '2',
-          type: 'user',
-          attributes: {
-            name: "Stanley's friend",
-          },
-          relationships: {
-            bestFriend: {
-              data: {
-                id: '1',
-                type: 'user',
-              },
+    stanleysFriend = store.push({
+      data: {
+        id: '2',
+        type: 'user',
+        attributes: {
+          name: "Stanley's friend",
+        },
+        relationships: {
+          bestFriend: {
+            data: {
+              id: '1',
+              type: 'user',
             },
           },
         },
-      });
-      store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Stanley',
-          },
-          relationships: {
-            bestFriend: {
-              data: null,
-            },
+      },
+    });
+    store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
+        },
+        relationships: {
+          bestFriend: {
+            data: null,
           },
         },
-      });
-      stanleysFriend.bestFriend.then(function (fetchedUser) {
-        assert.strictEqual(fetchedUser, null, 'User relationship was removed correctly');
-      });
+      },
+    });
+    await stanleysFriend.bestFriend.then(function (fetchedUser) {
+      assert.strictEqual(fetchedUser, null, 'User relationship was removed correctly');
     });
   });
 
   test('Fetching a belongsTo that is set to null removes the record from a relationship - sync', function (assert) {
     const store = this.owner.lookup('service:store');
 
-    var job;
-    run(function () {
-      job = store.push({
-        data: {
-          id: '2',
-          type: 'job',
-          attributes: {
-            isGood: true,
-          },
+    var job = store.push({
+      data: {
+        id: '2',
+        type: 'job',
+        attributes: {
+          isGood: true,
         },
-      });
-      store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Stanley',
-          },
-          relationships: {
-            job: {
-              data: {
-                id: '2',
-                type: 'job',
-              },
-            },
-          },
-        },
-      });
+      },
     });
-    run(function () {
-      job = store.push({
-        data: {
-          id: '2',
-          type: 'job',
-          attributes: {
-            isGood: true,
-          },
-          relationships: {
-            user: {
-              data: null,
+    store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
+        },
+        relationships: {
+          job: {
+            data: {
+              id: '2',
+              type: 'job',
             },
           },
         },
-      });
+      },
+    });
+    job = store.push({
+      data: {
+        id: '2',
+        type: 'job',
+        attributes: {
+          isGood: true,
+        },
+        relationships: {
+          user: {
+            data: null,
+          },
+        },
+      },
     });
     assert.strictEqual(job.user, null, 'User relationship was removed correctly');
   });
@@ -387,35 +374,31 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     Local edits
   */
 
-  test('Setting a OneToOne relationship reflects correctly on the other side- async', function (assert) {
+  test('Setting a OneToOne relationship reflects correctly on the other side- async', async function (assert) {
     const store = this.owner.lookup('service:store');
 
     var stanley, stanleysFriend;
-    run(function () {
-      stanley = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Stanley',
-          },
+    stanley = store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
         },
-      });
-      stanleysFriend = store.push({
-        data: {
-          id: '2',
-          type: 'user',
-          attributes: {
-            name: "Stanley's friend",
-          },
-        },
-      });
+      },
     });
-    run(function () {
-      stanley.set('bestFriend', stanleysFriend);
-      stanleysFriend.bestFriend.then(function (fetchedUser) {
-        assert.strictEqual(fetchedUser, stanley, 'User relationship was updated correctly');
-      });
+    stanleysFriend = store.push({
+      data: {
+        id: '2',
+        type: 'user',
+        attributes: {
+          name: "Stanley's friend",
+        },
+      },
+    });
+    stanley.set('bestFriend', stanleysFriend);
+    await stanleysFriend.bestFriend.then(function (fetchedUser) {
+      assert.strictEqual(fetchedUser, stanley, 'User relationship was updated correctly');
     });
   });
 
@@ -423,155 +406,34 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     const store = this.owner.lookup('service:store');
 
     var job, user;
-    run(function () {
-      job = store.push({
-        data: {
-          id: '2',
-          type: 'job',
-          attributes: {
-            isGood: true,
-          },
+    job = store.push({
+      data: {
+        id: '2',
+        type: 'job',
+        attributes: {
+          isGood: true,
         },
-      });
-      user = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Stanley',
-          },
+      },
+    });
+    user = store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
         },
-      });
+      },
     });
-    run(function () {
-      user.set('job', job);
-    });
+    user.job = job;
     assert.strictEqual(job.user, user, 'User relationship was set up correctly');
   });
 
   deprecatedTest(
     'Setting a BelongsTo to a promise unwraps the promise before setting- async',
     { id: 'ember-data:deprecate-promise-proxies', until: '5.0', count: 1 },
-    function (assert) {
+    async function (assert) {
       const store = this.owner.lookup('service:store');
-
-      var stanley, stanleysFriend, newFriend;
-      run(function () {
-        stanley = store.push({
-          data: {
-            id: '1',
-            type: 'user',
-            attributes: {
-              name: 'Stanley',
-            },
-            relationships: {
-              bestFriend: {
-                data: {
-                  id: '2',
-                  type: 'user',
-                },
-              },
-            },
-          },
-        });
-        stanleysFriend = store.push({
-          data: {
-            id: '2',
-            type: 'user',
-            attributes: {
-              name: "Stanley's friend",
-            },
-          },
-        });
-        newFriend = store.push({
-          data: {
-            id: '3',
-            type: 'user',
-            attributes: {
-              name: 'New friend',
-            },
-          },
-        });
-      });
-      run(function () {
-        newFriend.set('bestFriend', stanleysFriend.bestFriend);
-        stanley.bestFriend.then(function (fetchedUser) {
-          assert.strictEqual(
-            fetchedUser,
-            newFriend,
-            `Stanley's bestFriend relationship was updated correctly to newFriend`
-          );
-        });
-        newFriend.bestFriend.then(function (fetchedUser) {
-          assert.strictEqual(
-            fetchedUser,
-            stanley,
-            `newFriend's bestFriend relationship was updated correctly to be Stanley`
-          );
-        });
-      });
-    }
-  );
-
-  deprecatedTest(
-    'Setting a BelongsTo to a promise works when the promise returns null- async',
-    { id: 'ember-data:deprecate-promise-proxies', until: '5.0', count: 1 },
-    function (assert) {
-      const store = this.owner.lookup('service:store');
-
-      var igor, newFriend;
-      run(function () {
-        store.push({
-          data: {
-            id: '1',
-            type: 'user',
-            attributes: {
-              name: 'Stanley',
-            },
-          },
-        });
-        igor = store.push({
-          data: {
-            id: '2',
-            type: 'user',
-            attributes: {
-              name: 'Igor',
-            },
-          },
-        });
-        newFriend = store.push({
-          data: {
-            id: '3',
-            type: 'user',
-            attributes: {
-              name: 'New friend',
-            },
-            relationships: {
-              bestFriend: {
-                data: {
-                  id: '1',
-                  type: 'user',
-                },
-              },
-            },
-          },
-        });
-      });
-      run(function () {
-        newFriend.set('bestFriend', igor.bestFriend);
-        newFriend.bestFriend.then(function (fetchedUser) {
-          assert.strictEqual(fetchedUser, null, 'User relationship was updated correctly');
-        });
-      });
-    }
-  );
-
-  testInDebug("Setting a BelongsTo to a promise that didn't come from a relationship errors out", function (assert) {
-    const store = this.owner.lookup('service:store');
-
-    var stanley, igor;
-    run(function () {
-      stanley = store.push({
+      const stanley = store.push({
         data: {
           id: '1',
           type: 'user',
@@ -588,22 +450,120 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
           },
         },
       });
-      igor = store.push({
+      const stanleysFriend = store.push({
+        data: {
+          id: '2',
+          type: 'user',
+          attributes: {
+            name: "Stanley's friend",
+          },
+        },
+      });
+      const newFriend = store.push({
         data: {
           id: '3',
+          type: 'user',
+          attributes: {
+            name: 'New friend',
+          },
+        },
+      });
+
+      newFriend.bestFriend = stanleysFriend.bestFriend;
+      const fetchedUser = await stanleysFriend.bestFriend;
+      assert.strictEqual(
+        fetchedUser,
+        newFriend,
+        `Stanley's bestFriend relationship was updated correctly to newFriend`
+      );
+      const fetchedUser2 = await newFriend.bestFriend;
+      assert.strictEqual(
+        fetchedUser2,
+        stanley,
+        `newFriend's bestFriend relationship was updated correctly to be Stanley`
+      );
+    }
+  );
+
+  deprecatedTest(
+    'Setting a BelongsTo to a promise works when the promise returns null- async',
+    { id: 'ember-data:deprecate-promise-proxies', until: '5.0', count: 1 },
+    async function (assert) {
+      const store = this.owner.lookup('service:store');
+      store.push({
+        data: {
+          id: '1',
+          type: 'user',
+          attributes: {
+            name: 'Stanley',
+          },
+        },
+      });
+      const igor = store.push({
+        data: {
+          id: '2',
           type: 'user',
           attributes: {
             name: 'Igor',
           },
         },
       });
+      const newFriend = store.push({
+        data: {
+          id: '3',
+          type: 'user',
+          attributes: {
+            name: 'New friend',
+          },
+          relationships: {
+            bestFriend: {
+              data: {
+                id: '1',
+                type: 'user',
+              },
+            },
+          },
+        },
+      });
+      newFriend.bestFriend = igor.bestFriend;
+      const fetchedUser = await newFriend.bestFriend;
+      assert.strictEqual(fetchedUser, null, 'User relationship was updated correctly');
+    }
+  );
+
+  testInDebug("Setting a BelongsTo to a promise that didn't come from a relationship errors out", function (assert) {
+    const store = this.owner.lookup('service:store');
+
+    const stanley = store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
+        },
+        relationships: {
+          bestFriend: {
+            data: {
+              id: '2',
+              type: 'user',
+            },
+          },
+        },
+      },
+    });
+    const igor = store.push({
+      data: {
+        id: '3',
+        type: 'user',
+        attributes: {
+          name: 'Igor',
+        },
+      },
     });
 
     assert.expectAssertion(function () {
-      run(function () {
-        stanley.set('bestFriend', resolve(igor));
-      });
-    }, /You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call./);
+      stanley.bestFriend = Promise.resolve(igor);
+    }, '[object Promise] is not a record instantiated by @ember-data/store');
   });
 
   deprecatedTest(
@@ -677,52 +637,48 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     }
   );
 
-  test('Setting a OneToOne relationship to null reflects correctly on the other side - async', function (assert) {
+  test('Setting a OneToOne relationship to null reflects correctly on the other side - async', async function (assert) {
     const store = this.owner.lookup('service:store');
 
     var stanley, stanleysFriend;
-    run(function () {
-      stanley = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Stanley',
-          },
-          relationships: {
-            bestFriend: {
-              data: {
-                id: '2',
-                type: 'user',
-              },
+    stanley = store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
+        },
+        relationships: {
+          bestFriend: {
+            data: {
+              id: '2',
+              type: 'user',
             },
           },
         },
-      });
-      stanleysFriend = store.push({
-        data: {
-          id: '2',
-          type: 'user',
-          attributes: {
-            name: "Stanley's friend",
-          },
-          relationships: {
-            bestFriend: {
-              data: {
-                id: '1',
-                type: 'user',
-              },
+      },
+    });
+    stanleysFriend = store.push({
+      data: {
+        id: '2',
+        type: 'user',
+        attributes: {
+          name: "Stanley's friend",
+        },
+        relationships: {
+          bestFriend: {
+            data: {
+              id: '1',
+              type: 'user',
             },
           },
         },
-      });
+      },
     });
 
-    run(function () {
-      stanley.set('bestFriend', null); // :(
-      stanleysFriend.bestFriend.then(function (fetchedUser) {
-        assert.strictEqual(fetchedUser, null, 'User relationship was removed correctly');
-      });
+    stanley.bestFriend = null; // :(
+    await stanleysFriend.bestFriend.then(function (fetchedUser) {
+      assert.strictEqual(fetchedUser, null, 'User relationship was removed correctly');
     });
   });
 
@@ -730,46 +686,42 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     const store = this.owner.lookup('service:store');
 
     var job, user;
-    run(function () {
-      job = store.push({
-        data: {
-          id: '2',
-          type: 'job',
-          attributes: {
-            isGood: false,
-          },
-          relationships: {
-            user: {
-              data: {
-                id: '1',
-                type: 'user',
-              },
+    job = store.push({
+      data: {
+        id: '2',
+        type: 'job',
+        attributes: {
+          isGood: false,
+        },
+        relationships: {
+          user: {
+            data: {
+              id: '1',
+              type: 'user',
             },
           },
         },
-      });
-      user = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Stanley',
-          },
-          relationships: {
-            job: {
-              data: {
-                id: '2',
-                type: 'job',
-              },
+      },
+    });
+    user = store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
+        },
+        relationships: {
+          job: {
+            data: {
+              id: '2',
+              type: 'job',
             },
           },
         },
-      });
+      },
     });
 
-    run(function () {
-      user.set('job', null);
-    });
+    user.job = null;
     assert.strictEqual(job.user, null, 'User relationship was removed correctly');
   });
 
@@ -839,50 +791,46 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     const store = this.owner.lookup('service:store');
 
     var job, user, newBetterJob;
-    run(function () {
-      job = store.push({
-        data: {
-          id: '2',
-          type: 'job',
-          attributes: {
-            isGood: false,
-          },
+    job = store.push({
+      data: {
+        id: '2',
+        type: 'job',
+        attributes: {
+          isGood: false,
         },
-      });
-      user = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Stanley',
-          },
-          relationships: {
-            job: {
-              data: {
-                id: '2',
-                type: 'job',
-              },
+      },
+    });
+    user = store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
+        },
+        relationships: {
+          job: {
+            data: {
+              id: '2',
+              type: 'job',
             },
           },
         },
-      });
+      },
     });
 
     assert.strictEqual(job.user, user, 'Job and user initially setup correctly');
 
-    run(function () {
-      newBetterJob = store.push({
-        data: {
-          id: '3',
-          type: 'job',
-          attributes: {
-            isGood: true,
-          },
+    newBetterJob = store.push({
+      data: {
+        id: '3',
+        type: 'job',
+        attributes: {
+          isGood: true,
         },
-      });
-
-      newBetterJob.set('user', user);
+      },
     });
+
+    newBetterJob.user = user;
 
     assert.strictEqual(user.job, newBetterJob, 'Job updated correctly');
     assert.strictEqual(job.user, null, 'Old relationship nulled out correctly');
@@ -893,49 +841,43 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
   Rollback attributes tests
   */
 
-  test('Rollbacking attributes of deleted record restores the relationship on both sides - async', function (assert) {
+  test('Rollbacking attributes of deleted record restores the relationship on both sides - async', async function (assert) {
     const store = this.owner.lookup('service:store');
 
     var stanley, stanleysFriend;
-    run(function () {
-      stanley = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Stanley',
-          },
-          relationships: {
-            bestFriend: {
-              data: {
-                id: '2',
-                type: 'user',
-              },
+    stanley = store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
+        },
+        relationships: {
+          bestFriend: {
+            data: {
+              id: '2',
+              type: 'user',
             },
           },
         },
-      });
-      stanleysFriend = store.push({
-        data: {
-          id: '2',
-          type: 'user',
-          attributes: {
-            name: "Stanley's friend",
-          },
+      },
+    });
+    stanleysFriend = store.push({
+      data: {
+        id: '2',
+        type: 'user',
+        attributes: {
+          name: "Stanley's friend",
         },
-      });
+      },
     });
-    run(function () {
-      stanley.deleteRecord();
+    stanley.deleteRecord();
+    stanley.rollbackAttributes();
+    await stanleysFriend.bestFriend.then(function (fetchedUser) {
+      assert.strictEqual(fetchedUser, stanley, 'Stanley got rollbacked correctly');
     });
-    run(function () {
-      stanley.rollbackAttributes();
-      stanleysFriend.bestFriend.then(function (fetchedUser) {
-        assert.strictEqual(fetchedUser, stanley, 'Stanley got rollbacked correctly');
-      });
-      stanley.bestFriend.then(function (fetchedUser) {
-        assert.strictEqual(fetchedUser, stanleysFriend, 'Stanleys friend did not get removed');
-      });
+    await stanley.bestFriend.then(function (fetchedUser) {
+      assert.strictEqual(fetchedUser, stanleysFriend, 'Stanleys friend did not get removed');
     });
   });
 
@@ -943,38 +885,34 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
     const store = this.owner.lookup('service:store');
 
     var job, user;
-    run(function () {
-      job = store.push({
-        data: {
-          id: '2',
-          type: 'job',
-          attributes: {
-            isGood: true,
-          },
+    job = store.push({
+      data: {
+        id: '2',
+        type: 'job',
+        attributes: {
+          isGood: true,
         },
-      });
-      user = store.push({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            name: 'Stanley',
-          },
-          relationships: {
-            job: {
-              data: {
-                id: '2',
-                type: 'job',
-              },
+      },
+    });
+    user = store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Stanley',
+        },
+        relationships: {
+          job: {
+            data: {
+              id: '2',
+              type: 'job',
             },
           },
         },
-      });
+      },
     });
-    run(function () {
-      job.deleteRecord();
-      job.rollbackAttributes();
-    });
+    job.deleteRecord();
+    job.rollbackAttributes();
     assert.strictEqual(user.job, job, 'Job got rollbacked correctly');
     assert.strictEqual(job.user, user, 'Job still has the user');
   });
