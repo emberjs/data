@@ -2,13 +2,13 @@ import { get } from '@ember/object';
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 class Person extends Model {
   @attr()
@@ -27,7 +27,7 @@ class Tool extends Model {
   person;
 }
 
-module('integration/record-array - RecordArray', function (hooks) {
+module('integration/live-array', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
@@ -69,46 +69,54 @@ module('integration/record-array - RecordArray', function (hooks) {
     assert.strictEqual(recordArray.at(-1).name, 'brohuda');
   });
 
-  test('acts as a live query (normalized names)', async function (assert) {
-    const store = this.owner.lookup('service:store');
+  deprecatedTest(
+    'acts as a live query (normalized names)',
+    {
+      count: 9,
+      until: '6.0',
+      id: 'ember-data:deprecate-non-strict-types',
+    },
+    async function (assert) {
+      const store = this.owner.lookup('service:store');
 
-    const recordArray = store.peekAll('Person');
-    const otherRecordArray = store.peekAll('person');
+      const recordArray = store.peekAll('Person');
+      const otherRecordArray = store.peekAll('person');
 
-    assert.strictEqual(recordArray, otherRecordArray, 'Person and person are the same record-array');
+      assert.strictEqual(recordArray, otherRecordArray, 'Person and person are the same record-array');
 
-    store.push({
-      data: {
-        type: 'Person',
-        id: '1',
-        attributes: {
-          name: 'John Churchill',
+      store.push({
+        data: {
+          type: 'Person',
+          id: '1',
+          attributes: {
+            name: 'John Churchill',
+          },
         },
-      },
-    });
+      });
 
-    assert.deepEqual(
-      recordArray.map((v) => v.name),
-      ['John Churchill']
-    );
+      assert.deepEqual(
+        recordArray.map((v) => v.name),
+        ['John Churchill']
+      );
 
-    store.push({
-      data: {
-        type: 'Person',
-        id: '2',
-        attributes: {
-          name: 'Winston Churchill',
+      store.push({
+        data: {
+          type: 'Person',
+          id: '2',
+          attributes: {
+            name: 'Winston Churchill',
+          },
         },
-      },
-    });
+      });
 
-    assert.deepEqual(
-      recordArray.map((v) => v.name),
-      ['John Churchill', 'Winston Churchill']
-    );
-  });
+      assert.deepEqual(
+        recordArray.map((v) => v.name),
+        ['John Churchill', 'Winston Churchill']
+      );
+    }
+  );
 
-  test('a loaded record is removed from a record array when it is deleted', async function (assert) {
+  test('a loaded record is removed from a live record array when it is deleted', async function (assert) {
     assert.expect(5);
 
     this.owner.register('model:tag', Tag);
@@ -117,7 +125,7 @@ module('integration/record-array - RecordArray', function (hooks) {
       'adapter:application',
       Adapter.extend({
         deleteRecord() {
-          return resolve({ data: null });
+          return Promise.resolve({ data: null });
         },
         shouldBackgroundReloadRecord() {
           return false;
@@ -296,7 +304,7 @@ module('integration/record-array - RecordArray', function (hooks) {
       'adapter:application',
       Adapter.extend({
         deleteRecord() {
-          return resolve({ data: null });
+          return Promise.resolve({ data: null });
         },
       })
     );
@@ -337,7 +345,7 @@ module('integration/record-array - RecordArray', function (hooks) {
       'adapter:application',
       Adapter.extend({
         deleteRecord() {
-          return resolve({ data: null });
+          return Promise.resolve({ data: null });
         },
       })
     );
@@ -485,7 +493,7 @@ module('integration/record-array - RecordArray', function (hooks) {
     assert.strictEqual(recordArray.at(0).id, '1', 'should retrieve correct record at index 0');
   });
 
-  test("an AdapterPopulatedRecordArray knows if it's loaded or not", async function (assert) {
+  test("a CollectionRecordArray knows if it's loaded or not", async function (assert) {
     const store = this.owner.lookup('service:store');
 
     assert.expect(2);
@@ -493,7 +501,7 @@ module('integration/record-array - RecordArray', function (hooks) {
 
     adapter.query = function (store, type, query, recordArray) {
       assert.false(recordArray.isLoaded, 'not loaded yet');
-      return resolve({
+      return Promise.resolve({
         data: [
           { id: '1', type: 'person', attributes: { name: 'Scumbag Dale' } },
           { id: '2', type: 'person', attributes: { name: 'Scumbag Katz' } },

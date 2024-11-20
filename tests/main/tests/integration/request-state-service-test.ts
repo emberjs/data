@@ -1,17 +1,16 @@
 import EmberObject from '@ember/object';
 
 import { module, test } from 'qunit';
-import { Promise } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
 import JSONSerializer from '@ember-data/serializer/json';
 import type Store from '@ember-data/store';
-import type { DSModel } from '@ember-data/types/q/ds-model';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
+
   @attr('string', {})
   name;
 
@@ -28,7 +27,7 @@ module('integration/request-state-service - Request State Service', function (ho
     const { owner } = this;
     owner.register('model:person', Person);
     owner.register('serializer:application', JSONSerializer);
-    store = owner.lookup('service:store') as Store;
+    store = owner.lookup('service:store') as unknown as Store;
   });
 
   test('getPendingRequest and getLastRequest return correct inflight and fulfilled requests', async function (assert) {
@@ -74,7 +73,7 @@ module('integration/request-state-service - Request State Service', function (ho
 
     owner.register('adapter:application', TestAdapter);
 
-    store = owner.lookup('service:store') as Store;
+    store = owner.lookup('service:store') as unknown as Store;
 
     const promise = store.findRecord('person', '1');
     const requestService = store.getRequestStateService();
@@ -95,7 +94,7 @@ module('integration/request-state-service - Request State Service', function (ho
     };
     assert.deepEqual(request.request.data[0], requestOp, 'request op is correct');
 
-    const person = (await promise) as DSModel;
+    const person = (await promise) as Model;
     const lastRequest = requestService.getLastRequestForRecord(identifier);
     const requestStateResult = {
       type: 'query' as const,
@@ -173,7 +172,7 @@ module('integration/request-state-service - Request State Service', function (ho
 
     owner.register('adapter:application', TestAdapter, { singleton: false });
 
-    store = owner.lookup('service:store') as Store;
+    store = owner.lookup('service:store') as unknown as Store;
 
     const requestService = store.getRequestStateService();
     // Relying on sequential lids until identifiers land
@@ -221,7 +220,7 @@ module('integration/request-state-service - Request State Service', function (ho
       count++;
     });
 
-    const person = (await store.findRecord('person', '1')) as DSModel;
+    const person = (await store.findRecord('person', '1')) as Model;
     await person.save();
     assert.strictEqual(count, 4, 'callback called four times');
   });

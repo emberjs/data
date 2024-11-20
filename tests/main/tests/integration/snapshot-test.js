@@ -1,5 +1,4 @@
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -9,7 +8,11 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
-let owner, store, _Post;
+let owner, store;
+
+function isSnapshot(snapshot) {
+  return snapshot instanceof Snapshot || snapshot.constructor.name === 'Snapshot';
+}
 
 module('integration/snapshot - Snapshot', function (hooks) {
   setupTest(hooks);
@@ -32,7 +35,6 @@ module('integration/snapshot - Snapshot', function (hooks) {
       @belongsTo('post', { async: true, inverse: 'comments' })
       post;
     }
-    _Post = Post;
 
     owner = this.owner;
     owner.register('model:post', Post);
@@ -64,7 +66,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
       street: undefined,
     };
 
-    assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
+    assert.ok(isSnapshot(snapshot), 'snapshot is an instance of Snapshot');
     assert.deepEqual(snapshot.attributes(), expected, 'We generated attributes with default values');
 
     store.destroy();
@@ -85,7 +87,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     const post = store.peekRecord('post', 1);
     const snapshot = post._createSnapshot();
 
-    assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
+    assert.ok(isSnapshot(snapshot), 'snapshot is an instance of Snapshot');
   });
 
   test('snapshot.id, and snapshot.modelName returns correctly', function (assert) {
@@ -151,7 +153,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
       const record = store._instanceCache.peek({ identifier, bucket: 'record' });
       assert.false(!!record, 'We do not have a materialized record');
       assert.strictEqual(snapshot.__attributes, null, 'attributes were not populated initially');
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'post',
           id: '1',
@@ -379,7 +381,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     const snapshot = comment._createSnapshot();
     const relationship = snapshot.belongsTo('post');
 
-    assert.ok(relationship instanceof Snapshot, 'snapshot is an instance of Snapshot');
+    assert.ok(isSnapshot(relationship), 'snapshot is an instance of Snapshot');
     assert.strictEqual(relationship.id, '1', 'post id is correct');
     assert.strictEqual(relationship.attr('title'), 'Hello World', 'post title is correct');
   });
@@ -416,7 +418,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     const snapshot = comment._createSnapshot();
     const relationship = snapshot.belongsTo('post');
 
-    assert.ok(relationship instanceof Snapshot, 'snapshot is an instance of Snapshot');
+    assert.ok(isSnapshot(relationship), 'snapshot is an instance of Snapshot');
     assert.deepEqual(relationship.changedAttributes(), {}, 'changedAttributes are correct');
   });
 
@@ -487,7 +489,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     assert.expect(2);
 
     store.adapterFor('application').findBelongsTo = function (store, snapshot, link, relationship) {
-      return resolve({ data: null });
+      return Promise.resolve({ data: null });
     };
 
     store.push({
@@ -539,7 +541,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
 
   test('snapshot.belongsTo() returns a snapshot if relationship link has been fetched', async function (assert) {
     store.adapterFor('application').findBelongsTo = function (store, snapshot, link, relationship) {
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'post',
@@ -597,7 +599,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     assert.ok(hasManyRelationship instanceof Array, 'hasMany relationship is an instance of Array');
     assert.strictEqual(hasManyRelationship.length, 1, 'hasMany relationship contains related object');
 
-    assert.ok(belongsToRelationship instanceof Snapshot, 'belongsTo relationship is an instance of Snapshot');
+    assert.ok(isSnapshot(belongsToRelationship), 'belongsTo relationship is an instance of Snapshot');
     assert.strictEqual(
       belongsToRelationship.attr('title'),
       'Hello World',
@@ -641,7 +643,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     assert.ok(hasManyRelationship instanceof Array, 'hasMany relationship is an instance of Array');
     assert.strictEqual(hasManyRelationship.length, 1, 'hasMany relationship contains related object');
 
-    assert.ok(belongsToRelationship instanceof Snapshot, 'belongsTo relationship is an instance of Snapshot');
+    assert.ok(isSnapshot(belongsToRelationship), 'belongsTo relationship is an instance of Snapshot');
     assert.strictEqual(
       belongsToRelationship.attr('title'),
       'Hello World',
@@ -684,7 +686,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     assert.ok(hasManyRelationship instanceof Array, 'hasMany relationship is an instance of Array');
     assert.strictEqual(hasManyRelationship.length, 1, 'hasMany relationship contains related object');
 
-    assert.ok(belongsToRelationship instanceof Snapshot, 'belongsTo relationship is an instance of Snapshot');
+    assert.ok(isSnapshot(belongsToRelationship), 'belongsTo relationship is an instance of Snapshot');
     assert.strictEqual(
       belongsToRelationship.attr('title'),
       'Hello World',
@@ -851,7 +853,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
 
     const relationship1 = relationship[0];
 
-    assert.ok(relationship1 instanceof Snapshot, 'relationship item is an instance of Snapshot');
+    assert.ok(isSnapshot(relationship1), 'relationship item is an instance of Snapshot');
     assert.strictEqual(relationship1.id, '1', 'relationship item id is correct');
     assert.strictEqual(relationship1.attr('body'), 'This is the first comment', 'relationship item body is correct');
   });
@@ -1013,7 +1015,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
     assert.expect(2);
 
     store.adapterFor('application').findHasMany = function (store, snapshot, link, relationship) {
-      return resolve({
+      return Promise.resolve({
         data: [{ id: '2', type: 'comment', attributes: { body: 'This is comment' } }],
       });
     };
@@ -1071,9 +1073,9 @@ module('integration/snapshot - Snapshot', function (hooks) {
   });
 
   test('snapshot.hasMany() respects the order of items in the relationship', async function (assert) {
-    assert.expect(3);
+    assert.expect(10);
 
-    store.push({
+    const [comment1, comment2, comment3, post] = store.push({
       data: [
         {
           type: 'comment',
@@ -1114,18 +1116,86 @@ module('integration/snapshot - Snapshot', function (hooks) {
         },
       ],
     });
-    const comment3 = store.peekRecord('comment', 3);
-    const post = store.peekRecord('post', 4);
     const comments = await post.comments;
+    let snapshot = post._createSnapshot();
+    let relationship = snapshot.hasMany('comments');
+
+    assert.arrayStrictEquals(comments, [comment1, comment2, comment3], 'initial relationship order is correct');
+    assert.arrayStrictEquals(
+      relationship.map((s) => s.id),
+      ['1', '2', '3'],
+      'initial relationship reference order is correct'
+    );
+
+    // change order locally
     comments.splice(comments.indexOf(comment3), 1);
     comments.unshift(comment3);
 
-    const snapshot = post._createSnapshot();
-    const relationship = snapshot.hasMany('comments');
+    snapshot = post._createSnapshot();
+    relationship = snapshot.hasMany('comments');
 
-    assert.strictEqual(relationship[0].id, '3', 'order of comment 3 is correct');
-    assert.strictEqual(relationship[1].id, '1', 'order of comment 1 is correct');
-    assert.strictEqual(relationship[2].id, '2', 'order of comment 2 is correct');
+    assert.arrayStrictEquals(comments, [comment3, comment1, comment2], 'relationship preserved local order');
+    assert.arrayStrictEquals(
+      relationship.map((s) => s.id),
+      ['3', '1', '2'],
+      'relationship reference preserved local order'
+    );
+
+    // change order locally again
+    comments.splice(comments.indexOf(comment1), 1);
+
+    snapshot = post._createSnapshot();
+    relationship = snapshot.hasMany('comments');
+
+    assert.arrayStrictEquals(comments, [comment3, comment2], 'relationship preserved local order');
+    assert.arrayStrictEquals(
+      relationship.map((s) => s.id),
+      ['3', '2'],
+      'relationship reference preserved local order'
+    );
+
+    // and again
+    comments.push(comment1);
+
+    snapshot = post._createSnapshot();
+    relationship = snapshot.hasMany('comments');
+
+    assert.arrayStrictEquals(comments, [comment3, comment2, comment1], 'relationship preserved local order');
+    assert.arrayStrictEquals(
+      relationship.map((s) => s.id),
+      ['3', '2', '1'],
+      'relationship reference preserved local order'
+    );
+
+    // push a new remote state with a different order
+    store.push({
+      data: {
+        type: 'post',
+        id: '4',
+        attributes: {
+          title: 'Hello World',
+        },
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '3' },
+              { type: 'comment', id: '1' },
+              { type: 'comment', id: '2' },
+            ],
+          },
+        },
+      },
+    });
+
+    snapshot = post._createSnapshot();
+    relationship = snapshot.hasMany('comments');
+
+    assert.arrayStrictEquals(comments, [comment3, comment1, comment2], 'relationship updated to remote order');
+    assert.arrayStrictEquals(
+      relationship.map((s) => s.id),
+      ['3', '1', '2'],
+      'relationship updated to remote order'
+    );
   });
 
   test('snapshot.eachAttribute() proxies to record', function (assert) {
