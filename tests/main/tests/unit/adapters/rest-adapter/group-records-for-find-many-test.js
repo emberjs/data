@@ -1,7 +1,6 @@
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { Promise as EmberPromise } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -49,7 +48,7 @@ module(
           lengths.push(fullUrl.length);
 
           const testRecords = options.data.ids.map((id) => ({ id }));
-          return EmberPromise.resolve({ testRecords: testRecords });
+          return Promise.resolve({ testRecords: testRecords });
         }
       }
 
@@ -63,7 +62,7 @@ module(
     test('groupRecordsForFindMany - findMany', async function (assert) {
       const wait = [];
       for (let i = 1; i <= 1024; i++) {
-        wait.push(store.findRecord('testRecord', i));
+        wait.push(store.findRecord('test-record', String(i)));
       }
 
       assert.ok(
@@ -75,8 +74,8 @@ module(
 
     test('groupRecordsForFindMany works for encodeURIComponent-ified ids', async function (assert) {
       const wait = [];
-      wait.push(store.findRecord('testRecord', 'my-id:1'));
-      wait.push(store.findRecord('testRecord', 'my-id:2'));
+      wait.push(store.findRecord('test-record', 'my-id:1'));
+      wait.push(store.findRecord('test-record', 'my-id:2'));
 
       await settled();
 
@@ -84,13 +83,13 @@ module(
       assert.strictEqual(requests[0].url, '/testRecords');
       assert.deepEqual(requests[0].ids, ['my-id:1', 'my-id:2']);
 
-      await EmberPromise.all(wait);
+      await Promise.all(wait);
     });
 
     test('_stripIDFromURL works with id being encoded - #4190', function (assert) {
       store._fetchManager = new FetchManager(store);
-      const record = store.createRecord('testRecord', { id: 'id:123' });
-      const adapter = store.adapterFor('testRecord');
+      const record = store.createRecord('test-record', { id: 'id:123' });
+      const adapter = store.adapterFor('test-record');
       const snapshot = store._fetchManager.createSnapshot(recordIdentifierFor(record));
       const strippedUrl = adapter._stripIDFromURL(store, snapshot);
 

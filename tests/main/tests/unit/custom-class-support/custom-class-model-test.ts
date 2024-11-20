@@ -1,5 +1,3 @@
-import type { TestContext } from '@ember/test-helpers';
-
 import { module, test } from 'qunit';
 
 import Store from 'ember-data/store';
