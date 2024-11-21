@@ -185,6 +185,7 @@ import Transform, {
   NumberTransform,
   StringTransform,
 } from '@ember-data/serializer/transform';
+import { DISABLE_6X_DEPRECATIONS } from '@warp-drive/build-config/deprecations';
 
 import {
   DS,
@@ -201,14 +202,14 @@ import setupContainer from './setup-container';
 
 deprecate(
   'Importing from `ember-data` is deprecated. Please import from the appropriate `@ember-data/*` instead.',
-  false,
+  DISABLE_6X_DEPRECATIONS,
   {
     id: 'ember-data:deprecate-legacy-imports',
     for: 'ember-data',
     until: '6.0',
     since: {
       enabled: '5.2',
-      available: '5.2',
+      available: '4.13',
     },
   }
 );

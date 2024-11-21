@@ -3,7 +3,11 @@ import { deprecate } from '@ember/debug';
 
 import type Store from '@ember-data/store';
 import type { SchemaService } from '@ember-data/store/types';
-import { DEPRECATE_STRING_ARG_SCHEMAS, ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/build-config/deprecations';
+import {
+  DEPRECATE_STRING_ARG_SCHEMAS,
+  DISABLE_6X_DEPRECATIONS,
+  ENABLE_LEGACY_SCHEMA_SERVICE,
+} from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
 import type { RecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { ObjectValue } from '@warp-drive/core-types/json/raw';
@@ -164,15 +168,19 @@ export class ModelSchemaProvider implements SchemaService {
 
 if (ENABLE_LEGACY_SCHEMA_SERVICE) {
   ModelSchemaProvider.prototype.doesTypeExist = function (type: string): boolean {
-    deprecate(`Use \`schema.hasResource({ type })\` instead of \`schema.doesTypeExist(type)\``, false, {
-      id: 'ember-data:schema-service-updates',
-      until: '6.0',
-      for: 'ember-data',
-      since: {
-        available: '5.4',
-        enabled: '5.4',
-      },
-    });
+    deprecate(
+      `Use \`schema.hasResource({ type })\` instead of \`schema.doesTypeExist(type)\``,
+      DISABLE_6X_DEPRECATIONS,
+      {
+        id: 'ember-data:schema-service-updates',
+        until: '6.0',
+        for: 'ember-data',
+        since: {
+          available: '4.13',
+          enabled: '5.4',
+        },
+      }
+    );
     return this.hasResource({ type });
   };
 
@@ -200,15 +208,19 @@ if (ENABLE_LEGACY_SCHEMA_SERVICE) {
       rawType = resource.type;
     }
 
-    deprecate(`Use \`schema.fields({ type })\` instead of \`schema.attributesDefinitionFor({ type })\``, false, {
-      id: 'ember-data:schema-service-updates',
-      until: '6.0',
-      for: 'ember-data',
-      since: {
-        available: '5.4',
-        enabled: '5.4',
-      },
-    });
+    deprecate(
+      `Use \`schema.fields({ type })\` instead of \`schema.attributesDefinitionFor({ type })\``,
+      DISABLE_6X_DEPRECATIONS,
+      {
+        id: 'ember-data:schema-service-updates',
+        until: '6.0',
+        for: 'ember-data',
+        since: {
+          available: '4.13',
+          enabled: '5.4',
+        },
+      }
+    );
     const type = normalizeModelName(rawType);
 
     if (!this._schemas.has(type)) {
@@ -242,15 +254,19 @@ if (ENABLE_LEGACY_SCHEMA_SERVICE) {
       rawType = resource.type;
     }
 
-    deprecate(`Use \`schema.fields({ type })\` instead of \`schema.relationshipsDefinitionFor({ type })\``, false, {
-      id: 'ember-data:schema-service-updates',
-      until: '6.0',
-      for: 'ember-data',
-      since: {
-        available: '5.4',
-        enabled: '5.4',
-      },
-    });
+    deprecate(
+      `Use \`schema.fields({ type })\` instead of \`schema.relationshipsDefinitionFor({ type })\``,
+      DISABLE_6X_DEPRECATIONS,
+      {
+        id: 'ember-data:schema-service-updates',
+        until: '6.0',
+        for: 'ember-data',
+        since: {
+          available: '4.13',
+          enabled: '5.4',
+        },
+      }
+    );
     const type = normalizeModelName(rawType);
 
     if (!this._schemas.has(type)) {

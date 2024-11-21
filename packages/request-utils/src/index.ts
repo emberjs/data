@@ -1,5 +1,6 @@
 import { deprecate } from '@ember/debug';
 
+import { DISABLE_6X_DEPRECATIONS } from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
@@ -753,12 +754,12 @@ export class CachePolicy {
     const _config = arguments.length === 1 ? config : (arguments[1] as unknown as PolicyConfig);
     deprecate(
       `Passing a Store to the CachePolicy is deprecated, please pass only a config instead.`,
-      arguments.length === 1,
+      DISABLE_6X_DEPRECATIONS ? true : arguments.length === 1,
       {
         id: 'ember-data:request-utils:lifetimes-service-store-arg',
         since: {
           enabled: '5.4',
-          available: '5.4',
+          available: '4.13',
         },
         for: '@ember-data/request-utils',
         until: '6.0',
@@ -934,7 +935,7 @@ export class LifetimesService extends CachePolicy {
   constructor(config: PolicyConfig) {
     deprecate(
       `\`import { LifetimesService } from '@ember-data/request-utils';\` is deprecated, please use \`import { CachePolicy } from '@ember-data/request-utils';\` instead.`,
-      false,
+      DISABLE_6X_DEPRECATIONS,
       {
         id: 'ember-data:deprecate-lifetimes-service-import',
         since: {

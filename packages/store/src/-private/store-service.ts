@@ -14,6 +14,7 @@ import {
   DEPRECATE_PROMISE_PROXIES,
   DEPRECATE_STORE_EXTENDS_EMBER_OBJECT,
   DEPRECATE_STORE_FIND,
+  DISABLE_6X_DEPRECATIONS,
   ENABLE_LEGACY_SCHEMA_SERVICE,
 } from '@warp-drive/build-config/deprecations';
 import { DEBUG, TESTING } from '@warp-drive/build-config/env';
@@ -219,13 +220,13 @@ const app = new EmberApp(defaults, {
 });
 \`\`\`
 `,
-    false,
+    DISABLE_6X_DEPRECATIONS,
     {
       id: 'ember-data:deprecate-store-extends-ember-object',
       until: '6.0',
       for: 'ember-data',
       since: {
-        available: '5.4',
+        available: '4.13',
         enabled: '5.4',
       },
     }
@@ -2517,36 +2518,40 @@ export class Store extends BaseClass {
 if (ENABLE_LEGACY_SCHEMA_SERVICE) {
   Store.prototype.getSchemaDefinitionService = function (): SchemaService {
     assert(`You must registerSchemaDefinitionService with the store to use custom model classes`, this._schema);
-    deprecate(`Use \`store.schema\` instead of \`store.getSchemaDefinitionService()\``, false, {
+    deprecate(`Use \`store.schema\` instead of \`store.getSchemaDefinitionService()\``, DISABLE_6X_DEPRECATIONS, {
       id: 'ember-data:schema-service-updates',
       until: '6.0',
       for: 'ember-data',
       since: {
-        available: '5.4',
+        available: '4.13',
         enabled: '5.4',
       },
     });
     return this._schema;
   };
   Store.prototype.registerSchemaDefinitionService = function (schema: SchemaService) {
-    deprecate(`Use \`store.createSchemaService\` instead of \`store.registerSchemaDefinitionService()\``, false, {
-      id: 'ember-data:schema-service-updates',
-      until: '6.0',
-      for: 'ember-data',
-      since: {
-        available: '5.4',
-        enabled: '5.4',
-      },
-    });
+    deprecate(
+      `Use \`store.createSchemaService\` instead of \`store.registerSchemaDefinitionService()\``,
+      DISABLE_6X_DEPRECATIONS,
+      {
+        id: 'ember-data:schema-service-updates',
+        until: '6.0',
+        for: 'ember-data',
+        since: {
+          available: '4.13',
+          enabled: '5.4',
+        },
+      }
+    );
     this._schema = schema;
   };
   Store.prototype.registerSchema = function (schema: SchemaService) {
-    deprecate(`Use \`store.createSchemaService\` instead of \`store.registerSchema()\``, false, {
+    deprecate(`Use \`store.createSchemaService\` instead of \`store.registerSchema()\``, DISABLE_6X_DEPRECATIONS, {
       id: 'ember-data:schema-service-updates',
       until: '6.0',
       for: 'ember-data',
       since: {
-        available: '5.4',
+        available: '4.13',
         enabled: '5.4',
       },
     });
