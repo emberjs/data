@@ -7,6 +7,7 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+import { DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE } from '@warp-drive/build-config/deprecations';
 
 function test(label, callback) {
   deprecatedTest(label, { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 'ALL' }, callback);
@@ -454,10 +455,15 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
 
     store.createRecord('comment');
 
-    assert.expectAssertion(function () {
-      post = store.createRecord('post');
-      post.comments;
-    }, /We found no field named 'testPost' on the schema for 'comment' to be the inverse of the 'comments' relationship on 'post'. This is most likely due to a missing field on your model definition./);
+    assert.expectAssertion(
+      function () {
+        post = store.createRecord('post');
+        post.comments;
+      },
+      DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE
+        ? /We found no field named 'testPost' on the schema for 'comment' to be the inverse of the 'comments' relationship on 'post'. This is most likely due to a missing field on your model definition./
+        : /Expected a relationship schema for 'comment.testPost' to match the inverse of 'post.comments', but no relationship schema was found./
+    );
   });
 
   testInDebug("Inverse relationships that don't exist throw a nice error for a belongsTo", async function (assert) {
@@ -477,10 +483,15 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     let post;
     store.createRecord('user');
 
-    assert.expectAssertion(function () {
-      post = store.createRecord('post');
-      post.user;
-    }, /We found no field named 'testPost' on the schema for 'user' to be the inverse of the 'user' relationship on 'post'. This is most likely due to a missing field on your model definition./);
+    assert.expectAssertion(
+      function () {
+        post = store.createRecord('post');
+        post.user;
+      },
+      DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE
+        ? /We found no field named 'testPost' on the schema for 'user' to be the inverse of the 'user' relationship on 'post'. This is most likely due to a missing field on your model definition./
+        : /Expected a relationship schema for 'user.testPost' to match the inverse of 'post.user', but no relationship schema was found./
+    );
   });
 
   test('inverseFor is only called when inverse is not null', async function (assert) {
@@ -634,9 +645,14 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
       }
 
       register('model:user', User);
-      assert.expectAssertion(() => {
-        store.createRecord('user', { post: null });
-      }, /No model was found for 'post' and no schema handles the type/);
+      assert.expectAssertion(
+        () => {
+          store.createRecord('user', { post: null });
+        },
+        DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE
+          ? /No model was found for 'post' and no schema handles the type/
+          : /Missing Schema: Encountered a relationship identifier { type: 'post', id: '1' } for the 'user.post' belongsTo relationship on <user:1>, but no schema exists for that type./
+      );
 
       // but don't error if the relationship is not used
       store.createRecord('user', {});
