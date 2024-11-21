@@ -1,1 +1,1 @@
-export { BooleanTransform as default } from '@ember-data/serializer/-private';
+export { BooleanTransform as default } from '@ember-data/serializer/transform';
