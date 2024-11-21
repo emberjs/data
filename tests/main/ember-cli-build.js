@@ -57,6 +57,9 @@ module.exports = async function (defaults) {
 
   setConfig(app, __dirname, {
     compatWith: process.env.EMBER_DATA_FULL_COMPAT ? '99.0' : null,
+    deprecations: {
+      DISABLE_6X_DEPRECATIONS: false,
+    },
   });
 
   return app.toTree();
