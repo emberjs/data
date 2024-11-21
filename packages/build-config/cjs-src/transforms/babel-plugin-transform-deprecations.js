@@ -34,8 +34,8 @@ export default function (babel) {
               }
 
               let shouldInlineConfigValue = false;
-              if (node.leadingComments?.length) {
-                const lastComment = node.leadingComments.at(-1);
+              if (node.node.leadingComments?.length) {
+                const lastComment = node.node.leadingComments.at(-1);
                 if (lastComment.value.trim() === 'inline-macro-config') {
                   shouldInlineConfigValue = true;
                 }
