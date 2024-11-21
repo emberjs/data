@@ -1,8 +1,8 @@
 import { render, settled } from '@ember/test-helpers';
 
-import { hbs } from 'ember-cli-htmlbars';
 import { module } from 'qunit';
 
+import { hbs } from 'ember-cli-htmlbars';
 import { setupRenderingTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';

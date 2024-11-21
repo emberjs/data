@@ -4,7 +4,7 @@ function isResource(resource: unknown): resource is Record<string, unknown> {
 
 function hasProp<T extends string, K extends { [J in T]: string }>(resource: unknown, prop: T): resource is K {
   return Boolean(
-    isResource(resource) && prop in resource && typeof resource[prop] === 'string' && (resource[prop] as string).length
+    isResource(resource) && prop in resource && typeof resource[prop] === 'string' && resource[prop].length
   );
 }
 

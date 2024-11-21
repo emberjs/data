@@ -1,9 +1,12 @@
+import { deprecate } from '@ember/debug';
+
 import type { CollectionEdge, Graph } from '@ember-data/graph/-private';
 import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store';
 import type { BaseFinderOptions } from '@ember-data/store/types';
 import { cached, compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';
+import { DEPRECATE_PROMISE_PROXIES } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -24,8 +27,6 @@ import type { LegacySupport } from '../legacy-relationships-support';
 import { areAllInverseRecordsLoaded, LEGACY_SUPPORT } from '../legacy-relationships-support';
 import type { RelatedCollection as ManyArray } from '../many-array';
 import type { MaybeHasManyFields } from '../type-utils';
-import { DEPRECATE_PROMISE_PROXIES } from '@warp-drive/build-config/deprecations';
-import { deprecate } from '@ember/debug';
 
 /**
   @module @ember-data/model

@@ -220,7 +220,7 @@ export class RelatedCollection<T = unknown> extends LiveArray<T> {
           const seen = new Set(target);
           const unique = new Set<OpaqueRecordInstance>();
 
-          (args as OpaqueRecordInstance[]).forEach((item) => {
+          args.forEach((item) => {
             const identifier = recordIdentifierFor(item);
             if (!seen.has(identifier)) {
               seen.add(identifier);
@@ -238,7 +238,7 @@ export class RelatedCollection<T = unknown> extends LiveArray<T> {
         }
 
         // else, no dedupe, error on duplicates
-        const newValues = extractIdentifiersFromRecords(args as OpaqueRecordInstance[]);
+        const newValues = extractIdentifiersFromRecords(args);
 
         assertNoDuplicates(
           this,
@@ -268,7 +268,7 @@ export class RelatedCollection<T = unknown> extends LiveArray<T> {
           const seen = new Set(target);
           const unique = new Set<OpaqueRecordInstance>();
 
-          (args as OpaqueRecordInstance[]).forEach((item) => {
+          args.forEach((item) => {
             const identifier = recordIdentifierFor(item);
             if (!seen.has(identifier)) {
               seen.add(identifier);
@@ -286,7 +286,7 @@ export class RelatedCollection<T = unknown> extends LiveArray<T> {
         }
 
         // else, no dedupe, error on duplicates
-        const newValues = extractIdentifiersFromRecords(args as OpaqueRecordInstance[]);
+        const newValues = extractIdentifiersFromRecords(args);
 
         assertNoDuplicates(
           this,

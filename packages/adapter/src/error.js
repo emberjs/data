@@ -2,6 +2,7 @@
   @module @ember-data/adapter/error
  */
 import { deprecate } from '@ember/debug';
+
 import { DEPRECATE_HELPERS } from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';

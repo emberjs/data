@@ -1,3 +1,5 @@
+import EmberObject from '@ember/object';
+import { alias } from '@ember/object/computed';
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
@@ -78,46 +80,41 @@ module('integration/records/relationship-changes - Relationship changes', functi
 
       const obj = Obj.create();
 
-      run(() => {
-        store.push({
-          data: {
-            type: 'person',
-            id: 'wat',
-            attributes: {
-              firstName: 'Yehuda',
-              lastName: 'Katz',
-            },
-            relationships: {
-              siblings: {
-                data: [],
-              },
+      store.push({
+        data: {
+          type: 'person',
+          id: 'wat',
+          attributes: {
+            firstName: 'Yehuda',
+            lastName: 'Katz',
+          },
+          relationships: {
+            siblings: {
+              data: [],
             },
           },
-        });
-        set(obj, 'person', store.peekRecord('person', 'wat'));
+        },
       });
+      obj.person = store.peekRecord('person', 'wat');
+      assert.arrayStrictEquals(obj.siblings.slice(), [], 'siblings cp should have calculated empty initially');
 
-      run(() => {
-        store.push({
-          data: {
-            type: 'person',
-            id: 'wat',
-            attributes: {},
-            relationships: {
-              siblings: {
-                data: [sibling1Ref],
-              },
+      store.push({
+        data: {
+          type: 'person',
+          id: 'wat',
+          attributes: {},
+          relationships: {
+            siblings: {
+              data: [sibling1Ref],
             },
           },
-          included: [sibling1],
-        });
+        },
+        included: [sibling1],
       });
 
-      run(() => {
-        const cpResult = get(obj, 'siblings').slice();
-        assert.strictEqual(cpResult.length, 1, 'siblings cp should have recalculated');
-        obj.destroy();
-      });
+      const cpResult = obj.siblings.slice();
+      assert.strictEqual(cpResult.length, 1, 'siblings cp should have recalculated');
+      obj.destroy();
     }
   );
 
@@ -136,46 +133,42 @@ module('integration/records/relationship-changes - Relationship changes', functi
 
       const obj = Obj.create();
 
-      run(() => {
-        store.push({
-          data: {
-            type: 'person',
-            id: 'wat',
-            attributes: {
-              firstName: 'Yehuda',
-              lastName: 'Katz',
-            },
-            relationships: {
-              siblings: {
-                data: [],
-              },
+      store.push({
+        data: {
+          type: 'person',
+          id: 'wat',
+          attributes: {
+            firstName: 'Yehuda',
+            lastName: 'Katz',
+          },
+          relationships: {
+            siblings: {
+              data: [],
             },
           },
-        });
-        set(obj, 'person', store.peekRecord('person', 'wat'));
+        },
       });
+      obj.person = store.peekRecord('person', 'wat');
+      assert.strictEqual(obj.sibling, undefined, 'We have no first sibling initially');
 
-      run(() => {
-        store.push({
-          data: {
-            type: 'person',
-            id: 'wat',
-            attributes: {},
-            relationships: {
-              siblings: {
-                data: [sibling1Ref],
-              },
+      store.push({
+        data: {
+          type: 'person',
+          id: 'wat',
+          attributes: {},
+          relationships: {
+            siblings: {
+              data: [sibling1Ref],
             },
           },
-          included: [sibling1],
-        });
+        },
+        included: [sibling1],
       });
 
-      run(() => {
-        const cpResult = get(obj, 'firstSibling');
-        assert.strictEqual(get(cpResult, 'id'), '1', 'siblings cp should have recalculated');
-        obj.destroy();
-      });
+      const cpResult = obj.firstSibling;
+      assert.strictEqual(cpResult?.id, '1', 'siblings cp should have recalculated');
+      obj.destroy();
+
       assert.expectDeprecation({ id: 'ember-data:deprecate-array-like' });
     }
   );

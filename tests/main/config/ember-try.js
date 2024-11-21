@@ -1,4 +1,3 @@
-/* eslint-disable node/no-unpublished-require */
 'use strict';
 
 const getChannelURL = require('ember-source-channel-url');

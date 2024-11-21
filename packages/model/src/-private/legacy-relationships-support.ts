@@ -1,3 +1,5 @@
+import { deprecate } from '@ember/debug';
+
 import { dependencySatisfies, importSync, macroCondition } from '@embroider/macros';
 
 import type { CollectionEdge, Graph, GraphEdge, ResourceEdge, UpgradedMeta } from '@ember-data/graph/-private';
@@ -13,6 +15,7 @@ import {
   storeFor,
 } from '@ember-data/store/-private';
 import type { BaseFinderOptions } from '@ember-data/store/types';
+import { DEPRECATE_PROMISE_PROXIES } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -35,8 +38,6 @@ import type { HasManyProxyCreateArgs } from './promise-many-array';
 import { PromiseManyArray } from './promise-many-array';
 import BelongsToReference from './references/belongs-to';
 import HasManyReference from './references/has-many';
-import { DEPRECATE_PROMISE_PROXIES } from '@warp-drive/build-config/deprecations';
-import { deprecate } from '@ember/debug';
 
 type PromiseBelongsToFactory<T = unknown> = { create(args: BelongsToProxyCreateArgs<T>): PromiseBelongsTo<T> };
 
@@ -525,7 +526,7 @@ export class LegacySupport {
     // in order to prevent infinite re-render if the request
     // fails.
     if (this._pending[key]) {
-      return this._pending[key]!;
+      return this._pending[key];
     }
 
     const identifier = resource.data ? resource.data : null;
@@ -565,7 +566,7 @@ export class LegacySupport {
         .finally(() => {
           this._pending[key] = undefined;
         });
-      return this._pending[key]!;
+      return this._pending[key];
     }
 
     const preferLocalCache = hasReceivedData && allInverseRecordsAreLoaded && !isEmpty;
@@ -601,7 +602,7 @@ export class LegacySupport {
         .finally(() => {
           this._pending[key] = undefined;
         });
-      return this._pending[key]!;
+      return this._pending[key];
     }
 
     // we were explicitly told we have no data and no links.

@@ -4,9 +4,9 @@ import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import Model from '@ember-data/model';
+import { createDeferred } from '@ember-data/request';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
-import { createDeferred } from '@ember-data/request';
 
 module('integration/store/query', function (hooks) {
   setupTest(hooks);

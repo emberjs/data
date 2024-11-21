@@ -3,8 +3,8 @@ import { get } from '@ember/object';
 
 import { DEBUG } from '@warp-drive/build-config/env';
 
+import type IdentifierArray from '../record-arrays/identifier-array';
 import { PromiseArrayProxy, PromiseObjectProxy } from './promise-proxy-base';
-import IdentifierArray from '../record-arrays/identifier-array';
 
 /**
   @module @ember-data/store
@@ -161,7 +161,7 @@ export function promiseArray<T>(promise: Promise<IdentifierArray<T>>): Promise<I
     },
   };
 
-  return new Proxy(promiseObjectProxy, handler) as Promise<IdentifierArray<T>>;
+  return new Proxy(promiseObjectProxy, handler);
 }
 
 const ProxySymbolString = String(Symbol.for('PROXY_CONTENT'));
@@ -221,5 +221,5 @@ export function promiseObject<T>(promise: Promise<T>): Promise<T> {
     },
   };
 
-  return new Proxy(promiseObjectProxy, handler) as Promise<T>;
+  return new Proxy(promiseObjectProxy, handler);
 }

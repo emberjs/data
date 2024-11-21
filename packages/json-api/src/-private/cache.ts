@@ -1271,16 +1271,19 @@ export default class JSONAPICache implements Cache {
    */
   changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash {
     const cached = this.__peek(identifier, false);
-    assert(`Cannot retrieve changed attributes for identifier ${identifier} as it is not present in the cache`, cached);
+    assert(
+      `Cannot retrieve changed attributes for identifier ${String(identifier)} as it is not present in the cache`,
+      cached
+    );
 
     // in Prod we try to recover when accessing something that
     // doesn't exist
     if (!cached) {
-      return Object.create(null);
+      return Object.create(null) as ChangedAttributesHash;
     }
 
     // TODO freeze in dev
-    return cached.changes || Object.create(null);
+    return cached.changes || (Object.create(null) as ChangedAttributesHash);
   }
 
   /**
@@ -1293,7 +1296,10 @@ export default class JSONAPICache implements Cache {
    */
   hasChangedAttrs(identifier: StableRecordIdentifier): boolean {
     const cached = this.__peek(identifier, true);
-    assert(`Cannot retrieve changed attributes for identifier ${identifier} as it is not present in the cache`, cached);
+    assert(
+      `Cannot retrieve changed attributes for identifier ${String(identifier)} as it is not present in the cache`,
+      cached
+    );
 
     // in Prod we try to recover when accessing something that
     // doesn't exist

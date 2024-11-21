@@ -5,6 +5,11 @@ import { deprecate, inspect } from '@ember/debug';
 import { computed } from '@ember/object';
 
 import { dasherize, singularize } from '@ember-data/request-utils/string';
+import {
+  DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC,
+  DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE,
+  DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE,
+} from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { TypeFromInstance } from '@warp-drive/core-types/record';
@@ -14,11 +19,6 @@ import type { NoNull, RelationshipDecorator, RelationshipOptions } from './belon
 import { lookupLegacySupport } from './legacy-relationships-support';
 import type { MinimalLegacyRecord } from './model-methods';
 import { isElementDescriptor } from './util';
-import {
-  DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC,
-  DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE,
-  DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE,
-} from '@warp-drive/build-config/deprecations';
 
 function normalizeType(type: string) {
   if (DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE) {

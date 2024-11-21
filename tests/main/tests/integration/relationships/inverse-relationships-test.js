@@ -158,10 +158,8 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     register('model:Post', Post);
     register('model:Comment', Comment);
 
-    let comment, post;
-
-    comment = store.createRecord('comment');
-    post = store.createRecord('post');
+    const comment = store.createRecord('comment');
+    const post = store.createRecord('post');
 
     assert.strictEqual(post.meComments.length, 0, 'meComments has no posts');
     assert.strictEqual(post.youComments.length, 0, 'youComments has no posts');

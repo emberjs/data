@@ -1,20 +1,20 @@
+import { deprecate } from '@ember/debug';
+
 import type Store from '@ember-data/store';
-import type { BaseFinderOptions } from '@ember-data/store/types';
+import type { BaseFinderOptions, ModelSchema } from '@ember-data/store/types';
+import { DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE, DEPRECATE_RSVP_PROMISE } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { FieldSchema, LegacyRelationshipSchema as RelationshipSchema } from '@warp-drive/core-types/schema/fields';
+import type { StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { LegacyRelationshipSchema as RelationshipSchema } from '@warp-drive/core-types/schema/fields';
 import type { ExistingResourceObject, JsonApiDocument } from '@warp-drive/core-types/spec/json-api-raw';
 
 import { upgradeStore } from '../-private';
 import { iterateData, payloadIsNotBlank } from './legacy-data-utils';
 import type { MinimumAdapterInterface } from './minimum-adapter-interface';
 import { normalizeResponseHelper } from './serializer-response';
-import { DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE, DEPRECATE_RSVP_PROMISE } from '@warp-drive/build-config/deprecations';
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './utils';
-import { deprecate } from '@ember/debug';
-import { ModelSchema } from '@ember-data/store/types';
-import { StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
 
 export function _findHasMany(
   adapter: MinimumAdapterInterface,

@@ -1,8 +1,8 @@
 import type Store from '@ember-data/store';
+import { DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
-
 import type {
   CollectionField,
   FieldSchema,
@@ -14,7 +14,6 @@ import type {
 import { expandingGet, expandingSet, getStore } from './-utils';
 import { assertInheritedSchema } from './debug/assert-polymorphic-type';
 import type { Graph } from './graph';
-import { DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE } from '@warp-drive/build-config/deprecations';
 
 export type EdgeCache = Record<string, Record<string, EdgeDefinition | null>>;
 

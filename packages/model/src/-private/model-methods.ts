@@ -5,18 +5,18 @@ import { upgradeStore } from '@ember-data/legacy-compat/-private';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import { peekCache } from '@ember-data/store/-private';
+import { DEPRECATE_SAVE_PROMISE_ACCESS } from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
 import type { ChangedAttributesHash } from '@warp-drive/core-types/cache';
 import { RecordStore } from '@warp-drive/core-types/symbols';
 
+import { deprecatedPromiseObject } from './deprecated-promise-proxy';
 import type { Errors } from './errors';
 import { lookupLegacySupport } from './legacy-relationships-support';
 import type RecordState from './record-state';
 import type BelongsToReference from './references/belongs-to';
 import type HasManyReference from './references/has-many';
 import type { MaybeBelongsToFields, MaybeHasManyFields } from './type-utils';
-import { DEPRECATE_SAVE_PROMISE_ACCESS } from '@warp-drive/build-config/deprecations';
-import { deprecatedPromiseObject } from './deprecated-promise-proxy';
 
 export interface MinimalLegacyRecord {
   errors: Errors;

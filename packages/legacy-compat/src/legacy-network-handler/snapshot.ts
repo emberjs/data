@@ -1,11 +1,14 @@
 /**
   @module @ember-data/store
 */
+import { deprecate } from '@ember/debug';
+
 import { dependencySatisfies, importSync } from '@embroider/macros';
 
 import type { CollectionEdge, ResourceEdge } from '@ember-data/graph/-private';
 import type Store from '@ember-data/store';
-import type { FindRecordOptions } from '@ember-data/store/types';
+import type { FindRecordOptions, ModelSchema } from '@ember-data/store/types';
+import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -17,9 +20,6 @@ import type { LegacyAttributeField, LegacyRelationshipSchema } from '@warp-drive
 
 import { upgradeStore } from '../-private';
 import type { SerializerOptions } from './minimum-serializer-interface';
-import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@warp-drive/build-config/deprecations';
-import { deprecate } from '@ember/debug';
-import { ModelSchema } from '@ember-data/store/types';
 
 type RecordId = string | null;
 
@@ -588,7 +588,7 @@ if (DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS) {
           since: { available: '4.5.0', enabled: '4.5.0' },
         }
       );
-      return this._store.modelFor(this.identifier.type) as ModelSchema;
+      return this._store.modelFor(this.identifier.type);
     },
   });
 }

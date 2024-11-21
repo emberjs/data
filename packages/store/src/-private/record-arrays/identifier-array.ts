@@ -1,6 +1,11 @@
 /**
   @module @ember-data/store
 */
+import { deprecate } from '@ember/debug';
+import { get, set } from '@ember/object';
+import { compare } from '@ember/utils';
+import Ember from 'ember';
+
 import { compat } from '@ember-data/tracking';
 import type { Signal } from '@ember-data/tracking/-private';
 import {
@@ -10,6 +15,14 @@ import {
   defineSignal,
   subscribe,
 } from '@ember-data/tracking/-private';
+import {
+  DEPRECATE_A_USAGE,
+  DEPRECATE_ARRAY_LIKE,
+  DEPRECATE_COMPUTED_CHAINS,
+  DEPRECATE_PROMISE_PROXIES,
+  DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS,
+} from '@warp-drive/build-config/deprecations';
+import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
@@ -21,24 +34,9 @@ import type { OpaqueRecordInstance } from '../../-types/q/record-instance';
 import { isStableIdentifier } from '../caches/identifier-cache';
 import { recordIdentifierFor } from '../caches/instance-cache';
 import type { RecordArrayManager } from '../managers/record-array-manager';
+import { promiseArray } from '../proxies/promise-proxies';
 import type { Store } from '../store-service';
 import { NativeProxy } from './native-proxy-type-fix';
-
-import { deprecate } from '@ember/debug';
-import { get, set } from '@ember/object';
-// eslint-disable-next-line no-restricted-imports
-import { compare } from '@ember/utils';
-import Ember from 'ember';
-import {
-  DEPRECATE_A_USAGE,
-  DEPRECATE_ARRAY_LIKE,
-  DEPRECATE_COMPUTED_CHAINS,
-  DEPRECATE_PROMISE_PROXIES,
-  DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS,
-} from '@warp-drive/build-config/deprecations';
-import { DEBUG } from '@warp-drive/build-config/env';
-
-import { promiseArray } from '../proxies/promise-proxies';
 
 type KeyType = string | symbol | number;
 const ARRAY_GETTER_METHODS = new Set<KeyType>([
@@ -429,7 +427,7 @@ export class IdentifierArray<T = unknown> {
         // a transaction.
         if (index === null || index > target.length) {
           if (index !== null && transaction) {
-            const identifier = recordIdentifierFor(value as OpaqueRecordInstance);
+            const identifier = recordIdentifierFor(value);
             assert(`Cannot set index ${index} past the end of the array.`, isStableIdentifier(identifier));
             target[index] = identifier;
             return true;
@@ -546,7 +544,7 @@ export class IdentifierArray<T = unknown> {
     this.isUpdating = true;
 
     const updatingPromise = this._update();
-    updatingPromise.finally(() => {
+    void updatingPromise.finally(() => {
       this._updatingPromise = null;
       if (this.isDestroying || this.isDestroyed) {
         return;
@@ -595,7 +593,7 @@ export class IdentifierArray<T = unknown> {
 
     if (DEPRECATE_PROMISE_PROXIES) {
       // @ts-expect-error IdentifierArray is not a MutableArray
-      return promiseArray<T, IdentifierArray<T>>(promise) as Promise<IdentifierArray<T>>;
+      return promiseArray<T, IdentifierArray<T>>(promise);
     }
 
     return promise;
@@ -680,7 +678,7 @@ export class Collection<T = unknown> extends IdentifierArray<T> {
       return promiseArray(promise);
     }
 
-    return promise as Promise<Collection<T>>;
+    return promise;
   }
 
   destroy(clear: boolean) {
@@ -774,6 +772,7 @@ if (DEPRECATE_ARRAY_LIKE) {
   // @ts-expect-error adding MutableArray method
   IdentifierArray.prototype.shiftObject = function () {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'shiftObject', 'shift');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this.shift()!;
   };
 
@@ -796,6 +795,7 @@ if (DEPRECATE_ARRAY_LIKE) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'objectAt', 'at');
     //For negative index values go back from the end of the array
     const arrIndex = Math.sign(index) === -1 ? this.length + index : index;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this[arrIndex];
   };
 
@@ -803,6 +803,7 @@ if (DEPRECATE_ARRAY_LIKE) {
   IdentifierArray.prototype.objectsAt = function (indices: number[]) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'objectsAt', 'at');
     // @ts-expect-error adding MutableArray method
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
     return indices.map((index) => this.objectAt(index)!);
   };
 
@@ -845,6 +846,7 @@ if (DEPRECATE_ARRAY_LIKE) {
   // @ts-expect-error adding MutableArray method
   IdentifierArray.prototype.toArray = function () {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'toArray', 'slice');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this.slice();
   };
 
@@ -887,12 +889,14 @@ if (DEPRECATE_ARRAY_LIKE) {
   // @ts-expect-error adding MutableArray method
   IdentifierArray.prototype.compact = function () {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'compact', 'filter');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this.filter((v) => v !== null && v !== undefined);
   };
 
   // @ts-expect-error adding MutableArray method
   IdentifierArray.prototype.any = function (callback, target) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'any', 'some');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     return this.some(callback, target);
   };
 
@@ -900,6 +904,7 @@ if (DEPRECATE_ARRAY_LIKE) {
   IdentifierArray.prototype.isAny = function (prop, value) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'isAny', 'some');
     const hasValue = arguments.length === 2;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return this.some((v) => (hasValue ? v[prop] === value : v[prop] === true));
   };
 
@@ -907,18 +912,21 @@ if (DEPRECATE_ARRAY_LIKE) {
   IdentifierArray.prototype.isEvery = function (prop, value) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'isEvery', 'every');
     const hasValue = arguments.length === 2;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return this.every((v) => (hasValue ? v[prop] === value : v[prop] === true));
   };
 
   // @ts-expect-error adding MutableArray method
   IdentifierArray.prototype.getEach = function (key: string) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'getEach', 'map');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this.map((value) => get(value, key));
   };
 
   // @ts-expect-error adding MutableArray method
   IdentifierArray.prototype.mapBy = function (key: string) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'mapBy', 'map');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this.map((value) => get(value, key));
   };
 
@@ -926,10 +934,12 @@ if (DEPRECATE_ARRAY_LIKE) {
   IdentifierArray.prototype.findBy = function (key: string, value?: unknown) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'findBy', 'find');
     if (arguments.length === 2) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return this.find((val) => {
         return get(val, key) === value;
       });
     } else {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return this.find((val) => Boolean(get(val, key)));
     }
   };
@@ -938,10 +948,12 @@ if (DEPRECATE_ARRAY_LIKE) {
   IdentifierArray.prototype.filterBy = function (key: string, value?: unknown) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'filterBy', 'filter');
     if (arguments.length === 2) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return this.filter((record) => {
         return get(record, key) === value;
       });
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this.filter((record) => {
       return Boolean(get(record, key));
     });
@@ -950,10 +962,13 @@ if (DEPRECATE_ARRAY_LIKE) {
   // @ts-expect-error adding MutableArray method
   IdentifierArray.prototype.sortBy = function (...sortKeys: string[]) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'sortBy', '.slice().sort');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this.slice().sort((a, b) => {
       for (let i = 0; i < sortKeys.length; i++) {
         const key = sortKeys[i];
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const propA = get(a, key);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const propB = get(b, key);
         // return 1 or -1 else continue to the next sortKey
         const compareValue = compare(propA, propB);
@@ -969,6 +984,7 @@ if (DEPRECATE_ARRAY_LIKE) {
   // @ts-expect-error
   IdentifierArray.prototype.invoke = function (key: string, ...args: unknown[]) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'invoke', 'forEach');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return this.map((value) => (value[key] as (...args: unknown[]) => unknown)(...args));
   };
 
@@ -1012,7 +1028,9 @@ if (DEPRECATE_ARRAY_LIKE) {
   IdentifierArray.prototype.reject = function (callback, target?: unknown) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'reject', 'filter');
     assert('`reject` expects a function as first argument.', typeof callback === 'function');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this.filter((...args) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       return !callback.apply(target, args);
     });
   };
@@ -1021,10 +1039,12 @@ if (DEPRECATE_ARRAY_LIKE) {
   IdentifierArray.prototype.rejectBy = function (key: string, value?: unknown) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'rejectBy', 'filter');
     if (arguments.length === 2) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return this.filter((record) => {
         return get(record, key) !== value;
       });
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this.filter((record) => {
       return !get(record, key);
     });
@@ -1033,6 +1053,7 @@ if (DEPRECATE_ARRAY_LIKE) {
   // @ts-expect-error adding MutableArray method
   IdentifierArray.prototype.setEach = function (key: string, value: unknown) {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'setEach', 'forEach');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     this.forEach((item) => set(item, key, value));
   };
 
@@ -1040,6 +1061,7 @@ if (DEPRECATE_ARRAY_LIKE) {
   IdentifierArray.prototype.uniq = function () {
     deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'uniq', 'filter');
     // all current managed arrays are already enforced as unique
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this.slice();
   };
 
@@ -1050,6 +1072,7 @@ if (DEPRECATE_ARRAY_LIKE) {
     const seen = new Set();
     const result: OpaqueRecordInstance[] = [];
     this.forEach((item) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const value = get(item, key);
       if (seen.has(value)) {
         return;
@@ -1068,6 +1091,7 @@ if (DEPRECATE_ARRAY_LIKE) {
     if (index !== -1) {
       newArr.splice(index, 1);
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return newArr;
   };
 

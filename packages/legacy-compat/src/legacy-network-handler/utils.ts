@@ -1,5 +1,6 @@
-import Store from '@ember-data/store';
 import { deprecate } from '@ember/debug';
+
+import type Store from '@ember-data/store';
 import { DEPRECATE_RSVP_PROMISE } from '@warp-drive/build-config/deprecations';
 
 function isObject<T>(value: unknown): value is T {
@@ -38,14 +39,16 @@ export function guardDestroyedStore<T>(promise: Promise<T>, store: Store): Promi
 
 export function _bind<T extends (...args: unknown[]) => boolean>(fn: T, ...args: unknown[]) {
   return function () {
+    // eslint-disable-next-line prefer-spread
     return fn.apply(undefined, args);
   };
 }
 
 export function _guard<T>(promise: Promise<T>, test: () => boolean): Promise<T> {
-  let guarded = promise.finally(() => {
+  const guarded = promise.finally(() => {
     if (!test()) {
       // @ts-expect-error this is a private RSVPPromise API that won't always be there
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions, @typescript-eslint/no-unsafe-member-access
       guarded._subscribers ? (guarded._subscribers.length = 0) : null;
     }
   });

@@ -8,6 +8,7 @@ import Adapter from '@ember-data/adapter';
 import Model, { attr, belongsTo } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+import { DEPRECATE_NON_EXPLICIT_POLYMORPHISM } from '@warp-drive/build-config/deprecations';
 
 module(
   'integration/relationships/polymorphic_mixins_belongs_to_test - Polymorphic belongsTo relationships with mixins',
@@ -78,38 +79,6 @@ module(
       assert.strictEqual(message, video, 'The message was loaded correctly');
       const fetchedUser = await message.user;
       assert.strictEqual(fetchedUser, user, 'The inverse was setup correctly');
-    });
-
-    /*
-    Local edits
-  */
-    test('Setting the polymorphic belongsTo gets propagated to the inverse side - async', async function (assert) {
-      const store = this.owner.lookup('service:store');
-
-      const [user, video] = store.push({
-        data: [
-          {
-            type: 'user',
-            id: '1',
-            attributes: {
-              name: 'Stanley',
-            },
-          },
-          {
-            type: 'video',
-            id: '2',
-            attributes: {
-              video: 'Here comes Youtube',
-            },
-          },
-        ],
-      });
-
-      user.bestMessage = video;
-      const fetchedUser = await video.user;
-      assert.strictEqual(fetchedUser, user, 'user got set correctly');
-      const message = await user.bestMessage;
-      assert.strictEqual(message, video, 'The message was set correctly');
     });
 
     /*

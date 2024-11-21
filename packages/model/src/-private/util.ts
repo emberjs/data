@@ -1,8 +1,8 @@
 import { dasherize } from '@ember-data/request-utils/string';
 
-export type DecoratorPropertyDescriptor = (PropertyDescriptor & { initializer?: any }) | undefined;
+export type DecoratorPropertyDescriptor = (PropertyDescriptor & { initializer?: () => unknown }) | undefined;
 
-export function isElementDescriptor(args: any[]): args is [object, string, DecoratorPropertyDescriptor] {
+export function isElementDescriptor(args: unknown[]): args is [object, string, DecoratorPropertyDescriptor] {
   const [maybeTarget, maybeKey, maybeDesc] = args;
 
   return (
@@ -20,10 +20,6 @@ export function isElementDescriptor(args: any[]): args is [object, string, Decor
       // TS compatibility
       maybeDesc === undefined)
   );
-}
-
-export function computedMacroWithOptionalParams(fn) {
-  return (...maybeDesc: any[]) => (isElementDescriptor(maybeDesc) ? fn()(...maybeDesc) : fn(...maybeDesc));
 }
 
 export function normalizeModelName(type: string): string {

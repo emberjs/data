@@ -2,6 +2,7 @@
   @module @ember-data/model
  */
 
+import { deprecate, warn } from '@ember/debug';
 import EmberObject from '@ember/object';
 
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
@@ -11,6 +12,12 @@ import { recordIdentifierFor, storeFor } from '@ember-data/store';
 import { coerceId } from '@ember-data/store/-private';
 import { compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';
+import {
+  DEPRECATE_EARLY_STATIC,
+  DEPRECATE_MODEL_REOPEN,
+  DEPRECATE_NON_EXPLICIT_POLYMORPHISM,
+  DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE,
+} from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -38,6 +45,7 @@ import notifyChanges from './notify-changes';
 import RecordState, { notifySignal, tagged } from './record-state';
 import type BelongsToReference from './references/belongs-to';
 import type HasManyReference from './references/has-many';
+import { relationshipFromMeta } from './relationship-meta';
 import type {
   _MaybeBelongsToFields,
   isSubClass,
@@ -45,14 +53,6 @@ import type {
   MaybeHasManyFields,
   MaybeRelationshipFields,
 } from './type-utils';
-import {
-  DEPRECATE_EARLY_STATIC,
-  DEPRECATE_MODEL_REOPEN,
-  DEPRECATE_NON_EXPLICIT_POLYMORPHISM,
-  DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE,
-} from '@warp-drive/build-config/deprecations';
-import { deprecate, warn } from '@ember/debug';
-import { relationshipFromMeta } from './relationship-meta';
 
 export type ModelCreateArgs = {
   _createProps: Record<string, unknown>;
@@ -1176,7 +1176,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    @param {store} store an instance of Store
    @return {Model} the type of the relationship, or undefined
    */
-  static typeForRelationship(name: string, store: Store) {
+  static typeForRelationship(name: string, store: Store): typeof Model | undefined {
     if (DEPRECATE_EARLY_STATIC) {
       deprecate(
         `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
@@ -1196,6 +1196,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     }
 
     const relationship = this.relationshipsByName.get(name);
+    // @ts-expect-error
     return relationship && store.modelFor(relationship.type);
   }
 
@@ -2266,6 +2267,7 @@ if (DEBUG) {
   };
 
   if (DEPRECATE_MODEL_REOPEN) {
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     const originalReopen = Model.reopen;
     const originalReopenClass = Model.reopenClass;
 
@@ -2311,18 +2313,23 @@ function isAttributeSchema(meta: unknown): meta is LegacyAttributeField {
   return typeof meta === 'object' && meta !== null && 'kind' in meta && meta.kind === 'attribute';
 }
 
-function findPossibleInverses(Klass: typeof Model, inverseType, name, relationshipsSoFar?: LegacyRelationshipSchema[]) {
-  let possibleRelationships = relationshipsSoFar || [];
+function findPossibleInverses(
+  Klass: typeof Model,
+  inverseType: typeof Model,
+  name: string,
+  relationshipsSoFar?: LegacyRelationshipSchema[]
+) {
+  const possibleRelationships = relationshipsSoFar || [];
 
-  let relationshipMap = inverseType.relationships;
+  const relationshipMap = inverseType.relationships;
   if (!relationshipMap) {
     return possibleRelationships;
   }
 
-  let relationshipsForType = relationshipMap.get(Klass.modelName);
-  let relationships = Array.isArray(relationshipsForType)
+  const relationshipsForType = relationshipMap.get(Klass.modelName);
+  const relationships = Array.isArray(relationshipsForType)
     ? relationshipsForType.filter((relationship) => {
-        let optionsForRelationship = relationship.options;
+        const optionsForRelationship = relationship.options;
 
         if (!optionsForRelationship.inverse && optionsForRelationship.inverse !== null) {
           return true;
@@ -2333,11 +2340,13 @@ function findPossibleInverses(Klass: typeof Model, inverseType, name, relationsh
     : null;
 
   if (relationships) {
+    // eslint-disable-next-line prefer-spread
     possibleRelationships.push.apply(possibleRelationships, relationships);
   }
 
   //Recurse to support polymorphism
   if (Klass.superclass) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     findPossibleInverses(Klass.superclass, inverseType, name, possibleRelationships);
   }
 
@@ -2363,15 +2372,18 @@ function legacyFindInverseFor(Klass: typeof Model, name: string, store: Store) {
     return null;
   }
 
-  let fieldOnInverse, inverseKind, inverseRelationship, inverseOptions;
-  let inverseSchema = Klass.typeForRelationship(name, store);
+  let fieldOnInverse: string | null | undefined;
+  let inverseKind: 'belongsTo' | 'hasMany';
+  let inverseRelationship: LegacyRelationshipSchema | undefined;
+  let inverseOptions: LegacyRelationshipSchema['options'] | undefined;
+  const inverseSchema = Klass.typeForRelationship(name, store);
   assert(`No model was found for '${relationship.type}'`, inverseSchema);
 
   // if the type does not exist and we are not polymorphic
   //If inverse is specified manually, return the inverse
   if (options.inverse !== undefined) {
-    fieldOnInverse = options.inverse;
-    inverseRelationship = inverseSchema && inverseSchema.relationshipsByName.get(fieldOnInverse);
+    fieldOnInverse = options.inverse!;
+    inverseRelationship = inverseSchema?.relationshipsByName.get(fieldOnInverse);
 
     assert(
       `We found no field named '${fieldOnInverse}' on the schema for '${inverseSchema.modelName}' to be the inverse of the '${name}' relationship on '${Klass.modelName}'. This is most likely due to a missing field on your model definition.`,
@@ -2379,7 +2391,9 @@ function legacyFindInverseFor(Klass: typeof Model, name: string, store: Store) {
     );
 
     // TODO probably just return the whole inverse here
+
     inverseKind = inverseRelationship.kind;
+
     inverseOptions = inverseRelationship.options;
   } else {
     //No inverse was specified manually, we need to use a heuristic to guess one
@@ -2401,8 +2415,8 @@ function legacyFindInverseFor(Klass: typeof Model, name: string, store: Store) {
     }
 
     if (DEBUG) {
-      let filteredRelationships = possibleRelationships.filter((possibleRelationship) => {
-        let optionsForRelationship = possibleRelationship.options;
+      const filteredRelationships = possibleRelationships.filter((possibleRelationship) => {
+        const optionsForRelationship = possibleRelationship.options;
         return name === optionsForRelationship.inverse;
       });
 
@@ -2410,7 +2424,7 @@ function legacyFindInverseFor(Klass: typeof Model, name: string, store: Store) {
         "You defined the '" +
           name +
           "' relationship on " +
-          Klass +
+          String(Klass) +
           ', but you defined the inverse relationships of type ' +
           inverseSchema.toString() +
           ' multiple times. Look at https://guides.emberjs.com/current/models/relationships/#toc_explicit-inverses for how to explicitly specify inverses',
@@ -2418,7 +2432,7 @@ function legacyFindInverseFor(Klass: typeof Model, name: string, store: Store) {
       );
     }
 
-    let explicitRelationship = possibleRelationships.find((relationship) => relationship.options.inverse === name);
+    const explicitRelationship = possibleRelationships.find((rel) => rel.options?.inverse === name);
     if (explicitRelationship) {
       possibleRelationships = [explicitRelationship];
     }
@@ -2427,11 +2441,11 @@ function legacyFindInverseFor(Klass: typeof Model, name: string, store: Store) {
       "You defined the '" +
         name +
         "' relationship on " +
-        Klass +
+        String(Klass) +
         ', but multiple possible inverse relationships of type ' +
-        Klass +
+        String(Klass) +
         ' were found on ' +
-        inverseSchema +
+        String(inverseSchema) +
         '. Look at https://guides.emberjs.com/current/models/relationships/#toc_explicit-inverses for how to explicitly specify inverses',
       possibleRelationships.length === 1
     );
@@ -2440,6 +2454,8 @@ function legacyFindInverseFor(Klass: typeof Model, name: string, store: Store) {
     inverseKind = possibleRelationships[0].kind;
     inverseOptions = possibleRelationships[0].options;
   }
+
+  assert(`inverseOptions should be set by now`, inverseOptions);
 
   // ensure inverse is properly configured
   if (DEBUG) {
@@ -2492,8 +2508,8 @@ function legacyFindInverseFor(Klass: typeof Model, name: string, store: Store) {
           options.as
         );
         assert(
-          `options.as should match the expected type of the polymorphic relationship. Expected field '${name}' on type '${Klass.modelName}' to specify '${inverseRelationship.type}' but found '${options.as}'`,
-          !!options.as && inverseRelationship.type === options.as
+          `options.as should match the expected type of the polymorphic relationship. Expected field '${name}' on type '${Klass.modelName}' to specify '${inverseRelationship!.type}' but found '${options.as}'`,
+          !!options.as && inverseRelationship!.type === options.as
         );
       }
     }

@@ -1,22 +1,22 @@
+import ArrayMixin, { NativeArray } from '@ember/array';
+import type ArrayProxy from '@ember/array/proxy';
+import { deprecate } from '@ember/debug';
+import Ember from 'ember';
+
+import type { CreateRecordProperties } from '@ember-data/store/-private';
 import type { BaseFinderOptions } from '@ember-data/store/types';
 import { compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';
-import { assert } from '@warp-drive/build-config/macros';
-
-import type { RelatedCollection as ManyArray } from './many-array';
-import { LegacyPromiseProxy } from './promise-belongs-to';
-
 import {
   DEPRECATE_A_USAGE,
   DEPRECATE_COMPUTED_CHAINS,
   DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS,
 } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
-import Ember from 'ember';
-import { deprecate } from '@ember/debug';
-import type ArrayProxy from '@ember/array/proxy';
-import ArrayMixin, { NativeArray } from '@ember/array';
-import { CreateRecordProperties } from '@ember-data/store/-private';
+import { assert } from '@warp-drive/build-config/macros';
+
+import type { RelatedCollection as ManyArray } from './many-array';
+import { LegacyPromiseProxy } from './promise-belongs-to';
 
 export interface HasManyProxyCreateArgs<T = unknown> {
   promise: Promise<ManyArray<T>>;
@@ -300,6 +300,8 @@ if (DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS) {
           for: 'ember-data',
         }
       );
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
       return this.content ? this.content.firstObject : undefined;
     },
   });
@@ -316,6 +318,8 @@ if (DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS) {
           for: 'ember-data',
         }
       );
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
       return this.content ? this.content.lastObject : undefined;
     },
   });
@@ -370,6 +374,8 @@ if (DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS) {
           for: 'ember-data',
         }
       );
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
       return Ember[method](this, ...args);
     };
   });
@@ -438,6 +444,7 @@ if (DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS) {
         }
       );
       assert(`Cannot call ${method} before content is assigned.`, this.content);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
       return this.content[method](...args);
     };
   });

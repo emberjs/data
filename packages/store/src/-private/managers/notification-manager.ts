@@ -1,7 +1,7 @@
 /**
  * @module @ember-data/store
  */
-// eslint-disable-next-line no-restricted-imports
+
 import { _backburner } from '@ember/runloop';
 
 import { LOG_NOTIFICATIONS } from '@warp-drive/build-config/debugging';

@@ -4,6 +4,7 @@ import { setupRenderingTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { createDeferred } from '@ember-data/request';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
@@ -387,7 +388,7 @@ module('integration/references/has-many', function (hooks) {
     { id: 'ember-data:deprecate-promise-proxies', until: '5.0', count: 1 },
     async function (assert) {
       const store = this.owner.lookup('service:store');
-      const deferred = defer();
+      const deferred = createDeferred();
 
       const family = store.push({
         data: {
@@ -418,7 +419,7 @@ module('integration/references/has-many', function (hooks) {
       deferred.resolve(payload);
 
       const records = await pushResult;
-      assert.strictEqual(get(records, 'length'), 2);
+      assert.strictEqual(records.length, 2);
       assert.strictEqual(records.at(0).name, 'Vito');
       assert.strictEqual(records.at(1).name, 'Michael');
     }

@@ -1,13 +1,14 @@
 import { module, test } from 'qunit';
 
+import Store from 'ember-data/store';
+import { setupTest } from 'ember-qunit';
+
+import Model, { attr } from '@ember-data/model';
 import type { Handler, RequestContext } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
-import Store from 'ember-data/store';
+import { CacheHandler } from '@ember-data/store';
 import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
 import type { Type } from '@warp-drive/core-types/symbols';
-import { CacheHandler } from '@ember-data/store';
-import Model, { attr } from '@ember-data/model';
-import { setupTest } from 'ember-qunit';
 
 class User extends Model {
   @attr declare name: string;

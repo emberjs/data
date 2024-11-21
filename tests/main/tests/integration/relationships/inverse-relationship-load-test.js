@@ -33,9 +33,9 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findHasMany: () => {
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   id: '1',
@@ -123,9 +123,9 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findHasMany: () => {
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   id: '1',
@@ -210,9 +210,9 @@ module('inverse relationship load test', function (hooks) {
     owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
-        deleteRecord: () => Promise.resolve({ data: null }),
+        deleteRecord: () => Promise.Promise.resolve({ data: null }),
         findHasMany: () => {
-          return Promise.resolve({
+          return Promise.Promise.resolve({
             data: [
               {
                 id: '1',
@@ -298,9 +298,9 @@ module('inverse relationship load test', function (hooks) {
     owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
-        deleteRecord: () => Promise.resolve({ data: null }),
+        deleteRecord: () => Promise.Promise.resolve({ data: null }),
         findHasMany: () => {
-          return Promise.resolve({
+          return Promise.Promise.resolve({
             data: [
               {
                 id: '1',
@@ -387,12 +387,12 @@ module('inverse relationship load test', function (hooks) {
       'adapter:application',
       JSONAPIAdapter.extend({
         deleteRecord() {
-          return Promise.resolve({
+          return Promise.Promise.resolve({
             data: null,
           });
         },
         findHasMany: () => {
-          return Promise.resolve({
+          return Promise.Promise.resolve({
             data: [
               {
                 id: '1',
@@ -473,12 +473,12 @@ module('inverse relationship load test', function (hooks) {
         'adapter:application',
         JSONAPIAdapter.extend({
           deleteRecord() {
-            return resolve({
+            return Promise.resolve({
               data: null,
             });
           },
           findBelongsTo() {
-            return resolve({
+            return Promise.resolve({
               data: {
                 id: '1',
                 type: 'dog',
@@ -549,12 +549,12 @@ module('inverse relationship load test', function (hooks) {
         'adapter:application',
         JSONAPIAdapter.extend({
           deleteRecord() {
-            return resolve({
+            return Promise.resolve({
               data: null,
             });
           },
           findBelongsTo() {
-            return resolve({
+            return Promise.resolve({
               data: {
                 id: '1',
                 type: 'dog',
@@ -622,12 +622,12 @@ module('inverse relationship load test', function (hooks) {
       'adapter:application',
       JSONAPIAdapter.extend({
         deleteRecord() {
-          return Promise.resolve({
+          return Promise.Promise.resolve({
             data: null,
           });
         },
         findBelongsTo() {
-          return Promise.resolve({
+          return Promise.Promise.resolve({
             data: {
               id: '1',
               type: 'dog',
@@ -694,12 +694,12 @@ module('inverse relationship load test', function (hooks) {
       'adapter:application',
       JSONAPIAdapter.extend({
         deleteRecord() {
-          return Promise.resolve({
+          return Promise.Promise.resolve({
             data: null,
           });
         },
         findBelongsTo() {
-          return Promise.resolve({
+          return Promise.Promise.resolve({
             data: {
               id: '1',
               type: 'dog',
@@ -766,12 +766,12 @@ module('inverse relationship load test', function (hooks) {
       'adapter:application',
       JSONAPIAdapter.extend({
         deleteRecord() {
-          return Promise.resolve({
+          return Promise.Promise.resolve({
             data: null,
           });
         },
         findBelongsTo() {
-          return Promise.resolve({
+          return Promise.Promise.resolve({
             data: {
               id: '1',
               type: 'dog',
@@ -832,9 +832,9 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findHasMany: () => {
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   id: '1',
@@ -917,9 +917,9 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findHasMany: () => {
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   id: '1',
@@ -999,9 +999,9 @@ module('inverse relationship load test', function (hooks) {
     owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
-        deleteRecord: () => Promise.resolve({ data: null }),
+        deleteRecord: () => Promise.Promise.resolve({ data: null }),
         findHasMany: () => {
-          return Promise.resolve({
+          return Promise.Promise.resolve({
             data: [
               {
                 id: '1',
@@ -1082,9 +1082,9 @@ module('inverse relationship load test', function (hooks) {
     owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
-        deleteRecord: () => Promise.resolve({ data: null }),
+        deleteRecord: () => Promise.Promise.resolve({ data: null }),
         findHasMany: () => {
-          return Promise.resolve({
+          return Promise.Promise.resolve({
             data: [
               {
                 id: '1',
@@ -1168,9 +1168,9 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findBelongsTo: () => {
-            return resolve({
+            return Promise.resolve({
               data: {
                 type: 'person',
                 id: '1',
@@ -1244,9 +1244,9 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findBelongsTo: () => {
-            return resolve({
+            return Promise.resolve({
               data: {
                 type: 'person',
                 id: '1',
@@ -1317,9 +1317,9 @@ module('inverse relationship load test', function (hooks) {
     owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
-        deleteRecord: () => Promise.resolve({ data: null }),
+        deleteRecord: () => Promise.Promise.resolve({ data: null }),
         findBelongsTo: () => {
-          return Promise.resolve({
+          return Promise.Promise.resolve({
             data: {
               type: 'person',
               id: '1',
@@ -1391,9 +1391,9 @@ module('inverse relationship load test', function (hooks) {
     owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
-        deleteRecord: () => Promise.resolve({ data: null }),
+        deleteRecord: () => Promise.Promise.resolve({ data: null }),
         findBelongsTo: () => {
-          return Promise.resolve({
+          return Promise.Promise.resolve({
             data: {
               type: 'person',
               id: '1',
@@ -1468,9 +1468,9 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findHasMany: () => {
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   id: '1',
@@ -1556,9 +1556,9 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findHasMany: () => {
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   id: '1',
@@ -1644,9 +1644,9 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findHasMany: () => {
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   id: '1',
@@ -1726,9 +1726,9 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findHasMany: () => {
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   id: '1',
@@ -1808,9 +1808,9 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findBelongsTo: () => {
-            return resolve({
+            return Promise.resolve({
               data: {
                 id: '1',
                 type: 'dog',
@@ -1879,9 +1879,9 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findBelongsTo: () => {
-            return resolve({
+            return Promise.resolve({
               data: {
                 id: '1',
                 type: 'dog',
@@ -1950,9 +1950,9 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findBelongsTo: () => {
-            return resolve({
+            return Promise.resolve({
               data: {
                 id: '1',
                 type: 'dog',
@@ -2018,9 +2018,9 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findBelongsTo: () => {
-            return resolve({
+            return Promise.resolve({
               data: {
                 id: '1',
                 type: 'dog',
@@ -2086,9 +2086,9 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findBelongsTo: () => {
-            return resolve({
+            return Promise.resolve({
               data: {
                 type: 'person',
                 id: '1',
@@ -2159,9 +2159,9 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findBelongsTo: () => {
-            return resolve({
+            return Promise.resolve({
               data: {
                 type: 'person',
                 id: '1',
@@ -2232,9 +2232,9 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findBelongsTo: () => {
-            return resolve({
+            return Promise.resolve({
               data: {
                 type: 'person',
                 id: '1',
@@ -2300,9 +2300,9 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findBelongsTo: () => {
-            return resolve({
+            return Promise.resolve({
               data: {
                 type: 'person',
                 id: '1',
@@ -2368,9 +2368,9 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findHasMany: () => {
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   id: '1',
@@ -2460,9 +2460,9 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findHasMany: () => {
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   id: '1',
@@ -2552,9 +2552,9 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findHasMany: () => {
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   id: '1',
@@ -2634,9 +2634,9 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findHasMany: () => {
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   id: '1',
@@ -2716,9 +2716,9 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findHasMany: () => {
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   id: '1',
@@ -2798,9 +2798,9 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findHasMany: () => {
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   id: '1',
@@ -2896,10 +2896,10 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findRecord: (_store, _type, id) => {
             const dog = id === '1' ? scooby : scrappy;
-            return resolve({
+            return Promise.resolve({
               data: dog,
             });
           },
@@ -2995,10 +2995,10 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findRecord: (_store, _type, id) => {
             const dog = id === '1' ? scooby : scrappy;
-            return resolve({
+            return Promise.resolve({
               data: dog,
             });
           },
@@ -3091,10 +3091,10 @@ module('inverse relationship load test', function (hooks) {
     owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
-        deleteRecord: () => Promise.resolve({ data: null }),
+        deleteRecord: () => Promise.Promise.resolve({ data: null }),
         findRecord: (_store, _type, id) => {
           const dog = id === '1' ? scooby : scrappy;
-          return Promise.resolve({
+          return Promise.Promise.resolve({
             data: dog,
           });
         },
@@ -3188,10 +3188,10 @@ module('inverse relationship load test', function (hooks) {
     owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
-        deleteRecord: () => Promise.resolve({ data: null }),
+        deleteRecord: () => Promise.Promise.resolve({ data: null }),
         findRecord: (_store, _type, id) => {
           const dog = id === '1' ? scooby : scrappy;
-          return Promise.resolve({
+          return Promise.Promise.resolve({
             data: dog,
           });
         },
@@ -3285,10 +3285,10 @@ module('inverse relationship load test', function (hooks) {
     owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
-        deleteRecord: () => Promise.resolve({ data: null }),
+        deleteRecord: () => Promise.Promise.resolve({ data: null }),
         findRecord: (_store, _type, id) => {
           const dog = id === '1' ? scooby : scrappy;
-          return Promise.resolve({
+          return Promise.Promise.resolve({
             data: dog,
           });
         },
@@ -3383,10 +3383,10 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findRecord: (_store, _type, id) => {
             const dog = id === '1' ? scooby : scrappy;
-            return resolve({
+            return Promise.resolve({
               data: dog,
             });
           },
@@ -3510,10 +3510,10 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findRecord: (_store, _type, id) => {
             const dog = id === '1' ? scooby : scrappy;
-            return resolve({
+            return Promise.resolve({
               data: dog,
             });
           },
@@ -3631,10 +3631,10 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findRecord: (_store, _type, id) => {
             const dog = id === '1' ? scooby : scrappy;
-            return resolve({
+            return Promise.resolve({
               data: dog,
             });
           },
@@ -3735,10 +3735,10 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findRecord: (_store, _type, id) => {
             const dog = id === '1' ? scooby : scrappy;
-            return resolve({
+            return Promise.resolve({
               data: dog,
             });
           },
@@ -3842,10 +3842,10 @@ module('inverse relationship load test', function (hooks) {
     owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
-        deleteRecord: () => Promise.resolve({ data: null }),
+        deleteRecord: () => Promise.Promise.resolve({ data: null }),
         findRecord: (_store, _type, id) => {
           const dog = id === '1' ? scooby : scrappy;
-          return Promise.resolve({
+          return Promise.Promise.resolve({
             data: dog,
           });
         },
@@ -3967,10 +3967,10 @@ module('inverse relationship load test', function (hooks) {
     owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
-        deleteRecord: () => Promise.resolve({ data: null }),
+        deleteRecord: () => Promise.Promise.resolve({ data: null }),
         findRecord: (_store, _type, id) => {
           const dog = id === '1' ? scooby : scrappy;
-          return Promise.resolve({
+          return Promise.Promise.resolve({
             data: dog,
           });
         },
@@ -4086,9 +4086,9 @@ module('inverse relationship load test', function (hooks) {
     owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
-        deleteRecord: () => Promise.resolve({ data: null }),
+        deleteRecord: () => Promise.Promise.resolve({ data: null }),
         findBelongsTo: () => {
-          return Promise.resolve({
+          return Promise.Promise.resolve({
             data: {
               type: 'person',
               id: '1',
@@ -4107,7 +4107,7 @@ module('inverse relationship load test', function (hooks) {
         },
         findRecord: (_store, _type, id) => {
           const dog = id === '1' ? scooby : scrappy;
-          return Promise.resolve({
+          return Promise.Promise.resolve({
             data: dog,
           });
         },

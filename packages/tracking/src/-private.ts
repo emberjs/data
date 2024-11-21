@@ -426,7 +426,7 @@ export function createSignal<T extends object>(obj: T, key: string): Signal {
     }
     const modelName =
       tryGet('$type') ?? tryGet('modelName') ?? tryGet<{ modelName?: string }>('constructor')?.modelName ?? '';
-    // eslint-disable-next-line @typescript-eslint/no-base-to-string
+
     const className = obj.constructor?.name ?? obj.toString?.() ?? 'unknown';
     _signal._debug_base = `${className}${modelName && !className.startsWith('SchemaRecord') ? `:${modelName}` : ''}`;
   }

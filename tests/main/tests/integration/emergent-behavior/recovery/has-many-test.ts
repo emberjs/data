@@ -5,7 +5,7 @@ import { setupTest } from 'ember-qunit';
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import Model, { attr, type HasMany, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
-import { ModelSchema } from '@ember-data/store/types';
+import type { ModelSchema } from '@ember-data/store/types';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { Type } from '@warp-drive/core-types/symbols';
 
@@ -50,7 +50,7 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
 
   test('When a sync relationship is accessed before load', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const user = store.peekRecord('user', '1') as unknown as User;
+    const user = store.peekRecord('user', '1') as User;
 
     assert.strictEqual(user.name, 'Chris Wagenet', 'precond - user is loaded');
 
@@ -83,7 +83,7 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
 
   test('When a sync relationship is accessed before load and later updated remotely', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const user = store.peekRecord('user', '1') as unknown as User;
+    const user = store.peekRecord('user', '1') as User;
 
     assert.strictEqual(user.name, 'Chris Wagenet', 'precond - user is loaded');
 
@@ -153,7 +153,7 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
 
   test('When a sync relationship is accessed before load, records are later loaded, and then it is updated by related record deletion', async function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const user = store.peekRecord('user', '1') as unknown as User;
+    const user = store.peekRecord('user', '1') as User;
 
     assert.strictEqual(user.name, 'Chris Wagenet', 'precond - user is loaded');
 
@@ -230,7 +230,7 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
     this.owner.register(
       'adapter:application',
       class {
-        deleteRecord(store: Store, schema: ModelSchema, id: string, snapshot: Snapshot) {
+        deleteRecord(_store: Store, schema: ModelSchema, id: string, snapshot: Snapshot) {
           return Promise.resolve({
             data: null,
           });
@@ -305,8 +305,8 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
           },
         },
       ],
-    }) as unknown as LocalUser;
-    const user2 = store.peekRecord('local-user', '4') as unknown as LocalUser;
+    }) as LocalUser;
+    const user2 = store.peekRecord('local-user', '4') as LocalUser;
 
     assert.strictEqual(user1.name, 'Chris Wagenet', 'precond - user1 is loaded');
     assert.strictEqual(user2.name, 'Krystan', 'precond2 - user is loaded');
@@ -370,7 +370,7 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
 
   test('When a sync relationship is accessed before load and later mutated directly', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const user = store.peekRecord('user', '1') as unknown as User;
+    const user = store.peekRecord('user', '1') as User;
 
     assert.strictEqual(user.name, 'Chris Wagenet', 'precond - user is loaded');
 
@@ -397,7 +397,7 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
     }
 
     assert.strictEqual(store.peekAll('user').length, 1, 'the store has only one record');
-    const peter = store.createRecord('user', { name: 'Peter' }) as unknown as User;
+    const peter = store.createRecord<User>('user', { name: 'Peter' });
 
     try {
       user.friends.push(peter);
@@ -440,7 +440,7 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
     }
     this.owner.register('model:local-user', LocalUser);
     const store = this.owner.lookup('service:store') as Store;
-    const user1 = store.push({
+    const user1 = store.push<LocalUser>({
       data: {
         type: 'local-user',
         id: '1',
@@ -471,11 +471,11 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
           },
         },
       ],
-    }) as unknown as LocalUser;
-    const user2 = store.peekRecord('local-user', '5') as unknown as LocalUser;
+    });
+    const user2 = store.peekRecord<LocalUser>('local-user', '5');
 
     assert.strictEqual(user1.name, 'Chris Wagenet', 'precond - user1 is loaded');
-    assert.strictEqual(user2.name, 'Krystan', 'precond2 - user is loaded');
+    assert.strictEqual(user2!.name, 'Krystan', 'precond2 - user is loaded');
 
     // access the relationship before load
     try {
@@ -503,7 +503,7 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
 
     // add user2 to user1's friends via inverse
     try {
-      user2.friends.push(user1);
+      user2!.friends.push(user1);
       assert.ok(true, 'mutating the relationship should not throw');
     } catch (e) {
       assert.ok(false, `mutating the relationship should not throw, received ${(e as Error).message}`);
@@ -641,7 +641,7 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
 
   test('When a sync relationship is accessed before load and then later sideloaded', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const user = store.peekRecord('user', '1') as unknown as User;
+    const user = store.peekRecord('user', '1') as User;
 
     // access the relationship before load
     try {
@@ -756,11 +756,11 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
 
   test('When a sync relationship is accessed before load and then later one of the missing records is attempted to be found via findRecord (inverse: null)', async function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const user = store.peekRecord('user', '1') as unknown as User;
+    const user = store.peekRecord('user', '1') as User;
     this.owner.register(
       'adapter:application',
       class {
-        findRecord(store: Store, schema: ModelSchema, id: string, snapshot: Snapshot) {
+        findRecord(_store: Store, schema: ModelSchema, id: string, snapshot: Snapshot) {
           assert.step('findRecord');
           assert.deepEqual(snapshot._attributes, { name: undefined }, 'the snapshot has the correct attributes');
           return Promise.resolve({
@@ -926,7 +926,7 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
 
   test('When a sync relationship is accessed before load and then later one of the missing records is attempted to be found via findRecord (inverse: specified)', async function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const user = store.peekRecord('user', '1') as unknown as User;
+    const user = store.peekRecord('user', '1') as User;
     store.push({
       data: {
         type: 'user',
@@ -948,7 +948,7 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
     this.owner.register(
       'adapter:application',
       class {
-        findRecord(store: Store, schema: ModelSchema, id: string, snapshot: Snapshot) {
+        findRecord(_store: Store, schema: ModelSchema, id: string, snapshot: Snapshot) {
           assert.step('findRecord');
           if (snapshot.include === 'frenemies') {
             assert.deepEqual(snapshot._attributes, { name: 'Rey' }, 'the snapshot has the correct attributes');
@@ -1170,11 +1170,11 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
 
   test('When a sync relationship is accessed before load and then later when one of the missing records is later attempt to load via findRecord would error (inverse: null)', async function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const user = store.peekRecord('user', '1') as unknown as User;
+    const user = store.peekRecord('user', '1') as User;
     this.owner.register(
       'adapter:application',
       class {
-        findRecord(store: Store, schema: ModelSchema, id: string, snapshot: Snapshot) {
+        findRecord(_store: Store, schema: ModelSchema, id: string, snapshot: Snapshot) {
           assert.step('findRecord');
           assert.deepEqual(snapshot._attributes, { name: undefined }, 'the snapshot has the correct attributes');
 

@@ -141,8 +141,10 @@ module('integration/snapshot - Snapshot', function (hooks) {
       const snapshot = await store._fetchManager.createSnapshot(identifier);
 
       assert.false(postClassLoaded, 'model class is not eagerly loaded');
-      assert.strictEqual(snapshot.type, _Post, 'type is correct');
+      const type = snapshot.type;
       assert.true(postClassLoaded, 'model class is loaded');
+      const Post = store.modelFor('post');
+      assert.strictEqual(type, Post, 'type is correct');
     }
   );
 

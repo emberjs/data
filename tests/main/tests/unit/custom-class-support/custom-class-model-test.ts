@@ -1,13 +1,12 @@
 import { module, test } from 'qunit';
 
-import Store from '@ember-data/store';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import { adapterFor, cleanup, normalize, pushPayload, serializeRecord, serializerFor } from '@ember-data/legacy-compat';
-
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import Store from '@ember-data/store';
 import { DEBUG } from '@warp-drive/build-config/env';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';

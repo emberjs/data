@@ -17,7 +17,6 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { LEGACY_SUPPORT } from '@ember-data/model/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import { DEPRECATE_ARRAY_LIKE } from '@warp-drive/build-config/deprecations';
 

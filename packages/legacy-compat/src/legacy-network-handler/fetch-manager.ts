@@ -13,6 +13,7 @@ import type {
 } from '@ember-data/store/-private';
 import { coerceId } from '@ember-data/store/-private';
 import type { FindRecordOptions, ModelSchema } from '@ember-data/store/types';
+import { DEPRECATE_RSVP_PROMISE } from '@warp-drive/build-config/deprecations';
 import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
@@ -28,7 +29,6 @@ import type { AdapterPayload, MinimumAdapterInterface } from './minimum-adapter-
 import type { MinimumSerializerInterface } from './minimum-serializer-interface';
 import { normalizeResponseHelper } from './serializer-response';
 import { Snapshot } from './snapshot';
-import { DEPRECATE_RSVP_PROMISE } from '@warp-drive/build-config/deprecations';
 import { _objectIsAlive } from './utils';
 
 type Deferred<T> = ReturnType<typeof createDeferred<T>>;

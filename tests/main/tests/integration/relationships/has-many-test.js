@@ -1425,7 +1425,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       const adapter = store.adapterFor('application');
 
       adapter.findHasMany = function (store, snapshot, link, relationship) {
-        return resolve({
+        return Promise.resolve({
           data: [
             { id: '1', type: 'comment', attributes: { body: 'First' } },
             { id: '2', type: 'comment', attributes: { body: 'Second' } },
@@ -3915,7 +3915,7 @@ If using this relationship in a polymorphic manner is desired, the relationships
       const adapter = store.adapterFor('application');
 
       adapter.findHasMany = function (store, record, link, relationship) {
-        return resolve({
+        return Promise.resolve({
           data: [
             { id: '1', type: 'comment', attributes: { body: 'First' } },
             { id: '2', type: 'comment', attributes: { body: 'Second' } },

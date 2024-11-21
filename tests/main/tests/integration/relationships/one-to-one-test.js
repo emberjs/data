@@ -619,9 +619,9 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
 
       adapter.findRecord = function (store, type, id, snapshot) {
         if (id === '5') {
-          return resolve({ data: { id: '5', type: 'user', attributes: { name: "Igor's friend" } } });
+          return Promise.resolve({ data: { id: '5', type: 'user', attributes: { name: "Igor's friend" } } });
         } else if (id === '2') {
-          return resolve({ data: { id: '2', type: 'user', attributes: { name: "Stanley's friend" } } });
+          return Promise.resolve({ data: { id: '2', type: 'user', attributes: { name: "Stanley's friend" } } });
         }
       };
 

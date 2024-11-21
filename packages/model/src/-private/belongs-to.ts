@@ -1,15 +1,16 @@
 import { deprecate, warn } from '@ember/debug';
 import { computed } from '@ember/object';
 
-import { DEBUG } from '@warp-drive/build-config/env';
-import { assert } from '@warp-drive/build-config/macros';
-import type { TypeFromInstance } from '@warp-drive/core-types/record';
-import { RecordStore } from '@warp-drive/core-types/symbols';
 import {
   DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC,
   DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE,
   DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE,
 } from '@warp-drive/build-config/deprecations';
+import { DEBUG } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
+import type { TypeFromInstance } from '@warp-drive/core-types/record';
+import { RecordStore } from '@warp-drive/core-types/symbols';
+
 import { lookupLegacySupport } from './legacy-relationships-support';
 import type { MinimalLegacyRecord } from './model-methods';
 import { isElementDescriptor, normalizeModelName } from './util';

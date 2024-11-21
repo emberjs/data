@@ -60,11 +60,11 @@ import { CacheManager } from './managers/cache-manager';
 import NotificationManager from './managers/notification-manager';
 import { RecordArrayManager } from './managers/record-array-manager';
 import { RequestPromise, RequestStateService } from './network/request-cache';
+import { promiseArray, promiseObject } from './proxies/promise-proxies';
 import type { Collection, IdentifierArray } from './record-arrays/identifier-array';
 import { coerceId, ensureStringId } from './utils/coerce-id';
 import { constructResource } from './utils/construct-resource';
 import { normalizeModelName } from './utils/normalize-model-name';
-import { promiseArray, promiseObject } from './proxies/promise-proxies';
 
 export { storeFor };
 

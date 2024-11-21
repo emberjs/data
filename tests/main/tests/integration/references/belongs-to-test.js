@@ -6,6 +6,7 @@ import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { createDeferred } from '@ember-data/request';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
@@ -418,8 +419,7 @@ module('integration/references/belongs-to', function (hooks) {
       const store = this.owner.lookup('service:store');
       const Family = store.modelFor('family');
 
-      let push;
-      const deferred = defer();
+      const deferred = createDeferred();
 
       const person = store.push({
         data: {
@@ -433,7 +433,7 @@ module('integration/references/belongs-to', function (hooks) {
         },
       });
       const familyReference = person.belongsTo('family');
-      push = familyReference.push(deferred.promise);
+      const push = familyReference.push(deferred.promise);
 
       assert.ok(push.then, 'BelongsToReference.push returns a promise');
 

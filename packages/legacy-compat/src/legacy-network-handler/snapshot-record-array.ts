@@ -4,12 +4,11 @@
 
 import { deprecate } from '@ember/debug';
 
-import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@warp-drive/build-config/deprecations';
-
 import type Store from '@ember-data/store';
 import type { LiveArray } from '@ember-data/store/-private';
 import { SOURCE } from '@ember-data/store/-private';
 import type { FindAllOptions, ModelSchema } from '@ember-data/store/types';
+import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@warp-drive/build-config/deprecations';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
 import { upgradeStore } from '../-private';
@@ -208,8 +207,7 @@ if (DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS) {
           since: { available: '4.5.0', enabled: '4.5.0' },
         }
       );
-      // @ts-expect-error
-      return (this as SnapshotRecordArray)._recordArray.type as DSModelSchema;
+      return (this as SnapshotRecordArray)._recordArray.type as ModelSchema;
     },
   });
 }
