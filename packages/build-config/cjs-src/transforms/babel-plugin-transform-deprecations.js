@@ -32,6 +32,15 @@ export default function (babel) {
                 negateStatement = true;
                 node = p.parentPath;
               }
+
+              let shouldInlineConfigValue = false;
+              if (node.leadingComments?.length) {
+                const lastComment = node.leadingComments.at(-1);
+                if (lastComment.value.trim() === 'inline-macro-config') {
+                  shouldInlineConfigValue = true;
+                }
+              }
+
               let getConfig = t.memberExpression(
                 t.memberExpression(
                   t.memberExpression(
@@ -42,14 +51,18 @@ export default function (babel) {
                 ),
                 t.identifier(name)
               );
-              node.replaceWith(
-                // if (DEPRECATE_FOO)
-                // =>
-                // if (macroCondition(getGlobalConfig('WarpDrive').debug.LOG_FOO))
-                t.callExpression(state.importer.import(p, '@embroider/macros', 'macroCondition'), [
-                  negateStatement ? t.unaryExpression('!', getConfig) : getConfig,
-                ])
-              );
+
+              const configExp = negateStatement ? t.unaryExpression('!', getConfig) : getConfig;
+              const replaceExp = shouldInlineConfigValue
+                ? // if (DEPRECATE_FOO)
+                  // =>
+                  // if (getGlobalConfig('WarpDrive').deprecations.FOO)
+                  configExp
+                : // if (DEPRECATE_FOO)
+                  // =>
+                  // if (macroCondition(getGlobalConfig('WarpDrive').deprecations.FOO))
+                  t.callExpression(state.importer.import(p, '@embroider/macros', 'macroCondition'), [configExp]);
+              node.replaceWith(replaceExp);
             });
             specifier.scope.removeOwnBinding(localBindingName);
             specifier.remove();
