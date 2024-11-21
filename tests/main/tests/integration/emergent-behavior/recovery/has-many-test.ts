@@ -3,10 +3,11 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
-import Model, { attr, hasMany } from '@ember-data/model';
+import Model, { attr, type HasMany, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import { ModelSchema } from '@ember-data/store/types';
 import { DEBUG } from '@warp-drive/build-config/env';
+import { Type } from '@warp-drive/core-types/symbols';
 
 let IS_DEBUG = false;
 
@@ -14,9 +15,10 @@ if (DEBUG) {
   IS_DEBUG = true;
 }
 class User extends Model {
+  declare [Type]: 'user';
   @attr declare name: string;
-  @hasMany('user', { async: false, inverse: null }) declare friends: User[];
-  @hasMany('user', { async: false, inverse: 'frenemies' }) declare frenemies: User[];
+  @hasMany('user', { async: false, inverse: null }) declare friends: HasMany<User>;
+  @hasMany('user', { async: false, inverse: 'frenemies' }) declare frenemies: HasMany<User>;
 }
 
 module('Emergent Behavior > Recovery | hasMany', function (hooks) {
@@ -268,7 +270,7 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
   test('When a sync relationship is accessed before load and later updated by remote inverse removal', function (assert) {
     class LocalUser extends Model {
       @attr declare name: string;
-      @hasMany('local-user', { async: false, inverse: 'friends' }) declare friends: LocalUser[];
+      @hasMany('local-user', { async: false, inverse: 'friends' }) declare friends: HasMany<LocalUser>;
     }
     this.owner.register('model:local-user', LocalUser);
     const store = this.owner.lookup('service:store') as Store;
@@ -432,8 +434,9 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
 
   test('When a sync relationship is accessed before load and later mutated via add by inverse', function (assert) {
     class LocalUser extends Model {
+      declare [Type]: 'local-user';
       @attr declare name: string;
-      @hasMany('local-user', { async: false, inverse: 'friends' }) declare friends: LocalUser[];
+      @hasMany('local-user', { async: false, inverse: 'friends' }) declare friends: HasMany<LocalUser>;
     }
     this.owner.register('model:local-user', LocalUser);
     const store = this.owner.lookup('service:store') as Store;
@@ -534,12 +537,13 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
 
   test('When a sync relationship is accessed before load and later mutated via remove by inverse', function (assert) {
     class LocalUser extends Model {
+      declare [Type]: 'local-user';
       @attr declare name: string;
-      @hasMany('local-user', { async: false, inverse: 'friends' }) declare friends: LocalUser[];
+      @hasMany('local-user', { async: false, inverse: 'friends' }) declare friends: HasMany<LocalUser>;
     }
     this.owner.register('model:local-user', LocalUser);
     const store = this.owner.lookup('service:store') as Store;
-    const user1 = store.push({
+    const user1 = store.push<LocalUser>({
       data: {
         type: 'local-user',
         id: '1',
@@ -570,8 +574,8 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
           },
         },
       ],
-    }) as unknown as LocalUser;
-    const user2 = store.peekRecord('local-user', '4') as unknown as LocalUser;
+    });
+    const user2 = store.peekRecord<LocalUser>('local-user', '4')!;
 
     assert.strictEqual(user1.name, 'Chris Wagenet', 'precond - user1 is loaded');
     assert.strictEqual(user2.name, 'Krystan', 'precond2 - user is loaded');

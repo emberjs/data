@@ -1225,7 +1225,6 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     await settled();
     assert.strictEqual(store.peekRecord('person', 1).name, 'Tom', 'after background reload name is loaded');
   });
-});
 
   testInDebug('Calling adapterFor with a model class should assert', function (assert) {
     const Person = Model.extend();
