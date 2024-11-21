@@ -170,7 +170,7 @@ if (ENABLE_LEGACY_SCHEMA_SERVICE) {
   ModelSchemaProvider.prototype.doesTypeExist = function (type: string): boolean {
     deprecate(
       `Use \`schema.hasResource({ type })\` instead of \`schema.doesTypeExist(type)\``,
-      DISABLE_6X_DEPRECATIONS,
+      /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
       {
         id: 'ember-data:schema-service-updates',
         until: '6.0',
@@ -210,7 +210,7 @@ if (ENABLE_LEGACY_SCHEMA_SERVICE) {
 
     deprecate(
       `Use \`schema.fields({ type })\` instead of \`schema.attributesDefinitionFor({ type })\``,
-      DISABLE_6X_DEPRECATIONS,
+      /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
       {
         id: 'ember-data:schema-service-updates',
         until: '6.0',
@@ -256,7 +256,7 @@ if (ENABLE_LEGACY_SCHEMA_SERVICE) {
 
     deprecate(
       `Use \`schema.fields({ type })\` instead of \`schema.relationshipsDefinitionFor({ type })\``,
-      DISABLE_6X_DEPRECATIONS,
+      /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
       {
         id: 'ember-data:schema-service-updates',
         until: '6.0',

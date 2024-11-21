@@ -100,7 +100,7 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
             } belongsTo relationship but will not be once this deprecation is resolved:\n\n\t${
               localState ? 'Added: ' + localState.lid + '\n\t' : ''
             }${existingState ? 'Removed: ' + existingState.lid : ''}`,
-            DISABLE_6X_DEPRECATIONS,
+            /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
             {
               id: 'ember-data:deprecate-relationship-remote-update-clearing-local-state',
               for: 'ember-data',
@@ -179,7 +179,7 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
           } belongsTo relationship but will not be once this deprecation is resolved:\n\n\t${
             localState ? 'Added: ' + localState.lid + '\n\t' : ''
           }${existingState ? 'Removed: ' + existingState.lid : ''}`,
-          DISABLE_6X_DEPRECATIONS,
+          /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
           {
             id: 'ember-data:deprecate-relationship-remote-update-clearing-local-state',
             for: 'ember-data',

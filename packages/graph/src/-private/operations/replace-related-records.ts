@@ -290,7 +290,7 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
           } hasMany relationship but will not be once this deprecation is resolved by opting into the new behavior:\n\n\tAdded: [${deprecationInfo.additions
             .map((i) => i.lid)
             .join(', ')}]\n\tRemoved: [${deprecationInfo.removals.map((i) => i.lid).join(', ')}]`,
-          DISABLE_6X_DEPRECATIONS,
+          /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
           {
             id: 'ember-data:deprecate-relationship-remote-update-clearing-local-state',
             for: 'ember-data',

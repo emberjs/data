@@ -178,7 +178,7 @@ export function diffCollection(
       if (DEBUG) {
         deprecate(
           `Expected all entries in the relationship ${relationship.definition.type}:${relationship.definition.key} to be unique, see log for a list of duplicate entry indeces`,
-          DISABLE_6X_DEPRECATIONS,
+          /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
           {
             id: 'ember-data:deprecate-non-unique-relationship-entries',
             for: 'ember-data',

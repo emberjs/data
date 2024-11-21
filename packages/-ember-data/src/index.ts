@@ -202,7 +202,7 @@ import setupContainer from './setup-container';
 
 deprecate(
   'Importing from `ember-data` is deprecated. Please import from the appropriate `@ember-data/*` instead.',
-  DISABLE_6X_DEPRECATIONS,
+  /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
   {
     id: 'ember-data:deprecate-legacy-imports',
     for: 'ember-data',
