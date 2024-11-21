@@ -633,6 +633,7 @@ module.exports = {
     '(public) @warp-drive/build-config/deprecations CurrentDeprecations#DEPRECATE_STORE_EXTENDS_EMBER_OBJECT',
     '(public) @warp-drive/build-config/deprecations CurrentDeprecations#DEPRECATE_STORE_FIND',
     '(public) @warp-drive/build-config/deprecations CurrentDeprecations#DEPRECATE_STRING_ARG_SCHEMAS',
+    '(public) @warp-drive/build-config/deprecations CurrentDeprecations#DISABLE_6X_DEPRECATIONS',
     '(public) @warp-drive/build-config/deprecations CurrentDeprecations#ENABLE_LEGACY_SCHEMA_SERVICE',
   ],
 };
