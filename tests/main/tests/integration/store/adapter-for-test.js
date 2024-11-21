@@ -1,10 +1,10 @@
-import { run } from '@ember/runloop';
+import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 
+import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
-import Store from '@ember-data/store';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 class TestAdapter {
@@ -48,7 +48,7 @@ module('integration/store - adapterFor', function (hooks) {
         return lookup.call(owner, registrationName);
       };
       store.adapterFor('person');
-    }, /Assertion Failed: No adapter was found for 'person' and no 'application' adapter was found as a fallback/);
+    }, /No adapter was found for 'person' and no 'application' adapter was found as a fallback/);
   });
 
   test('we find and instantiate the application adapter', async function (assert) {
@@ -235,7 +235,8 @@ module('integration/store - adapterFor', function (hooks) {
     assert.ok(adapter instanceof AppAdapter, 'precond - We found the correct adapter');
     assert.ok(didInstantiate, 'precond - We instantiated the adapter');
 
-    run(store, 'destroy');
+    store.destroy();
+    await settled();
 
     assert.ok(didDestroy, 'adapter was destroyed');
   });

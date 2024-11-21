@@ -101,7 +101,7 @@ module('integration/record_array_manager', function (hooks) {
     assert.true(adapterPopulated.isDestroyed, 'Collection is destroyed');
   });
 
-  test('#GH-4041 store#query AdapterPopulatedRecordArrays are removed from their managers instead of retained when #destroy is called', async function (assert) {
+  test('#GH-4041 store#query CollectionRecordArrays are removed from their managers instead of retained when #destroy is called', async function (assert) {
     store.push({
       data: {
         type: 'car',

@@ -1,9 +1,9 @@
 import EmberObject from '@ember/object';
 import { getRootElement, render, settled } from '@ember/test-helpers';
 
-import hbs from 'htmlbars-inline-precompile';
 import { module, test } from 'qunit';
 
+import { hbs } from 'ember-cli-htmlbars';
 import { setupRenderingTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
@@ -312,7 +312,7 @@ module('integration/references/autotracking', function (hooks) {
       } catch (e) {
         assert.strictEqual(
           e.message,
-          "Assertion Failed: Expected the ID received for the primary 'user' resource being saved to match the current id '6' but received '7'.",
+          "Expected the ID received for the primary 'user' resource being saved to match the current id '6' but received '7'.",
           'threw error'
         );
       }

@@ -1,5 +1,4 @@
 import { module } from 'qunit';
-import RSVP from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -7,15 +6,16 @@ import Adapter from '@ember-data/adapter';
 import Model from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
+import { createDeferred } from '@ember-data/request';
 
 module('integration/store/query', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    const Person = Model.extend();
+    class Person extends Model {}
 
     this.owner.register('model:person', Person);
-    this.owner.register('adapter:application', Adapter.extend());
+    this.owner.register('adapter:application', Adapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
@@ -25,15 +25,15 @@ module('integration/store/query', function (hooks) {
     async function (assert) {
       const store = this.owner.lookup('service:store');
 
-      const defered = RSVP.defer();
+      const defered = createDeferred();
 
       this.owner.register(
         'adapter:person',
-        Adapter.extend({
+        class extends Adapter {
           query(store, type, query) {
             return defered.promise;
-          },
-        })
+          }
+        }
       );
 
       const result = store.query('person', {});

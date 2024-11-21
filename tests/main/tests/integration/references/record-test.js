@@ -1,12 +1,12 @@
 import { get } from '@ember/object';
 
 import { module, test } from 'qunit';
-import { defer, resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr } from '@ember-data/model';
+import { createDeferred } from '@ember-data/request';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { recordIdentifierFor } from '@ember-data/store';
 
@@ -110,7 +110,7 @@ module('integration/references/record', function (hooks) {
     const store = this.owner.lookup('service:store');
     const Person = store.modelFor('person');
 
-    const deferred = defer();
+    const deferred = createDeferred();
     const recordReference = store.getReference('person', 1);
 
     const pushed = recordReference.push(deferred.promise);
@@ -157,7 +157,7 @@ module('integration/references/record', function (hooks) {
     const adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, id) {
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'person',
@@ -227,7 +227,7 @@ module('integration/references/record', function (hooks) {
       count++;
       assert.strictEqual(count, 1);
 
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'person',
@@ -249,7 +249,7 @@ module('integration/references/record', function (hooks) {
     const adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, id) {
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'person',

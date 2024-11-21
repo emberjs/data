@@ -568,7 +568,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
       const state = account.hasMany('users').hasManyRelationship.remoteState;
       const users = account.users;
 
-      assert.todo.equal(users.length, 1, 'Accounts were updated correctly (ui state)');
+      assert.todo.strictEqual(users.length, 1, 'Accounts were updated correctly (ui state)');
       assert.todo.deepEqual(
         users.map((r) => get(r, 'id')),
         ['1'],

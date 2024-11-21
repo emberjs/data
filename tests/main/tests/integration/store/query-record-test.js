@@ -1,5 +1,4 @@
 import { module, test } from 'qunit';
-import { reject, resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -47,7 +46,7 @@ module('integration/store/query-record - Query one record with a query hash', fu
       Adapter.extend({
         queryRecord(store, type, query) {
           assert.strictEqual(type, Person, 'the query method is called with the correct type');
-          return resolve({
+          return Promise.resolve({
             data: { id: '1', type: 'person', attributes: { name: 'Peter Wagenet' } },
           });
         },
@@ -64,7 +63,7 @@ module('integration/store/query-record - Query one record with a query hash', fu
       'adapter:person',
       Adapter.extend({
         queryRecord(store, type, query) {
-          return reject();
+          return Promise.reject();
         },
       })
     );
@@ -97,7 +96,7 @@ module('integration/store/query-record - Query one record with a query hash', fu
       'adapter:person',
       Adapter.extend({
         queryRecord(store, type, query) {
-          return resolve({
+          return Promise.resolve({
             data: {
               id: '1',
               type: 'person',

@@ -1,8 +1,6 @@
-import { run } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { Promise, resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -12,7 +10,6 @@ import RESTAdapter from '@ember-data/adapter/rest';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer from '@ember-data/serializer/rest';
-import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 class Person extends Model {
@@ -36,7 +33,7 @@ class Car extends Model {
 
 function ajaxResponse(value) {
   return function (url, verb, hash) {
-    return resolve(deepCopy(value));
+    return Promise.resolve(structuredClone(value));
   };
 }
 
@@ -161,7 +158,10 @@ module('integration/store - destroy', function (hooks) {
 
     // ensure we make it into the adapter
     await arrivedPromise;
-    run(() => store.destroy());
+    store.destroy();
+    // can't use await settled() since pending promise
+    // is in the waiter system
+    await new Promise((r) => setTimeout(r, 0));
 
     // release the adapter promise
     next();
@@ -172,12 +172,11 @@ module('integration/store - destroy', function (hooks) {
       await requestPromise;
       assert.ok(false, 'We should reject with a meaningful error');
     } catch (e) {
-      assert.strictEqual(e.message, 'Assertion Failed: Async Leak Detected: Expected the store to not be destroyed');
+      assert.strictEqual(e.message, 'Async Leak Detected: Expected the store to not be destroyed');
     }
   });
 
   test('destroying the store correctly cleans everything up', async function (assert) {
-    let car, person;
     const store = this.owner.lookup('service:store');
     const adapter = store.adapterFor('application');
 
@@ -213,8 +212,8 @@ module('integration/store - destroy', function (hooks) {
       ],
     });
 
-    car = store.peekRecord('car', '1');
-    person = store.peekRecord('person', '1');
+    const car = store.peekRecord('car', '1');
+    const person = store.peekRecord('person', '1');
 
     const personWillDestroy = tap(person, 'willDestroy');
     const carWillDestroy = tap(car, 'willDestroy');
@@ -351,8 +350,8 @@ module('integration/store - findRecord', function (hooks) {
     adapter.shouldBackgroundReloadRecord = () => true;
 
     adapter.findRecord = () => {
-      if (calls++ < 3) {
-        return resolve({
+      if (calls++ < 4) {
+        return Promise.resolve({
           data: {
             type: 'car',
             id: '1',
@@ -371,6 +370,7 @@ module('integration/store - findRecord', function (hooks) {
     const car = await proxiedCar; // load 1
 
     assert.strictEqual(car.model, 'Mini', 'car record is returned from cache');
+
     const proxiedCar2 = store.findRecord('car', '1'); // will trigger a backgroundReload
     const car2 = await proxiedCar2;
 
@@ -387,7 +387,7 @@ module('integration/store - findRecord', function (hooks) {
 
     await store._getAllPending();
 
-    assert.strictEqual(calls, 3, 'we triggered one background reload and one load');
+    assert.strictEqual(calls, 3, 'we triggered two background reloads and one load');
   });
 
   test('multiple parallel calls to store#findRecord return the cached record without waiting for background requests', async function (assert) {
@@ -407,7 +407,7 @@ module('integration/store - findRecord', function (hooks) {
     adapter.findRecord = async () => {
       await timeout(1);
       if (calls++ < 2) {
-        return resolve({
+        return Promise.resolve({
           data: {
             type: 'car',
             id: '1',
@@ -503,7 +503,7 @@ module('integration/store - findRecord', function (hooks) {
       async findRecord() {
         calls++;
 
-        await resolve();
+        await Promise.resolve();
 
         return {
           data: {
@@ -564,10 +564,9 @@ module('integration/store - findRecord', function (hooks) {
 
     this.owner.register('adapter:application', TestAdapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
-    let firstPromise, secondPromise;
 
-    firstPromise = store.findRecord('car', '1', { reload: true });
-    secondPromise = store.findRecord('car', '1', { reload: true });
+    const firstPromise = store.findRecord('car', '1', { reload: true });
+    const secondPromise = store.findRecord('car', '1', { reload: true });
 
     resolveHandler(result);
     const car1 = await firstPromise;
@@ -678,7 +677,7 @@ module('integration/store - findRecord', function (hooks) {
     adapter.ajax = async function () {
       await promise;
 
-      return deepCopy({
+      return structuredClone({
         cars: [
           {
             id: '1',
@@ -731,9 +730,9 @@ module('integration/store - findRecord', function (hooks) {
     });
 
     adapter.ajax = async function () {
-      await resolve();
+      await Promise.resolve();
 
-      return deepCopy({
+      return structuredClone({
         cars: [
           {
             id: '1',
@@ -783,7 +782,7 @@ module('integration/store - findAll', function (hooks) {
     const adapter = store.adapterFor('application');
 
     adapter.ajax = () => {
-      return resolve({
+      return Promise.resolve({
         cars: [
           {
             id: '1',
@@ -1017,7 +1016,7 @@ module('integration/store - findAll', function (hooks) {
     });
 
     adapter.ajax = () => {
-      return resolve({
+      return Promise.resolve({
         cars: [
           {
             id: '1',
@@ -1129,7 +1128,7 @@ module('integration/store - findAll', function (hooks) {
     const adapter = store.adapterFor('application');
 
     adapter.ajax = () => {
-      return resolve({
+      return Promise.resolve({
         cars: [
           {
             id: '20',
@@ -1175,7 +1174,7 @@ module('integration/store - findAll', function (hooks) {
       const applicationAdapter = store.adapterFor('application');
 
       assert.ok(applicationAdapter);
-    } catch (_error) {
+    } catch {
       assert.ok(false, 'An error was thrown while looking for application adapter');
     }
   });
@@ -1193,7 +1192,7 @@ module('integration/store - findAll', function (hooks) {
       const applicationSerializer = store.serializerFor('application');
 
       assert.ok(applicationSerializer);
-    } catch (_error) {
+    } catch {
       assert.ok(false, 'An error was thrown while looking for application serializer');
     }
   });
@@ -1210,7 +1209,6 @@ module('integration/store - deleteRecord', function (hooks) {
     this.owner.register('serializer:application', RESTSerializer.extend());
 
     const store = this.owner.lookup('service:store');
-    let person;
 
     store.push({
       data: {
@@ -1222,7 +1220,7 @@ module('integration/store - deleteRecord', function (hooks) {
       },
     });
 
-    person = store.peekRecord('person', '1');
+    const person = store.peekRecord('person', '1');
 
     assert.notStrictEqual(store.peekRecord('person', '1'), null, 'expected the record to be in the store');
 
@@ -1240,7 +1238,7 @@ module('integration/store - deleteRecord', function (hooks) {
 
     try {
       store.push({ data: null });
-    } catch (_error) {
+    } catch {
       assert.ok(false, 'push null value for `data` to store throws an error');
     }
   });

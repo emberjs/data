@@ -388,7 +388,7 @@ module('integration/embedded-records-mixin', function (hooks) {
       class HomePlanetKlass extends Model {
         @attr('string') name;
         @hasMany('super-villain', { inverse: 'homePlanet', async: false }) villains;
-        @hasMany('superVillain', { inverse: null, async: false }) reformedVillains;
+        @hasMany('super-villain', { inverse: null, async: false }) reformedVillains;
       }
       owner.unregister('model:home-planet');
       owner.register('model:home-planet', HomePlanetKlass);
@@ -594,7 +594,7 @@ module('integration/embedded-records-mixin', function (hooks) {
         @attr('string') lastName;
         @belongsTo('home-planet', { inverse: 'villains', async: true }) homePlanet;
         @belongsTo('secret-lab', { async: false, inverse: 'superVillain' }) secretLab;
-        @hasMany('secretWeapon', { polymorphic: true, async: false, inverse: 'superVillain' }) secretWeapons;
+        @hasMany('secret-weapon', { polymorphic: true, async: false, inverse: 'superVillain' }) secretWeapons;
         @hasMany('evil-minion', { async: false, inverse: 'superVillain' }) evilMinions;
       }
 
@@ -689,7 +689,7 @@ module('integration/embedded-records-mixin', function (hooks) {
         @attr('string') firstName;
         @attr('string') lastName;
         @belongsTo('home-planet', { inverse: 'villains', async: true }) homePlanet;
-        @belongsTo('secretLab', { polymorphic: true, async: true, inverse: 'superVillain' }) secretLab;
+        @belongsTo('secret-lab', { polymorphic: true, async: true, inverse: 'superVillain' }) secretLab;
         @hasMany('secret-weapon', { async: false, inverse: 'superVillain' }) secretWeapons;
         @hasMany('evil-minion', { async: false, inverse: 'superVillain' }) evilMinions;
       }
@@ -759,7 +759,7 @@ module('integration/embedded-records-mixin', function (hooks) {
         @attr('string') firstName;
         @attr('string') lastName;
         @belongsTo('home-planet', { inverse: 'villains', async: true }) homePlanet;
-        @belongsTo('secretLab', { polymorphic: true, async: true, inverse: 'superVillain' }) secretLab;
+        @belongsTo('secret-lab', { polymorphic: true, async: true, inverse: 'superVillain' }) secretLab;
         @hasMany('secret-weapon', { async: false, inverse: 'superVillain' }) secretWeapons;
         @hasMany('evil-minion', { async: false, inverse: 'superVillain' }) evilMinions;
       }
@@ -1191,7 +1191,7 @@ module('integration/embedded-records-mixin', function (hooks) {
       class HomePlanetClass extends Model {
         @attr('string') name;
         @hasMany('super-villain', { inverse: 'homePlanet', async: false }) villains;
-        @hasMany('superVillain', { async: false, inverse: null }) reformedVillains;
+        @hasMany('super-villain', { async: false, inverse: null }) reformedVillains;
       }
       owner.unregister('model:home-planet');
       owner.register('model:home-planet', HomePlanetClass);
@@ -1461,7 +1461,7 @@ module('integration/embedded-records-mixin', function (hooks) {
         @attr('string') lastName;
         @belongsTo('home-planet', { inverse: 'villains', async: true }) homePlanet;
         @belongsTo('secret-lab', { async: false, inverse: 'superVillain' }) secretLab;
-        @hasMany('secretWeapon', { polymorphic: true, async: false, inverse: 'superVillain' }) secretWeapons;
+        @hasMany('secret-weapon', { polymorphic: true, async: false, inverse: 'superVillain' }) secretWeapons;
         @hasMany('evil-minion', { async: false, inverse: 'superVillain' }) evilMinions;
       }
 
@@ -1587,7 +1587,7 @@ module('integration/embedded-records-mixin', function (hooks) {
       const superVillain = store.createRecord('super-villain', {
         id: '1',
         firstName: 'Super',
-        lastName: 'Villian',
+        lastName: 'Villain',
         homePlanet,
         secretLab,
       });
@@ -1606,7 +1606,7 @@ module('integration/embedded-records-mixin', function (hooks) {
       const serializedRestJson = serializer.serialize(superVillain._createSnapshot());
       const expectedOutput = {
         firstName: 'Super',
-        lastName: 'Villian',
+        lastName: 'Villain',
         homePlanet: '123',
         evilMinions: [
           {
@@ -1636,7 +1636,7 @@ module('integration/embedded-records-mixin', function (hooks) {
 
         serializeHasMany(snapshot, json, relationship) {
           calledSerializeHasMany = true;
-          const key = relationship.key;
+          const key = relationship.name;
           const payloadKey = this.keyForRelationship ? this.keyForRelationship(key, 'hasMany') : key;
           const schema = this.store.modelFor(snapshot.modelName);
           const relationshipType = schema.determineRelationshipType(relationship, store);
@@ -1673,7 +1673,7 @@ module('integration/embedded-records-mixin', function (hooks) {
       const superVillain = store.createRecord('super-villain', {
         id: '1',
         firstName: 'Super',
-        lastName: 'Villian',
+        lastName: 'Villain',
         homePlanet,
         secretLab,
       });
@@ -1692,7 +1692,7 @@ module('integration/embedded-records-mixin', function (hooks) {
       const serializedRestJson = serializer.serialize(superVillain._createSnapshot());
       const expectedOutput = {
         firstName: 'Super',
-        lastName: 'Villian',
+        lastName: 'Villain',
         homePlanet: '123',
         evilMinions: [
           {
@@ -1916,7 +1916,7 @@ module('integration/embedded-records-mixin', function (hooks) {
         const superVillain = store.createRecord('super-villain', {
           id: '1',
           firstName: 'Super',
-          lastName: 'Villian',
+          lastName: 'Villain',
         });
         store.createRecord('evil-minion', {
           id: '1',
@@ -1933,7 +1933,7 @@ module('integration/embedded-records-mixin', function (hooks) {
         const serializedRestJson = serializer.serialize(superVillain._createSnapshot());
         const expectedOutput = {
           firstName: 'Super',
-          lastName: 'Villian',
+          lastName: 'Villain',
           homePlanet: null,
           evilMinions: [
             {
@@ -2458,7 +2458,7 @@ module('integration/embedded-records-mixin', function (hooks) {
         assert.deepEqual(serializedRestJson, expectedOutput, 'We serialized the belongsTo relationships to IDs');
       });
 
-      test('serialize with embedded object (belongsTo relationship) supports serialize:id', async function (assert) {
+      test('serialize with embedded object (belongsTo relationship) supports serialize:id, v2', async function (assert) {
         this.owner.register(
           'serializer:super-villain',
           RESTSerializer.extend(EmbeddedRecordsMixin, {
@@ -2493,7 +2493,7 @@ module('integration/embedded-records-mixin', function (hooks) {
         assert.deepEqual(serializedRestJson, expectedOutput, 'We serialized the belongsTo relationships to IDs');
       });
 
-      test('serialize with embedded object (belongsTo relationship) supports serialize:id in conjunction with deserialize:records', async function (assert) {
+      test('serialize with embedded object (belongsTo relationship) supports serialize:id in conjunction with deserialize:records, v2', async function (assert) {
         this.owner.register(
           'serializer:super-villain',
           RESTSerializer.extend(EmbeddedRecordsMixin, {
