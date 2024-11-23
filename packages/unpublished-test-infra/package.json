@@ -91,7 +91,7 @@
   },
   "dependencies": {
     "@embroider/macros": "^1.16.6",
-    "chalk": "^4.1.2",
+    "chalk": "^5.3.0",
     "qunit": "^2.20.1",
     "semver": "^7.6.3",
     "@warp-drive/build-config": "workspace:0.0.0-alpha.56"

@@ -76,8 +76,8 @@ importers:
         specifier: ^1.1.30
         version: 1.1.30
       chalk:
-        specifier: ^4.1.2
-        version: 4.1.2
+        specifier: ^5.3.0
+        version: 5.3.0
       co:
         specifier: ^4.6.0
         version: 4.6.0
@@ -1881,8 +1881,8 @@ importers:
         specifier: workspace:0.0.0-alpha.56
         version: file:packages/build-config(@babel/core@7.24.5)(@glint/template@1.5.0)
       chalk:
-        specifier: ^4.1.2
-        version: 4.1.2
+        specifier: ^5.3.0
+        version: 5.3.0
       qunit:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=2jwk2nz4gqke2k5hv6ptj42llu)
@@ -24894,7 +24894,7 @@ packages:
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.24.5)(@glint/template@1.5.0)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.24.5)(@glint/template@1.5.0)
       '@warp-drive/diagnostic': file:packages/diagnostic(@babel/core@7.24.5)(@ember/test-helpers@4.0.4)(@glint/template@1.5.0)(ember-cli-test-loader@3.1.0)(ember-source@5.12.0)
-      chalk: 4.1.2
+      chalk: 5.3.0
       ember-source: 5.12.0(@glimmer/component@1.1.2)(@glint/template@1.5.0)
       qunit: 2.19.4(patch_hash=2jwk2nz4gqke2k5hv6ptj42llu)
       semver: 7.6.3
@@ -24932,7 +24932,7 @@ packages:
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.24.5)(@glint/template@1.5.0)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.24.5)(@glint/template@1.5.0)
       '@warp-drive/diagnostic': file:packages/diagnostic(@babel/core@7.24.5)(@ember/test-helpers@4.0.4)(ember-cli-test-loader@3.1.0)(ember-source@5.12.0)
-      chalk: 4.1.2
+      chalk: 5.3.0
       ember-source: 5.12.0(@glimmer/component@1.1.2)(@glint/template@1.5.0)
       qunit: 2.19.4(patch_hash=2jwk2nz4gqke2k5hv6ptj42llu)
       semver: 7.6.3
