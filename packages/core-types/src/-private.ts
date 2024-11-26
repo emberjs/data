@@ -71,7 +71,7 @@ type GlobalKey =
   | 'DEBUG_MAP'
   | 'IDENTIFIERS'
   | 'DOCUMENTS'
-  // @ember-data/store InstanceCache
+  // @ember-data/store ResourceManager
   | 'CacheForIdentifierCache'
   | 'RecordCache'
   | 'StoreMap'

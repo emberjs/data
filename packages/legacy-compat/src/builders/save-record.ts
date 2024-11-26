@@ -2,7 +2,7 @@
  * @module @ember-data/legacy-compat/builders
  */
 import { recordIdentifierFor, storeFor, type StoreRequestInput } from '@ember-data/store';
-import type { InstanceCache } from '@ember-data/store/-private';
+import type { ResourceManager } from '@ember-data/store/-private';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
@@ -26,7 +26,7 @@ function _resourceIsFullDeleted(identifier: StableRecordIdentifier, cache: Cache
   return cache.isDeletionCommitted(identifier) || (cache.isNew(identifier) && cache.isDeleted(identifier));
 }
 
-function resourceIsFullyDeleted(instanceCache: InstanceCache, identifier: StableRecordIdentifier): boolean {
+function resourceIsFullyDeleted(instanceCache: ResourceManager, identifier: StableRecordIdentifier): boolean {
   const cache = instanceCache.cache;
   return !cache || _resourceIsFullDeleted(identifier, cache);
 }

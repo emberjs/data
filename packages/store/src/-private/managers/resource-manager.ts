@@ -16,12 +16,12 @@ import type {
 } from '@warp-drive/core-types/spec/json-api-raw';
 
 import type { OpaqueRecordInstance } from '../../-types/q/record-instance';
+import { CacheForIdentifierCache, removeRecordDataFor, setCacheFor } from '../caches/cache-utils';
 import RecordReference from '../legacy-model-support/record-reference';
-import { CacheCapabilitiesManager } from '../managers/cache-capabilities-manager';
-import type { CacheManager } from '../managers/cache-manager';
 import type { CreateRecordProperties, Store } from '../store-service';
 import { ensureStringId } from '../utils/coerce-id';
-import { CacheForIdentifierCache, removeRecordDataFor, setCacheFor } from './cache-utils';
+import { CacheCapabilitiesManager } from './cache-capabilities-manager';
+import type { CacheManager } from './cache-manager';
 
 type Destroyable = {
   isDestroyed: boolean;
@@ -106,7 +106,12 @@ type Caches = {
   reference: WeakMap<StableRecordIdentifier, RecordReference>;
 };
 
-export class InstanceCache {
+/**
+ * The ResourceManager
+ *
+ * @internal
+ */
+export class ResourceManager {
   declare store: Store;
   declare cache: Cache;
   declare _storeWrapper: CacheCapabilitiesManager;
@@ -207,7 +212,7 @@ export class InstanceCache {
 
       if (LOG_INSTANCE_CACHE) {
         // eslint-disable-next-line no-console
-        console.log(`InstanceCache: created Record for ${String(identifier)}`, properties);
+        console.log(`ResourceManager: created Record for ${String(identifier)}`, properties);
       }
     }
 
@@ -261,7 +266,7 @@ export class InstanceCache {
     this.store._requestCache._clearEntries(identifier);
     if (LOG_INSTANCE_CACHE) {
       // eslint-disable-next-line no-console
-      console.log(`InstanceCache: disconnected ${String(identifier)}`);
+      console.log(`ResourceManager: disconnected ${String(identifier)}`);
     }
   }
 
@@ -278,7 +283,7 @@ export class InstanceCache {
     }
     if (LOG_INSTANCE_CACHE) {
       // eslint-disable-next-line no-console
-      console.groupCollapsed(`InstanceCache: unloading record for ${String(identifier)}`);
+      console.groupCollapsed(`ResourceManager: unloading record for ${String(identifier)}`);
     }
 
     // TODO is this join still necessary?
@@ -295,7 +300,7 @@ export class InstanceCache {
 
         if (LOG_INSTANCE_CACHE) {
           // eslint-disable-next-line no-console
-          console.log(`InstanceCache: destroyed record for ${String(identifier)}`);
+          console.log(`ResourceManager: destroyed record for ${String(identifier)}`);
         }
       }
 
@@ -304,7 +309,7 @@ export class InstanceCache {
         removeRecordDataFor(identifier);
         if (LOG_INSTANCE_CACHE) {
           // eslint-disable-next-line no-console
-          console.log(`InstanceCache: destroyed cache for ${String(identifier)}`);
+          console.log(`ResourceManager: destroyed cache for ${String(identifier)}`);
         }
       } else {
         this.disconnect(identifier);
@@ -313,7 +318,7 @@ export class InstanceCache {
       this.store._requestCache._clearEntries(identifier);
       if (LOG_INSTANCE_CACHE) {
         // eslint-disable-next-line no-console
-        console.log(`InstanceCache: unloaded RecordData for ${String(identifier)}`);
+        console.log(`ResourceManager: unloaded RecordData for ${String(identifier)}`);
         // eslint-disable-next-line no-console
         console.groupEnd();
       }
@@ -372,7 +377,7 @@ export class InstanceCache {
 
     if (LOG_INSTANCE_CACHE) {
       // eslint-disable-next-line no-console
-      console.log(`InstanceCache: updating id to '${id}' for record ${String(identifier)}`);
+      console.log(`ResourceManager: updating id to '${id}' for record ${String(identifier)}`);
     }
 
     const existingIdentifier = this.store.identifierCache.peekRecordIdentifier({ type, id });
@@ -396,7 +401,7 @@ function _resourceIsFullDeleted(identifier: StableRecordIdentifier, cache: Cache
   return cache.isDeletionCommitted(identifier) || (cache.isNew(identifier) && cache.isDeleted(identifier));
 }
 
-export function resourceIsFullyDeleted(instanceCache: InstanceCache, identifier: StableRecordIdentifier): boolean {
+export function resourceIsFullyDeleted(instanceCache: ResourceManager, identifier: StableRecordIdentifier): boolean {
   const cache = instanceCache.cache;
   return !cache || _resourceIsFullDeleted(identifier, cache);
 }
