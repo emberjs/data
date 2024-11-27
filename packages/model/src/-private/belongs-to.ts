@@ -115,15 +115,6 @@ function _belongsTo<T, Async extends boolean>(
     );
   }
 
-  assert(
-    `Expected options.async from @belongsTo('${type}', options) to be a boolean`,
-    options && typeof options.async === 'boolean'
-  );
-  assert(
-    `Expected options.inverse from @belongsTo('${type}', options) to be either null or the string type of the related resource.`,
-    options.inverse === null || (typeof options.inverse === 'string' && options.inverse.length > 0)
-  );
-
   const meta = {
     type: normalizeModelName(type),
     options: opts,

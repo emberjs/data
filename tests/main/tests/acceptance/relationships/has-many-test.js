@@ -874,13 +874,12 @@ module('autotracking has-many', function (hooks) {
 
   deprecatedTest(
     'We can re-render hasMany w/PromiseManyArray.sortBy',
-    { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 6, logTraces: true },
+    { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 3 },
     async function (assert) {
       class ChildrenList extends Component {
         @service store;
 
         get sortedChildren() {
-          console.trace('sortedChildren');
           const result = this.args.person.children.sortBy('name');
           assert.expectDeprecation({ id: 'ember-data:deprecate-array-like' });
           return result;
@@ -929,7 +928,7 @@ module('autotracking has-many', function (hooks) {
 
   deprecatedTest(
     'We can re-render hasMany with sort computed macro on PromiseManyArray',
-    { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 6 },
+    { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 3 },
     async function (assert) {
       class ChildrenList extends Component {
         @service store;
@@ -975,13 +974,13 @@ module('autotracking has-many', function (hooks) {
 
       names = findAll('li').map((e) => e.textContent);
       assert.deepEqual(names, ['RGB', 'RGB'], 'rendered 2 children');
-      assert.expectDeprecation({ id: 'ember-data:no-a-with-array-like', count: 6 });
+      assert.expectDeprecation({ id: 'ember-data:no-a-with-array-like', count: 3 });
     }
   );
 
   deprecatedTest(
     'We can re-render hasMany with PromiseManyArray.objectAt',
-    { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 12 },
+    { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 6 },
     async function (assert) {
       let calls = 0;
       class ChildrenList extends Component {
@@ -1036,7 +1035,7 @@ module('autotracking has-many', function (hooks) {
 
   deprecatedTest(
     'We can re-render hasMany with PromiseManyArray.map',
-    { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 6 },
+    { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 3 },
     async function (assert) {
       class ChildrenList extends Component {
         @service store;

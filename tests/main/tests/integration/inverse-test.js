@@ -122,7 +122,7 @@ module('integration/inverse-test - inverseFor', function (hooks) {
       assert.deepEqual(
         job.inverseFor('owner', store),
         {
-          type: user, //the model's type
+          type: 'user', //the model's type
           name: 'previousJob', //the models relationship key
           kind: 'belongsTo',
           options: {
@@ -135,7 +135,7 @@ module('integration/inverse-test - inverseFor', function (hooks) {
       assert.deepEqual(
         user.inverseFor('previousJob', store),
         {
-          type: job, //the model's type
+          type: 'job', //the model's type
           name: 'owner', //the models relationship key
           kind: 'belongsTo',
           options: {
