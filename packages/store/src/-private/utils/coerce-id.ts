@@ -28,7 +28,7 @@ export function coerceId(id: unknown): string | null {
       `The resource id '<${typeof id}> ${String(
         id
       )} ' is not normalized. Update your application code to use '${JSON.stringify(normalized)}' instead.`,
-      /* inline-macro-config */ DISABLE_6X_DEPRECATIONS && normalized === id,
+      /* inline-macro-config */ DISABLE_6X_DEPRECATIONS ? true : normalized === id,
       {
         id: 'ember-data:deprecate-non-strict-id',
         until: '6.0',
