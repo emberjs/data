@@ -202,13 +202,13 @@ Deprecations:
 - deprecate Adapter/Serializer/Model
 - deprecate store finder methods (findRecord/findAll/query/saveRecord etc.)
 
-### 🔸 5.4 (Upcoming ~ Late October)
+### 🔸 5.4 (Upcoming ~ EOY 2024)
 
 > [!TIP]
 > Most if not all work that has landed in 5.4 has been
 > released as a patch in the 5.3 series.
 
-- Improved SchemaService (available in later versions of 5.3)
+- Improved SchemaService
 - SchemaRecord
 - LinksMode for relationships
 - <:idle> state for requests
