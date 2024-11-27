@@ -6,9 +6,11 @@ import { computed } from '@ember/object';
 
 import { dasherize, singularize } from '@ember-data/request-utils/string';
 import {
+  DEPRECATE_NON_STRICT_TYPES,
   DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC,
   DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE,
   DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE,
+  DISABLE_6X_DEPRECATIONS,
 } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
@@ -27,7 +29,27 @@ function normalizeType(type: string) {
     }
   }
 
-  return singularize(dasherize(type));
+  if (DEPRECATE_NON_STRICT_TYPES) {
+    const result = singularize(dasherize(type));
+
+    deprecate(
+      `The resource type '${type}' is not normalized. Update your application code to use '${result}' instead of '${type}'.`,
+      /* inline-macro-config */ DISABLE_6X_DEPRECATIONS ? true : result === type,
+      {
+        id: 'ember-data:deprecate-non-strict-types',
+        until: '6.0',
+        for: 'ember-data',
+        since: {
+          available: '4.13',
+          enabled: '5.3',
+        },
+      }
+    );
+
+    return result;
+  }
+
+  return type;
 }
 
 function _hasMany<T, Async extends boolean>(

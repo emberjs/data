@@ -177,7 +177,7 @@ module('integration/record-arrays/collection', function (hooks) {
       () => {
         recordArray.replace();
       },
-      'Assertion Failed: Mutating this array of records via splice is not allowed.',
+      'Mutating this array of records via splice is not allowed.',
       'throws error'
     );
     assert.expectDeprecation({ id: 'ember-data:deprecate-array-like' });

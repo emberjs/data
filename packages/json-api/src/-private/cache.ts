@@ -1095,6 +1095,17 @@ export default class JSONAPICache implements Cache {
     if (isSimplePath) {
       const attribute = attr as string;
       const cached = this.__peek(identifier, true);
+      assert(
+        `Cannot retrieve attributes for identifier ${String(identifier)} as it is not present in the cache`,
+        cached
+      );
+
+      // in Prod we try to recover when accessing something that
+      // doesn't exist
+      if (!cached) {
+        return undefined;
+      }
+
       if (cached.localAttrs && attribute in cached.localAttrs) {
         return cached.localAttrs[attribute];
       } else if (cached.inflightAttrs && attribute in cached.inflightAttrs) {

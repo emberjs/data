@@ -50,6 +50,7 @@ module(
           },
         });
 
+        debugger;
         const postNote = await store.findRecord('postNote', '1');
 
         assert.strictEqual(postNote.name, 'Ember Data', 'record found');
