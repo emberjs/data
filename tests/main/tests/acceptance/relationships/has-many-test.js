@@ -874,12 +874,13 @@ module('autotracking has-many', function (hooks) {
 
   deprecatedTest(
     'We can re-render hasMany w/PromiseManyArray.sortBy',
-    { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 6 },
+    { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 6, logTraces: true },
     async function (assert) {
       class ChildrenList extends Component {
         @service store;
 
         get sortedChildren() {
+          console.trace('sortedChildren');
           const result = this.args.person.children.sortBy('name');
           assert.expectDeprecation({ id: 'ember-data:deprecate-array-like' });
           return result;
