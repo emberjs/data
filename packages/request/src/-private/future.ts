@@ -1,8 +1,8 @@
-import type { ContextOwner } from './context';
-import type { Deferred, DeferredFuture, Future, StructuredDataDocument } from './types';
-import { enhanceReason } from './utils';
+import { IS_FUTURE, type StructuredDocument } from '@warp-drive/core-types/request';
 
-export const IS_FUTURE = Symbol('IS_FUTURE');
+import type { ContextOwner } from './context';
+import type { Deferred, DeferredFuture, Future } from './types';
+import { enhanceReason } from './utils';
 
 export function isFuture<T>(maybe: unknown): maybe is Future<T> {
   return Boolean(maybe && maybe instanceof Promise && (maybe as Future<T>)[IS_FUTURE] === true);
@@ -18,7 +18,7 @@ export function createDeferred<T>(): Deferred<T> {
   return { resolve, reject, promise };
 }
 
-export function upgradePromise<T>(promise: Promise<StructuredDataDocument<T>>, future: Future<T>): Future<T> {
+export function upgradePromise<T>(promise: Promise<StructuredDocument<T>>, future: Future<T>): Future<T> {
   (promise as Future<T>)[IS_FUTURE] = true;
   // eslint-disable-next-line @typescript-eslint/unbound-method
   (promise as Future<T>).getStream = future.getStream;
@@ -26,6 +26,8 @@ export function upgradePromise<T>(promise: Promise<StructuredDataDocument<T>>, f
   (promise as Future<T>).abort = future.abort;
   // eslint-disable-next-line @typescript-eslint/unbound-method
   (promise as Future<T>).onFinalize = future.onFinalize;
+  (promise as Future<T>).id = future.id;
+  (promise as Future<T>).lid = future.lid;
 
   return promise as Future<T>;
 }
@@ -51,6 +53,9 @@ export function createFuture<T>(owner: ContextOwner): DeferredFuture<T> {
   promise.abort = (reason?: string) => {
     owner.abort(enhanceReason(reason));
   };
+  promise.id = owner.requestId;
+  promise.lid = owner.god.identifier;
+
   deferred.promise = promise;
   return deferred;
 }

@@ -1,5 +1,5 @@
 {
-  "name": "eslint-plugin-ember-data",
+  "name": "eslint-plugin-ember-data-internal",
   "main": "./src/index.js",
   "version": "4.12.8",
   "private": true,
@@ -10,5 +10,7 @@
   },
   "volta": {
     "extends": "../../package.json"
-  }
+  },
+  "devDependencies": {},
+  "scripts": {}
 }

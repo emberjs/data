@@ -1,13 +1,13 @@
 import { cacheFor } from '@ember/object/internals';
 
-import { DEPRECATE_V1_RECORD_DATA } from '@ember-data/deprecations';
 import type Store from '@ember-data/store';
-import { peekCache } from '@ember-data/store/-private';
-import type { NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { NotificationType } from '@ember-data/store';
+import { assert } from '@warp-drive/build-config/macros';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { LegacyRelationshipSchema as RelationshipSchema } from '@warp-drive/core-types/schema/fields';
 
-import type Model from './model';
-import { LEGACY_SUPPORT } from './model';
+import { LEGACY_SUPPORT } from './legacy-relationships-support';
+import type { Model } from './model';
 
 export default function notifyChanges(
   identifier: StableRecordIdentifier,
@@ -20,17 +20,18 @@ export default function notifyChanges(
     if (key) {
       notifyAttribute(store, identifier, key, record);
     } else {
-      record.eachAttribute((key) => {
-        notifyAttribute(store, identifier, key, record);
+      record.eachAttribute((name) => {
+        notifyAttribute(store, identifier, name, record);
       });
     }
   } else if (value === 'relationships') {
     if (key) {
-      let meta = record.constructor.relationshipsByName.get(key);
+      const meta = (record.constructor as typeof Model).relationshipsByName.get(key);
+      assert(`Expected to find a relationship for ${key} on ${identifier.type}`, meta);
       notifyRelationship(identifier, key, record, meta);
     } else {
-      record.eachRelationship((key, meta) => {
-        notifyRelationship(identifier, key, record, meta);
+      record.eachRelationship((name, meta) => {
+        notifyRelationship(identifier, name, record, meta);
       });
     }
   } else if (value === 'identity') {
@@ -38,13 +39,13 @@ export default function notifyChanges(
   }
 }
 
-function notifyRelationship(identifier: StableRecordIdentifier, key: string, record: Model, meta) {
+function notifyRelationship(identifier: StableRecordIdentifier, key: string, record: Model, meta: RelationshipSchema) {
   if (meta.kind === 'belongsTo') {
     record.notifyPropertyChange(key);
   } else if (meta.kind === 'hasMany') {
-    let support = LEGACY_SUPPORT.get(identifier);
-    let manyArray = support && support._manyArrayCache[key];
-    let hasPromise = support && support._relationshipPromisesCache[key];
+    const support = LEGACY_SUPPORT.get(identifier);
+    const manyArray = support && support._manyArrayCache[key];
+    const hasPromise = support && support._relationshipPromisesCache[key];
 
     if (manyArray && hasPromise) {
       // do nothing, we will notify the ManyArray directly
@@ -58,7 +59,9 @@ function notifyRelationship(identifier: StableRecordIdentifier, key: string, rec
       //We need to notifyPropertyChange in the adding case because we need to make sure
       //we fetch the newly added record in case it is unloaded
       //TODO(Igor): Consider whether we could do this only if the record state is unloaded
-      if (!meta.options || meta.options.async || meta.options.async === undefined) {
+      assert(`Expected options to exist on relationship meta`, meta.options);
+      assert(`Expected async to exist on relationship meta options`, 'async' in meta.options);
+      if (meta.options.async) {
         record.notifyPropertyChange(key);
       }
     }
@@ -66,8 +69,8 @@ function notifyRelationship(identifier: StableRecordIdentifier, key: string, rec
 }
 
 function notifyAttribute(store: Store, identifier: StableRecordIdentifier, key: string, record: Model) {
-  let currentValue = cacheFor(record, key);
-  const cache = DEPRECATE_V1_RECORD_DATA ? peekCache(record)! : store.cache;
+  const currentValue = cacheFor(record, key);
+  const cache = store.cache;
   if (currentValue !== cache.getAttr(identifier, key)) {
     record.notifyPropertyChange(key);
   }

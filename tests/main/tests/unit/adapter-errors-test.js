@@ -12,103 +12,103 @@ import AdapterError, {
   TimeoutError,
   UnauthorizedError,
 } from '@ember-data/adapter/error';
-import { DEPRECATE_HELPERS } from '@ember-data/deprecations';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+import { DEPRECATE_HELPERS } from '@warp-drive/build-config/deprecations';
 
 module('unit/adapter-errors - AdapterError', function () {
   test('AdapterError', function (assert) {
-    let error = new AdapterError();
+    const error = new AdapterError();
 
-    assert.ok(error instanceof Error);
-    assert.ok(error.isAdapterError);
+    assert.true(error instanceof Error, 'error is instanceof Error');
+    assert.true(error.isAdapterError, 'error.isAdapterError');
     assert.strictEqual(error.message, 'Adapter operation failed');
   });
 
   test('InvalidError', function (assert) {
-    let error = new InvalidError();
+    const error = new InvalidError();
 
-    assert.ok(error instanceof Error);
-    assert.ok(error instanceof AdapterError);
-    assert.ok(error.isAdapterError);
+    assert.true(error instanceof Error, 'error is instanceof Error');
+    assert.true(error instanceof AdapterError, 'error is instanceof AdapterError');
+    assert.true(error.isAdapterError, 'error.isAdapterError');
     assert.strictEqual(error.message, 'The adapter rejected the commit because it was invalid');
   });
 
   test('TimeoutError', function (assert) {
-    let error = new TimeoutError();
+    const error = new TimeoutError();
 
-    assert.ok(error instanceof Error);
-    assert.ok(error instanceof AdapterError);
-    assert.ok(error.isAdapterError);
+    assert.true(error instanceof Error, 'error is instanceof Error');
+    assert.true(error instanceof AdapterError, 'error is instanceof AdapterError');
+    assert.true(error.isAdapterError, 'error.isAdapterError');
     assert.strictEqual(error.message, 'The adapter operation timed out');
   });
 
   test('AbortError', function (assert) {
-    let error = new AbortError();
+    const error = new AbortError();
 
-    assert.ok(error instanceof Error);
-    assert.ok(error instanceof AdapterError);
-    assert.ok(error.isAdapterError);
+    assert.true(error instanceof Error, 'error is instanceof Error');
+    assert.true(error instanceof AdapterError, 'error is instanceof AdapterError');
+    assert.true(error.isAdapterError, 'error.isAdapterError');
     assert.strictEqual(error.message, 'The adapter operation was aborted');
   });
 
   test('UnauthorizedError', function (assert) {
-    let error = new UnauthorizedError();
+    const error = new UnauthorizedError();
 
-    assert.ok(error instanceof Error);
-    assert.ok(error instanceof AdapterError);
-    assert.ok(error.isAdapterError);
+    assert.true(error instanceof Error, 'error is instanceof Error');
+    assert.true(error instanceof AdapterError, 'error is instanceof AdapterError');
+    assert.true(error.isAdapterError, 'error.isAdapterError');
     assert.strictEqual(error.message, 'The adapter operation is unauthorized');
   });
 
   test('ForbiddenError', function (assert) {
-    let error = new ForbiddenError();
+    const error = new ForbiddenError();
 
-    assert.ok(error instanceof Error);
-    assert.ok(error instanceof AdapterError);
-    assert.ok(error.isAdapterError);
+    assert.true(error instanceof Error, 'error is instanceof Error');
+    assert.true(error instanceof AdapterError, 'error is instanceof AdapterError');
+    assert.true(error.isAdapterError, 'error.isAdapterError');
     assert.strictEqual(error.message, 'The adapter operation is forbidden');
   });
 
   test('NotFoundError', function (assert) {
-    let error = new NotFoundError();
+    const error = new NotFoundError();
 
-    assert.ok(error instanceof Error);
-    assert.ok(error instanceof AdapterError);
-    assert.ok(error.isAdapterError);
+    assert.true(error instanceof Error, 'error is instanceof Error');
+    assert.true(error instanceof AdapterError, 'error is instanceof AdapterError');
+    assert.true(error.isAdapterError, 'error.isAdapterError');
     assert.strictEqual(error.message, 'The adapter could not find the resource');
   });
 
   test('ConflictError', function (assert) {
-    let error = new ConflictError();
+    const error = new ConflictError();
 
-    assert.ok(error instanceof Error);
-    assert.ok(error instanceof AdapterError);
-    assert.ok(error.isAdapterError);
+    assert.true(error instanceof Error, 'error is instanceof Error');
+    assert.true(error instanceof AdapterError, 'error is instanceof AdapterError');
+    assert.true(error.isAdapterError, 'error.isAdapterError');
     assert.strictEqual(error.message, 'The adapter operation failed due to a conflict');
   });
 
   test('ServerError', function (assert) {
-    let error = new ServerError();
+    const error = new ServerError();
 
-    assert.ok(error instanceof Error);
-    assert.ok(error instanceof AdapterError);
-    assert.ok(error.isAdapterError);
+    assert.true(error instanceof Error, 'error is instanceof Error');
+    assert.true(error instanceof AdapterError, 'error is instanceof AdapterError');
+    assert.true(error.isAdapterError, 'error.isAdapterError');
     assert.strictEqual(error.message, 'The adapter operation failed due to a server error');
   });
 
   test('CustomAdapterError', function (assert) {
-    let CustomAdapterError = AdapterError.extend();
-    let error = new CustomAdapterError();
+    const CustomAdapterError = AdapterError.extend();
+    const error = new CustomAdapterError();
 
-    assert.ok(error instanceof Error);
-    assert.ok(error instanceof AdapterError);
-    assert.ok(error.isAdapterError);
+    assert.true(error instanceof Error, 'error is instanceof Error');
+    assert.true(error instanceof AdapterError, 'error is instanceof AdapterError');
+    assert.true(error.isAdapterError, 'error.isAdapterError');
     assert.strictEqual(error.message, 'Adapter operation failed');
   });
 
   test('CustomAdapterError with default message', function (assert) {
-    let CustomAdapterError = AdapterError.extend({ message: 'custom error!' });
-    let error = new CustomAdapterError();
+    const CustomAdapterError = AdapterError.extend({ message: 'custom error!' });
+    const error = new CustomAdapterError();
 
     assert.strictEqual(error.message, 'custom error!');
   });
@@ -155,25 +155,25 @@ module('unit/adapter-errors - AdapterError', function () {
     ];
 
     test('errorsHashToArray', function (assert) {
-      let result = errorsHashToArray(errorsHash);
+      const result = errorsHashToArray(errorsHash);
       assert.deepEqual(result, errorsArray);
       assert.expectDeprecation({ id: 'ember-data:deprecate-errors-hash-to-array-helper', count: 1 });
     });
 
     test('errorsHashToArray for primary data object', function (assert) {
-      let result = errorsHashToArray(errorsPrimaryHash);
+      const result = errorsHashToArray(errorsPrimaryHash);
       assert.deepEqual(result, errorsPrimaryArray);
       assert.expectDeprecation({ id: 'ember-data:deprecate-errors-hash-to-array-helper', count: 1 });
     });
 
     test('errorsArrayToHash', function (assert) {
-      let result = errorsArrayToHash(errorsArray);
+      const result = errorsArrayToHash(errorsArray);
       assert.deepEqual(result, errorsHash);
       assert.expectDeprecation({ id: 'ember-data:deprecate-errors-array-to-hash-helper', count: 1 });
     });
 
     test('errorsArrayToHash without trailing slash', function (assert) {
-      let result = errorsArrayToHash([
+      const result = errorsArrayToHash([
         {
           detail: 'error message',
           source: { pointer: 'data/attributes/name' },
@@ -184,7 +184,7 @@ module('unit/adapter-errors - AdapterError', function () {
     });
 
     test('errorsArrayToHash for primary data object', function (assert) {
-      let result = errorsArrayToHash(errorsPrimaryArray);
+      const result = errorsArrayToHash(errorsPrimaryArray);
       assert.deepEqual(result, errorsPrimaryHash);
       assert.expectDeprecation({ id: 'ember-data:deprecate-errors-array-to-hash-helper', count: 1 });
     });

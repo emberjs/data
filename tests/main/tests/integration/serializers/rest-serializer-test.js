@@ -1,12 +1,10 @@
-import { camelize, dasherize, decamelize } from '@ember/string';
-
 import { module, test } from 'qunit';
 
-import Inflector, { singularize } from 'ember-inflector';
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { dasherize, resetToDefaults, singularize, uncountable, underscore } from '@ember-data/request-utils/string';
 import JSONSerializer from '@ember-data/serializer/json';
 import RESTSerializer from '@ember-data/serializer/rest';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
@@ -67,14 +65,16 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
   test('modelNameFromPayloadKey returns always same modelName even for uncountable multi words keys', function (assert) {
     assert.expect(2);
 
-    let store = this.owner.lookup('service:store');
-    let serializer = store.serializerFor('application');
+    const store = this.owner.lookup('service:store');
+    const serializer = store.serializerFor('application');
 
-    Inflector.inflector.uncountable('words');
-    let expectedModelName = 'multi-words';
+    uncountable('words');
+    const expectedModelName = 'multi-words';
 
     assert.strictEqual(serializer.modelNameFromPayloadKey('multi_words'), expectedModelName);
     assert.strictEqual(serializer.modelNameFromPayloadKey('multi-words'), expectedModelName);
+
+    resetToDefaults();
   });
 
   test('normalizeResponse should extract meta using extractMeta', function (assert) {
@@ -82,21 +82,21 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       'serializer:home-planet',
       RESTSerializer.extend({
         extractMeta(store, modelClass, payload) {
-          let meta = this._super(...arguments);
+          const meta = this._super(...arguments);
           meta.authors.push('Tomhuda');
           return meta;
         },
       })
     );
 
-    let jsonHash = {
+    const jsonHash = {
       meta: { authors: ['Tomster'] },
       home_planets: [{ id: '1', name: 'Umber', superVillains: [1] }],
     };
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let json = store
+    const json = store
       .serializerFor('home-planet')
       .normalizeResponse(store, store.modelFor('home-planet'), jsonHash, null, 'findAll');
 
@@ -106,19 +106,18 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
   test('normalizeResponse with custom modelNameFromPayloadKey', function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let serializer = store.serializerFor('application');
+    const store = this.owner.lookup('service:store');
+    const serializer = store.serializerFor('application');
 
     serializer.modelNameFromPayloadKey = function (root) {
-      let camelized = camelize(root);
-      return singularize(camelized);
+      return root === 'planets' ? 'home-planet' : singularize(dasherize(root));
     };
 
     this.owner.register('serializer:home-planet', JSONSerializer.extend());
     this.owner.register('serializer:super-villain', JSONSerializer.extend());
 
-    let jsonHash = {
-      home_planets: [
+    const jsonHash = {
+      planets: [
         {
           id: '1',
           name: 'Umber',
@@ -134,7 +133,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
         },
       ],
     };
-    let array = serializer.normalizeResponse(store, store.modelFor('home-planet'), jsonHash, '1', 'findRecord');
+    const array = serializer.normalizeResponse(store, store.modelFor('home-planet'), jsonHash, '1', 'findRecord');
 
     assert.deepEqual(array, {
       data: {
@@ -170,8 +169,8 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
   testInDebug('normalizeResponse with type and custom modelNameFromPayloadKey', function (assert) {
     assert.expect(2);
 
-    let store = this.owner.lookup('service:store');
-    let serializer = store.serializerFor('application');
+    const store = this.owner.lookup('service:store');
+    const serializer = store.serializerFor('application');
 
     let homePlanetNormalizeCount = 0;
 
@@ -189,10 +188,10 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       })
     );
 
-    let jsonHash = {
+    const jsonHash = {
       'my-custom-type': [{ id: '1', name: 'Umber', type: 'my-custom-type' }],
     };
-    let array = serializer.normalizeResponse(store, store.modelFor('home-planet'), jsonHash, '1', 'findAll');
+    const array = serializer.normalizeResponse(store, store.modelFor('home-planet'), jsonHash, '1', 'findAll');
 
     assert.deepEqual(array, {
       data: [
@@ -211,11 +210,11 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
   });
 
   testInDebug('normalizeResponse warning with custom modelNameFromPayloadKey', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let serializer = store.serializerFor('application');
+    const store = this.owner.lookup('service:store');
+    const serializer = store.serializerFor('application');
 
     let homePlanet;
-    let oldModelNameFromPayloadKey = serializer.modelNameFromPayloadKey;
+    const oldModelNameFromPayloadKey = serializer.modelNameFromPayloadKey;
     this.owner.register('serializer:super-villain', JSONSerializer.extend());
     this.owner.register('serializer:home-planet', JSONSerializer.extend());
 
@@ -246,9 +245,9 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     assert.deepEqual(homePlanet.data.relationships.superVillains.data, [{ id: '1', type: 'super-villain' }]);
   });
 
-  testInDebug('normalizeResponse warning with custom modelNameFromPayloadKey', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let serializer = store.serializerFor('application');
+  testInDebug('normalizeResponse warning with custom modelNameFromPayloadKey (again)', function (assert) {
+    const store = this.owner.lookup('service:store');
+    const serializer = store.serializerFor('application');
 
     let homePlanets;
     this.owner.register('serializer:super-villain', JSONSerializer);
@@ -268,11 +267,11 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
 
     // should not warn if a model is found.
     serializer.modelNameFromPayloadKey = function (root) {
-      return camelize(singularize(root));
+      return root === 'planets' ? 'home-planet' : singularize(dasherize(root));
     };
 
     jsonHash = {
-      home_planets: [{ id: '1', name: 'Umber', superVillains: [1] }],
+      planets: [{ id: '1', name: 'Umber', superVillains: [1] }],
     };
 
     assert.expectNoWarning(function () {
@@ -285,12 +284,12 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
   });
 
   test('serialize polymorphicType', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let serializer = store.serializerFor('application');
+    const store = this.owner.lookup('service:store');
+    const serializer = store.serializerFor('application');
 
-    let tom = store.createRecord('yellow-minion', { name: 'Alex', id: '124' });
-    let ray = store.createRecord('doomsday-device', { evilMinion: tom, name: 'DeathRay' });
-    let json = serializer.serialize(ray._createSnapshot());
+    const tom = store.createRecord('yellow-minion', { name: 'Alex', id: '124' });
+    const ray = store.createRecord('doomsday-device', { evilMinion: tom, name: 'DeathRay' });
+    const json = serializer.serialize(ray._createSnapshot());
 
     assert.deepEqual(json, {
       name: 'DeathRay',
@@ -299,22 +298,22 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     });
   });
 
-  test('serialize polymorphicType with decamelized modelName', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let serializer = store.serializerFor('application');
+  test('serialize polymorphicType with camelCase modelName', function (assert) {
+    const store = this.owner.lookup('service:store');
+    const serializer = store.serializerFor('application');
 
-    let tom = store.createRecord('yellow-minion', { name: 'Alex', id: '124' });
-    let ray = store.createRecord('doomsday-device', { evilMinion: tom, name: 'DeathRay' });
-    let json = serializer.serialize(ray._createSnapshot());
+    const tom = store.createRecord('yellow-minion', { name: 'Alex', id: '124' });
+    const ray = store.createRecord('doomsday-device', { evilMinion: tom, name: 'DeathRay' });
+    const json = serializer.serialize(ray._createSnapshot());
 
     assert.deepEqual(json['evilMinionType'], 'yellowMinion');
   });
 
   test('serialize polymorphic when associated object is null', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let serializer = store.serializerFor('application');
-    let ray = store.createRecord('doomsday-device', { name: 'DeathRay' });
-    let json = serializer.serialize(ray._createSnapshot());
+    const store = this.owner.lookup('service:store');
+    const serializer = store.serializerFor('application');
+    const ray = store.createRecord('doomsday-device', { name: 'DeathRay' });
+    const json = serializer.serialize(ray._createSnapshot());
 
     assert.deepEqual(json['evilMinionType'], null);
   });
@@ -333,13 +332,13 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       })
     );
 
-    let jsonHash = {
+    const jsonHash = {
       evilMinion: { id: '1', name: 'Tom Dale', superVillain: 1 },
       superVillains: [{ id: '1', firstName: 'Yehuda', lastName: 'Katz', homePlanet: '1' }],
     };
 
-    let store = this.owner.lookup('service:store');
-    let serializer = store.serializerFor('application');
+    const store = this.owner.lookup('service:store');
+    const serializer = store.serializerFor('application');
 
     serializer.normalizeResponse(store, store.modelFor('evil-minion'), jsonHash, '1', 'findRecord');
 
@@ -349,20 +348,19 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
   test('normalizeResponse returns null if payload contains null', function (assert) {
     assert.expect(1);
 
-    let jsonHash = {
+    const jsonHash = {
       evilMinion: null,
     };
-    let value;
 
-    let store = this.owner.lookup('service:store');
-    let serializer = store.serializerFor('application');
+    const store = this.owner.lookup('service:store');
+    const serializer = store.serializerFor('application');
 
-    value = serializer.normalizeResponse(store, store.modelFor('evil-minion'), jsonHash, null, 'findRecord');
+    const value = serializer.normalizeResponse(store, store.modelFor('evil-minion'), jsonHash, null, 'findRecord');
 
     assert.deepEqual(value, { data: null, included: [] }, 'returned value is null');
   });
 
-  test('normalizeResponse loads secondary records with correct serializer', function (assert) {
+  test('normalizeResponse loads secondary records with correct serializer, v2', function (assert) {
     let superVillainNormalizeCount = 0;
 
     this.owner.register('serializer:evil-minion', JSONSerializer);
@@ -376,13 +374,13 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       })
     );
 
-    let jsonHash = {
+    const jsonHash = {
       evilMinions: [{ id: '1', name: 'Tom Dale', superVillain: 1 }],
       superVillains: [{ id: '1', firstName: 'Yehuda', lastName: 'Katz', homePlanet: '1' }],
     };
 
-    let store = this.owner.lookup('service:store');
-    let serializer = store.serializerFor('application');
+    const store = this.owner.lookup('service:store');
+    const serializer = store.serializerFor('application');
 
     serializer.normalizeResponse(store, store.modelFor('evil-minion'), jsonHash, null, 'findAll');
 
@@ -393,23 +391,23 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     this.owner.register('serializer:super-villain', RESTSerializer);
     this.owner.register('serializer:evil-minion', RESTSerializer);
 
-    let evilMinions = [];
-    // The actual stack size seems to vary based on browser and potenetially hardware and
+    const evilMinions = [];
+    // The actual stack size seems to vary based on browser and potentially hardware and
     // other factors. This number should be large enough to always be an issue.
-    let stackOverflowSize = 130000;
+    const stackOverflowSize = 130000;
     for (let i = 0; i < stackOverflowSize; i++) {
       evilMinions.push({ id: i.toString(), superVillain: 1 });
     }
 
-    let jsonHash = {
+    const jsonHash = {
       superVillains: [{ id: '1', firstName: 'Yehuda', lastName: 'Katz', homePlanet: '1' }],
       evilMinions,
     };
 
     let superVillain;
     try {
-      let store = this.owner.lookup('service:store');
-      let serializer = store.serializerFor('application');
+      const store = this.owner.lookup('service:store');
+      const serializer = store.serializerFor('application');
       superVillain = serializer.normalizeResponse(store, store.modelFor('super-villain'), jsonHash, null, 'findAll');
     } catch (err) {
       assert.ok(false, `normalizeResponse could not handle included length of ${stackOverflowSize}`);
@@ -428,20 +426,19 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
           superVillain: 'is_super_villain',
         },
         keyForAttribute(attr) {
-          return decamelize(attr);
+          return underscore(attr);
         },
       })
     );
 
-    let jsonHash = {
+    const jsonHash = {
       evilMinions: [{ id: '1', name: 'Tom Dale', is_super_villain: 1 }],
     };
-    let array;
 
-    let store = this.owner.lookup('service:store');
-    let serializer = store.serializerFor('application');
+    const store = this.owner.lookup('service:store');
+    const serializer = store.serializerFor('application');
 
-    array = serializer.normalizeResponse(store, store.modelFor('evil-minion'), jsonHash, null, 'findAll');
+    const array = serializer.normalizeResponse(store, store.modelFor('evil-minion'), jsonHash, null, 'findAll');
 
     assert.strictEqual(array.data[0].relationships.superVillain.data.id, '1');
   });
@@ -454,29 +451,28 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
           name: 'full_name',
         },
         keyForAttribute(attr) {
-          return decamelize(attr);
+          return underscore(attr);
         },
       })
     );
 
-    let jsonHash = {
+    const jsonHash = {
       evilMinions: [{ id: '1', full_name: 'Tom Dale' }],
     };
-    let array;
 
-    let store = this.owner.lookup('service:store');
-    let serializer = store.serializerFor('application');
+    const store = this.owner.lookup('service:store');
+    const serializer = store.serializerFor('application');
 
-    array = serializer.normalizeResponse(store, store.modelFor('evil-minion'), jsonHash, null, 'findAll');
+    const array = serializer.normalizeResponse(store, store.modelFor('evil-minion'), jsonHash, null, 'findAll');
 
     assert.strictEqual(array.data[0].attributes.name, 'Tom Dale');
   });
 
   test('serializeIntoHash', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let serializer = store.serializerFor('application');
-    let league = store.createRecord('home-planet', { name: 'Umber', id: '123' });
-    let json = {};
+    const store = this.owner.lookup('service:store');
+    const serializer = store.serializerFor('application');
+    const league = store.createRecord('home-planet', { name: 'Umber', id: '123' });
+    const json = {};
 
     serializer.serializeIntoHash(json, store.modelFor('home-planet'), league._createSnapshot());
 
@@ -487,12 +483,12 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     });
   });
 
-  test('serializeIntoHash with decamelized modelName', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let serializer = store.serializerFor('application');
+  test('serializeIntoHash with underscored modelName', function (assert) {
+    const store = this.owner.lookup('service:store');
+    const serializer = store.serializerFor('application');
 
-    let league = store.createRecord('home-planet', { name: 'Umber', id: '123' });
-    let json = {};
+    const league = store.createRecord('home-planet', { name: 'Umber', id: '123' });
+    const json = {};
 
     serializer.serializeIntoHash(json, store.modelFor('home-planet'), league._createSnapshot());
 
@@ -504,54 +500,56 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
   });
 
   test('serializeBelongsTo with async polymorphic', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let serializer = store.serializerFor('application');
+    const store = this.owner.lookup('service:store');
+    const serializer = store.serializerFor('application');
 
-    let json = {};
-    let expected = { evilMinion: '1', evilMinionType: 'evilMinion' };
-    let evilMinion = store.createRecord('evil-minion', { id: '1', name: 'Tomster' });
-    let doomsdayDevice = store.createRecord('doomsday-device', {
+    const json = {};
+    const expected = { evilMinion: '1', evilMinionType: 'evilMinion' };
+    const evilMinion = store.createRecord('evil-minion', { id: '1', name: 'Tomster' });
+    const doomsdayDevice = store.createRecord('doomsday-device', {
       id: '2',
       name: 'Yehuda',
       evilMinion: evilMinion,
     });
 
-    serializer.serializeBelongsTo(doomsdayDevice._createSnapshot(), json, {
-      key: 'evilMinion',
-      options: { polymorphic: true, async: true },
-    });
+    serializer.serializeBelongsTo(
+      doomsdayDevice._createSnapshot(),
+      json,
+      doomsdayDevice.constructor.relationshipsByName.get('evilMinion')
+    );
 
     assert.deepEqual(json, expected, 'returned JSON is correct');
   });
 
   test('keyForPolymorphicType can be used to overwrite how the type of a polymorphic record is serialized', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let serializer = store.serializerFor('application');
+    const store = this.owner.lookup('service:store');
+    const serializer = store.serializerFor('application');
 
-    let json = {};
-    let expected = { evilMinion: '1', typeForEvilMinion: 'evilMinion' };
+    const json = {};
+    const expected = { evilMinion: '1', typeForEvilMinion: 'evilMinion' };
 
     serializer.keyForPolymorphicType = function () {
       return 'typeForEvilMinion';
     };
 
-    let evilMinion = store.createRecord('evil-minion', { id: '1', name: 'Tomster' });
-    let doomsdayDevice = store.createRecord('doomsday-device', {
+    const evilMinion = store.createRecord('evil-minion', { id: '1', name: 'Tomster' });
+    const doomsdayDevice = store.createRecord('doomsday-device', {
       id: '2',
       name: 'Yehuda',
       evilMinion: evilMinion,
     });
 
-    serializer.serializeBelongsTo(doomsdayDevice._createSnapshot(), json, {
-      key: 'evilMinion',
-      options: { polymorphic: true, async: true },
-    });
+    serializer.serializeBelongsTo(
+      doomsdayDevice._createSnapshot(),
+      json,
+      doomsdayDevice.constructor.relationshipsByName.get('evilMinion')
+    );
 
     assert.deepEqual(json, expected, 'returned JSON is correct');
   });
 
   test('keyForPolymorphicType can be used to overwrite how the type of a polymorphic record is looked up for normalization', function (assert) {
-    let json = {
+    const json = {
       doomsdayDevice: {
         id: '1',
         evilMinion: '2',
@@ -559,7 +557,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       },
     };
 
-    let expected = {
+    const expected = {
       data: {
         type: 'doomsday-device',
         id: '1',
@@ -576,22 +574,22 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       included: [],
     };
 
-    let store = this.owner.lookup('service:store');
-    let serializer = store.serializerFor('application');
+    const store = this.owner.lookup('service:store');
+    const serializer = store.serializerFor('application');
 
     serializer.keyForPolymorphicType = function () {
       return 'typeForEvilMinion';
     };
 
-    let normalized = serializer.normalizeResponse(store, store.modelFor('doomsday-device'), json, null, 'findRecord');
+    const normalized = serializer.normalizeResponse(store, store.modelFor('doomsday-device'), json, null, 'findRecord');
 
     assert.deepEqual(normalized, expected, 'normalized JSON is correct');
   });
 
   test('serializeIntoHash uses payloadKeyFromModelName to normalize the payload root key', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let league = store.createRecord('home-planet', { name: 'Umber', id: '123' });
-    let json = {};
+    const store = this.owner.lookup('service:store');
+    const league = store.createRecord('home-planet', { name: 'Umber', id: '123' });
+    const json = {};
 
     this.owner.register(
       'serializer:home-planet',
@@ -602,7 +600,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       })
     );
 
-    let serializer = store.serializerFor('home-planet');
+    const serializer = store.serializerFor('home-planet');
 
     serializer.serializeIntoHash(json, store.modelFor('home-planet'), league._createSnapshot());
 
@@ -614,8 +612,8 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
   });
 
   test('normalizeResponse with async polymorphic belongsTo, using <relationshipName>Type', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = (store, type) => {
       if (type.modelName === 'doomsday-device') {
@@ -641,19 +639,14 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       };
     };
 
-    await store
-      .findRecord('doomsday-device', 1)
-      .then((deathRay) => {
-        return deathRay.evilMinion;
-      })
-      .then((evilMinion) => {
-        assert.strictEqual(evilMinion.eyes, 3);
-      });
+    const deathRay = await store.findRecord('doomsday-device', '1');
+    const evilMinion = await deathRay.evilMinion;
+    assert.strictEqual(evilMinion.eyes, 3);
   });
 
   test('normalizeResponse with async polymorphic belongsTo', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = () => {
       return {
@@ -709,8 +702,8 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     this.owner.register('model:evil-minion', EvilMinion);
     this.owner.register('model:yellow-minion', YellowMinion);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = () => {
       return {
@@ -752,20 +745,19 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
   });
 
   test('normalizeResponse can load secondary records of the same type without affecting the query count', function (assert) {
-    let jsonHash = {
+    const jsonHash = {
       comments: [{ id: '1', body: 'Parent Comment', root: true, children: [2, 3] }],
       _comments: [
         { id: '2', body: 'Child Comment 1', root: false },
         { id: '3', body: 'Child Comment 2', root: false },
       ],
     };
-    let array;
     this.owner.register('serializer:comment', JSONSerializer);
 
-    let store = this.owner.lookup('service:store');
-    let serializer = store.serializerFor('application');
+    const store = this.owner.lookup('service:store');
+    const serializer = store.serializerFor('application');
 
-    array = serializer.normalizeResponse(store, Comment, jsonHash, '1', 'findRecord');
+    const array = serializer.normalizeResponse(store, Comment, jsonHash, '1', 'findRecord');
 
     assert.deepEqual(array, {
       data: {
@@ -808,8 +800,8 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
   });
 
   test("don't polymorphically deserialize base on the type key in payload when a type attribute exist", async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let serializer = store.serializerFor('application');
+    const store = this.owner.lookup('service:store');
+    const serializer = store.serializerFor('application');
 
     store.push(
       serializer.normalizeArrayResponse(store, store.modelFor('basket'), {
@@ -832,8 +824,8 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
   });
 
   test("don't polymorphically deserialize base on the type key in payload when a type attribute exist on a singular response", function (assert) {
-    let store = this.owner.lookup('service:store');
-    let serializer = store.serializerFor('application');
+    const store = this.owner.lookup('service:store');
+    const serializer = store.serializerFor('application');
 
     store.push(
       serializer.normalizeSingleResponse(
@@ -853,8 +845,8 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
   });
 
   test("don't polymorphically deserialize based on the type key in payload when a relationship exists named type", async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = () => {
       return {
@@ -886,7 +878,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       })
     );
 
-    let jsonHash = {
+    const jsonHash = {
       'super-villains': [
         {
           firstName: 'Tom',
@@ -898,9 +890,9 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       ],
     };
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let documentHash = store
+    const documentHash = store
       .serializerFor('super-villain')
       .normalizeSingleResponse(store, store.modelFor('super-villain'), jsonHash);
 
@@ -912,7 +904,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     this.owner.register('serializer:evil-minion', JSONSerializer);
     this.owner.register('serializer:doomsday-device', RESTSerializer.extend());
 
-    let payload = {
+    const payload = {
       doomsdayDevice: {
         id: '1',
         evilMinion: 2,
@@ -923,8 +915,8 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       },
     };
 
-    let store = this.owner.lookup('service:store');
-    let document = store
+    const store = this.owner.lookup('service:store');
+    const document = store
       .serializerFor('doomsday-device')
       .normalizeSingleResponse(store, store.modelFor('doomsday-device'), payload);
 
@@ -950,7 +942,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     this.owner.register('serializer:super-villain', JSONSerializer);
     this.owner.register('serializer:home-planet', RESTSerializer.extend());
 
-    let payload = {
+    const payload = {
       homePlanet: {
         id: '1',
         superVillains: [2],
@@ -961,8 +953,8 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
       },
     };
 
-    let store = this.owner.lookup('service:store');
-    let document = store
+    const store = this.owner.lookup('service:store');
+    const document = store
       .serializerFor('home-planet')
       .normalizeSingleResponse(store, store.modelFor('home-planet'), payload);
 

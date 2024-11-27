@@ -1,7 +1,7 @@
 import { deprecate } from '@ember/debug';
 import { get } from '@ember/object';
 
-import { DEBUG } from '@ember-data/env';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 import { PromiseObject } from './promise-proxy-base';
 
@@ -69,5 +69,5 @@ export function deprecatedPromiseObject<T>(promise: Promise<T>): PromiseObject<T
     },
   };
 
-  return new Proxy(promiseObjectProxy, handler);
+  return new Proxy(promiseObjectProxy, handler) as PromiseObject<T>;
 }

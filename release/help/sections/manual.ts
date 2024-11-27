@@ -1,0 +1,15 @@
+export const HELP = new Set([
+  'doc',
+  'docs',
+  'guide',
+  'h',
+  'halp',
+  'he',
+  'hel',
+  'help',
+  'hlp',
+  'm',
+  'man',
+  'mn',
+  'usage',
+]);

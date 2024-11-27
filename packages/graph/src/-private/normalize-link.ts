@@ -1,4 +1,4 @@
-import type { Link, LinkObject } from '@ember-data/types/q/ember-data-json-api';
+import type { Link, LinkObject } from '@warp-drive/core-types/spec/json-api-raw';
 
 /*
   This method normalizes a link to an "links object". If the passed link is

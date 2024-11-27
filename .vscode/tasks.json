@@ -1,0 +1,34 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "pnpm: lint",
+      "type": "shell",
+      "command": "pnpm lint",
+
+      "problemMatcher": {
+        "owner": "pnpm-lint",
+        "fileLocation": ["absolute"],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^Scope: .* workspace projects$",
+          "endsPattern": "^Summary: .* fails, .* passes$"
+        },
+        "pattern": [
+          {
+            "regexp": "^.+lint: (\\/.+)$",
+            "file": 1
+          },
+          {
+            "regexp": "^.+lint:\\s+(\\d+):(\\d+)\\s+(\\w+)\\s+(.+)$",
+            "line": 1,
+            "column": 2,
+            "severity": 3,
+            "message": 4,
+            "loop": true
+          }
+        ]
+      }
+    }
+  ]
+}

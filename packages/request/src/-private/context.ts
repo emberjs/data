@@ -1,16 +1,12 @@
-import { DEBUG } from '@ember-data/env';
+import { DEBUG } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
+import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type { ImmutableHeaders, ImmutableRequestInfo, RequestInfo, ResponseInfo } from '@warp-drive/core-types/request';
+import { SkipCache } from '@warp-drive/core-types/request';
 
 import { deepFreeze } from './debug';
 import { createDeferred } from './future';
-import type {
-  DeferredStream,
-  GodContext,
-  ImmutableHeaders,
-  ImmutableRequestInfo,
-  RequestInfo,
-  ResponseInfo,
-} from './types';
-import { SkipCache } from './types';
+import type { DeferredStream, GodContext } from './types';
 
 export function upgradeHeaders(headers: Headers | ImmutableHeaders): ImmutableHeaders {
   (headers as ImmutableHeaders).clone = () => {
@@ -163,11 +159,15 @@ export class Context {
   #owner: ContextOwner;
   declare request: ImmutableRequestInfo;
   declare id: number;
+  private declare _isCacheHandler: boolean;
+  private declare _finalized: boolean;
 
-  constructor(owner: ContextOwner) {
+  constructor(owner: ContextOwner, isCacheHandler: boolean) {
     this.id = owner.requestId;
     this.#owner = owner;
     this.request = owner.enhancedRequest;
+    this._isCacheHandler = isCacheHandler;
+    this._finalized = false;
   }
   setStream(stream: ReadableStream | Promise<ReadableStream | null>) {
     this.#owner.setStream(stream);
@@ -176,8 +176,20 @@ export class Context {
     this.#owner.setResponse(response);
   }
 
+  setIdentifier(identifier: StableDocumentIdentifier) {
+    assert(
+      `setIdentifier may only be used synchronously from a CacheHandler`,
+      identifier && this._isCacheHandler && !this._finalized
+    );
+    this.#owner.god.identifier = identifier;
+  }
+
   get hasRequestedStream() {
     return this.#owner.hasRequestedStream;
+  }
+
+  _finalize() {
+    this._finalized = true;
   }
 }
 export type HandlerRequestContext = Context;

@@ -24,14 +24,14 @@ module('unit/model/attr | attr syntax', function (hooks) {
 
     owner.register('model:user', User);
 
-    let UserModel = store.modelFor('user');
-    let attrs = UserModel.attributes;
+    const UserModel = store.modelFor('user');
+    const attrs = UserModel.attributes;
     assert.true(attrs.has('name'), 'We have the attr: name');
     assert.true(attrs.has('nameWithTransform'), 'We have the attr: nameWithTransform');
     assert.true(attrs.has('nameWithOptions'), 'We have the attr: nameWithOptions');
     assert.true(attrs.has('nameWithTransformAndOptions'), 'We have the attr: nameWithTransformAndOptions');
 
-    let userRecord = store.push({
+    const userRecord = store.push({
       data: {
         type: 'user',
         id: '1',
@@ -64,14 +64,14 @@ module('unit/model/attr | attr syntax', function (hooks) {
 
     owner.register('model:user', User);
 
-    let UserModel = store.modelFor('user');
-    let attrs = UserModel.attributes;
+    const UserModel = store.modelFor('user');
+    const attrs = UserModel.attributes;
     assert.true(attrs.has('name'), 'We have the attr: name');
     assert.true(attrs.has('nameWithTransform'), 'We have the attr: nameWithTransform');
     assert.true(attrs.has('nameWithOptions'), 'We have the attr: nameWithOptions');
     assert.true(attrs.has('nameWithTransformAndOptions'), 'We have the attr: nameWithTransformAndOptions');
 
-    let userRecord = store.push({
+    const userRecord = store.push({
       data: {
         type: 'user',
         id: '1',
@@ -105,14 +105,14 @@ module('unit/model/attr | attr syntax', function (hooks) {
 
     owner.register('model:user', User);
 
-    let UserModel = store.modelFor('user');
-    let attrs = UserModel.attributes;
+    const UserModel = store.modelFor('user');
+    const attrs = UserModel.attributes;
     assert.false(attrs.has('name'), 'We have the attr: name');
     assert.false(attrs.has('nameWithTransform'), 'We have the attr: nameWithTransform');
     assert.false(attrs.has('nameWithOptions'), 'We have the attr: nameWithOptions');
     assert.false(attrs.has('nameWithTransformAndOptions'), 'We have the attr: nameWithTransformAndOptions');
 
-    let userRecord = store.push({
+    const userRecord = store.push({
       data: {
         type: 'user',
         id: '1',
@@ -142,11 +142,11 @@ module('unit/model/attr | attr syntax', function (hooks) {
 
     owner.register('model:user', User);
 
-    let UserModel = store.modelFor('user');
-    let attrs = UserModel.attributes;
+    const UserModel = store.modelFor('user');
+    const attrs = UserModel.attributes;
     assert.true(attrs.has('name'), 'We have the attr: name');
 
-    let userRecord = store.push({
+    const userRecord = store.push({
       data: {
         type: 'user',
         id: '1',
@@ -166,11 +166,11 @@ module('unit/model/attr | attr syntax', function (hooks) {
 
     owner.register('model:blog', Blog);
 
-    let BlogModel = store.modelFor('blog');
-    let attrs = BlogModel.attributes;
+    const BlogModel = store.modelFor('blog');
+    const attrs = BlogModel.attributes;
     assert.true(attrs.has('content'), 'We have the attr: name');
 
-    let userRecord = store.push({
+    const userRecord = store.push({
       data: {
         type: 'blog',
         id: '1',

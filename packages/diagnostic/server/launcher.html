@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+	<head>
+		<title>@warp-drive/diagnostic Parallel Test Launcher</title>
+		<script>
+			// Launch browsers
+      const url = new URL(document.location);
+			const params = url.searchParams;
+			const allParams = [...params.entries()];
+			const pages = [];
+			let page = '';
+			for (let i = 0; i < allParams.length; i++) {
+				const [key, value] = allParams[i];
+				if (key === 'p[]') {
+					if (page) {
+						pages.push(page);
+					}
+          page = `${url.protocol}//${url.host}${value}`;
+				} else if (value) {
+					page = page + '&' + key + '=' + value;
+				} else {
+					page = page + '&' + key;
+				}
+			}
+			if (page) {
+				pages.push(page);
+				page = '';
+			}
+			const width = window.outerWidth;
+			const height = window.outerHeight;
+			pages.forEach((page, index) => {
+				const dims = `noopener,width=${width},height=${height},left=${25 * (index + 1)},top=0`;
+				const win = window.open(page, '_blank', dims);
+			});
+      window.close();
+		</script>
+	</head>
+	<body></body>
+</html>

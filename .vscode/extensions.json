@@ -1,0 +1,53 @@
+{
+  "recommendations": [
+    "bierner.markdown-preview-github-styles", // Markdown Preview Github Styling
+    "eamodio.gitlens", // GitLens
+    "visualstudioexptteam.vscodeintellicode", // IntelliCode
+    "typed-ember.glint-vscode", // Glint (Ember Template Types)
+
+    // Includes
+    // - syntax highlighting
+    // - language server
+    // - eslint
+    // - stylelint
+    // - prettier
+    // - editorconfig
+    //
+    // https://marketplace.visualstudio.com/items?itemName=EmberTooling.emberjs
+    "embertooling.emberjs",
+    // But if someone removes one, just recommending the extension pack isn't enough to
+    // recommend the individual extensions again
+    "embertooling.vscode-ember",
+    "lifeart.vscode-glimmer-syntax",
+    "dbaeumer.vscode-eslint",
+    "EditorConfig.EditorConfig",
+    "esbenp.prettier-vscode",
+    "stylelint.vscode-stylelint"
+
+    // Warns if any of the below are present
+    // Disabled because it doesn't work.
+    // See: https://github.com/SoulcodeAgency/vscode-unwanted-extensions/issues/9 if someone wants to try creating a version of this that does work.
+    // Purpose: warn if any of the extensions below are installed.
+    //"Soulcode.vscode-unwanted-extensions"
+  ],
+  "unwantedRecommendations": [
+    // None of these are particularly useful for Ember development
+    "googlecloudtools.cloudcode", // Google Cloud Code
+    "firefox-devtools.vscode-firefox-debug", // Firefox Debug
+    "ms-edgedevtools.vscode-edge-devtools", // Microsoft Edge DevTools for VS Code
+    "ms-kubernetes-tools.vscode-kubernetes-tools", // Kubernetes
+
+    // out of date gjs and gts syntax highlighting.
+    "chiragpat.vscode-glimmer",
+    // old version of the language server built in to embertooling
+    "lifeart.vscode-ember-unstable",
+    // out of date fork for linkedin
+    "suchitadoshi1987.vscode-ember-experimental",
+    // out of date
+    "dhedgecock.ember-syntax",
+    // theme, unrelated to ember
+    "jgibson.ember-color-theme",
+    // don't use jest
+    "Orta.vscode-jest"
+  ]
+}

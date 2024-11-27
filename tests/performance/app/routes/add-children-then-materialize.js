@@ -21,7 +21,7 @@ export default Route.extend({
     this.store.peekAll('child').slice();
 
     performance.mark('start-materialize-relationships');
-    let seen = new Set();
+    const seen = new Set();
     peekedParents.forEach((parent) => iterateParent(parent, seen));
 
     performance.mark('end-materialize-relationships');

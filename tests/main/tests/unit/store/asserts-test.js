@@ -1,18 +1,18 @@
-import { run } from '@ember/runloop';
+import { settled } from '@ember/test-helpers';
 
 import { module } from 'qunit';
 
+import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
 import Model from '@ember-data/model';
-import Store from '@ember-data/store';
 import test from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
-module('unit/store/asserts - DS.Store methods produce useful assertion messages', function (hooks) {
+module('unit/store/asserts - Store methods produce useful assertion messages', function (hooks) {
   setupTest(hooks);
   hooks.beforeEach(function () {
-    let { owner } = this;
-    owner.register('model:foo', Model.extend());
+    const { owner } = this;
+    owner.register('model:foo', class extends Model {});
   });
 
   const MODEL_NAME_METHODS = [
@@ -32,7 +32,7 @@ module('unit/store/asserts - DS.Store methods produce useful assertion messages'
   test('Calling Store methods with no modelName asserts', function (assert) {
     assert.expect(MODEL_NAME_METHODS.length);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     MODEL_NAME_METHODS.forEach((methodName) => {
       let assertion = `You need to pass a model name to the store's ${methodName} method`;
@@ -50,7 +50,6 @@ module('unit/store/asserts - DS.Store methods produce useful assertion messages'
     'createRecord',
     'deleteRecord',
     'unloadRecord',
-    'find',
     'findRecord',
     'getReference',
     'peekRecord',
@@ -68,11 +67,12 @@ module('unit/store/asserts - DS.Store methods produce useful assertion messages'
     'serializerFor',
   ];
 
-  test('Calling Store methods after the store has been destroyed asserts', function (assert) {
+  test('Calling Store methods after the store has been destroyed asserts', async function (assert) {
     const store = new Store();
     store.shouldAssertMethodCallsOnDestroyedStore = true;
     assert.expect(STORE_ENTRY_METHODS.length);
-    run(() => store.destroy());
+    store.destroy();
+    await settled();
 
     STORE_ENTRY_METHODS.forEach((methodName) => {
       assert.expectAssertion(() => {

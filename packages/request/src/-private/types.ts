@@ -1,58 +1,24 @@
 /* eslint-disable no-irregular-whitespace */
+
+import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type {
+  IS_FUTURE,
+  RequestContext,
+  RequestInfo,
+  ResponseInfo,
+  StructuredDataDocument,
+} from '@warp-drive/core-types/request';
+
 /**
  * @module @ember-data/request
  */
-import type Store from '@ember-data/store';
-import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-
-interface Request {
-  controller?: AbortController;
-  /* Returns the cache mode associated with request, which is a string indicating how the request will interact with the browser's cache when fetching. */
-  cache?: RequestCache;
-  /* Returns the credentials mode associated with request, which is a string indicating whether credentials will be sent with the request always, never, or only when sent to a same-origin URL. */
-  credentials?: RequestCredentials;
-  /* Returns the kind of resource requested by request, e.g., "document" or "script". */
-  destination?: RequestDestination;
-  /* Returns a Headers object consisting of the headers associated with request. Note that headers added in the network layer by the user agent will not be accounted for in this object, e.g., the "Host" header. */
-  headers?: Headers;
-  /* Returns request's subresource integrity metadata, which is a cryptographic hash of the resource being fetched. Its value consists of multiple hashes separated by whitespace. [SRI] */
-  integrity?: string;
-  /* Returns a boolean indicating whether or not request can outlive the global in which it was created. */
-  keepalive?: boolean;
-  /* Returns request's HTTP method, which is "GET" by default. */
-  method?: string;
-  /* Returns the mode associated with request, which is a string indicating whether the request will use CORS, or will be restricted to same-origin URLs. */
-  mode?: RequestMode;
-  /* Returns the redirect mode associated with request, which is a string indicating how redirects for the request will be handled during fetching. A request will follow redirects by default. */
-  redirect?: RequestRedirect;
-  /* Returns the referrer of request. Its value can be a same-origin URL if explicitly set in init, the empty string to indicate no referrer, and "about:client" when defaulting to the global's default. This is used during fetching to determine the value of the `Referer` header of the request being made. */
-  referrer?: string;
-  /* Returns the referrer policy associated with request. This is used during fetching to compute the value of the request's referrer. */
-  referrerPolicy?: ReferrerPolicy;
-  /* Returns the signal associated with request, which is an AbortSignal object indicating whether or not request has been aborted, and its abort event handler. */
-  signal?: AbortSignal;
-  /* Returns the URL of request as a string. */
-  url?: string;
-}
-export type ImmutableHeaders = Headers & { clone(): Headers; toJSON(): [string, string][] };
 export interface GodContext {
   controller: AbortController;
   response: ResponseInfo | null;
   stream: ReadableStream | Promise<ReadableStream | null> | null;
   hasRequestedStream: boolean;
   id: number;
-}
-
-export interface StructuredDataDocument<T> {
-  request: ImmutableRequestInfo;
-  response: Response | ResponseInfo | null;
-  content: T;
-}
-export interface StructuredErrorDocument<T = unknown> extends Error {
-  request: ImmutableRequestInfo;
-  response: Response | ResponseInfo | null;
-  error: string | object;
-  content?: T;
+  identifier: StableDocumentIdentifier | null;
 }
 
 export type Deferred<T> = {
@@ -60,6 +26,8 @@ export type Deferred<T> = {
   reject(v: unknown): void;
   promise: Promise<T>;
 };
+
+export type ManagedRequestPriority = { blocking: boolean };
 
 export type DeferredStream = {
   resolve(v: ReadableStream | null): void;
@@ -77,13 +45,14 @@ export type DeferredStream = {
  * @public
  */
 export type Future<T> = Promise<StructuredDataDocument<T>> & {
+  [IS_FUTURE]: true;
   /**
    * Cancel this request by firing the AbortController's signal.
    *
    * @method abort
    * @param {string} [reason] optional reason for aborting the request
    * @public
-   * @returns {void}
+   * @return {void}
    */
   abort(reason?: string): void;
   /**
@@ -91,7 +60,7 @@ export type Future<T> = Promise<StructuredDataDocument<T>> & {
    *
    * @method getStream
    * @public
-   * @returns {Promise<ReadableStream | null>}
+   * @return {Promise<ReadableStream | null>}
    */
   getStream(): Promise<ReadableStream | null>;
 
@@ -102,9 +71,29 @@ export type Future<T> = Promise<StructuredDataDocument<T>> & {
    * @method onFinalize
    * @param cb the callback to run
    * @public
-   * @returns void
+   * @return void
    */
   onFinalize(cb: () => void): void;
+
+  /**
+   * The identifier of the associated request, if any, as
+   * assigned by the CacheHandler.
+   *
+   * @property lid
+   * @type {StableDocumentIdentifier | null}
+   * @public
+   */
+  lid: StableDocumentIdentifier | null;
+
+  /**
+   * The id of the associated request, if any, as assigned
+   * by the RequestManager
+   *
+   * @property id
+   * @type {number}
+   * @public
+   */
+  id: number;
 };
 
 export type DeferredFuture<T> = {
@@ -112,98 +101,6 @@ export type DeferredFuture<T> = {
   reject(v: unknown): void;
   promise: Future<T>;
 };
-
-export interface RequestInfo extends Request {
-  cacheOptions?: { key?: string; reload?: boolean; backgroundReload?: boolean };
-  store?: Store;
-
-  op?: string;
-  records?: StableRecordIdentifier[];
-
-  disableTestWaiter?: boolean;
-  /*
-   * data that a handler should convert into
-   * the query (GET) or body (POST)
-   */
-  data?: Record<string, unknown>;
-  /*
-   * options specifically intended for handlers
-   * to utilize to process the request
-   */
-  options?: Record<string, unknown>;
-}
-
-export const SkipCache = Symbol.for('ember-data:skip-cache');
-
-export interface ImmutableRequestInfo {
-  readonly cacheOptions?: {
-    key?: string;
-    reload?: boolean;
-    backgroundReload?: boolean;
-    types?: string[];
-    [SkipCache]?: true;
-  };
-  readonly store?: Store;
-
-  readonly op?: string;
-  readonly records?: StableRecordIdentifier[];
-
-  readonly disableTestWaiter?: boolean;
-  /* Returns the cache mode associated with request, which is a string indicating how the request will interact with the browser's cache when fetching. */
-  readonly cache?: RequestCache;
-  /* Returns the credentials mode associated with request, which is a string indicating whether credentials will be sent with the request always, never, or only when sent to a same-origin URL. */
-  readonly credentials?: RequestCredentials;
-  /* Returns the kind of resource requested by request, e.g., "document" or "script". */
-  readonly destination?: RequestDestination;
-  /* Returns a Headers object consisting of the headers associated with request. Note that headers added in the network layer by the user agent will not be accounted for in this object, e.g., the "Host" header. */
-  readonly headers?: Headers & { clone(): Headers };
-  /* Returns request's subresource integrity metadata, which is a cryptographic hash of the resource being fetched. Its value consists of multiple hashes separated by whitespace. [SRI] */
-  readonly integrity?: string;
-  /* Returns a boolean indicating whether or not request can outlive the global in which it was created. */
-  readonly keepalive?: boolean;
-  /* Returns request's HTTP method, which is "GET" by default. */
-  readonly method?: string;
-  /* Returns the mode associated with request, which is a string indicating whether the request will use CORS, or will be restricted to same-origin URLs. */
-  readonly mode?: RequestMode;
-  /* Returns the redirect mode associated with request, which is a string indicating how redirects for the request will be handled during fetching. A request will follow redirects by default. */
-  readonly redirect?: RequestRedirect;
-  /* Returns the referrer of request. Its value can be a same-origin URL if explicitly set in init, the empty string to indicate no referrer, and "about:client" when defaulting to the global's default. This is used during fetching to determine the value of the `Referer` header of the request being made. */
-  readonly referrer?: string;
-  /* Returns the referrer policy associated with request. This is used during fetching to compute the value of the request's referrer. */
-  readonly referrerPolicy?: ReferrerPolicy;
-  /* Returns the signal associated with request, which is an AbortSignal object indicating whether or not request has been aborted, and its abort event handler. */
-  readonly signal?: AbortSignal;
-  /* Returns the URL of request as a string. */
-  readonly url?: string;
-  /*
-   * data that a handler should convert into
-   * the query (GET) or body (POST)
-   */
-  readonly data?: Record<string, unknown>;
-  /*
-   * options specifically intended for handlers
-   * to utilize to process the request
-   */
-  readonly options?: Record<string, unknown>;
-}
-
-export interface ResponseInfo {
-  readonly headers: ImmutableHeaders; // to do, maybe not this?
-  readonly ok: boolean;
-  readonly redirected: boolean;
-  readonly status: number;
-  readonly statusText: string;
-  readonly type: string;
-  readonly url: string;
-}
-
-export interface RequestContext {
-  request: ImmutableRequestInfo;
-  id: number;
-
-  setStream(stream: ReadableStream): void;
-  setResponse(response: Response | ResponseInfo): void;
-}
 
 export type NextFn<P = unknown> = (req: RequestInfo) => Future<P>;
 

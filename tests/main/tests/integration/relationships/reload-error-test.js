@@ -1,7 +1,6 @@
 import EmberObject from '@ember/object';
 
 import { module, test } from 'qunit';
-import { reject } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -26,7 +25,7 @@ module('Relationships | unloading new records', function (hooks) {
       return false;
     }
     findRecord() {
-      return reject(new Error(`Bad Request`));
+      return Promise.reject(new Error(`Bad Request`));
     }
   }
 

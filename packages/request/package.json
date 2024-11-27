@@ -11,64 +11,73 @@
   },
   "homepage": "https://github.com/emberjs/data",
   "bugs": "https://github.com/emberjs/data/issues",
-  "engines": {
-    "node": "16.* || >= 18"
-  },
   "keywords": [
     "ember-addon"
   ],
-  "volta": {
-    "extends": "../../package.json"
-  },
-  "dependencies": {
-    "ember-cli-babel": "^7.26.11",
-    "@ember-data/private-build-infra": "workspace:4.12.8",
-    "@embroider/macros": "^1.10.0",
-    "@ember/test-waiters": "^3.0.2"
+  "scripts": {
+    "lint": "eslint . --quiet --cache --cache-strategy=content",
+    "build:pkg": "vite build;",
+    "prepack": "bun run build:pkg",
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
   "files": [
-    "addon-main.js",
-    "addon",
+    "unstable-preview-types",
+    "addon-main.cjs",
+    "dist",
     "README.md",
     "LICENSE.md",
     "ember-data-logo-dark.svg",
     "ember-data-logo-light.svg"
   ],
-  "scripts": {
-    "build": "rollup --config && babel ./addon --out-dir addon --plugins=../private-build-infra/src/transforms/babel-plugin-transform-ext.js",
-    "start": "rollup --config --watch",
-    "prepack": "pnpm build",
-    "prepare": "pnpm build"
+  "exports": {
+    ".": {
+      "types": "./unstable-preview-types/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./unstable-preview-types/*.d.ts",
+      "default": "./dist/*.js"
+    }
   },
-  "ember-addon": {
-    "main": "addon-main.js",
-    "type": "addon",
-    "version": 1
+  "peerDependencies": {
+    "@warp-drive/core-types": "workspace:*"
+  },
+  "dependencies": {
+    "@ember/test-waiters": "^3.1.0",
+    "@embroider/macros": "^1.16.6",
+    "@warp-drive/build-config": "workspace:*"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.5",
+    "@babel/plugin-transform-typescript": "^7.24.5",
+    "@babel/preset-env": "^7.24.5",
+    "@babel/preset-typescript": "^7.24.1",
+    "@glimmer/component": "^1.1.2",
+    "@warp-drive/core-types": "workspace:*",
+    "@warp-drive/internal-config": "workspace:*",
+    "ember-source": "~5.12.0",
+    "pnpm-sync-dependencies-meta-injected": "0.0.14",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.11"
   },
   "dependenciesMeta": {
-    "@ember-data/private-build-infra": {
+    "@warp-drive/core-types": {
+      "injected": true
+    },
+    "@warp-drive/build-config": {
       "injected": true
     }
   },
-  "peerDependencies": {},
-  "devDependencies": {
-    "@embroider/addon-dev": "^3.0.0",
-    "rollup": "^3.20.2",
-    "@babel/core": "^7.21.4",
-    "@babel/cli": "^7.21.0",
-    "@babel/plugin-proposal-class-properties": "^7.18.6",
-    "@babel/plugin-proposal-decorators": "^7.21.0",
-    "@babel/plugin-transform-typescript": "^7.21.3",
-    "@babel/plugin-proposal-private-methods": "^7.18.6",
-    "@babel/plugin-transform-runtime": "^7.21.4",
-    "@babel/preset-typescript": "^7.21.4",
-    "@babel/preset-env": "^7.21.4",
-    "@babel/runtime": "^7.21.0",
-    "@rollup/plugin-babel": "^6.0.3",
-    "@rollup/plugin-node-resolve": "^15.0.1",
-    "tslib": "^2.5.0",
-    "walk-sync": "^3.0.0",
-    "typescript": "^5.0.3"
+  "engines": {
+    "node": ">= 18.20.4"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  },
+  "ember-addon": {
+    "main": "addon-main.cjs",
+    "type": "addon",
+    "version": 2
   },
   "ember": {
     "edition": "octane"

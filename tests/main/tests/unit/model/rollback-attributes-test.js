@@ -1,9 +1,7 @@
 import { addObserver } from '@ember/object/observers';
-import { run } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { reject } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -30,8 +28,8 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
     });
 
     test('changes to attributes can be rolled back', function (assert) {
-      let store = this.owner.lookup('service:store');
-      let person = store.push({
+      const store = this.owner.lookup('service:store');
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -52,28 +50,23 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
     });
 
     test('changes to unassigned attributes can be rolled back', function (assert) {
-      let store = this.owner.lookup('service:store');
-      let person;
+      const store = this.owner.lookup('service:store');
 
-      run(() => {
-        store.push({
-          data: {
-            type: 'person',
-            id: '1',
-            attributes: {
-              lastName: 'Dale',
-            },
+      store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          attributes: {
+            lastName: 'Dale',
           },
-        });
-        person = store.peekRecord('person', 1);
-        person.set('firstName', 'Thomas');
-
-        return person;
+        },
       });
+      const person = store.peekRecord('person', 1);
+      person.set('firstName', 'Thomas');
 
       assert.strictEqual(person.firstName, 'Thomas');
 
-      run(() => person.rollbackAttributes());
+      person.rollbackAttributes();
 
       assert.strictEqual(person.firstName, undefined);
       assert.false(person.hasDirtyAttributes);
@@ -84,7 +77,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
       const adapter = store.adapterFor('application');
 
       let resolve;
-      let trap = new Promise((r) => (resolve = r));
+      const trap = new Promise((r) => (resolve = r));
       adapter.updateRecord = async function (store, type, snapshot) {
         resolve();
         await trap;
@@ -127,14 +120,14 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
     });
 
     test("a record's changes can be made if it fails to save", async function (assert) {
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
 
       adapter.updateRecord = function (store, type, snapshot) {
-        return reject();
+        return Promise.reject();
       };
 
-      let person = store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -163,67 +156,61 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
       }
     });
 
-    test(`a deleted record's attributes can be rollbacked if it fails to save, record arrays are updated accordingly`, function (assert) {
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+    test(`a deleted record's attributes can be rollbacked if it fails to save, record arrays are updated accordingly`, async function (assert) {
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
 
       adapter.deleteRecord = function (store, type, snapshot) {
-        return reject();
+        return Promise.reject();
       };
 
-      let person, people;
-
-      run(() => {
-        store.push({
-          data: {
-            type: 'person',
-            id: '1',
-            attributes: {
-              firstName: 'Tom',
-              lastName: 'Dale',
-            },
+      store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          attributes: {
+            firstName: 'Tom',
+            lastName: 'Dale',
           },
-        });
-        person = store.peekRecord('person', 1);
-        people = store.peekAll('person');
+        },
       });
+      const person = store.peekRecord('person', 1);
+      const people = store.peekAll('person');
 
-      run(() => person.deleteRecord());
+      person.deleteRecord();
 
       assert.strictEqual(people.length, 1, 'a deleted record appears in record array until it is saved');
       assert.strictEqual(people.at(0), person, 'a deleted record appears in record array until it is saved');
 
-      return run(() => {
-        return person
-          .save()
-          .catch(() => {
-            assert.true(person.isError);
-            assert.true(person.isDeleted);
+      await person
+        .save()
+        .catch(() => {
+          assert.true(person.isError);
+          assert.true(person.isDeleted);
 
-            run(() => person.rollbackAttributes());
+          person.rollbackAttributes();
 
-            assert.false(person.isDeleted);
-            assert.false(person.isError);
-            assert.false(person.hasDirtyAttributes, 'must be not dirty');
-          })
-          .then(() => {
-            assert.strictEqual(
-              people.length,
-              1,
-              'the underlying record array is updated accordingly in an asynchronous way'
-            );
-          });
-      });
+          assert.false(person.isDeleted);
+          assert.false(person.isError);
+          assert.false(person.hasDirtyAttributes, 'must be not dirty');
+        })
+        .then(() => {
+          assert.strictEqual(
+            people.length,
+            1,
+            'the underlying record array is updated accordingly in an asynchronous way'
+          );
+        });
     });
 
     test(`new record's attributes can be rollbacked`, function (assert) {
-      let store = this.owner.lookup('service:store');
-      let person = store.createRecord('person', { id: '1' });
+      const store = this.owner.lookup('service:store');
+      const person = store.createRecord('person', { id: '1' });
 
       assert.true(person.isNew, 'must be new');
       assert.true(person.hasDirtyAttributes, 'must be dirty');
 
-      run(person, 'rollbackAttributes');
+      person.rollbackAttributes();
 
       assert.false(person.isNew, 'must not be new');
       assert.false(person.hasDirtyAttributes, 'must not be dirty');
@@ -231,24 +218,24 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
     });
 
     test(`invalid new record's attributes can be rollbacked`, async function (assert) {
-      let error = new InvalidError([
+      const error = new InvalidError([
         {
           detail: 'is invalid',
           source: { pointer: 'data/attributes/name' },
         },
       ]);
 
-      let adapter = RESTAdapter.extend({
+      const adapter = RESTAdapter.extend({
         ajax(url, type, hash) {
-          return reject(error);
+          return Promise.reject(error);
         },
       });
 
       this.owner.register('adapter:application', adapter);
       this.owner.register('serializer:application', RESTSerializer.extend());
 
-      let store = this.owner.lookup('service:store');
-      let person = store.createRecord('person', { id: '1' });
+      const store = this.owner.lookup('service:store');
+      const person = store.createRecord('person', { id: '1' });
 
       assert.true(person.isNew, 'must be new');
       assert.true(person.hasDirtyAttributes, 'must be dirty');
@@ -267,81 +254,72 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
       }
     });
 
-    test(`invalid record's attributes can be rollbacked after multiple failed calls - #3677`, function (assert) {
-      let adapter = RESTAdapter.extend({
+    test(`invalid record's attributes can be rollbacked after multiple failed calls - #3677`, async function (assert) {
+      const adapter = RESTAdapter.extend({
         ajax(url, type, hash) {
-          let error = new InvalidError();
-          return reject(error);
+          const error = new InvalidError();
+          return Promise.reject(error);
         },
       });
 
       this.owner.register('adapter:application', adapter);
       this.owner.register('serializer:application', RESTSerializer.extend());
 
-      let store = this.owner.lookup('service:store');
+      const store = this.owner.lookup('service:store');
 
-      let person;
-      run(() => {
-        person = store.push({
-          data: {
-            type: 'person',
-            id: '1',
-            attributes: {
-              firstName: 'original name',
-            },
+      const person = store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          attributes: {
+            firstName: 'original name',
           },
+        },
+      });
+
+      person.set('firstName', 'updated name');
+
+      assert.strictEqual(person.firstName, 'updated name', 'precondition: firstName is changed');
+
+      await person
+        .save()
+        .catch(() => {
+          assert.true(person.hasDirtyAttributes, 'has dirty attributes');
+          assert.strictEqual(person.firstName, 'updated name', 'firstName is still changed');
+
+          return person.save();
+        })
+        .catch(() => {
+          person.rollbackAttributes();
+
+          assert.false(person.hasDirtyAttributes, 'has no dirty attributes');
+          assert.strictEqual(
+            person.firstName,
+            'original name',
+            'after rollbackAttributes() firstName has the original value'
+          );
         });
-
-        person.set('firstName', 'updated name');
-      });
-
-      return run(() => {
-        assert.strictEqual(person.firstName, 'updated name', 'precondition: firstName is changed');
-
-        return person
-          .save()
-          .catch(() => {
-            assert.true(person.hasDirtyAttributes, 'has dirty attributes');
-            assert.strictEqual(person.firstName, 'updated name', 'firstName is still changed');
-
-            return person.save();
-          })
-          .catch(() => {
-            run(() => person.rollbackAttributes());
-
-            assert.false(person.hasDirtyAttributes, 'has no dirty attributes');
-            assert.strictEqual(
-              person.firstName,
-              'original name',
-              'after rollbackAttributes() firstName has the original value'
-            );
-          });
-      });
     });
 
     test(`deleted record's attributes can be rollbacked`, function (assert) {
-      let store = this.owner.lookup('service:store');
+      const store = this.owner.lookup('service:store');
 
-      let person, people;
-
-      run(() => {
-        store.push({
-          data: {
-            type: 'person',
-            id: '1',
-          },
-        });
-        person = store.peekRecord('person', 1);
-        people = store.peekAll('person');
-        person.deleteRecord();
+      store.push({
+        data: {
+          type: 'person',
+          id: '1',
+        },
       });
+      const person = store.peekRecord('person', 1);
+      const people = store.peekAll('person');
+      person.deleteRecord();
 
       assert.strictEqual(people.length, 1, 'a deleted record appears in the record array until it is saved');
       assert.strictEqual(people.at(0), person, 'a deleted record appears in the record array until it is saved');
 
       assert.true(person.isDeleted, 'must be deleted');
 
-      run(() => person.rollbackAttributes());
+      person.rollbackAttributes();
 
       assert.strictEqual(people.length, 1, 'the rollbacked record should appear again in the record array');
       assert.false(person.isDeleted, 'must not be deleted');
@@ -360,7 +338,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
       ]);
       class TestAdapter extends RESTAdapter {
         ajax() {
-          return reject(thrownAdapterError);
+          return Promise.reject(thrownAdapterError);
         }
       }
 
@@ -415,7 +393,7 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
     ]);
     class TestAdapter extends RESTAdapter {
       ajax() {
-        return reject(thrownAdapterError);
+        return Promise.reject(thrownAdapterError);
       }
     }
     const { owner } = this;
@@ -472,16 +450,16 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
       name: attr(),
     });
 
-    let error = new InvalidError([
+    const error = new InvalidError([
       {
         detail: 'is invalid',
         source: { pointer: 'data/attributes/name' },
       },
     ]);
 
-    let adapter = RESTAdapter.extend({
+    const adapter = RESTAdapter.extend({
       ajax(url, type, hash) {
-        return reject(error);
+        return Promise.reject(error);
       },
     });
 
@@ -489,8 +467,8 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function (h
     this.owner.register('adapter:application', adapter);
     this.owner.register('serializer:application', RESTSerializer.extend());
 
-    let store = this.owner.lookup('service:store');
-    let dog = store.push({
+    const store = this.owner.lookup('service:store');
+    const dog = store.push({
       data: {
         type: 'dog',
         id: '1',

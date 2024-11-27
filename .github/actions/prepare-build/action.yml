@@ -19,7 +19,7 @@ runs:
   using: composite
     - name: Restore ${{ inputs.name }}
       id: restore-ref-artifact
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ./${{ inputs.package }}/dist-${{ inputs.ref }}${{ inputs.ext }}
@@ -29,9 +29,10 @@ runs:
 
     - if: ${{ steps.restore-ref-artifact.outputs.cache-hit != 'true' }}
       name: Build ${{ inputs.name }}
-      uses: actions/checkout@v3
+      uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
         with:
           ref: ${{ inputs.ref }}
           fetch-depth: 1
+          show-progress: false
       run: pnpm install
       run: ${{ inputs.build }} --output-path ./dist-${{ inputs.ref }}${{ inputs.ext }}

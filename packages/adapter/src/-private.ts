@@ -2,9 +2,9 @@
   @module @ember-data/adapter
 */
 
-export { default as parseResponseHeaders } from './-private/utils/parse-response-headers';
+export { parseResponseHeaders } from './-private/utils/parse-response-headers';
 export { determineBodyPromise } from './-private/utils/determine-body-promise';
 export { serializeQueryParams } from './-private/utils/serialize-query-params';
-export { default as fetch, setupFastboot } from './-private/utils/fetch';
-export { default as BuildURLMixin } from './-private/build-url-mixin';
-export { default as serializeIntoHash } from './-private/utils/serialize-into-hash';
+export { getFetchFunction as fetch, setupFastboot } from './-private/utils/fetch';
+export { BuildURLMixin } from './-private/build-url-mixin';
+export { serializeIntoHash } from './-private/utils/serialize-into-hash';

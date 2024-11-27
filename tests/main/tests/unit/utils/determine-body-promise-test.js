@@ -1,7 +1,6 @@
 // Tests copied from ember-fetch addon
 
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { determineBodyPromise } from '@ember-data/adapter/-private';
 
@@ -14,7 +13,7 @@ class Response {
   }
 
   text() {
-    return resolve(this._text);
+    return Promise.resolve(this._text);
   }
 }
 
@@ -74,7 +73,7 @@ module('Unit | determineBodyPromise', function () {
     });
   });
 
-  test('determineBodyResponse returns undefined when the http status code is 204', function (assert) {
+  test('determineBodyResponse returns undefined when the http status code is 204 and response is "null"', function (assert) {
     assert.expect(1);
 
     const response = new Response('null', { status: 204 });
@@ -85,7 +84,7 @@ module('Unit | determineBodyPromise', function () {
     });
   });
 
-  test('determineBodyResponse returns undefined when the http status code is 205', function (assert) {
+  test('determineBodyResponse returns undefined when the http status code is 205 and response is "null"', function (assert) {
     assert.expect(1);
 
     const response = new Response('null', { status: 205 });
@@ -96,7 +95,7 @@ module('Unit | determineBodyPromise', function () {
     });
   });
 
-  test("determineBodyResponse returns undefined when the request method is 'HEAD'", function (assert) {
+  test("determineBodyResponse returns undefined when the request method is 'HEAD' and response is 'null'", function (assert) {
     assert.expect(1);
 
     const response = new Response('null', { status: 200 });

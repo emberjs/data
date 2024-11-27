@@ -4,6 +4,45 @@ const path = require('path');
 const Y = require('yuidocjs');
 const getVersion = require('git-repo-version');
 
+/**
+ * This is a fix for decorator handling in code comment blocks that is
+ * part of https://github.com/cibernox/ember-cli-yuidoc and is what allows
+ * ember.js yui doc generation to handle decorator syntax. See:
+ * https://github.com/cibernox/ember-cli-yuidoc/blob/master/lib/broccoli-yuidoc.js
+ */
+const originalHandleComment = Y.DocParser.prototype.handlecomment;
+const AT_PLACEHOLDER = '---AT-PLACEHOLDER---';
+const AT_PLACEHOLDER_REGEX = new RegExp(AT_PLACEHOLDER, 'g');
+
+Y.DocParser.prototype.handlecomment = function (comment, file, line) {
+  const lines = comment.split(/\r\n|\n/);
+
+  let inMarkdownBlock = false;
+
+  const newLines = lines.map((line) => {
+    if (line.match(/^(\s*\*)?\s*```/)) {
+      inMarkdownBlock = !inMarkdownBlock;
+    }
+
+    return inMarkdownBlock ? line.replace(/@/g, AT_PLACEHOLDER) : line;
+  });
+
+  const ret = originalHandleComment.call(this, newLines.join('\n'), file, line);
+  const description = ret.find((t) => t.tag === 'description');
+
+  if (description) {
+    description.value = description.value.replace(AT_PLACEHOLDER_REGEX, '@');
+  }
+
+  ret
+    .filter((t) => t.tag === 'example')
+    .map((example) => {
+      example.value = example.value.replace(AT_PLACEHOLDER_REGEX, '@');
+    });
+
+  return ret;
+};
+
 function loadYuidocOptions() {
   return JSON.parse(fs.readFileSync(path.join(__dirname, './yuidoc.json')));
 }

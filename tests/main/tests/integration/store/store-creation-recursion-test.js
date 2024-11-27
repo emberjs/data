@@ -8,12 +8,12 @@ module('integration/store/creation-recursion', function (hooks) {
   setupTest(hooks);
 
   test('store construction does not construct transforms', function (assert) {
-    let storeFactory = this.owner.factoryFor('service:store');
+    const storeFactory = this.owner.factoryFor('service:store');
 
     this.owner.unregister('service:store');
     this.owner.register('service:store', storeFactory.class);
 
-    let test = this;
+    const test = this;
     test.dateTransformCreated = false;
     class MockDateTransform extends Transform {
       constructor(...args) {

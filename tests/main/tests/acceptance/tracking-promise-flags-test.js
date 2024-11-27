@@ -1,8 +1,8 @@
 import { render, settled } from '@ember/test-helpers';
 
-import hbs from 'htmlbars-inline-precompile';
 import { module } from 'qunit';
 
+import { hbs } from 'ember-cli-htmlbars';
 import { setupRenderingTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
@@ -17,7 +17,7 @@ module('acceptance/tracking-promise-flags', function (hooks) {
   setupRenderingTest(hooks);
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
     owner.register('model:widget', Widget);
     owner.register(
       'serializer:application',
@@ -44,7 +44,7 @@ module('acceptance/tracking-promise-flags', function (hooks) {
         }
       }
       owner.register('adapter:application', TestAdapter);
-      let store = owner.lookup('service:store');
+      const store = owner.lookup('service:store');
       store.DISABLE_WAITER = true;
       this.model = store.findRecord('widget', '1');
 

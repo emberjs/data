@@ -1,22 +1,20 @@
-import { assert } from '@ember/debug';
-
-import type { Snapshot } from 'ember-data/-private';
-
+import type { MinimumSerializerInterface, SerializerOptions } from '@ember-data/legacy-compat';
+import { type Snapshot, upgradeStore } from '@ember-data/legacy-compat/-private';
 import type Store from '@ember-data/store';
-import type ShimModelClass from '@ember-data/store/-private/legacy-model-support/shim-model-class';
-import type { DSModelSchema } from '@ember-data/types/q/ds-model';
-import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-serializer-interface';
+import type { ModelSchema } from '@ember-data/store/types';
+import { assert } from '@warp-drive/build-config/macros';
 
 type SerializerWithSerializeIntoHash = MinimumSerializerInterface & {
-  serializeIntoHash?(hash: {}, modelClass: ShimModelClass, snapshot: Snapshot, options?: { includeId?: boolean }): void;
+  serializeIntoHash?(hash: object, modelClass: ModelSchema, snapshot: Snapshot, options?: SerializerOptions): void;
 };
 
-export default function serializeIntoHash(
+export function serializeIntoHash(
   store: Store,
-  modelClass: ShimModelClass | DSModelSchema,
+  modelClass: ModelSchema,
   snapshot: Snapshot,
   options: { includeId?: boolean } = { includeId: true }
 ) {
+  upgradeStore(store);
   const serializer: SerializerWithSerializeIntoHash | null = store.serializerFor(modelClass.modelName);
 
   assert(`Cannot serialize record, no serializer defined`, serializer);

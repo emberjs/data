@@ -1,0 +1,21 @@
+#!/bin/bash
+script_dir=`dirname "$0"`
+file=${script_dir}/../../../failed-test-log.txt
+
+# If the file exists and is not empty
+if [ -s "$file" ]; then
+	commas=`awk -F "," ' { print NF-1 } ' $file`
+	count=$((commas + 1))
+	# If there aren't enough tests it doesn't really help to parallelize
+	if (( $count < 48 )); then
+		echo 1
+		exit;
+	fi
+fi
+
+# $JOBS will be set in CI
+if [ -z "$JOBS" ]; then
+	JOBS=$(sysctl -n hw.ncpu)
+fi
+
+echo $(($JOBS * 1))

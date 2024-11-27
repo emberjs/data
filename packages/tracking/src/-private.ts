@@ -1,4 +1,9 @@
-import { DEBUG } from '@ember-data/env';
+import { tagForProperty } from '@ember/-internals/metal';
+import { consumeTag, dirtyTag } from '@glimmer/validator';
+
+import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
+import { DEBUG } from '@warp-drive/build-config/env';
+import { getOrSetGlobal, peekTransient, setTransient } from '@warp-drive/core-types/-private';
 
 /**
  * This package provides primitives that allow powerful low-level
@@ -15,53 +20,89 @@ import { DEBUG } from '@ember-data/env';
  * @main @ember-data/tracking
  */
 type OpaqueFn = (...args: unknown[]) => unknown;
-export type Tag = { ref: null; t: boolean };
+type Tag = { ref: null; t: boolean };
 type Transaction = {
   cbs: Set<OpaqueFn>;
-  props: Set<Tag>;
-  sub: Set<Tag>;
+  props: Set<Tag | Signal>;
+  sub: Set<Tag | Signal>;
   parent: Transaction | null;
 };
-let TRANSACTION: Transaction | null = null;
 
 function createTransaction() {
-  let transaction: Transaction = {
+  const transaction: Transaction = {
     cbs: new Set(),
     props: new Set(),
     sub: new Set(),
     parent: null,
   };
+  const TRANSACTION = peekTransient<Transaction>('TRANSACTION');
+
   if (TRANSACTION) {
     transaction.parent = TRANSACTION;
   }
-  TRANSACTION = transaction;
+  setTransient('TRANSACTION', transaction);
 }
 
-export function subscribe(obj: Tag): void {
+function maybeConsume(tag: ReturnType<typeof tagForProperty> | null): void {
+  if (tag) {
+    consumeTag(tag);
+  }
+}
+
+function maybeDirty(tag: ReturnType<typeof tagForProperty> | null): void {
+  if (tag) {
+    // @ts-expect-error - we are using Ember's Tag not Glimmer's
+    dirtyTag(tag);
+  }
+}
+
+/**
+ * If there is a current transaction, ensures that the relevant tag (and any
+ * array computed chains symbols, if applicable) will be consumed during the
+ * transaction.
+ *
+ * If there is no current transaction, will consume the tag(s) immediately.
+ *
+ * @internal
+ * @param obj
+ */
+export function subscribe(obj: Tag | Signal): void {
+  const TRANSACTION = peekTransient<Transaction | null>('TRANSACTION');
+
   if (TRANSACTION) {
     TRANSACTION.sub.add(obj);
+  } else if ('tag' in obj) {
+    if (DEPRECATE_COMPUTED_CHAINS) {
+      maybeConsume(obj['[]']);
+      maybeConsume(obj['@length']);
+    }
+    consumeTag(obj.tag);
   } else {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     obj.ref;
   }
 }
 
-function updateRef(obj: Tag): void {
+function updateRef(obj: Tag | Signal): void {
   if (DEBUG) {
     try {
-      obj.ref = null;
+      if ('tag' in obj) {
+        if (DEPRECATE_COMPUTED_CHAINS) {
+          maybeDirty(obj['[]']);
+          maybeDirty(obj['@length']);
+        }
+        // @ts-expect-error - we are using Ember's Tag not Glimmer's
+        dirtyTag(obj.tag);
+      } else {
+        obj.ref = null;
+      }
     } catch (e: unknown) {
       if (e instanceof Error) {
-        if (e.message.includes('You attempted to update `ref` on `Tag`')) {
-          e.message = e.message.replace(
-            'You attempted to update `ref` on `Tag`',
-            // @ts-expect-error
-            `You attempted to update <${obj._debug_base}>.${obj._debug_prop}` // eslint-disable-line
-          );
-          e.stack = e.stack?.replace(
-            'You attempted to update `ref` on `Tag`',
-            // @ts-expect-error
-            `You attempted to update <${obj._debug_base}>.${obj._debug_prop}` // eslint-disable-line
-          );
+        if (e.message.includes('You attempted to update `undefined`')) {
+          // @ts-expect-error
+          const key = `<${obj._debug_base}>.${obj.key}`;
+          e.message = e.message.replace('You attempted to update `undefined`', `You attempted to update ${key}`);
+          e.stack = e.stack?.replace('You attempted to update `undefined`', `You attempted to update ${key}`);
 
           const lines = e.stack?.split(`\n`);
           const finalLines: string[] = [];
@@ -87,9 +128,9 @@ function updateRef(obj: Tag): void {
             }
           });
 
-          const splitstr = '`ref` was first used:';
+          const splitstr = '`undefined` was first used:';
           const parts = e.message.split(splitstr);
-          parts.splice(1, 0, `Original Stack\n=============\n${finalLines.join(`\n`)}\n\n${splitstr}`);
+          parts.splice(1, 0, `Original Stack\n=============\n${finalLines.join(`\n`)}\n\n\`${key}\` was first used:`);
 
           e.message = parts.join('');
         }
@@ -97,51 +138,73 @@ function updateRef(obj: Tag): void {
       throw e;
     }
   } else {
-    obj.ref = null;
+    if ('tag' in obj) {
+      if (DEPRECATE_COMPUTED_CHAINS) {
+        maybeDirty(obj['[]']);
+        maybeDirty(obj['@length']);
+      }
+      // @ts-expect-error - we are using Ember's Tag not Glimmer's
+      dirtyTag(obj.tag);
+    } else {
+      obj.ref = null;
+    }
   }
 }
 
 function flushTransaction() {
-  let transaction = TRANSACTION!;
-  TRANSACTION = transaction.parent;
+  const transaction = peekTransient<Transaction>('TRANSACTION')!;
+  setTransient('TRANSACTION', transaction.parent);
   transaction.cbs.forEach((cb) => {
     cb();
   });
-  transaction.props.forEach((obj: Tag) => {
+  transaction.props.forEach((obj) => {
     // mark this mutation as part of a transaction
     obj.t = true;
     updateRef(obj);
   });
-  transaction.sub.forEach((obj: Tag) => {
-    obj.ref;
+  transaction.sub.forEach((obj) => {
+    if ('tag' in obj) {
+      if (DEPRECATE_COMPUTED_CHAINS) {
+        maybeConsume(obj['[]']);
+        maybeConsume(obj['@length']);
+      }
+      consumeTag(obj.tag);
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      obj.ref;
+    }
   });
 }
 async function untrack() {
-  let transaction = TRANSACTION!;
-  TRANSACTION = transaction.parent;
+  const transaction = peekTransient<Transaction>('TRANSACTION')!;
+  setTransient('TRANSACTION', transaction.parent);
 
   // defer writes
   await Promise.resolve();
   transaction.cbs.forEach((cb) => {
     cb();
   });
-  transaction.props.forEach((obj: Tag) => {
+  transaction.props.forEach((obj) => {
     // mark this mutation as part of a transaction
     obj.t = true;
     updateRef(obj);
   });
 }
 
-export function addToTransaction(obj: Tag): void {
-  if (TRANSACTION) {
-    TRANSACTION.props.add(obj);
+export function addToTransaction(obj: Tag | Signal): void {
+  const transaction = peekTransient<Transaction>('TRANSACTION');
+
+  if (transaction) {
+    transaction.props.add(obj);
   } else {
     updateRef(obj);
   }
 }
 export function addTransactionCB(method: OpaqueFn): void {
-  if (TRANSACTION) {
-    TRANSACTION.cbs.add(method);
+  const transaction = peekTransient<Transaction>('TRANSACTION');
+
+  if (transaction) {
+    transaction.cbs.add(method);
   } else {
     method();
   }
@@ -161,7 +224,7 @@ export function addTransactionCB(method: OpaqueFn): void {
  * @static
  * @for @ember-data/tracking
  * @param method
- * @returns result of invoking method
+ * @return result of invoking method
  */
 export function untracked<T extends OpaqueFn>(method: T): ReturnType<T> {
   createTransaction();
@@ -184,7 +247,7 @@ export function untracked<T extends OpaqueFn>(method: T): ReturnType<T> {
  * @static
  * @for @ember-data/tracking
  * @param method
- * @returns result of invoking method
+ * @return result of invoking method
  */
 export function transact<T extends OpaqueFn>(method: T): ReturnType<T> {
   createTransaction();
@@ -203,7 +266,7 @@ export function transact<T extends OpaqueFn>(method: T): ReturnType<T> {
  * @static
  * @for @ember-data/tracking
  * @param method
- * @returns a function that will invoke method in a transaction with any provided args and return its result
+ * @return a function that will invoke method in a transaction with any provided args and return its result
  */
 export function memoTransact<T extends OpaqueFn>(method: T): (...args: unknown[]) => ReturnType<T> {
   return function (...args: unknown[]) {
@@ -212,4 +275,210 @@ export function memoTransact<T extends OpaqueFn>(method: T): (...args: unknown[]
     flushTransaction();
     return ret as ReturnType<T>;
   };
+}
+
+export const Signals = getOrSetGlobal('Signals', Symbol('Signals'));
+
+/**
+ *  use to add a signal property to the prototype of something.
+ *
+ *  First arg is the thing to define on
+ *  Second arg is the property name
+ *  Third agg is the initial value of the property if any.
+ *
+ *  for instance
+ *
+ *  ```ts
+ *  class Model {}
+ *  defineSignal(Model.prototype, 'isLoading', false);
+ *  ```
+ *
+ *  This is sort of like using a stage-3 decorator but works today
+ *  while we are still on legacy decorators.
+ *
+ *  e.g. it is equivalent to
+ *
+ *  ```ts
+ *  class Model {
+ *    @signal accessor isLoading = false;
+ *  }
+ *  ```
+ *
+ *  @internal
+ */
+export function defineSignal<T extends object>(obj: T, key: string, v?: unknown) {
+  Object.defineProperty(obj, key, {
+    enumerable: true,
+    configurable: false,
+    get(this: T & { [Signals]: Map<string, Signal> }) {
+      const signals = (this[Signals] = this[Signals] || new Map());
+      const existing = signals.has(key);
+      const _signal = entangleSignal(signals, this, key);
+      if (!existing && v !== undefined) {
+        _signal.lastValue = v;
+      }
+      return _signal.lastValue;
+    },
+    set(this: T & { [Signals]: Map<string, Signal> }, value: unknown) {
+      const signals = (this[Signals] = this[Signals] || new Map());
+      let _signal = signals.get(key);
+      if (!_signal) {
+        _signal = createSignal(this, key);
+        signals.set(key, _signal);
+      }
+      if (_signal.lastValue !== value) {
+        _signal.lastValue = value;
+        addToTransaction(_signal);
+      }
+    },
+  });
+}
+
+export interface Signal {
+  /**
+   * Key on the associated object
+   * @internal
+   */
+  key: string;
+  _debug_base?: string;
+
+  /**
+   * Whether this signal is part of an active transaction.
+   * @internal
+   */
+  t: boolean;
+
+  /**
+   * Whether to "bust" the lastValue cache
+   * @internal
+   */
+  shouldReset: boolean;
+
+  /**
+   * The framework specific "signal" e.g. glimmer "tracked"
+   * or starbeam "cell" to consume/invalidate when appropriate.
+   *
+   * @internal
+   */
+  tag: ReturnType<typeof tagForProperty>;
+
+  /**
+   * In classic ember, arrays must entangle a `[]` symbol
+   * in addition to any other tag in order for array chains to work.
+   *
+   * Note, this symbol MUST be the one that ember itself generates
+   *
+   * @internal
+   */
+  '[]': ReturnType<typeof tagForProperty> | null;
+  /**
+   * In classic ember, arrays must entangle a `@length` symbol
+   * in addition to any other tag in order for array chains to work.
+   *
+   * Note, this symbol MUST be the one that ember itself generates
+   *
+   * @internal
+   */
+  '@length': ReturnType<typeof tagForProperty> | null;
+
+  /**
+   * The lastValue computed for this signal when
+   * a signal is also used for storage.
+   * @internal
+   */
+  lastValue: unknown;
+}
+
+export function createArrayTags<T extends object>(obj: T, signal: Signal) {
+  if (DEPRECATE_COMPUTED_CHAINS) {
+    signal['[]'] = tagForProperty(obj, '[]');
+    signal['@length'] = tagForProperty(obj, 'length');
+  }
+}
+
+/**
+ * Create a signal for the key/object pairing.
+ *
+ * @internal
+ * @param obj Object we're creating the signal on
+ * @param key Key to create the signal for
+ * @return the signal
+ */
+export function createSignal<T extends object>(obj: T, key: string): Signal {
+  const _signal: Signal = {
+    key,
+    tag: tagForProperty(obj, key),
+
+    t: false,
+    shouldReset: false,
+    '[]': null,
+    '@length': null,
+    lastValue: undefined,
+  };
+
+  if (DEBUG) {
+    function tryGet<T1 = string>(prop: string): T1 | undefined {
+      try {
+        return obj[prop as keyof typeof obj] as unknown as T1;
+      } catch {
+        return;
+      }
+    }
+    const modelName =
+      tryGet('$type') ?? tryGet('modelName') ?? tryGet<{ modelName?: string }>('constructor')?.modelName ?? '';
+
+    const className = obj.constructor?.name ?? obj.toString?.() ?? 'unknown';
+    _signal._debug_base = `${className}${modelName && !className.startsWith('SchemaRecord') ? `:${modelName}` : ''}`;
+  }
+
+  return _signal;
+}
+
+/**
+ * Create a signal for the key/object pairing and subscribes to the signal.
+ *
+ * Use when you need to ensure a signal exists and is subscribed to.
+ *
+ * @internal
+ * @param signals Map of signals
+ * @param obj Object we're creating the signal on
+ * @param key Key to create the signal for
+ * @return the signal
+ */
+export function entangleSignal<T extends object>(signals: Map<string, Signal>, obj: T, key: string): Signal {
+  let _signal = signals.get(key);
+  if (!_signal) {
+    _signal = createSignal(obj, key);
+    signals.set(key, _signal);
+  }
+  subscribe(_signal);
+  return _signal;
+}
+
+interface Signaler {
+  [Signals]: Map<string, Signal>;
+}
+
+export function getSignal<T extends object>(obj: T, key: string, initialState: boolean): Signal {
+  let signals = (obj as Signaler)[Signals];
+
+  if (!signals) {
+    signals = new Map();
+    (obj as Signaler)[Signals] = signals;
+  }
+
+  let _signal = signals.get(key);
+  if (!_signal) {
+    _signal = createSignal(obj, key);
+    _signal.shouldReset = initialState;
+    signals.set(key, _signal);
+  }
+  return _signal;
+}
+
+export function peekSignal<T extends object>(obj: T, key: string): Signal | undefined {
+  const signals = (obj as Signaler)[Signals];
+  if (signals) {
+    return signals.get(key);
+  }
 }

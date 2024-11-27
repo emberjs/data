@@ -24,3 +24,11 @@ Install using your javascript package manager of choice. For instance with [pnpm
 ```no-highlight
 pnpm add @ember-data/legacy-compat
 ```
+
+**Tagged Releases**
+
+- ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/legacy-compat/canary?label=%40canary&color=FFBF00)
+- ![NPM Beta Version](https://img.shields.io/npm/v/%40ember-data/legacy-compat/beta?label=%40beta&color=ff00ff)
+- ![NPM Stable Version](https://img.shields.io/npm/v/%40ember-data/legacy-compat/latest?label=%40latest&color=90EE90)
+- ![NPM LTS Version](https://img.shields.io/npm/v/%40ember-data/legacy-compat/lts?label=%40lts&color=0096FF)
+- ![NPM LTS 4.12 Version](https://img.shields.io/npm/v/%40ember-data/legacy-compat/lts-4-12?label=%40lts-4-12&color=bbbbbb)

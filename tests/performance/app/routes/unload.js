@@ -1,5 +1,4 @@
 import Route from '@ember/routing/route';
-import { run } from '@ember/runloop';
 import { inject as service } from '@ember/service';
 
 export default Route.extend({
@@ -14,9 +13,7 @@ export default Route.extend({
     const children = await parent.children;
 
     // runloop to ensure destroy does not escape bounds of the test
-    run(() => {
-      children.slice().forEach((child) => child.unloadRecord());
-    });
+    children.slice().forEach((child) => child.unloadRecord());
     performance.mark('end-unload-records');
   },
 });

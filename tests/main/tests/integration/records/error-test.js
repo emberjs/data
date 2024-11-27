@@ -1,5 +1,4 @@
 import { module, test } from 'qunit';
-import RSVP from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -22,7 +21,7 @@ module('integration/records/error', function (hooks) {
     this.owner.register('adapter:application', Adapter.extend());
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     store.push({
       data: {
@@ -35,7 +34,7 @@ module('integration/records/error', function (hooks) {
       },
     });
 
-    let person = store.peekRecord('person', 'wat');
+    const person = store.peekRecord('person', 'wat');
 
     person.setProperties({
       firstName: null,
@@ -78,9 +77,9 @@ module('integration/records/error', function (hooks) {
     this.owner.register('adapter:application', Adapter.extend());
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let person = store.createRecord('person', {
+    const person = store.createRecord('person', {
       id: 'wat',
       firstName: 'Yehuda',
       lastName: 'Katz',
@@ -127,9 +126,9 @@ module('integration/records/error', function (hooks) {
     this.owner.register('adapter:application', Adapter.extend());
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let person = store.createRecord('person', {
+    const person = store.createRecord('person', {
       id: 'wat',
       firstName: 'Yehuda',
     });
@@ -161,9 +160,9 @@ module('integration/records/error', function (hooks) {
     this.owner.register('adapter:application', Adapter.extend());
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let person = store.createRecord('person', {
+    const person = store.createRecord('person', {
       id: 'wat',
       firstName: 'Yehuda',
     });
@@ -194,11 +193,11 @@ module('integration/records/error', function (hooks) {
     this.owner.register('adapter:application', Adapter.extend());
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.createRecord = () => {
-      return RSVP.reject(
+      return Promise.reject(
         new InvalidError([
           {
             detail: 'Must be unique',
@@ -216,8 +215,8 @@ module('integration/records/error', function (hooks) {
 
     try {
       person = await person.save();
-    } catch (_error) {
-      let errors = person.errors;
+    } catch {
+      const errors = person.errors;
 
       assert.strictEqual(errors.length, 2, 'Adds two errors to the model');
       assert.true(errors.has('firstName'), 'firstName is included in the errors object');

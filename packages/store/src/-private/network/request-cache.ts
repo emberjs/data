@@ -1,28 +1,58 @@
 /**
  * @module @ember-data/store
  */
-import { assert } from '@ember/debug';
+import { DEBUG } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
+import { getOrSetGlobal } from '@warp-drive/core-types/-private';
+import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 
-import type {
-  FindRecordQuery,
-  Operation,
-  Request,
-  RequestState,
-  SaveRecordMutation,
-} from '@ember-data/types/q/fetch-manager';
-import type { RecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
+import type { FindRecordOptions } from '../../-types/q/store';
+import type { Store } from '../store-service';
 
-import Store from '../store-service';
+const Touching = getOrSetGlobal('Touching', Symbol('touching'));
+export const RequestPromise = getOrSetGlobal('RequestPromise', Symbol('promise'));
+const EMPTY_ARR: RequestState[] = DEBUG ? (Object.freeze([]) as unknown as RequestState[]) : [];
 
-const Touching: unique symbol = Symbol('touching');
-export const RequestPromise: unique symbol = Symbol('promise');
+export interface Operation {
+  op: string;
+  options: FindRecordOptions | undefined;
+  recordIdentifier: StableRecordIdentifier;
+}
+
+export interface FindRecordQuery extends Operation {
+  op: 'findRecord';
+}
+
+export interface SaveRecordMutation extends Operation {
+  op: 'saveRecord';
+}
+
+export interface Request {
+  data: Operation[];
+  options?: Record<string, unknown>;
+}
+
+export type RequestStates = 'pending' | 'fulfilled' | 'rejected';
+
+export interface RequestState {
+  state: RequestStates;
+  type: 'query' | 'mutation';
+  request: Request;
+  response?: Response;
+}
+
+export interface Response {
+  // rawData: unknown;
+  data: unknown;
+}
 
 interface InternalRequest extends RequestState {
-  [Touching]: RecordIdentifier[];
-  [RequestPromise]?: Promise<any>;
+  [Touching]: StableRecordIdentifier[];
+  [RequestPromise]?: Promise<unknown>;
 }
 
 type RecordOperation = FindRecordQuery | SaveRecordMutation;
+export type RequestSubscription = (requestState: RequestState) => void;
 
 function hasRecordIdentifier(op: Operation): op is RecordOperation {
   return 'recordIdentifier' in op;
@@ -35,14 +65,14 @@ function hasRecordIdentifier(op: Operation): op is RecordOperation {
  * @class RequestStateService
  * @public
  */
-export default class RequestStateService {
-  _pending: { [lid: string]: InternalRequest[] } = Object.create(null);
+export class RequestStateService {
+  _pending: Map<StableRecordIdentifier, InternalRequest[]> = new Map();
   _done: Map<StableRecordIdentifier, InternalRequest[]> = new Map();
-  _subscriptions: { [lid: string]: Function[] } = Object.create(null);
+  _subscriptions: Map<StableRecordIdentifier, RequestSubscription[]> = new Map();
   _toFlush: InternalRequest[] = [];
   _store: Store;
 
-  constructor(store) {
+  constructor(store: Store) {
     this._store = store;
   }
 
@@ -51,26 +81,26 @@ export default class RequestStateService {
   }
 
   _enqueue<T>(promise: Promise<T>, queryRequest: Request): Promise<T> {
-    let query = queryRequest.data[0];
+    const query = queryRequest.data[0];
     if (hasRecordIdentifier(query)) {
-      let lid = query.recordIdentifier.lid;
-      let type = query.op === 'saveRecord' ? ('mutation' as const) : ('query' as const);
-      if (!this._pending[lid]) {
-        this._pending[lid] = [];
+      const identifier = query.recordIdentifier;
+      const type = query.op === 'saveRecord' ? ('mutation' as const) : ('query' as const);
+      if (!this._pending.has(identifier)) {
+        this._pending.set(identifier, []);
       }
-      let request: InternalRequest = {
+      const request: InternalRequest = {
         state: 'pending',
         request: queryRequest,
         type,
       } as InternalRequest;
       request[Touching] = [query.recordIdentifier];
       request[RequestPromise] = promise;
-      this._pending[lid].push(request);
+      this._pending.get(identifier)!.push(request);
       this._triggerSubscriptions(request);
       return promise.then(
         (result) => {
-          this._dequeue(lid, request);
-          let finalizedRequest = {
+          this._dequeue(identifier, request);
+          const finalizedRequest = {
             state: 'fulfilled',
             request: queryRequest,
             type,
@@ -82,8 +112,8 @@ export default class RequestStateService {
           return result;
         },
         (error) => {
-          this._dequeue(lid, request);
-          let finalizedRequest = {
+          this._dequeue(identifier, request);
+          const finalizedRequest = {
             state: 'rejected',
             request: queryRequest,
             type,
@@ -122,27 +152,32 @@ export default class RequestStateService {
 
   _flushRequest(req: InternalRequest): void {
     req[Touching].forEach((identifier: StableRecordIdentifier) => {
-      if (this._subscriptions[identifier.lid]) {
-        this._subscriptions[identifier.lid].forEach((callback) => callback(req));
+      const subscriptions = this._subscriptions.get(identifier);
+      if (subscriptions) {
+        subscriptions.forEach((callback) => callback(req));
       }
     });
   }
 
-  _dequeue(lid: string, request: InternalRequest) {
-    this._pending[lid] = this._pending[lid].filter((req) => req !== request);
+  _dequeue(identifier: StableRecordIdentifier, request: InternalRequest) {
+    const pending = this._pending.get(identifier)!;
+    this._pending.set(
+      identifier,
+      pending.filter((req) => req !== request)
+    );
   }
 
   _addDone(request: InternalRequest) {
     request[Touching].forEach((identifier) => {
       // TODO add support for multiple
-      let requestDataOp = request.request.data[0].op;
+      const requestDataOp = request.request.data[0].op;
       let requests = this._done.get(identifier);
 
       if (requests) {
         requests = requests.filter((req) => {
           // TODO add support for multiple
-          let data;
-          if (req.request.data instanceof Array) {
+          let data: Operation;
+          if (Array.isArray(req.request.data)) {
             data = req.request.data[0];
           } else {
             data = req.request.data;
@@ -185,11 +220,13 @@ export default class RequestStateService {
    * @param {StableRecordIdentifier} identifier
    * @param {(state: RequestState) => void} callback
    */
-  subscribeForRecord(identifier: RecordIdentifier, callback: (requestState: RequestState) => void) {
-    if (!this._subscriptions[identifier.lid]) {
-      this._subscriptions[identifier.lid] = [];
+  subscribeForRecord(identifier: StableRecordIdentifier, callback: RequestSubscription) {
+    let subscriptions = this._subscriptions.get(identifier);
+    if (!subscriptions) {
+      subscriptions = [];
+      this._subscriptions.set(identifier, subscriptions);
     }
-    this._subscriptions[identifier.lid].push(callback);
+    subscriptions.push(callback);
   }
 
   /**
@@ -198,13 +235,10 @@ export default class RequestStateService {
    * @method getPendingRequestsForRecord
    * @public
    * @param {StableRecordIdentifier} identifier
-   * @returns {RequestState[]} an array of request states for any pending requests for the given identifier
+   * @return {RequestState[]} an array of request states for any pending requests for the given identifier
    */
-  getPendingRequestsForRecord(identifier: RecordIdentifier): RequestState[] {
-    if (this._pending[identifier.lid]) {
-      return this._pending[identifier.lid];
-    }
-    return [];
+  getPendingRequestsForRecord(identifier: StableRecordIdentifier): RequestState[] {
+    return this._pending.get(identifier) || EMPTY_ARR;
   }
 
   /**
@@ -213,10 +247,10 @@ export default class RequestStateService {
    * @method getLastRequestForRecord
    * @public
    * @param {StableRecordIdentifier} identifier
-   * @returns {RequestState | null} the state of the most recent request for the given identifier
+   * @return {RequestState | null} the state of the most recent request for the given identifier
    */
-  getLastRequestForRecord(identifier: RecordIdentifier): RequestState | null {
-    let requests = this._done.get(identifier);
+  getLastRequestForRecord(identifier: StableRecordIdentifier): RequestState | null {
+    const requests = this._done.get(identifier);
     if (requests) {
       return requests[requests.length - 1];
     }

@@ -1,13 +1,13 @@
 import { get } from '@ember/object';
 
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 module('integration - Client Id Generation', function (hooks) {
   setupTest(hooks);
@@ -15,7 +15,7 @@ module('integration - Client Id Generation', function (hooks) {
   let adapter;
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
 
     class Comment extends Model {
       @attr()
@@ -56,11 +56,11 @@ module('integration - Client Id Generation', function (hooks) {
     };
 
     adapter.createRecord = function (store, modelClass, snapshot) {
-      let type = modelClass.modelName;
+      const type = modelClass.modelName;
 
       if (type === 'comment') {
         assert.strictEqual(snapshot.id, 'id-1', "Comment passed to `createRecord` has 'id-1' assigned");
-        return resolve({
+        return Promise.resolve({
           data: {
             type,
             id: snapshot.id,
@@ -68,7 +68,7 @@ module('integration - Client Id Generation', function (hooks) {
         });
       } else {
         assert.strictEqual(snapshot.id, 'id-2', "Post passed to `createRecord` has 'id-2' assigned");
-        return resolve({
+        return Promise.resolve({
           data: {
             type,
             id: snapshot.id,
@@ -77,8 +77,8 @@ module('integration - Client Id Generation', function (hooks) {
       }
     };
 
-    let comment = store.createRecord('comment');
-    let post = store.createRecord('post');
+    const comment = store.createRecord('comment');
+    const post = store.createRecord('post');
 
     assert.strictEqual(get(comment, 'id'), 'id-1', "comment is assigned id 'id-1'");
     assert.strictEqual(get(post, 'id'), 'id-2', "post is assigned id 'id-2'");
@@ -89,32 +89,40 @@ module('integration - Client Id Generation', function (hooks) {
     await post.save();
   });
 
-  test('empty string and undefined ids should coerce to null', async function (assert) {
-    assert.expect(6);
-    let idCount = 0;
-    let id = 1;
-    let ids = [undefined, ''];
+  deprecatedTest(
+    'empty string and undefined ids should coerce to null',
+    {
+      count: 2,
+      until: '6.0',
+      id: 'ember-data:deprecate-non-strict-id',
+    },
+    async function (assert) {
+      assert.expect(6);
+      let idCount = 0;
+      let id = 1;
+      const ids = [undefined, ''];
 
-    adapter.generateIdForRecord = function (passedStore, record) {
-      assert.strictEqual(store, passedStore, 'store is the first parameter');
+      adapter.generateIdForRecord = function (passedStore, record) {
+        assert.strictEqual(store, passedStore, 'store is the first parameter');
 
-      return ids[idCount++];
-    };
+        return ids[idCount++];
+      };
 
-    adapter.createRecord = function (store, type, record) {
-      assert.strictEqual(typeof get(record, 'id'), 'object', 'correct type');
-      return resolve({ data: { id: id++, type: type.modelName } });
-    };
+      adapter.createRecord = function (store, type, record) {
+        assert.strictEqual(typeof get(record, 'id'), 'object', 'correct type');
+        return Promise.resolve({ data: { id: id++, type: type.modelName } });
+      };
 
-    let comment = store.createRecord('misc');
-    let post = store.createRecord('misc');
+      const comment = store.createRecord('misc');
+      const post = store.createRecord('misc');
 
-    assert.strictEqual(get(comment, 'id'), null, "comment is assigned id 'null'");
-    assert.strictEqual(get(post, 'id'), null, "post is assigned id 'null'");
+      assert.strictEqual(get(comment, 'id'), null, "comment is assigned id 'null'");
+      assert.strictEqual(get(post, 'id'), null, "post is assigned id 'null'");
 
-    // Despite client-generated IDs, calling commit() on the store should still
-    // invoke the adapter's `createRecord` method.
-    await comment.save();
-    await post.save();
-  });
+      // Despite client-generated IDs, calling commit() on the store should still
+      // invoke the adapter's `createRecord` method.
+      await comment.save();
+      await post.save();
+    }
+  );
 });

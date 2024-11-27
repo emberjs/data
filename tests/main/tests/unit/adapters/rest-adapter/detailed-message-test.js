@@ -16,9 +16,9 @@ module('unit/adapters/rest_adapter/detailed_message_test - RESTAdapter#generated
   test('generating a wonderfully friendly error message should work', function (assert) {
     assert.expect(1);
 
-    let adapter = this.owner.lookup('adapter:application');
+    const adapter = this.owner.lookup('adapter:application');
 
-    let friendlyMessage = adapter.generatedDetailedMessage(
+    const friendlyMessage = adapter.generatedDetailedMessage(
       418,
       { 'content-type': 'text/plain' },
       "I'm a little teapot, short and stout",
@@ -39,9 +39,9 @@ module('unit/adapters/rest_adapter/detailed_message_test - RESTAdapter#generated
   });
 
   test('generating a friendly error message with a missing content-type header should work', function (assert) {
-    let adapter = this.owner.lookup('adapter:application');
+    const adapter = this.owner.lookup('adapter:application');
 
-    let friendlyMessage = adapter.generatedDetailedMessage(418, {}, `I'm a little teapot, short and stout`, {
+    const friendlyMessage = adapter.generatedDetailedMessage(418, {}, `I'm a little teapot, short and stout`, {
       url: '/teapots/testing',
       method: 'GET',
     });

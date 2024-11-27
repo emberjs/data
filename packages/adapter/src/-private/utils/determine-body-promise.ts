@@ -1,12 +1,11 @@
 import { warn } from '@ember/debug';
 
-import { DEBUG } from '@ember-data/env';
-import type { Dict } from '@ember-data/types/q/utils';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 import type { RequestData } from '../../rest';
-import continueOnReject from './continue-on-reject';
+import { continueOnReject } from './continue-on-reject';
 
-type Payload = Error | Dict<unknown> | unknown[] | string | undefined;
+type Payload = Error | Record<string, unknown> | unknown[] | string | undefined;
 
 interface CustomSyntaxError extends SyntaxError {
   payload: Payload;
@@ -25,13 +24,13 @@ function _determineContent(response: Response, requestData: JQueryAjaxSettings, 
     return payload;
   }
 
-  let status = response.status;
-  let payloadIsEmpty = payload === '' || payload === null;
-  let statusIndicatesEmptyResponse = status === 204 || status === 205 || requestData.method === 'HEAD';
+  const status = response.status;
+  const payloadIsEmpty = payload === '' || payload === null;
+  const statusIndicatesEmptyResponse = status === 204 || status === 205 || requestData.method === 'HEAD';
 
   if (DEBUG) {
     if (payloadIsEmpty && !statusIndicatesEmptyResponse) {
-      let message = `The server returned an empty string for ${requestData.method} ${requestData.url}, which cannot be parsed into a valid JSON. Return either null or {}.`;
+      const message = `The server returned an empty string for ${requestData.method} ${requestData.url}, which cannot be parsed into a valid JSON. Return either null or {}.`;
       if (payload === '') {
         warn(message, {
           id: 'ds.adapter.returned-empty-string-as-JSON',
@@ -45,7 +44,7 @@ function _determineContent(response: Response, requestData: JQueryAjaxSettings, 
   }
 
   try {
-    ret = JSON.parse(payload as string);
+    ret = JSON.parse(payload as string) as Payload;
   } catch (e) {
     if (!(e instanceof SyntaxError)) {
       return e as Error;

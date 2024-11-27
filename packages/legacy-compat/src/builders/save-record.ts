@@ -1,23 +1,23 @@
 /**
  * @module @ember-data/legacy-compat/builders
  */
-import { assert } from '@ember/debug';
+import { recordIdentifierFor, storeFor, type StoreRequestInput } from '@ember-data/store';
+import type { InstanceCache } from '@ember-data/store/-private';
+import { assert } from '@warp-drive/build-config/macros';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { Cache } from '@warp-drive/core-types/cache';
+import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
+import { SkipCache } from '@warp-drive/core-types/request';
+import type { RequestSignature } from '@warp-drive/core-types/symbols';
 
-import type Model from '@ember-data/model';
-import { SkipCache } from '@ember-data/request';
-import type { ImmutableRequestInfo } from '@ember-data/request/-private/types';
-import { recordIdentifierFor, storeFor } from '@ember-data/store';
-import type { InstanceCache } from '@ember-data/store/-private/caches/instance-cache';
-import type { Cache } from '@ember-data/types/cache/cache';
-import type { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-
-type SaveRecordRequestInput = ImmutableRequestInfo & {
+type SaveRecordRequestInput<T extends string = string, RT = unknown> = StoreRequestInput & {
   op: 'createRecord' | 'deleteRecord' | 'updateRecord';
   data: {
-    record: StableRecordIdentifier;
+    record: StableRecordIdentifier<T>;
     options: SaveRecordBuilderOptions;
   };
-  records: [StableRecordIdentifier];
+  records: [StableRecordIdentifier<T>];
+  [RequestSignature]?: RT;
 };
 
 type SaveRecordBuilderOptions = Record<string, unknown>;
@@ -49,13 +49,13 @@ function resourceIsFullyDeleted(instanceCache: InstanceCache, identifier: Stable
   @param {SaveRecordBuilderOptions} options optional, may include `adapterOptions` hash which will be passed to adapter.saveRecord
   @return {SaveRecordRequestInput} request config
 */
-export function saveRecordBuilder<T extends Model>(
+export function saveRecordBuilder<T extends TypedRecordInstance>(
   record: T,
   options: Record<string, unknown> = {}
-): SaveRecordRequestInput {
+): SaveRecordRequestInput<TypeFromInstance<T>, T> {
   const store = storeFor(record);
   assert(`Unable to initiate save for a record in a disconnected state`, store);
-  const identifier = recordIdentifierFor(record);
+  const identifier = recordIdentifierFor<T>(record);
 
   if (!identifier) {
     // this commonly means we're disconnected
@@ -89,6 +89,6 @@ export function saveRecordBuilder<T extends Model>(
       record: identifier,
     },
     records: [identifier],
-    cacheOptions: { [SkipCache as symbol]: true },
+    cacheOptions: { [SkipCache]: true },
   };
 }

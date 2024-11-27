@@ -9,6 +9,11 @@ on:
       - synchronize
       - ready_for_review
 
+env:
+  TURBO_API: http://127.0.0.1:9080
+  TURBO_TOKEN: this-is-not-a-secret
+  TURBO_TEAM: myself
+
 concurrency:
   group: asset-size-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
@@ -18,12 +23,12 @@ jobs:
     if: contains(github.event.pull_request.labels.*.name, 'ci-assetsize')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
         with:
           fetch-depth: 3
       - run: git fetch origin main --depth=1
-      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # tag=v4.0.0
-      - uses: actions/setup-node@v3
+      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+      - uses: actions/setup-node@v4
         with:
           node-version: 19.x
           cache: 'pnpm'
@@ -69,13 +74,13 @@ jobs:
           node ./scripts/asset-size-tracking/generate-diff.js ./control-data.json ./experiment-data.json | tee tmp/asset-sizes/diff.txt
       - name: Upload Dist Artifacts
         if: failure() || success()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dists
           path: tests/full-data-asset-size-app/dists
       - name: Upload Report Artifacts
         if: failure() || success()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: reports
           path: tmp/asset-sizes

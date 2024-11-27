@@ -11,16 +11,21 @@
   "license": "MIT",
   "author": "",
   "scripts": {
-    "test": "qunit ./index.js"
+    "test:docs": "qunit ./index.js",
+    "lint": "eslint . --quiet --cache --cache-strategy=content",
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
   "devDependencies": {
-    "qunit": "^2.19.4"
+    "@warp-drive/internal-config": "workspace:*",
+    "pnpm-sync-dependencies-meta-injected": "0.0.14",
+    "qunit": "^2.20.1"
   },
   "engines": {
-    "node": "^14.8.0 || 16.* || >= 18.*"
+    "node": ">= 18.20.4"
   },
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@9.7.1"
+  "packageManager": "pnpm@8.15.9",
+  "dependencies": {}
 }

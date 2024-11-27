@@ -27,8 +27,8 @@ module('integration/peeked-records', function (hooks) {
   });
 
   test('repeated calls to peekAll in separate run-loops works as expected', async function (assert) {
-    let peekedRecordArray = store.peekAll('person');
-    let watcher = watchProperties.call(this, peekedRecordArray, ['length', '[]']);
+    const peekedRecordArray = store.peekAll('person');
+    const watcher = watchProperties.call(this, peekedRecordArray, ['length', '[]']);
     await startWatching.call(this);
 
     assert.watchedPropertyCounts(watcher, { length: 1, '[]': 1 }, 'RecordArray state initial access');
@@ -69,8 +69,8 @@ module('integration/peeked-records', function (hooks) {
   });
 
   test('peekAll in the same run-loop as push works as expected', async function (assert) {
-    let peekedRecordArray = store.peekAll('person');
-    let watcher = watchProperties.call(this, peekedRecordArray, ['length', '[]']);
+    const peekedRecordArray = store.peekAll('person');
+    const watcher = watchProperties.call(this, peekedRecordArray, ['length', '[]']);
     await startWatching.call(this);
 
     assert.watchedPropertyCounts(watcher, { length: 1, '[]': 1 }, 'RecordArray state initial');
@@ -112,15 +112,16 @@ module('integration/peeked-records', function (hooks) {
   });
 
   test('newly created records notify the array as expected', async function (assert) {
-    let peekedRecordArray = store.peekAll('person');
-    let watcher = watchProperties.call(this, peekedRecordArray, ['length', '[]']);
+    const peekedRecordArray = store.peekAll('person');
+    const watcher = watchProperties.call(this, peekedRecordArray, ['length', '[]']);
     await startWatching.call(this);
 
     assert.watchedPropertyCounts(watcher, { length: 1, '[]': 1 }, 'RecordArray state initial');
 
-    let aNewlyCreatedRecord = store.createRecord('person', {
+    const aNewlyCreatedRecord = store.createRecord('person', {
       name: 'James',
     });
+    await settled();
 
     assert.watchedPropertyCounts(watcher, { length: 2, '[]': 2 }, 'RecordArray state when a new record is created');
 
@@ -131,18 +132,21 @@ module('integration/peeked-records', function (hooks) {
   });
 
   test('immediately peeking newly created records works as expected', async function (assert) {
-    let peekedRecordArray = store.peekAll('person');
-    let watcher = watchProperties.call(this, peekedRecordArray, ['length', '[]']);
+    const peekedRecordArray = store.peekAll('person');
+    const watcher = watchProperties.call(this, peekedRecordArray, ['length', '[]']);
     await startWatching.call(this);
     assert.strictEqual(peekedRecordArray.length, 0);
     assert.watchedPropertyCounts(watcher, { length: 1, '[]': 1 }, 'RecordArray state initial');
 
-    let aNewlyCreatedRecord = store.createRecord('person', {
+    const aNewlyCreatedRecord = store.createRecord('person', {
       name: 'James',
     });
 
     let records = store.peekAll('person');
-    assert.strictEqual(records.length, 1);
+    assert.strictEqual(records.length, 1, 'we see the new record');
+
+    // we should not have notified the array yet because ember schedules this async
+    await settled();
     assert.watchedPropertyCounts(watcher, { length: 2, '[]': 2 }, 'RecordArray state when a new record is created');
 
     aNewlyCreatedRecord.unloadRecord();
@@ -155,13 +159,16 @@ module('integration/peeked-records', function (hooks) {
   });
 
   test('unloading newly created records notify the array as expected', async function (assert) {
-    let peekedRecordArray = store.peekAll('person');
-    let watcher = watchProperties.call(this, peekedRecordArray, ['length', '[]']);
+    const peekedRecordArray = store.peekAll('person');
+    const watcher = watchProperties.call(this, peekedRecordArray, ['length', '[]']);
     await startWatching.call(this);
     assert.watchedPropertyCounts(watcher, { length: 1, '[]': 1 }, 'RecordArray state init');
-    let aNewlyCreatedRecord = store.createRecord('person', {
+    const aNewlyCreatedRecord = store.createRecord('person', {
       name: 'James',
     });
+
+    // we should not have notified the array yet because ember schedules this async
+    await settled();
 
     assert.watchedPropertyCounts(watcher, { length: 2, '[]': 2 }, 'RecordArray state when a new record is created');
 
@@ -172,14 +179,16 @@ module('integration/peeked-records', function (hooks) {
   });
 
   test('immediately peeking after unloading newly created records works as expected', async function (assert) {
-    let peekedRecordArray = store.peekAll('person');
-    let watcher = watchProperties.call(this, peekedRecordArray, ['length', '[]']);
+    const peekedRecordArray = store.peekAll('person');
+    const watcher = watchProperties.call(this, peekedRecordArray, ['length', '[]']);
     await startWatching.call(this);
     assert.watchedPropertyCounts(watcher, { length: 1, '[]': 1 }, 'RecordArray state init');
 
-    let aNewlyCreatedRecord = store.createRecord('person', {
+    const aNewlyCreatedRecord = store.createRecord('person', {
       name: 'James',
     });
+
+    await settled();
 
     assert.watchedPropertyCounts(watcher, { length: 2, '[]': 2 }, 'RecordArray state when a new record is created');
 
@@ -191,9 +200,9 @@ module('integration/peeked-records', function (hooks) {
   });
 
   test('unloadAll followed by peekAll in the same run-loop works as expected', async function (assert) {
-    let peekedRecordArray = store.peekAll('person');
+    const peekedRecordArray = store.peekAll('person');
     assert.strictEqual(peekedRecordArray.length, 0, 'length is 0');
-    let watcher = watchProperties.call(this, peekedRecordArray, ['length', '[]']);
+    const watcher = watchProperties.call(this, peekedRecordArray, ['length', '[]']);
     await startWatching.call(this);
     assert.watchedPropertyCounts(watcher, { length: 1, '[]': 1 }, 'RecordArray state init');
 
@@ -280,8 +289,8 @@ module('integration/peeked-records', function (hooks) {
       return result;
     }
 
-    let peekedRecordArray = await peek();
-    let watcher = watchProperties.call(this, peekedRecordArray, ['length', '[]']);
+    const peekedRecordArray = await peek();
+    const watcher = watchProperties.call(this, peekedRecordArray, ['length', '[]']);
     await startWatching.call(this);
     assert.watchedPropertyCounts(watcher, { length: 1, '[]': 1 }, 'RecordArray state init');
 
@@ -333,8 +342,8 @@ module('integration/peeked-records', function (hooks) {
       return result;
     }
 
-    let peekedRecordArray = await peek();
-    let watcher = watchProperties.call(this, peekedRecordArray, ['length', '[]']);
+    const peekedRecordArray = await peek();
+    const watcher = watchProperties.call(this, peekedRecordArray, ['length', '[]']);
     await startWatching.call(this);
     assert.watchedPropertyCounts(watcher, { length: 1, '[]': 1 }, 'RecordArray state init');
 

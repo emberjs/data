@@ -12,7 +12,7 @@
  * @main @ember-data/request/fetch
  */
 
-import { DEBUG } from '@ember-data/env';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 import { cloneResponseProperties, type Context } from './-private/context';
 import type { HttpErrorProps } from './-private/utils';
@@ -22,10 +22,10 @@ const _fetch: typeof fetch =
   typeof fetch !== 'undefined'
     ? (...args) => fetch(...args)
     : typeof FastBoot !== 'undefined'
-    ? (...args) => (FastBoot.require('node-fetch') as typeof fetch)(...args)
-    : ((() => {
-        throw new Error('No Fetch Implementation Found');
-      }) as typeof fetch);
+      ? (...args) => (FastBoot.require('node-fetch') as typeof fetch)(...args)
+      : ((() => {
+          throw new Error('No Fetch Implementation Found');
+        }) as typeof fetch);
 
 // clones a response in a way that should still
 // allow it to stream
@@ -40,8 +40,7 @@ if (DEBUG) {
     Boolean(
       typeof window !== 'undefined' &&
         ((window as { server?: { pretender: unknown } }).server?.pretender ||
-          (window.fetch.toString() !== 'function fetch() { [native code] }' &&
-            window.fetch.toString() !== 'function fetch() {\n    [native code]\n}'))
+          window.fetch.toString().replace(/\s+/g, '') !== 'function fetch() { [native code] }'.replace(/\s+/g, ''))
     );
 }
 
@@ -170,7 +169,6 @@ const Fetch = {
         context.setStream(stream!.readable);
       }
 
-      // eslint-disable-next-line no-constant-condition
       while (true) {
         // we manually read the stream instead of using `response.json()`
         // or `response.text()` because if we need to stream the body
@@ -230,8 +228,8 @@ const Fetch = {
       const errors = Array.isArray(errorPayload)
         ? errorPayload
         : isDict(errorPayload) && Array.isArray(errorPayload.errors)
-        ? errorPayload.errors
-        : null;
+          ? errorPayload.errors
+          : null;
 
       const statusText = response.statusText || ERROR_STATUS_CODE_FOR.get(response.status) || 'Unknown Request Error';
       const msg = `[${response.status} ${statusText}] ${context.request.method ?? 'GET'} (${response.type}) - ${

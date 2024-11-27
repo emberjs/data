@@ -31,6 +31,14 @@ Wrangle your application's data management with scalable patterns for developer 
 - 🐹 Built with ♥️ by [Ember](https://emberjs.com)
 - ⚛️ Supports any API: `GraphQL` `JSON:API` `REST` `tRPC` ...bespoke or a mix
 
+**Tagged Releases**
+
+- ![NPM Canary Version](https://img.shields.io/npm/v/ember-data/canary?label=%40canary&color=FFBF00)
+- ![NPM Beta Version](https://img.shields.io/npm/v/ember-data/beta?label=%40beta&color=ff00ff)
+- ![NPM Stable Version](https://img.shields.io/npm/v/ember-data/latest?label=%40latest&color=90EE90)
+- ![NPM LTS Version](https://img.shields.io/npm/v/ember-data/lts?label=%40lts&color=0096FF)
+- ![NPM LTS 4.12 Version](https://img.shields.io/npm/v/ember-data/lts-4-12?label=%40lts-4-12&color=bbbbbb)
+
 ### 📖 On This Page
 
 - [Overview](#overview)
@@ -134,12 +142,8 @@ activate this polyfill:
 
 ```ts
 let app = new EmberApp(defaults, {
-  '@embroider/macros': {
-    setConfig: {
-      '@ember-data/store': {
-        polyfillUUID: true,
-      },
-    },
+  emberData: {
+    polyfillUUID: true,
   },
 });
 ```

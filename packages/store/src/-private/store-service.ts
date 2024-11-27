@@ -1,49 +1,50 @@
 /**
   @module @ember-data/store
  */
-import { getOwner, setOwner } from '@ember/application';
-import { assert, deprecate } from '@ember/debug';
-import EmberObject from '@ember/object';
-import { _backburner as emberBackburner } from '@ember/runloop';
+// this import location is deprecated but breaks in 4.8 and older
+import { deprecate } from '@ember/debug';
 
-import { importSync } from '@embroider/macros';
+import { dependencySatisfies, importSync, macroCondition } from '@embroider/macros';
 
-import { LOG_PAYLOADS, LOG_REQUESTS } from '@ember-data/debugging';
+import type RequestManager from '@ember-data/request';
+import type { Future } from '@ember-data/request';
+import { LOG_PAYLOADS, LOG_REQUESTS } from '@warp-drive/build-config/debugging';
 import {
   DEPRECATE_HAS_RECORD,
-  DEPRECATE_JSON_API_FALLBACK,
   DEPRECATE_PROMISE_PROXIES,
+  DEPRECATE_STORE_EXTENDS_EMBER_OBJECT,
   DEPRECATE_STORE_FIND,
-  DEPRECATE_V1_RECORD_DATA,
-} from '@ember-data/deprecations';
-import { DEBUG, TESTING } from '@ember-data/env';
-import type CacheClass from '@ember-data/json-api';
-import type FetchManager from '@ember-data/legacy-compat/legacy-network-handler/fetch-manager';
-import type Model from '@ember-data/model';
-import { HAS_COMPAT_PACKAGE, HAS_GRAPH_PACKAGE, HAS_JSON_API_PACKAGE, HAS_MODEL_PACKAGE } from '@ember-data/packages';
-import type RequestManager from '@ember-data/request';
-import type { Future, ImmutableRequestInfo } from '@ember-data/request/-private/types';
-import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
-import type { Cache, CacheV1 } from '@ember-data/types/q/cache';
-import type { CacheStoreWrapper } from '@ember-data/types/q/cache-store-wrapper';
-import type { DSModel } from '@ember-data/types/q/ds-model';
+  DISABLE_6X_DEPRECATIONS,
+  ENABLE_LEGACY_SCHEMA_SERVICE,
+} from '@warp-drive/build-config/deprecations';
+import { DEBUG, TESTING } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
+import type { Cache } from '@warp-drive/core-types/cache';
+import type { Graph } from '@warp-drive/core-types/graph';
+import type {
+  StableDocumentIdentifier,
+  StableExistingRecordIdentifier,
+  StableRecordIdentifier,
+} from '@warp-drive/core-types/identifier';
+import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
+import { EnableHydration, SkipCache } from '@warp-drive/core-types/request';
+import type { ResourceDocument } from '@warp-drive/core-types/spec/document';
 import type {
   CollectionResourceDocument,
   EmptyResourceDocument,
   JsonApiDocument,
   ResourceIdentifierObject,
   SingleResourceDocument,
-} from '@ember-data/types/q/ember-data-json-api';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { MinimumAdapterInterface } from '@ember-data/types/q/minimum-adapter-interface';
-import type { MinimumSerializerInterface } from '@ember-data/types/q/minimum-serializer-interface';
-import type { RecordInstance } from '@ember-data/types/q/record-instance';
-import type { SchemaService } from '@ember-data/types/q/schema-service';
-import type { FindOptions } from '@ember-data/types/q/store';
-import type { Dict } from '@ember-data/types/q/utils';
+} from '@warp-drive/core-types/spec/json-api-raw';
+import type { Type } from '@warp-drive/core-types/symbols';
 
-import { EnableHydration, type LifetimesService, SkipCache } from './cache-handler';
-import peekCache, { setCacheFor } from './caches/cache-utils';
+import type { CacheCapabilitiesManager } from '../-types/q/cache-capabilities-manager';
+import type { ModelSchema } from '../-types/q/ds-model';
+import type { OpaqueRecordInstance } from '../-types/q/record-instance';
+import type { SchemaService } from '../-types/q/schema-service';
+import type { FindAllOptions, FindRecordOptions, LegacyResourceQuery, QueryOptions } from '../-types/q/store';
+import type { StoreRequestInput } from './cache-handler/handler';
+import type { CachePolicy } from './cache-handler/types';
 import { IdentifierCache } from './caches/identifier-cache';
 import {
   InstanceCache,
@@ -51,39 +52,121 @@ import {
   preloadData,
   recordIdentifierFor,
   resourceIsFullyDeleted,
-  setRecordIdentifier,
   storeFor,
-  StoreMap,
 } from './caches/instance-cache';
-import { Document } from './document';
-import RecordReference from './legacy-model-support/record-reference';
-import { DSModelSchemaDefinitionService, getModelFactory } from './legacy-model-support/schema-definition-service';
-import type ShimModelClass from './legacy-model-support/shim-model-class';
+import type { Document } from './document';
+import type RecordReference from './legacy-model-support/record-reference';
 import { getShimClass } from './legacy-model-support/shim-model-class';
-import { legacyCachePut, NonSingletonCacheManager, SingletonCacheManager } from './managers/cache-manager';
+import { CacheManager } from './managers/cache-manager';
 import NotificationManager from './managers/notification-manager';
-import RecordArrayManager from './managers/record-array-manager';
-import RequestStateService, { RequestPromise } from './network/request-cache';
-import { PromiseArray, promiseArray, PromiseObject, promiseObject } from './proxies/promise-proxies';
-import IdentifierArray, { Collection } from './record-arrays/identifier-array';
-import coerceId, { ensureStringId } from './utils/coerce-id';
-import constructResource from './utils/construct-resource';
-import normalizeModelName from './utils/normalize-model-name';
+import { RecordArrayManager } from './managers/record-array-manager';
+import { RequestPromise, RequestStateService } from './network/request-cache';
+import { promiseArray, promiseObject } from './proxies/promise-proxies';
+import type { Collection, IdentifierArray } from './record-arrays/identifier-array';
+import { coerceId, ensureStringId } from './utils/coerce-id';
+import { constructResource } from './utils/construct-resource';
+import { normalizeModelName } from './utils/normalize-model-name';
 
 export { storeFor };
 
-type StaticModel = typeof Model;
+// We inline this list of methods to avoid importing EmberObject
+type EmberObjectKey =
+  | '_debugContainerKey'
+  | '_super'
+  | 'addObserver'
+  | 'cacheFor'
+  | 'concatenatedProperties'
+  | 'decrementProperty'
+  | 'destroy'
+  | 'get'
+  | 'getProperties'
+  | 'incrementProperty'
+  | 'init'
+  | 'isDestroyed'
+  | 'isDestroying'
+  | 'mergedProperties'
+  | 'notifyPropertyChange'
+  | 'removeObserver'
+  | 'reopen'
+  | 'set'
+  | 'setProperties'
+  | 'toggleProperty'
+  | 'toString'
+  | 'willDestroy';
 
-// hello world
-type CacheConstruct = typeof CacheClass;
-let _Cache: CacheConstruct | undefined;
+type DSModelKeys =
+  | '___(unique) Symbol(Store)'
+  | '___private_notifications'
+  | '___recordState'
+  | '_createSnapshot'
+  | 'adapterError'
+  | 'attr'
+  | 'belongsTo'
+  | 'changedAttributes'
+  | 'currentState'
+  | 'deleteRecord'
+  | 'destroyRecord'
+  | 'dirtyType'
+  | 'eachAttribute'
+  | 'eachRelationship'
+  | 'errors'
+  | 'hasDirtyAttributes'
+  | 'hasMany'
+  | 'inverseFor'
+  | 'isDeleted'
+  | 'isEmpty'
+  | 'isError'
+  | 'isLoaded'
+  | 'isLoading'
+  | 'isNew'
+  | 'isReloading'
+  | 'isSaving'
+  | 'isValid'
+  | 'relationshipFor'
+  | 'reload'
+  | 'rollbackAttributes'
+  | 'save'
+  | 'serialize'
+  | 'store'
+  | 'unloadRecord';
 
-export type HTTPMethod = 'GET' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+type CompatStore = Store & {
+  adapterFor?: (
+    type: string,
+    _allowMissing?: boolean
+  ) => undefined | { generateIdForRecord?(store: Store, type: string, properties: object): string };
+};
+function upgradeStore(store: Store): asserts store is CompatStore {}
 
-export interface CreateRecordProperties {
-  id?: string | null;
-  [key: string]: unknown;
-}
+type DownlevelArrays<T> = T extends Array<infer U> ? U[] : T;
+type AwaitedKeys<T> = { [K in keyof T & string]: DownlevelArrays<Awaited<T[K]>> };
+
+// `AwaitedKeys` is needed here to resolve any promise types like `PromiseBelongsTo`.
+type FilteredKeys<T> = AwaitedKeys<Omit<T, typeof Type | EmberObjectKey | DSModelKeys | 'constructor'>>;
+
+type MaybeHasId = { id?: string | null };
+/**
+ * Currently only records that extend object can be created via
+ * store.createRecord. This is a limitation of the current API,
+ * but can be worked around by creating a new identifier, running
+ * the cache.clientDidCreate method, and then peeking the record
+ * for the identifier.
+ *
+ * To assign primary key to a record during creation, only `id` will
+ * work correctly for `store.createRecord`, other primary key may be
+ * handled by updating the record after creation or using the flow
+ * described above.
+ *
+ * TODO: These are limitations we want to (and can) address. If you
+ * have need of lifting these limitations, please open an issue.
+ *
+ * @typedoc
+ */
+export type CreateRecordProperties<T = MaybeHasId & Record<string, unknown>> = T extends TypedRecordInstance
+  ? Partial<FilteredKeys<T>>
+  : T extends MaybeHasId
+    ? MaybeHasId & Partial<FilteredKeys<T>>
+    : MaybeHasId & Record<string, unknown>;
 
 /**
  * A Store coordinates interaction between your application, a [Cache](https://api.emberjs.com/ember-data/release/classes/%3CInterface%3E%20Cache),
@@ -96,21 +179,260 @@ export interface CreateRecordProperties {
  * export default class extends Store {}
  * ```
  *
- * Most Ember applications will only have a single `Store` configured as a Service
+ * Most Applications will only have a single `Store` configured as a Service
  * in this manner. However, setting up multiple stores is possible, including using
- * each as a unique service.
+ * each as a unique service or within a specific context.
  *
 
   @class Store
   @public
 */
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
+const EmptyClass = class {
+  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
+  constructor(args?: unknown) {}
+};
+const _BaseClass = macroCondition(dependencySatisfies('ember-source', '*'))
+  ? DEPRECATE_STORE_EXTENDS_EMBER_OBJECT
+    ? (importSync('@ember/object') as typeof EmptyClass)
+    : EmptyClass
+  : EmptyClass;
 
-// @ts-expect-error
-interface Store {
-  createRecordDataFor?(identifier: StableRecordIdentifier, wrapper: CacheStoreWrapper): Cache | CacheV1;
+const BaseClass = (_BaseClass as unknown as { default?: typeof EmptyClass }).default
+  ? ((_BaseClass as unknown as { default?: typeof EmptyClass }).default as typeof EmptyClass)
+  : _BaseClass;
+
+if (BaseClass !== EmptyClass) {
+  deprecate(
+    `The Store class extending from EmberObject is deprecated.
+Please remove usage of EmberObject APIs and mark your class as not requiring it.
+
+To mark the class as no longer extending from EmberObject, in ember-cli-build.js
+set the following config:
+
+\`\`\`js
+const app = new EmberApp(defaults, {
+  emberData: {
+    deprecations: {
+      DEPRECATE_STORE_EXTENDS_EMBER_OBJECT: false
+    }
+  }
+});
+\`\`\`
+`,
+    /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
+    {
+      id: 'ember-data:deprecate-store-extends-ember-object',
+      until: '6.0',
+      for: 'ember-data',
+      since: {
+        available: '4.13',
+        enabled: '5.4',
+      },
+    }
+  );
 }
 
-class Store extends EmberObject {
+export interface Store {
+  createCache(capabilities: CacheCapabilitiesManager): Cache;
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  instantiateRecord<T>(
+    identifier: StableRecordIdentifier,
+    createRecordArgs: { [key: string]: unknown }
+  ): OpaqueRecordInstance;
+
+  teardownRecord(record: OpaqueRecordInstance): void;
+
+  /* This hook enables an app to supply a SchemaService
+   * for use when information about a resource's schema needs
+   * to be queried.
+   *
+   * This method will only be called once to instantiate the singleton
+   * service, which can then be accessed via `store.schema`.
+   *
+   * For Example, to use the default SchemaService for SchemaRecord
+   *
+   * ```ts
+   * import { SchemaService } from '@warp-drive/schema-record/schema';
+   *
+   * class extends Store {
+   *   createSchemaService() {
+   *     return new SchemaService();
+   *   }
+   * }
+   * ```
+   *
+   * Or to use the SchemaService for @ember-data/model
+   *
+   * ```ts
+   * import { buildSchema } from '@ember-data/model/hooks';
+   *
+   * class extends Store {
+   *   createSchemaService() {
+   *     return buildSchema(this);
+   *   }
+   * }
+   * ```
+   *
+   * If you wish to chain services, you must either
+   * instantiate each schema source directly or super to retrieve
+   * an existing service. For convenience, when migrating from
+   * `@ember-data/model` to `@warp-drive/schema-record` a
+   * SchemaService is provided that handles this transition
+   * for you:
+   *
+   * ```ts
+   * import { DelegatingSchemaService } from '@ember-data/model/migration-support';
+   * import { SchemaService } from '@warp-drive/schema-record/schema';
+   *
+   * class extends Store {
+   *   createSchemaService() {
+   *     const schema = new SchemaService();
+   *     return new DelegatingSchemaService(this, schema);
+   *   }
+   * }
+   * ```
+   *
+   * When using the DelegateSchemaService, the schema will first
+   * be sourced from directly registered schemas, then will fallback
+   * to sourcing a schema from available models if no schema is found.
+   *
+   * @method createSchemaService (hook)
+   * @return {SchemaService}
+   * @public
+   */
+  createSchemaService(): SchemaService;
+
+  /**
+   * DEPRECATED - Use the property `store.schema` instead.
+   *
+   * Provides access to the SchemaDefinitionService instance
+   * for this Store instance.
+   *
+   * The SchemaDefinitionService can be used to query for
+   * information about the schema of a resource.
+   *
+   * @method getSchemaDefinitionService
+   * @deprecated
+   * @public
+   */
+  getSchemaDefinitionService(): SchemaService;
+
+  /**
+   * DEPRECATED - Use `createSchemaService` instead.
+   *
+   * Allows an app to register a custom SchemaService
+   * for use when information about a resource's schema needs
+   * to be queried.
+   *
+   * This method can only be called more than once, but only one schema
+   * definition service may exist. Therefore if you wish to chain services
+   * you must lookup the existing service and close over it with the new
+   * service by accessing `store.schema` prior to registration.
+   *
+   * For Example:
+   *
+   * ```ts
+   * import Store from '@ember-data/store';
+   *
+   * class SchemaDelegator {
+   *   constructor(schema) {
+   *     this._schema = schema;
+   *   }
+   *
+   *   hasResource(resource: { type: string }): boolean {
+   *     if (AbstractSchemas.has(resource.type)) {
+   *       return true;
+   *     }
+   *     return this._schema.hasResource(resource);
+   *   }
+   *
+   *   attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
+   *     return this._schema.attributesDefinitionFor(identifier);
+   *   }
+   *
+   *   relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
+   *     const schema = AbstractSchemas.get(identifier.type);
+   *     return schema || this._schema.relationshipsDefinitionFor(identifier);
+   *   }
+   * }
+   *
+   * export default class extends Store {
+   *   constructor(...args) {
+   *     super(...args);
+   *
+   *     const schema = this.createSchemaService();
+   *     this.registerSchemaDefinitionService(new SchemaDelegator(schema));
+   *   }
+   * }
+   * ```
+   *
+   * @method registerSchemaDefinitionService
+   * @param {SchemaService} schema
+   * @deprecated
+   * @public
+   */
+  registerSchemaDefinitionService(schema: SchemaService): void;
+
+  /**
+   * DEPRECATED - Use `createSchemaService` instead.
+   *
+   * Allows an app to register a custom SchemaService
+   * for use when information about a resource's schema needs
+   * to be queried.
+   *
+   * This method can only be called more than once, but only one schema
+   * definition service may exist. Therefore if you wish to chain services
+   * you must lookup the existing service and close over it with the new
+   * service by accessing `store.schema` prior to registration.
+   *
+   * For Example:
+   *
+   * ```ts
+   * import Store from '@ember-data/store';
+   *
+   * class SchemaDelegator {
+   *   constructor(schema) {
+   *     this._schema = schema;
+   *   }
+   *
+   *   hasResource(resource: { type: string }): boolean {
+   *     if (AbstractSchemas.has(resource.type)) {
+   *       return true;
+   *     }
+   *     return this._schema.hasResource(resource);
+   *   }
+   *
+   *   attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
+   *     return this._schema.attributesDefinitionFor(identifier);
+   *   }
+   *
+   *   relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
+   *     const schema = AbstractSchemas.get(identifier.type);
+   *     return schema || this._schema.relationshipsDefinitionFor(identifier);
+   *   }
+   * }
+   *
+   * export default class extends Store {
+   *   constructor(...args) {
+   *     super(...args);
+   *
+   *     const schema = this.schema;
+   *     this.registerSchema(new SchemaDelegator(schema));
+   *   }
+   * }
+   * ```
+   *
+   * @method registerSchema
+   * @param {SchemaService} schema
+   * @deprecated
+   * @public
+   */
+  registerSchema(schema: SchemaService): void;
+}
+
+export class Store extends BaseClass {
   declare recordArrayManager: RecordArrayManager;
 
   /**
@@ -135,8 +457,11 @@ class Store extends EmberObject {
    * @property {SchemaService} schema
    * @public
    */
-  get schema(): SchemaService {
-    return this.getSchemaDefinitionService();
+  get schema(): ReturnType<this['createSchemaService']> {
+    if (!this._schema) {
+      this._schema = this.createSchemaService();
+    }
+    return this._schema as ReturnType<this['createSchemaService']>;
   }
   declare _schema: SchemaService;
 
@@ -163,7 +488,7 @@ class Store extends EmberObject {
    * ```ts
    * import Store, { CacheHandler } from '@ember-data/store';
    * import RequestManager from '@ember-data/request';
-   * import Fetch from '@ember/data/request/fetch';
+   * import Fetch from '@ember-data/request/fetch';
    *
    * class extends Store {
    *   constructor() {
@@ -181,7 +506,7 @@ class Store extends EmberObject {
   declare requestManager: RequestManager;
 
   /**
-   * A Property which an App may set to provide a Lifetimes Service
+   * A Property which an App may set to provide a CachePolicy
    * to control when a cached request becomes stale.
    *
    * Note, when defined, these methods will only be invoked if a
@@ -207,21 +532,31 @@ class Store extends EmberObject {
    * ```
    *
    * @public
-   * @property {LivetimesService|undefined} lifetimes
+   * @property {CachePolicy|undefined} lifetimes
    */
-  declare lifetimes?: LifetimesService;
+  declare lifetimes?: CachePolicy;
 
   // Private
-  declare _adapterCache: Dict<MinimumAdapterInterface & { store: Store }>;
-  declare _serializerCache: Dict<MinimumSerializerInterface & { store: Store }>;
-  declare _modelFactoryCache: Dict<unknown>;
-  declare _fetchManager: FetchManager;
+  declare _graph?: Graph;
   declare _requestCache: RequestStateService;
   declare _instanceCache: InstanceCache;
-  declare _documentCache: Map<StableDocumentIdentifier, Document<RecordInstance | RecordInstance[] | null | undefined>>;
+  declare _documentCache: Map<
+    StableDocumentIdentifier,
+    Document<OpaqueRecordInstance | OpaqueRecordInstance[] | null | undefined>
+  >;
 
   declare _cbs: { coalesce?: () => void; sync?: () => void; notify?: () => void } | null;
   declare _forceShim: boolean;
+  /**
+   * Async flush buffers notifications until flushed
+   * by finalization of a future configured by store.request
+   *
+   * This is useful for ensuring that notifications are delivered
+   * prior to the promise resolving but without risk of promise
+   * interleaving.
+   *
+   * @internal
+   */
   declare _enableAsyncFlush: boolean | null;
 
   // DEBUG-only properties
@@ -230,14 +565,12 @@ class Store extends EmberObject {
   declare _isDestroying: boolean;
   declare _isDestroyed: boolean;
 
-  // @ts-expect-error
   get isDestroying(): boolean {
     return this._isDestroying;
   }
   set isDestroying(value: boolean) {
     this._isDestroying = value;
   }
-  // @ts-expect-error
   get isDestroyed(): boolean {
     return this._isDestroyed;
   }
@@ -249,7 +582,7 @@ class Store extends EmberObject {
     @method init
     @private
   */
-  constructor(createArgs?: Record<string, unknown>) {
+  constructor(createArgs?: unknown) {
     super(createArgs);
     Object.assign(this, createArgs);
 
@@ -263,9 +596,6 @@ class Store extends EmberObject {
     // private
     this._requestCache = new RequestStateService(this);
     this._instanceCache = new InstanceCache(this);
-    this._adapterCache = Object.create(null);
-    this._serializerCache = Object.create(null);
-    this._modelFactoryCache = Object.create(null);
     this._documentCache = new Map();
 
     this.isDestroying = false;
@@ -304,6 +634,16 @@ class Store extends EmberObject {
       this._cbs = null;
     }
   }
+
+  /**
+   * Executes the callback, ensurng that any work that calls
+   * store._schedule is executed after in the right order.
+   *
+   * When queues already exist, scheduled callbacks will
+   * join the existing queue.
+   *
+   * @internal
+   */
   _join(cb: () => void): void {
     if (this._cbs) {
       cb();
@@ -327,7 +667,7 @@ class Store extends EmberObject {
    * that have been initiated for a given identifier.
    *
    * @method getRequestStateService
-   * @returns {RequestStateService}
+   * @return {RequestStateService}
    * @public
    */
   getRequestStateService(): RequestStateService {
@@ -336,11 +676,11 @@ class Store extends EmberObject {
 
   _getAllPending(): (Promise<unknown[]> & { length: number }) | void {
     if (TESTING) {
-      const all: Promise<any>[] = [];
+      const all: Promise<unknown>[] = [];
       const pending = this._requestCache._pending;
-      const lids = Object.keys(pending);
-      lids.forEach((lid) => {
-        all.push(...pending[lid].map((v) => v[RequestPromise]!));
+
+      pending.forEach((requests) => {
+        all.push(...requests.map((v) => v[RequestPromise]!));
       });
       this.requestManager._pending.forEach((v) => all.push(v));
       const promise: Promise<unknown[]> & { length: number } = Promise.allSettled(all) as Promise<unknown[]> & {
@@ -356,13 +696,14 @@ class Store extends EmberObject {
    * inserting the response into the cache and handing
    * back a Future which resolves to a ResponseDocument
    *
-   * Resource data is always updated in the cache.
+   * ## Cache Keys
    *
-   * Only GET requests have the request result and document
-   * cached by default when a cache key is present.
+   * Only GET requests with a url or requests with an explicit
+   * cache key (`cacheOptions.key`) will have the request result
+   * and document cached.
    *
    * The cache key used is `requestConfig.cacheOptions.key`
-   * if present, falling back to `requestconfig.url`.
+   * if present, falling back to `requestConfig.url`.
    *
    * Params are not serialized as part of the cache-key, so
    * either ensure they are already in the url or utilize
@@ -370,19 +711,57 @@ class Store extends EmberObject {
    * via the `POST` method `requestConfig.cacheOptions.key`
    * MUST be supplied for the document to be cached.
    *
+   * ## Requesting Without a Cache Key
+   *
+   * Resource data within the request is always updated in the cache,
+   * regardless of whether a cache key is present for the request.
+   *
+   * ## Fulfilling From Cache
+   *
+   * When a cache-key is determined, the request may fulfill
+   * from cache provided the cache is not stale.
+   *
+   * Cache staleness is determined by the configured CachePolicy
+   * with priority given to the `cacheOptions.reload` and
+   * `cacheOptions.backgroundReload` on the request if present.
+   *
+   * If the cache data has soft expired or the request asks for a background
+   * reload, the request will fulfill from cache if possible and
+   * make a non-blocking request in the background to update the cache.
+   *
+   * If the cache data has hard expired or the request asks for a reload,
+   * the request will not fulfill from cache and will make a blocking
+   * request to update the cache.
+   *
+   * ## The Response
+   *
+   * The primary difference between `requestManager.request` and `store.request`
+   * is that `store.request` will attempt to hydrate the response content into
+   * a response Document containing RecordInstances.
+   *
    * @method request
-   * @param {StoreRequestInfo} requestConfig
-   * @returns {Future}
+   * @param {StoreRequestInput} requestConfig
+   * @return {Future}
    * @public
    */
-  request<T>(requestConfig: ImmutableRequestInfo): Future<T> {
+  request<RT, T = unknown>(requestConfig: StoreRequestInput<T, RT>): Future<RT> {
     // we lazily set the cache handler when we issue the first request
     // because constructor doesn't allow for this to run after
     // the user has had the chance to set the prop.
-    let opts: { store: Store; disableTestWaiter?: boolean; [EnableHydration]: true } = {
+    const opts: {
+      store: Store;
+      disableTestWaiter?: boolean;
+      [EnableHydration]: true;
+      records?: StableRecordIdentifier[];
+    } = {
       store: this,
       [EnableHydration]: true,
     };
+
+    if (requestConfig.records) {
+      const identifierCache = this.identifierCache;
+      opts.records = requestConfig.records.map((r) => identifierCache.getOrCreateRecordIdentifier(r));
+    }
 
     if (TESTING) {
       if (this.DISABLE_WAITER) {
@@ -407,7 +786,8 @@ class Store extends EmberObject {
       );
     }
 
-    const future = this.requestManager.request<T>(Object.assign(requestConfig, opts));
+    const request = Object.assign({}, requestConfig, opts);
+    const future = this.requestManager.request(request);
 
     future.onFinalize(() => {
       if (LOG_REQUESTS) {
@@ -434,7 +814,7 @@ class Store extends EmberObject {
    * a resource.
    *
    * This hook can be used to select or instantiate any desired
-   * mechanism of presentating cache data to the ui for access
+   * mechanism of presenting cache data to the ui for access
    * mutation, and interaction.
    *
    * @method instantiateRecord (hook)
@@ -442,38 +822,9 @@ class Store extends EmberObject {
    * @param createRecordArgs
    * @param recordDataFor deprecated use this.cache
    * @param notificationManager deprecated use this.notifications
-   * @returns A record instance
+   * @return A record instance
    * @public
    */
-  instantiateRecord(
-    identifier: StableRecordIdentifier,
-    createRecordArgs: { [key: string]: unknown }
-  ): DSModel | RecordInstance {
-    if (HAS_MODEL_PACKAGE) {
-      let modelName = identifier.type;
-
-      const cache = DEPRECATE_V1_RECORD_DATA ? this._instanceCache.getResourceCache(identifier) : this.cache;
-      // TODO deprecate allowing unknown args setting
-      let createOptions: any = {
-        _createProps: createRecordArgs,
-        // TODO @deprecate consider deprecating accessing record properties during init which the below is necessary for
-        _secretInit: {
-          identifier,
-          cache,
-          store: this,
-          cb: secretInit,
-        },
-      };
-
-      // ensure that `getOwner(this)` works inside a model instance
-      setOwner(createOptions, getOwner(this)!);
-      const factory = getModelFactory(this, this._modelFactoryCache, modelName);
-
-      assert(`No model was found for '${modelName}'`, factory);
-      return factory.class.create(createOptions);
-    }
-    assert(`You must implement the store's instantiateRecord hook for your custom model class.`);
-  }
 
   /**
    * A hook which an app or addon may implement. Called when
@@ -485,154 +836,9 @@ class Store extends EmberObject {
    * @public
    * @param record
    */
-  teardownRecord(record: DSModel | RecordInstance): void {
-    if (HAS_MODEL_PACKAGE) {
-      assert(
-        `expected to receive an instance of DSModel. If using a custom model make sure you implement teardownRecord`,
-        'destroy' in record
-      );
-      (record as DSModel).destroy();
-    } else {
-      assert(`You must implement the store's teardownRecord hook for your custom models`);
-    }
-  }
 
   /**
-   * Provides access to the SchemaDefinitionService instance
-   * for this Store instance.
-   *
-   * The SchemaDefinitionService can be used to query for
-   * information about the schema of a resource.
-   *
-   * @method getSchemaDefinitionService
-   * @public
-   */
-  getSchemaDefinitionService(): SchemaService {
-    if (HAS_MODEL_PACKAGE) {
-      if (!this._schema) {
-        // it is potentially a mistake for the RFC to have not enabled chaining these services, though highlander rule is nice.
-        // what ember-m3 did via private API to allow both worlds to interop would be much much harder using this.
-        this._schema = new DSModelSchemaDefinitionService(this);
-      }
-    }
-    assert(`You must registerSchemaDefinitionService with the store to use custom model classes`, this._schema);
-    return this._schema;
-  }
-
-  /**
-   * DEPRECATED - Use `registerSchema` instead.
-   *
-   * Allows an app to register a custom SchemaService
-   * for use when information about a resource's schema needs
-   * to be queried.
-   *
-   * This method can only be called more than once, but only one schema
-   * definition service may exist. Therefore if you wish to chain services
-   * you must lookup the existing service and close over it with the new
-   * service by accessing `store.schema` prior to registration.
-   *
-   * For Example:
-   *
-   * ```ts
-   * import Store from '@ember-data/store';
-   *
-   * class SchemaDelegator {
-   *   constructor(schema) {
-   *     this._schema = schema;
-   *   }
-   *
-   *   doesTypeExist(type: string): boolean {
-   *     if (AbstractSchemas.has(type)) {
-   *       return true;
-   *     }
-   *     return this._schema.doesTypeExist(type);
-   *   }
-   *
-   *   attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
-   *     return this._schema.attributesDefinitionFor(identifier);
-   *   }
-   *
-   *   relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
-   *     const schema = AbstractSchemas.get(identifier.type);
-   *     return schema || this._schema.relationshipsDefinitionFor(identifier);
-   *   }
-   * }
-   *
-   * export default class extends Store {
-   *   constructor(...args) {
-   *     super(...args);
-   *
-   *     const schema = this.schema;
-   *     this.registerSchemaDefinitionService(new SchemaDelegator(schema));
-   *   }
-   * }
-   * ```
-   *
-   * @method registerSchemaDefinitionService
-   * @param {SchemaService} schema
-   * @deprecated
-   * @public
-   */
-  registerSchemaDefinitionService(schema: SchemaService) {
-    this._schema = schema;
-  }
-  /**
-   * Allows an app to register a custom SchemaService
-   * for use when information about a resource's schema needs
-   * to be queried.
-   *
-   * This method can only be called more than once, but only one schema
-   * definition service may exist. Therefore if you wish to chain services
-   * you must lookup the existing service and close over it with the new
-   * service by accessing `store.schema` prior to registration.
-   *
-   * For Example:
-   *
-   * ```ts
-   * import Store from '@ember-data/store';
-   *
-   * class SchemaDelegator {
-   *   constructor(schema) {
-   *     this._schema = schema;
-   *   }
-   *
-   *   doesTypeExist(type: string): boolean {
-   *     if (AbstractSchemas.has(type)) {
-   *       return true;
-   *     }
-   *     return this._schema.doesTypeExist(type);
-   *   }
-   *
-   *   attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
-   *     return this._schema.attributesDefinitionFor(identifier);
-   *   }
-   *
-   *   relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
-   *     const schema = AbstractSchemas.get(identifier.type);
-   *     return schema || this._schema.relationshipsDefinitionFor(identifier);
-   *   }
-   * }
-   *
-   * export default class extends Store {
-   *   constructor(...args) {
-   *     super(...args);
-   *
-   *     const schema = this.schema;
-   *     this.registerSchema(new SchemaDelegator(schema));
-   *   }
-   * }
-   * ```
-   *
-   * @method registerSchema
-   * @param {SchemaService} schema
-   * @public
-   */
-  registerSchema(schema: SchemaService) {
-    this._schema = schema;
-  }
-
-  /**
-    Returns the schema for a particular `modelName`.
+    Returns the schema for a particular resource type (modelName).
 
     When used with Model from @ember-data/model the return is the model class,
     but this is not guaranteed.
@@ -650,45 +856,22 @@ class Store extends EmberObject {
 
     @method modelFor
     @public
-    @param {String} modelName
-    @return {subclass of Model | ShimModelClass}
+    @deprecated
+    @param {string} type
+    @return {ModelSchema}
     */
-  // TODO @deprecate in favor of schema APIs, requires adapter/serializer overhaul or replacement
-
-  modelFor(modelName: string): ShimModelClass | StaticModel {
+  modelFor<T>(type: TypeFromInstance<T>): ModelSchema<T>;
+  modelFor(type: string): ModelSchema;
+  modelFor<T>(type: T extends TypedRecordInstance ? TypeFromInstance<T> : string): ModelSchema<T> {
+    // FIXME add deprecation and deprecation stripping
+    // FIXME/TODO update RFC to remove this method
     if (DEBUG) {
       assertDestroyedStoreOnly(this, 'modelFor');
     }
-    assert(`You need to pass a model name to the store's modelFor method`, modelName);
-    assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
-    );
-    if (HAS_MODEL_PACKAGE) {
-      let normalizedModelName = normalizeModelName(modelName);
-      let maybeFactory = getModelFactory(this, this._modelFactoryCache, normalizedModelName);
+    assert(`You need to pass <type> to the store's modelFor method`, typeof type === 'string' && type.length);
+    assert(`No model was found for '${type}' and no schema handles the type`, this.schema.hasResource({ type }));
 
-      // for factorFor factory/class split
-      const klass = maybeFactory && maybeFactory.class ? maybeFactory.class : null;
-
-      if (!klass || !klass.isModel || this._forceShim) {
-        assert(
-          `No model was found for '${modelName}' and no schema handles the type`,
-          this.getSchemaDefinitionService().doesTypeExist(modelName)
-        );
-
-        return getShimClass(this, modelName);
-      } else {
-        // TODO @deprecate ever returning the klass, always return the shim
-        return klass;
-      }
-    }
-
-    assert(
-      `No model was found for '${modelName}' and no schema handles the type`,
-      this.getSchemaDefinitionService().doesTypeExist(modelName)
-    );
-    return getShimClass(this, modelName);
+    return getShimClass<T>(this, type);
   }
 
   /**
@@ -706,7 +889,7 @@ class Store extends EmberObject {
     To create a new instance of a `Post` that has a relationship with a `User` record:
 
     ```js
-    let user = this.store.peekRecord('user', 1);
+    let user = this.store.peekRecord('user', '1');
     store.createRecord('post', {
       title: 'Ember is awesome!',
       user: user
@@ -715,19 +898,21 @@ class Store extends EmberObject {
 
     @method createRecord
     @public
-    @param {String} modelName
+    @param {String} type the name of the resource
     @param {Object} inputProperties a hash of properties to set on the
       newly created record.
     @return {Model} record
   */
-  createRecord(modelName: string, inputProperties: CreateRecordProperties): RecordInstance {
+  createRecord<T>(type: TypeFromInstance<T>, inputProperties: CreateRecordProperties<T>): T;
+  createRecord(type: string, inputProperties: CreateRecordProperties): OpaqueRecordInstance;
+  createRecord(type: string, inputProperties: CreateRecordProperties): OpaqueRecordInstance {
     if (DEBUG) {
       assertDestroyingStore(this, 'createRecord');
     }
-    assert(`You need to pass a model name to the store's createRecord method`, modelName);
+    assert(`You need to pass a model name to the store's createRecord method`, type);
     assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
+      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${type}`,
+      typeof type === 'string'
     );
 
     // This is wrapped in a `run.join` so that in test environments users do not need to manually wrap
@@ -735,53 +920,48 @@ class Store extends EmberObject {
     //   of record-arrays via ember's run loop, not our own.
     //
     //   to remove this, we would need to move to a new `async` API.
-    let record!: RecordInstance;
-    emberBackburner.join(() => {
-      this._join(() => {
-        let normalizedModelName = normalizeModelName(modelName);
-        let properties = { ...inputProperties };
+    let record!: OpaqueRecordInstance;
+    this._join(() => {
+      const normalizedModelName = normalizeModelName(type);
+      const properties = { ...inputProperties };
 
-        // If the passed properties do not include a primary key,
-        // give the adapter an opportunity to generate one. Typically,
-        // client-side ID generators will use something like uuid.js
-        // to avoid conflicts.
+      // If the passed properties do not include a primary key,
+      // give the adapter an opportunity to generate one. Typically,
+      // client-side ID generators will use something like uuid.js
+      // to avoid conflicts.
+      let id: string | null = null;
 
-        if (properties.id === null || properties.id === undefined) {
-          let adapter = this.adapterFor(modelName);
+      if (properties.id === null || properties.id === undefined) {
+        upgradeStore(this);
+        const adapter = this.adapterFor?.(normalizedModelName, true);
 
-          if (adapter && adapter.generateIdForRecord) {
-            properties.id = adapter.generateIdForRecord(this, modelName, properties);
-          } else {
-            properties.id = null;
-          }
+        if (adapter && adapter.generateIdForRecord) {
+          id = properties.id = coerceId(adapter.generateIdForRecord(this, normalizedModelName, properties));
+        } else {
+          id = properties.id = null;
         }
+      } else {
+        id = properties.id = coerceId(properties.id);
+      }
 
-        // Coerce ID to a string
-        properties.id = coerceId(properties.id);
-        const resource = { type: normalizedModelName, id: properties.id };
+      const resource = { type: normalizedModelName, id };
 
-        if (resource.id) {
-          const identifier = this.identifierCache.peekRecordIdentifier(resource as ResourceIdentifierObject);
+      if (resource.id) {
+        const identifier = this.identifierCache.peekRecordIdentifier(resource as ResourceIdentifierObject);
 
-          assert(
-            `The id ${properties.id} has already been used with another '${normalizedModelName}' record.`,
-            !identifier
-          );
-        }
-
-        const identifier = this.identifierCache.createIdentifierForNewRecord(resource);
-        const cache = DEPRECATE_V1_RECORD_DATA ? this._instanceCache.getResourceCache(identifier) : this.cache;
-
-        const createOptions = normalizeProperties(
-          this,
-          identifier,
-          properties,
-          (cache as NonSingletonCacheManager).managedVersion === '1'
+        assert(
+          `The id ${String(properties.id)} has already been used with another '${normalizedModelName}' record.`,
+          !identifier
         );
-        const resultProps = cache.clientDidCreate(identifier, createOptions);
+      }
 
-        record = this._instanceCache.getRecord(identifier, resultProps);
-      });
+      const identifier = this.identifierCache.createIdentifierForNewRecord(resource);
+      const cache = this.cache;
+
+      const createOptions = normalizeProperties(this, identifier, properties);
+      const resultProps = cache.clientDidCreate(identifier, createOptions);
+
+      record = this._instanceCache.getRecord(identifier, resultProps);
     });
     return record;
   }
@@ -801,25 +981,21 @@ class Store extends EmberObject {
 
     @method deleteRecord
     @public
-    @param {Model} record
+    @param {unknown} record
   */
-  deleteRecord(record: RecordInstance): void {
+  deleteRecord<T>(record: T): void {
     if (DEBUG) {
       assertDestroyingStore(this, 'deleteRecord');
     }
 
     const identifier = peekRecordIdentifier(record);
-    const cache =
-      identifier &&
-      (DEPRECATE_V1_RECORD_DATA ? this._instanceCache.peek({ identifier, bucket: 'resourceCache' }) : this.cache);
-    assert(`expected a cache instance to exist for the record`, cache);
+    const cache = this.cache;
+    assert(`expected the record to be connected to a cache`, identifier);
     this._join(() => {
       cache.setIsDeleted(identifier, true);
 
       if (cache.isNew(identifier)) {
-        emberBackburner.join(() => {
-          this._instanceCache.unloadRecord(identifier);
-        });
+        this._instanceCache.unloadRecord(identifier);
       }
     });
   }
@@ -831,7 +1007,7 @@ class Store extends EmberObject {
     Example
 
     ```javascript
-    store.findRecord('post', 1).then(function(post) {
+    store.findRecord('post', '1').then(function(post) {
       store.unloadRecord(post);
     });
     ```
@@ -840,7 +1016,7 @@ class Store extends EmberObject {
     @public
     @param {Model} record
   */
-  unloadRecord(record: RecordInstance): void {
+  unloadRecord<T>(record: T): void {
     if (DEBUG) {
       assertDestroyingStore(this, 'unloadRecord');
     }
@@ -859,7 +1035,7 @@ class Store extends EmberObject {
     @deprecated
     @private
   */
-  find(modelName: string, id: string | number, options?): PromiseObject<RecordInstance> {
+  find(modelName: string, id: string | number, options?: FindRecordOptions): Promise<OpaqueRecordInstance> {
     if (DEBUG) {
       assertDestroyingStore(this, 'find');
     }
@@ -916,8 +1092,6 @@ class Store extends EmberObject {
     **Example 1**
 
     ```app/routes/post.js
-    import Route from '@ember/routing/route';
-
     export default class PostRoute extends Route {
       model({ post_id }) {
         return this.store.findRecord('post', post_id);
@@ -932,8 +1106,6 @@ class Store extends EmberObject {
     the typical pairing from [JSON:API](https://jsonapi.org/format/#document-resource-object-identification)
 
     ```app/routes/post.js
-    import Route from '@ember/routing/route';
-
     export default class PostRoute extends Route {
       model({ post_id: id }) {
         return this.store.findRecord({ type: 'post', id });
@@ -965,8 +1137,6 @@ class Store extends EmberObject {
     without also fetching the post you can pass in the post to the `findRecord` call:
 
     ```app/routes/post-comments.js
-    import Route from '@ember/routing/route';
-
     export default class PostRoute extends Route {
       model({ post_id, comment_id: id }) {
         return this.store.findRecord({ type: 'comment', id, { preload: { post: post_id }} });
@@ -978,9 +1148,7 @@ class Store extends EmberObject {
     snapshot:
 
     ```app/adapters/application.js
-    import EmberObject from '@ember/object';
-
-    export default class Adapter extends EmberObject {
+    export default class Adapter {
 
       findRecord(store, schema, id, snapshot) {
         let type = schema.modelName;
@@ -992,6 +1160,10 @@ class Store extends EmberObject {
             .then(response => response.json())
         }
       }
+
+      static create() {
+        return new this();
+      }
     }
     ```
 
@@ -999,8 +1171,6 @@ class Store extends EmberObject {
     property on the options hash.
 
     ```app/routes/post-comments.js
-    import Route from '@ember/routing/route';
-
     export default class PostRoute extends Route {
       model({ post_id, comment_id: id }) {
         return this.store.findRecord({ type: 'comment', id, { adapterOptions: { post: post_id }} });
@@ -1009,10 +1179,7 @@ class Store extends EmberObject {
     ```
 
     ```app/adapters/application.js
-    import EmberObject from '@ember/object';
-
-    export default class Adapter extends EmberObject {
-
+    export default class Adapter {
       findRecord(store, schema, id, snapshot) {
         let type = schema.modelName;
 
@@ -1023,14 +1190,18 @@ class Store extends EmberObject {
             .then(response => response.json())
         }
       }
+
+      static create() {
+        return new this();
+      }
     }
     ```
 
     If you have access to the post model you can also pass the model itself to preload:
 
     ```javascript
-    let post = await store.findRecord('post', 1);
-    let comment = await store.findRecord('comment', 2, { post: myPostModel });
+    let post = await store.findRecord('post', '1');
+    let comment = await store.findRecord('comment', '2', { post: myPostModel });
     ```
 
     ### Reloading
@@ -1059,7 +1230,7 @@ class Store extends EmberObject {
     //     revision: 2
     //   }
     // ]
-    store.findRecord('post', 1, { reload: true }).then(function(post) {
+    store.findRecord('post', '1', { reload: true }).then(function(post) {
       post.revision; // 2
     });
     ```
@@ -1097,7 +1268,7 @@ class Store extends EmberObject {
       }
     });
 
-    let blogPost = store.findRecord('post', 1).then(function(post) {
+    let blogPost = store.findRecord('post', '1').then(function(post) {
       post.revision; // 1
     });
 
@@ -1118,8 +1289,6 @@ class Store extends EmberObject {
     `findRecord`.
 
     ```app/routes/post/edit.js
-    import Route from '@ember/routing/route';
-
     export default class PostEditRoute extends Route {
       model(params) {
         return this.store.findRecord('post', params.post_id, { backgroundReload: false });
@@ -1131,8 +1300,6 @@ class Store extends EmberObject {
     argument it will be passed to your adapter via the snapshot
 
     ```app/routes/post/edit.js
-    import Route from '@ember/routing/route';
-
     export default class PostEditRoute extends Route {
       model(params) {
         return this.store.findRecord('post', params.post_id, {
@@ -1172,20 +1339,15 @@ class Store extends EmberObject {
     comments in the same request:
 
     ```app/routes/post.js
-    import Route from '@ember/routing/route';
-
     export default class PostRoute extends Route {
       model(params) {
-        return this.store.findRecord('post', params.post_id, { include: 'comments' });
+        return this.store.findRecord('post', params.post_id, { include: ['comments'] });
       }
     }
     ```
 
     ```app/adapters/application.js
-    import EmberObject from '@ember/object';
-
-    export default class Adapter extends EmberObject {
-
+    export default class Adapter {
       findRecord(store, schema, id, snapshot) {
         let type = schema.modelName;
 
@@ -1196,6 +1358,10 @@ class Store extends EmberObject {
             .then(response => response.json())
         }
       }
+
+      static create() {
+        return new this();
+      }
     }
     ```
 
@@ -1203,16 +1369,14 @@ class Store extends EmberObject {
     `model.comments`.
 
     Multiple relationships can be requested using an `include` parameter consisting of a
-    comma-separated list (without white-space) while nested relationships can be specified
+    list of relationship names, while nested relationships can be specified
     using a dot-separated sequence of relationship names. So to request both the post's
     comments and the authors of those comments the request would look like this:
 
     ```app/routes/post.js
-    import Route from '@ember/routing/route';
-
     export default class PostRoute extends Route {
       model(params) {
-        return this.store.findRecord('post', params.post_id, { include: 'comments,comments.author' });
+        return this.store.findRecord('post', params.post_id, { include: ['comments','comments.author'] });
       }
     }
     ```
@@ -1243,41 +1407,41 @@ class Store extends EmberObject {
     Given a `post` model with attributes body, title, publishDate and meta, you can retrieve a filtered list of attributes.
 
     ```app/routes/post.js
-    import Route from '@ember/routing/route';
-    export default Route.extend({
+    export default class extends Route {
       model(params) {
         return this.store.findRecord('post', params.post_id, { adapterOptions: { fields: { post: 'body,title' } });
       }
-    });
+    }
     ```
 
     Moreover, you can filter attributes on related models as well. If a `post` has a `belongsTo` relationship to a user,
     just include the relationship key and attributes.
 
     ```app/routes/post.js
-    import Route from '@ember/routing/route';
-    export default Route.extend({
+    export default class extends Route {
       model(params) {
         return this.store.findRecord('post', params.post_id, { adapterOptions: { fields: { post: 'body,title', user: 'name,email' } });
       }
-    });
+    }
     ```
 
     @since 1.13.0
     @method findRecord
     @public
-    @param {String|object} modelName - either a string representing the modelName or a ResourceIdentifier object containing both the type (a string) and the id (a string) for the record or an lid (a string) of an existing record
+    @param {String|object} type - either a string representing the name of the resource or a ResourceIdentifier object containing both the type (a string) and the id (a string) for the record or an lid (a string) of an existing record
     @param {(String|Integer|Object)} id - optional object with options for the request only if the first param is a ResourceIdentifier, else the string id of the record to be retrieved
     @param {Object} [options] - if the first param is a string this will be the optional options for the request. See examples for available options.
     @return {Promise} promise
   */
-  findRecord(resource: string, id: string | number, options?: FindOptions): PromiseObject<RecordInstance>;
-  findRecord(resource: ResourceIdentifierObject, id?: FindOptions): PromiseObject<RecordInstance>;
+  findRecord<T>(type: TypeFromInstance<T>, id: string | number, options?: FindRecordOptions<T>): Promise<T>;
+  findRecord(type: string, id: string | number, options?: FindRecordOptions): Promise<unknown>;
+  findRecord<T>(resource: ResourceIdentifierObject<TypeFromInstance<T>>, options?: FindRecordOptions<T>): Promise<T>;
+  findRecord(resource: ResourceIdentifierObject, options?: FindRecordOptions): Promise<unknown>;
   findRecord(
     resource: string | ResourceIdentifierObject,
-    id?: string | number | FindOptions,
-    options?: FindOptions
-  ): PromiseObject<RecordInstance> {
+    id?: string | number | FindRecordOptions,
+    options?: FindRecordOptions
+  ): Promise<unknown> {
     if (DEBUG) {
       assertDestroyingStore(this, 'findRecord');
     }
@@ -1287,7 +1451,7 @@ class Store extends EmberObject {
       resource
     );
     if (isMaybeIdentifier(resource)) {
-      options = id as FindOptions | undefined;
+      options = id as FindRecordOptions | undefined;
     } else {
       assert(
         `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${resource}`,
@@ -1309,17 +1473,17 @@ class Store extends EmberObject {
         options.reload = true;
       }
       this._join(() => {
-        preloadData(this, identifier, options!.preload!);
+        preloadData(this, identifier, options.preload!);
       });
     }
 
-    const promise = this.request<RecordInstance>({
+    const promise = this.request<OpaqueRecordInstance>({
       op: 'findRecord',
       data: {
         record: identifier,
         options,
       },
-      cacheOptions: { [SkipCache as symbol]: true },
+      cacheOptions: { [SkipCache]: true },
     });
 
     if (DEPRECATE_PROMISE_PROXIES) {
@@ -1332,7 +1496,7 @@ class Store extends EmberObject {
 
     return promise.then((document) => {
       return document.content;
-    }) as PromiseObject<RecordInstance>;
+    });
   }
 
   /**
@@ -1341,7 +1505,7 @@ class Store extends EmberObject {
     Example
 
     ```javascript
-    let userRef = store.getReference('user', 1);
+    let userRef = store.getReference('user', '1');
 
     // check if the user is loaded
     let isLoaded = userRef.value() !== null;
@@ -1379,7 +1543,7 @@ class Store extends EmberObject {
       assertDestroyingStore(this, 'getReference');
     }
 
-    let resourceIdentifier;
+    let resourceIdentifier: ResourceIdentifierObject;
     if (arguments.length === 1 && isMaybeIdentifier(resource)) {
       resourceIdentifier = resource;
     } else {
@@ -1393,7 +1557,7 @@ class Store extends EmberObject {
       isMaybeIdentifier(resourceIdentifier)
     );
 
-    let identifier: StableRecordIdentifier = this.identifierCache.getOrCreateRecordIdentifier(resourceIdentifier);
+    const identifier: StableRecordIdentifier = this.identifierCache.getOrCreateRecordIdentifier(resourceIdentifier);
 
     return this._instanceCache.getReference(identifier);
   }
@@ -1412,9 +1576,9 @@ class Store extends EmberObject {
     **Example 1**
 
     ```js
-    let post = store.peekRecord('post', 1);
+    let post = store.peekRecord('post', '1');
 
-    post.id; // 1
+    post.id; // '1'
     ```
 
     `peekRecord` can be called with a single identifier argument instead of the combination
@@ -1425,7 +1589,7 @@ class Store extends EmberObject {
 
     ```js
     let post = store.peekRecord({ type: 'post', id });
-    post.id; // 1
+    post.id; // '1'
     ```
 
     If you have previously received an lid from an Identifier for this record, you can lookup the record again using
@@ -1435,7 +1599,7 @@ class Store extends EmberObject {
 
     ```js
     let post = store.peekRecord({ lid });
-    post.id; // 1
+    post.id; // '1'
     ```
 
 
@@ -1446,15 +1610,17 @@ class Store extends EmberObject {
     @param {String|Integer} id - optional only if the first param is a ResourceIdentifier, else the string id of the record to be retrieved.
     @return {Model|null} record
   */
-  peekRecord(identifier: string, id: string | number): RecordInstance | null;
-  peekRecord(identifier: ResourceIdentifierObject): RecordInstance | null;
-  peekRecord(identifier: ResourceIdentifierObject | string, id?: string | number): RecordInstance | null {
+  peekRecord<T>(type: TypeFromInstance<T>, id: string | number): T | null;
+  peekRecord(type: string, id: string | number): unknown | null;
+  peekRecord<T>(identifier: ResourceIdentifierObject<TypeFromInstance<T>>): T | null;
+  peekRecord(identifier: ResourceIdentifierObject): unknown | null;
+  peekRecord<T = OpaqueRecordInstance>(identifier: ResourceIdentifierObject | string, id?: string | number): T | null {
     if (arguments.length === 1 && isMaybeIdentifier(identifier)) {
       const stableIdentifier = this.identifierCache.peekRecordIdentifier(identifier);
       const isLoaded = stableIdentifier && this._instanceCache.recordIsLoaded(stableIdentifier);
       // TODO come up with a better mechanism for determining if we have data and could peek.
       // this is basically an "are we not empty" query.
-      return isLoaded ? this._instanceCache.getRecord(stableIdentifier) : null;
+      return isLoaded ? (this._instanceCache.getRecord(stableIdentifier) as T) : null;
     }
 
     if (DEBUG) {
@@ -1463,7 +1629,9 @@ class Store extends EmberObject {
 
     assert(`You need to pass a model name to the store's peekRecord method`, identifier);
     assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${identifier}`,
+      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${String(
+        identifier
+      )}`,
       typeof identifier === 'string'
     );
 
@@ -1473,7 +1641,7 @@ class Store extends EmberObject {
     const stableIdentifier = this.identifierCache.peekRecordIdentifier(resource);
     const isLoaded = stableIdentifier && this._instanceCache.recordIsLoaded(stableIdentifier);
 
-    return isLoaded ? this._instanceCache.getRecord(stableIdentifier) : null;
+    return isLoaded ? (this._instanceCache.getRecord(stableIdentifier) as T) : null;
   }
 
   /**
@@ -1553,7 +1721,7 @@ class Store extends EmberObject {
     If you do something like this:
 
     ```javascript
-    store.query('person', { ids: [1, 2, 3] });
+    store.query('person', { ids: ['1', '2', '3'] });
     ```
 
     The request made to the server will look something like this:
@@ -1570,38 +1738,36 @@ class Store extends EmberObject {
     @since 1.13.0
     @method query
     @public
-    @param {String} modelName
-    @param {any} query an opaque query to be used by the adapter
+    @param {String} type the name of the resource
+    @param {object} query a query to be used by the adapter
     @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.query
     @return {Promise} promise
   */
-  query(
-    modelName: string,
-    query: Record<string, unknown>,
-    options: { [key: string]: unknown; adapterOptions?: Record<string, unknown> }
-  ): PromiseArray<RecordInstance, Collection> | Promise<Collection> {
+  query<T>(type: TypeFromInstance<T>, query: LegacyResourceQuery<T>, options?: QueryOptions): Promise<Collection<T>>;
+  query(type: string, query: LegacyResourceQuery, options?: QueryOptions): Promise<Collection>;
+  query(type: string, query: LegacyResourceQuery, options: QueryOptions = {}): Promise<Collection> {
     if (DEBUG) {
       assertDestroyingStore(this, 'query');
     }
-    assert(`You need to pass a model name to the store's query method`, modelName);
+    assert(`You need to pass a model name to the store's query method`, type);
     assert(`You need to pass a query hash to the store's query method`, query);
     assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
+      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${type}`,
+      typeof type === 'string'
     );
 
     const promise = this.request<Collection>({
       op: 'query',
       data: {
-        type: normalizeModelName(modelName),
+        type: normalizeModelName(type),
         query,
-        options: options || {},
+        options: options,
       },
-      cacheOptions: { [SkipCache as symbol]: true },
+      cacheOptions: { [SkipCache]: true },
     });
 
     if (DEPRECATE_PROMISE_PROXIES) {
-      return promiseArray(promise.then((document) => document.content));
+      return promiseArray(promise.then((document) => document.content)) as unknown as Promise<Collection>;
     }
     return promise.then((document) => document.content);
   }
@@ -1699,39 +1865,42 @@ class Store extends EmberObject {
     @since 1.13.0
     @method queryRecord
     @public
-    @param {String} modelName
-    @param {any} query an opaque query to be used by the adapter
-    @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.queryRecord
+    @param {string} type
+    @param {object} query an opaque query to be used by the adapter
+    @param {object} options optional, may include `adapterOptions` hash which will be passed to adapter.queryRecord
     @return {Promise} promise which resolves with the found record or `null`
   */
+  queryRecord<T>(type: TypeFromInstance<T>, query: LegacyResourceQuery<T>, options?: QueryOptions): Promise<T | null>;
+  queryRecord(type: string, query: LegacyResourceQuery, options?: QueryOptions): Promise<unknown | null>;
   queryRecord(
-    modelName: string,
+    type: string,
     query: Record<string, unknown>,
-    options?
-  ): PromiseObject<RecordInstance | null> | Promise<RecordInstance | null> {
+    options?: QueryOptions
+  ): Promise<OpaqueRecordInstance | null> {
     if (DEBUG) {
       assertDestroyingStore(this, 'queryRecord');
     }
-    assert(`You need to pass a model name to the store's queryRecord method`, modelName);
+    assert(`You need to pass a model name to the store's queryRecord method`, type);
     assert(`You need to pass a query hash to the store's queryRecord method`, query);
     assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
+      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${type}`,
+      typeof type === 'string'
     );
 
-    const promise = this.request<RecordInstance | null>({
+    const promise = this.request<OpaqueRecordInstance | null>({
       op: 'queryRecord',
       data: {
-        type: normalizeModelName(modelName),
+        type: normalizeModelName(type),
         query,
         options: options || {},
       },
-      cacheOptions: { [SkipCache as symbol]: true },
+      cacheOptions: { [SkipCache]: true },
     });
 
     if (DEPRECATE_PROMISE_PROXIES) {
       return promiseObject(promise.then((document) => document.content));
     }
+
     return promise.then((document) => document.content);
   }
 
@@ -1742,8 +1911,6 @@ class Store extends EmberObject {
     of them.
 
     ```app/routes/authors.js
-    import Route from '@ember/routing/route';
-
     export default class AuthorsRoute extends Route {
       model(params) {
         return this.store.findAll('author');
@@ -1836,8 +2003,6 @@ class Store extends EmberObject {
     `findAll`.
 
     ```app/routes/post/edit.js
-    import Route from '@ember/routing/route';
-
     export default class PostEditRoute extends Route {
       model() {
         return this.store.findAll('post', { backgroundReload: false });
@@ -1849,8 +2014,6 @@ class Store extends EmberObject {
     argument it will be passed to you adapter via the `snapshotRecordArray`
 
     ```app/routes/posts.js
-    import Route from '@ember/routing/route';
-
     export default class PostsRoute extends Route {
       model(params) {
         return this.store.findAll('post', {
@@ -1891,25 +2054,21 @@ class Store extends EmberObject {
     all of the posts' comments in the same request:
 
     ```app/routes/posts.js
-    import Route from '@ember/routing/route';
-
     export default class PostsRoute extends Route {
       model() {
-        return this.store.findAll('post', { include: 'comments' });
+        return this.store.findAll('post', { include: ['comments'] });
       }
     }
     ```
     Multiple relationships can be requested using an `include` parameter consisting of a
-    comma-separated list (without white-space) while nested relationships can be specified
+    list or relationship names, while nested relationships can be specified
     using a dot-separated sequence of relationship names. So to request both the posts'
     comments and the authors of those comments the request would look like this:
 
     ```app/routes/posts.js
-    import Route from '@ember/routing/route';
-
     export default class PostsRoute extends Route {
       model() {
-        return this.store.findAll('post', { include: 'comments,comments.author' });
+        return this.store.findAll('post', { include: ['comments','comments.author'] });
       }
     }
     ```
@@ -1919,36 +2078,36 @@ class Store extends EmberObject {
     @since 1.13.0
     @method findAll
     @public
-    @param {String} modelName
-    @param {Object} options
+    @param {string} type the name of the resource
+    @param {object} options
     @return {Promise} promise
   */
-  findAll(
-    modelName: string,
-    options: { reload?: boolean; backgroundReload?: boolean } = {}
-  ): PromiseArray<RecordInstance, IdentifierArray> {
+  findAll<T>(type: TypeFromInstance<T>, options?: FindAllOptions<T>): Promise<IdentifierArray<T>>;
+  findAll(type: string, options?: FindAllOptions): Promise<IdentifierArray>;
+  findAll<T>(type: TypeFromInstance<T> | string, options: FindAllOptions = {}): Promise<IdentifierArray<T>> {
     if (DEBUG) {
       assertDestroyingStore(this, 'findAll');
     }
-    assert(`You need to pass a model name to the store's findAll method`, modelName);
+    assert(`You need to pass a model name to the store's findAll method`, type);
     assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
+      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${type}`,
+      typeof type === 'string'
     );
 
-    const promise = this.request<IdentifierArray>({
+    const promise = this.request<IdentifierArray<T>>({
       op: 'findAll',
       data: {
-        type: normalizeModelName(modelName),
+        type: normalizeModelName(type),
         options: options || {},
       },
-      cacheOptions: { [SkipCache as symbol]: true },
+      cacheOptions: { [SkipCache]: true },
     });
 
     if (DEPRECATE_PROMISE_PROXIES) {
-      return promiseArray(promise.then((document) => document.content));
+      return promiseArray(promise.then((document) => document.content)) as unknown as Promise<IdentifierArray<T>>;
     }
-    return promise.then((document) => document.content) as PromiseArray<RecordInstance, IdentifierArray>;
+
+    return promise.then((document) => document.content);
   }
 
   /**
@@ -1973,21 +2132,22 @@ class Store extends EmberObject {
     @since 1.13.0
     @method peekAll
     @public
-    @param {String} modelName
+    @param {string} type the name of the resource
     @return {RecordArray}
   */
-  peekAll(modelName: string): IdentifierArray {
+  peekAll<T>(type: TypeFromInstance<T>): IdentifierArray<T>;
+  peekAll(type: string): IdentifierArray;
+  peekAll(type: string): IdentifierArray {
     if (DEBUG) {
       assertDestroyingStore(this, 'peekAll');
     }
-    assert(`You need to pass a model name to the store's peekAll method`, modelName);
+    assert(`You need to pass a model name to the store's peekAll method`, type);
     assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
+      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${type}`,
+      typeof type === 'string'
     );
 
-    let type = normalizeModelName(modelName);
-    return this.recordArrayManager.liveArrayFor(type);
+    return this.recordArrayManager.liveArrayFor(normalizeModelName(type));
   }
 
   /**
@@ -2002,37 +2162,31 @@ class Store extends EmberObject {
     ```
 
     @method unloadAll
+    @param {string} type the name of the resource
     @public
-    @param {String} modelName
   */
-  unloadAll(modelName?: string) {
+  unloadAll<T>(type: TypeFromInstance<T>): void;
+  unloadAll(type?: string): void;
+  unloadAll(type?: string) {
     if (DEBUG) {
       assertDestroyedStoreOnly(this, 'unloadAll');
     }
     assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      !modelName || typeof modelName === 'string'
+      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${String(type)}`,
+      !type || typeof type === 'string'
     );
 
     this._join(() => {
-      if (modelName === undefined) {
+      if (type === undefined) {
         // destroy the graph before unloadAll
         // since then we avoid churning relationships
         // during unload
-        if (HAS_GRAPH_PACKAGE) {
-          const peekGraph = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private'))
-            .peekGraph;
-          const graph = peekGraph(this);
-          if (graph) {
-            graph.identifiers.clear();
-          }
-        }
+        this._graph?.identifiers.clear();
 
         this.recordArrayManager.clear();
         this._instanceCache.clear();
       } else {
-        let normalizedModelName = normalizeModelName(modelName);
-        this._instanceCache.clear(normalizedModelName);
+        this._instanceCache.clear(normalizeModelName(type));
       }
     });
   }
@@ -2189,17 +2343,18 @@ class Store extends EmberObject {
       updated.
   */
   push(data: EmptyResourceDocument): null;
-  push(data: SingleResourceDocument): RecordInstance;
-  push(data: CollectionResourceDocument): RecordInstance[];
-  push(data: JsonApiDocument): RecordInstance | RecordInstance[] | null {
+  push<T>(data: SingleResourceDocument<TypeFromInstance<T>>): T;
+  push(data: SingleResourceDocument): OpaqueRecordInstance;
+  push<T>(data: CollectionResourceDocument<TypeFromInstance<T>>): T[];
+  push(data: CollectionResourceDocument): OpaqueRecordInstance[];
+  push(data: JsonApiDocument): OpaqueRecordInstance | OpaqueRecordInstance[] | null {
     if (DEBUG) {
       assertDestroyingStore(this, 'push');
     }
-    let pushed = this._push(data, false);
+    const pushed = this._push(data, false);
 
     if (Array.isArray(pushed)) {
-      let records = pushed.map((identifier) => this._instanceCache.getRecord(identifier));
-      return records;
+      return pushed.map((identifier) => this._instanceCache.getRecord(identifier));
     }
 
     if (pushed === null) {
@@ -2216,7 +2371,7 @@ class Store extends EmberObject {
     @method _push
     @private
     @param {Object} jsonApiDoc
-    @return {StableRecordIdentifier|Array<StableRecordIdentifier>} identifiers for the primary records that had data loaded
+    @return {StableRecordIdentifier|Array<StableRecordIdentifier>|null} identifiers for the primary records that had data loaded
   */
   _push(
     jsonApiDoc: JsonApiDocument,
@@ -2227,10 +2382,10 @@ class Store extends EmberObject {
     }
     if (LOG_PAYLOADS) {
       try {
-        let data = JSON.parse(JSON.stringify(jsonApiDoc));
+        const data: unknown = JSON.parse(JSON.stringify(jsonApiDoc)) as unknown;
         // eslint-disable-next-line no-console
         console.log('EmberData | Payload - push', data);
-      } catch (e) {
+      } catch {
         // eslint-disable-next-line no-console
         console.log('EmberData | Payload - push', jsonApiDoc);
       }
@@ -2238,158 +2393,47 @@ class Store extends EmberObject {
     if (asyncFlush) {
       this._enableAsyncFlush = true;
     }
-    let ret;
+
+    let ret!: ResourceDocument;
     this._join(() => {
-      if (DEPRECATE_V1_RECORD_DATA) {
-        ret = legacyCachePut(this, { content: jsonApiDoc });
-      } else {
-        ret = this.cache.put({ content: jsonApiDoc });
-      }
+      ret = this.cache.put({ content: jsonApiDoc });
     });
 
     this._enableAsyncFlush = null;
 
-    return ret.data;
-  }
-
-  /**
-    Push some raw data into the store.
-
-    This method can be used both to push in brand new
-    records, as well as to update existing records. You
-    can push in more than one type of object at once.
-    All objects should be in the format expected by the
-    serializer.
-
-    ```app/serializers/application.js
-    import RESTSerializer from '@ember-data/serializer/rest';
-
-    export default class ApplicationSerializer extends RESTSerializer;
-    ```
-
-    ```js
-    let pushData = {
-      posts: [
-        { id: 1, postTitle: "Great post", commentIds: [2] }
-      ],
-      comments: [
-        { id: 2, commentBody: "Insightful comment" }
-      ]
-    }
-
-    store.pushPayload(pushData);
-    ```
-
-    By default, the data will be deserialized using a default
-    serializer (the application serializer if it exists).
-
-    Alternatively, `pushPayload` will accept a model type which
-    will determine which serializer will process the payload.
-
-    ```app/serializers/application.js
-    import RESTSerializer from '@ember-data/serializer/rest';
-
-     export default class ApplicationSerializer extends RESTSerializer;
-    ```
-
-    ```app/serializers/post.js
-    import JSONSerializer from '@ember-data/serializer/json';
-
-    export default JSONSerializer;
-    ```
-
-    ```js
-    store.pushPayload(pushData); // Will use the application serializer
-    store.pushPayload('post', pushData); // Will use the post serializer
-    ```
-
-    @method pushPayload
-    @public
-    @param {String} modelName Optionally, a model type used to determine which serializer will be used
-    @param {Object} inputPayload
-  */
-  // TODO @runspired @deprecate pushPayload in favor of looking up the serializer
-  pushPayload(modelName, inputPayload) {
-    if (DEBUG) {
-      assertDestroyingStore(this, 'pushPayload');
-    }
-    let serializer;
-    let payload;
-    if (!inputPayload) {
-      payload = modelName;
-      serializer = this.serializerFor('application');
-      assert(
-        `You cannot use 'store#pushPayload' without a modelName unless your default serializer defines 'pushPayload'`,
-        typeof serializer.pushPayload === 'function'
-      );
-    } else {
-      payload = inputPayload;
-      assert(
-        `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-        typeof modelName === 'string'
-      );
-      let normalizedModelName = normalizeModelName(modelName);
-      serializer = this.serializerFor(normalizedModelName);
-    }
-    assert(
-      `You must define a pushPayload method in your serializer in order to call store.pushPayload`,
-      serializer.pushPayload
-    );
-    serializer.pushPayload(this, payload);
-  }
-
-  // TODO @runspired @deprecate records should implement their own serialization if desired
-  serializeRecord(record: RecordInstance, options?: Dict<unknown>): unknown {
-    // TODO we used to check if the record was destroyed here
-    if (HAS_COMPAT_PACKAGE) {
-      if (!this._fetchManager) {
-        const FetchManager = (
-          importSync('@ember-data/legacy-compat/-private') as typeof import('@ember-data/legacy-compat/-private')
-        ).FetchManager;
-        this._fetchManager = new FetchManager(this);
-      }
-
-      return this._fetchManager.createSnapshot(recordIdentifierFor(record)).serialize(options);
-    }
-
-    assert(`Store.serializeRecord is only available when utilizing @ember-data/legacy-compat for legacy compatibility`);
+    return 'data' in ret ? ret.data : null;
   }
 
   /**
    * Trigger a save for a Record.
    *
+   * Returns a promise resolving with the same record when the save is complete.
+   *
    * @method saveRecord
    * @public
-   * @param {RecordInstance} record
+   * @param {unknown} record
    * @param options
-   * @returns {Promise<RecordInstance>}
+   * @return {Promise<record>}
    */
-  saveRecord(record: RecordInstance, options: Dict<unknown> = {}): Promise<RecordInstance> {
+  saveRecord<T>(record: T, options: Record<string, unknown> = {}): Promise<T> {
     if (DEBUG) {
       assertDestroyingStore(this, 'saveRecord');
     }
-    assert(`Unable to initate save for a record in a disconnected state`, storeFor(record));
-    let identifier = recordIdentifierFor(record);
-    const cache =
-      identifier &&
-      (DEPRECATE_V1_RECORD_DATA ? this._instanceCache.peek({ identifier, bucket: 'resourceCache' }) : this.cache);
+    assert(`Unable to initiate save for a record in a disconnected state`, storeFor(record));
+    const identifier = recordIdentifierFor(record);
+    const cache = this.cache;
 
-    if (!cache) {
+    if (!identifier) {
       // this commonly means we're disconnected
       // but just in case we reject here to prevent bad things.
-      return Promise.reject(`Record Is Disconnected`);
+      return Promise.reject(new Error(`Record Is Disconnected`));
     }
-    // TODO we used to check if the record was destroyed here
     assert(
-      `Cannot initiate a save request for an unloaded record: ${identifier}`,
-      cache && this._instanceCache.recordIsLoaded(identifier)
+      `Cannot initiate a save request for an unloaded record: ${identifier.lid}`,
+      this._instanceCache.recordIsLoaded(identifier)
     );
     if (resourceIsFullyDeleted(this._instanceCache, identifier)) {
       return Promise.resolve(record);
-    }
-
-    if (isDSModel(record)) {
-      record.errors.clear();
     }
 
     if (!options) {
@@ -2409,10 +2453,11 @@ class Store extends EmberObject {
         options,
         record: identifier,
       },
-      cacheOptions: { [SkipCache as symbol]: true },
+      records: [identifier],
+      cacheOptions: { [SkipCache]: true },
     };
 
-    return this.request<RecordInstance>(request).then((document) => document.content);
+    return this.request<T>(request).then((document) => document.content);
   }
 
   /**
@@ -2425,19 +2470,8 @@ class Store extends EmberObject {
    * @method createCache (hook)
    * @public
    * @param storeWrapper
-   * @returns {Cache}
+   * @return {Cache}
    */
-  createCache(storeWrapper: CacheStoreWrapper): Cache {
-    if (HAS_JSON_API_PACKAGE) {
-      if (_Cache === undefined) {
-        _Cache = (importSync('@ember-data/json-api') as typeof import('@ember-data/json-api')).default;
-      }
-
-      return new _Cache(storeWrapper);
-    }
-
-    assert(`Expected store.createCache to be implemented but it wasn't`);
-  }
 
   /**
    * Returns the cache instance associated to this Store, instantiates the Cache
@@ -2446,228 +2480,27 @@ class Store extends EmberObject {
    * @property {Cache} cache
    * @public
    */
-  get cache(): Cache {
+  get cache(): ReturnType<this['createCache']> {
     let { cache } = this._instanceCache;
     if (!cache) {
       cache = this._instanceCache.cache = this.createCache(this._instanceCache._storeWrapper);
       if (DEBUG) {
-        cache = new SingletonCacheManager(cache);
-      }
-    }
-    return cache;
-  }
-
-  /**
-   * [DEPRECATED] use Store.createCache
-   *
-   * Instantiation hook allowing applications or addons to configure the store
-   * to utilize a custom RecordData implementation.
-   *
-   * @method createRecordDataFor (hook)
-   * @deprecated
-   * @public
-   * @param identifier
-   * @param storeWrapper
-   * @returns {Cache}
-   */
-
-  /**
-    `normalize` converts a json payload into the normalized form that
-    [push](../methods/push?anchor=push) expects.
-
-    Example
-
-    ```js
-    socket.on('message', function(message) {
-      let modelName = message.model;
-      let data = message.data;
-      store.push(store.normalize(modelName, data));
-    });
-    ```
-
-    @method normalize
-    @public
-    @param {String} modelName The name of the model type for this payload
-    @param {Object} payload
-    @return {Object} The normalized payload
-  */
-  // TODO @runspired @deprecate users should call normalize on the associated serializer directly
-  normalize(modelName: string, payload) {
-    if (DEBUG) {
-      assertDestroyingStore(this, 'normalize');
-    }
-    assert(`You need to pass a model name to the store's normalize method`, modelName);
-    assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${typeof modelName}`,
-      typeof modelName === 'string'
-    );
-    let normalizedModelName = normalizeModelName(modelName);
-    let serializer = this.serializerFor(normalizedModelName);
-    let model = this.modelFor(normalizedModelName);
-    assert(
-      `You must define a normalize method in your serializer in order to call store.normalize`,
-      serializer?.normalize
-    );
-    return serializer.normalize(model, payload);
-  }
-
-  /**
-    Returns an instance of the adapter for a given type. For
-    example, `adapterFor('person')` will return an instance of
-    the adapter located at `app/adapters/person.js`
-
-    If no `person` adapter is found, this method will look
-    for an `application` adapter (the default adapter for
-    your entire application).
-
-    @method adapterFor
-    @public
-    @param {String} modelName
-    @return Adapter
-  */
-  adapterFor(modelName: string) {
-    if (DEBUG) {
-      assertDestroyingStore(this, 'adapterFor');
-    }
-    assert(`You need to pass a model name to the store's adapterFor method`, modelName);
-    assert(
-      `Passing classes to store.adapterFor has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
-    );
-    let normalizedModelName = normalizeModelName(modelName);
-
-    let { _adapterCache } = this;
-    let adapter = _adapterCache[normalizedModelName];
-    if (adapter) {
-      return adapter;
-    }
-
-    let owner: any = getOwner(this);
-
-    // name specific adapter
-    adapter = owner.lookup(`adapter:${normalizedModelName}`);
-    if (adapter !== undefined) {
-      _adapterCache[normalizedModelName] = adapter;
-      return adapter;
-    }
-
-    // no adapter found for the specific name, fallback and check for application adapter
-    adapter = _adapterCache.application || owner.lookup('adapter:application');
-    if (adapter !== undefined) {
-      _adapterCache[normalizedModelName] = adapter;
-      _adapterCache.application = adapter;
-      return adapter;
-    }
-
-    if (DEPRECATE_JSON_API_FALLBACK) {
-      // final fallback, no model specific adapter, no application adapter, no
-      // `adapter` property on store: use json-api adapter
-      adapter = _adapterCache['-json-api'] || owner.lookup('adapter:-json-api');
-      if (adapter !== undefined) {
-        deprecate(
-          `Your application is utilizing a deprecated hidden fallback adapter (-json-api). Please implement an application adapter to function as your fallback.`,
-          false,
-          {
-            id: 'ember-data:deprecate-secret-adapter-fallback',
-            for: 'ember-data',
-            until: '5.0',
-            since: { available: '4.5', enabled: '4.5' },
-          }
-        );
-        _adapterCache[normalizedModelName] = adapter;
-        _adapterCache['-json-api'] = adapter;
-
-        return adapter;
+        cache = new CacheManager(cache);
       }
     }
 
-    assert(`No adapter was found for '${modelName}' and no 'application' adapter was found as a fallback.`);
+    return cache as ReturnType<this['createCache']>;
   }
 
-  /**
-    Returns an instance of the serializer for a given type. For
-    example, `serializerFor('person')` will return an instance of
-    `App.PersonSerializer`.
-
-    If no `App.PersonSerializer` is found, this method will look
-    for an `App.ApplicationSerializer` (the default serializer for
-    your entire application).
-
-    If a serializer cannot be found on the adapter, it will fall back
-    to an instance of `JSONSerializer`.
-
-    @method serializerFor
-    @public
-    @param {String} modelName the record to serialize
-    @return {Serializer}
-  */
-  serializerFor(modelName: string): MinimumSerializerInterface | null {
-    if (DEBUG) {
-      assertDestroyingStore(this, 'serializerFor');
-    }
-    assert(`You need to pass a model name to the store's serializerFor method`, modelName);
-    assert(
-      `Passing classes to store.serializerFor has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
-    );
-    let normalizedModelName = normalizeModelName(modelName);
-
-    let { _serializerCache } = this;
-    let serializer = _serializerCache[normalizedModelName];
-    if (serializer) {
-      return serializer;
-    }
-
-    let owner: any = getOwner(this);
-
-    // by name
-    serializer = owner.lookup(`serializer:${normalizedModelName}`);
-    if (serializer !== undefined) {
-      _serializerCache[normalizedModelName] = serializer;
-      return serializer;
-    }
-
-    // no serializer found for the specific model, fallback and check for application serializer
-    serializer = _serializerCache.application || owner.lookup('serializer:application');
-    if (serializer !== undefined) {
-      _serializerCache[normalizedModelName] = serializer;
-      _serializerCache.application = serializer;
-      return serializer;
-    }
-
-    return null;
-  }
-
-  // @ts-expect-error
   destroy(): void {
     if (this.isDestroyed) {
       // @ember/test-helpers will call destroy multiple times
       return;
     }
     this.isDestroying = true;
-    // enqueue destruction of any adapters/serializers we have created
-    for (let adapterName in this._adapterCache) {
-      let adapter = this._adapterCache[adapterName]!;
-      if (typeof adapter.destroy === 'function') {
-        adapter.destroy();
-      }
-    }
 
-    for (let serializerName in this._serializerCache) {
-      let serializer = this._serializerCache[serializerName]!;
-      if (typeof serializer.destroy === 'function') {
-        serializer.destroy();
-      }
-    }
-
-    if (HAS_GRAPH_PACKAGE) {
-      const peekGraph = (importSync('@ember-data/graph/-private') as typeof import('@ember-data/graph/-private'))
-        .peekGraph;
-      let graph = peekGraph(this);
-      if (graph) {
-        graph.destroy();
-      }
-    }
+    this._graph?.destroy();
+    this._graph = undefined;
 
     this.notifications.destroy();
     this.recordArrayManager.destroy();
@@ -2682,19 +2515,71 @@ class Store extends EmberObject {
   }
 }
 
-export default Store;
+if (ENABLE_LEGACY_SCHEMA_SERVICE) {
+  Store.prototype.getSchemaDefinitionService = function (): SchemaService {
+    assert(`You must registerSchemaDefinitionService with the store to use custom model classes`, this._schema);
+    deprecate(
+      `Use \`store.schema\` instead of \`store.getSchemaDefinitionService()\``,
+      /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
+      {
+        id: 'ember-data:schema-service-updates',
+        until: '6.0',
+        for: 'ember-data',
+        since: {
+          available: '4.13',
+          enabled: '5.4',
+        },
+      }
+    );
+    return this._schema;
+  };
+  Store.prototype.registerSchemaDefinitionService = function (schema: SchemaService) {
+    deprecate(
+      `Use \`store.createSchemaService\` instead of \`store.registerSchemaDefinitionService()\``,
+      /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
+      {
+        id: 'ember-data:schema-service-updates',
+        until: '6.0',
+        for: 'ember-data',
+        since: {
+          available: '4.13',
+          enabled: '5.4',
+        },
+      }
+    );
+    this._schema = schema;
+  };
+  Store.prototype.registerSchema = function (schema: SchemaService) {
+    deprecate(
+      `Use \`store.createSchemaService\` instead of \`store.registerSchema()\``,
+      /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
+      {
+        id: 'ember-data:schema-service-updates',
+        until: '6.0',
+        for: 'ember-data',
+        since: {
+          available: '4.13',
+          enabled: '5.4',
+        },
+      }
+    );
+    this._schema = schema;
+  };
+}
 
-let assertDestroyingStore: Function;
-let assertDestroyedStoreOnly: Function;
+let assertDestroyingStore: (store: Store, method: string) => void;
+let assertDestroyedStoreOnly: (store: Store, method: string) => void;
 
 if (DEBUG) {
-  assertDestroyingStore = function assertDestroyedStore(store, method) {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
+  assertDestroyingStore = function assertDestroyingStore(store: Store, method: string) {
     assert(
       `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
       !(store.isDestroying || store.isDestroyed)
     );
   };
-  assertDestroyedStoreOnly = function assertDestroyedStoreOnly(store, method) {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
+  assertDestroyedStoreOnly = function assertDestroyedStoreOnly(store: Store, method: string) {
     assert(
       `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
       !store.isDestroyed
@@ -2713,18 +2598,10 @@ function isMaybeIdentifier(
   );
 }
 
-function isDSModel(record: RecordInstance | null): record is DSModel {
-  if (!HAS_MODEL_PACKAGE) {
-    return false;
-  }
-  return !!record && 'constructor' in record && 'isModel' in record.constructor && record.constructor.isModel === true;
-}
-
 function normalizeProperties(
   store: Store,
   identifier: StableRecordIdentifier,
-  properties?: { [key: string]: unknown },
-  isForV1: boolean = false
+  properties?: { [key: string]: unknown }
 ): { [key: string]: unknown } | undefined {
   // assert here
   if (properties !== undefined) {
@@ -2739,27 +2616,24 @@ function normalizeProperties(
     const { type } = identifier;
 
     // convert relationship Records to RecordDatas before passing to RecordData
-    let defs = store.getSchemaDefinitionService().relationshipsDefinitionFor({ type });
+    const defs = store.schema.fields({ type });
 
-    if (defs !== null) {
-      let keys = Object.keys(properties);
-      let relationshipValue;
+    if (defs.size) {
+      const keys = Object.keys(properties);
 
       for (let i = 0; i < keys.length; i++) {
-        let prop = keys[i];
-        let def = defs[prop];
+        const prop = keys[i];
+        const field = defs.get(prop);
 
-        if (def !== undefined) {
-          if (def.kind === 'hasMany') {
-            if (DEBUG) {
-              assertRecordsPassedToHasMany(properties[prop] as RecordInstance[]);
-            }
-            relationshipValue = extractIdentifiersFromRecords(properties[prop] as RecordInstance[], isForV1);
-          } else {
-            relationshipValue = extractIdentifierFromRecord(properties[prop] as RecordInstance, isForV1);
+        if (!field) continue;
+
+        if (field.kind === 'hasMany') {
+          if (DEBUG) {
+            assertRecordsPassedToHasMany(properties[prop] as OpaqueRecordInstance[]);
           }
-
-          properties[prop] = relationshipValue;
+          properties[prop] = extractIdentifiersFromRecords(properties[prop] as OpaqueRecordInstance[]);
+        } else if (field.kind === 'belongsTo') {
+          properties[prop] = extractIdentifierFromRecord(properties[prop]);
         }
       }
     }
@@ -2767,7 +2641,7 @@ function normalizeProperties(
   return properties;
 }
 
-function assertRecordsPassedToHasMany(records: RecordInstance[]) {
+function assertRecordsPassedToHasMany(records: OpaqueRecordInstance[]) {
   assert(`You must pass an array of records to set a hasMany relationship`, Array.isArray(records));
   assert(
     `All elements of a hasMany relationship must be instances of Model, you passed ${records
@@ -2786,24 +2660,21 @@ function assertRecordsPassedToHasMany(records: RecordInstance[]) {
   );
 }
 
-function extractIdentifiersFromRecords(records: RecordInstance[], isForV1: boolean = false): StableRecordIdentifier[] {
-  return records.map((record) => extractIdentifierFromRecord(record, isForV1)) as StableRecordIdentifier[];
+function extractIdentifiersFromRecords(records: OpaqueRecordInstance[]): StableRecordIdentifier[] {
+  return records.map((record) => extractIdentifierFromRecord(record)) as StableRecordIdentifier[];
 }
 
-type PromiseProxyRecord = { then(): void; content: RecordInstance | null | undefined };
+type PromiseProxyRecord = { then(): void; content: OpaqueRecordInstance | null | undefined };
 
-function extractIdentifierFromRecord(
-  recordOrPromiseRecord: PromiseProxyRecord | RecordInstance | null,
-  isForV1: boolean = false
-) {
+function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord | OpaqueRecordInstance | null) {
   if (!recordOrPromiseRecord) {
     return null;
   }
-  const extract = isForV1 ? peekCache : recordIdentifierFor;
+  const extract = recordIdentifierFor;
 
   if (DEPRECATE_PROMISE_PROXIES) {
     if (isPromiseRecord(recordOrPromiseRecord)) {
-      let content = recordOrPromiseRecord.content;
+      const content = recordOrPromiseRecord.content;
       assert(
         'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.',
         content !== undefined
@@ -2828,12 +2699,6 @@ function extractIdentifierFromRecord(
   return extract(recordOrPromiseRecord);
 }
 
-function isPromiseRecord(record: PromiseProxyRecord | RecordInstance): record is PromiseProxyRecord {
-  return !!record.then;
-}
-
-function secretInit(record: RecordInstance, cache: Cache, identifier: StableRecordIdentifier, store: Store): void {
-  setRecordIdentifier(record, identifier);
-  StoreMap.set(record, store);
-  setCacheFor(record, cache);
+function isPromiseRecord(record: PromiseProxyRecord | OpaqueRecordInstance): record is PromiseProxyRecord {
+  return typeof record === 'object' && !!record && 'then' in record && typeof record.then === 'function';
 }

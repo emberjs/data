@@ -1,17 +1,17 @@
 const path = require('path');
 
 const testInfo = require('ember-cli-test-info');
-const useTestFrameworkDetector = require('@ember-data/private-build-infra/src/utilities/test-framework-detector');
-const modulePrefixForProject = require('@ember-data/private-build-infra/src/utilities/module-prefix-for-project');
+const { dasherize } = require('ember-cli-string-utils');
 
 const ModelBlueprint = require('../model');
 
-module.exports = useTestFrameworkDetector({
-  description: 'Generates a model unit test.',
+module.exports = {
+  description: 'Generates an EmberData Model unit test',
+  supportsAddon() { return false; },
 
   root: __dirname,
 
-  fileMapTokens(options) {
+  fileMapTokens() {
     return {
       __root__() {
         return 'tests';
@@ -24,10 +24,16 @@ module.exports = useTestFrameworkDetector({
 
   locals(options) {
     const result = ModelBlueprint.locals.apply(this, arguments);
-
-    result.friendlyTestDescription = testInfo.description(options.entity.name, 'Unit', 'Model');
-    result.modulePrefix = modulePrefixForProject(options.project);
-
-    return result;
+    const modulePrefix = dasherize(options.project.config().modulePrefix);
+    return {
+      ...result,
+      friendlyTestDescription: testInfo.description(options.entity.name, 'Unit', 'Model'),
+      modulePrefix,
+    };
   },
-});
+
+  filesPath() {
+    return path.join(__dirname, 'qunit-files')
+  }
+};
+

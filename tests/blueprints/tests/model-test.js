@@ -1,24 +1,52 @@
 'use strict';
 
+const { describe, it, beforeEach, afterEach } = require('mocha');
 const blueprintHelpers = require('ember-cli-blueprint-test-helpers/helpers');
 const chai = require('ember-cli-blueprint-test-helpers/chai');
-const generateFakePackageManifest = require('@ember-data/unpublished-test-infra/src/node-test-helpers/generate-fake-package-manifest');
-const fixture = require('@ember-data/unpublished-test-infra/src/node-test-helpers/fixture');
-const setupTestEnvironment = require('@ember-data/unpublished-test-infra/src/node-test-helpers/setup-test-environment');
 
-const setupTestHooks = blueprintHelpers.setupTestHooks;
+const path = require('path');
+const file = require('ember-cli-blueprint-test-helpers/chai').file;
+
+function fixture(directory, filePath) {
+  return file(path.join(directory, '../fixtures', filePath));
+}
+
 const emberNew = blueprintHelpers.emberNew;
 const emberGenerateDestroy = blueprintHelpers.emberGenerateDestroy;
 const modifyPackages = blueprintHelpers.modifyPackages;
 const expect = chai.expect;
-const enableOctane = setupTestEnvironment.enableOctane;
-const enableClassic = setupTestEnvironment.enableClassic;
+const { setEdition, clearEdition } = require('@ember/edition-utils');
+
+function enableOctane(hooks) {
+  hooks.beforeEach(function () {
+    setEdition('octane');
+  });
+
+  hooks.afterEach(function () {
+    clearEdition();
+  });
+}
+
+function enableClassic(hooks) {
+  hooks.beforeEach(function () {
+    setEdition('classic');
+  });
+
+  hooks.afterEach(function () {
+    clearEdition();
+  });
+}
+
+function setupTestHooks(context) {
+  // context.timeout = function () {};
+  blueprintHelpers.setupTestHooks(context);
+}
 
 describe('Acceptance: generate and destroy model blueprints', function () {
   setupTestHooks(this);
 
   describe('classic', function () {
-    enableClassic();
+    enableClassic({ beforeEach, afterEach });
 
     beforeEach(async function () {
       await emberNew();
@@ -26,19 +54,19 @@ describe('Acceptance: generate and destroy model blueprints', function () {
     });
 
     it('model', function () {
-      let args = ['model', 'foo'];
+      const args = ['model', 'foo'];
 
       return emberGenerateDestroy(args, (_file) => {
         expect(_file('app/models/foo.js'))
           .to.contain(`import Model from '@ember-data/model';`)
           .to.contain('export default Model.extend(');
 
-        expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/rfc232.js'));
+        expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/foo-default.js'));
       });
     });
 
     it('model with attrs', function () {
-      let args = [
+      const args = [
         'model',
         'foo',
         'misc',
@@ -64,12 +92,12 @@ describe('Acceptance: generate and destroy model blueprints', function () {
           .to.contain("  name: attr('string'),")
           .to.contain("  customAttr: attr('custom-transform')");
 
-        expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/rfc232.js'));
+        expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/foo-default.js'));
       });
     });
 
     it('model with belongsTo', function () {
-      let args = ['model', 'comment', 'post:belongs-to', 'author:belongs-to:user'];
+      const args = ['model', 'comment', 'post:belongs-to', 'author:belongs-to:user'];
 
       return emberGenerateDestroy(args, (_file) => {
         expect(_file('app/models/comment.js'))
@@ -85,7 +113,7 @@ describe('Acceptance: generate and destroy model blueprints', function () {
     });
 
     it('model with hasMany', function () {
-      let args = ['model', 'post', 'comments:has-many', 'otherComments:has-many:comment'];
+      const args = ['model', 'post', 'comments:has-many', 'otherComments:has-many:comment'];
 
       return emberGenerateDestroy(args, (_file) => {
         expect(_file('app/models/post.js'))
@@ -99,68 +127,16 @@ describe('Acceptance: generate and destroy model blueprints', function () {
     });
 
     it('model-test', function () {
-      let args = ['model-test', 'foo'];
+      const args = ['model-test', 'foo'];
 
       return emberGenerateDestroy(args, (_file) => {
-        expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/rfc232.js'));
-      });
-    });
-
-    describe('model-test with ember-cli-qunit@4.1.0', function () {
-      beforeEach(function () {
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-cli-qunit', delete: true },
-        ]);
-        generateFakePackageManifest('ember-cli-qunit', '4.1.0');
-      });
-
-      it('model-test-test foo', function () {
-        return emberGenerateDestroy(['model-test', 'foo'], (_file) => {
-          expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/foo-default.js'));
-        });
-      });
-    });
-
-    describe('with ember-cli-mocha v0.12+', function () {
-      beforeEach(function () {
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-cli-mocha', dev: true },
-        ]);
-        generateFakePackageManifest('ember-cli-mocha', '0.12.0');
-      });
-
-      it('model-test for mocha v0.12+', function () {
-        let args = ['model-test', 'foo'];
-
-        return emberGenerateDestroy(args, (_file) => {
-          expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/foo-mocha-0.12.js'));
-        });
-      });
-    });
-
-    describe('with ember-mocha v0.14+', function () {
-      beforeEach(function () {
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-mocha', dev: true },
-        ]);
-        generateFakePackageManifest('ember-mocha', '0.14.0');
-      });
-
-      it('model-test for mocha v0.14+', function () {
-        let args = ['model-test', 'foo'];
-
-        return emberGenerateDestroy(args, (_file) => {
-          expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/mocha-rfc232.js'));
-        });
+        expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/foo-default.js'));
       });
     });
   });
 
   describe('octane', function () {
-    enableOctane();
+    enableOctane({ beforeEach, afterEach });
 
     beforeEach(async function () {
       await emberNew();
@@ -168,19 +144,19 @@ describe('Acceptance: generate and destroy model blueprints', function () {
     });
 
     it('model', function () {
-      let args = ['model', 'foo'];
+      const args = ['model', 'foo'];
 
       return emberGenerateDestroy(args, (_file) => {
         expect(_file('app/models/foo.js'))
           .to.contain(`import Model from '@ember-data/model';`)
           .to.contain('export default class FooModel extends Model {');
 
-        expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/rfc232.js'));
+        expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/foo-default.js'));
       });
     });
 
     it('model with attrs', function () {
-      let args = [
+      const args = [
         'model',
         'foo',
         'misc',
@@ -206,12 +182,12 @@ describe('Acceptance: generate and destroy model blueprints', function () {
           .to.contain("  @attr('string') name;")
           .to.contain("  @attr('custom-transform') customAttr;");
 
-        expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/rfc232.js'));
+        expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/foo-default.js'));
       });
     });
 
     it('model with belongsTo', function () {
-      let args = ['model', 'comment', 'post:belongs-to', 'author:belongs-to:user'];
+      const args = ['model', 'comment', 'post:belongs-to', 'author:belongs-to:user'];
 
       return emberGenerateDestroy(args, (_file) => {
         expect(_file('app/models/comment.js'))
@@ -227,7 +203,7 @@ describe('Acceptance: generate and destroy model blueprints', function () {
     });
 
     it('model with hasMany', function () {
-      let args = ['model', 'post', 'comments:has-many', 'otherComments:has-many:comment'];
+      const args = ['model', 'post', 'comments:has-many', 'otherComments:has-many:comment'];
 
       return emberGenerateDestroy(args, (_file) => {
         expect(_file('app/models/post.js'))
@@ -241,62 +217,10 @@ describe('Acceptance: generate and destroy model blueprints', function () {
     });
 
     it('model-test', function () {
-      let args = ['model-test', 'foo'];
+      const args = ['model-test', 'foo'];
 
       return emberGenerateDestroy(args, (_file) => {
-        expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/rfc232.js'));
-      });
-    });
-
-    describe('model-test with ember-cli-qunit@4.1.0', function () {
-      beforeEach(function () {
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-cli-qunit', delete: true },
-        ]);
-        generateFakePackageManifest('ember-cli-qunit', '4.1.0');
-      });
-
-      it('model-test-test foo', function () {
-        return emberGenerateDestroy(['model-test', 'foo'], (_file) => {
-          expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/foo-default.js'));
-        });
-      });
-    });
-
-    describe('with ember-cli-mocha v0.12+', function () {
-      beforeEach(function () {
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-cli-mocha', dev: true },
-        ]);
-        generateFakePackageManifest('ember-cli-mocha', '0.12.0');
-      });
-
-      it('model-test for mocha v0.12+', function () {
-        let args = ['model-test', 'foo'];
-
-        return emberGenerateDestroy(args, (_file) => {
-          expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/foo-mocha-0.12.js'));
-        });
-      });
-    });
-
-    describe('with ember-mocha v0.14+', function () {
-      beforeEach(function () {
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-mocha', dev: true },
-        ]);
-        generateFakePackageManifest('ember-mocha', '0.14.0');
-      });
-
-      it('model-test for mocha v0.14+', function () {
-        let args = ['model-test', 'foo'];
-
-        return emberGenerateDestroy(args, (_file) => {
-          expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/mocha-rfc232.js'));
-        });
+        expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/foo-default.js'));
       });
     });
   });
@@ -310,25 +234,7 @@ describe('Acceptance: generate and destroy model blueprints', function () {
     describe('with ember-qunit (default)', function () {
       it('model-test foo', function () {
         return emberGenerateDestroy(['model-test', 'foo'], (_file) => {
-          expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/rfc232-addon.js'));
-        });
-      });
-    });
-
-    describe('with ember-mocha', function () {
-      beforeEach(function () {
-        modifyPackages([
-          { name: 'ember-qunit', delete: true },
-          { name: 'ember-mocha', dev: true },
-        ]);
-        generateFakePackageManifest('ember-mocha', '0.16.2');
-      });
-
-      it('model-test foo', function () {
-        return emberGenerateDestroy(['model-test', 'foo'], (_file) => {
-          expect(_file('tests/unit/models/foo-test.js')).to.equal(
-            fixture(__dirname, 'model-test/mocha-rfc232-addon.js')
-          );
+          expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture(__dirname, 'model-test/addon-default.js'));
         });
       });
     });

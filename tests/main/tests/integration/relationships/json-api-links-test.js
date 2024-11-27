@@ -1,7 +1,6 @@
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -9,7 +8,6 @@ import Adapter from '@ember-data/adapter';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
 
 module('integration/relationship/json-api-links | Relationship state updates', function (hooks) {
   setupTest(hooks);
@@ -28,13 +26,13 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     this.owner.register('adapter:application', Adapter.extend());
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     this.owner.register(
       'adapter:user',
       class extends JSONAPISerializer {
         findRecord(store, type, id) {
-          return resolve({
+          return Promise.resolve({
             data: {
               id,
               type: 'user',
@@ -53,7 +51,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
       'adapter:organisation',
       class extends JSONAPISerializer {
         findRecord(store, type, id) {
-          return resolve({
+          return Promise.resolve({
             data: {
               type: 'organisation',
               id,
@@ -101,7 +99,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     this.owner.register('adapter:application', Adapter.extend());
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     const parent = store.push({
       data: {
@@ -155,7 +153,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
       },
       findRecord(_, __, id) {
         assert.notStrictEqual(id, '1', `adapter findRecord called for all IDs except "1", called for "${id}"`);
-        return resolve({
+        return Promise.resolve({
           data: {
             type: 'pet',
             id,
@@ -175,7 +173,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     this.owner.register('adapter:application', Adapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     // push data, no links
     store.push({
@@ -210,7 +208,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
 
     await settled();
 
-    let chris = store.peekRecord('user', '1');
+    const chris = store.peekRecord('user', '1');
     await chris.pets;
   });
 
@@ -225,7 +223,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     const Adapter = JSONAPIAdapter.extend({
       findHasMany(_, __, link) {
         assert.strictEqual(link, './user/1/pets', 'We fetched via the correct link');
-        return resolve({
+        return Promise.resolve({
           data: [
             {
               type: 'pet',
@@ -262,7 +260,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     this.owner.register('adapter:application', Adapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     // push data, no links
     store.push({
@@ -292,7 +290,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
       },
     });
 
-    let chris = store.peekRecord('user', '1');
+    const chris = store.peekRecord('user', '1');
     await chris.pets;
   });
 
@@ -307,7 +305,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     const Adapter = JSONAPIAdapter.extend({
       findHasMany(_, __, link) {
         assert.strictEqual(link, './user/1/pets', 'We fetched via the correct link');
-        return resolve({
+        return Promise.resolve({
           data: [
             {
               type: 'pet',
@@ -344,7 +342,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     this.owner.register('adapter:application', Adapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     // push links, no data
     store.push({
@@ -391,7 +389,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     const Adapter = JSONAPIAdapter.extend({
       findHasMany(_, __, link) {
         assert.strictEqual(link, './user/1/pets', 'We fetched via the correct link');
-        return resolve({
+        return Promise.resolve({
           data: [
             {
               type: 'pet',
@@ -428,7 +426,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     this.owner.register('adapter:application', Adapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     // push links, no data
 
@@ -478,7 +476,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     const Adapter = JSONAPIAdapter.extend({
       findHasMany(_, __, link) {
         assert.strictEqual(link, './user/1/pets', 'We fetched via the correct link');
-        return resolve({
+        return Promise.resolve({
           data: [
             {
               type: 'pet',
@@ -515,7 +513,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     this.owner.register('adapter:application', Adapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     // push data and links
     store.push({
@@ -548,7 +546,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     const Adapter = JSONAPIAdapter.extend({
       findHasMany(_, __, link) {
         assert.strictEqual(link, './user/1/pets', 'We fetched via the correct link');
-        return resolve({
+        return Promise.resolve({
           data: [
             {
               type: 'pet',
@@ -585,7 +583,7 @@ module('integration/relationship/json-api-links | Relationship state updates', f
     this.owner.register('adapter:application', Adapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     // push data, no links
     store.push({
@@ -675,8 +673,8 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     test(`get+reload hasMany with ${description}`, async function (assert) {
       assert.expect(3);
 
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
 
       adapter.shouldBackgroundReloadRecord = () => false;
       adapter.findRecord = () => {
@@ -691,12 +689,12 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
           payloads.user.data.relationships.pets.links.related,
           'We fetched the appropriate link'
         );
-        return resolve(deepCopy(payloads.pets));
+        return Promise.resolve(structuredClone(payloads.pets));
       };
 
       // setup user
-      let user = store.push(deepCopy(payloads.user));
-      let pets = await user.pets;
+      const user = store.push(structuredClone(payloads.user));
+      const pets = await user.pets;
 
       assert.ok(!!pets, 'We found our pets');
 
@@ -706,11 +704,11 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     test(`get+unload+get hasMany with ${description}`, async function (assert) {
       assert.expect(5);
 
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
 
-      let petRelationshipData = payloads.user.data.relationships.pets.data;
-      let petRelDataWasEmpty = petRelationshipData && petRelationshipData.length === 0;
+      const petRelationshipData = payloads.user.data.relationships.pets.data;
+      const petRelDataWasEmpty = petRelationshipData && petRelationshipData.length === 0;
 
       adapter.shouldBackgroundReloadRecord = () => false;
       adapter.findRecord = () => {
@@ -733,12 +731,12 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
             'We fetched the appropriate link'
           );
         }
-        return resolve(deepCopy(payloads.pets));
+        return Promise.resolve(structuredClone(payloads.pets));
       };
 
       // setup user
-      let user = store.push(deepCopy(payloads.user));
-      let pets = await user.pets;
+      const user = store.push(structuredClone(payloads.user));
+      const pets = await user.pets;
 
       assert.ok(!!pets, 'We found our pets');
 
@@ -755,11 +753,11 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     test(`get+reload belongsTo with ${description}`, async function (assert) {
       assert.expect(3);
 
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
 
-      let homeRelationshipData = payloads.user.data.relationships.home.data;
-      let homeRelWasEmpty = homeRelationshipData === null;
+      const homeRelationshipData = payloads.user.data.relationships.home.data;
+      const homeRelWasEmpty = homeRelationshipData === null;
       let isInitialFetch = true;
       let didFetchInitially = false;
 
@@ -781,12 +779,12 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
             'We fetched the appropriate link'
           );
         }
-        return resolve(deepCopy(payloads.home));
+        return Promise.resolve(structuredClone(payloads.home));
       };
 
       // setup user
-      let user = store.push(deepCopy(payloads.user));
-      let home = user.home;
+      const user = store.push(structuredClone(payloads.user));
+      const home = user.home;
       await home;
 
       if (homeRelWasEmpty) {
@@ -802,11 +800,11 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     test(`get+unload+get belongsTo with ${description}`, async function (assert) {
       assert.expect(3);
 
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
 
-      let homeRelationshipData = payloads.user.data.relationships.home.data;
-      let homeRelWasEmpty = homeRelationshipData === null;
+      const homeRelationshipData = payloads.user.data.relationships.home.data;
+      const homeRelWasEmpty = homeRelationshipData === null;
 
       adapter.shouldBackgroundReloadRecord = () => false;
       adapter.findRecord = () => {
@@ -820,12 +818,12 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
           !homeRelWasEmpty && link === payloads.user.data.relationships.home.links.related,
           'We fetched the appropriate link'
         );
-        return resolve(deepCopy(payloads.home));
+        return Promise.resolve(structuredClone(payloads.home));
       };
 
       // setup user
-      let user = store.push(deepCopy(payloads.user));
-      let home = await user.home;
+      const user = store.push(structuredClone(payloads.user));
+      const home = await user.home;
 
       assert.ok(!!home, 'We found our home');
 
@@ -976,8 +974,8 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     test(`get+reload hasMany with ${description}`, async function (assert) {
       assert.expect(2);
 
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
 
       adapter.shouldBackgroundReloadRecord = () => false;
       adapter.findRecord = () => {
@@ -992,13 +990,13 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
           payloads.user.data.relationships.pets.links.related,
           'We fetched the appropriate link'
         );
-        return resolve(deepCopy(payloads.pets));
+        return Promise.resolve(structuredClone(payloads.pets));
       };
 
       // setup user and pets
-      let user = store.push(deepCopy(payloads.user));
-      store.push(deepCopy(payloads.pets));
-      let pets = await user.pets;
+      const user = store.push(structuredClone(payloads.user));
+      store.push(structuredClone(payloads.pets));
+      const pets = await user.pets;
 
       assert.ok(!!pets, 'We found our pets');
 
@@ -1008,8 +1006,8 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     test(`get+unload+get hasMany with ${description}`, async function (assert) {
       assert.expect(4);
 
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
 
       adapter.shouldBackgroundReloadRecord = () => false;
       adapter.findRecord = () => {
@@ -1024,13 +1022,13 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
           payloads.user.data.relationships.pets.links.related,
           'We fetched the appropriate link'
         );
-        return resolve(deepCopy(payloads.pets));
+        return Promise.resolve(structuredClone(payloads.pets));
       };
 
       // setup user and pets
-      let user = store.push(deepCopy(payloads.user));
-      store.push(deepCopy(payloads.pets));
-      let pets = await user.pets;
+      const user = store.push(structuredClone(payloads.user));
+      store.push(structuredClone(payloads.pets));
+      const pets = await user.pets;
 
       assert.ok(!!pets, 'We found our pets');
 
@@ -1043,8 +1041,8 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     test(`get+reload belongsTo with ${description}`, async function (assert) {
       assert.expect(2);
 
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
 
       adapter.shouldBackgroundReloadRecord = () => false;
       adapter.findRecord = () => {
@@ -1059,14 +1057,14 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
           payloads.user.data.relationships.home.links.related,
           'We fetched the appropriate link'
         );
-        return resolve(deepCopy(payloads.home));
+        return Promise.resolve(structuredClone(payloads.home));
       };
 
       // setup user and home
-      let user = store.push(deepCopy(payloads.user));
-      store.push(deepCopy(payloads.home));
+      const user = store.push(structuredClone(payloads.user));
+      store.push(structuredClone(payloads.home));
       await settled();
-      let home = user.home;
+      const home = user.home;
 
       await home;
 
@@ -1078,8 +1076,8 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     test(`get+unload+get belongsTo with ${description}`, async function (assert) {
       assert.expect(2);
 
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
 
       adapter.shouldBackgroundReloadRecord = () => false;
       adapter.findRecord = () => {
@@ -1094,14 +1092,14 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
           payloads.user.data.relationships.home.links.related,
           'We fetched the appropriate link'
         );
-        return resolve(deepCopy(payloads.home));
+        return Promise.resolve(structuredClone(payloads.home));
       };
 
       // setup user
-      let user = store.push(deepCopy(payloads.user));
-      store.push(deepCopy(payloads.home));
+      const user = store.push(structuredClone(payloads.user));
+      store.push(structuredClone(payloads.home));
       await settled();
-      let home = await user.home;
+      const home = await user.home;
 
       assert.ok(!!home, 'We found our home');
 
@@ -1311,13 +1309,13 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
   test(`get+reload hasMany with data, no links`, async function (assert) {
     assert.expect(3);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
       assert.ok(true, 'We should call findRecord');
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'pet',
           id: '1',
@@ -1343,7 +1341,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     };
 
     // setup user
-    let user = store.push({
+    const user = store.push({
       data: {
         type: 'user',
         id: '1',
@@ -1360,7 +1358,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
         },
       },
     });
-    let pets = await user.pets;
+    const pets = await user.pets;
 
     assert.ok(!!pets, 'We found our pets');
 
@@ -1370,13 +1368,13 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
   test(`get+unload+get hasMany with data, no links`, async function (assert) {
     assert.expect(5);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
       assert.ok(true, 'We should call findRecord');
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'pet',
           id: '1',
@@ -1401,7 +1399,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
       assert.ok(false, 'We should not call findHasMany');
     };
 
-    let user = store.push({
+    const user = store.push({
       data: {
         type: 'user',
         id: '1',
@@ -1418,7 +1416,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
         },
       },
     });
-    let pets = await user.pets;
+    const pets = await user.pets;
 
     assert.ok(!!pets, 'We found our pets');
     pets.at(0).unloadRecord();
@@ -1430,13 +1428,13 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
   test(`get+reload belongsTo with data, no links`, async function (assert) {
     assert.expect(3);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
       assert.ok(true, 'We should call findRecord');
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'home',
           id: '1',
@@ -1462,7 +1460,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     };
 
     // setup user
-    let user = store.push({
+    const user = store.push({
       data: {
         type: 'user',
         id: '1',
@@ -1479,7 +1477,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
         },
       },
     });
-    let home = user.home;
+    const home = user.home;
     await home;
     assert.ok(!!home, 'We found our home');
 
@@ -1489,13 +1487,13 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
   test(`get+unload+get belongsTo with data, no links`, async function (assert) {
     assert.expect(3);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
       assert.ok(true, 'We should call findRecord');
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'home',
           id: '1',
@@ -1521,7 +1519,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     };
 
     // setup user
-    let user = store.push({
+    const user = store.push({
       data: {
         type: 'user',
         id: '1',
@@ -1538,7 +1536,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
         },
       },
     });
-    let home = await user.home;
+    const home = await user.home;
 
     assert.ok(!!home, 'We found our home');
 
@@ -1551,13 +1549,13 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
   test(`get+reload hasMany with missing data setup from the other side, no links`, async function (assert) {
     assert.expect(4);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
       assert.ok(true, 'We should call findRecord');
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'pet',
           id: '1',
@@ -1583,7 +1581,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     };
 
     // setup user and pet
-    let user = store.push({
+    const user = store.push({
       data: {
         type: 'user',
         id: '1',
@@ -1610,7 +1608,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
         },
       ],
     });
-    let pets = await user.pets;
+    const pets = await user.pets;
     assert.strictEqual(pets.length, 1, 'we setup the pets');
 
     assert.ok(!!pets, 'We found our pets');
@@ -1621,13 +1619,13 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
   test(`get+unload+get hasMany with missing data setup from the other side, no links`, async function (assert) {
     assert.expect(5);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
       assert.ok(true, 'We should call findRecord');
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'pet',
           id: '1',
@@ -1653,7 +1651,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     };
 
     // setup user and pet
-    let user = store.push({
+    const user = store.push({
       data: {
         type: 'user',
         id: '1',
@@ -1683,7 +1681,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
 
     // should not trigger a fetch bc even though we don't consider `pets` to have complete knowledge
     // we have no knowledge with which to initate a request.
-    let pets = await user.pets;
+    const pets = await user.pets;
 
     assert.ok(!!pets, 'We found our pets');
     assert.strictEqual(pets.length, 1, 'we loaded our pets');
@@ -1698,13 +1696,13 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
   test(`get+reload belongsTo with missing data setup from the other side, no links`, async function (assert) {
     assert.expect(2);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
       assert.ok(true, 'We should call findRecord');
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'home',
           id: '1',
@@ -1757,7 +1755,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
         },
       ],
     });
-    let home = user.home;
+    const home = user.home;
 
     await home;
 
@@ -1768,13 +1766,13 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
   test(`get+unload+get belongsTo with missing data setup from the other side, no links`, async function (assert) {
     assert.expect(2);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
       assert.ok(true, 'We should call findRecord');
-      return resolve({
+      return Promise.resolve({
         data: {
           type: 'home',
           id: '1',
@@ -1827,8 +1825,8 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
         },
       ],
     });
-    let home = user.home;
-    let h = await home;
+    const home = user.home;
+    const h = await home;
 
     assert.ok(!!home, 'We found our home');
 
@@ -1841,8 +1839,8 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
   test(`get+reload hasMany with empty data, no links`, async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
@@ -1856,7 +1854,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     };
 
     // setup user
-    let user = store.push({
+    const user = store.push({
       data: {
         type: 'user',
         id: '1',
@@ -1873,7 +1871,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
         },
       },
     });
-    let pets = user.pets;
+    const pets = user.pets;
     await pets;
     assert.ok(!!pets, 'We found our pets');
 
@@ -1886,10 +1884,10 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
   test('We should not fetch a hasMany relationship with links that we know is empty', async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
-    let user1Payload = {
+    const user1Payload = {
       data: {
         type: 'user',
         id: '1',
@@ -1906,7 +1904,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
         },
       },
     };
-    let user2Payload = {
+    const user2Payload = {
       data: {
         type: 'user',
         id: '2',
@@ -1944,14 +1942,14 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
         );
       }
 
-      return resolve({
+      return Promise.resolve({
         data: [],
       });
     };
 
     // setup users
-    let user1 = store.push(deepCopy(user1Payload));
-    let user2 = store.push(deepCopy(user2Payload));
+    const user1 = store.push(structuredClone(user1Payload));
+    const user2 = store.push(structuredClone(user2Payload));
 
     // should not fire a request
     requestedUser = null;
@@ -1976,10 +1974,10 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
   test('We should not fetch a sync hasMany relationship with a link that is missing the data member', async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
-    let petPayload = {
+    const petPayload = {
       data: {
         type: 'pet',
         id: '1',
@@ -2011,7 +2009,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     };
 
     // setup users
-    let shen = store.push(petPayload);
+    const shen = store.push(petPayload);
 
     // should not fire a request
     await shen.pets;
@@ -2022,10 +2020,10 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
   test('We should not fetch a sync belongsTo relationship with a link that is missing the data member', async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
-    let petPayload = {
+    const petPayload = {
       data: {
         type: 'pet',
         id: '1',
@@ -2058,7 +2056,7 @@ module('integration/relationship/json-api-links | Relationship fetching', functi
     };
 
     // setup users
-    let shen = store.push(petPayload);
+    const shen = store.push(petPayload);
 
     // should not fire a request
     await shen.owner;

@@ -1,24 +1,23 @@
-import { module, test } from 'qunit';
-
 import { setupTest } from 'my-app/tests/helpers';
+import { module, test } from 'qunit';
 
 module('Unit | Serializer | foo', function (hooks) {
   setupTest(hooks);
 
   // Replace this with your real tests.
   test('it exists', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let serializer = store.serializerFor('foo');
+    const store = this.owner.lookup('service:store');
+    const serializer = store.serializerFor('foo');
 
-    assert.ok(serializer);
+    assert.ok(serializer, 'serializer exists');
   });
 
   test('it serializes records', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let record = store.createRecord('foo', {});
+    const store = this.owner.lookup('service:store');
+    const record = store.createRecord('foo', {});
 
-    let serializedRecord = record.serialize();
+    const serializedRecord = record.serialize();
 
-    assert.ok(serializedRecord);
+    assert.ok(serializedRecord, 'it serializes records');
   });
 });

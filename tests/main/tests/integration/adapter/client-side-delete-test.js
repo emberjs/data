@@ -1,5 +1,4 @@
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -27,18 +26,18 @@ module('integration/adapter/store-adapter - client-side delete', function (hooks
     this.owner.register('model:bookstore', Bookstore);
     this.owner.register('model:book', Book);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.deleteRecord = function (_store, _modelClass, snapshot) {
       if (snapshot.adapterOptions.clientSideDelete) {
-        return resolve();
+        return Promise.resolve();
       }
 
       assert.ok(false, 'unreachable');
     };
 
-    let bookstore = store.push({
+    const bookstore = store.push({
       data: {
         id: '1',
         type: 'bookstore',
@@ -75,7 +74,7 @@ module('integration/adapter/store-adapter - client-side delete', function (hooks
       'initial hasmany loaded'
     );
 
-    let book2 = store.peekRecord('book', '2');
+    const book2 = store.peekRecord('book', '2');
 
     await book2.destroyRecord({ adapterOptions: { clientSideDelete: true } });
 

@@ -1,10 +1,10 @@
 import { module } from 'qunit';
-import RSVP from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import Model from '@ember-data/model';
+import { createDeferred } from '@ember-data/request';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
@@ -12,10 +12,10 @@ module('integration/store/query', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    const Person = Model.extend();
+    class Person extends Model {}
 
     this.owner.register('model:person', Person);
-    this.owner.register('adapter:application', Adapter.extend());
+    this.owner.register('adapter:application', Adapter);
     this.owner.register('serializer:application', class extends JSONAPISerializer {});
   });
 
@@ -23,20 +23,20 @@ module('integration/store/query', function (hooks) {
     'meta is proxied correctly on the PromiseArray',
     { id: 'ember-data:deprecate-promise-proxies', until: '5.0', count: 2 },
     async function (assert) {
-      let store = this.owner.lookup('service:store');
+      const store = this.owner.lookup('service:store');
 
-      let defered = RSVP.defer();
+      const defered = createDeferred();
 
       this.owner.register(
         'adapter:person',
-        Adapter.extend({
+        class extends Adapter {
           query(store, type, query) {
             return defered.promise;
-          },
-        })
+          }
+        }
       );
 
-      let result = store.query('person', {});
+      const result = store.query('person', {});
 
       assert.notOk(result.meta?.foo, 'precond: meta is not yet set');
 

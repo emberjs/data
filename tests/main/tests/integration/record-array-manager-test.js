@@ -33,7 +33,7 @@ class Car extends Model {
 module('integration/record_array_manager', function (hooks) {
   setupTest(hooks);
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
     owner.register('adapter:application', RESTAdapter);
     owner.register('model:car', Car);
     owner.register('model:person', Person);
@@ -59,7 +59,7 @@ module('integration/record_array_manager', function (hooks) {
       },
     });
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -74,10 +74,10 @@ module('integration/record_array_manager', function (hooks) {
       },
     });
 
-    let all = store.peekAll('person');
-    let query = {};
-    let adapterPopulated = manager.createArray({ type: 'person', query });
-    let identifier = recordIdentifierFor(person);
+    const all = store.peekAll('person');
+    const query = {};
+    const adapterPopulated = manager.createArray({ type: 'person', query });
+    const identifier = recordIdentifierFor(person);
 
     assert.false(all.isDestroyed, 'initial: LiveArray is not destroyed');
     assert.false(adapterPopulated.isDestroyed, 'initial: Collection is not destroyed');
@@ -101,7 +101,7 @@ module('integration/record_array_manager', function (hooks) {
     assert.true(adapterPopulated.isDestroyed, 'Collection is destroyed');
   });
 
-  test('#GH-4041 store#query AdapterPopulatedRecordArrays are removed from their managers instead of retained when #destroy is called', async function (assert) {
+  test('#GH-4041 store#query CollectionRecordArrays are removed from their managers instead of retained when #destroy is called', async function (assert) {
     store.push({
       data: {
         type: 'car',
@@ -115,7 +115,7 @@ module('integration/record_array_manager', function (hooks) {
 
     const query = {};
 
-    let adapterPopulated = manager.createArray({ type: 'car', query });
+    const adapterPopulated = manager.createArray({ type: 'car', query });
 
     adapterPopulated.destroy();
     await settled();
@@ -124,7 +124,7 @@ module('integration/record_array_manager', function (hooks) {
   });
 
   test('liveArrayFor (base)', function (assert) {
-    let recordArray = manager.liveArrayFor('foo');
+    const recordArray = manager.liveArrayFor('foo');
 
     assert.strictEqual(recordArray.modelName, 'foo');
     assert.true(recordArray.isLoaded);

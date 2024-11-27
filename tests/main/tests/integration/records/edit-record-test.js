@@ -27,7 +27,7 @@ module('Editing a Record', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
     owner.register('model:person', Person);
     owner.register('model:pet', Pet);
     store = owner.lookup('service:store');
@@ -110,7 +110,7 @@ module('Editing a Record', function (hooks) {
   });
 
   test('Change parent relationship then unload original child', async function (assert) {
-    let chris = store.push({
+    const chris = store.push({
       data: {
         id: '1',
         type: 'person',
@@ -123,7 +123,7 @@ module('Editing a Record', function (hooks) {
       },
     });
 
-    let john = store.push({
+    const john = store.push({
       data: {
         id: '2',
         type: 'person',
@@ -136,7 +136,7 @@ module('Editing a Record', function (hooks) {
       },
     });
 
-    let shen = store.push({
+    const shen = store.push({
       data: {
         id: '3',
         type: 'pet',
@@ -152,7 +152,7 @@ module('Editing a Record', function (hooks) {
       },
     });
 
-    let rocky = store.push({
+    const rocky = store.push({
       data: {
         id: '4',
         type: 'pet',
@@ -191,7 +191,7 @@ module('Editing a Record', function (hooks) {
   module('Simple relationship addition case', function () {
     module('Adding a sync belongsTo relationship to a record', function () {
       test('We can add to a record', async function (assert) {
-        let chris = store.push({
+        const chris = store.push({
           data: {
             id: '1',
             type: 'person',
@@ -204,7 +204,7 @@ module('Editing a Record', function (hooks) {
           },
         });
 
-        let pet = store.push({
+        const pet = store.push({
           data: {
             id: '1',
             type: 'pet',
@@ -233,12 +233,12 @@ module('Editing a Record', function (hooks) {
       });
 
       test('We can add a new record to a record', async function (assert) {
-        let chris = store.createRecord('person', {
+        const chris = store.createRecord('person', {
           name: 'Chris',
           pets: [],
         });
 
-        let pet = store.push({
+        const pet = store.push({
           data: {
             id: '1',
             type: 'pet',
@@ -267,12 +267,12 @@ module('Editing a Record', function (hooks) {
       });
 
       test('We can add a new record to a new record', async function (assert) {
-        let chris = store.createRecord('person', {
+        const chris = store.createRecord('person', {
           name: 'Chris',
           pets: [],
         });
 
-        let pet = store.createRecord('pet', {
+        const pet = store.createRecord('pet', {
           name: 'Shen',
           owner: null,
         });
@@ -293,7 +293,7 @@ module('Editing a Record', function (hooks) {
       });
 
       test('We can add to a new record', async function (assert) {
-        let chris = store.push({
+        const chris = store.push({
           data: {
             id: '1',
             type: 'person',
@@ -306,7 +306,7 @@ module('Editing a Record', function (hooks) {
           },
         });
 
-        let pet = store.createRecord('pet', {
+        const pet = store.createRecord('pet', {
           name: 'Shen',
           owner: null,
         });
@@ -327,7 +327,7 @@ module('Editing a Record', function (hooks) {
       });
 
       test('Change parent relationship and unload original parent', async function (assert) {
-        let chris = store.push({
+        const chris = store.push({
           data: {
             id: '1',
             type: 'person',
@@ -343,7 +343,7 @@ module('Editing a Record', function (hooks) {
           },
         });
 
-        let john = store.push({
+        const john = store.push({
           data: {
             id: '2',
             type: 'person',
@@ -356,7 +356,7 @@ module('Editing a Record', function (hooks) {
           },
         });
 
-        let shen = store.push({
+        const shen = store.push({
           data: {
             id: '3',
             type: 'pet',
@@ -372,7 +372,7 @@ module('Editing a Record', function (hooks) {
           },
         });
 
-        let rocky = store.push({
+        const rocky = store.push({
           data: {
             id: '4',
             type: 'pet',
@@ -415,7 +415,7 @@ module('Editing a Record', function (hooks) {
 
     module('Adding an async belongsTo relationship to a record', function () {
       test('We can add to a record', async function (assert) {
-        let chris = store.push({
+        const chris = store.push({
           data: {
             id: '1',
             type: 'person',
@@ -428,7 +428,7 @@ module('Editing a Record', function (hooks) {
           },
         });
 
-        let james = store.push({
+        const james = store.push({
           data: {
             id: '1',
             type: 'person',
@@ -459,7 +459,7 @@ module('Editing a Record', function (hooks) {
       });
 
       test('We can add a new record to a record', async function (assert) {
-        let chris = store.push({
+        const chris = store.push({
           data: {
             id: '1',
             type: 'person',
@@ -472,7 +472,7 @@ module('Editing a Record', function (hooks) {
           },
         });
 
-        let james = store.createRecord('person', {
+        const james = store.createRecord('person', {
           name: 'James',
           bestFriend: null,
         });
@@ -495,12 +495,12 @@ module('Editing a Record', function (hooks) {
       });
 
       test('We can add a new record to a new record', async function (assert) {
-        let chris = store.createRecord('person', {
+        const chris = store.createRecord('person', {
           name: 'Chris',
           bestFriend: null,
         });
 
-        let james = store.createRecord('person', {
+        const james = store.createRecord('person', {
           name: 'James',
           bestFriend: null,
         });
@@ -523,12 +523,12 @@ module('Editing a Record', function (hooks) {
       });
 
       test('We can add to a new record', async function (assert) {
-        let chris = store.createRecord('person', {
+        const chris = store.createRecord('person', {
           name: 'Chris',
           bestFriend: null,
         });
 
-        let james = store.push({
+        const james = store.push({
           data: {
             id: '1',
             type: 'person',

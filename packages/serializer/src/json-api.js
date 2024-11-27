@@ -1,12 +1,11 @@
 /**
  * @module @ember-data/serializer/json-api
  */
-import { assert, warn } from '@ember/debug';
-import { dasherize } from '@ember/string';
+import { warn } from '@ember/debug';
 
-import { pluralize, singularize } from 'ember-inflector';
-
-import { DEBUG } from '@ember-data/env';
+import { dasherize, pluralize, singularize } from '@ember-data/request-utils/string';
+import { DEBUG } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
 
 import JSONSerializer from './json';
 
@@ -144,10 +143,10 @@ const JSONAPISerializer = JSONSerializer.extend({
   */
   _normalizeDocumentHelper(documentHash) {
     if (Array.isArray(documentHash.data)) {
-      let ret = new Array(documentHash.data.length);
+      const ret = new Array(documentHash.data.length);
 
       for (let i = 0; i < documentHash.data.length; i++) {
-        let data = documentHash.data[i];
+        const data = documentHash.data[i];
         ret[i] = this._normalizeResourceHelper(data);
       }
 
@@ -157,10 +156,10 @@ const JSONAPISerializer = JSONSerializer.extend({
     }
 
     if (Array.isArray(documentHash.included)) {
-      let ret = new Array();
+      const ret = new Array();
       for (let i = 0; i < documentHash.included.length; i++) {
-        let included = documentHash.included[i];
-        let normalized = this._normalizeResourceHelper(included);
+        const included = documentHash.included[i];
+        const normalized = this._normalizeResourceHelper(included);
         if (normalized !== null) {
           // can be null when unknown type is encountered
           ret.push(normalized);
@@ -194,21 +193,18 @@ const JSONAPISerializer = JSONSerializer.extend({
   _normalizeResourceHelper(resourceHash) {
     assert(this.warnMessageForUndefinedType(), resourceHash.type);
 
-    let modelName, usedLookup;
+    const type = this.modelNameFromPayloadKey(resourceHash.type);
 
-    modelName = this.modelNameFromPayloadKey(resourceHash.type);
-    usedLookup = 'modelNameFromPayloadKey';
-
-    if (!this.store.getSchemaDefinitionService().doesTypeExist(modelName)) {
-      warn(this.warnMessageNoModelForType(modelName, resourceHash.type, usedLookup), false, {
+    if (!this.store.schema.hasResource({ type })) {
+      warn(this.warnMessageNoModelForType(type, resourceHash.type, 'modelNameFromPayloadKey'), false, {
         id: 'ds.serializer.model-for-type-missing',
       });
       return null;
     }
 
-    let modelClass = this.store.modelFor(modelName);
-    let serializer = this.store.serializerFor(modelName);
-    let { data } = serializer.normalize(modelClass, resourceHash);
+    const modelClass = this.store.modelFor(type);
+    const serializer = this.store.serializerFor(type);
+    const { data } = serializer.normalize(modelClass, resourceHash);
     return data;
   },
 
@@ -221,7 +217,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     @param {Object} payload
   */
   pushPayload(store, payload) {
-    let normalizedPayload = this._normalizeDocumentHelper(payload);
+    const normalizedPayload = this._normalizeDocumentHelper(payload);
     store.push(normalizedPayload);
   },
 
@@ -237,12 +233,12 @@ const JSONAPISerializer = JSONSerializer.extend({
     @private
   */
   _normalizeResponse(store, primaryModelClass, payload, id, requestType, isSingle) {
-    let normalizedPayload = this._normalizeDocumentHelper(payload);
+    const normalizedPayload = this._normalizeDocumentHelper(payload);
     return normalizedPayload;
   },
 
   normalizeQueryRecordResponse() {
-    let normalized = this._super(...arguments);
+    const normalized = this._super(...arguments);
 
     assert(
       'Expected the primary data returned by the serializer for a `queryRecord` response to be a single object but instead it was an array.',
@@ -253,11 +249,11 @@ const JSONAPISerializer = JSONSerializer.extend({
   },
 
   extractAttributes(modelClass, resourceHash) {
-    let attributes = {};
+    const attributes = {};
 
     if (resourceHash.attributes) {
       modelClass.eachAttribute((key) => {
-        let attributeKey = this.keyForAttribute(key, 'deserialize');
+        const attributeKey = this.keyForAttribute(key, 'deserialize');
         if (resourceHash.attributes[attributeKey] !== undefined) {
           attributes[key] = resourceHash.attributes[attributeKey];
         }
@@ -287,10 +283,10 @@ const JSONAPISerializer = JSONSerializer.extend({
   */
   extractRelationship(relationshipHash) {
     if (Array.isArray(relationshipHash.data)) {
-      let ret = new Array(relationshipHash.data.length);
+      const ret = new Array(relationshipHash.data.length);
 
       for (let i = 0; i < relationshipHash.data.length; i++) {
-        let data = relationshipHash.data[i];
+        const data = relationshipHash.data[i];
         ret[i] = this._normalizeRelationshipDataHelper(data);
       }
 
@@ -314,13 +310,13 @@ const JSONAPISerializer = JSONSerializer.extend({
      @return {Object}
   */
   extractRelationships(modelClass, resourceHash) {
-    let relationships = {};
+    const relationships = {};
 
     if (resourceHash.relationships) {
       modelClass.eachRelationship((key, relationshipMeta) => {
-        let relationshipKey = this.keyForRelationship(key, relationshipMeta.kind, 'deserialize');
+        const relationshipKey = this.keyForRelationship(key, relationshipMeta.kind, 'deserialize');
         if (resourceHash.relationships[relationshipKey] !== undefined) {
-          let relationshipHash = resourceHash.relationships[relationshipKey];
+          const relationshipHash = resourceHash.relationships[relationshipKey];
           relationships[key] = this.extractRelationship(relationshipHash);
         }
         if (DEBUG) {
@@ -364,7 +360,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     @return {String} the model's modelName
   */
   modelNameFromPayloadKey(key) {
-    return singularize(dasherize(key));
+    return dasherize(singularize(key));
   },
 
   /**
@@ -391,12 +387,16 @@ const JSONAPISerializer = JSONSerializer.extend({
       this.normalizeUsingDeclaredMapping(modelClass, resourceHash.relationships);
     }
 
-    let data = {
+    const data = {
       id: this.extractId(modelClass, resourceHash),
       type: this._extractType(modelClass, resourceHash),
       attributes: this.extractAttributes(modelClass, resourceHash),
       relationships: this.extractRelationships(modelClass, resourceHash),
     };
+
+    if (resourceHash.lid) {
+      data.lid = resourceHash.lid;
+    }
 
     this.applyTransforms(modelClass, data.attributes);
 
@@ -637,25 +637,25 @@ const JSONAPISerializer = JSONSerializer.extend({
     @return {Object} json
   */
   serialize(snapshot, options) {
-    let data = this._super(...arguments);
+    const data = this._super(...arguments);
     data.type = this.payloadKeyFromModelName(snapshot.modelName);
 
     return { data };
   },
 
   serializeAttribute(snapshot, json, key, attribute) {
-    let type = attribute.type;
+    const type = attribute.type;
 
     if (this._canSerialize(key)) {
       json.attributes = json.attributes || {};
 
       let value = snapshot.attr(key);
       if (type) {
-        let transform = this.transformFor(type);
+        const transform = this.transformFor(type);
         value = transform.serialize(value, attribute.options);
       }
 
-      let schema = this.store.modelFor(snapshot.modelName);
+      const schema = this.store.modelFor(snapshot.modelName);
       let payloadKey = this._getMappedKey(key, schema);
 
       if (payloadKey === key) {
@@ -667,24 +667,24 @@ const JSONAPISerializer = JSONSerializer.extend({
   },
 
   serializeBelongsTo(snapshot, json, relationship) {
-    let key = relationship.key;
+    const name = relationship.name;
 
-    if (this._canSerialize(key)) {
-      let belongsTo = snapshot.belongsTo(key);
-      let belongsToIsNotNew = belongsTo && !belongsTo.isNew;
+    if (this._canSerialize(name)) {
+      const belongsTo = snapshot.belongsTo(name);
+      const belongsToIsNotNew = belongsTo && !belongsTo.isNew;
 
       if (belongsTo === null || belongsToIsNotNew) {
         json.relationships = json.relationships || {};
 
-        let schema = this.store.modelFor(snapshot.modelName);
-        let payloadKey = this._getMappedKey(key, schema);
-        if (payloadKey === key) {
-          payloadKey = this.keyForRelationship(key, 'belongsTo', 'serialize');
+        const schema = this.store.modelFor(snapshot.modelName);
+        let payloadKey = this._getMappedKey(name, schema);
+        if (payloadKey === name) {
+          payloadKey = this.keyForRelationship(name, 'belongsTo', 'serialize');
         }
 
         let data = null;
         if (belongsTo) {
-          let payloadType = this.payloadKeyFromModelName(belongsTo.modelName);
+          const payloadType = this.payloadKeyFromModelName(belongsTo.modelName);
 
           data = {
             type: payloadType,
@@ -698,26 +698,26 @@ const JSONAPISerializer = JSONSerializer.extend({
   },
 
   serializeHasMany(snapshot, json, relationship) {
-    let key = relationship.key;
+    const name = relationship.name;
 
-    if (this.shouldSerializeHasMany(snapshot, key, relationship)) {
-      let hasMany = snapshot.hasMany(key);
+    if (this.shouldSerializeHasMany(snapshot, name, relationship)) {
+      const hasMany = snapshot.hasMany(name);
       if (hasMany !== undefined) {
         json.relationships = json.relationships || {};
 
-        let schema = this.store.modelFor(snapshot.modelName);
-        let payloadKey = this._getMappedKey(key, schema);
-        if (payloadKey === key && this.keyForRelationship) {
-          payloadKey = this.keyForRelationship(key, 'hasMany', 'serialize');
+        const schema = this.store.modelFor(snapshot.modelName);
+        let payloadKey = this._getMappedKey(name, schema);
+        if (payloadKey === name && this.keyForRelationship) {
+          payloadKey = this.keyForRelationship(name, 'hasMany', 'serialize');
         }
 
         // only serialize has many relationships that are not new
-        let nonNewHasMany = hasMany.filter((item) => !item.isNew);
-        let data = new Array(nonNewHasMany.length);
+        const nonNewHasMany = hasMany.filter((item) => !item.isNew);
+        const data = new Array(nonNewHasMany.length);
 
         for (let i = 0; i < nonNewHasMany.length; i++) {
-          let item = hasMany[i];
-          let payloadType = this.payloadKeyFromModelName(item.modelName);
+          const item = hasMany[i];
+          const payloadType = this.payloadKeyFromModelName(item.modelName);
 
           data[i] = {
             type: payloadType,
@@ -741,7 +741,7 @@ if (DEBUG) {
         !this.isEmbeddedRecordsMixin || this.isEmbeddedRecordsMixinCompatible === true
       );
 
-      let constructor = this.constructor;
+      const constructor = this.constructor;
       warn(
         `You've defined 'extractMeta' in ${constructor.toString()} which is not used for serializers extending JSONAPISerializer. Read more at https://api.emberjs.com/ember-data/release/classes/JSONAPISerializer on how to customize meta when using JSON API.`,
         this.extractMeta === JSONSerializer.prototype.extractMeta,

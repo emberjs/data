@@ -1,13 +1,9 @@
-import { resolve } from 'rsvp';
-
-import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
-
 /**
  * @description Helper function to mock the response of an adapter in order to
- * Test is behaviour.
+ * test its behavior.
  * @param { adapter } RESTAdapter instance
  * @param { response } Response to return from the adapter
- * @returns { ajaxCallback } Function that returns information about the last
+ * @return { ajaxCallback } Function that returns information about the last
  * call to the ajax method of the adapter.
  */
 function ajaxResponse(adapter, value) {
@@ -19,9 +15,9 @@ function ajaxResponse(adapter, value) {
     passedHash = hash;
     passedUrl = passedHash.url;
     passedVerb = passedHash.method;
-    return resolve({
+    return Promise.resolve({
       text() {
-        return resolve(JSON.stringify(deepCopy(value)));
+        return Promise.resolve(JSON.stringify(structuredClone(value)));
       },
       ok: true,
       status: 200,
@@ -33,7 +29,7 @@ function ajaxResponse(adapter, value) {
     passedVerb = verb;
     passedHash = hash;
 
-    return resolve(deepCopy(value));
+    return Promise.resolve(structuredClone(value));
   };
 
   return () => {

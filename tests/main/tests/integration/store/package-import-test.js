@@ -18,7 +18,7 @@ module('integration/store/package-import', function (hooks) {
   let store;
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
 
     owner.register('model:person', Person);
     owner.unregister('service:store');
@@ -45,7 +45,7 @@ module('integration/store/package-import', function (hooks) {
       ],
     });
 
-    let all = store.peekAll('person');
+    const all = store.peekAll('person');
     assert.strictEqual(get(all, 'length'), 2);
 
     store.push({

@@ -1,9 +1,10 @@
-/* eslint-disable node/no-unpublished-require */
 'use strict';
 
 const EmberApp = require('ember-cli/lib/broccoli/ember-app');
 
-module.exports = function (defaults) {
+module.exports = async function (defaults) {
+  const { setConfig } = await import('@warp-drive/build-config');
+  const { macros } = await import('@warp-drive/build-config/babel-macros');
   const terserSettings = {
     enabled: true,
     exclude: ['assets/main-test-app.js', 'assets/tests.js', 'assets/test-support.js'],
@@ -31,38 +32,27 @@ module.exports = function (defaults) {
     },
   };
 
-  let config = {
-    compatWith: '99',
-    debug: {},
-    features: {},
-    deprecations: {},
-    env: require('@ember-data/private-build-infra/src/utilities/get-env')(),
-  };
-  let app = new EmberApp(defaults, {
-    emberData: config,
+  const app = new EmberApp(defaults, {
     babel: {
       // this ensures that the same build-time code stripping that is done
       // for library packages is also done for our tests and dummy app
-      plugins: [...require('@ember-data/private-build-infra/src/debug-macros')(config)],
-    },
-    'ember-cli-babel': {
-      throwUnlessParallelizable: true,
-      includeExternalHelpers: true,
+      plugins: [...macros()],
     },
     fingerprint: {
       enabled: false,
     },
     'ember-cli-terser': terserSettings,
-    '@embroider/macros': {
-      setConfig: {
-        '@ember-data/store': {
-          polyfillUUID: false,
-        },
-      },
+    'ember-cli-babel': {
+      throwUnlessParallelizable: true,
+      enableTypeScriptTransform: true,
     },
     sourcemaps: {
       enabled: false,
     },
+  });
+
+  setConfig(app, __dirname, {
+    compatWith: '99.0',
   });
 
   return app.toTree();

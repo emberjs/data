@@ -1,5 +1,4 @@
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -13,7 +12,7 @@ module('inverse relationship load test', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
     store = owner.lookup('service:store');
     owner.register(
       'serializer:application',
@@ -29,14 +28,14 @@ module('inverse relationship load test', function (hooks) {
     'one-to-many - findHasMany/implicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer',
     { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findHasMany: () => {
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   id: '1',
@@ -74,7 +73,7 @@ module('inverse relationship load test', function (hooks) {
       }
       owner.register('model:dog', Dog);
 
-      let person = store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -91,18 +90,18 @@ module('inverse relationship load test', function (hooks) {
         },
       });
 
-      let dogs = await person.dogs;
+      const dogs = await person.dogs;
       assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty, 'relationship state was set up correctly');
 
       assert.strictEqual(dogs.length, 2, 'hasMany relationship has correct number of records');
-      let dog1 = dogs.at(0);
-      let dogPerson1 = await dog1.person;
+      const dog1 = dogs.at(0);
+      const dogPerson1 = await dog1.person;
       assert.strictEqual(
         dogPerson1.id,
         '1',
         'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
       );
-      let dogPerson2 = await dogs.at(1).person;
+      const dogPerson2 = await dogs.at(1).person;
       assert.strictEqual(
         dogPerson2.id,
         '1',
@@ -119,14 +118,14 @@ module('inverse relationship load test', function (hooks) {
     'one-to-many (left hand async, right hand sync) - findHasMany/implicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer',
     { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findHasMany: () => {
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   id: '1',
@@ -164,7 +163,7 @@ module('inverse relationship load test', function (hooks) {
       }
       owner.register('model:dog', Dog);
 
-      let person = store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -181,18 +180,18 @@ module('inverse relationship load test', function (hooks) {
         },
       });
 
-      let dogs = await person.dogs;
+      const dogs = await person.dogs;
       assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty, 'relationship state was set up correctly');
 
       assert.strictEqual(dogs.length, 2, 'hasMany relationship has correct number of records');
-      let dog1 = dogs.at(0);
-      let dogPerson1 = await dog1.person;
+      const dog1 = dogs.at(0);
+      const dogPerson1 = await dog1.person;
       assert.strictEqual(
         dogPerson1.id,
         '1',
         'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
       );
-      let dogPerson2 = await dogs.at(1).person;
+      const dogPerson2 = await dogs.at(1).person;
       assert.strictEqual(
         dogPerson2.id,
         '1',
@@ -206,14 +205,14 @@ module('inverse relationship load test', function (hooks) {
   );
 
   test('one-to-many - findHasMany/explicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
-    let { owner } = this;
+    const { owner } = this;
 
     owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
-        deleteRecord: () => resolve({ data: null }),
+        deleteRecord: () => Promise.resolve({ data: null }),
         findHasMany: () => {
-          return resolve({
+          return Promise.resolve({
             data: [
               {
                 id: '1',
@@ -253,7 +252,7 @@ module('inverse relationship load test', function (hooks) {
     }
     owner.register('model:dog', Dog);
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -270,18 +269,18 @@ module('inverse relationship load test', function (hooks) {
       },
     });
 
-    let dogs = await person.dogs;
+    const dogs = await person.dogs;
     assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty, 'relationship state was set up correctly');
 
     assert.strictEqual(dogs.length, 2, 'hasMany relationship has correct number of records');
-    let dog1 = dogs.at(0);
-    let dogPerson1 = await dog1.pal;
+    const dog1 = dogs.at(0);
+    const dogPerson1 = await dog1.pal;
     assert.strictEqual(
       dogPerson1.id,
       '1',
       'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
     );
-    let dogPerson2 = await dogs.at(1).pal;
+    const dogPerson2 = await dogs.at(1).pal;
     assert.strictEqual(
       dogPerson2.id,
       '1',
@@ -294,14 +293,14 @@ module('inverse relationship load test', function (hooks) {
   });
 
   test('one-to-many (left hand async, right hand sync) - findHasMany/explicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
-    let { owner } = this;
+    const { owner } = this;
 
     owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
-        deleteRecord: () => resolve({ data: null }),
+        deleteRecord: () => Promise.resolve({ data: null }),
         findHasMany: () => {
-          return resolve({
+          return Promise.resolve({
             data: [
               {
                 id: '1',
@@ -341,7 +340,7 @@ module('inverse relationship load test', function (hooks) {
     }
     owner.register('model:dog', Dog);
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -358,18 +357,18 @@ module('inverse relationship load test', function (hooks) {
       },
     });
 
-    let dogs = await person.dogs;
+    const dogs = await person.dogs;
     assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty, 'relationship state was set up correctly');
 
     assert.strictEqual(dogs.length, 2, 'hasMany relationship has correct number of records');
-    let dog1 = dogs.at(0);
-    let dogPerson1 = await dog1.pal;
+    const dog1 = dogs.at(0);
+    const dogPerson1 = await dog1.pal;
     assert.strictEqual(
       dogPerson1.id,
       '1',
       'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
     );
-    let dogPerson2 = await dogs.at(1).pal;
+    const dogPerson2 = await dogs.at(1).pal;
     assert.strictEqual(
       dogPerson2.id,
       '1',
@@ -382,18 +381,18 @@ module('inverse relationship load test', function (hooks) {
   });
 
   test('one-to-many - findHasMany/null inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
-    let { owner } = this;
+    const { owner } = this;
 
     owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
         deleteRecord() {
-          return resolve({
+          return Promise.resolve({
             data: null,
           });
         },
         findHasMany: () => {
-          return resolve({
+          return Promise.resolve({
             data: [
               {
                 id: '1',
@@ -416,7 +415,7 @@ module('inverse relationship load test', function (hooks) {
     );
 
     class Person extends Model {
-      @hasMany('dogs', {
+      @hasMany('dog', {
         inverse: null,
         async: true,
       })
@@ -433,7 +432,7 @@ module('inverse relationship load test', function (hooks) {
 
     owner.register('model:dog', Dog);
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -450,7 +449,7 @@ module('inverse relationship load test', function (hooks) {
       },
     });
 
-    let dogs = await person.dogs;
+    const dogs = await person.dogs;
     assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty);
     assert.strictEqual(dogs.length, 2);
     assert.deepEqual(
@@ -458,7 +457,7 @@ module('inverse relationship load test', function (hooks) {
       ['1', '2']
     );
 
-    let dog1 = dogs.at(0);
+    const dog1 = dogs.at(0);
     await dog1.destroyRecord();
     assert.strictEqual(dogs.length, 1);
     assert.strictEqual(dogs.at(0).id, '2');
@@ -468,18 +467,18 @@ module('inverse relationship load test', function (hooks) {
     'one-to-one - findBelongsTo/implicit inverse - ensures inverse relationship is set up when payload does not return parent relationship info',
     { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
           deleteRecord() {
-            return resolve({
+            return Promise.resolve({
               data: null,
             });
           },
           findBelongsTo() {
-            return resolve({
+            return Promise.resolve({
               data: {
                 id: '1',
                 type: 'dog',
@@ -508,7 +507,7 @@ module('inverse relationship load test', function (hooks) {
       }
       owner.register('model:dog', Dog);
 
-      let person = store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -528,7 +527,7 @@ module('inverse relationship load test', function (hooks) {
       let favoriteDog = await person.favoriteDog;
       assert.false(person.belongsTo('favoriteDog').belongsToRelationship.state.isEmpty);
       assert.strictEqual(favoriteDog.id, '1', 'favoriteDog id is set correctly');
-      let favoriteDogPerson = await favoriteDog.person;
+      const favoriteDogPerson = await favoriteDog.person;
       assert.strictEqual(
         favoriteDogPerson.id,
         '1',
@@ -544,18 +543,18 @@ module('inverse relationship load test', function (hooks) {
     'one-to-one (left hand async, right hand sync) - findBelongsTo/implicit inverse - ensures inverse relationship is set up when payload does not return parent relationship info',
     { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
           deleteRecord() {
-            return resolve({
+            return Promise.resolve({
               data: null,
             });
           },
           findBelongsTo() {
-            return resolve({
+            return Promise.resolve({
               data: {
                 id: '1',
                 type: 'dog',
@@ -584,7 +583,7 @@ module('inverse relationship load test', function (hooks) {
       }
       owner.register('model:dog', Dog);
 
-      let person = store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -604,7 +603,7 @@ module('inverse relationship load test', function (hooks) {
       let favoriteDog = await person.favoriteDog;
       assert.false(person.belongsTo('favoriteDog').belongsToRelationship.state.isEmpty);
       assert.strictEqual(favoriteDog.id, '1', 'favoriteDog id is set correctly');
-      let favoriteDogPerson = await favoriteDog.person;
+      const favoriteDogPerson = await favoriteDog.person;
       assert.strictEqual(
         favoriteDogPerson.id,
         '1',
@@ -617,18 +616,18 @@ module('inverse relationship load test', function (hooks) {
   );
 
   test('one-to-one - findBelongsTo/explicit inverse - ensures inverse relationship is set up when payload does not return parent relationship info', async function (assert) {
-    let { owner } = this;
+    const { owner } = this;
 
     owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
         deleteRecord() {
-          return resolve({
+          return Promise.resolve({
             data: null,
           });
         },
         findBelongsTo() {
-          return resolve({
+          return Promise.resolve({
             data: {
               id: '1',
               type: 'dog',
@@ -657,7 +656,7 @@ module('inverse relationship load test', function (hooks) {
     }
     owner.register('model:dog', Dog);
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -677,7 +676,7 @@ module('inverse relationship load test', function (hooks) {
     let favoriteDog = await person.favoriteDog;
     assert.false(person.belongsTo('favoriteDog').belongsToRelationship.state.isEmpty);
     assert.strictEqual(favoriteDog.id, '1', 'favoriteDog id is set correctly');
-    let favoriteDogPerson = await favoriteDog.pal;
+    const favoriteDogPerson = await favoriteDog.pal;
     assert.strictEqual(
       favoriteDogPerson.id,
       '1',
@@ -689,18 +688,18 @@ module('inverse relationship load test', function (hooks) {
   });
 
   test('one-to-one (left hand async, right hand sync) - findBelongsTo/explicit inverse - ensures inverse relationship is set up when payload does not return parent relationship info', async function (assert) {
-    let { owner } = this;
+    const { owner } = this;
 
     owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
         deleteRecord() {
-          return resolve({
+          return Promise.resolve({
             data: null,
           });
         },
         findBelongsTo() {
-          return resolve({
+          return Promise.resolve({
             data: {
               id: '1',
               type: 'dog',
@@ -729,7 +728,7 @@ module('inverse relationship load test', function (hooks) {
     }
     owner.register('model:dog', Dog);
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -749,7 +748,7 @@ module('inverse relationship load test', function (hooks) {
     let favoriteDog = await person.favoriteDog;
     assert.false(person.belongsTo('favoriteDog').belongsToRelationship.state.isEmpty);
     assert.strictEqual(favoriteDog.id, '1', 'favoriteDog id is set correctly');
-    let favoriteDogPerson = await favoriteDog.pal;
+    const favoriteDogPerson = await favoriteDog.pal;
     assert.strictEqual(
       favoriteDogPerson.id,
       '1',
@@ -761,18 +760,18 @@ module('inverse relationship load test', function (hooks) {
   });
 
   test('one-to-one - findBelongsTo/null inverse - ensures inverse relationship is set up when payload does not return parent relationship info', async function (assert) {
-    let { owner } = this;
+    const { owner } = this;
 
     owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
         deleteRecord() {
-          return resolve({
+          return Promise.resolve({
             data: null,
           });
         },
         findBelongsTo() {
-          return resolve({
+          return Promise.resolve({
             data: {
               id: '1',
               type: 'dog',
@@ -799,7 +798,7 @@ module('inverse relationship load test', function (hooks) {
     }
     owner.register('model:dog', Dog);
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -828,14 +827,14 @@ module('inverse relationship load test', function (hooks) {
     'many-to-many - findHasMany/implicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer',
     { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findHasMany: () => {
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   id: '1',
@@ -873,7 +872,7 @@ module('inverse relationship load test', function (hooks) {
       }
       owner.register('model:dog', Dog);
 
-      let person = store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -890,16 +889,16 @@ module('inverse relationship load test', function (hooks) {
         },
       });
 
-      let dogs = await person.dogs;
+      const dogs = await person.dogs;
       assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty);
 
       assert.strictEqual(dogs.length, 2, 'left hand side relationship is set up with correct number of records');
-      let [dog1, dog2] = dogs.slice();
-      let dog1Walkers = await dog1.walkers;
+      const [dog1, dog2] = dogs.slice();
+      const dog1Walkers = await dog1.walkers;
       assert.strictEqual(dog1Walkers.length, 1, 'dog1.walkers inverse relationship includes correct number of records');
       assert.strictEqual(dog1Walkers.at(0).id, '1', 'dog1.walkers inverse relationship is set up correctly');
 
-      let dog2Walkers = await dog2.walkers;
+      const dog2Walkers = await dog2.walkers;
       assert.strictEqual(dog2Walkers.length, 1, 'dog2.walkers inverse relationship includes correct number of records');
       assert.strictEqual(dog2Walkers.at(0).id, '1', 'dog2.walkers inverse relationship is set up correctly');
 
@@ -913,14 +912,14 @@ module('inverse relationship load test', function (hooks) {
     'many-to-many (left hand async, right hand sync) - findHasMany/implicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer',
     { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findHasMany: () => {
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   id: '1',
@@ -958,7 +957,7 @@ module('inverse relationship load test', function (hooks) {
       }
       owner.register('model:dog', Dog);
 
-      let person = store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -975,16 +974,16 @@ module('inverse relationship load test', function (hooks) {
         },
       });
 
-      let dogs = await person.dogs;
+      const dogs = await person.dogs;
       assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty);
 
       assert.strictEqual(dogs.length, 2, 'left hand side relationship is set up with correct number of records');
-      let [dog1, dog2] = dogs.slice();
-      let dog1Walkers = await dog1.walkers;
+      const [dog1, dog2] = dogs.slice();
+      const dog1Walkers = await dog1.walkers;
       assert.strictEqual(dog1Walkers.length, 1, 'dog1.walkers inverse relationship includes correct number of records');
       assert.strictEqual(dog1Walkers.at(0).id, '1', 'dog1.walkers inverse relationship is set up correctly');
 
-      let dog2Walkers = await dog2.walkers;
+      const dog2Walkers = await dog2.walkers;
       assert.strictEqual(dog2Walkers.length, 1, 'dog2.walkers inverse relationship includes correct number of records');
       assert.strictEqual(dog2Walkers.at(0).id, '1', 'dog2.walkers inverse relationship is set up correctly');
 
@@ -995,14 +994,14 @@ module('inverse relationship load test', function (hooks) {
   );
 
   test('many-to-many - findHasMany/explicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
-    let { owner } = this;
+    const { owner } = this;
 
     owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
-        deleteRecord: () => resolve({ data: null }),
+        deleteRecord: () => Promise.resolve({ data: null }),
         findHasMany: () => {
-          return resolve({
+          return Promise.resolve({
             data: [
               {
                 id: '1',
@@ -1042,7 +1041,7 @@ module('inverse relationship load test', function (hooks) {
     }
     owner.register('model:dog', Dog);
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -1059,16 +1058,16 @@ module('inverse relationship load test', function (hooks) {
       },
     });
 
-    let dogs = await person.dogs;
+    const dogs = await person.dogs;
     assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty);
 
     assert.strictEqual(dogs.length, 2, 'left hand side relationship is set up with correct number of records');
-    let [dog1, dog2] = dogs.slice();
-    let dog1Pals = await dog1.pals;
+    const [dog1, dog2] = dogs.slice();
+    const dog1Pals = await dog1.pals;
     assert.strictEqual(dog1Pals.length, 1, 'dog1.pals inverse relationship includes correct number of records');
     assert.strictEqual(dog1Pals.at(0).id, '1', 'dog1.pals inverse relationship is set up correctly');
 
-    let dog2Pals = await dog2.pals;
+    const dog2Pals = await dog2.pals;
     assert.strictEqual(dog2Pals.length, 1, 'dog2.pals inverse relationship includes correct number of records');
     assert.strictEqual(dog2Pals.at(0).id, '1', 'dog2.pals inverse relationship is set up correctly');
 
@@ -1078,14 +1077,14 @@ module('inverse relationship load test', function (hooks) {
   });
 
   test('many-to-many (left hand async, right hand sync) - findHasMany/explicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
-    let { owner } = this;
+    const { owner } = this;
 
     owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
-        deleteRecord: () => resolve({ data: null }),
+        deleteRecord: () => Promise.resolve({ data: null }),
         findHasMany: () => {
-          return resolve({
+          return Promise.resolve({
             data: [
               {
                 id: '1',
@@ -1125,7 +1124,7 @@ module('inverse relationship load test', function (hooks) {
     }
     owner.register('model:dog', Dog);
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -1142,16 +1141,16 @@ module('inverse relationship load test', function (hooks) {
       },
     });
 
-    let dogs = await person.dogs;
+    const dogs = await person.dogs;
     assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty);
 
     assert.strictEqual(dogs.length, 2, 'left hand side relationship is set up with correct number of records');
-    let [dog1, dog2] = dogs.slice();
-    let dog1Pals = await dog1.pals;
+    const [dog1, dog2] = dogs.slice();
+    const dog1Pals = await dog1.pals;
     assert.strictEqual(dog1Pals.length, 1, 'dog1.pals inverse relationship includes correct number of records');
     assert.strictEqual(dog1Pals.at(0).id, '1', 'dog1.pals inverse relationship is set up correctly');
 
-    let dog2Pals = await dog2.pals;
+    const dog2Pals = await dog2.pals;
     assert.strictEqual(dog2Pals.length, 1, 'dog2.pals inverse relationship includes correct number of records');
     assert.strictEqual(dog2Pals.at(0).id, '1', 'dog2.pals inverse relationship is set up correctly');
 
@@ -1164,14 +1163,14 @@ module('inverse relationship load test', function (hooks) {
     'many-to-one - findBelongsTo/implicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer',
     { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findBelongsTo: () => {
-            return resolve({
+            return Promise.resolve({
               data: {
                 type: 'person',
                 id: '1',
@@ -1217,17 +1216,17 @@ module('inverse relationship load test', function (hooks) {
         },
       });
 
-      let person = await dog.person;
+      const person = await dog.person;
       assert.false(
         dog.belongsTo('person').belongsToRelationship.state.isEmpty,
         'belongsTo relationship state was populated'
       );
       assert.strictEqual(person.id, '1', 'dog.person relationship is correctly set up');
 
-      let dogs = await person.dogs;
+      const dogs = await person.dogs;
 
       assert.strictEqual(dogs.length, 1, 'person.dogs inverse relationship includes correct number of records');
-      let [dog1] = dogs.slice();
+      const [dog1] = dogs.slice();
       assert.strictEqual(dog1.id, '1', 'dog1.person inverse relationship is set up correctly');
 
       await person.destroyRecord();
@@ -1240,14 +1239,14 @@ module('inverse relationship load test', function (hooks) {
     'many-to-one (left hand async, right hand sync) - findBelongsTo/implicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer',
     { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findBelongsTo: () => {
-            return resolve({
+            return Promise.resolve({
               data: {
                 type: 'person',
                 id: '1',
@@ -1293,17 +1292,17 @@ module('inverse relationship load test', function (hooks) {
         },
       });
 
-      let person = await dog.person;
+      const person = await dog.person;
       assert.false(
         dog.belongsTo('person').belongsToRelationship.state.isEmpty,
         'belongsTo relationship state was populated'
       );
       assert.strictEqual(person.id, '1', 'dog.person relationship is correctly set up');
 
-      let dogs = await person.dogs;
+      const dogs = await person.dogs;
 
       assert.strictEqual(dogs.length, 1, 'person.dogs inverse relationship includes correct number of records');
-      let [dog1] = dogs.slice();
+      const [dog1] = dogs.slice();
       assert.strictEqual(dog1.id, '1', 'dog1.person inverse relationship is set up correctly');
 
       await person.destroyRecord();
@@ -1313,14 +1312,14 @@ module('inverse relationship load test', function (hooks) {
   );
 
   test('many-to-one - findBelongsTo/explicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
-    let { owner } = this;
+    const { owner } = this;
 
     owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
-        deleteRecord: () => resolve({ data: null }),
+        deleteRecord: () => Promise.resolve({ data: null }),
         findBelongsTo: () => {
-          return resolve({
+          return Promise.resolve({
             data: {
               type: 'person',
               id: '1',
@@ -1368,17 +1367,17 @@ module('inverse relationship load test', function (hooks) {
       },
     });
 
-    let person = await dog.pal;
+    const person = await dog.pal;
     assert.false(
       dog.belongsTo('pal').belongsToRelationship.state.isEmpty,
       'belongsTo relationship state was populated'
     );
     assert.strictEqual(person.id, '1', 'dog.person relationship is correctly set up');
 
-    let dogs = await person.dogs;
+    const dogs = await person.dogs;
 
     assert.strictEqual(dogs.length, 1, 'person.dogs inverse relationship includes correct number of records');
-    let [dog1] = dogs.slice();
+    const [dog1] = dogs.slice();
     assert.strictEqual(dog1.id, '1', 'dog1.person inverse relationship is set up correctly');
 
     await person.destroyRecord();
@@ -1387,14 +1386,14 @@ module('inverse relationship load test', function (hooks) {
   });
 
   test('many-to-one (left hand async, right hand sync) - findBelongsTo/explicit inverse - adds parent relationship information to the payload if it is not included/added by the serializer', async function (assert) {
-    let { owner } = this;
+    const { owner } = this;
 
     owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
-        deleteRecord: () => resolve({ data: null }),
+        deleteRecord: () => Promise.resolve({ data: null }),
         findBelongsTo: () => {
-          return resolve({
+          return Promise.resolve({
             data: {
               type: 'person',
               id: '1',
@@ -1442,17 +1441,17 @@ module('inverse relationship load test', function (hooks) {
       },
     });
 
-    let person = await dog.pal;
+    const person = await dog.pal;
     assert.false(
       dog.belongsTo('pal').belongsToRelationship.state.isEmpty,
       'belongsTo relationship state was populated'
     );
     assert.strictEqual(person.id, '1', 'dog.person relationship is correctly set up');
 
-    let dogs = await person.dogs;
+    const dogs = await person.dogs;
 
     assert.strictEqual(dogs.length, 1, 'person.dogs inverse relationship includes correct number of records');
-    let [dog1] = dogs.slice();
+    const [dog1] = dogs.slice();
     assert.strictEqual(dog1.id, '1', 'dog1.person inverse relationship is set up correctly');
 
     await person.destroyRecord();
@@ -1464,14 +1463,14 @@ module('inverse relationship load test', function (hooks) {
     'one-to-many - findHasMany/implicit inverse - fixes mismatched parent relationship information from the payload and deprecates',
     { id: 'ember-data:deprecate-non-strict-relationships', debugOnly: true, until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findHasMany: () => {
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   id: '1',
@@ -1525,7 +1524,7 @@ module('inverse relationship load test', function (hooks) {
       }
       owner.register('model:dog', Dog);
 
-      let person = store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -1552,14 +1551,14 @@ module('inverse relationship load test', function (hooks) {
     'one-to-many (left hand async, right hand sync) - findHasMany/implicit inverse - fixes mismatched parent relationship information from the payload and deprecates',
     { id: 'ember-data:deprecate-non-strict-relationships', debugOnly: true, until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findHasMany: () => {
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   id: '1',
@@ -1613,7 +1612,7 @@ module('inverse relationship load test', function (hooks) {
       }
       owner.register('model:dog', Dog);
 
-      let person = store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -1640,14 +1639,14 @@ module('inverse relationship load test', function (hooks) {
     'one-to-many - findHasMany/implicit inverse - fixes null relationship information from the payload and deprecates',
     { id: 'ember-data:deprecate-non-strict-relationships', debugOnly: true, until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findHasMany: () => {
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   id: '1',
@@ -1695,7 +1694,7 @@ module('inverse relationship load test', function (hooks) {
       }
       owner.register('model:dog', Dog);
 
-      let person = store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -1722,14 +1721,14 @@ module('inverse relationship load test', function (hooks) {
     'one-to-many (left hand async, right hand sync) - findHasMany/implicit inverse - fixes null relationship information from the payload and deprecates',
     { id: 'ember-data:deprecate-non-strict-relationships', debugOnly: true, until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findHasMany: () => {
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   id: '1',
@@ -1777,7 +1776,7 @@ module('inverse relationship load test', function (hooks) {
       }
       owner.register('model:dog', Dog);
 
-      let person = store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -1804,14 +1803,14 @@ module('inverse relationship load test', function (hooks) {
     'one-to-one - findBelongsTo/implicit inverse - fixes mismatched parent relationship information from the payload and deprecates',
     { id: 'ember-data:deprecate-non-strict-relationships', debugOnly: true, until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findBelongsTo: () => {
-            return resolve({
+            return Promise.resolve({
               data: {
                 id: '1',
                 type: 'dog',
@@ -1848,7 +1847,7 @@ module('inverse relationship load test', function (hooks) {
       }
       owner.register('model:dog', Dog);
 
-      let person = store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -1875,14 +1874,14 @@ module('inverse relationship load test', function (hooks) {
     'one-to-one (left hand async, right hand sync) - findBelongsTo/implicit inverse - fixes mismatched parent relationship information from the payload and deprecates',
     { id: 'ember-data:deprecate-non-strict-relationships', debugOnly: true, until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findBelongsTo: () => {
-            return resolve({
+            return Promise.resolve({
               data: {
                 id: '1',
                 type: 'dog',
@@ -1919,7 +1918,7 @@ module('inverse relationship load test', function (hooks) {
       }
       owner.register('model:dog', Dog);
 
-      let person = store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -1946,14 +1945,14 @@ module('inverse relationship load test', function (hooks) {
     'one-to-one - findBelongsTo/implicit inverse - fixes null relationship information from the payload and deprecates',
     { id: 'ember-data:deprecate-non-strict-relationships', debugOnly: true, until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findBelongsTo: () => {
-            return resolve({
+            return Promise.resolve({
               data: {
                 id: '1',
                 type: 'dog',
@@ -1987,7 +1986,7 @@ module('inverse relationship load test', function (hooks) {
       }
       owner.register('model:dog', Dog);
 
-      let person = store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -2014,14 +2013,14 @@ module('inverse relationship load test', function (hooks) {
     'one-to-one (left hand async, right hand sync) - findBelongsTo/implicit inverse - fixes null relationship information from the payload and deprecates',
     { id: 'ember-data:deprecate-non-strict-relationships', debugOnly: true, until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findBelongsTo: () => {
-            return resolve({
+            return Promise.resolve({
               data: {
                 id: '1',
                 type: 'dog',
@@ -2055,7 +2054,7 @@ module('inverse relationship load test', function (hooks) {
       }
       owner.register('model:dog', Dog);
 
-      let person = store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -2082,14 +2081,14 @@ module('inverse relationship load test', function (hooks) {
     'many-to-one - findBelongsTo/implicitInverse - fixes mismatched parent relationship information from the payload and deprecates',
     { id: 'ember-data:deprecate-non-strict-relationships', debugOnly: true, until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findBelongsTo: () => {
-            return resolve({
+            return Promise.resolve({
               data: {
                 type: 'person',
                 id: '1',
@@ -2128,7 +2127,7 @@ module('inverse relationship load test', function (hooks) {
       }
       owner.register('model:dog', Dog);
 
-      let dog = store.push({
+      const dog = store.push({
         data: {
           type: 'dog',
           id: '1',
@@ -2155,14 +2154,14 @@ module('inverse relationship load test', function (hooks) {
     'many-to-one (left hand async, right hand sync) - findBelongsTo/implicitInverse - fixes mismatched parent relationship information from the payload and deprecates',
     { id: 'ember-data:deprecate-non-strict-relationships', debugOnly: true, until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findBelongsTo: () => {
-            return resolve({
+            return Promise.resolve({
               data: {
                 type: 'person',
                 id: '1',
@@ -2201,7 +2200,7 @@ module('inverse relationship load test', function (hooks) {
       }
       owner.register('model:dog', Dog);
 
-      let dog = store.push({
+      const dog = store.push({
         data: {
           type: 'dog',
           id: '1',
@@ -2228,14 +2227,14 @@ module('inverse relationship load test', function (hooks) {
     'many-to-one - findBelongsTo/implicitInverse - fixes null relationship information from the payload and deprecates',
     { id: 'ember-data:deprecate-non-strict-relationships', debugOnly: true, until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findBelongsTo: () => {
-            return resolve({
+            return Promise.resolve({
               data: {
                 type: 'person',
                 id: '1',
@@ -2269,7 +2268,7 @@ module('inverse relationship load test', function (hooks) {
       }
       owner.register('model:dog', Dog);
 
-      let dog = store.push({
+      const dog = store.push({
         data: {
           type: 'dog',
           id: '1',
@@ -2296,14 +2295,14 @@ module('inverse relationship load test', function (hooks) {
     'many-to-one (left hand async, right hand sync) - findBelongsTo/implicitInverse - fixes null relationship information from the payload and deprecates',
     { id: 'ember-data:deprecate-non-strict-relationships', debugOnly: true, until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findBelongsTo: () => {
-            return resolve({
+            return Promise.resolve({
               data: {
                 type: 'person',
                 id: '1',
@@ -2337,7 +2336,7 @@ module('inverse relationship load test', function (hooks) {
       }
       owner.register('model:dog', Dog);
 
-      let dog = store.push({
+      const dog = store.push({
         data: {
           type: 'dog',
           id: '1',
@@ -2364,14 +2363,14 @@ module('inverse relationship load test', function (hooks) {
     'many-to-many - findHasMany/implicitInverse - fixes mismatched parent relationship information from the payload and deprecates',
     { id: 'ember-data:deprecate-non-strict-relationships', debugOnly: true, until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findHasMany: () => {
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   id: '1',
@@ -2429,7 +2428,7 @@ module('inverse relationship load test', function (hooks) {
       }
       owner.register('model:dog', Dog);
 
-      let person1 = store.push({
+      const person1 = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -2456,14 +2455,14 @@ module('inverse relationship load test', function (hooks) {
     'many-to-many (left hand async, right hand sync) - findHasMany/implicitInverse - fixes mismatched parent relationship information from the payload and deprecates',
     { id: 'ember-data:deprecate-non-strict-relationships', debugOnly: true, until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findHasMany: () => {
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   id: '1',
@@ -2521,7 +2520,7 @@ module('inverse relationship load test', function (hooks) {
       }
       owner.register('model:dog', Dog);
 
-      let person1 = store.push({
+      const person1 = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -2548,14 +2547,14 @@ module('inverse relationship load test', function (hooks) {
     'many-to-many - findHasMany/implicitInverse - fixes empty relationship information from the payload and deprecates',
     { id: 'ember-data:deprecate-non-strict-relationships', debugOnly: true, until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findHasMany: () => {
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   id: '1',
@@ -2603,7 +2602,7 @@ module('inverse relationship load test', function (hooks) {
       }
       owner.register('model:dog', Dog);
 
-      let person = store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -2630,14 +2629,14 @@ module('inverse relationship load test', function (hooks) {
     'many-to-many (left hand async, right hand sync) - findHasMany/implicitInverse - fixes empty relationship information from the payload and deprecates',
     { id: 'ember-data:deprecate-non-strict-relationships', debugOnly: true, until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findHasMany: () => {
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   id: '1',
@@ -2685,7 +2684,7 @@ module('inverse relationship load test', function (hooks) {
       }
       owner.register('model:dog', Dog);
 
-      let person = store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -2712,14 +2711,14 @@ module('inverse relationship load test', function (hooks) {
     'many-to-many - findHasMany/implicitInverse - fixes null relationship information from the payload and deprecates',
     { id: 'ember-data:deprecate-non-strict-relationships', debugOnly: true, until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findHasMany: () => {
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   id: '1',
@@ -2767,7 +2766,7 @@ module('inverse relationship load test', function (hooks) {
       }
       owner.register('model:dog', Dog);
 
-      let person = store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -2794,14 +2793,14 @@ module('inverse relationship load test', function (hooks) {
     'many-to-many (left hand async, right hand sync) - findHasMany/implicitInverse - asserts incorrect null relationship information from the payload',
     { id: 'ember-data:deprecate-non-strict-relationships', debugOnly: true, until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findHasMany: () => {
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   id: '1',
@@ -2849,7 +2848,7 @@ module('inverse relationship load test', function (hooks) {
       }
       owner.register('model:dog', Dog);
 
-      let person = store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -2876,7 +2875,7 @@ module('inverse relationship load test', function (hooks) {
     'one-to-many - ids/non-link/implicit inverse - ids - records loaded through ids/findRecord are linked to the parent if the response from the server does not include relationship information',
     { id: 'ember-data:deprecate-non-strict-relationships', debugOnly: true, until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       const scooby = {
         id: '1',
@@ -2897,10 +2896,10 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findRecord: (_store, _type, id) => {
             const dog = id === '1' ? scooby : scrappy;
-            return resolve({
+            return Promise.resolve({
               data: dog,
             });
           },
@@ -2923,7 +2922,7 @@ module('inverse relationship load test', function (hooks) {
       }
       owner.register('model:dog', Dog);
 
-      let person = store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -2947,18 +2946,18 @@ module('inverse relationship load test', function (hooks) {
         },
       });
 
-      let dogs = await person.dogs;
+      const dogs = await person.dogs;
       assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty, 'relationship state was set up correctly');
 
       assert.strictEqual(dogs.length, 2, 'hasMany relationship has correct number of records');
-      let dog1 = dogs.at(0);
-      let dogPerson1 = await dog1.person;
+      const dog1 = dogs.at(0);
+      const dogPerson1 = await dog1.person;
       assert.strictEqual(
         dogPerson1.id,
         '1',
         'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
       );
-      let dogPerson2 = await dogs.at(1).person;
+      const dogPerson2 = await dogs.at(1).person;
       assert.strictEqual(
         dogPerson2.id,
         '1',
@@ -2975,7 +2974,7 @@ module('inverse relationship load test', function (hooks) {
     'one-to-many (left hand async, right hand sync) - ids/non-link/implicit inverse - ids - records loaded through ids/findRecord are linked to the parent if the response from the server does not include relationship information',
     { id: 'ember-data:deprecate-non-strict-relationships', debugOnly: true, until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       const scooby = {
         id: '1',
@@ -2996,10 +2995,10 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findRecord: (_store, _type, id) => {
             const dog = id === '1' ? scooby : scrappy;
-            return resolve({
+            return Promise.resolve({
               data: dog,
             });
           },
@@ -3022,7 +3021,7 @@ module('inverse relationship load test', function (hooks) {
       }
       owner.register('model:dog', Dog);
 
-      let person = store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -3046,18 +3045,18 @@ module('inverse relationship load test', function (hooks) {
         },
       });
 
-      let dogs = await person.dogs;
+      const dogs = await person.dogs;
       assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty, 'relationship state was set up correctly');
 
       assert.strictEqual(dogs.length, 2, 'hasMany relationship has correct number of records');
-      let dog1 = dogs.at(0);
-      let dogPerson1 = await dog1.person;
+      const dog1 = dogs.at(0);
+      const dogPerson1 = await dog1.person;
       assert.strictEqual(
         dogPerson1.id,
         '1',
         'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
       );
-      let dogPerson2 = await dogs.at(1).person;
+      const dogPerson2 = await dogs.at(1).person;
       assert.strictEqual(
         dogPerson2.id,
         '1',
@@ -3071,7 +3070,7 @@ module('inverse relationship load test', function (hooks) {
   );
 
   test('one-to-many - ids/non-link/explicit inverse - ids - records loaded through ids/findRecord are linked to the parent if the response from the server does not include relationship information', async function (assert) {
-    let { owner } = this;
+    const { owner } = this;
 
     const scooby = {
       id: '1',
@@ -3092,10 +3091,10 @@ module('inverse relationship load test', function (hooks) {
     owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
-        deleteRecord: () => resolve({ data: null }),
+        deleteRecord: () => Promise.resolve({ data: null }),
         findRecord: (_store, _type, id) => {
           const dog = id === '1' ? scooby : scrappy;
-          return resolve({
+          return Promise.resolve({
             data: dog,
           });
         },
@@ -3120,7 +3119,7 @@ module('inverse relationship load test', function (hooks) {
     }
     owner.register('model:dog', Dog);
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -3144,18 +3143,18 @@ module('inverse relationship load test', function (hooks) {
       },
     });
 
-    let dogs = await person.dogs;
+    const dogs = await person.dogs;
     assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty, 'relationship state was set up correctly');
 
     assert.strictEqual(dogs.length, 2, 'hasMany relationship has correct number of records');
-    let dog1 = dogs.at(0);
-    let dogPerson1 = await dog1.pal;
+    const dog1 = dogs.at(0);
+    const dogPerson1 = await dog1.pal;
     assert.strictEqual(
       dogPerson1.id,
       '1',
       'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
     );
-    let dogPerson2 = await dogs.at(1).pal;
+    const dogPerson2 = await dogs.at(1).pal;
     assert.strictEqual(
       dogPerson2.id,
       '1',
@@ -3168,7 +3167,7 @@ module('inverse relationship load test', function (hooks) {
   });
 
   test('one-to-many (left hand async, right hand sync) - ids/non-link/explicit inverse - ids - records loaded through ids/findRecord are linked to the parent if the response from the server does not include relationship information', async function (assert) {
-    let { owner } = this;
+    const { owner } = this;
 
     const scooby = {
       id: '1',
@@ -3189,10 +3188,10 @@ module('inverse relationship load test', function (hooks) {
     owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
-        deleteRecord: () => resolve({ data: null }),
+        deleteRecord: () => Promise.resolve({ data: null }),
         findRecord: (_store, _type, id) => {
           const dog = id === '1' ? scooby : scrappy;
-          return resolve({
+          return Promise.resolve({
             data: dog,
           });
         },
@@ -3217,7 +3216,7 @@ module('inverse relationship load test', function (hooks) {
     }
     owner.register('model:dog', Dog);
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -3241,18 +3240,18 @@ module('inverse relationship load test', function (hooks) {
       },
     });
 
-    let dogs = await person.dogs;
+    const dogs = await person.dogs;
     assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty, 'relationship state was set up correctly');
 
     assert.strictEqual(dogs.length, 2, 'hasMany relationship has correct number of records');
-    let dog1 = dogs.at(0);
-    let dogPerson1 = await dog1.pal;
+    const dog1 = dogs.at(0);
+    const dogPerson1 = await dog1.pal;
     assert.strictEqual(
       dogPerson1.id,
       '1',
       'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
     );
-    let dogPerson2 = await dogs.at(1).pal;
+    const dogPerson2 = await dogs.at(1).pal;
     assert.strictEqual(
       dogPerson2.id,
       '1',
@@ -3265,7 +3264,7 @@ module('inverse relationship load test', function (hooks) {
   });
 
   test('one-to-many - ids/non-link/null inverse - ids - records loaded through ids/findRecord are linked to the parent if the response from the server does not include relationship information', async function (assert) {
-    let { owner } = this;
+    const { owner } = this;
 
     const scooby = {
       id: '1',
@@ -3286,10 +3285,10 @@ module('inverse relationship load test', function (hooks) {
     owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
-        deleteRecord: () => resolve({ data: null }),
+        deleteRecord: () => Promise.resolve({ data: null }),
         findRecord: (_store, _type, id) => {
           const dog = id === '1' ? scooby : scrappy;
-          return resolve({
+          return Promise.resolve({
             data: dog,
           });
         },
@@ -3308,7 +3307,7 @@ module('inverse relationship load test', function (hooks) {
     class Dog extends Model {}
     owner.register('model:dog', Dog);
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -3332,11 +3331,11 @@ module('inverse relationship load test', function (hooks) {
       },
     });
 
-    let dogs = await person.dogs;
+    const dogs = await person.dogs;
     assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty, 'relationship state was set up correctly');
 
     assert.strictEqual(dogs.length, 2, 'hasMany relationship has correct number of records');
-    let dog1 = dogs.at(0);
+    const dog1 = dogs.at(0);
 
     await dog1.destroyRecord();
     assert.strictEqual(dogs.length, 1, 'record removed from hasMany relationship after deletion');
@@ -3347,7 +3346,7 @@ module('inverse relationship load test', function (hooks) {
     'one-to-many - ids/non-link/implicit inverse - records loaded through ids/findRecord do not get associated with the parent if the server specifies another resource as the relationship value in the response',
     { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       const scooby = {
         id: '1',
@@ -3384,10 +3383,10 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findRecord: (_store, _type, id) => {
             const dog = id === '1' ? scooby : scrappy;
-            return resolve({
+            return Promise.resolve({
               data: dog,
             });
           },
@@ -3410,7 +3409,7 @@ module('inverse relationship load test', function (hooks) {
       }
       owner.register('model:dog', Dog);
 
-      let person = store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -3434,7 +3433,7 @@ module('inverse relationship load test', function (hooks) {
         },
       });
 
-      let person2 = store.push({
+      const person2 = store.push({
         data: {
           type: 'person',
           id: '2',
@@ -3444,26 +3443,26 @@ module('inverse relationship load test', function (hooks) {
         },
       });
 
-      let dogs = await person.dogs;
+      const dogs = await person.dogs;
       assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty, 'relationship state was set up correctly');
 
       assert.strictEqual(dogs.length, 0, 'hasMany relationship for parent is empty');
 
-      let person2Dogs = await person2.dogs;
+      const person2Dogs = await person2.dogs;
       assert.strictEqual(
         person2Dogs.length,
         2,
         'hasMany relationship on specified record has correct number of associated records'
       );
 
-      let allDogs = store.peekAll('dogs').slice();
+      const allDogs = store.peekAll('dogs').slice();
       for (let i = 0; i < allDogs.length; i++) {
-        let dog = allDogs[i];
-        let dogPerson = await dog.person;
+        const dog = allDogs[i];
+        const dogPerson = await dog.person;
         assert.strictEqual(dogPerson.id, person2.id, 'right hand side has correct belongsTo value');
       }
 
-      let dog1 = store.peekRecord('dog', '1');
+      const dog1 = store.peekRecord('dog', '1');
       await dog1.destroyRecord();
       assert.strictEqual(person2Dogs.length, 1, 'record removed from hasMany relationship after deletion');
       assert.strictEqual(person2Dogs.at(0).id, '2', 'hasMany relationship has correct records');
@@ -3474,7 +3473,7 @@ module('inverse relationship load test', function (hooks) {
     'one-to-many (left hand async, right hand sync) - ids/non-link/implicit inverse - records loaded through ids/findRecord do not get associated with the parent if the server specifies another resource as the relationship value in the response',
     { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       const scooby = {
         id: '1',
@@ -3511,10 +3510,10 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findRecord: (_store, _type, id) => {
             const dog = id === '1' ? scooby : scrappy;
-            return resolve({
+            return Promise.resolve({
               data: dog,
             });
           },
@@ -3537,7 +3536,7 @@ module('inverse relationship load test', function (hooks) {
       }
       owner.register('model:dog', Dog);
 
-      let person = store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -3561,7 +3560,7 @@ module('inverse relationship load test', function (hooks) {
         },
       });
 
-      let person2 = store.push({
+      const person2 = store.push({
         data: {
           type: 'person',
           id: '2',
@@ -3571,26 +3570,26 @@ module('inverse relationship load test', function (hooks) {
         },
       });
 
-      let dogs = await person.dogs;
+      const dogs = await person.dogs;
       assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty, 'relationship state was set up correctly');
 
       assert.strictEqual(dogs.length, 0, 'hasMany relationship for parent is empty');
 
-      let person2Dogs = await person2.dogs;
+      const person2Dogs = await person2.dogs;
       assert.strictEqual(
         person2Dogs.length,
         2,
         'hasMany relationship on specified record has correct number of associated records'
       );
 
-      let allDogs = store.peekAll('dogs').slice();
+      const allDogs = store.peekAll('dogs').slice();
       for (let i = 0; i < allDogs.length; i++) {
-        let dog = allDogs[i];
-        let dogPerson = await dog.person;
+        const dog = allDogs[i];
+        const dogPerson = await dog.person;
         assert.strictEqual(dogPerson.id, person2.id, 'right hand side has correct belongsTo value');
       }
 
-      let dog1 = store.peekRecord('dog', '1');
+      const dog1 = store.peekRecord('dog', '1');
       await dog1.destroyRecord();
       assert.strictEqual(person2Dogs.length, 1, 'record removed from hasMany relationship after deletion');
       assert.strictEqual(person2Dogs.at(0).id, '2', 'hasMany relationship has correct records');
@@ -3601,7 +3600,7 @@ module('inverse relationship load test', function (hooks) {
     'one-to-many - ids/non-link/implicit inverse - records loaded through ids/findRecord do not get associated with the parent if the server specifies null as the relationship value in the response',
     { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       const scooby = {
         id: '1',
@@ -3632,10 +3631,10 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findRecord: (_store, _type, id) => {
             const dog = id === '1' ? scooby : scrappy;
-            return resolve({
+            return Promise.resolve({
               data: dog,
             });
           },
@@ -3658,7 +3657,7 @@ module('inverse relationship load test', function (hooks) {
       }
       owner.register('model:dog', Dog);
 
-      let person = store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -3682,19 +3681,19 @@ module('inverse relationship load test', function (hooks) {
         },
       });
 
-      let personDogs = await person.dogs;
+      const personDogs = await person.dogs;
       assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty, 'relationship state was set up correctly');
 
       assert.strictEqual(personDogs.length, 0, 'hasMany relationship for parent is empty');
 
-      let allDogs = store.peekAll('dogs').slice();
+      const allDogs = store.peekAll('dogs').slice();
       for (let i = 0; i < allDogs.length; i++) {
-        let dog = allDogs[i];
-        let dogPerson = await dog.person;
+        const dog = allDogs[i];
+        const dogPerson = await dog.person;
         assert.strictEqual(dogPerson, null, 'right hand side has correct belongsTo value');
       }
 
-      let dog1 = store.peekRecord('dog', '1');
+      const dog1 = store.peekRecord('dog', '1');
       await dog1.destroyRecord();
 
       assert.strictEqual(personDogs.length, 0);
@@ -3705,7 +3704,7 @@ module('inverse relationship load test', function (hooks) {
     'one-to-many (left hand async, right hand sync) - ids/non-link/implicit inverse - records loaded through ids/findRecord do not get associated with the parent if the server specifies null as the relationship value in the response',
     { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 2 },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       const scooby = {
         id: '1',
@@ -3736,10 +3735,10 @@ module('inverse relationship load test', function (hooks) {
       owner.register(
         'adapter:application',
         JSONAPIAdapter.extend({
-          deleteRecord: () => resolve({ data: null }),
+          deleteRecord: () => Promise.resolve({ data: null }),
           findRecord: (_store, _type, id) => {
             const dog = id === '1' ? scooby : scrappy;
-            return resolve({
+            return Promise.resolve({
               data: dog,
             });
           },
@@ -3762,7 +3761,7 @@ module('inverse relationship load test', function (hooks) {
       }
       owner.register('model:dog', Dog);
 
-      let person = store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -3786,19 +3785,19 @@ module('inverse relationship load test', function (hooks) {
         },
       });
 
-      let personDogs = await person.dogs;
+      const personDogs = await person.dogs;
       assert.false(person.hasMany('dogs').hasManyRelationship.state.isEmpty, 'relationship state was set up correctly');
 
       assert.strictEqual(personDogs.length, 0, 'hasMany relationship for parent is empty');
 
-      let allDogs = store.peekAll('dogs').slice();
+      const allDogs = store.peekAll('dogs').slice();
       for (let i = 0; i < allDogs.length; i++) {
-        let dog = allDogs[i];
-        let dogPerson = await dog.person;
+        const dog = allDogs[i];
+        const dogPerson = await dog.person;
         assert.strictEqual(dogPerson, null, 'right hand side has correct belongsTo value');
       }
 
-      let dog1 = store.peekRecord('dog', '1');
+      const dog1 = store.peekRecord('dog', '1');
       await dog1.destroyRecord();
 
       assert.strictEqual(personDogs.length, 0);
@@ -3806,7 +3805,7 @@ module('inverse relationship load test', function (hooks) {
   );
 
   test('one-to-many - ids/non-link/explicit inverse - records loaded through ids/findRecord do not get associated with the parent if the server specifies another resource as the relationship value in the response', async function (assert) {
-    let { owner } = this;
+    const { owner } = this;
 
     const scooby = {
       id: '1',
@@ -3843,10 +3842,10 @@ module('inverse relationship load test', function (hooks) {
     owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
-        deleteRecord: () => resolve({ data: null }),
+        deleteRecord: () => Promise.resolve({ data: null }),
         findRecord: (_store, _type, id) => {
           const dog = id === '1' ? scooby : scrappy;
-          return resolve({
+          return Promise.resolve({
             data: dog,
           });
         },
@@ -3871,7 +3870,7 @@ module('inverse relationship load test', function (hooks) {
     }
     owner.register('model:dog', Dog);
 
-    let pal = store.push({
+    const pal = store.push({
       data: {
         type: 'pal',
         id: '1',
@@ -3895,7 +3894,7 @@ module('inverse relationship load test', function (hooks) {
       },
     });
 
-    let pal2 = store.push({
+    const pal2 = store.push({
       data: {
         type: 'pal',
         id: '2',
@@ -3905,33 +3904,33 @@ module('inverse relationship load test', function (hooks) {
       },
     });
 
-    let dogs = await pal.dogs;
+    const dogs = await pal.dogs;
     assert.false(pal.hasMany('dogs').hasManyRelationship.state.isEmpty, 'relationship state was set up correctly');
 
     assert.strictEqual(dogs.length, 0, 'hasMany relationship for parent is empty');
 
-    let pal2Dogs = await pal2.dogs;
+    const pal2Dogs = await pal2.dogs;
     assert.strictEqual(
       pal2Dogs.length,
       2,
       'hasMany relationship on specified record has correct number of associated records'
     );
 
-    let allDogs = store.peekAll('dogs').slice();
+    const allDogs = store.peekAll('dogs').slice();
     for (let i = 0; i < allDogs.length; i++) {
-      let dog = allDogs[i];
-      let dogPerson = await dog.pal;
+      const dog = allDogs[i];
+      const dogPerson = await dog.pal;
       assert.strictEqual(dogPerson.id, pal2.id, 'right hand side has correct belongsTo value');
     }
 
-    let dog1 = store.peekRecord('dog', '1');
+    const dog1 = store.peekRecord('dog', '1');
     await dog1.destroyRecord();
     assert.strictEqual(pal2Dogs.length, 1, 'record removed from hasMany relationship after deletion');
     assert.strictEqual(pal2Dogs.at(0).id, '2', 'hasMany relationship has correct records');
   });
 
   test('one-to-many (left hand async, right hand sync) - ids/non-link/explicit inverse - records loaded through ids/findRecord do not get associated with the parent if the server specifies another resource as the relationship value in the response', async function (assert) {
-    let { owner } = this;
+    const { owner } = this;
 
     const scooby = {
       id: '1',
@@ -3968,10 +3967,10 @@ module('inverse relationship load test', function (hooks) {
     owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
-        deleteRecord: () => resolve({ data: null }),
+        deleteRecord: () => Promise.resolve({ data: null }),
         findRecord: (_store, _type, id) => {
           const dog = id === '1' ? scooby : scrappy;
-          return resolve({
+          return Promise.resolve({
             data: dog,
           });
         },
@@ -3996,7 +3995,7 @@ module('inverse relationship load test', function (hooks) {
     }
     owner.register('model:dog', Dog);
 
-    let pal = store.push({
+    const pal = store.push({
       data: {
         type: 'pal',
         id: '1',
@@ -4020,7 +4019,7 @@ module('inverse relationship load test', function (hooks) {
       },
     });
 
-    let pal2 = store.push({
+    const pal2 = store.push({
       data: {
         type: 'pal',
         id: '2',
@@ -4030,33 +4029,33 @@ module('inverse relationship load test', function (hooks) {
       },
     });
 
-    let dogs = await pal.dogs;
+    const dogs = await pal.dogs;
     assert.false(pal.hasMany('dogs').hasManyRelationship.state.isEmpty, 'relationship state was set up correctly');
 
     assert.strictEqual(dogs.length, 0, 'hasMany relationship for parent is empty');
 
-    let pal2Dogs = await pal2.dogs;
+    const pal2Dogs = await pal2.dogs;
     assert.strictEqual(
       pal2Dogs.length,
       2,
       'hasMany relationship on specified record has correct number of associated records'
     );
 
-    let allDogs = store.peekAll('dogs').slice();
+    const allDogs = store.peekAll('dogs').slice();
     for (let i = 0; i < allDogs.length; i++) {
-      let dog = allDogs[i];
-      let dogPerson = await dog.pal;
+      const dog = allDogs[i];
+      const dogPerson = await dog.pal;
       assert.strictEqual(dogPerson.id, pal2.id, 'right hand side has correct belongsTo value');
     }
 
-    let dog1 = store.peekRecord('dog', '1');
+    const dog1 = store.peekRecord('dog', '1');
     await dog1.destroyRecord();
     assert.strictEqual(pal2Dogs.length, 1, 'record removed from hasMany relationship after deletion');
     assert.strictEqual(pal2Dogs.at(0).id, '2', 'hasMany relationship has correct records');
   });
 
   test("loading belongsTo doesn't remove inverse relationship for other instances", async function (assert) {
-    let { owner } = this;
+    const { owner } = this;
 
     const scooby = {
       id: '1',
@@ -4087,9 +4086,9 @@ module('inverse relationship load test', function (hooks) {
     owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
-        deleteRecord: () => resolve({ data: null }),
+        deleteRecord: () => Promise.resolve({ data: null }),
         findBelongsTo: () => {
-          return resolve({
+          return Promise.resolve({
             data: {
               type: 'person',
               id: '1',
@@ -4108,7 +4107,7 @@ module('inverse relationship load test', function (hooks) {
         },
         findRecord: (_store, _type, id) => {
           const dog = id === '1' ? scooby : scrappy;
-          return resolve({
+          return Promise.resolve({
             data: dog,
           });
         },
@@ -4139,8 +4138,8 @@ module('inverse relationship load test', function (hooks) {
     owner.register('model:dog', Dog);
 
     // load em into store
-    let dog1 = await owner.lookup('service:store').findRecord('dog', '1');
-    let dog2 = await owner.lookup('service:store').findRecord('dog', '2');
+    const dog1 = await owner.lookup('service:store').findRecord('dog', '1');
+    const dog2 = await owner.lookup('service:store').findRecord('dog', '2');
 
     assert.strictEqual(dog1.belongsTo('person').id(), '1');
     assert.strictEqual(dog2.belongsTo('person').id(), '1');

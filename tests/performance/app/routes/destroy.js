@@ -1,8 +1,6 @@
 import Route from '@ember/routing/route';
 import { inject as service } from '@ember/service';
 
-import { all } from 'rsvp';
-
 export default Route.extend({
   store: service(),
 
@@ -15,10 +13,10 @@ export default Route.extend({
     performance.mark('start-destroy-records');
     const children = await parent.children;
 
-    const childrenPromise = all(children.slice().map((child) => child.destroyRecord()));
+    const childrenPromise = Promise.all(children.slice().map((child) => child.destroyRecord()));
     const parentPromise = parent.destroyRecord();
 
-    await all([childrenPromise, parentPromise]);
+    await Promise.all([childrenPromise, parentPromise]);
 
     performance.mark('end-destroy-records');
   },

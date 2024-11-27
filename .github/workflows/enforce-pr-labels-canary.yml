@@ -5,6 +5,7 @@ on:
     types: [labeled, unlabeled, opened, reopened]
     branches:
       - main
+      - v4-main
 
 concurrency:
   group: pr-labels-canary-${{ github.head_ref || github.ref_name }}

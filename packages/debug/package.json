@@ -13,34 +13,104 @@
   "license": "MIT",
   "author": "",
   "directories": {},
-  "scripts": {},
+  "scripts": {
+    "lint": "eslint . --quiet --cache --cache-strategy=content",
+    "build:pkg": "vite build;",
+    "prepack": "bun run build:pkg",
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+  },
+  "files": [
+    "unstable-preview-types",
+    "addon-main.cjs",
+    "dist",
+    "README.md",
+    "LICENSE.md",
+    "CHANGELOG.md",
+    "ember-data-logo-dark.svg",
+    "ember-data-logo-light.svg"
+  ],
+  "exports": {
+    ".": {
+      "types": "./unstable-preview-types/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./unstable-preview-types/*.d.ts",
+      "default": "./dist/*.js"
+    }
+  },
   "peerDependencies": {
-    "@ember/string": "^3.0.1 || ^4.0.0",
-    "@ember-data/store": "workspace:4.12.8"
+    "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",
+    "@ember-data/store": "workspace:*",
+    "@ember-data/model": "workspace:*",
+    "@ember-data/request-utils": "workspace:*",
+    "@warp-drive/core-types": "workspace:*"
   },
   "dependenciesMeta": {
-    "@ember-data/private-build-infra": {
+    "@ember-data/store": {
+      "injected": true
+    },
+    "@ember-data/model": {
+      "injected": true
+    },
+    "@ember-data/legacy-compat": {
+      "injected": true
+    },
+    "@ember-data/request": {
+      "injected": true
+    },
+    "@ember-data/request-utils": {
+      "injected": true
+    },
+    "@warp-drive/core-types": {
+      "injected": true
+    },
+    "@ember-data/tracking": {
+      "injected": true
+    },
+    "@warp-drive/build-config": {
       "injected": true
     }
   },
   "dependencies": {
-    "@ember-data/private-build-infra": "workspace:4.12.8",
     "@ember/edition-utils": "^1.2.0",
-    "@embroider/macros": "^1.10.0",
-    "ember-auto-import": "^2.6.1",
-    "ember-cli-babel": "^7.26.11"
+    "@embroider/macros": "^1.16.6",
+    "@warp-drive/build-config": "workspace:*"
   },
   "devDependencies": {
-    "@ember/string": "^4.0.0",
-    "@ember-data/store": "workspace:4.12.8",
-    "webpack": "^5.77.0"
+    "@babel/core": "^7.24.5",
+    "@babel/plugin-transform-typescript": "^7.24.5",
+    "@babel/preset-env": "^7.24.5",
+    "@babel/preset-typescript": "^7.24.1",
+    "@ember-data/request": "workspace:*",
+    "@ember-data/legacy-compat": "workspace:*",
+    "@ember-data/request-utils": "workspace:*",
+    "@ember-data/store": "workspace:*",
+    "@ember-data/model": "workspace:*",
+    "@ember-data/tracking": "workspace:*",
+    "@ember/test-waiters": "^3.1.0",
+    "@glimmer/component": "^1.1.2",
+    "@warp-drive/core-types": "workspace:*",
+    "@warp-drive/internal-config": "workspace:*",
+    "ember-source": "~5.12.0",
+    "decorator-transforms": "^2.2.2",
+    "pnpm-sync-dependencies-meta-injected": "0.0.14",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.11"
   },
   "engines": {
-    "node": "16.* || >= 18.*"
+    "node": ">= 18.20.4"
   },
-  "ember-addon": {},
+  "ember-addon": {
+    "main": "addon-main.cjs",
+    "type": "addon",
+    "version": 2,
+    "app-js": {
+      "./data-adapter.js": "./dist/_app_/data-adapter.js"
+    }
+  },
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@9.7.1"
+  "packageManager": "pnpm@8.15.9"
 }

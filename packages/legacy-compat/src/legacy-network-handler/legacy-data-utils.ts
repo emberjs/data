@@ -1,10 +1,12 @@
-import type { AdapterPayload } from '@ember-data/types/q/minimum-adapter-interface';
+import type { AdapterPayload } from './minimum-adapter-interface';
 
-export function iterateData<T>(data: T[] | T, fn: (o: T, index?: number) => T) {
+type IteratorCB<T> = ((o: T, index: number) => T) | ((o: T) => T);
+
+export function iterateData<T>(data: T[] | T, fn: IteratorCB<T>) {
   if (Array.isArray(data)) {
     return data.map(fn);
   } else {
-    return fn(data);
+    return fn(data, 0);
   }
 }
 

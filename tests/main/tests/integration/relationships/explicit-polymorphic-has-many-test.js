@@ -372,21 +372,25 @@ module('Integration | Relationships | Explicit Polymorphic HasMany', function (h
   test('a polymorphic hasMany relationship with a specified inverse can use an abstract-type defined via the schema service', async function (assert) {
     const { owner } = this;
     const store = owner.lookup('service:store');
-
     const AbstractSchemas = new Map([
       [
         'taggable',
         {
-          tag: {
-            kind: 'belongsTo',
-            type: 'tag',
-            name: 'tag',
-            options: {
-              async: false,
-              inverse: 'tagged',
-              as: 'taggable',
-            },
-          },
+          fields: new Map([
+            [
+              'tag',
+              {
+                kind: 'belongsTo',
+                type: 'tag',
+                name: 'tag',
+                options: {
+                  async: false,
+                  inverse: 'tagged',
+                  as: 'taggable',
+                },
+              },
+            ],
+          ]),
         },
       ],
     ]);
@@ -396,24 +400,23 @@ module('Integration | Relationships | Explicit Polymorphic HasMany', function (h
         this._schema = schema;
       }
 
-      doesTypeExist(type) {
+      hasResource({ type }) {
         if (AbstractSchemas.has(type)) {
           return true; // some apps may want `true`
         }
-        return this._schema.doesTypeExist(type);
+        return this._schema.hasResource({ type });
       }
 
-      attributesDefinitionFor(identifier) {
-        return this._schema.attributesDefinitionFor(identifier);
-      }
-
-      relationshipsDefinitionFor(identifier) {
+      fields(identifier) {
         const schema = AbstractSchemas.get(identifier.type);
-        return schema || this._schema.relationshipsDefinitionFor(identifier);
+        if (schema) {
+          return schema.fields;
+        }
+        return this._schema.fields(identifier);
       }
     }
-    const schema = store.getSchemaDefinitionService();
-    store.registerSchemaDefinitionService(new SchemaDelegator(schema));
+    const schema = store.createSchemaService();
+    store.createSchemaService = () => new SchemaDelegator(schema);
 
     owner.register(
       'model:tag',

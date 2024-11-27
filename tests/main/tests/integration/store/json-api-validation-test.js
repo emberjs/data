@@ -1,5 +1,4 @@
-import QUnit, { module } from 'qunit';
-import { resolve } from 'rsvp';
+import { module } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
@@ -21,7 +20,7 @@ async function payloadError(owner, payload, expectedError, assert) {
     'adapter:person',
     Adapter.extend({
       findRecord() {
-        return resolve(payload);
+        return Promise.resolve(payload);
       },
     })
   );
@@ -39,8 +38,8 @@ async function payloadError(owner, payload, expectedError, assert) {
 module('integration/store/json-validation', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function () {
-    QUnit.assert.payloadError = payloadError.bind(QUnit.assert);
+  hooks.beforeEach(function (assert) {
+    assert.payloadError = payloadError;
 
     const Person = Model.extend({
       updatedAt: attr('string'),
@@ -50,10 +49,6 @@ module('integration/store/json-validation', function (hooks) {
     });
 
     this.owner.register('model:person', Person);
-  });
-
-  hooks.afterEach(function () {
-    QUnit.assert.payloadError = null;
   });
 
   testInDebug("when normalizeResponse returns undefined (or doesn't return), throws an error", async function (assert) {
@@ -68,12 +63,12 @@ module('integration/store/json-validation', function (hooks) {
       'adapter:person',
       Adapter.extend({
         findRecord() {
-          return resolve({ data: {} });
+          return Promise.resolve({ data: {} });
         },
       })
     );
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     await assert.expectAssertion(async function () {
       await store.findRecord('person', '1');
@@ -94,12 +89,12 @@ module('integration/store/json-validation', function (hooks) {
       'adapter:person',
       Adapter.extend({
         findRecord() {
-          return resolve({ data: {} });
+          return Promise.resolve({ data: {} });
         },
       })
     );
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     await assert.expectAssertion(async function () {
       await store.findRecord('person', '1');
@@ -120,12 +115,12 @@ module('integration/store/json-validation', function (hooks) {
       'adapter:person',
       Adapter.extend({
         findRecord() {
-          return resolve({ data: {} });
+          return Promise.resolve({ data: {} });
         },
       })
     );
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     await assert.expectAssertion(async function () {
       await store.findRecord('person', '1');
@@ -151,12 +146,12 @@ module('integration/store/json-validation', function (hooks) {
         'adapter:person',
         Adapter.extend({
           findRecord() {
-            return resolve({ data: {} });
+            return Promise.resolve({ data: {} });
           },
         })
       );
 
-      let store = this.owner.lookup('service:store');
+      const store = this.owner.lookup('service:store');
 
       await assert.expectAssertion(async function () {
         await store.findRecord('person', '1');
