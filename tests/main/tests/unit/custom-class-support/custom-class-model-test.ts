@@ -3,10 +3,21 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import { adapterFor, cleanup, normalize, pushPayload, serializeRecord, serializerFor } from '@ember-data/legacy-compat';
+import JSONAPICache from '@ember-data/json-api';
+import {
+  adapterFor,
+  cleanup,
+  LegacyNetworkHandler,
+  normalize,
+  pushPayload,
+  serializeRecord,
+  serializerFor,
+} from '@ember-data/legacy-compat';
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
+import RequestManager from '@ember-data/request';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import Store from '@ember-data/store';
+import Store, { CacheHandler } from '@ember-data/store';
+import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { DEBUG } from '@warp-drive/build-config/env';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
@@ -27,6 +38,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
   }
 
   class TestStore extends Store {
+    requestManager = new RequestManager().use([LegacyNetworkHandler]).useCache(CacheHandler);
     createSchemaService() {
       const schema = new TestSchema();
       schema.registerResource({
@@ -41,6 +53,10 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
         ],
       });
       return schema;
+    }
+
+    createCache(capabilities: CacheCapabilitiesManager) {
+      return new JSONAPICache(capabilities);
     }
 
     adapterFor = adapterFor;
@@ -68,11 +84,11 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
 
     owner.register(
       'adapter:application',
-      JSONAPIAdapter.extend({
-        shouldBackgroundReloadRecord: () => false,
+      class extends JSONAPIAdapter {
+        shouldBackgroundReloadRecord = () => false;
         // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
-        createRecord: () => Promise.reject(),
-      })
+        createRecord = () => Promise.reject();
+      }
     );
     owner.register('serializer:application', JSONAPISerializer);
     // @ts-expect-error missing type
@@ -99,6 +115,8 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
         });
         return { hi: 'igor' };
       }
+
+      teardownRecord(record) {}
     }
     this.owner.register('service:store', CreationStore);
     const store = this.owner.lookup('service:store') as Store;
@@ -139,9 +157,9 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
   test('fields with custom schema definition', async function (assert) {
     this.owner.register(
       'adapter:application',
-      JSONAPIAdapter.extend({
-        shouldBackgroundReloadRecord: () => false,
-        createRecord: (store, type, snapshot: Snapshot) => {
+      class extends JSONAPIAdapter {
+        shouldBackgroundReloadRecord = () => false;
+        createRecord = (store, type, snapshot: Snapshot) => {
           let count = 0;
           assert.verifySteps(
             DEBUG
@@ -214,8 +232,8 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
             'Adapter:createRecord:rel:house',
           ]);
           return Promise.resolve({ data: { type: 'person', id: '1' } });
-        },
-      })
+        };
+      }
     );
 
     this.owner.register('service:store', CustomStore);
@@ -281,12 +299,12 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     assert.expect(1);
     this.owner.register(
       'adapter:application',
-      JSONAPIAdapter.extend({
-        shouldBackgroundReloadRecord: () => false,
-        createRecord: (store, type, snapshot) => {
+      class extends JSONAPIAdapter {
+        shouldBackgroundReloadRecord = () => false;
+        createRecord = (store, type, snapshot) => {
           return Promise.resolve({ data: { type: 'person', id: '7' } });
-        },
-      })
+        };
+      }
     );
     this.owner.register('service:store', CustomStore);
     const store = this.owner.lookup('service:store') as Store;
@@ -300,13 +318,13 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     assert.expect(10);
     this.owner.register(
       'adapter:application',
-      JSONAPIAdapter.extend({
-        shouldBackgroundReloadRecord: () => false,
-        deleteRecord: (store, type, snapshot) => {
+      class extends JSONAPIAdapter {
+        shouldBackgroundReloadRecord = () => false;
+        deleteRecord(store, type, snapshot) {
           assert.ok(true, 'adapter method called');
-          return Promise.resolve();
-        },
-      })
+          return Promise.resolve({ data: null });
+        }
+      }
     );
     const subscribedValues: string[] = [];
     class CreationStore extends TestStore {
@@ -324,7 +342,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
       }
     }
     this.owner.register('service:store', CreationStore);
-    const store = this.owner.lookup('service:store') as unknown as Store;
+    const store = this.owner.lookup('service:store') as Store;
     const rd: Cache = store.cache;
     const person = store.push({ data: { type: 'person', id: '1', attributes: { name: 'chris' } } });
     store.deleteRecord(person);
@@ -340,13 +358,13 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     assert.expect(1);
     this.owner.register(
       'adapter:application',
-      JSONAPIAdapter.extend({
-        shouldBackgroundReloadRecord: () => false,
-        createRecord: (store, type, snapshot) => {
+      class extends JSONAPIAdapter {
+        shouldBackgroundReloadRecord = () => false;
+        createRecord = (store, type, snapshot) => {
           // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
           return Promise.reject();
-        },
-      })
+        };
+      }
     );
 
     this.owner.register('service:store', CustomStore);

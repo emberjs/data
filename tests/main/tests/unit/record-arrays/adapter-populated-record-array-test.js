@@ -4,12 +4,7 @@ import { setupTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
 import { createDeferred } from '@ember-data/request';
-import {
-  AdapterPopulatedRecordArray,
-  CollectionRecordArray,
-  RecordArrayManager,
-  SOURCE,
-} from '@ember-data/store/-private';
+import { CollectionRecordArray, RecordArrayManager, SOURCE } from '@ember-data/store/-private';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 class Tag extends Model {
@@ -56,13 +51,13 @@ module('unit/record-arrays/collection', function (hooks) {
   });
 
   testInDebug('#replace() throws error', function (assert) {
-    const recordArray = new AdapterPopulatedRecordArray({ type: 'recordType', identifiers: [] });
+    const recordArray = new CollectionRecordArray({ type: 'recordType', identifiers: [] });
 
     assert.throws(
       () => {
         recordArray.replace();
       },
-      Error('Assertion Failed: Mutating this array of records via splice is not allowed.'),
+      Error('Mutating this array of records via splice is not allowed.'),
       'throws error'
     );
     assert.expectDeprecation({ id: 'ember-data:deprecate-array-like' });

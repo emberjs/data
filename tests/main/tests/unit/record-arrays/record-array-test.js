@@ -47,7 +47,7 @@ module('unit/record-arrays/live-array - LiveArray', function (hooks) {
       () => {
         recordArray.replace();
       },
-      Error('Assertion Failed: Mutating this array of records via splice is not allowed.'),
+      Error('Mutating this array of records via splice is not allowed.'),
       'throws error'
     );
     assert.expectDeprecation({ id: 'ember-data:deprecate-array-like' });

@@ -17,7 +17,7 @@ import {
 import type { BaseFinderOptions, ModelSchema } from '@ember-data/store/types';
 import type { Signal } from '@ember-data/tracking/-private';
 import { addToTransaction } from '@ember-data/tracking/-private';
-import { DEPRECATE_MANY_ARRAY_DUPLICATES_4_12, DEPRECATE_PROMISE_PROXIES } from '@warp-drive/build-config/deprecations';
+import { DEPRECATE_MANY_ARRAY_DUPLICATES, DISABLE_6X_DEPRECATIONS } from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
@@ -32,28 +32,6 @@ import type { Links, PaginationLinks } from '@warp-drive/core-types/spec/json-ap
 import type { LegacySupport } from './legacy-relationships-support';
 
 type IdentifierArrayCreateOptions = ConstructorParameters<typeof LiveArray>[0];
-
-/*
-NOTES ON MANY ARRAY DUPLICATION DEPRECATION APPROACH:
-
-// 4.6 behavior
-
-dedupe, no error and no deprecation
-
-// 4.12 approach
-
-DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 === true => dedupe, no error
-DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 === false => no dedupe, error (same as 6.0)
-
-// 5.3 approach
-
-DEPRECATE_MANY_ARRAY_DUPLICATES === true => dedupe, deprecation
-DEPRECATE_MANY_ARRAY_DUPLICATES === false => no dedupe, error (same as 6.0)
-
-// 6.0 approach
-
-no-dedupe, error
-*/
 
 export interface ManyArrayCreateArgs<T> {
   identifiers: StableRecordIdentifier<TypeFromInstanceOrString<T>>[];
@@ -215,8 +193,17 @@ export class RelatedCollection<T = unknown> extends LiveArray<T> {
         return true;
       }
       case 'push': {
-        if (DEPRECATE_MANY_ARRAY_DUPLICATES_4_12) {
-          // dedupe, no error
+        const newValues = extractIdentifiersFromRecords(args);
+
+        assertNoDuplicates(
+          this,
+          target,
+          (currentState) => currentState.push(...newValues),
+          `Cannot push duplicates to a hasMany's state.`
+        );
+
+        if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
+          // dedupe
           const seen = new Set(target);
           const unique = new Set<OpaqueRecordInstance>();
 
@@ -238,15 +225,6 @@ export class RelatedCollection<T = unknown> extends LiveArray<T> {
         }
 
         // else, no dedupe, error on duplicates
-        const newValues = extractIdentifiersFromRecords(args);
-
-        assertNoDuplicates(
-          this,
-          target,
-          (currentState) => currentState.push(...newValues),
-          `Cannot push duplicates to a hasMany's state.`
-        );
-
         const result = Reflect.apply(target[prop], receiver, args) as OpaqueRecordInstance[];
         if (newValues.length) {
           mutateAddToRelatedRecords(this, { value: newValues }, _SIGNAL);
@@ -263,8 +241,17 @@ export class RelatedCollection<T = unknown> extends LiveArray<T> {
       }
 
       case 'unshift': {
-        if (DEPRECATE_MANY_ARRAY_DUPLICATES_4_12) {
-          // dedupe, no error
+        const newValues = extractIdentifiersFromRecords(args);
+
+        assertNoDuplicates(
+          this,
+          target,
+          (currentState) => currentState.unshift(...newValues),
+          `Cannot unshift duplicates to a hasMany's state.`
+        );
+
+        if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
+          // dedupe
           const seen = new Set(target);
           const unique = new Set<OpaqueRecordInstance>();
 
@@ -286,15 +273,6 @@ export class RelatedCollection<T = unknown> extends LiveArray<T> {
         }
 
         // else, no dedupe, error on duplicates
-        const newValues = extractIdentifiersFromRecords(args);
-
-        assertNoDuplicates(
-          this,
-          target,
-          (currentState) => currentState.unshift(...newValues),
-          `Cannot unshift duplicates to a hasMany's state.`
-        );
-
         const result = Reflect.apply(target[prop], receiver, args) as OpaqueRecordInstance[];
         if (newValues.length) {
           mutateAddToRelatedRecords(this, { value: newValues, index: 0 }, _SIGNAL);
@@ -326,8 +304,17 @@ export class RelatedCollection<T = unknown> extends LiveArray<T> {
 
         // detect a full replace
         if (start === 0 && deleteCount === this[SOURCE].length) {
-          if (DEPRECATE_MANY_ARRAY_DUPLICATES_4_12) {
-            // dedupe, no error
+          const newValues = extractIdentifiersFromRecords(adds);
+
+          assertNoDuplicates(
+            this,
+            target,
+            (currentState) => currentState.splice(start, deleteCount, ...newValues),
+            `Cannot replace a hasMany's state with a new state that contains duplicates.`
+          );
+
+          if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
+            // dedupe
             const current = new Set(adds);
             const unique = Array.from(current);
             const newArgs = ([start, deleteCount] as unknown[]).concat(unique);
@@ -339,22 +326,21 @@ export class RelatedCollection<T = unknown> extends LiveArray<T> {
           }
 
           // else, no dedupe, error on duplicates
-          const newValues = extractIdentifiersFromRecords(adds);
-
-          assertNoDuplicates(
-            this,
-            target,
-            (currentState) => currentState.splice(start, deleteCount, ...newValues),
-            `Cannot replace a hasMany's state with a new state that contains duplicates.`
-          );
-
           const result = Reflect.apply(target[prop], receiver, args) as OpaqueRecordInstance[];
           mutateReplaceRelatedRecords(this, newValues, _SIGNAL);
           return result;
         }
 
-        if (DEPRECATE_MANY_ARRAY_DUPLICATES_4_12) {
-          // dedupe, no error
+        const newValues = extractIdentifiersFromRecords(adds);
+        assertNoDuplicates(
+          this,
+          target,
+          (currentState) => currentState.splice(start, deleteCount, ...newValues),
+          `Cannot splice a hasMany's state with a new state that contains duplicates.`
+        );
+
+        if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
+          // dedupe
           const currentState = target.slice();
           currentState.splice(start, deleteCount);
 
@@ -383,14 +369,6 @@ export class RelatedCollection<T = unknown> extends LiveArray<T> {
         }
 
         // else, no dedupe, error on duplicates
-        const newValues = extractIdentifiersFromRecords(adds);
-        assertNoDuplicates(
-          this,
-          target,
-          (currentState) => currentState.splice(start, deleteCount, ...newValues),
-          `Cannot splice a hasMany's state with a new state that contains duplicates.`
-        );
-
         const result = Reflect.apply(target[prop], receiver, args) as OpaqueRecordInstance[];
         if (deleteCount > 0) {
           mutateRemoveFromRelatedRecords(this, { value: result.map(recordIdentifierFor), index: start }, _SIGNAL);
@@ -414,10 +392,10 @@ export class RelatedCollection<T = unknown> extends LiveArray<T> {
   /**
     Reloads all of the records in the manyArray. If the manyArray
     holds a relationship that was originally fetched using a links url
-    Ember Data will revisit the original links url to repopulate the
+    EmberData will revisit the original links url to repopulate the
     relationship.
 
-    If the manyArray holds the result of a `store.query()` reload will
+    If the ManyArray holds the result of a `store.query()` reload will
     re-run the original query.
 
     Example
@@ -507,41 +485,12 @@ function extractIdentifiersFromRecords(records: OpaqueRecordInstance[]): StableR
 }
 
 function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord | OpaqueRecordInstance) {
-  if (DEPRECATE_PROMISE_PROXIES) {
-    if (isPromiseRecord(recordOrPromiseRecord)) {
-      const content = recordOrPromiseRecord.content;
-      assert(
-        'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo relationship.',
-        content !== undefined && content !== null
-      );
-      deprecate(
-        `You passed in a PromiseProxy to a Relationship API that now expects a resolved value. await the value before setting it.`,
-        false,
-        {
-          id: 'ember-data:deprecate-promise-proxies',
-          until: '5.0',
-          since: {
-            enabled: '4.7',
-            available: '4.7',
-          },
-          for: 'ember-data',
-        }
-      );
-      assertRecordPassedToHasMany(content);
-      return recordIdentifierFor(content);
-    }
-  }
-
   assertRecordPassedToHasMany(recordOrPromiseRecord);
   return recordIdentifierFor(recordOrPromiseRecord);
 }
 
-function isPromiseRecord(record: PromiseProxyRecord | OpaqueRecordInstance): record is PromiseProxyRecord {
-  return Boolean(typeof record === 'object' && record && 'then' in record);
-}
-
-function assertNoDuplicates(
-  collection: RelatedCollection,
+function assertNoDuplicates<T>(
+  collection: RelatedCollection<T>,
   target: StableRecordIdentifier[],
   callback: (currentState: StableRecordIdentifier[]) => void,
   reason: string
@@ -552,21 +501,44 @@ function assertNoDuplicates(
   if (state.length !== new Set(state).size) {
     const duplicates = state.filter((currentValue, currentIndex) => state.indexOf(currentValue) !== currentIndex);
 
-    throw new Error(
-      `${reason} Found duplicates for the following records within the new state provided to \`<${
-        collection.identifier.type
-      }:${collection.identifier.id || collection.identifier.lid}>.${collection.key}\`\n\t- ${Array.from(
-        new Set(duplicates)
-      )
-        .map((r) => (isStableIdentifier(r) ? r.lid : recordIdentifierFor(r).lid))
-        .sort((a, b) => a.localeCompare(b))
-        .join('\n\t- ')}`
-    );
+    if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
+      deprecate(
+        `${reason} This behavior is deprecated. Found duplicates for the following records within the new state provided to \`<${
+          collection.identifier.type
+        }:${collection.identifier.id || collection.identifier.lid}>.${collection.key}\`\n\t- ${Array.from(
+          new Set(duplicates)
+        )
+          .map((r) => (isStableIdentifier(r) ? r.lid : recordIdentifierFor(r).lid))
+          .sort((a, b) => a.localeCompare(b))
+          .join('\n\t- ')}`,
+        /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
+        {
+          id: 'ember-data:deprecate-many-array-duplicates',
+          for: 'ember-data',
+          until: '6.0',
+          since: {
+            enabled: '5.3',
+            available: '4.13',
+          },
+        }
+      );
+    } else {
+      throw new Error(
+        `${reason} Found duplicates for the following records within the new state provided to \`<${
+          collection.identifier.type
+        }:${collection.identifier.id || collection.identifier.lid}>.${collection.key}\`\n\t- ${Array.from(
+          new Set(duplicates)
+        )
+          .map((r) => (isStableIdentifier(r) ? r.lid : recordIdentifierFor(r).lid))
+          .sort((a, b) => a.localeCompare(b))
+          .join('\n\t- ')}`
+      );
+    }
   }
 }
 
-function mutateAddToRelatedRecords(
-  collection: RelatedCollection,
+function mutateAddToRelatedRecords<T>(
+  collection: RelatedCollection<T>,
   operationInfo: { value: StableRecordIdentifier | StableRecordIdentifier[]; index?: number },
   _SIGNAL: Signal
 ) {
@@ -582,8 +554,8 @@ function mutateAddToRelatedRecords(
   );
 }
 
-function mutateRemoveFromRelatedRecords(
-  collection: RelatedCollection,
+function mutateRemoveFromRelatedRecords<T>(
+  collection: RelatedCollection<T>,
   operationInfo: { value: StableRecordIdentifier | StableRecordIdentifier[]; index?: number },
   _SIGNAL: Signal
 ) {
@@ -599,8 +571,8 @@ function mutateRemoveFromRelatedRecords(
   );
 }
 
-function mutateReplaceRelatedRecord(
-  collection: RelatedCollection,
+function mutateReplaceRelatedRecord<T>(
+  collection: RelatedCollection<T>,
   operationInfo: {
     value: StableRecordIdentifier;
     prior: StableRecordIdentifier;
@@ -620,7 +592,11 @@ function mutateReplaceRelatedRecord(
   );
 }
 
-function mutateReplaceRelatedRecords(collection: RelatedCollection, value: StableRecordIdentifier[], _SIGNAL: Signal) {
+function mutateReplaceRelatedRecords<T>(
+  collection: RelatedCollection<T>,
+  value: StableRecordIdentifier[],
+  _SIGNAL: Signal
+) {
   mutate(
     collection,
     {
@@ -633,7 +609,11 @@ function mutateReplaceRelatedRecords(collection: RelatedCollection, value: Stabl
   );
 }
 
-function mutateSortRelatedRecords(collection: RelatedCollection, value: StableRecordIdentifier[], _SIGNAL: Signal) {
+function mutateSortRelatedRecords<T>(
+  collection: RelatedCollection<T>,
+  value: StableRecordIdentifier[],
+  _SIGNAL: Signal
+) {
   mutate(
     collection,
     {
@@ -646,7 +626,11 @@ function mutateSortRelatedRecords(collection: RelatedCollection, value: StableRe
   );
 }
 
-function mutate(collection: RelatedCollection, mutation: Parameters<LegacySupport['mutate']>[0], _SIGNAL: Signal) {
+function mutate<T>(
+  collection: RelatedCollection<T>,
+  mutation: Parameters<LegacySupport['mutate']>[0],
+  _SIGNAL: Signal
+) {
   collection._manager.mutate(mutation);
   addToTransaction(_SIGNAL);
 }

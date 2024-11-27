@@ -617,7 +617,7 @@ module.exports = {
     '(public) @warp-drive/build-config/deprecations CurrentDeprecations#DEPRECATE_HAS_RECORD',
     '(public) @warp-drive/build-config/deprecations CurrentDeprecations#DEPRECATE_HELPERS',
     '(public) @warp-drive/build-config/deprecations CurrentDeprecations#DEPRECATE_JSON_API_FALLBACK',
-    '(public) @warp-drive/build-config/deprecations CurrentDeprecations#DEPRECATE_MANY_ARRAY_DUPLICATES_4_12',
+    '(public) @warp-drive/build-config/deprecations CurrentDeprecations#DEPRECATE_MANY_ARRAY_DUPLICATES',
     '(public) @warp-drive/build-config/deprecations CurrentDeprecations#DEPRECATE_MODEL_REOPEN',
     '(public) @warp-drive/build-config/deprecations CurrentDeprecations#DEPRECATE_NON_EXPLICIT_POLYMORPHISM',
     '(public) @warp-drive/build-config/deprecations CurrentDeprecations#DEPRECATE_NON_UNIQUE_PAYLOADS',

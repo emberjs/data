@@ -57,13 +57,12 @@ module('integration/inverse-test - inverseFor', function (hooks) {
       owner.register('model:job', Job);
 
       const job = store.modelFor('job');
-      const user = store.modelFor('user');
       const inverseDefinition = job.inverseFor('user', store);
 
       assert.deepEqual(
         inverseDefinition,
         {
-          type: user,
+          type: 'user',
           name: 'job',
           kind: 'belongsTo',
           options: {

@@ -687,25 +687,21 @@ export const DEPRECATE_COMPUTED_CHAINS = '5.0';
 export const DEPRECATE_NON_EXPLICIT_POLYMORPHISM = '4.7';
 
 /**
- * **id: ember-data:deprecate-many-array-duplicates-4-12**
+ * **id: ember-data:deprecate-many-array-duplicates**
  *
- * HACK: This deprecation flag is being used as a feature flag to optionally
- * disable adding duplicate records to a `ManyArray`.
- *
- * When the flag is `true` (default), duplicate records will be de-duped.
+ * When the flag is `true` (default), adding duplicate records to a `ManyArray`
+ * is deprecated in non-production environments. In production environments,
+ * duplicate records added to a `ManyArray` will be deduped and no error will
+ * be thrown.
  *
  * When the flag is `false`, an error will be thrown when duplicates are added.
- * NOTE: this is not a deprecation error!
  *
- * In 5.3, we expect to add a corollary deprecation
- * `DEPRECATE_MANY_ARRAY_DUPLICATES` that will actually `deprecate` when `true`.
- *
- * @property DEPRECATE_MANY_ARRAY_DUPLICATES_4_12
- * @since 4.12
+ * @property DEPRECATE_MANY_ARRAY_DUPLICATES
+ * @since 5.3
  * @until 6.0
  * @public
  */
-export const DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 = '4.12';
+export const DEPRECATE_MANY_ARRAY_DUPLICATES = '5.3';
 
 /**
  * **id: ember-data:deprecate-non-strict-types**
@@ -740,6 +736,30 @@ export const DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 = '4.12';
  * @public
  */
 export const DEPRECATE_NON_STRICT_TYPES = '5.3';
+
+/**
+ * **id: ember-data:deprecate-non-strict-id**
+ *
+ * Currently, EmberData expects that the `id` property associated with
+ * a resource is a string.
+ *
+ * However, for legacy support in many locations we would accept a number
+ * which would then immediately be coerced into a string.
+ *
+ * We are deprecating this legacy support for numeric IDs.
+ *
+ * The goal is that in the future, you will be able to use any ID format
+ * so long as everywhere you refer to the ID you use the same format.
+ *
+ * However, for identifiers we will always use string IDs and so any
+ * custom identifier configuration should provide a string ID.
+ *
+ * @property DEPRECATE_NON_STRICT_ID
+ * @since 5.3
+ * @until 6.0
+ * @public
+ */
+export const DEPRECATE_NON_STRICT_ID = '5.3';
 
 /**
  * **id: ember-data:deprecate-non-unique-collection-payloads**

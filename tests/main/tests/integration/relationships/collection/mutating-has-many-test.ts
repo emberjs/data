@@ -8,7 +8,7 @@ import type { ManyArray } from '@ember-data/model';
 import Model, { attr, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
-import { DEPRECATE_MANY_ARRAY_DUPLICATES_4_12 } from '@warp-drive/build-config/deprecations';
+import { DEPRECATE_MANY_ARRAY_DUPLICATES } from '@warp-drive/build-config/deprecations';
 import type { ExistingResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
 import { Type } from '@warp-drive/core-types/symbols';
 
@@ -17,7 +17,7 @@ import { reactiveContext } from '../../../helpers/reactive-context';
 
 let IS_DEPRECATE_MANY_ARRAY_DUPLICATES = false;
 
-if (DEPRECATE_MANY_ARRAY_DUPLICATES_4_12) {
+if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
   IS_DEPRECATE_MANY_ARRAY_DUPLICATES = true;
 }
 
