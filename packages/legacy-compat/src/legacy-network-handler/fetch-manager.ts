@@ -6,9 +6,9 @@ import { createDeferred } from '@ember-data/request';
 import type Store from '@ember-data/store';
 import type {
   FindRecordQuery,
-  InstanceCache,
   Request,
   RequestStateService,
+  ResourceManager,
   SaveRecordMutation,
 } from '@ember-data/store/-private';
 import { coerceId } from '@ember-data/store/-private';
@@ -285,7 +285,7 @@ export class FetchManager {
   }
 }
 
-function _isEmpty(instanceCache: InstanceCache, identifier: StableRecordIdentifier): boolean {
+function _isEmpty(instanceCache: ResourceManager, identifier: StableRecordIdentifier): boolean {
   const cache = instanceCache.cache;
   if (!cache) {
     return true;
@@ -297,7 +297,7 @@ function _isEmpty(instanceCache: InstanceCache, identifier: StableRecordIdentifi
   return (!isNew || isDeleted) && isEmpty;
 }
 
-function _isLoading(cache: InstanceCache, identifier: StableRecordIdentifier): boolean {
+function _isLoading(cache: ResourceManager, identifier: StableRecordIdentifier): boolean {
   const req = cache.store.getRequestStateService();
   // const fulfilled = req.getLastRequestForRecord(identifier);
   const isLoaded = cache.recordIsLoaded(identifier);
