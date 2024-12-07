@@ -250,13 +250,53 @@ type Request = {
 
 export type ImmutableHeaders = Headers & { clone?(): Headers; toJSON(): [string, string][] };
 
-/**
- * Extends JavaScript's native {@link Request} object with additional
- * properties specific to the RequestManager's capabilities.
- *
- * @typedoc
- */
-export type RequestInfo<T = unknown, RT = unknown> = Request & {
+export type UntypedRequestInfo = Request & {
+  /**
+   * If provided, used instead of the AbortController auto-configured for each request by the RequestManager
+   *
+   * @typedoc
+   */
+  controller?: AbortController;
+
+  /**
+   * @see {@link CacheOptions}
+   * @typedoc
+   */
+  cacheOptions?: CacheOptions;
+  store?: Store;
+
+  op?: string;
+
+  /**
+   * The identifiers of the primary resources involved in the request
+   * (if any). This may be used by handlers to perform transactional
+   * operations on the store.
+   *
+   * @typedoc
+   */
+  records?: StableRecordIdentifier[];
+
+  disableTestWaiter?: boolean;
+  /**
+   * data that a handler should convert into
+   * the query (GET) or body (POST).
+   *
+   * Note: It is recommended that builders set query params
+   * and body directly in most scenarios.
+   *
+   * @typedoc
+   */
+  data?: Record<string, unknown>;
+  /**
+   * options specifically intended for handlers
+   * to utilize to process the request
+   *
+   * @typedoc
+   */
+  options?: Record<string, unknown>;
+};
+
+export type TypedRequestInfo<T = unknown, RT = unknown> = Request & {
   /**
    * If provided, used instead of the AbortController auto-configured for each request by the RequestManager
    *
@@ -301,8 +341,16 @@ export type RequestInfo<T = unknown, RT = unknown> = Request & {
    */
   options?: Record<string, unknown>;
 
-  [RequestSignature]?: RT;
+  [RequestSignature]: RT;
 };
+
+/**
+ * Extends JavaScript's native {@link Request} object with additional
+ * properties specific to the RequestManager's capabilities.
+ *
+ * @typedoc
+ */
+export type RequestInfo<T = unknown, RT = unknown> = UntypedRequestInfo | TypedRequestInfo<T, RT>;
 
 /**
  * Immutable version of {@link RequestInfo}. This is what is passed to handlers.
@@ -341,4 +389,11 @@ export interface RequestContext {
 
   setStream(stream: ReadableStream | Promise<ReadableStream | null>): void;
   setResponse(response: Response | ResponseInfo | null): void;
+}
+
+export function withBrand<T, RT>(
+  request: RequestInfo<T>
+): Omit<RequestInfo<T>, typeof RequestSignature> & { [RequestSignature]: RT } {
+  // @ts-expect-error we're just adding the brand
+  return request;
 }
