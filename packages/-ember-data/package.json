@@ -149,14 +149,14 @@
     "@ember/test-waiters": "^3.1.0",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
-    "@types/qunit": "^2.19.10",
+    "@types/qunit": "^2.19.12",
     "@ember/test-helpers": "4.0.4",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.120",
     "ember-source": "~5.12.0",
-    "eslint": "^9.12.0",
+    "eslint": "^9.16.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "vite": "^5.2.11",
-    "typescript": "^5.4.5",
+    "typescript": "^5.7.2",
     "qunit": "^2.18.0"
   },
   "engines": {

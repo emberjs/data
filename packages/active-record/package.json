@@ -67,7 +67,7 @@
     "ember-source": "~5.12.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "vite": "^5.2.11",
-    "typescript": "^5.4.5"
+    "typescript": "^5.7.2"
   },
   "dependenciesMeta": {
     "@warp-drive/core-types": {
