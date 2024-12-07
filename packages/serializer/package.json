@@ -106,7 +106,7 @@
     "decorator-transforms": "^2.2.2",
     "ember-source": "~5.12.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
-    "typescript": "^5.4.5",
+    "typescript": "^5.7.2",
     "vite": "^5.2.11"
   },
   "engines": {

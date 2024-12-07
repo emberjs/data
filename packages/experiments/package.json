@@ -83,7 +83,7 @@
     "ember-source": "~5.12.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "@sqlite.org/sqlite-wasm": "3.46.0-build2",
-    "typescript": "^5.4.5",
+    "typescript": "^5.7.2",
     "vite": "^5.2.11"
   },
   "engines": {
