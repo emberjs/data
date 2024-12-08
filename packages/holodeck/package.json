@@ -65,20 +65,20 @@
   },
   "exports": {
     ".": {
-      "default": "./dist/client/index.js",
-      "types": "./unstable-preview-types/client/index.d.ts"
+      "types": "./unstable-preview-types/client/index.d.ts",
+      "default": "./dist/client/index.js"
     },
     "./client/*": {
-      "default": "./dist/client/*.js",
-      "types": "./unstable-preview-types/client/*.d.ts"
+      "types": "./unstable-preview-types/client/*.d.ts",
+      "default": "./dist/client/*.js"
     },
     "./server": {
-      "default": "./dist/server/index.js",
-      "types": "./unstable-preview-types/server/*.d.ts"
+      "types": "./unstable-preview-types/server/index.d.ts",
+      "default": "./dist/server/index.js"
     },
     "./server/*": {
-      "default": "./dist/server/*.js",
-      "types": "./unstable-preview-types/server/*.d.ts"
+      "types": "./unstable-preview-types/server/*.d.ts",
+      "default": "./dist/server/*.js"
     }
   },
   "dependenciesMeta": {
