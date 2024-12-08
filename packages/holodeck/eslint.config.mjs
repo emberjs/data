@@ -10,7 +10,8 @@ export default [
 
   // browser (js/ts) ================
   typescript.browser({
-    srcDirs: ['src'],
+    tsconfigRootDir: `${__dirname}/client`,
+    srcDirs: ['client'],
     allowedImports: [],
   }),
 

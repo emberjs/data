@@ -14,8 +14,7 @@ import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/doc
 import type { RenderingTestContext } from '@warp-drive/diagnostic/ember';
 import { module, setupRenderingTest, test as _test } from '@warp-drive/diagnostic/ember';
 import { getRequestState, Request } from '@warp-drive/ember';
-import { mock, MockServerHandler } from '@warp-drive/holodeck';
-import { GET } from '@warp-drive/holodeck/mock';
+import { GET, mock, MockServerHandler } from '@warp-drive/holodeck';
 import { registerDerivations, withDefaults } from '@warp-drive/schema-record/schema';
 
 // our tests use a rendering test context and add manager to it

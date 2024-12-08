@@ -1,5 +1,5 @@
 import launch from '@warp-drive/diagnostic/server/default-setup.js';
-import holodeck from '@warp-drive/holodeck';
+import holodeck from '@warp-drive/holodeck/server';
 
 await launch({
   async setup(options) {

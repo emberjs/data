@@ -1,0 +1,54 @@
+{
+  "include": ["./**/*"],
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "skipLibCheck": true,
+    "emitDeclarationOnly": true,
+    "allowJs": false,
+    "checkJs": false,
+    "alwaysStrict": true,
+    "strict": true,
+    "pretty": true,
+    "exactOptionalPropertyTypes": false,
+    "allowSyntheticDefaultImports": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "noEmitOnError": false,
+    "strictNullChecks": true,
+    "noErrorTruncation": true,
+    "preserveConstEnums": false,
+    "experimentalDecorators": true,
+    "composite": true,
+    "incremental": true,
+    "rootDir": ".",
+    // Support generation of source maps. Note: you must *also* enable source
+    // maps in your `ember-cli-babel` config and/or `babel.config.js`.
+    "declaration": true,
+    "declarationMap": true,
+    "declarationDir": "../unstable-preview-types/client",
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "baseUrl": ".",
+    "paths": {
+      "@ember-data/request": ["../../request/unstable-preview-types"],
+      "@ember-data/request/*": ["../../request/unstable-preview-types/*"],
+      "@warp-drive/core-types": ["../../core-types/unstable-preview-types"],
+      "@warp-drive/core-types/*": ["../../core-types/unstable-preview-types/*"]
+    }
+  },
+  "references": [
+    {
+      "path": "../../request"
+    },
+    {
+      "path": "../../core-types"
+    }
+  ]
+}

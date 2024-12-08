@@ -1,7 +1,7 @@
 /* global Bun */
 import { serve } from '@hono/node-server';
 import chalk from 'chalk';
-import { Hono } from 'hono';
+import { Context, Hono, MiddlewareHandler } from 'hono';
 import { cors } from 'hono/cors';
 import { HTTPException } from 'hono/http-exception';
 import { logger } from 'hono/logger';
@@ -62,14 +62,14 @@ const BROTLI_OPTIONS = {
     [zlib.constants.BROTLI_PARAM_QUALITY]: zlib.constants.BROTLI_MAX_QUALITY,
   },
 };
-function compress(code) {
+function compress(code: string) {
   return zlib.brotliCompressSync(code, BROTLI_OPTIONS);
 }
 
 /**
  * removes the protocol, host, and port from a url
  */
-function getNiceUrl(url) {
+function getNiceUrl(url: string) {
   const urlObj = new URL(url);
   urlObj.searchParams.delete('__xTestId');
   urlObj.searchParams.delete('__xTestRequestNumber');
@@ -86,18 +86,31 @@ function getNiceUrl(url) {
   testRequestNumber: number
 }
 */
-function generateFilepath(options) {
+function generateFilepath(options: {
+  body: string | null;
+  projectRoot: string;
+  testId: string;
+  url: string;
+  method: string;
+  testRequestNumber: string;
+}) {
   const { body } = options;
   const bodyHash = body ? crypto.createHash('md5').update(body).digest('hex') : null;
   const cacheDir = generateFileDir(options);
   return `${cacheDir}/${bodyHash ? `${bodyHash}-` : 'res'}`;
 }
-function generateFileDir(options) {
+function generateFileDir(options: {
+  projectRoot: string;
+  testId: string;
+  url: string;
+  method: string;
+  testRequestNumber: string;
+}) {
   const { projectRoot, testId, url, method, testRequestNumber } = options;
   return `${projectRoot}/.mock-cache/${testId}/${method}-${testRequestNumber}-${url}`;
 }
 
-function replayRequest(context, cacheKey) {
+function replayRequest(context: Context<any, string, {}>, cacheKey: string) {
   let meta;
   try {
     meta = fs.readFileSync(`${cacheKey}.meta.json`, 'utf-8');
@@ -136,8 +149,8 @@ function replayRequest(context, cacheKey) {
   return response;
 }
 
-function createTestHandler(projectRoot) {
-  const TestHandler = async (context) => {
+function createTestHandler(projectRoot: string): MiddlewareHandler {
+  return async (context) => {
     try {
       const { req } = context;
 
@@ -214,7 +227,11 @@ function createTestHandler(projectRoot) {
           `${cacheKey}.meta.json`,
           JSON.stringify({ url, status, statusText, headers, method, requestBody: body }, null, 2)
         );
-        fs.writeFileSync(`${cacheKey}.body.br`, compress(JSON.stringify(response)));
+        fs.writeFileSync(
+          `${cacheKey}.body.br`,
+          // @ts-expect-error bun seems to break Buffer types
+          compress(JSON.stringify(response))
+        );
         context.status(204);
         return context.body(null);
       } else {
@@ -242,21 +259,16 @@ function createTestHandler(projectRoot) {
               status: '500',
               code: 'MOCK_SERVER_ERROR',
               title: 'Mock Server Error during Request',
-              detail: e.message,
+              detail: getErrorMessage(e),
             },
           ],
         })
       );
     }
   };
-
-  return TestHandler;
 }
 
-/*
-{ port?: number, projectRoot: string }
-*/
-export function createServer(options) {
+export function createServer(options: { port?: number; projectRoot: string }) {
   const app = new Hono();
   if (DEBUG) {
     app.use('*', logger());
@@ -279,7 +291,11 @@ export function createServer(options) {
 
   serve({
     fetch: app.fetch,
-    createServer: (_, requestListener) => {
+    // @ts-expect-error, unclear what is wrong with Bun's types here
+    createServer: (
+      _: unknown,
+      requestListener: (request: http2.Http2ServerRequest, response: http2.Http2ServerResponse) => void
+    ) => {
       try {
         return http2.createSecureServer(
           {
@@ -288,8 +304,9 @@ export function createServer(options) {
           },
           requestListener
         );
-      } catch (e) {
-        console.log(chalk.yellow(`Failed to create secure server, falling back to http server. Error: ${e.message}`));
+      } catch (e: unknown) {
+        const message = getErrorMessage(e);
+        console.log(chalk.yellow(`Failed to create secure server, falling back to http server. Error: ${message}`));
         return http2.createServer(requestListener);
       }
     },
@@ -381,6 +398,10 @@ function main() {
     const options = JSON.parse(args[2]);
     createServer(options);
   }
+}
+
+function getErrorMessage(e: unknown) {
+  return e instanceof Error ? e.message : typeof e === 'string' ? e : String(e);
 }
 
 main();

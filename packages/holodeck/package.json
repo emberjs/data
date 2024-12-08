@@ -41,7 +41,7 @@
   },
   "scripts": {
     "check:pkg-types": "tsc --noEmit",
-    "build:pkg": "vite build;",
+    "build:pkg": "vite build; bun build --entrypoints ./server/index.ts ./server/ensure-cert.js --target bun --outdir ./dist/server",
     "prepack": "bun run build:pkg",
     "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
@@ -59,27 +59,26 @@
     "@warp-drive/core-types": "workspace:0.0.0-alpha.106",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.120",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
+    "bun-types": "1.1.38",
     "typescript": "^5.4.5",
     "vite": "^5.2.11"
   },
   "exports": {
     ".": {
-      "node": "./server/index.js",
-      "bun": "./server/index.js",
-      "deno": "./server/index.js",
-      "browser": {
-        "types": "./unstable-preview-types/index.d.ts",
-        "default": "./dist/index.js"
-      },
-      "import": {
-        "types": "./unstable-preview-types/index.d.ts",
-        "default": "./dist/index.js"
-      },
-      "default": "./server/index.js"
+      "default": "./dist/client/index.js",
+      "types": "./unstable-preview-types/client/index.d.ts"
     },
-    "./mock": {
-      "types": "./unstable-preview-types/mock.d.ts",
-      "default": "./dist/mock.js"
+    "./client/*": {
+      "default": "./dist/client/*.js",
+      "types": "./unstable-preview-types/client/*.d.ts"
+    },
+    "./server": {
+      "default": "./dist/server/index.js",
+      "types": "./unstable-preview-types/server/*.d.ts"
+    },
+    "./server/*": {
+      "default": "./dist/server/*.js",
+      "types": "./unstable-preview-types/server/*.d.ts"
     }
   },
   "dependenciesMeta": {
