@@ -14,7 +14,7 @@ import type { Diagnostic } from '@warp-drive/diagnostic/-types';
 import type { RenderingTestContext, TestContext } from '@warp-drive/diagnostic/ember';
 import { module, setupRenderingTest, test as _test } from '@warp-drive/diagnostic/ember';
 import { Request } from '@warp-drive/ember';
-import { GET, MockServerHandler } from '@warp-drive/holodeck';
+import { GET, HolodeckHandler } from '@warp-drive/holodeck';
 import { instantiateRecord, teardownRecord } from '@warp-drive/schema-record/hooks';
 import type { SchemaRecord } from '@warp-drive/schema-record/record';
 import { registerDerivations, SchemaService, withDefaults } from '@warp-drive/schema-record/schema';
@@ -52,7 +52,7 @@ class Logger implements Handler {
 class TestStore extends Store {
   setupRequestManager(testContext: TestContext, assert: Diagnostic): void {
     this.requestManager = new RequestManager()
-      .use([new Logger(assert), new MockServerHandler(testContext), Fetch])
+      .use([new Logger(assert), new HolodeckHandler(testContext), Fetch])
       .useCache(CacheHandler);
   }
 

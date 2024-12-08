@@ -20,7 +20,7 @@ export function getConfig(): { host: string } {
 
 export function setTestId(context: object, str: string | null) {
   if (str && TEST_IDS.has(context)) {
-    throw new Error(`MockServerHandler is already configured with a testId.`);
+    throw new Error(`The Holodeck mock handler is already configured with a testId.`);
   }
   if (str) {
     TEST_IDS.set(context, { id: str, request: 0, mock: 0 });

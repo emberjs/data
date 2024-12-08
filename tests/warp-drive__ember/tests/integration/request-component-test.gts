@@ -14,7 +14,7 @@ import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/doc
 import type { RenderingTestContext } from '@warp-drive/diagnostic/ember';
 import { module, setupRenderingTest, test as _test } from '@warp-drive/diagnostic/ember';
 import { getRequestState, Request } from '@warp-drive/ember';
-import { GET, mock, MockServerHandler } from '@warp-drive/holodeck';
+import { GET, HolodeckHandler, mock } from '@warp-drive/holodeck';
 import { registerDerivations, withDefaults } from '@warp-drive/schema-record/schema';
 
 // our tests use a rendering test context and add manager to it
@@ -153,7 +153,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
 
   hooks.beforeEach(function () {
     const manager = new RequestManager();
-    manager.use([new MockServerHandler(this), Fetch]);
+    manager.use([new HolodeckHandler(this), Fetch]);
     manager.useCache(new SimpleCacheHandler());
 
     this.manager = manager;
@@ -402,7 +402,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
   test('externally retriggered request works as expected (store CacheHandler)', async function (assert) {
     const store = this.owner.lookup('service:store') as Store;
     const manager = new RequestManager();
-    manager.use([new MockServerHandler(this), Fetch]);
+    manager.use([new HolodeckHandler(this), Fetch]);
     manager.useCache(StoreHandler);
     store.requestManager = manager;
     this.manager = manager;

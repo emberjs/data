@@ -6,7 +6,7 @@ import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import { module, test } from '@warp-drive/diagnostic';
 import { WorkerFetch } from '@warp-drive/experiments/worker-fetch';
-import { GET, MockServerHandler } from '@warp-drive/holodeck';
+import { GET, HolodeckHandler } from '@warp-drive/holodeck';
 import { instantiateRecord, teardownRecord } from '@warp-drive/schema-record/hooks';
 import type { SchemaRecord } from '@warp-drive/schema-record/record';
 import { registerDerivations, SchemaService } from '@warp-drive/schema-record/schema';
@@ -27,7 +27,7 @@ const RECORD = true;
 module('Unit | DataWorker | Serialization & Persistence', function (_hooks) {
   test('Serialization of Request/Response/Headers works as expected', async function (assert) {
     const worker = new Worker(new URL('./persisted-worker.ts', import.meta.url));
-    const MockHandler = new MockServerHandler(this);
+    const MockHandler = new HolodeckHandler(this);
 
     await GET(
       this,

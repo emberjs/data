@@ -2,7 +2,7 @@ import type { Handler, NextFn, RequestContext, RequestInfo, StructuredDataDocume
 
 import { getTestInfo } from './env';
 
-export class MockServerHandler implements Handler {
+export class HolodeckHandler implements Handler {
   declare owner: object;
   constructor(owner: object) {
     this.owner = owner;
@@ -11,9 +11,7 @@ export class MockServerHandler implements Handler {
   async request<T>(context: RequestContext, next: NextFn<T>): Promise<StructuredDataDocument<T>> {
     const test = getTestInfo(this.owner);
     if (!test) {
-      throw new Error(
-        `MockServerHandler is not configured with a testId. Use setTestId to set the testId for each test`
-      );
+      throw new Error(`HolodeckHandler is not configured with a testId. Use setTestId to set the testId for each test`);
     }
 
     const request: RequestInfo = Object.assign({}, context.request);
