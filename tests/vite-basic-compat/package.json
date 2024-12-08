@@ -91,11 +91,11 @@
     "@ember/string": "^4.0.0",
     "@ember/test-helpers": "^4.0.4",
     "@ember/test-waiters": "^3.1.0",
-    "@embroider/compat": "3.6.2-unstable.c51ca2b",
-    "@embroider/config-meta-loader": "0.0.1-unstable.c51ca2b",
-    "@embroider/core": "3.4.16-unstable.c51ca2b",
+    "@embroider/compat": "3.7.0",
+    "@embroider/config-meta-loader": "0.0.1-unstable.f7656a3",
+    "@embroider/core": "3.4.19",
     "@embroider/test-setup": "4.0.1-unstable.c51ca2b",
-    "@embroider/vite": "0.2.1-unstable.c51ca2b",
+    "@embroider/vite": "0.2.1",
     "@glimmer/component": "^2.0.0",
     "@glimmer/tracking": "^1.1.2",
     "@rollup/plugin-babel": "^6.0.4",
@@ -111,7 +111,7 @@
     "babel-plugin-ember-template-compilation": "^2.3.0",
     "concurrently": "^9.1.0",
     "decorator-transforms": "^2.3.0",
-    "ember-auto-import": "^2.8.1",
+    "ember-auto-import": "^2.10.0",
     "ember-cli": "~5.12.0",
     "ember-cli-babel": "^8.2.0",
     "ember-cli-htmlbars": "^6.3.0",
@@ -142,7 +142,7 @@
     "typescript": "^5.5.4",
     "typescript-eslint": "^8.13.0",
     "vite": "^5.4.11",
-    "webpack": "^5.95.0"
+    "webpack": "^5.97.1"
   },
   "engines": {
     "node": ">= 18"
