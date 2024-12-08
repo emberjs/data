@@ -7,8 +7,7 @@ import { buildBaseURL } from '@ember-data/request-utils';
 import type { RenderingTestContext } from '@warp-drive/diagnostic/ember';
 import { module, setupRenderingTest, test as _test } from '@warp-drive/diagnostic/ember';
 import { getRequestState } from '@warp-drive/ember';
-import { mock, MockServerHandler } from '@warp-drive/holodeck';
-import { GET } from '@warp-drive/holodeck/mock';
+import { GET, mock, MockServerHandler } from '@warp-drive/holodeck';
 
 type RequestState<T, RT> = ReturnType<typeof getRequestState<RT, T>>;
 type UserResource = {
