@@ -24,10 +24,10 @@
   },
   "dependencies": {
     "@ember-data/unpublished-test-infra": "workspace:5.4.0-alpha.120",
-    "ember-auto-import": "^2.8.1",
+    "ember-auto-import": "^2.10.0",
     "ember-data": "workspace:5.4.0-alpha.120",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
-    "webpack": "^5.92.0"
+    "webpack": "^5.97.1"
   },
   "dependenciesMeta": {
     "ember-data": {
@@ -79,9 +79,9 @@
     "@warp-drive/core-types": "workspace:0.0.0-alpha.106",
     "@warp-drive/internal-config": "workspace:5.4.0-alpha.120",
     "@warp-drive/build-config": "workspace:0.0.0-alpha.57",
-    "ember-cli": "~5.9.0",
+    "ember-cli": "~5.12.0",
     "ember-cli-babel": "^8.2.0",
-    "ember-cli-dependency-checker": "^3.3.2",
+    "ember-cli-dependency-checker": "^3.3.3",
     "ember-cli-fastboot": "^4.1.5",
     "ember-cli-fastboot-testing": "^0.6.2",
     "ember-cli-htmlbars": "^6.3.0",
