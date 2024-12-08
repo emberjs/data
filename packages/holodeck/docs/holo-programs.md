@@ -21,6 +21,10 @@ set the scene for a test.
   - [Auto-Generating HoloPrograms](#auto-generating-holoprograms)
   - [Defining HoloProgram Behaviors](#3-holoprogram-specific-behaviors)
   - [Available Behaviors](#available-behaviors)
+- Safety Protocols
+  - [About Safety Protocols](#safety-protocols)
+  - [Filtering Sensitive Data](#filtering-sensitive-data)
+  - [Dynamic Safety Protocls](#dynamic-safety-protocols)
 
 <br>
 
