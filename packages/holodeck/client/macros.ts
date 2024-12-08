@@ -1,4 +1,5 @@
-import { getIsRecording, mock } from '.';
+import { getIsRecording } from './env';
+import { mock } from './mock';
 
 export interface Scaffold {
   status: number;

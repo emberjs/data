@@ -1118,6 +1118,9 @@ importers:
       '@warp-drive/internal-config':
         specifier: workspace:5.4.0-alpha.120
         version: link:../../config
+      bun-types:
+        specifier: 1.1.38
+        version: 1.1.38
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
         version: 0.0.14
@@ -12771,6 +12774,13 @@ packages:
 
   /bun-types@1.1.30:
     resolution: {integrity: sha512-mGh7NLisOXskBU62DxLS+/nwmLlCYHYAkCzdo4DZ9+fzrpP41hAdOqaN4DO6tQfenHb4pYb0/shw29k4/6I2yQ==}
+    dependencies:
+      '@types/node': 20.12.12
+      '@types/ws': 8.5.10
+    dev: true
+
+  /bun-types@1.1.38:
+    resolution: {integrity: sha512-iglB2t9z1Hc6DIuwwscwWj/csx22QlCZ96QbcqQfiy1wmuZ38srQLI/fDVkFHAo2+KL7aJZGVWF+nAWrR6Njig==}
     dependencies:
       '@types/node': 20.12.12
       '@types/ws': 8.5.10
