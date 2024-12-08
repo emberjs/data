@@ -12,6 +12,9 @@ import zlib from 'node:zlib';
 import { homedir } from 'os';
 import path from 'path';
 
+// TODO store blobs in sqlite instead of filesystem?
+// TODO use headers instead of query params for test ID and request number
+
 /** @type {import('bun-types')} */
 const isBun = typeof Bun !== 'undefined';
 const DEBUG = process.env.DEBUG?.includes('holodeck') || process.env.DEBUG === '*';

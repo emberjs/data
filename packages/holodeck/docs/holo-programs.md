@@ -18,6 +18,7 @@ set the scene for a test.
   - [Route Handlers](#1-shared-route-handlers)
   - [Seed Data](#2-seed-data)
   - [Easy Mode for Building JSON for Seeds](#easy-mode-for-building-up-json-for-seeds)
+  - [Auto-Generating HoloPrograms](#auto-generating-holoprograms)
   - [Defining HoloProgram Behaviors](#3-holoprogram-specific-behaviors)
   - [Available Behaviors](#available-behaviors)
 
@@ -155,6 +156,22 @@ export default new Router((r) => {
 });
 ```
 
+The handler type is:
+
+```ts
+interface RouteHandler {
+  request(context: Context, request: Request): Response | Value;
+
+  protocols?(v: HolodeckValibot): Record<string, SafetyProtocol>;
+
+  requestProtocol?(request: Request): keyof ReturnType<this.protocols>;
+  responseProtocol?(response: Response): keyof ReturnType<this.protocols>;
+}
+```
+
+See also [Safety Protocols](#safety-protocols)
+
+
 <br>
 
 ### 2. Seed Data
@@ -268,6 +285,12 @@ await createProgram({
 
 <br>
 
+### Auto-Generating HoloPrograms
+
+HoloPrograms can be programatically created! To learn how read about [VCR Style Testing](./vcr-style.md).
+
+<br>
+
 ### Available Behaviors
 
 The following behaviors are available:
@@ -296,8 +319,77 @@ type Adjustment = {
   // update store state only after this request
   // has completed sending its response
   after?: (request: Request, store: Store) => {}
+
+  // CAUTION: this behavior is only utilized if a
+  // route handler chooses to use it!
+  //
+  // When creating new records it can be useful
+  // to explicitly declare the desired primaryKey
+  // value to use
+  //
+  // This ID can be accessed by the handler calling
+  // `<context>.desiredId()`.
+  //
+  // For transactional saves (multiple new records in
+  // a single request) this should be the id for a
+  // primary new record if present, while any other IDs
+  // for new records should be contained in a `patch`.
+  id?: string | number;
+
+  // CAUTION: this behavior is only utilized if a
+  // route handler chooses to use it!
+  // 
+  // When creating or updating records, sometimes
+  // additional fields need to be created or updated.
+  //
+  // This behavior stores JSON state that should be
+  // applied to the store to enable a mutation to 
+  // adequately mirror the behavior of the real API.
+  //
+  // The format of this patch is an array of resource
+  // data that could (if needed) be directly upsert to
+  // the cache like a seed.
+  //
+  // The patch can be accessed by the route handler via
+  // `<context>.desiredPatch()`. It can be applied either
+  // manually in the handler or by the handler calling
+  // `<context>.commitDesiredPatch()` or not at all.
+  patch?: Value[];
 }
 ```
+
+<br>
+
+---
+
+<br>
+
+
+## Safety Protocols
+
+An route handler can declare Safety Protocols that are used to
+ensure that both inbound requests and outbound responses match expectations of the API.
+
+Safety Protocols are written using [Valibot](https://valibot.dev/) a fast, typed schema-validation library.
+
+### Adding a Safety Protocol
+
+```ts
+
+```
+
+### Filtering Sensitive Data
+
+Safety Protocols enable filtering sensitive data from real API responses by utilizing [Transforms](https://valibot.dev/api/transform/).
+
+While we use Valibot under the hood, Transforms defined on safety protocols are only active when processing the response from a real API request. In all other scenarios the transform passes through the original value.
+
+This allows the same safety protocol to be used to validate and sanitize the shape of the real API response as is used to validate the shape of the mock API response.
+
+### Dynamic Safety Protocols
+
+Some endpoints adjust their behavior based on a request body or header. Protocols can be dynamically swapped.
+
 
 <br>
 
