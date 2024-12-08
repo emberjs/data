@@ -227,11 +227,7 @@ function createTestHandler(projectRoot: string): MiddlewareHandler {
           `${cacheKey}.meta.json`,
           JSON.stringify({ url, status, statusText, headers, method, requestBody: body }, null, 2)
         );
-        fs.writeFileSync(
-          `${cacheKey}.body.br`,
-          // @ts-expect-error bun seems to break Buffer types
-          compress(JSON.stringify(response))
-        );
+        fs.writeFileSync(`${cacheKey}.body.br`, compress(JSON.stringify(response)));
         context.status(204);
         return context.body(null);
       } else {
