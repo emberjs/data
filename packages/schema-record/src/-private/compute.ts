@@ -1,6 +1,7 @@
 import type { Future } from '@ember-data/request';
 import type Store from '@ember-data/store';
 import type { StoreRequestInput } from '@ember-data/store';
+import { RelatedCollection as ManyArray } from '@ember-data/store/-private';
 import { defineSignal, getSignal, peekSignal } from '@ember-data/tracking/-private';
 import { DEBUG } from '@warp-drive/build-config/env';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -13,12 +14,13 @@ import type {
   DerivedField,
   FieldSchema,
   GenericField,
+  LegacyHasManyField,
   LocalField,
   ObjectField,
   SchemaArrayField,
   SchemaObjectField,
 } from '@warp-drive/core-types/schema/fields';
-import type { Link, Links } from '@warp-drive/core-types/spec/json-api-raw';
+import type { CollectionResourceRelationship, Link, Links } from '@warp-drive/core-types/spec/json-api-raw';
 import { RecordStore } from '@warp-drive/core-types/symbols';
 
 import { SchemaRecord } from '../record';
@@ -29,7 +31,7 @@ import { ManagedObject } from './managed-object';
 
 export const ManagedArrayMap = getOrSetGlobal(
   'ManagedArrayMap',
-  new Map<SchemaRecord, Map<FieldSchema, ManagedArray>>()
+  new Map<SchemaRecord, Map<FieldSchema, ManagedArray | ManyArray>>()
 );
 export const ManagedObjectMap = getOrSetGlobal(
   'ManagedObjectMap',
@@ -47,7 +49,7 @@ export function computeLocal(record: typeof Proxy<SchemaRecord>, field: LocalFie
   return signal.lastValue;
 }
 
-export function peekManagedArray(record: SchemaRecord, field: FieldSchema): ManagedArray | undefined {
+export function peekManagedArray(record: SchemaRecord, field: FieldSchema): ManagedArray | ManyArray | undefined {
   const managedArrayMapForRecord = ManagedArrayMap.get(record);
   if (managedArrayMapForRecord) {
     return managedArrayMapForRecord.get(field);
@@ -318,4 +320,60 @@ export function computeResource<T extends SchemaRecord>(
   }
 
   return new ResourceRelationship<T>(store, cache, parent, identifier, field, prop);
+}
+
+export function computeHasMany(
+  store: Store,
+  schema: SchemaService,
+  cache: Cache,
+  record: SchemaRecord,
+  identifier: StableRecordIdentifier,
+  field: LegacyHasManyField,
+  path: string[],
+  editable: boolean,
+  legacy: boolean
+) {
+  // the thing we hand out needs to know its owner and path in a private manner
+  // its "address" is the parent identifier (identifier) + field name (field.name)
+  //  in the nested object case field name here is the full dot path from root resource to this value
+  // its "key" is the field on the parent record
+  // its "owner" is the parent record
+
+  const managedArrayMapForRecord = ManagedArrayMap.get(record);
+  let managedArray;
+  if (managedArrayMapForRecord) {
+    managedArray = managedArrayMapForRecord.get(field);
+  }
+  if (managedArray) {
+    return managedArray;
+  } else {
+    const rawValue = cache.getRelationship(identifier, field.name) as CollectionResourceRelationship;
+    if (!rawValue) {
+      return null;
+    }
+    managedArray = new ManyArray<unknown>({
+      store,
+      type: field.type,
+      identifier,
+      cache,
+      identifiers: rawValue.data as StableRecordIdentifier[],
+      key: field.name,
+      meta: rawValue.meta || null,
+      links: rawValue.links || null,
+      isPolymorphic: field.options.polymorphic ?? false,
+      isAsync: field.options.async ?? false,
+      // TODO: Grab the proper value
+      _inverseIsAsync: false,
+      // @ts-expect-error Typescript doesn't have a way for us to thread the generic backwards so it infers unknown instead of T
+      manager: record,
+      isLoaded: true,
+      allowMutation: editable,
+    });
+    if (!managedArrayMapForRecord) {
+      ManagedArrayMap.set(record, new Map([[field, managedArray]]));
+    } else {
+      managedArrayMapForRecord.set(field, managedArray);
+    }
+  }
+  return managedArray;
 }
