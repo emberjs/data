@@ -2,13 +2,13 @@
 import { expectTypeOf } from 'expect-type';
 
 import Store from '@ember-data/store';
+import type { RelatedCollection as ManyArray } from '@ember-data/store/-private';
 import type { LegacyAttributeField, LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
 import { Type } from '@warp-drive/core-types/symbols';
 
 import { attr } from './attr';
 import { belongsTo } from './belongs-to';
 import { hasMany } from './has-many';
-import type { RelatedCollection as ManyArray } from './many-array';
 import { Model } from './model';
 import type { PromiseBelongsTo } from './promise-belongs-to';
 import type { PromiseManyArray } from './promise-many-array';

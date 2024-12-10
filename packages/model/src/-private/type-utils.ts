@@ -1,7 +1,7 @@
+import type { RelatedCollection } from '@ember-data/store/-private';
 import type { TypedRecordInstance } from '@warp-drive/core-types/record';
 import type { Type } from '@warp-drive/core-types/symbols';
 
-import type { RelatedCollection } from './many-array';
 import type { Model } from './model';
 import type { PromiseBelongsTo } from './promise-belongs-to';
 import type { PromiseManyArray } from './promise-many-array';
