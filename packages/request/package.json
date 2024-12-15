@@ -43,7 +43,7 @@
     "@warp-drive/core-types": "workspace:0.0.0-alpha.107"
   },
   "dependencies": {
-    "@ember/test-waiters": "^3.1.0",
+    "@ember/test-waiters": "^3.1.0 || ^4.0.0",
     "@embroider/macros": "^1.16.6",
     "@warp-drive/build-config": "workspace:0.0.0-alpha.58"
   },

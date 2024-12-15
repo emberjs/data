@@ -95,7 +95,7 @@
     "@ember-data/request": "workspace:5.4.0-alpha.121",
     "@ember-data/request-utils": "workspace:5.4.0-alpha.121",
     "@ember-data/store": "workspace:5.4.0-alpha.121",
-    "@ember/test-waiters": "^3.1.0",
+    "@ember/test-waiters": "^3.1.0 || >= 4.0.0",
     "@warp-drive/core-types": "workspace:0.0.0-alpha.107"
   },
   "devDependencies": {

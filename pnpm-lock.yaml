@@ -824,7 +824,7 @@ importers:
   packages/ember:
     dependencies:
       '@ember/test-waiters':
-        specifier: ^3.1.0
+        specifier: ^3.1.0 || ^4.0.0
         version: 3.1.0(@babel/core@7.24.5)
       '@embroider/macros':
         specifier: ^1.16.6
@@ -1397,7 +1397,7 @@ importers:
   packages/request:
     dependencies:
       '@ember/test-waiters':
-        specifier: ^3.1.0
+        specifier: ^3.1.0 || ^4.0.0
         version: 3.1.0(@babel/core@7.24.5)
       '@embroider/macros':
         specifier: ^1.16.6
@@ -2346,7 +2346,7 @@ importers:
         specifier: 4.0.4
         version: 4.0.4(patch_hash=zignhd6n3rugkiuawsmbuxfdka)(@babel/core@7.24.5)(@glint/template@1.5.0)(ember-source@5.12.0)
       '@ember/test-waiters':
-        specifier: ^3.1.0
+        specifier: ^3.1.0 || ^4.0.0
         version: 3.1.0(@babel/core@7.24.5)
       '@embroider/addon-shim':
         specifier: ^1.8.9
@@ -23513,7 +23513,7 @@ packages:
     engines: {node: '>= 18.20.4'}
     peerDependencies:
       '@ember/test-helpers': ^3.3.0 || ^4.0.4
-      '@ember/test-waiters': ^3.1.0
+      '@ember/test-waiters': ^3.1.0 || ^4.0.0
       ember-source: '*'
       qunit: 2.19.4
     peerDependenciesMeta:
@@ -23558,7 +23558,7 @@ packages:
     engines: {node: '>= 18.20.4'}
     peerDependencies:
       '@ember/test-helpers': ^3.3.0 || ^4.0.4
-      '@ember/test-waiters': ^3.1.0
+      '@ember/test-waiters': ^3.1.0 || ^4.0.0
       ember-source: '*'
       qunit: 2.19.4
     peerDependenciesMeta:
@@ -23602,7 +23602,7 @@ packages:
     engines: {node: '>= 18.20.4'}
     peerDependencies:
       '@ember/test-helpers': ^3.3.0 || ^4.0.4
-      '@ember/test-waiters': ^3.1.0
+      '@ember/test-waiters': ^3.1.0 || ^4.0.0
       ember-source: '*'
       qunit: 2.19.4
     peerDependenciesMeta:
@@ -23646,7 +23646,7 @@ packages:
     engines: {node: '>= 18.20.4'}
     peerDependencies:
       '@ember/test-helpers': ^3.3.0 || ^4.0.4
-      '@ember/test-waiters': ^3.1.0
+      '@ember/test-waiters': ^3.1.0 || ^4.0.0
       ember-source: '*'
       qunit: 2.19.4
     peerDependenciesMeta:
@@ -24256,7 +24256,7 @@ packages:
       '@ember-data/request': workspace:5.4.0-alpha.121
       '@ember-data/request-utils': workspace:5.4.0-alpha.121
       '@ember-data/store': workspace:5.4.0-alpha.121
-      '@ember/test-waiters': ^3.1.0
+      '@ember/test-waiters': ^3.1.0 || >= 4.0.0
       '@warp-drive/core-types': workspace:0.0.0-alpha.107
       ember-source: '*'
     peerDependenciesMeta:
@@ -24292,7 +24292,7 @@ packages:
       '@ember-data/request': workspace:5.4.0-alpha.121
       '@ember-data/request-utils': workspace:5.4.0-alpha.121
       '@ember-data/store': workspace:5.4.0-alpha.121
-      '@ember/test-waiters': ^3.1.0
+      '@ember/test-waiters': ^3.1.0 || >= 4.0.0
       '@warp-drive/core-types': workspace:0.0.0-alpha.107
       ember-source: '*'
     peerDependenciesMeta:
@@ -24327,7 +24327,7 @@ packages:
       '@ember-data/request': workspace:5.4.0-alpha.121
       '@ember-data/request-utils': workspace:5.4.0-alpha.121
       '@ember-data/store': workspace:5.4.0-alpha.121
-      '@ember/test-waiters': ^3.1.0
+      '@ember/test-waiters': ^3.1.0 || >= 4.0.0
       '@warp-drive/core-types': workspace:0.0.0-alpha.107
       ember-source: '*'
     peerDependenciesMeta:
