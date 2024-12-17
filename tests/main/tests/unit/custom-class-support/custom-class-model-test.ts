@@ -1,23 +1,11 @@
 import { module, test } from 'qunit';
 
+import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import JSONAPICache from '@ember-data/json-api';
-import {
-  adapterFor,
-  cleanup,
-  LegacyNetworkHandler,
-  normalize,
-  pushPayload,
-  serializeRecord,
-  serializerFor,
-} from '@ember-data/legacy-compat';
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
-import RequestManager from '@ember-data/request';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import Store, { CacheHandler } from '@ember-data/store';
-import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { DEBUG } from '@warp-drive/build-config/env';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
@@ -37,8 +25,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     }
   }
 
-  class TestStore extends Store {
-    requestManager = new RequestManager().use([LegacyNetworkHandler]).useCache(CacheHandler);
+  class CustomStore extends Store {
     createSchemaService() {
       const schema = new TestSchema();
       schema.registerResource({
@@ -54,25 +41,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
       });
       return schema;
     }
-
-    createCache(capabilities: CacheCapabilitiesManager) {
-      return new JSONAPICache(capabilities);
-    }
-
-    adapterFor = adapterFor;
-    serializerFor = serializerFor;
-    pushPayload = pushPayload;
-    normalize = normalize;
-    serializeRecord = serializeRecord;
-
-    destroy() {
-      cleanup.call(this);
-      super.destroy();
-    }
-  }
-
-  class CustomStore extends TestStore {
-    instantiateRecord(identifier: StableRecordIdentifier, createOptions) {
+    instantiateRecord(identifier, createOptions) {
       return new Person(this);
     }
     teardownRecord(record) {}
@@ -99,7 +68,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     assert.expect(7);
     let notificationCount = 0;
     let identifier: StableRecordIdentifier;
-    class CreationStore extends TestStore {
+    class CreationStore extends CustomStore {
       instantiateRecord(id: StableRecordIdentifier, createRecordArgs): object {
         identifier = id;
         this.notifications.subscribe(identifier, (passedId, key) => {
@@ -136,7 +105,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
   test('record creation and teardown', function (assert) {
     assert.expect(5);
     let returnValue: unknown;
-    class CreationStore extends TestStore {
+    class CreationStore extends CustomStore {
       instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs) {
         assert.strictEqual(identifier.type, 'person', 'Identifier type passed in correctly');
         assert.deepEqual(createRecordArgs, { name: 'chris', otherProp: 'unk' }, 'createRecordArg passed in');
@@ -327,7 +296,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
       }
     );
     const subscribedValues: string[] = [];
-    class CreationStore extends TestStore {
+    class CreationStore extends CustomStore {
       instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs) {
         ident = identifier;
         assert.false(this.cache.isDeleted(identifier), 'we are not deleted when we start');

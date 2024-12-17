@@ -321,11 +321,12 @@ export class RelatedCollection<T = unknown> extends LiveArray<T> {
             // dedupe
             const current = new Set(adds);
             const unique = Array.from(current);
+            const uniqueIdentifiers = Array.from(new Set(newValues));
             const newArgs = ([start, deleteCount] as unknown[]).concat(unique);
 
             const result = Reflect.apply(target[prop], receiver, newArgs) as OpaqueRecordInstance[];
 
-            mutateReplaceRelatedRecords(this, extractIdentifiersFromRecords(unique), _SIGNAL);
+            mutateReplaceRelatedRecords(this, uniqueIdentifiers, _SIGNAL);
             return result;
           }
 
@@ -472,7 +473,7 @@ type PromiseProxyRecord = { then(): void; content: OpaqueRecordInstance | null |
 
 function assertRecordPassedToHasMany(record: OpaqueRecordInstance | PromiseProxyRecord) {
   assert(
-    `All elements of a hasMany relationship must be instances of Model, you passed $${typeof record}`,
+    `All elements of a hasMany relationship must be instances of Model, you passed ${typeof record}`,
     (function () {
       try {
         recordIdentifierFor(record);

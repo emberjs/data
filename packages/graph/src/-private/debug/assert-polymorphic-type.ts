@@ -342,7 +342,8 @@ if (DEBUG) {
             `The '${addedIdentifier.type}' type does not implement '${parentDefinition.type}' and thus cannot be assigned to the '${parentDefinition.key}' relationship in '${parentIdentifier.type}'. If this relationship should be polymorphic, mark ${parentDefinition.inverseType}.${parentDefinition.key} as \`polymorphic: true\` and ${addedIdentifier.type}.${parentDefinition.inverseKey} as implementing it via \`as: '${parentDefinition.type}'\`.`
           );
         }
-      } else {
+      } else if ((meta?.options?.as?.length ?? 0) > 0) {
+        asserted = true;
         assert(
           `Expected the field ${parentDefinition.inverseKey} to be a relationship`,
           !meta || isRelationshipField(meta)

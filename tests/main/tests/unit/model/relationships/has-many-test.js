@@ -14,12 +14,6 @@ import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in
 import todo from '@ember-data/unpublished-test-infra/test-support/todo';
 import { DEPRECATE_ARRAY_LIKE, DEPRECATE_MANY_ARRAY_DUPLICATES } from '@warp-drive/build-config/deprecations';
 
-let IS_DEPRECATE_MANY_ARRAY_DUPLICATES = false;
-
-if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
-  IS_DEPRECATE_MANY_ARRAY_DUPLICATES = true;
-}
-
 module('unit/model/relationships - hasMany', function (hooks) {
   setupTest(hooks);
 
@@ -2833,7 +2827,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
     }, /All elements of a hasMany relationship must be instances of Model/);
     assert.expectDeprecation({
       id: 'ember-data:deprecate-promise-proxies',
-      count: IS_DEPRECATE_MANY_ARRAY_DUPLICATES ? 4 : 5,
+      count: /* inline-macro-config */ DEPRECATE_MANY_ARRAY_DUPLICATES ? 5 : 4,
       until: '5.0',
     });
   });
