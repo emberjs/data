@@ -45,7 +45,13 @@
   "author": "",
   "license": "MIT",
   "peerDependencies": {
-    "@ember/string": "^3.1.1"
+    "@ember/string": "^3.1.1",
+    "@ember/test-waiters": "^3.1.0 || ^4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@ember/test-waiters": {
+      "optional": true
+    }
   },
   "dependencies": {
     "@ember-data/adapter": "workspace:5.3.2",

@@ -95,6 +95,7 @@
     "@ember-data/json-api": "workspace:5.3.2",
     "@ember-data/request": "workspace:5.3.2",
     "@ember-data/store": "workspace:5.3.2",
+    "@ember/test-waiters": "^3.1.0 || >= 4.0.0",
     "@warp-drive/core-types": "workspace:0.0.0-beta.3"
   },
   "peerDependenciesMeta": {
