@@ -67,9 +67,9 @@ module('integration/records/relationship-changes - Relationship changes', functi
 
   deprecatedTest(
     'Calling push with relationship recalculates computed alias property if the relationship was empty and is added to',
-    { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 1 },
+    { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 2 },
     function (assert) {
-      assert.expect(1);
+      assert.expect(2);
 
       const store = this.owner.lookup('service:store');
 
@@ -122,7 +122,7 @@ module('integration/records/relationship-changes - Relationship changes', functi
     'Calling push with relationship recalculates computed alias property to firstObject if the relationship was empty and is added to',
     { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 1 },
     function (assert) {
-      assert.expect(2);
+      assert.expect(3);
 
       const store = this.owner.lookup('service:store');
 

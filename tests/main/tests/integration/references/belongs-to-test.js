@@ -494,7 +494,7 @@ module('integration/references/belongs-to', function (hooks) {
         await familyReference.push(anotherPerson);
       },
       DEPRECATE_NON_EXPLICIT_POLYMORPHISM
-        ? "Assertion Failed: The 'person' type does not implement 'family' and thus cannot be assigned to the 'family' relationship in 'person'. Make it a descendant of 'family' or use a mixin of the same name."
+        ? "The 'person' type does not implement 'family' and thus cannot be assigned to the 'family' relationship in 'person'. Make it a descendant of 'family' or use a mixin of the same name."
         : "The 'person' type does not implement 'family' and thus cannot be assigned to the 'family' relationship in 'person'. If this relationship should be polymorphic, mark person.family as `polymorphic: true` and person.persons as implementing it via `as: 'family'`."
     );
   });

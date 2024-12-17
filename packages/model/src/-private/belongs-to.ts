@@ -2,9 +2,11 @@ import { deprecate, warn } from '@ember/debug';
 import { computed } from '@ember/object';
 
 import {
+  DEPRECATE_NON_STRICT_TYPES,
   DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC,
   DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE,
   DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE,
+  DISABLE_6X_DEPRECATIONS,
 } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
@@ -13,7 +15,8 @@ import { RecordStore } from '@warp-drive/core-types/symbols';
 
 import { lookupLegacySupport } from './legacy-relationships-support';
 import type { MinimalLegacyRecord } from './model-methods';
-import { isElementDescriptor, normalizeModelName } from './util';
+import { isElementDescriptor } from './util';
+import { dasherize, singularize } from '@ember-data/request-utils/string';
 /**
   @module @ember-data/model
 */
@@ -37,6 +40,36 @@ export type NoNull<T> = Exclude<T, null>;
 // };
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export type RelationshipDecorator<T> = <This>(target: This, key: string, desc?: PropertyDescriptor) => void; // BelongsToDecoratorObject<getT>;
+
+function normalizeType(type: string) {
+  if (DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE) {
+    if (!type) {
+      return;
+    }
+  }
+
+  if (DEPRECATE_NON_STRICT_TYPES) {
+    const result = singularize(dasherize(type));
+
+    deprecate(
+      `The resource type '${type}' is not normalized. Update your application code to use '${result}' instead of '${type}'.`,
+      /* inline-macro-config */ DISABLE_6X_DEPRECATIONS ? true : result === type,
+      {
+        id: 'ember-data:deprecate-non-strict-types',
+        until: '6.0',
+        for: 'ember-data',
+        since: {
+          available: '4.13',
+          enabled: '5.3',
+        },
+      }
+    );
+
+    return result;
+  }
+
+  return type;
+}
 
 function _belongsTo<T, Async extends boolean>(
   type: string,
@@ -116,7 +149,7 @@ function _belongsTo<T, Async extends boolean>(
   }
 
   const meta = {
-    type: normalizeModelName(type),
+    type: normalizeType(type),
     options: opts,
     kind: 'belongsTo',
     name: '<Unknown BelongsTo>',
@@ -354,11 +387,16 @@ export function belongsTo<T>(
   type?: TypeFromInstance<NoNull<T>>,
   options?: RelationshipOptions<T, boolean>
 ): RelationshipDecorator<T> {
-  if (DEBUG) {
+  if (!DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE) {
     assert(
-      `belongsTo must be invoked with a type and options. Did you mean \`@belongsTo(${type}, { async: false, inverse: null })\`?`,
+      `belongsTo must be invoked with a type and options. Did you mean \`@belongsTo(<type>, { async: false, inverse: null })\`?`,
       !isElementDescriptor(arguments as unknown as unknown[])
     );
+    return _belongsTo(type!, options!);
+  } else {
+    return isElementDescriptor(arguments as unknown as any[])
+      ? // @ts-expect-error the inbound signature is strict to convince the user to use the non-deprecated signature
+        (_belongsTo()(...arguments) as RelationshipDecorator<T>)
+      : _belongsTo(type!, options!);
   }
-  return _belongsTo(type!, options!);
 }

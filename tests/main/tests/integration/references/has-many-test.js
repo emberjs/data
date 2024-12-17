@@ -334,10 +334,10 @@ module('integration/references/has-many', function (hooks) {
 
     await assert.expectAssertion(
       async () => {
-        await petsReference.push([{ data: { type: 'person', id: '1' } }]);
+        await petsReference.push([{ type: 'person', id: '1' }]);
       },
       DEPRECATE_NON_EXPLICIT_POLYMORPHISM
-        ? "Assertion Failed: The 'person' type does not implement 'animal' and thus cannot be assigned to the 'pets' relationship in 'person'. Make it a descendant of 'animal' or use a mixin of the same name."
+        ? "The 'person' type does not implement 'animal' and thus cannot be assigned to the 'pets' relationship in 'person'. Make it a descendant of 'animal' or use a mixin of the same name."
         : "The 'person' type does not implement 'animal' and thus cannot be assigned to the 'pets' relationship in 'person'. If this relationship should be polymorphic, mark person.pets as `polymorphic: true` and person.owner as implementing it via `as: 'animal'`."
     );
   });
@@ -411,8 +411,8 @@ module('integration/references/has-many', function (hooks) {
 
       const payload = {
         data: [
-          { data: { type: 'person', id: '1', attributes: { name: 'Vito' } } },
-          { data: { type: 'person', id: '2', attributes: { name: 'Michael' } } },
+          { type: 'person', id: '1', attributes: { name: 'Vito' } },
+          { type: 'person', id: '2', attributes: { name: 'Michael' } },
         ],
       };
 

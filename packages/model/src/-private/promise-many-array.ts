@@ -259,7 +259,7 @@ if (DEPRECATE_COMPUTED_CHAINS) {
       return this.content?.length && this.content;
     },
   };
-  compat(desc);
+  compat(PromiseManyArray.prototype, '[]', desc);
 
   // ember-source < 3.23 (e.g. 3.20 lts)
   // requires that the tag `'[]'` be notified

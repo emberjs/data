@@ -701,7 +701,7 @@ export const DEPRECATE_NON_EXPLICIT_POLYMORPHISM = '4.7';
  * @until 6.0
  * @public
  */
-export const DEPRECATE_MANY_ARRAY_DUPLICATES = '5.3';
+export const DEPRECATE_MANY_ARRAY_DUPLICATES = '4.12'; // '5.3';
 
 /**
  * **id: ember-data:deprecate-non-strict-types**

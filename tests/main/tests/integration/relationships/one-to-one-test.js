@@ -9,6 +9,7 @@ import Model, { attr, belongsTo } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+import { DEPRECATE_PROMISE_PROXIES } from '@warp-drive/build-config/deprecations';
 
 module('integration/relationships/one_to_one_test - OneToOne relationships', function (hooks) {
   setupTest(hooks);
@@ -470,7 +471,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       });
 
       newFriend.bestFriend = stanleysFriend.bestFriend;
-      const fetchedUser = await stanleysFriend.bestFriend;
+      const fetchedUser = await stanley.bestFriend;
       assert.strictEqual(
         fetchedUser,
         newFriend,
@@ -561,9 +562,14 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', fun
       },
     });
 
-    assert.expectAssertion(function () {
-      stanley.bestFriend = Promise.resolve(igor);
-    }, '[object Promise] is not a record instantiated by @ember-data/store');
+    assert.expectAssertion(
+      function () {
+        stanley.bestFriend = Promise.resolve(igor);
+      },
+      DEPRECATE_PROMISE_PROXIES
+        ? /You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call./
+        : '[object Promise] is not a record instantiated by @ember-data/store'
+    );
   });
 
   deprecatedTest(

@@ -89,7 +89,9 @@ module('PromiseManyArray', (hooks) => {
       owner.register(
         'adapter:application',
         class extends EmberObject {
-          findRecord() {
+          findRecord(_store, _schema, id) {
+            assert.step(`findRecord ${id}`);
+            assert.strictEqual(id, String(_id + 1), 'findRecord id is correct');
             const name = names[_id++];
             const data = {
               type: 'person',
@@ -130,6 +132,15 @@ module('PromiseManyArray', (hooks) => {
       assert.strictEqual(johnRecords.length, 0, 'john ids is 0 initially');
 
       await settled();
+
+      assert.verifySteps([
+        'findRecord 1',
+        'findRecord 2',
+        'findRecord 3',
+        'findRecord 4',
+        'findRecord 5',
+        'findRecord 6',
+      ]);
 
       memberIds = group.memberIds;
       johnRecords = group.johns;

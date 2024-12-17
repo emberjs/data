@@ -337,11 +337,16 @@ export function hasMany<T>(
   type?: TypeFromInstance<NoNull<T>>,
   options?: RelationshipOptions<T, boolean>
 ): RelationshipDecorator<T> {
-  if (DEBUG) {
+  if (!DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE) {
     assert(
-      `hasMany must be invoked with a type and options. Did you mean \`@hasMany(${type}, { async: false, inverse: null })\`?`,
+      `hasMany must be invoked with a type and options. Did you mean \`@hasMany(<type>, { async: false, inverse: null })\`?`,
       !isElementDescriptor(arguments as unknown as unknown[])
     );
+    return _hasMany(type!, options!);
+  } else {
+    return isElementDescriptor(arguments as unknown as any[])
+      ? // @ts-expect-error the inbound signature is strict to convince the user to use the non-deprecated signature
+        (_hasMany()(...arguments) as RelationshipDecorator<T>)
+      : _hasMany(type!, options!);
   }
-  return _hasMany(type!, options!);
 }

@@ -228,7 +228,7 @@ module('integration/inverse-test - inverseFor', function (hooks) {
         const user = store.modelFor('user');
         assert.expectAssertion(() => {
           user.inverseFor('job', store);
-        }, /Assertion Failed: You defined the 'job' relationship on model:user, but you defined the inverse relationships of type model:job multiple times/i);
+        }, /You defined the 'job' relationship on model:user, but you defined the inverse relationships of type model:job multiple times/i);
       }
     );
   }

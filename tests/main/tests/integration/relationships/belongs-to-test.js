@@ -587,7 +587,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
           post.user = comment;
         },
         DEPRECATE_NON_EXPLICIT_POLYMORPHISM
-          ? "Assertion Failed: The 'comment' type does not implement 'user' and thus cannot be assigned to the 'user' relationship in 'post'. Make it a descendant of 'user' or use a mixin of the same name."
+          ? "The 'comment' type does not implement 'user' and thus cannot be assigned to the 'user' relationship in 'post'. Make it a descendant of 'user' or use a mixin of the same name."
           : "The 'comment' type does not implement 'user' and thus cannot be assigned to the 'user' relationship in 'post'. If this relationship should be polymorphic, mark message.user as `polymorphic: true` and comment.messages as implementing it via `as: 'user'`."
       );
     }
