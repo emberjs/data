@@ -95,7 +95,7 @@
     "@ember-data/request": "workspace:*",
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/store": "workspace:*",
-    "@ember/test-waiters": "^3.1.0",
+    "@ember/test-waiters": "^3.1.0 || >= 4.0.0",
     "@warp-drive/core-types": "workspace:*"
   },
   "devDependencies": {
