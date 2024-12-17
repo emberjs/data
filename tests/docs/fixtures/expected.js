@@ -627,6 +627,8 @@ module.exports = {
     '(public) @warp-drive/build-config/deprecations CurrentDeprecations#DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC',
     '(public) @warp-drive/build-config/deprecations CurrentDeprecations#DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE',
     '(public) @warp-drive/build-config/deprecations CurrentDeprecations#DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE',
+    '(public) @warp-drive/build-config/deprecations CurrentDeprecations#DEPRECATE_NON_STRICT_ID',
+    '(public) @warp-drive/build-config/deprecations CurrentDeprecations#DEPRECATE_NON_STRICT_TYPES',
     '(public) @warp-drive/build-config/deprecations CurrentDeprecations#DEPRECATE_RSVP_PROMISE',
     '(public) @warp-drive/build-config/deprecations CurrentDeprecations#DEPRECATE_SAVE_PROMISE_ACCESS',
     '(public) @warp-drive/build-config/deprecations CurrentDeprecations#DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS',
