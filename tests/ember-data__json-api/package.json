@@ -95,7 +95,7 @@
     "@warp-drive/internal-config": "workspace:*",
     "@warp-drive/build-config": "workspace:*",
     "ember-auto-import": "^2.8.1",
-    "ember-cli": "~5.9.0",
+    "ember-cli": "~5.12.0",
     "ember-cli-babel": "^8.2.0",
     "ember-cli-dependency-checker": "^3.3.2",
     "ember-cli-htmlbars": "^6.3.0",
