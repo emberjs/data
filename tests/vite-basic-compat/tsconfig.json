@@ -20,8 +20,10 @@
     "incremental": true,
     "noEmit": true,
     "declaration": false,
-    "types": ["ember-source/types"],
+    "types": ["ember-source/types", "@embroider/core/virtual"],
     "paths": {
+      "vite-basic-compat/*": ["./app/*"],
+      "vite-basic-compat/tests/*": ["./tess/*"],
       "@ember-data/unpublished-test-infra": ["../../packages/unpublished-test-infra/unstable-preview-types"],
       "@ember-data/unpublished-test-infra/*": ["../../packages/unpublished-test-infra/unstable-preview-types/*"],
       "ember-data": ["../../packages/-ember-data/unstable-preview-types"],
@@ -51,7 +53,8 @@
       "@warp-drive/core-types": ["../../packages/core-types/unstable-preview-types"],
       "@warp-drive/core-types/*": ["../../packages/core-types/unstable-preview-types/*"],
       "@warp-drive/build-config": ["../../packages/build-config/unstable-preview-types"],
-      "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"]
+      "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"],
+      "*": ["./types/*"]
     }
   },
   "references": [
