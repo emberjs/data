@@ -91,12 +91,12 @@
     "@ember/string": "^4.0.0",
     "@ember/test-helpers": "^4.0.4",
     "@ember/test-waiters": "^3.1.0",
-    "@embroider/compat": "3.6.2-unstable.c51ca2b",
-    "@embroider/config-meta-loader": "0.0.1-unstable.c51ca2b",
-    "@embroider/core": "3.4.16-unstable.c51ca2b",
-    "@embroider/test-setup": "4.0.1-unstable.c51ca2b",
-    "@embroider/vite": "0.2.1-unstable.c51ca2b",
-    "@glimmer/component": "^2.0.0",
+    "@embroider/compat": "3.7.1-unstable.4070ba7",
+    "@embroider/config-meta-loader": "0.0.1-unstable.4070ba7",
+    "@embroider/core": "3.4.20-unstable.4070ba7",
+    "@embroider/test-setup": "4.0.1-unstable.4070ba7",
+    "@embroider/vite": "0.2.2-unstable.4070ba7",
+    "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "@rollup/plugin-babel": "^6.0.4",
     "@tsconfig/ember": "^3.0.8",
@@ -120,7 +120,7 @@
     "ember-modifier": "^4.2.0",
     "ember-page-title": "^8.2.3",
     "ember-qunit": "8.0.2",
-    "ember-resolver": "^13.0.2",
+    "ember-resolver": "^13.1.0",
     "ember-route-template": "^1.0.3",
     "ember-source": "~5.12.0",
     "ember-template-lint": "^6.0.0",
@@ -149,6 +149,9 @@
   },
   "ember": {
     "edition": "octane"
+  },
+  "volta": {
+    "extends": "../../package.json"
   },
   "ember-addon": {
     "type": "app",
