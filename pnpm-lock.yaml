@@ -3647,8 +3647,8 @@ importers:
         specifier: ^8.2.3
         version: 8.2.3(@glimmer/component@1.1.2)(ember-source@5.12.0)
       ember-qunit:
-        specifier: 8.0.2
-        version: 8.0.2(@babel/core@7.26.0)(@ember/test-helpers@4.0.4)(@glint/template@1.5.0)(ember-source@5.12.0)(qunit@2.19.4)
+        specifier: 9.0.1
+        version: 9.0.1(@babel/core@7.26.0)(@ember/test-helpers@4.0.4)(ember-source@5.12.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^13.1.0
         version: 13.1.0(@babel/core@7.26.0)(ember-source@5.12.0)
@@ -5811,7 +5811,6 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
-    dev: false
 
   /@embroider/macros@1.16.10-unstable.4070ba7(@babel/core@7.26.0):
     resolution: {integrity: sha512-Gww0noS0CdMyV+bBBcwimIQYL6+S09RzAMaofgY8o4K3PU5YjQB/Bpr4ueuIA18pTgGcWFiR9qY2jVZSoP7SFA==}
@@ -11509,6 +11508,25 @@ packages:
       - supports-color
     dev: true
 
+  /ember-qunit@9.0.1(@babel/core@7.26.0)(@ember/test-helpers@4.0.4)(ember-source@5.12.0)(qunit@2.19.4):
+    resolution: {integrity: sha512-9DgjczFG7ZjINmwWFYDtUF8McbYqQir82hyFp/ZbMOLkpFvHCKPw1mtKcpcdLnLAAYJpwR2/MCyPNiEMkR11aA==}
+    peerDependencies:
+      '@ember/test-helpers': '>=3.0.3'
+      ember-source: '*'
+      qunit: 2.19.4
+    dependencies:
+      '@ember/test-helpers': 4.0.4(patch_hash=zignhd6n3rugkiuawsmbuxfdka)(@babel/core@7.26.0)(@glint/template@1.5.0)(ember-source@5.12.0)
+      '@embroider/addon-shim': 1.9.0
+      '@embroider/macros': 1.16.10(@babel/core@7.26.0)
+      ember-source: 5.12.0(@glimmer/component@1.1.2)(@glint/template@1.5.0)
+      qunit: 2.19.4(patch_hash=2jwk2nz4gqke2k5hv6ptj42llu)
+      qunit-theme-ember: 1.0.0
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+    dev: true
+
   /ember-resolver@11.0.1(@babel/core@7.26.0)(ember-source@5.12.0):
     resolution: {integrity: sha512-ucBk3oM+PR+AfYoSUXeQh8cDQS1sSiEKp4Pcgbew5cFMSqPxJfqd1zyZsfQKNTuyubeGmWxBOyMVSTvX2LeCyg==}
     engines: {node: 14.* || 16.* || >= 18}
@@ -16368,6 +16386,10 @@ packages:
     resolution: {integrity: sha512-sGPhNbZ/3gPbH3rp7PxnzqXuh6cyN/AG/vO/X9k0IYlsoBLi83MU6PdtSw/KiWLV8X/32jxD6fbeP9vjNAY4Dw==}
     dependencies:
       dom-element-descriptors: 0.5.1
+    dev: true
+
+  /qunit-theme-ember@1.0.0:
+    resolution: {integrity: sha512-vdMVVo6ecdCkWttMTKeyq1ZTLGHcA6zdze2zhguNuc3ritlJMhOXY5RDseqazOwqZVfCg3rtlmL3fMUyIzUyFQ==}
     dev: true
 
   /qunit@2.19.4(patch_hash=2jwk2nz4gqke2k5hv6ptj42llu):
