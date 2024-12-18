@@ -492,7 +492,7 @@ function extractIdentifiersFromRecords(records: OpaqueRecordInstance[]): StableR
 function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord | OpaqueRecordInstance) {
   if (DEPRECATE_PROMISE_PROXIES) {
     if (isPromiseRecord(recordOrPromiseRecord)) {
-      let content = recordOrPromiseRecord.content;
+      const content = recordOrPromiseRecord.content;
       assert(
         'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo relationship.',
         content !== undefined && content !== null

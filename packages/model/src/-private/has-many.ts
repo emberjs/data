@@ -344,6 +344,7 @@ export function hasMany<T>(
     );
     return _hasMany(type!, options!);
   } else {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return isElementDescriptor(arguments as unknown as any[])
       ? // @ts-expect-error the inbound signature is strict to convince the user to use the non-deprecated signature
         (_hasMany()(...arguments) as RelationshipDecorator<T>)

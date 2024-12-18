@@ -1,6 +1,7 @@
 import { deprecate, warn } from '@ember/debug';
 import { computed } from '@ember/object';
 
+import { dasherize, singularize } from '@ember-data/request-utils/string';
 import {
   DEPRECATE_NON_STRICT_TYPES,
   DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC,
@@ -16,7 +17,6 @@ import { RecordStore } from '@warp-drive/core-types/symbols';
 import { lookupLegacySupport } from './legacy-relationships-support';
 import type { MinimalLegacyRecord } from './model-methods';
 import { isElementDescriptor } from './util';
-import { dasherize, singularize } from '@ember-data/request-utils/string';
 /**
   @module @ember-data/model
 */
@@ -394,6 +394,7 @@ export function belongsTo<T>(
     );
     return _belongsTo(type!, options!);
   } else {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return isElementDescriptor(arguments as unknown as any[])
       ? // @ts-expect-error the inbound signature is strict to convince the user to use the non-deprecated signature
         (_belongsTo()(...arguments) as RelationshipDecorator<T>)
