@@ -14,8 +14,8 @@ import { TestSchema } from '../../utils/schema';
 
 module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
   class Person {
-    declare store: Store;
-    constructor(store: Store) {
+    declare store: CustomStore;
+    constructor(store: CustomStore) {
       this.store = store;
     }
     // these types aren't correct but we don't have a registry to help
@@ -41,7 +41,8 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
       });
       return schema;
     }
-    instantiateRecord(identifier, createOptions) {
+    // @ts-expect-error we are overriding this hook
+    instantiateRecord(identifier, createOptions): unknown {
       return new Person(this);
     }
     teardownRecord(record) {}
