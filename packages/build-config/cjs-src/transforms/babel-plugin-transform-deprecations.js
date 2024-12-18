@@ -32,10 +32,13 @@ export default function (babel) {
                 negateStatement = true;
                 node = p.parentPath;
               }
-
+              const comments =
+                node.node.leadingComments ??
+                (node.parent.type === 'ConditionalExpression' && node.parent.leadingComments) ??
+                [];
               let shouldInlineConfigValue = false;
-              if (node.node.leadingComments?.length) {
-                const lastComment = node.node.leadingComments.at(-1);
+              if (comments?.length) {
+                const lastComment = comments.at(-1);
                 if (lastComment.value.trim() === 'inline-macro-config') {
                   shouldInlineConfigValue = true;
                 }
