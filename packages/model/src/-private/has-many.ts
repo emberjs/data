@@ -28,7 +28,7 @@ function normalizeType(type: string) {
         until: '6.0',
         for: 'ember-data',
         since: {
-          available: '5.3',
+          available: '4.13',
           enabled: '5.3',
         },
       }

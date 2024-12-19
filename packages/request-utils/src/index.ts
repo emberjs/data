@@ -758,7 +758,7 @@ export class CachePolicy {
         id: 'ember-data:request-utils:lifetimes-service-store-arg',
         since: {
           enabled: '5.4',
-          available: '5.4',
+          available: '4.13',
         },
         for: '@ember-data/request-utils',
         until: '6.0',
@@ -939,7 +939,7 @@ export class LifetimesService extends CachePolicy {
         id: 'ember-data:deprecate-lifetimes-service-import',
         since: {
           enabled: '5.4',
-          available: '5.4',
+          available: '4.13',
         },
         for: 'ember-data',
         until: '6.0',

@@ -183,7 +183,7 @@ export function diffCollection(
             id: 'ember-data:deprecate-non-unique-relationship-entries',
             for: 'ember-data',
             until: '6.0',
-            since: { available: '5.3', enabled: '5.3' },
+            since: { available: '4.13', enabled: '5.3' },
           }
         );
         // eslint-disable-next-line no-console

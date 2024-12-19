@@ -221,7 +221,7 @@ const app = new EmberApp(defaults, {
       until: '6.0',
       for: 'ember-data',
       since: {
-        available: '5.4',
+        available: '4.13',
         enabled: '5.4',
       },
     }
@@ -2397,7 +2397,7 @@ if (ENABLE_LEGACY_SCHEMA_SERVICE) {
       until: '6.0',
       for: 'ember-data',
       since: {
-        available: '5.4',
+        available: '4.13',
         enabled: '5.4',
       },
     });
@@ -2409,7 +2409,7 @@ if (ENABLE_LEGACY_SCHEMA_SERVICE) {
       until: '6.0',
       for: 'ember-data',
       since: {
-        available: '5.4',
+        available: '4.13',
         enabled: '5.4',
       },
     });
@@ -2421,7 +2421,7 @@ if (ENABLE_LEGACY_SCHEMA_SERVICE) {
       until: '6.0',
       for: 'ember-data',
       since: {
-        available: '5.4',
+        available: '4.13',
         enabled: '5.4',
       },
     });

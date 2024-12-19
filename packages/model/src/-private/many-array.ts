@@ -518,7 +518,7 @@ function assertNoDuplicates<T>(
           until: '6.0',
           since: {
             enabled: '5.3',
-            available: '5.3',
+            available: '4.13',
           },
         }
       );

@@ -291,7 +291,7 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
           {
             id: 'ember-data:deprecate-relationship-remote-update-clearing-local-state',
             for: 'ember-data',
-            since: { enabled: '5.3', available: '5.3' },
+            since: { enabled: '5.3', available: '4.13' },
             until: '6.0',
             url: 'https://deprecations.emberjs.com/v5.x#ember-data-deprecate-relationship-remote-update-clearing-local-state',
           }
