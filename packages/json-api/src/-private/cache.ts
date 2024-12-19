@@ -142,11 +142,11 @@ export default class JSONAPICache implements Cache {
   declare __documents: Map<string, StructuredDocument<ResourceDocument>>;
   declare __graph: Graph;
 
-  constructor(storeWrapper: CacheCapabilitiesManager) {
+  constructor(capabilities: CacheCapabilitiesManager) {
     this.version = '2';
-    this._capabilities = storeWrapper;
+    this._capabilities = capabilities;
     this.__cache = new Map();
-    this.__graph = graphFor(storeWrapper);
+    this.__graph = graphFor(capabilities);
     this.__destroyedCache = new Map();
     this.__documents = new Map();
   }
@@ -1095,6 +1095,17 @@ export default class JSONAPICache implements Cache {
     if (isSimplePath) {
       const attribute = attr as string;
       const cached = this.__peek(identifier, true);
+      assert(
+        `Cannot retrieve attributes for identifier ${String(identifier)} as it is not present in the cache`,
+        cached
+      );
+
+      // in Prod we try to recover when accessing something that
+      // doesn't exist
+      if (!cached) {
+        return undefined;
+      }
+
       if (cached.localAttrs && attribute in cached.localAttrs) {
         return cached.localAttrs[attribute];
       } else if (cached.inflightAttrs && attribute in cached.inflightAttrs) {
@@ -1270,8 +1281,20 @@ export default class JSONAPICache implements Cache {
    * @return {ChangedAttributesHash} { <field>: [<old>, <new>] }
    */
   changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash {
+    const cached = this.__peek(identifier, false);
+    assert(
+      `Cannot retrieve changed attributes for identifier ${String(identifier)} as it is not present in the cache`,
+      cached
+    );
+
+    // in Prod we try to recover when accessing something that
+    // doesn't exist
+    if (!cached) {
+      return Object.create(null) as ChangedAttributesHash;
+    }
+
     // TODO freeze in dev
-    return this.__peek(identifier, false).changes || (Object.create(null) as ChangedAttributesHash);
+    return cached.changes || (Object.create(null) as ChangedAttributesHash);
   }
 
   /**
@@ -1280,10 +1303,20 @@ export default class JSONAPICache implements Cache {
    * @method hasChangedAttrs
    * @public
    * @param identifier
-   * @return {boolean}
+   * @returns {boolean}
    */
   hasChangedAttrs(identifier: StableRecordIdentifier): boolean {
     const cached = this.__peek(identifier, true);
+    assert(
+      `Cannot retrieve changed attributes for identifier ${String(identifier)} as it is not present in the cache`,
+      cached
+    );
+
+    // in Prod we try to recover when accessing something that
+    // doesn't exist
+    if (!cached) {
+      return false;
+    }
 
     return (
       (cached.inflightAttrs !== null && Object.keys(cached.inflightAttrs).length > 0) ||

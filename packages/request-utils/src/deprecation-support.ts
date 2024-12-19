@@ -92,7 +92,7 @@ if (DEPRECATE_EMBER_INFLECTOR) {
           for: 'warp-drive',
           since: {
             enabled: '5.3.4',
-            available: '5.3.4',
+            available: '4.13',
           },
           url: 'https://deprecations.emberjs.com/id/warp-drive.ember-inflector',
         }
@@ -116,7 +116,7 @@ if (DEPRECATE_EMBER_INFLECTOR) {
           for: 'warp-drive',
           since: {
             enabled: '5.3.4',
-            available: '5.3.4',
+            available: '4.13',
           },
           url: 'https://deprecations.emberjs.com/id/warp-drive.ember-inflector',
         }
@@ -148,7 +148,7 @@ if (DEPRECATE_EMBER_INFLECTOR) {
           for: 'warp-drive',
           since: {
             enabled: '5.3.4',
-            available: '5.3.4',
+            available: '4.13',
           },
           url: 'https://deprecations.emberjs.com/id/warp-drive.ember-inflector',
         }
@@ -172,7 +172,7 @@ if (DEPRECATE_EMBER_INFLECTOR) {
           for: 'warp-drive',
           since: {
             enabled: '5.3.4',
-            available: '5.3.4',
+            available: '4.13',
           },
           url: 'https://deprecations.emberjs.com/id/warp-drive.ember-inflector',
         }
@@ -191,7 +191,7 @@ if (DEPRECATE_EMBER_INFLECTOR) {
           for: 'warp-drive',
           since: {
             enabled: '5.3.4',
-            available: '5.3.4',
+            available: '4.13',
           },
           url: 'https://deprecations.emberjs.com/id/warp-drive.ember-inflector',
         }
@@ -212,7 +212,7 @@ if (DEPRECATE_EMBER_INFLECTOR) {
           for: 'warp-drive',
           since: {
             enabled: '5.3.4',
-            available: '5.3.4',
+            available: '4.13',
           },
           url: 'https://deprecations.emberjs.com/id/warp-drive.ember-inflector',
         }
@@ -233,7 +233,7 @@ if (DEPRECATE_EMBER_INFLECTOR) {
           for: 'warp-drive',
           since: {
             enabled: '5.3.4',
-            available: '5.3.4',
+            available: '4.13',
           },
           url: 'https://deprecations.emberjs.com/id/warp-drive.ember-inflector',
         }
@@ -254,7 +254,7 @@ if (DEPRECATE_EMBER_INFLECTOR) {
           for: 'warp-drive',
           since: {
             enabled: '5.3.4',
-            available: '5.3.4',
+            available: '4.13',
           },
           url: 'https://deprecations.emberjs.com/id/warp-drive.ember-inflector',
         }
