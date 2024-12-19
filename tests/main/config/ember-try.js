@@ -11,7 +11,6 @@ module.exports = function () {
           name: 'ember-lts-4.4',
           npm: {
             devDependencies: {
-              '@ember/test-helpers': '3.3.0',
               'ember-source': '~4.4.0',
             },
           },
@@ -36,9 +35,8 @@ module.exports = function () {
           name: 'ember-lts-3.28',
           npm: {
             devDependencies: {
-              '@ember/test-helpers': '3.3.0',
+              'ember-cli': '~4.12.3',
               'ember-source': '~3.28.0',
-              'ember-cli': '~4.12.2',
             },
           },
         },
@@ -47,7 +45,6 @@ module.exports = function () {
           npm: {
             devDependencies: {
               'ember-source': urls[0],
-              '@glimmer/component': '^1.1.2',
             },
           },
         },

@@ -25,20 +25,6 @@ export function isElementDescriptor(args: unknown[]): args is [object, string, D
   );
 }
 
-export type DataDecorator = (
-  target: object,
-  key: string,
-  desc?: DecoratorPropertyDescriptor
-) => DecoratorPropertyDescriptor;
-export type DataDecoratorFactory = (...args: unknown[]) => DataDecorator;
-
-export function computedMacroWithOptionalParams(fn: DataDecorator | DataDecoratorFactory) {
-  return (...maybeDesc: unknown[]) =>
-    isElementDescriptor(maybeDesc)
-      ? (fn as DataDecoratorFactory)()(...maybeDesc)
-      : fn(...(maybeDesc as [object, string, DecoratorPropertyDescriptor?]));
-}
-
 export function normalizeModelName(type: string): string {
   if (DEPRECATE_NON_STRICT_TYPES) {
     const result = dasherize(type);

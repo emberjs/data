@@ -278,7 +278,7 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
       '@types/qunit':
-        specifier: ^2.19.10
+        specifier: 2.19.10
         version: 2.19.10
       '@warp-drive/internal-config':
         specifier: workspace:*
@@ -1921,7 +1921,7 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.24.5)
       '@types/qunit':
-        specifier: ^2.19.10
+        specifier: 2.19.10
         version: 2.19.10
       '@types/semver':
         specifier: ^7.5.8
@@ -2822,6 +2822,9 @@ importers:
       '@embroider/addon-shim':
         specifier: ^1.8.9
         version: 1.8.9
+      '@embroider/macros':
+        specifier: ^1.16.6
+        version: 1.16.9(@babel/core@7.24.5)(@glint/template@1.5.0)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.24.5)
@@ -3133,7 +3136,7 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0(@babel/core@7.24.5)
       ember-qunit:
-        specifier: ^8.0.2
+        specifier: 8.0.2
         version: 8.0.2(@babel/core@7.24.5)(@ember/test-helpers@4.0.4)(@glint/template@1.5.0)(ember-source@5.12.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
@@ -3301,7 +3304,7 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0(@babel/core@7.24.5)
       ember-qunit:
-        specifier: ^8.0.2
+        specifier: 8.0.2
         version: 8.0.2(@babel/core@7.24.5)(@ember/test-helpers@4.0.4)(@glint/template@1.5.0)(ember-source@5.12.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
@@ -3659,7 +3662,7 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0(@babel/core@7.24.5)
       ember-qunit:
-        specifier: ^8.0.2
+        specifier: 8.0.2
         version: 8.0.2(@babel/core@7.24.5)(@ember/test-helpers@4.0.4)(@glint/template@1.5.0)(ember-source@5.12.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
@@ -3862,7 +3865,7 @@ importers:
         specifier: 1.5.0
         version: 1.5.0
       '@types/qunit':
-        specifier: ^2.19.10
+        specifier: 2.19.10
         version: 2.19.10
       '@warp-drive/build-config':
         specifier: workspace:*
@@ -3946,7 +3949,7 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0(@babel/core@7.24.5)
       ember-qunit:
-        specifier: ^8.0.2
+        specifier: 8.0.2
         version: 8.0.2(@babel/core@7.24.5)(@ember/test-helpers@4.0.4)(@glint/template@1.5.0)(ember-source@5.12.0)(qunit@2.19.4)
       ember-resolver:
         specifier: ^11.0.1
@@ -4805,7 +4808,7 @@ importers:
         specifier: 1.5.0
         version: 1.5.0
       '@types/qunit':
-        specifier: ^2.19.10
+        specifier: 2.19.10
         version: 2.19.10
       '@warp-drive/build-config':
         specifier: workspace:*
@@ -15021,7 +15024,7 @@ packages:
       qunit: 2.19.4
     dependencies:
       '@ember/test-helpers': 4.0.4(patch_hash=zignhd6n3rugkiuawsmbuxfdka)(@babel/core@7.24.5)(@glint/template@1.5.0)(ember-source@5.12.0)
-      '@embroider/addon-shim': 1.8.9
+      '@embroider/addon-shim': 1.9.0
       '@embroider/macros': 1.16.9(@babel/core@7.24.5)(@glint/template@1.5.0)
       ember-cli-test-loader: 3.1.0(@babel/core@7.24.5)
       ember-source: 5.12.0(@glimmer/component@1.1.2)(@glint/template@1.5.0)

@@ -393,7 +393,7 @@ export class PersistedCache implements Cache {
    * @method changedAttrs
    * @internal
    * @param identifier
-   * @returns
+   * @return
    */
   changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash {
     return this._cache.changedAttrs(identifier);
@@ -524,7 +524,7 @@ export class PersistedCache implements Cache {
    * @method getErrors
    * @internal
    * @param identifier
-   * @returns
+   * @return
    */
   getErrors(identifier: StableRecordIdentifier): ApiError[] {
     return this._cache.getErrors(identifier);

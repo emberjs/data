@@ -468,7 +468,7 @@ type PromiseProxyRecord = { then(): void; content: OpaqueRecordInstance | null |
 
 function assertRecordPassedToHasMany(record: OpaqueRecordInstance | PromiseProxyRecord) {
   assert(
-    `All elements of a hasMany relationship must be instances of Model, you passed $${typeof record}`,
+    `All elements of a hasMany relationship must be instances of Model, you passed ${typeof record}`,
     (function () {
       try {
         recordIdentifierFor(record);
