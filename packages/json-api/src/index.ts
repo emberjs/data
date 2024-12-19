@@ -23,7 +23,8 @@ pnpm add @ember-data/json-api
 
 ## 🚀 Setup
 
-> **Note** When using [ember-data](https://github.com/emberjs/data/blob/main/packages/-ember-data) the below
+> **Note**
+> When using [ember-data](https://github.com/emberjs/data/blob/main/packages/-ember-data) the below
 > configuration is handled for you automatically.
 
 ```ts
@@ -85,7 +86,7 @@ class extends Store {
 }
 ```
 
-For the full list of APIs available read the code documentation for [*Ember***Data** Cache](https://github.com/emberjs/data/blob/main/ember-data-types/cache/cache.ts)
+For the full list of APIs see the docs for [Cache Interface](https://api.emberjs.com/ember-data/release/classes/%3CInterface%3E%20Cache)
 
 
   @module @ember-data/json-api
