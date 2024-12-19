@@ -1,10 +1,12 @@
 import { deprecate } from '@ember/debug';
 
+import { DISABLE_6X_DEPRECATIONS } from '@warp-drive/build-config/deprecations';
+
 export { belongsTo, hasMany } from '@ember-data/model';
 
 deprecate(
   'Importing from `ember-data/relationships` is deprecated. Please import from `@ember-data/model` instead.',
-  false,
+  /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
   {
     id: 'ember-data:deprecate-legacy-imports',
     for: 'ember-data',

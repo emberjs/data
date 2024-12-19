@@ -1,6 +1,6 @@
 {
   "name": "ember-data__json-api",
-  "version": "5.4.0-alpha.121",
+  "version": "4.12.8",
   "private": true,
   "description": "Provides tests for @ember-data/json-api",
   "keywords": [],

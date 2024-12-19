@@ -1,52 +1,27 @@
 import { module, test } from 'qunit';
 
-import JSONAPICache from '@ember-data/json-api';
+import Store from 'ember-data/store';
+import { setupTest } from 'ember-qunit';
+
+import Model, { attr } from '@ember-data/model';
 import type { Handler, RequestContext } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
-import Store, { CacheHandler } from '@ember-data/store';
-import type { CacheCapabilitiesManager } from '@ember-data/store/types';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import { CacheHandler } from '@ember-data/store';
 import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
 import type { Type } from '@warp-drive/core-types/symbols';
-import { instantiateRecord, teardownRecord } from '@warp-drive/schema-record/hooks';
-import type { SchemaRecord } from '@warp-drive/schema-record/record';
-import { registerDerivations, SchemaService, withDefaults } from '@warp-drive/schema-record/schema';
 
-type User = {
-  id: string;
-  name: string;
-  [Type]: 'user';
-};
-
-class TestStore extends Store {
-  createCache(capabilities: CacheCapabilitiesManager) {
-    return new JSONAPICache(capabilities);
-  }
-
-  createSchemaService() {
-    const schema = new SchemaService();
-    registerDerivations(schema);
-    schema.registerResource(
-      withDefaults({
-        type: 'user',
-        fields: [{ name: 'name', kind: 'field' }],
-      })
-    );
-
-    return schema;
-  }
-
-  instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs: { [key: string]: unknown }): unknown {
-    return instantiateRecord(this, identifier, createRecordArgs);
-  }
-
-  teardownRecord(record: SchemaRecord) {
-    teardownRecord(record);
-  }
+class User extends Model {
+  @attr declare name: string;
+  declare [Type]: 'user';
 }
 
-module('Integration | Cache Handler | Request Dedupe', function () {
+module('Integration | Cache Handler | Request Dedupe', function (hooks) {
+  setupTest(hooks);
+
   test('it dedupes requests', async function (assert) {
+    this.owner.register('model:user', User);
+    this.owner.register('service:store', Store);
+    const store = this.owner.lookup('service:store') as Store;
     const TestHandler: Handler = {
       request<T>(context: RequestContext) {
         assert.step(`requested: ${context.request.url}`);
@@ -61,7 +36,6 @@ module('Integration | Cache Handler | Request Dedupe', function () {
         } as T);
       },
     };
-    const store = new TestStore();
     store.requestManager = new RequestManager().use([TestHandler]).useCache(CacheHandler);
 
     // trigger simultaneous requests
@@ -91,6 +65,9 @@ module('Integration | Cache Handler | Request Dedupe', function () {
   });
 
   test('it dedupes requests when backgroundReload is used', async function (assert) {
+    this.owner.register('model:user', User);
+    this.owner.register('service:store', Store);
+    const store = this.owner.lookup('service:store') as Store;
     const TestHandler: Handler = {
       request<T>(context: RequestContext) {
         assert.step(`requested: ${context.request.url}`);
@@ -105,7 +82,6 @@ module('Integration | Cache Handler | Request Dedupe', function () {
         } as T);
       },
     };
-    const store = new TestStore();
     store.requestManager = new RequestManager().use([TestHandler]).useCache(CacheHandler);
 
     // trigger simultaneous requests
@@ -140,6 +116,9 @@ module('Integration | Cache Handler | Request Dedupe', function () {
   });
 
   test('it dedupes requests when reload is used', async function (assert) {
+    this.owner.register('model:user', User);
+    this.owner.register('service:store', Store);
+    const store = this.owner.lookup('service:store') as Store;
     const TestHandler: Handler = {
       request<T>(context: RequestContext) {
         assert.step(`requested: ${context.request.url}`);
@@ -154,7 +133,6 @@ module('Integration | Cache Handler | Request Dedupe', function () {
         } as T);
       },
     };
-    const store = new TestStore();
     store.requestManager = new RequestManager().use([TestHandler]).useCache(CacheHandler);
 
     // trigger simultaneous requests
@@ -189,6 +167,9 @@ module('Integration | Cache Handler | Request Dedupe', function () {
   });
 
   test('it dedupes requests when backgroundReload and reload are used', async function (assert) {
+    this.owner.register('model:user', User);
+    this.owner.register('service:store', Store);
+    const store = this.owner.lookup('service:store') as Store;
     const TestHandler: Handler = {
       request<T>(context: RequestContext) {
         assert.step(`requested: ${context.request.url}`);
@@ -203,7 +184,6 @@ module('Integration | Cache Handler | Request Dedupe', function () {
         } as T);
       },
     };
-    const store = new TestStore();
     store.requestManager = new RequestManager().use([TestHandler]).useCache(CacheHandler);
 
     // trigger simultaneous requests
@@ -243,6 +223,9 @@ module('Integration | Cache Handler | Request Dedupe', function () {
   });
 
   test('it dedupes requests when backgroundReload and reload are used (multi-round)', async function (assert) {
+    this.owner.register('model:user', User);
+    this.owner.register('service:store', Store);
+    const store = this.owner.lookup('service:store') as Store;
     let totalRequests = 0;
     const TestHandler: Handler = {
       async request<T>(context: RequestContext) {
@@ -259,7 +242,6 @@ module('Integration | Cache Handler | Request Dedupe', function () {
         } as T);
       },
     };
-    const store = new TestStore();
     store.requestManager = new RequestManager().use([TestHandler]).useCache(CacheHandler);
 
     // trigger simultaneous requests

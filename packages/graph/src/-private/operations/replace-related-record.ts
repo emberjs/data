@@ -1,6 +1,9 @@
 import { deprecate } from '@ember/debug';
 
-import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp-drive/build-config/deprecations';
+import {
+  DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE,
+  DISABLE_6X_DEPRECATIONS,
+} from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -97,7 +100,7 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
             } belongsTo relationship but will not be once this deprecation is resolved:\n\n\t${
               localState ? 'Added: ' + localState.lid + '\n\t' : ''
             }${existingState ? 'Removed: ' + existingState.lid : ''}`,
-            false,
+            /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
             {
               id: 'ember-data:deprecate-relationship-remote-update-clearing-local-state',
               for: 'ember-data',
@@ -176,7 +179,7 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
           } belongsTo relationship but will not be once this deprecation is resolved:\n\n\t${
             localState ? 'Added: ' + localState.lid + '\n\t' : ''
           }${existingState ? 'Removed: ' + existingState.lid : ''}`,
-          false,
+          /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
           {
             id: 'ember-data:deprecate-relationship-remote-update-clearing-local-state',
             for: 'ember-data',
