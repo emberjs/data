@@ -25,7 +25,7 @@ interface ProxyHandler<T extends object> {
   /**
    * A trap for `Object.defineProperty()`.
    * @param target The original object which is being proxied.
-   * @returns A `Boolean` indicating whether or not the property has been defined.
+   * @return A `Boolean` indicating whether or not the property has been defined.
    * @internal
    */
   defineProperty?(target: T, property: string | symbol, attributes: PropertyDescriptor): boolean;
@@ -34,7 +34,7 @@ interface ProxyHandler<T extends object> {
    * A trap for the `delete` operator.
    * @param target The original object which is being proxied.
    * @param p The name or `Symbol` of the property to delete.
-   * @returns A `Boolean` indicating whether or not the property was deleted.
+   * @return A `Boolean` indicating whether or not the property was deleted.
    * @internal
    */
   deleteProperty?(target: T, p: string | symbol): boolean;
@@ -97,7 +97,7 @@ interface ProxyHandler<T extends object> {
    * @param target The original object which is being proxied.
    * @param p The name or `Symbol` of the property to set.
    * @param receiver The object to which the assignment was originally directed.
-   * @returns A `Boolean` indicating whether or not the property was set.
+   * @return A `Boolean` indicating whether or not the property was set.
    * @internal
    */
   set?(target: T, p: string | symbol, newValue: any, receiver: any): boolean;

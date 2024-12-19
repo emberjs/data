@@ -3,7 +3,7 @@ import * as qunit from './qunit.js';
 
 const QUNIT_BANNED_IMPORTS = ['ember-qunit', 'qunit', 'ember-exam'];
 
-/** @returns {import('eslint').Linter.FlatConfig} */
+/** @return {import('eslint').Linter.FlatConfig} */
 export function browser(config = {}) {
   const base = qunit.ember(config);
   base.rules = Object.assign(
