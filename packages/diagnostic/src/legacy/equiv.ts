@@ -276,8 +276,7 @@ const entryTypeCallbacks = {
           typeof actual.constructor !== 'undefined' &&
           typeof actual[i] === 'function' &&
           typeof expected[i] === 'function' &&
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-          (actual[i] as Function).toString() === (expected[i] as Function).toString()
+          actual[i].toString() === expected[i].toString()
         ) {
           continue;
         }
@@ -304,8 +303,7 @@ const entryTypeCallbacks = {
         typeof expected.constructor !== 'undefined' &&
         typeof expected[i] === 'function' &&
         typeof actual[i] === 'function' &&
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-        (expected[i] as Function).toString() === (actual[i] as Function).toString()
+        expected[i].toString() === actual[i].toString()
       ) {
         continue;
       }
