@@ -9,13 +9,11 @@ import JSONSerializer from '@ember-data/serializer/json';
 import type Store from '@ember-data/store';
 
 class Person extends Model {
-  // TODO fix the typing for naked attrs
+  @attr('string', {})
+  declare name: string;
 
   @attr('string', {})
-  name;
-
-  @attr('string', {})
-  lastName;
+  declare lastName: string;
 }
 
 module('integration/request-state-service - Request State Service', function (hooks) {
@@ -27,7 +25,7 @@ module('integration/request-state-service - Request State Service', function (ho
     const { owner } = this;
     owner.register('model:person', Person);
     owner.register('serializer:application', JSONSerializer);
-    store = owner.lookup('service:store') as unknown as Store;
+    store = owner.lookup('service:store') as Store;
   });
 
   test('getPendingRequest and getLastRequest return correct inflight and fulfilled requests', async function (assert) {
@@ -73,7 +71,7 @@ module('integration/request-state-service - Request State Service', function (ho
 
     owner.register('adapter:application', TestAdapter);
 
-    store = owner.lookup('service:store') as unknown as Store;
+    store = owner.lookup('service:store') as Store;
 
     const promise = store.findRecord('person', '1');
     const requestService = store.getRequestStateService();
@@ -172,7 +170,7 @@ module('integration/request-state-service - Request State Service', function (ho
 
     owner.register('adapter:application', TestAdapter, { singleton: false });
 
-    store = owner.lookup('service:store') as unknown as Store;
+    store = owner.lookup('service:store') as Store;
 
     const requestService = store.getRequestStateService();
     // Relying on sequential lids until identifiers land
