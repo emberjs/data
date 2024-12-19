@@ -10,7 +10,7 @@ deprecate('Importing from `ember-data/-private` is deprecated without replacemen
   until: '6.0',
   since: {
     enabled: '5.2',
-    available: '5.2',
+    available: '4.13',
   },
 });
 

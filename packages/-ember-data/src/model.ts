@@ -8,6 +8,6 @@ deprecate('Importing from `ember-data/model` is deprecated. Please import from `
   until: '6.0',
   since: {
     enabled: '5.2',
-    available: '5.2',
+    available: '4.13',
   },
 });
