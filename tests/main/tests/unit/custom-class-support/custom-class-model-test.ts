@@ -14,8 +14,8 @@ import { TestSchema } from '../../utils/schema';
 
 module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
   class Person {
-    declare store: Store;
-    constructor(store: Store) {
+    declare store: CustomStore;
+    constructor(store: CustomStore) {
       this.store = store;
     }
     // these types aren't correct but we don't have a registry to help
@@ -41,7 +41,8 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
       });
       return schema;
     }
-    instantiateRecord(identifier, createOptions) {
+    // @ts-expect-error we are overriding this hook
+    instantiateRecord(identifier, createOptions): unknown {
       return new Person(this);
     }
     teardownRecord(record) {}
@@ -53,11 +54,11 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
 
     owner.register(
       'adapter:application',
-      JSONAPIAdapter.extend({
-        shouldBackgroundReloadRecord: () => false,
+      class extends JSONAPIAdapter {
+        shouldBackgroundReloadRecord = () => false;
         // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
-        createRecord: () => Promise.reject(),
-      })
+        createRecord = () => Promise.reject();
+      }
     );
     owner.register('serializer:application', JSONAPISerializer);
     // @ts-expect-error missing type
@@ -84,6 +85,8 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
         });
         return { hi: 'igor' };
       }
+
+      teardownRecord(record) {}
     }
     this.owner.register('service:store', CreationStore);
     const store = this.owner.lookup('service:store') as Store;
@@ -124,9 +127,9 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
   test('fields with custom schema definition', async function (assert) {
     this.owner.register(
       'adapter:application',
-      JSONAPIAdapter.extend({
-        shouldBackgroundReloadRecord: () => false,
-        createRecord: (store, type, snapshot: Snapshot) => {
+      class extends JSONAPIAdapter {
+        shouldBackgroundReloadRecord = () => false;
+        createRecord = (store, type, snapshot: Snapshot) => {
           let count = 0;
           assert.verifySteps(
             DEBUG
@@ -199,8 +202,8 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
             'Adapter:createRecord:rel:house',
           ]);
           return Promise.resolve({ data: { type: 'person', id: '1' } });
-        },
-      })
+        };
+      }
     );
 
     this.owner.register('service:store', CustomStore);
@@ -266,12 +269,12 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     assert.expect(1);
     this.owner.register(
       'adapter:application',
-      JSONAPIAdapter.extend({
-        shouldBackgroundReloadRecord: () => false,
-        createRecord: (store, type, snapshot) => {
+      class extends JSONAPIAdapter {
+        shouldBackgroundReloadRecord = () => false;
+        createRecord = (store, type, snapshot) => {
           return Promise.resolve({ data: { type: 'person', id: '7' } });
-        },
-      })
+        };
+      }
     );
     this.owner.register('service:store', CustomStore);
     const store = this.owner.lookup('service:store') as Store;
@@ -285,13 +288,13 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     assert.expect(10);
     this.owner.register(
       'adapter:application',
-      JSONAPIAdapter.extend({
-        shouldBackgroundReloadRecord: () => false,
-        deleteRecord: (store, type, snapshot) => {
+      class extends JSONAPIAdapter {
+        shouldBackgroundReloadRecord = () => false;
+        deleteRecord(store, type, snapshot) {
           assert.ok(true, 'adapter method called');
-          return Promise.resolve();
-        },
-      })
+          return Promise.resolve({ data: null });
+        }
+      }
     );
     const subscribedValues: string[] = [];
     class CreationStore extends CustomStore {
@@ -309,7 +312,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
       }
     }
     this.owner.register('service:store', CreationStore);
-    const store = this.owner.lookup('service:store') as unknown as Store;
+    const store = this.owner.lookup('service:store') as Store;
     const rd: Cache = store.cache;
     const person = store.push({ data: { type: 'person', id: '1', attributes: { name: 'chris' } } });
     store.deleteRecord(person);
@@ -325,13 +328,13 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     assert.expect(1);
     this.owner.register(
       'adapter:application',
-      JSONAPIAdapter.extend({
-        shouldBackgroundReloadRecord: () => false,
-        createRecord: (store, type, snapshot) => {
+      class extends JSONAPIAdapter {
+        shouldBackgroundReloadRecord = () => false;
+        createRecord = (store, type, snapshot) => {
           // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
           return Promise.reject();
-        },
-      })
+        };
+      }
     );
 
     this.owner.register('service:store', CustomStore);
