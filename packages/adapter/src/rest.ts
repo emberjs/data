@@ -1133,7 +1133,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
       // and may be unexpected by a server
       // @ts-expect-error poorly typed
       if (reqOptions.data && reqOptions.type !== 'GET') {
-        // @ts-expect-error poorly typed
         reqOptions = { ...reqOptions, contentType };
       }
       // @ts-expect-error poorly typed
