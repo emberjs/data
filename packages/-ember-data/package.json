@@ -128,7 +128,7 @@
     "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",
     "@ember/test-helpers": "^3.3.0 || ^4.0.4",
     "@ember/test-waiters": "^3.1.0 || ^4.0.0",
-    "qunit": "^2.18.0"
+    "qunit": "^2.23.1"
   },
   "peerDependenciesMeta": {
     "@ember/test-helpers": {
@@ -157,7 +157,7 @@
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "vite": "^5.2.11",
     "typescript": "^5.4.5",
-    "qunit": "^2.18.0"
+    "qunit": "^2.23.1"
   },
   "engines": {
     "node": ">= 18.20.4"
