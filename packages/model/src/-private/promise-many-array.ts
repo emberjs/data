@@ -105,7 +105,7 @@ export class PromiseManyArray<T = unknown> {
    *
    * @method forEach
    * @param cb
-   * @returns
+   * @return
    * @private
    */
   forEach(cb: (item: T, index: number, array: T[]) => void) {
@@ -119,7 +119,7 @@ export class PromiseManyArray<T = unknown> {
    * @method reload
    * @public
    * @param options
-   * @returns
+   * @return
    */
   reload(options: Omit<BaseFinderOptions, ''>) {
     assert('You are trying to reload an async manyArray before it has been created', this.content);

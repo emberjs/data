@@ -170,9 +170,9 @@ export async function setInitialState(context: Context, config: TestConfig, asse
   assert.false(john.isDeleted, 'PreCond: John is not deleted');
 
   // @ts-expect-error TODO: Graph type is not assignable to private Graph type
-  const chrisState = stateOf(store._graph, chrisBestFriend);
+  const chrisState = stateOf(store._graph!, chrisBestFriend);
   // @ts-expect-error TODO: Graph type is not assignable to private Graph type
-  const johnState = stateOf(store._graph, johnBestFriend);
+  const johnState = stateOf(store._graph!, johnBestFriend);
 
   assert.deepEqual(
     chrisState.remote,
@@ -209,7 +209,7 @@ export async function setInitialState(context: Context, config: TestConfig, asse
     assert.ok(chrisImplicitFriend, 'PreCond: Chris has an implicit best friend');
 
     // @ts-expect-error TODO: Graph type is not assignable to private Graph type
-    const chrisImplicitState = stateOf(store._graph, chrisImplicitFriend);
+    const chrisImplicitState = stateOf(store._graph!, chrisImplicitFriend);
 
     assert.deepEqual(
       chrisImplicitState.remote,
@@ -233,7 +233,7 @@ export async function setInitialState(context: Context, config: TestConfig, asse
       assert.equal(Object.keys(johnImplicits).length, 1, 'PreCond: John has one implicit relationship');
       assert.ok(johnImplicitFriend, 'PreCond: John has no implicit best friend');
       // @ts-expect-error TODO: Graph type is not assignable to private Graph type
-      const johnImplicitState = stateOf(store._graph, johnImplicitFriend);
+      const johnImplicitState = stateOf(store._graph!, johnImplicitFriend);
       assert.deepEqual(
         johnImplicitState.remote,
         config.dirtyLocal || config.useCreate ? [] : [chrisIdentifier],
@@ -276,7 +276,7 @@ export function testFinalState(
 
   const chrisBestFriend = graph.get(chrisIdentifier, 'bestFriends');
   // @ts-expect-error TODO: Graph type is not assignable to private Graph type
-  const chrisState = stateOf(store._graph, chrisBestFriend);
+  const chrisState = stateOf(store._graph!, chrisBestFriend);
 
   // this specific case gets it's own WAT
   // this is something ideally a refactor should do away with.
@@ -344,7 +344,7 @@ export function testFinalState(
   } else {
     const johnBestFriend = graph.get(johnIdentifier, 'bestFriends');
     // @ts-expect-error TODO: Graph type is not assignable to private Graph type
-    const johnState = stateOf(store._graph, johnBestFriend);
+    const johnState = stateOf(store._graph!, johnBestFriend);
 
     assert.deepEqual(
       johnState.remote,
@@ -371,7 +371,7 @@ export function testFinalState(
 
     assert.ok(chrisImplicitFriend, 'Result: Chris has an implicit relationship for best friend');
     // @ts-expect-error TODO: Graph type is not assignable to private Graph type
-    const chrisImplicitState = stateOf(store._graph, chrisImplicitFriend);
+    const chrisImplicitState = stateOf(store._graph!, chrisImplicitFriend);
 
     assert.deepEqual(
       chrisImplicitState.remote,
@@ -396,7 +396,7 @@ export function testFinalState(
       assert.equal(Object.keys(johnImplicits).length, 1, 'Result: John has one implicit relationship in the cache');
       assert.ok(johnImplicitFriend, 'Result: John has an implicit key for best friend');
       // @ts-expect-error TODO: Graph type is not assignable to private Graph type
-      const johnImplicitState = stateOf(store._graph, johnImplicitFriend);
+      const johnImplicitState = stateOf(store._graph!, johnImplicitFriend);
 
       assert.deepEqual(
         johnImplicitState.remote,
