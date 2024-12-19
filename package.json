@@ -27,7 +27,7 @@
     "test": "pnpm run _task:sync-hardlinks; pnpm turbo test --concurrency=1",
     "test:production": "pnpm run _task:sync-hardlinks; pnpm turbo test:production --concurrency=1",
     "test:try-one": "pnpm --filter main-test-app run test:try-one",
-    "test:docs": "FORCE_COLOR=2 pnpm build:docs && pnpm run -r --workspace-concurrency=-1 --reporter=append-only --reporter-hide-prefix --if-present test:docs",
+    "test:docs": "FORCE_COLOR=2 pnpm build:docs && pnpm run -r --workspace-concurrency=-1 --if-present --reporter=append-only --reporter-hide-prefix test:docs",
     "test:blueprints": "pnpm run -r --workspace-concurrency=-1 --if-present test:blueprints",
     "test:fastboot": "pnpm run -r --workspace-concurrency=-1 --if-present test:fastboot",
     "test:embroider": "pnpm run -r ---workspace-concurrency=-1 --if-present test:embroider",
