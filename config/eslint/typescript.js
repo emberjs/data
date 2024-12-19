@@ -23,6 +23,7 @@ function mergeTsConfigs(configArray) {
 
 export function rules(config = {}) {
   const ourRules = {
+    '@typescript-eslint/no-base-to-string': 'off',
     '@typescript-eslint/no-invalid-void-type': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/adjacent-overload-signatures': 'error',
