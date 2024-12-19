@@ -30,7 +30,7 @@ export function coerceId(id: Coercable): string | null {
         until: '6.0',
         for: 'ember-data',
         since: {
-          available: '5.3',
+          available: '4.13',
           enabled: '5.3',
         },
       }
