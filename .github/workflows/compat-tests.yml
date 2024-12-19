@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - main
+      - v4-main
 
 env:
   TURBO_API: http://127.0.0.1:9080
