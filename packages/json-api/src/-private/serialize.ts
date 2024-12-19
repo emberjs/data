@@ -105,7 +105,7 @@ export function serializePatch(
 
     Object.keys(attrsChanges).forEach((key) => {
       const change = attrsChanges[key];
-      const newVal = change[1] as Value | undefined;
+      const newVal = change[1];
       attributes[key] = newVal === undefined ? null : newVal;
     });
 
