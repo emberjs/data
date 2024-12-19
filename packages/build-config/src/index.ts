@@ -76,7 +76,7 @@ export function setConfig(context: object, appRoot: string, config: WarpDriveCon
   const debugOptions: InternalWarpDriveConfig['debug'] = Object.assign({}, LOGGING, config.debug);
 
   const env = getEnv();
-  const DEPRECATIONS = Object.assign(getDeprecations(config.compatWith || null), config.deprecations);
+  const DEPRECATIONS = getDeprecations(config.compatWith || null, config.deprecations);
   const FEATURES = getFeatures(env.PRODUCTION);
 
   const includeDataAdapterInProduction =
