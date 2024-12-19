@@ -500,6 +500,7 @@ export function sortQueryParams(params: QueryParamsSource, options?: QueryParams
     });
   }
 
+  // TODO unique includes
   if ('include' in dictionaryParams) {
     dictionaryParams.include = handleInclude(dictionaryParams.include as string | string[]);
   }
@@ -560,6 +561,7 @@ export function sortQueryParams(params: QueryParamsSource, options?: QueryParams
  * @return {string} A sorted query params string without the leading `?`
  */
 export function buildQueryParams(params: QueryParamsSource, options?: QueryParamsSerializationOptions): string {
+  // TODO toString encodes commas, we don't want that.
   return sortQueryParams(params, options).toString();
 }
 export interface CacheControlValue {
