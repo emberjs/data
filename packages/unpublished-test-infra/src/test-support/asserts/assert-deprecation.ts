@@ -30,6 +30,7 @@ export interface DeprecationConfig {
   url?: string;
   stacktrace?: string;
   when?: Record<string, string>;
+  logTraces?: boolean;
 }
 export interface FoundDeprecation {
   message: string;
@@ -85,6 +86,12 @@ function verifyDeprecation(config: DeprecationConfig, label?: string): AssertSom
   const expectedCount: number | 'ALL' = typeof config.count === 'number' || config.count === 'ALL' ? config.count : 1;
   //@ts-expect-error TS having trouble realizing expectedCount can be 'ALL'
   let passed = expectedCount === 'ALL' ? true : matchedDeprecations.length === expectedCount;
+
+  if (config.logTraces) {
+    matchedDeprecations.forEach((deprecation) => {
+      console.log(deprecation.options.stacktrace);
+    });
+  }
 
   return {
     result: passed,
