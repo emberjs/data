@@ -1,7 +1,7 @@
 const TestemConfig = require('@ember-data/unpublished-test-infra/testem/testem');
 
 module.exports = async function () {
-  const holodeck = (await import('@warp-drive/holodeck')).default;
+  const holodeck = (await import('@warp-drive/holodeck/server')).default;
   await holodeck.launchProgram({
     port: 7373,
   });

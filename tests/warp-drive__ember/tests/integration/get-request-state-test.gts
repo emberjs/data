@@ -7,8 +7,7 @@ import { buildBaseURL } from '@ember-data/request-utils';
 import type { RenderingTestContext } from '@warp-drive/diagnostic/ember';
 import { module, setupRenderingTest, test as _test } from '@warp-drive/diagnostic/ember';
 import { getRequestState } from '@warp-drive/ember';
-import { mock, MockServerHandler } from '@warp-drive/holodeck';
-import { GET } from '@warp-drive/holodeck/mock';
+import { GET, HolodeckHandler, mock } from '@warp-drive/holodeck';
 
 type RequestState<T, RT> = ReturnType<typeof getRequestState<RT, T>>;
 type UserResource = {
@@ -100,7 +99,7 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
 
   hooks.beforeEach(function () {
     const manager = new RequestManager();
-    manager.use([new MockServerHandler(this), Fetch]);
+    manager.use([new HolodeckHandler(this), Fetch]);
     manager.useCache(new SimpleCacheHandler());
 
     this.manager = manager;
