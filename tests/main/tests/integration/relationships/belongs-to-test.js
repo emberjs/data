@@ -1,17 +1,15 @@
 import EmberObject from '@ember/object';
-import { run } from '@ember/runloop';
 
 import { module, test } from 'qunit';
-import { hash, resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import { DEPRECATE_NON_EXPLICIT_POLYMORPHISM } from '@ember-data/deprecations';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+import { DEPRECATE_NON_EXPLICIT_POLYMORPHISM } from '@warp-drive/build-config/deprecations';
 
 import { getRelationshipStateForRecord, hasRelationshipForRecord } from '../../helpers/accessors';
 
@@ -34,7 +32,7 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
   }
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
     owner.register('model:person', Person);
     owner.register('model:pet', Pet);
     owner.register(
@@ -62,7 +60,7 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
         'adapter:company',
         JSONAPIAdapter.extend({
           findBelongsTo(store, type, snapshot) {
-            return resolve({
+            return Promise.resolve({
               links: {
                 related: 'company/1/parent-company',
               },
@@ -95,7 +93,7 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
       } catch (e) {
         assert.strictEqual(
           e.message,
-          `Assertion Failed: fetched the belongsTo relationship 'parentCompany' for company:1 with link 'company/1/parent-company', but no data member is present in the response. If no data exists, the response should set { data: null }`,
+          `fetched the belongsTo relationship 'parentCompany' for company:1 with link '"company/1/parent-company"', but no data member is present in the response. If no data exists, the response should set { data: null }`,
           'We error appropriately'
         );
       }
@@ -115,7 +113,7 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
       'adapter:company',
       JSONAPIAdapter.extend({
         createRecord(store, type, snapshot) {
-          return resolve({
+          return Promise.resolve({
             data: {
               type: 'company',
               id: '123',
@@ -131,7 +129,7 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
       })
     );
 
-    let company = store.createRecord('company', { name: 'Acme Corporation' });
+    const company = store.createRecord('company', { name: 'Acme Corporation' });
     await company.save();
     assert.strictEqual(company.id, '123', 'We updated to the correct id');
     assert.strictEqual(company.belongsTo('parentCompany').id(), company.id, 'We are able to reference ourselves');
@@ -144,7 +142,7 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
       JSONAPIAdapter.extend({
         findRecord() {
           assert.strictEqual(++petFindRecordCalls, 1, 'We call findRecord only once for our pet');
-          return resolve({
+          return Promise.resolve({
             data: {
               type: 'pet',
               id: '1',
@@ -168,7 +166,7 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
       JSONAPIAdapter.extend({
         findRecord() {
           assert.strictEqual(++personFindRecordCalls, 1, 'We call findRecord only once for our person');
-          return resolve({
+          return Promise.resolve({
             data: {
               type: 'person',
               id: '1',
@@ -190,17 +188,17 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
       })
     );
 
-    let person = await store.findRecord('person', '1');
-    let petRequest = store.findRecord('pet', '1');
-    let personPetRequest = person.bestDog;
-    let personPet = await personPetRequest;
-    let pet = await petRequest;
+    const person = await store.findRecord('person', '1');
+    const petRequest = store.findRecord('pet', '1');
+    const personPetRequest = person.bestDog;
+    const personPet = await personPetRequest;
+    const pet = await petRequest;
 
     assert.strictEqual(personPet, pet, 'We ended up in the same state');
   });
 
   test('async belongsTo returns correct new value after a local change', async function (assert) {
-    let chris = store.push({
+    const chris = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -235,8 +233,8 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
       ],
     });
 
-    let shen = store.peekRecord('pet', '1');
-    let pirate = store.peekRecord('pet', '2');
+    const shen = store.peekRecord('pet', '1');
+    const pirate = store.peekRecord('pet', '2');
     let bestDog = await chris.bestDog;
 
     assert.strictEqual(shen.bestHuman, null, 'precond - Shen has no best human');
@@ -397,8 +395,8 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       })
     );
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     store.push({
       data: {
@@ -444,7 +442,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.updateRecord = (store, type, snapshot) => {
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'app',
@@ -471,8 +469,8 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     );
   });
 
-  test('The store can materialize a non loaded monomorphic belongsTo association', function (assert) {
-    assert.expect(1);
+  test('The store can materialize a non loaded monomorphic belongsTo association', async function (assert) {
+    assert.expect(2);
 
     class Post extends Model {
       @attr('string') title;
@@ -481,13 +479,13 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     }
     this.owner.register('model:post', Post);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.ok(true, "The adapter's find method should be called");
-      return resolve({
+      return Promise.resolve({
         data: {
           id,
           type: snapshot.modelName,
@@ -495,89 +493,81 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       });
     };
 
-    run(() => {
-      store.push({
+    store.push({
+      data: {
+        id: '1',
+        type: 'post',
+        relationships: {
+          user: {
+            data: {
+              id: '2',
+              type: 'user',
+            },
+          },
+        },
+      },
+    });
+
+    const post = await store.findRecord('post', '1');
+    const user = await post.user;
+    assert.strictEqual(user.id, '2', 'The post should have a user now');
+  });
+
+  testInDebug('Invalid belongsTo relationship identifiers throw errors for null id', function (assert) {
+    assert.expect(1);
+
+    const store = this.owner.lookup('service:store');
+
+    // test null id
+    assert.expectAssertion(() => {
+      const post = store.push({
         data: {
           id: '1',
           type: 'post',
           relationships: {
             user: {
               data: {
-                id: '2',
+                id: null,
                 type: 'user',
               },
             },
           },
         },
       });
-    });
-
-    return run(() => {
-      return store.findRecord('post', 1).then((post) => {
-        post.user;
-      });
-    });
-  });
-
-  testInDebug('Invalid belongsTo relationship identifiers throw errors for null id', function (assert) {
-    assert.expect(1);
-
-    let store = this.owner.lookup('service:store');
-
-    // test null id
-    assert.expectAssertion(() => {
-      run(() => {
-        let post = store.push({
-          data: {
-            id: '1',
-            type: 'post',
-            relationships: {
-              user: {
-                data: {
-                  id: null,
-                  type: 'user',
-                },
-              },
-            },
-          },
-        });
-        post.user;
-      });
-    }, /Assertion Failed: Encountered a relationship identifier without an id for the belongsTo relationship 'user' on <post:1>, expected an identifier but found/);
+      post.user;
+    }, /Encountered a relationship identifier without an id for the belongsTo relationship 'user' on <post:1>, expected an identifier but found/);
   });
 
   testInDebug('Invalid belongsTo relationship identifiers throw errors for null type', function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     // test missing type
     assert.expectAssertion(() => {
-      run(() => {
-        let post = store.push({
-          data: {
-            id: '2',
-            type: 'post',
-            relationships: {
-              user: {
-                data: {
-                  id: '1',
-                  type: null,
-                },
+      const post = store.push({
+        data: {
+          id: '2',
+          type: 'post',
+          relationships: {
+            user: {
+              data: {
+                id: '1',
+                type: null,
               },
             },
           },
-        });
-        post.user;
+        },
       });
-    }, /Assertion Failed: Encountered a relationship identifier without a type for the belongsTo relationship 'user' on <post:2>, expected an identifier with type 'user' but found/);
+      post.user;
+    }, /Encountered a relationship identifier without a type for the belongsTo relationship 'user' on <post:2>, expected an identifier with type 'user' but found/);
   });
 
   testInDebug(
     'Only a record of the same modelClass can be used with a monomorphic belongsTo relationship',
     async function (assert) {
       assert.expect(1);
-      let store = this.owner.lookup('service:store');
+      const store = this.owner.lookup('service:store');
 
       const post = store.push({
         data: {
@@ -597,127 +587,116 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
           post.user = comment;
         },
         DEPRECATE_NON_EXPLICIT_POLYMORPHISM
-          ? "Assertion Failed: The 'comment' type does not implement 'user' and thus cannot be assigned to the 'user' relationship in 'post'. Make it a descendant of 'user' or use a mixin of the same name."
+          ? "The 'comment' type does not implement 'user' and thus cannot be assigned to the 'user' relationship in 'post'. Make it a descendant of 'user' or use a mixin of the same name."
           : "The 'comment' type does not implement 'user' and thus cannot be assigned to the 'user' relationship in 'post'. If this relationship should be polymorphic, mark message.user as `polymorphic: true` and comment.messages as implementing it via `as: 'user'`."
       );
     }
   );
 
-  test('The store can load a polymorphic belongsTo association', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+  test('The store can load a polymorphic belongsTo association', async function (assert) {
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
-    run(() => {
-      store.push({
-        data: {
-          id: '1',
-          type: 'post',
-        },
-      });
+    store.push({
+      data: {
+        id: '1',
+        type: 'post',
+      },
+    });
 
-      store.push({
-        data: {
-          id: '2',
-          type: 'comment',
-          relationships: {
-            message: {
-              data: {
-                id: '1',
-                type: 'post',
-              },
+    store.push({
+      data: {
+        id: '2',
+        type: 'comment',
+        relationships: {
+          message: {
+            data: {
+              id: '1',
+              type: 'post',
             },
           },
         },
-      });
+      },
     });
 
-    return run(() => {
-      return hash({
-        message: store.findRecord('post', 1),
-        comment: store.findRecord('comment', 2),
-      }).then((records) => {
-        assert.strictEqual(records.comment.message, records.message);
-      });
-    });
+    const [message, comment] = await Promise.all([store.findRecord('post', '1'), store.findRecord('comment', '2')]);
+
+    assert.strictEqual(comment.message, message);
   });
 
-  test('The store can serialize a polymorphic belongsTo association', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+  test('The store can serialize a polymorphic belongsTo association', async function (assert) {
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
-    let serializerInstance = store.serializerFor('comment');
+    const serializerInstance = store.serializerFor('comment');
 
     serializerInstance.serializePolymorphicType = function (record, json, relationship) {
       assert.ok(true, "The serializer's serializePolymorphicType method should be called");
       json['message_type'] = 'post';
     };
 
-    return run(() => {
-      store.push({
-        data: {
-          id: '1',
-          type: 'post',
-        },
-      });
+    store.push({
+      data: {
+        id: '1',
+        type: 'post',
+      },
+    });
 
-      store.push({
-        data: {
-          id: '2',
-          type: 'comment',
-          relationships: {
-            message: {
-              data: {
-                id: '1',
-                type: 'post',
-              },
+    store.push({
+      data: {
+        id: '2',
+        type: 'comment',
+        relationships: {
+          message: {
+            data: {
+              id: '1',
+              type: 'post',
             },
           },
         },
-      });
+      },
+    });
 
-      return store.findRecord('comment', 2).then((comment) => {
-        let serialized = comment.serialize({ includeId: true });
-        assert.strictEqual(serialized.data.relationships.message.data.id, '1');
-        assert.strictEqual(serialized.data.relationships.message.data.type, 'posts');
-      });
+    await store.findRecord('comment', '2').then((comment) => {
+      const serialized = comment.serialize({ includeId: true });
+      assert.strictEqual(serialized.data.relationships.message.data.id, '1');
+      assert.strictEqual(serialized.data.relationships.message.data.type, 'posts');
     });
   });
 
-  test('A serializer can materialize a belongsTo as a link that gets sent back to findBelongsTo', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+  test('A serializer can materialize a belongsTo as a link that gets sent back to findBelongsTo', async function (assert) {
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
-    let Group = Model.extend({
+    const Group = Model.extend({
       people: hasMany('person', { async: false, inverse: 'group' }),
     });
 
-    let Person = Model.extend({
+    const Person = Model.extend({
       group: belongsTo('group', { async: true, inverse: 'people' }),
     });
 
     this.owner.register('model:group', Group);
     this.owner.register('model:person', Person);
 
-    run(() => {
-      store.push({
-        data: {
-          id: '1',
-          type: 'person',
-          relationships: {
-            group: {
-              links: {
-                related: '/people/1/group',
-              },
+    store.push({
+      data: {
+        id: '1',
+        type: 'person',
+        relationships: {
+          group: {
+            links: {
+              related: '/people/1/group',
             },
           },
         },
-      });
+      },
     });
 
     adapter.findRecord = function (store, type, id, snapshot) {
@@ -726,10 +705,10 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
 
     adapter.findBelongsTo = function (store, snapshot, link, relationship) {
       assert.strictEqual(relationship.type, 'group');
-      assert.strictEqual(relationship.key, 'group');
+      assert.strictEqual(relationship.name, 'group');
       assert.strictEqual(link, '/people/1/group');
 
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'group',
@@ -742,50 +721,46 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       });
     };
 
-    return run(() => {
-      return store
-        .findRecord('person', 1)
-        .then((person) => {
-          return person.group;
-        })
-        .then((group) => {
-          assert.ok(group instanceof Group, 'A group object is loaded');
-          assert.strictEqual(group.id, '1', 'It is the group we are expecting');
-        });
-    });
+    await store
+      .findRecord('person', 1)
+      .then((person) => {
+        return person.group;
+      })
+      .then((group) => {
+        assert.ok(group instanceof Group, 'A group object is loaded');
+        assert.strictEqual(group.id, '1', 'It is the group we are expecting');
+      });
   });
 
-  test('A record with an async belongsTo relationship always returns a promise for that relationship', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+  test('A record with an async belongsTo relationship always returns a promise for that relationship', async function (assert) {
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
-    let Seat = Model.extend({
+    const Seat = Model.extend({
       person: belongsTo('person', { async: false, inverse: 'seat' }),
     });
 
-    let Person = Model.extend({
+    const Person = Model.extend({
       seat: belongsTo('seat', { async: true, inverse: 'person' }),
     });
 
     this.owner.register('model:seat', Seat);
     this.owner.register('model:person', Person);
 
-    run(() => {
-      store.push({
-        data: {
-          id: '1',
-          type: 'person',
-          relationships: {
-            seat: {
-              links: {
-                related: '/people/1/seat',
-              },
+    store.push({
+      data: {
+        id: '1',
+        type: 'person',
+        relationships: {
+          seat: {
+            links: {
+              related: '/people/1/seat',
             },
           },
         },
-      });
+      },
     });
 
     adapter.findRecord = function (store, type, id, snapshot) {
@@ -793,54 +768,50 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     };
 
     adapter.findBelongsTo = function (store, snapshot, link, relationship) {
-      return resolve({ data: { id: '1', type: 'seat' } });
+      return Promise.resolve({ data: { id: '1', type: 'seat' } });
     };
 
-    return run(() => {
-      return store.findRecord('person', 1).then((person) => {
-        return person.seat.then((seat) => {
-          // this assertion fails too
-          // ok(seat.person === person, 'parent relationship should be populated');
-          seat.set('person', person);
-          assert.ok(person.seat.then, 'seat should be a PromiseObject');
-        });
+    await store.findRecord('person', '1').then((person) => {
+      return person.seat.then((seat) => {
+        // this assertion fails too
+        // ok(seat.person === person, 'parent relationship should be populated');
+        seat.set('person', person);
+        assert.ok(person.seat.then, 'seat should be a PromiseObject');
       });
     });
   });
 
-  test('A record with an async belongsTo relationship returning null should resolve null', function (assert) {
+  test('A record with an async belongsTo relationship returning null should resolve null', async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
-    let Group = Model.extend({
+    const Group = Model.extend({
       people: hasMany('person', { async: false, inverse: 'group' }),
     });
 
-    let Person = Model.extend({
+    const Person = Model.extend({
       group: belongsTo('group', { async: true, inverse: 'people' }),
     });
 
     this.owner.register('model:group', Group);
     this.owner.register('model:person', Person);
 
-    run(() => {
-      store.push({
-        data: {
-          id: '1',
-          type: 'person',
-          relationships: {
-            group: {
-              links: {
-                related: '/people/1/group',
-              },
+    store.push({
+      data: {
+        id: '1',
+        type: 'person',
+        relationships: {
+          group: {
+            links: {
+              related: '/people/1/group',
             },
           },
         },
-      });
+      },
     });
 
     adapter.findRecord = function (store, type, id, snapshot) {
@@ -848,10 +819,10 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     };
 
     adapter.findBelongsTo = function (store, snapshot, link, relationship) {
-      return resolve({ data: null });
+      return Promise.resolve({ data: null });
     };
 
-    return store
+    await store
       .findRecord('person', '1')
       .then((person) => {
         return person.group;
@@ -867,16 +838,16 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     async function (assert) {
       assert.expect(1);
 
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
 
       adapter.shouldBackgroundReloadRecord = () => false;
 
-      let Group = Model.extend({
+      const Group = Model.extend({
         people: hasMany('person', { async: false, inverse: 'group' }),
       });
 
-      let Person = Model.extend({
+      const Person = Model.extend({
         group: belongsTo('group', { async: true, inverse: 'people' }),
       });
 
@@ -897,9 +868,9 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
         },
       });
 
-      let groupPromise = originalOwner.group;
+      const groupPromise = originalOwner.group;
       const group = await groupPromise;
-      let person = store.createRecord('person', {
+      const person = store.createRecord('person', {
         group: groupPromise,
       });
       const personGroup = await person.group;
@@ -910,16 +881,14 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
   test('polymorphic belongsTo class-checks check the superclass', function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    run(() => {
-      let igor = store.createRecord('user', { name: 'Igor' });
-      let post = store.createRecord('post', { title: "Igor's unimaginative blog post" });
+    const igor = store.createRecord('user', { name: 'Igor' });
+    const post = store.createRecord('post', { title: "Igor's unimaginative blog post" });
 
-      igor.set('favouriteMessage', post);
+    igor.set('favouriteMessage', post);
 
-      assert.strictEqual(igor.favouriteMessage.title, "Igor's unimaginative blog post");
-    });
+    assert.strictEqual(igor.favouriteMessage.title, "Igor's unimaginative blog post");
   });
 
   test('relationship changes shouldn’t cause async fetches', async function (assert) {
@@ -938,8 +907,8 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
      *     - comment is destroyed
      */
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     class Message extends Model {
       @attr('date') created_at;
@@ -1020,8 +989,8 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
   test('Destroying a record with an unloaded aync belongsTo association does not fetch the record', async function (assert) {
     assert.expect(2);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     class Post extends Model {
       @attr('string') title;
@@ -1078,24 +1047,21 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
   });
 
   testInDebug('A sync belongsTo errors out if the record is unloaded', function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let message;
-    run(() => {
-      message = store.push({
-        data: {
-          id: '1',
-          type: 'message',
-          relationships: {
-            user: {
-              data: {
-                id: '2',
-                type: 'user',
-              },
+    const message = store.push({
+      data: {
+        id: '1',
+        type: 'message',
+        relationships: {
+          user: {
+            data: {
+              id: '2',
+              type: 'user',
             },
           },
         },
-      });
+      },
     });
 
     assert.expectAssertion(() => {
@@ -1111,9 +1077,8 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     }
     this.owner.register('model:book', Book);
 
-    let store = this.owner.lookup('service:store');
-    let book, author;
-    book = store.push({
+    const store = this.owner.lookup('service:store');
+    const book = store.push({
       data: {
         id: '1',
         type: 'book',
@@ -1130,7 +1095,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
         },
       },
     });
-    author = store.push({
+    const author = store.push({
       data: {
         id: '2',
         type: 'author',
@@ -1149,10 +1114,9 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
   });
 
   test('Rollbacking attributes for a deleted record restores implicit relationship - sync', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let book, author;
+    const store = this.owner.lookup('service:store');
 
-    book = store.push({
+    const book = store.push({
       data: {
         id: '1',
         type: 'book',
@@ -1170,7 +1134,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       },
     });
 
-    author = store.push({
+    const author = store.push({
       data: {
         id: '2',
         type: 'author',
@@ -1207,11 +1171,11 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       @hasMany('chapter', { async: false, inverse: 'book' }) chapters;
     }
     this.owner.register('model:book', Book);
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, id, snapshot) {
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'book',
@@ -1224,7 +1188,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     };
 
     await store.findRecord('book', 1).then((book) => {
-      let relationship = getRelationshipStateForRecord(book, 'author');
+      const relationship = getRelationshipStateForRecord(book, 'author');
       assert.true(relationship.state.hasReceivedData, 'relationship has data');
     });
   });
@@ -1232,11 +1196,11 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
   test('belongsTo hasAnyRelationshipData sync loaded', async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, id, snapshot) {
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'book',
@@ -1249,7 +1213,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     };
 
     await store.findRecord('book', 1).then((book) => {
-      let relationship = getRelationshipStateForRecord(book, 'author');
+      const relationship = getRelationshipStateForRecord(book, 'author');
       assert.true(relationship.state.hasReceivedData, 'relationship has data');
     });
   });
@@ -1262,11 +1226,11 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       @hasMany('chapter', { async: false, inverse: 'book' }) chapters;
     }
     this.owner.register('model:book', Book);
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, id, snapshot) {
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'book',
@@ -1279,7 +1243,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     };
 
     await store.findRecord('book', 1).then((book) => {
-      let relationship = getRelationshipStateForRecord(book, 'author');
+      const relationship = getRelationshipStateForRecord(book, 'author');
       assert.false(relationship.state.hasReceivedData, 'relationship does not have data');
     });
   });
@@ -1287,11 +1251,11 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
   test('belongsTo hasAnyRelationshipData sync not loaded', async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, id, snapshot) {
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'book',
@@ -1301,7 +1265,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     };
 
     await store.findRecord('book', 1).then((book) => {
-      let relationship = getRelationshipStateForRecord(book, 'author');
+      const relationship = getRelationshipStateForRecord(book, 'author');
       assert.false(relationship.state.hasReceivedData, 'relationship does not have data');
     });
   });
@@ -1314,9 +1278,9 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       @hasMany('chapter', { async: false, inverse: 'book' }) chapters;
     }
     this.owner.register('model:book', Book);
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let author = store.createRecord('author');
+    const author = store.createRecord('author');
     let book = store.createRecord('book', { name: 'The Greatest Book' });
     let relationship = getRelationshipStateForRecord(book, 'author');
 
@@ -1335,9 +1299,9 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
   test('belongsTo hasAnyRelationshipData sync created', function (assert) {
     assert.expect(2);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let author = store.createRecord('author');
+    const author = store.createRecord('author');
     let book = store.createRecord('book', {
       name: 'The Greatest Book',
     });
@@ -1355,10 +1319,9 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
   });
 
   test("Model's belongsTo relationship should not be created during model creation", function (assert) {
-    let store = this.owner.lookup('service:store');
-    let user;
+    const store = this.owner.lookup('service:store');
 
-    user = store.push({
+    const user = store.push({
       data: {
         id: '1',
         type: 'user',
@@ -1372,9 +1335,9 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
   });
 
   test("Model's belongsTo relationship should be created during model creation if relationship passed in constructor", function (assert) {
-    let store = this.owner.lookup('service:store');
-    let message = store.createRecord('message');
-    let user = store.createRecord('user', {
+    const store = this.owner.lookup('service:store');
+    const message = store.createRecord('message');
+    const user = store.createRecord('user', {
       name: 'John Doe',
       favouriteMessage: message,
     });
@@ -1386,11 +1349,10 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
   });
 
   test("Model's belongsTo relationship should be created during 'set' method", function (assert) {
-    let store = this.owner.lookup('service:store');
-    let user, message;
+    const store = this.owner.lookup('service:store');
 
-    message = store.createRecord('message');
-    user = store.createRecord('user');
+    const message = store.createRecord('message');
+    const user = store.createRecord('user');
     user.set('favouriteMessage', message);
     assert.ok(
       hasRelationshipForRecord(user, 'favouriteMessage'),
@@ -1399,10 +1361,9 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
   });
 
   test("Model's belongsTo relationship should be created during 'get' method", function (assert) {
-    let store = this.owner.lookup('service:store');
-    let user;
+    const store = this.owner.lookup('service:store');
 
-    user = store.createRecord('user');
+    const user = store.createRecord('user');
     user.favouriteMessage;
     assert.ok(
       hasRelationshipForRecord(user, 'favouriteMessage'),
@@ -1419,13 +1380,13 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     }
     this.owner.register('model:book', Book);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findBelongsTo = function (store, snapshot, url, relationship) {
       assert.strictEqual(url, 'author', 'url is correct');
       assert.ok(true, "The adapter's findBelongsTo method should be called");
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'author',
@@ -1434,7 +1395,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       });
     };
 
-    let book = store.push({
+    const book = store.push({
       data: {
         type: 'book',
         id: '1',
@@ -1463,12 +1424,12 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     }
     this.owner.register('model:book', Book);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findBelongsTo = function (store, snapshot, url, relationship) {
       assert.ok(true, "The adapter's findBelongsTo method should be called");
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'author',
@@ -1481,7 +1442,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       assert.ok(false, "The adapter's findRecord method should not be called");
     };
 
-    let book = store.push({
+    const book = store.push({
       data: {
         type: 'book',
         id: '1',
@@ -1511,8 +1472,8 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     }
     this.owner.register('model:book', Book);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => {
       return false;
@@ -1525,7 +1486,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       assert.ok(false, "The adapter's findRecord method should not be called");
     };
 
-    let book = store.push({
+    const book = store.push({
       data: {
         type: 'book',
         id: '1',
@@ -1562,13 +1523,13 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     }
     this.owner.register('model:book', Book);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findBelongsTo = function (store, snapshot, url, relationship) {
       assert.strictEqual(url, 'author-new-link', 'url is correct');
       assert.ok(true, "The adapter's findBelongsTo method should be called");
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'author',
@@ -1581,7 +1542,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       assert.ok(false, "The adapter's findRecord method should not be called");
     };
 
-    let book = store.push({
+    const book = store.push({
       data: {
         type: 'book',
         id: '1',
@@ -1625,13 +1586,13 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     }
     this.owner.register('model:book', Book);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findBelongsTo = function (store, snapshot, url, relationship) {
       assert.strictEqual(url, 'author-updated-link', 'url is correct');
       assert.ok(true, "The adapter's findBelongsTo method should be called");
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'author',
@@ -1646,7 +1607,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       assert.ok(false, "The adapter's findRecord method should not be called");
     };
 
-    let book = store.push({
+    const book = store.push({
       data: {
         type: 'book',
         id: '1',
@@ -1705,8 +1666,8 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     }
     this.owner.register('model:book', Book);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findBelongsTo = function () {
       assert.ok(false, "The adapter's findBelongsTo method should not be called");
@@ -1716,7 +1677,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       assert.ok(false, "The adapter's findRecord method should not be called");
     };
 
-    let book = store.push({
+    const book = store.push({
       data: {
         type: 'book',
         id: '1',
@@ -1772,11 +1733,11 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     }
     this.owner.register('model:chapter', Chapter);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = function () {
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'chapter',
@@ -1790,7 +1751,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     };
 
     adapter.findBelongsTo = function () {
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'book',
@@ -1812,7 +1773,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
         assert.strictEqual(book.name, 'book title');
 
         adapter.findBelongsTo = function () {
-          return resolve({
+          return Promise.resolve({
             data: {
               id: '1',
               type: 'book',
@@ -1829,10 +1790,10 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
   });
 
   test('A synchronous belongsTo relationship can be reloaded using a reference if it was fetched via id', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
-    let chapter = store.push({
+    const chapter = store.push({
       data: {
         type: 'chapter',
         id: '1',
@@ -1854,7 +1815,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     });
 
     adapter.findRecord = function () {
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'book',
@@ -1863,7 +1824,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
       });
     };
 
-    let book = chapter.book;
+    const book = chapter.book;
     assert.strictEqual(book.name, 'book title');
 
     await chapter
@@ -1881,10 +1842,10 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     }
     this.owner.register('model:chapter', Chapter);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
-    let chapter = store.push({
+    const chapter = store.push({
       data: {
         type: 'chapter',
         id: '1',
@@ -1897,7 +1858,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     });
 
     adapter.findRecord = function () {
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'book',
@@ -1911,7 +1872,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
         assert.strictEqual(book.name, 'book title');
 
         adapter.findRecord = function () {
-          return resolve({
+          return Promise.resolve({
             data: {
               id: '1',
               type: 'book',
@@ -1928,10 +1889,10 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
   });
 
   testInDebug('A belongsTo relationship warns if malformatted data is pushed into the store', async function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     await assert.expectAssertion(async () => {
-      let chapter = store.push({
+      const chapter = store.push({
         data: {
           type: 'chapter',
           id: '1',
@@ -1946,41 +1907,37 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     }, /Encountered a relationship identifier without a type for the belongsTo relationship 'book' on <chapter:1>, expected an identifier with type 'book'/);
   });
 
-  test("belongsTo relationship with links doesn't trigger extra change notifications - #4942", function (assert) {
+  test("belongsTo relationship with links doesn't trigger extra change notifications - #4942", async function (assert) {
     class Chapter extends Model {
       @attr title;
       @belongsTo('book', { async: true, inverse: 'chapters' }) book;
     }
     this.owner.register('model:chapter', Chapter);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'chapter',
-          id: '1',
-          relationships: {
-            book: {
-              data: { type: 'book', id: '1' },
-              links: { related: '/chapter/1/book' },
-            },
+    store.push({
+      data: {
+        type: 'chapter',
+        id: '1',
+        relationships: {
+          book: {
+            data: { type: 'book', id: '1' },
+            links: { related: '/chapter/1/book' },
           },
         },
-        included: [{ type: 'book', id: '1' }],
-      });
+      },
+      included: [{ type: 'book', id: '1' }],
     });
 
-    let chapter = store.peekRecord('chapter', '1');
+    const chapter = store.peekRecord('chapter', '1');
     let count = 0;
 
     chapter.addObserver('book', () => {
       count++;
     });
 
-    run(() => {
-      chapter.book;
-    });
+    await chapter.book;
 
     assert.strictEqual(count, 0);
   });
@@ -2033,7 +1990,6 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     const friend = await bestFriendPromise;
     const enemy = await worstEnemyPromise;
 
-    // eslint-disable-next-line qunit/no-ok-equality
     assert.true(friend !== enemy, 'we got separate records');
   });
 });

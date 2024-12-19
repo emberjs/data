@@ -19,12 +19,12 @@ module('unit/adapters/json-api-adapter/ajax-options - building requests', functi
   });
 
   test('ajaxOptions() adds Accept when no other headers exist', function (assert) {
-    let adapter = this.owner.lookup('adapter:application');
+    const adapter = this.owner.lookup('adapter:application');
 
-    let url = 'example.com';
-    let type = 'GET';
-    let ajaxOptions = adapter.ajaxOptions(url, type, {});
-    let receivedHeaders = ajaxOptions.headers;
+    const url = 'example.com';
+    const type = 'GET';
+    const ajaxOptions = adapter.ajaxOptions(url, type, {});
+    const receivedHeaders = ajaxOptions.headers;
 
     assert.deepEqual(
       receivedHeaders,
@@ -36,14 +36,14 @@ module('unit/adapters/json-api-adapter/ajax-options - building requests', functi
   });
 
   test('ajaxOptions() adds Accept header to existing headers', function (assert) {
-    let adapter = this.owner.lookup('adapter:application');
+    const adapter = this.owner.lookup('adapter:application');
 
     adapter.headers = { 'Other-key': 'Other Value' };
 
-    let url = 'example.com';
-    let type = 'GET';
-    let ajaxOptions = adapter.ajaxOptions(url, type, {});
-    let receivedHeaders = ajaxOptions.headers;
+    const url = 'example.com';
+    const type = 'GET';
+    const ajaxOptions = adapter.ajaxOptions(url, type, {});
+    const receivedHeaders = ajaxOptions.headers;
 
     assert.deepEqual(
       receivedHeaders,
@@ -56,14 +56,14 @@ module('unit/adapters/json-api-adapter/ajax-options - building requests', functi
   });
 
   test('ajaxOptions() adds Accept header to existing computed properties headers', function (assert) {
-    let adapter = this.owner.lookup('adapter:application');
+    const adapter = this.owner.lookup('adapter:application');
 
     adapter.headers = { 'Other-key': 'Other Value' };
 
-    let url = 'example.com';
-    let type = 'GET';
-    let ajaxOptions = adapter.ajaxOptions(url, type, {});
-    let receivedHeaders = ajaxOptions.headers;
+    const url = 'example.com';
+    const type = 'GET';
+    const ajaxOptions = adapter.ajaxOptions(url, type, {});
+    const receivedHeaders = ajaxOptions.headers;
 
     assert.deepEqual(
       receivedHeaders,
@@ -76,14 +76,14 @@ module('unit/adapters/json-api-adapter/ajax-options - building requests', functi
   });
 
   test('ajaxOptions() does not overwrite passed value of Accept headers', function (assert) {
-    let adapter = this.owner.lookup('adapter:application');
+    const adapter = this.owner.lookup('adapter:application');
 
     adapter.headers = { 'Other-Key': 'Other Value', Accept: 'application/json' };
 
-    let url = 'example.com';
-    let type = 'GET';
-    let ajaxOptions = adapter.ajaxOptions(url, type, {});
-    let receivedHeaders = ajaxOptions.headers;
+    const url = 'example.com';
+    const type = 'GET';
+    const ajaxOptions = adapter.ajaxOptions(url, type, {});
+    const receivedHeaders = ajaxOptions.headers;
 
     assert.deepEqual(
       receivedHeaders,
@@ -96,14 +96,14 @@ module('unit/adapters/json-api-adapter/ajax-options - building requests', functi
   });
 
   test('ajaxOptions() headers are set POST', function (assert) {
-    let adapter = this.owner.lookup('adapter:application');
+    const adapter = this.owner.lookup('adapter:application');
 
     adapter.headers = {};
 
-    let url = 'example.com';
-    let type = 'POST';
-    let ajaxOptions = adapter.ajaxOptions(url, type, { data: { type: 'post' } });
-    let receivedHeaders = ajaxOptions.headers;
+    const url = 'example.com';
+    const type = 'POST';
+    const ajaxOptions = adapter.ajaxOptions(url, type, { data: { type: 'post' } });
+    const receivedHeaders = ajaxOptions.headers;
 
     assert.deepEqual(
       receivedHeaders,
@@ -116,14 +116,14 @@ module('unit/adapters/json-api-adapter/ajax-options - building requests', functi
   });
 
   test('ajaxOptions() does not override with existing headers["Content-Type"] POST', function (assert) {
-    let adapter = this.owner.lookup('adapter:application');
+    const adapter = this.owner.lookup('adapter:application');
 
     adapter.headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
 
-    let url = 'example.com';
-    let type = 'POST';
-    let ajaxOptions = adapter.ajaxOptions(url, type, { data: { type: 'post' } });
-    let receivedHeaders = ajaxOptions.headers;
+    const url = 'example.com';
+    const type = 'POST';
+    const ajaxOptions = adapter.ajaxOptions(url, type, { data: { type: 'post' } });
+    const receivedHeaders = ajaxOptions.headers;
 
     assert.deepEqual(
       receivedHeaders,
@@ -136,17 +136,17 @@ module('unit/adapters/json-api-adapter/ajax-options - building requests', functi
   });
 
   test('ajaxOptions() can override with options.contentType POST', function (assert) {
-    let adapter = this.owner.lookup('adapter:application');
+    const adapter = this.owner.lookup('adapter:application');
 
     adapter.headers = {};
 
-    let url = 'example.com';
-    let type = 'POST';
-    let ajaxOptions = adapter.ajaxOptions(url, type, {
+    const url = 'example.com';
+    const type = 'POST';
+    const ajaxOptions = adapter.ajaxOptions(url, type, {
       contentType: 'application/x-www-form-urlencoded',
       data: { type: 'post' },
     });
-    let receivedHeaders = ajaxOptions.headers;
+    const receivedHeaders = ajaxOptions.headers;
 
     assert.deepEqual(
       receivedHeaders,

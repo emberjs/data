@@ -1,7 +1,6 @@
 import { computed, get, observer, set } from '@ember/object';
 
 import { module, test } from 'qunit';
-import { reject, resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -19,7 +18,7 @@ module('unit/model - Model', function (hooks) {
   let store, adapter;
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
 
     class Person extends Model {
       @attr('string')
@@ -46,7 +45,7 @@ module('unit/model - Model', function (hooks) {
 
   module('currentState', function () {
     test('supports pushedData in root.deleted.uncommitted', async function (assert) {
-      let record = store.push({
+      const record = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -71,10 +70,10 @@ module('unit/model - Model', function (hooks) {
 
     test('supports canonical updates via pushedData in root.deleted.saved', async function (assert) {
       adapter.deleteRecord = () => {
-        return resolve({ data: null });
+        return Promise.resolve({ data: null });
       };
 
-      let record = store.push({
+      const record = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -116,10 +115,10 @@ module('unit/model - Model', function (hooks) {
 
     testInDebug('Does not support dirtying in root.deleted.saved', async function (assert) {
       adapter.deleteRecord = () => {
-        return resolve({ data: null });
+        return Promise.resolve({ data: null });
       };
 
-      let record = store.push({
+      const record = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -158,7 +157,7 @@ module('unit/model - Model', function (hooks) {
     });
 
     test('currentState is accessible when the record is created', async function (assert) {
-      let record = store.push({
+      const record = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -182,13 +181,13 @@ module('unit/model - Model', function (hooks) {
         },
       });
 
-      let record = await store.findRecord('person', '1');
+      const record = await store.findRecord('person', '1');
 
       assert.strictEqual(get(record, 'id'), '1', 'reports id as id by default');
     });
 
     test("a record's id is included in its toString representation", async function (assert) {
-      let person = store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -209,7 +208,7 @@ module('unit/model - Model', function (hooks) {
       this.owner.register('model:test-model', TestModel);
 
       assert.expectAssertion(() => {
-        let ModelClass = store.modelFor('test-model');
+        const ModelClass = store.modelFor('test-model');
         get(ModelClass, 'attributes');
       }, /You may not set `id` as an attribute on your model/);
 
@@ -237,7 +236,7 @@ module('unit/model - Model', function (hooks) {
       // such as `watch` which is particularly problematic
       assert.expect(1);
 
-      let hasWatchMethod = Object.prototype.watch;
+      const hasWatchMethod = Object.prototype.watch;
       try {
         if (!hasWatchMethod) {
           Object.prototype.watch = function () {};
@@ -250,7 +249,7 @@ module('unit/model - Model', function (hooks) {
           },
         });
 
-        let record = await store.findRecord('person', 'watch');
+        const record = await store.findRecord('person', 'watch');
 
         assert.strictEqual(get(record, 'id'), 'watch', 'record is successfully created and could be found by its id');
       } finally {
@@ -294,17 +293,17 @@ module('unit/model - Model', function (hooks) {
     });
 
     test('setting the id during createRecord should correctly update the id', async function (assert) {
-      let person = store.createRecord('person', { id: 'john' });
+      const person = store.createRecord('person', { id: 'john' });
 
       assert.strictEqual(person.id, 'john', 'new id should be correctly set.');
 
-      let record = store.peekRecord('person', 'john');
+      const record = store.peekRecord('person', 'john');
 
       assert.strictEqual(person, record, 'The cache has an entry for john');
     });
 
     test('setting the id after createRecord should correctly update the id', async function (assert) {
-      let person = store.createRecord('person');
+      const person = store.createRecord('person');
 
       assert.strictEqual(person.id, null, 'initial created model id should be null');
 
@@ -312,25 +311,25 @@ module('unit/model - Model', function (hooks) {
 
       assert.strictEqual(person.id, 'john', 'new id should be correctly set.');
 
-      let record = store.peekRecord('person', 'john');
+      const record = store.peekRecord('person', 'john');
 
       assert.strictEqual(person, record, 'The cache has an entry for john');
     });
 
     testInDebug('mutating the id after createRecord but before save works', async function (assert) {
-      let person = store.createRecord('person', { id: 'chris' });
+      const person = store.createRecord('person', { id: 'chris' });
 
       assert.strictEqual(person.id, 'chris', 'initial created model id should be null');
 
       try {
         person.set('id', 'john');
         assert.ok(false, 'we should have thrown an error during mutation');
-      } catch (e) {
+      } catch {
         assert.ok(true, 'we did throw');
       }
 
-      let chris = store.peekRecord('person', 'chris');
-      let john = store.peekRecord('person', 'john');
+      const chris = store.peekRecord('person', 'chris');
+      const john = store.peekRecord('person', 'john');
 
       assert.ok(chris === person, 'The cache still has an entry for chris');
       assert.ok(john === null, 'The cache has no entry for john');
@@ -345,7 +344,7 @@ module('unit/model - Model', function (hooks) {
       });
       this.owner.register('model:odd-person', OddPerson);
 
-      let person = store.createRecord('odd-person');
+      const person = store.createRecord('odd-person');
       let oddId = person.idComputed;
 
       assert.strictEqual(oddId, null, 'initial computed get is null');
@@ -374,7 +373,7 @@ module('unit/model - Model', function (hooks) {
 
       // we peek it instead of getting the return of push to make sure
       // we can locate it in the identity map
-      let record = store.peekRecord('person', 0);
+      const record = store.peekRecord('person', 0);
 
       assert.strictEqual(record.name, 'Tom Dale', 'found record with id 0');
     });
@@ -393,8 +392,8 @@ module('unit/model - Model', function (hooks) {
       this.owner.register('model:native-tag', NativeTag);
       this.owner.register('model:legacy-tag', LegacyTag);
 
-      let nativeTag = store.createRecord('native-tag', { name: 'test native' });
-      let legacyTag = store.createRecord('legacy-tag', { name: 'test legacy' });
+      const nativeTag = store.createRecord('native-tag', { name: 'test native' });
+      const legacyTag = store.createRecord('legacy-tag', { name: 'test legacy' });
 
       assert.strictEqual(get(nativeTag, 'name'), 'test native', 'the value is persisted');
       assert.strictEqual(get(legacyTag, 'name'), 'test legacy', 'the value is persisted');
@@ -412,8 +411,8 @@ module('unit/model - Model', function (hooks) {
       this.owner.register('model:native-tag', NativeTag);
       this.owner.register('model:legacy-tag', LegacyTag);
 
-      let nativeTag = store.createRecord('native-tag');
-      let legacyTag = store.createRecord('legacy-tag');
+      const nativeTag = store.createRecord('native-tag');
+      const legacyTag = store.createRecord('legacy-tag');
 
       assert.strictEqual(get(nativeTag, 'name'), 'unknown native tag', 'the default value is found');
       assert.strictEqual(get(legacyTag, 'name'), 'unknown legacy tag', 'the default value is found');
@@ -430,7 +429,7 @@ module('unit/model - Model', function (hooks) {
       }
       this.owner.register('model:tag', Tag);
 
-      let tag = store.createRecord('tag');
+      const tag = store.createRecord('tag');
       assert.strictEqual(get(tag, 'createdAt'), 'le default value', 'the defaultValue function is evaluated');
     });
 
@@ -448,7 +447,7 @@ module('unit/model - Model', function (hooks) {
       }
       this.owner.register('model:tag', Tag);
 
-      let tag = store.createRecord('tag');
+      const tag = store.createRecord('tag');
 
       get(tag, 'createdAt');
     });
@@ -460,7 +459,7 @@ module('unit/model - Model', function (hooks) {
       }
       this.owner.register('model:tag', Tag);
 
-      let tag = store.createRecord('tag');
+      const tag = store.createRecord('tag');
 
       assert.expectAssertion(() => {
         get(tag, 'tagInfo');
@@ -471,7 +470,7 @@ module('unit/model - Model', function (hooks) {
   module('Attribute Transforms', function () {
     function converts(testName, type, provided, expected, options = {}) {
       test(testName, async function (assert) {
-        let { owner } = this;
+        const { owner } = this;
         class TestModel extends Model {
           @attr(type, options)
           name;
@@ -482,7 +481,7 @@ module('unit/model - Model', function (hooks) {
         store.push(store.normalize('model', { id: '1', name: provided }));
         store.push(store.normalize('model', { id: '2' }));
 
-        let record = store.peekRecord('model', 1);
+        const record = store.peekRecord('model', 1);
 
         assert.deepEqual(get(record, 'name'), expected, type + ' coerces ' + provided + ' to ' + expected);
       });
@@ -490,7 +489,7 @@ module('unit/model - Model', function (hooks) {
 
     function convertsFromServer(testName, type, provided, expected) {
       test(testName, async function (assert) {
-        let { owner } = this;
+        const { owner } = this;
         class TestModel extends Model {
           @attr(type)
           name;
@@ -499,7 +498,7 @@ module('unit/model - Model', function (hooks) {
         owner.register('model:model', TestModel);
         owner.register('serializer:model', JSONSerializer);
 
-        let record = store.push(
+        const record = store.push(
           store.normalize('model', {
             id: '1',
             name: provided,
@@ -512,7 +511,7 @@ module('unit/model - Model', function (hooks) {
 
     function convertsWhenSet(testName, type, provided, expected) {
       test(testName, async function (assert) {
-        let { owner } = this;
+        const { owner } = this;
         class TestModel extends Model {
           @attr(type)
           name;
@@ -521,7 +520,7 @@ module('unit/model - Model', function (hooks) {
         owner.register('model:model', TestModel);
         owner.register('serializer:model', JSONSerializer);
 
-        let record = store.push({
+        const record = store.push({
           data: {
             type: 'model',
             id: '2',
@@ -569,8 +568,8 @@ module('unit/model - Model', function (hooks) {
       converts('null-to-null', 'date', null, null);
       converts('undefined-to-undefined', 'date', undefined, undefined);
 
-      let dateString = '2011-12-31T00:08:16.000Z';
-      let date = new Date(dateString);
+      const dateString = '2011-12-31T00:08:16.000Z';
+      const date = new Date(dateString);
 
       convertsFromServer('string-to-Date', 'date', dateString, date);
       convertsWhenSet('Date-to-string', 'date', date, dateString);
@@ -579,7 +578,7 @@ module('unit/model - Model', function (hooks) {
 
   module('Reserved Props', function () {
     testInDebug(`don't allow setting of readOnly state props`, async function (assert) {
-      let record = store.createRecord('person');
+      const record = store.createRecord('person');
 
       if (navigator.userAgent.includes('Firefox/')) {
         assert.expectAssertion(() => {
@@ -603,7 +602,7 @@ module('unit/model - Model', function (hooks) {
     };
 
     function testReservedProperty(prop) {
-      let testName = `A subclass of Model cannot use the reserved property '${prop}'`;
+      const testName = `A subclass of Model cannot use the reserved property '${prop}'`;
 
       testInDebug(testName, async function (assert) {
         const NativePost = PROP_MAP[prop];
@@ -669,7 +668,7 @@ module('unit/model - Model', function (hooks) {
     test('ensure model exits loading state, materializes data and fulfills promise only after data is available', async function (assert) {
       assert.expect(2);
       adapter.findRecord = () =>
-        resolve({
+        Promise.resolve({
           data: {
             id: '1',
             type: 'person',
@@ -677,14 +676,14 @@ module('unit/model - Model', function (hooks) {
           },
         });
 
-      let person = await store.findRecord('person', 1);
+      const person = await store.findRecord('person', 1);
 
       assert.strictEqual(get(person, 'currentState.stateName'), 'root.loaded.saved', 'model is in loaded state');
       assert.true(get(person, 'isLoaded'), 'model is loaded');
     });
 
     test('Pushing a record into the store should transition new records to the loaded state', async function (assert) {
-      let person = store.createRecord('person', { id: '1', name: 'TomHuda' });
+      const person = store.createRecord('person', { id: '1', name: 'TomHuda' });
 
       assert.true(person.isNew, 'createRecord should put records into the new state');
 
@@ -754,7 +753,7 @@ module('unit/model - Model', function (hooks) {
     test('a Model can update its attributes', async function (assert) {
       assert.expect(1);
 
-      let person = store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '2',
@@ -776,7 +775,7 @@ module('unit/model - Model', function (hooks) {
 
       this.owner.register('model:tag', Tag);
 
-      let tag = store.createRecord('tag');
+      const tag = store.createRecord('tag');
       assert.strictEqual(get(tag, 'name'), 'unknown', 'the default value is found');
 
       set(tag, 'name', null);
@@ -806,7 +805,7 @@ module('unit/model - Model', function (hooks) {
       this.owner.register('model:native-tag', NativeTag);
       this.owner.register('model:legacy-tag', LegacyTag);
 
-      let legacyTag = store.createRecord('legacy-tag', { name: 'old' });
+      const legacyTag = store.createRecord('legacy-tag', { name: 'old' });
       assert.strictEqual(get(legacyTag, 'name'), 'old', 'precond - name is correct');
 
       set(legacyTag, 'name', 'edited');
@@ -815,7 +814,7 @@ module('unit/model - Model', function (hooks) {
       set(legacyTag, 'title', 'new');
       assert.strictEqual(get(legacyTag, 'name'), 'new', 'setUnknownProperty was triggered');
 
-      let nativeTag = store.createRecord('native-tag', { name: 'old' });
+      const nativeTag = store.createRecord('native-tag', { name: 'old' });
       assert.strictEqual(get(nativeTag, 'name'), 'old', 'precond - name is correct');
 
       set(nativeTag, 'name', 'edited');
@@ -848,7 +847,7 @@ module('unit/model - Model', function (hooks) {
     });
 
     test('setting a property back to its original value cleans the mutated state', async function (assert) {
-      let person = store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -875,7 +874,7 @@ module('unit/model - Model', function (hooks) {
 
   module('Mutation', function () {
     test('can have properties and non-specified properties set on it', async function (assert) {
-      let record = store.createRecord('person', { isDrugAddict: false, notAnAttr: 'my value' });
+      const record = store.createRecord('person', { isDrugAddict: false, notAnAttr: 'my value' });
       set(record, 'name', 'bar');
       set(record, 'anotherNotAnAttr', 'my other value');
 
@@ -897,7 +896,7 @@ module('unit/model - Model', function (hooks) {
         },
       });
 
-      let person = await store.findRecord('person', '1');
+      const person = await store.findRecord('person', '1');
 
       assert.false(person.hasDirtyAttributes, 'precond - person record should not be dirty');
 
@@ -919,7 +918,7 @@ module('unit/model - Model', function (hooks) {
         },
       });
 
-      let person = await store.findRecord('person', '1');
+      const person = await store.findRecord('person', '1');
 
       assert.false(person.hasDirtyAttributes, 'precond - person record should not be dirty');
 
@@ -934,7 +933,7 @@ module('unit/model - Model', function (hooks) {
 
     test('resetting a property to the current in-flight value causes it to become clean when the save completes', async function (assert) {
       adapter.updateRecord = function () {
-        return resolve();
+        return Promise.resolve();
       };
 
       store.push({
@@ -947,10 +946,10 @@ module('unit/model - Model', function (hooks) {
         },
       });
 
-      let person = store.peekRecord('person', 1);
+      const person = store.peekRecord('person', 1);
       person.set('name', 'Thomas');
 
-      let saving = person.save();
+      const saving = person.save();
 
       assert.strictEqual(person.name, 'Thomas');
 
@@ -977,7 +976,7 @@ module('unit/model - Model', function (hooks) {
         },
       });
 
-      let person = await store.findRecord('person', 1);
+      const person = await store.findRecord('person', 1);
 
       assert.false(person.hasDirtyAttributes, 'precond - person record should not be dirty');
       person.set('isDrugAddict', false);
@@ -992,7 +991,7 @@ module('unit/model - Model', function (hooks) {
 
     test('an invalid record becomes clean again if changed property is reset', async function (assert) {
       adapter.updateRecord = () => {
-        return reject(
+        return Promise.reject(
           new InvalidError([
             {
               source: {
@@ -1014,7 +1013,7 @@ module('unit/model - Model', function (hooks) {
         },
       });
 
-      let person = store.peekRecord('person', 1);
+      const person = store.peekRecord('person', 1);
 
       assert.false(person.hasDirtyAttributes, 'precond - person record should not be dirty');
       person.set('name', 'Wolf');
@@ -1040,7 +1039,7 @@ module('unit/model - Model', function (hooks) {
 
     test('an invalid record stays dirty if only invalid property is reset', async function (assert) {
       adapter.updateRecord = () => {
-        return reject(
+        return Promise.reject(
           new InvalidError([
             {
               source: {
@@ -1062,7 +1061,7 @@ module('unit/model - Model', function (hooks) {
         },
       });
 
-      let person = store.peekRecord('person', 1);
+      const person = store.peekRecord('person', 1);
 
       assert.false(person.hasDirtyAttributes, 'precond - person record should not be dirty');
       person.set('name', 'Wolf');
@@ -1094,8 +1093,8 @@ module('unit/model - Model', function (hooks) {
       }
       this.owner.register('model:post', Post);
 
-      let dateString = 'Sat, 31 Dec 2011 00:08:16 GMT';
-      let date = new Date(dateString);
+      const dateString = 'Sat, 31 Dec 2011 00:08:16 GMT';
+      const date = new Date(dateString);
 
       store.push({
         data: {
@@ -1104,7 +1103,7 @@ module('unit/model - Model', function (hooks) {
         },
       });
 
-      let record = await store.findRecord('post', '1');
+      const record = await store.findRecord('post', '1');
 
       record.set('updatedAt', date);
 
@@ -1128,7 +1127,7 @@ module('unit/model - Model', function (hooks) {
 
       this.owner.register('model:mascot', Mascot);
 
-      let mascot = store.push({
+      const mascot = store.push({
         data: {
           type: 'mascot',
           id: '1',
@@ -1145,7 +1144,7 @@ module('unit/model - Model', function (hooks) {
       mascot.set('likes', 'Ember.js'); // changed value
       mascot.set('isMascot', true); // same value
 
-      let changedAttributes = mascot.changedAttributes();
+      const changedAttributes = mascot.changedAttributes();
 
       assert.deepEqual(changedAttributes.name, [undefined, 'Tomster']);
       assert.deepEqual(changedAttributes.likes, ['JavaScript', 'Ember.js']);
@@ -1177,12 +1176,10 @@ module('unit/model - Model', function (hooks) {
           likes: [undefined, 'Cheese'],
         });
 
-        return resolve({ data: { id: '1', type: 'mascot' } });
+        return Promise.resolve({ data: { id: '1', type: 'mascot' } });
       };
 
-      let cat;
-
-      cat = store.createRecord('mascot');
+      const cat = store.createRecord('mascot');
       cat.setProperties({
         name: 'Argon',
         likes: 'Cheese',
@@ -1193,6 +1190,7 @@ module('unit/model - Model', function (hooks) {
 
     test('changedAttributes() works while the record is being updated', async function (assert) {
       assert.expect(1);
+      // eslint-disable-next-line prefer-const
       let cat;
 
       class Mascot extends Model {
@@ -1235,7 +1233,7 @@ module('unit/model - Model', function (hooks) {
 
     test('changedAttributes() reset after save', async function (assert) {
       adapter.updateRecord = function (store, type, snapshot) {
-        return resolve({
+        return Promise.resolve({
           data: {
             id: '1',
             type: 'person',
@@ -1275,6 +1273,7 @@ module('unit/model - Model', function (hooks) {
 
     test('@attr decorator works without parens', async function (assert) {
       assert.expect(1);
+      // eslint-disable-next-line prefer-const
       let cat;
 
       class Mascot extends Model {
@@ -1310,11 +1309,11 @@ module('unit/model - Model', function (hooks) {
 
   module('Misc', function () {
     testInDebug('Calling record.attr() asserts', async function (assert) {
-      let person = store.createRecord('person', { id: '1', name: 'TomHuda' });
+      const person = store.createRecord('person', { id: '1', name: 'TomHuda' });
 
       assert.expectAssertion(() => {
         person.attr();
-      }, /Assertion Failed: The `attr` method is not available on Model, a Snapshot was probably expected\. Are you passing a Model instead of a Snapshot to your serializer\?/);
+      }, /The `attr` method is not available on Model, a Snapshot was probably expected\. Are you passing a Model instead of a Snapshot to your serializer\?/);
     });
   });
 });

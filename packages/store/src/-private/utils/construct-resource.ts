@@ -1,30 +1,33 @@
-import { assert } from '@ember/debug';
-
+import { assert } from '@warp-drive/build-config/macros';
 import type {
   ExistingResourceIdentifierObject,
   ResourceIdentifierObject,
-} from '@ember-data/types/q/ember-data-json-api';
+} from '@warp-drive/core-types/spec/json-api-raw';
 
 import { isStableIdentifier } from '../caches/identifier-cache';
-import coerceId from './coerce-id';
-import isNonEmptyString from './is-non-empty-string';
+import { coerceId } from './coerce-id';
+import { isNonEmptyString } from './is-non-empty-string';
 
-function constructResource(type: ResourceIdentifierObject): ResourceIdentifierObject;
-function constructResource(type: string, id: string, lid: string): ExistingResourceIdentifierObject;
-function constructResource(
+export function constructResource(type: ResourceIdentifierObject): ResourceIdentifierObject;
+export function constructResource(type: string, id: string, lid: string): ExistingResourceIdentifierObject;
+export function constructResource(
   type: string | undefined,
   id: null | undefined,
   lid: string
 ): ExistingResourceIdentifierObject;
-function constructResource(type: string, id: string, lid?: string | null): ExistingResourceIdentifierObject;
-function constructResource(type: string, id?: string | number | null, lid?: string | null): ResourceIdentifierObject;
-function constructResource(
+export function constructResource(type: string, id: string, lid?: string | null): ExistingResourceIdentifierObject;
+export function constructResource(
+  type: string,
+  id?: string | number | null,
+  lid?: string | null
+): ResourceIdentifierObject;
+export function constructResource(
   type: string | ResourceIdentifierObject | undefined,
   id?: string | number | null,
   lid?: string | null
 ): ResourceIdentifierObject | ExistingResourceIdentifierObject {
   if (typeof type === 'object' && type !== null) {
-    let resource = type;
+    const resource = type;
     if (isStableIdentifier(resource)) {
       return resource;
     }
@@ -57,5 +60,3 @@ function constructResource(
     return { type, id: trueId };
   }
 }
-
-export default constructResource;

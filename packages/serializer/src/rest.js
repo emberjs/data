@@ -1,14 +1,13 @@
 /**
  * @module @ember-data/serializer/rest
  */
-import { assert, warn } from '@ember/debug';
-import { camelize, dasherize } from '@ember/string';
+import { warn } from '@ember/debug';
 
-import { singularize } from 'ember-inflector';
+import { camelize, dasherize, singularize } from '@ember-data/request-utils/string';
+import { DEBUG } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
 
-import { DEBUG } from '@ember-data/env';
-import { coerceId } from '@ember-data/store/-private';
-
+import { coerceId } from './-private/utils';
 import JSONSerializer from './json';
 
 function makeArray(value) {
@@ -95,7 +94,7 @@ const RESTSerializer = JSONSerializer.extend({
    @return {String} normalized key
   */
   keyForPolymorphicType(key, typeClass, method) {
-    let relationshipKey = this.keyForRelationship(key);
+    const relationshipKey = this.keyForRelationship(key);
 
     return `${relationshipKey}Type`;
   },
@@ -181,16 +180,16 @@ const RESTSerializer = JSONSerializer.extend({
     @private
   */
   _normalizeArray(store, modelName, arrayHash, prop) {
-    let documentHash = {
+    const documentHash = {
       data: [],
       included: [],
     };
 
-    let modelClass = store.modelFor(modelName);
-    let serializer = store.serializerFor(modelName);
+    const modelClass = store.modelFor(modelName);
+    const serializer = store.serializerFor(modelName);
 
     makeArray(arrayHash).forEach((hash) => {
-      let { data, included } = this._normalizePolymorphicRecord(store, hash, prop, modelClass, serializer);
+      const { data, included } = this._normalizePolymorphicRecord(store, hash, prop, modelClass, serializer);
       documentHash.data.push(data);
       if (included) {
         documentHash.included = documentHash.included.concat(included);
@@ -204,15 +203,15 @@ const RESTSerializer = JSONSerializer.extend({
     let serializer = primarySerializer;
     let modelClass = primaryModelClass;
 
-    let primaryHasTypeAttribute = primaryModelClass.fields.has('type');
+    const primaryHasTypeAttribute = primaryModelClass.fields.has('type');
 
     if (!primaryHasTypeAttribute && hash.type) {
       // Support polymorphic records in async relationships
-      let modelName = this.modelNameFromPayloadKey(hash.type);
+      const type = this.modelNameFromPayloadKey(hash.type);
 
-      if (store.getSchemaDefinitionService().doesTypeExist(modelName)) {
-        serializer = store.serializerFor(modelName);
-        modelClass = store.modelFor(modelName);
+      if (store.schema.hasResource({ type })) {
+        serializer = store.serializerFor(type);
+        modelClass = store.modelFor(type);
       }
     }
 
@@ -231,12 +230,12 @@ const RESTSerializer = JSONSerializer.extend({
     @private
   */
   _normalizeResponse(store, primaryModelClass, payload, id, requestType, isSingle) {
-    let documentHash = {
+    const documentHash = {
       data: null,
       included: [],
     };
 
-    let meta = this.extractMeta(store, primaryModelClass, payload);
+    const meta = this.extractMeta(store, primaryModelClass, payload);
     if (meta) {
       assert(
         'The `meta` returned from `extractMeta` has to be an object, not "' + typeof meta + '".',
@@ -245,7 +244,7 @@ const RESTSerializer = JSONSerializer.extend({
       documentHash.meta = meta;
     }
 
-    let keys = Object.keys(payload);
+    const keys = Object.keys(payload);
 
     for (var i = 0, length = keys.length; i < length; i++) {
       var prop = keys[i];
@@ -277,15 +276,15 @@ const RESTSerializer = JSONSerializer.extend({
         modelName = prop.substr(1);
       }
 
-      var typeName = this.modelNameFromPayloadKey(modelName);
-      if (!store.getSchemaDefinitionService().doesTypeExist(typeName)) {
-        warn(this.warnMessageNoModelForKey(modelName, typeName), false, {
+      const type = this.modelNameFromPayloadKey(modelName);
+      if (!store.schema.hasResource({ type })) {
+        warn(this.warnMessageNoModelForKey(modelName, type), false, {
           id: 'ds.serializer.model-for-key-missing',
         });
         continue;
       }
 
-      var isPrimary = !forcedSecondary && this.isPrimaryType(store, typeName, primaryModelClass);
+      var isPrimary = !forcedSecondary && this.isPrimaryType(store, type, primaryModelClass);
       var value = payload[prop];
 
       if (value === null) {
@@ -309,7 +308,7 @@ const RESTSerializer = JSONSerializer.extend({
         ```
        */
       if (isPrimary && !Array.isArray(value)) {
-        let { data, included } = this._normalizePolymorphicRecord(store, value, prop, primaryModelClass, this);
+        const { data, included } = this._normalizePolymorphicRecord(store, value, prop, primaryModelClass, this);
         documentHash.data = data;
         if (included) {
           documentHash.included = documentHash.included.concat(included);
@@ -317,7 +316,7 @@ const RESTSerializer = JSONSerializer.extend({
         continue;
       }
 
-      let { data, included } = this._normalizeArray(store, typeName, value, prop);
+      const { data, included } = this._normalizeArray(store, type, value, prop);
 
       if (included) {
         documentHash.included = documentHash.included.concat(included);
@@ -334,8 +333,8 @@ const RESTSerializer = JSONSerializer.extend({
             2. If it's a newly created record without an ID, the first record
                in the array
            */
-          let isUpdatedRecord = isPrimary && coerceId(resource.id) === id;
-          let isFirstCreatedRecord = isPrimary && !id && !documentHash.data;
+          const isUpdatedRecord = isPrimary && coerceId(resource.id) === id;
+          const isFirstCreatedRecord = isPrimary && !id && !documentHash.data;
 
           if (isFirstCreatedRecord || isUpdatedRecord) {
             documentHash.data = resource;
@@ -394,24 +393,24 @@ const RESTSerializer = JSONSerializer.extend({
     @param {Object} payload
   */
   pushPayload(store, payload) {
-    let documentHash = {
+    const documentHash = {
       data: [],
       included: [],
     };
 
-    for (var prop in payload) {
-      var modelName = this.modelNameFromPayloadKey(prop);
-      if (!store.getSchemaDefinitionService().doesTypeExist(modelName)) {
-        warn(this.warnMessageNoModelForKey(prop, modelName), false, {
+    for (const prop in payload) {
+      const type = this.modelNameFromPayloadKey(prop);
+      if (!store.schema.hasResource({ type })) {
+        warn(this.warnMessageNoModelForKey(prop, type), false, {
           id: 'ds.serializer.model-for-key-missing',
         });
         continue;
       }
-      var type = store.modelFor(modelName);
-      var typeSerializer = store.serializerFor(type.modelName);
+      const ModelSchema = store.modelFor(type);
+      const typeSerializer = store.serializerFor(ModelSchema.modelName);
 
       makeArray(payload[prop]).forEach((hash) => {
-        let { data, included } = typeSerializer.normalize(type, hash, prop);
+        const { data, included } = typeSerializer.normalize(ModelSchema, hash, prop);
         documentHash.data.push(data);
         if (included) {
           documentHash.included = documentHash.included.concat(included);
@@ -481,7 +480,7 @@ const RESTSerializer = JSONSerializer.extend({
     @return {String} the model's modelName
   */
   modelNameFromPayloadKey(key) {
-    return singularize(dasherize(key));
+    return dasherize(singularize(key));
   },
 
   // SERIALIZE
@@ -653,11 +652,11 @@ const RESTSerializer = JSONSerializer.extend({
 
     ```app/serializers/application.js
     import RESTSerializer from '@ember-data/serializer/rest';
-    import { decamelize } from '<app-name>/utils/string-utils';
+    import { underscore } from '<app-name>/utils/string-utils';
 
     export default class ApplicationSerializer extends RESTSerializer {
       serializeIntoHash(data, type, record, options) {
-        let root = decamelize(type.modelName);
+        let root = underscore(type.modelName);
         data[root] = this.serialize(record, options);
       }
     }
@@ -671,7 +670,7 @@ const RESTSerializer = JSONSerializer.extend({
     @param {Object} options
   */
   serializeIntoHash(hash, typeClass, snapshot, options) {
-    let normalizedRootKey = this.payloadKeyFromModelName(typeClass.modelName);
+    const normalizedRootKey = this.payloadKeyFromModelName(typeClass.modelName);
     hash[normalizedRootKey] = this.serialize(snapshot, options);
   },
 
@@ -738,9 +737,9 @@ const RESTSerializer = JSONSerializer.extend({
     @param {Object} relationship
   */
   serializePolymorphicType(snapshot, json, relationship) {
-    let key = relationship.key;
-    let typeKey = this.keyForPolymorphicType(key, relationship.type, 'serialize');
-    let belongsTo = snapshot.belongsTo(key);
+    const name = relationship.name;
+    const typeKey = this.keyForPolymorphicType(name, relationship.type, 'serialize');
+    const belongsTo = snapshot.belongsTo(name);
 
     if (!belongsTo) {
       json[typeKey] = null;
@@ -761,7 +760,7 @@ const RESTSerializer = JSONSerializer.extend({
     @return {Object}
    */
   extractPolymorphicRelationship(relationshipType, relationshipHash, relationshipOptions) {
-    let { key, resourceHash, relationshipMeta } = relationshipOptions;
+    const { key, resourceHash, relationshipMeta } = relationshipOptions;
 
     // A polymorphic belongsTo relationship can be present in the payload
     // either in the form where the `id` and the `type` are given:
@@ -780,13 +779,13 @@ const RESTSerializer = JSONSerializer.extend({
     // The next code checks if the latter case is present and returns the
     // corresponding JSON-API representation. The former case is handled within
     // the base class JSONSerializer.
-    let isPolymorphic = relationshipMeta.options.polymorphic;
-    let typeProperty = this.keyForPolymorphicType(key, relationshipType, 'deserialize');
+    const isPolymorphic = relationshipMeta.options.polymorphic;
+    const typeProperty = this.keyForPolymorphicType(key, relationshipType, 'deserialize');
 
     if (isPolymorphic && resourceHash[typeProperty] !== undefined && typeof relationshipHash !== 'object') {
-      let type = this.modelNameFromPayloadKey(resourceHash[typeProperty]);
+      const type = this.modelNameFromPayloadKey(resourceHash[typeProperty]);
       return {
-        id: relationshipHash,
+        id: coerceId(relationshipHash),
         type: type,
       };
     }
@@ -813,6 +812,6 @@ if (DEBUG) {
   });
 }
 
-export { EmbeddedRecordsMixin } from './-private';
+export { EmbeddedRecordsMixin } from './-private/embedded-records-mixin';
 
 export default RESTSerializer;

@@ -1,19 +1,18 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:base"
-  ],
-  "labels": ["target:canary", "skip-changelog", "dependencies"],
+  "extends": ["config:base"],
+  "labels": [":dependabot:", ":label: dependencies"],
   "packageRules": [
     {
       "matchPackagePatterns": [
         "@types",
-        "typescript",
+        "eslint-config-prettier",
         "eslint",
         "glint",
         "lint",
         "prettier",
-        "stylelint"
+        "stylelint",
+        "typescript"
       ],
       "groupName": "code-quality"
     },
@@ -21,7 +20,6 @@
       "matchPackageNames": [
         "webpack",
         "npm-run-all",
-        "ember-export-application-global",
         "ember-cli",
         "ember-cli-dotenv",
         "ember-auto-import",
@@ -29,7 +27,6 @@
         "broccoli-debug",
         "broccoli-funnel",
         "broccoli-merge-trees",
-        "ember-cli-app-version",
         "ember-cli-build-notifications",
         "ember-cli-content-security-policy",
         "ember-cli-dependency-checker",
@@ -38,10 +35,7 @@
         "ember-cli-sri",
         "ember-css-modules"
       ],
-      "matchPackagePatterns": [
-        "@embroider",
-        "postcss"
-      ],
+      "matchPackagePatterns": ["@embroider", "postcss"],
       "groupName": "build-tools"
     },
     {
@@ -55,29 +49,17 @@
         "ember-page-title",
         "tracked-built-ins"
       ],
-      "matchPackagePatterns": [
-        "glimmer",
-        "polyfill"
-      ],
+      "matchPackagePatterns": ["glimmer", "polyfill"],
       "groupName": "ember-core"
     },
     {
-      "matchPackageNames": [
-        "ember-cli-babel",
-        "ember-cli-htmlbars",
-        "@embroider/macros",
-        "ember-cli-terser"
-      ],
-      "matchPackagePatterns": [
-        "babel",
-        "postcss"
-      ],
+      "matchPackageNames": ["ember-cli-babel", "ember-cli-htmlbars", "@embroider/macros", "ember-cli-terser"],
+      "matchPackagePatterns": ["babel", "postcss"],
       "groupName": "asset-compilation"
     },
     {
       "matchPackageNames": [
         "chai",
-        "mocha",
         "qunit-dom",
         "sinon",
         "ember-exam",
@@ -90,24 +72,15 @@
         "@ember/test-helpers",
         "@ember/test-waiters"
       ],
-      "matchPackagePatterns": [
-        "percy",
-        "quality",
-        "test"
-      ],
+      "matchPackagePatterns": ["percy", "quality", "test"],
       "groupName": "testing"
     },
     {
-      "matchPackageNames": [
-        "ember-inflector",
-        "ember-promise-helpers"
-      ],
+      "matchPackageNames": ["ember-promise-helpers"],
       "groupName": "data-utils"
     },
     {
-      "matchManagers": [
-        "github-actions"
-      ],
+      "matchManagers": ["github-actions"],
       "groupName": "github-actions"
     }
   ],
@@ -117,13 +90,9 @@
   "rangeStrategy": "bump",
   "prHourlyLimit": 10,
   "vulnerabilityAlerts": {
-    "labels": [
-      "security"
-    ],
+    "labels": [":label: security"],
     "automerge": false,
-    "assignees": [
-      "@runspired"
-    ],
+    "assignees": ["@runspired"],
     "enabled": true
   },
   "ignorePaths": ["node_modules/**", "**/node_modules/**"]

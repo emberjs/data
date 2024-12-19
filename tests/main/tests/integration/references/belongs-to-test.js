@@ -1,48 +1,48 @@
 import { get } from '@ember/object';
 
 import { module, test } from 'qunit';
-import { defer, resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import { DEPRECATE_NON_EXPLICIT_POLYMORPHISM } from '@ember-data/deprecations';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { createDeferred } from '@ember-data/request';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+import { DEPRECATE_NON_EXPLICIT_POLYMORPHISM } from '@warp-drive/build-config/deprecations';
+
+class Family extends Model {
+  @hasMany('person', { async: true, inverse: 'family' }) persons;
+  @attr name;
+}
+
+class Team extends Model {
+  @hasMany('person', { async: true, inverse: 'team' }) persons;
+  @attr name;
+}
+
+class Person extends Model {
+  @belongsTo('family', { async: true, inverse: 'persons' }) family;
+  @belongsTo('team', { async: false, inverse: 'persons' }) team;
+}
 
 module('integration/references/belongs-to', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    const Family = Model.extend({
-      persons: hasMany('person', { async: true, inverse: 'family' }),
-      name: attr(),
-    });
-
-    const Team = Model.extend({
-      persons: hasMany('person', { async: true, inverse: 'team' }),
-      name: attr(),
-    });
-
-    const Person = Model.extend({
-      family: belongsTo('family', { async: true, inverse: 'persons' }),
-      team: belongsTo('team', { async: false, inverse: 'persons' }),
-    });
-
     this.owner.register('model:family', Family);
     this.owner.register('model:team', Team);
     this.owner.register('model:person', Person);
 
-    this.owner.register('adapter:application', JSONAPIAdapter.extend());
-    this.owner.register('serializer:application', class extends JSONAPISerializer {});
+    this.owner.register('adapter:application', JSONAPIAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer);
   });
 
   testInDebug("record#belongsTo asserts when specified relationship doesn't exist", function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -51,15 +51,15 @@ module('integration/references/belongs-to', function (hooks) {
 
     assert.expectAssertion(function () {
       person.belongsTo('unknown-relationship');
-    }, 'Expected to find a relationship definition for person.unknown-relationship but none was found');
+    }, "Expected a relationship schema for 'person.unknown-relationship', but no relationship schema was found.");
   });
 
   testInDebug(
     "record#belongsTo asserts when the type of the specified relationship isn't the requested one",
     function (assert) {
-      let store = this.owner.lookup('service:store');
+      const store = this.owner.lookup('service:store');
 
-      let family = store.push({
+      const family = store.push({
         data: {
           type: 'family',
           id: '1',
@@ -73,9 +73,9 @@ module('integration/references/belongs-to', function (hooks) {
   );
 
   test('record#belongsTo', function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -87,7 +87,7 @@ module('integration/references/belongs-to', function (hooks) {
       },
     });
 
-    let familyReference = person.belongsTo('family');
+    const familyReference = person.belongsTo('family');
 
     assert.strictEqual(familyReference.remoteType(), 'id');
     assert.strictEqual(familyReference.type, 'family');
@@ -95,9 +95,9 @@ module('integration/references/belongs-to', function (hooks) {
   });
 
   test('record#belongsTo for a linked reference', function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -109,7 +109,7 @@ module('integration/references/belongs-to', function (hooks) {
       },
     });
 
-    let familyReference = person.belongsTo('family');
+    const familyReference = person.belongsTo('family');
 
     assert.strictEqual(familyReference.remoteType(), 'link');
     assert.strictEqual(familyReference.type, 'family');
@@ -117,9 +117,9 @@ module('integration/references/belongs-to', function (hooks) {
   });
 
   test('BelongsToReference#meta() returns the most recent meta for the relationship', async function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -136,15 +136,15 @@ module('integration/references/belongs-to', function (hooks) {
       },
     });
 
-    let familyReference = person.belongsTo('family');
+    const familyReference = person.belongsTo('family');
     assert.deepEqual(familyReference.meta(), { foo: true });
   });
 
-  test('push(object)', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let Family = store.modelFor('family');
+  test('push(object) works with resources', async function (assert) {
+    const store = this.owner.lookup('service:store');
+    const Family = store.modelFor('family');
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -156,9 +156,9 @@ module('integration/references/belongs-to', function (hooks) {
       },
     });
 
-    let familyReference = person.belongsTo('family');
+    const familyReference = person.belongsTo('family');
 
-    let data = {
+    const data = {
       data: {
         type: 'family',
         id: '1',
@@ -169,21 +169,259 @@ module('integration/references/belongs-to', function (hooks) {
     };
 
     const record = await familyReference.push(data);
-    assert.ok(Family.detectInstance(record), 'push resolves with the referenced record');
-    assert.strictEqual(get(record, 'name'), 'Coreleone', 'name is set');
+    assert.true(record instanceof Family, 'push resolves with the referenced record');
+    assert.strictEqual(record.name, 'Coreleone', 'name is set');
+  });
+
+  test('push(object) works with resource identifiers (skipLoad: false)', async function (assert) {
+    const store = this.owner.lookup('service:store');
+
+    const person = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        relationships: {
+          family: {
+            data: { type: 'family', id: '1' },
+          },
+        },
+      },
+      included: [
+        {
+          type: 'family',
+          id: '2',
+          attributes: {
+            name: 'Don Coreleone',
+          },
+        },
+      ],
+    });
+
+    const familyReference = person.belongsTo('family');
+    assert.strictEqual(familyReference.id(), '1', 'id is correct');
+
+    const record = await familyReference.push({
+      data: {
+        type: 'family',
+        id: '2',
+      },
+    });
+    assert.strictEqual(familyReference.id(), '2', 'id is correct');
+    assert.strictEqual(record.name, 'Don Coreleone', 'name is correct');
+  });
+
+  test('push(object) works with resource identifiers (skipLoad: true)', async function (assert) {
+    const store = this.owner.lookup('service:store');
+
+    const person = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        relationships: {
+          family: {
+            data: { type: 'family', id: '1' },
+          },
+        },
+      },
+    });
+
+    const familyReference = person.belongsTo('family');
+    assert.strictEqual(familyReference.id(), '1', 'id is correct');
+
+    await familyReference.push(
+      {
+        data: {
+          type: 'family',
+          id: '2',
+        },
+      },
+      true
+    );
+    assert.strictEqual(familyReference.id(), '2', 'id is correct');
+  });
+
+  test('push(object) works with null data', async function (assert) {
+    const store = this.owner.lookup('service:store');
+
+    const person = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        relationships: {
+          family: {
+            data: { type: 'family', id: '1' },
+          },
+        },
+      },
+    });
+
+    const familyReference = person.belongsTo('family');
+    assert.strictEqual(familyReference.id(), '1', 'id is correct');
+
+    await familyReference.push({
+      data: null,
+    });
+    assert.strictEqual(familyReference.id(), null, 'id is correct');
+  });
+
+  test('push(object) works with links', async function (assert) {
+    const store = this.owner.lookup('service:store');
+    const Family = store.modelFor('family');
+
+    const person = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        relationships: {
+          family: {
+            links: { related: '/person/1/families' },
+            data: { type: 'family', id: '1' },
+          },
+        },
+      },
+    });
+
+    const familyReference = person.belongsTo('family');
+    assert.strictEqual(familyReference.remoteType(), 'link', 'remoteType is link');
+    assert.strictEqual(familyReference.link(), '/person/1/families', 'initial link is correct');
+
+    const data = {
+      links: {
+        related: '/person/1/families?page=1',
+      },
+      data: {
+        type: 'family',
+        id: '1',
+        attributes: {
+          name: 'Coreleone',
+        },
+      },
+    };
+
+    const record = await familyReference.push(data);
+    assert.true(record instanceof Family, 'push resolves with the referenced record');
+    assert.strictEqual(record.name, 'Coreleone', 'name is set');
+    assert.strictEqual(familyReference.link(), '/person/1/families?page=1', 'link is updated');
+  });
+
+  test('push(object) works with links even when data is not present', async function (assert) {
+    const store = this.owner.lookup('service:store');
+
+    const person = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        relationships: {
+          family: {
+            links: { related: '/person/1/families' },
+            data: { type: 'family', id: '1' },
+          },
+        },
+      },
+    });
+
+    const familyReference = person.belongsTo('family');
+    assert.strictEqual(familyReference.remoteType(), 'link', 'remoteType is link');
+    assert.strictEqual(familyReference.link(), '/person/1/families', 'initial link is correct');
+    assert.strictEqual(familyReference.id(), '1', 'id is correct');
+
+    const data = {
+      links: {
+        related: '/person/1/families?page=1',
+      },
+    };
+
+    await familyReference.push(data, true);
+    assert.strictEqual(familyReference.id(), '1', 'id is still correct');
+    assert.strictEqual(familyReference.link(), '/person/1/families?page=1', 'link is updated');
+  });
+
+  test('push(object) works with meta', async function (assert) {
+    const store = this.owner.lookup('service:store');
+    const Family = store.modelFor('family');
+    const timestamp1 = Date.now();
+    const person = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        relationships: {
+          family: {
+            meta: {
+              createdAt: timestamp1,
+            },
+            data: { type: 'family', id: '1' },
+          },
+        },
+      },
+    });
+
+    const familyReference = person.belongsTo('family');
+    assert.deepEqual(familyReference.meta(), { createdAt: timestamp1 }, 'initial meta is correct');
+
+    const timestamp2 = Date.now() + 1;
+    const data = {
+      meta: {
+        updatedAt: timestamp2,
+      },
+      data: {
+        type: 'family',
+        id: '1',
+        attributes: {
+          name: 'Coreleone',
+        },
+      },
+    };
+
+    const record = await familyReference.push(data);
+    assert.true(record instanceof Family, 'push resolves with the referenced record');
+    assert.strictEqual(record.name, 'Coreleone', 'name is set');
+    assert.deepEqual(familyReference.meta(), { updatedAt: timestamp2 }, 'meta is updated');
+  });
+
+  test('push(object) works with meta even when data is not present', async function (assert) {
+    const store = this.owner.lookup('service:store');
+    const timestamp1 = Date.now();
+    const person = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        relationships: {
+          family: {
+            meta: {
+              createdAt: timestamp1,
+            },
+            data: { type: 'family', id: '1' },
+          },
+        },
+      },
+    });
+
+    const familyReference = person.belongsTo('family');
+    assert.strictEqual(familyReference.id(), '1', 'id is correct');
+    assert.deepEqual(familyReference.meta(), { createdAt: timestamp1 }, 'initial meta is correct');
+
+    const timestamp2 = Date.now() + 1;
+    const data = {
+      meta: {
+        updatedAt: timestamp2,
+      },
+    };
+
+    await familyReference.push(data, true);
+    assert.strictEqual(familyReference.id(), '1', 'id is still correct');
+    assert.deepEqual(familyReference.meta(), { updatedAt: timestamp2 }, 'meta is updated');
   });
 
   deprecatedTest(
     'push(promise)',
     { id: 'ember-data:deprecate-promise-proxies', until: '5.0', count: 1 },
     async function (assert) {
-      let store = this.owner.lookup('service:store');
-      let Family = store.modelFor('family');
+      const store = this.owner.lookup('service:store');
+      const Family = store.modelFor('family');
 
-      let push;
-      let deferred = defer();
+      const deferred = createDeferred();
 
-      let person = store.push({
+      const person = store.push({
         data: {
           type: 'person',
           id: '1',
@@ -194,8 +432,8 @@ module('integration/references/belongs-to', function (hooks) {
           },
         },
       });
-      let familyReference = person.belongsTo('family');
-      push = familyReference.push(deferred.promise);
+      const familyReference = person.belongsTo('family');
+      const push = familyReference.push(deferred.promise);
 
       assert.ok(push.then, 'BelongsToReference.push returns a promise');
 
@@ -229,9 +467,9 @@ module('integration/references/belongs-to', function (hooks) {
     this.owner.register('model:family', Family);
     this.owner.register('model:person', Person);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -242,21 +480,21 @@ module('integration/references/belongs-to', function (hooks) {
         },
       },
     });
-    let anotherPerson = {
+    const anotherPerson = {
       data: {
         type: 'person',
         id: '2',
       },
     };
 
-    let familyReference = person.belongsTo('family');
+    const familyReference = person.belongsTo('family');
 
     await assert.expectAssertion(
       async function () {
         await familyReference.push(anotherPerson);
       },
       DEPRECATE_NON_EXPLICIT_POLYMORPHISM
-        ? "Assertion Failed: The 'person' type does not implement 'family' and thus cannot be assigned to the 'family' relationship in 'person'. Make it a descendant of 'family' or use a mixin of the same name."
+        ? "The 'person' type does not implement 'family' and thus cannot be assigned to the 'family' relationship in 'person'. Make it a descendant of 'family' or use a mixin of the same name."
         : "The 'person' type does not implement 'family' and thus cannot be assigned to the 'family' relationship in 'person'. If this relationship should be polymorphic, mark person.family as `polymorphic: true` and person.persons as implementing it via `as: 'family'`."
     );
   });
@@ -277,32 +515,38 @@ module('integration/references/belongs-to', function (hooks) {
     this.owner.register('model:family', Family);
     this.owner.register('model:person', Person);
     this.owner.register('model:mafia-family', MafiaFamily);
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
+        attributes: {
+          name: 'Vito',
+        },
       },
     });
-    let mafiaFamily = {
+    const mafiaFamily = {
       data: {
         type: 'mafia-family',
         id: '1',
+        attributes: {
+          name: 'Don',
+        },
       },
     };
 
-    let familyReference = person.belongsTo('family');
-    let family = await familyReference.push(mafiaFamily);
+    const familyReference = person.belongsTo('family');
+    const family = await familyReference.push(mafiaFamily);
     const record = store.peekRecord('mafia-family', '1');
 
-    assert.strictEqual(family, record);
+    assert.strictEqual(family, record, 'we get back the correct record');
   });
 
   test('value() is null when reference is not yet loaded', function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -314,14 +558,14 @@ module('integration/references/belongs-to', function (hooks) {
       },
     });
 
-    let familyReference = person.belongsTo('family');
+    const familyReference = person.belongsTo('family');
     assert.strictEqual(familyReference.value(), null);
   });
 
   test('value() returns the referenced record when loaded', function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -332,20 +576,20 @@ module('integration/references/belongs-to', function (hooks) {
         },
       },
     });
-    let family = store.push({
+    const family = store.push({
       data: {
         type: 'family',
         id: '1',
       },
     });
 
-    let familyReference = person.belongsTo('family');
+    const familyReference = person.belongsTo('family');
     assert.strictEqual(familyReference.value(), family);
   });
 
   test('value() returns the referenced record when loaded even if links are present', function (assert) {
-    let store = this.owner.lookup('service:store');
-    let person = store.push({
+    const store = this.owner.lookup('service:store');
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -356,7 +600,7 @@ module('integration/references/belongs-to', function (hooks) {
         },
       },
     });
-    let family = store.push({
+    const family = store.push({
       data: {
         type: 'family',
         id: '1',
@@ -375,14 +619,14 @@ module('integration/references/belongs-to', function (hooks) {
   });
 
   test('load() fetches the record', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     const adapterOptions = { thing: 'one' };
 
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.strictEqual(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'family',
@@ -391,7 +635,7 @@ module('integration/references/belongs-to', function (hooks) {
       });
     };
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -403,7 +647,7 @@ module('integration/references/belongs-to', function (hooks) {
       },
     });
 
-    let familyReference = person.belongsTo('family');
+    const familyReference = person.belongsTo('family');
 
     const record = await familyReference.load({ adapterOptions });
 
@@ -411,14 +655,14 @@ module('integration/references/belongs-to', function (hooks) {
   });
 
   test('load() fetches the record (sync belongsTo)', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     const adapterOptions = { thing: 'one' };
 
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.deepEqual(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'team',
@@ -427,7 +671,7 @@ module('integration/references/belongs-to', function (hooks) {
       });
     };
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -439,15 +683,15 @@ module('integration/references/belongs-to', function (hooks) {
       },
     });
 
-    let teamReference = person.belongsTo('team');
+    const teamReference = person.belongsTo('team');
 
     const record = await teamReference.load({ adapterOptions });
     assert.strictEqual(record.name, 'Tomsters');
   });
 
   test('load() fetches link when remoteType is link', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     const adapterOptions = { thing: 'one' };
 
@@ -455,7 +699,7 @@ module('integration/references/belongs-to', function (hooks) {
       assert.strictEqual(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
       assert.strictEqual(link, '/families/1');
 
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'family',
@@ -464,7 +708,7 @@ module('integration/references/belongs-to', function (hooks) {
       });
     };
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -476,7 +720,7 @@ module('integration/references/belongs-to', function (hooks) {
       },
     });
 
-    let familyReference = person.belongsTo('family');
+    const familyReference = person.belongsTo('family');
     assert.strictEqual(familyReference.remoteType(), 'link');
 
     await familyReference.load({ adapterOptions }).then(function (record) {
@@ -485,8 +729,8 @@ module('integration/references/belongs-to', function (hooks) {
   });
 
   test('meta can be retrieved, even if the fetched data is null', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     const adapterOptions = { thing: 'one' };
 
@@ -494,7 +738,7 @@ module('integration/references/belongs-to', function (hooks) {
       assert.strictEqual(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
       assert.strictEqual(link, '/families/1', 'link was passed correctly');
 
-      return resolve({
+      return Promise.resolve({
         data: null,
         meta: { it: 'works' },
       });
@@ -522,8 +766,8 @@ module('integration/references/belongs-to', function (hooks) {
   });
 
   test('reload() - loads the record when not yet loaded', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     const adapterOptions = { thing: 'one' };
 
@@ -534,7 +778,7 @@ module('integration/references/belongs-to', function (hooks) {
       count++;
       assert.strictEqual(count, 1);
 
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'family',
@@ -543,7 +787,7 @@ module('integration/references/belongs-to', function (hooks) {
       });
     };
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -555,81 +799,16 @@ module('integration/references/belongs-to', function (hooks) {
       },
     });
 
-    let familyReference = person.belongsTo('family');
+    const familyReference = person.belongsTo('family');
 
     await familyReference.reload({ adapterOptions }).then(function (record) {
       assert.strictEqual(get(record, 'name'), 'Coreleone');
     });
-  });
-
-  test('reload() - loads the record when not yet loaded (sync)', async function (assert) {
-    class Familia extends Model {
-      @attr name;
-    }
-
-    class Persona extends Model {
-      @belongsTo('familia', { async: false, inverse: null }) family;
-      @attr name;
-    }
-
-    this.owner.register('model:familia', Familia);
-    this.owner.register('model:persona', Persona);
-    this.owner.register('adapter:application', class extends JSONAPIAdapter {});
-    this.owner.register(
-      'serializer:application',
-      class extends JSONAPISerializer {
-        normalizeResponse(_store, _schema, payload) {
-          return payload;
-        }
-      }
-    );
-
-    const store = this.owner.lookup('service:store');
-    const adapter = store.adapterFor('application');
-    const adapterOptions = { thing: 'one' };
-
-    adapter.findRecord = function (store, type, id, snapshot) {
-      assert.step('findRecord');
-      assert.strictEqual(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
-
-      return Promise.resolve({
-        data: {
-          id: '1',
-          type: 'familia',
-          attributes: { name: 'Coreleone' },
-        },
-      });
-    };
-
-    let person = store.push({
-      data: {
-        type: 'persona',
-        id: '1',
-        attributes: {
-          name: 'Vito',
-        },
-        relationships: {
-          family: {
-            data: { type: 'familia', id: '1' },
-          },
-        },
-      },
-    });
-
-    let familyReference = person.belongsTo('family');
-
-    await familyReference.reload({ adapterOptions }).then(function (record) {
-      assert.strictEqual(get(record, 'name'), 'Coreleone');
-    });
-    await familyReference.reload({ adapterOptions }).then(function (record) {
-      assert.strictEqual(get(record, 'name'), 'Coreleone');
-    });
-    assert.verifySteps(['findRecord', 'findRecord']);
   });
 
   test('reload() - reloads the record when already loaded', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     const adapterOptions = { thing: 'one' };
 
@@ -640,7 +819,7 @@ module('integration/references/belongs-to', function (hooks) {
       count++;
       assert.strictEqual(count, 1);
 
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'family',
@@ -649,7 +828,7 @@ module('integration/references/belongs-to', function (hooks) {
       });
     };
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -667,7 +846,7 @@ module('integration/references/belongs-to', function (hooks) {
       },
     });
 
-    let familyReference = person.belongsTo('family');
+    const familyReference = person.belongsTo('family');
 
     await familyReference.reload({ adapterOptions }).then(function (record) {
       assert.strictEqual(get(record, 'name'), 'Coreleone');
@@ -675,8 +854,8 @@ module('integration/references/belongs-to', function (hooks) {
   });
 
   test('reload() - uses link to reload record', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     const adapterOptions = { thing: 'one' };
 
@@ -685,7 +864,7 @@ module('integration/references/belongs-to', function (hooks) {
 
       assert.strictEqual(link, '/families/1');
 
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'family',
@@ -694,7 +873,7 @@ module('integration/references/belongs-to', function (hooks) {
       });
     };
 
-    let person = store.push({
+    const person = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -706,7 +885,7 @@ module('integration/references/belongs-to', function (hooks) {
       },
     });
 
-    let familyReference = person.belongsTo('family');
+    const familyReference = person.belongsTo('family');
 
     await familyReference.reload({ adapterOptions }).then(function (record) {
       assert.strictEqual(get(record, 'name'), 'Coreleone');

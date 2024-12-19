@@ -1,7 +1,6 @@
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { Promise as EmberPromise } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -38,18 +37,18 @@ module(
             ids: options.data.ids,
           });
 
-          let queryString = options.data.ids
+          const queryString = options.data.ids
             .map((i) => {
               return 'ids%5B%5D=' + i;
             })
             .join('&');
-          let fullUrl = url + '?' + queryString;
+          const fullUrl = url + '?' + queryString;
 
           maxLength = this.maxURLLength;
           lengths.push(fullUrl.length);
 
-          let testRecords = options.data.ids.map((id) => ({ id }));
-          return EmberPromise.resolve({ testRecords: testRecords });
+          const testRecords = options.data.ids.map((id) => ({ id }));
+          return Promise.resolve({ testRecords: testRecords });
         }
       }
 
@@ -61,9 +60,9 @@ module(
     });
 
     test('groupRecordsForFindMany - findMany', async function (assert) {
-      let wait = [];
+      const wait = [];
       for (let i = 1; i <= 1024; i++) {
-        wait.push(store.findRecord('testRecord', i));
+        wait.push(store.findRecord('test-record', String(i)));
       }
 
       assert.ok(
@@ -74,9 +73,9 @@ module(
     });
 
     test('groupRecordsForFindMany works for encodeURIComponent-ified ids', async function (assert) {
-      let wait = [];
-      wait.push(store.findRecord('testRecord', 'my-id:1'));
-      wait.push(store.findRecord('testRecord', 'my-id:2'));
+      const wait = [];
+      wait.push(store.findRecord('test-record', 'my-id:1'));
+      wait.push(store.findRecord('test-record', 'my-id:2'));
 
       await settled();
 
@@ -84,15 +83,15 @@ module(
       assert.strictEqual(requests[0].url, '/testRecords');
       assert.deepEqual(requests[0].ids, ['my-id:1', 'my-id:2']);
 
-      await EmberPromise.all(wait);
+      await Promise.all(wait);
     });
 
     test('_stripIDFromURL works with id being encoded - #4190', function (assert) {
       store._fetchManager = new FetchManager(store);
-      let record = store.createRecord('testRecord', { id: 'id:123' });
-      let adapter = store.adapterFor('testRecord');
-      let snapshot = store._fetchManager.createSnapshot(recordIdentifierFor(record));
-      let strippedUrl = adapter._stripIDFromURL(store, snapshot);
+      const record = store.createRecord('test-record', { id: 'id:123' });
+      const adapter = store.adapterFor('test-record');
+      const snapshot = store._fetchManager.createSnapshot(recordIdentifierFor(record));
+      const strippedUrl = adapter._stripIDFromURL(store, snapshot);
 
       assert.strictEqual(strippedUrl, '/testRecords/');
     });

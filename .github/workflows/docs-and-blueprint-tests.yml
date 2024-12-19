@@ -4,6 +4,12 @@ on:
   pull_request:
     branches:
       - main
+      - v4-main
+
+env:
+  TURBO_API: http://127.0.0.1:9080
+  TURBO_TOKEN: this-is-not-a-secret
+  TURBO_TEAM: myself
 
 concurrency:
   group: docs-${{ github.head_ref || github.ref_name }}
@@ -14,11 +20,12 @@ jobs:
     timeout-minutes: 5
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
       - uses: ./.github/actions/setup
         with:
           install: true
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Test Docs
         run: pnpm test:docs
       - name: Test Blueprints
-        run: pnpm --filter blueprint-tests run test
+        run: pnpm test:blueprints

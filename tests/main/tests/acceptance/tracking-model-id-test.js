@@ -1,10 +1,10 @@
+import { setComponentTemplate } from '@ember/component';
 import { render, settled } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 
-import hbs from 'htmlbars-inline-precompile';
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
+import { hbs } from 'ember-cli-htmlbars';
 import { setupRenderingTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
@@ -21,13 +21,13 @@ class Widget extends Model {
 
 class WidgetList extends Component {
   get sortedWidgets() {
-    let { widgets } = this.args;
+    const { widgets } = this.args;
 
     return widgets.slice().sort((a, b) => b.numericId - a.numericId);
   }
 }
 
-let layout = hbs`
+const layout = hbs`
   <ul>
     {{#each this.sortedWidgets as |widget index|}}
       <li class="widget{{index}}">
@@ -42,7 +42,7 @@ let layout = hbs`
 
 class TestAdapter extends JSONAPIAdapter {
   createRecord() {
-    return resolve({
+    return Promise.resolve({
       data: {
         id: '4',
         type: 'widget',
@@ -58,16 +58,15 @@ module('acceptance/tracking-model-id - tracking model id', function (hooks) {
   setupRenderingTest(hooks);
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
     owner.register('model:widget', Widget);
-    owner.register('component:widget-list', WidgetList);
-    owner.register('template:components/widget-list', layout);
+    owner.register('component:widget-list', setComponentTemplate(layout, WidgetList));
     owner.register('adapter:application', TestAdapter);
     owner.register('serializer:application', JSONAPISerializer);
   });
 
   test("can track model id's without using get", async function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
     store.createRecord('widget', { id: '1', name: 'Doodad' });
     store.createRecord('widget', { id: '3', name: 'Gizmo' });
     store.createRecord('widget', { id: '2', name: 'Gadget' });
@@ -83,7 +82,7 @@ module('acceptance/tracking-model-id - tracking model id', function (hooks) {
     assert.dom('ul>li.widget1>div.name').containsText('Gadget');
     assert.dom('ul>li.widget2>div.name').containsText('Doodad');
 
-    let contraption = store.createRecord('widget', { name: 'Contraption' });
+    const contraption = store.createRecord('widget', { name: 'Contraption' });
     await contraption.save();
     await settled();
 

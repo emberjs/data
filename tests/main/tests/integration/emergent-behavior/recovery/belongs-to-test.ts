@@ -2,11 +2,11 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import { DEBUG } from '@ember-data/env';
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import Model, { attr, belongsTo } from '@ember-data/model';
 import type Store from '@ember-data/store';
-import type { ModelSchema } from '@ember-data/types/q/ds-model';
+import type { ModelSchema } from '@ember-data/store/types';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 let IS_DEBUG = false;
 
@@ -43,7 +43,7 @@ module('Emergent Behavior > Recovery | belongsTo', function (hooks) {
 
   test('When a sync relationship is accessed before load', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const user = store.peekRecord('user', '1') as unknown as User;
+    const user = store.peekRecord('user', '1') as User;
 
     assert.strictEqual(user.name, 'Chris Wagenet', 'precond - user is loaded');
 
@@ -67,12 +67,13 @@ module('Emergent Behavior > Recovery | belongsTo', function (hooks) {
 
   test('When a sync relationship is accessed before load and later updated remotely', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const user = store.peekRecord('user', '1') as unknown as User;
+    const user = store.peekRecord('user', '1') as User;
 
     assert.strictEqual(user.name, 'Chris Wagenet', 'precond - user is loaded');
 
     // access the relationship before load
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       user.bestFriend;
 
       // in IS_DEBUG we error and should not reach here
@@ -109,12 +110,13 @@ module('Emergent Behavior > Recovery | belongsTo', function (hooks) {
 
   test('When a sync relationship is accessed before load and later mutated', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const user = store.peekRecord('user', '1') as unknown as User;
+    const user = store.peekRecord('user', '1') as User;
 
     assert.strictEqual(user.name, 'Chris Wagenet', 'precond - user is loaded');
 
     // access the relationship before load
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       user.bestFriend;
 
       // in IS_DEBUG we error and should not reach here
@@ -124,7 +126,7 @@ module('Emergent Behavior > Recovery | belongsTo', function (hooks) {
       assert.ok(IS_DEBUG, `accessing the relationship should not throw, received ${(e as Error).message}`);
     }
 
-    const peter = store.createRecord('user', { name: 'Peter' }) as unknown as User;
+    const peter = store.createRecord('user', { name: 'Peter' }) as User;
     user.bestFriend = peter;
 
     // access the relationship again
@@ -135,7 +137,7 @@ module('Emergent Behavior > Recovery | belongsTo', function (hooks) {
 
   test('When a sync relationship is accessed before load and then later sideloaded', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const user = store.peekRecord('user', '1') as unknown as User;
+    const user = store.peekRecord('user', '1') as User;
 
     // access the relationship before load
     try {
@@ -173,11 +175,11 @@ module('Emergent Behavior > Recovery | belongsTo', function (hooks) {
 
   test('When a sync relationship is accessed before load and then later attempted to be found via findRecord', async function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const user = store.peekRecord('user', '1') as unknown as User;
+    const user = store.peekRecord('user', '1') as User;
     this.owner.register(
       'adapter:application',
       class {
-        findRecord(store: Store, schema: ModelSchema, id: string, snapshot: Snapshot) {
+        findRecord(_store: Store, schema: ModelSchema, id: string, snapshot: Snapshot) {
           assert.step('findRecord');
           assert.deepEqual(snapshot._attributes, { name: undefined }, 'the snapshot has the correct attributes');
           return Promise.resolve({
@@ -231,11 +233,11 @@ module('Emergent Behavior > Recovery | belongsTo', function (hooks) {
 
   test('When a sync relationship is accessed before load and a later attempt to load via findRecord errors', async function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const user = store.peekRecord('user', '1') as unknown as User;
+    const user = store.peekRecord('user', '1') as User;
     this.owner.register(
       'adapter:application',
       class {
-        findRecord(store: Store, schema: ModelSchema, id: string, snapshot: Snapshot) {
+        findRecord(_store: Store, schema: ModelSchema, id: string, snapshot: Snapshot) {
           assert.step('findRecord');
           assert.deepEqual(snapshot._attributes, { name: undefined }, 'the snapshot has the correct attributes');
 
@@ -272,6 +274,7 @@ module('Emergent Behavior > Recovery | belongsTo', function (hooks) {
 
     // access the relationship after sideload
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       user.bestFriend;
 
       // in production we do not error

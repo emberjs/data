@@ -1,13 +1,12 @@
-import { dasherize } from '@ember/string';
-
-import { singularize } from 'ember-inflector';
-
-import { DEBUG } from '@ember-data/env';
+import { dasherize, singularize } from '@ember-data/request-utils/string';
 import type Store from '@ember-data/store';
-import type { RelationshipSchema } from '@ember-data/types/q/record-data-schemas';
+import { DEBUG } from '@warp-drive/build-config/env';
+import type { LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
 
-function typeForRelationshipMeta(meta) {
-  let modelName = dasherize(meta.type || meta.key);
+import type { Model } from './model';
+
+function typeForRelationshipMeta(meta: LegacyRelationshipSchema): string {
+  let modelName = dasherize(meta.type || meta.name);
 
   if (meta.kind === 'hasMany') {
     modelName = singularize(modelName);
@@ -16,34 +15,27 @@ function typeForRelationshipMeta(meta) {
   return modelName;
 }
 
-function shouldFindInverse(relationshipMeta) {
-  let options = relationshipMeta.options;
+function shouldFindInverse(relationshipMeta: LegacyRelationshipSchema): boolean {
+  const options = relationshipMeta.options;
   return !(options && options.inverse === null);
 }
 
-class RelationshipDefinition implements RelationshipSchema {
+class RelationshipDefinition {
   declare _type: string;
-  declare __inverseKey: string;
+  declare __inverseKey: string | null;
   declare __hasCalculatedInverse: boolean;
   declare parentModelName: string;
   declare inverseIsAsync: string | null;
-  declare meta: any;
+  declare meta: LegacyRelationshipSchema;
 
-  constructor(meta: any) {
+  constructor(meta: LegacyRelationshipSchema, parentModelName: string) {
     this._type = '';
     this.__inverseKey = '';
     this.__hasCalculatedInverse = false;
-    this.parentModelName = meta.parentModelName;
+    this.parentModelName = parentModelName;
     this.meta = meta;
   }
 
-  /**
-   * @internal
-   * @deprecated
-   */
-  get key(): string {
-    return this.meta.key;
-  }
   get kind(): 'belongsTo' | 'hasMany' {
     return this.meta.kind;
   }
@@ -54,32 +46,32 @@ class RelationshipDefinition implements RelationshipSchema {
     this._type = typeForRelationshipMeta(this.meta);
     return this._type;
   }
-  get options(): { [key: string]: any } {
+  get options() {
     return this.meta.options;
   }
   get name(): string {
     return this.meta.name;
   }
 
-  _inverseKey(store: Store, modelClass): string {
+  _inverseKey(store: Store, modelClass: typeof Model): string | null {
     if (this.__hasCalculatedInverse === false) {
       this._calculateInverse(store, modelClass);
     }
     return this.__inverseKey;
   }
 
-  _calculateInverse(store: Store, modelClass): void {
+  _calculateInverse(store: Store, modelClass: typeof Model): void {
     this.__hasCalculatedInverse = true;
-    let inverseKey;
-    let inverse: any = null;
+    let inverseKey: string | null = null;
+    let inverse: LegacyRelationshipSchema | null = null;
 
     if (shouldFindInverse(this.meta)) {
-      inverse = modelClass.inverseFor(this.key, store);
+      inverse = modelClass.inverseFor(this.name, store);
     }
     // TODO make this error again for the non-polymorphic case
     if (DEBUG) {
       if (!this.options.polymorphic) {
-        modelClass.typeForRelationship(this.key, store);
+        modelClass.typeForRelationship(this.name, store);
       }
     }
 
@@ -93,6 +85,9 @@ class RelationshipDefinition implements RelationshipSchema {
 }
 export type { RelationshipDefinition };
 
-export function relationshipFromMeta(meta: RelationshipSchema): RelationshipDefinition {
-  return new RelationshipDefinition(meta);
+export function relationshipFromMeta(
+  meta: LegacyRelationshipSchema,
+  parentModelName: string
+): LegacyRelationshipSchema {
+  return new RelationshipDefinition(meta, parentModelName) as unknown as LegacyRelationshipSchema;
 }

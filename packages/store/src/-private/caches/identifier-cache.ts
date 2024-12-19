@@ -1,40 +1,49 @@
 /**
   @module @ember-data/store
 */
-import { assert, warn } from '@ember/debug';
+import { warn } from '@ember/debug';
 
-import { getOwnConfig, macroCondition } from '@embroider/macros';
+import { getGlobalConfig, macroCondition } from '@embroider/macros';
 
-import { LOG_IDENTIFIERS } from '@ember-data/debugging';
-import { DEBUG } from '@ember-data/env';
-import { ImmutableRequestInfo } from '@ember-data/request/-private/types';
-import { StableDocumentIdentifier } from '@ember-data/types/cache/identifier';
-import type { ExistingResourceObject, ResourceIdentifierObject } from '@ember-data/types/q/ember-data-json-api';
+import { LOG_IDENTIFIERS } from '@warp-drive/build-config/debugging';
+import { DEBUG } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
+import { getOrSetGlobal, peekTransient, setTransient } from '@warp-drive/core-types/-private';
+import {
+  CACHE_OWNER,
+  DEBUG_CLIENT_ORIGINATED,
+  DEBUG_IDENTIFIER_BUCKET,
+  DEBUG_STALE_CACHE_OWNER,
+  type Identifier,
+  type IdentifierBucket,
+  type RecordIdentifier,
+  type StableDocumentIdentifier,
+  type StableIdentifier,
+  type StableRecordIdentifier,
+} from '@warp-drive/core-types/identifier';
+import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
+import type { ExistingResourceObject, ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
+
 import type {
   ForgetMethod,
   GenerationMethod,
-  Identifier,
-  IdentifierBucket,
-  RecordIdentifier,
+  KeyInfo,
+  KeyInfoMethod,
   ResetMethod,
-  ResourceData,
-  StableExistingRecordIdentifier,
-  StableRecordIdentifier,
   UpdateMethod,
-} from '@ember-data/types/q/identifier';
-import type { ConfidentDict } from '@ember-data/types/q/utils';
-
-import coerceId from '../utils/coerce-id';
-import { DEBUG_CLIENT_ORIGINATED, DEBUG_IDENTIFIER_BUCKET } from '../utils/identifier-debug-consts';
-import isNonEmptyString from '../utils/is-non-empty-string';
-import normalizeModelName from '../utils/normalize-model-name';
+} from '../../-types/q/identifier';
+import { coerceId } from '../utils/coerce-id';
+import { normalizeModelName } from '../utils/normalize-model-name';
 import installPolyfill from '../utils/uuid-polyfill';
+import { hasId, hasLid, hasType } from './resource-utils';
 
-const IDENTIFIERS = new Set();
-const DOCUMENTS = new Set();
+type ResourceData = unknown;
+
+const IDENTIFIERS = getOrSetGlobal('IDENTIFIERS', new Set());
+const DOCUMENTS = getOrSetGlobal('DOCUMENTS', new Set());
 
 export function isStableIdentifier(identifier: unknown): identifier is StableRecordIdentifier {
-  return IDENTIFIERS.has(identifier);
+  return (identifier as StableRecordIdentifier)[CACHE_OWNER] !== undefined || IDENTIFIERS.has(identifier);
 }
 
 export function isDocumentIdentifier(identifier: unknown): identifier is StableDocumentIdentifier {
@@ -42,16 +51,16 @@ export function isDocumentIdentifier(identifier: unknown): identifier is StableD
 }
 
 const isFastBoot = typeof FastBoot !== 'undefined';
-const _crypto: Crypto = isFastBoot ? (FastBoot.require('crypto') as Crypto) : window.crypto;
+const _crypto: Crypto = isFastBoot ? (FastBoot.require('crypto') as Crypto) : globalThis.crypto;
 
-if (macroCondition(getOwnConfig<{ polyfillUUID: boolean }>().polyfillUUID)) {
+if (macroCondition(getGlobalConfig<{ WarpDrive: { polyfillUUID: boolean } }>().WarpDrive.polyfillUUID)) {
   installPolyfill();
 }
 
 function uuidv4(): string {
   assert(
     'crypto.randomUUID needs to be avaliable. Some browsers incorrectly disallow it in insecure contexts. You maybe want to enable the polyfill: https://github.com/emberjs/data#randomuuid-polyfill',
-    _crypto.randomUUID
+    typeof _crypto.randomUUID === 'function'
   );
   return _crypto.randomUUID();
 }
@@ -67,41 +76,88 @@ interface KeyOptions {
   lid: IdentifierMap;
   id: IdentifierMap;
 }
+type TypeMap = { [key: string]: KeyOptions };
 
+// type IdentifierTypeLookup = { all: Set<StableRecordIdentifier>; id: Map<string, StableRecordIdentifier> };
+// type IdentifiersByType = Map<string, IdentifierTypeLookup>;
 type IdentifierMap = Map<string, StableRecordIdentifier>;
-type TypeMap = ConfidentDict<KeyOptions>;
+
+type StableCache = {
+  resources: IdentifierMap;
+  documents: Map<string, StableDocumentIdentifier>;
+  resourcesByType: TypeMap;
+  polymorphicLidBackMap: Map<string, string[]>;
+};
+
 export type MergeMethod = (
   targetIdentifier: StableRecordIdentifier,
   matchedIdentifier: StableRecordIdentifier,
-  resourceData: ResourceIdentifierObject | ExistingResourceObject
+  resourceData: unknown
 ) => StableRecordIdentifier;
 
-let configuredForgetMethod: ForgetMethod | null;
-let configuredGenerationMethod: GenerationMethod | null;
-let configuredResetMethod: ResetMethod | null;
-let configuredUpdateMethod: UpdateMethod | null;
-
 export function setIdentifierGenerationMethod(method: GenerationMethod | null): void {
-  configuredGenerationMethod = method;
+  setTransient('configuredGenerationMethod', method);
 }
 
 export function setIdentifierUpdateMethod(method: UpdateMethod | null): void {
-  configuredUpdateMethod = method;
+  setTransient('configuredUpdateMethod', method);
 }
 
 export function setIdentifierForgetMethod(method: ForgetMethod | null): void {
-  configuredForgetMethod = method;
+  setTransient('configuredForgetMethod', method);
 }
 
 export function setIdentifierResetMethod(method: ResetMethod | null): void {
-  configuredResetMethod = method;
+  setTransient('configuredResetMethod', method);
 }
 
-type WithLid = { lid: string };
-type WithId = { id: string | null; type: string };
+export function setKeyInfoForResource(method: KeyInfoMethod | null): void {
+  setTransient('configuredKeyInfoMethod', method);
+}
 
 function assertIsRequest(request: unknown): asserts request is ImmutableRequestInfo {
   return;
+}
+
+// Map<type, Map<id, lid>>
+type TypeIdMap = Map<string, Map<string, string>>;
+// TODO can we just delete this?
+const NEW_IDENTIFIERS: TypeIdMap = new Map();
+// TODO @runspired maybe needs peekTransient ?
+let IDENTIFIER_CACHE_ID = 0;
+
+function updateTypeIdMapping(typeMap: TypeIdMap, identifier: StableRecordIdentifier, id: string): void {
+  let idMap = typeMap.get(identifier.type);
+  if (!idMap) {
+    idMap = new Map();
+    typeMap.set(identifier.type, idMap);
+  }
+  idMap.set(id, identifier.lid);
+}
+
+function defaultUpdateMethod(identifier: StableRecordIdentifier, data: unknown, bucket: 'record'): void;
+function defaultUpdateMethod(identifier: StableIdentifier, newData: unknown, bucket: never): void;
+function defaultUpdateMethod(
+  identifier: StableIdentifier | StableRecordIdentifier,
+  data: unknown,
+  bucket: 'record'
+): void {
+  if (bucket === 'record') {
+    assert(`Expected identifier to be a StableRecordIdentifier`, isStableIdentifier(identifier));
+    if (!identifier.id && hasId(data)) {
+      updateTypeIdMapping(NEW_IDENTIFIERS, identifier, data.id);
+    }
+  }
+}
+
+function defaultKeyInfoMethod(resource: unknown, known: StableRecordIdentifier | null): KeyInfo {
+  // TODO RFC something to make this configurable
+  const id = hasId(resource) ? coerceId(resource.id) : null;
+  const type = hasType(resource) ? normalizeModelName(resource.type) : known ? known.type : null;
+
+  assert(`Expected keyInfoForResource to provide a type for the resource`, type);
+
+  return { type, id };
 }
 
 function defaultGenerationMethod(data: ImmutableRequestInfo, bucket: 'document'): string | null;
@@ -111,16 +167,19 @@ function defaultGenerationMethod(
   bucket: IdentifierBucket
 ): string | null {
   if (bucket === 'record') {
-    if (isNonEmptyString((data as WithLid).lid)) {
-      return (data as WithLid).lid;
+    if (hasLid(data)) {
+      return data.lid;
     }
-    if ((data as WithId).id !== undefined) {
-      let { type, id } = data as WithId;
-      // TODO: add test for id not a string
-      if (isNonEmptyString(coerceId(id))) {
-        return `@lid:${normalizeModelName(type)}-${id}`;
-      }
+
+    assert(`Cannot generate an identifier for a resource without a type`, hasType(data));
+
+    if (hasId(data)) {
+      const type = normalizeModelName(data.type);
+      const lid = NEW_IDENTIFIERS.get(type)?.get(data.id);
+
+      return lid || `@lid:${type}-${data.id}`;
     }
+
     return uuidv4();
   } else if (bucket === 'document') {
     assertIsRequest(data);
@@ -132,14 +191,21 @@ function defaultGenerationMethod(
     }
     return null;
   }
-  assert(`Unknown bucket ${bucket}`, false);
+  assert(`Unknown bucket ${bucket as string}`, false);
 }
 
-function defaultEmptyCallback(...args: any[]): any {}
+function defaultEmptyCallback(...args: unknown[]): void {}
+function defaultMergeMethod(
+  a: StableRecordIdentifier,
+  _b: StableRecordIdentifier,
+  _c: unknown
+): StableRecordIdentifier {
+  return a;
+}
 
-let DEBUG_MAP;
+let DEBUG_MAP: WeakMap<StableRecordIdentifier, StableRecordIdentifier>;
 if (DEBUG) {
-  DEBUG_MAP = new WeakMap<StableRecordIdentifier, StableRecordIdentifier>();
+  DEBUG_MAP = getOrSetGlobal('DEBUG_MAP', new WeakMap<StableRecordIdentifier, StableRecordIdentifier>());
 }
 
 /**
@@ -156,27 +222,33 @@ if (DEBUG) {
    @public
  */
 export class IdentifierCache {
-  _cache = {
-    lids: new Map<string, StableRecordIdentifier>(),
-    types: Object.create(null) as TypeMap,
-    documents: new Map<string, StableDocumentIdentifier>(),
-  };
+  declare _cache: StableCache;
   declare _generate: GenerationMethod;
   declare _update: UpdateMethod;
   declare _forget: ForgetMethod;
   declare _reset: ResetMethod;
   declare _merge: MergeMethod;
-  declare _isDefaultConfig: boolean;
+  declare _keyInfoForResource: KeyInfoMethod;
+  declare _id: number;
 
   constructor() {
     // we cache the user configuredGenerationMethod at init because it must
     // be configured prior and is not allowed to be changed
-    this._generate = configuredGenerationMethod || (defaultGenerationMethod as GenerationMethod);
-    this._update = configuredUpdateMethod || defaultEmptyCallback;
-    this._forget = configuredForgetMethod || defaultEmptyCallback;
-    this._reset = configuredResetMethod || defaultEmptyCallback;
-    this._merge = defaultEmptyCallback;
-    this._isDefaultConfig = !configuredGenerationMethod;
+    this._generate =
+      peekTransient<GenerationMethod>('configuredGenerationMethod') || (defaultGenerationMethod as GenerationMethod);
+    this._update = peekTransient<UpdateMethod>('configuredUpdateMethod') || defaultUpdateMethod;
+    this._forget = peekTransient<ForgetMethod>('configuredForgetMethod') || defaultEmptyCallback;
+    this._reset = peekTransient<ResetMethod>('configuredResetMethod') || defaultEmptyCallback;
+    this._merge = defaultMergeMethod;
+    this._keyInfoForResource = peekTransient<KeyInfoMethod>('configuredKeyInfoMethod') || defaultKeyInfoMethod;
+    this._id = IDENTIFIER_CACHE_ID++;
+
+    this._cache = {
+      resources: new Map<string, StableRecordIdentifier>(),
+      resourcesByType: Object.create(null) as TypeMap,
+      documents: new Map<string, StableDocumentIdentifier>(),
+      polymorphicLidBackMap: new Map<string, string[]>(),
+    };
   }
 
   /**
@@ -189,153 +261,85 @@ export class IdentifierCache {
    * @private
    */
   __configureMerge(method: MergeMethod | null) {
-    this._merge = method || defaultEmptyCallback;
+    this._merge = method || defaultMergeMethod;
+  }
+
+  upgradeIdentifier(resource: { type: string; id: string | null; lid?: string }): StableRecordIdentifier {
+    return this._getRecordIdentifier(resource, 2);
   }
 
   /**
    * @method _getRecordIdentifier
    * @private
    */
-  _getRecordIdentifier(resource: ResourceIdentifierObject, shouldGenerate: true): StableRecordIdentifier;
-  _getRecordIdentifier(resource: ResourceIdentifierObject, shouldGenerate: false): StableRecordIdentifier | undefined;
   _getRecordIdentifier(
-    resource: ResourceIdentifierObject,
-    shouldGenerate: boolean = false
-  ): StableRecordIdentifier | undefined {
-    // short circuit if we're already the stable version
-    if (isStableIdentifier(resource)) {
-      if (DEBUG) {
-        // TODO should we instead just treat this case as a new generation skipping the short circuit?
-        if (!this._cache.lids.has(resource.lid) || this._cache.lids.get(resource.lid) !== resource) {
-          throw new Error(`The supplied identifier ${resource} does not belong to this store instance`);
-        }
-      }
-      if (LOG_IDENTIFIERS) {
-        // eslint-disable-next-line no-console
-        console.log(`Identifiers: Peeked Identifier was already Stable ${String(resource)}`);
-      }
-      return resource;
-    }
-
-    let lid = coerceId(resource.lid);
-    let identifier: StableRecordIdentifier | undefined = lid !== null ? this._cache.lids.get(lid) : undefined;
-
-    if (identifier !== undefined) {
-      if (LOG_IDENTIFIERS) {
-        // eslint-disable-next-line no-console
-        console.log(`Identifiers: cache HIT ${identifier}`, resource);
-      }
-      return identifier;
-    }
-
+    resource: { type: string; id: string | null; lid?: string },
+    shouldGenerate: 2
+  ): StableRecordIdentifier;
+  _getRecordIdentifier(resource: unknown, shouldGenerate: 1): StableRecordIdentifier;
+  _getRecordIdentifier(resource: unknown, shouldGenerate: 0): StableRecordIdentifier | undefined;
+  _getRecordIdentifier(resource: unknown, shouldGenerate: 0 | 1 | 2): StableRecordIdentifier | undefined {
     if (LOG_IDENTIFIERS) {
       // eslint-disable-next-line no-console
       console.groupCollapsed(`Identifiers: ${shouldGenerate ? 'Generating' : 'Peeking'} Identifier`, resource);
     }
-
-    if (shouldGenerate === false) {
-      if (!(resource as ExistingResourceObject).type || !(resource as ExistingResourceObject).id) {
-        return;
+    // short circuit if we're already the stable version
+    if (isStableIdentifier(resource)) {
+      if (DEBUG) {
+        // TODO should we instead just treat this case as a new generation skipping the short circuit?
+        if (!this._cache.resources.has(resource.lid) || this._cache.resources.get(resource.lid) !== resource) {
+          throw new Error(`The supplied identifier ${JSON.stringify(resource)} does not belong to this store instance`);
+        }
       }
-    }
-
-    // `type` must always be present
-    assert('resource.type needs to be a string', 'type' in resource && isNonEmptyString(resource.type));
-
-    let type = resource.type && normalizeModelName(resource.type);
-    let id = coerceId(resource.id);
-
-    let keyOptions = getTypeIndex(this._cache.types, type);
-
-    // go straight for the stable RecordIdentifier key'd to `lid`
-    if (lid !== null) {
-      identifier = keyOptions.lid.get(lid);
-    }
-
-    // we may have not seen this resource before
-    // but just in case we check our own secondary lookup (`id`)
-    if (identifier === undefined && id !== null) {
-      identifier = keyOptions.id.get(id);
-    }
-
-    if (identifier === undefined) {
-      // we have definitely not seen this resource before
-      // so we allow the user configured `GenerationMethod` to tell us
-      let newLid = this._generate(resource, 'record');
       if (LOG_IDENTIFIERS) {
         // eslint-disable-next-line no-console
-        console.log(`Identifiers: lid ${newLid} determined for resource`, resource);
+        console.log(`Identifiers: cache HIT - Stable ${resource.lid}`);
+        // eslint-disable-next-line no-console
+        console.groupEnd();
       }
-
-      // we do this _even_ when `lid` is present because secondary lookups
-      // may need to be populated, but we enforce not giving us something
-      // different than expected
-      if (lid !== null && newLid !== lid) {
-        throw new Error(`You should not change the <lid> of a RecordIdentifier`);
-      } else if (lid === null && !this._isDefaultConfig) {
-        // allow configuration to tell us that we have
-        // seen this `lid` before. E.g. a secondary lookup
-        // connects this resource to a previously seen
-        // resource.
-        identifier = keyOptions.lid.get(newLid);
-      }
-
-      if (shouldGenerate === true) {
-        if (identifier === undefined) {
-          // if we still don't have an identifier, time to generate one
-          identifier = makeStableRecordIdentifier(id, type, newLid, 'record', false);
-
-          // populate our unique table
-          if (DEBUG) {
-            // realistically if you hit this it means you changed `type` :/
-            // TODO consider how to handle type change assertions more gracefully
-            if (this._cache.lids.has(identifier.lid)) {
-              throw new Error(`You should not change the <type> of a RecordIdentifier`);
-            }
-          }
-          this._cache.lids.set(identifier.lid, identifier);
-
-          // populate our primary lookup table
-          // TODO consider having the `lid` cache be
-          // one level up
-          keyOptions.lid.set(identifier.lid, identifier);
-
-          if (LOG_IDENTIFIERS) {
-            if (shouldGenerate) {
-              // eslint-disable-next-line no-console
-              console.log(`Identifiers: generated ${String(identifier)} for`, resource);
-              if (resource[DEBUG_IDENTIFIER_BUCKET]) {
-                // eslint-disable-next-line no-console
-                console.trace(
-                  `[WARNING] Identifiers: generated a new identifier from a previously used identifier. This is likely a bug.`
-                );
-              }
-            }
-          }
-        }
-
-        // populate our own secondary lookup table
-        // even for the "successful" secondary lookup
-        // by `_generate()`, since we missed the cache
-        // previously
-        // we use identifier.id instead of id here
-        // because they may not match and we prefer
-        // what we've set via resource data
-        if (identifier.id !== null) {
-          keyOptions.id.set(identifier.id, identifier);
-
-          // TODO allow filling out of `id` here
-          // for the `username` non-client created
-          // case.
-        }
-      }
+      return resource;
     }
 
+    // the resource is unknown, ask the application to identify this data for us
+    const lid = this._generate(resource, 'record');
     if (LOG_IDENTIFIERS) {
-      if (!identifier && !shouldGenerate) {
+      // eslint-disable-next-line no-console
+      console.log(`Identifiers: ${lid ? 'no ' : ''}lid ${lid ? lid + ' ' : ''}determined for resource`, resource);
+    }
+
+    let identifier: StableRecordIdentifier | null = /*#__NOINLINE__*/ getIdentifierFromLid(this._cache, lid, resource);
+    if (identifier !== null) {
+      if (LOG_IDENTIFIERS) {
         // eslint-disable-next-line no-console
-        console.log(`Identifiers: cache MISS`, resource);
+        console.groupEnd();
       }
+      return identifier;
+    }
+
+    if (shouldGenerate === 0) {
+      if (LOG_IDENTIFIERS) {
+        // eslint-disable-next-line no-console
+        console.groupEnd();
+      }
+      return;
+    }
+
+    // if we still don't have an identifier, time to generate one
+    if (shouldGenerate === 2) {
+      (resource as StableRecordIdentifier).lid = lid;
+      (resource as StableRecordIdentifier)[CACHE_OWNER] = this._id;
+      identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(resource as StableRecordIdentifier, 'record', false);
+    } else {
+      // we lie a bit here as a memory optimization
+      const keyInfo = this._keyInfoForResource(resource, null) as StableRecordIdentifier;
+      keyInfo.lid = lid;
+      keyInfo[CACHE_OWNER] = this._id;
+      identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(keyInfo, 'record', false);
+    }
+
+    addResourceToCache(this._cache, identifier);
+
+    if (LOG_IDENTIFIERS) {
       // eslint-disable-next-line no-console
       console.groupEnd();
     }
@@ -350,11 +354,11 @@ export class IdentifierCache {
    *
    * @method peekRecordIdentifier
    * @param resource
-   * @returns {StableRecordIdentifier | undefined}
+   * @return {StableRecordIdentifier | undefined}
    * @private
    */
   peekRecordIdentifier(resource: ResourceIdentifierObject | Identifier): StableRecordIdentifier | undefined {
-    return this._getRecordIdentifier(resource, false);
+    return this._getRecordIdentifier(resource, 0);
   }
 
   /**
@@ -363,7 +367,7 @@ export class IdentifierCache {
 
     @method getOrCreateDocumentIdentifier
     @param request
-    @returns {StableDocumentIdentifier | null}
+    @return {StableDocumentIdentifier | null}
     @public
   */
   getOrCreateDocumentIdentifier(request: ImmutableRequestInfo): StableDocumentIdentifier | null {
@@ -403,15 +407,11 @@ export class IdentifierCache {
 
     @method getOrCreateRecordIdentifier
     @param resource
-    @returns {StableRecordIdentifier}
+    @return {StableRecordIdentifier}
     @public
   */
-  getOrCreateRecordIdentifier(resource: ExistingResourceObject): StableExistingRecordIdentifier;
-  getOrCreateRecordIdentifier(
-    resource: ResourceIdentifierObject | Identifier | StableRecordIdentifier
-  ): StableRecordIdentifier;
-  getOrCreateRecordIdentifier(resource: ResourceData | Identifier): StableRecordIdentifier {
-    return this._getRecordIdentifier(resource, true);
+  getOrCreateRecordIdentifier(resource: unknown): StableRecordIdentifier {
+    return this._getRecordIdentifier(resource, 1);
   }
 
   /**
@@ -424,27 +424,25 @@ export class IdentifierCache {
 
    @method createIdentifierForNewRecord
    @param data
-   @returns {StableRecordIdentifier}
+   @return {StableRecordIdentifier}
    @public
   */
   createIdentifierForNewRecord(data: { type: string; id?: string | null }): StableRecordIdentifier {
-    let newLid = this._generate(data, 'record');
-    let identifier = makeStableRecordIdentifier(data.id || null, data.type, newLid, 'record', true);
-    let keyOptions = getTypeIndex(this._cache.types, data.type);
+    const newLid = this._generate(data, 'record');
+    const identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(
+      { id: data.id || null, type: data.type, lid: newLid, [CACHE_OWNER]: this._id },
+      'record',
+      true
+    );
 
     // populate our unique table
     if (DEBUG) {
-      if (this._cache.lids.has(identifier.lid)) {
+      if (this._cache.resources.has(identifier.lid)) {
         throw new Error(`The lid generated for the new record is not unique as it matches an existing identifier`);
       }
     }
-    this._cache.lids.set(identifier.lid, identifier);
 
-    // populate the type+lid cache
-    keyOptions.lid.set(newLid, identifier);
-    if (data.id) {
-      keyOptions.id.set(data.id, identifier);
-    }
+    /*#__NOINLINE__*/ addResourceToCache(this._cache, identifier);
 
     if (LOG_IDENTIFIERS) {
       // eslint-disable-next-line no-console
@@ -473,40 +471,37 @@ export class IdentifierCache {
     @method updateRecordIdentifier
     @param identifierObject
     @param data
-    @returns {StableRecordIdentifier}
+    @return {StableRecordIdentifier}
     @public
   */
-  updateRecordIdentifier(identifierObject: RecordIdentifier, data: ResourceData): StableRecordIdentifier {
+  updateRecordIdentifier(identifierObject: RecordIdentifier, data: unknown): StableRecordIdentifier {
     let identifier = this.getOrCreateRecordIdentifier(identifierObject);
 
-    let newId =
-      (data as ExistingResourceObject).id !== undefined ? coerceId((data as ExistingResourceObject).id) : null;
-    let existingIdentifier = detectMerge(this._cache.types, identifier, data, newId, this._cache.lids);
+    const keyInfo = this._keyInfoForResource(data, identifier);
+    let existingIdentifier = /*#__NOINLINE__*/ detectMerge(this._cache, keyInfo, identifier, data);
+    const hadLid = hasLid(data);
 
     if (!existingIdentifier) {
       // If the incoming type does not match the identifier type, we need to create an identifier for the incoming
       // data so we can merge the incoming data with the existing identifier, see #7325 and #7363
-      if (
-        (data as ExistingResourceObject).type &&
-        identifier.type !== normalizeModelName((data as ExistingResourceObject).type)
-      ) {
-        let incomingDataResource = { ...data };
-        // Need to strip the lid from the incomingData in order force a new identifier creation
-        delete incomingDataResource.lid;
-        existingIdentifier = this.getOrCreateRecordIdentifier(incomingDataResource);
+      if (identifier.type !== keyInfo.type) {
+        if (hadLid) {
+          // Strip the lid to ensure we force a new identifier creation
+          delete (data as { lid?: string }).lid;
+        }
+        existingIdentifier = this.getOrCreateRecordIdentifier(data);
       }
     }
 
     if (existingIdentifier) {
-      let keyOptions = getTypeIndex(this._cache.types, identifier.type);
-      let generatedIdentifier = identifier;
-      identifier = this._mergeRecordIdentifiers(
-        keyOptions,
-        generatedIdentifier,
-        existingIdentifier,
-        data,
-        newId as string
-      );
+      const generatedIdentifier = identifier;
+      identifier = this._mergeRecordIdentifiers(keyInfo, generatedIdentifier, existingIdentifier, data);
+
+      // make sure that the `lid` on the data we are processing matches the lid we kept
+      if (hadLid) {
+        data.lid = identifier.lid;
+      }
+
       if (LOG_IDENTIFIERS) {
         // eslint-disable-next-line no-console
         console.log(
@@ -516,24 +511,28 @@ export class IdentifierCache {
       }
     }
 
-    let id = identifier.id;
-    performRecordIdentifierUpdate(identifier, data, this._update);
-    newId = identifier.id;
+    const id = identifier.id;
+    /*#__NOINLINE__*/ performRecordIdentifierUpdate(identifier, keyInfo, data, this._update);
+    const newId = identifier.id;
 
     // add to our own secondary lookup table
     if (id !== newId && newId !== null) {
       if (LOG_IDENTIFIERS) {
         // eslint-disable-next-line no-console
         console.log(
-          `Identifiers: updated id for identifier ${identifier.lid} from '${id}' to '${newId}' for resource`,
+          `Identifiers: updated id for identifier ${identifier.lid} from '${String(id)}' to '${String(
+            newId
+          )}' for resource`,
           data
         );
       }
-      let keyOptions = getTypeIndex(this._cache.types, identifier.type);
-      keyOptions.id.set(newId, identifier);
+
+      const typeSet = this._cache.resourcesByType[identifier.type];
+      assert(`Expected to find a typeSet for ${identifier.type}`, typeSet);
+      typeSet.id.set(newId, identifier);
 
       if (id !== null) {
-        keyOptions.id.delete(id);
+        typeSet.id.delete(id);
       }
     } else if (LOG_IDENTIFIERS) {
       // eslint-disable-next-line no-console
@@ -548,28 +547,43 @@ export class IdentifierCache {
    * @private
    */
   _mergeRecordIdentifiers(
-    keyOptions: KeyOptions,
+    keyInfo: KeyInfo,
     identifier: StableRecordIdentifier,
     existingIdentifier: StableRecordIdentifier,
-    data: ResourceIdentifierObject | ExistingResourceObject,
-    newId: string
+    data: unknown
   ): StableRecordIdentifier {
+    assert(`Expected keyInfo to contain an id`, hasId(keyInfo));
     // delegate determining which identifier to keep to the configured MergeMethod
-    let kept = this._merge(identifier, existingIdentifier, data);
-    let abandoned = kept === identifier ? existingIdentifier : identifier;
+    const kept = this._merge(identifier, existingIdentifier, data);
+    const abandoned = kept === identifier ? existingIdentifier : identifier;
+
+    // get any backreferences before forgetting this identifier, as it will be removed from the cache
+    // and we will no longer be able to find them
+    const abandonedBackReferences = this._cache.polymorphicLidBackMap.get(abandoned.lid);
+    // delete the backreferences for the abandoned identifier so that forgetRecordIdentifier
+    // does not try to remove them.
+    if (abandonedBackReferences) this._cache.polymorphicLidBackMap.delete(abandoned.lid);
 
     // cleanup the identifier we no longer need
     this.forgetRecordIdentifier(abandoned);
 
-    // ensure a secondary cache entry for this id for the identifier we do keep
-    keyOptions.id.set(newId, kept);
-    // ensure a secondary cache entry for this id for the abandoned identifier's type we do keep
-    let baseKeyOptions = getTypeIndex(this._cache.types, existingIdentifier.type);
-    baseKeyOptions.id.set(newId, kept);
+    // ensure a secondary cache entry for the original lid for the abandoned identifier
+    this._cache.resources.set(abandoned.lid, kept);
 
-    // make sure that the `lid` on the data we are processing matches the lid we kept
-    data.lid = kept.lid;
+    // backReferences let us know which other identifiers are pointing at this identifier
+    // so we can delete them later if we forget this identifier
+    const keptBackReferences = this._cache.polymorphicLidBackMap.get(kept.lid) ?? [];
+    keptBackReferences.push(abandoned.lid);
 
+    // update the backreferences from the abandoned identifier to be for the kept identifier
+    if (abandonedBackReferences) {
+      abandonedBackReferences.forEach((lid) => {
+        keptBackReferences.push(lid);
+        this._cache.resources.set(lid, kept);
+      });
+    }
+
+    this._cache.polymorphicLidBackMap.set(kept.lid, keptBackReferences);
     return kept;
   }
 
@@ -586,15 +600,29 @@ export class IdentifierCache {
    @public
   */
   forgetRecordIdentifier(identifierObject: RecordIdentifier): void {
-    let identifier = this.getOrCreateRecordIdentifier(identifierObject);
-    let keyOptions = getTypeIndex(this._cache.types, identifier.type);
-    if (identifier.id !== null) {
-      keyOptions.id.delete(identifier.id);
-    }
-    this._cache.lids.delete(identifier.lid);
-    keyOptions.lid.delete(identifier.lid);
+    const identifier = this.getOrCreateRecordIdentifier(identifierObject);
+    const typeSet = this._cache.resourcesByType[identifier.type];
+    assert(`Expected to find a typeSet for ${identifier.type}`, typeSet);
 
-    IDENTIFIERS.delete(identifierObject);
+    if (identifier.id !== null) {
+      typeSet.id.delete(identifier.id);
+    }
+    this._cache.resources.delete(identifier.lid);
+    typeSet.lid.delete(identifier.lid);
+
+    const backReferences = this._cache.polymorphicLidBackMap.get(identifier.lid);
+    if (backReferences) {
+      backReferences.forEach((lid) => {
+        this._cache.resources.delete(lid);
+      });
+      this._cache.polymorphicLidBackMap.delete(identifier.lid);
+    }
+
+    if (DEBUG) {
+      identifier[DEBUG_STALE_CACHE_OWNER] = identifier[CACHE_OWNER];
+    }
+    identifier[CACHE_OWNER] = undefined;
+    IDENTIFIERS.delete(identifier);
     this._forget(identifier, 'record');
     if (LOG_IDENTIFIERS) {
       // eslint-disable-next-line no-console
@@ -603,6 +631,7 @@ export class IdentifierCache {
   }
 
   destroy() {
+    NEW_IDENTIFIERS.clear();
     this._cache.documents.forEach((identifier) => {
       DOCUMENTS.delete(identifier);
     });
@@ -610,38 +639,22 @@ export class IdentifierCache {
   }
 }
 
-function getTypeIndex(typeMap: TypeMap, type: string): KeyOptions {
-  let typeIndex: KeyOptions = typeMap[type];
-
-  if (typeIndex === undefined) {
-    typeIndex = {
-      lid: new Map(),
-      id: new Map(),
-    };
-    typeMap[type] = typeIndex;
-  }
-
-  return typeIndex;
-}
-
 function makeStableRecordIdentifier(
-  id: string | null,
-  type: string,
-  lid: string,
+  recordIdentifier: {
+    type: string;
+    id: string | null;
+    lid: string;
+    [CACHE_OWNER]: number | undefined;
+  },
   bucket: IdentifierBucket,
-  clientOriginated: boolean = false
-): Readonly<StableRecordIdentifier> {
-  let recordIdentifier = {
-    lid,
-    id,
-    type,
-  };
+  clientOriginated: boolean
+): StableRecordIdentifier {
   IDENTIFIERS.add(recordIdentifier);
 
   if (DEBUG) {
     // we enforce immutability in dev
     //  but preserve our ability to do controlled updates to the reference
-    let wrapper = {
+    let wrapper: StableRecordIdentifier = {
       get lid() {
         return recordIdentifier.lid;
       },
@@ -651,15 +664,33 @@ function makeStableRecordIdentifier(
       get type() {
         return recordIdentifier.type;
       },
-      toString() {
-        let { type, id, lid } = recordIdentifier;
-        return `${clientOriginated ? '[CLIENT_ORIGINATED] ' : ''}${type}:${id} (${lid})`;
+      get [CACHE_OWNER](): number | undefined {
+        return recordIdentifier[CACHE_OWNER];
       },
-      toJSON() {
-        let { type, id, lid } = recordIdentifier;
-        return { type, id, lid };
+      set [CACHE_OWNER](value: number) {
+        recordIdentifier[CACHE_OWNER] = value;
+      },
+      get [DEBUG_STALE_CACHE_OWNER](): number | undefined {
+        return (recordIdentifier as StableRecordIdentifier)[DEBUG_STALE_CACHE_OWNER];
+      },
+      set [DEBUG_STALE_CACHE_OWNER](value: number | undefined) {
+        (recordIdentifier as StableRecordIdentifier)[DEBUG_STALE_CACHE_OWNER] = value;
       },
     };
+    Object.defineProperty(wrapper, 'toString', {
+      enumerable: false,
+      value: () => {
+        const { type, id, lid } = recordIdentifier;
+        return `${clientOriginated ? '[CLIENT_ORIGINATED] ' : ''}${String(type)}:${String(id)} (${lid})`;
+      },
+    });
+    Object.defineProperty(wrapper, 'toJSON', {
+      enumerable: false,
+      value: () => {
+        const { type, id, lid } = recordIdentifier;
+        return { type, id, lid };
+      },
+    });
     wrapper[DEBUG_CLIENT_ORIGINATED] = clientOriginated;
     wrapper[DEBUG_IDENTIFIER_BUCKET] = bucket;
     IDENTIFIERS.add(wrapper);
@@ -671,43 +702,42 @@ function makeStableRecordIdentifier(
   return recordIdentifier;
 }
 
-function performRecordIdentifierUpdate(identifier: StableRecordIdentifier, data: ResourceData, updateFn: UpdateMethod) {
+function performRecordIdentifierUpdate(
+  identifier: StableRecordIdentifier,
+  keyInfo: KeyInfo,
+  data: unknown,
+  updateFn: UpdateMethod
+) {
   if (DEBUG) {
-    let { lid } = data;
-    let id = 'id' in data ? data.id : undefined;
-    let type = 'type' in data && data.type && normalizeModelName(data.type);
+    const { id, type } = keyInfo;
 
     // get the mutable instance behind our proxy wrapper
-    let wrapper = identifier;
-    identifier = DEBUG_MAP.get(wrapper);
+    const wrapper = identifier;
+    identifier = DEBUG_MAP.get(wrapper)!;
 
-    if (lid !== undefined) {
-      let newLid = coerceId(lid);
-      if (newLid !== identifier.lid) {
+    if (hasLid(data)) {
+      const lid = data.lid;
+      if (lid !== identifier.lid) {
         throw new Error(
-          `The 'lid' for a RecordIdentifier cannot be updated once it has been created. Attempted to set lid for '${wrapper}' to '${lid}'.`
+          `The 'lid' for a RecordIdentifier cannot be updated once it has been created. Attempted to set lid for '${wrapper.lid}' to '${lid}'.`
         );
       }
     }
 
-    if (id !== undefined) {
-      let newId = coerceId(id);
-
-      if (identifier.id !== null && identifier.id !== newId) {
-        // here we warn and ignore, as this may be a mistake, but we allow the user
-        // to have multiple cache-keys pointing at a single lid so we cannot error
-        warn(
-          `The 'id' for a RecordIdentifier should not be updated once it has been set. Attempted to set id for '${wrapper}' to '${newId}'.`,
-          false,
-          { id: 'ember-data:multiple-ids-for-identifier' }
-        );
-      }
+    if (id && identifier.id !== null && identifier.id !== id) {
+      // here we warn and ignore, as this may be a mistake, but we allow the user
+      // to have multiple cache-keys pointing at a single lid so we cannot error
+      warn(
+        `The 'id' for a RecordIdentifier should not be updated once it has been set. Attempted to set id for '${wrapper.lid}' to '${id}'.`,
+        false,
+        { id: 'ember-data:multiple-ids-for-identifier' }
+      );
     }
 
     // TODO consider just ignoring here to allow flexible polymorphic support
     if (type && type !== identifier.type) {
       throw new Error(
-        `The 'type' for a RecordIdentifier cannot be updated once it has been set. Attempted to set type for '${wrapper}' to '${type}'.`
+        `The 'type' for a RecordIdentifier cannot be updated once it has been set. Attempted to set type for '${wrapper.lid}' to '${type}'.`
       );
     }
 
@@ -726,32 +756,63 @@ function performRecordIdentifierUpdate(identifier: StableRecordIdentifier, data:
 }
 
 function detectMerge(
-  typesCache: ConfidentDict<KeyOptions>,
+  cache: StableCache,
+  keyInfo: KeyInfo,
   identifier: StableRecordIdentifier,
-  data: ResourceIdentifierObject | ExistingResourceObject,
-  newId: string | null,
-  lids: IdentifierMap
+  data: unknown
 ): StableRecordIdentifier | false {
+  const newId = keyInfo.id;
   const { id, type, lid } = identifier;
+  const typeSet = cache.resourcesByType[identifier.type];
+
+  // if the IDs are present but do not match
+  // then check if we have an existing identifier
+  // for the newer ID.
   if (id !== null && id !== newId && newId !== null) {
-    let keyOptions = getTypeIndex(typesCache, identifier.type);
-    let existingIdentifier = keyOptions.id.get(newId);
+    const existingIdentifier = typeSet && typeSet.id.get(newId);
 
     return existingIdentifier !== undefined ? existingIdentifier : false;
   } else {
-    let newType = (data as ExistingResourceObject).type && normalizeModelName((data as ExistingResourceObject).type);
+    const newType = keyInfo.type;
 
     // If the ids and type are the same but lid is not the same, we should trigger a merge of the identifiers
-    if (id !== null && id === newId && newType === type && data.lid && data.lid !== lid) {
-      let existingIdentifier = lids.get(data.lid);
-      return existingIdentifier !== undefined ? existingIdentifier : false;
+    // we trigger a merge of the identifiers
+    // though probably we should just throw an error here
+    if (id !== null && id === newId && newType === type && hasLid(data) && data.lid !== lid) {
+      return getIdentifierFromLid(cache, data.lid, data) || false;
+
       // If the lids are the same, and ids are the same, but types are different we should trigger a merge of the identifiers
-    } else if (id !== null && id === newId && newType && newType !== type && data.lid && data.lid === lid) {
-      let keyOptions = getTypeIndex(typesCache, newType);
-      let existingIdentifier = keyOptions.id.get(id);
+    } else if (id !== null && id === newId && newType && newType !== type && hasLid(data) && data.lid === lid) {
+      const newTypeSet = cache.resourcesByType[newType];
+      const existingIdentifier = newTypeSet && newTypeSet.id.get(newId);
+
       return existingIdentifier !== undefined ? existingIdentifier : false;
     }
   }
 
   return false;
+}
+
+function getIdentifierFromLid(cache: StableCache, lid: string, resource: unknown): StableRecordIdentifier | null {
+  const identifier = cache.resources.get(lid);
+  if (LOG_IDENTIFIERS) {
+    // eslint-disable-next-line no-console
+    console.log(`Identifiers: cache ${identifier ? 'HIT' : 'MISS'} - Non-Stable ${lid}`, resource);
+  }
+  return identifier || null;
+}
+
+function addResourceToCache(cache: StableCache, identifier: StableRecordIdentifier): void {
+  cache.resources.set(identifier.lid, identifier);
+  let typeSet = cache.resourcesByType[identifier.type];
+
+  if (!typeSet) {
+    typeSet = { lid: new Map(), id: new Map() };
+    cache.resourcesByType[identifier.type] = typeSet;
+  }
+
+  typeSet.lid.set(identifier.lid, identifier);
+  if (identifier.id) {
+    typeSet.id.set(identifier.id, identifier);
+  }
 }

@@ -1,20 +1,18 @@
-import { get } from '@ember/object';
-import { run } from '@ember/runloop';
+import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { all, Promise as EmberPromise, reject, resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import RESTAdapter from '@ember-data/adapter/rest';
-import { DEPRECATE_ARRAY_LIKE, DEPRECATE_NON_EXPLICIT_POLYMORPHISM } from '@ember-data/deprecations';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer from '@ember-data/serializer/rest';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+import { DEPRECATE_ARRAY_LIKE, DEPRECATE_NON_EXPLICIT_POLYMORPHISM } from '@warp-drive/build-config/deprecations';
 
 import { getRelationshipStateForRecord, hasRelationshipForRecord } from '../../helpers/accessors';
 
@@ -108,7 +106,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
         'adapter:company',
         JSONAPIAdapter.extend({
           findHasMany(store, type, snapshot) {
-            return resolve({
+            return Promise.resolve({
               links: {
                 related: 'company/1/employees',
               },
@@ -142,7 +140,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       } catch (e) {
         assert.strictEqual(
           e.message,
-          `Assertion Failed: fetched the hasMany relationship 'employees' for company:1 with link 'company/1/employees', but no data member is present in the response. If no data exists, the response should set { data: [] }`,
+          `fetched the hasMany relationship 'employees' for company:1 with link '"company/1/employees"', but no data member is present in the response. If no data exists, the response should set { data: [] }`,
           'We error appropriately'
         );
       }
@@ -152,50 +150,46 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   testInDebug('Invalid hasMany relationship identifiers throw errors for missing id', function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     // test null id
     assert.expectAssertion(() => {
-      run(() => {
-        let post = store.push({
-          data: {
-            id: '1',
-            type: 'post',
-            relationships: {
-              comments: {
-                data: [{ id: null, type: 'comment' }],
-              },
+      const post = store.push({
+        data: {
+          id: '1',
+          type: 'post',
+          relationships: {
+            comments: {
+              data: [{ id: null, type: 'comment' }],
             },
           },
-        });
-
-        post.comments;
+        },
       });
-    }, /Assertion Failed: Encountered a relationship identifier without an id for the hasMany relationship 'comments' on <post:1>, expected an identifier but found/);
+
+      post.comments;
+    }, /Encountered a relationship identifier without an id for the hasMany relationship 'comments' on <post:1>, expected an identifier but found/);
   });
 
   testInDebug('Invalid hasMany relationship identifiers throw errors for missing type', function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     // test missing type
     assert.expectAssertion(() => {
-      run(() => {
-        let post = store.push({
-          data: {
-            id: '2',
-            type: 'post',
-            relationships: {
-              comments: {
-                data: [{ id: '1', type: null }],
-              },
+      const post = store.push({
+        data: {
+          id: '2',
+          type: 'post',
+          relationships: {
+            comments: {
+              data: [{ id: '1', type: null }],
             },
           },
-        });
-        post.comments;
+        },
       });
-    }, /Assertion Failed: Encountered a relationship identifier without a type for the hasMany relationship 'comments' on <post:2>, expected an identifier with type 'comment' but found/);
+      post.comments;
+    }, /Encountered a relationship identifier without a type for the hasMany relationship 'comments' on <post:2>, expected an identifier with type 'comment' but found/);
   });
 
   test('A record with an async hasMany relationship can safely be saved and later access the relationship', async function (assert) {
@@ -211,7 +205,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
         }
         findRecord(store, schema, id, snapshot) {
           assert.step('findRecord');
-          return resolve({
+          return Promise.resolve({
             data: { id, type: 'chapter', attributes: { title: `Chapter ${id}` } },
           });
         }
@@ -256,13 +250,13 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     );
   });
 
-  test("When a hasMany relationship is accessed, the adapter's findMany method should not be called if all the records in the relationship are already loaded", function (assert) {
-    assert.expect(0);
+  test("When a hasMany relationship is accessed, the adapter's findMany method should not be called if all the records in the relationship are already loaded", async function (assert) {
+    assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
-    let postData = {
+    const postData = {
       type: 'post',
       id: '1',
       relationships: {
@@ -276,33 +270,37 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       assert.ok(false, "The adapter's find method should not be called");
     };
 
+    adapter.shouldBackgroundReloadRecord = () => false;
+
     adapter.findRecord = function (store, type, ids, snapshots) {
-      return { data: postData };
+      assert.ok(false, "The adapter's find method should not be called");
     };
 
-    return run(() => {
-      store.push({
+    store.push(
+      structuredClone({
         data: postData,
         included: [
           {
             type: 'comment',
             id: '1',
+            attributes: {},
           },
         ],
-      });
+      })
+    );
 
-      return store.findRecord('post', 1).then((post) => {
-        return post.comments;
-      });
-    });
+    const post = await store.findRecord('post', '1');
+    const comments = await post.comments;
+
+    assert.strictEqual(comments.length, 1, 'The comments are correctly loaded');
   });
 
   test('hasMany + canonical vs currentState + destroyRecord  ', async function (assert) {
     assert.expect(7);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let postData = {
+    const postData = {
       type: 'user',
       id: '1',
       attributes: {
@@ -328,7 +326,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       },
     };
 
-    let user = store.push({
+    const user = store.push({
       data: postData,
       included: [
         {
@@ -350,7 +348,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       return { data: { type: 'user', id: '2' } };
     };
 
-    let contacts = user.contacts;
+    const contacts = user.contacts;
     assert.deepEqual(
       contacts.map((c) => c.id),
       ['2', '3', '4'],
@@ -379,9 +377,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
     assert.ok(!user.contacts.initialState || !user.contacts.initialState.find((model) => model.id === '2'));
 
-    run(() => {
-      contacts.push(store.createRecord('user', { id: '8' }));
-    });
+    contacts.push(store.createRecord('user', { id: '8' }));
 
     assert.deepEqual(
       contacts.map((c) => c.id),
@@ -394,9 +390,9 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   test('hasMany + canonical vs currentState + unloadRecord', function (assert) {
     assert.expect(6);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let postData = {
+    const postData = {
       type: 'user',
       id: '1',
       attributes: {
@@ -422,7 +418,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       },
     };
 
-    let user = store.push({
+    const user = store.push({
       data: postData,
       included: [
         {
@@ -439,7 +435,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
         },
       ],
     });
-    let contacts = user.contacts;
+    const contacts = user.contacts;
 
     store.adapterFor('user').deleteRecord = function () {
       return { data: { type: 'user', id: '2' } };
@@ -451,11 +447,9 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       'user should have expected contacts'
     );
 
-    run(() => {
-      contacts.push(store.createRecord('user', { id: '5' }));
-      contacts.push(store.createRecord('user', { id: '6' }));
-      contacts.push(store.createRecord('user', { id: '7' }));
-    });
+    contacts.push(store.createRecord('user', { id: '5' }));
+    contacts.push(store.createRecord('user', { id: '6' }));
+    contacts.push(store.createRecord('user', { id: '7' }));
 
     assert.deepEqual(
       contacts.map((c) => c.id),
@@ -482,59 +476,71 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.strictEqual(contacts, user.contacts);
   });
 
-  test('adapter.findMany only gets unique IDs even if duplicate IDs are present in the hasMany relationship', function (assert) {
-    assert.expect(2);
+  deprecatedTest(
+    'adapter.findMany only gets unique IDs even if duplicate IDs are present in the hasMany relationship',
+    {
+      id: 'ember-data:deprecate-non-unique-relationship-entries',
+      until: '6.0',
+      count: 2,
+    },
+    async function (assert) {
+      assert.expect(3);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
-    let Chapter = store.modelFor('chapter');
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
+      const Chapter = store.modelFor('chapter');
 
-    let bookData = {
-      type: 'book',
-      id: '1',
-      relationships: {
-        chapters: {
-          data: [
-            { type: 'chapter', id: '2' },
-            { type: 'chapter', id: '3' },
-            { type: 'chapter', id: '3' },
-          ],
+      const bookData = {
+        type: 'book',
+        id: '1',
+        relationships: {
+          chapters: {
+            data: [
+              { type: 'chapter', id: '2' },
+              { type: 'chapter', id: '3' },
+              { type: 'chapter', id: '3' },
+            ],
+          },
         },
-      },
-    };
+      };
 
-    adapter.findMany = function (store, type, ids, snapshots) {
-      assert.strictEqual(type, Chapter, 'type passed to adapter.findMany is correct');
-      assert.deepEqual(ids, ['2', '3'], 'ids passed to adapter.findMany are unique');
+      adapter.findMany = function (store, type, ids, snapshots) {
+        assert.strictEqual(type, Chapter, 'type passed to adapter.findMany is correct');
+        assert.deepEqual(ids, ['2', '3'], 'ids passed to adapter.findMany are unique');
 
-      return resolve({
-        data: [
-          { id: '2', type: 'chapter', attributes: { title: 'Chapter One' } },
-          { id: '3', type: 'chapter', attributes: { title: 'Chapter Two' } },
-        ],
-      });
-    };
+        return Promise.resolve({
+          data: [
+            { id: '2', type: 'chapter', attributes: { title: 'Chapter One' } },
+            { id: '3', type: 'chapter', attributes: { title: 'Chapter Two' } },
+          ],
+        });
+      };
 
-    adapter.findRecord = function (store, type, ids, snapshots) {
-      return { data: bookData };
-    };
+      adapter.findRecord = function (store, type, ids, snapshots) {
+        return structuredClone({ data: bookData });
+      };
 
-    return run(() => {
-      store.push({
-        data: bookData,
-      });
+      store.push(
+        structuredClone({
+          data: bookData,
+        })
+      );
 
-      return store.findRecord('book', 1).then((book) => {
-        return book.chapters;
-      });
-    });
-  });
+      const book = await store.findRecord('book', '1');
+      const chapters = await book.chapters;
+
+      assert.deepEqual(
+        chapters.map((c) => c.title),
+        ['Chapter One', 'Chapter Two']
+      );
+    }
+  );
 
   // This tests the case where a serializer materializes a has-many
   // relationship as an identifier  that it can fetch lazily. The most
   // common use case of this is to provide a URL to a collection that
   // is loaded later.
-  test("A serializer can materialize a hasMany as an opaque token that can be lazily fetched via the adapter's findHasMany hook", function (assert) {
+  test("A serializer can materialize a hasMany as an opaque token that can be lazily fetched via the adapter's findHasMany hook", async function (assert) {
     class Post extends Model {
       @attr title;
       @hasMany('comment', { async: true, inverse: 'message' }) comments;
@@ -547,8 +553,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     // When the store asks the adapter for the record with ID 1,
     // provide some fake data.
@@ -556,7 +562,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       assert.strictEqual(type, Post, 'find type was Post');
       assert.strictEqual(id, '1', 'find id was 1');
 
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'post',
@@ -580,7 +586,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       assert.strictEqual(link, '/posts/1/comments', 'findHasMany link was /posts/1/comments');
       assert.strictEqual(relationship.type, 'comment', 'relationship was passed correctly');
 
-      return resolve({
+      return Promise.resolve({
         data: [
           { id: '1', type: 'comment', attributes: { body: 'First' } },
           { id: '2', type: 'comment', attributes: { body: 'Second' } },
@@ -588,18 +594,16 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       });
     };
 
-    return run(() => {
-      return store
-        .findRecord('post', 1)
-        .then((post) => {
-          return post.comments;
-        })
-        .then((comments) => {
-          assert.true(comments.isLoaded, 'comments are loaded');
-          assert.strictEqual(comments.length, 2, 'comments have 2 length');
-          assert.strictEqual(comments.at(0).body, 'First', 'comment loaded successfully');
-        });
-    });
+    await store
+      .findRecord('post', 1)
+      .then((post) => {
+        return post.comments;
+      })
+      .then((comments) => {
+        assert.true(comments.isLoaded, 'comments are loaded');
+        assert.strictEqual(comments.length, 2, 'comments have 2 length');
+        assert.strictEqual(comments.at(0).body, 'First', 'comment loaded successfully');
+      });
   });
 
   test('Accessing a hasMany backed by a link multiple times triggers only one request', async function (assert) {
@@ -616,10 +620,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
-    let post = store.push({
+    const post = store.push({
       data: {
         type: 'post',
         id: '1',
@@ -637,9 +641,9 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     adapter.findHasMany = function (store, snapshot, link, relationship) {
       count++;
       assert.strictEqual(count, 1, 'findHasMany has only been called once');
-      return new EmberPromise((resolve, reject) => {
+      return new Promise((resolve, reject) => {
         setTimeout(() => {
-          let value = {
+          const value = {
             data: [
               { id: '1', type: 'comment', attributes: { body: 'First' } },
               { id: '2', type: 'comment', attributes: { body: 'Second' } },
@@ -650,9 +654,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       });
     };
 
-    let promise1, promise2;
-
-    promise1 = post.comments;
+    const promise1 = post.comments;
     //Invalidate the post.comments CP
     store.push({
       data: {
@@ -665,13 +667,13 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
         },
       },
     });
-    promise2 = post.comments;
+    const promise2 = post.comments;
 
-    await all([promise1, promise2]);
+    await Promise.all([promise1, promise2]);
     assert.strictEqual(promise1.promise, promise2.promise, 'Same promise is returned both times');
   });
 
-  test('A hasMany backed by a link remains a promise after a record has been added to it', function (assert) {
+  test('A hasMany backed by a link remains a promise after a record has been added to it', async function (assert) {
     assert.expect(1);
     class Post extends Model {
       @attr title;
@@ -686,11 +688,11 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findHasMany = function (store, snapshot, link, relationship) {
-      return resolve({
+      return Promise.resolve({
         data: [
           { id: '1', type: 'comment', attributes: { body: 'First' } },
           { id: '2', type: 'comment', attributes: { body: 'Second' } },
@@ -698,46 +700,40 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       });
     };
 
-    let post;
-    run(() => {
+    const post = store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            links: {
+              related: '/posts/1/comments',
+            },
+          },
+        },
+      },
+    });
+
+    await post.comments.then(() => {
       store.push({
         data: {
-          type: 'post',
-          id: '1',
+          type: 'comment',
+          id: '3',
           relationships: {
-            comments: {
-              links: {
-                related: '/posts/1/comments',
-              },
+            message: {
+              data: { type: 'post', id: '1' },
             },
           },
         },
       });
-      post = store.peekRecord('post', 1);
-    });
 
-    return run(() => {
       return post.comments.then(() => {
-        store.push({
-          data: {
-            type: 'comment',
-            id: '3',
-            relationships: {
-              message: {
-                data: { type: 'post', id: '1' },
-              },
-            },
-          },
-        });
-
-        return post.comments.then(() => {
-          assert.ok(true, 'Promise was called');
-        });
+        assert.ok(true, 'Promise was called');
       });
     });
   });
 
-  test('A hasMany updated link should not remove new children', function (assert) {
+  test('A hasMany updated link should not remove new children', async function (assert) {
     class Post extends Model {
       @attr title;
       @hasMany('comment', { async: true, inverse: 'message' }) comments;
@@ -749,15 +745,15 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     }
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findHasMany = function (store, snapshot, link, relationship) {
-      return resolve({ data: [] });
+      return Promise.resolve({ data: [] });
     };
 
     adapter.createRecord = function (store, snapshot, link, relationship) {
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'post',
@@ -770,24 +766,22 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       });
     };
 
-    return run(() => {
-      let post = store.createRecord('post', {});
-      store.createRecord('comment', { message: post });
+    const post = store.createRecord('post', {});
+    store.createRecord('comment', { message: post });
 
-      return post.comments
-        .then((comments) => {
-          assert.strictEqual(comments.length, 1, 'initially we have one comment');
+    await post.comments
+      .then((comments) => {
+        assert.strictEqual(comments.length, 1, 'initially we have one comment');
 
-          return post.save();
-        })
-        .then(() => post.comments)
-        .then((comments) => {
-          assert.strictEqual(comments.length, 1, 'after saving, we still have one comment');
-        });
-    });
+        return post.save();
+      })
+      .then(() => post.comments)
+      .then((comments) => {
+        assert.strictEqual(comments.length, 1, 'after saving, we still have one comment');
+      });
   });
 
-  test('A hasMany updated link should not remove new children when the parent record has children already', function (assert) {
+  test('A hasMany updated link should not remove new children when the parent record has children already', async function (assert) {
     class Post extends Model {
       @attr title;
       @hasMany('comment', { async: true, inverse: 'message' }) comments;
@@ -800,17 +794,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findHasMany = function (store, snapshot, link, relationship) {
-      return resolve({
+      return Promise.resolve({
         data: [{ id: '5', type: 'comment', attributes: { body: 'hello' } }],
       });
     };
 
     adapter.createRecord = function (store, snapshot, link, relationship) {
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'post',
@@ -823,23 +817,21 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       });
     };
 
-    return run(() => {
-      let post = store.createRecord('post', {});
-      store.createRecord('comment', { message: post });
+    const post = store.createRecord('post', {});
+    store.createRecord('comment', { message: post });
 
-      return post.comments
-        .then((comments) => {
-          assert.strictEqual(comments.length, 1);
-          return post.save();
-        })
-        .then(() => post.comments)
-        .then((comments) => {
-          assert.strictEqual(comments.length, 2);
-        });
-    });
+    await post.comments
+      .then((comments) => {
+        assert.strictEqual(comments.length, 1);
+        return post.save();
+      })
+      .then(() => post.comments)
+      .then((comments) => {
+        assert.strictEqual(comments.length, 2);
+      });
   });
 
-  test("A hasMany relationship doesn't contain duplicate children, after the canonical state of the relationship is updated via store#push", function (assert) {
+  test("A hasMany relationship doesn't contain duplicate children, after the canonical state of the relationship is updated via store#push", async function (assert) {
     class Post extends Model {
       @attr title;
       @hasMany('comment', { async: true, inverse: 'message' }) comments;
@@ -852,58 +844,56 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.createRecord = function (store, snapshot, link, relationship) {
-      return resolve({ data: { id: '1', type: 'post' } });
+      return Promise.resolve({ data: { id: '1', type: 'post' } });
     };
 
-    return run(() => {
-      let post = store.createRecord('post', {});
+    const post = store.createRecord('post', {});
 
-      // create a new comment with id 'local', which is in the 'comments'
-      // relationship of post
-      let localComment = store.createRecord('comment', { id: 'local', message: post });
+    // create a new comment with id 'local', which is in the 'comments'
+    // relationship of post
+    const localComment = store.createRecord('comment', { id: 'local', message: post });
 
-      return post.comments
-        .then((comments) => {
-          assert.strictEqual(comments.length, 1);
-          assert.true(localComment.isNew);
+    await post.comments
+      .then((comments) => {
+        assert.strictEqual(comments.length, 1);
+        assert.true(localComment.isNew);
 
-          return post.save();
-        })
-        .then(() => {
-          // Now the post is saved but the locally created comment with the id
-          // 'local' is still in the created state since it hasn't been saved
-          // yet.
-          //
-          // As next we are pushing the post into the store again, having the
-          // locally created comment in the 'comments' relationship. By this the
-          // canonical state of the relationship is defined to consist of one
-          // comment: the one with id 'local'.
-          //
-          // This setup is needed to demonstrate the bug which has been fixed
-          // in #4154, where the locally created comment was duplicated in the
-          // comment relationship.
-          store.push({
-            data: {
-              type: 'post',
-              id: '1',
-              relationships: {
-                comments: {
-                  data: [{ id: 'local', type: 'comment' }],
-                },
+        return post.save();
+      })
+      .then(() => {
+        // Now the post is saved but the locally created comment with the id
+        // 'local' is still in the created state since it hasn't been saved
+        // yet.
+        //
+        // As next we are pushing the post into the store again, having the
+        // locally created comment in the 'comments' relationship. By this the
+        // canonical state of the relationship is defined to consist of one
+        // comment: the one with id 'local'.
+        //
+        // This setup is needed to demonstrate the bug which has been fixed
+        // in #4154, where the locally created comment was duplicated in the
+        // comment relationship.
+        store.push({
+          data: {
+            type: 'post',
+            id: '1',
+            relationships: {
+              comments: {
+                data: [{ id: 'local', type: 'comment' }],
               },
             },
-          });
-        })
-        .then(() => post.comments)
-        .then((comments) => {
-          assert.strictEqual(comments.length, 1);
-          assert.true(localComment.isNew);
+          },
         });
-    });
+      })
+      .then(() => post.comments)
+      .then((comments) => {
+        assert.strictEqual(comments.length, 1);
+        assert.true(localComment.isNew);
+      });
   });
 
   test('A hasMany relationship can be reloaded if it was fetched via a link', async function (assert) {
@@ -919,14 +909,14 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.strictEqual(type, Post, 'find type was Post');
       assert.strictEqual(id, '1', 'find id was 1');
 
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'post',
@@ -941,10 +931,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
     adapter.findHasMany = function (store, snapshot, link, relationship) {
       assert.strictEqual(relationship.type, 'comment', 'findHasMany relationship type was Comment');
-      assert.strictEqual(relationship.key, 'comments', 'findHasMany relationship key was comments');
+      assert.strictEqual(relationship.name, 'comments', 'findHasMany relationship key was comments');
       assert.strictEqual(link, '/posts/1/comments', 'findHasMany link was /posts/1/comments');
 
-      return resolve({
+      return Promise.resolve({
         data: [
           { id: '1', type: 'comment', attributes: { body: 'First' } },
           { id: '2', type: 'comment', attributes: { body: 'Second' } },
@@ -952,17 +942,17 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       });
     };
 
-    let post = await store.findRecord('post', 1);
-    let comments = await post.comments;
+    const post = await store.findRecord('post', 1);
+    const comments = await post.comments;
     assert.true(comments.isLoaded, 'comments are loaded');
     assert.strictEqual(comments.length, 2, 'comments have 2 length');
 
     adapter.findHasMany = function (store, snapshot, link, relationship) {
       assert.strictEqual(relationship.type, 'comment', 'findHasMany relationship type was Comment');
-      assert.strictEqual(relationship.key, 'comments', 'findHasMany relationship key was comments');
+      assert.strictEqual(relationship.name, 'comments', 'findHasMany relationship key was comments');
       assert.strictEqual(link, '/posts/1/comments', 'findHasMany link was /posts/1/comments');
 
-      return resolve({
+      return Promise.resolve({
         data: [
           { id: '1', type: 'comment', attributes: { body: 'First' } },
           { id: '2', type: 'comment', attributes: { body: 'Second' } },
@@ -977,14 +967,14 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   });
 
   test('A sync hasMany relationship can be reloaded if it was fetched via ids', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.strictEqual(type, store.modelFor('post'), 'find type was Post');
       assert.strictEqual(id, '1', 'find id was 1');
 
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'post',
@@ -1022,12 +1012,12 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     await store
       .findRecord('post', '1')
       .then(function (post) {
-        let comments = post.comments;
+        const comments = post.comments;
         assert.true(comments.isLoaded, 'comments are loaded');
         assert.strictEqual(comments.length, 2, 'comments have a length of 2');
 
         adapter.findMany = function (store, type, ids, snapshots) {
-          return resolve({
+          return Promise.resolve({
             data: [
               { id: '1', type: 'comment', attributes: { body: 'FirstUpdated' } },
               { id: '2', type: 'comment', attributes: { body: 'Second' } },
@@ -1056,14 +1046,14 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.strictEqual(type, Post, 'find type was Post');
       assert.strictEqual(id, '1', 'find id was 1');
 
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'post',
@@ -1080,7 +1070,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     };
 
     adapter.findMany = function (store, type, ids, snapshots) {
-      return resolve({
+      return Promise.resolve({
         data: [
           { id: '1', type: 'comment', attributes: { body: 'First' } },
           { id: '2', type: 'comment', attributes: { body: 'Second' } },
@@ -1098,7 +1088,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
         assert.strictEqual(comments.length, 2, 'comments have 2 length');
 
         adapter.findMany = function (store, type, ids, snapshots) {
-          return resolve({
+          return Promise.resolve({
             data: [
               { id: '1', type: 'comment', attributes: { body: 'FirstUpdated' } },
               { id: '2', type: 'comment', attributes: { body: 'Second' } },
@@ -1127,11 +1117,11 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = function () {
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'post',
@@ -1148,9 +1138,9 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     adapter.findHasMany = function () {
       loadingCount++;
       if (loadingCount % 2 === 1) {
-        return reject({ data: null });
+        return Promise.reject({ data: null });
       } else {
-        return resolve({
+        return Promise.resolve({
           data: [
             { id: '1', type: 'comment', attributes: { body: 'FirstUpdated' } },
             { id: '2', type: 'comment', attributes: { body: 'Second' } },
@@ -1159,8 +1149,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       }
     };
 
-    let post = await store.findRecord('post', '1');
-    let commentsPromiseArray = post.comments;
+    const post = await store.findRecord('post', '1');
+    const commentsPromiseArray = post.comments;
     let manyArray;
 
     try {
@@ -1182,7 +1172,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
     assert.true(manyArray.isLoaded, 'the second reload failed, comments are still loaded though');
 
-    let reloadedManyArray = await manyArray.reload();
+    const reloadedManyArray = await manyArray.reload();
 
     assert.true(reloadedManyArray.isLoaded, 'the third reload worked, comments are loaded again');
     assert.strictEqual(reloadedManyArray, manyArray, 'the many array stays the same');
@@ -1203,14 +1193,14 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, id) {
       assert.strictEqual(type, Post, 'find type was Post');
       assert.strictEqual(id, '1', 'find id was 1');
 
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'post',
@@ -1226,7 +1216,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     adapter.findHasMany = function (store, record, link, relationship) {
       assert.strictEqual(link, '/posts/1/comments', 'findHasMany link was /posts/1/comments');
 
-      return resolve({
+      return Promise.resolve({
         data: [
           { id: '1', type: 'comment', attributes: { body: 'FirstUpdated' } },
           { id: '2', type: 'comment', attributes: { body: 'Second' } },
@@ -1256,13 +1246,13 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
 
-    let done = assert.async();
+    const done = assert.async();
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, id) {
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'post',
@@ -1278,7 +1268,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     let count = 0;
     adapter.findHasMany = function (store, record, link, relationship) {
       count++;
-      return resolve({
+      return Promise.resolve({
         data: [
           { id: '1', type: 'comment', attributes: { body: 'First' } },
           { id: '2', type: 'comment', attributes: { body: 'Second' } },
@@ -1287,11 +1277,11 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     };
     await store.findRecord('post', '1').then(function (post) {
       post.comments.then(function (comments) {
-        all([comments.reload(), comments.reload(), comments.reload()]).then(function (comments) {
+        Promise.all([comments.reload(), comments.reload(), comments.reload()]).then(function (comments) {
           assert.strictEqual(
             count,
             2,
-            'One request for the original access and only one request for the mulitple reloads'
+            'One request for the original access and only one request for the multiple reloads'
           );
           done();
         });
@@ -1312,14 +1302,14 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.strictEqual(type, Post, 'find type was Post');
       assert.strictEqual(id, '1', 'find id was 1');
 
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'post',
@@ -1336,7 +1326,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     };
 
     adapter.findMany = function (store, type, ids, snapshots) {
-      return resolve({
+      return Promise.resolve({
         data: [
           { id: '1', type: 'comment', attributes: { body: 'FirstUpdated' } },
           { id: '2', type: 'comment', attributes: { body: 'Second' } },
@@ -1367,13 +1357,13 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
 
-    let done = assert.async();
+    const done = assert.async();
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, id, snapshot) {
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'post',
@@ -1392,7 +1382,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     let count = 0;
     adapter.findMany = function (store, type, ids, snapshots) {
       count++;
-      return resolve({
+      return Promise.resolve({
         data: [
           { id: '1', type: 'comment', attributes: { body: 'FirstUpdated' } },
           { id: '2', type: 'comment', attributes: { body: 'Second' } },
@@ -1402,11 +1392,11 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
 
     await store.findRecord('post', '1').then(function (post) {
       post.comments.then(function (comments) {
-        all([comments.reload(), comments.reload(), comments.reload()]).then(function (comments) {
+        Promise.all([comments.reload(), comments.reload(), comments.reload()]).then(function (comments) {
           assert.strictEqual(
             count,
             2,
-            'One request for the original access and only one request for the mulitple reloads'
+            'One request for the original access and only one request for the multiple reloads'
           );
           done();
         });
@@ -1431,18 +1421,18 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       this.owner.register('model:post', Post);
       this.owner.register('model:comment', Comment);
 
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
 
       adapter.findHasMany = function (store, snapshot, link, relationship) {
-        return resolve({
+        return Promise.resolve({
           data: [
             { id: '1', type: 'comment', attributes: { body: 'First' } },
             { id: '2', type: 'comment', attributes: { body: 'Second' } },
           ],
         });
       };
-      let post = store.push({
+      const post = store.push({
         data: {
           type: 'post',
           id: '1',
@@ -1460,7 +1450,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
         assert.true(comments.isLoaded, 'comments are loaded');
         assert.strictEqual(comments.length, 2, 'comments have 2 length');
 
-        let newComment = post.comments.createRecord({ body: 'Third' });
+        const newComment = post.comments.createRecord({ body: 'Third' });
         assert.strictEqual(newComment.body, 'Third', 'new comment is returned');
         assert.strictEqual(comments.length, 3, 'comments have 3 length, including new record');
       });
@@ -1481,21 +1471,21 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findHasMany = function (store, snapshot, link, relationship) {
       assert.strictEqual(relationship.type, 'comment', 'relationship was passed correctly');
 
       if (link === '/first') {
-        return resolve({
+        return Promise.resolve({
           data: [
             { id: '1', type: 'comment', attributes: { body: 'First' } },
             { id: '2', type: 'comment', attributes: { body: 'Second' } },
           ],
         });
       } else if (link === '/second') {
-        return resolve({
+        return Promise.resolve({
           data: [
             { id: '3', type: 'comment', attributes: { body: 'Third' } },
             { id: '4', type: 'comment', attributes: { body: 'Fourth' } },
@@ -1504,7 +1494,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
         });
       }
     };
-    let post = store.push({
+    const post = store.push({
       data: {
         type: 'post',
         id: '1',
@@ -1544,48 +1534,49 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   test("When a polymorphic hasMany relationship is accessed, the adapter's findMany method should not be called if all the records in the relationship are already loaded", async function (assert) {
     assert.expect(1);
 
-    let userData = {
-      type: 'user',
-      id: '1',
-      relationships: {
-        messages: {
-          data: [
-            { type: 'post', id: '1' },
-            { type: 'comment', id: '3' },
-          ],
-        },
-      },
-    };
-
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findMany = function (store, type, ids, snapshots) {
       assert.ok(false, "The adapter's find method should not be called");
     };
 
     adapter.findRecord = function (store, type, ids, snapshots) {
-      return { data: userData };
+      return {
+        data: {
+          type: 'user',
+          id: '1',
+          relationships: {
+            messages: {
+              data: [
+                { type: 'post', id: '1' },
+                { type: 'comment', id: '3' },
+              ],
+            },
+          },
+        },
+      };
     };
 
     store.push({
-      data: userData,
-      included: [
+      data: [
         {
           type: 'post',
           id: '1',
+          attributes: {},
         },
         {
           type: 'comment',
           id: '3',
+          attributes: {},
         },
       ],
     });
 
-    await store.findRecord('user', '1').then(function (user) {
-      let messages = user.messages;
-      assert.strictEqual(messages.length, 2, 'The messages are correctly loaded');
-    });
+    const user = await store.findRecord('user', '1');
+    const messages = await user.messages;
+
+    assert.strictEqual(messages.length, 2, 'The messages are correctly loaded');
   });
 
   test("When a polymorphic hasMany relationship is accessed, the store can call multiple adapters' findMany or find methods if the records are not loaded", async function (assert) {
@@ -1596,15 +1587,15 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     }
     this.owner.register('model:user', User);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = function (store, type, id, snapshot) {
       if (type === store.modelFor('post')) {
-        return resolve({ data: { id: '1', type: 'post' } });
+        return Promise.resolve({ data: { id: '1', type: 'post' } });
       } else if (type === store.modelFor('comment')) {
-        return resolve({ data: { id: '3', type: 'comment' } });
+        return Promise.resolve({ data: { id: '3', type: 'comment' } });
       }
     };
 
@@ -1636,10 +1627,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   test('polymorphic hasMany type-checks check the superclass', function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let igor = store.createRecord('user', { name: 'Igor' });
-    let comment = store.createRecord('comment', {
+    const igor = store.createRecord('user', { name: 'Igor' });
+    const comment = store.createRecord('comment', {
       body: 'Well I thought the title was fine',
     });
 
@@ -1667,8 +1658,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       this.owner.register('model:user', User);
       this.owner.register('model:contact', Contact);
 
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
 
       adapter.findRecord = function () {
         return {
@@ -1709,8 +1700,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
   deprecatedTest(
     'Type can be inferred from the key of an async hasMany relationship',
     { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 1 },
-    function (assert) {
-      assert.expect(1);
+    async function (assert) {
       class User extends Model {
         @attr name;
         @hasMany('message', { polymorphic: true, async: false, inverse: 'user' }) messages;
@@ -1718,8 +1708,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       }
       this.owner.register('model:user', User);
 
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
 
       adapter.findRecord = function (store, type, ids, snapshots) {
         return {
@@ -1735,43 +1725,34 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
         };
       };
 
-      run(function () {
-        store.push({
-          data: {
-            type: 'user',
-            id: '1',
-            relationships: {
-              contacts: {
-                data: [{ type: 'contact', id: '1' }],
-              },
+      store.push({
+        data: {
+          type: 'user',
+          id: '1',
+          relationships: {
+            contacts: {
+              data: [{ type: 'contact', id: '1' }],
             },
           },
-          included: [
-            {
-              type: 'contact',
-              id: '1',
-            },
-          ],
-        });
+        },
+        included: [
+          {
+            type: 'contact',
+            id: '1',
+          },
+        ],
       });
-      run(function () {
-        store
-          .findRecord('user', 1)
-          .then(function (user) {
-            return user.contacts;
-          })
-          .then(function (contacts) {
-            assert.strictEqual(contacts.length, 1, 'The contacts relationship is correctly set up');
-          });
-      });
+
+      const user = await store.findRecord('user', '1');
+      const contacts = await user.contacts;
+      assert.strictEqual(contacts.length, 1, 'The contacts relationship is correctly set up');
     }
   );
 
   deprecatedTest(
     'Polymorphic relationships work with a hasMany whose type is inferred',
     { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 1 },
-    function (assert) {
-      assert.expect(1);
+    async function (assert) {
       class User extends Model {
         @attr name;
         @hasMany('message', { polymorphic: true, async: false, inverse: 'user' }) messages;
@@ -1779,49 +1760,41 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       }
       this.owner.register('model:user', User);
 
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
 
       adapter.findRecord = function (store, type, ids, snapshots) {
         return { data: { id: '1', type: 'user' } };
       };
 
-      run(function () {
-        store.push({
-          data: {
-            type: 'user',
-            id: '1',
-            relationships: {
-              contacts: {
-                data: [
-                  { type: 'email', id: '1' },
-                  { type: 'phone', id: '2' },
-                ],
-              },
+      store.push({
+        data: {
+          type: 'user',
+          id: '1',
+          relationships: {
+            contacts: {
+              data: [
+                { type: 'email', id: '1' },
+                { type: 'phone', id: '2' },
+              ],
             },
           },
-          included: [
-            {
-              type: 'email',
-              id: '1',
-            },
-            {
-              type: 'phone',
-              id: '2',
-            },
-          ],
-        });
+        },
+        included: [
+          {
+            type: 'email',
+            id: '1',
+          },
+          {
+            type: 'phone',
+            id: '2',
+          },
+        ],
       });
-      run(function () {
-        store
-          .findRecord('user', 1)
-          .then(function (user) {
-            return user.contacts;
-          })
-          .then(function (contacts) {
-            assert.strictEqual(contacts.length, 2, 'The contacts relationship is correctly set up');
-          });
-      });
+      const user = await store.findRecord('user', '1');
+      const contacts = await user.contacts;
+
+      assert.strictEqual(contacts.length, 2, 'The contacts relationship is correctly set up');
     }
   );
 
@@ -1888,10 +1861,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     this.owner.register('model:phone', Phone);
     this.owner.register('model:post', Post);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let email = store.createRecord('email');
-    let post = store.createRecord('post', {
+    const email = store.createRecord('email');
+    const post = store.createRecord('post', {
       contact: email,
     });
 
@@ -1941,8 +1914,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
         assert.strictEqual(
           e.message,
           DEPRECATE_NON_EXPLICIT_POLYMORPHISM
-            ? "Assertion Failed: The 'post' type does not implement 'comment' and thus cannot be assigned to the 'comments' relationship in 'post'. Make it a descendant of 'comment' or use a mixin of the same name."
-            : "Assertion Failed: The 'post' type does not implement 'comment' and thus cannot be assigned to the 'comments' relationship in 'post'. If this relationship should be polymorphic, mark post.comments as `polymorphic: true` and post.message as implementing it via `as: 'comment'`.",
+            ? "The 'post' type does not implement 'comment' and thus cannot be assigned to the 'comments' relationship in 'post'. Make it a descendant of 'comment' or use a mixin of the same name."
+            : "The 'post' type does not implement 'comment' and thus cannot be assigned to the 'comments' relationship in 'post'. If this relationship should be polymorphic, mark post.comments as `polymorphic: true` and post.message as implementing it via `as: 'comment'`.",
           'should throw'
         );
       }
@@ -2018,8 +1991,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
           user.messages.push(anotherUser);
         },
         DEPRECATE_NON_EXPLICIT_POLYMORPHISM
-          ? "Assertion Failed: The 'user' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message' or use a mixin of the same name."
-          : `Assertion Failed: The schema for the relationship 'user' on 'user' type does not correctly implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. If using this record in this polymorphic relationship is desired, correct the errors in the schema shown below:
+          ? "The 'user' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message' or use a mixin of the same name."
+          : `The schema for the relationship 'user' on 'user' type does not correctly implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. If using this record in this polymorphic relationship is desired, correct the errors in the schema shown below:
 
 \`\`\`
 {
@@ -2152,8 +2125,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
           user.messages.push(anotherUser);
         },
         DEPRECATE_NON_EXPLICIT_POLYMORPHISM
-          ? "Assertion Failed: The 'user' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message' or use a mixin of the same name."
-          : `Assertion Failed: No 'user' field exists on 'user'. To use this type in the polymorphic relationship 'user.messages' the relationships schema definition for user should include:
+          ? "The 'user' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message' or use a mixin of the same name."
+          : `No 'user' field exists on 'user'. To use this type in the polymorphic relationship 'user.messages' the relationships schema definition for user should include:
 
 \`\`\`
 {
@@ -2309,7 +2282,7 @@ If using this relationship in a polymorphic manner is desired, the relationships
       } catch (e) {
         assert.strictEqual(
           e.message,
-          `Assertion Failed: The '<goon>.messages' relationship cannot be used polymorphically because '<message>.user is not a polymorphic relationship. To use this relationship in a polymorphic manner, fix the following schema issues on the relationships schema for 'message':
+          `The '<goon>.messages' relationship cannot be used polymorphically because '<message>.user is not a polymorphic relationship. To use this relationship in a polymorphic manner, fix the following schema issues on the relationships schema for 'message':
 
 \`\`\`
 {
@@ -2337,8 +2310,8 @@ If using this relationship in a polymorphic manner is desired, the relationships
   test('A record can be removed from a polymorphic association', async function (assert) {
     assert.expect(4);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => false;
 
@@ -2365,7 +2338,7 @@ If using this relationship in a polymorphic manner is desired, the relationships
 
     assert.strictEqual(messages.length, 1, 'The user has 1 message');
 
-    let removedObject = messages.pop();
+    const removedObject = messages.pop();
 
     assert.strictEqual(removedObject, comment, 'The message is correctly removed');
     assert.strictEqual(messages.length, 0, 'The user does not have any messages');
@@ -2375,11 +2348,11 @@ If using this relationship in a polymorphic manner is desired, the relationships
   test('When a record is created on the client, its hasMany arrays should be in a loaded state', async function (assert) {
     assert.expect(3);
 
-    let store = this.owner.lookup('service:store');
-    let post = store.createRecord('post');
+    const store = this.owner.lookup('service:store');
+    const post = store.createRecord('post');
 
     assert.ok(post.isLoaded, 'The post should have isLoaded flag');
-    let comments = post.comments;
+    const comments = post.comments;
     await comments;
 
     assert.strictEqual(comments.length, 0, 'The comments should be an empty array');
@@ -2401,8 +2374,8 @@ If using this relationship in a polymorphic manner is desired, the relationships
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
 
-    let store = this.owner.lookup('service:store');
-    let post = store.createRecord('post');
+    const store = this.owner.lookup('service:store');
+    const post = store.createRecord('post');
 
     assert.ok(post.isLoaded, 'The post should have isLoaded flag');
 
@@ -2415,35 +2388,33 @@ If using this relationship in a polymorphic manner is desired, the relationships
   test('we can set records SYNC HM relationship', function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let post = store.createRecord('post');
+    const store = this.owner.lookup('service:store');
+    const post = store.createRecord('post');
 
-    run(function () {
-      store.push({
-        data: [
-          {
-            type: 'comment',
-            id: '1',
-            attributes: {
-              body: 'First',
-            },
+    store.push({
+      data: [
+        {
+          type: 'comment',
+          id: '1',
+          attributes: {
+            body: 'First',
           },
-          {
-            type: 'comment',
-            id: '2',
-            attributes: {
-              body: 'Second',
-            },
+        },
+        {
+          type: 'comment',
+          id: '2',
+          attributes: {
+            body: 'Second',
           },
-        ],
-      });
-      post.set('comments', store.peekAll('comment').slice());
+        },
+      ],
     });
+    post.set('comments', store.peekAll('comment').slice());
 
-    assert.strictEqual(get(post, 'comments.length'), 2, 'we can set HM relationship');
+    assert.strictEqual(post.comments.length, 2, 'we can set HM relationship');
   });
 
-  test('We can set records ASYNC HM relationship', function (assert) {
+  test('We can set records ASYNC HM relationship', async function (assert) {
     assert.expect(1);
     class Post extends Model {
       @attr title;
@@ -2457,55 +2428,49 @@ If using this relationship in a polymorphic manner is desired, the relationships
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
 
-    let store = this.owner.lookup('service:store');
-    let post = store.createRecord('post');
+    const store = this.owner.lookup('service:store');
+    const post = store.createRecord('post');
 
-    run(function () {
-      store.push({
-        data: [
-          {
-            type: 'comment',
-            id: '1',
-            attributes: {
-              body: 'First',
-            },
+    store.push({
+      data: [
+        {
+          type: 'comment',
+          id: '1',
+          attributes: {
+            body: 'First',
           },
-          {
-            type: 'comment',
-            id: '2',
-            attributes: {
-              body: 'Second',
-            },
+        },
+        {
+          type: 'comment',
+          id: '2',
+          attributes: {
+            body: 'Second',
           },
-        ],
-      });
-      post.set('comments', store.peekAll('comment').slice());
+        },
+      ],
     });
+    post.set('comments', store.peekAll('comment').slice());
 
-    return post.comments.then((comments) => {
+    await post.comments.then((comments) => {
       assert.strictEqual(comments.length, 2, 'we can set async HM relationship');
     });
   });
 
-  test('When a record is saved, its unsaved hasMany records should be kept', function (assert) {
+  test('When a record is saved, its unsaved hasMany records should be kept', async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.createRecord = function (store, type, snapshot) {
-      return resolve({ data: { id: '1', type: snapshot.modelName } });
+      return Promise.resolve({ data: { id: '1', type: snapshot.modelName } });
     };
 
-    let post, comment;
-    return run(() => {
-      post = store.createRecord('post');
-      comment = store.createRecord('comment');
-      post.comments.push(comment);
-      return post.save();
-    }).then(() => {
-      assert.strictEqual(get(post, 'comments.length'), 1, "The unsaved comment should be in the post's comments array");
-    });
+    const post = store.createRecord('post');
+    const comment = store.createRecord('comment');
+    post.comments.push(comment);
+    await post.save();
+    assert.strictEqual(post.comments.length, 1, "The unsaved comment should be in the post's comments array");
   });
 
   test('dual non-async HM <-> BT', async function (assert) {
@@ -2521,16 +2486,16 @@ If using this relationship in a polymorphic manner is desired, the relationships
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.createRecord = function (store, type, snapshot) {
-      let serialized = snapshot.record.serialize();
+      const serialized = snapshot.record.serialize();
       serialized.data.id = 2;
-      return resolve(serialized);
+      return Promise.resolve(serialized);
     };
 
-    let post = store.push({
+    const post = store.push({
       data: {
         type: 'post',
         id: '1',
@@ -2541,7 +2506,7 @@ If using this relationship in a polymorphic manner is desired, the relationships
         },
       },
     });
-    let firstComment = store.push({
+    const firstComment = store.push({
       data: {
         type: 'comment',
         id: '1',
@@ -2556,9 +2521,9 @@ If using this relationship in a polymorphic manner is desired, the relationships
     const comment = store.createRecord('comment', { post });
     await comment.save();
 
-    let commentPost = comment.post;
-    let postComments = comment.post.comments;
-    let postCommentsLength = comment.get('post.comments.length');
+    const commentPost = comment.post;
+    const postComments = comment.post.comments;
+    const postCommentsLength = comment.get('post.comments.length');
 
     assert.deepEqual(post, commentPost, 'expect the new comments post, to be the correct post');
     assert.ok(postComments, 'comments should exist');
@@ -2581,15 +2546,15 @@ If using this relationship in a polymorphic manner is desired, the relationships
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     let findManyCalls = 0;
     let findRecordCalls = 0;
 
     adapter.findMany = function (store, type, ids, snapshots) {
       assert.ok(true, `findMany called ${++findManyCalls}x`);
-      return resolve({
+      return Promise.resolve({
         data: [
           { id: '1', type: 'comment', attributes: { body: 'first' } },
           { id: '2', type: 'comment', attributes: { body: 'second' } },
@@ -2600,10 +2565,10 @@ If using this relationship in a polymorphic manner is desired, the relationships
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.ok(true, `findRecord called ${++findRecordCalls}x`);
 
-      return resolve({ data: { id: '3', type: 'comment', attributes: { body: 'third' } } });
+      return Promise.resolve({ data: { id: '3', type: 'comment', attributes: { body: 'third' } } });
     };
 
-    let post = store.push({
+    const post = store.push({
       data: {
         type: 'post',
         id: '1',
@@ -2618,7 +2583,7 @@ If using this relationship in a polymorphic manner is desired, the relationships
       },
     });
 
-    let fetchedComments = await post.comments;
+    const fetchedComments = await post.comments;
 
     assert.strictEqual(fetchedComments.length, 2, 'comments fetched successfully');
     assert.strictEqual(fetchedComments.at(0).body, 'first', 'first comment loaded successfully');
@@ -2639,16 +2604,16 @@ If using this relationship in a polymorphic manner is desired, the relationships
       },
     });
 
-    let newlyFetchedComments = await post.comments;
+    const newlyFetchedComments = await post.comments;
 
     assert.strictEqual(newlyFetchedComments.length, 3, 'all three comments fetched successfully');
     assert.strictEqual(newlyFetchedComments.at(2).body, 'third', 'third comment loaded successfully');
   });
 
   testInDebug('A sync hasMany errors out if there are unloaded records in it', function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let post = store.push({
+    const post = store.push({
       data: {
         type: 'post',
         id: '1',
@@ -2675,8 +2640,8 @@ If using this relationship in a polymorphic manner is desired, the relationships
   });
 
   testInDebug('An async hasMany does not fetch with a model created with no options', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
     adapter.findRecord = function () {
       assert.ok(false, 'no request should be made');
     };
@@ -2697,8 +2662,8 @@ If using this relationship in a polymorphic manner is desired, the relationships
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
 
-    let comment = store.createRecord('comment');
-    let post = store.push({
+    const comment = store.createRecord('comment');
+    const post = store.push({
       data: {
         type: 'post',
         id: '1',
@@ -2710,72 +2675,53 @@ If using this relationship in a polymorphic manner is desired, the relationships
     assert.ok(post.comments.length, 1, 'expected length for comments');
   });
 
-  test('After removing and unloading a record, a hasMany relationship should still be valid', function (assert) {
-    let store = this.owner.lookup('service:store');
+  test('After removing and unloading a record, a hasMany relationship should still be valid', async function (assert) {
+    const store = this.owner.lookup('service:store');
 
-    const post = run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          relationships: {
-            comments: {
-              data: [{ type: 'comment', id: '1' }],
-            },
+    const post = store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: [{ type: 'comment', id: '1' }],
           },
         },
-        included: [{ type: 'comment', id: '1' }],
-      });
-      const post = store.peekRecord('post', 1);
-      const comments = post.comments;
-      const comment = comments.at(0);
-      comments.splice(0, 1);
-      store.unloadRecord(comment);
-      assert.strictEqual(comments.length, 0);
-      return post;
+      },
+      included: [{ type: 'comment', id: '1' }],
     });
+    const comments = post.comments;
+    const comment = comments.at(0);
+    comments.splice(0, 1);
+    store.unloadRecord(comment);
+    assert.strictEqual(comments.length, 0);
 
-    // Explicitly re-get comments
-    assert.strictEqual(run(post, 'get', 'comments.length'), 0);
+    const comments2 = await post.comments;
+    assert.strictEqual(comments2.length, 0);
   });
 
-  test('If reordered hasMany data has been pushed to the store, the many array reflects the ordering change - sync', function (assert) {
-    let store = this.owner.lookup('service:store');
+  test('If reordered hasMany data has been pushed to the store, the many array reflects the ordering change - sync', async function (assert) {
+    const store = this.owner.lookup('service:store');
 
-    let comment1, comment2, comment3, comment4;
-    let post;
-
-    run(() => {
-      store.push({
-        data: [
-          {
-            type: 'comment',
-            id: '1',
-          },
-          {
-            type: 'comment',
-            id: '2',
-          },
-          {
-            type: 'comment',
-            id: '3',
-          },
-          {
-            type: 'comment',
-            id: '4',
-          },
-        ],
-      });
-
-      comment1 = store.peekRecord('comment', 1);
-      comment2 = store.peekRecord('comment', 2);
-      comment3 = store.peekRecord('comment', 3);
-      comment4 = store.peekRecord('comment', 4);
-    });
-
-    run(() => {
-      store.push({
-        data: {
+    const [comment1, comment2, comment3, comment4, post] = store.push({
+      data: [
+        {
+          type: 'comment',
+          id: '1',
+        },
+        {
+          type: 'comment',
+          id: '2',
+        },
+        {
+          type: 'comment',
+          id: '3',
+        },
+        {
+          type: 'comment',
+          id: '4',
+        },
+        {
           type: 'post',
           id: '1',
           relationships: {
@@ -2787,108 +2733,104 @@ If using this relationship in a polymorphic manner is desired, the relationships
             },
           },
         },
-      });
-      post = store.peekRecord('post', 1);
-
-      assert.deepEqual(post.comments.slice(), [comment1, comment2], 'Initial ordering is correct');
+      ],
     });
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          relationships: {
-            comments: {
-              data: [
-                { type: 'comment', id: '2' },
-                { type: 'comment', id: '1' },
-              ],
-            },
+    assert.arrayStrictEquals(post.comments.slice(), [comment1, comment2], 'Initial ordering is correct');
+
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '2' },
+              { type: 'comment', id: '1' },
+            ],
           },
         },
-      });
+      },
     });
-    assert.deepEqual(post.comments.slice(), [comment2, comment1], 'Updated ordering is correct');
+    assert.arrayStrictEquals(post.comments.slice(), [comment2, comment1], 'Updated ordering is correct');
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          relationships: {
-            comments: {
-              data: [{ type: 'comment', id: '2' }],
-            },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: [{ type: 'comment', id: '2' }],
           },
         },
-      });
+      },
     });
-    assert.deepEqual(post.comments.slice(), [comment2], 'Updated ordering is correct');
+    assert.arrayStrictEquals(post.comments.slice(), [comment2], 'Updated ordering is correct');
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          relationships: {
-            comments: {
-              data: [
-                { type: 'comment', id: '1' },
-                { type: 'comment', id: '2' },
-                { type: 'comment', id: '3' },
-                { type: 'comment', id: '4' },
-              ],
-            },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '1' },
+              { type: 'comment', id: '2' },
+              { type: 'comment', id: '3' },
+              { type: 'comment', id: '4' },
+            ],
           },
         },
-      });
+      },
     });
-    assert.deepEqual(post.comments.slice(), [comment1, comment2, comment3, comment4], 'Updated ordering is correct');
+    assert.arrayStrictEquals(
+      post.comments.slice(),
+      [comment1, comment2, comment3, comment4],
+      'Updated ordering is correct'
+    );
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          relationships: {
-            comments: {
-              data: [
-                { type: 'comment', id: '4' },
-                { type: 'comment', id: '3' },
-              ],
-            },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '4' },
+              { type: 'comment', id: '3' },
+            ],
           },
         },
-      });
+      },
     });
-    assert.deepEqual(post.comments.slice(), [comment4, comment3], 'Updated ordering is correct');
+    assert.arrayStrictEquals(post.comments.slice(), [comment4, comment3], 'Updated ordering is correct');
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          relationships: {
-            comments: {
-              data: [
-                { type: 'comment', id: '4' },
-                { type: 'comment', id: '2' },
-                { type: 'comment', id: '3' },
-                { type: 'comment', id: '1' },
-              ],
-            },
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '4' },
+              { type: 'comment', id: '2' },
+              { type: 'comment', id: '3' },
+              { type: 'comment', id: '1' },
+            ],
           },
         },
-      });
+      },
     });
-
-    assert.deepEqual(post.comments.slice(), [comment4, comment2, comment3, comment1], 'Updated ordering is correct');
+    assert.arrayStrictEquals(
+      post.comments.slice(),
+      [comment4, comment2, comment3, comment1],
+      'Updated ordering is correct'
+    );
   });
 
   test('Rollbacking attributes for deleted record restores implicit relationship correctly when the hasMany side has been deleted - async', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let book = store.push({
+    const store = this.owner.lookup('service:store');
+    const book = store.push({
       data: {
         type: 'book',
         id: '1',
@@ -2911,7 +2853,7 @@ If using this relationship in a polymorphic manner is desired, the relationships
         },
       ],
     });
-    let chapter = store.peekRecord('chapter', '2');
+    const chapter = store.peekRecord('chapter', '2');
 
     chapter.deleteRecord();
     chapter.rollbackAttributes();
@@ -2921,8 +2863,8 @@ If using this relationship in a polymorphic manner is desired, the relationships
   });
 
   test('Rollbacking attributes for deleted record restores implicit relationship correctly when the hasMany side has been deleted - sync', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let chapter = store.push({
+    const store = this.owner.lookup('service:store');
+    const chapter = store.push({
       data: {
         type: 'chapter',
         id: '1',
@@ -2945,7 +2887,7 @@ If using this relationship in a polymorphic manner is desired, the relationships
         },
       ],
     });
-    let page = store.peekRecord('page', '2');
+    const page = store.peekRecord('page', '2');
 
     page.deleteRecord();
     page.rollbackAttributes();
@@ -2953,97 +2895,81 @@ If using this relationship in a polymorphic manner is desired, the relationships
     assert.strictEqual(chapter.pages.at(0), page, 'Chapter has a page after rollback attributes');
   });
 
-  test('Rollbacking attributes for deleted record restores implicit relationship correctly when the belongsTo side has been deleted - async', function (assert) {
+  test('Rollbacking attributes for deleted record restores implicit relationship correctly when the belongsTo side has been deleted - async', async function (assert) {
     class Page extends Model {
       @attr number;
       @belongsTo('chapter', { async: true, inverse: 'pages' }) chapter;
     }
     this.owner.register('model:page', Page);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let chapter, page;
-
-    run(() => {
-      store.push({
-        data: {
-          type: 'chapter',
-          id: '2',
+    store.push({
+      data: {
+        type: 'chapter',
+        id: '2',
+        attributes: {
+          title: 'Sailing the Seven Seas',
+        },
+      },
+      included: [
+        {
+          type: 'page',
+          id: '3',
           attributes: {
-            title: 'Sailing the Seven Seas',
+            number: 1,
+          },
+          relationships: {
+            chapter: {
+              data: { type: 'chapter', id: '2' },
+            },
           },
         },
-        included: [
-          {
-            type: 'page',
-            id: '3',
-            attributes: {
-              number: 1,
-            },
-            relationships: {
-              chapter: {
-                data: { type: 'chapter', id: '2' },
-              },
-            },
-          },
-        ],
-      });
-      chapter = store.peekRecord('chapter', 2);
-      page = store.peekRecord('page', 3);
+      ],
     });
+    const chapter = store.peekRecord('chapter', '2');
+    const page = store.peekRecord('page', '3');
 
-    run(() => {
-      chapter.deleteRecord();
-      chapter.rollbackAttributes();
-    });
-
-    return run(() => {
-      return page.chapter.then((fetchedChapter) => {
-        assert.strictEqual(fetchedChapter, chapter, 'Page has a chapter after rollback attributes');
-      });
+    chapter.deleteRecord();
+    chapter.rollbackAttributes();
+    await page.chapter.then((fetchedChapter) => {
+      assert.strictEqual(fetchedChapter, chapter, 'Page has a chapter after rollback attributes');
     });
   });
 
   test('Rollbacking attributes for deleted record restores implicit relationship correctly when the belongsTo side has been deleted - sync', function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let chapter, page;
-    run(() => {
-      store.push({
-        data: {
-          type: 'chapter',
-          id: '2',
+    store.push({
+      data: {
+        type: 'chapter',
+        id: '2',
+        attributes: {
+          title: 'Sailing the Seven Seas',
+        },
+      },
+      included: [
+        {
+          type: 'page',
+          id: '3',
           attributes: {
-            title: 'Sailing the Seven Seas',
+            number: 1,
+          },
+          relationships: {
+            chapter: {
+              data: { type: 'chapter', id: '2' },
+            },
           },
         },
-        included: [
-          {
-            type: 'page',
-            id: '3',
-            attributes: {
-              number: 1,
-            },
-            relationships: {
-              chapter: {
-                data: { type: 'chapter', id: '2' },
-              },
-            },
-          },
-        ],
-      });
-      chapter = store.peekRecord('chapter', 2);
-      page = store.peekRecord('page', 3);
+      ],
     });
+    const chapter = store.peekRecord('chapter', '2');
+    const page = store.peekRecord('page', '3');
 
-    run(() => {
-      chapter.deleteRecord();
-      chapter.rollbackAttributes();
-    });
+    chapter.deleteRecord();
+    chapter.rollbackAttributes();
 
-    run(() => {
-      assert.strictEqual(page.chapter, chapter, 'Page has a chapter after rollback attributes');
-    });
+    assert.strictEqual(page.chapter, chapter, 'Page has a chapter after rollback attributes');
   });
 
   testInDebug('Passing a model as type to hasMany should not work', function (assert) {
@@ -3074,7 +3000,7 @@ If using this relationship in a polymorphic manner is desired, the relationships
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     const [post] = store.push({
       data: [
@@ -3144,7 +3070,7 @@ If using this relationship in a polymorphic manner is desired, the relationships
     );
   });
 
-  test('unloading a record with associated records does not prevent the store from tearing down', function (assert) {
+  test('unloading a record with associated records does not prevent the store from tearing down', async function (assert) {
     class Post extends Model {
       @attr title;
       @hasMany('comment', { async: false, inverse: 'post' }) comments;
@@ -3157,64 +3083,60 @@ If using this relationship in a polymorphic manner is desired, the relationships
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let post;
-    run(() => {
-      store.push({
-        data: [
-          {
-            type: 'post',
-            id: '2',
-            attributes: {
-              title: 'Sailing the Seven Seas',
-            },
-            relationships: {
-              comments: {
-                data: [
-                  { type: 'comment', id: '1' },
-                  { type: 'comment', id: '2' },
-                ],
-              },
+    store.push({
+      data: [
+        {
+          type: 'post',
+          id: '2',
+          attributes: {
+            title: 'Sailing the Seven Seas',
+          },
+          relationships: {
+            comments: {
+              data: [
+                { type: 'comment', id: '1' },
+                { type: 'comment', id: '2' },
+              ],
             },
           },
-          {
-            type: 'comment',
-            id: '1',
-            relationships: {
-              post: {
-                data: { type: 'post', id: '2' },
-              },
+        },
+        {
+          type: 'comment',
+          id: '1',
+          relationships: {
+            post: {
+              data: { type: 'post', id: '2' },
             },
           },
-          {
-            type: 'comment',
-            id: '2',
-            relationships: {
-              post: {
-                data: { type: 'post', id: '2' },
-              },
+        },
+        {
+          type: 'comment',
+          id: '2',
+          relationships: {
+            post: {
+              data: { type: 'post', id: '2' },
             },
           },
-        ],
-      });
-      post = store.peekRecord('post', 2);
-
-      // This line triggers the original bug that gets manifested
-      // in teardown for apps, e.g. store.destroy that is caused by
-      // App.destroy().
-      // Relationship#clear uses Ember.Set#forEach, which does incorrect
-      // iteration when the set is being mutated (in our case, the index gets off
-      // because records are being removed)
-      store.unloadRecord(post);
+        },
+      ],
     });
+    const post = store.peekRecord('post', '2');
+
+    // This line triggers the original bug that gets manifested
+    // in teardown for apps, e.g. store.destroy that is caused by
+    // App.destroy().
+    // Relationship#clear uses Ember.Set#forEach, which does incorrect
+    // iteration when the set is being mutated (in our case, the index gets off
+    // because records are being removed)
+    store.unloadRecord(post);
 
     try {
-      run(() => {
-        store.destroy();
-      });
+      store.destroy();
+      await settled();
       assert.ok(true, 'store destroyed correctly');
-    } catch (error) {
+    } catch {
       assert.ok(false, 'store prevented from being destroyed');
     }
   });
@@ -3241,13 +3163,13 @@ If using this relationship in a polymorphic manner is desired, the relationships
       'adapter:comment',
       RESTAdapter.extend({
         deleteRecord(record) {
-          return resolve();
+          return Promise.resolve();
         },
         updateRecord(record) {
-          return resolve();
+          return Promise.resolve();
         },
         createRecord() {
-          return resolve({ comments: { id: commentId++ } });
+          return Promise.resolve({ comments: { id: commentId++ } });
         },
       })
     );
@@ -3258,7 +3180,7 @@ If using this relationship in a polymorphic manner is desired, the relationships
     this.owner.register('adapter:application', ApplicationAdapter);
     this.owner.register('serializer:application', RESTSerializer.extend());
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     store.push({
       data: [
@@ -3292,7 +3214,7 @@ If using this relationship in a polymorphic manner is desired, the relationships
 
     const post = await store.findRecord('post', '1');
     let commentsPromiseArray = post.comments;
-    let comments = await commentsPromiseArray;
+    const comments = await commentsPromiseArray;
     assert.strictEqual(commentsPromiseArray.length, 3, 'Initial comments count');
 
     // Add comment #4
@@ -3318,7 +3240,7 @@ If using this relationship in a polymorphic manner is desired, the relationships
     assert.strictEqual(commentsPromiseArray.length, 4, 'Comments count after second add');
   });
 
-  test('hasMany hasAnyRelationshipData async loaded', function (assert) {
+  test('hasMany hasAnyRelationshipData async loaded', async function (assert) {
     assert.expect(1);
     class Chapter extends Model {
       @attr title;
@@ -3326,11 +3248,11 @@ If using this relationship in a polymorphic manner is desired, the relationships
     }
     this.owner.register('model:chapter', Chapter);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, id, snapshot) {
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'chapter',
@@ -3347,22 +3269,20 @@ If using this relationship in a polymorphic manner is desired, the relationships
       });
     };
 
-    return run(() => {
-      return store.findRecord('chapter', 1).then((chapter) => {
-        let relationship = getRelationshipStateForRecord(chapter, 'pages');
-        assert.true(relationship.state.hasReceivedData, 'relationship has data');
-      });
+    await store.findRecord('chapter', '1').then((chapter) => {
+      const relationship = getRelationshipStateForRecord(chapter, 'pages');
+      assert.true(relationship.state.hasReceivedData, 'relationship has data');
     });
   });
 
-  test('hasMany hasAnyRelationshipData sync loaded', function (assert) {
+  test('hasMany hasAnyRelationshipData sync loaded', async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, id, snapshot) {
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'chapter',
@@ -3379,15 +3299,13 @@ If using this relationship in a polymorphic manner is desired, the relationships
       });
     };
 
-    return run(() => {
-      return store.findRecord('chapter', 1).then((chapter) => {
-        let relationship = getRelationshipStateForRecord(chapter, 'pages');
-        assert.true(relationship.state.hasReceivedData, 'relationship has data');
-      });
+    await store.findRecord('chapter', '1').then((chapter) => {
+      const relationship = getRelationshipStateForRecord(chapter, 'pages');
+      assert.true(relationship.state.hasReceivedData, 'relationship has data');
     });
   });
 
-  test('hasMany hasAnyRelationshipData async not loaded', function (assert) {
+  test('hasMany hasAnyRelationshipData async not loaded', async function (assert) {
     assert.expect(1);
     class Chapter extends Model {
       @attr title;
@@ -3395,11 +3313,11 @@ If using this relationship in a polymorphic manner is desired, the relationships
     }
     this.owner.register('model:chapter', Chapter);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, id, snapshot) {
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'chapter',
@@ -3413,22 +3331,20 @@ If using this relationship in a polymorphic manner is desired, the relationships
       });
     };
 
-    return run(() => {
-      return store.findRecord('chapter', 1).then((chapter) => {
-        let relationship = getRelationshipStateForRecord(chapter, 'pages');
-        assert.false(relationship.state.hasReceivedData, 'relationship does not have data');
-      });
+    await store.findRecord('chapter', '1').then((chapter) => {
+      const relationship = getRelationshipStateForRecord(chapter, 'pages');
+      assert.false(relationship.state.hasReceivedData, 'relationship does not have data');
     });
   });
 
-  test('hasMany hasAnyRelationshipData sync not loaded', function (assert) {
+  test('hasMany hasAnyRelationshipData sync not loaded', async function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findRecord = function (store, type, id, snapshot) {
-      return resolve({
+      return Promise.resolve({
         data: {
           id: '1',
           type: 'chapter',
@@ -3437,11 +3353,9 @@ If using this relationship in a polymorphic manner is desired, the relationships
       });
     };
 
-    return run(() => {
-      return store.findRecord('chapter', 1).then((chapter) => {
-        let relationship = getRelationshipStateForRecord(chapter, 'pages');
-        assert.false(relationship.state.hasReceivedData, 'relationship does not have data');
-      });
+    await store.findRecord('chapter', '1').then((chapter) => {
+      const relationship = getRelationshipStateForRecord(chapter, 'pages');
+      assert.false(relationship.state.hasReceivedData, 'relationship does not have data');
     });
   });
 
@@ -3453,9 +3367,9 @@ If using this relationship in a polymorphic manner is desired, the relationships
     }
     this.owner.register('model:chapter', Chapter);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
     let chapter = store.createRecord('chapter', { title: 'The Story Begins' });
-    let page = store.createRecord('page');
+    const page = store.createRecord('page');
 
     let relationship = getRelationshipStateForRecord(chapter, 'pages');
     assert.false(relationship.state.hasReceivedData, 'relationship does not have data');
@@ -3472,7 +3386,7 @@ If using this relationship in a polymorphic manner is desired, the relationships
   test('hasMany hasAnyRelationshipData sync created', function (assert) {
     assert.expect(2);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
     let chapter = store.createRecord('chapter', { title: 'The Story Begins' });
     let relationship = getRelationshipStateForRecord(chapter, 'pages');
 
@@ -3488,76 +3402,59 @@ If using this relationship in a polymorphic manner is desired, the relationships
   });
 
   test("Model's hasMany relationship should not be created during model creation", function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
-    let user;
-    run(() => {
-      store.push({
-        data: {
-          type: 'user',
-          id: '1',
-        },
-      });
-      user = store.peekRecord('user', 1);
-      assert.notOk(hasRelationshipForRecord(user, 'messages'), 'Newly created record should not have relationships');
+    const user = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+      },
     });
+    assert.notOk(hasRelationshipForRecord(user, 'messages'), 'Newly created record should not have relationships');
   });
 
-  test("Model's belongsTo relationship should be created during 'get' method", function (assert) {
-    let store = this.owner.lookup('service:store');
+  test("Model's belongsTo relationship should be created during 'get' method", async function (assert) {
+    const store = this.owner.lookup('service:store');
 
-    let user;
-    run(() => {
-      user = store.createRecord('user');
-      user.messages;
-      assert.ok(
-        hasRelationshipForRecord(user, 'messages'),
-        'Newly created record with relationships in params passed in its constructor should have relationships'
-      );
-    });
+    const user = store.createRecord('user');
+    user.messages;
+    assert.ok(
+      hasRelationshipForRecord(user, 'messages'),
+      'Newly created record with relationships in params passed in its constructor should have relationships'
+    );
   });
 
   test('metadata is accessible when pushed as a meta property for a relationship', function (assert) {
     assert.expect(1);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findHasMany = function () {
-      return resolve({});
+      return Promise.resolve({});
     };
 
-    let book;
-    run(() => {
-      store.push({
-        data: {
-          type: 'book',
-          id: '1',
-          attributes: {
-            title: 'Sailing the Seven Seas',
-          },
-          relationships: {
-            chapters: {
-              meta: {
-                where: 'the lefkada sea',
-              },
-              links: {
-                related: '/chapters',
-              },
+    const book = store.push({
+      data: {
+        type: 'book',
+        id: '1',
+        attributes: {
+          title: 'Sailing the Seven Seas',
+        },
+        relationships: {
+          chapters: {
+            meta: {
+              where: 'the lefkada sea',
+            },
+            links: {
+              related: '/chapters',
             },
           },
         },
-      });
-      book = store.peekRecord('book', 1);
+      },
     });
 
-    run(() => {
-      assert.strictEqual(
-        getRelationshipStateForRecord(book, 'chapters').meta.where,
-        'the lefkada sea',
-        'meta is there'
-      );
-    });
+    assert.strictEqual(getRelationshipStateForRecord(book, 'chapters').meta.where, 'the lefkada sea', 'meta is there');
   });
 
   test('metadata is accessible when return from a fetchLink', async function (assert) {
@@ -3565,11 +3462,11 @@ If using this relationship in a polymorphic manner is desired, the relationships
 
     this.owner.register('serializer:application', RESTSerializer);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findHasMany = function () {
-      return resolve({
+      return Promise.resolve({
         meta: {
           foo: 'bar',
         },
@@ -3595,20 +3492,20 @@ If using this relationship in a polymorphic manner is desired, the relationships
     });
     const chapters = await book.chapters;
 
-    let meta = chapters.meta;
+    const meta = chapters.meta;
     assert.strictEqual(meta?.foo, 'bar', 'metadata is available');
   });
 
-  test('metadata should be reset between requests', function (assert) {
+  test('metadata should be reset between requests', async function (assert) {
     this.owner.register('serializer:application', RESTSerializer);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     let counter = 0;
 
     adapter.findHasMany = function () {
-      let data = {
+      const data = {
         meta: {
           foo: 'bar',
         },
@@ -3623,62 +3520,56 @@ If using this relationship in a polymorphic manner is desired, the relationships
 
       counter++;
 
-      return resolve(data);
+      return Promise.resolve(data);
     };
 
-    let book1, book2;
-
-    run(() => {
-      store.push({
-        data: [
-          {
-            type: 'book',
-            id: '1',
-            attributes: {
-              title: 'Sailing the Seven Seas',
-            },
-            relationships: {
-              chapters: {
-                links: {
-                  related: 'chapters',
-                },
+    store.push({
+      data: [
+        {
+          type: 'book',
+          id: '1',
+          attributes: {
+            title: 'Sailing the Seven Seas',
+          },
+          relationships: {
+            chapters: {
+              links: {
+                related: 'chapters',
               },
             },
           },
-          {
-            type: 'book',
-            id: '2',
-            attributes: {
-              title: 'Another book title',
-            },
-            relationships: {
-              chapters: {
-                links: {
-                  related: 'chapters',
-                },
+        },
+        {
+          type: 'book',
+          id: '2',
+          attributes: {
+            title: 'Another book title',
+          },
+          relationships: {
+            chapters: {
+              links: {
+                related: 'chapters',
               },
             },
           },
-        ],
-      });
-      book1 = store.peekRecord('book', 1);
-      book2 = store.peekRecord('book', 2);
+        },
+      ],
     });
+    const book1 = store.peekRecord('book', '1');
+    const book2 = store.peekRecord('book', '2');
 
-    return run(() => {
-      return book1.chapters.then((chapters) => {
-        let meta = chapters.meta;
-        assert.strictEqual(get(meta, 'foo'), 'bar', 'metadata should available');
+    await book1.chapters.then((chapters) => {
+      const meta = chapters.meta;
+      assert.strictEqual(meta.foo, 'bar', 'metadata should available');
 
-        return book2.chapters.then((chapters) => {
-          let meta = chapters.meta;
-          assert.strictEqual(meta, null, 'metadata should not be available');
-        });
+      return book2.chapters.then((chapters) => {
+        const meta = chapters.meta;
+        assert.strictEqual(meta, null, 'metadata should not be available');
       });
     });
   });
 
-  test('Related link should be fetched when no relationship data is present', function (assert) {
+  test('Related link should be fetched when no relationship data is present', async function (assert) {
     assert.expect(3);
     class Post extends Model {
       @attr title;
@@ -3692,8 +3583,8 @@ If using this relationship in a polymorphic manner is desired, the relationships
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => {
       return false;
@@ -3708,7 +3599,7 @@ If using this relationship in a polymorphic manner is desired, the relationships
     adapter.findHasMany = function (store, snapshot, url, relationship) {
       assert.strictEqual(url, 'get-comments', 'url is correct');
       assert.ok(true, "The adapter's findHasMany method should be called");
-      return resolve({
+      return Promise.resolve({
         data: [
           {
             id: '1',
@@ -3721,28 +3612,26 @@ If using this relationship in a polymorphic manner is desired, the relationships
       });
     };
 
-    return run(() => {
-      let post = store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          relationships: {
-            comments: {
-              links: {
-                related: 'get-comments',
-              },
+    const post = store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            links: {
+              related: 'get-comments',
             },
           },
         },
-      });
+      },
+    });
 
-      return post.comments.then((comments) => {
-        assert.strictEqual(comments.at(0).body, 'This is comment', 'comment body is correct');
-      });
+    await post.comments.then((comments) => {
+      assert.strictEqual(comments.at(0).body, 'This is comment', 'comment body is correct');
     });
   });
 
-  test('Related link should take precedence over relationship data when local record data is missing', function (assert) {
+  test('Related link should take precedence over relationship data when local record data is missing', async function (assert) {
     assert.expect(3);
     class Post extends Model {
       @attr title;
@@ -3756,8 +3645,8 @@ If using this relationship in a polymorphic manner is desired, the relationships
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => {
       return false;
@@ -3772,7 +3661,7 @@ If using this relationship in a polymorphic manner is desired, the relationships
     adapter.findHasMany = function (store, snapshot, url, relationship) {
       assert.strictEqual(url, 'get-comments', 'url is correct');
       assert.ok(true, "The adapter's findHasMany method should be called");
-      return resolve({
+      return Promise.resolve({
         data: [
           {
             id: '1',
@@ -3785,29 +3674,27 @@ If using this relationship in a polymorphic manner is desired, the relationships
       });
     };
 
-    return run(() => {
-      let post = store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          relationships: {
-            comments: {
-              links: {
-                related: 'get-comments',
-              },
-              data: [{ type: 'comment', id: '1' }],
+    const post = store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            links: {
+              related: 'get-comments',
             },
+            data: [{ type: 'comment', id: '1' }],
           },
         },
-      });
+      },
+    });
 
-      return post.comments.then((comments) => {
-        assert.strictEqual(comments.at(0).body, 'This is comment', 'comment body is correct');
-      });
+    await post.comments.then((comments) => {
+      assert.strictEqual(comments.at(0).body, 'This is comment', 'comment body is correct');
     });
   });
 
-  test('Local relationship data should take precedence over related link when local record data is available', function (assert) {
+  test('Local relationship data should take precedence over related link when local record data is available', async function (assert) {
     assert.expect(1);
     class Post extends Model {
       @attr title;
@@ -3821,8 +3708,8 @@ If using this relationship in a polymorphic manner is desired, the relationships
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => {
       return false;
@@ -3838,38 +3725,36 @@ If using this relationship in a polymorphic manner is desired, the relationships
       assert.ok(false, "The adapter's findHasMany method should not be called");
     };
 
-    return run(() => {
-      let post = store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          relationships: {
-            comments: {
-              links: {
-                related: 'get-comments',
-              },
-              data: [{ type: 'comment', id: '1' }],
+    const post = store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            links: {
+              related: 'get-comments',
             },
+            data: [{ type: 'comment', id: '1' }],
           },
         },
-        included: [
-          {
-            id: '1',
-            type: 'comment',
-            attributes: {
-              body: 'This is comment',
-            },
+      },
+      included: [
+        {
+          id: '1',
+          type: 'comment',
+          attributes: {
+            body: 'This is comment',
           },
-        ],
-      });
+        },
+      ],
+    });
 
-      return post.comments.then((comments) => {
-        assert.strictEqual(comments.at(0).body, 'This is comment', 'comment body is correct');
-      });
+    await post.comments.then((comments) => {
+      assert.strictEqual(comments.at(0).body, 'This is comment', 'comment body is correct');
     });
   });
 
-  test('Related link should take precedence over local record data when relationship data is not initially available', function (assert) {
+  test('Related link should take precedence over local record data when relationship data is not initially available', async function (assert) {
     assert.expect(3);
     class Post extends Model {
       @attr title;
@@ -3883,8 +3768,8 @@ If using this relationship in a polymorphic manner is desired, the relationships
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.shouldBackgroundReloadRecord = () => {
       return false;
@@ -3899,7 +3784,7 @@ If using this relationship in a polymorphic manner is desired, the relationships
     adapter.findHasMany = function (store, snapshot, url, relationship) {
       assert.strictEqual(url, 'get-comments', 'url is correct');
       assert.ok(true, "The adapter's findHasMany method should be called");
-      return resolve({
+      return Promise.resolve({
         data: [
           {
             id: '1',
@@ -3912,45 +3797,43 @@ If using this relationship in a polymorphic manner is desired, the relationships
       });
     };
 
-    return run(() => {
-      let post = store.push({
-        data: {
-          type: 'post',
+    const post = store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            links: {
+              related: 'get-comments',
+            },
+          },
+        },
+      },
+      included: [
+        {
           id: '1',
+          type: 'comment',
+          attributes: {
+            body: 'This is comment',
+          },
           relationships: {
-            comments: {
-              links: {
-                related: 'get-comments',
+            post: {
+              data: {
+                type: 'post',
+                id: '1',
               },
             },
           },
         },
-        included: [
-          {
-            id: '1',
-            type: 'comment',
-            attributes: {
-              body: 'This is comment',
-            },
-            relationships: {
-              post: {
-                data: {
-                  type: 'post',
-                  id: '1',
-                },
-              },
-            },
-          },
-        ],
-      });
+      ],
+    });
 
-      return post.comments.then((comments) => {
-        assert.strictEqual(comments.at(0).body, 'This is comment fetched by link', 'comment body is correct');
-      });
+    await post.comments.then((comments) => {
+      assert.strictEqual(comments.at(0).body, 'This is comment fetched by link', 'comment body is correct');
     });
   });
 
-  test('Updated related link should take precedence over relationship data and local record data', function (assert) {
+  test('Updated related link should take precedence over relationship data and local record data', async function (assert) {
     assert.expect(3);
     class Post extends Model {
       @attr title;
@@ -3964,13 +3847,13 @@ If using this relationship in a polymorphic manner is desired, the relationships
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.findHasMany = function (store, snapshot, url, relationship) {
       assert.strictEqual(url, 'comments-updated-link', 'url is correct');
       assert.ok(true, "The adapter's findHasMany method should be called");
-      return resolve({
+      return Promise.resolve({
         data: [{ id: '1', type: 'comment', attributes: { body: 'This is updated comment' } }],
       });
     };
@@ -3979,47 +3862,44 @@ If using this relationship in a polymorphic manner is desired, the relationships
       assert.ok(false, "The adapter's findRecord method should not be called");
     };
 
-    return run(() => {
-      let post = store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          relationships: {
-            comments: {
-              links: {
-                related: 'comments',
-              },
-              data: [{ type: 'comment', id: '1' }],
+    const post = store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            links: {
+              related: 'comments',
+            },
+            data: [{ type: 'comment', id: '1' }],
+          },
+        },
+      },
+    });
+
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            links: {
+              related: 'comments-updated-link',
             },
           },
         },
-      });
+      },
+    });
 
-      store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          relationships: {
-            comments: {
-              links: {
-                related: 'comments-updated-link',
-              },
-            },
-          },
-        },
-      });
-
-      return post.comments.then((comments) => {
-        assert.strictEqual(comments.at(0).body, 'This is updated comment', 'comment body is correct');
-      });
+    await post.comments.then((comments) => {
+      assert.strictEqual(comments.at(0).body, 'This is updated comment', 'comment body is correct');
     });
   });
 
   deprecatedTest(
     'PromiseArray proxies createRecord to its ManyArray before the hasMany is loaded',
     { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 1 },
-    function (assert) {
-      assert.expect(1);
+    async function (assert) {
       class Post extends Model {
         @attr title;
         @hasMany('comment', { async: true, inverse: 'message' }) comments;
@@ -4031,11 +3911,11 @@ If using this relationship in a polymorphic manner is desired, the relationships
       this.owner.register('model:post', Post);
       this.owner.register('model:comment', Comment);
 
-      let store = this.owner.lookup('service:store');
-      let adapter = store.adapterFor('application');
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
 
       adapter.findHasMany = function (store, record, link, relationship) {
-        return resolve({
+        return Promise.resolve({
           data: [
             { id: '1', type: 'comment', attributes: { body: 'First' } },
             { id: '2', type: 'comment', attributes: { body: 'Second' } },
@@ -4043,27 +3923,24 @@ If using this relationship in a polymorphic manner is desired, the relationships
         });
       };
 
-      return run(() => {
-        let post = store.push({
-          data: {
-            type: 'post',
-            id: '1',
-            relationships: {
-              comments: {
-                links: {
-                  related: 'someLink',
-                },
+      const post = store.push({
+        data: {
+          type: 'post',
+          id: '1',
+          relationships: {
+            comments: {
+              links: {
+                related: 'someLink',
               },
             },
           },
-        });
-
-        let comments = post.comments;
-        comments.createRecord();
-        return comments.then((comments) => {
-          assert.strictEqual(comments.length, 3, 'comments have 3 length, including new record');
-        });
+        },
       });
+
+      const commentsPromise = post.comments;
+      commentsPromise.createRecord();
+      const comments = await commentsPromise;
+      assert.strictEqual(comments.length, 3, 'comments have 3 length, including new record');
     }
   );
 
@@ -4082,7 +3959,7 @@ If using this relationship in a polymorphic manner is desired, the relationships
     this.owner.register('model:user', User);
     this.owner.register('model:post', Post);
 
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     store.push({
       data: [
@@ -4112,9 +3989,9 @@ If using this relationship in a polymorphic manner is desired, the relationships
       ],
     });
 
-    let user = store.peekRecord('user', 'user-1');
-    let postsPromiseArray = user.posts;
-    let posts = await postsPromiseArray;
+    const user = store.peekRecord('user', 'user-1');
+    const postsPromiseArray = user.posts;
+    const posts = await postsPromiseArray;
 
     store.adapterFor('post').deleteRecord = function () {
       // just acknowledge all deletes, but with a noop
@@ -4153,7 +4030,7 @@ If using this relationship in a polymorphic manner is desired, the relationships
   });
 
   test('unloading and reloading a record with hasMany relationship - #3084', function (assert) {
-    let store = this.owner.lookup('service:store');
+    const store = this.owner.lookup('service:store');
 
     store.push({
       data: [
@@ -4177,14 +4054,12 @@ If using this relationship in a polymorphic manner is desired, the relationships
     });
 
     let user = store.peekRecord('user', 'user-1');
-    let message = store.peekRecord('message', 'message-1');
+    const message = store.peekRecord('message', 'message-1');
 
     assert.strictEqual(user.messages.at(0).id, 'message-1');
     assert.strictEqual(message.user.id, 'user-1');
 
-    run(() => {
-      store.unloadRecord(user);
-    });
+    store.unloadRecord(user);
 
     // The record is resurrected for some reason.
     store.push({
@@ -4211,10 +4086,8 @@ If using this relationship in a polymorphic manner is desired, the relationships
   });
 
   test('deleted records should stay deleted', async function (assert) {
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
-    let user;
-    let message;
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     adapter.deleteRecord = function (store, type, id) {
       return null;
@@ -4248,10 +4121,10 @@ If using this relationship in a polymorphic manner is desired, the relationships
       ],
     });
 
-    user = store.peekRecord('user', 'user-1');
-    message = store.peekRecord('message', 'message-1');
+    const user = store.peekRecord('user', 'user-1');
+    const message = store.peekRecord('message', 'message-1');
 
-    assert.strictEqual(get(user, 'messages.length'), 2);
+    assert.strictEqual(user.messages.length, 2);
 
     await message.destroyRecord();
 
@@ -4272,41 +4145,37 @@ If using this relationship in a polymorphic manner is desired, the relationships
     });
 
     assert.deepEqual(
-      get(user, 'messages').map((r) => r.id),
+      user.messages.map((r) => r.id),
       ['message-2', 'message-3'],
       'user should have 2 message since 1 was deleted'
     );
   });
 
-  test("hasMany relationship with links doesn't trigger extra change notifications - #4942", function (assert) {
-    let store = this.owner.lookup('service:store');
+  test("hasMany relationship with links doesn't trigger extra change notifications - #4942", async function (assert) {
+    const store = this.owner.lookup('service:store');
 
-    run(() => {
-      store.push({
-        data: {
-          type: 'book',
-          id: '1',
-          relationships: {
-            chapters: {
-              data: [{ type: 'chapter', id: '1' }],
-              links: { related: '/book/1/chapters' },
-            },
+    store.push({
+      data: {
+        type: 'book',
+        id: '1',
+        relationships: {
+          chapters: {
+            data: [{ type: 'chapter', id: '1' }],
+            links: { related: '/book/1/chapters' },
           },
         },
-        included: [{ type: 'chapter', id: '1' }],
-      });
+      },
+      included: [{ type: 'chapter', id: '1' }],
     });
 
-    let book = store.peekRecord('book', '1');
+    const book = store.peekRecord('book', '1');
     let count = 0;
 
     book.addObserver('chapters', () => {
       count++;
     });
 
-    run(() => {
-      book.chapters;
-    });
+    await book.chapters;
 
     assert.strictEqual(count, 0);
   });
@@ -4324,8 +4193,8 @@ If using this relationship in a polymorphic manner is desired, the relationships
     this.owner.register('model:post', Post);
     this.owner.register('model:comment', Comment);
 
-    let store = this.owner.lookup('service:store');
-    let adapter = store.adapterFor('application');
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
 
     const postID = '1';
 
@@ -4368,11 +4237,11 @@ If using this relationship in a polymorphic manner is desired, the relationships
     let hasManyCounter = 0;
     adapter.findHasMany = function (store, snapshot, link, relationship) {
       assert.strictEqual(relationship.type, 'comment', 'findHasMany relationship type was Comment');
-      assert.strictEqual(relationship.key, 'comments', 'findHasMany relationship key was comments');
+      assert.strictEqual(relationship.name, 'comments', 'findHasMany relationship key was comments');
       assert.strictEqual(link, '/posts/1/comments', 'findHasMany link was /posts/1/comments');
       hasManyCounter++;
 
-      return resolve({
+      return Promise.resolve({
         data: [
           { id: '1', type: 'comment', attributes: { body: 'First' } },
           { id: '2', type: 'comment', attributes: { body: 'Second' } },
@@ -4394,51 +4263,60 @@ If using this relationship in a polymorphic manner is desired, the relationships
     assert.strictEqual(commentsAgain.length, 2, 'comments have 2 length');
   });
 
-  test('Pushing a relationship with duplicate identifiers results in a single entry for the record in the relationship', async function (assert) {
-    class PhoneUser extends Model {
-      @hasMany('phone-number', { async: false, inverse: null })
-      phoneNumbers;
-      @attr name;
-    }
-    class PhoneNumber extends Model {
-      @attr number;
-    }
-    const { owner } = this;
+  deprecatedTest(
+    'Pushing a relationship with duplicate identifiers results in a single entry for the record in the relationship',
+    {
+      id: 'ember-data:deprecate-non-unique-relationship-entries',
+      until: '6.0',
+      count: 1,
+      refactor: true, // should assert
+    },
+    async function (assert) {
+      class PhoneUser extends Model {
+        @hasMany('phone-number', { async: false, inverse: null })
+        phoneNumbers;
+        @attr name;
+      }
+      class PhoneNumber extends Model {
+        @attr number;
+      }
+      const { owner } = this;
 
-    owner.register('model:phone-user', PhoneUser);
-    owner.register('model:phone-number', PhoneNumber);
+      owner.register('model:phone-user', PhoneUser);
+      owner.register('model:phone-number', PhoneNumber);
 
-    const store = owner.lookup('service:store');
+      const store = owner.lookup('service:store');
 
-    store.push({
-      data: {
-        id: 'call-me-anytime',
-        type: 'phone-number',
-        attributes: {
-          number: '1-800-DATA',
-        },
-      },
-    });
-
-    const person = store.push({
-      data: {
-        id: '1',
-        type: 'phone-user',
-        attributes: {},
-        relationships: {
-          phoneNumbers: {
-            data: [
-              { type: 'phone-number', id: 'call-me-anytime' },
-              { type: 'phone-number', id: 'call-me-anytime' },
-              { type: 'phone-number', id: 'call-me-anytime' },
-            ],
+      store.push({
+        data: {
+          id: 'call-me-anytime',
+          type: 'phone-number',
+          attributes: {
+            number: '1-800-DATA',
           },
         },
-      },
-    });
+      });
 
-    assert.strictEqual(person.phoneNumbers.length, 1);
-  });
+      const person = store.push({
+        data: {
+          id: '1',
+          type: 'phone-user',
+          attributes: {},
+          relationships: {
+            phoneNumbers: {
+              data: [
+                { type: 'phone-number', id: 'call-me-anytime' },
+                { type: 'phone-number', id: 'call-me-anytime' },
+                { type: 'phone-number', id: 'call-me-anytime' },
+              ],
+            },
+          },
+        },
+      });
+
+      assert.strictEqual(person.phoneNumbers.length, 1);
+    }
+  );
 
   deprecatedTest(
     'a synchronous hasMany record array should only remove object(s) if found in collection',
@@ -4503,7 +4381,7 @@ If using this relationship in a polymorphic manner is desired, the relationships
         ],
       });
 
-      let recordArray = tag.people;
+      const recordArray = tag.people;
 
       recordArray.removeObject(scumbagNotInRecordArray);
 
@@ -4520,7 +4398,7 @@ If using this relationship in a polymorphic manner is desired, the relationships
 
       recordArray.push(scumbagInRecordArray);
 
-      let scumbagsToRemove = [scumbagInRecordArray, scumbagNotInRecordArray];
+      const scumbagsToRemove = [scumbagInRecordArray, scumbagNotInRecordArray];
       recordArray.removeObjects(scumbagsToRemove);
 
       didRemoveObject = recordArray.length === 1 && !recordArray.includes(scumbagInRecordArray);
@@ -4591,7 +4469,7 @@ If using this relationship in a polymorphic manner is desired, the relationships
         ],
       });
 
-      let recordArray = tag.people;
+      const recordArray = tag.people;
 
       recordArray.removeObject(scumbagNotInRecordArray);
 
@@ -4608,7 +4486,7 @@ If using this relationship in a polymorphic manner is desired, the relationships
 
       recordArray.pushObject(scumbagInRecordArray);
 
-      let scumbagsToRemove = [scumbagInRecordArray, scumbagNotInRecordArray];
+      const scumbagsToRemove = [scumbagInRecordArray, scumbagNotInRecordArray];
       recordArray.removeObjects(scumbagsToRemove);
 
       didRemoveObject = recordArray.length === 1 && !recordArray.includes(scumbagInRecordArray);

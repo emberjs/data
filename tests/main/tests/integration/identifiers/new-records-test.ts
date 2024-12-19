@@ -20,7 +20,7 @@ module('Integration | Identifiers - creating new records', function (hooks) {
     store = owner.lookup('service:store');
   });
 
-  test(`We can peek before create`, async function (assert) {
+  test(`We can peek before create`, function (assert) {
     let record = store.peekRecord('user', '1');
     assert.strictEqual(record, null, 'peekRecord returns null');
 

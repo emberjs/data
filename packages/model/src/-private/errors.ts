@@ -1,5 +1,4 @@
-import { A } from '@ember/array';
-import type NativeArray from '@ember/array/-private/native-array';
+import { A, type NativeArray } from '@ember/array';
 import ArrayProxy from '@ember/array/proxy';
 import { computed, get } from '@ember/object';
 import { mapBy, not } from '@ember/object/computed';
@@ -13,7 +12,7 @@ type ValidationError = {
 /**
   @module @ember-data/model
 */
-interface ArrayProxyWithCustomOverrides<T, M = T> extends Omit<ArrayProxy<T, M>, 'clear' | 'content'> {
+interface ArrayProxyWithCustomOverrides<T> extends Omit<ArrayProxy<T>, 'clear' | 'content'> {
   // Omit causes `content` to be merged with the class def for ArrayProxy
   // which then causes it to be seen as a property, disallowing defining it
   // as an accessor. This restores our ability to define it as an accessor.
@@ -25,7 +24,7 @@ interface ArrayProxyWithCustomOverrides<T, M = T> extends Omit<ArrayProxy<T, M>,
 // we force the type here to our own construct because mixin and extend patterns
 // lose generic signatures. We also do this because we need to Omit `clear` from
 // the type of ArrayProxy as we override it's signature.
-const ArrayProxyWithCustomOverrides = ArrayProxy as unknown as new <T, M = T>() => ArrayProxyWithCustomOverrides<T, M>;
+const ArrayProxyWithCustomOverrides = ArrayProxy as unknown as new <T>() => ArrayProxyWithCustomOverrides<T>;
 
 /**
   Holds validation errors for a given record, organized by attribute names.
@@ -102,7 +101,7 @@ const ArrayProxyWithCustomOverrides = ArrayProxy as unknown as new <T, M = T>() 
   @public
   @extends Ember.ArrayProxy
  */
-export default class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
+export class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
   declare __record: { currentState: RecordState };
   /**
     @property errorsByAttributeName
@@ -134,7 +133,7 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
     @return {Array}
   */
   errorsFor(attribute: string): NativeArray<ValidationError> {
-    let map = this.errorsByAttributeName;
+    const map = this.errorsByAttributeName;
 
     let errors = map.get(attribute);
 
@@ -186,7 +185,7 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
     @private
   */
   unknownProperty(attribute: string) {
-    let errors = this.errorsFor(attribute);
+    const errors = this.errorsFor(attribute);
     if (errors.length === 0) {
       return undefined;
     }
@@ -265,13 +264,13 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
     @private
   */
   _findOrCreateMessages(attribute: string, messages: string | string[]): ValidationError[] {
-    let errors = this.errorsFor(attribute);
-    let messagesArray = Array.isArray(messages) ? messages : [messages];
-    let _messages: ValidationError[] = new Array(messagesArray.length) as ValidationError[];
+    const errors = this.errorsFor(attribute);
+    const messagesArray = Array.isArray(messages) ? messages : [messages];
+    const _messages: ValidationError[] = new Array(messagesArray.length) as ValidationError[];
 
     for (let i = 0; i < messagesArray.length; i++) {
-      let message = messagesArray[i];
-      let err = errors.findBy('message', message);
+      const message = messagesArray[i];
+      const err = errors.findBy('message', message);
       if (err) {
         _messages[i] = err;
       } else {
@@ -317,12 +316,12 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
       return;
     }
 
-    let content = this.rejectBy('attribute', attribute);
+    const content = this.rejectBy('attribute', attribute);
     this.content.setObjects(content);
 
     // Although errorsByAttributeName.delete is technically enough to sync errors state, we also
     // must mutate the array as well for autotracking
-    let errors = this.errorsFor(attribute);
+    const errors = this.errorsFor(attribute);
     for (let i = 0; i < errors.length; i++) {
       if (errors[i].attribute === attribute) {
         // .replace from Ember.NativeArray is necessary. JS splice will not work.
@@ -380,8 +379,8 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
       return;
     }
 
-    let errorsByAttributeName = this.errorsByAttributeName;
-    let attributes: string[] = [];
+    const errorsByAttributeName = this.errorsByAttributeName;
+    const attributes: string[] = [];
 
     errorsByAttributeName.forEach(function (_, attribute) {
       attributes.push(attribute);
@@ -400,9 +399,6 @@ export default class Errors extends ArrayProxyWithCustomOverrides<ValidationErro
     Checks if there are error messages for the given attribute.
 
     ```app/controllers/user/edit.js
-    import Controller from '@ember/controller';
-    import { action } from '@ember/object';
-
     export default class UserEditController extends Controller {
       @action
       save(user) {

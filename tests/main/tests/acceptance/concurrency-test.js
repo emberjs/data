@@ -186,6 +186,6 @@ module('Acceptance | concurrency', function (hooks) {
     await settled();
 
     const record1Again = store1.peekRecord('user', '1');
-    assert.strictEqual(record1, record1Again, 'record is still in store1');
+    assert.strictEqual(record1Again, record1, 'record is still in store1');
   });
 });

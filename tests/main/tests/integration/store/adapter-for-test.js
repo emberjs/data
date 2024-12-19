@@ -1,10 +1,10 @@
-import { run } from '@ember/runloop';
+import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 
+import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
-import Store from '@ember-data/store';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 class TestAdapter {
@@ -25,13 +25,13 @@ module('integration/store - adapterFor', function (hooks) {
   let store;
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
     store = owner.lookup('service:store');
   });
 
   test('when no adapter is available we throw an error', async function (assert) {
     assert.expectAssertion(() => {
-      let { owner } = this;
+      const { owner } = this;
       /*
       adapter:-json-api is the "last chance" fallback and is
       the json-api adapter which is re-exported as app/adapters/-json-api.
@@ -48,11 +48,11 @@ module('integration/store - adapterFor', function (hooks) {
         return lookup.call(owner, registrationName);
       };
       store.adapterFor('person');
-    }, /Assertion Failed: No adapter was found for 'person' and no 'application' adapter was found as a fallback/);
+    }, /No adapter was found for 'person' and no 'application' adapter was found as a fallback/);
   });
 
   test('we find and instantiate the application adapter', async function (assert) {
-    let { owner } = this;
+    const { owner } = this;
     let didInstantiate = false;
 
     class AppAdapter extends TestAdapter {
@@ -63,13 +63,13 @@ module('integration/store - adapterFor', function (hooks) {
 
     owner.register('adapter:application', AppAdapter);
 
-    let adapter = store.adapterFor('application');
+    const adapter = store.adapterFor('application');
 
     assert.ok(adapter instanceof AppAdapter, 'We found the correct adapter');
     assert.ok(didInstantiate, 'We instantiated the adapter');
     didInstantiate = false;
 
-    let adapterAgain = store.adapterFor('application');
+    const adapterAgain = store.adapterFor('application');
 
     assert.ok(adapterAgain instanceof AppAdapter, 'We found the correct adapter');
     assert.notOk(didInstantiate, 'We did not instantiate the adapter again');
@@ -77,7 +77,7 @@ module('integration/store - adapterFor', function (hooks) {
   });
 
   test('multiple stores do not share adapters', async function (assert) {
-    let { owner } = this;
+    const { owner } = this;
     let didInstantiate = false;
 
     class AppAdapter extends TestAdapter {
@@ -89,14 +89,14 @@ module('integration/store - adapterFor', function (hooks) {
     owner.register('adapter:application', AppAdapter);
     owner.register('service:other-store', Store);
 
-    let otherStore = owner.lookup('service:other-store');
-    let adapter = store.adapterFor('application');
+    const otherStore = owner.lookup('service:other-store');
+    const adapter = store.adapterFor('application');
 
     assert.ok(adapter instanceof AppAdapter, 'We found the correct adapter');
     assert.ok(didInstantiate, 'We instantiated the adapter');
     didInstantiate = false;
 
-    let otherAdapter = otherStore.adapterFor('application');
+    const otherAdapter = otherStore.adapterFor('application');
     assert.ok(otherAdapter instanceof AppAdapter, 'We found the correct adapter again');
     assert.ok(didInstantiate, 'We instantiated the other adapter');
     assert.notStrictEqual(otherAdapter, adapter, 'We have a different adapter instance');
@@ -105,7 +105,7 @@ module('integration/store - adapterFor', function (hooks) {
   });
 
   test('we can find and instantiate per-type adapters', async function (assert) {
-    let { owner } = this;
+    const { owner } = this;
     let didInstantiateAppAdapter = false;
     let didInstantiatePersonAdapter = false;
 
@@ -124,20 +124,20 @@ module('integration/store - adapterFor', function (hooks) {
     owner.register('adapter:application', AppAdapter);
     owner.register('adapter:person', PersonAdapter);
 
-    let adapter = store.adapterFor('person');
+    const adapter = store.adapterFor('person');
 
     assert.ok(adapter instanceof PersonAdapter, 'We found the correct adapter');
     assert.ok(didInstantiatePersonAdapter, 'We instantiated the person adapter');
     assert.notOk(didInstantiateAppAdapter, 'We did not instantiate the application adapter');
 
-    let appAdapter = store.adapterFor('application');
+    const appAdapter = store.adapterFor('application');
     assert.ok(appAdapter instanceof AppAdapter, 'We found the correct adapter');
     assert.ok(didInstantiateAppAdapter, 'We instantiated the application adapter');
     assert.notStrictEqual(appAdapter, adapter, 'We have separate adapters');
   });
 
   test('we fallback to the application adapter when a per-type adapter is not found', async function (assert) {
-    let { owner } = this;
+    const { owner } = this;
     let didInstantiateAppAdapter = false;
 
     class AppAdapter extends TestAdapter {
@@ -148,13 +148,13 @@ module('integration/store - adapterFor', function (hooks) {
 
     owner.register('adapter:application', AppAdapter);
 
-    let adapter = store.adapterFor('person');
+    const adapter = store.adapterFor('person');
 
     assert.ok(adapter instanceof AppAdapter, 'We found the adapter');
     assert.ok(didInstantiateAppAdapter, 'We instantiated the adapter');
     didInstantiateAppAdapter = false;
 
-    let appAdapter = store.adapterFor('application');
+    const appAdapter = store.adapterFor('application');
     assert.ok(appAdapter instanceof AppAdapter, 'We found the correct adapter');
     assert.notOk(didInstantiateAppAdapter, 'We did not instantiate the adapter again');
     assert.strictEqual(appAdapter, adapter, 'We fell back to the application adapter instance');
@@ -168,7 +168,7 @@ module('integration/store - adapterFor', function (hooks) {
       count: 2,
     },
     async function (assert) {
-      let { owner } = this;
+      const { owner } = this;
 
       let didInstantiateAdapter = false;
 
@@ -189,19 +189,19 @@ module('integration/store - adapterFor', function (hooks) {
       owner.unregister('adapter:-json-api');
       owner.register('adapter:-json-api', JsonApiAdapter);
 
-      let adapter = store.adapterFor('person');
+      const adapter = store.adapterFor('person');
 
       assert.ok(adapter instanceof JsonApiAdapter, 'We found the adapter');
       assert.ok(didInstantiateAdapter, 'We instantiated the adapter');
       didInstantiateAdapter = false;
 
-      let appAdapter = store.adapterFor('application');
+      const appAdapter = store.adapterFor('application');
 
       assert.ok(appAdapter instanceof JsonApiAdapter, 'We found the fallback -json-api adapter for application');
       assert.notOk(didInstantiateAdapter, 'We did not instantiate the adapter again');
       didInstantiateAdapter = false;
 
-      let jsonApiAdapter = store.adapterFor('-json-api');
+      const jsonApiAdapter = store.adapterFor('-json-api');
       assert.ok(jsonApiAdapter instanceof JsonApiAdapter, 'We found the correct adapter');
       assert.notOk(didInstantiateAdapter, 'We did not instantiate the adapter again');
       assert.strictEqual(jsonApiAdapter, appAdapter, 'We fell back to the -json-api adapter instance for application');
@@ -214,7 +214,7 @@ module('integration/store - adapterFor', function (hooks) {
   );
 
   test('adapters are destroyed', async function (assert) {
-    let { owner } = this;
+    const { owner } = this;
     let didInstantiate = false;
     let didDestroy = false;
 
@@ -230,12 +230,13 @@ module('integration/store - adapterFor', function (hooks) {
 
     owner.register('adapter:application', AppAdapter);
 
-    let adapter = store.adapterFor('application');
+    const adapter = store.adapterFor('application');
 
     assert.ok(adapter instanceof AppAdapter, 'precond - We found the correct adapter');
     assert.ok(didInstantiate, 'precond - We instantiated the adapter');
 
-    run(store, 'destroy');
+    store.destroy();
+    await settled();
 
     assert.ok(didDestroy, 'adapter was destroyed');
   });

@@ -2,14 +2,11 @@ import { getOwner } from '@ember/application';
 
 import type Store from '@ember-data/store';
 
-import Model from './model';
+import { Model, type ModelFactory } from './model';
 
 /*
     In case someone defined a relationship to a mixin, for example:
-    ```
-      import Model, { belongsTo, hasMany } from '@ember-data/model';
-      import Mixin from '@ember/object/mixin';
-
+    ```ts
       class CommentModel extends Model {
         @belongsTo('commentable', { polymorphic: true }) owner;
       }
@@ -23,16 +20,16 @@ import Model from './model';
     Model, so we can access the relationship CPs of the mixin (`comments`)
     in this case
   */
-export default function modelForMixin(store: Store, normalizedModelName: string): Model | null {
-  let owner: any = getOwner(store);
-  let MaybeMixin = owner.factoryFor(`mixin:${normalizedModelName}`);
-  let mixin = MaybeMixin && MaybeMixin.class;
+export default function modelForMixin(store: Store, normalizedModelName: string): ModelFactory | undefined {
+  const owner = getOwner(store)!;
+  const MaybeMixin = owner.factoryFor(`mixin:${normalizedModelName}`);
+  const mixin = MaybeMixin && MaybeMixin.class;
   if (mixin) {
-    let ModelForMixin = Model.extend(mixin);
+    const ModelForMixin = Model.extend(mixin) as unknown as { __isMixin: boolean; __mixin: typeof mixin };
     ModelForMixin.__isMixin = true;
     ModelForMixin.__mixin = mixin;
     //Cache the class as a model
-    owner.register('model:' + normalizedModelName, ModelForMixin);
+    owner.register(`model:${normalizedModelName}`, ModelForMixin);
   }
-  return owner.factoryFor(`model:${normalizedModelName}`);
+  return owner.factoryFor(`model:${normalizedModelName}`) as ModelFactory | undefined;
 }

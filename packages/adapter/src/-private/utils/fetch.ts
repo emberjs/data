@@ -1,12 +1,12 @@
-import { assert } from '@ember/debug';
+import { assert } from '@warp-drive/build-config/macros';
 
-type FetchFunction = (input: RequestInfo, init?: RequestInit | undefined) => Promise<Response>;
+type FetchFunction = (input: RequestInfo, init?: RequestInit) => Promise<Response>;
 
 let _fetch: (() => FetchFunction) | null = null;
 type MockRequest = { protocol?: string; get(key: string): string | undefined };
 let REQUEST: MockRequest = null as unknown as MockRequest;
 
-export default function getFetchFunction(): FetchFunction {
+export function getFetchFunction(): FetchFunction {
   // return cached fetch function
   if (_fetch !== null) {
     return _fetch();
@@ -26,7 +26,6 @@ export default function getFetchFunction(): FetchFunction {
       const httpRegex = /^https?:\/\//;
       const protocolRelativeRegex = /^\/\//;
 
-      // eslint-disable-next-line no-inner-declarations
       function parseRequest(request: MockRequest) {
         if (request === null) {
           throw new Error(
@@ -38,30 +37,32 @@ export default function getFetchFunction(): FetchFunction {
         return [request.get('host'), protocol];
       }
 
-      // eslint-disable-next-line no-inner-declarations
       function buildAbsoluteUrl(url: string) {
         if (protocolRelativeRegex.test(url)) {
-          let [host] = parseRequest(REQUEST);
+          const [host] = parseRequest(REQUEST);
           url = host + url;
         } else if (!httpRegex.test(url)) {
-          let [host, protocol] = parseRequest(REQUEST);
+          const [host, protocol] = parseRequest(REQUEST);
           url = protocol + '//' + host + url;
         }
         return url;
       }
 
-      // eslint-disable-next-line no-inner-declarations
-      function patchedFetch(input, options) {
-        if (input && input.href) {
-          input.url = buildAbsoluteUrl(input.href);
+      function patchedFetch(input: string | { href: string } | RequestInfo, options?: RequestInit) {
+        if (input && typeof input === 'object' && 'href' in input) {
+          const url = buildAbsoluteUrl(input.href);
+          const info = Object.assign({}, input, { url }) as unknown as RequestInfo;
+          return nodeFetch(info, options);
         } else if (typeof input === 'string') {
-          input = buildAbsoluteUrl(input);
+          const url = buildAbsoluteUrl(input);
+          return nodeFetch(url, options);
         }
+
         return nodeFetch(input, options);
       }
 
       _fetch = () => patchedFetch;
-    } catch (e) {
+    } catch {
       throw new Error(`Unable to create a compatible 'fetch' for FastBoot with node-fetch`);
     }
   }

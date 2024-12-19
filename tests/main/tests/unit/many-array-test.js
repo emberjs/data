@@ -1,5 +1,4 @@
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -26,7 +25,7 @@ module('unit/many_array - ManyArray', function (hooks) {
     const store = this.owner.lookup('service:store');
     store.saveRecord = function (record) {
       assert.ok(true, 'record.save() was called');
-      return resolve();
+      return Promise.resolve();
     };
 
     store.push({
@@ -63,7 +62,7 @@ module('unit/many_array - ManyArray', function (hooks) {
       ],
     });
 
-    let post = store.peekRecord('post', 3);
+    const post = store.peekRecord('post', 3);
 
     await post.tags.save().then(() => {
       assert.ok(true, 'manyArray.save() promise resolved');

@@ -1,0 +1,73 @@
+{
+  "name": "@warp-drive/core-types",
+  "version": "4.12.8",
+  "description": "Provides core logic, utils and types for WarpDrive and EmberData",
+  "keywords": [
+    "ember-addon"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "packages/core-types"
+  },
+  "license": "MIT",
+  "author": "Chris Thoburn <runspired@users.noreply.github.com>",
+  "scripts": {
+    "lint": "eslint . --quiet --cache --cache-strategy=content",
+    "build:pkg": "vite build;",
+    "prepack": "bun run build:pkg",
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+  },
+  "files": [
+    "dist",
+    "addon-main.cjs",
+    "unstable-preview-types",
+    "README.md",
+    "LICENSE.md",
+    "NCC-1701-a.svg",
+    "NCC-1701-a-blue.svg"
+  ],
+  "exports": {
+    ".": {
+      "types": "./unstable-preview-types/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./unstable-preview-types/*.d.ts",
+      "default": "./dist/*.js"
+    }
+  },
+  "dependencies": {
+    "@embroider/macros": "^1.16.6",
+    "@warp-drive/build-config": "workspace:*"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.5",
+    "@babel/plugin-transform-typescript": "^7.24.5",
+    "@babel/preset-typescript": "^7.24.1",
+    "@warp-drive/internal-config": "workspace:*",
+    "pnpm-sync-dependencies-meta-injected": "0.0.14",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.11"
+  },
+  "engines": {
+    "node": ">= 18.20.4"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  },
+  "packageManager": "pnpm@8.15.9",
+  "ember-addon": {
+    "main": "addon-main.cjs",
+    "type": "addon",
+    "version": 2
+  },
+  "ember": {
+    "edition": "octane"
+  },
+  "dependenciesMeta": {
+    "@warp-drive/build-config": {
+      "injected": true
+    }
+  }
+}

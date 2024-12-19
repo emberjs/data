@@ -1,5 +1,4 @@
 import Route from '@ember/routing/route';
-import { run } from '@ember/runloop';
 import { inject as service } from '@ember/service';
 
 export default Route.extend({
@@ -15,9 +14,7 @@ export default Route.extend({
     this.store.peekAll('parent').slice();
 
     performance.mark('start-unload-all');
-    run(() => {
-      this.store.unloadAll();
-    });
+    this.store.unloadAll();
     performance.mark('end-unload-all');
   },
 });

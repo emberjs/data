@@ -16,7 +16,7 @@ export default Route.extend({
     peekedChildren.slice();
     peekedParents.slice();
     performance.mark('start-relationship-materialization');
-    let seen = new Set();
+    const seen = new Set();
     peekedParents.forEach((parent) => iterateParent(parent, seen));
     performance.mark('end-relationship-materialization');
   },

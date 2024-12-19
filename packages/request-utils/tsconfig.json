@@ -1,0 +1,55 @@
+{
+  "include": ["src/**/*"],
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "skipLibCheck": true,
+    "declarationDir": "unstable-preview-types",
+    "emitDeclarationOnly": true,
+    "allowJs": false,
+    "checkJs": false,
+    "alwaysStrict": true,
+    "strict": true,
+    "pretty": true,
+    "exactOptionalPropertyTypes": false,
+    "allowSyntheticDefaultImports": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "noEmitOnError": false,
+    "strictNullChecks": true,
+    "noErrorTruncation": true,
+    "preserveConstEnums": false,
+    "experimentalDecorators": true,
+    // Enable faster builds
+    // but causes us to not rebuild properly
+    "composite": true,
+    "incremental": true,
+    "rootDir": "src",
+    "baseUrl": ".",
+    "declaration": true,
+    "declarationMap": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "types": ["ember-source/types"],
+    "paths": {
+      "@warp-drive/build-config": ["../build-config/unstable-preview-types"],
+      "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"],
+      "@warp-drive/core-types": ["../core-types/unstable-preview-types"],
+      "@warp-drive/core-types/*": ["../core-types/unstable-preview-types/*"]
+    }
+  },
+  "references": [
+    {
+      "path": "../core-types"
+    },
+    {
+      "path": "../build-config"
+    }
+  ]
+}

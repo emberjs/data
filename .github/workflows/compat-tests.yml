@@ -4,6 +4,12 @@ on:
   pull_request:
     branches:
       - main
+      - v4-main
+
+env:
+  TURBO_API: http://127.0.0.1:9080
+  TURBO_TOKEN: this-is-not-a-secret
+  TURBO_TEAM: myself
 
 concurrency:
   group: compat-${{ github.head_ref || github.ref_name }}
@@ -11,50 +17,69 @@ concurrency:
 
 jobs:
   fastboot:
-    timeout-minutes: 5
+    timeout-minutes: 7
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
       - uses: ./.github/actions/setup
         with:
           restore-broccoli-cache: true
           install: true
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Run Tests
         run: pnpm test:fastboot
   embroider:
-    timeout-minutes: 5
+    timeout-minutes: 7
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
       - uses: ./.github/actions/setup
         with:
           restore-broccoli-cache: true
           install: true
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Run Tests
         run: pnpm test:embroider
-  floating-dependencies:
-    timeout-minutes: 5
+        env:
+          UV_USE_IO_URING: 0
+  vite:
+    timeout-minutes: 7
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
       - uses: ./.github/actions/setup
+        with:
+          restore-broccoli-cache: true
+          install: true
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run Tests
+        run: pnpm test:vite
+  floating-dependencies:
+    timeout-minutes: 9
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
+      - uses: ./.github/actions/setup
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install dependencies w/o lockfile
         run: pnpm install --no-lockfile
       - name: Basic Tests
         run: pnpm test
   node-version-test:
     name: Use Node.js ${{ matrix.node-version }}
-    timeout-minutes: 8
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     strategy:
       matrix:
         node-version: [16.x, 18.x]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
       - uses: ./.github/actions/setup
         with:
           node-version: ${{ matrix.node-version }}
           restore-broccoli-cache: true
           install: true
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Basic Tests
         run: pnpm test

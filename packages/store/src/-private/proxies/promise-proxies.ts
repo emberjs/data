@@ -1,11 +1,9 @@
 import { deprecate } from '@ember/debug';
 import { get } from '@ember/object';
-import type ComputedProperty from '@ember/object/computed';
-import { reads } from '@ember/object/computed';
 
-import { DEBUG } from '@ember-data/env';
-import type { Dict } from '@ember-data/types/q/utils';
+import { DEBUG } from '@warp-drive/build-config/env';
 
+import type IdentifierArray from '../record-arrays/identifier-array';
 import { PromiseArrayProxy, PromiseObjectProxy } from './promise-proxy-base';
 
 /**
@@ -43,20 +41,6 @@ import { PromiseArrayProxy, PromiseObjectProxy } from './promise-proxy-base';
   @extends Ember.ArrayProxy
   @uses Ember.PromiseProxyMixin
 */
-interface EmberNativeArrayLike<T> {
-  length: number | ComputedProperty<number>;
-  objectAt(idx: number): T | undefined;
-}
-interface EmberArrayProxyLike<T> {
-  length: number | ComputedProperty<number>;
-  objectAtContent(idx: number): T | undefined;
-}
-type EmberArrayLike<T> = EmberNativeArrayLike<T> | EmberArrayProxyLike<T>;
-
-export class PromiseArray<I, T extends EmberArrayLike<I>> extends PromiseArrayProxy<I, T> {
-  @reads('content.meta')
-  declare meta?: Dict<unknown>;
-}
 
 /**
   A `PromiseObject` is an object that acts like both an `EmberObject`
@@ -91,17 +75,19 @@ export class PromiseArray<I, T extends EmberArrayLike<I>> extends PromiseArrayPr
 */
 export { PromiseObjectProxy as PromiseObject };
 
-function _promiseObject<T>(promise: Promise<T>): PromiseObjectProxy<T> {
-  return PromiseObjectProxy.create({ promise }) as PromiseObjectProxy<T>;
+function _promiseObject<T>(promise: Promise<T>): Promise<T> {
+  return PromiseObjectProxy.create({ promise }) as Promise<T>;
 }
 
-function _promiseArray<I, T extends EmberArrayLike<I>>(promise: Promise<T>): PromiseArray<I, T> {
-  return PromiseArray.create({ promise }) as unknown as PromiseArray<I, T>;
+function _promiseArray<T>(promise: Promise<IdentifierArray<T>>): Promise<IdentifierArray<T>> {
+  // @ts-expect-error this bucket of lies allows us to avoid typing the promise proxy which would
+  // require us to override a lot of Ember's types.
+  return PromiseArrayProxy.create({ promise }) as unknown as Promise<IdentifierArray<T>>;
 }
 
 // constructor is accessed in some internals but not including it in the copyright for the deprecation
 const ALLOWABLE_METHODS = ['constructor', 'then', 'catch', 'finally'];
-const ALLOWABLE_PROPS = ['__ec_yieldable__', '__ec_cancel__'];
+const ALLOWABLE_PROPS = ['__ec_yieldable__', '__ec_cancel__'] as const;
 const PROXIED_ARRAY_PROPS = [
   'length',
   '[]',
@@ -118,17 +104,31 @@ const PROXIED_ARRAY_PROPS = [
 ];
 const PROXIED_OBJECT_PROPS = ['content', 'isPending', 'isSettled', 'isRejected', 'isFulfilled', 'promise', 'reason'];
 
-export function promiseArray<I, T extends EmberArrayLike<I>>(promise: Promise<T>): PromiseArray<I, T> {
-  const promiseObjectProxy: PromiseArray<I, T> = _promiseArray(promise);
+function isAllowedProp(prop: string): prop is (typeof ALLOWABLE_PROPS)[number] {
+  return ALLOWABLE_PROPS.includes(prop as (typeof ALLOWABLE_PROPS)[number]);
+}
+
+type SensitiveArray<T> = {
+  __ec_yieldable__: unknown;
+  __ec_cancel__: unknown;
+} & Promise<IdentifierArray<T>>;
+
+type SensitiveObject<T> = {
+  __ec_yieldable__: unknown;
+  __ec_cancel__: unknown;
+} & Promise<T>;
+
+export function promiseArray<T>(promise: Promise<IdentifierArray<T>>): Promise<IdentifierArray<T>> {
+  const promiseObjectProxy = _promiseArray(promise);
   if (!DEBUG) {
     return promiseObjectProxy;
   }
   const handler = {
-    get(target: object, prop: string, receiver: object): unknown {
+    get(target: SensitiveArray<T>, prop: string, receiver: object): unknown {
       if (typeof prop === 'symbol') {
         return Reflect.get(target, prop, receiver);
       }
-      if (ALLOWABLE_PROPS.includes(prop)) {
+      if (isAllowedProp(prop)) {
         return target[prop];
       }
       if (!ALLOWABLE_METHODS.includes(prop)) {
@@ -147,6 +147,7 @@ export function promiseArray<I, T extends EmberArrayLike<I>>(promise: Promise<T>
         );
       }
 
+      // @ts-expect-error difficult to coerce target to the classic ember proxy
       const value: unknown = target[prop];
       if (value && typeof value === 'function' && typeof value.bind === 'function') {
         return value.bind(target);
@@ -165,13 +166,13 @@ export function promiseArray<I, T extends EmberArrayLike<I>>(promise: Promise<T>
 
 const ProxySymbolString = String(Symbol.for('PROXY_CONTENT'));
 
-export function promiseObject<T>(promise: Promise<T>): PromiseObjectProxy<T> {
-  const promiseObjectProxy: PromiseObjectProxy<T> = _promiseObject(promise);
+export function promiseObject<T>(promise: Promise<T>): Promise<T> {
+  const promiseObjectProxy = _promiseObject(promise);
   if (!DEBUG) {
     return promiseObjectProxy;
   }
   const handler = {
-    get(target: object, prop: string, receiver: object): unknown {
+    get(target: SensitiveObject<T>, prop: string, receiver: object): unknown {
       if (typeof prop === 'symbol') {
         if (String(prop) === ProxySymbolString) {
           return;
@@ -183,7 +184,7 @@ export function promiseObject<T>(promise: Promise<T>): PromiseObjectProxy<T> {
         return target.constructor;
       }
 
-      if (ALLOWABLE_PROPS.includes(prop)) {
+      if (isAllowedProp(prop)) {
         return target[prop];
       }
 
@@ -202,10 +203,12 @@ export function promiseObject<T>(promise: Promise<T>): PromiseObjectProxy<T> {
           }
         );
       } else {
+        // @ts-expect-error difficult to coerce target to the classic ember proxy
         return (target[prop] as () => unknown).bind(target);
       }
 
       if (PROXIED_OBJECT_PROPS.includes(prop)) {
+        // @ts-expect-error difficult to coerce target to the classic ember proxy
         return target[prop];
       }
 

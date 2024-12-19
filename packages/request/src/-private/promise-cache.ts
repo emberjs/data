@@ -1,3 +1,5 @@
+import { getOrSetUniversal } from '@warp-drive/core-types/-private';
+
 export type CacheResult<T = unknown, E = unknown> = { isError: true; result: E } | { isError: false; result: T };
 
 export type Awaitable<T = unknown, E = unknown> = {
@@ -6,8 +8,8 @@ export type Awaitable<T = unknown, E = unknown> = {
   finally: (onFinally: () => unknown) => unknown;
 };
 
-export const PromiseCache = new WeakMap<Awaitable, CacheResult>();
-export const RequestMap = new Map<number, CacheResult>();
+export const PromiseCache = getOrSetUniversal('PromiseCache', new WeakMap<Awaitable, CacheResult>());
+export const RequestMap = getOrSetUniversal('RequestMap', new Map<number, CacheResult>());
 
 export function setRequestResult(requestId: number, result: CacheResult) {
   RequestMap.set(requestId, result);

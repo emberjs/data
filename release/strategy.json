@@ -1,0 +1,49 @@
+{
+  "config": {
+    "packageRoots": ["packages/*", "tests/*", "config"],
+    "changelogRoots": ["packages/*"],
+    "changelog": {
+      "labelOrder": [
+        ":boom: Breaking Change",
+        ":evergreen_tree: New Deprecation",
+        ":memo: Documentation",
+        ":rocket: Enhancement",
+        ":bug: Bug Fix",
+        ":zap: Performance",
+        ":house: Internal"
+      ],
+      "collapseLabels": {
+        "labels": [":shower: Deprecation Removal", ":goal_net: Test", ":house: Internal"],
+        "title": ":house: Internal"
+      },
+      "mappings": {
+        "mock-server": "@warp-drive/diagnostic",
+        "core": "@warp-drive/core-types",
+        "Other": null
+      }
+    }
+  },
+  "defaults": {
+    "stage": "stable",
+    "types": "alpha",
+    "mirrorPublish": true,
+    "typesPublish": true
+  },
+  "rules": {
+    "@ember-data/debug": {
+      "stage": "stable",
+      "types": "private",
+      "typesPublish": false
+    },
+    "@warp-drive/build-config": {
+      "stage": "alpha",
+      "types": "alpha",
+      "typesPublish": false,
+      "mirrorPublish": true
+    },
+    "@warp-drive/core-types": {
+      "stage": "alpha",
+      "types": "alpha"
+    }
+  }
+}

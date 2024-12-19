@@ -2,9 +2,9 @@ import { module } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import { DEBUG } from '@ember-data/env';
 import Model, { attr, belongsTo } from '@ember-data/model';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
+import { DEBUG } from '@warp-drive/build-config/env';
 
 function stringify(string) {
   return function () {
@@ -17,7 +17,7 @@ module('integration/inverse-test - inverseFor', function (hooks) {
   let store;
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
     store = owner.lookup('service:store');
   });
 
@@ -52,18 +52,17 @@ module('integration/inverse-test - inverseFor', function (hooks) {
         }
       }
 
-      let { owner } = this;
+      const { owner } = this;
       owner.register('model:user', User);
       owner.register('model:job', Job);
 
-      let job = store.modelFor('job');
-      let user = store.modelFor('user');
-      let inverseDefinition = job.inverseFor('user', store);
+      const job = store.modelFor('job');
+      const inverseDefinition = job.inverseFor('user', store);
 
       assert.deepEqual(
         inverseDefinition,
         {
-          type: user,
+          type: 'user',
           name: 'job',
           kind: 'belongsTo',
           options: {
@@ -112,17 +111,17 @@ module('integration/inverse-test - inverseFor', function (hooks) {
         }
       }
 
-      let { owner } = this;
+      const { owner } = this;
       owner.register('model:user', User);
       owner.register('model:job', Job);
 
-      let job = store.modelFor('job');
-      let user = store.modelFor('user');
+      const job = store.modelFor('job');
+      const user = store.modelFor('user');
 
       assert.deepEqual(
         job.inverseFor('owner', store),
         {
-          type: user, //the model's type
+          type: 'user', //the model's type
           name: 'previousJob', //the models relationship key
           kind: 'belongsTo',
           options: {
@@ -135,7 +134,7 @@ module('integration/inverse-test - inverseFor', function (hooks) {
       assert.deepEqual(
         user.inverseFor('previousJob', store),
         {
-          type: job, //the model's type
+          type: 'job', //the model's type
           name: 'owner', //the models relationship key
           kind: 'belongsTo',
           options: {
@@ -179,11 +178,11 @@ module('integration/inverse-test - inverseFor', function (hooks) {
         }
       }
 
-      let { owner } = this;
+      const { owner } = this;
       owner.register('model:user', User);
       owner.register('model:job', Job);
 
-      let user = store.modelFor('user');
+      const user = store.modelFor('user');
       assert.strictEqual(user.inverseFor('job', store), null, 'There is no inverse');
     }
   );
@@ -222,14 +221,14 @@ module('integration/inverse-test - inverseFor', function (hooks) {
             return stringify('job');
           }
         }
-        let { owner } = this;
+        const { owner } = this;
         owner.register('model:user', User);
         owner.register('model:job', Job);
 
-        let user = store.modelFor('user');
+        const user = store.modelFor('user');
         assert.expectAssertion(() => {
           user.inverseFor('job', store);
-        }, /Assertion Failed: You defined the 'job' relationship on model:user, but you defined the inverse relationships of type model:job multiple times/i);
+        }, /You defined the 'job' relationship on model:user, but you defined the inverse relationships of type model:job multiple times/i);
       }
     );
   }
@@ -265,13 +264,13 @@ module('integration/inverse-test - inverseFor', function (hooks) {
           return stringify('job');
         }
       }
-      let { owner } = this;
+      const { owner } = this;
       owner.register('model:user', User);
       owner.register('model:job', Job);
 
-      let job = store.modelFor('job');
+      const job = store.modelFor('job');
 
-      let inverseForUser = job.inverseFor('user', store);
+      const inverseForUser = job.inverseFor('user', store);
       job.findInverseFor = function () {
         assert.ok(false, 'Find is not called anymore');
       };
@@ -294,7 +293,7 @@ module('integration/inverse-test - inverseFor', function (hooks) {
           }
         }
 
-        let { owner } = this;
+        const { owner } = this;
         owner.register('model:reflexive-model', ReflexiveModel);
 
         //Maybe store is evaluated lazily, so we need this :(

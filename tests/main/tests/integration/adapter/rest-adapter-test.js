@@ -1,11 +1,8 @@
 import { get } from '@ember/object';
-import { underscore } from '@ember/string';
 
 import Pretender from 'pretender';
 import { module, test } from 'qunit';
-import { reject, resolve } from 'rsvp';
 
-import { singularize } from 'ember-inflector';
 import { setupTest } from 'ember-qunit';
 
 import AdapterError, {
@@ -19,15 +16,21 @@ import AdapterError, {
 import RESTAdapter from '@ember-data/adapter/rest';
 import { Snapshot } from '@ember-data/legacy-compat/-private';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { singularize, underscore } from '@ember-data/request-utils/string';
 import RESTSerializer from '@ember-data/serializer/rest';
 import { recordIdentifierFor } from '@ember-data/store';
-import deepCopy from '@ember-data/unpublished-test-infra/test-support/deep-copy';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp-drive/build-config/deprecations';
 
 let store, adapter, SuperUser;
 
 let passedUrl, passedVerb, passedHash;
 let server;
+
+function isSnapshot(snapshot) {
+  return snapshot instanceof Snapshot || snapshot.constructor.name === 'Snapshot';
+}
 
 module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
   setupTest(hooks);
@@ -59,9 +62,9 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       passedHash = hash;
       passedUrl = passedHash.url;
       passedVerb = passedHash.method;
-      return resolve({
+      return Promise.resolve({
         text() {
-          return resolve(JSON.stringify(deepCopy(value)));
+          return Promise.resolve(JSON.stringify(structuredClone(value)));
         },
         ok: true,
         status: 200,
@@ -73,15 +76,15 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       passedVerb = verb;
       passedHash = hash;
 
-      return resolve(deepCopy(value));
+      return Promise.resolve(structuredClone(value));
     };
   }
 
   function ajaxError(responseText, status = 400, headers = {}) {
     adapter._fetchRequest = () => {
-      return resolve({
+      return Promise.resolve({
         text() {
-          return resolve(responseText);
+          return Promise.resolve(responseText);
         },
         ok: false,
         status,
@@ -90,12 +93,12 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     };
 
     adapter._ajaxRequest = (hash) => {
-      let jqXHR = {
+      const jqXHR = {
         status,
         responseText,
         getAllResponseHeaders() {
-          let reducer = (prev, key) => prev + key + ': ' + headers[key] + '\r\n';
-          let stringify = (headers) => {
+          const reducer = (prev, key) => prev + key + ': ' + headers[key] + '\r\n';
+          const stringify = (headers) => {
             return Object.keys(headers).reduce(reducer, '');
           };
           return stringify(headers);
@@ -107,9 +110,9 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
   function ajaxZero() {
     adapter._fetchRequest = () => {
-      return resolve({
+      return Promise.resolve({
         text() {
-          return resolve();
+          return Promise.resolve();
         },
         ok: false,
         status: 0,
@@ -147,7 +150,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       },
     });
 
-    let post = store.peekRecord('post', 1);
+    const post = store.peekRecord('post', 1);
     ajaxResponse();
 
     post.set('name', 'The Parley Letter');
@@ -186,7 +189,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       },
     });
 
-    let post = await store.findRecord('post', 1);
+    const post = await store.findRecord('post', 1);
     ajaxResponse();
 
     post.set('name', 'The Parley Letter');
@@ -216,7 +219,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       },
     });
 
-    let post = await store.findRecord('post', 1);
+    const post = await store.findRecord('post', 1);
     ajaxResponse({ posts: [{ id: '1', name: 'Dat Parley Letter' }] });
 
     post.set('name', 'The Parley Letter');
@@ -251,7 +254,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       },
     });
 
-    let post = await store.findRecord('post', 1);
+    const post = await store.findRecord('post', 1);
     ajaxResponse({ post: { id: '1', name: 'Dat Parley Letter' } });
 
     post.set('name', 'The Parley Letter');
@@ -275,13 +278,12 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     }
     this.owner.register('model:post', Post);
 
-    let post;
     ajaxResponse({
       posts: [{ id: '1', name: 'Dat Parley Letter' }],
       comments: [{ id: '1', name: 'FIRST' }],
     });
 
-    post = store.createRecord('post', { name: 'The Parley Letter' });
+    const post = store.createRecord('post', { name: 'The Parley Letter' });
     await post.save();
     assert.strictEqual(passedUrl, '/posts', 'we pass the correct url');
     assert.strictEqual(passedVerb, 'POST', 'we pass the correct http method');
@@ -291,11 +293,11 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     assert.false(post.hasDirtyAttributes, "the post isn't dirty anymore");
     assert.strictEqual(post.name, 'Dat Parley Letter', 'the post was updated');
 
-    let comment = store.peekRecord('comment', '1');
+    const comment = store.peekRecord('comment', '1');
     assert.strictEqual(comment.name, 'FIRST', 'The comment was sideloaded');
   });
 
-  test('updateRecord - a payload with sideloaded updates pushes the updates', async function (assert) {
+  test('updateRecord - a payload with sideloaded updates pushes the updates, v2', async function (assert) {
     class Comment extends Model {
       @attr name;
     }
@@ -317,7 +319,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       },
     });
 
-    let post = await store.findRecord('post', 1);
+    const post = await store.findRecord('post', 1);
     ajaxResponse({
       posts: [{ id: '1', name: 'Dat Parley Letter' }],
       comments: [{ id: '1', name: 'FIRST' }],
@@ -332,7 +334,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     assert.false(post.hasDirtyAttributes, "the post isn't dirty anymore");
     assert.strictEqual(post.name, 'Dat Parley Letter', 'the post was updated');
 
-    let comment = store.peekRecord('comment', 1);
+    const comment = store.peekRecord('comment', 1);
     assert.strictEqual(comment.name, 'FIRST', 'The comment was sideloaded');
   });
 
@@ -369,7 +371,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     ajaxResponse();
 
-    let post = await store.findRecord('post', 1);
+    const post = await store.findRecord('post', 1);
     post.set('name', 'The Parley Letter');
 
     await post.save();
@@ -426,10 +428,10 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       posts: { id: '1', name: 'Not everyone uses Rails', comments: [2] },
     });
 
-    await store.findRecord('comment', 2);
-    let post = await store.findRecord('post', 1);
-    let newComment = store.peekRecord('comment', 2);
-    let comments = post.comments;
+    await store.findRecord('comment', '2');
+    const post = await store.findRecord('post', '1');
+    const newComment = store.peekRecord('comment', '2');
+    const comments = post.comments;
 
     // Replace the comment with a new one
     comments.pop();
@@ -490,7 +492,63 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     assert.strictEqual(post.comments.length, 0, 'the post has the no comments');
   });
 
-  test('updateRecord - hasMany relationships set locally will be removed with empty response', async function (assert) {
+  deprecatedTest(
+    'updateRecord - hasMany relationships set locally will be removed with empty response',
+    {
+      id: 'ember-data:deprecate-relationship-remote-update-clearing-local-state',
+      until: '6.0',
+      count: 1,
+    },
+    async function (assert) {
+      class Post extends Model {
+        @attr name;
+        @hasMany('comment', { async: false, inverse: 'post' }) comments;
+      }
+      this.owner.register('model:post', Post);
+      class Comment extends Model {
+        @attr name;
+        @belongsTo('post', { async: false, inverse: 'comments' }) post;
+      }
+
+      this.owner.register('model:comment', Comment);
+
+      store.push({
+        data: {
+          type: 'post',
+          id: '1',
+          attributes: {
+            name: 'Not everyone uses Rails',
+          },
+        },
+      });
+
+      store.push({
+        data: {
+          type: 'comment',
+          id: '1',
+          attributes: {
+            name: 'Rails is omakase',
+          },
+        },
+      });
+
+      ajaxResponse({
+        posts: { id: '1', name: 'Everyone uses Rails', comments: [] },
+      });
+
+      let post = await store.peekRecord('post', 1);
+      const comment = await store.peekRecord('comment', 1);
+      const comments = post.comments;
+      comments.push(comment);
+      assert.strictEqual(post.comments.length, 1, 'the post has one comment');
+
+      post = await post.save();
+
+      assert.strictEqual(post.comments.length, 0, 'the post has the no comments');
+    }
+  );
+
+  test('updateRecord - hasMany relationships set locally will NOT be removed with empty response when flag is set', async function (assert) {
     class Post extends Model {
       @attr name;
       @hasMany('comment', { async: false, inverse: 'post' }) comments;
@@ -498,17 +556,22 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     this.owner.register('model:post', Post);
     class Comment extends Model {
       @attr name;
-      @belongsTo('post', { async: false, inverse: 'comments' }) post;
+      @belongsTo('post', { async: false, inverse: 'comments', resetOnRemoteUpdate: false }) post;
     }
 
     this.owner.register('model:comment', Comment);
 
-    store.push({
+    const post = store.push({
       data: {
         type: 'post',
         id: '1',
         attributes: {
-          name: 'Not everyone uses Rails',
+          name: 'Not everyone uses React',
+        },
+        relationships: {
+          comments: {
+            data: [{ type: 'comment', id: '1' }],
+          },
         },
       },
     });
@@ -518,7 +581,17 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
         type: 'comment',
         id: '1',
         attributes: {
-          name: 'Rails is omakase',
+          name: 'Go is omakase',
+        },
+      },
+    });
+
+    const comment2 = store.push({
+      data: {
+        type: 'comment',
+        id: '2',
+        attributes: {
+          name: 'Ember is omakase',
         },
       },
     });
@@ -527,16 +600,77 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       posts: { id: '1', name: 'Everyone uses Rails', comments: [] },
     });
 
-    let post = await store.peekRecord('post', 1);
-    let comment = await store.peekRecord('comment', 1);
-    let comments = post.comments;
-    comments.push(comment);
+    post.comments.push(comment2);
+    assert.strictEqual(post.comments.length, 2, 'the post has two comments');
+
+    await post.save();
+
     assert.strictEqual(post.comments.length, 1, 'the post has one comment');
-
-    post = await post.save();
-
-    assert.strictEqual(post.comments.length, 0, 'the post has the no comments');
+    assert.strictEqual(post.comments.at(0).id, '2', 'the post has the correct comment');
   });
+
+  if (!DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
+    test('updateRecord - hasMany relationships set locally will NOT be removed with empty response', async function (assert) {
+      class Post extends Model {
+        @attr name;
+        @hasMany('comment', { async: false, inverse: 'post' }) comments;
+      }
+      this.owner.register('model:post', Post);
+      class Comment extends Model {
+        @attr name;
+        @belongsTo('post', { async: false, inverse: 'comments' }) post;
+      }
+
+      this.owner.register('model:comment', Comment);
+
+      const post = store.push({
+        data: {
+          type: 'post',
+          id: '1',
+          attributes: {
+            name: 'Not everyone uses React',
+          },
+          relationships: {
+            comments: {
+              data: [{ type: 'comment', id: '1' }],
+            },
+          },
+        },
+      });
+
+      store.push({
+        data: {
+          type: 'comment',
+          id: '1',
+          attributes: {
+            name: 'Go is omakase',
+          },
+        },
+      });
+
+      const comment2 = store.push({
+        data: {
+          type: 'comment',
+          id: '2',
+          attributes: {
+            name: 'Ember is omakase',
+          },
+        },
+      });
+
+      ajaxResponse({
+        posts: { id: '1', name: 'Everyone uses Rails', comments: [] },
+      });
+
+      post.comments.push(comment2);
+      assert.strictEqual(post.comments.length, 2, 'the post has two comments');
+
+      await post.save();
+
+      assert.strictEqual(post.comments.length, 1, 'the post has one comment');
+      assert.strictEqual(post.comments.at(0).id, '2', 'the post has the correct comment');
+    });
+  }
 
   test('deleteRecord - an empty payload is a basic success', async function (assert) {
     class Post extends Model {
@@ -561,7 +695,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       },
     });
 
-    let post = await store.findRecord('post', 1);
+    const post = await store.findRecord('post', 1);
     ajaxResponse();
 
     post.deleteRecord();
@@ -602,7 +736,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       },
     });
 
-    let post = await store.findRecord('post', 1);
+    const post = await store.findRecord('post', 1);
     ajaxResponse();
 
     post.deleteRecord();
@@ -634,7 +768,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       },
     });
 
-    let post = await store.findRecord('post', 1);
+    const post = await store.findRecord('post', 1);
     ajaxResponse({ comments: [{ id: '1', name: 'FIRST' }] });
 
     post.deleteRecord();
@@ -647,7 +781,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     assert.false(post.hasDirtyAttributes, "the post isn't dirty anymore");
     assert.true(post.isDeleted, 'the post is now deleted');
 
-    let comment = store.peekRecord('comment', 1);
+    const comment = store.peekRecord('comment', 1);
     assert.strictEqual(comment.name, 'FIRST', 'The comment was sideloaded');
   });
 
@@ -674,7 +808,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       },
     });
 
-    let post = await store.findRecord('post', 1);
+    const post = await store.findRecord('post', 1);
     ajaxResponse({ posts: [{ id: '2', name: 'The Parley Letter' }] });
 
     post.deleteRecord();
@@ -687,7 +821,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     assert.false(post.hasDirtyAttributes, "the original post isn't dirty anymore");
     assert.true(post.isDeleted, 'the original post is now deleted');
 
-    let newPost = store.peekRecord('post', 2);
+    const newPost = store.peekRecord('post', 2);
     assert.strictEqual(newPost.name, 'The Parley Letter', 'The new post was added to the store');
   });
 
@@ -703,8 +837,8 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     }
     this.owner.register('model:comment', Comment);
 
-    let post = store.createRecord('post');
-    let identifier = recordIdentifierFor(post);
+    const post = store.createRecord('post');
+    const identifier = recordIdentifierFor(post);
 
     post.deleteRecord();
     await post.save();
@@ -738,20 +872,20 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       ],
     });
 
-    let posts = await store.findAll('post');
+    const posts = await store.findAll('post');
     assert.strictEqual(passedUrl, '/posts');
     assert.strictEqual(passedVerb, 'GET');
     assert.deepEqual(passedHash.data, {});
 
-    let post1 = store.peekRecord('post', 1);
-    let post2 = store.peekRecord('post', 2);
+    const post1 = store.peekRecord('post', 1);
+    const post2 = store.peekRecord('post', 2);
 
     assert.deepEqual(post1.getProperties('id', 'name'), { id: '1', name: 'Rails is omakase' }, 'Post 1 is loaded');
 
     assert.deepEqual(post2.getProperties('id', 'name'), { id: '2', name: 'The Parley Letter' }, 'Post 2 is loaded');
 
     assert.strictEqual(posts.length, 2, 'The posts are in the array');
-    assert.true(posts.isLoaded, 'The RecordArray is loaded');
+    assert.true(posts.isLoaded, 'The LiveArray is loaded');
     assert.deepEqual(posts.slice(), [post1, post2], 'The correct records are in the array');
   });
 
@@ -768,7 +902,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     this.owner.register('model:comment', Comment);
 
     assert.expect(2);
-    let adapterOptionsStub = { stub: true };
+    const adapterOptionsStub = { stub: true };
     adapter.buildURL = function (type, id, snapshot, requestType) {
       assert.strictEqual(snapshot.adapterOptions, adapterOptionsStub);
       return '/' + requestType + '/posts';
@@ -827,7 +961,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     await store.findAll('post');
 
-    let comment = store.peekRecord('comment', '1');
+    const comment = store.peekRecord('comment', '1');
     assert.deepEqual(comment.getProperties('id', 'name'), { id: '1', name: 'FIRST' });
   });
 
@@ -858,15 +992,15 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       ],
     });
 
-    let posts = await store.findAll('post');
-    let post1 = store.peekRecord('post', 1);
-    let post2 = store.peekRecord('post', 2);
+    const posts = await store.findAll('post');
+    const post1 = store.peekRecord('post', 1);
+    const post2 = store.peekRecord('post', 2);
 
     assert.deepEqual(post1.getProperties('id', 'name'), { id: '1', name: 'Rails is omakase' }, 'Post 1 is loaded');
     assert.deepEqual(post2.getProperties('id', 'name'), { id: '2', name: 'The Parley Letter' }, 'Post 2 is loaded');
 
     assert.strictEqual(posts.length, 2, 'The posts are in the array');
-    assert.true(posts.isLoaded, 'The RecordArray is loaded');
+    assert.true(posts.isLoaded, 'The LiveArray is loaded');
     assert.deepEqual(posts.slice(), [post1, post2], 'The correct records are in the array');
   });
 
@@ -961,11 +1095,11 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     });
 
     adapter.sortQueryParams = function (obj) {
-      let sortedKeys = Object.keys(obj).sort().reverse();
-      let len = sortedKeys.length;
-      let newQueryParams = {};
+      const sortedKeys = Object.keys(obj).sort().reverse();
+      const len = sortedKeys.length;
+      const newQueryParams = {};
 
-      for (var i = 0; i < len; i++) {
+      for (let i = 0; i < len; i++) {
         newQueryParams[sortedKeys[i]] = obj[sortedKeys[i]];
       }
       return newQueryParams;
@@ -996,7 +1130,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       posts: [{ id: '1', name: 'Rails is very expensive sushi' }],
     });
 
-    let posts = await store.query('post', { page: 2 });
+    const posts = await store.query('post', { page: 2 });
     assert.strictEqual(posts.meta.offset, 5, 'Reponse metadata can be accessed with recordArray.meta');
   });
 
@@ -1017,14 +1151,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       posts: [{ id: '1', name: 'Rails is very expensive sushi' }],
     });
 
-    let posts = await store.query('post', { page: 2 });
+    const posts = await store.query('post', { page: 2 });
     assert.strictEqual(posts.meta.offset, 5, 'Reponse metadata can be accessed with recordArray.meta');
     ajaxResponse({
       meta: { offset: 1 },
       posts: [{ id: '1', name: 'Rails is very expensive sushi' }],
     });
 
-    let newPosts = await store.query('post', { page: 1 });
+    const newPosts = await store.query('post', { page: 1 });
     assert.strictEqual(newPosts.meta.offset, 1, 'new array has correct metadata');
     assert.strictEqual(posts.meta.offset, 5, 'metadata on the old array hasnt been clobbered');
   });
@@ -1048,19 +1182,19 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       ],
     });
 
-    let posts = await store.query('post', { page: 1 });
+    const posts = await store.query('post', { page: 1 });
     assert.strictEqual(passedUrl, '/posts');
     assert.strictEqual(passedVerb, 'GET');
     assert.deepEqual(passedHash.data, { page: 1 });
 
-    let post1 = store.peekRecord('post', 1);
-    let post2 = store.peekRecord('post', 2);
+    const post1 = store.peekRecord('post', 1);
+    const post2 = store.peekRecord('post', 2);
 
     assert.deepEqual(post1.getProperties('id', 'name'), { id: '1', name: 'Rails is omakase' }, 'Post 1 is loaded');
     assert.deepEqual(post2.getProperties('id', 'name'), { id: '2', name: 'The Parley Letter' }, 'Post 2 is loaded');
 
     assert.strictEqual(posts.length, 2, 'The posts are in the array');
-    assert.true(posts.isLoaded, 'The RecordArray is loaded');
+    assert.true(posts.isLoaded, 'The LiveArray is loaded');
     assert.deepEqual(posts.slice(), [post1, post2], 'The correct records are in the array');
   });
 
@@ -1085,7 +1219,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     });
 
     await store.query('post', { page: 1 });
-    let comment = store.peekRecord('comment', 1);
+    const comment = store.peekRecord('comment', 1);
 
     assert.deepEqual(comment.getProperties('id', 'name'), { id: '1', name: 'FIRST' });
   });
@@ -1117,16 +1251,16 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       ],
     });
 
-    let posts = await store.query('post', { page: 1 });
-    let post1 = store.peekRecord('post', 1);
-    let post2 = store.peekRecord('post', 2);
+    const posts = await store.query('post', { page: 1 });
+    const post1 = store.peekRecord('post', 1);
+    const post2 = store.peekRecord('post', 2);
 
     assert.deepEqual(post1.getProperties('id', 'name'), { id: '1', name: 'Rails is omakase' }, 'Post 1 is loaded');
 
     assert.deepEqual(post2.getProperties('id', 'name'), { id: '2', name: 'The Parley Letter' }, 'Post 2 is loaded');
 
     assert.strictEqual(posts.length, 2, 'The posts are in the array');
-    assert.true(posts.isLoaded, 'The RecordArray is loaded');
+    assert.true(posts.isLoaded, 'The LiveArray is loaded');
     assert.deepEqual(posts.slice(), [post1, post2], 'The correct records are in the array');
   });
 
@@ -1144,7 +1278,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     ajaxResponse({});
 
-    let post = await store.queryRecord('post', { slug: 'ember-js-rocks' });
+    const post = await store.queryRecord('post', { slug: 'ember-js-rocks' });
     assert.strictEqual(post, null);
   });
 
@@ -1164,7 +1298,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       post: null,
     });
 
-    let post = await store.queryRecord('post', { slug: 'ember-js-rocks' });
+    const post = await store.queryRecord('post', { slug: 'ember-js-rocks' });
     assert.strictEqual(post, null);
   });
 
@@ -1187,7 +1321,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       },
     });
 
-    let post = await store.queryRecord('post', { slug: 'ember-js-rocks' });
+    const post = await store.queryRecord('post', { slug: 'ember-js-rocks' });
     assert.deepEqual(post.name, 'Ember.js rocks');
   });
 
@@ -1209,7 +1343,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     });
 
     await store.queryRecord('post', { slug: 'rails-is-omakaze' });
-    let comment = store.peekRecord('comment', 1);
+    const comment = store.peekRecord('comment', 1);
 
     assert.deepEqual(comment.getProperties('id', 'name'), { id: '1', name: 'FIRST' });
   });
@@ -1235,7 +1369,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     assert.expectAssertion(
       () => store.queryRecord('post', { slug: 'rails-is-omakaze' }),
-      'Assertion Failed: The adapter returned an array for the primary data of a `queryRecord` response. `queryRecord` should return a single record.'
+      'The adapter returned an array for the primary data of a `queryRecord` response. `queryRecord` should return a single record.'
     );
   });
 
@@ -1326,7 +1460,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       },
     });
 
-    let post = store.peekRecord('post', 1);
+    const post = store.peekRecord('post', 1);
     ajaxResponse({
       comments: [
         { id: '1', name: 'FIRST' },
@@ -1378,7 +1512,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       },
     });
 
-    let post = store.peekRecord('post', 1);
+    const post = store.peekRecord('post', 1);
     ajaxResponse({
       comments: [
         { id: '1', name: 'FIRST' },
@@ -1422,7 +1556,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       },
     });
 
-    let post = store.peekRecord('post', 1);
+    const post = store.peekRecord('post', 1);
     //It's still ok to return this even without coalescing  because RESTSerializer supports sideloading
     ajaxResponse({
       comments: [
@@ -1471,7 +1605,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       },
     });
 
-    let post = await store.findRecord('post', 1);
+    const post = await store.findRecord('post', 1);
     ajaxResponse({
       comments: [
         { id: '1', name: 'FIRST' },
@@ -1480,10 +1614,10 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       ],
     });
 
-    let comments = await post.comments;
-    let comment1 = store.peekRecord('comment', 1);
-    let comment2 = store.peekRecord('comment', 2);
-    let comment3 = store.peekRecord('comment', 3);
+    const comments = await post.comments;
+    const comment1 = store.peekRecord('comment', 1);
+    const comment2 = store.peekRecord('comment', 2);
+    const comment3 = store.peekRecord('comment', 3);
 
     assert.deepEqual(comment1.getProperties('id', 'name'), { id: '1', name: 'FIRST' });
     assert.deepEqual(comment2.getProperties('id', 'name'), { id: '2', name: 'Rails is unagi' });
@@ -1538,13 +1672,13 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       posts: [{ id: '2', name: 'The Parley Letter' }],
     });
 
-    let comments = await post.comments;
+    const comments = await post.comments;
 
-    let comment1 = store.peekRecord('comment', '1');
-    let comment2 = store.peekRecord('comment', '2');
-    let comment3 = store.peekRecord('comment', '3');
-    let comment4 = store.peekRecord('comment', '4');
-    let post2 = store.peekRecord('post', '2');
+    const comment1 = store.peekRecord('comment', '1');
+    const comment2 = store.peekRecord('comment', '2');
+    const comment3 = store.peekRecord('comment', '3');
+    const comment4 = store.peekRecord('comment', '4');
+    const post2 = store.peekRecord('post', '2');
 
     assert.deepEqual(comments.slice(), [comment1, comment2, comment3], 'The correct records are in the array');
 
@@ -1605,7 +1739,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       },
     });
 
-    let post = await store.findRecord('post', 1);
+    const post = await store.findRecord('post', 1);
 
     ajaxResponse({
       comments: [
@@ -1615,10 +1749,10 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       ],
     });
 
-    let comments = await post.comments;
-    let comment1 = store.peekRecord('comment', 1);
-    let comment2 = store.peekRecord('comment', 2);
-    let comment3 = store.peekRecord('comment', 3);
+    const comments = await post.comments;
+    const comment1 = store.peekRecord('comment', 1);
+    const comment2 = store.peekRecord('comment', 2);
+    const comment3 = store.peekRecord('comment', 3);
 
     assert.deepEqual(comment1.getProperties('id', 'name'), { id: '1', name: 'FIRST' });
     assert.deepEqual(comment2.getProperties('id', 'name'), { id: '2', name: 'Rails is unagi' });
@@ -1660,7 +1794,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       },
     });
 
-    let post = await store.findRecord('post', '1');
+    const post = await store.findRecord('post', '1');
 
     ajaxResponse({
       comments: [
@@ -1670,14 +1804,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       ],
     });
 
-    let comments = await post.comments;
+    const comments = await post.comments;
     assert.strictEqual(passedUrl, '/posts/1/comments');
     assert.strictEqual(passedVerb, 'GET');
     assert.strictEqual(passedHash, undefined);
 
-    let comment1 = store.peekRecord('comment', 1);
-    let comment2 = store.peekRecord('comment', 2);
-    let comment3 = store.peekRecord('comment', 3);
+    const comment1 = store.peekRecord('comment', 1);
+    const comment2 = store.peekRecord('comment', 2);
+    const comment3 = store.peekRecord('comment', 3);
 
     assert.deepEqual(comment1.getProperties('id', 'name'), { id: '1', name: 'FIRST' });
     assert.deepEqual(comment2.getProperties('id', 'name'), {
@@ -1696,7 +1830,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     assert.expect(2);
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.buildURL = function (type, id, snapshot, requestType) {
-      assert.ok(snapshot instanceof Snapshot);
+      assert.ok(isSnapshot(snapshot));
       assert.strictEqual(requestType, 'findHasMany');
     };
 
@@ -1728,7 +1862,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       },
     });
 
-    let post = await store.findRecord('post', '1');
+    const post = await store.findRecord('post', '1');
 
     ajaxResponse({
       comments: [
@@ -1773,7 +1907,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       },
     });
 
-    let post = await store.findRecord('post', 1);
+    const post = await store.findRecord('post', 1);
 
     ajaxResponse({
       comments: [
@@ -1784,18 +1918,18 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       posts: [{ id: '2', name: 'The Parley Letter' }],
     });
 
-    let comments = await post.comments;
-    let comment1 = store.peekRecord('comment', 1);
-    let comment2 = store.peekRecord('comment', 2);
-    let comment3 = store.peekRecord('comment', 3);
-    let post2 = store.peekRecord('post', 2);
+    const comments = await post.comments;
+    const comment1 = store.peekRecord('comment', 1);
+    const comment2 = store.peekRecord('comment', 2);
+    const comment3 = store.peekRecord('comment', 3);
+    const post2 = store.peekRecord('post', 2);
 
     assert.deepEqual(comments.slice(), [comment1, comment2, comment3], 'The correct records are in the array');
 
     assert.deepEqual(post2.getProperties('id', 'name'), { id: '2', name: 'The Parley Letter' });
   });
 
-  test('findMany - a custom serializer is used if present', async function (assert) {
+  test('findMany - a custom serializer is used if present, v2', async function (assert) {
     adapter.shouldBackgroundReloadRecord = () => false;
     this.owner.register(
       'serializer:post',
@@ -1854,9 +1988,9 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
         return post.comments;
       })
       .then((comments) => {
-        let comment1 = store.peekRecord('comment', 1);
-        let comment2 = store.peekRecord('comment', 2);
-        let comment3 = store.peekRecord('comment', 3);
+        const comment1 = store.peekRecord('comment', 1);
+        const comment2 = store.peekRecord('comment', 2);
+        const comment3 = store.peekRecord('comment', 3);
 
         assert.deepEqual(comment1.getProperties('id', 'name'), { id: '1', name: 'FIRST' });
         assert.deepEqual(comment2.getProperties('id', 'name'), { id: '2', name: 'Rails is unagi' });
@@ -1884,7 +2018,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     assert.expect(2);
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.buildURL = function (type, id, snapshot, requestType) {
-      assert.ok(snapshot instanceof Snapshot);
+      assert.ok(isSnapshot(snapshot));
       assert.strictEqual(requestType, 'findBelongsTo');
     };
 
@@ -1905,7 +2039,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       },
     });
 
-    let comment = await store.findRecord('comment', '1');
+    const comment = await store.findRecord('comment', '1');
     ajaxResponse({ post: { id: '1', name: 'Rails is omakase' } });
     await comment.post;
   });
@@ -1931,7 +2065,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
         comments: [{ id: '1', type: 'comment' }],
       });
 
-      let post = store.push({
+      const post = store.push({
         data: {
           type: 'post',
           id: '2',
@@ -1986,12 +2120,12 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.strictEqual(id, '1');
-      return resolve({ comments: { id: '1' } });
+      return Promise.resolve({ comments: { id: '1' } });
     };
 
     adapter.findMany = function (store, type, ids, snapshots) {
       assert.deepEqual(ids, ['2', '3']);
-      return resolve({ comments: [{ id: '2' }, { id: '3' }] });
+      return Promise.resolve({ comments: [{ id: '2' }, { id: '3' }] });
     };
 
     store.push({
@@ -2010,7 +2144,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       },
     });
 
-    let post = store.peekRecord('post', 2);
+    const post = store.peekRecord('post', 2);
 
     await post.comments;
   });
@@ -2038,12 +2172,12 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.strictEqual(id, '1');
-      return resolve({ comments: { id: '1' } });
+      return Promise.resolve({ comments: { id: '1' } });
     };
 
     adapter.findMany = function (store, type, ids, snapshots) {
       assert.deepEqual(ids, ['2', '3']);
-      return resolve({ comments: [{ id: '2' }, { id: '3' }] });
+      return Promise.resolve({ comments: [{ id: '2' }, { id: '3' }] });
     };
 
     store.push({
@@ -2062,7 +2196,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       },
     });
 
-    let post = store.peekRecord('post', 2);
+    const post = store.peekRecord('post', 2);
 
     await post.comments;
   });
@@ -2097,10 +2231,10 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
         keyForRelationship(rel, kind) {
           if (kind === 'belongsTo') {
-            let underscored = underscore(rel);
+            const underscored = underscore(rel);
             return underscored + '_id';
           } else {
-            let singular = singularize(rel);
+            const singular = singularize(rel);
             return underscore(singular) + '_ids';
           }
         },
@@ -2137,7 +2271,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       ],
     });
 
-    let post = await store.findRecord('post', 1);
+    const post = await store.findRecord('post', 1);
     assert.strictEqual(post.authorName, '@d2h');
     assert.strictEqual(post.author.name, 'D2H');
     assert.deepEqual(
@@ -2163,9 +2297,8 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       return new Array(n + 1).join(character);
     }
 
-    let a2000 = repeatChar('a', 2000);
-    let b2000 = repeatChar('b', 2000);
-    let post;
+    const a2000 = repeatChar('a', 2000);
+    const b2000 = repeatChar('b', 2000);
 
     store.push({
       data: {
@@ -2182,7 +2315,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       },
     });
 
-    post = store.peekRecord('post', 1);
+    const post = store.peekRecord('post', 1);
 
     adapter.coalesceFindRequests = true;
 
@@ -2191,12 +2324,12 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
         assert.ok(true, 'Found ' + id);
       }
 
-      return resolve({ comments: { id: id } });
+      return Promise.resolve({ comments: { id: id } });
     };
 
     adapter.findMany = function (store, type, ids, snapshots) {
       assert.ok(false, 'findMany should not be called - we expect 2 calls to find for a2000 and b2000');
-      return reject();
+      return Promise.reject();
     };
 
     post.comments;
@@ -2220,9 +2353,8 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       return new Array(n + 1).join(character);
     }
 
-    let a100 = repeatChar('a', 100);
-    let b100 = repeatChar('b', 100);
-    let post;
+    const a100 = repeatChar('a', 100);
+    const b100 = repeatChar('b', 100);
 
     store.push({
       data: {
@@ -2239,18 +2371,18 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       },
     });
 
-    post = store.peekRecord('post', 1);
+    const post = store.peekRecord('post', 1);
 
     adapter.coalesceFindRequests = true;
 
     adapter.findRecord = function (store, type, id, snapshot) {
       assert.ok(false, 'findRecord should not be called - we expect 1 call to findMany for a100 and b100');
-      return reject();
+      return Promise.reject();
     };
 
     adapter.findMany = function (store, type, ids, snapshots) {
       assert.deepEqual(ids, [a100, b100]);
-      return resolve({ comments: [{ id: a100 }, { id: b100 }] });
+      return Promise.resolve({ comments: [{ id: a100 }, { id: b100 }] });
     };
 
     await post.comments;
@@ -2270,7 +2402,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     assert.expect(2);
 
-    let data = {
+    const data = {
       post: {
         id: '1',
         name: 'Docker is amazing',
@@ -2303,9 +2435,9 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     this.owner.register('model:comment', Comment);
     assert.expect(4);
 
-    let responseText = 'Nope lol';
+    const responseText = 'Nope lol';
 
-    let expectedRequestData = {
+    const expectedRequestData = {
       method: 'GET',
       url: '/posts/1',
     };
@@ -2342,7 +2474,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     assert.expect(4);
 
-    let data = {
+    const data = {
       something: 'is invalid',
     };
 
@@ -2388,7 +2520,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     try {
       await store.findRecord('post', '1');
-    } catch (error) {
+    } catch {
       assert.ok(true, 'Unexpected error is captured by the promise chain');
     }
   });
@@ -2417,7 +2549,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
 
     try {
       await store.findRecord('post', '1');
-    } catch (error) {
+    } catch {
       assert.ok(true, 'Unexpected error is captured by the promise chain');
     }
   });
@@ -2446,7 +2578,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     } catch (err) {
       assert.ok(err instanceof AbortError, 'reason should be an instance of AbortError');
       assert.strictEqual(err.errors.length, 1, 'AbortError includes errors with request/response details');
-      let expectedError = {
+      const expectedError = {
         title: 'Adapter Error',
         detail: 'Request failed: GET /posts/1',
         status: 0,
@@ -2468,14 +2600,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     }
     this.owner.register('model:comment', Comment);
 
-    let jqXHR = {
+    const jqXHR = {
       responseText: 'Nope lol',
       getAllResponseHeaders() {
         return '';
       },
     };
 
-    let errorThrown = new Error('nope!');
+    const errorThrown = new Error('nope!');
 
     adapter.useFetch = false;
     adapter._ajaxRequest = function (hash) {
@@ -2510,14 +2642,14 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
     }
     this.owner.register('model:comment', Comment);
 
-    let jqXHR = {
+    const jqXHR = {
       responseText: '',
       getAllResponseHeaders() {
         return '';
       },
     };
 
-    let errorThrown = 'nope!';
+    const errorThrown = 'nope!';
 
     adapter.useFetch = false;
     adapter._ajaxRequest = function (hash) {
@@ -2675,7 +2807,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       ],
     });
 
-    let posts = await store.findAll('post');
+    const posts = await store.findAll('post');
     assert.strictEqual(get(posts, 'length'), 3);
     posts.forEach((post) => assert.ok(post instanceof Model));
   });
@@ -2710,10 +2842,10 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       ],
     });
 
-    let post = store.createRecord('post', { name: 'The Parley Letter' });
+    const post = store.createRecord('post', { name: 'The Parley Letter' });
     await post.save();
 
-    let comments = store.peekAll('comment');
+    const comments = store.peekAll('comment');
 
     assert.strictEqual(comments.length, 2, 'comments.length is correct');
     assert.strictEqual(comments[0].name, 'First comment', 'comments.at(0).name is correct');
@@ -2740,7 +2872,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
         return [201, { 'Content-Type': 'application/json' }, ''];
       });
 
-      let post = store.createRecord('post');
+      const post = store.createRecord('post');
       return post.save().then(
         () => {
           assert.strictEqual(true, false, 'should not have fulfilled');
@@ -2773,7 +2905,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
           return [201, { 'Content-Type': 'application/json' }, ''];
         });
 
-        let post = store.createRecord('post');
+        const post = store.createRecord('post');
         return post.save().then(
           () => {
             assert.equal(true, false, 'should not have fulfilled');
@@ -2805,7 +2937,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
         return [200, { 'Content-Type': 'application/json' }, ''];
       });
 
-      let post = store.push({ data: { id: '1', type: 'post' } });
+      const post = store.push({ data: { id: '1', type: 'post' } });
       await assert.expectWarning(async () => {
         return post.save().then(() => assert.ok(true, 'save fullfills correctly'));
       }, /JSON/);
@@ -2830,7 +2962,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       return [200, { 'Content-Type': 'application/json' }, ''];
     });
 
-    let post = store.push({ data: { id: '1', type: 'post' } });
+    const post = store.push({ data: { id: '1', type: 'post' } });
     return post.save().then(() => assert.ok(true, 'save fullfills correctly'));
   });
 
@@ -2852,7 +2984,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function (hooks) {
       return [200, { 'Content-Type': 'application/json' }, null];
     });
 
-    let post = store.push({ data: { id: '1', type: 'post' } });
+    const post = store.push({ data: { id: '1', type: 'post' } });
     return post.save().then(() => assert.ok(true, 'save fullfills correctly'));
   });
 });

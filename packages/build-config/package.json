@@ -1,0 +1,69 @@
+{
+  "name": "@warp-drive/build-config",
+  "version": "4.12.8",
+  "description": "Provides Build Configuration for projects using WarpDrive or EmberData",
+  "keywords": [
+    "ember-data",
+    "warp-drive"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "packages/build-config"
+  },
+  "license": "MIT",
+  "author": "Chris Thoburn <runspired@users.noreply.github.com>",
+  "scripts": {
+    "build:infra": "vite build; vite build -c ./vite.config-cjs.mjs;",
+    "prepack": "bun run build:infra"
+  },
+  "type": "module",
+  "files": [
+    "dist",
+    "unstable-preview-types",
+    "CHANGELOG.md",
+    "README.md",
+    "LICENSE.md",
+    "NCC-1701-a.svg",
+    "NCC-1701-a-blue.svg"
+  ],
+  "exports": {
+    ".": {
+      "types": "./unstable-preview-types/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./*.cjs": {
+      "default": "./dist/*.cjs"
+    },
+    "./*": {
+      "types": "./unstable-preview-types/*.d.ts",
+      "default": "./dist/*.js"
+    }
+  },
+  "dependencies": {
+    "@embroider/macros": "^1.16.6",
+    "@embroider/addon-shim": "^1.8.9",
+    "babel-import-util": "^2.1.1",
+    "broccoli-funnel": "^3.0.8",
+    "semver": "^7.6.3"
+  },
+  "devDependencies": {
+    "@warp-drive/internal-config": "workspace:*",
+    "@types/babel__core": "^7.20.5",
+    "@types/node": "^20.14.2",
+    "@babel/plugin-transform-typescript": "^7.24.5",
+    "@babel/preset-typescript": "^7.24.1",
+    "@babel/core": "^7.24.5",
+    "pnpm-sync-dependencies-meta-injected": "0.0.14",
+    "typescript": "^5.4.5",
+    "bun-types": "^1.1.30",
+    "vite": "^5.2.11"
+  },
+  "engines": {
+    "node": ">= 18.20.4"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  },
+  "packageManager": "pnpm@8.15.9"
+}

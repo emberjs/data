@@ -2,13 +2,16 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
+import type { CompatStore } from '@ember-data/legacy-compat';
 import { findRecord } from '@ember-data/legacy-compat/builders';
 import Model, { attr } from '@ember-data/model';
-import type Store from '@ember-data/store';
+import type { FindRecordOptions } from '@ember-data/store/types';
+import { Type } from '@warp-drive/core-types/symbols';
 
 type FindRecordBuilderOptions = Exclude<Parameters<typeof findRecord>[1], undefined>;
 
 class Post extends Model {
+  [Type] = 'post' as const;
   @attr declare name: string;
 }
 
@@ -38,8 +41,8 @@ module('Integration - legacy-compat/builders/findRecord', function (hooks) {
       }
     );
 
-    const store = this.owner.lookup('service:store') as Store;
-    const { content: post } = await store.request<Post>(findRecord('post', '1'));
+    const store = this.owner.lookup('service:store') as CompatStore;
+    const { content: post } = await store.request<Post>(findRecord<Post>('post', '1'));
 
     assert.strictEqual(post.id, '1', 'post has correct id');
     assert.strictEqual(post.name, 'Krystan rules, you drool', 'post has correct name');
@@ -47,7 +50,7 @@ module('Integration - legacy-compat/builders/findRecord', function (hooks) {
   });
 
   test('findRecord by type+id', function (assert) {
-    const result = findRecord('post', '1');
+    const result = findRecord<Post>('post', '1');
     assert.deepEqual(
       result,
       {
@@ -69,7 +72,7 @@ module('Integration - legacy-compat/builders/findRecord', function (hooks) {
       include: 'author,comments',
       adapterOptions: {},
     };
-    const result = findRecord('post', '1', options);
+    const result = findRecord<Post>('post', '1', options);
     assert.deepEqual(
       result,
       {
@@ -85,17 +88,18 @@ module('Integration - legacy-compat/builders/findRecord', function (hooks) {
   });
 
   test('findRecord by type+id with invalid options', async function (assert) {
-    const invalidOptions = {
+    // Type hacks to ensure we're notified if we add new FindRecordOptions that aren't valid FindRecordBuilderOptions
+    const invalidOptions: Omit<Required<FindRecordOptions>, keyof FindRecordBuilderOptions> = {
       preload: {},
     };
     await assert.expectAssertion(() => {
       // @ts-expect-error TS knows the options are invalid
-      findRecord('post', '1', invalidOptions);
-    }, 'Assertion Failed: findRecord builder does not support options.preload');
+      findRecord<Post>('post', '1', invalidOptions);
+    }, 'findRecord builder does not support options.preload');
   });
 
   test('findRecord by identifier', function (assert) {
-    const result = findRecord({ type: 'post', id: '1' });
+    const result = findRecord<Post>({ type: 'post', id: '1' });
     assert.deepEqual(
       result,
       {
@@ -117,7 +121,7 @@ module('Integration - legacy-compat/builders/findRecord', function (hooks) {
       include: 'author,comments',
       adapterOptions: {},
     };
-    const result = findRecord({ type: 'post', id: '1' }, options);
+    const result = findRecord<Post>({ type: 'post', id: '1' }, options);
     assert.deepEqual(
       result,
       {
@@ -134,12 +138,12 @@ module('Integration - legacy-compat/builders/findRecord', function (hooks) {
 
   test('findRecord by identifier with invalid options', async function (assert) {
     // Type hacks to ensure we're notified if we add new FindRecordOptions that aren't valid FindRecordBuilderOptions
-    const invalidOptions = {
+    const invalidOptions: Omit<Required<FindRecordOptions>, keyof FindRecordBuilderOptions> = {
       preload: {},
     };
     await assert.expectAssertion(() => {
       // @ts-expect-error TS knows the options are invalid
-      findRecord({ type: 'post', id: '1' }, invalidOptions);
-    }, 'Assertion Failed: findRecord builder does not support options.preload');
+      findRecord<Post>({ type: 'post', id: '1' }, invalidOptions);
+    }, 'findRecord builder does not support options.preload');
   });
 });

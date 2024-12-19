@@ -1,7 +1,6 @@
 import { get } from '@ember/object';
 
 import { module, test } from 'qunit';
-import { reject, resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -25,7 +24,7 @@ module('integration/reload - Reloading Records', function (hooks) {
       lastName;
     }
 
-    let { owner } = this;
+    const { owner } = this;
     owner.register('model:person', Person);
     owner.register(
       'serializer:application',
@@ -40,7 +39,7 @@ module('integration/reload - Reloading Records', function (hooks) {
 
   test("When a single record is requested, the adapter's find method should be called unless it's loaded.", async function (assert) {
     let count = 0;
-    let reloadOptions = {
+    const reloadOptions = {
       adapterOptions: {
         makeSnazzy: true,
       },
@@ -56,7 +55,7 @@ module('integration/reload - Reloading Records', function (hooks) {
         findRecord(store, type, id, snapshot) {
           if (count === 0) {
             count++;
-            return resolve({ data: { id: id, type: 'person', attributes: { name: 'Tom Dale' } } });
+            return Promise.resolve({ data: { id: id, type: 'person', attributes: { name: 'Tom Dale' } } });
           } else if (count === 1) {
             assert.strictEqual(
               snapshot.adapterOptions,
@@ -64,7 +63,7 @@ module('integration/reload - Reloading Records', function (hooks) {
               'We passed adapterOptions via reload'
             );
             count++;
-            return resolve({
+            return Promise.resolve({
               data: { id: id, type: 'person', attributes: { name: 'Braaaahm Dale' } },
             });
           } else {
@@ -74,12 +73,12 @@ module('integration/reload - Reloading Records', function (hooks) {
       })
     );
 
-    let person = await store.findRecord('person', '1');
+    const person = await store.findRecord('person', '1');
 
     assert.strictEqual(get(person, 'name'), 'Tom Dale', 'The person is loaded with the right name');
     assert.true(get(person, 'isLoaded'), 'The person is now loaded');
 
-    let promise = person.reload(reloadOptions);
+    const promise = person.reload(reloadOptions);
 
     assert.true(get(person, 'isReloading'), 'The person is now reloading');
 
@@ -93,7 +92,7 @@ module('integration/reload - Reloading Records', function (hooks) {
   });
 
   test('When a record is reloaded and fails, it can try again', async function (assert) {
-    let tom = store.push({
+    const tom = store.push({
       data: {
         type: 'person',
         id: '1',
@@ -114,9 +113,9 @@ module('integration/reload - Reloading Records', function (hooks) {
         findRecord() {
           assert.true(tom.isReloading, 'Tom is reloading');
           if (count++ === 0) {
-            return reject();
+            return Promise.reject();
           } else {
-            return resolve({
+            return Promise.resolve({
               data: { id: '1', type: 'person', attributes: { name: 'Thomas Dale' } },
             });
           }
@@ -134,7 +133,7 @@ module('integration/reload - Reloading Records', function (hooks) {
     assert.true(tom.isError, 'Tom is now errored');
     assert.false(tom.isReloading, 'Tom is no longer reloading');
 
-    let person = await tom.reload();
+    const person = await tom.reload();
 
     assert.strictEqual(person, tom, 'The resolved value is the record');
     assert.false(tom.isError, 'Tom is no longer errored');
@@ -165,7 +164,7 @@ module('integration/reload - Reloading Records', function (hooks) {
 
         findRecord(store, type, id, snapshot) {
           assert.ok(true, 'We should call findRecord');
-          return resolve(getTomDale());
+          return Promise.resolve(getTomDale());
         },
       })
     );
@@ -179,7 +178,7 @@ module('integration/reload - Reloading Records', function (hooks) {
 
     store.push(getTomDale());
 
-    let person = await store.findRecord('person', '1');
+    const person = await store.findRecord('person', '1');
 
     person.addObserver('isLoaded', isLoadedDidChange);
     assert.true(get(person, 'isLoaded'), 'The person is loaded');
@@ -208,7 +207,7 @@ module('integration/reload - Reloading Records', function (hooks) {
     this.owner.register('model:person', Person);
     this.owner.register('model:tag', Tag);
 
-    let tagsById = { 1: 'hipster', 2: 'hair' };
+    const tagsById = { 1: 'hipster', 2: 'hair' };
 
     this.owner.register(
       'adapter:application',
@@ -220,7 +219,7 @@ module('integration/reload - Reloading Records', function (hooks) {
         findRecord(store, type, id, snapshot) {
           switch (type.modelName) {
             case 'person':
-              return resolve({
+              return Promise.resolve({
                 data: {
                   id: '1',
                   type: 'person',
@@ -236,16 +235,15 @@ module('integration/reload - Reloading Records', function (hooks) {
                 },
               });
             case 'tag':
-              return resolve({ data: { id: id, type: 'tag', attributes: { name: tagsById[id] } } });
+              return Promise.resolve({ data: { id: id, type: 'tag', attributes: { name: tagsById[id] } } });
           }
         },
       })
     );
 
-    let tom;
     let person = await store.findRecord('person', '1');
 
-    tom = person;
+    const tom = person;
     assert.strictEqual(person.name, 'Tom', 'precond');
 
     let tags = await person.tags;
@@ -283,7 +281,7 @@ module('integration/reload - Reloading Records', function (hooks) {
         JSONAPIAdapter.extend({
           findRecord() {
             assert.ok('We called findRecord');
-            return resolve({
+            return Promise.resolve({
               data: {
                 type: 'person',
                 id: '1',
@@ -296,7 +294,7 @@ module('integration/reload - Reloading Records', function (hooks) {
         })
       );
 
-      let shen = store.push({
+      const shen = store.push({
         data: {
           type: 'pet',
           id: '1',
@@ -318,9 +316,9 @@ module('integration/reload - Reloading Records', function (hooks) {
         ],
       });
 
-      let ownerRef = shen.belongsTo('owner');
-      let owner = shen.owner;
-      let ownerViaRef = await ownerRef.reload();
+      const ownerRef = shen.belongsTo('owner');
+      const owner = shen.owner;
+      const ownerViaRef = await ownerRef.reload();
 
       assert.strictEqual(owner, ownerViaRef, 'We received the same reference via reload');
     });
@@ -340,7 +338,7 @@ module('integration/reload - Reloading Records', function (hooks) {
         JSONAPIAdapter.extend({
           findRecord() {
             assert.ok('We called findRecord');
-            return resolve({
+            return Promise.resolve({
               data: {
                 type: 'person',
                 id: '1',
@@ -353,7 +351,7 @@ module('integration/reload - Reloading Records', function (hooks) {
         })
       );
 
-      let shen = store.push({
+      const shen = store.push({
         data: {
           type: 'pet',
           id: '1',
@@ -366,9 +364,9 @@ module('integration/reload - Reloading Records', function (hooks) {
         },
       });
 
-      let ownerRef = shen.belongsTo('owner');
-      let ownerViaRef = await ownerRef.reload();
-      let owner = shen.owner;
+      const ownerRef = shen.belongsTo('owner');
+      const ownerViaRef = await ownerRef.reload();
+      const owner = shen.owner;
 
       assert.strictEqual(owner, ownerViaRef, 'We received the same reference via reload');
     });
@@ -388,7 +386,7 @@ module('integration/reload - Reloading Records', function (hooks) {
         JSONAPIAdapter.extend({
           findRecord() {
             assert.ok('We called findRecord');
-            return resolve({
+            return Promise.resolve({
               data: {
                 type: 'person',
                 id: '1',
@@ -401,7 +399,7 @@ module('integration/reload - Reloading Records', function (hooks) {
         })
       );
 
-      let shen = store.push({
+      const shen = store.push({
         data: {
           type: 'pet',
           id: '1',
@@ -423,9 +421,9 @@ module('integration/reload - Reloading Records', function (hooks) {
         ],
       });
 
-      let ownersRef = shen.hasMany('owners');
-      let owners = shen.owners;
-      let ownersViaRef = await ownersRef.reload();
+      const ownersRef = shen.hasMany('owners');
+      const owners = shen.owners;
+      const ownersViaRef = await ownersRef.reload();
 
       assert.strictEqual(owners.at(0), ownersViaRef.at(0), 'We received the same reference via reload');
     });
@@ -445,7 +443,7 @@ module('integration/reload - Reloading Records', function (hooks) {
         JSONAPIAdapter.extend({
           findRecord() {
             assert.ok('We called findRecord');
-            return resolve({
+            return Promise.resolve({
               data: {
                 type: 'person',
                 id: '1',
@@ -458,7 +456,7 @@ module('integration/reload - Reloading Records', function (hooks) {
         })
       );
 
-      let shen = store.push({
+      const shen = store.push({
         data: {
           type: 'pet',
           id: '1',
@@ -471,9 +469,9 @@ module('integration/reload - Reloading Records', function (hooks) {
         },
       });
 
-      let ownersRef = shen.hasMany('owners');
-      let ownersViaRef = await ownersRef.reload();
-      let owners = shen.owners;
+      const ownersRef = shen.hasMany('owners');
+      const ownersViaRef = await ownersRef.reload();
+      const owners = shen.owners;
 
       assert.strictEqual(owners.at(0), ownersViaRef.at(0), 'We received the same reference via reload');
     });
@@ -495,7 +493,7 @@ module('integration/reload - Reloading Records', function (hooks) {
         JSONAPIAdapter.extend({
           findBelongsTo() {
             assert.ok('We called findRecord');
-            return resolve({
+            return Promise.resolve({
               data: {
                 type: 'person',
                 id: '1',
@@ -508,7 +506,7 @@ module('integration/reload - Reloading Records', function (hooks) {
         })
       );
 
-      let shen = store.push({
+      const shen = store.push({
         data: {
           type: 'pet',
           id: '1',
@@ -533,9 +531,9 @@ module('integration/reload - Reloading Records', function (hooks) {
         ],
       });
 
-      let ownerRef = shen.belongsTo('owner');
-      let owner = shen.owner;
-      let ownerViaRef = await ownerRef.reload();
+      const ownerRef = shen.belongsTo('owner');
+      const owner = shen.owner;
+      const ownerViaRef = await ownerRef.reload();
 
       assert.strictEqual(owner, ownerViaRef, 'We received the same reference via reload');
     });
@@ -555,7 +553,7 @@ module('integration/reload - Reloading Records', function (hooks) {
         JSONAPIAdapter.extend({
           findBelongsTo() {
             assert.ok('We called findRecord');
-            return resolve({
+            return Promise.resolve({
               data: {
                 type: 'person',
                 id: '1',
@@ -568,7 +566,7 @@ module('integration/reload - Reloading Records', function (hooks) {
         })
       );
 
-      let shen = store.push({
+      const shen = store.push({
         data: {
           type: 'pet',
           id: '1',
@@ -584,9 +582,9 @@ module('integration/reload - Reloading Records', function (hooks) {
         },
       });
 
-      let ownerRef = shen.belongsTo('owner');
-      let ownerViaRef = await ownerRef.reload();
-      let owner = shen.owner;
+      const ownerRef = shen.belongsTo('owner');
+      const ownerViaRef = await ownerRef.reload();
+      const owner = shen.owner;
 
       assert.strictEqual(owner, ownerViaRef, 'We received the same reference via reload');
     });
@@ -606,7 +604,7 @@ module('integration/reload - Reloading Records', function (hooks) {
         JSONAPIAdapter.extend({
           findHasMany() {
             assert.ok('We called findRecord');
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   type: 'person',
@@ -621,7 +619,7 @@ module('integration/reload - Reloading Records', function (hooks) {
         })
       );
 
-      let shen = store.push({
+      const shen = store.push({
         data: {
           type: 'pet',
           id: '1',
@@ -646,9 +644,9 @@ module('integration/reload - Reloading Records', function (hooks) {
         ],
       });
 
-      let ownersRef = shen.hasMany('owners');
-      let owners = shen.owners;
-      let ownersViaRef = await ownersRef.reload();
+      const ownersRef = shen.hasMany('owners');
+      const owners = shen.owners;
+      const ownersViaRef = await ownersRef.reload();
 
       assert.strictEqual(owners.at(0), ownersViaRef.at(0), 'We received the same reference via reload');
     });
@@ -668,7 +666,7 @@ module('integration/reload - Reloading Records', function (hooks) {
         JSONAPIAdapter.extend({
           findHasMany() {
             assert.ok('We called findRecord');
-            return resolve({
+            return Promise.resolve({
               data: [
                 {
                   type: 'person',
@@ -683,7 +681,7 @@ module('integration/reload - Reloading Records', function (hooks) {
         })
       );
 
-      let shen = store.push({
+      const shen = store.push({
         data: {
           type: 'pet',
           id: '1',
@@ -699,9 +697,9 @@ module('integration/reload - Reloading Records', function (hooks) {
         },
       });
 
-      let ownersRef = shen.hasMany('owners');
-      let ownersViaRef = await ownersRef.reload();
-      let owners = shen.owners;
+      const ownersRef = shen.hasMany('owners');
+      const ownersViaRef = await ownersRef.reload();
+      const owners = shen.owners;
 
       assert.strictEqual(owners.at(0), ownersViaRef.at(0), 'We received the same reference via reload');
     });

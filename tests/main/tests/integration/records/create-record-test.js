@@ -1,7 +1,6 @@
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
-import { resolve } from 'rsvp';
 
 import { setupTest } from 'ember-qunit';
 
@@ -32,7 +31,7 @@ module('Store.createRecord() coverage', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    let { owner } = this;
+    const { owner } = this;
     owner.register('model:person', Person);
     owner.register('model:pet', Pet);
     store = owner.lookup('service:store');
@@ -58,7 +57,7 @@ module('Store.createRecord() coverage', function (hooks) {
   });
 
   test('unloading a newly created a record with a sync belongsTo relationship', async function (assert) {
-    let chris = store.push({
+    const chris = store.push({
       data: {
         id: '1',
         type: 'person',
@@ -73,7 +72,7 @@ module('Store.createRecord() coverage', function (hooks) {
       },
     });
 
-    let pet = store.createRecord('pet', {
+    const pet = store.createRecord('pet', {
       name: 'Shen',
       owner: chris,
     });
@@ -93,7 +92,7 @@ module('Store.createRecord() coverage', function (hooks) {
   });
 
   test('unloading a record with a sync hasMany relationship to a newly created record', async function (assert) {
-    let chris = store.push({
+    const chris = store.push({
       data: {
         id: '1',
         type: 'person',
@@ -108,7 +107,7 @@ module('Store.createRecord() coverage', function (hooks) {
       },
     });
 
-    let pet = store.createRecord('pet', {
+    const pet = store.createRecord('pet', {
       name: 'Shen',
       owner: chris,
     });
@@ -148,7 +147,7 @@ module('Store.createRecord() coverage', function (hooks) {
           assert.ok(false, 'Adapter should not make any findBelongsTo Requests');
         },
         createRecord() {
-          return resolve({
+          return Promise.resolve({
             data: {
               type: 'pet',
               id: '2',
@@ -165,7 +164,7 @@ module('Store.createRecord() coverage', function (hooks) {
       })
     );
 
-    let chris = store.push({
+    const chris = store.push({
       data: {
         id: '1',
         type: 'person',
@@ -181,7 +180,7 @@ module('Store.createRecord() coverage', function (hooks) {
       },
     });
 
-    let shen = store.createRecord('pet', {
+    const shen = store.createRecord('pet', {
       name: 'Shen',
       bestHuman: chris,
     });

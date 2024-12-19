@@ -1,0 +1,77 @@
+{
+  "include": ["src/**/*"],
+  "compilerOptions": {
+    "lib": ["DOM", "ESNext"],
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "strict": true,
+    "pretty": true,
+    "exactOptionalPropertyTypes": false,
+    "downlevelIteration": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "experimentalDecorators": true,
+    "allowJs": true,
+    "emitDeclarationOnly": true,
+    "noImplicitOverride": false,
+    // Enable faster builds
+    // but causes us to not rebuild properly
+    "composite": true,
+    "incremental": true,
+    "rootDir": "src",
+    "baseUrl": ".",
+    "declaration": true,
+    "declarationMap": true,
+    "declarationDir": "unstable-preview-types",
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "types": ["ember-source/types"],
+    "paths": {
+      "@ember-data/model": ["../model/unstable-preview-types"],
+      "@ember-data/model/*": ["../model/unstable-preview-types/*"],
+      "@ember-data/request": ["../request/unstable-preview-types"],
+      "@ember-data/request/*": ["../request/unstable-preview-types/*"],
+      "@ember-data/store": ["../store/unstable-preview-types"],
+      "@ember-data/store/*": ["../store/unstable-preview-types/*"],
+      "@ember-data/tracking": ["../tracking/unstable-preview-types"],
+      "@ember-data/tracking/*": ["../tracking/unstable-preview-types/*"],
+      "@ember-data/legacy-compat": ["../legacy-compat/unstable-preview-types"],
+      "@ember-data/legacy-compat/*": ["../legacy-compat/unstable-preview-types/*"],
+      "@warp-drive/build-config": ["../build-config/unstable-preview-types"],
+      "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"],
+      "@warp-drive/core-types": ["../core-types/unstable-preview-types"],
+      "@warp-drive/core-types/*": ["../core-types/unstable-preview-types/*"],
+      "@ember-data/request-utils": ["../request-utils/unstable-preview-types"],
+      "@ember-data/request-utils/*": ["../request-utils/unstable-preview-types/*"]
+    }
+  },
+  "references": [
+    {
+      "path": "../model"
+    },
+    {
+      "path": "../request"
+    },
+    {
+      "path": "../store"
+    },
+    {
+      "path": "../tracking"
+    },
+    {
+      "path": "../core-types"
+    },
+    {
+      "path": "../build-config"
+    },
+    {
+      "path": "../legacy-compat"
+    },
+    {
+      "path": "../request-utils"
+    }
+  ]
+}

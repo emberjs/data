@@ -1,25 +1,26 @@
 import ArrayMixin, { NativeArray } from '@ember/array';
 import type ArrayProxy from '@ember/array/proxy';
-import { assert, deprecate } from '@ember/debug';
-import { dependentKeyCompat } from '@ember/object/compat';
-import { tracked } from '@glimmer/tracking';
+import { deprecate } from '@ember/debug';
 import Ember from 'ember';
 
+import type { CreateRecordProperties } from '@ember-data/store/-private';
+import type { BaseFinderOptions } from '@ember-data/store/types';
+import { compat } from '@ember-data/tracking';
+import { defineSignal } from '@ember-data/tracking/-private';
 import {
   DEPRECATE_A_USAGE,
   DEPRECATE_COMPUTED_CHAINS,
   DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS,
-} from '@ember-data/deprecations';
-import { DEBUG } from '@ember-data/env';
-import { StableRecordIdentifier } from '@ember-data/types/q/identifier';
-import type { RecordInstance } from '@ember-data/types/q/record-instance';
-import { FindOptions } from '@ember-data/types/q/store';
+} from '@warp-drive/build-config/deprecations';
+import { DEBUG } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
 
-import type ManyArray from './many-array';
+import type { RelatedCollection as ManyArray } from './many-array';
+import { LegacyPromiseProxy } from './promise-belongs-to';
 
-export interface HasManyProxyCreateArgs {
-  promise: Promise<ManyArray>;
-  content?: ManyArray;
+export interface HasManyProxyCreateArgs<T = unknown> {
+  promise: Promise<ManyArray<T>>;
+  content?: ManyArray<T>;
 }
 
 /**
@@ -41,31 +42,31 @@ export interface HasManyProxyCreateArgs {
   @class PromiseManyArray
   @public
 */
-export default interface PromiseManyArray extends Omit<ArrayProxy<StableRecordIdentifier, RecordInstance>, 'destroy'> {
-  createRecord(): RecordInstance;
-  reload(options: FindOptions): PromiseManyArray;
+export interface PromiseManyArray<T = unknown> extends Omit<ArrayProxy<T>, 'destroy' | 'forEach'> {
+  createRecord(hash: CreateRecordProperties<T>): T;
+  reload(options: Omit<BaseFinderOptions, ''>): PromiseManyArray;
 }
-export default class PromiseManyArray {
-  declare promise: Promise<ManyArray> | null;
+export class PromiseManyArray<T = unknown> {
+  declare promise: Promise<ManyArray<T>> | null;
   declare isDestroyed: boolean;
   // @deprecated (isDestroyed is not deprecated)
   declare isDestroying: boolean;
+  declare content: ManyArray<T> | null;
 
-  constructor(promise: Promise<ManyArray>, content?: ManyArray) {
+  constructor(promise: Promise<ManyArray<T>>, content?: ManyArray<T>) {
     this._update(promise, content);
     this.isDestroyed = false;
     this.isDestroying = false;
 
     if (DEPRECATE_A_USAGE) {
       const meta = Ember.meta(this);
-      meta.hasMixin = (mixin: Object) => {
+      meta.hasMixin = (mixin: object) => {
         deprecate(`Do not use A() on an EmberData PromiseManyArray`, false, {
           id: 'ember-data:no-a-with-array-like',
           until: '5.0',
           since: { enabled: '4.7', available: '4.7' },
           for: 'ember-data',
         });
-        // @ts-expect-error ArrayMixin is more than a type
         if (mixin === NativeArray || mixin === ArrayMixin) {
           return true;
         }
@@ -73,7 +74,7 @@ export default class PromiseManyArray {
       };
     } else if (DEBUG) {
       const meta = Ember.meta(this);
-      meta.hasMixin = (mixin: Object) => {
+      meta.hasMixin = (mixin: object) => {
         assert(`Do not use A() on an EmberData PromiseManyArray`);
       };
     }
@@ -81,32 +82,20 @@ export default class PromiseManyArray {
 
   //---- Methods/Properties on ArrayProxy that we will keep as our API
 
-  @tracked content: any | null = null;
-
   /**
    * Retrieve the length of the content
    * @property length
    * @public
    */
-  @dependentKeyCompat
+  @compat
   get length(): number {
     // shouldn't be needed, but ends up being needed
     // for computed chains even in 4.x
     if (DEPRECATE_COMPUTED_CHAINS) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       this['[]'];
     }
     return this.content ? this.content.length : 0;
-  }
-
-  // ember-source < 3.23 (e.g. 3.20 lts)
-  // requires that the tag `'[]'` be notified
-  // on the ArrayProxy in order for `{{#each}}`
-  // to recompute. We entangle the '[]' tag from
-  @dependentKeyCompat
-  get '[]'() {
-    if (DEPRECATE_COMPUTED_CHAINS) {
-      return this.content?.length && this.content;
-    }
   }
 
   /**
@@ -119,7 +108,7 @@ export default class PromiseManyArray {
    * @returns
    * @private
    */
-  forEach(cb) {
+  forEach(cb: (item: T, index: number, array: T[]) => void) {
     if (this.content && this.length) {
       this.content.forEach(cb);
     }
@@ -132,9 +121,9 @@ export default class PromiseManyArray {
    * @param options
    * @returns
    */
-  reload(options: FindOptions) {
+  reload(options: Omit<BaseFinderOptions, ''>) {
     assert('You are trying to reload an async manyArray before it has been created', this.content);
-    this.content.reload(options);
+    void this.content.reload(options);
     return this;
   }
 
@@ -146,28 +135,28 @@ export default class PromiseManyArray {
    * @property {boolean} isPending
    * @public
    */
-  @tracked isPending: boolean = false;
+  declare isPending: boolean;
   /**
    * Whether the loading promise rejected
    *
    * @property {boolean} isRejected
    * @public
    */
-  @tracked isRejected: boolean = false;
+  declare isRejected: boolean;
   /**
    * Whether the loading promise succeeded
    *
    * @property {boolean} isFulfilled
    * @public
    */
-  @tracked isFulfilled: boolean = false;
+  declare isFulfilled: boolean;
   /**
    * Whether the loading promise completed (resolved or rejected)
    *
    * @property {boolean} isSettled
    * @public
    */
-  @tracked isSettled: boolean = false;
+  declare isSettled: boolean;
 
   /**
    * chain this promise
@@ -178,7 +167,7 @@ export default class PromiseManyArray {
    * @param fail
    * @returns Promise
    */
-  then(s, f) {
+  then(s: Parameters<Promise<ManyArray<T>>['then']>[0], f?: Parameters<Promise<ManyArray<T>>['then']>[1]) {
     return this.promise!.then(s, f);
   }
 
@@ -189,7 +178,7 @@ export default class PromiseManyArray {
    * @param callback
    * @returns Promise
    */
-  catch(cb) {
+  catch(cb: Parameters<Promise<ManyArray<T>>['catch']>[0]) {
     return this.promise!.catch(cb);
   }
 
@@ -201,7 +190,7 @@ export default class PromiseManyArray {
    * @param callback
    * @returns Promise
    */
-  finally(cb) {
+  finally(cb: Parameters<Promise<ManyArray<T>>['finally']>[0]) {
     return this.promise!.finally(cb);
   }
 
@@ -221,7 +210,7 @@ export default class PromiseManyArray {
    * @property links
    * @public
    */
-  @dependentKeyCompat
+  @compat
   get links() {
     return this.content ? this.content.links : undefined;
   }
@@ -231,14 +220,14 @@ export default class PromiseManyArray {
    * @property meta
    * @public
    */
-  @dependentKeyCompat
+  @compat
   get meta() {
     return this.content ? this.content.meta : undefined;
   }
 
   //---- Our own stuff
 
-  _update(promise: Promise<ManyArray>, content?: ManyArray) {
+  _update(promise: Promise<ManyArray<T>>, content?: ManyArray<T>) {
     if (content !== undefined) {
       this.content = content;
     }
@@ -246,13 +235,45 @@ export default class PromiseManyArray {
     this.promise = tapPromise(this, promise);
   }
 
-  static create({ promise, content }: HasManyProxyCreateArgs): PromiseManyArray {
+  static create<T>({ promise, content }: HasManyProxyCreateArgs<T>): PromiseManyArray<T> {
     return new this(promise, content);
   }
+
+  [LegacyPromiseProxy] = true as const;
+}
+defineSignal(PromiseManyArray.prototype, 'content', null);
+defineSignal(PromiseManyArray.prototype, 'isPending', false);
+defineSignal(PromiseManyArray.prototype, 'isRejected', false);
+defineSignal(PromiseManyArray.prototype, 'isFulfilled', false);
+defineSignal(PromiseManyArray.prototype, 'isSettled', false);
+
+// this will error if someone tries to call
+// A(identifierArray) since it is not configurable
+// which is preferrable to the `meta` override we used
+// before which required importing all of Ember
+if (DEPRECATE_COMPUTED_CHAINS) {
+  const desc = {
+    enumerable: true,
+    configurable: false,
+    get: function (this: PromiseManyArray) {
+      return this.content?.length && this.content;
+    },
+  };
+  compat(PromiseManyArray.prototype, '[]', desc);
+
+  // ember-source < 3.23 (e.g. 3.20 lts)
+  // requires that the tag `'[]'` be notified
+  // on the ArrayProxy in order for `{{#each}}`
+  // to recompute. We entangle the '[]' tag from content
+
+  Object.defineProperty(PromiseManyArray.prototype, '[]', desc);
 }
 
 if (DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS) {
-  PromiseManyArray.prototype.createRecord = function createRecord(...args) {
+  PromiseManyArray.prototype.createRecord = function createRecord<R>(
+    this: PromiseManyArray<R>,
+    hash: CreateRecordProperties<R>
+  ) {
     deprecate(
       `The createRecord method on ember-data's PromiseManyArray is deprecated. await the promise and work with the ManyArray directly.`,
       false,
@@ -264,7 +285,7 @@ if (DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS) {
       }
     );
     assert('You are trying to createRecord on an async manyArray before it has been created', this.content);
-    return this.content.createRecord(...args);
+    return this.content.createRecord(hash);
   };
 
   Object.defineProperty(PromiseManyArray.prototype, 'firstObject', {
@@ -279,6 +300,8 @@ if (DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS) {
           for: 'ember-data',
         }
       );
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
       return this.content ? this.content.firstObject : undefined;
     },
   });
@@ -295,12 +318,14 @@ if (DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS) {
           for: 'ember-data',
         }
       );
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
       return this.content ? this.content.lastObject : undefined;
     },
   });
 }
 
-function tapPromise(proxy: PromiseManyArray, promise: Promise<ManyArray>) {
+function tapPromise<T>(proxy: PromiseManyArray<T>, promise: Promise<ManyArray<T>>) {
   proxy.isPending = true;
   proxy.isSettled = false;
   proxy.isFulfilled = false;
@@ -349,6 +374,8 @@ if (DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS) {
           for: 'ember-data',
         }
       );
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
       return Ember[method](this, ...args);
     };
   });
@@ -417,6 +444,7 @@ if (DEPRECATE_PROMISE_MANY_ARRAY_BEHAVIORS) {
         }
       );
       assert(`Cannot call ${method} before content is assigned.`, this.content);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
       return this.content[method](...args);
     };
   });

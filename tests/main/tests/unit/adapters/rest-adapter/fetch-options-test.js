@@ -21,7 +21,7 @@ module('unit/adapters/rest-adapter/fetch-options', function (hooks) {
       data: dataAsObject,
     };
 
-    let options = fetchOptions(undefinedQueryStringOptions);
+    const options = fetchOptions(undefinedQueryStringOptions);
     assert.deepEqual(options.body, '{"a":1,"c":3,"d":null,"e":0,"f":false}');
   });
 
@@ -60,7 +60,7 @@ module('unit/adapters/rest-adapter/fetch-options', function (hooks) {
       data: stringifiedData,
     };
 
-    let options = fetchOptions(optionsWithStringData);
+    const options = fetchOptions(optionsWithStringData);
     assert.strictEqual(options.body, stringifiedData);
   });
 
@@ -140,7 +140,7 @@ module('unit/adapters/rest-adapter/fetch-options', function (hooks) {
   test("fetchOptions sets the request body correctly when 'data' is a String", function (assert) {
     assert.expect(1);
 
-    let stringBody = JSON.stringify({ a: 1, b: 2, c: 3 });
+    const stringBody = JSON.stringify({ a: 1, b: 2, c: 3 });
     const postData = {
       url: 'https://emberjs.com',
       method: 'POST',
@@ -167,7 +167,7 @@ module('unit/adapters/rest-adapter/fetch-options', function (hooks) {
   test("fetchOptions sets credentials when 'credentials' is not empty", function (assert) {
     assert.expect(1);
 
-    let credentials = 'include';
+    const credentials = 'include';
     const postData = {
       url: 'https://emberjs.com',
       method: 'POST',
