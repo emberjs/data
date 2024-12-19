@@ -118,11 +118,11 @@
     "broccoli-string-replace": "^0.1.2",
     "broccoli-test-helper": "^2.0.0",
     "broccoli-uglify-sourcemap": "^4.0.0",
-    "ember-auto-import": "^2.8.1",
+    "ember-auto-import": "^2.10.0",
     "ember-cached-decorator-polyfill": "^1.0.2",
     "ember-cli": "~5.12.0",
     "ember-cli-babel": "^8.2.0",
-    "ember-cli-dependency-checker": "^3.3.2",
+    "ember-cli-dependency-checker": "^3.3.3",
     "ember-cli-htmlbars": "^6.3.0",
     "ember-cli-inject-live-reload": "^2.1.0",
     "ember-cli-terser": "~4.0.2",
@@ -146,7 +146,7 @@
     "qunit": "^2.20.1",
     "qunit-dom": "^3.1.1",
     "typescript": "^5.4.5",
-    "webpack": "^5.92.0"
+    "webpack": "^5.97.1"
   },
   "engines": {
     "node": ">= 18.20.4"
