@@ -1303,7 +1303,7 @@ export default class JSONAPICache implements Cache {
    * @method hasChangedAttrs
    * @public
    * @param identifier
-   * @returns {boolean}
+   * @return {boolean}
    */
   hasChangedAttrs(identifier: StableRecordIdentifier): boolean {
     const cached = this.__peek(identifier, true);

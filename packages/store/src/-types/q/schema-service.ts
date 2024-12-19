@@ -137,7 +137,7 @@ export interface SchemaService {
    * @method transformation
    * @public
    * @param {TransformableField|{ type: string }} field
-   * @returns {Transformation}
+   * @return {Transformation}
    */
   transformation(field: GenericField | ObjectField | ArrayField | { type: string }): Transformation;
 
@@ -148,7 +148,7 @@ export interface SchemaService {
    * @method hashFn
    * @public
    * @param {HashField|{ type: string }} field
-   * @returns {HashFn}
+   * @return {HashFn}
    */
   hashFn(field: HashField | { type: string }): HashFn;
 
@@ -159,7 +159,7 @@ export interface SchemaService {
    * @method derivation
    * @public
    * @param {DerivedField|{ type: string }} field
-   * @returns {Derivation}
+   * @return {Derivation}
    */
   derivation(field: DerivedField | { type: string }): Derivation;
 

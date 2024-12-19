@@ -41,7 +41,7 @@ export function rules(config = {}) {
   );
 }
 
-/** @returns {import('eslint').Linter.FlatConfig} */
+/** @return {import('eslint').Linter.FlatConfig} */
 export function browser(config = {}) {
   config.files = Array.isArray(config.files) ? config.files : ['**/*.{js,gjs}'];
   const base = ts.browser(config);

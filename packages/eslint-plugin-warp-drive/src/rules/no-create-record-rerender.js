@@ -144,7 +144,7 @@ function getParentFunction(/** @type {import('eslint').Rule.Node} */ node) {
 /**
  *
  * @param {import('eslint').Rule.Node} maybeParentFunction
- * @returns {boolean}
+ * @return {boolean}
  */
 function parentFunctionIsConstructor(maybeParentFunction) {
   return 'kind' in maybeParentFunction.parent && maybeParentFunction.parent.kind === 'constructor';
@@ -153,7 +153,7 @@ function parentFunctionIsConstructor(maybeParentFunction) {
 /**
  *
  * @param {import('eslint').Rule.Node} maybeParentFunction
- * @returns {boolean}
+ * @return {boolean}
  */
 function parentFunctionIsInit(maybeParentFunction) {
   return (

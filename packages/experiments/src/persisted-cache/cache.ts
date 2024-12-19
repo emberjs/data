@@ -52,7 +52,7 @@ export class PersistedCache implements Cache {
    *
    * @method put
    * @param {StructuredDocument} doc
-   * @returns {ResourceDocument}
+   * @return {ResourceDocument}
    * @internal
    */
   put<T>(doc: StructuredDocument<T> | { content: T }): ResourceDocument {
@@ -96,7 +96,7 @@ export class PersistedCache implements Cache {
    * @method patch
    * @internal
    * @param op the operation to perform
-   * @returns {void}
+   * @return {void}
    */
   patch(op: Operation): void {
     this._cache.patch(op);
@@ -144,7 +144,7 @@ export class PersistedCache implements Cache {
    * @method peek
    * @internal
    * @param {StableRecordIdentifier | StableDocumentIdentifier} identifier
-   * @returns {ResourceDocument | ResourceBlob | null} the known resource data
+   * @return {ResourceDocument | ResourceBlob | null} the known resource data
    */
   peek<T = unknown>(identifier: StableRecordIdentifier<TypeFromInstanceOrString<T>>): T | null;
   peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
@@ -158,7 +158,7 @@ export class PersistedCache implements Cache {
    *
    * @method peekRequest
    * @param {StableDocumentIdentifier}
-   * @returns {StableDocumentIdentifier | null}
+   * @return {StableDocumentIdentifier | null}
    * @internal
    */
   peekRequest(identifier: StableDocumentIdentifier): StructuredDocument<ResourceDocument> | null {
@@ -173,7 +173,7 @@ export class PersistedCache implements Cache {
    * @param identifier
    * @param data
    * @param hasRecord
-   * @returns {void | string[]} if `hasRecord` is true then calculated key changes should be returned
+   * @return {void | string[]} if `hasRecord` is true then calculated key changes should be returned
    */
   upsert(identifier: StableRecordIdentifier, data: ResourceBlob, hasRecord: boolean): void | string[] {
     return this._cache.upsert(identifier, data, hasRecord);
@@ -191,7 +191,7 @@ export class PersistedCache implements Cache {
    *
    * @method fork
    * @internal
-   * @returns Promise<Cache>
+   * @return Promise<Cache>
    */
   fork(): Promise<Cache> {
     return this._cache.fork();
@@ -207,7 +207,7 @@ export class PersistedCache implements Cache {
    * @method merge
    * @param {Cache} cache
    * @internal
-   * @returns Promise<void>
+   * @return Promise<void>
    */
   merge(cache: Cache): Promise<void> {
     return this._cache.merge(cache);
@@ -259,7 +259,7 @@ export class PersistedCache implements Cache {
    * via `cache.hydrate`.
    *
    * @method dump
-   * @returns {Promise<ReadableStream>}
+   * @return {Promise<ReadableStream>}
    * @internal
    */
   dump(): Promise<ReadableStream<unknown>> {
@@ -280,7 +280,7 @@ export class PersistedCache implements Cache {
    *
    * @method hydrate
    * @param {ReadableStream} stream
-   * @returns {Promise<void>}
+   * @return {Promise<void>}
    * @internal
    */
   hydrate(stream: ReadableStream<unknown>): Promise<void> {
@@ -368,7 +368,7 @@ export class PersistedCache implements Cache {
    * @internal
    * @param identifier
    * @param propertyName
-   * @returns {unknown}
+   * @return {unknown}
    */
   getAttr(identifier: StableRecordIdentifier, field: string): Value | undefined {
     return this._cache.getAttr(identifier, field);
@@ -405,7 +405,7 @@ export class PersistedCache implements Cache {
    * @method hasChangedAttrs
    * @internal
    * @param identifier
-   * @returns {boolean}
+   * @return {boolean}
    */
   hasChangedAttrs(identifier: StableRecordIdentifier): boolean {
     return this._cache.hasChangedAttrs(identifier);
@@ -417,7 +417,7 @@ export class PersistedCache implements Cache {
    * @method rollbackAttrs
    * @internal
    * @param identifier
-   * @returns the names of attributes that were restored
+   * @return the names of attributes that were restored
    */
   rollbackAttrs(identifier: StableRecordIdentifier): string[] {
     return this._cache.rollbackAttrs(identifier);
@@ -492,7 +492,7 @@ export class PersistedCache implements Cache {
    * @internal
    * @param identifier
    * @param propertyName
-   * @returns resource relationship object
+   * @return resource relationship object
    */
   getRelationship(
     identifier: StableRecordIdentifier,
@@ -536,7 +536,7 @@ export class PersistedCache implements Cache {
    * @method isEmpty
    * @internal
    * @param identifier
-   * @returns {boolean}
+   * @return {boolean}
    */
   isEmpty(identifier: StableRecordIdentifier): boolean {
     return this._cache.isEmpty(identifier);
@@ -549,7 +549,7 @@ export class PersistedCache implements Cache {
    * @method isNew
    * @internal
    * @param identifier
-   * @returns {boolean}
+   * @return {boolean}
    */
   isNew(identifier: StableRecordIdentifier): boolean {
     return this._cache.isNew(identifier);
@@ -562,7 +562,7 @@ export class PersistedCache implements Cache {
    * @method isDeleted
    * @internal
    * @param identifier
-   * @returns {boolean}
+   * @return {boolean}
    */
   isDeleted(identifier: StableRecordIdentifier): boolean {
     return this._cache.isDeleted(identifier);
@@ -575,7 +575,7 @@ export class PersistedCache implements Cache {
    * @method isDeletionCommitted
    * @internal
    * @param identifier
-   * @returns {boolean}
+   * @return {boolean}
    */
   isDeletionCommitted(identifier: StableRecordIdentifier): boolean {
     return this._cache.isDeletionCommitted(identifier);

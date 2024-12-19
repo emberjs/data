@@ -6,7 +6,7 @@ import globals from 'globals';
 import noop from 'ember-eslint-parser/noop';
 import emberEslintParser from 'ember-eslint-parser';
 
-/** @returns {import('eslint').Linter.FlatConfig} */
+/** @return {import('eslint').Linter.FlatConfig} */
 function mergeTsConfigs(configArray) {
   const merged = {
     languageOptions: {},
@@ -122,7 +122,7 @@ export function constructFileGlobs(srcDirs, files) {
   return globs;
 }
 
-/** @returns {import('eslint').Linter.FlatConfig} */
+/** @return {import('eslint').Linter.FlatConfig} */
 export function browser(config) {
   config.files = config.files ?? ['**/*.ts'];
   /** @type {string[]} */
@@ -170,7 +170,7 @@ export function browser(config) {
   return lintconfig;
 }
 
-/** @returns {import('eslint').Linter.FlatConfig} */
+/** @return {import('eslint').Linter.FlatConfig} */
 export function node(config) {
   config.files = config.files ?? ['**/*.ts'];
   /** @type {string[]} */

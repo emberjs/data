@@ -24,7 +24,7 @@ export function plugins() {
   return { qunit: lintQUnit };
 }
 
-/** @returns {import('eslint').Linter.FlatConfig} */
+/** @return {import('eslint').Linter.FlatConfig} */
 export function ember(config = {}) {
   config.allowedImports = Array.isArray(config.allowedImports)
     ? config.allowedImports.concat(QUNIT_IMPORTS)
@@ -41,7 +41,7 @@ export function ember(config = {}) {
   };
 }
 
-/** @returns {import('eslint').Linter.FlatConfig} */
+/** @return {import('eslint').Linter.FlatConfig} */
 export function node(config = {}) {
   config.allowedImports = Array.isArray(config.allowedImports) ? config.allowedImports.concat(['qunit']) : ['qunit'];
 
