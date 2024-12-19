@@ -1,6 +1,11 @@
 /**
   @module @ember-data/store
 */
+import { deprecate } from '@ember/debug';
+import { get, set } from '@ember/object';
+import { compare } from '@ember/utils';
+import Ember from 'ember';
+
 import { compat } from '@ember-data/tracking';
 import type { Signal } from '@ember-data/tracking/-private';
 import {
@@ -10,6 +15,14 @@ import {
   defineSignal,
   subscribe,
 } from '@ember-data/tracking/-private';
+import {
+  DEPRECATE_A_USAGE,
+  DEPRECATE_ARRAY_LIKE,
+  DEPRECATE_COMPUTED_CHAINS,
+  DEPRECATE_PROMISE_PROXIES,
+  DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS,
+} from '@warp-drive/build-config/deprecations';
+import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
@@ -21,6 +34,7 @@ import type { OpaqueRecordInstance } from '../../-types/q/record-instance';
 import { isStableIdentifier } from '../caches/identifier-cache';
 import { recordIdentifierFor } from '../caches/instance-cache';
 import type { RecordArrayManager } from '../managers/record-array-manager';
+import { promiseArray } from '../proxies/promise-proxies';
 import type { Store } from '../store-service';
 import { NativeProxy } from './native-proxy-type-fix';
 
@@ -92,6 +106,19 @@ export type IdentifierArrayCreateOptions<T = unknown> = {
   links?: Links | PaginationLinks | null;
   meta?: Record<string, unknown> | null;
 };
+
+function deprecateArrayLike(className: string, fnName: string, replName: string) {
+  deprecate(
+    `The \`${fnName}\` method on the class ${className} is deprecated. Use the native array method \`${replName}\` instead.`,
+    false,
+    {
+      id: 'ember-data:deprecate-array-like',
+      until: '5.0',
+      since: { enabled: '4.7', available: '4.7' },
+      for: 'ember-data',
+    }
+  );
+}
 
 interface PrivateState {
   links: Links | PaginationLinks | null;
@@ -182,6 +209,16 @@ export class IdentifierArray<T = unknown> {
   declare links: Links | PaginationLinks | null;
   declare meta: Record<string, unknown> | null;
   declare modelName?: TypeFromInstanceOrString<T>;
+
+  /**
+   The modelClass represented by this record array.
+
+   @property type
+    @public
+    @deprecated
+   @type {subclass of Model}
+   */
+  declare type: unknown;
   /**
     The store that created this record array.
 
@@ -299,6 +336,7 @@ export class IdentifierArray<T = unknown> {
               }
               const args: unknown[] = Array.prototype.slice.call(arguments);
               assert(`Cannot start a new array transaction while a previous transaction is underway`, !transaction);
+
               transaction = true;
               const result = self[MUTATE]!(target, receiver, prop as string, args, _SIGNAL);
               transaction = false;
@@ -312,6 +350,18 @@ export class IdentifierArray<T = unknown> {
         }
 
         if (isSelfProp(self, prop)) {
+          if (DEPRECATE_ARRAY_LIKE) {
+            if (prop === 'firstObject') {
+              deprecateArrayLike(self.DEPRECATED_CLASS_NAME, prop as string, '[0]');
+              // @ts-expect-error adding MutableArray method calling index signature
+              return receiver[0];
+            } else if (prop === 'lastObject') {
+              deprecateArrayLike(self.DEPRECATED_CLASS_NAME, prop as string, 'at(-1)');
+              // @ts-expect-error adding MutableArray method calling index signature
+              return receiver[receiver.length - 1];
+            }
+          }
+
           if (prop === NOTIFY || prop === ARRAY_SIGNAL || prop === SOURCE) {
             return self[prop];
           }
@@ -396,6 +446,7 @@ export class IdentifierArray<T = unknown> {
 
         const original: StableRecordIdentifier | undefined = target[index];
         const newIdentifier = extractIdentifierFromRecord(value);
+        // FIXME this line was added on main and I'm not sure why
         (target as unknown as Record<KeyType, unknown>)[index] = newIdentifier;
         assert(`Expected a record`, isStableIdentifier(newIdentifier));
         // We generate "transactions" whenever a setter method on the array
@@ -435,6 +486,28 @@ export class IdentifierArray<T = unknown> {
         return IdentifierArray.prototype;
       },
     }) as IdentifierArray<T>;
+
+    if (DEPRECATE_A_USAGE) {
+      const meta = Ember.meta(this);
+      meta.hasMixin = (mixin: object) => {
+        deprecate(`Do not call A() on EmberData RecordArrays`, false, {
+          id: 'ember-data:no-a-with-array-like',
+          until: '5.0',
+          since: { enabled: '4.7', available: '4.7' },
+          for: 'ember-data',
+        });
+        // @ts-expect-error ArrayMixin is more than a type
+        if (mixin === NativeArray || mixin === ArrayMixin) {
+          return true;
+        }
+        return false;
+      };
+    } else if (DEBUG) {
+      const meta = Ember.meta(this);
+      meta.hasMixin = (mixin: object) => {
+        assert(`Do not call A() on EmberData RecordArrays`);
+      };
+    }
 
     createArrayTags(proxy, _SIGNAL);
 
@@ -485,7 +558,7 @@ export class IdentifierArray<T = unknown> {
   }
 
   /*
-    Update this Array and return a promise which resolves once the update
+    Update this RecordArray and return a promise which resolves once the update
     is finished.
    */
   _update(): Promise<IdentifierArray<T>> {
@@ -515,8 +588,13 @@ export class IdentifierArray<T = unknown> {
     @public
     @return {Promise<IdentifierArray>} promise
   */
-  save(): Promise<IdentifierArray> {
+  save(): Promise<IdentifierArray<T>> {
     const promise = Promise.all(this.map((record) => this.store.saveRecord(record))).then(() => this);
+
+    if (DEPRECATE_PROMISE_PROXIES) {
+      // @ts-expect-error IdentifierArray is not a MutableArray
+      return promiseArray<T, IdentifierArray<T>>(promise);
+    }
 
     return promise;
   }
@@ -530,13 +608,42 @@ const desc = {
   enumerable: true,
   configurable: false,
   get: function () {
-    return this;
+    // here to support computed chains
+    // and {{#each}}
+    if (DEPRECATE_COMPUTED_CHAINS) {
+      return this;
+    }
   },
 };
 compat(desc);
 Object.defineProperty(IdentifierArray.prototype, '[]', desc);
 
 defineSignal(IdentifierArray.prototype, 'isUpdating', false);
+
+export default IdentifierArray;
+
+if (DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS) {
+  Object.defineProperty(IdentifierArray.prototype, 'type', {
+    get() {
+      deprecate(
+        `Using RecordArray.type to access the ModelClass for a record is deprecated. Use store.modelFor(<modelName>) instead.`,
+        false,
+        {
+          id: 'ember-data:deprecate-snapshot-model-class-access',
+          until: '5.0',
+          for: 'ember-data',
+          since: { available: '4.5.0', enabled: '4.5.0' },
+        }
+      );
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      if (!this.modelName) {
+        return null;
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+      return this.store.modelFor(this.modelName);
+    },
+  });
+}
 
 export type CollectionCreateOptions = IdentifierArrayCreateOptions & {
   manager: RecordArrayManager;
@@ -566,6 +673,11 @@ export class Collection<T = unknown> extends IdentifierArray<T> {
     // both being valid options to pass through here.
     const promise = store.query<T>(this.modelName, query as Record<string, unknown>, { _recordArray: this });
 
+    if (DEPRECATE_PROMISE_PROXIES) {
+      // @ts-expect-error Collection is not a MutableArray
+      return promiseArray(promise);
+    }
+
     return promise;
   }
 
@@ -579,7 +691,415 @@ export class Collection<T = unknown> extends IdentifierArray<T> {
 Collection.prototype.query = null;
 
 // Ensure instanceof works correctly
-// Object.setPrototypeOf(IdentifierArray.prototype, Array.prototype);
+//Object.setPrototypeOf(IdentifierArray.prototype, Array.prototype);
+
+if (DEPRECATE_ARRAY_LIKE) {
+  IdentifierArray.prototype.DEPRECATED_CLASS_NAME = 'RecordArray';
+  Collection.prototype.DEPRECATED_CLASS_NAME = 'RecordArray';
+  const EmberObjectMethods = [
+    'addObserver',
+    'cacheFor',
+    'decrementProperty',
+    'get',
+    'getProperties',
+    'incrementProperty',
+    'notifyPropertyChange',
+    'removeObserver',
+    'set',
+    'setProperties',
+    'toggleProperty',
+  ] as const;
+  EmberObjectMethods.forEach((method) => {
+    // @ts-expect-error adding MutableArray method
+    IdentifierArray.prototype[method] = function delegatedMethod(...args: unknown[]): unknown {
+      deprecate(
+        `The EmberObject ${method} method on the class ${this.DEPRECATED_CLASS_NAME} is deprecated. Use dot-notation javascript get/set access instead.`,
+        false,
+        {
+          id: 'ember-data:deprecate-array-like',
+          until: '5.0',
+          since: { enabled: '4.7', available: '4.7' },
+          for: 'ember-data',
+        }
+      );
+      // @ts-expect-error ember is missing types for some methods
+      return (Ember[method] as (...args: unknown[]) => unknown)(this, ...args);
+    };
+  });
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.addObject = function (obj: OpaqueRecordInstance) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'addObject', 'push');
+    const index = this.indexOf(obj);
+    if (index === -1) {
+      this.push(obj);
+    }
+    return this;
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.addObjects = function (objs: OpaqueRecordInstance[]) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'addObjects', 'push');
+    objs.forEach((obj: OpaqueRecordInstance) => {
+      const index = this.indexOf(obj);
+      if (index === -1) {
+        this.push(obj);
+      }
+    });
+    return this;
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.popObject = function () {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'popObject', 'pop');
+    return this.pop() as OpaqueRecordInstance;
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.pushObject = function (obj: OpaqueRecordInstance) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'pushObject', 'push');
+    this.push(obj);
+    return obj;
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.pushObjects = function (objs: OpaqueRecordInstance[]) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'pushObjects', 'push');
+    this.push(...objs);
+    return this;
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.shiftObject = function () {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'shiftObject', 'shift');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return this.shift()!;
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.unshiftObject = function (obj: OpaqueRecordInstance) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'unshiftObject', 'unshift');
+    this.unshift(obj);
+    return obj;
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.unshiftObjects = function (objs: OpaqueRecordInstance[]) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'unshiftObjects', 'unshift');
+    this.unshift(...objs);
+    return this;
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.objectAt = function (index: number) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'objectAt', 'at');
+    //For negative index values go back from the end of the array
+    const arrIndex = Math.sign(index) === -1 ? this.length + index : index;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return this[arrIndex];
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.objectsAt = function (indices: number[]) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'objectsAt', 'at');
+    // @ts-expect-error adding MutableArray method
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
+    return indices.map((index) => this.objectAt(index)!);
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.removeAt = function (index: number) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'removeAt', 'splice');
+    this.splice(index, 1);
+    return this;
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.insertAt = function (index: number, obj: OpaqueRecordInstance) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'insertAt', 'splice');
+    this.splice(index, 0, obj);
+    return this;
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.removeObject = function (obj: OpaqueRecordInstance) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'removeObject', 'splice');
+    const index = this.indexOf(obj);
+    if (index !== -1) {
+      this.splice(index, 1);
+    }
+    return this;
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.removeObjects = function (objs: OpaqueRecordInstance[]) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'removeObjects', 'splice');
+    objs.forEach((obj) => {
+      const index = this.indexOf(obj);
+      if (index !== -1) {
+        this.splice(index, 1);
+      }
+    });
+    return this;
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.toArray = function () {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'toArray', 'slice');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return this.slice();
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.replace = function (idx: number, amt: number, objects?: OpaqueRecordInstance[]) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'replace', 'splice');
+    if (objects) {
+      this.splice(idx, amt, ...objects);
+    } else {
+      this.splice(idx, amt);
+    }
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.clear = function () {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'clear', 'length = 0');
+    this.splice(0, this.length);
+    return this;
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.setObjects = function (objects: OpaqueRecordInstance[]) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'setObjects', '`arr.length = 0; arr.push(objects);`');
+    assert(
+      `${this.DEPRECATED_CLASS_NAME}.setObjects expects to receive an array as its argument`,
+      Array.isArray(objects)
+    );
+    this.splice(0, this.length);
+    this.push(...objects);
+    return this;
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.reverseObjects = function () {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'reverseObjects', 'reverse');
+    this.reverse();
+    return this;
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.compact = function () {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'compact', 'filter');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return this.filter((v) => v !== null && v !== undefined);
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.any = function (callback, target) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'any', 'some');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    return this.some(callback, target);
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.isAny = function (prop, value) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'isAny', 'some');
+    const hasValue = arguments.length === 2;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    return this.some((v) => (hasValue ? v[prop] === value : v[prop] === true));
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.isEvery = function (prop, value) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'isEvery', 'every');
+    const hasValue = arguments.length === 2;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    return this.every((v) => (hasValue ? v[prop] === value : v[prop] === true));
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.getEach = function (key: string) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'getEach', 'map');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return this.map((value) => get(value, key));
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.mapBy = function (key: string) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'mapBy', 'map');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return this.map((value) => get(value, key));
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.findBy = function (key: string, value?: unknown) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'findBy', 'find');
+    if (arguments.length === 2) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      return this.find((val) => {
+        return get(val, key) === value;
+      });
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      return this.find((val) => Boolean(get(val, key)));
+    }
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.filterBy = function (key: string, value?: unknown) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'filterBy', 'filter');
+    if (arguments.length === 2) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      return this.filter((record) => {
+        return get(record, key) === value;
+      });
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return this.filter((record) => {
+      return Boolean(get(record, key));
+    });
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.sortBy = function (...sortKeys: string[]) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'sortBy', '.slice().sort');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return this.slice().sort((a, b) => {
+      for (let i = 0; i < sortKeys.length; i++) {
+        const key = sortKeys[i];
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const propA = get(a, key);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const propB = get(b, key);
+        // return 1 or -1 else continue to the next sortKey
+        const compareValue = compare(propA, propB);
+
+        if (compareValue) {
+          return compareValue;
+        }
+      }
+      return 0;
+    });
+  };
+
+  // @ts-expect-error
+  IdentifierArray.prototype.invoke = function (key: string, ...args: unknown[]) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'invoke', 'forEach');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    return this.map((value) => (value[key] as (...args: unknown[]) => unknown)(...args));
+  };
+
+  // @ts-expect-error
+  IdentifierArray.prototype.addArrayObserver = function () {
+    deprecateArrayLike(
+      this.DEPRECATED_CLASS_NAME,
+      'addArrayObserver',
+      'derived state or reacting at the change source'
+    );
+  };
+
+  // @ts-expect-error
+  IdentifierArray.prototype.removeArrayObserver = function () {
+    deprecateArrayLike(
+      this.DEPRECATED_CLASS_NAME,
+      'removeArrayObserver',
+      'derived state or reacting at the change source'
+    );
+  };
+
+  // @ts-expect-error
+  IdentifierArray.prototype.arrayContentWillChange = function () {
+    deprecateArrayLike(
+      this.DEPRECATED_CLASS_NAME,
+      'arrayContentWillChange',
+      'derived state or reacting at the change source'
+    );
+  };
+
+  // @ts-expect-error
+  IdentifierArray.prototype.arrayContentDidChange = function () {
+    deprecateArrayLike(
+      this.DEPRECATED_CLASS_NAME,
+      'arrayContentDidChange',
+      'derived state or reacting at the change source.'
+    );
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.reject = function (callback, target?: unknown) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'reject', 'filter');
+    assert('`reject` expects a function as first argument.', typeof callback === 'function');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return this.filter((...args) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      return !callback.apply(target, args);
+    });
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.rejectBy = function (key: string, value?: unknown) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'rejectBy', 'filter');
+    if (arguments.length === 2) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      return this.filter((record) => {
+        return get(record, key) !== value;
+      });
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return this.filter((record) => {
+      return !get(record, key);
+    });
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.setEach = function (key: string, value: unknown) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'setEach', 'forEach');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    this.forEach((item) => set(item, key, value));
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.uniq = function () {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'uniq', 'filter');
+    // all current managed arrays are already enforced as unique
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return this.slice();
+  };
+
+  // @ts-expect-error
+  IdentifierArray.prototype.uniqBy = function (key: string) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'uniqBy', 'filter');
+    // all current managed arrays are already enforced as unique
+    const seen = new Set();
+    const result: OpaqueRecordInstance[] = [];
+    this.forEach((item) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const value = get(item, key);
+      if (seen.has(value)) {
+        return;
+      }
+      seen.add(value);
+      result.push(item);
+    });
+    return result;
+  };
+
+  // @ts-expect-error adding MutableArray method
+  IdentifierArray.prototype.without = function (value: OpaqueRecordInstance) {
+    deprecateArrayLike(this.DEPRECATED_CLASS_NAME, 'without', 'slice');
+    const newArr = this.slice();
+    const index = this.indexOf(value);
+    if (index !== -1) {
+      newArr.splice(index, 1);
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return newArr;
+  };
+
+  // @ts-expect-error
+  IdentifierArray.prototype.firstObject = null;
+  // @ts-expect-error
+  IdentifierArray.prototype.lastObject = null;
+}
 
 type PromiseProxyRecord = { then(): void; content: OpaqueRecordInstance | null | undefined };
 
@@ -597,11 +1117,25 @@ function assertRecordPassedToHasMany(record: OpaqueRecordInstance | PromiseProxy
   );
 }
 
-function extractIdentifierFromRecord(record: PromiseProxyRecord | OpaqueRecordInstance | null) {
-  if (!record) {
+function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord | OpaqueRecordInstance | null) {
+  if (!recordOrPromiseRecord) {
     return null;
   }
 
-  assertRecordPassedToHasMany(record);
-  return recordIdentifierFor(record);
+  if (isPromiseRecord(recordOrPromiseRecord)) {
+    const content = recordOrPromiseRecord.content;
+    assert(
+      'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo relationship.',
+      content !== undefined && content !== null
+    );
+    assertRecordPassedToHasMany(content);
+    return recordIdentifierFor(content);
+  }
+
+  assertRecordPassedToHasMany(recordOrPromiseRecord);
+  return recordIdentifierFor(recordOrPromiseRecord);
+}
+
+function isPromiseRecord(record: PromiseProxyRecord | OpaqueRecordInstance): record is PromiseProxyRecord {
+  return Boolean(typeof record === 'object' && record && 'then' in record);
 }

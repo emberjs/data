@@ -1,4 +1,4 @@
-import { warn } from '@ember/debug';
+import { deprecate, warn } from '@ember/debug';
 
 import { dependencySatisfies, importSync, macroCondition } from '@embroider/macros';
 
@@ -13,6 +13,7 @@ import type {
 } from '@ember-data/store/-private';
 import { coerceId } from '@ember-data/store/-private';
 import type { FindRecordOptions, ModelSchema } from '@ember-data/store/types';
+import { DEPRECATE_RSVP_PROMISE } from '@warp-drive/build-config/deprecations';
 import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
@@ -28,6 +29,7 @@ import type { AdapterPayload, MinimumAdapterInterface } from './minimum-adapter-
 import type { MinimumSerializerInterface } from './minimum-serializer-interface';
 import { normalizeResponseHelper } from './serializer-response';
 import { Snapshot } from './snapshot';
+import { _objectIsAlive } from './utils';
 
 type Deferred<T> = ReturnType<typeof createDeferred<T>>;
 type AdapterErrors = Error & { errors?: string[]; isAdapterError?: true };
@@ -611,6 +613,7 @@ function _flushPendingSave(store: Store, pending: PendingSaveItem) {
 
   const modelName = snapshot.modelName;
   const modelClass = store.modelFor(modelName);
+  const record = store._instanceCache.getRecord(identifier);
 
   assert(`You tried to update a record but you have no adapter (for ${modelName})`, adapter);
   assert(
@@ -627,6 +630,24 @@ function _flushPendingSave(store: Store, pending: PendingSaveItem) {
   );
 
   promise = promise.then((adapterPayload) => {
+    if (!_objectIsAlive(record)) {
+      if (DEPRECATE_RSVP_PROMISE) {
+        deprecate(
+          `A Promise while saving ${modelName} did not resolve by the time your model was destroyed. This will error in a future release.`,
+          false,
+          {
+            id: 'ember-data:rsvp-unresolved-async',
+            until: '5.0',
+            for: '@ember-data/store',
+            since: {
+              available: '4.5',
+              enabled: '4.5',
+            },
+          }
+        );
+      }
+    }
+
     if (adapterPayload) {
       return normalizeResponseHelper(serializer, store, modelClass, adapterPayload, snapshot.id, operation);
     }

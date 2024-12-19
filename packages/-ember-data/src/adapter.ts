@@ -1,10 +1,12 @@
 import { deprecate } from '@ember/debug';
 
+import { DISABLE_6X_DEPRECATIONS } from '@warp-drive/build-config/deprecations';
+
 export { default } from '@ember-data/adapter';
 
 deprecate(
   'Importing from `ember-data/adapter` is deprecated. Please import from `@ember-data/adapter` instead.',
-  false,
+  /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
   {
     id: 'ember-data:deprecate-legacy-imports',
     for: 'ember-data',

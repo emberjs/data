@@ -1,10 +1,33 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import type { CacheCapabilitiesManager } from '@ember-data/store/types';
+import type Mixin from '@ember/object/mixin';
+
+import type Store from '@ember-data/store';
+import type { CacheCapabilitiesManager, ModelSchema } from '@ember-data/store/types';
+import { DEPRECATE_NON_EXPLICIT_POLYMORPHISM } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
 import { isLegacyField, isRelationshipField, temporaryConvertToLegacy, type UpgradedMeta } from '../-edge-definition';
+
+type Model = ModelSchema;
+
+// A pile of soft-lies to deal with mixin APIs
+type ModelWithMixinApis = Model & {
+  isModel?: boolean;
+  __isMixin?: boolean;
+  __mixin: Mixin;
+  PrototypeMixin: Mixin;
+  detect: (mixin: Model | Mixin | ModelWithMixinApis) => boolean;
+  prototype: Model;
+  [Symbol.hasInstance](model: Model): true;
+};
+
+function assertModelSchemaIsModel(
+  schema: ModelSchema | Model | ModelWithMixinApis
+): asserts schema is ModelWithMixinApis {
+  assert(`Expected Schema to be an instance of Model`, 'isModel' in schema && schema.isModel === true);
+}
 
 /*
   Assert that `addedRecord` has a valid type so it can be added to the
@@ -27,6 +50,21 @@ let assertPolymorphicType: (
 let assertInheritedSchema: (definition: UpgradedMeta, type: string) => void;
 
 if (DEBUG) {
+  const checkPolymorphic = function checkPolymorphic(modelClass: ModelSchema, addedModelClass: ModelSchema) {
+    assertModelSchemaIsModel(modelClass);
+    assertModelSchemaIsModel(addedModelClass);
+
+    if (modelClass.__isMixin) {
+      return (
+        modelClass.__mixin.detect(addedModelClass.PrototypeMixin) ||
+        // handle native class extension e.g. `class Post extends Model.extend(Commentable) {}`
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        modelClass.__mixin.detect(Object.getPrototypeOf(addedModelClass).PrototypeMixin)
+      );
+    }
+    return addedModelClass.prototype instanceof modelClass || modelClass.detect(addedModelClass);
+  };
+
   function validateSchema(definition: UpgradedMeta, meta: PrintConfig) {
     const errors = new Map();
 
@@ -61,9 +99,9 @@ if (DEBUG) {
     kind: string;
     options: {
       as?: string;
-      async: boolean;
+      async?: boolean;
       polymorphic?: boolean;
-      inverse: string | null;
+      inverse?: string | null;
     };
   };
   type RelationshipSchemaError = 'name' | 'type' | 'kind' | 'as' | 'async' | 'polymorphic' | 'inverse';
@@ -211,69 +249,143 @@ if (DEBUG) {
     if (parentDefinition.inverseIsImplicit) {
       return;
     }
+    let asserted = false;
+
     if (parentDefinition.isPolymorphic) {
-      let meta = store.schema.fields(addedIdentifier).get(parentDefinition.inverseKey);
+      const rawMeta = store.schema.fields(addedIdentifier).get(parentDefinition.inverseKey);
       assert(
-        `No '${parentDefinition.inverseKey}' field exists on '${
-          addedIdentifier.type
-        }'. To use this type in the polymorphic relationship '${parentDefinition.inverseType}.${
-          parentDefinition.key
-        }' the relationships schema definition for ${addedIdentifier.type} should include:${expectedSchema(
-          parentDefinition
-        )}`,
-        meta
+        `Expected to find a relationship field schema for ${parentDefinition.inverseKey} on ${addedIdentifier.type} but none was found`,
+        !rawMeta || isRelationshipField(rawMeta)
       );
-      assert(
-        `Expected the field ${parentDefinition.inverseKey} to be a relationship`,
-        meta && isRelationshipField(meta)
-      );
-      meta = isLegacyField(meta) ? meta : temporaryConvertToLegacy(meta);
-      assert(
-        `You should not specify both options.as and options.inverse as null on ${addedIdentifier.type}.${parentDefinition.inverseKey}, as if there is no inverse field there is no abstract type to conform to. You may have intended for this relationship to be polymorphic, or you may have mistakenly set inverse to null.`,
-        !(meta.options.inverse === null && meta?.options.as?.length)
-      );
-      const errors = validateSchema(parentDefinition, meta);
-      assert(
-        `The schema for the relationship '${parentDefinition.inverseKey}' on '${
-          addedIdentifier.type
-        }' type does not correctly implement '${parentDefinition.type}' and thus cannot be assigned to the '${
-          parentDefinition.key
-        }' relationship in '${
-          parentIdentifier.type
-        }'. If using this record in this polymorphic relationship is desired, correct the errors in the schema shown below:${printSchema(
-          meta,
-          errors
-        )}`,
-        errors.size === 0
-      );
+      const meta = rawMeta && (isLegacyField(rawMeta) ? rawMeta : temporaryConvertToLegacy(rawMeta));
+
+      if (DEPRECATE_NON_EXPLICIT_POLYMORPHISM) {
+        if (meta?.options?.as) {
+          asserted = true;
+          assert(
+            `No '${parentDefinition.inverseKey}' field exists on '${addedIdentifier.type}'. To use this type in the polymorphic relationship '${parentDefinition.inverseType}.${parentDefinition.key}' the relationships schema definition for ${addedIdentifier.type} should include:${expectedSchema(parentDefinition)}`,
+            meta
+          );
+          assert(
+            `You should not specify both options.as and options.inverse as null on ${addedIdentifier.type}.${parentDefinition.inverseKey}, as if there is no inverse field there is no abstract type to conform to. You may have intended for this relationship to be polymorphic, or you may have mistakenly set inverse to null.`,
+            !(meta.options.inverse === null && meta?.options.as?.length > 0)
+          );
+          const errors = validateSchema(parentDefinition, meta);
+          assert(
+            `The schema for the relationship '${parentDefinition.inverseKey}' on '${addedIdentifier.type}' type does not correctly implement '${parentDefinition.type}' and thus cannot be assigned to the '${parentDefinition.key}' relationship in '${parentIdentifier.type}'. If using this record in this polymorphic relationship is desired, correct the errors in the schema shown below:${printSchema(meta, errors)}`,
+            errors.size === 0
+          );
+        }
+      } else {
+        assert(
+          `No '${parentDefinition.inverseKey}' field exists on '${
+            addedIdentifier.type
+          }'. To use this type in the polymorphic relationship '${parentDefinition.inverseType}.${
+            parentDefinition.key
+          }' the relationships schema definition for ${addedIdentifier.type} should include:${expectedSchema(
+            parentDefinition
+          )}`,
+          meta
+        );
+        assert(
+          `Expected the field ${parentDefinition.inverseKey} to be a relationship`,
+          meta && isRelationshipField(meta)
+        );
+        assert(
+          `You should not specify both options.as and options.inverse as null on ${addedIdentifier.type}.${parentDefinition.inverseKey}, as if there is no inverse field there is no abstract type to conform to. You may have intended for this relationship to be polymorphic, or you may have mistakenly set inverse to null.`,
+          !(meta.options.inverse === null && meta?.options.as?.length)
+        );
+        const errors = validateSchema(parentDefinition, meta);
+        assert(
+          `The schema for the relationship '${parentDefinition.inverseKey}' on '${
+            addedIdentifier.type
+          }' type does not correctly implement '${parentDefinition.type}' and thus cannot be assigned to the '${
+            parentDefinition.key
+          }' relationship in '${
+            parentIdentifier.type
+          }'. If using this record in this polymorphic relationship is desired, correct the errors in the schema shown below:${printSchema(
+            meta,
+            errors
+          )}`,
+          errors.size === 0
+        );
+      }
     } else if (addedIdentifier.type !== parentDefinition.type) {
       // if we are not polymorphic
       // then the addedIdentifier.type must be the same as the parentDefinition.type
-      let meta = store.schema.fields(addedIdentifier).get(parentDefinition.inverseKey);
+      const rawMeta = store.schema.fields(addedIdentifier).get(parentDefinition.inverseKey);
       assert(
-        `Expected the field ${parentDefinition.inverseKey} to be a relationship`,
-        !meta || isRelationshipField(meta)
+        `Expected to find a relationship field schema for ${parentDefinition.inverseKey} on ${addedIdentifier.type} but none was found`,
+        !rawMeta || isRelationshipField(rawMeta)
       );
-      meta = meta && (isLegacyField(meta) ? meta : temporaryConvertToLegacy(meta));
-      if (meta?.options.as === parentDefinition.type) {
-        // inverse is likely polymorphic but missing the polymorphic flag
-        let meta = store.schema.fields({ type: parentDefinition.inverseType }).get(parentDefinition.key);
-        assert(`Expected the field ${parentDefinition.key} to be a relationship`, meta && isRelationshipField(meta));
-        meta = isLegacyField(meta) ? meta : temporaryConvertToLegacy(meta);
-        const errors = validateSchema(definitionWithPolymorphic(inverseDefinition(parentDefinition)), meta);
+      const meta = rawMeta && (isLegacyField(rawMeta) ? rawMeta : temporaryConvertToLegacy(rawMeta));
+
+      if (!DEPRECATE_NON_EXPLICIT_POLYMORPHISM) {
+        if (meta?.options.as === parentDefinition.type) {
+          // inverse is likely polymorphic but missing the polymorphic flag
+          const inverseMeta = store.schema.fields({ type: parentDefinition.inverseType }).get(parentDefinition.key);
+          assert(
+            `Expected to find a relationship field schema for ${parentDefinition.inverseKey} on ${addedIdentifier.type} but none was found`,
+            inverseMeta && isRelationshipField(inverseMeta)
+          );
+          const legacyInverseMeta =
+            inverseMeta && (isLegacyField(inverseMeta) ? inverseMeta : temporaryConvertToLegacy(inverseMeta));
+          const errors = validateSchema(
+            definitionWithPolymorphic(inverseDefinition(parentDefinition)),
+            legacyInverseMeta
+          );
+          assert(
+            `The '<${addedIdentifier.type}>.${parentDefinition.inverseKey}' relationship cannot be used polymorphically because '<${parentDefinition.inverseType}>.${parentDefinition.key} is not a polymorphic relationship. To use this relationship in a polymorphic manner, fix the following schema issues on the relationships schema for '${parentDefinition.inverseType}':${printSchema(legacyInverseMeta, errors)}`
+          );
+        } else {
+          assert(
+            `The '${addedIdentifier.type}' type does not implement '${parentDefinition.type}' and thus cannot be assigned to the '${parentDefinition.key}' relationship in '${parentIdentifier.type}'. If this relationship should be polymorphic, mark ${parentDefinition.inverseType}.${parentDefinition.key} as \`polymorphic: true\` and ${addedIdentifier.type}.${parentDefinition.inverseKey} as implementing it via \`as: '${parentDefinition.type}'\`.`
+          );
+        }
+      } else if ((meta?.options?.as?.length ?? 0) > 0) {
+        asserted = true;
         assert(
-          `The '<${addedIdentifier.type}>.${
-            parentDefinition.inverseKey
-          }' relationship cannot be used polymorphically because '<${parentDefinition.inverseType}>.${
-            parentDefinition.key
-          } is not a polymorphic relationship. To use this relationship in a polymorphic manner, fix the following schema issues on the relationships schema for '${
-            parentDefinition.inverseType
-          }':${printSchema(meta, errors)}`
+          `Expected the field ${parentDefinition.inverseKey} to be a relationship`,
+          !meta || isRelationshipField(meta)
         );
-      } else {
-        assert(
-          `The '${addedIdentifier.type}' type does not implement '${parentDefinition.type}' and thus cannot be assigned to the '${parentDefinition.key}' relationship in '${parentIdentifier.type}'. If this relationship should be polymorphic, mark ${parentDefinition.inverseType}.${parentDefinition.key} as \`polymorphic: true\` and ${addedIdentifier.type}.${parentDefinition.inverseKey} as implementing it via \`as: '${parentDefinition.type}'\`.`
-        );
+        const legacyMeta = meta && (isLegacyField(meta) ? meta : temporaryConvertToLegacy(meta));
+        if (legacyMeta?.options.as === parentDefinition.type) {
+          // inverse is likely polymorphic but missing the polymorphic flag
+          let meta = store.schema.fields({ type: parentDefinition.inverseType }).get(parentDefinition.key);
+          assert(`Expected the field ${parentDefinition.key} to be a relationship`, meta && isRelationshipField(meta));
+          meta = isLegacyField(meta) ? meta : temporaryConvertToLegacy(meta);
+          const errors = validateSchema(definitionWithPolymorphic(inverseDefinition(parentDefinition)), meta);
+          assert(
+            `The '<${addedIdentifier.type}>.${
+              parentDefinition.inverseKey
+            }' relationship cannot be used polymorphically because '<${parentDefinition.inverseType}>.${
+              parentDefinition.key
+            } is not a polymorphic relationship. To use this relationship in a polymorphic manner, fix the following schema issues on the relationships schema for '${
+              parentDefinition.inverseType
+            }':${printSchema(meta, errors)}`
+          );
+        } else {
+          assert(
+            `The '${addedIdentifier.type}' type does not implement '${parentDefinition.type}' and thus cannot be assigned to the '${parentDefinition.key}' relationship in '${parentIdentifier.type}'. If this relationship should be polymorphic, mark ${parentDefinition.inverseType}.${parentDefinition.key} as \`polymorphic: true\` and ${addedIdentifier.type}.${parentDefinition.inverseKey} as implementing it via \`as: '${parentDefinition.type}'\`.`
+          );
+        }
+      }
+    }
+
+    if (DEPRECATE_NON_EXPLICIT_POLYMORPHISM) {
+      if (!asserted) {
+        const storeService = (store as unknown as { _store: Store })._store;
+        const addedModelName = addedIdentifier.type;
+        const parentModelName = parentIdentifier.type;
+        const key = parentDefinition.key;
+        const relationshipModelName = parentDefinition.type;
+        const relationshipClass = storeService.modelFor(relationshipModelName);
+        const addedClass = storeService.modelFor(addedModelName);
+
+        const assertionMessage = `The '${addedModelName}' type does not implement '${relationshipModelName}' and thus cannot be assigned to the '${key}' relationship in '${parentModelName}'. Make it a descendant of '${relationshipModelName}' or use a mixin of the same name.`;
+        const isPolymorphic = checkPolymorphic(relationshipClass, addedClass);
+
+        assert(assertionMessage, isPolymorphic);
       }
     }
   };

@@ -4,6 +4,7 @@ import { setupTest } from 'ember-qunit';
 
 import Model from '@ember-data/model';
 import JSONSerializer from '@ember-data/serializer/json';
+import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 let store, Person;
 
@@ -38,5 +39,13 @@ module('unit/store/serializer_for - Store#serializerFor', function (hooks) {
       store.serializerFor('person') instanceof ApplicationSerializer,
       'serializer returned from serializerFor is an instance of ApplicationSerializer'
     );
+  });
+
+  testInDebug('Calling serializerFor with a model class should assert', function (assert) {
+    assert.expectAssertion(() => {
+      store.serializerFor(Person);
+    }, /Passing classes to store.serializerFor has been removed/);
+
+    assert.expectDeprecation({ id: 'ember-data:deprecate-early-static' });
   });
 });

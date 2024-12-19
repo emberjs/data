@@ -1,9 +1,12 @@
+import { deprecate } from '@ember/debug';
+
 import type { CollectionEdge, Graph } from '@ember-data/graph/-private';
 import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store';
 import type { BaseFinderOptions } from '@ember-data/store/types';
 import { cached, compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';
+import { DEPRECATE_PROMISE_PROXIES } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -494,9 +497,31 @@ export default class HasManyReference<
    @return {Promise<ManyArray | void>}
   */
   async push(
-    doc: ExistingResourceObject[] | CollectionResourceDocument,
+    maybeDoc: ExistingResourceObject[] | CollectionResourceDocument,
     skipFetch?: boolean
   ): Promise<ManyArray<Related> | void> {
+    let doc = maybeDoc;
+    if (DEPRECATE_PROMISE_PROXIES) {
+      if ((maybeDoc as unknown as { then: unknown }).then) {
+        doc = await (maybeDoc as unknown as Promise<ExistingResourceObject[] | CollectionResourceDocument>);
+        if (doc !== maybeDoc) {
+          deprecate(
+            `You passed in a Promise to a Reference API that now expects a resolved value. await the value before setting it.`,
+            false,
+            {
+              id: 'ember-data:deprecate-promise-proxies',
+              until: '5.0',
+              since: {
+                enabled: '4.7',
+                available: '4.7',
+              },
+              for: 'ember-data',
+            }
+          );
+        }
+      }
+    }
+
     const { store } = this;
     const dataDoc = Array.isArray(doc) ? { data: doc } : doc;
     const isResourceData = Array.isArray(dataDoc.data) && dataDoc.data.length > 0 && isMaybeResource(dataDoc.data[0]);

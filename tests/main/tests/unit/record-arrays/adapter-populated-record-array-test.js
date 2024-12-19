@@ -50,6 +50,18 @@ module('unit/record-arrays/collection', function (hooks) {
     assert.strictEqual(recordArray.links, 'foo');
   });
 
+  testInDebug('#replace() throws error', function (assert) {
+    const recordArray = new CollectionRecordArray({ type: 'recordType', identifiers: [] });
+
+    assert.throws(
+      () => {
+        recordArray.replace();
+      },
+      Error('Mutating this array of records via splice is not allowed.'),
+      'throws error'
+    );
+    assert.expectDeprecation({ id: 'ember-data:deprecate-array-like' });
+  });
   testInDebug('mutation throws error', function (assert) {
     const recordArray = new CollectionRecordArray({ type: 'recordType', identifiers: [] });
 

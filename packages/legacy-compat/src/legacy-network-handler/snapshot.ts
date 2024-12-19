@@ -1,11 +1,14 @@
 /**
   @module @ember-data/store
 */
+import { deprecate } from '@ember/debug';
+
 import { dependencySatisfies, importSync } from '@embroider/macros';
 
 import type { CollectionEdge, ResourceEdge } from '@ember-data/graph/-private';
 import type Store from '@ember-data/store';
-import type { FindRecordOptions } from '@ember-data/store/types';
+import type { FindRecordOptions, ModelSchema } from '@ember-data/store/types';
+import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -45,6 +48,16 @@ export class Snapshot<R = unknown> {
   declare include?: string | string[];
   declare adapterOptions?: Record<string, unknown>;
   declare _store: Store;
+
+  /**
+   The type of the underlying record for this snapshot, as a Model.
+
+   @property type
+    @public
+    @deprecated
+   @type {Model}
+   */
+  declare type: ModelSchema;
 
   /**
    * @method constructor
@@ -560,4 +573,22 @@ export class Snapshot<R = unknown> {
     assert(`Cannot serialize record, no serializer found`, serializer);
     return serializer.serialize(this, options);
   }
+}
+
+if (DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS) {
+  Object.defineProperty(Snapshot.prototype, 'type', {
+    get(this: Snapshot) {
+      deprecate(
+        `Using Snapshot.type to access the ModelClass for a record is deprecated. Use store.modelFor(<modelName>) instead.`,
+        false,
+        {
+          id: 'ember-data:deprecate-snapshot-model-class-access',
+          until: '5.0',
+          for: 'ember-data',
+          since: { available: '4.5.0', enabled: '4.5.0' },
+        }
+      );
+      return this._store.modelFor(this.identifier.type);
+    },
+  });
 }

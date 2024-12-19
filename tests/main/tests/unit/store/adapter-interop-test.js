@@ -1225,4 +1225,18 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     await settled();
     assert.strictEqual(store.peekRecord('person', 1).name, 'Tom', 'after background reload name is loaded');
   });
+
+  testInDebug('Calling adapterFor with a model class should assert', function (assert) {
+    const Person = Model.extend();
+
+    this.owner.register('model:person', Person);
+
+    const store = this.owner.lookup('service:store');
+
+    assert.expectAssertion(() => {
+      store.adapterFor(Person);
+    }, /Passing classes to store.adapterFor has been removed/);
+
+    assert.expectDeprecation({ id: 'ember-data:deprecate-early-static' });
+  });
 });
