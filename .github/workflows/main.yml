@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - v4-main
       - beta
       - release
       - 'release-*'
