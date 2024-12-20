@@ -57,8 +57,8 @@
       "@warp-drive/schema-record/*": ["../../packages/schema-record/unstable-preview-types/*"],
       "@warp-drive/build-config": ["../../packages/build-config/unstable-preview-types"],
       "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"],
-      "@warp-drive/holodeck": ["../../packages/holodeck/unstable-preview-types"],
-      "@warp-drive/holodeck/*": ["../../packages/holodeck/unstable-preview-types/*"],
+      "@warp-drive/holodeck": ["../../packages/holodeck/unstable-preview-types/client"],
+      "@warp-drive/holodeck/*": ["../../packages/holodeck/unstable-preview-types/client/*"],
       "ember-data": ["../../packages/-ember-data/unstable-preview-types"],
       "ember-data/*": ["../../packages/-ember-data/unstable-preview-types/*"]
     }

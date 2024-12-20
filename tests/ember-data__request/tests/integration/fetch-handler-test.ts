@@ -2,8 +2,7 @@ import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 import { buildBaseURL } from '@ember-data/request-utils';
 import { module, test } from '@warp-drive/diagnostic';
-import { mock, MockServerHandler } from '@warp-drive/holodeck';
-import { GET } from '@warp-drive/holodeck/mock';
+import { GET, HolodeckHandler, mock } from '@warp-drive/holodeck';
 
 const RECORD = false;
 
@@ -24,7 +23,7 @@ function isNetworkError(e: unknown): asserts e is Error & {
 module('RequestManager | Fetch Handler', function (hooks) {
   test('Parses 200 Responses', async function (assert) {
     const manager = new RequestManager();
-    manager.use([new MockServerHandler(this), Fetch]);
+    manager.use([new HolodeckHandler(this), Fetch]);
 
     await GET(
       this,
@@ -84,7 +83,7 @@ module('RequestManager | Fetch Handler', function (hooks) {
 
   test('It provides useful errors', async function (assert) {
     const manager = new RequestManager();
-    manager.use([new MockServerHandler(this), Fetch]);
+    manager.use([new HolodeckHandler(this), Fetch]);
 
     await mock(
       this,
@@ -157,7 +156,7 @@ module('RequestManager | Fetch Handler', function (hooks) {
 
   test('It provides useful error during abort', async function (assert) {
     const manager = new RequestManager();
-    manager.use([new MockServerHandler(this), Fetch]);
+    manager.use([new HolodeckHandler(this), Fetch]);
 
     await GET(
       this,

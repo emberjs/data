@@ -5,7 +5,7 @@ import { buildBaseURL } from '@ember-data/request-utils';
 import Store, { CacheHandler } from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { module, test } from '@warp-drive/diagnostic';
-import { mock, MockServerHandler } from '@warp-drive/holodeck';
+import { HolodeckHandler, mock } from '@warp-drive/holodeck';
 
 const RECORD = false;
 
@@ -34,7 +34,7 @@ module('Integration | @ember-data/json-api Cach.put(<ErrorDocument>)', function 
     const manager = new RequestManager();
     const store = new TestStore();
 
-    manager.use([new MockServerHandler(this), Fetch]);
+    manager.use([new HolodeckHandler(this), Fetch]);
     manager.useCache(CacheHandler);
     store.requestManager = manager;
 
