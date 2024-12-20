@@ -28,6 +28,7 @@ import type { SchemaService } from '../schema';
 import { Editable, Identifier, Legacy, Parent } from '../symbols';
 import { ManagedArray } from './managed-array';
 import { ManagedObject } from './managed-object';
+import { ManyArrayManager } from './many-array-manager';
 
 export const ManagedArrayMap = getOrSetGlobal(
   'ManagedArrayMap',
@@ -375,7 +376,7 @@ export function computeHasMany(
       // TODO: Grab the proper value
       _inverseIsAsync: false,
       // @ts-expect-error Typescript doesn't have a way for us to thread the generic backwards so it infers unknown instead of T
-      manager: record,
+      manager: new ManyArrayManager(record),
       isLoaded: true,
       allowMutation: editable,
     });
