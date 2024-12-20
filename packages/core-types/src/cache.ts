@@ -142,6 +142,41 @@ export interface Cache {
   peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
 
   /**
+   * Peek resource data from the Cache.
+   *
+   * In development, if the return value
+   * is JSON the return value
+   * will be deep-cloned and deep-frozen
+   * to prevent mutation thereby enforcing cache
+   * Immutability.
+   *
+   * This form of peek is useful for implementations
+   * that want to feed raw-data from cache to the UI
+   * or which want to interact with a blob of data
+   * directly from the presentation cache.
+   *
+   * An implementation might want to do this because
+   * de-referencing records which read from their own
+   * blob is generally safer because the record does
+   * not require retainining connections to the Store
+   * and Cache to present data on a per-field basis.
+   *
+   * This generally takes the place of `getAttr` as
+   * an API and may even take the place of `getRelationship`
+   * depending on implementation specifics, though this
+   * latter usage is less recommended due to the advantages
+   * of the Graph handling necessary entanglements and
+   * notifications for relational data.
+   *
+   * @method peek
+   * @public
+   * @param {StableRecordIdentifier | StableDocumentIdentifier} identifier
+   * @return {ResourceDocument | ResourceBlob | null} the known resource data
+   */
+  peekRemoteState<T = unknown>(identifier: StableRecordIdentifier<TypeFromInstanceOrString<T>>): T | null;
+  peekRemoteState(identifier: StableDocumentIdentifier): ResourceDocument | null;
+
+  /**
    * Peek the Cache for the existing request data associated with
    * a cacheable request
    *
