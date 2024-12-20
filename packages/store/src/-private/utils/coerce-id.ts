@@ -50,12 +50,13 @@ export function coerceId(id: unknown): string | null {
 
   return id;
 }
+
 export function ensureStringId(id: Coercable): string {
   let normalized: string | null = null;
   if (typeof id === 'string') {
     normalized = id.length > 0 ? id : null;
   } else if (typeof id === 'number' && !isNaN(id)) {
-    normalized = '' + id;
+    normalized = String(id);
   }
 
   if (normalized === null) {
@@ -64,5 +65,3 @@ export function ensureStringId(id: Coercable): string {
 
   return normalized;
 }
-
-export default coerceId;
