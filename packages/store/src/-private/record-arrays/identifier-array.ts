@@ -12,12 +12,14 @@ import {
 } from '@ember-data/tracking/-private';
 import { assert } from '@warp-drive/build-config/macros';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
+import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
 import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
 import type { Links, PaginationLinks } from '@warp-drive/core-types/spec/json-api-raw';
 
 import type { OpaqueRecordInstance } from '../../-types/q/record-instance';
+import type { BaseFinderOptions } from '../../types';
 import { isStableIdentifier } from '../caches/identifier-cache';
 import { recordIdentifierFor } from '../caches/instance-cache';
 import type { RecordArrayManager } from '../managers/record-array-manager';
@@ -125,8 +127,18 @@ function safeForEach<T>(
   return instance;
 }
 
-type MinimumManager = {
+type PromiseTo<T> = Omit<Promise<T>, typeof Symbol.toStringTag>;
+
+type PromiseManyArray<T> = {
+  length: number;
+  content: IdentifierArray<T> | null;
+  promise: Promise<IdentifierArray<T>> | null;
+} & PromiseTo<IdentifierArray<T>>;
+
+export type MinimumManager = {
   _syncArray: (array: IdentifierArray) => void;
+  mutate?(mutation: LocalRelationshipOperation): void;
+  reloadHasMany?<T>(key: string, options?: BaseFinderOptions): Promise<IdentifierArray<T>> | PromiseManyArray<T>;
 };
 
 /**
@@ -432,7 +444,7 @@ export class IdentifierArray<T = unknown> {
       },
 
       getPrototypeOf() {
-        return IdentifierArray.prototype;
+        return Array.prototype as unknown as IdentifierArray<T>;
       },
     }) as IdentifierArray<T>;
 
