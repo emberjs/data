@@ -133,6 +133,11 @@ export class CacheManager implements Cache {
     return this.#cache.peek(identifier);
   }
 
+  peekRemoteState(identifier: StableRecordIdentifier): unknown;
+  peekRemoteState(identifier: StableDocumentIdentifier): ResourceDocument | null;
+  peekRemoteState(identifier: StableRecordIdentifier | StableDocumentIdentifier): unknown {
+    return this.#cache.peekRemoteState(identifier);
+  }
   /**
    * Peek the Cache for the existing request data associated with
    * a cacheable request
