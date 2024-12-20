@@ -102,7 +102,7 @@ module('Reads | hasMany in linksMode', function (hooks) {
     assert.strictEqual(record.friends?.[0].friends?.[0].id, record.id, 'friends is reciprocal');
   });
 
-  test('we can update sync hasMany in linksMode in legacy mode', function (this: TestContext, assert) {
+  test('we can update sync hasMany in linksMode', function (this: TestContext, assert) {
     const store = this.owner.lookup('service:store') as Store;
     const { schema } = store;
 
@@ -111,7 +111,6 @@ module('Reads | hasMany in linksMode', function (hooks) {
     schema.registerResource(
       withDefaults({
         type: 'user',
-        legacy: true,
         fields: [
           {
             name: 'name',
@@ -176,6 +175,7 @@ module('Reads | hasMany in linksMode', function (hooks) {
 
     assert.strictEqual(record.id, '1', 'id is accessible');
     assert.strictEqual(record.name, 'Chris', 'name is accessible');
+    assert.strictEqual(record.friends?.length, 2, 'friends.length is accessible');
     assert.strictEqual(record.friends?.[0]?.id, '2', 'friends[0].id is accessible');
     assert.strictEqual(record.friends?.[0]?.name, 'Rey', 'friends[0].name is accessible');
 
@@ -215,8 +215,12 @@ module('Reads | hasMany in linksMode', function (hooks) {
 
     assert.strictEqual(record.id, '1', 'id is accessible');
     assert.strictEqual(record.name, 'Chris', 'name is accessible');
+    assert.strictEqual(record.friends?.length, 1, 'friends.length is accessible');
     assert.strictEqual(record.friends?.[0]?.id, '3', 'friends[0].id is accessible');
-    assert.strictEqual(record.friends?.[0]?.name, 'Ray', 'friends[0].name is accessible');
+    assert.strictEqual(record.friends?.[0]?.name, 'Jane', 'friends[0].name is accessible');
+    assert.strictEqual(record.friends?.[0]?.friends?.length, 2, 'friends[0].friends.length is accessible');
+    assert.strictEqual(record.friends?.[0]?.friends?.[0].id, '1', 'friends[0].friends[0].id is accessible');
+    assert.strictEqual(record.friends?.[0]?.friends?.[0].name, 'Chris', 'friends[0].friends[0].name is accessible');
   });
 
   skip('we error for async hasMany access in linksMode because we are not implemented yet', function (this: TestContext, assert) {
