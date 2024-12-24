@@ -4,7 +4,7 @@
 
 export { Store, storeFor } from './-private/store-service';
 
-export { recordIdentifierFor } from './-private/caches/instance-cache';
+export { recordIdentifierFor } from './-private/managers/resource-manager';
 
 export { CacheHandler, type StoreRequestContext } from './-private/cache-handler/handler';
 export { type CachePolicy } from './-private/cache-handler/types';
@@ -14,7 +14,7 @@ export { isStableIdentifier } from './-private/caches/identifier-cache';
 export { constructResource } from './-private/utils/construct-resource';
 
 export type { Document } from './-private/document';
-export type { InstanceCache } from './-private/caches/instance-cache';
+export type { ResourceManager } from './-private/managers/resource-manager';
 
 export type {
   FindRecordQuery,
@@ -41,11 +41,11 @@ export {
 export { RecordArrayManager, fastPush } from './-private/managers/record-array-manager';
 
 // leaked for private use / test use, should investigate removing
-export { _clearCaches } from './-private/caches/instance-cache';
+export { _clearCaches } from './-private/managers/resource-manager';
 export { peekCache, removeRecordDataFor } from './-private/caches/cache-utils';
 
 // @ember-data/model needs these temporarily
-export { setRecordIdentifier, StoreMap } from './-private/caches/instance-cache';
+export { setRecordIdentifier, StoreMap } from './-private/managers/resource-manager';
 export { setCacheFor } from './-private/caches/cache-utils';
 export { normalizeModelName as _deprecatingNormalize } from './-private/utils/normalize-model-name';
 export type { StoreRequestInput } from './-private/cache-handler/handler';

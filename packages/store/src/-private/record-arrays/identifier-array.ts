@@ -19,7 +19,7 @@ import type { Links, PaginationLinks } from '@warp-drive/core-types/spec/json-ap
 
 import type { OpaqueRecordInstance } from '../../-types/q/record-instance';
 import { isStableIdentifier } from '../caches/identifier-cache';
-import { recordIdentifierFor } from '../caches/instance-cache';
+import { recordIdentifierFor } from '../managers/resource-manager';
 import type { RecordArrayManager } from '../managers/record-array-manager';
 import type { Store } from '../store-service';
 import { NativeProxy } from './native-proxy-type-fix';
