@@ -1,4 +1,5 @@
-const { dasherize, singularize } = require('@ember-data/request-utils/string');
+const { dasherize, singularize } = require('inflection');
+
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
   meta: {
@@ -22,17 +23,22 @@ module.exports = {
           const args = decorator.arguments;
 
           // TODO: add support for passing normalize function to rule to test
-          const resourceName = args.at(0); // The first argument is the resource name
-          const normalizedResourceName = dasherize(singularize(resourceName.value));
+          const resource = args.at(0); // The first argument is the resource name
+          const resourceName = resource.value;
+          const normalizedResourceName = dasherize(singularize(resourceName));
 
-          if (resourceName.value === normalizedResourceName) {
+          console.log({ resourceName, normalizedResourceName });
+          console.log(resourceName === normalizedResourceName, 'true');
+
+          if (resourceName !== normalizedResourceName) {
             context.report({
               node,
-              message: `The @{{decorator}} decorator resource name should be singular and dasherized, but found '{{resourceName}}'.`,
+              message: `The @${node.callee.name} decorator resource name should be singular and dasherized (${normalizedResourceName}), but found '${resourceName}'.`,
               data: {
                 decorator: decorator.callee.name,
               },
             });
+            return;
           }
         }
       },

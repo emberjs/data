@@ -1,13 +1,23 @@
 const rule = require('../src/rules/require-singular-dasherized-resource-name');
 const RuleTester = require('eslint').RuleTester;
 
-const eslintTester = new RuleTester({
-  parserOptions: { ecmaVersion: 2015 },
+const ruleTester = new RuleTester({
+  languageOptions: {
+    parser: require('@babel/eslint-parser'),
+    ecmaVersion: 'latest',
+    sourceType: 'module',
+    parserOptions: {
+      requireConfigFile: false,
+      babelOptions: {
+        babelrc: false,
+        configFile: false,
+        plugins: [[require.resolve('@babel/plugin-proposal-decorators'), { legacy: true }]],
+      },
+    },
+  },
 });
 
-const messageId = 'warp-drive.require-singular-dasherized-resource-name';
-
-eslintTester.run('resource-naming', rule, {
+ruleTester.run('require-singular-dasherized-resource-name', rule, {
   valid: [
     `import Model, { belongsTo } from '@ember-data/model';
 
@@ -30,14 +40,14 @@ eslintTester.run('resource-naming', rule, {
   invalid: [
     {
       code: `import Model, { belongsTo } from '@ember-data/model';
-
       export default class extends Model {
-        @belongsTo('Post', { async: true, inverse: 'post-comments' }) post;
+        @belongsTo('Posts', { async: true, inverse: 'post-comments' }) post;
       }`,
       output: null,
       errors: [
         {
-          message: 'The @{{decorator}} decorator resource name should be singular and dasherized, but found Post.',
+          message:
+            "The @belongsTo decorator resource name should be singular and dasherized (Post), but found 'Posts'.",
           type: 'CallExpression',
         },
       ],
