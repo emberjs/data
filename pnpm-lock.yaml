@@ -936,6 +936,9 @@ importers:
 
   packages/eslint-plugin-warp-drive:
     dependencies:
+      inflection:
+        specifier: ^3.0.1
+        version: 3.0.1
       requireindex:
         specifier: ^1.2.0
         version: 1.2.0
@@ -17851,6 +17854,11 @@ packages:
   /inflection@3.0.0:
     resolution: {integrity: sha512-1zEJU1l19SgJlmwqsEyFTbScw/tkMHFenUo//Y0i+XEP83gDFdMvPizAD/WGcE+l1ku12PcTVHQhO6g5E0UCMw==}
     engines: {node: '>=18.0.0'}
+
+  /inflection@3.0.1:
+    resolution: {integrity: sha512-EpyF+TLa3xZPClbkp9pDJZtJFYPHouWuFYsfAQI8AfjnaPVOpmRV6GSzCs+QGelj2eZ7oQllcK23aI1vHhPVVg==}
+    engines: {node: '>=18.0.0'}
+    dev: false
 
   /inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
