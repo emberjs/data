@@ -35,6 +35,8 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Prettier
         run: pnpm lint:prettier
+      - name: Log TSC Version
+        run: pnpm exec tsc --version
       - name: Lint
         run: pnpm lint
       - name: Check Uncompiled Packages for TypeScript Compilation Errors
