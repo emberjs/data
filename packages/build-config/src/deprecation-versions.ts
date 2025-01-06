@@ -459,3 +459,20 @@ export const ENABLE_LEGACY_SCHEMA_SERVICE = '5.4';
  * @public
  */
 export const DEPRECATE_EMBER_INFLECTOR = '5.3';
+
+/**
+ * This is a special flag that can be used to opt-in early to receiving deprecations introduced in 6.x
+ * which have had their infra backported to 5.x versions of EmberData.
+ *
+ * When this flag is not present or set to `true`, the deprecations from the 6.x branch
+ * will not print their messages and the deprecation cannot be resolved.
+ *
+ * When this flag is present and set to `false`, the deprecations from the 6.x branch will
+ * print and can be resolved.
+ *
+ * @property DISABLE_7X_DEPRECATIONS
+ * @since 5.3
+ * @until 7.0
+ * @public
+ */
+export const DISABLE_7X_DEPRECATIONS = '7.0';
