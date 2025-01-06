@@ -65,6 +65,13 @@ runs:
       with:
         bun-version: latest
 
+    - name: DEBUG STATUS
+      run:
+        echo "DISABLE_TURBO_CACHE = $DISABLE_TURBO_CACHE"
+        echo "restore-lint-caches = ${{ inputs.restore-lint-caches }}"
+        echo "restore-broccoli-cache = ${{ inputs.restore-broccoli-cache }}"
+        echo "ACTIONS_RUNNER_DEBUG = ${{ secrets.ACTIONS_RUNNER_DEBUG }}"
+
     - name: 'Setup local TurboRepo server'
       if: ${{ inputs.repo-token }}
       uses: felixmosh/turborepo-gh-artifacts@v3
