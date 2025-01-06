@@ -66,6 +66,7 @@ runs:
         bun-version: latest
 
     - name: DEBUG STATUS
+      shell: bash
       run:
         echo "DISABLE_TURBO_CACHE = $DISABLE_TURBO_CACHE"
         echo "restore-lint-caches = ${{ inputs.restore-lint-caches }}"
