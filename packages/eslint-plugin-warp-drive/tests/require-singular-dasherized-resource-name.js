@@ -39,15 +39,33 @@ ruleTester.run('require-singular-dasherized-resource-name', rule, {
 
   invalid: [
     {
-      code: `import Model, { belongsTo } from '@ember-data/model';
-      export default class extends Model {
-        @belongsTo('Posts', { async: true, inverse: 'post-comments' }) post;
-      }`,
+      code: `
+        import Model, { belongsTo } from '@ember-data/model';
+        export default class extends Model {
+          @belongsTo('Posts', { async: true, inverse: 'post-comments' }) post;
+        }
+        `,
       output: null,
       errors: [
         {
           message:
             "The @belongsTo decorator resource name should be singular and dasherized (Post), but found 'Posts'.",
+          type: 'CallExpression',
+        },
+      ],
+    },
+    {
+      code: `
+        import Model, { hasMany } from '@ember-data/model';
+        export default class User extends Model {
+          @hasMany('user_settings', { inverse: 'user' }) userSettings;
+        }
+        `,
+      output: null,
+      errors: [
+        {
+          message:
+            "The @hasMany decorator resource name should be singular and dasherized (user-setting), but found 'user_settings'.",
           type: 'CallExpression',
         },
       ],
