@@ -25,11 +25,6 @@ export async function bumpAllPackages(
     }
     pkg.pkgData.version = strat.toVersion;
 
-    // update any referenced packages in dependencies
-    bumpKnownProjectVersionsFromStrategy(pkg.pkgData.dependencies || {}, strategy);
-    bumpKnownProjectVersionsFromStrategy(pkg.pkgData.devDependencies || {}, strategy);
-    bumpKnownProjectVersionsFromStrategy(pkg.pkgData.peerDependencies || {}, strategy);
-
     await pkg.file.write();
   }
 
@@ -56,6 +51,30 @@ export async function bumpAllPackages(
 
   await exec(finalCommand, dryRun);
   console.log(`✅ ` + chalk.cyan(`Successfully Versioned ${nextVersion}`));
+}
+
+export async function updateWorkspaceVersionsForPublish(
+  config: Map<string, string | number | boolean | null>,
+  packages: Map<string, Package>,
+  strategy: Map<string, APPLIED_STRATEGY>
+) {
+  for (const [, pkg] of packages) {
+    const strat = strategy.get(pkg.pkgData.name);
+    if (!strat) {
+      throw new Error(`Unable to find strategy for package ${pkg.pkgData.name}`);
+    }
+    pkg.pkgData.version = strat.toVersion;
+
+    // update any referenced packages in dependencies
+    bumpKnownProjectVersionsFromStrategy(pkg.pkgData.dependencies || {}, strategy);
+    bumpKnownProjectVersionsFromStrategy(pkg.pkgData.devDependencies || {}, strategy);
+    bumpKnownProjectVersionsFromStrategy(pkg.pkgData.peerDependencies || {}, strategy);
+
+    await pkg.file.write();
+  }
+
+  const nextVersion = strategy.get('root')?.toVersion;
+  console.log(`✅ ` + chalk.cyan(`Successfully Updated "workspace:*" versions for tarball publish of ${nextVersion}`));
 }
 
 function bumpKnownProjectVersionsFromStrategy(
