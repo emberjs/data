@@ -114,6 +114,7 @@ runs:
       run: pnpm install --prefer-offline $ADTL_ARGS
       env:
         ADTL_ARGS: ${{ inputs.adtl-install-args }}
+        TURBO_FORCE: ${{ inputs.DISABLE_TURBO_CACHE == 'true' }}
 
     - name: Install Dependencies w/o Addon Builds
       if: ${{ inputs.install == 'true' && inputs.skip-addon-build == 'true' }}

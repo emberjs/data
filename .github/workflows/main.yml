@@ -37,10 +37,16 @@ jobs:
           DISABLE_TURBO_CACHE: ${{ secrets.ACTIONS_RUNNER_DEBUG == 'true' }}
       - name: Prettier
         run: pnpm lint:prettier
+        env:
+          TURBO_FORCE: ${{ secrets.ACTIONS_RUNNER_DEBUG == 'true' }}
       - name: Lint
-        run: pnpm lint ${{ secrets.ACTIONS_RUNNER_DEBUG == 'true' && '--force' }}
+        run: pnpm lint
+        env:
+          TURBO_FORCE: ${{ secrets.ACTIONS_RUNNER_DEBUG == 'true' }}
       - name: Check Uncompiled Packages for TypeScript Compilation Errors
         run: pnpm check:types
+        env:
+          TURBO_FORCE: ${{ secrets.ACTIONS_RUNNER_DEBUG == 'true' }}
 
   special-build-tests:
     timeout-minutes: 20
