@@ -30,7 +30,7 @@ export function getDeprecations(
     if (!isDeactivatedDeprecationNotice) {
       // if we have a specific flag setting, use it
       if (typeof deprecations?.[flag] === 'boolean') {
-        flagState = deprecations?.[flag];
+        flagState = deprecations?.[flag]!;
       } else if (compatVersion) {
         // if we are told we are compatible with a version
         // we check if we can strip this flag
