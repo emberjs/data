@@ -33,12 +33,12 @@ jobs:
           restore-lint-caches: ${{ secrets.ACTIONS_RUNNER_DEBUG != 'true' }}
           install: true
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+          ACTIONS_RUNNER_DEBUG: ${{ secrets.ACTIONS_RUNNER_DEBUG }}
+          DISABLE_TURBO_CACHE: ${{ secrets.ACTIONS_RUNNER_DEBUG }}
       - name: Prettier
         run: pnpm lint:prettier
       - name: Lint
-        run: pnpm lint ${{ secrets.ACTIONS_RUNNER_DEBUG == 'true' && 'engine,socket.io*' }}
-        env:
-          DISABLE_TURBO_CACHE: ${{ secrets.ACTIONS_RUNNER_DEBUG == 'true' }}
+        run: pnpm lint ${{ secrets.ACTIONS_RUNNER_DEBUG == 'true' && '--force' }}
       - name: Check Uncompiled Packages for TypeScript Compilation Errors
         run: pnpm check:types
 

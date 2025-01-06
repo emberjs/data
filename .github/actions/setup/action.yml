@@ -2,6 +2,15 @@ name: Setup Test Environment
 description: Composable Action for ensuring speedy test setup
 
 inputs:
+  ## Disables TurboCache
+  DISABLE_TURBO_CACHE:
+    description: Whether to disable TurboCache
+    required: false
+    default: false
+  ACTIONS_RUNNER_DEBUG:
+    description: Whether to enable debug mode
+    required: false
+    default: false
   ## Speeds Up Lint by enabling reuse
   restore-lint-caches:
     description: Whether to restore lint caches
@@ -68,7 +77,8 @@ runs:
     - name: DEBUG STATUS
       shell: bash
       run:
-        echo "DISABLE_TURBO_CACHE = $DISABLE_TURBO_CACHE"
+        echo "DISABLE_TURBO_CACHE = ${{ inputs.DISABLE_TURBO_CACHE }}"
+        echo "ACTIONS_RUNNER_DEBUG = ${{ inputs.ACTIONS_RUNNER_DEBUG }}"
         echo "restore-lint-caches = ${{ inputs.restore-lint-caches }}"
         echo "restore-broccoli-cache = ${{ inputs.restore-broccoli-cache }}"
 
