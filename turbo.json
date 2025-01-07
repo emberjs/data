@@ -18,6 +18,7 @@
         "src/**",
         "cjs-src/**",
         "addon-main.*",
+        "package.json",
         "tsconfig.json",
         "babel.*",
         "vite.config-cjs.*",
@@ -47,6 +48,7 @@
         "src/**",
         "addon-main.*",
         "tsconfig.json",
+        "package.json",
         "babel.*",
         "vite.config.*",
         "../../config/**"
@@ -75,6 +77,7 @@
         "src/**",
         "addon-main.*",
         "tsconfig.json",
+        "package.json",
         "babel.*",
         "vite.config.*",
         "../../config/**",
