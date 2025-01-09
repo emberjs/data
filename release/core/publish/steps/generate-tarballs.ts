@@ -134,26 +134,6 @@ function scrubTypesFromExports(pkg: Package) {
     delete pkg.pkgData.exports;
     return;
   }
-
-  // scrub the package.json of any types fields in exports
-  if (pkg.pkgData.exports) {
-    // level 1
-    for (const [key, value] of Object.entries(pkg.pkgData.exports)) {
-      if (key === 'types') {
-        delete pkg.pkgData.exports[key];
-      } else if (typeof value === 'object') {
-        // level 2
-        delete value.types;
-
-        for (const [k, v] of Object.entries(value)) {
-          if (typeof v === 'object') {
-            // level 3
-            delete v.types;
-          }
-        }
-      }
-    }
-  }
 }
 
 async function makeTypesPrivate(pkg: Package) {
