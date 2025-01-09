@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { mkdtemp, copyFile, cp } from 'node:fs/promises';
+import { mkdtemp, copyFile, cp, rm } from 'node:fs/promises';
 import { join, basename } from 'node:path';
 import { $ } from 'execa';
 import { globby } from 'globby';
@@ -34,14 +34,28 @@ async function publicPackages() {
   return publicPaths;
 }
 
-async function buildAll() {
+async function buildAll(tag) {
   let publicPaths = await publicPackages();
+
+  if (!tag) {
+    return await Promise.all(
+      publicPaths.map((pkgPath) => {
+        return $({ preferLocal: true, shell: true, cwd: pkgPath })(`pnpm pack`);
+      })
+    );
+  }
+}
+
+async function deleteTars() {
+  let tars = await globby('packages/**/*.tgz', { ignore: ['**/node_modules', '**/dist'] });
+
   await Promise.all(
-    publicPaths.map((pkgPath) => {
-      return $({ preferLocal: true, shell: true, cwd: pkgPath })(`pnpm pack`);
+    tars.map((tar) => {
+      return rm(tar);
     })
   );
 }
+
 async function copyTars(toDir) {
   let tars = await globby('packages/**/*.tgz', { ignore: ['**/node_modules', '**/dist'] });
 
@@ -183,17 +197,22 @@ function banner(text) {
   `);
 }
 
-async function main() {
-  const [, , packageManager] = process.argv;
+const SUPPORTED = new Set(['npm', 'yarn', 'pnpm']);
+const TAGS = new Set(['alpha', 'beta', 'stable']);
 
-  const SUPPORTED = new Set(['npm', 'yarn', 'pnpm']);
+async function main() {
+  const [, , packageManager, tag] = process.argv;
 
   assert(
     SUPPORTED.has(packageManager),
     `Expected passed arg, the packageManager (${packageManager}), to be one of ${[...SUPPORTED.values()].join(', ')}`
   );
 
-  await buildAll();
+  assert(TAGS.has(tag), `Expected passed arg, the tag (${tag}), to be one of ${[...TAGS.values()].join(', ')}`);
+
+  await deleteTars();
+  await buildAll(tag);
+
   let tmpDir = await createTempFolder();
   let projectDir = await copyProject(tmpDir);
 

@@ -85,12 +85,13 @@ jobs:
         run: pnpm test
 
   packageManagers:
-    name: Smoke test w/ ${{ matrix.packageManager }}
+    name: Smoke test w/ ${{ matrix.packageManager }} & ${{ matrix.kind }}
     timeout-minutes: 10
     runs-on: ubuntu-latest
     strategy:
       matrix:
         packageManager: [npm, yarn, pnpm]
+        kind: [alpha, beta, stable]
 
     steps:
       - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
@@ -99,7 +100,9 @@ jobs:
           restore-broccoli-cache: true
           install: true
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: "Run a basic smoke test with npm"
-      - run: node ./scripts/test-package-manager.mjs "${{ matrix.packageManager }}"
+      - name: "Run a basic smoke test with ${{ matrix.packageManager }} and ${{ matrix.kind }} tagging"
+        run: |
+          node ./scripts/test-package-manager.mjs \
+            "${{ matrix.packageManager }}" "${{ matrix.kind}}"
 
 
