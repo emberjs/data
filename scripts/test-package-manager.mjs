@@ -6,6 +6,10 @@ import { join, basename } from 'node:path';
 import { $ } from 'execa';
 import { globby } from 'globby';
 
+import { gatherPackages, loadStrategy } from '../release/utils/package.ts';
+import { generatePackageTarballs } from '../release/core/publish/steps/generate-tarballs.ts';
+import { applyStrategy } from '../release/core/publish/steps/generate-strategy.ts';
+
 const CWD = process.cwd();
 
 const PROJECT_TO_USE = join(import.meta.dirname, '../tests/vite-basic-compat');
@@ -38,16 +42,51 @@ async function buildAll(tag) {
   let publicPaths = await publicPackages();
 
   if (!tag) {
+    /**
+     * Simulates normal pnpm releasing
+     */
     return await Promise.all(
       publicPaths.map((pkgPath) => {
         return $({ preferLocal: true, shell: true, cwd: pkgPath })(`pnpm pack`);
       })
     );
   }
+
+  /**
+   * Simulates part of an actual release
+   * The version increment doesn't matter, as we aren't actually going to change the versions
+   */
+  const config = {
+    channel: tag,
+    increment: 'patch',
+    get(key) {
+      return this[key];
+    },
+  };
+  const strategy = await loadStrategy();
+  const packages = await gatherPackages(strategy.config);
+  const applied = await applyStrategy(config, strategy, packages, packages);
+
+  /**
+   * The applied stategy is mostly based off release/strategy.json
+   * We want to change it dynamically for our test using the "tag"
+   *
+   * It's lies, as we're not changing the versions, but the release / build
+   * code has different behavior based on channel
+   */
+  for (let [pkgName, config] of Object.entries(applied.public_pks)) {
+    applied.public_pks[pkgName] = {
+      ...config,
+      stage: tag,
+      types: tag,
+    };
+  }
+
+  await generatePackageTarballs(config, packages, applied.public_pks);
 }
 
 async function deleteTars() {
-  let tars = await globby('packages/**/*.tgz', { ignore: ['**/node_modules', '**/dist'] });
+  let tars = await globby('{tmp,packages}/**/*.tgz', { ignore: ['**/node_modules', '**/dist'] });
 
   await Promise.all(
     tars.map((tar) => {
@@ -57,7 +96,7 @@ async function deleteTars() {
 }
 
 async function copyTars(toDir) {
-  let tars = await globby('packages/**/*.tgz', { ignore: ['**/node_modules', '**/dist'] });
+  let tars = await globby('{tmp/tarballs/,packages}/**/*.tgz', { ignore: ['**/node_modules', '**/dist'] });
 
   await Promise.all(
     tars.map((tar) => {
@@ -208,7 +247,9 @@ async function main() {
     `Expected passed arg, the packageManager (${packageManager}), to be one of ${[...SUPPORTED.values()].join(', ')}`
   );
 
-  assert(TAGS.has(tag), `Expected passed arg, the tag (${tag}), to be one of ${[...TAGS.values()].join(', ')}`);
+  if (tag) {
+    assert(TAGS.has(tag), `Expected passed arg, the tag (${tag}), to be one of ${[...TAGS.values()].join(', ')}`);
+  }
 
   await deleteTars();
   await buildAll(tag);
