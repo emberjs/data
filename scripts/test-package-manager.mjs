@@ -15,7 +15,7 @@ const CWD = process.cwd();
  * We don't test types for these packages
  * (they also don't end up in the browser)
  */
-const IGNORED_PACKAGES = new Set(['@ember-data/codemods']);
+const IGNORED_PACKAGES = new Set(['@ember-data/codemods', 'eslint-plugin-warp-drive']);
 
 const PROJECT_TO_USE = join(import.meta.dirname, '../tests/vite-basic-compat');
 
