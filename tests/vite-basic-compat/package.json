@@ -132,6 +132,7 @@
     "eslint-plugin-n": "^17.13.1",
     "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-qunit": "^8.1.2",
+    "expect-type": "^0.20.0",
     "globals": "^15.12.0",
     "loader.js": "^4.7.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
