@@ -6,11 +6,16 @@ import { join, basename } from 'node:path';
 import { $ } from 'execa';
 import { globby } from 'globby';
 
-import { gatherPackages, loadStrategy } from '../release/utils/package.ts';
+import { gatherPackages } from '../release/utils/package.ts';
 import { generatePackageTarballs } from '../release/core/publish/steps/generate-tarballs.ts';
-import { applyStrategy } from '../release/core/publish/steps/generate-strategy.ts';
 
 const CWD = process.cwd();
+
+/**
+ * We don't test types for these packages
+ * (they also don't end up in the browser)
+ */
+const IGNORED_PACKAGES = new Set(['@ember-data/codemods']);
 
 const PROJECT_TO_USE = join(import.meta.dirname, '../tests/vite-basic-compat');
 
@@ -63,9 +68,12 @@ async function buildAll(tag) {
       return this[key];
     },
   };
-  const strategy = await loadStrategy();
-  const packages = await gatherPackages(strategy.config);
-  const applied = await applyStrategy(config, strategy, packages, packages);
+
+  /*
+   * During actual publish, the whole strategy file is passed here for convinience,
+   * but we don't need all of it for the tests
+   */
+  const packages = await gatherPackages({ packageRoots: ['packages/*', 'tests/*', 'config'] });
 
   /**
    * The applied stategy is mostly based off release/strategy.json
@@ -74,15 +82,22 @@ async function buildAll(tag) {
    * It's lies, as we're not changing the versions, but the release / build
    * code has different behavior based on channel
    */
-  for (let [pkgName, config] of Object.entries(applied.public_pks)) {
-    applied.public_pks[pkgName] = {
-      ...config,
+  const strategy = new Map();
+  for (let [pkgName, config] of packages.entries()) {
+    if (config.pkgData.private) continue;
+    if (IGNORED_PACKAGES.has(config.pkgData.name)) continue;
+
+    strategy.set(pkgName, {
       stage: tag,
       types: tag,
-    };
+      typesPublish: true,
+      name: config.pkgData.name,
+      private: false,
+      disttag: tag,
+    });
   }
 
-  await generatePackageTarballs(config, packages, applied.public_pks);
+  await generatePackageTarballs(config, packages, strategy);
 }
 
 async function deleteTars() {
@@ -152,7 +167,7 @@ async function fixManifest(projectDir) {
 
     if (!local) {
       console.warn(`
-Could not find ${depName} in list of tarballs: 
+Could not find ${depName} in list of tarballs:
 ${tars.map((x) => `\t${x}\n`).join('')}
 
   ${depName} will be omitted from this test project.
