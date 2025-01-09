@@ -1,5 +1,3 @@
-const { dasherize, singularize } = require('inflection');
-
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
   meta: {
@@ -10,10 +8,47 @@ module.exports = {
       recommended: true,
       url: 'https://github.com/emberjs/data/tree/main/packages/eslint-plugin-warp-drive/docs/require-singular-dasherized-resource-name.md',
     },
-    schema: [],
+    fixable: 'code',
+    defaultOptions: [
+      {
+        moduleName: 'inflection',
+        methodNames: ['dasherize', 'singularize'],
+      },
+    ],
+    schema: {
+      type: 'array',
+      items: [
+        {
+          type: 'object',
+          properties: {
+            moduleName: { type: 'string' },
+            methodNames: { type: 'array' },
+          },
+          additionalProperties: false,
+        },
+      ],
+    },
   },
 
   create(context) {
+    const params = context.options[0] ?? { moduleName: 'inflection', methodNames: ['dasherize', 'singularize'] };
+    const { moduleName, methodNames } = params;
+    let normalize;
+
+    try {
+      const module = require(moduleName);
+      normalize = (value) => {
+        return methodNames.reduce((acc, methodName) => {
+          return module[methodName](acc);
+        }, value);
+      };
+    } catch (error) {
+      context.report({
+        message: `Failed to load module '${moduleName}' or methods '${methodNames.join(', ')}'`,
+      });
+      return {};
+    }
+
     return {
       CallExpression(node) {
         const decorator =
@@ -25,10 +60,7 @@ module.exports = {
           // TODO: add support for passing normalize function to rule to test
           const resource = args.at(0); // The first argument is the resource name
           const resourceName = resource.value;
-          const normalizedResourceName = dasherize(singularize(resourceName));
-
-          console.log({ resourceName, normalizedResourceName });
-          console.log(resourceName === normalizedResourceName, 'true');
+          const normalizedResourceName = normalize(resourceName);
 
           if (resourceName !== normalizedResourceName) {
             context.report({
@@ -36,6 +68,9 @@ module.exports = {
               message: `The @${node.callee.name} decorator resource name should be singular and dasherized (${normalizedResourceName}), but found '${resourceName}'.`,
               data: {
                 decorator: decorator.callee.name,
+              },
+              fix(fixer) {
+                return fixer.replaceText(resource, `'${normalizedResourceName}'`);
               },
             });
             return;

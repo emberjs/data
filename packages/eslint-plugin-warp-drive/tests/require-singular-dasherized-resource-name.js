@@ -45,7 +45,12 @@ ruleTester.run('require-singular-dasherized-resource-name', rule, {
           @belongsTo('Posts', { async: true, inverse: 'post-comments' }) post;
         }
         `,
-      output: null,
+      output: `
+        import Model, { belongsTo } from '@ember-data/model';
+        export default class extends Model {
+          @belongsTo('Post', { async: true, inverse: 'post-comments' }) post;
+        }
+        `,
       errors: [
         {
           message:
@@ -61,11 +66,38 @@ ruleTester.run('require-singular-dasherized-resource-name', rule, {
           @hasMany('user_settings', { inverse: 'user' }) userSettings;
         }
         `,
-      output: null,
+      output: `
+        import Model, { hasMany } from '@ember-data/model';
+        export default class User extends Model {
+          @hasMany('user-setting', { inverse: 'user' }) userSettings;
+        }
+        `,
       errors: [
         {
           message:
             "The @hasMany decorator resource name should be singular and dasherized (user-setting), but found 'user_settings'.",
+          type: 'CallExpression',
+        },
+      ],
+    },
+    {
+      code: `
+        import Model, { hasMany } from '@ember-data/model';
+        export default class User extends Model {
+          @hasMany('UserSettings', { inverse: 'user' }) userSettings;
+        }
+        `,
+      output: `
+        import Model, { hasMany } from '@ember-data/model';
+        export default class User extends Model {
+          @hasMany('user-setting', { inverse: 'user' }) userSettings;
+        }
+        `,
+      options: [{ moduleName: require.resolve('./normalizer.js'), methodNames: ['normalize'] }],
+      errors: [
+        {
+          message:
+            "The @hasMany decorator resource name should be singular and dasherized (user-setting), but found 'UserSettings'.",
           type: 'CallExpression',
         },
       ],
