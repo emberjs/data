@@ -278,8 +278,10 @@ async function main() {
   await fixManifest(projectDir);
   await fixTSConfig(projectDir);
 
-  banner('typecheck');
+  banner('install');
   await install(packageManager, projectDir);
+
+  banner('typecheck');
   let typesResult = await typecheck(packageManager, projectDir);
   banner('build');
   let buildResult = await build(packageManager, projectDir);
