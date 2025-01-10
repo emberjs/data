@@ -1,7 +1,8 @@
 import assert from 'node:assert';
 import { readFileSync, writeFileSync } from 'node:fs';
+import { rimraf } from 'rimraf';
 import { tmpdir } from 'node:os';
-import { mkdtemp, copyFile, cp, rm } from 'node:fs/promises';
+import { mkdtemp, copyFile, cp, rm, readFile } from 'node:fs/promises';
 import { join, basename } from 'node:path';
 import { $ } from 'execa';
 import { globby } from 'globby';
@@ -100,12 +101,41 @@ async function buildAll(tag) {
   await generatePackageTarballs(config, packages, strategy);
 }
 
+async function debugTypes() {
+  let entries = await globby('**/unstable-preview-types/index.d.ts', { ignore: ['**/node_modules', '**/dist'] });
+
+  for (let entry of entries) {
+    banner(entry);
+    let contents = await readFile(entry);
+    console.debug(contents.toString());
+  }
+}
+
 async function deleteTars() {
   let tars = await globby('{tmp,packages}/**/*.tgz', { ignore: ['**/node_modules', '**/dist'] });
 
   await Promise.all(
     tars.map((tar) => {
       return rm(tar);
+    })
+  );
+}
+
+/**
+ * Mostly only matters for local testing
+ */
+async function deletePriorBuildArtifacts() {
+  // let outputs = await globby('**/{dist/(unstable-)?(preview-)?types', { ignore: ['**/node_modules'] });
+  let outputs = await globby('**/{dist,unstable-preview-types}/', {
+    ignore: ['**/node_modules'],
+    onlyDirectories: true,
+  });
+
+  outputs = outputs.map((x) => x.trim());
+
+  await Promise.all(
+    outputs.map((output) => {
+      return rimraf(output);
     })
   );
 }
@@ -285,14 +315,18 @@ async function main() {
   const reuseTars = options.includes('--reuse-tars');
 
   if (!reuseTars) {
+    await deletePriorBuildArtifacts();
     await deleteTars();
+    await $`pnpm prepare`;
     await buildAll(tag);
   }
+
+  await debugTypes();
 
   let tmpDir = await createTempFolder();
   let projectDir = await copyProject(tmpDir);
 
-  console.debug(`To debug this test run, the project is located at ${projectDir}`);
+  banner(`To debug this test run, the project is located at ${projectDir}`);
 
   await copyTars(projectDir);
   await fixManifest(projectDir);
