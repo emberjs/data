@@ -7,8 +7,6 @@
 const rule = require('../src/rules/no-invalid-relationships');
 const RuleTester = require('eslint').RuleTester;
 
-const parserOptions = { ecmaVersion: 2022, sourceType: 'module', requireConfigFile: false };
-
 const ruleTester = new RuleTester({
   languageOptions: {
     parser: require('@babel/eslint-parser'),
