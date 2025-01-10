@@ -262,7 +262,7 @@ async function main() {
     `Expected passed arg, the packageManager (${packageManager}), to be one of ${[...SUPPORTED.values()].join(', ')}`
   );
 
-  if (tag) {
+  if (tag && tag !== 'false') {
     assert(TAGS.has(tag), `Expected passed arg, the tag (${tag}), to be one of ${[...TAGS.values()].join(', ')}`);
   }
 
