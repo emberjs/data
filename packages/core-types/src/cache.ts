@@ -142,7 +142,9 @@ export interface Cache {
   peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
 
   /**
-   * Peek resource data from the Cache.
+   * Peek remote resource data from the Cache.
+   *
+   * This will give the data provided from the server without any local changes.
    *
    * In development, if the return value
    * is JSON the return value
