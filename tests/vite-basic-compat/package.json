@@ -50,6 +50,9 @@
     "@ember-data/json-api": {
       "injected": true
     },
+    "@ember-data/rest": {
+      "injected": true
+    },
     "@ember-data/request-utils": {
       "injected": true
     },
@@ -81,6 +84,7 @@
     "@ember-data/json-api": "workspace:*",
     "@ember-data/legacy-compat": "workspace:*",
     "@ember-data/model": "workspace:*",
+    "@ember-data/rest": "workspace:*",
     "@ember-data/request": "workspace:*",
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/serializer": "workspace:*",
