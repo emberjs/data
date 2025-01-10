@@ -185,12 +185,14 @@ ${tars.map((x) => `\t${x}\n`).join('')}
   writeFileSync(manifestPath, JSON.stringify(json, null, 2));
 }
 
-async function fixTSConfig(projectDir) {
+async function fixTSConfig(projectDir, tag) {
   let tsconfigPath = join(projectDir, 'tsconfig.json');
   let contents = readFileSync(tsconfigPath).toString();
   let json = JSON.parse(contents);
 
   delete json.references;
+
+  const typesPath = tag === 'stable' ? 'types' : tag === 'beta' ? 'preview-types' : 'unstable-preview-types';
 
   json.glint = {
     environment: [],
@@ -202,9 +204,17 @@ async function fixTSConfig(projectDir) {
   json.compilerOptions.types = [
     'ember-source/types',
     '@embroider/core/virtual',
-    // 'ember-data/unstable-preview-types',
-    // '@ember-data/request/unstable-preview-types',
-    // TODO: etc
+    `ember-data/${typesPath}`,
+    `@ember-data/adapter/${typesPath}`,
+    `@ember-data/debug/${typesPath}`,
+    `@ember-data/json-api/${typesPath}`,
+    `@ember-data/legacy-compat/${typesPath}`,
+    `@ember-data/model/${typesPath}`,
+    `@ember-data/request/${typesPath}`,
+    `@ember-data/request-utils/${typesPath}`,
+    `@ember-data/store/${typesPath}`,
+    `@ember-data/serializer/${typesPath}`,
+    `@ember-data/tracking/${typesPath}`,
   ];
 
   writeFileSync(tsconfigPath, JSON.stringify(json, null, 2));
@@ -255,7 +265,7 @@ const SUPPORTED = new Set(['npm', 'yarn', 'pnpm']);
 const TAGS = new Set(['alpha', 'beta', 'stable']);
 
 async function main() {
-  const [, , packageManager, tag] = process.argv;
+  const [, , packageManager, tag, ...options] = process.argv;
 
   assert(
     SUPPORTED.has(packageManager),
@@ -266,8 +276,18 @@ async function main() {
     assert(TAGS.has(tag), `Expected passed arg, the tag (${tag}), to be one of ${[...TAGS.values()].join(', ')}`);
   }
 
-  await deleteTars();
-  await buildAll(tag);
+  /**
+   * Useful if we already built tars,
+   * when we're doing repeat-testing.
+   *
+   * (by far the slowest part of these tests is the tar building (and their prep))
+   */
+  const reuseTars = options.includes('--reuse-tars');
+
+  if (!reuseTars) {
+    await deleteTars();
+    await buildAll(tag);
+  }
 
   let tmpDir = await createTempFolder();
   let projectDir = await copyProject(tmpDir);
