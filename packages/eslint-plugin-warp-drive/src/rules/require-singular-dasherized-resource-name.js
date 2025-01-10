@@ -30,19 +30,24 @@ module.exports = {
     },
   },
 
-  create(context) {
-    const params = context.options[0] ?? { moduleName: 'inflection', methodNames: ['dasherize', 'singularize'] };
+  async create(context) {
+    const params = context.options[0] ?? {
+      moduleName: '@ember-data/request-utils/string',
+      methodNames: ['dasherize', 'singularize'],
+    };
     const { moduleName, methodNames } = params;
     let normalize;
 
     try {
-      const module = require(moduleName);
+      const mod = await import('@ember-data/request-utils/string');
+      // const mod = await import(moduleName);
       normalize = (value) => {
         return methodNames.reduce((acc, methodName) => {
-          return module[methodName](acc);
+          return mod[methodName](acc);
         }, value);
       };
     } catch (error) {
+      console.log(error);
       context.report({
         message: `Failed to load module '${moduleName}' or methods '${methodNames.join(', ')}'`,
       });

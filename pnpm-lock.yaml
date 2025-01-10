@@ -949,6 +949,9 @@ importers:
       '@babel/plugin-proposal-decorators':
         specifier: 7.25.7
         version: 7.25.7(@babel/core@7.24.5)
+      '@ember-data/request-utils':
+        specifier: workspace:5.4.0-alpha.122
+        version: link:../request-utils
       '@warp-drive/internal-config':
         specifier: workspace:5.4.0-alpha.122
         version: link:../../config

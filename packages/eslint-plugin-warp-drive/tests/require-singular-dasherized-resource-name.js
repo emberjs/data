@@ -93,7 +93,7 @@ ruleTester.run('require-singular-dasherized-resource-name', rule, {
           @hasMany('user-setting', { inverse: 'user' }) userSettings;
         }
         `,
-      options: [{ moduleName: require.resolve('./normalizer.js'), methodNames: ['normalize'] }],
+      options: [{ moduleName: require.resolve('./normalizer.mjs'), methodNames: ['normalize'] }],
       errors: [
         {
           message:
