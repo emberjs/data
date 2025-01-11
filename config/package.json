@@ -23,7 +23,7 @@
     "eslint-plugin-qunit": "^8.1.2",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "rollup": "^4.17.2",
-    "typescript": "^5.4.5",
+    "typescript": "^5.7.2",
     "vite": "^5.2.11",
     "vite-plugin-dts": "^3.9.1"
   },
