@@ -51,6 +51,8 @@ export async function bumpAllPackages(
 
   await exec(finalCommand, dryRun);
   console.log(`✅ ` + chalk.cyan(`Successfully Versioned ${nextVersion}`));
+
+  await updateWorkspaceVersionsForPublish(config, packages, strategy);
 }
 
 export async function updateWorkspaceVersionsForPublish(
@@ -74,7 +76,12 @@ export async function updateWorkspaceVersionsForPublish(
   }
 
   const nextVersion = strategy.get('root')?.toVersion;
-  console.log(`✅ ` + chalk.cyan(`Successfully Updated "workspace:^" versions for tarball publish of ${nextVersion}`));
+  console.log(
+    `✅ ` +
+      chalk.cyan(
+        `Successfully Updated "workspace:^" versions for tarball publish of ${nextVersion}\n\t${chalk.yellow('[NOTE]: THIS WILL NOT BE COMMITTED')}`
+      )
+  );
 }
 
 function bumpKnownProjectVersionsFromStrategy(
@@ -100,20 +107,20 @@ export async function restorePackagesForDryRun(
   packages: Map<string, Package>,
   strategy: Map<string, APPLIED_STRATEGY>
 ) {
-  for (const [, pkg] of packages) {
-    const strat = strategy.get(pkg.pkgData.name);
-    if (!strat) {
-      throw new Error(`Unable to find strategy for package ${pkg.pkgData.name}`);
-    }
-    pkg.pkgData.version = strat.fromVersion;
+  const cleanCommand = `git checkout HEAD .`;
+  const finalCommand = process.env.CI ? ['sh', '-c', `${cleanCommand}`] : ['zsh', '-c', `${cleanCommand}`];
 
-    // update any referenced packages in dependencies
-    bumpKnownProjectVersionsFromStrategy(pkg.pkgData.dependencies || {}, strategy, true);
-    bumpKnownProjectVersionsFromStrategy(pkg.pkgData.devDependencies || {}, strategy, true);
-    bumpKnownProjectVersionsFromStrategy(pkg.pkgData.peerDependencies || {}, strategy, true);
+  await exec(finalCommand);
 
-    await pkg.file.write();
-  }
+  // for (const [, pkg] of packages) {
+  //   const strat = strategy.get(pkg.pkgData.name);
+  //   if (!strat) {
+  //     throw new Error(`Unable to find strategy for package ${pkg.pkgData.name}`);
+  //   }
+  //   pkg.pkgData.version = strat.fromVersion;
+
+  //   await pkg.file.write();
+  // }
 
   console.log(`\t♻️ ` + chalk.grey(`Successfully Restored Versions for DryRun`));
 }
