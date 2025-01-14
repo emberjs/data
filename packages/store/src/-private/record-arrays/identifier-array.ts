@@ -396,7 +396,6 @@ export class IdentifierArray<T = unknown> {
 
         const original: StableRecordIdentifier | undefined = target[index];
         const newIdentifier = extractIdentifierFromRecord(value);
-        (target as unknown as Record<KeyType, unknown>)[index] = newIdentifier;
         assert(`Expected a record`, isStableIdentifier(newIdentifier));
         // We generate "transactions" whenever a setter method on the array
         // is called and might bulk update multiple array cells. Fundamentally,
