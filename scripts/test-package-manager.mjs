@@ -261,7 +261,13 @@ async function runNoThrow(cwd, cmd) {
 
 async function install(packageManager, cwd) {
   // All package managers have an install command
-  await $({ preferLocal: true, shell: true, cwd, stdio: 'inherit' })`${packageManager} install`;
+  switch (packageManager) {
+    case 'npm':
+      // npm complains about tgz files in the version specifier part of package.json
+      await $({ preferLocal: true, shell: true, cwd, stdio: 'inherit' })`${packageManager} install --force`;
+    default:
+      await $({ preferLocal: true, shell: true, cwd, stdio: 'inherit' })`${packageManager} install`;
+  }
 }
 
 async function typecheck(packageManager, cwd) {

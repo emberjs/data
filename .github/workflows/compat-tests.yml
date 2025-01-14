@@ -90,7 +90,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        packageManager: [npm, yarn, pnpm]
+        packageManager:
+        - npm
+        # - yarn # yarn@1 has not been reliable, if yarn@4 were easy to setup, we could test against that
+        - pnpm
         kind:
           - false # Test vanilla pnpm -r
           - alpha # requires unstable-preview-types folder for each package
