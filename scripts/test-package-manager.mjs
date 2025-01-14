@@ -185,7 +185,7 @@ async function fixManifest(projectDir) {
   json.pnpm.overrides ||= {};
 
   function tarByPrefix(hyphenated) {
-    return tars.find((name) => name.match(new RegExp(`${hyphenated}-\d`)));
+    return tars.find((name) => name.match(new RegExp(`${hyphenated}-\\d`)));
   }
 
   for (let [depName, version] of Object.entries(json.devDependencies)) {
@@ -193,11 +193,12 @@ async function fixManifest(projectDir) {
       continue;
     }
 
-    let local = tarByPrefix(depName.replace('@', '').replace('/', '-'));
+    let hyphenated = depName.replace('@', '').replace('/', '-');
+    let local = tarByPrefix(hyphenated);
 
     if (!local) {
       console.warn(`
-Could not find ${depName} in list of tarballs:
+Could not find ${depName} (via ${hyphenated}) in list of tarballs:
 ${tars.map((x) => `\t${x}\n`).join('')}
 
   ${depName} will be omitted from this test project.
