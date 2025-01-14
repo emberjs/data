@@ -12,8 +12,7 @@
   "author": "",
   "scripts": {
     "lint": "eslint . --quiet --cache --cache-strategy=content",
-    "test:blueprints": "mocha tests",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+    "test:blueprints": "mocha tests"
   },
   "dependenciesMeta": {
     "@ember-data/unpublished-test-infra": {
