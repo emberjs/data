@@ -16,7 +16,7 @@
   ],
   "scripts": {
     "_lint": "eslint . --quiet --cache --cache-strategy=content",
-    "build:glint": "glint --build",
+    "build:glint": "glint && glint --build",
     "build:pkg": "vite build;",
     "prepack": "bun run build:pkg",
     "sync-hardlinks": "bun run sync-dependencies-meta-injected"
