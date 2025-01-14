@@ -23,6 +23,7 @@ import { recordIdentifierFor } from '../caches/instance-cache';
 import type { RecordArrayManager } from '../managers/record-array-manager';
 import type { Store } from '../store-service';
 import { NativeProxy } from './native-proxy-type-fix';
+import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
 
 type KeyType = string | symbol | number;
 const ARRAY_GETTER_METHODS = new Set<KeyType>([
@@ -529,7 +530,11 @@ const desc = {
   enumerable: true,
   configurable: false,
   get: function () {
-    return this;
+    // here to support computed chains
+    // and {{#each}}
+    if (DEPRECATE_COMPUTED_CHAINS) {
+      return this;
+    }
   },
 };
 compat(desc);
