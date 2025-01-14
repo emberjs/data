@@ -225,7 +225,8 @@ module('integration/record-data - Record Data State', function (hooks) {
   test('Record Data state saving', async function (assert) {
     assert.expect(3);
 
-    let isDeleted: boolean, isNew: boolean, isDeletionCommitted: boolean;
+    let isDeleted: boolean, isNew: boolean;
+    const isDeletionCommitted = false;
     let calledDelete = false;
     let calledUpdate = false;
     let calledCreate = false;
