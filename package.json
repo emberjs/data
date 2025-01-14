@@ -60,7 +60,7 @@
     "rimraf": "^5.0.6",
     "semver": "^7.6.3",
     "silent-error": "^1.1.1",
-    "typescript": "^5.4.5",
+    "typescript": "^5.7.2",
     "url": "^0.11.4",
     "yuidocjs": "^0.10.2",
     "zlib": "1.0.5"

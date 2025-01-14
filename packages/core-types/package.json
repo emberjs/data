@@ -39,15 +39,15 @@
   },
   "dependencies": {
     "@embroider/macros": "^1.16.6",
-    "@warp-drive/build-config": "workspace:0.0.0-alpha.59"
+    "@warp-drive/build-config": "workspace:*"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
     "@babel/plugin-transform-typescript": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
-    "@warp-drive/internal-config": "workspace:5.4.0-alpha.122",
+    "@warp-drive/internal-config": "workspace:*",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
-    "typescript": "^5.4.5",
+    "typescript": "^5.7.2",
     "vite": "^5.2.11"
   },
   "engines": {

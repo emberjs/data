@@ -20,17 +20,17 @@ export function getDeprecations(
 ): { [key in DeprecationFlag]: boolean } {
   const flags = {} as Record<DeprecationFlag, boolean>;
   const keys = Object.keys(CURRENT_DEPRECATIONS) as DeprecationFlag[];
-  const DISABLE_6X_DEPRECATIONS = deprecations?.DISABLE_6X_DEPRECATIONS ?? true;
+  const DISABLE_7X_DEPRECATIONS = deprecations?.DISABLE_7X_DEPRECATIONS ?? true;
 
   keys.forEach((flag) => {
     const deprecatedSince = CURRENT_DEPRECATIONS[flag];
-    const isDeactivatedDeprecationNotice = DISABLE_6X_DEPRECATIONS && deprecationIsNextMajorCycle(deprecatedSince);
+    const isDeactivatedDeprecationNotice = DISABLE_7X_DEPRECATIONS && deprecationIsNextMajorCycle(deprecatedSince);
     let flagState = true; // default to no code-stripping
 
     if (!isDeactivatedDeprecationNotice) {
       // if we have a specific flag setting, use it
       if (typeof deprecations?.[flag] === 'boolean') {
-        flagState = deprecations?.[flag];
+        flagState = deprecations?.[flag]!;
       } else if (compatVersion) {
         // if we are told we are compatible with a version
         // we check if we can strip this flag

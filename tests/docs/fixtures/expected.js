@@ -82,6 +82,7 @@ module.exports = {
     '(public) @warp-drive/build-config/deprecations CurrentDeprecations#DEPRECATE_STORE_EXTENDS_EMBER_OBJECT',
     '(public) @warp-drive/build-config/deprecations CurrentDeprecations#ENABLE_LEGACY_SCHEMA_SERVICE',
     '(public) @warp-drive/build-config/deprecations CurrentDeprecations#DEPRECATE_EMBER_INFLECTOR',
+    '(public) @warp-drive/build-config/deprecations CurrentDeprecations#DISABLE_7X_DEPRECATIONS',
     '(public) @ember-data/legacy-compat/builders @ember-data/legacy-compat/builders#findAll',
     '(public) @ember-data/legacy-compat/builders @ember-data/legacy-compat/builders#findRecord',
     '(public) @ember-data/legacy-compat/builders @ember-data/legacy-compat/builders#query',
