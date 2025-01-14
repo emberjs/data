@@ -3500,7 +3500,7 @@ importers:
   tests/vite-basic-compat:
     devDependencies:
       '@babel/core':
-        specifier: ^7.26.0
+        specifier: ^7.24.5
         version: 7.26.0
       '@babel/eslint-parser':
         specifier: ^7.25.9
