@@ -44,7 +44,7 @@
     "@types/semver": "^7.5.8",
     "badge-maker": "4.1.0",
     "bun-types": "^1.1.30",
-    "chalk": "^4.1.2",
+    "chalk": "^5.4.1",
     "co": "^4.6.0",
     "command-line-args": "^5.2.1",
     "comment-json": "^4.2.5",
