@@ -12,7 +12,7 @@
     { "path": "./packages/core-types" },
     { "path": "./packages/debug" },
     { "path": "./packages/diagnostic" },
-    // { "path": "./packages/ember" },
+    { "path": "./packages/ember" },
     { "path": "./packages/graph" },
     { "path": "./packages/holodeck" },
     { "path": "./packages/json-api" },
