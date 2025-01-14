@@ -446,8 +446,6 @@ export class IdentifierArray<T = unknown> {
 
         const original: StableRecordIdentifier | undefined = target[index];
         const newIdentifier = extractIdentifierFromRecord(value);
-        // FIXME this line was added on main and I'm not sure why
-        (target as unknown as Record<KeyType, unknown>)[index] = newIdentifier;
         assert(`Expected a record`, isStableIdentifier(newIdentifier));
         // We generate "transactions" whenever a setter method on the array
         // is called and might bulk update multiple array cells. Fundamentally,
@@ -558,7 +556,7 @@ export class IdentifierArray<T = unknown> {
   }
 
   /*
-    Update this RecordArray and return a promise which resolves once the update
+    Update this Array and return a promise which resolves once the update
     is finished.
    */
   _update(): Promise<IdentifierArray<T>> {
