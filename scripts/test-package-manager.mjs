@@ -185,7 +185,7 @@ async function fixManifest(projectDir) {
   json.pnpm.overrides ||= {};
 
   function tarByPrefix(hyphenated) {
-    return tars.find((name) => name.startsWith(hyphenated));
+    return tars.find((name) => name.match(new RegExp(`${hyphenated}-\d`)));
   }
 
   for (let [depName, version] of Object.entries(json.devDependencies)) {
