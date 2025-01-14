@@ -65,21 +65,25 @@ export async function updateWorkspaceVersionsForPublish(
     if (!strat) {
       throw new Error(`Unable to find strategy for package ${pkg.pkgData.name}`);
     }
-    pkg.pkgData.version = strat.toVersion;
+    let changed = false;
 
     // update any referenced packages in dependencies
-    bumpKnownProjectVersionsFromStrategy(pkg.pkgData.dependencies || {}, strategy);
-    bumpKnownProjectVersionsFromStrategy(pkg.pkgData.devDependencies || {}, strategy);
-    bumpKnownProjectVersionsFromStrategy(pkg.pkgData.peerDependencies || {}, strategy);
+    changed = bumpKnownProjectVersionsFromStrategy(pkg.pkgData.dependencies || {}, strategy) || changed;
+    changed = bumpKnownProjectVersionsFromStrategy(pkg.pkgData.devDependencies || {}, strategy) || changed;
+    changed = bumpKnownProjectVersionsFromStrategy(pkg.pkgData.peerDependencies || {}, strategy) || changed;
 
-    await pkg.file.write();
+    if (changed) {
+      await pkg.file.write();
+    } else {
+      console.log(chalk.grey(`\tNo workspace:* dependencies to update for ${chalk.cyan(pkg.pkgData.name)}`));
+    }
   }
 
   const nextVersion = strategy.get('root')?.toVersion;
   console.log(
     `✅ ` +
       chalk.cyan(
-        `Successfully Updated "workspace:^" versions for tarball publish of ${nextVersion}\n\t${chalk.yellow('[NOTE]: THIS WILL NOT BE COMMITTED')}`
+        `Successfully Updated "workspace:*" versions for tarball publish of ${nextVersion}\n\t${chalk.yellow('[NOTE]: THIS WILL NOT BE COMMITTED')}`
       )
   );
 }

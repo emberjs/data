@@ -53,6 +53,7 @@ export class JSONFile<T extends object = Record<string, unknown>> {
       if (allowNoop) {
         return;
       }
+      console.log(strData);
       throw new Error(`Should not write when not updating contents`);
     }
     this.#lastKnown = strData;
