@@ -12,8 +12,7 @@
   "author": "",
   "scripts": {
     "test:docs": "qunit ./index.js",
-    "lint": "eslint . --quiet --cache --cache-strategy=content",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+    "lint": "eslint . --quiet --cache --cache-strategy=content"
   },
   "devDependencies": {
     "@warp-drive/internal-config": "workspace:*",

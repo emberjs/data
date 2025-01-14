@@ -21,8 +21,7 @@
     "check:types": "tsc --noEmit",
     "start": "bun run build:tests --watch",
     "test": "bun ./diagnostic.js",
-    "_test:production": "bun ./diagnostic.js",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+    "_test:production": "bun ./diagnostic.js"
   },
   "dependenciesMeta": {
     "@warp-drive/ember": {

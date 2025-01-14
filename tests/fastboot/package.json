@@ -19,8 +19,7 @@
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "check:types": "tsc --noEmit",
     "start": "ember serve",
-    "test:fastboot": "ember test --test-port=0",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+    "test:fastboot": "ember test --test-port=0"
   },
   "dependencies": {
     "@ember-data/unpublished-test-infra": "workspace:*",
