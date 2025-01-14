@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/core-types",
-  "version": "0.0.0-alpha.110",
+  "version": "0.0.0-alpha.111",
   "description": "Provides core logic, utils and types for WarpDrive and EmberData",
   "keywords": [
     "ember-addon"

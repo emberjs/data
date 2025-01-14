@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/build-config",
-  "version": "0.0.0-alpha.61",
+  "version": "0.0.0-alpha.62",
   "description": "Provides Build Configuration for projects using WarpDrive or EmberData",
   "keywords": [
     "ember-data",
