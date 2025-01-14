@@ -76,8 +76,8 @@ importers:
         specifier: ^1.1.30
         version: 1.1.30
       chalk:
-        specifier: ^4.1.2
-        version: 4.1.2
+        specifier: ^5.4.1
+        version: 5.4.1
       co:
         specifier: ^4.6.0
         version: 4.6.0
@@ -341,8 +341,8 @@ importers:
         specifier: workspace:*
         version: file:packages/build-config(@babel/core@7.26.0)(@glint/template@1.5.0)
       chalk:
-        specifier: ^5.3.0
-        version: 5.3.0
+        specifier: ^5.4.1
+        version: 5.4.1
       comment-json:
         specifier: ^4.2.5
         version: 4.2.5
@@ -596,8 +596,8 @@ importers:
   packages/codemods:
     dependencies:
       chalk:
-        specifier: ^5.3.0
-        version: 5.3.0
+        specifier: ^5.4.1
+        version: 5.4.1
       commander:
         specifier: ^12.1.0
         version: 12.1.0
@@ -763,8 +763,8 @@ importers:
         specifier: workspace:*
         version: file:packages/build-config(@babel/core@7.26.0)(@glint/template@1.5.0)
       chalk:
-        specifier: ^5.3.0
-        version: 5.3.0
+        specifier: ^5.4.1
+        version: 5.4.1
       debug:
         specifier: ^4.3.7
         version: 4.3.7(supports-color@8.1.1)
@@ -1088,8 +1088,8 @@ importers:
         specifier: ^1.11.1
         version: 1.11.1
       chalk:
-        specifier: ^5.3.0
-        version: 5.3.0
+        specifier: ^5.4.1
+        version: 5.4.1
       hono:
         specifier: ^4.6.5
         version: 4.6.5
@@ -1881,8 +1881,8 @@ importers:
         specifier: workspace:*
         version: file:packages/build-config(@babel/core@7.26.0)(@glint/template@1.5.0)
       chalk:
-        specifier: ^4.1.2
-        version: 4.1.2
+        specifier: ^5.4.1
+        version: 5.4.1
       qunit:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=2jwk2nz4gqke2k5hv6ptj42llu)
@@ -11267,8 +11267,8 @@ packages:
       ansi-styles: 4.3.0
       supports-color: 7.2.0
 
-  /chalk@5.3.0:
-    resolution: {integrity: sha512-dLitG79d+GV1Nb/VYcCDFivJeK1hiukt9QjRNVOsUtTy1rR1YJsmpGGTZ3qJos+uw7WmWF4wUwBd9jxjocFC2w==}
+  /chalk@5.4.1:
+    resolution: {integrity: sha512-zgVZuo2WcZgfUEmsn6eO3kINexW8RAE4maiQ8QNs8CtpPCSyMiYsULR3HQYkm3w8FIA3SberyMJMSldGsW+U3w==}
     engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
 
   /char-regex@1.0.2:
@@ -12956,7 +12956,7 @@ packages:
       qunit: 2.19.4
     dependencies:
       '@babel/core': 7.26.0
-      chalk: 5.3.0
+      chalk: 5.4.1
       cli-table3: 0.6.4
       debug: 4.3.7(supports-color@8.1.1)
       ember-auto-import: 2.10.0(@glint/template@1.5.0)
@@ -13356,7 +13356,7 @@ packages:
     dependencies:
       '@lint-todo/utils': 13.1.1
       aria-query: 5.3.2
-      chalk: 5.3.0
+      chalk: 5.4.1
       ci-info: 4.1.0
       date-fns: 3.6.0
       ember-template-imports: 3.4.2
@@ -15710,7 +15710,7 @@ packages:
       '@inquirer/figures': 1.0.1
       '@ljharb/through': 2.3.13
       ansi-escapes: 4.3.2
-      chalk: 5.3.0
+      chalk: 5.4.1
       cli-cursor: 3.1.0
       cli-width: 4.1.0
       external-editor: 3.1.0
@@ -21175,7 +21175,7 @@ packages:
     engines: {node: '>= 18.20.4'}
     hasBin: true
     dependencies:
-      chalk: 5.3.0
+      chalk: 5.4.1
       commander: 12.1.0
       ignore: 5.3.2
       jscodeshift: 0.15.2
@@ -21270,7 +21270,7 @@ packages:
     dependencies:
       '@ember/test-helpers': 4.0.4(patch_hash=zignhd6n3rugkiuawsmbuxfdka)(@babel/core@7.26.0)(@glint/template@1.5.0)(ember-source@5.12.0)
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.0)(@glint/template@1.5.0)
-      chalk: 5.3.0
+      chalk: 5.4.1
       debug: 4.3.7(supports-color@8.1.1)
       ember-cli-htmlbars: 6.3.0
       ember-cli-test-loader: 3.1.0(@babel/core@7.26.0)
@@ -21301,7 +21301,7 @@ packages:
     dependencies:
       '@ember/test-helpers': 4.0.4(patch_hash=zignhd6n3rugkiuawsmbuxfdka)(@babel/core@7.26.0)(@glint/template@1.5.0)(ember-source@5.12.0)
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.0)(@glint/template@1.5.0)
-      chalk: 5.3.0
+      chalk: 5.4.1
       debug: 4.3.7(supports-color@8.1.1)
       ember-cli-htmlbars: 6.3.0
       ember-cli-test-loader: 3.1.0(@babel/core@7.26.0)
@@ -21457,7 +21457,7 @@ packages:
       '@ember-data/request': file:packages/request(@babel/core@7.26.0)(@glint/template@1.5.0)(@warp-drive/core-types@0.0.0-alpha.108)
       '@hono/node-server': 1.11.1
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.0)(@glint/template@1.5.0)
-      chalk: 5.3.0
+      chalk: 5.4.1
       hono: 4.6.5
     dev: true
 
@@ -21988,7 +21988,7 @@ packages:
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.0)(@glint/template@1.5.0)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.0)(@glint/template@1.5.0)
       '@warp-drive/diagnostic': file:packages/diagnostic(@babel/core@7.26.0)(@ember/test-helpers@4.0.4)(@glint/template@1.5.0)(ember-cli-test-loader@3.1.0)(ember-source@5.12.0)
-      chalk: 4.1.2
+      chalk: 5.4.1
       ember-source: 5.12.0(@glimmer/component@1.1.2)(@glint/template@1.5.0)
       qunit: 2.19.4(patch_hash=2jwk2nz4gqke2k5hv6ptj42llu)
       semver: 7.6.3
@@ -22026,7 +22026,7 @@ packages:
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.0)(@glint/template@1.5.0)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.0)(@glint/template@1.5.0)
       '@warp-drive/diagnostic': file:packages/diagnostic(@babel/core@7.26.0)(@ember/test-helpers@4.0.4)(ember-cli-test-loader@3.1.0)(ember-source@5.12.0)
-      chalk: 4.1.2
+      chalk: 5.4.1
       ember-source: 5.12.0(@glimmer/component@1.1.2)(@glint/template@1.5.0)
       qunit: 2.19.4(patch_hash=2jwk2nz4gqke2k5hv6ptj42llu)
       semver: 7.6.3
