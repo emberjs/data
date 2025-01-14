@@ -87,7 +87,7 @@ export async function generateTypesTarballs(
       // pack the new package and put it in the tarballs directory
       const result = await exec({
         cwd: tmpTypesDir,
-        cmd: `npm pack --pack-destination=${tarballDir}`,
+        cmd: `pnpm pack --pack-gzip-level=9 --pack-destination=${tarballDir}`,
         condense: false,
       });
       console.log(result);
