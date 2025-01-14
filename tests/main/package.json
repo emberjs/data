@@ -23,7 +23,6 @@
     "start": "bun run build:tests --watch",
     "test": "bun run examine",
     "test:production": "bun run examine",
-    "typescript": "^5.2.2",
     "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
   "author": "",
@@ -144,7 +143,7 @@
     "pretender": "^3.4.7",
     "qunit": "^2.20.1",
     "qunit-dom": "^3.1.1",
-    "typescript": "^5.4.5",
+    "typescript": "^5.7.2",
     "webpack": "^5.92.0"
   },
   "engines": {
