@@ -317,7 +317,7 @@ async function main() {
   if (!reuseTars) {
     await deletePriorBuildArtifacts();
     await deleteTars();
-    await $`pnpm prepare`;
+    await $({ preferLocal: true, shell: true })`pnpm prepare`;
     await buildAll(tag);
   }
 
