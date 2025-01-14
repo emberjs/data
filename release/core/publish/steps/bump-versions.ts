@@ -74,7 +74,7 @@ export async function updateWorkspaceVersionsForPublish(
   }
 
   const nextVersion = strategy.get('root')?.toVersion;
-  console.log(`✅ ` + chalk.cyan(`Successfully Updated "workspace:*" versions for tarball publish of ${nextVersion}`));
+  console.log(`✅ ` + chalk.cyan(`Successfully Updated "workspace:^" versions for tarball publish of ${nextVersion}`));
 }
 
 function bumpKnownProjectVersionsFromStrategy(
