@@ -39,7 +39,7 @@ env:
 
 jobs:
   release:
-    name: Run publish script
+    name: Run publish canary script ${{ github.event.inputs.train }}
     runs-on: ubuntu-latest
     environment: deployment
     steps:
