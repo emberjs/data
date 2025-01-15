@@ -2,13 +2,30 @@ import semver from 'semver';
 
 export type LTS_TAG = `lts-${number}-${number}`;
 export type RELEASE_TAG = `release-${number}-${number}`;
-export type NPM_DIST_TAG = 'latest' | 'beta' | 'canary' | 'lts' | LTS_TAG | RELEASE_TAG;
-export type VALID_BRANCHES = 'main' | 'beta' | 'release' | LTS_TAG | RELEASE_TAG;
+export type NPM_DIST_TAG =
+  | `${VALID_TRAINS}-canary`
+  | `${VALID_TRAINS}-beta`
+  | 'latest'
+  | 'beta'
+  | 'canary'
+  | 'lts'
+  | LTS_TAG
+  | RELEASE_TAG;
+export type VALID_BRANCHES =
+  | `${VALID_TRAINS}-main`
+  | `${VALID_TRAINS}-beta`
+  | 'main'
+  | 'beta'
+  | 'release'
+  | LTS_TAG
+  | RELEASE_TAG;
 export type CHANNEL = 'lts' | 'release' | 'beta' | 'canary' | 'lts-prev' | 'release-prev';
 export type ALPHA_SEMVER = `${number}.${number}.${number}-alpha.${number}`;
 export type BETA_SEMVER = `${number}.${number}.${number}-beta.${number}`;
 export type RELEASE_SEMVER = `${number}.${number}.${number}`;
 export type SEMVER_VERSION = RELEASE_SEMVER | BETA_SEMVER | ALPHA_SEMVER;
+export type VALID_TRAINS = 'v4';
+
 /**
  * The strategy type is used to determine the next version of a package
  * and how to handle types during publish.
@@ -61,7 +78,11 @@ export function channelForBranch(branch: string, currentVersion: SEMVER_VERSION,
   throw new Error(`Attempting to release from an unexpected branch ${branch}`);
 }
 
-export function npmDistTagForChannelAndVersion(channel: CHANNEL, package_version: SEMVER_VERSION): NPM_DIST_TAG {
+export function npmDistTagForChannelAndVersion(
+  channel: CHANNEL,
+  package_version: SEMVER_VERSION,
+  train: VALID_TRAINS | ''
+): NPM_DIST_TAG {
   const major = semver.major(package_version);
   const minor = semver.minor(package_version);
 
@@ -74,8 +95,10 @@ export function npmDistTagForChannelAndVersion(channel: CHANNEL, package_version
   }
 
   switch (channel) {
-    case 'beta':
     case 'canary':
+      return train ? `${train}-canary` : 'canary';
+    case 'beta':
+      return train ? `${train}-beta` : 'beta';
     case 'lts':
       return channel;
     case 'release':
@@ -89,7 +112,11 @@ export function npmDistTagForChannelAndVersion(channel: CHANNEL, package_version
   }
 }
 
-export function branchForChannelAndVersion(channel: CHANNEL, package_version: SEMVER_VERSION): VALID_BRANCHES {
+export function branchForChannelAndVersion(
+  channel: CHANNEL,
+  package_version: SEMVER_VERSION,
+  train: VALID_TRAINS | ''
+): VALID_BRANCHES {
   const major = semver.major(package_version);
   const minor = semver.minor(package_version);
 
@@ -103,8 +130,9 @@ export function branchForChannelAndVersion(channel: CHANNEL, package_version: SE
 
   switch (channel) {
     case 'canary':
-      return 'main';
+      return train ? `${train}-main` : 'main';
     case 'beta':
+      return train ? `${train}-beta` : 'beta';
     case 'release':
       return channel;
     case 'lts':

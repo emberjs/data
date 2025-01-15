@@ -3,6 +3,14 @@ name: 0. Release > Stable
 on:
   workflow_dispatch:
     inputs:
+      train:
+        description: 'If not the current primary release train, the prior major version for which to perform a new release'
+        required: true
+        default: null
+        type: choice
+        options:
+        - null
+        - v4
       source-branch:
         description: 'If starting a new cycle, or reversioning, the source branch to update the release branch from'
         required: false
@@ -84,7 +92,7 @@ jobs:
         # Then we do the default patch increment from the current branch state.
         # This handles both start-of-cycle and bugfix releases.
         if: github.event.inputs.from-version == null
-        run: bun release publish release
+        run: bun release publish release --train=${{ github.event.inputs.train }}
         env:
           FORCE_COLOR: 2
           CI: true

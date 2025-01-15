@@ -1,7 +1,7 @@
 import { HELP } from '../help/sections/manual';
 import { ABOUT } from '../help/sections/about';
 import { normalizeFlag, type CommandConfig, type FlagConfig } from './parse-args';
-import { CHANNEL, SEMVER_VERSION, npmDistTagForChannelAndVersion } from './channel';
+import { CHANNEL, SEMVER_VERSION, VALID_TRAINS, npmDistTagForChannelAndVersion } from './channel';
 import { getGitState, getPublishedChannelInfo } from './git';
 import chalk from 'chalk';
 import semver from 'semver';
@@ -64,6 +64,15 @@ export const publish_flags_config: FlagConfig = {
     description: 'Print this usage manual.',
     examples: ['./publish/index.ts --help'],
   },
+  train: {
+    name: 'Train',
+    flag: 'train',
+    type: String,
+    default_value: '',
+    description:
+      'The train from which publish if not the default. E.g. publish a new v4-canary from v4-main even though current major cycle is 5.x',
+    examples: ['./publish/index.ts canary --train=v4'],
+  },
   channel: {
     name: 'Channel',
     flag: 'channel',
@@ -112,12 +121,14 @@ export const publish_flags_config: FlagConfig = {
     examples: [],
     default_value: async (options: Map<string, string | number | boolean | null>) => {
       const gitInfo = await getGitState(options);
-      return npmDistTagForChannelAndVersion(gitInfo.expectedChannel, gitInfo.rootVersion);
+      const train = options.get('train') as VALID_TRAINS | '';
+      return npmDistTagForChannelAndVersion(gitInfo.expectedChannel, gitInfo.rootVersion, train);
     },
     validate: async (value: unknown, options: Map<string, string | number | boolean | null>) => {
       const channel = options.get('channel') as CHANNEL;
       const gitInfo = await getGitState(options);
-      const expectedTag = npmDistTagForChannelAndVersion(channel, gitInfo.rootVersion);
+      const train = options.get('train') as VALID_TRAINS | '';
+      const expectedTag = npmDistTagForChannelAndVersion(channel, gitInfo.rootVersion, train);
       if (value !== expectedTag) {
         if (!options.get('dangerously_force')) {
           throw new Error(
@@ -238,7 +249,16 @@ export const publish_flags_config: FlagConfig = {
 };
 
 export const release_notes_flags_config: FlagConfig = merge(
-  pick(publish_flags_config, ['help', 'increment', 'dry_run', 'dangerously_force', 'tag', 'channel', 'upstream']),
+  pick(publish_flags_config, [
+    'help',
+    'train',
+    'increment',
+    'dry_run',
+    'dangerously_force',
+    'tag',
+    'channel',
+    'upstream',
+  ]),
   {
     commit: {
       name: 'Commit',
@@ -325,7 +345,7 @@ export const promote_flags_config: FlagConfig = merge(
         if (existing.latest === version) {
           return 'lts';
         } else {
-          return npmDistTagForChannelAndVersion('lts-prev', version);
+          return npmDistTagForChannelAndVersion('lts-prev', version, '');
         }
       },
       validate: async (value: unknown, options: Map<string, string | number | boolean | null>) => {
@@ -342,7 +362,7 @@ export const promote_flags_config: FlagConfig = merge(
             throw new Error(`Expected a tag starting with "lts-" but got ${value}`);
           }
 
-          const expected = npmDistTagForChannelAndVersion('lts-prev', version);
+          const expected = npmDistTagForChannelAndVersion('lts-prev', version, '');
 
           if (expected !== value) {
             throw new Error(`Expected tag lts or ${expected} for version ${version} but got ${value}`);

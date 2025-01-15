@@ -1,9 +1,23 @@
 name: 0. Release > Canary
 
+concurrency:
+  group: ci-release-canary
+  cancel-in-progress: true
+
 on:
   workflow_dispatch:
     inputs:
+      train:
+        name: Train
+        description: 'If not the current primary release train, the prior major version for which to perform a new release'
+        required: false
+        default: ''
+        type: choice
+        options:
+        - ''
+        - v4
       increment:
+        name: Increment
         description: 'Type of Version Bump To Perform'
         required: true
         default: 'patch'
@@ -12,6 +26,12 @@ on:
         - patch
         - minor
         - major
+      dryRun:
+        name: Dry Run
+        description: 'Whether to perform a dry run'
+        required: true
+        default: false
+        type: boolean
   schedule:
     - cron: '0 20 * * 2' # weekly (Tuesday) 12 PM PST
     - cron: '0 20 * * 5' # weekly (Friday) 12 PM PST
@@ -23,7 +43,7 @@ env:
 
 jobs:
   release:
-    name: Run publish script
+    name: Run publish canary script ${{ github.event.inputs.train }}
     runs-on: ubuntu-latest
     environment: deployment
     steps:
@@ -34,13 +54,23 @@ jobs:
         run: |
           echo "Releases may only be performed from the main branch."
           exit 1
+      - name: Desired Branch
+        id: desired-branch
+        env:
+          TRAIN: ${{ github.event.inputs.train }}
+        run: |
+          if [[ $TRAIN != "" ]]; then
+            echo "DESIRED_BRANCH=${{github.event.inputs.train}}-main" >> "$GITHUB_OUTPUT"
+          else
+            echo "DESIRED_BRANCH=main" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
         with:
           fetch-depth: 1
           fetch-tags: true
           show-progress: false
           token: ${{ secrets.GH_DEPLOY_TOKEN }}
-          ref: main
+          ref: ${{ steps.desired-branch.outputs.DESIRED_BRANCH }}
       - name: Check should run if HEAD is untagged
         run: |
           echo "HEAD is $(git name-rev --tags --name-only $(git rev-parse HEAD))"
@@ -56,7 +86,7 @@ jobs:
           git config --local user.email ${{ secrets.GH_DEPLOY_EMAIL }}
           git config --local user.name ${{ secrets.GH_DEPLOY_NAME }}
       - name: Publish with script
-        run: bun release exec canary --increment=${{ github.event.inputs.increment }}
+        run: bun release exec canary --train=${{ github.event.inputs.train }} --increment=${{ github.event.inputs.increment }} --dry-run=${{ github.event.inputs.dryRun }}
         env:
           FORCE_COLOR: 2
           CI: true
