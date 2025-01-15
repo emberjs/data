@@ -10,6 +10,7 @@ import {
   defineSignal,
   subscribe,
 } from '@ember-data/tracking/-private';
+import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
@@ -23,7 +24,6 @@ import { recordIdentifierFor } from '../caches/instance-cache';
 import type { RecordArrayManager } from '../managers/record-array-manager';
 import type { Store } from '../store-service';
 import { NativeProxy } from './native-proxy-type-fix';
-import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
 
 type KeyType = string | symbol | number;
 const ARRAY_GETTER_METHODS = new Set<KeyType>([
