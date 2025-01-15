@@ -59,12 +59,20 @@ export type RELEASE_TYPE = 'major' | 'minor' | 'patch';
 
 const RELEASE_BRANCH_REGEXP = /^release\-(\d+)\-(\d+)/;
 const LTS_BRANCH_REGEXP = /^lts\-(\d+)\-(\d+)/;
+const TRAIN_BRANCH_REGEXP = /^v(\d+)\-(main|beta|release)/;
 
 export function channelForBranch(branch: string, currentVersion: SEMVER_VERSION, force: boolean): CHANNEL {
   if (branch === 'main') return 'canary';
   if (branch === 'beta' || branch === 'release' || branch === 'lts') return branch;
   if (RELEASE_BRANCH_REGEXP.test(branch)) return 'release-prev';
   if (LTS_BRANCH_REGEXP.test(branch)) return 'lts-prev';
+  if (TRAIN_BRANCH_REGEXP.test(branch)) {
+    const [, _major, branchType] = branch.match(TRAIN_BRANCH_REGEXP) as [string, number, 'main' | 'beta' | 'release'];
+    if (branchType === 'main') return 'canary';
+    if (branchType === 'beta') return 'beta';
+    if (branchType === 'release') return 'release';
+    throw new Error(`Unexpected branch type '${branchType}' found in '${branch}'`);
+  }
 
   if (force) {
     if (currentVersion.includes('beta')) {
