@@ -1,11 +1,17 @@
 /**
   @module @ember-data/model
 */
-import { deprecate } from '@ember/debug';
+import { deprecate, inspect } from '@ember/debug';
 import { computed } from '@ember/object';
 
 import { dasherize, singularize } from '@ember-data/request-utils/string';
-import { DEPRECATE_NON_STRICT_TYPES } from '@warp-drive/build-config/deprecations';
+import {
+  DEPRECATE_NON_STRICT_TYPES,
+  DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC,
+  DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE,
+  DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE,
+  DISABLE_6X_DEPRECATIONS,
+} from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { TypeFromInstance } from '@warp-drive/core-types/record';
@@ -17,12 +23,18 @@ import type { MinimalLegacyRecord } from './model-methods';
 import { isElementDescriptor } from './util';
 
 function normalizeType(type: string) {
+  if (DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE) {
+    if (!type) {
+      return;
+    }
+  }
+
   if (DEPRECATE_NON_STRICT_TYPES) {
     const result = singularize(dasherize(type));
 
     deprecate(
       `The resource type '${type}' is not normalized. Update your application code to use '${result}' instead of '${type}'.`,
-      result === type,
+      /* inline-macro-config */ DISABLE_6X_DEPRECATIONS ? true : result === type,
       {
         id: 'ember-data:deprecate-non-strict-types',
         until: '6.0',
@@ -44,7 +56,66 @@ function _hasMany<T, Async extends boolean>(
   type: string,
   options: RelationshipOptions<T, Async>
 ): RelationshipDecorator<T> {
-  assert(`Expected hasMany options.async to be a boolean`, options && typeof options.async === 'boolean');
+  if (DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE) {
+    if (typeof type !== 'string' || !type.length) {
+      deprecate(
+        'hasMany(<type>, <options>) must specify the string type of the related resource as the first parameter',
+        false,
+        {
+          id: 'ember-data:deprecate-non-strict-relationships',
+          for: 'ember-data',
+          until: '5.0',
+          since: { enabled: '4.7', available: '4.7' },
+        }
+      );
+      if (typeof type === 'object') {
+        options = type;
+        type = undefined as unknown as string;
+      }
+
+      assert(
+        `The first argument to hasMany must be a string representing a model type key, not an instance of ${inspect(
+          type
+        )}. E.g., to define a relation to the Comment model, use hasMany('comment')`,
+        typeof type === 'string' || typeof type === 'undefined'
+      );
+    }
+  }
+
+  if (DEPRECATE_RELATIONSHIPS_WITHOUT_ASYNC) {
+    if (!options || typeof options.async !== 'boolean') {
+      options = options || {};
+      if (!('async' in options)) {
+        // @ts-expect-error the inbound signature is strict to convince the user to use the non-deprecated signature
+        options.async = true;
+      }
+      deprecate('hasMany(<type>, <options>) must specify options.async as either `true` or `false`.', false, {
+        id: 'ember-data:deprecate-non-strict-relationships',
+        for: 'ember-data',
+        until: '5.0',
+        since: { enabled: '4.7', available: '4.7' },
+      });
+    } else {
+      assert(`Expected hasMany options.async to be a boolean`, options && typeof options.async === 'boolean');
+    }
+  } else {
+    assert(`Expected hasMany options.async to be a boolean`, options && typeof options.async === 'boolean');
+  }
+
+  if (DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE) {
+    if (options.inverse !== null && (typeof options.inverse !== 'string' || options.inverse.length === 0)) {
+      deprecate(
+        'hasMany(<type>, <options>) must specify options.inverse as either `null` or the name of the field on the related resource type.',
+        false,
+        {
+          id: 'ember-data:deprecate-non-strict-relationships',
+          for: 'ember-data',
+          until: '5.0',
+          since: { enabled: '4.7', available: '4.7' },
+        }
+      );
+    }
+  }
 
   // Metadata about relationships is stored on the meta of
   // the relationship. This is used for introspection and
@@ -266,11 +337,17 @@ export function hasMany<T>(
   type?: TypeFromInstance<NoNull<T>>,
   options?: RelationshipOptions<T, boolean>
 ): RelationshipDecorator<T> {
-  if (DEBUG) {
+  if (!DEPRECATE_RELATIONSHIPS_WITHOUT_TYPE) {
     assert(
-      `hasMany must be invoked with a type and options. Did you mean \`@hasMany(${type}, { async: false, inverse: null })\`?`,
+      `hasMany must be invoked with a type and options. Did you mean \`@hasMany(<type>, { async: false, inverse: null })\`?`,
       !isElementDescriptor(arguments as unknown as unknown[])
     );
+    return _hasMany(type!, options!);
+  } else {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return isElementDescriptor(arguments as unknown as any[])
+      ? // @ts-expect-error the inbound signature is strict to convince the user to use the non-deprecated signature
+        (_hasMany()(...arguments) as RelationshipDecorator<T>)
+      : _hasMany(type!, options!);
   }
-  return _hasMany(type!, options!);
 }

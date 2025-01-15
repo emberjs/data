@@ -1,3 +1,5 @@
+import { deprecate } from '@ember/debug';
+
 import { dependencySatisfies, importSync, macroCondition } from '@embroider/macros';
 
 import type { CollectionEdge, Graph, GraphEdge, ResourceEdge, UpgradedMeta } from '@ember-data/graph/-private';
@@ -13,6 +15,7 @@ import {
   storeFor,
 } from '@ember-data/store/-private';
 import type { BaseFinderOptions } from '@ember-data/store/types';
+import { DEPRECATE_PROMISE_PROXIES } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -717,6 +720,30 @@ function extractIdentifierFromRecord(record: PromiseProxyRecord | OpaqueRecordIn
     return null;
   }
 
+  if (DEPRECATE_PROMISE_PROXIES) {
+    if (isPromiseRecord(record)) {
+      const content = record.content;
+      assert(
+        'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.',
+        content !== undefined
+      );
+      deprecate(
+        `You passed in a PromiseProxy to a Relationship API that now expects a resolved value. await the value before setting it.`,
+        false,
+        {
+          id: 'ember-data:deprecate-promise-proxies',
+          until: '5.0',
+          since: {
+            enabled: '4.7',
+            available: '4.7',
+          },
+          for: 'ember-data',
+        }
+      );
+      return content ? recordIdentifierFor(content) : null;
+    }
+  }
+
   return recordIdentifierFor(record);
 }
 
@@ -757,4 +784,8 @@ export function areAllInverseRecordsLoaded(store: Store, resource: InnerRelation
 
 function isBelongsTo(relationship: GraphEdge): relationship is ResourceEdge {
   return relationship.definition.kind === 'belongsTo';
+}
+
+function isPromiseRecord(record: PromiseProxyRecord | OpaqueRecordInstance): record is PromiseProxyRecord {
+  return typeof record === 'object' && !!record && 'then' in record;
 }

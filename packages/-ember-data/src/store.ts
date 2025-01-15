@@ -24,6 +24,12 @@ function hasRequestManager(store: BaseStore): boolean {
   return 'requestManager' in store;
 }
 
+// FIXME @ember-data/store
+// may also need to do all of this configuration
+// because in 4.12 we had not yet caused it to be
+// required to use `ember-data/store` to get the configured
+// store except in the case of RequestManager.
+// so for instance in tests new Store would mostly just work (tm)
 export default class Store extends BaseStore {
   declare _fetchManager: FetchManager;
 

@@ -1,4 +1,5 @@
 import type Store from '@ember-data/store';
+import { DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -581,10 +582,25 @@ export function upgradeDefinition(
   return info;
 }
 
+type RelationshipDefinition = RelationshipField & {
+  _inverseKey: (store: Store, modelClass: unknown) => string | null;
+};
+
+function metaIsRelationshipDefinition(meta: FieldSchema): meta is RelationshipDefinition {
+  return typeof (meta as RelationshipDefinition)._inverseKey === 'function';
+}
+
 function inverseForRelationship(store: Store, identifier: StableRecordIdentifier | { type: string }, key: string) {
   const definition = store.schema.fields(identifier).get(key);
   if (!definition) {
     return null;
+  }
+
+  if (DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE) {
+    if (metaIsRelationshipDefinition(definition)) {
+      const modelClass = store.modelFor(identifier.type);
+      return definition._inverseKey(store, modelClass);
+    }
   }
 
   assert(`Expected ${key} to be a relationship`, isRelationshipField(definition));

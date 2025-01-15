@@ -1,14 +1,19 @@
 /**
   @module @ember-data/legacy-compat
 */
+
+import { deprecate } from '@ember/debug';
+
 import type Store from '@ember-data/store';
 import type { LiveArray } from '@ember-data/store/-private';
 import { SOURCE } from '@ember-data/store/-private';
 import type { FindAllOptions, ModelSchema } from '@ember-data/store/types';
+import { DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS } from '@warp-drive/build-config/deprecations';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
 import { upgradeStore } from '../-private';
 import type { Snapshot } from './snapshot';
+
 /**
   SnapshotRecordArray is not directly instantiable.
   Instances are provided to consuming application's
@@ -179,4 +184,30 @@ export class SnapshotRecordArray {
 
     return this._snapshots;
   }
+}
+
+if (DEPRECATE_SNAPSHOT_MODEL_CLASS_ACCESS) {
+  /**
+    The type of the underlying records for the snapshots in the array, as a Model
+
+    @deprecated
+    @property type
+    @public
+    @type {Model}
+  */
+  Object.defineProperty(SnapshotRecordArray.prototype, 'type', {
+    get() {
+      deprecate(
+        `Using SnapshotRecordArray.type to access the ModelClass for a record is deprecated. Use store.modelFor(<modelName>) instead.`,
+        false,
+        {
+          id: 'ember-data:deprecate-snapshot-model-class-access',
+          until: '5.0',
+          for: 'ember-data',
+          since: { available: '4.5.0', enabled: '4.5.0' },
+        }
+      );
+      return (this as SnapshotRecordArray)._recordArray.type as ModelSchema;
+    },
+  });
 }

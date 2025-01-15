@@ -6,6 +6,7 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import { FetchManager, Snapshot } from '@ember-data/legacy-compat/-private';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 
 let owner, store;
 
@@ -107,6 +108,45 @@ module('integration/snapshot - Snapshot', function (hooks) {
     assert.strictEqual(snapshot.id, '1', 'id is correct');
     assert.strictEqual(snapshot.modelName, 'post', 'modelName is correct');
   });
+
+  deprecatedTest(
+    'snapshot.type loads the class lazily',
+    {
+      id: 'ember-data:deprecate-snapshot-model-class-access',
+      count: 1,
+      until: '5.0',
+    },
+    async function (assert) {
+      assert.expect(3);
+
+      let postClassLoaded = false;
+      const modelFor = store.modelFor;
+      store.modelFor = (name) => {
+        if (name === 'post') {
+          postClassLoaded = true;
+        }
+        return modelFor.call(store, name);
+      };
+
+      await store._push({
+        data: {
+          type: 'post',
+          id: '1',
+          attributes: {
+            title: 'Hello World',
+          },
+        },
+      });
+      const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'post', id: '1' });
+      const snapshot = await store._fetchManager.createSnapshot(identifier);
+
+      assert.false(postClassLoaded, 'model class is not eagerly loaded');
+      const type = snapshot.type;
+      assert.true(postClassLoaded, 'model class is loaded');
+      const Post = store.modelFor('post');
+      assert.strictEqual(type, Post, 'type is correct');
+    }
+  );
 
   test('an initial findRecord call has no record for internal-model when a snapshot is generated', async function (assert) {
     assert.expect(2);
