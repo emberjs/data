@@ -50,13 +50,21 @@ jobs:
         run: |
           echo "Releases may only be performed from the main branch."
           exit 1
+      - name: Desired Branch
+        id: desired-branch
+        run: |
+          if [[  github.event.inputs.train ]]; then
+            echo "DESIRED_BRANCH=${{github.event.inputs.train}}-main" >> "$GITHUB_OUTPUT"
+          else
+            echo "DESIRED_BRANCH=main" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
         with:
           fetch-depth: 1
           fetch-tags: true
           show-progress: false
           token: ${{ secrets.GH_DEPLOY_TOKEN }}
-          ref: main
+          ref: ${{ steps.desired-branch.outputs.DESIRED_BRANCH }}
       - name: Check should run if HEAD is untagged
         run: |
           echo "HEAD is $(git name-rev --tags --name-only $(git rev-parse HEAD))"
