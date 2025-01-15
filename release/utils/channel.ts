@@ -9,6 +9,8 @@ export type ALPHA_SEMVER = `${number}.${number}.${number}-alpha.${number}`;
 export type BETA_SEMVER = `${number}.${number}.${number}-beta.${number}`;
 export type RELEASE_SEMVER = `${number}.${number}.${number}`;
 export type SEMVER_VERSION = RELEASE_SEMVER | BETA_SEMVER | ALPHA_SEMVER;
+export type VALID_TRAINS = 'v4' | null;
+
 /**
  * The strategy type is used to determine the next version of a package
  * and how to handle types during publish.

@@ -3,6 +3,14 @@ name: 0. Release > Beta
 on:
   workflow_dispatch:
     inputs:
+      train:
+        description: 'If not the current primary release train, the prior major version for which to perform a new release'
+        required: true
+        default: null
+        type: choice
+        options:
+        - null
+        - v4
       # This input is used to determine whether to start/continue a beta-cycle vs mirror from canary.
       #
       # A beta-cycle "forks" from canary. It starts by updating the beta branch to the current state
@@ -74,14 +82,14 @@ jobs:
         # For beta-cycle we always increment from the branch state
         # For mirror we increment from the last beta version, unless it's start of a new cycle.
         if: github.event.inputs.kind == 'beta-cycle' || github.event.inputs.is-cycle-start == 'true'
-        run: bun release exec publish beta
+        run: bun release exec publish beta --train=${{ github.event.inputs.train }}
         env:
           FORCE_COLOR: 2
           CI: true
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
       - name: Publish New Mirror Release
         if: github.event.inputs.kind == 'mirror'
-        run: bun release exec publish beta --from=${{ steps.version.outputs.value }}
+        run: bun release exec publish beta --train=${{ github.event.inputs.train }} --from=${{ steps.version.outputs.value }}
         env:
           FORCE_COLOR: 2
           CI: true

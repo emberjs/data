@@ -64,6 +64,16 @@ export const publish_flags_config: FlagConfig = {
     description: 'Print this usage manual.',
     examples: ['./publish/index.ts --help'],
   },
+  train: {
+    name: 'Train',
+    flag: 'train',
+    flag_aliases: ['t'],
+    type: String,
+    default_value: '',
+    description:
+      'The train from which publish if not the default. E.g. publish a new v4-canary from v4-main even though current major cycle is 5.x',
+    examples: ['./publish/index.ts canary --train=v4'],
+  },
   channel: {
     name: 'Channel',
     flag: 'channel',
@@ -238,7 +248,16 @@ export const publish_flags_config: FlagConfig = {
 };
 
 export const release_notes_flags_config: FlagConfig = merge(
-  pick(publish_flags_config, ['help', 'increment', 'dry_run', 'dangerously_force', 'tag', 'channel', 'upstream']),
+  pick(publish_flags_config, [
+    'help',
+    'train',
+    'increment',
+    'dry_run',
+    'dangerously_force',
+    'tag',
+    'channel',
+    'upstream',
+  ]),
   {
     commit: {
       name: 'Commit',
