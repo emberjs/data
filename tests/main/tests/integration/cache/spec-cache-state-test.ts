@@ -37,6 +37,8 @@ import type {
   SingleResourceDocument,
 } from '@warp-drive/core-types/spec/json-api-raw';
 
+// FIXME temporary comment to trigger build
+
 class Person extends Model {
   // TODO fix the typing for naked attrs
 
