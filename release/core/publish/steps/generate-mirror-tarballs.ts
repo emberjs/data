@@ -76,10 +76,7 @@ export async function generateMirrorTarballs(
           newContents = newContents.replace(new RegExp(`'WarpDrive'`, 'g'), `'WarpDriveMirror'`);
         }
 
-        newContents = newContents.replace(
-          new RegExp('getGlobalConfig().WarpDrive', 'g'),
-          'getGlobalConfig().WarpDriveMirror'
-        );
+        newContents = newContents.replace(/getGlobalConfig\(\)\.WarpDrive\./g, 'getGlobalConfig().WarpDriveMirror.');
         newContents = newContents.replace(new RegExp(`'@ember-data/'`, 'g'), `'@ember-data-mirror/'`);
         newContents = newContents.replace(new RegExp(`"@ember-data/"`, 'g'), `"@ember-data-mirror/"`);
 
