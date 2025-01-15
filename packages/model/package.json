@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/model",
-  "version": "4.13.0-alpha.0",
+  "version": "4.13.0-alpha.1",
   "description": "A basic Ember implementation of a resource presentation layer for use with @ember-data/store",
   "keywords": [
     "ember-addon"

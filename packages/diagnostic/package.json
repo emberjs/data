@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/diagnostic",
-  "version": "4.12.9-alpha.0",
+  "version": "4.12.9-alpha.1",
   "private": true,
   "description": "⚡️ A Lightweight Modern Test Runner",
   "keywords": [
