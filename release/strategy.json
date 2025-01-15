@@ -48,7 +48,7 @@
       "mirrorPublish": false
     },
     "@warp-drive/build-config": {
-      "stage": "alpha",
+      "stage": "stable",
       "types": "alpha",
       "typesPublish": false,
       "mirrorPublish": true
@@ -76,10 +76,6 @@
       "types": "private",
       "typesPublish": false,
       "mirrorPublish": false
-    },
-    "@warp-drive/core-types": {
-      "stage": "alpha",
-      "types": "alpha"
     },
     "@warp-drive/ember": {
       "stage": "alpha",
