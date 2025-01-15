@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       train:
+        name: Train
         description: 'If not the current primary release train, the prior major version for which to perform a new release'
         required: true
         default: null
@@ -12,6 +13,7 @@ on:
         - null
         - v4
       increment:
+        name: Increment
         description: 'Type of Version Bump To Perform'
         required: true
         default: 'patch'
@@ -21,6 +23,7 @@ on:
         - minor
         - major
       dryRun:
+        name: Dry Run
         description: 'Whether to perform a dry run'
         required: true
         default: false
