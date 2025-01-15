@@ -1,6 +1,6 @@
 {
   "name": "example-json-api",
-  "version": "5.4.0-alpha.127",
+  "version": "5.4.0-alpha.128",
   "private": true,
   "description": "Demos the incremental adoption of new EmberData for JSON:API",
   "keywords": [],
