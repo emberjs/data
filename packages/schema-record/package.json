@@ -1,0 +1,114 @@
+{
+  "name": "@warp-drive/schema-record",
+  "version": "4.13.0-alpha.1",
+  "description": "Schema Driven Resource Presentation for WarpDrive and EmberData",
+  "keywords": [
+    "ember-addon"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "packages/schema-record"
+  },
+  "license": "MIT",
+  "author": "",
+  "scripts": {
+    "lint": "eslint . --quiet --cache --cache-strategy=content",
+    "build:pkg": "vite build;",
+    "prepack": "bun run build:pkg",
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+  },
+  "ember-addon": {
+    "main": "addon-main.cjs",
+    "type": "addon",
+    "version": 2
+  },
+  "files": [
+    "addon-main.cjs",
+    "dist",
+    "README.md",
+    "LICENSE.md",
+    "NCC-1701-a.svg",
+    "NCC-1701-a-blue.svg",
+    "unstable-preview-types"
+  ],
+  "exports": {
+    "./*": {
+      "types": "./unstable-preview-types/*.d.ts",
+      "default": "./dist/*.js"
+    }
+  },
+  "peerDependencies": {
+    "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",
+    "@ember-data/request": "workspace:*",
+    "@ember-data/model": "workspace:*",
+    "@ember-data/store": "workspace:*",
+    "@ember-data/tracking": "workspace:*",
+    "@warp-drive/core-types": "workspace:*"
+  },
+  "peerDependenciesMeta": {
+    "@ember-data/model": {
+      "optional": true
+    }
+  },
+  "dependenciesMeta": {
+    "@ember-data/request": {
+      "injected": true
+    },
+    "@ember-data/store": {
+      "injected": true
+    },
+    "@ember-data/model": {
+      "injected": true
+    },
+    "@ember-data/tracking": {
+      "injected": true
+    },
+    "@warp-drive/core-types": {
+      "injected": true
+    },
+    "@warp-drive/build-config": {
+      "injected": true
+    },
+    "@ember-data/legacy-compat": {
+      "injected": true
+    },
+    "@ember-data/request-utils": {
+      "injected": true
+    }
+  },
+  "dependencies": {
+    "@embroider/macros": "^1.16.6",
+    "@warp-drive/build-config": "workspace:*"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.5",
+    "@babel/plugin-transform-typescript": "^7.24.5",
+    "@babel/preset-env": "^7.24.5",
+    "@babel/preset-typescript": "^7.24.1",
+    "@ember-data/request": "workspace:*",
+    "@ember-data/model": "workspace:*",
+    "@ember-data/store": "workspace:*",
+    "@ember-data/legacy-compat": "workspace:*",
+    "@ember-data/tracking": "workspace:*",
+    "@ember-data/request-utils": "workspace:*",
+    "@ember/test-waiters": "^3.1.0",
+    "@glimmer/component": "^1.1.2",
+    "@warp-drive/core-types": "workspace:*",
+    "@warp-drive/internal-config": "workspace:*",
+    "ember-source": "~5.12.0",
+    "pnpm-sync-dependencies-meta-injected": "0.0.14",
+    "typescript": "^5.7.2",
+    "vite": "^5.2.11"
+  },
+  "ember": {
+    "edition": "octane"
+  },
+  "engines": {
+    "node": ">= 18.20.4"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  },
+  "packageManager": "pnpm@8.15.9"
+}

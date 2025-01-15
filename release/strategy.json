@@ -90,7 +90,7 @@
       "mirrorPublish": false
     },
     "@warp-drive/schema-record": {
-      "stage": "alpha",
+      "stage": "stable",
       "types": "alpha",
       "typesPublish": false,
       "mirrorPublish": true
