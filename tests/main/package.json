@@ -107,6 +107,7 @@
     "@glint/template": "1.5.0",
     "@types/qunit": "2.19.10",
     "@warp-drive/core-types": "workspace:*",
+    "@warp-drive/schema-record": "workspace:*",
     "@warp-drive/build-config": "workspace:*",
     "@warp-drive/holodeck": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
