@@ -46,7 +46,7 @@ inputs:
   jobs:
     description: How many Build Jobs to Run
     required: false
-    default: 2
+    default: 4
   ref:
     description: Ref to Setup
     required: false

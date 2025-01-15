@@ -98,7 +98,7 @@ jobs:
         with:
           github-token: ${{ secrets.GH_PACKAGES_ACCESS_TOKEN }}
           restore-broccoli-cache: true
-          jobs: 2
+          jobs: 4
           parallel-build: true
           with-cert: true
           install: true
