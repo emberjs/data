@@ -20,8 +20,9 @@ export class Package {
   }
 
   async refresh() {
+    console.log('current contents before refresh', console.log(JSON.stringify(this.pkgData, null, 2)));
     await this.file.invalidate();
-    this.pkgData = await this.file.read();
+    this.pkgData = await this.file.read(true);
   }
 }
 
