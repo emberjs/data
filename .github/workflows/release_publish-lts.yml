@@ -1,5 +1,9 @@
 name: 0. Release > LTS
 
+concurrency:
+  group: ci-release-lts
+  cancel-in-progress: true
+
 on:
   workflow_dispatch:
     inputs:
@@ -15,6 +19,12 @@ on:
         options:
           - lts
           - lts-prev
+      dryRun:
+        name: Dry Run
+        description: 'Whether to perform a dry run'
+        required: true
+        default: false
+        type: boolean
 
 env:
   TURBO_API: http://127.0.0.1:9080
@@ -52,7 +62,7 @@ jobs:
           repo-token: ${{ secrets.GH_DEPLOY_TOKEN }}
       - name: Publish New LTS Release
         # We always increment from the branch state
-        run: bun release publish ${{ github.event.inputs.channel }}
+        run: bun release publish ${{ github.event.inputs.channel }} --dry-run=${{ github.event.inputs.dryRun }}
         env:
           FORCE_COLOR: 2
           CI: true

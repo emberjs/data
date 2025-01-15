@@ -1,15 +1,20 @@
 name: 0. Release > Beta
 
+concurrency:
+  group: ci-release-beta
+  cancel-in-progress: true
+
 on:
   workflow_dispatch:
     inputs:
       train:
+        name: Train
         description: 'If not the current primary release train, the prior major version for which to perform a new release'
-        required: true
-        default: null
+        required: false
+        default: ''
         type: choice
         options:
-        - null
+        - ''
         - v4
       # This input is used to determine whether to start/continue a beta-cycle vs mirror from canary.
       #
@@ -35,6 +40,12 @@ on:
         required: true
         default: false
         type: boolean
+      dryRun:
+        name: Dry Run
+        description: 'Whether to perform a dry run'
+        required: true
+        default: false
+        type: boolean
 
 env:
   TURBO_API: http://127.0.0.1:9080
@@ -54,13 +65,23 @@ jobs:
         run: |
           echo "Releases may only be performed from the main branch."
           exit 1
+      - name: Desired Branch
+        id: desired-branch
+        env:
+          TRAIN: ${{ github.event.inputs.train }}
+        run: |
+          if [[ $TRAIN != "" ]]; then
+            echo "DESIRED_BRANCH=${{github.event.inputs.train}}-beta" >> "$GITHUB_OUTPUT"
+          else
+            echo "DESIRED_BRANCH=beta" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
         with:
           fetch-tags: true
           show-progress: false
           token: ${{ secrets.GH_DEPLOY_TOKEN }}
           fetch-depth: 3
-          ref: beta
+          ref: ${{ steps.desired-branch.outputs.DESIRED_BRANCH }}
       - run: git fetch origin main --depth=1
       - run: git fetch origin --tags --depth=1
       - name: Make sure git user is setup
@@ -82,14 +103,14 @@ jobs:
         # For beta-cycle we always increment from the branch state
         # For mirror we increment from the last beta version, unless it's start of a new cycle.
         if: github.event.inputs.kind == 'beta-cycle' || github.event.inputs.is-cycle-start == 'true'
-        run: bun release exec publish beta --train=${{ github.event.inputs.train }}
+        run: bun release exec publish beta --train=${{ github.event.inputs.train }} --dry-run=${{ github.event.inputs.dryRun }}
         env:
           FORCE_COLOR: 2
           CI: true
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
       - name: Publish New Mirror Release
         if: github.event.inputs.kind == 'mirror'
-        run: bun release exec publish beta --train=${{ github.event.inputs.train }} --from=${{ steps.version.outputs.value }}
+        run: bun release exec publish beta --train=${{ github.event.inputs.train }} --from=${{ steps.version.outputs.value }} --dry-run=${{ github.event.inputs.dryRun }}
         env:
           FORCE_COLOR: 2
           CI: true
