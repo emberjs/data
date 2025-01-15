@@ -2,7 +2,7 @@ import { deprecate } from '@ember/debug';
 
 import { dependencySatisfies, importSync, macroCondition } from '@embroider/macros';
 
-import { DEPRECATE_EMBER_INFLECTOR } from '@warp-drive/build-config/deprecations';
+import { DEPRECATE_EMBER_INFLECTOR, DISABLE_6X_DEPRECATIONS } from '@warp-drive/build-config/deprecations';
 
 import { defaultRules as WarpDriveDefaults } from './-private/string/inflections';
 import { irregular, plural, singular, uncountable } from './string';
@@ -85,7 +85,7 @@ if (DEPRECATE_EMBER_INFLECTOR) {
 
       deprecate(
         `WarpDrive/EmberData no longer uses ember-inflector for pluralization.\nPlease \`import { plural } from '@ember-data/request-utils/string';\` instead to register a custom pluralization rule for use with EmberData.`,
-        false,
+        /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
         {
           id: 'warp-drive.ember-inflector',
           until: '6.0.0',
@@ -109,7 +109,7 @@ if (DEPRECATE_EMBER_INFLECTOR) {
 
       deprecate(
         `WarpDrive/EmberData no longer uses ember-inflector for singularization.\nPlease \`import { singular } from '@ember-data/request-utils/string';\` instead to register a custom singularization rule for use with EmberData.`,
-        false,
+        /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
         {
           id: 'warp-drive.ember-inflector',
           until: '6.0.0',
@@ -141,7 +141,7 @@ if (DEPRECATE_EMBER_INFLECTOR) {
 
       deprecate(
         `WarpDrive/EmberData no longer uses ember-inflector for irregular rules.\nPlease \`import { irregular } from '@ember-data/request-utils/string';\` instead to register a custom irregular rule for use with EmberData for '${actualSingle}' <=> '${plur}'.`,
-        false,
+        /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
         {
           id: 'warp-drive.ember-inflector',
           until: '6.0.0',
@@ -165,7 +165,7 @@ if (DEPRECATE_EMBER_INFLECTOR) {
 
       deprecate(
         `WarpDrive/EmberData no longer uses ember-inflector for uncountable rules.\nPlease \`import { uncountable } from '@ember-data/request-utils/string';\` instead to register a custom uncountable rule for '${word}' for use with EmberData.`,
-        false,
+        /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
         {
           id: 'warp-drive.ember-inflector',
           until: '6.0.0',
@@ -184,7 +184,7 @@ if (DEPRECATE_EMBER_INFLECTOR) {
 
       deprecate(
         `WarpDrive/EmberData no longer uses ember-inflector for pluralization.\nPlease \`import { plural } from '@ember-data/request-utils/string';\` instead to register a custom pluralization rule for use with EmberData.`,
-        false,
+        /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
         {
           id: 'warp-drive.ember-inflector',
           until: '6.0.0',
@@ -205,7 +205,7 @@ if (DEPRECATE_EMBER_INFLECTOR) {
 
       deprecate(
         `WarpDrive/EmberData no longer uses ember-inflector for singularization.\nPlease \`import { singular } from '@ember-data/request-utils/string';\` instead to register a custom singularization rule for use with EmberData.`,
-        false,
+        /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
         {
           id: 'warp-drive.ember-inflector',
           until: '6.0.0',
@@ -226,7 +226,7 @@ if (DEPRECATE_EMBER_INFLECTOR) {
 
       deprecate(
         `WarpDrive/EmberData no longer uses ember-inflector for irregular rules.\nPlease \`import { irregular } from '@ember-data/request-utils/string';\` instead to register a custom irregular rule for use with EmberData.`,
-        false,
+        /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
         {
           id: 'warp-drive.ember-inflector',
           until: '6.0.0',
@@ -247,7 +247,7 @@ if (DEPRECATE_EMBER_INFLECTOR) {
 
       deprecate(
         `WarpDrive/EmberData no longer uses ember-inflector for uncountable rules.\nPlease \`import { uncountable } from '@ember-data/request-utils/string';\` instead to register a custom uncountable rule for use with EmberData.`,
-        false,
+        /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
         {
           id: 'warp-drive.ember-inflector',
           until: '6.0.0',

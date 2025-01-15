@@ -1,6 +1,11 @@
 /**
   @module @ember-data/store
 */
+import { assert, deprecate } from '@ember/debug';
+
+import { DEPRECATE_HELPERS } from '@warp-drive/build-config/deprecations';
+
+import { normalizeModelName as _normalize } from './-private/utils/normalize-model-name';
 
 export { Store, storeFor } from './-private/store-service';
 
@@ -47,5 +52,33 @@ export { peekCache, removeRecordDataFor } from './-private/caches/cache-utils';
 // @ember-data/model needs these temporarily
 export { setRecordIdentifier, StoreMap } from './-private/caches/instance-cache';
 export { setCacheFor } from './-private/caches/cache-utils';
-export { normalizeModelName as _deprecatingNormalize } from './-private/utils/normalize-model-name';
 export type { StoreRequestInput } from './-private/cache-handler/handler';
+
+/**
+ This method normalizes a modelName into the format EmberData uses
+ internally by dasherizing it.
+
+  @method normalizeModelName
+  @static
+  @public
+  @deprecated
+  @for @ember-data/store
+  @param {String} modelName
+  @return {String} normalizedModelName
+*/
+export function normalizeModelName(modelName: string) {
+  if (DEPRECATE_HELPERS) {
+    deprecate(
+      `the helper function normalizeModelName is deprecated. You should use model names that are already normalized, or use string helpers of your own. This function is primarily an alias for dasherize from @ember/string.`,
+      false,
+      {
+        id: 'ember-data:deprecate-normalize-modelname-helper',
+        for: 'ember-data',
+        until: '5.0',
+        since: { available: '4.7', enabled: '4.7' },
+      }
+    );
+    return _normalize(modelName);
+  }
+  assert(`normalizeModelName support has been removed`);
+}

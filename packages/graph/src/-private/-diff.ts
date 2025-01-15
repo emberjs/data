@@ -1,6 +1,6 @@
 import { deprecate } from '@ember/debug';
 
-import { DEPRECATE_NON_UNIQUE_PAYLOADS } from '@warp-drive/build-config/deprecations';
+import { DEPRECATE_NON_UNIQUE_PAYLOADS, DISABLE_6X_DEPRECATIONS } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -178,7 +178,7 @@ export function diffCollection(
       if (DEBUG) {
         deprecate(
           `Expected all entries in the relationship ${relationship.definition.type}:${relationship.definition.key} to be unique, see log for a list of duplicate entry indeces`,
-          false,
+          /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
           {
             id: 'ember-data:deprecate-non-unique-relationship-entries',
             for: 'ember-data',

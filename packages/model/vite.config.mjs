@@ -1,6 +1,7 @@
 import { createConfig } from '@warp-drive/internal-config/vite/config.js';
 
 export const externals = [
+  'ember',
   '@ember/service',
   '@ember/debug',
   '@ember/object/computed',

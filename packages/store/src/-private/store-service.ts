@@ -10,7 +10,11 @@ import type RequestManager from '@ember-data/request';
 import type { Future } from '@ember-data/request';
 import { LOG_PAYLOADS, LOG_REQUESTS } from '@warp-drive/build-config/debugging';
 import {
+  DEPRECATE_HAS_RECORD,
+  DEPRECATE_PROMISE_PROXIES,
   DEPRECATE_STORE_EXTENDS_EMBER_OBJECT,
+  DEPRECATE_STORE_FIND,
+  DISABLE_6X_DEPRECATIONS,
   ENABLE_LEGACY_SCHEMA_SERVICE,
 } from '@warp-drive/build-config/deprecations';
 import { DEBUG, TESTING } from '@warp-drive/build-config/env';
@@ -57,6 +61,7 @@ import { CacheManager } from './managers/cache-manager';
 import NotificationManager from './managers/notification-manager';
 import { RecordArrayManager } from './managers/record-array-manager';
 import { RequestPromise, RequestStateService } from './network/request-cache';
+import { promiseArray, promiseObject } from './proxies/promise-proxies';
 import type { Collection, IdentifierArray } from './record-arrays/identifier-array';
 import { coerceId, ensureStringId } from './utils/coerce-id';
 import { constructResource } from './utils/construct-resource';
@@ -215,7 +220,7 @@ const app = new EmberApp(defaults, {
 });
 \`\`\`
 `,
-    false,
+    /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
     {
       id: 'ember-data:deprecate-store-extends-ember-object',
       until: '6.0',
@@ -1022,6 +1027,60 @@ export class Store extends BaseClass {
   }
 
   /**
+    @method find
+    @param {String} modelName
+    @param {String|Integer} id
+    @param {Object} options
+    @return {Promise} promise
+    @deprecated
+    @private
+  */
+  find(modelName: string, id: string | number, options?: FindRecordOptions): Promise<OpaqueRecordInstance> {
+    if (DEBUG) {
+      assertDestroyingStore(this, 'find');
+    }
+    // The default `model` hook in Route calls `find(modelName, id)`,
+    // that's why we have to keep this method around even though `findRecord` is
+    // the public way to get a record by modelName and id.
+    assert(
+      `Using store.find(type) has been removed. Use store.findAll(modelName) to retrieve all records for a given type.`,
+      arguments.length !== 1
+    );
+    assert(
+      `Calling store.find(modelName, id, { preload: preload }) is no longer supported. Use store.findRecord(modelName, id, { preload: preload }) instead.`,
+      !options
+    );
+    assert(`You need to pass the model name and id to the store's find method`, arguments.length === 2);
+    assert(
+      `You cannot pass '${id}' as id to the store's find method`,
+      typeof id === 'string' || typeof id === 'number'
+    );
+    assert(
+      `Calling store.find() with a query object is no longer supported. Use store.query() instead.`,
+      typeof id !== 'object'
+    );
+    assert(
+      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
+      typeof modelName === 'string'
+    );
+
+    if (DEPRECATE_STORE_FIND) {
+      deprecate(
+        `Using store.find is deprecated, use store.findRecord instead. Likely this means you are relying on the implicit store fetching behavior of routes unknowingly.`,
+        false,
+        {
+          id: 'ember-data:deprecate-store-find',
+          since: { available: '4.5', enabled: '4.5' },
+          for: 'ember-data',
+          until: '5.0',
+        }
+      );
+      return this.findRecord(modelName, id);
+    }
+    assert(`store.find has been removed. Use store.findRecord instead.`);
+  }
+
+  /**
     This method returns a record for a given identifier or type and id combination.
 
     The `findRecord` method will always resolve its promise with the same
@@ -1427,6 +1486,14 @@ export class Store extends BaseClass {
       cacheOptions: { [SkipCache]: true },
     });
 
+    if (DEPRECATE_PROMISE_PROXIES) {
+      return promiseObject(
+        promise.then((document) => {
+          return document.content;
+        })
+      );
+    }
+
     return promise.then((document) => {
       return document.content;
     });
@@ -1578,6 +1645,54 @@ export class Store extends BaseClass {
   }
 
   /**
+   This method returns true if a record for a given modelName and id is already
+   loaded in the store. Use this function to know beforehand if a findRecord()
+   will result in a request or that it will be a cache hit.
+
+   Example
+
+   ```javascript
+   store.hasRecordForId('post', 1); // false
+   store.findRecord('post', 1).then(function() {
+     store.hasRecordForId('post', 1); // true
+   });
+   ```
+
+    @method hasRecordForId
+    @deprecated
+    @public
+    @param {String} modelName
+    @param {(String|Integer)} id
+    @return {Boolean}
+  */
+  hasRecordForId(modelName: string, id: string | number): boolean {
+    if (DEPRECATE_HAS_RECORD) {
+      deprecate(`store.hasRecordForId has been deprecated in favor of store.peekRecord`, false, {
+        id: 'ember-data:deprecate-has-record-for-id',
+        since: { available: '4.5', enabled: '4.5' },
+        until: '5.0',
+        for: 'ember-data',
+      });
+      if (DEBUG) {
+        assertDestroyingStore(this, 'hasRecordForId');
+      }
+      assert(`You need to pass a model name to the store's hasRecordForId method`, modelName);
+      assert(
+        `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
+        typeof modelName === 'string'
+      );
+
+      const type = normalizeModelName(modelName);
+      const trueId = ensureStringId(id);
+      const resource = { type, id: trueId };
+
+      const identifier = this.identifierCache.peekRecordIdentifier(resource);
+      return Boolean(identifier && this._instanceCache.recordIsLoaded(identifier));
+    }
+    assert(`store.hasRecordForId has been removed`);
+  }
+
+  /**
     This method delegates a query to the adapter. This is the one place where
     adapter-level semantics are exposed to the application.
 
@@ -1651,6 +1766,9 @@ export class Store extends BaseClass {
       cacheOptions: { [SkipCache]: true },
     });
 
+    if (DEPRECATE_PROMISE_PROXIES) {
+      return promiseArray(promise.then((document) => document.content)) as unknown as Promise<Collection>;
+    }
     return promise.then((document) => document.content);
   }
 
@@ -1778,6 +1896,10 @@ export class Store extends BaseClass {
       },
       cacheOptions: { [SkipCache]: true },
     });
+
+    if (DEPRECATE_PROMISE_PROXIES) {
+      return promiseObject(promise.then((document) => document.content));
+    }
 
     return promise.then((document) => document.content);
   }
@@ -1980,6 +2102,10 @@ export class Store extends BaseClass {
       },
       cacheOptions: { [SkipCache]: true },
     });
+
+    if (DEPRECATE_PROMISE_PROXIES) {
+      return promiseArray(promise.then((document) => document.content)) as unknown as Promise<IdentifierArray<T>>;
+    }
 
     return promise.then((document) => document.content);
   }
@@ -2392,39 +2518,51 @@ export class Store extends BaseClass {
 if (ENABLE_LEGACY_SCHEMA_SERVICE) {
   Store.prototype.getSchemaDefinitionService = function (): SchemaService {
     assert(`You must registerSchemaDefinitionService with the store to use custom model classes`, this._schema);
-    deprecate(`Use \`store.schema\` instead of \`store.getSchemaDefinitionService()\``, false, {
-      id: 'ember-data:schema-service-updates',
-      until: '6.0',
-      for: 'ember-data',
-      since: {
-        available: '4.13',
-        enabled: '5.4',
-      },
-    });
+    deprecate(
+      `Use \`store.schema\` instead of \`store.getSchemaDefinitionService()\``,
+      /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
+      {
+        id: 'ember-data:schema-service-updates',
+        until: '6.0',
+        for: 'ember-data',
+        since: {
+          available: '4.13',
+          enabled: '5.4',
+        },
+      }
+    );
     return this._schema;
   };
   Store.prototype.registerSchemaDefinitionService = function (schema: SchemaService) {
-    deprecate(`Use \`store.createSchemaService\` instead of \`store.registerSchemaDefinitionService()\``, false, {
-      id: 'ember-data:schema-service-updates',
-      until: '6.0',
-      for: 'ember-data',
-      since: {
-        available: '4.13',
-        enabled: '5.4',
-      },
-    });
+    deprecate(
+      `Use \`store.createSchemaService\` instead of \`store.registerSchemaDefinitionService()\``,
+      /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
+      {
+        id: 'ember-data:schema-service-updates',
+        until: '6.0',
+        for: 'ember-data',
+        since: {
+          available: '4.13',
+          enabled: '5.4',
+        },
+      }
+    );
     this._schema = schema;
   };
   Store.prototype.registerSchema = function (schema: SchemaService) {
-    deprecate(`Use \`store.createSchemaService\` instead of \`store.registerSchema()\``, false, {
-      id: 'ember-data:schema-service-updates',
-      until: '6.0',
-      for: 'ember-data',
-      since: {
-        available: '4.13',
-        enabled: '5.4',
-      },
-    });
+    deprecate(
+      `Use \`store.createSchemaService\` instead of \`store.registerSchema()\``,
+      /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
+      {
+        id: 'ember-data:schema-service-updates',
+        until: '6.0',
+        for: 'ember-data',
+        since: {
+          available: '4.13',
+          enabled: '5.4',
+        },
+      }
+    );
     this._schema = schema;
   };
 }
@@ -2534,5 +2672,33 @@ function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord |
   }
   const extract = recordIdentifierFor;
 
+  if (DEPRECATE_PROMISE_PROXIES) {
+    if (isPromiseRecord(recordOrPromiseRecord)) {
+      const content = recordOrPromiseRecord.content;
+      assert(
+        'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.',
+        content !== undefined
+      );
+      deprecate(
+        `You passed in a PromiseProxy to a Relationship API that now expects a resolved value. await the value before setting it.`,
+        false,
+        {
+          id: 'ember-data:deprecate-promise-proxies',
+          until: '5.0',
+          since: {
+            enabled: '4.7',
+            available: '4.7',
+          },
+          for: 'ember-data',
+        }
+      );
+      return content ? extract(content) : null;
+    }
+  }
+
   return extract(recordOrPromiseRecord);
+}
+
+function isPromiseRecord(record: PromiseProxyRecord | OpaqueRecordInstance): record is PromiseProxyRecord {
+  return typeof record === 'object' && !!record && 'then' in record && typeof record.then === 'function';
 }

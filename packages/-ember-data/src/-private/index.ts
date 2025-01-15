@@ -4,15 +4,21 @@ import { deprecate } from '@ember/debug';
 import PromiseProxyMixin from '@ember/object/promise-proxy-mixin';
 import ObjectProxy from '@ember/object/proxy';
 
-deprecate('Importing from `ember-data/-private` is deprecated without replacement.', false, {
-  id: 'ember-data:deprecate-legacy-imports',
-  for: 'ember-data',
-  until: '6.0',
-  since: {
-    enabled: '5.2',
-    available: '4.13',
-  },
-});
+import { DISABLE_6X_DEPRECATIONS } from '@warp-drive/build-config/deprecations';
+
+deprecate(
+  'Importing from `ember-data/-private` is deprecated without replacement.',
+  /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
+  {
+    id: 'ember-data:deprecate-legacy-imports',
+    for: 'ember-data',
+    until: '6.0',
+    since: {
+      enabled: '5.2',
+      available: '4.13',
+    },
+  }
+);
 
 export { default as Store } from '../store';
 

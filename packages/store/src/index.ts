@@ -186,6 +186,7 @@ export {
   Store as default,
   type StoreRequestContext,
   CacheHandler,
+  normalizeModelName,
   type Document,
   type CachePolicy,
   type StoreRequestInput,
