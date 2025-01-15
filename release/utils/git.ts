@@ -6,6 +6,7 @@ import {
   npmDistTagForChannelAndVersion,
   SEMVER_VERSION,
   VALID_BRANCHES,
+  VALID_TRAINS,
 } from './channel';
 import { getFile } from './json-file';
 import { exec } from './cmd';
@@ -24,7 +25,7 @@ export type CHANNEL_VERSIONS = {
   beta: SEMVER_VERSION;
   canary: SEMVER_VERSION;
   lts: SEMVER_VERSION;
-  [key: LTS_TAG | RELEASE_TAG]: SEMVER_VERSION | undefined;
+  [key: LTS_TAG | RELEASE_TAG | `v${number}-${'beta' | 'canary'}`]: SEMVER_VERSION | undefined;
 };
 
 export type GIT_STATE = {
@@ -56,6 +57,7 @@ export async function getGitState(options: Map<string, boolean | string | number
   }
   const dangerously_force = options.get('dangerously_force') as boolean;
   const isHelp = options.get('help') as boolean;
+  const train = options.get('train') as VALID_TRAINS | '';
   const status = await exec(['git', 'status']);
   let clean = true;
   let current = true;
@@ -120,7 +122,7 @@ export async function getGitState(options: Map<string, boolean | string | number
   const foundBranch = status.split('\n')[0].replace('On branch ', '');
   const channel =
     (options.get('channel') as CHANNEL) || channelForBranch(foundBranch, rootVersion, dangerously_force || isHelp);
-  const expectedBranch = branchForChannelAndVersion(channel, rootVersion);
+  const expectedBranch = branchForChannelAndVersion(channel, rootVersion, train);
 
   if (foundBranch !== expectedBranch) {
     if (dangerously_force || isHelp) {
@@ -213,7 +215,7 @@ export async function getAllPackagesForGitTag(tag: GIT_TAG): Promise<Map<string,
 
 export async function pushLTSTagToRemoteBranch(tag: GIT_TAG, force?: boolean): Promise<void> {
   const sha = await exec({ cmd: `git rev-list -n 1 ${tag}` });
-  const branch = npmDistTagForChannelAndVersion('lts-prev', tag.slice(1) as SEMVER_VERSION);
+  const branch = npmDistTagForChannelAndVersion('lts-prev', tag.slice(1) as SEMVER_VERSION, '');
   let oldSha = '<none>';
   try {
     oldSha = await exec({ cmd: `git rev-list -n 1 refs/heads/${branch}` });

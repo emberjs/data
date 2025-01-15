@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { CHANNEL, npmDistTagForChannelAndVersion } from '../../../utils/channel';
+import { CHANNEL, npmDistTagForChannelAndVersion, VALID_TRAINS } from '../../../utils/channel';
 
 import { APPLIED_STRATEGY, Package, STRATEGY } from '../../../utils/package';
 import { getNextVersion } from '../../utils/next-version';
@@ -70,6 +70,7 @@ export async function applyStrategy(
   toPackages: Map<string, Package> = baseVersionPackages
 ): Promise<AppliedStrategy> {
   const channel = config.get('channel') as CHANNEL;
+  const train = config.get('train') as VALID_TRAINS | '';
   const increment = config.get('increment') as 'major' | 'minor' | 'patch';
   const applied_strategies = new Map<string, APPLIED_STRATEGY>();
   const private_pkgs = new Map<string, APPLIED_STRATEGY>();
@@ -140,7 +141,7 @@ export async function applyStrategy(
     // major and minor bumps may only occur on beta|canary|release|lts
     // and never lts-* or release-* and so existing fromVersion is safe
     // to use.
-    applied_strategy.distTag = npmDistTagForChannelAndVersion(channel, applied_strategy.fromVersion);
+    applied_strategy.distTag = npmDistTagForChannelAndVersion(channel, applied_strategy.fromVersion, train);
     applied_strategies.set(name, applied_strategy);
 
     applied_strategy.private ? private_pkgs.set(name, applied_strategy) : public_pks.set(name, applied_strategy);

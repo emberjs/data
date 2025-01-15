@@ -1,7 +1,7 @@
 import { HELP } from '../help/sections/manual';
 import { ABOUT } from '../help/sections/about';
 import { normalizeFlag, type CommandConfig, type FlagConfig } from './parse-args';
-import { CHANNEL, SEMVER_VERSION, npmDistTagForChannelAndVersion } from './channel';
+import { CHANNEL, SEMVER_VERSION, VALID_TRAINS, npmDistTagForChannelAndVersion } from './channel';
 import { getGitState, getPublishedChannelInfo } from './git';
 import chalk from 'chalk';
 import semver from 'semver';
@@ -67,7 +67,6 @@ export const publish_flags_config: FlagConfig = {
   train: {
     name: 'Train',
     flag: 'train',
-    flag_aliases: ['t'],
     type: String,
     default_value: '',
     description:
@@ -122,12 +121,14 @@ export const publish_flags_config: FlagConfig = {
     examples: [],
     default_value: async (options: Map<string, string | number | boolean | null>) => {
       const gitInfo = await getGitState(options);
-      return npmDistTagForChannelAndVersion(gitInfo.expectedChannel, gitInfo.rootVersion);
+      const train = options.get('train') as VALID_TRAINS | '';
+      return npmDistTagForChannelAndVersion(gitInfo.expectedChannel, gitInfo.rootVersion, train);
     },
     validate: async (value: unknown, options: Map<string, string | number | boolean | null>) => {
       const channel = options.get('channel') as CHANNEL;
       const gitInfo = await getGitState(options);
-      const expectedTag = npmDistTagForChannelAndVersion(channel, gitInfo.rootVersion);
+      const train = options.get('train') as VALID_TRAINS | '';
+      const expectedTag = npmDistTagForChannelAndVersion(channel, gitInfo.rootVersion, train);
       if (value !== expectedTag) {
         if (!options.get('dangerously_force')) {
           throw new Error(
@@ -344,7 +345,7 @@ export const promote_flags_config: FlagConfig = merge(
         if (existing.latest === version) {
           return 'lts';
         } else {
-          return npmDistTagForChannelAndVersion('lts-prev', version);
+          return npmDistTagForChannelAndVersion('lts-prev', version, '');
         }
       },
       validate: async (value: unknown, options: Map<string, string | number | boolean | null>) => {
@@ -361,7 +362,7 @@ export const promote_flags_config: FlagConfig = merge(
             throw new Error(`Expected a tag starting with "lts-" but got ${value}`);
           }
 
-          const expected = npmDistTagForChannelAndVersion('lts-prev', version);
+          const expected = npmDistTagForChannelAndVersion('lts-prev', version, '');
 
           if (expected !== value) {
             throw new Error(`Expected tag lts or ${expected} for version ${version} but got ${value}`);
