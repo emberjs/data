@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/schema",
-  "version": "0.0.0-alpha.114",
+  "version": "0.0.0-alpha.115",
   "private": true,
   "description": "Parse Declarative Typescript into JSON Schemas",
   "keywords": [
