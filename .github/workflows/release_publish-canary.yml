@@ -53,7 +53,7 @@ jobs:
       - name: Desired Branch
         id: desired-branch
         run: |
-          if [[  github.event.inputs.train ]]; then
+          if [[  github.event.inputs.train != "" ]]; then
             echo "DESIRED_BRANCH=${{github.event.inputs.train}}-main" >> "$GITHUB_OUTPUT"
           else
             echo "DESIRED_BRANCH=main" >> "$GITHUB_OUTPUT"
