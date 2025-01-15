@@ -5,6 +5,7 @@ export type RELEASE_TAG = `release-${number}-${number}`;
 export type NPM_DIST_TAG =
   | `${VALID_TRAINS}-canary`
   | `${VALID_TRAINS}-beta`
+  | `${VALID_TRAINS}-latest`
   | 'latest'
   | 'beta'
   | 'canary'
@@ -14,6 +15,7 @@ export type NPM_DIST_TAG =
 export type VALID_BRANCHES =
   | `${VALID_TRAINS}-main`
   | `${VALID_TRAINS}-beta`
+  | `${VALID_TRAINS}-release`
   | 'main'
   | 'beta'
   | 'release'
@@ -102,7 +104,7 @@ export function npmDistTagForChannelAndVersion(
     case 'lts':
       return channel;
     case 'release':
-      return 'latest';
+      return train ? `${train}-latest` : 'latest';
     case 'lts-prev':
       return `lts-${major}-${minor}`;
     case 'release-prev':
@@ -134,7 +136,7 @@ export function branchForChannelAndVersion(
     case 'beta':
       return train ? `${train}-beta` : 'beta';
     case 'release':
-      return channel;
+      return train ? `${train}-release` : 'release';
     case 'lts':
     case 'lts-prev':
       return `lts-${major}-${minor}`;

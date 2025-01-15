@@ -1,5 +1,9 @@
 name: 0. Release > Promote LTS
 
+concurrency:
+  group: ci-release-promote-lts
+  cancel-in-progress: true
+
 on:
   workflow_dispatch:
     inputs:
@@ -12,6 +16,12 @@ on:
       update-branch:
         description: 'Whether to update the associated LTS branch to the same commit as the tag'
         default: true
+        type: boolean
+      dryRun:
+        name: Dry Run
+        description: 'Whether to perform a dry run'
+        required: true
+        default: false
         type: boolean
 
 env:
@@ -48,7 +58,7 @@ jobs:
           git config --local user.email ${{ secrets.GH_DEPLOY_EMAIL }}
           git config --local user.name ${{ secrets.GH_DEPLOY_NAME }}
       - name: Publish with script
-        run: bun release exec promote --v=${{ github.event.inputs.version }} --t=${{ github.event.inputs.channel }} --u=${{ github.event.inputs.update-branch }}
+        run: bun release exec promote --v=${{ github.event.inputs.version }} --t=${{ github.event.inputs.channel }} --u=${{ github.event.inputs.update-branch }} --dry-run=${{ github.event.inputs.dryRun }}
         env:
           FORCE_COLOR: 2
           CI: true

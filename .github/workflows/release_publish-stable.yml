@@ -1,15 +1,20 @@
 name: 0. Release > Stable
 
+concurrency:
+  group: ci-release-stable
+  cancel-in-progress: true
+
 on:
   workflow_dispatch:
     inputs:
       train:
+        name: Train
         description: 'If not the current primary release train, the prior major version for which to perform a new release'
-        required: true
-        default: null
+        required: false
+        default: ''
         type: choice
         options:
-        - null
+        - ''
         - v4
       source-branch:
         description: 'If starting a new cycle, or reversioning, the source branch to update the release branch from'
@@ -47,6 +52,12 @@ on:
         - patch
         - minor
         - major
+      dryRun:
+        name: Dry Run
+        description: 'Whether to perform a dry run'
+        required: true
+        default: false
+        type: boolean
 
 env:
   TURBO_API: http://127.0.0.1:9080
@@ -66,13 +77,23 @@ jobs:
         run: |
           echo "Releases may only be performed from the main branch."
           exit 1
+      - name: Desired Branch
+        id: desired-branch
+        env:
+          TRAIN: ${{ github.event.inputs.train }}
+        run: |
+          if [[ $TRAIN != "" ]]; then
+            echo "DESIRED_BRANCH=${{github.event.inputs.train}}-release" >> "$GITHUB_OUTPUT"
+          else
+            echo "DESIRED_BRANCH=release" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
         with:
           fetch-tags: true
           show-progress: false
           token: ${{ secrets.GH_DEPLOY_TOKEN }}
           fetch-depth: 3
-          ref: release
+          ref: ${{ steps.desired-branch.outputs.DESIRED_BRANCH }}
       ## Ensure we have a full copy of the source branch
       - run: git fetch origin ${{ github.event.inputs.source-branch }}
       - run: git fetch origin --tags --depth=1
@@ -92,7 +113,7 @@ jobs:
         # Then we do the default patch increment from the current branch state.
         # This handles both start-of-cycle and bugfix releases.
         if: github.event.inputs.from-version == null
-        run: bun release publish release --train=${{ github.event.inputs.train }}
+        run: bun release publish release --train=${{ github.event.inputs.train }} --dry-run=${{ github.event.inputs.dryRun }}
         env:
           FORCE_COLOR: 2
           CI: true
@@ -103,7 +124,7 @@ jobs:
         # Then we increment from the branch with the supplied increment
         # This handles both upversioning and downversioning
         if: github.event.inputs.from-version != null
-        run: bun release publish release --from=${{ github.event.inputs.from-version }} --increment=${{ github.event.inputs.increment }}
+        run: bun release publish release --train=${{ github.event.inputs.train }} --from=${{ github.event.inputs.from-version }} --increment=${{ github.event.inputs.increment }} --dry-run=${{ github.event.inputs.dryRun }}
         env:
           FORCE_COLOR: 2
           CI: true
