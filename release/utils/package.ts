@@ -21,7 +21,7 @@ export class Package {
 
   async refresh() {
     await this.file.invalidate();
-    this.pkgData = await this.file.read();
+    this.pkgData = await this.file.read(true);
   }
 }
 
