@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/schema-record",
-  "version": "4.13.0-alpha.1",
+  "version": "4.13.0-alpha.2",
   "description": "Schema Driven Resource Presentation for WarpDrive and EmberData",
   "keywords": [
     "ember-addon"
