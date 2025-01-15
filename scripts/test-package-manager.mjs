@@ -262,9 +262,33 @@ async function runNoThrow(cwd, cmd) {
 async function install(packageManager, cwd) {
   // All package managers have an install command
   switch (packageManager) {
-    case 'npm':
+    case 'npm': {
+      let manifestContent = readFileSync(join(cwd, 'package.json'));
+      let manifest = JSON.parse(manifestContent);
+      let toInstall = [];
+      for (let [name, filePath] of Object.entries(manifest.devDependencies)) {
+        if (filePath.startsWith('file:')) {
+          toInstall.push(filePath.replace('file:', ''));
+          manifest.devDependencies[name] = '*';
+        }
+      }
+
+      writeFileSync(join(cwd, 'package.json'), JSON.stringify(manifest, null, 2));
+
+      console.log({ toInstall, manifest });
+
+      let command = `npm install --save-dev ${toInstall.join(' ')} --force`;
+      await $({
+        preferLocal: true,
+        shell: true,
+        cwd,
+        stdio: 'inherit',
+      })(command);
+
       // npm complains about tgz files in the version specifier part of package.json
       await $({ preferLocal: true, shell: true, cwd, stdio: 'inherit' })`${packageManager} install --force`;
+      return;
+    }
     default:
       await $({ preferLocal: true, shell: true, cwd, stdio: 'inherit' })`${packageManager} install`;
   }
