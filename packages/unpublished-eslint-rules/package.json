@@ -1,7 +1,7 @@
 {
   "name": "eslint-plugin-ember-data-internal",
   "main": "./src/index.js",
-  "version": "4.12.8",
+  "version": "4.13.0-alpha.0",
   "private": true,
   "repository": {
     "type": "git",
