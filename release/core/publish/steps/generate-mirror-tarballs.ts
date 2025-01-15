@@ -70,6 +70,16 @@ export async function generateMirrorTarballs(
           newContents = newContents.replace(new RegExp(`"${from}`, 'g'), `"${to}`);
         }
 
+        // macros.globalConfig['WarpDrive']
+        // macros.setGlobalConfig(import.meta.filename, 'WarpDrive', finalizedConfig);
+        if (strat.name === '@warp-drive/build-config') {
+          newContents = newContents.replace(new RegExp(`'WarpDrive'`, 'g'), `'WarpDriveMirror'`);
+        }
+
+        newContents = newContents.replace(
+          new RegExp('getGlobalConfig().WarpDrive', 'g'),
+          'getGlobalConfig().WarpDriveMirror'
+        );
         newContents = newContents.replace(new RegExp(`'@ember-data/'`, 'g'), `'@ember-data-mirror/'`);
         newContents = newContents.replace(new RegExp(`"@ember-data/"`, 'g'), `"@ember-data-mirror/"`);
 
