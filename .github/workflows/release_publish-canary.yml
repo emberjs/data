@@ -6,11 +6,11 @@ on:
       train:
         name: Train
         description: 'If not the current primary release train, the prior major version for which to perform a new release'
-        required: true
-        default: null
+        required: false
+        default: ''
         type: choice
         options:
-        - null
+        - ''
         - v4
       increment:
         name: Increment
