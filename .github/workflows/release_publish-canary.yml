@@ -3,6 +3,14 @@ name: 0. Release > Canary
 on:
   workflow_dispatch:
     inputs:
+      train:
+        description: 'If not the current primary release train, the prior major version for which to perform a new release'
+        required: true
+        default: null
+        type: choice
+        options:
+        - null
+        - v4
       increment:
         description: 'Type of Version Bump To Perform'
         required: true
@@ -56,7 +64,7 @@ jobs:
           git config --local user.email ${{ secrets.GH_DEPLOY_EMAIL }}
           git config --local user.name ${{ secrets.GH_DEPLOY_NAME }}
       - name: Publish with script
-        run: bun release exec canary --increment=${{ github.event.inputs.increment }}
+        run: bun release exec canary --train=${{ github.event.inputs.train }} --increment=${{ github.event.inputs.increment }}
         env:
           FORCE_COLOR: 2
           CI: true
