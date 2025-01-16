@@ -159,6 +159,14 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
       'Resource Blob is kept updated in the cache after mutation'
     );
 
+    const remoteData = store.cache.peekRemoteState(identifier);
+
+    assert.deepEqual(
+      remoteData,
+      { type: 'user', id: '1', lid: '@lid:user-1', attributes: { name: 'Chris' }, relationships: {} },
+      'Remote State is not updated in the cache after mutation'
+    );
+
     store.cache.put(
       asStructuredDocument({
         content: {
@@ -192,6 +200,127 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
         relationships: {},
       },
       'Resource Blob is kept updated in the cache after rollback'
+    );
+  });
+
+  test('object fields are accessible via `peek`', function (assert) {
+    const store = new TestStore();
+    store.schema.registerResource({
+      identity: null,
+      type: 'user',
+      fields: [
+        { kind: 'attribute', name: 'name', type: null },
+        {
+          kind: 'object',
+          name: 'business',
+        },
+      ],
+    });
+
+    let responseDocument: CollectionResourceDataDocument;
+    store._run(() => {
+      responseDocument = store.cache.put(
+        asStructuredDocument({
+          content: {
+            data: [
+              {
+                type: 'user',
+                id: '1',
+                attributes: {
+                  name: 'Chris',
+                  business: {
+                    name: 'My Business',
+                    address: { street: '123 Main Street', city: 'Anytown', state: 'NY', zip: '23456' },
+                  },
+                },
+              },
+            ],
+          },
+        })
+      );
+    });
+    const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+    assert.deepEqual(responseDocument!.data, [identifier], 'We were given the correct data back');
+
+    let resourceData = store.cache.peek(identifier);
+
+    assert.deepEqual(resourceData, {
+      type: 'user',
+      id: '1',
+      lid: '@lid:user-1',
+      attributes: {
+        name: 'Chris',
+        business: {
+          name: 'My Business',
+          address: {
+            street: '123 Main Street',
+            city: 'Anytown',
+            state: 'NY',
+            zip: '23456',
+          },
+        },
+      },
+      relationships: {},
+    });
+
+    const record = store.peekRecord<{
+      name: string | null;
+      business: { address: { street: string; city: string; state: string; zip: string } };
+    }>(identifier);
+
+    assert.equal(record?.business?.address?.street, '123 Main Street', 'record name is correct');
+
+    store.cache.setAttr(identifier, 'business', {
+      name: 'My Business',
+      address: { street: '456 Other Street', city: 'Anytown', state: 'NY', zip: '23456' },
+    });
+    resourceData = store.cache.peek(identifier);
+
+    assert.deepEqual(
+      resourceData,
+      {
+        type: 'user',
+        id: '1',
+        lid: '@lid:user-1',
+        attributes: {
+          name: 'Chris',
+          business: {
+            name: 'My Business',
+            address: {
+              street: '456 Other Street',
+              city: 'Anytown',
+              state: 'NY',
+              zip: '23456',
+            },
+          },
+        },
+        relationships: {},
+      },
+      'Record is accessible via peek'
+    );
+
+    const remoteData = store.cache.peekRemoteState(identifier);
+    assert.deepEqual(
+      remoteData,
+      {
+        type: 'user',
+        id: '1',
+        lid: '@lid:user-1',
+        attributes: {
+          name: 'Chris',
+          business: {
+            name: 'My Business',
+            address: {
+              street: '123 Main Street',
+              city: 'Anytown',
+              state: 'NY',
+              zip: '23456',
+            },
+          },
+        },
+        relationships: {},
+      },
+      'Remote state is not updated after setAttr'
     );
   });
 
