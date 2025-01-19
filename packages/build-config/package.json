@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "@embroider/macros": "^1.16.6",
-    "@embroider/addon-shim": "^1.8.9",
+    "@embroider/addon-shim": "^1.9.0",
     "babel-import-util": "^2.1.1",
     "broccoli-funnel": "^3.0.8",
     "semver": "^7.6.3"
