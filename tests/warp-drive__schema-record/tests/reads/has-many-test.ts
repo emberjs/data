@@ -227,6 +227,173 @@ module('Reads | hasMany in linksMode', function (hooks) {
     assert.strictEqual(record.friends?.[0]?.friends?.[0].name, 'Chris', 'friends[0].friends[0].name is accessible');
   });
 
+  test('we can update sync hasMany in linksMode with the same data in a different order', function (this: TestContext, assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const { schema } = store;
+
+    registerDerivations(schema);
+
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'attribute',
+          },
+          {
+            name: 'friends',
+            type: 'user',
+            kind: 'hasMany',
+            options: { inverse: 'friends', async: false, linksMode: true },
+          },
+        ],
+      })
+    );
+
+    const record = store.push<User>({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Chris',
+        },
+        relationships: {
+          friends: {
+            links: { related: '/user/1/friends' },
+            data: [
+              { type: 'user', id: '2' },
+              { type: 'user', id: '3' },
+              { type: 'user', id: '4' },
+            ],
+          },
+        },
+      },
+      included: [
+        {
+          type: 'user',
+          id: '2',
+          attributes: {
+            name: 'Rey',
+          },
+          relationships: {
+            friends: {
+              links: { related: '/user/2/friends' },
+              data: [{ type: 'user', id: '1' }],
+            },
+          },
+        },
+        {
+          type: 'user',
+          id: '3',
+          attributes: {
+            name: 'Jane',
+          },
+          relationships: {
+            friends: {
+              links: { related: '/user/3/friends' },
+              data: [{ type: 'user', id: '1' }],
+            },
+          },
+        },
+        {
+          type: 'user',
+          id: '4',
+          attributes: {
+            name: 'Luke',
+          },
+          relationships: {
+            friends: {
+              links: { related: '/user/4/friends' },
+              data: [{ type: 'user', id: '1' }],
+            },
+          },
+        },
+      ],
+    });
+
+    assert.strictEqual(record.id, '1', 'id is accessible');
+    assert.strictEqual(record.name, 'Chris', 'name is accessible');
+    assert.strictEqual(record.friends?.length, 3, 'friends.length is accessible');
+    assert.strictEqual(record.friends?.[0]?.id, '2', 'friends[0].id is accessible');
+    assert.strictEqual(record.friends?.[0]?.name, 'Rey', 'friends[0].name is accessible');
+
+    store.push<User>({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Chris',
+        },
+        relationships: {
+          friends: {
+            links: { related: '/user/1/friends' },
+            data: [
+              { type: 'user', id: '4' },
+              { type: 'user', id: '3' },
+              { type: 'user', id: '2' },
+            ],
+          },
+        },
+      },
+      included: [
+        {
+          type: 'user',
+          id: '4',
+          attributes: {
+            name: 'Luke',
+          },
+          relationships: {
+            friends: {
+              links: { related: '/user/4/friends' },
+              data: [{ type: 'user', id: '1' }],
+            },
+          },
+        },
+        {
+          type: 'user',
+          id: '3',
+          attributes: {
+            name: 'Jane',
+          },
+          relationships: {
+            friends: {
+              links: { related: '/user/3/friends' },
+              data: [{ type: 'user', id: '1' }],
+            },
+          },
+        },
+        {
+          type: 'user',
+          id: '2',
+          attributes: {
+            name: 'Rey',
+          },
+          relationships: {
+            friends: {
+              links: { related: '/user/2/friends' },
+              data: [{ type: 'user', id: '1' }],
+            },
+          },
+        },
+      ],
+    });
+
+    assert.strictEqual(record.id, '1', 'id is accessible');
+    assert.strictEqual(record.name, 'Chris', 'name is accessible');
+    assert.strictEqual(record.friends?.length, 3, 'friends.length is accessible');
+    assert.strictEqual(record.friends?.[0]?.id, '4', 'friends[0].id is accessible');
+    assert.strictEqual(record.friends?.[0]?.name, 'Luke', 'friends[0].name is accessible');
+    assert.strictEqual(record.friends?.[0]?.friends?.length, 1, 'friends[0].friends.length is accessible');
+    assert.strictEqual(record.friends?.[0]?.friends?.[0].id, '1', 'friends[0].friends[0].id is accessible');
+    assert.strictEqual(record.friends?.[0]?.friends?.[0].name, 'Chris', 'friends[0].friends[0].name is accessible');
+    assert.strictEqual(record.friends?.[1]?.id, '3', 'friends[0].id is accessible');
+    assert.strictEqual(record.friends?.[1]?.name, 'Jane', 'friends[0].name is accessible');
+    assert.strictEqual(record.friends?.[1]?.friends?.length, 1, 'friends[0].friends.length is accessible');
+    assert.strictEqual(record.friends?.[1]?.friends?.[0].id, '1', 'friends[0].friends[0].id is accessible');
+    assert.strictEqual(record.friends?.[1]?.friends?.[0].name, 'Chris', 'friends[0].friends[0].name is accessible');
+  });
+
   test('we have refenrece stability on sync hasMany in linksMode', async function (this: TestContext, assert) {
     const handler = {
       request<T>(context: Context): Promise<T> {
