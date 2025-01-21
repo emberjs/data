@@ -73,6 +73,10 @@ export class ManyArrayManager {
 
     return this.store.request(req) as unknown as Promise<ManyArray<T>>;
   }
+
+  mutate(mutation: LocalRelationshipOperation): void {
+    this.cache.mutate(mutation);
+  }
 }
 
 function getRelatedLink(resource: CollectionResourceRelationship): string {
