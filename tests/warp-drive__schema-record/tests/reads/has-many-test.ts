@@ -4,7 +4,11 @@ import { module, skip, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
+import RequestManager from '@ember-data/request';
+import type { Context } from '@ember-data/request/-private/context';
 import type Store from '@ember-data/store';
+import { CacheHandler } from '@ember-data/store';
+import type { RelatedCollection } from '@ember-data/store/-private';
 import type { Type } from '@warp-drive/core-types/symbols';
 import { registerDerivations, withDefaults } from '@warp-drive/schema-record/schema';
 
@@ -221,6 +225,125 @@ module('Reads | hasMany in linksMode', function (hooks) {
     assert.strictEqual(record.friends?.[0]?.friends?.length, 2, 'friends[0].friends.length is accessible');
     assert.strictEqual(record.friends?.[0]?.friends?.[0].id, '1', 'friends[0].friends[0].id is accessible');
     assert.strictEqual(record.friends?.[0]?.friends?.[0].name, 'Chris', 'friends[0].friends[0].name is accessible');
+  });
+
+  test('we have refenrece stability on sync hasMany in linksMode', async function (this: TestContext, assert) {
+    const handler = {
+      request<T>(context: Context): Promise<T> {
+        return Promise.resolve({
+          data: [
+            {
+              type: 'user',
+              id: '2',
+              attributes: {
+                name: 'Rey',
+              },
+              relationships: {
+                friends: {
+                  links: { related: '/user/2/friends' },
+                  data: [{ type: 'user', id: '1' }],
+                },
+              },
+            },
+            {
+              type: 'user',
+              id: '3',
+              attributes: {
+                name: 'Jane',
+              },
+              relationships: {
+                friends: {
+                  links: { related: '/user/3/friends' },
+                  data: [{ type: 'user', id: '1' }],
+                },
+              },
+            },
+          ],
+        } as T);
+      },
+    };
+
+    const store = this.owner.lookup('service:store') as Store;
+    const requestManager = new RequestManager();
+    requestManager.use([handler]);
+    requestManager.useCache(CacheHandler);
+    store.requestManager = requestManager;
+    const { schema } = store;
+
+    registerDerivations(schema);
+
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'attribute',
+          },
+          {
+            name: 'friends',
+            type: 'user',
+            kind: 'hasMany',
+            options: { inverse: 'friends', async: false, linksMode: true },
+          },
+        ],
+      })
+    );
+
+    const record = store.push<User>({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Chris',
+        },
+        relationships: {
+          friends: {
+            links: { related: '/user/1/friends' },
+            data: [
+              { type: 'user', id: '2' },
+              { type: 'user', id: '3' },
+            ],
+          },
+        },
+      },
+      included: [
+        {
+          type: 'user',
+          id: '2',
+          attributes: {
+            name: 'Rey',
+          },
+          relationships: {
+            friends: {
+              links: { related: '/user/2/friends' },
+              data: [{ type: 'user', id: '1' }],
+            },
+          },
+        },
+        {
+          type: 'user',
+          id: '3',
+          attributes: {
+            name: 'Jane',
+          },
+          relationships: {
+            friends: {
+              links: { related: '/user/3/friends' },
+              data: [{ type: 'user', id: '1' }],
+            },
+          },
+        },
+      ],
+    });
+
+    const friends = record.friends;
+
+    assert.strictEqual(friends, record.friends, 'the friends relationship is stable');
+
+    await (record.friends as RelatedCollection).reload();
+
+    assert.strictEqual(friends, record.friends, 'the friends relationship is stable after reload');
   });
 
   skip('we error for async hasMany access in linksMode because we are not implemented yet', function (this: TestContext, assert) {
