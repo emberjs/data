@@ -38,15 +38,15 @@ jobs:
       - name: Prettier
         run: pnpm lint:prettier
         env:
-          TURBO_FORCE: ${{ secrets.ACTIONS_RUNNER_DEBUG == 'true' }}
+          TURBO_FORCE: true 
       - name: Lint
         run: pnpm lint
         env:
-          TURBO_FORCE: ${{ secrets.ACTIONS_RUNNER_DEBUG == 'true' }}
+          TURBO_FORCE: true 
       - name: Check Uncompiled Packages for TypeScript Compilation Errors
         run: pnpm check:types
         env:
-          TURBO_FORCE: ${{ secrets.ACTIONS_RUNNER_DEBUG == 'true' }}
+          TURBO_FORCE: true 
 
   special-build-tests:
     timeout-minutes: 20
