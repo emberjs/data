@@ -394,7 +394,221 @@ module('Reads | hasMany in linksMode', function (hooks) {
     assert.strictEqual(record.friends?.[1]?.friends?.[0].name, 'Chris', 'friends[0].friends[0].name is accessible');
   });
 
-  test('we can reload a sync hasMany in linksMode', async function (this: TestContext, assert) {
+  test('we can reload a sync hasMany in linksMode, removing an item', async function (this: TestContext, assert) {
+    const handler = {
+      request<T>(): Promise<T> {
+        return Promise.resolve({
+          data: [
+            {
+              type: 'user',
+              id: '3',
+              attributes: {
+                name: 'Jane',
+              },
+              relationships: {
+                friends: {
+                  links: { related: '/user/3/friends' },
+                  data: [{ type: 'user', id: '1' }],
+                },
+              },
+            },
+          ],
+          links: { self: '/user/1/friends' },
+        } as T);
+      },
+    };
+
+    const store = this.owner.lookup('service:store') as Store;
+    const requestManager = new RequestManager();
+    requestManager.use([handler]);
+    requestManager.useCache(CacheHandler);
+    store.requestManager = requestManager;
+    const { schema } = store;
+
+    registerDerivations(schema);
+
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'attribute',
+          },
+          {
+            name: 'friends',
+            type: 'user',
+            kind: 'hasMany',
+            options: { inverse: 'friends', async: false, linksMode: true },
+          },
+        ],
+      })
+    );
+
+    const record = store.push<User>({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Chris',
+        },
+        relationships: {
+          friends: {
+            links: { related: '/user/1/friends' },
+            data: [
+              { type: 'user', id: '2' },
+              { type: 'user', id: '3' },
+            ],
+          },
+        },
+      },
+      included: [
+        {
+          type: 'user',
+          id: '2',
+          attributes: {
+            name: 'Rey',
+          },
+          relationships: {
+            friends: {
+              links: { related: '/user/2/friends' },
+              data: [{ type: 'user', id: '1' }],
+            },
+          },
+        },
+        {
+          type: 'user',
+          id: '3',
+          attributes: {
+            name: 'Jane',
+          },
+          relationships: {
+            friends: {
+              links: { related: '/user/3/friends' },
+              data: [{ type: 'user', id: '1' }],
+            },
+          },
+        },
+      ],
+    });
+
+    assert.strictEqual(record.friends?.length, 2, 'the user has 2 friends');
+
+    await (record.friends as RelatedCollection).reload();
+
+    assert.strictEqual(record.friends?.length, 1, 'the user has 1 friend after a reload');
+    assert.strictEqual(record.friends?.[0]?.id, '4', 'friends[0].id is accessible');
+    assert.strictEqual(record.friends?.[0]?.name, 'Luke', 'friends[0].name is accessible');
+  });
+
+  test('we can reload a sync hasMany in linksMode, adding an item', async function (this: TestContext, assert) {
+    const handler = {
+      request<T>(): Promise<T> {
+        return Promise.resolve({
+          data: [
+            {
+              type: 'user',
+              id: '2',
+              attributes: {
+                name: 'Rey',
+              },
+              relationships: {
+                friends: {
+                  links: { related: '/user/2/friends' },
+                  data: [{ type: 'user', id: '1' }],
+                },
+              },
+            },
+            {
+              type: 'user',
+              id: '3',
+              attributes: {
+                name: 'Jane',
+              },
+              relationships: {
+                friends: {
+                  links: { related: '/user/3/friends' },
+                  data: [{ type: 'user', id: '1' }],
+                },
+              },
+            },
+          ],
+          links: { self: '/user/1/friends' },
+        } as T);
+      },
+    };
+
+    const store = this.owner.lookup('service:store') as Store;
+    const requestManager = new RequestManager();
+    requestManager.use([handler]);
+    requestManager.useCache(CacheHandler);
+    store.requestManager = requestManager;
+    const { schema } = store;
+
+    registerDerivations(schema);
+
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'attribute',
+          },
+          {
+            name: 'friends',
+            type: 'user',
+            kind: 'hasMany',
+            options: { inverse: 'friends', async: false, linksMode: true },
+          },
+        ],
+      })
+    );
+
+    const record = store.push<User>({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Chris',
+        },
+        relationships: {
+          friends: {
+            links: { related: '/user/1/friends' },
+            data: [
+              { type: 'user', id: '2' },
+              { type: 'user', id: '3' },
+            ],
+          },
+        },
+      },
+      included: [
+        {
+          type: 'user',
+          id: '2',
+          attributes: {
+            name: 'Rey',
+          },
+          relationships: {
+            friends: {
+              links: { related: '/user/2/friends' },
+              data: [{ type: 'user', id: '1' }],
+            },
+          },
+        },
+      ],
+    });
+
+    assert.strictEqual(record.friends?.length, 2, 'the user has 2 friends');
+
+    await (record.friends as RelatedCollection).reload();
+
+    assert.strictEqual(record.friends?.length, 1, 'the user has 1 friend after a reload');
+    assert.strictEqual(record.friends?.[0]?.id, '4', 'friends[0].id is accessible');
+    assert.strictEqual(record.friends?.[0]?.name, 'Luke', 'friends[0].name is accessible');
+  });
+
+  test('we can reload a sync hasMany in linksMode, for a new set of records', async function (this: TestContext, assert) {
     const handler = {
       request<T>(): Promise<T> {
         return Promise.resolve({
@@ -700,4 +914,9 @@ module('Reads | hasMany in linksMode', function (hooks) {
     //   'Cannot fetch user.friends because the field is in linksMode but async is not yet supported'
     // );
   });
+
+  // Write a local handler that intercepts the reloadHasMany request and returns a new value
+  // start with one item, update to two items
+  // start with two items, update to one item
+  // test option permutations: reload, backgroundReload
 });
