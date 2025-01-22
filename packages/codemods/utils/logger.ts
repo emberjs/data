@@ -1,3 +1,4 @@
+import assert from 'assert';
 import chalk from 'chalk';
 import type { Options, SourceLocation } from 'jscodeshift';
 import stripAnsi from 'strip-ansi';
@@ -75,6 +76,7 @@ const formatForConsole = winstonFormat.printf((info: Logform.TransformableInfo) 
 
 const formatForFile = winstonFormat.printf((info: Logform.TransformableInfo) => {
   const { level, label, timestamp } = info as PrintInfo;
+  assert(typeof timestamp === 'string', `Expected timestamp value to be a string. Instead was ${typeof timestamp}`);
   return `${timestamp} [${label}] ${level}: ${formatMessage(info, stripAnsi)}`;
 });
 
