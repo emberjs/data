@@ -237,7 +237,7 @@ export default class JSONAPICache implements Cache {
         Counts.set(type, (Counts.get(type) || 0) + 1);
       }
 
-      let str = `JSON:API Cache - put (${doc.content?.lid || doc.request?.url || 'unknown-request'})\n\tContents:`;
+      let str = `JSON:API Cache - put (${doc.content?.lid || doc.request?.url || 'unknown-request'})\n\tContent Counts:`;
       Counts.forEach((count, type) => {
         str += `\n\t\t${type}: ${count}`;
       });
@@ -245,7 +245,13 @@ export default class JSONAPICache implements Cache {
         str += `\t(empty)`;
       }
       // eslint-disable-next-line no-console
-      console.log(str);
+      console.log(str, {
+        lid: doc.content?.lid,
+        content: structuredClone(doc.content),
+        // we may need a specialized copy here
+        request: doc.request, // structuredClone(doc.request),
+        response: doc.response, // structuredClone(doc.response),
+      });
     }
 
     if (included) {
