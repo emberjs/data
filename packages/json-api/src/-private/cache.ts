@@ -1234,6 +1234,64 @@ export default class JSONAPICache implements Cache {
     return current;
   }
 
+  getRemoteAttr(identifier: StableRecordIdentifier, attr: string | string[]): Value | undefined {
+    const isSimplePath = !Array.isArray(attr) || attr.length === 1;
+    if (Array.isArray(attr) && attr.length === 1) {
+      attr = attr[0];
+    }
+
+    debugger;
+    if (isSimplePath) {
+      const attribute = attr as string;
+      const cached = this.__peek(identifier, true);
+      assert(
+        `Cannot retrieve remote attributes for identifier ${String(identifier)} as it is not present in the cache`,
+        cached
+      );
+
+      // in Prod we try to recover when accessing something that
+      // doesn't exist
+      if (!cached) {
+        return undefined;
+      }
+
+      if (cached.remoteAttrs && attribute in cached.remoteAttrs) {
+        return cached.remoteAttrs[attribute];
+      } else if (cached.defaultAttrs && attribute in cached.defaultAttrs) {
+        return cached.defaultAttrs[attribute];
+      } else {
+        const attrSchema = this._capabilities.schema.fields(identifier).get(attribute);
+
+        upgradeCapabilities(this._capabilities);
+        const defaultValue = getDefaultValue(attrSchema, identifier, this._capabilities._store);
+        if (schemaHasLegacyDefaultValueFn(attrSchema)) {
+          cached.defaultAttrs = cached.defaultAttrs || (Object.create(null) as Record<string, Value>);
+          cached.defaultAttrs[attribute] = defaultValue;
+        }
+        return defaultValue;
+      }
+    }
+
+    // TODO @runspired consider whether we need a defaultValue cache in SchemaRecord
+    // like we do for the simple case above.
+    const path: string[] = attr as string[];
+    const cached = this.__peek(identifier, true);
+    const basePath = path[0];
+    let current = cached.remoteAttrs && basePath in cached.remoteAttrs ? cached.remoteAttrs[basePath] : undefined;
+
+    if (current === undefined) {
+      return undefined;
+    }
+
+    for (let i = 1; i < path.length; i++) {
+      current = (current as ObjectValue)[path[i]];
+      if (current === undefined) {
+        return undefined;
+      }
+    }
+    return current;
+  }
+
   /**
    * Mutate the data for an attribute in the cache
    *
@@ -1527,6 +1585,13 @@ export default class JSONAPICache implements Cache {
    */
   getRelationship(identifier: StableRecordIdentifier, field: string): ResourceRelationship | CollectionRelationship {
     return this.__graph.getData(identifier, field);
+  }
+
+  getRemoteRelationship(
+    identifier: StableRecordIdentifier,
+    field: string
+  ): ResourceRelationship | CollectionRelationship {
+    return this.__graph.getRemoteData(identifier, field);
   }
 
   // Resource State

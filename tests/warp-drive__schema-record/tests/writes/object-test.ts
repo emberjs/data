@@ -1006,4 +1006,97 @@ module('Writes | object fields', function (hooks) {
       'we did not mutate the source object'
     );
   });
+
+  module('Cache Remote Values', function () {
+    test('Cache remote values are retrievable after update', async function (assert) {
+      const store = this.owner.lookup('service:store') as Store;
+      const { schema } = store;
+      registerDerivations(schema);
+
+      schema.registerResource(
+        withDefaults({
+          type: 'user',
+          fields: [
+            {
+              name: 'name',
+              kind: 'field',
+            },
+            {
+              name: 'address',
+              kind: 'object',
+            },
+          ],
+        })
+      );
+
+      const immutableRecord = store.push<User>({
+        data: {
+          type: 'user',
+          id: '1',
+          attributes: {
+            name: 'Rey Pupatine',
+            address: {
+              street: '123 Main Street',
+              city: 'Anytown',
+              state: 'NY',
+              zip: '12345',
+            },
+          },
+        },
+      });
+
+      const record = await immutableRecord[Checkout]();
+      assert.deepEqual(
+        record.address,
+        {
+          street: '123 Main Street',
+          city: 'Anytown',
+          state: 'NY',
+          zip: '12345',
+        },
+        'address is correct pre-update'
+      );
+
+      record.address = {
+        street: '456 Elm Street',
+        city: 'Sometown',
+        state: 'NJ',
+        zip: '23456',
+      };
+
+      assert.deepEqual(
+        record.address,
+        {
+          street: '456 Elm Street',
+          city: 'Sometown',
+          state: 'NJ',
+          zip: '23456',
+        },
+        'address is correct post-update'
+      );
+      const identifier = recordIdentifierFor(record);
+      const cachedAddress = store.cache.getAttr(identifier, 'address');
+      assert.deepEqual(
+        cachedAddress,
+        {
+          street: '456 Elm Street',
+          city: 'Sometown',
+          state: 'NJ',
+          zip: '23456',
+        },
+        'address is correct in cache'
+      );
+      const remoteAddress = store.cache.getRemoteAttr(identifier, 'address');
+      assert.deepEqual(
+        remoteAddress,
+        {
+          street: '123 Main Street',
+          city: 'Anytown',
+          state: 'NY',
+          zip: '12345',
+        },
+        'remote address is correct in cache'
+      );
+    });
+  });
 });

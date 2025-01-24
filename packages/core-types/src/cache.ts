@@ -379,6 +379,17 @@ export interface Cache {
   getAttr(identifier: StableRecordIdentifier, field: string | string[]): Value | undefined;
 
   /**
+   * Retrieve remote state without any local changes for a specific attribute
+   *
+   * @method getRemoteAttr
+   * @public
+   * @param identifier
+   * @param field
+   * @return {unknown}
+   */
+  getRemoteAttr(identifier: StableRecordIdentifier, field: string | string[]): Value | undefined;
+
+  /**
    * Mutate the data for an attribute in the cache
    *
    * This method is a candidate to become a mutation
@@ -492,6 +503,21 @@ export interface Cache {
    * @return resource relationship object
    */
   getRelationship(
+    identifier: StableRecordIdentifier,
+    field: string,
+    isCollection?: boolean
+  ): ResourceRelationship | CollectionRelationship;
+
+  /**
+   * Query the cache for the server state of a relationship property without any local changes
+   *
+   * @method getRelationship
+   * @public
+   * @param {StableRecordIdentifier} identifier
+   * @param {string} field
+   * @return resource relationship object
+   */
+  getRemoteRelationship(
     identifier: StableRecordIdentifier,
     field: string,
     isCollection?: boolean
