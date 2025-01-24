@@ -5,7 +5,7 @@ export { Model } from './-private/model';
 export type { ModelStore } from './-private/model';
 export { Errors } from './-private/errors';
 
-export { RelatedCollection as ManyArray } from './-private/many-array';
+export { RelatedCollection as ManyArray } from '@ember-data/store/-private';
 export { PromiseBelongsTo } from './-private/promise-belongs-to';
 export { PromiseManyArray } from './-private/promise-many-array';
 
