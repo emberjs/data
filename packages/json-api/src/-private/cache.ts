@@ -4,6 +4,7 @@
 import type { CollectionEdge, Graph, GraphEdge, ImplicitEdge, ResourceEdge } from '@ember-data/graph/-private';
 import { graphFor, isBelongsTo, peekGraph } from '@ember-data/graph/-private';
 import type Store from '@ember-data/store';
+import { isStableIdentifier } from '@ember-data/store/-private';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { LOG_MUTATIONS, LOG_OPERATIONS, LOG_REQUESTS } from '@warp-drive/build-config/debugging';
 import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp-drive/build-config/deprecations';
@@ -29,6 +30,7 @@ import type {
 import type {
   CollectionField,
   FieldSchema,
+  LegacyHasManyField,
   LegacyRelationshipSchema,
   ResourceField,
 } from '@warp-drive/core-types/schema/fields';
@@ -341,6 +343,24 @@ export default class JSONAPICache implements Cache {
       this.__documents.set(identifier.lid, doc as StructuredDocument<ResourceDocument>);
 
       this._capabilities.notifyChange(identifier, hasExisting ? 'updated' : 'added');
+    }
+
+    if (doc.request?.op === 'findHasMany') {
+      const parentIdentifier = doc.request.options?.identifier as StableRecordIdentifier | undefined;
+      const parentField = doc.request.options?.field as LegacyHasManyField | undefined;
+      assert(`Expected a hasMany field`, parentField?.kind === 'hasMany');
+      assert(
+        `Expected a parent identifier for a findHasMany request`,
+        parentIdentifier && isStableIdentifier(parentIdentifier)
+      );
+      if (parentField && parentIdentifier) {
+        this.__graph.push({
+          op: 'updateRelationship',
+          record: parentIdentifier,
+          field: parentField.name,
+          value: resourceDocument,
+        });
+      }
     }
 
     return resourceDocument;
