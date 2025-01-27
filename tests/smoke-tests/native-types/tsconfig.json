@@ -1,0 +1,57 @@
+{
+  "include": [
+    "app/**/*",
+    "config/**/*",
+    "tests/**/*"
+  ],
+  "compilerOptions": {
+    "lib": [
+      "DOM",
+      "ESNext"
+    ],
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "strict": true,
+    "pretty": true,
+    "exactOptionalPropertyTypes": false,
+    "downlevelIteration": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "baseUrl": ".",
+    "noImplicitOverride": false,
+    "experimentalDecorators": true,
+    "incremental": true,
+    "noEmit": true,
+    "declaration": false,
+    "types": [
+      "ember-source/types",
+      "@embroider/core/virtual",
+      "ember-data/unstable-preview-types",
+      "@ember-data/adapter/unstable-preview-types",
+      "@ember-data/debug/unstable-preview-types",
+      "@ember-data/json-api/unstable-preview-types",
+      "@ember-data/legacy-compat/unstable-preview-types",
+      "@ember-data/model/unstable-preview-types",
+      "@ember-data/request/unstable-preview-types",
+      "@ember-data/request-utils/unstable-preview-types",
+      "@ember-data/store/unstable-preview-types",
+      "@ember-data/serializer/unstable-preview-types",
+      "@ember-data/tracking/unstable-preview-types"
+    ],
+    "paths": {
+      "@ember-data/smoke-tests-native-types/*": [
+        "./app/*"
+      ],
+      "@ember-data/smoke-tests-native-types/tests/*": [
+        "./tess/*"
+      ]
+    }
+  },
+  "glint": {
+    "environment": []
+  }
+}
