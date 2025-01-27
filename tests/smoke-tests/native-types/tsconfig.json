@@ -33,6 +33,7 @@
       "ember-data/unstable-preview-types",
       "@ember-data/adapter/unstable-preview-types",
       "@ember-data/debug/unstable-preview-types",
+      "@ember-data/graph/unstable-preview-types",
       "@ember-data/json-api/unstable-preview-types",
       "@ember-data/legacy-compat/unstable-preview-types",
       "@ember-data/model/unstable-preview-types",
@@ -40,7 +41,8 @@
       "@ember-data/request-utils/unstable-preview-types",
       "@ember-data/store/unstable-preview-types",
       "@ember-data/serializer/unstable-preview-types",
-      "@ember-data/tracking/unstable-preview-types"
+      "@ember-data/tracking/unstable-preview-types",
+      "@warp-drive/core-types/unstable-preview-types"
     ],
     "paths": {
       "@ember-data/smoke-tests-native-types/*": [
