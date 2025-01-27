@@ -1,14 +1,7 @@
 {
-  "include": [
-    "app/**/*",
-    "config/**/*",
-    "tests/**/*"
-  ],
+  "include": ["app/**/*", "config/**/*", "tests/**/*"],
   "compilerOptions": {
-    "lib": [
-      "DOM",
-      "ESNext"
-    ],
+    "lib": ["DOM", "ESNext"],
     "module": "esnext",
     "target": "esnext",
     "moduleResolution": "bundler",
@@ -45,12 +38,8 @@
       "@warp-drive/core-types/unstable-preview-types"
     ],
     "paths": {
-      "@ember-data/smoke-tests-native-types/*": [
-        "./app/*"
-      ],
-      "@ember-data/smoke-tests-native-types/tests/*": [
-        "./tess/*"
-      ]
+      "@ember-data/smoke-tests-native-types/*": ["./app/*"],
+      "@ember-data/smoke-tests-native-types/tests/*": ["./tess/*"]
     }
   },
   "glint": {
