@@ -110,7 +110,7 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: "Run a basic smoke test with ${{ matrix.packageManager }} and ${{ matrix.kind }} tagging"
         run: |
-          bun ./scripts/test-package-manager.mjs \
+          bun ./tests/smoke-tests/run.ts \
             "${{ matrix.scenario.dir }}" "${{ matrix.packageManager }}"
 
 
