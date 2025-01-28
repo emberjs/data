@@ -17,6 +17,6 @@
     "emitDeclarationOnly": true,
     "declaration": true,
     "composite": true,
-    "types": []
+    "types": ["bun-types"]
   }
 }

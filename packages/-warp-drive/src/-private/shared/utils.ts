@@ -278,8 +278,8 @@ export type PACKAGEJSON = {
   };
 };
 
-export function getPkgJson() {
-  const file = fs.readFileSync(path.join(process.cwd(), 'package.json'), { encoding: 'utf-8' });
+export function getPkgJson(dir = process.cwd()) {
+  const file = fs.readFileSync(path.join(dir, 'package.json'), { encoding: 'utf-8' });
   const json = JSON.parse(file) as PACKAGEJSON;
   return json;
 }

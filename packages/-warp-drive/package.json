@@ -25,17 +25,18 @@
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "scripts": {
-    "build:pkg": "vite build;",
+    "build:pkg": "bun run build.ts",
     "prepack": "bun run build:pkg"
   },
   "bin": {
-    "warp-drive": "./dist/warp-drive.js",
-    "warpdrive": "./dist/warp-drive.js",
-    "wd": "./dist/warp-drive.js"
+    "warp-drive": "./arch-switch.mjs",
+    "warpdrive": "./arch-switch.mjs",
+    "wd": "./arch-switch.mjs"
   },
   "files": [
     "unstable-preview-types",
     "dist",
+    "./arch-switch.mjs",
     "CHANGELOG.md",
     "README.md",
     "LICENSE.md",
@@ -44,28 +45,16 @@
   ],
   "type": "module",
   "peerDependencies": {},
-  "dependenciesMeta": {
-    "@warp-drive/build-config": {
-      "injected": true
-    }
-  },
-  "dependencies": {
-    "@embroider/macros": "^1.16.6",
-    "@manypkg/get-packages": "^2.2.2",
-    "@warp-drive/build-config": "workspace:*",
-    "semver": "^7.6.3",
-    "debug": "^4.3.7",
-    "chalk": "^5.3.0",
-    "comment-json": "^4.2.5"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "@babel/core": "^7.24.5",
-    "@babel/plugin-transform-typescript": "^7.24.5",
-    "@babel/preset-typescript": "^7.24.1",
+    "@manypkg/get-packages": "^2.2.2",
     "@warp-drive/internal-config": "workspace:*",
-    "pnpm-sync-dependencies-meta-injected": "0.0.14",
-    "typescript": "^5.7.2",
-    "vite": "^5.2.11"
+    "bun-types": "1.2.0",
+    "chalk": "^5.3.0",
+    "comment-json": "^4.2.5",
+    "debug": "^4.3.7",
+    "semver": "^7.6.3",
+    "typescript": "^5.7.2"
   },
   "engines": {
     "node": ">= 18.20.4"

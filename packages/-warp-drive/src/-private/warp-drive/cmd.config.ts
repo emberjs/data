@@ -1,5 +1,9 @@
+import fs from 'fs';
+import path from 'path';
+
 import { getTags } from '../shared/npm.ts';
 import type { CommandConfig, FlagConfig } from '../shared/parse-args.ts';
+import { getPackageList } from '../shared/repo.ts';
 
 export const INSTALL_OPTIONS: FlagConfig = {
   help: {
@@ -25,6 +29,123 @@ export const INSTALL_OPTIONS: FlagConfig = {
     default_value: false,
     description: 'Print this usage manual.',
     examples: ['npx warp-drive install --help'],
+  },
+  root: {
+    name: 'Project Root',
+    flag: 'root',
+    flag_aliases: ['r', 'p'],
+    flag_mispellings: ['rt', 'rot', 'route', 'rte', 'project', 'path'],
+    type: String,
+    default_value() {
+      return process.cwd();
+    },
+    description: 'Path to a directory containing a package.json at which to perform the installation.',
+    examples: ['npx warp-drive install --root="./apps/frontend-web"'],
+  },
+  pnpm: {
+    name: 'Use PNPM',
+    flag: 'pnpm',
+    flag_aliases: [],
+    flag_mispellings: [],
+    type: Boolean,
+    default_value: null,
+    description:
+      'Whether to use pnpm as the package manager. Defaults to whichever package manager is detected in the project.',
+    examples: ['npx warp-drive install --pnpm', 'npx warp-drive install --pnpm=true'],
+  },
+  yarn: {
+    name: 'Use Yarn',
+    flag: 'yarn',
+    flag_aliases: [],
+    flag_mispellings: [],
+    type: Boolean,
+    default_value: null,
+    description:
+      'Whether to use yarn as the package manager. Defaults to whichever package manager is detected in the project.',
+    examples: ['npx warp-drive install --yarn', 'npx warp-drive install --yarn=true'],
+  },
+  bun: {
+    name: 'Use Bun',
+    flag: 'bun',
+    flag_aliases: [],
+    flag_mispellings: [],
+    type: Boolean,
+    default_value: null,
+    description:
+      'Whether to use bun as the package manager. Defaults to whichever package manager is detected in the project.',
+    examples: ['npx warp-drive install --bun', 'npx warp-drive install --bun=true'],
+  },
+  npm: {
+    name: 'Use NPM',
+    flag: 'npm',
+    flag_aliases: [],
+    flag_mispellings: [],
+    type: Boolean,
+    default_value: null,
+    description:
+      'Whether to use npm as the package manager. Defaults to whichever package manager is detected in the project.',
+    examples: ['npx warp-drive install --npm', 'npx warp-drive install --npm=true'],
+  },
+  use: {
+    name: 'Use Package Manager',
+    flag: 'use',
+    flag_aliases: ['u'],
+    flag_mispellings: ['pkgManager', 'pkg', 'packageManager'],
+    type: String,
+    async default_value(config: Map<string, string | number | boolean | null>) {
+      const pnpm = config.get('pnpm') ? 'pnpm' : false;
+      const yarn = config.get('yarn') ? 'yarn' : false;
+      const npm = config.get('npm') ? 'npm' : false;
+      const bun = config.get('bun') ? 'bun' : false;
+
+      const explicitCmd = [pnpm, yarn, npm, bun].filter(Boolean);
+
+      if (explicitCmd.length > 1) {
+        throw new Error(
+          `Invalid command configuration: multiple package managers specified. Please use only one of ["${explicitCmd.join('", "')}"]}`
+        );
+      }
+
+      if (explicitCmd.length) {
+        return explicitCmd[0];
+      }
+
+      const directory = path.join(process.cwd(), (config.get('root') as string) ?? '');
+      const projectDetails = await getPackageList(directory);
+
+      return projectDetails.pkgManager;
+    },
+    description: 'Which package manager to use. Defaults to whichever package manager is detected in the project.',
+    examples: ['npx warp-drive install --use=pnpm'],
+  },
+  tsconfig: {
+    name: 'Path to tsconfig.json',
+    flag: 'tsconfig',
+    flag_aliases: [],
+    flag_mispellings: ['types', 'tsc', 'tsconfigPath'],
+    type: String,
+    default_value: './tsconfig.json',
+    description: 'The path to the tsconfig.json for the project, relative to the project root',
+    examples: ['npx warp-drive install --tsconfig="../../tsconfig.json"'],
+  },
+  srcDir: {
+    name: 'Source Directory',
+    flag: 'src_dir',
+    flag_aliases: ['s'],
+    flag_mispellings: ['src'],
+    type: String,
+    default_value(config: Map<string, string | number | boolean | null>) {
+      const directory = path.join(process.cwd(), (config.get('root') as string) ?? '');
+
+      // try some educated guesses
+      if (fs.existsSync(path.join(directory, 'app'))) return './app';
+      if (fs.existsSync(path.join(directory, 'addon'))) return './addon';
+      if (fs.existsSync(path.join(directory, 'src'))) return './src';
+
+      return './src';
+    },
+    description: 'The path toe the source code directory for the project, relative to the project root',
+    examples: ['npx warp-drive install --src="./app"'],
   },
 };
 
