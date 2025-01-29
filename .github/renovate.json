@@ -95,5 +95,5 @@
     "assignees": ["@runspired"],
     "enabled": true
   },
-  "ignorePaths": ["node_modules/**", "**/node_modules/**"]
+  "ignorePaths": ["node_modules/**", "**/node_modules/**", "tests/smoke-tests/**"]
 }
