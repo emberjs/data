@@ -307,8 +307,34 @@ async function convertTypesToModules(pkg: Package, subdir: 'unstable-preview-typ
   }
 }
 
+function exposeTypes(pkg: Package, subdir: 'unstable-preview-types' | 'preview-types' | 'types') {
+  if (pkg.pkgData.exports) {
+    /**
+     * Allows tsconfig.json#compilerOptions#types to use import paths,
+     * rather than file paths (there are no file path guarantees for any given package manager)
+     */
+    pkg.pkgData.exports[`./${subdir}`] = {
+      /**
+       * No default, import, or require here, because there are no actual modules to import.
+       */
+      types: `./${subdir}/index.d.ts`,
+    };
+
+    /**
+     * For older tsconfig.json settings
+     */
+    pkg.pkgData.typesVersions = {
+      // very loose TS version
+      '*': {
+        [subdir]: [`./${subdir}`],
+      },
+    };
+  }
+}
+
 async function makeTypesAlpha(pkg: Package) {
   scrubTypesFromExports(pkg);
+  exposeTypes(pkg, 'unstable-preview-types');
 
   // enforce that the correct types directory is present
   const present = new Set(pkg.pkgData.files);
@@ -335,6 +361,7 @@ async function makeTypesAlpha(pkg: Package) {
 
 async function makeTypesBeta(pkg: Package) {
   scrubTypesFromExports(pkg);
+  exposeTypes(pkg, 'preview-types');
 
   // enforce that the correct types directory is present
   const present = new Set(pkg.pkgData.files);
