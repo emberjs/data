@@ -91,5 +91,6 @@
   },
   "volta": {
     "extends": "../../package.json"
-  }
+  },
+  "private": true
 }

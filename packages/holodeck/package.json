@@ -89,5 +89,6 @@
     "@warp-drive/core-types": {
       "injected": true
     }
-  }
+  },
+  "private": true
 }

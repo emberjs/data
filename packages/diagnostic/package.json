@@ -131,5 +131,6 @@
     "@warp-drive/build-config": {
       "injected": true
     }
-  }
+  },
+  "private": true
 }
