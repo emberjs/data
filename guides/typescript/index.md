@@ -43,7 +43,7 @@ Each package in the project can choose its own stage for types.
 
 ## Contributing Type Fixes
 
-Even though EmberData is typed, what makes for good types for a project doesn't necessarily make for good types for that project's consumers (your application).
+Even though EmberData/WarpDrive is typed, what makes for good types for a project doesn't necessarily make for good types for that project's consumers (your application).
 
 Currently, TypeScript support is `alpha` largely because we expect to need to improve **a lot** of type signatures to make them more useful and correct for your app.
 
