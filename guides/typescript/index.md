@@ -10,10 +10,10 @@ the following two sections
 ---
 
 - Installation
-  - [Using Canary](./0-installation.md#using-canary)
+  - [Using Versions That Supply Types](./0-installation.md#using-versions-that-supply-types)
   - [Using Types Packages](./0-installation.md#using-types-packages)
 - Configuration
-  - [Using Canary](./1-configuration.md#using-canary)
+  - [Using Native Types](./1-configuration.md#using-native-types)
   - [Using Types Packages](./1-configuration.md#using-types-packages)
 - Usage
   - [Why Brands](./2-why-brands.md)
