@@ -31,15 +31,15 @@ below guide.
 > [!IMPORTANT]
 > EmberData's Native Types require the use of Ember's
 > Native Types.
-
-> [!IMPORTANT]  
+>
 > Type definitions need to be installed top-level, this means
 > you have to install every EmberData package `ember-data`
 > depends on.
 
 > [!TIP]
-> When installing packages, use the `@canary` dist tag to get the latest
-> version. E.g. `pnpm install ember-data@canary`
+> When installing packages, use an NPM dist tag to get the latest
+> version for a given channel. E.g. `pnpm install ember-data@latest`
+> valid channels with types are `latest`, `canary`, `v4-latest` and `v4-canary`
 
 There are currently two ways to gain access to EmberData's native types.
 
