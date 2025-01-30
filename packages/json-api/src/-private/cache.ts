@@ -483,6 +483,64 @@ export default class JSONAPICache implements Cache {
     return null;
   }
 
+  peekRemoteState(identifier: StableRecordIdentifier): ResourceObject | null;
+  peekRemoteState(identifier: StableDocumentIdentifier): ResourceDocument | null;
+  peekRemoteState(
+    identifier: StableDocumentIdentifier | StableRecordIdentifier
+  ): ResourceObject | ResourceDocument | null {
+    if ('type' in identifier) {
+      const peeked = this.__safePeek(identifier, false);
+
+      if (!peeked) {
+        return null;
+      }
+
+      const { type, id, lid } = identifier;
+      const attributes = Object.assign({}, peeked.remoteAttrs) as ObjectValue;
+      const relationships: ResourceObject['relationships'] = {};
+
+      const rels = this.__graph.identifiers.get(identifier);
+      if (rels) {
+        Object.keys(rels).forEach((key) => {
+          const rel = rels[key];
+          if (rel.definition.isImplicit) {
+            return;
+          } else {
+            relationships[key] = this.__graph.getData(identifier, key);
+          }
+        });
+      }
+
+      upgradeCapabilities(this._capabilities);
+      const store = this._capabilities._store;
+      const attrs = this._capabilities.schema.fields(identifier);
+      attrs.forEach((attr, key) => {
+        if (key in attributes && attributes[key] !== undefined) {
+          return;
+        }
+        const defaultValue = getDefaultValue(attr, identifier, store);
+
+        if (defaultValue !== undefined) {
+          attributes[key] = defaultValue;
+        }
+      });
+
+      return {
+        type,
+        id,
+        lid,
+        attributes,
+        relationships,
+      };
+    }
+
+    const document = this.peekRequest(identifier);
+
+    if (document) {
+      if ('content' in document) return document.content!;
+    }
+    return null;
+  }
   /**
    * Peek the Cache for the existing request data associated with
    * a cacheable request.
