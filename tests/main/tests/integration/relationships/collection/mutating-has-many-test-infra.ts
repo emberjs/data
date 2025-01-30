@@ -395,8 +395,27 @@ function getMutations(): Mutation[] {
   ];
 }
 
+const STATES: Array<{
+  startingState: { name: string; cb: (store: Store) => User };
+  mutation: Mutation;
+}> = [];
+
 getStartingState().forEach((startingState) => {
   getMutations().forEach((mutation) => {
+    STATES.push({
+      startingState,
+      mutation,
+    });
+  });
+});
+
+export function runTestGroup(splitNum: number, offset: number) {
+  STATES.forEach(({ startingState, mutation }, index) => {
+    // Run only every Nth test, offset by 0
+    if (index % splitNum !== offset) {
+      return;
+    }
+
     module(
       `Integration | Relationships | Collection | Mutation > Starting state: ${startingState.name} > Mutation: ${mutation.name}`,
       function (hooks) {
@@ -424,4 +443,4 @@ getStartingState().forEach((startingState) => {
       }
     );
   });
-});
+}
