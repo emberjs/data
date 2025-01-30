@@ -43,13 +43,13 @@ import type { StoreRequestInput } from './cache-handler/handler';
 import type { CachePolicy } from './cache-handler/types';
 import { IdentifierCache } from './caches/identifier-cache';
 import {
-  InstanceCache,
+  ResourceManager,
   peekRecordIdentifier,
   preloadData,
   recordIdentifierFor,
   resourceIsFullyDeleted,
   storeFor,
-} from './caches/instance-cache';
+} from './managers/resource-manager';
 import type { Document } from './document';
 import type RecordReference from './legacy-model-support/record-reference';
 import { getShimClass } from './legacy-model-support/shim-model-class';
@@ -534,7 +534,7 @@ export class Store extends BaseClass {
   // Private
   declare _graph?: Graph;
   declare _requestCache: RequestStateService;
-  declare _instanceCache: InstanceCache;
+  declare _instanceCache: ResourceManager;
   declare _documentCache: Map<
     StableDocumentIdentifier,
     Document<OpaqueRecordInstance | OpaqueRecordInstance[] | null | undefined>
@@ -590,7 +590,7 @@ export class Store extends BaseClass {
 
     // private
     this._requestCache = new RequestStateService(this);
-    this._instanceCache = new InstanceCache(this);
+    this._instanceCache = new ResourceManager(this);
     this._documentCache = new Map();
 
     this.isDestroying = false;
