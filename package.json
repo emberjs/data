@@ -154,7 +154,7 @@
       "ember-cli-babel": "^8.2.0",
       "ember-cli-htmlbars": "^6.3.0",
       "ember-cli-typescript": "^5.3.0",
-      "webpack": "5.94.0",
+      "webpack": "5.97.1",
       "qunit": "2.19.4",
       "ember-compatibility-helpers": "^1.2.7",
       "testem": "~3.11.0"
