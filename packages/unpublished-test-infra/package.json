@@ -76,7 +76,7 @@
     "@ember-data/tracking": "workspace:*",
     "@warp-drive/diagnostic": "workspace:*",
     "@warp-drive/core-types": "workspace:*",
-    "@ember/test-helpers": "3.3.0 || ^4.0.4"
+    "@ember/test-helpers": "3.3.0 || ^4.0.4 || ^5.1.0"
   },
   "peerDependenciesMeta": {
     "qunit": {
@@ -101,7 +101,7 @@
     "@babel/plugin-transform-typescript": "^7.24.5",
     "@babel/preset-env": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
-    "@ember/test-helpers": "4.0.4",
+    "@ember/test-helpers": "5.1.0",
     "@glimmer/component": "^1.1.2",
     "@types/semver": "^7.5.8",
     "@types/qunit": "2.19.10",
