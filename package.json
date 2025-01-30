@@ -139,6 +139,11 @@
         "dependencies": {
           "webpack": "*"
         }
+      },
+      "ember-provide-consume-context": {
+        "peerDependencies": {
+          "@ember/test-helpers": "*"
+        }
       }
     },
     "overrides": {

@@ -21,7 +21,7 @@ overrides:
   ember-compatibility-helpers: ^1.2.7
   testem: ~3.11.0
 
-packageExtensionsChecksum: 10ad8371ed129520d984fb4ace777d13
+packageExtensionsChecksum: 5434e599ac858f18ea3215385d27e447
 
 patchedDependencies:
   '@ember/test-helpers@3.3.0':
