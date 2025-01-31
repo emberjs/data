@@ -302,6 +302,8 @@ export type RequestInfo<T = unknown, RT = unknown> = Request & {
   options?: Record<string, unknown>;
 
   [RequestSignature]?: RT;
+
+  [EnableHydration]?: boolean;
 };
 
 /**
