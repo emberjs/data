@@ -30,12 +30,9 @@ Or use favorite your javascript package manager.
 
 ```ts
 class Store {
-  constructor() {
-    const rm = new RequestManager();
-    rm.use([new PersistedFetch(), Fetch]);
-    rm.useCache(CacheHandler);
-    this.requestManager = rm;
-  }
+  requestManager = new RequestManager()
+    .use([new PersistedFetch(), Fetch])
+    .useCache(CacheHandler);
 
   createCache() {
     const jsonapi = new JSONAPICache();

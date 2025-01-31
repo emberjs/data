@@ -99,12 +99,10 @@ import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { CachePolicy } from '@ember-data/request-utils';
 import { SchemaService } from '@warp-drive/schema-record/schema';
 
-const requestManager = new RequestManager();
-requestManager.use([Fetch]);
-requestManager.useCache(CacheHandler);
-
 class WorkerStore extends Store {
-  requestManager = requestManager;
+  requestManager = new RequestManager()
+    .use([Fetch])
+    .useCache(CacheHandler);
 
   lifetimes = new CachePolicy({
     apiCacheHardExpires: 600_000,

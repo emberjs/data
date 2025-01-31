@@ -68,8 +68,7 @@ Lets see how we'd approach this request.
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 
-const fetch = new RequestManager();
-manager.use([Fetch]);
+const fetch = new RequestManager().use([Fetch]);
 
 export default fetch;
 ```
