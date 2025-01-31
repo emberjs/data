@@ -63,8 +63,8 @@ import Fetch from '@ember-data/request/fetch';
 import { apiUrl } from './config';
 
 // ... create manager and add our Fetch handler
-const manager = new RequestManager();
-manager.use([Fetch]);
+const manager = new RequestManager()
+  .use([Fetch]);
 
 // ... execute a request
 const response = await manager.request({
@@ -441,13 +441,9 @@ import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 
 class extends Store {
-  requestManager = new RequestManager();
-
-  constructor(args) {
-    super(args);
-    this.requestManager.use([Fetch]);
-    this.requestManager.useCache(CacheHandler);
-  }
+  requestManager = new RequestManager()
+    .use([Fetch])
+    .useCache(CacheHandler);
 }
 ```
 
@@ -463,19 +459,16 @@ Additional handlers or a service injection like the above would need to be done 
 consuming application in order to make broader use of `RequestManager`.
 
 ```ts
-import Store, { CacheHandler } from 'ember-data/store';
+import Store from 'ember-data/store';
+import { CacheHandler } from '@ember-data/store';
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 import { LegacyNetworkHandler } from '@ember-data/legacy-compat';
 
 export default class extends Store {
-  requestManager = new RequestManager();
-
-  constructor(args) {
-    super(args);
-    this.requestManager.use([LegacyNetworkHandler, Fetch]);
-    this.requestManager.useCache(CacheHandler);
-  }
+  requestManager = new RequestManager()
+    .use([LegacyNetworkHandler, Fetch])
+    .useCache(CacheHandler);
 }
 ```
 
