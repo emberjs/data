@@ -82,11 +82,8 @@
  * import Fetch from '@ember-data/request/fetch';
  *
  * export default class extends Store {
- *   constructor() {
- *     super(...arguments);
- *     this.requestManager = new RequestManager();
- *     this.requestManager.use([Fetch]);
- *   }
+ *   requestManager = new RequestManager()
+ *    .use([Fetch]);
  * }
  * ```
  *
