@@ -516,7 +516,7 @@ export default class JSONAPICache implements Cache {
     data: ExistingResourceObject,
     calculateChanges?: boolean
   ): void | string[] {
-    let changedKeys: string[] | undefined;
+    let changedKeys: Set<string> | undefined;
     const peeked = this.__safePeek(identifier, false);
     const existed = !!peeked;
     const cached = peeked || this._createCache(identifier);
@@ -541,16 +541,19 @@ export default class JSONAPICache implements Cache {
       this._capabilities.notifyChange(identifier, 'state');
     }
 
-    if (calculateChanges) {
-      changedKeys = existed ? calculateChangedKeys(cached, data.attributes) : Object.keys(data.attributes || {});
+    // if no cache entry existed, no record exists / property has been accessed
+    // and thus we do not need to notify changes to any properties.
+    if (calculateChanges && existed && data.attributes) {
+      changedKeys = calculateChangedKeys(cached, data.attributes);
     }
 
     cached.remoteAttrs = Object.assign(
       cached.remoteAttrs || (Object.create(null) as Record<string, unknown>),
       data.attributes
     );
+
     if (cached.localAttrs) {
-      if (patchLocalAttributes(cached)) {
+      if (patchLocalAttributes(cached, changedKeys)) {
         this._capabilities.notifyChange(identifier, 'state');
       }
     }
@@ -567,11 +570,11 @@ export default class JSONAPICache implements Cache {
       setupRelationships(this.__graph, this._capabilities, identifier, data);
     }
 
-    if (changedKeys && changedKeys.length) {
+    if (changedKeys?.size) {
       notifyAttributes(this._capabilities, identifier, changedKeys);
     }
 
-    return changedKeys;
+    return changedKeys?.size ? Array.from(changedKeys) : undefined;
   }
 
   // Cache Forking Support
@@ -934,7 +937,7 @@ export default class JSONAPICache implements Cache {
       }
       newCanonicalAttributes = data.attributes;
     }
-    const changedKeys = calculateChangedKeys(cached, newCanonicalAttributes);
+    const changedKeys = newCanonicalAttributes && calculateChangedKeys(cached, newCanonicalAttributes);
 
     cached.remoteAttrs = Object.assign(
       cached.remoteAttrs || (Object.create(null) as Record<string, unknown>),
@@ -942,14 +945,14 @@ export default class JSONAPICache implements Cache {
       newCanonicalAttributes
     );
     cached.inflightAttrs = null;
-    patchLocalAttributes(cached);
+    patchLocalAttributes(cached, changedKeys);
 
     if (cached.errors) {
       cached.errors = null;
       this._capabilities.notifyChange(identifier, 'errors');
     }
 
-    notifyAttributes(this._capabilities, identifier, changedKeys);
+    if (changedKeys?.size) notifyAttributes(this._capabilities, identifier, changedKeys);
     this._capabilities.notifyChange(identifier, 'state');
 
     const included = payload && payload.included;
@@ -1364,7 +1367,7 @@ export default class JSONAPICache implements Cache {
     this._capabilities.notifyChange(identifier, 'state');
 
     if (dirtyKeys && dirtyKeys.length) {
-      notifyAttributes(this._capabilities, identifier, dirtyKeys);
+      notifyAttributes(this._capabilities, identifier, new Set(dirtyKeys));
     }
 
     return dirtyKeys || [];
@@ -1661,14 +1664,18 @@ function getDefaultValue(
   }
 }
 
-function notifyAttributes(storeWrapper: CacheCapabilitiesManager, identifier: StableRecordIdentifier, keys?: string[]) {
+function notifyAttributes(
+  storeWrapper: CacheCapabilitiesManager,
+  identifier: StableRecordIdentifier,
+  keys?: Set<string>
+) {
   if (!keys) {
     storeWrapper.notifyChange(identifier, 'attributes');
     return;
   }
 
-  for (let i = 0; i < keys.length; i++) {
-    storeWrapper.notifyChange(identifier, 'attributes', keys[i]);
+  for (const key of keys) {
+    storeWrapper.notifyChange(identifier, 'attributes', key);
   }
 }
 
@@ -1677,35 +1684,35 @@ function notifyAttributes(storeWrapper: CacheCapabilitiesManager, identifier: St
       There seems to be a potential bug here, where we will return keys that are not
       in the schema
   */
-function calculateChangedKeys(cached: CachedResource, updates?: ExistingResourceObject['attributes']): string[] {
-  const changedKeys: string[] = [];
+function calculateChangedKeys(
+  cached: CachedResource,
+  updates: Exclude<ExistingResourceObject['attributes'], undefined>
+): Set<string> {
+  const changedKeys = new Set<string>();
+  const keys = Object.keys(updates);
+  const length = keys.length;
+  const localAttrs = cached.localAttrs;
 
-  if (updates) {
-    const keys = Object.keys(updates);
-    const length = keys.length;
-    const localAttrs = cached.localAttrs;
+  const original: Record<string, unknown> = Object.assign(
+    Object.create(null) as Record<string, unknown>,
+    cached.remoteAttrs,
+    cached.inflightAttrs
+  );
 
-    const original: Record<string, unknown> = Object.assign(
-      Object.create(null) as Record<string, unknown>,
-      cached.remoteAttrs,
-      cached.inflightAttrs
-    );
+  for (let i = 0; i < length; i++) {
+    const key = keys[i];
+    const value = updates[key];
 
-    for (let i = 0; i < length; i++) {
-      const key = keys[i];
-      const value = updates[key];
+    // A value in localAttrs means the user has a local change to
+    // this attribute. We never override this value when merging
+    // updates from the backend so we should not sent a change
+    // notification if the server value differs from the original.
+    if (localAttrs && localAttrs[key] !== undefined) {
+      continue;
+    }
 
-      // A value in localAttrs means the user has a local change to
-      // this attribute. We never override this value when merging
-      // updates from the backend so we should not sent a change
-      // notification if the server value differs from the original.
-      if (localAttrs && localAttrs[key] !== undefined) {
-        continue;
-      }
-
-      if (original[key] !== value) {
-        changedKeys.push(key);
-      }
+    if (original[key] !== value) {
+      changedKeys.add(key);
     }
   }
 
@@ -1798,7 +1805,7 @@ function isRelationship(field: FieldSchema): field is LegacyRelationshipSchema |
   return RelationshipKinds.has(field.kind);
 }
 
-function patchLocalAttributes(cached: CachedResource): boolean {
+function patchLocalAttributes(cached: CachedResource, changedRemoteKeys?: Set<string>): boolean {
   const { localAttrs, remoteAttrs, inflightAttrs, defaultAttrs, changes } = cached;
   if (!localAttrs) {
     cached.changes = null;
@@ -1818,6 +1825,11 @@ function patchLocalAttributes(cached: CachedResource): boolean {
 
     if (existing === localAttrs[attr]) {
       hasAppliedPatch = true;
+
+      // if the local change is committed, then
+      // the remoteKeyChange is no longer relevant
+      changedRemoteKeys?.delete(attr);
+
       delete localAttrs[attr];
       delete changes![attr];
     }
