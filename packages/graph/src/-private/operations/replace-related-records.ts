@@ -91,7 +91,6 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   const { inverseKey, type } = relationship.definition;
   const { record } = op;
   const wasDirty = relationship.isDirty;
-  relationship.isDirty = false;
 
   const onAdd = (identifier: StableRecordIdentifier) => {
     // Since we are diffing against the remote state, we check
@@ -105,7 +104,6 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
         graph.registerPolymorphicType(type, identifier.type);
       }
 
-      relationship.isDirty = true;
       addToInverse(graph, identifier, inverseKey, op.record, isRemote);
 
       if (removalsHas) {
@@ -119,7 +117,6 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
     // if our previous local state had contained this identifier
     const additionsHas = additions?.has(identifier);
     if (additionsHas || !removals?.has(identifier)) {
-      relationship.isDirty = true;
       removeFromInverse(graph, identifier, inverseKey, record, isRemote);
 
       if (additionsHas) {
@@ -129,15 +126,17 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   };
 
   const diff = diffCollection(identifiers, relationship, onAdd, onRemove);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  let becameDirty = relationship.isDirty || diff.changed;
+
+  const becameDirty = diff.changed;
 
   // any additions no longer in the local state
   // need to be removed from the inverse
   if (additions && additions.size > 0) {
     additions.forEach((identifier) => {
       if (!diff.add.has(identifier)) {
-        becameDirty = true;
+        if (!becameDirty) {
+          throw new Error('should not happen');
+        }
         onRemove(identifier);
       }
     });
@@ -148,7 +147,9 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   if (removals && removals.size > 0) {
     removals.forEach((identifier) => {
       if (!diff.del.has(identifier)) {
-        becameDirty = true;
+        if (!becameDirty) {
+          throw new Error('should not happen');
+        }
         onAdd(identifier);
       }
     });
@@ -157,12 +158,12 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   relationship.additions = diff.add;
   relationship.removals = diff.del;
   relationship.localState = diff.finalState;
-  relationship.isDirty = wasDirty;
+  relationship.isDirty = wasDirty || becameDirty;
 
-  if (
-    isMaybeFirstUpdate ||
-    !wasDirty /*&& becameDirty // TODO to guard like this we need to detect reorder when diffing local */
-  ) {
+  // we notify if this is the first update to the relationship
+  // because ?? may need to recalculate.
+  // otherwise we only notify if we are dirty and were not already dirty before
+  if (isMaybeFirstUpdate || (becameDirty && !wasDirty)) {
     notifyChange(graph, op.record, op.field);
   }
 }
