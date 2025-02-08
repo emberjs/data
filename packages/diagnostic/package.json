@@ -103,7 +103,7 @@
     "@babel/preset-typescript": "^7.24.1",
     "@babel/runtime": "^7.24.5",
     "@warp-drive/internal-config": "workspace:*",
-    "bun-types": "^1.1.30",
+    "bun-types": "^1.2.2",
     "@ember/test-helpers": "5.1.0",
     "ember-source": "~5.12.0",
     "@glimmer/component": "^1.1.2",
