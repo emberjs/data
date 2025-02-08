@@ -3578,7 +3578,7 @@ importers:
         specifier: ^4.7.0
         version: 4.7.0
       terser-webpack-plugin:
-        specifier: ^5.3.10
+        specifier: ^5.3.11
         version: 5.3.11(webpack@5.94.0)
       zlib:
         specifier: 1.0.5
@@ -18136,7 +18136,7 @@ packages:
     resolution: {integrity: sha512-Gf9qqc58SpCA/xdziiHz35F4GNIWYWZrEshUc/G/r5BnLph6xpKuLeoJoQuj5WfBIx/eQLf+hmVPYHaxJu7V2g==}
     engines: {node: '>= 10.13.0'}
     dependencies:
-      '@types/json-schema': 7.0.14
+      '@types/json-schema': 7.0.15
       ajv: 8.12.0
       ajv-formats: 2.1.1
       ajv-keywords: 5.1.0(ajv@8.12.0)
