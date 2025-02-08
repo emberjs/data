@@ -4202,8 +4202,8 @@ importers:
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.26.0)(rollup@4.22.4)
       '@tsconfig/ember':
-        specifier: ^3.0.8
-        version: 3.0.8
+        specifier: ^3.0.9
+        version: 3.0.9
       '@types/eslint__js':
         specifier: ^8.42.3
         version: 8.42.3
@@ -9074,8 +9074,8 @@ packages:
     engines: {node: '>= 10'}
     dev: true
 
-  /@tsconfig/ember@3.0.8:
-    resolution: {integrity: sha512-OVnIsZIt/8q0VEtcdz3rRryNrm6gdJTxXlxefkGIrkZnME0wqslmwHlUEZ7mvh377df9FqBhNKrYNarhCW8zJA==}
+  /@tsconfig/ember@3.0.9:
+    resolution: {integrity: sha512-0B44GyEafxJLAZSixH9VBnm9kDFCpaLXu86httaJSDEm1nfl3WWI/XfY4diPsOyOg+pc9N1/YfqH7uKM2dF0lA==}
     dev: true
 
   /@types/argparse@1.0.38:
