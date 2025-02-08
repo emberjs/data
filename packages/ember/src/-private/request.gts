@@ -454,7 +454,7 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
           );
       }
 
-      const wasStoreRequest = (request as { [EnableHydration]: boolean })[EnableHydration] === true;
+      const wasStoreRequest = request[EnableHydration] === true;
       assert(
         `Cannot supply a different store via context than was used to create the request`,
         !request.store || request.store === this.store
