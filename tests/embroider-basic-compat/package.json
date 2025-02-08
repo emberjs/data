@@ -121,7 +121,7 @@
     "typescript": "^5.7.2"
   },
   "engines": {
-    "node": ">= 18.20.4"
+    "node": ">= 18.20.6"
   },
   "ember": {
     "edition": "octane"
