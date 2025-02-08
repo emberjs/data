@@ -1,6 +1,6 @@
 {
   "name": "blueprint-tests",
-  "version": "5.4.0-alpha.134",
+  "version": "5.4.0-alpha.135",
   "private": true,
   "description": "Provides tests for blueprints",
   "repository": {
