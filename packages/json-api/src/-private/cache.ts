@@ -334,7 +334,7 @@ export default class JSONAPICache implements Cache {
       const hasExisting = this.__documents.has(identifier.lid);
       this.__documents.set(identifier.lid, doc as StructuredDocument<ResourceDocument>);
 
-      this._capabilities.notifyChange(identifier, hasExisting ? 'updated' : 'added');
+      this._capabilities.notifyChange(identifier, hasExisting ? 'updated' : 'added', null);
     }
 
     return resourceDocument;
@@ -537,8 +537,8 @@ export default class JSONAPICache implements Cache {
 
     if (cached.isNew) {
       cached.isNew = false;
-      this._capabilities.notifyChange(identifier, 'identity');
-      this._capabilities.notifyChange(identifier, 'state');
+      this._capabilities.notifyChange(identifier, 'identity', null);
+      this._capabilities.notifyChange(identifier, 'state', null);
     }
 
     // if no cache entry existed, no record exists / property has been accessed
@@ -554,12 +554,12 @@ export default class JSONAPICache implements Cache {
 
     if (cached.localAttrs) {
       if (patchLocalAttributes(cached, changedKeys)) {
-        this._capabilities.notifyChange(identifier, 'state');
+        this._capabilities.notifyChange(identifier, 'state', null);
       }
     }
 
     if (!isUpdate) {
-      this._capabilities.notifyChange(identifier, 'added');
+      this._capabilities.notifyChange(identifier, 'added', null);
     }
 
     if (data.id) {
@@ -766,7 +766,7 @@ export default class JSONAPICache implements Cache {
       }
     }
 
-    this._capabilities.notifyChange(identifier, 'added');
+    this._capabilities.notifyChange(identifier, 'added', null);
 
     return createOptions;
   }
@@ -872,7 +872,7 @@ export default class JSONAPICache implements Cache {
         isNew: false,
       });
       cached.isDeletionCommitted = true;
-      this._capabilities.notifyChange(identifier, 'removed');
+      this._capabilities.notifyChange(identifier, 'removed', null);
       // TODO @runspired should we early exit here?
     }
 
@@ -894,7 +894,7 @@ export default class JSONAPICache implements Cache {
         cached.id = data.id;
       }
       if (identifier === committedIdentifier && identifier.id !== existingId) {
-        this._capabilities.notifyChange(identifier, 'identity');
+        this._capabilities.notifyChange(identifier, 'identity', null);
       }
 
       assert(
@@ -949,11 +949,11 @@ export default class JSONAPICache implements Cache {
 
     if (cached.errors) {
       cached.errors = null;
-      this._capabilities.notifyChange(identifier, 'errors');
+      this._capabilities.notifyChange(identifier, 'errors', null);
     }
 
     if (changedKeys?.size) notifyAttributes(this._capabilities, identifier, changedKeys);
-    this._capabilities.notifyChange(identifier, 'state');
+    this._capabilities.notifyChange(identifier, 'state', null);
 
     const included = payload && payload.included;
     if (included) {
@@ -994,7 +994,7 @@ export default class JSONAPICache implements Cache {
     if (errors) {
       cached.errors = errors;
     }
-    this._capabilities.notifyChange(identifier, 'errors');
+    this._capabilities.notifyChange(identifier, 'errors', null);
   }
 
   /**
@@ -1044,7 +1044,7 @@ export default class JSONAPICache implements Cache {
     if (areAllModelsUnloaded(storeWrapper, relatedIdentifiers)) {
       for (let i = 0; i < relatedIdentifiers.length; ++i) {
         const relatedIdentifier = relatedIdentifiers[i];
-        storeWrapper.notifyChange(relatedIdentifier, 'removed');
+        storeWrapper.notifyChange(relatedIdentifier, 'removed', null);
         removed = true;
         storeWrapper.disconnectRecord(relatedIdentifier);
       }
@@ -1074,7 +1074,7 @@ export default class JSONAPICache implements Cache {
     }
 
     if (!removed && removeFromRecordArray) {
-      storeWrapper.notifyChange(identifier, 'removed');
+      storeWrapper.notifyChange(identifier, 'removed', null);
     }
   }
 
@@ -1361,10 +1361,10 @@ export default class JSONAPICache implements Cache {
 
     if (cached.errors) {
       cached.errors = null;
-      this._capabilities.notifyChange(identifier, 'errors');
+      this._capabilities.notifyChange(identifier, 'errors', null);
     }
 
-    this._capabilities.notifyChange(identifier, 'state');
+    this._capabilities.notifyChange(identifier, 'state', null);
 
     if (dirtyKeys && dirtyKeys.length) {
       notifyAttributes(this._capabilities, identifier, new Set(dirtyKeys));
@@ -1468,7 +1468,7 @@ export default class JSONAPICache implements Cache {
     const cached = this.__peek(identifier, false);
     cached.isDeleted = isDeleted;
     // > Note: Graph removal for isNew handled by unloadRecord
-    this._capabilities.notifyChange(identifier, 'state');
+    this._capabilities.notifyChange(identifier, 'state', null);
   }
 
   /**
@@ -1670,7 +1670,7 @@ function notifyAttributes(
   keys?: Set<string>
 ) {
   if (!keys) {
-    storeWrapper.notifyChange(identifier, 'attributes');
+    storeWrapper.notifyChange(identifier, 'attributes', null);
     return;
   }
 
