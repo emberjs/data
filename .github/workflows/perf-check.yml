@@ -42,8 +42,12 @@ jobs:
       - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
       - uses: actions/setup-node@v4
         with:
-          node-version: 19.x
+          registry-url: 'https://registry.npmjs.org'
+          node-version-file: 'package.json'
           cache: 'pnpm'
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
       - uses: tracerbench/tracerbench-compare-action@master
         with:
           experiment-build-command: pnpm install && pnpm --filter performance-test-app exec ember build -e production --output-path dist-experiment --suppress-sizes

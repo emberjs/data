@@ -51,7 +51,7 @@
   },
   "dependencies": {
     "@ember/test-waiters": "^3.1.0 || ^4.0.0",
-    "@embroider/macros": "^1.16.6",
+    "@embroider/macros": "^1.16.10",
     "@warp-drive/build-config": "workspace:*"
   },
   "dependenciesMeta": {
@@ -93,7 +93,7 @@
     "@glint/environment-ember-template-imports": "1.5.0",
     "@glint/template": "1.5.0",
     "decorator-transforms": "^2.2.2",
-    "@embroider/addon-dev": "^4.3.1",
+    "@embroider/addon-dev": "^7.1.1",
     "@ember-data/request": "workspace:*",
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/store": "workspace:*",
