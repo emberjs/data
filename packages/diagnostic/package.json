@@ -75,7 +75,7 @@
   },
   "peerDependencies": {
     "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",
-    "@ember/test-helpers": "4.0.4",
+    "@ember/test-helpers": "5.1.0",
     "ember-cli-test-loader": ">= 3.1.0"
   },
   "peerDependenciesMeta": {
@@ -104,7 +104,7 @@
     "@babel/runtime": "^7.24.5",
     "@warp-drive/internal-config": "workspace:*",
     "bun-types": "^1.1.30",
-    "@ember/test-helpers": "4.0.4",
+    "@ember/test-helpers": "5.1.0",
     "ember-source": "~5.12.0",
     "@glimmer/component": "^1.1.2",
     "ember-cli-test-loader": "^3.1.0",
