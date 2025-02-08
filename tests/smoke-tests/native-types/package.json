@@ -45,7 +45,7 @@
     "@warp-drive/core-types": "file:./packages/warp-drive-core-types.tgz",
     "@ember/optional-features": "^2.1.0",
     "@ember/string": "^4.0.0",
-    "@ember/test-helpers": "^4.0.4",
+    "@ember/test-helpers": "5.1.0",
     "@ember/test-waiters": "^3.1.0",
     "@embroider/compat": "^3.8.0",
     "@embroider/config-meta-loader": "0.0.1-unstable.4070ba7",
