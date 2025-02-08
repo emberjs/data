@@ -120,7 +120,7 @@
     "@ember-data/store": "workspace:*",
     "@ember-data/tracking": "workspace:*",
     "@ember/edition-utils": "^1.2.0",
-    "@embroider/macros": "^1.16.6",
+    "@embroider/macros": "^1.16.10",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/build-config": "workspace:*"
   },
