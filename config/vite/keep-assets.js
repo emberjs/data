@@ -1,6 +1,6 @@
 import { join } from 'path';
 import { copyFileSync, mkdirSync } from 'fs';
-import { globSync } from '../utils/glob';
+import { globSync } from '../utils/glob.js';
 
 export function keepAssets({ from, include, dist }) {
   return {
