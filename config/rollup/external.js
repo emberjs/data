@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import { globSync } from 'fs';
+import { globSync } from '../utils/glob';
 
 function loadConfig() {
   const configPath = path.join(process.cwd(), './package.json');
