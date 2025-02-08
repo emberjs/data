@@ -3677,7 +3677,7 @@ importers:
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.26.8)(rollup@4.34.6)
       '@tsconfig/ember':
-        specifier: ^3.0.8
+        specifier: ^3.0.9
         version: 3.0.9
       '@types/eslint__js':
         specifier: ^8.42.3
