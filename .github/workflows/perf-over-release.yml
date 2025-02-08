@@ -61,7 +61,7 @@ jobs:
           control-serve-command: pnpm --filter performance-test-app exec ember s --path dist-control
           sample-timeout: 60
           use-pnpm: true
-          browserArgs: ${{ steps.browser-flags.outputs.BROWSER_FLAGS }}
+          browser-args: ${{ steps.browser-flags.outputs.BROWSER_FLAGS }}
           scenarios: |
             {
               "basic-record-materialization": {

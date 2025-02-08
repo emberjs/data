@@ -62,7 +62,7 @@ jobs:
           control-sha: origin/main
           sample-timeout: 60
           use-pnpm: true
-          browserArgs: ${{ steps.browser-flags.outputs.BROWSER_FLAGS }}
+          browser-args: ${{ steps.browser-flags.outputs.BROWSER_FLAGS }}
           scenarios: |
             {
               "basic-record-materialization": {
