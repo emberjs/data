@@ -730,6 +730,40 @@ export type LegacyBelongsToField = {
     polymorphic?: boolean;
 
     /**
+     * Whether this field should ever make use of the legacy support infra
+     * from @ember-data/model and the LegacyNetworkMiddleware for adapters and serializers.
+     *
+     * When true, none of the legacy support will be utilized. Sync relationships
+     * will be expected to already have all their data. When reloading a sync relationship
+     * you would be expected to have a `related link` available from a prior relationship
+     * payload e.g.
+     *
+     * ```ts
+     * {
+     *   data: {
+     *     type: 'user',
+     *     id: '2',
+     *     attributes: { name: 'Chris' },
+     *     relationships: {
+     *       bestFriend: {
+     *         links: { related: "/users/1/bestFriend" },
+     *         data: { type: 'user', id: '1' },
+     *       }
+     *     }
+     *   },
+     *   included: [
+     *     { type: 'user', id: '1', attributes: { name: 'Krystan' } }
+     *   ]
+     * }
+     * ```
+     *
+     * Async relationships will be loaded via their link if needed.
+     *
+     * @typedoc
+     */
+    linksMode?: true;
+
+    /**
      * When omitted, the cache data for this field will
      * clear local state of all changes except for the
      * addition of records still in the "new" state any
@@ -818,6 +852,40 @@ export type LegacyHasManyField = {
      * @typedoc
      */
     polymorphic?: boolean;
+
+    /**
+     * Whether this field should ever make use of the legacy support infra
+     * from @ember-data/model and the LegacyNetworkMiddleware for adapters and serializers.
+     *
+     * When true, none of the legacy support will be utilized. Sync relationships
+     * will be expected to already have all their data. When reloading a sync relationship
+     * you would be expected to have a `related link` available from a prior relationship
+     * payload e.g.
+     *
+     * ```ts
+     * {
+     *   data: {
+     *     type: 'user',
+     *     id: '2',
+     *     attributes: { name: 'Chris' },
+     *     relationships: {
+     *       bestFriends: {
+     *         links: { related: "/users/1/bestFriends" },
+     *         data: [ { type: 'user', id: '1' } ],
+     *       }
+     *     }
+     *   },
+     *   included: [
+     *     { type: 'user', id: '1', attributes: { name: 'Krystan' } }
+     *   ]
+     * }
+     * ```
+     *
+     * Async relationships will be loaded via their link if needed.
+     *
+     * @typedoc
+     */
+    linksMode?: true;
 
     /**
      * When omitted, the cache data for this field will

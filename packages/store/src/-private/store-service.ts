@@ -748,11 +748,11 @@ export class Store extends BaseClass {
     const opts: {
       store: Store;
       disableTestWaiter?: boolean;
-      [EnableHydration]: true;
+      [EnableHydration]: boolean;
       records?: StableRecordIdentifier[];
     } = {
       store: this,
-      [EnableHydration]: true,
+      [EnableHydration]: requestConfig[EnableHydration] ?? true,
     };
 
     if (requestConfig.records) {

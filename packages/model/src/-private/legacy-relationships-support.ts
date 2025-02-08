@@ -5,6 +5,7 @@ import { dependencySatisfies, importSync, macroCondition } from '@embroider/macr
 import type { CollectionEdge, Graph, GraphEdge, ResourceEdge, UpgradedMeta } from '@ember-data/graph/-private';
 import { upgradeStore } from '@ember-data/legacy-compat/-private';
 import type Store from '@ember-data/store';
+import type { Document } from '@ember-data/store';
 import type { LiveArray } from '@ember-data/store/-private';
 import {
   fastPush,
@@ -24,6 +25,7 @@ import type { Cache } from '@warp-drive/core-types/cache';
 import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
 import type { OpaqueRecordInstance, TypeFromInstanceOrString } from '@warp-drive/core-types/record';
+import { EnableHydration } from '@warp-drive/core-types/request';
 import type {
   CollectionResourceRelationship,
   InnerRelationshipDocument,
@@ -472,12 +474,22 @@ export class LegacySupport {
         assert(`Expected collection to be an array`, !identifiers || Array.isArray(identifiers));
         assert(`Expected stable identifiers`, !identifiers || identifiers.every(isStableIdentifier));
 
-        return this.store.request({
-          op: 'findHasMany',
-          records: identifiers || [],
-          data: request,
-          cacheOptions: { [Symbol.for('wd:skip-cache')]: true },
-        }) as unknown as Promise<void>;
+        const req = field.options.linksMode
+          ? {
+              url: getRelatedLink(resource),
+              op: 'findHasMany',
+              method: 'GET' as const,
+              records: identifiers || [],
+              data: request,
+              [EnableHydration]: false,
+            }
+          : {
+              op: 'findHasMany',
+              records: identifiers || [],
+              data: request,
+              cacheOptions: { [Symbol.for('wd:skip-cache')]: true },
+            };
+        return this.store.request(req) as unknown as Promise<void>;
       }
 
       const preferLocalCache = hasReceivedData && !isEmpty;
@@ -554,14 +566,28 @@ export class LegacySupport {
 
     // fetch via link
     if (shouldFindViaLink) {
-      const future = this.store.request<StableRecordIdentifier | null>({
-        op: 'findBelongsTo',
-        records: identifier ? [identifier] : [],
-        data: request,
-        cacheOptions: { [Symbol.for('wd:skip-cache')]: true },
-      });
+      const req = field.options.linksMode
+        ? {
+            url: getRelatedLink(resource),
+            op: 'findBelongsTo',
+            method: 'GET' as const,
+            records: identifier ? [identifier] : [],
+            data: request,
+            [EnableHydration]: false,
+          }
+        : {
+            op: 'findBelongsTo',
+            records: identifier ? [identifier] : [],
+            data: request,
+            cacheOptions: { [Symbol.for('wd:skip-cache')]: true },
+          };
+      const future = this.store.request<StableRecordIdentifier | null>(req);
       this._pending[key] = future
-        .then((doc) => doc.content)
+        .then((doc) =>
+          field.options.linksMode
+            ? (doc.content as unknown as Document<StableRecordIdentifier | null>).data!
+            : doc.content
+        )
         .finally(() => {
           this._pending[key] = undefined;
         });
@@ -634,6 +660,13 @@ export class LegacySupport {
     });
     this.isDestroyed = true;
   }
+}
+
+function getRelatedLink(resource: SingleResourceRelationship | CollectionResourceRelationship): string {
+  const related = resource.links?.related;
+  assert(`Expected a related link`, related);
+
+  return typeof related === 'object' ? related.href : related;
 }
 
 function handleCompletedRelationshipRequest(
