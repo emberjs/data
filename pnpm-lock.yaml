@@ -513,7 +513,7 @@ importers:
         specifier: workspace:*
         version: link:../../config
       decorator-transforms:
-        specifier: ^2.2.2
+        specifier: ^2.3.0
         version: 2.3.0(@babel/core@7.26.0)
       ember-source:
         specifier: ~5.12.0
@@ -728,7 +728,7 @@ importers:
         specifier: workspace:*
         version: link:../../config
       decorator-transforms:
-        specifier: ^2.2.2
+        specifier: ^2.3.0
         version: 2.3.0(@babel/core@7.26.0)
       ember-source:
         specifier: ~5.12.0
@@ -900,7 +900,7 @@ importers:
         specifier: ^2.2.5
         version: 2.3.0
       decorator-transforms:
-        specifier: ^2.2.2
+        specifier: ^2.3.0
         version: 2.3.0(@babel/core@7.26.0)
       ember-provide-consume-context:
         specifier: ^0.7.0
@@ -1360,7 +1360,7 @@ importers:
         specifier: workspace:*
         version: link:../../config
       decorator-transforms:
-        specifier: ^2.2.2
+        specifier: ^2.3.0
         version: 2.3.0(@babel/core@7.26.0)
       ember-source:
         specifier: ~5.12.0
@@ -1721,7 +1721,7 @@ importers:
         specifier: workspace:*
         version: link:../../config
       decorator-transforms:
-        specifier: ^2.2.2
+        specifier: ^2.3.0
         version: 2.3.0(@babel/core@7.26.0)
       ember-source:
         specifier: ~5.12.0
@@ -1793,7 +1793,7 @@ importers:
         specifier: workspace:*
         version: link:../../config
       decorator-transforms:
-        specifier: ^2.2.2
+        specifier: ^2.3.0
         version: 2.3.0(@babel/core@7.26.0)
       ember-source:
         specifier: ~5.12.0

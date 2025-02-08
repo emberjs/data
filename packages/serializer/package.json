@@ -103,7 +103,7 @@
     "@glimmer/component": "^1.1.2",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
-    "decorator-transforms": "^2.2.2",
+    "decorator-transforms": "^2.3.0",
     "ember-source": "~5.12.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "typescript": "^5.7.2",
