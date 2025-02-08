@@ -49,6 +49,8 @@ import type {
   SingleResourceRelationship,
 } from '@warp-drive/core-types/spec/json-api-raw';
 
+import { validateDocumentFields } from './validate-document-fields';
+
 type IdentifierCache = Store['identifierCache'];
 type InternalCapabilitiesManager = CacheCapabilitiesManager & { _store: Store };
 
@@ -213,6 +215,10 @@ export default class JSONAPICache implements Cache {
     let i: number, length: number;
     const { identifierCache } = this._capabilities;
 
+    if (DEBUG) {
+      validateDocumentFields(this._capabilities.schema, jsonApiDoc);
+    }
+
     if (LOG_REQUESTS) {
       const Counts = new Map();
       if (included) {
@@ -269,11 +275,6 @@ export default class JSONAPICache implements Cache {
         included as StableExistingRecordIdentifier[]
       );
     }
-
-    assert(
-      `Expected a resource object in the 'data' property in the document provided to the cache, but was ${typeof jsonApiDoc.data}`,
-      typeof jsonApiDoc.data === 'object'
-    );
 
     const identifier = putOne(this, identifierCache, jsonApiDoc.data);
     return this._putDocument(
