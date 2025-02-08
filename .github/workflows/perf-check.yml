@@ -48,7 +48,7 @@ jobs:
       - uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
-      - uses: tracerbench/tracerbench-compare-action@49424994f1efdb212b269393ae6cfd3a904648c2
+      - uses: tracerbench/tracerbench-compare-action@cc5254c1d57d4ac5a4df3a2938305d0def927015
         with:
           experiment-build-command: pnpm install && pnpm --filter performance-test-app exec ember build -e production --output-path dist-experiment --suppress-sizes
           experiment-serve-command: pnpm --filter performance-test-app exec ember s --path dist-experiment --port 4201
