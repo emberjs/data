@@ -73,7 +73,7 @@ importers:
         specifier: 4.1.0
         version: 4.1.0
       bun-types:
-        specifier: ^1.1.30
+        specifier: ^1.2.2
         version: 1.2.2
       chalk:
         specifier: ^4.1.2
@@ -535,7 +535,7 @@ importers:
         specifier: workspace:*
         version: link:../../config
       bun-types:
-        specifier: ^1.1.30
+        specifier: ^1.2.2
         version: 1.2.2
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
@@ -711,7 +711,7 @@ importers:
         specifier: workspace:*
         version: link:../../config
       bun-types:
-        specifier: ^1.1.30
+        specifier: ^1.2.2
         version: 1.2.2
       ember-cli-test-loader:
         specifier: ^3.1.0
@@ -2638,7 +2638,7 @@ importers:
         specifier: workspace:*
         version: link:../../config
       bun-types:
-        specifier: ^1.1.30
+        specifier: ^1.2.2
         version: 1.2.2
       ember-auto-import:
         specifier: ^2.10.0
