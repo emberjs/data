@@ -51,7 +51,7 @@ jobs:
       - name: Get Browser Flags
         id: browser-flags
         run: |
-          node ./scripts/perf-tracking/get-browser-flags.mjs >> $BROWSER_FLAGS
+          BROWSER_FLAGS=$(node ./scripts/perf-tracking/get-browser-flags.mjs)
           echo "BROWSER_FLAGS=$BROWSER_FLAGS" >> $GITHUB_OUTPUT
       - uses: tracerbench/tracerbench-compare-action@53cd4adeab84ad03bac3276d378fcf322a00f870
         with:
