@@ -16,6 +16,7 @@ import type {
 } from '@warp-drive/core-types/spec/json-api-raw';
 
 import type { OpaqueRecordInstance } from '../../-types/q/record-instance';
+import { log, logGroup } from '../debug/utils';
 import RecordReference from '../legacy-model-support/record-reference';
 import { CacheCapabilitiesManager } from '../managers/cache-capabilities-manager';
 import type { CacheManager } from '../managers/cache-manager';
@@ -206,8 +207,11 @@ export class InstanceCache {
       this.__instances.record.set(identifier, record);
 
       if (LOG_INSTANCE_CACHE) {
+        logGroup('reactive-ui', '', identifier.type, identifier.lid, 'created', '');
         // eslint-disable-next-line no-console
-        console.log(`InstanceCache: created Record for ${String(identifier)}`, properties);
+        console.log({ properties });
+        // eslint-disable-next-line no-console
+        console.groupEnd();
       }
     }
 
@@ -260,8 +264,7 @@ export class InstanceCache {
     removeRecordDataFor(identifier);
     this.store._requestCache._clearEntries(identifier);
     if (LOG_INSTANCE_CACHE) {
-      // eslint-disable-next-line no-console
-      console.log(`InstanceCache: disconnected ${String(identifier)}`);
+      log('reactive-ui', '', identifier.type, identifier.lid, 'disconnected', '');
     }
   }
 

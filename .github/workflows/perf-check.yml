@@ -48,7 +48,12 @@ jobs:
       - uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
-      - uses: tracerbench/tracerbench-compare-action@4d8df6162994be1e5fa30f63d53b241befb0496b
+      - name: Get Browser Flags
+        id: browser-flags
+        run: |
+          BROWSER_FLAGS=$(node ./scripts/perf-tracking/browser-flags.mjs)
+          echo "BROWSER_FLAGS=$BROWSER_FLAGS" >> $GITHUB_OUTPUT
+      - uses: tracerbench/tracerbench-compare-action@38085ba17b09de10a9824fac85ae50c3c3a9ae50
         with:
           experiment-build-command: pnpm install && pnpm --filter performance-test-app exec ember build -e production --output-path dist-experiment --suppress-sizes
           experiment-serve-command: pnpm --filter performance-test-app exec ember s --path dist-experiment --port 4201
@@ -57,6 +62,7 @@ jobs:
           control-sha: origin/main
           sample-timeout: 60
           use-pnpm: true
+          browser-args: ${{ steps.browser-flags.outputs.BROWSER_FLAGS }}
           scenarios: |
             {
               "basic-record-materialization": {
