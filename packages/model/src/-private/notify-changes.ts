@@ -16,26 +16,33 @@ export default function notifyChanges(
   record: Model,
   store: Store
 ) {
-  if (value === 'attributes') {
-    if (key) {
-      notifyAttribute(store, identifier, key, record);
-    } else {
-      record.eachAttribute((name) => {
-        notifyAttribute(store, identifier, name, record);
-      });
-    }
-  } else if (value === 'relationships') {
-    if (key) {
-      const meta = (record.constructor as typeof Model).relationshipsByName.get(key);
-      assert(`Expected to find a relationship for ${key} on ${identifier.type}`, meta);
-      notifyRelationship(identifier, key, record, meta);
-    } else {
-      record.eachRelationship((name, meta) => {
-        notifyRelationship(identifier, name, record, meta);
-      });
-    }
-  } else if (value === 'identity') {
-    record.notifyPropertyChange('id');
+  switch (value) {
+    case 'added':
+    case 'attributes':
+      if (key) {
+        notifyAttribute(store, identifier, key, record);
+      } else {
+        record.eachAttribute((name) => {
+          notifyAttribute(store, identifier, name, record);
+        });
+      }
+      break;
+
+    case 'relationships':
+      if (key) {
+        const meta = (record.constructor as typeof Model).relationshipsByName.get(key);
+        assert(`Expected to find a relationship for ${key} on ${identifier.type}`, meta);
+        notifyRelationship(identifier, key, record, meta);
+      } else {
+        record.eachRelationship((name, meta) => {
+          notifyRelationship(identifier, name, record, meta);
+        });
+      }
+      break;
+
+    case 'identity':
+      record.notifyPropertyChange('id');
+      break;
   }
 }
 
