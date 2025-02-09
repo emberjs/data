@@ -384,16 +384,22 @@ export default class JSONAPICache implements Cache {
    */
   mutate(mutation: LocalRelationshipOperation): void {
     if (LOG_MUTATIONS) {
+      logGroup('cache', 'mutate', mutation.record.type, mutation.record.lid, mutation.field, mutation.op);
       try {
         const _data = JSON.parse(JSON.stringify(mutation)) as object;
         // eslint-disable-next-line no-console
-        console.log(`EmberData | Mutation - update ${mutation.op}`, _data);
+        console.log(_data);
       } catch {
         // eslint-disable-next-line no-console
-        console.log(`EmberData | Mutation - update ${mutation.op}`, mutation);
+        console.log(mutation);
       }
     }
     this.__graph.update(mutation, false);
+
+    if (LOG_MUTATIONS) {
+      // eslint-disable-next-line no-console
+      console.groupEnd();
+    }
   }
 
   /**
@@ -543,8 +549,6 @@ export default class JSONAPICache implements Cache {
         // eslint-disable-next-line no-console
         console.log(data);
       }
-      // eslint-disable-next-line no-console
-      console.groupEnd();
     }
 
     if (cached.isNew) {
@@ -584,6 +588,11 @@ export default class JSONAPICache implements Cache {
 
     if (changedKeys?.size) {
       notifyAttributes(this._capabilities, identifier, changedKeys);
+    }
+
+    if (LOG_OPERATIONS) {
+      // eslint-disable-next-line no-console
+      console.groupEnd();
     }
 
     return changedKeys?.size ? Array.from(changedKeys) : undefined;

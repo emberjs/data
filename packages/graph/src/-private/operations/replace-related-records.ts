@@ -91,7 +91,7 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   const { inverseKey, type } = relationship.definition;
   const { record } = op;
   const wasDirty = relationship.isDirty;
-  relationship.isDirty = false;
+  let localBecameDirty = false;
 
   const onAdd = (identifier: StableRecordIdentifier) => {
     // Since we are diffing against the remote state, we check
@@ -105,7 +105,8 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
         graph.registerPolymorphicType(type, identifier.type);
       }
 
-      relationship.isDirty = true;
+      // we've added a record locally that wasn't in the local state before
+      localBecameDirty = true;
       addToInverse(graph, identifier, inverseKey, op.record, isRemote);
 
       if (removalsHas) {
@@ -119,7 +120,8 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
     // if our previous local state had contained this identifier
     const additionsHas = additions?.has(identifier);
     if (additionsHas || !removals?.has(identifier)) {
-      relationship.isDirty = true;
+      // we've removed a record locally that was in the local state before
+      localBecameDirty = true;
       removeFromInverse(graph, identifier, inverseKey, record, isRemote);
 
       if (additionsHas) {
@@ -129,40 +131,39 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   };
 
   const diff = diffCollection(identifiers, relationship, onAdd, onRemove);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  let becameDirty = relationship.isDirty || diff.changed;
 
   // any additions no longer in the local state
-  // need to be removed from the inverse
+  // also need to be removed from the inverse
   if (additions && additions.size > 0) {
     additions.forEach((identifier) => {
       if (!diff.add.has(identifier)) {
-        becameDirty = true;
+        localBecameDirty = true;
         onRemove(identifier);
       }
     });
   }
 
   // any removals no longer in the local state
-  // need to be added back to the inverse
+  // also need to be added back to the inverse
   if (removals && removals.size > 0) {
     removals.forEach((identifier) => {
       if (!diff.del.has(identifier)) {
-        becameDirty = true;
+        localBecameDirty = true;
         onAdd(identifier);
       }
     });
   }
 
+  const becameDirty = diff.changed || localBecameDirty;
   relationship.additions = diff.add;
   relationship.removals = diff.del;
   relationship.localState = diff.finalState;
   relationship.isDirty = wasDirty;
 
-  if (
-    isMaybeFirstUpdate ||
-    !wasDirty /*&& becameDirty // TODO to guard like this we need to detect reorder when diffing local */
-  ) {
+  // we notify if this is the first update to the relationship
+  // because ?? may need to recalculate.
+  // otherwise we only notify if we are dirty and were not already dirty before
+  if (isMaybeFirstUpdate || (becameDirty && !wasDirty)) {
     notifyChange(graph, op.record, op.field);
   }
 }
@@ -178,6 +179,9 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
   if (isRemote) {
     graph._addToTransaction(relationship);
   }
+
+  // see note before flushCanonical
+  // const wasDirty = relationship.isDirty;
   relationship.state.hasReceivedData = true;
 
   // cache existing state
@@ -235,7 +239,13 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
   if (DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
     // only do this for legacy hasMany, not collection
     // and provide a way to incrementally migrate
-    if (relationship.definition.kind === 'hasMany' && relationship.definition.resetOnRemoteUpdate !== false) {
+    if (
+      // we do not guard by diff.changed here
+      // because we want to clear local changes even if
+      // no change has occurred to preserve the legacy behavior
+      relationship.definition.kind === 'hasMany' &&
+      relationship.definition.resetOnRemoteUpdate !== false
+    ) {
       const deprecationInfo: {
         removals: StableRecordIdentifier[];
         additions: StableRecordIdentifier[];
@@ -300,7 +310,10 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
     }
   }
 
-  if (relationship.isDirty) {
+  // we ought to only flush if we became dirty and were not before
+  // but this causes a fw test failures around unloadRecord and reference autotracking
+  // we should investigate this further
+  if (relationship.isDirty /*&& !wasDirty*/) {
     flushCanonical(graph, relationship);
   }
 }

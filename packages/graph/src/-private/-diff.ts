@@ -14,6 +14,7 @@ import replaceRelatedRecord from './operations/replace-related-record';
 import replaceRelatedRecords from './operations/replace-related-records';
 
 function _deprecatedCompare<T>(
+  priorLocalState: T[] | null,
   newState: T[],
   newMembers: Set<T>,
   prevState: T[],
@@ -30,6 +31,7 @@ function _deprecatedCompare<T>(
   const duplicates = new Map<T, number[]>();
   const finalSet = new Set<T>();
   const finalState: T[] = [];
+  const priorLocalLength = priorLocalState?.length ?? 0;
 
   for (let i = 0, j = 0; i < iterationLength; i++) {
     let adv = false;
@@ -69,6 +71,11 @@ function _deprecatedCompare<T>(
       // j is always less than i and so if i < prevLength, j < prevLength
       if (member !== prevState[j]) {
         changed = true;
+      } else if (!changed && j < priorLocalLength) {
+        const priorLocalMember = priorLocalState![j];
+        if (priorLocalMember !== member) {
+          changed = true;
+        }
       }
 
       if (!newMembers.has(prevMember)) {
@@ -100,6 +107,7 @@ function _deprecatedCompare<T>(
 }
 
 function _compare<T>(
+  priorLocalState: T[] | null,
   finalState: T[],
   finalSet: Set<T>,
   prevState: T[],
@@ -114,6 +122,7 @@ function _compare<T>(
   let changed: boolean = finalSet.size !== prevSet.size;
   const added = new Set<T>();
   const removed = new Set<T>();
+  const priorLocalLength = priorLocalState?.length ?? 0;
 
   for (let i = 0; i < iterationLength; i++) {
     let member: T | undefined;
@@ -135,6 +144,11 @@ function _compare<T>(
       // detect reordering
       if (equalLength && member !== prevMember) {
         changed = true;
+      } else if (equalLength && !changed && i < priorLocalLength) {
+        const priorLocalMember = priorLocalState![i];
+        if (priorLocalMember !== prevMember) {
+          changed = true;
+        }
       }
 
       if (!finalSet.has(prevMember)) {
@@ -169,11 +183,19 @@ export function diffCollection(
   onDel: (v: StableRecordIdentifier) => void
 ): Diff<StableRecordIdentifier> {
   const finalSet = new Set(finalState);
-  const { remoteState, remoteMembers } = relationship;
+  const { localState: priorLocalState, remoteState, remoteMembers } = relationship;
 
   if (DEPRECATE_NON_UNIQUE_PAYLOADS) {
     if (finalState.length !== finalSet.size) {
-      const { diff, duplicates } = _deprecatedCompare(finalState, finalSet, remoteState, remoteMembers, onAdd, onDel);
+      const { diff, duplicates } = _deprecatedCompare(
+        priorLocalState,
+        finalState,
+        finalSet,
+        remoteState,
+        remoteMembers,
+        onAdd,
+        onDel
+      );
 
       if (DEBUG) {
         deprecate(
@@ -199,7 +221,7 @@ export function diffCollection(
     );
   }
 
-  return _compare(finalState, finalSet, remoteState, remoteMembers, onAdd, onDel);
+  return _compare(priorLocalState, finalState, finalSet, remoteState, remoteMembers, onAdd, onDel);
 }
 
 export function computeLocalState(storage: CollectionEdge): StableRecordIdentifier[] {
