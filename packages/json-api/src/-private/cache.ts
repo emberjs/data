@@ -4,6 +4,7 @@
 import type { CollectionEdge, Graph, GraphEdge, ImplicitEdge, ResourceEdge } from '@ember-data/graph/-private';
 import { graphFor, isBelongsTo, peekGraph } from '@ember-data/graph/-private';
 import type Store from '@ember-data/store';
+import { logGroup } from '@ember-data/store/-private';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { LOG_MUTATIONS, LOG_OPERATIONS, LOG_REQUESTS } from '@warp-drive/build-config/debugging';
 import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp-drive/build-config/deprecations';
@@ -525,14 +526,25 @@ export default class JSONAPICache implements Cache {
     const isUpdate = /*#__NOINLINE__*/ !_isEmpty(peeked) && !isLoading;
 
     if (LOG_OPERATIONS) {
+      logGroup(
+        'cache',
+        'upsert',
+        identifier.type,
+        identifier.lid,
+        existed ? 'merged' : 'inserted',
+        calculateChanges ? 'has-subscription' : ''
+      );
       try {
         const _data = JSON.parse(JSON.stringify(data)) as object;
+
         // eslint-disable-next-line no-console
-        console.log(`EmberData | Operation - upsert (${existed ? 'merge' : 'insert'})`, _data);
+        console.log(_data);
       } catch {
         // eslint-disable-next-line no-console
-        console.log(`EmberData | Operation - upsert (${existed ? 'merge' : 'insert'})`, data);
+        console.log(data);
       }
+      // eslint-disable-next-line no-console
+      console.groupEnd();
     }
 
     if (cached.isNew) {
