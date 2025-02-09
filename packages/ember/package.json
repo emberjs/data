@@ -107,7 +107,7 @@
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "rollup": "^4.17.2",
     "typescript": "^5.7.2",
-    "vite": "^5.2.11",
+    "vite": "^5.4.14",
     "ember-provide-consume-context": "^0.7.0"
   },
   "engines": {

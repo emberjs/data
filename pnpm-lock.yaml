@@ -202,11 +202,11 @@ importers:
         specifier: ^8.10.0
         version: 8.14.0(eslint@9.14.0)(typescript@5.7.2)
       vite:
-        specifier: ^5.2.11
-        version: 5.4.12(@types/node@20.14.2)
+        specifier: ^5.4.14
+        version: 5.4.14(@types/node@20.14.2)
       vite-plugin-dts:
         specifier: ^3.9.1
-        version: 3.9.1(rollup@4.22.4)(typescript@5.7.2)(vite@5.4.12)
+        version: 3.9.1(rollup@4.22.4)(typescript@5.7.2)(vite@5.4.14)
 
   packages/-ember-data:
     dependencies:
@@ -302,8 +302,8 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
       vite:
-        specifier: ^5.2.11
-        version: 5.4.12(@types/node@20.14.2)
+        specifier: ^5.4.14
+        version: 5.4.14(@types/node@20.14.2)
     dependenciesMeta:
       '@ember-data/adapter':
         injected: true
@@ -375,8 +375,8 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
       vite:
-        specifier: ^5.2.11
-        version: 5.4.12(@types/node@20.14.2)
+        specifier: ^5.4.14
+        version: 5.4.14(@types/node@20.14.2)
     dependenciesMeta:
       '@warp-drive/build-config':
         injected: true
@@ -430,8 +430,8 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
       vite:
-        specifier: ^5.2.11
-        version: 5.4.12(@types/node@20.14.2)
+        specifier: ^5.4.14
+        version: 5.4.14(@types/node@20.14.2)
     dependenciesMeta:
       '@ember-data/request':
         injected: true
@@ -525,8 +525,8 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
       vite:
-        specifier: ^5.2.11
-        version: 5.4.12(@types/node@20.14.2)
+        specifier: ^5.4.14
+        version: 5.4.14(@types/node@20.14.2)
     dependenciesMeta:
       '@ember-data/graph':
         injected: true
@@ -593,8 +593,8 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
       vite:
-        specifier: ^5.2.11
-        version: 5.4.12(@types/node@20.14.2)
+        specifier: ^5.4.14
+        version: 5.4.14(@types/node@20.14.2)
 
   packages/codemods:
     dependencies:
@@ -667,8 +667,8 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
       vite:
-        specifier: ^5.2.11
-        version: 5.4.12(@types/node@20.14.2)
+        specifier: ^5.4.14
+        version: 5.4.14(@types/node@20.14.2)
     dependenciesMeta:
       '@warp-drive/build-config':
         injected: true
@@ -740,8 +740,8 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
       vite:
-        specifier: ^5.2.11
-        version: 5.4.12(@types/node@20.14.2)
+        specifier: ^5.4.14
+        version: 5.4.14(@types/node@20.14.2)
     dependenciesMeta:
       '@ember-data/legacy-compat':
         injected: true
@@ -818,8 +818,8 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
       vite:
-        specifier: ^5.2.11
-        version: 5.4.12(@types/node@20.14.2)
+        specifier: ^5.4.14
+        version: 5.4.14(@types/node@20.14.2)
     dependenciesMeta:
       '@warp-drive/build-config':
         injected: true
@@ -921,8 +921,8 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
       vite:
-        specifier: ^5.2.11
-        version: 5.4.12(@types/node@20.14.2)
+        specifier: ^5.4.14
+        version: 5.4.14(@types/node@20.14.2)
     dependenciesMeta:
       '@ember-data/request':
         injected: true
@@ -1014,8 +1014,8 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
       vite:
-        specifier: ^5.2.11
-        version: 5.4.12(@types/node@20.14.2)
+        specifier: ^5.4.14
+        version: 5.4.14(@types/node@20.14.2)
 
   packages/graph:
     dependencies:
@@ -1069,8 +1069,8 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
       vite:
-        specifier: ^5.2.11
-        version: 5.4.12(@types/node@20.14.2)
+        specifier: ^5.4.14
+        version: 5.4.14(@types/node@20.14.2)
     dependenciesMeta:
       '@ember-data/request':
         injected: true
@@ -1128,8 +1128,8 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
       vite:
-        specifier: ^5.2.11
-        version: 5.4.12(@types/node@20.14.2)
+        specifier: ^5.4.14
+        version: 5.4.14(@types/node@20.14.2)
     dependenciesMeta:
       '@ember-data/request':
         injected: true
@@ -1194,8 +1194,8 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
       vite:
-        specifier: ^5.2.11
-        version: 5.4.12(@types/node@20.14.2)
+        specifier: ^5.4.14
+        version: 5.4.14(@types/node@20.14.2)
     dependenciesMeta:
       '@ember-data/graph':
         injected: true
@@ -1273,8 +1273,8 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
       vite:
-        specifier: ^5.2.11
-        version: 5.4.12(@types/node@20.14.2)
+        specifier: ^5.4.14
+        version: 5.4.14(@types/node@20.14.2)
     dependenciesMeta:
       '@ember-data/graph':
         injected: true
@@ -1375,8 +1375,8 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
       vite:
-        specifier: ^5.2.11
-        version: 5.4.12(@types/node@20.14.2)
+        specifier: ^5.4.14
+        version: 5.4.14(@types/node@20.14.2)
     dependenciesMeta:
       '@ember-data/graph':
         injected: true
@@ -1440,8 +1440,8 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
       vite:
-        specifier: ^5.2.11
-        version: 5.4.12(@types/node@20.14.2)
+        specifier: ^5.4.14
+        version: 5.4.14(@types/node@20.14.2)
     dependenciesMeta:
       '@warp-drive/build-config':
         injected: true
@@ -1494,8 +1494,8 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
       vite:
-        specifier: ^5.2.11
-        version: 5.4.12(@types/node@20.14.2)
+        specifier: ^5.4.14
+        version: 5.4.14(@types/node@20.14.2)
     dependenciesMeta:
       '@warp-drive/build-config':
         injected: true
@@ -1554,8 +1554,8 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
       vite:
-        specifier: ^5.2.11
-        version: 5.4.12(@types/node@20.14.2)
+        specifier: ^5.4.14
+        version: 5.4.14(@types/node@20.14.2)
     dependenciesMeta:
       '@ember-data/request':
         injected: true
@@ -1637,8 +1637,8 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
       vite:
-        specifier: ^5.2.11
-        version: 5.4.12(@types/node@20.14.2)
+        specifier: ^5.4.14
+        version: 5.4.14(@types/node@20.14.2)
     dependenciesMeta:
       '@ember-data/legacy-compat':
         injected: true
@@ -1733,8 +1733,8 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
       vite:
-        specifier: ^5.2.11
-        version: 5.4.12(@types/node@20.14.2)
+        specifier: ^5.4.14
+        version: 5.4.14(@types/node@20.14.2)
     dependenciesMeta:
       '@ember-data/legacy-compat':
         injected: true
@@ -1808,8 +1808,8 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
       vite:
-        specifier: ^5.2.11
-        version: 5.4.12(@types/node@20.14.2)
+        specifier: ^5.4.14
+        version: 5.4.14(@types/node@20.14.2)
     dependenciesMeta:
       '@ember-data/request':
         injected: true
@@ -1865,8 +1865,8 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
       vite:
-        specifier: ^5.2.11
-        version: 5.4.12(@types/node@20.14.2)
+        specifier: ^5.4.14
+        version: 5.4.14(@types/node@20.14.2)
     dependenciesMeta:
       '@warp-drive/build-config':
         injected: true
@@ -1948,8 +1948,8 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
       vite:
-        specifier: ^5.2.11
-        version: 5.4.12(@types/node@20.14.2)
+        specifier: ^5.4.14
+        version: 5.4.14(@types/node@20.14.2)
     dependenciesMeta:
       '@ember-data/build-config':
         injected: true
@@ -4191,7 +4191,7 @@ importers:
         version: 4.0.1-unstable.4070ba7(@embroider/compat@3.7.1-unstable.4070ba7)(@embroider/core@3.4.20-unstable.4070ba7)
       '@embroider/vite':
         specifier: 0.2.2-unstable.4070ba7
-        version: 0.2.2-unstable.4070ba7(@embroider/core@3.4.20-unstable.4070ba7)(vite@5.4.12)
+        version: 0.2.2-unstable.4070ba7(@embroider/core@3.4.20-unstable.4070ba7)(vite@5.4.14)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.26.0)
@@ -4328,8 +4328,8 @@ importers:
         specifier: ^8.13.0
         version: 8.14.0(eslint@9.14.0)(typescript@5.7.2)
       vite:
-        specifier: ^5.4.11
-        version: 5.4.12(@types/node@20.14.2)
+        specifier: ^5.4.14
+        version: 5.4.14(@types/node@20.14.2)
       webpack:
         specifier: 5.94.0
         version: 5.94.0
@@ -7127,7 +7127,7 @@ packages:
       - supports-color
     dev: true
 
-  /@embroider/vite@0.2.2-unstable.4070ba7(@embroider/core@3.4.20-unstable.4070ba7)(vite@5.4.12):
+  /@embroider/vite@0.2.2-unstable.4070ba7(@embroider/core@3.4.20-unstable.4070ba7)(vite@5.4.14):
     resolution: {integrity: sha512-41+Pu/7KbgOQOCwX0/E3YNvliBR9f1M/6LRexzxaoL4IrdmCi8MVhd1Ev7WZAp2aef/incJDxMC/Tv4LVGSh9g==}
     peerDependencies:
       '@embroider/core': ^3.4.20-unstable.4070ba7
@@ -7150,7 +7150,7 @@ packages:
       send: 0.18.0
       source-map-url: 0.4.1
       terser: 5.31.0
-      vite: 5.4.12(@types/node@20.14.2)
+      vite: 5.4.14(@types/node@20.14.2)
     transitivePeerDependencies:
       - '@glint/template'
       - bufferutil
@@ -20347,7 +20347,7 @@ packages:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
 
-  /vite-plugin-dts@3.9.1(rollup@4.22.4)(typescript@5.7.2)(vite@5.4.12):
+  /vite-plugin-dts@3.9.1(rollup@4.22.4)(typescript@5.7.2)(vite@5.4.14):
     resolution: {integrity: sha512-rVp2KM9Ue22NGWB8dNtWEr+KekN3rIgz1tWD050QnRGlriUCmaDwa7qA5zDEjbXg5lAXhYMSBJtx3q3hQIJZSg==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
@@ -20364,7 +20364,7 @@ packages:
       kolorist: 1.8.0
       magic-string: 0.30.10
       typescript: 5.7.2
-      vite: 5.4.12(@types/node@20.14.2)
+      vite: 5.4.14(@types/node@20.14.2)
       vue-tsc: 1.8.27(typescript@5.7.2)
     transitivePeerDependencies:
       - '@types/node'
@@ -20372,8 +20372,8 @@ packages:
       - supports-color
     dev: false
 
-  /vite@5.4.12(@types/node@20.14.2):
-    resolution: {integrity: sha512-KwUaKB27TvWwDJr1GjjWthLMATbGEbeWYZIbGZ5qFIsgPP3vWzLu4cVooqhm5/Z2SPDUMjyPVjTztm5tYKwQxA==}
+  /vite@5.4.14(@types/node@20.14.2):
+    resolution: {integrity: sha512-EK5cY7Q1D8JNhSaPKVK4pwBFvaTmZxEnoKXLG/U9gmdDcihQGNzFlgIvaxezFR4glP1LsuiedwMBqCXH3wZccA==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
