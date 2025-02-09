@@ -179,6 +179,9 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
   if (isRemote) {
     graph._addToTransaction(relationship);
   }
+
+  // see note before flushCanonical
+  // const wasDirty = relationship.isDirty;
   relationship.state.hasReceivedData = true;
 
   // cache existing state
@@ -236,7 +239,13 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
   if (DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
     // only do this for legacy hasMany, not collection
     // and provide a way to incrementally migrate
-    if (relationship.definition.kind === 'hasMany' && relationship.definition.resetOnRemoteUpdate !== false) {
+    if (
+      // we do not guard by diff.changed here
+      // because we want to clear local changes even if
+      // no change has occurred to preserve the legacy behavior
+      relationship.definition.kind === 'hasMany' &&
+      relationship.definition.resetOnRemoteUpdate !== false
+    ) {
       const deprecationInfo: {
         removals: StableRecordIdentifier[];
         additions: StableRecordIdentifier[];
@@ -301,7 +310,10 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
     }
   }
 
-  if (relationship.isDirty) {
+  // we ought to only flush if we became dirty and were not before
+  // but this causes a fw test failures around unloadRecord and reference autotracking
+  // we should investigate this further
+  if (relationship.isDirty /*&& !wasDirty*/) {
     flushCanonical(graph, relationship);
   }
 }
