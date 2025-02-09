@@ -9,13 +9,13 @@ export interface ResourceMetaDocument {
   links?: Links | PaginationLinks;
 }
 
-export interface SingleResourceDataDocument<T = StableExistingRecordIdentifier> {
+export interface SingleResourceDataDocument<T = StableExistingRecordIdentifier, R = StableExistingRecordIdentifier> {
   // the url or cache-key associated with the structured document
   lid?: string;
   links?: Links | PaginationLinks;
   meta?: Meta;
   data: T | null;
-  included?: T[];
+  included?: R[];
 }
 
 export interface CollectionResourceDataDocument<T = StableExistingRecordIdentifier> {
