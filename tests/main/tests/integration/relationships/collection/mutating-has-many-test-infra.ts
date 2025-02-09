@@ -1,3 +1,4 @@
+import type { TestContext } from '@ember/test-helpers';
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
@@ -195,7 +196,14 @@ function generateAppliedMutation(store: Store, record: User, mutation: Mutation)
   };
 }
 
-async function applyMutation(assert: Assert, store: Store, record: User, mutation: Mutation, rc: ReactiveContext) {
+async function applyMutation(
+  this: TestContext,
+  assert: Assert,
+  store: Store,
+  record: User,
+  mutation: Mutation,
+  rc: ReactiveContext
+) {
   assert.ok(true, `LOG: applying "${mutation.name}" with ids [${mutation.values.map((v) => v.id).join(',')}]`);
 
   const { counters, fieldOrder } = rc;
@@ -433,8 +441,8 @@ export function runTestGroup(splitNum: number, offset: number) {
             });
             rc.reset();
 
-            await applyMutation(assert, store, user, mutation, rc);
-            await applyMutation(assert, store, user, mutation2, rc);
+            await applyMutation.call(this, assert, store, user, mutation, rc);
+            await applyMutation.call(this, assert, store, user, mutation2, rc);
           });
         });
       }
