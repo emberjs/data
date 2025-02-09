@@ -49,3 +49,5 @@ export { setRecordIdentifier, StoreMap } from './-private/caches/instance-cache'
 export { setCacheFor } from './-private/caches/cache-utils';
 export { normalizeModelName as _deprecatingNormalize } from './-private/utils/normalize-model-name';
 export type { StoreRequestInput } from './-private/cache-handler/handler';
+
+export { log, logGroup } from './-private/debug/utils';
