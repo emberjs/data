@@ -91,6 +91,7 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   const { inverseKey, type } = relationship.definition;
   const { record } = op;
   const wasDirty = relationship.isDirty;
+  let localBecameDirty = false;
 
   const onAdd = (identifier: StableRecordIdentifier) => {
     // Since we are diffing against the remote state, we check
@@ -104,6 +105,8 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
         graph.registerPolymorphicType(type, identifier.type);
       }
 
+      // we've added a record locally that wasn't in the local state before
+      localBecameDirty = true;
       addToInverse(graph, identifier, inverseKey, op.record, isRemote);
 
       if (removalsHas) {
@@ -117,6 +120,8 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
     // if our previous local state had contained this identifier
     const additionsHas = additions?.has(identifier);
     if (additionsHas || !removals?.has(identifier)) {
+      // we've removed a record locally that was in the local state before
+      localBecameDirty = true;
       removeFromInverse(graph, identifier, inverseKey, record, isRemote);
 
       if (additionsHas) {
@@ -127,38 +132,33 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
 
   const diff = diffCollection(identifiers, relationship, onAdd, onRemove);
 
-  const becameDirty = diff.changed;
-
   // any additions no longer in the local state
-  // need to be removed from the inverse
+  // also need to be removed from the inverse
   if (additions && additions.size > 0) {
     additions.forEach((identifier) => {
       if (!diff.add.has(identifier)) {
-        if (!becameDirty) {
-          throw new Error('should not happen');
-        }
+        localBecameDirty = true;
         onRemove(identifier);
       }
     });
   }
 
   // any removals no longer in the local state
-  // need to be added back to the inverse
+  // also need to be added back to the inverse
   if (removals && removals.size > 0) {
     removals.forEach((identifier) => {
       if (!diff.del.has(identifier)) {
-        if (!becameDirty) {
-          throw new Error('should not happen');
-        }
+        localBecameDirty = true;
         onAdd(identifier);
       }
     });
   }
 
+  const becameDirty = diff.changed || localBecameDirty;
   relationship.additions = diff.add;
   relationship.removals = diff.del;
   relationship.localState = diff.finalState;
-  relationship.isDirty = wasDirty || becameDirty;
+  relationship.isDirty = wasDirty;
 
   // we notify if this is the first update to the relationship
   // because ?? may need to recalculate.
