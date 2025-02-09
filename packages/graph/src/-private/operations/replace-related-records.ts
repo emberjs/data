@@ -254,7 +254,7 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
           // if we are still in removals at this point then
           // we were not "committed" which means we are present
           // in the remoteMembers. So we "add back" on the inverse.
-          addToInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
+          addToInverse(graph, identifier, definition.inverseKey, op.record, false);
         });
         relationship.removals = null;
       }
@@ -270,7 +270,7 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
             deprecationInfo.additions.push(identifier);
             relationship.isDirty = true;
             relationship.additions!.delete(identifier);
-            removeFromInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
+            removeFromInverse(graph, identifier, definition.inverseKey, op.record, false);
           }
         });
         if (relationship.additions.size === 0) {
