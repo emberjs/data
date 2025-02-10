@@ -956,8 +956,8 @@ importers:
         specifier: ^9.12.0
         version: 9.14.0
       mocha:
-        specifier: ^10.7.3
-        version: 10.7.3
+        specifier: ^10.8.2
+        version: 10.8.2
 
   packages/experiments:
     dependencies:
@@ -2040,8 +2040,8 @@ importers:
         specifier: ~5.12.0
         version: 5.12.0(@glimmer/component@1.1.2)(@glint/template@1.5.0)
       mocha:
-        specifier: ^10.7.3
-        version: 10.7.3
+        specifier: ^10.8.2
+        version: 10.8.2
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
         version: 0.0.14
@@ -17046,8 +17046,8 @@ packages:
     resolution: {integrity: sha512-IXnMcJ6ZyTuhRmJSjzvHSRhlVPiN9Jwc6e59V0bEJ0ba6OBeX2L0E+mRN1QseeOF4mM+F1Rit6Nh7o+rl2Yn/A==}
     engines: {node: '>0.9'}
 
-  /mocha@10.7.3:
-    resolution: {integrity: sha512-uQWxAu44wwiACGqjbPYmjo7Lg8sFrS3dQe7PP2FQI+woptP4vZXSMcfMyFL/e1yFEeEpV4RtyTpZROOKmxis+A==}
+  /mocha@10.8.2:
+    resolution: {integrity: sha512-VZlYo/WE8t1tstuRmqgeyBgCbJc/lEdopaa+axcKzTBJ+UIdlAB9XnmvTCAH4pwR4ElNInaedhEBmZD8iCSVEg==}
     engines: {node: '>= 14.0.0'}
     hasBin: true
     dependencies:
