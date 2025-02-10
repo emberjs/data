@@ -80,12 +80,6 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   const relationship = graph.get(op.record, op.field);
   assert(`expected hasMany relationship`, isHasMany(relationship));
 
-  // relationships for newly created records begin in the dirty state, so if updated
-  // before flushed we would fail to notify. This check helps us avoid that.
-  const isMaybeFirstUpdate =
-    relationship.remoteState.length === 0 &&
-    relationship.localState === null &&
-    relationship.state.hasReceivedData === false;
   relationship.state.hasReceivedData = true;
   const { additions, removals } = relationship;
   const { inverseKey, type } = relationship.definition;
@@ -158,13 +152,11 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   relationship.additions = diff.add;
   relationship.removals = diff.del;
   relationship.localState = diff.finalState;
-  relationship.isDirty = wasDirty;
 
-  // we notify if this is the first update to the relationship
-  // because ?? may need to recalculate.
-  // otherwise we only notify if we are dirty and were not already dirty before
-  if (isMaybeFirstUpdate || (becameDirty && !wasDirty)) {
-    notifyChange(graph, op.record, op.field);
+  // we only notify if the localState changed and were not already dirty before
+  // because if we were already dirty then we have already notified
+  if (becameDirty && !wasDirty) {
+    notifyChange(graph, relationship);
   }
 }
 
@@ -180,8 +172,14 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
     graph._addToTransaction(relationship);
   }
 
-  // see note before flushCanonical
-  // const wasDirty = relationship.isDirty;
+  const wasDirty = relationship.isDirty;
+  // if this is our first time receiving data
+  // we need to mark the relationship as dirty
+  // so that non-materializing APIs like `hasManyReference.value()`
+  // will get notified and updated.
+  if (!relationship.state.hasReceivedData) {
+    relationship.isDirty = true;
+  }
   relationship.state.hasReceivedData = true;
 
   // cache existing state
@@ -310,10 +308,7 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
     }
   }
 
-  // we ought to only flush if we became dirty and were not before
-  // but this causes a fw test failures around unloadRecord and reference autotracking
-  // we should investigate this further
-  if (relationship.isDirty /*&& !wasDirty*/) {
+  if (relationship.isDirty && !wasDirty) {
     flushCanonical(graph, relationship);
   }
 }
@@ -352,7 +347,8 @@ export function addToInverse(
         removeFromInverse(graph, relationship.localState, relationship.definition.inverseKey, identifier, isRemote);
       }
       relationship.localState = value;
-      notifyChange(graph, identifier, key);
+
+      notifyChange(graph, relationship);
     }
   } else if (isHasMany(relationship)) {
     if (isRemote) {
@@ -374,8 +370,15 @@ export function addToInverse(
         }
       }
     } else {
+      // if we are not dirty but have a null localState then we
+      // are mutating a relationship that has never been fetched
+      // so we initialize localState to an empty array
+      if (!relationship.isDirty && !relationship.localState) {
+        relationship.localState = [];
+      }
+
       if (_addLocal(graph, identifier, relationship, value, null)) {
-        notifyChange(graph, identifier, key);
+        notifyChange(graph, relationship);
       }
     }
   } else {
@@ -401,7 +404,7 @@ export function notifyInverseOfPotentialMaterialization(
 ) {
   const relationship = graph.get(identifier, key);
   if (isHasMany(relationship) && isRemote && relationship.remoteMembers.has(value)) {
-    notifyChange(graph, identifier, key);
+    notifyChange(graph, relationship);
   }
 }
 
@@ -423,17 +426,17 @@ export function removeFromInverse(
     if (relationship.localState === value) {
       relationship.localState = null;
 
-      notifyChange(graph, identifier, key);
+      notifyChange(graph, relationship);
     }
   } else if (isHasMany(relationship)) {
     if (isRemote) {
       graph._addToTransaction(relationship);
       if (_removeRemote(relationship, value)) {
-        notifyChange(graph, identifier, key);
+        notifyChange(graph, relationship);
       }
     } else {
       if (_removeLocal(relationship, value)) {
-        notifyChange(graph, identifier, key);
+        notifyChange(graph, relationship);
       }
     }
   } else {
@@ -449,5 +452,7 @@ export function removeFromInverse(
 }
 
 function flushCanonical(graph: Graph, rel: CollectionEdge) {
-  graph._scheduleLocalSync(rel);
+  if (rel.accessed) {
+    graph._scheduleLocalSync(rel);
+  }
 }

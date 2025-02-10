@@ -595,6 +595,7 @@ module.exports = {
     '(public) @warp-drive/build-config/debugging DebugLogging#LOG_GRAPH',
     '(public) @warp-drive/build-config/debugging DebugLogging#LOG_IDENTIFIERS',
     '(public) @warp-drive/build-config/debugging DebugLogging#LOG_INSTANCE_CACHE',
+    '(public) @warp-drive/build-config/debugging DebugLogging#LOG_METRIC_COUNTS',
     '(public) @warp-drive/build-config/debugging DebugLogging#LOG_MUTATIONS',
     '(public) @warp-drive/build-config/debugging DebugLogging#LOG_NOTIFICATIONS',
     '(public) @warp-drive/build-config/debugging DebugLogging#LOG_OPERATIONS',
