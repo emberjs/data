@@ -4,7 +4,7 @@
 
 import { _backburner } from '@ember/runloop';
 
-import { LOG_NOTIFICATIONS } from '@warp-drive/build-config/debugging';
+import { LOG_METRIC_COUNTS, LOG_NOTIFICATIONS } from '@warp-drive/build-config/debugging';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
@@ -46,6 +46,15 @@ export interface ResourceOperationCallback {
 export interface DocumentOperationCallback {
   // document updates
   (identifier: StableDocumentIdentifier, notificationType: DocumentCacheOperation): void;
+}
+
+function count(label: string) {
+  // @ts-expect-error
+  // eslint-disable-next-line
+  globalThis.counts = globalThis.counts || {};
+  // @ts-expect-error
+  // eslint-disable-next-line
+  wglobalThis.counts[label] = (globalThis.counts[label] || 0) + 1;
 }
 
 function _unsubscribe(
@@ -214,6 +223,9 @@ export default class NotificationManager {
       }
       buffer.push([value, key]);
 
+      if (LOG_METRIC_COUNTS) {
+        count(`notify ${'type' in identifier ? identifier.type : '<document>'} ${value} ${key}`);
+      }
       if (!this._scheduleNotify()) {
         if (LOG_NOTIFICATIONS) {
           log(
@@ -226,6 +238,8 @@ export default class NotificationManager {
           );
         }
       }
+    } else if (LOG_METRIC_COUNTS) {
+      count(`DISCARDED notify ${'type' in identifier ? identifier.type : '<document>'} ${value} ${key}`);
     }
 
     return hasSubscribers;

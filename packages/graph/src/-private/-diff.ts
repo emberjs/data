@@ -298,10 +298,6 @@ export function _addLocal(
       relationship.localState.push(value);
     }
   }
-  assert(
-    `Expected relationship to be dirty when adding a local mutation`,
-    relationship.localState || relationship.isDirty
-  );
 
   return true;
 }
