@@ -1749,7 +1749,7 @@ importers:
         specifier: ~5.12.0
         version: 5.12.0(@glimmer/component@1.1.2)(@glint/template@1.5.0)
       mocha:
-        specifier: ^10.7.3
+        specifier: ^10.8.2
         version: 10.8.2
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
