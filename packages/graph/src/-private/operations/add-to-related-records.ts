@@ -19,6 +19,13 @@ export default function addToRelatedRecords(graph: Graph, op: AddToRelatedRecord
     `You can only '${op.op}' on a hasMany relationship. ${record.type}.${op.field} is a ${relationship.definition.kind}`,
     isHasMany(relationship)
   );
+
+  // if we are not dirty but have a null localState then we
+  // are mutating a relationship that has never been fetched
+  // so we initialize localState to an empty array
+  if (!relationship.isDirty && !relationship.localState) {
+    relationship.localState = [];
+  }
   if (Array.isArray(value)) {
     for (let i = 0; i < value.length; i++) {
       addRelatedRecord(graph, relationship, record, value[i], index !== undefined ? index + i : index, isRemote);

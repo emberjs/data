@@ -103,3 +103,11 @@ export const LOG_GRAPH: boolean = false;
  * @public
  */
 export const LOG_INSTANCE_CACHE: boolean = false;
+/**
+ * Log key count metrics, useful for performance
+ * debugging.
+ *
+ * @property {boolean} LOG_METRIC_COUNTS
+ * @public
+ */
+export const LOG_METRIC_COUNTS: boolean = false;
