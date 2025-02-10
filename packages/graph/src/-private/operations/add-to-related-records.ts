@@ -27,7 +27,7 @@ export default function addToRelatedRecords(graph: Graph, op: AddToRelatedRecord
     addRelatedRecord(graph, relationship, record, value, index, isRemote);
   }
 
-  notifyChange(graph, relationship.identifier, relationship.definition.key);
+  notifyChange(graph, relationship);
 }
 
 function addRelatedRecord(

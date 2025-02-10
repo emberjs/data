@@ -24,6 +24,7 @@ export interface CollectionEdge {
   localState: StableRecordIdentifier[] | null;
   isDirty: boolean;
   transactionRef: number;
+  accessed: boolean;
 
   _diff?: {
     add: Set<StableRecordIdentifier>;
@@ -47,11 +48,13 @@ export function createCollectionEdge(definition: UpgradedMeta, identifier: Stabl
     localState: null,
     isDirty: true,
     transactionRef: 0,
+    accessed: false,
     _diff: undefined,
   };
 }
 
 export function legacyGetCollectionRelationshipData(source: CollectionEdge): CollectionRelationship {
+  source.accessed = true;
   const payload: CollectionRelationship = {};
 
   if (source.state.hasReceivedData) {

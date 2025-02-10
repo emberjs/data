@@ -164,7 +164,7 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   // because ?? may need to recalculate.
   // otherwise we only notify if we are dirty and were not already dirty before
   if (isMaybeFirstUpdate || (becameDirty && !wasDirty)) {
-    notifyChange(graph, op.record, op.field);
+    notifyChange(graph, relationship);
   }
 }
 
@@ -352,7 +352,8 @@ export function addToInverse(
         removeFromInverse(graph, relationship.localState, relationship.definition.inverseKey, identifier, isRemote);
       }
       relationship.localState = value;
-      notifyChange(graph, identifier, key);
+
+      notifyChange(graph, relationship);
     }
   } else if (isHasMany(relationship)) {
     if (isRemote) {
@@ -375,7 +376,7 @@ export function addToInverse(
       }
     } else {
       if (_addLocal(graph, identifier, relationship, value, null)) {
-        notifyChange(graph, identifier, key);
+        notifyChange(graph, relationship);
       }
     }
   } else {
@@ -401,7 +402,7 @@ export function notifyInverseOfPotentialMaterialization(
 ) {
   const relationship = graph.get(identifier, key);
   if (isHasMany(relationship) && isRemote && relationship.remoteMembers.has(value)) {
-    notifyChange(graph, identifier, key);
+    notifyChange(graph, relationship);
   }
 }
 
@@ -423,17 +424,17 @@ export function removeFromInverse(
     if (relationship.localState === value) {
       relationship.localState = null;
 
-      notifyChange(graph, identifier, key);
+      notifyChange(graph, relationship);
     }
   } else if (isHasMany(relationship)) {
     if (isRemote) {
       graph._addToTransaction(relationship);
       if (_removeRemote(relationship, value)) {
-        notifyChange(graph, identifier, key);
+        notifyChange(graph, relationship);
       }
     } else {
       if (_removeLocal(relationship, value)) {
-        notifyChange(graph, identifier, key);
+        notifyChange(graph, relationship);
       }
     }
   } else {
@@ -449,10 +450,7 @@ export function removeFromInverse(
 }
 
 function flushCanonical(graph: Graph, rel: CollectionEdge) {
-  // if this relationship does not have localState then
-  // we have never computed it before, meaning it has no
-  // possible subscribers.
-  if (rel.localState !== null) {
+  if (rel.accessed) {
     graph._scheduleLocalSync(rel);
   }
 }
