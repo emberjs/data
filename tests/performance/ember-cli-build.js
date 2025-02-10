@@ -11,6 +11,11 @@ module.exports = async function (defaults) {
   });
   setConfig(app, __dirname, {
     compatWith: '99',
+    debug: {
+      // LOG_NOTIFICATIONS: true,
+      // LOG_INSTANCE_CACHE: true,
+      // LOG_METRIC_COUNTS: true,
+    },
   });
 
   // Use `app.import` to add additional libraries to the generated

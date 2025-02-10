@@ -394,9 +394,16 @@ module('Integration | Relationships | Rollback', function (hooks) {
       const config1 = store.peekRecord('config', '1') as Config;
       const config2 = store.peekRecord('config', '2') as Config;
       const config3 = store.peekRecord('config', '3') as Config;
+
+      // app.configs is [1, 2, 3] initially
       const app = config1.app!;
+
+      // we update the config1.app to point at a different app,
+      // which will remove config1 from app:1's list of configs
       config1.app = store.peekRecord('app', '2') as App;
       const configIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
+
+      // confirm the mutation
       assert.true(store.cache.hasChangedRelationships(configIdentifier), 'a belongsTo has state replaced');
       assert.arrayStrictEquals(app.configs, [config2, config3], 'inverse has updated');
 
@@ -404,6 +411,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
 
       assert.arrayStrictEquals(changed, ['app'], 'belongsTo has rolled back');
       assert.strictEqual(config1.app, app, 'belongsTo has rolled back');
+
       // this is in a different order because we don't rollback the inverse except for the smaller specific change
       // this is a bit of a weird case, but it's the way it works
       // if we were to rollback the inverse, we'd have to rollback the inverse of the inverse, and so on

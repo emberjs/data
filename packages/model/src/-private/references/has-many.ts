@@ -152,8 +152,9 @@ export default class HasManyReference<
   @cached
   @compat
   get identifiers(): StableRecordIdentifier<TypeFromInstanceOrString<Related>>[] {
+    ensureRefCanSubscribe(this);
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    this._ref; // consume the tracked prop
+    this._ref;
 
     const resource = this._resource();
 
@@ -629,11 +630,7 @@ export default class HasManyReference<
       this.___identifier
     )!;
 
-    const loaded = this._isLoaded();
-
-    if (!loaded) {
-      // subscribe to changes
-      // for when we are not loaded yet
+    if (!ensureRefCanSubscribe(this)) {
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       this._ref;
       return null;
@@ -781,4 +778,23 @@ defineSignal(HasManyReference.prototype, '_ref', 0);
 export function isMaybeResource(object: ExistingResourceObject | ResourceIdentifier): object is ExistingResourceObject {
   const keys = Object.keys(object).filter((k) => k !== 'id' && k !== 'type' && k !== 'lid');
   return keys.length > 0;
+}
+
+function ensureRefCanSubscribe(rel: HasManyReference) {
+  const loaded = rel._isLoaded();
+
+  if (!loaded) {
+    // subscribe to changes
+    // for when we are not loaded yet
+    //
+    // because the graph optimizes the case where a relationship has never been subscribed,
+    // we force accessed to be true here. When we make the graph public we should create a
+    // subscribe/unsubscribe API
+    const edge = rel.graph.get(rel.___identifier, rel.key);
+    assert(`Expected a hasMany relationship for ${rel.___identifier.type}:${rel.key}`, 'accessed' in edge);
+    edge.accessed = true;
+
+    return false;
+  }
+  return true;
 }
