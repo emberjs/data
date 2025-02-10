@@ -54,7 +54,7 @@ function count(label: string) {
   globalThis.counts = globalThis.counts || {};
   // @ts-expect-error
   // eslint-disable-next-line
-  wglobalThis.counts[label] = (globalThis.counts[label] || 0) + 1;
+  globalThis.counts[label] = (globalThis.counts[label] || 0) + 1;
 }
 
 function _unsubscribe(
