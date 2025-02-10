@@ -181,7 +181,7 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
   }
 
   // see note before flushCanonical
-  // const wasDirty = relationship.isDirty;
+  const wasDirty = relationship.isDirty;
   relationship.state.hasReceivedData = true;
 
   // cache existing state
@@ -313,7 +313,7 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
   // we ought to only flush if we became dirty and were not before
   // but this causes a fw test failures around unloadRecord and reference autotracking
   // we should investigate this further
-  if (relationship.isDirty /*&& !wasDirty*/) {
+  if (relationship.isDirty && !wasDirty) {
     flushCanonical(graph, relationship);
   }
 }
@@ -449,5 +449,10 @@ export function removeFromInverse(
 }
 
 function flushCanonical(graph: Graph, rel: CollectionEdge) {
-  graph._scheduleLocalSync(rel);
+  // if this relationship does not have localState then
+  // we have never computed it before, meaning it has no
+  // possible subscribers.
+  if (rel.localState !== null) {
+    graph._scheduleLocalSync(rel);
+  }
 }
