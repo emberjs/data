@@ -23,7 +23,6 @@ export interface ResourceEdge {
   meta: Meta | null;
   links: Links | PaginationLinks | null;
   transactionRef: number;
-  accessed: boolean;
 }
 
 export function createResourceEdge(definition: UpgradedMeta, identifier: StableRecordIdentifier): ResourceEdge {
@@ -36,12 +35,10 @@ export function createResourceEdge(definition: UpgradedMeta, identifier: StableR
     remoteState: null,
     meta: null,
     links: null,
-    accessed: false,
   };
 }
 
 export function legacyGetResourceRelationshipData(source: ResourceEdge): ResourceRelationship {
-  source.accessed = true;
   let data: StableRecordIdentifier | null | undefined;
   const payload: ResourceRelationship = {};
   if (source.localState) {

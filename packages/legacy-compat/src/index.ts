@@ -1,12 +1,14 @@
 import { getOwner } from '@ember/application';
+import { deprecate } from '@ember/debug';
 
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
-import { _deprecatingNormalize } from '@ember-data/store/-private';
+import { DEPRECATE_JSON_API_FALLBACK } from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
 import type { ObjectValue } from '@warp-drive/core-types/json/raw';
 
 import { FetchManager, upgradeStore } from './-private';
+import { normalizeModelName } from './builders/utils';
 import type { AdapterPayload, MinimumAdapterInterface } from './legacy-network-handler/minimum-adapter-interface';
 import type {
   MinimumSerializerInterface,
@@ -68,7 +70,7 @@ export function adapterFor(this: Store, modelName: string, _allowMissing?: true)
   this._adapterCache =
     this._adapterCache || (Object.create(null) as Record<string, MinimumAdapterInterface & { store: Store }>);
 
-  const normalizedModelName = _deprecatingNormalize(modelName);
+  const normalizedModelName = normalizeModelName(modelName);
 
   const { _adapterCache } = this;
   let adapter: (MinimumAdapterInterface & { store: Store }) | undefined = _adapterCache[normalizedModelName];
@@ -91,6 +93,28 @@ export function adapterFor(this: Store, modelName: string, _allowMissing?: true)
     _adapterCache[normalizedModelName] = adapter;
     _adapterCache.application = adapter;
     return adapter;
+  }
+
+  if (DEPRECATE_JSON_API_FALLBACK) {
+    // final fallback, no model specific adapter, no application adapter, no
+    // `adapter` property on store: use json-api adapter
+    adapter = _adapterCache['-json-api'] || owner.lookup('adapter:-json-api');
+    if (adapter !== undefined) {
+      deprecate(
+        `Your application is utilizing a deprecated hidden fallback adapter (-json-api). Please implement an application adapter to function as your fallback.`,
+        false,
+        {
+          id: 'ember-data:deprecate-secret-adapter-fallback',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.5', enabled: '4.5' },
+        }
+      );
+      _adapterCache[normalizedModelName] = adapter;
+      _adapterCache['-json-api'] = adapter;
+
+      return adapter;
+    }
   }
 
   assert(
@@ -129,7 +153,7 @@ export function serializerFor(this: Store, modelName: string): MinimumSerializer
   upgradeStore(this);
   this._serializerCache =
     this._serializerCache || (Object.create(null) as Record<string, MinimumSerializerInterface & { store: Store }>);
-  const normalizedModelName = _deprecatingNormalize(modelName);
+  const normalizedModelName = normalizeModelName(modelName);
 
   const { _serializerCache } = this;
   let serializer: (MinimumSerializerInterface & { store: Store }) | undefined = _serializerCache[normalizedModelName];
@@ -190,7 +214,7 @@ export function normalize(this: Store, modelName: string, payload: ObjectValue) 
     `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${typeof modelName}`,
     typeof modelName === 'string'
   );
-  const normalizedModelName = _deprecatingNormalize(modelName);
+  const normalizedModelName = normalizeModelName(modelName);
   const serializer = this.serializerFor(normalizedModelName);
   const schema = this.modelFor(normalizedModelName);
   assert(
@@ -265,7 +289,7 @@ export function pushPayload(this: Store, modelName: string, inputPayload: Object
   );
 
   const payload: ObjectValue = inputPayload || (modelName as unknown as ObjectValue);
-  const normalizedModelName = inputPayload ? _deprecatingNormalize(modelName) : 'application';
+  const normalizedModelName = inputPayload ? normalizeModelName(modelName) : 'application';
   const serializer = this.serializerFor(normalizedModelName);
 
   assert(

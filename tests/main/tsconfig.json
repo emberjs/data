@@ -53,8 +53,6 @@
       "@ember-data/unpublished-test-infra/*": ["../../packages/unpublished-test-infra/unstable-preview-types/*"],
       "@warp-drive/core-types": ["../../packages/core-types/unstable-preview-types"],
       "@warp-drive/core-types/*": ["../../packages/core-types/unstable-preview-types/*"],
-      "@warp-drive/schema-record": ["../../packages/schema-record/unstable-preview-types"],
-      "@warp-drive/schema-record/*": ["../../packages/schema-record/unstable-preview-types/*"],
       "@warp-drive/build-config": ["../../packages/build-config/unstable-preview-types"],
       "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"],
       "@warp-drive/holodeck": ["../../packages/holodeck/unstable-preview-types"],
@@ -111,9 +109,6 @@
     },
     {
       "path": "../../packages/-ember-data"
-    },
-    {
-      "path": "../../packages/schema-record"
     }
   ]
 }

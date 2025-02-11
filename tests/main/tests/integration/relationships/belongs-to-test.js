@@ -7,7 +7,9 @@ import { setupTest } from 'ember-qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+import { DEPRECATE_NON_EXPLICIT_POLYMORPHISM } from '@warp-drive/build-config/deprecations';
 
 import { getRelationshipStateForRecord, hasRelationshipForRecord } from '../../helpers/accessors';
 
@@ -580,9 +582,14 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
         },
       });
 
-      assert.expectAssertion(() => {
-        post.user = comment;
-      }, "The 'comment' type does not implement 'user' and thus cannot be assigned to the 'user' relationship in 'post'. If this relationship should be polymorphic, mark message.user as `polymorphic: true` and comment.messages as implementing it via `as: 'user'`.");
+      assert.expectAssertion(
+        () => {
+          post.user = comment;
+        },
+        DEPRECATE_NON_EXPLICIT_POLYMORPHISM
+          ? "The 'comment' type does not implement 'user' and thus cannot be assigned to the 'user' relationship in 'post'. Make it a descendant of 'user' or use a mixin of the same name."
+          : "The 'comment' type does not implement 'user' and thus cannot be assigned to the 'user' relationship in 'post'. If this relationship should be polymorphic, mark message.user as `polymorphic: true` and comment.messages as implementing it via `as: 'user'`."
+      );
     }
   );
 
@@ -824,6 +831,52 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
         assert.strictEqual(group, null, 'group should be null');
       });
   });
+
+  deprecatedTest(
+    'A record can be created with a resolved belongsTo promise',
+    { id: 'ember-data:deprecate-promise-proxies', until: '5.0' },
+    async function (assert) {
+      assert.expect(1);
+
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
+
+      adapter.shouldBackgroundReloadRecord = () => false;
+
+      const Group = Model.extend({
+        people: hasMany('person', { async: false, inverse: 'group' }),
+      });
+
+      const Person = Model.extend({
+        group: belongsTo('group', { async: true, inverse: 'people' }),
+      });
+
+      this.owner.register('model:group', Group);
+      this.owner.register('model:person', Person);
+
+      store.push({
+        data: {
+          id: '1',
+          type: 'group',
+        },
+      });
+      const originalOwner = store.push({
+        data: {
+          id: '1',
+          type: 'person',
+          group: { data: { type: 'group', id: '1' } },
+        },
+      });
+
+      const groupPromise = originalOwner.group;
+      const group = await groupPromise;
+      const person = store.createRecord('person', {
+        group: groupPromise,
+      });
+      const personGroup = await person.group;
+      assert.strictEqual(personGroup, group, 'the group matches');
+    }
+  );
 
   test('polymorphic belongsTo class-checks check the superclass', function (assert) {
     assert.expect(1);
@@ -1095,6 +1148,19 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function 
     author.rollbackAttributes();
 
     assert.strictEqual(book.author, author, 'Book has an author after rollback attributes');
+  });
+
+  testInDebug('Passing a model as type to belongsTo should not work', function (assert) {
+    assert.expect(2);
+
+    assert.expectAssertion(() => {
+      const User = Model.extend();
+
+      Model.extend({
+        user: belongsTo(User, { async: false, inverse: null }),
+      });
+    }, /The first argument to belongsTo must be a string/);
+    assert.expectDeprecation({ id: 'ember-data:deprecate-non-strict-relationships' });
   });
 
   test('belongsTo hasAnyRelationshipData async loaded', async function (assert) {

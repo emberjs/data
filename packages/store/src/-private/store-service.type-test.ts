@@ -33,17 +33,6 @@ import { Store } from './store-service';
     )
   ).toEqualTypeOf<UnbrandedUser | null>();
 
-  const result2 = store.peekRecord({ type: 'user', id: '1' });
-
-  expectTypeOf(result2).toBeUnknown();
-  expectTypeOf(
-    store.peekRecord<UnbrandedUser>({
-      // @ts-expect-error since there is no brand, this should error
-      type: 'user',
-      id: '1',
-    })
-  ).toEqualTypeOf<UnbrandedUser | null>();
-
   expectTypeOf(store.peekRecord<BrandedUser>('user', '1')).toEqualTypeOf<BrandedUser | null>();
   expectTypeOf(
     store.peekRecord<BrandedUser>(
@@ -51,15 +40,6 @@ import { Store } from './store-service';
       'users',
       '1'
     )
-  ).toEqualTypeOf<BrandedUser | null>();
-
-  expectTypeOf(store.peekRecord<BrandedUser>({ type: 'user', id: '1' })).toEqualTypeOf<BrandedUser | null>();
-  expectTypeOf(
-    store.peekRecord<BrandedUser>({
-      // @ts-expect-error should error since this does not match the brand
-      type: 'users',
-      id: '1',
-    })
   ).toEqualTypeOf<BrandedUser | null>();
 }
 

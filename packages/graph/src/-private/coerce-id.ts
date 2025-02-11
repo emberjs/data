@@ -1,6 +1,6 @@
 import { deprecate } from '@ember/debug';
 
-import { DEPRECATE_NON_STRICT_ID } from '@warp-drive/build-config/deprecations';
+import { DEPRECATE_NON_STRICT_ID, DISABLE_6X_DEPRECATIONS } from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
 
 // Used by the store to normalize IDs entering the store.  Despite the fact
@@ -24,7 +24,7 @@ export function coerceId(id: Coercable): string | null {
       `The resource id '<${typeof id}> ${String(
         id
       )} ' is not normalized. Update your application code to use '${JSON.stringify(normalized)}' instead.`,
-      normalized === id,
+      /* inline-macro-config */ DISABLE_6X_DEPRECATIONS ? true : normalized === id,
       {
         id: 'ember-data:deprecate-non-strict-id',
         until: '6.0',

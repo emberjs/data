@@ -107,8 +107,8 @@ import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 import { MockServerHandler } from '@warp-drive/holodeck';
 
-const manager = new RequestManager()
-  .use([new MockServerHandler(testContext), Fetch]);
+const manager = new RequestManager();
+manager.use([new MockServerHandler(testContext), Fetch]);
 ```
 
 From within a test this might look like:
@@ -121,8 +121,8 @@ import { module, test } from 'qunit';
 
 module('my module', function() {
   test('my test', async function() {
-    const manager = new RequestManager()
-      .use([new MockServerHandler(this), Fetch]);
+    const manager = new RequestManager();
+    manager.use([new MockServerHandler(this), Fetch]);
   });
 });
 ```

@@ -5,10 +5,12 @@ import { upgradeStore } from '@ember-data/legacy-compat/-private';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import { peekCache } from '@ember-data/store/-private';
+import { DEPRECATE_SAVE_PROMISE_ACCESS } from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
 import type { ChangedAttributesHash } from '@warp-drive/core-types/cache';
 import { RecordStore } from '@warp-drive/core-types/symbols';
 
+import { deprecatedPromiseObject } from './deprecated-promise-proxy';
 import type { Errors } from './errors';
 import { lookupLegacySupport } from './legacy-relationships-support';
 import type RecordState from './record-state';
@@ -88,6 +90,10 @@ export function reload<T extends MinimalLegacyRecord>(this: T, options: Record<s
       this.isReloading = false;
     });
 
+  if (DEPRECATE_SAVE_PROMISE_ACCESS) {
+    return deprecatedPromiseObject(promise);
+  }
+
   return promise;
 }
 
@@ -117,6 +123,10 @@ export function save<T extends MinimalLegacyRecord>(this: T, options?: Record<st
     promise = this[RecordStore].saveRecord(this, options);
   }
 
+  if (DEPRECATE_SAVE_PROMISE_ACCESS) {
+    return deprecatedPromiseObject(promise);
+  }
+
   return promise;
 }
 
@@ -127,7 +137,9 @@ export function destroyRecord<T extends MinimalLegacyRecord>(this: T, options?: 
     return Promise.resolve(this);
   }
   return this.save(options).then((_) => {
+    // run(() => {
     this.unloadRecord();
+    // });
     return this;
   });
 }

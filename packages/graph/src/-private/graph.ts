@@ -559,7 +559,7 @@ export class Graph {
     this._willSyncLocal = false;
     const updated = this._updatedRelationships;
     this._updatedRelationships = new Set();
-    updated.forEach((rel) => notifyChange(this, rel));
+    updated.forEach((rel) => notifyChange(this, rel.identifier, rel.definition.key));
   }
 
   destroy() {
@@ -641,7 +641,7 @@ function destroyRelationship(graph: Graph, rel: GraphEdge, silenceNotifications?
     // leave the ui relationship populated since the record is destroyed and
     // internally we've fully cleaned up.
     if (!rel.definition.isAsync && !silenceNotifications) {
-      /*#__NOINLINE__*/ notifyChange(graph, rel);
+      /*#__NOINLINE__*/ notifyChange(graph, rel.identifier, rel.definition.key);
     }
   }
 }
@@ -713,7 +713,7 @@ function removeDematerializedInverse(
     }
 
     if (!silenceNotifications) {
-      notifyChange(graph, relationship);
+      notifyChange(graph, relationship.identifier, relationship.definition.key);
     }
   } else {
     if (!relationship.definition.isAsync || (inverseIdentifier && isNew(inverseIdentifier))) {
@@ -728,7 +728,7 @@ function removeDematerializedInverse(
     }
 
     if (!silenceNotifications) {
-      notifyChange(graph, relationship);
+      notifyChange(graph, relationship.identifier, relationship.definition.key);
     }
   }
 }
@@ -753,7 +753,7 @@ function removeCompletelyFromInverse(graph: Graph, relationship: GraphEdge) {
     if (!relationship.definition.isAsync) {
       clearRelationship(relationship);
 
-      notifyChange(graph, relationship);
+      notifyChange(graph, relationship.identifier, relationship.definition.key);
     }
   } else {
     relationship.remoteMembers.clear();

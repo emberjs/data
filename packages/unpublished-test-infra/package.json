@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/unpublished-test-infra",
-  "version": "5.4.0-alpha.136",
+  "version": "4.13.0-alpha.3",
   "private": true,
   "description": "The default blueprint for ember-data private packages.",
   "keywords": [
@@ -76,7 +76,7 @@
     "@ember-data/tracking": "workspace:*",
     "@warp-drive/diagnostic": "workspace:*",
     "@warp-drive/core-types": "workspace:*",
-    "@ember/test-helpers": "3.3.0 || ^4.0.4 || ^5.1.0"
+    "@ember/test-helpers": "3.3.0 || ^4.0.4"
   },
   "peerDependenciesMeta": {
     "qunit": {
@@ -90,7 +90,7 @@
     }
   },
   "dependencies": {
-    "@embroider/macros": "^1.16.10",
+    "@embroider/macros": "^1.16.6",
     "chalk": "^4.1.2",
     "qunit": "^2.20.1",
     "semver": "^7.6.3",
@@ -101,7 +101,7 @@
     "@babel/plugin-transform-typescript": "^7.24.5",
     "@babel/preset-env": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
-    "@ember/test-helpers": "5.1.0",
+    "@ember/test-helpers": "4.0.4",
     "@glimmer/component": "^1.1.2",
     "@types/semver": "^7.5.8",
     "@types/qunit": "2.19.10",

@@ -6,7 +6,6 @@ import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import type { ObjectValue } from '@warp-drive/core-types/json/raw';
-import type { TypedRecordInstance } from '@warp-drive/core-types/record';
 import type { Derivation, HashFn, Transformation } from '@warp-drive/core-types/schema/concepts';
 import type {
   ArrayField,
@@ -37,12 +36,6 @@ import {
 } from './-private/model-methods';
 import RecordState from './-private/record-state';
 import { buildSchema } from './hooks';
-
-export type WithLegacyDerivations<T extends TypedRecordInstance> = T &
-  MinimalLegacyRecord & {
-    belongsTo: typeof belongsTo;
-    hasMany: typeof hasMany;
-  };
 
 type AttributesSchema = ReturnType<Exclude<SchemaService['attributesDefinitionFor'], undefined>>;
 type RelationshipsSchema = ReturnType<Exclude<SchemaService['relationshipsDefinitionFor'], undefined>>;

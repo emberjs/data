@@ -19,9 +19,7 @@ simply running the command again.
 For additional documentation or to manuall install and configure, continue reading the
 below guide.
 
-
----
-
+=========================================================
 
 > [!CAUTION]
 > EmberData does not maintain the DefinitelyTyped types for 
@@ -31,50 +29,43 @@ below guide.
 > [!IMPORTANT]
 > EmberData's Native Types require the use of Ember's
 > Native Types.
->
+
+> [!IMPORTANT]  
 > Type definitions need to be installed top-level, this means
 > you have to install every EmberData package `ember-data`
 > depends on.
 
 > [!TIP]
-> When installing packages, use an NPM dist tag to get the latest
-> version for a given channel. E.g. `pnpm install ember-data@latest`
-> valid channels with types are `latest`, `canary`, `v4-latest` and `v4-canary`
+> When installing packages, use the `@canary` dist tag to get the latest
+> version. E.g. `pnpm install ember-data@canary`
 
 There are currently two ways to gain access to EmberData's native types.
 
-1) [Use A Version That Has Types](#using-native-types)
+1) [Use Canary](#using-canary)
 
 2) [Use Official Types Packages](#using-types-packages)
 with releases `>= 4.12.*`
 
 ---
 
-### Using Versions That Supply Types
+### Using Canary
 
-The following versions supply their own type definitions. These type definitions will still need to be configured for use in tsconfig.
+Required Packages for Canary Types
 
-- Versions of 4.x >= 4.13.0-alpha.0
-- Versions of 5.x >= 5.3.8
-
-In order to use the types for these versions, the dependencies of `ember-data` (and their peer-dependencies) must also be added to `package.json`.
-
-Generally that means the following packages are needed, though you may need fewer (or more!) depending on if you have migrated away from Adapter/Serializer and replaced Model with SchemaRecord:
-
-| Name | Latest | Canary | V4 |
-| ---- | -------| ------ | -- |
-| [ember-data](https://github.com/emberjs/data/blob/main/packages/-ember-data/README.md) | ![NPM Stable Version](https://img.shields.io/npm/v/ember-data/latest?label=&color=90EE90) | ![NPM Canary Version](https://img.shields.io/npm/v/ember-data/canary?label=&color=90EE90) | ![NPM V4 Version](https://img.shields.io/npm/v/ember-data/v4-canary?label=&color=90EE90) |
-| [@ember-data/adapter](https://github.com/emberjs/data/blob/main/packages/adapter/README.md) | ![NPM Stable Version](https://img.shields.io/npm/v/%40ember-data/adapter/latest?label=&color=90EE90) | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/adapter/canary?label=&color=90EE90) | ![NPM V4 Version](https://img.shields.io/npm/v/%40ember-data/adapter/v4-canary?label=&color=90EE90) |
-| [@ember-data/graph](https://github.com/emberjs/data/blob/main/packages/graph/README.md) | ![NPM Stable Version](https://img.shields.io/npm/v/%40ember-data/graph/latest?label=&color=90EE90) | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/graph/canary?label=&color=90EE90) | ![NPM V4 Version](https://img.shields.io/npm/v/%40ember-data/graph/v4-canary?label=&color=90EE90) |
-| [@ember-data/json-api](https://github.com/emberjs/data/blob/main/packages/json-api/README.md) | ![NPM Stable Version](https://img.shields.io/npm/v/%40ember-data/json-api/latest?label=&color=90EE90) | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/json-api/canary?label=&color=90EE90) | ![NPM V4 Version](https://img.shields.io/npm/v/%40ember-data/json-api/v4-canary?label=&color=90EE90) |
-| [@ember-data/legacy-compat](https://github.com/emberjs/data/blob/main/packages/legacy-compat/README.md) | ![NPM Stable Version](https://img.shields.io/npm/v/%40ember-data/legacy-compat/latest?label=&color=90EE90) | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/legacy-compat/canary?label=&color=90EE90) | ![NPM V4 Version](https://img.shields.io/npm/v/%40ember-data/legacy-compat/v4-canary?label=&color=90EE90) |
-| [@ember-data/model](https://github.com/emberjs/data/blob/main/packages/model/README.md) | ![NPM Stable Version](https://img.shields.io/npm/v/%40ember-data/model/latest?label=&color=90EE90) | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/model/canary?label=&color=90EE90) | ![NPM V4 Version](https://img.shields.io/npm/v/%40ember-data/model/v4-canary?label=&color=90EE90) |
-| [@ember-data/request](https://github.com/emberjs/data/blob/main/packages/request/README.md) | ![NPM Stable Version](https://img.shields.io/npm/v/%40ember-data/request/latest?label=&color=90EE90) | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/request/canary?label=&color=90EE90) | ![NPM V4 Version](https://img.shields.io/npm/v/%40ember-data/request/v4-canary?label=&color=90EE90) |
-| [@ember-data/request-utils](https://github.com/emberjs/data/blob/main/packages/request-utils/README.md) | ![NPM Stable Version](https://img.shields.io/npm/v/%40ember-data/request-utils/latest?label=&color=90EE90) | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/request-utils/canary?label=&color=90EE90) | ![NPM V4 Version](https://img.shields.io/npm/v/%40ember-data/request-utils/v4-canary?label=&color=90EE90) |
-| [@ember-data/serializer](https://github.com/emberjs/data/blob/main/packages/serializer/README.md) | ![NPM Stable Version](https://img.shields.io/npm/v/%40ember-data/serializer/latest?label=&color=90EE90) | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/serializer/canary?label=&color=90EE90) | ![NPM V4 Version](https://img.shields.io/npm/v/%40ember-data/serializer/v4-canary?label=&color=90EE90) |
-| [@ember-data/store](https://github.com/emberjs/data/blob/main/packages/store/README.md) | ![NPM Stable Version](https://img.shields.io/npm/v/%40ember-data/store/latest?label=&color=90EE90) | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/store/canary?label=&color=90EE90) | ![NPM V4 Version](https://img.shields.io/npm/v/%40ember-data/store/v4-canary?label=&color=90EE90) |
-| [@ember-data/tracking](https://github.com/emberjs/data/blob/main/packages/tracking/README.md) | ![NPM Stable Version](https://img.shields.io/npm/v/%40ember-data/tracking/latest?label=&color=90EE90) | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/tracking/canary?label=&color=90EE90) | ![NPM V4 Version](https://img.shields.io/npm/v/%40ember-data/tracking/v4-canary?label=&color=90EE90) |
-| [@warp-drive/core-types](https://github.com/emberjs/data/blob/main/packages/core-types/README.md) | ![NPM Latest Version](https://img.shields.io/npm/v/%40warp-drive/core-types/latest?label=&color=90EE90) | ![NPM Canary Version](https://img.shields.io/npm/v/%40warp-drive/core-types/canary?label=&color=90EE90) | ![NPM V4 Version](https://img.shields.io/npm/v/%40warp-drive/core-types/v4-canary?label=&color=90EE90) |
+| Name | Version |
+| ---- | ------- |
+| [ember-data](https://github.com/emberjs/data/blob/main/packages/-ember-data/README.md) | ![NPM Canary Version](https://img.shields.io/npm/v/ember-data/canary?label=&color=90EE90) |
+| [@ember-data/adapter](https://github.com/emberjs/data/blob/main/packages/adapter/README.md) | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/adapter/canary?label=&color=90EE90) |
+| [@ember-data/graph](https://github.com/emberjs/data/blob/main/packages/graph/README.md) | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/graph/canary?label=&color=90EE90) |
+| [@ember-data/json-api](https://github.com/emberjs/data/blob/main/packages/json-api/README.md) | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/json-api/canary?label=&color=90EE90) |
+| [@ember-data/legacy-compat](https://github.com/emberjs/data/blob/main/packages/legacy-compat/README.md) | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/legacy-compat/canary?label=&color=90EE90) |
+| [@ember-data/model](https://github.com/emberjs/data/blob/main/packages/model/README.md) | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/model/canary?label=&color=90EE90) |
+| [@ember-data/request](https://github.com/emberjs/data/blob/main/packages/request/README.md) | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/request/canary?label=&color=90EE90) |
+| [@ember-data/request-utils](https://github.com/emberjs/data/blob/main/packages/request-utils/README.md) | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/request-utils/canary?label=&color=90EE90) |
+| [@ember-data/serializer](https://github.com/emberjs/data/blob/main/packages/serializer/README.md) | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/serializer/canary?label=&color=90EE90) |
+| [@ember-data/store](https://github.com/emberjs/data/blob/main/packages/store/README.md) | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/store/canary?label=&color=90EE90) |
+| [@ember-data/tracking](https://github.com/emberjs/data/blob/main/packages/tracking/README.md) | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/tracking/canary?label=&color=90EE90) |
+| [@warp-drive/core-types](https://github.com/emberjs/data/blob/main/packages/core-types/README.md) | ![NPM Canary Version](https://img.shields.io/npm/v/%40warp-drive/core-types/canary?label=&color=90EE90) |
 
 Here's a single install command for pnpm. Swap pnpm for yarn or npm as needed.
 
@@ -83,7 +74,7 @@ PACKAGES=("@types/ember" "@types/ember-data" "@types/ember-data__adapter" "@type
 
 for pkg in "${PACKAGES[@]}"; do pnpm remove "$pkg"; done
 
-pnpm install ember-data@latest @ember-data/adapter@latest @ember-data/graph@latest @ember-data/json-api@latest @ember-data/legacy-compat@latest @ember-data/model@latest @ember-data/request@latest @ember-data/request-utils@latest @ember-data/serializer@latest @ember-data/store@latest @ember-data/tracking@latest @warp-drive/core-types@latest
+pnpm install ember-data@canary @ember-data/adapter@canary @ember-data/graph@canary @ember-data/json-api@canary @ember-data/legacy-compat@canary @ember-data/model@canary @ember-data/request@canary @ember-data/request-utils@canary @ember-data/serializer@canary @ember-data/store@canary @ember-data/tracking@canary @warp-drive/core-types@canary
 ```
 
 Here's an example change to package.json which drops all use of types from `@types/` for both Ember and EmberData and adds the appropriate canary packages.

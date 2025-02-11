@@ -284,16 +284,15 @@ module('Integration | Relationships | Rollback', function (hooks) {
       assert.false(store.cache.hasChangedRelationships(appIdentifier), 'hasMany is clean');
     });
 
-    test('it returns the correct keys when a hasMany has state re-ordered (no-initial access)', function (assert) {
+    test('it returns the correct keys when a hasMany has state re-ordered', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
       const app = store.peekRecord('app', '1') as App;
       const config1 = store.peekRecord('config', '1') as Config;
       const config2 = store.peekRecord('config', '2') as Config;
       const config3 = store.peekRecord('config', '3') as Config;
-      const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
-
       app.configs.splice(app.configs.indexOf(config1), 1);
       app.configs.push(config1);
+      const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
       assert.true(store.cache.hasChangedRelationships(appIdentifier), 'a hasMany has state removed');
       assert.arrayStrictEquals(app.configs, [config2, config3, config1], 'hasMany reordering has occurred');
       assert.strictEqual(config1.app, app, 'config1 app is correct');
@@ -301,30 +300,6 @@ module('Integration | Relationships | Rollback', function (hooks) {
       const changed = store.cache.rollbackRelationships(appIdentifier);
       assert.arrayStrictEquals(changed, ['configs'], 'hasMany has rolled back');
       assert.arrayStrictEquals(app.configs, [config1, config2, config3], 'hasMany has rolled back');
-      assert.strictEqual(config2.app, app, 'config2 has rolled back');
-      assert.false(store.cache.hasChangedRelationships(appIdentifier), 'hasMany is clean');
-    });
-
-    test('it returns the correct keys when a hasMany has state re-ordered', function (assert) {
-      const store = this.owner.lookup('service:store') as Store;
-      const app = store.peekRecord('app', '1') as App;
-      const config1 = store.peekRecord('config', '1') as Config;
-      const config2 = store.peekRecord('config', '2') as Config;
-      const config3 = store.peekRecord('config', '3') as Config;
-      const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
-
-      assert.false(store.cache.hasChangedRelationships(appIdentifier), 'the hasMany is in a clean state');
-      assert.arrayStrictEquals(app.configs, [config1, config2, config3], 'hasMany is in the correct starting order');
-
-      app.configs.splice(app.configs.indexOf(config1), 1);
-      app.configs.push(config1);
-      assert.true(store.cache.hasChangedRelationships(appIdentifier), 'a hasMany has state removed');
-      assert.arrayStrictEquals(app.configs, [config2, config3, config1], 'hasMany reordering has occurred');
-      assert.strictEqual(config1.app, app, 'config1 app is correct');
-
-      const changed = store.cache.rollbackRelationships(appIdentifier);
-      assert.arrayStrictEquals(changed, ['configs'], 'hasMany has rolled back');
-      assert.arrayStrictEquals(app.configs, [config1, config2, config3], 'hasMany has restored the initial order');
       assert.strictEqual(config2.app, app, 'config2 has rolled back');
       assert.false(store.cache.hasChangedRelationships(appIdentifier), 'hasMany is clean');
     });
@@ -394,16 +369,9 @@ module('Integration | Relationships | Rollback', function (hooks) {
       const config1 = store.peekRecord('config', '1') as Config;
       const config2 = store.peekRecord('config', '2') as Config;
       const config3 = store.peekRecord('config', '3') as Config;
-
-      // app.configs is [1, 2, 3] initially
       const app = config1.app!;
-
-      // we update the config1.app to point at a different app,
-      // which will remove config1 from app:1's list of configs
       config1.app = store.peekRecord('app', '2') as App;
       const configIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
-
-      // confirm the mutation
       assert.true(store.cache.hasChangedRelationships(configIdentifier), 'a belongsTo has state replaced');
       assert.arrayStrictEquals(app.configs, [config2, config3], 'inverse has updated');
 
@@ -411,7 +379,6 @@ module('Integration | Relationships | Rollback', function (hooks) {
 
       assert.arrayStrictEquals(changed, ['app'], 'belongsTo has rolled back');
       assert.strictEqual(config1.app, app, 'belongsTo has rolled back');
-
       // this is in a different order because we don't rollback the inverse except for the smaller specific change
       // this is a bit of a weird case, but it's the way it works
       // if we were to rollback the inverse, we'd have to rollback the inverse of the inverse, and so on

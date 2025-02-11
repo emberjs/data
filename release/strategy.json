@@ -78,22 +78,16 @@
       "mirrorPublish": false
     },
     "@warp-drive/ember": {
-      "stage": "stable",
+      "stage": "alpha",
       "types": "alpha",
       "typesPublish": false,
-      "mirrorPublish": true
+      "mirrorPublish": false
     },
     "@warp-drive/schema": {
       "stage": "alpha",
       "types": "private",
       "typesPublish": false,
       "mirrorPublish": false
-    },
-    "@warp-drive/experiments": {
-      "stage": "beta",
-      "types": "private",
-      "typesPublish": false,
-      "mirrorPublish": true
     },
     "@warp-drive/schema-record": {
       "stage": "stable",

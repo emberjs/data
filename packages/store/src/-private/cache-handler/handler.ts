@@ -44,7 +44,7 @@ export type LooseStoreRequestInfo<T = unknown, RT = unknown> = Omit<
 export type StoreRequestInput<T = unknown, RT = unknown> = ImmutableRequestInfo<T, RT> | LooseStoreRequestInfo<T, RT>;
 
 export interface StoreRequestContext extends RequestContext {
-  request: ImmutableRequestInfo & { store: Store };
+  request: ImmutableRequestInfo & { store: Store; [EnableHydration]?: boolean };
 }
 
 /**

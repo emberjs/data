@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/core-types",
-  "version": "5.4.0-alpha.136",
+  "version": "4.13.0-alpha.3",
   "description": "Provides core logic, utils and types for WarpDrive and EmberData",
   "keywords": [
     "ember-addon"
@@ -38,7 +38,7 @@
     }
   },
   "dependencies": {
-    "@embroider/macros": "^1.16.10",
+    "@embroider/macros": "^1.16.6",
     "@warp-drive/build-config": "workspace:*"
   },
   "devDependencies": {

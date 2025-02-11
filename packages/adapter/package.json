@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/adapter",
-  "version": "5.4.0-alpha.136",
+  "version": "4.13.0-alpha.3",
   "description": "Provides Legacy JSON:API and REST Implementations of the Adapter Interface for use with @ember-data/store",
   "keywords": [
     "ember-addon"
@@ -84,7 +84,7 @@
     }
   },
   "dependencies": {
-    "@embroider/macros": "^1.16.10",
+    "@embroider/macros": "^1.16.6",
     "ember-cli-test-info": "^1.0.0",
     "ember-cli-string-utils": "^1.1.0",
     "ember-cli-path-utils": "^1.0.0",
@@ -104,7 +104,7 @@
     "@ember-data/tracking": "workspace:*",
     "@ember/test-waiters": "^3.1.0",
     "@glimmer/component": "^1.1.2",
-    "decorator-transforms": "^2.3.0",
+    "decorator-transforms": "^2.2.2",
     "@types/jquery": "^3.5.30",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",

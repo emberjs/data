@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/build-config",
-  "version": "5.4.0-alpha.136",
+  "version": "4.13.0-alpha.3",
   "description": "Provides Build Configuration for projects using WarpDrive or EmberData",
   "keywords": [
     "ember-data",
@@ -41,8 +41,8 @@
     }
   },
   "dependencies": {
-    "@embroider/macros": "^1.16.10",
-    "@embroider/addon-shim": "^1.9.0",
+    "@embroider/macros": "^1.16.6",
+    "@embroider/addon-shim": "^1.8.9",
     "babel-import-util": "^2.1.1",
     "broccoli-funnel": "^3.0.8",
     "semver": "^7.6.3"
@@ -56,7 +56,7 @@
     "@babel/core": "^7.24.5",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "typescript": "^5.7.2",
-    "bun-types": "^1.2.2",
+    "bun-types": "^1.1.30",
     "vite": "^5.2.11"
   },
   "engines": {

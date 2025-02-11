@@ -17,7 +17,11 @@ import {
 import type { BaseFinderOptions, ModelSchema } from '@ember-data/store/types';
 import type { Signal } from '@ember-data/tracking/-private';
 import { addToTransaction } from '@ember-data/tracking/-private';
-import { DEPRECATE_MANY_ARRAY_DUPLICATES } from '@warp-drive/build-config/deprecations';
+import {
+  DEPRECATE_MANY_ARRAY_DUPLICATES,
+  DEPRECATE_PROMISE_PROXIES,
+  DISABLE_6X_DEPRECATIONS,
+} from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
@@ -317,11 +321,12 @@ export class RelatedCollection<T = unknown> extends LiveArray<T> {
             // dedupe
             const current = new Set(adds);
             const unique = Array.from(current);
+            const uniqueIdentifiers = Array.from(new Set(newValues));
             const newArgs = ([start, deleteCount] as unknown[]).concat(unique);
 
             const result = Reflect.apply(target[prop], receiver, newArgs) as OpaqueRecordInstance[];
 
-            mutateReplaceRelatedRecords(this, extractIdentifiersFromRecords(unique), _SIGNAL);
+            mutateReplaceRelatedRecords(this, uniqueIdentifiers, _SIGNAL);
             return result;
           }
 
@@ -485,8 +490,37 @@ function extractIdentifiersFromRecords(records: OpaqueRecordInstance[]): StableR
 }
 
 function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord | OpaqueRecordInstance) {
+  if (DEPRECATE_PROMISE_PROXIES) {
+    if (isPromiseRecord(recordOrPromiseRecord)) {
+      const content = recordOrPromiseRecord.content;
+      assert(
+        'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo relationship.',
+        content !== undefined && content !== null
+      );
+      deprecate(
+        `You passed in a PromiseProxy to a Relationship API that now expects a resolved value. await the value before setting it.`,
+        false,
+        {
+          id: 'ember-data:deprecate-promise-proxies',
+          until: '5.0',
+          since: {
+            enabled: '4.7',
+            available: '4.7',
+          },
+          for: 'ember-data',
+        }
+      );
+      assertRecordPassedToHasMany(content);
+      return recordIdentifierFor(content);
+    }
+  }
+
   assertRecordPassedToHasMany(recordOrPromiseRecord);
   return recordIdentifierFor(recordOrPromiseRecord);
+}
+
+function isPromiseRecord(record: PromiseProxyRecord | OpaqueRecordInstance): record is PromiseProxyRecord {
+  return Boolean(typeof record === 'object' && record && 'then' in record);
 }
 
 function assertNoDuplicates<T>(
@@ -511,7 +545,7 @@ function assertNoDuplicates<T>(
           .map((r) => (isStableIdentifier(r) ? r.lid : recordIdentifierFor(r).lid))
           .sort((a, b) => a.localeCompare(b))
           .join('\n\t- ')}`,
-        false,
+        /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
         {
           id: 'ember-data:deprecate-many-array-duplicates',
           for: 'ember-data',

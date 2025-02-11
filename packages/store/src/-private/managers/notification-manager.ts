@@ -4,13 +4,12 @@
 
 import { _backburner } from '@ember/runloop';
 
-import { LOG_METRIC_COUNTS, LOG_NOTIFICATIONS } from '@warp-drive/build-config/debugging';
+import { LOG_NOTIFICATIONS } from '@warp-drive/build-config/debugging';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 
 import { isDocumentIdentifier, isStableIdentifier } from '../caches/identifier-cache';
-import { log } from '../debug/utils';
 import type { Store } from '../store-service';
 
 export type UnsubscribeToken = object;
@@ -20,7 +19,9 @@ const CacheOperations = new Set(['added', 'removed', 'state', 'updated', 'invali
 export type CacheOperation = 'added' | 'removed' | 'updated' | 'state';
 export type DocumentCacheOperation = 'invalidated' | 'added' | 'removed' | 'updated' | 'state';
 
-function isCacheOperationValue(value: NotificationType | DocumentCacheOperation): value is DocumentCacheOperation {
+function isCacheOperationValue(
+  value: NotificationType | CacheOperation | DocumentCacheOperation
+): value is DocumentCacheOperation {
   return CacheOperations.has(value);
 }
 
@@ -29,12 +30,11 @@ function runLoopIsFlushing(): boolean {
   return !!_backburner.currentInstance && _backburner._autorun !== true;
 }
 
-export type NotificationType = 'attributes' | 'relationships' | 'identity' | 'errors' | 'meta' | CacheOperation;
+export type NotificationType = 'attributes' | 'relationships' | 'identity' | 'errors' | 'meta' | 'state';
 
 export interface NotificationCallback {
   (identifier: StableRecordIdentifier, notificationType: 'attributes' | 'relationships', key?: string): void;
   (identifier: StableRecordIdentifier, notificationType: 'errors' | 'meta' | 'identity' | 'state'): void;
-  (identifier: StableRecordIdentifier, notificationType: CacheOperation): void;
   // (identifier: StableRecordIdentifier, notificationType: NotificationType, key?: string): void;
 }
 
@@ -46,15 +46,6 @@ export interface ResourceOperationCallback {
 export interface DocumentOperationCallback {
   // document updates
   (identifier: StableDocumentIdentifier, notificationType: DocumentCacheOperation): void;
-}
-
-function count(label: string) {
-  // @ts-expect-error
-  // eslint-disable-next-line
-  globalThis.counts = globalThis.counts || {};
-  // @ts-expect-error
-  // eslint-disable-next-line
-  globalThis.counts[label] = (globalThis.counts[label] || 0) + 1;
 }
 
 function _unsubscribe(
@@ -213,6 +204,11 @@ export default class NotificationManager {
       return false;
     }
 
+    if (LOG_NOTIFICATIONS) {
+      // eslint-disable-next-line no-console
+      console.log(`Buffering Notify: ${String(identifier.lid)}\t${value}\t${key || ''}`);
+    }
+
     const hasSubscribers = Boolean(this._cache.get(identifier)?.size);
 
     if (isCacheOperationValue(value) || hasSubscribers) {
@@ -223,23 +219,7 @@ export default class NotificationManager {
       }
       buffer.push([value, key]);
 
-      if (LOG_METRIC_COUNTS) {
-        count(`notify ${'type' in identifier ? identifier.type : '<document>'} ${value} ${key}`);
-      }
-      if (!this._scheduleNotify()) {
-        if (LOG_NOTIFICATIONS) {
-          log(
-            'notify',
-            'buffered',
-            `${'type' in identifier ? identifier.type : 'document'}`,
-            identifier.lid,
-            `${value}`,
-            key || ''
-          );
-        }
-      }
-    } else if (LOG_METRIC_COUNTS) {
-      count(`DISCARDED notify ${'type' in identifier ? identifier.type : '<document>'} ${value} ${key}`);
+      this._scheduleNotify();
     }
 
     return hasSubscribers;
@@ -249,22 +229,21 @@ export default class NotificationManager {
     this._onFlushCB = cb;
   }
 
-  _scheduleNotify(): boolean {
+  _scheduleNotify() {
     const asyncFlush = this.store._enableAsyncFlush;
 
     if (this._hasFlush) {
       if (asyncFlush !== false && !runLoopIsFlushing()) {
-        return false;
+        return;
       }
     }
 
     if (asyncFlush && !runLoopIsFlushing()) {
       this._hasFlush = true;
-      return false;
+      return;
     }
 
     this._flush();
-    return true;
   }
 
   _flush() {
@@ -293,14 +272,8 @@ export default class NotificationManager {
     key?: string
   ): boolean {
     if (LOG_NOTIFICATIONS) {
-      log(
-        'notify',
-        '',
-        `${'type' in identifier ? identifier.type : 'document'}`,
-        identifier.lid,
-        `${value}`,
-        key || ''
-      );
+      // eslint-disable-next-line no-console
+      console.log(`Notifying: ${String(identifier)}\t${value}\t${key || ''}`);
     }
 
     // TODO for documents this will need to switch based on Identifier kind

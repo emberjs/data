@@ -5,6 +5,8 @@ import { module, test } from 'qunit';
 import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
+
 class TestAdapter {
   constructor(args) {
     Object.assign(this, args);
@@ -157,6 +159,59 @@ module('integration/store - adapterFor', function (hooks) {
     assert.notOk(didInstantiateAppAdapter, 'We did not instantiate the adapter again');
     assert.strictEqual(appAdapter, adapter, 'We fell back to the application adapter instance');
   });
+
+  deprecatedTest(
+    'When the per-type, application and specified fallback adapters do not exist, we fallback to the -json-api adapter',
+    {
+      id: 'ember-data:deprecate-secret-adapter-fallback',
+      until: '5.0',
+      count: 2,
+    },
+    async function (assert) {
+      const { owner } = this;
+
+      let didInstantiateAdapter = false;
+
+      class JsonApiAdapter extends TestAdapter {
+        didInit() {
+          didInstantiateAdapter = true;
+        }
+      }
+
+      const lookup = owner.lookup;
+      owner.lookup = (registrationName) => {
+        if (registrationName === 'adapter:application') {
+          return undefined;
+        }
+        return lookup.call(owner, registrationName);
+      };
+
+      owner.unregister('adapter:-json-api');
+      owner.register('adapter:-json-api', JsonApiAdapter);
+
+      const adapter = store.adapterFor('person');
+
+      assert.ok(adapter instanceof JsonApiAdapter, 'We found the adapter');
+      assert.ok(didInstantiateAdapter, 'We instantiated the adapter');
+      didInstantiateAdapter = false;
+
+      const appAdapter = store.adapterFor('application');
+
+      assert.ok(appAdapter instanceof JsonApiAdapter, 'We found the fallback -json-api adapter for application');
+      assert.notOk(didInstantiateAdapter, 'We did not instantiate the adapter again');
+      didInstantiateAdapter = false;
+
+      const jsonApiAdapter = store.adapterFor('-json-api');
+      assert.ok(jsonApiAdapter instanceof JsonApiAdapter, 'We found the correct adapter');
+      assert.notOk(didInstantiateAdapter, 'We did not instantiate the adapter again');
+      assert.strictEqual(jsonApiAdapter, appAdapter, 'We fell back to the -json-api adapter instance for application');
+      assert.strictEqual(
+        jsonApiAdapter,
+        adapter,
+        'We fell back to the -json-api adapter instance for the per-type adapter'
+      );
+    }
+  );
 
   test('adapters are destroyed', async function (assert) {
     const { owner } = this;

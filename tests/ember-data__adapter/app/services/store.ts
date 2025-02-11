@@ -18,7 +18,12 @@ import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { TypeFromInstance } from '@warp-drive/core-types/record';
 
 export default class Store extends BaseStore {
-  requestManager = new RequestManager().use([LegacyNetworkHandler, Fetch]).useCache(CacheHandler);
+  constructor(args: unknown) {
+    super(args);
+    this.requestManager = new RequestManager();
+    this.requestManager.use([LegacyNetworkHandler, Fetch]);
+    this.requestManager.useCache(CacheHandler);
+  }
 
   createSchemaService(): ReturnType<typeof buildSchema> {
     return buildSchema(this);

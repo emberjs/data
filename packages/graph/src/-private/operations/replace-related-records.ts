@@ -1,6 +1,9 @@
 import { deprecate } from '@ember/debug';
 
-import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp-drive/build-config/deprecations';
+import {
+  DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE,
+  DISABLE_6X_DEPRECATIONS,
+} from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -80,12 +83,18 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   const relationship = graph.get(op.record, op.field);
   assert(`expected hasMany relationship`, isHasMany(relationship));
 
+  // relationships for newly created records begin in the dirty state, so if updated
+  // before flushed we would fail to notify. This check helps us avoid that.
+  const isMaybeFirstUpdate =
+    relationship.remoteState.length === 0 &&
+    relationship.localState === null &&
+    relationship.state.hasReceivedData === false;
   relationship.state.hasReceivedData = true;
   const { additions, removals } = relationship;
   const { inverseKey, type } = relationship.definition;
   const { record } = op;
   const wasDirty = relationship.isDirty;
-  let localBecameDirty = false;
+  relationship.isDirty = false;
 
   const onAdd = (identifier: StableRecordIdentifier) => {
     // Since we are diffing against the remote state, we check
@@ -99,8 +108,7 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
         graph.registerPolymorphicType(type, identifier.type);
       }
 
-      // we've added a record locally that wasn't in the local state before
-      localBecameDirty = true;
+      relationship.isDirty = true;
       addToInverse(graph, identifier, inverseKey, op.record, isRemote);
 
       if (removalsHas) {
@@ -114,8 +122,7 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
     // if our previous local state had contained this identifier
     const additionsHas = additions?.has(identifier);
     if (additionsHas || !removals?.has(identifier)) {
-      // we've removed a record locally that was in the local state before
-      localBecameDirty = true;
+      relationship.isDirty = true;
       removeFromInverse(graph, identifier, inverseKey, record, isRemote);
 
       if (additionsHas) {
@@ -125,38 +132,41 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   };
 
   const diff = diffCollection(identifiers, relationship, onAdd, onRemove);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  let becameDirty = relationship.isDirty || diff.changed;
 
   // any additions no longer in the local state
-  // also need to be removed from the inverse
+  // need to be removed from the inverse
   if (additions && additions.size > 0) {
     additions.forEach((identifier) => {
       if (!diff.add.has(identifier)) {
-        localBecameDirty = true;
+        becameDirty = true;
         onRemove(identifier);
       }
     });
   }
 
   // any removals no longer in the local state
-  // also need to be added back to the inverse
+  // need to be added back to the inverse
   if (removals && removals.size > 0) {
     removals.forEach((identifier) => {
       if (!diff.del.has(identifier)) {
-        localBecameDirty = true;
+        becameDirty = true;
         onAdd(identifier);
       }
     });
   }
 
-  const becameDirty = diff.changed || localBecameDirty;
   relationship.additions = diff.add;
   relationship.removals = diff.del;
   relationship.localState = diff.finalState;
+  relationship.isDirty = wasDirty;
 
-  // we only notify if the localState changed and were not already dirty before
-  // because if we were already dirty then we have already notified
-  if (becameDirty && !wasDirty) {
-    notifyChange(graph, relationship);
+  if (
+    isMaybeFirstUpdate ||
+    !wasDirty /*&& becameDirty // TODO to guard like this we need to detect reorder when diffing local */
+  ) {
+    notifyChange(graph, op.record, op.field);
   }
 }
 
@@ -170,15 +180,6 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
   );
   if (isRemote) {
     graph._addToTransaction(relationship);
-  }
-
-  const wasDirty = relationship.isDirty;
-  // if this is our first time receiving data
-  // we need to mark the relationship as dirty
-  // so that non-materializing APIs like `hasManyReference.value()`
-  // will get notified and updated.
-  if (!relationship.state.hasReceivedData) {
-    relationship.isDirty = true;
   }
   relationship.state.hasReceivedData = true;
 
@@ -237,13 +238,7 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
   if (DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
     // only do this for legacy hasMany, not collection
     // and provide a way to incrementally migrate
-    if (
-      // we do not guard by diff.changed here
-      // because we want to clear local changes even if
-      // no change has occurred to preserve the legacy behavior
-      relationship.definition.kind === 'hasMany' &&
-      relationship.definition.resetOnRemoteUpdate !== false
-    ) {
+    if (relationship.definition.kind === 'hasMany' && relationship.definition.resetOnRemoteUpdate !== false) {
       const deprecationInfo: {
         removals: StableRecordIdentifier[];
         additions: StableRecordIdentifier[];
@@ -262,7 +257,7 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
           // if we are still in removals at this point then
           // we were not "committed" which means we are present
           // in the remoteMembers. So we "add back" on the inverse.
-          addToInverse(graph, identifier, definition.inverseKey, op.record, false);
+          addToInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
         });
         relationship.removals = null;
       }
@@ -278,7 +273,7 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
             deprecationInfo.additions.push(identifier);
             relationship.isDirty = true;
             relationship.additions!.delete(identifier);
-            removeFromInverse(graph, identifier, definition.inverseKey, op.record, false);
+            removeFromInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
           }
         });
         if (relationship.additions.size === 0) {
@@ -295,7 +290,7 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
           } hasMany relationship but will not be once this deprecation is resolved by opting into the new behavior:\n\n\tAdded: [${deprecationInfo.additions
             .map((i) => i.lid)
             .join(', ')}]\n\tRemoved: [${deprecationInfo.removals.map((i) => i.lid).join(', ')}]`,
-          false,
+          /* inline-macro-config */ DISABLE_6X_DEPRECATIONS,
           {
             id: 'ember-data:deprecate-relationship-remote-update-clearing-local-state',
             for: 'ember-data',
@@ -308,7 +303,7 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
     }
   }
 
-  if (relationship.isDirty && !wasDirty) {
+  if (relationship.isDirty) {
     flushCanonical(graph, relationship);
   }
 }
@@ -347,8 +342,7 @@ export function addToInverse(
         removeFromInverse(graph, relationship.localState, relationship.definition.inverseKey, identifier, isRemote);
       }
       relationship.localState = value;
-
-      notifyChange(graph, relationship);
+      notifyChange(graph, identifier, key);
     }
   } else if (isHasMany(relationship)) {
     if (isRemote) {
@@ -370,15 +364,8 @@ export function addToInverse(
         }
       }
     } else {
-      // if we are not dirty but have a null localState then we
-      // are mutating a relationship that has never been fetched
-      // so we initialize localState to an empty array
-      if (!relationship.isDirty && !relationship.localState) {
-        relationship.localState = [];
-      }
-
       if (_addLocal(graph, identifier, relationship, value, null)) {
-        notifyChange(graph, relationship);
+        notifyChange(graph, identifier, key);
       }
     }
   } else {
@@ -404,7 +391,7 @@ export function notifyInverseOfPotentialMaterialization(
 ) {
   const relationship = graph.get(identifier, key);
   if (isHasMany(relationship) && isRemote && relationship.remoteMembers.has(value)) {
-    notifyChange(graph, relationship);
+    notifyChange(graph, identifier, key);
   }
 }
 
@@ -426,17 +413,17 @@ export function removeFromInverse(
     if (relationship.localState === value) {
       relationship.localState = null;
 
-      notifyChange(graph, relationship);
+      notifyChange(graph, identifier, key);
     }
   } else if (isHasMany(relationship)) {
     if (isRemote) {
       graph._addToTransaction(relationship);
       if (_removeRemote(relationship, value)) {
-        notifyChange(graph, relationship);
+        notifyChange(graph, identifier, key);
       }
     } else {
       if (_removeLocal(relationship, value)) {
-        notifyChange(graph, relationship);
+        notifyChange(graph, identifier, key);
       }
     }
   } else {
@@ -452,7 +439,5 @@ export function removeFromInverse(
 }
 
 function flushCanonical(graph: Graph, rel: CollectionEdge) {
-  if (rel.accessed) {
-    graph._scheduleLocalSync(rel);
-  }
+  graph._scheduleLocalSync(rel);
 }

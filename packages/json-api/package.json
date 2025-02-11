@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/json-api",
-  "version": "5.4.0-alpha.136",
+  "version": "4.13.0-alpha.3",
   "description": "Provides a JSON:API document and resource cache implementation for EmberData",
   "keywords": [
     "ember-addon"
@@ -72,7 +72,7 @@
     "@warp-drive/core-types": "workspace:*"
   },
   "dependencies": {
-    "@embroider/macros": "^1.16.10",
+    "@embroider/macros": "^1.16.6",
     "@warp-drive/build-config": "workspace:*"
   },
   "devDependencies": {

@@ -2,6 +2,7 @@
   @module @ember-data/model
  */
 
+import { deprecate, warn } from '@ember/debug';
 import EmberObject from '@ember/object';
 
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
@@ -11,6 +12,12 @@ import { recordIdentifierFor, storeFor } from '@ember-data/store';
 import { coerceId } from '@ember-data/store/-private';
 import { compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';
+import {
+  DEPRECATE_EARLY_STATIC,
+  DEPRECATE_MODEL_REOPEN,
+  DEPRECATE_NON_EXPLICIT_POLYMORPHISM,
+  DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE,
+} from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -38,6 +45,7 @@ import notifyChanges from './notify-changes';
 import RecordState, { notifySignal, tagged } from './record-state';
 import type BelongsToReference from './references/belongs-to';
 import type HasManyReference from './references/has-many';
+import { relationshipFromMeta } from './relationship-meta';
 import type {
   _MaybeBelongsToFields,
   isSubClass,
@@ -1168,22 +1176,49 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    @param {store} store an instance of Store
    @return {Model} the type of the relationship, or undefined
    */
-  static typeForRelationship(name: string, store: Store) {
-    assert(
-      `Accessing schema information on Models without looking up the model via the store is disallowed.`,
-      this.modelName
-    );
+  static typeForRelationship(name: string, store: Store): typeof Model | undefined {
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        Boolean(this.modelName),
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.7', enabled: '4.7' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
 
     const relationship = this.relationshipsByName.get(name);
+    // @ts-expect-error
     return relationship && store.modelFor(relationship.type);
   }
 
   @computeOnce
   static get inverseMap(): Record<string, LegacyRelationshipSchema | null> {
-    assert(
-      `Accessing schema information on Models without looking up the model via the store is disallowed.`,
-      this.modelName
-    );
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        Boolean(this.modelName),
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.7', enabled: '4.7' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
     return Object.create(null) as Record<string, LegacyRelationshipSchema | null>;
   }
 
@@ -1221,10 +1256,23 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    @return {Object} the inverse relationship, or null
    */
   static inverseFor(name: string, store: Store): LegacyRelationshipSchema | null {
-    assert(
-      `Accessing schema information on Models without looking up the model via the store is disallowed.`,
-      this.modelName
-    );
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        Boolean(this.modelName),
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.7', enabled: '4.7' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
     const inverseMap = this.inverseMap;
     if (inverseMap[name]) {
       return inverseMap[name];
@@ -1237,10 +1285,27 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
   //Calculate the inverse, ignoring the cache
   static _findInverseFor(name: string, store: Store): LegacyRelationshipSchema | null {
-    assert(
-      `Accessing schema information on Models without looking up the model via the store is disallowed.`,
-      this.modelName
-    );
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        Boolean(this.modelName),
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.7', enabled: '4.7' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
+
+    if (DEPRECATE_NON_EXPLICIT_POLYMORPHISM) {
+      return legacyFindInverseFor(this, name, store);
+    }
 
     const relationship = this.relationshipsByName.get(name)!;
     assert(`No relationship named '${name}' on '${this.modelName}' exists.`, relationship);
@@ -1322,10 +1387,23 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
   @computeOnce
   static get relationships(): Map<string, LegacyRelationshipSchema[]> {
-    assert(
-      `Accessing schema information on Models without looking up the model via the store is disallowed.`,
-      this.modelName
-    );
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        Boolean(this.modelName),
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.7', enabled: '4.7' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
 
     const map = new Map<string, LegacyRelationshipSchema[]>();
     const relationshipsByName = this.relationshipsByName;
@@ -1380,10 +1458,23 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    */
   @computeOnce
   static get relationshipNames() {
-    assert(
-      `Accessing schema information on Models without looking up the model via the store is disallowed.`,
-      this.modelName
-    );
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        Boolean(this.modelName),
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.7', enabled: '4.7' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
     const names: { hasMany: string[]; belongsTo: string[] } = {
       hasMany: [],
       belongsTo: [],
@@ -1433,10 +1524,23 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    */
   @computeOnce
   static get relatedTypes(): string[] {
-    assert(
-      `Accessing schema information on Models without looking up the model via the store is disallowed.`,
-      this.modelName
-    );
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        Boolean(this.modelName),
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.7', enabled: '4.7' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
 
     const types: string[] = [];
 
@@ -1496,10 +1600,23 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    */
   @computeOnce
   static get relationshipsByName(): Map<string, LegacyRelationshipSchema> {
-    assert(
-      `Accessing schema information on Models without looking up the model via the store is disallowed.`,
-      this.modelName
-    );
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        Boolean(this.modelName),
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.7', enabled: '4.7' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
     const map = new Map();
     const rels = this.relationshipsObject;
     const relationships = Object.keys(rels);
@@ -1516,10 +1633,23 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
   @computeOnce
   static get relationshipsObject(): Record<string, LegacyRelationshipSchema> {
-    assert(
-      `Accessing schema information on Models without looking up the model via the store is disallowed.`,
-      this.modelName
-    );
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        Boolean(this.modelName),
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.7', enabled: '4.7' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
 
     const relationships = Object.create(null) as Record<string, LegacyRelationshipSchema>;
     const modelName = this.modelName;
@@ -1530,7 +1660,10 @@ class Model extends EmberObject implements MinimalLegacyRecord {
       // TODO deprecate key being here
       (meta as unknown as { key: string }).key = name;
       meta.name = name;
-      relationships[name] = meta;
+      const parentModelName = meta.options?.as ?? modelName;
+      relationships[name] = DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE
+        ? relationshipFromMeta(meta, parentModelName)
+        : meta;
 
       assert(`Expected options in meta`, meta.options && typeof meta.options === 'object');
       assert(
@@ -1584,10 +1717,23 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    */
   @computeOnce
   static get fields(): Map<string, 'attribute' | 'belongsTo' | 'hasMany'> {
-    assert(
-      `Accessing schema information on Models without looking up the model via the store is disallowed.`,
-      this.modelName
-    );
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        Boolean(this.modelName),
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.7', enabled: '4.7' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
     const map = new Map();
 
     this.eachComputedProperty((name, meta) => {
@@ -1620,10 +1766,23 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     ) => void,
     binding?: T
   ): void {
-    assert(
-      `Accessing schema information on Models without looking up the model via the store is disallowed.`,
-      this.modelName
-    );
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        Boolean(this.modelName),
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.7', enabled: '4.7' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
 
     this.relationshipsByName.forEach((relationship, name) => {
       callback.call(binding, name as MaybeRelationshipFields<Schema>, relationship);
@@ -1643,10 +1802,23 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    @param {any} binding the value to which the callback's `this` should be bound
    */
   static eachRelatedType<T>(callback: (this: T | undefined, type: string) => void, binding?: T) {
-    assert(
-      `Accessing schema information on Models without looking up the model via the store is disallowed.`,
-      this.modelName
-    );
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        Boolean(this.modelName),
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.7', enabled: '4.7' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
 
     const relationshipTypes = this.relatedTypes;
 
@@ -1666,10 +1838,23 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     knownSide: LegacyRelationshipSchema,
     store: Store
   ): 'oneToOne' | 'oneToMany' | 'manyToOne' | 'manyToMany' | 'oneToNone' | 'manyToNone' {
-    assert(
-      `Accessing schema information on Models without looking up the model via the store is disallowed.`,
-      this.modelName
-    );
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        Boolean(this.modelName),
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.7', enabled: '4.7' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
 
     const knownKey = knownSide.name;
     const knownKind = knownSide.kind;
@@ -1730,10 +1915,23 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    */
   @computeOnce
   static get attributes(): Map<string, LegacyAttributeField> {
-    assert(
-      `Accessing schema information on Models without looking up the model via the store is disallowed.`,
-      this.modelName
-    );
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        Boolean(this.modelName),
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.7', enabled: '4.7' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
 
     const map = new Map<string, LegacyAttributeField>();
 
@@ -1795,10 +1993,23 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    */
   @computeOnce
   static get transformedAttributes() {
-    assert(
-      `Accessing schema information on Models without looking up the model via the store is disallowed.`,
-      this.modelName
-    );
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        Boolean(this.modelName),
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.7', enabled: '4.7' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
 
     const map = new Map<string, string>();
 
@@ -1859,10 +2070,23 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     callback: (this: T | undefined, key: MaybeAttrFields<Schema>, attribute: LegacyAttributeField) => void,
     binding?: T
   ): void {
-    assert(
-      `Accessing schema information on Models without looking up the model via the store is disallowed.`,
-      this.modelName
-    );
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        Boolean(this.modelName),
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.7', enabled: '4.7' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
 
     this.attributes.forEach((meta, name) => {
       callback.call(binding, name as MaybeAttrFields<Schema>, meta);
@@ -1918,10 +2142,23 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     callback: (this: T | undefined, key: Exclude<keyof Schema & string, keyof Model & string>, type: string) => void,
     binding?: T
   ): void {
-    assert(
-      `Accessing schema information on Models without looking up the model via the store is disallowed.`,
-      this.modelName
-    );
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        Boolean(this.modelName),
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.7', enabled: '4.7' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
 
     this.transformedAttributes.forEach((type: string, name) => {
       callback.call(binding, name as Exclude<keyof Schema & string, keyof Model & string>, type);
@@ -1936,10 +2173,23 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    @static
    */
   static toString() {
-    assert(
-      `Accessing schema information on Models without looking up the model via the store is disallowed.`,
-      this.modelName
-    );
+    if (DEPRECATE_EARLY_STATIC) {
+      deprecate(
+        `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
+        Boolean(this.modelName),
+        {
+          id: 'ember-data:deprecate-early-static',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.7', enabled: '4.7' },
+        }
+      );
+    } else {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+    }
 
     return `model:${this.modelName}`;
   }
@@ -2016,8 +2266,40 @@ if (DEBUG) {
     }
   };
 
-  delete (Model as unknown as { reopen: unknown }).reopen;
-  delete (Model as unknown as { reopenClass: unknown }).reopenClass;
+  if (DEPRECATE_MODEL_REOPEN) {
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    const originalReopen = Model.reopen;
+    const originalReopenClass = Model.reopenClass;
+
+    // @ts-expect-error Intentional override
+    Model.reopen = function deprecatedReopen() {
+      deprecate(`Model.reopen is deprecated. Use Foo extends Model to extend your class instead.`, false, {
+        id: 'ember-data:deprecate-model-reopen',
+        for: 'ember-data',
+        until: '5.0',
+        since: { available: '4.7', enabled: '4.7' },
+      });
+      return originalReopen.call(this, ...arguments);
+    };
+
+    // @ts-expect-error Intentional override
+    Model.reopenClass = function deprecatedReopenClass() {
+      deprecate(
+        `Model.reopenClass is deprecated. Use Foo extends Model to add static methods and properties to your class instead.`,
+        false,
+        {
+          id: 'ember-data:deprecate-model-reopenclass',
+          for: 'ember-data',
+          until: '5.0',
+          since: { available: '4.7', enabled: '4.7' },
+        }
+      );
+      return originalReopenClass.call(this, ...arguments);
+    };
+  } else {
+    delete (Model as unknown as { reopen: unknown }).reopen;
+    delete (Model as unknown as { reopenClass: unknown }).reopenClass;
+  }
 }
 
 export { Model };
@@ -2029,4 +2311,219 @@ function isRelationshipSchema(meta: unknown): meta is LegacyRelationshipSchema {
 
 function isAttributeSchema(meta: unknown): meta is LegacyAttributeField {
   return typeof meta === 'object' && meta !== null && 'kind' in meta && meta.kind === 'attribute';
+}
+
+function findPossibleInverses(
+  Klass: typeof Model,
+  inverseType: typeof Model,
+  name: string,
+  relationshipsSoFar?: LegacyRelationshipSchema[]
+) {
+  const possibleRelationships = relationshipsSoFar || [];
+
+  const relationshipMap = inverseType.relationships;
+  if (!relationshipMap) {
+    return possibleRelationships;
+  }
+
+  const relationshipsForType = relationshipMap.get(Klass.modelName);
+  const relationships = Array.isArray(relationshipsForType)
+    ? relationshipsForType.filter((relationship) => {
+        const optionsForRelationship = relationship.options;
+
+        if (!optionsForRelationship.inverse && optionsForRelationship.inverse !== null) {
+          return true;
+        }
+
+        return name === optionsForRelationship.inverse;
+      })
+    : null;
+
+  if (relationships) {
+    // eslint-disable-next-line prefer-spread
+    possibleRelationships.push.apply(possibleRelationships, relationships);
+  }
+
+  //Recurse to support polymorphism
+  if (Klass.superclass) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    findPossibleInverses(Klass.superclass, inverseType, name, possibleRelationships);
+  }
+
+  return possibleRelationships;
+}
+
+function legacyFindInverseFor(Klass: typeof Model, name: string, store: Store) {
+  const relationship = Klass.relationshipsByName.get(name);
+  assert(`No relationship named '${name}' on '${Klass.modelName}' exists.`, relationship);
+
+  const { options } = relationship;
+  const isPolymorphic = options.polymorphic;
+
+  //If inverse is manually specified to be null, like  `comments: hasMany('message', { inverse: null })`
+  const isExplicitInverseNull = options.inverse === null;
+  const isAbstractType = !isExplicitInverseNull && isPolymorphic && !store.schema.hasResource(relationship);
+
+  if (isExplicitInverseNull || isAbstractType) {
+    assert(
+      `No schema for the abstract type '${relationship.type}' for the polymorphic relationship '${name}' on '${Klass.modelName}' was provided by the SchemaDefinitionService.`,
+      !isPolymorphic || isExplicitInverseNull
+    );
+    return null;
+  }
+
+  let fieldOnInverse: string | null | undefined;
+  let inverseKind: 'belongsTo' | 'hasMany';
+  let inverseRelationship: LegacyRelationshipSchema | undefined;
+  let inverseOptions: LegacyRelationshipSchema['options'] | undefined;
+  const inverseSchema = Klass.typeForRelationship(name, store);
+  assert(`No model was found for '${relationship.type}'`, inverseSchema);
+
+  // if the type does not exist and we are not polymorphic
+  //If inverse is specified manually, return the inverse
+  if (options.inverse !== undefined) {
+    fieldOnInverse = options.inverse!;
+    inverseRelationship = inverseSchema?.relationshipsByName.get(fieldOnInverse);
+
+    assert(
+      `We found no field named '${fieldOnInverse}' on the schema for '${inverseSchema.modelName}' to be the inverse of the '${name}' relationship on '${Klass.modelName}'. This is most likely due to a missing field on your model definition.`,
+      inverseRelationship
+    );
+
+    // TODO probably just return the whole inverse here
+
+    inverseKind = inverseRelationship.kind;
+
+    inverseOptions = inverseRelationship.options;
+  } else {
+    //No inverse was specified manually, we need to use a heuristic to guess one
+    const parentModelName = relationship.options?.as ?? Klass.modelName;
+    if (relationship.type === parentModelName) {
+      warn(
+        `Detected a reflexive relationship named '${name}' on the schema for '${relationship.type}' without an inverse option. Look at https://guides.emberjs.com/current/models/relationships/#toc_reflexive-relations for how to explicitly specify inverses.`,
+        false,
+        {
+          id: 'ds.model.reflexive-relationship-without-inverse',
+        }
+      );
+    }
+
+    let possibleRelationships = findPossibleInverses(Klass, inverseSchema, name);
+
+    if (possibleRelationships.length === 0) {
+      return null;
+    }
+
+    if (DEBUG) {
+      const filteredRelationships = possibleRelationships.filter((possibleRelationship) => {
+        const optionsForRelationship = possibleRelationship.options;
+        return name === optionsForRelationship.inverse;
+      });
+
+      assert(
+        "You defined the '" +
+          name +
+          "' relationship on " +
+          String(Klass) +
+          ', but you defined the inverse relationships of type ' +
+          inverseSchema.toString() +
+          ' multiple times. Look at https://guides.emberjs.com/current/models/relationships/#toc_explicit-inverses for how to explicitly specify inverses',
+        filteredRelationships.length < 2
+      );
+    }
+
+    const explicitRelationship = possibleRelationships.find((rel) => rel.options?.inverse === name);
+    if (explicitRelationship) {
+      possibleRelationships = [explicitRelationship];
+    }
+
+    assert(
+      "You defined the '" +
+        name +
+        "' relationship on " +
+        String(Klass) +
+        ', but multiple possible inverse relationships of type ' +
+        String(Klass) +
+        ' were found on ' +
+        String(inverseSchema) +
+        '. Look at https://guides.emberjs.com/current/models/relationships/#toc_explicit-inverses for how to explicitly specify inverses',
+      possibleRelationships.length === 1
+    );
+
+    fieldOnInverse = possibleRelationships[0].name;
+    inverseKind = possibleRelationships[0].kind;
+    inverseOptions = possibleRelationships[0].options;
+  }
+
+  assert(`inverseOptions should be set by now`, inverseOptions);
+
+  // ensure inverse is properly configured
+  if (DEBUG) {
+    if (isPolymorphic) {
+      if (DEPRECATE_NON_EXPLICIT_POLYMORPHISM) {
+        if (!inverseOptions.as) {
+          deprecate(
+            `Relationships that satisfy polymorphic relationships MUST define which abstract-type they are satisfying using 'as'. The field '${fieldOnInverse}' on type '${inverseSchema.modelName}' is misconfigured.`,
+            false,
+            {
+              id: 'ember-data:non-explicit-relationships',
+              since: { enabled: '4.7', available: '4.7' },
+              until: '5.0',
+              for: 'ember-data',
+            }
+          );
+        }
+      } else {
+        assert(
+          `Relationships that satisfy polymorphic relationships MUST define which abstract-type they are satisfying using 'as'. The field '${fieldOnInverse}' on type '${inverseSchema.modelName}' is misconfigured.`,
+          inverseOptions.as
+        );
+        assert(
+          `options.as should match the expected type of the polymorphic relationship. Expected field '${fieldOnInverse}' on type '${inverseSchema.modelName}' to specify '${relationship.type}' but found '${inverseOptions.as}'`,
+          !!inverseOptions.as && relationship.type === inverseOptions.as
+        );
+      }
+    }
+  }
+
+  // ensure we are properly configured
+  if (DEBUG) {
+    if (inverseOptions.polymorphic) {
+      if (DEPRECATE_NON_EXPLICIT_POLYMORPHISM) {
+        if (!options.as) {
+          deprecate(
+            `Relationships that satisfy polymorphic relationships MUST define which abstract-type they are satisfying using 'as'. The field '${name}' on type '${Klass.modelName}' is misconfigured.`,
+            false,
+            {
+              id: 'ember-data:non-explicit-relationships',
+              since: { enabled: '4.7', available: '4.7' },
+              until: '5.0',
+              for: 'ember-data',
+            }
+          );
+        }
+      } else {
+        assert(
+          `Relationships that satisfy polymorphic relationships MUST define which abstract-type they are satisfying using 'as'. The field '${name}' on type '${Klass.modelName}' is misconfigured.`,
+          options.as
+        );
+        assert(
+          `options.as should match the expected type of the polymorphic relationship. Expected field '${name}' on type '${Klass.modelName}' to specify '${inverseRelationship!.type}' but found '${options.as}'`,
+          !!options.as && inverseRelationship!.type === options.as
+        );
+      }
+    }
+  }
+
+  assert(
+    `The ${inverseSchema.modelName}:${fieldOnInverse} relationship declares 'inverse: null', but it was resolved as the inverse for ${Klass.modelName}:${name}.`,
+    inverseOptions.inverse !== null
+  );
+
+  return {
+    type: inverseSchema.modelName,
+    name: fieldOnInverse,
+    kind: inverseKind,
+    options: inverseOptions,
+  };
 }
