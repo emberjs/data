@@ -4,8 +4,11 @@ import { setupRenderingTest } from 'ember-qunit';
 
 import Adapter from '@ember-data/adapter';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { createDeferred } from '@ember-data/request';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+import { DEPRECATE_NON_EXPLICIT_POLYMORPHISM } from '@warp-drive/build-config/deprecations';
 
 import createTrackingContext from '../../helpers/create-tracking-context';
 
@@ -329,9 +332,14 @@ module('integration/references/has-many', function (hooks) {
     });
     const petsReference = person.hasMany('pets');
 
-    await assert.expectAssertion(async () => {
-      await petsReference.push([{ type: 'person', id: '1' }]);
-    }, "The 'person' type does not implement 'animal' and thus cannot be assigned to the 'pets' relationship in 'person'. If this relationship should be polymorphic, mark person.pets as `polymorphic: true` and person.owner as implementing it via `as: 'animal'`.");
+    await assert.expectAssertion(
+      async () => {
+        await petsReference.push([{ type: 'person', id: '1' }]);
+      },
+      DEPRECATE_NON_EXPLICIT_POLYMORPHISM
+        ? "The 'person' type does not implement 'animal' and thus cannot be assigned to the 'pets' relationship in 'person'. Make it a descendant of 'animal' or use a mixin of the same name."
+        : "The 'person' type does not implement 'animal' and thus cannot be assigned to the 'pets' relationship in 'person'. If this relationship should be polymorphic, mark person.pets as `polymorphic: true` and person.owner as implementing it via `as: 'animal'`."
+    );
   });
 
   test('push valid json:api', async function (assert) {
@@ -374,6 +382,48 @@ module('integration/references/has-many', function (hooks) {
     assert.deepEqual(personsReference.meta(), { total: 2 }, 'meta is not updated');
     assert.strictEqual(personsReference.link(), '/families/1/persons', 'link is not updated');
   });
+
+  deprecatedTest(
+    'push(promise)',
+    { id: 'ember-data:deprecate-promise-proxies', until: '5.0', count: 1 },
+    async function (assert) {
+      const store = this.owner.lookup('service:store');
+      const deferred = createDeferred();
+
+      const family = store.push({
+        data: {
+          type: 'family',
+          id: '1',
+          relationships: {
+            persons: {
+              data: [
+                { type: 'person', id: '1' },
+                { type: 'person', id: '2' },
+              ],
+            },
+          },
+        },
+      });
+      const personsReference = family.hasMany('persons');
+      const pushResult = personsReference.push(deferred.promise);
+
+      assert.ok(pushResult.then, 'HasManyReference.push returns a promise');
+
+      const payload = {
+        data: [
+          { type: 'person', id: '1', attributes: { name: 'Vito' } },
+          { type: 'person', id: '2', attributes: { name: 'Michael' } },
+        ],
+      };
+
+      deferred.resolve(payload);
+
+      const records = await pushResult;
+      assert.strictEqual(records.length, 2);
+      assert.strictEqual(records.at(0).name, 'Vito');
+      assert.strictEqual(records.at(1).name, 'Michael');
+    }
+  );
 
   test('push(document) can update links', async function (assert) {
     const store = this.owner.lookup('service:store');

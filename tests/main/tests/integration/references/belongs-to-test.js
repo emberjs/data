@@ -6,8 +6,11 @@ import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import { createDeferred } from '@ember-data/request';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+import { DEPRECATE_NON_EXPLICIT_POLYMORPHISM } from '@warp-drive/build-config/deprecations';
 
 class Family extends Model {
   @hasMany('person', { async: true, inverse: 'family' }) persons;
@@ -409,6 +412,48 @@ module('integration/references/belongs-to', function (hooks) {
     assert.deepEqual(familyReference.meta(), { updatedAt: timestamp2 }, 'meta is updated');
   });
 
+  deprecatedTest(
+    'push(promise)',
+    { id: 'ember-data:deprecate-promise-proxies', until: '5.0', count: 1 },
+    async function (assert) {
+      const store = this.owner.lookup('service:store');
+      const Family = store.modelFor('family');
+
+      const deferred = createDeferred();
+
+      const person = store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          relationships: {
+            family: {
+              data: { type: 'family', id: '1' },
+            },
+          },
+        },
+      });
+      const familyReference = person.belongsTo('family');
+      const push = familyReference.push(deferred.promise);
+
+      assert.ok(push.then, 'BelongsToReference.push returns a promise');
+
+      deferred.resolve({
+        data: {
+          type: 'family',
+          id: '1',
+          attributes: {
+            name: 'Coreleone',
+          },
+        },
+      });
+
+      await push.then(function (record) {
+        assert.ok(record instanceof Family, 'push resolves with the record');
+        assert.strictEqual(record.name, 'Coreleone', 'name is updated');
+      });
+    }
+  );
+
   testInDebug('push(object) asserts for invalid modelClass', async function (assert) {
     class Family extends Model {
       @hasMany('person', { async: true, inverse: 'family' }) persons;
@@ -444,9 +489,14 @@ module('integration/references/belongs-to', function (hooks) {
 
     const familyReference = person.belongsTo('family');
 
-    await assert.expectAssertion(async function () {
-      await familyReference.push(anotherPerson);
-    }, "The 'person' type does not implement 'family' and thus cannot be assigned to the 'family' relationship in 'person'. If this relationship should be polymorphic, mark person.family as `polymorphic: true` and person.persons as implementing it via `as: 'family'`.");
+    await assert.expectAssertion(
+      async function () {
+        await familyReference.push(anotherPerson);
+      },
+      DEPRECATE_NON_EXPLICIT_POLYMORPHISM
+        ? "The 'person' type does not implement 'family' and thus cannot be assigned to the 'family' relationship in 'person'. Make it a descendant of 'family' or use a mixin of the same name."
+        : "The 'person' type does not implement 'family' and thus cannot be assigned to the 'family' relationship in 'person'. If this relationship should be polymorphic, mark person.family as `polymorphic: true` and person.persons as implementing it via `as: 'family'`."
+    );
   });
 
   testInDebug('push(object) works with polymorphic types', async function (assert) {

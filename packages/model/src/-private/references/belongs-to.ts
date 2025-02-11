@@ -1,8 +1,11 @@
+import { deprecate } from '@ember/debug';
+
 import type { Graph, ResourceEdge } from '@ember-data/graph/-private';
 import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store';
 import { cached, compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';
+import { DEPRECATE_PROMISE_PROXIES } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
@@ -477,7 +480,32 @@ export default class BelongsToReference<
    @param {Boolean} [skipFetch] if `true`, do not attempt to fetch unloaded records
    @return {Promise<OpaqueRecordInstance | null | void>}
   */
-  async push(doc: SingleResourceDocument, skipFetch?: boolean): Promise<Related | null | void> {
+  async push(
+    maybeDoc: SingleResourceDocument | Promise<SingleResourceDocument>,
+    skipFetch?: boolean
+  ): Promise<Related | null | void> {
+    let doc: SingleResourceDocument = maybeDoc as SingleResourceDocument;
+    if (DEPRECATE_PROMISE_PROXIES) {
+      if ((maybeDoc as { then: unknown }).then) {
+        doc = await maybeDoc;
+        if (doc !== maybeDoc) {
+          deprecate(
+            `You passed in a Promise to a Reference API that now expects a resolved value. await the value before setting it.`,
+            false,
+            {
+              id: 'ember-data:deprecate-promise-proxies',
+              until: '5.0',
+              since: {
+                enabled: '4.7',
+                available: '4.7',
+              },
+              for: 'ember-data',
+            }
+          );
+        }
+      }
+    }
+
     const { store } = this;
     const isResourceData = doc.data && isMaybeResource(doc.data);
     const added = isResourceData

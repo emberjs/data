@@ -25,7 +25,7 @@ jobs:
     name: 'Performance Check Against Release'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
         with:
           fetch-depth: 3
       - run: git fetch origin release --depth=1
@@ -39,21 +39,12 @@ jobs:
           originSha=$(git rev-parse HEAD^2)
           echo $originSha > tmp/sha-for-commit.txt
           git show --format=short --no-patch $originSha
-      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
       - uses: actions/setup-node@v4
         with:
-          registry-url: 'https://registry.npmjs.org'
-          node-version-file: 'package.json'
+          node-version: 19.x
           cache: 'pnpm'
-      - uses: oven-sh/setup-bun@v1
-        with:
-          bun-version: latest
-      - name: Get Browser Flags
-        id: browser-flags
-        run: |
-          BROWSER_FLAGS=$(node ./scripts/perf-tracking/browser-flags.mjs)
-          echo "BROWSER_FLAGS=$BROWSER_FLAGS" >> $GITHUB_OUTPUT
-      - uses: tracerbench/tracerbench-compare-action@35f3ab44b512fd2caffbe81adf875ab47272b5b5
+      - uses: tracerbench/tracerbench-compare-action@master
         with:
           experiment-build-command: pnpm install && pnpm --filter performance-test-app exec ember build -e production --output-path dist-experiment --suppress-sizes
           experiment-serve-command: pnpm --filter performance-test-app exec ember s --path dist-experiment --port 4201
@@ -61,7 +52,6 @@ jobs:
           control-serve-command: pnpm --filter performance-test-app exec ember s --path dist-control
           sample-timeout: 60
           use-pnpm: true
-          browser-args: ${{ steps.browser-flags.outputs.BROWSER_FLAGS }}
           scenarios: |
             {
               "basic-record-materialization": {

@@ -1,7 +1,7 @@
 import { deprecate } from '@ember/debug';
 
 import { dasherize } from '@ember-data/request-utils/string';
-import { DEPRECATE_NON_STRICT_TYPES } from '@warp-drive/build-config/deprecations';
+import { DEPRECATE_NON_STRICT_TYPES, DISABLE_6X_DEPRECATIONS } from '@warp-drive/build-config/deprecations';
 
 export function normalizeModelName(type: string): string {
   if (DEPRECATE_NON_STRICT_TYPES) {
@@ -9,7 +9,7 @@ export function normalizeModelName(type: string): string {
 
     deprecate(
       `The resource type '${type}' is not normalized. Update your application code to use '${result}' instead of '${type}'.`,
-      result === type,
+      /* inline-macro-config */ DISABLE_6X_DEPRECATIONS ? true : result === type,
       {
         id: 'ember-data:deprecate-non-strict-types',
         until: '6.0',

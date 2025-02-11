@@ -12,6 +12,7 @@ import JSONAPISerializer from '@ember-data/serializer/json-api';
 import RESTSerializer from '@ember-data/serializer/rest';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+import { DEPRECATE_ARRAY_LIKE, DEPRECATE_NON_EXPLICIT_POLYMORPHISM } from '@warp-drive/build-config/deprecations';
 
 import { getRelationshipStateForRecord, hasRelationshipForRecord } from '../../helpers/accessors';
 
@@ -1403,6 +1404,59 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     });
   });
 
+  deprecatedTest(
+    'PromiseArray proxies createRecord to its ManyArray once the hasMany is loaded',
+    { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 1 },
+    async function (assert) {
+      assert.expect(4);
+      class Post extends Model {
+        @attr title;
+        @hasMany('comment', { async: true, inverse: 'message' }) comments;
+      }
+
+      class Comment extends Model {
+        @attr body;
+        @belongsTo('post', { async: false, inverse: 'comments' }) message;
+      }
+      this.owner.register('model:post', Post);
+      this.owner.register('model:comment', Comment);
+
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
+
+      adapter.findHasMany = function (store, snapshot, link, relationship) {
+        return Promise.resolve({
+          data: [
+            { id: '1', type: 'comment', attributes: { body: 'First' } },
+            { id: '2', type: 'comment', attributes: { body: 'Second' } },
+          ],
+        });
+      };
+      const post = store.push({
+        data: {
+          type: 'post',
+          id: '1',
+          relationships: {
+            comments: {
+              links: {
+                related: 'someLink',
+              },
+            },
+          },
+        },
+      });
+
+      await post.comments.then(function (comments) {
+        assert.true(comments.isLoaded, 'comments are loaded');
+        assert.strictEqual(comments.length, 2, 'comments have 2 length');
+
+        const newComment = post.comments.createRecord({ body: 'Third' });
+        assert.strictEqual(newComment.body, 'Third', 'new comment is returned');
+        assert.strictEqual(comments.length, 3, 'comments have 3 length, including new record');
+      });
+    }
+  );
+
   test('An updated `links` value should invalidate a relationship cache', async function (assert) {
     assert.expect(8);
     class Post extends Model {
@@ -1585,6 +1639,165 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
     assert.strictEqual(igor.messages.at(0)?.body, 'Well I thought the title was fine');
   });
 
+  deprecatedTest(
+    'Type can be inferred from the key of a hasMany relationship',
+    { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 1 },
+    async function (assert) {
+      assert.expect(1);
+
+      const User = Model.extend({
+        name: attr(),
+        contacts: hasMany({ inverse: null, async: false }),
+      });
+
+      const Contact = Model.extend({
+        name: attr(),
+        user: belongsTo('user', { async: false, inverse: null }),
+      });
+
+      this.owner.register('model:user', User);
+      this.owner.register('model:contact', Contact);
+
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
+
+      adapter.findRecord = function () {
+        return {
+          data: {
+            id: '1',
+            type: 'user',
+            relationships: {
+              contacts: {
+                data: [{ id: '1', type: 'contact' }],
+              },
+            },
+          },
+        };
+      };
+
+      const user = store.push({
+        data: {
+          type: 'user',
+          id: '1',
+          relationships: {
+            contacts: {
+              data: [{ type: 'contact', id: '1' }],
+            },
+          },
+        },
+        included: [
+          {
+            type: 'contact',
+            id: '1',
+          },
+        ],
+      });
+      const contacts = await user.contacts;
+      assert.strictEqual(contacts.length, 1, 'The contacts relationship is correctly set up');
+    }
+  );
+
+  deprecatedTest(
+    'Type can be inferred from the key of an async hasMany relationship',
+    { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 1 },
+    async function (assert) {
+      class User extends Model {
+        @attr name;
+        @hasMany('message', { polymorphic: true, async: false, inverse: 'user' }) messages;
+        @hasMany({ async: true, inverse: null }) contacts;
+      }
+      this.owner.register('model:user', User);
+
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
+
+      adapter.findRecord = function (store, type, ids, snapshots) {
+        return {
+          data: {
+            id: '1',
+            type: 'user',
+            relationships: {
+              contacts: {
+                data: [{ id: '1', type: 'contact' }],
+              },
+            },
+          },
+        };
+      };
+
+      store.push({
+        data: {
+          type: 'user',
+          id: '1',
+          relationships: {
+            contacts: {
+              data: [{ type: 'contact', id: '1' }],
+            },
+          },
+        },
+        included: [
+          {
+            type: 'contact',
+            id: '1',
+          },
+        ],
+      });
+
+      const user = await store.findRecord('user', '1');
+      const contacts = await user.contacts;
+      assert.strictEqual(contacts.length, 1, 'The contacts relationship is correctly set up');
+    }
+  );
+
+  deprecatedTest(
+    'Polymorphic relationships work with a hasMany whose type is inferred',
+    { id: 'ember-data:deprecate-non-strict-relationships', until: '5.0', count: 1 },
+    async function (assert) {
+      class User extends Model {
+        @attr name;
+        @hasMany('message', { polymorphic: true, async: false, inverse: 'user' }) messages;
+        @hasMany({ async: false, polymorphic: true, inverse: null }) contacts;
+      }
+      this.owner.register('model:user', User);
+
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
+
+      adapter.findRecord = function (store, type, ids, snapshots) {
+        return { data: { id: '1', type: 'user' } };
+      };
+
+      store.push({
+        data: {
+          type: 'user',
+          id: '1',
+          relationships: {
+            contacts: {
+              data: [
+                { type: 'email', id: '1' },
+                { type: 'phone', id: '2' },
+              ],
+            },
+          },
+        },
+        included: [
+          {
+            type: 'email',
+            id: '1',
+          },
+          {
+            type: 'phone',
+            id: '2',
+          },
+        ],
+      });
+      const user = await store.findRecord('user', '1');
+      const contacts = await user.contacts;
+
+      assert.strictEqual(contacts.length, 2, 'The contacts relationship is correctly set up');
+    }
+  );
+
   test('Polymorphic relationships work with a hasMany whose inverse is null', async function (assert) {
     assert.expect(1);
     class User extends Model {
@@ -1700,7 +1913,9 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
       } catch (e) {
         assert.strictEqual(
           e.message,
-          "The 'post' type does not implement 'comment' and thus cannot be assigned to the 'comments' relationship in 'post'. If this relationship should be polymorphic, mark post.comments as `polymorphic: true` and post.message as implementing it via `as: 'comment'`.",
+          DEPRECATE_NON_EXPLICIT_POLYMORPHISM
+            ? "The 'post' type does not implement 'comment' and thus cannot be assigned to the 'comments' relationship in 'post'. Make it a descendant of 'comment' or use a mixin of the same name."
+            : "The 'post' type does not implement 'comment' and thus cannot be assigned to the 'comments' relationship in 'post'. If this relationship should be polymorphic, mark post.comments as `polymorphic: true` and post.message as implementing it via `as: 'comment'`.",
           'should throw'
         );
       }
@@ -1775,7 +1990,9 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
         function () {
           user.messages.push(anotherUser);
         },
-        `The schema for the relationship 'user' on 'user' type does not correctly implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. If using this record in this polymorphic relationship is desired, correct the errors in the schema shown below:
+        DEPRECATE_NON_EXPLICIT_POLYMORPHISM
+          ? "The 'user' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message' or use a mixin of the same name."
+          : `The schema for the relationship 'user' on 'user' type does not correctly implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. If using this record in this polymorphic relationship is desired, correct the errors in the schema shown below:
 
 \`\`\`
 {
@@ -1907,7 +2124,9 @@ module('integration/relationships/has_many - Has-Many Relationships', function (
         function () {
           user.messages.push(anotherUser);
         },
-        `No 'user' field exists on 'user'. To use this type in the polymorphic relationship 'user.messages' the relationships schema definition for user should include:
+        DEPRECATE_NON_EXPLICIT_POLYMORPHISM
+          ? "The 'user' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message' or use a mixin of the same name."
+          : `No 'user' field exists on 'user'. To use this type in the polymorphic relationship 'user.messages' the relationships schema definition for user should include:
 
 \`\`\`
 {
@@ -2753,6 +2972,21 @@ If using this relationship in a polymorphic manner is desired, the relationships
     assert.strictEqual(page.chapter, chapter, 'Page has a chapter after rollback attributes');
   });
 
+  testInDebug('Passing a model as type to hasMany should not work', function (assert) {
+    assert.expect(3);
+
+    assert.expectAssertion(() => {
+      const User = Model.extend();
+
+      Model.extend({
+        users: hasMany(User, { async: false, inverse: null }),
+      });
+    }, /The first argument to hasMany must be a string/);
+
+    assert.expectDeprecation({ id: 'ember-data:deprecate-early-static' });
+    assert.expectDeprecation({ id: 'ember-data:deprecate-non-strict-relationships' });
+  });
+
   test('Relationship.clear removes all records correctly', async function (assert) {
     class Post extends Model {
       @attr title;
@@ -2822,7 +3056,13 @@ If using this relationship in a polymorphic manner is desired, the relationships
     );
 
     const postComments = await post.comments;
-    postComments.length = 0;
+
+    if (DEPRECATE_ARRAY_LIKE) {
+      postComments.clear();
+      assert.expectDeprecation({ id: 'ember-data:deprecate-array-like' });
+    } else {
+      postComments.length = 0;
+    }
 
     assert.deepEqual(
       comments.map((comment) => comment.post),
@@ -3656,6 +3896,54 @@ If using this relationship in a polymorphic manner is desired, the relationships
     });
   });
 
+  deprecatedTest(
+    'PromiseArray proxies createRecord to its ManyArray before the hasMany is loaded',
+    { id: 'ember-data:deprecate-promise-many-array-behaviors', until: '5.0', count: 1 },
+    async function (assert) {
+      class Post extends Model {
+        @attr title;
+        @hasMany('comment', { async: true, inverse: 'message' }) comments;
+      }
+      class Comment extends Model {
+        @attr body;
+        @belongsTo('post', { async: false, inverse: 'comments' }) message;
+      }
+      this.owner.register('model:post', Post);
+      this.owner.register('model:comment', Comment);
+
+      const store = this.owner.lookup('service:store');
+      const adapter = store.adapterFor('application');
+
+      adapter.findHasMany = function (store, record, link, relationship) {
+        return Promise.resolve({
+          data: [
+            { id: '1', type: 'comment', attributes: { body: 'First' } },
+            { id: '2', type: 'comment', attributes: { body: 'Second' } },
+          ],
+        });
+      };
+
+      const post = store.push({
+        data: {
+          type: 'post',
+          id: '1',
+          relationships: {
+            comments: {
+              links: {
+                related: 'someLink',
+              },
+            },
+          },
+        },
+      });
+
+      const commentsPromise = post.comments;
+      commentsPromise.createRecord();
+      const comments = await commentsPromise;
+      assert.strictEqual(comments.length, 3, 'comments have 3 length, including new record');
+    }
+  );
+
   test('deleteRecord + unloadRecord', async function (assert) {
     class User extends Model {
       @attr name;
@@ -4027,6 +4315,183 @@ If using this relationship in a polymorphic manner is desired, the relationships
       });
 
       assert.strictEqual(person.phoneNumbers.length, 1);
+    }
+  );
+
+  deprecatedTest(
+    'a synchronous hasMany record array should only remove object(s) if found in collection',
+    {
+      id: 'ember-data:deprecate-array-like',
+      count: 3,
+      until: '5.0',
+    },
+    async function (assert) {
+      class Person extends Model {
+        @attr()
+        name;
+        @belongsTo('tag', { async: false, inverse: 'people' })
+        tag;
+      }
+
+      class Tag extends Model {
+        @hasMany('person', { async: false, inverse: 'tag' })
+        people;
+      }
+
+      this.owner.register('model:person', Person);
+      this.owner.register('model:tag', Tag);
+
+      const store = this.owner.lookup('service:store');
+      // eslint-disable-next-line no-unused-vars
+      const [tag, scumbagInRecordArray, _person2, scumbagNotInRecordArray] = store.push({
+        data: [
+          {
+            type: 'tag',
+            id: '1',
+            relationships: {
+              people: {
+                data: [
+                  { type: 'person', id: '1' },
+                  { type: 'person', id: '2' },
+                ],
+              },
+            },
+          },
+          {
+            type: 'person',
+            id: '1',
+            attributes: {
+              name: 'Scumbag Dale',
+            },
+          },
+          {
+            type: 'person',
+            id: '2',
+            attributes: {
+              name: 'Scumbag Tom',
+            },
+          },
+          {
+            type: 'person',
+            id: '3',
+            attributes: {
+              name: 'Scumbag Ross',
+            },
+          },
+        ],
+      });
+
+      const recordArray = tag.people;
+
+      recordArray.removeObject(scumbagNotInRecordArray);
+
+      assert.strictEqual(
+        recordArray.length,
+        2,
+        'Record array unchanged after attempting to remove object not found in collection'
+      );
+
+      recordArray.removeObject(scumbagInRecordArray);
+
+      let didRemoveObject = recordArray.length === 1 && !recordArray.includes(scumbagInRecordArray);
+      assert.true(didRemoveObject, 'Record array successfully removed expected object from collection');
+
+      recordArray.push(scumbagInRecordArray);
+
+      const scumbagsToRemove = [scumbagInRecordArray, scumbagNotInRecordArray];
+      recordArray.removeObjects(scumbagsToRemove);
+
+      didRemoveObject = recordArray.length === 1 && !recordArray.includes(scumbagInRecordArray);
+      assert.true(didRemoveObject, 'Record array only removes objects in list that are found in collection');
+    }
+  );
+
+  deprecatedTest(
+    'an asynchronous hasMany record array should only remove object(s) if found in collection',
+    {
+      id: 'ember-data:deprecate-promise-many-array-behaviors',
+      count: 6,
+      until: '5.0',
+    },
+    async function (assert) {
+      class Person extends Model {
+        @attr()
+        name;
+        @belongsTo('tag', { async: false, inverse: 'people' })
+        tag;
+      }
+
+      class Tag extends Model {
+        @hasMany('person', { async: true, inverse: 'tag' })
+        people;
+      }
+
+      const store = this.owner.lookup('service:store');
+      this.owner.register('model:person', Person);
+      this.owner.register('model:tag', Tag);
+
+      // eslint-disable-next-line no-unused-vars
+      const [tag, scumbagInRecordArray, _person2, scumbagNotInRecordArray] = store.push({
+        data: [
+          {
+            type: 'tag',
+            id: '1',
+            relationships: {
+              people: {
+                data: [
+                  { type: 'person', id: '1' },
+                  { type: 'person', id: '2' },
+                ],
+              },
+            },
+          },
+          {
+            type: 'person',
+            id: '1',
+            attributes: {
+              name: 'Scumbag Dale',
+            },
+          },
+          {
+            type: 'person',
+            id: '2',
+            attributes: {
+              name: 'Scumbag Tom',
+            },
+          },
+          {
+            type: 'person',
+            id: '3',
+            attributes: {
+              name: 'Scumbag Ross',
+            },
+          },
+        ],
+      });
+
+      const recordArray = tag.people;
+
+      recordArray.removeObject(scumbagNotInRecordArray);
+
+      assert.strictEqual(
+        recordArray.length,
+        2,
+        'Record array unchanged after attempting to remove object not found in collection'
+      );
+
+      recordArray.removeObject(scumbagInRecordArray);
+
+      let didRemoveObject = recordArray.length === 1 && !recordArray.includes(scumbagInRecordArray);
+      assert.true(didRemoveObject, 'Record array successfully removed expected object from collection');
+
+      recordArray.pushObject(scumbagInRecordArray);
+
+      const scumbagsToRemove = [scumbagInRecordArray, scumbagNotInRecordArray];
+      recordArray.removeObjects(scumbagsToRemove);
+
+      didRemoveObject = recordArray.length === 1 && !recordArray.includes(scumbagInRecordArray);
+      assert.true(didRemoveObject, 'Record array only removes objects in list that are found in collection');
+      assert.expectDeprecation({ id: 'ember-data:deprecate-array-like', count: 4 });
     }
   );
 });

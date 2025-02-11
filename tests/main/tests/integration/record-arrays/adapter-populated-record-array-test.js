@@ -167,6 +167,22 @@ module('integration/record-arrays/collection', function (hooks) {
     );
   });
 
+  test('recordArray.replace() throws error', async function (assert) {
+    const store = this.owner.lookup('service:store');
+    const recordArray = store.recordArrayManager.createArray({ type: 'person', query: null });
+
+    await settled();
+
+    assert.expectAssertion(
+      () => {
+        recordArray.replace();
+      },
+      'Mutating this array of records via splice is not allowed.',
+      'throws error'
+    );
+    assert.expectDeprecation({ id: 'ember-data:deprecate-array-like' });
+  });
+
   test('recordArray mutation throws error', async function (assert) {
     const store = this.owner.lookup('service:store');
     const recordArray = store.recordArrayManager.createArray({ type: 'person', query: null });

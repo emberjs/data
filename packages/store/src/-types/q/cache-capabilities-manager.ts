@@ -108,12 +108,12 @@ export type CacheCapabilitiesManager = {
    * @param {string|undefined} key
    * @public
    */
-  notifyChange(identifier: StableRecordIdentifier, namespace: 'added' | 'removed', key: null): void;
-  notifyChange(identifier: StableDocumentIdentifier, namespace: 'added' | 'updated' | 'removed', key: null): void;
-  notifyChange(identifier: StableRecordIdentifier, namespace: NotificationType, key: string | null): void;
+  notifyChange(identifier: StableRecordIdentifier, namespace: 'added' | 'removed'): void;
+  notifyChange(identifier: StableDocumentIdentifier, namespace: 'added' | 'updated' | 'removed'): void;
+  notifyChange(identifier: StableRecordIdentifier, namespace: NotificationType, key?: string): void;
   notifyChange(
     identifier: StableRecordIdentifier | StableDocumentIdentifier,
     namespace: NotificationType | 'added' | 'removed' | 'updated',
-    key: string | null
+    key?: string
   ): void;
 };

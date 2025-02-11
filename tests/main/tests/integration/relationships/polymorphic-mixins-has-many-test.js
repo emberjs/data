@@ -8,6 +8,7 @@ import Adapter from '@ember-data/adapter';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+import { DEPRECATE_NON_EXPLICIT_POLYMORPHISM } from '@warp-drive/build-config/deprecations';
 
 module(
   'integration/relationships/polymorphic_mixins_has_many_test - Polymorphic hasMany relationships with mixins',
@@ -183,12 +184,9 @@ module(
           ],
         });
 
-        const fetchedMessages = await user.messages;
-        assert.expectAssertion(
-          function () {
-            fetchedMessages.push(notMessage);
-          },
-          `No 'user' field exists on 'not-message'. To use this type in the polymorphic relationship 'user.messages' the relationships schema definition for not-message should include:
+        const expectedError = DEPRECATE_NON_EXPLICIT_POLYMORPHISM
+          ? /The 'not-message' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message/
+          : `No 'user' field exists on 'not-message'. To use this type in the polymorphic relationship 'user.messages' the relationships schema definition for not-message should include:
 
 \`\`\`
 {
@@ -206,7 +204,15 @@ module(
 }
 \`\`\`
 
-`
+`;
+
+        const fetchedMessages = await user.messages;
+        assert.expectAssertion(
+          function () {
+            fetchedMessages.push(notMessage);
+          },
+          expectedError,
+          `expected an error to match ${expectedError}`
         );
       }
     );

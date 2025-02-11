@@ -1,9 +1,12 @@
+import { deprecate } from '@ember/debug';
+
 import type { CollectionEdge, Graph } from '@ember-data/graph/-private';
 import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store';
 import type { BaseFinderOptions } from '@ember-data/store/types';
 import { cached, compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';
+import { DEPRECATE_PROMISE_PROXIES } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -149,9 +152,8 @@ export default class HasManyReference<
   @cached
   @compat
   get identifiers(): StableRecordIdentifier<TypeFromInstanceOrString<Related>>[] {
-    ensureRefCanSubscribe(this);
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    this._ref;
+    this._ref; // consume the tracked prop
 
     const resource = this._resource();
 
@@ -495,9 +497,31 @@ export default class HasManyReference<
    @return {Promise<ManyArray | void>}
   */
   async push(
-    doc: ExistingResourceObject[] | CollectionResourceDocument,
+    maybeDoc: ExistingResourceObject[] | CollectionResourceDocument,
     skipFetch?: boolean
   ): Promise<ManyArray<Related> | void> {
+    let doc = maybeDoc;
+    if (DEPRECATE_PROMISE_PROXIES) {
+      if ((maybeDoc as unknown as { then: unknown }).then) {
+        doc = await (maybeDoc as unknown as Promise<ExistingResourceObject[] | CollectionResourceDocument>);
+        if (doc !== maybeDoc) {
+          deprecate(
+            `You passed in a Promise to a Reference API that now expects a resolved value. await the value before setting it.`,
+            false,
+            {
+              id: 'ember-data:deprecate-promise-proxies',
+              until: '5.0',
+              since: {
+                enabled: '4.7',
+                available: '4.7',
+              },
+              for: 'ember-data',
+            }
+          );
+        }
+      }
+    }
+
     const { store } = this;
     const dataDoc = Array.isArray(doc) ? { data: doc } : doc;
     const isResourceData = Array.isArray(dataDoc.data) && dataDoc.data.length > 0 && isMaybeResource(dataDoc.data[0]);
@@ -605,7 +629,11 @@ export default class HasManyReference<
       this.___identifier
     )!;
 
-    if (!ensureRefCanSubscribe(this)) {
+    const loaded = this._isLoaded();
+
+    if (!loaded) {
+      // subscribe to changes
+      // for when we are not loaded yet
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       this._ref;
       return null;
@@ -753,23 +781,4 @@ defineSignal(HasManyReference.prototype, '_ref', 0);
 export function isMaybeResource(object: ExistingResourceObject | ResourceIdentifier): object is ExistingResourceObject {
   const keys = Object.keys(object).filter((k) => k !== 'id' && k !== 'type' && k !== 'lid');
   return keys.length > 0;
-}
-
-function ensureRefCanSubscribe(rel: HasManyReference) {
-  const loaded = rel._isLoaded();
-
-  if (!loaded) {
-    // subscribe to changes
-    // for when we are not loaded yet
-    //
-    // because the graph optimizes the case where a relationship has never been subscribed,
-    // we force accessed to be true here. When we make the graph public we should create a
-    // subscribe/unsubscribe API
-    const edge = rel.graph.get(rel.___identifier, rel.key);
-    assert(`Expected a hasMany relationship for ${rel.___identifier.type}:${rel.key}`, 'accessed' in edge);
-    edge.accessed = true;
-
-    return false;
-  }
-  return true;
 }

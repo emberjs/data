@@ -40,7 +40,7 @@ function mergeBelongsTo(graph: Graph, rel: ResourceEdge, op: MergeOperation): vo
   }
   if (rel.localState === op.record) {
     rel.localState = op.value;
-    notifyChange(graph, rel);
+    notifyChange(graph, rel.identifier, rel.definition.key);
   }
 }
 
@@ -63,7 +63,7 @@ function mergeHasMany(graph: Graph, rel: CollectionEdge, op: MergeOperation): vo
     rel.isDirty = true;
   }
   if (rel.isDirty) {
-    notifyChange(graph, rel);
+    notifyChange(graph, rel.identifier, rel.definition.key);
   }
 }
 

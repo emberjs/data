@@ -10,7 +10,6 @@ import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { ArrayValue, ObjectValue, Value } from '@warp-drive/core-types/json/raw';
 import { STRUCTURED } from '@warp-drive/core-types/request';
 import type { FieldSchema } from '@warp-drive/core-types/schema/fields';
-import type { SingleResourceRelationship } from '@warp-drive/core-types/spec/json-api-raw';
 import { RecordStore } from '@warp-drive/core-types/symbols';
 
 import {
@@ -311,13 +310,6 @@ export class SchemaRecord {
               Mode[Editable]
             );
           case 'belongsTo':
-            if (field.options.linksMode) {
-              entangleSignal(signals, receiver, field.name);
-              const rawValue = cache.getRelationship(identifier, field.name) as SingleResourceRelationship;
-
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-              return rawValue.data ? store.peekRecord(rawValue.data) : null;
-            }
             if (!HAS_MODEL_PACKAGE) {
               assert(
                 `Cannot use belongsTo fields in your schema unless @ember-data/model is installed to provide legacy model support. ${field.name} should likely be migrated to be a resource field.`

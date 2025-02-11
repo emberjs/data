@@ -205,8 +205,9 @@ In the case of the `Future` being returned, `Stream` proxying is automatic and i
 Request handlers are registered by configuring the manager via `use`
 
 ```ts
-const manager = new RequestManager()
-  .use([Handler1, Handler2]);
+const manager = new RequestManager();
+
+manager.use([Handler1, Handler2]);
 ```
 
 Handlers will be invoked in the order they are registered ("fifo", first-in first-out), and may only be registered up until the first request is made. It is recommended but not required to register all handlers at one time in order to ensure explicitly visible handler ordering.

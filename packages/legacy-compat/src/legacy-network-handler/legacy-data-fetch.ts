@@ -1,8 +1,12 @@
+import { deprecate } from '@ember/debug';
+
 import type Store from '@ember-data/store';
-import type { BaseFinderOptions } from '@ember-data/store/types';
+import type { BaseFinderOptions, ModelSchema } from '@ember-data/store/types';
+import { DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE, DEPRECATE_RSVP_PROMISE } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { LegacyRelationshipSchema as RelationshipSchema } from '@warp-drive/core-types/schema/fields';
 import type { ExistingResourceObject, JsonApiDocument } from '@warp-drive/core-types/spec/json-api-raw';
 
@@ -10,6 +14,7 @@ import { upgradeStore } from '../-private';
 import { iterateData, payloadIsNotBlank } from './legacy-data-utils';
 import type { MinimumAdapterInterface } from './minimum-adapter-interface';
 import { normalizeResponseHelper } from './serializer-response';
+import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './utils';
 
 export function _findHasMany(
   adapter: MinimumAdapterInterface,
@@ -18,9 +23,9 @@ export function _findHasMany(
   link: string | null | { href: string },
   relationship: RelationshipSchema,
   options: BaseFinderOptions
-) {
+): Promise<StableExistingRecordIdentifier[]> {
   upgradeStore(store);
-  const promise = Promise.resolve().then(() => {
+  let promise: Promise<unknown> = Promise.resolve().then(() => {
     const snapshot = store._fetchManager.createSnapshot(identifier, options);
     const useLink = !link || typeof link === 'string';
     const relatedLink = useLink ? link : link.href;
@@ -35,7 +40,28 @@ export function _findHasMany(
     return adapter.findHasMany(store, snapshot, relatedLink, relationship);
   });
 
-  return promise.then((adapterPayload) => {
+  promise = guardDestroyedStore(promise, store);
+  promise = promise.then((adapterPayload) => {
+    const record = store._instanceCache.getRecord(identifier);
+
+    if (!_objectIsAlive(record)) {
+      if (DEPRECATE_RSVP_PROMISE) {
+        deprecate(
+          `A Promise for fetching ${relationship.type} did not resolve by the time your model was destroyed. This will error in a future release.`,
+          false,
+          {
+            id: 'ember-data:rsvp-unresolved-async',
+            until: '5.0',
+            for: '@ember-data/store',
+            since: {
+              available: '4.5',
+              enabled: '4.5',
+            },
+          }
+        );
+      }
+    }
+
     assert(
       `You made a 'findHasMany' request for a ${identifier.type}'s '${
         relationship.name
@@ -59,6 +85,14 @@ export function _findHasMany(
     payload = syncRelationshipDataFromLink(store, payload, identifier as ResourceIdentity, relationship);
     return store._push(payload, true);
   }, null);
+
+  if (DEPRECATE_RSVP_PROMISE) {
+    const record = store._instanceCache.getRecord(identifier);
+
+    promise = _guard(promise, _bind(_objectIsAlive, record));
+  }
+
+  return promise as Promise<StableExistingRecordIdentifier[]>;
 }
 
 export function _findBelongsTo(
@@ -69,7 +103,7 @@ export function _findBelongsTo(
   options: BaseFinderOptions
 ) {
   upgradeStore(store);
-  const promise = Promise.resolve().then(() => {
+  let promise = Promise.resolve().then(() => {
     const adapter = store.adapterFor(identifier.type);
     assert(`You tried to load a belongsTo relationship but you have no adapter (for ${identifier.type})`, adapter);
     assert(
@@ -86,7 +120,33 @@ export function _findBelongsTo(
     return adapter.findBelongsTo(store, snapshot, relatedLink, relationship);
   });
 
+  if (DEPRECATE_RSVP_PROMISE) {
+    const record = store._instanceCache.getRecord(identifier);
+    promise = guardDestroyedStore(promise, store);
+    promise = _guard(promise, _bind(_objectIsAlive, record));
+  }
+
   return promise.then((adapterPayload) => {
+    if (DEPRECATE_RSVP_PROMISE) {
+      const record = store._instanceCache.getRecord(identifier);
+
+      if (!_objectIsAlive(record)) {
+        deprecate(
+          `A Promise for fetching ${relationship.type} did not resolve by the time your model was destroyed. This will error in a future release.`,
+          false,
+          {
+            id: 'ember-data:rsvp-unresolved-async',
+            until: '5.0',
+            for: '@ember-data/store',
+            since: {
+              available: '4.5',
+              enabled: '4.5',
+            },
+          }
+        );
+      }
+    }
+
     const modelClass = store.modelFor(relationship.type);
     const serializer = store.serializerFor(relationship.type);
     let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findBelongsTo');
@@ -226,10 +286,23 @@ function ensureRelationshipIsSetToParent(
   }
 }
 
+type LegacyRelationshipDefinition = { _inverseKey: (store: Store, modelClass: ModelSchema) => string | null };
+
+function metaIsRelationshipDefinition(meta: unknown): meta is LegacyRelationshipDefinition {
+  return typeof meta === 'object' && !!meta && '_inverseKey' in meta && typeof meta._inverseKey === 'function';
+}
+
 function inverseForRelationship(store: Store, identifier: { type: string; id?: string }, key: string) {
   const definition = store.schema.fields(identifier).get(key);
   if (!definition) {
     return null;
+  }
+
+  if (DEPRECATE_RELATIONSHIPS_WITHOUT_INVERSE) {
+    if (metaIsRelationshipDefinition(definition)) {
+      const modelClass = store.modelFor(identifier.type);
+      return definition._inverseKey(store, modelClass);
+    }
   }
   assert(
     `Expected the field definition to be a relationship`,

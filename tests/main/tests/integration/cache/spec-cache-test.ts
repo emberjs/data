@@ -143,11 +143,11 @@ class TestCache implements Cache {
     calculateChanges?: boolean
   ): void | string[] {
     if (!this._data.has(identifier)) {
-      this._storeWrapper.notifyChange(identifier, 'added', null);
+      this._storeWrapper.notifyChange(identifier, 'added');
     }
     this._data.set(identifier, data);
-    this._storeWrapper.notifyChange(identifier, 'attributes', null);
-    this._storeWrapper.notifyChange(identifier, 'relationships', null);
+    this._storeWrapper.notifyChange(identifier, 'attributes');
+    this._storeWrapper.notifyChange(identifier, 'relationships');
   }
 
   clientDidCreate(identifier: StableRecordIdentifier, options?: Record<string, unknown>): Record<string, unknown> {

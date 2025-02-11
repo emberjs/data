@@ -157,7 +157,7 @@ export default function updateRelationshipOperation(graph: Graph, op: UpdateRela
     ) {
       relationship.state.isStale = true;
 
-      notifyChange(graph, relationship);
+      notifyChange(graph, relationship.identifier, relationship.definition.key);
     } else {
       relationship.state.isStale = false;
     }
