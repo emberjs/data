@@ -16,12 +16,6 @@ import { Type } from '@warp-drive/core-types/symbols';
 import type { ReactiveContext } from '../../../helpers/reactive-context';
 import { reactiveContext } from '../../../helpers/reactive-context';
 
-let IS_DEPRECATE_MANY_ARRAY_DUPLICATES = false;
-
-if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
-  IS_DEPRECATE_MANY_ARRAY_DUPLICATES = true;
-}
-
 class User extends Model {
   @attr declare name: string;
   @hasMany('user', { async: false, inverse: 'friends' }) declare friends: ManyArray<User>;
@@ -222,8 +216,8 @@ async function applyMutation(
   const result = generateAppliedMutation(store, record, mutation);
   const initialIds = record.friends.map((f) => f.id).join(',');
 
-  const shouldError = result.hasDuplicates && !IS_DEPRECATE_MANY_ARRAY_DUPLICATES;
-  const shouldDeprecate = result.hasDuplicates && IS_DEPRECATE_MANY_ARRAY_DUPLICATES;
+  const shouldError = result.hasDuplicates && /* inline-macro-config */ !DEPRECATE_MANY_ARRAY_DUPLICATES;
+  const shouldDeprecate = result.hasDuplicates && /* inline-macro-config */ DEPRECATE_MANY_ARRAY_DUPLICATES;
   const expected = shouldError ? result.unchanged : result.deduped;
 
   try {
