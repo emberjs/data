@@ -1377,7 +1377,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
         class Person extends Model {
           @attr name;
-          @hasMany('pet', { async: false, inverse: null, resetOnRemoteUpdate: false })
+          @hasMany('pet', { async: false, inverse: null })
           pets;
         }
 
@@ -1492,7 +1492,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
 
         class Person extends Model {
           @attr name;
-          @hasMany('pet', { async: false, inverse: null, resetOnRemoteUpdate: false })
+          @hasMany('pet', { async: false, inverse: null })
           pets;
         }
 
