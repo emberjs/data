@@ -3091,6 +3091,9 @@ importers:
       '@ember/test-waiters':
         specifier: ^3.1.0
         version: 3.1.0(@babel/core@7.26.8)
+      '@embroider/macros':
+        specifier: ^1.16.10
+        version: 1.16.10(@babel/core@7.26.8)(@glint/template@1.5.0)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.26.8)

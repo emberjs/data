@@ -1,4 +1,4 @@
-import { get } from '@ember/helper';
+import { helper } from '@ember/component/helper';
 import type { TestContext } from '@ember/test-helpers';
 import { render } from '@ember/test-helpers';
 import Component from '@glimmer/component';
@@ -27,6 +27,10 @@ export async function reactiveContext<T extends Model>(
     _fields.push(field.name);
   });
 
+  const lowPolyGet = helper(([obj, prop]: [obj: ReactiveComponent, prop: string]): string => {
+    return obj[prop];
+  });
+
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface ReactiveComponent extends Record<string, string> {}
   class ReactiveComponent extends Component {
@@ -38,7 +42,7 @@ export async function reactiveContext<T extends Model>(
       <div class="reactive-context">
         <ul>
           {{#each this.__allFields as |prop|}}
-            <li>{{prop}}: {{get this prop}}</li>
+            <li>{{prop}}: {{lowPolyGet this prop}}</li>
           {{/each}}
         </ul>
       </div>
