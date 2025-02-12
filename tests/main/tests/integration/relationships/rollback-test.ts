@@ -300,7 +300,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
 
       const changed = store.cache.rollbackRelationships(appIdentifier);
       assert.arrayStrictEquals(changed, ['configs'], 'hasMany has rolled back');
-      assert.arrayStrictEquals(app.configs, [config1, config2, config3], 'hasMany has rolled back');
+      assert.arrayStrictEquals(app.configs, [config1, config2, config3], 'hasMany has restored the initial order');
       assert.strictEqual(config2.app, app, 'config2 has rolled back');
       assert.false(store.cache.hasChangedRelationships(appIdentifier), 'hasMany is clean');
     });
