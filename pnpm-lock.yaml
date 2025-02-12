@@ -1311,8 +1311,8 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0
       inflection:
-        specifier: ~3.0.0
-        version: 3.0.0
+        specifier: ~3.0.2
+        version: 3.0.2
     devDependencies:
       '@babel/core':
         specifier: ^7.24.5
@@ -15640,8 +15640,8 @@ packages:
     resolution: {integrity: sha512-wzkZHqpb4eGrOKBl34xy3umnYHx8Si5R1U4fwmdxLo5gdH6mEK8gclckTj/qWqy4Je0bsDYe/qazZYuO7xe3XQ==}
     engines: {node: '>=14.0.0'}
 
-  /inflection@3.0.0:
-    resolution: {integrity: sha512-1zEJU1l19SgJlmwqsEyFTbScw/tkMHFenUo//Y0i+XEP83gDFdMvPizAD/WGcE+l1ku12PcTVHQhO6g5E0UCMw==}
+  /inflection@3.0.2:
+    resolution: {integrity: sha512-+Bg3+kg+J6JUWn8J6bzFmOWkTQ6L/NHfDRSYU+EVvuKHDxUDHAXgqixHfVlzuBQaPOTac8hn43aPhMNk6rMe3g==}
     engines: {node: '>=18.0.0'}
 
   /inflight@1.0.6:
@@ -21696,7 +21696,7 @@ packages:
       ember-cli-string-utils: 1.1.0
       ember-cli-test-info: 1.0.0
       ember-source: 5.12.0(@glimmer/component@1.1.2)(@glint/template@1.5.0)
-      inflection: 3.0.0
+      inflection: 3.0.2
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -21736,7 +21736,7 @@ packages:
       ember-cli-string-utils: 1.1.0
       ember-cli-test-info: 1.0.0
       ember-source: 5.12.0(@glimmer/component@1.1.2)(@glint/template@1.5.0)
-      inflection: 3.0.0
+      inflection: 3.0.2
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
