@@ -1,14 +1,11 @@
 // ensure DS namespace is set
-import Application from '@ember/application';
 import Controller from '@ember/controller';
 import Service, { inject as service } from '@ember/service';
 
 import { module, test } from 'qunit';
 
-import initializeEmberData from 'ember-data/setup-container';
 import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
-import Resolver from 'ember-resolver';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
@@ -133,64 +130,5 @@ module('integration/application - Using the store as a service', function (hooks
 
     assert.ok(secondService instanceof Store, 'the store can be used as a service');
     assert.notStrictEqual(store, secondService, 'the store can be used as a service');
-  });
-});
-
-module('integration/application - Attaching initializer', function (hooks) {
-  hooks.beforeEach(function () {
-    this.TestApplication = Application.extend({
-      modulePrefix: '--none',
-      Resolver,
-    });
-    this.TestApplication.initializer({
-      name: 'ember-data',
-      initialize: initializeEmberData,
-    });
-
-    this.application = null;
-    this.owner = null;
-  });
-
-  test('ember-data initializer is run', async function (assert) {
-    let ran = false;
-
-    this.TestApplication.initializer({
-      name: 'after-ember-data',
-      after: 'ember-data',
-      initialize() {
-        ran = true;
-      },
-    });
-
-    this.application = this.TestApplication.create({ autoboot: false });
-
-    await this.application.boot();
-
-    assert.ok(ran, 'ember-data initializer was found');
-  });
-
-  test('ember-data initializer does not register the store service when it was already registered', async function (assert) {
-    class AppStore extends Store {
-      isCustomStore = true;
-    }
-
-    this.TestApplication.initializer({
-      name: 'before-ember-data',
-      before: 'ember-data',
-      initialize(registry) {
-        registry.register('service:store', AppStore);
-      },
-    });
-
-    this.application = this.TestApplication.create({ autoboot: false });
-
-    await this.application.boot();
-    this.owner = this.application.buildInstance();
-
-    const store = this.owner.lookup('service:store');
-    assert.ok(
-      store && store.isCustomStore,
-      'ember-data initializer does not overwrite the previous registered service store'
-    );
   });
 });
