@@ -7,6 +7,7 @@ export default Route.extend({
   async model() {
     performance.mark('start-data-generation');
     const payload = await fetch('./fixtures/relationship-materialization-complex.json').then((r) => r.json());
+    const payload2 = structuredClone(payload);
     performance.mark('start-push-payload');
     this.store._push(payload);
     performance.mark('start-peek-records');
@@ -18,7 +19,12 @@ export default Route.extend({
     performance.mark('start-relationship-materialization');
     const seen = new Set();
     peekedParents.forEach((parent) => iterateParent(parent, seen));
-    performance.mark('end-relationship-materialization');
+    performance.mark('start-push-payload2');
+    this.store._push(payload2);
+    performance.mark('start-relationship-materialization2');
+    const seen2 = new Set();
+    peekedParents.forEach((parent) => iterateParent(parent, seen2));
+    performance.mark('end-relationship-materialization2');
     // performance.measure('full-test', 'start-push-payload', 'end-relationship-materialization');
     // performance.measure('materialization', 'start-relationship-materialization', 'end-relationship-materialization');
   },
