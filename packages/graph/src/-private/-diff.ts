@@ -171,6 +171,10 @@ function _compare<T>(
     if (i < finalLength) {
       member = finalState[i];
       if (!prevSet.has(member)) {
+        // TODO: in order to avoid unnecessarily notifying a change here
+        // we would need to only notify "changed" if member is not in
+        // relationship.additions OR if localState[i] !== member
+
         changed = true;
         added.add(member);
         onAdd(member);

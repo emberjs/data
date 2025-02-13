@@ -77,7 +77,7 @@ jobs:
               "relationship-materialization-complex": {
                 "control": "http://localhost:4200/relationship-materialization-complex",
                 "experiment": "http://localhost:4201/relationship-materialization-complex",
-                "markers": "start-data-generation,start-push-payload,start-peek-records,start-record-materialization,start-relationship-materialization,end-relationship-materialization"
+                "markers": "start-data-generation,start-push-payload,start-peek-records,start-record-materialization,start-relationship-materialization,start-push-payload2,start-relationship-materialization2,end-relationship-materialization2"
               },
               "unload": {
                 "control": "http://localhost:4200/unload",
