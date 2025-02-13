@@ -2,6 +2,10 @@
 
 const EmberApp = require('ember-cli/lib/broccoli/ember-app');
 
+function isEnabled(flag) {
+  return flag === true || flag === 'true' || flag === '1';
+}
+
 module.exports = async function (defaults) {
   const { setConfig } = await import('@warp-drive/build-config');
   const { macros } = await import('@warp-drive/build-config/babel-macros');
@@ -56,9 +60,20 @@ module.exports = async function (defaults) {
   });
 
   setConfig(app, __dirname, {
-    compatWith: process.env.EMBER_DATA_FULL_COMPAT ? '99.0' : null,
+    compatWith: isEnabled(process.env.EMBER_DATA_FULL_COMPAT) ? '99.0' : null,
     deprecations: {
       DISABLE_6X_DEPRECATIONS: false,
+    },
+    debug: {
+      // LOG_GRAPH: true,
+      // LOG_IDENTIFIERS: true,
+      // LOG_NOTIFICATIONS: true,
+      // LOG_INSTANCE_CACHE: true,
+      // LOG_MUTATIONS: true,
+      // LOG_PAYLOADS: true,
+      // LOG_REQUESTS: true,
+      // LOG_REQUEST_STATUS: true,
+      // LOG_OPERATIONS: true,
     },
   });
 

@@ -491,12 +491,9 @@ export class Store extends BaseClass {
    * import Fetch from '@ember-data/request/fetch';
    *
    * class extends Store {
-   *   constructor() {
-   *     super(...arguments);
-   *     this.requestManager = new RequestManager();
-   *     this.requestManager.use([Fetch]);
-   *     this.requestManager.useCache(CacheHandler);
-   *   }
+   *   requestManager = new RequestManager()
+   *    .use([Fetch])
+   *    .useCache(CacheHandler);
    * }
    * ```
    *
@@ -751,11 +748,11 @@ export class Store extends BaseClass {
     const opts: {
       store: Store;
       disableTestWaiter?: boolean;
-      [EnableHydration]: true;
+      [EnableHydration]: boolean;
       records?: StableRecordIdentifier[];
     } = {
       store: this,
-      [EnableHydration]: true,
+      [EnableHydration]: requestConfig[EnableHydration] ?? true,
     };
 
     if (requestConfig.records) {

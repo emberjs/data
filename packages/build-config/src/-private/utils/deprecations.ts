@@ -8,7 +8,7 @@ function deprecationIsResolved(deprecatedSince: MajorMinor, compatVersion: Major
   return semver.lte(semver.minVersion(deprecatedSince)!, semver.minVersion(compatVersion)!);
 }
 
-const NextMajorVersion = '5.';
+const NextMajorVersion = '6.';
 
 function deprecationIsNextMajorCycle(deprecatedSince: MajorMinor) {
   return deprecatedSince.startsWith(NextMajorVersion);

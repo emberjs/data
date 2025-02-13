@@ -1,3 +1,4 @@
+import type { TestContext } from '@ember/test-helpers';
 import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
@@ -195,7 +196,14 @@ function generateAppliedMutation(store: Store, record: User, mutation: Mutation)
   };
 }
 
-async function applyMutation(assert: Assert, store: Store, record: User, mutation: Mutation, rc: ReactiveContext) {
+async function applyMutation(
+  this: TestContext,
+  assert: Assert,
+  store: Store,
+  record: User,
+  mutation: Mutation,
+  rc: ReactiveContext
+) {
   assert.ok(true, `LOG: applying "${mutation.name}" with ids [${mutation.values.map((v) => v.id).join(',')}]`);
 
   const { counters, fieldOrder } = rc;
@@ -392,34 +400,52 @@ function getMutations(): Mutation[] {
   ];
 }
 
-module('Integration | Relationships | Collection | Mutation', function (hooks) {
-  setupRenderingTest(hooks);
+const STATES: Array<{
+  startingState: { name: string; cb: (store: Store) => User };
+  mutation: Mutation;
+}> = [];
 
-  hooks.beforeEach(function () {
-    this.owner.register('model:user', User);
-  });
-
-  getStartingState().forEach((startingState) => {
-    module(`Starting state: ${startingState.name}`, function () {
-      getMutations().forEach((mutation) => {
-        module(`Mutation: ${mutation.name}`, function () {
-          getMutations().forEach((mutation2) => {
-            test(`followed by Mutation: ${mutation2.name}`, async function (assert) {
-              const store = this.owner.lookup('service:store') as Store;
-              const user = startingState.cb(store);
-              const rc = await reactiveContext.call(this, user, {
-                identity: null,
-                type: 'user',
-                fields: [{ name: 'friends', kind: 'hasMany', type: 'user', options: { async: false, inverse: null } }],
-              });
-              rc.reset();
-
-              await applyMutation(assert, store, user, mutation, rc);
-              await applyMutation(assert, store, user, mutation2, rc);
-            });
-          });
-        });
-      });
+getStartingState().forEach((startingState) => {
+  getMutations().forEach((mutation) => {
+    STATES.push({
+      startingState,
+      mutation,
     });
   });
 });
+
+export function runTestGroup(splitNum: number, offset: number) {
+  STATES.forEach(({ startingState, mutation }, index) => {
+    // Run only every Nth test, offset by 0
+    if (index % splitNum !== offset) {
+      return;
+    }
+
+    module(
+      `Integration | Relationships | Collection | Mutation > Starting state: ${startingState.name} > Mutation: ${mutation.name}`,
+      function (hooks) {
+        setupRenderingTest(hooks);
+
+        hooks.beforeEach(function () {
+          this.owner.register('model:user', User);
+        });
+
+        getMutations().forEach((mutation2) => {
+          test(`followed by Mutation: ${mutation2.name}`, async function (assert) {
+            const store = this.owner.lookup('service:store') as Store;
+            const user = startingState.cb(store);
+            const rc = await reactiveContext.call(this, user, {
+              identity: null,
+              type: 'user',
+              fields: [{ name: 'friends', kind: 'hasMany', type: 'user', options: { async: false, inverse: null } }],
+            });
+            rc.reset();
+
+            await applyMutation.call(this, assert, store, user, mutation, rc);
+            await applyMutation.call(this, assert, store, user, mutation2, rc);
+          });
+        });
+      }
+    );
+  });
+}

@@ -266,7 +266,7 @@ module('integration/relationships/hasMany - Sort Order', function (hooks) {
     assert.verifySteps(['updateRecord', 'serializing', 'serialized'], 'serialize was called');
   });
 
-  test('hasMany reflects sort order from local changes aeven after new server state is recieved', async function (assert) {
+  test('hasMany reflects sort order from local changes even after new server state is recieved', async function (assert) {
     const store = this.owner.lookup('service:store');
     this.owner.register(
       'adapter:application',
@@ -293,7 +293,7 @@ module('integration/relationships/hasMany - Sort Order', function (hooks) {
           const ids = snapshot.hasMany('pets', { ids: true });
 
           assert.step('serializing');
-          assert.deepEqual(ids, ['2', '1', '3'], 'serialize hasMany returns the right order');
+          assert.deepEqual(ids, ['spot-2', 'fido-1', 'rex-3'], 'serialize hasMany returns the right order');
 
           return {
             data: {
@@ -317,19 +317,19 @@ module('integration/relationships/hasMany - Sort Order', function (hooks) {
       data: [
         {
           type: 'pet',
-          id: '1',
+          id: 'fido-1',
           attributes: { name: 'Fido' },
           relationships: { owner: { data: { type: 'user', id: '1' } } },
         },
         {
           type: 'pet',
-          id: '2',
+          id: 'spot-2',
           attributes: { name: 'Spot' },
           relationships: { owner: { data: { type: 'user', id: '1' } } },
         },
         {
           type: 'pet',
-          id: '3',
+          id: 'rex-3',
           attributes: { name: 'Rex' },
           relationships: { owner: { data: { type: 'user', id: '1' } } },
         },
@@ -344,22 +344,26 @@ module('integration/relationships/hasMany - Sort Order', function (hooks) {
         relationships: {
           pets: {
             data: [
-              { type: 'pet', id: '3' },
-              { type: 'pet', id: '1' },
-              { type: 'pet', id: '2' },
+              { type: 'pet', id: 'rex-3' },
+              { type: 'pet', id: 'fido-1' },
+              { type: 'pet', id: 'spot-2' },
             ],
           },
         },
       },
     });
 
-    const pets = user.pets.map((pet) => pet.name);
-    assert.deepEqual(pets, ['Rex', 'Fido', 'Spot'], 'Pets are in the right order');
+    const pets = user.pets.map((pet) => pet.id);
+    assert.deepEqual(pets, ['rex-3', 'fido-1', 'spot-2'], 'Pets are in the right order');
 
     user.pets = [pet2, pet1, pet3];
 
-    const locallyReorderedPets = user.pets.map((pet) => pet.name);
-    assert.deepEqual(locallyReorderedPets, ['Spot', 'Fido', 'Rex'], 'Pets are in the right order after local reorder');
+    const locallyReorderedPets = user.pets.map((pet) => pet.id);
+    assert.deepEqual(
+      locallyReorderedPets,
+      ['spot-2', 'fido-1', 'rex-3'],
+      'Pets are in the right order after local reorder'
+    );
 
     store.push({
       data: {
@@ -369,20 +373,20 @@ module('integration/relationships/hasMany - Sort Order', function (hooks) {
         relationships: {
           pets: {
             data: [
-              { type: 'pet', id: '3' },
-              { type: 'pet', id: '1' },
-              { type: 'pet', id: '2' },
+              { type: 'pet', id: 'rex-3' },
+              { type: 'pet', id: 'fido-1' },
+              { type: 'pet', id: 'spot-2' },
             ],
           },
         },
       },
     });
 
-    const petsAgain = user.pets.map((pet) => pet.name);
+    const petsAgain = user.pets.map((pet) => pet.id);
     if (DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
-      assert.deepEqual(petsAgain, ['Rex', 'Fido', 'Spot'], 'Pets are in the right order');
+      assert.deepEqual(petsAgain, ['rex-3', 'fido-1', 'spot-2'], 'Pets are in the right order');
     } else {
-      assert.deepEqual(petsAgain, ['Spot', 'Fido', 'Rex'], 'Pets are still in the right order');
+      assert.deepEqual(petsAgain, ['spot-2', 'fido-1', 'rex-3'], 'Pets are still in the right order');
     }
   });
 

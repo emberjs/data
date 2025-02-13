@@ -143,7 +143,7 @@ export function removeIdentifierCompletelyFromRelationship(
       // we shouldn't be notifying here though, figure out where
       // a notification was missed elsewhere.
       if (!silenceNotifications) {
-        notifyChange(graph, relationship.identifier, relationship.definition.key);
+        notifyChange(graph, relationship);
       }
     }
   } else if (isHasMany(relationship)) {
@@ -164,7 +164,7 @@ export function removeIdentifierCompletelyFromRelationship(
         // we shouldn't be notifying here though, figure out where
         // a notification was missed elsewhere.
         if (!silenceNotifications) {
-          notifyChange(graph, relationship.identifier, relationship.definition.key);
+          notifyChange(graph, relationship);
         }
       }
     }
@@ -174,8 +174,14 @@ export function removeIdentifierCompletelyFromRelationship(
   }
 }
 
-// TODO add silencing at the graph level
-export function notifyChange(graph: Graph, identifier: StableRecordIdentifier, key: string) {
+export function notifyChange(graph: Graph, relationship: CollectionEdge | ResourceEdge): void {
+  if (!relationship.accessed) {
+    return;
+  }
+
+  const identifier = relationship.identifier;
+  const key = relationship.definition.key;
+
   if (identifier === graph._removing) {
     if (LOG_GRAPH) {
       // eslint-disable-next-line no-console

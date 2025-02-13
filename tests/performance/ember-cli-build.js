@@ -2,13 +2,19 @@
 
 const EmberApp = require('ember-cli/lib/broccoli/ember-app');
 
-module.exports = function (defaults) {
+module.exports = async function (defaults) {
+  const { setConfig } = await import('@warp-drive/build-config');
   const app = new EmberApp(defaults, {
     fingerprint: {
       enabled: false,
     },
-    emberData: {
-      compatWith: '99',
+  });
+  setConfig(app, __dirname, {
+    compatWith: '99',
+    debug: {
+      // LOG_NOTIFICATIONS: true,
+      // LOG_INSTANCE_CACHE: true,
+      // LOG_METRIC_COUNTS: true,
     },
   });
 
@@ -29,6 +35,11 @@ module.exports = function (defaults) {
   const TerserPlugin = require('terser-webpack-plugin');
 
   return require('@embroider/compat').compatBuild(app, Webpack, {
+    skipBabel: [
+      {
+        package: 'qunit',
+      },
+    ],
     //
     // staticAddonTestSupportTrees: true,
     // staticAddonTrees: true,

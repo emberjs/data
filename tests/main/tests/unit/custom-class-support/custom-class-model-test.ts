@@ -96,8 +96,8 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     store._join(() => {
       capabilities.notifyChange(identifier, 'relationships', 'key');
       capabilities.notifyChange(identifier, 'relationships', 'key');
-      capabilities.notifyChange(identifier, 'state');
-      capabilities.notifyChange(identifier, 'errors');
+      capabilities.notifyChange(identifier, 'state', null);
+      capabilities.notifyChange(identifier, 'errors', null);
     });
 
     assert.strictEqual(notificationCount, 3, 'called notification callback');

@@ -159,8 +159,8 @@ export class Context {
   #owner: ContextOwner;
   declare request: ImmutableRequestInfo;
   declare id: number;
-  private declare _isCacheHandler: boolean;
-  private declare _finalized: boolean;
+  declare private _isCacheHandler: boolean;
+  declare private _finalized: boolean;
 
   constructor(owner: ContextOwner, isCacheHandler: boolean) {
     this.id = owner.requestId;

@@ -726,6 +726,165 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
         'namespace apps relationship is correct'
       );
     });
+  } else {
+    deprecatedTest(
+      'updateRelationship operation from the collection side clear local state',
+      { id: 'ember-data:deprecate-relationship-remote-update-clearing-local-state', count: 2, until: '6.0.0' },
+      function (assert) {
+        // tests that Many:Many, Many:One do not clear local state from
+        // either side when updating the relationship from the Many side
+        // we set the flag on the inverse to ensure that we detect this
+        // from either side
+        const { owner } = this;
+
+        class App extends Model {
+          @attr declare name: string;
+          @hasMany('config', { async: false, inverse: 'app' }) declare configs: Config[];
+          @hasMany('namespace', { async: false, inverse: 'apps' }) declare namespaces: Namespace | null;
+        }
+
+        class Namespace extends Model {
+          @attr declare name: string;
+          @hasMany('app', { async: false, inverse: 'namespaces' }) declare apps: App[];
+        }
+
+        class Config extends Model {
+          @attr declare name: string;
+          @belongsTo('app', { async: false, inverse: 'configs' }) declare app: App | null;
+        }
+
+        function identifier(type: string, id: string) {
+          return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
+        }
+
+        owner.register('model:app', App);
+        owner.register('model:namespace', Namespace);
+        owner.register('model:config', Config);
+        const store = owner.lookup('service:store') as unknown as Store;
+        const graph = graphFor(store);
+        const appIdentifier = identifier('app', '1');
+
+        // set initial state
+        // one app, with 4 configs and 4 namespaces
+        // each config belongs to the app
+        // each namespace has the app and 2 more apps
+        store._join(() => {
+          // setup primary app relationships
+          // this also convers the belongsTo side on config
+          graph.push({
+            op: 'updateRelationship',
+            field: 'configs',
+            record: appIdentifier,
+            value: {
+              data: [
+                { type: 'config', id: '1' },
+                { type: 'config', id: '2' },
+                { type: 'config', id: '3' },
+                { type: 'config', id: '4' },
+              ],
+            },
+          });
+          graph.push({
+            op: 'updateRelationship',
+            field: 'namespaces',
+            record: appIdentifier,
+            value: {
+              data: [
+                { type: 'namespace', id: '1' },
+                { type: 'namespace', id: '2' },
+                { type: 'namespace', id: '3' },
+                { type: 'namespace', id: '4' },
+              ],
+            },
+          });
+          // setup namespace relationships
+          ['1', '2', '3', '4'].forEach((id) => {
+            graph.push({
+              op: 'updateRelationship',
+              field: 'apps',
+              record: identifier('namespace', id),
+              value: {
+                data: [
+                  { type: 'app', id: '1' },
+                  { type: 'app', id: '2' },
+                  { type: 'app', id: '3' },
+                ],
+              },
+            });
+          });
+        });
+
+        // mutate app:1.configs, adding config:5
+        // mutate app:1.namespaces, adding namespace:5
+        store._join(() => {
+          graph.update({
+            op: 'addToRelatedRecords',
+            field: 'configs',
+            record: appIdentifier,
+            value: identifier('config', '5'),
+          });
+          graph.update({
+            op: 'addToRelatedRecords',
+            field: 'namespaces',
+            record: appIdentifier,
+            value: identifier('namespace', '5'),
+          });
+        });
+
+        // push the exact same remote state to the graph again
+        // for app:1
+        store._join(() => {
+          // setup primary app relationships
+          // this also convers the belongsTo side on config
+          graph.push({
+            op: 'updateRelationship',
+            field: 'configs',
+            record: appIdentifier,
+            value: {
+              data: [
+                { type: 'config', id: '1' },
+                { type: 'config', id: '2' },
+                { type: 'config', id: '3' },
+                { type: 'config', id: '4' },
+              ],
+            },
+          });
+          graph.push({
+            op: 'updateRelationship',
+            field: 'namespaces',
+            record: appIdentifier,
+            value: {
+              data: [
+                { type: 'namespace', id: '1' },
+                { type: 'namespace', id: '2' },
+                { type: 'namespace', id: '3' },
+                { type: 'namespace', id: '4' },
+              ],
+            },
+          });
+        });
+
+        // we should have both not err'd and still have cleared the mutated state
+        const { data: configs } = graph.getData(appIdentifier, 'configs');
+        assert.arrayStrictEquals(
+          configs,
+          [identifier('config', '1'), identifier('config', '2'), identifier('config', '3'), identifier('config', '4')],
+          'configs are correct'
+        );
+
+        const { data: namespaces } = graph.getData(appIdentifier, 'namespaces');
+        assert.arrayStrictEquals(
+          namespaces,
+          [
+            identifier('namespace', '1'),
+            identifier('namespace', '2'),
+            identifier('namespace', '3'),
+            identifier('namespace', '4'),
+          ],
+          'namespaces are correct'
+        );
+      }
+    );
   }
 
   test('updateRelationship operation from the collection side does not clear local state when `resetOnRemoteUpdate: false` is set', function (assert) {

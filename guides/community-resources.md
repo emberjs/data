@@ -10,3 +10,4 @@
 
 - [Not Your Parent's EmberData](https://runspired.com/2024/01/31/modern-ember-data.html) | *2024-01-31* by [Chris Thoburn](https://github.com/runspired)
 - [Adventures in WarpDrive | Cascade On Delete](https://runspired.com/2024/11/29/cascade-on-delete.html) | *2024-11-29* by [Chris Thoburn](https://github.com/runspired)
+- [Exploring Transformed and Derived Values in @warp-drive/schema-record](https://runspired.com/2025/02/06/exploring-transformed-and-derivied-values-in-schema-record.html) | *2025-02-06* by [Chris Thoburn](https://github.com/runspired)

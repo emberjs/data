@@ -12,7 +12,11 @@ import { recordIdentifierFor } from '@ember-data/store';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 import todo from '@ember-data/unpublished-test-infra/test-support/todo';
-import { DEPRECATE_ARRAY_LIKE, DEPRECATE_MANY_ARRAY_DUPLICATES } from '@warp-drive/build-config/deprecations';
+import {
+  DEPRECATE_ARRAY_LIKE,
+  DEPRECATE_MANY_ARRAY_DUPLICATES,
+  DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE,
+} from '@warp-drive/build-config/deprecations';
 
 module('unit/model/relationships - hasMany', function (hooks) {
   setupTest(hooks);
@@ -1369,236 +1373,471 @@ module('unit/model/relationships - hasMany', function (hooks) {
     );
   });
 
-  todo(
-    '[push hasMany] new items added to a hasMany relationship are not cleared by a store.push',
-    async function (assert) {
-      assert.expect(5);
+  if (DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
+    todo(
+      '[push hasMany] new items added to a hasMany relationship are not cleared by a store.push',
+      async function (assert) {
+        assert.expect(5);
 
-      const Person = Model.extend({
-        name: attr('string'),
-        pets: hasMany('pet', { async: false, inverse: null }),
-      });
+        class Person extends Model {
+          @attr name;
+          @hasMany('pet', { async: false, inverse: null })
+          pets;
+        }
 
-      const Pet = Model.extend({
-        name: attr('string'),
-        person: belongsTo('person', { async: false, inverse: null }),
-      });
+        class Pet extends Model {
+          @attr name;
+          @belongsTo('person', { async: false, inverse: null })
+          person;
+        }
 
-      this.owner.register('model:person', Person);
-      this.owner.register('model:pet', Pet);
+        this.owner.register('model:person', Person);
+        this.owner.register('model:pet', Pet);
 
-      const store = this.owner.lookup('service:store');
-      const adapter = store.adapterFor('application');
+        const store = this.owner.lookup('service:store');
+        const adapter = store.adapterFor('application');
 
-      adapter.shouldBackgroundReloadRecord = () => false;
-      adapter.deleteRecord = () => {
-        return Promise.resolve({ data: null });
-      };
+        adapter.shouldBackgroundReloadRecord = () => false;
+        adapter.deleteRecord = () => {
+          return Promise.resolve({ data: null });
+        };
 
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Chris Thoburn',
-          },
-          relationships: {
-            pets: {
-              data: [{ type: 'pet', id: '1' }],
-            },
-          },
-        },
-        included: [
-          {
-            type: 'pet',
+        store.push({
+          data: {
+            type: 'person',
             id: '1',
             attributes: {
-              name: 'Shenanigans',
+              name: 'Chris Thoburn',
+            },
+            relationships: {
+              pets: {
+                data: [{ type: 'pet', id: '1' }],
+              },
             },
           },
-          {
-            type: 'pet',
-            id: '2',
-            attributes: {
-              name: 'Rambunctious',
+          included: [
+            {
+              type: 'pet',
+              id: '1',
+              attributes: {
+                name: 'Shenanigans',
+              },
+            },
+            {
+              type: 'pet',
+              id: '2',
+              attributes: {
+                name: 'Rambunctious',
+              },
+            },
+            {
+              type: 'pet',
+              id: '3',
+              attributes: {
+                name: 'Rebel',
+              },
+            },
+          ],
+        });
+
+        const person = store.peekRecord('person', '1');
+        const pets = await person.pets;
+
+        const shen = pets.at(0);
+        const rebel = store.peekRecord('pet', '3');
+
+        assert.strictEqual(shen.name, 'Shenanigans', 'precond - relationships work');
+        assert.deepEqual(
+          pets.map((p) => p.id),
+          ['1'],
+          'precond - relationship has the correct pets to start'
+        );
+
+        pets.push(rebel);
+        await settled();
+
+        assert.deepEqual(
+          pets.map((p) => p.id),
+          ['1', '3'],
+          'precond2 - relationship now has the correct two pets'
+        );
+
+        store.push({
+          data: {
+            type: 'person',
+            id: '1',
+            relationships: {
+              pets: {
+                data: [{ type: 'pet', id: '2' }],
+              },
             },
           },
-          {
-            type: 'pet',
-            id: '3',
-            attributes: {
-              name: 'Rebel',
-            },
-          },
-        ],
-      });
+        });
 
-      const person = store.peekRecord('person', '1');
-      const pets = await person.pets;
+        const hasManyCanonical = person.hasMany('pets').hasManyRelationship.remoteState;
 
-      const shen = pets.at(0);
-      const rebel = store.peekRecord('pet', '3');
+        assert.todo.deepEqual(
+          pets.map((p) => p.id),
+          ['2', '3'],
+          'relationship now has the correct current pets'
+        );
+        assert.deepEqual(
+          hasManyCanonical.map((p) => p.id),
+          ['2'],
+          'relationship now has the correct canonical pets'
+        );
+      }
+    );
 
-      assert.strictEqual(shen.name, 'Shenanigans', 'precond - relationships work');
-      assert.deepEqual(
-        pets.map((p) => p.id),
-        ['1'],
-        'precond - relationship has the correct pets to start'
-      );
+    todo(
+      '[push hasMany] items removed from a hasMany relationship are not cleared by a store.push',
+      async function (assert) {
+        assert.expect(5);
 
-      pets.push(rebel);
-      await settled();
+        class Person extends Model {
+          @attr name;
+          @hasMany('pet', { async: false, inverse: null })
+          pets;
+        }
 
-      assert.deepEqual(
-        pets.map((p) => p.id),
-        ['1', '3'],
-        'precond2 - relationship now has the correct two pets'
-      );
+        class Pet extends Model {
+          @attr name;
+          @belongsTo('person', { async: false, inverse: null })
+          person;
+        }
 
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          relationships: {
-            pets: {
-              data: [{ type: 'pet', id: '2' }],
-            },
-          },
-        },
-      });
+        this.owner.register('model:person', Person);
+        this.owner.register('model:pet', Pet);
 
-      const hasManyCanonical = person.hasMany('pets').hasManyRelationship.remoteState;
+        const store = this.owner.lookup('service:store');
+        const adapter = store.adapterFor('application');
 
-      assert.todo.deepEqual(
-        pets.map((p) => p.id),
-        ['2', '3'],
-        'relationship now has the correct current pets'
-      );
-      assert.deepEqual(
-        hasManyCanonical.map((p) => p.id),
-        ['2'],
-        'relationship now has the correct canonical pets'
-      );
-    }
-  );
+        adapter.shouldBackgroundReloadRecord = () => false;
+        adapter.deleteRecord = () => {
+          return Promise.resolve({ data: null });
+        };
 
-  todo(
-    '[push hasMany] items removed from a hasMany relationship are not cleared by a store.push',
-    async function (assert) {
-      assert.expect(5);
-
-      const Person = Model.extend({
-        name: attr('string'),
-        pets: hasMany('pet', { async: false, inverse: null }),
-      });
-
-      const Pet = Model.extend({
-        name: attr('string'),
-        person: belongsTo('person', { async: false, inverse: null }),
-      });
-
-      this.owner.register('model:person', Person);
-      this.owner.register('model:pet', Pet);
-
-      const store = this.owner.lookup('service:store');
-      const adapter = store.adapterFor('application');
-
-      adapter.shouldBackgroundReloadRecord = () => false;
-      adapter.deleteRecord = () => {
-        return Promise.resolve({ data: null });
-      };
-
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Chris Thoburn',
-          },
-          relationships: {
-            pets: {
-              data: [
-                { type: 'pet', id: '1' },
-                { type: 'pet', id: '3' },
-              ],
-            },
-          },
-        },
-        included: [
-          {
-            type: 'pet',
+        store.push({
+          data: {
+            type: 'person',
             id: '1',
             attributes: {
-              name: 'Shenanigans',
+              name: 'Chris Thoburn',
+            },
+            relationships: {
+              pets: {
+                data: [
+                  { type: 'pet', id: '1' },
+                  { type: 'pet', id: '3' },
+                ],
+              },
             },
           },
-          {
-            type: 'pet',
-            id: '2',
-            attributes: {
-              name: 'Rambunctious',
+          included: [
+            {
+              type: 'pet',
+              id: '1',
+              attributes: {
+                name: 'Shenanigans',
+              },
+            },
+            {
+              type: 'pet',
+              id: '2',
+              attributes: {
+                name: 'Rambunctious',
+              },
+            },
+            {
+              type: 'pet',
+              id: '3',
+              attributes: {
+                name: 'Rebel',
+              },
+            },
+          ],
+        });
+
+        const person = store.peekRecord('person', '1');
+        const pets = person.pets;
+
+        const shen = pets.at(0);
+        const rebel = store.peekRecord('pet', '3');
+
+        assert.strictEqual(shen.name, 'Shenanigans', 'precond - relationships work');
+        assert.deepEqual(
+          pets.map((p) => p.id),
+          ['1', '3'],
+          'precond - relationship has the correct pets to start'
+        );
+
+        pets.splice(pets.indexOf(rebel), 1);
+
+        assert.deepEqual(
+          pets.map((p) => p.id),
+          ['1'],
+          'precond2 - relationship now has the correct pet'
+        );
+
+        store.push({
+          data: {
+            type: 'person',
+            id: '1',
+            relationships: {
+              pets: {
+                data: [
+                  { type: 'pet', id: '2' },
+                  { type: 'pet', id: '3' },
+                ],
+              },
             },
           },
-          {
-            type: 'pet',
-            id: '3',
-            attributes: {
-              name: 'Rebel',
-            },
-          },
-        ],
-      });
+        });
 
-      const person = store.peekRecord('person', '1');
-      const pets = person.pets;
+        const hasManyCanonical = person.hasMany('pets').hasManyRelationship.remoteState;
 
-      const shen = pets.at(0);
-      const rebel = store.peekRecord('pet', '3');
+        assert.todo.deepEqual(
+          pets.map((p) => p.id),
+          ['2'],
+          'relationship now has the correct current pets'
+        );
+        assert.deepEqual(
+          hasManyCanonical.map((p) => p.id),
+          ['2', '3'],
+          'relationship now has the correct canonical pets'
+        );
+      }
+    );
+  }
 
-      assert.strictEqual(shen.name, 'Shenanigans', 'precond - relationships work');
-      assert.deepEqual(
-        pets.map((p) => p.id),
-        ['1', '3'],
-        'precond - relationship has the correct pets to start'
-      );
+  test('[push hasMany] new items added to a hasMany relationship are not cleared by a store.push', async function (assert) {
+    assert.expect(5);
 
-      pets.splice(pets.indexOf(rebel), 1);
+    class Person extends Model {
+      @attr name;
+      @hasMany('pet', { async: false, inverse: null, resetOnRemoteUpdate: false })
+      pets;
+    }
 
-      assert.deepEqual(
-        pets.map((p) => p.id),
-        ['1'],
-        'precond2 - relationship now has the correct pet'
-      );
+    class Pet extends Model {
+      @attr name;
+      @belongsTo('person', { async: false, inverse: null })
+      person;
+    }
 
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          relationships: {
-            pets: {
-              data: [
-                { type: 'pet', id: '2' },
-                { type: 'pet', id: '3' },
-              ],
-            },
+    this.owner.register('model:person', Person);
+    this.owner.register('model:pet', Pet);
+
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+
+    adapter.shouldBackgroundReloadRecord = () => false;
+    adapter.deleteRecord = () => {
+      return Promise.resolve({ data: null });
+    };
+
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Chris Thoburn',
+        },
+        relationships: {
+          pets: {
+            data: [{ type: 'pet', id: '1' }],
           },
         },
-      });
+      },
+      included: [
+        {
+          type: 'pet',
+          id: '1',
+          attributes: {
+            name: 'Shenanigans',
+          },
+        },
+        {
+          type: 'pet',
+          id: '2',
+          attributes: {
+            name: 'Rambunctious',
+          },
+        },
+        {
+          type: 'pet',
+          id: '3',
+          attributes: {
+            name: 'Rebel',
+          },
+        },
+      ],
+    });
 
-      const hasManyCanonical = person.hasMany('pets').hasManyRelationship.remoteState;
+    const person = store.peekRecord('person', '1');
+    const pets = await person.pets;
 
-      assert.todo.deepEqual(
-        pets.map((p) => p.id),
-        ['2'],
-        'relationship now has the correct current pets'
-      );
-      assert.deepEqual(
-        hasManyCanonical.map((p) => p.id),
-        ['2', '3'],
-        'relationship now has the correct canonical pets'
-      );
+    const shen = pets.at(0);
+    const rebel = store.peekRecord('pet', '3');
+
+    assert.strictEqual(shen.name, 'Shenanigans', 'precond - relationships work');
+    assert.deepEqual(
+      pets.map((p) => p.id),
+      ['1'],
+      'precond - relationship has the correct pets to start'
+    );
+
+    pets.push(rebel);
+    await settled();
+
+    assert.deepEqual(
+      pets.map((p) => p.id),
+      ['1', '3'],
+      'precond2 - relationship now has the correct two pets'
+    );
+
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        relationships: {
+          pets: {
+            data: [{ type: 'pet', id: '2' }],
+          },
+        },
+      },
+    });
+
+    const hasManyCanonical = person.hasMany('pets').hasManyRelationship.remoteState;
+
+    assert.deepEqual(
+      pets.map((p) => p.id),
+      ['2', '3'],
+      'relationship now has the correct current pets'
+    );
+    assert.deepEqual(
+      hasManyCanonical.map((p) => p.id),
+      ['2'],
+      'relationship now has the correct canonical pets'
+    );
+  });
+
+  test('[push hasMany] items removed from a hasMany relationship are not cleared by a store.push', async function (assert) {
+    assert.expect(5);
+
+    class Person extends Model {
+      @attr name;
+      @hasMany('pet', { async: false, inverse: null, resetOnRemoteUpdate: false })
+      pets;
     }
-  );
+
+    class Pet extends Model {
+      @attr name;
+      @belongsTo('person', { async: false, inverse: null })
+      person;
+    }
+
+    this.owner.register('model:person', Person);
+    this.owner.register('model:pet', Pet);
+
+    const store = this.owner.lookup('service:store');
+    const adapter = store.adapterFor('application');
+
+    adapter.shouldBackgroundReloadRecord = () => false;
+    adapter.deleteRecord = () => {
+      return Promise.resolve({ data: null });
+    };
+
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Chris Thoburn',
+        },
+        relationships: {
+          pets: {
+            data: [
+              { type: 'pet', id: '1' },
+              { type: 'pet', id: '3' },
+            ],
+          },
+        },
+      },
+      included: [
+        {
+          type: 'pet',
+          id: '1',
+          attributes: {
+            name: 'Shenanigans',
+          },
+        },
+        {
+          type: 'pet',
+          id: '2',
+          attributes: {
+            name: 'Rambunctious',
+          },
+        },
+        {
+          type: 'pet',
+          id: '3',
+          attributes: {
+            name: 'Rebel',
+          },
+        },
+      ],
+    });
+
+    const person = store.peekRecord('person', '1');
+    const pets = person.pets;
+
+    const shen = pets.at(0);
+    const rebel = store.peekRecord('pet', '3');
+
+    assert.strictEqual(shen.name, 'Shenanigans', 'precond - relationships work');
+    assert.deepEqual(
+      pets.map((p) => p.id),
+      ['1', '3'],
+      'precond - relationship has the correct pets to start'
+    );
+
+    pets.splice(pets.indexOf(rebel), 1);
+
+    assert.deepEqual(
+      pets.map((p) => p.id),
+      ['1'],
+      'precond2 - relationship now has the correct pet'
+    );
+
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        relationships: {
+          pets: {
+            data: [
+              { type: 'pet', id: '2' },
+              { type: 'pet', id: '3' },
+            ],
+          },
+        },
+      },
+    });
+
+    const hasManyCanonical = person.hasMany('pets').hasManyRelationship.remoteState;
+
+    assert.deepEqual(
+      pets.map((p) => p.id),
+      ['2'],
+      'relationship now has the correct current pets'
+    );
+    assert.deepEqual(
+      hasManyCanonical.map((p) => p.id),
+      ['2', '3'],
+      'relationship now has the correct canonical pets'
+    );
+  });
 
   test('new items added to an async hasMany relationship are not cleared by a delete', async function (assert) {
     assert.expect(7);

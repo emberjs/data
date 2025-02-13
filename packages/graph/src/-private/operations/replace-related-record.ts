@@ -110,7 +110,7 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
             }
           );
 
-          notifyChange(graph, relationship.identifier, relationship.definition.key);
+          notifyChange(graph, relationship);
         }
       }
     }
@@ -159,7 +159,7 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
     // and we can safely sync the new remoteState to local
     if (localState !== remoteState && localState === existingState) {
       relationship.localState = remoteState;
-      notifyChange(graph, relationship.identifier, relationship.definition.key);
+      notifyChange(graph, relationship);
       // But when localState does not match the new remoteState and
       // and localState !== existingState then we know we have a local mutation
       // that has not been persisted yet.
@@ -189,10 +189,10 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
           }
         );
 
-        notifyChange(graph, relationship.identifier, relationship.definition.key);
+        notifyChange(graph, relationship);
       }
     }
   } else {
-    notifyChange(graph, relationship.identifier, relationship.definition.key);
+    notifyChange(graph, relationship);
   }
 }

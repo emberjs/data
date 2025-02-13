@@ -35,7 +35,6 @@
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
-    "@ember/test-helpers": "3.3.0",
     "@glimmer/component": "^1.1.2",
     "@glint/core": "1.5.0",
     "@glint/environment-ember-loose": "1.5.0",
@@ -43,7 +42,7 @@
     "@glint/template": "1.5.0",
     "@types/semver": "^7.5.8",
     "badge-maker": "4.1.0",
-    "bun-types": "^1.1.30",
+    "bun-types": "^1.2.2",
     "chalk": "^4.1.2",
     "co": "^4.6.0",
     "command-line-args": "^5.2.1",
@@ -57,7 +56,7 @@
     "lerna-changelog": "^2.2.0",
     "prettier": "^3.3.2",
     "prettier-plugin-ember-template-tag": "^2.0.2",
-    "rimraf": "^5.0.6",
+    "rimraf": "^5.0.10",
     "semver": "^7.6.3",
     "silent-error": "^1.1.1",
     "typescript": "^5.7.2",
@@ -169,11 +168,13 @@
         "typescript"
       ]
     },
+    "allowNonAppliedPatches": true,
     "patchedDependencies": {
       "qunit@2.19.4": "patches/qunit@2.19.4.patch",
       "testem@3.11.0": "patches/testem@3.11.0.patch",
       "@ember/test-helpers@3.3.0": "patches/@ember__test-helpers@3.3.0.patch",
-      "@ember/test-helpers@4.0.4": "patches/@ember__test-helpers@4.0.4.patch"
+      "@ember/test-helpers@4.0.4": "patches/@ember__test-helpers@4.0.4.patch",
+      "@ember/test-helpers@5.1.0": "patches/@ember__test-helpers@5.1.0.patch"
     }
   }
 }

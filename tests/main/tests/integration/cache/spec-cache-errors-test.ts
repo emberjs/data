@@ -114,11 +114,11 @@ class TestCache implements Cache {
     calculateChanges?: boolean
   ): void | string[] {
     if (!this._data.has(identifier)) {
-      this.wrapper.notifyChange(identifier, 'added');
+      this.wrapper.notifyChange(identifier, 'added', null);
     }
     this._data.set(identifier, data);
-    this.wrapper.notifyChange(identifier, 'attributes');
-    this.wrapper.notifyChange(identifier, 'relationships');
+    this.wrapper.notifyChange(identifier, 'attributes', null);
+    this.wrapper.notifyChange(identifier, 'relationships', null);
   }
   clientDidCreate(identifier: StableRecordIdentifier, options?: Record<string, unknown>): Record<string, unknown> {
     this._isNew = true;
@@ -354,7 +354,7 @@ module('integration/record-data Custom Cache (v2) Errors', function (hooks) {
         },
       },
     ];
-    storeWrapper.notifyChange(identifier, 'errors');
+    storeWrapper.notifyChange(identifier, 'errors', null);
 
     nameError = person.errors.errorsFor('firstName').objectAt(0);
 
@@ -362,7 +362,7 @@ module('integration/record-data Custom Cache (v2) Errors', function (hooks) {
     assert.false(person.isValid, 'person is not valid');
 
     errorsToReturn = [];
-    storeWrapper.notifyChange(identifier, 'errors');
+    storeWrapper.notifyChange(identifier, 'errors', null);
 
     assert.strictEqual(person.errors.errorsFor('firstName').length, 0, 'no errors on name');
     assert.true(person.isValid, 'person is valid');
@@ -376,7 +376,7 @@ module('integration/record-data Custom Cache (v2) Errors', function (hooks) {
         },
       },
     ];
-    storeWrapper.notifyChange(identifier, 'errors');
+    storeWrapper.notifyChange(identifier, 'errors', null);
 
     assert.false(person.isValid, 'person is not valid');
 

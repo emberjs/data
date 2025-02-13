@@ -30,7 +30,7 @@ export default function removeFromRelatedRecords(graph: Graph, op: RemoveFromRel
   } else {
     removeRelatedRecord(graph, relationship, record, value, isRemote);
   }
-  notifyChange(graph, relationship.identifier, relationship.definition.key);
+  notifyChange(graph, relationship);
 }
 
 function removeRelatedRecord(

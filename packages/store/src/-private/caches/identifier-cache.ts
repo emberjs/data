@@ -39,11 +39,10 @@ import { hasId, hasLid, hasType } from './resource-utils';
 
 type ResourceData = unknown;
 
-const IDENTIFIERS = getOrSetGlobal('IDENTIFIERS', new Set());
 const DOCUMENTS = getOrSetGlobal('DOCUMENTS', new Set());
 
 export function isStableIdentifier(identifier: unknown): identifier is StableRecordIdentifier {
-  return (identifier as StableRecordIdentifier)[CACHE_OWNER] !== undefined || IDENTIFIERS.has(identifier);
+  return (identifier as StableRecordIdentifier)[CACHE_OWNER] !== undefined;
 }
 
 export function isDocumentIdentifier(identifier: unknown): identifier is StableDocumentIdentifier {
@@ -622,7 +621,6 @@ export class IdentifierCache {
       identifier[DEBUG_STALE_CACHE_OWNER] = identifier[CACHE_OWNER];
     }
     identifier[CACHE_OWNER] = undefined;
-    IDENTIFIERS.delete(identifier);
     this._forget(identifier, 'record');
     if (LOG_IDENTIFIERS) {
       // eslint-disable-next-line no-console
@@ -649,8 +647,6 @@ function makeStableRecordIdentifier(
   bucket: IdentifierBucket,
   clientOriginated: boolean
 ): StableRecordIdentifier {
-  IDENTIFIERS.add(recordIdentifier);
-
   if (DEBUG) {
     // we enforce immutability in dev
     //  but preserve our ability to do controlled updates to the reference
@@ -693,7 +689,6 @@ function makeStableRecordIdentifier(
     });
     wrapper[DEBUG_CLIENT_ORIGINATED] = clientOriginated;
     wrapper[DEBUG_IDENTIFIER_BUCKET] = bucket;
-    IDENTIFIERS.add(wrapper);
     DEBUG_MAP.set(wrapper, recordIdentifier);
     wrapper = freeze(wrapper);
     return wrapper;

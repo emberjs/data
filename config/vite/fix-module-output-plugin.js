@@ -1,5 +1,6 @@
 import child_process from 'child_process';
-import { globSync, readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
+import { globSync } from '../utils/glob.js';
 import path from 'path';
 
 const DEBUG = process.env.DEBUG === '*';

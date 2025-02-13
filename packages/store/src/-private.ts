@@ -82,3 +82,5 @@ export function normalizeModelName(modelName: string) {
   }
   assert(`normalizeModelName support has been removed`);
 }
+
+export { log, logGroup } from './-private/debug/utils';

@@ -10,6 +10,32 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
 import { DEBUG } from '@warp-drive/build-config/env';
 
+function pushDefaultUser(store) {
+  return store.push({
+    data: {
+      type: 'user',
+      id: '1',
+      attributes: {
+        name: 'Chris',
+      },
+      relationships: {
+        bestFriend: {
+          data: { type: 'user', id: '2' },
+        },
+        friends: {
+          data: [{ type: 'user', id: '2' }],
+        },
+      },
+    },
+    included: [
+      { type: 'user', id: '2', attributes: { name: 'Igor' } },
+      { type: 'user', id: '3', attributes: { name: 'David' } },
+      { type: 'user', id: '4', attributes: { name: 'Scott' } },
+      { type: 'user', id: '5', attributes: { name: 'Rob' } },
+    ],
+  });
+}
+
 module('integration/references/autotracking', function (hooks) {
   setupRenderingTest(hooks);
 
@@ -21,7 +47,7 @@ module('integration/references/autotracking', function (hooks) {
     friends;
   }
 
-  let store, user;
+  let store;
   hooks.beforeEach(function () {
     const { owner } = this;
     owner.register('model:user', User);
@@ -50,33 +76,10 @@ module('integration/references/autotracking', function (hooks) {
         }
       }
     );
-
-    user = store.push({
-      data: {
-        type: 'user',
-        id: '1',
-        attributes: {
-          name: 'Chris',
-        },
-        relationships: {
-          bestFriend: {
-            data: { type: 'user', id: '2' },
-          },
-          friends: {
-            data: [{ type: 'user', id: '2' }],
-          },
-        },
-      },
-      included: [
-        { type: 'user', id: '2', attributes: { name: 'Igor' } },
-        { type: 'user', id: '3', attributes: { name: 'David' } },
-        { type: 'user', id: '4', attributes: { name: 'Scott' } },
-        { type: 'user', id: '5', attributes: { name: 'Rob' } },
-      ],
-    });
   });
 
   test('BelongsToReference.id() is autotracked', async function (assert) {
+    const user = pushDefaultUser(store);
     class TestContext {
       user = user;
 
@@ -140,6 +143,7 @@ module('integration/references/autotracking', function (hooks) {
   });
 
   test('BelongsToReference.id() autotracking works with null value changes', async function (assert) {
+    const user = pushDefaultUser(store);
     class TestContext {
       user = user;
 
@@ -173,6 +177,7 @@ module('integration/references/autotracking', function (hooks) {
   });
 
   test('HasManyReference.ids() is autotracked', async function (assert) {
+    const user = pushDefaultUser(store);
     class TestContext {
       user = user;
 
@@ -201,10 +206,47 @@ module('integration/references/autotracking', function (hooks) {
     assert.deepEqual(testContext.friendIds, ['2', '6'], 'the ids are correct when the new record is saved');
   });
 
-  test('HasManyReference.value() is autotracked', async function (assert) {
+  test('HasManyReference.value() is autotracked under unload/restore conditions', async function (assert) {
+    pushDefaultUser(store);
     store.unloadAll();
     await settled();
-    user = store.push({
+    const user = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Chris',
+        },
+        relationships: {},
+      },
+      included: [],
+    });
+    class TestContext {
+      user = user;
+
+      get friends() {
+        return this.user.hasMany('friends').value();
+      }
+    }
+    const testContext = new TestContext();
+    this.set('context', testContext);
+    await render(
+      hbs`{{#each this.context.friends as |friend|}}id: {{if friend.id friend.id 'null'}}, {{else}}No Friends Loaded{{/each}}`
+    );
+
+    assert.strictEqual(getRootElement().textContent, 'No Friends Loaded', 'the ids are initially correct');
+    assert.deepEqual(testContext.friends, null, 'the value is initially null');
+    const igor = store.push({
+      data: { type: 'user', id: '2', attributes: { name: 'Igor' } },
+      included: [{ type: 'user', id: '1', relationships: { friends: { data: [{ type: 'user', id: '2' }] } } }],
+    });
+    await settled();
+    assert.strictEqual(getRootElement().textContent, 'id: 2, ', 'the ManyArray is rendered once loaded');
+    assert.deepEqual(testContext.friends, [igor], 'the friends are correct once loaded');
+  });
+
+  test('HasManyReference.value() is autotracked', async function (assert) {
+    const user = store.push({
       data: {
         type: 'user',
         id: '1',
