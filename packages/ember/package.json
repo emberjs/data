@@ -1,7 +1,7 @@
 {
   "name": "@warp-drive/ember",
   "description": "Data bindings and utilities for Ember applications using WarpDrive",
-  "version": "5.4.0-alpha.136",
+  "version": "5.4.0-alpha.137",
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "repository": {
