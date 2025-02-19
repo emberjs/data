@@ -98,7 +98,10 @@ export default function (babel) {
                 // globalThis.getWarpDriveRuntimeConfig().debug.LOG_FOO
                 const getRuntimeConfig = t.memberExpression(
                   t.memberExpression(
-                    t.memberExpression(t.identifier('globalThis'), t.identifier('getWarpDriveRuntimeConfig')),
+                    t.callExpression(
+                      t.memberExpression(t.identifier('globalThis'), t.identifier('getWarpDriveRuntimeConfig')),
+                      []
+                    ),
                     t.identifier(state.opts.configKey)
                   ),
                   t.identifier(name)
