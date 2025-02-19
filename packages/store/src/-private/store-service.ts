@@ -64,11 +64,9 @@ import { constructResource } from './utils/construct-resource';
 import { normalizeModelName } from './utils/normalize-model-name';
 
 // @ts-expect-error adding to globalThis
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 globalThis.setWarpDriveLogging = setWarpDriveLogging;
 
 // @ts-expect-error adding to globalThis
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 globalThis.getRuntimeConfig = getRuntimeConfig;
 
 export { storeFor };
