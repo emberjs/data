@@ -15,6 +15,7 @@ import {
 } from '@warp-drive/build-config/deprecations';
 import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
+import { getRuntimeConfig, setLogging } from '@warp-drive/build-config/runtime';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { Graph } from '@warp-drive/core-types/graph';
 import type {
@@ -61,6 +62,12 @@ import type { Collection, IdentifierArray } from './record-arrays/identifier-arr
 import { coerceId, ensureStringId } from './utils/coerce-id';
 import { constructResource } from './utils/construct-resource';
 import { normalizeModelName } from './utils/normalize-model-name';
+
+// @ts-expect-error adding to globalThis
+globalThis.setWarpDriveLogging = setLogging;
+
+// @ts-expect-error adding to globalThis
+globalThis.getWarpDriveRuntimeConfig = getRuntimeConfig;
 
 export { storeFor };
 

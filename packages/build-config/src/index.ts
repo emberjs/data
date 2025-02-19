@@ -4,6 +4,7 @@ import { getDeprecations } from './-private/utils/deprecations.ts';
 import { getFeatures } from './-private/utils/features.ts';
 import * as LOGGING from './debugging.ts';
 import type { MacrosConfig } from '@embroider/macros/src/node.js';
+import { createLoggingConfig } from './-private/utils/logging.ts';
 
 const _MacrosConfig = EmbroiderMacros.MacrosConfig as unknown as typeof MacrosConfig;
 
@@ -25,6 +26,7 @@ type InternalWarpDriveConfig = {
   compatWith: `${number}.${number}` | null;
   deprecations: ReturnType<typeof getDeprecations>;
   features: ReturnType<typeof getFeatures>;
+  activeLogging: { [key in LOG_CONFIG_KEY]: boolean };
   env: {
     TESTING: boolean;
     PRODUCTION: boolean;
@@ -90,6 +92,7 @@ export function setConfig(context: object, appRoot: string, config: WarpDriveCon
     compatWith: config.compatWith ?? null,
     deprecations: DEPRECATIONS,
     features: FEATURES,
+    activeLogging: createLoggingConfig(env, debugOptions),
     env,
   };
 
