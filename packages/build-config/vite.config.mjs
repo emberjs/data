@@ -10,6 +10,7 @@ export const entryPoints = [
   './src/debugging.ts',
   './src/deprecations.ts',
   './src/canary-features.ts',
+  './src/runtime.ts',
 ];
 
 export default createConfig(
