@@ -16,6 +16,6 @@ export function getRuntimeConfig() {
  *
  * @typedoc
  */
-export function setWarpDriveLogging(config: Partial<LOG_CONFIG>) {
+export function setLogging(config: Partial<LOG_CONFIG>) {
   Object.assign(RuntimeConfig.debug, config);
 }

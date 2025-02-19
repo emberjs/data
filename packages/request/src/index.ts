@@ -1,4 +1,4 @@
-import { getRuntimeConfig, setWarpDriveLogging } from '@warp-drive/build-config/runtime';
+import { getRuntimeConfig, setLogging } from '@warp-drive/build-config/runtime';
 
 export { RequestManager as default } from './-private/manager';
 export { createDeferred } from './-private/future';
@@ -16,7 +16,7 @@ export { setPromiseResult, getPromiseResult } from './-private/promise-cache';
 export type { Awaitable } from './-private/promise-cache';
 
 // @ts-expect-error adding to globalThis
-globalThis.setWarpDriveLogging = setWarpDriveLogging;
+globalThis.setWarpDriveLogging = setLogging;
 
 // @ts-expect-error adding to globalThis
-globalThis.getRuntimeConfig = getRuntimeConfig;
+globalThis.getWarpDriveRuntimeConfig = getRuntimeConfig;
