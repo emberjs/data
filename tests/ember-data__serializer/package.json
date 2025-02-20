@@ -99,7 +99,7 @@
     "loader.js": "^4.7.0",
     "qunit": "^2.20.1",
     "qunit-dom": "^3.1.1",
-    "typescript": "^5.7.2",
+    "typescript": "^5.7.3",
     "webpack": "^5.92.0"
   },
   "engines": {
