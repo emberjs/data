@@ -2,7 +2,8 @@
 import { fn } from '@ember/helper';
 import { on } from '@ember/modifier';
 import { click, rerender, settled } from '@ember/test-helpers';
-import { tracked } from '@glimmer/tracking';
+import { cached, tracked } from '@glimmer/tracking';
+import Component from '@glimmer/component';
 
 import type { CacheHandler, Future, NextFn, RequestContext, StructuredDataDocument } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
@@ -17,6 +18,7 @@ import { getRequestState, Request } from '@warp-drive/ember';
 import { mock, MockServerHandler } from '@warp-drive/holodeck';
 import { GET } from '@warp-drive/holodeck/mock';
 import { registerDerivations, withDefaults } from '@warp-drive/schema-record/schema';
+import type { Type } from '@warp-drive/core-types/symbols';
 
 // our tests use a rendering test context and add manager to it
 interface LocalTestContext extends RenderingTestContext {
@@ -930,5 +932,90 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     await rerender();
 
     assert.equal(this.element.textContent?.trim(), 'Content');
+  });
+
+  test('request with an identity does not trigger a second request', async function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    store.lifetimes = {
+      isHardExpired: () => true,
+      isSoftExpired: () => true,
+    };
+    const manager = new RequestManager();
+    manager.use([new MockServerHandler(this), Fetch]);
+    manager.useCache(StoreHandler);
+    store.requestManager = manager;
+    this.manager = manager;
+
+    registerDerivations(store.schema);
+    store.schema.registerResource(
+      withDefaults({
+        type: 'user',
+        identity: { name: 'id', kind: '@id' },
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+        ],
+      })
+    );
+    type User = {
+      id: string;
+      name: string;
+      [Type]: 'user';
+    };
+
+    const url = await mockGETSuccess(this);
+    await mockGETSuccess(this); // need this because we are planning on making two requests
+
+    class Dependency {
+      @tracked trackedThing = 'value';
+    }
+    const dependency = new Dependency();
+
+    let request: ReturnType<typeof store.request<SingleResourceDataDocument<User>>> | undefined;
+    class Issuer extends Component {
+      // Ensure that the request doesn't kick off until after the Request component renders.
+      @cached
+      get request() {
+        dependency.trackedThing; // subscribe to something tracked
+        request = store.request<SingleResourceDataDocument<User>>({ url, method: 'GET' });
+        return request;
+      }
+
+      <template>
+        <Request @request={{this.request}}>
+          <:loading>Pending<br />Count: {{countFor "loading"}}</:loading>
+          <:error as |error|>{{error.message}}<br />Count: {{countFor error.message}}</:error>
+          <:content as |result|>{{result.data.name}}<br />{{countFor result.data.name}}</:content>
+        </Request>
+      </template>
+    }
+
+    function countFor(thing: string) {
+      assert.step(thing);
+    }
+
+    await this.render(<template><Issuer /></template>);
+
+    const state = getRequestState(request);
+    assert.equal(state.result, null);
+    assert.verifySteps(['loading'], 'loading');
+    await request;
+    await rerender();
+    assert.equal(state, getRequestState(request));
+    const record = store.peekRecord<User>('user', '1');
+    assert.notEqual(record, null);
+    assert.equal(state.result.data, record);
+    assert.equal(record!.name, 'Chris Thoburn');
+    assert.verifySteps(['Chris Thoburn']);
+
+    dependency.trackedThing = 'value'; // trigger a notification
+
+    await rerender();
+    assert.notEqual(state, getRequestState(request));
+    assert.equal(state.result.data, record);
+    assert.equal(record!.name, 'Chris Thoburn');
+    assert.verifySteps(['loading']);
   });
 });
