@@ -160,7 +160,7 @@
     "qunit": "^2.18.0"
   },
   "engines": {
-    "node": ">= 18.20.4"
+    "node": ">= 18.20.6"
   },
   "ember": {
     "edition": "octane"
