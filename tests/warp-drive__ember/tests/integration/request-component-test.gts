@@ -2,8 +2,8 @@
 import { fn } from '@ember/helper';
 import { on } from '@ember/modifier';
 import { click, rerender, settled } from '@ember/test-helpers';
-import { cached, tracked } from '@glimmer/tracking';
 import Component from '@glimmer/component';
+import { cached, tracked } from '@glimmer/tracking';
 
 import type { CacheHandler, Future, NextFn, RequestContext, StructuredDataDocument } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
@@ -12,13 +12,13 @@ import { buildBaseURL } from '@ember-data/request-utils';
 import type Store from '@ember-data/store';
 import { CacheHandler as StoreHandler } from '@ember-data/store';
 import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
+import type { Type } from '@warp-drive/core-types/symbols';
 import type { RenderingTestContext } from '@warp-drive/diagnostic/ember';
 import { module, setupRenderingTest, test as _test } from '@warp-drive/diagnostic/ember';
 import { getRequestState, Request } from '@warp-drive/ember';
 import { mock, MockServerHandler } from '@warp-drive/holodeck';
 import { GET } from '@warp-drive/holodeck/mock';
 import { registerDerivations, withDefaults } from '@warp-drive/schema-record/schema';
-import type { Type } from '@warp-drive/core-types/symbols';
 
 // our tests use a rendering test context and add manager to it
 interface LocalTestContext extends RenderingTestContext {
@@ -978,6 +978,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       // Ensure that the request doesn't kick off until after the Request component renders.
       @cached
       get request() {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- This is intentional.
         dependency.trackedThing; // subscribe to something tracked
         request = store.request<SingleResourceDataDocument<User>>({ url, method: 'GET' });
         return request;
