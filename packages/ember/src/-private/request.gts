@@ -323,9 +323,41 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
             case 'state': {
               const latest = this.store.requestManager._deduped.get(requestId);
               const priority = latest?.priority;
+              const state = this.reqState;
               if (!priority) {
+                // if there is no priority, we have completed whatever request
+                // was occurring and so we are no longer refreshing (if we were)
                 this.isRefreshing = false;
-              } else if (priority.blocking) {
+              } else if (priority.blocking && !state.isLoading) {
+                // if we are blocking, there is an active request for this identity
+                // that MUST be fulfilled from network (not cache).
+                // Thus this is not "refreshing" because we should clear out and
+                // block on this request.
+                //
+                // we receive state notifications when either a request initiates
+                // or completes.
+                //
+                // In the completes case: we may receive the state notification
+                // slightly before the request is finalized because the NotificationManager
+                // may sync flush it (and thus deliver it before the microtask completes)
+                //
+                // In the initiates case: we aren't supposed to receive one unless there
+                // is no other request in flight for this identity.
+                //
+                // However, there is a race condition here where the completed
+                // notification can trigger an update that generates a new request
+                // thus giving us an initiated notification before the older request
+                // finalizes.
+                //
+                // When this occurs, if the triggered update happens to have caused
+                // a new request to be made for the same identity AND that request
+                // is the one passed into this component as the @request arg, then
+                // getRequestState will return the state of the new request.
+                // We can detect this by checking if the request state is "loading"
+                // as outside of this case we would have a completed request.
+                //
+                // That is the reason for the `&& !state.isLoading` check above.
+
                 // TODO should we just treat this as refreshing?
                 this.isRefreshing = false;
                 this.maybeUpdate('policy', true);
