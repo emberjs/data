@@ -973,7 +973,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     }
     const dependency = new Dependency();
 
-    let request: ReturnType<typeof store.request<SingleResourceDataDocument<User>>> | undefined;
+    let request: ReturnType<typeof store.request<SingleResourceDataDocument<User>>>;
     class Issuer extends Component {
       // Ensure that the request doesn't kick off until after the Request component renders.
       @cached
@@ -993,29 +993,29 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       </template>
     }
 
-    function countFor(thing: string) {
-      assert.step(thing);
+    function countFor(thing: string | undefined) {
+      assert.step(thing ?? 'unknown step; this should never happen');
     }
 
     await this.render(<template><Issuer /></template>);
 
-    const state = getRequestState(request);
+    const state = getRequestState(request!);
     assert.equal(state.result, null);
     assert.verifySteps(['loading'], 'loading');
-    await request;
+    await request!;
     await rerender();
-    assert.equal(state, getRequestState(request));
+    assert.equal(state, getRequestState(request!));
     const record = store.peekRecord<User>('user', '1');
     assert.notEqual(record, null);
-    assert.equal(state.result.data, record);
+    assert.equal(state.result?.data, record);
     assert.equal(record!.name, 'Chris Thoburn');
     assert.verifySteps(['Chris Thoburn']);
 
     dependency.trackedThing = 'value'; // trigger a notification
 
     await rerender();
-    assert.notEqual(state, getRequestState(request));
-    assert.equal(state.result.data, record);
+    assert.notEqual(state, getRequestState(request!));
+    assert.equal(state.result?.data, record);
     assert.equal(record!.name, 'Chris Thoburn');
     assert.verifySteps(['loading']);
   });
