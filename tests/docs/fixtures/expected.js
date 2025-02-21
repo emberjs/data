@@ -480,6 +480,7 @@ module.exports = {
     '(public) @ember-data/store CacheManager#dump',
     '(public) @ember-data/store CacheManager#fork',
     '(public) @ember-data/store CacheManager#getAttr',
+    `(public) @ember-data/store CacheManager#getRemoteAttr`,
     '(public) @ember-data/store CacheManager#getErrors',
     '(public) @ember-data/store CacheManager#getRelationship',
     '(public) @ember-data/store CacheManager#hasChangedAttrs',
