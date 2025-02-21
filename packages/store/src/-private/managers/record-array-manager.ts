@@ -3,6 +3,7 @@
 */
 import { addTransactionCB } from '@ember-data/tracking/-private';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
+import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
 import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
 import type { CollectionResourceDocument } from '@warp-drive/core-types/spec/json-api-raw';
@@ -129,6 +130,10 @@ export class RecordArrayManager {
 
     sync(array, pending, this._set.get(array)!);
     this._pending.delete(array);
+  }
+
+  mutate(mutation: LocalRelationshipOperation): void {
+    this.store.cache.mutate(mutation);
   }
 
   /**
