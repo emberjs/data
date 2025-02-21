@@ -162,10 +162,25 @@ export class Graph {
     assert(`Cannot getData() on an implicit relationship`, !isImplicit(relationship));
 
     if (isBelongsTo(relationship)) {
-      return legacyGetResourceRelationshipData(relationship);
+      return legacyGetResourceRelationshipData(relationship, false);
     }
 
-    return legacyGetCollectionRelationshipData(relationship);
+    return legacyGetCollectionRelationshipData(relationship, false);
+  }
+
+  getRemoteData(
+    identifier: StableRecordIdentifier,
+    propertyName: string
+  ): ResourceRelationship | CollectionRelationship {
+    const relationship = this.get(identifier, propertyName);
+
+    assert(`Cannot getRemoteData() on an implicit relationship`, !isImplicit(relationship));
+
+    if (isBelongsTo(relationship)) {
+      return legacyGetResourceRelationshipData(relationship, true);
+    }
+
+    return legacyGetCollectionRelationshipData(relationship, true);
   }
 
   /*
@@ -334,7 +349,7 @@ export class Graph {
             additions: new Set(relationship.additions),
             removals: new Set(relationship.removals),
             remoteState: relationship.remoteState,
-            localState: legacyGetCollectionRelationshipData(relationship).data || [],
+            localState: legacyGetCollectionRelationshipData(relationship, false).data || [],
             reordered,
           });
         }

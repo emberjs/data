@@ -68,12 +68,15 @@ export function createCollectionEdge(definition: UpgradedMeta, identifier: Stabl
   };
 }
 
-export function legacyGetCollectionRelationshipData(source: CollectionEdge): CollectionRelationship {
+export function legacyGetCollectionRelationshipData(
+  source: CollectionEdge,
+  getRemoteState: boolean
+): CollectionRelationship {
   source.accessed = true;
   const payload: CollectionRelationship = {};
 
   if (source.state.hasReceivedData) {
-    payload.data = computeLocalState(source);
+    payload.data = getRemoteState ? source.remoteState.slice() : computeLocalState(source);
   }
 
   if (source.links) {

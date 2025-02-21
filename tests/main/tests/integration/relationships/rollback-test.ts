@@ -739,4 +739,18 @@ module('Integration | Relationships | Rollback', function (hooks) {
       assert.strictEqual(changed.size, 0, 'we have no diff');
     });
   });
+
+  module('<cache>.getRemoteRelationship', function () {
+    test('it returns the correct remote relationship for a belongsTo', function (assert) {
+      const store = this.owner.lookup('service:store') as Store;
+      const config = store.peekRecord('config', '1') as Config;
+      const app2 = store.peekRecord('app', '2') as App;
+
+      const configIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
+      const relationship = store.cache.getRelationship(configIdentifier, 'app');
+      config.app = app2;
+      const remote = store.cache.getRemoteRelationship(configIdentifier, 'app');
+      assert.deepEqual(remote, relationship, 'remote relationship is correct');
+    });
+  });
 });
