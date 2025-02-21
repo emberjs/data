@@ -349,7 +349,7 @@ export class Graph {
             additions: new Set(relationship.additions),
             removals: new Set(relationship.removals),
             remoteState: relationship.remoteState,
-            localState: legacyGetCollectionRelationshipData(relationship).data || [],
+            localState: legacyGetCollectionRelationshipData(relationship, false).data || [],
             reordered,
           });
         }

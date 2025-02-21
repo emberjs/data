@@ -1240,7 +1240,6 @@ export default class JSONAPICache implements Cache {
       attr = attr[0];
     }
 
-    debugger;
     if (isSimplePath) {
       const attribute = attr as string;
       const cached = this.__peek(identifier, true);

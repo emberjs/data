@@ -175,6 +175,7 @@ module.exports = {
     '(public) @ember-data/experimental-preview-types <Interface> Cache#dump',
     '(public) @ember-data/experimental-preview-types <Interface> Cache#fork',
     '(public) @ember-data/experimental-preview-types <Interface> Cache#getAttr',
+    '(public) @ember-data/experimental-preview-types <Interface> Cache#getRemoteAttr',
     '(public) @ember-data/experimental-preview-types <Interface> Cache#getErrors',
     '(public) @ember-data/experimental-preview-types <Interface> Cache#getRelationship',
     '(public) @ember-data/experimental-preview-types <Interface> Cache#hasChangedAttrs',

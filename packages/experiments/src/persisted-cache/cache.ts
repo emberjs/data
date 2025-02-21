@@ -413,6 +413,19 @@ export class PersistedCache implements Cache {
   }
 
   /**
+   * Retrieve the remote state for an attribute from the cache
+   *
+   * @method getAttr
+   * @internal
+   * @param identifier
+   * @param propertyName
+   * @return {unknown}
+   */
+  getRemoteAttr(identifier: StableRecordIdentifier, field: string): Value | undefined {
+    return this._cache.getRemoteAttr(identifier, field);
+  }
+
+  /**
    * Mutate the data for an attribute in the cache
    *
    * @method setAttr
@@ -538,6 +551,23 @@ export class PersistedCache implements Cache {
     isCollection?: boolean
   ): ResourceRelationship | CollectionRelationship {
     return this._cache.getRelationship(identifier, field, isCollection);
+  }
+
+  /**
+   * Query the remote state for the current state of a relationship property
+   *
+   * @method getRelationship
+   * @internal
+   * @param identifier
+   * @param propertyName
+   * @return resource relationship object
+   */
+  getRemoteRelationship(
+    identifier: StableRecordIdentifier,
+    field: string,
+    isCollection?: boolean
+  ): ResourceRelationship | CollectionRelationship {
+    return this._cache.getRemoteRelationship(identifier, field, isCollection);
   }
 
   // Resource State

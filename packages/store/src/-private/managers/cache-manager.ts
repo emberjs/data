@@ -361,6 +361,19 @@ export class CacheManager implements Cache {
   }
 
   /**
+   * Retrieve the remote state for an attribute from the cache
+   *
+   * @method getRemoteAttr
+   * @public
+   * @param identifier
+   * @param propertyName
+   * @return {unknown}
+   */
+  getRemoteAttr(identifier: StableRecordIdentifier, propertyName: string): Value | undefined {
+    return this.#cache.getRemoteAttr(identifier, propertyName);
+  }
+
+  /**
    * Mutate the data for an attribute in the cache
    *
    * @method setAttr
@@ -485,6 +498,22 @@ export class CacheManager implements Cache {
     propertyName: string
   ): ResourceRelationship | CollectionRelationship {
     return this.#cache.getRelationship(identifier, propertyName);
+  }
+
+  /**
+   * Query the cache for the remote state of a relationship property
+   *
+   * @method getRelationship
+   * @public
+   * @param identifier
+   * @param propertyName
+   * @return resource relationship object
+   */
+  getRemoteRelationship(
+    identifier: StableRecordIdentifier,
+    propertyName: string
+  ): ResourceRelationship | CollectionRelationship {
+    return this.#cache.getRemoteRelationship(identifier, propertyName);
   }
 
   // Resource State
