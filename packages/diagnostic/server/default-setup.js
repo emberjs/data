@@ -35,7 +35,7 @@ export default async function launchDefault(overrides = {}) {
   Object.assign(overrides, flags);
 
   const RETRY_TESTS =
-    ('retry' in overrides ? overrides.retry : (process.env.CI ?? process.env.RETRY_TESTS)) && FAILURES.length;
+    ('retry' in overrides ? overrides.retry : process.env.CI ?? process.env.RETRY_TESTS) && FAILURES.length;
   const _parallel =
     process.env.DIAGNOSTIC_PARALLEL && !isNaN(Number(process.env.DIAGNOSTIC_PARALLEL))
       ? Number(process.env.DIAGNOSTIC_PARALLEL)
