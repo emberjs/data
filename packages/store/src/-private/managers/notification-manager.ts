@@ -48,13 +48,26 @@ export interface DocumentOperationCallback {
   (identifier: StableDocumentIdentifier, notificationType: DocumentCacheOperation): void;
 }
 
-function count(label: string) {
+if (LOG_METRIC_COUNTS) {
   // @ts-expect-error
   // eslint-disable-next-line
-  globalThis.counts = globalThis.counts || {};
+  globalThis.__WarpDriveMetricCountData = globalThis.__WarpDriveMetricCountData || {};
   // @ts-expect-error
   // eslint-disable-next-line
   globalThis.counts[label] = (globalThis.counts[label] || 0) + 1;
+
+  // @ts-expect-error
+  globalThis.getWarpDriveMetricCounts = () => {
+    // @ts-expect-error
+    // eslint-disable-next-line
+    return globalThis.__WarpDriveMetricCountData;
+  };
+}
+
+function count(label: string) {
+  // @ts-expect-error
+  // eslint-disable-next-line
+  globalThis.__WarpDriveMetricCountData[label] = (globalThis.__WarpDriveMetricCountData[label] || 0) + 1;
 }
 
 function _unsubscribe(
