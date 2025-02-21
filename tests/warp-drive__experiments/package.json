@@ -124,7 +124,7 @@
     "ember-template-imports": "^4.3.0",
     "loader.js": "^4.7.0",
     "silent-error": "^1.1.1",
-    "typescript": "^5.7.2",
+    "typescript": "^5.7.3",
     "webpack": "^5.92.0"
   },
   "ember": {
