@@ -5,7 +5,6 @@ import { setupTest } from 'ember-qunit';
 import { serializePatch, serializeResources, updateRecord } from '@ember-data/json-api/request';
 import RequestManager from '@ember-data/request';
 import { CacheHandler, recordIdentifierFor } from '@ember-data/store';
-import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
 import type { Type } from '@warp-drive/core-types/symbols';
 import { Checkout } from '@warp-drive/schema-record/record';
 import { registerDerivations, withDefaults } from '@warp-drive/schema-record/schema';
