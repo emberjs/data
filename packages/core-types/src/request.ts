@@ -12,7 +12,17 @@ export const EnableHydration = getOrSetUniversal('EnableHydration', Symbol.for('
 export const IS_FUTURE = getOrSetGlobal('IS_FUTURE', Symbol('IS_FUTURE'));
 export const STRUCTURED = getOrSetGlobal('DOC', Symbol('DOC'));
 
-export type HTTPMethod = 'GET' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD';
+export type HTTPMethod =
+  | 'QUERY'
+  | 'GET'
+  | 'OPTIONS'
+  | 'POST'
+  | 'PUT'
+  | 'PATCH'
+  | 'DELETE'
+  | 'HEAD'
+  | 'CONNECT'
+  | 'TRACE';
 
 /**
  * Use these options to adjust CacheHandler behavior for a request.
