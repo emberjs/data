@@ -8,7 +8,7 @@ import { dependencySatisfies, importSync, macroCondition } from '@embroider/macr
 
 import type RequestManager from '@ember-data/request';
 import type { Future } from '@ember-data/request';
-import { LOG_PAYLOADS, LOG_REQUESTS } from '@warp-drive/build-config/debugging';
+import { LOG_METRIC_COUNTS, LOG_PAYLOADS, LOG_REQUESTS } from '@warp-drive/build-config/debugging';
 import {
   DEPRECATE_STORE_EXTENDS_EMBER_OBJECT,
   ENABLE_LEGACY_SCHEMA_SERVICE,
@@ -68,6 +68,22 @@ globalThis.setWarpDriveLogging = setLogging;
 
 // @ts-expect-error adding to globalThis
 globalThis.getWarpDriveRuntimeConfig = getRuntimeConfig;
+
+if (LOG_METRIC_COUNTS) {
+  // @ts-expect-error
+  // eslint-disable-next-line
+  globalThis.__WarpDriveMetricCountData = globalThis.__WarpDriveMetricCountData || {};
+  // @ts-expect-error
+  // eslint-disable-next-line
+  globalThis.counts[label] = (globalThis.counts[label] || 0) + 1;
+
+  // @ts-expect-error
+  globalThis.getWarpDriveMetricCounts = () => {
+    // @ts-expect-error
+    // eslint-disable-next-line
+    return globalThis.__WarpDriveMetricCountData;
+  };
+}
 
 export { storeFor };
 

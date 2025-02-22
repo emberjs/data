@@ -48,22 +48,6 @@ export interface DocumentOperationCallback {
   (identifier: StableDocumentIdentifier, notificationType: DocumentCacheOperation): void;
 }
 
-if (LOG_METRIC_COUNTS) {
-  // @ts-expect-error
-  // eslint-disable-next-line
-  globalThis.__WarpDriveMetricCountData = globalThis.__WarpDriveMetricCountData || {};
-  // @ts-expect-error
-  // eslint-disable-next-line
-  globalThis.counts[label] = (globalThis.counts[label] || 0) + 1;
-
-  // @ts-expect-error
-  globalThis.getWarpDriveMetricCounts = () => {
-    // @ts-expect-error
-    // eslint-disable-next-line
-    return globalThis.__WarpDriveMetricCountData;
-  };
-}
-
 function count(label: string) {
   // @ts-expect-error
   // eslint-disable-next-line

@@ -241,17 +241,17 @@ export class SchemaRecord {
               !target[Legacy]
             );
             entangleSignal(signals, receiver, field.name);
-            return computeField(schema, cache, target, identifier, field, propArray);
+            return computeField(schema, cache, target, identifier, field, propArray, IS_EDITABLE);
           case 'attribute':
             entangleSignal(signals, receiver, field.name);
-            return computeAttribute(cache, identifier, prop as string);
+            return computeAttribute(cache, identifier, prop as string, IS_EDITABLE);
           case 'resource':
             assert(
               `SchemaRecord.${field.name} is not available in legacy mode because it has type '${field.kind}'`,
               !target[Legacy]
             );
             entangleSignal(signals, receiver, field.name);
-            return computeResource(store, cache, target, identifier, field, prop as string);
+            return computeResource(store, cache, target, identifier, field, prop as string, IS_EDITABLE);
           case 'derived':
             return computeDerivation(schema, receiver as unknown as SchemaRecord, identifier, field, prop as string);
           case 'schema-array':
@@ -313,7 +313,9 @@ export class SchemaRecord {
           case 'belongsTo':
             if (field.options.linksMode) {
               entangleSignal(signals, receiver, field.name);
-              const rawValue = cache.getRelationship(identifier, field.name) as SingleResourceRelationship;
+              const rawValue = IS_EDITABLE
+                ? (cache.getRelationship(identifier, field.name) as SingleResourceRelationship)
+                : (cache.getRemoteRelationship(identifier, field.name) as SingleResourceRelationship);
 
               // eslint-disable-next-line @typescript-eslint/no-unsafe-return
               return rawValue.data ? store.peekRecord(rawValue.data) : null;
@@ -666,6 +668,11 @@ export class SchemaRecord {
     this[RecordStore].notifications.unsubscribe(this.___notifications);
   }
   [Checkout](): Promise<SchemaRecord> {
+    // IF we are already the editable record, throw an error
+    if (this[Editable]) {
+      throw new Error(`Cannot checkout an already editable record`);
+    }
+
     const editable = Editables.get(this);
     if (editable) {
       return Promise.resolve(editable);
