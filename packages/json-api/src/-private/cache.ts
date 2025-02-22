@@ -223,37 +223,53 @@ export default class JSONAPICache implements Cache {
 
     if (LOG_REQUESTS) {
       const Counts = new Map();
+      let totalCount = 0;
       if (included) {
         for (i = 0, length = included.length; i < length; i++) {
           const type = included[i].type;
           Counts.set(type, (Counts.get(type) || 0) + 1);
+          totalCount++;
         }
       }
       if (Array.isArray(jsonApiDoc.data)) {
         for (i = 0, length = jsonApiDoc.data.length; i < length; i++) {
           const type = jsonApiDoc.data[i].type;
           Counts.set(type, (Counts.get(type) || 0) + 1);
+          totalCount++;
         }
       } else if (jsonApiDoc.data) {
         const type = jsonApiDoc.data.type;
         Counts.set(type, (Counts.get(type) || 0) + 1);
+        totalCount++;
       }
 
-      let str = `JSON:API Cache - put (${doc.content?.lid || doc.request?.url || 'unknown-request'})\n\tContent Counts:`;
+      logGroup(
+        'cache',
+        'put',
+        '<@document>',
+        doc.content?.lid || doc.request?.url || 'unknown-request',
+        `(${totalCount}) records`,
+        ''
+      );
+      let str = `\tContent Counts:`;
       Counts.forEach((count, type) => {
-        str += `\n\t\t${type}: ${count}`;
+        str += `\n\t\t${type}: ${count} record${count > 1 ? 's' : ''}`;
       });
       if (Counts.size === 0) {
         str += `\t(empty)`;
       }
       // eslint-disable-next-line no-console
-      console.log(str, {
+      console.log(str);
+      // eslint-disable-next-line no-console
+      console.log({
         lid: doc.content?.lid,
         content: structuredClone(doc.content),
         // we may need a specialized copy here
         request: doc.request, // structuredClone(doc.request),
         response: doc.response, // structuredClone(doc.response),
       });
+      // eslint-disable-next-line no-console
+      console.groupEnd();
     }
 
     if (included) {
