@@ -6,10 +6,14 @@ import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { Relationship } from '@warp-drive/core-types/cache/relationship';
 import type { Value } from '@warp-drive/core-types/json/raw';
-import type { ResourceObject } from '@warp-drive/core-types/spec/json-api-raw';
+import type {
+  InnerRelationshipDocument,
+  ResourceObject,
+  ResourceRelationshipsObject,
+} from '@warp-drive/core-types/spec/json-api-raw';
 
 type ChangedRelationshipData = {
-  data: Relationship['data'];
+  data: ResourceRelationshipsObject['data'];
 };
 
 export type JsonApiResourcePatch = {
@@ -44,15 +48,61 @@ export function serializeResources(
   };
 }
 
+type SerializedRef =
+  | {
+      id: string;
+      type: string;
+    }
+  | { id: null; lid: string; type: string };
+
+function fixRef({
+  id,
+  lid,
+  type,
+}: { id: string; lid?: string; type: string } | { id: null; lid: string; type: string }): SerializedRef {
+  if (id !== null) {
+    return { id, type };
+  }
+  return { id, lid, type };
+}
+
+function fixRelData(
+  rel: Relationship['data'] | InnerRelationshipDocument['data']
+): SerializedRef | SerializedRef[] | null {
+  if (Array.isArray(rel)) {
+    return rel.map((ref) => fixRef(ref));
+  } else if (typeof rel === 'object' && rel !== null) {
+    return fixRef(rel);
+  }
+  return null;
+}
+
 function _serializeResource(cache: Cache, identifier: StableRecordIdentifier): ResourceObject {
   const { id, lid, type } = identifier;
-  // yup! this method actually does nothing. It's just here for the dev assertion
-  // and to assist in providing a little sugar to the consuming app via the `serializeResources` utility
-  const record = cache.peek(identifier) as ResourceObject;
+  // peek gives us everything we want, but since its referentially the same data
+  // as is in the cache we clone it to avoid any accidental mutations
+  const record = structuredClone(cache.peek(identifier)) as ResourceObject;
   assert(
     `A record with id ${String(id)} and type ${type} for lid ${lid} was not found not in the supplied Cache.`,
     record
   );
+
+  // remove lid from anything that has an ID and slice any relationship arrays
+  if (record.id !== null) {
+    delete record.lid;
+  }
+
+  if (record.relationships) {
+    for (const key of Object.keys(record.relationships)) {
+      const relationship = record.relationships[key];
+      relationship.data = fixRelData(relationship.data);
+      if (Array.isArray(relationship.data)) {
+        relationship.data = relationship.data.map((ref) => fixRef(ref));
+      } else if (typeof relationship.data === 'object' && relationship.data !== null) {
+        relationship.data = fixRef(relationship.data);
+      }
+    }
+  }
 
   return record;
 }
@@ -87,10 +137,9 @@ export function serializePatch(
   // options: { include?: string[] } = {}
 ): { data: JsonApiResourcePatch } {
   const { id, lid, type } = identifier;
-  const record = cache.peek(identifier) as ResourceObject;
   assert(
     `A record with id ${String(id)} and type ${type} for lid ${lid} was not found not in the supplied Cache.`,
-    record
+    cache.peek(identifier)
   );
 
   const data: JsonApiResourcePatch = {
@@ -106,7 +155,7 @@ export function serializePatch(
     Object.keys(attrsChanges).forEach((key) => {
       const change = attrsChanges[key];
       const newVal = change[1];
-      attributes[key] = newVal === undefined ? null : newVal;
+      attributes[key] = newVal === undefined ? null : structuredClone(newVal);
     });
 
     data.attributes = attributes;
@@ -116,7 +165,7 @@ export function serializePatch(
   if (changedRelationships.size) {
     const relationships: Record<string, ChangedRelationshipData> = {};
     changedRelationships.forEach((diff, key) => {
-      relationships[key] = { data: diff.localState };
+      relationships[key] = { data: fixRelData(diff.localState) } as ChangedRelationshipData;
     });
 
     data.relationships = relationships;
