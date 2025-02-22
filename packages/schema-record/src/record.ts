@@ -3,6 +3,7 @@ import { dependencySatisfies, importSync, macroCondition } from '@embroider/macr
 import type { MinimalLegacyRecord } from '@ember-data/model/-private/model-methods';
 import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store';
+import type { RelatedCollection as ManyArray } from '@ember-data/store/-private';
 import { recordIdentifierFor, setRecordIdentifier } from '@ember-data/store/-private';
 import { addToTransaction, entangleSignal, getSignal, type Signal, Signals } from '@ember-data/tracking/-private';
 import { assert } from '@warp-drive/build-config/macros';
@@ -18,6 +19,7 @@ import {
   computeAttribute,
   computeDerivation,
   computeField,
+  computeHasMany,
   computeLocal,
   computeObject,
   computeResource,
@@ -255,19 +257,6 @@ export class SchemaRecord {
           case 'derived':
             return computeDerivation(schema, receiver as unknown as SchemaRecord, identifier, field, prop as string);
           case 'schema-array':
-            entangleSignal(signals, receiver, field.name);
-            return computeArray(
-              store,
-              schema,
-              cache,
-              target,
-              identifier,
-              field,
-              propArray,
-              true,
-              Mode[Editable],
-              Mode[Legacy]
-            );
           case 'array':
             assert(
               `SchemaRecord.${field.name} is not available in legacy mode because it has type '${field.kind}'`,
@@ -282,7 +271,6 @@ export class SchemaRecord {
               identifier,
               field,
               propArray,
-              false,
               Mode[Editable],
               Mode[Legacy]
             );
@@ -330,6 +318,21 @@ export class SchemaRecord {
             entangleSignal(signals, receiver, field.name);
             return getLegacySupport(receiver as unknown as MinimalLegacyRecord).getBelongsTo(field.name);
           case 'hasMany':
+            if (field.options.linksMode) {
+              entangleSignal(signals, receiver, field.name);
+
+              return computeHasMany(
+                store,
+                schema,
+                cache,
+                target,
+                identifier,
+                field,
+                propArray,
+                Mode[Editable],
+                Mode[Legacy]
+              );
+            }
             if (!HAS_MODEL_PACKAGE) {
               assert(
                 `Cannot use hasMany fields in your schema unless @ember-data/model is installed to provide legacy model support.  ${field.name} should likely be migrated to be a collection field.`
@@ -408,6 +411,10 @@ export class SchemaRecord {
               cache.setAttr(identifier, propArray, (value as ArrayValue)?.slice());
               const peeked = peekManagedArray(self, field);
               if (peeked) {
+                assert(
+                  `Expected the peekManagedArray for ${field.kind} to return a ManagedArray`,
+                  ARRAY_SIGNAL in peeked
+                );
                 const arrSignal = peeked[ARRAY_SIGNAL];
                 arrSignal.shouldReset = true;
               }
@@ -424,6 +431,10 @@ export class SchemaRecord {
             cache.setAttr(identifier, propArray, rawValue);
             const peeked = peekManagedArray(self, field);
             if (peeked) {
+              assert(
+                `Expected the peekManagedArray for ${field.kind} to return a ManagedArray`,
+                ARRAY_SIGNAL in peeked
+              );
               const arrSignal = peeked[ARRAY_SIGNAL];
               arrSignal.shouldReset = true;
             }
@@ -437,6 +448,10 @@ export class SchemaRecord {
             cache.setAttr(identifier, propArray, arrayValue);
             const peeked = peekManagedArray(self, field);
             if (peeked) {
+              assert(
+                `Expected the peekManagedArray for ${field.kind} to return a ManagedArray`,
+                ARRAY_SIGNAL in peeked
+              );
               const arrSignal = peeked[ARRAY_SIGNAL];
               arrSignal.shouldReset = true;
             }
@@ -582,6 +597,10 @@ export class SchemaRecord {
                 if (field?.kind === 'array' || field?.kind === 'schema-array') {
                   const peeked = peekManagedArray(self, field);
                   if (peeked) {
+                    assert(
+                      `Expected the peekManagedArray for ${field.kind} to return a ManagedArray`,
+                      ARRAY_SIGNAL in peeked
+                    );
                     const arrSignal = peeked[ARRAY_SIGNAL];
                     arrSignal.shouldReset = true;
                     addToTransaction(arrSignal);
@@ -618,6 +637,17 @@ export class SchemaRecord {
                 } else if (field.kind === 'resource') {
                   // FIXME
                 } else if (field.kind === 'hasMany') {
+                  if (field.options.linksMode) {
+                    const peeked = peekManagedArray(self, field) as ManyArray | undefined;
+                    if (peeked) {
+                      // const arrSignal = peeked[ARRAY_SIGNAL];
+                      // arrSignal.shouldReset = true;
+                      // addToTransaction(arrSignal);
+                      peeked.notify();
+                    }
+                    return;
+                  }
+
                   assert(`Expected to have a getLegacySupport function`, getLegacySupport);
                   assert(`Can only use hasMany fields when the resource is in legacy mode`, Mode[Legacy]);
 

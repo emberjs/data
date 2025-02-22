@@ -135,7 +135,9 @@ function validateHasManyToLinksMode(
   _relationshipDoc: InnerRelationshipDocument<ExistingResourceIdentifierObject>,
   _options: ValidateResourceFieldsOptions
 ) {
-  throw new Error(
-    `Cannot fetch ${resourceType}.${field.name} because the field is in linksMode but hasMany is not yet supported`
-  );
+  if (field.options.async) {
+    throw new Error(
+      `Cannot fetch ${resourceType}.${field.name} because the field is in linksMode but async hasMany is not yet supported`
+    );
+  }
 }

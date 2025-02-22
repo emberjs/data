@@ -3,18 +3,6 @@
 */
 import { deprecate } from '@ember/debug';
 
-import type Store from '@ember-data/store';
-import type { CreateRecordProperties, NativeProxy } from '@ember-data/store/-private';
-import {
-  ARRAY_SIGNAL,
-  isStableIdentifier,
-  LiveArray,
-  MUTATE,
-  notifyArray,
-  recordIdentifierFor,
-  SOURCE,
-} from '@ember-data/store/-private';
-import type { BaseFinderOptions, ModelSchema } from '@ember-data/store/types';
 import type { Signal } from '@ember-data/tracking/-private';
 import { addToTransaction } from '@ember-data/tracking/-private';
 import {
@@ -33,16 +21,22 @@ import type {
 } from '@warp-drive/core-types/record';
 import type { Links, PaginationLinks } from '@warp-drive/core-types/spec/json-api-raw';
 
-import type { LegacySupport } from './legacy-relationships-support';
+import type { BaseFinderOptions, ModelSchema } from '../../types';
+import { isStableIdentifier } from '../caches/identifier-cache';
+import { recordIdentifierFor } from '../caches/instance-cache';
+import type { CreateRecordProperties, Store } from '../store-service';
+import type { MinimumManager } from './identifier-array';
+import { ARRAY_SIGNAL, IdentifierArray, MUTATE, notifyArray, SOURCE } from './identifier-array';
+import type { NativeProxy } from './native-proxy-type-fix';
 
-type IdentifierArrayCreateOptions = ConstructorParameters<typeof LiveArray>[0];
+type IdentifierArrayCreateOptions = ConstructorParameters<typeof IdentifierArray>[0];
 
 export interface ManyArrayCreateArgs<T> {
   identifiers: StableRecordIdentifier<TypeFromInstanceOrString<T>>[];
   type: TypeFromInstanceOrString<T>;
   store: Store;
   allowMutation: boolean;
-  manager: LegacySupport;
+  manager: MinimumManager;
 
   identifier: StableRecordIdentifier;
   cache: Cache;
@@ -97,7 +91,7 @@ export interface ManyArrayCreateArgs<T> {
   @class ManyArray
   @public
 */
-export class RelatedCollection<T = unknown> extends LiveArray<T> {
+export class RelatedCollection<T = unknown> extends IdentifierArray<T> {
   declare isAsync: boolean;
   /**
     The loading state of this array
@@ -162,7 +156,7 @@ export class RelatedCollection<T = unknown> extends LiveArray<T> {
   declare links: Links | PaginationLinks | null;
   declare identifier: StableRecordIdentifier;
   declare cache: Cache;
-  declare _manager: LegacySupport;
+  declare _manager: MinimumManager;
   declare store: Store;
   declare key: string;
   declare type: ModelSchema;
@@ -417,6 +411,10 @@ export class RelatedCollection<T = unknown> extends LiveArray<T> {
     @public
   */
   reload(options?: BaseFinderOptions): Promise<this> {
+    assert(
+      `Expected the manager for ManyArray to implement reloadHasMany`,
+      typeof this._manager.reloadHasMany === 'function'
+    );
     // TODO this is odd, we don't ask the store for anything else like this?
     return this._manager.reloadHasMany<T>(this.key, options) as Promise<this>;
   }
@@ -665,9 +663,10 @@ function mutateSortRelatedRecords<T>(
 
 function mutate<T>(
   collection: RelatedCollection<T>,
-  mutation: Parameters<LegacySupport['mutate']>[0],
+  mutation: Parameters<Exclude<MinimumManager['mutate'], undefined>>[0],
   _SIGNAL: Signal
 ) {
+  assert(`Expected the manager for ManyArray to implement mutate`, typeof collection._manager.mutate === 'function');
   collection._manager.mutate(mutation);
   addToTransaction(_SIGNAL);
 }

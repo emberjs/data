@@ -354,6 +354,12 @@ export class ManagedArray {
         }
         return reflect;
       },
+      has(target, prop) {
+        if (prop === 'identifier' || prop === 'owner' || prop === ARRAY_SIGNAL) {
+          return true;
+        }
+        return Reflect.has(target, prop);
+      },
     }) as ManagedArray;
 
     return proxy;

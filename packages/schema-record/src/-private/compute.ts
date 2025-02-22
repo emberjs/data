@@ -1,6 +1,7 @@
 import type { Future } from '@ember-data/request';
 import type Store from '@ember-data/store';
 import type { StoreRequestInput } from '@ember-data/store';
+import { RelatedCollection as ManyArray } from '@ember-data/store/-private';
 import { defineSignal, getSignal, peekSignal } from '@ember-data/tracking/-private';
 import { DEBUG } from '@warp-drive/build-config/env';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -13,12 +14,13 @@ import type {
   DerivedField,
   FieldSchema,
   GenericField,
+  LegacyHasManyField,
   LocalField,
   ObjectField,
   SchemaArrayField,
   SchemaObjectField,
 } from '@warp-drive/core-types/schema/fields';
-import type { Link, Links } from '@warp-drive/core-types/spec/json-api-raw';
+import type { CollectionResourceRelationship, Link, Links } from '@warp-drive/core-types/spec/json-api-raw';
 import { RecordStore } from '@warp-drive/core-types/symbols';
 
 import { SchemaRecord } from '../record';
@@ -26,14 +28,15 @@ import type { SchemaService } from '../schema';
 import { Editable, Identifier, Legacy, Parent } from '../symbols';
 import { ManagedArray } from './managed-array';
 import { ManagedObject } from './managed-object';
+import { ManyArrayManager } from './many-array-manager';
 
 export const ManagedArrayMap = getOrSetGlobal(
   'ManagedArrayMap',
-  new Map<SchemaRecord, Map<FieldSchema, ManagedArray>>()
+  new Map<SchemaRecord, Map<string, ManagedArray | ManyArray>>()
 );
 export const ManagedObjectMap = getOrSetGlobal(
   'ManagedObjectMap',
-  new Map<SchemaRecord, Map<FieldSchema, ManagedObject | SchemaRecord>>()
+  new Map<SchemaRecord, Map<string, ManagedObject | SchemaRecord>>()
 );
 
 export function computeLocal(record: typeof Proxy<SchemaRecord>, field: LocalField, prop: string): unknown {
@@ -47,10 +50,10 @@ export function computeLocal(record: typeof Proxy<SchemaRecord>, field: LocalFie
   return signal.lastValue;
 }
 
-export function peekManagedArray(record: SchemaRecord, field: FieldSchema): ManagedArray | undefined {
+export function peekManagedArray(record: SchemaRecord, field: FieldSchema): ManyArray | ManagedArray | undefined {
   const managedArrayMapForRecord = ManagedArrayMap.get(record);
   if (managedArrayMapForRecord) {
-    return managedArrayMapForRecord.get(field);
+    return managedArrayMapForRecord.get(field.name);
   }
 }
 
@@ -62,7 +65,7 @@ export function peekManagedObject(
 ): ManagedObject | SchemaRecord | undefined {
   const managedObjectMapForRecord = ManagedObjectMap.get(record);
   if (managedObjectMapForRecord) {
-    return managedObjectMapForRecord.get(field);
+    return managedObjectMapForRecord.get(field.name);
   }
 }
 
@@ -91,10 +94,10 @@ export function computeArray(
   identifier: StableRecordIdentifier,
   field: ArrayField | SchemaArrayField,
   path: string[],
-  isSchemaArray: boolean,
   editable: boolean,
   legacy: boolean
 ) {
+  const isSchemaArray = field.kind === 'schema-array';
   // the thing we hand out needs to know its owner and path in a private manner
   // its "address" is the parent identifier (identifier) + field name (field.name)
   //  in the nested object case field name here is the full dot path from root resource to this value
@@ -102,9 +105,9 @@ export function computeArray(
   // its "owner" is the parent record
 
   const managedArrayMapForRecord = ManagedArrayMap.get(record);
-  let managedArray;
+  let managedArray: ManagedArray | undefined;
   if (managedArrayMapForRecord) {
-    managedArray = managedArrayMapForRecord.get(field);
+    managedArray = managedArrayMapForRecord.get(field.name) as ManagedArray | undefined;
   }
   if (managedArray) {
     return managedArray;
@@ -127,9 +130,9 @@ export function computeArray(
       legacy
     );
     if (!managedArrayMapForRecord) {
-      ManagedArrayMap.set(record, new Map([[field, managedArray]]));
+      ManagedArrayMap.set(record, new Map([[field.name, managedArray]]));
     } else {
-      managedArrayMapForRecord.set(field, managedArray);
+      managedArrayMapForRecord.set(field.name, managedArray);
     }
   }
   return managedArray;
@@ -148,7 +151,7 @@ export function computeObject(
   const managedObjectMapForRecord = ManagedObjectMap.get(record);
   let managedObject;
   if (managedObjectMapForRecord) {
-    managedObject = managedObjectMapForRecord.get(field);
+    managedObject = managedObjectMapForRecord.get(field.name);
   }
   if (managedObject) {
     return managedObject;
@@ -164,9 +167,9 @@ export function computeObject(
     managedObject = new ManagedObject(schema, cache, field, rawValue, identifier, path, record, editable, legacy);
 
     if (!managedObjectMapForRecord) {
-      ManagedObjectMap.set(record, new Map([[field, managedObject]]));
+      ManagedObjectMap.set(record, new Map([[field.name, managedObject]]));
     } else {
-      managedObjectMapForRecord.set(field, managedObject);
+      managedObjectMapForRecord.set(field.name, managedObject);
     }
   }
   return managedObject;
@@ -185,7 +188,7 @@ export function computeSchemaObject(
   const schemaObjectMapForRecord = ManagedObjectMap.get(record);
   let schemaObject;
   if (schemaObjectMapForRecord) {
-    schemaObject = schemaObjectMapForRecord.get(field);
+    schemaObject = schemaObjectMapForRecord.get(field.name);
   }
   if (schemaObject) {
     return schemaObject;
@@ -208,9 +211,9 @@ export function computeSchemaObject(
     );
   }
   if (!schemaObjectMapForRecord) {
-    ManagedObjectMap.set(record, new Map([[field, schemaObject]]));
+    ManagedObjectMap.set(record, new Map([[field.name, schemaObject]]));
   } else {
-    schemaObjectMapForRecord.set(field, schemaObject);
+    schemaObjectMapForRecord.set(field.name, schemaObject);
   }
   return schemaObject;
 }
@@ -328,4 +331,60 @@ export function computeResource<T extends SchemaRecord>(
   }
 
   return new ResourceRelationship<T>(store, cache, parent, identifier, field, prop, editable);
+}
+
+export function computeHasMany(
+  store: Store,
+  schema: SchemaService,
+  cache: Cache,
+  record: SchemaRecord,
+  identifier: StableRecordIdentifier,
+  field: LegacyHasManyField,
+  path: string[],
+  editable: boolean,
+  legacy: boolean
+) {
+  // the thing we hand out needs to know its owner and path in a private manner
+  // its "address" is the parent identifier (identifier) + field name (field.name)
+  //  in the nested object case field name here is the full dot path from root resource to this value
+  // its "key" is the field on the parent record
+  // its "owner" is the parent record
+
+  const managedArrayMapForRecord = ManagedArrayMap.get(record);
+  let managedArray: ManyArray | undefined;
+  if (managedArrayMapForRecord) {
+    managedArray = managedArrayMapForRecord.get(field.name) as ManyArray | undefined;
+  }
+  if (managedArray) {
+    return managedArray;
+  } else {
+    const rawValue = cache.getRelationship(identifier, field.name) as CollectionResourceRelationship;
+    if (!rawValue) {
+      return null;
+    }
+    managedArray = new ManyArray<unknown>({
+      store,
+      type: field.type,
+      identifier,
+      cache,
+      identifiers: rawValue.data as StableRecordIdentifier[],
+      key: field.name,
+      meta: rawValue.meta || null,
+      links: rawValue.links || null,
+      isPolymorphic: field.options.polymorphic ?? false,
+      isAsync: field.options.async ?? false,
+      // TODO: Grab the proper value
+      _inverseIsAsync: false,
+      // @ts-expect-error Typescript doesn't have a way for us to thread the generic backwards so it infers unknown instead of T
+      manager: new ManyArrayManager(record),
+      isLoaded: true,
+      allowMutation: editable,
+    });
+    if (!managedArrayMapForRecord) {
+      ManagedArrayMap.set(record, new Map([[field.name, managedArray]]));
+    } else {
+      managedArrayMapForRecord.set(field.name, managedArray);
+    }
+  }
+  return managedArray;
 }

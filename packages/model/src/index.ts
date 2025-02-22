@@ -41,7 +41,7 @@ export { Model as default, attr, belongsTo, hasMany } from './-private';
 
 export type { PromiseBelongsTo as AsyncBelongsTo } from './-private/promise-belongs-to';
 export type { PromiseManyArray as AsyncHasMany } from './-private/promise-many-array';
-export type { RelatedCollection as ManyArray } from './-private/many-array';
-export type { RelatedCollection as HasMany } from './-private/many-array';
+export type { RelatedCollection as ManyArray } from '@ember-data/store/-private';
+export type { RelatedCollection as HasMany } from '@ember-data/store/-private';
 export { instantiateRecord, teardownRecord, modelFor } from './-private/hooks';
 export { ModelSchemaProvider } from './-private/schema-provider';
