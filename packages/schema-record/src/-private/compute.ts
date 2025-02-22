@@ -94,10 +94,10 @@ export function computeArray(
   identifier: StableRecordIdentifier,
   field: ArrayField | SchemaArrayField,
   path: string[],
-  isSchemaArray: boolean,
   editable: boolean,
   legacy: boolean
 ) {
+  const isSchemaArray = field.kind === 'schema-array';
   // the thing we hand out needs to know its owner and path in a private manner
   // its "address" is the parent identifier (identifier) + field name (field.name)
   //  in the nested object case field name here is the full dot path from root resource to this value

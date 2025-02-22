@@ -258,19 +258,6 @@ export class SchemaRecord {
           case 'derived':
             return computeDerivation(schema, receiver as unknown as SchemaRecord, identifier, field, prop as string);
           case 'schema-array':
-            entangleSignal(signals, receiver, field.name);
-            return computeArray(
-              store,
-              schema,
-              cache,
-              target,
-              identifier,
-              field,
-              propArray,
-              true,
-              Mode[Editable],
-              Mode[Legacy]
-            );
           case 'array':
             assert(
               `SchemaRecord.${field.name} is not available in legacy mode because it has type '${field.kind}'`,
@@ -285,7 +272,6 @@ export class SchemaRecord {
               identifier,
               field,
               propArray,
-              false,
               Mode[Editable],
               Mode[Legacy]
             );
@@ -428,7 +414,7 @@ export class SchemaRecord {
               if (peeked) {
                 assert(
                   `Expected the peekManagedArray for ${field.kind} to return a ManagedArray`,
-                  peeked instanceof ManagedArray
+                  ARRAY_SIGNAL in peeked
                 );
                 const arrSignal = peeked[ARRAY_SIGNAL];
                 arrSignal.shouldReset = true;
@@ -448,7 +434,7 @@ export class SchemaRecord {
             if (peeked) {
               assert(
                 `Expected the peekManagedArray for ${field.kind} to return a ManagedArray`,
-                peeked instanceof ManagedArray
+                ARRAY_SIGNAL in peeked
               );
               const arrSignal = peeked[ARRAY_SIGNAL];
               arrSignal.shouldReset = true;
@@ -465,7 +451,7 @@ export class SchemaRecord {
             if (peeked) {
               assert(
                 `Expected the peekManagedArray for ${field.kind} to return a ManagedArray`,
-                peeked instanceof ManagedArray
+                ARRAY_SIGNAL in peeked
               );
               const arrSignal = peeked[ARRAY_SIGNAL];
               arrSignal.shouldReset = true;
@@ -614,7 +600,7 @@ export class SchemaRecord {
                   if (peeked) {
                     assert(
                       `Expected the peekManagedArray for ${field.kind} to return a ManagedArray`,
-                      peeked instanceof ManagedArray
+                      ARRAY_SIGNAL in peeked
                     );
                     const arrSignal = peeked[ARRAY_SIGNAL];
                     arrSignal.shouldReset = true;
