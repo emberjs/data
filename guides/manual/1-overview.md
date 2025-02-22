@@ -18,9 +18,12 @@ We see this as one of the keys to scalability. Providing a stable framework
 for how data is requested, cached, mutated, and mocked allows developers to
 focus more time on the product requirements that matter.
 
-This also means that a single WarpDrive configuration can power multiple web-apps
-using varying frameworks sharing a single domain: bridging the gap between MPA
-and SPA.
+A single WarpDrive configuration can power multiple web-apps using differing
+frameworks all sharing a single domain: bridging the gap between MPA and SPA.
+
+<br>
+
+## A Very Brief History
 
 WarpDrive began in ~2006 as a suite of ORM-like data utilities in SproutCore that
 later evolved into EmberData. Beginning in ~2017 the team plotted a course towards
@@ -51,14 +54,15 @@ quick to pickup the basics. Our patterns are portable and scalable, meaning that
 your app, team and data needs evolve we'll be right there with you.
 
 Because we are universal and also not tied to any API Format or backend architecture,
-there's no lock-in. The data patterns you learn, the code you write is portable
-between frontend frameworks and backends and can help smooth the evolution of both.
+there's no lock-in. The data patterns you learn and the code you write is portable
+between frontend frameworks and backend APIs and can help smooth the evolution of both.
 
 We're also not specific to a given frontend architecture. When serving on the same
 domain, you can dedupe and cache requests across multiple apps and tabs at once!
 This means we are as good for embedded content and MPAs as we are for SPAs.
 
-Our core philosophy is to deliver value that lasts decades and evolves with your app.
+Our core philosophy is to deliver value that lasts decades and evolves with your app,
+helping you ship, iterate and deliver to your customers.
 
 <br>
 
