@@ -1022,9 +1022,8 @@ export class Store extends BaseClass {
     Example
 
     ```javascript
-    store.findRecord('post', '1').then(function(post) {
-      store.unloadRecord(post);
-    });
+    const { content: { data: post } } = await store.request(findRecord({ type: 'post', id: '1' }));
+    store.unloadRecord(post);
     ```
 
     @method unloadRecord
