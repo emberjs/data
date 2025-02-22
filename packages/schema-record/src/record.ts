@@ -29,6 +29,7 @@ import {
   peekManagedArray,
   peekManagedObject,
 } from './-private/compute';
+import { ManagedArray } from './-private/managed-array';
 import type { SchemaService } from './schema';
 import {
   ARRAY_SIGNAL,
@@ -425,6 +426,10 @@ export class SchemaRecord {
               cache.setAttr(identifier, propArray, (value as ArrayValue)?.slice());
               const peeked = peekManagedArray(self, field);
               if (peeked) {
+                assert(
+                  `Expected the peekManagedArray for ${field.kind} to return a ManagedArray`,
+                  peeked instanceof ManagedArray
+                );
                 const arrSignal = peeked[ARRAY_SIGNAL];
                 arrSignal.shouldReset = true;
               }
@@ -441,6 +446,10 @@ export class SchemaRecord {
             cache.setAttr(identifier, propArray, rawValue);
             const peeked = peekManagedArray(self, field);
             if (peeked) {
+              assert(
+                `Expected the peekManagedArray for ${field.kind} to return a ManagedArray`,
+                peeked instanceof ManagedArray
+              );
               const arrSignal = peeked[ARRAY_SIGNAL];
               arrSignal.shouldReset = true;
             }
@@ -454,6 +463,10 @@ export class SchemaRecord {
             cache.setAttr(identifier, propArray, arrayValue);
             const peeked = peekManagedArray(self, field);
             if (peeked) {
+              assert(
+                `Expected the peekManagedArray for ${field.kind} to return a ManagedArray`,
+                peeked instanceof ManagedArray
+              );
               const arrSignal = peeked[ARRAY_SIGNAL];
               arrSignal.shouldReset = true;
             }
@@ -599,6 +612,10 @@ export class SchemaRecord {
                 if (field?.kind === 'array' || field?.kind === 'schema-array') {
                   const peeked = peekManagedArray(self, field);
                   if (peeked) {
+                    assert(
+                      `Expected the peekManagedArray for ${field.kind} to return a ManagedArray`,
+                      peeked instanceof ManagedArray
+                    );
                     const arrSignal = peeked[ARRAY_SIGNAL];
                     arrSignal.shouldReset = true;
                     addToTransaction(arrSignal);

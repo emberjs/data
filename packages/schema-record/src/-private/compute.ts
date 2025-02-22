@@ -4,7 +4,6 @@ import type { StoreRequestInput } from '@ember-data/store';
 import { RelatedCollection as ManyArray } from '@ember-data/store/-private';
 import { defineSignal, getSignal, peekSignal } from '@ember-data/tracking/-private';
 import { DEBUG } from '@warp-drive/build-config/env';
-import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import type { Cache } from '@warp-drive/core-types/cache';
@@ -51,15 +50,10 @@ export function computeLocal(record: typeof Proxy<SchemaRecord>, field: LocalFie
   return signal.lastValue;
 }
 
-export function peekManagedArray(record: SchemaRecord, field: FieldSchema): ManagedArray | undefined {
+export function peekManagedArray(record: SchemaRecord, field: FieldSchema): ManyArray | ManagedArray | undefined {
   const managedArrayMapForRecord = ManagedArrayMap.get(record);
   if (managedArrayMapForRecord) {
-    const value = managedArrayMapForRecord.get(field.name);
-    assert(
-      `peekManagedArray should not be used to retrieve ${field.name} from ${record[Identifier].type} as it is a relationship`,
-      !value || value instanceof ManagedArray
-    );
-    return value;
+    return managedArrayMapForRecord.get(field.name);
   }
 }
 
