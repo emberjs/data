@@ -255,9 +255,8 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     let record = store.createRecord('model');
     record.isLoaded; // true
 
-    store.findRecord('model', 1).then(function(model) {
-      model.isLoaded; // true
-    });
+    const { content: { data: model } } = await store.request(findRecord({ type: 'model', id: '1' }));
+    model.isLoaded;
     ```
 
     @property isLoaded
@@ -282,11 +281,11 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     let record = store.createRecord('model');
     record.hasDirtyAttributes; // true
 
-    store.findRecord('model', 1).then(function(model) {
-      model.hasDirtyAttributes; // false
-      model.set('foo', 'some value');
-      model.hasDirtyAttributes; // true
-    });
+    const { content: { data: model } } = await store.request(findRecord({ type: 'model', id: '1' }));
+
+    model.hasDirtyAttributes; // false
+    model.foo = 'some value';
+    model.hasDirtyAttributes; // true
     ```
 
     @since 1.13.0
@@ -499,9 +498,8 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     let record = store.createRecord('model');
     record.id; // null
 
-    store.findRecord('model', 1).then(function(model) {
-      model.id; // '1'
-    });
+    const { content: { data: model } } = await store.request(findRecord({ type: 'model', id: '1' }));
+    model.id; // '1'
     ```
 
     @property id

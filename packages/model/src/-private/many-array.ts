@@ -424,10 +424,13 @@ export class RelatedCollection<T = unknown> extends LiveArray<T> {
   /**
     Saves all of the records in the `ManyArray`.
 
+    Note: this API can only be used in legacy mode with a configured Adapter.
+
     Example
 
     ```javascript
-    let inbox = await store.findRecord('inbox', '1');
+    const { content: { data: inbox } } = await store.request(findRecord({ type: 'inbox', id: '1' }));
+
     let messages = await inbox.messages;
     messages.forEach((message) => {
       message.isRead = true;
