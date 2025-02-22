@@ -29,7 +29,6 @@ import {
   peekManagedArray,
   peekManagedObject,
 } from './-private/compute';
-import { ManagedArray } from './-private/managed-array';
 import type { SchemaService } from './schema';
 import {
   ARRAY_SIGNAL,
