@@ -4,7 +4,7 @@
 import type { CollectionEdge, Graph, GraphEdge, ImplicitEdge, ResourceEdge } from '@ember-data/graph/-private';
 import { graphFor, isBelongsTo, peekGraph } from '@ember-data/graph/-private';
 import type Store from '@ember-data/store';
-import { logGroup } from '@ember-data/store/-private';
+import { isStableIdentifier, logGroup } from '@ember-data/store/-private';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { LOG_MUTATIONS, LOG_OPERATIONS, LOG_REQUESTS } from '@warp-drive/build-config/debugging';
 import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp-drive/build-config/deprecations';
@@ -30,6 +30,7 @@ import type {
 import type {
   CollectionField,
   FieldSchema,
+  LegacyHasManyField,
   LegacyRelationshipSchema,
   ResourceField,
 } from '@warp-drive/core-types/schema/fields';
@@ -222,31 +223,53 @@ export default class JSONAPICache implements Cache {
 
     if (LOG_REQUESTS) {
       const Counts = new Map();
+      let totalCount = 0;
       if (included) {
         for (i = 0, length = included.length; i < length; i++) {
           const type = included[i].type;
           Counts.set(type, (Counts.get(type) || 0) + 1);
+          totalCount++;
         }
       }
       if (Array.isArray(jsonApiDoc.data)) {
         for (i = 0, length = jsonApiDoc.data.length; i < length; i++) {
           const type = jsonApiDoc.data[i].type;
           Counts.set(type, (Counts.get(type) || 0) + 1);
+          totalCount++;
         }
       } else if (jsonApiDoc.data) {
         const type = jsonApiDoc.data.type;
         Counts.set(type, (Counts.get(type) || 0) + 1);
+        totalCount++;
       }
 
-      let str = `JSON:API Cache - put (${doc.content?.lid || doc.request?.url || 'unknown-request'})\n\tContents:`;
+      logGroup(
+        'cache',
+        'put',
+        '<@document>',
+        doc.content?.lid || doc.request?.url || 'unknown-request',
+        `(${totalCount}) records`,
+        ''
+      );
+      let str = `\tContent Counts:`;
       Counts.forEach((count, type) => {
-        str += `\n\t\t${type}: ${count}`;
+        str += `\n\t\t${type}: ${count} record${count > 1 ? 's' : ''}`;
       });
       if (Counts.size === 0) {
         str += `\t(empty)`;
       }
       // eslint-disable-next-line no-console
       console.log(str);
+      // eslint-disable-next-line no-console
+      console.log({
+        lid: doc.content?.lid,
+        content: structuredClone(doc.content),
+        // we may need a specialized copy here
+        request: doc.request, // structuredClone(doc.request),
+        response: doc.response, // structuredClone(doc.response),
+      });
+      // eslint-disable-next-line no-console
+      console.groupEnd();
     }
 
     if (included) {
@@ -336,6 +359,24 @@ export default class JSONAPICache implements Cache {
       this.__documents.set(identifier.lid, doc as StructuredDocument<ResourceDocument>);
 
       this._capabilities.notifyChange(identifier, hasExisting ? 'updated' : 'added', null);
+    }
+
+    if (doc.request?.op === 'findHasMany') {
+      const parentIdentifier = doc.request.options?.identifier as StableRecordIdentifier | undefined;
+      const parentField = doc.request.options?.field as LegacyHasManyField | undefined;
+      assert(`Expected a hasMany field`, parentField?.kind === 'hasMany');
+      assert(
+        `Expected a parent identifier for a findHasMany request`,
+        parentIdentifier && isStableIdentifier(parentIdentifier)
+      );
+      if (parentField && parentIdentifier) {
+        this.__graph.push({
+          op: 'updateRelationship',
+          record: parentIdentifier,
+          field: parentField.name,
+          value: resourceDocument,
+        });
+      }
     }
 
     return resourceDocument;
