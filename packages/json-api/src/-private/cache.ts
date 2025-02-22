@@ -1256,6 +1256,8 @@ export default class JSONAPICache implements Cache {
 
       if (cached.remoteAttrs && attribute in cached.remoteAttrs) {
         return cached.remoteAttrs[attribute];
+
+        // we still show defaultValues in the case of a remoteAttr access
       } else if (cached.defaultAttrs && attribute in cached.defaultAttrs) {
         return cached.defaultAttrs[attribute];
       } else {

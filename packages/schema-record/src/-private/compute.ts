@@ -72,9 +72,10 @@ export function computeField(
   record: SchemaRecord,
   identifier: StableRecordIdentifier,
   field: GenericField,
-  prop: string | string[]
+  prop: string | string[],
+  editable: boolean
 ): unknown {
-  const rawValue = cache.getAttr(identifier, prop);
+  const rawValue = editable ? cache.getAttr(identifier, prop) : cache.getRemoteAttr(identifier, prop);
   if (!field.type) {
     return rawValue;
   }
@@ -108,7 +109,7 @@ export function computeArray(
   if (managedArray) {
     return managedArray;
   } else {
-    const rawValue = cache.getAttr(identifier, path) as unknown[];
+    const rawValue = (editable ? cache.getAttr(identifier, path) : cache.getRemoteAttr(identifier, path)) as unknown[];
     if (!rawValue) {
       return null;
     }
@@ -152,7 +153,7 @@ export function computeObject(
   if (managedObject) {
     return managedObject;
   } else {
-    let rawValue = cache.getAttr(identifier, path) as object;
+    let rawValue = (editable ? cache.getAttr(identifier, path) : cache.getRemoteAttr(identifier, path)) as object;
     if (!rawValue) {
       return null;
     }
@@ -189,7 +190,7 @@ export function computeSchemaObject(
   if (schemaObject) {
     return schemaObject;
   } else {
-    const rawValue = cache.getAttr(identifier, path) as object;
+    const rawValue = (editable ? cache.getAttr(identifier, path) : cache.getRemoteAttr(identifier, path)) as object;
     if (!rawValue) {
       return null;
     }
@@ -214,8 +215,13 @@ export function computeSchemaObject(
   return schemaObject;
 }
 
-export function computeAttribute(cache: Cache, identifier: StableRecordIdentifier, prop: string): unknown {
-  return cache.getAttr(identifier, prop);
+export function computeAttribute(
+  cache: Cache,
+  identifier: StableRecordIdentifier,
+  prop: string,
+  editable: boolean
+): unknown {
+  return editable ? cache.getAttr(identifier, prop) : cache.getRemoteAttr(identifier, prop);
 }
 
 export function computeDerivation(
@@ -246,9 +252,12 @@ class ResourceRelationship<T extends SchemaRecord = SchemaRecord> {
     parent: SchemaRecord,
     identifier: StableRecordIdentifier,
     field: FieldSchema,
-    name: string
+    name: string,
+    editable: boolean
   ) {
-    const rawValue = cache.getRelationship(identifier, name) as SingleResourceRelationship;
+    const rawValue = (
+      editable ? cache.getRelationship(identifier, name) : cache.getRemoteRelationship(identifier, name)
+    ) as SingleResourceRelationship;
 
     // TODO setup true lids for relationship documents
     // @ts-expect-error we need to give relationship documents a lid
@@ -311,11 +320,12 @@ export function computeResource<T extends SchemaRecord>(
   parent: SchemaRecord,
   identifier: StableRecordIdentifier,
   field: FieldSchema,
-  prop: string
+  prop: string,
+  editable: boolean
 ): ResourceRelationship<T> {
   if (field.kind !== 'resource') {
     throw new Error(`The schema for ${identifier.type}.${String(prop)} is not a resource relationship`);
   }
 
-  return new ResourceRelationship<T>(store, cache, parent, identifier, field, prop);
+  return new ResourceRelationship<T>(store, cache, parent, identifier, field, prop, editable);
 }

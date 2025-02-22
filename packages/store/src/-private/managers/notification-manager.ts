@@ -51,10 +51,7 @@ export interface DocumentOperationCallback {
 function count(label: string) {
   // @ts-expect-error
   // eslint-disable-next-line
-  globalThis.counts = globalThis.counts || {};
-  // @ts-expect-error
-  // eslint-disable-next-line
-  globalThis.counts[label] = (globalThis.counts[label] || 0) + 1;
+  globalThis.__WarpDriveMetricCountData[label] = (globalThis.__WarpDriveMetricCountData[label] || 0) + 1;
 }
 
 function _unsubscribe(

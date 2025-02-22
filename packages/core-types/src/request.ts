@@ -93,7 +93,7 @@ export type PostQueryRequestOptions<T = unknown, RT = unknown> = {
   url: string;
   method: 'POST' | 'QUERY';
   headers: Headers;
-  body: string;
+  body?: string | BodyInit | FormData;
   cacheOptions: CacheOptions<T> & { key: string };
   op: 'query';
   [RequestSignature]?: RT;
@@ -104,6 +104,7 @@ export type DeleteRequestOptions<T = unknown, RT = unknown> = {
   method: 'DELETE';
   headers: Headers;
   op: 'deleteRecord';
+  body?: string | BodyInit | FormData;
   data: {
     record: StableRecordIdentifier<TypeFromInstanceOrString<T>>;
   };
@@ -121,6 +122,7 @@ export type UpdateRequestOptions<T = unknown, RT = unknown> = {
   method: 'PATCH' | 'PUT';
   headers: Headers;
   op: 'updateRecord';
+  body?: string | BodyInit | FormData;
   data: {
     record: StableRecordIdentifier<TypeFromInstanceOrString<T>>;
   };
@@ -133,6 +135,7 @@ export type CreateRequestOptions<T = unknown, RT = unknown> = {
   method: 'POST';
   headers: Headers;
   op: 'createRecord';
+  body?: string | BodyInit | FormData;
   data: {
     record: StableRecordIdentifier<TypeFromInstanceOrString<T>>;
   };
