@@ -48,7 +48,7 @@ const ValidKeys = new Map<string, string | string[] | typeof BODY_TYPES>([
   ['headers', 'headers'],
   ['integrity', 'string'],
   ['keepalive', 'boolean'],
-  ['method', ['GET', 'PUT', 'PATCH', 'DELETE', 'POST', 'OPTIONS', 'HEAD', 'CONNECT', 'TRACE']],
+  ['method', ['QUERY', 'GET', 'PUT', 'PATCH', 'DELETE', 'POST', 'OPTIONS', 'HEAD', 'CONNECT', 'TRACE']],
   ['mode', ['same-origin', 'cors', 'navigate', 'no-cors']],
   ['redirect', ['error', 'follow', 'manual']],
   ['referrer', 'string'],
