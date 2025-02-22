@@ -6,15 +6,9 @@ import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { Relationship } from '@warp-drive/core-types/cache/relationship';
 import type { Value } from '@warp-drive/core-types/json/raw';
-import type {
-  InnerRelationshipDocument,
-  ResourceObject,
-  ResourceRelationshipsObject,
-} from '@warp-drive/core-types/spec/json-api-raw';
+import type { InnerRelationshipDocument, ResourceObject } from '@warp-drive/core-types/spec/json-api-raw';
 
-type ChangedRelationshipData = {
-  data: ResourceRelationshipsObject['data'];
-};
+type ChangedRelationshipData = InnerRelationshipDocument;
 
 export type JsonApiResourcePatch = {
   type: string;
