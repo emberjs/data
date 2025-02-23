@@ -5,7 +5,7 @@ import { CachePolicy } from '@ember-data/request-utils';
 import Store from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { CacheHandler, DataWorker } from '@warp-drive/experiments/data-worker';
-import { SchemaService } from '@warp-drive/schema-record/schema';
+import { SchemaService } from '@warp-drive/schema-record';
 
 import { UserSchema } from './user-schema';
 

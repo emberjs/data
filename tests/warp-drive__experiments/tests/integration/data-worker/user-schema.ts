@@ -1,4 +1,4 @@
-import { withDefaults } from '@warp-drive/schema-record/schema';
+import { withDefaults } from '@warp-drive/schema-record';
 
 export const UserSchema = withDefaults({
   type: 'user',

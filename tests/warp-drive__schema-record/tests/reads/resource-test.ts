@@ -7,8 +7,8 @@ import { setupTest } from 'ember-qunit';
 import type Store from '@ember-data/store';
 import type { Document } from '@ember-data/store';
 import { Type } from '@warp-drive/core-types/symbols';
-import type { SchemaRecord } from '@warp-drive/schema-record/record';
-import { registerDerivations, withDefaults } from '@warp-drive/schema-record/schema';
+import type { SchemaRecord } from '@warp-drive/schema-record';
+import { registerDerivations, withDefaults } from '@warp-drive/schema-record';
 
 interface User {
   id: string | null;

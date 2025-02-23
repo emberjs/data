@@ -5,9 +5,7 @@ import DataStore, { CacheHandler } from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
-import { instantiateRecord, teardownRecord } from '@warp-drive/schema-record/hooks';
-import type { SchemaRecord } from '@warp-drive/schema-record/record';
-import { SchemaService } from '@warp-drive/schema-record/schema';
+import { instantiateRecord, SchemaService, teardownRecord } from '@warp-drive/schema-record';
 
 export default class Store extends DataStore {
   constructor(args: unknown) {
@@ -26,11 +24,11 @@ export default class Store extends DataStore {
     return new JSONAPICache(capabilities);
   }
 
-  instantiateRecord(identifier: StableRecordIdentifier, createArgs?: Record<string, unknown>): SchemaRecord {
+  instantiateRecord(identifier: StableRecordIdentifier, createArgs?: Record<string, unknown>) {
     return instantiateRecord(this, identifier, createArgs);
   }
 
-  teardownRecord(record: SchemaRecord): void {
+  teardownRecord(record: unknown): void {
     return teardownRecord(record);
   }
 }

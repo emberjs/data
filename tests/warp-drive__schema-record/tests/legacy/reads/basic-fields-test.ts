@@ -11,8 +11,7 @@ import {
 import { recordIdentifierFor } from '@ember-data/store';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import { Type } from '@warp-drive/core-types/symbols';
-import type { SchemaRecord } from '@warp-drive/schema-record/record';
-import type { Transformation } from '@warp-drive/schema-record/schema';
+import type { SchemaRecord, Transformation } from '@warp-drive/schema-record';
 
 import type Store from 'warp-drive__schema-record/services/store';
 

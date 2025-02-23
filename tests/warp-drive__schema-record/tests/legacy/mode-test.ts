@@ -13,8 +13,8 @@ import RequestManager from '@ember-data/request';
 import type Store from '@ember-data/store';
 import { CacheHandler } from '@ember-data/store';
 import type { Type } from '@warp-drive/core-types/symbols';
-import { Editable, Legacy } from '@warp-drive/schema-record/record';
-import { registerDerivations, withDefaults } from '@warp-drive/schema-record/schema';
+import { registerDerivations, withDefaults } from '@warp-drive/schema-record';
+import { Editable, Legacy } from '@warp-drive/schema-record/-private';
 
 type Errors = Model['errors'];
 type RecordState = Model['currentState'];
