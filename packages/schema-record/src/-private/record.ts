@@ -125,6 +125,9 @@ export class SchemaRecord {
       },
 
       has(target: SchemaRecord, prop: string | number | symbol) {
+        if (prop === Destroy || prop === Checkout) {
+          return true;
+        }
         return fields.has(prop as string);
       },
 
