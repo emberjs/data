@@ -28,7 +28,7 @@ import {
   ManagedObjectMap,
   peekManagedArray,
   peekManagedObject,
-} from './-private/compute';
+} from './fields/compute';
 import type { SchemaService } from './schema';
 import {
   ARRAY_SIGNAL,
@@ -125,6 +125,9 @@ export class SchemaRecord {
       },
 
       has(target: SchemaRecord, prop: string | number | symbol) {
+        if (prop === Destroy || prop === Checkout) {
+          return true;
+        }
         return fields.has(prop as string);
       },
 

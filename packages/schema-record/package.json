@@ -33,6 +33,10 @@
     "unstable-preview-types"
   ],
   "exports": {
+    ".": {
+      "types": "./unstable-preview-types/index.d.ts",
+      "default": "./dist/index.js"
+    },
     "./*": {
       "types": "./unstable-preview-types/*.d.ts",
       "default": "./dist/*.js"

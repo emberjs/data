@@ -6,8 +6,7 @@ import { serializePatch, serializeResources, updateRecord } from '@ember-data/js
 import RequestManager from '@ember-data/request';
 import { CacheHandler, recordIdentifierFor } from '@ember-data/store';
 import type { Type } from '@warp-drive/core-types/symbols';
-import { Checkout } from '@warp-drive/schema-record/record';
-import { registerDerivations, withDefaults } from '@warp-drive/schema-record/schema';
+import { Checkout, registerDerivations, withDefaults } from '@warp-drive/schema-record';
 
 import type Store from '../app/services/store';
 

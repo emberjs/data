@@ -277,7 +277,7 @@ export interface Store {
    * For Example, to use the default SchemaService for SchemaRecord
    *
    * ```ts
-   * import { SchemaService } from '@warp-drive/schema-record/schema';
+   * import { SchemaService } from '@warp-drive/schema-record';
    *
    * class extends Store {
    *   createSchemaService() {
@@ -307,7 +307,7 @@ export interface Store {
    *
    * ```ts
    * import { DelegatingSchemaService } from '@ember-data/model/migration-support';
-   * import { SchemaService } from '@warp-drive/schema-record/schema';
+   * import { SchemaService } from '@warp-drive/schema-record';
    *
    * class extends Store {
    *   createSchemaService() {
