@@ -100,7 +100,7 @@
     "typescript": "^5.7.2"
   },
   "engines": {
-    "node": ">= 22"
+    "node": ">= 22.14.0"
   },
   "ember": {
     "edition": "octane"
