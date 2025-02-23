@@ -158,7 +158,18 @@
         "declarations/**",
         "unstable-preview-types/**"
       ],
-      "dependsOn": ["^build:pkg"]
+      "dependsOn": ["^build:pkg"],
+      "env": [
+        "EMBER_DATA_FEATURE_OVERRIDE",
+        "NODE_ENV",
+        "CI",
+        "EMBER_ENV",
+        "IS_TESTING",
+        "EMBER_CLI_TEST_COMMAND",
+        "IS_RECORDING",
+        "ASSERT_ALL_DEPRECATIONS",
+        "EMBER_DATA_FULL_COMPAT"
+      ]
     },
     "build:production": {
       "inputs": [
@@ -179,7 +190,18 @@
         "dist-test/**",
         "declarations/**"
       ],
-      "dependsOn": ["^build:pkg"]
+      "dependsOn": ["^build:pkg"],
+      "env": [
+        "EMBER_DATA_FEATURE_OVERRIDE",
+        "NODE_ENV",
+        "CI",
+        "EMBER_ENV",
+        "IS_TESTING",
+        "EMBER_CLI_TEST_COMMAND",
+        "IS_RECORDING",
+        "ASSERT_ALL_DEPRECATIONS",
+        "EMBER_DATA_FULL_COMPAT"
+      ]
     },
 
     "test": {
