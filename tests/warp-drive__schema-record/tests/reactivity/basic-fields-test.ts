@@ -7,9 +7,8 @@ import { setupRenderingTest } from 'ember-qunit';
 import type Store from '@ember-data/store';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import { Type } from '@warp-drive/core-types/symbols';
-import type { SchemaRecord } from '@warp-drive/schema-record/record';
-import type { Transformation } from '@warp-drive/schema-record/schema';
-import { registerDerivations, withDefaults } from '@warp-drive/schema-record/schema';
+import type { SchemaRecord, Transformation } from '@warp-drive/schema-record';
+import { registerDerivations, withDefaults } from '@warp-drive/schema-record';
 
 import { reactiveContext } from '../-utils/reactive-context';
 

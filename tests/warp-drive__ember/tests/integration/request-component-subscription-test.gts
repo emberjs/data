@@ -16,9 +16,13 @@ import { module, setupRenderingTest, test as _test } from '@warp-drive/diagnosti
 import { Request } from '@warp-drive/ember';
 import { MockServerHandler } from '@warp-drive/holodeck';
 import { GET } from '@warp-drive/holodeck/mock';
-import { instantiateRecord, teardownRecord } from '@warp-drive/schema-record/hooks';
-import type { SchemaRecord } from '@warp-drive/schema-record/record';
-import { registerDerivations, SchemaService, withDefaults } from '@warp-drive/schema-record/schema';
+import {
+  instantiateRecord,
+  registerDerivations,
+  SchemaService,
+  teardownRecord,
+  withDefaults,
+} from '@warp-drive/schema-record';
 
 type User = {
   id: string;
@@ -112,7 +116,7 @@ class TestStore extends Store {
     return instantiateRecord(this, identifier, createRecordArgs);
   }
 
-  teardownRecord(record: SchemaRecord) {
+  teardownRecord(record: unknown) {
     teardownRecord(record);
   }
 }

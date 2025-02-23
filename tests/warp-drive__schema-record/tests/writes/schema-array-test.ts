@@ -6,8 +6,7 @@ import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { JsonApiResource } from '@ember-data/store/-types/q/record-data-json-api';
 import type { Type } from '@warp-drive/core-types/symbols';
-import { Checkout } from '@warp-drive/schema-record/record';
-import { registerDerivations, withDefaults } from '@warp-drive/schema-record/schema';
+import { Checkout, registerDerivations, withDefaults } from '@warp-drive/schema-record';
 
 interface address {
   street: string;

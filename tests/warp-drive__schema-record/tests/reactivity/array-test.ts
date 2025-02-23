@@ -5,7 +5,7 @@ import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 
 import type Store from '@ember-data/store';
-import { registerDerivations, withDefaults } from '@warp-drive/schema-record/schema';
+import { registerDerivations, withDefaults } from '@warp-drive/schema-record';
 
 import { reactiveContext } from '../-utils/reactive-context';
 

@@ -8,9 +8,7 @@ import { module, test } from '@warp-drive/diagnostic';
 import { WorkerFetch } from '@warp-drive/experiments/worker-fetch';
 import { MockServerHandler } from '@warp-drive/holodeck';
 import { GET } from '@warp-drive/holodeck/mock';
-import { instantiateRecord, teardownRecord } from '@warp-drive/schema-record/hooks';
-import type { SchemaRecord } from '@warp-drive/schema-record/record';
-import { registerDerivations, SchemaService } from '@warp-drive/schema-record/schema';
+import { instantiateRecord, registerDerivations, SchemaService, teardownRecord } from '@warp-drive/schema-record';
 
 import { UserSchema } from './user-schema';
 
@@ -76,7 +74,7 @@ module('Unit | DataWorker | Serialization & Persistence', function (_hooks) {
       }
 
       teardownRecord(record: unknown): void {
-        return teardownRecord(record as SchemaRecord);
+        return teardownRecord(record);
       }
     }
 

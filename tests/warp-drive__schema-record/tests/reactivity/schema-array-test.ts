@@ -7,7 +7,7 @@ import { setupRenderingTest } from 'ember-qunit';
 import type Store from '@ember-data/store';
 import type { ObjectValue } from '@warp-drive/core-types/json/raw';
 import { Type } from '@warp-drive/core-types/symbols';
-import { registerDerivations, withDefaults } from '@warp-drive/schema-record/schema';
+import { registerDerivations, withDefaults } from '@warp-drive/schema-record';
 
 import { reactiveContext } from '../-utils/reactive-context';
 
