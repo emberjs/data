@@ -25,11 +25,16 @@ SchemaRecord is:
 - ⚛️ Universal
 - ☢️ Reactive
 
-This package provides a reactive capabilities for your resource data. It works together with a [*Warp***Drive**](https://github.com/emberjs/data/) [Cache](https://github.com/emberjs/data/blob/main/packages/core-types/src/cache.ts) and associated Schemas to simplify the most complex parts of your app's state management.
+This package provides reactive capabilities for your resource data.
+It works together with a [*Warp***Drive**](https://github.com/emberjs/data/)
+[Cache](https://github.com/emberjs/data/blob/main/packages/core-types/src/cache.ts)
+and associated Schemas to simplify the most complex parts of your
+app's state management.
 
 ## Installation
 
-Install using your javascript package manager of choice. For instance with [pnpm](https://pnpm.io/)
+Install using your javascript package manager of choice. For instance
+with [pnpm](https://pnpm.io/)
 
 ```cli
 pnpm add @warp-drive/schema-record
@@ -46,14 +51,16 @@ pnpm add @warp-drive/schema-record
 
 ## Getting Started
 
-If this package is how you are first learning about WarpDrive/EmberData, we recommend starting with learning about [Requests](https://github.com/emberjs/data/blob/main/packages/request/README.md) and the [Store](https://github.com/emberjs/data/blob/main/packages/store/README.md).
+If this package is how you are first learning about WarpDrive/EmberData, we
+recommend starting with learning about [Requests](https://github.com/emberjs/data/blob/main/packages/request/README.md)
+and the [Store](https://github.com/emberjs/data/blob/main/packages/store/README.md).
 
 ## 🚀 Setup
 
 SchemaRecord integrates with WarpDrive via the Store's resource lifecycle hooks.
-When EmberData needs to create a new presentation class to pair with some resource
-data, it calls `instantiateRecord`. When it no longer needs that class, it will call
-`teardownRecord`.
+When WarpDrive needs to create a new record instance to give reactive access to
+a resource in the cache, it calls `instantiateRecord`. When it no longer needs
+that instance, it will call `teardownRecord`.
 
 ```diff
 import Store from '@ember-data/store';
@@ -78,17 +85,22 @@ class AppStore extends Store {
 }
 ```
 
-Any Store API that returns a record instance will use the hook shown above to instantiate a SchemaRecord once this configuration is done. After that, its up to you what SchemaRecord can do.
+Any Store API that returns a record instance will use the hook shown above to
+instantiate a SchemaRecord once this configuration is done. After that, its up
+to you what SchemaRecord can do.
 
 ## Start Using
 
 ### About
 
-SchemaRecord is a reactive object that transforms raw data from an associated cache into reactive data backed by Signals.
+SchemaRecord is a reactive object that transforms raw data from an associated
+cache into reactive data backed by Signals.
 
-The shape of the object and the transformation of raw cache data into its reactive form is controlled by a resource schema.
+The shape of the object and the transformation of raw cache data into its
+reactive form is controlled by a resource schema.
 
-For instance, lets say your API is a JSON:API and your store is using the JSONAPICache, and a request returns the following raw data:
+For instance, lets say your API is a JSON:API and your store is using the
+JSONAPICache, and a request returns the following raw data:
 
 ```ts
 {
@@ -205,12 +217,17 @@ interface User {
 }>
 ```
 
-Note how based on the schema the reactive object we receive is able to produce `name` on user (despite no name field being in the cache), provide `$type` pulled from the identity of the resource, and flatten the individual attributes and relationships onto the record for easier use.
+Note how based on the schema the reactive object we receive is able to produce
+`name` on user (despite no name field being in the cache), provide `$type`
+pulled from the identity of the resource, and flatten the individual attributes
+and relationships onto the record for easier use.
 
-Notice also how we typed this object with `readonly`. This is because while SchemaRecord instances are ***deeply reactive***, they are also ***immutable***.
+Notice also how we typed this object with `readonly`. This is because while
+SchemaRecord instances are ***deeply reactive***, they are also ***immutable***.
 
-We can mutate a SchemaRecord only be explicitly asking permission to do so, and in the process gaining access to an editable copy. The immutable version will not show
-any in-process edits made to this editable copy.
+We can mutate a SchemaRecord only be explicitly asking permission to do so, and
+in the process gaining access to an editable copy. The immutable version will
+not show any in-process edits made to this editable copy.
 
 ```ts
 import { Checkout } from '@warp-drive/schema-record/record';
@@ -220,7 +237,9 @@ const editable = await user[Checkout]();
 
 ### Utilities
 
-SchemaRecord provides a schema builder that simplifies setting up a couple of conventional fields like identity and `$type`. We can rewrite the schema definition above using this utility like so:
+SchemaRecord provides a schema builder that simplifies setting up a couple of
+conventional fields like identity and `$type`. We can rewrite the schema
+definition above using this utility like so:
 
 ```ts
 import { withDefaults } from '@warp-drive/schema-record/schema';
