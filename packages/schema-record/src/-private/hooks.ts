@@ -1,4 +1,5 @@
 import type Store from '@ember-data/store';
+import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
 import { SchemaRecord } from './record';
@@ -25,6 +26,11 @@ export function instantiateRecord(
   return record;
 }
 
-export function teardownRecord(record: SchemaRecord): void {
+function assertSchemaRecord(record: unknown): asserts record is SchemaRecord {
+  assert('Expected a SchemaRecord', record && typeof record === 'object' && Destroy in record);
+}
+
+export function teardownRecord(record: unknown): void {
+  assertSchemaRecord(record);
   record[Destroy]();
 }

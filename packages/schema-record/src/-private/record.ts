@@ -28,7 +28,7 @@ import {
   ManagedObjectMap,
   peekManagedArray,
   peekManagedObject,
-} from './-private/compute';
+} from './fields/compute';
 import type { SchemaService } from './schema';
 import {
   ARRAY_SIGNAL,

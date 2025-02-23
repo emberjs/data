@@ -64,8 +64,7 @@ that instance, it will call `teardownRecord`.
 
 ```diff
 import Store from '@ember-data/store';
-+import { instantiateRecord, teardownRecord } from '@warp-drive/schema-record/hooks';
-+import { registerDerivations, SchemaService } from '@warp-drive/schema-record/schema';
++import { instantiateRecord, teardownRecord, registerDerivations, SchemaService } from '@warp-drive/schema-record';
 
 class AppStore extends Store {
 
@@ -75,11 +74,11 @@ class AppStore extends Store {
 +    return schema;
 +  }
 
-+  instantiateRecord(identifier: StableRecordIdentifier, createArgs?: Record<string, unknown>): SchemaRecord {
++  instantiateRecord(identifier, createArgs) {
 +    return instantiateRecord(this, identifier, createArgs);
 +  }
 
-+  teardownRecord(record: SchemaRecord): void {
++  teardownRecord(record) {
 +    return teardownRecord(record);
 +  }
 }
@@ -230,7 +229,7 @@ in the process gaining access to an editable copy. The immutable version will
 not show any in-process edits made to this editable copy.
 
 ```ts
-import { Checkout } from '@warp-drive/schema-record/record';
+import { Checkout } from '@warp-drive/schema-record';
 
 const editable = await user[Checkout]();
 ```
@@ -242,7 +241,7 @@ conventional fields like identity and `$type`. We can rewrite the schema
 definition above using this utility like so:
 
 ```ts
-import { withDefaults } from '@warp-drive/schema-record/schema';
+import { withDefaults } from '@warp-drive/schema-record';
 
 store.registerSchemas([
   withDefaults({
