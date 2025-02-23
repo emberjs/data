@@ -84,9 +84,9 @@ class AppStore extends Store {
 }
 ```
 
-Any Store API that returns a record instance will use the hook shown above to
-instantiate a SchemaRecord once this configuration is done. After that, its up
-to you what SchemaRecord can do.
+Any Store API that returns a record instance will use the `instantiateRecord` 
+hook configured above to instantiate a SchemaRecord once this is in place.
+After that, its up to you what SchemaRecord can do.
 
 ## Start Using
 
