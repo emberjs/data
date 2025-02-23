@@ -98,7 +98,7 @@ cache into reactive data backed by Signals.
 The shape of the object and the transformation of raw cache data into its
 reactive form is controlled by a resource schema.
 
-For instance, lets say your API is a JSON:API and your store is using the
+For instance, lets say your API is a [JSON:API](https://jsonapi.org) and your store is using the
 JSONAPICache, and a request returns the following raw data:
 
 ```ts
