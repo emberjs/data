@@ -560,7 +560,7 @@ export default class JSONAPICache implements Cache {
     // if no cache entry existed, no record exists / property has been accessed
     // and thus we do not need to notify changes to any properties.
     if (calculateChanges && existed && data.attributes) {
-      changedKeys = calculateChangedKeys(cached, data.attributes);
+      changedKeys = calculateChangedKeys(cached, data.attributes, this._capabilities.schema.fields(identifier));
     }
 
     cached.remoteAttrs = Object.assign(
@@ -958,7 +958,9 @@ export default class JSONAPICache implements Cache {
       }
       newCanonicalAttributes = data.attributes;
     }
-    const changedKeys = newCanonicalAttributes && calculateChangedKeys(cached, newCanonicalAttributes);
+    const changedKeys =
+      newCanonicalAttributes &&
+      calculateChangedKeys(cached, newCanonicalAttributes, this._capabilities.schema.fields(identifier));
 
     cached.remoteAttrs = Object.assign(
       cached.remoteAttrs || (Object.create(null) as Record<string, unknown>),
@@ -1707,7 +1709,8 @@ function notifyAttributes(
   */
 function calculateChangedKeys(
   cached: CachedResource,
-  updates: Exclude<ExistingResourceObject['attributes'], undefined>
+  updates: Exclude<ExistingResourceObject['attributes'], undefined>,
+  schema: ReturnType<Store['schema']['fields']>
 ): Set<string> {
   const changedKeys = new Set<string>();
   const keys = Object.keys(updates);
@@ -1722,6 +1725,10 @@ function calculateChangedKeys(
 
   for (let i = 0; i < length; i++) {
     const key = keys[i];
+    if (!schema.has(key)) {
+      continue;
+    }
+
     const value = updates[key];
 
     // A value in localAttrs means the user has a local change to
