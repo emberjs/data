@@ -29,7 +29,7 @@ module('@ember-data/json-api | Cache (2)', function (hooks) {
 
   test('Does not notify for attributes not in schema', async function (assert) {
     const store = this.owner.lookup('service:store') as Store;
-    const user = store.push({
+    const user: User = store.push({
       data: {
         id: '1',
         type: 'user',
