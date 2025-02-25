@@ -44,11 +44,6 @@
   ],
   "type": "module",
   "peerDependencies": {},
-  "dependenciesMeta": {
-    "@warp-drive/build-config": {
-      "injected": true
-    }
-  },
   "dependencies": {
     "@embroider/macros": "^1.16.10",
     "@manypkg/get-packages": "^2.2.2",
@@ -73,5 +68,5 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.15.9"
+  "packageManager": "pnpm@10.5.0"
 }

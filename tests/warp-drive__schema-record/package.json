@@ -22,47 +22,6 @@
     "test": "ember test --test-port=0 --path=dist-test",
     "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
-  "dependenciesMeta": {
-    "@warp-drive/schema-record": {
-      "injected": true
-    },
-    "@ember-data/store": {
-      "injected": true
-    },
-    "@ember-data/model": {
-      "injected": true
-    },
-    "@ember-data/legacy-compat": {
-      "injected": true
-    },
-    "@ember-data/request": {
-      "injected": true
-    },
-    "@ember-data/tracking": {
-      "injected": true
-    },
-    "@ember-data/json-api": {
-      "injected": true
-    },
-    "@ember-data/graph": {
-      "injected": true
-    },
-    "@ember-data/request-utils": {
-      "injected": true
-    },
-    "@warp-drive/core-types": {
-      "injected": true
-    },
-    "@warp-drive/build-config": {
-      "injected": true
-    },
-    "@ember-data/unpublished-test-infra": {
-      "injected": true
-    },
-    "@ember-data/debug": {
-      "injected": true
-    }
-  },
   "devDependencies": {
     "@babel/core": "^7.24.5",
     "@babel/runtime": "^7.24.5",
@@ -123,7 +82,7 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.15.9",
+  "packageManager": "pnpm@10.5.0",
   "dependencies": {
     "pnpm-sync-dependencies-meta-injected": "0.0.14"
   }

@@ -4,6 +4,7 @@ import { createConfig } from '@warp-drive/internal-config/vite/config.js';
 export const externals = [
   '@ember/runloop',
   '@ember/test-helpers',
+  '@ember/template-compilation',
   'ember-cli-test-loader/test-support/index',
   '@glimmer/manager',
 ];

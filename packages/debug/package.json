@@ -46,32 +46,6 @@
     "@ember-data/request-utils": "workspace:*",
     "@warp-drive/core-types": "workspace:*"
   },
-  "dependenciesMeta": {
-    "@ember-data/store": {
-      "injected": true
-    },
-    "@ember-data/model": {
-      "injected": true
-    },
-    "@ember-data/legacy-compat": {
-      "injected": true
-    },
-    "@ember-data/request": {
-      "injected": true
-    },
-    "@ember-data/request-utils": {
-      "injected": true
-    },
-    "@warp-drive/core-types": {
-      "injected": true
-    },
-    "@ember-data/tracking": {
-      "injected": true
-    },
-    "@warp-drive/build-config": {
-      "injected": true
-    }
-  },
   "dependencies": {
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.16.10",
@@ -112,5 +86,5 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.15.9"
+  "packageManager": "pnpm@10.5.0"
 }

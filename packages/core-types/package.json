@@ -56,7 +56,7 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.15.9",
+  "packageManager": "pnpm@10.5.0",
   "ember-addon": {
     "main": "addon-main.cjs",
     "type": "addon",
@@ -64,10 +64,5 @@
   },
   "ember": {
     "edition": "octane"
-  },
-  "dependenciesMeta": {
-    "@warp-drive/build-config": {
-      "injected": true
-    }
   }
 }

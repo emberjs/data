@@ -15,53 +15,6 @@
     "test:blueprints": "mocha tests",
     "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
-  "dependenciesMeta": {
-    "@ember-data/unpublished-test-infra": {
-      "injected": true
-    },
-    "@ember-data/adapter": {
-      "injected": true
-    },
-    "@ember-data/model": {
-      "injected": true
-    },
-    "@ember-data/serializer": {
-      "injected": true
-    },
-    "@ember-data/store": {
-      "injected": true
-    },
-    "@ember-data/tracking": {
-      "injected": true
-    },
-    "@warp-drive/core-types": {
-      "injected": true
-    },
-    "@ember-data/legacy-compat": {
-      "injected": true
-    },
-    "@ember-data/request": {
-      "injected": true
-    },
-    "@ember-data/graph": {
-      "injected": true
-    },
-    "@ember-data/json-api": {
-      "injected": true
-    },
-    "@ember-data/request-utils": {
-      "injected": true
-    },
-    "@ember-data/debug": {
-      "injected": true
-    },
-    "ember-cli-blueprint-test-helpers": {
-      "injected": true
-    },
-    "ember-cli": {
-      "injected": true
-    }
-  },
   "devDependencies": {
     "@babel/core": "^7.24.5",
     "@ember-data/adapter": "workspace:*",
@@ -96,6 +49,6 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.15.9",
+  "packageManager": "pnpm@10.5.0",
   "dependencies": {}
 }
