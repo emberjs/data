@@ -1738,7 +1738,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     this.eachComputedProperty((name, meta) => {
       if (isAttributeSchema(meta)) {
         assert(
-          "You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: attr('<type>')` from " +
+          "You may not set 'id' as an attribute on your model. Please remove any lines that look like: `id: attr('<type>')` from " +
             this.toString(),
           name !== 'id'
         );
