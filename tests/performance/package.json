@@ -15,38 +15,41 @@
     "test": "tests"
   },
   "scripts": {
-    "build": "ember build",
-    "start": "ember serve",
+    "build": "vite build",
+    "start": "concurrently \"bun ./server/index.ts\" \"vite preview $MAYBE_VITE_ARGS\"",
     "lint": "eslint . --quiet --cache --cache-strategy=content"
-  },
-  "dependencies": {
-    "ember-auto-import": "2.10.0",
-    "ember-data": "workspace:*",
-    "webpack": "^5.98.0"
   },
   "devDependencies": {
     "@babel/core": "^7.26.9",
     "@babel/runtime": "^7.26.9",
     "@ember/optional-features": "^2.2.0",
+    "@babel/plugin-transform-runtime": "^7.25.9",
+    "@babel/plugin-transform-typescript": "^7.25.9",
     "@ember/test-helpers": "5.1.0",
     "@ember/test-waiters": "^3.1.0",
-    "@embroider/compat": "^3.8.3",
-    "@embroider/core": "^3.5.2",
-    "@embroider/webpack": "^4.1.0",
+    "@embroider/compat": "4.0.0-alpha.6",
+    "@embroider/config-meta-loader": "1.0.0-alpha.1",
+    "@embroider/core": "4.0.0-alpha.6",
+    "@embroider/vite": "1.0.0-alpha.6",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
+    "@rollup/plugin-babel": "^6.0.4",
     "@warp-drive/internal-config": "workspace:*",
     "@warp-drive/build-config": "workspace:*",
+    "babel-plugin-ember-template-compilation": "^2.3.0",
+    "bun-types": "^1.2.3",
+    "concurrently": "9.1.2",
+    "decorator-transforms": "^2.3.0",
+    "ember-auto-import": "2.10.0",
     "ember-cli": "~6.2.2",
+    "ember-data": "workspace:*",
     "ember-cli-babel": "^8.2.0",
-    "ember-cli-dependency-checker": "^3.3.3",
     "ember-cli-htmlbars": "^6.3.0",
     "ember-load-initializers": "^3.0.1",
-    "ember-maybe-import-regenerator": "^1.0.0",
-    "ember-resolver": "^11.0.1",
-    "ember-source": "~5.12.0",
+    "ember-resolver": "^13.1.0",
+    "ember-source": "~6.2.0",
     "loader.js": "^4.7.0",
-    "terser-webpack-plugin": "^5.3.12",
+    "vite": "^5.4.11",
     "webpack": "^5.98.0",
     "zlib": "1.0.5"
   },
@@ -59,5 +62,12 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@10.5.2"
+  "packageManager": "pnpm@10.5.2",
+  "ember-addon": {
+    "type": "app",
+    "version": 2
+  },
+  "exports": {
+    "./*": "./app/*"
+  }
 }
