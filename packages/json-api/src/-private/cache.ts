@@ -557,10 +557,12 @@ export default class JSONAPICache implements Cache {
       this._capabilities.notifyChange(identifier, 'state', null);
     }
 
+    const fields = this._capabilities.schema.fields(identifier);
+
     // if no cache entry existed, no record exists / property has been accessed
     // and thus we do not need to notify changes to any properties.
     if (calculateChanges && existed && data.attributes) {
-      changedKeys = calculateChangedKeys(cached, data.attributes, this._capabilities.schema.fields(identifier));
+      changedKeys = calculateChangedKeys(cached, data.attributes, fields);
     }
 
     cached.remoteAttrs = Object.assign(
@@ -583,7 +585,7 @@ export default class JSONAPICache implements Cache {
     }
 
     if (data.relationships) {
-      setupRelationships(this.__graph, this._capabilities, identifier, data);
+      setupRelationships(this.__graph, fields, identifier, data);
     }
 
     if (changedKeys?.size) {
@@ -908,6 +910,7 @@ export default class JSONAPICache implements Cache {
       }
     }
 
+    const fields = this._capabilities.schema.fields(identifier);
     cached.isNew = false;
     let newCanonicalAttributes: ExistingResourceObject['attributes'];
     if (data) {
@@ -928,7 +931,6 @@ export default class JSONAPICache implements Cache {
           if (!DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
             // assert against bad API behavior where a belongsTo relationship
             // is saved but the return payload indicates a different final state.
-            const fields = this._capabilities.schema.fields(identifier);
             fields.forEach((field, name) => {
               if (field.kind === 'belongsTo') {
                 const relationshipData = data.relationships![name]?.data;
@@ -954,13 +956,11 @@ export default class JSONAPICache implements Cache {
             cached.inflightRelationships = null;
           }
         }
-        setupRelationships(this.__graph, this._capabilities, identifier, data);
+        setupRelationships(this.__graph, fields, identifier, data);
       }
       newCanonicalAttributes = data.attributes;
     }
-    const changedKeys =
-      newCanonicalAttributes &&
-      calculateChangedKeys(cached, newCanonicalAttributes, this._capabilities.schema.fields(identifier));
+    const changedKeys = newCanonicalAttributes && calculateChangedKeys(cached, newCanonicalAttributes, fields);
 
     cached.remoteAttrs = Object.assign(
       cached.remoteAttrs || (Object.create(null) as Record<string, unknown>),
@@ -1804,7 +1804,7 @@ function _isLoading(
 
 function setupRelationships(
   graph: Graph,
-  capabilities: CacheCapabilitiesManager,
+  fields: ReturnType<Store['schema']['fields']>,
   identifier: StableRecordIdentifier,
   data: ExistingResourceObject
 ) {
@@ -1812,7 +1812,6 @@ function setupRelationships(
   // allows relationship payloads to be ignored silently if no relationship
   // definition exists. Ensure there's a test for this and then consider
   // moving this to an assertion. This check should possibly live in the graph.
-  const fields = capabilities.schema.fields(identifier);
   for (const [name, field] of fields) {
     if (!isRelationship(field)) continue;
 
