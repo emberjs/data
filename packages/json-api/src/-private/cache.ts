@@ -1710,7 +1710,7 @@ function notifyAttributes(
 function calculateChangedKeys(
   cached: CachedResource,
   updates: Exclude<ExistingResourceObject['attributes'], undefined>,
-  schema: ReturnType<Store['schema']['fields']>
+  fields: ReturnType<Store['schema']['fields']>
 ): Set<string> {
   const changedKeys = new Set<string>();
   const keys = Object.keys(updates);
@@ -1725,7 +1725,7 @@ function calculateChangedKeys(
 
   for (let i = 0; i < length; i++) {
     const key = keys[i];
-    if (!schema.has(key)) {
+    if (!fields.has(key)) {
       continue;
     }
 

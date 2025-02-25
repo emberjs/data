@@ -259,7 +259,6 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
             'TestSchema:fields',
             'TestSchema:fields',
             'TestSchema:fields',
-            'TestSchema:fields',
           ]
         : ['TestSchema:hasResource', 'TestSchema:fields', 'TestSchema:fields', 'TestSchema:fields'],
       'update of record on save completion'
