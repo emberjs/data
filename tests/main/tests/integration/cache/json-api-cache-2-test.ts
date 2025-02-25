@@ -41,6 +41,7 @@ module('@ember-data/json-api | Cache (2)', function (hooks) {
 
     const rc = await reactiveContext.call(this, user, {
       type: 'user',
+      identity: null,
       fields: [
         { name: 'name', kind: 'field' },
         { name: 'brotherName', kind: 'field' },
