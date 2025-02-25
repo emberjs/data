@@ -4038,6 +4038,9 @@ importers:
       '@babel/runtime':
         specifier: ^7.26.0
         version: 7.26.0
+      '@ember-data/model':
+        specifier: workspace:*
+        version: file:packages/model(@babel/core@7.26.0)(@ember-data/graph@5.4.0-alpha.138)(@ember-data/json-api@5.4.0-alpha.138)(@ember-data/legacy-compat@5.4.0-alpha.138)(@ember-data/request-utils@5.4.0-alpha.138)(@ember-data/store@5.4.0-alpha.138)(@ember-data/tracking@5.4.0-alpha.138)(@warp-drive/core-types@5.4.0-alpha.138)(ember-source@6.2.0)
       '@ember/optional-features':
         specifier: ^2.1.0
         version: 2.1.0
@@ -4126,6 +4129,8 @@ importers:
         specifier: 1.0.5
         version: 1.0.5
     dependenciesMeta:
+      '@ember-data/model':
+        injected: true
       ember-data:
         injected: true
 

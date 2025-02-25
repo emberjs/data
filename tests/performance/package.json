@@ -23,6 +23,9 @@
   "dependenciesMeta": {
     "ember-data": {
       "injected": true
+    },
+    "@ember-data/model": {
+      "injected": true
     }
   },
   "devDependencies": {
@@ -33,6 +36,7 @@
     "@ember/optional-features": "^2.1.0",
     "@ember/test-helpers": "5.1.0",
     "@ember/test-waiters": "^3.1.0",
+    "@ember-data/model": "workspace:*",
     "@embroider/compat": "4.0.0-alpha.6",
     "@embroider/config-meta-loader": "1.0.0-alpha.1",
     "@embroider/core": "4.0.0-alpha.6",
@@ -57,7 +61,6 @@
     "loader.js": "^4.7.0",
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "vite": "^5.4.11",
-    "webpack": "^5.95.0",
     "zlib": "1.0.5"
   },
   "ember": {
