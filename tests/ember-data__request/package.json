@@ -24,26 +24,6 @@
     "_test:production": "bun ./diagnostic.js",
     "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
-  "dependenciesMeta": {
-    "@warp-drive/diagnostic": {
-      "injected": true
-    },
-    "@ember-data/request": {
-      "injected": true
-    },
-    "@ember-data/request-utils": {
-      "injected": true
-    },
-    "@warp-drive/holodeck": {
-      "injected": true
-    },
-    "@warp-drive/core-types": {
-      "injected": true
-    },
-    "@warp-drive/build-config": {
-      "injected": true
-    }
-  },
   "devDependencies": {
     "@babel/core": "^7.24.5",
     "@babel/runtime": "^7.24.5",
@@ -92,7 +72,7 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.15.9",
+  "packageManager": "pnpm@10.5.0",
   "dependencies": {
     "pnpm-sync-dependencies-meta-injected": "0.0.14"
   }

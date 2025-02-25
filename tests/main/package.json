@@ -27,56 +27,6 @@
   },
   "author": "",
   "license": "MIT",
-  "dependenciesMeta": {
-    "ember-data": {
-      "injected": true
-    },
-    "@ember-data/adapter": {
-      "injected": true
-    },
-    "@ember-data/debug": {
-      "injected": true
-    },
-    "@ember-data/model": {
-      "injected": true
-    },
-    "@ember-data/graph": {
-      "injected": true
-    },
-    "@ember-data/legacy-compat": {
-      "injected": true
-    },
-    "@ember-data/json-api": {
-      "injected": true
-    },
-    "@ember-data/serializer": {
-      "injected": true
-    },
-    "@ember-data/store": {
-      "injected": true
-    },
-    "@ember-data/tracking": {
-      "injected": true
-    },
-    "@ember-data/unpublished-test-infra": {
-      "injected": true
-    },
-    "@warp-drive/holodeck": {
-      "injected": true
-    },
-    "@warp-drive/build-config": {
-      "injected": true
-    },
-    "@warp-drive/core-types": {
-      "injected": true
-    },
-    "@ember-data/request": {
-      "injected": true
-    },
-    "@ember-data/request-utils": {
-      "injected": true
-    }
-  },
   "devDependencies": {
     "@babel/core": "^7.24.5",
     "@babel/plugin-transform-typescript": "^7.24.5",
@@ -156,7 +106,7 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.15.9",
+  "packageManager": "pnpm@10.5.0",
   "dependencies": {
     "pnpm-sync-dependencies-meta-injected": "0.0.14"
   }

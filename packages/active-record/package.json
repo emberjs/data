@@ -69,26 +69,6 @@
     "vite": "^5.2.11",
     "typescript": "^5.7.2"
   },
-  "dependenciesMeta": {
-    "@warp-drive/core-types": {
-      "injected": true
-    },
-    "@warp-drive/build-config": {
-      "injected": true
-    },
-    "@ember-data/store": {
-      "injected": true
-    },
-    "@ember-data/request-utils": {
-      "injected": true
-    },
-    "@ember-data/request": {
-      "injected": true
-    },
-    "@ember-data/tracking": {
-      "injected": true
-    }
-  },
   "ember": {
     "edition": "octane"
   },

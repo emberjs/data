@@ -50,32 +50,6 @@
     "type": "addon",
     "version": 2
   },
-  "dependenciesMeta": {
-    "@ember-data/request": {
-      "injected": true
-    },
-    "@ember-data/graph": {
-      "injected": true
-    },
-    "@ember-data/json-api": {
-      "injected": true
-    },
-    "@ember-data/store": {
-      "injected": true
-    },
-    "@warp-drive/core-types": {
-      "injected": true
-    },
-    "@ember-data/tracking": {
-      "injected": true
-    },
-    "@ember-data/request-utils": {
-      "injected": true
-    },
-    "@warp-drive/build-config": {
-      "injected": true
-    }
-  },
   "peerDependenciesMeta": {
     "@ember-data/graph": {
       "optional": true

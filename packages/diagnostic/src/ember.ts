@@ -1,9 +1,9 @@
 import { run } from '@ember/runloop';
+import { precompileTemplate } from '@ember/template-compilation';
 import type { SetupContextOptions, TestContext as EmberTestContext } from '@ember/test-helpers';
 import { getTestMetadata, hasCalledSetupRenderingContext, setupContext, teardownContext } from '@ember/test-helpers';
 import type { Owner } from '@ember/test-helpers/build-owner';
 
-import { hbs } from 'ember-cli-htmlbars';
 import AbstractTestLoader from 'ember-cli-test-loader/test-support/index';
 
 import { module as _module, skip as _skip, test as _test, todo as _todo } from './-define';
@@ -13,7 +13,7 @@ import { setupGlobalHooks } from './internals/config';
 import { PublicTestInfo } from './internals/run';
 
 // const OUTLET_TEMPLATE = hbs`{{outlet}}`;
-const INVOKE_PROVIDED_COMPONENT = hbs`<this.ProvidedComponent />` as object;
+const INVOKE_PROVIDED_COMPONENT = precompileTemplate('<this.ProvidedComponent />', { strictMode: false }) as object;
 
 export interface TestContext extends EmberTestContext {
   element: HTMLDivElement;
