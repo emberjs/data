@@ -1,5 +1,6 @@
 import { deprecate } from '@ember/debug';
 
+import { recordIdentifierFor } from '@ember-data/store';
 import {
   DEPRECATE_NON_UNIQUE_PAYLOADS,
   DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE,
@@ -17,6 +18,7 @@ import replaceRelatedRecord from './operations/replace-related-record';
 import replaceRelatedRecords from './operations/replace-related-records';
 
 function _deprecatedCompare<T>(
+  relationship: CollectionEdge,
   priorLocalState: T[] | null,
   newState: T[],
   newMembers: Set<T>,
@@ -52,9 +54,17 @@ function _deprecatedCompare<T>(
         adv = true;
 
         if (!prevSet.has(member)) {
-          changed = true;
-          added.add(member);
-          onAdd(member);
+          if (!prevSet.has(member)) {
+            // Avoid unnecessarily notifying a change that already exists locally
+            if (i < priorLocalLength) {
+              const priorLocalMember = priorLocalState![i];
+              if (priorLocalMember !== member) {
+                changed = true;
+              }
+            }
+            added.add(member);
+            onAdd(member);
+          }
         }
       } else {
         let list = duplicates.get(member);
@@ -145,6 +155,7 @@ function _deprecatedCompare<T>(
 }
 
 function _compare<T>(
+  relationship: CollectionEdge,
   priorLocalState: T[] | null,
   finalState: T[],
   finalSet: Set<T>,
@@ -171,11 +182,13 @@ function _compare<T>(
     if (i < finalLength) {
       member = finalState[i];
       if (!prevSet.has(member)) {
-        // TODO: in order to avoid unnecessarily notifying a change here
-        // we would need to only notify "changed" if member is not in
-        // relationship.additions OR if localState[i] !== member
-
-        changed = true;
+        // Avoid unnecessarily notifying a change that already exists locally
+        if (i < priorLocalLength) {
+          const priorLocalMember = priorLocalState![i];
+          if (priorLocalMember !== member) {
+            changed = true;
+          }
+        }
         added.add(member);
         onAdd(member);
       }
@@ -266,6 +279,7 @@ export function diffCollection(
   if (DEPRECATE_NON_UNIQUE_PAYLOADS) {
     if (finalState.length !== finalSet.size) {
       const { diff, duplicates } = _deprecatedCompare(
+        relationship,
         priorLocalState,
         finalState,
         finalSet,
@@ -301,6 +315,7 @@ export function diffCollection(
   }
 
   return _compare(
+    relationship,
     priorLocalState,
     finalState,
     finalSet,
