@@ -18,6 +18,7 @@ Router.map(function () {
   this.route('unload-all');
   this.route('destroy');
   this.route('unused-relationships');
+  this.route('update-with-same-state');
 });
 
 export default Router;
