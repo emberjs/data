@@ -104,6 +104,11 @@ jobs:
                 "control": "http://localhost:4200/unused-relationships",
                 "experiment": "http://localhost:4201/unused-relationships",
                 "markers": "start-push-payload,end-push-payload"
+              },
+              "update-with-same-state": {
+                "control": "http://localhost:4200/update-with-same-state",
+                "experiment": "http://localhost:4201/update-with-same-state",
+                "markers": "start-data-generation,start-push-initial-payload,start-peek-records,start-record-materialization,start-relationship-materialization,start-local-removal,start-push-minus-one-payload,start-local-addition,start-push-plus-one-payload,end-push-plus-one-payload"
               }
             }
           fidelity: 60
