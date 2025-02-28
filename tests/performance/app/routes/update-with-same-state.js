@@ -43,13 +43,7 @@ export default Route.extend({
     performance.mark('start-push-plus-one-payload');
     this.store.push(initialPayload2);
 
-    performance.mark('start-local-replacement');
-    parent.children = children.slice();
-
-    performance.mark('start-push-replacement-payload');
-    this.store.push(initialPayload2);
-
-    performance.mark('end-push-replacement-payload');
+    performance.mark('end-push-plus-one-payload');
   },
 });
 
