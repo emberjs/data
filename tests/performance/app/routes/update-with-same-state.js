@@ -58,7 +58,7 @@ function iterateChild(record, seen) {
     return;
   }
   seen.add(record);
-  // record.parent.get('name');
+
   record.bestFriend.get('name');
   record.secondBestFriend.get('name');
   record.friends.forEach((child) => iterateChild(child, seen));
