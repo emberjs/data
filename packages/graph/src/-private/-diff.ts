@@ -54,17 +54,15 @@ function _deprecatedCompare<T>(
         adv = true;
 
         if (!prevSet.has(member)) {
-          if (!prevSet.has(member)) {
-            // Avoid unnecessarily notifying a change that already exists locally
-            if (i < priorLocalLength) {
-              const priorLocalMember = priorLocalState![i];
-              if (priorLocalMember !== member) {
-                changed = true;
-              }
+          // Avoid unnecessarily notifying a change that already exists locally
+          if (i < priorLocalLength) {
+            const priorLocalMember = priorLocalState![i];
+            if (priorLocalMember !== member) {
+              changed = true;
             }
-            added.add(member);
-            onAdd(member);
           }
+          added.add(member);
+          onAdd(member);
         }
       } else {
         let list = duplicates.get(member);
