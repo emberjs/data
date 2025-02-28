@@ -60,14 +60,6 @@
     "typescript": "^5.7.2",
     "vite": "^5.2.11"
   },
-  "dependenciesMeta": {
-    "@warp-drive/core-types": {
-      "injected": true
-    },
-    "@warp-drive/build-config": {
-      "injected": true
-    }
-  },
   "engines": {
     "node": ">= 18.20.4"
   },

@@ -21,14 +21,6 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "dependenciesMeta": {
-    "@warp-drive/build-config": {
-      "injected": true
-    },
-    "@warp-drive/core-types": {
-      "injected": true
-    }
-  },
   "dependencies": {
     "@embroider/macros": "^1.16.10",
     "@warp-drive/build-config": "workspace:*"

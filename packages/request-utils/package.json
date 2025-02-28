@@ -86,13 +86,5 @@
   },
   "ember": {
     "edition": "octane"
-  },
-  "dependenciesMeta": {
-    "@warp-drive/core-types": {
-      "injected": true
-    },
-    "@warp-drive/build-config": {
-      "injected": true
-    }
   }
 }

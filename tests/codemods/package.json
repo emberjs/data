@@ -47,10 +47,5 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.15.9",
-  "dependenciesMeta": {
-    "@ember-data/codemods": {
-      "injected": true
-    }
-  }
+  "packageManager": "pnpm@10.5.2"
 }
