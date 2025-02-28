@@ -1,6 +1,5 @@
 import { deprecate } from '@ember/debug';
 
-import { recordIdentifierFor } from '@ember-data/store';
 import {
   DEPRECATE_NON_UNIQUE_PAYLOADS,
   DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE,
@@ -18,7 +17,6 @@ import replaceRelatedRecord from './operations/replace-related-record';
 import replaceRelatedRecords from './operations/replace-related-records';
 
 function _deprecatedCompare<T>(
-  relationship: CollectionEdge,
   priorLocalState: T[] | null,
   newState: T[],
   newMembers: Set<T>,
@@ -153,7 +151,6 @@ function _deprecatedCompare<T>(
 }
 
 function _compare<T>(
-  relationship: CollectionEdge,
   priorLocalState: T[] | null,
   finalState: T[],
   finalSet: Set<T>,
@@ -277,7 +274,6 @@ export function diffCollection(
   if (DEPRECATE_NON_UNIQUE_PAYLOADS) {
     if (finalState.length !== finalSet.size) {
       const { diff, duplicates } = _deprecatedCompare(
-        relationship,
         priorLocalState,
         finalState,
         finalSet,
@@ -313,7 +309,6 @@ export function diffCollection(
   }
 
   return _compare(
-    relationship,
     priorLocalState,
     finalState,
     finalSet,
