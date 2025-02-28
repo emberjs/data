@@ -50,7 +50,7 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@10.5.0",
+  "packageManager": "pnpm@10.5.2",
   "dependencies": {
     "pnpm-sync-dependencies-meta-injected": "0.0.14"
   }
