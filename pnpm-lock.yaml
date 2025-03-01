@@ -3037,7 +3037,7 @@ importers:
     dependencies:
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(454b710ddd9a33029a339edb5f6dc7b1)
+        version: file:packages/unpublished-test-infra(@babel/core@7.26.9)(@ember/test-helpers@5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
       ember-auto-import:
         specifier: ^2.10.0
         version: 2.10.0
@@ -3057,24 +3057,6 @@ importers:
       '@babel/runtime':
         specifier: ^7.24.5
         version: 7.26.9
-      '@ember-data/legacy-compat':
-        specifier: workspace:*
-        version: file:packages/legacy-compat(209209d2953c427bd131b643243e8940)
-      '@ember-data/model':
-        specifier: workspace:*
-        version: file:packages/model(751642fb58fc4d1d6e214124534cb788)
-      '@ember-data/request':
-        specifier: workspace:*
-        version: file:packages/request(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))
-      '@ember-data/request-utils':
-        specifier: workspace:*
-        version: file:packages/request-utils(@babel/core@7.26.9)(@ember/string@3.1.1(@babel/core@7.26.9))(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-inflector@4.0.3(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
-      '@ember-data/store':
-        specifier: workspace:*
-        version: file:packages/store(@babel/core@7.26.9)(@ember-data/request-utils@file:packages/request-utils(@babel/core@7.26.9)(@ember/string@3.1.1(@babel/core@7.26.9))(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-inflector@4.0.3(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(@ember-data/request@file:packages/request(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)))(@ember-data/tracking@file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
-      '@ember-data/tracking':
-        specifier: workspace:*
-        version: file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
       '@ember/optional-features':
         specifier: ^2.1.0
         version: 2.2.0
@@ -3096,9 +3078,6 @@ importers:
       '@warp-drive/build-config':
         specifier: workspace:*
         version: file:packages/build-config(@babel/core@7.26.9)
-      '@warp-drive/core-types':
-        specifier: workspace:*
-        version: file:packages/core-types(@babel/core@7.26.9)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -14474,21 +14453,6 @@ snapshots:
       - '@glint/template'
       - supports-color
 
-  '@ember-data/legacy-compat@file:packages/legacy-compat(209209d2953c427bd131b643243e8940)':
-    dependencies:
-      '@ember-data/request': file:packages/request(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))
-      '@ember-data/request-utils': file:packages/request-utils(@babel/core@7.26.9)(@ember/string@3.1.1(@babel/core@7.26.9))(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-inflector@4.0.3(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
-      '@ember-data/store': file:packages/store(@babel/core@7.26.9)(@ember-data/request-utils@file:packages/request-utils(@babel/core@7.26.9)(@ember/string@3.1.1(@babel/core@7.26.9))(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-inflector@4.0.3(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(@ember-data/request@file:packages/request(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)))(@ember-data/tracking@file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
-      '@ember/test-waiters': 3.1.0(@babel/core@7.26.9)
-      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
-      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
-      ember-source: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
   '@ember-data/legacy-compat@file:packages/legacy-compat(23f65b316a792d841cfa042c9bdfaea5)':
     dependencies:
       '@ember-data/request': file:packages/request(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))
@@ -14637,25 +14601,6 @@ snapshots:
     optionalDependencies:
       '@ember-data/graph': file:packages/graph(@babel/core@7.26.9)(@ember-data/store@file:packages/store(0f49dd4102266f5d7c3034d3d70a58bf))(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0))
       '@ember-data/json-api': file:packages/json-api(@babel/core@7.26.9)(@ember-data/graph@file:packages/graph(@babel/core@7.26.9)(@ember-data/store@file:packages/store(0f49dd4102266f5d7c3034d3d70a58bf))(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0)))(@ember-data/request-utils@file:packages/request-utils(@babel/core@7.26.9)(@ember/string@3.1.1(@babel/core@7.26.9))(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0))(ember-inflector@4.0.3(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0)))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0)))(@ember-data/store@file:packages/store(0f49dd4102266f5d7c3034d3d70a58bf))(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0))
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
-  '@ember-data/model@file:packages/model(751642fb58fc4d1d6e214124534cb788)':
-    dependencies:
-      '@ember-data/legacy-compat': file:packages/legacy-compat(209209d2953c427bd131b643243e8940)
-      '@ember-data/request-utils': file:packages/request-utils(@babel/core@7.26.9)(@ember/string@3.1.1(@babel/core@7.26.9))(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-inflector@4.0.3(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
-      '@ember-data/store': file:packages/store(@babel/core@7.26.9)(@ember-data/request-utils@file:packages/request-utils(@babel/core@7.26.9)(@ember/string@3.1.1(@babel/core@7.26.9))(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-inflector@4.0.3(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(@ember-data/request@file:packages/request(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)))(@ember-data/tracking@file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
-      '@ember-data/tracking': file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
-      '@ember/edition-utils': 1.2.0
-      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
-      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
-      ember-cli-string-utils: 1.1.0
-      ember-cli-test-info: 1.0.0
-      ember-source: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))
-      inflection: 3.0.2
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -15054,6 +14999,20 @@ snapshots:
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0)
       chalk: 4.1.2
       ember-source: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0)
+      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
+      semver: 7.7.1
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(@babel/core@7.26.9)(@ember/test-helpers@5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))':
+    dependencies:
+      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
+      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
+      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
+      chalk: 4.1.2
+      ember-source: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))
       qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       semver: 7.7.1
     transitivePeerDependencies:
