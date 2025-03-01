@@ -1,9 +1,12 @@
 diff --git a/src/index.js b/src/index.js
-index 30744e751c0a964a7c2efd5c7fce63ce14544ad6..1c3670d625ead98dc5af425c641b7c2c7f26ee58 100644
+index 30744e751c0a964a7c2efd5c7fce63ce14544ad6..df0e27354eb310d5378fb330caf928348579089a 100644
 --- a/src/index.js
 +++ b/src/index.js
-@@ -14,6 +14,78 @@ import Watcher from 'watcher';
+@@ -12,8 +12,81 @@ import resolvePackageManifestPath from 'resolve-package-path';
+ import Watcher from 'watcher';
+ 
  const debug = Debug('sync-pnpm');
++
  const DEBOUNCE_INTERVAL = 50;
  
 +/**
@@ -81,7 +84,7 @@ index 30744e751c0a964a7c2efd5c7fce63ce14544ad6..1c3670d625ead98dc5af425c641b7c2c
  /**
   * @typedef {object} Options
   * @property {string} directory working directory
-@@ -28,9 +100,16 @@ export default async function syncPnpm(options) {
+@@ -28,9 +101,20 @@ export default async function syncPnpm(options) {
    debug(`--watch=${watch}`);
    debug(`--directory=${dir}`);
  
@@ -93,14 +96,18 @@ index 30744e751c0a964a7c2efd5c7fce63ce14544ad6..1c3670d625ead98dc5af425c641b7c2c
 +  const npmrc = await getNPMRC(root);
 +  const packages = await findWorkspacePackages(root);
 +
-+  const packagesToSync = await getPackagesToSync(dir, packages, npmrc);
++  const packageNames = packages.map((p) => p.manifest.name).filter(Boolean);
++  debug(`Found ${packageNames.length} packages in workspace.\n\t- ${packageNames.join('\n\t- ')}`);
++  debug(`Found .npmrc file with ${Object.keys(npmrc).length} entries.\n\n${JSON.stringify(npmrc, null, 2)}`);
  
 -  if (!packagesToSync) {
++  const packagesToSync = await getPackagesToSync(dir, packages, npmrc);
++
 +  if (!packagesToSync || packagesToSync.length === 0) {
      debug(
        `Found 0 packages to sync. Did you forget dependenciesMeta.*.injected?`
      );
-@@ -167,40 +246,47 @@ async function isFile(filePath) {
+@@ -167,40 +251,48 @@ async function isFile(filePath) {
  
  /**
   * @param {string} dir the current working directory or the directory of a project
@@ -126,7 +133,8 @@ index 30744e751c0a964a7c2efd5c7fce63ce14544ad6..1c3670d625ead98dc5af425c641b7c2c
 -  if (!injectedDependencyNames || injectedDependencyNames?.size === 0) {
 -    return;
 -  }
-+  return isInGlobalInjectMode ? injectedDeps(ownProject, localProjects) : workspaceDeps(ownProject, localProjects);
++  debug(`Syncing ${isInGlobalInjectMode ? 'all workspace' : 'manually specified' } injected dependencies`);
++  return isInGlobalInjectMode ? workspaceDeps(ownProject, localProjects) : injectedDeps(ownProject, localProjects);
 +}
  
 -  const localProjects = await findWorkspacePackages(root);
@@ -170,7 +178,7 @@ index 30744e751c0a964a7c2efd5c7fce63ce14544ad6..1c3670d625ead98dc5af425c641b7c2c
    const ownPackageJson = project.manifest;
  
    let depMeta = ownPackageJson.dependenciesMeta;
-@@ -215,7 +301,18 @@ function injectedDeps(project) {
+@@ -215,7 +307,18 @@ function injectedDeps(project) {
      }
    }
  

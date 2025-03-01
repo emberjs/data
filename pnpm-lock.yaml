@@ -35,7 +35,7 @@ patchedDependencies:
     hash: ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421
     path: patches/@ember__test-helpers@5.1.0.patch
   pnpm-sync-dependencies-meta-injected:
-    hash: c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72
+    hash: 6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf
     path: patches/pnpm-sync-dependencies-meta-injected.patch
   qunit@2.19.4:
     hash: 44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301
@@ -298,7 +298,7 @@ importers:
         version: 9.21.0
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       qunit:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
@@ -347,7 +347,7 @@ importers:
         version: file:config
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       typescript:
         specifier: ^5.7.2
         version: 5.7.3
@@ -399,7 +399,7 @@ importers:
         version: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       typescript:
         specifier: ^5.7.2
         version: 5.7.3
@@ -481,7 +481,7 @@ importers:
         version: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       typescript:
         specifier: ^5.7.2
         version: 5.7.3
@@ -530,7 +530,7 @@ importers:
         version: 1.2.2
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       typescript:
         specifier: ^5.7.2
         version: 5.7.3
@@ -576,7 +576,7 @@ importers:
         version: 9.21.0
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       qunit:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
@@ -604,7 +604,7 @@ importers:
         version: file:config
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       typescript:
         specifier: ^5.7.2
         version: 5.7.3
@@ -674,7 +674,7 @@ importers:
         version: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       typescript:
         specifier: ^5.7.2
         version: 5.7.3
@@ -732,7 +732,7 @@ importers:
         version: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       typescript:
         specifier: ^5.7.2
         version: 5.7.3
@@ -829,7 +829,7 @@ importers:
         version: 4.3.0
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       rollup:
         specifier: ^4.17.2
         version: 4.34.8
@@ -912,7 +912,7 @@ importers:
         version: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       typescript:
         specifier: ^5.7.2
         version: 5.7.3
@@ -967,7 +967,7 @@ importers:
         version: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       typescript:
         specifier: ^5.7.2
         version: 5.7.3
@@ -1013,7 +1013,7 @@ importers:
         version: file:config
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       typescript:
         specifier: ^5.7.2
         version: 5.7.3
@@ -1074,7 +1074,7 @@ importers:
         version: 0.20.0
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       typescript:
         specifier: ^5.7.2
         version: 5.7.3
@@ -1138,7 +1138,7 @@ importers:
         version: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       typescript:
         specifier: ^5.7.2
         version: 5.7.3
@@ -1223,7 +1223,7 @@ importers:
         version: 0.20.0
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       typescript:
         specifier: ^5.7.2
         version: 5.7.3
@@ -1269,7 +1269,7 @@ importers:
         version: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       typescript:
         specifier: ^5.7.2
         version: 5.7.3
@@ -1318,7 +1318,7 @@ importers:
         version: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       typescript:
         specifier: ^5.7.2
         version: 5.7.3
@@ -1373,7 +1373,7 @@ importers:
         version: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       typescript:
         specifier: ^5.7.2
         version: 5.7.3
@@ -1443,7 +1443,7 @@ importers:
         version: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       typescript:
         specifier: ^5.7.2
         version: 5.7.3
@@ -1522,7 +1522,7 @@ importers:
         version: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       typescript:
         specifier: ^5.7.2
         version: 5.7.3
@@ -1580,7 +1580,7 @@ importers:
         version: 0.20.0
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       typescript:
         specifier: ^5.7.2
         version: 5.7.3
@@ -1626,7 +1626,7 @@ importers:
         version: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       typescript:
         specifier: ^5.7.2
         version: 5.7.3
@@ -1704,7 +1704,7 @@ importers:
         version: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       typescript:
         specifier: ^5.7.2
         version: 5.7.3
@@ -1788,7 +1788,7 @@ importers:
         version: 10.8.2
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       silent-error:
         specifier: ^1.1.1
         version: 1.1.1
@@ -1920,7 +1920,7 @@ importers:
         version: 4.7.0
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       silent-error:
         specifier: ^1.1.1
         version: 1.1.1
@@ -1960,7 +1960,7 @@ importers:
         version: 9.21.0
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       qunit:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
@@ -1975,7 +1975,7 @@ importers:
         version: file:config
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       qunit:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
@@ -2089,7 +2089,7 @@ importers:
         version: 4.7.0
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       typescript:
         specifier: ^5.7.2
         version: 5.7.3
@@ -2101,7 +2101,7 @@ importers:
     dependencies:
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
     devDependencies:
       '@babel/core':
         specifier: ^7.24.5
@@ -2234,7 +2234,7 @@ importers:
     dependencies:
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
     devDependencies:
       '@babel/core':
         specifier: ^7.24.5
@@ -2370,7 +2370,7 @@ importers:
     dependencies:
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
     devDependencies:
       '@babel/core':
         specifier: ^7.24.5
@@ -2485,7 +2485,7 @@ importers:
     dependencies:
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
     devDependencies:
       '@babel/core':
         specifier: ^7.24.5
@@ -2603,7 +2603,7 @@ importers:
     dependencies:
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
     devDependencies:
       '@babel/core':
         specifier: ^7.24.5
@@ -2850,7 +2850,7 @@ importers:
         version: 4.7.0
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       qunit:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
@@ -2868,7 +2868,7 @@ importers:
     dependencies:
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
     devDependencies:
       '@babel/core':
         specifier: ^7.24.5
@@ -3046,7 +3046,7 @@ importers:
         version: file:packages/-ember-data(@babel/core@7.26.9)(@ember/string@3.1.1(@babel/core@7.26.9))(@ember/test-helpers@5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(@ember/test-waiters@3.1.0(@babel/core@7.26.9))(ember-inflector@4.0.3(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))(qunit@2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301))
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       webpack:
         specifier: 5.94.0
         version: 5.94.0
@@ -3164,7 +3164,7 @@ importers:
     dependencies:
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
     devDependencies:
       '@babel/core':
         specifier: ^7.24.5
@@ -3231,7 +3231,7 @@ importers:
     dependencies:
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
     devDependencies:
       '@babel/core':
         specifier: ^7.24.5
@@ -3448,7 +3448,7 @@ importers:
         version: file:packages/-ember-data(@babel/core@7.26.9)(@ember/test-helpers@5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(@ember/test-waiters@3.1.0(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       webpack:
         specifier: 5.94.0
         version: 5.94.0
@@ -3716,7 +3716,7 @@ importers:
         version: 4.7.0
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
       prettier:
         specifier: ^3.3.3
         version: 3.5.2
@@ -3749,7 +3749,7 @@ importers:
     dependencies:
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
     devDependencies:
       '@babel/core':
         specifier: ^7.24.5
@@ -3900,7 +3900,7 @@ importers:
     dependencies:
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
     devDependencies:
       '@babel/core':
         specifier: ^7.24.5
@@ -4051,13 +4051,13 @@ importers:
     devDependencies:
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
 
   tests/warp-drive__schema-record:
     dependencies:
       pnpm-sync-dependencies-meta-injected:
         specifier: 0.0.14
-        version: 0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72)
+        version: 0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf)
     devDependencies:
       '@babel/core':
         specifier: ^7.24.5
@@ -23599,7 +23599,7 @@ snapshots:
     dependencies:
       find-up: 3.0.0
 
-  pnpm-sync-dependencies-meta-injected@0.0.14(patch_hash=c5996b6edc5354e94ac4bac2938491728fec047a781290d628286a5900bfed72):
+  pnpm-sync-dependencies-meta-injected@0.0.14(patch_hash=6400e6bc04f15624212bfeb3906668dc210c4c45506f6c26360760b911e128bf):
     dependencies:
       '@pnpm/find-workspace-dir': 6.0.3
       '@pnpm/find-workspace-packages': 6.0.9(@pnpm/logger@5.2.0)
