@@ -1,6 +1,10 @@
 import { watch } from 'fs';
 
-export function addCloseHandler(cb) {
+export function addCloseHandler(state, cb) {
+  state.closeHandlers.push(createCloseHandler(cb));
+}
+
+function createCloseHandler(cb) {
   let executed = false;
 
   process.on('SIGINT', () => {
@@ -26,14 +30,20 @@ export function addCloseHandler(cb) {
     executed = true;
     cb();
   });
+
+  return () => {
+    if (executed) return;
+    executed = true;
+    cb();
+  };
 }
 
-export function watchAssets(directory, onAssetChange) {
+export function watchAssets(state, directory, onAssetChange) {
   const watcher = watch(directory, { recursive: true }, (event, filename) => {
     onAssetChange(event, filename);
   });
 
-  addCloseHandler(() => {
+  addCloseHandler(state, () => {
     watcher.close();
   });
 }

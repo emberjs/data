@@ -31,11 +31,13 @@ export function handleBunFetch(config, state, req, server) {
   if (INDEX_PATHS.includes(url.pathname)) {
     if (bId && wId) {
       // serve test index.html
-      if (config.entry.indexOf('?')) {
-        config._realEntry = config.entry.substr(0, config.entry.indexOf('?'));
+      if (!config._realEntry && config.entry.indexOf('?')) {
+        config._realEntry = path.join(process.cwd(), config.entry.substr(0, config.entry.indexOf('?')));
       }
       debug(`Serving entry ${config._realEntry} for browser ${bId} window ${wId}`);
-      return new Response(Bun.file(config._realEntry));
+
+      const asset = Bun.file(config._realEntry);
+      return new Response(asset);
     }
     const _bId = bId ?? state.lastBowserId ?? state.browserId;
     const _wId = wId ?? state.lastWindowId ?? state.windowId;

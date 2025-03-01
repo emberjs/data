@@ -7,7 +7,7 @@ import { watchAssets } from './watch.js';
 export function buildHandler(config, state) {
   const Connections = new Set();
   if (config.serve && !config.noWatch) {
-    watchAssets(config.assets, () => {
+    watchAssets(state, config.assets, () => {
       Connections.forEach((ws) => {
         ws.send(JSON.stringify({ name: 'reload' }));
       });
@@ -18,7 +18,8 @@ export function buildHandler(config, state) {
     perMessageDeflate: true,
     async message(ws, message) {
       const msg = JSON.parse(message);
-      msg.launcher = state.browsers.get(msg.browserId).launcher;
+      msg.launcher = state.browsers.get(msg.browserId)?.launcher ?? '<unknown>';
+
       info(`${chalk.green('➡')} [${chalk.cyan(msg.browserId)}/${chalk.cyan(msg.windowId)}] ${chalk.green(msg.name)}`);
 
       switch (msg.name) {
@@ -53,16 +54,7 @@ export function buildHandler(config, state) {
             debug(`${chalk.green('✅ [All Complete]')} ${chalk.yellow('@' + sinceStart())}`);
 
             if (!config.serve) {
-              state.browsers.forEach((browser) => {
-                browser.proc.kill();
-                browser.proc.unref();
-              });
-              state.server.stop();
-              if (config.cleanup) {
-                debug(`Running configured cleanup hook`);
-                await config.cleanup();
-                debug(`Configured cleanup hook completed`);
-              }
+              await state.safeCleanup();
               debug(`\n\nExiting with code ${exitCode}`);
               // 1. We expect all cleanup to have happened after
               //    config.cleanup(), so exiting here should be safe.
