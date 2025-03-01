@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import fs from 'fs';
 import path from 'path';
+import { exit } from 'process';
 
 const SLOW_TEST_COUNT = 50;
 const DEFAULT_TIMEOUT = 8_000;
@@ -219,9 +220,10 @@ export default class CustomDotReporter {
       )} ms\n${HEADER_STR}\n\n`
     );
 
+    const exitCode = this.globalFailures.length || this.failedTests.length ? 1 : 0;
     this.clearState();
 
-    return this.globalFailures.length || this.failedTests.length ? 1 : 0;
+    return exitCode;
   }
 
   addLauncher(data) {
