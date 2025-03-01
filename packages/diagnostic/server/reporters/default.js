@@ -184,6 +184,13 @@ export default class CustomDotReporter {
         )
       );
     }
+    if (this.globalFailures.length) {
+      this.write(
+        chalk.red(
+          `\n\n${this.globalFailures.length} Global Failures were detected.. Complete stack traces for failures will print at the end.`
+        )
+      );
+    }
     this.write(`\n\n`);
 
     this.reportPendingTests();
@@ -214,7 +221,7 @@ export default class CustomDotReporter {
 
     this.clearState();
 
-    return this.failedTests.length ? 1 : 0;
+    return this.globalFailures.length || this.failedTests.length ? 1 : 0;
   }
 
   addLauncher(data) {
