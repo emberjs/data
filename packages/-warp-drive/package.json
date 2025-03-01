@@ -26,7 +26,8 @@
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "scripts": {
     "build:pkg": "vite build;",
-    "prepack": "bun run build:pkg"
+    "prepack": "bun run build:pkg",
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
   },
   "bin": {
     "warp-drive": "./dist/warp-drive.js",
