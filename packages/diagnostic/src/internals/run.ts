@@ -67,7 +67,20 @@ export async function runTest<TC extends TestContext>(
   }
 
   for (const hook of beforeChain) {
-    await hook.call(testContext, Assert);
+    try {
+      await hook.call(testContext, Assert);
+    } catch (err) {
+      Assert.pushResult({
+        message: `Unexpected Test Failure in beforeEach: ${(err as Error).message}`,
+        stack: (err as Error).stack!,
+        passed: false,
+        actual: false,
+        expected: true,
+      });
+      if (!Config.params.tryCatch.value) {
+        throw err;
+      }
+    }
   }
 
   try {
@@ -91,7 +104,21 @@ export async function runTest<TC extends TestContext>(
     }
   } finally {
     for (const hook of afterChain) {
-      await hook.call(testContext, Assert);
+      try {
+        await hook.call(testContext, Assert);
+      } catch (e) {
+        Assert.pushResult({
+          message: `Unexpected Test Failure in afterEach: ${(e as Error).message}`,
+          stack: (e as Error).stack!,
+          passed: false,
+          actual: false,
+          expected: true,
+        });
+        if (!Config.params.tryCatch.value) {
+          // eslint-disable-next-line no-unsafe-finally
+          throw e;
+        }
+      }
     }
     Assert._finalize();
 

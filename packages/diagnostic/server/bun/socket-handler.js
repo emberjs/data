@@ -63,6 +63,7 @@ export function buildHandler(config, state) {
                 await config.cleanup();
                 debug(`Configured cleanup hook completed`);
               }
+              debug(`\n\nExiting with code ${exitCode}`);
               // 1. We expect all cleanup to have happened after
               //    config.cleanup(), so exiting here should be safe.
               // 2. We also want to forcibly exit with a success code in this
@@ -70,6 +71,8 @@ export function buildHandler(config, state) {
               // eslint-disable-next-line n/no-process-exit
               process.exit(exitCode);
             }
+          } else {
+            console.log(`Waiting for ${state.expected - state.completed} more browsers to finish`);
           }
 
           break;
