@@ -26,11 +26,6 @@
     "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "webpack": "^5.92.0"
   },
-  "dependenciesMeta": {
-    "ember-data": {
-      "injected": true
-    }
-  },
   "devDependencies": {
     "@babel/core": "^7.24.5",
     "@babel/runtime": "^7.24.5",
@@ -66,5 +61,5 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.15.9"
+  "packageManager": "pnpm@10.5.2"
 }

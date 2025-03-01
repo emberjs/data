@@ -262,7 +262,8 @@ export interface Store {
 
   teardownRecord(record: OpaqueRecordInstance): void;
 
-  /* This hook enables an app to supply a SchemaService
+  /**
+   * This hook enables an app to supply a SchemaService
    * for use when information about a resource's schema needs
    * to be queried.
    *

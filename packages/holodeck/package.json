@@ -81,13 +81,5 @@
       "types": "./unstable-preview-types/mock.d.ts",
       "default": "./dist/mock.js"
     }
-  },
-  "dependenciesMeta": {
-    "@ember-data/request": {
-      "injected": true
-    },
-    "@warp-drive/core-types": {
-      "injected": true
-    }
   }
 }
