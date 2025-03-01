@@ -92,6 +92,7 @@ module.exports = {
     '(private) @ember-data/store Snapshot#constructor',
     '(private) @ember-data/store Store#_push',
     '(private) @ember-data/store Store#init',
+    '(public) @ember-data/store Store#createSchemaService (hook)',
     '(public) @ember-data/active-record/request @ember-data/active-record/request#createRecord',
     '(public) @ember-data/active-record/request @ember-data/active-record/request#deleteRecord',
     '(public) @ember-data/active-record/request @ember-data/active-record/request#findRecord',
