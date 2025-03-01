@@ -92,7 +92,6 @@
   "dependencies": {
     "chalk": "^5.3.0",
     "debug": "^4.3.7",
-    "ember-cli-htmlbars": "^6.3.0",
     "tmp": "^0.2.3",
     "@warp-drive/build-config": "workspace:*"
   },
@@ -118,7 +117,7 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.15.9",
+  "packageManager": "pnpm@10.5.2",
   "ember-addon": {
     "main": "addon-main.cjs",
     "type": "addon",
@@ -127,10 +126,5 @@
   },
   "ember": {
     "edition": "octane"
-  },
-  "dependenciesMeta": {
-    "@warp-drive/build-config": {
-      "injected": true
-    }
   }
 }
