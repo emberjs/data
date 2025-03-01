@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import fs from 'fs';
 import path from 'path';
+import { exit } from 'process';
 
 const SLOW_TEST_COUNT = 50;
 const DEFAULT_TIMEOUT = 8_000;
@@ -184,6 +185,13 @@ export default class CustomDotReporter {
         )
       );
     }
+    if (this.globalFailures.length) {
+      this.write(
+        chalk.red(
+          `\n\n${this.globalFailures.length} Global Failures were detected.. Complete stack traces for failures will print at the end.`
+        )
+      );
+    }
     this.write(`\n\n`);
 
     this.reportPendingTests();
@@ -212,9 +220,10 @@ export default class CustomDotReporter {
       )} ms\n${HEADER_STR}\n\n`
     );
 
+    const exitCode = this.globalFailures.length || this.failedTests.length ? 1 : 0;
     this.clearState();
 
-    return this.failedTests.length ? 1 : 0;
+    return exitCode;
   }
 
   addLauncher(data) {
