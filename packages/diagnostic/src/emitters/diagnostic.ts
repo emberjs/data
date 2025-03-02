@@ -13,6 +13,7 @@ class DiagnosticEmitter implements Emitter {
   buffer: EmitEvent[] = [];
   browserId: string;
   windowId: string;
+  tabId: string;
 
   constructor() {
     // A test url might look like
@@ -28,6 +29,12 @@ class DiagnosticEmitter implements Emitter {
     this.windowId = windowId;
     this.connected = false;
     this.buffer = [];
+    let tabId = window.sessionStorage.getItem('tabId');
+    if (!tabId) {
+      tabId = crypto.randomUUID();
+      window.sessionStorage.setItem('tabId', tabId);
+    }
+    this.tabId = tabId;
 
     if (!browserId || !windowId) {
       console.warn(
@@ -98,7 +105,14 @@ class DiagnosticEmitter implements Emitter {
       ['suite-start', 'suite-finish', 'test-start', 'test-finish'].includes(name)
     );
     assert(`Expected event.data to be defined`, typeof data !== 'undefined');
-    const event = { browserId: this.browserId, windowId: this.windowId, name, data, timestamp: Date.now() };
+    const event = {
+      tabId: this.tabId,
+      browserId: this.browserId,
+      windowId: this.windowId,
+      name,
+      data,
+      timestamp: Date.now(),
+    };
 
     this.socket.send(JSON.stringify(event));
   }

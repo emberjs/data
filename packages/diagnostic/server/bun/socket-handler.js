@@ -62,6 +62,8 @@ export function buildHandler(config, state) {
               //    case.
               // eslint-disable-next-line n/no-process-exit
               process.exit(exitCode);
+            } else {
+              state.completed = 0;
             }
           } else {
             console.log(`Waiting for ${state.expected - state.completed} more browsers to finish`);

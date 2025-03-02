@@ -6,7 +6,7 @@ type SuiteLayout = {
   report: HTMLElement;
   current: HTMLElement;
   resultsList: HTMLElement;
-  results: Map<TestReport, HTMLElement | null>;
+  results: Map<TestReport, HTMLElement[] | null>;
   cleanup: (() => void)[];
 };
 
@@ -148,12 +148,13 @@ export class DOMReporter implements Reporter {
     // render any tests
     let i = 0;
     const fragment = document.createDocumentFragment();
-    this.suite.results.forEach((element, test) => {
+    this.suite.results.forEach((elements, test) => {
       i++;
-      if (element) {
+      if (elements) {
         return;
       }
       const tr = document.createElement('tr');
+      elements = [tr];
       fragment.appendChild(tr);
       tr.classList.add(classForTestStatus(test));
       makeRow(tr, [
@@ -164,7 +165,21 @@ export class DOMReporter implements Reporter {
         `${test.name} (${test.result.diagnostics.length})`,
         getURL(test.id),
       ]);
-      this.suite.results.set(test, tr);
+
+      if (test.result.failed) {
+        const checksTr = document.createElement('tr');
+        fragment.appendChild(checksTr);
+        const td = document.createElement('td');
+        td.colSpan = 6;
+        checksTr.appendChild(td);
+        const pre = document.createElement('pre');
+        pre.textContent = test.result.diagnostics.map((d) => d.message).join('\n');
+        td.appendChild(pre);
+
+        elements.push(checksTr);
+      }
+
+      this.suite.results.set(test, elements);
     });
     this.suite.resultsList.appendChild(fragment);
   }
@@ -362,7 +377,7 @@ function renderSuite(element: DocumentFragment, suiteReport: SuiteReport): Suite
   resultsList.classList.add('diagnostic-results');
   resultsTable.appendChild(resultsList);
 
-  const results = new Map<TestReport, HTMLElement | null>();
+  const results = new Map<TestReport, HTMLElement[] | null>();
 
   return { cleanup, report, current, resultsList, results };
 }
