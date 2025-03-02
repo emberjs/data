@@ -45,9 +45,7 @@
     "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",
     "qunit": "^2.20.1",
     "testem": "^3.12.0",
-    "@ember-data/request": "workspace:*",
     "@ember-data/store": "workspace:*",
-    "@ember-data/tracking": "workspace:*",
     "@warp-drive/diagnostic": "workspace:*",
     "@warp-drive/core-types": "workspace:*",
     "@ember/test-helpers": "3.3.0 || ^4.0.4 || ^5.1.0"

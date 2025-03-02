@@ -1752,7 +1752,7 @@ importers:
         version: file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(678dc1a46cc6ebd380355f4ff0a35f36)
+        version: file:packages/unpublished-test-infra(7a44de975e20f8c7962035b883244f31)
       '@ember/edition-utils':
         specifier: ^1.2.0
         version: 1.2.0
@@ -1836,7 +1836,7 @@ importers:
         version: file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(301acb96b574894295f5217d7ae07623)
+        version: file:packages/unpublished-test-infra(38892cc39efbec81f2d85ca37b0e4ac3)
       '@ember/edition-utils':
         specifier: ^1.2.0
         version: 1.2.0
@@ -2020,7 +2020,7 @@ importers:
         version: file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(b1728134c72805e7fa84f21829efda62)
+        version: file:packages/unpublished-test-infra(5b452a334c7032b48aacb51cf3ebe2a5)
       '@ember/optional-features':
         specifier: ^2.1.0
         version: 2.2.0
@@ -2138,7 +2138,7 @@ importers:
         version: file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(b1728134c72805e7fa84f21829efda62)
+        version: file:packages/unpublished-test-infra(5b452a334c7032b48aacb51cf3ebe2a5)
       '@ember/edition-utils':
         specifier: ^1.2.0
         version: 1.2.0
@@ -2271,7 +2271,7 @@ importers:
         version: file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(b1728134c72805e7fa84f21829efda62)
+        version: file:packages/unpublished-test-infra(5b452a334c7032b48aacb51cf3ebe2a5)
       '@ember/edition-utils':
         specifier: ^1.2.0
         version: 1.2.0
@@ -2643,7 +2643,7 @@ importers:
         version: file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(678dc1a46cc6ebd380355f4ff0a35f36)
+        version: file:packages/unpublished-test-infra(7a44de975e20f8c7962035b883244f31)
       '@ember/optional-features':
         specifier: ^2.1.0
         version: 2.2.0
@@ -2760,7 +2760,7 @@ importers:
         version: file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(454b710ddd9a33029a339edb5f6dc7b1)
+        version: file:packages/unpublished-test-infra(8810cb737ab185f58a21f0135a390fd5)
       '@ember/optional-features':
         specifier: ^2.1.0
         version: 2.2.0
@@ -2905,7 +2905,7 @@ importers:
         version: file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(678dc1a46cc6ebd380355f4ff0a35f36)
+        version: file:packages/unpublished-test-infra(7a44de975e20f8c7962035b883244f31)
       '@ember/edition-utils':
         specifier: ^1.2.0
         version: 1.2.0
@@ -3041,9 +3041,39 @@ importers:
       '@babel/runtime':
         specifier: ^7.24.5
         version: 7.26.9
+      '@ember-data/adapter':
+        specifier: workspace:*
+        version: file:packages/adapter(4bdae8809dcebcb6b426209ecdb3cb23)
+      '@ember-data/graph':
+        specifier: workspace:*
+        version: file:packages/graph(651e4889025b6fd1247197ee0a21e0ca)
+      '@ember-data/json-api':
+        specifier: workspace:*
+        version: file:packages/json-api(3a5bbf74eaa3c85e4a65cc382c3dc2fc)
+      '@ember-data/legacy-compat':
+        specifier: workspace:*
+        version: file:packages/legacy-compat(46a7b075b3db8d042671f71a5039080a)
+      '@ember-data/model':
+        specifier: workspace:*
+        version: file:packages/model(2e3159db442681d1fc372dec0362cfe8)
+      '@ember-data/request':
+        specifier: workspace:*
+        version: file:packages/request(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))
+      '@ember-data/request-utils':
+        specifier: workspace:*
+        version: file:packages/request-utils(@babel/core@7.26.9)(@ember/string@3.1.1(@babel/core@7.26.9))(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-inflector@4.0.3(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
+      '@ember-data/serializer':
+        specifier: workspace:*
+        version: file:packages/serializer(4bdae8809dcebcb6b426209ecdb3cb23)
+      '@ember-data/store':
+        specifier: workspace:*
+        version: file:packages/store(@babel/core@7.26.9)(@ember-data/request-utils@file:packages/request-utils(@babel/core@7.26.9)(@ember/string@3.1.1(@babel/core@7.26.9))(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-inflector@4.0.3(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(@ember-data/request@file:packages/request(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)))(@ember-data/tracking@file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
+      '@ember-data/tracking':
+        specifier: workspace:*
+        version: file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(@babel/core@7.26.9)(@ember/test-helpers@5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
+        version: file:packages/unpublished-test-infra(8810cb737ab185f58a21f0135a390fd5)
       '@ember/optional-features':
         specifier: ^2.1.0
         version: 2.2.0
@@ -3065,6 +3095,9 @@ importers:
       '@warp-drive/build-config':
         specifier: workspace:*
         version: file:packages/build-config(@babel/core@7.26.9)
+      '@warp-drive/core-types':
+        specifier: workspace:*
+        version: file:packages/core-types(@babel/core@7.26.9)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -3255,7 +3288,7 @@ importers:
         version: file:packages/tracking(@babel/core@7.26.9)(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0))
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(@babel/core@7.26.9)(@ember-data/request@file:packages/request(@babel/core@7.26.9)(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0)))(@ember-data/store@file:packages/store(0f49dd4102266f5d7c3034d3d70a58bf))(@ember-data/tracking@file:packages/tracking(@babel/core@7.26.9)(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0)))(@ember/test-helpers@5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(@glint/template@1.5.0)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0)))(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0))
+        version: file:packages/unpublished-test-infra(@babel/core@7.26.9)(@ember-data/store@file:packages/store(0f49dd4102266f5d7c3034d3d70a58bf))(@ember/test-helpers@5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(@glint/template@1.5.0)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0)))(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0))
       '@ember/edition-utils':
         specifier: ^1.2.0
         version: 1.2.0
@@ -3553,7 +3586,7 @@ importers:
         version: file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(ccb8e4b55c5e90b65f5df0a86ff2a200)
+        version: file:packages/unpublished-test-infra(0fae3a428152a24d742050cb52dd1408)
       '@ember/optional-features':
         specifier: ^2.1.0
         version: 2.2.0
@@ -3764,7 +3797,7 @@ importers:
         version: file:packages/tracking(@babel/core@7.26.9)(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0))
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(e91794a236ae773842eafa2d22d6768f)
+        version: file:packages/unpublished-test-infra(2233c360a9edba0f35a0f8f518fa1513)
       '@ember/edition-utils':
         specifier: ^1.2.0
         version: 1.2.0
@@ -3915,7 +3948,7 @@ importers:
         version: file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(b1728134c72805e7fa84f21829efda62)
+        version: file:packages/unpublished-test-infra(5b452a334c7032b48aacb51cf3ebe2a5)
       '@ember/edition-utils':
         specifier: ^1.2.0
         version: 1.2.0
@@ -4072,7 +4105,7 @@ importers:
         version: file:packages/tracking(@babel/core@7.26.9)(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0))
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(c49a85846376ccb41182babf9197e7c4)
+        version: file:packages/unpublished-test-infra(357d46606ecc35adf63c3d4bdb547beb)
       '@ember/edition-utils':
         specifier: ^1.2.0
         version: 1.2.0
@@ -4993,9 +5026,7 @@ packages:
     resolution: {directory: packages/unpublished-test-infra, type: directory}
     engines: {node: '>= 18.20.4'}
     peerDependencies:
-      '@ember-data/request': workspace:*
       '@ember-data/store': workspace:*
-      '@ember-data/tracking': workspace:*
       '@ember/test-helpers': 3.3.0 || ^4.0.4 || ^5.1.0
       '@warp-drive/core-types': workspace:*
       '@warp-drive/diagnostic': workspace:*
@@ -14931,137 +14962,9 @@ snapshots:
       - '@glint/template'
       - supports-color
 
-  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(301acb96b574894295f5217d7ae07623)':
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(0fae3a428152a24d742050cb52dd1408)':
     dependencies:
-      '@ember-data/request': file:packages/request(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))
-      '@ember-data/store': file:packages/store(@babel/core@7.26.9)(@ember-data/request-utils@file:packages/request-utils(@babel/core@7.26.9)(@ember/string@3.1.1(@babel/core@7.26.9))(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-inflector@4.0.3(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(@ember-data/request@file:packages/request(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)))(@ember-data/tracking@file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
-      '@ember-data/tracking': file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
-      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
-      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
-      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
-      chalk: 4.1.2
-      ember-source: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))
-      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
-      semver: 7.7.1
-    optionalDependencies:
-      '@warp-drive/diagnostic': file:packages/diagnostic(@babel/core@7.26.9)(@ember/test-helpers@5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(ember-cli-test-loader@3.1.0(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
-  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(454b710ddd9a33029a339edb5f6dc7b1)':
-    dependencies:
-      '@ember-data/request': file:packages/request(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))
-      '@ember-data/store': file:packages/store(@babel/core@7.26.9)(@ember-data/request-utils@file:packages/request-utils(@babel/core@7.26.9)(@ember/string@3.1.1(@babel/core@7.26.9))(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-inflector@4.0.3(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(@ember-data/request@file:packages/request(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)))(@ember-data/tracking@file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
-      '@ember-data/tracking': file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
-      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
-      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
-      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
-      chalk: 4.1.2
-      ember-source: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))
-      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
-      semver: 7.7.1
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
-  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(678dc1a46cc6ebd380355f4ff0a35f36)':
-    dependencies:
-      '@ember-data/request': file:packages/request(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))
-      '@ember-data/store': file:packages/store(@babel/core@7.26.9)(@ember-data/request-utils@file:packages/request-utils(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(@ember-data/request@file:packages/request(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)))(@ember-data/tracking@file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
-      '@ember-data/tracking': file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
-      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
-      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
-      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
-      chalk: 4.1.2
-      ember-source: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))
-      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
-      semver: 7.7.1
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
-  ? '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(@babel/core@7.26.9)(@ember-data/request@file:packages/request(@babel/core@7.26.9)(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0)))(@ember-data/store@file:packages/store(0f49dd4102266f5d7c3034d3d70a58bf))(@ember-data/tracking@file:packages/tracking(@babel/core@7.26.9)(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0)))(@ember/test-helpers@5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(@glint/template@1.5.0)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0)))(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0))'
-  : dependencies:
-      '@ember-data/request': file:packages/request(@babel/core@7.26.9)(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0))
-      '@ember-data/store': file:packages/store(0f49dd4102266f5d7c3034d3d70a58bf)
-      '@ember-data/tracking': file:packages/tracking(@babel/core@7.26.9)(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0))
-      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(@glint/template@1.5.0)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0))
-      '@embroider/macros': 1.16.11(@babel/core@7.26.9)(@glint/template@1.5.0)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)(@glint/template@1.5.0)
-      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0)
-      chalk: 4.1.2
-      ember-source: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0)
-      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
-      semver: 7.7.1
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
-  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(@babel/core@7.26.9)(@ember/test-helpers@5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))':
-    dependencies:
-      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
-      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
-      chalk: 4.1.2
-      ember-source: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))
-      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
-      semver: 7.7.1
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
-  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(b1728134c72805e7fa84f21829efda62)':
-    dependencies:
-      '@ember-data/request': file:packages/request(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))
-      '@ember-data/store': file:packages/store(@babel/core@7.26.9)(@ember-data/request-utils@file:packages/request-utils(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(@ember-data/request@file:packages/request(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)))(@ember-data/tracking@file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
-      '@ember-data/tracking': file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
-      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
-      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
-      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
-      chalk: 4.1.2
-      ember-source: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))
-      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
-      semver: 7.7.1
-    optionalDependencies:
-      '@warp-drive/diagnostic': file:packages/diagnostic(@babel/core@7.26.9)(@ember/test-helpers@5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(ember-cli-test-loader@3.1.0(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
-  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(c49a85846376ccb41182babf9197e7c4)':
-    dependencies:
-      '@ember-data/request': file:packages/request(@babel/core@7.26.9)(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0))
-      '@ember-data/store': file:packages/store(@babel/core@7.26.9)(@ember-data/request-utils@file:packages/request-utils(@babel/core@7.26.9)(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0)))(@ember-data/request@file:packages/request(@babel/core@7.26.9)(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0)))(@ember-data/tracking@file:packages/tracking(@babel/core@7.26.9)(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0)))(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0))
-      '@ember-data/tracking': file:packages/tracking(@babel/core@7.26.9)(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0))
-      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(@glint/template@1.5.0)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0))
-      '@embroider/macros': 1.16.11(@babel/core@7.26.9)(@glint/template@1.5.0)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)(@glint/template@1.5.0)
-      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0)
-      chalk: 4.1.2
-      ember-source: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0)
-      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
-      semver: 7.7.1
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
-  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(ccb8e4b55c5e90b65f5df0a86ff2a200)':
-    dependencies:
-      '@ember-data/request': file:packages/request(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))
       '@ember-data/store': file:packages/store(@babel/core@7.26.9)(@ember-data/request-utils@file:packages/request-utils(@babel/core@7.26.9)(@ember/string@4.0.1)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(@ember-data/request@file:packages/request(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)))(@ember-data/tracking@file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
-      '@ember-data/tracking': file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
       '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
       '@embroider/macros': 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
@@ -15075,11 +14978,9 @@ snapshots:
       - '@glint/template'
       - supports-color
 
-  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(e91794a236ae773842eafa2d22d6768f)':
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(2233c360a9edba0f35a0f8f518fa1513)':
     dependencies:
-      '@ember-data/request': file:packages/request(@babel/core@7.26.9)(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0))
       '@ember-data/store': file:packages/store(@babel/core@7.26.9)(@ember-data/request-utils@file:packages/request-utils(@babel/core@7.26.9)(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0)))(@ember-data/request@file:packages/request(@babel/core@7.26.9)(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0)))(@ember-data/tracking@file:packages/tracking(@babel/core@7.26.9)(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0)))(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0))
-      '@ember-data/tracking': file:packages/tracking(@babel/core@7.26.9)(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0))
       '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(@glint/template@1.5.0)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0))
       '@embroider/macros': 1.16.11(@babel/core@7.26.9)(@glint/template@1.5.0)
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)(@glint/template@1.5.0)
@@ -15090,6 +14991,106 @@ snapshots:
       semver: 7.7.1
     optionalDependencies:
       '@warp-drive/diagnostic': file:packages/diagnostic(@babel/core@7.26.9)(@ember/test-helpers@5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(@glint/template@1.5.0)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0)))(@glint/template@1.5.0)(ember-cli-test-loader@3.1.0(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0))
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(357d46606ecc35adf63c3d4bdb547beb)':
+    dependencies:
+      '@ember-data/store': file:packages/store(@babel/core@7.26.9)(@ember-data/request-utils@file:packages/request-utils(@babel/core@7.26.9)(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0)))(@ember-data/request@file:packages/request(@babel/core@7.26.9)(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0)))(@ember-data/tracking@file:packages/tracking(@babel/core@7.26.9)(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0)))(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0))
+      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(@glint/template@1.5.0)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0))
+      '@embroider/macros': 1.16.11(@babel/core@7.26.9)(@glint/template@1.5.0)
+      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)(@glint/template@1.5.0)
+      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0)
+      chalk: 4.1.2
+      ember-source: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0)
+      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
+      semver: 7.7.1
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(38892cc39efbec81f2d85ca37b0e4ac3)':
+    dependencies:
+      '@ember-data/store': file:packages/store(@babel/core@7.26.9)(@ember-data/request-utils@file:packages/request-utils(@babel/core@7.26.9)(@ember/string@3.1.1(@babel/core@7.26.9))(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-inflector@4.0.3(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(@ember-data/request@file:packages/request(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)))(@ember-data/tracking@file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
+      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
+      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
+      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
+      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
+      chalk: 4.1.2
+      ember-source: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))
+      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
+      semver: 7.7.1
+    optionalDependencies:
+      '@warp-drive/diagnostic': file:packages/diagnostic(@babel/core@7.26.9)(@ember/test-helpers@5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(ember-cli-test-loader@3.1.0(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(5b452a334c7032b48aacb51cf3ebe2a5)':
+    dependencies:
+      '@ember-data/store': file:packages/store(@babel/core@7.26.9)(@ember-data/request-utils@file:packages/request-utils(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(@ember-data/request@file:packages/request(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)))(@ember-data/tracking@file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
+      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
+      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
+      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
+      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
+      chalk: 4.1.2
+      ember-source: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))
+      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
+      semver: 7.7.1
+    optionalDependencies:
+      '@warp-drive/diagnostic': file:packages/diagnostic(@babel/core@7.26.9)(@ember/test-helpers@5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(ember-cli-test-loader@3.1.0(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(7a44de975e20f8c7962035b883244f31)':
+    dependencies:
+      '@ember-data/store': file:packages/store(@babel/core@7.26.9)(@ember-data/request-utils@file:packages/request-utils(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(@ember-data/request@file:packages/request(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)))(@ember-data/tracking@file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
+      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
+      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
+      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
+      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
+      chalk: 4.1.2
+      ember-source: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))
+      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
+      semver: 7.7.1
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(8810cb737ab185f58a21f0135a390fd5)':
+    dependencies:
+      '@ember-data/store': file:packages/store(@babel/core@7.26.9)(@ember-data/request-utils@file:packages/request-utils(@babel/core@7.26.9)(@ember/string@3.1.1(@babel/core@7.26.9))(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-inflector@4.0.3(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(@ember-data/request@file:packages/request(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)))(@ember-data/tracking@file:packages/tracking(@babel/core@7.26.9)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))))(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
+      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9)))
+      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
+      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
+      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
+      chalk: 4.1.2
+      ember-source: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))
+      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
+      semver: 7.7.1
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(@babel/core@7.26.9)(@ember-data/store@file:packages/store(0f49dd4102266f5d7c3034d3d70a58bf))(@ember/test-helpers@5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(@glint/template@1.5.0)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0)))(@glint/template@1.5.0)(@warp-drive/core-types@file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0))(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0))':
+    dependencies:
+      '@ember-data/store': file:packages/store(0f49dd4102266f5d7c3034d3d70a58bf)
+      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(@babel/core@7.26.9)(@glint/template@1.5.0)(ember-source@5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0))
+      '@embroider/macros': 1.16.11(@babel/core@7.26.9)(@glint/template@1.5.0)
+      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)(@glint/template@1.5.0)
+      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)(@glint/template@1.5.0)
+      chalk: 4.1.2
+      ember-source: 5.12.0(@glimmer/component@1.1.2(@babel/core@7.26.9))(@glint/template@1.5.0)
+      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
+      semver: 7.7.1
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
