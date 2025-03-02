@@ -37,6 +37,7 @@
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/store": "workspace:*",
     "@ember-data/model": "workspace:*",
+    "@ember-data/debug": "workspace:*",
     "@ember-data/serializer": "workspace:*",
     "@ember-data/adapter": "workspace:*",
     "@ember-data/legacy-compat": "workspace:*",

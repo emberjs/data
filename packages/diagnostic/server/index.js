@@ -37,15 +37,20 @@ export async function launch(config) {
       expected: config.parallel ?? 1,
       closeHandlers: [],
     };
+    async function runCloseHandler(handler) {
+      try {
+        await handler();
+      } catch (e) {
+        error(`Error in close handler: ${e?.message ?? e}`);
+      }
+    }
     state.safeCleanup = async () => {
       debug(`Running close handlers`);
+      const promises = [];
       for (const handler of state.closeHandlers) {
-        try {
-          await handler();
-        } catch (e) {
-          error(`Error in close handler: ${e?.message ?? e}`);
-        }
+        promises.push(runCloseHandler(handler));
       }
+      await Promise.allSettled(promises);
       debug(`All close handlers completed`);
     };
 
@@ -73,10 +78,10 @@ export async function launch(config) {
       addCloseHandler(state, () => {
         state.browsers?.forEach((browser) => {
           browser.proc.kill();
-          browser.proc.unref();
+          // browser.proc.unref();
         });
         state.server.stop();
-        state.server.unref();
+        // state.server.unref();
       });
 
       print(chalk.magenta(`🚀 Serving on ${chalk.white(protocol + '://' + hostname + ':')}${chalk.magenta(port)}`));

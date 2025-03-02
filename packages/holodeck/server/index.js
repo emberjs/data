@@ -329,9 +329,9 @@ export async function createServer(options, useBun = false) {
     });
 
     return {
-      terminate(exitCode = 0) {
-        server.kill(exitCode);
-        server.unref();
+      terminate() {
+        server.kill();
+        // server.unref();
       },
     };
   }
