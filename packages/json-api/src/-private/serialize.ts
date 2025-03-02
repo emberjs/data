@@ -10,13 +10,20 @@ import type { InnerRelationshipDocument, ResourceObject } from '@warp-drive/core
 
 type ChangedRelationshipData = InnerRelationshipDocument;
 
-export type JsonApiResourcePatch = {
-  type: string;
-  id: string | null;
-  lid: string;
-  attributes?: Record<string, Value>;
-  relationships?: Record<string, ChangedRelationshipData>;
-};
+export type JsonApiResourcePatch =
+  | {
+      type: string;
+      id: string;
+      attributes?: Record<string, Value>;
+      relationships?: Record<string, ChangedRelationshipData>;
+    }
+  | {
+      type: string;
+      id: null;
+      lid: string;
+      attributes?: Record<string, Value>;
+      relationships?: Record<string, ChangedRelationshipData>;
+    };
 
 /**
  * Serializes the current state of a resource or array of resources for use with POST or PUT requests.
@@ -136,11 +143,13 @@ export function serializePatch(
     cache.peek(identifier)
   );
 
-  const data: JsonApiResourcePatch = {
-    type,
-    lid,
-    id,
-  };
+  const data: JsonApiResourcePatch =
+    id === null
+      ? { type, lid, id }
+      : {
+          type,
+          id,
+        };
 
   if (cache.hasChangedAttrs(identifier)) {
     const attrsChanges = cache.changedAttrs(identifier);
