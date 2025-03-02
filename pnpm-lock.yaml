@@ -978,13 +978,13 @@ importers:
   packages/holodeck:
     dependencies:
       '@hono/node-server':
-        specifier: ^1.11.1
+        specifier: ^1.13.8
         version: 1.13.8(hono@4.7.2)
       chalk:
         specifier: ^5.3.0
         version: 5.4.1
       hono:
-        specifier: ^4.7.0
+        specifier: ^4.7.2
         version: 4.7.2
     devDependencies:
       '@babel/core':

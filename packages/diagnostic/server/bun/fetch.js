@@ -57,8 +57,11 @@ export function handleBunFetch(config, state, req, server) {
     }
 
     const route = pathParts.join('/');
-    if (route === 'favicon.ico') {
-      return new Response('Not Found', { status: 404 });
+    if (route === 'favicon.ico' || route === 'NCC-1701-a-gold_100.svg') {
+      const dir = import.meta.dir;
+      const asset = path.join(dir, '../NCC-1701-a-gold_100.svg');
+
+      return new Response(Bun.file(asset));
     }
 
     // serve test assets

@@ -1,23 +1,22 @@
 /* global Bun */
-import { serve } from '@hono/node-server';
 import chalk from 'chalk';
 import { Hono } from 'hono';
-import { cors } from 'hono/cors';
-import { HTTPException } from 'hono/http-exception';
+import { serve } from '@hono/node-server';
+import { createSecureServer } from 'node:http2';
 import { logger } from 'hono/logger';
+import { HTTPException } from 'hono/http-exception';
+import { cors } from 'hono/cors';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
-import http2 from 'node:http2';
 import zlib from 'node:zlib';
 import { homedir } from 'os';
 import path from 'path';
 
-/** @type {import('bun-types')} */
 const isBun = typeof Bun !== 'undefined';
-const DEBUG = process.env.DEBUG?.includes('holodeck') || process.env.DEBUG === '*';
-const CURRENT_FILE = new URL(import.meta.url).pathname;
+const DEBUG =
+  process.env.DEBUG?.includes('wd:holodeck') || process.env.DEBUG === '*' || process.env.DEBUG?.includes('wd:*');
 
-function getCertInfo() {
+async function getCertInfo() {
   let CERT_PATH = process.env.HOLODECK_SSL_CERT_PATH;
   let KEY_PATH = process.env.HOLODECK_SSL_KEY_PATH;
 
@@ -39,16 +38,32 @@ function getCertInfo() {
     );
   }
 
-  if (!fs.existsSync(CERT_PATH) || !fs.existsSync(KEY_PATH)) {
-    throw new Error('SSL certificate or key not found, you may need to run `pnpx @warp-drive/holodeck ensure-cert`');
-  }
+  if (isBun) {
+    const CERT = Bun.file(CERT_PATH);
+    const KEY = Bun.file(KEY_PATH);
 
-  return {
-    CERT_PATH,
-    KEY_PATH,
-    CERT: fs.readFileSync(CERT_PATH),
-    KEY: fs.readFileSync(KEY_PATH),
-  };
+    if (!(await CERT.exists()) || !(await KEY.exists())) {
+      throw new Error('SSL certificate or key not found, you may need to run `pnpx @warp-drive/holodeck ensure-cert`');
+    }
+
+    return {
+      CERT_PATH,
+      KEY_PATH,
+      CERT: await CERT.text(),
+      KEY: await KEY.text(),
+    };
+  } else {
+    if (!fs.existsSync(CERT_PATH) || !fs.existsSync(KEY_PATH)) {
+      throw new Error('SSL certificate or key not found, you may need to run `pnpx @warp-drive/holodeck ensure-cert`');
+    }
+
+    return {
+      CERT_PATH,
+      KEY_PATH,
+      CERT: fs.readFileSync(CERT_PATH, 'utf8'),
+      KEY: fs.readFileSync(KEY_PATH, 'utf8'),
+    };
+  }
 }
 
 const DEFAULT_PORT = 1135;
@@ -85,7 +100,7 @@ function getNiceUrl(url) {
 */
 function generateFilepath(options) {
   const { body } = options;
-  const bodyHash = body ? crypto.createHash('md5').update(body).digest('hex') : null;
+  const bodyHash = body ? crypto.createHash('md5').update(JSON.stringify(body)).digest('hex') : null;
   const cacheDir = generateFileDir(options);
   return `${cacheDir}/${bodyHash ? `${bodyHash}-` : 'res'}`;
 }
@@ -94,10 +109,14 @@ function generateFileDir(options) {
   return `${projectRoot}/.mock-cache/${testId}/${method}-${testRequestNumber}-${url}`;
 }
 
-function replayRequest(context, cacheKey) {
-  let meta;
+async function replayRequest(context, cacheKey) {
+  let metaJson;
   try {
-    meta = fs.readFileSync(`${cacheKey}.meta.json`, 'utf-8');
+    if (isBun) {
+      metaJson = await Bun.file(`${cacheKey}.meta.json`).json();
+    } else {
+      metaJson = JSON.parse(fs.readFileSync(`${cacheKey}.meta.json`, 'utf8'));
+    }
   } catch (e) {
     context.header('Content-Type', 'application/vnd.api+json');
     context.status(400);
@@ -108,18 +127,23 @@ function replayRequest(context, cacheKey) {
             status: '400',
             code: 'MOCK_NOT_FOUND',
             title: 'Mock not found',
-            detail: `No mock found for ${context.req.method} ${context.req.url}. You may need to record a mock for this request.`,
+            detail: `No meta was found for ${context.req.method} ${context.req.url}. You may need to record a mock for this request.`,
           },
         ],
       })
     );
   }
 
-  const metaJson = JSON.parse(meta);
   const bodyPath = `${cacheKey}.body.br`;
+  const bodyInit =
+    metaJson.status !== 204 && metaJson.status < 500
+      ? isBun
+        ? Bun.file(bodyPath)
+        : fs.createReadStream(bodyPath)
+      : '';
 
   const headers = new Headers(metaJson.headers || {});
-  const bodyInit = metaJson.status !== 204 && metaJson.status < 500 ? fs.createReadStream(bodyPath) : '';
+  // @ts-expect-error - createReadStream is supported in node
   const response = new Response(bodyInit, {
     status: metaJson.status,
     statusText: metaJson.statusText,
@@ -191,12 +215,15 @@ function createTestHandler(projectRoot) {
           body: body ? JSON.stringify(body) : null,
           testRequestNumber,
         });
+        const compressedResponse = compress(JSON.stringify(response));
         // allow Content-Type to be overridden
         headers['Content-Type'] = headers['Content-Type'] || 'application/vnd.api+json';
         // We always compress and chunk the response
         headers['Content-Encoding'] = 'br';
         // we don't cache since tests will often reuse similar urls for different payload
         headers['Cache-Control'] = 'no-store';
+        // streaming requires Content-Length
+        headers['Content-Length'] = compressedResponse.length;
 
         const cacheDir = generateFileDir({
           projectRoot,
@@ -207,21 +234,30 @@ function createTestHandler(projectRoot) {
         });
 
         fs.mkdirSync(cacheDir, { recursive: true });
-        fs.writeFileSync(
-          `${cacheKey}.meta.json`,
-          JSON.stringify({ url, status, statusText, headers, method, requestBody: body }, null, 2)
-        );
-        fs.writeFileSync(`${cacheKey}.body.br`, compress(JSON.stringify(response)));
+
+        if (isBun) {
+          const newMetaFile = Bun.file(`${cacheKey}.meta.json`);
+          await newMetaFile.write(JSON.stringify({ url, status, statusText, headers, method, requestBody: body }));
+          const newBodyFile = Bun.file(`${cacheKey}.body.br`);
+          await newBodyFile.write(compressedResponse);
+        } else {
+          fs.writeFileSync(
+            `${cacheKey}.meta.json`,
+            JSON.stringify({ url, status, statusText, headers, method, requestBody: body })
+          );
+          fs.writeFileSync(`${cacheKey}.body.br`, compressedResponse);
+        }
+
         context.status(204);
         return context.body(null);
       } else {
-        const body = await req.text();
+        const body = req.body;
         const cacheKey = generateFilepath({
           projectRoot,
           testId,
           url: niceUrl,
           method: req.method,
-          body,
+          body: body ? JSON.stringify(body) : null,
           testRequestNumber,
         });
         return replayRequest(context, cacheKey);
@@ -250,10 +286,68 @@ function createTestHandler(projectRoot) {
   return TestHandler;
 }
 
+export function startNodeServer() {
+  const args = process.argv.slice();
+
+  if (!isBun && args.length) {
+    const options = JSON.parse(args[2]);
+    _createServer(options);
+  }
+}
+
+export function startWorker() {
+  // listen for launch message
+  globalThis.onmessage = async (event) => {
+    const { options } = event.data;
+
+    const { server } = await _createServer(options);
+
+    // listen for messages
+    globalThis.onmessage = (event) => {
+      const message = event.data;
+      if (message === 'end') {
+        server.close();
+        globalThis.close();
+      }
+    };
+  };
+}
+
 /*
 { port?: number, projectRoot: string }
 */
-export function createServer(options) {
+export async function createServer(options, useBun = false) {
+  if (!useBun) {
+    const CURRENT_FILE = new URL(import.meta.url).pathname;
+    const START_FILE = path.join(CURRENT_FILE, '../start-node.js');
+    const server = Bun.spawn(['node', '--experimental-default-type=module', START_FILE, JSON.stringify(options)], {
+      env: process.env,
+      cwd: process.cwd(),
+      stdin: 'inherit',
+      stdout: 'inherit',
+      stderr: 'inherit',
+    });
+
+    return {
+      terminate(exitCode = 0) {
+        server.kill(exitCode);
+        server.unref();
+      },
+    };
+  }
+
+  const worker = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
+
+  worker.postMessage({
+    type: 'launch',
+    options,
+  });
+
+  return worker;
+}
+
+async function _createServer(options) {
+  const { CERT, KEY } = await getCertInfo();
   const app = new Hono();
   if (DEBUG) {
     app.use('*', logger());
@@ -272,38 +366,26 @@ export function createServer(options) {
   );
   app.all('*', createTestHandler(options.projectRoot));
 
-  const { CERT, KEY } = getCertInfo();
-
-  serve({
+  const server = serve({
+    overrideGlobalObjects: !isBun,
     fetch: app.fetch,
-    createServer: (_, requestListener) => {
-      try {
-        return http2.createSecureServer(
-          {
-            key: KEY,
-            cert: CERT,
-          },
-          requestListener
-        );
-      } catch (e) {
-        console.log(chalk.yellow(`Failed to create secure server, falling back to http server. Error: ${e.message}`));
-        return http2.createServer(requestListener);
-      }
+    serverOptions: {
+      key: KEY,
+      cert: CERT,
     },
+    createServer: createSecureServer,
     port: options.port ?? DEFAULT_PORT,
-    hostname: 'localhost',
-    // bun uses TLS options
-    // tls: {
-    //   key: Bun.file(KEY_PATH),
-    //   cert: Bun.file(CERT_PATH),
-    // },
+    hostname: options.hostname ?? 'localhost',
   });
 
   console.log(
-    `\tMock server running at ${chalk.magenta('https://localhost:') + chalk.yellow(options.port ?? DEFAULT_PORT)}`
+    `\tMock server running at ${chalk.yellow('https://') + chalk.magenta((options.hostname ?? 'localhost') + ':') + chalk.yellow(options.port ?? DEFAULT_PORT)}`
   );
+
+  return { app, server };
 }
 
+/** @type {Map<string, Awaited<ReturnType<typeof createServer>>>} */
 const servers = new Map();
 
 export default {
@@ -325,59 +407,29 @@ export default {
           )}`
         )
     );
-    console.log(chalk.grey(`\n\tStarting Subroutines (mode:${chalk.cyan(isBun ? 'bun' : 'node')})`));
-
-    if (isBun) {
-      const serverProcess = Bun.spawn(
-        ['node', '--experimental-default-type=module', CURRENT_FILE, JSON.stringify(options)],
-        {
-          env: process.env,
-          cwd: process.cwd(),
-          stdout: 'inherit',
-          stderr: 'inherit',
-        }
-      );
-      servers.set(projectRoot, serverProcess);
-      return;
-    }
+    console.log(chalk.grey(`\n\tStarting Holodeck Subroutines (mode:${chalk.cyan(isBun ? 'bun' : 'node')})`));
 
     if (servers.has(projectRoot)) {
       throw new Error(`Holodeck is already running for project '${name}' at '${projectRoot}'`);
     }
 
-    servers.set(projectRoot, createServer(options));
+    // toggle to true if Bun fixes CORS support for HTTP/2
+    const project = await createServer(options, false);
+    servers.set(projectRoot, project);
   },
   async endProgram() {
-    console.log(chalk.grey(`\n\tEnding Subroutines (mode:${chalk.cyan(isBun ? 'bun' : 'node')})`));
+    console.log(chalk.grey(`\n\tEnding Holodeck Subroutines (mode:${chalk.cyan(isBun ? 'bun' : 'node')})`));
     const projectRoot = process.cwd();
 
     if (!servers.has(projectRoot)) {
-      const name = await import(path.join(projectRoot, 'package.json'), { with: { type: 'json' } }).then(
-        (pkg) => pkg.name
-      );
-      throw new Error(`Holodeck was not running for project '${name}' at '${projectRoot}'`);
-    }
-
-    if (isBun) {
-      const serverProcess = servers.get(projectRoot);
-      serverProcess.kill();
+      const name = require(path.join(projectRoot, 'package.json')).name;
+      console.log(chalk.red(`\n\nHolodeck was not running for project '${name}' at '${projectRoot}'\n\n`));
       return;
     }
 
-    servers.get(projectRoot).close();
+    const project = servers.get(projectRoot);
     servers.delete(projectRoot);
+    project.terminate();
+    console.log(chalk.grey(`\n\tHolodeck program ended`));
   },
 };
-
-function main() {
-  const args = process.argv.slice();
-  if (!isBun && args.length) {
-    if (args[1] !== CURRENT_FILE) {
-      return;
-    }
-    const options = JSON.parse(args[2]);
-    createServer(options);
-  }
-}
-
-main();
