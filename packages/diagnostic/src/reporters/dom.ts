@@ -173,7 +173,7 @@ export class DOMReporter implements Reporter {
         td.colSpan = 6;
         checksTr.appendChild(td);
         const pre = document.createElement('pre');
-        pre.textContent = test.result.diagnostics.map((d) => d.message).join('\n');
+        pre.textContent = test.result.diagnostics.map((d) => `\t${d.passed ? '✅' : '❌'} – ${d.message}`).join('\n');
         td.appendChild(pre);
 
         elements.push(checksTr);

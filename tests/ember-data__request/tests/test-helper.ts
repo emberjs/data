@@ -26,10 +26,10 @@ configure();
 
 void start({
   tryCatch: false,
-  debug: true,
+  debug: false,
   concurrency: 10,
   groupLogs: false,
   instrument: true,
-  hideReport: false,
+  hideReport: true,
   useDiagnostic: true,
 });
