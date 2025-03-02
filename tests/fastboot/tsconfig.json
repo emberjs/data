@@ -30,6 +30,10 @@
       "@ember-data/request/*": ["../../packages/request/unstable-preview-types/*"],
       "@ember-data/store": ["../../packages/store/unstable-preview-types"],
       "@ember-data/store/*": ["../../packages/store/unstable-preview-types/*"],
+      "@ember-data/adapter": ["../../packages/adapter/unstable-preview-types"],
+      "@ember-data/adapter/*": ["../../packages/adapter/unstable-preview-types/*"],
+      "@ember-data/serializer": ["../../packages/serializer/unstable-preview-types"],
+      "@ember-data/serializer/*": ["../../packages/serializer/unstable-preview-types/*"],
       "@ember-data/model": ["../../packages/model/unstable-preview-types"],
       "@ember-data/model/*": ["../../packages/model/unstable-preview-types/*"],
       "@ember-data/tracking": ["../../packages/tracking/unstable-preview-types"],
@@ -56,6 +60,12 @@
     },
     {
       "path": "../../packages/store"
+    },
+    {
+      "path": "../../packages/adapter"
+    },
+    {
+      "path": "../../packages/serializer"
     },
     {
       "path": "../../packages/model"
