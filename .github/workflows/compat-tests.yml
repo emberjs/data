@@ -54,18 +54,24 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Run Tests
         run: pnpm test:vite
-  floating-dependencies:
-    timeout-minutes: 9
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-      - uses: ./.github/actions/setup
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Install dependencies w/o lockfile
-        run: pnpm install --no-lockfile
-      - name: Basic Tests
-        run: pnpm test
+  ###
+  # This Test No Longer Works Because pnpm install --no-lockfile
+  # returns exit code 1 whenever there is a lockfile present and
+  # changes are made to node_modules. This is probably a bug in pnpm.
+  ###
+  #
+  # floating-dependencies:
+  #   timeout-minutes: 9
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+  #     - uses: ./.github/actions/setup
+  #       with:
+  #         repo-token: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Install dependencies w/o lockfile
+  #       run: pnpm install --no-lockfile
+  #     - name: Basic Tests
+  #       run: pnpm test
   node-version-test:
     name: Use Node.js ${{ matrix.node-version }}
     timeout-minutes: 10
