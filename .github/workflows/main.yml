@@ -175,7 +175,7 @@ jobs:
         env:
           CI: true
         run: |
-          cd packages/main;
+          cd tests/main;
           ember try:one  ${{ matrix.scenario }} --skip-cleanup;
           pnpm build:tests;
           pnpm run test";
@@ -206,7 +206,7 @@ jobs:
         env:
           CI: true
         run: |
-          cd packages/main;
+          cd tests/main;
           ember try:one  ${{ matrix.release }} --skip-cleanup;
           pnpm build:tests;
           pnpm run test";
