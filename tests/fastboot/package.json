@@ -31,6 +31,7 @@
     "@ember/test-waiters": "^3.1.0",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
+    "@ember-data/unpublished-test-infra": "workspace:*",
     "@ember-data/request": "workspace:*",
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/store": "workspace:*",

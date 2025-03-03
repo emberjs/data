@@ -7,6 +7,7 @@ module.exports = function (environment) {
         URLSearchParams,
         AbortController,
         DOMException,
+        Response,
         ReadableStream:
           typeof ReadableStream !== 'undefined' ? ReadableStream : require('node:stream/web').ReadableStream,
         WritableStream:

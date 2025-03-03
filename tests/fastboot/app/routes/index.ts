@@ -10,15 +10,21 @@ import { setBuildURLConfig } from '@ember-data/request-utils';
 import type Person from '../models/person';
 import type Store from '../services/store';
 
-setBuildURLConfig({ host: `http://${window.location.host}`, namespace: 'api' });
-
 export default class IndexRoute extends Route {
   @service declare store: Store;
+  @service declare fastboot: {
+    isFastBoot: boolean;
+    request?: { host: string };
+  };
 
   override async model() {
+    const host = this.fastboot.isFastBoot ? (this.fastboot.request?.host ?? '/') : window.location.host;
+    setBuildURLConfig({ host: `http://${host}`, namespace: 'api' });
+    const queryInit = query<Person>('person', {}, { resourcePath: 'people.json' });
+
     const {
       content: { data: people },
-    } = await this.store.request(query<Person>('person', {}, { resourcePath: 'people.json' }));
+    } = await this.store.request(queryInit);
 
     const tree = buildTree(people.map((person) => person.toNode()));
 
