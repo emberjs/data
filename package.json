@@ -9,7 +9,7 @@
   },
   "scripts": {
     "takeoff": "FORCE_COLOR=2 pnpm install --prefer-offline --reporter=append-only",
-    "prepare": "export TURBO_FORCE=true; turbo run build:infra; turbo run build:pkg; pnpm run prepare:types;",
+    "prepare": "export TURBO_FORCE=true; turbo run build:pkg; pnpm run prepare:types;",
     "prepare:types": "export TURBO_FORCE=true; tsc --build --force; turbo run build:glint;",
     "release": "./release/index.ts",
     "build": "turbo _build --log-order=stream --filter=./packages/* --concurrency=10;",
