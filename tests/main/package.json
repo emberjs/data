@@ -18,7 +18,6 @@
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "check:types": "glint",
     "examine": "export EXAM_PARALLEL_COUNT=$(./bin/calculate-test-jobs); ember exam --test-port=0 --path=dist-test --parallel=$EXAM_PARALLEL_COUNT --load-balance",
-    "test:try-one": "ember try:one",
     "launch:tests": "ember test --test-port=0 --serve --no-launch",
     "start": "bun run build:tests --watch",
     "test": "bun run examine",
