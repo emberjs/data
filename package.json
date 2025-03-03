@@ -135,6 +135,13 @@
           "@glimmer/component": "*"
         }
       },
+      "ember-exam": {
+        "peerDependencies": {
+          "ember-cli": "*",
+          "ember-qunit": "*",
+          "qunit": "*"
+        }
+      },
       "@ember/test-helpers": {
         "dependencies": {
           "webpack": "*"

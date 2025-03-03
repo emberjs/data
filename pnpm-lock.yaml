@@ -23,7 +23,7 @@ overrides:
   ember-compatibility-helpers: ^1.2.7
   testem: ~3.11.0
 
-packageExtensionsChecksum: sha256-iIhna3xmbOZbIESp+Xp36eQydMW3ld9eVE5KSFtpuis=
+packageExtensionsChecksum: sha256-jvq3OmcrCdypZwhHJOUiV84HjlOmTWuXfgiugLylBho=
 
 patchedDependencies:
   '@ember/test-helpers@3.3.0':
@@ -3181,7 +3181,7 @@ importers:
         version: file:packages/tracking(9f341b640e7e3ac4561f01759b1ce9b9)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(c26c511192e8ea80f247a8a11396c7a3)
+        version: file:packages/unpublished-test-infra(46cda2235568fb9264a890c5416da090)
       '@ember/edition-utils':
         specifier: ^1.2.0
         version: 1.2.0
@@ -3292,7 +3292,7 @@ importers:
         version: 1.1.3
       ember-exam:
         specifier: ^9.0.0
-        version: 9.0.0(bd51a86f00b3e85462361d52b8136df2)
+        version: 9.0.0(d1c8ef66f1bf56b755b78d62d2bcce68)
       ember-inflector:
         specifier: 4.0.3
         version: 4.0.3(8028425cf072e782ab30310a4c061d37)
@@ -3335,6 +3335,9 @@ importers:
       qunit-dom:
         specifier: ^3.1.1
         version: 3.4.0
+      testem:
+        specifier: ~3.11.0
+        version: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
       typescript:
         specifier: ^5.7.2
         version: 5.8.2
@@ -8244,6 +8247,7 @@ packages:
     resolution: {integrity: sha512-zQBZFlig9SMtCgsU4+0jjtyVdF7RnR539ySxnyesO0mmvhArQOPB576XH598FWawUqkMPbEu7rR/X/NDiozK1g==}
     engines: {node: '>= 18'}
     peerDependencies:
+      ember-cli: '*'
       ember-qunit: '*'
       ember-source: '>= 4.0.0'
       qunit: 2.19.4
@@ -14818,6 +14822,24 @@ snapshots:
       - '@glint/template'
       - supports-color
 
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(46cda2235568fb9264a890c5416da090)':
+    dependencies:
+      '@ember-data/store': file:packages/store(00b5c24d31db93b7f8ba424e371b166a)
+      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(396aadd095fb75b8df80c66d994df277)
+      '@embroider/macros': 1.16.11(03ebd109d943a27ca5a55d723400dcb7)
+      '@warp-drive/build-config': file:packages/build-config(03ebd109d943a27ca5a55d723400dcb7)
+      '@warp-drive/core-types': file:packages/core-types(03ebd109d943a27ca5a55d723400dcb7)
+      chalk: 4.1.2
+      ember-source: 5.12.0(6a201878a3f83be3d66cbc1e6dc27c3c)
+      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
+      semver: 7.7.1
+    optionalDependencies:
+      testem: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+
   '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(9691c906c494a7c69d5ff40cb1713406)':
     dependencies:
       '@ember-data/store': file:packages/store(d01ec85b299a6605ba4c50037443fea4)
@@ -14865,22 +14887,6 @@ snapshots:
       semver: 7.7.1
     optionalDependencies:
       '@warp-drive/diagnostic': file:packages/diagnostic(d886aa1994b8bb59afbd707689e3281b)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
-  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(c26c511192e8ea80f247a8a11396c7a3)':
-    dependencies:
-      '@ember-data/store': file:packages/store(00b5c24d31db93b7f8ba424e371b166a)
-      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(396aadd095fb75b8df80c66d994df277)
-      '@embroider/macros': 1.16.11(03ebd109d943a27ca5a55d723400dcb7)
-      '@warp-drive/build-config': file:packages/build-config(03ebd109d943a27ca5a55d723400dcb7)
-      '@warp-drive/core-types': file:packages/core-types(03ebd109d943a27ca5a55d723400dcb7)
-      chalk: 4.1.2
-      ember-source: 5.12.0(6a201878a3f83be3d66cbc1e6dc27c3c)
-      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
-      semver: 7.7.1
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -18693,6 +18699,12 @@ snapshots:
       lodash: 4.17.21
       mustache: 4.2.0
 
+  consolidate@0.16.0(mustache@4.2.0):
+    dependencies:
+      bluebird: 3.7.2
+    optionalDependencies:
+      mustache: 4.2.0
+
   content-disposition@0.5.4:
     dependencies:
       safe-buffer: 5.2.1
@@ -19633,13 +19645,14 @@ snapshots:
     transitivePeerDependencies:
       - eslint
 
-  ember-exam@9.0.0(bd51a86f00b3e85462361d52b8136df2):
+  ember-exam@9.0.0(d1c8ef66f1bf56b755b78d62d2bcce68):
     dependencies:
       '@babel/core': 7.26.9
       chalk: 5.4.1
       cli-table3: 0.6.5
       debug: 4.4.0
       ember-auto-import: 2.10.0(@glint/template@1.5.0)
+      ember-cli: 5.12.0
       ember-cli-babel: 8.2.0(@babel/core@7.26.9)
       ember-qunit: 8.0.2(ac354652c4e26047ae274cabc2d4110c)
       ember-source: 5.12.0(6a201878a3f83be3d66cbc1e6dc27c3c)
@@ -24397,6 +24410,95 @@ snapshots:
       quibble: 0.9.2
       stringify-object-es5: 2.5.0
       theredoc: 1.0.0
+
+  testem@3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5):
+    dependencies:
+      '@xmldom/xmldom': 0.8.10
+      backbone: 1.6.0
+      bluebird: 3.7.2
+      charm: 1.0.2
+      commander: 2.20.3
+      compression: 1.8.0
+      consolidate: 0.16.0(mustache@4.2.0)
+      execa: 1.0.0
+      express: 4.21.2
+      fireworm: 0.7.2
+      glob: 7.2.3
+      http-proxy: 1.18.1
+      js-yaml: 3.14.1
+      lodash.assignin: 4.2.0
+      lodash.castarray: 4.4.0
+      lodash.clonedeep: 4.5.0
+      lodash.find: 4.6.0
+      lodash.uniqby: 4.7.0
+      mkdirp: 3.0.1
+      mustache: 4.2.0
+      node-notifier: 10.0.1
+      npmlog: 6.0.2
+      printf: 0.6.1
+      rimraf: 3.0.2
+      socket.io: 4.8.1
+      spawn-args: 0.2.0
+      styled_string: 0.0.1
+      tap-parser: 7.0.0
+      tmp: 0.0.33
+    transitivePeerDependencies:
+      - arc-templates
+      - atpl
+      - babel-core
+      - bracket-template
+      - bufferutil
+      - coffee-script
+      - debug
+      - dot
+      - dust
+      - dustjs-helpers
+      - dustjs-linkedin
+      - eco
+      - ect
+      - ejs
+      - haml-coffee
+      - hamlet
+      - hamljs
+      - handlebars
+      - hogan.js
+      - htmling
+      - jade
+      - jazz
+      - jqtpl
+      - just
+      - liquid-node
+      - liquor
+      - lodash
+      - marko
+      - mote
+      - nunjucks
+      - plates
+      - pug
+      - qejs
+      - ractive
+      - razor-tmpl
+      - react
+      - react-dom
+      - slm
+      - squirrelly
+      - supports-color
+      - swig
+      - swig-templates
+      - teacup
+      - templayed
+      - then-jade
+      - then-pug
+      - tinyliquid
+      - toffee
+      - twig
+      - twing
+      - underscore
+      - utf-8-validate
+      - vash
+      - velocityjs
+      - walrus
+      - whiskers
 
   testem@3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)(lodash@4.17.21):
     dependencies:
