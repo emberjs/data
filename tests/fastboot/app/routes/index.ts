@@ -20,8 +20,6 @@ export default class IndexRoute extends Route {
       content: { data: people },
     } = await this.store.request(query<Person>('person', {}, { resourcePath: 'people.json' }));
 
-    console.log(people.slice());
-
     const tree = buildTree(people.map((person) => person.toNode()));
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
