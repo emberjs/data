@@ -9,8 +9,8 @@
   },
   "scripts": {
     "takeoff": "FORCE_COLOR=2 pnpm install --prefer-offline --reporter=append-only",
-    "prepare": "turbo run build:infra; turbo run build:pkg; pnpm run prepare:types;",
-    "prepare:types": "tsc --build --force; turbo run build:glint;",
+    "prepare": "turbo run --no-cache build:infra; turbo run --no-cache build:pkg; pnpm run prepare:types;",
+    "prepare:types": "tsc --build --force; turbo run --no-cache build:glint;",
     "release": "./release/index.ts",
     "build": "turbo _build --log-order=stream --filter=./packages/* --concurrency=10;",
     "sync": "pnpm --filter './packages/*' run --parallel --if-present sync",
