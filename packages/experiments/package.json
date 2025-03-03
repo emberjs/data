@@ -50,7 +50,8 @@
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "build:pkg": "vite build;",
     "prepack": "bun run build:pkg",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected",
+    "sync": "echo \"syncing\""
   },
   "peerDependencies": {
     "@sqlite.org/sqlite-wasm": "3.46.0-build2",

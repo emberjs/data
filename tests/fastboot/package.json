@@ -20,7 +20,8 @@
     "check:types": "tsc --noEmit",
     "start": "ember serve",
     "test:fastboot": "ember test --test-port=0",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected",
+    "sync": "echo \"syncing\""
   },
   "dependencies": {},
   "devDependencies": {
@@ -78,7 +79,6 @@
     "edition": "octane"
   },
   "fastbootDependencies": [
-    "node-fetch",
     "crypto"
   ],
   "volta": {

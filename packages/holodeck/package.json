@@ -43,7 +43,8 @@
     "check:pkg-types": "tsc --noEmit",
     "build:pkg": "vite build;",
     "prepack": "bun run build:pkg",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected",
+    "sync": "echo \"syncing\""
   },
   "peerDependencies": {
     "@ember-data/request": "workspace:*",

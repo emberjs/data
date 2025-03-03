@@ -23,7 +23,8 @@
     "start": "bun run build:tests --watch",
     "test": "bun run examine",
     "test:production": "bun run examine",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected",
+    "sync": "echo \"syncing\""
   },
   "author": "",
   "license": "MIT",

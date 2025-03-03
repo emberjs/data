@@ -70,7 +70,8 @@
     "build:tests": "rm -rf dist-test && cp -R test dist-test && mkdir -p dist-test/@warp-drive && cp -R dist dist-test/@warp-drive/diagnostic",
     "build:pkg": "vite build;",
     "prepack": "bun run build:pkg",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected",
+    "sync": "echo \"syncing\""
   },
   "peerDependencies": {
     "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",
@@ -120,8 +121,7 @@
   "ember-addon": {
     "main": "addon-main.cjs",
     "type": "addon",
-    "version": 2,
-    "preventDownleveling": true
+    "version": 2
   },
   "ember": {
     "edition": "octane"

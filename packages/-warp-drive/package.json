@@ -27,7 +27,8 @@
   "scripts": {
     "build:pkg": "vite build;",
     "prepack": "bun run build:pkg",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected",
+    "sync": "echo \"syncing\""
   },
   "bin": {
     "warp-drive": "./dist/warp-drive.js",

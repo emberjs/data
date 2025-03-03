@@ -19,7 +19,8 @@
     "check:types": "tsc --noEmit",
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "test": "bun ./diagnostic.js",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected",
+    "sync": "echo \"syncing\""
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",

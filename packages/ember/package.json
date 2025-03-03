@@ -19,7 +19,8 @@
     "build:glint": "glint && glint --build",
     "build:pkg": "vite build;",
     "prepack": "bun run build:pkg",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected",
+    "sync": "echo \"syncing\""
   },
   "files": [
     "unstable-preview-types",
@@ -42,12 +43,12 @@
   },
   "peerDependencies": {
     "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",
-    "@ember-data/store": "^4.12.7 || > 5.3.3",
-    "@ember-data/request": "^4.12.7 || > 5.3.3",
-    "@ember-data/request-utils": "^4.12.7 || > 5.3.3",
+    "@ember-data/store": "workspace:*",
+    "@ember-data/request": "workspace:*",
+    "@ember-data/request-utils": "workspace:*",
     "@warp-drive/core-types": "workspace:*",
     "ember-provide-consume-context": "^0.7.0",
-    "@ember-data/tracking": "^4.12.7 || > 5.3.3"
+    "@ember-data/tracking": "workspace:*"
   },
   "dependencies": {
     "@ember/test-waiters": "^3.1.0 || ^4.0.0",
@@ -99,7 +100,6 @@
   "ember-addon": {
     "main": "addon-main.cjs",
     "type": "addon",
-    "preventDownleveling": true,
     "version": 2
   },
   "ember": {

@@ -18,7 +18,8 @@
     "build": "ember build",
     "start": "ember serve",
     "lint": "eslint . --quiet --cache --cache-strategy=content",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected",
+    "sync": "echo \"syncing\""
   },
   "dependencies": {
     "ember-auto-import": "2.10.0",

@@ -22,7 +22,8 @@
     "start": "bun run build:tests --watch",
     "test": "bun ./diagnostic.js",
     "_test:production": "bun ./diagnostic.js",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected",
+    "sync": "echo \"syncing\""
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",

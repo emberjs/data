@@ -13,7 +13,8 @@
   "scripts": {
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "test:blueprints": "mocha tests",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected",
+    "sync": "echo \"syncing\""
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",

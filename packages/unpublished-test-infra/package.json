@@ -39,7 +39,8 @@
   "scripts": {
     "build:pkg": "vite build;",
     "prepack": "bun run build:pkg",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected",
+    "sync": "echo \"syncing\""
   },
   "peerDependencies": {
     "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",
@@ -99,8 +100,7 @@
   "ember-addon": {
     "main": "addon-main.cjs",
     "type": "addon",
-    "version": 2,
-    "preventDownleveling": true
+    "version": 2
   },
   "volta": {
     "extends": "../../package.json"

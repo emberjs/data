@@ -20,7 +20,8 @@
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "check:types": "tsc --noEmit",
     "test:examples": "ember test --test-port=0",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected",
+    "sync": "echo \"syncing\""
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",

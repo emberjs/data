@@ -15,7 +15,8 @@
     "pnpm-sync-dependencies-meta-injected": "0.0.14"
   },
   "scripts": {
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+    "sync-hardlinks": "bun run sync-dependencies-meta-injected",
+    "sync": "echo \"syncing\""
   },
   "engines": {
     "node": ">= 18.20.4"
