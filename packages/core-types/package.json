@@ -16,7 +16,6 @@
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "build:pkg": "vite build;",
     "prepack": "pnpm run build:pkg",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected",
     "sync": "echo \"syncing\""
   },
   "files": [
@@ -47,7 +46,6 @@
     "@babel/plugin-transform-typescript": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
     "@warp-drive/internal-config": "workspace:*",
-    "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "typescript": "^5.7.2",
     "vite": "^5.2.11"
   },

@@ -39,7 +39,6 @@
   "scripts": {
     "build:pkg": "vite build;",
     "prepack": "pnpm run build:pkg",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected",
     "sync": "echo \"syncing\""
   },
   "peerDependencies": {
@@ -86,7 +85,6 @@
     "@warp-drive/diagnostic": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
     "ember-source": "~5.12.0",
-    "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "typescript": "^5.7.2",
     "vite": "^5.2.11",
     "qunit": "^2.20.1"

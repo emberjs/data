@@ -21,9 +21,7 @@
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "check:types": "tsc --noEmit",
     "test": "bun ./diagnostic.js",
-    "test:production": "bun ./diagnostic.js",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected",
-    "sync": "echo \"syncing\""
+    "test:production": "bun ./diagnostic.js"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",

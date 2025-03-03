@@ -19,9 +19,7 @@
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "check:types": "tsc --noEmit",
     "start": "ember serve",
-    "test:fastboot": "ember test --test-port=0",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected",
-    "sync": "echo \"syncing\""
+    "test:fastboot": "ember test --test-port=0"
   },
   "dependencies": {},
   "devDependencies": {
@@ -66,7 +64,6 @@
     "ember-simple-tree": "^0.8.4",
     "ember-source": "~5.12.0",
     "loader.js": "^4.7.0",
-    "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "qunit-dom": "^3.1.1",
     "qunit": "^2.20.1",
     "typescript": "^5.7.2",

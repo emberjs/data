@@ -19,9 +19,7 @@
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "check:types": "tsc --noEmit",
     "start": "ember serve",
-    "test": "ember test --test-port=0 --path=dist-test",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected",
-    "sync": "echo \"syncing\""
+    "test": "ember test --test-port=0 --path=dist-test"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",

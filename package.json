@@ -14,19 +14,18 @@
     "release": "./release/index.ts",
     "build": "turbo _build --log-order=stream --filter=./packages/* --concurrency=10;",
     "sync": "pnpm --filter './packages/*' run --parallel --if-present sync",
-    "_task:sync-hardlinks": "pnpm run -r --parallel --if-present sync-hardlinks;",
     "build:docs": "mkdir -p packages/-ember-data/dist && cd ./docs-generator && node ./compile-docs.js",
     "lint:tests": "turbo --log-order=stream lint --filter=./tests/* --continue --concurrency=10",
     "lint:pkg": "turbo --log-order=stream lint --filter=./packages/* --continue --concurrency=10",
-    "lint": "pnpm run _task:sync-hardlinks; turbo --log-order=stream lint --continue --concurrency=10",
-    "lint:fix": "pnpm run _task:sync-hardlinks; turbo --log-order=stream lint --continue --concurrency=10 -- --fix",
+    "lint": "turbo --log-order=stream lint --continue --concurrency=10",
+    "lint:fix": "turbo --log-order=stream lint --continue --concurrency=10 -- --fix",
     "lint:prettier": "prettier --check --cache --cache-location=.prettier-cache --log-level=warn .",
     "lint:prettier:fix": "prettier --write --cache --cache-location=.prettier-cache --log-level=warn .",
     "preinstall": "npx only-allow pnpm",
     "check:test-types": "turbo --log-order=stream check:types --filter=./{tests,config}/* --continue --concurrency=10",
-    "check:types": "pnpm run _task:sync-hardlinks; bun run check:test-types",
-    "test": "pnpm run _task:sync-hardlinks; pnpm turbo test --concurrency=1",
-    "test:production": "pnpm run _task:sync-hardlinks; pnpm turbo test:production --concurrency=1",
+    "check:types": "bun run check:test-types",
+    "test": "pnpm turbo test --concurrency=1",
+    "test:production": "pnpm turbo test:production --concurrency=1",
     "test:try-one": "pnpm --filter main-test-app run test:try-one",
     "test:docs": "FORCE_COLOR=2 pnpm build:docs && pnpm run -r --workspace-concurrency=-1 --if-present --reporter=append-only --reporter-hide-prefix test:docs",
     "test:blueprints": "pnpm run -r --workspace-concurrency=-1 --if-present test:blueprints",
@@ -175,8 +174,7 @@
       "testem@3.11.0": "patches/testem@3.11.0.patch",
       "@ember/test-helpers@3.3.0": "patches/@ember__test-helpers@3.3.0.patch",
       "@ember/test-helpers@4.0.4": "patches/@ember__test-helpers@4.0.4.patch",
-      "@ember/test-helpers@5.1.0": "patches/@ember__test-helpers@5.1.0.patch",
-      "pnpm-sync-dependencies-meta-injected": "patches/pnpm-sync-dependencies-meta-injected.patch"
+      "@ember/test-helpers@5.1.0": "patches/@ember__test-helpers@5.1.0.patch"
     }
   }
 }

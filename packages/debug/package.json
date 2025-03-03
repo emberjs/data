@@ -16,9 +16,7 @@
   "scripts": {
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "build:pkg": "vite build;",
-    "prepack": "pnpm run build:pkg",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected",
-    "sync": "echo \"syncing\""
+    "prepack": "pnpm run build:pkg"
   },
   "files": [
     "unstable-preview-types",
@@ -69,7 +67,6 @@
     "@warp-drive/internal-config": "workspace:*",
     "ember-source": "~5.12.0",
     "decorator-transforms": "^2.3.0",
-    "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "typescript": "^5.7.2",
     "vite": "^5.2.11"
   },

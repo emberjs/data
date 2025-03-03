@@ -19,7 +19,6 @@
     "build:glint": "glint && glint --build",
     "build:pkg": "vite build;",
     "prepack": "pnpm run build:pkg",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected",
     "sync": "echo \"syncing\""
   },
   "files": [
@@ -85,7 +84,6 @@
     "babel-plugin-ember-template-compilation": "^2.2.5",
     "ember-template-imports": "^4.3.0",
     "ember-source": "~5.12.0",
-    "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "rollup": "^4.17.2",
     "typescript": "^5.7.2",
     "vite": "^5.2.11",

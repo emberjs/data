@@ -21,9 +21,7 @@
     "check:types": "tsc --noEmit",
     "start": "bun run build:tests --watch",
     "test": "bun ./diagnostic.js",
-    "_test:production": "bun ./diagnostic.js",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected",
-    "sync": "echo \"syncing\""
+    "_test:production": "bun ./diagnostic.js"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",

@@ -20,9 +20,7 @@
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "check:types": "tsc --noEmit",
     "test": "bun ./diagnostic.js",
-    "_test:production": "bun ./diagnostic.js",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected",
-    "sync": "echo \"syncing\""
+    "_test:production": "bun ./diagnostic.js"
   },
   "dependencies": {
     "@babel/core": "^7.24.5",
@@ -60,7 +58,6 @@
     "ember-resolver": "^11.0.1",
     "ember-source": "~5.12.0",
     "loader.js": "^4.7.0",
-    "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "typescript": "^5.7.2",
     "webpack": "^5.92.0"
   },

@@ -19,9 +19,7 @@
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "check:types": "tsc --noEmit",
     "start": "ember serve",
-    "test:embroider": "ember test --test-port=0",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected",
-    "sync": "echo \"syncing\""
+    "test:embroider": "ember test --test-port=0"
   },
   "dependencies": {},
   "devDependencies": {
@@ -37,7 +35,6 @@
     "@embroider/webpack": "^4.0.9",
     "ember-auto-import": "2.10.0",
     "ember-data": "workspace:*",
-    "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "webpack": "^5.92.0",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",

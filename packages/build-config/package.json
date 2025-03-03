@@ -54,7 +54,6 @@
     "@babel/plugin-transform-typescript": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
     "@babel/core": "^7.24.5",
-    "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "typescript": "^5.7.2",
     "bun-types": "^1.2.2",
     "vite": "^5.2.11"

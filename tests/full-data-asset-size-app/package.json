@@ -16,9 +16,7 @@
   },
   "scripts": {
     "build": "ember build",
-    "start": "ember serve",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected",
-    "sync": "echo \"syncing\""
+    "start": "ember serve"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
