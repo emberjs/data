@@ -148,6 +148,7 @@ export class DOMReporter implements Reporter {
     // render any tests
     let i = 0;
     const fragment = document.createDocumentFragment();
+    const isDebug = this.settings.params.debug.value;
     this.suite.results.forEach((elements, test) => {
       i++;
       if (elements) {
@@ -173,7 +174,14 @@ export class DOMReporter implements Reporter {
         td.colSpan = 6;
         checksTr.appendChild(td);
         const pre = document.createElement('pre');
-        pre.textContent = test.result.diagnostics.map((d) => `\t${d.passed ? '✅' : '❌'} – ${d.message}`).join('\n');
+        pre.textContent = test.result.diagnostics
+          .map((d) => {
+            const checkText = `\t${d.passed ? '✅' : '❌'} – ${d.message}`;
+            if (isDebug) {
+              return `${checkText}\n${diffResult(d)}`;
+            }
+          })
+          .join('\n');
         td.appendChild(pre);
 
         elements.push(checksTr);
@@ -391,4 +399,19 @@ function el(tag: 'div' | 'button', name: string) {
     (element as HTMLButtonElement).type = 'button';
   }
   return element;
+}
+
+function indentLines(str: string, indent = 2) {
+  const indentStr = `\t`.repeat(indent);
+  return str
+    .split('\n')
+    .map((line) => indentStr + line)
+    .join('\n');
+}
+
+function diffResult(report: DiagnosticReport, indent?: number) {
+  const actualText = JSON.stringify(report.actual, null, 2);
+  const expectedText = JSON.stringify(report.expected, null, 2);
+
+  return indentLines(`Expected:\n${expectedText}\n\nActual:\n${actualText}`, 2);
 }
