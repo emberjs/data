@@ -43,7 +43,7 @@ export function handleBunFetch(config, state, req, server) {
     const _wId = wId ?? state.lastWindowId ?? state.windowId;
     debug(`Redirecting to ${config.entry} for browser ${_bId} window ${_wId}`);
     // redirect to index.html
-    return Response.redirect(`${protocol}://${state.hostname}:${state.port}?b=${_bId}&w=${_wId}`, { status: 302 });
+    return Response.redirect(`/?b=${_bId}&w=${_wId}`, { status: 302 });
   } else {
     const pathParts = url.pathname.split('/');
 
