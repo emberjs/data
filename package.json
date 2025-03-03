@@ -27,7 +27,7 @@
     "test": "pnpm turbo test --concurrency=1",
     "test:production": "pnpm turbo test:production --concurrency=1",
     "test:try-one:build": "pnpm --filter main-test-app run test:try-one --skip-cleanup",
-    "test:try-one:exec": "pnpm turbo test --concurrency=1 --filter=./tests/main",
+    "test:try-one:exec": "pnpm --filter main-test-app build:tests; pnpm --filter main-test-app test",
     "test:docs": "FORCE_COLOR=2 pnpm build:docs && pnpm run -r --workspace-concurrency=-1 --if-present --reporter=append-only --reporter-hide-prefix test:docs",
     "test:blueprints": "pnpm run -r --workspace-concurrency=-1 --if-present test:blueprints",
     "test:fastboot": "pnpm run -r --workspace-concurrency=-1 --if-present test:fastboot",
