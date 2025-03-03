@@ -35,7 +35,8 @@
       ],
       "dependsOn": [],
       // https://turbo.build/repo/docs/reference/configuration#outputmode
-      "outputMode": "new-only"
+      "outputMode": "new-only",
+      "cache": false
     },
 
     // run build in all library packages
@@ -63,7 +64,8 @@
       ],
       "dependsOn": ["^build:infra", "^build:pkg"],
       // https://turbo.build/repo/docs/reference/configuration#outputmode
-      "outputMode": "new-only"
+      "outputMode": "new-only",
+      "cache": false
     },
 
     // run build in all library packages
@@ -104,7 +106,7 @@
     /////////////////////////////////////////////////
     /////////////////////////////////////////////////
     "start": {
-      // "dependsOn": ["_task:sync-hardlinks", "^_build"],
+      // "dependsOn": ["^_build"],
       // "outputs": [],
       // "cache": false,
       // "persistent": true
