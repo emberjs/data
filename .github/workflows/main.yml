@@ -175,7 +175,7 @@ jobs:
         env:
           CI: true
         run: |
-          pnpm test:try-one:build ${{ matrix.release }}
+          pnpm test:try-one:build ${{ matrix.scenario }}
           pnpm test:try-one:exec
 
   releases:

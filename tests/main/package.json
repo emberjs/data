@@ -85,7 +85,7 @@
     "ember-template-imports": "4.3.0",
     "ember-qunit": "8.0.2",
     "ember-resolver": "^11.0.1",
-    "ember-source": "~5.12.0",
+    "ember-source": "https://s3.amazonaws.com/builds.emberjs.com/canary/shas/be20bd3f8ea066050eb91862af5180e10ba37134.tgz",
     "ember-source-channel-url": "^3.0.0",
     "ember-strict-resolver": "^1.3.0",
     "ember-try": "^3.0.0",
