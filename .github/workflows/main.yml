@@ -174,7 +174,9 @@ jobs:
         timeout-minutes: 12
         env:
           CI: true
-        run: pnpm test:try-one ${{ matrix.scenario }} -- ember test --test-port=0
+        run: |
+          pnpm test:try-one:build ${{ matrix.release }}
+          pnpm test:try-one:exec
 
   releases:
     timeout-minutes: 12
