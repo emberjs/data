@@ -15,7 +15,8 @@
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "scripts": {
     "build:infra": "vite build; vite build -c ./vite.config-cjs.mjs;",
-    "prepack": "pnpm run build:infra"
+    "prepack": "pnpm run build:infra",
+    "sync": "echo \"syncing\""
   },
   "type": "module",
   "files": [
