@@ -69,7 +69,7 @@
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "build:tests": "rm -rf dist-test && cp -R test dist-test && mkdir -p dist-test/@warp-drive && cp -R dist dist-test/@warp-drive/diagnostic",
     "build:pkg": "vite build;",
-    "prepack": "bun run build:pkg",
+    "prepack": "pnpm run build:pkg",
     "sync-hardlinks": "bun run sync-dependencies-meta-injected",
     "sync": "echo \"syncing\""
   },

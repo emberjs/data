@@ -38,7 +38,7 @@
   },
   "scripts": {
     "build:pkg": "vite build;",
-    "prepack": "bun run build:pkg",
+    "prepack": "pnpm run build:pkg",
     "sync-hardlinks": "bun run sync-dependencies-meta-injected",
     "sync": "echo \"syncing\""
   },
