@@ -75,7 +75,7 @@ importers:
         specifier: 4.1.0
         version: 4.1.0
       bun-types:
-        specifier: ^1.2.2
+        specifier: ^1.2.4
         version: 1.2.4
       chalk:
         specifier: ^4.1.2
@@ -469,7 +469,7 @@ importers:
         specifier: workspace:*
         version: file:config(e8e315cbc81b963b1039f7f70489385c)
       bun-types:
-        specifier: ^1.2.2
+        specifier: ^1.2.4
         version: 1.2.4
       typescript:
         specifier: ^5.7.2
@@ -613,7 +613,7 @@ importers:
         specifier: workspace:*
         version: file:config
       bun-types:
-        specifier: ^1.2.2
+        specifier: ^1.2.4
         version: 1.2.4
       ember-cli-test-loader:
         specifier: ^3.1.0
@@ -2135,7 +2135,7 @@ importers:
         specifier: workspace:*
         version: file:config
       bun-types:
-        specifier: ^1.2.2
+        specifier: ^1.2.4
         version: 1.2.4
       ember-auto-import:
         specifier: ^2.10.0
