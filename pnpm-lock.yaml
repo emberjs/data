@@ -533,8 +533,8 @@ importers:
         specifier: ^5.3.2
         version: 5.3.2
       jscodeshift:
-        specifier: ^0.15.2
-        version: 0.15.2
+        specifier: ^0.16.1
+        version: 0.16.1
       strip-ansi:
         specifier: ^7.1.0
         version: 7.1.0
@@ -1839,8 +1839,8 @@ importers:
   tests/codemods:
     dependencies:
       jscodeshift:
-        specifier: ^0.15.2
-        version: 0.15.2
+        specifier: ^0.16.1
+        version: 0.16.1
       prettier:
         specifier: ^3.3.2
         version: 3.5.3
@@ -6762,11 +6762,6 @@ packages:
   aws-sign2@0.5.0:
     resolution: {integrity: sha512-oqUX0DM5j7aPWPCnpWebiyNIj2wiNI87ZxnOMoGv0aE4TGlBy2N+5iWc6dQ/NOKZaBD2W6PVz8jtOGkWzSC5EA==}
 
-  babel-core@7.0.0-bridge.0:
-    resolution: {integrity: sha512-poPX9mZH/5CSanm50Q+1toVci6pv5KSRv/5TWCwtzQS5XEwn40BcCrgIeMFWP9CKKIniKXNxoIOnOq4VVlGXhg==}
-    peerDependencies:
-      '@babel/core': ^7.0.0-0
-
   babel-import-util@0.2.0:
     resolution: {integrity: sha512-CtWYYHU/MgK88rxMrLfkD356dApswtR/kWZ/c6JifG1m10e7tBBrs/366dFzWMAoqYmG5/JSh+94tUSpIwh+ag==}
     engines: {node: '>= 12.*'}
@@ -9820,8 +9815,8 @@ packages:
   jsbn@1.1.0:
     resolution: {integrity: sha512-4bYVV3aAMtDTTu4+xsDYa6sy9GyJ69/amsu9sYF2zqjiEoZA5xJi3BrfX3uY+/IekIu7MwdObdbDWpoZdBv3/A==}
 
-  jscodeshift@0.15.2:
-    resolution: {integrity: sha512-FquR7Okgmc4Sd0aEDwqho3rEiKR3BdvuG9jfdHjLJ6JQoWSMpavug3AoIfnfWhxFlf+5pzQh8qjqz0DWFrNQzA==}
+  jscodeshift@0.16.1:
+    resolution: {integrity: sha512-oMQXySazy63awNBzMpXbbVv73u3irdxTeX2L5ueRyFRxi32qb9uzdZdOY5fTBYADBG19l5M/wnGknZSV1dzCdA==}
     hasBin: true
     peerDependencies:
       '@babel/preset-env': ^7.1.6
@@ -11928,10 +11923,6 @@ packages:
     resolution: {integrity: sha512-DZ4yORTwrbTj/7MZYq2w+/ZFdI6OZ/f9SFHR+71gIVUZhOQPHzVCLpvRnPgyaMpfWxxk/4ONva3GQSyNIKRv6A==}
     engines: {node: '>=10'}
 
-  temp@0.8.4:
-    resolution: {integrity: sha512-s0ZZzd0BzYv5tLSptZooSjK8oj6C+c19p7Vqta9+6NPOf7r+fxq0cJe6/oN4LTC79sy5NY8ucOJNgwsKCSbfqg==}
-    engines: {node: '>=6.0.0'}
-
   temp@0.9.4:
     resolution: {integrity: sha512-yYrrsWnrXMcdsnu/7YMYAofM1ktpL5By7vZhf15CrXijWWrEYZks5AXBudalfSWJLlnen/QUJUB5aoB0kqZUGA==}
     engines: {node: '>=6.0.0'}
@@ -12635,9 +12626,6 @@ packages:
 
   wrappy@1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
-
-  write-file-atomic@2.4.3:
-    resolution: {integrity: sha512-GaETH5wwsX+GcnzhPgKcKjJ6M2Cq3/iZp1WyY/X1CSqrW+jVNM9Y7D8EC2sM4ZG/V8wZlSniJnCKWPmBYAucRQ==}
 
   write-file-atomic@3.0.3:
     resolution: {integrity: sha512-AvHcyZ5JnSfq3ioSyjrBkH9yW4m7Ayk8/9My/DD9onKeu/94fwrMocemO2QAJFAlnnDN+ZDS+ZjAR5ua1/PV/Q==}
@@ -14045,7 +14033,7 @@ snapshots:
       chalk: 5.4.1
       commander: 12.1.0
       ignore: 5.3.2
-      jscodeshift: 0.15.2
+      jscodeshift: 0.16.1
       strip-ansi: 7.1.0
       typescript: 5.8.2
       winston: 3.17.0
@@ -17801,10 +17789,6 @@ snapshots:
 
   aws-sign2@0.5.0:
     optional: true
-
-  babel-core@7.0.0-bridge.0(@babel/core@7.26.9):
-    dependencies:
-      '@babel/core': 7.26.9
 
   babel-import-util@0.2.0: {}
 
@@ -22435,7 +22419,7 @@ snapshots:
 
   jsbn@1.1.0: {}
 
-  jscodeshift@0.15.2:
+  jscodeshift@0.16.1:
     dependencies:
       '@babel/core': 7.26.9
       '@babel/parser': 7.26.9
@@ -22447,7 +22431,6 @@ snapshots:
       '@babel/preset-flow': 7.25.9(@babel/core@7.26.9)
       '@babel/preset-typescript': 7.26.0(@babel/core@7.26.9)
       '@babel/register': 7.25.9(@babel/core@7.26.9)
-      babel-core: 7.0.0-bridge.0(@babel/core@7.26.9)
       chalk: 4.1.2
       flow-parser: 0.262.0
       graceful-fs: 4.2.11
@@ -22455,8 +22438,8 @@ snapshots:
       neo-async: 2.6.2
       node-dir: 0.1.17
       recast: 0.23.11
-      temp: 0.8.4
-      write-file-atomic: 2.4.3
+      temp: 0.9.4
+      write-file-atomic: 5.0.1
     transitivePeerDependencies:
       - supports-color
 
@@ -24771,10 +24754,6 @@ snapshots:
       mkdirp: 1.0.4
       yallist: 4.0.0
 
-  temp@0.8.4:
-    dependencies:
-      rimraf: 2.6.3
-
   temp@0.9.4:
     dependencies:
       mkdirp: 0.5.6
@@ -25738,12 +25717,6 @@ snapshots:
       strip-ansi: 7.1.0
 
   wrappy@1.0.2: {}
-
-  write-file-atomic@2.4.3:
-    dependencies:
-      graceful-fs: 4.2.11
-      imurmurhash: 0.1.4
-      signal-exit: 3.0.7
 
   write-file-atomic@3.0.3:
     dependencies:
