@@ -22,7 +22,7 @@
     "extends": "../../package.json"
   },
   "dependencies": {
-    "@embroider/macros": "^1.16.10",
+    "@embroider/macros": "^1.16.11",
     "@warp-drive/build-config": "workspace:*"
   },
   "peerDependencies": {
@@ -65,10 +65,10 @@
     ]
   },
   "devDependencies": {
-    "@babel/core": "^7.24.5",
-    "@babel/plugin-transform-typescript": "^7.24.5",
-    "@babel/preset-env": "^7.24.5",
-    "@babel/preset-typescript": "^7.24.1",
+    "@babel/core": "^7.26.9",
+    "@babel/plugin-transform-typescript": "^7.26.8",
+    "@babel/preset-env": "^7.26.9",
+    "@babel/preset-typescript": "^7.26.0",
     "@glimmer/component": "^1.1.2",
     "@glimmer/validator": "^0.94.6",
     "@warp-drive/core-types": "workspace:*",

@@ -62,17 +62,17 @@
     }
   },
   "dependencies": {
-    "@embroider/macros": "^1.16.10",
+    "@embroider/macros": "^1.16.11",
     "chalk": "^4.1.2",
     "qunit": "^2.20.1",
     "semver": "^7.7.1",
     "@warp-drive/build-config": "workspace:*"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.5",
-    "@babel/plugin-transform-typescript": "^7.24.5",
-    "@babel/preset-env": "^7.24.5",
-    "@babel/preset-typescript": "^7.24.1",
+    "@babel/core": "^7.26.9",
+    "@babel/plugin-transform-typescript": "^7.26.8",
+    "@babel/preset-env": "^7.26.9",
+    "@babel/preset-typescript": "^7.26.0",
     "@ember/test-helpers": "5.1.0",
     "@glimmer/component": "^1.1.2",
     "@types/semver": "^7.5.8",

@@ -51,7 +51,7 @@ importers:
         version: 1.13.4
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@glimmer/component':
         specifier: ^1.1.2
@@ -141,14 +141,14 @@ importers:
   config:
     dependencies:
       '@babel/cli':
-        specifier: ^7.24.5
+        specifier: ^7.26.4
         version: 7.26.4(@babel/core@7.26.9)
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/eslint-parser':
-        specifier: 7.25.8
-        version: 7.25.8(@babel/core@7.26.9)(eslint@9.22.0)
+        specifier: 7.26.8
+        version: 7.26.8(@babel/core@7.26.9)(eslint@9.22.0)
       '@embroider/addon-dev':
         specifier: ^7.1.1
         version: 7.1.2(rollup@4.34.9)
@@ -249,7 +249,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       '@embroider/macros':
-        specifier: ^1.16.10
+        specifier: ^1.16.11
         version: 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config':
         specifier: workspace:*
@@ -259,16 +259,16 @@ importers:
         version: file:packages/core-types(@babel/core@7.26.9)
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/plugin-transform-typescript':
-        specifier: ^7.24.5
+        specifier: ^7.26.8
         version: 7.26.8(@babel/core@7.26.9)
       '@babel/preset-env':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.9)
       '@babel/preset-typescript':
-        specifier: ^7.24.1
+        specifier: ^7.26.0
         version: 7.26.0(@babel/core@7.26.9)
       '@ember/test-helpers':
         specifier: 5.1.0
@@ -307,20 +307,20 @@ importers:
   packages/active-record:
     dependencies:
       '@embroider/macros':
-        specifier: ^1.16.10
+        specifier: ^1.16.11
         version: 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config':
         specifier: workspace:*
         version: file:packages/build-config(@babel/core@7.26.9)
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/plugin-transform-typescript':
-        specifier: ^7.24.5
+        specifier: ^7.26.8
         version: 7.26.8(@babel/core@7.26.9)
       '@babel/preset-typescript':
-        specifier: ^7.24.1
+        specifier: ^7.26.0
         version: 7.26.0(@babel/core@7.26.9)
       '@ember-data/request':
         specifier: workspace:*
@@ -359,7 +359,7 @@ importers:
         specifier: 1.2.0
         version: 1.2.0
       '@embroider/macros':
-        specifier: ^1.16.10
+        specifier: ^1.16.11
         version: 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config':
         specifier: workspace:*
@@ -375,13 +375,13 @@ importers:
         version: 1.0.0
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/plugin-transform-typescript':
-        specifier: ^7.24.5
+        specifier: ^7.26.8
         version: 7.26.8(@babel/core@7.26.9)
       '@babel/preset-typescript':
-        specifier: ^7.24.1
+        specifier: ^7.26.0
         version: 7.26.0(@babel/core@7.26.9)
       '@ember-data/graph':
         specifier: workspace:*
@@ -438,7 +438,7 @@ importers:
         specifier: ^1.9.0
         version: 1.9.0
       '@embroider/macros':
-        specifier: ^1.16.10
+        specifier: ^1.16.11
         version: 1.16.11(@babel/core@7.26.9)
       babel-import-util:
         specifier: ^2.1.1
@@ -451,13 +451,13 @@ importers:
         version: 7.7.1
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/plugin-transform-typescript':
-        specifier: ^7.24.5
+        specifier: ^7.26.8
         version: 7.26.8(@babel/core@7.26.9)
       '@babel/preset-typescript':
-        specifier: ^7.24.1
+        specifier: ^7.26.0
         version: 7.26.0(@babel/core@7.26.9)
       '@types/babel__core':
         specifier: ^7.20.5
@@ -481,20 +481,20 @@ importers:
   packages/core-types:
     dependencies:
       '@embroider/macros':
-        specifier: ^1.16.10
+        specifier: ^1.16.11
         version: 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config':
         specifier: workspace:*
         version: file:packages/build-config(@babel/core@7.26.9)
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/plugin-transform-typescript':
-        specifier: ^7.24.5
+        specifier: ^7.26.8
         version: 7.26.8(@babel/core@7.26.9)
       '@babel/preset-typescript':
-        specifier: ^7.24.1
+        specifier: ^7.26.0
         version: 7.26.0(@babel/core@7.26.9)
       '@warp-drive/internal-config':
         specifier: workspace:*
@@ -512,23 +512,23 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       '@embroider/macros':
-        specifier: ^1.16.10
+        specifier: ^1.16.11
         version: 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config':
         specifier: workspace:*
         version: file:packages/build-config(@babel/core@7.26.9)
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/plugin-transform-typescript':
-        specifier: ^7.24.5
+        specifier: ^7.26.8
         version: 7.26.8(@babel/core@7.26.9)
       '@babel/preset-env':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.9)
       '@babel/preset-typescript':
-        specifier: ^7.24.1
+        specifier: ^7.26.0
         version: 7.26.0(@babel/core@7.26.9)
       '@ember-data/legacy-compat':
         specifier: workspace:*
@@ -589,19 +589,19 @@ importers:
         version: 0.2.3
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/plugin-transform-typescript':
-        specifier: ^7.24.5
+        specifier: ^7.26.8
         version: 7.26.8(@babel/core@7.26.9)
       '@babel/preset-env':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.9)
       '@babel/preset-typescript':
-        specifier: ^7.24.1
+        specifier: ^7.26.0
         version: 7.26.0(@babel/core@7.26.9)
       '@babel/runtime':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@ember/test-helpers':
         specifier: 5.1.0
@@ -631,23 +631,23 @@ importers:
   packages/graph:
     dependencies:
       '@embroider/macros':
-        specifier: ^1.16.10
+        specifier: ^1.16.11
         version: 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config':
         specifier: workspace:*
         version: file:packages/build-config(@babel/core@7.26.9)
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/plugin-transform-typescript':
-        specifier: ^7.24.5
+        specifier: ^7.26.8
         version: 7.26.8(@babel/core@7.26.9)
       '@babel/preset-env':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.9)
       '@babel/preset-typescript':
-        specifier: ^7.24.1
+        specifier: ^7.26.0
         version: 7.26.0(@babel/core@7.26.9)
       '@ember-data/request':
         specifier: workspace:*
@@ -693,19 +693,19 @@ importers:
         version: 4.7.4
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/plugin-transform-typescript':
-        specifier: ^7.24.5
+        specifier: ^7.26.8
         version: 7.26.8(@babel/core@7.26.9)
       '@babel/preset-env':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.9)
       '@babel/preset-typescript':
-        specifier: ^7.24.1
+        specifier: ^7.26.0
         version: 7.26.0(@babel/core@7.26.9)
       '@babel/runtime':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@ember-data/request':
         specifier: workspace:*
@@ -723,23 +723,23 @@ importers:
   packages/json-api:
     dependencies:
       '@embroider/macros':
-        specifier: ^1.16.10
+        specifier: ^1.16.11
         version: 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config':
         specifier: workspace:*
         version: file:packages/build-config(@babel/core@7.26.9)
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/plugin-transform-typescript':
-        specifier: ^7.24.5
+        specifier: ^7.26.8
         version: 7.26.8(@babel/core@7.26.9)
       '@babel/preset-env':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.9)
       '@babel/preset-typescript':
-        specifier: ^7.24.1
+        specifier: ^7.26.0
         version: 7.26.0(@babel/core@7.26.9)
       '@ember-data/graph':
         specifier: workspace:*
@@ -778,23 +778,23 @@ importers:
   packages/legacy-compat:
     dependencies:
       '@embroider/macros':
-        specifier: ^1.16.10
+        specifier: ^1.16.11
         version: 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config':
         specifier: workspace:*
         version: file:packages/build-config(@babel/core@7.26.9)
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/plugin-transform-typescript':
-        specifier: ^7.24.5
+        specifier: ^7.26.8
         version: 7.26.8(@babel/core@7.26.9)
       '@babel/preset-env':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.9)
       '@babel/preset-typescript':
-        specifier: ^7.24.1
+        specifier: ^7.26.0
         version: 7.26.0(@babel/core@7.26.9)
       '@ember-data/graph':
         specifier: workspace:*
@@ -842,7 +842,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       '@embroider/macros':
-        specifier: ^1.16.10
+        specifier: ^1.16.11
         version: 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config':
         specifier: workspace:*
@@ -858,16 +858,16 @@ importers:
         version: 3.0.2
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/plugin-transform-typescript':
-        specifier: ^7.24.5
+        specifier: ^7.26.8
         version: 7.26.8(@babel/core@7.26.9)
       '@babel/preset-env':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.9)
       '@babel/preset-typescript':
-        specifier: ^7.24.1
+        specifier: ^7.26.0
         version: 7.26.0(@babel/core@7.26.9)
       '@ember-data/graph':
         specifier: workspace:*
@@ -924,23 +924,23 @@ importers:
         specifier: ^3.1.0 || ^4.0.0
         version: 3.1.0(@babel/core@7.26.9)
       '@embroider/macros':
-        specifier: ^1.16.10
+        specifier: ^1.16.11
         version: 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config':
         specifier: workspace:*
         version: file:packages/build-config(@babel/core@7.26.9)
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/plugin-transform-typescript':
-        specifier: ^7.24.5
+        specifier: ^7.26.8
         version: 7.26.8(@babel/core@7.26.9)
       '@babel/preset-env':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.9)
       '@babel/preset-typescript':
-        specifier: ^7.24.1
+        specifier: ^7.26.0
         version: 7.26.0(@babel/core@7.26.9)
       '@glimmer/component':
         specifier: ^1.1.2
@@ -961,23 +961,23 @@ importers:
   packages/request-utils:
     dependencies:
       '@embroider/macros':
-        specifier: ^1.16.10
+        specifier: ^1.16.11
         version: 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config':
         specifier: workspace:*
         version: file:packages/build-config(@babel/core@7.26.9)
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/plugin-transform-typescript':
-        specifier: ^7.24.5
+        specifier: ^7.26.8
         version: 7.26.8(@babel/core@7.26.9)
       '@babel/preset-env':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.9)
       '@babel/preset-typescript':
-        specifier: ^7.24.1
+        specifier: ^7.26.0
         version: 7.26.0(@babel/core@7.26.9)
       '@ember/string':
         specifier: 3.1.1
@@ -1007,23 +1007,23 @@ importers:
   packages/rest:
     dependencies:
       '@embroider/macros':
-        specifier: ^1.16.10
+        specifier: ^1.16.11
         version: 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config':
         specifier: workspace:*
         version: file:packages/build-config(@babel/core@7.26.9)
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/plugin-transform-typescript':
-        specifier: ^7.24.5
+        specifier: ^7.26.8
         version: 7.26.8(@babel/core@7.26.9)
       '@babel/preset-env':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.9)
       '@babel/preset-typescript':
-        specifier: ^7.24.1
+        specifier: ^7.26.0
         version: 7.26.0(@babel/core@7.26.9)
       '@ember-data/request':
         specifier: workspace:*
@@ -1056,23 +1056,23 @@ importers:
   packages/schema-record:
     dependencies:
       '@embroider/macros':
-        specifier: ^1.16.10
+        specifier: ^1.16.11
         version: 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config':
         specifier: workspace:*
         version: file:packages/build-config(@babel/core@7.26.9)
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/plugin-transform-typescript':
-        specifier: ^7.24.5
+        specifier: ^7.26.8
         version: 7.26.8(@babel/core@7.26.9)
       '@babel/preset-env':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.9)
       '@babel/preset-typescript':
-        specifier: ^7.24.1
+        specifier: ^7.26.0
         version: 7.26.0(@babel/core@7.26.9)
       '@ember-data/legacy-compat':
         specifier: workspace:*
@@ -1117,7 +1117,7 @@ importers:
         specifier: 1.2.0
         version: 1.2.0
       '@embroider/macros':
-        specifier: ^1.16.10
+        specifier: ^1.16.11
         version: 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config':
         specifier: workspace:*
@@ -1133,16 +1133,16 @@ importers:
         version: 1.0.0
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/plugin-transform-typescript':
-        specifier: ^7.24.5
+        specifier: ^7.26.8
         version: 7.26.8(@babel/core@7.26.9)
       '@babel/preset-env':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.9)
       '@babel/preset-typescript':
-        specifier: ^7.24.1
+        specifier: ^7.26.0
         version: 7.26.0(@babel/core@7.26.9)
       '@ember-data/legacy-compat':
         specifier: workspace:*
@@ -1190,23 +1190,23 @@ importers:
   packages/store:
     dependencies:
       '@embroider/macros':
-        specifier: ^1.16.10
+        specifier: ^1.16.11
         version: 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config':
         specifier: workspace:*
         version: file:packages/build-config(@babel/core@7.26.9)
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/plugin-transform-typescript':
-        specifier: ^7.24.5
+        specifier: ^7.26.8
         version: 7.26.8(@babel/core@7.26.9)
       '@babel/preset-env':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.9)
       '@babel/preset-typescript':
-        specifier: ^7.24.1
+        specifier: ^7.26.0
         version: 7.26.0(@babel/core@7.26.9)
       '@ember-data/request':
         specifier: workspace:*
@@ -1245,23 +1245,23 @@ importers:
   packages/tracking:
     dependencies:
       '@embroider/macros':
-        specifier: ^1.16.10
+        specifier: ^1.16.11
         version: 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config':
         specifier: workspace:*
         version: file:packages/build-config(@babel/core@7.26.9)
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/plugin-transform-typescript':
-        specifier: ^7.24.5
+        specifier: ^7.26.8
         version: 7.26.8(@babel/core@7.26.9)
       '@babel/preset-env':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.9)
       '@babel/preset-typescript':
-        specifier: ^7.24.1
+        specifier: ^7.26.0
         version: 7.26.0(@babel/core@7.26.9)
       '@glimmer/component':
         specifier: ^1.1.2
@@ -1290,7 +1290,7 @@ importers:
   packages/unpublished-test-infra:
     dependencies:
       '@embroider/macros':
-        specifier: ^1.16.10
+        specifier: ^1.16.11
         version: 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config':
         specifier: workspace:*
@@ -1306,16 +1306,16 @@ importers:
         version: 7.7.1
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/plugin-transform-typescript':
-        specifier: ^7.24.5
+        specifier: ^7.26.8
         version: 7.26.8(@babel/core@7.26.9)
       '@babel/preset-env':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.9)
       '@babel/preset-typescript':
-        specifier: ^7.24.1
+        specifier: ^7.26.0
         version: 7.26.0(@babel/core@7.26.9)
       '@ember-data/request':
         specifier: workspace:*
@@ -1363,7 +1363,7 @@ importers:
   tests/blueprints:
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@ember-data/adapter':
         specifier: workspace:*
@@ -1441,10 +1441,10 @@ importers:
   tests/builders:
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/runtime':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@ember-data/active-record':
         specifier: workspace:*
@@ -1585,10 +1585,10 @@ importers:
   tests/ember-data__adapter:
     dependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/runtime':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@ember-data/debug':
         specifier: workspace:*
@@ -1703,10 +1703,10 @@ importers:
         version: 0.0.14
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/runtime':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@ember-data/debug':
         specifier: workspace:*
@@ -1754,7 +1754,7 @@ importers:
         specifier: ^1.9.0
         version: 1.9.0
       '@embroider/macros':
-        specifier: ^1.16.10
+        specifier: ^1.16.11
         version: 1.16.11(@babel/core@7.26.9)
       '@glimmer/component':
         specifier: ^1.1.2
@@ -1836,10 +1836,10 @@ importers:
         version: 0.0.14
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/runtime':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@ember-data/debug':
         specifier: workspace:*
@@ -1887,7 +1887,7 @@ importers:
         specifier: ^1.9.0
         version: 1.9.0
       '@embroider/macros':
-        specifier: ^1.16.10
+        specifier: ^1.16.11
         version: 1.16.11(@babel/core@7.26.9)
       '@glimmer/component':
         specifier: ^1.1.2
@@ -1972,10 +1972,10 @@ importers:
         version: 0.0.14
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/runtime':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@ember-data/adapter':
         specifier: workspace:*
@@ -2017,7 +2017,7 @@ importers:
         specifier: ^1.9.0
         version: 1.9.0
       '@embroider/macros':
-        specifier: ^1.16.10
+        specifier: ^1.16.11
         version: 1.16.11(@babel/core@7.26.9)
       '@glimmer/component':
         specifier: ^1.1.2
@@ -2087,10 +2087,10 @@ importers:
         version: 0.0.14
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/runtime':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@ember-data/request':
         specifier: workspace:*
@@ -2205,10 +2205,10 @@ importers:
         version: 0.0.14
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/runtime':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@ember-data/adapter':
         specifier: workspace:*
@@ -2319,10 +2319,10 @@ importers:
   tests/embroider-basic-compat:
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/runtime':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@ember-data/adapter':
         specifier: workspace:*
@@ -2466,10 +2466,10 @@ importers:
   tests/fastboot:
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/runtime':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@ember-data/debug':
         specifier: workspace:*
@@ -2602,10 +2602,10 @@ importers:
         version: 0.0.14
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/runtime':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@ember/optional-features':
         specifier: ^2.2.0
@@ -2669,13 +2669,13 @@ importers:
         version: 0.0.14
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/plugin-transform-typescript':
-        specifier: ^7.24.5
+        specifier: ^7.26.8
         version: 7.26.8(@babel/core@7.26.9)
       '@babel/runtime':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@ember-data/adapter':
         specifier: workspace:*
@@ -2729,7 +2729,7 @@ importers:
         specifier: ^3.1.0
         version: 3.1.0(@babel/core@7.26.9)
       '@embroider/macros':
-        specifier: ^1.16.10
+        specifier: ^1.16.11
         version: 1.16.11(03ebd109d943a27ca5a55d723400dcb7)
       '@glimmer/component':
         specifier: ^1.1.2
@@ -2889,10 +2889,10 @@ importers:
         version: 5.94.0
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/runtime':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@ember/optional-features':
         specifier: ^2.2.0
@@ -2961,19 +2961,19 @@ importers:
   tests/vite-basic-compat:
     devDependencies:
       '@babel/core':
-        specifier: ^7.24.5
+        specifier: ^7.26.9
         version: 7.26.9
       '@babel/eslint-parser':
-        specifier: ^7.25.9
+        specifier: ^7.26.8
         version: 7.26.8(@babel/core@7.26.9)(eslint@9.22.0)
       '@babel/plugin-transform-runtime':
-        specifier: ^7.25.9
+        specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.9)
       '@babel/plugin-transform-typescript':
-        specifier: ^7.25.9
+        specifier: ^7.26.8
         version: 7.26.8(@babel/core@7.26.9)
       '@babel/runtime':
-        specifier: ^7.26.0
+        specifier: ^7.26.9
         version: 7.26.9
       '@ember-data/adapter':
         specifier: workspace:*
@@ -3198,13 +3198,6 @@ packages:
   '@babel/core@7.26.9':
     resolution: {integrity: sha512-lWBYIrF7qK5+GjY5Uy+/hEgp8OJWOD/rpy74GplYRhEauvbHDeFB8t5hPOZxCZ0Oxf4Cc36tK51/l3ymJysrKw==}
     engines: {node: '>=6.9.0'}
-
-  '@babel/eslint-parser@7.25.8':
-    resolution: {integrity: sha512-Po3VLMN7fJtv0nsOjBDSbO1J71UhzShE9MuOSkWEV9IZQXzhZklYtzKZ8ZD/Ij3a0JBv1AG3Ny2L3jvAHQVOGg==}
-    engines: {node: ^10.13.0 || ^12.13.0 || >=14.0.0}
-    peerDependencies:
-      '@babel/core': ^7.11.0
-      eslint: ^7.5.0 || ^8.0.0 || ^9.0.0
 
   '@babel/eslint-parser@7.26.8':
     resolution: {integrity: sha512-3tBctaHRW6xSub26z7n8uyOTwwUsCdvIug/oxBH9n6yCO5hMj2vwDJAo7RbBMKrM7P+W2j61zLKviJQFGOYKMg==}
@@ -11485,14 +11478,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/eslint-parser@7.25.8(@babel/core@7.26.9)(eslint@9.22.0)':
-    dependencies:
-      '@babel/core': 7.26.9
-      '@nicolo-ribaudo/eslint-scope-5-internals': 5.1.1-v1
-      eslint: 9.22.0
-      eslint-visitor-keys: 2.1.0
-      semver: 6.3.1
-
   '@babel/eslint-parser@7.26.8(@babel/core@7.26.9)(eslint@9.22.0)':
     dependencies:
       '@babel/core': 7.26.9
@@ -15454,7 +15439,7 @@ snapshots:
     dependencies:
       '@babel/cli': 7.26.4(@babel/core@7.26.9)
       '@babel/core': 7.26.9
-      '@babel/eslint-parser': 7.25.8(@babel/core@7.26.9)(eslint@9.22.0)
+      '@babel/eslint-parser': 7.26.8(@babel/core@7.26.9)(eslint@9.22.0)
       '@embroider/addon-dev': 7.1.2(rollup@4.34.9)
       '@eslint/js': 9.22.0
       '@rollup/plugin-babel': 6.0.4(@babel/core@7.26.9)(rollup@4.34.9)
@@ -15498,7 +15483,7 @@ snapshots:
     dependencies:
       '@babel/cli': 7.26.4(@babel/core@7.26.9)
       '@babel/core': 7.26.9
-      '@babel/eslint-parser': 7.25.8(@babel/core@7.26.9)(eslint@9.22.0)
+      '@babel/eslint-parser': 7.26.8(@babel/core@7.26.9)(eslint@9.22.0)
       '@embroider/addon-dev': 7.1.2(@glint/template@1.5.0)(rollup@4.34.9)
       '@eslint/js': 9.22.0
       '@rollup/plugin-babel': 6.0.4(@babel/core@7.26.9)(rollup@4.34.9)
@@ -15542,7 +15527,7 @@ snapshots:
     dependencies:
       '@babel/cli': 7.26.4(@babel/core@7.26.9)
       '@babel/core': 7.26.9
-      '@babel/eslint-parser': 7.25.8(@babel/core@7.26.9)(eslint@9.22.0)
+      '@babel/eslint-parser': 7.26.8(@babel/core@7.26.9)(eslint@9.22.0)
       '@embroider/addon-dev': 7.1.2(rollup@4.34.9)
       '@eslint/js': 9.22.0
       '@rollup/plugin-babel': 6.0.4(58a11e27672fcdca4d4225d3bd3e00e7)
