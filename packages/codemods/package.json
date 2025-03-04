@@ -47,7 +47,7 @@
     "qunit": "^2.20.1"
   },
   "engines": {
-    "node": ">= 18.20.7"
+    "node": ">= 22.14.0"
   },
   "volta": {
     "extends": "../../package.json"
