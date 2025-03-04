@@ -76,7 +76,7 @@
     "@ember/test-helpers": "5.1.0",
     "@glimmer/component": "^1.1.2",
     "@types/semver": "^7.5.8",
-    "@types/qunit": "2.19.12",
+    "@types/qunit": "2.19.10",
     "@ember-data/request": "workspace:*",
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/store": "workspace:*",

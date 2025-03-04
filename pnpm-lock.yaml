@@ -283,8 +283,8 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
       '@types/qunit':
-        specifier: 2.19.12
-        version: 2.19.12
+        specifier: 2.19.10
+        version: 2.19.10
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -1599,8 +1599,8 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.26.9)
       '@types/qunit':
-        specifier: 2.19.12
-        version: 2.19.12
+        specifier: 2.19.10
+        version: 2.19.10
       '@types/semver':
         specifier: ^7.5.8
         version: 7.5.8
@@ -3213,8 +3213,8 @@ importers:
         specifier: 1.5.2
         version: 1.5.2
       '@types/qunit':
-        specifier: 2.19.12
-        version: 2.19.12
+        specifier: 2.19.10
+        version: 2.19.10
       '@warp-drive/build-config':
         specifier: workspace:*
         version: file:packages/build-config(658d807f647ac6163015a3907b2e8c81)
@@ -3514,8 +3514,8 @@ importers:
         specifier: ^8.42.3
         version: 8.42.3
       '@types/qunit':
-        specifier: 2.19.12
-        version: 2.19.12
+        specifier: 2.19.10
+        version: 2.19.10
       '@types/rsvp':
         specifier: ^4.0.9
         version: 4.0.9
@@ -4015,8 +4015,8 @@ importers:
         specifier: 1.5.2
         version: 1.5.2
       '@types/qunit':
-        specifier: 2.19.12
-        version: 2.19.12
+        specifier: 2.19.10
+        version: 2.19.10
       '@warp-drive/build-config':
         specifier: workspace:*
         version: file:packages/build-config(658d807f647ac6163015a3907b2e8c81)
@@ -6171,8 +6171,8 @@ packages:
   '@types/qs@6.9.18':
     resolution: {integrity: sha512-kK7dgTYDyGqS+e2Q4aK9X3D7q234CIZ1Bv0q/7Z5IwRDoADNU81xXJK/YVyLbLTZCoIwUoDoffFeF+p/eIklAA==}
 
-  '@types/qunit@2.19.12':
-    resolution: {integrity: sha512-II+C1wgzUia0g+tGAH+PBb4XiTm8/C/i6sN23r21NNskBYOYrv+qnW0tFQ/IxZzKVwrK4CTglf8YO3poJUclQA==}
+  '@types/qunit@2.19.10':
+    resolution: {integrity: sha512-gVB+rxvxmbyPFWa6yjjKgcumWal3hyqoTXI0Oil161uWfo1OCzWZ/rnEumsx+6uVgrwPrCrhpQbLkzfildkSbg==}
 
   '@types/range-parser@1.2.7':
     resolution: {integrity: sha512-hKormJbkJqzQGhziax5PItDUTMAM9uE2XXQmM37dyd4hVM+5aVl7oVxMVUiVQn2oCQFN/LKCZdvSM0pFRqbSmQ==}
@@ -16785,7 +16785,7 @@ snapshots:
 
   '@types/qs@6.9.18': {}
 
-  '@types/qunit@2.19.12': {}
+  '@types/qunit@2.19.10': {}
 
   '@types/range-parser@1.2.7': {}
 
