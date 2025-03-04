@@ -22,7 +22,7 @@
   "dependencies": {
     "ember-auto-import": "2.10.0",
     "ember-data": "workspace:*",
-    "webpack": "^5.92.0"
+    "webpack": "^5.98.0"
   },
   "devDependencies": {
     "@babel/core": "^7.26.9",
@@ -30,16 +30,16 @@
     "@ember/optional-features": "^2.2.0",
     "@ember/test-helpers": "5.1.0",
     "@ember/test-waiters": "^3.1.0",
-    "@embroider/compat": "^3.8.0",
-    "@embroider/core": "^3.5.0",
-    "@embroider/webpack": "^4.0.9",
+    "@embroider/compat": "^3.8.3",
+    "@embroider/core": "^3.5.2",
+    "@embroider/webpack": "^4.1.0",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "@warp-drive/internal-config": "workspace:*",
     "@warp-drive/build-config": "workspace:*",
     "ember-cli": "~6.2.2",
     "ember-cli-babel": "^8.2.0",
-    "ember-cli-dependency-checker": "^3.3.2",
+    "ember-cli-dependency-checker": "^3.3.3",
     "ember-cli-htmlbars": "^6.3.0",
     "ember-load-initializers": "^2.1.2",
     "ember-maybe-import-regenerator": "^1.0.0",
@@ -47,7 +47,7 @@
     "ember-source": "~5.12.0",
     "loader.js": "^4.7.0",
     "terser-webpack-plugin": "^5.3.12",
-    "webpack": "^5.92.0",
+    "webpack": "^5.98.0",
     "zlib": "1.0.5"
   },
   "ember": {
