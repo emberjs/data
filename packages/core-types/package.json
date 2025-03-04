@@ -46,7 +46,7 @@
     "@babel/plugin-transform-typescript": "^7.26.8",
     "@babel/preset-typescript": "^7.26.0",
     "@warp-drive/internal-config": "workspace:*",
-    "typescript": "^5.7.2",
+    "typescript": "^5.8.2",
     "vite": "^5.4.14"
   },
   "engines": {

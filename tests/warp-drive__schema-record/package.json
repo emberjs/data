@@ -40,10 +40,10 @@
     "@ember/test-waiters": "^3.1.0",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
-    "@glint/core": "1.5.0",
-    "@glint/environment-ember-loose": "1.5.0",
-    "@glint/environment-ember-template-imports": "1.5.0",
-    "@glint/template": "1.5.0",
+    "@glint/core": "1.5.2",
+    "@glint/environment-ember-loose": "1.5.2",
+    "@glint/environment-ember-template-imports": "1.5.2",
+    "@glint/template": "1.5.2",
     "@types/qunit": "2.19.10",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
@@ -69,7 +69,7 @@
     "qunit-console-grouper": "^0.3.0",
     "qunit-dom": "^3.1.1",
     "silent-error": "^1.1.1",
-    "typescript": "^5.7.2",
+    "typescript": "^5.8.2",
     "webpack": "^5.98.0"
   },
   "ember": {
