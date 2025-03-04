@@ -41,7 +41,7 @@
     "tsx": "^4.19.3"
   },
   "engines": {
-    "node": ">= 18.20.4"
+    "node": ">= 18.20.7"
   },
   "volta": {
     "extends": "../../package.json"
