@@ -2902,8 +2902,8 @@ importers:
         specifier: ^4.21.2
         version: 4.21.2
       glob:
-        specifier: ^10.4.5
-        version: 10.4.5
+        specifier: ^11.0.1
+        version: 11.0.1
       loader.js:
         specifier: ^4.7.0
         version: 4.7.0
