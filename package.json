@@ -162,7 +162,7 @@
       "webpack": "5.94.0",
       "qunit": "2.24.1",
       "ember-compatibility-helpers": "^1.2.7",
-      "testem": "~3.11.0"
+      "testem": "~3.15.2"
     },
     "peerDependencyRules": {
       "ignoreMissing": [
@@ -176,12 +176,11 @@
     },
     "allowNonAppliedPatches": true,
     "patchedDependencies": {
-      "qunit@2.19.4": "patches/qunit@2.19.4.patch",
-      "testem@3.11.0": "patches/testem@3.11.0.patch",
       "@ember/test-helpers@3.3.0": "patches/@ember__test-helpers@3.3.0.patch",
       "@ember/test-helpers@4.0.4": "patches/@ember__test-helpers@4.0.4.patch",
       "@ember/test-helpers@5.1.0": "patches/@ember__test-helpers@5.1.0.patch",
-      "qunit@2.24.1": "patches/qunit@2.24.1.patch"
+      "qunit@2.24.1": "patches/qunit@2.24.1.patch",
+      "testem@3.15.2": "patches/testem@3.15.2.patch"
     }
   }
 }

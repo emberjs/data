@@ -21,7 +21,7 @@ overrides:
   webpack: 5.94.0
   qunit: 2.24.1
   ember-compatibility-helpers: ^1.2.7
-  testem: ~3.11.0
+  testem: ~3.15.2
 
 packageExtensionsChecksum: sha256-jvq3OmcrCdypZwhHJOUiV84HjlOmTWuXfgiugLylBho=
 
@@ -35,15 +35,15 @@ patchedDependencies:
   '@ember/test-helpers@5.1.0':
     hash: ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421
     path: patches/@ember__test-helpers@5.1.0.patch
-  qunit@2.19.4:
-    hash: 44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301
-    path: patches/qunit@2.19.4.patch
   qunit@2.24.1:
     hash: 53e8f3babd02e25a51db541ae4be9f9f40b5ffecb5da5db3b178e443331041a6
     path: patches/qunit@2.24.1.patch
   testem@3.11.0:
     hash: cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5
     path: patches/testem@3.11.0.patch
+  testem@3.15.2:
+    hash: cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5
+    path: patches/testem@3.15.2.patch
 
 importers:
 
@@ -2659,7 +2659,7 @@ importers:
         version: file:packages/tracking(f76e144d736ddc61b5b3fc94acf05b0c)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(8d1a247f6554bec1124b5f310851da6f)
+        version: file:packages/unpublished-test-infra(9221ff0182f3178d9b491af14af2930d)
       '@ember/optional-features':
         specifier: ^2.1.0
         version: 2.2.0
@@ -2754,8 +2754,8 @@ importers:
         specifier: ^3.4.0
         version: 3.4.0
       testem:
-        specifier: ~3.11.0
-        version: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
+        specifier: ~3.15.2
+        version: 3.15.2(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
       typescript:
         specifier: ^5.7.2
         version: 5.8.2
@@ -2969,7 +2969,7 @@ importers:
         version: file:packages/tracking(f76e144d736ddc61b5b3fc94acf05b0c)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(0ba4915391ddd07159893759c5b67960)
+        version: file:packages/unpublished-test-infra(133e23af9e373e726dc5dac3c9037e4d)
       '@ember/optional-features':
         specifier: ^2.1.0
         version: 2.2.0
@@ -3052,8 +3052,8 @@ importers:
         specifier: ^3.4.0
         version: 3.4.0
       testem:
-        specifier: ~3.11.0
-        version: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
+        specifier: ~3.15.2
+        version: 3.15.2(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
       typescript:
         specifier: ^5.7.2
         version: 5.8.2
@@ -3178,7 +3178,7 @@ importers:
         version: file:packages/tracking(74c30246d73285c391cb43828ca6a640)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(470659f8de3167a398bf7643e5bdb5bc)
+        version: file:packages/unpublished-test-infra(e75fe2a5b9525fa810e33a3f17ef5cc3)
       '@ember/edition-utils':
         specifier: ^1.2.0
         version: 1.2.0
@@ -3333,8 +3333,8 @@ importers:
         specifier: ^3.4.0
         version: 3.4.0
       testem:
-        specifier: ~3.11.0
-        version: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
+        specifier: ~3.15.2
+        version: 3.15.2(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
       typescript:
         specifier: ^5.7.2
         version: 5.8.2
@@ -4913,7 +4913,7 @@ packages:
       '@warp-drive/diagnostic': workspace:*
       ember-source: 3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0
       qunit: 2.24.1
-      testem: ~3.11.0
+      testem: ~3.15.2
     peerDependenciesMeta:
       '@warp-drive/diagnostic':
         optional: true
@@ -10010,14 +10010,8 @@ packages:
   lodash._isiterateecall@3.0.9:
     resolution: {integrity: sha512-De+ZbrMu6eThFti/CSzhRvTKMgQToLxbij58LMfM8JnYDNSOjkjTCIaa8ixglOeGh2nyPlakbt5bJWJ7gvpYlQ==}
 
-  lodash.assignin@4.2.0:
-    resolution: {integrity: sha512-yX/rx6d/UTVh7sSVWVSIMjfnz95evAgDFdb1ZozC35I9mSFCkmzptOzevxjgbQUsc78NR44LVHWjsoMQXy9FDg==}
-
   lodash.camelcase@4.3.0:
     resolution: {integrity: sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA==}
-
-  lodash.castarray@4.4.0:
-    resolution: {integrity: sha512-aVx8ztPv7/2ULbArGJ2Y42bG1mEQ5mGjpdvrbJcJFU3TbYybe+QlLS4pst9zV52ymy2in1KpFPiZnAOATxD4+Q==}
 
   lodash.clonedeep@4.5.0:
     resolution: {integrity: sha512-H5ZhCF25riFd9uB5UCkVKo61m3S/xZk1x4wA6yp/L3RFP6Z/eHH1ymQcGLo7J3GMPfm0V/7m1tryHuGVxpqEBQ==}
@@ -10030,9 +10024,6 @@ packages:
 
   lodash.defaultsdeep@4.6.1:
     resolution: {integrity: sha512-3j8wdDzYuWO3lM3Reg03MuQR957t287Rpcxp1njpEa8oDrikb+FwGdW3n+FELh/A6qib6yPit0j/pv9G/yeAqA==}
-
-  lodash.find@4.6.0:
-    resolution: {integrity: sha512-yaRZoAV3Xq28F1iafWN1+a0rflOej93l1DQUejs3SZ41h2O9UJBoS9aueGjPDgAl4B6tPC0NuuchLKaDQQ3Isg==}
 
   lodash.flatten@3.0.2:
     resolution: {integrity: sha512-jCXLoNcqQRbnT/KWZq2fIREHWeczrzpTR0vsycm96l/pu5hGeAntVBG0t7GuM/2wFqmnZs3d1eGptnAH2E8+xQ==}
@@ -10063,9 +10054,6 @@ packages:
 
   lodash.uniq@4.5.0:
     resolution: {integrity: sha512-xfBaXQd9ryd9dlSDvnvI0lvxfLJlYAZzXomUYzLKtUeOQvOP5piqAWuGtrhWeqaXK9hhoM/iyJc5AV+XfsX3HQ==}
-
-  lodash.uniqby@4.7.0:
-    resolution: {integrity: sha512-e/zcLx6CSbmaEgFHCA7BnoQKyCtKMxnuWrJygbwPs/AIn+IMKl66L8/s+wBUn5LRw2pZx3bUHibiV1b6aTWIww==}
 
   lodash@4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
@@ -11960,8 +11948,8 @@ packages:
     resolution: {integrity: sha512-790e9vJKdfddWNOaxW1/V9FcMk48cPEl3eJSj2i8Hh1fX89qArEJ6cp3DBnaECpGXc3xKJVWbc1jeNlWYWgiMg==}
     engines: {node: '>= 16'}
 
-  testem@3.11.0:
-    resolution: {integrity: sha512-q0U126/nnRH54ZDrr6j1Ai5zK6vOm2rdY/5VJrbqcEPQgOWoLB6zrymWUs7BqN2/yRsdorocl9E9ZEwm7LLIZQ==}
+  testem@3.15.2:
+    resolution: {integrity: sha512-mRzqZktqTCWi/rUP/RQOKXvMtuvY3lxuzBVb1xGXPnRNGMEj/1DaLGn6X447yOsz6SlWxSsZfcNuiE7fT1MOKg==}
     engines: {node: '>= 7.*'}
     hasBin: true
 
@@ -14884,7 +14872,7 @@ snapshots:
       - '@glint/template'
       - supports-color
 
-  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(0ba4915391ddd07159893759c5b67960)':
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(133e23af9e373e726dc5dac3c9037e4d)':
     dependencies:
       '@ember-data/store': file:packages/store(cbe5e1595509e6eb6f16b4a84c4b1142)
       '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(b7bd70fa55d8dcc6fec132f7d004fc3f)
@@ -14896,25 +14884,7 @@ snapshots:
       semver: 7.7.1
     optionalDependencies:
       qunit: 2.24.1(patch_hash=53e8f3babd02e25a51db541ae4be9f9f40b5ffecb5da5db3b178e443331041a6)
-      testem: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
-  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(470659f8de3167a398bf7643e5bdb5bc)':
-    dependencies:
-      '@ember-data/store': file:packages/store(39c989179a41ac2b13368f042d111647)
-      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(db6970428dd76886ad0d0caf1ffb8942)
-      '@embroider/macros': 1.16.11(03ebd109d943a27ca5a55d723400dcb7)
-      '@warp-drive/build-config': file:packages/build-config(03ebd109d943a27ca5a55d723400dcb7)
-      '@warp-drive/core-types': file:packages/core-types(03ebd109d943a27ca5a55d723400dcb7)
-      chalk: 4.1.2
-      ember-source: https://s3.amazonaws.com/builds.emberjs.com/canary/shas/be20bd3f8ea066050eb91862af5180e10ba37134.tgz(ec1e7e9319201c91f4dab5a0c78f277d)
-      semver: 7.7.1
-    optionalDependencies:
-      qunit: 2.24.1(patch_hash=53e8f3babd02e25a51db541ae4be9f9f40b5ffecb5da5db3b178e443331041a6)
-      testem: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
+      testem: 3.15.2(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -14935,7 +14905,7 @@ snapshots:
       - '@glint/template'
       - supports-color
 
-  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(8d1a247f6554bec1124b5f310851da6f)':
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(9221ff0182f3178d9b491af14af2930d)':
     dependencies:
       '@ember-data/store': file:packages/store(7c15dad407e2da7886540f40c0a317a0)
       '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(b7bd70fa55d8dcc6fec132f7d004fc3f)
@@ -14947,7 +14917,7 @@ snapshots:
       semver: 7.7.1
     optionalDependencies:
       qunit: 2.24.1(patch_hash=53e8f3babd02e25a51db541ae4be9f9f40b5ffecb5da5db3b178e443331041a6)
-      testem: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
+      testem: 3.15.2(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -15033,6 +15003,24 @@ snapshots:
       semver: 7.7.1
     optionalDependencies:
       '@warp-drive/diagnostic': file:packages/diagnostic(e19db5e0c0f2df5f23d666ad28615cdc)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(e75fe2a5b9525fa810e33a3f17ef5cc3)':
+    dependencies:
+      '@ember-data/store': file:packages/store(39c989179a41ac2b13368f042d111647)
+      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(db6970428dd76886ad0d0caf1ffb8942)
+      '@embroider/macros': 1.16.11(03ebd109d943a27ca5a55d723400dcb7)
+      '@warp-drive/build-config': file:packages/build-config(03ebd109d943a27ca5a55d723400dcb7)
+      '@warp-drive/core-types': file:packages/core-types(03ebd109d943a27ca5a55d723400dcb7)
+      chalk: 4.1.2
+      ember-source: https://s3.amazonaws.com/builds.emberjs.com/canary/shas/be20bd3f8ea066050eb91862af5180e10ba37134.tgz(ec1e7e9319201c91f4dab5a0c78f277d)
+      semver: 7.7.1
+    optionalDependencies:
+      qunit: 2.24.1(patch_hash=53e8f3babd02e25a51db541ae4be9f9f40b5ffecb5da5db3b178e443331041a6)
+      testem: 3.15.2(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -18973,12 +18961,6 @@ snapshots:
       lodash: 4.17.21
       mustache: 4.2.0
 
-  consolidate@0.16.0(mustache@4.2.0):
-    dependencies:
-      bluebird: 3.7.2
-    optionalDependencies:
-      mustache: 4.2.0
-
   content-disposition@0.5.4:
     dependencies:
       safe-buffer: 5.2.1
@@ -19731,7 +19713,7 @@ snapshots:
       sort-package-json: 1.57.0
       symlink-or-copy: 1.3.1
       temp: 0.9.4
-      testem: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)(lodash@4.17.21)
+      testem: 3.15.2(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
       tiny-lr: 2.0.0
       tree-sync: 2.1.0
       walk-sync: 3.0.0
@@ -22720,11 +22702,7 @@ snapshots:
 
   lodash._isiterateecall@3.0.9: {}
 
-  lodash.assignin@4.2.0: {}
-
   lodash.camelcase@4.3.0: {}
-
-  lodash.castarray@4.4.0: {}
 
   lodash.clonedeep@4.5.0: {}
 
@@ -22735,8 +22713,6 @@ snapshots:
   lodash.debounce@4.0.8: {}
 
   lodash.defaultsdeep@4.6.1: {}
-
-  lodash.find@4.6.0: {}
 
   lodash.flatten@3.0.2:
     dependencies:
@@ -22758,8 +22734,6 @@ snapshots:
   lodash.omit@4.5.0: {}
 
   lodash.uniq@4.5.0: {}
-
-  lodash.uniqby@4.7.0: {}
 
   lodash@4.17.21: {}
 
@@ -24806,96 +24780,7 @@ snapshots:
       stringify-object-es5: 2.5.0
       theredoc: 1.0.0
 
-  testem@3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5):
-    dependencies:
-      '@xmldom/xmldom': 0.8.10
-      backbone: 1.6.0
-      bluebird: 3.7.2
-      charm: 1.0.2
-      commander: 2.20.3
-      compression: 1.8.0
-      consolidate: 0.16.0(mustache@4.2.0)
-      execa: 1.0.0
-      express: 4.21.2
-      fireworm: 0.7.2
-      glob: 7.2.3
-      http-proxy: 1.18.1
-      js-yaml: 3.14.1
-      lodash.assignin: 4.2.0
-      lodash.castarray: 4.4.0
-      lodash.clonedeep: 4.5.0
-      lodash.find: 4.6.0
-      lodash.uniqby: 4.7.0
-      mkdirp: 3.0.1
-      mustache: 4.2.0
-      node-notifier: 10.0.1
-      npmlog: 6.0.2
-      printf: 0.6.1
-      rimraf: 3.0.2
-      socket.io: 4.8.1
-      spawn-args: 0.2.0
-      styled_string: 0.0.1
-      tap-parser: 7.0.0
-      tmp: 0.0.33
-    transitivePeerDependencies:
-      - arc-templates
-      - atpl
-      - babel-core
-      - bracket-template
-      - bufferutil
-      - coffee-script
-      - debug
-      - dot
-      - dust
-      - dustjs-helpers
-      - dustjs-linkedin
-      - eco
-      - ect
-      - ejs
-      - haml-coffee
-      - hamlet
-      - hamljs
-      - handlebars
-      - hogan.js
-      - htmling
-      - jade
-      - jazz
-      - jqtpl
-      - just
-      - liquid-node
-      - liquor
-      - lodash
-      - marko
-      - mote
-      - nunjucks
-      - plates
-      - pug
-      - qejs
-      - ractive
-      - razor-tmpl
-      - react
-      - react-dom
-      - slm
-      - squirrelly
-      - supports-color
-      - swig
-      - swig-templates
-      - teacup
-      - templayed
-      - then-jade
-      - then-pug
-      - tinyliquid
-      - toffee
-      - twig
-      - twing
-      - underscore
-      - utf-8-validate
-      - vash
-      - velocityjs
-      - walrus
-      - whiskers
-
-  testem@3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)(lodash@4.17.21):
+  testem@3.15.2(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5):
     dependencies:
       '@xmldom/xmldom': 0.8.10
       backbone: 1.6.0
@@ -24910,11 +24795,7 @@ snapshots:
       glob: 7.2.3
       http-proxy: 1.18.1
       js-yaml: 3.14.1
-      lodash.assignin: 4.2.0
-      lodash.castarray: 4.4.0
-      lodash.clonedeep: 4.5.0
-      lodash.find: 4.6.0
-      lodash.uniqby: 4.7.0
+      lodash: 4.17.21
       mkdirp: 3.0.1
       mustache: 4.2.0
       node-notifier: 10.0.1
@@ -24953,7 +24834,6 @@ snapshots:
       - just
       - liquid-node
       - liquor
-      - lodash
       - marko
       - mote
       - nunjucks
