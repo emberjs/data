@@ -46,7 +46,7 @@
     "ember-resolver": "^11.0.1",
     "ember-source": "~5.12.0",
     "loader.js": "^4.7.0",
-    "terser-webpack-plugin": "^5.3.11",
+    "terser-webpack-plugin": "^5.3.12",
     "webpack": "^5.92.0",
     "zlib": "1.0.5"
   },
