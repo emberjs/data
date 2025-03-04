@@ -32,7 +32,7 @@
     "@ember-data/serializer": "workspace:*",
     "@ember-data/store": "workspace:*",
     "@ember-data/tracking": "workspace:*",
-    "@ember/optional-features": "^2.1.0",
+    "@ember/optional-features": "^2.2.0",
     "@ember/test-helpers": "5.1.0",
     "@ember/test-waiters": "^3.1.0",
     "@embroider/addon-shim": "^1.9.0",
