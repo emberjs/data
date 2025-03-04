@@ -65,7 +65,7 @@
     "@embroider/macros": "^1.16.10",
     "chalk": "^4.1.2",
     "qunit": "^2.20.1",
-    "semver": "^7.6.3",
+    "semver": "^7.7.1",
     "@warp-drive/build-config": "workspace:*"
   },
   "devDependencies": {
