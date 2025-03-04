@@ -79,7 +79,7 @@
     "@warp-drive/internal-config": "workspace:*",
     "decorator-transforms": "^2.3.0",
     "ember-source": "~5.12.0",
-    "typescript": "^5.7.2",
+    "typescript": "^5.8.2",
     "vite": "^5.4.14"
   },
   "engines": {
