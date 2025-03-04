@@ -37,7 +37,7 @@
     "jscodeshift": "^0.15.2",
     "strip-ansi": "^7.1.0",
     "typescript": "^5.7.2",
-    "winston": "^3.13.0"
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "@types/bun": "^1.1.4",
