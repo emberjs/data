@@ -7,7 +7,7 @@ module.exports = function () {
     return {
       command: 'echo "scenario ready"',
       buildManagerOptions(scenario) {
-        return ['--ignore-scripts', '--prefer-offline', '--no-frozen-lockfile', '--fix-lockfile'];
+        return ['--ignore-scripts', '--prefer-offline', '--no-frozen-lockfile'];
       },
       usePnpm: true,
       scenarios: [
