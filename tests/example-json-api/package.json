@@ -70,7 +70,7 @@
     "glob": "^10.4.5",
     "loader.js": "^4.7.0",
     "morgan": "^1.10.0",
-    "qunit": "^2.20.1",
+    "qunit": "^2.24.1",
     "qunit-console-grouper": "^0.3.0",
     "qunit-dom": "^3.4.0",
     "silent-error": "^1.1.1",

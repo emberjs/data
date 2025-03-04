@@ -1,5 +1,5 @@
 diff --git a/qunit/qunit.js b/qunit/qunit.js
-index 5e48b79303e8bfe33ba60a9407c2d67879a07841..649cd30f59991f1870570d6ec831ed602862a772 100644
+index 460e0e58227234eef7ee72876f13b7fec65198c0..3c3a786614c412e1e91b8b8d31b78cd9f3bd2b2c 100644
 --- a/qunit/qunit.js
 +++ b/qunit/qunit.js
 @@ -8,6 +8,10 @@
@@ -8,12 +8,12 @@ index 5e48b79303e8bfe33ba60a9407c2d67879a07841..649cd30f59991f1870570d6ec831ed60
    'use strict';
 +  function getKeys(obj) {
 +    if (!obj) { return []; }
-+    return Object.keys(obj).concat(getKeys(Object.getPrototypeOf(obj)));
++      return Object.keys(obj).concat(getKeys(Object.getPrototypeOf(obj)));
 +  }
  
-   function _typeof(obj) {
-     "@babel/helpers - typeof";
-@@ -1003,10 +1007,7 @@
+   function _arrayLikeToArray(r, a) {
+     (null == a || a > r.length) && (a = r.length);
+@@ -1049,10 +1053,7 @@
              return '[object Object]';
            }
            dump.up();
@@ -25,7 +25,7 @@ index 5e48b79303e8bfe33ba60a9407c2d67879a07841..649cd30f59991f1870570d6ec831ed60
  
            // Some properties are not always enumerable on Error objects.
            var nonEnumerableProperties = ['message', 'name'];
-@@ -5647,6 +5648,9 @@
+@@ -7041,6 +7042,9 @@
        appendToolbar(beginDetails);
      }
      function appendTest(name, testId, moduleName) {
@@ -35,7 +35,7 @@ index 5e48b79303e8bfe33ba60a9407c2d67879a07841..649cd30f59991f1870570d6ec831ed60
        var tests = id('qunit-tests');
        if (!tests) {
          return;
-@@ -5831,6 +5835,13 @@
+@@ -7229,6 +7233,13 @@
        assertList.appendChild(assertLi);
      });
      QUnit.testDone(function (details) {
@@ -49,7 +49,7 @@ index 5e48b79303e8bfe33ba60a9407c2d67879a07841..649cd30f59991f1870570d6ec831ed60
        var tests = id('qunit-tests');
        var testItem = id('qunit-test-output-' + details.testId);
        if (!tests || !testItem) {
-@@ -5849,13 +5860,10 @@
+@@ -7247,13 +7258,10 @@
        var good = details.passed;
        var bad = details.failed;
  
@@ -63,7 +63,7 @@ index 5e48b79303e8bfe33ba60a9407c2d67879a07841..649cd30f59991f1870570d6ec831ed60
          if (config.collapse) {
            if (!collapseNext) {
              // Skip collapsing the first failing test
-@@ -5871,7 +5879,6 @@
+@@ -7269,7 +7277,6 @@
        var testTitle = testItem.firstChild;
        var testCounts = bad ? "<b class='failed'>" + bad + '</b>, ' + "<b class='passed'>" + good + '</b>, ' : '';
        testTitle.innerHTML += " <b class='counts'>(" + testCounts + details.assertions.length + ')</b>';

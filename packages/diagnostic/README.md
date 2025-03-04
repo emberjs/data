@@ -388,7 +388,7 @@ index 2fbga6a55..c9537dd37 100644
 --- a/package.json
 +++ b/package.json
 @@ -23,5 +23,5 @@
-- "qunit": "2.20.0",
+- "qunit": "2.24.1",
 + "@warp-drive/diagnostic": "latest",
 ```
 
