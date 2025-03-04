@@ -70,7 +70,7 @@
     "@embroider/macros": "^1.16.10",
     "ember-cli-string-utils": "^1.1.0",
     "ember-cli-test-info": "^1.0.0",
-    "inflection": "~3.0.0",
+    "inflection": "~3.0.2",
     "@warp-drive/build-config": "workspace:*"
   },
   "devDependencies": {
