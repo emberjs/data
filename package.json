@@ -41,7 +41,7 @@
     "@glint/template": "1.5.0",
     "@types/semver": "^7.5.8",
     "badge-maker": "4.1.0",
-    "bun-types": "^1.2.2",
+    "bun-types": "^1.2.4",
     "chalk": "^4.1.2",
     "co": "^4.6.0",
     "command-line-args": "^5.2.1",
