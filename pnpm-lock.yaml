@@ -1486,7 +1486,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       '@ember/optional-features':
-        specifier: ^2.1.0
+        specifier: ^2.2.0
         version: 2.2.0
       '@ember/string':
         specifier: ^3.1.1
@@ -1624,7 +1624,7 @@ importers:
         specifier: workspace:*
         version: file:packages/unpublished-test-infra(9691c906c494a7c69d5ff40cb1713406)
       '@ember/optional-features':
-        specifier: ^2.1.0
+        specifier: ^2.2.0
         version: 2.2.0
       '@ember/test-helpers':
         specifier: 5.1.0
@@ -1742,7 +1742,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       '@ember/optional-features':
-        specifier: ^2.1.0
+        specifier: ^2.2.0
         version: 2.2.0
       '@ember/test-helpers':
         specifier: 5.1.0
@@ -1875,7 +1875,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       '@ember/optional-features':
-        specifier: ^2.1.0
+        specifier: ^2.2.0
         version: 2.2.0
       '@ember/test-helpers':
         specifier: 5.1.0
@@ -2005,7 +2005,7 @@ importers:
         specifier: workspace:*
         version: file:packages/tracking(f76e144d736ddc61b5b3fc94acf05b0c)
       '@ember/optional-features':
-        specifier: ^2.1.0
+        specifier: ^2.2.0
         version: 2.2.0
       '@ember/test-helpers':
         specifier: 5.1.0
@@ -2102,7 +2102,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       '@ember/optional-features':
-        specifier: ^2.1.0
+        specifier: ^2.2.0
         version: 2.2.0
       '@ember/test-helpers':
         specifier: 5.1.0
@@ -2244,7 +2244,7 @@ importers:
         specifier: workspace:*
         version: file:packages/unpublished-test-infra(71a767d122d55c6840ad47fa86e34c0f)
       '@ember/optional-features':
-        specifier: ^2.1.0
+        specifier: ^2.2.0
         version: 2.2.0
       '@ember/test-helpers':
         specifier: 5.1.0
@@ -2361,7 +2361,7 @@ importers:
         specifier: workspace:*
         version: file:packages/unpublished-test-infra(fe48ab59df7fd42fd3309076cf99f5e0)
       '@ember/optional-features':
-        specifier: ^2.1.0
+        specifier: ^2.2.0
         version: 2.2.0
       '@ember/string':
         specifier: ^3.1.1
@@ -2502,7 +2502,7 @@ importers:
         specifier: workspace:*
         version: file:packages/unpublished-test-infra(09728f87036a59b248fd408abea7e7a5)
       '@ember/optional-features':
-        specifier: ^2.1.0
+        specifier: ^2.2.0
         version: 2.2.0
       '@ember/string':
         specifier: ^3.1.1
@@ -2608,7 +2608,7 @@ importers:
         specifier: ^7.24.5
         version: 7.26.9
       '@ember/optional-features':
-        specifier: ^2.1.0
+        specifier: ^2.2.0
         version: 2.2.0
       '@ember/test-waiters':
         specifier: ^3.1.0
@@ -2717,7 +2717,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       '@ember/optional-features':
-        specifier: ^2.1.0
+        specifier: ^2.2.0
         version: 2.2.0
       '@ember/string':
         specifier: ^3.1.1
@@ -2895,7 +2895,7 @@ importers:
         specifier: ^7.24.5
         version: 7.26.9
       '@ember/optional-features':
-        specifier: ^2.1.0
+        specifier: ^2.2.0
         version: 2.2.0
       '@ember/test-helpers':
         specifier: 5.1.0
@@ -3012,7 +3012,7 @@ importers:
         specifier: workspace:*
         version: file:packages/unpublished-test-infra(b94e57cb2531a612120ece831eec41de)
       '@ember/optional-features':
-        specifier: ^2.1.0
+        specifier: ^2.2.0
         version: 2.2.0
       '@ember/string':
         specifier: ^4.0.0
