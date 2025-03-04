@@ -21,7 +21,7 @@
   "devDependencies": {
     "@babel/core": "^7.24.5",
     "@babel/runtime": "^7.24.5",
-    "@ember/optional-features": "^2.1.0",
+    "@ember/optional-features": "^2.2.0",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "ember-auto-import": "2.10.0",
