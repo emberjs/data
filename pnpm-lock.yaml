@@ -542,7 +542,7 @@ importers:
         specifier: ^5.7.2
         version: 5.8.2
       winston:
-        specifier: ^3.13.0
+        specifier: ^3.17.0
         version: 3.17.0
     devDependencies:
       '@types/bun':
