@@ -76,7 +76,7 @@
     "@ember/test-helpers": "5.1.0",
     "@glimmer/component": "^1.1.2",
     "@types/semver": "^7.5.8",
-    "@types/qunit": "2.19.10",
+    "@types/qunit": "2.19.12",
     "@ember-data/request": "workspace:*",
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/store": "workspace:*",
@@ -85,7 +85,7 @@
     "@warp-drive/diagnostic": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
     "ember-source": "~5.12.0",
-    "typescript": "^5.7.2",
+    "typescript": "^5.8.2",
     "vite": "^5.4.14",
     "qunit": "^2.20.1"
   },
