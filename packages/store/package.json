@@ -34,8 +34,8 @@
   "scripts": {
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "build:pkg": "vite build;",
-    "prepack": "bun run build:pkg",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+    "prepack": "pnpm run build:pkg",
+    "sync": "echo \"syncing\""
   },
   "dependencies": {
     "@embroider/macros": "^1.16.10",
@@ -62,7 +62,6 @@
     "decorator-transforms": "^2.3.0",
     "ember-source": "~5.12.0",
     "expect-type": "^0.20.0",
-    "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "typescript": "^5.7.2",
     "vite": "^5.2.11"
   },

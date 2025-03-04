@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 
 import { getBrowser, recommendedArgs } from './browsers/index.js';
-import launch from './index.js';
+import { launch } from './index.js';
 import DefaultReporter from './reporters/default.js';
 import { getFlags } from './utils/get-flags.js';
 
@@ -79,6 +79,11 @@ export default async function launchDefault(overrides = {}) {
     debug: overrides.debug ?? false,
     headless: overrides.headless ?? false,
     useExisting: overrides.useExisting ?? false,
+    protocol: overrides.protocol ?? 'http',
+    key: overrides.key ?? null,
+    cert: overrides.cert ?? null,
+    hostname: overrides.hostname ?? 'localhost',
+    port: overrides.port ?? null,
 
     entry: overrides.entry ?? `./dist-test/tests/index.html?${TEST_PAGE_FLAGS.join('&')}`,
     assets: overrides.assets ?? './dist-test',

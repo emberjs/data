@@ -105,17 +105,17 @@ The following issues were found:
 
 \tInvalidValue: key url should be a non-empty string, received boolean
 \tInvalidValue: key options should be an object
-\tInvalidValue: key cache should be a one of 'default', 'force-cache', 'no-cache', 'no-store', 'only-if-cached', 'reload', received bogus
-\tInvalidValue: key credentials should be a one of 'include', 'omit', 'same-origin', received never
-\tInvalidValue: key destination should be a one of '', 'object', 'audio', 'audioworklet', 'document', 'embed', 'font', 'frame', 'iframe', 'image', 'manifest', 'paintworklet', 'report', 'script', 'sharedworker', 'style', 'track', 'video', 'worker', 'xslt', received space
+\tInvalidValue: key cache should be one of 'default', 'force-cache', 'no-cache', 'no-store', 'only-if-cached', 'reload', received bogus
+\tInvalidValue: key credentials should be one of 'include', 'omit', 'same-origin', received never
+\tInvalidValue: key destination should be one of '', 'object', 'audio', 'audioworklet', 'document', 'embed', 'font', 'frame', 'iframe', 'image', 'manifest', 'paintworklet', 'report', 'script', 'sharedworker', 'style', 'track', 'video', 'worker', 'xslt', received space
 \tInvalidValue: key headers should be an instance of Headers, received map
 \tInvalidValue: key integrity should be a non-empty string, received boolean
 \tInvalidValue: key keepalive should be a boolean, received string
-\tInvalidValue: key method should be a one of 'GET', 'PUT', 'PATCH', 'DELETE', 'POST', 'OPTIONS', received get
-\tInvalidValue: key mode should be a one of 'same-origin', 'cors', 'navigate', 'no-cors', received find-out
-\tInvalidValue: key redirect should be a one of 'error', 'follow', 'manual', received of course
+\tInvalidValue: key method should be one of 'QUERY', 'GET', 'PUT', 'PATCH', 'DELETE', 'POST', 'OPTIONS', 'HEAD', 'CONNECT', 'TRACE', received get
+\tInvalidValue: key mode should be one of 'same-origin', 'cors', 'navigate', 'no-cors', received find-out
+\tInvalidValue: key redirect should be one of 'error', 'follow', 'manual', received of course
 \tInvalidValue: key referrer should be a non-empty string, received object
-\tInvalidValue: key referrerPolicy should be a one of '', 'same-origin', 'no-referrer', 'no-referrer-when-downgrade', 'origin', 'origin-when-cross-origin', 'strict-origin', 'strict-origin-when-cross-origin', 'unsafe-url', received do-whatever`,
+\tInvalidValue: key referrerPolicy should be one of '', 'same-origin', 'no-referrer', 'no-referrer-when-downgrade', 'origin', 'origin-when-cross-origin', 'strict-origin', 'strict-origin-when-cross-origin', 'unsafe-url', received do-whatever`,
         (e as Error).message,
         `Expected\n\`\`\`\n${(e as Error).message}\n\`\`\` to match the expected error`
       );

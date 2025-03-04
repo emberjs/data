@@ -213,7 +213,7 @@ function validateKey(key: string, value: unknown, errors: string[]) {
     if (Array.isArray(schema)) {
       if (!schema.includes(value as string)) {
         errors.push(
-          `InvalidValue: key ${key} should be a one of '${schema.join("', '")}', received ${
+          `InvalidValue: key ${key} should be one of '${schema.join("', '")}', received ${
             typeof value === 'string' ? value : '<a value of type ' + niceTypeOf(value) + '>'
           }`
         );

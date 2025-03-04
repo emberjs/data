@@ -1,10 +1,11 @@
 'use strict';
 
 const EmberApp = require('ember-cli/lib/broccoli/ember-app');
-const { maybeEmbroider } = require('@embroider/test-setup');
+const { compatBuild } = require('@embroider/compat');
 
-module.exports = function (defaults) {
-  let app = new EmberApp(defaults, {});
+module.exports = async function (defaults) {
+  const { buildOnce } = await import('@embroider/vite');
+  const app = new EmberApp(defaults, {});
 
-  return maybeEmbroider(app);
+  return compatBuild(app, buildOnce);
 };
