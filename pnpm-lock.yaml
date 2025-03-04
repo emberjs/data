@@ -1111,7 +1111,7 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0
       inflection:
-        specifier: ~3.0.0
+        specifier: ~3.0.2
         version: 3.0.2
     devDependencies:
       '@babel/core':
