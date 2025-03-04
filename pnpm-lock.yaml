@@ -38,9 +38,6 @@ patchedDependencies:
   qunit@2.24.1:
     hash: 53e8f3babd02e25a51db541ae4be9f9f40b5ffecb5da5db3b178e443331041a6
     path: patches/qunit@2.24.1.patch
-  testem@3.11.0:
-    hash: cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5
-    path: patches/testem@3.11.0.patch
   testem@3.15.2:
     hash: cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5
     path: patches/testem@3.15.2.patch
