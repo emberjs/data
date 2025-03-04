@@ -90,16 +90,12 @@
         "dist/**",
         "unstable-preview-types/**"
       ],
-      "dependsOn": [],
-      "cache": false,
+      "dependsOn": [
+        // we should create a "triggers" repo and have it depend
+        // on a TS "trigger"
+      ],
       // https://turbo.build/repo/docs/reference/configuration#outputmode
       "outputMode": "new-only"
-    },
-
-    // virtual task
-    "crawl-graph": {
-      "dependsOn": ["^crawl-graph"],
-      "cache": false
     },
 
     /////////////////////////////////////////////////
@@ -110,7 +106,7 @@
     /////////////////////////////////////////////////
     /////////////////////////////////////////////////
     "start": {
-      // "dependsOn": ["_task:sync-hardlinks", "^_build"],
+      // "dependsOn": ["^_build"],
       // "outputs": [],
       // "cache": false,
       // "persistent": true

@@ -38,16 +38,14 @@
   },
   "scripts": {
     "build:pkg": "vite build;",
-    "prepack": "bun run build:pkg",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+    "prepack": "pnpm run build:pkg",
+    "sync": "echo \"syncing\""
   },
   "peerDependencies": {
     "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",
     "qunit": "^2.20.1",
     "testem": "^3.12.0",
-    "@ember-data/request": "workspace:*",
     "@ember-data/store": "workspace:*",
-    "@ember-data/tracking": "workspace:*",
     "@warp-drive/diagnostic": "workspace:*",
     "@warp-drive/core-types": "workspace:*",
     "@ember/test-helpers": "3.3.0 || ^4.0.4 || ^5.1.0"
@@ -87,7 +85,6 @@
     "@warp-drive/diagnostic": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
     "ember-source": "~5.12.0",
-    "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "typescript": "^5.7.2",
     "vite": "^5.2.11",
     "qunit": "^2.20.1"
@@ -101,8 +98,7 @@
   "ember-addon": {
     "main": "addon-main.cjs",
     "type": "addon",
-    "version": 2,
-    "preventDownleveling": true
+    "version": 2
   },
   "volta": {
     "extends": "../../package.json"

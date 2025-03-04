@@ -17,13 +17,11 @@
   "scripts": {
     "build": "ember build",
     "start": "ember serve",
-    "lint": "eslint . --quiet --cache --cache-strategy=content",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+    "lint": "eslint . --quiet --cache --cache-strategy=content"
   },
   "dependencies": {
     "ember-auto-import": "2.10.0",
     "ember-data": "workspace:*",
-    "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "webpack": "^5.92.0"
   },
   "devDependencies": {

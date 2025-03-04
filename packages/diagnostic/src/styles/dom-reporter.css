@@ -38,6 +38,10 @@ body {
   font-size: 0.75rem;
 }
 
+pre {
+  text-wrap: auto;
+}
+
 #warp-drive__diagnostic {
   box-sizing: border-box;
   color: var(--font-color);

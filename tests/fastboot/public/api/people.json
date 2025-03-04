@@ -1,32 +1,102 @@
-[
-  {
-    "id": "1:no-children-or-parent",
-    "name": "Chris Has No Children or Parent",
-    "children": [],
-    "parent": null
-  },
-  {
-    "id": "2:has-1-child-no-parent",
-    "name": "James has one child and no parent",
-    "children": ["3:has-2-children-and-parent"],
-    "parent": null
-  },
-  {
-    "id": "3:has-2-children-and-parent",
-    "name": "Kevin has two children and one parent",
-    "children": ["4:has-parent-no-children", "5:has-parent-no-children"],
-    "parent": "2:has-1-child-no-parent"
-  },
-  {
-    "id": "4:has-parent-no-children",
-    "name": "Selena has a parent",
-    "children": [],
-    "parent": "3:has-2-children-and-parent"
-  },
-  {
-    "id": "5:has-parent-no-children",
-    "name": "Sedona has a parent",
-    "children": [],
-    "parent": "3:has-2-children-and-parent"
-  }
-]
+{
+  "data": [
+    {
+      "id": "1:no-children-or-parent",
+      "type": "person",
+      "attributes": {
+        "name": "Chris Has No Children or Parent"
+      },
+      "relationships": {
+        "children": {
+          "data": []
+        },
+        "parent": {
+          "data": null
+        }
+      }
+    },
+    {
+      "id": "2:has-1-child-no-parent",
+      "type": "person",
+      "attributes": {
+        "name": "James has one child and no parent"
+      },
+      "relationships": {
+        "children": {
+          "data": [
+            {
+              "id": "3:has-2-children-and-parent",
+              "type": "person"
+            }
+          ]
+        },
+        "parent": {
+          "data": null
+        }
+      }
+    },
+    {
+      "id": "3:has-2-children-and-parent",
+      "type": "person",
+      "attributes": {
+        "name": "Kevin has two children and one parent"
+      },
+      "relationships": {
+        "children": {
+          "data": [
+            {
+              "id": "4:has-parent-no-children",
+              "type": "person"
+            },
+            {
+              "id": "5:has-parent-no-children",
+              "type": "person"
+            }
+          ]
+        },
+        "parent": {
+          "data": {
+            "id": "2:has-1-child-no-parent",
+            "type": "person"
+          }
+        }
+      }
+    },
+    {
+      "id": "4:has-parent-no-children",
+      "type": "person",
+      "attributes": {
+        "name": "Selena has a parent"
+      },
+      "relationships": {
+        "children": {
+          "data": []
+        },
+        "parent": {
+          "data": {
+            "id": "3:has-2-children-and-parent",
+            "type": "person"
+          }
+        }
+      }
+    },
+    {
+      "id": "5:has-parent-no-children",
+      "type": "person",
+      "attributes": {
+        "name": "Sedona has a parent"
+      },
+      "relationships": {
+        "children": {
+          "data": []
+        },
+        "parent": {
+          "data": {
+            "id": "3:has-2-children-and-parent",
+            "type": "person"
+          }
+        }
+      }
+    }
+  ]
+}

@@ -24,7 +24,7 @@ export function getFlags() {
   const filter = flags.has('--filter') || flags.has('-f');
   const retry = flags.has('--retry') || flags.has('-r');
   const headless = flags.has('--headless') || flags.has('-h');
-  const useExisting = flags.has('--use-existing') || flags.has('-e');
+  const useExisting = flags.has('--use-existing') || flags.has('-e') || flags.has('-b');
 
   if (filter) {
     filtered['filter'] = true;

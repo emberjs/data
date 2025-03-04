@@ -12,8 +12,7 @@
   "author": "",
   "scripts": {
     "lint": "eslint . --quiet --cache --cache-strategy=content",
-    "test:blueprints": "mocha tests",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+    "test:blueprints": "mocha tests"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
@@ -40,7 +39,6 @@
     "ember-cli-blueprint-test-helpers": "^0.19.2",
     "ember-source": "~5.12.0",
     "mocha": "^10.8.2",
-    "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "silent-error": "^1.1.1"
   },
   "engines": {
