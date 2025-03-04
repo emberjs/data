@@ -1867,7 +1867,7 @@ importers:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       tsx:
-        specifier: ^4.10.4
+        specifier: ^4.19.3
         version: 4.19.3
 
   tests/docs:
