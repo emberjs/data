@@ -120,7 +120,7 @@ importers:
         specifier: ^5.0.10
         version: 5.0.10
       semver:
-        specifier: ^7.6.3
+        specifier: ^7.7.1
         version: 7.7.1
       silent-error:
         specifier: ^1.1.1
@@ -447,7 +447,7 @@ importers:
         specifier: ^3.0.8
         version: 3.0.8
       semver:
-        specifier: ^7.6.3
+        specifier: ^7.7.1
         version: 7.7.1
     devDependencies:
       '@babel/core':
@@ -1302,7 +1302,7 @@ importers:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       semver:
-        specifier: ^7.6.3
+        specifier: ^7.7.1
         version: 7.7.1
     devDependencies:
       '@babel/core':
