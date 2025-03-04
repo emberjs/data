@@ -42,7 +42,7 @@
     }
   },
   "dependencies": {
-    "@embroider/macros": "^1.16.10",
+    "@embroider/macros": "^1.16.11",
     "@embroider/addon-shim": "^1.9.0",
     "babel-import-util": "^2.1.1",
     "broccoli-funnel": "^3.0.8",
@@ -52,9 +52,9 @@
     "@warp-drive/internal-config": "workspace:*",
     "@types/babel__core": "^7.20.5",
     "@types/node": "^20.14.2",
-    "@babel/plugin-transform-typescript": "^7.24.5",
-    "@babel/preset-typescript": "^7.24.1",
-    "@babel/core": "^7.24.5",
+    "@babel/plugin-transform-typescript": "^7.26.8",
+    "@babel/preset-typescript": "^7.26.0",
+    "@babel/core": "^7.26.9",
     "typescript": "^5.7.2",
     "bun-types": "^1.2.4",
     "vite": "^5.4.14"
