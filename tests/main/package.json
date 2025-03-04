@@ -82,7 +82,7 @@
     "ember-load-initializers": "^2.1.2",
     "ember-maybe-import-regenerator": "^1.0.0",
     "ember-template-imports": "4.3.0",
-    "ember-qunit": "8.0.2",
+    "ember-qunit": "^9.0.1",
     "ember-resolver": "^11.0.1",
     "ember-source": "https://s3.amazonaws.com/builds.emberjs.com/canary/shas/be20bd3f8ea066050eb91862af5180e10ba37134.tgz",
     "ember-source-channel-url": "^3.0.0",
@@ -91,7 +91,7 @@
     "loader.js": "^4.7.0",
     "pretender": "^3.4.7",
     "qunit": "^2.20.1",
-    "qunit-dom": "^3.1.1",
+    "qunit-dom": "^3.4.0",
     "testem": "^3.12.0",
     "typescript": "^5.7.2",
     "webpack": "^5.92.0"
