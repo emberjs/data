@@ -45,7 +45,7 @@
     "version": 2
   },
   "dependencies": {
-    "@embroider/macros": "^1.16.10",
+    "@embroider/macros": "^1.16.11",
     "@warp-drive/build-config": "workspace:*"
   },
   "peerDependencies": {
@@ -54,9 +54,9 @@
     "@warp-drive/core-types": "workspace:*"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.5",
-    "@babel/plugin-transform-typescript": "^7.24.5",
-    "@babel/preset-typescript": "^7.24.1",
+    "@babel/core": "^7.26.9",
+    "@babel/plugin-transform-typescript": "^7.26.8",
+    "@babel/preset-typescript": "^7.26.0",
     "@ember-data/request": "workspace:*",
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/store": "workspace:*",
