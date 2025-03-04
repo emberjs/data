@@ -75,8 +75,8 @@ importers:
         specifier: 4.1.0
         version: 4.1.0
       bun-types:
-        specifier: ^1.2.2
-        version: 1.2.2
+        specifier: ^1.2.4
+        version: 1.2.4
       chalk:
         specifier: ^4.1.2
         version: 4.1.2
@@ -512,8 +512,8 @@ importers:
         specifier: workspace:*
         version: file:config(e7ec8e6acd305d828331eeeaef827085)
       bun-types:
-        specifier: ^1.2.2
-        version: 1.2.2
+        specifier: ^1.2.4
+        version: 1.2.4
       typescript:
         specifier: ^5.7.2
         version: 5.8.2
@@ -696,8 +696,8 @@ importers:
         specifier: workspace:*
         version: file:config
       bun-types:
-        specifier: ^1.2.2
-        version: 1.2.2
+        specifier: ^1.2.4
+        version: 1.2.4
       ember-cli-test-loader:
         specifier: ^3.1.0
         version: 3.1.0(@babel/core@7.26.9)
@@ -1313,8 +1313,8 @@ importers:
   packages/schema:
     devDependencies:
       bun-types:
-        specifier: 1.2.2
-        version: 1.2.2
+        specifier: 1.2.4
+        version: 1.2.4
 
   packages/schema-record:
     dependencies:
@@ -2432,8 +2432,8 @@ importers:
         specifier: workspace:*
         version: file:config
       bun-types:
-        specifier: ^1.2.2
-        version: 1.2.2
+        specifier: ^1.2.4
+        version: 1.2.4
       ember-auto-import:
         specifier: ^2.10.0
         version: 2.10.0
@@ -7127,9 +7127,6 @@ packages:
 
   buffer@5.7.1:
     resolution: {integrity: sha512-EHcyIPBQ4BSGlvjB16k5KgAJ27CIsHY/2JBmCRReo48y9rQ3MaUzWX3KVlBa4U7MyX02HdVj0K7C3WaB3ju7FQ==}
-
-  bun-types@1.2.2:
-    resolution: {integrity: sha512-RCbMH5elr9gjgDGDhkTTugA21XtJAy/9jkKe/G3WR2q17VPGhcquf9Sir6uay9iW+7P/BV0CAHA1XlHXMAVKHg==}
 
   bun-types@1.2.4:
     resolution: {integrity: sha512-nDPymR207ZZEoWD4AavvEaa/KZe/qlrbMSchqpQwovPZCKc7pwMoENjEtHgMKaAjJhy+x6vfqSBA1QU3bJgs0Q==}
@@ -18511,11 +18508,6 @@ snapshots:
     dependencies:
       base64-js: 1.5.1
       ieee754: 1.2.1
-
-  bun-types@1.2.2:
-    dependencies:
-      '@types/node': 20.17.22
-      '@types/ws': 8.5.14
 
   bun-types@1.2.4:
     dependencies:
