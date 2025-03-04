@@ -10,7 +10,7 @@ overrides:
   ember-auto-import: ^2.10.0
   broccoli-funnel: ^3.0.8
   broccoli-merge-trees: ^4.2.0
-  '@glimmer/validator': ^0.92.3
+  '@glimmer/validator': ^0.94.6
   '@glint/core': 1.5.0
   '@glint/environment-ember-loose': 1.5.0
   '@glint/environment-ember-template-imports': 1.5.0
@@ -763,8 +763,8 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
       '@glimmer/validator':
-        specifier: ^0.92.3
-        version: 0.92.3
+        specifier: ^0.94.6
+        version: 0.94.6
       '@glint/core':
         specifier: 1.5.0
         version: 1.5.0(typescript@5.8.2)
@@ -1530,8 +1530,8 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.26.9)
       '@glimmer/validator':
-        specifier: ^0.92.3
-        version: 0.92.3
+        specifier: ^0.94.6
+        version: 0.94.6
       '@warp-drive/core-types':
         specifier: workspace:*
         version: file:packages/core-types(@babel/core@7.26.9)
@@ -2881,7 +2881,7 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0(@babel/core@7.26.9)
       ember-page-title:
-        specifier: ^8.2.3
+        specifier: ^8.2.4
         version: 8.2.4(8327c491c1d4b7363e92edc6a64d0b7b)
       ember-qunit:
         specifier: ^8.0.2
@@ -3565,7 +3565,7 @@ importers:
         specifier: ^4.2.0
         version: 4.2.0(b7bd70fa55d8dcc6fec132f7d004fc3f)
       ember-page-title:
-        specifier: ^8.2.3
+        specifier: ^8.2.4
         version: 8.2.4(8327c491c1d4b7363e92edc6a64d0b7b)
       ember-qunit:
         specifier: 9.0.1
@@ -3622,7 +3622,7 @@ importers:
         specifier: ^3.3.0
         version: 3.4.0
       tracked-built-ins:
-        specifier: ^3.3.0
+        specifier: ^3.4.0
         version: 3.4.0(@babel/core@7.26.9)
       typescript:
         specifier: ^5.7.2
@@ -5486,8 +5486,8 @@ packages:
   '@glimmer/util@0.94.6':
     resolution: {integrity: sha512-UDUP4/nHz4/qORWxl9ebc5ZhysKJFhJrY14GAMLBxbXomYtj7liMiht4v5TVW4Law5ziPmpTFQ70RJOOG7ksBg==}
 
-  '@glimmer/validator@0.92.3':
-    resolution: {integrity: sha512-HKrMYeW0YhiksSeKYqX2chUR/rz82j12DcY7p2dORQlTV3qlAfiE5zRTJH1KRA1X3ZMf7DI2/GOzkXwYp0o+3Q==}
+  '@glimmer/validator@0.94.6':
+    resolution: {integrity: sha512-s0pzTB+lHXa6eQCSJe57YNNgPsjaY+EmOLH6OsJrWetszltV5fSy2PVjk+2NavsZ6wjaxLKwTd0q3PGPXz/rlQ==}
 
   '@glimmer/vm-babel-plugins@0.92.3':
     resolution: {integrity: sha512-VpkKsHc3oiq9ruiwT7sN4RuOIc5n10PCeWX7tYSNZ85S1bETcAFn0XbyNjI+G3uFshQGEK0T8Fn3+/8VTNIQIg==}
@@ -15846,7 +15846,7 @@ snapshots:
       '@glimmer/interfaces': 0.92.3
       '@glimmer/reference': 0.92.3
       '@glimmer/util': 0.92.3
-      '@glimmer/validator': 0.92.3
+      '@glimmer/validator': 0.94.6
       '@glimmer/vm': 0.92.3
 
   '@glimmer/manager@0.94.7':
@@ -15856,7 +15856,7 @@ snapshots:
       '@glimmer/interfaces': 0.94.5
       '@glimmer/reference': 0.94.6
       '@glimmer/util': 0.94.6
-      '@glimmer/validator': 0.92.3
+      '@glimmer/validator': 0.94.6
       '@glimmer/vm': 0.94.6
 
   '@glimmer/node@0.92.4':
@@ -15927,7 +15927,7 @@ snapshots:
       '@glimmer/global-context': 0.84.3
       '@glimmer/interfaces': 0.84.3
       '@glimmer/util': 0.84.3
-      '@glimmer/validator': 0.92.3
+      '@glimmer/validator': 0.94.6
 
   '@glimmer/reference@0.92.3':
     dependencies:
@@ -15935,14 +15935,14 @@ snapshots:
       '@glimmer/global-context': 0.92.3
       '@glimmer/interfaces': 0.92.3
       '@glimmer/util': 0.92.3
-      '@glimmer/validator': 0.92.3
+      '@glimmer/validator': 0.94.6
 
   '@glimmer/reference@0.94.6':
     dependencies:
       '@glimmer/global-context': 0.93.2
       '@glimmer/interfaces': 0.94.5
       '@glimmer/util': 0.94.6
-      '@glimmer/validator': 0.92.3
+      '@glimmer/validator': 0.94.6
 
   '@glimmer/runtime@0.92.4':
     dependencies:
@@ -15955,7 +15955,7 @@ snapshots:
       '@glimmer/program': 0.92.4
       '@glimmer/reference': 0.92.3
       '@glimmer/util': 0.92.3
-      '@glimmer/validator': 0.92.3
+      '@glimmer/validator': 0.94.6
       '@glimmer/vm': 0.92.3
       '@glimmer/wire-format': 0.92.3
 
@@ -15969,7 +15969,7 @@ snapshots:
       '@glimmer/program': 0.94.7
       '@glimmer/reference': 0.94.6
       '@glimmer/util': 0.94.6
-      '@glimmer/validator': 0.92.3
+      '@glimmer/validator': 0.94.6
       '@glimmer/vm': 0.94.6
 
   '@glimmer/syntax@0.84.3':
@@ -16001,7 +16001,7 @@ snapshots:
   '@glimmer/tracking@1.1.2':
     dependencies:
       '@glimmer/env': 0.1.7
-      '@glimmer/validator': 0.92.3
+      '@glimmer/validator': 0.94.6
 
   '@glimmer/util@0.44.0': {}
 
@@ -16020,12 +16020,10 @@ snapshots:
     dependencies:
       '@glimmer/interfaces': 0.94.5
 
-  '@glimmer/validator@0.92.3':
+  '@glimmer/validator@0.94.6':
     dependencies:
-      '@glimmer/env': 0.1.7
-      '@glimmer/global-context': 0.92.3
-      '@glimmer/interfaces': 0.92.3
-      '@glimmer/util': 0.92.3
+      '@glimmer/global-context': 0.93.2
+      '@glimmer/interfaces': 0.94.5
 
   '@glimmer/vm-babel-plugins@0.92.3(@babel/core@7.26.9)':
     dependencies:
@@ -20230,7 +20228,7 @@ snapshots:
       '@glimmer/runtime': 0.92.4
       '@glimmer/syntax': 0.92.3
       '@glimmer/util': 0.92.3
-      '@glimmer/validator': 0.92.3
+      '@glimmer/validator': 0.94.6
       '@glimmer/vm': 0.92.3
       '@glimmer/vm-babel-plugins': 0.92.3(@babel/core@7.26.9)
       '@simple-dom/interface': 1.4.0
@@ -20284,7 +20282,7 @@ snapshots:
       '@glimmer/runtime': 0.92.4
       '@glimmer/syntax': 0.92.3
       '@glimmer/util': 0.92.3
-      '@glimmer/validator': 0.92.3
+      '@glimmer/validator': 0.94.6
       '@glimmer/vm': 0.92.3
       '@glimmer/vm-babel-plugins': 0.92.3(@babel/core@7.26.9)
       '@simple-dom/interface': 1.4.0
@@ -20339,7 +20337,7 @@ snapshots:
       '@glimmer/runtime': 0.92.4
       '@glimmer/syntax': 0.92.3
       '@glimmer/util': 0.92.3
-      '@glimmer/validator': 0.92.3
+      '@glimmer/validator': 0.94.6
       '@glimmer/vm': 0.92.3
       '@glimmer/vm-babel-plugins': 0.92.3(@babel/core@7.26.9)
       '@simple-dom/interface': 1.4.0
@@ -20394,7 +20392,7 @@ snapshots:
       '@glimmer/runtime': 0.94.7
       '@glimmer/syntax': 0.94.7
       '@glimmer/util': 0.94.6
-      '@glimmer/validator': 0.92.3
+      '@glimmer/validator': 0.94.6
       '@glimmer/vm': 0.94.6
       '@glimmer/vm-babel-plugins': 0.93.3(@babel/core@7.26.9)
       '@simple-dom/interface': 1.4.0
@@ -20483,7 +20481,7 @@ snapshots:
     dependencies:
       '@glimmer/reference': 0.84.3
       '@glimmer/syntax': 0.84.3
-      '@glimmer/validator': 0.92.3
+      '@glimmer/validator': 0.94.6
       async-promise-queue: 1.0.5
       colors: 1.4.0
       commander: 8.3.0

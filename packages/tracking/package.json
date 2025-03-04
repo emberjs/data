@@ -70,7 +70,7 @@
     "@babel/preset-env": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
     "@glimmer/component": "^1.1.2",
-    "@glimmer/validator": "^0.92.3",
+    "@glimmer/validator": "^0.94.6",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
     "ember-source": "~5.12.0",
