@@ -195,7 +195,7 @@ importers:
         specifier: ^15.15.0
         version: 15.15.0
       rollup:
-        specifier: ^4.17.2
+        specifier: ^4.34.9
         version: 4.34.9
       typescript:
         specifier: ^5.7.2
@@ -799,7 +799,7 @@ importers:
         specifier: ^4.3.0
         version: 4.3.0
       rollup:
-        specifier: ^4.17.2
+        specifier: ^4.34.9
         version: 4.34.9
       typescript:
         specifier: ^5.7.2
