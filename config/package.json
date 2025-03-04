@@ -13,7 +13,7 @@
     "typescript-eslint": "^8.10.0",
     "@embroider/addon-dev": "^7.1.1",
     "@eslint/js": "^9.13.0",
-    "globals": "^15.11.0",
+    "globals": "^15.15.0",
     "glob": "^11.0.1",
     "ember-eslint-parser": "^0.5.2",
     "eslint": "^9.12.0",
