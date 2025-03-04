@@ -1237,8 +1237,8 @@ importers:
         specifier: ^7.24.1
         version: 7.26.0(@babel/core@7.26.9)
       '@ember/string':
-        specifier: 3.1.1
-        version: 3.1.1(@babel/core@7.26.9)
+        specifier: 4.0.1
+        version: 4.0.1
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.26.9)
@@ -1711,40 +1711,40 @@ importers:
         version: 7.26.9
       '@ember-data/active-record':
         specifier: workspace:*
-        version: file:packages/active-record(7da81817230fd925a302a83b3b750f33)
+        version: file:packages/active-record(61367450a0359ea939057553ef93fcb0)
       '@ember-data/debug':
         specifier: workspace:*
-        version: file:packages/debug(1133a0887c15844353269ef9a10e2a65)
+        version: file:packages/debug(42c4a918cb7a5a8f61db3dc04abd846a)
       '@ember-data/graph':
         specifier: workspace:*
-        version: file:packages/graph(c9a8d1a45f0bdc2201bc5598de19ec70)
+        version: file:packages/graph(fb1fcebd6d02ca275415272753a7b91a)
       '@ember-data/json-api':
         specifier: workspace:*
-        version: file:packages/json-api(da6892c93bdcbb4ba8280ddfcddca412)
+        version: file:packages/json-api(bddf6fdc6c06e9bf8932500a58b7b7e9)
       '@ember-data/legacy-compat':
         specifier: workspace:*
-        version: file:packages/legacy-compat(c225558dc02366f360095474de233b4e)
+        version: file:packages/legacy-compat(c54c9d05e53fdcfe46a48640be87380e)
       '@ember-data/model':
         specifier: workspace:*
-        version: file:packages/model(e6353c9c99ac33f3bce5340b62c9d4f5)
+        version: file:packages/model(8011a73f97b2cfca697fd00fba5429a9)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(56f5eb81dd09f1e4b2f781c4e06ce53c)
       '@ember-data/request-utils':
         specifier: workspace:*
-        version: file:packages/request-utils(abce721722190de3ddd742ae470e7608)
+        version: file:packages/request-utils(2364d7b709ae3f9eec68270bb517fe40)
       '@ember-data/rest':
         specifier: workspace:*
-        version: file:packages/rest(7da81817230fd925a302a83b3b750f33)
+        version: file:packages/rest(61367450a0359ea939057553ef93fcb0)
       '@ember-data/store':
         specifier: workspace:*
-        version: file:packages/store(7c15dad407e2da7886540f40c0a317a0)
+        version: file:packages/store(87289e069babf9bd539b40f545277438)
       '@ember-data/tracking':
         specifier: workspace:*
         version: file:packages/tracking(f76e144d736ddc61b5b3fc94acf05b0c)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(e0a5dfe12792dd3a1549e533ff423ec1)
+        version: file:packages/unpublished-test-infra(7cf33834e1535c3a1ba483d9687727cd)
       '@ember/edition-utils':
         specifier: ^1.2.0
         version: 1.2.0
@@ -1752,8 +1752,8 @@ importers:
         specifier: ^2.2.0
         version: 2.2.0
       '@ember/string':
-        specifier: ^3.1.1
-        version: 3.1.1(@babel/core@7.26.9)
+        specifier: ^4.0.1
+        version: 4.0.1
       '@ember/test-helpers':
         specifier: 5.1.0
         version: 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(b7bd70fa55d8dcc6fec132f7d004fc3f)
@@ -2623,46 +2623,46 @@ importers:
         version: 7.26.9
       '@ember-data/adapter':
         specifier: workspace:*
-        version: file:packages/adapter(ea3cd99e38ee9f142e832c552c4d67f9)
+        version: file:packages/adapter(be7652186ad2a672659d997915777b80)
       '@ember-data/debug':
         specifier: workspace:*
-        version: file:packages/debug(1133a0887c15844353269ef9a10e2a65)
+        version: file:packages/debug(42c4a918cb7a5a8f61db3dc04abd846a)
       '@ember-data/graph':
         specifier: workspace:*
-        version: file:packages/graph(c9a8d1a45f0bdc2201bc5598de19ec70)
+        version: file:packages/graph(fb1fcebd6d02ca275415272753a7b91a)
       '@ember-data/json-api':
         specifier: workspace:*
-        version: file:packages/json-api(da6892c93bdcbb4ba8280ddfcddca412)
+        version: file:packages/json-api(bddf6fdc6c06e9bf8932500a58b7b7e9)
       '@ember-data/legacy-compat':
         specifier: workspace:*
-        version: file:packages/legacy-compat(c225558dc02366f360095474de233b4e)
+        version: file:packages/legacy-compat(c54c9d05e53fdcfe46a48640be87380e)
       '@ember-data/model':
         specifier: workspace:*
-        version: file:packages/model(e6353c9c99ac33f3bce5340b62c9d4f5)
+        version: file:packages/model(8011a73f97b2cfca697fd00fba5429a9)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(56f5eb81dd09f1e4b2f781c4e06ce53c)
       '@ember-data/request-utils':
         specifier: workspace:*
-        version: file:packages/request-utils(abce721722190de3ddd742ae470e7608)
+        version: file:packages/request-utils(2364d7b709ae3f9eec68270bb517fe40)
       '@ember-data/serializer':
         specifier: workspace:*
-        version: file:packages/serializer(ea3cd99e38ee9f142e832c552c4d67f9)
+        version: file:packages/serializer(be7652186ad2a672659d997915777b80)
       '@ember-data/store':
         specifier: workspace:*
-        version: file:packages/store(7c15dad407e2da7886540f40c0a317a0)
+        version: file:packages/store(87289e069babf9bd539b40f545277438)
       '@ember-data/tracking':
         specifier: workspace:*
         version: file:packages/tracking(f76e144d736ddc61b5b3fc94acf05b0c)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(fe48ab59df7fd42fd3309076cf99f5e0)
+        version: file:packages/unpublished-test-infra(7227818d87be4595d2557bd142d06c4d)
       '@ember/optional-features':
         specifier: ^2.2.0
         version: 2.2.0
       '@ember/string':
-        specifier: ^3.1.1
-        version: 3.1.1(@babel/core@7.26.9)
+        specifier: ^4.0.1
+        version: 4.0.1
       '@ember/test-helpers':
         specifier: 5.1.0
         version: 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(b7bd70fa55d8dcc6fec132f7d004fc3f)
@@ -2719,7 +2719,7 @@ importers:
         version: 2.1.0
       ember-data:
         specifier: workspace:*
-        version: file:packages/-ember-data(dde455f3cf687ef54f89c5606175ff09)
+        version: file:packages/-ember-data(ea503fa4c75e4e4b504c976167864c2a)
       ember-inflector:
         specifier: 4.0.3
         version: 4.0.3(b7bd70fa55d8dcc6fec132f7d004fc3f)
@@ -2939,40 +2939,40 @@ importers:
         version: 7.26.9
       '@ember-data/debug':
         specifier: workspace:*
-        version: file:packages/debug(0adbb7fe10461d1c954ec9bd9c43c815)
+        version: file:packages/debug(00bc642d625fe4c4753d21f1d5208884)
       '@ember-data/graph':
         specifier: workspace:*
-        version: file:packages/graph(6c614ce1f67a04d85f4ed62ccc5533f2)
+        version: file:packages/graph(ed6ec32f9bba03dd13f302355a68e97f)
       '@ember-data/json-api':
         specifier: workspace:*
-        version: file:packages/json-api(a8a9152def99ff63f8fb4f513030a5e1)
+        version: file:packages/json-api(49531e079d90bb9e2041961b9ac72fc1)
       '@ember-data/legacy-compat':
         specifier: workspace:*
-        version: file:packages/legacy-compat(e9e27c2a668ddb5073fd8abccea1982d)
+        version: file:packages/legacy-compat(daba32e862a4fb47f3f63c2e9d823201)
       '@ember-data/model':
         specifier: workspace:*
-        version: file:packages/model(f92703464af2680034627a9036c4fd96)
+        version: file:packages/model(a97b52fbaada25e70f7eb004e77b8961)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(56f5eb81dd09f1e4b2f781c4e06ce53c)
       '@ember-data/request-utils':
         specifier: workspace:*
-        version: file:packages/request-utils(14516df7c5a4131728b82370feb3e8d7)
+        version: file:packages/request-utils(693bc34f6047e20aab7b4a0b53fc86a3)
       '@ember-data/store':
         specifier: workspace:*
-        version: file:packages/store(cbe5e1595509e6eb6f16b4a84c4b1142)
+        version: file:packages/store(89a2bfbf7fc3345fce4a4c7c2ca47574)
       '@ember-data/tracking':
         specifier: workspace:*
         version: file:packages/tracking(f76e144d736ddc61b5b3fc94acf05b0c)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(09728f87036a59b248fd408abea7e7a5)
+        version: file:packages/unpublished-test-infra(2ef3c9e9cb0bb5dfab0e3be796a883b6)
       '@ember/optional-features':
         specifier: ^2.2.0
         version: 2.2.0
       '@ember/string':
-        specifier: ^3.1.1
-        version: 3.1.1(@babel/core@7.26.9)
+        specifier: ^4.0.1
+        version: 4.0.1
       '@ember/test-helpers':
         specifier: 5.1.0
         version: 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(b7bd70fa55d8dcc6fec132f7d004fc3f)
@@ -3142,40 +3142,40 @@ importers:
         version: 7.26.9
       '@ember-data/adapter':
         specifier: workspace:*
-        version: file:packages/adapter(0840a77829b97d82f120b46a110cae23)
+        version: file:packages/adapter(b0f561a32408d861fb5fdb1544eb7b5b)
       '@ember-data/debug':
         specifier: workspace:*
-        version: file:packages/debug(5a25bd6d0fb07fad505b6ae24ce7b565)
+        version: file:packages/debug(5e4d73e683e9b477330d259165bfec42)
       '@ember-data/graph':
         specifier: workspace:*
-        version: file:packages/graph(955a3086fb13852f561d47caf6189887)
+        version: file:packages/graph(aeef1aea4635d5710d5cffb6da3f0f0a)
       '@ember-data/json-api':
         specifier: workspace:*
-        version: file:packages/json-api(ba76ce9d97615b1b1ca7396c342d43bd)
+        version: file:packages/json-api(b0e0ac6c83833bcaaa035f0f83f0175f)
       '@ember-data/legacy-compat':
         specifier: workspace:*
-        version: file:packages/legacy-compat(eaba02118c829066cea1afa57a7d9337)
+        version: file:packages/legacy-compat(de0fc904bf4b4f5876235ca1df2cae3e)
       '@ember-data/model':
         specifier: workspace:*
-        version: file:packages/model(ebe90f3062b226e87f9ff344ed448f51)
+        version: file:packages/model(57515b26cac7da8eee92c08bdda8b67a)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(2ed64ee49302339ec452fd9f952fdd96)
       '@ember-data/request-utils':
         specifier: workspace:*
-        version: file:packages/request-utils(09487ada9c8c395af576dae33a5cdacc)
+        version: file:packages/request-utils(9325569a50bf0fa18fcd1fa6c54919d9)
       '@ember-data/serializer':
         specifier: workspace:*
-        version: file:packages/serializer(0840a77829b97d82f120b46a110cae23)
+        version: file:packages/serializer(b0f561a32408d861fb5fdb1544eb7b5b)
       '@ember-data/store':
         specifier: workspace:*
-        version: file:packages/store(39c989179a41ac2b13368f042d111647)
+        version: file:packages/store(8612b4059ad3fa9e69b965ee6637804a)
       '@ember-data/tracking':
         specifier: workspace:*
         version: file:packages/tracking(74c30246d73285c391cb43828ca6a640)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(c76adfaf51732c5253d6485a05474df1)
+        version: file:packages/unpublished-test-infra(fe4adaf95a3ea88e7e4c7d3cca3cef6b)
       '@ember/edition-utils':
         specifier: ^1.2.0
         version: 1.2.0
@@ -3183,8 +3183,8 @@ importers:
         specifier: ^2.2.0
         version: 2.2.0
       '@ember/string':
-        specifier: ^3.1.1
-        version: 3.1.1(@babel/core@7.26.9)
+        specifier: ^4.0.1
+        version: 4.0.1
       '@ember/test-helpers':
         specifier: 5.1.0
         version: 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(db6970428dd76886ad0d0caf1ffb8942)
@@ -3229,7 +3229,7 @@ importers:
         version: file:config(@glint/template@1.5.0)
       '@warp-drive/schema-record':
         specifier: workspace:*
-        version: file:packages/schema-record(38026abc483b968f73bbd666e2944d97)
+        version: file:packages/schema-record(71782a89c0d86eb0e27ecf3506d8c1eb)
       broccoli-concat:
         specifier: ^4.2.5
         version: 4.2.5
@@ -3277,7 +3277,7 @@ importers:
         version: 3.1.0(@babel/core@7.26.9)
       ember-data:
         specifier: workspace:*
-        version: file:packages/-ember-data(55ed5caa4f5f705b227c2ff9025e058d)
+        version: file:packages/-ember-data(b6da8b936d93fb6addeac6cace54502e)
       ember-decorators-polyfill:
         specifier: ^1.1.5
         version: 1.1.5(@babel/core@7.26.9)
@@ -3478,7 +3478,7 @@ importers:
         specifier: ^2.2.0
         version: 2.2.0
       '@ember/string':
-        specifier: ^4.0.0
+        specifier: ^4.0.1
         version: 4.0.1
       '@ember/test-helpers':
         specifier: 5.1.0
@@ -4922,10 +4922,6 @@ packages:
   '@ember/optional-features@2.2.0':
     resolution: {integrity: sha512-a1OQ+w9vDvMXd9BNA9r779yr8MAPguGaMGbIeTMPWACeWBdD6bACBB5iKE3gNyrJAYKMq2wab6BKmRFS3Qw3hw==}
     engines: {node: 10.* || 12.* || >= 14}
-
-  '@ember/string@3.1.1':
-    resolution: {integrity: sha512-UbXJ+k3QOrYN4SRPHgXCqYIJ+yWWUg1+vr0H4DhdQPTy8LJfyqwZ2tc5uqpSSnEXE+/1KopHBE5J8GDagAg5cg==}
-    engines: {node: 12.* || 14.* || >= 16}
 
   '@ember/string@4.0.1':
     resolution: {integrity: sha512-VWeng8BSWrIsdPfffOQt/bKwNKJL7+37gPFh/6iZZ9bke+S83kKqkS30poo4bTGfRcMnvAE0ie7txom+iDu81Q==}
@@ -13956,31 +13952,13 @@ snapshots:
       enabled: 2.0.0
       kuler: 2.0.0
 
-  '@ember-data/active-record@file:packages/active-record(7da81817230fd925a302a83b3b750f33)':
+  '@ember-data/active-record@file:packages/active-record(61367450a0359ea939057553ef93fcb0)':
     dependencies:
-      '@ember-data/request-utils': file:packages/request-utils(abce721722190de3ddd742ae470e7608)
-      '@ember-data/store': file:packages/store(7c15dad407e2da7886540f40c0a317a0)
+      '@ember-data/request-utils': file:packages/request-utils(2364d7b709ae3f9eec68270bb517fe40)
+      '@ember-data/store': file:packages/store(87289e069babf9bd539b40f545277438)
       '@embroider/macros': 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
-  '@ember-data/adapter@file:packages/adapter(0840a77829b97d82f120b46a110cae23)':
-    dependencies:
-      '@ember-data/legacy-compat': file:packages/legacy-compat(eaba02118c829066cea1afa57a7d9337)
-      '@ember-data/request-utils': file:packages/request-utils(09487ada9c8c395af576dae33a5cdacc)
-      '@ember-data/store': file:packages/store(39c989179a41ac2b13368f042d111647)
-      '@ember/edition-utils': 1.2.0
-      '@embroider/macros': 1.16.11(03ebd109d943a27ca5a55d723400dcb7)
-      '@warp-drive/build-config': file:packages/build-config(03ebd109d943a27ca5a55d723400dcb7)
-      '@warp-drive/core-types': file:packages/core-types(03ebd109d943a27ca5a55d723400dcb7)
-      ember-cli-path-utils: 1.0.0
-      ember-cli-string-utils: 1.1.0
-      ember-cli-test-info: 1.0.0
-      ember-source: https://s3.amazonaws.com/builds.emberjs.com/canary/shas/be20bd3f8ea066050eb91862af5180e10ba37134.tgz(ec1e7e9319201c91f4dab5a0c78f277d)
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -14004,11 +13982,29 @@ snapshots:
       - '@glint/template'
       - supports-color
 
-  '@ember-data/adapter@file:packages/adapter(ea3cd99e38ee9f142e832c552c4d67f9)':
+  '@ember-data/adapter@file:packages/adapter(b0f561a32408d861fb5fdb1544eb7b5b)':
     dependencies:
-      '@ember-data/legacy-compat': file:packages/legacy-compat(c225558dc02366f360095474de233b4e)
-      '@ember-data/request-utils': file:packages/request-utils(abce721722190de3ddd742ae470e7608)
-      '@ember-data/store': file:packages/store(7c15dad407e2da7886540f40c0a317a0)
+      '@ember-data/legacy-compat': file:packages/legacy-compat(de0fc904bf4b4f5876235ca1df2cae3e)
+      '@ember-data/request-utils': file:packages/request-utils(9325569a50bf0fa18fcd1fa6c54919d9)
+      '@ember-data/store': file:packages/store(8612b4059ad3fa9e69b965ee6637804a)
+      '@ember/edition-utils': 1.2.0
+      '@embroider/macros': 1.16.11(03ebd109d943a27ca5a55d723400dcb7)
+      '@warp-drive/build-config': file:packages/build-config(03ebd109d943a27ca5a55d723400dcb7)
+      '@warp-drive/core-types': file:packages/core-types(03ebd109d943a27ca5a55d723400dcb7)
+      ember-cli-path-utils: 1.0.0
+      ember-cli-string-utils: 1.1.0
+      ember-cli-test-info: 1.0.0
+      ember-source: https://s3.amazonaws.com/builds.emberjs.com/canary/shas/be20bd3f8ea066050eb91862af5180e10ba37134.tgz(ec1e7e9319201c91f4dab5a0c78f277d)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+
+  '@ember-data/adapter@file:packages/adapter(be7652186ad2a672659d997915777b80)':
+    dependencies:
+      '@ember-data/legacy-compat': file:packages/legacy-compat(c54c9d05e53fdcfe46a48640be87380e)
+      '@ember-data/request-utils': file:packages/request-utils(2364d7b709ae3f9eec68270bb517fe40)
+      '@ember-data/store': file:packages/store(87289e069babf9bd539b40f545277438)
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
@@ -14068,21 +14064,6 @@ snapshots:
       - '@glint/template'
       - supports-color
 
-  '@ember-data/debug@file:packages/debug(0adbb7fe10461d1c954ec9bd9c43c815)':
-    dependencies:
-      '@ember-data/model': file:packages/model(f92703464af2680034627a9036c4fd96)
-      '@ember-data/request-utils': file:packages/request-utils(14516df7c5a4131728b82370feb3e8d7)
-      '@ember-data/store': file:packages/store(cbe5e1595509e6eb6f16b4a84c4b1142)
-      '@ember/edition-utils': 1.2.0
-      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
-      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
-      ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
   '@ember-data/debug@file:packages/debug(0bc105540e3df6970be7aef1b6abdf61)':
     dependencies:
       '@ember-data/model': file:packages/model(5349bf01e3dd0b7e83daf8e8f51f6d58)
@@ -14098,11 +14079,11 @@ snapshots:
       - '@glint/template'
       - supports-color
 
-  '@ember-data/debug@file:packages/debug(1133a0887c15844353269ef9a10e2a65)':
+  '@ember-data/debug@file:packages/debug(42c4a918cb7a5a8f61db3dc04abd846a)':
     dependencies:
-      '@ember-data/model': file:packages/model(e6353c9c99ac33f3bce5340b62c9d4f5)
-      '@ember-data/request-utils': file:packages/request-utils(abce721722190de3ddd742ae470e7608)
-      '@ember-data/store': file:packages/store(7c15dad407e2da7886540f40c0a317a0)
+      '@ember-data/model': file:packages/model(8011a73f97b2cfca697fd00fba5429a9)
+      '@ember-data/request-utils': file:packages/request-utils(2364d7b709ae3f9eec68270bb517fe40)
+      '@ember-data/store': file:packages/store(87289e069babf9bd539b40f545277438)
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
@@ -14113,11 +14094,11 @@ snapshots:
       - '@glint/template'
       - supports-color
 
-  '@ember-data/debug@file:packages/debug(5a25bd6d0fb07fad505b6ae24ce7b565)':
+  '@ember-data/debug@file:packages/debug(5e4d73e683e9b477330d259165bfec42)':
     dependencies:
-      '@ember-data/model': file:packages/model(ebe90f3062b226e87f9ff344ed448f51)
-      '@ember-data/request-utils': file:packages/request-utils(09487ada9c8c395af576dae33a5cdacc)
-      '@ember-data/store': file:packages/store(39c989179a41ac2b13368f042d111647)
+      '@ember-data/model': file:packages/model(57515b26cac7da8eee92c08bdda8b67a)
+      '@ember-data/request-utils': file:packages/request-utils(9325569a50bf0fa18fcd1fa6c54919d9)
+      '@ember-data/store': file:packages/store(8612b4059ad3fa9e69b965ee6637804a)
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.16.11(03ebd109d943a27ca5a55d723400dcb7)
       '@warp-drive/build-config': file:packages/build-config(03ebd109d943a27ca5a55d723400dcb7)
@@ -14155,37 +14136,13 @@ snapshots:
       - '@glint/template'
       - supports-color
 
-  '@ember-data/graph@file:packages/graph(6c614ce1f67a04d85f4ed62ccc5533f2)':
+  '@ember-data/graph@file:packages/graph(aeef1aea4635d5710d5cffb6da3f0f0a)':
     dependencies:
-      '@ember-data/store': file:packages/store(cbe5e1595509e6eb6f16b4a84c4b1142)
-      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
-      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
-      ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
-  '@ember-data/graph@file:packages/graph(955a3086fb13852f561d47caf6189887)':
-    dependencies:
-      '@ember-data/store': file:packages/store(39c989179a41ac2b13368f042d111647)
+      '@ember-data/store': file:packages/store(8612b4059ad3fa9e69b965ee6637804a)
       '@embroider/macros': 1.16.11(03ebd109d943a27ca5a55d723400dcb7)
       '@warp-drive/build-config': file:packages/build-config(03ebd109d943a27ca5a55d723400dcb7)
       '@warp-drive/core-types': file:packages/core-types(03ebd109d943a27ca5a55d723400dcb7)
       ember-source: https://s3.amazonaws.com/builds.emberjs.com/canary/shas/be20bd3f8ea066050eb91862af5180e10ba37134.tgz(ec1e7e9319201c91f4dab5a0c78f277d)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
-  '@ember-data/graph@file:packages/graph(c9a8d1a45f0bdc2201bc5598de19ec70)':
-    dependencies:
-      '@ember-data/store': file:packages/store(7c15dad407e2da7886540f40c0a317a0)
-      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
-      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
-      ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -14206,6 +14163,18 @@ snapshots:
   '@ember-data/graph@file:packages/graph(ed6ec32f9bba03dd13f302355a68e97f)':
     dependencies:
       '@ember-data/store': file:packages/store(89a2bfbf7fc3345fce4a4c7c2ca47574)
+      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
+      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
+      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
+      ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+
+  '@ember-data/graph@file:packages/graph(fb1fcebd6d02ca275415272753a7b91a)':
+    dependencies:
+      '@ember-data/store': file:packages/store(87289e069babf9bd539b40f545277438)
       '@embroider/macros': 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
@@ -14254,24 +14223,11 @@ snapshots:
       - '@glint/template'
       - supports-color
 
-  '@ember-data/json-api@file:packages/json-api(a8a9152def99ff63f8fb4f513030a5e1)':
+  '@ember-data/json-api@file:packages/json-api(b0e0ac6c83833bcaaa035f0f83f0175f)':
     dependencies:
-      '@ember-data/graph': file:packages/graph(6c614ce1f67a04d85f4ed62ccc5533f2)
-      '@ember-data/request-utils': file:packages/request-utils(14516df7c5a4131728b82370feb3e8d7)
-      '@ember-data/store': file:packages/store(cbe5e1595509e6eb6f16b4a84c4b1142)
-      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
-      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
-  '@ember-data/json-api@file:packages/json-api(ba76ce9d97615b1b1ca7396c342d43bd)':
-    dependencies:
-      '@ember-data/graph': file:packages/graph(955a3086fb13852f561d47caf6189887)
-      '@ember-data/request-utils': file:packages/request-utils(09487ada9c8c395af576dae33a5cdacc)
-      '@ember-data/store': file:packages/store(39c989179a41ac2b13368f042d111647)
+      '@ember-data/graph': file:packages/graph(aeef1aea4635d5710d5cffb6da3f0f0a)
+      '@ember-data/request-utils': file:packages/request-utils(9325569a50bf0fa18fcd1fa6c54919d9)
+      '@ember-data/store': file:packages/store(8612b4059ad3fa9e69b965ee6637804a)
       '@embroider/macros': 1.16.11(03ebd109d943a27ca5a55d723400dcb7)
       '@warp-drive/build-config': file:packages/build-config(03ebd109d943a27ca5a55d723400dcb7)
       '@warp-drive/core-types': file:packages/core-types(03ebd109d943a27ca5a55d723400dcb7)
@@ -14280,11 +14236,11 @@ snapshots:
       - '@glint/template'
       - supports-color
 
-  '@ember-data/json-api@file:packages/json-api(da6892c93bdcbb4ba8280ddfcddca412)':
+  '@ember-data/json-api@file:packages/json-api(bddf6fdc6c06e9bf8932500a58b7b7e9)':
     dependencies:
-      '@ember-data/graph': file:packages/graph(c9a8d1a45f0bdc2201bc5598de19ec70)
-      '@ember-data/request-utils': file:packages/request-utils(abce721722190de3ddd742ae470e7608)
-      '@ember-data/store': file:packages/store(7c15dad407e2da7886540f40c0a317a0)
+      '@ember-data/graph': file:packages/graph(fb1fcebd6d02ca275415272753a7b91a)
+      '@ember-data/request-utils': file:packages/request-utils(2364d7b709ae3f9eec68270bb517fe40)
+      '@ember-data/store': file:packages/store(87289e069babf9bd539b40f545277438)
       '@embroider/macros': 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
@@ -14326,19 +14282,19 @@ snapshots:
       - '@glint/template'
       - supports-color
 
-  '@ember-data/legacy-compat@file:packages/legacy-compat(c225558dc02366f360095474de233b4e)':
+  '@ember-data/legacy-compat@file:packages/legacy-compat(c54c9d05e53fdcfe46a48640be87380e)':
     dependencies:
       '@ember-data/request': file:packages/request(56f5eb81dd09f1e4b2f781c4e06ce53c)
-      '@ember-data/request-utils': file:packages/request-utils(abce721722190de3ddd742ae470e7608)
-      '@ember-data/store': file:packages/store(7c15dad407e2da7886540f40c0a317a0)
+      '@ember-data/request-utils': file:packages/request-utils(2364d7b709ae3f9eec68270bb517fe40)
+      '@ember-data/store': file:packages/store(87289e069babf9bd539b40f545277438)
       '@ember/test-waiters': 3.1.0(@babel/core@7.26.9)
       '@embroider/macros': 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
       ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
     optionalDependencies:
-      '@ember-data/graph': file:packages/graph(c9a8d1a45f0bdc2201bc5598de19ec70)
-      '@ember-data/json-api': file:packages/json-api(da6892c93bdcbb4ba8280ddfcddca412)
+      '@ember-data/graph': file:packages/graph(fb1fcebd6d02ca275415272753a7b91a)
+      '@ember-data/json-api': file:packages/json-api(bddf6fdc6c06e9bf8932500a58b7b7e9)
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -14362,6 +14318,24 @@ snapshots:
       - '@glint/template'
       - supports-color
 
+  '@ember-data/legacy-compat@file:packages/legacy-compat(de0fc904bf4b4f5876235ca1df2cae3e)':
+    dependencies:
+      '@ember-data/request': file:packages/request(2ed64ee49302339ec452fd9f952fdd96)
+      '@ember-data/request-utils': file:packages/request-utils(9325569a50bf0fa18fcd1fa6c54919d9)
+      '@ember-data/store': file:packages/store(8612b4059ad3fa9e69b965ee6637804a)
+      '@ember/test-waiters': 3.1.0(@babel/core@7.26.9)
+      '@embroider/macros': 1.16.11(03ebd109d943a27ca5a55d723400dcb7)
+      '@warp-drive/build-config': file:packages/build-config(03ebd109d943a27ca5a55d723400dcb7)
+      '@warp-drive/core-types': file:packages/core-types(03ebd109d943a27ca5a55d723400dcb7)
+      ember-source: https://s3.amazonaws.com/builds.emberjs.com/canary/shas/be20bd3f8ea066050eb91862af5180e10ba37134.tgz(ec1e7e9319201c91f4dab5a0c78f277d)
+    optionalDependencies:
+      '@ember-data/graph': file:packages/graph(aeef1aea4635d5710d5cffb6da3f0f0a)
+      '@ember-data/json-api': file:packages/json-api(b0e0ac6c83833bcaaa035f0f83f0175f)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+
   '@ember-data/legacy-compat@file:packages/legacy-compat(e339549ecb82ada3bf08dabff6e7d126)':
     dependencies:
       '@ember-data/request': file:packages/request(56f5eb81dd09f1e4b2f781c4e06ce53c)
@@ -14375,42 +14349,6 @@ snapshots:
     optionalDependencies:
       '@ember-data/graph': file:packages/graph(ca3cc1ae993c568f7a48fe73cb6597ca)
       '@ember-data/json-api': file:packages/json-api(a5389a0871c100d289091f9056ae50e3)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
-  '@ember-data/legacy-compat@file:packages/legacy-compat(e9e27c2a668ddb5073fd8abccea1982d)':
-    dependencies:
-      '@ember-data/request': file:packages/request(56f5eb81dd09f1e4b2f781c4e06ce53c)
-      '@ember-data/request-utils': file:packages/request-utils(14516df7c5a4131728b82370feb3e8d7)
-      '@ember-data/store': file:packages/store(cbe5e1595509e6eb6f16b4a84c4b1142)
-      '@ember/test-waiters': 3.1.0(@babel/core@7.26.9)
-      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
-      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
-      ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
-    optionalDependencies:
-      '@ember-data/graph': file:packages/graph(6c614ce1f67a04d85f4ed62ccc5533f2)
-      '@ember-data/json-api': file:packages/json-api(a8a9152def99ff63f8fb4f513030a5e1)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
-  '@ember-data/legacy-compat@file:packages/legacy-compat(eaba02118c829066cea1afa57a7d9337)':
-    dependencies:
-      '@ember-data/request': file:packages/request(2ed64ee49302339ec452fd9f952fdd96)
-      '@ember-data/request-utils': file:packages/request-utils(09487ada9c8c395af576dae33a5cdacc)
-      '@ember-data/store': file:packages/store(39c989179a41ac2b13368f042d111647)
-      '@ember/test-waiters': 3.1.0(@babel/core@7.26.9)
-      '@embroider/macros': 1.16.11(03ebd109d943a27ca5a55d723400dcb7)
-      '@warp-drive/build-config': file:packages/build-config(03ebd109d943a27ca5a55d723400dcb7)
-      '@warp-drive/core-types': file:packages/core-types(03ebd109d943a27ca5a55d723400dcb7)
-      ember-source: https://s3.amazonaws.com/builds.emberjs.com/canary/shas/be20bd3f8ea066050eb91862af5180e10ba37134.tgz(ec1e7e9319201c91f4dab5a0c78f277d)
-    optionalDependencies:
-      '@ember-data/graph': file:packages/graph(955a3086fb13852f561d47caf6189887)
-      '@ember-data/json-api': file:packages/json-api(ba76ce9d97615b1b1ca7396c342d43bd)
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -14433,6 +14371,50 @@ snapshots:
     optionalDependencies:
       '@ember-data/graph': file:packages/graph(4643f19328bc0b1d8692ac7544bbcd73)
       '@ember-data/json-api': file:packages/json-api(92bf50ad90edac6c6a659a261d350158)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+
+  '@ember-data/model@file:packages/model(57515b26cac7da8eee92c08bdda8b67a)':
+    dependencies:
+      '@ember-data/legacy-compat': file:packages/legacy-compat(de0fc904bf4b4f5876235ca1df2cae3e)
+      '@ember-data/request-utils': file:packages/request-utils(9325569a50bf0fa18fcd1fa6c54919d9)
+      '@ember-data/store': file:packages/store(8612b4059ad3fa9e69b965ee6637804a)
+      '@ember-data/tracking': file:packages/tracking(74c30246d73285c391cb43828ca6a640)
+      '@ember/edition-utils': 1.2.0
+      '@embroider/macros': 1.16.11(03ebd109d943a27ca5a55d723400dcb7)
+      '@warp-drive/build-config': file:packages/build-config(03ebd109d943a27ca5a55d723400dcb7)
+      '@warp-drive/core-types': file:packages/core-types(03ebd109d943a27ca5a55d723400dcb7)
+      ember-cli-string-utils: 1.1.0
+      ember-cli-test-info: 1.0.0
+      ember-source: https://s3.amazonaws.com/builds.emberjs.com/canary/shas/be20bd3f8ea066050eb91862af5180e10ba37134.tgz(ec1e7e9319201c91f4dab5a0c78f277d)
+      inflection: 3.0.2
+    optionalDependencies:
+      '@ember-data/graph': file:packages/graph(aeef1aea4635d5710d5cffb6da3f0f0a)
+      '@ember-data/json-api': file:packages/json-api(b0e0ac6c83833bcaaa035f0f83f0175f)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+
+  '@ember-data/model@file:packages/model(8011a73f97b2cfca697fd00fba5429a9)':
+    dependencies:
+      '@ember-data/legacy-compat': file:packages/legacy-compat(c54c9d05e53fdcfe46a48640be87380e)
+      '@ember-data/request-utils': file:packages/request-utils(2364d7b709ae3f9eec68270bb517fe40)
+      '@ember-data/store': file:packages/store(87289e069babf9bd539b40f545277438)
+      '@ember-data/tracking': file:packages/tracking(f76e144d736ddc61b5b3fc94acf05b0c)
+      '@ember/edition-utils': 1.2.0
+      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
+      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
+      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
+      ember-cli-string-utils: 1.1.0
+      ember-cli-test-info: 1.0.0
+      ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
+      inflection: 3.0.2
+    optionalDependencies:
+      '@ember-data/graph': file:packages/graph(fb1fcebd6d02ca275415272753a7b91a)
+      '@ember-data/json-api': file:packages/json-api(bddf6fdc6c06e9bf8932500a58b7b7e9)
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -14482,72 +14464,6 @@ snapshots:
       - '@glint/template'
       - supports-color
 
-  '@ember-data/model@file:packages/model(e6353c9c99ac33f3bce5340b62c9d4f5)':
-    dependencies:
-      '@ember-data/legacy-compat': file:packages/legacy-compat(c225558dc02366f360095474de233b4e)
-      '@ember-data/request-utils': file:packages/request-utils(abce721722190de3ddd742ae470e7608)
-      '@ember-data/store': file:packages/store(7c15dad407e2da7886540f40c0a317a0)
-      '@ember-data/tracking': file:packages/tracking(f76e144d736ddc61b5b3fc94acf05b0c)
-      '@ember/edition-utils': 1.2.0
-      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
-      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
-      ember-cli-string-utils: 1.1.0
-      ember-cli-test-info: 1.0.0
-      ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
-      inflection: 3.0.2
-    optionalDependencies:
-      '@ember-data/graph': file:packages/graph(c9a8d1a45f0bdc2201bc5598de19ec70)
-      '@ember-data/json-api': file:packages/json-api(da6892c93bdcbb4ba8280ddfcddca412)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
-  '@ember-data/model@file:packages/model(ebe90f3062b226e87f9ff344ed448f51)':
-    dependencies:
-      '@ember-data/legacy-compat': file:packages/legacy-compat(eaba02118c829066cea1afa57a7d9337)
-      '@ember-data/request-utils': file:packages/request-utils(09487ada9c8c395af576dae33a5cdacc)
-      '@ember-data/store': file:packages/store(39c989179a41ac2b13368f042d111647)
-      '@ember-data/tracking': file:packages/tracking(74c30246d73285c391cb43828ca6a640)
-      '@ember/edition-utils': 1.2.0
-      '@embroider/macros': 1.16.11(03ebd109d943a27ca5a55d723400dcb7)
-      '@warp-drive/build-config': file:packages/build-config(03ebd109d943a27ca5a55d723400dcb7)
-      '@warp-drive/core-types': file:packages/core-types(03ebd109d943a27ca5a55d723400dcb7)
-      ember-cli-string-utils: 1.1.0
-      ember-cli-test-info: 1.0.0
-      ember-source: https://s3.amazonaws.com/builds.emberjs.com/canary/shas/be20bd3f8ea066050eb91862af5180e10ba37134.tgz(ec1e7e9319201c91f4dab5a0c78f277d)
-      inflection: 3.0.2
-    optionalDependencies:
-      '@ember-data/graph': file:packages/graph(955a3086fb13852f561d47caf6189887)
-      '@ember-data/json-api': file:packages/json-api(ba76ce9d97615b1b1ca7396c342d43bd)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
-  '@ember-data/model@file:packages/model(f92703464af2680034627a9036c4fd96)':
-    dependencies:
-      '@ember-data/legacy-compat': file:packages/legacy-compat(e9e27c2a668ddb5073fd8abccea1982d)
-      '@ember-data/request-utils': file:packages/request-utils(14516df7c5a4131728b82370feb3e8d7)
-      '@ember-data/store': file:packages/store(cbe5e1595509e6eb6f16b4a84c4b1142)
-      '@ember-data/tracking': file:packages/tracking(f76e144d736ddc61b5b3fc94acf05b0c)
-      '@ember/edition-utils': 1.2.0
-      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
-      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
-      ember-cli-string-utils: 1.1.0
-      ember-cli-test-info: 1.0.0
-      ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
-      inflection: 3.0.2
-    optionalDependencies:
-      '@ember-data/graph': file:packages/graph(6c614ce1f67a04d85f4ed62ccc5533f2)
-      '@ember-data/json-api': file:packages/json-api(a8a9152def99ff63f8fb4f513030a5e1)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
   '@ember-data/model@file:packages/model(fe12078a28fd3056a38d72d1606d0364)':
     dependencies:
       '@ember-data/legacy-compat': file:packages/legacy-compat(a855b7e0eb8088ced1d5da61d8b92cb8)
@@ -14567,28 +14483,15 @@ snapshots:
       - '@glint/template'
       - supports-color
 
-  '@ember-data/request-utils@file:packages/request-utils(09487ada9c8c395af576dae33a5cdacc)':
-    dependencies:
-      '@embroider/macros': 1.16.11(03ebd109d943a27ca5a55d723400dcb7)
-      '@warp-drive/build-config': file:packages/build-config(03ebd109d943a27ca5a55d723400dcb7)
-      '@warp-drive/core-types': file:packages/core-types(03ebd109d943a27ca5a55d723400dcb7)
-      ember-source: https://s3.amazonaws.com/builds.emberjs.com/canary/shas/be20bd3f8ea066050eb91862af5180e10ba37134.tgz(ec1e7e9319201c91f4dab5a0c78f277d)
-    optionalDependencies:
-      '@ember/string': 3.1.1(@babel/core@7.26.9)
-      ember-inflector: 4.0.3(824ca145128a2e0f190c5305efbce50c)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
-  '@ember-data/request-utils@file:packages/request-utils(14516df7c5a4131728b82370feb3e8d7)':
+  '@ember-data/request-utils@file:packages/request-utils(2364d7b709ae3f9eec68270bb517fe40)':
     dependencies:
       '@embroider/macros': 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
       ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
     optionalDependencies:
-      '@ember/string': 3.1.1(@babel/core@7.26.9)
+      '@ember/string': 4.0.1
+      ember-inflector: 4.0.3(b7bd70fa55d8dcc6fec132f7d004fc3f)
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -14607,26 +14510,26 @@ snapshots:
       - '@glint/template'
       - supports-color
 
+  '@ember-data/request-utils@file:packages/request-utils(9325569a50bf0fa18fcd1fa6c54919d9)':
+    dependencies:
+      '@embroider/macros': 1.16.11(03ebd109d943a27ca5a55d723400dcb7)
+      '@warp-drive/build-config': file:packages/build-config(03ebd109d943a27ca5a55d723400dcb7)
+      '@warp-drive/core-types': file:packages/core-types(03ebd109d943a27ca5a55d723400dcb7)
+      ember-source: https://s3.amazonaws.com/builds.emberjs.com/canary/shas/be20bd3f8ea066050eb91862af5180e10ba37134.tgz(ec1e7e9319201c91f4dab5a0c78f277d)
+    optionalDependencies:
+      '@ember/string': 4.0.1
+      ember-inflector: 4.0.3(824ca145128a2e0f190c5305efbce50c)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+
   '@ember-data/request-utils@file:packages/request-utils(9f341b640e7e3ac4561f01759b1ce9b9)':
     dependencies:
       '@embroider/macros': 1.16.11(03ebd109d943a27ca5a55d723400dcb7)
       '@warp-drive/build-config': file:packages/build-config(03ebd109d943a27ca5a55d723400dcb7)
       '@warp-drive/core-types': file:packages/core-types(03ebd109d943a27ca5a55d723400dcb7)
       ember-source: 5.12.0(6a201878a3f83be3d66cbc1e6dc27c3c)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
-  '@ember-data/request-utils@file:packages/request-utils(abce721722190de3ddd742ae470e7608)':
-    dependencies:
-      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
-      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
-      ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
-    optionalDependencies:
-      '@ember/string': 3.1.1(@babel/core@7.26.9)
-      ember-inflector: 4.0.3(b7bd70fa55d8dcc6fec132f7d004fc3f)
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -14665,10 +14568,10 @@ snapshots:
       - '@glint/template'
       - supports-color
 
-  '@ember-data/rest@file:packages/rest(7da81817230fd925a302a83b3b750f33)':
+  '@ember-data/rest@file:packages/rest(61367450a0359ea939057553ef93fcb0)':
     dependencies:
-      '@ember-data/request-utils': file:packages/request-utils(abce721722190de3ddd742ae470e7608)
-      '@ember-data/store': file:packages/store(7c15dad407e2da7886540f40c0a317a0)
+      '@ember-data/request-utils': file:packages/request-utils(2364d7b709ae3f9eec68270bb517fe40)
+      '@ember-data/store': file:packages/store(87289e069babf9bd539b40f545277438)
       '@embroider/macros': 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
@@ -14678,24 +14581,6 @@ snapshots:
       - supports-color
 
   '@ember-data/rfc395-data@0.0.4': {}
-
-  '@ember-data/serializer@file:packages/serializer(0840a77829b97d82f120b46a110cae23)':
-    dependencies:
-      '@ember-data/legacy-compat': file:packages/legacy-compat(eaba02118c829066cea1afa57a7d9337)
-      '@ember-data/request-utils': file:packages/request-utils(09487ada9c8c395af576dae33a5cdacc)
-      '@ember-data/store': file:packages/store(39c989179a41ac2b13368f042d111647)
-      '@ember/edition-utils': 1.2.0
-      '@embroider/macros': 1.16.11(03ebd109d943a27ca5a55d723400dcb7)
-      '@warp-drive/build-config': file:packages/build-config(03ebd109d943a27ca5a55d723400dcb7)
-      '@warp-drive/core-types': file:packages/core-types(03ebd109d943a27ca5a55d723400dcb7)
-      ember-cli-path-utils: 1.0.0
-      ember-cli-string-utils: 1.1.0
-      ember-cli-test-info: 1.0.0
-      ember-source: https://s3.amazonaws.com/builds.emberjs.com/canary/shas/be20bd3f8ea066050eb91862af5180e10ba37134.tgz(ec1e7e9319201c91f4dab5a0c78f277d)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
 
   '@ember-data/serializer@file:packages/serializer(2f16ce43f4ad48449054817c3181c044)':
     dependencies:
@@ -14715,11 +14600,29 @@ snapshots:
       - '@glint/template'
       - supports-color
 
-  '@ember-data/serializer@file:packages/serializer(ea3cd99e38ee9f142e832c552c4d67f9)':
+  '@ember-data/serializer@file:packages/serializer(b0f561a32408d861fb5fdb1544eb7b5b)':
     dependencies:
-      '@ember-data/legacy-compat': file:packages/legacy-compat(c225558dc02366f360095474de233b4e)
-      '@ember-data/request-utils': file:packages/request-utils(abce721722190de3ddd742ae470e7608)
-      '@ember-data/store': file:packages/store(7c15dad407e2da7886540f40c0a317a0)
+      '@ember-data/legacy-compat': file:packages/legacy-compat(de0fc904bf4b4f5876235ca1df2cae3e)
+      '@ember-data/request-utils': file:packages/request-utils(9325569a50bf0fa18fcd1fa6c54919d9)
+      '@ember-data/store': file:packages/store(8612b4059ad3fa9e69b965ee6637804a)
+      '@ember/edition-utils': 1.2.0
+      '@embroider/macros': 1.16.11(03ebd109d943a27ca5a55d723400dcb7)
+      '@warp-drive/build-config': file:packages/build-config(03ebd109d943a27ca5a55d723400dcb7)
+      '@warp-drive/core-types': file:packages/core-types(03ebd109d943a27ca5a55d723400dcb7)
+      ember-cli-path-utils: 1.0.0
+      ember-cli-string-utils: 1.1.0
+      ember-cli-test-info: 1.0.0
+      ember-source: https://s3.amazonaws.com/builds.emberjs.com/canary/shas/be20bd3f8ea066050eb91862af5180e10ba37134.tgz(ec1e7e9319201c91f4dab5a0c78f277d)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+
+  '@ember-data/serializer@file:packages/serializer(be7652186ad2a672659d997915777b80)':
+    dependencies:
+      '@ember-data/legacy-compat': file:packages/legacy-compat(c54c9d05e53fdcfe46a48640be87380e)
+      '@ember-data/request-utils': file:packages/request-utils(2364d7b709ae3f9eec68270bb517fe40)
+      '@ember-data/store': file:packages/store(87289e069babf9bd539b40f545277438)
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
@@ -14751,20 +14654,6 @@ snapshots:
       - '@glint/template'
       - supports-color
 
-  '@ember-data/store@file:packages/store(39c989179a41ac2b13368f042d111647)':
-    dependencies:
-      '@ember-data/request': file:packages/request(2ed64ee49302339ec452fd9f952fdd96)
-      '@ember-data/request-utils': file:packages/request-utils(09487ada9c8c395af576dae33a5cdacc)
-      '@ember-data/tracking': file:packages/tracking(74c30246d73285c391cb43828ca6a640)
-      '@embroider/macros': 1.16.11(03ebd109d943a27ca5a55d723400dcb7)
-      '@warp-drive/build-config': file:packages/build-config(03ebd109d943a27ca5a55d723400dcb7)
-      '@warp-drive/core-types': file:packages/core-types(03ebd109d943a27ca5a55d723400dcb7)
-      ember-source: https://s3.amazonaws.com/builds.emberjs.com/canary/shas/be20bd3f8ea066050eb91862af5180e10ba37134.tgz(ec1e7e9319201c91f4dab5a0c78f277d)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
   '@ember-data/store@file:packages/store(4049441d5a7367eabf762cc752253184)':
     dependencies:
       '@ember-data/request': file:packages/request(2ed64ee49302339ec452fd9f952fdd96)
@@ -14779,10 +14668,24 @@ snapshots:
       - '@glint/template'
       - supports-color
 
-  '@ember-data/store@file:packages/store(7c15dad407e2da7886540f40c0a317a0)':
+  '@ember-data/store@file:packages/store(8612b4059ad3fa9e69b965ee6637804a)':
+    dependencies:
+      '@ember-data/request': file:packages/request(2ed64ee49302339ec452fd9f952fdd96)
+      '@ember-data/request-utils': file:packages/request-utils(9325569a50bf0fa18fcd1fa6c54919d9)
+      '@ember-data/tracking': file:packages/tracking(74c30246d73285c391cb43828ca6a640)
+      '@embroider/macros': 1.16.11(03ebd109d943a27ca5a55d723400dcb7)
+      '@warp-drive/build-config': file:packages/build-config(03ebd109d943a27ca5a55d723400dcb7)
+      '@warp-drive/core-types': file:packages/core-types(03ebd109d943a27ca5a55d723400dcb7)
+      ember-source: https://s3.amazonaws.com/builds.emberjs.com/canary/shas/be20bd3f8ea066050eb91862af5180e10ba37134.tgz(ec1e7e9319201c91f4dab5a0c78f277d)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+
+  '@ember-data/store@file:packages/store(87289e069babf9bd539b40f545277438)':
     dependencies:
       '@ember-data/request': file:packages/request(56f5eb81dd09f1e4b2f781c4e06ce53c)
-      '@ember-data/request-utils': file:packages/request-utils(abce721722190de3ddd742ae470e7608)
+      '@ember-data/request-utils': file:packages/request-utils(2364d7b709ae3f9eec68270bb517fe40)
       '@ember-data/tracking': file:packages/tracking(f76e144d736ddc61b5b3fc94acf05b0c)
       '@embroider/macros': 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
@@ -14797,20 +14700,6 @@ snapshots:
     dependencies:
       '@ember-data/request': file:packages/request(56f5eb81dd09f1e4b2f781c4e06ce53c)
       '@ember-data/request-utils': file:packages/request-utils(693bc34f6047e20aab7b4a0b53fc86a3)
-      '@ember-data/tracking': file:packages/tracking(f76e144d736ddc61b5b3fc94acf05b0c)
-      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
-      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
-      ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
-  '@ember-data/store@file:packages/store(cbe5e1595509e6eb6f16b4a84c4b1142)':
-    dependencies:
-      '@ember-data/request': file:packages/request(56f5eb81dd09f1e4b2f781c4e06ce53c)
-      '@ember-data/request-utils': file:packages/request-utils(14516df7c5a4131728b82370feb3e8d7)
       '@ember-data/tracking': file:packages/tracking(f76e144d736ddc61b5b3fc94acf05b0c)
       '@embroider/macros': 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
@@ -14868,24 +14757,6 @@ snapshots:
       - '@glint/template'
       - supports-color
 
-  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(09728f87036a59b248fd408abea7e7a5)':
-    dependencies:
-      '@ember-data/store': file:packages/store(cbe5e1595509e6eb6f16b4a84c4b1142)
-      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(b7bd70fa55d8dcc6fec132f7d004fc3f)
-      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
-      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
-      chalk: 4.1.2
-      ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
-      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
-      semver: 7.7.1
-    optionalDependencies:
-      testem: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
   '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(2ac552357c7a707c97804620b9e2b2e3)':
     dependencies:
       '@ember-data/store': file:packages/store(4049441d5a7367eabf762cc752253184)
@@ -14902,6 +14773,24 @@ snapshots:
       - '@glint/template'
       - supports-color
 
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(2ef3c9e9cb0bb5dfab0e3be796a883b6)':
+    dependencies:
+      '@ember-data/store': file:packages/store(89a2bfbf7fc3345fce4a4c7c2ca47574)
+      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(b7bd70fa55d8dcc6fec132f7d004fc3f)
+      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
+      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
+      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
+      chalk: 4.1.2
+      ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
+      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
+      semver: 7.7.1
+    optionalDependencies:
+      testem: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+
   '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(71a767d122d55c6840ad47fa86e34c0f)':
     dependencies:
       '@ember-data/store': file:packages/store(d01ec85b299a6605ba4c50037443fea4)
@@ -14913,6 +14802,42 @@ snapshots:
       ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
       qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       semver: 7.7.1
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(7227818d87be4595d2557bd142d06c4d)':
+    dependencies:
+      '@ember-data/store': file:packages/store(87289e069babf9bd539b40f545277438)
+      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(b7bd70fa55d8dcc6fec132f7d004fc3f)
+      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
+      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
+      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
+      chalk: 4.1.2
+      ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
+      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
+      semver: 7.7.1
+    optionalDependencies:
+      testem: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(7cf33834e1535c3a1ba483d9687727cd)':
+    dependencies:
+      '@ember-data/store': file:packages/store(87289e069babf9bd539b40f545277438)
+      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(b7bd70fa55d8dcc6fec132f7d004fc3f)
+      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
+      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
+      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
+      chalk: 4.1.2
+      ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
+      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
+      semver: 7.7.1
+    optionalDependencies:
+      '@warp-drive/diagnostic': file:packages/diagnostic(e19db5e0c0f2df5f23d666ad28615cdc)
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -14970,51 +14895,15 @@ snapshots:
       - '@glint/template'
       - supports-color
 
-  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(c76adfaf51732c5253d6485a05474df1)':
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(fe4adaf95a3ea88e7e4c7d3cca3cef6b)':
     dependencies:
-      '@ember-data/store': file:packages/store(39c989179a41ac2b13368f042d111647)
+      '@ember-data/store': file:packages/store(8612b4059ad3fa9e69b965ee6637804a)
       '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(db6970428dd76886ad0d0caf1ffb8942)
       '@embroider/macros': 1.16.11(03ebd109d943a27ca5a55d723400dcb7)
       '@warp-drive/build-config': file:packages/build-config(03ebd109d943a27ca5a55d723400dcb7)
       '@warp-drive/core-types': file:packages/core-types(03ebd109d943a27ca5a55d723400dcb7)
       chalk: 4.1.2
       ember-source: https://s3.amazonaws.com/builds.emberjs.com/canary/shas/be20bd3f8ea066050eb91862af5180e10ba37134.tgz(ec1e7e9319201c91f4dab5a0c78f277d)
-      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
-      semver: 7.7.1
-    optionalDependencies:
-      testem: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
-  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(e0a5dfe12792dd3a1549e533ff423ec1)':
-    dependencies:
-      '@ember-data/store': file:packages/store(7c15dad407e2da7886540f40c0a317a0)
-      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(b7bd70fa55d8dcc6fec132f7d004fc3f)
-      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
-      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
-      chalk: 4.1.2
-      ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
-      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
-      semver: 7.7.1
-    optionalDependencies:
-      '@warp-drive/diagnostic': file:packages/diagnostic(e19db5e0c0f2df5f23d666ad28615cdc)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
-  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(fe48ab59df7fd42fd3309076cf99f5e0)':
-    dependencies:
-      '@ember-data/store': file:packages/store(7c15dad407e2da7886540f40c0a317a0)
-      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(b7bd70fa55d8dcc6fec132f7d004fc3f)
-      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
-      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
-      chalk: 4.1.2
-      ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
       qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       semver: 7.7.1
     optionalDependencies:
@@ -15035,13 +14924,6 @@ snapshots:
       mkdirp: 1.0.4
       silent-error: 1.1.1
     transitivePeerDependencies:
-      - supports-color
-
-  '@ember/string@3.1.1(@babel/core@7.26.9)':
-    dependencies:
-      ember-cli-babel: 8.2.0(@babel/core@7.26.9)
-    transitivePeerDependencies:
-      - '@babel/core'
       - supports-color
 
   '@ember/string@4.0.1': {}
@@ -17347,22 +17229,6 @@ snapshots:
       - terser
       - utf-8-validate
 
-  '@warp-drive/schema-record@file:packages/schema-record(38026abc483b968f73bbd666e2944d97)':
-    dependencies:
-      '@ember-data/request': file:packages/request(2ed64ee49302339ec452fd9f952fdd96)
-      '@ember-data/store': file:packages/store(39c989179a41ac2b13368f042d111647)
-      '@ember-data/tracking': file:packages/tracking(74c30246d73285c391cb43828ca6a640)
-      '@embroider/macros': 1.16.11(03ebd109d943a27ca5a55d723400dcb7)
-      '@warp-drive/build-config': file:packages/build-config(03ebd109d943a27ca5a55d723400dcb7)
-      '@warp-drive/core-types': file:packages/core-types(03ebd109d943a27ca5a55d723400dcb7)
-      ember-source: https://s3.amazonaws.com/builds.emberjs.com/canary/shas/be20bd3f8ea066050eb91862af5180e10ba37134.tgz(ec1e7e9319201c91f4dab5a0c78f277d)
-    optionalDependencies:
-      '@ember-data/model': file:packages/model(ebe90f3062b226e87f9ff344ed448f51)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
   '@warp-drive/schema-record@file:packages/schema-record(3e1880f5d1ac59963a44ee1fa6407a16)':
     dependencies:
       '@ember-data/request': file:packages/request(2ed64ee49302339ec452fd9f952fdd96)
@@ -17374,6 +17240,22 @@ snapshots:
       ember-source: 5.12.0(6a201878a3f83be3d66cbc1e6dc27c3c)
     optionalDependencies:
       '@ember-data/model': file:packages/model(5349bf01e3dd0b7e83daf8e8f51f6d58)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+
+  '@warp-drive/schema-record@file:packages/schema-record(71782a89c0d86eb0e27ecf3506d8c1eb)':
+    dependencies:
+      '@ember-data/request': file:packages/request(2ed64ee49302339ec452fd9f952fdd96)
+      '@ember-data/store': file:packages/store(8612b4059ad3fa9e69b965ee6637804a)
+      '@ember-data/tracking': file:packages/tracking(74c30246d73285c391cb43828ca6a640)
+      '@embroider/macros': 1.16.11(03ebd109d943a27ca5a55d723400dcb7)
+      '@warp-drive/build-config': file:packages/build-config(03ebd109d943a27ca5a55d723400dcb7)
+      '@warp-drive/core-types': file:packages/core-types(03ebd109d943a27ca5a55d723400dcb7)
+      ember-source: https://s3.amazonaws.com/builds.emberjs.com/canary/shas/be20bd3f8ea066050eb91862af5180e10ba37134.tgz(ec1e7e9319201c91f4dab5a0c78f277d)
+    optionalDependencies:
+      '@ember-data/model': file:packages/model(57515b26cac7da8eee92c08bdda8b67a)
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -19818,35 +19700,6 @@ snapshots:
       - ember-inflector
       - supports-color
 
-  ember-data@file:packages/-ember-data(55ed5caa4f5f705b227c2ff9025e058d):
-    dependencies:
-      '@ember-data/adapter': file:packages/adapter(0840a77829b97d82f120b46a110cae23)
-      '@ember-data/debug': file:packages/debug(5a25bd6d0fb07fad505b6ae24ce7b565)
-      '@ember-data/graph': file:packages/graph(955a3086fb13852f561d47caf6189887)
-      '@ember-data/json-api': file:packages/json-api(ba76ce9d97615b1b1ca7396c342d43bd)
-      '@ember-data/legacy-compat': file:packages/legacy-compat(eaba02118c829066cea1afa57a7d9337)
-      '@ember-data/model': file:packages/model(ebe90f3062b226e87f9ff344ed448f51)
-      '@ember-data/request': file:packages/request(2ed64ee49302339ec452fd9f952fdd96)
-      '@ember-data/request-utils': file:packages/request-utils(09487ada9c8c395af576dae33a5cdacc)
-      '@ember-data/serializer': file:packages/serializer(0840a77829b97d82f120b46a110cae23)
-      '@ember-data/store': file:packages/store(39c989179a41ac2b13368f042d111647)
-      '@ember-data/tracking': file:packages/tracking(74c30246d73285c391cb43828ca6a640)
-      '@ember/edition-utils': 1.2.0
-      '@embroider/macros': 1.16.11(03ebd109d943a27ca5a55d723400dcb7)
-      '@warp-drive/build-config': file:packages/build-config(03ebd109d943a27ca5a55d723400dcb7)
-      '@warp-drive/core-types': file:packages/core-types(03ebd109d943a27ca5a55d723400dcb7)
-      ember-source: https://s3.amazonaws.com/builds.emberjs.com/canary/shas/be20bd3f8ea066050eb91862af5180e10ba37134.tgz(ec1e7e9319201c91f4dab5a0c78f277d)
-    optionalDependencies:
-      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(db6970428dd76886ad0d0caf1ffb8942)
-      '@ember/test-waiters': 3.1.0(@babel/core@7.26.9)
-      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@ember/string'
-      - '@glint/template'
-      - ember-inflector
-      - supports-color
-
   ember-data@file:packages/-ember-data(7d88a3a8fdbd286ea22c6d92dac33b7f):
     dependencies:
       '@ember-data/adapter': file:packages/adapter(faf76364487ec2110ad45ff3201f65e7)
@@ -19932,18 +19785,47 @@ snapshots:
       - ember-inflector
       - supports-color
 
-  ember-data@file:packages/-ember-data(dde455f3cf687ef54f89c5606175ff09):
+  ember-data@file:packages/-ember-data(b6da8b936d93fb6addeac6cace54502e):
     dependencies:
-      '@ember-data/adapter': file:packages/adapter(ea3cd99e38ee9f142e832c552c4d67f9)
-      '@ember-data/debug': file:packages/debug(1133a0887c15844353269ef9a10e2a65)
-      '@ember-data/graph': file:packages/graph(c9a8d1a45f0bdc2201bc5598de19ec70)
-      '@ember-data/json-api': file:packages/json-api(da6892c93bdcbb4ba8280ddfcddca412)
-      '@ember-data/legacy-compat': file:packages/legacy-compat(c225558dc02366f360095474de233b4e)
-      '@ember-data/model': file:packages/model(e6353c9c99ac33f3bce5340b62c9d4f5)
+      '@ember-data/adapter': file:packages/adapter(b0f561a32408d861fb5fdb1544eb7b5b)
+      '@ember-data/debug': file:packages/debug(5e4d73e683e9b477330d259165bfec42)
+      '@ember-data/graph': file:packages/graph(aeef1aea4635d5710d5cffb6da3f0f0a)
+      '@ember-data/json-api': file:packages/json-api(b0e0ac6c83833bcaaa035f0f83f0175f)
+      '@ember-data/legacy-compat': file:packages/legacy-compat(de0fc904bf4b4f5876235ca1df2cae3e)
+      '@ember-data/model': file:packages/model(57515b26cac7da8eee92c08bdda8b67a)
+      '@ember-data/request': file:packages/request(2ed64ee49302339ec452fd9f952fdd96)
+      '@ember-data/request-utils': file:packages/request-utils(9325569a50bf0fa18fcd1fa6c54919d9)
+      '@ember-data/serializer': file:packages/serializer(b0f561a32408d861fb5fdb1544eb7b5b)
+      '@ember-data/store': file:packages/store(8612b4059ad3fa9e69b965ee6637804a)
+      '@ember-data/tracking': file:packages/tracking(74c30246d73285c391cb43828ca6a640)
+      '@ember/edition-utils': 1.2.0
+      '@embroider/macros': 1.16.11(03ebd109d943a27ca5a55d723400dcb7)
+      '@warp-drive/build-config': file:packages/build-config(03ebd109d943a27ca5a55d723400dcb7)
+      '@warp-drive/core-types': file:packages/core-types(03ebd109d943a27ca5a55d723400dcb7)
+      ember-source: https://s3.amazonaws.com/builds.emberjs.com/canary/shas/be20bd3f8ea066050eb91862af5180e10ba37134.tgz(ec1e7e9319201c91f4dab5a0c78f277d)
+    optionalDependencies:
+      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(db6970428dd76886ad0d0caf1ffb8942)
+      '@ember/test-waiters': 3.1.0(@babel/core@7.26.9)
+      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@ember/string'
+      - '@glint/template'
+      - ember-inflector
+      - supports-color
+
+  ember-data@file:packages/-ember-data(ea503fa4c75e4e4b504c976167864c2a):
+    dependencies:
+      '@ember-data/adapter': file:packages/adapter(be7652186ad2a672659d997915777b80)
+      '@ember-data/debug': file:packages/debug(42c4a918cb7a5a8f61db3dc04abd846a)
+      '@ember-data/graph': file:packages/graph(fb1fcebd6d02ca275415272753a7b91a)
+      '@ember-data/json-api': file:packages/json-api(bddf6fdc6c06e9bf8932500a58b7b7e9)
+      '@ember-data/legacy-compat': file:packages/legacy-compat(c54c9d05e53fdcfe46a48640be87380e)
+      '@ember-data/model': file:packages/model(8011a73f97b2cfca697fd00fba5429a9)
       '@ember-data/request': file:packages/request(56f5eb81dd09f1e4b2f781c4e06ce53c)
-      '@ember-data/request-utils': file:packages/request-utils(abce721722190de3ddd742ae470e7608)
-      '@ember-data/serializer': file:packages/serializer(ea3cd99e38ee9f142e832c552c4d67f9)
-      '@ember-data/store': file:packages/store(7c15dad407e2da7886540f40c0a317a0)
+      '@ember-data/request-utils': file:packages/request-utils(2364d7b709ae3f9eec68270bb517fe40)
+      '@ember-data/serializer': file:packages/serializer(be7652186ad2a672659d997915777b80)
+      '@ember-data/store': file:packages/store(87289e069babf9bd539b40f545277438)
       '@ember-data/tracking': file:packages/tracking(f76e144d736ddc61b5b3fc94acf05b0c)
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.16.11(@babel/core@7.26.9)
