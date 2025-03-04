@@ -55,7 +55,7 @@
     "lerna-changelog": "^2.2.0",
     "prettier": "^3.3.2",
     "prettier-plugin-ember-template-tag": "^2.0.2",
-    "rimraf": "^5.0.10",
+    "rimraf": "^6.0.1",
     "semver": "^7.7.1",
     "silent-error": "^1.1.1",
     "typescript": "^5.7.2",
