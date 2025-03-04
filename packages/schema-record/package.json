@@ -75,7 +75,7 @@
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
     "ember-source": "~5.12.0",
-    "vite": "^5.2.11"
+    "vite": "^5.4.14"
   },
   "ember": {
     "edition": "octane"
