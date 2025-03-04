@@ -533,8 +533,8 @@ importers:
         specifier: ^5.3.2
         version: 5.3.2
       jscodeshift:
-        specifier: ^0.16.1
-        version: 0.16.1
+        specifier: ^17.1.2
+        version: 17.1.2
       strip-ansi:
         specifier: ^7.1.0
         version: 7.1.0
@@ -1839,8 +1839,8 @@ importers:
   tests/codemods:
     dependencies:
       jscodeshift:
-        specifier: ^0.16.1
-        version: 0.16.1
+        specifier: ^17.1.2
+        version: 17.1.2
       prettier:
         specifier: ^3.3.2
         version: 3.5.3
@@ -9821,8 +9821,9 @@ packages:
   jsbn@1.1.0:
     resolution: {integrity: sha512-4bYVV3aAMtDTTu4+xsDYa6sy9GyJ69/amsu9sYF2zqjiEoZA5xJi3BrfX3uY+/IekIu7MwdObdbDWpoZdBv3/A==}
 
-  jscodeshift@0.16.1:
-    resolution: {integrity: sha512-oMQXySazy63awNBzMpXbbVv73u3irdxTeX2L5ueRyFRxi32qb9uzdZdOY5fTBYADBG19l5M/wnGknZSV1dzCdA==}
+  jscodeshift@17.1.2:
+    resolution: {integrity: sha512-uime4vFOiZ1o3ICT4Sm/AbItHEVw2oCxQ3a0egYVy3JMMOctxe07H3SKL1v175YqjMt27jn1N+3+Bj9SKDNgdQ==}
+    engines: {node: '>=16'}
     hasBin: true
     peerDependencies:
       '@babel/preset-env': ^7.1.6
@@ -10452,10 +10453,6 @@ packages:
   nock@13.5.6:
     resolution: {integrity: sha512-o2zOYiCpzRqSzPj0Zt/dQ/DqZeYoaQ7TUonc/xUPjCGl9WeHpNbxgVvOquXYAaJzI0M9BXV3HTzG0p8IUAbBTQ==}
     engines: {node: '>= 10.13'}
-
-  node-dir@0.1.17:
-    resolution: {integrity: sha512-tmPX422rYgofd4epzrNoOXiE8XFZYOcCq1vD7MAXCDO+O+zndlA2ztdKKMa+EeuBG5tHETpr4ml4RGgpqDCCAg==}
-    engines: {node: '>= 0.10.5'}
 
   node-fetch@2.7.0:
     resolution: {integrity: sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==}
@@ -14039,7 +14036,7 @@ snapshots:
       chalk: 5.4.1
       commander: 13.1.0
       ignore: 5.3.2
-      jscodeshift: 0.16.1
+      jscodeshift: 17.1.2
       strip-ansi: 7.1.0
       typescript: 5.8.2
       winston: 3.17.0
@@ -22309,7 +22306,7 @@ snapshots:
 
   jsbn@1.1.0: {}
 
-  jscodeshift@0.16.1:
+  jscodeshift@17.1.2:
     dependencies:
       '@babel/core': 7.26.9
       '@babel/parser': 7.26.9
@@ -22321,14 +22318,13 @@ snapshots:
       '@babel/preset-flow': 7.25.9(@babel/core@7.26.9)
       '@babel/preset-typescript': 7.26.0(@babel/core@7.26.9)
       '@babel/register': 7.25.9(@babel/core@7.26.9)
-      chalk: 4.1.2
       flow-parser: 0.262.0
       graceful-fs: 4.2.11
       micromatch: 4.0.8
       neo-async: 2.6.2
-      node-dir: 0.1.17
+      picocolors: 1.1.1
       recast: 0.23.11
-      temp: 0.9.4
+      tmp: 0.2.3
       write-file-atomic: 5.0.1
     transitivePeerDependencies:
       - supports-color
@@ -23057,10 +23053,6 @@ snapshots:
       propagate: 2.0.1
     transitivePeerDependencies:
       - supports-color
-
-  node-dir@0.1.17:
-    dependencies:
-      minimatch: 3.1.2
 
   node-fetch@2.7.0:
     dependencies:
