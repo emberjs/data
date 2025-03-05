@@ -35,7 +35,7 @@ export default defineConfig({
   },
   mode: 'production',
   build: {
-    minify: true,
+    minify: 'terser',
     reportCompressedSize: false,
     terserOptions: {
       compress: {
