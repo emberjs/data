@@ -115,7 +115,7 @@ jobs:
           upload-traces: true
           upload-results: true
         env:
-          DEBUG: '*'
+          DEBUG: '*,-babel*,-vite*,-rollup*,-ember*'
       - name: Report TracerBench Results
         if: failure() || success()
         env:
