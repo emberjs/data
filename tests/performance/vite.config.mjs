@@ -35,8 +35,23 @@ export default defineConfig({
   },
   mode: 'production',
   build: {
-    minify: true,
+    minify: 'terser',
     reportCompressedSize: false,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('@ember-data/model')) return 'warp-drive-legacy';
+          if (id.includes('@ember-data/legacy-compat')) return 'warp-drive-legacy';
+          if (id.includes('@ember-data')) return 'warp-drive';
+          if (id.includes('@warp-drive')) return 'warp-drive';
+          if (id.includes('@ember')) return 'ember';
+          if (id.includes('ember-source')) return 'ember';
+          if (id.includes('@glimmer')) return 'ember';
+          if (id.includes('node_modules')) return 'vendor';
+          return null;
+        },
+      },
+    },
     terserOptions: {
       compress: {
         ecma: 2024,
