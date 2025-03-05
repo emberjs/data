@@ -114,6 +114,8 @@ jobs:
           fidelity: 60
           upload-traces: true
           upload-results: true
+        env:
+          DEBUG=*
       - name: Report TracerBench Results
         if: failure() || success()
         env:
