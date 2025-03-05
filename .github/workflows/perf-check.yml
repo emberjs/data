@@ -53,6 +53,8 @@ jobs:
         run: |
           BROWSER_FLAGS=$(node ./scripts/perf-tracking/browser-flags.mjs)
           echo "BROWSER_FLAGS=$BROWSER_FLAGS" >> $GITHUB_OUTPUT
+        env:
+          DEBUG: true
       - uses: tracerbench/tracerbench-compare-action@6b56fb774f78e4a85cf02396412b0164870cdab3
         with:
           experiment-build-command: pnpm --filter performance-test-app build --outDir dist-experiment
