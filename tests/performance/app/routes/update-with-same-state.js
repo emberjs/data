@@ -5,6 +5,7 @@ export default Route.extend({
   store: service(),
 
   async model() {
+    console.group('test-setup');
     performance.mark('start-data-generation');
 
     const initialPayload = await fetch('./fixtures/add-children-initial.json').then((r) => r.json());
@@ -32,6 +33,7 @@ export default Route.extend({
     const children = await parent.children;
 
     await logChildren(parent);
+    console.groupEnd();
 
     performance.mark('start-local-removal');
     console.group('start-local-removal');
@@ -74,10 +76,9 @@ function iterateChild(record, seen) {
   }
   seen.add(record);
 
-  record.bestFriend.get('name');
-  record.secondBestFriend.get('name');
-  record.friends.forEach((child) => iterateChild(child, seen));
+  record.parent.get('name');
 }
+
 function iterateParent(record, seen) {
   seen.add(record);
   record.children.forEach((child) => iterateChild(child, seen));
