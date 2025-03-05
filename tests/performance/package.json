@@ -31,6 +31,7 @@
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/store": "workspace:*",
     "@ember-data/model": "workspace:*",
+    "@ember-data/legacy-compat": "workspace:*",
     "@ember-data/graph": "workspace:*",
     "@ember-data/json-api": "workspace:*",
     "@ember-data/tracking": "workspace:*",
