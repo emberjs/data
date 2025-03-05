@@ -27,11 +27,11 @@ module.exports = function (app) {
         fs.createReadStream(filePath).pipe(res);
         return;
       }
-      console.log({
-        url: req.url,
-        filePath: filePath,
-        error: err,
-      });
+      // console.log({
+      //   url: req.url,
+      //   filePath: filePath,
+      //   error: err,
+      // });
 
       return res.status(404).end();
     });

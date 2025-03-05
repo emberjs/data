@@ -1,0 +1,16 @@
+{
+  "include": ["index.ts"],
+  // how do I set this up where it only applies to
+  // this sub-directory?
+  "compilerOptions": {
+    "lib": ["esnext"],
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "strict": true,
+    "pretty": true,
+    "alwaysStrict": true,
+    "types": ["bun-types"]
+  }
+}
