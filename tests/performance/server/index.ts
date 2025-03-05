@@ -1,3 +1,4 @@
+import { styleText } from 'node:util';
 import { join } from 'path';
 const FIXTURES_LOCATION = join(__dirname, '../fixtures/generated');
 
@@ -24,3 +25,10 @@ Bun.serve({
     });
   },
 });
+
+console.log(
+  styleText(
+    'grey',
+    `Fixture API running at ${styleText('yellow', 'http://') + styleText('cyan', 'localhost') + styleText('magenta', `:${process.env.FIXTURE_API_PORT || 9999}`)}`
+  )
+);
