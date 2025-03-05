@@ -118,6 +118,13 @@ jobs:
           upload-results: true
         env:
           DEBUG: '*,-babel*,-vite*,-rollup*,-ember*,-broccoli*,-pnpm*,-embroider*,-tree-sync*,-fs-tree-diff*'
+      - name: Upload Assets
+        if: failure() || success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-files
+          path: 'tests/performance/dist-*'
+          retention-days: 1
       - name: Report TracerBench Results
         if: failure() || success()
         env:
