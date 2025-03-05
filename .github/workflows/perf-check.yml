@@ -53,8 +53,8 @@ jobs:
         run: |
           BROWSER_FLAGS=$(node ./scripts/perf-tracking/browser-flags.mjs)
           echo "BROWSER_FLAGS=$BROWSER_FLAGS" >> $GITHUB_OUTPUT
-        env:
-          DEBUG: true
+        #env:
+        #  DEBUG: true
       - uses: tracerbench/tracerbench-compare-action@6b56fb774f78e4a85cf02396412b0164870cdab3
         with:
           experiment-build-command: pnpm --filter performance-test-app build --outDir dist-experiment
@@ -62,7 +62,7 @@ jobs:
           control-build-command: pnpm --filter performance-test-app exec ember build -e production --output-path dist-control --suppress-sizes
           control-serve-command: pnpm --filter performance-test-app exec ember s --path dist-control
           control-sha: origin/main
-          sample-timeout: 120
+          sample-timeout: 60
           use-pnpm: true
           browser-args: ${{ steps.browser-flags.outputs.BROWSER_FLAGS }}
           scenarios: |
@@ -116,15 +116,15 @@ jobs:
           fidelity: 60
           upload-traces: true
           upload-results: true
-        env:
-          DEBUG: '*,-babel*,-vite*,-rollup*,-ember*,-broccoli*,-pnpm*,-embroider*,-tree-sync*,-fs-tree-diff*'
-      - name: Upload Assets
-        if: failure() || success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: built-files
-          path: 'tests/performance/dist-*'
-          retention-days: 1
+        # env:
+        #   DEBUG: '*,-babel*,-vite*,-rollup*,-ember*,-broccoli*,-pnpm*,-embroider*,-tree-sync*,-fs-tree-diff*'
+      # - name: Upload Assets
+      #   if: failure() || success()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: built-files
+      #     path: 'tests/performance/dist-*'
+      #     retention-days: 1
       - name: Report TracerBench Results
         if: failure() || success()
         env:
