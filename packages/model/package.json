@@ -85,7 +85,7 @@
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/store": "workspace:*",
     "@ember-data/tracking": "workspace:*",
-    "@ember/test-waiters": "^3.1.0",
+    "@ember/test-waiters": "^4.0.0",
     "@glimmer/component": "^1.1.2",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
