@@ -31,7 +31,7 @@ Bun.serve({
     }
 
     if (!exists) {
-      console.log(styleText('red', `File not found: ${filePath}`));
+      // console.log(styleText('red', `File not found: ${filePath}`));
       return new Response('Not Found', { status: 404 });
     }
 
@@ -55,7 +55,7 @@ Bun.serve({
     headers.set('Content-Length', String(fileRef.size));
     headers.set('Content-Type', mimeType);
 
-    console.log(styleText('green', `\tServing: ${filePath}`));
+    // console.log(styleText('green', `\tServing: ${filePath}`));
     return new Response(fileRef, {
       headers,
     });
