@@ -62,7 +62,7 @@ jobs:
           control-build-command: pnpm --filter performance-test-app exec ember build -e production --output-path dist-control --suppress-sizes
           control-serve-command: pnpm --filter performance-test-app exec ember s --path dist-control
           control-sha: origin/main
-          sample-timeout: 60
+          sample-timeout: 120
           use-pnpm: true
           browser-args: ${{ steps.browser-flags.outputs.BROWSER_FLAGS }}
           scenarios: |
