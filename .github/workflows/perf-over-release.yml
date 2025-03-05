@@ -53,7 +53,7 @@ jobs:
         run: |
           BROWSER_FLAGS=$(node ./scripts/perf-tracking/browser-flags.mjs)
           echo "BROWSER_FLAGS=$BROWSER_FLAGS" >> $GITHUB_OUTPUT
-      - uses: tracerbench/tracerbench-compare-action@35f3ab44b512fd2caffbe81adf875ab47272b5b5
+      - uses: tracerbench/tracerbench-compare-action@6b56fb774f78e4a85cf02396412b0164870cdab3
         with:
           experiment-build-command: pnpm install && pnpm --filter performance-test-app exec ember build -e production --output-path dist-experiment --suppress-sizes
           experiment-serve-command: pnpm --filter performance-test-app exec ember s --path dist-experiment --port 4201
