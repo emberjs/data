@@ -52,7 +52,13 @@ function _deprecatedCompare<T>(
         adv = true;
 
         if (!prevSet.has(member)) {
-          changed = true;
+          // Avoid unnecessarily notifying a change that already exists locally
+          if (i < priorLocalLength) {
+            const priorLocalMember = priorLocalState![i];
+            if (priorLocalMember !== member) {
+              changed = true;
+            }
+          }
           added.add(member);
           onAdd(member);
         }
@@ -171,11 +177,13 @@ function _compare<T>(
     if (i < finalLength) {
       member = finalState[i];
       if (!prevSet.has(member)) {
-        // TODO: in order to avoid unnecessarily notifying a change here
-        // we would need to only notify "changed" if member is not in
-        // relationship.additions OR if localState[i] !== member
-
-        changed = true;
+        // Avoid unnecessarily notifying a change that already exists locally
+        if (i < priorLocalLength) {
+          const priorLocalMember = priorLocalState![i];
+          if (priorLocalMember !== member) {
+            changed = true;
+          }
+        }
         added.add(member);
         onAdd(member);
       }
