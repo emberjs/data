@@ -45,7 +45,7 @@ async function main() {
   write('example-car', createCarsPayload(1));
   write('example-parent', createParentPayload(2, 2));
   write('basic-record-materialization', createParentRecords(10000, 2, 3));
-  write('complex-record-materialization', await createComplexRecordsPayload(100));
+  write('complex-record-materialization', await createComplexRecordsPayload(400));
 
   const initialBigM2M = createCarsPayload(100, 100);
   write('big-many-to-many', initialBigM2M);
