@@ -1,6 +1,3 @@
-// FIXME: Don't merge disables
-/* eslint-disable no-console */
-/* eslint-disable no-undef */
 import Route from '@ember/routing/route';
 import { inject as service } from '@ember/service';
 
@@ -10,7 +7,6 @@ export default Route.extend({
   store: service(),
 
   async model() {
-    console.groupCollapsed('test-setup');
     performance.mark('start-data-generation');
 
     const initialPayload = await fetch('./fixtures/big-many-to-many.json').then((r) => r.json());
@@ -33,39 +29,22 @@ export default Route.extend({
     peekedCars.forEach((car) => iterateCar(car, seen));
     const removedColors = [];
 
-    console.groupEnd();
-    console.log(structuredClone(getWarpDriveMetricCounts()));
-
     performance.mark('start-local-removal');
-    console.groupCollapsed('start-local-removal');
     for (const car of peekedCars) {
       const colors = car.colors;
       removedColors.push(colors.splice(0, REMOVAL_COUNT));
     }
 
-    console.groupEnd();
-    console.log(structuredClone(getWarpDriveMetricCounts()));
-
     performance.mark('start-push-minus-one-payload');
-    console.groupCollapsed('start-push-minus-one-payload');
     this.store.push(payloadWithRemoval);
-    console.groupEnd();
-    console.log(structuredClone(getWarpDriveMetricCounts()));
 
     performance.mark('start-local-addition');
-    console.groupCollapsed('start-local-addition');
     peekedCars.forEach((car, index) => {
       car.colors = removedColors[index].concat(car.colors);
     });
 
-    console.groupEnd();
-    console.log(structuredClone(getWarpDriveMetricCounts()));
-
     performance.mark('start-push-plus-one-payload');
-    console.groupCollapsed('start-push-plus-one-payload');
     this.store.push(initialPayload2);
-    console.groupEnd();
-    console.log(structuredClone(getWarpDriveMetricCounts()));
 
     performance.mark('end-push-plus-one-payload');
   },

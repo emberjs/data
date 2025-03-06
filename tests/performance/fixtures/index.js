@@ -1,9 +1,3 @@
-/*
-
-Run this file with `bun run ./fixtures/index.js` to generate the fixtures for the performance benchmarks.
-
-*/
-
 const fs = require('fs');
 const zlib = require('zlib');
 
@@ -34,8 +28,14 @@ const createParentRecords = require('./create-parent-records');
 const { createComplexPayload: createComplexRecordsPayload } = require('./create-complex-payload.ts');
 
 async function main() {
-  write('add-children-initial', createParentPayload(19600));
+  const initialChildrenPayload = createParentPayload(19600);
+  write('add-children-initial', initialChildrenPayload);
   write('add-children-final', createParentPayload(20000));
+  const payloadWithRemoval = structuredClone(initialChildrenPayload);
+  payloadWithRemoval.data.relationships.children.data.splice(0, 19000);
+  payloadWithRemoval.included.splice(0, 19000);
+  write('add-children-with-removal', payloadWithRemoval);
+
   write('destroy', createParentPayload(500, 50));
   write('relationship-materialization-simple', createCarsPayload(10000));
   write('relationship-materialization-complex', createParentRecords(200, 10, 20));
