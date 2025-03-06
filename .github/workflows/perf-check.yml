@@ -72,6 +72,16 @@ jobs:
                 "experiment": "http://localhost:4201/basic-record-materialization",
                 "markers": "start-data-generation,start-push-payload,start-peek-records,start-record-materialization,end-record-materialization"
               },
+              "complex-record-materialization": {
+                "control": "http://localhost:4200/complex-record-materialization",
+                "experiment": "http://localhost:4201/complex-record-materialization",
+                "markers": "start-data-generation,start-push-payload,start-peek-records,start-record-materialization,end-record-materialization"
+              },
+              "complex-record-materialization-with-relationship-materialization": {
+                "control": "http://localhost:4200/complex-record-materialization-with-relationship-materialization",
+                "experiment": "http://localhost:4201/complex-record-materialization-with-relationship-materialization",
+                "markers": "start-data-generation,start-push-payload,start-peek-records,start-record-materialization,start-field-access,start-relationship-access,end-relationship-access"
+              },
               "relationship-materialization-simple": {
                 "control": "http://localhost:4200/relationship-materialization-simple",
                 "experiment": "http://localhost:4201/relationship-materialization-simple",
