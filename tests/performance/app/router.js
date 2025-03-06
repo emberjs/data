@@ -20,6 +20,8 @@ Router.map(function () {
   this.route('unload-all');
   this.route('destroy');
   this.route('unused-relationships');
+  this.route('update-with-same-state');
+  this.route('update-with-same-state-m2m');
 });
 
 export default Router;

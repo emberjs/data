@@ -17,7 +17,8 @@
   "scripts": {
     "build": "vite build",
     "start": "bun ./server/index.ts",
-    "lint": "eslint . --quiet --cache --cache-strategy=content"
+    "lint": "eslint . --quiet --cache --cache-strategy=content",
+    "fixtures": "bun run ./fixtures/index.js"
   },
   "devDependencies": {
     "@babel/core": "^7.26.9",
