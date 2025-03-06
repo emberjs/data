@@ -15,7 +15,7 @@ export default Mixin.create({
   prop_trait_c_9: attr(),
   prop_trait_c_10: attr(),
 
-  hasManyTo_trait_c_a: hasMany('record-mixin-a', {
+  hasMany_trait_c_a: hasMany('record-mixin-a', {
     async: false,
     inverse: 'belongsTo_trait_a_c',
     polymorphic: true,

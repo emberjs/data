@@ -1,15 +1,15 @@
-import recordMixinA from 'app/mixins/record-mixin-a';
-import recordMixinB from 'app/mixins/record-mixin-b';
-import recordMixinC from 'app/mixins/record-mixin-c';
-import recordMixinD from 'app/mixins/record-mixin-d';
-import recordMixinE from 'app/mixins/record-mixin-e';
-import recordMixinF from 'app/mixins/record-mixin-f';
-import recordMixinG from 'app/mixins/record-mixin-g';
-import recordMixinH from 'app/mixins/record-mixin-h';
-import recordMixinI from 'app/mixins/record-mixin-i';
-import recordMixinJ from 'app/mixins/record-mixin-j';
-
 import Model, { attr } from '@ember-data/model';
+
+import recordMixinA from '../mixins/record-mixin-a';
+import recordMixinB from '../mixins/record-mixin-b';
+import recordMixinC from '../mixins/record-mixin-c';
+import recordMixinD from '../mixins/record-mixin-d';
+import recordMixinE from '../mixins/record-mixin-e';
+import recordMixinF from '../mixins/record-mixin-f';
+import recordMixinG from '../mixins/record-mixin-g';
+import recordMixinH from '../mixins/record-mixin-h';
+import recordMixinI from '../mixins/record-mixin-i';
+import recordMixinJ from '../mixins/record-mixin-j';
 
 export default class ComplexRecordI extends Model.extend(
   recordMixinI,
