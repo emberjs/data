@@ -39,6 +39,6 @@ async function main() {
   write('example-car', createCarsPayload(1));
   write('example-parent', createParentPayload(2, 2));
   write('basic-record-materialization', createParentRecords(10000, 2, 3));
-  write('complex-record-materialization', await createComplexRecordsPayload(5));
+  write('complex-record-materialization', await createComplexRecordsPayload(100));
 }
 main();

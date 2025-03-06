@@ -23,7 +23,7 @@ export default Mixin.create({
   }),
   belongsTo_trait_a_c: belongsTo('record-mixin-c', {
     async: false,
-    inverse: 'belongsTo_trait_c_a',
+    inverse: 'hasMany_trait_c_a',
     polymorphic: true,
     as: 'record-mixin-a',
   }),
