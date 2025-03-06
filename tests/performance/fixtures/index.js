@@ -47,7 +47,7 @@ async function main() {
   write('basic-record-materialization', createParentRecords(10000, 2, 3));
   write('complex-record-materialization', await createComplexRecordsPayload(100));
 
-  const initialBigM2M = createCarsPayload(10, 2);
+  const initialBigM2M = createCarsPayload(100, 100);
   write('big-many-to-many', initialBigM2M);
   write('big-many-to-many-with-removal', deleteHalfTheColors(initialBigM2M));
 }
