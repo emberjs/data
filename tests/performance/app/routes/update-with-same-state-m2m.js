@@ -1,41 +1,47 @@
 import Route from '@ember/routing/route';
 import { inject as service } from '@ember/service';
 
+const REMOVAL_COUNT = 10;
+
 export default Route.extend({
   store: service(),
 
   async model() {
     performance.mark('start-data-generation');
 
-    const initialPayload = await fetch('./fixtures/add-children-initial.json').then((r) => r.json());
+    const initialPayload = await fetch('./fixtures/big-many-to-many.json').then((r) => r.json());
     const initialPayload2 = structuredClone(initialPayload);
-    const payloadWithRemoval = await fetch('./fixtures/add-children-with-removal.json').then((r) => r.json());
+    const payloadWithRemoval = await fetch('./fixtures/big-many-to-many-with-removal.json').then((r) => r.json());
 
     performance.mark('start-push-initial-payload');
     this.store.push(initialPayload);
 
     performance.mark('start-peek-records');
-    const peekedChildren = this.store.peekAll('child');
-    const peekedParents = this.store.peekAll('parent');
+    const peekedCars = this.store.peekAll('car');
+    const peekedColors = this.store.peekAll('color');
 
     performance.mark('start-record-materialization');
-    peekedChildren.slice();
-    peekedParents.slice();
+    peekedColors.slice();
+    peekedCars.slice();
 
     performance.mark('start-relationship-materialization');
     const seen = new Set();
-    peekedParents.forEach((parent) => iterateParent(parent, seen));
-    const parent = peekedParents[0];
-    const children = await parent.children;
+    peekedCars.forEach((car) => iterateCar(car, seen));
+    const removedColors = [];
 
     performance.mark('start-local-removal');
-    const removedChildren = children.splice(0, 19000);
+    for (const car of peekedCars) {
+      const colors = car.colors;
+      removedColors.push(colors.splice(0, REMOVAL_COUNT));
+    }
 
     performance.mark('start-push-minus-one-payload');
     this.store.push(payloadWithRemoval);
 
     performance.mark('start-local-addition');
-    parent.children = removedChildren.concat(children);
+    peekedCars.forEach((car, index) => {
+      car.colors = removedColors[index].concat(car.colors);
+    });
 
     performance.mark('start-push-plus-one-payload');
     this.store.push(initialPayload2);
@@ -50,10 +56,10 @@ function iterateChild(record, seen) {
   }
   seen.add(record);
 
-  record.parent;
+  record.cars;
 }
 
-function iterateParent(record, seen) {
+function iterateCar(record, seen) {
   seen.add(record);
-  record.children.forEach((child) => iterateChild(child, seen));
+  record.colors.forEach((color) => iterateChild(color, seen));
 }
