@@ -1,5 +1,10 @@
+// FIXME: Don't merge disables
+/* eslint-disable no-console */
+/* eslint-disable no-undef */
 import Route from '@ember/routing/route';
 import { inject as service } from '@ember/service';
+
+const REMOVAL_COUNT = 10;
 
 export default Route.extend({
   store: service(),
@@ -8,59 +13,57 @@ export default Route.extend({
     console.groupCollapsed('test-setup');
     performance.mark('start-data-generation');
 
-    const initialPayload = await fetch('./fixtures/add-children-initial.json').then((r) => r.json());
+    const initialPayload = await fetch('./fixtures/big-many-to-many.json').then((r) => r.json());
     const initialPayload2 = structuredClone(initialPayload);
-
-    const payloadWithRemoval = structuredClone(initialPayload);
-    payloadWithRemoval.data.relationships.children.data.splice(0, 19000);
-    payloadWithRemoval.included.splice(0, 19000);
+    const payloadWithRemoval = await fetch('./fixtures/big-many-to-many-with-removal.json').then((r) => r.json());
 
     performance.mark('start-push-initial-payload');
     this.store.push(initialPayload);
 
     performance.mark('start-peek-records');
-    const peekedChildren = this.store.peekAll('child');
-    const peekedParents = this.store.peekAll('parent');
+    const peekedCars = this.store.peekAll('car');
+    const peekedColors = this.store.peekAll('color');
 
     performance.mark('start-record-materialization');
-    peekedChildren.slice();
-    peekedParents.slice();
+    peekedColors.slice();
+    peekedCars.slice();
 
     performance.mark('start-relationship-materialization');
     const seen = new Set();
-    peekedParents.forEach((parent) => iterateParent(parent, seen));
-    const parent = peekedParents[0];
-    const children = await parent.children;
+    peekedCars.forEach((car) => iterateCar(car, seen));
+    const removedColors = [];
 
-    await logChildren(parent);
     console.groupEnd();
     console.log(structuredClone(getWarpDriveMetricCounts()));
 
     performance.mark('start-local-removal');
     console.groupCollapsed('start-local-removal');
-    const removedChildren = children.splice(0, 19000);
-    await logChildren(parent);
+    for (const car of peekedCars) {
+      const colors = car.colors;
+      removedColors.push(colors.splice(0, REMOVAL_COUNT));
+    }
+
     console.groupEnd();
     console.log(structuredClone(getWarpDriveMetricCounts()));
 
     performance.mark('start-push-minus-one-payload');
     console.groupCollapsed('start-push-minus-one-payload');
     this.store.push(payloadWithRemoval);
-    await logChildren(parent);
     console.groupEnd();
     console.log(structuredClone(getWarpDriveMetricCounts()));
 
     performance.mark('start-local-addition');
     console.groupCollapsed('start-local-addition');
-    parent.children = removedChildren.concat(children);
-    await logChildren(parent);
+    peekedCars.forEach((car, index) => {
+      car.colors = removedColors[index].concat(car.colors);
+    });
+
     console.groupEnd();
     console.log(structuredClone(getWarpDriveMetricCounts()));
 
     performance.mark('start-push-plus-one-payload');
     console.groupCollapsed('start-push-plus-one-payload');
     this.store.push(initialPayload2);
-    await logChildren(parent);
     console.groupEnd();
     console.log(structuredClone(getWarpDriveMetricCounts()));
 
@@ -68,23 +71,16 @@ export default Route.extend({
   },
 });
 
-async function logChildren(parent) {
-  const children = await parent.children;
-  console.log(
-    `children is an array of length ${children.length} of ids ${children.at(0).id}..${children.at(children.length - 1).id}`
-  );
-}
-
 function iterateChild(record, seen) {
   if (seen.has(record)) {
     return;
   }
   seen.add(record);
 
-  record.parent.get('name');
+  record.cars;
 }
 
-function iterateParent(record, seen) {
+function iterateCar(record, seen) {
   seen.add(record);
-  record.children.forEach((child) => iterateChild(child, seen));
+  record.colors.forEach((color) => iterateChild(color, seen));
 }

@@ -1,3 +1,9 @@
+/*
+
+Run this file with `bun run ./fixtures/index.js` to generate the fixtures for the performance benchmarks.
+
+*/
+
 const fs = require('fs');
 const zlib = require('zlib');
 
@@ -23,7 +29,7 @@ function write(name, json) {
 }
 
 const createParentPayload = require('./create-parent-payload');
-const createCarsPayload = require('./create-cars-payload');
+const { createCarsPayload, deleteHalfTheColors } = require('./create-cars-payload.ts');
 const createParentRecords = require('./create-parent-records');
 const { createComplexPayload: createComplexRecordsPayload } = require('./create-complex-payload.ts');
 
@@ -40,5 +46,9 @@ async function main() {
   write('example-parent', createParentPayload(2, 2));
   write('basic-record-materialization', createParentRecords(10000, 2, 3));
   write('complex-record-materialization', await createComplexRecordsPayload(100));
+
+  const initialBigM2M = createCarsPayload(10, 2);
+  write('big-many-to-many', initialBigM2M);
+  write('big-many-to-many-with-removal', deleteHalfTheColors(initialBigM2M));
 }
 main();
