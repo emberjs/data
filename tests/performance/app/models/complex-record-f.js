@@ -1,0 +1,36 @@
+import recordMixinA from 'app/mixins/record-mixin-a';
+import recordMixinB from 'app/mixins/record-mixin-b';
+import recordMixinC from 'app/mixins/record-mixin-c';
+import recordMixinD from 'app/mixins/record-mixin-d';
+import recordMixinE from 'app/mixins/record-mixin-e';
+import recordMixinF from 'app/mixins/record-mixin-f';
+import recordMixinG from 'app/mixins/record-mixin-g';
+import recordMixinH from 'app/mixins/record-mixin-h';
+import recordMixinI from 'app/mixins/record-mixin-i';
+import recordMixinJ from 'app/mixins/record-mixin-j';
+
+import Model, { attr } from '@ember-data/model';
+
+export default class ComplexRecordF extends Model.extend(
+  recordMixinF,
+  recordMixinG,
+  recordMixinH,
+  recordMixinI,
+  recordMixinJ,
+  recordMixinA,
+  recordMixinB,
+  recordMixinC,
+  recordMixinD,
+  recordMixinE
+) {
+  @attr prop_resource_f_1;
+  @attr prop_resource_f_2;
+  @attr prop_resource_f_3;
+  @attr prop_resource_f_4;
+  @attr prop_resource_f_5;
+  @attr prop_resource_f_6;
+  @attr prop_resource_f_7;
+  @attr prop_resource_f_8;
+  @attr prop_resource_f_9;
+  @attr prop_resource_f_10;
+}
