@@ -75,6 +75,7 @@ export default function replaceRelatedRecords(graph: Graph, op: ReplaceRelatedRe
   }
 }
 
+// FIXME: Add metric count for number of calls to this
 function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOperation, isRemote: boolean) {
   const identifiers = op.value;
   const relationship = graph.get(op.record, op.field);
@@ -160,6 +161,7 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   }
 }
 
+// FIXME: Add metric count for number of calls to this
 function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOperation, isRemote: boolean) {
   const identifiers = op.value;
   const relationship = graph.get(op.record, op.field);

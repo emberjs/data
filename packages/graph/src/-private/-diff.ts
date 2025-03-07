@@ -164,11 +164,16 @@ function _compare<T>(
   const prevLength = prevState.length;
   const iterationLength = Math.max(finalLength, prevLength);
   const equalLength = finalLength === prevLength;
-  let changed: boolean = finalSet.size !== prevSet.size;
-  let remoteOrderChanged = false;
+  let remoteOrderChanged = finalSet.size !== prevSet.size;
+  let changed: boolean = priorLocalState ? finalSet.size !== priorLocalState.length : remoteOrderChanged;
   const added = new Set<T>();
   const removed = new Set<T>();
   const priorLocalLength = priorLocalState?.length ?? 0;
+
+  changed &&
+    console.log(
+      `changed because ${priorLocalState ? 'finalSet.size !== priorLocalState.length' : 'finalSet.size !== prevSet.size'}`
+    );
 
   for (let i = 0; i < iterationLength; i++) {
     let member: T | undefined;
@@ -181,6 +186,7 @@ function _compare<T>(
         if (i < priorLocalLength) {
           const priorLocalMember = priorLocalState![i];
           if (priorLocalMember !== member) {
+            !changed && console.log(`changed because priorLocalMember !== member && !prevSet.has(member)`);
             changed = true;
           }
         }
@@ -214,9 +220,11 @@ function _compare<T>(
           if (i < priorLocalLength) {
             const priorLocalMember = priorLocalState![i];
             if (priorLocalMember !== member) {
+              !changed && console.log(`changed because priorLocalMember !== member && member !== prevMember`);
               changed = true;
             }
           } else {
+            !changed && console.log(`changed because priorLocalMember !== member && index >= priorLocalLength`);
             changed = true;
           }
         }
@@ -236,6 +244,7 @@ function _compare<T>(
       }
 
       if (!finalSet.has(prevMember)) {
+        !changed && console.log(`changed because !finalSet.has(prevMember)`);
         changed = true;
         removed.add(prevMember);
         onDel(prevMember);
