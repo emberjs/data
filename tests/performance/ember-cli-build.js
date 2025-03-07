@@ -14,6 +14,7 @@ module.exports = async function (defaults) {
       // LOG_NOTIFICATIONS: true,
       // LOG_INSTANCE_CACHE: true,
       // LOG_METRIC_COUNTS: true,
+      // DEBUG_RELATIONSHIP_NOTIFICATIONS: true,
     },
   });
 
