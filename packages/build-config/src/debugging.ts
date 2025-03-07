@@ -111,3 +111,11 @@ export const LOG_INSTANCE_CACHE: boolean = false;
  * @public
  */
 export const LOG_METRIC_COUNTS: boolean = false;
+/**
+ * Helps when debugging causes of a change notification
+ * when processing an update to a hasMany relationship.
+ *
+ * @property {boolean} DEBUG_RELATIONSHIP_NOTIFICATIONS
+ * @public
+ */
+export const DEBUG_RELATIONSHIP_NOTIFICATIONS: boolean = false;

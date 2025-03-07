@@ -28,24 +28,24 @@ const createParentRecords = require('./create-parent-records');
 const { createComplexPayload: createComplexRecordsPayload } = require('./create-complex-payload.ts');
 
 async function main() {
-  const initialChildrenPayload = createParentPayload(19600);
-  write('add-children-initial', initialChildrenPayload);
-  write('add-children-final', createParentPayload(20000));
-  const payloadWithRemoval = structuredClone(initialChildrenPayload);
-  payloadWithRemoval.data.relationships.children.data.splice(0, 19000);
-  payloadWithRemoval.included.splice(0, 19000);
-  write('add-children-with-removal', payloadWithRemoval);
+  // const initialChildrenPayload = createParentPayload(19600);
+  // write('add-children-initial', initialChildrenPayload);
+  // write('add-children-final', createParentPayload(20000));
+  // const payloadWithRemoval = structuredClone(initialChildrenPayload);
+  // payloadWithRemoval.data.relationships.children.data.splice(0, 19000);
+  // payloadWithRemoval.included.splice(0, 19000);
+  // write('add-children-with-removal', payloadWithRemoval);
 
-  write('destroy', createParentPayload(500, 50));
-  write('relationship-materialization-simple', createCarsPayload(10000));
-  write('relationship-materialization-complex', createParentRecords(200, 10, 20));
-  write('unload', createParentPayload(500, 50));
-  write('unload-all', createParentRecords(1000, 5, 10));
-  write('unused-relationships', createParentPayload(500, 50));
-  write('example-car', createCarsPayload(1));
-  write('example-parent', createParentPayload(2, 2));
-  write('basic-record-materialization', createParentRecords(10000, 2, 3));
-  write('complex-record-materialization', await createComplexRecordsPayload(400));
+  // write('destroy', createParentPayload(500, 50));
+  // write('relationship-materialization-simple', createCarsPayload(10000));
+  // write('relationship-materialization-complex', createParentRecords(200, 10, 20));
+  // write('unload', createParentPayload(500, 50));
+  // write('unload-all', createParentRecords(1000, 5, 10));
+  // write('unused-relationships', createParentPayload(500, 50));
+  // write('example-car', createCarsPayload(1));
+  // write('example-parent', createParentPayload(2, 2));
+  // write('basic-record-materialization', createParentRecords(10000, 2, 3));
+  // write('complex-record-materialization', await createComplexRecordsPayload(400));
 
   const initialBigM2M = createCarsPayload(100, 100);
   write('big-many-to-many', initialBigM2M);

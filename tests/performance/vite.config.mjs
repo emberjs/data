@@ -59,6 +59,7 @@ export default defineConfig({
         negate_iife: false,
         sequences: 30,
         defaults: true,
+        drop_debugger: false,
         arguments: false,
         keep_fargs: false,
         toplevel: false,
