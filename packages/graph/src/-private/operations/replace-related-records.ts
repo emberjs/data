@@ -218,6 +218,11 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
       if (relationship.additions?.has(identifier)) {
         relationship.additions.delete(identifier);
       } else {
+        if (!relationship.isDirty) {
+          console.log(
+            `setting relationship to dirty because the remote addition was not in our previous list of local additions`
+          );
+        }
         relationship.isDirty = true;
       }
       addToInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
@@ -229,6 +234,11 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
       if (relationship.removals?.has(identifier)) {
         relationship.removals.delete(identifier);
       } else {
+        if (!relationship.isDirty) {
+          console.log(
+            `setting relationship to dirty because the remote removal was not in our previous list of local removals`
+          );
+        }
         relationship.isDirty = true;
       }
       removeFromInverse(graph, identifier, definition.inverseKey, op.record, isRemote);

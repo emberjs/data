@@ -1,5 +1,6 @@
 import { deprecate } from '@ember/debug';
 
+import { DEBUG_RELATIONSHIP_NOTIFICATIONS } from '@warp-drive/build-config/debugging';
 import {
   DEPRECATE_NON_UNIQUE_PAYLOADS,
   DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE,
@@ -163,17 +164,29 @@ function _compare<T>(
   const finalLength = finalState.length;
   const prevLength = prevState.length;
   const iterationLength = Math.max(finalLength, prevLength);
-  const equalLength = finalLength === prevLength;
+  const equalLength = priorLocalState ? finalLength === priorLocalState.length : finalLength === prevLength;
   let remoteOrderChanged = finalSet.size !== prevSet.size;
   let changed: boolean = priorLocalState ? finalSet.size !== priorLocalState.length : remoteOrderChanged;
   const added = new Set<T>();
   const removed = new Set<T>();
   const priorLocalLength = priorLocalState?.length ?? 0;
 
-  changed &&
-    console.log(
-      `changed because ${priorLocalState ? 'finalSet.size !== priorLocalState.length' : 'finalSet.size !== prevSet.size'}`
-    );
+  if (DEBUG_RELATIONSHIP_NOTIFICATIONS) {
+    if (changed) {
+      // console.log({
+      //   priorState: priorLocalState?.slice(),
+      //   finalState: finalState.slice(),
+      //   prevState: prevState.slice(),
+      // });
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    changed &&
+      // eslint-disable-next-line no-console
+      console.log(
+        `changed because ${priorLocalState ? 'finalSet.size !== priorLocalState.length' : 'finalSet.size !== prevSet.size'}`
+      );
+  }
 
   for (let i = 0; i < iterationLength; i++) {
     let member: T | undefined;
@@ -186,7 +199,21 @@ function _compare<T>(
         if (i < priorLocalLength) {
           const priorLocalMember = priorLocalState![i];
           if (priorLocalMember !== member) {
-            !changed && console.log(`changed because priorLocalMember !== member && !prevSet.has(member)`);
+            if (DEBUG_RELATIONSHIP_NOTIFICATIONS) {
+              if (!changed) {
+                // console.log({
+                //   priorLocalMember,
+                //   member,
+                //   i,
+                //   priorState: priorLocalState?.slice(),
+                //   finalState: finalState.slice(),
+                //   prevState: prevState.slice(),
+                // });
+              }
+
+              // eslint-disable-next-line @typescript-eslint/no-unused-expressions, no-console
+              !changed && console.log(`changed because priorLocalMember !== member && !prevSet.has(member)`);
+            }
             changed = true;
           }
         }
@@ -220,11 +247,19 @@ function _compare<T>(
           if (i < priorLocalLength) {
             const priorLocalMember = priorLocalState![i];
             if (priorLocalMember !== member) {
-              !changed && console.log(`changed because priorLocalMember !== member && member !== prevMember`);
+              if (DEBUG_RELATIONSHIP_NOTIFICATIONS) {
+                // eslint-disable-next-line @typescript-eslint/no-unused-expressions, no-console
+                !changed && console.log(`changed because priorLocalMember !== member && member !== prevMember`);
+              }
               changed = true;
             }
-          } else {
-            !changed && console.log(`changed because priorLocalMember !== member && index >= priorLocalLength`);
+          } else if (i < finalLength) {
+            // if we have exceeded the length of priorLocalState and we are within the range
+            // of the finalState then we must have changed
+            if (DEBUG_RELATIONSHIP_NOTIFICATIONS) {
+              // eslint-disable-next-line @typescript-eslint/no-unused-expressions, no-console
+              !changed && console.log(`changed because priorMember !== member && index >= priorLocalLength`);
+            }
             changed = true;
           }
         }
@@ -244,8 +279,53 @@ function _compare<T>(
       }
 
       if (!finalSet.has(prevMember)) {
-        !changed && console.log(`changed because !finalSet.has(prevMember)`);
-        changed = true;
+        // if we are within finalLength, we can only be "changed" if we've already exceeded
+        // the index range of priorLocalState, as otherwise the previous member may still
+        // be removed.
+        //
+        // prior local: [1, 2, 3, 4]
+        // final state: [1, 2, 3]
+        // prev remote state: [1, 2, 5, 3, 4]
+        // i === 2
+        // prevMember === 5
+        // !finalSet.has(prevMember) === true
+        //
+        // because we will become changed at i===3,
+        // we do not need to worry about becoming changed at i===2
+        // as the arrays until now are still the same
+        //
+        // prior local: [1, 2, 3]
+        // final state: [1, 2, 3, 4]
+        // prev remote state: [1, 2, 5, 3, 4]
+        // i === 2
+        // prevMember === 5
+        // !finalSet.has(prevMember) === true
+        //
+        // because we will become changed at i===3
+        // we do not need to worry about becoming changed at i===2
+        //
+        // prior local: [1, 2, 3]
+        // final state: [1, 2, 3]
+        // prev remote state: [1, 2, 5, 3, 4]
+        // i === 2
+        // prevMember === 5
+        // !finalSet.has(prevMember) === true
+        //
+        // because we have same length and same membership order
+        // we do not need to worry about becoming changed at i===2
+        //
+        // if you do not have a priorLocalState you can't be changed
+        // ergo, we never need to set changed in this branch.
+        // this log can still be useful for debugging.
+        if (DEBUG_RELATIONSHIP_NOTIFICATIONS) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+          !changed &&
+            // eslint-disable-next-line no-console
+            console.log(`changed because i >= priorLocalLength && i < finalLength && !finalSet.has(prevMember)`);
+        }
+        //
+        // we do still set remoteOrderChanged as it has
+        remoteOrderChanged = true;
         removed.add(prevMember);
         onDel(prevMember);
       }
