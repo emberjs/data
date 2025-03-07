@@ -1,6 +1,6 @@
 import { deprecate } from '@ember/debug';
 
-import { LOG_METRIC_COUNTS } from '@warp-drive/build-config/debugging';
+import { DEBUG_RELATIONSHIP_NOTIFICATIONS, LOG_METRIC_COUNTS } from '@warp-drive/build-config/debugging';
 import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
@@ -218,10 +218,13 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
       if (relationship.additions?.has(identifier)) {
         relationship.additions.delete(identifier);
       } else {
-        if (!relationship.isDirty) {
-          console.log(
-            `setting relationship to dirty because the remote addition was not in our previous list of local additions`
-          );
+        if (DEBUG_RELATIONSHIP_NOTIFICATIONS) {
+          if (!relationship.isDirty) {
+            // eslint-disable-next-line no-console
+            console.log(
+              `setting relationship to dirty because the remote addition was not in our previous list of local additions`
+            );
+          }
         }
         relationship.isDirty = true;
       }
@@ -234,10 +237,13 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
       if (relationship.removals?.has(identifier)) {
         relationship.removals.delete(identifier);
       } else {
-        if (!relationship.isDirty) {
-          console.log(
-            `setting relationship to dirty because the remote removal was not in our previous list of local removals`
-          );
+        if (DEBUG_RELATIONSHIP_NOTIFICATIONS) {
+          if (!relationship.isDirty) {
+            // eslint-disable-next-line no-console
+            console.log(
+              `setting relationship to dirty because the remote removal was not in our previous list of local removals`
+            );
+          }
         }
         relationship.isDirty = true;
       }
