@@ -1,5 +1,6 @@
 import { deprecate } from '@ember/debug';
 
+import { LOG_METRIC_COUNTS } from '@warp-drive/build-config/debugging';
 import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
@@ -11,6 +12,12 @@ import { isBelongsTo, isHasMany, isNew, notifyChange } from '../-utils';
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
 import type { CollectionEdge } from '../edges/collection';
 import type { Graph } from '../graph';
+
+function count(label: string) {
+  // @ts-expect-error
+  // eslint-disable-next-line
+  globalThis.__WarpDriveMetricCountData[label] = (globalThis.__WarpDriveMetricCountData[label] || 0) + 1;
+}
 
 /*
     case many:1
@@ -75,7 +82,6 @@ export default function replaceRelatedRecords(graph: Graph, op: ReplaceRelatedRe
   }
 }
 
-// FIXME: Add metric count for number of calls to this
 function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOperation, isRemote: boolean) {
   const identifiers = op.value;
   const relationship = graph.get(op.record, op.field);
@@ -87,6 +93,10 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   const { record } = op;
   const wasDirty = relationship.isDirty;
   let localBecameDirty = false;
+
+  if (LOG_METRIC_COUNTS) {
+    count(`replaceRelatedRecordsLocal ${'type' in record ? record.type : '<document>'} ${op.field}`);
+  }
 
   const onAdd = (identifier: StableRecordIdentifier) => {
     // Since we are diffing against the remote state, we check
@@ -161,10 +171,13 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   }
 }
 
-// FIXME: Add metric count for number of calls to this
 function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOperation, isRemote: boolean) {
   const identifiers = op.value;
   const relationship = graph.get(op.record, op.field);
+
+  if (LOG_METRIC_COUNTS) {
+    count(`replaceRelatedRecordsRemote ${'type' in op.record ? op.record.type : '<document>'}  ${op.field}`);
+  }
 
   assert(
     `You can only '${op.op}' on a hasMany relationship. ${op.record.type}.${op.field} is a ${relationship.definition.kind}`,
