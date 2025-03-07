@@ -606,6 +606,7 @@ module.exports = {
     '(public) @warp-drive/build-config/debugging DebugLogging#LOG_PAYLOADS',
     '(public) @warp-drive/build-config/debugging DebugLogging#LOG_REQUEST_STATUS',
     '(public) @warp-drive/build-config/debugging DebugLogging#LOG_REQUESTS',
+    '(public) @warp-drive/build-config/debugging DebugLogging#DEBUG_RELATIONSHIP_NOTIFICATIONS',
     '(public) @warp-drive/build-config/deprecations CurrentDeprecations#DEPRECATE_COMPUTED_CHAINS',
     '(public) @warp-drive/build-config/deprecations CurrentDeprecations#DEPRECATE_EMBER_INFLECTOR',
     '(public) @warp-drive/build-config/deprecations CurrentDeprecations#DEPRECATE_LEGACY_IMPORTS',
