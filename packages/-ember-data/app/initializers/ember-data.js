@@ -1,3 +1,5 @@
+import '@ember-data/request-utils/deprecation-support';
+
 import 'ember-data';
 
 import setupContainer from 'ember-data/setup-container';
