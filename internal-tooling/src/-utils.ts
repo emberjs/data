@@ -34,6 +34,18 @@ export async function getPackageJson({ packageDir, packagesDir }: { packageDir: 
   return { file: packageJsonFile, pkg, path: packageJsonPath, nicePath: path.join(packageDir, 'package.json') };
 }
 
+export async function runPrettier() {
+  const root = await getMonorepoRoot();
+  console.log(`Running prettier on ${root}`);
+  const childProcess = Bun.spawn(['bun', 'lint:prettier:fix'], {
+    env: process.env,
+    cwd: root,
+    stdout: 'inherit',
+    stderr: 'inherit',
+  });
+  await childProcess.exited;
+}
+
 type PkgJsonFile = {
   name: string;
   version: string;
@@ -91,6 +103,11 @@ interface BaseProjectPackage {
   tsconfigFile: BunFile;
   pkgPath: string;
   tsconfigPath: string;
+  isRoot: boolean;
+  isPrivate: boolean;
+  isTooling: boolean;
+  isConfig: boolean;
+  isTest: boolean;
   pkg: PkgJsonFile;
   save: (editStatus: { pkgEdited: boolean; configEdited: Boolean }) => Promise<void>;
 }
@@ -162,6 +179,11 @@ export async function walkPackages(
       pkgPath,
       hasTsConfig,
       tsconfigPath,
+      isRoot: name === 'root',
+      isPrivate: project.manifest.private ?? false,
+      isTooling: name === '@warp-drive/internal-tooling',
+      isConfig: name === '@warp-drive/config',
+      isTest: project.dir === 'tests',
       pkg,
       tsconfig,
       save: async ({ pkgEdited, configEdited }: { pkgEdited: boolean; configEdited: Boolean }) => {
