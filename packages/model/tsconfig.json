@@ -8,13 +8,14 @@
     "moduleDetection": "force",
     "strict": true,
     "pretty": true,
+    "erasableSyntaxOnly": true,
     "exactOptionalPropertyTypes": false,
     "downlevelIteration": true,
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "experimentalDecorators": true,
-    "allowJs": false,
+    "allowJs": true,
     "emitDeclarationOnly": true,
     "noImplicitAny": false,
     "noImplicitOverride": false,
@@ -47,7 +48,9 @@
       "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"],
       "@warp-drive/core-types": ["../core-types/unstable-preview-types"],
       "@warp-drive/core-types/*": ["../core-types/unstable-preview-types/*"]
-    }
+    },
+    "allowImportingTsExtensions": true,
+    "checkJs": false
   },
   "references": [
     {

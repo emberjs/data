@@ -11,11 +11,16 @@ import type { RenderingTestContext } from '@warp-drive/diagnostic/ember';
 import { setupTest } from '@warp-drive/diagnostic/ember';
 
 class AbstractMap {
+  declare private store: Store;
+  declare private isImplicit: boolean;
   constructor(
-    private store: Store,
+    store: Store,
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    private isImplicit: boolean
-  ) {}
+    isImplicit: boolean
+  ) {
+    this.store = store;
+    this.isImplicit = isImplicit;
+  }
 
   has(identifier: StableRecordIdentifier) {
     const graph = graphFor(this.store);
@@ -26,8 +31,10 @@ class AbstractMap {
 class AbstractGraph {
   public identifiers: AbstractMap;
   public implicit: { has(identifier: StableRecordIdentifier): boolean };
+  declare private store: Store;
 
-  constructor(private store: Store) {
+  constructor(store: Store) {
+    this.store = store;
     this.identifiers = new AbstractMap(store, false);
     this.implicit = {
       has: (identifier) => {

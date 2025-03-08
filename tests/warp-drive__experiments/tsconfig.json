@@ -19,8 +19,7 @@
     "baseUrl": ".",
     "noImplicitOverride": false,
     "incremental": true,
-    "noEmit": true,
-    "declaration": false,
+    "declaration": true,
     "types": ["ember-source/types"],
     // "baseUrl": ".",
     "paths": {
@@ -61,7 +60,16 @@
       "@warp-drive/experiments": ["../../packages/experiments/unstable-preview-types"],
       "@warp-drive/experiments/*": ["../../packages/experiments/unstable-preview-types/*"]
     },
-    "allowImportingTsExtensions": true
+    "allowImportingTsExtensions": true,
+    "composite": true,
+    "declarationDir": "unstable-preview-types",
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "erasableSyntaxOnly": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "rootDir": ".",
+    "checkJs": false
   },
   "references": [
     {

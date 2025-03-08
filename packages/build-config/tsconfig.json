@@ -14,7 +14,7 @@
     "allowSyntheticDefaultImports": true,
     "allowImportingTsExtensions": true,
     "forceConsistentCasingInFileNames": true,
-    "experimentalDecorators": false,
+    "experimentalDecorators": true,
     "allowJs": true,
     "emitDeclarationOnly": true,
     "noImplicitAny": true,
@@ -29,17 +29,18 @@
     "strictNullChecks": true,
     "noErrorTruncation": true,
     "preserveConstEnums": false,
-
     "composite": true,
     "incremental": true,
     "rootDir": "src",
     "baseUrl": ".",
-
     "declaration": true,
     "declarationMap": true,
     "declarationDir": "unstable-preview-types",
     "inlineSourceMap": true,
-    "inlineSources": true
+    "inlineSources": true,
+    "erasableSyntaxOnly": true,
+    "paths": {},
+    "checkJs": false
   },
   "references": []
 }

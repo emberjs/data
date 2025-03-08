@@ -6,7 +6,7 @@
     "moduleResolution": "bundler",
     "skipLibCheck": true,
     "emitDeclarationOnly": true,
-    "allowJs": false,
+    "allowJs": true,
     "checkJs": false,
     "alwaysStrict": true,
     "strict": true,
@@ -41,7 +41,11 @@
     "paths": {
       "@warp-drive/build-config": ["../build-config/unstable-preview-types"],
       "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"]
-    }
+    },
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "lib": ["ESNext"],
+    "moduleDetection": "force"
   },
   "references": [
     {

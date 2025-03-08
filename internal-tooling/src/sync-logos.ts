@@ -5,55 +5,25 @@ import fs from 'fs';
 import debug from 'debug';
 import chalk from 'chalk';
 import type { BunFile } from 'bun';
+import { getMonorepoRoot, getPackageJson } from './-utils';
 
 const log = debug('wd:sync-logos');
-
-async function getMonorepoRoot() {
-  const MAX_DEPTH = 10;
-  // are we in the root?
-  let currentDir = process.cwd();
-  let depth = 0;
-  while (depth < MAX_DEPTH) {
-    const lockfileFile = path.join(currentDir, 'pnpm-lock.yaml');
-    if (await Bun.file(lockfileFile).exists()) {
-      return currentDir;
-    }
-    currentDir = path.join(currentDir, '../');
-    depth++;
-  }
-
-  throw new Error(`Could not find monorepo root from cwd ${process.cwd()}`);
-}
-
-function isDirectorySymlink(dirPath: string) {
-  try {
-    const stats = fs.lstatSync(dirPath);
-    return stats.isSymbolicLink();
-  } catch (error) {
-    return false;
-  }
-}
 
 async function copyFiles({
   packageDir,
   packageLogosDir,
   logosDir,
-  isLinked,
   isCopied,
 }: {
   packageDir: string;
   packageLogosDir: string;
   logosDir: string;
-  isLinked: boolean;
   isCopied: boolean;
 }) {
   // if we are in copy mode, remove any existing symlink and copy the files
-  if (isLinked) {
-    fs.unlinkSync(packageLogosDir);
-    log(`\t\t\t🗑️ Deleted existing symlink for ${packageDir}/logos`);
-  } else if (isCopied) {
+  if (isCopied) {
     fs.rmSync(packageLogosDir, { recursive: true, force: true });
-    log(`\t\t\t🗑️ Deleted existing non-symlinked version of ${packageDir}/logos`);
+    log(`\t\t\t🗑️ Deleted existing copy of ${packageDir}/logos`);
   }
   fs.mkdirSync(packageLogosDir, { recursive: true });
   log(`\t\t\t📁 Created ${packageDir}/logos`);
@@ -66,54 +36,7 @@ async function copyFiles({
   }
 }
 
-async function symlinkFiles({
-  packageDir,
-  packageLogosDir,
-  logosDir,
-  isLinked,
-  isCopied,
-}: {
-  packageDir: string;
-  packageLogosDir: string;
-  logosDir: string;
-  isLinked: boolean;
-  isCopied: boolean;
-}) {
-  // if we are in symlink mode, symlink if none is present.
-  // if one is present, do nothing
-  // if what is present is not a symlink, remove it and symlink
-  if (isLinked) {
-    log(`\t\t\t🔗 Symlink already exists for ${packageDir}/logos`);
-    return;
-  } else if (isCopied) {
-    fs.rmSync(packageLogosDir, { recursive: true, force: true });
-    log(`\t\t\t🗑️ Deleted existing non-symlinked version of ${packageDir}/logos`);
-  }
-
-  const source = packageLogosDir;
-  const target = path.relative(source, logosDir);
-  fs.symlinkSync(target, source, 'junction');
-  log(`\t\t\t🔗 Symlinked ${logosDir} to ${packageDir}/logos`);
-}
-
-async function getPackageJson({ packageDir, packagesDir }: { packageDir: string; packagesDir: string }) {
-  const packageJsonPath = path.join(packagesDir, packageDir, 'package.json');
-  const packageJsonFile = Bun.file(packageJsonPath);
-  const pkg = await packageJsonFile.json();
-  return { file: packageJsonFile, pkg, path: packageJsonPath, nicePath: path.join(packageDir, 'package.json') };
-}
-
-async function updatePackageJson({
-  pkg,
-  file,
-  path,
-  nicePath,
-}: {
-  pkg: any;
-  file: BunFile;
-  path: string;
-  nicePath: string;
-}) {
+async function updatePackageJson({ pkg, file, nicePath }: { pkg: any; file: BunFile; path: string; nicePath: string }) {
   // ensure "files" field in package.json includes "logos"
   if (!pkg.files) {
     pkg.files = ['logos'];
@@ -127,10 +50,8 @@ async function updatePackageJson({
 }
 
 async function main() {
-  const copyLogos = process.argv.includes('--copy');
-
   log(
-    `\n\t${chalk.gray('=').repeat(60)}\n\t\t${chalk.magentaBright('@warp-drive/')}${chalk.greenBright('internal-tooling')} Sync Logos\n\t${chalk.gray('=').repeat(60)}\n\n\t\t${chalk.gray(`Syncing logo files via ${chalk.yellow(copyLogos ? 'copy' : 'symlink')} from monorepo root to each package`)}\n\n`
+    `\n\t${chalk.gray('=').repeat(60)}\n\t\t${chalk.magentaBright('@warp-drive/')}${chalk.greenBright('internal-tooling')} Sync Logos\n\t${chalk.gray('=').repeat(60)}\n\n\t\t${chalk.gray(`Syncing logo files from monorepo root to each public package`)}\n\n`
   );
   const monorepoRoot = await getMonorepoRoot();
 
@@ -142,8 +63,7 @@ async function main() {
 
   for (const packageDir of fs.readdirSync(packagesDir)) {
     const packageLogosDir = path.join(packagesDir, packageDir, 'logos');
-    const isLinked = isDirectorySymlink(packageLogosDir);
-    const isCopied = !isLinked && fs.existsSync(packageLogosDir);
+    const isCopied = fs.existsSync(packageLogosDir);
     const details = await getPackageJson({ packageDir, packagesDir });
 
     if (details.pkg.private) {
@@ -153,23 +73,12 @@ async function main() {
 
     log(`\t\t🔁 Syncing logos to ${packageDir}`);
 
-    if (!copyLogos) {
-      await symlinkFiles({
-        packageDir,
-        packageLogosDir,
-        logosDir,
-        isLinked,
-        isCopied,
-      });
-    } else {
-      await copyFiles({
-        packageDir,
-        packageLogosDir,
-        logosDir,
-        isLinked,
-        isCopied,
-      });
-    }
+    await copyFiles({
+      packageDir,
+      packageLogosDir,
+      logosDir,
+      isCopied,
+    });
 
     await updatePackageJson(details);
   }

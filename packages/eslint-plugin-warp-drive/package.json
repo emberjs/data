@@ -27,9 +27,11 @@
     "docs",
     "CHANGELOG.md",
     "README.md",
-    "logos"
+    "logos",
+    "LICENSE.md"
   ],
   "scripts": {
     "test": "mocha tests"
-  }
+  },
+  "license": "MIT"
 }

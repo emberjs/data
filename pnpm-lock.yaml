@@ -214,13 +214,28 @@ importers:
         version: 3.9.1(ccfc48ed675f1f66dc2d9685c74e6f2b)
 
   internal-tooling:
-    devDependencies:
+    dependencies:
+      '@pnpm/find-workspace-dir':
+        specifier: 1000.1.0
+        version: 1000.1.0
+      '@pnpm/find-workspace-packages':
+        specifier: 6.0.9
+        version: 6.0.9(@pnpm/logger@1000.0.0)
+      '@pnpm/logger':
+        specifier: 1000.0.0
+        version: 1000.0.0
       '@types/bun':
         specifier: ^1.2.4
         version: 1.2.4
+      '@types/debug':
+        specifier: 4.1.12
+        version: 4.1.12
       chalk:
         specifier: 5.4.1
         version: 5.4.1
+      comment-json:
+        specifier: ^4.2.5
+        version: 4.2.5
       debug:
         specifier: 4.4.0
         version: 4.4.0
@@ -5803,6 +5818,10 @@ packages:
     resolution: {integrity: sha512-dxIXcW1F1dxIGfye2JXE7Q8WVwYB0axVzdBOkvE1WKIVR4xjB8e6k/Dkjo7DpbyfW5Vu2k21p6dyM32YLSAWoQ==}
     engines: {node: '>=18.12'}
 
+  '@pnpm/constants@1001.1.0':
+    resolution: {integrity: sha512-xb9dfSGi1qfUKY3r4Zy9JdC9+ZeaDxwfE7HrrGIEsBVY1hvIn6ntbR7A97z3nk44yX7vwbINNf9sizTp0WEtEw==}
+    engines: {node: '>=18.12'}
+
   '@pnpm/constants@7.1.0':
     resolution: {integrity: sha512-PzpiPtGF+bIrmkNaHgOIfBZw669+rkUtt/5UFzHukiETwI4/+BTYz8FAr+m5Dfuns531Y+fYRFOpB0PdbAU0+w==}
     engines: {node: '>=16.14'}
@@ -5831,6 +5850,10 @@ packages:
     peerDependencies:
       '@pnpm/logger': ^5.0.0
 
+  '@pnpm/error@1000.0.2':
+    resolution: {integrity: sha512-2SfE4FFL73rE1WVIoESbqlj4sLy5nWW4M/RVdHvCRJPjlQHa9MH7m7CVJM204lz6I+eHoB+E7rL3zmpJR5wYnQ==}
+    engines: {node: '>=18.12'}
+
   '@pnpm/error@5.0.1':
     resolution: {integrity: sha512-JQSOeSEqrV6k6+kKgrlSJ7gddJRcjxtNCxSVJRIqwckkGSdSTNpXmKEdGgLlaDuEwElPAZUmLDGSqk5InJ5pMA==}
     engines: {node: '>=16.14'}
@@ -5846,6 +5869,10 @@ packages:
   '@pnpm/fetcher-base@14.0.1':
     resolution: {integrity: sha512-DXPZ33CrmDQXnYzwvqyP7I0BF0MQELo4ah2JGpXhLhgOdzU+vj7zdKFo2x82L8anrK861IRi01V8o14oATq1vA==}
     engines: {node: '>=16.14'}
+
+  '@pnpm/find-workspace-dir@1000.1.0':
+    resolution: {integrity: sha512-K5iG/z0SLV6bVW1jIYvbNBI6vWAD6ETJKyWj/wwHr7hxloxtm9xJCGbe/41pmM9nfFFUPbr1Z0YOi4q9yWkj6g==}
+    engines: {node: '>=18.12'}
 
   '@pnpm/find-workspace-dir@6.0.3':
     resolution: {integrity: sha512-0iJnNkS4T8lJE4ldOhRERgER1o59iHA1nMlvpUI5lxNC9SUruH6peRUOlP4/rNcDg+UQ9u0rt5loYOnWKCojtw==}
@@ -5888,6 +5915,10 @@ packages:
   '@pnpm/lockfile-types@5.1.0':
     resolution: {integrity: sha512-14eYp9iOdJ7SyOIVXomXhbVnc14DEhzMLS3eKqxYxi9LkANUfxx1/pwRiRY/lTiP9RFS+OkIcTm2QiLsmNEctw==}
     engines: {node: '>=16.14'}
+
+  '@pnpm/logger@1000.0.0':
+    resolution: {integrity: sha512-v5WO9L4pT7ZjZpf7a/a3H3Xj59JPHNMFJwRS7m/01VMWrKjs89CdVIE5e/N6DwuzP750j0iKozTw6UrCVEfQjA==}
+    engines: {node: '>=18.12'}
 
   '@pnpm/logger@5.2.0':
     resolution: {integrity: sha512-dCdSs2wPCweMkRLdISAKBOKSWeq/9iS9aanWgjoUkFs06KN2o5XGFg53oCXg/KbZhF9AXS3vMHPwTebzCeAEsA==}
@@ -6206,6 +6237,9 @@ packages:
   '@types/cors@2.8.17':
     resolution: {integrity: sha512-8CGDvrBj1zgo2qE+oS3pOCyYNqCPryMWY2bGfwA0dcfopWGgxs+78df0Rs3rc9THP4JkOhLsAa+15VdpAqkcUA==}
 
+  '@types/debug@4.1.12':
+    resolution: {integrity: sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ==}
+
   '@types/eslint-scope@3.7.7':
     resolution: {integrity: sha512-MzMFlSLBqNF2gcHWO0G1vP/YQyfvrxZ0bF+u7mzUdZ1/xK4A4sru+nraZz5i3iEIk1l1uyicaDVTB4QbbEkAYg==}
 
@@ -6262,6 +6296,9 @@ packages:
 
   '@types/morgan@1.9.9':
     resolution: {integrity: sha512-iRYSDKVaC6FkGSpEVVIvrRGw0DfJMiQzIn3qr2G5B3C//AWkulhXgaBd7tS9/J79GWSYMTHGs7PfI5b3Y8m+RQ==}
+
+  '@types/ms@2.1.0':
+    resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
 
   '@types/node@20.17.22':
     resolution: {integrity: sha512-9RV2zST+0s3EhfrMZIhrz2bhuhBwxgkbHEwP2gtGWPjBzVQjifMzJ9exw7aDZhR1wbpj8zBrfp3bo8oJcGiUUw==}
@@ -16566,6 +16603,20 @@ snapshots:
       '@pnpm/types': 9.1.0
       load-json-file: 6.2.0
 
+  '@pnpm/cli-utils@2.0.9(@pnpm/logger@1000.0.0)':
+    dependencies:
+      '@pnpm/cli-meta': 5.0.1
+      '@pnpm/config': 18.4.0(@pnpm/logger@1000.0.0)
+      '@pnpm/default-reporter': 12.2.3(@pnpm/logger@1000.0.0)
+      '@pnpm/error': 5.0.1
+      '@pnpm/logger': 1000.0.0
+      '@pnpm/manifest-utils': 5.0.1(@pnpm/logger@1000.0.0)
+      '@pnpm/package-is-installable': 8.0.2(@pnpm/logger@1000.0.0)
+      '@pnpm/read-project-manifest': 5.0.1
+      '@pnpm/types': 9.1.0
+      chalk: 4.1.2
+      load-json-file: 6.2.0
+
   '@pnpm/cli-utils@2.0.9(@pnpm/logger@5.2.0)':
     dependencies:
       '@pnpm/cli-meta': 5.0.1
@@ -16581,6 +16632,33 @@ snapshots:
       load-json-file: 6.2.0
 
   '@pnpm/config.env-replace@1.1.0': {}
+
+  '@pnpm/config@18.4.0(@pnpm/logger@1000.0.0)':
+    dependencies:
+      '@pnpm/config.env-replace': 1.1.0
+      '@pnpm/constants': 7.1.0
+      '@pnpm/error': 5.0.1
+      '@pnpm/git-utils': 1.0.0
+      '@pnpm/matcher': 5.0.0
+      '@pnpm/npm-conf': 2.2.0
+      '@pnpm/pnpmfile': 5.0.7(@pnpm/logger@1000.0.0)
+      '@pnpm/read-project-manifest': 5.0.1
+      '@pnpm/types': 9.1.0
+      better-path-resolve: 1.0.0
+      camelcase: 6.3.0
+      camelcase-keys: 6.2.2
+      can-write-to-dir: 1.1.1
+      is-subdir: 1.2.0
+      is-windows: 1.0.2
+      normalize-registry-url: 2.0.0
+      path-absolute: 1.0.1
+      path-name: 1.0.0
+      ramda: '@pnpm/ramda@0.28.1'
+      read-ini-file: 4.0.0
+      realpath-missing: 1.1.0
+      which: 3.0.1
+    transitivePeerDependencies:
+      - '@pnpm/logger'
 
   '@pnpm/config@18.4.0(@pnpm/logger@5.2.0)':
     dependencies:
@@ -16611,9 +16689,16 @@ snapshots:
 
   '@pnpm/constants@10.0.0': {}
 
+  '@pnpm/constants@1001.1.0': {}
+
   '@pnpm/constants@7.1.0': {}
 
   '@pnpm/constants@7.1.1': {}
+
+  '@pnpm/core-loggers@9.0.1(@pnpm/logger@1000.0.0)':
+    dependencies:
+      '@pnpm/logger': 1000.0.0
+      '@pnpm/types': 9.1.0
 
   '@pnpm/core-loggers@9.0.1(@pnpm/logger@5.2.0)':
     dependencies:
@@ -16627,6 +16712,30 @@ snapshots:
       chalk: 4.1.2
 
   '@pnpm/dedupe.types@1.0.0': {}
+
+  '@pnpm/default-reporter@12.2.3(@pnpm/logger@1000.0.0)':
+    dependencies:
+      '@pnpm/config': 18.4.0(@pnpm/logger@1000.0.0)
+      '@pnpm/core-loggers': 9.0.1(@pnpm/logger@1000.0.0)
+      '@pnpm/dedupe.issues-renderer': 1.0.0
+      '@pnpm/dedupe.types': 1.0.0
+      '@pnpm/error': 5.0.1
+      '@pnpm/logger': 1000.0.0
+      '@pnpm/render-peer-issues': 4.0.1
+      '@pnpm/types': 9.1.0
+      ansi-diff: 1.2.0
+      boxen: 5.1.2
+      chalk: 4.1.2
+      normalize-path: 3.0.0
+      pretty-bytes: 5.6.0
+      pretty-ms: 7.0.1
+      ramda: '@pnpm/ramda@0.28.1'
+      right-pad: 1.0.1
+      rxjs: 7.8.2
+      semver: 7.7.1
+      stacktracey: 2.1.8
+      string-length: 4.0.2
+      strip-ansi: 6.0.1
 
   '@pnpm/default-reporter@12.2.3(@pnpm/logger@5.2.0)':
     dependencies:
@@ -16652,6 +16761,10 @@ snapshots:
       string-length: 4.0.2
       strip-ansi: 6.0.1
 
+  '@pnpm/error@1000.0.2':
+    dependencies:
+      '@pnpm/constants': 1001.1.0
+
   '@pnpm/error@5.0.1':
     dependencies:
       '@pnpm/constants': 7.1.0
@@ -16670,6 +16783,11 @@ snapshots:
       '@pnpm/types': 9.1.0
       '@types/ssri': 7.1.5
 
+  '@pnpm/find-workspace-dir@1000.1.0':
+    dependencies:
+      '@pnpm/error': 1000.0.2
+      find-up: 5.0.0
+
   '@pnpm/find-workspace-dir@6.0.3':
     dependencies:
       '@pnpm/error': 5.0.3
@@ -16679,6 +16797,17 @@ snapshots:
     dependencies:
       '@pnpm/error': 6.0.3
       find-up: 5.0.0
+
+  '@pnpm/find-workspace-packages@6.0.9(@pnpm/logger@1000.0.0)':
+    dependencies:
+      '@pnpm/cli-utils': 2.0.9(@pnpm/logger@1000.0.0)
+      '@pnpm/constants': 7.1.0
+      '@pnpm/fs.find-packages': 2.0.1
+      '@pnpm/types': 9.1.0
+      '@pnpm/util.lex-comparator': 1.0.0
+      read-yaml-file: 2.1.0
+    transitivePeerDependencies:
+      - '@pnpm/logger'
 
   '@pnpm/find-workspace-packages@6.0.9(@pnpm/logger@5.2.0)':
     dependencies:
@@ -16724,10 +16853,23 @@ snapshots:
     dependencies:
       '@pnpm/types': 9.1.0
 
+  '@pnpm/logger@1000.0.0':
+    dependencies:
+      bole: 5.0.17
+      ndjson: 2.0.0
+
   '@pnpm/logger@5.2.0':
     dependencies:
       bole: 5.0.17
       ndjson: 2.0.0
+
+  '@pnpm/manifest-utils@5.0.1(@pnpm/logger@1000.0.0)':
+    dependencies:
+      '@pnpm/core-loggers': 9.0.1(@pnpm/logger@1000.0.0)
+      '@pnpm/error': 5.0.1
+      '@pnpm/types': 9.1.0
+    transitivePeerDependencies:
+      - '@pnpm/logger'
 
   '@pnpm/manifest-utils@5.0.1(@pnpm/logger@5.2.0)':
     dependencies:
@@ -16751,6 +16893,17 @@ snapshots:
       '@pnpm/network.ca-file': 1.0.2
       config-chain: 1.1.13
 
+  '@pnpm/package-is-installable@8.0.2(@pnpm/logger@1000.0.0)':
+    dependencies:
+      '@pnpm/core-loggers': 9.0.1(@pnpm/logger@1000.0.0)
+      '@pnpm/error': 5.0.1
+      '@pnpm/logger': 1000.0.0
+      '@pnpm/types': 9.1.0
+      detect-libc: 2.0.3
+      execa: safe-execa@0.1.2
+      mem: 8.1.1
+      semver: 7.7.1
+
   '@pnpm/package-is-installable@8.0.2(@pnpm/logger@5.2.0)':
     dependencies:
       '@pnpm/core-loggers': 9.0.1(@pnpm/logger@5.2.0)
@@ -16761,6 +16914,18 @@ snapshots:
       execa: safe-execa@0.1.2
       mem: 8.1.1
       semver: 7.7.1
+
+  '@pnpm/pnpmfile@5.0.7(@pnpm/logger@1000.0.0)':
+    dependencies:
+      '@pnpm/core-loggers': 9.0.1(@pnpm/logger@1000.0.0)
+      '@pnpm/error': 5.0.1
+      '@pnpm/hooks.types': 1.0.1
+      '@pnpm/lockfile-types': 5.1.0
+      '@pnpm/logger': 1000.0.0
+      '@pnpm/store-controller-types': 15.0.1
+      '@pnpm/types': 9.1.0
+      chalk: 4.1.2
+      path-absolute: 1.0.1
 
   '@pnpm/pnpmfile@5.0.7(@pnpm/logger@5.2.0)':
     dependencies:
@@ -17106,6 +17271,10 @@ snapshots:
     dependencies:
       '@types/node': 20.17.22
 
+  '@types/debug@4.1.12':
+    dependencies:
+      '@types/ms': 2.1.0
+
   '@types/eslint-scope@3.7.7':
     dependencies:
       '@types/eslint': 9.6.1
@@ -17178,6 +17347,8 @@ snapshots:
   '@types/morgan@1.9.9':
     dependencies:
       '@types/node': 20.17.22
+
+  '@types/ms@2.1.0': {}
 
   '@types/node@20.17.22':
     dependencies:
@@ -17679,7 +17850,19 @@ snapshots:
       - terser
       - utf-8-validate
 
-  '@warp-drive/internal-tooling@file:internal-tooling': {}
+  '@warp-drive/internal-tooling@file:internal-tooling':
+    dependencies:
+      '@pnpm/find-workspace-dir': 1000.1.0
+      '@pnpm/find-workspace-packages': 6.0.9(@pnpm/logger@1000.0.0)
+      '@pnpm/logger': 1000.0.0
+      '@types/bun': 1.2.4
+      '@types/debug': 4.1.12
+      chalk: 5.4.1
+      comment-json: 4.2.5
+      debug: 4.4.0
+      typescript: 5.8.2
+    transitivePeerDependencies:
+      - supports-color
 
   '@warp-drive/schema-record@file:packages/schema-record(1180fba2e999f1c9edce011af67d47b1)':
     dependencies:
