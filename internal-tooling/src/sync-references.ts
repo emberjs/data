@@ -201,9 +201,9 @@ async function main() {
   log(
     `\n\t${chalk.gray('=').repeat(60)}\n\t\t${chalk.magentaBright('@warp-drive/')}${chalk.greenBright('internal-tooling')} Sync TypeScript References\n\t${chalk.gray('=').repeat(60)}\n\n\t\t${chalk.gray(`Syncing Project References`)}\n\n`
   );
-  let anyEdited = false;
+  let anyFileEdited = false;
 
-  walkPackages(async (project: ProjectPackage, projects: Map<string, ProjectPackage>) => {
+  await walkPackages(async (project: ProjectPackage, projects: Map<string, ProjectPackage>) => {
     log(`\t📦 Syncing ${project.pkg.name}`);
     let pkgEdited = false;
     let tsconfigEdited = false;
@@ -281,12 +281,12 @@ async function main() {
     }
 
     if (pkgEdited || tsconfigEdited) {
-      anyEdited = true;
+      anyFileEdited = true;
       await project.save({ pkgEdited, configEdited: tsconfigEdited });
     }
   });
 
-  if (anyEdited) await runPrettier();
+  if (anyFileEdited) await runPrettier();
 }
 
 main();
