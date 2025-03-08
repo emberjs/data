@@ -1,6 +1,6 @@
 # Code Of Conduct
 
-The `ember-data` core team and and the broader `Ember` community are committed to everyone
+The `warp-drive` core team and and the broader `Ember` community are committed to everyone
 having a safe and inclusive experience.
 
 - Our **Community Guidelines / Code of Conduct** can be found at [emberjs.com/guidelines](https://emberjs.com/guidelines/)

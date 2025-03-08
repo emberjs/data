@@ -42,7 +42,11 @@
       "@warp-drive/core-types/*": ["../core-types/unstable-preview-types/*"],
       "@ember-data/request-utils": ["../request-utils/unstable-preview-types"],
       "@ember-data/request-utils/*": ["../request-utils/unstable-preview-types/*"]
-    }
+    },
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "experimentalDecorators": true,
+    "checkJs": false
   },
   "references": [
     {

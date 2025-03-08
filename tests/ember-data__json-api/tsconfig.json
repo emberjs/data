@@ -17,8 +17,7 @@
     "baseUrl": ".",
     "noImplicitOverride": false,
     "incremental": true,
-    "noEmit": true,
-    "declaration": false,
+    "declaration": true,
     "types": ["ember-source/types"],
     "paths": {
       "@ember-data/debug": ["../../packages/debug/unstable-preview-types"],
@@ -49,7 +48,18 @@
       "@warp-drive/holodeck/*": ["../../packages/holodeck/unstable-preview-types/*"],
       "@warp-drive/build-config": ["../../packages/build-config/unstable-preview-types"],
       "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"]
-    }
+    },
+    "allowImportingTsExtensions": true,
+    "composite": true,
+    "declarationDir": "unstable-preview-types",
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "erasableSyntaxOnly": true,
+    "experimentalDecorators": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "rootDir": ".",
+    "checkJs": false
   },
   "references": [
     {

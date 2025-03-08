@@ -4,7 +4,7 @@ const RuntimeConfig = {
   debug: {},
 };
 
-export function getRuntimeConfig() {
+export function getRuntimeConfig(): typeof RuntimeConfig {
   return RuntimeConfig;
 }
 
@@ -16,6 +16,6 @@ export function getRuntimeConfig() {
  *
  * @typedoc
  */
-export function setLogging(config: Partial<LOG_CONFIG>) {
+export function setLogging(config: Partial<LOG_CONFIG>): void {
   Object.assign(RuntimeConfig.debug, config);
 }

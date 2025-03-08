@@ -71,6 +71,9 @@ importers:
       '@types/semver':
         specifier: ^7.5.8
         version: 7.5.8
+      '@warp-drive/internal-tooling':
+        specifier: workspace:*
+        version: file:internal-tooling
       badge-maker:
         specifier: 4.1.0
         version: 4.1.0
@@ -209,6 +212,36 @@ importers:
       vite-plugin-dts:
         specifier: ^3.9.1
         version: 3.9.1(ccfc48ed675f1f66dc2d9685c74e6f2b)
+
+  internal-tooling:
+    dependencies:
+      '@pnpm/find-workspace-dir':
+        specifier: 1000.1.0
+        version: 1000.1.0
+      '@pnpm/find-workspace-packages':
+        specifier: 6.0.9
+        version: 6.0.9(@pnpm/logger@1000.0.0)
+      '@pnpm/logger':
+        specifier: 1000.0.0
+        version: 1000.0.0
+      '@types/bun':
+        specifier: ^1.2.4
+        version: 1.2.4
+      '@types/debug':
+        specifier: 4.1.12
+        version: 4.1.12
+      chalk:
+        specifier: 5.4.1
+        version: 5.4.1
+      comment-json:
+        specifier: ^4.2.5
+        version: 4.2.5
+      debug:
+        specifier: 4.4.0
+        version: 4.4.0
+      typescript:
+        specifier: ^5.8.2
+        version: 5.8.2
 
   packages/-ember-data:
     dependencies:
@@ -1298,9 +1331,6 @@ importers:
       chalk:
         specifier: ^4.1.2
         version: 4.1.2
-      qunit:
-        specifier: 2.19.4
-        version: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       semver:
         specifier: ^7.7.1
         version: 7.7.1
@@ -1353,6 +1383,12 @@ importers:
       ember-source:
         specifier: ~5.12.0
         version: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
+      qunit:
+        specifier: 2.19.4
+        version: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
+      testem:
+        specifier: ~3.11.0
+        version: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
       typescript:
         specifier: ^5.8.2
         version: 5.8.2
@@ -2242,7 +2278,7 @@ importers:
         version: file:packages/tracking(f76e144d736ddc61b5b3fc94acf05b0c)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(71a767d122d55c6840ad47fa86e34c0f)
+        version: file:packages/unpublished-test-infra(70d00d974bde28c718bc689e57fe086c)
       '@ember/optional-features':
         specifier: ^2.2.0
         version: 2.2.0
@@ -2359,7 +2395,7 @@ importers:
         version: file:packages/tracking(f76e144d736ddc61b5b3fc94acf05b0c)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(31723f914ab0743ddd61c25383cd5f26)
+        version: file:packages/unpublished-test-infra(40cd220082c058ff4b73a10ec411006c)
       '@ember/optional-features':
         specifier: ^2.2.0
         version: 2.2.0
@@ -2500,7 +2536,7 @@ importers:
         version: file:packages/tracking(f76e144d736ddc61b5b3fc94acf05b0c)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(2ef3c9e9cb0bb5dfab0e3be796a883b6)
+        version: file:packages/unpublished-test-infra(8d83c19d2d5cd47088cc3a695c70e00c)
       '@ember/optional-features':
         specifier: ^2.2.0
         version: 2.2.0
@@ -2712,7 +2748,7 @@ importers:
         version: file:packages/tracking(44c924812bf5144daf5ab5ce44b3f332)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(ae8dde8d5ae111cdc3fb186f1532e40f)
+        version: file:packages/unpublished-test-infra(8665b451ff87cacdfbe98df44bdb7e0d)
       '@ember/edition-utils':
         specifier: ^1.2.0
         version: 1.2.0
@@ -3054,7 +3090,7 @@ importers:
         version: file:packages/tracking(f76e144d736ddc61b5b3fc94acf05b0c)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(b94e57cb2531a612120ece831eec41de)
+        version: file:packages/unpublished-test-infra(23082fcb9384130658f0b729307a6bec)
       '@ember/optional-features':
         specifier: ^2.2.0
         version: 2.2.0
@@ -3985,9 +4021,12 @@ packages:
       '@warp-drive/core-types': workspace:*
       '@warp-drive/diagnostic': workspace:*
       ember-source: 3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0
+      qunit: 2.19.4
       testem: ~3.11.0
     peerDependenciesMeta:
       '@warp-drive/diagnostic':
+        optional: true
+      qunit:
         optional: true
       testem:
         optional: true
@@ -4654,6 +4693,10 @@ packages:
     resolution: {integrity: sha512-dxIXcW1F1dxIGfye2JXE7Q8WVwYB0axVzdBOkvE1WKIVR4xjB8e6k/Dkjo7DpbyfW5Vu2k21p6dyM32YLSAWoQ==}
     engines: {node: '>=18.12'}
 
+  '@pnpm/constants@1001.1.0':
+    resolution: {integrity: sha512-xb9dfSGi1qfUKY3r4Zy9JdC9+ZeaDxwfE7HrrGIEsBVY1hvIn6ntbR7A97z3nk44yX7vwbINNf9sizTp0WEtEw==}
+    engines: {node: '>=18.12'}
+
   '@pnpm/constants@7.1.0':
     resolution: {integrity: sha512-PzpiPtGF+bIrmkNaHgOIfBZw669+rkUtt/5UFzHukiETwI4/+BTYz8FAr+m5Dfuns531Y+fYRFOpB0PdbAU0+w==}
     engines: {node: '>=16.14'}
@@ -4682,6 +4725,10 @@ packages:
     peerDependencies:
       '@pnpm/logger': ^5.0.0
 
+  '@pnpm/error@1000.0.2':
+    resolution: {integrity: sha512-2SfE4FFL73rE1WVIoESbqlj4sLy5nWW4M/RVdHvCRJPjlQHa9MH7m7CVJM204lz6I+eHoB+E7rL3zmpJR5wYnQ==}
+    engines: {node: '>=18.12'}
+
   '@pnpm/error@5.0.1':
     resolution: {integrity: sha512-JQSOeSEqrV6k6+kKgrlSJ7gddJRcjxtNCxSVJRIqwckkGSdSTNpXmKEdGgLlaDuEwElPAZUmLDGSqk5InJ5pMA==}
     engines: {node: '>=16.14'}
@@ -4697,6 +4744,10 @@ packages:
   '@pnpm/fetcher-base@14.0.1':
     resolution: {integrity: sha512-DXPZ33CrmDQXnYzwvqyP7I0BF0MQELo4ah2JGpXhLhgOdzU+vj7zdKFo2x82L8anrK861IRi01V8o14oATq1vA==}
     engines: {node: '>=16.14'}
+
+  '@pnpm/find-workspace-dir@1000.1.0':
+    resolution: {integrity: sha512-K5iG/z0SLV6bVW1jIYvbNBI6vWAD6ETJKyWj/wwHr7hxloxtm9xJCGbe/41pmM9nfFFUPbr1Z0YOi4q9yWkj6g==}
+    engines: {node: '>=18.12'}
 
   '@pnpm/find-workspace-dir@6.0.3':
     resolution: {integrity: sha512-0iJnNkS4T8lJE4ldOhRERgER1o59iHA1nMlvpUI5lxNC9SUruH6peRUOlP4/rNcDg+UQ9u0rt5loYOnWKCojtw==}
@@ -4739,6 +4790,10 @@ packages:
   '@pnpm/lockfile-types@5.1.0':
     resolution: {integrity: sha512-14eYp9iOdJ7SyOIVXomXhbVnc14DEhzMLS3eKqxYxi9LkANUfxx1/pwRiRY/lTiP9RFS+OkIcTm2QiLsmNEctw==}
     engines: {node: '>=16.14'}
+
+  '@pnpm/logger@1000.0.0':
+    resolution: {integrity: sha512-v5WO9L4pT7ZjZpf7a/a3H3Xj59JPHNMFJwRS7m/01VMWrKjs89CdVIE5e/N6DwuzP750j0iKozTw6UrCVEfQjA==}
+    engines: {node: '>=18.12'}
 
   '@pnpm/logger@5.2.0':
     resolution: {integrity: sha512-dCdSs2wPCweMkRLdISAKBOKSWeq/9iS9aanWgjoUkFs06KN2o5XGFg53oCXg/KbZhF9AXS3vMHPwTebzCeAEsA==}
@@ -5034,6 +5089,9 @@ packages:
   '@types/body-parser@1.19.5':
     resolution: {integrity: sha512-fB3Zu92ucau0iQ0JMCFQE7b/dv8Ot07NI3KaZIkIUNXq82k4eBAqUaneXfleGY9JWskeS9y+u0nXMyspcuQrCg==}
 
+  '@types/bun@1.2.4':
+    resolution: {integrity: sha512-QtuV5OMR8/rdKJs213iwXDpfVvnskPXY/S0ZiFbsTjQZycuqPbMW8Gf/XhLfwE5njW8sxI2WjISURXPlHypMFA==}
+
   '@types/chai-as-promised@7.1.8':
     resolution: {integrity: sha512-ThlRVIJhr69FLlh6IctTXFkmhtP3NpMZ2QGq69StYLyKZFp/HOp1VdKZj7RvfNWYYcJ1xlbLGLLWj1UvP5u/Gw==}
 
@@ -5045,6 +5103,9 @@ packages:
 
   '@types/cors@2.8.17':
     resolution: {integrity: sha512-8CGDvrBj1zgo2qE+oS3pOCyYNqCPryMWY2bGfwA0dcfopWGgxs+78df0Rs3rc9THP4JkOhLsAa+15VdpAqkcUA==}
+
+  '@types/debug@4.1.12':
+    resolution: {integrity: sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ==}
 
   '@types/eslint-scope@3.7.7':
     resolution: {integrity: sha512-MzMFlSLBqNF2gcHWO0G1vP/YQyfvrxZ0bF+u7mzUdZ1/xK4A4sru+nraZz5i3iEIk1l1uyicaDVTB4QbbEkAYg==}
@@ -5096,6 +5157,9 @@ packages:
 
   '@types/minimatch@5.1.2':
     resolution: {integrity: sha512-K0VQKziLUWkVKiRVrx4a40iPaxTUefQmjtkQofBkYRcoaaL/8rhwDWww9qWbrgicNOgnpIsMxyNIUM4+n6dUIA==}
+
+  '@types/ms@2.1.0':
+    resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
 
   '@types/node@20.17.23':
     resolution: {integrity: sha512-8PCGZ1ZJbEZuYNTMqywO+Sj4vSKjSjT6Ua+6RFOYlEvIvKQABPtrNkoVSLSKDb4obYcMhspVKmsw8Cm10NFRUg==}
@@ -5258,6 +5322,10 @@ packages:
   '@warp-drive/internal-config@file:config':
     resolution: {directory: config, type: directory}
     engines: {node: '>= 18.20.7'}
+
+  '@warp-drive/internal-tooling@file:internal-tooling':
+    resolution: {directory: internal-tooling, type: directory}
+    hasBin: true
 
   '@warp-drive/schema-record@file:packages/schema-record':
     resolution: {directory: packages/schema-record, type: directory}
@@ -13449,7 +13517,7 @@ snapshots:
       - '@glint/template'
       - supports-color
 
-  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(2ef3c9e9cb0bb5dfab0e3be796a883b6)':
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(23082fcb9384130658f0b729307a6bec)':
     dependencies:
       '@ember-data/store': file:packages/store(89a2bfbf7fc3345fce4a4c7c2ca47574)
       '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(b7bd70fa55d8dcc6fec132f7d004fc3f)
@@ -13458,16 +13526,15 @@ snapshots:
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
       chalk: 4.1.2
       ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
-      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       semver: 7.7.1
     optionalDependencies:
-      testem: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
+      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
       - supports-color
 
-  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(31723f914ab0743ddd61c25383cd5f26)':
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(40cd220082c058ff4b73a10ec411006c)':
     dependencies:
       '@ember-data/store': file:packages/store(ef6f12ecd8eea8d0abfc99c13439adeb)
       '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(b7bd70fa55d8dcc6fec132f7d004fc3f)
@@ -13476,10 +13543,27 @@ snapshots:
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
       chalk: 4.1.2
       ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
-      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       semver: 7.7.1
     optionalDependencies:
+      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       testem: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(70d00d974bde28c718bc689e57fe086c)':
+    dependencies:
+      '@ember-data/store': file:packages/store(d01ec85b299a6605ba4c50037443fea4)
+      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(b7bd70fa55d8dcc6fec132f7d004fc3f)
+      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
+      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
+      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
+      chalk: 4.1.2
+      ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
+      semver: 7.7.1
+    optionalDependencies:
+      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -13494,8 +13578,43 @@ snapshots:
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
       chalk: 4.1.2
       ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
-      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       semver: 7.7.1
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(8665b451ff87cacdfbe98df44bdb7e0d)':
+    dependencies:
+      '@ember-data/store': file:packages/store(b5c06f80147830daf16c42d352e22eff)
+      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(8cf4fcab81fc3906e6e66c90f19bddef)
+      '@embroider/macros': 1.16.11(658d807f647ac6163015a3907b2e8c81)
+      '@warp-drive/build-config': file:packages/build-config(658d807f647ac6163015a3907b2e8c81)
+      '@warp-drive/core-types': file:packages/core-types(658d807f647ac6163015a3907b2e8c81)
+      chalk: 4.1.2
+      ember-source: https://s3.amazonaws.com/builds.emberjs.com/canary/shas/be20bd3f8ea066050eb91862af5180e10ba37134.tgz(ec1e7e9319201c91f4dab5a0c78f277d)
+      semver: 7.7.1
+    optionalDependencies:
+      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
+      testem: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(8d83c19d2d5cd47088cc3a695c70e00c)':
+    dependencies:
+      '@ember-data/store': file:packages/store(89a2bfbf7fc3345fce4a4c7c2ca47574)
+      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(b7bd70fa55d8dcc6fec132f7d004fc3f)
+      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
+      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
+      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
+      chalk: 4.1.2
+      ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
+      semver: 7.7.1
+    optionalDependencies:
+      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
+      testem: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -13510,7 +13629,6 @@ snapshots:
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
       chalk: 4.1.2
       ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
-      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       semver: 7.7.1
     optionalDependencies:
       '@warp-drive/diagnostic': file:packages/diagnostic(e19db5e0c0f2df5f23d666ad28615cdc)
@@ -13528,44 +13646,9 @@ snapshots:
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
       chalk: 4.1.2
       ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
-      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       semver: 7.7.1
     optionalDependencies:
       '@warp-drive/diagnostic': file:packages/diagnostic(e19db5e0c0f2df5f23d666ad28615cdc)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
-  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(ae8dde8d5ae111cdc3fb186f1532e40f)':
-    dependencies:
-      '@ember-data/store': file:packages/store(b5c06f80147830daf16c42d352e22eff)
-      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(8cf4fcab81fc3906e6e66c90f19bddef)
-      '@embroider/macros': 1.16.11(658d807f647ac6163015a3907b2e8c81)
-      '@warp-drive/build-config': file:packages/build-config(658d807f647ac6163015a3907b2e8c81)
-      '@warp-drive/core-types': file:packages/core-types(658d807f647ac6163015a3907b2e8c81)
-      chalk: 4.1.2
-      ember-source: https://s3.amazonaws.com/builds.emberjs.com/canary/shas/be20bd3f8ea066050eb91862af5180e10ba37134.tgz(ec1e7e9319201c91f4dab5a0c78f277d)
-      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
-      semver: 7.7.1
-    optionalDependencies:
-      testem: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
-  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(b94e57cb2531a612120ece831eec41de)':
-    dependencies:
-      '@ember-data/store': file:packages/store(89a2bfbf7fc3345fce4a4c7c2ca47574)
-      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(b7bd70fa55d8dcc6fec132f7d004fc3f)
-      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
-      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
-      chalk: 4.1.2
-      ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
-      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
-      semver: 7.7.1
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -14877,6 +14960,20 @@ snapshots:
       '@pnpm/types': 9.1.0
       load-json-file: 6.2.0
 
+  '@pnpm/cli-utils@2.0.9(@pnpm/logger@1000.0.0)':
+    dependencies:
+      '@pnpm/cli-meta': 5.0.1
+      '@pnpm/config': 18.4.0(@pnpm/logger@1000.0.0)
+      '@pnpm/default-reporter': 12.2.3(@pnpm/logger@1000.0.0)
+      '@pnpm/error': 5.0.1
+      '@pnpm/logger': 1000.0.0
+      '@pnpm/manifest-utils': 5.0.1(@pnpm/logger@1000.0.0)
+      '@pnpm/package-is-installable': 8.0.2(@pnpm/logger@1000.0.0)
+      '@pnpm/read-project-manifest': 5.0.1
+      '@pnpm/types': 9.1.0
+      chalk: 4.1.2
+      load-json-file: 6.2.0
+
   '@pnpm/cli-utils@2.0.9(@pnpm/logger@5.2.0)':
     dependencies:
       '@pnpm/cli-meta': 5.0.1
@@ -14892,6 +14989,33 @@ snapshots:
       load-json-file: 6.2.0
 
   '@pnpm/config.env-replace@1.1.0': {}
+
+  '@pnpm/config@18.4.0(@pnpm/logger@1000.0.0)':
+    dependencies:
+      '@pnpm/config.env-replace': 1.1.0
+      '@pnpm/constants': 7.1.0
+      '@pnpm/error': 5.0.1
+      '@pnpm/git-utils': 1.0.0
+      '@pnpm/matcher': 5.0.0
+      '@pnpm/npm-conf': 2.2.0
+      '@pnpm/pnpmfile': 5.0.7(@pnpm/logger@1000.0.0)
+      '@pnpm/read-project-manifest': 5.0.1
+      '@pnpm/types': 9.1.0
+      better-path-resolve: 1.0.0
+      camelcase: 6.3.0
+      camelcase-keys: 6.2.2
+      can-write-to-dir: 1.1.1
+      is-subdir: 1.2.0
+      is-windows: 1.0.2
+      normalize-registry-url: 2.0.0
+      path-absolute: 1.0.1
+      path-name: 1.0.0
+      ramda: '@pnpm/ramda@0.28.1'
+      read-ini-file: 4.0.0
+      realpath-missing: 1.1.0
+      which: 3.0.1
+    transitivePeerDependencies:
+      - '@pnpm/logger'
 
   '@pnpm/config@18.4.0(@pnpm/logger@5.2.0)':
     dependencies:
@@ -14922,9 +15046,16 @@ snapshots:
 
   '@pnpm/constants@10.0.0': {}
 
+  '@pnpm/constants@1001.1.0': {}
+
   '@pnpm/constants@7.1.0': {}
 
   '@pnpm/constants@7.1.1': {}
+
+  '@pnpm/core-loggers@9.0.1(@pnpm/logger@1000.0.0)':
+    dependencies:
+      '@pnpm/logger': 1000.0.0
+      '@pnpm/types': 9.1.0
 
   '@pnpm/core-loggers@9.0.1(@pnpm/logger@5.2.0)':
     dependencies:
@@ -14938,6 +15069,30 @@ snapshots:
       chalk: 4.1.2
 
   '@pnpm/dedupe.types@1.0.0': {}
+
+  '@pnpm/default-reporter@12.2.3(@pnpm/logger@1000.0.0)':
+    dependencies:
+      '@pnpm/config': 18.4.0(@pnpm/logger@1000.0.0)
+      '@pnpm/core-loggers': 9.0.1(@pnpm/logger@1000.0.0)
+      '@pnpm/dedupe.issues-renderer': 1.0.0
+      '@pnpm/dedupe.types': 1.0.0
+      '@pnpm/error': 5.0.1
+      '@pnpm/logger': 1000.0.0
+      '@pnpm/render-peer-issues': 4.0.1
+      '@pnpm/types': 9.1.0
+      ansi-diff: 1.2.0
+      boxen: 5.1.2
+      chalk: 4.1.2
+      normalize-path: 3.0.0
+      pretty-bytes: 5.6.0
+      pretty-ms: 7.0.1
+      ramda: '@pnpm/ramda@0.28.1'
+      right-pad: 1.0.1
+      rxjs: 7.8.2
+      semver: 7.7.1
+      stacktracey: 2.1.8
+      string-length: 4.0.2
+      strip-ansi: 6.0.1
 
   '@pnpm/default-reporter@12.2.3(@pnpm/logger@5.2.0)':
     dependencies:
@@ -14963,6 +15118,10 @@ snapshots:
       string-length: 4.0.2
       strip-ansi: 6.0.1
 
+  '@pnpm/error@1000.0.2':
+    dependencies:
+      '@pnpm/constants': 1001.1.0
+
   '@pnpm/error@5.0.1':
     dependencies:
       '@pnpm/constants': 7.1.0
@@ -14981,6 +15140,11 @@ snapshots:
       '@pnpm/types': 9.1.0
       '@types/ssri': 7.1.5
 
+  '@pnpm/find-workspace-dir@1000.1.0':
+    dependencies:
+      '@pnpm/error': 1000.0.2
+      find-up: 5.0.0
+
   '@pnpm/find-workspace-dir@6.0.3':
     dependencies:
       '@pnpm/error': 5.0.3
@@ -14990,6 +15154,17 @@ snapshots:
     dependencies:
       '@pnpm/error': 6.0.3
       find-up: 5.0.0
+
+  '@pnpm/find-workspace-packages@6.0.9(@pnpm/logger@1000.0.0)':
+    dependencies:
+      '@pnpm/cli-utils': 2.0.9(@pnpm/logger@1000.0.0)
+      '@pnpm/constants': 7.1.0
+      '@pnpm/fs.find-packages': 2.0.1
+      '@pnpm/types': 9.1.0
+      '@pnpm/util.lex-comparator': 1.0.0
+      read-yaml-file: 2.1.0
+    transitivePeerDependencies:
+      - '@pnpm/logger'
 
   '@pnpm/find-workspace-packages@6.0.9(@pnpm/logger@5.2.0)':
     dependencies:
@@ -15035,10 +15210,23 @@ snapshots:
     dependencies:
       '@pnpm/types': 9.1.0
 
+  '@pnpm/logger@1000.0.0':
+    dependencies:
+      bole: 5.0.17
+      ndjson: 2.0.0
+
   '@pnpm/logger@5.2.0':
     dependencies:
       bole: 5.0.17
       ndjson: 2.0.0
+
+  '@pnpm/manifest-utils@5.0.1(@pnpm/logger@1000.0.0)':
+    dependencies:
+      '@pnpm/core-loggers': 9.0.1(@pnpm/logger@1000.0.0)
+      '@pnpm/error': 5.0.1
+      '@pnpm/types': 9.1.0
+    transitivePeerDependencies:
+      - '@pnpm/logger'
 
   '@pnpm/manifest-utils@5.0.1(@pnpm/logger@5.2.0)':
     dependencies:
@@ -15062,6 +15250,17 @@ snapshots:
       '@pnpm/network.ca-file': 1.0.2
       config-chain: 1.1.13
 
+  '@pnpm/package-is-installable@8.0.2(@pnpm/logger@1000.0.0)':
+    dependencies:
+      '@pnpm/core-loggers': 9.0.1(@pnpm/logger@1000.0.0)
+      '@pnpm/error': 5.0.1
+      '@pnpm/logger': 1000.0.0
+      '@pnpm/types': 9.1.0
+      detect-libc: 2.0.3
+      execa: safe-execa@0.1.2
+      mem: 8.1.1
+      semver: 7.7.1
+
   '@pnpm/package-is-installable@8.0.2(@pnpm/logger@5.2.0)':
     dependencies:
       '@pnpm/core-loggers': 9.0.1(@pnpm/logger@5.2.0)
@@ -15072,6 +15271,18 @@ snapshots:
       execa: safe-execa@0.1.2
       mem: 8.1.1
       semver: 7.7.1
+
+  '@pnpm/pnpmfile@5.0.7(@pnpm/logger@1000.0.0)':
+    dependencies:
+      '@pnpm/core-loggers': 9.0.1(@pnpm/logger@1000.0.0)
+      '@pnpm/error': 5.0.1
+      '@pnpm/hooks.types': 1.0.1
+      '@pnpm/lockfile-types': 5.1.0
+      '@pnpm/logger': 1000.0.0
+      '@pnpm/store-controller-types': 15.0.1
+      '@pnpm/types': 9.1.0
+      chalk: 4.1.2
+      path-absolute: 1.0.1
 
   '@pnpm/pnpmfile@5.0.7(@pnpm/logger@5.2.0)':
     dependencies:
@@ -15391,6 +15602,10 @@ snapshots:
       '@types/connect': 3.4.38
       '@types/node': 20.17.23
 
+  '@types/bun@1.2.4':
+    dependencies:
+      bun-types: 1.2.4
+
   '@types/chai-as-promised@7.1.8':
     dependencies:
       '@types/chai': 4.3.20
@@ -15404,6 +15619,10 @@ snapshots:
   '@types/cors@2.8.17':
     dependencies:
       '@types/node': 20.17.23
+
+  '@types/debug@4.1.12':
+    dependencies:
+      '@types/ms': 2.1.0
 
   '@types/eslint-scope@3.7.7':
     dependencies:
@@ -15468,6 +15687,8 @@ snapshots:
   '@types/minimatch@3.0.5': {}
 
   '@types/minimatch@5.1.2': {}
+
+  '@types/ms@2.1.0': {}
 
   '@types/node@20.17.23':
     dependencies:
@@ -15906,6 +16127,20 @@ snapshots:
       - supports-color
       - terser
       - utf-8-validate
+
+  '@warp-drive/internal-tooling@file:internal-tooling':
+    dependencies:
+      '@pnpm/find-workspace-dir': 1000.1.0
+      '@pnpm/find-workspace-packages': 6.0.9(@pnpm/logger@1000.0.0)
+      '@pnpm/logger': 1000.0.0
+      '@types/bun': 1.2.4
+      '@types/debug': 4.1.12
+      chalk: 5.4.1
+      comment-json: 4.2.5
+      debug: 4.4.0
+      typescript: 5.8.2
+    transitivePeerDependencies:
+      - supports-color
 
   '@warp-drive/schema-record@file:packages/schema-record(1180fba2e999f1c9edce011af67d47b1)':
     dependencies:

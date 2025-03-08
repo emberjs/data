@@ -1,13 +1,13 @@
 {
-  "include": ["src/**/*", "../../@types/fastboot"],
+  "include": ["src/**/*"],
   "compilerOptions": {
-    "target": "ESNext",
+    "target": "ES2024",
     "module": "ESNext",
     "moduleResolution": "bundler",
     "skipLibCheck": true,
     "declarationDir": "unstable-preview-types",
     "emitDeclarationOnly": true,
-    "allowJs": false,
+    "allowJs": true,
     "checkJs": false,
     "alwaysStrict": true,
     "strict": true,
@@ -24,7 +24,6 @@
     "noEmitOnError": false,
     "strictNullChecks": true,
     "noErrorTruncation": true,
-    "preserveConstEnums": false,
     "experimentalDecorators": true,
     "composite": true,
     "incremental": true,
@@ -39,7 +38,12 @@
       "@warp-drive/core-types/*": ["../core-types/unstable-preview-types/*"],
       "@warp-drive/build-config": ["../build-config/unstable-preview-types"],
       "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"]
-    }
+    },
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+    "lib": ["ESNext", "DOM"],
+    "moduleDetection": "force"
   },
   "references": [
     {
