@@ -282,8 +282,8 @@ async function main() {
 
     if (pkgEdited || tsconfigEdited) {
       anyEdited = true;
+      await project.save({ pkgEdited, configEdited: tsconfigEdited });
     }
-    await project.save({ pkgEdited, configEdited: tsconfigEdited });
   });
 
   if (anyEdited) await runPrettier();
