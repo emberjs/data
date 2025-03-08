@@ -71,6 +71,9 @@ importers:
       '@types/semver':
         specifier: ^7.5.8
         version: 7.5.8
+      '@warp-drive/internal-tooling':
+        specifier: workspace:*
+        version: file:internal-tooling
       badge-maker:
         specifier: 4.1.0
         version: 4.1.0
@@ -6446,6 +6449,10 @@ packages:
   '@warp-drive/internal-config@file:config':
     resolution: {directory: config, type: directory}
     engines: {node: '>= 18.20.7'}
+
+  '@warp-drive/internal-tooling@file:internal-tooling':
+    resolution: {directory: internal-tooling, type: directory}
+    hasBin: true
 
   '@warp-drive/schema-record@file:packages/schema-record':
     resolution: {directory: packages/schema-record, type: directory}
@@ -17665,6 +17672,8 @@ snapshots:
       - supports-color
       - terser
       - utf-8-validate
+
+  '@warp-drive/internal-tooling@file:internal-tooling': {}
 
   '@warp-drive/schema-record@file:packages/schema-record(1180fba2e999f1c9edce011af67d47b1)':
     dependencies:
