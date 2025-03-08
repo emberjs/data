@@ -183,7 +183,7 @@ export async function walkPackages(
       isPrivate: project.manifest.private ?? false,
       isTooling: name === '@warp-drive/internal-tooling',
       isConfig: name === '@warp-drive/config',
-      isTest: project.dir === 'tests',
+      isTest: project.dir.startsWith(TestDir),
       pkg,
       tsconfig,
       save: async ({ pkgEdited, configEdited }: { pkgEdited: boolean; configEdited: Boolean }) => {
