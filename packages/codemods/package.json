@@ -28,7 +28,8 @@
     "utils",
     "codemods",
     "logos",
-    "LICENSE.md"
+    "LICENSE.md",
+    "unstable-preview-types"
   ],
   "author": "",
   "license": "MIT",
