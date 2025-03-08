@@ -1,4 +1,4 @@
-#! usr/bin/env bun
+#! /usr/bin/env bun
 
 import path from 'path';
 import fs from 'fs';

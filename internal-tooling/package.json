@@ -4,8 +4,11 @@
   "description": "Internal Tooling for the WarpDrive Project Monorepo | Unpublished",
   "private": true,
   "type": "module",
+  "files": [
+    "src"
+  ],
   "bin": {
-    "sync-logos": "./src/sync-logos.ts"
+    "sync-logos": "src/sync-logos.ts"
   },
   "devDependencies": {
     "@types/bun": "^1.2.4",
