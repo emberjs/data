@@ -18,7 +18,9 @@ const config = {
   debug: Object.assign({}, LOGGING),
 };
 
-export function macros() {
+type BabelPlugin = [string, Record<string, unknown>, string];
+
+export function macros(): BabelPlugin[] {
   const TransformAsserts = import.meta.resolve('./babel-plugin-transform-asserts.cjs').slice(7);
   const TransformDeprecations = import.meta.resolve('./babel-plugin-transform-deprecations.cjs').slice(7);
   const TransformDebugLogging = import.meta.resolve('./babel-plugin-transform-logging.cjs').slice(7);
@@ -68,7 +70,7 @@ export function macros() {
       },
       '@warp-drive/build-config/env',
     ],
-  ];
+  ] satisfies BabelPlugin[];
 
   return plugins;
 }

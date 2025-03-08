@@ -13,7 +13,6 @@
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "allowJs": true,
     "emitDeclarationOnly": true,
     "noImplicitOverride": false,
     // Enable faster builds
@@ -41,7 +40,12 @@
       "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"],
       "@warp-drive/core-types": ["../core-types/unstable-preview-types"],
       "@warp-drive/core-types/*": ["../core-types/unstable-preview-types/*"]
-    }
+    },
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "isolatedDeclarations": true,
+    "experimentalDecorators": true,
+    "checkJs": false
   },
   "references": [
     {

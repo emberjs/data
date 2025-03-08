@@ -17,17 +17,25 @@
     "allowJs": true,
     "noImplicitOverride": true,
     "resolveJsonModule": true,
-    "noEmit": true,
-
     // Enable faster builds
     // but causes us to not rebuild properly
     // "incremental": true,
     "rootDir": ".",
-
     "outDir": "dist/",
     "declaration": true,
     "declarationMap": true,
     "inlineSourceMap": true,
-    "inlineSources": true
-  }
+    "inlineSources": true,
+    "allowImportingTsExtensions": true,
+    "baseUrl": ".",
+    "composite": true,
+    "declarationDir": "unstable-preview-types",
+    "emitDeclarationOnly": true,
+    "erasableSyntaxOnly": true,
+    "experimentalDecorators": true,
+    "incremental": true,
+    "paths": {},
+    "checkJs": false
+  },
+  "references": []
 }

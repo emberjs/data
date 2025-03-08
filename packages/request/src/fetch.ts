@@ -17,6 +17,19 @@ import { DEBUG } from '@warp-drive/build-config/env';
 import { cloneResponseProperties, type Context } from './-private/context';
 import type { HttpErrorProps } from './-private/utils';
 
+interface FastbootRequest {
+  protocol: string;
+  host: string;
+}
+interface FastBoot {
+  require(moduleName: string): unknown;
+  isFastBoot: boolean;
+  request: FastbootRequest;
+}
+declare global {
+  const FastBoot: undefined | FastBoot;
+}
+
 // Lazily close over fetch to avoid breaking Mirage
 const _fetch: typeof fetch =
   typeof fetch !== 'undefined'
@@ -113,9 +126,9 @@ const Fetch = {
       response = await _fetch(context.request.url!, context.request);
     } catch (e) {
       if (e instanceof DOMException && e.name === 'AbortError') {
-        (e as unknown as HttpErrorProps).statusText = 'Aborted';
-        (e as unknown as HttpErrorProps).status = 20;
-        (e as unknown as HttpErrorProps).isRequestError = true;
+        (e as HttpErrorProps).statusText = 'Aborted';
+        (e as HttpErrorProps).status = 20;
+        (e as HttpErrorProps).isRequestError = true;
       } else {
         (e as HttpErrorProps).statusText = 'Unknown Network Error';
         (e as HttpErrorProps).status = 0;

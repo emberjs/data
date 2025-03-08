@@ -1,4 +1,4 @@
-import EmberRouter from '@embroider/router';
+import EmberRouter from '@ember/routing/router';
 
 import config from './config/environment';
 

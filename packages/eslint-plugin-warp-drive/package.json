@@ -26,9 +26,12 @@
     "src",
     "docs",
     "CHANGELOG.md",
-    "README.md"
+    "README.md",
+    "logos",
+    "LICENSE.md"
   ],
   "scripts": {
     "test": "mocha tests"
-  }
+  },
+  "license": "MIT"
 }

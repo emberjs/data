@@ -10,7 +10,7 @@
     "skipLibCheck": true,
     "declarationDir": "unstable-preview-types",
     "emitDeclarationOnly": true,
-    "allowJs": false,
+    "allowJs": true,
     "checkJs": false,
     "alwaysStrict": true,
     "strict": true,
@@ -54,7 +54,10 @@
       "@warp-drive/core-types/*": ["../core-types/unstable-preview-types/*"],
       "@ember-data/request-utils": ["../request-utils/unstable-preview-types"],
       "@ember-data/request-utils/*": ["../request-utils/unstable-preview-types/*"]
-    }
+    },
+    "erasableSyntaxOnly": true,
+    "lib": ["ESNext", "DOM"],
+    "moduleDetection": "force"
   },
   "references": [
     {

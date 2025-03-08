@@ -15,6 +15,20 @@
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
     "emitDeclarationOnly": true,
-    "types": ["bun-types"]
-  }
+    "types": ["bun-types"],
+    "baseUrl": ".",
+    "composite": true,
+    "declaration": true,
+    "declarationDir": "unstable-preview-types",
+    "declarationMap": true,
+    "erasableSyntaxOnly": true,
+    "experimentalDecorators": true,
+    "incremental": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "rootDir": "src",
+    "paths": {},
+    "checkJs": false
+  },
+  "references": []
 }

@@ -17,6 +17,25 @@
     "emitDeclarationOnly": true,
     "declaration": true,
     "composite": true,
-    "types": []
-  }
+    "types": [],
+    "baseUrl": ".",
+    "declarationDir": "unstable-preview-types",
+    "declarationMap": true,
+    "erasableSyntaxOnly": true,
+    "experimentalDecorators": true,
+    "incremental": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "rootDir": "src",
+    "paths": {
+      "@warp-drive/build-config": ["../build-config/unstable-preview-types"],
+      "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"]
+    },
+    "checkJs": false
+  },
+  "references": [
+    {
+      "path": "../build-config"
+    }
+  ]
 }

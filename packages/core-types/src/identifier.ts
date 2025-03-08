@@ -14,7 +14,7 @@ function ProdSymbol<T extends string>(str: T): T {
 }
 
 // also present in production
-export const CACHE_OWNER = ProdSymbol('__$co');
+export const CACHE_OWNER: '__$co' = ProdSymbol('__$co');
 
 export type IdentifierBucket = 'record' | 'document';
 

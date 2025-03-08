@@ -82,13 +82,13 @@ function ensureDoc<T>(owner: ContextOwner, content: T | Error, isError: boolean)
   };
 }
 
-export type HttpErrorProps = {
+export interface HttpErrorProps extends DOMException {
   code: number;
   name: string;
   status: number;
   statusText: string;
   isRequestError: boolean;
-};
+}
 
 export function enhanceReason(reason?: string) {
   return new DOMException(reason || 'The user aborted a request.', 'AbortError');

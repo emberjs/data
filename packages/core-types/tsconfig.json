@@ -13,6 +13,7 @@
     "pretty": true,
     "exactOptionalPropertyTypes": false,
     "allowSyntheticDefaultImports": true,
+    "isolatedDeclarations": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
     "strictBindCallApply": true,
@@ -41,7 +42,11 @@
     "paths": {
       "@warp-drive/build-config": ["../build-config/unstable-preview-types"],
       "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"]
-    }
+    },
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "lib": ["ESNext", "DOM"],
+    "moduleDetection": "force"
   },
   "references": [
     {

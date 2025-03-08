@@ -26,7 +26,9 @@
     "bin",
     "src",
     "utils",
-    "codemods"
+    "codemods",
+    "logos",
+    "LICENSE.md"
   ],
   "author": "",
   "license": "MIT",

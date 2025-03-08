@@ -325,7 +325,7 @@ function prepareRequest(request: StoreRequestContext['request']): RequestInfo {
   }
 
   if (headers instanceof Headers) {
-    requestCopy.headers = Array.from(headers.entries()) as unknown as Headers;
+    requestCopy.headers = Array.from(headers as unknown as Iterable<[string, string][]>) as unknown as Headers;
   }
 
   return requestCopy;
@@ -339,7 +339,7 @@ function prepareResponse(response: Response | ResponseInfo | null) {
   const clone: Partial<Mutable<Response>> = {};
 
   if (response.headers) {
-    clone.headers = Array.from(response.headers.entries()) as unknown as Headers;
+    clone.headers = Array.from(response.headers as unknown as Iterable<[string, string][]>) as unknown as Headers;
   }
 
   clone.ok = response.ok;
