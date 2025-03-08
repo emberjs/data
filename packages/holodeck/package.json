@@ -33,8 +33,7 @@
     "LICENSE.md",
     "server",
     "unstable-preview-types",
-    "NCC-1701-a.svg",
-    "NCC-1701-a-blue.svg"
+    "logos"
   ],
   "bin": {
     "ensure-cert": "./server/ensure-cert.js"

@@ -4,6 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import debug from 'debug';
 import chalk from 'chalk';
+import type { BunFile } from 'bun';
 
 const log = debug('wd:sync-logos');
 
@@ -27,8 +28,7 @@ async function getMonorepoRoot() {
 function isDirectorySymlink(dirPath: string) {
   try {
     const stats = fs.lstatSync(dirPath);
-    console.log({ isSymlink: stats.isSymbolicLink(), isDirectory: stats.isDirectory() });
-    return stats.isSymbolicLink() && stats.isDirectory();
+    return stats.isSymbolicLink();
   } catch (error) {
     return false;
   }
@@ -49,7 +49,7 @@ async function copyFiles({
 }) {
   // if we are in copy mode, remove any existing symlink and copy the files
   if (isLinked) {
-    fs.rmdirSync(packageLogosDir, { recursive: true });
+    fs.unlinkSync(packageLogosDir);
     log(`\t\t\t🗑️ Deleted existing symlink for ${packageDir}/logos`);
   } else if (isCopied) {
     fs.rmSync(packageLogosDir, { recursive: true, force: true });
@@ -92,23 +92,37 @@ async function symlinkFiles({
 
   const source = packageLogosDir;
   const target = path.relative(source, logosDir);
-  fs.symlinkSync(target, source, 'dir');
+  fs.symlinkSync(target, source, 'junction');
   log(`\t\t\t🔗 Symlinked ${logosDir} to ${packageDir}/logos`);
 }
 
-async function updatePackageJson({ packageDir, packagesDir }: { packageDir: string; packagesDir: string }) {
-  // ensure "files" field in package.json includes "logos"
+async function getPackageJson({ packageDir, packagesDir }: { packageDir: string; packagesDir: string }) {
   const packageJsonPath = path.join(packagesDir, packageDir, 'package.json');
   const packageJsonFile = Bun.file(packageJsonPath);
   const pkg = await packageJsonFile.json();
+  return { file: packageJsonFile, pkg, path: packageJsonPath, nicePath: path.join(packageDir, 'package.json') };
+}
+
+async function updatePackageJson({
+  pkg,
+  file,
+  path,
+  nicePath,
+}: {
+  pkg: any;
+  file: BunFile;
+  path: string;
+  nicePath: string;
+}) {
+  // ensure "files" field in package.json includes "logos"
   if (!pkg.files) {
     pkg.files = ['logos'];
-    await packageJsonFile.write(JSON.stringify(pkg, null, 2));
-    log(`\t\t📝 Added "logos" to "files" in ${packageDir}/package.json`);
+    await file.write(JSON.stringify(pkg, null, 2));
+    log(`\t\t📝 Added "logos" to "files" in ${nicePath}`);
   } else if (!pkg.files.includes('logos')) {
     pkg.files.push('logos');
-    await packageJsonFile.write(JSON.stringify(pkg, null, 2));
-    log(`\t\t📝 Added "logos" to "files" in ${packageDir}/package.json`);
+    await file.write(JSON.stringify(pkg, null, 2));
+    log(`\t\t📝 Added "logos" to "files" in ${nicePath}`);
   }
 }
 
@@ -130,6 +144,13 @@ async function main() {
     const packageLogosDir = path.join(packagesDir, packageDir, 'logos');
     const isLinked = isDirectorySymlink(packageLogosDir);
     const isCopied = !isLinked && fs.existsSync(packageLogosDir);
+    const details = await getPackageJson({ packageDir, packagesDir });
+
+    if (details.pkg.private) {
+      log(`\t\t🔒 Skipping private package ${details.nicePath}`);
+      continue;
+    }
+
     log(`\t\t🔁 Syncing logos to ${packageDir}`);
 
     if (!copyLogos) {
@@ -150,7 +171,7 @@ async function main() {
       });
     }
 
-    await updatePackageJson({ packageDir, packagesDir });
+    await updatePackageJson(details);
   }
 }
 

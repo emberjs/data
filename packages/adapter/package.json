@@ -30,8 +30,7 @@
     "dist",
     "README.md",
     "LICENSE.md",
-    "ember-data-logo-dark.svg",
-    "ember-data-logo-light.svg"
+    "logos"
   ],
   "exports": {
     ".": {

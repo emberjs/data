@@ -26,7 +26,8 @@
     "src",
     "docs",
     "CHANGELOG.md",
-    "README.md"
+    "README.md",
+    "logos"
   ],
   "scripts": {
     "test": "mocha tests"
