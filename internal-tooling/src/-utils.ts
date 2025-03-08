@@ -34,6 +34,17 @@ export async function getPackageJson({ packageDir, packagesDir }: { packageDir: 
   return { file: packageJsonFile, pkg, path: packageJsonPath, nicePath: path.join(packageDir, 'package.json') };
 }
 
+export async function runPrettier() {
+  const root = await getMonorepoRoot();
+  const childProcess = Bun.spawn(['bun', 'lint:prettier:fix'], {
+    env: process.env,
+    cwd: root,
+    stdout: 'inherit',
+    stderr: 'inherit',
+  });
+  await childProcess.exited;
+}
+
 type PkgJsonFile = {
   name: string;
   version: string;
@@ -91,6 +102,11 @@ interface BaseProjectPackage {
   tsconfigFile: BunFile;
   pkgPath: string;
   tsconfigPath: string;
+  isRoot: boolean;
+  isPrivate: boolean;
+  isTooling: boolean;
+  isConfig: boolean;
+  isTest: boolean;
   pkg: PkgJsonFile;
   save: (editStatus: { pkgEdited: boolean; configEdited: Boolean }) => Promise<void>;
 }
@@ -138,13 +154,14 @@ export async function walkPackages(
   const dir = await getMonorepoRoot();
   const packages = await collectAllPackages(dir);
   const projects = new Map<string, ProjectPackageWithTsConfig>();
+  const TestDir = path.join(dir, 'tests');
 
   for (const [name, project] of packages) {
     if (config.excludeRoot && name === 'root') continue;
     if (config.excludePrivate && project.manifest.private) continue;
     if (config.excludeTooling && name === '@warp-drive/internal-tooling') continue;
     if (config.excludeConfig && name === '@warp-drive/config') continue;
-    if (config.excludeTests && project.dir === 'tests') continue;
+    if (config.excludeTests && project.dir.startsWith(TestDir)) continue;
 
     const pkgPath = path.join(project.dir, 'package.json');
     const tsconfigPath = path.join(project.dir, 'tsconfig.json');
@@ -162,6 +179,11 @@ export async function walkPackages(
       pkgPath,
       hasTsConfig,
       tsconfigPath,
+      isRoot: name === 'root',
+      isPrivate: project.manifest.private ?? false,
+      isTooling: name === '@warp-drive/internal-tooling',
+      isConfig: name === '@warp-drive/config',
+      isTest: project.dir.startsWith(TestDir),
       pkg,
       tsconfig,
       save: async ({ pkgEdited, configEdited }: { pkgEdited: boolean; configEdited: Boolean }) => {

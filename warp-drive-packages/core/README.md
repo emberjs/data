@@ -50,22 +50,6 @@ rich application &mdash; letting you ship better experiences more quickly withou
 
 <br>
 
-## Quick Links
-
-- [Installation](#installation)
-- [API Docs](https://api.emberjs.com/ember-data/release)
-- [Guides](./guides/index.md)
-- [Build Config](./packages/build-config/README.md)
-- [Ember Compatibility](#compatibility)
-- [The Big List of Versions](#the-big-list-of-versions)
-- [Contributing](./CONTRIBUTING.md)
-- [Community & Help](https://emberjs.com/community)
-- [RFCs](https://github.com/emberjs/rfcs/labels/T-ember-data)
-- [Team](https://emberjs.com/team)
-- [Blog](https://emberjs.com/blog)
-
-<br>
-
 ## Installation
 
 ```sh

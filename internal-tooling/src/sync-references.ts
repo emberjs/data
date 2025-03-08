@@ -3,7 +3,13 @@
 import debug from 'debug';
 import path from 'path';
 import chalk from 'chalk';
-import { walkPackages, type ProjectPackage, type ProjectPackageWithTsConfig, type TsConfigFile } from './-utils';
+import {
+  runPrettier,
+  walkPackages,
+  type ProjectPackage,
+  type ProjectPackageWithTsConfig,
+  type TsConfigFile,
+} from './-utils';
 
 const log = debug('wd:sync-references');
 
@@ -195,8 +201,9 @@ async function main() {
   log(
     `\n\t${chalk.gray('=').repeat(60)}\n\t\t${chalk.magentaBright('@warp-drive/')}${chalk.greenBright('internal-tooling')} Sync TypeScript References\n\t${chalk.gray('=').repeat(60)}\n\n\t\t${chalk.gray(`Syncing Project References`)}\n\n`
   );
+  let anyFileEdited = false;
 
-  walkPackages(async (project: ProjectPackage, projects: Map<string, ProjectPackage>) => {
+  await walkPackages(async (project: ProjectPackage, projects: Map<string, ProjectPackage>) => {
     log(`\t📦 Syncing ${project.pkg.name}`);
     let pkgEdited = false;
     let tsconfigEdited = false;
@@ -231,6 +238,17 @@ async function main() {
         log(`\t\t🔧 Added paths hash to tsconfig.json`);
       }
 
+      if (!project.isTest) {
+        if (!project.pkg.files?.includes(tsconfig.compilerOptions!.declarationDir!)) {
+          project.pkg.files ??= [];
+          project.pkg.files.push(tsconfig.compilerOptions!.declarationDir!);
+          pkgEdited = true;
+          log(
+            `\t\t🔧 Added types output directory "${tsconfig.compilerOptions.declarationDir}" to files in package.json`
+          );
+        }
+      }
+
       for (const name of referenced) {
         const relProject = projects.get(name);
         if (!relProject) {
@@ -262,8 +280,13 @@ async function main() {
       }
     }
 
-    await project.save({ pkgEdited, configEdited: tsconfigEdited });
+    if (pkgEdited || tsconfigEdited) {
+      anyFileEdited = true;
+      await project.save({ pkgEdited, configEdited: tsconfigEdited });
+    }
   });
+
+  if (anyFileEdited) await runPrettier();
 }
 
 main();

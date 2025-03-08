@@ -23,6 +23,9 @@
     "@pnpm/find-workspace-packages": "6.0.9",
     "@pnpm/logger": "1000.0.0"
   },
+  "engines": {
+    "node": ">= 18.20.7"
+  },
   "volta": {
     "extends": "../package.json"
   }

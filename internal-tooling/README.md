@@ -23,3 +23,6 @@ in tsconfig.json for any other workspace package specified by package.json
 as a dependency, peer-dependency, or dev-dependency.
 
 Will also ensure the proper settings for composite etc. are in use.
+
+For packages that should emit types (any non-test app package) it will
+ensure that the declarationDir is added to the files array in package.json.

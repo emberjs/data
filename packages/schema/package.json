@@ -27,7 +27,8 @@
   },
   "files": [
     "README.md",
-    "LICENSE.md"
+    "LICENSE.md",
+    "unstable-preview-types"
   ],
   "bin": {
     "parse": "./parse",
