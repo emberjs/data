@@ -210,6 +210,15 @@ importers:
         specifier: ^3.9.1
         version: 3.9.1(ccfc48ed675f1f66dc2d9685c74e6f2b)
 
+  internal-tooling:
+    devDependencies:
+      '@types/bun':
+        specifier: ^1.2.4
+        version: 1.2.4
+      typescript:
+        specifier: ^5.8.2
+        version: 5.8.2
+
   packages/-ember-data:
     dependencies:
       '@ember-data/adapter':
