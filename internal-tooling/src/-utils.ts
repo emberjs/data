@@ -36,7 +36,6 @@ export async function getPackageJson({ packageDir, packagesDir }: { packageDir: 
 
 export async function runPrettier() {
   const root = await getMonorepoRoot();
-  console.log(`Running prettier on ${root}`);
   const childProcess = Bun.spawn(['bun', 'lint:prettier:fix'], {
     env: process.env,
     cwd: root,
@@ -155,13 +154,14 @@ export async function walkPackages(
   const dir = await getMonorepoRoot();
   const packages = await collectAllPackages(dir);
   const projects = new Map<string, ProjectPackageWithTsConfig>();
+  const TestDir = path.join(dir, 'tests');
 
   for (const [name, project] of packages) {
     if (config.excludeRoot && name === 'root') continue;
     if (config.excludePrivate && project.manifest.private) continue;
     if (config.excludeTooling && name === '@warp-drive/internal-tooling') continue;
     if (config.excludeConfig && name === '@warp-drive/config') continue;
-    if (config.excludeTests && project.dir === 'tests') continue;
+    if (config.excludeTests && project.dir.startsWith(TestDir)) continue;
 
     const pkgPath = path.join(project.dir, 'package.json');
     const tsconfigPath = path.join(project.dir, 'tsconfig.json');
