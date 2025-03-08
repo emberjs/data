@@ -1594,9 +1594,6 @@ importers:
       chalk:
         specifier: ^4.1.2
         version: 4.1.2
-      qunit:
-        specifier: 2.19.4
-        version: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       semver:
         specifier: ^7.7.1
         version: 7.7.1
@@ -1649,6 +1646,12 @@ importers:
       ember-source:
         specifier: ~5.12.0
         version: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
+      qunit:
+        specifier: 2.19.4
+        version: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
+      testem:
+        specifier: ~3.11.0
+        version: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
       typescript:
         specifier: ^5.8.2
         version: 5.8.2
@@ -2572,7 +2575,7 @@ importers:
         version: file:packages/tracking(f76e144d736ddc61b5b3fc94acf05b0c)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(71a767d122d55c6840ad47fa86e34c0f)
+        version: file:packages/unpublished-test-infra(70d00d974bde28c718bc689e57fe086c)
       '@ember/optional-features':
         specifier: ^2.2.0
         version: 2.2.0
@@ -2689,7 +2692,7 @@ importers:
         version: file:packages/tracking(f76e144d736ddc61b5b3fc94acf05b0c)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(31723f914ab0743ddd61c25383cd5f26)
+        version: file:packages/unpublished-test-infra(40cd220082c058ff4b73a10ec411006c)
       '@ember/optional-features':
         specifier: ^2.2.0
         version: 2.2.0
@@ -2834,7 +2837,7 @@ importers:
         version: file:packages/tracking(f76e144d736ddc61b5b3fc94acf05b0c)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(71a767d122d55c6840ad47fa86e34c0f)
+        version: file:packages/unpublished-test-infra(70d00d974bde28c718bc689e57fe086c)
       '@ember/edition-utils':
         specifier: ^1.2.0
         version: 1.2.0
@@ -2999,7 +3002,7 @@ importers:
         version: file:packages/tracking(f76e144d736ddc61b5b3fc94acf05b0c)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(2ef3c9e9cb0bb5dfab0e3be796a883b6)
+        version: file:packages/unpublished-test-infra(8d83c19d2d5cd47088cc3a695c70e00c)
       '@ember/optional-features':
         specifier: ^2.2.0
         version: 2.2.0
@@ -3208,7 +3211,7 @@ importers:
         version: file:packages/tracking(44c924812bf5144daf5ab5ce44b3f332)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(ae8dde8d5ae111cdc3fb186f1532e40f)
+        version: file:packages/unpublished-test-infra(8665b451ff87cacdfbe98df44bdb7e0d)
       '@ember/edition-utils':
         specifier: ^1.2.0
         version: 1.2.0
@@ -3550,7 +3553,7 @@ importers:
         version: file:packages/tracking(f76e144d736ddc61b5b3fc94acf05b0c)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(b94e57cb2531a612120ece831eec41de)
+        version: file:packages/unpublished-test-infra(23082fcb9384130658f0b729307a6bec)
       '@ember/optional-features':
         specifier: ^2.2.0
         version: 2.2.0
@@ -4060,7 +4063,7 @@ importers:
         version: file:packages/tracking(705310b48e66482cebd843ac2ea54e02)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(aa0bcdff263403a908d192254815716d)
+        version: file:packages/unpublished-test-infra(8441b4bfd934185a340cab6c3a01dfe9)
       '@ember/edition-utils':
         specifier: ^1.2.0
         version: 1.2.0
@@ -4979,9 +4982,12 @@ packages:
       '@warp-drive/core-types': workspace:*
       '@warp-drive/diagnostic': workspace:*
       ember-source: 3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0
+      qunit: 2.19.4
       testem: ~3.11.0
     peerDependenciesMeta:
       '@warp-drive/diagnostic':
+        optional: true
+      qunit:
         optional: true
       testem:
         optional: true
@@ -15010,7 +15016,7 @@ snapshots:
       - '@glint/template'
       - supports-color
 
-  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(2ef3c9e9cb0bb5dfab0e3be796a883b6)':
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(23082fcb9384130658f0b729307a6bec)':
     dependencies:
       '@ember-data/store': file:packages/store(89a2bfbf7fc3345fce4a4c7c2ca47574)
       '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(b7bd70fa55d8dcc6fec132f7d004fc3f)
@@ -15019,16 +15025,15 @@ snapshots:
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
       chalk: 4.1.2
       ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
-      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       semver: 7.7.1
     optionalDependencies:
-      testem: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
+      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
       - supports-color
 
-  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(31723f914ab0743ddd61c25383cd5f26)':
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(40cd220082c058ff4b73a10ec411006c)':
     dependencies:
       '@ember-data/store': file:packages/store(ef6f12ecd8eea8d0abfc99c13439adeb)
       '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(b7bd70fa55d8dcc6fec132f7d004fc3f)
@@ -15037,10 +15042,27 @@ snapshots:
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
       chalk: 4.1.2
       ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
-      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       semver: 7.7.1
     optionalDependencies:
+      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       testem: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(70d00d974bde28c718bc689e57fe086c)':
+    dependencies:
+      '@ember-data/store': file:packages/store(d01ec85b299a6605ba4c50037443fea4)
+      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(b7bd70fa55d8dcc6fec132f7d004fc3f)
+      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
+      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
+      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
+      chalk: 4.1.2
+      ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
+      semver: 7.7.1
+    optionalDependencies:
+      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -15055,8 +15077,60 @@ snapshots:
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
       chalk: 4.1.2
       ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
-      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       semver: 7.7.1
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(8441b4bfd934185a340cab6c3a01dfe9)':
+    dependencies:
+      '@ember-data/store': file:packages/store(d46a3222a0b206b3d019d022c547e343)
+      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(6bdc1548f7ec55b645542e5984f71664)
+      '@embroider/macros': 1.16.11(658d807f647ac6163015a3907b2e8c81)
+      '@warp-drive/build-config': file:packages/build-config(658d807f647ac6163015a3907b2e8c81)
+      '@warp-drive/core-types': file:packages/core-types(658d807f647ac6163015a3907b2e8c81)
+      chalk: 4.1.2
+      ember-source: 5.12.0(52231e613efa7f4c5391783e56c7d9be)
+      semver: 7.7.1
+    optionalDependencies:
+      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(8665b451ff87cacdfbe98df44bdb7e0d)':
+    dependencies:
+      '@ember-data/store': file:packages/store(b5c06f80147830daf16c42d352e22eff)
+      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(8cf4fcab81fc3906e6e66c90f19bddef)
+      '@embroider/macros': 1.16.11(658d807f647ac6163015a3907b2e8c81)
+      '@warp-drive/build-config': file:packages/build-config(658d807f647ac6163015a3907b2e8c81)
+      '@warp-drive/core-types': file:packages/core-types(658d807f647ac6163015a3907b2e8c81)
+      chalk: 4.1.2
+      ember-source: https://s3.amazonaws.com/builds.emberjs.com/canary/shas/be20bd3f8ea066050eb91862af5180e10ba37134.tgz(ec1e7e9319201c91f4dab5a0c78f277d)
+      semver: 7.7.1
+    optionalDependencies:
+      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
+      testem: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(8d83c19d2d5cd47088cc3a695c70e00c)':
+    dependencies:
+      '@ember-data/store': file:packages/store(89a2bfbf7fc3345fce4a4c7c2ca47574)
+      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(b7bd70fa55d8dcc6fec132f7d004fc3f)
+      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
+      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
+      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
+      chalk: 4.1.2
+      ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
+      semver: 7.7.1
+    optionalDependencies:
+      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
+      testem: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -15071,7 +15145,6 @@ snapshots:
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
       chalk: 4.1.2
       ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
-      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       semver: 7.7.1
     optionalDependencies:
       '@warp-drive/diagnostic': file:packages/diagnostic(e19db5e0c0f2df5f23d666ad28615cdc)
@@ -15089,60 +15162,9 @@ snapshots:
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
       chalk: 4.1.2
       ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
-      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       semver: 7.7.1
     optionalDependencies:
       '@warp-drive/diagnostic': file:packages/diagnostic(e19db5e0c0f2df5f23d666ad28615cdc)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
-  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(aa0bcdff263403a908d192254815716d)':
-    dependencies:
-      '@ember-data/store': file:packages/store(d46a3222a0b206b3d019d022c547e343)
-      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(6bdc1548f7ec55b645542e5984f71664)
-      '@embroider/macros': 1.16.11(658d807f647ac6163015a3907b2e8c81)
-      '@warp-drive/build-config': file:packages/build-config(658d807f647ac6163015a3907b2e8c81)
-      '@warp-drive/core-types': file:packages/core-types(658d807f647ac6163015a3907b2e8c81)
-      chalk: 4.1.2
-      ember-source: 5.12.0(52231e613efa7f4c5391783e56c7d9be)
-      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
-      semver: 7.7.1
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
-  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(ae8dde8d5ae111cdc3fb186f1532e40f)':
-    dependencies:
-      '@ember-data/store': file:packages/store(b5c06f80147830daf16c42d352e22eff)
-      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(8cf4fcab81fc3906e6e66c90f19bddef)
-      '@embroider/macros': 1.16.11(658d807f647ac6163015a3907b2e8c81)
-      '@warp-drive/build-config': file:packages/build-config(658d807f647ac6163015a3907b2e8c81)
-      '@warp-drive/core-types': file:packages/core-types(658d807f647ac6163015a3907b2e8c81)
-      chalk: 4.1.2
-      ember-source: https://s3.amazonaws.com/builds.emberjs.com/canary/shas/be20bd3f8ea066050eb91862af5180e10ba37134.tgz(ec1e7e9319201c91f4dab5a0c78f277d)
-      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
-      semver: 7.7.1
-    optionalDependencies:
-      testem: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@glint/template'
-      - supports-color
-
-  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(b94e57cb2531a612120ece831eec41de)':
-    dependencies:
-      '@ember-data/store': file:packages/store(89a2bfbf7fc3345fce4a4c7c2ca47574)
-      '@ember/test-helpers': 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(b7bd70fa55d8dcc6fec132f7d004fc3f)
-      '@embroider/macros': 1.16.11(@babel/core@7.26.9)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
-      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
-      chalk: 4.1.2
-      ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
-      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
-      semver: 7.7.1
     transitivePeerDependencies:
       - '@babel/core'
       - '@glint/template'
@@ -15157,7 +15179,6 @@ snapshots:
       '@warp-drive/core-types': file:packages/core-types(658d807f647ac6163015a3907b2e8c81)
       chalk: 4.1.2
       ember-source: 5.12.0(52231e613efa7f4c5391783e56c7d9be)
-      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       semver: 7.7.1
     optionalDependencies:
       '@warp-drive/diagnostic': file:packages/diagnostic(54e2890c9dff0726dd7115659bef6dfc)
