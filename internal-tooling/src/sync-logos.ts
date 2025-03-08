@@ -92,7 +92,7 @@ async function symlinkFiles({
 
   const source = packageLogosDir;
   const target = path.relative(source, logosDir);
-  fs.symlinkSync(target, source, 'junction');
+  fs.symlinkSync(target, source, 'dir');
   log(`\t\t\t🔗 Symlinked ${logosDir} to ${packageDir}/logos`);
 }
 
