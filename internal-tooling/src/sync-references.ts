@@ -104,7 +104,12 @@ function validateDesiredTsConfigSettings(project: ProjectPackageWithTsConfig) {
   ////////////////////////////
   const BaseDefaults: Exclude<TsConfigFile['compilerOptions'], undefined> = {
     allowImportingTsExtensions: true,
-    allowJs: true,
+    // we use isolatedDeclarations in some projects, but not all
+    // once we use in all set this to false
+    // and set isolatedDeclarations to true in the projects
+    // allowJs: false,
+    // isolatedDeclarations: true,
+    // verbatimModuleSyntax: true,
     checkJs: false,
     baseUrl: '.',
     composite: true,

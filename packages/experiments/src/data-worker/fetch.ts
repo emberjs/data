@@ -182,7 +182,7 @@ function prepareRequest(request: Context['request']): { signal: AbortSignal | nu
   }
 
   if (headers instanceof Headers) {
-    requestCopy.headers = Array.from(headers.entries()) as unknown as Headers;
+    requestCopy.headers = Array.from(headers as unknown as Iterable<[string, string][]>) as unknown as Headers;
   }
 
   return { signal: signal || null, request: requestCopy };

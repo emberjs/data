@@ -13,7 +13,6 @@
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "allowJs": true,
     "emitDeclarationOnly": true,
     "noImplicitOverride": false,
     // Enable faster builds
@@ -44,6 +43,7 @@
     },
     "allowImportingTsExtensions": true,
     "erasableSyntaxOnly": true,
+    "isolatedDeclarations": true,
     "experimentalDecorators": true,
     "checkJs": false
   },

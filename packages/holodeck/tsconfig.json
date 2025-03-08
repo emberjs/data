@@ -44,7 +44,7 @@
     },
     "allowImportingTsExtensions": true,
     "erasableSyntaxOnly": true,
-    "lib": ["ESNext"],
+    "lib": ["ESNext", "DOM"],
     "moduleDetection": "force"
   },
   "references": [

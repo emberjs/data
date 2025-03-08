@@ -58,6 +58,9 @@ export type TsConfigFile = {
     moduleDetection?: string;
     erasableSyntaxOnly?: boolean;
     allowImportingTsExtensions?: boolean;
+    verbatimModuleSyntax?: boolean;
+    isolatedModules?: boolean;
+    isolatedDeclarations?: boolean;
     pretty?: boolean;
     strict?: boolean;
     experimentalDecorators?: boolean;

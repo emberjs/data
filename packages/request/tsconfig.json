@@ -1,7 +1,7 @@
 {
-  "include": ["src/**/*", "../../@types/fastboot"],
+  "include": ["src/**/*"],
   "compilerOptions": {
-    "target": "ESNext",
+    "target": "ES2024",
     "module": "ESNext",
     "moduleResolution": "bundler",
     "skipLibCheck": true,
@@ -24,7 +24,6 @@
     "noEmitOnError": false,
     "strictNullChecks": true,
     "noErrorTruncation": true,
-    "preserveConstEnums": false,
     "experimentalDecorators": true,
     "composite": true,
     "incremental": true,
@@ -42,7 +41,8 @@
     },
     "allowImportingTsExtensions": true,
     "erasableSyntaxOnly": true,
-    "lib": ["ESNext"],
+    "verbatimModuleSyntax": true,
+    "lib": ["ESNext", "DOM"],
     "moduleDetection": "force"
   },
   "references": [

@@ -45,7 +45,7 @@
     "allowImportingTsExtensions": true,
     "erasableSyntaxOnly": true,
     "experimentalDecorators": true,
-    "lib": ["ESNext"],
+    "lib": ["ESNext", "DOM"],
     "checkJs": false
   },
   "references": [

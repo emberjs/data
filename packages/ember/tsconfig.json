@@ -56,7 +56,7 @@
       "@ember-data/request-utils/*": ["../request-utils/unstable-preview-types/*"]
     },
     "erasableSyntaxOnly": true,
-    "lib": ["ESNext"],
+    "lib": ["ESNext", "DOM"],
     "moduleDetection": "force"
   },
   "references": [

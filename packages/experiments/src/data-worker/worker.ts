@@ -120,7 +120,7 @@ function softCloneResponse(response: Response | ResponseInfo | null) {
   const clone: Partial<Mutable<Response>> = {};
 
   if (response.headers) {
-    clone.headers = Array.from(response.headers.entries()) as unknown as Headers;
+    clone.headers = Array.from(response.headers as unknown as Iterable<[string, string][]>) as unknown as Headers;
   }
 
   clone.ok = response.ok;

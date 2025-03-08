@@ -15,7 +15,6 @@
     "allowImportingTsExtensions": true,
     "forceConsistentCasingInFileNames": true,
     "experimentalDecorators": true,
-    "allowJs": true,
     "emitDeclarationOnly": true,
     "noImplicitAny": true,
     "noImplicitOverride": false,
@@ -40,7 +39,8 @@
     "inlineSources": true,
     "erasableSyntaxOnly": true,
     "paths": {},
-    "checkJs": false
+    "checkJs": false,
+    "isolatedDeclarations": true
   },
   "references": []
 }

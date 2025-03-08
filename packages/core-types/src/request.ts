@@ -7,10 +7,13 @@ import type { RequestSignature } from './symbols';
 
 type Store = unknown;
 
-export const SkipCache = getOrSetUniversal('SkipCache', Symbol.for('wd:skip-cache'));
-export const EnableHydration = getOrSetUniversal('EnableHydration', Symbol.for('wd:enable-hydration'));
-export const IS_FUTURE = getOrSetGlobal('IS_FUTURE', Symbol('IS_FUTURE'));
-export const STRUCTURED = getOrSetGlobal('DOC', Symbol('DOC'));
+export const SkipCache: '___(unique) Symbol(SkipCache)' = getOrSetUniversal('SkipCache', Symbol.for('wd:skip-cache'));
+export const EnableHydration: '___(unique) Symbol(EnableHydration)' = getOrSetUniversal(
+  'EnableHydration',
+  Symbol.for('wd:enable-hydration')
+);
+export const IS_FUTURE: '___(unique) Symbol(IS_FUTURE)' = getOrSetGlobal('IS_FUTURE', Symbol('IS_FUTURE'));
+export const STRUCTURED: '___(unique) Symbol(DOC)' = getOrSetGlobal('DOC', Symbol('DOC'));
 
 export type HTTPMethod =
   | 'QUERY'
@@ -261,7 +264,10 @@ type Request = {
   body?: BodyInit | null;
 };
 
-export type ImmutableHeaders = Headers & { clone?(): Headers; toJSON(): [string, string][] };
+export interface ImmutableHeaders extends Headers {
+  clone?(): Headers;
+  toJSON(): [string, string][];
+}
 
 /**
  * Extends JavaScript's native {@link Request} object with additional
