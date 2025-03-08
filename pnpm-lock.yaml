@@ -218,6 +218,12 @@ importers:
       '@types/bun':
         specifier: ^1.2.4
         version: 1.2.4
+      chalk:
+        specifier: 5.4.1
+        version: 5.4.1
+      debug:
+        specifier: 4.4.0
+        version: 4.4.0
       typescript:
         specifier: ^5.8.2
         version: 5.8.2

@@ -12,7 +12,9 @@
   },
   "devDependencies": {
     "@types/bun": "^1.2.4",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.2",
+    "chalk": "5.4.1",
+    "debug": "4.4.0"
   },
   "volta": {
     "extends": "../package.json"
