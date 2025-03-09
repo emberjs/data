@@ -81,8 +81,8 @@ importers:
         specifier: ^1.2.4
         version: 1.2.4
       chalk:
-        specifier: ^4.1.2
-        version: 4.1.2
+        specifier: ^5.4.1
+        version: 5.4.1
       co:
         specifier: ^4.6.0
         version: 4.6.0
@@ -349,7 +349,7 @@ importers:
         specifier: workspace:*
         version: file:packages/build-config(@babel/core@7.26.9)
       chalk:
-        specifier: ^5.3.0
+        specifier: ^5.4.1
         version: 5.4.1
       comment-json:
         specifier: ^4.2.5
@@ -557,7 +557,7 @@ importers:
   packages/codemods:
     dependencies:
       chalk:
-        specifier: ^5.3.0
+        specifier: ^5.4.1
         version: 5.4.1
       commander:
         specifier: ^13.1.0
@@ -695,7 +695,7 @@ importers:
         specifier: workspace:*
         version: file:packages/build-config(@babel/core@7.26.9)
       chalk:
-        specifier: ^5.3.0
+        specifier: ^5.4.1
         version: 5.4.1
       debug:
         specifier: ^4.4.0
@@ -976,7 +976,7 @@ importers:
         specifier: ^1.13.8
         version: 1.13.8(hono@4.7.2)
       chalk:
-        specifier: ^5.3.0
+        specifier: ^5.4.1
         version: 5.4.1
       hono:
         specifier: ^4.7.2
@@ -1592,8 +1592,8 @@ importers:
         specifier: workspace:*
         version: file:packages/build-config(@babel/core@7.26.9)
       chalk:
-        specifier: ^4.1.2
-        version: 4.1.2
+        specifier: ^5.4.1
+        version: 5.4.1
       semver:
         specifier: ^7.7.1
         version: 7.7.1
@@ -15023,7 +15023,7 @@ snapshots:
       '@embroider/macros': 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
-      chalk: 4.1.2
+      chalk: 5.4.1
       ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
       semver: 7.7.1
     optionalDependencies:
@@ -15040,7 +15040,7 @@ snapshots:
       '@embroider/macros': 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
-      chalk: 4.1.2
+      chalk: 5.4.1
       ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
       semver: 7.7.1
     optionalDependencies:
@@ -15058,7 +15058,7 @@ snapshots:
       '@embroider/macros': 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
-      chalk: 4.1.2
+      chalk: 5.4.1
       ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
       semver: 7.7.1
     optionalDependencies:
@@ -15075,7 +15075,7 @@ snapshots:
       '@embroider/macros': 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
-      chalk: 4.1.2
+      chalk: 5.4.1
       ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
       semver: 7.7.1
     transitivePeerDependencies:
@@ -15090,7 +15090,7 @@ snapshots:
       '@embroider/macros': 1.16.11(658d807f647ac6163015a3907b2e8c81)
       '@warp-drive/build-config': file:packages/build-config(658d807f647ac6163015a3907b2e8c81)
       '@warp-drive/core-types': file:packages/core-types(658d807f647ac6163015a3907b2e8c81)
-      chalk: 4.1.2
+      chalk: 5.4.1
       ember-source: 5.12.0(52231e613efa7f4c5391783e56c7d9be)
       semver: 7.7.1
     optionalDependencies:
@@ -15107,7 +15107,7 @@ snapshots:
       '@embroider/macros': 1.16.11(658d807f647ac6163015a3907b2e8c81)
       '@warp-drive/build-config': file:packages/build-config(658d807f647ac6163015a3907b2e8c81)
       '@warp-drive/core-types': file:packages/core-types(658d807f647ac6163015a3907b2e8c81)
-      chalk: 4.1.2
+      chalk: 5.4.1
       ember-source: https://s3.amazonaws.com/builds.emberjs.com/canary/shas/be20bd3f8ea066050eb91862af5180e10ba37134.tgz(ec1e7e9319201c91f4dab5a0c78f277d)
       semver: 7.7.1
     optionalDependencies:
@@ -15125,7 +15125,7 @@ snapshots:
       '@embroider/macros': 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
-      chalk: 4.1.2
+      chalk: 5.4.1
       ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
       semver: 7.7.1
     optionalDependencies:
@@ -15143,7 +15143,7 @@ snapshots:
       '@embroider/macros': 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
-      chalk: 4.1.2
+      chalk: 5.4.1
       ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
       semver: 7.7.1
     optionalDependencies:
@@ -15160,7 +15160,7 @@ snapshots:
       '@embroider/macros': 1.16.11(@babel/core@7.26.9)
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.26.9)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.9)
-      chalk: 4.1.2
+      chalk: 5.4.1
       ember-source: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
       semver: 7.7.1
     optionalDependencies:
@@ -15177,7 +15177,7 @@ snapshots:
       '@embroider/macros': 1.16.11(658d807f647ac6163015a3907b2e8c81)
       '@warp-drive/build-config': file:packages/build-config(658d807f647ac6163015a3907b2e8c81)
       '@warp-drive/core-types': file:packages/core-types(658d807f647ac6163015a3907b2e8c81)
-      chalk: 4.1.2
+      chalk: 5.4.1
       ember-source: 5.12.0(52231e613efa7f4c5391783e56c7d9be)
       semver: 7.7.1
     optionalDependencies:
