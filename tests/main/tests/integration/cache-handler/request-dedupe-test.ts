@@ -8,9 +8,13 @@ import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
 import type { Type } from '@warp-drive/core-types/symbols';
-import { instantiateRecord, teardownRecord } from '@warp-drive/schema-record/hooks';
-import type { SchemaRecord } from '@warp-drive/schema-record/record';
-import { registerDerivations, SchemaService, withDefaults } from '@warp-drive/schema-record/schema';
+import {
+  instantiateRecord,
+  registerDerivations,
+  SchemaService,
+  teardownRecord,
+  withDefaults,
+} from '@warp-drive/schema-record';
 
 type User = {
   id: string;
@@ -40,7 +44,7 @@ class TestStore extends Store {
     return instantiateRecord(this, identifier, createRecordArgs);
   }
 
-  teardownRecord(record: SchemaRecord) {
+  teardownRecord(record: unknown) {
     teardownRecord(record);
   }
 }

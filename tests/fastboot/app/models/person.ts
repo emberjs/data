@@ -6,10 +6,10 @@ export default class Person extends Model {
   @attr()
   declare name: string;
 
-  @hasMany('person', { async: true, inverse: 'parent' })
+  @hasMany('person', { async: false, inverse: 'parent' })
   declare children: AsyncHasMany<Person>;
 
-  @belongsTo('person', { async: true, inverse: 'children' })
+  @belongsTo('person', { async: false, inverse: 'children' })
   declare parent: AsyncBelongsTo<Person>;
 
   get parentId(): string | null {

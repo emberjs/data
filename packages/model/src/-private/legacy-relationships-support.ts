@@ -12,6 +12,7 @@ import {
   isStableIdentifier,
   peekCache,
   recordIdentifierFor,
+  RelatedCollection as ManyArray,
   SOURCE,
   storeFor,
 } from '@ember-data/store/-private';
@@ -32,7 +33,6 @@ import type {
   SingleResourceRelationship,
 } from '@warp-drive/core-types/spec/json-api-raw';
 
-import { RelatedCollection as ManyArray } from './many-array';
 import type { MinimalLegacyRecord } from './model-methods';
 import type { BelongsToProxyCreateArgs, BelongsToProxyMeta } from './promise-belongs-to';
 import { PromiseBelongsTo } from './promise-belongs-to';
@@ -260,6 +260,7 @@ export class LegacySupport {
           isPolymorphic: definition.isPolymorphic,
           isAsync: definition.isAsync,
           _inverseIsAsync: definition.inverseIsAsync,
+          // @ts-expect-error Typescript doesn't have a way for us to thread the generic backwards so it infers unknown instead of T
           manager: this,
           isLoaded: !definition.isAsync,
           allowMutation: true,

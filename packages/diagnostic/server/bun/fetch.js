@@ -31,17 +31,19 @@ export function handleBunFetch(config, state, req, server) {
   if (INDEX_PATHS.includes(url.pathname)) {
     if (bId && wId) {
       // serve test index.html
-      if (config.entry.indexOf('?')) {
-        config._realEntry = config.entry.substr(0, config.entry.indexOf('?'));
+      if (!config._realEntry && config.entry.indexOf('?')) {
+        config._realEntry = path.join(process.cwd(), config.entry.substr(0, config.entry.indexOf('?')));
       }
       debug(`Serving entry ${config._realEntry} for browser ${bId} window ${wId}`);
-      return new Response(Bun.file(config._realEntry));
+
+      const asset = Bun.file(config._realEntry);
+      return new Response(asset);
     }
     const _bId = bId ?? state.lastBowserId ?? state.browserId;
     const _wId = wId ?? state.lastWindowId ?? state.windowId;
     debug(`Redirecting to ${config.entry} for browser ${_bId} window ${_wId}`);
     // redirect to index.html
-    return Response.redirect(`${protocol}://${state.hostname}:${state.port}?b=${_bId}&w=${_wId}`, { status: 302 });
+    return Response.redirect(`/?b=${_bId}&w=${_wId}`, { status: 302 });
   } else {
     const pathParts = url.pathname.split('/');
 
@@ -55,8 +57,11 @@ export function handleBunFetch(config, state, req, server) {
     }
 
     const route = pathParts.join('/');
-    if (route === 'favicon.ico') {
-      return new Response('Not Found', { status: 404 });
+    if (route === 'favicon.ico' || route === 'NCC-1701-a-gold_100.svg') {
+      const dir = import.meta.dir;
+      const asset = path.join(dir, '../NCC-1701-a-gold_100.svg');
+
+      return new Response(Bun.file(asset));
     }
 
     // serve test assets

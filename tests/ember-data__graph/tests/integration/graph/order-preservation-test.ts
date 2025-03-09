@@ -221,7 +221,9 @@ module('Graph | Order Preservation', function (hooks) {
       });
 
       assert.notified(appIdentifier, 'relationships', 'configs', 1);
-      assert.notified(identifier('config', '4'), 'relationships', 'app', 1);
+
+      // config has never had "getData" called and so we do not notify
+      assert.notified(identifier('config', '4'), 'relationships', 'app', 0);
 
       let configState = graph.getData(appIdentifier, 'configs');
       assert.arrayStrictEquals(
@@ -242,7 +244,9 @@ module('Graph | Order Preservation', function (hooks) {
       });
 
       assert.notified(appIdentifier, 'relationships', 'configs', 1);
-      assert.notified(identifier('config', '5'), 'relationships', 'app', 1);
+
+      // config has never had "getData" called and so we do not notify
+      assert.notified(identifier('config', '5'), 'relationships', 'app', 0);
 
       configState = graph.getData(appIdentifier, 'configs');
       assert.arrayStrictEquals(
@@ -269,7 +273,8 @@ module('Graph | Order Preservation', function (hooks) {
         });
       });
 
-      assert.notified(identifier('group', '4'), 'relationships', 'apps', 1);
+      // group4 has never had "getData" called and so we do not notify
+      assert.notified(identifier('group', '4'), 'relationships', 'apps', 0);
 
       // assert starting state
       let appsState = graph.getData(identifier('group', '4'), 'apps');
@@ -351,7 +356,9 @@ module('Graph | Order Preservation', function (hooks) {
       });
 
       assert.notified(appIdentifier, 'relationships', 'configs', 1);
-      assert.notified(identifier('config', '2'), 'relationships', 'app', 1);
+
+      // config has never had "getData" called and so we do not notify
+      assert.notified(identifier('config', '2'), 'relationships', 'app', 0);
 
       let configState = graph.getData(appIdentifier, 'configs');
       assert.arrayStrictEquals(
@@ -371,7 +378,8 @@ module('Graph | Order Preservation', function (hooks) {
       });
 
       assert.notified(appIdentifier, 'relationships', 'configs', 1);
-      assert.notified(identifier('config', '2'), 'relationships', 'app', 1);
+      // config has never had "getData" called and so we do not notify
+      assert.notified(identifier('config', '2'), 'relationships', 'app', 0);
 
       configState = graph.getData(appIdentifier, 'configs');
       assert.arrayStrictEquals(
@@ -392,7 +400,8 @@ module('Graph | Order Preservation', function (hooks) {
       });
 
       assert.notified(appIdentifier, 'relationships', 'configs', 1);
-      assert.notified(identifier('config', '3'), 'relationships', 'app', 1);
+      // config has never had "getData" called and so we do not notify
+      assert.notified(identifier('config', '3'), 'relationships', 'app', 0);
 
       configState = graph.getData(appIdentifier, 'configs');
       assert.arrayStrictEquals(
@@ -425,10 +434,11 @@ module('Graph | Order Preservation', function (hooks) {
         });
       });
 
-      assert.notified(identifier('group', '4'), 'relationships', 'apps', 1);
-      assert.notified(identifier('app', '2'), 'relationships', 'groups', 1);
-      assert.notified(identifier('app', '3'), 'relationships', 'groups', 1);
-      assert.notified(identifier('app', '4'), 'relationships', 'groups', 1);
+      // these relationships have never had "getData" called and so we do not notify
+      assert.notified(identifier('group', '4'), 'relationships', 'apps', 0);
+      assert.notified(identifier('app', '2'), 'relationships', 'groups', 0);
+      assert.notified(identifier('app', '3'), 'relationships', 'groups', 0);
+      assert.notified(identifier('app', '4'), 'relationships', 'groups', 0);
 
       // assert starting state
       let appsState = graph.getData(identifier('group', '4'), 'apps');
@@ -519,7 +529,8 @@ module('Graph | Order Preservation', function (hooks) {
       assert.notified(appIdentifier, 'relationships', 'groups', 0);
       assert.notified(identifier('app', '2'), 'relationships', 'groups', 0);
       assert.notified(identifier('app', '3'), 'relationships', 'groups', 0);
-      assert.notified(identifier('app', '4'), 'relationships', 'groups', 1);
+      // relationship has never had "getData" called and so we do not notify
+      assert.notified(identifier('app', '4'), 'relationships', 'groups', 0);
 
       // assert starting state
       let appsState = graph.getData(groupIdentifier, 'apps');
@@ -629,7 +640,8 @@ module('Graph | Order Preservation', function (hooks) {
       });
 
       assert.notified(appIdentifier, 'relationships', 'configs', 1);
-      assert.notified(identifier('config', '4'), 'relationships', 'app', 1);
+      // relationship has never had "getData" called and so we do not notify
+      assert.notified(identifier('config', '4'), 'relationships', 'app', 0);
 
       // assert mutated state
       const config4State = graph.getData(identifier('config', '4'), 'app');
@@ -653,6 +665,11 @@ module('Graph | Order Preservation', function (hooks) {
       }
 
       const appIdentifier = identifier('app', '1');
+
+      // subscribe to the app relationships
+      ['1', '2', '3'].forEach((id) => {
+        graph.getData(identifier('config', id), 'app');
+      });
 
       // change the order of configs
       // from '1', '2', '3'

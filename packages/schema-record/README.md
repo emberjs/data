@@ -13,24 +13,31 @@
     title="WarpDrive" />
 </p>
 
-<h3 align="center">Your data, managed.</h3>
+<h3 align="center">Your Data, Managed.</h3>
 <p align="center">🌲 Get back to Nature 🐿️ Or shipping 💚</p>
 
 SchemaRecord is:
+
 - ⚡️ Fast
 - 📦 Tiny
 - ✨ Optimized
 - 🚀 Scalable
-- :electron: Universal
+- ⚛️ Universal
+- ☢️ Reactive
 
-Never write a Model again.
-
-This package provides presentation capabilities for your resource data. It works together with an [*Ember***Data**](https://github.com/emberjs/data/) [Cache](https://github.com/emberjs/data/blob/main/ember-data-types/cache/cache.ts) and associated Schemas to simplify the most complex parts of your state management.
+This package provides reactive capabilities for your resource data.
+It works together with a [*Warp***Drive**](https://github.com/emberjs/data/)
+[Cache](https://github.com/emberjs/data/blob/main/packages/core-types/src/cache.ts)
+and associated Schemas to simplify the most complex parts of your
+app's state management.
 
 ## Installation
 
+Install using your javascript package manager of choice. For instance
+with [pnpm](https://pnpm.io/)
+
 ```cli
-pnpm install @warp-drive/schema-record
+pnpm add @warp-drive/schema-record
 ```
 
 **Tagged Releases**
@@ -42,166 +49,247 @@ pnpm install @warp-drive/schema-record
 - ![NPM LTS 4.12 Version](https://img.shields.io/npm/v/%40warp-drive/schema-record/lts-4-12?label=%40lts-4-12&color=bbbbbb)
 
 
-#### 🔜 Soon 
-Install using your javascript package manager of choice. For instance with [pnpm](https://pnpm.io/)
-
-```no-highlight
-pnpm add @warp-drive/schema-record
-```
-
 ## Getting Started
 
-If this package is how you are first learning about EmberData, we recommend starting with learning about the [Store](https://github.com/emberjs/data/blob/main/packages/store/README.md) and [Requests](https://github.com/emberjs/data/blob/main/packages/request/README.md)
+If this package is how you are first learning about WarpDrive/EmberData, we
+recommend starting with learning about [Requests](https://github.com/emberjs/data/blob/main/packages/request/README.md)
+and the [Store](https://github.com/emberjs/data/blob/main/packages/store/README.md).
 
 ## 🚀 Setup
 
-SchemaRecord integrates with EmberData via the Store's resource lifecycle hooks.
-When EmberData needs to create a new presentation class to pair with some resource
-data, it calls `instantiateRecord`. When it no longer needs that class, it will call
-`teardownRecord`.
+SchemaRecord integrates with WarpDrive via the Store's resource lifecycle hooks.
+When WarpDrive needs to create a new record instance to give reactive access to
+a resource in the cache, it calls `instantiateRecord`. When it no longer needs
+that instance, it will call `teardownRecord`.
 
-```ts
+```diff
 import Store from '@ember-data/store';
-import SchemaRecord from '@warp-drive/schema-record';
-import Cache from '@ember-data/json-api';
++import { instantiateRecord, teardownRecord, registerDerivations, SchemaService } from '@warp-drive/schema-record';
 
-const DestroyHook = Symbol.for('destroy');
+class AppStore extends Store {
 
-export default class extends Store {
-  instantiateRecord(identifier) {
-    return new SchemaRecord(this, identifier);
-  }
++  createSchemaService() {
++    const schema = new SchemaService();
++    registerDerivations(schema);
++    return schema;
++  }
 
-  teardownRecord(record: SchemaRecord): void {
-    record[DestroyHook]();
-  }
++  instantiateRecord(identifier, createArgs) {
++    return instantiateRecord(this, identifier, createArgs);
++  }
+
++  teardownRecord(record) {
++    return teardownRecord(record);
++  }
 }
 ```
 
-## Start Using
-
-Any Store method that returns records will use SchemaRecord once configured as above.
+Any Store API that returns a record instance will use the `instantiateRecord` 
+hook configured above to instantiate a SchemaRecord once this is in place.
 After that, its up to you what SchemaRecord can do.
 
-SchemaRecord's behavior is driven by the Schemas you register with the Store's Schema
-Service. Schemas are simple json objects that follow a pattern.
+## Start Using
 
-You could manually construct schemas, though that would be laborious. We recommend 
-compiling schemas from another available source such as your API's types. If you don't
-have a source from which to compile schemas, consider using `@warp-drive/schema-dsl`.
+### About
 
-The Schema DSL allows authoring rich, expressive schemas using familiar Typescript and
-Decorators, which compile at build into json schemas you can deliver to your app either
-in your asset bundle, via a separate fetch, or from your API.
+SchemaRecord is a reactive object that transforms raw data from an associated
+cache into reactive data backed by Signals.
 
-The Schema DSL will also compile and register types for your schemas that give you robust
-typescript support.
+The shape of the object and the transformation of raw cache data into its
+reactive form is controlled by a resource schema.
 
-## Main Paradigms
-
-### Immutability
-
-SchemaRecord is Immutable. This means by design you cannot mutate a SchemaRecord instance.
-
-How then do you make edits and preserve changes?
-
-### Mutation Workflows
-
-Edits are performed in mutation workflows. A workflow is begun by forking the store.
-Forks are cheap copy-on-write scopes that allow you to make changes in isolation without
-affecting the global state of the application (until you want to). You can even fork forks, though its probably not that useful to do so in the common case.
+For instance, lets say your API is a [JSON:API](https://jsonapi.org) and your store is using the
+JSONAPICache, and a request returns the following raw data:
 
 ```ts
-const fork = await store.fork();
+{
+  data: {
+    type: 'user',
+    id: '1',
+    attributes: { firstName: 'Chris', lastName: 'Thoburn' },
+    relationships: { pets: { data: [{ type: 'dog', id: '1' }] }}
+  },
+  included: [
+    {
+      type: 'dog',
+      id: '1',
+      attributes: { name: 'Rey' },
+      relationships: { owner: { data: { type: 'user', id: '1' }}}
+    }
+  ]
+}
 ```
 
-Forks are not themselves editable, they are just a pre-requisite.
-There are three ways to get an editable SchemaRecord instance.
-
-1. Create a new record with `const editable = fork.createRecord(<type>, data)`
-2. Checkout an existing record in edit mode: `const editable = fork.checkoutRecord(record)`
-3. Access a related record on a record already in edit mode: `const editableFriend = editable.bestFriend`
-
-If you decide you want to discard your changes, there's no need to rollback. Simply
-dereferencing the fork and any records you've received from it will cause it to GC.
-
-However, explicitly calling `fork.deref()` will ensure that if you did forget to dereference
-any records and left them around somewhere as a variable, they'll blow up with a useful
-error if used again.
-
-To save changes, call `fork.request(saveRecord(editable))`. Saving changes will only commit
-the changes to the fork, it won't commit them upstream. To reflect the changes upstream, call
-`await fork.merge(store)`. In most cases, `store` should be the store you forked from, though
-it is allowed to attempt to merge into a parent `store` as well.
+We could describe the `'user'` and `'dog'` resources in the above payload
+with the following schemas:
 
 ```ts
-// get a fork for editing
-const fork = await store.fork();
-
-// create a new record
-const user = fork.createRecord('user', { name: 'Chris' });
-
-// save the record
-await fork.request(createRecord(user));
-
-// reflect the changes back to the original store
-await store.merge(fork);
+store.registerSchemas([
+  {
+    type: 'user',
+    identity: { type: '@id', name: 'id' },
+    fields: [
+      {
+        type: '@identity',
+        name: '$type',
+        kind: 'derived',
+        options: { key: 'type' },
+      },
+      { kind: 'field', name: 'firstName' },
+      { kind: 'field', name: 'lastName' },
+      { 
+        kind: 'derived',
+        name: 'name',
+        type: 'concat',
+        options: { fields: ['firstName', 'lastName'], separator: ' ' }
+      },
+      {
+        kind: 'hasMany',
+        name: 'pets',
+        type: 'pet',
+        options: {
+          async: false,
+          inverse: 'owner',
+          polymorphic: true
+        }
+      }
+    ]
+  },
+  {
+    type: 'dog',
+    identity: { type: '@id', name: 'id' },
+    fields: [
+      {
+        type: '@identity',
+        name: '$type',
+        kind: 'derived',
+        options: { key: 'type' },
+      },
+      { kind: 'field', name: 'name' },
+      {
+        kind: 'belongsTo',
+        name: 'owner',
+        type: 'user',
+        options: {
+          async: false,
+          inverse: 'pets',
+          as: 'pet',
+        }
+      }
+    ]
+  }
+]);
 ```
 
-> Note: merging behavior is determined by the Cache implementation. The implementations
-> maintained by the EmberData team will merge both persisted and unpersisted changes back
-> to the upstream (preserving them as remote and local state respectively). This approach
-> allows developers to choose to optimistically vs pessimistically update the global state.
-
-### Optimistic UX
+With these schemas in place, the reactive objects that the store would
+provide us whenever we encountered a `'user'` or a `'dog'` would be:
 
 ```ts
-// get a fork for editing
-const fork = await store.fork();
 
-// create a new record
-const user = fork.createRecord('user', { name: 'Chris' });
+interface Pet {
+  readonly id: string;
+  readonly owner: User;
+}
 
-// reflect the (dirty) changes back to the original store
-await store.merge(fork);
+interface Dog extends Pet {
+  readonly $type: 'dog';
+  readonly name: string;
+}
 
-// save the record
-await fork.request(createRecord(user));
+interface EditableUser {
+  readonly $type: 'user';
+  readonly id: string;
+  firstName: string;
+  lastName: string;
+  readonly name: string;
+  pets: Array<Dog | Pet>;
+}
 
-// reflect the (clean) changes back to the original store
-await store.merge(fork);
+interface User {
+  readonly $type: 'user';
+  readonly id: string;
+  readonly firstName: string;
+  readonly lastName: string;
+  readonly name: string;
+  readonly pets: Readonly<Array<Dog | Pet>>;
+  [Checkout]: Promise<EditableUser>
+}>
 ```
 
-## Schema Format
+Note how based on the schema the reactive object we receive is able to produce
+`name` on user (despite no name field being in the cache), provide `$type`
+pulled from the identity of the resource, and flatten the individual attributes
+and relationships onto the record for easier use.
 
-The schema format is the array representation of a Map structure. From which
-we will populate or append to a Map!
+Notice also how we typed this object with `readonly`. This is because while
+SchemaRecord instances are ***deeply reactive***, they are also ***immutable***.
+
+We can mutate a SchemaRecord only be explicitly asking permission to do so, and
+in the process gaining access to an editable copy. The immutable version will
+not show any in-process edits made to this editable copy.
 
 ```ts
-[
-  [ 'user', <user-schema> ],
-  [ 'company', <company-schema> ],
-]
+import { Checkout } from '@warp-drive/schema-record';
+
+const editable = await user[Checkout]();
 ```
 
-It follows this signature:
+### Utilities
+
+SchemaRecord provides a schema builder that simplifies setting up a couple of
+conventional fields like identity and `$type`. We can rewrite the schema
+definition above using this utility like so:
 
 ```ts
-type ResourceType = string; // 'user'
-type FieldName = string; // 'name'
-type FieldDef = {
-  name: string;
-  type: string | null;
-  kind: 'resource' | 'collection' | 'attribute' | 'derivation' | 'object' | 'array';
-  options: Record<string, unknown>;
-};
+import { withDefaults } from '@warp-drive/schema-record';
 
-type ResourceSchema = Array<[FieldName, FieldDef]>
-type Schemas = Array<[ResourceType, ResourceSchema]>
+store.registerSchemas([
+  withDefaults({
+    type: 'user',
+    fields: [
+      { kind: 'field', name: 'firstName' },
+      { kind: 'field', name: 'lastName' },
+      { 
+        kind: 'derived',
+        name: 'name',
+        type: 'concat',
+        options: { fields: ['firstName', 'lastName'], separator: ' ' }
+      },
+      {
+        kind: 'hasMany',
+        name: 'pets',
+        type: 'pet',
+        options: {
+          async: false,
+          inverse: 'owner',
+          polymorphic: true
+        }
+      }
+    ]
+  }),
+  withDefaults({
+    type: 'dog',
+    fields: [
+      { kind: 'field', name: 'name' },
+      {
+        kind: 'belongsTo',
+        name: 'owner',
+        type: 'user',
+        options: {
+          async: false,
+          inverse: 'pets',
+          as: 'pet',
+        }
+      }
+    ]
+  })
+]);
 ```
 
-You'll find this syntax is capable of describing most conceivable behaviors, including
-some emergent ones we're sure we haven't thought of yet.
+
+### Field Schemas
+
+For the full range of available schema capabilities, see [Field Schemas](../core-types/src/schema/fields.ts)
 
 
 ### ♥️ Credits

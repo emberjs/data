@@ -15,56 +15,69 @@
     "test": "tests"
   },
   "scripts": {
-    "build": "ember build",
-    "start": "ember serve",
+    "build": "vite build",
+    "start": "bun ./server/index.ts",
     "lint": "eslint . --quiet --cache --cache-strategy=content",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
-  },
-  "dependencies": {
-    "ember-auto-import": "2.10.0",
-    "ember-data": "workspace:*",
-    "pnpm-sync-dependencies-meta-injected": "0.0.14",
-    "webpack": "^5.92.0"
-  },
-  "dependenciesMeta": {
-    "ember-data": {
-      "injected": true
-    }
+    "fixtures": "bun run ./fixtures/index.js"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.5",
-    "@babel/runtime": "^7.24.5",
-    "@ember/optional-features": "^2.1.0",
+    "@babel/core": "^7.26.9",
+    "@babel/runtime": "^7.26.9",
+    "@ember/optional-features": "^2.2.0",
+    "@babel/plugin-transform-runtime": "^7.25.9",
+    "@babel/plugin-transform-typescript": "^7.25.9",
     "@ember/test-helpers": "5.1.0",
     "@ember/test-waiters": "^3.1.0",
-    "@embroider/compat": "^3.8.0",
-    "@embroider/core": "^3.5.0",
-    "@embroider/webpack": "^4.0.9",
+    "@ember-data/request": "workspace:*",
+    "@ember-data/request-utils": "workspace:*",
+    "@ember-data/store": "workspace:*",
+    "@ember-data/model": "workspace:*",
+    "@ember-data/legacy-compat": "workspace:*",
+    "@ember-data/graph": "workspace:*",
+    "@ember-data/json-api": "workspace:*",
+    "@ember-data/tracking": "workspace:*",
+    "@warp-drive/core-types": "workspace:*",
+    "@warp-drive/build-config": "workspace:*",
+    "@warp-drive/internal-config": "workspace:*",
+    "@embroider/compat": "4.0.0-alpha.6",
+    "@embroider/config-meta-loader": "1.0.0-alpha.1",
+    "@embroider/core": "4.0.0-alpha.6",
+    "@embroider/vite": "1.0.0-alpha.6",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
-    "@warp-drive/internal-config": "workspace:*",
-    "@warp-drive/build-config": "workspace:*",
-    "ember-cli": "~5.12.0",
+    "@rollup/plugin-babel": "^6.0.4",
+    "babel-plugin-ember-template-compilation": "^2.3.0",
+    "bun-types": "^1.2.3",
+    "decorator-transforms": "^2.3.0",
+    "ember-auto-import": "2.10.0",
+    "ember-cli": "~6.2.2",
     "ember-cli-babel": "^8.2.0",
-    "ember-cli-dependency-checker": "^3.3.2",
     "ember-cli-htmlbars": "^6.3.0",
-    "ember-load-initializers": "^2.1.2",
-    "ember-maybe-import-regenerator": "^1.0.0",
-    "ember-resolver": "^11.0.1",
-    "ember-source": "~5.12.0",
+    "ember-load-initializers": "^3.0.1",
+    "ember-resolver": "^13.1.0",
+    "ember-source": "~6.2.0",
     "loader.js": "^4.7.0",
-    "terser-webpack-plugin": "^5.3.11",
-    "webpack": "^5.92.0",
+    "terser": "^5.39.0",
+    "vite": "^5.4.11",
+    "vite-bundle-analyzer": "^0.17.1",
+    "vite-plugin-compression2": "^1.3.3",
     "zlib": "1.0.5"
   },
   "ember": {
     "edition": "octane"
   },
   "engines": {
-    "node": ">= 18.20.4"
+    "node": ">= 18.20.7"
   },
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.15.9"
+  "packageManager": "pnpm@10.5.2",
+  "ember-addon": {
+    "type": "app",
+    "version": 2
+  },
+  "exports": {
+    "./*": "./app/*"
+  }
 }

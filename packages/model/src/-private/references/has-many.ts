@@ -3,6 +3,7 @@ import { deprecate } from '@ember/debug';
 import type { CollectionEdge, Graph } from '@ember-data/graph/-private';
 import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store';
+import type { RelatedCollection as ManyArray } from '@ember-data/store/-private';
 import type { BaseFinderOptions } from '@ember-data/store/types';
 import { cached, compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';
@@ -25,7 +26,6 @@ import type { IsUnknown } from '../belongs-to';
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
 import type { LegacySupport } from '../legacy-relationships-support';
 import { areAllInverseRecordsLoaded, LEGACY_SUPPORT } from '../legacy-relationships-support';
-import type { RelatedCollection as ManyArray } from '../many-array';
 import type { MaybeHasManyFields } from '../type-utils';
 
 /**

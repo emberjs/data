@@ -174,7 +174,11 @@ jobs:
         timeout-minutes: 12
         env:
           CI: true
-        run: pnpm test:try-one ${{ matrix.scenario }} -- ember test --test-port=0
+        run: |
+          cd tests/main;
+          pnpm exec ember try:one  ${{ matrix.scenario }} --skip-cleanup;
+          pnpm build:tests;
+          pnpm run test;
 
   releases:
     timeout-minutes: 12
@@ -201,4 +205,8 @@ jobs:
       - name: Basic tests with ${{ matrix.release }}
         env:
           CI: true
-        run: pnpm test:try-one ${{ matrix.release }} -- ember test --test-port=0
+        run: |
+          cd tests/main;
+          pnpm exec ember try:one ${{ matrix.release }} --skip-cleanup;
+          pnpm build:tests;
+          pnpm run test;

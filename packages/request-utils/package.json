@@ -13,7 +13,7 @@
   "homepage": "https://github.com/emberjs/data",
   "bugs": "https://github.com/emberjs/data/issues",
   "engines": {
-    "node": ">= 18.20.4"
+    "node": ">= 18.20.7"
   },
   "keywords": [
     "ember-addon"
@@ -43,8 +43,8 @@
   "scripts": {
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "build:pkg": "vite build;",
-    "prepack": "bun run build:pkg",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+    "prepack": "pnpm run build:pkg",
+    "sync": "echo \"syncing\""
   },
   "ember-addon": {
     "main": "addon-main.cjs",
@@ -66,33 +66,24 @@
     }
   },
   "dependencies": {
-    "@embroider/macros": "^1.16.10",
+    "@embroider/macros": "^1.16.11",
     "@warp-drive/build-config": "workspace:*"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.5",
-    "@babel/plugin-transform-typescript": "^7.24.5",
-    "@babel/preset-env": "^7.24.5",
-    "@babel/preset-typescript": "^7.24.1",
+    "@babel/core": "^7.26.9",
+    "@babel/plugin-transform-typescript": "^7.26.8",
+    "@babel/preset-env": "^7.26.9",
+    "@babel/preset-typescript": "^7.26.0",
     "@glimmer/component": "^1.1.2",
-    "@ember/string": "3.1.1",
+    "@ember/string": "4.0.1",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
     "ember-source": "~5.12.0",
-    "ember-inflector": "4.0.3",
-    "pnpm-sync-dependencies-meta-injected": "0.0.14",
-    "typescript": "^5.7.2",
-    "vite": "^5.2.11"
+    "ember-inflector": "5.0.2",
+    "typescript": "^5.8.2",
+    "vite": "^5.4.14"
   },
   "ember": {
     "edition": "octane"
-  },
-  "dependenciesMeta": {
-    "@warp-drive/core-types": {
-      "injected": true
-    },
-    "@warp-drive/build-config": {
-      "injected": true
-    }
   }
 }

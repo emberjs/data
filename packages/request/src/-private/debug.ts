@@ -48,7 +48,7 @@ const ValidKeys = new Map<string, string | string[] | typeof BODY_TYPES>([
   ['headers', 'headers'],
   ['integrity', 'string'],
   ['keepalive', 'boolean'],
-  ['method', ['GET', 'PUT', 'PATCH', 'DELETE', 'POST', 'OPTIONS']],
+  ['method', ['QUERY', 'GET', 'PUT', 'PATCH', 'DELETE', 'POST', 'OPTIONS', 'HEAD', 'CONNECT', 'TRACE']],
   ['mode', ['same-origin', 'cors', 'navigate', 'no-cors']],
   ['redirect', ['error', 'follow', 'manual']],
   ['referrer', 'string'],
@@ -213,7 +213,7 @@ function validateKey(key: string, value: unknown, errors: string[]) {
     if (Array.isArray(schema)) {
       if (!schema.includes(value as string)) {
         errors.push(
-          `InvalidValue: key ${key} should be a one of '${schema.join("', '")}', received ${
+          `InvalidValue: key ${key} should be one of '${schema.join("', '")}', received ${
             typeof value === 'string' ? value : '<a value of type ' + niceTypeOf(value) + '>'
           }`
         );

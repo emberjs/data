@@ -23,6 +23,7 @@ const AllowedImports = [
   '@ember/test-helpers',
   '@ember/test-waiters',
   '@glimmer/component',
+  '@glimmer/tracking',
   'qunit',
 ];
 

@@ -30,6 +30,8 @@
       "@ember-data/request/*": ["../../packages/request/unstable-preview-types/*"],
       "@ember-data/store": ["../../packages/store/unstable-preview-types"],
       "@ember-data/store/*": ["../../packages/store/unstable-preview-types/*"],
+      "@ember-data/json-api": ["../../packages/json-api/unstable-preview-types"],
+      "@ember-data/json-api/*": ["../../packages/json-api/unstable-preview-types/*"],
       "@ember-data/model": ["../../packages/model/unstable-preview-types"],
       "@ember-data/model/*": ["../../packages/model/unstable-preview-types/*"],
       "@ember-data/tracking": ["../../packages/tracking/unstable-preview-types"],
@@ -56,6 +58,9 @@
     },
     {
       "path": "../../packages/store"
+    },
+    {
+      "path": "../../packages/json-api"
     },
     {
       "path": "../../packages/model"

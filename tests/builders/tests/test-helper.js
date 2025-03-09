@@ -17,9 +17,10 @@ setupGlobalHooks((hooks) => {
 setApplication(Application.create(config.APP));
 start({
   tryCatch: false,
-  debug: false,
+  // concurrency: 1,
+  debug: true,
   groupLogs: false,
   instrument: true,
-  hideReport: true,
+  hideReport: false,
   useDiagnostic: true,
 });

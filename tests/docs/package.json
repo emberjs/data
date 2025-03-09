@@ -12,20 +12,18 @@
   "author": "",
   "scripts": {
     "test:docs": "qunit ./index.js",
-    "lint": "eslint . --quiet --cache --cache-strategy=content",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+    "lint": "eslint . --quiet --cache --cache-strategy=content"
   },
   "devDependencies": {
     "@warp-drive/internal-config": "workspace:*",
-    "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "qunit": "^2.20.1"
   },
   "engines": {
-    "node": ">= 18.20.4"
+    "node": ">= 18.20.7"
   },
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.15.9",
+  "packageManager": "pnpm@10.5.2",
   "dependencies": {}
 }

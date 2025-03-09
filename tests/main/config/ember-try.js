@@ -5,6 +5,10 @@ const getChannelURL = require('ember-source-channel-url');
 module.exports = function () {
   return Promise.all([getChannelURL('release'), getChannelURL('beta'), getChannelURL('canary')]).then((urls) => {
     return {
+      command: 'echo "scenario ready"',
+      buildManagerOptions(scenario) {
+        return ['--ignore-scripts', '--prefer-offline', '--no-frozen-lockfile'];
+      },
       usePnpm: true,
       scenarios: [
         {

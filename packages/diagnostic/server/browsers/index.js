@@ -184,6 +184,7 @@ export function recommendedArgs(browser, options = {}) {
     '--no-sandbox',
     // these prevent user account
     // and extensions from mucking with things
+    '--disable-extensions',
     '--incognito',
     '--bwsi',
     '--enable-automation',

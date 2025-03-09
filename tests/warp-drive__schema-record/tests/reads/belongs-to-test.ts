@@ -6,7 +6,7 @@ import { setupTest } from 'ember-qunit';
 
 import type Store from '@ember-data/store';
 import type { Type } from '@warp-drive/core-types/symbols';
-import { registerDerivations, withDefaults } from '@warp-drive/schema-record/schema';
+import { registerDerivations, withDefaults } from '@warp-drive/schema-record';
 
 type User = {
   id: string | null;

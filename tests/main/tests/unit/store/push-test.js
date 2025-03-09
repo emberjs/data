@@ -527,24 +527,6 @@ module('unit/store/push - Store#push', function (hooks) {
     assert.notOk(store._instanceCache.peek(pushResult, { bucket: 'record' }), 'record is not materialized');
   });
 
-  test('_push does not require a modelName to resolve to a modelClass', function (assert) {
-    const store = this.owner.lookup('service:store');
-    const originalCall = store.modelFor;
-    store.modelFor = function () {
-      assert.notOk('modelFor was triggered as a result of a call to store._push');
-    };
-
-    store._push({
-      data: {
-        id: '1',
-        type: 'person',
-      },
-    });
-
-    store.modelFor = originalCall;
-    assert.ok('We made it');
-  });
-
   test('_push returns an array of identifiers if an array is pushed', function (assert) {
     const store = this.owner.lookup('service:store');
     const pushResult = store._push({

@@ -15,7 +15,8 @@
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "scripts": {
     "build:infra": "vite build; vite build -c ./vite.config-cjs.mjs;",
-    "prepack": "bun run build:infra"
+    "prepack": "pnpm run build:infra",
+    "sync": "echo \"syncing\""
   },
   "type": "module",
   "files": [
@@ -41,29 +42,28 @@
     }
   },
   "dependencies": {
-    "@embroider/macros": "^1.16.10",
+    "@embroider/macros": "^1.16.11",
     "@embroider/addon-shim": "^1.9.0",
     "babel-import-util": "^2.1.1",
     "broccoli-funnel": "^3.0.8",
-    "semver": "^7.6.3"
+    "semver": "^7.7.1"
   },
   "devDependencies": {
     "@warp-drive/internal-config": "workspace:*",
     "@types/babel__core": "^7.20.5",
-    "@types/node": "^20.14.2",
-    "@babel/plugin-transform-typescript": "^7.24.5",
-    "@babel/preset-typescript": "^7.24.1",
-    "@babel/core": "^7.24.5",
-    "pnpm-sync-dependencies-meta-injected": "0.0.14",
-    "typescript": "^5.7.2",
-    "bun-types": "^1.2.2",
-    "vite": "^5.2.11"
+    "@types/node": "^20.17.22",
+    "@babel/plugin-transform-typescript": "^7.26.8",
+    "@babel/preset-typescript": "^7.26.0",
+    "@babel/core": "^7.26.9",
+    "typescript": "^5.8.2",
+    "bun-types": "^1.2.4",
+    "vite": "^5.4.14"
   },
   "engines": {
-    "node": ">= 18.20.4"
+    "node": ">= 18.20.7"
   },
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.15.9"
+  "packageManager": "pnpm@10.5.2"
 }

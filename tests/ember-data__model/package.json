@@ -18,50 +18,11 @@
     "build:tests": "IS_TESTING=true EMBER_CLI_TEST_COMMAND=true ember build --output-path=dist-test --suppress-sizes",
     "check:types": "tsc --noEmit",
     "lint": "eslint . --quiet --cache --cache-strategy=content",
-    "test": "bun ./diagnostic.js",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
-  },
-  "dependenciesMeta": {
-    "@ember-data/adapter": {
-      "injected": true
-    },
-    "@ember-data/serializer": {
-      "injected": true
-    },
-    "@ember-data/store": {
-      "injected": true
-    },
-    "@ember-data/tracking": {
-      "injected": true
-    },
-    "@warp-drive/diagnostic": {
-      "injected": true
-    },
-    "@warp-drive/core-types": {
-      "injected": true
-    },
-    "@warp-drive/build-config": {
-      "injected": true
-    },
-    "@ember-data/legacy-compat": {
-      "injected": true
-    },
-    "@ember-data/request": {
-      "injected": true
-    },
-    "@ember-data/graph": {
-      "injected": true
-    },
-    "@ember-data/json-api": {
-      "injected": true
-    },
-    "@ember-data/request-utils": {
-      "injected": true
-    }
+    "test": "bun ./diagnostic.js"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.5",
-    "@babel/runtime": "^7.24.5",
+    "@babel/core": "^7.26.9",
+    "@babel/runtime": "^7.26.9",
     "@ember-data/adapter": "workspace:*",
     "@ember-data/graph": "workspace:*",
     "@ember-data/json-api": "workspace:*",
@@ -71,11 +32,11 @@
     "@ember-data/serializer": "workspace:*",
     "@ember-data/store": "workspace:*",
     "@ember-data/tracking": "workspace:*",
-    "@ember/optional-features": "^2.1.0",
+    "@ember/optional-features": "^2.2.0",
     "@ember/test-helpers": "5.1.0",
     "@ember/test-waiters": "^3.1.0",
     "@embroider/addon-shim": "^1.9.0",
-    "@embroider/macros": "^1.16.10",
+    "@embroider/macros": "^1.16.11",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "@warp-drive/core-types": "workspace:*",
@@ -83,22 +44,22 @@
     "@warp-drive/internal-config": "workspace:*",
     "@warp-drive/build-config": "workspace:*",
     "ember-auto-import": "2.10.0",
-    "ember-cli": "~5.12.0",
+    "ember-cli": "~6.2.2",
     "ember-cli-babel": "^8.2.0",
-    "ember-cli-dependency-checker": "^3.3.2",
+    "ember-cli-dependency-checker": "^3.3.3",
     "ember-cli-htmlbars": "^6.3.0",
     "ember-cli-inject-live-reload": "^2.1.0",
     "ember-cli-test-loader": "^3.1.0",
-    "ember-load-initializers": "^2.1.2",
+    "ember-load-initializers": "^3.0.1",
     "ember-maybe-import-regenerator": "^1.0.0",
     "ember-resolver": "^11.0.1",
     "ember-source": "~5.12.0",
     "loader.js": "^4.7.0",
-    "typescript": "^5.7.2",
-    "webpack": "^5.92.0"
+    "typescript": "^5.8.2",
+    "webpack": "^5.98.0"
   },
   "engines": {
-    "node": ">= 18.20.4"
+    "node": ">= 18.20.7"
   },
   "ember": {
     "edition": "octane"
@@ -106,7 +67,7 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.15.9",
+  "packageManager": "pnpm@10.5.2",
   "dependencies": {
     "pnpm-sync-dependencies-meta-injected": "0.0.14"
   }

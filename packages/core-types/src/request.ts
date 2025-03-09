@@ -12,7 +12,17 @@ export const EnableHydration = getOrSetUniversal('EnableHydration', Symbol.for('
 export const IS_FUTURE = getOrSetGlobal('IS_FUTURE', Symbol('IS_FUTURE'));
 export const STRUCTURED = getOrSetGlobal('DOC', Symbol('DOC'));
 
-export type HTTPMethod = 'GET' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD';
+export type HTTPMethod =
+  | 'QUERY'
+  | 'GET'
+  | 'OPTIONS'
+  | 'POST'
+  | 'PUT'
+  | 'PATCH'
+  | 'DELETE'
+  | 'HEAD'
+  | 'CONNECT'
+  | 'TRACE';
 
 /**
  * Use these options to adjust CacheHandler behavior for a request.
@@ -93,7 +103,7 @@ export type PostQueryRequestOptions<T = unknown, RT = unknown> = {
   url: string;
   method: 'POST' | 'QUERY';
   headers: Headers;
-  body: string;
+  body?: string | BodyInit | FormData;
   cacheOptions: CacheOptions<T> & { key: string };
   op: 'query';
   [RequestSignature]?: RT;
@@ -104,6 +114,7 @@ export type DeleteRequestOptions<T = unknown, RT = unknown> = {
   method: 'DELETE';
   headers: Headers;
   op: 'deleteRecord';
+  body?: string | BodyInit | FormData;
   data: {
     record: StableRecordIdentifier<TypeFromInstanceOrString<T>>;
   };
@@ -121,6 +132,7 @@ export type UpdateRequestOptions<T = unknown, RT = unknown> = {
   method: 'PATCH' | 'PUT';
   headers: Headers;
   op: 'updateRecord';
+  body?: string | BodyInit | FormData;
   data: {
     record: StableRecordIdentifier<TypeFromInstanceOrString<T>>;
   };
@@ -133,6 +145,7 @@ export type CreateRequestOptions<T = unknown, RT = unknown> = {
   method: 'POST';
   headers: Headers;
   op: 'createRecord';
+  body?: string | BodyInit | FormData;
   data: {
     record: StableRecordIdentifier<TypeFromInstanceOrString<T>>;
   };

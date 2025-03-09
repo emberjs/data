@@ -34,7 +34,11 @@ module('Integration | Graph | Duplicate Data', function (hooks) {
       owner.register('model:config', Config);
       const store = owner.lookup('service:store') as unknown as Store;
       const graph = graphFor(store);
-      const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
+      const identifier = (obj: { type: string; id: string | null; lid?: string }) => {
+        return store.identifierCache.getOrCreateRecordIdentifier(obj);
+      };
+
+      const appIdentifier = identifier({ type: 'app', id: '1' });
 
       store._join(() => {
         graph.push({
@@ -59,10 +63,10 @@ module('Integration | Graph | Duplicate Data', function (hooks) {
         JSON.parse(JSON.stringify(data)),
         {
           data: [
-            { type: 'config', id: '1', lid: '@lid:config-1' },
-            { type: 'config', id: '2', lid: '@lid:config-2' },
-            { type: 'config', id: '3', lid: '@lid:config-3' },
-            { type: 'config', id: '4', lid: '@lid:config-4' },
+            identifier({ type: 'config', id: '1' }),
+            identifier({ type: 'config', id: '2' }),
+            identifier({ type: 'config', id: '3' }),
+            identifier({ type: 'config', id: '4' }),
           ],
         },
         'we have the expected data'
@@ -93,11 +97,14 @@ module('Integration | Graph | Duplicate Data', function (hooks) {
       owner.register('model:config', Config);
       const store = owner.lookup('service:store') as unknown as Store;
       const graph = graphFor(store);
-      const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
-      const configIdentifier1 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
-      const configIdentifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '2' });
-      const configIdentifier3 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '3' });
-      const configIdentifier4 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '4' });
+      const identifier = (obj: { type: string; id: string | null; lid?: string }) => {
+        return store.identifierCache.getOrCreateRecordIdentifier(obj);
+      };
+      const appIdentifier = identifier({ type: 'app', id: '1' });
+      const configIdentifier1 = identifier({ type: 'config', id: '1' });
+      const configIdentifier2 = identifier({ type: 'config', id: '2' });
+      const configIdentifier3 = identifier({ type: 'config', id: '3' });
+      const configIdentifier4 = identifier({ type: 'config', id: '4' });
 
       store._join(() => {
         graph.update({
@@ -120,10 +127,10 @@ module('Integration | Graph | Duplicate Data', function (hooks) {
         JSON.parse(JSON.stringify(data)),
         {
           data: [
-            { type: 'config', id: '1', lid: '@lid:config-1' },
-            { type: 'config', id: '2', lid: '@lid:config-2' },
-            { type: 'config', id: '3', lid: '@lid:config-3' },
-            { type: 'config', id: '4', lid: '@lid:config-4' },
+            identifier({ type: 'config', id: '1' }),
+            identifier({ type: 'config', id: '2' }),
+            identifier({ type: 'config', id: '3' }),
+            identifier({ type: 'config', id: '4' }),
           ],
         },
         'we have the expected data'

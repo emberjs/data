@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import fs from 'fs';
 import path from 'path';
+import { exit } from 'process';
 
 const SLOW_TEST_COUNT = 50;
 const DEFAULT_TIMEOUT = 8_000;
@@ -180,7 +181,14 @@ export default class CustomDotReporter {
     if (this.failedTests.length) {
       this.write(
         chalk.red(
-          `\n\n${this.failedTests.length} Tests Failed. Complete stack traces for failures will print at the end.`
+          `\n\n\t${this.failedTests.length} Tests Failed. Complete stack traces for failures will print at the end.`
+        )
+      );
+    }
+    if (this.globalFailures.length) {
+      this.write(
+        chalk.red(
+          `\n\n\t${this.globalFailures.length} Global Failures were detected.. Complete stack traces for failures will print at the end.`
         )
       );
     }
@@ -212,9 +220,10 @@ export default class CustomDotReporter {
       )} ms\n${HEADER_STR}\n\n`
     );
 
+    const exitCode = this.globalFailures.length || this.failedTests.length ? 1 : 0;
     this.clearState();
 
-    return this.failedTests.length ? 1 : 0;
+    return exitCode;
   }
 
   addLauncher(data) {
@@ -448,6 +457,9 @@ export default class CustomDotReporter {
   }
 
   reportFailedTests() {
+    if (this.failedTests.length) {
+      this.write(chalk.red(`\n\n\tPrinting ${this.failedTests.length} Failed Tests\n\n\t====================\n\n`));
+    }
     this.failedTests.forEach((failure) => {
       const result = failure.data;
       this.write(chalk.red(`\n\t💥 Failed: ${result.runDuration.toLocaleString('en-US')}ms ${result.name}\n`));

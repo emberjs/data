@@ -8,12 +8,14 @@ import { pluralize } from '@ember-data/request-utils/string';
 import { recordIdentifierFor } from '@ember-data/store';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { TypedRecordInstance } from '@warp-drive/core-types/record';
 import type {
   ConstrainedRequestOptions,
   CreateRequestOptions,
   DeleteRequestOptions,
   UpdateRequestOptions,
 } from '@warp-drive/core-types/request';
+import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
 
 import { ACCEPT_HEADER_VALUE, copyForwardUrlOptions } from './-utils';
 
@@ -221,10 +223,10 @@ export function createRecord(record: unknown, options: ConstrainedRequestOptions
  * @param record
  * @param options
  */
-export function updateRecord<T>(
+export function updateRecord<T extends TypedRecordInstance, RT extends TypedRecordInstance = T>(
   record: T,
   options?: ConstrainedRequestOptions & { patch?: boolean }
-): UpdateRequestOptions<T>;
+): UpdateRequestOptions<T, SingleResourceDataDocument<RT>>;
 export function updateRecord(
   record: unknown,
   options?: ConstrainedRequestOptions & { patch?: boolean }
@@ -259,4 +261,60 @@ export function updateRecord(
     },
     records: [identifier],
   };
+}
+
+/**
+ * Builds request options to update existing record for resources,
+ * configured for the url and header expectations of most JSON:API APIs
+ * for a PATCH request.
+ *
+ * Note: This is a convenience method that calls `updateRecord` with the
+ * supplied request with the `patch` option set to `true`.
+ *
+ * **Basic Usage**
+ *
+ * ```ts
+ * import { patchRecord } from '@ember-data/json-api/request';
+ *
+ * const person = store.peekRecord('person', '1');
+ * person.name = 'Chris';
+ * const data = await store.request(patchRecord(person));
+ * ```
+ *
+ * **Supplying Options to Modify the Request Behavior**
+ *
+ * The following options are supported:
+ *
+ * - `host` - The host to use for the request, defaults to the `host` configured with `setBuildURLConfig`.
+ * - `namespace` - The namespace to use for the request, defaults to the `namespace` configured with `setBuildURLConfig`.
+ * - `resourcePath` - The resource path to use for the request, defaults to pluralizing the supplied type
+ * - `reload` - Whether to forcibly reload the request if it is already in the store, not supplying this
+ *      option will delegate to the store's CachePolicy, defaulting to `false` if none is configured.
+ * - `backgroundReload` - Whether to reload the request if it is already in the store, but to also resolve the
+ *      promise with the cached value, not supplying this option will delegate to the store's CachePolicy,
+ *      defaulting to `false` if none is configured.
+ * - `urlParamsSetting` - an object containing options for how to serialize the query params (see `buildQueryParams`)
+ *
+ * ```ts
+ * import { patchRecord } from '@ember-data/json-api/request';
+ *
+ * const person = store.peekRecord('person', '1');
+ * person.name = 'Chris';
+ * const options = patchRecord(person);
+ * const data = await store.request(options);
+ * ```
+ *
+ * @method patchRecord
+ * @public
+ * @static
+ * @for @ember-data/json-api/request
+ * @param record
+ * @param options
+ */
+export function patchRecord<T>(record: T, options?: ConstrainedRequestOptions): UpdateRequestOptions<T>;
+export function patchRecord(record: unknown, options?: ConstrainedRequestOptions): UpdateRequestOptions;
+export function patchRecord(record: unknown, options: ConstrainedRequestOptions = {}): UpdateRequestOptions {
+  const opts = options as ConstrainedRequestOptions & { patch: true };
+  opts.patch = true;
+  return updateRecord(record, opts);
 }

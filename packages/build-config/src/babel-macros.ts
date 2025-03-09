@@ -47,6 +47,7 @@ export function macros() {
       {
         source: '@warp-drive/build-config/debugging',
         configKey: 'debug',
+        runtimeKey: 'activeLogging',
         flags: config.debug,
       },
       '@warp-drive/build-config/debugging-stripping',

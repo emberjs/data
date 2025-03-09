@@ -23,9 +23,9 @@ configure();
 
 start({
   tryCatch: false,
-  debug: false,
+  debug: true,
   groupLogs: false,
   instrument: true,
-  hideReport: true,
+  hideReport: false,
   useDiagnostic: true,
 });

@@ -19,53 +19,11 @@
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "check:types": "tsc --noEmit",
     "start": "ember serve",
-    "test": "ember test --test-port=0 --path=dist-test",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
-  },
-  "dependenciesMeta": {
-    "@ember-data/adapter": {
-      "injected": true
-    },
-    "@ember-data/model": {
-      "injected": true
-    },
-    "@ember-data/json-api": {
-      "injected": true
-    },
-    "@ember-data/store": {
-      "injected": true
-    },
-    "@ember-data/request": {
-      "injected": true
-    },
-    "@ember-data/request-utils": {
-      "injected": true
-    },
-    "@ember-data/legacy-compat": {
-      "injected": true
-    },
-    "@ember-data/graph": {
-      "injected": true
-    },
-    "@ember-data/tracking": {
-      "injected": true
-    },
-    "@ember-data/unpublished-test-infra": {
-      "injected": true
-    },
-    "@warp-drive/core-types": {
-      "injected": true
-    },
-    "@warp-drive/build-config": {
-      "injected": true
-    },
-    "@ember-data/debug": {
-      "injected": true
-    }
+    "test": "ember test --test-port=0 --path=dist-test"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.5",
-    "@babel/runtime": "^7.24.5",
+    "@babel/core": "^7.26.9",
+    "@babel/runtime": "^7.26.9",
     "@ember-data/adapter": "workspace:*",
     "@ember-data/debug": "workspace:*",
     "@ember-data/graph": "workspace:*",
@@ -77,7 +35,7 @@
     "@ember-data/store": "workspace:*",
     "@ember-data/tracking": "workspace:*",
     "@ember-data/unpublished-test-infra": "workspace:*",
-    "@ember/optional-features": "^2.1.0",
+    "@ember/optional-features": "^2.2.0",
     "@ember/test-helpers": "5.1.0",
     "@ember/test-waiters": "^3.1.0",
     "@glimmer/component": "^1.1.2",
@@ -86,12 +44,12 @@
     "@warp-drive/internal-config": "workspace:*",
     "@warp-drive/build-config": "workspace:*",
     "ember-auto-import": "2.10.0",
-    "ember-cli": "~5.12.0",
+    "ember-cli": "~6.2.2",
     "ember-cli-babel": "^8.2.0",
-    "ember-cli-dependency-checker": "^3.3.2",
+    "ember-cli-dependency-checker": "^3.3.3",
     "ember-cli-htmlbars": "^6.3.0",
     "ember-cli-inject-live-reload": "^2.1.0",
-    "ember-load-initializers": "^2.1.2",
+    "ember-load-initializers": "^3.0.1",
     "ember-maybe-import-regenerator": "^1.0.0",
     "ember-qunit": "8.0.2",
     "ember-resolver": "^11.0.1",
@@ -99,11 +57,11 @@
     "loader.js": "^4.7.0",
     "qunit": "^2.20.1",
     "qunit-dom": "^3.1.1",
-    "typescript": "^5.7.2",
-    "webpack": "^5.92.0"
+    "typescript": "^5.8.2",
+    "webpack": "^5.98.0"
   },
   "engines": {
-    "node": ">= 18.20.4"
+    "node": ">= 18.20.7"
   },
   "ember": {
     "edition": "octane"
@@ -111,7 +69,7 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.15.9",
+  "packageManager": "pnpm@10.5.2",
   "dependencies": {
     "pnpm-sync-dependencies-meta-injected": "0.0.14"
   }

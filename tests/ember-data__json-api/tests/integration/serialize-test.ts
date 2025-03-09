@@ -153,7 +153,6 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
           data: {
             type: 'user',
             id: '1',
-            lid: '@lid:user-1',
             attributes: {
               firstName: 'Christopher',
             },
@@ -183,7 +182,6 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
           data: {
             type: 'user',
             id: '1',
-            lid: '@lid:user-1',
             relationships: {
               bestFriend: {
                 data: null,
@@ -213,13 +211,12 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
           data: {
             type: 'user',
             id: '1',
-            lid: '@lid:user-1',
             relationships: {
               friends: {
                 data: [
-                  { type: 'user', id: '2', lid: '@lid:user-2' } as StableRecordIdentifier,
-                  { type: 'user', id: '3', lid: '@lid:user-3' } as StableRecordIdentifier,
-                  { type: 'user', id: '4', lid: '@lid:user-4' } as StableRecordIdentifier,
+                  { type: 'user', id: '2' },
+                  { type: 'user', id: '3' },
+                  { type: 'user', id: '4' },
                 ],
               },
             },
@@ -245,12 +242,11 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
           data: {
             type: 'user',
             id: '1',
-            lid: '@lid:user-1',
             relationships: {
               friends: {
                 data: [
-                  { type: 'user', id: '3', lid: '@lid:user-3' } as StableRecordIdentifier,
-                  { type: 'user', id: '4', lid: '@lid:user-4' } as StableRecordIdentifier,
+                  { type: 'user', id: '3' },
+                  { type: 'user', id: '4' },
                 ],
               },
             },
@@ -279,12 +275,11 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
           data: {
             type: 'user',
             id: '1',
-            lid: '@lid:user-1',
             relationships: {
               friends: {
                 data: [
-                  { type: 'user', id: '3', lid: '@lid:user-3' } as StableRecordIdentifier,
-                  { type: 'user', id: '2', lid: '@lid:user-2' } as StableRecordIdentifier,
+                  { type: 'user', id: '3' },
+                  { type: 'user', id: '2' },
                 ],
               },
             },
@@ -305,22 +300,21 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
         data: {
           type: 'user',
           id: '1',
-          lid: '@lid:user-1',
           attributes: {
             firstName: 'Chris',
             lastName: 'Thoburn',
           },
           relationships: {
             bestFriend: {
-              data: { type: 'user', id: '2', lid: '@lid:user-2' },
+              data: { type: 'user', id: '2' },
             },
             worstEnemy: {
-              data: { type: 'user', id: '3', lid: '@lid:user-3' },
+              data: { type: 'user', id: '3' },
             },
             friends: {
               data: [
-                { type: 'user', id: '2', lid: '@lid:user-2' },
-                { type: 'user', id: '3', lid: '@lid:user-3' },
+                { type: 'user', id: '2' },
+                { type: 'user', id: '3' },
               ],
             },
           },
@@ -338,22 +332,21 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
           {
             type: 'user',
             id: '1',
-            lid: '@lid:user-1',
             attributes: {
               firstName: 'Chris',
               lastName: 'Thoburn',
             },
             relationships: {
               bestFriend: {
-                data: { type: 'user', id: '2', lid: '@lid:user-2' },
+                data: { type: 'user', id: '2' },
               },
               worstEnemy: {
-                data: { type: 'user', id: '3', lid: '@lid:user-3' },
+                data: { type: 'user', id: '3' },
               },
               friends: {
                 data: [
-                  { type: 'user', id: '2', lid: '@lid:user-2' },
-                  { type: 'user', id: '3', lid: '@lid:user-3' },
+                  { type: 'user', id: '2' },
+                  { type: 'user', id: '3' },
                 ],
               },
             },
@@ -361,19 +354,18 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
           {
             type: 'user',
             id: '2',
-            lid: '@lid:user-2',
             attributes: {
               firstName: 'Wesley',
               lastName: 'Thoburn',
             },
             relationships: {
               bestFriend: {
-                data: { type: 'user', id: '1', lid: '@lid:user-1' },
+                data: { type: 'user', id: '1' },
               },
               friends: {
                 data: [
-                  { type: 'user', id: '1', lid: '@lid:user-1' },
-                  { type: 'user', id: '3', lid: '@lid:user-3' },
+                  { type: 'user', id: '1' },
+                  { type: 'user', id: '3' },
                 ],
               },
             },
@@ -381,7 +373,6 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
           {
             type: 'user',
             id: '3',
-            lid: '@lid:user-3',
             attributes: {
               firstName: 'Rey',
               lastName: 'Skybarker',
@@ -392,8 +383,8 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
               },
               friends: {
                 data: [
-                  { type: 'user', id: '1', lid: '@lid:user-1' },
-                  { type: 'user', id: '2', lid: '@lid:user-2' },
+                  { type: 'user', id: '1' },
+                  { type: 'user', id: '2' },
                 ],
               },
             },

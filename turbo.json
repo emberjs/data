@@ -90,16 +90,12 @@
         "dist/**",
         "unstable-preview-types/**"
       ],
-      "dependsOn": [],
-      "cache": false,
+      "dependsOn": [
+        // we should create a "triggers" repo and have it depend
+        // on a TS "trigger"
+      ],
       // https://turbo.build/repo/docs/reference/configuration#outputmode
       "outputMode": "new-only"
-    },
-
-    // virtual task
-    "crawl-graph": {
-      "dependsOn": ["^crawl-graph"],
-      "cache": false
     },
 
     /////////////////////////////////////////////////
@@ -110,7 +106,7 @@
     /////////////////////////////////////////////////
     /////////////////////////////////////////////////
     "start": {
-      // "dependsOn": ["_task:sync-hardlinks", "^_build"],
+      // "dependsOn": ["^_build"],
       // "outputs": [],
       // "cache": false,
       // "persistent": true
@@ -158,7 +154,18 @@
         "declarations/**",
         "unstable-preview-types/**"
       ],
-      "dependsOn": ["^build:pkg"]
+      "dependsOn": ["^build:pkg"],
+      "env": [
+        "EMBER_DATA_FEATURE_OVERRIDE",
+        "NODE_ENV",
+        "CI",
+        "EMBER_ENV",
+        "IS_TESTING",
+        "EMBER_CLI_TEST_COMMAND",
+        "IS_RECORDING",
+        "ASSERT_ALL_DEPRECATIONS",
+        "EMBER_DATA_FULL_COMPAT"
+      ]
     },
     "build:production": {
       "inputs": [
@@ -179,7 +186,18 @@
         "dist-test/**",
         "declarations/**"
       ],
-      "dependsOn": ["^build:pkg"]
+      "dependsOn": ["^build:pkg"],
+      "env": [
+        "EMBER_DATA_FEATURE_OVERRIDE",
+        "NODE_ENV",
+        "CI",
+        "EMBER_ENV",
+        "IS_TESTING",
+        "EMBER_CLI_TEST_COMMAND",
+        "IS_RECORDING",
+        "ASSERT_ALL_DEPRECATIONS",
+        "EMBER_DATA_FULL_COMPAT"
+      ]
     },
 
     "test": {

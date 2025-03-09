@@ -133,6 +133,11 @@ export class CacheManager implements Cache {
     return this.#cache.peek(identifier);
   }
 
+  peekRemoteState(identifier: StableRecordIdentifier): unknown;
+  peekRemoteState(identifier: StableDocumentIdentifier): ResourceDocument | null;
+  peekRemoteState(identifier: StableRecordIdentifier | StableDocumentIdentifier): unknown {
+    return this.#cache.peekRemoteState(identifier);
+  }
   /**
    * Peek the Cache for the existing request data associated with
    * a cacheable request
@@ -356,6 +361,19 @@ export class CacheManager implements Cache {
   }
 
   /**
+   * Retrieve the remote state for an attribute from the cache
+   *
+   * @method getRemoteAttr
+   * @public
+   * @param identifier
+   * @param propertyName
+   * @return {unknown}
+   */
+  getRemoteAttr(identifier: StableRecordIdentifier, propertyName: string): Value | undefined {
+    return this.#cache.getRemoteAttr(identifier, propertyName);
+  }
+
+  /**
    * Mutate the data for an attribute in the cache
    *
    * @method setAttr
@@ -480,6 +498,22 @@ export class CacheManager implements Cache {
     propertyName: string
   ): ResourceRelationship | CollectionRelationship {
     return this.#cache.getRelationship(identifier, propertyName);
+  }
+
+  /**
+   * Query the cache for the remote state of a relationship property
+   *
+   * @method getRelationship
+   * @public
+   * @param identifier
+   * @param propertyName
+   * @return resource relationship object
+   */
+  getRemoteRelationship(
+    identifier: StableRecordIdentifier,
+    propertyName: string
+  ): ResourceRelationship | CollectionRelationship {
+    return this.#cache.getRemoteRelationship(identifier, propertyName);
   }
 
   // Resource State
