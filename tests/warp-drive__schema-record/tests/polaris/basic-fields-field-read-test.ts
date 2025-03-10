@@ -18,6 +18,7 @@ interface User {
   netWorth: number;
   coolometer: number;
   rank: number;
+  bestFriend?: User;
 }
 
 module('Reads | basic fields', function (hooks) {
@@ -192,5 +193,27 @@ module('Reads | basic fields', function (hooks) {
     assert.strictEqual(resource.attributes?.netWorth, '1000000.01', 'resource cache value for netWorth is correct');
     assert.strictEqual(resource.attributes?.coolometer, '100.000', 'resource cache value for coolometer is correct');
     assert.strictEqual(resource.attributes?.rank, '0', 'resource cache value for rank is correct');
+  });
+
+  test('user record is immutable without calling checkout', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const { schema } = store;
+    registerDerivations(schema);
+
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          { name: 'name', kind: 'field' },
+        ],
+      })
+    );
+
+    const record = store.createRecord('user', { name: 'Rey Skybarker' }) as User;
+
+    assert.ok(record, 'record is created');
+    assert.throws(() => {
+      record.name = 'Rey Skywalker';
+    }, /Error: Cannot set name on user because the record is not editable/);
   });
 });
