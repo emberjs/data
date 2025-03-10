@@ -33,15 +33,14 @@
     }
   },
   "files": [
-    "ember-data-logo-dark.svg",
-    "ember-data-logo-light.svg",
     "LICENSE.md",
     "README.md",
     "addon-main.cjs",
     "dist",
     "app",
     "blueprints",
-    "unstable-preview-types"
+    "unstable-preview-types",
+    "logos"
   ],
   "exports": {
     ".": {

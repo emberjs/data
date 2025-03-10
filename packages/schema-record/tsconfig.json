@@ -45,7 +45,10 @@
       "@ember-data/legacy-compat/*": ["../legacy-compat/unstable-preview-types/*"],
       "@ember-data/request-utils": ["../request-utils/unstable-preview-types"],
       "@ember-data/request-utils/*": ["../request-utils/unstable-preview-types/*"]
-    }
+    },
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "checkJs": false
   },
   "references": [
     {

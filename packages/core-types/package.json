@@ -24,8 +24,7 @@
     "unstable-preview-types",
     "README.md",
     "LICENSE.md",
-    "NCC-1701-a.svg",
-    "NCC-1701-a-blue.svg"
+    "logos"
   ],
   "exports": {
     ".": {

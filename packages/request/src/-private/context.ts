@@ -13,7 +13,7 @@ export function upgradeHeaders(headers: Headers | ImmutableHeaders): ImmutableHe
     return new Headers(headers);
   };
   (headers as ImmutableHeaders).toJSON = () => {
-    return Array.from(headers);
+    return Array.from(headers as unknown as Iterable<[string, string]>);
   };
   return headers as ImmutableHeaders;
 }

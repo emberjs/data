@@ -1,0 +1,32 @@
+{
+  "name": "@warp-drive/internal-tooling",
+  "version": "5.4.0-alpha.142",
+  "description": "Internal Tooling for the WarpDrive Project Monorepo | Unpublished",
+  "private": true,
+  "type": "module",
+  "files": [
+    "src"
+  ],
+  "bin": {
+    "sync-logos": "src/sync-logos.ts",
+    "sync-license": "src/sync-license.ts",
+    "sync-references": "src/sync-references.ts"
+  },
+  "dependencies": {
+    "@types/bun": "^1.2.4",
+    "typescript": "^5.8.2",
+    "chalk": "5.4.1",
+    "debug": "4.4.0",
+    "@types/debug": "4.1.12",
+    "comment-json": "^4.2.5",
+    "@pnpm/find-workspace-dir": "1000.1.0",
+    "@pnpm/find-workspace-packages": "6.0.9",
+    "@pnpm/logger": "1000.0.0"
+  },
+  "engines": {
+    "node": ">= 18.20.7"
+  },
+  "volta": {
+    "extends": "../package.json"
+  }
+}

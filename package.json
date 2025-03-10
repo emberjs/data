@@ -33,6 +33,7 @@
     "test:vite": "pnpm run -r ---workspace-concurrency=-1 --if-present test:vite"
   },
   "devDependencies": {
+    "@warp-drive/internal-tooling": "workspace:*",
     "@babel/core": "^7.26.9",
     "@glimmer/component": "^1.1.2",
     "@glint/core": "1.5.2",

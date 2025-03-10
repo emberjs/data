@@ -18,8 +18,7 @@
     "noImplicitOverride": false,
     "experimentalDecorators": true,
     "incremental": true,
-    "noEmit": true,
-    "declaration": false,
+    "declaration": true,
     "types": ["ember-source/types"],
     "paths": {
       "@ember-data/unpublished-test-infra": ["../../packages/unpublished-test-infra/unstable-preview-types"],
@@ -43,8 +42,22 @@
       "@ember-data/legacy-compat": ["../../packages/legacy-compat/unstable-preview-types"],
       "@ember-data/legacy-compat/*": ["../../packages/legacy-compat/unstable-preview-types/*"],
       "@ember-data/request-utils": ["../../packages/request-utils/unstable-preview-types"],
-      "@ember-data/request-utils/*": ["../../packages/request-utils/unstable-preview-types/*"]
-    }
+      "@ember-data/request-utils/*": ["../../packages/request-utils/unstable-preview-types/*"],
+      "@ember-data/debug": ["../../packages/debug/unstable-preview-types"],
+      "@ember-data/debug/*": ["../../packages/debug/unstable-preview-types/*"],
+      "@ember-data/graph": ["../../packages/graph/unstable-preview-types"],
+      "@ember-data/graph/*": ["../../packages/graph/unstable-preview-types/*"]
+    },
+    "allowImportingTsExtensions": true,
+    "composite": true,
+    "declarationDir": "unstable-preview-types",
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "erasableSyntaxOnly": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "rootDir": ".",
+    "checkJs": false
   },
   "references": [
     {
@@ -79,6 +92,12 @@
     },
     {
       "path": "../../packages/request-utils"
+    },
+    {
+      "path": "../../packages/debug"
+    },
+    {
+      "path": "../../packages/graph"
     }
   ]
 }

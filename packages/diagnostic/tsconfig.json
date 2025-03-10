@@ -29,7 +29,12 @@
     "paths": {
       "@warp-drive/build-config": ["../build-config/unstable-preview-types"],
       "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"]
-    }
+    },
+    "allowImportingTsExtensions": true,
+    "baseUrl": ".",
+    "erasableSyntaxOnly": true,
+    "experimentalDecorators": true,
+    "checkJs": false
   },
   "references": [
     {

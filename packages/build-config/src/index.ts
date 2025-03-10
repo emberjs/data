@@ -43,7 +43,7 @@ function recastMacrosConfig(macros: object): MacrosWithGlobalConfig {
   return macros as MacrosWithGlobalConfig;
 }
 
-export function setConfig(context: object, appRoot: string, config: WarpDriveConfig) {
+export function setConfig(context: object, appRoot: string, config: WarpDriveConfig): void {
   const macros = recastMacrosConfig(_MacrosConfig.for(context, appRoot));
   const isLegacySupport = (config as unknown as { ___legacy_support?: boolean }).___legacy_support;
   const hasDeprecatedConfig = isLegacySupport && Object.keys(config).length > 1;

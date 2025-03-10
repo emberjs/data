@@ -13,7 +13,7 @@ export function copyForwardUrlOptions(urlOptions: UrlOptions, options: Constrain
   }
 }
 
-export function extractCacheOptions(options: ConstrainedRequestOptions) {
+export function extractCacheOptions(options: ConstrainedRequestOptions): CacheOptions {
   const cacheOptions: CacheOptions = {};
   if ('reload' in options) {
     cacheOptions.reload = options.reload;

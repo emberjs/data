@@ -12,5 +12,6 @@
     "extends": "../../package.json"
   },
   "devDependencies": {},
-  "scripts": {}
+  "scripts": {},
+  "files": []
 }
