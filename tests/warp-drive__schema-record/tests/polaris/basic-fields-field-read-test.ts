@@ -203,9 +203,7 @@ module('Reads | basic fields', function (hooks) {
     schema.registerResource(
       withDefaults({
         type: 'user',
-        fields: [
-          { name: 'name', kind: 'field' },
-        ],
+        fields: [{ name: 'name', kind: 'field' }],
       })
     );
 
