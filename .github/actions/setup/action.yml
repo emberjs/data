@@ -70,7 +70,7 @@ runs:
         node-version-file: 'package.json'
         cache: 'pnpm'
 
-    - uses: oven-sh/setup-bun@v1
+    - uses: oven-sh/setup-bun@v2
       with:
         bun-version: latest
 
@@ -100,6 +100,11 @@ runs:
         sudo apt-get -y update
         sudo apt install libnss3-tools
         brew install mkcert
+
+    - name: 'Setup DBus for Chrome'
+      shell: bash
+      run: |
+        echo "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus" >> $GITHUB_ENV
 
     - name: Configure Parallel Builds
       if: ${{ inputs.parallel-build == 'true' }}

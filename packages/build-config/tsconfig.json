@@ -1,5 +1,5 @@
 {
-  "include": ["src/**/*"],
+  "include": ["src/**/**/*"],
   "compilerOptions": {
     "lib": ["DOM", "ESNext"],
     "module": "ESNext",

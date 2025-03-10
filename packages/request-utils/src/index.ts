@@ -3,6 +3,7 @@ import { deprecate } from '@ember/debug';
 import { DISABLE_6X_DEPRECATIONS } from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type { QueryParamsSerializationOptions, QueryParamsSource, Serializable } from '@warp-drive/core-types/params';
@@ -93,10 +94,10 @@ export interface BuildURLConfig {
   namespace: string | null;
 }
 
-const CONFIG: BuildURLConfig = {
+const CONFIG: BuildURLConfig = getOrSetGlobal('CONFIG', {
   host: '',
   namespace: '',
-};
+});
 
 /**
  * Sets the global configuration for `buildBaseURL`

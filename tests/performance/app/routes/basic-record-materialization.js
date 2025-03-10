@@ -1,8 +1,8 @@
 import Route from '@ember/routing/route';
-import { inject as service } from '@ember/service';
+import { service } from '@ember/service';
 
-export default Route.extend({
-  store: service(),
+export default class extends Route {
+  @service store;
 
   async model() {
     performance.mark('start-data-generation');
@@ -16,5 +16,5 @@ export default Route.extend({
     peekedChildren.slice();
     peekedParents.slice();
     performance.mark('end-record-materialization');
-  },
-});
+  }
+}

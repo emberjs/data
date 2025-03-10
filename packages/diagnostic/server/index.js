@@ -5,11 +5,12 @@ import { launchBrowsers } from './bun/launch-browser.js';
 import { buildHandler } from './bun/socket-handler.js';
 import { debug, error, print } from './utils/debug.js';
 import { getPort } from './utils/port.js';
+import { addCloseHandler } from './bun/watch.js';
 
 /** @type {import('bun-types')} */
 const isBun = typeof Bun !== 'undefined';
 
-export default async function launch(config) {
+export async function launch(config) {
   if (isBun) {
     debug(`Bun detected, using Bun.serve()`);
 
@@ -34,6 +35,23 @@ export default async function launch(config) {
       browsers: new Map(),
       completed: 0,
       expected: config.parallel ?? 1,
+      closeHandlers: [],
+    };
+    async function runCloseHandler(handler) {
+      try {
+        await handler();
+      } catch (e) {
+        error(`Error in close handler: ${e?.message ?? e}`);
+      }
+    }
+    state.safeCleanup = async () => {
+      debug(`Running close handlers`);
+      const promises = [];
+      for (const handler of state.closeHandlers) {
+        promises.push(runCloseHandler(handler));
+      }
+      await Promise.allSettled(promises);
+      debug(`All close handlers completed`);
     };
 
     if (protocol === 'https') {
@@ -56,6 +74,16 @@ export default async function launch(config) {
         },
         websocket: buildHandler(config, state),
       });
+
+      addCloseHandler(state, () => {
+        state.browsers?.forEach((browser) => {
+          browser.proc.kill();
+          // browser.proc.unref();
+        });
+        state.server.stop();
+        // state.server.unref();
+      });
+
       print(chalk.magenta(`🚀 Serving on ${chalk.white(protocol + '://' + hostname + ':')}${chalk.magenta(port)}`));
       config.reporter.serverConfig = {
         port,
@@ -66,6 +94,7 @@ export default async function launch(config) {
 
       if (config.setup) {
         debug(`Running configured setup hook`);
+
         await config.setup({
           port,
           hostname,
@@ -73,15 +102,20 @@ export default async function launch(config) {
         });
         debug(`Configured setup hook completed`);
       }
+      if (config.cleanup) {
+        addCloseHandler(state, async () => {
+          debug(`Running configured cleanup hook`);
+          await config.cleanup();
+          debug(`Configured cleanup hook completed`);
+        });
+      }
 
-      await launchBrowsers(config, state);
+      if (!config.noLaunch) {
+        await launchBrowsers(config, state);
+      }
     } catch (e) {
       error(`Error: ${e?.message ?? e}`);
-      if (config.cleanup) {
-        debug(`Running configured cleanup hook`);
-        await config.cleanup();
-        debug(`Configured cleanup hook completed`);
-      }
+      await state.safeCleanup();
       throw e;
     }
   } else {

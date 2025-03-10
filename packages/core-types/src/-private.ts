@@ -67,6 +67,8 @@ type GlobalKey =
   // @ember-data/request
   | 'IS_FROZEN'
   | 'IS_CACHE_HANDLER'
+  // @ember-data/request-utils
+  | 'CONFIG'
   // @ember-data/store IdentityCache
   | 'DEBUG_MAP'
   | 'IDENTIFIERS'

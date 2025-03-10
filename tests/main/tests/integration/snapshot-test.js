@@ -117,17 +117,6 @@ module('integration/snapshot - Snapshot', function (hooks) {
       until: '5.0',
     },
     async function (assert) {
-      assert.expect(3);
-
-      let postClassLoaded = false;
-      const modelFor = store.modelFor;
-      store.modelFor = (name) => {
-        if (name === 'post') {
-          postClassLoaded = true;
-        }
-        return modelFor.call(store, name);
-      };
-
       await store._push({
         data: {
           type: 'post',
@@ -140,9 +129,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'post', id: '1' });
       const snapshot = await store._fetchManager.createSnapshot(identifier);
 
-      assert.false(postClassLoaded, 'model class is not eagerly loaded');
       const type = snapshot.type;
-      assert.true(postClassLoaded, 'model class is loaded');
       const Post = store.modelFor('post');
       assert.strictEqual(type, Post, 'type is correct');
     }

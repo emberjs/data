@@ -3,7 +3,7 @@ import type ArrayProxy from '@ember/array/proxy';
 import { deprecate } from '@ember/debug';
 import Ember from 'ember';
 
-import type { CreateRecordProperties } from '@ember-data/store/-private';
+import type { CreateRecordProperties, RelatedCollection as ManyArray } from '@ember-data/store/-private';
 import type { BaseFinderOptions } from '@ember-data/store/types';
 import { compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';
@@ -15,7 +15,6 @@ import {
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 
-import type { RelatedCollection as ManyArray } from './many-array';
 import { LegacyPromiseProxy } from './promise-belongs-to';
 
 export interface HasManyProxyCreateArgs<T = unknown> {

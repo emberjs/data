@@ -9,6 +9,8 @@ const Router = EmberRouter.extend({
 
 Router.map(function () {
   this.route('basic-record-materialization');
+  this.route('complex-record-materialization');
+  this.route('complex-record-materialization-with-relationship-materialization');
   this.route('relationship-materialization-simple');
   this.route('relationship-materialization-complex');
   this.route('add-children');
@@ -18,6 +20,8 @@ Router.map(function () {
   this.route('unload-all');
   this.route('destroy');
   this.route('unused-relationships');
+  this.route('update-with-same-state');
+  this.route('update-with-same-state-m2m');
 });
 
 export default Router;

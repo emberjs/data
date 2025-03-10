@@ -16,8 +16,8 @@ configure();
 
 setApplication(Application.create(config.APP));
 void start({
-  tryCatch: true,
-  // debug: true,
+  tryCatch: false,
+  debug: false,
   groupLogs: false,
   instrument: true,
   hideReport: true,

@@ -70,8 +70,8 @@
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "build:tests": "rm -rf dist-test && cp -R test dist-test && mkdir -p dist-test/@warp-drive && cp -R dist dist-test/@warp-drive/diagnostic",
     "build:pkg": "vite build;",
-    "prepack": "bun run build:pkg",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+    "prepack": "pnpm run build:pkg",
+    "sync": "echo \"syncing\""
   },
   "peerDependencies": {
     "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",
@@ -91,46 +91,38 @@
   },
   "dependencies": {
     "chalk": "^5.3.0",
-    "debug": "^4.3.7",
-    "ember-cli-htmlbars": "^6.3.0",
+    "debug": "^4.4.0",
     "tmp": "^0.2.3",
     "@warp-drive/build-config": "workspace:*"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.5",
-    "@babel/plugin-transform-typescript": "^7.24.5",
-    "@babel/preset-env": "^7.24.5",
-    "@babel/preset-typescript": "^7.24.1",
-    "@babel/runtime": "^7.24.5",
+    "@babel/core": "^7.26.9",
+    "@babel/plugin-transform-typescript": "^7.26.8",
+    "@babel/preset-env": "^7.26.9",
+    "@babel/preset-typescript": "^7.26.0",
+    "@babel/runtime": "^7.26.9",
     "@warp-drive/internal-config": "workspace:*",
-    "bun-types": "^1.2.2",
+    "bun-types": "^1.2.4",
     "@ember/test-helpers": "5.1.0",
     "ember-source": "~5.12.0",
     "@glimmer/component": "^1.1.2",
     "ember-cli-test-loader": "^3.1.0",
-    "pnpm-sync-dependencies-meta-injected": "0.0.14",
-    "typescript": "^5.7.2",
-    "vite": "^5.2.11"
+    "typescript": "^5.8.2",
+    "vite": "^5.4.14"
   },
   "engines": {
-    "node": ">= 18.20.4"
+    "node": ">= 18.20.7"
   },
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@8.15.9",
+  "packageManager": "pnpm@10.5.2",
   "ember-addon": {
     "main": "addon-main.cjs",
     "type": "addon",
-    "version": 2,
-    "preventDownleveling": true
+    "version": 2
   },
   "ember": {
     "edition": "octane"
-  },
-  "dependenciesMeta": {
-    "@warp-drive/build-config": {
-      "injected": true
-    }
   }
 }

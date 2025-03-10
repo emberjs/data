@@ -19,8 +19,7 @@
     "lint:js": "eslint . --cache",
     "lint:js:fix": "eslint . --fix",
     "start": "vite",
-    "test:vite": "vite build --mode test && ember test --path dist",
-    "sync-hardlinks": "bun run sync-dependencies-meta-injected"
+    "test:vite": "vite build --mode test && ember test --path dist"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
@@ -47,11 +46,10 @@
     "@ember/string": "^4.0.0",
     "@ember/test-helpers": "5.1.0",
     "@ember/test-waiters": "^3.1.0",
-    "@embroider/compat": "^3.8.0",
-    "@embroider/config-meta-loader": "0.0.1-unstable.4070ba7",
-    "@embroider/core": "^3.5.0",
-    "@embroider/test-setup": "4.0.1-unstable.4070ba7",
-    "@embroider/vite": "0.2.2-unstable.4070ba7",
+    "@embroider/compat": "4.0.1-unstable.2aa8cae",
+    "@embroider/config-meta-loader": "1.0.1-unstable.2aa8cae",
+    "@embroider/core": "4.0.1-unstable.2aa8cae",
+    "@embroider/vite": "1.0.1-unstable.2aa8cae",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "@glint/core": "1.5.0",
@@ -87,7 +85,6 @@
     "expect-type": "^0.20.0",
     "globals": "^15.12.0",
     "loader.js": "^4.7.0",
-    "pnpm-sync-dependencies-meta-injected": "0.0.14",
     "prettier": "^3.3.3",
     "prettier-plugin-ember-template-tag": "^2.0.4",
     "qunit": "^2.22.0",

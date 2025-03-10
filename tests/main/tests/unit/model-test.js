@@ -210,7 +210,7 @@ module('unit/model - Model', function (hooks) {
       assert.expectAssertion(() => {
         const ModelClass = store.modelFor('test-model');
         get(ModelClass, 'attributes');
-      }, /You may not set `id` as an attribute on your model/);
+      }, /You may not set 'id' as an attribute on your model/);
 
       assert.expectAssertion(() => {
         store.push({

@@ -4,7 +4,7 @@
 import type { CollectionEdge, Graph, GraphEdge, ImplicitEdge, ResourceEdge } from '@ember-data/graph/-private';
 import { graphFor, isBelongsTo, peekGraph } from '@ember-data/graph/-private';
 import type Store from '@ember-data/store';
-import { logGroup } from '@ember-data/store/-private';
+import { isStableIdentifier, logGroup } from '@ember-data/store/-private';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { LOG_MUTATIONS, LOG_OPERATIONS, LOG_REQUESTS } from '@warp-drive/build-config/debugging';
 import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp-drive/build-config/deprecations';
@@ -30,6 +30,7 @@ import type {
 import type {
   CollectionField,
   FieldSchema,
+  LegacyHasManyField,
   LegacyRelationshipSchema,
   ResourceField,
 } from '@warp-drive/core-types/schema/fields';
@@ -222,31 +223,53 @@ export default class JSONAPICache implements Cache {
 
     if (LOG_REQUESTS) {
       const Counts = new Map();
+      let totalCount = 0;
       if (included) {
         for (i = 0, length = included.length; i < length; i++) {
           const type = included[i].type;
           Counts.set(type, (Counts.get(type) || 0) + 1);
+          totalCount++;
         }
       }
       if (Array.isArray(jsonApiDoc.data)) {
         for (i = 0, length = jsonApiDoc.data.length; i < length; i++) {
           const type = jsonApiDoc.data[i].type;
           Counts.set(type, (Counts.get(type) || 0) + 1);
+          totalCount++;
         }
       } else if (jsonApiDoc.data) {
         const type = jsonApiDoc.data.type;
         Counts.set(type, (Counts.get(type) || 0) + 1);
+        totalCount++;
       }
 
-      let str = `JSON:API Cache - put (${doc.content?.lid || doc.request?.url || 'unknown-request'})\n\tContents:`;
+      logGroup(
+        'cache',
+        'put',
+        '<@document>',
+        doc.content?.lid || doc.request?.url || 'unknown-request',
+        `(${totalCount}) records`,
+        ''
+      );
+      let str = `\tContent Counts:`;
       Counts.forEach((count, type) => {
-        str += `\n\t\t${type}: ${count}`;
+        str += `\n\t\t${type}: ${count} record${count > 1 ? 's' : ''}`;
       });
       if (Counts.size === 0) {
         str += `\t(empty)`;
       }
       // eslint-disable-next-line no-console
       console.log(str);
+      // eslint-disable-next-line no-console
+      console.log({
+        lid: doc.content?.lid,
+        content: structuredClone(doc.content),
+        // we may need a specialized copy here
+        request: doc.request, // structuredClone(doc.request),
+        response: doc.response, // structuredClone(doc.response),
+      });
+      // eslint-disable-next-line no-console
+      console.groupEnd();
     }
 
     if (included) {
@@ -336,6 +359,24 @@ export default class JSONAPICache implements Cache {
       this.__documents.set(identifier.lid, doc as StructuredDocument<ResourceDocument>);
 
       this._capabilities.notifyChange(identifier, hasExisting ? 'updated' : 'added', null);
+    }
+
+    if (doc.request?.op === 'findHasMany') {
+      const parentIdentifier = doc.request.options?.identifier as StableRecordIdentifier | undefined;
+      const parentField = doc.request.options?.field as LegacyHasManyField | undefined;
+      assert(`Expected a hasMany field`, parentField?.kind === 'hasMany');
+      assert(
+        `Expected a parent identifier for a findHasMany request`,
+        parentIdentifier && isStableIdentifier(parentIdentifier)
+      );
+      if (parentField && parentIdentifier) {
+        this.__graph.push({
+          op: 'updateRelationship',
+          record: parentIdentifier,
+          field: parentField.name,
+          value: resourceDocument,
+        });
+      }
     }
 
     return resourceDocument;
@@ -491,6 +532,64 @@ export default class JSONAPICache implements Cache {
     return null;
   }
 
+  peekRemoteState(identifier: StableRecordIdentifier): ResourceObject | null;
+  peekRemoteState(identifier: StableDocumentIdentifier): ResourceDocument | null;
+  peekRemoteState(
+    identifier: StableDocumentIdentifier | StableRecordIdentifier
+  ): ResourceObject | ResourceDocument | null {
+    if ('type' in identifier) {
+      const peeked = this.__safePeek(identifier, false);
+
+      if (!peeked) {
+        return null;
+      }
+
+      const { type, id, lid } = identifier;
+      const attributes = Object.assign({}, peeked.remoteAttrs) as ObjectValue;
+      const relationships: ResourceObject['relationships'] = {};
+
+      const rels = this.__graph.identifiers.get(identifier);
+      if (rels) {
+        Object.keys(rels).forEach((key) => {
+          const rel = rels[key];
+          if (rel.definition.isImplicit) {
+            return;
+          } else {
+            relationships[key] = this.__graph.getData(identifier, key);
+          }
+        });
+      }
+
+      upgradeCapabilities(this._capabilities);
+      const store = this._capabilities._store;
+      const attrs = this._capabilities.schema.fields(identifier);
+      attrs.forEach((attr, key) => {
+        if (key in attributes && attributes[key] !== undefined) {
+          return;
+        }
+        const defaultValue = getDefaultValue(attr, identifier, store);
+
+        if (defaultValue !== undefined) {
+          attributes[key] = defaultValue;
+        }
+      });
+
+      return {
+        type,
+        id,
+        lid,
+        attributes,
+        relationships,
+      };
+    }
+
+    const document = this.peekRequest(identifier);
+
+    if (document) {
+      if ('content' in document) return document.content!;
+    }
+    return null;
+  }
   /**
    * Peek the Cache for the existing request data associated with
    * a cacheable request.
@@ -557,10 +656,12 @@ export default class JSONAPICache implements Cache {
       this._capabilities.notifyChange(identifier, 'state', null);
     }
 
+    const fields = this._capabilities.schema.fields(identifier);
+
     // if no cache entry existed, no record exists / property has been accessed
     // and thus we do not need to notify changes to any properties.
     if (calculateChanges && existed && data.attributes) {
-      changedKeys = calculateChangedKeys(cached, data.attributes);
+      changedKeys = calculateChangedKeys(cached, data.attributes, fields);
     }
 
     cached.remoteAttrs = Object.assign(
@@ -583,7 +684,7 @@ export default class JSONAPICache implements Cache {
     }
 
     if (data.relationships) {
-      setupRelationships(this.__graph, this._capabilities, identifier, data);
+      setupRelationships(this.__graph, fields, identifier, data);
     }
 
     if (changedKeys?.size) {
@@ -908,6 +1009,7 @@ export default class JSONAPICache implements Cache {
       }
     }
 
+    const fields = this._capabilities.schema.fields(identifier);
     cached.isNew = false;
     let newCanonicalAttributes: ExistingResourceObject['attributes'];
     if (data) {
@@ -928,7 +1030,6 @@ export default class JSONAPICache implements Cache {
           if (!DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
             // assert against bad API behavior where a belongsTo relationship
             // is saved but the return payload indicates a different final state.
-            const fields = this._capabilities.schema.fields(identifier);
             fields.forEach((field, name) => {
               if (field.kind === 'belongsTo') {
                 const relationshipData = data.relationships![name]?.data;
@@ -954,11 +1055,11 @@ export default class JSONAPICache implements Cache {
             cached.inflightRelationships = null;
           }
         }
-        setupRelationships(this.__graph, this._capabilities, identifier, data);
+        setupRelationships(this.__graph, fields, identifier, data);
       }
       newCanonicalAttributes = data.attributes;
     }
-    const changedKeys = newCanonicalAttributes && calculateChangedKeys(cached, newCanonicalAttributes);
+    const changedKeys = newCanonicalAttributes && calculateChangedKeys(cached, newCanonicalAttributes, fields);
 
     cached.remoteAttrs = Object.assign(
       cached.remoteAttrs || (Object.create(null) as Record<string, unknown>),
@@ -1167,6 +1268,65 @@ export default class JSONAPICache implements Cache {
     if (current === undefined) {
       return undefined;
     }
+    for (let i = 1; i < path.length; i++) {
+      current = (current as ObjectValue)[path[i]];
+      if (current === undefined) {
+        return undefined;
+      }
+    }
+    return current;
+  }
+
+  getRemoteAttr(identifier: StableRecordIdentifier, attr: string | string[]): Value | undefined {
+    const isSimplePath = !Array.isArray(attr) || attr.length === 1;
+    if (Array.isArray(attr) && attr.length === 1) {
+      attr = attr[0];
+    }
+
+    if (isSimplePath) {
+      const attribute = attr as string;
+      const cached = this.__peek(identifier, true);
+      assert(
+        `Cannot retrieve remote attributes for identifier ${String(identifier)} as it is not present in the cache`,
+        cached
+      );
+
+      // in Prod we try to recover when accessing something that
+      // doesn't exist
+      if (!cached) {
+        return undefined;
+      }
+
+      if (cached.remoteAttrs && attribute in cached.remoteAttrs) {
+        return cached.remoteAttrs[attribute];
+
+        // we still show defaultValues in the case of a remoteAttr access
+      } else if (cached.defaultAttrs && attribute in cached.defaultAttrs) {
+        return cached.defaultAttrs[attribute];
+      } else {
+        const attrSchema = this._capabilities.schema.fields(identifier).get(attribute);
+
+        upgradeCapabilities(this._capabilities);
+        const defaultValue = getDefaultValue(attrSchema, identifier, this._capabilities._store);
+        if (schemaHasLegacyDefaultValueFn(attrSchema)) {
+          cached.defaultAttrs = cached.defaultAttrs || (Object.create(null) as Record<string, Value>);
+          cached.defaultAttrs[attribute] = defaultValue;
+        }
+        return defaultValue;
+      }
+    }
+
+    // TODO @runspired consider whether we need a defaultValue cache in SchemaRecord
+    // like we do for the simple case above.
+    const path: string[] = attr as string[];
+    const cached = this.__peek(identifier, true);
+    const basePath = path[0];
+    let current = cached.remoteAttrs && basePath in cached.remoteAttrs ? cached.remoteAttrs[basePath] : undefined;
+
+    if (current === undefined) {
+      return undefined;
+    }
+
     for (let i = 1; i < path.length; i++) {
       current = (current as ObjectValue)[path[i]];
       if (current === undefined) {
@@ -1471,6 +1631,13 @@ export default class JSONAPICache implements Cache {
     return this.__graph.getData(identifier, field);
   }
 
+  getRemoteRelationship(
+    identifier: StableRecordIdentifier,
+    field: string
+  ): ResourceRelationship | CollectionRelationship {
+    return this.__graph.getRemoteData(identifier, field);
+  }
+
   // Resource State
   // ===============
 
@@ -1707,7 +1874,8 @@ function notifyAttributes(
   */
 function calculateChangedKeys(
   cached: CachedResource,
-  updates: Exclude<ExistingResourceObject['attributes'], undefined>
+  updates: Exclude<ExistingResourceObject['attributes'], undefined>,
+  fields: ReturnType<Store['schema']['fields']>
 ): Set<string> {
   const changedKeys = new Set<string>();
   const keys = Object.keys(updates);
@@ -1722,6 +1890,10 @@ function calculateChangedKeys(
 
   for (let i = 0; i < length; i++) {
     const key = keys[i];
+    if (!fields.has(key)) {
+      continue;
+    }
+
     const value = updates[key];
 
     // A value in localAttrs means the user has a local change to
@@ -1797,7 +1969,7 @@ function _isLoading(
 
 function setupRelationships(
   graph: Graph,
-  capabilities: CacheCapabilitiesManager,
+  fields: ReturnType<Store['schema']['fields']>,
   identifier: StableRecordIdentifier,
   data: ExistingResourceObject
 ) {
@@ -1805,7 +1977,6 @@ function setupRelationships(
   // allows relationship payloads to be ignored silently if no relationship
   // definition exists. Ensure there's a test for this and then consider
   // moving this to an assertion. This check should possibly live in the graph.
-  const fields = capabilities.schema.fields(identifier);
   for (const [name, field] of fields) {
     if (!isRelationship(field)) continue;
 

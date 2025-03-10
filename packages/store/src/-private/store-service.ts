@@ -8,7 +8,7 @@ import { dependencySatisfies, importSync, macroCondition } from '@embroider/macr
 
 import type RequestManager from '@ember-data/request';
 import type { Future } from '@ember-data/request';
-import { LOG_PAYLOADS, LOG_REQUESTS } from '@warp-drive/build-config/debugging';
+import { LOG_METRIC_COUNTS, LOG_PAYLOADS, LOG_REQUESTS } from '@warp-drive/build-config/debugging';
 import {
   DEPRECATE_HAS_RECORD,
   DEPRECATE_PROMISE_PROXIES,
@@ -19,6 +19,7 @@ import {
 } from '@warp-drive/build-config/deprecations';
 import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
+import { getRuntimeConfig, setLogging } from '@warp-drive/build-config/runtime';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { Graph } from '@warp-drive/core-types/graph';
 import type {
@@ -66,6 +67,25 @@ import type { Collection, IdentifierArray } from './record-arrays/identifier-arr
 import { coerceId, ensureStringId } from './utils/coerce-id';
 import { constructResource } from './utils/construct-resource';
 import { normalizeModelName } from './utils/normalize-model-name';
+
+// @ts-expect-error adding to globalThis
+globalThis.setWarpDriveLogging = setLogging;
+
+// @ts-expect-error adding to globalThis
+globalThis.getWarpDriveRuntimeConfig = getRuntimeConfig;
+
+if (LOG_METRIC_COUNTS) {
+  // @ts-expect-error
+  // eslint-disable-next-line
+  globalThis.__WarpDriveMetricCountData = globalThis.__WarpDriveMetricCountData || {};
+
+  // @ts-expect-error
+  globalThis.getWarpDriveMetricCounts = () => {
+    // @ts-expect-error
+    // eslint-disable-next-line
+    return globalThis.__WarpDriveMetricCountData;
+  };
+}
 
 export { storeFor };
 
@@ -244,7 +264,8 @@ export interface Store {
 
   teardownRecord(record: OpaqueRecordInstance): void;
 
-  /* This hook enables an app to supply a SchemaService
+  /**
+   * This hook enables an app to supply a SchemaService
    * for use when information about a resource's schema needs
    * to be queried.
    *
@@ -254,7 +275,7 @@ export interface Store {
    * For Example, to use the default SchemaService for SchemaRecord
    *
    * ```ts
-   * import { SchemaService } from '@warp-drive/schema-record/schema';
+   * import { SchemaService } from '@warp-drive/schema-record';
    *
    * class extends Store {
    *   createSchemaService() {
@@ -284,7 +305,7 @@ export interface Store {
    *
    * ```ts
    * import { DelegatingSchemaService } from '@ember-data/model/migration-support';
-   * import { SchemaService } from '@warp-drive/schema-record/schema';
+   * import { SchemaService } from '@warp-drive/schema-record';
    *
    * class extends Store {
    *   createSchemaService() {
@@ -1004,9 +1025,8 @@ export class Store extends BaseClass {
     Example
 
     ```javascript
-    store.findRecord('post', '1').then(function(post) {
-      store.unloadRecord(post);
-    });
+    const { content: { data: post } } = await store.request(findRecord({ type: 'post', id: '1' }));
+    store.unloadRecord(post);
     ```
 
     @method unloadRecord

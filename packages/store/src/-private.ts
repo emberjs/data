@@ -53,6 +53,7 @@ export { peekCache, removeRecordDataFor } from './-private/caches/cache-utils';
 export { setRecordIdentifier, StoreMap } from './-private/caches/instance-cache';
 export { setCacheFor } from './-private/caches/cache-utils';
 export type { StoreRequestInput } from './-private/cache-handler/handler';
+export { RelatedCollection } from './-private/record-arrays/many-array';
 
 /**
  This method normalizes a modelName into the format EmberData uses

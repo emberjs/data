@@ -40,16 +40,19 @@ export function createResourceEdge(definition: UpgradedMeta, identifier: StableR
   };
 }
 
-export function legacyGetResourceRelationshipData(source: ResourceEdge): ResourceRelationship {
+export function legacyGetResourceRelationshipData(source: ResourceEdge, getRemoteState: boolean): ResourceRelationship {
   source.accessed = true;
   let data: StableRecordIdentifier | null | undefined;
   const payload: ResourceRelationship = {};
-  if (source.localState) {
+  if (getRemoteState && source.remoteState) {
+    data = source.remoteState;
+  } else if (!getRemoteState && source.localState) {
     data = source.localState;
   }
-  if (source.localState === null && source.state.hasReceivedData) {
+  if (((getRemoteState && source.remoteState === null) || source.localState === null) && source.state.hasReceivedData) {
     data = null;
   }
+
   if (source.links) {
     payload.links = source.links;
   }
