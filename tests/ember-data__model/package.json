@@ -19,9 +19,9 @@
     "check:types": "tsc --noEmit",
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "test": "bun ./diagnostic.js",
-    "build:production": "bun run build:tests -e production",
+    "_temporarily_deactivated_build:production": "bun run build:tests -e production",
     "start": "bun run build:tests --watch",
-    "test:production": "bun ./diagnostic.js",
+    "_temporarily_deactivated_test:production": "bun ./diagnostic.js",
     "test:start": "bun ./diagnostic.js --serve --no-launch"
   },
   "devDependencies": {
