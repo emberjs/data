@@ -41,16 +41,16 @@ module('@ember-data/json-api | Cache (2)', function (hooks) {
 
     const rc = await reactiveContext.call(this, user, {
       type: 'user',
-      identity: null,
+      identity: { kind: '@id', name: 'id' },
       fields: [
         { name: 'name', kind: 'field' },
-        { name: 'brotherName', kind: 'field' },
+        { name: 'brotherName', kind: 'field' }, // not in the Model schema
       ],
     });
 
     const { counters } = rc;
 
-    assert.deepEqual(counters, { name: 1, brotherName: 1 }, 'Test setup: counters initialized');
+    assert.deepEqual(counters, { name: 1, brotherName: 1, id: 1 }, 'Test setup: counters initialized');
 
     store.push({
       data: {
@@ -65,6 +65,6 @@ module('@ember-data/json-api | Cache (2)', function (hooks) {
 
     await settled();
 
-    assert.deepEqual(counters, { name: 1, brotherName: 1 }, 'brotherName did not notify');
+    assert.deepEqual(counters, { name: 1, brotherName: 1, id: 1 }, 'brotherName did not notify');
   });
 });
