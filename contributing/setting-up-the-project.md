@@ -73,7 +73,23 @@ pnpm dlx @warp-drive/holodeck ensure-cert
 
 ## Building the project
 
-The project's packages will build whenever `pnpm install` is run.
+The project's packages will build whenever `pnpm install` is run. They can be rebuilt by running `pnpm prepare`.
+
+Both `install` and `prepare` will ensure turbo cache is ignored so that pnpm will automatically update "hardlinks" for
+the build output files in the node_modules directory of the various other packages and test apps that depend upon the package.
+
+However, this is pretty slow for development, so a fast albeit slightly manual approach is available for development
+by running the below commands in order:
+
+From the project root:
+
+- install: `pnpm install` - installs all dependencies and sets up initial hardlinks
+- start: `pnpm start` - starts the build for every public package in watch mode
+
+Then, from an individual test app:
+
+- `pnpm start` - starts the build for test assets in watch mode
+- `pnpm test:start` - launches a test server (and by opens a browser window for debugging them)
 
 ## Run some commands
 

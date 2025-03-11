@@ -12,44 +12,21 @@
     //
     /////////////////////////////////////////////////
     /////////////////////////////////////////////////
-    "build:infra": {
-      "inputs": [
-        // + V2-Addon convention
-        "src/**",
-        "cjs-src/**",
-        "addon-main.*",
-        "package.json",
-        "tsconfig.json",
-        "babel.*",
-        "vite.config-cjs.*",
-        "vite.config.*",
-        "../../config/**"
-      ],
-      "outputs": [
-        // V1-Addon convention
-        "addon-test-support/**",
-        // V2-Addon convention
-        "dist/**",
-        "unstable-preview-types/**",
-        "tsconfig.tsbuildinfo"
-      ],
-      "dependsOn": [],
-      // https://turbo.build/repo/docs/reference/configuration#outputmode
-      "outputMode": "new-only"
-    },
 
     // run build in all library packages
     // these do not require any associated packages
     // to have been built to build other than
-    // the build:infra packages
+    // the build-config package
     "build:pkg": {
       "inputs": [
         // + V2-Addon convention
         "src/**",
+        "cjs-src/**", // build-config package
         "addon-main.*",
         "tsconfig.json",
         "package.json",
         "babel.*",
+        "vite.config-cjs.*", // build-config package
         "vite.config.*",
         "../../config/**"
       ],
@@ -61,7 +38,7 @@
         "unstable-preview-types/**",
         "tsconfig.tsbuildinfo"
       ],
-      "dependsOn": ["^build:infra", "^build:pkg"],
+      "dependsOn": ["^build:pkg"],
       // https://turbo.build/repo/docs/reference/configuration#outputmode
       "outputMode": "new-only"
     },
@@ -70,7 +47,7 @@
     // that ship gts files
     // these do not require any associated packages
     // to have been built to build other than
-    // the build:infra packages
+    // the build-config package
     "build:glint": {
       "inputs": [
         // + V2-Addon convention
@@ -106,10 +83,10 @@
     /////////////////////////////////////////////////
     /////////////////////////////////////////////////
     "start": {
-      // "dependsOn": ["^_build"],
+      "dependsOn": ["^build:pkg"],
       // "outputs": [],
-      // "cache": false,
-      // "persistent": true
+      "cache": false,
+      "persistent": true
     },
 
     /////////////////////////////////////////////////

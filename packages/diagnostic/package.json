@@ -69,7 +69,8 @@
     "build:tests": "rm -rf dist-test && cp -R test dist-test && mkdir -p dist-test/@warp-drive && cp -R dist dist-test/@warp-drive/diagnostic",
     "build:pkg": "vite build;",
     "prepack": "pnpm run build:pkg",
-    "sync": "echo \"syncing\""
+    "sync": "echo \"syncing\"",
+    "start": "vite"
   },
   "peerDependencies": {
     "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",

@@ -14,6 +14,7 @@
     "release": "./release/index.ts",
     "build": "turbo run build:pkg --log-order=stream --concurrency=10;",
     "sync": "pnpm --filter './packages/*' run --parallel --if-present sync",
+    "start": "turbo run start --filter=./packages/* --concurrency=23",
     "build:docs": "mkdir -p packages/-ember-data/dist && cd ./docs-generator && node ./compile-docs.js",
     "lint:tests": "turbo --log-order=stream lint --filter=./tests/* --continue --concurrency=10",
     "lint:pkg": "turbo --log-order=stream lint --filter=./packages/* --continue --concurrency=10",

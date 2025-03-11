@@ -34,7 +34,8 @@
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "build:pkg": "vite build;",
     "prepack": "pnpm run build:pkg",
-    "sync": "echo \"syncing\""
+    "sync": "echo \"syncing\"",
+    "start": "vite"
   },
   "dependencies": {
     "@embroider/macros": "^1.16.11",

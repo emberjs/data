@@ -14,9 +14,11 @@
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "scripts": {
-    "build:infra": "vite build; vite build -c ./vite.config-cjs.mjs;",
-    "prepack": "pnpm run build:infra",
-    "sync": "echo \"syncing\""
+    "build:pkg": "vite build; vite build -c ./vite.config-cjs.mjs;",
+    "prepack": "pnpm run build:pkg",
+    "sync": "echo \"syncing\"",
+    "lint": "eslint . --quiet --cache --cache-strategy=content",
+    "start": "vite"
   },
   "type": "module",
   "files": [

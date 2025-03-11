@@ -31,7 +31,8 @@
     "LICENSE.md"
   ],
   "scripts": {
-    "test": "mocha tests"
+    "test": "mocha tests",
+    "lint": "eslint . --quiet --cache --cache-strategy=content"
   },
   "license": "MIT"
 }

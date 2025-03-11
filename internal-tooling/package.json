@@ -10,7 +10,9 @@
   "bin": {
     "sync-logos": "src/sync-logos.ts",
     "sync-license": "src/sync-license.ts",
-    "sync-references": "src/sync-references.ts"
+    "sync-references": "src/sync-references.ts",
+    "sync-scripts": "src/sync-scripts.ts",
+    "sync-all": "src/sync-all.ts"
   },
   "dependencies": {
     "@types/bun": "^1.2.4",

@@ -16,7 +16,8 @@
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "build:pkg": "vite build;",
     "prepack": "pnpm run build:pkg",
-    "sync": "echo \"syncing\""
+    "sync": "echo \"syncing\"",
+    "start": "vite"
   },
   "files": [
     "unstable-preview-types",

@@ -42,7 +42,9 @@
     "check:pkg-types": "tsc --noEmit",
     "build:pkg": "vite build;",
     "prepack": "pnpm run build:pkg",
-    "sync": "echo \"syncing\""
+    "sync": "echo \"syncing\"",
+    "lint": "eslint . --quiet --cache --cache-strategy=content",
+    "start": "vite"
   },
   "peerDependencies": {
     "@ember-data/request": "workspace:*",
