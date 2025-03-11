@@ -1,3 +1,6 @@
+/**
+ * @module @warp-drive/core-types
+ */
 import type { ObjectValue, PrimitiveValue } from '../json/raw';
 
 /**
@@ -975,6 +978,8 @@ export interface ResourceSchema {
 
   /**
    * The fields that make up the shape of the resource
+   *
+   * @typedoc
    */
   fields: FieldSchema[];
 
@@ -1030,6 +1035,8 @@ export interface ObjectSchema {
 
   /**
    * The fields that make up the shape of the object
+   *
+   * @typedoc
    */
   fields: ObjectFieldSchema[];
 }
@@ -1044,8 +1051,12 @@ export interface ObjectSchema {
  * as doing so would require a full schema graph to be passed in
  * and no cycles in the graph to be present.
  *
+ * @method resourceSchema
+ * @static
+ * @for @warp-drive/core-types
  * @param {ResourceSchema} schema
  * @returns {ResourceSchema} the passed in schema
+ * @public
  */
 export function resourceSchema(schema: ResourceSchema): ResourceSchema {
   return schema;
@@ -1057,8 +1068,12 @@ export function resourceSchema(schema: ResourceSchema): ResourceSchema {
  *
  * Will return the passed in schema.
  *
+ * @method objectSchema
+ * @static
+ * @for @warp-drive/core-types
  * @param {ObjectSchema} schema
  * @returns {ObjectSchema} the passed in schema
+ * @public
  */
 export function objectSchema(schema: ObjectSchema): ObjectSchema {
   return schema;
@@ -1067,8 +1082,12 @@ export function objectSchema(schema: ObjectSchema): ObjectSchema {
 /**
  * A type utility to narrow a schema to a ResourceSchema
  *
+ * @method isResourceSchema
+ * @static
+ * @for @warp-drive/core-types
  * @param schema
  * @returns {boolean}
+ * @public
  */
 export function isResourceSchema(schema: ResourceSchema | ObjectSchema): schema is ResourceSchema {
   return schema?.identity?.kind === '@id';

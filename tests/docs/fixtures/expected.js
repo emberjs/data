@@ -27,9 +27,13 @@ module.exports = {
     '@warp-drive/build-config/canary-features',
     '@warp-drive/build-config/debugging',
     '@warp-drive/build-config/deprecations',
+    '@warp-drive/core-types',
     'ember-data-overview',
   ],
   classitems: [
+    '(public) @warp-drive/core-types @warp-drive/core-types#isResourceSchema',
+    '(public) @warp-drive/core-types @warp-drive/core-types#objectSchema',
+    '(public) @warp-drive/core-types @warp-drive/core-types#resourceSchema',
     '(private) @ember-data/adapter BuildURLMixin#_buildURL',
     '(private) @ember-data/adapter BuildURLMixin#urlPrefix',
     '(private) @ember-data/adapter/json-api JSONAPIAdapter#ajaxOptions',
