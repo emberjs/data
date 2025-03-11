@@ -63,6 +63,8 @@ export async function reactiveContext<T extends Model>(
             return (record[field.name as keyof T] as Model).id;
           case 'field':
             return record[field.name as keyof T] as unknown;
+          case '@id':
+            return record[field.name as keyof T] as unknown;
           default:
             throw new Error(`Unknown field kind ${field.kind} for field ${field.name}`);
         }
