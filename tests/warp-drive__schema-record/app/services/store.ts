@@ -7,27 +7,21 @@ import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import { instantiateRecord, SchemaService, teardownRecord } from '@warp-drive/schema-record';
 
 export default class Store extends DataStore {
-  constructor(args: unknown) {
-    super(args);
-
-    const manager = (this.requestManager = new RequestManager());
-    manager.use([Fetch]);
-    manager.useCache(CacheHandler);
-  }
+  requestManager = new RequestManager().use([Fetch]).useCache(CacheHandler);
 
   createSchemaService() {
     return new SchemaService();
   }
 
-  override createCache(capabilities: CacheCapabilitiesManager) {
+  createCache(capabilities: CacheCapabilitiesManager) {
     return new JSONAPICache(capabilities);
   }
 
-  override instantiateRecord(identifier: StableRecordIdentifier, createArgs?: Record<string, unknown>) {
+  instantiateRecord(identifier: StableRecordIdentifier, createArgs?: Record<string, unknown>) {
     return instantiateRecord(this, identifier, createArgs);
   }
 
-  override teardownRecord(record: unknown): void {
+  teardownRecord(record: unknown): void {
     return teardownRecord(record);
   }
 }
