@@ -1058,7 +1058,7 @@ export interface ObjectSchema {
  * @returns {ResourceSchema} the passed in schema
  * @public
  */
-export function resourceSchema(schema: ResourceSchema): ResourceSchema {
+export function resourceSchema<T extends ResourceSchema>(schema: T): T {
   return schema;
 }
 
@@ -1075,7 +1075,7 @@ export function resourceSchema(schema: ResourceSchema): ResourceSchema {
  * @returns {ObjectSchema} the passed in schema
  * @public
  */
-export function objectSchema(schema: ObjectSchema): ObjectSchema {
+export function objectSchema<T extends ObjectSchema>(schema: T): T {
   return schema;
 }
 
