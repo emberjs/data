@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/json-api",
-  "version": "5.4.0-alpha.143",
+  "version": "5.4.0-alpha.144",
   "description": "Provides a JSON:API document and resource cache implementation for EmberData",
   "keywords": [
     "ember-addon"
