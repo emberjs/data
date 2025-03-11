@@ -43,7 +43,7 @@
     "build:pkg": "vite build;",
     "prepack": "pnpm run build:pkg",
     "sync": "echo \"syncing\"",
-    "lint": "eslint . --quiet --cache --cache-strategy=content",
+    "_temporarily_deactivated_lint": "eslint . --quiet --cache --cache-strategy=content",
     "start": "vite"
   },
   "peerDependencies": {

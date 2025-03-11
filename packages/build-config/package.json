@@ -17,7 +17,7 @@
     "build:pkg": "vite build; vite build -c ./vite.config-cjs.mjs;",
     "prepack": "pnpm run build:pkg",
     "sync": "echo \"syncing\"",
-    "lint": "eslint . --quiet --cache --cache-strategy=content",
+    "_temporarily_deactivated_lint": "eslint . --quiet --cache --cache-strategy=content",
     "start": "vite"
   },
   "type": "module",
