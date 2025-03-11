@@ -15,6 +15,7 @@ import type {
   GenericField,
   HashField,
   ObjectField,
+  ObjectSchema,
   ResourceSchema,
 } from '@warp-drive/core-types/schema/fields';
 import { Type } from '@warp-drive/core-types/symbols';
@@ -227,16 +228,16 @@ export class DelegatingSchemaService implements SchemaService {
   derivation(field: DerivedField | { type: string }): Derivation {
     return this._preferred.derivation(field);
   }
-  resource(resource: StableRecordIdentifier | { type: string }): ResourceSchema {
+  resource(resource: StableRecordIdentifier | { type: string }): ResourceSchema | ObjectSchema {
     if (this._preferred.hasResource(resource)) {
       return this._preferred.resource(resource);
     }
     return this._secondary.resource(resource);
   }
-  registerResources(schemas: ResourceSchema[]): void {
+  registerResources(schemas: Array<ResourceSchema | ObjectSchema>): void {
     this._preferred.registerResources(schemas);
   }
-  registerResource(schema: ResourceSchema): void {
+  registerResource(schema: ResourceSchema | ObjectSchema): void {
     this._preferred.registerResource(schema);
   }
   registerTransformation(transform: Transformation): void {

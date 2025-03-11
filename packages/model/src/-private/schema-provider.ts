@@ -17,6 +17,7 @@ import type {
   LegacyFieldSchema,
   LegacyRelationshipSchema,
   ObjectField,
+  ObjectSchema,
   ResourceSchema,
 } from '@warp-drive/core-types/schema/fields';
 
@@ -69,7 +70,7 @@ export class ModelSchemaProvider implements SchemaService {
   hashFn(field: HashField | { type: string }): HashFn {
     assert(`hashFn is not available with @ember-data/model's SchemaService`);
   }
-  resource(resource: StableRecordIdentifier | { type: string }): ResourceSchema {
+  resource(resource: StableRecordIdentifier | { type: string }): ResourceSchema | ObjectSchema {
     const type = normalizeModelName(resource.type);
 
     if (!this._schemas.has(type)) {
@@ -78,10 +79,10 @@ export class ModelSchemaProvider implements SchemaService {
 
     return this._schemas.get(type)!.schema;
   }
-  registerResources(schemas: ResourceSchema[]): void {
+  registerResources(schemas: Array<ResourceSchema | ObjectSchema>): void {
     assert(`registerResources is not available with @ember-data/model's SchemaService`);
   }
-  registerResource(schema: ResourceSchema): void {
+  registerResource(schema: ResourceSchema | ObjectSchema): void {
     assert(`registerResource is not available with @ember-data/model's SchemaService`);
   }
   registerTransformation(transform: Transformation): void {

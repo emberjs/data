@@ -4,7 +4,7 @@ import { render } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 
 import type Model from '@ember-data/model';
-import type { FieldSchema, IdentityField, ResourceSchema } from '@warp-drive/core-types/schema/fields';
+import type { FieldSchema, IdentityField, ObjectSchema, ResourceSchema } from '@warp-drive/core-types/schema/fields';
 
 export interface ReactiveContext {
   counters: Record<string, number | undefined>;
@@ -15,7 +15,7 @@ export interface ReactiveContext {
 export async function reactiveContext<T extends Model>(
   this: TestContext,
   record: T,
-  resource: ResourceSchema
+  resource: ResourceSchema | ObjectSchema
 ): Promise<ReactiveContext> {
   const _fields: string[] = [];
   const fields: Array<FieldSchema | IdentityField> = resource.fields.slice();

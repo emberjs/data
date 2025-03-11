@@ -3,13 +3,13 @@ import { render } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 
 import type { ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
-import type { FieldSchema, IdentityField, ResourceSchema } from '@warp-drive/core-types/schema/fields';
+import type { FieldSchema, IdentityField, ObjectSchema, ResourceSchema } from '@warp-drive/core-types/schema/fields';
 
 type Template<T> = {
   [key in keyof T & string]?: string;
 };
 
-export async function reactiveContext<T>(record: T, resource: ResourceSchema, template?: Template<T>) {
+export async function reactiveContext<T>(record: T, resource: ResourceSchema | ObjectSchema, template?: Template<T>) {
   type Key = keyof T & string;
   const _fields: string[] = [];
   const fields: Array<FieldSchema | IdentityField> = resource.fields.slice();

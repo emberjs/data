@@ -16,6 +16,7 @@ import type {
   LegacyBelongsToField,
   LegacyHasManyField,
   ObjectField,
+  ObjectSchema,
   ResourceSchema,
 } from '@warp-drive/core-types/schema/fields';
 
@@ -171,7 +172,7 @@ export interface SchemaService {
    * @param {StableRecordIdentifier|{ type: string }} resource
    * @return {ResourceSchema}
    */
-  resource(resource: { type: string } | StableRecordIdentifier): ResourceSchema;
+  resource(resource: { type: string } | StableRecordIdentifier): ResourceSchema | ObjectSchema;
 
   /**
    * Enables registration of multiple ResourceSchemas at once.
@@ -184,7 +185,7 @@ export interface SchemaService {
    * @public
    * @param schemas
    */
-  registerResources(schemas: ResourceSchema[]): void;
+  registerResources(schemas: Array<ResourceSchema | ObjectSchema>): void;
 
   /**
    * Enables registration of a single ResourceSchema.
@@ -197,7 +198,7 @@ export interface SchemaService {
    * @public
    * @param {ResourceSchema} schema
    */
-  registerResource(schema: ResourceSchema): void;
+  registerResource(schema: ResourceSchema | ObjectSchema): void;
 
   /**
    * Enables registration of a transformation.

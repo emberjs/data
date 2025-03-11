@@ -11,16 +11,18 @@ import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import type { ObjectValue, Value } from '@warp-drive/core-types/json/raw';
 import type { Derivation, HashFn } from '@warp-drive/core-types/schema/concepts';
-import type {
-  ArrayField,
-  DerivedField,
-  FieldSchema,
-  GenericField,
-  HashField,
-  LegacyAttributeField,
-  LegacyRelationshipSchema,
-  ObjectField,
-  ResourceSchema,
+import {
+  type ArrayField,
+  type DerivedField,
+  type FieldSchema,
+  type GenericField,
+  type HashField,
+  isResourceSchema,
+  type LegacyAttributeField,
+  type LegacyRelationshipSchema,
+  type ObjectField,
+  type ObjectSchema,
+  type ResourceSchema,
 } from '@warp-drive/core-types/schema/fields';
 import { Type } from '@warp-drive/core-types/symbols';
 import type { WithPartial } from '@warp-drive/core-types/utils';
@@ -91,13 +93,13 @@ export function registerDerivations(schema: SchemaServiceInterface) {
   schema.registerDerivation(_constructor);
 }
 
-type InternalSchema = {
-  original: ResourceSchema;
+interface InternalSchema {
+  original: ResourceSchema | ObjectSchema;
   traits: Set<string>;
   fields: Map<string, FieldSchema>;
   attributes: Record<string, LegacyAttributeField>;
   relationships: Record<string, LegacyRelationshipSchema>;
-};
+}
 
 export type Transformation<T extends Value = Value, PT = unknown> = {
   serialize(value: PT, options: Record<string, unknown> | null, record: SchemaRecord): T;
@@ -209,16 +211,16 @@ export class SchemaService implements SchemaServiceInterface {
     );
     return this._hashFns.get(field.type)!;
   }
-  resource(resource: StableRecordIdentifier | { type: string }): ResourceSchema {
+  resource(resource: StableRecordIdentifier | { type: string }): ResourceSchema | ObjectSchema {
     assert(`No resource registered with name '${resource.type}'`, this._schemas.has(resource.type));
     return this._schemas.get(resource.type)!.original;
   }
-  registerResources(schemas: ResourceSchema[]): void {
+  registerResources(schemas: Array<ResourceSchema | ObjectSchema>): void {
     schemas.forEach((schema) => {
       this.registerResource(schema);
     });
   }
-  registerResource(schema: ResourceSchema): void {
+  registerResource(schema: ResourceSchema | ObjectSchema): void {
     const fields = new Map<string, FieldSchema>();
     const relationships: Record<string, LegacyRelationshipSchema> = {};
     const attributes: Record<string, LegacyAttributeField> = {};
@@ -237,7 +239,7 @@ export class SchemaService implements SchemaServiceInterface {
       }
     });
 
-    const traits = new Set<string>(schema.traits);
+    const traits = new Set<string>(isResourceSchema(schema) ? schema.traits : []);
     traits.forEach((trait) => {
       this._traits.add(trait);
     });

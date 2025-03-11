@@ -8,6 +8,7 @@ import type {
   StableExistingRecordIdentifier,
   StableRecordIdentifier,
 } from '@warp-drive/core-types/identifier';
+import { resourceSchema } from '@warp-drive/core-types/schema/fields';
 import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
 import type { SingleResourceDocument } from '@warp-drive/core-types/spec/json-api-raw';
 import { module, test } from '@warp-drive/diagnostic';
@@ -301,40 +302,42 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
 
   test('single resource relationships are accessible via `peek`', function (assert) {
     const store = new TestStore();
-    store.schema.registerResource({
-      identity: null,
-      type: 'user',
-      fields: [
-        { name: 'name', kind: 'attribute', type: null },
-        {
-          name: 'bestFriend',
-          kind: 'belongsTo',
-          type: 'user',
-          options: {
-            async: false,
-            inverse: 'bestFriend',
+    store.schema.registerResource(
+      resourceSchema({
+        identity: { kind: '@id', name: 'id' },
+        type: 'user',
+        fields: [
+          { name: 'name', kind: 'attribute', type: null },
+          {
+            name: 'bestFriend',
+            kind: 'belongsTo',
+            type: 'user',
+            options: {
+              async: false,
+              inverse: 'bestFriend',
+            },
           },
-        },
-        {
-          name: 'worstEnemy',
-          kind: 'belongsTo',
-          type: 'user',
-          options: {
-            async: false,
-            inverse: null,
+          {
+            name: 'worstEnemy',
+            kind: 'belongsTo',
+            type: 'user',
+            options: {
+              async: false,
+              inverse: null,
+            },
           },
-        },
-        {
-          name: 'friends',
-          kind: 'hasMany',
-          type: 'user',
-          options: {
-            async: false,
-            inverse: 'friends',
+          {
+            name: 'friends',
+            kind: 'hasMany',
+            type: 'user',
+            options: {
+              async: false,
+              inverse: 'friends',
+            },
           },
-        },
-      ],
-    });
+        ],
+      })
+    );
 
     let responseDocument: SingleResourceDataDocument;
     store._run(() => {
