@@ -1,6 +1,8 @@
 ### Requesting Features or Deprecations
 
-`ember-data` participates in the [RFC process (GitHub emberjs/rfcs)](https://github.com/emberjs/rfcs/).
+While WarpDrive is universal in nature, its development is managed by the EmberJS community.
+
+WarpDrive participates in the [RFC process (GitHub emberjs/rfcs)](https://github.com/emberjs/rfcs/).
 Most changes to the public API including new features, changes in behavior, or deprecations require
 community discussion and must go through this process.
 
@@ -20,12 +22,12 @@ are narrowly scoped with clear understanding of alternatives, drawbacks, and the
 5. Open an [RFC issue](https://github.com/emberjs/rfcs/issues?q=is%3Aissue+is%3Aopen+label%3AT-ember-data)
    to broaden and record the discussion if the idea needs more time for discussion and iteration.
    - label your issue with `T-ember-data` (or ask someone in `#dev-ember-data` to add the label if you lack the permission)
-   - announce your issue in `#dev-ember-data` and anywhere else desired such as `#news-and-announcements` and `twitter`.
+   - announce your issue in `#dev-ember-data` and anywhere else desired such as `#news-and-announcements` and `bluesky`.
 6. [Draft an RFC](https://github.com/emberjs/rfcs#what-the-process-is) and share it with those you have
    been discussing the ideas with.
 7. Publish your RFC by opening a PR to [emberjs/rfcs/](https://github.com/emberjs/rfcs/pulls?q=is%3Apr+is%3Aopen+label%3AT-ember-data)
    - label your PR with `T-ember-data` (or ask someone in `#dev-ember-data` to add the label if you lack the permission)
-   - announce your PR in `#dev-ember-data` and anywhere else desired such as `#news-and-announcements` and `twitter`.
+   - announce your PR in `#dev-ember-data` and anywhere else desired such as `#news-and-announcements` and `bluesky`.
 8. Attend weekly team meetings to discuss the RFC, continue iterating on the RFC, and help shepherd it to completion.
 9. Build a proof-of-concept. Sometimes this is best if it occurs alongside drafting the RFC, as it often informs
    the RFC design, known drawbacks, and alternatives. Often it will become incorporated in the final implementation.

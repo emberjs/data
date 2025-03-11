@@ -68,8 +68,12 @@ Currently the install command is also what builds all of the individual packages
 ## Create certificates
 
 ```sh
-pnpx @warp-drive/holodeck ensure-cert
+pnpm dlx @warp-drive/holodeck ensure-cert
 ```
+
+## Building the project
+
+The project's packages will build whenever `pnpm install` is run.
 
 ## Run some commands
 
