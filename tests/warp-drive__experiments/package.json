@@ -16,12 +16,13 @@
   },
   "scripts": {
     "build:tests": "IS_TESTING=true EMBER_CLI_TEST_COMMAND=true ember build --output-path=dist-test --suppress-sizes",
-    "_build:production": "bun run build:tests -e production",
+    "build:production": "bun run build:tests -e production",
     "lint": "eslint . --quiet",
     "check:types": "tsc --noEmit",
     "start": "bun run build:tests --watch",
     "test": "bun ./diagnostic.js",
-    "_test:production": "bun ./diagnostic.js"
+    "test:production": "bun ./diagnostic.js",
+    "test:start": "bun ./diagnostic.js --serve --no-launch"
   },
   "devDependencies": {
     "@babel/core": "^7.26.9",

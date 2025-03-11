@@ -15,11 +15,12 @@
     "ember-addon"
   ],
   "scripts": {
-    "_lint": "eslint . --quiet --cache --cache-strategy=content",
     "build:glint": "glint && glint --build",
     "build:pkg": "vite build;",
     "prepack": "pnpm run build:pkg",
-    "sync": "echo \"syncing\""
+    "sync": "echo \"syncing\"",
+    "_temporarily_deactivated_lint": "eslint . --quiet --cache --cache-strategy=content",
+    "start": "vite"
   },
   "files": [
     "unstable-preview-types",

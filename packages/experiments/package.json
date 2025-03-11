@@ -49,7 +49,8 @@
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "build:pkg": "vite build;",
     "prepack": "pnpm run build:pkg",
-    "sync": "echo \"syncing\""
+    "sync": "echo \"syncing\"",
+    "start": "vite"
   },
   "peerDependencies": {
     "@sqlite.org/sqlite-wasm": "3.46.0-build2",

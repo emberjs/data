@@ -18,7 +18,11 @@
     "build:tests": "IS_TESTING=true EMBER_CLI_TEST_COMMAND=true ember build --output-path=dist-test --suppress-sizes",
     "check:types": "tsc --noEmit",
     "lint": "eslint . --quiet --cache --cache-strategy=content",
-    "test": "bun ./diagnostic.js"
+    "test": "bun ./diagnostic.js",
+    "_temporarily_deactivated_build:production": "bun run build:tests -e production",
+    "start": "bun run build:tests --watch",
+    "_temporarily_deactivated_test:production": "bun ./diagnostic.js",
+    "test:start": "bun ./diagnostic.js --serve --no-launch"
   },
   "devDependencies": {
     "@babel/core": "^7.26.9",
