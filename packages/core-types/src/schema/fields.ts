@@ -1,3 +1,6 @@
+/**
+ * @module @warp-drive/core-types
+ */
 import type { ObjectValue, PrimitiveValue } from '../json/raw';
 
 /**
@@ -919,8 +922,28 @@ export type FieldSchema =
   | LegacyBelongsToField
   | LegacyHasManyField;
 
-export type ResourceSchema = {
+export type ObjectFieldSchema =
+  | GenericField
+  | AliasField
+  | LocalField
+  | ObjectField
+  | SchemaObjectField
+  | ArrayField
+  | SchemaArrayField
+  | DerivedField;
+
+/**
+ * Represents a schema for a primary resource.
+ *
+ * Primary resources are objects with a unique identity of their
+ * own which may allow them to appear in relationships, or is multiple
+ * response document.
+ *
+ * @typedoc
+ */
+export interface ResourceSchema {
   legacy?: boolean;
+
   /**
    * For primary resources, this should be an IdentityField
    *
@@ -928,7 +951,8 @@ export type ResourceSchema = {
    *
    * @typedoc
    */
-  identity: IdentityField | HashField | null;
+  identity: IdentityField;
+
   /**
    * The name of the schema
    *
@@ -936,8 +960,13 @@ export type ResourceSchema = {
    * primary resource type.
    *
    * For object schemas, this should be the name
-   * of the object schema. object schemas should
-   * follow the following guidelines for naming
+   * of the object schema.
+   *
+   * The names of object and resource schemas share
+   * a single namespace and must not conflict.
+   *
+   * We recommend a naming convention for object schemas
+   * such as below for ensuring uniqueness:
    *
    * - for globally shared objects: The pattern `$field:${KlassName}` e.g. `$field:AddressObject`
    * - for resource-specific objects: The pattern `$${ResourceKlassName}:$field:${KlassName}` e.g. `$User:$field:ReusableAddress`
@@ -946,9 +975,123 @@ export type ResourceSchema = {
    * @typedoc
    */
   type: string;
-  traits?: string[];
+
+  /**
+   * The fields that make up the shape of the resource
+   *
+   * @typedoc
+   */
   fields: FieldSchema[];
-};
+
+  /**
+   * A list of traits that this resource implements. The fields for these
+   * traits should still be defined in the fields array.
+   *
+   * Each trait should be a string that matches the `type` of another
+   * resource schema. The trait can be abstract and reference a resource
+   * type that is never defined as a schema.
+   *
+   * @typedoc
+   */
+  traits?: string[];
+}
+
+/**
+ * Represents a schema for an object that is not
+ * a primary resource (has no unique identity of its own).
+ *
+ * ObjectSchemas may not currently contain relationships.
+ *
+ * @typedoc
+ */
+export interface ObjectSchema {
+  /**
+   * Either a HashField from which to calculate an identity or null
+   *
+   * In the case of `null`, the object's identity will be based
+   * on the referential identity of the object in the cache itself
+   * when an identity is needed.
+   *
+   * @typedoc
+   */
+  identity: HashField | null;
+
+  /**
+   * The name of the schema
+   *
+   * The names of object and resource schemas share
+   * a single namespace and must not conflict.
+   *
+   * We recommend a naming convention for object schemas
+   * such as below for ensuring uniqueness:
+   *
+   * - for globally shared objects: The pattern `$field:${KlassName}` e.g. `$field:AddressObject`
+   * - for resource-specific objects: The pattern `$${ResourceKlassName}:$field:${KlassName}` e.g. `$User:$field:ReusableAddress`
+   * - for inline objects: The pattern `$${ResourceKlassName}.${fieldPath}:$field:anonymous` e.g. `$User.shippingAddress:$field:anonymous`
+   *
+   * @typedoc
+   */
+  type: string;
+
+  /**
+   * The fields that make up the shape of the object
+   *
+   * @typedoc
+   */
+  fields: ObjectFieldSchema[];
+}
+
+/**
+ * A no-op type utility that enables type-checking resource schema
+ * definitions.
+ *
+ * Will return the passed in schema.
+ *
+ * This will not validate relationship inverses or related types,
+ * as doing so would require a full schema graph to be passed in
+ * and no cycles in the graph to be present.
+ *
+ * @method resourceSchema
+ * @static
+ * @for @warp-drive/core-types
+ * @param {ResourceSchema} schema
+ * @returns {ResourceSchema} the passed in schema
+ * @public
+ */
+export function resourceSchema<T extends ResourceSchema>(schema: T): T {
+  return schema;
+}
+
+/**
+ * A no-op type utility that enables type-checking object schema
+ * definitions.
+ *
+ * Will return the passed in schema.
+ *
+ * @method objectSchema
+ * @static
+ * @for @warp-drive/core-types
+ * @param {ObjectSchema} schema
+ * @returns {ObjectSchema} the passed in schema
+ * @public
+ */
+export function objectSchema<T extends ObjectSchema>(schema: T): T {
+  return schema;
+}
+
+/**
+ * A type utility to narrow a schema to a ResourceSchema
+ *
+ * @method isResourceSchema
+ * @static
+ * @for @warp-drive/core-types
+ * @param schema
+ * @returns {boolean}
+ * @public
+ */
+export function isResourceSchema(schema: ResourceSchema | ObjectSchema): schema is ResourceSchema {
+  return schema?.identity?.kind === '@id';
+}
 
 export type LegacyFieldSchema = LegacyAttributeField | LegacyBelongsToField | LegacyHasManyField;
 export type LegacyRelationshipSchema = LegacyBelongsToField | LegacyHasManyField;
